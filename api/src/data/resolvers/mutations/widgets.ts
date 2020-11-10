@@ -1,6 +1,4 @@
 import * as strip from 'strip';
-
-import { AUTO_BOT_MESSAGES, BOT_MESSAGE_TYPES } from '../../constants';
 import {
   Brands,
   Companies,
@@ -8,21 +6,22 @@ import {
   Conversations,
   Customers,
   EngageMessages,
-  FormSubmissions,
   Forms,
+  FormSubmissions,
   Integrations,
   KnowledgeBaseArticles,
   MessengerApps,
   Users
 } from '../../../db/models';
-import {
-  CONVERSATION_OPERATOR_STATUS,
-  CONVERSATION_STATUSES
-} from '../../../db/models/definitions/constants';
+import Messages from '../../../db/models/ConversationMessages';
 import {
   IBrowserInfo,
   IVisitorContactInfoParams
 } from '../../../db/models/Customers';
+import {
+  CONVERSATION_OPERATOR_STATUS,
+  CONVERSATION_STATUSES
+} from '../../../db/models/definitions/constants';
 import {
   IIntegrationDocument,
   IMessengerDataMessagesItem
@@ -31,6 +30,11 @@ import {
   IKnowledgebaseCredentials,
   ILeadCredentials
 } from '../../../db/models/definitions/messengerApps';
+import { debugBase } from '../../../debuggers';
+import { trackViewPageEvent } from '../../../events';
+import memoryStorage from '../../../inmemoryStorage';
+import { graphqlPubsub } from '../../../pubsub';
+import { AUTO_BOT_MESSAGES, BOT_MESSAGE_TYPES } from '../../constants';
 import {
   registerOnboardHistory,
   sendEmail,
@@ -38,13 +42,7 @@ import {
   sendRequest,
   sendToWebhook
 } from '../../utils';
-
-import Messages from '../../../db/models/ConversationMessages';
 import { conversationNotifReceivers } from './conversations';
-import { debugBase } from '../../../debuggers';
-import { graphqlPubsub } from '../../../pubsub';
-import memoryStorage from '../../../inmemoryStorage';
-import { trackViewPageEvent } from '../../../events';
 
 interface ISubmission {
   _id: string;

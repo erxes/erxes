@@ -1,25 +1,11 @@
-import './setup.ts';
-
-import * as Random from 'meteor-random';
 import * as faker from 'faker';
+import * as Random from 'meteor-random';
 import * as sinon from 'sinon';
+import widgetMutations, {
+  getMessengerData
+} from '../data/resolvers/mutations/widgets';
 import * as utils from '../data/utils';
-
-import {
-  Brands,
-  ConversationMessages,
-  Conversations,
-  Customers,
-  FormSubmissions,
-  Integrations,
-  KnowledgeBaseArticles,
-  MessengerApps
-} from '../db/models';
-import {
-  CONVERSATION_OPERATOR_STATUS,
-  CONVERSATION_STATUSES,
-  MESSAGE_TYPES
-} from '../db/models/definitions/constants';
+import { graphqlRequest } from '../db/connection';
 import {
   brandFactory,
   conversationFactory,
@@ -33,14 +19,25 @@ import {
   messengerAppFactory,
   userFactory
 } from '../db/factories';
-import widgetMutations, {
-  getMessengerData
-} from '../data/resolvers/mutations/widgets';
-
+import {
+  Brands,
+  ConversationMessages,
+  Conversations,
+  Customers,
+  FormSubmissions,
+  Integrations,
+  KnowledgeBaseArticles,
+  MessengerApps
+} from '../db/models';
 import { IBrandDocument } from '../db/models/definitions/brands';
+import {
+  CONVERSATION_OPERATOR_STATUS,
+  CONVERSATION_STATUSES,
+  MESSAGE_TYPES
+} from '../db/models/definitions/constants';
 import { ICustomerDocument } from '../db/models/definitions/customers';
 import { IIntegrationDocument } from '../db/models/definitions/integrations';
-import { graphqlRequest } from '../db/connection';
+import './setup.ts';
 
 describe('messenger connect', () => {
   let _brand: IBrandDocument;
