@@ -72,8 +72,8 @@ const generate = async () => {
 
   let maindomain = 'http://localhost:3000';
   let apiDomain = 'http://localhost:3300';
-  let integrationsApiDomain = 'http://localhost:3300';
-  let widgetsDomain = 'http://localhost:3400';
+  let integrationsApiDomain = 'http://localhost:3400';
+  let widgetsDomain = 'http://localhost:3200';
 
   if (domain !== 'localhost') {
     if (!domain.includes('http')) {
