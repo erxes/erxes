@@ -10,31 +10,6 @@ cube(`Customers`, {
   },
 
   dimensions: {
-    hasauthority: {
-      sql: `${CUBE}."hasAuthority"`,
-      type: `string`
-    },
-
-    phonevalidationstatus: {
-      sql: `${CUBE}."phoneValidationStatus"`,
-      type: `string`
-    },
-
-    phones: {
-      sql: `phones`,
-      type: `string`
-    },
-
-    position: {
-      sql: `position`,
-      type: `string`
-    },
-
-    profilescore: {
-      sql: `${CUBE}."profileScore"`,
-      type: `string`
-    },
-
     state: {
       sql: `state`,
       type: `string`
