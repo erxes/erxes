@@ -37,7 +37,7 @@ class DashboardListContainer extends React.Component<FinalProps> {
       return <Spinner />;
     }
 
-    const dashboards = dashboardsQuery ? dashboardsQuery.dashboards : [];
+    const dashboards = dashboardsQuery.dashboards || [];
 
     const remove = id => {
       confirm().then(() => {

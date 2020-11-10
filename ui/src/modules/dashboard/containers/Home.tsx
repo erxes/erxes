@@ -24,7 +24,7 @@ class HomeContainer extends React.Component<FinalProps> {
       return <Spinner />;
     }
 
-    const dashboards = dashboardsQuery ? dashboardsQuery.dashboards : [];
+    const dashboards = dashboardsQuery.dashboards || [];
 
     return (
       <Home
