@@ -158,6 +158,22 @@ export const initNylas = async app => {
     }
   });
 
+  app.post('/nylas/send', async (req, res, next) => {
+    debugRequest(debugNylas, req);
+    debugNylas('Sending message...');
+
+    const { data, erxesApiId } = req.body;
+    const params = JSON.parse(data);
+
+    try {
+      await nylasSendEmail(erxesApiId, params);
+
+      return res.json({ status: 'ok' });
+    } catch (e) {
+      return next(e);
+    }
+  });
+
   app.post('/nylas/connect-calendars', async (req, res, next) => {
     debugRequest(debugNylas, req);
 
@@ -191,29 +207,13 @@ export const initNylas = async app => {
         return c.providerCalendarId;
       });
 
-      await NylasCalendars.remove({ accountUid: nylasAccountId });
-      await NylasEvent.remove({ providerCalendarId: { $in: calendarIds } });
+      await NylasCalendars.deleteMany({ accountUid: nylasAccountId });
+      await NylasEvent.deleteMany({ providerCalendarId: { $in: calendarIds } });
     } catch (e) {
       return next(e);
     }
 
     return res.json({ status: 'ok' });
-  });
-
-  app.post('/nylas/send', async (req, res, next) => {
-    debugRequest(debugNylas, req);
-    debugNylas('Sending message...');
-
-    const { data, erxesApiId } = req.body;
-    const params = JSON.parse(data);
-
-    try {
-      await nylasSendEmail(erxesApiId, params);
-
-      return res.json({ status: 'ok' });
-    } catch (e) {
-      return next(e);
-    }
   });
 
   app.get('/nylas/get-accounts-calendars', async (req, _, next) => {

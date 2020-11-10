@@ -52,7 +52,36 @@ describe('Test calendars mutations', () => {
     integrationId: $integrationId
   `;
 
-  test('Add calendar', async () => {
+  const removeCalendar = async () => {
+    const mutation = `
+      mutation calendarsDelete($_id: String!, $integrationId: String!) {
+        calendarsDelete(_id: $_id, integrationId: $integrationId)
+      }
+    `;
+
+    const deleteCalendarSpy = jest.spyOn(
+      dataSources.IntegrationsAPI,
+      'deleteCalendars'
+    );
+
+    deleteCalendarSpy.mockImplementation(() => Promise.resolve());
+
+    await graphqlRequest(
+      mutation,
+      'calendarsDelete',
+      {
+        _id: calendar._id,
+        integrationId: 'erxesApiId'
+      },
+      {
+        dataSources
+      }
+    );
+  };
+
+  test('Connect calendars', async () => {
+    await removeCalendar();
+
     const args = {
       name: calendar.name,
       integrationId: 'erxesApiId',
@@ -69,15 +98,28 @@ describe('Test calendars mutations', () => {
       }
     `;
 
+    try {
+      await graphqlRequest(mutation, 'calendarsAdd', args, { dataSources: {} });
+    } catch (e) {
+      expect(e).toBeDefined();
+    }
+
+    const addCalendarSpy = jest.spyOn(
+      dataSources.IntegrationsAPI,
+      'connectCalendars'
+    );
+
+    addCalendarSpy.mockImplementation(() => Promise.resolve());
+
     const createdCalendar = await graphqlRequest(
       mutation,
       'calendarsAdd',
-      args
+      args,
+      { dataSources }
     );
 
     expect(createdCalendar.name).toEqual(args.name);
     expect(createdCalendar.color).toBeDefined();
-    expect(await Calendars.countDocuments()).toEqual(2);
   });
 
   test('Edit calendar', async () => {
@@ -108,34 +150,22 @@ describe('Test calendars mutations', () => {
     expect(updatedCalendar.color).toBeDefined();
   });
 
-  const removeCalendar = async () => {
+  test('Remove calendar', async () => {
     const mutation = `
       mutation calendarsDelete($_id: String!, $integrationId: String!) {
         calendarsDelete(_id: $_id, integrationId: $integrationId)
       }
     `;
 
-    const deleteCalendarSpy = jest.spyOn(
-      dataSources.IntegrationsAPI,
-      'deleteCalendars'
-    );
-
-    deleteCalendarSpy.mockImplementation(() => Promise.resolve());
-
-    await graphqlRequest(
-      mutation,
-      'calendarsDelete',
-      {
+    try {
+      await graphqlRequest(mutation, 'calendarsDelete', {
         _id: calendar._id,
         integrationId: 'erxesApiId'
-      },
-      {
-        dataSources
-      }
-    );
-  };
+      });
+    } catch (e) {
+      expect(e).toBeDefined();
+    }
 
-  test('Remove calendar', async () => {
     await removeCalendar();
 
     expect(await Calendars.countDocuments({})).toBe(0);
@@ -275,7 +305,7 @@ describe('Test calendars mutations', () => {
     );
   });
 
-  test('Update calendar event', async () => {
+  test('Delete calendar event', async () => {
     const mutation = `
       mutation deleteCalendarEvent($_id: String!, $erxesApiId: String!) {
         deleteCalendarEvent(_id: $_id, erxesApiId: $erxesApiId)

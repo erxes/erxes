@@ -50,13 +50,13 @@ const calendarMutations = {
    * Create a new calendar
    */
   async calendarsAdd(_root, doc: ICalendar, { user, dataSources }: IContext) {
+    const beforeConnected = await Calendars.findOne({
+      integrationId: doc.integrationId
+    });
+
     const calendar = await Calendars.createCalendar({
       ...doc,
       userId: user._id
-    });
-
-    const beforeConnected = await Calendars.findOne({
-      integrationId: doc.integrationId
     });
 
     if (!beforeConnected) {
