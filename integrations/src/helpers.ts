@@ -95,7 +95,8 @@ import { setupNylas } from './nylas/controller';
 import { createNylasWebhook } from './nylas/tracker';
 
 export const removeIntegration = async (
-  integrationErxesApiId: string
+  integrationErxesApiId: string,
+  removeAll: boolean = false
 ): Promise<string> => {
   const integration = await Integrations.findOne({
     erxesApiId: integrationErxesApiId
@@ -175,7 +176,10 @@ export const removeIntegration = async (
 
     try {
       await unsubscribeUser(integration.email);
-      await revokeToken(integration.email);
+
+      if (removeAll) {
+        await revokeToken(integration.email);
+      }
     } catch (e) {
       debugGmail('Failed to unsubscribe gmail account');
       throw e;
@@ -515,7 +519,7 @@ export const removeAccount = async (
   if (integrations.length) {
     for (const integration of integrations) {
       try {
-        const response = await removeIntegration(integration.erxesApiId);
+        const response = await removeIntegration(integration.erxesApiId, true);
         erxesApiIds.push(response);
       } catch (e) {
         throw e;
