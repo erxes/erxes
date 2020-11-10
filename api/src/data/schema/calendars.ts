@@ -51,9 +51,12 @@ export const queries = `
 export const mutations = `
   createCalendarEvent(${eventParams}): JSON
   editCalendarEvent(_id: String!, ${eventParams}): JSON
+  deleteCalendarEvent(_id: String!, erxesApiId: String!): JSON
+
   calendarsAdd(${commonParams}): Calendar
   calendarsEdit(_id: String!, ${commonParams}): Calendar
   calendarsDelete(_id: String!, integrationId: String!): JSON
+
   calendarGroupsAdd(${commonGroupParams}): CalendarGroup
   calendarGroupsEdit(_id: String!, ${commonGroupParams}): CalendarGroup
   calendarGroupsDelete(_id: String!): JSON

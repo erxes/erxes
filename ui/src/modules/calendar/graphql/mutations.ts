@@ -38,7 +38,20 @@ const editEvent = `
   }
 `;
 
+const deleteEvent = `
+  mutation deleteCalendarEvent(
+    $_id: String!,
+    $erxesApiId: String!,
+  ) {
+    deleteCalendarEvent(
+      _id: $_id,
+      erxesApiId: $erxesApiId,
+    )
+  }
+`;
+
 export default {
   createEvent,
-  editEvent
+  editEvent,
+  deleteEvent
 };

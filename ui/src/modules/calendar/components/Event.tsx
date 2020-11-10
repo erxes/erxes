@@ -34,6 +34,7 @@ type Props = {
   endTime: Date;
   integrationId: string;
   queryParams: any;
+  remove: (event: IEvent) => void;
 };
 
 type State = { isPopupVisible: boolean; selectedDate?: Date; event?: IEvent };
@@ -58,6 +59,10 @@ class Event extends React.Component<Props, State> {
 
   editEvent = (event: IEvent) => {
     this.setState({ event, isPopupVisible: true });
+  };
+
+  deleteEvent = (event: IEvent) => {
+    this.props.remove(event);
   };
 
   renderHeader = (startTime?: Date) => {
@@ -90,6 +95,7 @@ class Event extends React.Component<Props, State> {
           event={event}
           showHour={showHour}
           editEvent={this.editEvent}
+          deleteEvent={this.deleteEvent}
         />
       );
     });

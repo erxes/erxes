@@ -10,6 +10,7 @@ import {
   getMessage,
   nylasCheckCalendarAvailability,
   nylasCreateCalenderEvent,
+  nylasDeleteCalendarEvent,
   nylasFileUpload,
   nylasGetAllEvents,
   nylasGetAttachment,
@@ -341,6 +342,23 @@ export const initNylas = async app => {
         erxesApiId,
         eventId: _id,
         doc
+      });
+
+      return res.json(response);
+    } catch (e) {
+      next(e);
+    }
+  });
+
+  app.post('/nylas/delete-calendar-event', async (req, res, next) => {
+    debugRequest(debugNylas, req);
+
+    const { erxesApiId, _id } = req.body;
+
+    try {
+      const response = await nylasDeleteCalendarEvent({
+        erxesApiId,
+        eventId: _id
       });
 
       return res.json(response);

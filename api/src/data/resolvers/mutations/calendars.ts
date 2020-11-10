@@ -28,8 +28,22 @@ const calendarMutations = {
     return dataSources.IntegrationsAPI.createCalendarEvent(doc);
   },
 
+  /**
+   * Update a new calendar event
+   */
   async editCalendarEvent(_root, doc: IEvent, { dataSources }: IContext) {
     return dataSources.IntegrationsAPI.editCalendarEvent(doc);
+  },
+
+  /**
+   * Delete a new calendar event
+   */
+  async deleteCalendarEvent(
+    _root,
+    doc: { erxesApiId: string; _id: string },
+    { dataSources }: IContext
+  ) {
+    return dataSources.IntegrationsAPI.deleteCalendarEvent(doc);
   },
 
   /**

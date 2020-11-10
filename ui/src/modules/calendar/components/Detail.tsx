@@ -11,11 +11,12 @@ type Props = {
   event: IEvent;
   showHour: boolean;
   editEvent: (event: IEvent) => void;
+  deleteEvent: (event: IEvent) => void;
 };
 
 class Detail extends React.Component<Props> {
   render() {
-    const { event, showHour, editEvent } = this.props;
+    const { event, showHour, editEvent, deleteEvent } = this.props;
     const startTime = milliseconds(event.when.start_time);
     const endTime = milliseconds(event.when.end_time);
 
@@ -28,6 +29,11 @@ class Detail extends React.Component<Props> {
       const edit = () => {
         closeModal();
         editEvent(event);
+      };
+
+      const remove = () => {
+        closeModal();
+        deleteEvent(event);
       };
 
       return (
@@ -53,6 +59,9 @@ class Detail extends React.Component<Props> {
           <br />
           <Button btnStyle="warning" size="small" onClick={edit}>
             Edit
+          </Button>
+          <Button btnStyle="danger" size="small" onClick={remove}>
+            Delete
           </Button>
         </EventContent>
       );
