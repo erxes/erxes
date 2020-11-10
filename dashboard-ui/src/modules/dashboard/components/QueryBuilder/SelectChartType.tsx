@@ -10,7 +10,7 @@ import ButtonDropdown from './ButtonDropdown';
 
 const SelectChartType = ({ chartType, updateChartType, query }) => {
   const menu = () => {
-    if (query.dimensions) {
+    if (query.dimensions.length > 0) {
       return (
         <Menu>
           {chartTypesWithDeminsions.map(m => (

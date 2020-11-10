@@ -15,7 +15,7 @@ cube(`Deals`, {
       type: `string`
     },
 
-    modifiedby: {
+    modifiedBy: {
       sql: `${CUBE}."modifiedBy"`,
       type: `string`
     },

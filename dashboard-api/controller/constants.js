@@ -23,6 +23,11 @@ const resolvers = [
     name: 'Deals.stageProbability',
     indexname: 'erxes__stages',
     fieldname: 'probability'
+  },
+  {
+    name: 'Deals.modifiedBy',
+    indexname: 'erxes__users',
+    fieldname: 'username'
   }
 ];
 

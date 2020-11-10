@@ -287,12 +287,19 @@ export class ChartRenderer extends React.Component<Props, State> {
     };
   }
 
-  componentWillReceiveProps() {
-    this.setState({ result: {} });
-    this.getUsers();
+  componentDidMount() {
+    this.setState({ result: {} }, () => {
+      this.getDatas();
+    });
   }
 
-  getUsers = () => {
+  componentWillReceiveProps() {
+    this.setState({ result: {} }, () => {
+      this.getDatas();
+    });
+  }
+
+  getDatas = () => {
     const { query } = this.props;
 
     axios

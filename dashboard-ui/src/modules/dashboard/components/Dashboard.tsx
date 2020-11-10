@@ -26,7 +26,7 @@ const DragField = styledTS<any>(styled(ReactGridLayout))`
   ${props =>
     props.isDragging &&
     `
-      background: url('/images/drag-background.svg');
+      background: url('/static/images/drag-background.svg');
       background-repeat: repeat-y;
       background-position: 0px -4px;
       background-size: 100%;
