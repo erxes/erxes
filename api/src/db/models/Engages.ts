@@ -242,6 +242,7 @@ export const loadClass = () => {
       const messages = await EngageMessages.find({
         'messenger.brandId': brand._id,
         kind: 'visitorAuto',
+        $or: [{ kind: 'visitorAuto' }, { kind: 'auto' }],
         method: 'messenger',
         isLive: true
       });
