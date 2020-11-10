@@ -74,7 +74,13 @@ export const loadCalendarGroupClass = () => {
     }
 
     public static async removeCalendarGroup(_id: string) {
-      return CalendarGroups.deleteMany({ _id });
+      const count = await Calendars.countDocuments({ groupId: _id });
+
+      if (count > 0) {
+        throw new Error("Can't remove a calendar group");
+      }
+
+      return CalendarGroups.deleteOne({ _id });
     }
   } // end Calendar class
 

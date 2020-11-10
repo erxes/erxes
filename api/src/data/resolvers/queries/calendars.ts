@@ -24,21 +24,24 @@ const calendarQueries = {
   /**
    *  CalendarGroup detail
    */
-  async calendarGroupDetail(
-    _root,
-    { _id }: { _id: string },
-    { user }: IContext
-  ) {
+  calendarGroupDetail(_root, { _id }: { _id: string }, { user }: IContext) {
     return CalendarGroups.findOne({ _id, ...generateFilterQuery(user._id) });
   },
 
   /**
    * Get last calendarGroups
    */
-  async calendarGroupGetLast(_root, {}, { user }: IContext) {
+  calendarGroupGetLast(_root, {}, { user }: IContext) {
     return CalendarGroups.findOne(generateFilterQuery(user._id)).sort({
       createdAt: -1
     });
+  },
+
+  /**
+   * Get all calendar group count. We will use it in pager
+   */
+  calendarGroupCounts(_root, {}, { user }: IContext) {
+    return CalendarGroups.countDocuments(generateFilterQuery(user._id));
   },
 
   /**
@@ -73,8 +76,9 @@ const calendarQueries = {
   }
 };
 
-checkPermission(calendarQueries, 'calendars', 'showCalendars');
-
 moduleRequireLogin(calendarQueries);
+
+checkPermission(calendarQueries, 'calendars', 'showCalendars');
+checkPermission(calendarQueries, 'calendarGroups', 'showCalendarGroups');
 
 export default calendarQueries;

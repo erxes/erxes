@@ -106,7 +106,10 @@ const calendarActions = [
   'calendarsEdit',
   'calendarsRemove',
   'showCalendars',
-  'showCalendarsMain'
+  'showCalendarGroups',
+  'calendarGroupsAdd',
+  'calendarGroupsEdit',
+  'calendarGroupsRemove'
 ];
 
 class Settings extends React.PureComponent {

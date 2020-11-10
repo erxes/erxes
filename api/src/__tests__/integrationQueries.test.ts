@@ -125,6 +125,18 @@ describe('integrationQueries', () => {
     expect(responses.length).toBe(2);
   });
 
+  test('Integrations filtered by calendar', async () => {
+    await integrationFactory({ kind: 'gmail' });
+    await integrationFactory({ kind: 'nylas-gmail' });
+
+    // mail ========================
+    const responses = await graphqlRequest(qryIntegrations, 'integrations', {
+      kind: 'calendar'
+    });
+
+    expect(responses.length).toBe(1);
+  });
+
   test('Integrations filtered by channel', async () => {
     const integration1 = await integrationFactory({
       kind: 'facebook-messenger'

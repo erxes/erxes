@@ -1084,12 +1084,19 @@ export const moduleObjects = {
         name: 'calendarsAll',
         description: 'All',
         use: [
+          'showCalendars',
           'calendarsAdd',
           'calendarsEdit',
           'calendarsRemove',
-          'showCalendars',
-          'showCalendarsMain'
+          'showCalendarGroups',
+          'calendarGroupsAdd',
+          'calendarGroupsEdit',
+          'calendarGroupsRemove'
         ]
+      },
+      {
+        name: 'showCalendars',
+        description: 'Show calendars'
       },
       {
         name: 'calendarsAdd',
@@ -1104,12 +1111,20 @@ export const moduleObjects = {
         description: 'Remove calendars'
       },
       {
-        name: 'showCalendars',
-        description: 'Show calendars'
+        name: 'showCalendarGroups',
+        description: 'Show calendar groups'
       },
       {
-        name: 'showCalendarsMain',
-        description: 'Show calendars main'
+        name: 'calendarGroupsAdd',
+        description: 'Add calendar groups'
+      },
+      {
+        name: 'calendarGroupsEdit',
+        description: 'Edit calendar groups'
+      },
+      {
+        name: 'calendarGroupsRemove',
+        description: 'Remove calendar groups'
       }
     ]
   }

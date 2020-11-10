@@ -4,9 +4,9 @@ import { field, schemaWrapper } from './utils';
 export interface ICalendar {
   name: string;
   color: string;
-  userId?: string;
+  userId: string;
   groupId: string;
-  createdAt: Date;
+  createdAt?: Date;
   integrationId: string;
 }
 

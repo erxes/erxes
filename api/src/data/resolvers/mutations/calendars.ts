@@ -136,5 +136,12 @@ moduleRequireLogin(calendarMutations);
 checkPermission(calendarMutations, 'calendarsAdd', 'calendarsAdd');
 checkPermission(calendarMutations, 'calendarsEdit', 'calendarsEdit');
 checkPermission(calendarMutations, 'calendarsDelete', 'calendarsRemove');
+checkPermission(calendarMutations, 'calendarGroupsAdd', 'calendarGroupsAdd');
+checkPermission(calendarMutations, 'calendarGroupsEdit', 'calendarGroupsEdit');
+checkPermission(
+  calendarMutations,
+  'calendarGroupsDelete',
+  'calendarGroupsRemove'
+);
 
 export default calendarMutations;
