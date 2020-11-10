@@ -73,8 +73,8 @@ const generate = async () => {
   let apiDomain = 'http://localhost:3300';
   let integrationsApiDomain = 'http://localhost:3300';
   let widgetsDomain = 'http://localhost:3400';
-  // let dashboardsDomain = 'http://localhost:4200';
-  // let dashboardsApiDomain = 'http://localhost:4300';
+  let dashboardsDomain = 'http://localhost:4200';
+  let dashboardsApiDomain = 'http://localhost:4300';
 
   if (domain !== 'localhost') {
     if (!domain.includes('http')) {
@@ -85,8 +85,8 @@ const generate = async () => {
     apiDomain = `${domain}/api`;
     integrationsApiDomain = `${domain}/integrations`;
     widgetsDomain = `${domain}/widgets`;
-    // dashboardsDomain = `${domain}/dashboard/ui/`;
-    // dashboardsApiDomain = `${domain}/dashboard/api/`;
+    dashboardsDomain = `${domain}/dashboard/ui/`;
+    dashboardsApiDomain = `${domain}/dashboard/api/`;
   }
 
   const configs = {
@@ -98,13 +98,18 @@ const generate = async () => {
     API_DOMAIN: apiDomain,
     INTEGRATIONS_API_DOMAIN: integrationsApiDomain,
     WIDGETS_DOMAIN: widgetsDomain,
-    // DASHBOARD_DOMAIN: dashboardsDomain,
-    // DASHBOARD_API_DOMAIN: dashboardsApiDomain,
+    DASHBOARD_DOMAIN: dashboardsDomain,
+    DASHBOARD_API_DOMAIN: dashboardsApiDomain,
+    USE_DASHBOARD: useDashboard,
     UI: { PORT: 3000 },
     API: {
       PORT: 3300,
       PORT_WORKERS: 3700,
       PORT_CRONS: 3600
+    },
+    DASHBOARD: {
+      UI_PORT: 4200,
+      API_PORT: 4300
     },
     WIDGETS: { PORT: 3200 },
     INTEGRATIONS: { PORT: 3400 },
@@ -161,6 +166,8 @@ let redisPort = 6379;
 let redisPassword = '';
 let elasticsearchUrl = 'http:/localhost:9200';
 let elkSyncer = false;
+let useDashboard = false;
+let dashboardConfig = ``;
 
 const readline = createInterface({
   input: process.stdin,
@@ -276,7 +283,28 @@ module.exports = (async function() {
   ]);
 
   if (answer) {
-    dashboard = true;
+    useDashboard = true;
+    elkSyncer = true;
+    const commonConfig = `
+    proxy_set_header Upgrade $http_upgrade;
+    proxy_set_header Connection 'upgrade';
+    proxy_set_header Host $host;
+    proxy_set_header Host $http_host;
+    proxy_set_header X-Real-IP $remote_addr;
+    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+    proxy_http_version 1.1;
+  `;
+
+    dashboardConfig = `
+        location /dashboard/front/ {
+          proxy_pass http://127.0.0.1:4200/;
+              ${commonConfig}
+        }
+        location /dashboard/api/ {
+          proxy_pass http://127.0.0.1:4300/;
+              ${commonConfig}
+        }
+    `;
   }
 
   readline.close();
@@ -334,14 +362,7 @@ const generateNginxConf = async ({ DOMAIN }) => {
                     proxy_pass http://127.0.0.1:3400/;
                     ${commonConfig}
             }
-            location /dashboard/front/ {
-              proxy_pass http://127.0.0.1:4200/;
-              ${commonConfig}
-            }
-            location /dashboard/api/ {
-              proxy_pass http://127.0.0.1:4300/;
-              ${commonConfig}
-            }
+            ${dashboardConfig}
      }
   `
   );

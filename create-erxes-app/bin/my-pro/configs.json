@@ -1,0 +1,40 @@
+{
+  "JWT_TOKEN_SECRET": "0.35955997374003745",
+  "MONGO_URL": "mongodb://localhost",
+  "ELASTICSEARCH_URL": "http://localhost:9200",
+  "ELK_SYNCER": true,
+  "DOMAIN": "http://localhost:3000",
+  "API_DOMAIN": "http://localhost:3300",
+  "INTEGRATIONS_API_DOMAIN": "http://localhost:3300",
+  "WIDGETS_DOMAIN": "http://localhost:3400",
+  "DASHBOARD_DOMAIN": "http://localhost:4200",
+  "DASHBOARD_API_DOMAIN": "http://localhost:4300",
+  "USE_DASHBOARD": true,
+  "UI": {
+    "PORT": 3000
+  },
+  "API": {
+    "PORT": 3300,
+    "PORT_WORKERS": 3700,
+    "PORT_CRONS": 3600
+  },
+  "DASHBOARD": {
+    "UI_PORT": 4200,
+    "API_PORT": 4300
+  },
+  "WIDGETS": {
+    "PORT": 3200
+  },
+  "INTEGRATIONS": {
+    "PORT": 3400
+  },
+  "LOGGER": {
+    "PORT": 3800
+  },
+  "ENGAGES": {
+    "PORT": 3900
+  },
+  "EMAIL_VERIFIER": {
+    "PORT": 4100
+  }
+}

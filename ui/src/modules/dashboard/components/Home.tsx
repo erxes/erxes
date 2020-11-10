@@ -37,7 +37,6 @@ const Home = (props: FinalProps) => {
   if (props.loading) {
     return <Spinner />;
   }
-  console.log(props);
 
   if (props.dashboards.length === 0) {
     return (

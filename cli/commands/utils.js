@@ -139,6 +139,11 @@ module.exports.startServices = async configs => {
     MONGO_URL = '',
     ELASTICSEARCH_URL,
     ELK_SYNCER,
+    USE_DASHBOARD,
+
+    DASHBOARD_API_DOMAIN,
+    DASHBOARD_DOMAIN,
+    DASHBOARD,
 
     RABBITMQ_HOST,
     REDIS_HOST,
@@ -156,23 +161,6 @@ module.exports.startServices = async configs => {
     optionalDbConfigs.REDIS_HOST = REDIS_HOST;
     optionalDbConfigs.REDIS_PORT = REDIS_PORT;
     optionalDbConfigs.REDIS_PASSWORD = REDIS_PASSWORD;
-  }
-
-  if (USE_DASHBOARD) {
-    optionalDbConfigs.DASHBOARD_API_DOMAIN = 'http://localhost:4300';
-    optionalDbConfigs.DASHBOARD_UI_DOMAIN = 'http://localhost:4200';
-
-    if (DOMAIN !== 'localhost') {
-      let domain = DOMAIN;
-      if (!DOMAIN.includes('http')) {
-        domain = `https://${DOMAIN}`;
-      }
-
-      optionalDbConfigs.DASHBOARD_UI_DOMAIN = `${domain}/dashboard/ui/`;
-      optionalDbConfigs.DASHBOARD_API_DOMAIN = `${domain}/dashboard/api/`;
-      optionalDbConfigs.DASHBOARD_API_PORT = 4300;
-      optionalDbConfigs.DASHBOARD_UI_PORT = 4200;
-    }
   }
 
   const generateMongoUrl = dbName => {
@@ -200,6 +188,7 @@ module.exports.startServices = async configs => {
       env: {
         ...commonEnv,
         ...optionalDbConfigs,
+        DASHBOARD_DOMAIN: DASHBOARD_DOMAIN,
         DEBUG: 'erxes-api:*'
       }
     },
@@ -274,7 +263,7 @@ module.exports.startServices = async configs => {
     }
   ];
 
-  if (DASHBOARD) {
+  if (USE_DASHBOARD) {
     log('Starting dashboard ...');
 
     if (!ELK_SYNCER) {
@@ -293,9 +282,9 @@ module.exports.startServices = async configs => {
       script: filePath('build/dashboard-api'),
       env: {
         NODE_ENV: 'production',
-        PORT: optionalDbConfigs.DASHBOARD_API_PORT,
+        PORT: DASHBOARD.API_PORT,
         DEBUG: 'erxes-dashboards:*',
-        CUBEJS_URL: optionalDbConfigs.DASHBOARD_API_DOMAIN,
+        CUBEJS_URL: DASHBOARD_API_DOMAIN,
         CUBEJS_API_SECRET: CUBEJS_SECRET,
         CUBEJS_TOKEN: cubejsToken,
         CUBEJS_DB_TYPE: 'elasticsearch',
@@ -309,7 +298,7 @@ module.exports.startServices = async configs => {
       window.env = {
         NODE_ENV: "production",
         REACT_APP_API_URL: "${API_DOMAIN}",
-        REACT_APP_DASHBOARD_API_URL: "${optionalDbConfigs.DASHBOARD_API_DOMAIN}"
+        REACT_APP_DASHBOARD_API_URL: "${DASHBOARD_API_DOMAIN}"
         REACT_APP_DASHBOARD_CUBE_TOKEN: "${cubejsToken}"
       }
     `
@@ -320,7 +309,7 @@ module.exports.startServices = async configs => {
       script: 'serve',
       env: {
         PM2_SERVE_PATH: filePath('build/dasbhoard-ui'),
-        PM2_SERVE_PORT: optionalDbConfigs.DASHBOARD_UI_PORT,
+        PM2_SERVE_PORT: DASHBOARD.UI_PORT,
         PM2_SERVE_SPA: 'true'
       }
     });
@@ -367,6 +356,7 @@ module.exports.startServices = async configs => {
         REACT_APP_API_URL: "${API_DOMAIN}",
         REACT_APP_API_SUBSCRIPTION_URL: "${subscriptionsUrl}",
         REACT_APP_CDN_HOST: "${WIDGETS_DOMAIN}"
+        REACT_APP_DASHBOARD_URL: "${DASHBOARD_DOMAIN}"
       }
     `
     );
