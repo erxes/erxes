@@ -556,7 +556,7 @@ const widgetMutations = {
 
       const botRequest = await sendRequest({
         method: 'POST',
-        url: botEndpointUrl,
+        url: `${botEndpointUrl}/${conversation._id}`,
         body: {
           type: 'text',
           text: message
@@ -794,7 +794,7 @@ const widgetMutations = {
     if (type !== BOT_MESSAGE_TYPES.SAY_SOMETHING) {
       const botRequest = await sendRequest({
         method: 'POST',
-        url: botEndpointUrl,
+        url: `${botEndpointUrl}/${conversationId}`,
         body: {
           type: 'text',
           text: payload
@@ -857,7 +857,7 @@ const widgetMutations = {
 
     const botRequest = await sendRequest({
       method: 'POST',
-      url: botEndpointUrl,
+      url: `${botEndpointUrl}/${conversation._id}`,
       body: {
         type: 'text',
         text: 'getStarted'
