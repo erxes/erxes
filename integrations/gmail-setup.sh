@@ -109,7 +109,7 @@ function log {
      1. Navigate to https://console.cloud.google.com/apis/credentials?project=${PROJECT_ID}                         
      2. Click on the +Credentials and select OAuth Client ID                                                        
      3. Select [Web Application] type and write App name                                                            
-     4. Authorized redirect URIs add as http://${DOMAIN}/integrations/gmail/login              
+     4. Authorized redirect URIs add as https://${DOMAIN}/integrations/gmail/login              
      5. Click Create button and you will get your [Client ID] and [Client Secret] copy them          
   
   
