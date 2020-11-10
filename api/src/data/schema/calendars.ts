@@ -17,12 +17,9 @@ export const types = `
   }
 `;
 
-const commonMutationParams = `
+const eventParams = `
   erxesApiId: String!,
   calendarId: String!,
-`;
-
-const params = `
   title: String!,
   description: String,
   start: String,
@@ -52,7 +49,8 @@ export const queries = `
 `;
 
 export const mutations = `
-  createCalendarEvent(${commonMutationParams}${params}): JSON
+  createCalendarEvent(${eventParams}): JSON
+  editCalendarEvent(_id: String!, ${eventParams}): JSON
   calendarsAdd(${commonParams}): Calendar
   calendarsEdit(_id: String!, ${commonParams}): Calendar
   calendarsDelete(_id: String!, integrationId: String!): JSON

@@ -58,8 +58,6 @@ class Main extends React.Component<FinalProps> {
     const groupId = getGroupId({ location });
     const { calendarId } = queryParams;
 
-    // const defaultBoard = localStorage.getItem(STORAGE_CALENDAR_GROUP_KEY) || '';
-    // const defaultCalendar = localStorage.getItem(STORAGE_CALENDAR_KEY) || '';;
     if (groupId && calendarId) {
       localStorage.setItem(STORAGE_CALENDAR_GROUP_KEY, groupId);
       localStorage.setItem(STORAGE_CALENDAR_KEY, calendarId);
@@ -143,7 +141,7 @@ const MainActionBarContainer = withProps<Props>(
     }),
     graphql<Props, GroupGetLastQueryResponse>(gql(queries.groupGetLast), {
       name: 'groupGetLastQuery',
-      skip: getGroupId,
+      skip: props => getGroupId(props),
       options: () => ({
         variables: {}
       })

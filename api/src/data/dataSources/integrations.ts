@@ -93,6 +93,10 @@ export default class IntegrationsAPI extends RESTDataSource {
     return this.post('/nylas/create-calendar-event', params);
   }
 
+  public async editCalendarEvent(params) {
+    return this.post('/nylas/edit-calendar-event', params);
+  }
+
   public async connectCalendars(params) {
     return this.post('/nylas/connect-calendars', params);
   }

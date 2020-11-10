@@ -1,5 +1,5 @@
-import { IEvent } from './types';
 import { TYPES } from './constants';
+import { IEvent } from './types';
 
 export const getDaysInMonth = (month: number, year: number) => {
   const date = new Date(year, month, 1);

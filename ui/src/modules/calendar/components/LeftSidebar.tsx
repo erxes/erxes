@@ -11,7 +11,7 @@ import Sidebar from 'modules/layout/components/Sidebar';
 import React from 'react';
 import Select from 'react-select-plus';
 import { TYPES } from '../constants';
-import AddEvent from '../containers/AddEvent';
+import EventForm from '../containers/EventForm';
 import { CalendarController, SidebarWrapper } from '../styles';
 import { ICalendar } from '../types';
 import { extractDate } from '../utils';
@@ -210,7 +210,7 @@ class LeftSidebar extends React.Component<Props, State> {
             >
               Create Event
             </Button>
-            <AddEvent
+            <EventForm
               {...this.props}
               isPopupVisible={this.state.isPopupVisible}
               onHideModal={this.onHideModal}

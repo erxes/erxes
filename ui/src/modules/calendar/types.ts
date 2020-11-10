@@ -35,4 +35,6 @@ export interface IEvent {
   };
   busy: boolean;
   status: string;
+  providerCalendarId: string;
+  providerEventId: string;
 }

@@ -8,7 +8,8 @@ import { IButtonMutateProps, IFormProps } from 'modules/common/types';
 import { __ } from 'modules/common/utils';
 import React from 'react';
 import Modal from 'react-bootstrap/Modal';
-import { ICalendar } from '../types';
+import { ICalendar, IEvent } from '../types';
+import { milliseconds } from '../utils';
 
 type Props = {
   isPopupVisible: boolean;
@@ -16,27 +17,47 @@ type Props = {
   renderButton: (props: IButtonMutateProps) => JSX.Element;
   selectedDate?: Date;
   calendars: ICalendar[];
+  event?: IEvent;
 };
 
 class EditForm extends React.Component<Props, {}> {
   renderHeader() {
     return (
       <Modal.Header closeButton={true}>
-        <Modal.Title>{__('Create Event')}</Modal.Title>
+        <Modal.Title>
+          {__(`${this.props.event ? 'Edit' : 'Create'}  Event`)}
+        </Modal.Title>
       </Modal.Header>
     );
   }
 
+  dateDefaulValue = (start?: boolean) => {
+    const { selectedDate, event } = this.props;
+    let day = dayjs(selectedDate || new Date()).set('hour', start ? 13 : 14);
+
+    if (event && event.when) {
+      const time = start ? event.when.start_time : event.when.end_time;
+      day = dayjs(time ? milliseconds(time) : new Date());
+    }
+
+    return day.format('YYYY-MM-DD HH:mm');
+  };
+
   renderContent = (formProps: IFormProps) => {
     const { values, isSubmitted } = formProps;
-    const { renderButton, onHideModal, selectedDate, calendars } = this.props;
+    const { renderButton, onHideModal, calendars, event } = this.props;
 
     return (
       <>
         <FormGroup>
           <ControlLabel required={true}>Calendar</ControlLabel>
 
-          <FormControl {...formProps} name="calendarId" componentClass="select">
+          <FormControl
+            {...formProps}
+            name="calendarId"
+            componentClass="select"
+            defaultValue={event && event.providerCalendarId}
+          >
             <option>Select calendar</option>
             {calendars
               .filter(c => !c.readOnly)
@@ -56,6 +77,7 @@ class EditForm extends React.Component<Props, {}> {
             name="title"
             autoFocus={true}
             required={true}
+            defaultValue={event && event.title}
           />
         </FormGroup>
 
@@ -67,7 +89,7 @@ class EditForm extends React.Component<Props, {}> {
             name="description"
             componentClass="textarea"
             rows={5}
-            defaultValue={''}
+            defaultValue={event && event.description}
           />
         </FormGroup>
 
@@ -78,9 +100,7 @@ class EditForm extends React.Component<Props, {}> {
             {...formProps}
             name="start"
             componentClass="datetime-local"
-            defaultValue={dayjs(selectedDate || new Date())
-              .set('hour', 13)
-              .format('YYYY-MM-DD HH:mm')}
+            defaultValue={this.dateDefaulValue(true)}
           />
         </FormGroup>
 
@@ -91,9 +111,7 @@ class EditForm extends React.Component<Props, {}> {
             {...formProps}
             name="end"
             componentClass="datetime-local"
-            defaultValue={dayjs(selectedDate || new Date())
-              .set('hour', 14)
-              .format('YYYY-MM-DD HH:mm')}
+            defaultValue={this.dateDefaulValue()}
           />
         </FormGroup>
 

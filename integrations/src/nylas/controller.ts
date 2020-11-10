@@ -15,7 +15,8 @@ import {
   nylasGetAttachment,
   nylasGetCalendarOrEvent,
   nylasGetCalendars,
-  nylasSendEmail
+  nylasSendEmail,
+  nylasUpdateEvent
 } from './handleController';
 import loginMiddleware from './loginMiddleware';
 import { NylasCalendars, NylasEvent } from './models';
@@ -324,31 +325,22 @@ export const initNylas = async app => {
     try {
       const response = await nylasCreateCalenderEvent({ erxesApiId, doc });
 
-      const {
-        title,
-        location,
-        description,
-        busy,
-        participants,
-        when,
-        id,
-        object,
-        owner,
-        status
-      } = response;
+      return res.json(response);
+    } catch (e) {
+      next(e);
+    }
+  });
 
-      await NylasEvent.create({
-        title,
-        location,
-        description,
-        busy,
-        participants,
-        when,
-        providerEventId: id,
-        object,
-        owner,
-        status,
-        providerCalendarId: doc.calendarId
+  app.post('/nylas/edit-calendar-event', async (req, res, next) => {
+    debugRequest(debugNylas, req);
+
+    const { erxesApiId, _id, ...doc } = req.body;
+
+    try {
+      const response = await nylasUpdateEvent({
+        erxesApiId,
+        eventId: _id,
+        doc
       });
 
       return res.json(response);

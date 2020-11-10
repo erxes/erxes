@@ -7,8 +7,9 @@ import { withProps } from 'modules/common/utils';
 import { queries } from 'modules/settings/integrations/graphql';
 import React from 'react';
 import { graphql } from 'react-apollo';
-import AddForm from '../components/AddForm';
+import EventForm from '../components/EventForm';
 import { mutations } from '../graphql';
+import { IEvent } from '../types';
 
 type Props = {
   integrationId: string;
@@ -18,20 +19,22 @@ type Props = {
   isPopupVisible: boolean;
   onHideModal: (date?: Date) => void;
   selectedDate?: Date;
+  event?: IEvent;
 };
 
 type FinalProps = {
   fetchApiQuery: any;
 } & Props;
 
-class AddContainer extends React.Component<FinalProps, {}> {
+class FormContainer extends React.Component<FinalProps, {}> {
   render() {
     const {
       fetchApiQuery,
       queryParams,
       integrationId,
       startTime,
-      endTime
+      endTime,
+      event
     } = this.props;
 
     if (fetchApiQuery.loading) {
@@ -71,9 +74,13 @@ class AddContainer extends React.Component<FinalProps, {}> {
         erxesApiId: integrationId
       };
 
+      if (event) {
+        variables._id = event.providerEventId;
+      }
+
       return (
         <ButtonMutate
-          mutation={mutations.createEvent}
+          mutation={variables._id ? mutations.editEvent : mutations.createEvent}
           variables={variables}
           callback={callBackResponse}
           refetchQueries={[refetchQuery]}
@@ -91,7 +98,7 @@ class AddContainer extends React.Component<FinalProps, {}> {
       renderButton
     };
 
-    return <AddForm {...updatedProps} />;
+    return <EventForm {...updatedProps} />;
   }
 }
 
@@ -110,5 +117,5 @@ export default withProps<Props>(
         };
       }
     })
-  )(AddContainer)
+  )(FormContainer)
 );

@@ -2,7 +2,7 @@ import dayjs from 'dayjs';
 import Icon from 'modules/common/components/Icon';
 import React from 'react';
 import { TYPES, WEEKS } from '../constants';
-import AddEvent from '../containers/AddEvent';
+import EventForm from '../containers/EventForm';
 import {
   AddEventBtn,
   CalendarWrapper,
@@ -36,7 +36,7 @@ type Props = {
   queryParams: any;
 };
 
-type State = { isPopupVisible: boolean; selectedDate?: Date };
+type State = { isPopupVisible: boolean; selectedDate?: Date; event?: IEvent };
 
 class Event extends React.Component<Props, State> {
   constructor(props) {
@@ -51,8 +51,13 @@ class Event extends React.Component<Props, State> {
   onHideModal = (date?: Date) => {
     this.setState({
       isPopupVisible: !this.state.isPopupVisible,
-      selectedDate: date
+      selectedDate: date,
+      event: {} as IEvent
     });
+  };
+
+  editEvent = (event: IEvent) => {
+    this.setState({ event, isPopupVisible: true });
   };
 
   renderHeader = (startTime?: Date) => {
@@ -79,7 +84,14 @@ class Event extends React.Component<Props, State> {
 
   renderEvents = (events: IEvent[], showHour: boolean) => {
     return events.map(event => {
-      return <Detail key={event._id} event={event} showHour={showHour} />;
+      return (
+        <Detail
+          key={event._id}
+          event={event}
+          showHour={showHour}
+          editEvent={this.editEvent}
+        />
+      );
     });
   };
 
@@ -205,7 +217,7 @@ class Event extends React.Component<Props, State> {
     } = this.props;
 
     const createForm = (
-      <AddEvent
+      <EventForm
         startTime={startTime}
         endTime={endTime}
         queryParams={queryParams}
@@ -213,6 +225,7 @@ class Event extends React.Component<Props, State> {
         isPopupVisible={this.state.isPopupVisible}
         onHideModal={this.onHideModal}
         selectedDate={this.state.selectedDate}
+        event={this.state.event}
       />
     );
 

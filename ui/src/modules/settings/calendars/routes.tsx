@@ -1,13 +1,10 @@
 import asyncComponent from 'modules/common/components/AsyncComponent';
+import queryString from 'query-string';
 import React from 'react';
 import { Route } from 'react-router-dom';
-import queryString from 'query-string';
 
-const Home = asyncComponent(
-  () =>
-    import(
-      /* webpackChunkName: "Settings - Calendar Home" */ './containers/Home'
-    )
+const Home = asyncComponent(() =>
+  import(/* webpackChunkName: "Settings - Calendar Home" */ './containers/Home')
 );
 
 const Calendar = ({ location, history }) => {

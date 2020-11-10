@@ -1,4 +1,5 @@
 import dayjs from 'dayjs';
+import Button from 'modules/common/components/Button';
 import Icon from 'modules/common/components/Icon';
 import ModalTrigger from 'modules/common/components/ModalTrigger';
 import React from 'react';
@@ -9,19 +10,25 @@ import { milliseconds } from '../utils';
 type Props = {
   event: IEvent;
   showHour: boolean;
+  editEvent: (event: IEvent) => void;
 };
 
 class Detail extends React.Component<Props> {
   render() {
-    const { event, showHour } = this.props;
+    const { event, showHour, editEvent } = this.props;
     const startTime = milliseconds(event.when.start_time);
     const endTime = milliseconds(event.when.end_time);
 
     const startDate = new Date(startTime);
     const endDate = new Date(endTime);
 
-    const content = () => {
+    const content = ({ closeModal }) => {
       const isToday = startDate.toDateString() === endDate.toDateString();
+
+      const edit = () => {
+        closeModal();
+        editEvent(event);
+      };
 
       return (
         <EventContent>
@@ -42,6 +49,11 @@ class Detail extends React.Component<Props> {
               <div dangerouslySetInnerHTML={{ __html: event.description }} />
             </>
           )}
+
+          <br />
+          <Button btnStyle="warning" size="small" onClick={edit}>
+            Edit
+          </Button>
         </EventContent>
       );
     };

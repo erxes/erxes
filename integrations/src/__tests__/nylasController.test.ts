@@ -9,6 +9,7 @@ import {
   getMessage,
   nylasFileUpload,
   nylasGetAttachment,
+  nylasGetCalendars,
   nylasSendEmail
 } from '../nylas/handleController';
 import { NylasGmailConversationMessages } from '../nylas/models';
@@ -393,5 +394,13 @@ describe('Test nylas controller', () => {
     redisMock.restore();
     configMock.restore();
     redisRemoveMock.restore();
+  });
+
+  test('Get calendars', async () => {
+    try {
+      await nylasGetCalendars('alksjd');
+    } catch (e) {
+      expect(e.message).toBe('Integration not found: alksjd');
+    }
   });
 });

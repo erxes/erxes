@@ -13,6 +13,7 @@ import {
 import { IContext } from '../../types';
 
 interface IEvent {
+  _id?: string;
   title?: string;
   description?: string;
   start: string;
@@ -25,6 +26,10 @@ const calendarMutations = {
    */
   async createCalendarEvent(_root, doc: IEvent, { dataSources }: IContext) {
     return dataSources.IntegrationsAPI.createCalendarEvent(doc);
+  },
+
+  async editCalendarEvent(_root, doc: IEvent, { dataSources }: IContext) {
+    return dataSources.IntegrationsAPI.editCalendarEvent(doc);
   },
 
   /**

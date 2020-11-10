@@ -207,7 +207,7 @@ export const nylasGetCalendars = async (erxesApiId: string) => {
     const integration = await Integrations.findOne({ erxesApiId });
 
     if (!integration) {
-      throw new Error(`Integration erxesApiId: ${erxesApiId}`);
+      throw new Error(`Integration not found: ${erxesApiId}`);
     }
 
     const calendars: ICalendar[] = await getCalenderOrEventList(
