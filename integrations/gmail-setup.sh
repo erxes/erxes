@@ -44,15 +44,12 @@ function log {
   fi
 
   # Initialize 
-  gcloud init --skip-diagnostics 
+  gcloud init --skip-diagnostics --project=${PROJECT_ID}
 
   # Login to account
   gcloud auth login --quiet
 
   log "Creating GCP Project ${PROJECT_ID}"
-
-  # Create Google Cloud Project
-  gcloud projects create ${PROJECT_ID} --name='erxes-gmail-project'
 
   # Set project as default core/project
   gcloud config set project ${PROJECT_ID}
