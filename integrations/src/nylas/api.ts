@@ -257,13 +257,7 @@ export const checkEmailDuplication = async (
 ): Promise<any> => {
   debugNylas(`Checking email duplication: ${email}`);
 
-  const integration = await Integrations.findOne({ email, kind }).lean();
-
-  if (integration) {
-    return true;
-  }
-
-  return false;
+  return Integrations.exists({ email, kind });
 };
 
 const getCalendarOrEvent = async (

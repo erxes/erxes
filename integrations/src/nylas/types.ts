@@ -210,7 +210,7 @@ export interface IEventDoc {
   description?: string;
   busy?: boolean;
   status?: string;
-  calendarId: boolean;
+  calendarId: string;
   when: any;
   start: any;
   end: any;
