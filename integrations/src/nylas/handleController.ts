@@ -236,7 +236,7 @@ export const nylasGetAllEvents = async (erxesApiId: string) => {
     });
 
     for (const calendar of calendars) {
-      storeEvents(
+      await storeEvents(
         await getCalenderOrEventList('events', integration.nylasToken, {
           calendar_id: calendar.providerCalendarId
         })
