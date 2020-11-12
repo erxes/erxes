@@ -20,6 +20,7 @@ import {
   SERVICE_TYPES
 } from '../constants';
 import { IConfigsMap } from '../types';
+import ActivateInstallation from './ActivateInstallation';
 import Header from './Header';
 import Sidebar from './Sidebar';
 
@@ -380,6 +381,10 @@ class GeneralSettings extends React.Component<Props, State> {
           {this.renderConstant('sex_choices')}
           {this.renderConstant('company_industry_types')}
           {this.renderConstant('social_links')}
+        </CollapseContent>
+
+        <CollapseContent title={__('Connectivity Services')}>
+          <ActivateInstallation />
         </CollapseContent>
       </ContentBox>
     );

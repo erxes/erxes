@@ -70,11 +70,6 @@ const generate = async () => {
   await fs.promises.mkdir(rootPath);
 
   let maindomain = 'http://localhost:3000';
-  let apiDomain = 'http://localhost:3300';
-  let integrationsApiDomain = 'http://localhost:3300';
-  let widgetsDomain = 'http://localhost:3400';
-  let dashboardsDomain = 'http://localhost:4200/dashboard/front';
-  let dashboardsApiDomain = 'http://localhost:4300';
 
   if (domain !== 'localhost') {
     if (!domain.includes('http')) {
@@ -82,11 +77,6 @@ const generate = async () => {
     }
 
     maindomain = domain;
-    apiDomain = `${domain}/api`;
-    integrationsApiDomain = `${domain}/integrations`;
-    widgetsDomain = `${domain}/widgets`;
-    dashboardsDomain = `${domain}/dashboard/front/`;
-    dashboardsApiDomain = `${domain}/dashboard/api/`;
   }
 
   const configs = {
@@ -94,28 +84,8 @@ const generate = async () => {
     MONGO_URL: program.mongoUrl || 'mongodb://localhost',
     ELASTICSEARCH_URL: program.elasticsearchUrl || elasticsearchUrl,
     ELK_SYNCER: elkSyncer,
-    DOMAIN: maindomain,
-    API_DOMAIN: apiDomain,
-    INTEGRATIONS_API_DOMAIN: integrationsApiDomain,
-    WIDGETS_DOMAIN: widgetsDomain,
-    DASHBOARD_DOMAIN: dashboardsDomain,
-    DASHBOARD_API_DOMAIN: dashboardsApiDomain,
     USE_DASHBOARD: useDashboard,
-    UI: { PORT: 3000 },
-    API: {
-      PORT: 3300,
-      PORT_WORKERS: 3700,
-      PORT_CRONS: 3600
-    },
-    DASHBOARD: {
-      UI_PORT: 4200,
-      API_PORT: 4300
-    },
-    WIDGETS: { PORT: 3200 },
-    INTEGRATIONS: { PORT: 3400 },
-    LOGGER: { PORT: 3800 },
-    ENGAGES: { PORT: 3900 },
-    EMAIL_VERIFIER: { PORT: 4100 }
+    DOMAIN: maindomain
   };
 
   if (rabbitmqHost) {
@@ -154,8 +124,6 @@ const generate = async () => {
     }
   );
 
-  await generateNginxConf({ DOMAIN: maindomain });
-
   execa('yarn', ['install'], { cwd: rootPath }).stdout.pipe(process.stdout);
 };
 
@@ -166,8 +134,6 @@ let redisPort = 6379;
 let redisPassword = '';
 let elasticsearchUrl = 'http:/localhost:9200';
 let elkSyncer = false;
-let useDashboard = false;
-let dashboardConfig = ``;
 
 const readline = createInterface({
   input: process.stdin,
@@ -285,85 +251,9 @@ module.exports = (async function() {
   if (answer) {
     useDashboard = true;
     elkSyncer = true;
-    const commonConfig = `
-    proxy_set_header Upgrade $http_upgrade;
-    proxy_set_header Connection 'upgrade';
-    proxy_set_header Host $host;
-    proxy_set_header Host $http_host;
-    proxy_set_header X-Real-IP $remote_addr;
-    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-    proxy_http_version 1.1;
-  `;
-
-    dashboardConfig = `
-        location /dashboard/front/ {
-          proxy_pass http://127.0.0.1:4200/;
-              ${commonConfig}
-        }
-        location /dashboard/api/ {
-          proxy_pass http://127.0.0.1:4300/;
-              ${commonConfig}
-        }
-    `;
   }
 
   readline.close();
 
   await generate();
 })();
-
-const generateNginxConf = async ({ DOMAIN }) => {
-  const commonConfig = `
-    proxy_set_header Upgrade $http_upgrade;
-    proxy_set_header Connection 'upgrade';
-    proxy_set_header Host $host;
-    proxy_set_header Host $http_host;
-    proxy_set_header X-Real-IP $remote_addr;
-    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-    proxy_http_version 1.1;
-  `;
-
-  await fs.promises.writeFile(
-    join(rootPath, 'nginx.conf'),
-    `
-    server {
-            listen 80;
-
-            server_name ${DOMAIN.replace('https://', '').replace(
-              'http://',
-              ''
-            )};
-
-            # erxes build path
-            index index.html;
-
-            error_log /var/log/nginx/erxes.error.log;
-            access_log /var/log/nginx/erxes.access.log;
-
-            # ui widgets is running on 3000 port.
-            location / {
-                    proxy_pass http://127.0.0.1:3000/;
-                    ${commonConfig}
-            }
-
-            # widgets is running on 3200 port.
-            location /widgets/ {
-                    proxy_pass http://127.0.0.1:3200/;
-                    ${commonConfig}
-            }
-
-            # api project is running on 3300 port.
-            location /api/ {
-                    proxy_pass http://127.0.0.1:3300/;
-                    ${commonConfig}
-            }
-            # erxes integrations project is running on 3400 port.
-            location /integrations/ {
-                    proxy_pass http://127.0.0.1:3400/;
-                    ${commonConfig}
-            }
-            ${dashboardConfig}
-     }
-  `
-  );
-};

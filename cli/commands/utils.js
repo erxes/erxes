@@ -97,14 +97,15 @@ module.exports.downloadLatesVersion = async () => {
 
   // download the latest build
   await execCurl(
-    'https://api.github.com/repos/battulgadavaajamts/erxes/releases/latest',
+    'https://api.github.com/repos/erxes/erxes/releases/latest',
     'gitInfo.json'
   );
 
   const gitInfo = await fse.readJSON(filePath('gitInfo.json'));
 
   await downloadFile(
-    `https://github.com/battulgadavaajamts/erxes/releases/download/${gitInfo.tag_name}/erxes-${gitInfo.tag_name}.tar.gz`
+    `https://github.com/erxes/erxes/releases/download/${gitInfo.tag_name}/erxes-${gitInfo.tag_name}.tar.gz`,
+    'build.tar.gz'
   );
 
   process.chdir(filePath());
@@ -132,23 +133,16 @@ module.exports.startServices = async configs => {
   const {
     JWT_TOKEN_SECRET,
     DOMAIN,
-    API_DOMAIN,
-    WIDGETS_DOMAIN,
-    INTEGRATIONS_API_DOMAIN,
     MONGO_URL = '',
     ELASTICSEARCH_URL,
     ELK_SYNCER,
     USE_DASHBOARD,
 
-    DASHBOARD_API_DOMAIN,
-    DASHBOARD_DOMAIN,
-    DASHBOARD,
-
     RABBITMQ_HOST,
     REDIS_HOST,
     REDIS_PORT,
     REDIS_PASSWORD
-  } = configs;
+  } = configs || {};
 
   const optionalDbConfigs = {};
 
@@ -170,6 +164,27 @@ module.exports.startServices = async configs => {
     return `${MONGO_URL}/${dbName}`;
   };
 
+  PORT_UI = (configs.UI || {}).PORT || 3000;
+  PORT_WIDGETS = (configs.WIDGETS || {}).PORT || 3200;
+  PORT_API = (configs.API || {}).PORT || 3300;
+  PORT_INTEGRATIONS = (configs.INTEGRATIONS || {}).PORT || 3400;
+  PORT_DASHBOARD_UI = (configs.DASHBOARD || {}).PORT_UI || 4200;
+  PORT_DASHBOARD_API = (configs.DASHBOARD || {}).PORT_API || 4300;
+
+  let API_DOMAIN = `http://localhost:${PORT_API}`;
+  let INTEGRATIONS_API_DOMAIN = `http://localhost:${PORT_INTEGRATIONS}`;
+  let WIDGETS_DOMAIN = `http://localhost:${PORT_WIDGETS}`;
+  let DASHBOARD_UI_DOMAIN = `http://localhost:${PORT_DASHBOARD_UI}`;
+  let DASHBOARD_API_DOMAIN = `http://localhost:${PORT_DASHBOARD_API}`;
+
+  if (!DOMAIN.includes('localhost')) {
+    API_DOMAIN = `${DOMAIN}/api`;
+    INTEGRATIONS_API_DOMAIN = `${DOMAIN}/integrations`;
+    WIDGETS_DOMAIN = `${DOMAIN}/widgets`;
+    DASHBOARD_UI_DOMAIN = `${DOMAIN}/dashboard/front`;
+    DASHBOARD_API_DOMAIN = `${DOMAIN}/dashboard/api`;
+  }
+
   const commonEnv = {
     NODE_ENV: 'production',
     JWT_TOKEN_SECRET: JWT_TOKEN_SECRET || '',
@@ -177,6 +192,10 @@ module.exports.startServices = async configs => {
     MAIN_APP_DOMAIN: DOMAIN,
     WIDGETS_DOMAIN: WIDGETS_DOMAIN,
     INTEGRATIONS_API_DOMAIN: INTEGRATIONS_API_DOMAIN,
+
+    LOGS_API_DOMAIN: configs.LOGS_API_DOMAIN || 'http://localhost:3800',
+    ENGAGES_API_DOMAIN: configs.ENGAGES_API_DOMAIN || 'http://localhost:3900',
+    VERIFIER_API_DOMAIN: configs.VERIFIER_API_DOMAIN || 'http://localhost:4100',
     ...(configs.API || {})
   };
 
@@ -185,7 +204,8 @@ module.exports.startServices = async configs => {
       name: 'api',
       script: filePath('build/api'),
       env: {
-        DASHBOARD_DOMAIN: DASHBOARD_DOMAIN,
+        PORT: PORT_API,
+        DASHBOARD_DOMAIN: USE_DASHBOARD ? DASHBOARD_UI_DOMAIN : null,
         ...commonEnv,
         ...optionalDbConfigs,
         DEBUG: 'erxes-api:*'
@@ -195,6 +215,7 @@ module.exports.startServices = async configs => {
       name: 'cronjobs',
       script: filePath('build/api/cronJobs'),
       env: {
+        PORT_CRONS: 3600,
         ...commonEnv,
         PROCESS_NAME: 'crons',
         ...optionalDbConfigs,
@@ -205,6 +226,7 @@ module.exports.startServices = async configs => {
       name: 'workers',
       script: filePath('build/api/workers'),
       env: {
+        PORT_WORKERS: 3700,
         ...commonEnv,
         ...optionalDbConfigs,
         DEBUG: 'erxes-workers:*'
@@ -214,6 +236,7 @@ module.exports.startServices = async configs => {
       name: 'integrations',
       script: filePath('build/integrations'),
       env: {
+        PORT: PORT_INTEGRATIONS,
         NODE_ENV: 'production',
         DEBUG: 'erxes-integrations:*',
         DOMAIN: INTEGRATIONS_API_DOMAIN,
@@ -228,9 +251,9 @@ module.exports.startServices = async configs => {
       name: 'engages',
       script: filePath('build/engages'),
       env: {
+        PORT: 3900,
         NODE_ENV: 'production',
         DEBUG: 'erxes-engages:*',
-        DOMAIN: INTEGRATIONS_API_DOMAIN,
         MAIN_API_DOMAIN: API_DOMAIN,
         MONGO_URL: generateMongoUrl('erxes_engages'),
         ...optionalDbConfigs,
@@ -241,10 +264,9 @@ module.exports.startServices = async configs => {
       name: 'logger',
       script: filePath('build/logger'),
       env: {
+        PORT: 3800,
         NODE_ENV: 'production',
         DEBUG: 'erxes-logs:*',
-        DOMAIN: INTEGRATIONS_API_DOMAIN,
-        MAIN_API_DOMAIN: API_DOMAIN,
         MONGO_URL: generateMongoUrl('erxes_logger'),
         ...optionalDbConfigs,
         ...(configs.LOGGER || {})
@@ -254,6 +276,7 @@ module.exports.startServices = async configs => {
       name: 'email-verifier',
       script: filePath('build/email-verifier'),
       env: {
+        PORT: 4100,
         NODE_ENV: 'production',
         DEBUG: 'erxes-email-verifier:*',
         MONGO_URL: generateMongoUrl('erxes_email_verifier'),
@@ -284,7 +307,7 @@ module.exports.startServices = async configs => {
       script: filePath('build/dashboard-api'),
       env: {
         // NODE_ENV: 'production',
-        PORT: DASHBOARD.API_PORT,
+        PORT: PORT_DASHBOARD_API,
         DEBUG: 'erxes-dashboards:*',
         CUBEJS_URL: DASHBOARD_API_DOMAIN,
         CUBEJS_API_SECRET: CUBE_API_SECRET,
@@ -318,7 +341,7 @@ module.exports.startServices = async configs => {
       script: 'serve',
       env: {
         PM2_SERVE_PATH: filePath('build/dashboard-ui'),
-        PM2_SERVE_PORT: DASHBOARD.UI_PORT,
+        PM2_SERVE_PORT: PORT_DASHBOARD_UI,
         PM2_SERVE_SPA: 'true'
       }
     });
@@ -328,11 +351,11 @@ module.exports.startServices = async configs => {
     log('Starting elkSyncer ...');
 
     await runCommand('sudo', ['apt', 'install', '-y', 'python3-pip']);
-    await runCommand(
-      'pip3',
-      ['install', '-r', 'build/elkSyncer/requirements.txt'],
-      true
-    );
+    await runCommand('pip3', [
+      'install',
+      '-r',
+      'build/elkSyncer/requirements.txt'
+    ]);
 
     apps.push({
       name: 'elkSyncer',
@@ -346,9 +369,10 @@ module.exports.startServices = async configs => {
   }
 
   const uiConfigs = configs.UI || {};
-  const subscriptionsUrl = `${
-    API_DOMAIN.includes('https') ? 'wss' : 'ws'
-  }//${API_DOMAIN}/subscriptions`;
+  const subscriptionsUrl = `${API_DOMAIN.replace('https', 'wss').replace(
+    'http',
+    'ws'
+  )}/subscriptions`;
 
   if (uiConfigs.disableServe) {
     log(
@@ -363,8 +387,8 @@ module.exports.startServices = async configs => {
         NODE_ENV: "production",
         REACT_APP_API_URL: "${API_DOMAIN}",
         REACT_APP_API_SUBSCRIPTION_URL: "${subscriptionsUrl}",
-        REACT_APP_CDN_HOST: "${WIDGETS_DOMAIN}",
-        REACT_APP_DASHBOARD_URL: "${DASHBOARD_DOMAIN}"
+        REACT_APP_CDN_HOST: "${WIDGETS_DOMAIN}"
+        REACT_APP_DASHBOARD_URL: "${USE_DASHBOARD ? DASHBOARD_UI_DOMAIN : null}"
       }
     `
     );
@@ -374,7 +398,7 @@ module.exports.startServices = async configs => {
       script: 'serve',
       env: {
         PM2_SERVE_PATH: filePath('build/ui'),
-        PM2_SERVE_PORT: uiConfigs.PORT,
+        PM2_SERVE_PORT: PORT_UI,
         PM2_SERVE_SPA: 'true'
       }
     });
@@ -384,11 +408,12 @@ module.exports.startServices = async configs => {
     name: 'widgets',
     script: filePath('build/widgets/dist'),
     env: {
-      ...(configs.WIDGETS || {}),
+      PORT: PORT_WIDGETS,
       NODE_ENV: 'production',
       ROOT_URL: WIDGETS_DOMAIN,
       API_URL: API_DOMAIN,
-      API_SUBSCRIPTIONS_URL: subscriptionsUrl
+      API_SUBSCRIPTIONS_URL: subscriptionsUrl,
+      ...(configs.WIDGETS || {})
     }
   });
 
@@ -402,5 +427,85 @@ module.exports.startServices = async configs => {
     `
   );
 
+  // generate nginx config
+  generateNginxConf({
+    DOMAIN,
+    PORT_UI,
+    PORT_WIDGETS,
+    PORT_API,
+    PORT_INTEGRATIONS,
+    USE_DASHBOARD,
+    PORT_DASHBOARD_API,
+    PORT_DASHBOARD_UI
+  });
+
   return runCommand('pm2', ['start', filePath('ecosystem.config.js')], false);
+};
+
+const generateNginxConf = async ({
+  DOMAIN,
+  PORT_UI,
+  PORT_WIDGETS,
+  PORT_API,
+  PORT_INTEGRATIONS,
+  USE_DASHBOARD,
+  PORT_DASHBOARD_API,
+  PORT_DASHBOARD_UI
+}) => {
+  const commonConfig = `
+    proxy_set_header Upgrade $http_upgrade;
+    proxy_set_header Connection 'upgrade';
+    proxy_set_header Host $host;
+    proxy_set_header Host $http_host;
+    proxy_set_header X-Real-IP $remote_addr;
+    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+    proxy_http_version 1.1;
+  `;
+
+  if (USE_DASHBOARD) {
+    dashboardConfig = `
+        location /dashboard/front {
+            proxy_pass http://127.0.0.1:${PORT_DASHBOARD_UI}/;
+            ${commonConfig}
+        }
+        location /dashboard/api {
+          proxy_pass http://127.0.0.1:${PORT_DASHBOARD_API}/;
+          ${commonConfig}
+        }
+    `;
+  }
+
+  await fs.promises.writeFile(
+    filePath('nginx.conf'),
+    `
+    server {
+            listen 80;
+            server_name ${DOMAIN.replace('https://', '').replace(
+              'http://',
+              ''
+            )};
+            # erxes build path
+            index index.html;
+            error_log /var/log/nginx/erxes.error.log;
+            access_log /var/log/nginx/erxes.access.log;
+            location / {
+                    proxy_pass http://127.0.0.1:${PORT_UI}/;
+                    ${commonConfig}
+            }
+            location /widgets/ {
+                    proxy_pass http://127.0.0.1:${PORT_WIDGETS}/;
+                    ${commonConfig}
+            }
+            location /api/ {
+                    proxy_pass http://127.0.0.1:${PORT_API}/;
+                    ${commonConfig}
+            }
+            location /integrations/ {
+                    proxy_pass http://127.0.0.1:${PORT_INTEGRATIONS}/;
+                    ${commonConfig}
+            }
+            ${dashboardConfig}
+    }
+  `
+  );
 };
