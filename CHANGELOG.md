@@ -1,3 +1,11 @@
+## [0.20.2](https://github.com/erxes/erxes/compare/0.20.1...%s) (2020-11-12)
+
+
+### Features
+
+* **engage:** added rule in messenger engage ([b05022b](https://github.com/erxes/erxes/commit/b05022b2b8ae4b0ce0e7b66eaa0a60082736fc8b))
+* **language:** updated spanish translation ([6e0a95e](https://github.com/erxes/erxes/commit/6e0a95e7259280d4592c0cb7fa5039150154e403)), closes [#2455](https://github.com/erxes/erxes/issues/2455)
+
 ## [0.20.1](https://github.com/erxes/erxes/compare/0.20.0...0.20.1) (2020-11-09)
 
 ## [0.20.1](https://github.com/erxes/erxes/compare/0.20.0...0.20.1) (2020-11-09)
