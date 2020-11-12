@@ -122,9 +122,6 @@ module.exports.startServices = async (configs) => {
   const {
     JWT_TOKEN_SECRET,
     DOMAIN,
-    API_DOMAIN,
-    WIDGETS_DOMAIN,
-    INTEGRATIONS_API_DOMAIN,
     MONGO_URL='',
     ELASTICSEARCH_URL,
     ELK_SYNCER,
@@ -133,7 +130,7 @@ module.exports.startServices = async (configs) => {
     REDIS_HOST,
     REDIS_PORT,
     REDIS_PASSWORD
-  } = configs;
+  } = configs || {};
 
   const optionalDbConfigs = {};
 
@@ -155,6 +152,21 @@ module.exports.startServices = async (configs) => {
     return `${MONGO_URL}/${dbName}`;
   }
 
+  PORT_UI = (configs.UI || {}).PORT || 3000;
+  PORT_WIDGETS = (configs.WIDGETS || {}).PORT || 3200;
+  PORT_API = (configs.API || {}).PORT || 3300;
+  PORT_INTEGRATIONS = (configs.INTEGRATIONS || {}).PORT || 3400;
+
+  let API_DOMAIN = `http://localhost:${PORT_API}`;
+  let INTEGRATIONS_API_DOMAIN = `http://localhost:${PORT_INTEGRATIONS}`;
+  let WIDGETS_DOMAIN = `http://localhost:${PORT_WIDGETS}`;
+
+  if (!DOMAIN.includes("localhost")) {
+    API_DOMAIN = `${DOMAIN}/api`;
+    INTEGRATIONS_API_DOMAIN = `${DOMAIN}/integrations`;
+    WIDGETS_DOMAIN = `${DOMAIN}/widgets`;
+  }
+
   const commonEnv = {
     NODE_ENV: 'production',
     JWT_TOKEN_SECRET: JWT_TOKEN_SECRET || '',
@@ -162,6 +174,10 @@ module.exports.startServices = async (configs) => {
     MAIN_APP_DOMAIN: DOMAIN,
     WIDGETS_DOMAIN: WIDGETS_DOMAIN,
     INTEGRATIONS_API_DOMAIN: INTEGRATIONS_API_DOMAIN,
+
+    LOGS_API_DOMAIN: configs.LOGS_API_DOMAIN || "http://localhost:3800",
+    ENGAGES_API_DOMAIN: configs.ENGAGES_API_DOMAIN || "http://localhost:3900",
+    VERIFIER_API_DOMAIN: configs.VERIFIER_API_DOMAIN || "http://localhost:4100",
     ...configs.API || {}
   }
 
@@ -170,6 +186,7 @@ module.exports.startServices = async (configs) => {
       name: 'api',
       script: filePath('build/api'),
       env: {
+        PORT: PORT_API,
         ...commonEnv,
         ...optionalDbConfigs,
         DEBUG: 'erxes-api:*', 
@@ -179,6 +196,7 @@ module.exports.startServices = async (configs) => {
       name: 'cronjobs',
       script: filePath('build/api/cronJobs'),
       env: {
+        PORT_CRONS: 3600,
         ...commonEnv,
         PROCESS_NAME: 'crons',
         ...optionalDbConfigs,
@@ -189,6 +207,7 @@ module.exports.startServices = async (configs) => {
       name: 'workers',
       script: filePath('build/api/workers'),
       env: {
+        PORT_WORKERS: 3700,
         ...commonEnv,
         ...optionalDbConfigs,
         DEBUG: 'erxes-workers:*', 
@@ -198,6 +217,7 @@ module.exports.startServices = async (configs) => {
       name: 'integrations',
       script: filePath('build/integrations'),
       env: {
+        PORT: PORT_INTEGRATIONS,
         NODE_ENV: 'production',
         DEBUG: 'erxes-integrations:*',
         DOMAIN: INTEGRATIONS_API_DOMAIN,
@@ -212,9 +232,9 @@ module.exports.startServices = async (configs) => {
       name: 'engages',
       script: filePath('build/engages'),
       env: {
+        PORT: 3900,
         NODE_ENV: 'production',
         DEBUG: 'erxes-engages:*',
-        DOMAIN: INTEGRATIONS_API_DOMAIN,
         MAIN_API_DOMAIN: API_DOMAIN,
         MONGO_URL: generateMongoUrl('erxes_engages'),
         ...optionalDbConfigs,
@@ -225,10 +245,9 @@ module.exports.startServices = async (configs) => {
       name: 'logger',
       script: filePath('build/logger'),
       env: {
+        PORT: 3800,
         NODE_ENV: 'production',
         DEBUG: 'erxes-logs:*',
-        DOMAIN: INTEGRATIONS_API_DOMAIN,
-        MAIN_API_DOMAIN: API_DOMAIN,
         MONGO_URL: generateMongoUrl('erxes_logger'),
         ...optionalDbConfigs,
         ...configs.LOGGER || {}
@@ -238,6 +257,7 @@ module.exports.startServices = async (configs) => {
       name: 'email-verifier',
       script: filePath('build/email-verifier'),
       env: {
+        PORT: 4100,
         NODE_ENV: 'production',
         DEBUG: 'erxes-email-verifier:*',
         MONGO_URL: generateMongoUrl('erxes_email_verifier'),
@@ -283,7 +303,7 @@ module.exports.startServices = async (configs) => {
       script: 'serve',
       env: {
         PM2_SERVE_PATH: filePath('build/ui'),
-        PM2_SERVE_PORT: uiConfigs.PORT,
+        PM2_SERVE_PORT: PORT_UI,
         PM2_SERVE_SPA: 'true',
       }
     })
@@ -293,11 +313,12 @@ module.exports.startServices = async (configs) => {
     name: 'widgets',
     script: filePath('build/widgets/dist'),
     env: {
-      ...configs.WIDGETS || {},
+      PORT: PORT_WIDGETS,
       NODE_ENV: 'production',
       ROOT_URL: WIDGETS_DOMAIN,
       API_URL: API_DOMAIN,
       API_SUBSCRIPTIONS_URL: subscriptionsUrl,
+      ...configs.WIDGETS || {}
     }
   });
 
@@ -311,5 +332,55 @@ module.exports.startServices = async (configs) => {
     `
   );
 
+  // generate nginx config
+  generateNginxConf({ DOMAIN, PORT_UI, PORT_WIDGETS, PORT_API, PORT_INTEGRATIONS });
+
   return runCommand("pm2", ["start", filePath('ecosystem.config.js')], false);
+}
+
+const generateNginxConf = async ({ DOMAIN, PORT_UI, PORT_WIDGETS, PORT_API, PORT_INTEGRATIONS }) => {
+  const commonConfig = `
+    proxy_set_header Upgrade $http_upgrade;
+    proxy_set_header Connection 'upgrade';
+    proxy_set_header Host $host;
+    proxy_set_header Host $http_host;
+    proxy_set_header X-Real-IP $remote_addr;
+    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+    proxy_http_version 1.1;
+  `
+
+  await fs.promises.writeFile(
+    filePath('nginx.conf'),
+    `
+    server {
+            listen 80;
+
+            server_name ${DOMAIN.replace('https://', '').replace('http://', '')};
+
+            # erxes build path
+            index index.html;
+
+            error_log /var/log/nginx/erxes.error.log;
+            access_log /var/log/nginx/erxes.access.log;
+
+            location / {
+                    proxy_pass http://127.0.0.1:${PORT_UI}/;
+                    ${commonConfig}
+            }
+
+            location /widgets/ {
+                    proxy_pass http://127.0.0.1:${PORT_WIDGETS}/;
+                    ${commonConfig}
+            }
+
+            location /api/ {
+                    proxy_pass http://127.0.0.1:${PORT_API}/;
+                    ${commonConfig}
+            }
+            location /integrations/ {
+                    proxy_pass http://127.0.0.1:${PORT_INTEGRATIONS}/;
+                    ${commonConfig}
+            }
+    }
+  `);
 }

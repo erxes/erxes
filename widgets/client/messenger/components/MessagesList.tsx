@@ -329,9 +329,9 @@ class MessagesList extends React.Component<Props, State> {
           {this.renderWelcomeMessage(messengerData)}
           {this.renderCallRequest()}
           {this.renderMessages()}
+          {this.renderBotOperator()}
           {this.renderAwayMessage(messengerData)}
           {this.renderNotifyInput(messengerData)}
-          {this.renderBotOperator()}
           {this.renderTyping()}
         </ul>
       </div>
