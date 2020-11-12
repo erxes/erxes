@@ -1,11 +1,20 @@
 {
   "JWT_TOKEN_SECRET": "token",
   "MONGO_URL": "mongodb://localhost",
+  "ELASTICSEARCH_URL": "http://localhost:9200",
+
   "DOMAIN": "http://localhost:3000",
   "API_DOMAIN": "http://localhost:3300",
   "INTEGRATIONS_API_DOMAIN": "http://localhost:3300",
   "WIDGETS_DOMAIN": "http://localhost:3400",
-  "USE_DASHBOARD": false,
+  "USE_DASHBOARD": true,
+  "DASHBOARD_DOMAIN": "http://localhost:4200",
+  "DASHBOARD_API_DOMAIN": "http://localhost:4300",
+  "DASHBOARD": {
+    "UI_PORT": 4200,
+    "API_PORT": 4300
+  },
+  "ELK_SYNCER": true,
   "UI": { "PORT": 3000 },
   "API": {
     "PORT": 3300,

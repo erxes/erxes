@@ -22,7 +22,6 @@ const Home = (props: FinalProps) => {
       props.dashboards.length > 0 &&
       localStorage.getItem('erxes_recent_dashboard')
     ) {
-      console.log('sda');
       return props.history.replace(
         `/dashboard/${localStorage.getItem('erxes_recent_dashboard')}`
       );

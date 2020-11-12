@@ -1,4 +1,4 @@
-const fse = require("fs-extra");
+const fse = require('fs-extra');
 const figlet = require('figlet');
 const { filePath, downloadLatesVersion, startServices } = require('./utils');
 

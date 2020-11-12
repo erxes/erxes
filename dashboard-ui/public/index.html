@@ -46,7 +46,6 @@
           name: 'REACT_APP_API_SUBSCRIPTION_URL',
           processValue: '%REACT_APP_API_SUBSCRIPTION_URL%'
         },
-        { name: 'REACT_APP_CDN_HOST', processValue: '%REACT_APP_CDN_HOST%' },
 
         {
           name: 'REACT_APP_DASHBOARD_API_URL',
@@ -62,7 +61,7 @@
         var envMap = window.envMaps[i];
 
         localStorage.setItem(
-          `erxes_env_${envMap.name}`,
+          `erxes_dashboard_env_${envMap.name}`,
           getEnv(envMap.name, envMap.processValue)
         );
       }

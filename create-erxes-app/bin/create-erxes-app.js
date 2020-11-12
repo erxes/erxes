@@ -73,7 +73,7 @@ const generate = async () => {
   let apiDomain = 'http://localhost:3300';
   let integrationsApiDomain = 'http://localhost:3300';
   let widgetsDomain = 'http://localhost:3400';
-  let dashboardsDomain = 'http://localhost:4200';
+  let dashboardsDomain = 'http://localhost:4200/dashboard/front';
   let dashboardsApiDomain = 'http://localhost:4300';
 
   if (domain !== 'localhost') {
@@ -85,7 +85,7 @@ const generate = async () => {
     apiDomain = `${domain}/api`;
     integrationsApiDomain = `${domain}/integrations`;
     widgetsDomain = `${domain}/widgets`;
-    dashboardsDomain = `${domain}/dashboard/ui/`;
+    dashboardsDomain = `${domain}/dashboard/front/`;
     dashboardsApiDomain = `${domain}/dashboard/api/`;
   }
 

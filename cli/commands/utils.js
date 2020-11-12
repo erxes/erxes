@@ -104,8 +104,7 @@ module.exports.downloadLatesVersion = async () => {
   const gitInfo = await fse.readJSON(filePath('gitInfo.json'));
 
   await downloadFile(
-    `https://github.com/battulgadavaajamts/erxes/releases/download/${gitInfo.tag_name}/erxes-${gitInfo.tag_name}.tar.gz`,
-    'build.tar.gz'
+    `https://github.com/battulgadavaajamts/erxes/releases/download/${gitInfo.tag_name}/erxes-${gitInfo.tag_name}.tar.gz`
   );
 
   process.chdir(filePath());
@@ -186,9 +185,9 @@ module.exports.startServices = async configs => {
       name: 'api',
       script: filePath('build/api'),
       env: {
+        DASHBOARD_DOMAIN: DASHBOARD_DOMAIN,
         ...commonEnv,
         ...optionalDbConfigs,
-        DASHBOARD_DOMAIN: DASHBOARD_DOMAIN,
         DEBUG: 'erxes-api:*'
       }
     },
@@ -267,13 +266,16 @@ module.exports.startServices = async configs => {
     log('Starting dashboard ...');
 
     if (!ELK_SYNCER) {
-      return log('If you want to use dashboard you need to start elksyncer');
+      return log(
+        'Dashboard is not started "If you want to use dashboard you need to start elksyncer"',
+        'red'
+      );
     }
 
     const jwt = require('jsonwebtoken');
     const CUBE_API_SECRET = 'secret';
 
-    const cubejsToken = jwt.sign(CUBE_API_SECRET, {
+    const cubejsToken = await jwt.sign({}, CUBE_API_SECRET, {
       expiresIn: '10year'
     });
 
@@ -281,16 +283,22 @@ module.exports.startServices = async configs => {
       name: 'dashboard-api',
       script: filePath('build/dashboard-api'),
       env: {
-        NODE_ENV: 'production',
+        // NODE_ENV: 'production',
         PORT: DASHBOARD.API_PORT,
         DEBUG: 'erxes-dashboards:*',
         CUBEJS_URL: DASHBOARD_API_DOMAIN,
-        CUBEJS_API_SECRET: CUBEJS_SECRET,
+        CUBEJS_API_SECRET: CUBE_API_SECRET,
         CUBEJS_TOKEN: cubejsToken,
         CUBEJS_DB_TYPE: 'elasticsearch',
-        CUBEJS_DB_URL: ELASTICSEARCH_URL
+        CUBEJS_DB_URL: ELASTICSEARCH_URL,
+        REDIS_URL: REDIS_HOST,
+        REDIS_PASSWORD: REDIS_PASSWORD
       }
     });
+
+    const subscriptionsUrl = `${
+      API_DOMAIN.includes('https') ? 'wss' : 'ws'
+    }//${API_DOMAIN}/subscriptions`;
 
     await fs.promises.writeFile(
       filePath('build/dashboard-ui/js/env.js'),
@@ -298,8 +306,9 @@ module.exports.startServices = async configs => {
       window.env = {
         NODE_ENV: "production",
         REACT_APP_API_URL: "${API_DOMAIN}",
-        REACT_APP_DASHBOARD_API_URL: "${DASHBOARD_API_DOMAIN}"
-        REACT_APP_DASHBOARD_CUBE_TOKEN: "${cubejsToken}"
+        REACT_APP_DASHBOARD_API_URL: "${DASHBOARD_API_DOMAIN}",
+        REACT_APP_DASHBOARD_CUBE_TOKEN: "${cubejsToken}",
+        REACT_APP_API_SUBSCRIPTION_URL: "${subscriptionsUrl}"
       }
     `
     );
@@ -308,7 +317,7 @@ module.exports.startServices = async configs => {
       name: 'dashboard-ui',
       script: 'serve',
       env: {
-        PM2_SERVE_PATH: filePath('build/dasbhoard-ui'),
+        PM2_SERVE_PATH: filePath('build/dashboard-ui'),
         PM2_SERVE_PORT: DASHBOARD.UI_PORT,
         PM2_SERVE_SPA: 'true'
       }
@@ -318,13 +327,12 @@ module.exports.startServices = async configs => {
   if (ELK_SYNCER) {
     log('Starting elkSyncer ...');
 
-    await runCommand('apt', ['install', '-y', 'python3-pip']);
-    await runCommand('pip3', [
-      'install',
-      '-y',
-      '-r',
-      'build/elkSyncer/requirements.txt'
-    ]);
+    await runCommand('sudo', ['apt', 'install', '-y', 'python3-pip']);
+    await runCommand(
+      'pip3',
+      ['install', '-r', 'build/elkSyncer/requirements.txt'],
+      true
+    );
 
     apps.push({
       name: 'elkSyncer',
@@ -355,7 +363,7 @@ module.exports.startServices = async configs => {
         NODE_ENV: "production",
         REACT_APP_API_URL: "${API_DOMAIN}",
         REACT_APP_API_SUBSCRIPTION_URL: "${subscriptionsUrl}",
-        REACT_APP_CDN_HOST: "${WIDGETS_DOMAIN}"
+        REACT_APP_CDN_HOST: "${WIDGETS_DOMAIN}",
         REACT_APP_DASHBOARD_URL: "${DASHBOARD_DOMAIN}"
       }
     `

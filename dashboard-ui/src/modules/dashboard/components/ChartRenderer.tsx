@@ -107,15 +107,14 @@ const CartesianChart = ({
 
 const TypeToChartComponent = {
   line: ({ resultSet, height, dateType }) => {
-    const sda = { ...resultSet };
     return (
       <CartesianChart
-        resultSet={sda}
+        resultSet={resultSet}
         height={height}
         ChartComponent={LineChart}
         dateType={dateType}
       >
-        {sda.seriesNames.map((series, i) => (
+        {resultSet.seriesNames.map((series, i) => (
           <Line
             key={series.key}
             dataKey={series.key}
@@ -127,15 +126,14 @@ const TypeToChartComponent = {
     );
   },
   bar: ({ resultSet, height, dateType }) => {
-    const sda = { ...resultSet };
     return (
       <CartesianChart
-        resultSet={sda}
+        resultSet={resultSet}
         height={height}
         ChartComponent={BarChart}
         dateType={dateType}
       >
-        {sda.seriesNames.map((series, i) => (
+        {resultSet.seriesNames.map((series, i) => (
           <Bar
             key={series.key}
             stackId="a"
@@ -148,15 +146,14 @@ const TypeToChartComponent = {
     );
   },
   area: ({ resultSet, height, dateType }) => {
-    const sda = { ...resultSet };
     return (
       <CartesianChart
-        resultSet={sda}
+        resultSet={resultSet}
         height={height}
         dateType={dateType}
         ChartComponent={AreaChart}
       >
-        {sda.seriesNames.map((series, i) => (
+        {resultSet.seriesNames.map((series, i) => (
           <Area
             key={series.key}
             stackId="a"

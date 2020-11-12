@@ -51,6 +51,7 @@
     "start": "react-scripts start",
     "lint": "tslint 'src/**/*.@(ts|tsx)'",
     "build": "react-scripts build",
+    "build-local": "PUBLIC_URL=/ react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject"
   },

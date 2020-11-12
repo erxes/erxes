@@ -3,8 +3,7 @@
   "version": "0.0.1",
   "private": true,
   "scripts": {
-    "dev": "node index.js --respawn --ignore-watch node_modules -- src",
-    "loadInitialData": "mongorestore --db erxes ./dashboardData"
+    "dev": "node index.js --respawn --ignore-watch node_modules -- src"
   },
   "dependencies": {
     "@cubejs-backend/elasticsearch-driver": "^0.19.17",
