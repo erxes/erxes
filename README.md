@@ -40,6 +40,7 @@
 </p>
 
 ## Features
+-----------
 
 <img src="https://s3.amazonaws.com/erxes/github/features-transparent.png" width="400" align="right" style="max-width: 50%">
 
@@ -57,53 +58,62 @@ erxes helps you attract and engage more customers while helping you achieve high
 - **Task Management:** Work More Collaboratively and Get More Done. Save time, manage your projects, monitor your team and increase your productivity in just a few clicks. Erxes helps to turn chaos into clarity.
 
 ## Documentation
+----------------
 
 - <a href="https://www.erxes.org/">erxes documentation</a> <br>
 - <a href="https://www.erxes.org/overview/getting-started">Install erxes</a> <br>
 - <a href="https://www.erxes.org/developer/contributing">Contributing to erxes</a> <br>
 
 ## Deployment
-
+-------------
 ### Ubuntu 18.04 LTS
+====================
 
 Follow these deployment instructions.
 
 [![ubuntu](https://erxes-os.s3-us-west-2.amazonaws.com/github/ubuntu-logo.png)](https://www.erxes.org/installation/ubuntu)
 
 ### Docker
+==========
 
 Follow these deployment instructions.
 
 [![debian](https://erxes-os.s3-us-west-2.amazonaws.com/github/docker-logo.png)](https://www.erxes.org/installation/docker)
 
 ### Heroku
+==========
 
 Host your own erxes server with One-Click Deploy.
 
 [![heroku](https://erxes-os.s3-us-west-2.amazonaws.com/github/heroku.png)](https://www.erxes.org/installation/heroku)
 
 ### AWS Marketplace
+===================
 
 Launch an EC2 instance using erxes in the AWS Marketplace.
 
 [![debian](https://erxes-os.s3-us-west-2.amazonaws.com/github/aws-logo.png)](https://www.erxes.org/installation/aws)
 
 ### DigitalOcean Droplet
+========================
 
 Deploy to a DigitalOcean droplet with our one-click install listing from the DigitalOcean Marketplace.
 
 [![debian](https://erxes-os.s3-us-west-2.amazonaws.com/github/droplet.png)](https://www.erxes.org/installation/digitalocean)
 
 ## Contributors
+---------------
 
 
 ## Backers
+----------
 
 Thank you to all our backers! 🙏 [[Become a backer](https://opencollective.com/erxes#backer)]
 
 <a href="https://opencollective.com/erxes#backers" target="_blank"><img src="https://opencollective.com/erxes/backers.svg?width=890"></a>
 
 ## In-kind sponsors
+-------------------
 
 <a href="https://www.cloudflare.com/" target="_blank"><img src="https://s3.amazonaws.com/erxes/github/cloudflare.png" width="130px;" /></a>
 <a href="https://cloud.google.com/developers/startups/" target="_blank"><img src="https://s3.amazonaws.com/erxes/github/cloud-logo.svg" width="130px;" /></a>
@@ -112,15 +122,18 @@ Thank you to all our backers! 🙏 [[Become a backer](https://opencollective.com
 <a href="https://www.browserstack.com/" target="_blank"><img src="https://s3.amazonaws.com/erxes/github/browserstack.png" width="130px;" /></a>
 
 ## Which license does erxes use?
+--------------------------------
 
 erxes is a free and open <a href="https://faircode.io/">fair-code</a> licensed under GNU General Public License v3.0 with Commons Clause.
 
 ## Is erxes open-source?
+------------------------
 
 No. The <a href="https://commonsclause.com/">Commons Clause</a> that is attached to the GNU General Public License v3.0 license takes away some rights. Hence, according to the definition of the <a href="https://bit.ly/2WJ5uTh">Open Source Initiative (OSI)</a>, erxes is not open-source. Nonetheless, the source code is open and everyone (individuals and companies) can use it for free. However, it is not allowed to make money directly with erxes.
 
 Furthermore, one cannot charge others to host or support erxes. To make things simpler, we grant everyone (individuals and companies) the right to offer consulting or support without prior permission as long as it is less than 30,000 USD ($30k) per annum. If your revenue from services based on erxes is greater than $30k per annum, we'd invite you to become a partner agency and apply for a license. If you have any questions about this, feel free to reach out to us at info@erxes.io.
 
 ## Why is erxes not open-source but fair-code licensed instead?
+---------------------------------------------------------------
 
 We love open-source and the idea everybody can freely use and extend what we wrote. Our community is at the heart of everything we do and we understand that people who contribute to a project are the main drivers who push a project forward. So to make sure that the project continues to evolve and stay alive in the longer run, we decided to attach the Commons Clause. This ensures that no other person or company can make money directly with erxes **without fairly compensating the project**. Especially if it competes with how we plan to finance our further development. For the greater majority of the people, it will not make any difference at all. At the same time, it protects the project. As erxes itself depends on and uses a lot of other open-source projects, it is only fair that we support them back. That is why we have planned to contribute a certain percentage of revenue/profit every month to these projects.
