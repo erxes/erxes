@@ -11,7 +11,7 @@ import memoryStorage from '../inmemoryStorage';
  */
 const userMiddleware = async (req, _res, next) => {
   const erxesCoreToken = req.headers['erxes-core-token'];
-  const { url } = req.body;
+  const url = req.headers['erxes-core-website-url'];
 
   if (erxesCoreToken && url) {
     try {
