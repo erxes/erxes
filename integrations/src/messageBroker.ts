@@ -58,7 +58,6 @@ export const initBroker = async server => {
   });
 
   consumeQueue('erxes-api:integrations-notification', async content => {
-    console.log(content, ' -------- ');
     const { action, payload, type } = content;
 
     switch (type) {
