@@ -199,10 +199,12 @@ module.exports.startServices = async configs => {
     dasbhoardSchemaPath = '/schema';
   }
 
+  const API_MONGO_URL = generateMongoUrl('erxes');
+
   const commonEnv = {
     NODE_ENV: 'production',
     JWT_TOKEN_SECRET: JWT_TOKEN_SECRET || '',
-    MONGO_URL: generateMongoUrl('erxes'),
+    MONGO_URL: API_MONGO_URL,
     MAIN_APP_DOMAIN: DOMAIN,
     WIDGETS_DOMAIN: WIDGETS_DOMAIN,
     INTEGRATIONS_API_DOMAIN: INTEGRATIONS_API_DOMAIN,
@@ -378,7 +380,7 @@ module.exports.startServices = async configs => {
       script: filePath('build/elkSyncer/main.py'),
       interpreter: '/usr/bin/python3',
       env: {
-        MONGO_URL,
+        MONGO_URL: API_MONGO_URL,
         ELASTICSEARCH_URL
       }
     });
@@ -404,7 +406,11 @@ module.exports.startServices = async configs => {
         REACT_APP_API_URL: "${API_DOMAIN}",
         REACT_APP_API_SUBSCRIPTION_URL: "${subscriptionsUrl}",
         REACT_APP_CDN_HOST: "${WIDGETS_DOMAIN}",
-        REACT_APP_DASHBOARD_URL: "${USE_DASHBOARD ? DASHBOARD_UI_DOMAIN : null}"
+        ${
+          USE_DASHBOARD
+            ? `REACT_APP_DASHBOARD_URL: "${DASHBOARD_UI_DOMAIN}"`
+            : ''
+        }
       }
     `
     );
