@@ -1,8 +1,9 @@
 import { Model, model } from 'mongoose';
 import { ConversationMessages, Conversations, Users } from '.';
+import { generateCustomerSelector } from '../../data/resolvers/mutations/engageUtils';
 import { replaceEditorAttributes } from '../../data/utils';
 import { getNumberOfVisits } from '../../events';
-import { IBrowserInfo } from './Customers';
+import Customers, { IBrowserInfo } from './Customers';
 import { IBrandDocument } from './definitions/brands';
 import {
   IEngageData,
@@ -241,8 +242,6 @@ export const loadClass = () => {
 
       const messages = await EngageMessages.find({
         'messenger.brandId': brand._id,
-        kind: 'visitorAuto',
-        $or: [{ kind: 'visitorAuto' }, { kind: 'auto' }],
         method: 'messenger',
         isLive: true
       });
@@ -252,7 +251,42 @@ export const loadClass = () => {
       for (const message of messages) {
         const messenger = message.messenger ? message.messenger.toJSON() : {};
 
-        const user = await Users.findOne({ _id: message.fromUserId });
+        const {
+          customerIds,
+          segmentIds,
+          tagIds,
+          brandIds,
+          fromUserId
+        } = message;
+
+        const customersSelector = {
+          _id: customer._id,
+          ...(await generateCustomerSelector({
+            customerIds,
+            segmentIds,
+            tagIds,
+            brandIds
+          }))
+        };
+
+        console.log('message: ', message);
+
+        const customerExists = await Customers.find(customersSelector)
+          .count()
+          .limit(1);
+
+        if (
+          message.kind === 'auto' ||
+          (message.kind === 'manual' && !Boolean(customerExists))
+        ) {
+          continue;
+        }
+
+        if (message.kind === 'visitorAuto' && customer.state !== 'visitor') {
+          continue;
+        }
+
+        const user = await Users.findOne({ _id: fromUserId });
 
         if (!user) {
           continue;
@@ -289,7 +323,7 @@ export const loadClass = () => {
               engageData: {
                 ...messenger,
                 content: replacedContent,
-                engageKind: 'visitorAuto',
+                engageKind: message.kind,
                 messageId: message._id,
                 fromUserId: message.fromUserId
               }

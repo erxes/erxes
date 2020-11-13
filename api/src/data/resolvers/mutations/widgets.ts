@@ -710,14 +710,12 @@ const widgetMutations = {
     }
 
     // try to create engage chat auto messages
-    if (!customer.primaryEmail) {
-      await EngageMessages.createVisitorMessages({
-        brand,
-        integration,
-        customer,
-        browserInfo
-      });
-    }
+    await EngageMessages.createVisitorMessages({
+      brand,
+      integration,
+      customer,
+      browserInfo
+    });
 
     // find conversations
     const convs = await Conversations.find({
