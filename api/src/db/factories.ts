@@ -16,6 +16,8 @@ import {
   ConversationMessages,
   Conversations,
   Customers,
+  DashboardItems,
+  Dashboards,
   Deals,
   EmailDeliveries,
   EmailTemplates,
@@ -111,6 +113,38 @@ export const activityLogFactory = async (
   });
 
   return activity.save();
+};
+
+interface IDashboardFactoryInput {
+  name?: string;
+}
+
+export const dashboardFactory = async (params: IDashboardFactoryInput) => {
+  const dashboard = new Dashboards({
+    name: params.name || 'name'
+  });
+
+  return dashboard.save();
+};
+
+interface IDashboardFactoryInput {
+  dashboardId?: string;
+  layout?: string;
+  vizState?: string;
+  name?: string;
+  type?: string;
+}
+
+export const dashboardItemsFactory = async (params: IDashboardFactoryInput) => {
+  const dashboardItem = new DashboardItems({
+    name: params.name || 'name',
+    dashboardId: params.dashboardId || 'dashboardId',
+    layout: params.layout || 'layout',
+    vizState: params.vizState || 'vizState',
+    type: params.type || 'type'
+  });
+
+  return dashboardItem.save();
 };
 
 interface IUserFactoryInput {
