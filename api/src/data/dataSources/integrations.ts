@@ -88,4 +88,24 @@ export default class IntegrationsAPI extends RESTDataSource {
   public async sendSms(params) {
     return this.post('/telnyx/send-sms', params);
   }
+
+  public async createCalendarEvent(params) {
+    return this.post('/nylas/create-calendar-event', params);
+  }
+
+  public async editCalendarEvent(params) {
+    return this.post('/nylas/edit-calendar-event', params);
+  }
+
+  public async deleteCalendarEvent(params) {
+    return this.post('/nylas/delete-calendar-event', params);
+  }
+
+  public async connectCalendars(params) {
+    return this.post('/nylas/connect-calendars', params);
+  }
+
+  public async deleteCalendars(params) {
+    return this.post('/nylas/remove-calendars', params);
+  }
 }

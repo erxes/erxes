@@ -5,6 +5,7 @@ import memoryStorage from '../inmemoryStorage';
 import { generateUid, sendRequest } from '../utils';
 import { checkCredentials } from './api';
 import {
+  AUTHORIZED_CALENDAR_REDIRECT_URL,
   AUTHORIZED_REDIRECT_URL,
   GOOGLE_OAUTH_TOKEN_VALIDATION_URL,
   MICROSOFT_GRAPH_URL
@@ -16,19 +17,26 @@ dotenv.config();
 
 const { DOMAIN } = process.env;
 
-const globals: { kind?: string } = {};
+const globals: { kind?: string; type?: string } = {};
 
 // Provider specific OAuth2 ===========================
 const getOAuthCredential = async (req, res, next) => {
   debugRequest(debugNylas, req);
 
-  let { kind } = req.query;
+  let { kind, type } = req.query;
 
   if (kind) {
     // for redirect
     globals.kind = kind;
   } else {
     kind = globals.kind;
+  }
+
+  if (type) {
+    // for redirect
+    globals.type = type;
+  } else {
+    type = globals.type;
   }
 
   kind = kind.split('-')[1];
@@ -115,11 +123,19 @@ const getOAuthCredential = async (req, res, next) => {
   const uid = generateUid();
   // We will use email and refresh_token
   // when user create the Gmail or O365 integration
-  await memoryStorage().set(`${uid}-credential`, `${email},${refresh_token}`);
-
-  return res.redirect(
-    `${AUTHORIZED_REDIRECT_URL}?uid=${uid}#show${kind}Modal=true`
+  await memoryStorage().set(
+    `${uid}-credential`,
+    `${email},${refresh_token},${kind}`
   );
+
+  let url = `${AUTHORIZED_REDIRECT_URL}?uid=${uid}#show${kind}Modal=true`;
+
+  if (type === 'calendar') {
+    url = `${AUTHORIZED_CALENDAR_REDIRECT_URL}?uid=${uid}#showCalendarModal=true`;
+    delete globals.type;
+  }
+
+  return res.redirect(url);
 };
 
 export default getOAuthCredential;

@@ -1,6 +1,7 @@
 import ActivityLogs from './ActivityLogs';
 import { Boards, Pipelines, Stages } from './Boards';
 import Brands from './Brands';
+import { CalendarGroups, Calendars } from './Calendars';
 import Channels from './Channels';
 import { ChecklistItems, Checklists } from './Checklists';
 import Companies from './Companies';
@@ -91,5 +92,7 @@ export {
   Checklists,
   ChecklistItems,
   OnboardingHistories,
-  Webhooks
+  Webhooks,
+  Calendars,
+  CalendarGroups
 };

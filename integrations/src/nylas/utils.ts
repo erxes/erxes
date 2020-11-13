@@ -1,9 +1,10 @@
 import * as dotenv from 'dotenv';
 import { debugNylas } from '../debuggers';
 import { getGoogleConfigs } from '../gmail/utils';
-import { Integrations } from '../models';
+import { sendMessage } from '../messageBroker';
+import { Accounts, Integrations } from '../models';
 import { compose, getConfig, getEnv } from '../utils';
-import { getMessageById } from './api';
+import { getCalendarOrEvent, getMessageById } from './api';
 import {
   GOOGLE_OAUTH_ACCESS_TOKEN_URL,
   GOOGLE_OAUTH_AUTH_URL,
@@ -12,14 +13,123 @@ import {
   MICROSOFT_OAUTH_AUTH_URL,
   MICROSOFT_SCOPES
 } from './constants';
+import { NylasCalendars, NylasEvent } from './models';
 import {
   createOrGetNylasConversation as storeConversation,
   createOrGetNylasConversationMessage as storeMessage,
-  createOrGetNylasCustomer as storeCustomer
+  createOrGetNylasCustomer as storeCustomer,
+  storeCalendars,
+  storeEvents,
+  updateCalendar,
+  updateEvent
 } from './store';
+import { ICalendar, IEvent } from './types';
 
 // load config
 dotenv.config();
+
+/**
+ * Sync calendar events from webhook
+ * @param {String} action
+ * @param {String} accountUid
+ * @param {String} eventId
+ */
+export const syncEvents = async (
+  action: 'event.created' | 'event.updated' | 'event.deleted',
+  accountUid: string,
+  eventId: string
+) => {
+  try {
+    debugNylas(`Syncing events action: ${action} eventId: ${eventId}`);
+
+    const account = await Accounts.findOne({
+      nylasAccountId: accountUid
+    });
+
+    if (!account) {
+      throw new Error(`Account not found with accountUid: ${accountUid}`);
+    }
+
+    sendMessage({ action: 'sync-calendar-event' });
+
+    switch (action) {
+      case 'event.created':
+        const newEvent: IEvent = await getCalendarOrEvent(
+          eventId,
+          'events',
+          account.nylasToken
+        );
+        await storeEvents([newEvent]);
+        break;
+      case 'event.deleted':
+        await NylasEvent.deleteOne({ accountUid, providerEventId: eventId });
+        break;
+      case 'event.updated':
+        const event: IEvent = await getCalendarOrEvent(
+          eventId,
+          'events',
+          account.nylasToken
+        );
+        await updateEvent(event);
+        break;
+    }
+  } catch (e) {
+    debugNylas(`Failed to sync events: ${e.message}`);
+
+    throw e;
+  }
+};
+
+/**
+ * Sync calendars from webhook
+ * @param action
+ * @param accountUid
+ * @param calendarId
+ */
+export const syncCalendars = async (
+  action: 'calendar.created' | 'calendar.updated' | 'calendar.deleted',
+  accountUid: string,
+  calendarId: string
+) => {
+  try {
+    debugNylas(`Syncing calendars action: ${action} calendarId: ${calendarId}`);
+
+    const account = await Accounts.findOne({
+      nylasAccountId: accountUid
+    });
+
+    if (!account) {
+      throw new Error(`Account not found with accountUid: ${accountUid}`);
+    }
+
+    switch (action) {
+      case 'calendar.created':
+        const newCalendar: ICalendar = await getCalendarOrEvent(
+          calendarId,
+          'calendars',
+          account.nylasToken
+        );
+        await storeCalendars([newCalendar]);
+        break;
+      case 'calendar.deleted':
+        await NylasCalendars.deleteOne({ providerCalendarId: calendarId });
+        await NylasEvent.deleteMany({ providerCalendarId: calendarId });
+        break;
+      case 'calendar.updated':
+        const calendar: ICalendar = await getCalendarOrEvent(
+          calendarId,
+          'calendars',
+          account.nylasToken
+        );
+        await updateCalendar(calendar);
+        break;
+    }
+  } catch (e) {
+    debugNylas(`Failed to sync calendars: ${e.message}`);
+
+    throw e;
+  }
+};
 
 /**
  * Sync messages with messageId from webhook

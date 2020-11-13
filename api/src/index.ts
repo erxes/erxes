@@ -349,11 +349,14 @@ app.get('/connect-integration', async (req: any, res, _next) => {
     return res.end('forbidden');
   }
 
-  const { link, kind } = req.query;
+  const { link, kind, type } = req.query;
+  let url = `${INTEGRATIONS_API_DOMAIN}/${link}?kind=${kind}&userId=${req.user._id}`;
 
-  return res.redirect(
-    `${INTEGRATIONS_API_DOMAIN}/${link}?kind=${kind}&userId=${req.user._id}`
-  );
+  if (type) {
+    url = `${url}&type=${type}`;
+  }
+
+  return res.redirect(url);
 });
 
 // file import

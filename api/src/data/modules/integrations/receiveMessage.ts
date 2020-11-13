@@ -157,6 +157,12 @@ export const receiveIntegrationsNotification = async msg => {
 
     return sendSuccess({ status: 'ok' });
   }
+
+  if (action === 'sync-calendar-event') {
+    graphqlPubsub.publish('calendarEventUpdated', {});
+
+    return sendSuccess({ status: 'ok' });
+  }
 };
 
 /*

@@ -7,6 +7,8 @@ import {
   ActivityLogs,
   Boards,
   Brands,
+  CalendarGroups,
+  Calendars,
   Channels,
   ChecklistItems,
   Checklists,
@@ -1498,4 +1500,43 @@ export const onboardHistoryFactory = async (params: IOnboardHistoryParams) => {
   const onboard = new OnboardingHistories(params);
 
   return onboard.save();
+};
+
+interface ICalendarFactoryInput {
+  name?: string;
+  color?: string;
+  userId?: string;
+  groupId: string;
+  createdAt?: Date;
+  accountId?: string;
+}
+
+export const calendarFactory = async (params: ICalendarFactoryInput) => {
+  const calendar = new Calendars({
+    name: params.name || faker.random.word(),
+    categoryId: params.color || faker.random.word(),
+    userId: params.userId || PRODUCT_TYPES.PRODUCT,
+    groupId: params.groupId,
+    accountId: params.accountId || 'erxesApiId'
+  });
+
+  return calendar.save();
+};
+
+interface ICalendarGroupFactoryInput {
+  name?: string;
+  isPrivate?: boolean;
+  userId?: string;
+}
+
+export const calnedarGroupFactory = async (
+  params: ICalendarGroupFactoryInput = {}
+) => {
+  const calendarGroup = new CalendarGroups({
+    name: params.name || faker.random.word(),
+    isPrivate: params.isPrivate || false,
+    userId: params.userId || faker.random.word()
+  });
+
+  return calendarGroup.save();
 };
