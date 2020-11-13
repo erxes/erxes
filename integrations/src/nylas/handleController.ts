@@ -58,7 +58,7 @@ export const createNylasIntegration = async (
         await connectYahooAndOutlookToNylas(kind, integrationId, data);
         break;
       default:
-        await connectProviderToNylas(kind, integrationId, data.uid);
+        await connectProviderToNylas(data.uid, integrationId);
         break;
     }
   } catch (e) {

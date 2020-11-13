@@ -1,6 +1,7 @@
 import * as dotenv from 'dotenv';
 import { debugNylas } from '../debuggers';
 import { getGoogleConfigs } from '../gmail/utils';
+import { sendMessage } from '../messageBroker';
 import { Accounts, Integrations } from '../models';
 import { compose, getConfig, getEnv } from '../utils';
 import { getCalendarOrEvent, getMessageById } from './api';
@@ -48,6 +49,8 @@ export const syncEvents = async (
     if (!account) {
       throw new Error(`Account not found with accountUid: ${accountUid}`);
     }
+
+    sendMessage({ action: 'sync-calendar-event' });
 
     switch (action) {
       case 'event.created':

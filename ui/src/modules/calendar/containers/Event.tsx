@@ -7,7 +7,7 @@ import { queries } from 'modules/settings/integrations/graphql';
 import React from 'react';
 import { graphql } from 'react-apollo';
 import Event from '../components/Event';
-import { mutations } from '../graphql';
+import { mutations, subscriptions } from '../graphql';
 import { IEvent } from '../types';
 
 type Props = {
@@ -25,6 +25,23 @@ type FinalProps = {
 } & Props;
 
 class EventContainer extends React.Component<FinalProps, {}> {
+  private unsubscribe;
+
+  componentDidMount() {
+    const { fetchApiQuery } = this.props;
+
+    this.unsubscribe = fetchApiQuery.subscribeToMore({
+      document: gql(subscriptions.calendarEventUpdated),
+      updateQuery: () => {
+        this.props.fetchApiQuery.refetch();
+      }
+    });
+  }
+
+  componentWillUnmount() {
+    this.unsubscribe();
+  }
+
   render() {
     const {
       fetchApiQuery,

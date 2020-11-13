@@ -294,14 +294,32 @@ const getCalenderOrEventList = async (
     calendar_id?: string;
     description?: string;
     title?: string;
+    date?: string;
   }
 ) => {
+  const options: any = filter || {};
+
+  const extractDate = (date: Date) => {
+    return {
+      month: date.getMonth(),
+      year: date.getFullYear(),
+      date: date.getDate()
+    };
+  };
+
+  if (type === 'events' && !filter.date) {
+    const { month, year } = extractDate(new Date());
+
+    options.starts_after = new Date(year, month, 1).getTime() / 1000;
+    options.ends_before = new Date(year, month + 3, 0).getTime() / 1000;
+  }
+
   try {
     const responses = await nylasInstanceWithToken({
       accessToken,
       name: type,
       method: 'list',
-      options: filter
+      options
     });
 
     if (!responses) {

@@ -28,7 +28,6 @@ type Props = {
 type State = {
   backgroundColor: string;
   groupId: string;
-  integrationId: string;
 };
 
 class CalendarForm extends React.Component<Props, State> {
@@ -39,8 +38,7 @@ class CalendarForm extends React.Component<Props, State> {
 
     this.state = {
       backgroundColor: calendar.color || colors.colorPrimaryDark,
-      groupId: calendar.groupId || '',
-      integrationId: calendar.integrationId || ''
+      groupId: calendar.groupId || ''
     };
   }
 
@@ -58,7 +56,7 @@ class CalendarForm extends React.Component<Props, State> {
     visibility: string;
   }) => {
     const { calendar } = this.props;
-    const { backgroundColor, groupId, integrationId } = this.state;
+    const { backgroundColor, groupId } = this.state;
     const finalValues = values;
 
     if (calendar) {
@@ -67,7 +65,6 @@ class CalendarForm extends React.Component<Props, State> {
 
     return {
       ...finalValues,
-      integrationId,
       groupId,
       color: backgroundColor
     };

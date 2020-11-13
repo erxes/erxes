@@ -1,4 +1,5 @@
 import activityLogs from './activityLogs';
+import calendars from './calendars';
 import checklists from './checklists';
 import conversations from './conversations';
 import customers from './customers';
@@ -15,7 +16,8 @@ let subscriptions: any = {
   ...notifications,
   ...robot,
   ...checklists,
-  ...pipelines
+  ...pipelines,
+  ...calendars
 };
 
 const { NODE_ENV } = process.env;

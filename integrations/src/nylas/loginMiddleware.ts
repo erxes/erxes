@@ -132,6 +132,7 @@ const getOAuthCredential = async (req, res, next) => {
 
   if (type === 'calendar') {
     url = `${AUTHORIZED_CALENDAR_REDIRECT_URL}?uid=${uid}#showCalendarModal=true`;
+    delete globals.type;
   }
 
   return res.redirect(url);

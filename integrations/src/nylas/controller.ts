@@ -4,7 +4,7 @@ import * as formidable from 'formidable';
 import * as Nylas from 'nylas';
 import { debugNylas, debugRequest } from '../debuggers';
 import { Accounts, Integrations } from '../models';
-import { connectProviderToNylasCalendar } from './auth';
+import { connectProviderToNylas } from './auth';
 import {
   createNylasIntegration,
   getMessage,
@@ -180,9 +180,7 @@ export const initNylas = async app => {
     const { uid } = req.body;
 
     try {
-      const { account, isAlreadyExists } = await connectProviderToNylasCalendar(
-        uid
-      );
+      const { account, isAlreadyExists } = await connectProviderToNylas(uid);
 
       if (!isAlreadyExists) {
         await nylasGetCalendars(account);

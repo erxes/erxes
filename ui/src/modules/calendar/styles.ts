@@ -201,6 +201,7 @@ const WeekHours = styled.div`
 
 const MainContainer = styled.div`
   background-color: #fff;
+  min-height: calc(100vh - 100px);
 `;
 
 const DayHeader = styled.h3`

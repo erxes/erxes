@@ -383,6 +383,7 @@ export const subscriptions = `
 
     checklistsChanged(contentType: String!, contentTypeId: String!): Checklist
     checklistDetailChanged(_id: String!): Checklist
+    calendarEventUpdated: JSON
   }
 `;
 

@@ -92,19 +92,21 @@ class Calendar extends React.Component<Props, State> {
               transparent={true}
             />
           ) : (
-            <EmptyState
-              icon="calendar-alt"
-              text="No Calendar"
-              extra={
-                <Button
-                  btnStyle="success"
-                  size="small"
-                  href={'/settings/calendars'}
-                >
-                  Add Calendar
-                </Button>
-              }
-            />
+            <MainContainer>
+              <EmptyState
+                icon="calendar-alt"
+                text="No Calendar"
+                extra={
+                  <Button
+                    btnStyle="success"
+                    size="small"
+                    href={'/settings/calendars'}
+                  >
+                    Add Calendar
+                  </Button>
+                }
+              />
+            </MainContainer>
           )}
         </BoardContent>
       </BoardContainer>

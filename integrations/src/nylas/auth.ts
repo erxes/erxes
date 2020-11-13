@@ -14,15 +14,13 @@ import { getNylasConfig, getProviderSettings } from './utils';
 
 // loading config
 dotenv.config();
-const gmailScopes =
-  'contacts,calendar,email.read_only,email.drafts,email.send,email.modify';
 
 /**
- * Connect provider to nylas calendar
+ * Connect provider to nylas
  * @param {String} kind
  * @param {Object} account
  */
-const connectProviderToNylasCalendar = async (uid: string) => {
+const connectProviderToNylas = async (uid: string, integrationId?: string) => {
   const crendentialKey = `${uid}-credential`;
 
   const providerCredential = await memoryStorage().get(crendentialKey, false);
@@ -33,74 +31,18 @@ const connectProviderToNylasCalendar = async (uid: string) => {
 
   const [email, refreshToken, kind] = providerCredential.split(',');
 
-  const account = await Accounts.findOne({ email, kind });
+  if (integrationId) {
+    const isEmailDuplicated = await checkEmailDuplication(email, kind);
 
-  if (account) {
-    return { account, isAlreadyExists: true };
-  }
-
-  const settings = await getProviderSettings(kind, refreshToken);
-
-  try {
-    const {
-      access_token,
-      account_id,
-      billing_state
-    } = await integrateProviderToNylas({
-      email,
-      kind,
-      settings,
-      ...(kind === 'gmail'
-        ? {
-            scopes: gmailScopes
-          }
-        : {})
-    });
-
-    await memoryStorage().removeKey(crendentialKey);
-
-    if (billing_state === 'cancelled') {
-      await enableOrDisableAccount(account_id, true);
+    if (isEmailDuplicated) {
+      throw new Error(`${email} is already exists`);
     }
+  } else {
+    const account = await Accounts.findOne({ email, kind });
 
-    const newAccount = await Accounts.create({
-      kind,
-      email,
-      nylasToken: access_token,
-      nylasAccountId: account_id,
-      nylasBillingState: 'paid'
-    });
-
-    return { account: newAccount };
-  } catch (e) {
-    throw e;
-  }
-};
-
-/**
- * Connect provider to nylas
- * @param {String} kind
- * @param {Object} account
- */
-const connectProviderToNylas = async (
-  kind: string,
-  integrationId: string,
-  uid: string
-) => {
-  const crendentialKey = `${uid}-credential`;
-
-  const providerCredential = await memoryStorage().get(crendentialKey, false);
-
-  if (!providerCredential) {
-    throw new Error(`Refresh token not found ${kind}`);
-  }
-
-  const [email, refreshToken] = providerCredential.split(',');
-
-  const isEmailDuplicated = await checkEmailDuplication(email, kind);
-
-  if (isEmailDuplicated) {
-    throw new Error(`${email} is already exists`);
+    if (account) {
+      return { account, isAlreadyExists: true };
+    }
   }
 
   const settings = await getProviderSettings(kind, refreshToken);
@@ -116,21 +58,38 @@ const connectProviderToNylas = async (
       settings,
       ...(kind === 'gmail'
         ? {
-            scopes: gmailScopes
+            scopes:
+              'contacts,calendar,email.read_only,email.drafts,email.send,email.modify'
           }
         : {})
     });
 
     await memoryStorage().removeKey(crendentialKey);
 
-    await createIntegration({
-      kind,
-      email,
-      integrationId,
-      nylasToken: access_token,
-      nylasAccountId: account_id,
-      status: billing_state
-    });
+    if (integrationId) {
+      await createIntegration({
+        kind,
+        email,
+        integrationId,
+        nylasToken: access_token,
+        nylasAccountId: account_id,
+        status: billing_state
+      });
+    } else {
+      if (billing_state === 'cancelled') {
+        await enableOrDisableAccount(account_id, true);
+      }
+
+      const newAccount = await Accounts.create({
+        kind,
+        email,
+        nylasToken: access_token,
+        nylasAccountId: account_id,
+        nylasBillingState: 'paid'
+      });
+
+      return { account: newAccount };
+    }
   } catch (e) {
     throw e;
   }
@@ -394,6 +353,5 @@ export {
   connectProviderToNylas,
   connectImapToNylas,
   connectYahooAndOutlookToNylas,
-  connectExchangeToNylas,
-  connectProviderToNylasCalendar
+  connectExchangeToNylas
 };
