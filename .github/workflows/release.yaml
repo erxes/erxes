@@ -257,6 +257,8 @@ jobs:
           mkdir build
           mkdir build-local
 
+          rm -rf node_modules-local
+
           mv ui/build build/ui
 
           mkdir build/widgets
@@ -278,6 +280,8 @@ jobs:
           mv integrations/node_modules integrations/package.json build/integrations
 
           mv elkSyncer build/elkSyncer
+          mv dashboard-api build/dashboard-api
+          mv dashboard-ui/build build/dashboard-ui
 
           cp -a build/. build-local
           rm -rf build-local/dashboard-ui
