@@ -238,18 +238,6 @@ module.exports = (async function() {
 
     if (answers.elkSyncer.includes('python')) {
       elkSyncer = true;
-
-      answer = await inquirer.prompt([
-        {
-          type: 'confirm',
-          name: 'dashboard',
-          message: 'Do you want to use dashboard?'
-        }
-      ]);
-
-      if (answer) {
-        useDashboard = true;
-      }
     }
   }
 

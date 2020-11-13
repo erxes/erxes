@@ -278,6 +278,7 @@ jobs:
           mv integrations/node_modules integrations/package.json build/integrations
 
           mv elkSyncer build/elkSyncer
+
           cp -a build/. build-local
           rm -rf build-local/dashboard-ui
           mv dashboard-ui-build-local/build build-local/dashboard-ui

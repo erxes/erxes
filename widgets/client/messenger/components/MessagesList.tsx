@@ -58,12 +58,7 @@ class MessagesList extends React.Component<Props, State> {
   }
 
   componentDidMount() {
-    const {
-      messengerData,
-      messages,
-      getBotInitialMessage,
-      conversationId
-    } = this.props;
+    const { messengerData, messages, getBotInitialMessage, conversationId } = this.props;
 
     if (
       messengerData.botShowInitialMessage &&

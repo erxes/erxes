@@ -122,6 +122,10 @@ module.exports.downloadLatesVersion = async configs => {
 
   await execCommand(`tar xf build.tar.gz`);
 
+  if (DOMAIN.includes('localhost')) {
+    await execCommand(`mv build-local build`);
+  }
+
   log('Removing temp files ...');
 
   await fse.remove(filePath('build.tar.gz'));
@@ -184,8 +188,7 @@ module.exports.startServices = async configs => {
   let WIDGETS_DOMAIN = `http://localhost:${PORT_WIDGETS}`;
   let DASHBOARD_UI_DOMAIN = `http://localhost:${PORT_DASHBOARD_UI}`;
   let DASHBOARD_API_DOMAIN = `http://localhost:${PORT_DASHBOARD_API}`;
-
-  let location = `build`;
+  let dasbhoardSchemaPath = '/build/dashboard-api/schema';
 
   if (!DOMAIN.includes('localhost')) {
     API_DOMAIN = `${DOMAIN}/api`;
@@ -193,8 +196,7 @@ module.exports.startServices = async configs => {
     WIDGETS_DOMAIN = `${DOMAIN}/widgets`;
     DASHBOARD_UI_DOMAIN = `${DOMAIN}/dashboard/front`;
     DASHBOARD_API_DOMAIN = `${DOMAIN}/dashboard/api`;
-
-    location = `build-local`;
+    dasbhoardSchemaPath = '/schema';
   }
 
   const commonEnv = {
@@ -214,7 +216,7 @@ module.exports.startServices = async configs => {
   const apps = [
     {
       name: 'api',
-      script: filePath(`${location}/api`),
+      script: filePath('build/api'),
       env: {
         PORT: PORT_API,
         DASHBOARD_DOMAIN: USE_DASHBOARD ? DASHBOARD_UI_DOMAIN : null,
@@ -225,7 +227,7 @@ module.exports.startServices = async configs => {
     },
     {
       name: 'cronjobs',
-      script: filePath(`${location}/api/cronJobs`),
+      script: filePath('build/api/cronJobs'),
       env: {
         PORT_CRONS: 3600,
         ...commonEnv,
@@ -236,7 +238,7 @@ module.exports.startServices = async configs => {
     },
     {
       name: 'workers',
-      script: filePath(`${location}/api/workers`),
+      script: filePath('build/api/workers'),
       env: {
         PORT_WORKERS: 3700,
         ...commonEnv,
@@ -246,7 +248,7 @@ module.exports.startServices = async configs => {
     },
     {
       name: 'integrations',
-      script: filePath(`${location}/integrations`),
+      script: filePath('build/integrations'),
       env: {
         PORT: PORT_INTEGRATIONS,
         NODE_ENV: 'production',
@@ -261,7 +263,7 @@ module.exports.startServices = async configs => {
     },
     {
       name: 'engages',
-      script: filePath(`${location}/engages`),
+      script: filePath('build/engages'),
       env: {
         PORT: 3900,
         NODE_ENV: 'production',
@@ -274,7 +276,7 @@ module.exports.startServices = async configs => {
     },
     {
       name: 'logger',
-      script: filePath(`${location}/logger`),
+      script: filePath('build/logger'),
       env: {
         PORT: 3800,
         NODE_ENV: 'production',
@@ -286,7 +288,7 @@ module.exports.startServices = async configs => {
     },
     {
       name: 'email-verifier',
-      script: filePath(`${location}/email-verifier`),
+      script: filePath('build/email-verifier'),
       env: {
         PORT: 4100,
         NODE_ENV: 'production',
@@ -307,14 +309,9 @@ module.exports.startServices = async configs => {
       );
     }
 
-    let schemaPath = '/schema';
-
-    if (DOMAIN.includes('localhost')) {
-      schemaPath = `${location}/dashboard-api/schema`;
-    }
-
     const jwt = require('jsonwebtoken');
-    const CUBE_API_SECRET = 'secret';
+
+    const CUBE_API_SECRET = Math.random().toString();
 
     const cubejsToken = await jwt.sign({}, CUBE_API_SECRET, {
       expiresIn: '10year'
@@ -322,7 +319,7 @@ module.exports.startServices = async configs => {
 
     apps.push({
       name: 'dashboard-api',
-      script: filePath(`${location}/dashboard-api`),
+      script: filePath('build/dashboard-api'),
       env: {
         NODE_ENV: 'production',
         PORT: PORT_DASHBOARD_API,
@@ -332,7 +329,7 @@ module.exports.startServices = async configs => {
         CUBEJS_TOKEN: cubejsToken,
         CUBEJS_DB_TYPE: 'elasticsearch',
         CUBEJS_DB_URL: ELASTICSEARCH_URL,
-        SCHEMA_PATH: schemaPath,
+        SCHEMA_PATH: dasbhoardSchemaPath,
         REDIS_URL: REDIS_HOST,
         REDIS_PASSWORD: REDIS_PASSWORD
       }
@@ -343,7 +340,7 @@ module.exports.startServices = async configs => {
     }//${API_DOMAIN}/subscriptions`;
 
     await fs.promises.writeFile(
-      filePath(`${location}/dashboard-ui/js/env.js`),
+      filePath('build/dashboard-ui/js/env.js'),
       `
       window.env = {
         NODE_ENV: "production",
@@ -359,7 +356,7 @@ module.exports.startServices = async configs => {
       name: 'dashboard-ui',
       script: 'serve',
       env: {
-        PM2_SERVE_PATH: filePath(`${location}/dashboard-ui`),
+        PM2_SERVE_PATH: filePath('build/dashboard-ui'),
         PM2_SERVE_PORT: PORT_DASHBOARD_UI,
         PM2_SERVE_SPA: 'true'
       }
@@ -373,12 +370,12 @@ module.exports.startServices = async configs => {
     await runCommand('pip3', [
       'install',
       '-r',
-      `${location}/elkSyncer/requirements.txt`
+      'build/elkSyncer/requirements.txt'
     ]);
 
     apps.push({
       name: 'elkSyncer',
-      script: filePath(`${location}/elkSyncer/main.py`),
+      script: filePath('build/elkSyncer/main.py'),
       interpreter: '/usr/bin/python3',
       env: {
         MONGO_URL,
@@ -400,7 +397,7 @@ module.exports.startServices = async configs => {
     );
   } else {
     await fs.promises.writeFile(
-      filePath(`${location}/ui/js/env.js`),
+      filePath('build/ui/js/env.js'),
       `
       window.env = {
         NODE_ENV: "production",
@@ -416,7 +413,7 @@ module.exports.startServices = async configs => {
       name: 'ui',
       script: 'serve',
       env: {
-        PM2_SERVE_PATH: filePath(`${location}/ui`),
+        PM2_SERVE_PATH: filePath('build/ui'),
         PM2_SERVE_PORT: PORT_UI,
         PM2_SERVE_SPA: 'true'
       }
@@ -425,7 +422,7 @@ module.exports.startServices = async configs => {
 
   apps.push({
     name: 'widgets',
-    script: filePath(`${location}/widgets/dist`),
+    script: filePath('build/widgets/dist'),
     env: {
       PORT: PORT_WIDGETS,
       NODE_ENV: 'production',
@@ -480,6 +477,8 @@ const generateNginxConf = async ({
     proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
     proxy_http_version 1.1;
   `;
+
+  let dashboardConfig = ``;
 
   if (USE_DASHBOARD) {
     dashboardConfig = `
