@@ -44,15 +44,12 @@ function log {
   fi
 
   # Initialize 
-  gcloud init --skip-diagnostics 
+  gcloud init --skip-diagnostics --project=${PROJECT_ID}
 
   # Login to account
   gcloud auth login --quiet
 
   log "Creating GCP Project ${PROJECT_ID}"
-
-  # Create Google Cloud Project
-  gcloud projects create ${PROJECT_ID} --name='erxes-gmail-project'
 
   # Set project as default core/project
   gcloud config set project ${PROJECT_ID}
@@ -109,7 +106,7 @@ function log {
      1. Navigate to https://console.cloud.google.com/apis/credentials?project=${PROJECT_ID}                         
      2. Click on the +Credentials and select OAuth Client ID                                                        
      3. Select [Web Application] type and write App name                                                            
-     4. Authorized redirect URIs add as http://${DOMAIN}/integrations/gmail/login              
+     4. Authorized redirect URIs add as https://${DOMAIN}/integrations/gmail/login              
      5. Click Create button and you will get your [Client ID] and [Client Secret] copy them          
   
   
