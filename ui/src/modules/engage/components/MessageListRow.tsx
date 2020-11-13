@@ -192,8 +192,15 @@ class Row extends React.Component<Props> {
 
   render() {
     const { isChecked, message, remove } = this.props;
-    const { stats = { send: '' }, brand = { name: '' } } = message;
-    const totalCount = stats.total || 0;
+    const { stats = { send: '' }, brand = { name: '' }, smsStats = { total: 0 }, method } = message;
+    let totalCount = 0;
+
+    if (method === METHODS.SMS) {
+      totalCount = smsStats.total;
+    }
+    if (method === METHODS.EMAIL || method === METHODS.MESSENGER) {
+      totalCount = stats.total;
+    }
 
     return (
       <tr key={message._id}>

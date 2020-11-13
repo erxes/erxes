@@ -1,6 +1,6 @@
 import * as telemetry from 'erxes-telemetry';
 import * as jwt from 'jsonwebtoken';
-import { frontendEnv } from '../data/utils';
+import { frontendEnv, sendRequest } from '../data/utils';
 import { Users } from '../db/models';
 import memoryStorage from '../inmemoryStorage';
 /*
@@ -10,6 +10,50 @@ import memoryStorage from '../inmemoryStorage';
  * @param {Function} next - Next function
  */
 const userMiddleware = async (req, _res, next) => {
+  const erxesCoreToken = req.headers['erxes-core-token'];
+
+  if (erxesCoreToken) {
+    try {
+      const response = await sendRequest({
+        url: 'https://erxes.io/check-website',
+        method: 'POST',
+        headers: {
+          'erxes-core-token': erxesCoreToken
+        },
+        body: {
+          hostname: req.hostname
+        }
+      });
+
+      if (response === 'ok') {
+        req.user = {
+          _id: 'userId',
+          customPermissions: [
+            {
+              action: 'showIntegrations',
+              allowed: true,
+              requiredActions: []
+            },
+            {
+              action: 'showKnowledgeBase',
+              allowed: true,
+              requiredActions: []
+            },
+            {
+              action: 'showScripts',
+              allowed: true,
+              requiredActions: []
+            }
+          ]
+        };
+      }
+    } catch (e) {
+      return next();
+    }
+
+    return next();
+  }
+
   const token = req.cookies['auth-token'];
 
   if (token) {
