@@ -1,3 +1,10 @@
+## [0.20.4](https://github.com/erxes/erxes/compare/0.20.3...0.20.4) (2020-11-13)
+
+
+### Features
+
+* **dashboard:** using elasticsearch in cubejs backend ([b9ae06c](https://github.com/erxes/erxes/commit/b9ae06c0652a92383325031b9146339f87fbb425))
+
 ## [0.20.5](https://github.com/erxes/erxes/compare/0.20.4...0.20.5) (2020-11-13)
 
 ## [0.20.4](https://github.com/erxes/erxes/compare/0.20.3...0.20.4) (2020-11-13)
