@@ -9,8 +9,10 @@ import React from 'react';
 import ButtonDropdown from './ButtonDropdown';
 
 const SelectChartType = ({ chartType, updateChartType, query }) => {
+  const dimensions = query.dimensions || [];
+
   const menu = () => {
-    if (query.dimensions.length > 0) {
+    if (dimensions.length > 0) {
       return (
         <Menu>
           {chartTypesWithDeminsions.map(m => (
