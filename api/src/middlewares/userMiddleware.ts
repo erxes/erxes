@@ -11,8 +11,9 @@ import memoryStorage from '../inmemoryStorage';
  */
 const userMiddleware = async (req, _res, next) => {
   const erxesCoreToken = req.headers['erxes-core-token'];
+  const { url } = req.body;
 
-  if (erxesCoreToken) {
+  if (erxesCoreToken && url) {
     try {
       const response = await sendRequest({
         url: 'https://erxes.io/check-website',
@@ -21,7 +22,7 @@ const userMiddleware = async (req, _res, next) => {
           'erxes-core-token': erxesCoreToken
         },
         body: {
-          hostname: req.hostname
+          url
         }
       });
 
