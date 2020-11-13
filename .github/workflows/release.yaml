@@ -291,6 +291,7 @@ jobs:
         with:
           files: |
             erxes-${{ steps.get_release_version.outputs.VERSION }}.tar.gz
+            erxes-${{ steps.get_release_version.outputs.VERSION }}-local.tar.gz
           name: Release ${{ steps.get_release_version.outputs.VERSION }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
