@@ -12,7 +12,7 @@ import { mutations } from '../graphql';
 import { IEvent } from '../types';
 
 type Props = {
-  integrationId: string;
+  accountId: string;
   queryParams: any;
   startTime?: Date;
   endTime?: Date;
@@ -31,7 +31,7 @@ class FormContainer extends React.Component<FinalProps, {}> {
     const {
       fetchApiQuery,
       queryParams,
-      integrationId,
+      accountId,
       startTime,
       endTime,
       event
@@ -71,7 +71,7 @@ class FormContainer extends React.Component<FinalProps, {}> {
 
       const variables = {
         ...values,
-        erxesApiId: integrationId
+        accountId
       };
 
       if (event) {
@@ -106,12 +106,12 @@ export default withProps<Props>(
   compose(
     graphql<Props, any>(gql(queries.fetchApi), {
       name: 'fetchApiQuery',
-      options: ({ integrationId }) => {
+      options: ({ accountId }) => {
         return {
           variables: {
             path: '/nylas/get-calendars',
             params: {
-              erxesApiId: integrationId
+              accountId
             }
           }
         };

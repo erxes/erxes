@@ -1,6 +1,7 @@
 import { debugNylas } from '../debuggers';
 import memoryStorage from '../inmemoryStorage';
-import { Integrations } from '../models';
+import { Accounts, Integrations } from '../models';
+import { IAccount } from '../models/Accounts';
 import { sendRequest } from '../utils';
 import {
   checkCalendarAvailability,
@@ -202,17 +203,15 @@ export const nylasSendEmail = async (erxesApiId: string, params: any) => {
   }
 };
 
-export const nylasGetCalendars = async (erxesApiId: string) => {
+export const nylasGetCalendars = async (account: IAccount) => {
   try {
-    const integration = await Integrations.findOne({ erxesApiId });
-
-    if (!integration) {
-      throw new Error(`Integration not found: ${erxesApiId}`);
+    if (!account.nylasToken) {
+      throw new Error(`Account not found: ${account.nylasToken}`);
     }
 
     const calendars: ICalendar[] = await getCalenderOrEventList(
       'calendars',
-      integration.nylasToken
+      account.nylasToken
     );
 
     return storeCalendars(calendars);
@@ -223,21 +222,19 @@ export const nylasGetCalendars = async (erxesApiId: string) => {
   }
 };
 
-export const nylasGetAllEvents = async (erxesApiId: string) => {
+export const nylasGetAllEvents = async (account: IAccount) => {
   try {
-    const integration = await Integrations.findOne({ erxesApiId });
-
-    if (!integration) {
-      throw new Error(`Integration not found with id: ${erxesApiId}`);
+    if (!account.nylasAccountId) {
+      throw new Error(`Account not found`);
     }
 
     const calendars = await NylasCalendars.find({
-      accountUid: integration.nylasAccountId
+      accountUid: account.nylasAccountId
     });
 
     for (const calendar of calendars) {
       await storeEvents(
-        await getCalenderOrEventList('events', integration.nylasToken, {
+        await getCalenderOrEventList('events', account.nylasToken, {
           calendar_id: calendar.providerCalendarId
         })
       );
@@ -272,23 +269,19 @@ export const nylasGetCalendarOrEvent = async (
 };
 
 export const nylasCheckCalendarAvailability = async (
-  erxesApiId: string,
+  accountId: string,
   dates: { startTime: number; endTime: number }
 ) => {
   try {
-    const integration = await Integrations.findOne({ erxesApiId });
+    const account = await Accounts.findOne({ _id: accountId });
 
-    if (!integration) {
-      throw new Error(`Integration not found with id: ${erxesApiId}`);
+    if (!account) {
+      throw new Error(`Account not found with id: ${accountId}`);
     }
 
-    debugNylas(`Check availability email: ${integration.email}`);
+    debugNylas(`Check availability email: ${account.email}`);
 
-    return checkCalendarAvailability(
-      integration.email,
-      dates,
-      integration.nylasToken
-    );
+    return checkCalendarAvailability(account.email, dates, account.nylasToken);
   } catch (e) {
     debugNylas(`Failed to check Availability: ${e.message}`);
 
@@ -298,21 +291,21 @@ export const nylasCheckCalendarAvailability = async (
 
 export const nylasDeleteCalendarEvent = async ({
   eventId,
-  erxesApiId
+  accountId
 }: {
   eventId: string;
-  erxesApiId: string;
+  accountId: string;
 }) => {
   try {
     debugNylas(`Deleting calendar event id: ${eventId}`);
 
-    const integration = await Integrations.findOne({ erxesApiId }).lean();
+    const account = await Accounts.findOne({ _id: accountId }).lean();
 
-    if (!integration) {
-      throw new Error(`Integration not found with id: ${erxesApiId}`);
+    if (!account) {
+      throw new Error(`Account not found with id: ${accountId}`);
     }
 
-    return deleteCalendarEvent(eventId, integration.nylasToken);
+    return deleteCalendarEvent(eventId, account.nylasToken);
   } catch (e) {
     debugNylas(`Failed to delete event: ${e.message}`);
 
@@ -321,22 +314,22 @@ export const nylasDeleteCalendarEvent = async ({
 };
 
 export const nylasCreateCalenderEvent = async ({
-  erxesApiId,
+  accountId,
   doc
 }: {
-  erxesApiId: string;
+  accountId: string;
   doc: IEventDoc;
 }) => {
   try {
-    debugNylas(`Creating event in calendar with erxesApiId: ${erxesApiId}`);
+    debugNylas(`Creating event in calendar with accountId: ${accountId}`);
 
-    const integration = await Integrations.findOne({ erxesApiId });
+    const account = await Accounts.findOne({ _id: accountId });
 
-    if (!integration) {
-      throw new Error(`Integration not found with id: ${erxesApiId}`);
+    if (!account) {
+      throw new Error(`Integration not found with id: ${accountId}`);
     }
 
-    return createEvent(doc, integration.nylasToken);
+    return createEvent(doc, account.nylasToken);
   } catch (e) {
     debugNylas(`Failed to create event: ${e.message}`);
 
@@ -345,24 +338,24 @@ export const nylasCreateCalenderEvent = async ({
 };
 
 export const nylasUpdateEvent = async ({
-  erxesApiId,
+  accountId,
   eventId,
   doc
 }: {
-  erxesApiId: string;
+  accountId: string;
   eventId: string;
   doc: IEventDoc;
 }) => {
   try {
     debugNylas(`Updating event id: ${eventId}`);
 
-    const integratoin = await Integrations.findOne({ erxesApiId });
+    const account = await Accounts.findOne({ _id: accountId });
 
-    if (!integratoin) {
-      throw new Error(`Integration not found with id: ${erxesApiId}`);
+    if (!account) {
+      throw new Error(`Account not found with id: ${accountId}`);
     }
 
-    return updateEvent(eventId, doc, integratoin.nylasToken);
+    return updateEvent(eventId, doc, account.nylasToken);
   } catch (e) {
     debugNylas(`Failed to update event: ${e.message}`);
 

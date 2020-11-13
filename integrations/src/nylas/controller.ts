@@ -3,9 +3,9 @@ import * as dotenv from 'dotenv';
 import * as formidable from 'formidable';
 import * as Nylas from 'nylas';
 import { debugNylas, debugRequest } from '../debuggers';
-import { Integrations } from '../models';
+import { Accounts, Integrations } from '../models';
+import { connectProviderToNylasCalendar } from './auth';
 import {
-  // createNylasIntegration,
   createNylasIntegration,
   getMessage,
   nylasCheckCalendarAvailability,
@@ -177,27 +177,29 @@ export const initNylas = async app => {
   app.post('/nylas/connect-calendars', async (req, res, next) => {
     debugRequest(debugNylas, req);
 
-    const { integrationId } = req.body;
+    const { uid } = req.body;
 
     try {
-      await nylasGetCalendars(integrationId);
-      await nylasGetAllEvents(integrationId);
+      const { account, isAlreadyExists } = await connectProviderToNylasCalendar(
+        uid
+      );
+
+      if (!isAlreadyExists) {
+        await nylasGetCalendars(account);
+        await nylasGetAllEvents(account);
+      }
+
+      return res.json({ status: 'ok', accountId: account._id });
     } catch (e) {
       return next(e);
     }
-
-    debugNylas(`Successfully created the integration and connected to nylas`);
-
-    return res.json({ status: 'ok' });
   });
 
   app.post('/nylas/remove-calendars', async (req, res, next) => {
-    const { integrationId } = req.body;
+    const { accountId } = req.body;
 
     try {
-      const { nylasAccountId } = await Integrations.findOne({
-        erxesApiId: integrationId
-      });
+      const { nylasAccountId } = await Accounts.findOne({ _id: accountId });
 
       const calendars = await NylasCalendars.find({
         accountUid: nylasAccountId
@@ -207,6 +209,7 @@ export const initNylas = async app => {
         return c.providerCalendarId;
       });
 
+      await Accounts.deleteOne({ _id: accountId });
       await NylasCalendars.deleteMany({ accountUid: nylasAccountId });
       await NylasEvent.deleteMany({ providerCalendarId: { $in: calendarIds } });
     } catch (e) {
@@ -241,16 +244,16 @@ export const initNylas = async app => {
   });
 
   app.get('/nylas/get-calendars', async (req, res, next) => {
-    const { erxesApiId } = req.query;
+    const { accountId } = req.query;
 
     try {
-      const nylasIntegration = await Integrations.findOne({ erxesApiId });
+      const account = await Accounts.findOne({ _id: accountId });
 
-      if (!nylasIntegration) {
-        throw new Error('Integration not found');
+      if (!account) {
+        throw new Error('Account not found');
       }
 
-      const accountUid = nylasIntegration.nylasAccountId;
+      const accountUid = account.nylasAccountId;
 
       debugNylas(`Get calendars with accountUid: $${accountUid}`);
 
@@ -321,10 +324,10 @@ export const initNylas = async app => {
   app.post('/nylas/create-calendar-event', async (req, res, next) => {
     debugRequest(debugNylas, req);
 
-    const { erxesApiId, ...doc } = req.body;
+    const { accountId, ...doc } = req.body;
 
     try {
-      const response = await nylasCreateCalenderEvent({ erxesApiId, doc });
+      const response = await nylasCreateCalenderEvent({ accountId, doc });
 
       return res.json(response);
     } catch (e) {
@@ -335,11 +338,11 @@ export const initNylas = async app => {
   app.post('/nylas/edit-calendar-event', async (req, res, next) => {
     debugRequest(debugNylas, req);
 
-    const { erxesApiId, _id, ...doc } = req.body;
+    const { accountId, _id, ...doc } = req.body;
 
     try {
       const response = await nylasUpdateEvent({
-        erxesApiId,
+        accountId,
         eventId: _id,
         doc
       });
@@ -353,11 +356,11 @@ export const initNylas = async app => {
   app.post('/nylas/delete-calendar-event', async (req, res, next) => {
     debugRequest(debugNylas, req);
 
-    const { erxesApiId, _id } = req.body;
+    const { accountId, _id } = req.body;
 
     try {
       const response = await nylasDeleteCalendarEvent({
-        erxesApiId,
+        accountId,
         eventId: _id
       });
 

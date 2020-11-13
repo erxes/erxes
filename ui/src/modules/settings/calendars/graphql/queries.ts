@@ -1,7 +1,7 @@
 const fields = `
   _id
   name
-  integrationId
+  accountId
   groupId
 `;
 

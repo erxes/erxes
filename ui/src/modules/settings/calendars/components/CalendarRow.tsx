@@ -10,7 +10,6 @@ type Props = {
   calendar: ICalendar;
   renderButton: (props: IButtonMutateProps) => JSX.Element;
   remove: (calendar: ICalendar) => void;
-  onTogglePopup: () => void;
 };
 
 type State = {
@@ -33,8 +32,6 @@ class CalendarRow extends React.Component<Props, State> {
 
     const edit = () => {
       this.setState({ showModal: true });
-
-      this.props.onTogglePopup();
     };
 
     return (
@@ -54,8 +51,6 @@ class CalendarRow extends React.Component<Props, State> {
 
     const closeModal = () => {
       this.setState({ showModal: false });
-
-      this.props.onTogglePopup();
     };
 
     return (

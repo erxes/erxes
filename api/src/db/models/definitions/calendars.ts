@@ -7,7 +7,7 @@ export interface ICalendar {
   userId: string;
   groupId: string;
   createdAt?: Date;
-  integrationId: string;
+  accountId: string;
 }
 
 export interface ICalendarDocument extends ICalendar, Document {
@@ -34,7 +34,7 @@ export const calendarSchema = schemaWrapper(
     color: field({ type: String, label: 'Color' }),
     userId: field({ type: String, label: 'Created by' }),
     groupId: field({ type: String, label: 'Group' }),
-    integrationId: field({ type: String, label: 'Integration' }),
+    accountId: field({ type: String, label: 'Integration Account' }),
     createdAt: field({ type: Date, required: true, default: Date.now })
   })
 );

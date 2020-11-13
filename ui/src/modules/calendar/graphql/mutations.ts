@@ -1,5 +1,5 @@
 const commonParamsDef = `
-  $erxesApiId: String!,
+  $accountId: String!,
   $calendarId: String!,
   $title: String!,
   $description: String,
@@ -8,7 +8,7 @@ const commonParamsDef = `
 `;
 
 const commonParams = `
-  erxesApiId: $erxesApiId,
+  accountId: $accountId,
   calendarId: $calendarId,
   title: $title,
   description: $description,
@@ -41,11 +41,11 @@ const editEvent = `
 const deleteEvent = `
   mutation deleteCalendarEvent(
     $_id: String!,
-    $erxesApiId: String!,
+    $accountId: String!,
   ) {
     deleteCalendarEvent(
       _id: $_id,
-      erxesApiId: $erxesApiId,
+      accountId: $accountId,
     )
   }
 `;

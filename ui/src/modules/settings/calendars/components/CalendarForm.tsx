@@ -8,7 +8,6 @@ import ControlLabel from 'modules/common/components/form/Label';
 import { colors } from 'modules/common/styles';
 import { IButtonMutateProps, IFormProps } from 'modules/common/types';
 import { __ } from 'modules/common/utils';
-import { IIntegration } from 'modules/settings/integrations/types';
 import { ColorPick, ColorPicker } from 'modules/settings/styles';
 import React from 'react';
 import Modal from 'react-bootstrap/Modal';
@@ -22,7 +21,6 @@ type Props = {
   show: boolean;
   calendar?: ICalendar;
   groups: IGroup[];
-  integrations: IIntegration[];
   renderButton: (props: IButtonMutateProps) => JSX.Element;
   closeModal: () => void;
 };
@@ -81,25 +79,6 @@ class CalendarForm extends React.Component<Props, State> {
       label: obj.name
     }));
   };
-
-  renderIntegrations() {
-    const { integrations } = this.props;
-
-    const onChange = item => this.setState({ integrationId: item.value });
-
-    return (
-      <FormGroup>
-        <ControlLabel required={true}>Integration</ControlLabel>
-        <Select
-          placeholder={__('Choose a integration')}
-          value={this.state.integrationId}
-          options={this.renderOptions(integrations)}
-          onChange={onChange}
-          clearable={false}
-        />
-      </FormGroup>
-    );
-  }
 
   renderGroups() {
     const { groups } = this.props;
@@ -179,7 +158,6 @@ class CalendarForm extends React.Component<Props, State> {
           </FlexContent>
 
           {this.renderGroups()}
-          {this.renderIntegrations()}
 
           <Modal.Footer>
             <Button

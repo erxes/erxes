@@ -5,8 +5,6 @@ import { IButtonMutateProps } from 'modules/common/types';
 import { withProps } from 'modules/common/utils';
 import React from 'react';
 import { graphql } from 'react-apollo';
-import { queries as integrationQuery } from '../../integrations/graphql';
-import { IntegrationsQueryResponse } from '../../integrations/types';
 import CalendarForm from '../components/CalendarForm';
 import { queries } from '../graphql';
 import { GroupsQueryResponse, ICalendar } from '../types';
@@ -20,31 +18,23 @@ type Props = {
 };
 
 type FinalProps = {
-  integrationsQuery: IntegrationsQueryResponse;
   groupsQuery: GroupsQueryResponse;
 } & Props;
 
 class CalendarFormContainer extends React.Component<FinalProps> {
   render() {
-    const {
-      groupsQuery,
-      groupId,
-      renderButton,
-      integrationsQuery
-    } = this.props;
+    const { groupsQuery, groupId, renderButton } = this.props;
 
-    if (groupsQuery.loading || integrationsQuery.loading) {
+    if (groupsQuery.loading) {
       return <Spinner />;
     }
 
     const groups = groupsQuery.calendarGroups || [];
-    const integrations = integrationsQuery.integrations || [];
 
     const extendedProps = {
       ...this.props,
       groups,
       groupId,
-      integrations,
       renderButton
     };
 
@@ -54,15 +44,6 @@ class CalendarFormContainer extends React.Component<FinalProps> {
 
 export default withProps<Props>(
   compose(
-    graphql<Props, IntegrationsQueryResponse, {}>(
-      gql(integrationQuery.integrations),
-      {
-        name: 'integrationsQuery',
-        options: () => ({
-          variables: { kind: 'calendar' }
-        })
-      }
-    ),
     graphql<Props, GroupsQueryResponse, {}>(gql(queries.groups), {
       name: 'groupsQuery',
       options: () => ({

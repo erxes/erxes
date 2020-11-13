@@ -36,19 +36,17 @@ const commonParamsDef = `
   $name: String!,
   $groupId: String!,
   $color: String,
-  $integrationId: String!,
 `;
 
 const commonParams = `
   name: $name,
   color: $color,
-  groupId: $groupId,
-  integrationId: $integrationId
+  groupId: $groupId
 `;
 
 const calendarAdd = `
-  mutation calendarsAdd(${commonParamsDef}) {
-    calendarsAdd(${commonParams}) {
+  mutation calendarsAdd(${commonParamsDef}, $uid: String) {
+    calendarsAdd(${commonParams}, uid: $uid) {
       _id
     }
   }
@@ -63,8 +61,8 @@ const calendarEdit = `
 `;
 
 const calendarRemove = `
-  mutation calendarsDelete($_id: String!, $integrationId: String!) {
-    calendarsDelete(_id: $_id, integrationId: $integrationId)
+  mutation calendarsDelete($_id: String!, $accountId: String!) {
+    calendarsDelete(_id: $_id, accountId: $accountId)
   }
 `;
 

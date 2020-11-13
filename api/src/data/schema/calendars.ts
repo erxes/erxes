@@ -5,7 +5,7 @@ export const types = `
     color: String
     userId: String
     groupId: String
-    integrationId: String
+    accountId: String
   }
 
   type CalendarGroup {
@@ -18,7 +18,7 @@ export const types = `
 `;
 
 const eventParams = `
-  erxesApiId: String!,
+  accountId: String!,
   calendarId: String!,
   title: String!,
   description: String,
@@ -30,7 +30,6 @@ const commonParams = `
   groupId: String!,
   name: String!,
   color: String,
-  integrationId: String!
 `;
 
 const commonGroupParams = `
@@ -51,11 +50,11 @@ export const queries = `
 export const mutations = `
   createCalendarEvent(${eventParams}): JSON
   editCalendarEvent(_id: String!, ${eventParams}): JSON
-  deleteCalendarEvent(_id: String!, erxesApiId: String!): JSON
+  deleteCalendarEvent(_id: String!, accountId: String!): JSON
 
-  calendarsAdd(${commonParams}): Calendar
+  calendarsAdd(uid: String, ${commonParams}): Calendar
   calendarsEdit(_id: String!, ${commonParams}): Calendar
-  calendarsDelete(_id: String!, integrationId: String!): JSON
+  calendarsDelete(_id: String!, accountId: String!): JSON
 
   calendarGroupsAdd(${commonGroupParams}): CalendarGroup
   calendarGroupsEdit(_id: String!, ${commonGroupParams}): CalendarGroup

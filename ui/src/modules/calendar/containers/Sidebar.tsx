@@ -12,7 +12,7 @@ type Props = {
   currentDate: Date;
   typeOnChange: ({ value, label }: { value: string; label: string }) => void;
   type: string;
-  integrationId: string;
+  accountId: string;
   history: any;
   queryParams: any;
   startTime: Date;
@@ -50,12 +50,12 @@ export default withProps<Props>(
   compose(
     graphql<Props, any>(gql(queries.fetchApi), {
       name: 'fetchApiQuery',
-      options: ({ integrationId }) => {
+      options: ({ accountId }) => {
         return {
           variables: {
             path: '/nylas/get-calendars',
             params: {
-              erxesApiId: integrationId
+              accountId
             }
           }
         };

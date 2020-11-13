@@ -70,7 +70,7 @@ class Calendar extends React.Component<Props, State> {
                   currentDate={currentDate}
                   typeOnChange={this.typeOnChange}
                   type={type}
-                  integrationId={currentCalendar.integrationId}
+                  accountId={currentCalendar.accountId}
                   history={history}
                   queryParams={queryParams}
                   {...generateFilters(currentDate, type)}
@@ -83,7 +83,7 @@ class Calendar extends React.Component<Props, State> {
                       {...generateFilters(currentDate, type)}
                       type={type}
                       currentDate={currentDate}
-                      integrationId={currentCalendar.integrationId}
+                      accountId={currentCalendar.accountId}
                       queryParams={queryParams}
                     />
                   </MainContainer>

@@ -6,7 +6,7 @@ export interface ICalendar {
   name: string;
   color: string;
   groupId: string;
-  integrationId: string;
+  accountId: string;
 }
 
 export interface IGroup {
@@ -71,7 +71,7 @@ export type RemoveGroupMutationResponse = {
 
 export type RemoveCalendarMutationVariables = {
   _id: string;
-  integrationId: string;
+  accountId: string;
 };
 
 export type RemoveCalendarMutationResponse = {

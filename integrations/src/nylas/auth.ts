@@ -1,7 +1,7 @@
 import * as dotenv from 'dotenv';
 import { debugNylas } from '../debuggers';
 import memoryStorage from '../inmemoryStorage';
-import { Integrations } from '../models';
+import { Accounts, Integrations } from '../models';
 import { getConfig, sendRequest } from '../utils';
 import { checkEmailDuplication, enableOrDisableAccount } from './api';
 import {
@@ -14,6 +14,68 @@ import { getNylasConfig, getProviderSettings } from './utils';
 
 // loading config
 dotenv.config();
+const gmailScopes =
+  'contacts,calendar,email.read_only,email.drafts,email.send,email.modify';
+
+/**
+ * Connect provider to nylas calendar
+ * @param {String} kind
+ * @param {Object} account
+ */
+const connectProviderToNylasCalendar = async (uid: string) => {
+  const crendentialKey = `${uid}-credential`;
+
+  const providerCredential = await memoryStorage().get(crendentialKey, false);
+
+  if (!providerCredential) {
+    throw new Error(`Refresh token not found ${uid}`);
+  }
+
+  const [email, refreshToken, kind] = providerCredential.split(',');
+
+  const account = await Accounts.findOne({ email, kind });
+
+  if (account) {
+    return { account, isAlreadyExists: true };
+  }
+
+  const settings = await getProviderSettings(kind, refreshToken);
+
+  try {
+    const {
+      access_token,
+      account_id,
+      billing_state
+    } = await integrateProviderToNylas({
+      email,
+      kind,
+      settings,
+      ...(kind === 'gmail'
+        ? {
+            scopes: gmailScopes
+          }
+        : {})
+    });
+
+    await memoryStorage().removeKey(crendentialKey);
+
+    if (billing_state === 'cancelled') {
+      await enableOrDisableAccount(account_id, true);
+    }
+
+    const newAccount = await Accounts.create({
+      kind,
+      email,
+      nylasToken: access_token,
+      nylasAccountId: account_id,
+      nylasBillingState: 'paid'
+    });
+
+    return { account: newAccount };
+  } catch (e) {
+    throw e;
+  }
+};
 
 /**
  * Connect provider to nylas
@@ -54,8 +116,7 @@ const connectProviderToNylas = async (
       settings,
       ...(kind === 'gmail'
         ? {
-            scopes:
-              'contacts,calendar,email.read_only,email.drafts,email.send,email.modify'
+            scopes: gmailScopes
           }
         : {})
     });
@@ -333,5 +394,6 @@ export {
   connectProviderToNylas,
   connectImapToNylas,
   connectYahooAndOutlookToNylas,
-  connectExchangeToNylas
+  connectExchangeToNylas,
+  connectProviderToNylasCalendar
 };

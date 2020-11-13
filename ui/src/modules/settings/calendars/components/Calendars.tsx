@@ -1,12 +1,16 @@
 import Button from 'modules/common/components/Button';
+import DropdownToggle from 'modules/common/components/DropdownToggle';
 import EmptyState from 'modules/common/components/EmptyState';
+import Icon from 'modules/common/components/Icon';
 import Table from 'modules/common/components/table';
 import { Count, Title } from 'modules/common/styles/main';
 import { IButtonMutateProps, IRouterProps } from 'modules/common/types';
 import { __ } from 'modules/common/utils';
 import Wrapper from 'modules/layout/components/Wrapper';
 import React from 'react';
+import Dropdown from 'react-bootstrap/Dropdown';
 import { withRouter } from 'react-router-dom';
+import { CALENDAR_INTEGRATIONS } from '../constants';
 import CalendarForm from '../containers/CalendarForm';
 import { ICalendar, IGroup } from '../types';
 import CalendarRow from './CalendarRow';
@@ -19,12 +23,12 @@ type Props = {
   groupId?: string;
   refetch: ({ groupId }: { groupId?: string }) => Promise<any>;
   currentGroup?: IGroup;
+  customLink: (kind: string) => void;
 } & IRouterProps;
 
 type State = {
   showModal: boolean;
   calendars: ICalendar[];
-  isDragDisabled: boolean;
 };
 
 class Calendars extends React.Component<Props, State> {
@@ -37,8 +41,7 @@ class Calendars extends React.Component<Props, State> {
 
     this.state = {
       showModal,
-      calendars: props.calendars,
-      isDragDisabled: false
+      calendars: props.calendars
     };
   }
 
@@ -63,16 +66,8 @@ class Calendars extends React.Component<Props, State> {
     );
   };
 
-  addCalendar = () => {
-    this.setState({
-      showModal: true
-    });
-  };
-
-  onTogglePopup = () => {
-    const { isDragDisabled } = this.state;
-
-    this.setState({ isDragDisabled: !isDragDisabled });
+  addCalendar = (kind: string) => {
+    this.props.customLink(kind);
   };
 
   renderRows() {
@@ -85,7 +80,6 @@ class Calendars extends React.Component<Props, State> {
         calendar={calendar}
         renderButton={renderButton}
         remove={this.props.remove}
-        onTogglePopup={this.onTogglePopup}
       />
     ));
   }
@@ -121,7 +115,7 @@ class Calendars extends React.Component<Props, State> {
     );
   }
 
-  renderButton() {
+  addButton() {
     const { groupId } = this.props;
 
     if (!groupId) {
@@ -130,14 +124,25 @@ class Calendars extends React.Component<Props, State> {
 
     return (
       <>
-        <Button
-          btnStyle="primary"
-          uppercase={false}
-          icon="plus-circle"
-          onClick={this.addCalendar}
-        >
-          Add calendar
-        </Button>
+        <Dropdown className="dropdown-btn" alignRight={true}>
+          <Dropdown.Toggle as={DropdownToggle} id="dropdown-customize">
+            <Button btnStyle="simple" size="small">
+              {__('Add calendar ')} <Icon icon="angle-down" />
+            </Button>
+          </Dropdown.Toggle>
+          <Dropdown.Menu>
+            {CALENDAR_INTEGRATIONS.map(i => (
+              <li key={i.kind}>
+                <a
+                  href={`#${i.kind}`}
+                  onClick={this.addCalendar.bind(this, i.kind)}
+                >
+                  {i.name}
+                </a>
+              </li>
+            ))}
+          </Dropdown.Menu>
+        </Dropdown>
       </>
     );
   }
@@ -151,7 +156,7 @@ class Calendars extends React.Component<Props, State> {
 
     return (
       <div id="calendars-content">
-        <Wrapper.ActionBar left={leftActionBar} right={this.renderButton()} />
+        <Wrapper.ActionBar left={leftActionBar} right={this.addButton()} />
 
         {this.renderContent()}
         {this.renderAddForm()}

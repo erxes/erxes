@@ -32,7 +32,7 @@ type Props = {
   events: IEvent[];
   startTime: Date;
   endTime: Date;
-  integrationId: string;
+  accountId: string;
   queryParams: any;
   remove: (event: IEvent) => void;
 };
@@ -216,7 +216,7 @@ class Event extends React.Component<Props, State> {
     const {
       startTime,
       endTime,
-      integrationId,
+      accountId,
       currentDate,
       type,
       queryParams
@@ -227,7 +227,7 @@ class Event extends React.Component<Props, State> {
         startTime={startTime}
         endTime={endTime}
         queryParams={queryParams}
-        integrationId={integrationId}
+        accountId={accountId}
         isPopupVisible={this.state.isPopupVisible}
         onHideModal={this.onHideModal}
         selectedDate={this.state.selectedDate}

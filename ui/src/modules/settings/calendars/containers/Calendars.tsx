@@ -1,3 +1,4 @@
+import { getEnv } from 'apolloClient';
 import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
 import ButtonMutate from 'modules/common/components/ButtonMutate';
@@ -7,6 +8,7 @@ import { __, Alert, confirm, withProps } from 'modules/common/utils';
 import React from 'react';
 import { graphql } from 'react-apollo';
 import { getWarningMessage } from '../../boards/constants';
+import { INTEGRATIONS } from '../../integrations/constants';
 import Calendars from '../components/Calendars';
 import { mutations, queries } from '../graphql';
 import {
@@ -20,6 +22,7 @@ import {
 type Props = {
   groupId: string;
   queryParams: any;
+  history: any;
 };
 
 type FinalProps = {
@@ -49,7 +52,7 @@ class CalendarsContainer extends React.Component<FinalProps> {
           removeCalendarMutation({
             variables: {
               _id: calendar._id,
-              integrationId: calendar.integrationId
+              accountId: calendar.accountId
             },
             refetchQueries: getRefetchQueries(groupId)
           })
@@ -80,6 +83,10 @@ class CalendarsContainer extends React.Component<FinalProps> {
       const callBackResponse = () => {
         calendarsQuery.refetch({ groupId });
 
+        if (!object) {
+          return this.props.history.push('/settings/calendars');
+        }
+
         if (callback) {
           return callback();
         }
@@ -103,6 +110,16 @@ class CalendarsContainer extends React.Component<FinalProps> {
       );
     };
 
+    const customLink = (kind: string) => {
+      const { REACT_APP_API_URL } = getEnv();
+      const integration = INTEGRATIONS.find(i => i.kind === kind);
+
+      const url = `${REACT_APP_API_URL}/connect-integration?link=${integration &&
+        integration.createUrl}&kind=${kind}&type=calendar`;
+
+      window.location.replace(url);
+    };
+
     const calendars = calendarsQuery.calendars;
 
     const extendedProps = {
@@ -114,7 +131,8 @@ class CalendarsContainer extends React.Component<FinalProps> {
       renderButton,
       currentGroup: groupDetailQuery
         ? groupDetailQuery.calendarGroupDetail
-        : undefined
+        : undefined,
+      customLink
     };
 
     return <Calendars {...extendedProps} />;

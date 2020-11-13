@@ -18,6 +18,7 @@ interface IEvent {
   description?: string;
   start: string;
   end: string;
+  accountId?: string;
 }
 
 const calendarMutations = {
@@ -40,7 +41,7 @@ const calendarMutations = {
    */
   async deleteCalendarEvent(
     _root,
-    doc: { erxesApiId: string; _id: string },
+    doc: { accountId: string; _id: string },
     { dataSources }: IContext
   ) {
     return dataSources.IntegrationsAPI.deleteCalendarEvent(doc);
@@ -49,27 +50,28 @@ const calendarMutations = {
   /**
    * Create a new calendar
    */
-  async calendarsAdd(_root, doc: ICalendar, { user, dataSources }: IContext) {
-    const beforeConnected = await Calendars.findOne({
-      integrationId: doc.integrationId
-    });
-
+  async calendarsAdd(
+    _root,
+    { uid, ...doc }: { uid: string } & ICalendar,
+    { user, dataSources }: IContext
+  ) {
     const calendar = await Calendars.createCalendar({
       ...doc,
       userId: user._id
     });
 
-    if (!beforeConnected) {
-      try {
-        await dataSources.IntegrationsAPI.connectCalendars({
-          integrationId: doc.integrationId
-        });
-      } catch (e) {
-        await Calendars.removeCalendar(calendar._id);
-        debugExternalApi(e.message);
+    try {
+      const { accountId } = await dataSources.IntegrationsAPI.connectCalendars({
+        uid
+      });
 
-        throw new Error(e.message);
-      }
+      await Calendars.update({ _id: calendar._id }, { $set: { accountId } });
+    } catch (e) {
+      await Calendars.removeCalendar(calendar._id);
+
+      debugExternalApi(e.message);
+
+      throw new Error(e.message);
     }
 
     return calendar;
@@ -87,18 +89,15 @@ const calendarMutations = {
    */
   async calendarsDelete(
     _root,
-    doc: { _id: string; integrationId: string },
+    doc: { _id: string; accountId: string },
     { dataSources }: IContext
   ) {
-    const calendars = await Calendars.find({
-      integrationId: doc.integrationId
-    });
+    const { accountId } = doc;
+    const calendars = await Calendars.find({ accountId });
 
     if (calendars.length === 1) {
       try {
-        await dataSources.IntegrationsAPI.deleteCalendars({
-          integrationId: doc.integrationId
-        });
+        await dataSources.IntegrationsAPI.deleteCalendars({ accountId });
       } catch (e) {
         debugExternalApi(e.message);
 

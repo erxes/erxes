@@ -13,7 +13,7 @@ import { IEvent } from '../types';
 type Props = {
   type: string;
   currentDate: Date;
-  integrationId: string;
+  accountId: string;
   queryParams: any;
   startTime: Date;
   endTime: Date;
@@ -29,7 +29,7 @@ class EventContainer extends React.Component<FinalProps, {}> {
     const {
       fetchApiQuery,
       removeEventMutation,
-      integrationId,
+      accountId,
       startTime,
       endTime,
       queryParams
@@ -52,7 +52,7 @@ class EventContainer extends React.Component<FinalProps, {}> {
           removeEventMutation({
             variables: {
               _id: event.providerEventId,
-              erxesApiId: integrationId
+              accountId
             }
           })
             .then(() => {
@@ -96,7 +96,7 @@ export default withProps<Props>(
         };
       }
     }),
-    graphql<Props, any, { _id: string; erxesApiId: string }>(
+    graphql<Props, any, { _id: string; accountId: string }>(
       gql(mutations.deleteEvent),
       {
         name: 'removeEventMutation'

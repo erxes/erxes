@@ -26,7 +26,7 @@ type Props = {
   queryParams: any;
   startTime: Date;
   endTime: Date;
-  integrationId: string;
+  accountId: string;
 };
 
 type State = {

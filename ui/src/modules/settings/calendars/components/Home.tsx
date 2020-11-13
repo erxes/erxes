@@ -8,11 +8,12 @@ import Groups from '../containers/Groups';
 type Props = {
   groupId: string;
   queryParams: any;
+  history: any;
 };
 
 class Home extends React.Component<Props, {}> {
   render() {
-    const { groupId, queryParams } = this.props;
+    const { groupId, queryParams, history } = this.props;
 
     const breadcrumb = [
       { title: __('Settings'), link: '/settings' },
@@ -32,7 +33,13 @@ class Home extends React.Component<Props, {}> {
           />
         }
         leftSidebar={<Groups currentGroupId={groupId} />}
-        content={<Calendars groupId={groupId} queryParams={queryParams} />}
+        content={
+          <Calendars
+            groupId={groupId}
+            queryParams={queryParams}
+            history={history}
+          />
+        }
       />
     );
   }

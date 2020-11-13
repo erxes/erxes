@@ -1,7 +1,7 @@
 import * as dotenv from 'dotenv';
 import { debugNylas } from '../debuggers';
 import { getGoogleConfigs } from '../gmail/utils';
-import { Integrations } from '../models';
+import { Accounts, Integrations } from '../models';
 import { compose, getConfig, getEnv } from '../utils';
 import { getCalendarOrEvent, getMessageById } from './api';
 import {
@@ -41,12 +41,12 @@ export const syncEvents = async (
   try {
     debugNylas(`Syncing events action: ${action} eventId: ${eventId}`);
 
-    const integration = await Integrations.findOne({
+    const account = await Accounts.findOne({
       nylasAccountId: accountUid
     });
 
-    if (!integration) {
-      throw new Error(`Integration not found with accountUid: ${accountUid}`);
+    if (!account) {
+      throw new Error(`Account not found with accountUid: ${accountUid}`);
     }
 
     switch (action) {
@@ -54,7 +54,7 @@ export const syncEvents = async (
         const newEvent: IEvent = await getCalendarOrEvent(
           eventId,
           'events',
-          integration.nylasToken
+          account.nylasToken
         );
         await storeEvents([newEvent]);
         break;
@@ -65,7 +65,7 @@ export const syncEvents = async (
         const event: IEvent = await getCalendarOrEvent(
           eventId,
           'events',
-          integration.nylasToken
+          account.nylasToken
         );
         await updateEvent(event);
         break;
@@ -91,12 +91,12 @@ export const syncCalendars = async (
   try {
     debugNylas(`Syncing calendars action: ${action} calendarId: ${calendarId}`);
 
-    const integration = await Integrations.findOne({
+    const account = await Accounts.findOne({
       nylasAccountId: accountUid
     });
 
-    if (!integration) {
-      throw new Error(`Integration not found with accountUid: ${accountUid}`);
+    if (!account) {
+      throw new Error(`Account not found with accountUid: ${accountUid}`);
     }
 
     switch (action) {
@@ -104,7 +104,7 @@ export const syncCalendars = async (
         const newCalendar: ICalendar = await getCalendarOrEvent(
           calendarId,
           'calendars',
-          integration.nylasToken
+          account.nylasToken
         );
         await storeCalendars([newCalendar]);
         break;
@@ -116,7 +116,7 @@ export const syncCalendars = async (
         const calendar: ICalendar = await getCalendarOrEvent(
           calendarId,
           'calendars',
-          integration.nylasToken
+          account.nylasToken
         );
         await updateCalendar(calendar);
         break;

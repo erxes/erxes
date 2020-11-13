@@ -10,10 +10,13 @@ import Home from '../components/Home';
 import { queries } from '../graphql';
 import { GroupGetLastQueryResponse } from '../types';
 
-type HomeContainerProps = {
-  history?: any;
-  groupId: string;
+type MainProps = {
+  history: any;
   queryParams: any;
+};
+
+type HomeContainerProps = MainProps & {
+  groupId: string;
 };
 
 class HomeContainer extends React.Component<HomeContainerProps> {
@@ -30,9 +33,8 @@ class HomeContainer extends React.Component<HomeContainerProps> {
   }
 }
 
-type LastGroupProps = {
+type LastGroupProps = MainProps & {
   groupGetLastQuery: GroupGetLastQueryResponse;
-  queryParams: any;
 };
 
 // Getting lastGroup id to currentGroup
@@ -53,7 +55,7 @@ const LastGroup = (props: LastGroupProps) => {
   return <HomeContainer {...extendedProps} />;
 };
 
-type MainProps = { queryParams: any } & IRouterProps;
+type HomerProps = { queryParams: any } & IRouterProps;
 
 const LastGroupContainer = withProps<MainProps>(
   compose(
@@ -67,7 +69,7 @@ const LastGroupContainer = withProps<MainProps>(
 );
 
 // Main home component
-const MainContainer = (props: MainProps) => {
+const MainContainer = (props: HomerProps) => {
   const { history } = props;
   const groupId = routerUtils.getParam(history, 'groupId');
 
@@ -80,4 +82,4 @@ const MainContainer = (props: MainProps) => {
   return <LastGroupContainer {...props} />;
 };
 
-export default withRouter<MainProps>(MainContainer);
+export default withRouter<HomerProps>(MainContainer);
