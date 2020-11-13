@@ -299,10 +299,8 @@ export class ChartRenderer extends React.Component<Props, State> {
   getDatas = () => {
     const { query } = this.props;
 
-    const apiUrl = new URL('/get', REACT_APP_DASHBOARD_API_URL);
-
     axios
-      .get(`${apiUrl}`, {
+      .get(`${REACT_APP_DASHBOARD_API_URL}/get`, {
         params: query
       })
       .then(response => this.setState({ result: response.data }));
