@@ -86,5 +86,6 @@ export default {
   ...pipelineLabels,
   ...widgets,
   ...webhooks,
-  ...calendars
+  ...calendars,
+  ...dashboards
 };

@@ -737,7 +737,7 @@ describe('Test nylas controller', () => {
     }
 
     const mock = sinon.stub(messageBroker, 'sendMessage').callsFake(() => {
-      return Promise.resolve({ _id: '123456789' });
+      return Promise.resolve({ accountId: 'nylasAccountId' });
     });
 
     const integration = await integrationFactory({
@@ -838,8 +838,8 @@ describe('Test nylas controller', () => {
       expect(e.message).toBe('error');
     }
 
-    mockFail.restore();
     mock.restore();
+    mockFail.restore();
   });
 
   test('Sync calendars', async () => {

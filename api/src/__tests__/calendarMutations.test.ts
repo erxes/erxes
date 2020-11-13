@@ -41,21 +41,19 @@ describe('Test calendars mutations', () => {
   const commonParamDefs = `
     $groupId: String!,
     $name: String!,
-    $color: String,
-    $integrationId: String!
+    $color: String
   `;
 
   const commonParams = `
     groupId: $groupId
     name: $name
-    color: $color,
-    integrationId: $integrationId
+    color: $color
   `;
 
   const removeCalendar = async () => {
     const mutation = `
-      mutation calendarsDelete($_id: String!, $integrationId: String!) {
-        calendarsDelete(_id: $_id, integrationId: $integrationId)
+      mutation calendarsDelete($_id: String!, $accountId: String!) {
+        calendarsDelete(_id: $_id, accountId: $accountId)
       }
     `;
 
@@ -71,7 +69,7 @@ describe('Test calendars mutations', () => {
       'calendarsDelete',
       {
         _id: calendar._id,
-        integrationId: 'erxesApiId'
+        accountId: 'erxesApiId'
       },
       {
         dataSources
@@ -84,13 +82,13 @@ describe('Test calendars mutations', () => {
 
     const args = {
       name: calendar.name,
-      integrationId: 'erxesApiId',
+      uid: 'nylasAccountId',
       groupId: group._id
     };
 
     const mutation = `
-      mutation calendarsAdd(${commonParamDefs}) {
-        calendarsAdd(${commonParams}) {
+      mutation calendarsAdd($uid: String, ${commonParamDefs}) {
+        calendarsAdd(uid: $uid, ${commonParams}) {
           _id
           name
           color
@@ -109,7 +107,9 @@ describe('Test calendars mutations', () => {
       'connectCalendars'
     );
 
-    addCalendarSpy.mockImplementation(() => Promise.resolve());
+    addCalendarSpy.mockImplementation(() =>
+      Promise.resolve({ accountId: 'integrationAccountId' })
+    );
 
     const createdCalendar = await graphqlRequest(
       mutation,
@@ -126,7 +126,7 @@ describe('Test calendars mutations', () => {
     const args = {
       _id: calendar._id,
       name: `${calendar.name}-updated`,
-      integrationId: 'erxesApiId',
+      accountId: 'erxesApiId',
       groupId: group._id
     };
 
@@ -152,15 +152,15 @@ describe('Test calendars mutations', () => {
 
   test('Remove calendar', async () => {
     const mutation = `
-      mutation calendarsDelete($_id: String!, $integrationId: String!) {
-        calendarsDelete(_id: $_id, integrationId: $integrationId)
+      mutation calendarsDelete($_id: String!, $accountId: String!) {
+        calendarsDelete(_id: $_id, accountId: $accountId)
       }
     `;
 
     try {
       await graphqlRequest(mutation, 'calendarsDelete', {
         _id: calendar._id,
-        integrationId: 'erxesApiId'
+        accountId: 'erxesApiId'
       });
     } catch (e) {
       expect(e).toBeDefined();
@@ -239,7 +239,7 @@ describe('Test calendars mutations', () => {
   });
 
   const eventParamDefs = `
-    $erxesApiId: String!,
+    $accountId: String!,
     $calendarId: String!,
     $title: String!,
     $description: String,
@@ -248,7 +248,7 @@ describe('Test calendars mutations', () => {
   `;
 
   const eventParams = `
-    erxesApiId: $erxesApiId,
+    accountId: $accountId,
     calendarId: $calendarId,
     title: $title,
     description: $description,
@@ -257,7 +257,7 @@ describe('Test calendars mutations', () => {
   `;
 
   const eventArgs = {
-    erxesApiId: 'erxesApiId',
+    accountId: 'accountId',
     calendarId: 'cl',
     title: 'New Calendar'
   };
@@ -307,8 +307,8 @@ describe('Test calendars mutations', () => {
 
   test('Delete calendar event', async () => {
     const mutation = `
-      mutation deleteCalendarEvent($_id: String!, $erxesApiId: String!) {
-        deleteCalendarEvent(_id: $_id, erxesApiId: $erxesApiId)
+      mutation deleteCalendarEvent($_id: String!, $accountId: String!) {
+        deleteCalendarEvent(_id: $_id, accountId: $accountId)
       }
     `;
 
@@ -322,7 +322,7 @@ describe('Test calendars mutations', () => {
     await graphqlRequest(
       mutation,
       'deleteCalendarEvent',
-      { _id: 'eventId', erxesApiId: 'erxesApiId' },
+      { _id: 'eventId', accountId: 'accountId' },
       {
         dataSources
       }

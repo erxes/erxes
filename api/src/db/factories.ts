@@ -1508,7 +1508,7 @@ interface ICalendarFactoryInput {
   userId?: string;
   groupId: string;
   createdAt?: Date;
-  integrationId?: string;
+  accountId?: string;
 }
 
 export const calendarFactory = async (params: ICalendarFactoryInput) => {
@@ -1517,7 +1517,7 @@ export const calendarFactory = async (params: ICalendarFactoryInput) => {
     categoryId: params.color || faker.random.word(),
     userId: params.userId || PRODUCT_TYPES.PRODUCT,
     groupId: params.groupId,
-    integrationId: params.integrationId || 'erxesApiId'
+    accountId: params.accountId || 'erxesApiId'
   });
 
   return calendar.save();

@@ -80,5 +80,6 @@ export default {
   ...robot,
   ...widgets,
   ...webhooks,
-  ...calendars
+  ...calendars,
+  ...dashboards
 };
