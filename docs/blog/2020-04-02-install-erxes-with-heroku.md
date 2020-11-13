@@ -2,7 +2,8 @@
 slug: install-erxes-on-heroku
 title: Install erxes with a 1-Click App on Heroku
 author: Naran Batjargal
-author_title: I'm the Co-Founder and COO of erxes Inc, an open-source growth marketing platform. Marketing, sales, and customer service platform designed to help your business attract more engaged customers. Replace Hubspot and Intercom with the mission and community-driven ecosystem.
+author_title: I'm the Co-Founder and COO of erxes Inc, an open-source growth marketing platform. Marketing, sales, and customer service platform designed to help your business attract more engaged customers.
+author_image_url: https://erxes.io/static/images/team/square/naran.png
 tags: [installation, heroku]
 ---
 
