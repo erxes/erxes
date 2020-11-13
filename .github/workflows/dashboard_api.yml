@@ -53,7 +53,7 @@ jobs:
           cd dashboard-api
           yarn install
       - name: Build docker image [push]
-        if: github.event_name == 'push' && ( github.ref == 'refs/heads/enterprise')
+        if: github.event_name == 'push' && ( github.ref == 'refs/heads/master' || github.ref == 'refs/heads/develop' || github.ref == 'refs/heads/apm' || github.ref == 'refs/heads/automations')
         run: |
           cd dashboard-api
           echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin
