@@ -368,13 +368,6 @@ module.exports.startServices = async configs => {
   if (ELK_SYNCER) {
     log('Starting elkSyncer ...');
 
-    await runCommand('apt', ['install', '-y', 'python3-pip']);
-    await runCommand('pip3', [
-      'install',
-      '-r',
-      'build/elkSyncer/requirements.txt'
-    ]);
-
     apps.push({
       name: 'elkSyncer',
       script: filePath('build/elkSyncer/main.py'),

@@ -1,1 +1,1 @@
-exports.tableSchema = () => 'erxes';
+exports.tableSchema = () => process.env.DB_NAME;
