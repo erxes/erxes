@@ -13,7 +13,6 @@ import {
   ShadowedHeader
 } from '../styles';
 import ButtonDropdown from './ButtonDropdown';
-import FilterGroup from './FilterGroup';
 import MemberGroup from './MemberGroup';
 import SelectChartType from './SelectChartType';
 import stateChangeHeuristics from './stateChangeHeuristics.js';
@@ -138,24 +137,6 @@ class ExploreQueryBuilder extends React.Component<Props> {
                           </FilterItem>
                         </>
                       ) : null}
-                    </Row>
-                    <Row
-                      justify="space-around"
-                      align="top"
-                      gutter={24}
-                      style={{
-                        marginBottom: 12
-                      }}
-                    >
-                      <Col span={24}>
-                        <FilterGroup
-                          members={filters}
-                          availableMembers={availableDimensions}
-                          addMemberName="Filter"
-                          updateMethods={updateFilters}
-                          schemaType={type}
-                        />
-                      </Col>
                     </Row>
                   </Col>
                 </ControlsRow>

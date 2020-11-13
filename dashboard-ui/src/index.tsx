@@ -18,14 +18,12 @@ const {
 } = getEnv();
 
 // tslint:disable-next-line:no-console
-console.log(REACT_APP_DASHBOARD_CUBE_TOKEN, REACT_APP_DASHBOARD_API_URL);
 
 const cubejsApi = cubejs(REACT_APP_DASHBOARD_CUBE_TOKEN, {
   apiUrl: `${REACT_APP_DASHBOARD_API_URL}/cubejs-api/v1`
 });
 
 // tslint:disable-next-line:no-console
-console.log(cubejsApi);
 
 render(
   <CubeProvider cubejsApi={cubejsApi}>

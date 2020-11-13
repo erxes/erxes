@@ -5,7 +5,10 @@ const ModifiedElasticSearchDriver = require('./driver.js');
 
 dotenv.config();
 
+const { SCHEMA_PATH } = process.env;
+
 const server = new CubejsServer({
+  schemaPath: SCHEMA_PATH || '/schema',
   driverFactory: ({ dataSource }) => {
     return new ModifiedElasticSearchDriver({
       xpack: true,
