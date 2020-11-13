@@ -31,13 +31,11 @@ import {
   ILeadCredentials
 } from '../../../db/models/definitions/messengerApps';
 import { debugBase } from '../../../debuggers';
-import { getNumberOfVisits, trackViewPageEvent } from '../../../events';
+import { trackViewPageEvent } from '../../../events';
 import memoryStorage from '../../../inmemoryStorage';
 import { graphqlPubsub } from '../../../pubsub';
 import { AUTO_BOT_MESSAGES, BOT_MESSAGE_TYPES } from '../../constants';
 import {
-  checkRules,
-  IRule,
   registerOnboardHistory,
   sendEmail,
   sendMobileNotification,
@@ -679,8 +677,6 @@ const widgetMutations = {
     }: { customerId: string; browserInfo: IBrowserInfo }
   ) {
     // update location
-    browserInfo.url = 'blblalblabla';
-    console.log('widgetsSaveBrowserInfo');
     await Customers.updateLocation(customerId, browserInfo);
 
     try {
@@ -729,37 +725,7 @@ const widgetMutations = {
       customerId: customer._id
     });
 
-    const message = await Messages.findOne(
-      Conversations.widgetsUnreadMessagesQuery(convs)
-    );
-    console.log('message = ', message);
-    if (message?.engageData?.rules) {
-      const numberOfVisits = await getNumberOfVisits(
-        customer._id,
-        browserInfo.url || ''
-      );
-
-      const { messenger } = await EngageMessages.getEngageMessage(
-        message.engageData.messageId
-      );
-      const rules = messenger?.rules as IRule[];
-
-      const isPassedAllRules = await checkRules({
-        rules,
-        browserInfo,
-        numberOfVisits
-      });
-
-      console.log('isPassedAllRules = ', isPassedAllRules);
-
-      if (isPassedAllRules) {
-        return message;
-      }
-
-      return null;
-    }
-
-    return message;
+    return Messages.findOne(Conversations.widgetsUnreadMessagesQuery(convs));
   },
 
   widgetsSendTypingInfo(
