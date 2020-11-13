@@ -164,7 +164,11 @@ export const userActionsMap = async (
     groupId: { $in: user.groupIds }
   });
 
-  const totalPermissions = [...userPermissions, ...groupPermissions];
+  const totalPermissions = [
+    ...userPermissions,
+    ...groupPermissions,
+    ...(user.customPermissions || [])
+  ];
   const allowedActions: IActionMap = {};
 
   const check = (name: string, allowed: boolean) => {

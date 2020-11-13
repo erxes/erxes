@@ -55,8 +55,10 @@ export const queries = `
   configsStatus: ProjectStatistics
   configsGetEnv: ENV
   configsConstants: JSON
+  configsCheckActivateInstallation(hostname: String!): JSON
 `;
 
 export const mutations = `
   configsUpdate(configsMap: JSON!): JSON
+  configsActivateInstallation(token: String!, hostname: String!): JSON
 `;

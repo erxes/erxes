@@ -4,4 +4,10 @@ const updateConfigs = `
   }
 `;
 
-export default { updateConfigs };
+const activateInstallation = `
+  mutation configsActivateInstallation($token: String!, $hostname: String!) {
+    configsActivateInstallation(token: $token, hostname: $hostname)
+  }
+`;
+
+export default { updateConfigs, activateInstallation };

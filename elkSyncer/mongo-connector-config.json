@@ -14,6 +14,30 @@
     },
     "erxes*.companies": {
       "rename": "erxes*__companies._doc"
+    },
+    "erxes*.conversations": {
+      "rename": "erxes*__conversations._doc"
+    },
+    "erxes*.integrations": {
+      "rename": "erxes*__integrations._doc"
+    },
+    "erxes*.deals": {
+      "rename": "erxes*__deals._doc"
+    },
+    "erxes*.brands": {
+      "rename": "erxes*__brands._doc"
+    },
+    "erxes*.users": {
+      "rename": "erxes*__users._doc"
+    },
+    "erxes*.channels": {
+      "rename": "erxes*__channels._doc"
+    },
+    "erxes*.stages": {
+      "rename": "erxes*__stages._doc"
+    },
+    "erxes*.pipelines": {
+      "rename": "erxes*__pipelines._doc"
     }
   },
   "docManagers": [

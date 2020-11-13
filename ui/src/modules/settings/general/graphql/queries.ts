@@ -21,8 +21,16 @@ const configsConstants = `
     configsConstants
   }
 `;
+
+const checkActivateInstallation = `
+  query configsCheckActivateInstallation($hostname: String!) {
+    configsCheckActivateInstallation(hostname: $hostname)
+  }
+`;
+
 export default {
   configs,
   configsConstants,
-  configsGetEnv
+  configsGetEnv,
+  checkActivateInstallation
 };
