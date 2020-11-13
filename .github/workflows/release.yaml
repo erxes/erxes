@@ -257,7 +257,7 @@ jobs:
           mkdir build
           mkdir build-local
 
-          rm -rf node_modules-local
+          rm -rf node_modules
 
           mv ui/build build/ui
 
