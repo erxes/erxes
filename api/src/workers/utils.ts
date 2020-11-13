@@ -138,6 +138,18 @@ export const updateDuplicatedValue = async (
   );
 };
 
+const getWorkerFile = fileName => {
+  if (process.env.NODE_ENV !== 'production') {
+    return `./src/workers/${fileName}.worker.import.js`;
+  }
+
+  if (fs.existsSync('./build/api')) {
+    return `./build/api/workers/${fileName}.worker.js`;
+  }
+
+  return `./dist/workers/${fileName}.worker.js`;
+};
+
 // xls file import, cancel, removal
 export const receiveImportRemove = async (content: any) => {
   const { contentType, importHistoryId } = content;
@@ -146,10 +158,7 @@ export const receiveImportRemove = async (content: any) => {
 
   const results = splitToCore(importHistory.ids || []);
 
-  const workerFile =
-    process.env.NODE_ENV === 'production'
-      ? `./dist/workers/importHistoryRemove.worker.js`
-      : './src/workers/importHistoryRemove.worker.import.js';
+  const workerFile = getWorkerFile('importHistoryRemove');
 
   const workerPath = path.resolve(workerFile);
 
@@ -358,10 +367,7 @@ export const receiveImportCreate = async (content: any) => {
 
     const results: string[] = splitToCore(datas);
 
-    const workerFile =
-      process.env.NODE_ENV === 'production'
-        ? `./dist/workers/bulkInsert.worker.js`
-        : './src/workers/bulkInsert.worker.import.js';
+    const workerFile = getWorkerFile('bulkInsert');
 
     const workerPath = path.resolve(workerFile);
 
