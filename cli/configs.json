@@ -7,12 +7,12 @@
   "API_DOMAIN": "http://localhost:3300",
   "INTEGRATIONS_API_DOMAIN": "http://localhost:3300",
   "WIDGETS_DOMAIN": "http://localhost:3400",
-  "USE_DASHBOARD": true,
+  "USE_DASHBOARD": false,
   "DASHBOARD": {
     "UI_PORT": 4200,
     "API_PORT": 4300
   },
-  "ELK_SYNCER": true,
+  "ELK_SYNCER": false,
   "UI": { "PORT": 3000 },
   "API": {
     "PORT": 3300,

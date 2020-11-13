@@ -185,12 +185,16 @@ module.exports.startServices = async configs => {
   let DASHBOARD_UI_DOMAIN = `http://localhost:${PORT_DASHBOARD_UI}`;
   let DASHBOARD_API_DOMAIN = `http://localhost:${PORT_DASHBOARD_API}`;
 
+  let location = `build`;
+
   if (!DOMAIN.includes('localhost')) {
     API_DOMAIN = `${DOMAIN}/api`;
     INTEGRATIONS_API_DOMAIN = `${DOMAIN}/integrations`;
     WIDGETS_DOMAIN = `${DOMAIN}/widgets`;
     DASHBOARD_UI_DOMAIN = `${DOMAIN}/dashboard/front`;
     DASHBOARD_API_DOMAIN = `${DOMAIN}/dashboard/api`;
+
+    location = `build-local`;
   }
 
   const commonEnv = {
@@ -210,7 +214,7 @@ module.exports.startServices = async configs => {
   const apps = [
     {
       name: 'api',
-      script: filePath('build/api'),
+      script: filePath(`${location}/api`),
       env: {
         PORT: PORT_API,
         DASHBOARD_DOMAIN: USE_DASHBOARD ? DASHBOARD_UI_DOMAIN : null,
@@ -221,7 +225,7 @@ module.exports.startServices = async configs => {
     },
     {
       name: 'cronjobs',
-      script: filePath('build/api/cronJobs'),
+      script: filePath(`${location}/api/cronJobs`),
       env: {
         PORT_CRONS: 3600,
         ...commonEnv,
@@ -232,7 +236,7 @@ module.exports.startServices = async configs => {
     },
     {
       name: 'workers',
-      script: filePath('build/api/workers'),
+      script: filePath(`${location}/api/workers`),
       env: {
         PORT_WORKERS: 3700,
         ...commonEnv,
@@ -242,7 +246,7 @@ module.exports.startServices = async configs => {
     },
     {
       name: 'integrations',
-      script: filePath('build/integrations'),
+      script: filePath(`${location}/integrations`),
       env: {
         PORT: PORT_INTEGRATIONS,
         NODE_ENV: 'production',
@@ -257,7 +261,7 @@ module.exports.startServices = async configs => {
     },
     {
       name: 'engages',
-      script: filePath('build/engages'),
+      script: filePath(`${location}/engages`),
       env: {
         PORT: 3900,
         NODE_ENV: 'production',
@@ -270,7 +274,7 @@ module.exports.startServices = async configs => {
     },
     {
       name: 'logger',
-      script: filePath('build/logger'),
+      script: filePath(`${location}/logger`),
       env: {
         PORT: 3800,
         NODE_ENV: 'production',
@@ -282,7 +286,7 @@ module.exports.startServices = async configs => {
     },
     {
       name: 'email-verifier',
-      script: filePath('build/email-verifier'),
+      script: filePath(`${location}/email-verifier`),
       env: {
         PORT: 4100,
         NODE_ENV: 'production',
@@ -306,7 +310,7 @@ module.exports.startServices = async configs => {
     let schemaPath = '/schema';
 
     if (DOMAIN.includes('localhost')) {
-      schemaPath = '/build/dashboard-api/schema';
+      schemaPath = `${location}/dashboard-api/schema`;
     }
 
     const jwt = require('jsonwebtoken');
@@ -318,7 +322,7 @@ module.exports.startServices = async configs => {
 
     apps.push({
       name: 'dashboard-api',
-      script: filePath('build/dashboard-api'),
+      script: filePath(`${location}/dashboard-api`),
       env: {
         NODE_ENV: 'production',
         PORT: PORT_DASHBOARD_API,
@@ -339,7 +343,7 @@ module.exports.startServices = async configs => {
     }//${API_DOMAIN}/subscriptions`;
 
     await fs.promises.writeFile(
-      filePath('build/dashboard-ui/js/env.js'),
+      filePath(`${location}/dashboard-ui/js/env.js`),
       `
       window.env = {
         NODE_ENV: "production",
@@ -355,7 +359,7 @@ module.exports.startServices = async configs => {
       name: 'dashboard-ui',
       script: 'serve',
       env: {
-        PM2_SERVE_PATH: filePath('build/dashboard-ui'),
+        PM2_SERVE_PATH: filePath(`${location}/dashboard-ui`),
         PM2_SERVE_PORT: PORT_DASHBOARD_UI,
         PM2_SERVE_SPA: 'true'
       }
@@ -369,12 +373,12 @@ module.exports.startServices = async configs => {
     await runCommand('pip3', [
       'install',
       '-r',
-      'build/elkSyncer/requirements.txt'
+      `${location}/elkSyncer/requirements.txt`
     ]);
 
     apps.push({
       name: 'elkSyncer',
-      script: filePath('build/elkSyncer/main.py'),
+      script: filePath(`${location}/elkSyncer/main.py`),
       interpreter: '/usr/bin/python3',
       env: {
         MONGO_URL,
@@ -396,7 +400,7 @@ module.exports.startServices = async configs => {
     );
   } else {
     await fs.promises.writeFile(
-      filePath('build/ui/js/env.js'),
+      filePath(`${location}/ui/js/env.js`),
       `
       window.env = {
         NODE_ENV: "production",
@@ -412,7 +416,7 @@ module.exports.startServices = async configs => {
       name: 'ui',
       script: 'serve',
       env: {
-        PM2_SERVE_PATH: filePath('build/ui'),
+        PM2_SERVE_PATH: filePath(`${location}/ui`),
         PM2_SERVE_PORT: PORT_UI,
         PM2_SERVE_SPA: 'true'
       }
@@ -421,7 +425,7 @@ module.exports.startServices = async configs => {
 
   apps.push({
     name: 'widgets',
-    script: filePath('build/widgets/dist'),
+    script: filePath(`${location}/widgets/dist`),
     env: {
       PORT: PORT_WIDGETS,
       NODE_ENV: 'production',
