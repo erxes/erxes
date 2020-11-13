@@ -92,8 +92,10 @@ module.exports.log = log;
 
 module.exports.filePath = filePath;
 
-module.exports.downloadLatesVersion = async () => {
+module.exports.downloadLatesVersion = async configs => {
   log('Downloading erxes ...');
+
+  const { DOMAIN } = configs || {};
 
   // download the latest build
   await execCurl(
@@ -103,8 +105,14 @@ module.exports.downloadLatesVersion = async () => {
 
   const gitInfo = await fse.readJSON(filePath('gitInfo.json'));
 
+  let fileName = `${gitInfo.tag_name}`;
+
+  if (DOMAIN.includes('localhost')) {
+    fileName = `${gitInfo.tag_name}-local`;
+  }
+
   await downloadFile(
-    `https://github.com/erxes/erxes/releases/download/${gitInfo.tag_name}/erxes-${gitInfo.tag_name}.tar.gz`,
+    `https://github.com/erxes/erxes/releases/download/${gitInfo.tag_name}/erxes-${fileName}.tar.gz`,
     'build.tar.gz'
   );
 
@@ -112,7 +120,7 @@ module.exports.downloadLatesVersion = async () => {
 
   log('Extracting tar ...');
 
-  await execCommand(`tar -xf build.tar.gz`);
+  await execCommand(`tar xf build.tar.gz`);
 
   log('Removing temp files ...');
 
@@ -295,6 +303,12 @@ module.exports.startServices = async configs => {
       );
     }
 
+    let schemaPath = '/schema';
+
+    if (DOMAIN.includes('localhost')) {
+      schemaPath = '/build/dashboard-api/schema';
+    }
+
     const jwt = require('jsonwebtoken');
     const CUBE_API_SECRET = 'secret';
 
@@ -306,7 +320,7 @@ module.exports.startServices = async configs => {
       name: 'dashboard-api',
       script: filePath('build/dashboard-api'),
       env: {
-        // NODE_ENV: 'production',
+        NODE_ENV: 'production',
         PORT: PORT_DASHBOARD_API,
         DEBUG: 'erxes-dashboards:*',
         CUBEJS_URL: DASHBOARD_API_DOMAIN,
@@ -314,6 +328,7 @@ module.exports.startServices = async configs => {
         CUBEJS_TOKEN: cubejsToken,
         CUBEJS_DB_TYPE: 'elasticsearch',
         CUBEJS_DB_URL: ELASTICSEARCH_URL,
+        SCHEMA_PATH: schemaPath,
         REDIS_URL: REDIS_HOST,
         REDIS_PASSWORD: REDIS_PASSWORD
       }
@@ -387,7 +402,7 @@ module.exports.startServices = async configs => {
         NODE_ENV: "production",
         REACT_APP_API_URL: "${API_DOMAIN}",
         REACT_APP_API_SUBSCRIPTION_URL: "${subscriptionsUrl}",
-        REACT_APP_CDN_HOST: "${WIDGETS_DOMAIN}"
+        REACT_APP_CDN_HOST: "${WIDGETS_DOMAIN}",
         REACT_APP_DASHBOARD_URL: "${USE_DASHBOARD ? DASHBOARD_UI_DOMAIN : null}"
       }
     `
