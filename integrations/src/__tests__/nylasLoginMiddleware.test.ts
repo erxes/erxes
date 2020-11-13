@@ -29,6 +29,7 @@ interface IReqQuery {
   error?: string;
   code?: string;
   type?: string;
+  state?: string;
 }
 
 describe('Login middleware test', () => {
@@ -102,7 +103,6 @@ describe('Login middleware test', () => {
     );
 
     // User global variable for redirect
-    delete req.query.kind;
     await getOAuthCredentials(req, res, next);
   });
 
@@ -169,6 +169,7 @@ describe('Login middleware test', () => {
     req.query.kind = 'nylas-office365';
     req.query.code = 'code';
     req.query.type = 'calendar';
+    req.query.state = 'office365&&calendar';
 
     setConfigAndCredentials(true, true);
 

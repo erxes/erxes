@@ -17,29 +17,21 @@ dotenv.config();
 
 const { DOMAIN } = process.env;
 
-const globals: { kind?: string; type?: string } = {};
-
 // Provider specific OAuth2 ===========================
 const getOAuthCredential = async (req, res, next) => {
   debugRequest(debugNylas, req);
 
-  let { kind, type } = req.query;
+  const state = req.query.state;
+  let { type, kind } = req.query;
 
-  if (kind) {
-    // for redirect
-    globals.kind = kind;
-  } else {
-    kind = globals.kind;
+  if (state) {
+    kind = state.split('&&')[0];
+    type = state.split('&&')[1];
   }
 
-  if (type) {
-    // for redirect
-    globals.type = type;
-  } else {
-    type = globals.type;
+  if (!state && kind) {
+    kind = kind.split('-')[1];
   }
-
-  kind = kind.split('-')[1];
 
   if (!checkCredentials()) {
     return next(new Error('Nylas not configured, check your env'));
@@ -63,6 +55,7 @@ const getOAuthCredential = async (req, res, next) => {
         client_id: clientId,
         response_type: 'code',
         redirect_uri: redirectUri,
+        ...(type ? { state: `${kind}&&${type}` } : {}),
         ...params
       };
 
@@ -132,7 +125,6 @@ const getOAuthCredential = async (req, res, next) => {
 
   if (type === 'calendar') {
     url = `${AUTHORIZED_CALENDAR_REDIRECT_URL}?uid=${uid}#showCalendarModal=true`;
-    delete globals.type;
   }
 
   return res.redirect(url);
