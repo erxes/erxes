@@ -95,22 +95,11 @@ yarn migrate
 3. Remove old folders
 ```rm -rf erxes*```
 
-2. Create erxes project
+4. stop pm2 process
+ ```pm2 delete all```
+
+5. Create erxes project
 ```yarn create erxes-app erxes```
-
-2.1 Enter your domain answer to the questions
-
-3. Switch to su and replace nginx config
-- ```exit```
-- ```cp erxes/nginx.conf /etc/nginx/sites-available/default```
-
-4. Run certbot again and restart nginx
-- ```sudo certbot --nginx```
-- ```service nginx restart```
-
-5. Switch to erxes and stop pm2 process
-- ```su erxes```
-- ```pm2 delete all```
 
 6. Update MONGO_URL config
 - vim (nano) ecosystem.config.js (open ecosystem.config.js file)
@@ -121,8 +110,17 @@ yarn migrate
 7. Run start command
 - ```cd erxes```
 - ```yarn start```
+- Enter your domain answer to the questions
 
-8. Done. Check your app in browser.
+8. Switch to su and replace nginx config
+- ```exit```
+- ```cp erxes/nginx.conf /etc/nginx/sites-available/default```
+
+9. Run certbot again and restart nginx
+- ```sudo certbot --nginx```
+- ```service nginx restart```
+
+10. Done. Check your app in browser.
 
 
 

@@ -1,3 +1,5 @@
+import client from 'apolloClient';
+import gql from 'graphql-tag';
 import Button from 'modules/common/components/Button';
 import {
   ControlLabel,
@@ -7,48 +9,46 @@ import {
 import Info from 'modules/common/components/Info';
 import { Alert } from 'modules/common/utils';
 import React, { useEffect, useState } from 'react';
+import { mutations, queries } from '../graphql';
 
 const ActivateInstallation = () => {
-  const options: any = {
-    method: 'post',
-    headers: {
-      'Content-Type': 'application/json; charset=UTF-8'
-    }
-  };
-
   const [token, setToken] = useState('');
   const [activated, setActivated] = useState(false);
 
+  const hostname = window.location.hostname;
+
   useEffect(() => {
-    fetch('https://erxes.io/check-activate-installation', options).then(
-      response => {
-        if (response.ok) {
-          setActivated(true);
+    client
+      .query({
+        query: gql(queries.checkActivateInstallation),
+        variables: {
+          hostname
         }
-      }
-    );
-  }, [options]);
+      })
+      .then(() => {
+        setActivated(true);
+      });
+  }, [hostname]);
 
   const onSubmit = e => {
     e.preventDefault();
 
-    options.body = JSON.stringify({
-      token
-    });
-
-    fetch('https://erxes.io/activate-installation', options).then(
-      async response => {
-        const jsonRes = await response.json();
-
-        if (!response.ok) {
-          return Alert.error(jsonRes.message);
+    client
+      .mutate({
+        mutation: gql(mutations.activateInstallation),
+        variables: {
+          token,
+          hostname
         }
+      })
+      .then(() => {
+        Alert.info('Successfully activated');
 
         setActivated(true);
-
-        return Alert.success(jsonRes.message);
-      }
-    );
+      })
+      .catch((error: any) => {
+        Alert.error(error.message);
+      });
   };
 
   const onChange = e => {

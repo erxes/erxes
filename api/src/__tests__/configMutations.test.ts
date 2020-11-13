@@ -47,4 +47,25 @@ describe('Test configs mutations', () => {
 
     firebaseMock.restore();
   });
+
+  test('Activate installation', async () => {
+    const mock = sinon.stub(utils, 'sendRequest').callsFake(() => {
+      return Promise.resolve('ok');
+    });
+
+    const qry = `
+      mutation configsActivateInstallation($token: String! $hostname: String!) {
+        configsActivateInstallation(token: $token hostname: $hostname)
+      }
+    `;
+
+    const response = await graphqlRequest(qry, 'configsActivateInstallation', {
+      hostname: 'localhost',
+      token: 'token'
+    });
+
+    expect(response).toBe('ok');
+
+    mock.restore();
+  });
 });

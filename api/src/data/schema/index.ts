@@ -144,6 +144,12 @@ import {
 } from './deal';
 
 import {
+  mutations as DashboardMutations,
+  queries as DashboardQueries,
+  types as DashboardTypes
+} from './dashboard';
+
+import {
   mutations as ProductMutations,
   queries as ProductQueries,
   types as ProductTypes
@@ -253,6 +259,7 @@ export const types = `
   ${NotificationTypes}
   ${BoardTypes}
   ${DealTypes}
+  ${DashboardTypes}
   ${ProductTypes}
   ${ConfigTypes}
   ${FieldGroupTypes}
@@ -296,6 +303,7 @@ export const queries = `
     ${NotificationQueries}
     ${ActivityLogQueries}
     ${DealQueries}
+    ${DashboardQueries}
     ${ProductQueries}
     ${ConfigQueries}
     ${FieldGroupQueries}
@@ -336,6 +344,7 @@ export const mutations = `
     ${KnowledgeBaseMutations}
     ${NotificationMutations}
     ${DealMutations}
+    ${DashboardMutations}
     ${ProductMutations}
     ${ConfigMutations}
     ${FieldGroupMutations}

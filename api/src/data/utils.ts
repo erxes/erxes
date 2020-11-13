@@ -5,6 +5,7 @@ import * as fs from 'fs';
 import * as Handlebars from 'handlebars';
 import * as nodemailer from 'nodemailer';
 import * as path from 'path';
+import * as puppeteer from 'puppeteer';
 import * as requestify from 'requestify';
 import * as strip from 'strip';
 import * as xlsxPopulate from 'xlsx-populate';
@@ -544,6 +545,7 @@ export interface IEmailParams {
   customHtml?: string;
   customHtmlData?: any;
   template?: { name?: string; data?: any };
+  attachments?: object[];
   modifier?: (data: any, email: string) => void;
 }
 
@@ -668,7 +670,8 @@ export const sendEmail = async (params: IEmailParams) => {
     customHtml,
     customHtmlData,
     template = {},
-    modifier
+    modifier,
+    attachments
   } = params;
 
   const NODE_ENV = getEnv({ name: 'NODE_ENV' });
@@ -719,7 +722,8 @@ export const sendEmail = async (params: IEmailParams) => {
       from: fromEmail || COMPANY_EMAIL_FROM,
       to: toEmail,
       subject: title,
-      html
+      html,
+      attachments
     };
 
     let headers: { [key: string]: string } = {};
@@ -1339,4 +1343,24 @@ export const s3Stream = async (
   stream.on('error', errorCallback);
 
   return stream;
+};
+
+export const getDashboardFile = async (dashboardId: string) => {
+  const timeout = async ms => {
+    return new Promise(resolve => setTimeout(resolve, ms));
+  };
+
+  const DASHBOARD_DOMAIN = getSubServiceDomain({ name: 'DASHBOARD_DOMAIN' });
+
+  const browser = await puppeteer.launch({ args: ['--no-sandbox'] });
+  const page = await browser.newPage();
+
+  await page.goto(`${DASHBOARD_DOMAIN}/details/${dashboardId}?pdf=true`);
+  await timeout(5000);
+
+  const pdf = await page.pdf({ format: 'A4' });
+
+  await browser.close();
+
+  return pdf;
 };

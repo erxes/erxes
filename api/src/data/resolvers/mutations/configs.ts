@@ -1,10 +1,14 @@
 import { Configs } from '../../../db/models';
-import { moduleCheckPermission } from '../../permissions/wrappers';
+import {
+  moduleCheckPermission,
+  requireLogin
+} from '../../permissions/wrappers';
 import { IContext } from '../../types';
 import {
   initFirebase,
   registerOnboardHistory,
-  resetConfigsCache
+  resetConfigsCache,
+  sendRequest
 } from '../../utils';
 
 const configMutations = {
@@ -41,9 +45,21 @@ const configMutations = {
         registerOnboardHistory({ type: `configure.${code}`, user });
       }
     }
+  },
+
+  configsActivateInstallation(
+    _root,
+    args: { token: string; hostname: string }
+  ) {
+    return sendRequest({
+      method: 'POST',
+      url: 'https://erxes.io/activate-installation',
+      body: args
+    });
   }
 };
 
 moduleCheckPermission(configMutations, 'manageGeneralSettings');
+requireLogin(configMutations, 'configsActivateInstallation');
 
 export default configMutations;

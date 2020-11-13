@@ -1,0 +1,79 @@
+{
+  "name": "dashboard",
+  "version": "0.1.0",
+  "homepage": "/dashboard/front",
+  "private": true,
+  "dependencies": {
+    "@cubejs-client/core": "^0.19.14",
+    "@cubejs-client/react": "^0.19.13",
+    "@testing-library/jest-dom": "^4.2.4",
+    "@testing-library/react": "^9.3.2",
+    "@testing-library/user-event": "^7.1.2",
+    "@types/jest": "^25.2.1",
+    "@types/node": "^13.13.4",
+    "@types/react": "^16.9.34",
+    "@types/react-dom": "^16.9.7",
+    "antd": "^4.1.5",
+    "apollo-cache-inmemory": "^1.1.5",
+    "apollo-client": "^2.3.7",
+    "apollo-link": "^1.0.7",
+    "apollo-link-context": "^1.0.3",
+    "apollo-link-error": "^1.0.9",
+    "apollo-link-http": "^1.5.4",
+    "apollo-link-ws": "^1.0.8",
+    "apollo-utilities": "^1.0.5",
+    "axios": "^0.21.0",
+    "dayjs": "^1.8.25",
+    "erxes-icon": "^1.2.1",
+    "graphql": "^15.0.0",
+    "graphql-tag": "^2.10.3",
+    "i18n-react": "^0.7.0",
+    "lodash.flowright": "^3.5.0",
+    "numeral": "^2.0.6",
+    "query-string": "^6.13.2",
+    "react": "^16.13.1",
+    "react-apollo": "^3.1.5",
+    "react-bootstrap": "^1.0.1",
+    "react-copy-to-clipboard": "^5.0.2",
+    "react-dom": "^16.13.1",
+    "react-grid-layout": "^0.18.3",
+    "react-multi-email": "^0.5.3",
+    "react-router-dom": "^5.1.2",
+    "react-scripts": "3.4.1",
+    "react-transition-group": "^4.3.0",
+    "recharts": "^1.8.5",
+    "styled-components": "^5.1.0",
+    "styled-components-ts": "^0.0.15",
+    "subscriptions-transport-ws": "^0.9.16",
+    "typescript": "^3.8.3"
+  },
+  "scripts": {
+    "start": "react-scripts start",
+    "lint": "tslint 'src/**/*.@(ts|tsx)'",
+    "build": "react-scripts build",
+    "build-local": "PUBLIC_URL=/ react-scripts build",
+    "test": "react-scripts test",
+    "eject": "react-scripts eject"
+  },
+  "eslintConfig": {
+    "extends": "react-app"
+  },
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
+  },
+  "devDependencies": {
+    "tslint": "^5.18.0",
+    "tslint-config-prettier": "^1.18.0",
+    "tslint-plugin-prettier": "^2.0.1",
+    "tslint-react": "^4.0.0"
+  }
+}

@@ -2,7 +2,7 @@ import { ApolloServer, PlaygroundConfig } from 'apollo-server-express';
 import * as cookie from 'cookie';
 import * as dotenv from 'dotenv';
 import * as jwt from 'jsonwebtoken';
-import { EngagesAPI, IntegrationsAPI } from './data/dataSources';
+import { EngagesAPI, HelpersApi, IntegrationsAPI } from './data/dataSources';
 import resolvers from './data/resolvers';
 import typeDefs from './data/schema';
 import { Conversations, Customers, Users } from './db/models';
@@ -33,7 +33,8 @@ if (NODE_ENV !== 'production') {
 const generateDataSources = () => {
   return {
     EngagesAPI: new EngagesAPI(),
-    IntegrationsAPI: new IntegrationsAPI()
+    IntegrationsAPI: new IntegrationsAPI(),
+    HelpersApi: new HelpersApi()
   };
 };
 
