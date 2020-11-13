@@ -237,8 +237,8 @@ jobs:
         run: |
           cd dashboard-ui
           echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin
-          docker build -t erxes/erxes-dashboard-ui:${GITHUB_REF#refs/tags/} -f Dockerfile .
-          docker push erxes/erxes-dashboard-ui:${GITHUB_REF#refs/tags/}
+          docker build -t erxes/erxes-dashboard-front:${GITHUB_REF#refs/tags/} -f Dockerfile .
+          docker push erxes/erxes-dashboard-front:${GITHUB_REF#refs/tags/}
 
       - name: Dashboard - API - Build
         run: |
