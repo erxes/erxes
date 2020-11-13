@@ -16,243 +16,286 @@ jobs:
           - 27017:27017
 
     steps:
-    - uses: actions/checkout@v2
+      - uses: actions/checkout@v2
 
-    - name: Use Node.js 12.19.x
-      uses: actions/setup-node@v1
-      with:
-        node-version: 12.19.x
+      - name: Use Node.js 12.19.x
+        uses: actions/setup-node@v1
+        with:
+          node-version: 12.19.x
 
-    - name: Get release version
-      id: get_release_version
-      run: echo ::set-output name=VERSION::${GITHUB_REF#refs/tags/}
+      - name: Get release version
+        id: get_release_version
+        run: echo ::set-output name=VERSION::${GITHUB_REF#refs/tags/}
 
-    # https://github.com/actions/cache/blob/master/examples.md#node---yarn
-    - name: Get yarn cache directory path
-      id: yarn-cache-dir-path
-      run: echo "::set-output name=dir::$(yarn cache dir)"
+      # https://github.com/actions/cache/blob/master/examples.md#node---yarn
+      - name: Get yarn cache directory path
+        id: yarn-cache-dir-path
+        run: echo "::set-output name=dir::$(yarn cache dir)"
 
-    - uses: actions/cache@v2
-      id: yarn-cache # use this to check for `cache-hit` (`steps.yarn-cache.outputs.cache-hit != 'true'`)
-      with:
-        path: ${{ steps.yarn-cache-dir-path.outputs.dir }}
-        key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
-        restore-keys: |
-          ${{ runner.os }}-yarn-
+      - uses: actions/cache@v2
+        id: yarn-cache # use this to check for `cache-hit` (`steps.yarn-cache.outputs.cache-hit != 'true'`)
+        with:
+          path: ${{ steps.yarn-cache-dir-path.outputs.dir }}
+          key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-yarn-
 
-    - name: Main - Install dependencies
-      run: |
-        yarn install
+      - name: Main - Install dependencies
+        run: |
+          yarn install
 
-    - name: Api - Install dependencies
-      run: |
-        cd api
-        yarn install
+      - name: Api - Install dependencies
+        run: |
+          cd api
+          yarn install
 
-    - name: Api - Lint
-      run: |
-        yarn lint api
+      - name: Api - Lint
+        run: |
+          yarn lint api
 
-    - name: Api - Tsc
-      run: |
-        cd api
-        yarn tsc -p tsconfig.prod.json
+      - name: Api - Tsc
+        run: |
+          cd api
+          yarn tsc -p tsconfig.prod.json
 
-    - name: Api - Build
-      run: |
-        cd api
-        rm -rf node_modules
-        yarn install --production
-        yarn build
+      - name: Api - Build
+        run: |
+          cd api
+          rm -rf node_modules
+          yarn install --production
+          yarn build
 
-    - name: Api - Build docker image
-      env:
-        BASE_IMAGE: erxes/erxes-api:base-12.19.0-slim
-      run: |
-        cd api
-        echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin
-        DOCKER_BUILDKIT=1 docker build --build-arg BASE_IMAGE=$BASE_IMAGE -t erxes/erxes-api:${GITHUB_REF#refs/tags/} -f api.Dockerfile .
-        docker push erxes/erxes-api:${GITHUB_REF#refs/tags/}
+      - name: Api - Build docker image
+        env:
+          BASE_IMAGE: erxes/erxes-api:base-12.19.0-slim
+        run: |
+          cd api
+          echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin
+          DOCKER_BUILDKIT=1 docker build --build-arg BASE_IMAGE=$BASE_IMAGE -t erxes/erxes-api:${GITHUB_REF#refs/tags/} -f api.Dockerfile .
+          docker push erxes/erxes-api:${GITHUB_REF#refs/tags/}
 
-    - name: elkSyncer - Build docker image
-      run: |
-        cd elkSyncer
-        echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin
-        docker build -t erxes/erxes-elksyncer:${GITHUB_REF#refs/tags/} -f Dockerfile .
-        docker push erxes/erxes-elksyncer:${GITHUB_REF#refs/tags/}
+      - name: elkSyncer - Build docker image
+        run: |
+          cd elkSyncer
+          echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin
+          docker build -t erxes/erxes-elksyncer:${GITHUB_REF#refs/tags/} -f Dockerfile .
+          docker push erxes/erxes-elksyncer:${GITHUB_REF#refs/tags/}
 
-    - name: Email Verifier - Install dependencies
-      run: |
-        cd email-verifier
-        yarn install --production
+      - name: Email Verifier - Install dependencies
+        run: |
+          cd email-verifier
+          yarn install --production
 
-    - name: Email Verifier - Build
-      run: |
-        cd email-verifier
-        yarn build
+      - name: Email Verifier - Build
+        run: |
+          cd email-verifier
+          yarn build
 
-    - name: Email Verifier - Build docker image
-      run: |
-        cd email-verifier
-        echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin
-        docker build -t erxes/erxes-email-verifier:${GITHUB_REF#refs/tags/} -f Dockerfile .
-        docker push erxes/erxes-email-verifier:${GITHUB_REF#refs/tags/}
+      - name: Email Verifier - Build docker image
+        run: |
+          cd email-verifier
+          echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin
+          docker build -t erxes/erxes-email-verifier:${GITHUB_REF#refs/tags/} -f Dockerfile .
+          docker push erxes/erxes-email-verifier:${GITHUB_REF#refs/tags/}
 
-    - name: Engages - Install dependencies
-      run: |
-        cd engages-email-sender
-        yarn install --production
+      - name: Engages - Install dependencies
+        run: |
+          cd engages-email-sender
+          yarn install --production
 
-    - name: Engages - Build
-      run: |
-        cd engages-email-sender
-        yarn build
+      - name: Engages - Build
+        run: |
+          cd engages-email-sender
+          yarn build
 
-    - name: Engages - Build docker image
-      run: |
-        cd engages-email-sender
-        echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin
-        docker build -t erxes/erxes-engages-email-sender:${GITHUB_REF#refs/tags/} -f Dockerfile .
-        docker push erxes/erxes-engages-email-sender:${GITHUB_REF#refs/tags/}
+      - name: Engages - Build docker image
+        run: |
+          cd engages-email-sender
+          echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin
+          docker build -t erxes/erxes-engages-email-sender:${GITHUB_REF#refs/tags/} -f Dockerfile .
+          docker push erxes/erxes-engages-email-sender:${GITHUB_REF#refs/tags/}
 
-    - name: Logger - Install dependencies
-      run: |
-        cd logger
-        yarn install --production
+      - name: Logger - Install dependencies
+        run: |
+          cd logger
+          yarn install --production
 
-    - name: Logger - Build
-      run: |
-        cd logger
-        yarn build
+      - name: Logger - Build
+        run: |
+          cd logger
+          yarn build
 
-    - name: Logger - Build docker image
-      run: |
-        cd logger
-        echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin
-        docker build -t erxes/erxes-logger:${GITHUB_REF#refs/tags/} -f Dockerfile .
-        docker push erxes/erxes-logger:${GITHUB_REF#refs/tags/}
+      - name: Logger - Build docker image
+        run: |
+          cd logger
+          echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin
+          docker build -t erxes/erxes-logger:${GITHUB_REF#refs/tags/} -f Dockerfile .
+          docker push erxes/erxes-logger:${GITHUB_REF#refs/tags/}
 
-    - name: Integrations - Install dependencies
-      run: |
-        cd integrations
-        yarn install
+      - name: Integrations - Install dependencies
+        run: |
+          cd integrations
+          yarn install
 
-    - name: Integrations - Lint
-      run: |
-        yarn lint integrations
+      - name: Integrations - Lint
+        run: |
+          yarn lint integrations
 
-    - name: Integrations - Test
-      run: |
-        cd integrations
-        yarn test
-      env:
-        TEST_MONGO_URL: mongodb://localhost/test
-        GOOGLE_CLIENT_ID: GOOGLE_CLIENT_ID
-        GOOGLE_CLIENT_SECRET: GOOGLE_CLIENT_SECRET
-        ENCRYPTION_KEY: aksljdklwjdaklsjdkwljaslkdjwkljd
-        DOMAIN: http://localhost:3400
-        MAIN_APP_DOMAIN: http://localhost:3400
+      - name: Integrations - Test
+        run: |
+          cd integrations
+          yarn test
+        env:
+          TEST_MONGO_URL: mongodb://localhost/test
+          GOOGLE_CLIENT_ID: GOOGLE_CLIENT_ID
+          GOOGLE_CLIENT_SECRET: GOOGLE_CLIENT_SECRET
+          ENCRYPTION_KEY: aksljdklwjdaklsjdkwljaslkdjwkljd
+          DOMAIN: http://localhost:3400
+          MAIN_APP_DOMAIN: http://localhost:3400
 
-    - name: Integrations - Build
-      run: |
-        cd integrations
-        rm -rf node_modules
-        yarn install --production
-        yarn build
+      - name: Integrations - Build
+        run: |
+          cd integrations
+          rm -rf node_modules
+          yarn install --production
+          yarn build
 
-    - name: Integrations - Build docker image
-      run: |
-        cd integrations
-        echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin
-        docker build -t erxes/erxes-integrations:${GITHUB_REF#refs/tags/} -f Dockerfile .
-        docker push erxes/erxes-integrations:${GITHUB_REF#refs/tags/}
+      - name: Integrations - Build docker image
+        run: |
+          cd integrations
+          echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin
+          docker build -t erxes/erxes-integrations:${GITHUB_REF#refs/tags/} -f Dockerfile .
+          docker push erxes/erxes-integrations:${GITHUB_REF#refs/tags/}
 
-    - name: UI - Install dependencies
-      run: |
-        cd ui
-        yarn install
+      - name: UI - Install dependencies
+        run: |
+          cd ui
+          yarn install
 
-    - name: UI - Lint
-      run: |
-        yarn lint ui
+      - name: UI - Lint
+        run: |
+          yarn lint ui
 
-    - name: UI - Tsc
-      run: |
-        cd ui
-        yarn tsc
+      - name: UI - Tsc
+        run: |
+          cd ui
+          yarn tsc
 
-    - name: UI - Build
-      run: |
-        cd ui
-        rm -rf node_modules
-        yarn install --production
-        yarn build
+      - name: UI - Build
+        run: |
+          cd ui
+          rm -rf node_modules
+          yarn install --production
+          yarn build
 
-    - name: UI - Build docker image
-      env:
-        BASE_IMAGE: erxes/erxes:base-1.18-alpine
-      run: |
-        cd ui
-        echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin
-        DOCKER_BUILDKIT=1 docker build --build-arg BASE_IMAGE=$BASE_IMAGE -t erxes/erxes:${GITHUB_REF#refs/tags/} -f ui.Dockerfile .
-        docker push erxes/erxes:${GITHUB_REF#refs/tags/}
+      - name: UI - Build docker image
+        env:
+          BASE_IMAGE: erxes/erxes:base-1.18-alpine
+        run: |
+          cd ui
+          echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin
+          DOCKER_BUILDKIT=1 docker build --build-arg BASE_IMAGE=$BASE_IMAGE -t erxes/erxes:${GITHUB_REF#refs/tags/} -f ui.Dockerfile .
+          docker push erxes/erxes:${GITHUB_REF#refs/tags/}
 
-    - name: Widgets - Install dependencies
-      run: |
-        cd widgets
-        yarn install
+      - name: Widgets - Install dependencies
+        run: |
+          cd widgets
+          yarn install
 
-    - name: Widgets - Lint
-      run: |
-        yarn lint widgets
+      - name: Widgets - Lint
+        run: |
+          yarn lint widgets
 
-    - name: Widgets - Build
-      run: |
-        cd widgets
-        rm -rf node_modules
-        yarn install --production
-        yarn build
+      - name: Widgets - Build
+        run: |
+          cd widgets
+          rm -rf node_modules
+          yarn install --production
+          yarn build
 
-    - name: Widgets - Build docker image
-      run: |
-        cd widgets
-        echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin
-        docker build -t erxes/erxes-widgets:${GITHUB_REF#refs/tags/} -f Dockerfile .
-        docker push erxes/erxes-widgets:${GITHUB_REF#refs/tags/}
+      - name: Widgets - Build docker image
+        run: |
+          cd widgets
+          echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin
+          docker build -t erxes/erxes-widgets:${GITHUB_REF#refs/tags/} -f Dockerfile .
+          docker push erxes/erxes-widgets:${GITHUB_REF#refs/tags/}
 
-    - name: Prepare release assets
-      run: |
-        mkdir build
+      - name: Dashobard - UI - Build
+        run: |
+          mkdir dashboard-ui-build-local
+          cd dashboard-ui
+          rm -rf node_modules
+          yarn install --production
+          yarn build-local
+          cd .. 
+          cp -r dashboard-ui/build dashboard-ui-build-local
+          cd dashboard-ui
+          rm -rf build
+          yarn build
 
-        mv ui/build build/ui
+      - name: Dashobard - UI - Build docker image
+        run: |
+          cd dashboard-ui
+          echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin
+          docker build -t erxes/erxes-dashboard-front:${GITHUB_REF#refs/tags/} -f Dockerfile .
+          docker push erxes/erxes-dashboard-front:${GITHUB_REF#refs/tags/}
 
-        mkdir build/widgets
-        mv widgets/dist widgets/node_modules widgets/locales widgets/static widgets/package.json build/widgets
+      - name: Dashboard - API - Build
+        run: |
+          cd dashboard-api
+          yarn install
 
-        mv api/dist build/api
-        mv api/node_modules api/db-migrate-store.js api/package.json build/api
+      - name: Dashobard - API - Build docker image
+        run: |
+          cd dashboard-api
+          echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin
+          docker build -t erxes/erxes-dashboard-api:${GITHUB_REF#refs/tags/} -f Dockerfile .
+          docker push erxes/erxes-dashboard-api:${GITHUB_REF#refs/tags/}
 
-        mv email-verifier/dist build/email-verifier
-        mv email-verifier/node_modules email-verifier/package.json build/email-verifier
+      - name: Prepare release assets
+        run: |
+          mkdir build
+          mkdir build-local
 
-        mv engages-email-sender/dist build/engages
-        mv engages-email-sender/node_modules engages-email-sender/package.json build/engages
+          rm -rf node_modules
 
-        mv logger/dist build/logger
-        mv logger/node_modules logger/package.json build/logger
+          mv ui/build build/ui
 
-        mv integrations/dist build/integrations
-        mv integrations/node_modules integrations/package.json build/integrations
+          mkdir build/widgets
+          mv widgets/dist widgets/node_modules widgets/locales widgets/static widgets/package.json build/widgets
 
-        mv elkSyncer build/elkSyncer
+          mv api/dist build/api
+          mv api/node_modules api/db-migrate-store.js api/package.json build/api
 
-        tar -zcf erxes-${GITHUB_REF#refs/tags/}.tar.gz build
+          mv email-verifier/dist build/email-verifier
+          mv email-verifier/node_modules email-verifier/package.json build/email-verifier
 
-    - name: Upload release assets
-      uses: softprops/action-gh-release@v1
-      with:
+          mv engages-email-sender/dist build/engages
+          mv engages-email-sender/node_modules engages-email-sender/package.json build/engages
+
+          mv logger/dist build/logger
+          mv logger/node_modules logger/package.json build/logger
+
+          mv integrations/dist build/integrations
+          mv integrations/node_modules integrations/package.json build/integrations
+
+          mv elkSyncer build/elkSyncer
+          mv dashboard-api build/dashboard-api
+          mv dashboard-ui/build build/dashboard-ui
+
+          cp -a build/. build-local
+          rm -rf build-local/dashboard-ui
+          mv dashboard-ui-build-local/build build-local/dashboard-ui
+
+          tar -zcf erxes-${GITHUB_REF#refs/tags/}.tar.gz build
+          tar -zcf erxes-${GITHUB_REF#refs/tags/}-local.tar.gz build-local
+
+      - name: Upload release assets
+        uses: softprops/action-gh-release@v1
+        with:
           files: |
             erxes-${{ steps.get_release_version.outputs.VERSION }}.tar.gz
+            erxes-${{ steps.get_release_version.outputs.VERSION }}-local.tar.gz
           name: Release ${{ steps.get_release_version.outputs.VERSION }}
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

@@ -206,7 +206,7 @@ export const nylasSendEmail = async (erxesApiId: string, params: any) => {
 export const nylasGetCalendars = async (account: IAccount) => {
   try {
     if (!account.nylasToken) {
-      throw new Error(`Account not found: ${account.nylasToken}`);
+      throw new Error('Account not found');
     }
 
     const calendars: ICalendar[] = await getCalenderOrEventList(
@@ -225,7 +225,7 @@ export const nylasGetCalendars = async (account: IAccount) => {
 export const nylasGetAllEvents = async (account: IAccount) => {
   try {
     if (!account.nylasAccountId) {
-      throw new Error(`Account not found`);
+      throw new Error('Account not found');
     }
 
     const calendars = await NylasCalendars.find({
@@ -326,7 +326,7 @@ export const nylasCreateCalenderEvent = async ({
     const account = await Accounts.findOne({ _id: accountId });
 
     if (!account) {
-      throw new Error(`Integration not found with id: ${accountId}`);
+      throw new Error(`Account not found with id: ${accountId}`);
     }
 
     return createEvent(doc, account.nylasToken);

@@ -76,10 +76,6 @@ const connectProviderToNylas = async (uid: string, integrationId?: string) => {
         status: billing_state
       });
     } else {
-      if (billing_state === 'cancelled') {
-        await enableOrDisableAccount(account_id, true);
-      }
-
       const newAccount = await Accounts.create({
         kind,
         email,

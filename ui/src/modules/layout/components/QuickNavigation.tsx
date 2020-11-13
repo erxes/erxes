@@ -7,7 +7,7 @@ import NameCard from 'modules/common/components/nameCard/NameCard';
 import Tip from 'modules/common/components/Tip';
 import { colors } from 'modules/common/styles';
 import { lighten, rgba } from 'modules/common/styles/color';
-import { __ } from 'modules/common/utils';
+import { __, can } from 'modules/common/utils';
 import Widget from 'modules/notifications/containers/Widget';
 import NotificationSettings from 'modules/settings/profile/containers/NotificationSettings';
 import React from 'react';
@@ -145,13 +145,15 @@ const QuickNavigation = ({
     <nav id={'SettingsNav'}>
       {brandsCombo}
 
-      <Tip text={__('Calendar')} placement="bottom">
-        <Square>
-          <Link to="/calendar">
-            <Icon icon="calendar-alt" size={19} />
-          </Link>
-        </Square>
-      </Tip>
+      {can('showCalendars', currentUser) && (
+        <Tip text={__('Calendar')} placement="bottom">
+          <Square>
+            <Link to="/calendar">
+              <Icon icon="calendar-alt" size={19} />
+            </Link>
+          </Square>
+        </Tip>
+      )}
 
       <Tip text={__('Task')} placement="bottom">
         <Square>

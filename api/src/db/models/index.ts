@@ -10,6 +10,7 @@ import Conformities from './Conformities';
 import ConversationMessages from './ConversationMessages';
 import Conversations from './Conversations';
 import Customers from './Customers';
+import { DashboardItems, Dashboards } from './Dashboard';
 import Deals from './Deals';
 import EmailDeliveries from './EmailDeliveries';
 import EmailTemplates from './EmailTemplates';
@@ -72,6 +73,8 @@ export {
   Pipelines,
   Stages,
   Deals,
+  Dashboards,
+  DashboardItems,
   Products,
   ProductCategories,
   Configs,

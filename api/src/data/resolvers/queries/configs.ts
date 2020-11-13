@@ -96,6 +96,14 @@ const configQueries = {
       allValues: Configs.constants(),
       defaultValues: DEFAULT_CONSTANT_VALUES
     };
+  },
+
+  configsCheckActivateInstallation(_root, args: { hostname: string }) {
+    return sendRequest({
+      method: 'POST',
+      url: 'https://erxes.io/check-activate-installation',
+      body: args
+    });
   }
 };
 

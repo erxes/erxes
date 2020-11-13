@@ -8,6 +8,7 @@ import { IUser } from './modules/auth/types';
 import CalendarRoutes from './modules/calendar/routes';
 import CompaniesRoutes from './modules/companies/routes';
 import CustomersRoutes from './modules/customers/routes';
+import DashboardRoutes from './modules/dashboard/routes';
 import DealsRoutes from './modules/deals/routes';
 import EngageRoutes from './modules/engage/routes';
 import GrowthHackRoutes from './modules/growthHacks/routes';
@@ -79,6 +80,7 @@ const renderRoutes = currentUser => {
           <VideoCallRoutes />
           <TutorialRoutes />
           <CalendarRoutes />
+          <DashboardRoutes />
 
           <Route
             key="/confirmation"
