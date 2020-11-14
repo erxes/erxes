@@ -372,7 +372,8 @@ module.exports.startServices = async configs => {
 
     apps.push({
       name: 'elkSyncer',
-      script: filePath('build/elkSyncer/main.py'),
+      cwd: filePath('build/elkSyncer'),
+      script: "main.py",
       interpreter: '/usr/bin/python3',
       env: {
         MONGO_URL: API_MONGO_URL,
