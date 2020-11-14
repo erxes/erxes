@@ -169,7 +169,7 @@ module.exports.startServices = async configs => {
   }
 
   const generateMongoUrl = dbName => {
-    if (MONGO_URL.includes('authSource')) {
+    if (MONGO_URL.includes('replicaSet')) {
       return MONGO_URL.replace('erxes?', `${dbName}?`);
     }
 
@@ -205,6 +205,7 @@ module.exports.startServices = async configs => {
     NODE_ENV: 'production',
     JWT_TOKEN_SECRET: JWT_TOKEN_SECRET || '',
     MONGO_URL: API_MONGO_URL,
+    ELASTICSEARCH_URL,
     MAIN_APP_DOMAIN: DOMAIN,
     WIDGETS_DOMAIN: WIDGETS_DOMAIN,
     INTEGRATIONS_API_DOMAIN: INTEGRATIONS_API_DOMAIN,
