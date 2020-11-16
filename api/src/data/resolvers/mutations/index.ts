@@ -1,5 +1,6 @@
 import boards from './boards';
 import brands from './brands';
+import calendars from './calendars';
 import channels from './channels';
 import checklists from './checklists';
 import companies from './companies';
@@ -7,6 +8,7 @@ import configs from './configs';
 import conformity from './conformities';
 import conversations from './conversations';
 import customers from './customers';
+import dashboards from './dashboards';
 import deals from './deals';
 import emailTemplates from './emailTemplates';
 import engages from './engages';
@@ -77,5 +79,7 @@ export default {
   ...checklists,
   ...robot,
   ...widgets,
-  ...webhooks
+  ...webhooks,
+  ...calendars,
+  ...dashboards
 };

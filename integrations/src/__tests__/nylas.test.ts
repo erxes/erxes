@@ -11,7 +11,7 @@ import * as gmailUtils from '../gmail/utils';
 import { extractEmailFromString } from '../gmail/utils';
 import memoryStorage, { initMemoryStorage } from '../inmemoryStorage';
 import * as messageBroker from '../messageBroker';
-import { Integrations } from '../models';
+import { Accounts, Integrations } from '../models';
 import Configs from '../models/Configs';
 import * as api from '../nylas/api';
 import * as auth from '../nylas/auth';
@@ -624,7 +624,7 @@ describe('Nylas gmail test', () => {
     const mock = sinon.stub(utils, 'sendRequest');
 
     const redisMock = sinon.stub(memoryStorage(), 'get').callsFake(() => {
-      return Promise.resolve('email,refrshToken');
+      return Promise.resolve('email,refrshToken,gmail');
     });
 
     const redisRemoveMock = sinon
@@ -640,7 +640,7 @@ describe('Nylas gmail test', () => {
       billing_state: 'paid'
     });
 
-    await auth.connectProviderToNylas('gmail', erxesApiId, 'uid');
+    await auth.connectProviderToNylas('uid', erxesApiId);
 
     const updatedIntegration = await Integrations.findOne({ erxesApiId });
 
@@ -650,14 +650,15 @@ describe('Nylas gmail test', () => {
 
     redisMock.restore();
 
-    await Integrations.create({
-      email: 'john@mail.com',
-      erxesApiId: 'erxesApiIdDuplicated',
-      kind: 'gmail'
-    });
+    const redisMockAccount = sinon
+      .stub(memoryStorage(), 'get')
+      .callsFake(() => {
+        return Promise.resolve('email,refrshToken,gmail');
+      });
 
-    const redisMockExists = sinon.stub(memoryStorage(), 'get').callsFake(() => {
-      return Promise.resolve('john@mail.com,refreshToken');
+    getNylasConfigMock.onCall(0).returns({
+      NYLAS_CLIENT_ID: 'NYLAS_CLIENT_ID1',
+      NYLAS_CLIENT_SECRET: 'NYLAS_CLIENT_SECRET1'
     });
 
     mock.onCall(2).returns('code');
@@ -667,8 +668,41 @@ describe('Nylas gmail test', () => {
       billing_state: 'paid'
     });
 
+    await auth.connectProviderToNylas('accountId');
+
+    const createdAccount = await Accounts.findOne({
+      nylasAccountId: 'account_id'
+    }).lean();
+
+    expect(createdAccount.nylasToken).toEqual('access_token123');
+    expect(createdAccount.nylasAccountId).toEqual('account_id');
+    expect(createdAccount.nylasBillingState).toEqual('paid');
+
+    await auth.connectProviderToNylas('accountId');
+
+    expect(await Accounts.countDocuments({})).toEqual(1);
+
+    redisMockAccount.restore();
+
+    await Integrations.create({
+      email: 'john@mail.com',
+      erxesApiId: 'erxesApiIdDuplicated',
+      kind: 'gmail'
+    });
+
+    const redisMockExists = sinon.stub(memoryStorage(), 'get').callsFake(() => {
+      return Promise.resolve('john@mail.com,refreshToken,gmail');
+    });
+
+    mock.onCall(4).returns('code');
+    mock.onCall(5).returns({
+      access_token: 'access_token123',
+      account_id: 'account_id',
+      billing_state: 'paid'
+    });
+
     try {
-      await auth.connectProviderToNylas('gmail', 'erxesApiIdDuplicated', 'uid');
+      await auth.connectProviderToNylas('uid', 'erxesApiIdDuplicated');
     } catch (e) {
       expect(e.message).toBe('john@mail.com is already exists');
     }
@@ -682,9 +716,9 @@ describe('Nylas gmail test', () => {
       });
 
     try {
-      await auth.connectProviderToNylas('gmail', erxesApiId, 'uid');
+      await auth.connectProviderToNylas('uid', erxesApiId);
     } catch (e) {
-      expect(e.message).toBe(`Refresh token not found gmail`);
+      expect(e.message).toBe(`Refresh token not found uid`);
     }
 
     redisMockNotFound.restore();
@@ -695,7 +729,7 @@ describe('Nylas gmail test', () => {
     const redisMockExists2 = sinon
       .stub(memoryStorage(), 'get')
       .callsFake(() => {
-        return Promise.resolve('user2@mail.com,refreshToken');
+        return Promise.resolve('user2@mail.com,refreshToken,gmail');
       });
 
     const integrateProviderToNylasMock = sinon
@@ -703,7 +737,7 @@ describe('Nylas gmail test', () => {
       .throws(new Error('Failed to integrate with the Nylas'));
 
     try {
-      await auth.connectProviderToNylas('gmail', erxesApiId, 'alksdjalkdj');
+      await auth.connectProviderToNylas('alksdjalkdj', erxesApiId);
     } catch (e) {
       expect(e.message).toBe('Failed to integrate with the Nylas');
     }

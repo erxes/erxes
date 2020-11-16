@@ -1,12 +1,14 @@
 import activityLogs from './activityLogs';
 import boards from './boards';
 import brands from './brands';
+import calendars from './calendars';
 import channels from './channels';
 import checklists from './checklists';
 import companies from './companies';
 import configs from './configs';
 import conversations from './conversations';
 import customers from './customers';
+import dashboards from './dashboards';
 import dealInsights from './dealInsights';
 import deals from './deals';
 import emailDeliveries from './emailDelivery';
@@ -83,5 +85,7 @@ export default {
   ...robot,
   ...pipelineLabels,
   ...widgets,
-  ...webhooks
+  ...webhooks,
+  ...calendars,
+  ...dashboards
 };

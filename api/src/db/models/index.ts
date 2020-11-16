@@ -1,6 +1,7 @@
 import ActivityLogs from './ActivityLogs';
 import { Boards, Pipelines, Stages } from './Boards';
 import Brands from './Brands';
+import { CalendarGroups, Calendars } from './Calendars';
 import Channels from './Channels';
 import { ChecklistItems, Checklists } from './Checklists';
 import Companies from './Companies';
@@ -9,6 +10,7 @@ import Conformities from './Conformities';
 import ConversationMessages from './ConversationMessages';
 import Conversations from './Conversations';
 import Customers from './Customers';
+import { DashboardItems, Dashboards } from './Dashboard';
 import Deals from './Deals';
 import EmailDeliveries from './EmailDeliveries';
 import EmailTemplates from './EmailTemplates';
@@ -71,6 +73,8 @@ export {
   Pipelines,
   Stages,
   Deals,
+  Dashboards,
+  DashboardItems,
   Products,
   ProductCategories,
   Configs,
@@ -88,5 +92,7 @@ export {
   Checklists,
   ChecklistItems,
   OnboardingHistories,
-  Webhooks
+  Webhooks,
+  Calendars,
+  CalendarGroups
 };

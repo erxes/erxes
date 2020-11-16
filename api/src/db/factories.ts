@@ -7,6 +7,8 @@ import {
   ActivityLogs,
   Boards,
   Brands,
+  CalendarGroups,
+  Calendars,
   Channels,
   ChecklistItems,
   Checklists,
@@ -16,6 +18,8 @@ import {
   ConversationMessages,
   Conversations,
   Customers,
+  DashboardItems,
+  Dashboards,
   Deals,
   EmailDeliveries,
   EmailTemplates,
@@ -111,6 +115,38 @@ export const activityLogFactory = async (
   });
 
   return activity.save();
+};
+
+interface IDashboardFactoryInput {
+  name?: string;
+}
+
+export const dashboardFactory = async (params: IDashboardFactoryInput) => {
+  const dashboard = new Dashboards({
+    name: params.name || 'name'
+  });
+
+  return dashboard.save();
+};
+
+interface IDashboardFactoryInput {
+  dashboardId?: string;
+  layout?: string;
+  vizState?: string;
+  name?: string;
+  type?: string;
+}
+
+export const dashboardItemsFactory = async (params: IDashboardFactoryInput) => {
+  const dashboardItem = new DashboardItems({
+    name: params.name || 'name',
+    dashboardId: params.dashboardId || 'dashboardId',
+    layout: params.layout || 'layout',
+    vizState: params.vizState || 'vizState',
+    type: params.type || 'type'
+  });
+
+  return dashboardItem.save();
 };
 
 interface IUserFactoryInput {
@@ -1466,4 +1502,43 @@ export const onboardHistoryFactory = async (params: IOnboardHistoryParams) => {
   const onboard = new OnboardingHistories(params);
 
   return onboard.save();
+};
+
+interface ICalendarFactoryInput {
+  name?: string;
+  color?: string;
+  userId?: string;
+  groupId: string;
+  createdAt?: Date;
+  accountId?: string;
+}
+
+export const calendarFactory = async (params: ICalendarFactoryInput) => {
+  const calendar = new Calendars({
+    name: params.name || faker.random.word(),
+    categoryId: params.color || faker.random.word(),
+    userId: params.userId || PRODUCT_TYPES.PRODUCT,
+    groupId: params.groupId,
+    accountId: params.accountId || 'erxesApiId'
+  });
+
+  return calendar.save();
+};
+
+interface ICalendarGroupFactoryInput {
+  name?: string;
+  isPrivate?: boolean;
+  userId?: string;
+}
+
+export const calnedarGroupFactory = async (
+  params: ICalendarGroupFactoryInput = {}
+) => {
+  const calendarGroup = new CalendarGroups({
+    name: params.name || faker.random.word(),
+    isPrivate: params.isPrivate || false,
+    userId: params.userId || faker.random.word()
+  });
+
+  return calendarGroup.save();
 };

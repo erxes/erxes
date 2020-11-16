@@ -4,6 +4,7 @@ import * as debuggers from '../debuggers';
 import { initMemoryStorage } from '../inmemoryStorage';
 import * as api from '../nylas/api';
 import {
+  AUTHORIZED_CALENDAR_REDIRECT_URL,
   AUTHORIZED_REDIRECT_URL,
   GOOGLE_OAUTH_ACCESS_TOKEN_URL,
   GOOGLE_OAUTH_AUTH_URL,
@@ -27,6 +28,8 @@ interface IReqQuery {
   kind?: string;
   error?: string;
   code?: string;
+  type?: string;
+  state?: string;
 }
 
 describe('Login middleware test', () => {
@@ -100,7 +103,6 @@ describe('Login middleware test', () => {
     );
 
     // User global variable for redirect
-    delete req.query.kind;
     await getOAuthCredentials(req, res, next);
   });
 
@@ -166,6 +168,8 @@ describe('Login middleware test', () => {
   test('OAuth Office365 request to access_token', async () => {
     req.query.kind = 'nylas-office365';
     req.query.code = 'code';
+    req.query.type = 'calendar';
+    req.query.state = 'office365&&calendar';
 
     setConfigAndCredentials(true, true);
 
@@ -185,7 +189,7 @@ describe('Login middleware test', () => {
     const response = await getOAuthCredentials(req, res, next);
 
     expect(response).toEqual(
-      `${AUTHORIZED_REDIRECT_URL}?uid=123#showoffice365Modal=true`
+      `${AUTHORIZED_CALENDAR_REDIRECT_URL}?uid=123#showCalendarModal=true`
     );
 
     sendRequestMock.restore();

@@ -98,6 +98,9 @@ const INTEGRATIONS_API_DOMAIN = getSubServiceDomain({
 const CLIENT_PORTAL_DOMAIN = getSubServiceDomain({
   name: 'CLIENT_PORTAL_DOMAIN'
 });
+const DASHBOARD_DOMAIN = getSubServiceDomain({
+  name: 'DASHBOARD_DOMAIN'
+});
 
 export const app = express();
 
@@ -141,7 +144,12 @@ app.use(cookieParser());
 
 const corsOptions = {
   credentials: true,
-  origin: [MAIN_APP_DOMAIN, WIDGETS_DOMAIN, CLIENT_PORTAL_DOMAIN]
+  origin: [
+    MAIN_APP_DOMAIN,
+    WIDGETS_DOMAIN,
+    CLIENT_PORTAL_DOMAIN,
+    DASHBOARD_DOMAIN
+  ]
 };
 
 app.use(cors(corsOptions));
@@ -341,11 +349,14 @@ app.get('/connect-integration', async (req: any, res, _next) => {
     return res.end('forbidden');
   }
 
-  const { link, kind } = req.query;
+  const { link, kind, type } = req.query;
+  let url = `${INTEGRATIONS_API_DOMAIN}/${link}?kind=${kind}&userId=${req.user._id}`;
 
-  return res.redirect(
-    `${INTEGRATIONS_API_DOMAIN}/${link}?kind=${kind}&userId=${req.user._id}`
-  );
+  if (type) {
+    url = `${url}&type=${type}`;
+  }
+
+  return res.redirect(url);
 });
 
 // file import

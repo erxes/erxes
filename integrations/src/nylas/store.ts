@@ -3,6 +3,8 @@ import memoryStorage from '../inmemoryStorage';
 import { sendRPCMessage } from '../messageBroker';
 import { cleanHtml } from '../utils';
 import {
+  NylasCalendars,
+  NylasEvent,
   NylasExchangeConversationMessages,
   NylasExchangeConversations,
   NylasExchangeCustomers,
@@ -23,6 +25,8 @@ import {
   NylasYahooCustomers
 } from './models';
 import {
+  ICalendar,
+  IEvent,
   IGetOrCreateArguments,
   INylasConversationArguments,
   INylasConversationMessageArguments,
@@ -60,6 +64,87 @@ const NYLAS_MODELS = {
     conversations: NylasOffice365Conversations,
     conversationMessages: NylasOffice365ConversationMessages
   }
+};
+
+const storeCalendars = async (calendars: ICalendar[]) => {
+  const doc = [];
+
+  for (const calendar of calendars) {
+    doc.push({
+      providerCalendarId: calendar.id,
+      accountUid: calendar.account_id,
+      name: calendar.name || '',
+      description: calendar.description,
+      readOnly: calendar.read_only
+    });
+  }
+
+  return NylasCalendars.insertMany(doc);
+};
+
+const updateCalendar = async (calendar: ICalendar) => {
+  const prevCalendar = await NylasCalendars.findOne({
+    providerCalendarId: calendar.id
+  });
+
+  if (!prevCalendar) {
+    throw new Error(`Calendar not found to be updated ${calendar.id}`);
+  }
+
+  prevCalendar.name = calendar.name;
+  prevCalendar.description = calendar.description;
+  prevCalendar.readOnly = calendar.read_only;
+
+  return prevCalendar.save();
+};
+
+const updateEvent = async (event: IEvent) => {
+  const prevEvent = await NylasEvent.findOne({ providerEventId: event.id });
+
+  if (!prevEvent) {
+    throw new Error(`Event not found to be updated ${event.id}`);
+  }
+
+  prevEvent.providerEventId = event.id;
+  prevEvent.providerCalendarId = event.calendar_id;
+  prevEvent.messageId = event.message_id;
+  prevEvent.title = event.title;
+  prevEvent.accountUid = event.account_id;
+  prevEvent.description = event.description;
+  prevEvent.owner = event.owner;
+  prevEvent.participants = event.participants;
+  prevEvent.readOnly = event.read_only;
+  prevEvent.location = event.location;
+  prevEvent.when.end_time = event.when.end_time;
+  prevEvent.when.start_time = event.when.start_time;
+  prevEvent.busy = event.busy;
+  prevEvent.status = event.status;
+
+  return prevEvent.save();
+};
+
+const storeEvents = async (events: IEvent[]) => {
+  const doc = [];
+
+  for (const event of events) {
+    doc.push({
+      providerEventId: event.id,
+      providerCalendarId: event.calendar_id,
+      messageId: event.message_id,
+      title: event.title,
+      accountUid: event.account_id,
+      description: event.description,
+      owner: event.owner,
+      participants: event.participants,
+      readOnly: event.read_only,
+      location: event.location,
+      when: event.when,
+      busy: event.busy,
+      status: event.status
+    });
+  }
+
+  return NylasEvent.insertMany(doc);
 };
 
 /**
@@ -324,5 +409,9 @@ export {
   createOrGetNylasCustomer,
   createOrGetNylasConversation,
   createOrGetNylasConversationMessage,
+  storeCalendars,
+  storeEvents,
+  updateEvent,
+  updateCalendar,
   NYLAS_MODELS
 };

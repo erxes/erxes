@@ -310,3 +310,99 @@ export const NylasOffice365ConversationMessages = model<
   'conversation_messages_nylas_office365',
   nylasOffice365ConversationMessageSchema
 );
+
+// Calendar =============
+export interface ICalendar {
+  providerCalendarId: string;
+  kind: string;
+  accountUid: string;
+  name: string;
+  description: string;
+  readOnly: boolean;
+}
+
+export interface ICalendarDocument extends ICalendar, Document {}
+export interface ICalendarModel extends Model<ICalendarDocument> {}
+
+const calendarSchema = {
+  _id: field({ pkey: true }),
+  providerCalendarId: { type: String, unique: true },
+  kind: String,
+  accountUid: String,
+  name: String,
+  description: String,
+  readOnly: Boolean
+};
+
+// tslint:disable-next-line
+export const NylasCalendars = model<ICalendarDocument, ICalendarModel>(
+  'calendar',
+  new Schema(calendarSchema)
+);
+
+// Event
+export interface IEvent {
+  kind: string;
+  providerEventId: string;
+  accountUid: string;
+  calendarId: string;
+  providerCalendarId: string;
+  messageId: string;
+  title: string;
+  description: string;
+  owner: string;
+  time: number;
+  participants: Array<{
+    name?: string;
+    email: string;
+    status?: string;
+    comment?: string;
+  }>;
+  readOnly: boolean;
+  location: string;
+  when: {
+    end_time: number;
+    start_time: number;
+  };
+  busy: boolean;
+  status: string;
+}
+
+export interface IEventDocument extends IEvent, Document {}
+export interface IEventModel extends Model<IEventDocument> {}
+
+const participantsSchema = new Schema(
+  {
+    name: String,
+    email: String,
+    status: String,
+    comment: String
+  },
+  { _id: false }
+);
+
+const eventSchema = {
+  _id: field({ pkey: true }),
+  kind: String,
+  providerEventId: { type: String, unique: true },
+  accountUid: String,
+  calendarId: String,
+  providerCalendarId: String,
+  messageId: String,
+  title: String,
+  description: String,
+  owner: String,
+  time: Number,
+  participants: [participantsSchema],
+  readOnly: Boolean,
+  location: String,
+  when: Schema.Types.Mixed,
+  busy: Boolean,
+  status: String
+};
+
+// tslint:disable-next-line
+export const NylasEvent = model<IEventDocument, IEventModel>(
+  'event',
+  new Schema(eventSchema)
+);

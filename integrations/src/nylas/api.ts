@@ -2,7 +2,14 @@ import * as fs from 'fs';
 import * as Nylas from 'nylas';
 import { debugNylas } from '../debuggers';
 import { Integrations } from '../models';
-import { IMessageDraft } from './types';
+import { sendRequest } from '../utils';
+import { NYLAS_API_URL } from './constants';
+import {
+  ICalendarAvailability,
+  IEvent,
+  IEventDoc,
+  IMessageDraft
+} from './types';
 
 /**
  * Build message and send API request
@@ -250,13 +257,238 @@ export const checkEmailDuplication = async (
 ): Promise<any> => {
   debugNylas(`Checking email duplication: ${email}`);
 
-  const integration = await Integrations.findOne({ email, kind }).lean();
+  return Integrations.exists({ email, kind });
+};
 
-  if (integration) {
-    return true;
+const getCalendarOrEvent = async (
+  id: string,
+  type: 'calendars' | 'events',
+  accessToken: string
+) => {
+  try {
+    const response = await nylasInstanceWithToken({
+      accessToken,
+      name: type,
+      method: 'find',
+      options: id
+    });
+
+    if (!response) {
+      throw new Error(`${type} with id ${id} not found`);
+    }
+
+    return JSON.parse(response);
+  } catch (e) {
+    debugNylas(`Failed to get events: ${e.message}`);
+
+    throw e;
+  }
+};
+
+const getCalenderOrEventList = async (
+  type: 'calendars' | 'events',
+  accessToken: string,
+  filter?: {
+    show_cancelled?: boolean;
+    event_id?: string;
+    calendar_id?: string;
+    description?: string;
+    title?: string;
+    date?: string;
+  }
+) => {
+  const options: any = filter || {};
+
+  const extractDate = (date: Date) => {
+    return {
+      month: date.getMonth(),
+      year: date.getFullYear(),
+      date: date.getDate()
+    };
+  };
+
+  if (type === 'events' && !filter.date) {
+    const { month, year } = extractDate(new Date());
+
+    options.starts_after = new Date(year, month, 1).getTime() / 1000;
+    options.ends_before = new Date(year, month + 3, 0).getTime() / 1000;
   }
 
-  return false;
+  try {
+    const responses = await nylasInstanceWithToken({
+      accessToken,
+      name: type,
+      method: 'list',
+      options
+    });
+
+    if (!responses) {
+      throw new Error(`${type} not found`);
+    }
+
+    return responses.map(response => JSON.parse(response));
+  } catch (e) {
+    debugNylas(`Failed to get list: ${e.message}`);
+
+    throw e;
+  }
+};
+
+const checkCalendarAvailability = async (
+  email: string,
+  dates: { startTime: number; endTime: number },
+  accessToken: string
+): Promise<ICalendarAvailability[]> => {
+  try {
+    const responses = await sendRequest({
+      url: `${NYLAS_API_URL}/calendars/free-busy`,
+      method: 'POST',
+      headerParams: {
+        Authorization: `Basic ${Buffer.from(`${accessToken}:`).toString(
+          'base64'
+        )}`
+      },
+      body: {
+        start_time: dates.startTime,
+        end_time: dates.endTime
+      }
+    });
+
+    if (!responses) {
+      throw new Error(`Failed to check calendar availability with ${email}`);
+    }
+
+    return responses.map(response => JSON.parse(response));
+  } catch (e) {
+    debugNylas(`Failed to check availability: ${e.message}`);
+
+    throw e;
+  }
+};
+
+const deleteCalendarEvent = async (eventId: string, accessToken: string) => {
+  try {
+    await sendRequest({
+      url: `${NYLAS_API_URL}/events/${eventId}`,
+      method: 'DELETE',
+      headerParams: {
+        Authorization: `Basic ${Buffer.from(`${accessToken}:`).toString(
+          'base64'
+        )}`
+      },
+      body: {
+        notify_participants: true
+      }
+    });
+
+    debugNylas(`Successfully deleted the event`);
+  } catch (e) {
+    debugNylas(`Failed to delete event: ${e.message}`);
+
+    throw e;
+  }
+};
+
+const createEvent = async (
+  doc: IEventDoc,
+  accessToken: string
+): Promise<IEvent> => {
+  try {
+    const event = await nylasInstanceWithToken({
+      accessToken,
+      name: 'events',
+      method: 'build'
+    });
+
+    const start = new Date(doc.start).getTime() / 1000;
+    const end = new Date(doc.end).getTime() / 1000;
+
+    event.title = doc.title;
+    event.location = doc.location;
+    event.description = doc.description;
+    event.busy = doc.busy;
+    event.calendarId = doc.calendarId;
+    event.participants = doc.participants;
+    event.when = { start_time: start, end_time: end };
+    event.start = start;
+    event.end = end;
+
+    debugNylas(`Successfully created the calendar event`);
+
+    return event.save({ notify_participants: doc.notifyParticipants });
+  } catch (e) {
+    debugNylas(`Failed to create event: ${e.message}`);
+
+    throw e;
+  }
+};
+
+const updateEvent = async (
+  eventId: string,
+  doc: IEventDoc,
+  accessToken: string
+): Promise<IEvent> => {
+  try {
+    const response = await sendRequest({
+      url: `${NYLAS_API_URL}/events/${eventId}`,
+      method: 'PUT',
+      headerParams: {
+        Authorization: `Basic ${Buffer.from(`${accessToken}:`).toString(
+          'base64'
+        )}`
+      },
+      params: {
+        notify_participants: doc.notifyParticipants
+      },
+      body: {
+        title: doc.title,
+        location: doc.location,
+        calendar_id: doc.calendarId,
+        status: doc.status,
+        busy: doc.busy,
+        read_only: doc.readonly,
+        participants: doc.participants,
+        description: doc.description,
+        when: doc.when
+      }
+    });
+
+    debugNylas(`Successfully updated the event with id: ${eventId}`);
+
+    return response;
+  } catch (e) {
+    debugNylas(`Failed to update event: ${e.message}`);
+
+    throw e;
+  }
+};
+
+// Emailed events calendar type only
+const sendEventAttendance = async (
+  eventId: string,
+  args: { status: 'yes' | 'no' | 'maybe'; comment?: string },
+  accessToken: string
+) => {
+  try {
+    const event = await nylasInstanceWithToken({
+      accessToken,
+      name: 'events',
+      method: 'find',
+      options: eventId
+    });
+
+    if (!event) {
+      throw new Error(`Failed to send attendance with event id: ${eventId}`);
+    }
+
+    event.rsvp(args.status, args.comment);
+
+    debugNylas(`Successfully send attendance with event id: ${eventId}`);
+  } catch (e) {
+    debugNylas(`Failed to send event attendance: ${e.message}`);
+
+    throw e;
+  }
 };
 
 export {
@@ -265,5 +497,12 @@ export {
   getMessageById,
   getMessages,
   getAttachment,
-  checkCredentials
+  checkCredentials,
+  getCalenderOrEventList,
+  getCalendarOrEvent,
+  checkCalendarAvailability,
+  deleteCalendarEvent,
+  createEvent,
+  updateEvent,
+  sendEventAttendance
 };

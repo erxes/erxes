@@ -1,7 +1,7 @@
 import * as dotenv from 'dotenv';
 import { debugNylas } from '../debuggers';
 import memoryStorage from '../inmemoryStorage';
-import { Integrations } from '../models';
+import { Accounts, Integrations } from '../models';
 import { getConfig, sendRequest } from '../utils';
 import { checkEmailDuplication, enableOrDisableAccount } from './api';
 import {
@@ -20,25 +20,29 @@ dotenv.config();
  * @param {String} kind
  * @param {Object} account
  */
-const connectProviderToNylas = async (
-  kind: string,
-  integrationId: string,
-  uid: string
-) => {
+const connectProviderToNylas = async (uid: string, integrationId?: string) => {
   const crendentialKey = `${uid}-credential`;
 
   const providerCredential = await memoryStorage().get(crendentialKey, false);
 
   if (!providerCredential) {
-    throw new Error(`Refresh token not found ${kind}`);
+    throw new Error(`Refresh token not found ${uid}`);
   }
 
-  const [email, refreshToken] = providerCredential.split(',');
+  const [email, refreshToken, kind] = providerCredential.split(',');
 
-  const isEmailDuplicated = await checkEmailDuplication(email, kind);
+  if (integrationId) {
+    const isEmailDuplicated = await checkEmailDuplication(email, kind);
 
-  if (isEmailDuplicated) {
-    throw new Error(`${email} is already exists`);
+    if (isEmailDuplicated) {
+      throw new Error(`${email} is already exists`);
+    }
+  } else {
+    const account = await Accounts.findOne({ email, kind });
+
+    if (account) {
+      return { account, isAlreadyExists: true };
+    }
   }
 
   const settings = await getProviderSettings(kind, refreshToken);
@@ -53,20 +57,35 @@ const connectProviderToNylas = async (
       kind,
       settings,
       ...(kind === 'gmail'
-        ? { scopes: 'email.read_only,email.drafts,email.send,email.modify' }
+        ? {
+            scopes:
+              'contacts,calendar,email.read_only,email.drafts,email.send,email.modify'
+          }
         : {})
     });
 
     await memoryStorage().removeKey(crendentialKey);
 
-    await createIntegration({
-      kind,
-      email,
-      integrationId,
-      nylasToken: access_token,
-      nylasAccountId: account_id,
-      status: billing_state
-    });
+    if (integrationId) {
+      await createIntegration({
+        kind,
+        email,
+        integrationId,
+        nylasToken: access_token,
+        nylasAccountId: account_id,
+        status: billing_state
+      });
+    } else {
+      const newAccount = await Accounts.create({
+        kind,
+        email,
+        nylasToken: access_token,
+        nylasAccountId: account_id,
+        nylasBillingState: 'paid'
+      });
+
+      return { account: newAccount };
+    }
   } catch (e) {
     throw e;
   }
