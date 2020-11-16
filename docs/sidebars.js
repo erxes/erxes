@@ -1,7 +1,7 @@
 module.exports = {
   docs: [
     {
-      type: 'category',
+      type: 'Category',
       label: 'Overview',
       items: [
         'overview/getting-started',
@@ -12,7 +12,7 @@ module.exports = {
       ],
     },
     {
-      type: 'category',
+      type: 'Category',
       label: 'Installation Guide',
       items: [
         'installation/ubuntu',
@@ -38,7 +38,7 @@ module.exports = {
       ],
     },
     {
-      type: 'category',
+      type: 'Category',
       label: "Developer's Guide",
       items: [
         'developer/developer',
@@ -54,7 +54,7 @@ module.exports = {
   ],
   tutorials: [
     {
-      type: 'category',
+      type: 'Category',
       label: "User's Guide",
       items: [
         'user/subscription-getting-started',
