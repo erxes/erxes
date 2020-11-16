@@ -354,18 +354,24 @@ describe('createConversation', () => {
   });
 });
 
-describe('createVisitorMessages', () => {
+describe('createVisitorOrCustomerMessages', () => {
   let _user: IUserDocument;
   let _brand: IBrandDocument;
   let _customer: ICustomerDocument;
   let _integration: IIntegrationDocument;
+  let _visitor: ICustomerDocument;
   let mock;
 
   beforeEach(async () => {
     // Creating test data
     _customer = await customerFactory({
       firstName: 'firstName',
-      lastName: 'lastName'
+      lastName: 'lastName',
+      state: 'customer'
+    });
+
+    _visitor = await customerFactory({
+      state: 'visitor'
     });
 
     mock = sinon.stub(events, 'getNumberOfVisits').callsFake(() => {
@@ -402,9 +408,42 @@ describe('createVisitorMessages', () => {
 
     // invalid from user id
     await engageMessageFactory({
-      kind: 'visitorAuto',
+      kind: 'auto',
       userId: 'invalid',
       isLive: true,
+      messenger: {
+        brandId: _brand._id,
+        content: 'hi,{{ customer.firstName }} {{ customer.lastName }}'
+      }
+    });
+
+    await engageMessageFactory({
+      kind: 'visitorAuto',
+      userId: _user._id,
+      isLive: true,
+      customerIds: [_visitor.id],
+      messenger: {
+        brandId: _brand._id,
+        content: 'hi,{{ customer.firstName }} {{ customer.lastName }}'
+      }
+    });
+
+    await engageMessageFactory({
+      kind: 'manual',
+      userId: _user._id,
+      isLive: true,
+      customerIds: [_customer.id],
+      messenger: {
+        brandId: _brand._id,
+        content: 'hi,{{ customer.firstName }} {{ customer.lastName }}'
+      }
+    });
+
+    await engageMessageFactory({
+      kind: 'manual',
+      userId: 'invalid',
+      isLive: true,
+      customerIds: [_customer.id],
       messenger: {
         brandId: _brand._id,
         content: 'hi,{{ customer.firstName }} {{ customer.lastName }}'
@@ -445,7 +484,7 @@ describe('createVisitorMessages', () => {
     });
 
     // main call
-    const msgs = await EngageMessages.createVisitorMessages({
+    const msgs = await EngageMessages.createVisitorOrCustomerMessages({
       brand: _brand,
       customer: _customer,
       integration: _integration,

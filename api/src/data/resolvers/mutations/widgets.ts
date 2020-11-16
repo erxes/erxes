@@ -710,7 +710,7 @@ const widgetMutations = {
     }
 
     // try to create engage chat auto messages
-    await EngageMessages.createVisitorMessages({
+    await EngageMessages.createVisitorOrCustomerMessages({
       brand,
       integration,
       customer,

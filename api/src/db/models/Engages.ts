@@ -73,7 +73,7 @@ export interface IEngageMessageModel extends Model<IEngageMessageDocument> {
     engageData: IEngageData;
     replacedContent: string;
   }): Promise<IMessageDocument | null>;
-  createVisitorMessages(params: {
+  createVisitorOrCustomerMessages(params: {
     brand: IBrandDocument;
     integration: IIntegrationDocument;
     customer: ICustomerDocument;
@@ -227,7 +227,7 @@ export const loadClass = () => {
      * This function will be used in messagerConnect and it will create conversations
      * when visitor messenger connect
      */
-    public static async createVisitorMessages(params: {
+    public static async createVisitorOrCustomerMessages(params: {
       brand: IBrandDocument;
       integration: IIntegrationDocument;
       customer: ICustomerDocument;
@@ -269,8 +269,6 @@ export const loadClass = () => {
           }))
         };
 
-        console.log('message: ', message);
-
         const customerExists = await Customers.find(customersSelector)
           .count()
           .limit(1);
@@ -287,7 +285,6 @@ export const loadClass = () => {
         }
 
         const user = await Users.findOne({ _id: fromUserId });
-
         if (!user) {
           continue;
         }
