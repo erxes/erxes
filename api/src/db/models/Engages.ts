@@ -273,10 +273,7 @@ export const loadClass = () => {
           .count()
           .limit(1);
 
-        if (
-          message.kind === 'auto' ||
-          (message.kind === 'manual' && !Boolean(customerExists))
-        ) {
+        if (message.kind !== 'visitorAuto' && !Boolean(customerExists)) {
           continue;
         }
 
