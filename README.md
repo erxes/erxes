@@ -1,4 +1,7 @@
 <p align="center">
+Hello And Welcome To ERXES
+</p>
+<p align="center">
  <img src="docs/static/img/logo_dark.svg" alt="erxes logo" width="20%" />
 </p>
 
