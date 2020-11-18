@@ -6,24 +6,14 @@ import {
   conversationFactory,
   conversationMessageFactory,
   customerFactory,
-  engageMessageFactory,
   integrationFactory,
   knowledgeBaseArticleFactory,
   knowledgeBaseCategoryFactory,
   knowledgeBaseTopicFactory,
   userFactory
 } from '../db/factories';
-import {
-  Brands,
-  Conversations,
-  Customers,
-  EngageMessages,
-  Integrations,
-  Users
-} from '../db/models';
+import { Brands, Conversations, Customers, Integrations } from '../db/models';
 import './setup.ts';
-
-import Messages from '../db/models/ConversationMessages';
 
 describe('widgetQueries', () => {
   afterEach(async () => {
@@ -31,8 +21,6 @@ describe('widgetQueries', () => {
     await Conversations.deleteMany({});
     await Customers.deleteMany({});
     await Integrations.deleteMany({});
-    await Users.deleteMany({});
-    await EngageMessages.deleteMany({});
     await Brands.deleteMany({});
   });
 
