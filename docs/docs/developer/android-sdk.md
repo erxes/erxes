@@ -46,7 +46,7 @@ Click [here](https://github.com/erxes/erxes-android-sdk/releases) to show erxes-
 ```
 
 ### Requirement
-+ minSdkVersion is 15
++ minSdkVersion is 21
 1. You must add the library in the app gradle:
 ```
 implementation 'androidx.multidex:multidex:2.x.x'
@@ -87,10 +87,7 @@ public class CustomActivity extends AppCompatActivity {
 + following example user will log-in to erxes with email without login form
 
 ```java
-    config.Start_login_email("example@email.com");
+    JSONObject customData = new JSONObject();
+    config.start(email: "example@email.com", phone: "phoneNumber", data: customData)
 ```
-+ following example user will log-in to erxes with phoneNumber without login form
-```java
-    config.Start_login_email("phoneNumber");
-```}
 
