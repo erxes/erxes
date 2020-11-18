@@ -12,7 +12,7 @@ const main = async () => {
   }
 
   const result = await shelljs.exec(
-    `mongorestore --uri ${MONGO_URL} --db erxes ${path.resolve(
+    `mongorestore --uri "${MONGO_URL}" --db erxes ${path.resolve(
       path.join(__dirname, '..', `initialData/${type}`)
     )}`,
     {
