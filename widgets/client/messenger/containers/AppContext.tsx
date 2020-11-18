@@ -30,6 +30,7 @@ interface IState {
   isBrowserInfoSaved: boolean;
   headHeight: number;
   botTyping: boolean;
+  browserInfo: IBrowserInfo;
 }
 
 interface IStore extends IState {
@@ -74,6 +75,7 @@ interface IStore extends IState {
   isLoggedIn: () => boolean;
   setBotTyping: (typing: boolean) => void;
   botTyping: boolean;
+  browserInfo: IBrowserInfo;
 }
 
 export const MESSAGE_TYPES = {
@@ -122,7 +124,8 @@ export class AppProvider extends React.Component<{}, IState> {
       isAttachingFile: false,
       isBrowserInfoSaved: false,
       headHeight: 200,
-      botTyping: false
+      botTyping: false,
+      browserInfo: {}
     };
   }
 
@@ -180,7 +183,8 @@ export class AppProvider extends React.Component<{}, IState> {
           .then(({ data: { widgetsSaveBrowserInfo } }: any) => {
             this.setState({
               lastUnreadMessage: widgetsSaveBrowserInfo,
-              isBrowserInfoSaved: true
+              isBrowserInfoSaved: true,
+              browserInfo
             });
           });
       }
@@ -721,7 +725,8 @@ export class AppProvider extends React.Component<{}, IState> {
           sendFile: this.sendFile,
           setHeadHeight: this.setHeadHeight,
           setUnreadCount: this.setUnreadCount,
-          isLoggedIn: this.isLoggedIn
+          isLoggedIn: this.isLoggedIn,
+          browserInfo: this.state.browserInfo,
         }}
       >
         {this.props.children}

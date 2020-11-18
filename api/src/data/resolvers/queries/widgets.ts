@@ -1,7 +1,9 @@
 import * as momentTz from 'moment-timezone';
 import {
+  Brands,
   ConversationMessages,
   Conversations,
+  EngageMessages,
   Integrations,
   KnowledgeBaseArticles as KnowledgeBaseArticlesModel,
   KnowledgeBaseCategories as KnowledgeBaseCategoriesModel,
@@ -10,6 +12,7 @@ import {
   Users
 } from '../../../db/models';
 import Messages from '../../../db/models/ConversationMessages';
+import Customers, { IBrowserInfo } from '../../../db/models/Customers';
 import { IIntegrationDocument } from '../../../db/models/definitions/integrations';
 import { registerOnboardHistory } from '../../utils';
 
@@ -208,5 +211,48 @@ export default {
     }
 
     return topic;
+  },
+
+  async widgetsGetEngageMessage(
+    _root,
+    {
+      customerId,
+      browserInfo
+    }: { customerId: string; browserInfo: IBrowserInfo }
+  ) {
+    const customer = await Customers.getCustomer(customerId);
+
+    // Preventing from displaying non messenger integrations like form's messages
+    // as last unread message
+    const integration = await Integrations.findOne({
+      _id: customer.integrationId,
+      kind: 'messenger'
+    });
+
+    if (!integration) {
+      throw new Error('Integration not found');
+    }
+
+    const brand = await Brands.findOne({ _id: integration.brandId });
+
+    if (!brand) {
+      throw new Error('Brand not found');
+    }
+
+    // try to create engage chat auto messages
+    await EngageMessages.createVisitorOrCustomerMessages({
+      brand,
+      integration,
+      customer,
+      browserInfo
+    });
+
+    // find conversations
+    const convs = await Conversations.find({
+      integrationId: integration._id,
+      customerId: customer._id
+    });
+
+    return Messages.findOne(Conversations.widgetsUnreadMessagesQuery(convs));
   }
 };
