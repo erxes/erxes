@@ -166,13 +166,7 @@ class Dashboard extends React.Component<Props, State> {
     if (dashboardItems.length === 0) {
       return (
         <EmptyWrapper>
-          <Empty
-            image="/images/empty.svg"
-            imageStyle={{
-              height: 200
-            }}
-            description="There are no charts"
-          />
+          <Empty description="There are no charts" />
         </EmptyWrapper>
       );
     }
