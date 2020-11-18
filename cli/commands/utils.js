@@ -461,6 +461,10 @@ module.exports.startServices = async configs => {
     PORT_DASHBOARD_UI
   });
 
+  log('Running migrations ...');
+
+  await execCommand(`MONGO_URL="${API_MONGO_URL}" node ${filePath('build/api/commands/migrate.js')}`);
+
   return runCommand('pm2', ['start', filePath('ecosystem.config.js')], false);
 };
 
