@@ -441,6 +441,17 @@ describe('createVisitorOrCustomerMessages', () => {
 
     await engageMessageFactory({
       kind: 'manual',
+      userId: _user._id,
+      isLive: true,
+      customerIds: ['customerId'],
+      messenger: {
+        brandId: _brand._id,
+        content: 'hi,{{ customer.firstName }} {{ customer.lastName }}'
+      }
+    });
+
+    await engageMessageFactory({
+      kind: 'manual',
       userId: 'invalid',
       isLive: true,
       customerIds: [_customer.id],
