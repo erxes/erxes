@@ -190,6 +190,8 @@ module.exports.startServices = async configs => {
   let DASHBOARD_API_DOMAIN = `http://localhost:${PORT_DASHBOARD_API}`;
   let dasbhoardSchemaPath = '/build/dashboard-api/schema';
 
+  const HELPERS_DOMAIN = `https://helper.erxes.io/`;
+
   if (!DOMAIN.includes('localhost')) {
     API_DOMAIN = `${DOMAIN}/api`;
     INTEGRATIONS_API_DOMAIN = `${DOMAIN}/integrations`;
@@ -224,6 +226,7 @@ module.exports.startServices = async configs => {
       env: {
         PORT: PORT_API,
         DASHBOARD_DOMAIN: USE_DASHBOARD ? DASHBOARD_UI_DOMAIN : null,
+        HELPERS_DOMAIN: USE_DASHBOARD ? HELPERS_DOMAIN : null,
         ...commonEnv,
         ...optionalDbConfigs,
         DEBUG: 'erxes-api:*'
@@ -328,6 +331,7 @@ module.exports.startServices = async configs => {
         NODE_ENV: 'production',
         PORT: PORT_DASHBOARD_API,
         DEBUG: 'erxes-dashboards:*',
+        DB_NAME: 'erxes',
         CUBEJS_URL: DASHBOARD_API_DOMAIN,
         CUBEJS_API_SECRET: CUBE_API_SECRET,
         CUBEJS_TOKEN: cubejsToken,
@@ -373,7 +377,7 @@ module.exports.startServices = async configs => {
     apps.push({
       name: 'elkSyncer',
       cwd: filePath('build/elkSyncer'),
-      script: "main.py",
+      script: 'main.py',
       interpreter: '/usr/bin/python3',
       env: {
         MONGO_URL: API_MONGO_URL,

@@ -278,6 +278,6 @@ nginx -t
 # reload nginx service
 systemctl reload nginx
 
-certbot run -n --nginx --agree-tos -d $erxes_domain --redirect --register-unsafely-without-email
-
 su $username -c "$sourceCommand && cd $erxes_root_dir/erxes/build/api && node ./commands/trackTelemetry \"success\""
+
+certbot run -n --nginx --agree-tos -d $erxes_domain --redirect --register-unsafely-without-email
