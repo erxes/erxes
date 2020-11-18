@@ -221,6 +221,12 @@ import {
 } from './pipelineLabel';
 
 import {
+  mutations as CalendarMutations,
+  queries as CalendarQueries,
+  types as CalendarTypes
+} from './calendars';
+
+import {
   mutations as WebhookMutations,
   queries as WebhookQueries,
   types as WebhookTypes
@@ -276,6 +282,7 @@ export const types = `
   ${PipelineLabelTypes}
   ${WidgetTypes}
   ${WebhookTypes}
+  ${CalendarTypes}
 `;
 
 export const queries = `
@@ -319,6 +326,7 @@ export const queries = `
     ${PipelineLabelQueries}
     ${WidgetQueries}
     ${WebhookQueries}
+    ${CalendarQueries}
   }
 `;
 
@@ -361,6 +369,7 @@ export const mutations = `
     ${PipelineLabelMutations}
     ${WidgetMutations}
     ${WebhookMutations}
+    ${CalendarMutations}
   }
 `;
 
@@ -383,6 +392,7 @@ export const subscriptions = `
 
     checklistsChanged(contentType: String!, contentTypeId: String!): Checklist
     checklistDetailChanged(_id: String!): Checklist
+    calendarEventUpdated: JSON
   }
 `;
 

@@ -2,6 +2,7 @@ import * as permissionActions from '../permissions/actions';
 import ActivityLog from './activityLog';
 import Board from './boards';
 import Brand from './brand';
+import CalendarGroup from './calendar';
 import Channel from './channel';
 import Checklist from './checklists';
 import Company from './company';
@@ -88,7 +89,8 @@ const resolvers: any = {
   Task,
   UsersGroup,
   Pipeline,
-  GrowthHack
+  GrowthHack,
+  CalendarGroup
 };
 
 export default resolvers;

@@ -2,6 +2,7 @@ import React from 'react';
 import { Route } from 'react-router-dom';
 import BoardRoutes from './boards/routes';
 import BrandsRoutes from './brands/routes';
+import CalendarRoutes from './calendars/routes';
 import ChannelsRoutes from './channels/routes';
 import EmailRoutes from './email/routes';
 import EmailDeliveryRoutes from './emailDelivery/routes';
@@ -45,6 +46,7 @@ const routes = () => (
     <EmailDeliveryRoutes key="EmailDeliveryRoutes" />
     <GrowthHackRoutes key="GrowthHackRoutes" />
     <WebhookRoutes key="WebhookRoutes" />
+    <CalendarRoutes key="CalendarRoutes" />
   </React.Fragment>
 );
 

@@ -148,6 +148,77 @@ export interface INylasConversationMessageArguments {
   message: INylasConversationMessage & { id: string };
 }
 
+export interface IEvent {
+  id: string;
+  object: 'event';
+  account_id: string;
+  calendar_id: string;
+  message_id?: string;
+  title?: string;
+  description?: string;
+  owner: string;
+  time?: {
+    object: 'time';
+    time?: number;
+  };
+  participants: Array<{
+    name?: string;
+    email: string;
+    status?: string;
+    comment?: string;
+  }>;
+  read_only: boolean;
+  location: string;
+  when: {
+    end_time: number;
+    start_time: number;
+  };
+  busy: boolean;
+  status: string;
+}
+
+export interface ICalendar {
+  id: string;
+  object: 'calendar';
+  account_id: string;
+  name?: string;
+  description?: string;
+  read_only: boolean;
+}
+
+export interface ICalendarAvailability {
+  object: 'free_busy';
+  email: string;
+  time_slots: Array<{
+    object: 'time_slot';
+    status: string;
+    start_time: number;
+    end_time: number;
+  }>;
+}
+
+export interface IParticipants {
+  name?: string;
+  email?: string;
+  status?: string;
+  comment?: string;
+}
+
+export interface IEventDoc {
+  title?: string;
+  location?: string;
+  description?: string;
+  busy?: boolean;
+  status?: string;
+  calendarId: string;
+  when: any;
+  start: any;
+  end: any;
+  readonly: boolean;
+  participants: IParticipants[];
+  notifyParticipants: boolean;
+}
+
 export interface INylasIntegrationData {
   username?: string;
   password?: string;

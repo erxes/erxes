@@ -169,7 +169,7 @@ module.exports.startServices = async configs => {
   }
 
   const generateMongoUrl = dbName => {
-    if (MONGO_URL.includes('authSource')) {
+    if (MONGO_URL.includes('replicaSet')) {
       return MONGO_URL.replace('erxes?', `${dbName}?`);
     }
 
@@ -190,6 +190,8 @@ module.exports.startServices = async configs => {
   let DASHBOARD_API_DOMAIN = `http://localhost:${PORT_DASHBOARD_API}`;
   let dasbhoardSchemaPath = '/build/dashboard-api/schema';
 
+  const HELPERS_DOMAIN = `https://helper.erxes.io/`;
+
   if (!DOMAIN.includes('localhost')) {
     API_DOMAIN = `${DOMAIN}/api`;
     INTEGRATIONS_API_DOMAIN = `${DOMAIN}/integrations`;
@@ -205,6 +207,8 @@ module.exports.startServices = async configs => {
     NODE_ENV: 'production',
     JWT_TOKEN_SECRET: JWT_TOKEN_SECRET || '',
     MONGO_URL: API_MONGO_URL,
+    ELASTICSEARCH_URL,
+    ELK_SYNCER,
     MAIN_APP_DOMAIN: DOMAIN,
     WIDGETS_DOMAIN: WIDGETS_DOMAIN,
     INTEGRATIONS_API_DOMAIN: INTEGRATIONS_API_DOMAIN,
@@ -222,6 +226,7 @@ module.exports.startServices = async configs => {
       env: {
         PORT: PORT_API,
         DASHBOARD_DOMAIN: USE_DASHBOARD ? DASHBOARD_UI_DOMAIN : null,
+        HELPERS_DOMAIN: USE_DASHBOARD ? HELPERS_DOMAIN : null,
         ...commonEnv,
         ...optionalDbConfigs,
         DEBUG: 'erxes-api:*'
@@ -326,6 +331,7 @@ module.exports.startServices = async configs => {
         NODE_ENV: 'production',
         PORT: PORT_DASHBOARD_API,
         DEBUG: 'erxes-dashboards:*',
+        DB_NAME: 'erxes',
         CUBEJS_URL: DASHBOARD_API_DOMAIN,
         CUBEJS_API_SECRET: CUBE_API_SECRET,
         CUBEJS_TOKEN: cubejsToken,
@@ -370,7 +376,8 @@ module.exports.startServices = async configs => {
 
     apps.push({
       name: 'elkSyncer',
-      script: filePath('build/elkSyncer/main.py'),
+      cwd: filePath('build/elkSyncer'),
+      script: 'main.py',
       interpreter: '/usr/bin/python3',
       env: {
         MONGO_URL: API_MONGO_URL,
@@ -453,6 +460,10 @@ module.exports.startServices = async configs => {
     PORT_DASHBOARD_API,
     PORT_DASHBOARD_UI
   });
+
+  log('Running migrations ...');
+
+  await execCommand(`MONGO_URL="${API_MONGO_URL}" node ${filePath('build/api/commands/migrate.js')}`);
 
   return runCommand('pm2', ['start', filePath('ecosystem.config.js')], false);
 };

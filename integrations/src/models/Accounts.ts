@@ -20,6 +20,8 @@ export interface IAccount {
   name: string;
   billingState?: string;
   uid: string;
+  nylasAccountId?: string;
+  nylasBillingState?: string;
 }
 
 export interface IAccountDocument extends IAccount, Document {}
@@ -82,7 +84,15 @@ export const accountSchema = new Schema({
     optional: true
   },
   name: { type: String },
-  uid: { type: String }
+  uid: { type: String },
+  nylasAccountId: {
+    type: String,
+    optional: true
+  },
+  nylasBillingState: {
+    type: String,
+    optional: true
+  }
 });
 
 export interface IAccountModel extends Model<IAccountDocument> {

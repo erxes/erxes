@@ -41,6 +41,8 @@ export const accountFactory = (params: {
   smtpPort?: number;
   uid?: string;
   nylasToken?: string;
+  nylasAccountId?: string;
+  nylasBillingState?: string;
 }) => {
   const account = new Accounts({
     kind: params.kind || '',
@@ -58,7 +60,9 @@ export const accountFactory = (params: {
     smtpHost: params.smtpHost || '',
     imapPort: params.imapPort || 0,
     smtpPort: params.smtpPort || 0,
-    uid: params.uid || ''
+    uid: params.uid || '',
+    nylasAccountId: params.nylasAccountId || '',
+    nylasBillingState: params.nylasBillingState || ''
   });
 
   return account.save();
