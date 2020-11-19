@@ -40,7 +40,7 @@ module.exports = {
         },
         {
           to: "/invest",
-          label: "Invest",
+          label: "INVEST",
           position: "left",
         },
         {
