@@ -235,11 +235,6 @@ export const loadClass = () => {
     }) {
       const { brand, integration, customer, browserInfo } = params;
 
-      // force read previous unread engage messages ============
-      await ConversationMessages.forceReadCustomerPreviousEngageMessages(
-        customer._id
-      );
-
       const messages = await EngageMessages.find({
         'messenger.brandId': brand._id,
         method: 'messenger',
@@ -261,6 +256,7 @@ export const loadClass = () => {
 
         const customersSelector = {
           _id: customer._id,
+          state: { $ne: 'visitor' },
           ...(await generateCustomerSelector({
             customerIds,
             segmentIds,
@@ -269,9 +265,12 @@ export const loadClass = () => {
           }))
         };
 
+        console.log('customersSelector: ', customersSelector);
+
         const customerExists = await Customers.findOne(customersSelector);
 
         if (message.kind !== 'visitorAuto' && !customerExists) {
+          console.log('continue');
           continue;
         }
 
