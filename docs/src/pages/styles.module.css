@@ -20,6 +20,14 @@
 	font-size: 32px;
 }
 
+.headingTwo {
+	font-size: 15px;
+	letter-spacing: 2px;
+	text-transform: uppercase;
+	font-weight: 600;
+	color: var(--ifm-color-primary);
+}
+
 .description {
 	font-weight: 300;
 	opacity: 0.9;
