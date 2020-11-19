@@ -538,13 +538,45 @@ describe('createVisitorOrCustomerMessages', () => {
       })
     });
 
+    const fromUser = await userFactory({});
+
+    const eng = await engageMessageFactory({
+      messenger: {
+        brandId: _brand._id,
+        kind: 'chat',
+        sentAs: 'snippet',
+        content: 'content',
+        rules: [
+          {
+            kind: 'currentPageUrl',
+            text: 'Current page url',
+            condition: 'contains',
+            value: 'index'
+          }
+        ]
+      },
+      customerIds: [_customer._id],
+      isLive: true,
+      method: 'messenger',
+      kind: 'auto',
+      userId: fromUser._id
+    });
+
+    await conversationMessageFactory({
+      customerId: _customer._id,
+      isCustomerRead: false,
+      engageData: engageDataFactory({
+        messageId: eng._id,
+        fromUserId: eng.fromUserId
+      })
+    });
     // main call
     const msgs = await EngageMessages.createVisitorOrCustomerMessages({
       brand: _brand,
       customer: _customer,
       integration: _integration,
       browserInfo: {
-        url: '/page'
+        url: '/index'
       }
     });
 
@@ -574,15 +606,6 @@ describe('createVisitorOrCustomerMessages', () => {
 
     expect(message._id).toBeDefined();
     expect(message.content).toBe(content);
-
-    // count of unread conversation messages created by engage must be zero
-    const convEngageMessages = await Messages.find({
-      customerId: _customer._id,
-      isCustomerRead: false,
-      engageData: { $exists: true }
-    });
-
-    expect(convEngageMessages.length).toBe(0);
   });
 
   const browserLanguageRule = {
