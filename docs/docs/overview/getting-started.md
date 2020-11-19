@@ -29,17 +29,13 @@ title: Getting  Started
 - [Notifications](/user/notification)
 - [Mobile Apps](/user/mobile-apps)
 
-
 ### Installation Guide
 
 - [Ubuntu 18.04](/installation/ubuntu)
-- [Debian 10](/installation/debian10)
-- [CentOS 8](/installation/centos8)
-- [RHEL 8](/installation/redhat8)
-- [Docker](/installation/docker)
-- [Heroku](/installation/heroku)
 - [AWS Marketplace](/installation/aws)
 - [DigitalOcean Marketplace](/installation/digitalocean)
+- [Docker](/installation/docker)
+- [Heroku](/installation/heroku)
 - [Upgrade](/installation/upgrade)
 
 ### Administrator's guide

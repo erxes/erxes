@@ -73,7 +73,7 @@ Before you submit your Pull Request (PR) consider the following guidelines:
 
 1. Follow our [Coding Standards](#coding-standards).
 
-1. Run the full erxes test suite, as described in the [developer documentation](), and ensure that all tests pass.
+1. Run the full erxes test suite, as described in the [developer documentation](https://www.erxes.org/), and ensure that all tests pass.
 
 1. Commit your changes using a descriptive commit message that follows our [commit message conventions](#commit-message-format). Adherence to these conventions is necessary because release notes are automatically generated from these messages.
 
@@ -202,19 +202,19 @@ To ensure consistency throughout the source code, keep these rules in mind as yo
 
   // bad
   function getType() {
-    console.log("fetching type...");
+    console.log('fetching type...');
     // set the default type to 'no type'
-    var type = this._type || "no type";
+    var type = this._type || 'no type';
 
     return type;
   }
 
   // good
   function getType() {
-    console.log("fetching type...");
+    console.log('fetching type...');
 
     // set the default type to 'no type'
-    var type = this._type || "no type";
+    var type = this._type || 'no type';
 
     return type;
   }

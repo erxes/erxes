@@ -20,6 +20,14 @@
 	font-size: 32px;
 }
 
+.headingTwo {
+	font-size: 15px;
+	letter-spacing: 2px;
+	text-transform: uppercase;
+	font-weight: 600;
+	color: var(--ifm-color-primary);
+}
+
 .description {
 	font-weight: 300;
 	opacity: 0.9;
@@ -95,6 +103,43 @@ table {
 
 table tr td > img {
 	width: 1em;
+}
+
+.colorPrimary {
+	color: var(--nebula-blue);
+}
+
+.investList {
+	padding: 20px;
+	list-style: none;
+	padding: 0;
+}
+
+.investList li {
+	margin-bottom: 20px;
+	display: flex;
+	align-items: center;
+}
+
+.investList li span {
+	border-radius: 50%;
+	font-weight: 600;
+	font-size: 16px;
+	line-height: 32px;
+	color: #fff;
+	width: 32px;
+	height: 32px;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	background: #9c8ae5;
+	flex-shrink: 0;
+	margin-right: 10px;
+	transition: all ease .3s;
+}
+
+.investList li:hover span {
+	background: var(--nebula-blue);
 }
 
 @media screen and (max-width: 966px) {
