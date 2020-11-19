@@ -265,12 +265,9 @@ export const loadClass = () => {
           }))
         };
 
-        console.log('customersSelector: ', customersSelector);
-
         const customerExists = await Customers.findOne(customersSelector);
 
         if (message.kind !== 'visitorAuto' && !customerExists) {
-          console.log('continue');
           continue;
         }
 
