@@ -4,12 +4,10 @@ import Layout from "@theme/Layout";
 import useDocusaurusContext from "@docusaurus/useDocusaurusContext";
 import styles from "./styles.module.css";
 import Head from "@docusaurus/Head";
-import useBaseUrl from "@docusaurus/useBaseUrl";
 import Link from "@docusaurus/Link";
-import Table from "../../docs/partner-developer.md";
-import { PartnerForm } from "../components/partnerForm";
-import { Step } from "../components/step";
-import { Buttons } from "../components/buttons";
+import { InvestCSO } from "../components/investCSO";
+import { InvestEquity } from "../components/InvestEquity";
+import { InvestFAQ } from "../components/InvestFAQ";
 
 export default function Invest() {
   const context = useDocusaurusContext();
@@ -52,41 +50,45 @@ export default function Invest() {
       </header>
       <main>
         <div className="container">
-          <section className={classnames("center-desktop", styles.section)}>
-            <h2>Are you a good fit?</h2>
-
-            <h3>Become a developer partner if:</h3>
-            <ol className={styles.list}>
-              <li>
-                You’re a freelance developer with a knack for sales and
-                marketing
-              </li>
-              <li>
-                You’re interested in offering erxes to your clients and earning
-                a commission for what you sell.
-              </li>
-              <li>
-                You already use erxes to build customer-centric solutions for
-                your clients and your business.
-              </li>
-            </ol>
-
-            <div className={styles.tableWrapper}>
-              <Table />
+          <section className={classnames(styles.section)}>
+            <p>
+              Our mission is to make marketing technology accessible for
+              everyone through our open-source software. We are going to change
+              the way businesses grow and deliver breakthrough value to erxes’
+              customers.
+            </p>
+            <p>
+              Aside from advocating for the open exchange of information through
+              our platform, we put our community members in the heart of our
+              business. That’s why we are launching a continuous securities
+              offering (CSO) powered by Fairmint Technology. It allows everyone
+              in the world to invest in us at any single time by hitting an
+              “invest now” button on our website.
+            </p>
+            <p>
+              We always strive to go above and beyond to support the community,
+              and we are excited to share this investment opportunity with you.
+              Come along on this journey with us!
+            </p>
+          </section>
+          <section className={styles.dedicationWrapper}>
+            <div className="container">
+              <h2 className={classnames("center-desktop")}>
+                What is <span className={styles.colorPrimary}>erxes CSO</span>
+              </h2>
+              <p>
+                erxes Continuous Securities Offering (CSO) is a new way for
+                companies to raise funding. The CSO democratizes investing and
+                modernizes it for the digital era. The CSO offers several
+                advantages over traditional financing:
+              </p>
+              <InvestCSO />
+              <InvestEquity />
+              <InvestFAQ />
             </div>
           </section>
-
-          <Step />
-
-          <PartnerForm
-            height="1550px"
-            src="https://application.partnerstack.com/application?company=erxes&group=developerpartners"
-          />
         </div>
       </main>
-      <div className={styles.cta}>
-        <Buttons />
-      </div>
     </Layout>
   );
 }

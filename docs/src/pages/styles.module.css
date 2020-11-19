@@ -105,6 +105,10 @@ table tr td > img {
 	width: 1em;
 }
 
+.colorPrimary {
+	color: var(--nebula-blue);
+}
+
 @media screen and (max-width: 966px) {
 	.heroBanner {
 		padding: 2rem;
