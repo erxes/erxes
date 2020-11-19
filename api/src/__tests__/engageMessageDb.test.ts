@@ -1,5 +1,4 @@
 import * as sinon from 'sinon';
-import brand from '../data/resolvers/brand';
 import {
   brandFactory,
   conversationMessageFactory,
