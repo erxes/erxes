@@ -11,7 +11,7 @@ export const InvestFAQ = () => {
           <span className={styles.colorPrimary}>(FAQ)</span>
         </h2>
         <div>
-          <dl class={styles.descriptionList}>
+          <dl className={styles.descriptionList}>
             <dt>
               <b>What is erxes CSO?</b>
             </dt>
@@ -24,7 +24,7 @@ export const InvestFAQ = () => {
               created by a company’s success.
             </dd>
           </dl>
-          <dl class={styles.descriptionList}>
+          <dl className={styles.descriptionList}>
             <dt>
               <b>Who can invest?</b>
             </dt>
@@ -34,7 +34,7 @@ export const InvestFAQ = () => {
               accredited investor.
             </dd>
           </dl>
-          <dl class={styles.descriptionList}>
+          <dl className={styles.descriptionList}>
             <dt>
               <b>What is the minimum amount I can invest in?</b>
             </dt>
@@ -44,13 +44,13 @@ export const InvestFAQ = () => {
               increase in the future.
             </dd>
           </dl>
-          <dl class={styles.descriptionList}>
+          <dl className={styles.descriptionList}>
             <dt>
               <b>When can I invest?</b>
             </dt>
             <dd>The CSO launch date is Nov 23, 2020 at 08:00 PM PST. </dd>
           </dl>
-          <dl class={styles.descriptionList}>
+          <dl className={styles.descriptionList}>
             <dt>
               <b>When can I start selling or transferring my $ERXS?</b>
             </dt>
@@ -59,7 +59,7 @@ export const InvestFAQ = () => {
               months.
             </dd>
           </dl>
-          <dl class={styles.descriptionList}>
+          <dl className={styles.descriptionList}>
             <dt>
               <b>Where is $ERXS traded?</b>
             </dt>
@@ -71,7 +71,7 @@ export const InvestFAQ = () => {
               </a>
             </dd>
           </dl>
-          <dl class={styles.descriptionList}>
+          <dl className={styles.descriptionList}>
             <dt>
               <b>What’s the initial price of $ERXS?</b>
             </dt>
@@ -80,7 +80,7 @@ export const InvestFAQ = () => {
               demand for $ERXS.
             </dd>
           </dl>
-          <dl class={styles.descriptionList}>
+          <dl className={styles.descriptionList}>
             <dt>
               <b>What is different about CSO compared to other offerings?</b>
             </dt>
