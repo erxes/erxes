@@ -28,19 +28,16 @@ module.exports = {
       items: [
         {
           to: "overview/getting-started/",
-          activeBasePath: "",
           label: "Documentation",
           position: "left",
         },
         {
           to: "/user/subscription-getting-started",
-          activeBasePath: "",
           label: "Tutorial",
           position: "left",
         },
         {
           to: "/invest",
-          activeBasePath: "",
           label: "INVEST",
           position: "left",
         },
