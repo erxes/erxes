@@ -15,11 +15,23 @@ module.exports = {
       type: "category",
       label: "Installation Guide",
       items: [
-        "installation/ubuntu",
-        "installation/docker",
-        "installation/heroku",
+        {
+          // https://v2.docusaurus.io/docs/docs-introduction/#sidebar-object
+          Ubuntu: [
+            "installation/ubuntu",
+            {
+              Installation: [
+                "installation/ubuntu-quickstart",
+                "installation/ubuntu-step-by-step",
+                `installation/ubuntu-troubleshooting`,
+              ],
+            },
+          ],
+        },
         "installation/aws",
         "installation/digitalocean",
+        "installation/docker",
+        "installation/heroku",
         "installation/upgrade",
       ],
     },

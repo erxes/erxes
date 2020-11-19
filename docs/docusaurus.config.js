@@ -7,6 +7,7 @@ module.exports = {
   favicon: "img/favicon.png",
   organizationName: "erxes", // Usually your GitHub org/user name.
   projectName: "erxes", // Usually your repo name.
+  onBrokenLinks: "warn",
   themeConfig: {
     googleAnalytics: {
       trackingID: "UA-87254317-8",
@@ -24,7 +25,7 @@ module.exports = {
         src: "img/logo_dark.svg",
         srcDark: "img/logo.svg",
       },
-      links: [
+      items: [
         {
           to: "overview/getting-started/",
           activeBasePath: "",
@@ -147,9 +148,9 @@ module.exports = {
       {
         docs: {
           // It is recommended to set document id as docs home page (`docs/` path).
-          homePageId: "",
+          // homePageId: '/', Deprecated
           sidebarPath: require.resolve("./sidebars.js"),
-          routeBasePath: "",
+          routeBasePath: "/",
           editUrl: "https://github.com/erxes/erxes/edit/develop/docs",
           showLastUpdateAuthor: true,
           showLastUpdateTime: true,
