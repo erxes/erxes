@@ -40,6 +40,7 @@ module.exports = {
         },
         {
           to: "/invest",
+          activeBasePath: "",
           label: "INVEST",
           position: "left",
         },
