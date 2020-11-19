@@ -1,4 +1,5 @@
 import * as sinon from 'sinon';
+import brand from '../data/resolvers/brand';
 import {
   brandFactory,
   conversationMessageFactory,
@@ -351,6 +352,50 @@ describe('createConversation', () => {
 
     expect(message1.isCustomerRead).toBe(true);
     expect(message2.isCustomerRead).toBe(true);
+
+    // message is equal with previous one =====================
+    const engageMessage = await engageMessageFactory({
+      messenger: {
+        brandId: 'brandId',
+        kind: 'chat',
+        sentAs: 'snippet',
+        content: 'content'
+      },
+      customerIds: [_customer._id],
+      fromUserId: user._id
+    });
+
+    await conversationMessageFactory({
+      conversationId: conversation._id,
+      engageData: engageDataFactory({
+        messageId: engageMessage._id,
+        brandId: 'brandId',
+        kind: 'chat',
+        sentAs: 'snippet',
+        content: 'content',
+        fromUserId: user._id
+      }),
+      userId: user._id,
+      customerId: _customer._id
+    });
+
+    response = await EngageMessages.createOrUpdateConversationAndMessages({
+      customer: _customer,
+      integration: _integration,
+      user,
+      replacedContent,
+      engageData: {
+        rules: [],
+        messageId: engageMessage._id,
+        brandId: 'brandId',
+        content: 'content',
+        fromUserId: user._id,
+        kind: 'chat',
+        sentAs: 'snippet'
+      }
+    });
+
+    expect(response).toBe(null);
   });
 });
 
