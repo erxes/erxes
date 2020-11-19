@@ -394,15 +394,16 @@ export class AppProvider extends React.Component<{}, IState> {
   };
 
   readConversation = (conversationId: string) => {
-    this.readMessages(conversationId);
     this.toggle();
     this.changeConversation(conversationId);
     this.changeRoute('conversationDetail');
+    this.readMessages(conversationId);
     this.toggleNotifier();
     this.toggle();
   };
 
   readMessages = (conversationId: string) => {
+    
     client
       .mutate({
         mutation: gql(graphqlTypes.readConversationMessages),
