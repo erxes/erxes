@@ -42,6 +42,7 @@ import {
   sendRequest,
   sendToWebhook
 } from '../../utils';
+import { getOrCreateEngageMessage } from '../../widgetUtils';
 import { conversationNotifReceivers } from './conversations';
 
 interface ISubmission {
@@ -689,41 +690,7 @@ const widgetMutations = {
       debugBase(`Error occurred during widgets save browser info ${e.message}`);
     }
 
-    // update messenger session data
-    const customer = await Customers.updateSession(customerId);
-
-    // Preventing from displaying non messenger integrations like form's messages
-    // as last unread message
-    const integration = await Integrations.findOne({
-      _id: customer.integrationId,
-      kind: 'messenger'
-    });
-
-    if (!integration) {
-      throw new Error('Integration not found');
-    }
-
-    const brand = await Brands.findOne({ _id: integration.brandId });
-
-    if (!brand) {
-      throw new Error('Brand not found');
-    }
-
-    // try to create engage chat auto messages
-    await EngageMessages.createVisitorOrCustomerMessages({
-      brand,
-      integration,
-      customer,
-      browserInfo
-    });
-
-    // find conversations
-    const convs = await Conversations.find({
-      integrationId: integration._id,
-      customerId: customer._id
-    });
-
-    return Messages.findOne(Conversations.widgetsUnreadMessagesQuery(convs));
+    return await getOrCreateEngageMessage(customerId, browserInfo);
   },
 
   widgetsSendTypingInfo(

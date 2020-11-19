@@ -269,11 +269,9 @@ export const loadClass = () => {
           }))
         };
 
-        const customerExists = await Customers.find(customersSelector)
-          .count()
-          .limit(1);
+        const customerExists = await Customers.findOne(customersSelector);
 
-        if (message.kind !== 'visitorAuto' && !Boolean(customerExists)) {
+        if (message.kind !== 'visitorAuto' && !customerExists) {
           continue;
         }
 
@@ -282,6 +280,7 @@ export const loadClass = () => {
         }
 
         const user = await Users.findOne({ _id: fromUserId });
+
         if (!user) {
           continue;
         }
@@ -307,6 +306,15 @@ export const loadClass = () => {
             customer,
             user
           });
+
+          if (messenger.rules) {
+            messenger.rules = messenger.rules.map(r => ({
+              kind: r.kind,
+              text: r.text,
+              condition: r.condition,
+              value: r.value
+            }));
+          }
 
           const conversationMessage = await this.createOrUpdateConversationAndMessages(
             {
@@ -359,8 +367,13 @@ export const loadClass = () => {
         }
       );
 
-      // if previously created conversation for this customer
       if (prevMessage) {
+        if (
+          JSON.stringify(prevMessage.engageData) === JSON.stringify(engageData)
+        ) {
+          return null;
+        }
+
         const messages = await ConversationMessages.find({
           conversationId: prevMessage.conversationId
         });

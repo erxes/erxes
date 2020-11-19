@@ -15,6 +15,7 @@ import Messages from '../../../db/models/ConversationMessages';
 import Customers, { IBrowserInfo } from '../../../db/models/Customers';
 import { IIntegrationDocument } from '../../../db/models/definitions/integrations';
 import { registerOnboardHistory } from '../../utils';
+import { getOrCreateEngageMessage } from '../../widgetUtils';
 
 export const isMessengerOnline = async (integration: IIntegrationDocument) => {
   if (!integration.messengerData) {
@@ -220,39 +221,6 @@ export default {
       browserInfo
     }: { customerId: string; browserInfo: IBrowserInfo }
   ) {
-    const customer = await Customers.getCustomer(customerId);
-
-    // Preventing from displaying non messenger integrations like form's messages
-    // as last unread message
-    const integration = await Integrations.findOne({
-      _id: customer.integrationId,
-      kind: 'messenger'
-    });
-
-    if (!integration) {
-      throw new Error('Integration not found');
-    }
-
-    const brand = await Brands.findOne({ _id: integration.brandId });
-
-    if (!brand) {
-      throw new Error('Brand not found');
-    }
-
-    // try to create engage chat auto messages
-    await EngageMessages.createVisitorOrCustomerMessages({
-      brand,
-      integration,
-      customer,
-      browserInfo
-    });
-
-    // find conversations
-    const convs = await Conversations.find({
-      integrationId: integration._id,
-      customerId: customer._id
-    });
-
-    return Messages.findOne(Conversations.widgetsUnreadMessagesQuery(convs));
+    return await getOrCreateEngageMessage(customerId, browserInfo);
   }
 };
