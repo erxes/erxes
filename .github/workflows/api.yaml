@@ -55,26 +55,26 @@ jobs:
           cd api
           yarn install
 
-      # - name: Lint
-      #   run: |
-      #     yarn lint api
+      - name: Lint
+        run: |
+          yarn lint api
 
-      # - name: Tsc
-      #   run: |
-      #     cd api
-      #     yarn tsc -p tsconfig.prod.json
+      - name: Tsc
+        run: |
+          cd api
+          yarn tsc -p tsconfig.prod.json
 
-      # - name: Test
-      #   run: |
-      #     cd api
-      #     yarn test
-      #   env:
-      #     MONGO_URL: mongodb://localhost/erxes
-      #     TEST_MONGO_URL: mongodb://localhost/test
-      #     JWT_TOKEN_SECRET: token
-      #     MAIN_APP_DOMAIN: http://localhost:3000
-      #     RABBITMQ_HOST: amqp://localhost
-      #     PORT: 3300
+      - name: Test
+        run: |
+          cd api
+          yarn test
+        env:
+          MONGO_URL: mongodb://localhost/erxes
+          TEST_MONGO_URL: mongodb://localhost/test
+          JWT_TOKEN_SECRET: token
+          MAIN_APP_DOMAIN: http://localhost:3000
+          RABBITMQ_HOST: amqp://localhost
+          PORT: 3300
 
       - name: Build
         if: startsWith(github.ref, 'refs/tags/') || github.event_name == 'push'
