@@ -267,7 +267,7 @@ systemctl enable pm2-$username
 
 MONGO_URL="mongodb://erxes:$MONGO_PASS@localhost/erxes?authSource=admin\&replicaSet=rs0"
 
-sourceCommand="source ~/.nvm/nvm.sh && nvm use $NODE_VERSION"
+sourceCommand="source ~/.nvm/nvm.sh && nvm use $NODE_VERSION && export MONGO_URL=$MONGO_URL"
 su $username -c "$sourceCommand && yarn create erxes-app erxes --quickStart --domain=$erxes_domain --mongoUrl=\"$MONGO_URL\" --elasticsearchUrl=$ELASTICSEARCH_URL"
 cd erxes
 su $username -c "$sourceCommand && yarn start"
@@ -279,5 +279,7 @@ nginx -t
 systemctl reload nginx
 
 su $username -c "$sourceCommand && cd $erxes_root_dir/erxes/build/api && node ./commands/trackTelemetry \"success\""
+su $username -c "$sourceCommand && cd $erxes_root_dir/erxes/build/api && node ./commands/loadInitialData"
+su $username -c "$sourceCommand && cd $erxes_root_dir/erxes/build/api && node ./commands/loadInitialData growthHack"
 
 certbot run -n --nginx --agree-tos -d $erxes_domain --redirect --register-unsafely-without-email

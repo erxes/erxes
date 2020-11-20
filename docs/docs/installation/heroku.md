@@ -1,5 +1,5 @@
 ---
-id: heroku
+slug: heroku
 title: Heroku
 ---
 
@@ -35,7 +35,7 @@ REACT_APP_API_URL = https://erxes-api.herokuapp.com
 REACT_APP_CDN_HOST = https://erxes-widget.herokuapp.com
 ```
 
-[![Deploy erxes](https://www.herokucdn.com/deploy/button.svg#heroku "Deploy erxes")](https://heroku.com/deploy?template=https://github.com/erxes/erxes/tree/develop)
+[![Deploy erxes](https://www.herokucdn.com/deploy/button.svg#heroku 'Deploy erxes')](https://heroku.com/deploy?template=https://github.com/erxes/erxes/tree/develop)
 
 ### 2. Install erxes API
 
@@ -59,7 +59,7 @@ LOGS_API_DOMAIN = "update it when you install logger app"
 INTEGRATIONS_API_DOMAIN = "update it when you install integrations app"
 ```
 
-[![Deploy erxes API](https://www.herokucdn.com/deploy/button.svg#heroku "Deploy erxes API")](https://heroku.com/deploy?template=https://github.com/erxes/erxes-api/tree/develop)
+[![Deploy erxes API](https://www.herokucdn.com/deploy/button.svg#heroku 'Deploy erxes API')](https://heroku.com/deploy?template=https://github.com/erxes/erxes-api/tree/develop)
 
 Now go to Heroku dashboard and select the **erxes-api app** from the Apps tab.
 
@@ -114,7 +114,7 @@ API_SUBSCRIPTIONS_URL = wss://erxes-api.herokuapp.com/subscriptions
 PORT = 3200
 ```
 
-[![Deploy Widgets](https://www.herokucdn.com/deploy/button.svg#heroku "Deploy erxes Widgets")](https://heroku.com/deploy?template=https://github.com/batnasan/erxes-widgets-heroku-button)
+[![Deploy Widgets](https://www.herokucdn.com/deploy/button.svg#heroku 'Deploy erxes Widgets')](https://heroku.com/deploy?template=https://github.com/batnasan/erxes-widgets-heroku-button)
 
 Now it's time to grab yourself a cup of coffee and enjoy using **erxes**.
 
@@ -136,7 +136,7 @@ RABBITMQ_HOST = copy and paste from erxes-api RABBITMQ_HOST config var
 Once the app is deployed, go to `Settings` and click `Config Vars` button.  
 Copy `MONGO_URI`'s value and paste it into `MONGO_URL`.
 
-[![Deploy Widgets](https://www.herokucdn.com/deploy/button.svg#heroku "Deploy erxes integrations")](https://heroku.com/deploy?template=https://github.com/batnasan/erxes-logger-heroku-button)
+[![Deploy Widgets](https://www.herokucdn.com/deploy/button.svg#heroku 'Deploy erxes integrations')](https://heroku.com/deploy?template=https://github.com/batnasan/erxes-logger-heroku-button)
 
 ### 5. Install erxes integrations
 
@@ -154,7 +154,7 @@ REDIS_PASSWORD = copy and paste from erxes-api REDIS_PASSWORD config var
 REDIS_PORT = copy and paste from erxes-api REDIS_PORT config var
 ```
 
-[![Deploy Widgets](https://www.herokucdn.com/deploy/button.svg#heroku "Deploy erxes integrations")](https://heroku.com/deploy?template=https://github.com/erxes/erxes-integrations/tree/develop)
+[![Deploy Widgets](https://www.herokucdn.com/deploy/button.svg#heroku 'Deploy erxes integrations')](https://heroku.com/deploy?template=https://github.com/erxes/erxes-integrations/tree/develop)
 
 Once the app is deployed, go to `Settings` and click `Config Vars` button.  
 Copy `MONGODB_URI`'s value and paste it into `MONGO_URL`.

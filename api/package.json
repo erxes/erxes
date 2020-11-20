@@ -15,20 +15,8 @@
     "dev": "ERXES_TELEMETRY_DISABLED=1 DEBUG=erxes* NODE_ENV=development node_modules/.bin/ts-node-dev --respawn --ignore-watch node_modules -- src",
     "dev-crons": "PROCESS_NAME=crons DEBUG=erxes-crons:* NODE_ENV=development node_modules/.bin/ts-node-dev --respawn src/cronJobs",
     "dev-workers": "PROCESS_NAME=workers DEBUG=erxes-workers:* NODE_ENV=development NODE_OPTIONS='--experimental-worker' node_modules/.bin/ts-node src/workers/index.ts",
-    "build": "tsc -p tsconfig.prod.json && cp -rf src/private dist/ && mkdir -p dist/src/ && cp -rf src/initialData dist/src/",
-    "test": "node --expose-gc --max_old_space_size=4000 ./node_modules/.bin/jest --forceExit --silent --logHeapUsage",
-    "loadInitialData": "ts-node ./src/commands/loadInitialData.ts",
-    "loadPermission": "ts-node ./src/commands/loadPermissionData.ts",
-    "loadGrowthHackData": "ts-node ./src/commands/loadGrowthHackData.ts",
-    "loadTestData": "ts-node ./src/commands/loadTestData.ts",
-    "initProject": "ts-node ./src/commands/initProject.ts",
-    "createGooglePubsubTopics": "ts-node ./src/commands/createGooglePubsubTopics.ts",
-    "customCommand": "ts-node ./src/commands/customCommand.ts",
-    "resetMigrations": "ts-node ./src/commands/resetMigrations.ts",
-    "verifyCustomerEmails": "DEBUG=erxes-api:* ts-node ./src/commands/verifyCustomerEmails.ts",
-    "runEsCommand": "ts-node ./src/commands/runEsCommand.ts",
-    "trackTelemetry": "node ./dist/commands/trackTelemetry.js",
-    "migrate": "NODE_ENV=command migrate --migrations-dir='./dist/migrations' --store='./db-migrate-store.js' up"
+    "build": "tsc -p tsconfig.prod.json && cp -rf src/private dist/ && cp -rf src/initialData dist/",
+    "test": "node --expose-gc --max_old_space_size=4000 ./node_modules/.bin/jest --forceExit --silent --logHeapUsage"
   },
   "dependencies": {
     "@google-cloud/pubsub": "^1.1.5",
