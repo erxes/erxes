@@ -471,43 +471,6 @@ describe('createVisitorOrCustomerMessages', () => {
       }
     });
 
-    await engageMessageFactory({
-      kind: 'manual',
-      userId: _user._id,
-      isLive: true,
-      customerIds: ['customerId'],
-      messenger: {
-        brandId: _brand._id,
-        content: 'hi,{{ customer.firstName }} {{ customer.lastName }}'
-      }
-    });
-
-    await engageMessageFactory({
-      kind: 'manual',
-      userId: 'invalid',
-      isLive: true,
-      customerIds: [_customer.id],
-      messenger: {
-        brandId: _brand._id,
-        content: 'hi,{{ customer.firstName }} {{ customer.lastName }}'
-      }
-    });
-
-    const tag = await tagsFactory({});
-
-    await customerFactory({ tagIds: [tag._id] });
-
-    await engageMessageFactory({
-      kind: 'manual',
-      userId: _user._id,
-      isLive: true,
-      tagIds: [tag._id],
-      messenger: {
-        brandId: _brand._id,
-        content: 'hi,{{ customer.firstName }} {{ customer.lastName }}'
-      }
-    });
-
     return message.save();
   });
 
@@ -609,6 +572,108 @@ describe('createVisitorOrCustomerMessages', () => {
 
     expect(message._id).toBeDefined();
     expect(message.content).toBe(content);
+  });
+
+  test('manual message test', async () => {
+    const customer1 = await customerFactory({
+      state: 'customer',
+      firstName: 'firstName',
+      lastName: 'lastName'
+    });
+    const customer2 = await customerFactory({ state: 'customer' });
+
+    const engageMessage = await engageMessageFactory({
+      kind: 'manual',
+      userId: _user._id,
+      isLive: true,
+      customerIds: [customer1.id],
+      messenger: {
+        brandId: _brand._id,
+        content: 'hi,{{ customer.firstName }} {{ customer.lastName }}'
+      }
+    });
+
+    await EngageMessages.createVisitorOrCustomerMessages({
+      brand: _brand,
+      customer: customer2,
+      integration: _integration,
+      browserInfo: {
+        url: '/index'
+      }
+    });
+
+    await EngageMessages.createVisitorOrCustomerMessages({
+      brand: _brand,
+      customer: customer1,
+      integration: _integration,
+      browserInfo: {
+        url: '/index'
+      }
+    });
+
+    const conversation1 = await Conversations.findOne({
+      customerId: customer1._id
+    });
+
+    const conversation2 = await Conversations.findOne({
+      customerId: customer2._id
+    });
+
+    if (!conversation1) {
+      throw new Error('conversation not found');
+    }
+
+    const content = `hi,${_customer.firstName || ''} ${_customer.lastName ||
+      ''}`;
+
+    expect(conversation1?._id).toBeDefined();
+    expect(conversation2).toBeNull();
+    expect(conversation1?.content).toBe(content);
+    expect(conversation1?.customerId).toBe(customer1._id);
+    // expect(conversation.integrationId).toBe(_integration._id);
+
+    const message = await Messages.findOne({
+      conversationId: conversation1?._id
+    });
+
+    if (!message) {
+      throw new Error('message not found');
+    }
+
+    expect(message._id).toBeDefined();
+    expect(message.content).toBe(content);
+    expect(message.engageData).toBeDefined();
+    expect(message.engageData?.messageId).toBe(engageMessage._id);
+  });
+
+  test('manual or auto message: customer does not exist test', async () => {
+    const customer = await customerFactory({ state: 'customer' });
+
+    await engageMessageFactory({
+      kind: 'manual',
+      userId: _user._id,
+      isLive: true,
+      tagIds: [(await tagsFactory({}))._id],
+      messenger: {
+        brandId: _brand._id,
+        content: 'hi,{{ customer.firstName }} {{ customer.lastName }}'
+      }
+    });
+
+    await EngageMessages.createVisitorOrCustomerMessages({
+      brand: _brand,
+      customer,
+      integration: _integration,
+      browserInfo: {
+        url: '/index'
+      }
+    });
+
+    const conversation = await Conversations.findOne({
+      customerId: customer._id
+    });
+
+    expect(conversation).toBeNull();
   });
 
   const browserLanguageRule = {
