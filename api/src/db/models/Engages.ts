@@ -151,10 +151,6 @@ export const loadClass = () => {
         throw new Error(`Engage message not found with id ${_id}`);
       }
 
-      if (message.kind === 'manual') {
-        throw new Error('Can not remove manual message');
-      }
-
       await Conversations.removeEngageConversations(_id);
 
       return message.remove();
@@ -238,7 +234,6 @@ export const loadClass = () => {
       const messages = await EngageMessages.find({
         'messenger.brandId': brand._id,
         method: 'messenger',
-        kind: { $ne: 'manual' },
         isLive: true
       });
 
@@ -248,12 +243,20 @@ export const loadClass = () => {
         const messenger = message.messenger ? message.messenger.toJSON() : {};
 
         const {
-          customerIds,
+          customerIds = [],
           segmentIds,
           tagIds,
           brandIds,
           fromUserId
         } = message;
+
+        if (
+          message.kind === 'manual' &&
+          (customerIds || []).length > 0 &&
+          !customerIds.includes(customer._id)
+        ) {
+          continue;
+        }
 
         const customersSelector = {
           _id: customer._id,
