@@ -351,21 +351,71 @@ describe('createConversation', () => {
 
     expect(message1.isCustomerRead).toBe(true);
     expect(message2.isCustomerRead).toBe(true);
+
+    // message is equal with previous one =====================
+    const engageMessage = await engageMessageFactory({
+      messenger: {
+        brandId: 'brandId',
+        kind: 'chat',
+        sentAs: 'snippet',
+        content: 'content'
+      },
+      customerIds: [_customer._id],
+      fromUserId: user._id
+    });
+
+    await conversationMessageFactory({
+      conversationId: conversation._id,
+      engageData: engageDataFactory({
+        messageId: engageMessage._id,
+        brandId: 'brandId',
+        kind: 'chat',
+        sentAs: 'snippet',
+        content: 'content',
+        fromUserId: user._id
+      }),
+      userId: user._id,
+      customerId: _customer._id
+    });
+
+    response = await EngageMessages.createOrUpdateConversationAndMessages({
+      customer: _customer,
+      integration: _integration,
+      user,
+      replacedContent,
+      engageData: {
+        rules: [],
+        messageId: engageMessage._id,
+        brandId: 'brandId',
+        content: 'content',
+        fromUserId: user._id,
+        kind: 'chat',
+        sentAs: 'snippet'
+      }
+    });
+
+    expect(response).toBe(null);
   });
 });
 
-describe('createVisitorMessages', () => {
+describe('createVisitorOrCustomerMessages', () => {
   let _user: IUserDocument;
   let _brand: IBrandDocument;
   let _customer: ICustomerDocument;
   let _integration: IIntegrationDocument;
+  let _visitor: ICustomerDocument;
   let mock;
 
   beforeEach(async () => {
     // Creating test data
     _customer = await customerFactory({
       firstName: 'firstName',
-      lastName: 'lastName'
+      lastName: 'lastName',
+      state: 'customer'
+    });
+
+    _visitor = await customerFactory({
+      state: 'visitor'
     });
 
     mock = sinon.stub(events, 'getNumberOfVisits').callsFake(() => {
@@ -402,9 +452,53 @@ describe('createVisitorMessages', () => {
 
     // invalid from user id
     await engageMessageFactory({
-      kind: 'visitorAuto',
+      kind: 'auto',
       userId: 'invalid',
       isLive: true,
+      messenger: {
+        brandId: _brand._id,
+        content: 'hi,{{ customer.firstName }} {{ customer.lastName }}'
+      }
+    });
+
+    await engageMessageFactory({
+      kind: 'visitorAuto',
+      userId: _user._id,
+      isLive: true,
+      customerIds: [_visitor.id],
+      messenger: {
+        brandId: _brand._id,
+        content: 'hi,{{ customer.firstName }} {{ customer.lastName }}'
+      }
+    });
+
+    await engageMessageFactory({
+      kind: 'manual',
+      userId: _user._id,
+      isLive: true,
+      customerIds: [_customer.id],
+      messenger: {
+        brandId: _brand._id,
+        content: 'hi,{{ customer.firstName }} {{ customer.lastName }}'
+      }
+    });
+
+    await engageMessageFactory({
+      kind: 'manual',
+      userId: _user._id,
+      isLive: true,
+      customerIds: ['customerId'],
+      messenger: {
+        brandId: _brand._id,
+        content: 'hi,{{ customer.firstName }} {{ customer.lastName }}'
+      }
+    });
+
+    await engageMessageFactory({
+      kind: 'manual',
+      userId: 'invalid',
+      isLive: true,
+      customerIds: [_customer.id],
       messenger: {
         brandId: _brand._id,
         content: 'hi,{{ customer.firstName }} {{ customer.lastName }}'
@@ -444,13 +538,45 @@ describe('createVisitorMessages', () => {
       })
     });
 
+    const fromUser = await userFactory({});
+
+    const eng = await engageMessageFactory({
+      messenger: {
+        brandId: _brand._id,
+        kind: 'chat',
+        sentAs: 'snippet',
+        content: 'content',
+        rules: [
+          {
+            kind: 'currentPageUrl',
+            text: 'Current page url',
+            condition: 'contains',
+            value: 'index'
+          }
+        ]
+      },
+      customerIds: [_customer._id],
+      isLive: true,
+      method: 'messenger',
+      kind: 'auto',
+      userId: fromUser._id
+    });
+
+    await conversationMessageFactory({
+      customerId: _customer._id,
+      isCustomerRead: false,
+      engageData: engageDataFactory({
+        messageId: eng._id,
+        fromUserId: eng.fromUserId
+      })
+    });
     // main call
-    const msgs = await EngageMessages.createVisitorMessages({
+    const msgs = await EngageMessages.createVisitorOrCustomerMessages({
       brand: _brand,
       customer: _customer,
       integration: _integration,
       browserInfo: {
-        url: '/page'
+        url: '/index'
       }
     });
 
@@ -480,15 +606,6 @@ describe('createVisitorMessages', () => {
 
     expect(message._id).toBeDefined();
     expect(message.content).toBe(content);
-
-    // count of unread conversation messages created by engage must be zero
-    const convEngageMessages = await Messages.find({
-      customerId: _customer._id,
-      isCustomerRead: false,
-      engageData: { $exists: true }
-    });
-
-    expect(convEngageMessages.length).toBe(0);
   });
 
   const browserLanguageRule = {

@@ -1,23 +1,15 @@
-import * as Random from 'meteor-random';
-import { Transform, Writable } from 'stream';
+import { Transform } from 'stream';
 import {
-  ConversationMessages,
-  Conversations,
   Customers,
   EngageMessages,
   Integrations,
   Segments,
   Users
 } from '../../../db/models';
-import {
-  CONVERSATION_STATUSES,
-  KIND_CHOICES,
-  METHODS
-} from '../../../db/models/definitions/constants';
+import { METHODS } from '../../../db/models/definitions/constants';
 import { ICustomerDocument } from '../../../db/models/definitions/customers';
 import { IEngageMessageDocument } from '../../../db/models/definitions/engages';
 import { IUserDocument } from '../../../db/models/definitions/users';
-import { debugBase } from '../../../debuggers';
 import messageBroker from '../../../messageBroker';
 import { MESSAGE_KINDS } from '../../constants';
 import { fetchBySegments } from '../../modules/segments/queryBuilder';
@@ -112,13 +104,6 @@ export const send = async (engageMessage: IEngageMessageDocument) => {
     tagIds,
     brandIds
   });
-
-  if (
-    engageMessage.method === METHODS.MESSENGER &&
-    engageMessage.kind !== MESSAGE_KINDS.VISITOR_AUTO
-  ) {
-    return sendViaMessenger({ engageMessage, customersSelector, user });
-  }
 
   if (engageMessage.method === METHODS.EMAIL) {
     return sendEmailOrSms(
@@ -280,150 +265,3 @@ const sendEmailOrSms = async (
     });
   });
 };
-
-/**
- * Send via messenger
- */
-const sendViaMessenger = async ({
-  engageMessage,
-  customersSelector,
-  user
-}: IEngageParams) => {
-  const { fromUserId, messenger, _id } = engageMessage;
-
-  if (!messenger) {
-    return;
-  }
-
-  const { brandId, content } = messenger;
-
-  // find integration
-  const integration = await Integrations.findOne({
-    brandId,
-    kind: KIND_CHOICES.MESSENGER
-  });
-
-  if (integration === null) {
-    throw new Error('Integration not found');
-  }
-
-  const bulkSize = 1000;
-
-  let iteratorCounter = 0;
-  let conversationsBulk = Conversations.collection.initializeOrderedBulkOp();
-  let conversationMessagesBulk = ConversationMessages.collection.initializeOrderedBulkOp();
-
-  const customerFields = { firstName: 1, lastName: 1, primaryEmail: 1 };
-  const customersStream = (Customers.find(
-    customersSelector,
-    customerFields
-  ) as any).stream();
-
-  const executeBulks = () => {
-    return new Promise((resolve, reject) => {
-      /* istanbul ignore next */
-      conversationsBulk.execute(err => {
-        if (err) {
-          if (err.message === 'Invalid Operation, no operations specified') {
-            debugBase(`Error during execute bulk ${err.message}`);
-            return resolve('done');
-          }
-
-          return reject(err);
-        }
-
-        conversationMessagesBulk.execute(msgErr => {
-          if (msgErr) {
-            return reject(msgErr);
-          }
-
-          conversationsBulk = Conversations.collection.initializeOrderedBulkOp();
-          conversationMessagesBulk = ConversationMessages.collection.initializeOrderedBulkOp();
-
-          resolve('done');
-        });
-      });
-    });
-  };
-
-  const createConversations = async (customer: ICustomerDocument) => {
-    iteratorCounter++;
-
-    // replace keys in content
-    const { replacedContent } = await replaceEditorAttributes({
-      content,
-      customer,
-      user
-    });
-
-    const now = new Date();
-    const conversationId = Random.id();
-
-    // create conversation
-    conversationsBulk.insert({
-      _id: conversationId,
-      status: CONVERSATION_STATUSES.NEW,
-      createdAt: now,
-      updatedAt: now,
-      userId: fromUserId,
-      customerId: customer._id,
-      integrationId: integration._id,
-      content: replacedContent,
-      messageCount: 1
-    });
-
-    // create message
-    conversationMessagesBulk.insert({
-      engageData: {
-        engageKind: 'auto',
-        messageId: _id,
-        fromUserId,
-        ...(messenger ? messenger.toJSON() : {}),
-        content: replacedContent
-      },
-      internal: false,
-      conversationId,
-      userId: fromUserId,
-      customerId: customer._id,
-      content: replacedContent
-    });
-
-    /* istanbul ignore next */
-    if (iteratorCounter % bulkSize === 0) {
-      customersStream.pause();
-
-      await executeBulks();
-
-      customersStream.resume();
-    }
-  };
-
-  const streamConversationWriter = new Writable({
-    objectMode: true,
-
-    async write(data, _encoding, callback) {
-      await createConversations(data);
-
-      callback();
-    }
-  });
-
-  return new Promise(resolve => {
-    const pipe = customersStream.pipe(streamConversationWriter);
-
-    pipe.on('finish', async () => {
-      // save matched customers count
-      await EngageMessages.setCustomersCount(
-        _id,
-        'totalCustomersCount',
-        iteratorCounter
-      );
-
-      if (iteratorCounter % bulkSize !== 0) {
-        await executeBulks();
-      }
-
-      resolve('done');
-    });
-  });
-}; // end sendViaMessenger()

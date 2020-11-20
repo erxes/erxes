@@ -1,32 +1,34 @@
+const { tableSchema } = require('../tablePrefix');
+
 const resolvers = [
   {
     name: 'Conversations.integrationName',
-    indexname: 'erxes__integrations',
+    indexname: `${tableSchema()}__integrations`,
     fieldname: 'name'
   },
   {
     name: 'Conversations.integrationKind',
-    indexname: 'erxes__integrations',
+    indexname: `${tableSchema()}__integrations`,
     fieldname: 'kind'
   },
   {
     name: 'Conversations.firstRespondedUser',
-    indexname: 'erxes__users',
+    indexname: `${tableSchema()}__users`,
     fieldname: 'username'
   },
   {
     name: 'Deals.stageName',
-    indexname: 'erxes__stages',
+    indexname: `${tableSchema()}__stages`,
     fieldname: 'name'
   },
   {
     name: 'Deals.stageProbability',
-    indexname: 'erxes__stages',
+    indexname: `${tableSchema()}__stages`,
     fieldname: 'probability'
   },
   {
     name: 'Deals.modifiedBy',
-    indexname: 'erxes__users',
+    indexname: `${tableSchema()}__users`,
     fieldname: 'username'
   }
 ];

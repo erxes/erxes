@@ -536,6 +536,7 @@ interface ICustomerFactoryInput {
   phoneValidationStatus?: string;
   mergedIds?: string[];
   relatedIntegrationIds?: string[];
+  state?: 'visitor' | 'lead' | 'customer';
 }
 
 export const customerFactory = async (
@@ -571,7 +572,8 @@ export const customerFactory = async (
     visitorContactInfo: params.visitorContactInfo,
     deviceTokens: params.deviceTokens || [],
     mergedIds: params.mergedIds || [],
-    relatedIntegrationIds: params.relatedIntegrationIds || []
+    relatedIntegrationIds: params.relatedIntegrationIds || [],
+    state: params.state
   };
 
   if (useModelMethod) {

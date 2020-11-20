@@ -293,37 +293,6 @@ describe('engage message mutation tests', () => {
     });
     expect(setCustomer).toBeDefined();
 
-    // create conversation
-    const newConversation = await Conversations.findOne({
-      userId: _user._id,
-      customerId: _customer._id,
-      integrationId: integration._id,
-      content: 'content'
-    });
-
-    if (!newConversation) {
-      throw new Error('Conversation not found');
-    }
-
-    expect(newConversation).toBeDefined();
-
-    // create message
-    const newMessage = await ConversationMessages.findOne({
-      conversationId: newConversation._id,
-      customerId: _customer._id,
-      userId: _user._id,
-      content: 'content'
-    });
-
-    if (!newMessage || !newMessage.engageData) {
-      throw new Error('Message not found');
-    }
-
-    expect(newMessage).toBeDefined();
-    expect(newMessage.engageData.messageId).toBe(emessageWithBrand._id);
-    expect(newMessage.engageData.fromUserId).toBe(_user._id);
-    expect(newMessage.engageData.brandId).toBe(brand._id);
-
     const emessageNoMessenger = await engageMessageFactory({
       isLive: true,
       userId: _user._id,

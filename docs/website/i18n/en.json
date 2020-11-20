@@ -47,12 +47,6 @@
       "installation/aws": {
         "title": "AWS Marketplace"
       },
-      "installation/centos8": {
-        "title": "CentOS 8"
-      },
-      "installation/debian10": {
-        "title": "Debian 10"
-      },
       "installation/digitalocean": {
         "title": "DigitalOcean Marketplace"
       },
@@ -64,9 +58,6 @@
       },
       "installation/kubernetes": {
         "title": "Kubernetes"
-      },
-      "installation/redhat8": {
-        "title": "REHL 8"
       },
       "installation/ubuntu": {
         "title": "Ubuntu 16.04/18.04 LTS"
