@@ -32,7 +32,6 @@ type Props = {
   events: IEvent[];
   startTime: Date;
   endTime: Date;
-  accountId: string;
   queryParams: any;
   remove: (event: IEvent) => void;
 };
@@ -213,21 +212,13 @@ class Event extends React.Component<Props, State> {
   };
 
   render() {
-    const {
-      startTime,
-      endTime,
-      accountId,
-      currentDate,
-      type,
-      queryParams
-    } = this.props;
+    const { startTime, endTime, currentDate, type, queryParams } = this.props;
 
     const createForm = (
       <EventForm
         startTime={startTime}
         endTime={endTime}
         queryParams={queryParams}
-        accountId={accountId}
         isPopupVisible={this.state.isPopupVisible}
         onHideModal={this.onHideModal}
         selectedDate={this.state.selectedDate}

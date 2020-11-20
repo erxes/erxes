@@ -13,10 +13,10 @@ import { IEvent } from '../types';
 type Props = {
   type: string;
   currentDate: Date;
-  accountId: string;
   queryParams: any;
   startTime: Date;
   endTime: Date;
+  calendarIds: string[];
 };
 
 type FinalProps = {
@@ -38,6 +38,10 @@ class EventContainer extends React.Component<FinalProps, {}> {
     });
   }
 
+  componentWillReceiveProps(nextProps) {
+    this.props.fetchApiQuery.refetch();
+  }
+
   componentWillUnmount() {
     this.unsubscribe();
   }
@@ -46,11 +50,12 @@ class EventContainer extends React.Component<FinalProps, {}> {
     const {
       fetchApiQuery,
       removeEventMutation,
-      accountId,
       startTime,
       endTime,
       queryParams
     } = this.props;
+
+    const accountId = 'test';
 
     if (fetchApiQuery.loading) {
       return <Spinner objective={true} />;
@@ -100,12 +105,12 @@ export default withProps<Props>(
   compose(
     graphql<Props, any>(gql(queries.fetchApi), {
       name: 'fetchApiQuery',
-      options: ({ startTime, endTime, queryParams }) => {
+      options: ({ startTime, endTime, calendarIds }) => {
         return {
           variables: {
             path: '/nylas/get-events',
             params: {
-              ...queryParams,
+              calendarIds,
               startTime,
               endTime
             }

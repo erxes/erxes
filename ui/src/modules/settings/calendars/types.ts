@@ -14,8 +14,30 @@ export interface IGroup {
   name: string;
   isPrivate: boolean;
   calendars: ICalendar[];
+  boardId: string;
+}
+export interface IBoard {
+  _id: string;
+  name: string;
+  groups: IGroup[];
 }
 
+// boards
+export type BoardGetLastQueryResponse = {
+  calendarBoardGetLast: IBoard;
+  loading: boolean;
+};
+
+export type BoardsQueryResponse = {
+  calendarBoards: IBoard[];
+} & QueryResponse;
+
+export type BoardDetailQueryResponse = {
+  calendarBoardDetail: IBoard;
+  loading: boolean;
+};
+
+// groups
 export type GroupGetLastQueryResponse = {
   calendarGroupGetLast: IGroup;
   loading: boolean;
@@ -23,6 +45,8 @@ export type GroupGetLastQueryResponse = {
 
 export type GroupsQueryResponse = {
   calendarGroups: IGroup[];
+  loading: boolean;
+  refetch: ({ boardId }: { boardId?: string }) => Promise<any>;
 } & QueryResponse;
 
 export type GroupDetailQueryResponse = {
@@ -65,6 +89,38 @@ export type RemoveGroupMutationVariables = {
 export type RemoveGroupMutationResponse = {
   removeMutation: (params: {
     variables: RemoveGroupMutationVariables;
+    refetchQueries?: string[];
+  }) => Promise<void>;
+};
+
+export type AddBoardMutationVariables = {
+  name: string;
+};
+
+export type AddBoardMutationResponse = {
+  addMutation: (params: {
+    variables: AddBoardMutationVariables;
+  }) => Promise<void>;
+};
+
+export type EditBoardMutationVariables = {
+  _id?: string;
+  name: string;
+};
+
+export type EditBoardMutationResponse = {
+  editMutation: (params: {
+    variables: EditBoardMutationVariables;
+  }) => Promise<void>;
+};
+
+export type RemoveBoardMutationVariables = {
+  _id: string;
+};
+
+export type RemoveBoardMutationResponse = {
+  removeMutation: (params: {
+    variables: RemoveBoardMutationVariables;
     refetchQueries: string[];
   }) => Promise<void>;
 };

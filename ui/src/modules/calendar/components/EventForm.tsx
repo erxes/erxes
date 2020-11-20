@@ -8,15 +8,15 @@ import { IButtonMutateProps, IFormProps } from 'modules/common/types';
 import { __ } from 'modules/common/utils';
 import React from 'react';
 import Modal from 'react-bootstrap/Modal';
-import { ICalendar, IEvent } from '../types';
+import { IEvent } from '../types';
 import { milliseconds } from '../utils';
+import { CalendarConsumer } from './Wrapper';
 
 type Props = {
   isPopupVisible: boolean;
   onHideModal: (date?: Date) => void;
   renderButton: (props: IButtonMutateProps) => JSX.Element;
   selectedDate?: Date;
-  calendars: ICalendar[];
   event?: IEvent;
 };
 
@@ -45,11 +45,22 @@ class EditForm extends React.Component<Props, {}> {
 
   renderContent = (formProps: IFormProps) => {
     const { values, isSubmitted } = formProps;
-    const { renderButton, onHideModal, calendars, event } = this.props;
+    const { renderButton, onHideModal, event } = this.props;
+
+    const renderAccounts = () => {
+      return (
+        <CalendarConsumer>
+          {({ accounts }) => {
+            console.log(accounts);
+            return <div>{accounts.length} 123123123</div>;
+          }}
+        </CalendarConsumer>
+      );
+    };
 
     return (
       <>
-        <FormGroup>
+        {/* <FormGroup>
           <ControlLabel required={true}>Calendar</ControlLabel>
 
           <FormControl
@@ -67,8 +78,8 @@ class EditForm extends React.Component<Props, {}> {
                 </option>
               ))}
           </FormControl>
-        </FormGroup>
-
+        </FormGroup> */}
+        {renderAccounts()}
         <FormGroup>
           <ControlLabel required={true}>Title</ControlLabel>
 

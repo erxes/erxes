@@ -10,35 +10,71 @@ import Icon from 'modules/common/components/Icon';
 import Tip from 'modules/common/components/Tip';
 import { __ } from 'modules/common/utils';
 import { BarItems } from 'modules/layout/styles';
-import { ICalendar, IGroup } from 'modules/settings/calendars/types';
+import { IBoard, IGroup } from 'modules/settings/calendars/types';
 import React from 'react';
 import Dropdown from 'react-bootstrap/Dropdown';
 import { Link } from 'react-router-dom';
 
 type Props = {
+  currentBoard?: IBoard;
   currentGroup?: IGroup;
-  currentCalendar?: ICalendar;
-  groups: IGroup[];
+  boards: IBoard[];
+  boardText?: string;
   groupText?: string;
-  calendarText?: string;
 };
 
 const calendarLink = '/calendar';
 
 class MainActionBar extends React.Component<Props> {
   static defaultProps = {
-    viewType: 'group',
-    groupText: 'Group',
-    calendarText: 'Calendar'
+    viewType: 'board',
+    boardText: 'Board',
+    groupText: 'Group'
   };
 
+  renderBoards() {
+    const { currentBoard, boards } = this.props;
+
+    if ((currentBoard && boards.length === 1) || boards.length === 0) {
+      return (
+        <EmptyState icon="web-grid-alt" text="No other boards" size="small" />
+      );
+    }
+
+    return boards.map(board => {
+      if (currentBoard && board._id === currentBoard._id) {
+        return null;
+      }
+
+      let link = `${calendarLink}?id=${board._id}`;
+
+      const { groups = [] } = board;
+
+      if (groups.length > 0) {
+        link = `${link}&groupId=${groups[0]._id}`;
+      }
+
+      return (
+        <li key={board._id}>
+          <Link to={link}>{board.name}</Link>
+        </li>
+      );
+    });
+  }
+
   renderGroups() {
-    const { currentGroup, groups } = this.props;
+    const { currentBoard, currentGroup } = this.props;
+
+    const groups = currentBoard ? currentBoard.groups || [] : [];
 
     if ((currentGroup && groups.length === 1) || groups.length === 0) {
       return (
-        <EmptyState icon="web-grid-alt" text="No other groups" size="small" />
+        <EmptyState icon="web-section-alt" text="No other group" size="small" />
       );
+    }
+
+    if (!currentBoard) {
+      return null;
     }
 
     return groups.map(group => {
@@ -46,52 +82,12 @@ class MainActionBar extends React.Component<Props> {
         return null;
       }
 
-      let link = `${calendarLink}?id=${group._id}`;
-
-      const { calendars = [] } = group;
-
-      if (calendars.length > 0) {
-        link = `${link}&calendarId=${calendars[0]._id}`;
-      }
-
       return (
         <li key={group._id}>
-          <Link to={link}>{group.name}</Link>
-        </li>
-      );
-    });
-  }
-
-  renderCalendars() {
-    const { currentGroup, currentCalendar } = this.props;
-
-    const calendars = currentGroup ? currentGroup.calendars || [] : [];
-
-    if ((currentCalendar && calendars.length === 1) || calendars.length === 0) {
-      return (
-        <EmptyState
-          icon="web-section-alt"
-          text="No other calendar"
-          size="small"
-        />
-      );
-    }
-
-    if (!currentGroup) {
-      return null;
-    }
-
-    return calendars.map(calendar => {
-      if (currentCalendar && calendar._id === currentCalendar._id) {
-        return null;
-      }
-
-      return (
-        <li key={calendar._id}>
           <Link
-            to={`${calendarLink}?id=${currentGroup._id}&calendarId=${calendar._id}`}
+            to={`${calendarLink}?id=${currentBoard._id}&groupId=${group._id}`}
           >
-            {calendar.name}
+            {group.name}
           </Link>
         </li>
       );
@@ -99,17 +95,24 @@ class MainActionBar extends React.Component<Props> {
   }
 
   render() {
-    const {
-      currentGroup,
-      currentCalendar,
-      groupText,
-      calendarText
-    } = this.props;
+    const { currentBoard, currentGroup, boardText, groupText } = this.props;
 
     const actionBarLeft = (
       <BarItems>
         <HeaderLabel>
-          <Icon icon="web-grid-alt" /> {__(groupText || '')}:{' '}
+          <Icon icon="web-grid-alt" /> {__(boardText || '')}:{' '}
+        </HeaderLabel>
+        <Dropdown>
+          <Dropdown.Toggle as={DropdownToggle} id="dropdown-board">
+            <HeaderButton rightIconed={true}>
+              {(currentBoard && currentBoard.name) || __('Choose board')}
+              <Icon icon="angle-down" />
+            </HeaderButton>
+          </Dropdown.Toggle>
+          <Dropdown.Menu>{this.renderBoards()}</Dropdown.Menu>
+        </Dropdown>
+        <HeaderLabel>
+          <Icon icon="web-section-alt" /> {__(groupText || '')}:{' '}
         </HeaderLabel>
         <Dropdown>
           <Dropdown.Toggle as={DropdownToggle} id="dropdown-group">
@@ -120,24 +123,11 @@ class MainActionBar extends React.Component<Props> {
           </Dropdown.Toggle>
           <Dropdown.Menu>{this.renderGroups()}</Dropdown.Menu>
         </Dropdown>
-        <HeaderLabel>
-          <Icon icon="web-section-alt" /> {__(calendarText || '')}:{' '}
-        </HeaderLabel>
-        <Dropdown>
-          <Dropdown.Toggle as={DropdownToggle} id="dropdown-calendar">
-            <HeaderButton rightIconed={true}>
-              {(currentCalendar && currentCalendar.name) ||
-                __('Choose calendar')}
-              <Icon icon="angle-down" />
-            </HeaderButton>
-          </Dropdown.Toggle>
-          <Dropdown.Menu>{this.renderCalendars()}</Dropdown.Menu>
-        </Dropdown>
         <HeaderLink>
-          <Tip text={__('Manage Group & Calendar')} placement="bottom">
+          <Tip text={__('Manage Board & Group')} placement="bottom">
             <Link
-              to={`/settings/calendars?groupId=${
-                currentGroup ? currentGroup._id : ''
+              to={`/settings/calendars?boardId=${
+                currentBoard ? currentBoard._id : ''
               }`}
             >
               <Icon icon="cog" />
@@ -147,7 +137,7 @@ class MainActionBar extends React.Component<Props> {
       </BarItems>
     );
 
-    return <PageHeader id="calendar-header">{actionBarLeft}</PageHeader>;
+    return <PageHeader id="group-header">{actionBarLeft}</PageHeader>;
   }
 }
 

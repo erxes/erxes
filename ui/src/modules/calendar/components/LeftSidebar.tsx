@@ -6,42 +6,59 @@ import FormGroup from 'modules/common/components/form/Group';
 import Label from 'modules/common/components/form/Label';
 import ControlLabel from 'modules/common/components/form/Label';
 import Icon from 'modules/common/components/Icon';
-import { router } from 'modules/common/utils';
 import Sidebar from 'modules/layout/components/Sidebar';
 import React from 'react';
 import Select from 'react-select-plus';
 import { TYPES } from '../constants';
 import EventForm from '../containers/EventForm';
 import { CalendarController, SidebarWrapper } from '../styles';
-import { ICalendar } from '../types';
+import { IAccount } from '../types';
 import { extractDate } from '../utils';
 
 type Props = {
   dateOnChange: (date: string | Date | undefined) => void;
   currentDate: Date;
   typeOnChange: ({ value, label }: { value: string; label: string }) => void;
+  onChangeCalendarIds: (ids: string[]) => void;
   type: string;
-  calendars: ICalendar[];
   history: any;
   queryParams: any;
   startTime: Date;
   endTime: Date;
-  accountId: string;
+  accounts: IAccount[];
 };
 
 type State = {
-  calendarIds: string[];
   isPopupVisible: boolean;
+  calendarIds: string[];
 };
 
 class LeftSidebar extends React.Component<Props, State> {
   constructor(props) {
     super(props);
 
+    const calendarIds: string[] = [];
+
+    props.accounts.map(acc => {
+      calendarIds.push(acc._id);
+
+      return acc.calendars
+        .filter(c => !c.readOnly)
+        .map(cal => calendarIds.push(cal.providerCalendarId));
+    });
+
     this.state = {
-      calendarIds: [],
-      isPopupVisible: false
+      isPopupVisible: false,
+      calendarIds
     };
+  }
+
+  componentDidMount() {
+    const { calendarIds } = this.state;
+
+    if (calendarIds.length !== 0) {
+      this.props.onChangeCalendarIds(calendarIds);
+    }
   }
 
   onHideModal = () => {
@@ -49,33 +66,6 @@ class LeftSidebar extends React.Component<Props, State> {
       isPopupVisible: !this.state.isPopupVisible
     });
   };
-
-  setCalendarIds = () => {
-    const { queryParams, calendars, history } = this.props;
-
-    if (!queryParams.calendarIds) {
-      const calendarIds = calendars.map(c => c.providerCalendarId);
-
-      this.setState({ calendarIds });
-      router.setParams(history, { calendarIds: calendarIds.toString() }, true);
-    }
-  };
-
-  componentDidUpdate() {
-    this.setCalendarIds();
-  }
-
-  componentDidMount() {
-    const queryParams = this.props.queryParams;
-
-    this.setCalendarIds();
-
-    if (queryParams.calendarIds) {
-      this.setState({
-        calendarIds: queryParams.calendarIds.split(',')
-      });
-    }
-  }
 
   renderOptions = (list: string[]) => {
     return list.map(item => ({ value: item, label: item.toUpperCase() }));
@@ -116,20 +106,63 @@ class LeftSidebar extends React.Component<Props, State> {
 
     this.setState({ calendarIds });
 
-    router.setParams(this.props.history, {
-      calendarIds: calendarIds.toString()
+    this.props.onChangeCalendarIds(calendarIds);
+  };
+
+  renderCalendars = calendars => {
+    const { calendarIds } = this.state;
+
+    return calendars.map(calendar => {
+      const calendarId = calendar.providerCalendarId;
+
+      return (
+        <div key={calendar._id}>
+          &nbsp; &nbsp; &nbsp;
+          <FormControl
+            key={calendar._id}
+            className="toggle-message"
+            componentClass="checkbox"
+            onChange={this.toggleCheckbox.bind(this, calendarId)}
+            checked={calendarIds.includes(calendarId)}
+          >
+            {calendar.name}
+          </FormControl>
+        </div>
+      );
     });
   };
 
+  renderAccounts = () => {
+    return (
+      <FormGroup>
+        <ControlLabel>Calendars</ControlLabel>
+        <br />
+        <br />
+
+        {this.props.accounts.map(account => {
+          return (
+            <div key={account._id}>
+              <FormControl
+                className="toggle-message"
+                componentClass="checkbox"
+                onChange={this.toggleCheckbox.bind(this, account._id)}
+                checked={this.state.calendarIds.includes(account._id)}
+              >
+                <Icon icon={'circuit'} style={{ color: account.color }} />{' '}
+                &nbsp;
+                {account.name}
+              </FormControl>
+              {this.renderCalendars(account.calendars)}
+              <br />
+            </div>
+          );
+        })}
+      </FormGroup>
+    );
+  };
+
   render() {
-    const {
-      type,
-      typeOnChange,
-      currentDate,
-      dateOnChange,
-      calendars
-    } = this.props;
-    const { calendarIds } = this.state;
+    const { type, typeOnChange, currentDate, dateOnChange } = this.props;
 
     return (
       <Sidebar>
@@ -177,29 +210,7 @@ class LeftSidebar extends React.Component<Props, State> {
             />
           </FormGroup>
 
-          <FormGroup>
-            <ControlLabel>Calendars</ControlLabel>
-            <br />
-            <br />
-
-            {calendars.map(calendar => {
-              const calendarId = calendar.providerCalendarId;
-
-              return (
-                <div key={calendar._id}>
-                  <FormControl
-                    key={calendar._id}
-                    className="toggle-message"
-                    componentClass="checkbox"
-                    onChange={this.toggleCheckbox.bind(this, calendarId)}
-                    checked={calendarIds.includes(calendarId)}
-                  >
-                    {calendar.name}
-                  </FormControl>
-                </div>
-              );
-            })}
-          </FormGroup>
+          {this.renderAccounts()}
 
           <FormGroup>
             <Button

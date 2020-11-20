@@ -1,69 +1,148 @@
+import ActionButtons from 'modules/common/components/ActionButtons';
 import Button from 'modules/common/components/Button';
 import Icon from 'modules/common/components/Icon';
-import ModalTrigger from 'modules/common/components/ModalTrigger';
 import Tip from 'modules/common/components/Tip';
 import { IButtonMutateProps } from 'modules/common/types';
 import React from 'react';
-import { Link } from 'react-router-dom';
-import { BoardItem } from '../../boards/styles';
-import { ActionButtons } from '../../styles';
-import { IGroup } from '../types';
-import GroupForm from './GroupForm';
+import GroupForm from '../containers/GroupForm';
+import { ICalendar, IGroup } from '../types';
+import CalendarForm from './CalendarForm';
 
 type Props = {
   group: IGroup;
-  remove: (groupId: string) => void;
+  groups: IGroup[];
   renderButton: (props: IButtonMutateProps) => JSX.Element;
-  isActive: boolean;
+  remove: (group: IGroup) => void;
+  removeCalendar: (calendar: ICalendar) => void;
+  renderCalendarButton: (props: IButtonMutateProps) => JSX.Element;
 };
 
-class GroupRow extends React.Component<Props, {}> {
-  private size;
+type State = {
+  showModal: boolean;
+  showCalendarModal: boolean;
+  calendarId: string;
+};
 
-  remove = () => {
-    const { group } = this.props;
+class GroupRow extends React.Component<Props, State> {
+  constructor(props) {
+    super(props);
 
-    this.props.remove(group._id);
-  };
+    this.state = {
+      showModal: false,
+      showCalendarModal: false,
+      calendarId: ''
+    };
+  }
 
-  renderEditAction() {
-    const { group, renderButton } = this.props;
+  renderExtraLinks() {
+    const { remove, group } = this.props;
 
-    const editTrigger = (
-      <Button btnStyle="link">
-        <Tip text="Edit" placement="bottom">
-          <Icon icon="edit" />
-        </Tip>
-      </Button>
-    );
+    const onClick = () => remove(group);
 
-    const content = props => (
-      <GroupForm {...props} group={group} renderButton={renderButton} />
-    );
+    const edit = () => {
+      this.setState({ showModal: true });
+    };
 
     return (
-      <ModalTrigger
-        size={this.size}
-        title="Edit"
-        trigger={editTrigger}
-        content={content}
+      <>
+        <Tip text="Edit" placement="top">
+          <Button btnStyle="link" onClick={edit} icon="edit-3" />
+        </Tip>
+        <Tip text="Delete">
+          <Button btnStyle="link" onClick={onClick} icon="times-circle" />
+        </Tip>
+      </>
+    );
+  }
+
+  renderEditForm() {
+    const { renderButton, group } = this.props;
+
+    const closeModal = () => {
+      this.setState({ showModal: false });
+    };
+
+    return (
+      <GroupForm
+        boardId={group.boardId || ''}
+        renderButton={renderButton}
+        group={group}
+        closeModal={closeModal}
+        show={this.state.showModal}
+      />
+    );
+  }
+
+  renderCalendarActions(calendar) {
+    const { removeCalendar } = this.props;
+
+    const onClick = () => removeCalendar(calendar);
+
+    const edit = () => {
+      this.setState({ showCalendarModal: true, calendarId: calendar._id });
+    };
+
+    return (
+      <>
+        <Tip text="Edit" placement="top">
+          <Button btnStyle="link" onClick={edit} icon="edit-3" />
+        </Tip>
+        <Tip text="Delete">
+          <Button btnStyle="link" onClick={onClick} icon="times-circle" />
+        </Tip>
+      </>
+    );
+  }
+
+  renderCalendarForm() {
+    const { renderCalendarButton, group, groups } = this.props;
+    const { showCalendarModal, calendarId } = this.state;
+
+    const closeModal = () => {
+      this.setState({ showCalendarModal: false, calendarId: '' });
+    };
+
+    return (
+      <CalendarForm
+        renderButton={renderCalendarButton}
+        calendar={group.calendars.find(c => c._id === calendarId)}
+        closeModal={closeModal}
+        show={showCalendarModal}
+        groups={groups}
       />
     );
   }
 
   render() {
-    const { group, isActive } = this.props;
+    const { group } = this.props;
 
     return (
-      <BoardItem key={group._id} isActive={isActive}>
-        <Link to={`?groupId=${group._id}`}>{group.name}</Link>
-        <ActionButtons>
-          {this.renderEditAction()}
-          <Tip text="Delete" placement="bottom">
-            <Button btnStyle="link" onClick={this.remove} icon="cancel-1" />
-          </Tip>
-        </ActionButtons>
-      </BoardItem>
+      <>
+        <tr>
+          <td>
+            {group.name} ({group.calendars.length})
+          </td>
+          <td>
+            <ActionButtons>{this.renderExtraLinks()}</ActionButtons>
+          </td>
+        </tr>
+        {group.calendars.map((calendar, i) => (
+          <tr key={calendar._id}>
+            <td>
+              &nbsp; <Icon icon={'circle'} style={{ color: calendar.color }} />{' '}
+              {calendar.name}
+            </td>
+            <td>
+              <ActionButtons>
+                {this.renderCalendarActions(calendar)}
+              </ActionButtons>
+            </td>
+          </tr>
+        ))}
+
+        {this.renderEditForm()}
+        {this.renderCalendarForm()}
+      </>
     );
   }
 }

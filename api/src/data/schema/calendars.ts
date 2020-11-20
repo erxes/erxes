@@ -12,8 +12,33 @@ export const types = `
     _id: String!
     name: String
     isPrivate: Boolean
+    boardId: String
 
     calendars: [Calendar]
+  }
+
+  type CalendarBoard {
+    _id: String!
+    name: String
+
+    groups: [CalendarGroup]
+  }
+
+  type NylasCalendar {
+    _id: String
+    providerCalendarId: String
+    accountUid: String
+    name: String
+    description: String
+    readOnly: Boolean
+  }
+
+  type FullCalendar {
+    _id: String!
+    name: String
+    color: String
+
+    calendars: [NylasCalendar]
   }
 `;
 
@@ -28,23 +53,31 @@ const eventParams = `
 
 const commonParams = `
   groupId: String!,
-  name: String!,
   color: String,
 `;
 
 const commonGroupParams = `
   name: String!,
+  boardId: String!,
   isPrivate: Boolean,
-  assignedUserIds: [String]
+  memberIds: [String],
 `;
 
 export const queries = `
-  calendarGroups: [CalendarGroup]
+  calendarBoards: [CalendarBoard]
+  calendarBoardCounts: Int
+  calendarBoardGetLast: CalendarBoard
+  calendarBoardDetail(_id: String!): CalendarBoard
+
+  calendarGroups(boardId: String): [CalendarGroup]
   calendarGroupCounts: Int
   calendarGroupGetLast: CalendarGroup
   calendarGroupDetail(_id: String!): CalendarGroup
+
   calendars(groupId: String, page: Int, perPage: Int): [Calendar]
   calendarDetail(_id: String!): Calendar
+
+  calendarAccounts(groupId: String): [FullCalendar]
 `;
 
 export const mutations = `
@@ -59,4 +92,8 @@ export const mutations = `
   calendarGroupsAdd(${commonGroupParams}): CalendarGroup
   calendarGroupsEdit(_id: String!, ${commonGroupParams}): CalendarGroup
   calendarGroupsDelete(_id: String!): JSON
+
+  calendarBoardsAdd(name: String!): CalendarBoard
+  calendarBoardsEdit(_id: String!, name: String): CalendarBoard
+  calendarBoardsDelete(_id: String!): JSON
 `;

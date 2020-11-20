@@ -6,6 +6,7 @@ import React from 'react';
 import { EventContainer, EventContent, EventTitle } from '../styles';
 import { IEvent } from '../types';
 import { milliseconds } from '../utils';
+import { CalendarConsumer } from './Wrapper';
 
 type Props = {
   event: IEvent;
@@ -15,6 +16,12 @@ type Props = {
 };
 
 class Detail extends React.Component<Props> {
+  getColor(color: object, accountId: string) {
+    const colorCode = color[accountId];
+
+    return colorCode;
+  }
+
   render() {
     const { event, showHour, editEvent, deleteEvent } = this.props;
     const startTime = milliseconds(event.when.start_time);
@@ -78,19 +85,28 @@ class Detail extends React.Component<Props> {
     }
 
     return (
-      <EventContainer key={event._id}>
-        <ModalTrigger
-          title={event.title || ''}
-          trigger={
-            <EventTitle {...props}>
-              <Icon icon="check-circle" />
-              {dayjs(startTime).format('ha')} &nbsp;
-              <b>{event.title}</b>
-            </EventTitle>
-          }
-          content={content}
-        />
-      </EventContainer>
+      <CalendarConsumer>
+        {({ color }) => {
+          return (
+            <EventContainer key={event._id}>
+              <ModalTrigger
+                title={event.title || ''}
+                trigger={
+                  <EventTitle
+                    {...props}
+                    color={this.getColor(color, event.providerCalendarId)}
+                  >
+                    <Icon icon="check-circle" />
+                    {dayjs(startTime).format('ha')} &nbsp;
+                    <b>{event.title}</b>
+                  </EventTitle>
+                }
+                content={content}
+              />
+            </EventContainer>
+          );
+        }}
+      </CalendarConsumer>
     );
   }
 }

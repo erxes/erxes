@@ -227,7 +227,11 @@ const CalendarController = styled.div`
   }
 `;
 
-const EventTitle = styledTS<{ start?: number; height?: number }>(styled.div)`
+const EventTitle = styledTS<{
+  start?: number;
+  height?: number;
+  color: string;
+}>(styled.div)`
   padding: 4px 8px;
   border-radius: 4px;
   cursor: pointer;
@@ -240,6 +244,11 @@ const EventTitle = styledTS<{ start?: number; height?: number }>(styled.div)`
   &:hover {
     background-color: #eee;
   }
+  ${props =>
+    `
+    background-color: ${props.color};
+    color: #fff;
+  `}
 
   ${props =>
     props.start &&
@@ -247,7 +256,6 @@ const EventTitle = styledTS<{ start?: number; height?: number }>(styled.div)`
     `position: absolute;
     top: ${rowHeight * props.start}px;
     width: 100%;
-    background-color: ${colors.colorPrimary};
     color: ${colors.colorWhite};
     height: ${rowHeight * props.height}px;
     min-height: ${rowHeight}px;

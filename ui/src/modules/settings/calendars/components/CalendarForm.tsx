@@ -1,7 +1,6 @@
 import { COLORS } from 'modules/boards/constants';
 import { FlexContent } from 'modules/boards/styles/item';
 import Button from 'modules/common/components/Button';
-import FormControl from 'modules/common/components/form/Control';
 import Form from 'modules/common/components/form/Form';
 import FormGroup from 'modules/common/components/form/Group';
 import ControlLabel from 'modules/common/components/form/Label';
@@ -34,12 +33,21 @@ class CalendarForm extends React.Component<Props, State> {
   constructor(props: Props) {
     super(props);
 
-    const calendar = this.props.calendar || ({} as ICalendar);
-
     this.state = {
-      backgroundColor: calendar.color || colors.colorPrimaryDark,
-      groupId: calendar.groupId || ''
+      backgroundColor: colors.colorPrimaryDark,
+      groupId: ''
     };
+  }
+
+  componentWillReceiveProps(nextProps) {
+    const { calendar } = nextProps;
+
+    if (this.props.show && calendar && calendar._id) {
+      this.setState({
+        backgroundColor: calendar.color,
+        groupId: calendar.groupId
+      });
+    }
   }
 
   collectValues = items => {
@@ -50,11 +58,7 @@ class CalendarForm extends React.Component<Props, State> {
     this.setState({ backgroundColor: e.hex });
   };
 
-  generateDoc = (values: {
-    _id?: string;
-    name: string;
-    visibility: string;
-  }) => {
+  generateDoc = (values: { _id?: string }) => {
     const { calendar } = this.props;
     const { backgroundColor, groupId } = this.state;
     const finalValues = values;
@@ -78,7 +82,7 @@ class CalendarForm extends React.Component<Props, State> {
   };
 
   renderGroups() {
-    const { groups } = this.props;
+    const { groups, calendar } = this.props;
 
     const onChange = item => this.setState({ groupId: item.value });
 
@@ -87,7 +91,7 @@ class CalendarForm extends React.Component<Props, State> {
         <ControlLabel required={true}>Group</ControlLabel>
         <Select
           placeholder={__('Choose a group')}
-          value={this.state.groupId}
+          value={this.state.groupId || (calendar && calendar.groupId)}
           options={this.renderOptions(groups)}
           onChange={onChange}
           clearable={false}
@@ -99,7 +103,6 @@ class CalendarForm extends React.Component<Props, State> {
   renderContent = (formProps: IFormProps) => {
     const { calendar, renderButton, closeModal } = this.props;
     const { values, isSubmitted } = formProps;
-    const object = calendar || ({} as ICalendar);
     const calendarName = 'calendar';
 
     const popoverBottom = (
@@ -123,17 +126,6 @@ class CalendarForm extends React.Component<Props, State> {
         </Modal.Header>
 
         <Modal.Body>
-          <FormGroup>
-            <ControlLabel required={true}>Name</ControlLabel>
-            <FormControl
-              {...formProps}
-              name="name"
-              defaultValue={object.name}
-              autoFocus={true}
-              required={true}
-            />
-          </FormGroup>
-
           <FlexContent>
             <FormGroup>
               <ControlLabel>Background</ControlLabel>
