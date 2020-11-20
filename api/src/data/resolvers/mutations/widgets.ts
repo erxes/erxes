@@ -689,6 +689,8 @@ const widgetMutations = {
       debugBase(`Error occurred during widgets save browser info ${e.message}`);
     }
 
+    await Customers.updateSession(customerId);
+
     return await getOrCreateEngageMessage(customerId, browserInfo);
   },
 

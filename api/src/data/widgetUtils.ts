@@ -7,27 +7,12 @@ import {
 } from '../db/models';
 import Messages from '../db/models/ConversationMessages';
 import { IBrowserInfo } from '../db/models/Customers';
-import { debugBase } from '../debuggers';
-import { trackViewPageEvent } from '../events';
 
 export const getOrCreateEngageMessage = async (
   customerId: string,
   browserInfo: IBrowserInfo
 ) => {
-  await Customers.updateLocation(customerId, browserInfo);
-
-  try {
-    await trackViewPageEvent({
-      customerId,
-      attributes: { url: browserInfo.url }
-    });
-  } catch (e) {
-    /* istanbul ignore next */
-    debugBase(`Error occurred during widgets save browser info ${e.message}`);
-  }
-
-  // update messenger session data
-  const customer = await Customers.updateSession(customerId);
+  const customer = await Customers.getCustomer(customerId);
 
   // Preventing from displaying non messenger integrations like form's messages
   // as last unread message
