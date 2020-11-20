@@ -243,12 +243,20 @@ export const loadClass = () => {
         const messenger = message.messenger ? message.messenger.toJSON() : {};
 
         const {
-          customerIds,
+          customerIds = [],
           segmentIds,
           tagIds,
           brandIds,
           fromUserId
         } = message;
+
+        if (
+          message.kind === 'manual' &&
+          (customerIds || []).length > 0 &&
+          !customerIds.includes(customer._id)
+        ) {
+          continue;
+        }
 
         const customersSelector = {
           _id: customer._id,

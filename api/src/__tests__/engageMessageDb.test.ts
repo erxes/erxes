@@ -128,18 +128,6 @@ describe('engage messages model tests', () => {
     expect(messagesCounts).toBe(0);
   });
 
-  test('remove a message: can not remove manual message ', async () => {
-    expect.assertions(1);
-
-    const manualMessage = await engageMessageFactory({ kind: 'manual' });
-
-    try {
-      await EngageMessages.removeEngageMessage(manualMessage._id);
-    } catch (e) {
-      expect(e.message).toBe('Can not remove manual message');
-    }
-  });
-
   test('Engage message set live', async () => {
     await EngageMessages.engageMessageSetLive(_message._id);
     const message = await EngageMessages.findOne({ _id: _message._id });
@@ -499,6 +487,21 @@ describe('createVisitorOrCustomerMessages', () => {
       userId: 'invalid',
       isLive: true,
       customerIds: [_customer.id],
+      messenger: {
+        brandId: _brand._id,
+        content: 'hi,{{ customer.firstName }} {{ customer.lastName }}'
+      }
+    });
+
+    const tag = await tagsFactory({});
+
+    await customerFactory({ tagIds: [tag._id] });
+
+    await engageMessageFactory({
+      kind: 'manual',
+      userId: _user._id,
+      isLive: true,
+      tagIds: [tag._id],
       messenger: {
         brandId: _brand._id,
         content: 'hi,{{ customer.firstName }} {{ customer.lastName }}'
