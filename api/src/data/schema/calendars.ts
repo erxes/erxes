@@ -37,6 +37,7 @@ export const types = `
     _id: String!
     name: String
     color: String
+    accountId: String
 
     calendars: [NylasCalendar]
   }

@@ -8,7 +8,7 @@ import { IButtonMutateProps, IFormProps } from 'modules/common/types';
 import { __ } from 'modules/common/utils';
 import React from 'react';
 import Modal from 'react-bootstrap/Modal';
-import { IEvent } from '../types';
+import { IAccount, IEvent, INylasCalendar } from '../types';
 import { milliseconds } from '../utils';
 import { CalendarConsumer } from './Wrapper';
 
@@ -18,9 +18,23 @@ type Props = {
   renderButton: (props: IButtonMutateProps) => JSX.Element;
   selectedDate?: Date;
   event?: IEvent;
+  account?: IAccount;
 };
 
-class EditForm extends React.Component<Props, {}> {
+type State = {
+  calendars: INylasCalendar[];
+  accountId?: string;
+};
+
+class EditForm extends React.Component<Props, State> {
+  constructor(props) {
+    super(props);
+
+    this.state = {
+      calendars: []
+    };
+  }
+
   renderHeader() {
     return (
       <Modal.Header closeButton={true}>
@@ -43,16 +57,42 @@ class EditForm extends React.Component<Props, {}> {
     return day.format('YYYY-MM-DD HH:mm');
   };
 
+  onChangeAccount = (accounts, e: React.FormEvent<HTMLElement>) => {
+    const selectedId = (e.target as HTMLInputElement).value;
+    const account = accounts.find(acc => acc._id === selectedId);
+
+    this.setState({
+      calendars: account.calendars,
+      accountId: account.accountId
+    });
+  };
+
   renderContent = (formProps: IFormProps) => {
     const { values, isSubmitted } = formProps;
-    const { renderButton, onHideModal, event } = this.props;
+    const { renderButton, onHideModal, event, account } = this.props;
 
     const renderAccounts = () => {
       return (
         <CalendarConsumer>
           {({ accounts }) => {
-            console.log(accounts);
-            return <div>{accounts.length} 123123123</div>;
+            return (
+              <FormGroup>
+                <ControlLabel>Account</ControlLabel>
+
+                <FormControl
+                  componentClass="select"
+                  onChange={this.onChangeAccount.bind(this, accounts)}
+                  defaultValue={account && account._id}
+                >
+                  <option>Select account</option>
+                  {accounts.map(acc => (
+                    <option key={acc._id} value={acc._id}>
+                      {acc.name}
+                    </option>
+                  ))}
+                </FormControl>
+              </FormGroup>
+            );
           }}
         </CalendarConsumer>
       );
@@ -60,7 +100,9 @@ class EditForm extends React.Component<Props, {}> {
 
     return (
       <>
-        {/* <FormGroup>
+        {renderAccounts()}
+
+        <FormGroup>
           <ControlLabel required={true}>Calendar</ControlLabel>
 
           <FormControl
@@ -70,7 +112,7 @@ class EditForm extends React.Component<Props, {}> {
             defaultValue={event && event.providerCalendarId}
           >
             <option>Select calendar</option>
-            {calendars
+            {((account && account.calendars) || this.state.calendars)
               .filter(c => !c.readOnly)
               .map(calendar => (
                 <option key={calendar._id} value={calendar.providerCalendarId}>
@@ -78,8 +120,8 @@ class EditForm extends React.Component<Props, {}> {
                 </option>
               ))}
           </FormControl>
-        </FormGroup> */}
-        {renderAccounts()}
+        </FormGroup>
+
         <FormGroup>
           <ControlLabel required={true}>Title</ControlLabel>
 
@@ -128,7 +170,10 @@ class EditForm extends React.Component<Props, {}> {
 
         <ModalFooter>
           {renderButton({
-            values,
+            values: {
+              ...values,
+              accountId: this.state.accountId || (account && account.accountId)
+            },
             isSubmitted,
             callback: onHideModal
           })}

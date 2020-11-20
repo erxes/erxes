@@ -4,26 +4,47 @@ import Icon from 'modules/common/components/Icon';
 import ModalTrigger from 'modules/common/components/ModalTrigger';
 import React from 'react';
 import { EventContainer, EventContent, EventTitle } from '../styles';
-import { IEvent } from '../types';
+import { IAccount, IEvent } from '../types';
 import { milliseconds } from '../utils';
 import { CalendarConsumer } from './Wrapper';
 
 type Props = {
   event: IEvent;
   showHour: boolean;
-  editEvent: (event: IEvent) => void;
-  deleteEvent: (event: IEvent) => void;
+  editEvent: (event: IEvent, account?: IAccount) => void;
+  deleteEvent: (_id: string, accountId: string) => void;
 };
 
-class Detail extends React.Component<Props> {
+type FinalProps = {
+  color: object;
+  accounts: IAccount[];
+} & Props;
+
+class Detail extends React.Component<FinalProps> {
   getColor(color: object, accountId: string) {
     const colorCode = color[accountId];
 
     return colorCode;
   }
 
+  getAccount() {
+    const { event, accounts } = this.props;
+
+    for (const account of accounts) {
+      const acc = account.calendars.find(
+        c => c.providerCalendarId === event.providerCalendarId
+      );
+
+      if (acc) {
+        return account;
+      }
+    }
+
+    return;
+  }
+
   render() {
-    const { event, showHour, editEvent, deleteEvent } = this.props;
+    const { event, showHour, editEvent, deleteEvent, color } = this.props;
     const startTime = milliseconds(event.when.start_time);
     const endTime = milliseconds(event.when.end_time);
 
@@ -35,12 +56,16 @@ class Detail extends React.Component<Props> {
 
       const edit = () => {
         closeModal();
-        editEvent(event);
+        editEvent(event, this.getAccount());
       };
 
       const remove = () => {
+        const account = this.getAccount();
         closeModal();
-        deleteEvent(event);
+
+        if (account) {
+          deleteEvent(event.providerEventId, account.accountId);
+        }
       };
 
       return (
@@ -85,30 +110,34 @@ class Detail extends React.Component<Props> {
     }
 
     return (
-      <CalendarConsumer>
-        {({ color }) => {
-          return (
-            <EventContainer key={event._id}>
-              <ModalTrigger
-                title={event.title || ''}
-                trigger={
-                  <EventTitle
-                    {...props}
-                    color={this.getColor(color, event.providerCalendarId)}
-                  >
-                    <Icon icon="check-circle" />
-                    {dayjs(startTime).format('ha')} &nbsp;
-                    <b>{event.title}</b>
-                  </EventTitle>
-                }
-                content={content}
-              />
-            </EventContainer>
-          );
-        }}
-      </CalendarConsumer>
+      <EventContainer key={event._id}>
+        <ModalTrigger
+          title={event.title || ''}
+          trigger={
+            <EventTitle
+              {...props}
+              color={this.getColor(color, event.providerCalendarId)}
+            >
+              <Icon icon="check-circle" />
+              {dayjs(startTime).format('ha')} &nbsp;
+              <b>{event.title}</b>
+            </EventTitle>
+          }
+          content={content}
+        />
+      </EventContainer>
     );
   }
 }
 
-export default Detail;
+const WithConsumer = (props: Props) => {
+  return (
+    <CalendarConsumer>
+      {({ color, accounts }) => (
+        <Detail {...props} color={color} accounts={accounts} />
+      )}
+    </CalendarConsumer>
+  );
+};
+
+export default WithConsumer;

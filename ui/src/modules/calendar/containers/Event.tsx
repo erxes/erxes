@@ -8,7 +8,6 @@ import React from 'react';
 import { graphql } from 'react-apollo';
 import Event from '../components/Event';
 import { mutations, subscriptions } from '../graphql';
-import { IEvent } from '../types';
 
 type Props = {
   type: string;
@@ -55,8 +54,6 @@ class EventContainer extends React.Component<FinalProps, {}> {
       queryParams
     } = this.props;
 
-    const accountId = 'test';
-
     if (fetchApiQuery.loading) {
       return <Spinner objective={true} />;
     }
@@ -68,12 +65,12 @@ class EventContainer extends React.Component<FinalProps, {}> {
     }
 
     // remove action
-    const remove = (event: IEvent) => {
+    const remove = (_id: string, accountId: string) => {
       confirm(getWarningMessage('Event'), { hasDeleteConfirm: true }).then(
         () => {
           removeEventMutation({
             variables: {
-              _id: event.providerEventId,
+              _id,
               accountId
             }
           })

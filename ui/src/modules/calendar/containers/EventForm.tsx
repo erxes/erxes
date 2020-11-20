@@ -5,7 +5,7 @@ import { queries } from 'modules/settings/integrations/graphql';
 import React from 'react';
 import EventForm from '../components/EventForm';
 import { mutations } from '../graphql';
-import { IEvent } from '../types';
+import { IAccount, IEvent } from '../types';
 
 type Props = {
   queryParams: any;
@@ -15,6 +15,7 @@ type Props = {
   onHideModal: (date?: Date) => void;
   selectedDate?: Date;
   event?: IEvent;
+  account?: IAccount;
 };
 
 class FormContainer extends React.Component<Props> {

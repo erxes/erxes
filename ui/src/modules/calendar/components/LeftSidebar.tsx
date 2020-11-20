@@ -101,7 +101,36 @@ class LeftSidebar extends React.Component<Props, State> {
       calendarIds.push(calendarId);
     } else {
       const index = calendarIds.indexOf(calendarId);
-      calendarIds.splice(index, 1);
+
+      if (index >= 0) {
+        calendarIds.splice(index, 1);
+      }
+    }
+
+    this.setState({ calendarIds });
+
+    this.props.onChangeCalendarIds(calendarIds);
+  };
+
+  toggleAccountCheckbox = (
+    account: IAccount,
+    e: React.FormEvent<HTMLElement>
+  ) => {
+    const checked = (e.target as HTMLInputElement).checked;
+    let calendarIds = this.state.calendarIds || [];
+    const providerCalendarIds = account.calendars.map(
+      c => c.providerCalendarId
+    );
+
+    const ids = [account._id, ...providerCalendarIds];
+
+    if (checked) {
+      calendarIds = calendarIds.concat(ids);
+    } else {
+      ids.map(id => {
+        const index = calendarIds.indexOf(id);
+        return index >= 0 && calendarIds.splice(index, 1);
+      });
     }
 
     this.setState({ calendarIds });
@@ -145,11 +174,10 @@ class LeftSidebar extends React.Component<Props, State> {
               <FormControl
                 className="toggle-message"
                 componentClass="checkbox"
-                onChange={this.toggleCheckbox.bind(this, account._id)}
+                onChange={this.toggleAccountCheckbox.bind(this, account)}
                 checked={this.state.calendarIds.includes(account._id)}
               >
-                <Icon icon={'circuit'} style={{ color: account.color }} />{' '}
-                &nbsp;
+                <Icon icon={'circle'} style={{ color: account.color }} /> &nbsp;
                 {account.name}
               </FormControl>
               {this.renderCalendars(account.calendars)}

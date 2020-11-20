@@ -52,6 +52,7 @@ export interface IAccount {
   _id: string;
   name: string;
   color: string;
+  accountId: string;
 
   calendars: INylasCalendar[];
 }
