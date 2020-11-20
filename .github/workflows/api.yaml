@@ -64,10 +64,10 @@ jobs:
           cd api
           yarn tsc -p tsconfig.prod.json
 
-      - name: Test
-        run: |
-          cd api
-          yarn test
+      # - name: Test
+      #   run: |
+      #     cd api
+      #     yarn test
         env:
           MONGO_URL: mongodb://localhost/erxes
           TEST_MONGO_URL: mongodb://localhost/test
