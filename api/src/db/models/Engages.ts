@@ -238,7 +238,7 @@ export const loadClass = () => {
       const messages = await EngageMessages.find({
         'messenger.brandId': brand._id,
         method: 'messenger',
-        kin: { $ne: 'manual' },
+        kind: { $ne: 'manual' },
         isLive: true
       });
 
