@@ -10,7 +10,7 @@ import { paginate } from '../../utils';
  * Common helper for groups
  */
 const generateFilterQuery = (userId: string) => {
-  return { $or: [{ isPrivate: false }, { userId }] };
+  return { $or: [{ isPrivate: false }, { userId }, { memberIds: userId }] };
 };
 
 const calendarQueries = {

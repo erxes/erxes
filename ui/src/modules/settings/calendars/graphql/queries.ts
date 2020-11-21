@@ -10,6 +10,7 @@ const groupFields = `
   _id
   name
   isPrivate
+  memberIds
   boardId
   
   calendars {

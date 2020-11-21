@@ -6,6 +6,7 @@ import ControlLabel from 'modules/common/components/form/Label';
 import { ModalFooter } from 'modules/common/styles/main';
 import { IButtonMutateProps, IFormProps } from 'modules/common/types';
 import { __ } from 'modules/common/utils';
+import SelectTeamMembers from 'modules/settings/team/containers/SelectTeamMembers';
 import React from 'react';
 import Modal from 'react-bootstrap/Modal';
 import { IAccount, IEvent, INylasCalendar } from '../types';
@@ -24,6 +25,7 @@ type Props = {
 type State = {
   calendars: INylasCalendar[];
   accountId?: string;
+  selectedMemberIds: string[];
 };
 
 class EditForm extends React.Component<Props, State> {
@@ -31,9 +33,16 @@ class EditForm extends React.Component<Props, State> {
     super(props);
 
     this.state = {
-      calendars: []
+      calendars: [],
+      selectedMemberIds: []
     };
+
+    this.hideModal = this.hideModal.bind(this);
   }
+
+  onChangeMembers = items => {
+    this.setState({ selectedMemberIds: items });
+  };
 
   renderHeader() {
     return (
@@ -67,9 +76,15 @@ class EditForm extends React.Component<Props, State> {
     });
   };
 
+  hideModal() {
+    this.setState({ selectedMemberIds: [], calendars: [] });
+    this.props.onHideModal();
+  }
+
   renderContent = (formProps: IFormProps) => {
     const { values, isSubmitted } = formProps;
-    const { renderButton, onHideModal, event, account } = this.props;
+    const { renderButton, event, account } = this.props;
+    const { selectedMemberIds } = this.state;
 
     const renderAccounts = () => {
       return (
@@ -147,6 +162,18 @@ class EditForm extends React.Component<Props, State> {
         </FormGroup>
 
         <FormGroup>
+          <ControlLabel>Members</ControlLabel>
+
+          <SelectTeamMembers
+            {...formProps}
+            label="Choose members"
+            name="memberIds"
+            value={selectedMemberIds}
+            onSelect={this.onChangeMembers}
+          />
+        </FormGroup>
+
+        <FormGroup>
           <ControlLabel>Start Date</ControlLabel>
 
           <FormControl
@@ -172,10 +199,11 @@ class EditForm extends React.Component<Props, State> {
           {renderButton({
             values: {
               ...values,
-              accountId: this.state.accountId || (account && account.accountId)
+              accountId: this.state.accountId || (account && account.accountId),
+              memberIds: selectedMemberIds
             },
             isSubmitted,
-            callback: onHideModal
+            callback: this.hideModal
           })}
         </ModalFooter>
       </>
@@ -187,7 +215,7 @@ class EditForm extends React.Component<Props, State> {
       <Modal
         enforceFocus={false}
         show={this.props.isPopupVisible}
-        onHide={this.props.onHideModal}
+        onHide={this.hideModal}
         animation={false}
       >
         {this.renderHeader()}

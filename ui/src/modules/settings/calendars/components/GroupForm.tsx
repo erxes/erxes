@@ -5,6 +5,7 @@ import FormGroup from 'modules/common/components/form/Group';
 import ControlLabel from 'modules/common/components/form/Label';
 import { IButtonMutateProps, IFormProps } from 'modules/common/types';
 import { __ } from 'modules/common/utils';
+import SelectTeamMembers from 'modules/settings/team/containers/SelectTeamMembers';
 import React from 'react';
 import Modal from 'react-bootstrap/Modal';
 import Select from 'react-select-plus';
@@ -20,6 +21,8 @@ type Props = {
 
 type State = {
   boardId: string;
+  isPrivate: boolean;
+  selectedMemberIds: string[];
 };
 
 class GroupForm extends React.Component<Props, State> {
@@ -29,12 +32,19 @@ class GroupForm extends React.Component<Props, State> {
     const group = this.props.group || ({} as IGroup);
 
     this.state = {
-      boardId: group.boardId || ''
+      boardId: group.boardId || '',
+      isPrivate: group.isPrivate || false,
+      selectedMemberIds: group ? group.memberIds || [] : []
     };
   }
 
-  collectValues = items => {
-    return items.map(item => item.value);
+  onChangeMembers = items => {
+    this.setState({ selectedMemberIds: items });
+  };
+
+  onChangeIsPrivate = e => {
+    const isChecked = (e.currentTarget as HTMLInputElement).checked;
+    this.setState({ isPrivate: isChecked });
   };
 
   generateDoc = (values: {
@@ -43,7 +53,7 @@ class GroupForm extends React.Component<Props, State> {
     visibility: string;
   }) => {
     const { group } = this.props;
-    const { boardId } = this.state;
+    const { boardId, isPrivate, selectedMemberIds } = this.state;
     const finalValues = values;
 
     if (group) {
@@ -52,6 +62,8 @@ class GroupForm extends React.Component<Props, State> {
 
     return {
       ...finalValues,
+      memberIds: selectedMemberIds,
+      isPrivate,
       boardId
     };
   };
@@ -77,6 +89,27 @@ class GroupForm extends React.Component<Props, State> {
           options={this.renderOptions(boards)}
           onChange={onChange}
           clearable={false}
+        />
+      </FormGroup>
+    );
+  }
+
+  renderSelectMembers() {
+    const { isPrivate, selectedMemberIds } = this.state;
+
+    if (!isPrivate) {
+      return;
+    }
+
+    return (
+      <FormGroup>
+        <ControlLabel>Members</ControlLabel>
+
+        <SelectTeamMembers
+          label="Choose members"
+          name="selectedMemberIds"
+          value={selectedMemberIds}
+          onSelect={this.onChangeMembers}
         />
       </FormGroup>
     );
@@ -109,6 +142,20 @@ class GroupForm extends React.Component<Props, State> {
           </FormGroup>
 
           {this.renderBoards()}
+
+          <FormGroup>
+            <ControlLabel>Is private</ControlLabel>
+
+            <FormControl
+              {...formProps}
+              name="isPrivate"
+              defaultChecked={this.state.isPrivate}
+              componentClass="checkbox"
+              onChange={this.onChangeIsPrivate}
+            />
+          </FormGroup>
+
+          {this.renderSelectMembers()}
 
           <Modal.Footer>
             <Button

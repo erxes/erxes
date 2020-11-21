@@ -37,20 +37,19 @@ class LeftSidebar extends React.Component<Props, State> {
   constructor(props) {
     super(props);
 
-    const calendarIds: string[] = [];
-
-    props.accounts.map(acc => {
-      calendarIds.push(acc._id);
-
-      return acc.calendars
-        .filter(c => !c.readOnly)
-        .map(cal => calendarIds.push(cal.providerCalendarId));
-    });
-
     this.state = {
       isPopupVisible: false,
-      calendarIds
+      calendarIds: this.getCalendarIds(props.accounts)
     };
+  }
+
+  componentWillReceiveProps(nextProps) {
+    if (nextProps.accounts !== this.props.accounts) {
+      const calendarIds = this.getCalendarIds(nextProps.accounts);
+
+      this.setState({ calendarIds });
+      this.props.onChangeCalendarIds(calendarIds);
+    }
   }
 
   componentDidMount() {
@@ -59,6 +58,20 @@ class LeftSidebar extends React.Component<Props, State> {
     if (calendarIds.length !== 0) {
       this.props.onChangeCalendarIds(calendarIds);
     }
+  }
+
+  getCalendarIds(accounts: IAccount[]) {
+    const calendarIds: string[] = [];
+
+    accounts.map(acc => {
+      calendarIds.push(acc._id);
+
+      return acc.calendars
+        .filter(c => !c.readOnly)
+        .map(cal => calendarIds.push(cal.providerCalendarId));
+    });
+
+    return calendarIds;
   }
 
   onHideModal = () => {

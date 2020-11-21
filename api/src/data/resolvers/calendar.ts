@@ -3,6 +3,7 @@ import {
   ICalendarBoardDocument,
   ICalendarGroupDocument
 } from '../../db/models/definitions/calendars';
+import { IContext } from '../types';
 
 export const calendarGroup = {
   calendars(group: ICalendarGroupDocument) {
@@ -11,7 +12,12 @@ export const calendarGroup = {
 };
 
 export const calendarBoard = {
-  groups(board: ICalendarBoardDocument) {
-    return CalendarGroups.find({ boardId: board._id });
+  async groups(board: ICalendarBoardDocument, _args, { user }: IContext) {
+    const userId = user._id;
+
+    return CalendarGroups.find({
+      boardId: board._id,
+      $or: [{ isPrivate: false }, { userId }, { memberIds: userId }]
+    });
   }
 };

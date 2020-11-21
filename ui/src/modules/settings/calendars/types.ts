@@ -13,8 +13,9 @@ export interface IGroup {
   _id: string;
   name: string;
   isPrivate: boolean;
-  calendars: ICalendar[];
   boardId: string;
+  memberIds: string[];
+  calendars: ICalendar[];
 }
 export interface IBoard {
   _id: string;

@@ -1,20 +1,29 @@
 import { IntegrationsAPI } from '../data/dataSources';
 import { graphqlRequest } from '../db/connection';
-import { calendarFactory, calnedarGroupFactory } from '../db/factories';
-import { CalendarGroups, Calendars } from '../db/models';
+import {
+  calendarBoardFactory,
+  calendarFactory,
+  calendarGroupFactory,
+  userFactory
+} from '../db/factories';
+import { CalendarBoards, CalendarGroups, Calendars, Users } from '../db/models';
 
 import './setup.ts';
 
 describe('Test calendars mutations', () => {
   let calendar;
   let group;
+  let board;
   let dataSources;
+  let user;
 
   beforeEach(async () => {
     // Creating test data
     dataSources = { IntegrationsAPI: new IntegrationsAPI() };
 
-    group = await calnedarGroupFactory();
+    user = await userFactory({});
+    board = await calendarBoardFactory({});
+    group = await calendarGroupFactory({ boardId: board._id });
     calendar = await calendarFactory({
       groupId: group._id
     });
@@ -22,31 +31,33 @@ describe('Test calendars mutations', () => {
 
   afterEach(async () => {
     // Clearing test data
+    await Users.deleteMany({});
     await Calendars.deleteMany({});
     await CalendarGroups.deleteMany({});
+    await CalendarBoards.deleteMany({});
   });
 
   const commonGroupParamDefs = `
+    $boardId: String!,
     $name: String!,
     $isPrivate: Boolean,
-    $assignedUserIds: [String]
+    $memberIds: [String]
   `;
 
   const commonGroupParams = `
-    name: $name
+    boardId: $boardId,
+    name: $name,
     isPrivate: $isPrivate
-    assignedUserIds: $assignedUserIds,
+    memberIds: $memberIds,
   `;
 
   const commonParamDefs = `
     $groupId: String!,
-    $name: String!,
     $color: String
   `;
 
   const commonParams = `
     groupId: $groupId
-    name: $name
     color: $color
   `;
 
@@ -77,11 +88,22 @@ describe('Test calendars mutations', () => {
     );
   };
 
+  const removeGroup = async () => {
+    await removeCalendar();
+
+    const mutation = `
+      mutation calendarGroupsDelete($_id: String!) {
+        calendarGroupsDelete(_id: $_id)
+      }
+    `;
+
+    await graphqlRequest(mutation, 'calendarGroupsDelete', { _id: group._id });
+  };
+
   test('Connect calendars', async () => {
     await removeCalendar();
 
     const args = {
-      name: calendar.name,
       uid: 'nylasAccountId',
       groupId: group._id
     };
@@ -108,7 +130,10 @@ describe('Test calendars mutations', () => {
     );
 
     addCalendarSpy.mockImplementation(() =>
-      Promise.resolve({ accountId: 'integrationAccountId' })
+      Promise.resolve({
+        accountId: 'integrationAccountId',
+        email: 'email@gmail.com'
+      })
     );
 
     const createdCalendar = await graphqlRequest(
@@ -118,16 +143,16 @@ describe('Test calendars mutations', () => {
       { dataSources }
     );
 
-    expect(createdCalendar.name).toEqual(args.name);
+    // expect(createdCalendar.name).toEqual('email@gmail.com');
     expect(createdCalendar.color).toBeDefined();
   });
 
   test('Edit calendar', async () => {
     const args = {
       _id: calendar._id,
-      name: `${calendar.name}-updated`,
       accountId: 'erxesApiId',
-      groupId: group._id
+      groupId: group._id,
+      color: '#fff'
     };
 
     const mutation = `
@@ -146,8 +171,8 @@ describe('Test calendars mutations', () => {
       args
     );
 
-    expect(updatedCalendar.name).toEqual(args.name);
     expect(updatedCalendar.color).toBeDefined();
+    expect(updatedCalendar.color).toEqual(args.color);
   });
 
   test('Remove calendar', async () => {
@@ -173,7 +198,8 @@ describe('Test calendars mutations', () => {
 
   test('Create group', async () => {
     const args = {
-      name: group.name
+      name: group.name,
+      boardId: board._id
     };
 
     const mutation = `
@@ -200,6 +226,7 @@ describe('Test calendars mutations', () => {
   test('Edit group', async () => {
     const args = {
       _id: group._id,
+      boardId: board._id,
       name: `${group.name}-updated`,
       isPrivate: true
     };
@@ -225,17 +252,71 @@ describe('Test calendars mutations', () => {
   });
 
   test('Remove group', async () => {
-    await removeCalendar();
+    await removeGroup();
+
+    expect(await CalendarGroups.countDocuments({})).toBe(0);
+  });
+
+  test('Create board', async () => {
+    const args = {
+      name: board.name
+    };
 
     const mutation = `
-      mutation calendarGroupsDelete($_id: String!) {
-        calendarGroupsDelete(_id: $_id)
+      mutation calendarBoardsAdd($name: String!) {
+        calendarBoardsAdd(name: $name) {
+          _id
+          name
+        }
       }
     `;
 
-    await graphqlRequest(mutation, 'calendarGroupsDelete', { _id: group._id });
+    const createdBoard = await graphqlRequest(
+      mutation,
+      'calendarBoardsAdd',
+      args
+    );
 
-    expect(await CalendarGroups.countDocuments({})).toBe(0);
+    expect(createdBoard.name).toEqual(args.name);
+    expect(await CalendarBoards.countDocuments({})).toEqual(2);
+  });
+
+  test('Edit board', async () => {
+    const args = {
+      _id: board._id,
+      name: `${board.name}-updated`
+    };
+
+    const mutation = `
+      mutation calendarBoardsEdit($_id: String!, $name: String!) {
+        calendarBoardsEdit(_id: $_id, name: $name) {
+          _id
+          name
+        }
+      }
+    `;
+
+    const updatedBoard = await graphqlRequest(
+      mutation,
+      'calendarBoardsEdit',
+      args
+    );
+
+    expect(updatedBoard.name).toEqual(`${board.name}-updated`);
+  });
+
+  test('Remove board', async () => {
+    await removeGroup();
+
+    const mutation = `
+      mutation calendarBoardsDelete($_id: String!) {
+        calendarBoardsDelete(_id: $_id)
+      }
+    `;
+
+    await graphqlRequest(mutation, 'calendarBoardsDelete', { _id: board._id });
+
+    expect(await CalendarBoards.countDocuments({})).toBe(0);
   });
 
   const eventParamDefs = `
@@ -245,6 +326,9 @@ describe('Test calendars mutations', () => {
     $description: String,
     $start: String,
     $end: String
+
+    $participants: [Participant]
+    $memberIds: [String]
   `;
 
   const eventParams = `
@@ -254,6 +338,9 @@ describe('Test calendars mutations', () => {
     description: $description,
     start: $start,
     end: $end
+
+    participants: $participants,
+    memberIds: $memberIds
   `;
 
   const eventArgs = {
@@ -276,9 +363,17 @@ describe('Test calendars mutations', () => {
 
     createEventSpy.mockImplementation(() => Promise.resolve());
 
-    await graphqlRequest(mutation, 'createCalendarEvent', eventArgs, {
-      dataSources
-    });
+    await graphqlRequest(
+      mutation,
+      'createCalendarEvent',
+      {
+        memberIds: [user._id],
+        ...eventArgs
+      },
+      {
+        dataSources
+      }
+    );
   });
 
   test('Update calendar event', async () => {

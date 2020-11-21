@@ -1,10 +1,12 @@
+import { IntegrationsAPI } from '../data/dataSources';
 import { graphqlRequest } from '../db/connection';
 import {
+  calendarBoardFactory,
   calendarFactory,
-  calnedarGroupFactory,
+  calendarGroupFactory,
   userFactory
 } from '../db/factories';
-import { CalendarGroups, Calendars, Users } from '../db/models';
+import { CalendarBoards, CalendarGroups, Calendars, Users } from '../db/models';
 
 import './setup.ts';
 
@@ -12,11 +14,19 @@ describe('calendarQueries', () => {
   let _calendar;
   let _group;
   let _user;
+  let _board;
+  let dataSources;
 
   beforeEach(async () => {
     // Creating test data
+    dataSources = { IntegrationsAPI: new IntegrationsAPI() };
+
     _user = await userFactory({});
-    _group = await calnedarGroupFactory();
+    _board = await calendarBoardFactory();
+    _group = await calendarGroupFactory({
+      boardId: _board._id,
+      memberIds: [_user._id]
+    });
     _calendar = await calendarFactory({ groupId: _group._id });
   });
 
@@ -24,29 +34,42 @@ describe('calendarQueries', () => {
     // Clearing test data
     await Calendars.deleteMany({});
     await CalendarGroups.deleteMany({});
+    await CalendarBoards.deleteMany({});
     await Users.deleteMany({});
   });
 
   test('Calendar groups', async () => {
-    await calnedarGroupFactory({ userId: _user._id, isPrivate: true });
-    await calnedarGroupFactory({ userId: _user._id });
+    const boardId = _board._id;
+    await calendarGroupFactory({
+      boardId,
+      userId: _user._id,
+      isPrivate: true
+    });
+    await calendarGroupFactory({ boardId });
 
     const qry = `
-      query calendarGroups {
-        calendarGroups {
+      query calendarGroups($boardId: String) {
+        calendarGroups(boardId: $boardId) {
           _id
           name
         }
       }
     `;
 
-    let response = await graphqlRequest(qry, 'calendarGroups');
+    let response = await graphqlRequest(qry, 'calendarGroups', {
+      boardId
+    });
 
     expect(response.length).toBe(2);
 
-    response = await graphqlRequest(qry, 'calendarGroups', null, {
-      user: _user
-    });
+    response = await graphqlRequest(
+      qry,
+      'calendarGroups',
+      { boardId },
+      {
+        user: _user
+      }
+    );
 
     expect(response.length).toBe(3);
   });
@@ -95,8 +118,8 @@ describe('calendarQueries', () => {
   });
 
   test('Calendar group total count', async () => {
-    await calnedarGroupFactory();
-    await calnedarGroupFactory();
+    await calendarGroupFactory();
+    await calendarGroupFactory();
 
     const qry = `
       query calendarGroupCounts {
@@ -110,7 +133,7 @@ describe('calendarQueries', () => {
   });
 
   test('Calendars', async () => {
-    const secondGroup = await calnedarGroupFactory();
+    const secondGroup = await calendarGroupFactory();
     await calendarFactory({ groupId: secondGroup._id });
 
     const qry = `
@@ -153,5 +176,103 @@ describe('calendarQueries', () => {
     expect(response).toBeDefined();
     expect(response._id).toEqual(_calendar._id);
     expect(response.name).toEqual(_calendar.name);
+  });
+
+  test('Calendar boards', async () => {
+    const qry = `
+      query calendarBoards {
+        calendarBoards {
+          _id
+          name
+        }
+      }
+    `;
+
+    const response = await graphqlRequest(qry, 'calendarBoards');
+
+    expect(response.length).toBe(1);
+    expect(response[0].name).toBe(_board.name);
+  });
+
+  test('Calendar board detail', async () => {
+    const qry = `
+      query calendarBoardDetail($_id: String!) {
+        calendarBoardDetail(_id: $_id) {
+          _id,
+          name,
+
+          groups {
+            _id
+            name
+          }
+        }
+      }
+    `;
+
+    const response = await graphqlRequest(qry, 'calendarBoardDetail', {
+      _id: _board._id
+    });
+
+    expect(response).toBeDefined();
+    expect(response._id).toEqual(_board._id);
+    expect(response.name).toEqual(_board.name);
+    expect(response.groups[0]._id).toEqual(_group._id);
+  });
+
+  test('Calendar board get last', async () => {
+    const qry = `
+      query calendarBoardGetLast {
+        calendarBoardGetLast {
+          _id,
+          name
+        }
+      }
+    `;
+
+    const response = await graphqlRequest(qry, 'calendarBoardGetLast');
+
+    expect(response).toBeDefined();
+    expect(response._id).toEqual(_board._id);
+  });
+
+  test('Calendar accounts', async () => {
+    const qry = `
+      query calendarAccounts($groupId: String) {
+        calendarAccounts(groupId: $groupId) {
+          _id
+          name
+          color
+          accountId
+      
+          calendars {
+            _id
+            providerCalendarId
+            accountUid
+            name
+            description
+            readOnly
+          }
+        }
+      }
+    `;
+
+    const getCalendarsSpy = jest.spyOn(dataSources.IntegrationsAPI, 'fetchApi');
+
+    getCalendarsSpy.mockImplementation(() => Promise.resolve());
+
+    const response = await graphqlRequest(
+      qry,
+      'calendarAccounts',
+      {
+        groupId: _group._id
+      },
+      {
+        dataSources
+      }
+    );
+
+    expect(response).toBeDefined();
+    expect(response[0]._id).toEqual(_calendar._id);
+    expect(response[0].name).toEqual(_calendar.name);
   });
 });

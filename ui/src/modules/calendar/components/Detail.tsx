@@ -20,7 +20,15 @@ type FinalProps = {
   accounts: IAccount[];
 } & Props;
 
-class Detail extends React.Component<FinalProps> {
+class Detail extends React.Component<FinalProps, { toggle: boolean }> {
+  constructor(props) {
+    super(props);
+
+    this.state = {
+      toggle: false
+    };
+  }
+
   getColor(color: object, accountId: string) {
     const colorCode = color[accountId];
 
@@ -42,6 +50,10 @@ class Detail extends React.Component<FinalProps> {
 
     return;
   }
+
+  onToggle = () => {
+    this.setState({ toggle: !this.state.toggle });
+  };
 
   render() {
     const { event, showHour, editEvent, deleteEvent, color } = this.props;
@@ -68,6 +80,9 @@ class Detail extends React.Component<FinalProps> {
         }
       };
 
+      const { toggle } = this.state;
+      const guestCount = event.participants.length;
+
       return (
         <EventContent>
           <Icon icon="clock" />
@@ -80,7 +95,23 @@ class Detail extends React.Component<FinalProps> {
           <div>{event.owner}</div>
           <br />
           <Icon icon="users" />
-          <div>{event.participants.length} guests</div>
+          <div>
+            {guestCount} guests &nbsp;
+            {guestCount !== 0 && (
+              <Icon
+                icon={`arrow-${toggle ? 'up' : 'down'}`}
+                onClick={this.onToggle}
+                style={{ cursor: 'pointer' }}
+              />
+            )}
+          </div>
+          {toggle && (
+            <ul>
+              {event.participants.map(p => (
+                <li key={p.email}>{p.name}</li>
+              ))}
+            </ul>
+          )}
           {event.description && (
             <>
               <br /> <Icon icon="book" />

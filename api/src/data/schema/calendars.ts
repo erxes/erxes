@@ -13,6 +13,7 @@ export const types = `
     name: String
     isPrivate: Boolean
     boardId: String
+    memberIds: [String]
 
     calendars: [Calendar]
   }
@@ -41,6 +42,13 @@ export const types = `
 
     calendars: [NylasCalendar]
   }
+
+ input Participant {
+    name: String
+    email: String
+    status: String
+    comment: String
+  }
 `;
 
 const eventParams = `
@@ -49,7 +57,10 @@ const eventParams = `
   title: String!,
   description: String,
   start: String,
-  end: String
+  end: String,
+  
+  participants: [Participant]
+  memberIds: [String]
 `;
 
 const commonParams = `
