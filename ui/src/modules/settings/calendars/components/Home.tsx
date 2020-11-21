@@ -1,3 +1,4 @@
+import EmptyState from 'modules/common/components/EmptyState';
 import HeaderDescription from 'modules/common/components/HeaderDescription';
 import { __ } from 'modules/common/utils';
 import Wrapper from 'modules/layout/components/Wrapper';
@@ -34,11 +35,18 @@ class Home extends React.Component<Props, {}> {
         }
         leftSidebar={<Boards currentBoardId={boardId} />}
         content={
-          <Groups
-            boardId={boardId}
-            queryParams={queryParams}
-            history={history}
-          />
+          boardId ? (
+            <Groups
+              boardId={boardId}
+              queryParams={queryParams}
+              history={history}
+            />
+          ) : (
+            <EmptyState
+              text={`Get started on your board`}
+              image="/images/actions/16.svg"
+            />
+          )
         }
       />
     );
