@@ -464,3 +464,5 @@ if (NODE_ENV === 'production') {
     });
   });
 }
+
+console.log('test');

@@ -12,6 +12,8 @@ class BasicInfoSection extends React.Component<Props> {
     const { Section } = Sidebar;
     const { company } = this.props;
 
+    console.log('test');
+
     return (
       <Section>
         <DetailInfo company={company} />
