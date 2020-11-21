@@ -68,6 +68,7 @@ erxes helps you attract and engage more customers while helping you achieve high
 
 Follow these deployment instructions.
 
+[![Codacy Badge](https://api.codacy.com/project/badge/Grade/afdc2d36ea294a01a036a4eeae4346b8)](https://app.codacy.com/gh/erxes/erxes?utm_source=github.com&utm_medium=referral&utm_content=erxes/erxes&utm_campaign=Badge_Grade)
 [![ubuntu](https://erxes-os.s3-us-west-2.amazonaws.com/github/ubuntu-logo.png)](https://www.erxes.org/installation/ubuntu)
 
 ### Docker
