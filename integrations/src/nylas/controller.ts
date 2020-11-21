@@ -187,7 +187,11 @@ export const initNylas = async app => {
         await nylasGetAllEvents(account);
       }
 
-      return res.json({ status: 'ok', accountId: account._id });
+      return res.json({
+        status: 'ok',
+        accountId: account._id,
+        email: account.email
+      });
     } catch (e) {
       return next(e);
     }

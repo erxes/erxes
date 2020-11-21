@@ -1,4 +1,4 @@
-import { CalendarGroups, Calendars } from '../../../db/models';
+import { CalendarBoards, CalendarGroups, Calendars } from '../../../db/models';
 import {
   checkPermission,
   moduleRequireLogin
@@ -10,15 +10,15 @@ import { paginate } from '../../utils';
  * Common helper for groups
  */
 const generateFilterQuery = (userId: string) => {
-  return { $or: [{ isPrivate: false }, { userId }] };
+  return { $or: [{ isPrivate: false }, { userId }, { memberIds: userId }] };
 };
 
 const calendarQueries = {
   /**
    *  CalendarGroups list
    */
-  calendarGroups(_root, {}, { user }: IContext) {
-    return CalendarGroups.find(generateFilterQuery(user._id));
+  calendarGroups(_root, { boardId }, { user }: IContext) {
+    return CalendarGroups.find({ boardId, ...generateFilterQuery(user._id) });
   },
 
   /**
@@ -73,6 +73,60 @@ const calendarQueries = {
    */
   calendarDetail(_root, { _id }: { _id: string }) {
     return Calendars.findOne({ _id });
+  },
+
+  /**
+   *  CalendarBoards list
+   */
+  calendarBoards(_root) {
+    return CalendarBoards.find().sort({
+      createdAt: -1
+    });
+  },
+
+  /**
+   *  CalendarBoard detail
+   */
+  calendarBoardDetail(_root, { _id }: { _id: string }) {
+    return CalendarBoards.findOne({ _id });
+  },
+
+  /**
+   * Get last calendarBoards
+   */
+  calendarBoardGetLast(_root) {
+    return CalendarBoards.findOne().sort({
+      createdAt: -1
+    });
+  },
+
+  /**
+   *  Full Calendar list
+   */
+  async calendarAccounts(
+    _root,
+    { groupId }: { groupId: string },
+    { dataSources }: IContext
+  ) {
+    const accounts = await Calendars.find({ groupId });
+
+    const result: any = [];
+
+    for (const account of accounts) {
+      const calendars = await dataSources.IntegrationsAPI.fetchApi(
+        '/nylas/get-calendars',
+        {
+          accountId: account.accountId
+        }
+      );
+
+      result.push({
+        ...account.toJSON(),
+        calendars
+      });
+    }
+
+    return result;
   }
 };
 

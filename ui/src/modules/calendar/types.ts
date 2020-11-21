@@ -38,3 +38,21 @@ export interface IEvent {
   providerCalendarId: string;
   providerEventId: string;
 }
+
+export interface INylasCalendar {
+  _id: string;
+  providerCalendarId: string;
+  accountUid: string;
+  name: string;
+  description: string;
+  readOnly: boolean;
+}
+
+export interface IAccount {
+  _id: string;
+  name: string;
+  color: string;
+  accountId: string;
+
+  calendars: INylasCalendar[];
+}

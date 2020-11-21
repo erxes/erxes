@@ -17,12 +17,23 @@ export interface ICalendarDocument extends ICalendar, Document {
 export interface ICalendarGroup {
   name: string;
   isPrivate: boolean;
-  assignedUserIds?: string[];
+  memberIds?: string[];
   userId?: string;
-  createdAt: Date;
+  createdAt?: Date;
+  boardId: string;
 }
 
 export interface ICalendarGroupDocument extends ICalendarGroup, Document {
+  _id: string;
+}
+
+export interface ICalendarBoard {
+  name: string;
+  userId?: string;
+  createdAt?: Date;
+}
+
+export interface ICalendarBoardDocument extends ICalendarBoard, Document {
   _id: string;
 }
 
@@ -44,8 +55,18 @@ export const calendarGroupSchema = schemaWrapper(
     _id: field({ pkey: true }),
     name: field({ type: String, label: 'Name' }),
     userId: field({ type: String, label: 'Created by' }),
-    assignedUserIds: field({ type: [String], label: 'Assigned users' }),
+    memberIds: field({ type: [String], label: 'Members' }),
     isPrivate: field({ type: Boolean, default: false, label: 'Is private' }),
+    createdAt: field({ type: Date, required: true, default: Date.now }),
+    boardId: field({ type: String, label: 'Board' })
+  })
+);
+
+export const calendarBoardSchema = schemaWrapper(
+  new Schema({
+    _id: field({ pkey: true }),
+    name: field({ type: String, label: 'Name' }),
+    userId: field({ type: String, label: 'Created by' }),
     createdAt: field({ type: Date, required: true, default: Date.now })
   })
 );

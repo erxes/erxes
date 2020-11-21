@@ -5,6 +5,9 @@ const commonParamsDef = `
   $description: String,
   $start: String,
   $end: String
+
+  $participants: [Participant]
+  $memberIds: [String]
 `;
 
 const commonParams = `
@@ -13,7 +16,10 @@ const commonParams = `
   title: $title,
   description: $description,
   start: $start,
-  end: $end
+  end: $end,
+
+  participants: $participants
+  memberIds: $memberIds
 `;
 
 const createEvent = `

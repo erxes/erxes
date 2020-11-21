@@ -22,7 +22,7 @@ import {
   WeekHours,
   WeekWrapper
 } from '../styles';
-import { IEvent } from '../types';
+import { IAccount, IEvent } from '../types';
 import { extractDate, filterEvents, getDaysInMonth } from '../utils';
 import Detail from './Detail';
 
@@ -32,12 +32,16 @@ type Props = {
   events: IEvent[];
   startTime: Date;
   endTime: Date;
-  accountId: string;
   queryParams: any;
-  remove: (event: IEvent) => void;
+  remove: (_id: string, accountId: string) => void;
 };
 
-type State = { isPopupVisible: boolean; selectedDate?: Date; event?: IEvent };
+type State = {
+  isPopupVisible: boolean;
+  selectedDate?: Date;
+  event?: IEvent;
+  account?: IAccount;
+};
 
 class Event extends React.Component<Props, State> {
   constructor(props) {
@@ -53,16 +57,17 @@ class Event extends React.Component<Props, State> {
     this.setState({
       isPopupVisible: !this.state.isPopupVisible,
       selectedDate: date,
-      event: {} as IEvent
+      event: {} as IEvent,
+      account: {} as IAccount
     });
   };
 
-  editEvent = (event: IEvent) => {
-    this.setState({ event, isPopupVisible: true });
+  editEvent = (event: IEvent, account?: IAccount) => {
+    this.setState({ event, account, isPopupVisible: true });
   };
 
-  deleteEvent = (event: IEvent) => {
-    this.props.remove(event);
+  deleteEvent = (_id: string, accountId: string) => {
+    this.props.remove(_id, accountId);
   };
 
   renderHeader = (startTime?: Date) => {
@@ -213,25 +218,19 @@ class Event extends React.Component<Props, State> {
   };
 
   render() {
-    const {
-      startTime,
-      endTime,
-      accountId,
-      currentDate,
-      type,
-      queryParams
-    } = this.props;
+    const { startTime, endTime, currentDate, type, queryParams } = this.props;
+    const { isPopupVisible, selectedDate, event, account } = this.state;
 
     const createForm = (
       <EventForm
         startTime={startTime}
         endTime={endTime}
         queryParams={queryParams}
-        accountId={accountId}
-        isPopupVisible={this.state.isPopupVisible}
+        isPopupVisible={isPopupVisible}
         onHideModal={this.onHideModal}
-        selectedDate={this.state.selectedDate}
-        event={this.state.event}
+        selectedDate={selectedDate}
+        event={event}
+        account={account}
       />
     );
 

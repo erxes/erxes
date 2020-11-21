@@ -2,18 +2,18 @@ import HeaderDescription from 'modules/common/components/HeaderDescription';
 import { __ } from 'modules/common/utils';
 import Wrapper from 'modules/layout/components/Wrapper';
 import React from 'react';
-import Calendars from '../containers/Calendars';
+import Boards from '../containers/Boards';
 import Groups from '../containers/Groups';
 
 type Props = {
-  groupId: string;
+  boardId: string;
   queryParams: any;
   history: any;
 };
 
 class Home extends React.Component<Props, {}> {
   render() {
-    const { groupId, queryParams, history } = this.props;
+    const { boardId, queryParams, history } = this.props;
 
     const breadcrumb = [
       { title: __('Settings'), link: '/settings' },
@@ -29,13 +29,13 @@ class Home extends React.Component<Props, {}> {
           <HeaderDescription
             icon="/images/actions/34.svg"
             title={`Group & Calendar`}
-            description="Manage your groups and calendars so that its easy to manage incoming pop ups or requests that is adaptable to your team's needs. Add in or delete groups and calendars to keep business development on track and in check."
+            description="Manage your boards and calendars so that its easy to manage incoming pop ups or requests that is adaptable to your team's needs. Add in or delete boards and calendars to keep business development on track and in check."
           />
         }
-        leftSidebar={<Groups currentGroupId={groupId} />}
+        leftSidebar={<Boards currentBoardId={boardId} />}
         content={
-          <Calendars
-            groupId={groupId}
+          <Groups
+            boardId={boardId}
             queryParams={queryParams}
             history={history}
           />

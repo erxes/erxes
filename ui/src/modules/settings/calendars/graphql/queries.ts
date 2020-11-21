@@ -3,21 +3,59 @@ const fields = `
   name
   accountId
   groupId
+  color
 `;
 
 const groupFields = `
   _id
   name
   isPrivate
+  memberIds
+  boardId
   
   calendars {
     ${fields}
   }
 `;
 
+const boardFields = `
+  _id
+  name
+
+  groups {
+    _id
+    name
+  }
+`;
+
+const boards = `
+  query calendarBoards {
+    calendarBoards {
+      _id
+      name
+    }
+  }
+`;
+
+const boardGetLast = `
+  query calendarBoardGetLast {
+    calendarBoardGetLast {
+      ${boardFields}
+    }
+  }
+`;
+
+const boardDetail = `
+  query calendarBoardDetail($_id: String!) {
+    calendarBoardDetail(_id: $_id) {
+      ${boardFields}
+    }
+  }
+`;
+
 const groups = `
-  query calendarGroups {
-    calendarGroups {
+  query calendarGroups($boardId: String) {
+    calendarGroups(boardId: $boardId) {
       ${groupFields}
     }
   }
@@ -56,6 +94,9 @@ const calendarDetail = `
 `;
 
 export default {
+  boards,
+  boardGetLast,
+  boardDetail,
   groups,
   groupGetLast,
   groupDetail,
