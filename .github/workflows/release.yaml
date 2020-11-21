@@ -265,7 +265,7 @@ jobs:
           mv widgets/dist widgets/node_modules widgets/locales widgets/static widgets/package.json build/widgets
 
           mv api/dist build/api
-          mv api/node_modules api/db-migrate-store.js api/package.json build/api
+          mv api/node_modules api/package.json build/api
 
           mv email-verifier/dist build/email-verifier
           mv email-verifier/node_modules email-verifier/package.json build/email-verifier

@@ -7,28 +7,15 @@
 <p align="center"><a href="https://demo.erxes.io/">Live demo</a> <b>| </b> <a href="https://community.erxes.io/register/Gw4WRJnk9fSbyAXTq">Join our community</a></p>
 
 <p align="center">
-  <a href="https://www.codacy.com/app/erxes/erxes">
-      <img alt="Codacy Badge" src="https://api.codacy.com/project/badge/Grade/ed8c207f4351446b8ace7a323630889f">
-  </a>
-  <a href="https://codeclimate.com/github/erxes/erxes/maintainability">
-      <img alt="Codeclimate Badge" src="https://api.codeclimate.com/v1/badges/693e2ffc40bc2601630d/maintainability">
+  <a href="https://app.codacy.com/gh/erxes/erxes?utm_source=github.com&utm_medium=referral&utm_content=erxes">
+    <img alt="Codacy Badge" src="https://api.codacy.com/project/badge/Grade/afdc2d36ea294a01a036a4eeae4346b8">
   </a>
 
    <a href="https://github.com/erxes/erxes/blob/master/LICENSE.md">
       <img alt="License Badge" src="https://img.shields.io/badge/license-GNU%20GPL%20v3.0-brightgreen">
   </a>
-
-  <a href="https://bettercodehub.com/results/erxes/erxes">
-      <img alt="Bettercode" src="https://bettercodehub.com/edge/badge/erxes/erxes?branch=master">
-  </a>
-  <a href="https://codebeat.co/projects/github-com-erxes-erxes-master">
-      <img alt="Codebeat badge" src="https://codebeat.co/badges/33270439-27de-42e9-b48a-da76192b3b22">
-  </a>
   <a href="#">
       <img alt="Docker Pulls" src="https://img.shields.io/docker/pulls/erxes/erxes">
-  </a>
-  <a href="https://snyk.io/test/github/erxes/erxes">
-      <img alt="Known Vulnerabilities" src="https://snyk.io/test/github/erxes/erxes/badge.svg">
   </a>
   <a href="https://opencollective.com/erxes/">
       <img alt="All financial contributors badge" src="https://bit.ly/3bCSG6i">
