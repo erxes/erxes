@@ -1,4 +1,4 @@
-import { IConditionsRule } from 'modules/common/types';
+import { IConditionsRule, QueryResponse } from 'modules/common/types';
 import { IUser } from '../auth/types';
 import { IForm } from '../forms/types';
 import { IBrand } from '../settings/brands/types';
@@ -35,6 +35,13 @@ export interface ILeadData {
   tagIds?: string[];
   getTags?: ITag[];
   form?: IForm;
+  isRequireOnce?: boolean;
+}
+
+export interface IWebhookData {
+  script: string;
+  scriptEnabled: boolean;
+  token: string;
 }
 
 export interface ILeadIntegration extends IIntegration {
@@ -48,17 +55,15 @@ export type RemoveMutationVariables = {
 };
 
 export type RemoveMutationResponse = {
-  removeMutation: (
-    params: { variables: RemoveMutationVariables }
-  ) => Promise<any>;
+  removeMutation: (params: {
+    variables: RemoveMutationVariables;
+  }) => Promise<any>;
 };
 
 // query types
 export type LeadIntegrationsQueryResponse = {
   integrations: ILeadIntegration[];
-  loading: boolean;
-  refetch: () => void;
-};
+} & QueryResponse;
 
 export type Counts = {
   [key: string]: number;
@@ -74,6 +79,4 @@ export type IntegrationsCount = {
 
 export type CountQueryResponse = {
   integrationsTotalCount: IntegrationsCount;
-  loading: boolean;
-  refetch: () => void;
-};
+} & QueryResponse;

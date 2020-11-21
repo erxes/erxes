@@ -1,3 +1,5 @@
+import { QueryResponse } from 'modules/common/types';
+
 export type IFeature = {
   name: string;
   text: string;
@@ -25,27 +27,30 @@ export type IFeatureEntry = {
 export type StepsCompletenessQueryResponse = {
   onboardingStepsCompleteness: { [key: string]: boolean };
   subscribeToMore: any;
-  loading: boolean;
-  refetch: () => void;
-};
+} & QueryResponse;
 
 export type GetAvailableFeaturesQueryResponse = {
   onboardingGetAvailableFeatures: IFeature[];
   subscribeToMore: any;
-  loading: boolean;
-  refetch: () => void;
-};
+} & QueryResponse;
 
 export type EntriesQueryResponse = {
   robotEntries: IEntry[];
 };
 
 export type CompleteShowStepMutationResponse = {
-  completeShowStepMutation: (
-    params: { variables: { step: string } }
-  ) => Promise<any>;
+  completeShowStepMutation: (params: {
+    variables: { step: string };
+  }) => Promise<any>;
 };
 
 export type ForceCompleteMutationResponse = {
   forceCompleteMutation: () => Promise<any>;
 };
+
+export interface IOnboardingHistory {
+  _id: string;
+  userId: string;
+  isCompleted?: boolean;
+  completedSteps: string[];
+}

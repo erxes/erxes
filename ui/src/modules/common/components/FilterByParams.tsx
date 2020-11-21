@@ -68,6 +68,7 @@ class FilterByParams extends React.Component<IProps, State> {
 
             const onClick = () => {
               router.setParams(history, { [paramKey]: field._id });
+              router.removeParams(history, 'page');
             };
 
             return (

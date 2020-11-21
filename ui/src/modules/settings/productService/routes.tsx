@@ -4,11 +4,15 @@ import React from 'react';
 import { Route } from 'react-router-dom';
 
 const ProductList = asyncComponent(() =>
-  import(/* webpackChunkName: "Settings List - ProductService" */ './containers/product/ProductList')
+  import(
+    /* webpackChunkName: "Settings List - ProductService" */ './containers/product/ProductList'
+  )
 );
 
 const ProductDeatils = asyncComponent(() =>
-  import(/* webpackChunkName: "Settings List - ProductService" */ './containers/product/detail/ProductDetails')
+  import(
+    /* webpackChunkName: "Settings List - ProductService" */ './containers/product/detail/ProductDetails'
+  )
 );
 
 const details = ({ match }) => {

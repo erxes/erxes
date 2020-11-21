@@ -191,13 +191,13 @@ export default class Stage extends React.Component<Props, {}> {
       <Popover id="stage-popover">
         <ActionList>
           <li onClick={archiveItems} key="archive-items">
-            Archive All Cards in This List
+            {__('Archive All Cards in This List')}
           </li>
           <li onClick={archiveList} key="archive-list">
-            Archive This List
+            {__('Archive This List')}
           </li>
           <li onClick={removeStage} key="remove-stage">
-            Remove stage
+            {__('Remove stage')}
           </li>
         </ActionList>
       </Popover>

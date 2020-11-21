@@ -1,5 +1,6 @@
 import Icon from 'modules/common/components/Icon';
 import { IButtonMutateProps } from 'modules/common/types';
+import { __ } from 'modules/common/utils';
 import { TargetCount } from 'modules/engage/types';
 import { ISegment } from 'modules/segments/types';
 import React from 'react';
@@ -16,17 +17,15 @@ type Props = {
   customersCount: (ids: string[]) => number;
   renderButton: (props: IButtonMutateProps) => JSX.Element;
   onChange: (name: string, value: string[]) => void;
-  renderContent: (
-    {
-      actionSelector,
-      selectedComponent,
-      customerCounts
-    }: {
-      actionSelector: React.ReactNode;
-      selectedComponent: React.ReactNode;
-      customerCounts: React.ReactNode;
-    }
-  ) => React.ReactNode;
+  renderContent: ({
+    actionSelector,
+    selectedComponent,
+    customerCounts
+  }: {
+    actionSelector: React.ReactNode;
+    selectedComponent: React.ReactNode;
+    customerCounts: React.ReactNode;
+  }) => React.ReactNode;
 };
 
 const SegmentStep = (props: Props) => {
@@ -69,7 +68,7 @@ const SegmentStep = (props: Props) => {
   return (
     <Common<ISegment, IButtonMutateProps>
       name="segmentIds"
-      label="Create a segment"
+      label={__('Create a segment')}
       targetIds={segmentIds}
       messageType={messageType}
       targets={orderedSegments}

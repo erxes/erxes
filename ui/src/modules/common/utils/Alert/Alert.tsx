@@ -75,12 +75,6 @@ export default class AlertStyled extends React.Component<Props, State> {
     this.state = { visible: true };
   }
 
-  componentDidMount() {
-    this.timeout = setTimeout(() => {
-      this.setState({ visible: false });
-    }, 3000);
-  }
-
   componentWillUnmount() {
     if (this.timeout) {
       clearTimeout(this.timeout);
@@ -88,10 +82,6 @@ export default class AlertStyled extends React.Component<Props, State> {
   }
 
   render() {
-    if (!this.state.visible) {
-      return null;
-    }
-
     return (
       <AlertItem {...this.props}>
         <Icon icon={types[this.props.type].icon} />

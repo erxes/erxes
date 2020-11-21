@@ -17,6 +17,7 @@ const defaultMessageFields = {
   mentionedUserIds: [],
   attachments: null,
   isCustomerRead: false,
+  botData: null,
   messengerAppData: null,
   formWidgetData: null,
   user: null
@@ -40,6 +41,7 @@ const defaultMailFields = {
   threadId: '',
   messageId,
   reply: null,
+  inReplyTo: null,
   replyToMessageId: null,
   replyTo: null,
   references: null,

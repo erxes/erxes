@@ -31,7 +31,9 @@ class Resolver extends React.Component<Props> {
 
     const btnAttrs = {
       size: 'small',
+      uppercase: false,
       btnStyle: hasClosedConversation ? 'warning' : 'success',
+      icon,
       onClick: hasClosedConversation
         ? () => {
             this.changeStatus(CONVERSATION_STATUSES.OPEN);
@@ -42,9 +44,9 @@ class Resolver extends React.Component<Props> {
     };
 
     return (
-      <Button {...btnAttrs} icon={icon}>
-        {buttonText}
-      </Button>
+      <>
+        <Button {...btnAttrs}>{buttonText}</Button>
+      </>
     );
   }
 }

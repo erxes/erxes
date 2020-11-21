@@ -1,3 +1,4 @@
+import { QueryResponse } from 'modules/common/types';
 import { IIntegration } from 'modules/settings/integrations/types';
 
 export interface IBrand {
@@ -24,36 +25,21 @@ export interface IBrandsCount {
 }
 
 // queries
-
 export type BrandsQueryResponse = {
   brands: IBrand[];
-  loading: boolean;
-  refetch: () => void;
-};
-
-export type AllBrandsQueryResponse = {
-  brands: IBrand[];
-  loading: boolean;
-  refetch: () => void;
-};
+} & QueryResponse;
 
 export type BrandDetailQueryResponse = {
   brandDetail: IBrand;
-  loading: boolean;
-  refetch: () => void;
-};
+} & QueryResponse;
 
 export type BrandsGetLastQueryResponse = {
   brandsGetLast: IBrand;
-  loading: boolean;
-  refetch: () => void;
-};
+} & QueryResponse;
 
 export type BrandsCountQueryResponse = {
   brandsTotalCount: number;
-  loading: boolean;
-  refetch: () => void;
-};
+} & QueryResponse;
 
 // mutation
 
@@ -63,11 +49,9 @@ export type BrandsManageIntegrationsMutationVariables = {
 };
 
 export type BrandsManageIntegrationsMutationResponse = {
-  saveMutation: (
-    params: {
-      variables: BrandsManageIntegrationsMutationVariables;
-    }
-  ) => Promise<void>;
+  saveMutation: (params: {
+    variables: BrandsManageIntegrationsMutationVariables;
+  }) => Promise<void>;
 };
 
 export type BrandRemoveMutationVariables = {
@@ -75,11 +59,9 @@ export type BrandRemoveMutationVariables = {
 };
 
 export type BrandRemoveMutationResponse = {
-  removeMutation: (
-    params: {
-      variables: BrandRemoveMutationVariables;
-    }
-  ) => Promise<void>;
+  removeMutation: (params: {
+    variables: BrandRemoveMutationVariables;
+  }) => Promise<void>;
 };
 
 export type EmailConfig = {
@@ -93,9 +75,7 @@ export type BrandsConfigEmailMutationVariables = {
 };
 
 export type BrandsConfigEmailMutationResponse = {
-  configEmailMutation: (
-    params: {
-      variables: BrandsConfigEmailMutationVariables;
-    }
-  ) => Promise<void>;
+  configEmailMutation: (params: {
+    variables: BrandsConfigEmailMutationVariables;
+  }) => Promise<void>;
 };

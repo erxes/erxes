@@ -20,12 +20,9 @@ function Top(props: Props) {
 
   const [name, setName] = useState(item.name);
 
-  useEffect(
-    () => {
-      setName(item.name);
-    },
-    [item.name]
-  );
+  useEffect(() => {
+    setName(item.name);
+  }, [item.name]);
 
   function renderMove() {
     const { stageId, options, onChangeStage } = props;

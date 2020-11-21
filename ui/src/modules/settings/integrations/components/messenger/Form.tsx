@@ -19,11 +19,13 @@ import {
 import {
   IIntegration,
   IMessages,
+  IMessengerApps,
   IMessengerData,
   IUiOptions
 } from 'modules/settings/integrations/types';
 import React from 'react';
 import { Link } from 'react-router-dom';
+import AddOns from '../../containers/messenger/AddOns';
 import { Appearance, Availability, Greeting, Intro, Options } from './steps';
 import Connection from './steps/Connection';
 import CommonPreview from './widgetPreview/CommonPreview';
@@ -32,25 +34,26 @@ type Props = {
   teamMembers: IUser[];
   integration?: IIntegration;
   brands: IBrand[];
-  save: (
-    params: {
-      name: string;
-      brandId: string;
-      languageCode: string;
-      channelIds?: string[];
-      messengerData: IMessengerData;
-      uiOptions: IUiOptions;
-    }
-  ) => void;
+  save: (params: {
+    name: string;
+    brandId: string;
+    languageCode: string;
+    channelIds?: string[];
+    messengerData: IMessengerData;
+    uiOptions: IUiOptions;
+    messengerApps: IMessengerApps;
+  }) => void;
 };
 
 type State = {
   title: string;
+  botEndpointUrl?: string;
+  botShowInitialMessage?: boolean;
   brandId: string;
   channelIds: string[];
   languageCode: string;
-  activeStep: number;
   color: string;
+  textColor: string;
   wallpaper: string;
   notifyCustomer: boolean;
   supporterIds: string[];
@@ -71,6 +74,7 @@ type State = {
   showLauncher?: boolean;
   forceLogoutWhenResolve?: boolean;
   showVideoCallRequest?: boolean;
+  messengerApps: IMessengerApps;
 };
 
 class CreateMessenger extends React.Component<Props, State> {
@@ -85,20 +89,25 @@ class CreateMessenger extends React.Component<Props, State> {
       showChat: true,
       showLauncher: true,
       forceLogoutWhenResolve: false,
-      showVideoCallRequest: false
+      showVideoCallRequest: false,
+      botEndpointUrl: '',
+      botShowInitialMessage: false
     };
     const links = configData.links || {};
     const messages = configData.messages || {};
     const uiOptions = integration.uiOptions || {};
     const channels = integration.channels || [];
+    const messengerApps = {};
 
     this.state = {
       title: integration.name,
+      botEndpointUrl: configData.botEndpointUrl,
+      botShowInitialMessage: configData.botShowInitialMessage,
       brandId: integration.brandId || '',
       languageCode,
       channelIds: channels.map(item => item._id) || [],
-      activeStep: 1,
       color: uiOptions.color || '#6569DF',
+      textColor: uiOptions.textColor || '#fff',
       wallpaper: uiOptions.wallpaper || '1',
       notifyCustomer: configData.notifyCustomer || false,
       requireAuth: configData.requireAuth,
@@ -120,7 +129,8 @@ class CreateMessenger extends React.Component<Props, State> {
       facebook: links.facebook || '',
       twitter: links.twitter || '',
       youtube: links.youtube || '',
-      messages: { ...this.generateMessages(messages) }
+      messages: { ...this.generateMessages(messages) },
+      messengerApps
     };
   }
 
@@ -147,7 +157,11 @@ class CreateMessenger extends React.Component<Props, State> {
   }
 
   onChange = <T extends keyof State>(key: T, value: State[T]) => {
-    this.setState({ [key]: value } as Pick<State, keyof State>);
+    this.setState(({ [key]: value } as unknown) as Pick<State, keyof State>);
+  };
+
+  handleMessengerApps = (messengerApps: IMessengerApps) => {
+    this.setState({ messengerApps });
   };
 
   save = e => {
@@ -155,6 +169,8 @@ class CreateMessenger extends React.Component<Props, State> {
 
     const {
       title,
+      botEndpointUrl,
+      botShowInitialMessage,
       brandId,
       languageCode,
       channelIds,
@@ -166,7 +182,8 @@ class CreateMessenger extends React.Component<Props, State> {
       showChat,
       showLauncher,
       forceLogoutWhenResolve,
-      showVideoCallRequest
+      showVideoCallRequest,
+      messengerApps
     } = this.state;
 
     if (!languageCode) {
@@ -189,6 +206,8 @@ class CreateMessenger extends React.Component<Props, State> {
       channelIds,
       languageCode: this.state.languageCode,
       messengerData: {
+        botEndpointUrl,
+        botShowInitialMessage,
         notifyCustomer: this.state.notifyCustomer,
         availabilityMethod: this.state.availabilityMethod,
         isOnline: this.state.isOnline,
@@ -209,9 +228,11 @@ class CreateMessenger extends React.Component<Props, State> {
       },
       uiOptions: {
         color: this.state.color,
+        textColor: this.state.textColor,
         wallpaper: this.state.wallpaper,
         logo: this.state.logo
-      }
+      },
+      messengerApps
     });
   };
 
@@ -249,14 +270,16 @@ class CreateMessenger extends React.Component<Props, State> {
 
   render() {
     const {
-      activeStep,
       title,
+      botEndpointUrl,
+      botShowInitialMessage,
       supporterIds,
       isOnline,
       availabilityMethod,
       onlineHours,
       timezone,
       color,
+      textColor,
       logoPreviewUrl,
       wallpaper,
       brandId,
@@ -276,6 +299,7 @@ class CreateMessenger extends React.Component<Props, State> {
       channelIds
     } = this.state;
 
+    const { integration } = this.props;
     const message = messages[languageCode];
 
     const breadcrumb = [
@@ -289,7 +313,7 @@ class CreateMessenger extends React.Component<Props, State> {
         <Wrapper.Header title={__('Messenger')} breadcrumb={breadcrumb} />
         <Content>
           <LeftContent>
-            <Steps active={activeStep}>
+            <Steps>
               <Step
                 img="/images/icons/erxes-04.svg"
                 title="Appearance"
@@ -298,6 +322,7 @@ class CreateMessenger extends React.Component<Props, State> {
                 <Appearance
                   onChange={this.onChange}
                   color={color}
+                  textColor={textColor}
                   logoPreviewUrl={logoPreviewUrl}
                   wallpaper={wallpaper}
                 />
@@ -334,7 +359,7 @@ class CreateMessenger extends React.Component<Props, State> {
 
               <Step
                 img="/images/icons/erxes-03.svg"
-                title="Hours & Availability"
+                title={__('Hours & Availability')}
                 onClick={this.onStepClick.bind(null, 'hours')}
               >
                 <Availability
@@ -365,22 +390,44 @@ class CreateMessenger extends React.Component<Props, State> {
 
               <Step
                 img="/images/icons/erxes-16.svg"
-                title="Integration Setup"
+                title={__('Integration Setup')}
                 onClick={this.onStepClick.bind(null, 'setup')}
-                noButton={true}
               >
                 <Connection
                   title={title}
+                  botEndpointUrl={botEndpointUrl}
+                  botShowInitialMessage={botShowInitialMessage}
                   channelIds={channelIds}
                   brandId={brandId}
                   onChange={this.onChange}
                 />
               </Step>
+              <Step
+                img="/images/icons/erxes-15.svg"
+                title={__('Add Ons')}
+                onClick={this.onStepClick.bind(null, 'addon')}
+                noButton={true}
+              >
+                <AddOns
+                  selectedBrand={brandId}
+                  websiteMessengerApps={
+                    integration && integration.websiteMessengerApps
+                  }
+                  leadMessengerApps={
+                    integration && integration.leadMessengerApps
+                  }
+                  knowledgeBaseMessengerApps={
+                    integration && integration.knowledgeBaseMessengerApps
+                  }
+                  handleMessengerApps={this.handleMessengerApps}
+                />
+              </Step>
             </Steps>
             <ControlWrapper>
               <Indicator>
-                You are {this.props.integration ? 'editing' : 'creating'}{' '}
-                <strong>{title}</strong> integration
+                {__('You are')}{' '}
+                {this.props.integration ? 'editing' : 'creating'}{' '}
+                <strong>{title}</strong> {__('integration')}
               </Indicator>
               {this.renderButtons()}
             </ControlWrapper>
@@ -395,6 +442,7 @@ class CreateMessenger extends React.Component<Props, State> {
                 isOnline={isOnline}
                 wallpaper={wallpaper}
                 color={color}
+                textColor={textColor}
                 brands={this.props.brands}
                 brandId={brandId}
                 logoPreviewStyle={logoPreviewStyle}

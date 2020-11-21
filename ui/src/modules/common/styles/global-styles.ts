@@ -110,6 +110,10 @@ a:hover {
   border-bottom-right-radius: 0;
 }
 
+.modal-header.less-padding {
+  padding: 15px 20px;
+}
+
 .modal-header .close {
   outline: 0;
   font-weight: 200;
@@ -126,7 +130,7 @@ a:hover {
   padding: 30px 40px;
 }
 
-.modal-body.no-padding {
+.modal-body.less-padding {
   padding: 0px;
 }
 

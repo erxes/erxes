@@ -1,15 +1,11 @@
 import { IUser } from 'modules/auth/types';
-import EditorCK from 'modules/common/components/EditorCK';
 import FormControl from 'modules/common/components/form/Control';
 import FormGroup from 'modules/common/components/form/Group';
 import ControlLabel from 'modules/common/components/form/Label';
 import { FlexItem, FlexPad } from 'modules/common/components/step/styles';
+import EditorCK from 'modules/common/containers/EditorCK';
 import { __, Alert } from 'modules/common/utils';
-import {
-  EMAIL_CONTENT,
-  MESSENGER_KINDS,
-  SENT_AS_CHOICES
-} from 'modules/engage/constants';
+import { MESSENGER_KINDS, SENT_AS_CHOICES } from 'modules/engage/constants';
 import { MAIL_TOOLBARS_CONFIG } from 'modules/settings/integrations/constants';
 import React from 'react';
 import { IBrand } from '../../settings/brands/types';
@@ -116,14 +112,18 @@ class MessengerForm extends React.Component<Props, State> {
   render() {
     const onChangeFrom = e =>
       this.changeFromUserId((e.target as HTMLInputElement).value);
+
     const onChangeContent = e => {
       Alert.warning(
         'Please carefully select the brand, it will appear in the selected brand messenger.'
       );
       this.changeContent('brandId', (e.target as HTMLInputElement).value);
     };
+
     const onChangeSentAs = e =>
       this.changeContent('sentAs', (e.target as HTMLInputElement).value);
+
+    const { messenger, messageKind } = this.props;
 
     return (
       <FlexItem>
@@ -138,8 +138,8 @@ class MessengerForm extends React.Component<Props, State> {
                 { name: 'insert', items: ['strinsert'] },
                 ...MAIL_TOOLBARS_CONFIG
               ]}
-              insertItems={EMAIL_CONTENT}
               height={300}
+              name={`engage_${messageKind}_${messenger.brandId || 'create'}`}
             />
           </FormGroup>
 

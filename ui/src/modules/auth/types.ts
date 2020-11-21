@@ -1,5 +1,14 @@
+import { IOnboardingHistory } from 'modules/robot/types';
 import { IBrand } from 'modules/settings/brands/types';
 import { IEmailSignature } from 'modules/settings/email/types';
+
+export interface IOwner {
+  email: string;
+  password: string;
+  firstName: string;
+  lastName?: string;
+  subscribeEmail?: boolean;
+}
 
 export interface IUserDetails {
   avatar?: string;
@@ -26,6 +35,7 @@ export interface IUserConversation {
 }
 
 export interface IUserDoc {
+  createdAt?: Date;
   username: string;
   email: string;
   isActive?: boolean;
@@ -44,6 +54,7 @@ export interface IUser extends IUserDoc {
   _id: string;
   brands?: IBrand[];
   emailSignatures?: IEmailSignature[];
+  onboardingHistory?: IOnboardingHistory;
 }
 
 export type ForgotPasswordMutationVariables = {
@@ -52,11 +63,9 @@ export type ForgotPasswordMutationVariables = {
 };
 
 export type ForgotPasswordMutationResponse = {
-  forgotPasswordMutation: (
-    params: {
-      variables: ForgotPasswordMutationVariables;
-    }
-  ) => Promise<any>;
+  forgotPasswordMutation: (params: {
+    variables: ForgotPasswordMutationVariables;
+  }) => Promise<any>;
 };
 
 export type ResetPasswordMutationVariables = {
@@ -65,9 +74,9 @@ export type ResetPasswordMutationVariables = {
 };
 
 export type ResetPasswordMutationResponse = {
-  resetPasswordMutation: (
-    params: { variables: ResetPasswordMutationVariables }
-  ) => Promise<any>;
+  resetPasswordMutation: (params: {
+    variables: ResetPasswordMutationVariables;
+  }) => Promise<any>;
 };
 
 export type LoginMutationVariables = {
@@ -76,14 +85,16 @@ export type LoginMutationVariables = {
 };
 
 export type LoginMutationResponse = {
-  loginMutation: (
-    params: {
-      variables: LoginMutationVariables;
-    }
-  ) => Promise<any>;
+  loginMutation: (params: {
+    variables: LoginMutationVariables;
+  }) => Promise<any>;
 };
 
 export type CurrentUserQueryResponse = {
   currentUser: IUser;
   loading: boolean;
+};
+
+export type CreateOwnerMutationResponse = {
+  createOwnerMutation: (params: { variables: IOwner }) => Promise<any>;
 };

@@ -3,22 +3,26 @@ import FormControl from 'modules/common/components/form/Control';
 import Form from 'modules/common/components/form/Form';
 import FormGroup from 'modules/common/components/form/Group';
 import ControlLabel from 'modules/common/components/form/Label';
+import ModalTrigger from 'modules/common/components/ModalTrigger';
 import { ModalFooter } from 'modules/common/styles/main';
 import { IButtonMutateProps, IFormProps } from 'modules/common/types';
+import { __ } from 'modules/common/utils';
 import React from 'react';
-import { Modal } from 'react-bootstrap';
 import { IDashboard } from '../types';
 
 type Props = {
   dashboard?: IDashboard;
-  show: boolean;
-  closeModal: () => void;
+  trigger?: React.ReactNode;
   renderButton: (props: IButtonMutateProps) => JSX.Element;
 };
 
-class DashbaordForm extends React.Component<Props, {}> {
-  generateDoc = (values: { _id?: string; name: string }) => {
-    const { dashboard } = this.props;
+type FinalProps = {
+  closeModal: () => void;
+} & Props;
+
+const DashbaordFormContent = (props: FinalProps) => {
+  const generateDoc = (values: { _id?: string; name: string }) => {
+    const { dashboard } = props;
     const finalValues = values;
 
     if (dashboard) {
@@ -31,74 +35,77 @@ class DashbaordForm extends React.Component<Props, {}> {
     };
   };
 
-  renderContent = (formProps: IFormProps) => {
-    const { dashboard, renderButton, closeModal } = this.props;
+  const renderContent = (formProps: IFormProps) => {
+    const { dashboard, renderButton } = props;
     const { values, isSubmitted } = formProps;
     const object = dashboard || { name: '' };
 
     return (
       <>
-        <Modal.Header closeButton={true}>
-          <Modal.Title>
-            {dashboard ? `Edit dashboard` : `Add dashboard`}
-          </Modal.Title>
-        </Modal.Header>
+        <FormGroup>
+          <ControlLabel required={true}>Name</ControlLabel>
 
-        <Modal.Body>
-          <FormGroup>
-            <ControlLabel required={true}>Name</ControlLabel>
+          <FormControl
+            {...formProps}
+            name="name"
+            defaultValue={object.name}
+            required={true}
+            autoFocus={true}
+          />
+        </FormGroup>
 
-            <FormControl
-              {...formProps}
-              name="name"
-              defaultValue={object.name}
-              required={true}
-              autoFocus={true}
-            />
-          </FormGroup>
+        <ModalFooter>
+          <Button
+            btnStyle="simple"
+            type="button"
+            icon="times-circle"
+            uppercase={false}
+            onClick={props.closeModal}
+          >
+            Cancel
+          </Button>
 
-          <ModalFooter>
-            <Button
-              btnStyle="simple"
-              type="button"
-              icon="times-circle"
-              uppercase={false}
-              onClick={closeModal}
-            >
-              Cancel
-            </Button>
-
-            {renderButton({
-              name: 'dashboard',
-              values: this.generateDoc(values),
-              isSubmitted,
-              callback: closeModal,
-              object: dashboard
-            })}
-          </ModalFooter>
-        </Modal.Body>
+          {renderButton({
+            name: 'dashboard',
+            values: generateDoc(values),
+            isSubmitted,
+            callback: props.closeModal,
+            object: dashboard
+          })}
+        </ModalFooter>
       </>
     );
   };
 
-  render() {
-    const { show, closeModal } = this.props;
+  return <Form {...props} renderContent={renderContent} />;
+};
 
-    if (!show) {
-      return null;
-    }
+const DashbaordForm = (props: Props) => {
+  const defatulTrigger = (
+    <Button uppercase={false} icon="sitemap-1">
+      {__('Create new Dashboard')}
+    </Button>
+  );
 
-    return (
-      <Modal
-        show={show}
-        onHide={closeModal}
-        enforceFocus={false}
-        animation={false}
-      >
-        <Form renderContent={this.renderContent} />
-      </Modal>
-    );
-  }
-}
+  const { dashboard, trigger = defatulTrigger, renderButton } = props;
+
+  const content = modalProps => {
+    const updatedProps = {
+      ...modalProps,
+      dashboard,
+      renderButton
+    };
+
+    return <DashbaordFormContent {...updatedProps} />;
+  };
+
+  return (
+    <ModalTrigger
+      title={dashboard ? `Edit dashboard` : `Add dashboard`}
+      trigger={trigger}
+      content={content}
+    />
+  );
+};
 
 export default DashbaordForm;

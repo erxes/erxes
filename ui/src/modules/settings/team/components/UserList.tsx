@@ -136,7 +136,6 @@ class UserList extends React.Component<FinalProps, States> {
 
     return (
       <ModalTrigger
-        size="lg"
         title="Reset member password"
         trigger={editTrigger}
         content={content}
@@ -260,7 +259,7 @@ class UserList extends React.Component<FinalProps, States> {
           <FlexItem>
             <ControlLabel>{__('Search')}</ControlLabel>
             <FormControl
-              placeholder="Search"
+              placeholder={__('Search')}
               name="searchValue"
               onChange={this.search}
               value={this.state.searchValue}
@@ -320,7 +319,7 @@ class UserList extends React.Component<FinalProps, States> {
   render() {
     return (
       <List
-        formTitle="Invite team members"
+        formTitle={__('Invite team members')}
         size="lg"
         breadcrumb={[
           { title: __('Settings'), link: '/settings' },

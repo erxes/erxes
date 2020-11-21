@@ -1,45 +1,42 @@
-import { IButtonMutateProps } from 'modules/common/types';
-import React, { useState } from 'react';
+import Spinner from 'modules/common/components/Spinner';
+import React from 'react';
 import DashbaordForm from '../containers/DashboardForm';
-import { BoxContainer, ProjectItem } from '../styles';
+import { Create, Dashboards } from '../styles';
 import { IDashboard } from '../types';
 import DashboardRow from './DashboardRow';
 
 type Props = {
   dashboards: IDashboard[];
-  renderAddButton: (props: IButtonMutateProps) => JSX.Element;
+  loading: boolean;
+  currentDashboard?: string;
+  removeDashboard: (id: string) => void;
 };
 
 function DashboardList(props: Props) {
-  const [showPopup, setVisibility] = useState(false);
+  const { dashboards, loading, currentDashboard, removeDashboard } = props;
 
-  const toggleVisibility = () => {
-    setVisibility(!showPopup);
+  const renderContent = () => {
+    if (loading) {
+      return <Spinner objective={true} />;
+    }
+
+    return dashboards.map(dashboard => (
+      <DashboardRow
+        isActive={currentDashboard === dashboard._id}
+        key={dashboard._id}
+        dashboard={dashboard}
+        removeDashboard={removeDashboard}
+      />
+    ));
   };
 
-  const renderAddForm = () => {
-    return <DashbaordForm show={showPopup} closeModal={toggleVisibility} />;
-  };
-
-  const { dashboards } = props;
+  const triggerCreate = <Create>Create a Dashboard</Create>;
 
   return (
-    <BoxContainer>
-      <div>
-        <ProjectItem new={true} onClick={toggleVisibility}>
-          <h5>
-            +<br />
-            Create <br />
-            New <br />
-            Dashboard
-          </h5>
-        </ProjectItem>
-      </div>
-      {renderAddForm()}
-      {dashboards.map(dashboard => (
-        <DashboardRow key={dashboard._id} dashboard={dashboard} />
-      ))}
-    </BoxContainer>
+    <>
+      <Dashboards>{renderContent()}</Dashboards>
+      <DashbaordForm trigger={triggerCreate} />
+    </>
   );
 }
 

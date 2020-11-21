@@ -1,4 +1,5 @@
 import ConvertTrigger from 'modules/boards/components/portable/ConvertTrigger';
+import { __ } from 'modules/common/utils';
 import React from 'react';
 import options from '../options';
 
@@ -9,10 +10,12 @@ type Props = {
   sourceConversationId?: string;
   url?: string;
   refetch: () => void;
+  description?: string;
+  attachments?: any[];
 };
 
 export default (props: Props) => {
-  const title = props.url ? 'Go to a task' : 'Convert to a task';
+  const title = props.url ? __('Go to a task') : __('Convert to a task');
 
   const extendedProps = {
     ...props,

@@ -166,6 +166,7 @@ class Condition extends React.Component<Props, State> {
 
     return (
       <Select
+        id="add-events-select-event"
         isRequired={true}
         clearable={true}
         value={currentEventName}

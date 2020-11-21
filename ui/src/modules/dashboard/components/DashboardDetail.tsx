@@ -1,14 +1,15 @@
 import { getEnv } from 'apolloClient';
 import { BoardContainer, BoardContent } from 'modules/boards/styles/common';
-import { PageHeader } from 'modules/boards/styles/header';
 import Button from 'modules/common/components/Button';
+import DropdownToggle from 'modules/common/components/DropdownToggle';
 import Icon from 'modules/common/components/Icon';
-import { __, confirm } from 'modules/common/utils';
+import { __ } from 'modules/common/utils';
 import Header from 'modules/layout/components/Header';
 import React from 'react';
+import Dropdown from 'react-bootstrap/Dropdown';
 import { Link } from 'react-router-dom';
-import DashbaordForm from '../containers/DashboardForm';
-import { RightActions, Title } from '../styles';
+import DashboardList from '../containers/DashboardList';
+import { Header as PageHeader, RightActions, Title } from '../styles';
 import { IDashboard } from '../types';
 
 const { REACT_APP_DASHBOARD_URL } = getEnv();
@@ -16,97 +17,104 @@ const { REACT_APP_DASHBOARD_URL } = getEnv();
 type Props = {
   id: string;
   dashboard: IDashboard;
-  removeDashboard: () => void;
+  isExplore?: boolean;
 };
+
 type State = {
   show: boolean;
 };
 
 class DashboardDetail extends React.Component<Props, State> {
-  constructor(props) {
-    super(props);
-
-    this.state = {
-      show: false
-    };
+  componentDidMount() {
+    if (this.props.dashboard) {
+      localStorage.setItem('erxes_recent_dashboard', this.props.dashboard._id);
+    }
   }
 
-  showPopup = () => {
-    const { show } = this.state;
+  renderContent = () => {
+    const { id, isExplore } = this.props;
 
-    this.setState({
-      show: show ? false : true
-    });
-  };
+    if (isExplore) {
+      return (
+        <iframe
+          title="dashboard"
+          width="100%"
+          height="100%"
+          src={`${REACT_APP_DASHBOARD_URL}/explore?dashboardId=${id}`}
+          frameBorder="0"
+          allowFullScreen={true}
+        />
+      );
+    }
 
-  remove = () => {
-    const { removeDashboard } = this.props;
-
-    confirm().then(() => {
-      removeDashboard();
-    });
+    return (
+      <iframe
+        title="dashboard"
+        width="100%"
+        height="100%"
+        src={`${REACT_APP_DASHBOARD_URL}/details/${id}`}
+        frameBorder="0"
+        allowFullScreen={true}
+      />
+    );
   };
 
   render() {
-    const { id, dashboard } = this.props;
-    const { show } = this.state;
+    const { id, dashboard, isExplore } = this.props;
 
-    const renderAddForm = () => {
-      return (
-        <DashbaordForm
-          show={show}
-          closeModal={this.showPopup}
-          dashboard={dashboard}
-        />
-      );
-    };
-
-    const leftActionBar = (
-      <Title onClick={this.showPopup}>
+    const trigger = (
+      <Title>
         {dashboard.name}
-        <Icon icon="pen-1" />
+        <Icon icon="angle-down" />
       </Title>
     );
 
+    const renderDashboards = () => {
+      return (
+        <Dropdown>
+          <Dropdown.Toggle as={DropdownToggle} id="dropdown-dashboard">
+            {trigger}
+          </Dropdown.Toggle>
+          <Dropdown.Menu>
+            <DashboardList currentDashboard={dashboard._id} />
+          </Dropdown.Menu>
+        </Dropdown>
+      );
+    };
+
     const rightActionBar = (
       <RightActions>
-        <Button
-          onClick={this.remove}
-          btnStyle="simple"
-          uppercase={false}
-          icon="times-circle"
-        >
-          Remove
-        </Button>
-        <Link to={`/dashboard/explore/${id}`}>
-          <Button uppercase={false} btnStyle="primary" icon="plus-circle">
-            Add chart
+        <Link to={`/dashboard/reports/${id}`}>
+          <Button uppercase={false} btnStyle="simple" icon="plus-circle">
+            Add chart from Library
           </Button>
         </Link>
+        {!isExplore && (
+          <Link to={`/dashboard/explore/${id}`}>
+            <Button uppercase={false} btnStyle="success" icon="plus-circle">
+              Create a new chart
+            </Button>
+          </Link>
+        )}
       </RightActions>
     );
 
     return (
       <BoardContainer>
-        {renderAddForm()}
         <Header
           title={`${'Dashboard' || ''}`}
-          breadcrumb={[{ title: __('Dashboard'), link: '/dashboard' }]}
+          breadcrumb={[
+            { title: __('Dashboard'), link: '/dashboard' },
+            { title: dashboard.name || '' }
+          ]}
         />
 
         <BoardContent transparent={true} bgColor="transparent">
           <PageHeader>
-            {leftActionBar}
+            {renderDashboards()}
             {rightActionBar}
           </PageHeader>
-          <iframe
-            title="dashboard"
-            width="100%"
-            height="100%"
-            src={`${REACT_APP_DASHBOARD_URL}/details/${id}`}
-            frameBorder="0"
-            allowFullScreen={true}
-          />
+          {this.renderContent()}
         </BoardContent>
       </BoardContainer>
     );

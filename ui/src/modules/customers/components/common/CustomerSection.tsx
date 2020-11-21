@@ -6,9 +6,10 @@ import Spinner from 'modules/common/components/Spinner';
 import { ButtonRelated } from 'modules/common/styles/main';
 import { __, renderFullName } from 'modules/common/utils';
 import GetConformity from 'modules/conformity/containers/GetConformity';
-import { SectionBody, SectionBodyItem } from 'modules/layout/styles';
+import { SectionBodyItem } from 'modules/layout/styles';
 import React from 'react';
 import { Link } from 'react-router-dom';
+import ActionSection from '../../containers/common/ActionSection';
 import CustomerChooser from '../../containers/CustomerChooser';
 import { queries } from '../../graphql';
 import { ICustomer } from '../../types';
@@ -28,17 +29,6 @@ function Component({
   mainTypeId = '',
   onSelect
 }: Props) {
-  const mailTo = email => {
-    if (email) {
-      return (
-        <a target="_parent" href={`mailto:${email}`} rel="noopener noreferrer">
-          {email}
-        </a>
-      );
-    }
-    return null;
-  };
-
   const renderRelatedCustomerChooser = props => {
     return (
       <CustomerChooser
@@ -70,22 +60,20 @@ function Component({
     }
 
     return (
-      <SectionBody>
+      <div>
         {customersObj.map((customer, index) => (
           <SectionBodyItem key={index}>
             <Link to={`/contacts/details/${customer._id}`}>
-              <Icon icon="arrow-to-right" />
+              {renderFullName(customer)}
             </Link>
-            <span>{renderFullName(customer)}</span>
-            {mailTo(customer.primaryEmail)}
-            <span>{customer.primaryPhone}</span>
+            <ActionSection customer={customer} isSmall={true} />
           </SectionBodyItem>
         ))}
         {customersObj.length === 0 && (
           <EmptyState icon="user-6" text="No customer" />
         )}
         {mainTypeId && mainType && relQuickButtons}
-      </SectionBody>
+      </div>
     );
   };
 

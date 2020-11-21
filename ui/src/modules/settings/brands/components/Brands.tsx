@@ -46,7 +46,12 @@ class Brands extends React.Component<Props, {}> {
     }
 
     const trigger = (
-      <Button btnStyle="simple" uppercase={false} icon="web-grid-alt">
+      <Button
+        id={'ManageIntegration'}
+        btnStyle="simple"
+        uppercase={false}
+        icon="web-grid-alt"
+      >
         Manage integration
       </Button>
     );
@@ -91,9 +96,9 @@ class Brands extends React.Component<Props, {}> {
         mainHead={
           <HeaderDescription
             icon="/images/actions/32.svg"
-            title={__('Brands')}
+            title={'Brands'}
             description={__(
-              'Add unlimited Brands with unlimited support to further your growth and accelerate your business.'
+              'Add unlimited Brands with unlimited support to further your growth and accelerate your business'
             )}
           />
         }

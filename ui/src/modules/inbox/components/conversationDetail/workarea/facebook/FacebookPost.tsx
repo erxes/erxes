@@ -1,5 +1,6 @@
 import * as React from 'react';
 
+import { FormControl } from 'modules/common/components/form';
 import NameCard from 'modules/common/components/nameCard/NameCard';
 import { ICustomer } from 'modules/customers/types';
 import { IFacebookPost } from 'modules/inbox/types';
@@ -10,8 +11,11 @@ import UserName from './UserName';
 
 type Props = {
   post: IFacebookPost;
+  commentCount: number;
   customer: ICustomer;
   scrollBottom: () => void;
+  onToggleClick: () => void;
+  isResolved: boolean;
 };
 
 export default class FacebookPost extends React.Component<Props, {}> {
@@ -19,12 +23,20 @@ export default class FacebookPost extends React.Component<Props, {}> {
     return (
       <Counts>
         <span>{commentCount} Comments</span>
+
+        <FormControl
+          componentClass="checkbox"
+          onChange={this.props.onToggleClick}
+          checked={this.props.isResolved}
+        >
+          Show resolved comments
+        </FormControl>
       </Counts>
     );
   }
 
   render() {
-    const { post, customer, scrollBottom } = this.props;
+    const { post, customer, scrollBottom, commentCount } = this.props;
 
     if (!post) {
       return null;
@@ -39,7 +51,13 @@ export default class FacebookPost extends React.Component<Props, {}> {
             username={`${customer.firstName} ${customer.lastName || ''}`}
             userId={post.senderId}
           />
-          <Date type="post" timestamp={post.timestamp} />
+          <span>
+            <Date
+              type="post"
+              timestamp={post.timestamp}
+              permalink_url={post.permalink_url}
+            />
+          </span>
         </User>
 
         <FacebookContent
@@ -47,8 +65,7 @@ export default class FacebookPost extends React.Component<Props, {}> {
           attachments={post.attachments}
           scrollBottom={scrollBottom}
         />
-
-        {this.renderCounts(post.commentCount)}
+        <div>{this.renderCounts(commentCount)}</div>
       </PostContainer>
     );
   }

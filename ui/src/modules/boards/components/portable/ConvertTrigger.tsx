@@ -12,6 +12,9 @@ type Props = {
   sourceConversationId?: string;
   title: string;
   url?: string;
+  type?: string;
+  description?: string;
+  attachments?: any[];
 };
 
 export default (props: Props) => {
@@ -23,7 +26,10 @@ export default (props: Props) => {
     assignedUserIds,
     sourceConversationId,
     title,
-    url
+    url,
+    type,
+    description,
+    attachments
   } = props;
 
   if (url) {
@@ -40,6 +46,9 @@ export default (props: Props) => {
     <AddForm
       options={options}
       {...formProps}
+      type={type}
+      description={description}
+      attachments={attachments}
       refetch={refetch}
       relType={relType}
       relTypeIds={relTypeIds}

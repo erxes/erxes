@@ -36,6 +36,7 @@ class Form extends React.Component<Props & ICommonFormProps> {
             type="button"
             uppercase={false}
             onClick={closeModal}
+            icon="times-circle"
           >
             Cancel
           </Button>

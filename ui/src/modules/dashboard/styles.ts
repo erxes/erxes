@@ -1,125 +1,85 @@
+import { PageHeader } from 'modules/boards/styles/header';
 import { colors, dimensions } from 'modules/common/styles';
-import { BoxItem } from 'modules/settings/growthHacks/styles';
-import styled, { css } from 'styled-components';
-import styledTS from 'styled-components-ts';
+import { rgba } from 'modules/common/styles/color';
+import styled from 'styled-components';
+
+const Header = styled(PageHeader)`
+  min-height: auto;
+`;
 
 const Title = styled.div`
   font-size: 24px;
-  margin: 10px 0 14px;
   display: flex;
   align-items: center;
+  margin-top: 7px;
 
   i {
-    font-size: 16px;
+    font-size: 22px;
     color: ${colors.colorCoreGray};
-    margin-left: ${dimensions.unitSpacing}px;
-    visibility: hidden;
+    margin: 5px 0 0 ${dimensions.unitSpacing}px;
   }
 
   &:hover {
     cursor: pointer;
-
-    i {
-      visibility: visible;
-    }
   }
 `;
 
 const RightActions = styled.div`
   align-self: center;
-`;
 
-const BoxContainer = styled.div`
-  display: flex;
-  padding: 20px 0 20px 20px;
-  flex-wrap: wrap;
+  a {
+    margin-left: ${dimensions.unitSpacing}px;
+  }
 
-  > a,
-  > div {
-    flex-basis: 20%;
-    display: flex;
-    flex-shrink: 0;
-
-    @media (min-width: 480px) {
-      flex-basis: 50%;
-    }
-
-    @media (min-width: 768px) {
-      flex-basis: 33.3333333%;
-    }
-
-    @media (min-width: 1170px) {
-      flex-basis: 25%;
-    }
-
-    @media (min-width: 1400px) {
-      flex-basis: 20%;
-    }
+  button {
+    margin: ${dimensions.unitSpacing}px 0;
   }
 `;
 
-const ProjectItem = styledTS<{ new?: boolean }>(styled(BoxItem))`
+const Dashboards = styled.ul`
   padding: 0;
-  overflow: hidden;
-  padding: 30px;
-  flex: 1;
-  border: 1px solid #eee;
-  position: relative;
-  color: ${colors.colorCoreDarkBlue};
+  min-width: 280px;
+  max-height: 75vh;
+  overflow: auto;
+  margin: -8px 0 0 0;
 
-  h5 {
-    margin-bottom: ${dimensions.unitSpacing}px;
-    color: ${colors.colorCoreDarkBlue};
-    font-size: 30px;
-    line-height: 32px;
-    font-weight: 500;
-    transition: opacity 0.3s ease;
+  > li {
+    border-color: rgba(0, 0, 0, 0.06);
 
-    span {
-      margin-left: 5px;
-    }
-  }
+    button {
+      font-size: 14px;
 
-  &:before {
-    content: '\\ea32';
-    font-family: 'erxes';
-    position: absolute;
-    color: ${colors.colorCoreDarkBlue};
-    font-size: 196px;
-    transform: rotate(10deg);
-    right: -15%;
-    bottom: -80px;
-    opacity: 0.06;
-  }
-
-  ${props =>
-    props.new &&
-    css`
-      display: flex;
-      justify-content: flex-end;
-      border-style: dashed;
-      border-width: 2px;
-
-      &:before {
-        content: '';
+      i {
+        color: ${colors.colorSecondary};
       }
+    }
+
+    > a {
+      padding: ${dimensions.unitSpacing}px 0 ${dimensions.unitSpacing}px 20px;
+      white-space: normal;
 
       &:hover {
-        border-color: ${colors.borderDarker};
-        cursor: pointer;
-
-        h5 {
-          opacity: 0.4;
-        }
+        background: transparent;
       }
+    }
 
-      h5 {
-        opacity: 0.2;
-        font-weight: bold;
-        font-size: 40px;
-        line-height: 44px;
-      }
-    `};
+    &:hover {
+      background: ${rgba(colors.colorPrimary, 0.1)};
+    }
+  }
 `;
 
-export { BoxContainer, ProjectItem, Title, RightActions };
+const Create = styled.div`
+  padding: 8px 20px;
+  border-top: 1px solid rgba(0, 0, 0, 0.06);
+  margin-bottom: -8px;
+  font-weight: 500;
+  color: ${colors.colorSecondary};
+
+  &:hover {
+    cursor: pointer;
+    background: ${rgba(colors.colorPrimary, 0.1)};
+  }
+`;
+
+export { Title, RightActions, Dashboards, Create, Header };

@@ -26,7 +26,7 @@ class List extends React.Component<Props, {}> {
     const editTrigger = (
       <Button btnStyle="link">
         <Tip text="Edit" placement="top">
-          <Icon icon="edit-alt" />
+          <Icon icon="edit-3" />
         </Tip>
       </Button>
     );
@@ -54,6 +54,7 @@ class List extends React.Component<Props, {}> {
               trigger={editTrigger}
               content={content}
               ignoreTrans={true}
+              enforceFocus={false}
               size="lg"
             />
           </ActionButtons>
@@ -97,7 +98,9 @@ class List extends React.Component<Props, {}> {
               <HeaderDescription
                 icon="/images/actions/29.svg"
                 title="Email appearance"
-                description="Appearances matter, especially for your business. Edit and manage your email appearance so that your business can operate in one voice."
+                description={__(
+                  'Appearances matter, especially for your business. Edit and manage your email appearance so that your business can operate in one voice'
+                )}
               />
             }
           />

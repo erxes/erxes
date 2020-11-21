@@ -24,9 +24,10 @@ type Props = {
   removePropertyGroup: (data: { _id: string }) => any;
   removeProperty: (data: { _id: string }) => void;
   updatePropertyVisible: (data: { _id: string; isVisible: boolean }) => void;
-  updatePropertyGroupVisible: (
-    data: { _id: string; isVisible: boolean }
-  ) => void;
+  updatePropertyGroupVisible: (data: {
+    _id: string;
+    isVisible: boolean;
+  }) => void;
 };
 
 class Properties extends React.Component<Props> {
@@ -134,7 +135,11 @@ class Properties extends React.Component<Props> {
       <HeaderDescription
         icon="/images/actions/26.svg"
         title="Properties"
-        description="The quick view finder helps you to view basic information on both companies and customers alike. Add groups and fields of the exact information you want to see."
+        description={
+          __(
+            'The quick view finder helps you to view basic information on both companies and customers alike. Add groups and fields of the exact information you want to see'
+          ) + '.'
+        }
       />
     );
 
@@ -152,7 +157,7 @@ class Properties extends React.Component<Props> {
         }
         mainHead={headerDescription}
         leftSidebar={
-          <Sidebar title="Property types" currentType={currentType} />
+          <Sidebar title={__('Property types')} currentType={__(currentType)} />
         }
         content={this.renderProperties()}
       />

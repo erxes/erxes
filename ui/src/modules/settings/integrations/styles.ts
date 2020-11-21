@@ -43,6 +43,12 @@ const Content = styled.div`
   display: flex;
   height: 100%;
   overflow: hidden;
+
+  > form {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+  }
 `;
 
 const Row = styled.div`
@@ -124,6 +130,8 @@ const GoogleButton = styled.a`
   background-position: 100%;
   margin-left: 10px;
   transition: background 0.3s ease;
+  display: block;
+  margin: auto;
 
   &:hover,
   &:focus {
@@ -132,6 +140,100 @@ const GoogleButton = styled.a`
 
   &:active {
     background-image: url('/images/googleButton/btn_active.png');
+  }
+`;
+
+const FacebookButton = styled.button`
+  background-color: rgb(66, 103, 178);
+  border-color: rgb(66, 103, 178);
+  color: ${colors.colorWhite};
+  line-height: 16px;
+  font-size: 14px;
+  padding: 11px 24px;
+  font-weight: 500;
+  border-radius: 3px;
+  border-style: solid;
+  border-width: 1px;
+  text-align: center;
+  transition: all 0.15s ease-out;
+  display: inline-block;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  vertical-align: middle;
+  white-space: nowrap;
+
+  i {
+    margin-right: 5px;
+  }
+
+  &:hover {
+    cursor: pointer;
+    background-color: rgb(54, 88, 153);
+    border-color: rgb(54, 88, 153);
+  }
+`;
+
+const AccountBox = styled.div`
+  border: 1px solid ${colors.borderPrimary};
+  margin-bottom: ${dimensions.coreSpacing}px;
+`;
+
+const AccountTitle = styled.h3`
+  text-transform: uppercase;
+  margin: 0;
+  padding: 15px 20px;
+  border-bottom: 1px solid ${colors.borderPrimary};
+  font-size: 13px;
+  font-weight: 600;
+  background: ${colors.bgLight};
+`;
+
+const AccountItem = styled.div`
+  padding: 15px 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-top: 1px solid ${colors.borderPrimary};
+  margin-top: -1px;
+  font-size: 15px;
+  font-weight: 500;
+  white-space: nowrap;
+
+  > span {
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    overflow: hidden;
+  }
+`;
+
+const ImageWrapper = styled.div`
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  padding: 20px;
+`;
+
+const TextWrapper = styled.div`
+  max-width: 400px;
+  h1 {
+    font-weight: 400;
+    font-size: 24px;
+  }
+
+  p {
+    font-size: 14px;
+    margin-bottom: 20px;
+  }
+
+  img {
+    max-width: 100%;
+    max-width: calc(100% + 40px);
+    box-shadow: 0 0 20px 5px rgba(0, 0, 0, 0.15);
+    border-radius: 4px;
+    margin-left: -20px;
   }
 `;
 
@@ -147,5 +249,11 @@ export {
   RefreshPermission,
   GoogleButton,
   LeftContent,
-  Content
+  Content,
+  AccountBox,
+  AccountTitle,
+  AccountItem,
+  FacebookButton,
+  ImageWrapper,
+  TextWrapper
 };

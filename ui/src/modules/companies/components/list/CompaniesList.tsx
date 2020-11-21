@@ -1,3 +1,4 @@
+import gql from 'graphql-tag';
 import Button from 'modules/common/components/Button';
 import DataWithLoader from 'modules/common/components/DataWithLoader';
 import DropdownToggle from 'modules/common/components/DropdownToggle';
@@ -9,6 +10,7 @@ import SortHandler from 'modules/common/components/SortHandler';
 import Table from 'modules/common/components/table';
 import { __, Alert, confirm, router } from 'modules/common/utils';
 import { menuContacts } from 'modules/common/utils/menus';
+import { queries } from 'modules/companies/graphql';
 import { CompaniesTableWrapper } from 'modules/companies/styles';
 import Wrapper from 'modules/layout/components/Wrapper';
 import { BarItems } from 'modules/layout/styles';
@@ -45,6 +47,7 @@ interface IProps extends IRouterProps {
   mergeCompanies: () => void;
   queryParams: any;
   exportCompanies: (bulk: string[]) => void;
+  refetch?: () => void;
 }
 
 type State = {
@@ -98,6 +101,14 @@ class CompaniesList extends React.Component<IProps, State> {
     e.target.value = tmpValue;
   };
 
+  afterTag = () => {
+    this.props.emptyBulk();
+
+    if (this.props.refetch) {
+      this.props.refetch();
+    }
+  };
+
   render() {
     const {
       columnsConfig,
@@ -108,7 +119,6 @@ class CompaniesList extends React.Component<IProps, State> {
       toggleBulk,
       bulk,
       isAllSelected,
-      emptyBulk,
       totalCount,
       mergeCompanies,
       queryParams,
@@ -157,7 +167,7 @@ class CompaniesList extends React.Component<IProps, State> {
       </Button>
     );
 
-    const editColumns = <a href="#edit">{__('Edit columns')}</a>;
+    const editColumns = <a href="#edit">{__('Choose Properties/View')}</a>;
 
     const mergeButton = (
       <Button btnStyle="primary" size="small" icon="merge">
@@ -187,19 +197,26 @@ class CompaniesList extends React.Component<IProps, State> {
             Alert.error(error.message);
           });
 
+      const refetchQuery = {
+        query: gql(queries.companyCounts),
+        variables: { only: 'byTag' }
+      };
+
       actionBarLeft = (
         <BarItems>
           <TaggerPopover
             type="company"
-            successCallback={emptyBulk}
+            successCallback={this.afterTag}
             targets={bulk}
             trigger={tagButton}
+            refetchQueries={[refetchQuery]}
           />
 
           {bulk.length === 2 && (
             <ModalTrigger
               title="Merge Companies"
               size="lg"
+              dialogClassName="modal-1000w"
               trigger={mergeButton}
               content={companiesMerge}
             />
@@ -223,7 +240,7 @@ class CompaniesList extends React.Component<IProps, State> {
           {...props}
           location={location}
           history={history}
-          contentType="companies"
+          contentType="company"
         />
       );
     };
@@ -259,12 +276,12 @@ class CompaniesList extends React.Component<IProps, State> {
             </li>
             <li>
               <Link to="/settings/properties?type=company">
-                {__('Properties')}
+                {__('Manage properties')}
               </Link>
             </li>
             <li>
               <a href="#export" onClick={exportCompanies.bind(this, bulk)}>
-                {__('Export companies')}
+                {__('Export this companies')}
               </a>
             </li>
           </Dropdown.Menu>

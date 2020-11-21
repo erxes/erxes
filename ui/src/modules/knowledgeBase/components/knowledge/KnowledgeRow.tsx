@@ -109,6 +109,7 @@ class KnowledgeRow extends React.Component<Props, State> {
               title="Manage Knowledge Base"
               trigger={manageTopic}
               content={content}
+              enforceFocus={false}
               size="lg"
             />
             <ModalTrigger

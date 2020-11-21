@@ -1,4 +1,5 @@
 import { IUser } from 'modules/auth/types';
+import { QueryResponse } from 'modules/common/types';
 import { IBrand } from 'modules/settings/brands/types';
 
 export interface IArticle {
@@ -55,21 +56,21 @@ export type ArticleVariables = {
 };
 
 export type AddArticlesMutationResponse = {
-  addArticlesMutation: (
-    params: { variables: ArticleVariables }
-  ) => Promise<any>;
+  addArticlesMutation: (params: {
+    variables: ArticleVariables;
+  }) => Promise<any>;
 };
 
 export type EditArticlesMutationResponse = {
-  editArticlesMutation: (
-    params: { variables: ArticleVariables }
-  ) => Promise<any>;
+  editArticlesMutation: (params: {
+    variables: ArticleVariables;
+  }) => Promise<any>;
 };
 
 export type RemoveArticlesMutationResponse = {
-  removeArticlesMutation: (
-    params: { variables: { _id: string } }
-  ) => Promise<any>;
+  removeArticlesMutation: (params: {
+    variables: { _id: string };
+  }) => Promise<any>;
 };
 
 export type CategoryVariables = {
@@ -80,15 +81,15 @@ export type CategoryVariables = {
 };
 
 export type AddCategoriesMutationResponse = {
-  addCategoriesMutation: (
-    params: { variables: CategoryVariables }
-  ) => Promise<any>;
+  addCategoriesMutation: (params: {
+    variables: CategoryVariables;
+  }) => Promise<any>;
 };
 
 export type EditCategoriesMutationResponse = {
-  editCategoriesMutation: (
-    params: { variables: CategoryVariables }
-  ) => Promise<any>;
+  editCategoriesMutation: (params: {
+    variables: CategoryVariables;
+  }) => Promise<any>;
 };
 
 export type RemoveCategoriesMutationResponse = {
@@ -112,57 +113,40 @@ export type EditTopicsMutationResponse = {
 };
 
 export type RemoveTopicsMutation = {
-  removeTopicsMutation: (
-    params: { variables: { _id: string } }
-  ) => Promise<any>;
+  removeTopicsMutation: (params: {
+    variables: { _id: string };
+  }) => Promise<any>;
 };
 
 // query types
-
 export type ArticlesQueryResponse = {
   knowledgeBaseArticles: IArticle[];
-  loading: boolean;
-  refetch: () => void;
-};
+} & QueryResponse;
 
 export type CategoriesQueryResponse = {
   knowledgeBaseCategories: ICategory[];
-  loading: boolean;
-  refetch: () => void;
-};
+} & QueryResponse;
 
 export type TopicsQueryResponse = {
   knowledgeBaseTopics: ITopic[];
-  loading: boolean;
-  refetch: () => void;
-};
+} & QueryResponse;
 
 export type ArticlesTotalCountQueryResponse = {
   knowledgeBaseArticlesTotalCount: number;
-  loading: boolean;
-  refetch: () => void;
-};
+} & QueryResponse;
 
 export type CategoriesTotalCountQueryResponse = {
   knowledgeBaseCategoriesTotalCount: number;
-  loading: boolean;
-  refetch: () => void;
-};
+} & QueryResponse;
 
 export type TopicsTotalCountQueryResponse = {
   knowledgeBaseTopicsTotalCount: number;
-  loading: boolean;
-  refetch: () => void;
-};
+} & QueryResponse;
 
 export type CategoryDetailQueryResponse = {
   knowledgeBaseCategoryDetail: ICategory;
-  loading: boolean;
-  refetch: () => void;
-};
+} & QueryResponse;
 
 export type LastCategoryQueryResponse = {
   knowledgeBaseCategoriesGetLast: ICategory;
-  loading: boolean;
-  refetch: () => void;
-};
+} & QueryResponse;

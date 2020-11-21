@@ -40,12 +40,6 @@ class ReplyingMessage extends React.Component<Props, State> {
     });
   };
 
-  getContent = () => {
-    const { currentUserName } = this.props;
-
-    return `@${currentUserName} `;
-  };
-
   doAction = (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -78,7 +72,6 @@ class ReplyingMessage extends React.Component<Props, State> {
             autoFocus={true}
             componentClass="textarea"
             onChange={this.onContentChange}
-            defaultValue={this.getContent()}
             required={true}
             onFocus={this.moveCursorAtTheEnd}
           />
@@ -88,12 +81,18 @@ class ReplyingMessage extends React.Component<Props, State> {
           <Button
             btnStyle="simple"
             onClick={this.props.closeModal}
-            icon="cancel-1"
+            icon="times-circle"
+            uppercase={false}
           >
             Close
           </Button>
 
-          <Button btnStyle="success" type="submit" icon="checked-1">
+          <Button
+            btnStyle="success"
+            type="submit"
+            icon="check-circle"
+            uppercase={false}
+          >
             Post
           </Button>
         </Footer>

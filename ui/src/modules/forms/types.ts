@@ -36,9 +36,9 @@ export type AddFormMutationVariables = {
 };
 
 export type AddFormMutationResponse = {
-  addFormMutation: (
-    params: { variables: AddFormMutationVariables }
-  ) => Promise<any>;
+  addFormMutation: (params: {
+    variables: AddFormMutationVariables;
+  }) => Promise<any>;
 };
 
 export type EditFormMutationVariables = {
@@ -50,11 +50,9 @@ export type EditFormMutationVariables = {
 };
 
 export type EditFormMutationResponse = {
-  editFormMutation: (
-    params: {
-      variables: EditFormMutationVariables;
-    }
-  ) => Promise<any>;
+  editFormMutation: (params: {
+    variables: EditFormMutationVariables;
+  }) => Promise<any>;
 };
 
 export type AddFieldMutationVariables = {
@@ -62,11 +60,9 @@ export type AddFieldMutationVariables = {
 };
 
 export type AddFieldMutationResponse = {
-  addFieldMutation: (
-    params: {
-      variables: AddFieldMutationVariables;
-    }
-  ) => Promise<void>;
+  addFieldMutation: (params: {
+    variables: AddFieldMutationVariables;
+  }) => Promise<void>;
 };
 
 export type EditFieldMutationVariables = {
@@ -74,11 +70,9 @@ export type EditFieldMutationVariables = {
 };
 
 export type EditFieldMutationResponse = {
-  editFieldMutation: (
-    params: {
-      variables: EditFieldMutationVariables;
-    }
-  ) => Promise<void>;
+  editFieldMutation: (params: {
+    variables: EditFieldMutationVariables;
+  }) => Promise<void>;
 };
 
 export type RemoveFieldMutationVariables = {
@@ -86,9 +80,9 @@ export type RemoveFieldMutationVariables = {
 };
 
 export type RemoveFieldMutationResponse = {
-  removeFieldMutation: (
-    params: { variable: RemoveFieldMutationVariables }
-  ) => Promise<void>;
+  removeFieldMutation: (params: {
+    variable: RemoveFieldMutationVariables;
+  }) => Promise<void>;
 };
 
 export type FormDetailQueryResponse = {
@@ -109,6 +103,6 @@ export interface IFormSubmissionParams {
   formField: JSON;
 }
 
-export type SaveFormSubmissionMutation = (
-  { variables: IFormSubmissionParams }
-) => Promise<any>;
+export type SaveFormSubmissionMutation = ({
+  variables: IFormSubmissionParams
+}) => Promise<any>;

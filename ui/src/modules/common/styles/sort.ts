@@ -9,7 +9,6 @@ const SortItem = styledTS<{ isDragging: boolean; isModal: boolean }>(
   display: block;
   padding: 5px;
   margin-bottom: 10px;
-  z-index: 2000;
   position: relative;
   display: flex;
   justify-content: space-between;

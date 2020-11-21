@@ -1,4 +1,5 @@
 import messageFields from './messageFields';
+import { paramsDef, paramsValue } from './queries';
 
 const conversationMessageAdd = `
   mutation conversationMessageAdd(
@@ -31,6 +32,18 @@ const conversationsReplyFacebookComment = `
     conversationsReplyFacebookComment(
     conversationId: $conversationId,
     content: $content,
+    commentId: $commentId,
+  ) {
+    commentId
+  }
+}
+`;
+
+const conversationsChangeStatusFacebookComment = `
+  mutation conversationsChangeStatusFacebookComment(
+    $commentId: String,
+  ) {
+    conversationsChangeStatusFacebookComment(
     commentId: $commentId,
   ) {
     commentId
@@ -93,6 +106,18 @@ const conversationsUnassign = `
   }
 `;
 
+const createProductBoardNote = `
+  mutation conversationCreateProductBoardNote($_id: String!) {
+    conversationCreateProductBoardNote(_id: $_id)
+  }
+`;
+
+const resolveAll = `
+  mutation conversationResolveAll(${paramsDef}) {
+    conversationResolveAll(${paramsValue})
+  }
+`;
+
 export default {
   conversationsReplyFacebookComment,
   conversationMessageAdd,
@@ -100,5 +125,8 @@ export default {
   conversationsAssign,
   conversationsUnassign,
   saveResponseTemplate,
-  markAsRead
+  markAsRead,
+  createProductBoardNote,
+  conversationsChangeStatusFacebookComment,
+  resolveAll
 };

@@ -62,7 +62,7 @@ export default class SimpleMessage extends React.Component<Props, {}> {
         <UserInfo>
           <strong>
             <Icon icon="exclamation-triangle" color="#EA475D" size={15} />{' '}
-            {__('You have recieved a video call request')}
+            {__('You have received a video call request')}
           </strong>
         </UserInfo>
       </CallBox>

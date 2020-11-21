@@ -2,6 +2,7 @@ import FormControl from 'modules/common/components/form/Control';
 import FormGroup from 'modules/common/components/form/Group';
 import ControlLabel from 'modules/common/components/form/Label';
 import { LeftItem, Preview } from 'modules/common/components/step/styles';
+import EditorCK from 'modules/common/containers/EditorCK';
 import { ILeadData } from 'modules/leads/types';
 import React from 'react';
 import SuccessPreview from './preview/SuccessPreview';
@@ -26,6 +27,7 @@ type Props = {
   successAction?: string;
   onChange: (name: Name, value: string) => void;
   leadData?: ILeadData;
+  formId?: string;
 };
 
 type State = {
@@ -58,6 +60,15 @@ class SuccessStep extends React.Component<Props, State> {
     this.props.onChange(name, value);
   };
 
+  onEditorChange = e => {
+    let propName: Name = 'adminEmailContent';
+
+    if (e.editor.id === 'cke_1') {
+      propName = 'userEmailContent';
+    }
+    this.props.onChange(propName, e.editor.getData());
+  };
+
   renderEmailFields(leadData: ILeadData) {
     if (this.state.successAction !== 'email') {
       return null;
@@ -75,12 +86,6 @@ class SuccessStep extends React.Component<Props, State> {
         (e.currentTarget as HTMLInputElement).value
       );
 
-    const userEmailContent = e =>
-      this.onChangeFunction(
-        'userEmailContent',
-        (e.currentTarget as HTMLInputElement).value
-      );
-
     const adminEmails = e =>
       this.onChangeFunction(
         'adminEmails',
@@ -93,11 +98,8 @@ class SuccessStep extends React.Component<Props, State> {
         (e.currentTarget as HTMLInputElement).value
       );
 
-    const adminEmailContent = e =>
-      this.onChangeFunction(
-        'adminEmailContent',
-        (e.currentTarget as HTMLInputElement).value
-      );
+    const { type, formId } = this.props;
+    const editorSubName = `${type}_${formId || 'create'}`;
 
     return (
       <div>
@@ -123,12 +125,11 @@ class SuccessStep extends React.Component<Props, State> {
 
         <FormGroup>
           <ControlLabel>User email content</ControlLabel>
-          <FormControl
-            componentClass="textarea"
-            type="text"
-            defaultValue={leadData.userEmailContent}
-            id="userEmailContent"
-            onChange={userEmailContent}
+          <EditorCK
+            content={leadData.userEmailContent || ''}
+            onChange={this.onEditorChange}
+            height={500}
+            name={`lead_user_email_${editorSubName}`}
           />
         </FormGroup>
 
@@ -156,12 +157,11 @@ class SuccessStep extends React.Component<Props, State> {
 
         <FormGroup>
           <ControlLabel>Admin email content</ControlLabel>
-          <FormControl
-            componentClass="textarea"
-            type="text"
-            defaultValue={leadData.adminEmailContent}
-            id="adminEmailContent"
-            onChange={adminEmailContent}
+          <EditorCK
+            content={leadData.adminEmailContent || ''}
+            onChange={this.onEditorChange}
+            height={500}
+            name={`lead_admin_email_${editorSubName}`}
           />
         </FormGroup>
       </div>

@@ -1,3 +1,5 @@
+import client, { getEnv } from 'apolloClient';
+import gql from 'graphql-tag';
 import ActionButtons from 'modules/common/components/ActionButtons';
 import Button from 'modules/common/components/Button';
 import Icon from 'modules/common/components/Icon';
@@ -5,43 +7,118 @@ import Label from 'modules/common/components/Label';
 import ModalTrigger from 'modules/common/components/ModalTrigger';
 import Tip from 'modules/common/components/Tip';
 import WithPermission from 'modules/common/components/WithPermission';
+import { Alert } from 'modules/common/utils';
 import { __ } from 'modules/common/utils';
 import InstallCode from 'modules/settings/integrations/components/InstallCode';
 import { INTEGRATION_KINDS } from 'modules/settings/integrations/constants';
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { cleanIntegrationKind } from '../../containers/utils';
+import { queries } from '../../graphql/index';
 import { INTEGRATIONS_COLORS } from '../../integrationColors';
-import { IIntegration } from '../../types';
+import { IIntegration, IntegrationMutationVariables } from '../../types';
 import CommonFieldForm from './CommonFieldForm';
 
 type Props = {
   _id?: string;
   integration: IIntegration;
-  archive: (id: string) => void;
+  archive: (id: string, status: boolean) => void;
   removeIntegration: (integration: IIntegration) => void;
   disableAction?: boolean;
   editIntegration: (
     id: string,
-    { name, brandId }: { name: string; brandId: string }
+    { name, brandId, channelIds }: IntegrationMutationVariables
   ) => void;
 };
 
-class IntegrationListItem extends React.Component<Props> {
+type State = {
+  externalData: any;
+};
+
+class IntegrationListItem extends React.Component<Props, State> {
+  constructor(props) {
+    super(props);
+
+    this.state = {
+      externalData: null
+    };
+  }
+
   renderArchiveAction() {
     const { archive, integration, disableAction } = this.props;
 
-    if (!archive || disableAction) {
+    if (!archive || disableAction || !integration.isActive) {
       return null;
     }
 
-    const onClick = () => archive(integration._id);
+    const onClick = () => archive(integration._id, true);
 
     return (
       <WithPermission action="integrationsArchive">
         <Tip text={__('Archive')} placement="top">
           <Button btnStyle="link" onClick={onClick} icon="archive-alt" />
         </Tip>
+      </WithPermission>
+    );
+  }
+
+  renderUnarchiveAction() {
+    const { archive, integration, disableAction } = this.props;
+
+    if (!archive || disableAction || integration.isActive) {
+      return null;
+    }
+
+    const onClick = () => archive(integration._id, false);
+
+    return (
+      <WithPermission action="integrationsArchive">
+        <Tip text={__('Unarchive')} placement="top">
+          <Button btnStyle="link" onClick={onClick} icon="redo" />
+        </Tip>
+      </WithPermission>
+    );
+  }
+
+  renderGetAction() {
+    const { integration } = this.props;
+    const webhookData = integration.webhookData;
+
+    if (!webhookData) {
+      return;
+    }
+
+    const showTrigger = (
+      <Button btnStyle="link">
+        <Tip text="Show" placement="top">
+          <Icon icon="eye" />
+        </Tip>
+      </Button>
+    );
+
+    const content = () => {
+      const { REACT_APP_API_URL } = getEnv();
+
+      return (
+        <div>
+          <b>Name</b>: {integration.name} <br />
+          <div>
+            <b>URL</b>: {REACT_APP_API_URL}/webhooks/{integration._id} <br />
+            <b>Token</b>: {webhookData.token}
+          </div>
+        </div>
+      );
+    };
+
+    return (
+      <WithPermission action="showIntegrations">
+        <ActionButtons>
+          <ModalTrigger
+            title="Integration detail"
+            trigger={showTrigger}
+            content={content}
+          />
+        </ActionButtons>
       </WithPermission>
     );
   }
@@ -56,7 +133,7 @@ class IntegrationListItem extends React.Component<Props> {
     const editTrigger = (
       <Button btnStyle="link">
         <Tip text="Edit" placement="top">
-          <Icon icon="pen-1" />
+          <Icon icon="edit-3" />
         </Tip>
       </Button>
     );
@@ -67,8 +144,10 @@ class IntegrationListItem extends React.Component<Props> {
         onSubmit={editIntegration}
         name={integration.name}
         brandId={integration.brandId}
+        channelIds={integration.channels.map(item => item._id) || []}
         integrationId={integration._id}
         integrationKind={integration.kind}
+        webhookData={integration.webhookData}
       />
     );
 
@@ -107,7 +186,7 @@ class IntegrationListItem extends React.Component<Props> {
             <Link
               to={`/settings/integrations/editMessenger/${integration._id}`}
             >
-              <Button btnStyle="link" icon="pen-1" />
+              <Button btnStyle="link" icon="edit-3" />
             </Link>
           </Tip>
 
@@ -143,9 +222,78 @@ class IntegrationListItem extends React.Component<Props> {
     );
   }
 
+  renderExternalData(integration) {
+    const { externalData } = this.state;
+    const { kind } = integration;
+    let value = '';
+
+    if (!externalData) {
+      return <td />;
+    }
+
+    switch (kind) {
+      case INTEGRATION_KINDS.CALLPRO:
+        value = externalData.phoneNumber;
+        break;
+      case INTEGRATION_KINDS.CHATFUEL:
+        value = (externalData.chatfuelConfigs || {}).toString();
+        break;
+      case INTEGRATION_KINDS.WHATSAPP:
+        value = externalData.whatsappToken;
+        break;
+      case INTEGRATION_KINDS.SMOOCH_TELEGRAM:
+        value = externalData.telegramBotToken;
+        break;
+      case INTEGRATION_KINDS.SMOOCH_VIBER:
+        value = externalData.viberBotToken;
+        break;
+      case INTEGRATION_KINDS.SMOOCH_LINE:
+        value = externalData.lineChannelId;
+        break;
+      case INTEGRATION_KINDS.TELNYX:
+        value = externalData.telnyxPhoneNumber;
+        break;
+      default:
+        break;
+    }
+
+    return <td>{value}</td>;
+  }
+
+  renderFetchAction(integration: IIntegration) {
+    if (integration.kind === INTEGRATION_KINDS.MESSENGER) {
+      return null;
+    }
+
+    const onClick = () => {
+      client
+        .query({
+          query: gql(queries.fetchApi),
+          variables: {
+            path: '/integrationDetail',
+            params: { erxesApiId: integration._id }
+          }
+        })
+        .then(({ data }) => {
+          this.setState({ externalData: data.integrationsFetchApi });
+        })
+        .catch(e => {
+          Alert.error(e.message);
+        });
+    };
+
+    return (
+      <Tip text={__('Fetch external data')} placement="top">
+        <Button btnStyle="link" icon="download-1" onClick={onClick} />
+      </Tip>
+    );
+  }
+
   render() {
     const { integration } = this.props;
     const integrationKind = cleanIntegrationKind(integration.kind);
+    const labelStyle = integration.isActive ? 'success' : 'warning';
+    const status = integration.isActive ? __('Active') : __('Archived');
 
     return (
       <tr key={integration._id}>
@@ -157,10 +305,17 @@ class IntegrationListItem extends React.Component<Props> {
         </td>
         <td>{integration.brand ? integration.brand.name : ''}</td>
         <td>
+          <Label lblStyle={labelStyle}>{status}</Label>
+        </td>
+        {this.renderExternalData(integration)}
+        <td>
           <ActionButtons>
+            {this.renderFetchAction(integration)}
             {this.renderMessengerActions(integration)}
+            {this.renderGetAction()}
             {this.renderEditAction()}
             {this.renderArchiveAction()}
+            {this.renderUnarchiveAction()}
             {this.renderRemoveAction()}
           </ActionButtons>
         </td>

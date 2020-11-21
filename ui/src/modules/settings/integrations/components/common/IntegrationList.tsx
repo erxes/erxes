@@ -1,19 +1,22 @@
+import EmptyContent from 'modules/common/components/empty/EmptyContent';
 import EmptyState from 'modules/common/components/EmptyState';
 import Table from 'modules/common/components/table';
 import { Count } from 'modules/common/styles/main';
 import { __ } from 'modules/common/utils';
+import { EMPTY_CONTENT_MESSENGER } from 'modules/settings/constants';
 import React from 'react';
-import { IIntegration } from '../../types';
+import { INTEGRATION_KINDS } from '../../constants';
+import { IIntegration, IntegrationMutationVariables } from '../../types';
 import IntegrationListItem from './IntegrationListItem';
 
 type Props = {
   integrations: IIntegration[];
   removeIntegration: (integration: IIntegration, callback?: any) => void;
-  archive: (id: string) => void;
+  archive: (id: string, status: boolean) => void;
   kind?: string | null;
   editIntegration: (
     id: string,
-    { name, brandId }: { name: string; brandId: string }
+    { name, brandId, channelIds }: IntegrationMutationVariables
   ) => void;
   queryParams: any;
   disableAction?: boolean;
@@ -48,6 +51,10 @@ class IntegrationList extends React.Component<Props> {
     const { integrations, kind, integrationsCount } = this.props;
 
     if (!integrations || integrations.length < 1) {
+      if (kind === INTEGRATION_KINDS.MESSENGER) {
+        return <EmptyContent content={EMPTY_CONTENT_MESSENGER} />;
+      }
+
       return (
         <EmptyState
           text="Start adding integrations now!"
@@ -67,7 +74,9 @@ class IntegrationList extends React.Component<Props> {
               <th>{__('Name')}</th>
               <th>{__('Kind')}</th>
               <th>{__('Brand')}</th>
-              <th>{__('Actions')}</th>
+              <th>{__('Status')}</th>
+              <th>{__('External info')}</th>
+              <th style={{ width: 130 }}>{__('Actions')}</th>
             </tr>
           </thead>
           <tbody>{this.renderRows()}</tbody>

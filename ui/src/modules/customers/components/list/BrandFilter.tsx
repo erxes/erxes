@@ -19,6 +19,7 @@ function Brands({ history, counts, brands, loading }: IProps) {
       {brands.map(brand => {
         const onClick = () => {
           router.setParams(history, { brand: brand._id });
+          router.removeParams(history, 'page');
         };
 
         return (

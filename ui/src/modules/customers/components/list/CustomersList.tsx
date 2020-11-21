@@ -3,6 +3,7 @@ import Button from 'modules/common/components/Button';
 import DataWithLoader from 'modules/common/components/DataWithLoader';
 import DateFilter from 'modules/common/components/DateFilter';
 import DropdownToggle from 'modules/common/components/DropdownToggle';
+import EmptyContent from 'modules/common/components/empty/EmptyContent';
 import FormControl from 'modules/common/components/form/Control';
 import Icon from 'modules/common/components/Icon';
 import ModalTrigger from 'modules/common/components/ModalTrigger';
@@ -10,7 +11,13 @@ import Pagination from 'modules/common/components/pagination/Pagination';
 import SortHandler from 'modules/common/components/SortHandler';
 import Table from 'modules/common/components/table';
 import { menuContacts } from 'modules/common/utils/menus';
+import routerUtils from 'modules/common/utils/router';
+import {
+  EMAIL_VALIDATION_STATUSES,
+  PHONE_VALIDATION_STATUSES
+} from 'modules/customers/constants';
 import { queries } from 'modules/customers/graphql';
+import { EMPTY_CONTENT_CONTACTS } from 'modules/settings/constants';
 import React from 'react';
 import Dropdown from 'react-bootstrap/Dropdown';
 import { withRouter } from 'react-router-dom';
@@ -46,21 +53,27 @@ interface IProps extends IRouterProps {
     doc: { customerIds: string[] },
     emptyBulk: () => void
   ) => void;
-  mergeCustomers: (
-    doc: {
-      ids: string[];
-      data: any;
-      callback: () => void;
-    }
-  ) => Promise<void>;
+  mergeCustomers: (doc: {
+    ids: string[];
+    data: any;
+    callback: () => void;
+  }) => Promise<void>;
   verifyCustomers: (doc: { verificationType: string }) => void;
+  changeVerificationStatus: (doc: {
+    verificationType: string;
+    status: string;
+    customerIds: string[];
+  }) => Promise<void>;
   queryParams: any;
   exportData: (bulk: Array<{ _id: string }>) => void;
   responseId: string;
+  refetch?: () => void;
 }
 
 type State = {
   searchValue?: string;
+  searchType?: string;
+  showDropDown?: boolean;
 };
 
 class CustomersList extends React.Component<IProps, State> {
@@ -72,6 +85,19 @@ class CustomersList extends React.Component<IProps, State> {
     this.state = {
       searchValue: this.props.searchValue
     };
+  }
+
+  componentDidUpdate() {
+    const { queryParams, history, type } = this.props;
+    const { searchValue, searchType } = this.state;
+
+    if (searchValue && !queryParams.searchValue) {
+      if (searchType === type) {
+        routerUtils.setParams(history, { searchValue });
+      } else {
+        this.setState({ searchValue: '' });
+      }
+    }
   }
 
   onChange = () => {
@@ -96,6 +122,26 @@ class CustomersList extends React.Component<IProps, State> {
     const { verifyCustomers } = this.props;
 
     verifyCustomers({ verificationType });
+  };
+
+  onTargetSelect = () => {
+    if (this.state.showDropDown) {
+      this.setState({ showDropDown: false });
+    } else {
+      this.setState({ showDropDown: true });
+    }
+  };
+
+  changeVerificationStatus = (type: string, status: string, customers) => {
+    const customerIds: string[] = [];
+
+    customers.forEach(customer => {
+      customerIds.push(customer._id);
+    });
+
+    const { changeVerificationStatus } = this.props;
+
+    changeVerificationStatus({ verificationType: type, status, customerIds });
   };
 
   renderContent() {
@@ -148,10 +194,10 @@ class CustomersList extends React.Component<IProps, State> {
       clearTimeout(this.timer);
     }
 
-    const { history } = this.props;
+    const { history, type } = this.props;
     const searchValue = e.target.value;
 
-    this.setState({ searchValue });
+    this.setState({ searchValue, searchType: type });
 
     this.timer = setTimeout(() => {
       router.removeParams(history, 'page');
@@ -165,6 +211,14 @@ class CustomersList extends React.Component<IProps, State> {
     e.target.value = '';
     e.target.value = tmpValue;
   }
+
+  afterTag = () => {
+    this.props.emptyBulk();
+
+    if (this.props.refetch) {
+      this.props.refetch();
+    }
+  };
 
   render() {
     const {
@@ -188,7 +242,47 @@ class CustomersList extends React.Component<IProps, State> {
       </Button>
     );
 
-    const editColumns = <a href="#edit">{__('Edit columns')}</a>;
+    const onEmailStatusClick = e => {
+      this.changeVerificationStatus('email', e.target.id, bulk);
+    };
+
+    const onPhoneStatusClick = e => {
+      this.changeVerificationStatus('phone', e.target.id, bulk);
+    };
+
+    const emailVerificationStatusList = [] as any;
+
+    for (const status of EMAIL_VALIDATION_STATUSES) {
+      emailVerificationStatusList.push(
+        <li key={status.value}>
+          <a
+            id={status.value}
+            href="#changeStatus"
+            onClick={onEmailStatusClick}
+          >
+            {status.label}
+          </a>
+        </li>
+      );
+    }
+
+    const phoneVerificationStatusList = [] as any;
+
+    for (const status of PHONE_VALIDATION_STATUSES) {
+      phoneVerificationStatusList.push(
+        <li key={status.value}>
+          <a
+            id={status.value}
+            href="#changeStatus"
+            onClick={onPhoneStatusClick}
+          >
+            {status.label}
+          </a>
+        </li>
+      );
+    }
+
+    const editColumns = <a href="#edit">{__('Choose Properties/View')}</a>;
 
     const dateFilter = queryParams.form && (
       <DateFilter queryParams={queryParams} history={history} />
@@ -256,12 +350,14 @@ class CustomersList extends React.Component<IProps, State> {
             </li>
             <li>
               <Link to="/settings/properties?type=customer">
-                {__('Properties')}
+                {__('Manage properties')}
               </Link>
             </li>
             <li>
               <a href="#export" onClick={exportData.bind(this, bulk)}>
-                {__('Export customers')}
+                {type === 'lead'
+                  ? __('Export this leads')
+                  : __('Export this contacts')}
               </a>
             </li>
             <li>
@@ -282,7 +378,7 @@ class CustomersList extends React.Component<IProps, State> {
             </li>
           </Dropdown.Menu>
         </Dropdown>
-        <Link to="/settings/importHistories?type=customer">
+        <Link to={`/settings/importHistories?type=${type}`}>
           <Button btnStyle="primary" size="small" icon="arrow-from-right">
             {__('Go to import')}
           </Button>
@@ -327,7 +423,7 @@ class CustomersList extends React.Component<IProps, State> {
 
       const refetchQuery = {
         query: gql(queries.customerCounts),
-        variables: { only: 'byTag' }
+        variables: { type, only: 'byTag' }
       };
 
       actionBarLeft = (
@@ -336,7 +432,7 @@ class CustomersList extends React.Component<IProps, State> {
 
           <TaggerPopover
             type="customer"
-            successCallback={emptyBulk}
+            successCallback={this.afterTag}
             targets={bulk}
             trigger={tagButton}
             refetchQueries={[refetchQuery]}
@@ -345,10 +441,38 @@ class CustomersList extends React.Component<IProps, State> {
             <ModalTrigger
               title="Merge Customers"
               size="lg"
+              dialogClassName="modal-1000w"
               trigger={mergeButton}
               content={customersMerge}
             />
           )}
+
+          <Dropdown
+            className="dropdown-btn"
+            alignRight={true}
+            onClick={this.onTargetSelect}
+          >
+            <Dropdown.Toggle as={DropdownToggle} id="dropdown-customize">
+              <Button btnStyle="simple" size="small">
+                {__('Change email status ')} <Icon icon="angle-down" />
+              </Button>
+            </Dropdown.Toggle>
+            <Dropdown.Menu>
+              <div>{emailVerificationStatusList}</div>
+            </Dropdown.Menu>
+          </Dropdown>
+
+          <Dropdown className="dropdown-btn" alignRight={true}>
+            <Dropdown.Toggle as={DropdownToggle} id="dropdown-customize">
+              <Button btnStyle="simple" size="small">
+                {__('Change phone status ')} <Icon icon="angle-down" />
+              </Button>
+            </Dropdown.Toggle>
+            <Dropdown.Menu>
+              <div>{phoneVerificationStatusList}</div>
+            </Dropdown.Menu>
+          </Dropdown>
+
           <Button
             btnStyle="danger"
             size="small"
@@ -382,8 +506,7 @@ class CustomersList extends React.Component<IProps, State> {
             data={this.renderContent()}
             loading={loading}
             count={customers.length}
-            emptyText="Let's start taking care of your customers"
-            emptyImage="/images/actions/11.svg"
+            emptyContent={<EmptyContent content={EMPTY_CONTENT_CONTACTS} />}
           />
         }
       />

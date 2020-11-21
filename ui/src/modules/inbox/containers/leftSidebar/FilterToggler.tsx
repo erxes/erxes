@@ -5,6 +5,7 @@ import { getConfig, setConfig } from '../../utils';
 type Props = {
   groupText: string;
   toggleName: string;
+  manageUrl?: string;
 };
 
 const STORAGE_KEY = 'erxes_additional_sidebar_config';

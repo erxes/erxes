@@ -21,9 +21,10 @@ type Props = {
   hideHeader?: boolean;
   isOpen?: boolean;
   history: any;
-  paddingContent?: 'no-padding';
+  paddingContent?: 'less-padding';
   centered?: boolean;
   onExit?: () => void;
+  isAnimate?: boolean;
 } & IRouterProps;
 
 type State = {
@@ -71,10 +72,10 @@ class ModalTrigger extends React.Component<Props, State> {
       );
     }
 
-    const { title, ignoreTrans } = this.props;
+    const { title, ignoreTrans, paddingContent } = this.props;
 
     return (
-      <Modal.Header closeButton={true}>
+      <Modal.Header closeButton={true} className={paddingContent}>
         <Modal.Title>{ignoreTrans ? title : __(title)}</Modal.Title>
       </Modal.Header>
     );
@@ -90,7 +91,8 @@ class ModalTrigger extends React.Component<Props, State> {
       enforceFocus,
       onExit,
       paddingContent,
-      centered
+      centered,
+      isAnimate = false
     } = this.props;
 
     const { isOpen } = this.state;
@@ -114,7 +116,7 @@ class ModalTrigger extends React.Component<Props, State> {
           backdrop={backDrop}
           enforceFocus={enforceFocus}
           onExit={onExit}
-          animation={false}
+          animation={isAnimate}
           centered={centered}
         >
           {this.renderHeader()}

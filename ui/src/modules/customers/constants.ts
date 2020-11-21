@@ -73,3 +73,23 @@ export const LEAD_CHOICES = [
   { label: 'Bad timing', value: 'badTiming' },
   { label: 'Unqualified', value: 'unqualified' }
 ];
+
+export const EMAIL_VALIDATION_STATUSES = [
+  { label: 'Valid', value: 'valid' },
+  { label: 'Invalid', value: 'invalid' },
+  { label: 'Accept all unverifiable', value: 'accept_all_unverifiable' },
+  { label: 'Unknown', value: 'unknown' },
+  { label: 'Disposable', value: 'disposable' },
+  { label: 'Catchall', value: 'catchall' },
+  { label: 'Bad syntax', value: 'badsyntax' },
+  { label: 'Unverifiable', value: 'unverifiable' },
+  { label: 'Not checked', value: 'Not checked' }
+];
+
+export const PHONE_VALIDATION_STATUSES = [
+  { label: 'Valid', value: 'valid' },
+  { label: 'Invalid', value: 'invalid' },
+  { label: 'Unknown', value: 'unknown' },
+  { label: 'Unverifiable', value: 'unverifiable' },
+  { label: 'Mobile phone', value: 'receives_sms' }
+];

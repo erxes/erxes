@@ -7,8 +7,6 @@
 CKEDITOR.editorConfig = function( config ) {
 	// Define changes to default configuration here. For example:
 	// config.language = 'fr';
-	config.font_names = 'Helvetica Neue;Helvetica;Arial;Verdana;Georgia;Times New Roman;Monospace;Comic Sans MS;Courier New;Tahoma';
+	// config.font_names = 'system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Oxygen,Ubuntu,Cantarell,"Fira Sans","Droid Sans","Helvetica Neue",sans-serif;';
 	// config.uiColor = '#AADC6E';
 };
-
-CKEDITOR.disableAutoInline = true;

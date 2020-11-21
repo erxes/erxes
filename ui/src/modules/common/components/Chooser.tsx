@@ -175,7 +175,7 @@ class CommonChooser extends React.Component<Props, State> {
 
     const addTrigger = (
       <p>
-        {__("Don't see the result you're looking for? ")}
+        {__("Don't see the result you're looking for?")}
         <span>{__(`Create a new ${title}`)}</span>
       </p>
     );
@@ -211,13 +211,19 @@ class CommonChooser extends React.Component<Props, State> {
               content={renderForm}
             />
             <div>
-              <Button btnStyle="simple" onClick={closeModal} icon="cancel-1">
+              <Button
+                btnStyle="simple"
+                uppercase={false}
+                onClick={closeModal}
+                icon="times-circle"
+              >
                 Cancel
               </Button>
               <Button
                 btnStyle="success"
                 onClick={this.onSelect}
-                icon="checked-1"
+                icon="check-circle"
+                uppercase={false}
               >
                 Select
               </Button>

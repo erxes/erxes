@@ -1,7 +1,11 @@
 import DataWithLoader from 'modules/common/components/DataWithLoader';
+import EmptyContent from 'modules/common/components/empty/EmptyContent';
+import Spinner from 'modules/common/components/Spinner';
+import { EMPTY_CONTENT_KNOWLEDGEBASE } from 'modules/settings/constants';
 import React from 'react';
 import { IArticle } from '../../types';
 import ArticleRow from './ArticleRow';
+import { RowArticle } from './styles';
 
 type Props = {
   articles: IArticle[];
@@ -13,6 +17,14 @@ type Props = {
 };
 
 class ArticleList extends React.Component<Props> {
+  renderLoading = () => {
+    return (
+      <RowArticle style={{ height: '115px' }}>
+        <Spinner />
+      </RowArticle>
+    );
+  };
+
   renderArticles() {
     const {
       articles,
@@ -41,8 +53,13 @@ class ArticleList extends React.Component<Props> {
       <DataWithLoader
         loading={loading}
         count={articles.length}
-        emptyText="Articles can address any number of issues your customers encounter. Types of knowledge articles can include solutions to common issues, product or feature documentation, FAQ's and much more."
-        emptyImage="/images/actions/8.svg"
+        emptyContent={
+          <EmptyContent
+            content={EMPTY_CONTENT_KNOWLEDGEBASE}
+            maxItemWidth="420px"
+          />
+        }
+        loadingContent={this.renderLoading()}
         data={this.renderArticles()}
       />
     );

@@ -29,6 +29,14 @@
 	display: block;
 }
 
+.investIcon {
+	height: 50px;
+}
+
+.smallDesc {
+	font-size: var(--ifm-font-size-base);
+}
+
 .description {
 	opacity: 0.8;
 }
@@ -112,6 +120,28 @@
 .iconWrapper {
 	color: var(--nebula-blue);
 	font-size: 25px;
+}
+
+.colorYellow {
+	color: #fda50f;
+}
+
+.colorPrimary {
+	color: var(--nebula-blue);
+}
+
+.descriptionList {
+	margin-bottom: 30px;
+}
+
+.descriptionList dt {
+	font-size: 20px;
+	margin-bottom: 5px;
+}
+
+.descriptionList dd {
+	margin: 0;
+	color: #666;
 }
 
 @media (min-width: 600px) {

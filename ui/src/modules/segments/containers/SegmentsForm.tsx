@@ -168,7 +168,11 @@ export default withProps<Props>(
     graphql<Props>(gql(queries.combinedFields), {
       name: 'combinedFieldsQuery',
       options: ({ contentType }) => ({
-        variables: { contentType }
+        variables: {
+          contentType: ['visitor', 'lead', 'customer'].includes(contentType)
+            ? 'customer'
+            : contentType
+        }
       })
     })
   )(SegmentsFormContainer)

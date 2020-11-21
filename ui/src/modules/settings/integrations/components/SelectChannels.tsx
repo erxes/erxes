@@ -12,7 +12,7 @@ import { LeftContent, Row } from '../styles';
 
 type Props = {
   channels: IChannel[];
-  onChange: (values: string[]) => any;
+  onChange?: (values: string[]) => any;
   renderButton: (props: IButtonMutateProps) => JSX.Element;
   defaultValue?: string[];
   isRequired?: boolean;
@@ -54,16 +54,25 @@ class SelectChannels extends React.Component<Props, {}> {
   }
 
   onChangeChannel = values => {
-    this.props.onChange(values.map(item => item.value) || []);
+    if (this.props.onChange) {
+      this.props.onChange(values.map(item => item.value) || []);
+    }
   };
 
   render() {
-    const { channels, defaultValue, isRequired, description } = this.props;
+    const {
+      channels,
+      defaultValue,
+      isRequired,
+      description = __(
+        'In which Channel(s) do you want to add this integration?'
+      )
+    } = this.props;
 
     return (
       <FormGroup>
         <ControlLabel required={isRequired}>Channel</ControlLabel>
-        {description && <p>{description}</p>}
+        <p>{description}</p>
         <Row>
           <LeftContent>
             <Select

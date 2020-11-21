@@ -81,7 +81,7 @@ function Tutorial() {
           ! For further help, please consult the{' '}
           <a
             target="_blank"
-            href="https://docs.erxes.io/overview/getting-started"
+            href="https://erxes.org/overview/getting-started"
             rel="noopener noreferrer"
           >
             documentation
@@ -113,6 +113,7 @@ function Tutorial() {
       {TUTORIALS.map(group => (
         <CollapseContent
           key={group.key}
+          id={group.key}
           contendId={group.key}
           open={isOpen(group.key)}
           beforeTitle={renderIcon()}
@@ -129,6 +130,7 @@ function Tutorial() {
               key={video.name}
               title={__(video.name)}
               compact={true}
+              open={isOpen(video.key || video.name)}
             >
               {renderVideo(video.url)}
             </CollapseContent>

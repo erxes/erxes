@@ -6,9 +6,8 @@ import { mutations } from '../graphql';
 import { IDashboard } from '../types';
 
 type Props = {
-  show: boolean;
   dashboard?: IDashboard;
-  closeModal: () => void;
+  trigger?: React.ReactNode;
 };
 
 class DashboardFormContainer extends React.Component<Props> {

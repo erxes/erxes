@@ -1,23 +1,15 @@
+import { formatText } from 'modules/activityLogs/utils';
 import Icon from 'modules/common/components/Icon';
 import ModalTrigger from 'modules/common/components/ModalTrigger';
 import { __ } from 'modules/common/utils';
-import CallPro from 'modules/settings/integrations/containers/callpro/Form';
-import Gmail from 'modules/settings/integrations/containers/gmail/Form';
 import NylasForm from 'modules/settings/integrations/containers/mail/Form';
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { INTEGRATION_KINDS } from '../../constants';
-import Chatfuel from '../../containers/chatfuel/Form';
-import Facebook from '../../containers/facebook/Form';
-import KnowledgeBase from '../../containers/knowledgebase/Form';
-import Lead from '../../containers/lead/Form';
+import IntegrationForm from '../../containers/common/IntegrationForm';
 import LineForm from '../../containers/line/Form';
-import TelegramForm from '../../containers/telegram/Form';
-import TwilioForm from '../../containers/twilioSms/Form';
+import TelnyxForm from '../../containers/telnyx/TelnyxForm';
 import Twitter from '../../containers/twitter/Twitter';
-import ViberForm from '../../containers/viber/Form';
-import Website from '../../containers/website/Form';
-import WhatsappForm from '../../containers/whatsapp/Form';
 import { Box, IntegrationItem, Ribbon, Type } from './styles';
 
 type TotalCount = {
@@ -37,6 +29,7 @@ type TotalCount = {
   twilio: number;
   whatsapp: number;
   exchange: number;
+  telnyx: number;
 };
 
 type Props = {
@@ -44,21 +37,12 @@ type Props = {
   getClassName: (selectedKind: string) => string;
   toggleBox: (kind: string) => void;
   customLink?: (kind: string, addLink: string) => void;
-  messengerAppsCount?: number;
   queryParams: any;
   totalCount: TotalCount;
 };
 
-function getCount(
-  kind: string,
-  totalCount: TotalCount,
-  messengerAppsCount?: number
-) {
+function getCount(kind: string, totalCount: TotalCount) {
   const countByKind = totalCount[kind];
-
-  if (typeof messengerAppsCount === 'number') {
-    return <span>({messengerAppsCount})</span>;
-  }
 
   if (typeof countByKind === 'undefined') {
     return null;
@@ -74,156 +58,76 @@ function renderType(type: string) {
 
   return (
     <Type>
-      <Icon icon="chat" /> {__('Works with messenger')}
+      <Icon icon="comment-alt-lines" /> {__('Works with messenger')}
     </Type>
   );
 }
 
-function renderCreate(createUrl, createModal) {
-  if (!createUrl && !createModal) {
+function renderCreate(createUrl, kind) {
+  if (!createUrl && !kind) {
     return null;
   }
 
   const trigger = <button>+ {__('Add')}</button>;
 
-  if (createModal === INTEGRATION_KINDS.FACEBOOK_MESSENGER) {
-    const content = props => (
-      <Facebook kind={INTEGRATION_KINDS.FACEBOOK_MESSENGER} {...props} />
+  if (kind === INTEGRATION_KINDS.FACEBOOK_MESSENGER) {
+    return (
+      <Link to={`${createUrl}?kind=${INTEGRATION_KINDS.FACEBOOK_MESSENGER}`}>
+        + {__('Add')}
+      </Link>
     );
+  }
+
+  if (kind === INTEGRATION_KINDS.FACEBOOK_POST) {
+    return (
+      <Link to={`${createUrl}?kind=${INTEGRATION_KINDS.FACEBOOK_POST}`}>
+        + {__('Add')}
+      </Link>
+    );
+  }
+
+  if (kind === INTEGRATION_KINDS.MESSENGER) {
+    return <Link to={createUrl}>+ {__('Add')}</Link>;
+  }
+
+  if (
+    kind === INTEGRATION_KINDS.NYLAS_OFFICE365 ||
+    kind === INTEGRATION_KINDS.NYLAS_GMAIL
+  ) {
+    const content = props => <NylasForm kind={kind} {...props} />;
 
     return (
       <ModalTrigger
-        title="Add facebook page"
-        autoOpenKey="showFacebookMessengerModal"
+        title={`Add ${formatText(kind)}`}
+        content={content}
+        autoOpenKey={`show${formatText(kind, true)}Modal`}
+      />
+    );
+  }
+
+  if (
+    kind === INTEGRATION_KINDS.NYLAS_IMAP ||
+    kind === INTEGRATION_KINDS.NYLAS_EXCHANGE ||
+    kind === INTEGRATION_KINDS.NYLAS_OUTLOOK ||
+    kind === INTEGRATION_KINDS.NYLAS_YAHOO
+  ) {
+    const content = props => <NylasForm kind={kind} {...props} />;
+
+    return (
+      <ModalTrigger
+        title={`Add ${formatText(kind)}`}
         trigger={trigger}
         content={content}
+        autoOpenKey={`show${formatText(kind)}Modal`}
       />
     );
   }
 
-  if (createModal === INTEGRATION_KINDS.FACEBOOK_POST) {
-    const content = props => (
-      <Facebook kind={INTEGRATION_KINDS.FACEBOOK_POST} {...props} />
-    );
-
-    return (
-      <ModalTrigger
-        title="Add facebook page"
-        trigger={trigger}
-        content={content}
-      />
-    );
+  if (kind === INTEGRATION_KINDS.GMAIL) {
+    return <Link to={createUrl}>+ {__('Add')}</Link>;
   }
 
-  if (createModal === 'lead') {
-    const content = props => <Lead {...props} />;
-
-    return (
-      <ModalTrigger title="Add Pop Ups" trigger={trigger} content={content} />
-    );
-  }
-
-  if (createModal === 'knowledgeBase') {
-    const content = props => <KnowledgeBase {...props} />;
-
-    return (
-      <ModalTrigger
-        title="Add knowledge base"
-        trigger={trigger}
-        content={content}
-      />
-    );
-  }
-
-  if (createModal === 'website') {
-    const content = props => <Website {...props} />;
-
-    return (
-      <ModalTrigger title="Add website" trigger={trigger} content={content} />
-    );
-  }
-
-  if (createModal === 'callpro') {
-    const content = props => <CallPro {...props} />;
-
-    return (
-      <ModalTrigger title="Add call pro" trigger={trigger} content={content} />
-    );
-  }
-
-  if (createModal === 'chatfuel') {
-    const content = props => <Chatfuel {...props} />;
-
-    return (
-      <ModalTrigger title="Add chatfuel" trigger={trigger} content={content} />
-    );
-  }
-
-  if (createModal === INTEGRATION_KINDS.NYLAS_OFFICE365) {
-    const content = props => <NylasForm kind={createModal} {...props} />;
-
-    return (
-      <ModalTrigger
-        title="Add Office 365"
-        content={content}
-        autoOpenKey="showoffice365Modal"
-      />
-    );
-  }
-
-  if (createModal === INTEGRATION_KINDS.NYLAS_IMAP) {
-    const content = props => <NylasForm kind={createModal} {...props} />;
-
-    return (
-      <ModalTrigger title="Add IMAP" trigger={trigger} content={content} />
-    );
-  }
-
-  if (createModal === INTEGRATION_KINDS.NYLAS_GMAIL) {
-    const content = props => <NylasForm kind={createModal} {...props} />;
-
-    return (
-      <ModalTrigger
-        title="Add gmail"
-        content={content}
-        autoOpenKey="showgmailModal"
-      />
-    );
-  }
-
-  if (createModal === INTEGRATION_KINDS.NYLAS_EXCHANGE) {
-    const content = props => <NylasForm kind={createModal} {...props} />;
-
-    return (
-      <ModalTrigger title="Add Exchange" trigger={trigger} content={content} />
-    );
-  }
-
-  if (createModal === INTEGRATION_KINDS.NYLAS_OUTLOOK) {
-    const content = props => <NylasForm kind={createModal} {...props} />;
-
-    return (
-      <ModalTrigger title="Add Outlook" trigger={trigger} content={content} />
-    );
-  }
-
-  if (createModal === INTEGRATION_KINDS.NYLAS_YAHOO) {
-    const content = props => <NylasForm kind={createModal} {...props} />;
-
-    return (
-      <ModalTrigger title="Add Yahoo" trigger={trigger} content={content} />
-    );
-  }
-
-  if (createModal === INTEGRATION_KINDS.GMAIL) {
-    const content = props => <Gmail {...props} />;
-
-    return (
-      <ModalTrigger title="Add gmail" trigger={trigger} content={content} />
-    );
-  }
-
-  if (createModal === 'twitter') {
+  if (kind === 'twitter') {
     const content = props => <Twitter {...props} />;
 
     return (
@@ -231,7 +135,7 @@ function renderCreate(createUrl, createModal) {
     );
   }
 
-  if (createModal === INTEGRATION_KINDS.SMOOCH_LINE) {
+  if (kind === INTEGRATION_KINDS.SMOOCH_LINE) {
     const content = props => <LineForm {...props} />;
 
     return (
@@ -239,50 +143,29 @@ function renderCreate(createUrl, createModal) {
     );
   }
 
-  if (createModal === INTEGRATION_KINDS.SMOOCH_TELEGRAM) {
-    const content = props => <TelegramForm {...props} />;
+  if (kind === INTEGRATION_KINDS.TELNYX) {
+    const content = props => <TelnyxForm {...props} />;
 
     return (
-      <ModalTrigger title="Add Telegram" trigger={trigger} content={content} />
+      <ModalTrigger title="Add telnyx" trigger={trigger} content={content} />
     );
   }
 
-  if (createModal === INTEGRATION_KINDS.SMOOCH_VIBER) {
-    const content = props => <ViberForm {...props} />;
+  const formContent = props => <IntegrationForm {...props} type={kind} />;
 
-    return (
-      <ModalTrigger title="Add Viber" trigger={trigger} content={content} />
-    );
-  }
-
-  if (createModal === INTEGRATION_KINDS.SMOOCH_TWILIO) {
-    const content = props => <TwilioForm {...props} />;
-
-    return (
-      <ModalTrigger
-        title="Add Twilio SMS"
-        trigger={trigger}
-        content={content}
-      />
-    );
-  }
-
-  if (createModal === INTEGRATION_KINDS.WHATSAPP) {
-    const content = props => <WhatsappForm {...props} />;
-
-    return (
-      <ModalTrigger title="Add WhatsApp" trigger={trigger} content={content} />
-    );
-  }
-
-  return <Link to={createUrl}>+ {__('Add')}</Link>;
+  return (
+    <ModalTrigger
+      title={`Add ${formatText(kind)}`}
+      trigger={trigger}
+      content={formContent}
+    />
+  );
 }
 
 function Entry({
   integration,
   getClassName,
   toggleBox,
-  messengerAppsCount,
   totalCount,
   customLink
 }: Props) {
@@ -313,15 +196,15 @@ function Entry({
       <Box onClick={boxOnClick} isInMessenger={integration.inMessenger}>
         <img alt="logo" src={integration.logo} />
         <h5>
-          {integration.name} {getCount(kind, totalCount, messengerAppsCount)}
+          {integration.name} {getCount(kind, totalCount)}
         </h5>
         <p>
-          {integration.description}
+          {__(integration.description)}
           {renderType(integration.inMessenger)}
         </p>
         {!integration.isAvailable && (
           <Ribbon>
-            <span>Coming soon</span>
+            <span>{__('Coming soon')}</span>
           </Ribbon>
         )}
       </Box>

@@ -67,13 +67,11 @@ const BasicInfoContainer = (props: FinalProps) => {
         query: gql(queries.companies),
         variables: { searchValue, page: 1, perPage: 10 }
       })
-      .then(
-        (response: any): void => {
-          if (typeof callback === 'function') {
-            callback(response.data.companies);
-          }
+      .then((response: any): void => {
+        if (typeof callback === 'function') {
+          callback(response.data.companies);
         }
-      )
+      })
       .catch(error => {
         Alert.error(error.message);
       });
@@ -92,7 +90,7 @@ const BasicInfoContainer = (props: FinalProps) => {
 };
 
 const generateOptions = () => ({
-  refetchQueries: ['companieMain', 'companyCounts']
+  refetchQueries: ['companiesMain', 'companyCounts']
 });
 
 export default withProps<Props>(

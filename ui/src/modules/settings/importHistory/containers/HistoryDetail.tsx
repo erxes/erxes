@@ -4,10 +4,8 @@ import { withProps } from 'modules/common/utils';
 import React from 'react';
 import { graphql } from 'react-apollo';
 import HistoryDetail from '../components/HistoryDetail';
-import { queries, subscriptions } from '../graphql';
+import { queries } from '../graphql';
 import { ImportHistoryDetailQueryResponse } from '../types';
-
-const subscription = gql(subscriptions.importSubscription);
 
 class HistoryDetailContainer extends React.Component<
   { id: string } & {
@@ -21,28 +19,6 @@ class HistoryDetailContainer extends React.Component<
     this.state = {
       percentage: 0
     };
-  }
-
-  componentWillMount() {
-    const { importHistoryDetailQuery, id } = this.props;
-
-    importHistoryDetailQuery.subscribeToMore({
-      document: subscription,
-      variables: { _id: id },
-
-      updateQuery: (prev, { subscriptionData: { data } }) => {
-        const { importHistoryChanged } = data;
-        const { percentage, status } = importHistoryChanged;
-
-        if (status === 'Done') {
-          return importHistoryDetailQuery.refetch();
-        }
-
-        if (percentage.toFixed(0) !== this.state.percentage) {
-          this.setState({ percentage: percentage.toFixed(0) });
-        }
-      }
-    });
   }
 
   render() {
@@ -72,7 +48,7 @@ export default withProps<{ id: string }>(
           variables: {
             _id: id
           },
-          pollInterval: 20000
+          pollInterval: 3000
         })
       }
     )

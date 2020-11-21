@@ -59,7 +59,7 @@ export const commonFields = `
   companies {
     _id
     primaryName
-    website
+    links
   }
   customers {
     _id

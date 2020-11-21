@@ -11,6 +11,8 @@ type Props = {
   emptyImage?: string;
   size?: string;
   objective?: boolean;
+  emptyContent?: React.ReactNode;
+  loadingContent?: React.ReactNode;
 };
 
 class DataWithLoader extends React.Component<Props> {
@@ -31,12 +33,24 @@ class DataWithLoader extends React.Component<Props> {
       emptyImage,
       emptyText,
       size,
-      objective
+      objective,
+      emptyContent,
+      loadingContent
     } = this.props;
 
     if (loading) {
+      if (loadingContent) {
+        return loadingContent;
+      }
+
       return <Spinner objective={objective} />;
-    } else if (count === 0) {
+    }
+
+    if (count === 0) {
+      if (emptyContent) {
+        return emptyContent;
+      }
+
       return (
         <EmptyState
           text={emptyText || 'There is no data'}
@@ -46,6 +60,7 @@ class DataWithLoader extends React.Component<Props> {
         />
       );
     }
+
     return data;
   }
 

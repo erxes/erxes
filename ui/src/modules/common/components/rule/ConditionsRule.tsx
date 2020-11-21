@@ -136,7 +136,7 @@ class ConditionsRule extends React.Component<Props, State> {
             size="small"
             onClick={remove}
             btnStyle="danger"
-            icon="cancel-1"
+            icon="times"
           />
         </InlineForm>
       </FormGroup>

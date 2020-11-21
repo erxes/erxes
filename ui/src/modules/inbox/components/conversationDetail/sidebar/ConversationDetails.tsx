@@ -2,12 +2,7 @@ import dayjs from 'dayjs';
 import IntegrationIcon from 'modules/common/components/IntegrationIcon';
 import { __ } from 'modules/common/utils';
 import Sidebar from 'modules/layout/components/Sidebar';
-import {
-  FieldStyle,
-  SectionBody,
-  SidebarCounter,
-  SidebarList
-} from 'modules/layout/styles';
+import { FieldStyle, SidebarCounter, SidebarList } from 'modules/layout/styles';
 import { cleanIntegrationKind } from 'modules/settings/integrations/containers/utils';
 import React from 'react';
 import { ICustomer } from '../../../../customers/types';
@@ -50,7 +45,7 @@ class ConversationDetails extends React.Component<Props> {
 
     return (
       <Section>
-        <SectionBody>
+        <div>
           <SidebarList className="no-link">
             {this.renderVisitorContactInfo(customer)}
             <li>
@@ -83,7 +78,7 @@ class ConversationDetails extends React.Component<Props> {
               <SidebarCounter>{conversation.messageCount}</SidebarCounter>
             </li>
           </SidebarList>
-        </SectionBody>
+        </div>
       </Section>
     );
   }

@@ -33,14 +33,12 @@ type Props = {
   isActionLoading: boolean;
   isReadyToSaveForm: boolean;
   afterFormDbSave: (formId: string) => void;
-  save: (
-    params: {
-      name: string;
-      brandId: string;
-      languageCode?: string;
-      leadData: ILeadData;
-    }
-  ) => void;
+  save: (params: {
+    name: string;
+    brandId: string;
+    languageCode?: string;
+    leadData: ILeadData;
+  }) => void;
 };
 
 type State = {
@@ -53,6 +51,7 @@ type State = {
   bodyValue?: string;
   calloutBtnText?: string;
   theme: string;
+  isRequireOnce?: boolean;
   logoPreviewUrl?: string;
   isSkip?: boolean;
   color: string;
@@ -117,6 +116,7 @@ class Lead extends React.Component<Props, State> {
         type: form.type || ''
       },
       theme: leadData.themeColor || '#6569DF',
+      isRequireOnce: leadData.isRequireOnce,
       logoPreviewUrl: callout.featuredImage,
       isSkip: callout.skip && true
     };
@@ -162,13 +162,8 @@ class Lead extends React.Component<Props, State> {
           featuredImage: this.state.logoPreviewUrl,
           skip: this.state.isSkip
         },
-        rules: (rules || []).map(rule => ({
-          _id: rule._id,
-          kind: rule.kind,
-          text: rule.text,
-          condition: rule.condition,
-          value: rule.value
-        }))
+        rules: (rules || []).filter(rule => rule.condition && rule.value),
+        isRequireOnce: this.state.isRequireOnce
       }
     };
 
@@ -180,7 +175,7 @@ class Lead extends React.Component<Props, State> {
 
     const cancelButton = (
       <Link to="/leads">
-        <Button btnStyle="simple" size="small" icon="cancel-1">
+        <Button btnStyle="simple" icon="times-circle" uppercase={false}>
           Cancel
         </Button>
       </Link>
@@ -193,8 +188,8 @@ class Lead extends React.Component<Props, State> {
         <Button
           disabled={isActionLoading}
           btnStyle="success"
-          size="small"
-          icon={isActionLoading ? undefined : 'checked-1'}
+          uppercase={false}
+          icon={isActionLoading ? undefined : 'check-circle'}
           onClick={this.handleSubmit}
         >
           {isActionLoading && <SmallLoader />}
@@ -236,7 +231,8 @@ class Lead extends React.Component<Props, State> {
       successAction,
       isSkip,
       rules,
-      formData
+      formData,
+      isRequireOnce
     } = this.state;
 
     const { integration } = this.props;
@@ -252,7 +248,7 @@ class Lead extends React.Component<Props, State> {
       <>
         <Wrapper.Header title={__('Leads')} breadcrumb={breadcrumb} />
         <StepWrapper>
-          <TitleContainer>
+          <TitleContainer id="CreatePopupsTitle">
             <div>{__('Title')}</div>
             <FormControl
               required={true}
@@ -309,6 +305,7 @@ class Lead extends React.Component<Props, State> {
                 color={color}
                 brand={brand}
                 theme={theme}
+                isRequireOnce={isRequireOnce}
                 language={language}
                 formData={formData}
               />
@@ -322,6 +319,7 @@ class Lead extends React.Component<Props, State> {
                 theme={theme}
                 successAction={successAction}
                 leadData={leadData}
+                formId={integration && integration.formId}
               />
             </Step>
             <Step

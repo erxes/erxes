@@ -31,6 +31,7 @@ const LeftNavigation = styled.aside`
     img {
       max-height: 28px;
       transition: all 0.3s ease;
+      max-width: 80%;
 
       &:hover {
         transform: scale(1.1);
@@ -168,15 +169,15 @@ class Navigation extends React.Component<{
         <NavLink to="/">
           <img src="/images/erxes.png" alt="erxes" />
         </NavLink>
-        <Nav>
-          {REACT_APP_DASHBOARD_URL !== 'undefined'
-            ? this.renderNavItem(
-                'showDashboards',
-                __('Dashboard'),
-                '/dashboard',
-                'icon-dashboard'
-              )
-            : null}
+        {REACT_APP_DASHBOARD_URL !== 'undefined'
+          ? this.renderNavItem(
+              'showDashboards',
+              __('Dashboard'),
+              '/dashboard',
+              'icon-dashboard'
+            )
+          : null}
+        <Nav id="navigation">
           {this.renderNavItem(
             'showConversations',
             __('Conversation'),

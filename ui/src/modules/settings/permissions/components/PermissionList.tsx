@@ -92,7 +92,7 @@ class PermissionList extends React.Component<Props> {
     return (
       <FilterWrapper>
         <strong>{__('Filters')}:</strong>
-        <FilterItem>
+        <FilterItem id="permission-choose-module">
           <Select
             placeholder={__('Choose module')}
             value={queryParams.module}
@@ -101,7 +101,7 @@ class PermissionList extends React.Component<Props> {
           />
         </FilterItem>
 
-        <FilterItem>
+        <FilterItem id="permission-choose-action">
           <Select
             placeholder={__('Choose action')}
             value={queryParams.action}
@@ -109,9 +109,9 @@ class PermissionList extends React.Component<Props> {
             onChange={this.setFilter.bind(this, 'action')}
           />
         </FilterItem>
-        <FilterItem>
+        <FilterItem id="permission-choose-users">
           <SelectTeamMembers
-            label="Choose users"
+            label={__('Choose users')}
             name="userId"
             value={queryParams.userId}
             onSelect={usersOnChange}
@@ -137,12 +137,12 @@ class PermissionList extends React.Component<Props> {
       <Table whiteSpace="nowrap" hover={true} bordered={true}>
         <thead>
           <tr>
-            <th>Module</th>
-            <th>Action</th>
-            <th>Email</th>
-            <th>Group</th>
-            <th>Allow</th>
-            <th>Actions</th>
+            <th>{__('Module')}</th>
+            <th>{__('Action')}</th>
+            <th>{__('Email')}</th>
+            <th>{__('Group')}</th>
+            <th>{__('Allow')}</th>
+            <th>{__('Actions')}</th>
           </tr>
         </thead>
         <tbody>{this.renderObjects()}</tbody>
@@ -166,7 +166,12 @@ class PermissionList extends React.Component<Props> {
 
   renderActionBar() {
     const trigger = (
-      <Button btnStyle="primary" icon="plus-circle" uppercase={false}>
+      <Button
+        id="permission-new-permission"
+        btnStyle="primary"
+        icon="plus-circle"
+        uppercase={false}
+      >
         New permission
       </Button>
     );
@@ -205,7 +210,7 @@ class PermissionList extends React.Component<Props> {
           data={this.renderData()}
           loading={isLoading}
           count={totalCount}
-          emptyText="There is no permissions in this group"
+          emptyText={__('There is no permissions in this group')}
           emptyImage="/images/actions/11.svg"
         />
       </>

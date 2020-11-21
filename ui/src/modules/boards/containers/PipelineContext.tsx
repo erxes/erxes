@@ -481,7 +481,7 @@ class PipelineProviderInner extends React.Component<Props, State> {
 
     if (aboveItemId === undefined) {
       this.setState({
-        itemMap: { ...itemMap, [stageId]: [...items, item] },
+        itemMap: { ...itemMap, [stageId]: [item, ...items] },
         itemIds: [...itemIds, item._id]
       });
 

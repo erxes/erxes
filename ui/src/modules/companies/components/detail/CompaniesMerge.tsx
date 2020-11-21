@@ -18,13 +18,7 @@ import { ICompany, ICompanyLinks } from '../../types';
 
 type Props = {
   objects: ICompany[];
-  save: (
-    doc: {
-      ids: string[];
-      data: any;
-      callback: () => void;
-    }
-  ) => void;
+  save: (doc: { ids: string[]; data: any; callback: () => void }) => void;
   closeModal: () => void;
 };
 
@@ -207,10 +201,20 @@ class CompaniesMerge extends React.Component<Props, State> {
         </Columns>
 
         <ModalFooter>
-          <Button btnStyle="simple" onClick={closeModal} icon="cancel-1">
+          <Button
+            btnStyle="simple"
+            onClick={closeModal}
+            uppercase={false}
+            icon="times-circle"
+          >
             Cancel
           </Button>
-          <Button type="submit" btnStyle="success" icon="checked-1">
+          <Button
+            type="submit"
+            btnStyle="success"
+            uppercase={false}
+            icon="check-circle"
+          >
             Save
           </Button>
         </ModalFooter>

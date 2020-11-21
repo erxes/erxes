@@ -44,7 +44,7 @@ class Row extends React.Component<Props> {
   renderLinks() {
     const msg = this.props.message;
 
-    const edit = this.renderLink('Edit', 'edit-alt', this.props.edit);
+    const edit = this.renderLink('Edit', 'edit-3', this.props.edit);
     const pause = this.renderLink('Pause', 'pause-circle', this.props.setPause);
     const live = this.renderLink('Set live', 'play-circle', this.props.setLive);
     const liveM = this.renderLink(
@@ -80,13 +80,9 @@ class Row extends React.Component<Props> {
   }
 
   renderRemoveButton = (message, onClick) => {
-    if (!message.kind.toLowerCase().includes('auto')) {
-      return null;
-    }
-
     return (
       <Tip text={__('Delete')} placement="top">
-        <Button btnStyle="link" onClick={onClick} icon="times-cirlce" />
+        <Button btnStyle="link" onClick={onClick} icon="times-circle" />
       </Tip>
     );
   };
@@ -150,6 +146,10 @@ class Row extends React.Component<Props> {
       ) {
         return <Label lblStyle="success">Sent</Label>;
       }
+
+      if (message.method === METHODS.SMS && smsStats.total === 0) {
+        return <Label lblStyle="warning">Not sent</Label>;
+      }
     }
 
     return <Label>Sending</Label>;
@@ -188,8 +188,20 @@ class Row extends React.Component<Props> {
 
   render() {
     const { isChecked, message, remove } = this.props;
-    const { stats = { send: '' }, brand = { name: '' } } = message;
-    const totalCount = stats.total || 0;
+    const {
+      stats = { send: '' },
+      brand = { name: '' },
+      smsStats = { total: 0 },
+      method
+    } = message;
+    let totalCount = 0;
+
+    if (method === METHODS.SMS) {
+      totalCount = smsStats.total;
+    }
+    if (method === METHODS.EMAIL || method === METHODS.MESSENGER) {
+      totalCount = stats.total;
+    }
 
     return (
       <tr key={message._id}>

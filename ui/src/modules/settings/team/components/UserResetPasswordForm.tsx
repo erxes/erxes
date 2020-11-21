@@ -9,17 +9,15 @@ import React from 'react';
 
 type Props = {
   object: IUser;
-  save: (
-    {
-      _id,
-      newPassword,
-      repeatPassword
-    }: {
-      _id: string;
-      newPassword: string;
-      repeatPassword: string;
-    }
-  ) => void;
+  save: ({
+    _id,
+    newPassword,
+    repeatPassword
+  }: {
+    _id: string;
+    newPassword: string;
+    repeatPassword: string;
+  }) => void;
   closeModal: () => void;
 };
 
@@ -67,12 +65,18 @@ class UserResetPasswordForm extends React.Component<Props> {
           <Button
             btnStyle="simple"
             onClick={this.props.closeModal}
-            icon="cancel-1"
+            icon="times-circle"
+            uppercase={false}
           >
             Close
           </Button>
 
-          <Button btnStyle="success" type="submit" icon="checked-1">
+          <Button
+            btnStyle="success"
+            type="submit"
+            icon="check-circle"
+            uppercase={false}
+          >
             Save
           </Button>
         </ModalFooter>

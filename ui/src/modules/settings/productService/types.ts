@@ -1,3 +1,4 @@
+import { QueryResponse } from 'modules/common/types';
 import { ITag } from 'modules/tags/types';
 
 export interface IProductDoc {
@@ -30,6 +31,7 @@ export interface IProduct {
   customFieldsData?: any;
   createdAt: Date;
 
+  attachment?: any;
   category: IProductCategory;
 }
 
@@ -49,27 +51,19 @@ export interface IProductCategory {
 
 export type ProductsQueryResponse = {
   products: IProduct[];
-  loading: boolean;
-  refetch: () => void;
-};
+} & QueryResponse;
 
 export type ProductsCountQueryResponse = {
   productsTotalCount: number;
-  loading: boolean;
-  refetch: () => void;
-};
+} & QueryResponse;
 
 export type ProductCategoriesQueryResponse = {
   productCategories: IProductCategory[];
-  loading: boolean;
-  refetch: () => void;
-};
+} & QueryResponse;
 
 export type ProductCategoriesCountQueryResponse = {
   productCategoriesTotalCount: number;
-  loading: boolean;
-  refetch: () => void;
-};
+} & QueryResponse;
 
 export type MutationVariables = {
   _id?: string;
@@ -91,15 +85,15 @@ export type EditMutationResponse = {
 };
 
 export type ProductRemoveMutationResponse = {
-  productsRemove: (
-    mutation: { variables: { productIds: string[] } }
-  ) => Promise<any>;
+  productsRemove: (mutation: {
+    variables: { productIds: string[] };
+  }) => Promise<any>;
 };
 
 export type ProductCategoryRemoveMutationResponse = {
-  productCategoryRemove: (
-    mutation: { variables: { _id: string } }
-  ) => Promise<any>;
+  productCategoryRemove: (mutation: {
+    variables: { _id: string };
+  }) => Promise<any>;
 };
 
 export type DetailQueryResponse = {

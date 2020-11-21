@@ -1,11 +1,13 @@
 import Button from 'modules/common/components/Button';
 import DataWithLoader from 'modules/common/components/DataWithLoader';
+import EmptyContent from 'modules/common/components/empty/EmptyContent';
 import FormControl from 'modules/common/components/form/Control';
 import ModalTrigger from 'modules/common/components/ModalTrigger';
 import Pagination from 'modules/common/components/pagination/Pagination';
 import Table from 'modules/common/components/table';
 import { __ } from 'modules/common/utils';
 import Wrapper from 'modules/layout/components/Wrapper';
+import { EMPTY_CONTENT_ENGAGE } from 'modules/settings/constants';
 import TaggerPopover from 'modules/tags/components/TaggerPopover';
 import React from 'react';
 import { Link } from 'react-router-dom';
@@ -177,8 +179,7 @@ class List extends React.Component<Props> {
             data={mainContent}
             loading={loading}
             count={messages.length}
-            emptyText="A strong customer engagement can help to further brand growth and loyalty"
-            emptyImage="/images/actions/14.svg"
+            emptyContent={<EmptyContent content={EMPTY_CONTENT_ENGAGE} />}
           />
         }
       />

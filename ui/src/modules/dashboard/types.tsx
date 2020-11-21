@@ -32,6 +32,10 @@ export type DashboardDetailsQueryResponse = {
   loading: boolean;
 };
 
+export type DashboardRemoveMutationVariables = {
+  _id: string;
+};
+
 export type EditDashboardItemMutationVariables = {
   _id: string;
   layout: string;
@@ -48,21 +52,19 @@ export type AddDashboardItemMutationVariables = {
 };
 
 export type AddDashboardItemMutationResponse = {
-  addDashboardItemMutation: (
-    params: {
-      variables: AddDashboardItemMutationVariables;
-    }
-  ) => Promise<void>;
+  addDashboardItemMutation: (params: {
+    variables: AddDashboardItemMutationVariables;
+  }) => Promise<void>;
 };
 
 export type EditDashboardItemMutationResponse = {
-  editDashboardItemMutation: (
-    params: {
-      variables: EditDashboardItemMutationVariables;
-    }
-  ) => Promise<void>;
+  editDashboardItemMutation: (params: {
+    variables: EditDashboardItemMutationVariables;
+  }) => Promise<void>;
 };
 
 export type RemoveDashboardMutationResponse = {
-  removeDashboardMutation: () => Promise<any>;
+  removeDashboardMutation: (params: {
+    variables: DashboardRemoveMutationVariables;
+  }) => Promise<any>;
 };

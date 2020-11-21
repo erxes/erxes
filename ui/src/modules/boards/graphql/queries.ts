@@ -127,27 +127,51 @@ const commonParamDefs = `
   closeDateType: $closeDateType
 `;
 
+const stageParams = `
+  $isNotLost: Boolean,
+  $pipelineId: String!,
+  ${commonParams}
+`;
+
+const stageParamDefs = `
+  isNotLost: $isNotLost,
+  pipelineId: $pipelineId,
+  ${commonParamDefs}
+`;
+
+const stageCommon = `
+  _id
+  name
+  order
+  amount
+  itemsTotalCount
+  pipelineId
+`;
+
 const stages = `
   query stages(
-    $isNotLost: Boolean,
-    $pipelineId: String!,
-    ${commonParams}
+    ${stageParams}
   ) {
     stages(
-      isNotLost: $isNotLost,
-      pipelineId: $pipelineId,
-      ${commonParamDefs}
+      ${stageParamDefs}
     ) {
-      _id
-      name
-      order
-      amount
-      itemsTotalCount
+      ${stageCommon}
+    }
+  }
+`;
+
+const conversionStages = `
+  query stages(
+    ${stageParams}
+  ) {
+    stages(
+      ${stageParamDefs}
+    ) {
+      ${stageCommon}
       compareNextStage
       initialDealsTotalCount
       stayedDealsTotalCount
       inProcessDealsTotalCount
-      pipelineId
     }
   }
 `;
@@ -221,6 +245,7 @@ export default {
   pipelines,
   pipelineDetail,
   stages,
+  conversionStages,
   stageDetail,
   pipelineLabels,
   pipelineLabelDetail

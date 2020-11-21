@@ -1,4 +1,4 @@
-import { connection } from './connection';
+import { connection } from "./connection";
 
 const messageFields = `
   _id
@@ -26,6 +26,7 @@ const messageFields = `
     messageId
     brandId
   }
+  botData
   messengerAppData
   attachments {
     url
@@ -52,6 +53,7 @@ const conversationDetailQuery = `
         ${messageFields}
       }
 
+      operatorStatus
       isOnline
       supporters {
         _id
@@ -83,6 +85,12 @@ const conversationMessageInserted = `
   }
 `;
 
+const conversationBotTypingStatus = `
+  subscription conversationBotTypingStatus($_id: String!) {
+    conversationBotTypingStatus(_id: $_id)
+  }
+`;
+
 const adminMessageInserted = `
   subscription conversationAdminMessageInserted($customerId: String!) {
     conversationAdminMessageInserted(customerId: $customerId) {
@@ -100,7 +108,11 @@ const unreadCountQuery = `
 const messengerSupportersQuery = `
   query widgetsMessengerSupporters($integrationId: String!) {
     widgetsMessengerSupporters(integrationId: $integrationId) {
-      ${userFields}
+      supporters {
+        ${userFields}
+      }
+      isOnline
+      serverTime
     }
   }
 `;
@@ -131,6 +143,14 @@ const allConversations = `
           avatar
         }
       }
+    }
+  }
+`;
+
+const getEngageMessage = `
+  query widgetsGetEngageMessage($customerId: String!  $browserInfo: JSON!) {
+    widgetsGetEngageMessage(customerId: $customerId browserInfo: $browserInfo) {
+      ${messageFields}
     }
   }
 `;
@@ -248,5 +268,7 @@ export default {
   getFaqCategoryQuery,
   getFaqTopicQuery,
   faqSearchArticlesQuery,
-  integrationsFetchApi
+  integrationsFetchApi,
+  conversationBotTypingStatus,
+  getEngageMessage
 };

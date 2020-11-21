@@ -89,6 +89,7 @@ class FieldForm extends React.Component<Props, State> {
           <option />
           <option value="email">{__('Email')}</option>
           <option value="number">{__('Number')}</option>
+          <option value="datetime">{__('Date Time')}</option>
           <option value="date">{__('Date')}</option>
           <option value="phone">{__('Phone')}</option>
         </FormControl>
@@ -172,6 +173,7 @@ class FieldForm extends React.Component<Props, State> {
           </ControlLabel>
 
           <FormControl
+            id="FieldLabel"
             type="text"
             value={field.text || ''}
             onChange={text}
@@ -182,6 +184,7 @@ class FieldForm extends React.Component<Props, State> {
         <FormGroup>
           <ControlLabel htmlFor="description">Field description</ControlLabel>
           <FormControl
+            id="FieldDescription"
             componentClass="textarea"
             value={field.description || ''}
             onChange={desc}
@@ -191,7 +194,7 @@ class FieldForm extends React.Component<Props, State> {
         {this.renderOptions()}
 
         <FlexRow>
-          <label>This field is required</label>
+          <label>{__('This field is required')}</label>
           <Toggle
             defaultChecked={field.isRequired || false}
             icons={{
@@ -205,9 +208,9 @@ class FieldForm extends React.Component<Props, State> {
         <Modal.Footer>
           <Button
             btnStyle="simple"
-            size="small"
+            uppercase={false}
             type="button"
-            icon="cancel-1"
+            icon="times-circle"
             onClick={onCancel}
           >
             Cancel
@@ -216,10 +219,10 @@ class FieldForm extends React.Component<Props, State> {
           {this.renderExtraButton()}
 
           <Button
-            size="small"
+            uppercase={false}
             onClick={this.onSubmit}
             btnStyle="success"
-            icon={mode === 'update' ? 'checked-1' : 'add'}
+            icon={mode === 'update' ? 'check-circle' : 'plus-circle'}
           >
             {mode === 'update' ? 'Save' : 'Add'}
           </Button>
@@ -258,7 +261,7 @@ class FieldForm extends React.Component<Props, State> {
             {mode === 'create' ? 'Add' : 'Edit'} {field.type} field
           </Modal.Title>
         </Modal.Header>
-        <Modal.Body>{this.renderContent()}</Modal.Body>
+        <Modal.Body id="ModalBody">{this.renderContent()}</Modal.Body>
       </Modal>
     );
   }

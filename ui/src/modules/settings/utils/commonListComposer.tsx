@@ -35,16 +35,16 @@ function commonListComposer<ComponentProps>(options) {
     history: any;
     addMutation: ({ variables }: { variables: any }) => Promise<any>;
     editMutation: ({ variables }: { variables: any }) => Promise<any>;
-    removeMutation: (
-      {
-        variables: { _id }
-      }: { variables: IRemoveMutationVariables }
-    ) => Promise<any>;
-    copyMutation: (
-      {
-        variables: { _id, memberIds }
-      }: { variables: ICopyMutationVariables }
-    ) => Promise<any>;
+    removeMutation: ({
+      variables: { _id }
+    }: {
+      variables: IRemoveMutationVariables;
+    }) => Promise<any>;
+    copyMutation: ({
+      variables: { _id, memberIds }
+    }: {
+      variables: ICopyMutationVariables;
+    }) => Promise<any>;
     copy: boolean;
   };
 
@@ -169,11 +169,7 @@ function commonListComposer<ComponentProps>(options) {
   }
 
   return withProps<ComponentProps>(
-    compose(
-      ...composeAttr,
-      gqlListQuery,
-      gqlTotalCountQuery
-    )(ListContainer)
+    compose(...composeAttr, gqlListQuery, gqlTotalCountQuery)(ListContainer)
   );
 }
 

@@ -40,6 +40,7 @@ class Sidebar extends React.Component<Props, {}> {
   renderSidebarHeader() {
     const addBrand = (
       <Button
+        id={'NewBrandButton'}
         btnStyle="success"
         block={true}
         uppercase={false}
@@ -70,7 +71,7 @@ class Sidebar extends React.Component<Props, {}> {
 
     return (
       <LeftSidebar wide={true} full={true} header={this.renderSidebarHeader()}>
-        <List>
+        <List id={'BrandSidebar'}>
           {this.renderItems()}
           <LoadMore all={brandsTotalCount} loading={loading} />
         </List>

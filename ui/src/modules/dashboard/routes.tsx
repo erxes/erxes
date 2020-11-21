@@ -4,15 +4,15 @@ import React from 'react';
 import { Route } from 'react-router-dom';
 
 const Dashboard = asyncComponent(() =>
-  import(/* webpackChunkName: "Dashboards" */ './components/Home')
+  import(/* webpackChunkName: "Dashboards" */ './containers/Home')
 );
 
 const DashboardDetail = asyncComponent(() =>
   import(/* webpackChunkName: "Dashboards" */ './containers/DashboardDetail')
 );
 
-const DashboardItem = asyncComponent(() =>
-  import(/* webpackChunkName: "Dashboards" */ './components/DashboardItem')
+const InitialData = asyncComponent(() =>
+  import(/* webpackChunkName: "InitialData" */ './components/InitialData')
 );
 
 const Dashboards = ({ location, history }) => {
@@ -30,15 +30,29 @@ const dashboardDetail = ({ match, history }) => {
   return <DashboardDetail id={id} history={history} />;
 };
 
-const dashboardItem = ({ match, history }) => {
+const dashboardExplore = ({ match, history }) => {
   const dashboardId = match.params.id;
 
-  return <DashboardItem id={dashboardId} history={history} />;
+  return (
+    <DashboardDetail id={dashboardId} history={history} isExplore={true} />
+  );
+};
+
+const initialData = ({ location, match, history }) => {
+  const dashboardId = match.params.id;
+
+  return (
+    <InitialData
+      dashboardId={dashboardId}
+      history={history}
+      queryParams={queryString.parse(location.search)}
+    />
+  );
 };
 
 const routes = () => {
   return (
-    <React.Fragment>
+    <>
       <Route
         key="/dashboard"
         exact={true}
@@ -52,12 +66,18 @@ const routes = () => {
         component={dashboardDetail}
       />
       <Route
+        key="/dashboard/reports"
+        exact={true}
+        path="/dashboard/reports/:id"
+        component={initialData}
+      />
+      <Route
         key="/dashboard/explore"
         exact={true}
         path="/dashboard/explore/:id"
-        component={dashboardItem}
+        component={dashboardExplore}
       />
-    </React.Fragment>
+    </>
   );
 };
 

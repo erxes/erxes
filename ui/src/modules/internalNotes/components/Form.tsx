@@ -5,12 +5,12 @@ import EditorCK from 'modules/common/containers/EditorCK';
 import React from 'react';
 import styled from 'styled-components';
 
-const EditorActions = styled.div`
+export const EditorActions = styled.div`
   padding: 0px 15px 37px 15px;
   text-align: right;
 `;
 
-const EditorWrapper = styled.div`
+export const EditorWrapper = styled.div`
   position: relative;
 
   > .cke_chrome {
@@ -37,6 +37,8 @@ type Prop = {
   isActionLoading: boolean;
   content?: string;
   callback?: () => void;
+  contentType: string;
+  contentTypeId: string;
 };
 
 type State = {
@@ -54,6 +56,11 @@ class Form extends React.PureComponent<Prop, State> {
 
   clearContent = () => {
     this.setState({ content: '' });
+
+    const { contentType, contentTypeId } = this.props;
+    const editorName = `${contentType}_note_${contentTypeId}`;
+
+    localStorage.removeItem(editorName);
   };
 
   onSend = () => {
@@ -116,6 +123,8 @@ class Form extends React.PureComponent<Prop, State> {
   };
 
   render() {
+    const { contentType, contentTypeId } = this.props;
+
     return (
       <EditorWrapper>
         <EditorCK
@@ -124,6 +133,7 @@ class Form extends React.PureComponent<Prop, State> {
           content={this.state.content}
           onChange={this.onEditorChange}
           height={150}
+          name={`${contentType}_note_${contentTypeId}`}
           toolbar={[
             {
               name: 'basicstyles',

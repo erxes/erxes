@@ -90,7 +90,7 @@ class DateFilter extends React.Component<Props & ApolloClientProps, State> {
 
   onDateChange = <T extends keyof State>(type: T, date: State[T]) => {
     if (typeof date !== 'string') {
-      this.setState({ [type]: date } as Pick<State, keyof State>);
+      this.setState(({ [type]: date } as unknown) as Pick<State, keyof State>);
     }
   };
 
@@ -101,10 +101,16 @@ class DateFilter extends React.Component<Props & ApolloClientProps, State> {
       return;
     }
 
+    const variables = { ...queryParams };
+
+    if (queryParams.limit) {
+      variables.limit = parseInt(queryParams.limit, 10);
+    }
+
     client
       .query({
         query: gql(countQuery),
-        variables: { ...queryParams }
+        variables
       })
 
       .then(({ data }) => {

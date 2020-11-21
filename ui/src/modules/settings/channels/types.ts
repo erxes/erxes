@@ -1,4 +1,5 @@
 import { IUser } from 'modules/auth/types';
+import { QueryResponse } from 'modules/common/types';
 import { IIntegration } from 'modules/settings/integrations/types';
 
 export interface IChannel {
@@ -17,27 +18,19 @@ export interface IChannelDoc extends IChannel {
 // query types
 export type ChannelsQueryResponse = {
   channels: IChannel[];
-  loading: boolean;
-  refetch: () => void;
-};
+} & QueryResponse;
 
 export type ChannelDetailQueryResponse = {
   channelDetail: IChannel;
-  loading: boolean;
-  refetch: () => void;
-};
+} & QueryResponse;
 
 export type ChannelsGetLastQueryResponse = {
   channelsGetLast: IChannel;
-  loading: boolean;
-  refetch: () => void;
-};
+} & QueryResponse;
 
 export type ChannelsCountQueryResponse = {
   channelsTotalCount: number;
-  loading: boolean;
-  refetch: () => void;
-};
+} & QueryResponse;
 
 // mutation types
 export type ChannelMutationVariables = {
@@ -48,11 +41,9 @@ export type ChannelMutationVariables = {
 };
 
 export type AddChannelMutationResponse = {
-  addMutation: (
-    params: {
-      variables: ChannelMutationVariables;
-    }
-  ) => Promise<void>;
+  addMutation: (params: {
+    variables: ChannelMutationVariables;
+  }) => Promise<void>;
 };
 
 export type EditChannelMutationVariables = {
@@ -64,11 +55,9 @@ export type EditChannelMutationVariables = {
 };
 
 export type EditChannelMutationResponse = {
-  editMutation: (
-    params: {
-      variables: EditChannelMutationVariables;
-    }
-  ) => Promise<void>;
+  editMutation: (params: {
+    variables: EditChannelMutationVariables;
+  }) => Promise<void>;
 };
 
 export type RemoveChannelMutationVariables = {
@@ -76,9 +65,7 @@ export type RemoveChannelMutationVariables = {
 };
 
 export type RemoveChannelMutationResponse = {
-  removeMutation: (
-    params: {
-      variables: RemoveChannelMutationVariables;
-    }
-  ) => Promise<void>;
+  removeMutation: (params: {
+    variables: RemoveChannelMutationVariables;
+  }) => Promise<void>;
 };

@@ -4,7 +4,9 @@ import React from 'react';
 import { Route } from 'react-router-dom';
 
 const CompanyDetails = asyncComponent(() =>
-  import(/* webpackChunkName: "CompanyDetails" */ './containers/detail/CompanyDetails')
+  import(
+    /* webpackChunkName: "CompanyDetails" */ './containers/detail/CompanyDetails'
+  )
 );
 
 const CompaniesList = asyncComponent(() =>

@@ -1,10 +1,11 @@
+import { AppConsumer } from 'appContext';
 import ButtonMutate from 'modules/common/components/ButtonMutate';
 import { IButtonMutateProps } from 'modules/common/types';
 import React from 'react';
 import { IUser } from '../../auth/types';
 import { UsersQueryResponse } from '../../settings/team/types';
 import CompanyForm from '../components/list/CompanyForm';
-import { mutations } from '../graphql';
+import { mutations, queries } from '../graphql';
 import { ICompany } from '../types';
 
 type Props = {
@@ -55,7 +56,17 @@ const CompanyFromContainer = (props: FinalProps) => {
     renderButton
   };
 
-  return <CompanyForm {...updatedProps} />;
+  return (
+    <AppConsumer>
+      {({ currentUser }) => (
+        <CompanyForm
+          {...updatedProps}
+          currentUser={currentUser || ({} as IUser)}
+          autoCompletionQuery={queries.companies}
+        />
+      )}
+    </AppConsumer>
+  );
 };
 
 const getRefetchQueries = () => {

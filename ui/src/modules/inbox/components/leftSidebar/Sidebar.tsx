@@ -1,7 +1,10 @@
 import { IUser } from 'modules/auth/types';
 import asyncComponent from 'modules/common/components/AsyncComponent';
+import Button from 'modules/common/components/Button';
 import Icon from 'modules/common/components/Icon';
 import { __ } from 'modules/common/utils';
+import { ScrollContent } from 'modules/growthHacks/styles';
+import { CONVERSATION_STATUSES } from 'modules/inbox/constants';
 import FilterToggler from 'modules/inbox/containers/leftSidebar/FilterToggler';
 import Resolver from 'modules/inbox/containers/Resolver';
 import Tagger from 'modules/inbox/containers/Tagger';
@@ -14,31 +17,42 @@ import RTG from 'react-transition-group';
 import { InboxManagementActionConsumer } from '../../containers/Inbox';
 import { StatusFilterPopover } from '../../containers/leftSidebar';
 import { IConversation } from '../../types';
+import { IntegrationModal } from './IntegrationModal';
 import {
   AdditionalSidebar,
   DropdownWrapper,
+  FlexRoot,
   LeftContent,
   RightItems,
   SidebarActions,
+  SidebarContent,
   ToggleButton
 } from './styles';
 
 const DateFilter = asyncComponent(
   () =>
-    import(/* webpackChunkName:"Inbox-DateFilter" */ 'modules/common/components/DateFilter'),
+    import(
+      /* webpackChunkName:"Inbox-DateFilter" */ 'modules/common/components/DateFilter'
+    ),
   { height: '15px', width: '70px' }
 );
 
 const AssignBoxPopover = asyncComponent(() =>
-  import(/* webpackChunkName:"Inbox-AssignBoxPopover" */ '../assignBox/AssignBoxPopover')
+  import(
+    /* webpackChunkName:"Inbox-AssignBoxPopover" */ '../assignBox/AssignBoxPopover'
+  )
 );
 
 const ConversationList = asyncComponent(() =>
-  import(/* webpackChunkName:"Inbox-ConversationList" */ 'modules/inbox/containers/leftSidebar/ConversationList')
+  import(
+    /* webpackChunkName:"Inbox-ConversationList" */ 'modules/inbox/containers/leftSidebar/ConversationList'
+  )
 );
 
 const FilterList = asyncComponent(() =>
-  import(/* webpackChunkName: "Inbox-FilterList" */ 'modules/inbox/containers/leftSidebar/FilterList')
+  import(
+    /* webpackChunkName: "Inbox-FilterList" */ 'modules/inbox/containers/leftSidebar/FilterList'
+  )
 );
 
 type Props = {
@@ -51,6 +65,7 @@ type Props = {
   emptyBulk: () => void;
   config: { [key: string]: boolean };
   toggleSidebar: (params: { isOpen: boolean }) => void;
+  resolveAll: () => void;
 };
 
 type State = {
@@ -103,12 +118,25 @@ class LeftSidebar extends React.Component<Props, State> {
 
     return (
       <Sidebar.Header>
-        <ToggleButton
-          isActive={this.state.isOpen}
-          onClick={this.onToggleSidebar}
-        >
-          <Icon icon="subject" />
-        </ToggleButton>
+        <FlexRoot>
+          <ToggleButton
+            id="btn-inbox-channel-visible"
+            isActive={this.state.isOpen}
+            onClick={this.onToggleSidebar}
+          >
+            <Icon icon="subject" />
+          </ToggleButton>
+          {queryParams.status !== CONVERSATION_STATUSES.CLOSED && (
+            <Button
+              size="small"
+              uppercase={false}
+              btnStyle="simple"
+              onClick={this.props.resolveAll}
+            >
+              Resolve all
+            </Button>
+          )}
+        </FlexRoot>
         <DropdownWrapper>
           <DateFilter
             queryParams={queryParams}
@@ -141,61 +169,80 @@ class LeftSidebar extends React.Component<Props, State> {
         classNames="fade-in"
         unmountOnExit={true}
       >
-        <div>
-          <FilterToggler groupText="Channels" toggleName="showChannels">
-            <FilterList
-              query={{
-                queryName: 'channelList',
-                variables: { memberIds: [currentUser._id] },
-                dataName: 'channels'
-              }}
-              counts="byChannels"
-              paramKey="channelId"
-              queryParams={queryParams}
-              refetchRequired={refetchRequired}
-            />
-          </FilterToggler>
+        <SidebarContent>
+          <ScrollContent>
+            <FilterToggler
+              groupText="Channels"
+              toggleName="showChannels"
+              manageUrl="/settings/channels"
+            >
+              <FilterList
+                query={{
+                  queryName: 'channelList',
+                  variables: { memberIds: [currentUser._id] },
+                  dataName: 'channels'
+                }}
+                counts="byChannels"
+                paramKey="channelId"
+                queryParams={queryParams}
+                refetchRequired={refetchRequired}
+              />
+            </FilterToggler>
 
-          <FilterToggler groupText="Brands" toggleName="showBrands">
-            <FilterList
-              query={{ queryName: 'brandList', dataName: 'brands' }}
-              counts="byBrands"
-              queryParams={queryParams}
-              paramKey="brandId"
-              refetchRequired={refetchRequired}
-            />
-          </FilterToggler>
+            <FilterToggler
+              groupText="Brands"
+              toggleName="showBrands"
+              manageUrl="/settings/brands"
+            >
+              <FilterList
+                query={{ queryName: 'brandList', dataName: 'brands' }}
+                counts="byBrands"
+                queryParams={queryParams}
+                paramKey="brandId"
+                refetchRequired={refetchRequired}
+              />
+            </FilterToggler>
 
-          <FilterToggler groupText="Integrations" toggleName="showIntegrations">
-            <FilterList
-              query={{
-                queryName: 'integrationsGetUsedTypes',
-                dataName: 'integrationsGetUsedTypes'
-              }}
-              queryParams={queryParams}
-              counts="byIntegrationTypes"
-              paramKey="integrationType"
-              refetchRequired={refetchRequired}
-            />
-          </FilterToggler>
+            <FilterToggler
+              groupText="Integrations"
+              toggleName="showIntegrations"
+              manageUrl="/settings/integrations"
+            >
+              <FilterList
+                query={{
+                  queryName: 'integrationsGetUsedTypes',
+                  dataName: 'integrationsGetUsedTypes'
+                }}
+                queryParams={queryParams}
+                counts="byIntegrationTypes"
+                paramKey="integrationType"
+                refetchRequired={refetchRequired}
+              />
+            </FilterToggler>
 
-          <FilterToggler groupText="Tags" toggleName="showTags">
-            <FilterList
-              query={{
-                queryName: 'tagList',
-                dataName: 'tags',
-                variables: {
-                  type: TAG_TYPES.CONVERSATION
-                }
-              }}
-              queryParams={queryParams}
-              counts="byTags"
-              paramKey="tag"
-              icon="tag-alt"
-              refetchRequired={refetchRequired}
-            />
-          </FilterToggler>
-        </div>
+            <FilterToggler
+              groupText="Tags"
+              toggleName="showTags"
+              manageUrl="/tags/conversation"
+            >
+              <FilterList
+                query={{
+                  queryName: 'tagList',
+                  dataName: 'tags',
+                  variables: {
+                    type: TAG_TYPES.CONVERSATION
+                  }
+                }}
+                queryParams={queryParams}
+                counts="byTags"
+                paramKey="tag"
+                icon="tag-alt"
+                refetchRequired={refetchRequired}
+              />
+            </FilterToggler>
+          </ScrollContent>
+          <IntegrationModal />
+        </SidebarContent>
       </RTG.CSSTransition>
     );
   }

@@ -1,6 +1,6 @@
 import * as classNames from "classnames";
 import * as React from "react";
-import { IIntegrationUiOptions } from "../../types";
+import { IBrowserInfo, IIntegrationUiOptions } from "../../types";
 import { readFile } from "../../utils";
 import { Notifier } from "../containers";
 import { IMessage } from "../types";
@@ -12,6 +12,7 @@ type Props = {
   uiOptions: IIntegrationUiOptions;
   lastUnreadMessage?: IMessage;
   totalUnreadCount: number;
+  browserInfo: IBrowserInfo;
 };
 
 function Launcher(props: Props) {
@@ -21,7 +22,8 @@ function Launcher(props: Props) {
     onClick,
     uiOptions,
     lastUnreadMessage,
-    totalUnreadCount
+    totalUnreadCount,
+    browserInfo
   } = props;
 
   const clickHandler = () => {
@@ -39,7 +41,7 @@ function Launcher(props: Props) {
       return null;
     }
 
-    return <Notifier message={lastUnreadMessage} />;
+    return <Notifier message={lastUnreadMessage} browserInfo={browserInfo} />;
   };
 
   const renderUnreadCount = () => {

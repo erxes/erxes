@@ -20,6 +20,7 @@ import {
   SERVICE_TYPES
 } from '../constants';
 import { IConfigsMap } from '../types';
+import ActivateInstallation from './ActivateInstallation';
 import Header from './Header';
 import Sidebar from './Sidebar';
 
@@ -152,11 +153,12 @@ class GeneralSettings extends React.Component<Props, State> {
       value: item.value,
       label: `${item.label} (${item.extension})`
     }));
-    const mimeTypeDesc =
-      'Comma-separated list of media types. Leave it blank for accepting all media types';
+    const mimeTypeDesc = __(
+      'Comma-separated list of media types. Leave it blank for accepting all media types'
+    );
 
     const content = (
-      <ContentBox>
+      <ContentBox id={'GeneralSettingsMenu'}>
         <CollapseContent title={__('General settings')}>
           <FormGroup>
             <ControlLabel>Language</ControlLabel>
@@ -166,6 +168,7 @@ class GeneralSettings extends React.Component<Props, State> {
               onChange={this.onLanguageChange}
               searchable={false}
               clearable={false}
+              placeholder={__('Select')}
             />
           </FormGroup>
 
@@ -194,10 +197,10 @@ class GeneralSettings extends React.Component<Props, State> {
           <Info>
             <a
               target="_blank"
-              href="https://docs.erxes.io/administrator/system-config#file-upload"
+              href="https://erxes.org/administrator/system-config#file-upload"
               rel="noopener noreferrer"
             >
-              {__('Learn how to set file uploading.')}
+              {__('Learn how to set file uploading') + '.'}
             </a>
           </Info>
           <FormGroup>
@@ -259,7 +262,7 @@ class GeneralSettings extends React.Component<Props, State> {
           <Info>
             <a
               target="_blank"
-              href="https://docs.erxes.io/administrator/system-config#google-cloud-storage"
+              href="https://erxes.org/administrator/system-config#google-cloud-storage"
               rel="noopener noreferrer"
             >
               {__(
@@ -277,7 +280,7 @@ class GeneralSettings extends React.Component<Props, State> {
           <Info>
             <a
               target="_blank"
-              href="https://docs.erxes.io/administrator/system-config#aws-s3"
+              href="https://erxes.org/administrator/system-config#aws-s3"
               rel="noopener noreferrer"
             >
               {__('Learn how to set AWS S3 Variables')}
@@ -289,7 +292,7 @@ class GeneralSettings extends React.Component<Props, State> {
           {this.renderItem('AWS_PREFIX')}
           {this.renderItem(
             'AWS_COMPATIBLE_SERVICE_ENDPOINT',
-            'Used when using s3 compatible service'
+            __('Used when using s3 compatible service')
           )}
           {this.renderItem('AWS_FORCE_PATH_STYLE')}
         </CollapseContent>
@@ -298,12 +301,12 @@ class GeneralSettings extends React.Component<Props, State> {
           <Info>
             <p>
               {__(
-                'In this field, the AWS SES configuration is dedicated to providing transaction emails.'
-              )}
+                'In this field, the AWS SES configuration is dedicated to providing transaction emails'
+              ) + '.'}
             </p>
             <a
               target="_blank"
-              href="https://docs.erxes.io/administrator/system-config#aws-ses"
+              href="https://erxes.org/administrator/system-config#aws-ses"
               rel="noopener noreferrer"
             >
               {__('Learn how to set Amazon SES variables')}
@@ -319,24 +322,31 @@ class GeneralSettings extends React.Component<Props, State> {
           <Info>
             <a
               target="_blank"
-              href="https://docs.erxes.io/administrator/system-config#google"
+              href="https://erxes.org/administrator/system-config#google"
               rel="noopener noreferrer"
             >
               {__('Learn how to set Google variables')}
             </a>
           </Info>
           {this.renderItem('GOOGLE_PROJECT_ID')}
-          {this.renderItem('GOOGLE_APPLICATION_CREDENTIALS')}
-          {this.renderItem('GOOGLE_APPLICATION_CREDENTIALS_JSON')}
           {this.renderItem('GOOGLE_CLIENT_ID')}
           {this.renderItem('GOOGLE_CLIENT_SECRET')}
+          {this.renderItem(
+            'GOOGLE_GMAIL_TOPIC',
+            'The topic value created in Gmail setup'
+          )}
+
+          {this.renderItem(
+            'GOOGLE_APPLICATION_CREDENTIALS_JSON',
+            'Firebase config for notifications'
+          )}
         </CollapseContent>
 
         <CollapseContent title={__('Common mail config')}>
           <Info>
             <a
               target="_blank"
-              href="https://docs.erxes.io/administrator/system-config#common-mail-config"
+              href="https://erxes.org/administrator/system-config#common-mail-config"
               rel="noopener noreferrer"
             >
               {__('Learn more about Email Settings')}
@@ -354,7 +364,7 @@ class GeneralSettings extends React.Component<Props, State> {
           <Info>
             <a
               target="_blank"
-              href="https://docs.erxes.io/administrator/system-config#custom-mail-service"
+              href="https://erxes.org/administrator/system-config#custom-mail-service"
               rel="noopener noreferrer"
             >
               {__('Learn the case of custom email service')}
@@ -371,6 +381,10 @@ class GeneralSettings extends React.Component<Props, State> {
           {this.renderConstant('sex_choices')}
           {this.renderConstant('company_industry_types')}
           {this.renderConstant('social_links')}
+        </CollapseContent>
+
+        <CollapseContent title={__('Connectivity Services')}>
+          <ActivateInstallation />
         </CollapseContent>
       </ContentBox>
     );

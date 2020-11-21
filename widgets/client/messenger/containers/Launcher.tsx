@@ -1,7 +1,7 @@
 import gql from 'graphql-tag';
 import * as React from 'react';
 import { ChildProps, graphql } from 'react-apollo';
-import { IIntegrationUiOptions } from '../../types';
+import { IBrowserInfo, IIntegrationUiOptions } from '../../types';
 import { Launcher as DumpLauncher } from '../components';
 import { connection } from '../connection';
 import graphqlTypes from '../graphql';
@@ -16,6 +16,7 @@ type BaseProps = {
   setUnreadCount: (count: number) => void;
   uiOptions: IIntegrationUiOptions;
   lastUnreadMessage?: IMessage;
+  browserInfo: IBrowserInfo;
 };
 
 type QueryResponse = {
@@ -74,7 +75,8 @@ const container = () => (
       toggle,
       unreadCount,
       setUnreadCount,
-      getUiOptions
+      getUiOptions,
+      browserInfo
     }) => {
       return (
         <WithQuery
@@ -85,6 +87,7 @@ const container = () => (
           onClick={toggle}
           uiOptions={getUiOptions()}
           lastUnreadMessage={lastUnreadMessage}
+          browserInfo={browserInfo}
         />
       );
     }}

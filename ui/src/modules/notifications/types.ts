@@ -1,4 +1,5 @@
 import { IUser } from 'modules/auth/types';
+import { QueryResponse } from 'modules/common/types';
 
 export interface INotification {
   _id: string;
@@ -26,23 +27,19 @@ export type NotificationsQueryResponse = {
 };
 
 export type MarkAsReadMutationResponse = {
-  notificationsMarkAsReadMutation: (
-    params: { variables: { _ids?: string[] } }
-  ) => Promise<any>;
+  notificationsMarkAsReadMutation: (params: {
+    variables: { _ids?: string[] };
+  }) => Promise<any>;
 };
 
 export type NotificationsCountQueryResponse = {
   notificationCounts: number;
-  loading: boolean;
-  subscribeToMore: (
-    params: {
-      document: string;
-      updateQuery: () => void;
-      variables: { userId: string | null };
-    }
-  ) => void;
-  refetch: () => void;
-};
+  subscribeToMore: (params: {
+    document: string;
+    updateQuery: () => void;
+    variables: { userId: string | null };
+  }) => void;
+} & QueryResponse;
 
 export type NotificationModuleType = {
   name: string;
@@ -57,9 +54,7 @@ export type NotificationModule = {
 
 export type NotificationModulesQueryResponse = {
   notificationsModules: NotificationModule[];
-  loading: boolean;
-  refetch: () => void;
-};
+} & QueryResponse;
 
 export type NotificationConfig = {
   _id: string;
@@ -70,9 +65,7 @@ export type NotificationConfig = {
 
 export type NotificationConfigsQueryResponse = {
   notificationsGetConfigurations: NotificationConfig[];
-  loading: boolean;
-  refetch: () => void;
-};
+} & QueryResponse;
 
 // mutation types
 
@@ -81,9 +74,9 @@ export type GetNotificationByEmailMutationVariables = {
 };
 
 export type GetNotificationByEmailMutationResponse = {
-  configGetNotificationByEmailMutation: (
-    { variables: GetNotificationByEmailMutationVariables }
-  ) => Promise<any>;
+  configGetNotificationByEmailMutation: ({
+    variables: GetNotificationByEmailMutationVariables
+  }) => Promise<any>;
 };
 
 export type SaveNotificationConfigMutationVariables = {
@@ -91,7 +84,7 @@ export type SaveNotificationConfigMutationVariables = {
 };
 
 export type SaveNotificationConfigMutationResponse = {
-  saveNotificationConfigurationsMutation: (
-    { variables: SaveNotificationConfigMutationVariables }
-  ) => Promise<any>;
+  saveNotificationConfigurationsMutation: ({
+    variables: SaveNotificationConfigMutationVariables
+  }) => Promise<any>;
 };

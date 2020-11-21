@@ -1,4 +1,5 @@
 import { IUser } from 'modules/auth/types';
+import { QueryResponse } from 'modules/common/types';
 
 export interface IPermission {
   module: string;
@@ -39,15 +40,11 @@ export interface IPermissionParams {
 
 export type PermissionTotalCountQueryResponse = {
   permissionsTotalCount: number;
-  refetch: () => void;
-  loading: boolean;
-};
+} & QueryResponse;
 
 export type PermissionsQueryResponse = {
   permissions: IPermissionDocument[];
-  refetch: () => void;
-  loading: boolean;
-};
+} & QueryResponse;
 
 export type PermissionModulesQueryResponse = {
   permissionModules: IModule[];
@@ -96,9 +93,9 @@ export type UsersGroupsAddMutation = {
 };
 
 export type UsersGroupsEditMutation = {
-  usersGroupsEdit: (
-    params: { variables: { _id: string } & IUserGroup }
-  ) => Promise<any>;
+  usersGroupsEdit: (params: {
+    variables: { _id: string } & IUserGroup;
+  }) => Promise<any>;
 };
 
 export type UsersGroupsRemoveMutation = {
@@ -106,7 +103,7 @@ export type UsersGroupsRemoveMutation = {
 };
 
 export type UsersGroupsCopyMutation = {
-  usersGroupsCopy: (
-    params: { variables: { _id: string; memberIds?: string[] } }
-  ) => Promise<IUserGroup>;
+  usersGroupsCopy: (params: {
+    variables: { _id: string; memberIds?: string[] };
+  }) => Promise<IUserGroup>;
 };

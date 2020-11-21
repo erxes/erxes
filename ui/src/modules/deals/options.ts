@@ -21,7 +21,8 @@ const options = {
     changeMutation: 'dealsChange',
     watchMutation: 'dealsWatch',
     archiveMutation: 'dealsArchive',
-    copyMutation: 'dealsCopy'
+    copyMutation: 'dealsCopy',
+    updateTimeTrackMutation: 'updateTimeTrack'
   },
   queries: {
     itemsQuery: queries.deals,
@@ -36,7 +37,8 @@ const options = {
     changeMutation: mutations.dealsChange,
     watchMutation: mutations.dealsWatch,
     archiveMutation: mutations.dealsArchive,
-    copyMutation: mutations.dealsCopy
+    copyMutation: mutations.dealsCopy,
+    updateTimeTrackMutation: ``
   },
   texts: {
     addText: 'Add a deal',

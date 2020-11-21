@@ -2,8 +2,10 @@ import React from 'react';
 import { Route } from 'react-router-dom';
 import BoardRoutes from './boards/routes';
 import BrandsRoutes from './brands/routes';
+import CalendarRoutes from './calendars/routes';
 import ChannelsRoutes from './channels/routes';
 import EmailRoutes from './email/routes';
+import EmailDeliveryRoutes from './emailDelivery/routes';
 import EmailTemplatesRoutes from './emailTemplates/routes';
 import General from './general/routes';
 import GrowthHackRoutes from './growthHacks/routes';
@@ -19,6 +21,7 @@ import ResponseTemplatesRoutes from './responseTemplates/routes';
 import ScriptsRoutes from './scripts/routes';
 import StatusRoutes from './status/routes';
 import TeamRoutes from './team/routes';
+import WebhookRoutes from './webhook/routes';
 
 const routes = () => (
   <React.Fragment>
@@ -40,7 +43,10 @@ const routes = () => (
     <StatusRoutes key="StatusRoutes" />
     <PermissionRoutes key="PermissionRoutes" />
     <LogRoutes key="LogRoutes" />
+    <EmailDeliveryRoutes key="EmailDeliveryRoutes" />
     <GrowthHackRoutes key="GrowthHackRoutes" />
+    <WebhookRoutes key="WebhookRoutes" />
+    <CalendarRoutes key="CalendarRoutes" />
   </React.Fragment>
 );
 
