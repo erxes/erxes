@@ -5,50 +5,50 @@ import { IButtonMutateProps } from 'modules/common/types';
 import { withProps } from 'modules/common/utils';
 import React from 'react';
 import { graphql } from 'react-apollo';
-import CalendarForm from '../components/CalendarForm';
+import GroupForm from '../components/GroupForm';
 import { queries } from '../graphql';
-import { GroupsQueryResponse, ICalendar } from '../types';
+import { BoardsQueryResponse, IGroup } from '../types';
 
 type Props = {
-  calendar?: ICalendar;
-  groupId?: string;
+  group?: IGroup;
+  boardId?: string;
   renderButton: (props: IButtonMutateProps) => JSX.Element;
   closeModal: () => void;
   show: boolean;
 };
 
 type FinalProps = {
-  groupsQuery: GroupsQueryResponse;
+  boardsQuery: BoardsQueryResponse;
 } & Props;
 
-class CalendarFormContainer extends React.Component<FinalProps> {
+class GroupFormContainer extends React.Component<FinalProps> {
   render() {
-    const { groupsQuery, groupId, renderButton } = this.props;
+    const { boardsQuery, boardId, renderButton } = this.props;
 
-    if (groupsQuery.loading) {
+    if (boardsQuery.loading) {
       return <Spinner />;
     }
 
-    const groups = groupsQuery.calendarGroups || [];
+    const boards = boardsQuery.calendarBoards || [];
 
     const extendedProps = {
       ...this.props,
-      groups,
-      groupId,
+      boards,
+      boardId,
       renderButton
     };
 
-    return <CalendarForm {...extendedProps} />;
+    return <GroupForm {...extendedProps} />;
   }
 }
 
 export default withProps<Props>(
   compose(
-    graphql<Props, GroupsQueryResponse, {}>(gql(queries.groups), {
-      name: 'groupsQuery',
+    graphql<Props, BoardsQueryResponse, {}>(gql(queries.boards), {
+      name: 'boardsQuery',
       options: () => ({
         variables: {}
       })
     })
-  )(CalendarFormContainer)
+  )(GroupFormContainer)
 );

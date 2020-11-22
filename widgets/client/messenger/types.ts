@@ -57,6 +57,12 @@ export interface IMessage {
   attachments: IAttachment[];
 }
 
+
+
+export type EngageMessageQueryResponse = {
+  widgetsGetEngageMessage: IMessage;
+}
+
 export interface IConversation {
   _id: string;
   content: string;

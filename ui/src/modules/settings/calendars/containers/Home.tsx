@@ -8,7 +8,7 @@ import { graphql } from 'react-apollo';
 import { withRouter } from 'react-router-dom';
 import Home from '../components/Home';
 import { queries } from '../graphql';
-import { GroupGetLastQueryResponse } from '../types';
+import { BoardGetLastQueryResponse } from '../types';
 
 type MainProps = {
   history: any;
@@ -16,15 +16,15 @@ type MainProps = {
 };
 
 type HomeContainerProps = MainProps & {
-  groupId: string;
+  boardId: string;
 };
 
 class HomeContainer extends React.Component<HomeContainerProps> {
-  componentWillReceiveProps(nextProps) {
-    const { history, groupId, queryParams } = nextProps;
+  componentDidMount() {
+    const { history, boardId, queryParams } = this.props;
 
-    if (!queryParams.groupId && groupId) {
-      routerUtils.setParams(history, { groupId });
+    if (!queryParams.boardId && boardId) {
+      routerUtils.setParams(history, { boardId });
     }
   }
 
@@ -33,23 +33,23 @@ class HomeContainer extends React.Component<HomeContainerProps> {
   }
 }
 
-type LastGroupProps = MainProps & {
-  groupGetLastQuery: GroupGetLastQueryResponse;
+type LastBoardProps = MainProps & {
+  boardGetLastQuery: BoardGetLastQueryResponse;
 };
 
-// Getting lastGroup id to currentGroup
-const LastGroup = (props: LastGroupProps) => {
-  const { groupGetLastQuery } = props;
+// Getting lastBoard id to currentBoard
+const LastBoard = (props: LastBoardProps) => {
+  const { boardGetLastQuery } = props;
 
-  if (groupGetLastQuery.loading) {
+  if (boardGetLastQuery.loading) {
     return <Spinner objective={true} />;
   }
 
-  const lastGroup = groupGetLastQuery.calendarGroupGetLast || {};
+  const lastBoard = boardGetLastQuery.calendarBoardGetLast || {};
 
   const extendedProps = {
     ...props,
-    groupId: lastGroup._id
+    boardId: lastBoard._id
   };
 
   return <HomeContainer {...extendedProps} />;
@@ -57,29 +57,29 @@ const LastGroup = (props: LastGroupProps) => {
 
 type HomerProps = { queryParams: any } & IRouterProps;
 
-const LastGroupContainer = withProps<MainProps>(
+const LastBoardContainer = withProps<MainProps>(
   compose(
-    graphql<MainProps, GroupGetLastQueryResponse, {}>(
-      gql(queries.groupGetLast),
+    graphql<MainProps, BoardGetLastQueryResponse, {}>(
+      gql(queries.boardGetLast),
       {
-        name: 'groupGetLastQuery'
+        name: 'boardGetLastQuery'
       }
     )
-  )(LastGroup)
+  )(LastBoard)
 );
 
 // Main home component
 const MainContainer = (props: HomerProps) => {
   const { history } = props;
-  const groupId = routerUtils.getParam(history, 'groupId');
+  const boardId = routerUtils.getParam(history, 'boardId');
 
-  if (groupId) {
-    const extendedProps = { ...props, groupId };
+  if (boardId) {
+    const extendedProps = { ...props, boardId };
 
     return <HomeContainer {...extendedProps} />;
   }
 
-  return <LastGroupContainer {...props} />;
+  return <LastBoardContainer {...props} />;
 };
 
 export default withRouter<HomerProps>(MainContainer);

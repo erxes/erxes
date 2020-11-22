@@ -6,21 +6,44 @@ import ControlLabel from 'modules/common/components/form/Label';
 import { ModalFooter } from 'modules/common/styles/main';
 import { IButtonMutateProps, IFormProps } from 'modules/common/types';
 import { __ } from 'modules/common/utils';
+import SelectTeamMembers from 'modules/settings/team/containers/SelectTeamMembers';
 import React from 'react';
 import Modal from 'react-bootstrap/Modal';
-import { ICalendar, IEvent } from '../types';
+import { IAccount, IEvent, INylasCalendar } from '../types';
 import { milliseconds } from '../utils';
+import { CalendarConsumer } from './Wrapper';
 
 type Props = {
   isPopupVisible: boolean;
   onHideModal: (date?: Date) => void;
   renderButton: (props: IButtonMutateProps) => JSX.Element;
   selectedDate?: Date;
-  calendars: ICalendar[];
   event?: IEvent;
+  account?: IAccount;
 };
 
-class EditForm extends React.Component<Props, {}> {
+type State = {
+  calendars: INylasCalendar[];
+  accountId?: string;
+  selectedMemberIds: string[];
+};
+
+class EditForm extends React.Component<Props, State> {
+  constructor(props) {
+    super(props);
+
+    this.state = {
+      calendars: [],
+      selectedMemberIds: []
+    };
+
+    this.hideModal = this.hideModal.bind(this);
+  }
+
+  onChangeMembers = items => {
+    this.setState({ selectedMemberIds: items });
+  };
+
   renderHeader() {
     return (
       <Modal.Header closeButton={true}>
@@ -43,12 +66,57 @@ class EditForm extends React.Component<Props, {}> {
     return day.format('YYYY-MM-DD HH:mm');
   };
 
+  onChangeAccount = (accounts, e: React.FormEvent<HTMLElement>) => {
+    const selectedId = (e.target as HTMLInputElement).value;
+    const account = accounts.find(acc => acc._id === selectedId);
+
+    this.setState({
+      calendars: account.calendars,
+      accountId: account.accountId
+    });
+  };
+
+  hideModal() {
+    this.setState({ selectedMemberIds: [], calendars: [] });
+    this.props.onHideModal();
+  }
+
   renderContent = (formProps: IFormProps) => {
     const { values, isSubmitted } = formProps;
-    const { renderButton, onHideModal, calendars, event } = this.props;
+    const { renderButton, event, account } = this.props;
+    const { selectedMemberIds } = this.state;
+
+    const renderAccounts = () => {
+      return (
+        <CalendarConsumer>
+          {({ accounts }) => {
+            return (
+              <FormGroup>
+                <ControlLabel>Account</ControlLabel>
+
+                <FormControl
+                  componentClass="select"
+                  onChange={this.onChangeAccount.bind(this, accounts)}
+                  defaultValue={account && account._id}
+                >
+                  <option>Select account</option>
+                  {accounts.map(acc => (
+                    <option key={acc._id} value={acc._id}>
+                      {acc.name}
+                    </option>
+                  ))}
+                </FormControl>
+              </FormGroup>
+            );
+          }}
+        </CalendarConsumer>
+      );
+    };
 
     return (
       <>
+        {renderAccounts()}
+
         <FormGroup>
           <ControlLabel required={true}>Calendar</ControlLabel>
 
@@ -59,7 +127,7 @@ class EditForm extends React.Component<Props, {}> {
             defaultValue={event && event.providerCalendarId}
           >
             <option>Select calendar</option>
-            {calendars
+            {((account && account.calendars) || this.state.calendars)
               .filter(c => !c.readOnly)
               .map(calendar => (
                 <option key={calendar._id} value={calendar.providerCalendarId}>
@@ -94,6 +162,18 @@ class EditForm extends React.Component<Props, {}> {
         </FormGroup>
 
         <FormGroup>
+          <ControlLabel>Members</ControlLabel>
+
+          <SelectTeamMembers
+            {...formProps}
+            label="Choose members"
+            name="memberIds"
+            value={selectedMemberIds}
+            onSelect={this.onChangeMembers}
+          />
+        </FormGroup>
+
+        <FormGroup>
           <ControlLabel>Start Date</ControlLabel>
 
           <FormControl
@@ -117,9 +197,13 @@ class EditForm extends React.Component<Props, {}> {
 
         <ModalFooter>
           {renderButton({
-            values,
+            values: {
+              ...values,
+              accountId: this.state.accountId || (account && account.accountId),
+              memberIds: selectedMemberIds
+            },
             isSubmitted,
-            callback: onHideModal
+            callback: this.hideModal
           })}
         </ModalFooter>
       </>
@@ -131,7 +215,7 @@ class EditForm extends React.Component<Props, {}> {
       <Modal
         enforceFocus={false}
         show={this.props.isPopupVisible}
-        onHide={this.props.onHideModal}
+        onHide={this.hideModal}
         animation={false}
       >
         {this.renderHeader()}

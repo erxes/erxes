@@ -80,10 +80,6 @@ class Row extends React.Component<Props> {
   }
 
   renderRemoveButton = (message, onClick) => {
-    if (!message.kind.toLowerCase().includes('auto')) {
-      return null;
-    }
-
     return (
       <Tip text={__('Delete')} placement="top">
         <Button btnStyle="link" onClick={onClick} icon="times-circle" />

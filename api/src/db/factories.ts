@@ -7,6 +7,7 @@ import {
   ActivityLogs,
   Boards,
   Brands,
+  CalendarBoards,
   CalendarGroups,
   Calendars,
   Channels,
@@ -536,6 +537,7 @@ interface ICustomerFactoryInput {
   phoneValidationStatus?: string;
   mergedIds?: string[];
   relatedIntegrationIds?: string[];
+  state?: 'visitor' | 'lead' | 'customer';
 }
 
 export const customerFactory = async (
@@ -571,7 +573,8 @@ export const customerFactory = async (
     visitorContactInfo: params.visitorContactInfo,
     deviceTokens: params.deviceTokens || [],
     mergedIds: params.mergedIds || [],
-    relatedIntegrationIds: params.relatedIntegrationIds || []
+    relatedIntegrationIds: params.relatedIntegrationIds || [],
+    state: params.state
   };
 
   if (useModelMethod) {
@@ -1523,19 +1526,36 @@ export const calendarFactory = async (params: ICalendarFactoryInput) => {
   return calendar.save();
 };
 
+interface ICalendarBoardFactoryInput {
+  name?: string;
+}
+
+export const calendarBoardFactory = async (
+  params: ICalendarBoardFactoryInput = {}
+) => {
+  const calendarBoard = new CalendarBoards({
+    name: params.name || faker.random.word()
+  });
+
+  return calendarBoard.save();
+};
 interface ICalendarGroupFactoryInput {
   name?: string;
   isPrivate?: boolean;
   userId?: string;
+  memberIds?: string[];
+  boardId?: string;
 }
 
-export const calnedarGroupFactory = async (
+export const calendarGroupFactory = async (
   params: ICalendarGroupFactoryInput = {}
 ) => {
   const calendarGroup = new CalendarGroups({
     name: params.name || faker.random.word(),
     isPrivate: params.isPrivate || false,
-    userId: params.userId || faker.random.word()
+    userId: params.userId || faker.random.word(),
+    memberIds: params.memberIds || [faker.random.word()],
+    boardId: params.boardId || (await calendarBoardFactory())._id
   });
 
   return calendarGroup.save();

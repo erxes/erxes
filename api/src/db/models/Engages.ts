@@ -1,8 +1,9 @@
 import { Model, model } from 'mongoose';
 import { ConversationMessages, Conversations, Users } from '.';
+import { generateCustomerSelector } from '../../data/resolvers/mutations/engageUtils';
 import { replaceEditorAttributes } from '../../data/utils';
 import { getNumberOfVisits } from '../../events';
-import { IBrowserInfo } from './Customers';
+import Customers, { IBrowserInfo } from './Customers';
 import { IBrandDocument } from './definitions/brands';
 import {
   IEngageData,
@@ -72,7 +73,7 @@ export interface IEngageMessageModel extends Model<IEngageMessageDocument> {
     engageData: IEngageData;
     replacedContent: string;
   }): Promise<IMessageDocument | null>;
-  createVisitorMessages(params: {
+  createVisitorOrCustomerMessages(params: {
     brand: IBrandDocument;
     integration: IIntegrationDocument;
     customer: ICustomerDocument;
@@ -150,10 +151,6 @@ export const loadClass = () => {
         throw new Error(`Engage message not found with id ${_id}`);
       }
 
-      if (message.kind === 'manual') {
-        throw new Error('Can not remove manual message');
-      }
-
       await Conversations.removeEngageConversations(_id);
 
       return message.remove();
@@ -226,7 +223,7 @@ export const loadClass = () => {
      * This function will be used in messagerConnect and it will create conversations
      * when visitor messenger connect
      */
-    public static async createVisitorMessages(params: {
+    public static async createVisitorOrCustomerMessages(params: {
       brand: IBrandDocument;
       integration: IIntegrationDocument;
       customer: ICustomerDocument;
@@ -234,15 +231,8 @@ export const loadClass = () => {
     }) {
       const { brand, integration, customer, browserInfo } = params;
 
-      // force read previous unread engage messages ============
-      await ConversationMessages.forceReadCustomerPreviousEngageMessages(
-        customer._id
-      );
-
       const messages = await EngageMessages.find({
         'messenger.brandId': brand._id,
-        kind: 'visitorAuto',
-        $or: [{ kind: 'visitorAuto' }, { kind: 'auto' }],
         method: 'messenger',
         isLive: true
       });
@@ -252,7 +242,44 @@ export const loadClass = () => {
       for (const message of messages) {
         const messenger = message.messenger ? message.messenger.toJSON() : {};
 
-        const user = await Users.findOne({ _id: message.fromUserId });
+        const {
+          customerIds = [],
+          segmentIds,
+          tagIds,
+          brandIds,
+          fromUserId
+        } = message;
+
+        if (
+          message.kind === 'manual' &&
+          (customerIds || []).length > 0 &&
+          !customerIds.includes(customer._id)
+        ) {
+          continue;
+        }
+
+        const customersSelector = {
+          _id: customer._id,
+          state: { $ne: 'visitor' },
+          ...(await generateCustomerSelector({
+            customerIds,
+            segmentIds,
+            tagIds,
+            brandIds
+          }))
+        };
+
+        const customerExists = await Customers.findOne(customersSelector);
+
+        if (message.kind !== 'visitorAuto' && !customerExists) {
+          continue;
+        }
+
+        if (message.kind === 'visitorAuto' && customer.state !== 'visitor') {
+          continue;
+        }
+
+        const user = await Users.findOne({ _id: fromUserId });
 
         if (!user) {
           continue;
@@ -280,6 +307,15 @@ export const loadClass = () => {
             user
           });
 
+          if (messenger.rules) {
+            messenger.rules = messenger.rules.map(r => ({
+              kind: r.kind,
+              text: r.text,
+              condition: r.condition,
+              value: r.value
+            }));
+          }
+
           const conversationMessage = await this.createOrUpdateConversationAndMessages(
             {
               customer,
@@ -289,7 +325,7 @@ export const loadClass = () => {
               engageData: {
                 ...messenger,
                 content: replacedContent,
-                engageKind: 'visitorAuto',
+                engageKind: message.kind,
                 messageId: message._id,
                 fromUserId: message.fromUserId
               }
@@ -331,8 +367,13 @@ export const loadClass = () => {
         }
       );
 
-      // if previously created conversation for this customer
       if (prevMessage) {
+        if (
+          JSON.stringify(prevMessage.engageData) === JSON.stringify(engageData)
+        ) {
+          return null;
+        }
+
         const messages = await ConversationMessages.find({
           conversationId: prevMessage.conversationId
         });

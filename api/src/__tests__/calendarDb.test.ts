@@ -1,9 +1,10 @@
 import {
+  calendarBoardFactory,
   calendarFactory,
-  calnedarGroupFactory,
+  calendarGroupFactory,
   userFactory
 } from '../db/factories';
-import { CalendarGroups, Calendars, Users } from '../db/models';
+import { CalendarBoards, CalendarGroups, Calendars, Users } from '../db/models';
 
 import './setup.ts';
 
@@ -11,17 +12,20 @@ describe('Calendars db', () => {
   let _calendar;
   let _group;
   let _user;
+  let _board;
 
   beforeEach(async () => {
     // Creating test data
     _user = await userFactory({});
-    _group = await calnedarGroupFactory();
+    _board = await calendarBoardFactory({});
+    _group = await calendarGroupFactory({ boardId: _board._id });
     _calendar = await calendarFactory({ groupId: _group._id });
   });
 
   afterEach(async () => {
     // Clearing test data
     await Calendars.deleteMany({});
+    await CalendarBoards.deleteMany({});
     await CalendarGroups.deleteMany({});
     await Users.deleteMany({});
   });
@@ -103,5 +107,44 @@ describe('Calendars db', () => {
     await CalendarGroups.removeCalendarGroup(_group._id);
 
     expect(await CalendarGroups.countDocuments({})).toBe(0);
+  });
+
+  test('Create calendar board', async () => {
+    const args: { name: string } = {
+      name: _board.name
+    };
+
+    const boardObj = await CalendarBoards.createCalendarBoard(args);
+
+    expect(boardObj).toBeDefined();
+    expect(boardObj.name).toEqual(_board.name);
+
+    const boardCount = await CalendarBoards.countDocuments({});
+    expect(boardCount).toBe(2);
+  });
+
+  test('Update calendar board', async () => {
+    const args: { name: string } = {
+      name: `${_board.name}-updated`
+    };
+
+    const boardObj = await CalendarBoards.updateCalendarBoard(_board._id, args);
+
+    expect(boardObj).toBeDefined();
+    expect(`${_board.name}-updated`).toEqual(boardObj.name);
+  });
+
+  test('Remove calendar board', async () => {
+    try {
+      await CalendarBoards.removeCalendarBoard(_board._id);
+    } catch (e) {
+      expect(e.message).toBe("Can't remove a calendar board");
+    }
+
+    await Calendars.removeCalendar(_calendar._id);
+    await CalendarGroups.removeCalendarGroup(_group._id);
+    await CalendarBoards.removeCalendarBoard(_board._id);
+
+    expect(await CalendarBoards.countDocuments({})).toBe(0);
   });
 });
