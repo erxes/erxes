@@ -113,7 +113,7 @@ class MessagesList extends React.Component<Props, State> {
   renderBotGreetingMessage(messengerData: IIntegrationMessengerData) {
     const { initialMessage } = this.state;
 
-    if (!messengerData.botEndpointUrl || !initialMessage) {
+    if (!messengerData.botShowInitialMessage || !initialMessage) {
       return null;
     }
 
