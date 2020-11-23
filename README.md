@@ -111,3 +111,5 @@ Furthermore, one cannot charge others to host or support erxes. To make things s
 ## Why is erxes not open-source but fair-code licensed instead?
 
 We love open-source and the idea everybody can freely use and extend what we wrote. Our community is at the heart of everything we do and we understand that people who contribute to a project are the main drivers who push a project forward. So to make sure that the project continues to evolve and stay alive in the longer run, we decided to attach the Commons Clause. This ensures that no other person or company can make money directly with erxes **without fairly compensating the project**. Especially if it competes with how we plan to finance our further development. For the greater majority of the people, it will not make any difference at all. At the same time, it protects the project. As erxes itself depends on and uses a lot of other open-source projects, it is only fair that we support them back. That is why we have planned to contribute a certain percentage of revenue/profit every month to these projects.
+
+## Thank You!
