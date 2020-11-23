@@ -18,7 +18,7 @@ export interface ICarouselItem {
 }
 
 type Props = {
-  conversationId: string;
+  conversationId?: string;
   items?: ICarouselItem[];
   replyAutoAnswer: (message: string, payload: string, type: string) => void;
   sendTypingInfo: (conversationId: string, text: string) => void;

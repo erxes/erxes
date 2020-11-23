@@ -551,7 +551,7 @@ const widgetMutations = {
         conversationBotTypingStatus: {
           conversationId: msg.conversationId,
           typing: true
-        }
+        },
       });
 
       const botRequest = await sendRequest({
@@ -560,7 +560,7 @@ const widgetMutations = {
         body: {
           type: 'text',
           text: message
-        }
+        },
       });
 
       const { responses } = botRequest;
@@ -571,29 +571,29 @@ const widgetMutations = {
           : [
               {
                 type: 'text',
-                text: AUTO_BOT_MESSAGES.NO_RESPONSE
-              }
+                text: AUTO_BOT_MESSAGES.NO_RESPONSE,
+              },
             ];
 
       const botMessage = await Messages.createMessage({
         conversationId: conversation._id,
         customerId,
         contentType,
-        botData
+        botData,
       });
 
       graphqlPubsub.publish('conversationBotTypingStatus', {
         conversationBotTypingStatus: {
           conversationId: msg.conversationId,
           typing: false
-        }
+        },
       });
 
       graphqlPubsub.publish('conversationClientMessageInserted', {
-        conversationClientMessageInserted: botMessage
+        conversationClientMessageInserted: botMessage,
       });
       graphqlPubsub.publish('conversationMessageInserted', {
-        conversationMessageInserted: botMessage
+        conversationMessageInserted: botMessage,
       });
     }
 
@@ -623,7 +623,7 @@ const widgetMutations = {
         customerConnectionChanged: {
           _id: customerId,
           status: 'connected'
-        }
+        },
       });
     }
 
@@ -633,7 +633,7 @@ const widgetMutations = {
         body: conversationContent,
         customerId,
         conversationId: conversation._id,
-        receivers: conversationNotifReceivers(conversation, customerId)
+        receivers: conversationNotifReceivers(conversation, customerId),
       });
     }
 
@@ -653,7 +653,7 @@ const widgetMutations = {
       {
         conversationId: args.conversationId,
         userId: { $exists: true },
-        isCustomerRead: { $ne: true }
+        isCustomerRead: { $ne: true },
       },
       { isCustomerRead: true },
       { multi: true }
@@ -673,7 +673,7 @@ const widgetMutations = {
     _root,
     {
       customerId,
-      browserInfo
+      browserInfo,
     }: { customerId: string; browserInfo: IBrowserInfo }
   ) {
     // update location
@@ -682,7 +682,7 @@ const widgetMutations = {
     try {
       await trackViewPageEvent({
         customerId,
-        attributes: { url: browserInfo.url }
+        attributes: { url: browserInfo.url },
       });
     } catch (e) {
       /* istanbul ignore next */
@@ -699,7 +699,7 @@ const widgetMutations = {
     args: { conversationId: string; text?: string }
   ) {
     graphqlPubsub.publish('conversationClientTypingStatusChanged', {
-      conversationClientTypingStatusChanged: args
+      conversationClientTypingStatusChanged: args,
     });
 
     return 'ok';
@@ -712,7 +712,7 @@ const widgetMutations = {
       toEmails,
       fromEmail,
       title,
-      template: { data: { content } }
+      template: { data: { content } },
     });
   },
 
@@ -724,7 +724,7 @@ const widgetMutations = {
       customerId,
       message,
       payload,
-      type
+      type,
     }: {
       conversationId: string;
       customerId: string;
@@ -735,10 +735,35 @@ const widgetMutations = {
     }
   ) {
     const integration = await Integrations.findOne({
-      _id: integrationId
+      _id: integrationId,
     }).lean();
 
     const { botEndpointUrl } = integration.messengerData;
+
+    let sessionId = conversationId;
+
+    if (!conversationId) {
+      sessionId = await memoryStorage().get(`bot_initial_message_session_id_${integrationId}`);
+
+      const conversation = await Conversations.createConversation({
+        customerId,
+        integrationId,
+        operatorStatus: CONVERSATION_OPERATOR_STATUS.BOT,
+        status: CONVERSATION_STATUSES.CLOSED
+      });
+
+      conversationId = conversation._id;
+
+      const initialMessageBotData = await memoryStorage().get(
+        `bot_initial_message_${integrationId}`
+      );
+
+      await Messages.createMessage({
+        conversationId: conversation._id,
+        customerId,
+        botData: JSON.parse(initialMessageBotData || '{}')
+      });
+    }
 
     // create customer message
     const msg = await Messages.createMessage({
@@ -751,7 +776,7 @@ const widgetMutations = {
       conversationClientMessageInserted: msg
     });
     graphqlPubsub.publish('conversationMessageInserted', {
-      conversationMessageInserted: msg
+      conversationMessageInserted: msg,
     });
 
     let botMessage;
@@ -760,7 +785,7 @@ const widgetMutations = {
     if (type !== BOT_MESSAGE_TYPES.SAY_SOMETHING) {
       const botRequest = await sendRequest({
         method: 'POST',
-        url: `${botEndpointUrl}/${conversationId}`,
+        url: `${botEndpointUrl}/${sessionId}`,
         body: {
           type: 'text',
           text: payload
@@ -782,7 +807,7 @@ const widgetMutations = {
       botData = [
         {
           type: 'text',
-          text: payload
+          text: payload,
         }
       ];
     }
@@ -806,47 +831,38 @@ const widgetMutations = {
 
   async widgetGetBotInitialMessage(
     _root,
-    { integrationId, customerId }: { integrationId: string; customerId: string }
+    { integrationId }: { integrationId: string }
   ) {
-    const conversation = await Conversations.createConversation({
-      customerId,
-      integrationId,
-      operatorStatus: CONVERSATION_OPERATOR_STATUS.BOT,
-      status: CONVERSATION_STATUSES.CLOSED
-    });
+
+    const sessionId = `_${Math.random().toString(36).substr(2, 9)}`;
+
+    await memoryStorage().set(
+      `bot_initial_message_session_id_${integrationId}`,
+      sessionId
+    );
 
     const integration = await Integrations.findOne({
-      _id: integrationId
+      _id: integrationId,
     }).lean();
 
     const { botEndpointUrl } = integration.messengerData;
 
     const botRequest = await sendRequest({
       method: 'POST',
-      url: `${botEndpointUrl}/${conversation._id}`,
+      url: `${botEndpointUrl}/${sessionId}`,
       body: {
         type: 'text',
         text: 'getStarted'
-      }
+      },
     });
 
-    const { responses } = botRequest;
+    await memoryStorage().set(
+      `bot_initial_message_${integrationId}`,
+      JSON.stringify(botRequest.responses)
+    );
 
-    const botMessage = await Messages.createMessage({
-      conversationId: conversation._id,
-      customerId,
-      botData: responses
-    });
-
-    graphqlPubsub.publish('conversationClientMessageInserted', {
-      conversationClientMessageInserted: botMessage
-    });
-    graphqlPubsub.publish('conversationMessageInserted', {
-      conversationMessageInserted: botMessage
-    });
-
-    return conversation._id;
-  }
+    return { botData: botRequest.responses };
+  },
 };
 
 export default widgetMutations;

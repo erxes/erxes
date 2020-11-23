@@ -3,7 +3,7 @@ import { IBotData } from '../../types';
 import { BOT_CUSTOM_TYPES } from './constants';
 
 type Props = {
-  conversationId: string;
+  conversationId?: string;
   message: IBotData;
   replyAutoAnswer: (message: string, payload: string, type: string) => void;
   sendTypingInfo: (conversationId: string, text: string) => void;
