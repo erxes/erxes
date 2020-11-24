@@ -20,23 +20,15 @@ const CalendarWrapper = styled.div`
 const Grid = styled.div`
   background-color: #fff;
   height: 100%;
-  display: -webkit-box;
-  display: -webkit-flex;
   display: flex;
-  -webkit-flex-direction: column;
   flex-direction: column;
-  border-left: #dadce0 1px solid;
 `;
 
 const Header = styled.div`
   margin: 0;
   -webkit-align-items: stretch;
   align-items: stretch;
-  display: -webkit-box;
-  display: -webkit-flex;
   display: flex;
-  -webkit-box-flex: none;
-  -webkit-flex: none;
   flex: none;
   height: 20px;
   border-bottom: #dadce0 1px solid;
@@ -48,8 +40,11 @@ const ColumnHeader = styled.div`
   -webkit-flex: 1 1 0%;
   flex: 1 1 0%;
   text-align: center;
-  font-family: Roboto, Arial, sans-serif;
   text-transform: uppercase;
+
+  &:last-child {
+    border: none;
+  }
 `;
 
 const Presentation = styled.div`
@@ -58,8 +53,6 @@ const Presentation = styled.div`
   -webkit-box-flex: 1 1 0%;
   -webkit-flex: 1 1 0%;
   flex: 1 1 0%;
-  display: -webkit-box;
-  display: -webkit-flex;
   display: flex;
   -webkit-flex-direction: column;
   flex-direction: column;
@@ -69,8 +62,6 @@ const Row = styled.div`
   position: relative;
   overflow: hidden;
   border-bottom: #dadce0 1px solid;
-  display: -webkit-box;
-  display: -webkit-flex;
   display: flex;
   -webkit-box-flex: 1 1 0%;
   -webkit-flex: 1 1 0%;
@@ -83,8 +74,6 @@ const RowWrapper = styled.div`
   right: 0;
   bottom: 0;
   left: 0;
-  display: -webkit-box;
-  display: -webkit-flex;
   display: flex;
 `;
 
@@ -95,13 +84,16 @@ const Cell = styled.div`
   -webkit-flex: 1 1 0%;
   flex: 1 1 0%;
   display: block;
+
+  &:last-child {
+    border: none;
+  }
 `;
 
 const Day = styledTS<{ isSelectedDate?: boolean }>(styled.h2)`
   font-size: 14px;
   line-height: 30px;
   margin: 2px 0 0 2px;
-  font-family: Roboto, Arial, sans-serif;
   font-size: 12px;
   font-weight: 500;
   letter-spacing: 0.3px;
@@ -110,10 +102,10 @@ const Day = styledTS<{ isSelectedDate?: boolean }>(styled.h2)`
   white-space: nowrap;
   width: max-content;
   min-width: 24px;
-  min-height: 24px;
   color: #70757a;
   line-height: 24px;
-  border-radius: 50%;
+  border-radius: 8px;
+  
   ${props =>
     props.isSelectedDate &&
     `
@@ -200,26 +192,22 @@ const WeekHours = styled.div`
 `;
 
 const MainContainer = styled.div`
-  background-color: #fff;
-  min-height: calc(100vh - 100px);
-`;
-
-const DayHeader = styled.h3`
-  color: #222;
-  padding: 12px;
-  margin: 0px;
-`;
-
-const SidebarWrapper = styled.div`
-  background: #fff;
-  padding: 12px;
+  height: calc(100vh - 171px);
 `;
 
 const CalendarController = styled.div`
+  display: flex;
+  align-items: center;
+
+  h2 {
+    margin: 0 20px 0 0;
+    font-size: 24px;
+  }
+
   i {
-    font-wheight: bold;
     font-size: 20px;
     cursor: pointer;
+    color: ${colors.colorPrimary};
   }
 
   label {
@@ -273,18 +261,22 @@ const EventContent = styled.div`
 `;
 
 const WeekWrapper = styled.div`
-  display: -webkit-box;
-  display: -webkit-flex;
   display: flex;
   flex: 1 1 0%;
 `;
 
 const WeekCol = styled.div`
   border-right: #dadce0 1px solid;
-  -webkit-box-flex: 1 1 0%;
-  -webkit-flex: 1 1 0%;
   flex: 1 1 0%;
   position: relative;
+
+  &:last-child {
+    border: none;
+  }
+`;
+
+const Calendars = styled.div`
+  padding: 10px 20px;
 `;
 
 const EventContainer = styled.div``;
@@ -301,8 +293,6 @@ export {
   Day,
   DayRow,
   MainContainer,
-  DayHeader,
-  SidebarWrapper,
   EventContainer,
   EventTitle,
   EventContent,
@@ -312,5 +302,6 @@ export {
   WeekContainer,
   WeekHours,
   WeekData,
-  AddEventBtn
+  AddEventBtn,
+  Calendars
 };

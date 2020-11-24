@@ -9,7 +9,6 @@ import {
   Cell,
   ColumnHeader,
   Day,
-  DayHeader,
   DayRow,
   Grid,
   Header,
@@ -237,7 +236,6 @@ class Event extends React.Component<Props, State> {
     if (type === TYPES.DAY) {
       return (
         <>
-          <DayHeader>{dayjs(currentDate).format('MMM D')}</DayHeader>
           {this.generateDayData()}
           {createForm}
         </>
