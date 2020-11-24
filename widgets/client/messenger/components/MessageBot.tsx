@@ -15,12 +15,12 @@ type Props = {
   textColor?: string;
   replyAutoAnswer: (message: string, payload: string, type: string) => void;
   sendTypingInfo: (conversationId: string, text: string) => void;
-  conversationId: string;
+  conversationId?: string;
   scrollBottom: () => void;
 };
 
 type CommonProps = {
-  conversationId: string;
+  conversationId?: string;
   replyAutoAnswer: (message: string, payload: string, type: string) => void;
   sendTypingInfo: (conversationId: string, text: string) => void;
 };
@@ -35,12 +35,16 @@ function MessageBot(props: Props) {
     scrollBottom
   } = props;
 
+  if (botData.length === 0) {
+    return null;
+  }
+
   const renderTextMessage = (message: IBotData, idx: number) => {
     return (
       <div
         key={idx}
         className="erxes-message top"
-        dangerouslySetInnerHTML={{ __html: xss(urlify(message.text || '')) }}
+        dangerouslySetInnerHTML={{ __html: xss(urlify(message.text || "")) }}
       />
     );
   };
