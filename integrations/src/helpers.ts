@@ -1,6 +1,3 @@
-import * as smoochApi from './smooch/api';
-import * as twitterApi from './twitter/api';
-
 import {
   Conversations as CallProConversations,
   Customers as CallProCustomers
@@ -28,13 +25,17 @@ import {
   Posts as FacebookPosts
 } from './facebook/models';
 import { getPageAccessToken, unsubscribePage } from './facebook/utils';
+import { revokeToken, unsubscribeUser } from './gmail/api';
 import {
   ConversationMessages as GmailConversationMessages,
   Conversations as GmailConversations,
   Customers as GmailCustomers
 } from './gmail/models';
 import { Accounts, Integrations } from './models';
+import Configs from './models/Configs';
+import { enableOrDisableAccount } from './nylas/api';
 import { removeExistingNylasWebhook } from './nylas/auth';
+import { setupNylas } from './nylas/controller';
 import {
   NylasExchangeConversationMessages,
   NylasExchangeConversations,
@@ -55,6 +56,8 @@ import {
   NylasYahooConversations,
   NylasYahooCustomers
 } from './nylas/models';
+import { createNylasWebhook } from './nylas/tracker';
+import * as smoochApi from './smooch/api';
 import {
   SmoochLineConversationMessages,
   SmoochLineConversations,
@@ -74,6 +77,7 @@ import {
   Conversations as TelnyxConversations,
   Customers as TelnyxCustomers
 } from './telnyx/models';
+import * as twitterApi from './twitter/api';
 import { getTwitterConfig, unsubscribe } from './twitter/api';
 import {
   ConversationMessages as TwitterConversationMessages,
@@ -87,12 +91,6 @@ import {
   Conversations as WhatsappConversations,
   Customers as WhatsappCustomers
 } from './whatsapp/models';
-
-import { revokeToken, unsubscribeUser } from './gmail/api';
-import Configs from './models/Configs';
-import { enableOrDisableAccount } from './nylas/api';
-import { setupNylas } from './nylas/controller';
-import { createNylasWebhook } from './nylas/tracker';
 
 export const removeIntegration = async (
   integrationErxesApiId: string,
@@ -199,9 +197,12 @@ export const removeIntegration = async (
       conversationId: { $in: conversationIds }
     });
 
+    const { email, nylasAccountId, googleAccessToken } = integration;
+
     try {
       // Cancel nylas subscription
-      await enableOrDisableAccount(integration.nylasAccountId, false);
+      await enableOrDisableAccount(nylasAccountId, false);
+      await revokeToken(email, googleAccessToken);
     } catch (e) {
       debugNylas('Failed to cancel nylas-gmail account subscription');
       throw e;
