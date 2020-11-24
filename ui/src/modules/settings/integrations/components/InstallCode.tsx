@@ -122,7 +122,7 @@ const buildgradle = `allprojects {
   }`;
 
 const dependency = `dependencies {
-    implementation 'com.github.erxes:erxes-android-sdk:1.0.3-rc1'
+    implementation 'com.github.erxes:erxes-android-sdk:{latest_release}'
   }`;
 
 const androidSdkInstall = brandCode => {
