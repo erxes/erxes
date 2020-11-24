@@ -293,7 +293,7 @@ export const send = async (email: string, mailOptions: IMailParams) => {
   }
 };
 
-export const revokeToken = async (email: string) => {
+export const revokeToken = async (email: string, accessToken?: string) => {
   debugGmail(`Executing revokeToken`);
 
   try {
@@ -304,7 +304,7 @@ export const revokeToken = async (email: string) => {
       url: `${GOOGLE_AUTH_URL}/revoke`,
       headerType: 'Content-type:application/x-www-form-urlencoded',
       params: {
-        token: account.token
+        token: accessToken ? accessToken : account.token
       }
     });
   } catch (e) {
