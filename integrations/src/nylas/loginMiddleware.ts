@@ -55,7 +55,7 @@ const getOAuthCredential = async (req, res, next) => {
         client_id: clientId,
         response_type: 'code',
         redirect_uri: redirectUri,
-        ...(type ? { state: `${kind}&&${type}` } : {}),
+        state: type ? `${kind}&&${type}` : kind,
         ...params
       };
 
