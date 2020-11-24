@@ -6,6 +6,7 @@ export const types = `
     userId: String
     groupId: String
     accountId: String
+    isPrimary: Boolean
   }
 
   type CalendarGroup {
@@ -39,6 +40,8 @@ export const types = `
     name: String
     color: String
     accountId: String
+    userId: String
+    isPrimary: Boolean
 
     calendars: [NylasCalendar]
   }
@@ -66,6 +69,7 @@ const eventParams = `
 const commonParams = `
   groupId: String!,
   color: String,
+  isPrimary: Boolean,
 `;
 
 const commonGroupParams = `

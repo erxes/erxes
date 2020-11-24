@@ -61,11 +61,13 @@ const boardRemove = `
 const commonParamsDef = `
   $groupId: String!,
   $color: String,
+  $isPrimary: Boolean,
 `;
 
 const commonParams = `
   color: $color,
-  groupId: $groupId
+  groupId: $groupId,
+  isPrimary: $isPrimary
 `;
 
 const calendarAdd = `

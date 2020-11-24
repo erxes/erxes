@@ -1,3 +1,4 @@
+import { IUser } from 'modules/auth/types';
 import Wrapper from 'modules/layout/components/Wrapper';
 import React from 'react';
 import { TYPES } from '../constants';
@@ -11,6 +12,7 @@ type Props = {
   history: any;
   queryParams: any;
   accounts: IAccount[];
+  currentUser?: IUser;
 };
 
 type State = {
@@ -22,6 +24,7 @@ type State = {
 interface IStore {
   accounts: IAccount[];
   color: object;
+  currentUser?: IUser;
 }
 
 const CalendarContext = React.createContext({} as IStore);
@@ -65,7 +68,7 @@ class CalendarWrapper extends React.Component<Props, State> {
 
   render() {
     const { type, currentDate, calendarIds } = this.state;
-    const { history, queryParams, accounts } = this.props;
+    const { history, queryParams, accounts, currentUser } = this.props;
 
     const mainContent = (
       <Wrapper
@@ -100,7 +103,9 @@ class CalendarWrapper extends React.Component<Props, State> {
     );
 
     return (
-      <CalendarContext.Provider value={{ accounts, color: this.setColors() }}>
+      <CalendarContext.Provider
+        value={{ accounts, color: this.setColors(), currentUser }}
+      >
         {mainContent}
       </CalendarContext.Provider>
     );

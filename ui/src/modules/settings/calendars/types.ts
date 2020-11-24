@@ -7,6 +7,7 @@ export interface ICalendar {
   color: string;
   groupId: string;
   accountId: string;
+  userId: string;
 }
 
 export interface IGroup {

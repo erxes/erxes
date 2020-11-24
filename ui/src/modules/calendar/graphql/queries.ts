@@ -5,6 +5,8 @@ const calendars = `
       name
       color
       accountId
+      userId
+      isPrimary
 
       calendars {
         _id

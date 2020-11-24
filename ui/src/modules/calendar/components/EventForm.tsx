@@ -68,6 +68,11 @@ class EditForm extends React.Component<Props, State> {
 
   onChangeAccount = (accounts, e: React.FormEvent<HTMLElement>) => {
     const selectedId = (e.target as HTMLInputElement).value;
+
+    this.setCalendars(accounts, selectedId);
+  };
+
+  setCalendars = (accounts, selectedId) => {
     const account = accounts.find(acc => acc._id === selectedId);
 
     this.setState({
@@ -89,7 +94,17 @@ class EditForm extends React.Component<Props, State> {
     const renderAccounts = () => {
       return (
         <CalendarConsumer>
-          {({ accounts }) => {
+          {({ accounts, currentUser }) => {
+            let defaultValue = account && account._id;
+
+            if (!defaultValue && currentUser) {
+              const acc = accounts.find(cal => {
+                return cal.isPrimary && cal.userId === currentUser._id;
+              });
+
+              defaultValue = acc && acc._id;
+            }
+
             return (
               <FormGroup>
                 <ControlLabel>Account</ControlLabel>
@@ -97,7 +112,7 @@ class EditForm extends React.Component<Props, State> {
                 <FormControl
                   componentClass="select"
                   onChange={this.onChangeAccount.bind(this, accounts)}
-                  defaultValue={account && account._id}
+                  defaultValue={defaultValue}
                 >
                   <option>Select account</option>
                   {accounts.map(acc => (

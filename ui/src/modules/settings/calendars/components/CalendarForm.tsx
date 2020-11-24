@@ -1,6 +1,8 @@
+import { AppConsumer } from 'appContext';
 import { COLORS } from 'modules/boards/constants';
 import { FlexContent } from 'modules/boards/styles/item';
 import Button from 'modules/common/components/Button';
+import FormControl from 'modules/common/components/form/Control';
 import Form from 'modules/common/components/form/Form';
 import FormGroup from 'modules/common/components/form/Group';
 import ControlLabel from 'modules/common/components/form/Label';
@@ -24,31 +26,43 @@ type Props = {
   closeModal: () => void;
 };
 
+type FinalProps = {
+  currentUserId: string;
+} & Props;
+
 type State = {
   backgroundColor: string;
   groupId: string;
+  isPrimary: boolean;
 };
 
-class CalendarForm extends React.Component<Props, State> {
-  constructor(props: Props) {
+class CalendarForm extends React.Component<FinalProps, State> {
+  constructor(props: FinalProps) {
     super(props);
 
     this.state = {
       backgroundColor: colors.colorPrimaryDark,
-      groupId: ''
+      groupId: '',
+      isPrimary: false
     };
   }
 
   componentWillReceiveProps(nextProps) {
-    const { calendar } = nextProps;
+    const { show, calendar } = nextProps;
 
-    if (this.props.show && calendar && calendar._id) {
+    if (show && calendar && calendar._id) {
       this.setState({
         backgroundColor: calendar.color,
-        groupId: calendar.groupId
+        groupId: calendar.groupId,
+        isPrimary: calendar.isPrimary || false
       });
     }
   }
+
+  onChangeIsPrimary = e => {
+    const isChecked = (e.currentTarget as HTMLInputElement).checked;
+    this.setState({ isPrimary: isChecked });
+  };
 
   onColorChange = e => {
     this.setState({ backgroundColor: e.hex });
@@ -56,7 +70,7 @@ class CalendarForm extends React.Component<Props, State> {
 
   generateDoc = (values: { _id?: string }) => {
     const { calendar } = this.props;
-    const { backgroundColor, groupId } = this.state;
+    const { backgroundColor, isPrimary, groupId } = this.state;
     const finalValues = values;
 
     if (calendar) {
@@ -66,6 +80,7 @@ class CalendarForm extends React.Component<Props, State> {
     return {
       ...finalValues,
       groupId,
+      isPrimary,
       color: backgroundColor
     };
   };
@@ -97,9 +112,11 @@ class CalendarForm extends React.Component<Props, State> {
   }
 
   renderContent = (formProps: IFormProps) => {
-    const { calendar, renderButton, closeModal } = this.props;
+    const { calendar, renderButton, closeModal, currentUserId } = this.props;
     const { values, isSubmitted } = formProps;
     const calendarName = 'calendar';
+    const showPrimary =
+      !calendar || (calendar && currentUserId === calendar.userId);
 
     const popoverBottom = (
       <Popover id="color-picker">
@@ -143,6 +160,20 @@ class CalendarForm extends React.Component<Props, State> {
           </FlexContent>
 
           {this.renderGroups()}
+
+          {showPrimary && (
+            <FormGroup>
+              <ControlLabel>Is primary</ControlLabel>
+
+              <FormControl
+                {...formProps}
+                name="isPrimary"
+                defaultChecked={this.state.isPrimary}
+                componentClass="checkbox"
+                onChange={this.onChangeIsPrimary}
+              />
+            </FormGroup>
+          )}
 
           <Modal.Footer>
             <Button
@@ -190,4 +221,13 @@ class CalendarForm extends React.Component<Props, State> {
   }
 }
 
-export default CalendarForm;
+export default (props: Props) => (
+  <AppConsumer>
+    {({ currentUser }) => (
+      <CalendarForm
+        {...props}
+        currentUserId={(currentUser && currentUser._id) || ''}
+      />
+    )}
+  </AppConsumer>
+);

@@ -28,7 +28,7 @@ class Calendar extends React.Component<Props> {
 
     return (
       <BoardContainer>
-        <Header title="Group" />
+        <Header title="Calendar" />
         <BoardContent transparent={true}>
           <MainActionBar
             currentGroup={currentGroup}
