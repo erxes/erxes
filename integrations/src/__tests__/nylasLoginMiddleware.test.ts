@@ -93,6 +93,7 @@ describe('Login middleware test', () => {
       client_id: 'clientId',
       response_type: 'code',
       redirect_uri: 'http://localhost:3400/nylas/oauth2/callback',
+      state: 'gmail',
       ...providerConfigs.params
     };
 
