@@ -57,7 +57,7 @@ interface IStore extends IState {
   readConversation: (conversationId: string) => void;
   readMessages: (conversationId: string) => void;
   replyAutoAnswer: (message: string, payload: string, type: string) => void;
-  getBotInitialMessage: () => void;
+  getBotInitialMessage: (callback: (bodData: any) => void) => void;
   changeOperatorStatus: (
     _id: string,
     operatorStatus: string,
@@ -470,27 +470,24 @@ export class AppProvider extends React.Component<{}, IState> {
       });
   };
 
-  getBotInitialMessage = () => {
+  getBotInitialMessage = (callback: (botData: any) => void) => {
     return client.mutate({
       mutation: gql`
         mutation widgetGetBotInitialMessage(
-          $customerId: String,
           $integrationId: String
         ) {
             widgetGetBotInitialMessage(
-            customerId: $customerId
             integrationId: $integrationId
           )
         }
       `,
       variables: {
         integrationId: connection.data.integrationId,
-        customerId: connection.data.customerId,
       }
     })
       .then(({ data }) => {
         if (data.widgetGetBotInitialMessage) {
-          this.setState({ activeConversation: data.widgetGetBotInitialMessage })
+          callback(data.widgetGetBotInitialMessage);
         }
       })
   };
@@ -528,8 +525,13 @@ export class AppProvider extends React.Component<{}, IState> {
           payload
         }
       })
-      .then(() => {
-        this.setState({ sendingMessage: false });
+      .then(({ data }) => {
+        const { conversationId } = data.widgetBotRequest;
+
+        this.setState({
+          sendingMessage: false,
+          activeConversation: conversationId
+        });
       })
       .catch(() => {
         this.setState({ sendingMessage: false });

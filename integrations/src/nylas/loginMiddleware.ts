@@ -55,7 +55,7 @@ const getOAuthCredential = async (req, res, next) => {
         client_id: clientId,
         response_type: 'code',
         redirect_uri: redirectUri,
-        ...(type ? { state: `${kind}&&${type}` } : {}),
+        state: type ? `${kind}&&${type}` : kind,
         ...params
       };
 
@@ -118,7 +118,7 @@ const getOAuthCredential = async (req, res, next) => {
   // when user create the Gmail or O365 integration
   await memoryStorage().set(
     `${uid}-credential`,
-    `${email},${refresh_token},${kind}`
+    `${email},${refresh_token},${kind},${access_token}`
   );
 
   let url = `${AUTHORIZED_REDIRECT_URL}?uid=${uid}#show${kind}Modal=true`;

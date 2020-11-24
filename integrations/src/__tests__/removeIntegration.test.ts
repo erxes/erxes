@@ -14,6 +14,7 @@ import {
   nylasGmailConversationMessageFactory,
   nylasGmailCustomerFactory
 } from '../factories';
+import * as gmailApi from '../gmail/api';
 import { removeAccount, removeIntegration } from '../helpers';
 import { Accounts, Integrations } from '../models';
 import * as nylasApi from '../nylas/api';
@@ -135,6 +136,7 @@ describe('Nylas remove integration test', () => {
 
     const integration = await integrationFactory({
       ...doc,
+      googleAccessToken: 'googleAccessToken',
       nylasAccountId: 'nylasAccountId',
       nylasToken: 'nylasToken',
       erxesApiId: 'alkjdlkj'
@@ -181,7 +183,8 @@ describe('Nylas remove integration test', () => {
       'foo@mail.com'
     );
 
-    const mock = sinon.stub(nylasApi, 'enableOrDisableAccount').callsFake();
+    const mock1 = sinon.stub(nylasApi, 'enableOrDisableAccount').callsFake();
+    const mock2 = sinon.stub(gmailApi, 'revokeToken').callsFake();
 
     const integrationErxesApiId = await removeIntegration(erxesApiId);
 
@@ -198,6 +201,7 @@ describe('Nylas remove integration test', () => {
       await NylasGmailConversationMessages.findOne({ _id: messageId })
     ).toBe(null);
 
-    mock.restore();
+    mock1.restore();
+    mock2.restore();
   });
 });

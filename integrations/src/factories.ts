@@ -5,15 +5,14 @@ import {
   Customers,
   Posts
 } from './facebook/models';
+import { Accounts } from './models';
+import Configs from './models/Configs';
+import Integrations from './models/Integrations';
 import {
   NylasGmailConversationMessages,
   NylasGmailConversations,
   NylasGmailCustomers
 } from './nylas/models';
-
-import { Accounts } from './models';
-import Configs from './models/Configs';
-import Integrations from './models/Integrations';
 
 export const configFactory = (params: { code?: string; value?: string }) => {
   const config = new Configs({
@@ -70,6 +69,7 @@ export const accountFactory = (params: {
 
 export const integrationFactory = (params: {
   kind?: string;
+  googleAccessToken?: string;
   accountId?: string;
   erxesApiId?: string;
   email?: string;
@@ -86,6 +86,7 @@ export const integrationFactory = (params: {
   const integration = new Integrations({
     kind: params.kind || 'facebook',
     accountId: params.accountId || '_id',
+    googleAccessToken: params.googleAccessToken || '',
     email: params.email || 'user@mail.com',
     erxesApiId: params.erxesApiId || '_id',
     gmailHistoryId: params.gmailHistoryId || '',
