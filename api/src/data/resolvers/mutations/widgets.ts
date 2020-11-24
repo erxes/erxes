@@ -726,7 +726,7 @@ const widgetMutations = {
       payload,
       type,
     }: {
-      conversationId: string;
+      conversationId?: string;
       customerId: string;
       integrationId: string;
       message: string;

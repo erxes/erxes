@@ -1,6 +1,7 @@
 import * as faker from 'faker';
 import * as Random from 'meteor-random';
 import * as sinon from 'sinon';
+import memoryStorage from '../inmemoryStorage';
 import widgetMutations, {
   getMessengerData
 } from '../data/resolvers/mutations/widgets';
@@ -38,6 +39,8 @@ import {
 import { ICustomerDocument } from '../db/models/definitions/customers';
 import { IIntegrationDocument } from '../db/models/definitions/integrations';
 import './setup.ts';
+import { Message } from '@google-cloud/pubsub';
+import Messages from '../db/models/ConversationMessages';
 
 describe('messenger connect', () => {
   let _brand: IBrandDocument;
@@ -388,21 +391,15 @@ describe('insertMessage()', () => {
       })
     );
 
-    const conversationId = await widgetMutations.widgetGetBotInitialMessage(
+    const message = await widgetMutations.widgetGetBotInitialMessage(
       {},
       {
         integrationId: _integrationBot._id,
-        customerId: _customer._id
       }
     );
 
-    const message = await ConversationMessages.findOne({ conversationId });
 
-    if (message) {
-      expect(message.botData[0].text).toBe('Greeting bot message');
-    } else {
-      fail('Failed to create bot initial message');
-    }
+    expect(message.botData[0].text).toBe('Greeting bot message');
 
     mock.restore();
   });
@@ -485,6 +482,31 @@ describe('insertMessage()', () => {
         text: 'Response of reply'
       }
     ]);
+
+    await memoryStorage().set(
+      `bot_initial_message_${_integrationBot._id}`,
+      JSON.stringify({ text: 'Hi there' })
+    );
+
+    const botMessage3 = await widgetMutations.widgetBotRequest(
+      {},
+      {
+        integrationId: _integrationBot._id,
+        customerId: _customer._id,
+        message: 'Reply message',
+        payload: 'Response of reply',
+        type: 'postback'
+      }
+    );
+
+    expect(botMessage3.botData).toEqual([
+      {
+        type: 'text',
+        text: 'Response of quick reply'
+      }
+    ]);
+
+    await memoryStorage().removeKey(`bot_initial_message_${_integrationBot._id}`);
 
     sendRequestMock.restore();
   });
