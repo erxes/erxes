@@ -1,7 +1,6 @@
 import * as faker from 'faker';
 import * as Random from 'meteor-random';
 import * as sinon from 'sinon';
-import memoryStorage from '../inmemoryStorage';
 import widgetMutations, {
   getMessengerData
 } from '../data/resolvers/mutations/widgets';
@@ -38,9 +37,8 @@ import {
 } from '../db/models/definitions/constants';
 import { ICustomerDocument } from '../db/models/definitions/customers';
 import { IIntegrationDocument } from '../db/models/definitions/integrations';
+import memoryStorage from '../inmemoryStorage';
 import './setup.ts';
-import { Message } from '@google-cloud/pubsub';
-import Messages from '../db/models/ConversationMessages';
 
 describe('messenger connect', () => {
   let _brand: IBrandDocument;
@@ -394,10 +392,9 @@ describe('insertMessage()', () => {
     const message = await widgetMutations.widgetGetBotInitialMessage(
       {},
       {
-        integrationId: _integrationBot._id,
+        integrationId: _integrationBot._id
       }
     );
-
 
     expect(message.botData[0].text).toBe('Greeting bot message');
 
@@ -506,7 +503,9 @@ describe('insertMessage()', () => {
       }
     ]);
 
-    await memoryStorage().removeKey(`bot_initial_message_${_integrationBot._id}`);
+    await memoryStorage().removeKey(
+      `bot_initial_message_${_integrationBot._id}`
+    );
 
     sendRequestMock.restore();
   });
