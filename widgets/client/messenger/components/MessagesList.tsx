@@ -59,15 +59,15 @@ class MessagesList extends React.Component<Props, State> {
   }
 
   componentDidMount() {
-    const { messengerData, messages, getBotInitialMessage, conversationId = '' } = this.props;
+    const { messengerData, messages, getBotInitialMessage, conversationId = "" } = this.props;
 
     if (
       messengerData.botShowInitialMessage &&
       messages.length === 0 &&
       (!conversationId ||
-      (conversationId || '').length === 0)
+      (conversationId || "").length === 0)
     ) {
-      getBotInitialMessage(initialMessage => {
+      getBotInitialMessage((initialMessage) => {
         this.setState({ initialMessage });
       });
     }
