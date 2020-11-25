@@ -1,6 +1,7 @@
 import { BoardContainer, BoardContent } from 'modules/boards/styles/common';
 import Button from 'modules/common/components/Button';
 import EmptyState from 'modules/common/components/EmptyState';
+import { __ } from 'modules/common/utils';
 import Header from 'modules/layout/components/Header';
 import { IBoard, IGroup } from 'modules/settings/calendars/types';
 import React from 'react';
@@ -16,6 +17,7 @@ type Props = {
   boards: IBoard[];
 };
 
+const breadcrumb = [{ title: __('Calendar'), link: '/calendar' }];
 class Calendar extends React.Component<Props> {
   render() {
     const {
@@ -28,7 +30,7 @@ class Calendar extends React.Component<Props> {
 
     return (
       <BoardContainer>
-        <Header title="Calendar" />
+        <Header title="Calendar" breadcrumb={breadcrumb} />
         <BoardContent transparent={true}>
           <MainActionBar
             currentGroup={currentGroup}

@@ -149,7 +149,6 @@ class Detail extends React.Component<FinalProps, { toggle: boolean }> {
               {...props}
               color={this.getColor(color, event.providerCalendarId)}
             >
-              <Icon icon="check-circle" />
               {dayjs(startTime).format('ha')} &nbsp;
               <b>{event.title}</b>
             </EventTitle>

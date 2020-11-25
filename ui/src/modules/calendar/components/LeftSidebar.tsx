@@ -3,24 +3,18 @@ import dayjs from 'dayjs';
 import Button from 'modules/common/components/Button';
 import FormControl from 'modules/common/components/form/Control';
 import FormGroup from 'modules/common/components/form/Group';
-import Label from 'modules/common/components/form/Label';
 import ControlLabel from 'modules/common/components/form/Label';
 import Icon from 'modules/common/components/Icon';
 import Sidebar from 'modules/layout/components/Sidebar';
 import React from 'react';
-import Select from 'react-select-plus';
-import { TYPES } from '../constants';
 import EventForm from '../containers/EventForm';
-import { CalendarController, SidebarWrapper } from '../styles';
+import { Calendars } from '../styles';
 import { IAccount } from '../types';
-import { extractDate } from '../utils';
 
 type Props = {
   dateOnChange: (date: string | Date | undefined) => void;
   currentDate: Date;
-  typeOnChange: ({ value, label }: { value: string; label: string }) => void;
   onChangeCalendarIds: (ids: string[]) => void;
-  type: string;
   history: any;
   queryParams: any;
   startTime: Date;
@@ -78,32 +72,6 @@ class LeftSidebar extends React.Component<Props, State> {
     this.setState({
       isPopupVisible: !this.state.isPopupVisible
     });
-  };
-
-  renderOptions = (list: string[]) => {
-    return list.map(item => ({ value: item, label: item.toUpperCase() }));
-  };
-
-  onChange = (increment: boolean) => {
-    const { currentDate, type, dateOnChange } = this.props;
-    const { month, year, date } = extractDate(currentDate);
-
-    let day: Date = currentDate;
-    const inc = increment ? 1 : -1;
-
-    if (type === TYPES.DAY) {
-      day = new Date(year, month, date + inc);
-    }
-
-    if (type === TYPES.WEEK) {
-      day = new Date(year, month, date + inc * 7);
-    }
-
-    if (type === TYPES.MONTH) {
-      day = new Date(year, month + inc);
-    }
-
-    dateOnChange(day);
   };
 
   toggleCheckbox = (calendarId, e: React.FormEvent<HTMLElement>) => {
@@ -177,7 +145,7 @@ class LeftSidebar extends React.Component<Props, State> {
   renderAccounts = () => {
     return (
       <FormGroup>
-        <ControlLabel>Calendars</ControlLabel>
+        <ControlLabel>My Calendars</ControlLabel>
         <br />
         <br />
 
@@ -203,59 +171,32 @@ class LeftSidebar extends React.Component<Props, State> {
   };
 
   render() {
-    const { type, typeOnChange, currentDate, dateOnChange } = this.props;
+    const { currentDate, dateOnChange } = this.props;
 
     return (
-      <Sidebar>
-        <SidebarWrapper>
-          <FormGroup>
-            <CalendarController>
-              <Icon
-                icon="angle-left"
-                onClick={this.onChange.bind(this, false)}
-              />
-              <Icon
-                icon="angle-right"
-                onClick={this.onChange.bind(this, true)}
-              />
-              <Label uppercase={true}>
-                {dayjs(currentDate).format('MMMM, YYYY')}
-              </Label>
-            </CalendarController>
-          </FormGroup>
+      <Sidebar full={true}>
+        <FormGroup>
+          <Datetime
+            inputProps={{ placeholder: 'Click to select a date' }}
+            dateFormat="YYYY/MM/DD"
+            timeFormat="HH:mm"
+            closeOnSelect={true}
+            utc={true}
+            input={false}
+            value={currentDate}
+            onChange={dateOnChange}
+            defaultValue={dayjs()
+              .startOf('day')
+              .add(12, 'hour')
+              .format('YYYY-MM-DD HH:mm:ss')}
+          />
+        </FormGroup>
 
-          <FormGroup>
-            <Select
-              isRequired={true}
-              value={type}
-              onChange={typeOnChange}
-              options={this.renderOptions(TYPES.all)}
-              clearable={false}
-            />
-          </FormGroup>
-
-          <FormGroup>
-            <Datetime
-              inputProps={{ placeholder: 'Click to select a date' }}
-              dateFormat="YYYY/MM/DD"
-              timeFormat="HH:mm"
-              closeOnSelect={true}
-              utc={true}
-              input={false}
-              value={currentDate}
-              onChange={dateOnChange}
-              defaultValue={dayjs()
-                .startOf('day')
-                .add(12, 'hour')
-                .format('YYYY-MM-DD HH:mm:ss')}
-            />
-          </FormGroup>
-
+        <Calendars>
           {this.renderAccounts()}
 
           <FormGroup>
             <Button
-              size="small"
               uppercase={false}
               btnStyle="success"
               onClick={this.onHideModal}
@@ -268,7 +209,7 @@ class LeftSidebar extends React.Component<Props, State> {
               onHideModal={this.onHideModal}
             />
           </FormGroup>
-        </SidebarWrapper>
+        </Calendars>
       </Sidebar>
     );
   }
