@@ -2,6 +2,7 @@ import dayjs from 'dayjs';
 import { capitalize } from 'modules/activityLogs/utils';
 import { IUser } from 'modules/auth/types';
 import { ButtonGroup } from 'modules/boards/styles/header';
+import Button from 'modules/common/components/Button';
 import Icon from 'modules/common/components/Icon';
 import Wrapper from 'modules/layout/components/Wrapper';
 import React from 'react';
@@ -95,18 +96,24 @@ class CalendarWrapper extends React.Component<Props, State> {
 
   renderMonthController = () => {
     const { type, currentDate } = this.state;
+    const onClick = () => {
+      this.dateOnChange(new Date());
+    };
+
     let format = 'MMMM YYYY';
 
     if (type === TYPES.DAY) {
-      format = 'MMMM DD, YYYY';
+      format = 'ddd, MMMM DD, YYYY';
     }
 
     return (
       <CalendarController>
-        <h2>{dayjs(currentDate).format(format)}</h2>
-
         <Icon icon="angle-left" onClick={this.onChange.bind(this, false)} />
         <Icon icon="angle-right" onClick={this.onChange.bind(this, true)} />
+        <h2>{dayjs(currentDate).format(format)}</h2>
+        <Button btnStyle="simple" uppercase={false} onClick={onClick}>
+          Today
+        </Button>
       </CalendarController>
     );
   };
