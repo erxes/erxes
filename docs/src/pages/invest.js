@@ -84,59 +84,6 @@ export default function Invest() {
               </p>
               <InvestCSO />
               <InvestEquity />
-              <section className={styles.clientsWrapper}>
-                <div className="container">
-                  <h2 className={classnames("center-desktop")}>
-                    Aligning the Company and&nbsp;
-                    <span className={styles.colorPrimary}>Investors</span>
-                  </h2>
-                  <p>
-                    Several features of the erxes CSO are designed to align the
-                    investor’s interests with the company’s. One is the pricing
-                    model. The model contemplates the security price rising with
-                    the number of securities outstanding. This means that
-                    investor enthusiasm helps the company raise more capital,
-                    given that the company receives capital for each newly
-                    minted security. This capital, in turn, helps investors by
-                    enabling the company to invest and grow, creating a virtuous
-                    circle.
-                  </p>
-                  <div className={classnames("center-desktop")}>
-                    <img src="img/invest-chart2.png" alt="Chart" />
-                  </div>
-                  <div className="pd-large">
-                    <ul className={styles.investList}>
-                      <li>
-                        <span>1</span>Securities finance the company in exchange
-                        for a claim on a reserve funded mainly by company
-                        revenues
-                      </li>
-                      <li>
-                        <span>2</span>The company uses financing to invest and
-                        grow
-                      </li>
-                      <li>
-                        <span>3</span>Growth boosts the revenues committed to
-                        the CSO reserve
-                      </li>
-                      <li>
-                        <span>4</span>The cash in the reserve increases the
-                        security’s floor (redemption) price
-                      </li>
-                      <li>
-                        <span>5</span>The rising floor price reduces the risk
-                        and increases the security’s worth
-                      </li>
-                      <li>
-                        <span>6</span>Rising revenues and reduced risk should
-                        support increased investor confidence, upward price
-                        pressure in the company’s security until the company
-                        exits the CSO and buys back securities.
-                      </li>
-                    </ul>
-                  </div>
-                </div>
-              </section>
               <InvestFAQ />
             </div>
           </section>
