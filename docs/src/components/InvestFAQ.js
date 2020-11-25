@@ -61,11 +61,11 @@ export const InvestFAQ = () => {
           </dl>
           <dl className={styles.descriptionList}>
             <dt>
-              <b>Where is $ERXS traded?</b>
+              <b>Where can I see the offering data?</b>
             </dt>
             <dd>
-              Contrary to other offerings, it is traded through our own website.
-              Please visit&nbsp;
+              Contrary to other offerings, it is available through our own
+              website. Please visit&nbsp;
               <a href="https://invest.erxes.io" target="_blank">
                 https://invest.erxes.io
               </a>
