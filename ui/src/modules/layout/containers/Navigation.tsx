@@ -22,17 +22,15 @@ class NavigationContainer extends React.Component<{
       variables: { userId: currentUser._id },
       updateQuery: (prev, { subscriptionData: { data } }) => {
         const { conversationClientMessageInserted } = data;
-        const { content, botData } = conversationClientMessageInserted;
+        const { content } = conversationClientMessageInserted;
 
         this.props.unreadConversationsCountQuery.refetch();
 
         // no need to send notification for bot message
-        if (!botData) {
-          sendDesktopNotification({
-            title: 'You have a new message',
-            content: strip(content || '')
-          });
-        }
+        sendDesktopNotification({
+          title: 'You have a new message',
+          content: strip(content || '')
+        });
       }
     });
   }
