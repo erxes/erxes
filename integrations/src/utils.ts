@@ -6,6 +6,8 @@ import memoryStorage from './inmemoryStorage';
 import { sendRPCMessage } from './messageBroker';
 import Configs from './models/Configs';
 import { IParticipants, IProviderSettings } from './nylas/types';
+import { sendDailyRequest } from './videoCall/controller';
+import { IRecording } from './videoCall/models';
 
 dotenv.config();
 
@@ -226,5 +228,44 @@ export const resetConfigsCache = () => {
 };
 
 export const generateUid = () => {
-  return '_' + Math.random().toString(36).substr(2, 9);
+  return (
+    '_' +
+    Math.random()
+      .toString(36)
+      .substr(2, 9)
+  );
+};
+
+export const isAfter = (
+  expiresTimestamp: number,
+  defaultMillisecond?: number
+) => {
+  const millisecond = defaultMillisecond || new Date().getTime();
+  const expiresMillisecond = new Date(expiresTimestamp * 1000).getTime();
+
+  if (expiresMillisecond > millisecond) {
+    return true;
+  }
+
+  return false;
+};
+
+export const getRecordings = async (recordings: IRecording[]) => {
+  const newRecordings: IRecording[] = [];
+
+  for (const record of recordings) {
+    if (!record.expires || (record.expires && !isAfter(record.expires))) {
+      const accessLinkResponse = await sendDailyRequest(
+        `/api/v1/recordings/${record.id}/access-link`,
+        'GET'
+      );
+
+      record.expires = accessLinkResponse.expires;
+      record.url = accessLinkResponse.download_link;
+    }
+
+    newRecordings.push(record);
+  }
+
+  return newRecordings;
 };

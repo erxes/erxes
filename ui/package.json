@@ -3,7 +3,7 @@
   "private": true,
   "license": "SEE LICENSE IN LICENSE",
   "dependencies": {
-    "@daily-co/daily-js": "^0.9.991",
+    "@daily-co/daily-js": "^0.9.995",
     "@nateradebaugh/react-datetime": "^4.0.0-rc.10",
     "@nivo/line": "0.35.0",
     "@nivo/pie": "0.35.0",

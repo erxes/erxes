@@ -43,31 +43,58 @@ type Props = {
   queryParams: any;
 };
 
-class VideoCall extends React.Component<
-  Props,
-  { loading: boolean; errorMessage: string }
-> {
+type States = {
+  loading: boolean;
+  errorMessage?: string;
+  recordingId?: string;
+};
+
+class VideoCall extends React.Component<Props, States> {
   private callFrame;
 
   constructor(props) {
     super(props);
 
-    this.state = { errorMessage: '', loading: false };
+    this.state = {
+      loading: false
+    };
   }
 
   componentDidMount() {
-    const { url } = this.props.queryParams;
+    const { url, conversationId } = this.props.queryParams;
 
     const owner = { url };
 
-    this.callFrame = DailyIframe.createFrame(
-      document.getElementById('call-frame-container'),
-      {}
-    );
+    const parentEl =
+      document.getElementById('call-frame-container') ||
+      document.getElementsByTagName('body')[0];
 
-    this.callFrame.on('error', e => {
-      this.setState({ errorMessage: e.errorMsg });
-    });
+    this.callFrame = DailyIframe.createFrame(parentEl, {});
+
+    this.callFrame
+      .on('error', e => {
+        this.setState({ errorMessage: e.errorMsg });
+      })
+      .on('recording-started', data => {
+        this.setState({
+          recordingId: data.recordingId
+        });
+      })
+      .on('recording-upload-completed', data => {
+        if (data.action === 'recording-upload-completed') {
+          client
+            .mutate({
+              mutation: gql(mutations.saveVideoRecordingInfo),
+              variables: {
+                conversationId,
+                recordingId: this.state.recordingId
+              }
+            })
+            .catch(error => {
+              Alert.error(error.message);
+            });
+        }
+      });
 
     this.callFrame.join(owner);
   }
@@ -92,14 +119,6 @@ class VideoCall extends React.Component<
       });
   };
 
-  startRecording = () => {
-    this.callFrame.startRecording();
-  };
-
-  stopRecording = () => {
-    this.callFrame.stopRecording();
-  };
-
   renderControls() {
     return (
       <Control>
@@ -117,10 +136,12 @@ class VideoCall extends React.Component<
       return;
     }
 
+    const { errorMessage } = this.state;
+
     return (
       <>
         {this.renderControls()}
-        {this.state.errorMessage && <Error>{this.state.errorMessage}</Error>}
+        {errorMessage && <Error>{errorMessage}</Error>}
         <div
           id="call-frame-container"
           style={{ width: '100%', height: '100%' }}
