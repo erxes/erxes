@@ -510,12 +510,20 @@ const widgetMutations = {
       });
     }
 
+    const defaultBotData =
+      getConversationStatus(
+        conversation.operatorStatus !== CONVERSATION_OPERATOR_STATUS.BOT
+      ) === CONVERSATION_STATUSES.OPEN
+        ? null
+        : [];
+
     // create message
     const msg = await Messages.createMessage({
       conversationId: conversation._id,
       customerId,
       attachments,
       contentType,
+      botData: defaultBotData,
       content: message
     });
 
@@ -771,6 +779,7 @@ const widgetMutations = {
     const msg = await Messages.createMessage({
       conversationId,
       customerId,
+      botData: [],
       content: message
     });
 
