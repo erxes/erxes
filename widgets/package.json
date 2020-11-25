@@ -77,7 +77,7 @@
     "git-repo-info": "^2.1.0",
     "nodemon": "^1.11.0",
     "ts-node": "^8.3.0",
-    "typescript": "^2.9.2"
+    "typescript": "^3.5.2"
   },
   "engines": {
     "node": ">=10.x.x"
