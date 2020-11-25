@@ -592,14 +592,6 @@ const widgetMutations = {
         }
       });
 
-      if (
-        conversation.operatorStatus === CONVERSATION_OPERATOR_STATUS.OPERATOR
-      ) {
-        graphqlPubsub.publish('conversationClientMessageInserted', {
-          conversationClientMessageInserted: botMessage
-        });
-      }
-
       graphqlPubsub.publish('conversationMessageInserted', {
         conversationMessageInserted: botMessage
       });
