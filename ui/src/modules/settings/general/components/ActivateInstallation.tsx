@@ -27,6 +27,9 @@ const ActivateInstallation = () => {
       })
       .then(() => {
         setActivated(true);
+      })
+      .catch(e => {
+        console.log('while checking activation: ', e.message);
       });
   }, [hostname]);
 
