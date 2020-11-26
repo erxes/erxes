@@ -26,7 +26,6 @@ const Grid = styled.div`
 
 const Header = styled.div`
   margin: 0;
-  -webkit-align-items: stretch;
   align-items: stretch;
   display: flex;
   flex: none;
@@ -36,10 +35,12 @@ const Header = styled.div`
 
 const ColumnHeader = styled.div`
   border-right: #dadce0 1px solid;
-  -webkit-box-flex: 1 1 0%;
-  -webkit-flex: 1 1 0%;
   flex: 1 1 0%;
   text-align: center;
+  font-size: 11px;
+  line-height: 20px;
+  color: #70757a;
+  font-weight: 500;
   text-transform: uppercase;
 
   &:last-child {
@@ -50,11 +51,8 @@ const ColumnHeader = styled.div`
 const Presentation = styled.div`
   margin: 0;
   overflow: hidden;
-  -webkit-box-flex: 1 1 0%;
-  -webkit-flex: 1 1 0%;
   flex: 1 1 0%;
   display: flex;
-  -webkit-flex-direction: column;
   flex-direction: column;
 `;
 
@@ -63,8 +61,6 @@ const Row = styled.div`
   overflow: hidden;
   border-bottom: #dadce0 1px solid;
   display: flex;
-  -webkit-box-flex: 1 1 0%;
-  -webkit-flex: 1 1 0%;
   flex: 1 1 0%;
 `;
 
@@ -80,8 +76,6 @@ const RowWrapper = styled.div`
 const Cell = styled.div`
   border-right: #dadce0 1px solid;
   color: #70757a;
-  -webkit-box-flex: 1 1 0%;
-  -webkit-flex: 1 1 0%;
   flex: 1 1 0%;
   display: block;
 
@@ -101,20 +95,21 @@ const Day = styledTS<{ isSelectedDate?: boolean }>(styled.h2)`
   text-align: center;
   white-space: nowrap;
   width: max-content;
-  min-width: 24px;
+  min-width: 22px;
   color: #70757a;
-  line-height: 24px;
+  line-height: 22px;
   border-radius: 8px;
   
   ${props =>
     props.isSelectedDate &&
     `
-    background-color: ${colors.colorPrimary};
+    background-color: ${colors.colorSecondary};
     color: #fff;
   `}
 
-  cursor: pointer;
+  
   &:hover {
+    cursor: pointer;
     background-color: ${colors.colorPrimary};
     color: #fff;
   }
@@ -192,26 +187,42 @@ const WeekHours = styled.div`
 `;
 
 const MainContainer = styled.div`
-  height: calc(100vh - 171px);
+  height: calc(100vh - 175px);
 `;
 
 const CalendarController = styled.div`
   display: flex;
   align-items: center;
+  padding: 10px 0;
 
   h2 {
-    margin: 0 20px 0 0;
+    margin: 0 20px;
     font-size: 24px;
   }
 
   i {
-    font-size: 20px;
-    cursor: pointer;
-    color: ${colors.colorPrimary};
+    font-size: 24px;
+
+    line-height: 30px;
+    color: ${colors.colorSecondary};
+
+    &:hover {
+      cursor: pointer;
+      color: ${colors.colorCoreOrange};
+    }
   }
 
   label {
     margin-left: 8px;
+  }
+`;
+
+const CalendarItem = styled.div`
+  padding: 5px 20px;
+  transition: background 0.3s ease;
+
+  &:hover {
+    background: ${colors.bgMain};
   }
 `;
 
@@ -232,8 +243,8 @@ const EventTitle = styledTS<{
   &:hover {
     background-color: #eee;
   }
-  ${props =>
-    `
+
+  ${props => `
     background-color: ${props.color};
     color: #fff;
   `}
@@ -275,11 +286,18 @@ const WeekCol = styled.div`
   }
 `;
 
-const Calendars = styled.div`
+const CommonWrapper = styled.div`
   padding: 10px 20px;
 `;
 
-const EventContainer = styled.div``;
+const SidebarHeading = styled.h4`
+  font-size: 14px;
+  font-weight: 500;
+  letter-spacing: 0.25px;
+  line-height: 20px;
+  margin: 0 0 20px;
+  padding: 0 20px;
+`;
 
 export {
   CalendarWrapper,
@@ -293,7 +311,7 @@ export {
   Day,
   DayRow,
   MainContainer,
-  EventContainer,
+  SidebarHeading,
   EventTitle,
   EventContent,
   CalendarController,
@@ -303,5 +321,6 @@ export {
   WeekHours,
   WeekData,
   AddEventBtn,
-  Calendars
+  CommonWrapper,
+  CalendarItem
 };

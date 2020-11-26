@@ -3,12 +3,11 @@ import dayjs from 'dayjs';
 import Button from 'modules/common/components/Button';
 import FormControl from 'modules/common/components/form/Control';
 import FormGroup from 'modules/common/components/form/Group';
-import ControlLabel from 'modules/common/components/form/Label';
-import Icon from 'modules/common/components/Icon';
+import { __ } from 'modules/common/utils';
 import Sidebar from 'modules/layout/components/Sidebar';
 import React from 'react';
 import EventForm from '../containers/EventForm';
-import { Calendars } from '../styles';
+import { CalendarItem, CommonWrapper, SidebarHeading } from '../styles';
 import { IAccount } from '../types';
 
 type Props = {
@@ -119,14 +118,14 @@ class LeftSidebar extends React.Component<Props, State> {
     this.props.onChangeCalendarIds(calendarIds);
   };
 
-  renderCalendars = calendars => {
+  renderCalendars = (calendars, color) => {
     const { calendarIds } = this.state;
 
     return calendars.map(calendar => {
       const calendarId = calendar.providerCalendarId;
 
       return (
-        <div key={calendar._id}>
+        <CalendarItem key={calendar._id}>
           &nbsp; &nbsp; &nbsp;
           <FormControl
             key={calendar._id}
@@ -134,10 +133,11 @@ class LeftSidebar extends React.Component<Props, State> {
             componentClass="checkbox"
             onChange={this.toggleCheckbox.bind(this, calendarId)}
             checked={calendarIds.includes(calendarId)}
+            color={color}
           >
             {calendar.name}
           </FormControl>
-        </div>
+        </CalendarItem>
       );
     });
   };
@@ -145,24 +145,22 @@ class LeftSidebar extends React.Component<Props, State> {
   renderAccounts = () => {
     return (
       <FormGroup>
-        <ControlLabel>My Calendars</ControlLabel>
-        <br />
-        <br />
-
+        <SidebarHeading>My Calendars</SidebarHeading>
         {this.props.accounts.map(account => {
           return (
             <div key={account._id}>
-              <FormControl
-                className="toggle-message"
-                componentClass="checkbox"
-                onChange={this.toggleAccountCheckbox.bind(this, account)}
-                checked={this.state.calendarIds.includes(account._id)}
-              >
-                <Icon icon={'circle'} style={{ color: account.color }} /> &nbsp;
-                {account.name}
-              </FormControl>
-              {this.renderCalendars(account.calendars)}
-              <br />
+              <CalendarItem>
+                <FormControl
+                  className="toggle-message"
+                  componentClass="checkbox"
+                  onChange={this.toggleAccountCheckbox.bind(this, account)}
+                  checked={this.state.calendarIds.includes(account._id)}
+                  color={account.color}
+                >
+                  {account.name}
+                </FormControl>
+              </CalendarItem>
+              {this.renderCalendars(account.calendars, account.color)}
             </div>
           );
         })}
@@ -170,11 +168,32 @@ class LeftSidebar extends React.Component<Props, State> {
     );
   };
 
+  renderSidebarHeader() {
+    return (
+      <CommonWrapper>
+        <Button
+          uppercase={false}
+          btnStyle="success"
+          onClick={this.onHideModal}
+          block={true}
+          icon="plus-circle"
+        >
+          {__('Create Event')}
+        </Button>
+        <EventForm
+          {...this.props}
+          isPopupVisible={this.state.isPopupVisible}
+          onHideModal={this.onHideModal}
+        />
+      </CommonWrapper>
+    );
+  }
+
   render() {
     const { currentDate, dateOnChange } = this.props;
 
     return (
-      <Sidebar full={true}>
+      <Sidebar full={true} header={this.renderSidebarHeader()}>
         <FormGroup>
           <Datetime
             inputProps={{ placeholder: 'Click to select a date' }}
@@ -192,24 +211,7 @@ class LeftSidebar extends React.Component<Props, State> {
           />
         </FormGroup>
 
-        <Calendars>
-          {this.renderAccounts()}
-
-          <FormGroup>
-            <Button
-              uppercase={false}
-              btnStyle="success"
-              onClick={this.onHideModal}
-            >
-              Create Event
-            </Button>
-            <EventForm
-              {...this.props}
-              isPopupVisible={this.state.isPopupVisible}
-              onHideModal={this.onHideModal}
-            />
-          </FormGroup>
-        </Calendars>
+        {this.renderAccounts()}
       </Sidebar>
     );
   }

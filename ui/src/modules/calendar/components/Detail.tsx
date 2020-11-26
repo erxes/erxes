@@ -3,7 +3,7 @@ import Button from 'modules/common/components/Button';
 import Icon from 'modules/common/components/Icon';
 import ModalTrigger from 'modules/common/components/ModalTrigger';
 import React from 'react';
-import { EventContainer, EventContent, EventTitle } from '../styles';
+import { EventContent, EventTitle } from '../styles';
 import { IAccount, IEvent } from '../types';
 import { milliseconds } from '../utils';
 import { CalendarConsumer } from './Wrapper';
@@ -141,7 +141,7 @@ class Detail extends React.Component<FinalProps, { toggle: boolean }> {
     }
 
     return (
-      <EventContainer key={event._id}>
+      <div key={event._id}>
         <ModalTrigger
           title={event.title || ''}
           trigger={
@@ -155,7 +155,7 @@ class Detail extends React.Component<FinalProps, { toggle: boolean }> {
           }
           content={content}
         />
-      </EventContainer>
+      </div>
     );
   }
 }
