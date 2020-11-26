@@ -160,6 +160,7 @@ export const types = `
     url: String
     name: String
     status: String
+    recordingLinks: [String]
   }
 
   input ConversationMessageParams {
@@ -253,4 +254,5 @@ export const mutations = `
   conversationCreateProductBoardNote(_id: String!): String
   changeConversationOperator(_id: String! operatorStatus: String!): JSON
   conversationResolveAll(${mutationFilterParams}): Int
+  conversationsSaveVideoRecordingInfo(conversationId: String!, recordingId: String): String
 `;

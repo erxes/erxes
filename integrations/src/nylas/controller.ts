@@ -3,7 +3,9 @@ import * as dotenv from 'dotenv';
 import * as formidable from 'formidable';
 import * as Nylas from 'nylas';
 import { debugNylas, debugRequest } from '../debuggers';
+import { revokeToken } from '../gmail/api';
 import { Accounts, Integrations } from '../models';
+import { enableOrDisableAccount } from './api';
 import { connectProviderToNylas } from './auth';
 import {
   createNylasIntegration,
@@ -187,7 +189,11 @@ export const initNylas = async app => {
         await nylasGetAllEvents(account);
       }
 
-      return res.json({ status: 'ok', accountId: account._id });
+      return res.json({
+        status: 'ok',
+        accountId: account._id,
+        email: account.email
+      });
     } catch (e) {
       return next(e);
     }
@@ -197,7 +203,11 @@ export const initNylas = async app => {
     const { accountId } = req.body;
 
     try {
-      const { nylasAccountId } = await Accounts.findOne({ _id: accountId });
+      const {
+        email,
+        nylasAccountId,
+        googleAccessToken
+      } = await Accounts.findOne({ _id: accountId });
 
       const calendars = await NylasCalendars.find({
         accountUid: nylasAccountId
@@ -210,6 +220,9 @@ export const initNylas = async app => {
       await Accounts.deleteOne({ _id: accountId });
       await NylasCalendars.deleteMany({ accountUid: nylasAccountId });
       await NylasEvent.deleteMany({ providerCalendarId: { $in: calendarIds } });
+
+      await revokeToken(email, googleAccessToken);
+      await enableOrDisableAccount(nylasAccountId, false);
     } catch (e) {
       return next(e);
     }

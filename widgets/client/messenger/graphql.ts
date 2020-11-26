@@ -147,6 +147,14 @@ const allConversations = `
   }
 `;
 
+const getEngageMessage = `
+  query widgetsGetEngageMessage($customerId: String!  $browserInfo: JSON!) {
+    widgetsGetEngageMessage(customerId: $customerId browserInfo: $browserInfo) {
+      ${messageFields}
+    }
+  }
+`;
+
 const readConversationMessages = `
   mutation widgetsReadConversationMessages($conversationId: String) {
     widgetsReadConversationMessages(conversationId: $conversationId)
@@ -261,5 +269,6 @@ export default {
   getFaqTopicQuery,
   faqSearchArticlesQuery,
   integrationsFetchApi,
-  conversationBotTypingStatus
+  conversationBotTypingStatus,
+  getEngageMessage
 };

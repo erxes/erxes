@@ -77,7 +77,7 @@ class MainLayout extends React.Component<IProps> {
   render() {
     const { currentUser, children, isShownIndicator, history } = this.props;
 
-    if (history.location.pathname === '/videoCall') {
+    if (history.location.pathname.startsWith('/videoCall')) {
       return children;
     }
 

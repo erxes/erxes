@@ -2,7 +2,10 @@ import * as permissionActions from '../permissions/actions';
 import ActivityLog from './activityLog';
 import Board from './boards';
 import Brand from './brand';
-import CalendarGroup from './calendar';
+import {
+  calendarBoard as CalendarBoard,
+  calendarGroup as CalendarGroup
+} from './calendar';
 import Channel from './channel';
 import Checklist from './checklists';
 import Company from './company';
@@ -90,7 +93,8 @@ const resolvers: any = {
   UsersGroup,
   Pipeline,
   GrowthHack,
-  CalendarGroup
+  CalendarGroup,
+  CalendarBoard
 };
 
 export default resolvers;

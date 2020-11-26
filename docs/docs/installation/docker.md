@@ -88,7 +88,7 @@ Official Docker documentation: https://docs.docker.com/install/
 1. Run this command to download the current stable release of Docker Compose:
 
 ```sh
-sudo curl -L "https://github.com/docker/compose/releases/download/1.24.1/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+sudo curl -L "https://github.com/docker/compose/releases/download/1.26.2/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
 ```
 
 2. Apply executable permissions to the binary:
@@ -103,38 +103,79 @@ sudo chmod +x /usr/local/bin/docker-compose
 
 ```sh
 $ docker-compose --version
-docker-compose version 1.24.1, build 01110ad01
+docker-compose version 1.26.2, build 1110ad01
 ```
 
 Official Docker compose documentation: https://docs.docker.com/compose/install/
 
-
 ## Install erxes
 
-1. Create a new directory somewhere on your machine
-2. Save the following code as `docker-compose.yml` file.
-3. Run `docker-compose up -d` (To stop: `docker-compose down`)
-4. Run `docker exec -it erxes-api yarn initProject` command to create default admin account for you.
-5. Go to `localhost:3000` on your browser, and you're ready to login.
+1. Go to your desired location
+
+```bash
+  cd 'path_to'
+```
+
+2. Save the `docker-compose.yml` file.
+3. Run the following command in your shell:
+
+```bash
+mkdir elasticsearch-data && chown 1000:1000 elasticsearch-data
+```
+
+- elasticsearch container migth fail to start due to permission
+
+4. Run the following to start containers
+
+```bash
+docker-compose up -d
+```
+
+- To stop the containers:
+
+```bash
+docker-compose down
+```
+
+5. Run the following
+
+```bash
+docker exec -it erxes-api yarn initProject
+```
+
+- this will create default admin account with a random password.
 
 ```
+
 (username: admin@erxes.io , password: auto generated password)
+
 ```
+
+6. Finish up by running
+
+```bash
+docker exec -it erxes-api yarn loadPermissionData
+```
+
+7. Now you may visit `localhost:3000` and log in with your admin account.
 
 ### Default ports
+
 _Must be published to host machine network_
-* erxes main frontend app will run on port 3000
-* erxes-widgets will run on port 3200
-* erxes-api will run on port 3300
-* erxes-integrations will run on port 3400
+
+- erxes main frontend app will run on port 3000
+- erxes-widgets will run on port 3200
+- erxes-api will run on port 3300
+- erxes-integrations will run on port 3400
 
 _Should not published to host machine network, only used internally_
-* erxes-api (cron) will run on port 3600
-* erxes-api (worker) will run on port 3700
-* erxes-logger will run on port 3800
-* redis server will run on port 6379
-* mongodb server will run on port 27017
-* rabbitmq server will run on port 5672
+
+- erxes-api (cron) will run on port 3600
+- erxes-api (worker) will run on port 3700
+- erxes-logger will run on port 3800
+- redis server will run on port 6379
+- mongodb server will run on port 27017
+- rabbitmq server will run on port 5672
 
 _If these ports aren't available for you, you can always change it. But don't forget to change related ENV settings._
 
@@ -148,12 +189,11 @@ The latest version [**release**](https://github.com/erxes/erxes/releases) source
 
 </aside>
 
-
 ```yaml
 version: "2.1"
 services:
   erxes:
-    image: erxes/erxes:0.14.1
+    image: erxes/erxes:0.17.6
     container_name: erxes
     restart: unless-stopped
     environment:
@@ -168,7 +208,7 @@ services:
       - erxes-net
 
   erxes-api:
-    image: erxes/erxes-api:0.14.1
+    image: erxes/erxes-api:0.17.6
     container_name: erxes-api
     restart: unless-stopped
     environment:
@@ -181,28 +221,27 @@ services:
       MAIN_APP_DOMAIN: http://localhost:3000
       WIDGETS_DOMAIN: http://localhost:3200
       INTEGRATIONS_API_DOMAIN: http://localhost:3400
+      # non public urls
+      CRONS_API_DOMAIN: http://erxes-crons:3600
+      WORKERS_API_DOMAIN: http://erxes-workers:3700
+      LOGS_API_DOMAIN: http://erxes-logger:3800
+      ENGAGES_API_DOMAIN: http://erxes-engages:3900
       # MongoDB
       MONGO_URL: mongodb://mongo/erxes
-      # Redis
-      REDIS_HOST: redis
-      REDIS_PORT: "6379"
-      REDIS_PASSWORD: ""
-      # RabbitMQ
-      RABBITMQ_HOST: "amqp://guest:guest@rabbitmq:5672/erxes"
+      # Elasticsearch
+      ELASTICSEARCH_URL: http://elasticsearch
     ports:
       - "3300:3300"
     depends_on:
       mongo:
         condition: service_healthy
-      rabbitmq:
-        condition: service_healthy
-      redis:
+      elasticsearch:
         condition: service_healthy
     networks:
       - erxes-net
 
   erxes-crons:
-    image: erxes/erxes-api:0.14.1
+    image: erxes/erxes-api:0.17.6
     container_name: erxes-crons
     entrypoint: ["node", "--max_old_space_size=8192", "dist/cronJobs"]
     restart: unless-stopped
@@ -214,51 +253,39 @@ services:
       DEBUG: "erxes-crons:*"
       # MongoDB
       MONGO_URL: mongodb://mongo/erxes
-      # Redis
-      REDIS_HOST: redis
-      REDIS_PORT: "6379"
-      REDIS_PASSWORD: ""
-      # RabbitMQ
-      RABBITMQ_HOST: "amqp://guest:guest@rabbitmq:5672/erxes"
     depends_on:
       mongo:
-        condition: service_healthy
-      rabbitmq:
         condition: service_healthy
     networks:
       - erxes-net
 
   erxes-workers:
-    image: erxes/erxes-api:0.14.1
+    image: erxes/erxes-api:0.17.6
     container_name: erxes-workers
-    entrypoint: ["node", "--max_old_space_size=8192", "--experimental-worker", "dist/workers"]
+    entrypoint:
+      [
+        "node",
+        "--max_old_space_size=8192",
+        "--experimental-worker",
+        "dist/workers",
+      ]
     restart: unless-stopped
     environment:
       # erxes-workers
       PORT_WORKERS: "3700"
-      JWT_TOKEN_SECRET: token
       NODE_ENV: production
       DEBUG: "erxes-workers:*"
+      JWT_TOKEN_SECRET: token
       # MongoDB
       MONGO_URL: mongodb://mongo/erxes
-      # Redis
-      REDIS_HOST: redis
-      REDIS_PORT: "6379"
-      REDIS_PASSWORD: ""
-      # RabbitMQ
-      RABBITMQ_HOST: "amqp://guest:guest@rabbitmq:5672/erxes"
     depends_on:
       mongo:
-        condition: service_healthy
-      rabbitmq:
-        condition: service_healthy
-      redis:
         condition: service_healthy
     networks:
       - erxes-net
 
   erxes-widgets:
-    image: erxes/erxes-widgets:0.14.1
+    image: erxes/erxes-widgets:0.17.6
     container_name: erxes-widgets
     restart: unless-stopped
     environment:
@@ -272,8 +299,41 @@ services:
     networks:
       - erxes-net
 
+  erxes-engages:
+    image: erxes/erxes-engages-email-sender:0.17.6
+    container_name: erxes-engages
+    restart: unless-stopped
+    environment:
+      PORT: "3900"
+      NODE_ENV: production
+      DEBUG: "erxes-engages:*"
+      # public urls
+      MAIN_API_DOMAIN: http://localhost:3300
+      # MongoDB
+      MONGO_URL: mongodb://mongo/erxes_engages
+    depends_on:
+      mongo:
+        condition: service_healthy
+    networks:
+      - erxes-net
+
+  erxes-logger:
+    image: erxes/erxes-logger:0.17.6
+    container_name: erxes-logger
+    restart: unless-stopped
+    environment:
+      PORT: "3800"
+      DEBUG: "erxes-logs:*"
+      # MongoDB
+      MONGO_URL: mongodb://mongo/erxes_logs
+    depends_on:
+      mongo:
+        condition: service_healthy
+    networks:
+      - erxes-net
+
   erxes-integrations:
-    image: erxes/erxes-integrations:0.10.3
+    image: erxes/erxes-integrations:0.17.6
     container_name: erxes-integrations
     restart: unless-stopped
     environment:
@@ -287,119 +347,50 @@ services:
       # non public urls
       # MongoDB
       MONGO_URL: mongodb://mongo/erxes_integrations
-      # RabbitMQ
-      RABBITMQ_HOST: "amqp://guest:guest@rabbitmq:5672/erxes"
-      # Redis
-      REDIS_HOST: redis
-      REDIS_PORT: "6379"
-      REDIS_PASSWORD: ""
     ports:
       - "3400:3400"
     depends_on:
       mongo:
         condition: service_healthy
-      rabbitmq:
-        condition: service_healthy
     networks:
       - erxes-net
-
-  erxes-logger:
-    image: erxes/erxes-logger:0.10.0
-    container_name: erxes-logger
-    restart: unless-stopped
-    environment:
-      PORT: "3800"
-      DEBUG: "erxes-logs:*"
-      # MongoDB
-      MONGO_URL: mongodb://mongo/erxes_logs
-      # RabbitMQ
-      RABBITMQ_HOST: "amqp://guest:guest@rabbitmq:5672/erxes"
-    depends_on:
-      mongo:
-        condition: service_healthy
-    networks:
-      - erxes-net
-
-  erxes-engages:
-    image: erxes/erxes-engages-email-sender:0.10.0
-    container_name: erxes-engages
-    restart: unless-stopped
-    environment:
-      PORT: "3900"
-      NODE_ENV: production
-      DEBUG: "erxes-engages:*"
-      # public urls
-      MAIN_API_DOMAIN: http://localhost:3300
-      # MongoDB
-      MONGO_URL: mongodb://mongo/erxes_engages
-      # RabbitMQ
-      RABBITMQ_HOST: "amqp://guest:guest@rabbitmq:5672/erxes"
-      # Redis
-      REDIS_HOST: redis
-      REDIS_PORT: "6379"
-      REDIS_PASSWORD: ""
-    depends_on:
-      mongo:
-        condition: service_healthy
-      rabbitmq:
-        condition: service_healthy
-    networks:
-      - erxes-net
-
-  redis:
-    image: redis:5.0.5
-    container_name: redis
-    restart: unless-stopped
-    healthcheck:
-      timeout: 2s
-      interval: 2s
-      retries: 200
-      test:
-        - "CMD"
-        - "bash"
-        - "-c"
-        - "exec 3<> /dev/tcp/127.0.0.1/6379 && echo PING >&3 && head -1 <&3 | grep PONG"
-    networks:
-      - erxes-net
-    # Redis data will be saved into ./redis-data folder.
-    volumes:
-      - ./redis-data:/data
 
   mongo:
     image: mongo:3.6.13
     container_name: mongo
     restart: unless-stopped
     healthcheck:
-      test: echo 'db.stats().ok' | mongo localhost:27017/test --quiet
+      test: echo 'rs.initiate().ok' | mongo localhost:27017/test?replicaSet=rs0 --quiet
       interval: 2s
       timeout: 2s
       retries: 200
+    command: ["--replSet", "rs0", "--bind_ip_all"]
     networks:
       - erxes-net
     # MongoDB data will be saved into ./mongo-data folder.
     volumes:
       - ./mongo-data:/data/db
 
-  rabbitmq:
-    image: rabbitmq:3.7.17-management
-    container_name: rabbitmq
-    restart: unless-stopped
-    hostname: rabbitmq
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.5.2
+    container_name: elasticsearch
     environment:
-      RABBITMQ_DEFAULT_VHOST: erxes
-    healthcheck:
-      timeout: 2s
-      interval: 2s
-      retries: 200
-      test:
-        - "CMD"
-        - "rabbitmqctl"
-        - "status"
+      - bootstrap.memory_lock=true
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+      - discovery.type=single-node
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    volumes:
+      - ./elasticsearch-data:/usr/share/elasticsearch/data
     networks:
       - erxes-net
-    # RabbitMQ data will be saved into ./rabbitmq-data folder.
-    volumes:
-      - ./rabbitmq-data:/var/lib/rabbitmq
+    healthcheck:
+      test: curl -s http://localhost:9200 >/dev/null; if [[ $$? == 52 ]]; then echo 0; else echo 1; fi
+      interval: 30s
+      timeout: 10s
+      retries: 5
 
 networks:
   erxes-net:

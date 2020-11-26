@@ -12,7 +12,7 @@ import {
   knowledgeBaseTopicFactory,
   userFactory
 } from '../db/factories';
-import { Conversations, Customers, Integrations } from '../db/models';
+import { Brands, Conversations, Customers, Integrations } from '../db/models';
 import './setup.ts';
 
 describe('widgetQueries', () => {
@@ -21,6 +21,7 @@ describe('widgetQueries', () => {
     await Conversations.deleteMany({});
     await Customers.deleteMany({});
     await Integrations.deleteMany({});
+    await Brands.deleteMany({});
   });
 
   test('Conversations', async () => {
@@ -316,5 +317,82 @@ describe('widgetQueries', () => {
     const response = await isMessengerOnline(integration);
 
     expect(response).toBe(false);
+  });
+
+  test('widgetsGetEngageMessage', async () => {
+    // Creating test data
+    const brand = await brandFactory({});
+    const integration = await integrationFactory({ brandId: brand._id });
+    const customer = await customerFactory({ integrationId: integration._id });
+
+    const qry = `query widgetsGetEngageMessage($customerId: String!, $browserInfo: JSON!) {
+      widgetsGetEngageMessage(customerId: $customerId, browserInfo: $browserInfo) {
+        _id
+        engageData {
+          messageId
+        }
+      }
+    }
+    `;
+
+    const response = await graphqlRequest(qry, 'widgetsGetEngageMessage', {
+      customerId: customer._id,
+      browserInfo: {
+        url: 'url',
+        hostname: 'hostname'
+      }
+    });
+
+    expect(response).toBe(null);
+  });
+
+  test('widgetsGetEngageMessage integarion not found', async () => {
+    const customer = await customerFactory({});
+    const qry = `query widgetsGetEngageMessage($customerId: String!, $browserInfo: JSON!) {
+      widgetsGetEngageMessage(customerId: $customerId, browserInfo: $browserInfo) {
+        _id
+        engageData {
+          messageId
+        }
+      }
+    }`;
+
+    try {
+      await graphqlRequest(qry, 'widgetsGetEngageMessage', {
+        customerId: customer._id,
+        browserInfo: {
+          url: 'url',
+          hostname: 'hostname'
+        }
+      });
+    } catch (e) {
+      expect(e[0].message).toBe('Integration not found');
+    }
+  });
+
+  test('widgetsGetEngageMessage brand not found', async () => {
+    const integration = await integrationFactory({});
+    const customer = await customerFactory({ integrationId: integration._id });
+
+    const qry = `query widgetsGetEngageMessage($customerId: String!, $browserInfo: JSON!) {
+      widgetsGetEngageMessage(customerId: $customerId, browserInfo: $browserInfo) {
+        _id
+        engageData {
+          messageId
+        }
+      }
+    }`;
+
+    try {
+      await graphqlRequest(qry, 'widgetsGetEngageMessage', {
+        customerId: customer._id,
+        browserInfo: {
+          url: 'url',
+          hostname: 'hostname'
+        }
+      });
+    } catch (e) {
+      expect(e[0].message).toBe('Brand not found');
+    }
   });
 });

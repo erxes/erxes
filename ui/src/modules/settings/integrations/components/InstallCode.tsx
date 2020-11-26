@@ -1,7 +1,6 @@
 import { getEnv } from 'apolloClient';
 import Button from 'modules/common/components/Button';
 import EmptyState from 'modules/common/components/EmptyState';
-import { ControlLabel } from 'modules/common/components/form';
 import Info from 'modules/common/components/Info';
 import { Tabs, TabTitle } from 'modules/common/components/tabs';
 import { ModalFooter } from 'modules/common/styles/main';
@@ -22,10 +21,9 @@ type Props = {
 type State = {
   basicCode: string;
   singlePageCode: string;
-  erxesSdkOpenSource: string;
-  erxesSdkSaas: string;
-  objectiveSdkOpenSource: string;
-  objectiveSdkSaas: string;
+  swift: string;
+  objc: string;
+  android: string;
   copied: boolean;
   singleCopied: boolean;
   contentCopied: boolean;
@@ -80,23 +78,14 @@ const singlePageInstall = brandCode => {
   `;
 };
 
-const openSourceSDK = brandCode => {
-  return `Erxes.setup(erxesWidgetsApiUrl: "your_erxes-widgets-api_url_here", erxesApiUrl: 
-    "your_erxes-api_url_here", brandCode: "${brandCode}")`;
+const swiftSdkInstall = brandCode => {
+  const { REACT_APP_API_URL } = getEnv();
+  return `Erxes.setup(erxesApiUrl: "${REACT_APP_API_URL}", brandId: "${brandCode}")`;
 };
 
-const saasSDK = brandCode => {
-  return `Erxes.setupSaas(companyName: "Registered_Company_Name", brandCode: "${brandCode}")`;
-};
-
-const openSourceObjective = brandCode => {
-  return `[Erxes setupWithErxesWidgetsApiUrl:@"your_erxes-widgets-api_url_here" 
-  erxesApiUrl:@"your_erxes-api_url_here" brandCode:@"${brandCode}"];`;
-};
-
-const saasObjective = brandCode => {
-  return `[Erxes setupSaasWithCompanyName:@"Registered_Company_Name" 
-  brandCode:@"${brandCode}"]`;
+const objcSdkInstall = brandCode => {
+  const { REACT_APP_API_URL } = getEnv();
+  return `[Erxes setupWithErxesApiUrl:@"${REACT_APP_API_URL}" brandId:@"${brandCode}"];`;
 };
 
 const objectiveSDK = `target '<Your Target Name>' do
@@ -133,20 +122,24 @@ const buildgradle = `allprojects {
   }`;
 
 const dependency = `dependencies {
-    implementation 'com.github.erxes:erxes-android-sdk:1.0.3-rc1'
+    implementation 'com.github.erxes:erxes-android-sdk:{latest_release}'
   }`;
 
-const androidClass = `public class CustomActivity extends AppCompatActivity {
-    Config config;
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        config = new Config.Builder("brandid")
-                .setApiHost("https://url/graphql")
-                .setSubscriptionHost("wss://url/subscriptions")
-                .setUploadHost("https://url/upload-file")
-                .build(this);
-    }
-  }`;
+const androidSdkInstall = brandCode => {
+  const { REACT_APP_API_URL, REACT_APP_API_SUBSCRIPTION_URL } = getEnv();
+
+  return `public class CustomActivity extends AppCompatActivity {
+      Config config;
+      @Override
+      protected void onCreate(Bundle savedInstanceState) {
+          config = new Config.Builder("${brandCode}")
+                  .setApiHost("https://${REACT_APP_API_URL}/graphql")
+                  .setSubscriptionHost("${REACT_APP_API_SUBSCRIPTION_URL}")
+                  .setUploadHost("https://${REACT_APP_API_URL}/upload-file")
+                  .build(this);
+      }
+    }`;
+};
 
 const loginChat = `public void onClick(View view) {
   config.Start();
@@ -165,10 +158,9 @@ class InstallCode extends React.PureComponent<Props, State> {
 
     let basicCode = '';
     let singlePageCode = '';
-    let erxesSdkOpenSource = '';
-    let erxesSdkSaas = '';
-    let objectiveSdkOpenSource = '';
-    let objectiveSdkSaas = '';
+    let swift = '';
+    let objc = '';
+    let android = '';
     const integration = props.integration || {};
 
     // showed install code automatically in edit mode
@@ -177,19 +169,17 @@ class InstallCode extends React.PureComponent<Props, State> {
 
       basicCode = getInstallCode(brand.code);
       singlePageCode = singlePageInstall(brand.code);
-      erxesSdkOpenSource = openSourceSDK(brand.code);
-      erxesSdkSaas = saasSDK(brand.code);
-      objectiveSdkOpenSource = openSourceObjective(brand.code);
-      objectiveSdkSaas = saasObjective(brand.code);
+      swift = swiftSdkInstall(brand.code);
+      objc = objcSdkInstall(brand.code);
+      android = androidSdkInstall(brand.code);
     }
 
     this.state = {
       basicCode,
-      erxesSdkOpenSource,
-      erxesSdkSaas,
+      swift,
       singlePageCode,
-      objectiveSdkOpenSource,
-      objectiveSdkSaas,
+      objc,
+      android,
       currentTab: 'basic',
       copied: false,
       singleCopied: false,
@@ -264,13 +254,8 @@ class InstallCode extends React.PureComponent<Props, State> {
               {<b>didFinishLaunchingWithOptions {__('method:')}</b>}
               <br />
               <br />
-              <ControlLabel>Open source:</ControlLabel>
               <MarkdownWrapper>
-                <pre>{this.state.erxesSdkOpenSource}</pre>
-              </MarkdownWrapper>
-              <ControlLabel>Saas:</ControlLabel>
-              <MarkdownWrapper>
-                <pre>{this.state.erxesSdkSaas}</pre>
+                <pre>{this.state.swift}</pre>
               </MarkdownWrapper>
             </li>
             <li>
@@ -321,13 +306,8 @@ class InstallCode extends React.PureComponent<Props, State> {
               <b>didFinishLaunchingWithOptions method:</b>
               <br />
               <br />
-              <ControlLabel>Open source:</ControlLabel>
               <MarkdownWrapper>
-                <pre>{this.state.objectiveSdkOpenSource}</pre>
-              </MarkdownWrapper>
-              <ControlLabel>Saas:</ControlLabel>
-              <MarkdownWrapper>
-                <pre>{this.state.objectiveSdkSaas}</pre>
+                <pre>{this.state.objc}</pre>
               </MarkdownWrapper>
             </li>
             <li>
@@ -381,7 +361,7 @@ class InstallCode extends React.PureComponent<Props, State> {
             <b>* subsHost</b> - {__('erxes-api subscription url')} <br />
             <b>* uploadUrl</b> - {__('erxes-api server url')}
             <MarkdownWrapper>
-              <pre>{androidClass}</pre>
+              <pre>{this.state.android}</pre>
             </MarkdownWrapper>
           </li>
           <li>

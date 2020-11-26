@@ -18,7 +18,7 @@ type Props = {
 function ManageRoom(props: Props) {
   const [loading, setLoading] = useState(false);
 
-  const openWindow = (url: string, name: string) => {
+  const openWindow = (conversationId: string, url: string, name: string) => {
     const height = 600;
     const width = 480;
 
@@ -26,7 +26,7 @@ function ManageRoom(props: Props) {
     const x = window.top.outerWidth / 2 + window.top.screenX - width / 2;
 
     window.open(
-      `/videoCall?url=${url}&name=${name}`,
+      `/videoCall?url=${url}&name=${name}&conversationId=${conversationId}`,
       '_blank',
       `toolbar=no,titlebar=no,directories=no,menubar=no,location=no,scrollbars=yes,status=no,height=${height},width=${width},top=${y},left=${x}`
     );
@@ -41,7 +41,7 @@ function ManageRoom(props: Props) {
     } = props;
 
     if (activeVideo && activeVideo.url) {
-      openWindow(activeVideo.url, activeVideo.name || '');
+      openWindow(conversationId, activeVideo.url, activeVideo.name || '');
     } else {
       setLoading(true);
 
@@ -58,7 +58,7 @@ function ManageRoom(props: Props) {
 
           const { url, name } = data.conversationCreateVideoChatRoom;
 
-          openWindow(url, name);
+          openWindow(conversationId, url, name);
         })
         .catch(error => {
           setLoading(false);

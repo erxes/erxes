@@ -1,13 +1,15 @@
 const commonGroupParamsDef = `
   $name: String!,
+  $boardId: String!,
   $isPrivate: Boolean,
-  $assignedUserIds: [String],
+  $memberIds: [String],
 `;
 
 const commonGroupParams = `
   name: $name,
+  boardId: $boardId,
   isPrivate: $isPrivate,
-  assignedUserIds: $assignedUserIds
+  memberIds: $memberIds
 `;
 
 const groupAdd = `
@@ -32,14 +34,36 @@ const groupRemove = `
   }
 `;
 
+// board
+const boardAdd = `
+  mutation calendarBoardsAdd($name: String!) {
+    calendarBoardsAdd(name: $name) {
+      _id
+    }
+  }
+`;
+
+const boardEdit = `
+  mutation calendarBoardsEdit($_id: String!, $name: String) {
+    calendarBoardsEdit(_id: $_id, name: $name) {
+      _id
+    }
+  }
+`;
+
+const boardRemove = `
+  mutation calendarBoardsDelete($_id: String!) {
+    calendarBoardsDelete(_id: $_id)
+  }
+`;
+
+// calendar
 const commonParamsDef = `
-  $name: String!,
   $groupId: String!,
   $color: String,
 `;
 
 const commonParams = `
-  name: $name,
   color: $color,
   groupId: $groupId
 `;
@@ -67,6 +91,9 @@ const calendarRemove = `
 `;
 
 export default {
+  boardAdd,
+  boardEdit,
+  boardRemove,
   groupAdd,
   groupEdit,
   groupRemove,

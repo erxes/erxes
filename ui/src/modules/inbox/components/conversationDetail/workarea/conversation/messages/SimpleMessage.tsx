@@ -11,14 +11,13 @@ import React from 'react';
 import xss from 'xss';
 import { IMessage } from '../../../../../types';
 import {
-  AppMessageBox,
   CallBox,
-  CallButton,
   MessageBody,
   MessageContent,
   MessageItem,
   UserInfo
 } from '../styles';
+import VideoCallMessage from './VideoCallMessage';
 
 type Props = {
   message: IMessage;
@@ -69,41 +68,6 @@ export default class SimpleMessage extends React.Component<Props, {}> {
     );
   }
 
-  renderVideoCall() {
-    const { message } = this.props;
-
-    const videoCallData = message.videoCallData || { status: 'end', url: '' };
-
-    if (videoCallData.status === 'end') {
-      return (
-        <CallBox>
-          <UserInfo>
-            <strong>
-              <Icon icon="phone-slash" color="#EA475D" size={15} />{' '}
-              {__('Video call ended')}
-            </strong>
-          </UserInfo>
-        </CallBox>
-      );
-    }
-
-    return (
-      <AppMessageBox>
-        <UserInfo>
-          <h5>{__('Video call invitation sent')}</h5>
-          <h3>
-            <Icon icon="user-plus" color="#3B85F4" />
-          </h3>
-        </UserInfo>
-        <CallButton>
-          <a target="_blank" rel="noopener noreferrer" href={videoCallData.url}>
-            {__('Join a call')}
-          </a>
-        </CallButton>
-      </AppMessageBox>
-    );
-  }
-
   renderContent(hasAttachment: boolean) {
     const { message, renderContent, isStaff } = this.props;
 
@@ -112,7 +76,7 @@ export default class SimpleMessage extends React.Component<Props, {}> {
     }
 
     if (message.contentType === 'videoCall') {
-      return this.renderVideoCall();
+      return <VideoCallMessage message={message} />;
     }
 
     if (message.contentType === 'videoCallRequest') {

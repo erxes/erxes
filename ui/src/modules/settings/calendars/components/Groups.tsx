@@ -1,88 +1,225 @@
 import Button from 'modules/common/components/Button';
-import DataWithLoader from 'modules/common/components/DataWithLoader';
-import ModalTrigger from 'modules/common/components/ModalTrigger';
-import { TopHeader } from 'modules/common/styles/main';
-import { IButtonMutateProps } from 'modules/common/types';
-import Sidebar from 'modules/layout/components/Sidebar';
-import { SidebarList as List } from 'modules/layout/styles';
+import DropdownToggle from 'modules/common/components/DropdownToggle';
+import EmptyState from 'modules/common/components/EmptyState';
+import Icon from 'modules/common/components/Icon';
+import Table from 'modules/common/components/table';
+import { Count, Title } from 'modules/common/styles/main';
+import { IButtonMutateProps, IRouterProps } from 'modules/common/types';
+import { __ } from 'modules/common/utils';
+import Wrapper from 'modules/layout/components/Wrapper';
 import React from 'react';
-import { IGroup } from '../types';
-import GroupForm from './GroupForm';
+import Dropdown from 'react-bootstrap/Dropdown';
+import { withRouter } from 'react-router-dom';
+import { CALENDAR_INTEGRATIONS } from '../constants';
+import GroupForm from '../containers/GroupForm';
+import { IBoard, ICalendar, IGroup } from '../types';
+import CalendarForm from './CalendarForm';
 import GroupRow from './GroupRow';
 
 type Props = {
-  currentGroupId?: string;
   groups: IGroup[];
-  remove: (groupId: string) => void;
   renderButton: (props: IButtonMutateProps) => JSX.Element;
-  loading: boolean;
+  updateOrder?: any;
+  remove: (group: IGroup) => void;
+  boardId: string;
+  refetch: ({ boardId }: { boardId?: string }) => Promise<any>;
+  currentBoard?: IBoard;
+  customLink: (kind: string) => void;
+  removeCalendar: (calendar: ICalendar) => void;
+  renderCalendarButton: (props: IButtonMutateProps) => JSX.Element;
+} & IRouterProps;
+
+type State = {
+  showModal: boolean;
+  groups: IGroup[];
+  showCalendarModal: boolean;
 };
 
-class Groups extends React.Component<Props, {}> {
-  renderItems = () => {
-    const { groups, remove, renderButton, currentGroupId } = this.props;
+class Groups extends React.Component<Props, State> {
+  constructor(props: Props) {
+    super(props);
+
+    const { history } = props;
+
+    const showCalendarModal = history.location.hash.includes(
+      'showCalendarModal'
+    );
+
+    this.state = {
+      showModal: false,
+      groups: props.groups || [],
+      showCalendarModal
+    };
+  }
+
+  componentWillReceiveProps(nextProps) {
+    if (nextProps.groups !== this.props.groups) {
+      this.setState({ groups: nextProps.groups });
+    }
+  }
+
+  renderAddForm = () => {
+    const { boardId, renderButton } = this.props;
+
+    const closeModal = () => this.setState({ showModal: false });
+
+    return (
+      <GroupForm
+        boardId={boardId}
+        renderButton={renderButton}
+        show={this.state.showModal}
+        closeModal={closeModal}
+      />
+    );
+  };
+
+  renderCalendarForm = () => {
+    const { renderCalendarButton, groups } = this.props;
+
+    const closeModal = () => {
+      this.setState({ showCalendarModal: false });
+    };
+
+    return (
+      <CalendarForm
+        renderButton={renderCalendarButton}
+        closeModal={closeModal}
+        show={this.state.showCalendarModal}
+        groups={groups}
+      />
+    );
+  };
+
+  addGroup = () => {
+    this.setState({
+      showModal: true
+    });
+  };
+
+  connectCalendar = (kind: string) => {
+    this.props.customLink(kind);
+  };
+
+  renderRows() {
+    const { renderButton, removeCalendar, renderCalendarButton } = this.props;
+    const { groups } = this.state;
 
     return groups.map(group => (
       <GroupRow
         key={group._id}
-        isActive={currentGroupId === group._id}
         group={group}
-        remove={remove}
         renderButton={renderButton}
+        remove={this.props.remove}
+        groups={this.props.groups}
+        removeCalendar={removeCalendar}
+        renderCalendarButton={renderCalendarButton}
       />
     ));
-  };
-
-  renderGroupForm(props) {
-    return <GroupForm {...props} />;
   }
 
-  renderSidebarHeader() {
-    const { renderButton } = this.props;
+  renderContent() {
+    const { groups } = this.props;
 
-    const addGroup = (
-      <Button
-        btnStyle="success"
-        icon="plus-circle"
-        uppercase={false}
-        block={true}
-      >
-        Add New Group
-      </Button>
-    );
-
-    const content = props => {
-      return this.renderGroupForm({ ...props, renderButton });
-    };
+    if (groups.length === 0) {
+      return (
+        <EmptyState
+          text={`Get started on your group`}
+          image="/images/actions/16.svg"
+        />
+      );
+    }
 
     return (
-      <TopHeader>
-        <ModalTrigger
-          title={`New Group`}
-          trigger={addGroup}
-          autoOpenKey="showGroupModal"
-          content={content}
-        />
-      </TopHeader>
+      <>
+        <Count>
+          {groups.length} {__('group')}
+          {groups.length > 1 && 's'}
+        </Count>
+        <Table>
+          <thead>
+            <tr>
+              <th>{__('group')}</th>
+              <th>{__('Actions')}</th>
+            </tr>
+          </thead>
+          <tbody>{this.renderRows()}</tbody>
+        </Table>
+      </>
+    );
+  }
+
+  addButton() {
+    const { groups } = this.props;
+
+    if (groups.length === 0) {
+      return null;
+    }
+
+    return (
+      <>
+        <Dropdown className="dropdown-btn" alignRight={true}>
+          <Dropdown.Toggle as={DropdownToggle} id="dropdown-customize">
+            <Button btnStyle="simple" size="small">
+              {__('Add calendar')} <Icon icon="angle-down" />
+            </Button>
+          </Dropdown.Toggle>
+          <Dropdown.Menu>
+            {CALENDAR_INTEGRATIONS.map(i => (
+              <li key={i.kind}>
+                <a
+                  href={`#${i.kind}`}
+                  onClick={this.connectCalendar.bind(this, i.kind)}
+                >
+                  {i.name}
+                </a>
+              </li>
+            ))}
+          </Dropdown.Menu>
+        </Dropdown>
+      </>
+    );
+  }
+
+  renderButton() {
+    const { boardId } = this.props;
+
+    if (!boardId) {
+      return null;
+    }
+
+    return (
+      <>
+        {this.addButton()}
+        <Button
+          size="small"
+          btnStyle="primary"
+          uppercase={false}
+          icon="plus-circle"
+          onClick={this.addGroup}
+        >
+          Add group
+        </Button>
+      </>
     );
   }
 
   render() {
-    const { loading, groups } = this.props;
+    const { currentBoard } = this.props;
+
+    const leftActionBar = (
+      <Title>{currentBoard ? currentBoard.name : ''}</Title>
+    );
 
     return (
-      <Sidebar wide={true} header={this.renderSidebarHeader()} full={true}>
-        <DataWithLoader
-          data={<List>{this.renderItems()}</List>}
-          loading={loading}
-          count={groups.length}
-          emptyText={`There is no group`}
-          emptyImage="/images/actions/18.svg"
-          objective={true}
-        />
-      </Sidebar>
+      <div id="groups-content">
+        <Wrapper.ActionBar left={leftActionBar} right={this.renderButton()} />
+
+        {this.renderContent()}
+        {this.renderAddForm()}
+        {this.renderCalendarForm()}
+      </div>
     );
   }
 }
 
-export default Groups;
+export default withRouter(Groups);

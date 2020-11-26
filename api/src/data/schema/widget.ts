@@ -59,6 +59,7 @@ export const queries = `
   widgetsMessengerSupporters(integrationId: String!): MessengerSupportersResponse
   widgetsKnowledgeBaseArticles(topicId: String!, searchString: String) : [KnowledgeBaseArticle]
   widgetsKnowledgeBaseTopicDetail(_id: String!): KnowledgeBaseTopic
+  widgetsGetEngageMessage(customerId: String!, browserInfo: JSON!): ConversationMessage
 `;
 
 export const mutations = `
@@ -92,7 +93,7 @@ export const mutations = `
 
   widgetBotRequest(
     customerId: String!
-    conversationId: String!
+    conversationId: String
     integrationId: String!,
     message: String!
     payload: String!
@@ -123,7 +124,7 @@ export const mutations = `
     content: String
   ): String
 
-  widgetGetBotInitialMessage(integrationId: String, customerId: String): JSON
+  widgetGetBotInitialMessage(integrationId: String): JSON
 
   widgetsKnowledgebaseIncReactionCount(articleId: String!, reactionChoice: String!): String
   widgetsLeadIncreaseViewCount(formId: String!): JSON

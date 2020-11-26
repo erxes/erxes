@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 160" width="160" height="160">
+	<defs>
+		<radialGradient id="grd1" gradientUnits="userSpaceOnUse"  cx="80" cy="80" r="80">
+			<stop offset="0" stop-color="#ffbba3" stop-opacity="0" />
+			<stop offset="1" stop-color="#ff8e66" stop-opacity="0.2" />
+		</radialGradient>
+		<image width="65" height="72" id="img1" href="data:image/png;base64,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"/>
+	</defs>
+	<style>
+		tspan { white-space:pre }
+		.shp0 { opacity: 0.6;fill: url(#grd1) } 
+	</style>
+	<path id="Layer" class="shp0" d="M80 160C35.76 160 0 124.24 0 80C0 35.76 35.76 0 80 0C124.24 0 160 35.76 160 80C160 124.24 124.24 160 80 160Z" />
+	<use id="Layer" href="#img1" x="48" y="45" />
+</svg>

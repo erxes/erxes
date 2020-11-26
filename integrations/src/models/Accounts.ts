@@ -20,6 +20,7 @@ export interface IAccount {
   name: string;
   billingState?: string;
   uid: string;
+  googleAccessToken?: string;
   nylasAccountId?: string;
   nylasBillingState?: string;
 }
@@ -58,6 +59,10 @@ export const accountSchema = new Schema({
     type: Number
   },
   password: {
+    type: String,
+    optional: true
+  },
+  googleAccessToken: {
     type: String,
     optional: true
   },

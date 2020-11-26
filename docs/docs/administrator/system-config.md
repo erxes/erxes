@@ -500,7 +500,8 @@ DAILY_END_POINT="your daily application's end point"
 ```
 
 - `DAILY_API_KEY='######'` Get API key from Daily account Developers tab.
-- `DAILY_END_POINT ='example.daily.co'` is your subdomain name.
+- `DAILY_END_POINT ='https://example.daily.co'` is your subdomain name.
+  - **Note:** You must have `https://` before the url endpoint, and there is **no trailing slash**.
 
 Integrated video chat is used on the Erxes messenger widget. It is assumed that the one conversation can be activated one video call.
 
@@ -859,6 +860,35 @@ When you start erxes-integration repo webhook will automatically created accordi
 ![](https://erxes-docs.s3-us-west-2.amazonaws.com/integration/smooch-twilio-3.png)
 
 6. Go to Setting=> Channel=> Add new channel=> Connect Twilio integration.
+
+### Telnyx SMS
+
+**1. Sign in to [telnyx portal](https://portal.telnyx.com).**
+
+**2. Create an API key.**
+
+With API keys, you can "talk" to the telnyx API.
+![](https://erxes-docs.s3-us-west-2.amazonaws.com/integration/telnyx-api-key.png)
+
+**3. Purchase phone numbers.**
+
+![](https://erxes-docs.s3-us-west-2.amazonaws.com/integration/telnyx-numbers-buy.png)
+
+![](https://erxes-docs.s3-us-west-2.amazonaws.com/integration/telnyx-numbers.png)
+
+**4. Create messaging profiles.**
+
+Messaging profiles let you set configurations like destination countries, webhooks to send or receive messages.
+![](https://erxes-docs.s3-us-west-2.amazonaws.com/integration/telnyx-msg-profile.png)
+
+**5. Setup the API key in integration settings.**
+
+Configure the telnyx API at **"settings > system config > integration config".**
+![](https://erxes-docs.s3-us-west-2.amazonaws.com/integration/integration-telnyx.png)
+
+**6. Create telnyx integrations with purchased phone number & messaging profile.**
+
+![](https://erxes-docs.s3-us-west-2.amazonaws.com/integration/add-telnyx-integration.png)
 
 ## Engage configurations
 

@@ -10,7 +10,7 @@ import {
 } from '../../types';
 import { __, makeClickableLink, scrollTo } from '../../utils';
 import { MESSAGE_TYPES } from '../containers/AppContext';
-import { IMessage } from '../types';
+import { IBotData, IMessage } from '../types';
 import { Message } from './';
 import { MessageBot } from './';
 import AccquireInformation from './AccquireInformation';
@@ -35,7 +35,7 @@ type Props = {
   sendTypingInfo: (conversationId: string, text: string) => void;
   conversationId: string | null;
   changeOperatorStatus: (_id: string, operatorStatus: string) => void;
-  getBotInitialMessage: () => void;
+  getBotInitialMessage: (callback: (bodData: any) => void) => void;
   operatorStatus?: string;
   sendMessage: (contentType: string, message: string) => void;
   showVideoCallRequest: boolean;
@@ -44,6 +44,7 @@ type Props = {
 
 type State = {
   hideNotifyInput: boolean;
+  initialMessage: { bodData: IBotData } | null;
 };
 
 class MessagesList extends React.Component<Props, State> {
@@ -53,19 +54,22 @@ class MessagesList extends React.Component<Props, State> {
   constructor(props: Props) {
     super(props);
 
-    this.state = { hideNotifyInput: false };
+    this.state = { hideNotifyInput: false, initialMessage: null };
     this.onNotify = this.onNotify.bind(this);
   }
 
   componentDidMount() {
-    const { messengerData, messages, getBotInitialMessage, conversationId } = this.props;
+    const { messengerData, messages, getBotInitialMessage, conversationId = "" } = this.props;
 
     if (
       messengerData.botShowInitialMessage &&
       messages.length === 0 &&
-      !conversationId
+      (!conversationId ||
+      (conversationId || "").length === 0)
     ) {
-      getBotInitialMessage();
+      getBotInitialMessage((initialMessage) => {
+        this.setState({ initialMessage });
+      });
     }
 
     if (this.node) {
@@ -105,6 +109,16 @@ class MessagesList extends React.Component<Props, State> {
       );
     });
   };
+
+  renderBotGreetingMessage(messengerData: IIntegrationMessengerData) {
+    const { initialMessage } = this.state;
+
+    if (!messengerData.botShowInitialMessage || !initialMessage) {
+      return null;
+    }
+
+    return this.renderSingleMessage(initialMessage);
+  }
 
   renderAwayMessage(messengerData: IIntegrationMessengerData) {
     const { isOnline } = this.props;
@@ -326,6 +340,7 @@ class MessagesList extends React.Component<Props, State> {
     return (
       <div className={backgroundClass} ref={node => (this.node = node)}>
         <ul id="erxes-messages" className="erxes-messages-list slide-in">
+          {this.renderBotGreetingMessage(messengerData)}
           {this.renderWelcomeMessage(messengerData)}
           {this.renderCallRequest()}
           {this.renderMessages()}

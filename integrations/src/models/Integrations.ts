@@ -12,6 +12,7 @@ export interface IIntegration {
   facebookPageIds?: string[];
   facebookPageTokensMap?: { [key: string]: string };
   email: string;
+  googleAccessToken?: string;
   phoneNumber: string;
   recordUrl: string;
   expiration?: string;
@@ -51,6 +52,10 @@ export const integrationSchema = new Schema({
     optional: true
   }),
   emailScope: String,
+  googleAccessToken: field({
+    type: String,
+    optional: true
+  }),
   nylasToken: String,
   nylasAccountId: String,
   nylasBillingState: String,

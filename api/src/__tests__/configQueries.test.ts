@@ -83,15 +83,23 @@ describe('configQueries', () => {
   });
 
   test('Check activate installation', async () => {
-    const mock = sinon.stub(utils, 'sendRequest').callsFake(() => {
-      return Promise.resolve('ok');
-    });
-
     const qry = `
       query configsCheckActivateInstallation($hostname: String!) {
         configsCheckActivateInstallation(hostname: $hostname)
       }
     `;
+
+    try {
+      await graphqlRequest(qry, 'configsCheckActivateInstallation', {
+        hostname: 'localhost'
+      });
+    } catch (e) {
+      expect(e[0].message).toBe('');
+    }
+
+    const mock = sinon.stub(utils, 'sendRequest').callsFake(() => {
+      return Promise.resolve('ok');
+    });
 
     const response = await graphqlRequest(
       qry,

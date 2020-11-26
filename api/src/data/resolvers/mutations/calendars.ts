@@ -1,6 +1,13 @@
-import { CalendarGroups, Calendars } from '../../../db/models';
+import {
+  CalendarBoards,
+  CalendarGroups,
+  Calendars,
+  Users
+} from '../../../db/models';
 import {
   ICalendar,
+  ICalendarBoard,
+  ICalendarBoardDocument,
   ICalendarDocument,
   ICalendarGroup,
   ICalendarGroupDocument
@@ -12,27 +19,55 @@ import {
 } from '../../permissions/wrappers';
 import { IContext } from '../../types';
 
-interface IEvent {
+type Participant = {
+  name?: string;
+  email?: string;
+  status?: string;
+  comment?: string;
+};
+
+type Event = {
   _id?: string;
   title?: string;
   description?: string;
   start: string;
   end: string;
   accountId?: string;
-}
+
+  participants?: Participant[];
+  memberIds?: string[];
+};
+
+const generateDoc = async (doc: Event) => {
+  const participants = doc.participants || [];
+
+  if (doc.memberIds) {
+    const users = await Users.find({ _id: { $in: doc.memberIds } });
+
+    for (const user of users) {
+      participants.push({ name: user.username, email: user.email });
+    }
+  }
+
+  return { ...doc, participants };
+};
 
 const calendarMutations = {
   /**
    * Create a new calendar event
    */
-  async createCalendarEvent(_root, doc: IEvent, { dataSources }: IContext) {
-    return dataSources.IntegrationsAPI.createCalendarEvent(doc);
+  async createCalendarEvent(_root, doc: Event, { dataSources }: IContext) {
+    return dataSources.IntegrationsAPI.createCalendarEvent(
+      await generateDoc(doc)
+    );
   },
 
   /**
    * Update a new calendar event
    */
-  async editCalendarEvent(_root, doc: IEvent, { dataSources }: IContext) {
+  async editCalendarEvent(_root, doc: Event, { dataSources }: IContext) {
+    delete doc.memberIds;
+
     return dataSources.IntegrationsAPI.editCalendarEvent(doc);
   },
 
@@ -61,11 +96,17 @@ const calendarMutations = {
     });
 
     try {
-      const { accountId } = await dataSources.IntegrationsAPI.connectCalendars({
+      const {
+        accountId,
+        email
+      } = await dataSources.IntegrationsAPI.connectCalendars({
         uid
       });
 
-      await Calendars.update({ _id: calendar._id }, { $set: { accountId } });
+      await Calendars.update(
+        { _id: calendar._id },
+        { $set: { accountId, name: email } }
+      );
     } catch (e) {
       await Calendars.removeCalendar(calendar._id);
 
@@ -127,6 +168,27 @@ const calendarMutations = {
    */
   async calendarGroupsDelete(_root, _id: string) {
     return CalendarGroups.removeCalendarGroup(_id);
+  },
+
+  /**
+   * Create a new calendar board
+   */
+  async calendarBoardsAdd(_root, doc: ICalendarBoard, { user }: IContext) {
+    return CalendarBoards.createCalendarBoard({ ...doc, userId: user._id });
+  },
+
+  /**
+   * Update a calendar board
+   */
+  async calendarBoardsEdit(_root, { _id, ...doc }: ICalendarBoardDocument) {
+    return CalendarBoards.updateCalendarBoard(_id, doc);
+  },
+
+  /**
+   * Remove a calendar board
+   */
+  async calendarBoardsDelete(_root, _id: string) {
+    return CalendarBoards.removeCalendarBoard(_id);
   }
 };
 
