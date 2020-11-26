@@ -8,6 +8,7 @@ export interface IVideoCallData {
   url: string;
   name?: string;
   status?: string;
+  recordingLinks?: string[];
 }
 
 export interface IConversation {

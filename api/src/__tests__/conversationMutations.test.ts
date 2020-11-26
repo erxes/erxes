@@ -739,6 +739,47 @@ describe('Conversation message mutations', () => {
     mock.restore();
   });
 
+  test('Save video recording info', async () => {
+    const mutation = `
+      mutation conversationsSaveVideoRecordingInfo($conversationId: String!, $recordingId: String!) {
+        conversationsSaveVideoRecordingInfo(conversationId: $conversationId, recordingId: $recordingId)
+      }
+    `;
+
+    const args = {
+      conversationId: 'conversationId',
+      recordingId: 'recordingId'
+    };
+
+    try {
+      await graphqlRequest(
+        mutation,
+        'conversationsSaveVideoRecordingInfo',
+        args,
+        { dataSources }
+      );
+    } catch (e) {
+      expect(e[0].message).toBe('Integrations api is not running');
+    }
+
+    const mock = sinon
+      .stub(dataSources.IntegrationsAPI, 'saveDailyRecordingInfo')
+      .callsFake(() => {
+        return Promise.resolve({ status: 'ok' });
+      });
+
+    const response = await graphqlRequest(
+      mutation,
+      'conversationsSaveVideoRecordingInfo',
+      args,
+      { dataSources }
+    );
+
+    expect(response).toBe('ok');
+
+    mock.restore();
+  });
+
   test('Create product board note', async () => {
     const mutation = `
       mutation conversationCreateProductBoardNote($_id: String!) {
