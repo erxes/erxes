@@ -538,9 +538,12 @@ const widgetMutations = {
     // mark customer as active
     await Customers.markCustomerAsActive(conversation.customerId);
 
-    graphqlPubsub.publish('conversationClientMessageInserted', {
-      conversationClientMessageInserted: msg
-    });
+    if (conversation.operatorStatus === CONVERSATION_OPERATOR_STATUS.OPERATOR) {
+      graphqlPubsub.publish('conversationClientMessageInserted', {
+        conversationClientMessageInserted: msg
+      });
+    }
+
     graphqlPubsub.publish('conversationMessageInserted', {
       conversationMessageInserted: msg
     });
@@ -589,9 +592,6 @@ const widgetMutations = {
         }
       });
 
-      graphqlPubsub.publish('conversationClientMessageInserted', {
-        conversationClientMessageInserted: botMessage
-      });
       graphqlPubsub.publish('conversationMessageInserted', {
         conversationMessageInserted: botMessage
       });
@@ -774,9 +774,6 @@ const widgetMutations = {
       content: message
     });
 
-    graphqlPubsub.publish('conversationClientMessageInserted', {
-      conversationClientMessageInserted: msg
-    });
     graphqlPubsub.publish('conversationMessageInserted', {
       conversationMessageInserted: msg
     });
@@ -821,9 +818,6 @@ const widgetMutations = {
       botData
     });
 
-    graphqlPubsub.publish('conversationClientMessageInserted', {
-      conversationClientMessageInserted: botMessage
-    });
     graphqlPubsub.publish('conversationMessageInserted', {
       conversationMessageInserted: botMessage
     });

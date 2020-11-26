@@ -291,6 +291,10 @@ describe('insertMessage()', () => {
       operatorStatus: CONVERSATION_OPERATOR_STATUS.BOT
     });
 
+    const conversation2 = await conversationFactory({
+      operatorStatus: CONVERSATION_OPERATOR_STATUS.OPERATOR
+    });
+
     const sendRequestMock = sinon.stub(utils, 'sendRequest').callsFake(() => {
       return Promise.resolve({
         responses: [
@@ -330,6 +334,19 @@ describe('insertMessage()', () => {
     } else {
       fail('Bot message not found');
     }
+
+    const message2 = await widgetMutations.widgetsInsertMessage(
+      {},
+      {
+        contentType: MESSAGE_TYPES.TEXT,
+        integrationId: _integrationBot._id,
+        message: 'User message 2',
+        customerId: _customer._id,
+        conversationId: conversation2._id
+      }
+    );
+
+    expect(message2.content).toBe('User message 2');
 
     sendRequestMock.restore();
   });

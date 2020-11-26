@@ -1364,3 +1364,11 @@ export const getDashboardFile = async (dashboardId: string) => {
 
   return pdf;
 };
+
+export const getErxesSaasDomain = () => {
+  const NODE_ENV = process.env.NODE_ENV;
+
+  return NODE_ENV === 'production'
+    ? 'https://erxes.io'
+    : 'http://localhost:3500';
+};

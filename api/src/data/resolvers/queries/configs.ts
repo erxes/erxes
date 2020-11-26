@@ -4,7 +4,12 @@ import * as path from 'path';
 import { Configs } from '../../../db/models';
 import { DEFAULT_CONSTANT_VALUES } from '../../../db/models/definitions/constants';
 import { moduleRequireLogin } from '../../permissions/wrappers';
-import { getEnv, getSubServiceDomain, sendRequest } from '../../utils';
+import {
+  getEnv,
+  getErxesSaasDomain,
+  getSubServiceDomain,
+  sendRequest
+} from '../../utils';
 
 const configQueries = {
   /**
@@ -98,12 +103,16 @@ const configQueries = {
     };
   },
 
-  configsCheckActivateInstallation(_root, args: { hostname: string }) {
-    return sendRequest({
-      method: 'POST',
-      url: 'https://erxes.io/check-activate-installation',
-      body: args
-    });
+  async configsCheckActivateInstallation(_root, args: { hostname: string }) {
+    try {
+      return await sendRequest({
+        method: 'POST',
+        url: `${getErxesSaasDomain()}/check-activate-installation`,
+        body: args
+      });
+    } catch (e) {
+      throw new Error(e.message);
+    }
   }
 };
 

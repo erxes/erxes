@@ -12,6 +12,7 @@ export default `
   videoCallData {
     url
     status
+    recordingLinks
   }
   internal
   fromBot

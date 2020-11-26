@@ -61,6 +61,10 @@ export default class IntegrationsAPI extends RESTDataSource {
     return this.post('/daily/room', params);
   }
 
+  public async saveDailyRecordingInfo(params) {
+    return this.post('/daily/saveRecordingInfo', params);
+  }
+
   public async fetchApi(path, params) {
     return this.get(path, params);
   }

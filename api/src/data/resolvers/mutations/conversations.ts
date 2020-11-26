@@ -648,18 +648,42 @@ const conversationMutations = {
       ]
     });
 
-    graphqlPubsub.publish('conversationClientMessageInserted', {
-      conversationClientMessageInserted: message
-    });
     graphqlPubsub.publish('conversationMessageInserted', {
       conversationMessageInserted: message
     });
 
     return Conversations.updateOne({ _id }, { $set: { operatorStatus } });
+  },
+
+  async conversationsSaveVideoRecordingInfo(
+    _root,
+    {
+      conversationId,
+      recordingId
+    }: { conversationId: string; recordingId: string },
+    { dataSources }: IContext
+  ) {
+    try {
+      const response = await dataSources.IntegrationsAPI.saveDailyRecordingInfo(
+        {
+          erxesApiConversationId: conversationId,
+          recordingId
+        }
+      );
+
+      return response.status;
+    } catch (e) {
+      debugExternalApi(e);
+
+      throw new Error(e.message);
+    }
   }
 };
 
 requireLogin(conversationMutations, 'conversationMarkAsRead');
+requireLogin(conversationMutations, 'conversationDeleteVideoChatRoom');
+requireLogin(conversationMutations, 'conversationCreateVideoChatRoom');
+requireLogin(conversationMutations, 'conversationsSaveVideoRecordingInfo');
 
 checkPermission(
   conversationMutations,
