@@ -609,7 +609,6 @@ class MailForm extends React.Component<Props, State> {
             onChange={this.handleInputChange}
             required={true}
             value={subject}
-            disabled={this.props.isReply}
             autoFocus={true}
           />
         </FlexRow>
