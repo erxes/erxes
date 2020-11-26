@@ -75,6 +75,10 @@ export const extractEmail = (str?: string) => {
   return emails.join(' ');
 };
 
+export const linkify = (url: string) => {
+  return url.startsWith('http') ? url : `http://${url}`;
+};
+
 export const urlify = (text: string) => {
   // validate url except html a tag
   const urlRegex = /(?:http(s)?:\/\/)?[\w.-]+(?:\.[\w-]+)+[\w\-_~:/?#[\]@!&',;=.]+(?![^<>]*>|[^"]*?<\/a)/g;
