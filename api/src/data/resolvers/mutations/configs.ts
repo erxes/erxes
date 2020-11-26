@@ -5,6 +5,7 @@ import {
 } from '../../permissions/wrappers';
 import { IContext } from '../../types';
 import {
+  getErxesSaasDomain,
   initFirebase,
   registerOnboardHistory,
   resetConfigsCache,
@@ -47,15 +48,19 @@ const configMutations = {
     }
   },
 
-  configsActivateInstallation(
+  async configsActivateInstallation(
     _root,
     args: { token: string; hostname: string }
   ) {
-    return sendRequest({
-      method: 'POST',
-      url: 'https://erxes.io/activate-installation',
-      body: args
-    });
+    try {
+      return await sendRequest({
+        method: 'POST',
+        url: `${getErxesSaasDomain()}/activate-installation`,
+        body: args
+      });
+    } catch (e) {
+      throw new Error(e.message);
+    }
   }
 };
 
