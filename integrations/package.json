@@ -11,7 +11,7 @@
     "start": "node dist",
     "dev": "DEBUG=erxes* node_modules/.bin/ts-node-dev --respawn --ignore-watch node_modules src",
     "test": "NODE_ENV=test node --expose-gc --max_old_space_size=4000 ./node_modules/.bin/jest --runInBand --forceExit --silent --logHeapUsage",
-    "build": "tsc -p tsconfig.prod.json",
+    "build": "tsc -p tsconfig.prod.json && cp gmail-setup.sh dist",
     "migrate": "NODE_ENV=command migrate --migrations-dir='./dist/migrations' --store='./db-migrate-store.js' up",
     "customCommand": "ts-node ./src/commands/customCommand.ts",
     "resetMigrations": "ts-node ./src/commands/resetMigrations.ts"
