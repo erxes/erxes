@@ -648,9 +648,6 @@ const conversationMutations = {
       ]
     });
 
-    graphqlPubsub.publish('conversationClientMessageInserted', {
-      conversationClientMessageInserted: message
-    });
     graphqlPubsub.publish('conversationMessageInserted', {
       conversationMessageInserted: message
     });
