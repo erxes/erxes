@@ -1,3 +1,17 @@
+## [0.20.7](https://github.com/erxes/erxes/compare/0.20.6...0.20.7) (2020-11-26)
+
+
+### Bug Fixes
+
+* **botpress:** create conversation when user respond ([3ee59e9](https://github.com/erxes/erxes/commit/3ee59e9655f78d9de1911d7d5f1c57ab846f43f8)), closes [#2492](https://github.com/erxes/erxes/issues/2492)
+* **chunks:** implemented retry machanism to prevent from loading chunk failed error ([8886593](https://github.com/erxes/erxes/commit/888659347eb9a1f7beac8e0fed8db031dbd47882))
+* **nylas:** revoke google account ([69480dc](https://github.com/erxes/erxes/commit/69480dc14b29902421472dbf9c8fa3c55158f268)), closes [#2494](https://github.com/erxes/erxes/issues/2494)
+
+
+### Reverts
+
+* Revert "update" ([1b7a23f](https://github.com/erxes/erxes/commit/1b7a23f55d5d909f5fbaee4d495b0a6534230bfb))
+
 ## [0.20.6](https://github.com/erxes/erxes/compare/0.20.5...0.20.6) (2020-11-18)
 
 
