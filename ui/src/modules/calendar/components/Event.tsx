@@ -92,7 +92,8 @@ class Event extends React.Component<Props, State> {
   };
 
   renderEvents = (events: IEvent[], showHour: boolean) => {
-    return events.map(event => {
+    console.log(events);
+    return events.map((event, index) => {
       return (
         <Detail
           key={event._id}
@@ -100,6 +101,8 @@ class Event extends React.Component<Props, State> {
           showHour={showHour}
           editEvent={this.editEvent}
           deleteEvent={this.deleteEvent}
+          count={events.length}
+          order={index}
         />
       );
     });
