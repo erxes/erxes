@@ -13,6 +13,7 @@ const Items = styled.ul`
 
   > span {
     padding: 14px 40px 14px 0;
+    cursor: pointer;
   }
 `;
 
