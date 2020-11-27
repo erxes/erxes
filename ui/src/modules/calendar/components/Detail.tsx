@@ -3,7 +3,7 @@ import Button from 'modules/common/components/Button';
 import Icon from 'modules/common/components/Icon';
 import ModalTrigger from 'modules/common/components/ModalTrigger';
 import React from 'react';
-import { EventContent, EventTitle } from '../styles';
+import { EventContent, EventTitle, EventWrapper } from '../styles';
 import { IAccount, IEvent } from '../types';
 import { milliseconds } from '../utils';
 import { CalendarConsumer } from './Wrapper';
@@ -13,6 +13,8 @@ type Props = {
   showHour: boolean;
   editEvent: (event: IEvent, account?: IAccount) => void;
   deleteEvent: (_id: string, accountId: string) => void;
+  count: number;
+  order: number;
 };
 
 type FinalProps = {
@@ -56,7 +58,15 @@ class Detail extends React.Component<FinalProps, { toggle: boolean }> {
   };
 
   render() {
-    const { event, showHour, editEvent, deleteEvent, color } = this.props;
+    const {
+      event,
+      showHour,
+      editEvent,
+      deleteEvent,
+      color,
+      order,
+      count
+    } = this.props;
     const startTime = milliseconds(event.when.start_time);
     const endTime = milliseconds(event.when.end_time);
 
@@ -131,6 +141,7 @@ class Detail extends React.Component<FinalProps, { toggle: boolean }> {
     };
 
     const props: { start?: number; height?: number } = {};
+
     const calculate = (date: Date) => {
       return date.getHours() + date.getMinutes() / 60;
     };
@@ -141,12 +152,14 @@ class Detail extends React.Component<FinalProps, { toggle: boolean }> {
     }
 
     return (
-      <div key={event._id}>
+      <EventWrapper key={event._id}>
         <ModalTrigger
           title={event.title || ''}
           trigger={
             <EventTitle
               {...props}
+              order={order}
+              count={count || 1}
               color={this.getColor(color, event.providerCalendarId)}
             >
               {dayjs(startTime).format('ha')} &nbsp;
@@ -155,7 +168,7 @@ class Detail extends React.Component<FinalProps, { toggle: boolean }> {
           }
           content={content}
         />
-      </div>
+      </EventWrapper>
     );
   }
 }
