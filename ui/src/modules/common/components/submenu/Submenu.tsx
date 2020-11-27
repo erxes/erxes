@@ -10,6 +10,11 @@ const Items = styled.ul`
   margin: 0;
   list-style: none;
   font-size: 14px;
+
+  > span {
+    padding: 14px 40px 14px 0;
+    cursor: pointer;
+  }
 `;
 
 function Submenu({

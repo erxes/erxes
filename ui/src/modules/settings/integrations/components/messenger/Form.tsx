@@ -8,6 +8,7 @@ import {
   StepWrapper
 } from 'modules/common/components/step/styles';
 import { __, Alert } from 'modules/common/utils';
+import { linkify } from 'modules/inbox/utils';
 import Wrapper from 'modules/layout/components/Wrapper';
 import { IBrand } from 'modules/settings/brands/types';
 import { LANGUAGES } from 'modules/settings/general/constants';
@@ -198,7 +199,11 @@ class CreateMessenger extends React.Component<Props, State> {
       return Alert.error('Choose a brand');
     }
 
-    const links = { facebook, twitter, youtube };
+    const links = {
+      facebook: linkify(facebook),
+      twitter: linkify(twitter),
+      youtube: linkify(youtube)
+    };
 
     this.props.save({
       name: title,

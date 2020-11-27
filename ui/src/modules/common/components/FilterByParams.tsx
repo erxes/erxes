@@ -71,6 +71,10 @@ class FilterByParams extends React.Component<IProps, State> {
               router.removeParams(history, 'page');
             };
 
+            if (!field._id || !field.name) {
+              return null;
+            }
+
             return (
               <li key={field._id}>
                 <a

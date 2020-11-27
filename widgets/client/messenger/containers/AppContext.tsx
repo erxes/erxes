@@ -502,7 +502,7 @@ export class AppProvider extends React.Component<{}, IState> {
             $message: String!
             $payload: String!
             $type: String!
-            $conversationId: String!
+            $conversationId: String
             $customerId: String!
             $integrationId: String!
           ) {

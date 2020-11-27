@@ -93,7 +93,7 @@ export const mutations = `
 
   widgetBotRequest(
     customerId: String!
-    conversationId: String!
+    conversationId: String
     integrationId: String!,
     message: String!
     payload: String!
