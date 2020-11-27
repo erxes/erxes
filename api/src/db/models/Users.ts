@@ -271,8 +271,8 @@ export const loadClass = () => {
       password: string;
       groupId: string;
     }) {
-      email = email.toLocaleLowerCase().trim();
-      password = password.trim();
+      email = (email || '').toLocaleLowerCase().trim();
+      password = (password || '').trim();
 
       // Checking duplicated email
       await Users.checkDuplication({ email });
@@ -667,8 +667,8 @@ export const loadClass = () => {
       password: string;
       deviceToken?: string;
     }) {
-      email = email.toLocaleLowerCase().trim();
-      password = password.trim();
+      email = (email || '').toLocaleLowerCase().trim();
+      password = (password || '').trim();
 
       const user = await Users.findOne({
         $or: [
