@@ -125,6 +125,30 @@ export interface IStage {
   order: number;
 }
 
+export interface ITask {
+  _id: string;
+  name: string;
+  customers?: ICustomer[];
+  companies?: ICompany[];
+  assignedUserIds?: string[];
+}
+
+export interface IDeal {
+  _id: string;
+  name: string;
+  customers?: ICustomer[];
+  companies?: ICompany[];
+  assignedUserIds?: string[];
+}
+
+export interface ITicket {
+  _id: string;
+  name: string;
+  customers?: ICustomer[];
+  companies?: ICompany[];
+  assignedUserIds?: string[];
+}
+
 export interface IConversionStage extends IStage {
   initialDealsTotalCount: number;
   inProcessDealsTotalCount: number;
@@ -237,6 +261,24 @@ export type StagesQueryResponse = {
   stages: IStage[];
   loading: boolean;
   refetch: ({ pipelineId }: { pipelineId?: string }) => Promise<any>;
+};
+
+export type TasksQueryResponse = {
+  tasks: ITask[];
+  loading: boolean;
+  refetch: ({ stageId }: { stageId?: string }) => Promise<any>;
+};
+
+export type DealsQueryResponse = {
+  deals: IDeal[];
+  loading: boolean;
+  refetch: ({ stageId }: { stageId?: string }) => Promise<any>;
+};
+
+export type TicketsQueryResponse = {
+  tickets: ITicket[];
+  loading: boolean;
+  refetch: ({ stageId }: { stageId?: string }) => Promise<any>;
 };
 
 export type ConversionStagesQueryResponse = {

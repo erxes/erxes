@@ -7,13 +7,17 @@ import BoardSelect from '../components/BoardSelect';
 import { queries } from '../graphql';
 import {
   BoardsQueryResponse,
+  DealsQueryResponse,
   IStage,
   PipelinesQueryResponse,
-  StagesQueryResponse
+  StagesQueryResponse,
+  TasksQueryResponse,
+  TicketsQueryResponse
 } from '../types';
 
 type Props = {
   type: string;
+  cardId?: string;
   stageId?: string;
   boardId: string;
   pipelineId: string;
@@ -21,13 +25,18 @@ type Props = {
   onChangeStage?: (stageId: string) => void;
   onChangePipeline: (pipelineId: string, stages: IStage[]) => void;
   onChangeBoard: (boardId: string) => void;
+  onChangeCard?: (cardId: string) => void;
   autoSelectStage?: boolean;
+  autoSelectCard?: boolean;
 };
 
 type FinalProps = {
   boardsQuery: BoardsQueryResponse;
   pipelinesQuery: PipelinesQueryResponse;
   stagesQuery: StagesQueryResponse;
+  tasksQuery: TasksQueryResponse;
+  ticketsQuery: TicketsQueryResponse;
+  dealsQuery: DealsQueryResponse;
 } & Props;
 
 class BoardSelectContainer extends React.Component<FinalProps> {
@@ -71,30 +80,72 @@ class BoardSelectContainer extends React.Component<FinalProps> {
   };
 
   onChangeStage = (stageId: string, callback?: any) => {
-    if (this.props.onChangeStage) {
-      this.props.onChangeStage(stageId);
-    }
+      this.props.tasksQuery
+        .refetch({ stageId })
+        .then(({ data }) => {
+          const tasks = data.tasks;
+
+          if (this.props.onChangeStage) {
+            this.props.onChangeStage(stageId);
+          }
+
+
+          if (
+            tasks.length > 0 &&
+            typeof this.props.autoSelectCard === 'undefined'
+          ) {
+            this.onChangeStage(tasks[0]._id);
+          }
+        })
+        .catch(e => {
+          Alert.error(e.message);
+        });
+    
 
     if (callback) {
       callback();
     }
+
   };
 
+  onChangeCard = (cardId: string) => {
+ 
+    if (this.props.onChangeCard) {
+      this.props.onChangeCard(cardId);
+    }
+
+  }
+
   render() {
-    const { boardsQuery, pipelinesQuery, stagesQuery } = this.props;
+    const { boardsQuery, pipelinesQuery, stagesQuery, tasksQuery, ticketsQuery, dealsQuery ,type} = this.props;
 
     const boards = boardsQuery.boards || [];
     const pipelines = pipelinesQuery.pipelines || [];
     const stages = stagesQuery.stages || [];
+    
+
+    let cards: any[] = [];
+
+    if (type === "deal"){
+      cards = dealsQuery.deals || [];
+    }else if (type === "task") {
+      cards = tasksQuery.tasks || [];
+    }else if (type === "ticket") {
+      cards = ticketsQuery.tickets || [];
+    }
+
+    
 
     const extendedProps = {
       ...this.props,
       boards,
       pipelines,
       stages,
+      cards,
       onChangeBoard: this.onChangeBoard,
       onChangePipeline: this.onChangePipeline,
-      onChangeStage: this.onChangeStage
+      onChangeStage: this.onChangeStage,
+      onChangeCard: this.onChangeCard
     };
 
     return <BoardSelect {...extendedProps} />;
@@ -124,6 +175,33 @@ export default withProps<Props>(
         name: 'stagesQuery',
         options: ({ pipelineId = '' }) => ({
           variables: { pipelineId }
+        })
+      }
+    ),
+    graphql<Props, TasksQueryResponse, { stageId: string }>(
+      gql(queries.tasks),
+      {
+        name: 'tasksQuery',
+        options: ({ stageId = '' }) => ({
+          variables: { stageId }
+        })
+      }
+    ),
+    graphql<Props, TicketsQueryResponse, { stageId: string }>(
+      gql(queries.tickets),
+      {
+        name: 'ticketsQuery',
+        options: ({ stageId = '' }) => ({
+          variables: { stageId }
+        })
+      }
+    ),
+    graphql<Props, DealsQueryResponse, { stageId: string }>(
+      gql(queries.deals),
+      {
+        name: 'dealsQuery',
+        options: ({ stageId = '' }) => ({
+          variables: { stageId }
         })
       }
     )

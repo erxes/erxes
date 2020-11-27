@@ -235,6 +235,54 @@ const boardCounts = `
   }
 `;
 
+const tasks = `
+  query tasks($pipelineId: String, $stageId: String) {
+    tasks(pipelineId: $pipelineId, stageId: $stageId) {
+      _id
+      name
+      customers{
+        _id
+      }
+      companies{
+        _id
+      }
+      assignedUserIds
+    }
+  } 
+`;
+
+const tickets = `
+  query tickets($pipelineId: String, $stageId: String) {
+    tickets(pipelineId: $pipelineId, stageId: $stageId) {
+      _id
+      name
+      customers{
+        _id
+      }
+      companies{
+        _id
+      }
+      assignedUserIds
+    }
+  } 
+`;
+
+const deals = `
+  query deals($pipelineId: String, $stageId: String) {
+    deals(pipelineId: $pipelineId, stageId: $stageId) {
+      _id
+      name
+      customers{
+        _id
+      }
+      companies{
+        _id
+      }
+      assignedUserIds
+    }
+  } 
+`;
+
 export default {
   archivedStages,
   archivedStagesCount,
@@ -248,5 +296,8 @@ export default {
   conversionStages,
   stageDetail,
   pipelineLabels,
-  pipelineLabelDetail
+  pipelineLabelDetail,
+  deals,
+  tasks,
+  tickets
 };
