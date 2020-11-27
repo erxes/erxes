@@ -9,8 +9,8 @@ import {
 import React from 'react';
 import { graphql } from 'react-apollo';
 import AddForm from '../../components/portable/AddForm';
-import { queries } from '../../graphql';
-import { IItem, IItemParams, IOptions, SaveMutation } from '../../types';
+import { mutations as boardMutations ,queries } from '../../graphql';
+import { ConvertToMutationResponse, ConvertToMutationVariables, IItem, IItemParams, IOptions, SaveMutation, UpdateMutation } from '../../types';
 
 type IProps = {
   options: IOptions;
@@ -33,13 +33,17 @@ type IProps = {
 
 type FinalProps = {
   addMutation: SaveMutation;
+  editMutation: UpdateMutation;
+  conversationConvertToCard: ConvertToMutationResponse;
   editConformity: EditConformityMutation;
-} & IProps;
+} & IProps & ConvertToMutationResponse;
 
 class AddFormContainer extends React.Component<FinalProps> {
   saveItem = (doc: IItemParams, callback: (item: IItem) => void) => {
     const {
-      addMutation,
+      // addMutation,
+      // editMutation,
+      conversationConvertToCard,
       options,
       relType,
       relTypeIds,
@@ -50,11 +54,11 @@ class AddFormContainer extends React.Component<FinalProps> {
       getAssociatedItem,
       aboveItemId,
       description,
-      attachments
+      attachments,
     } = this.props;
 
     doc.assignedUserIds = assignedUserIds;
-    doc.sourceConversationId = sourceConversationId;
+    doc.sourceConversationIds = [sourceConversationId || ""];
 
     const proccessId = Math.random().toString();
 
@@ -65,46 +69,54 @@ class AddFormContainer extends React.Component<FinalProps> {
     doc.description = description;
     doc.attachments = attachments;
 
-    addMutation({ variables: doc })
-      .then(({ data }) => {
-        if (options.texts.addSuccessText) {
-          Alert.success(options.texts.addSuccessText);
-        }
+    conversationConvertToCard({
+      variables: {
+        _id: sourceConversationId || "",
+        type: options.type,
+        itemId: doc._id,
+        itemName: doc.name,
+        stageId: doc.stageId
+      },
+    }).then(({ data }) => {
 
-        if (relType && relTypeIds) {
-          editConformity({
-            variables: {
-              mainType: options.type,
-              mainTypeId: data[options.mutationsName.addMutation]._id,
-              relType,
-              relTypeIds
-            }
-          });
-        }
+      if (options.texts.addSuccessText) {
+        Alert.success(options.texts.addSuccessText);
+      }
 
-        callback(data[options.mutationsName.addMutation]);
+      if (!doc._id && relType && relTypeIds) {
+        editConformity({
+          variables: {
+            mainType: options.type,
+            mainTypeId: data.conversationConvertToCard,
+            relType,
+            relTypeIds
+          }
+        });
+      }
 
-        if (getAssociatedItem) {
-          getAssociatedItem(data[options.mutationsName.addMutation]);
-        }
+      callback(data);
 
-        if (refetch) {
-          refetch();
-        }
-      })
+      if (getAssociatedItem) {
+        getAssociatedItem(data.conversationConvertToCard);
+      }
+
+      if (refetch) {
+        refetch();
+      }
+    })
       .catch(error => {
         Alert.error(error.message);
       });
+};
+
+render() {
+  const extendedProps = {
+    ...this.props,
+    saveItem: this.saveItem
   };
 
-  render() {
-    const extendedProps = {
-      ...this.props,
-      saveItem: this.saveItem
-    };
-
-    return <AddForm {...extendedProps} />;
-  }
+  return <AddForm {...extendedProps} />;
+}
 }
 
 export default (props: IProps) =>
@@ -129,6 +141,32 @@ export default (props: IProps) =>
               ]
             };
           }
+        }
+      ),
+      graphql<IProps, UpdateMutation, IItem>(
+        gql(props.options.mutations.editMutation),
+        {
+          name: 'editMutation',
+          options: ({ stageId }: { stageId?: string }) => {
+            if (!stageId) {
+              return {};
+            }
+
+            return {
+              refetchQueries: [
+                {
+                  query: gql(queries.stageDetail),
+                  variables: { _id: stageId }
+                }
+              ]
+            };
+          }
+        }
+      ),
+      graphql<IProps, ConvertToMutationResponse, ConvertToMutationVariables>(
+        gql(boardMutations.conversationConvertToCard),
+        {
+          name: 'conversationConvertToCard',
         }
       ),
       graphql<FinalProps, EditConformityMutation, IConformityEdit>(

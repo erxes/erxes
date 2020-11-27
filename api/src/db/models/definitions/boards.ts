@@ -37,6 +37,7 @@ export interface IItemCommonFields {
   order?: number;
   searchText?: string;
   priority?: string;
+  sourceConversationIds?: string[];
   sourceConversationId?: string;
   status?: string;
   timeTrack?: {
@@ -176,6 +177,7 @@ export const commonItemFieldsSchema = {
   searchText: field({ type: String, optional: true, index: true }),
   priority: field({ type: String, optional: true, label: 'Priority' }),
   sourceConversationId: field({ type: String, optional: true }),
+  sourceConversationIds: field({ type: [String], optional: true }),
   timeTrack: field({
     type: timeTrackSchema
   }),

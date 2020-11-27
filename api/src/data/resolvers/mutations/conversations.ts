@@ -1,12 +1,15 @@
 import * as strip from 'strip';
 import * as _ from 'underscore';
 import {
+  ActivityLogs,
+  Conformities,
   ConversationMessages,
   Conversations,
   Customers,
   Integrations,
   Tags
 } from '../../../db/models';
+import { getCollection } from '../../../db/models/boardUtils';
 import Messages from '../../../db/models/ConversationMessages';
 import {
   KIND_CHOICES,
@@ -25,6 +28,7 @@ import { checkPermission, requireLogin } from '../../permissions/wrappers';
 import { IContext } from '../../types';
 import utils from '../../utils';
 import QueryBuilder, { IListArgs } from '../queries/conversationQueryBuilder';
+import { itemsAdd } from './boardUtils';
 
 export interface IConversationMessageAdd {
   conversationId: string;
@@ -677,7 +681,69 @@ const conversationMutations = {
 
       throw new Error(e.message);
     }
-  }
+  },
+
+  async conversationConvertToCard(
+    _root,
+    {
+      _id,
+      type,
+      itemId,
+      stageId,
+      itemName,
+    }: { _id: string; type: string; itemId: string; stageId: string; itemName: string },
+    { user, docModifier }: IContext,
+  ) {
+    const conversation = await Conversations.getConversation(_id);
+
+    const { collection, update, create } = getCollection(type);
+
+    if (itemId) {
+      const oldItem = await collection.findOne({ _id: itemId }).lean();
+
+      if (!oldItem) {
+        throw new Error('Item not found');
+      }
+
+      const doc = oldItem;
+
+      if (conversation.assignedUserId) {
+        const assignedUserIds = oldItem.assignedUserIds || [];
+        assignedUserIds.push(conversation.assignedUserId);
+        doc.assignedUserIds = assignedUserIds;
+      }
+
+      const sourceConversationIds: string[] = oldItem.sourceConversationIds || [];
+      sourceConversationIds.push(conversation._id);
+
+      doc.sourceConversationIds = sourceConversationIds;
+
+      const item = await update(oldItem._id, doc);
+      
+      await ActivityLogs.createBoardItemLog({ item, contentType: type });
+
+      const relTypeIds: string[] = [];
+
+      for await (const conversationId of sourceConversationIds) {
+        const con = await Conversations.findOne({ _id: conversationId });
+        relTypeIds.push(con?.customerId || '');
+      }
+
+      await Conformities.editConformity({ mainType: type, mainTypeId: item._id, relType: 'customer', relTypeIds });
+
+      return item._id;
+    } else {
+      const doc: any = {};
+      doc.name = itemName;
+      doc.stageId = stageId;
+      doc.sourceConversationIds = [_id];
+      doc.customerIds = [conversation.customerId];
+      doc.assignedUserIds = [conversation.assignedUserId || ''];
+
+      const item = await itemsAdd(doc, type, user, docModifier, create);
+      return item._id;
+    }
+  },
 };
 
 requireLogin(conversationMutations, 'conversationMarkAsRead');

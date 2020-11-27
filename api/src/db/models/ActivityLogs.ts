@@ -114,9 +114,9 @@ export const loadClass = () => {
       let action = ACTIVITY_ACTIONS.CREATE;
       let content = '';
 
-      if (item.sourceConversationId) {
+      if (item.sourceConversationIds) {
         action = ACTIVITY_ACTIONS.CONVERT;
-        content = item.sourceConversationId;
+        content = item.sourceConversationIds.slice(-1)[0];
       }
 
       return ActivityLogs.addActivityLog({

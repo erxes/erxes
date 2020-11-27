@@ -71,7 +71,7 @@ export interface IItemParams {
   reminderMinute?: number;
   companyIds?: string[];
   customerIds?: string[];
-  sourceConversationId?: string;
+  sourceConversationIds?: string[];
   labelIds?: string[];
   proccessId?: string;
   aboveItemId?: string;
@@ -269,6 +269,8 @@ export type WatchVariables = {
 
 export type SaveMutation = ({ variables: IItemParams }) => Promise<any>;
 
+export type UpdateMutation = ({ variables: IItemParams }) => Promise<any>;
+
 export type WatchMutation = ({ variables: WatchVariables }) => Promise<any>;
 
 export type RemoveVariables = {
@@ -373,3 +375,19 @@ export interface IEditFormContent {
   copy: () => void;
   remove: (id: string) => void;
 }
+
+export type ConvertToMutationVariables = {
+  type: string;
+  _id: string;
+  itemId?: string;
+  itemName?: string;
+  stageId?: string
+};
+
+export type ConvertToMutationResponse = {
+  conversationConvertToCard: (
+    doc: {
+      variables: ConvertToMutationVariables;
+    }
+  ) => Promise<any>;
+};
