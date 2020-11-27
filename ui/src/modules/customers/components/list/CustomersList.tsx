@@ -10,8 +10,13 @@ import ModalTrigger from 'modules/common/components/ModalTrigger';
 import Pagination from 'modules/common/components/pagination/Pagination';
 import SortHandler from 'modules/common/components/SortHandler';
 import Table from 'modules/common/components/table';
+import Tip from 'modules/common/components/Tip';
 import { menuContacts } from 'modules/common/utils/menus';
 import routerUtils from 'modules/common/utils/router';
+import {
+  ContactsTableWrapper,
+  ExpandRowWrapper
+} from 'modules/companies/styles';
 import {
   EMAIL_VALIDATION_STATUSES,
   PHONE_VALIDATION_STATUSES
@@ -74,6 +79,7 @@ type State = {
   searchValue?: string;
   searchType?: string;
   showDropDown?: boolean;
+  isExpandRow: boolean;
 };
 
 class CustomersList extends React.Component<IProps, State> {
@@ -83,7 +89,11 @@ class CustomersList extends React.Component<IProps, State> {
     super(props);
 
     this.state = {
-      searchValue: this.props.searchValue
+      searchValue: this.props.searchValue,
+      isExpandRow:
+        localStorage.getItem('isExpandCustomerTable') === 'true'
+          ? true
+          : false || false
     };
   }
 
@@ -104,6 +114,15 @@ class CustomersList extends React.Component<IProps, State> {
     const { toggleAll, customers } = this.props;
 
     toggleAll(customers, 'customers');
+  };
+
+  onExpandRow = () => {
+    this.setState({ isExpandRow: !this.state.isExpandRow }, () => {
+      localStorage.setItem(
+        'isExpandCustomerTable',
+        this.state.isExpandRow.toString()
+      );
+    });
   };
 
   removeCustomers = customers => {
@@ -155,37 +174,42 @@ class CustomersList extends React.Component<IProps, State> {
     } = this.props;
 
     return (
-      <Table whiteSpace="nowrap" hover={true} bordered={true}>
-        <thead>
-          <tr>
-            <th>
-              <FormControl
-                checked={isAllSelected}
-                componentClass="checkbox"
-                onChange={this.onChange}
-              />
-            </th>
-            {columnsConfig.map(({ name, label }) => (
-              <th key={name}>
-                <SortHandler sortField={name} label={__(label)} />
+      <ContactsTableWrapper>
+        <Table whiteSpace="nowrap" hover={true} bordered={true}>
+          <thead>
+            <tr>
+              <th>
+                <FormControl
+                  checked={isAllSelected}
+                  componentClass="checkbox"
+                  onChange={this.onChange}
+                />
               </th>
+              {columnsConfig.map(({ name, label }) => (
+                <th key={name}>
+                  <SortHandler sortField={name} label={__(label)} />
+                </th>
+              ))}
+              <th>{__('Tags')}</th>
+            </tr>
+          </thead>
+          <tbody
+            id="customers"
+            className={this.state.isExpandRow ? 'expand' : ''}
+          >
+            {customers.map(customer => (
+              <CustomerRow
+                customer={customer}
+                columnsConfig={columnsConfig}
+                key={customer._id}
+                isChecked={bulk.includes(customer)}
+                toggleBulk={toggleBulk}
+                history={history}
+              />
             ))}
-            <th>{__('Tags')}</th>
-          </tr>
-        </thead>
-        <tbody id="customers">
-          {customers.map(customer => (
-            <CustomerRow
-              customer={customer}
-              columnsConfig={columnsConfig}
-              key={customer._id}
-              isChecked={bulk.includes(customer)}
-              toggleBulk={toggleBulk}
-              history={history}
-            />
-          ))}
-        </tbody>
-      </Table>
+          </tbody>
+        </Table>
+      </ContactsTableWrapper>
     );
   }
 
@@ -333,6 +357,20 @@ class CustomersList extends React.Component<IProps, State> {
         />
 
         {dateFilter}
+
+        <Tip
+          text={
+            this.state.isExpandRow ? 'Shrink table row' : 'Expand table row'
+          }
+          placement="bottom"
+        >
+          <ExpandRowWrapper
+            className={this.state.isExpandRow ? 'active' : ''}
+            onClick={this.onExpandRow}
+          >
+            <Icon icon="expand-arrows-alt" size={14} />
+          </ExpandRowWrapper>
+        </Tip>
 
         <Dropdown className="dropdown-btn" alignRight={true}>
           <Dropdown.Toggle as={DropdownToggle} id="dropdown-customize">
