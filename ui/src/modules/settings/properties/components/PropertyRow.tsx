@@ -9,7 +9,7 @@ import React from 'react';
 import Collapse from 'react-bootstrap/Collapse';
 import PropertyForm from '../containers/PropertyForm';
 import PropertyGroupForm from '../containers/PropertyGroupForm';
-import { CollapseRow, DropIcon, FieldType } from '../styles';
+import { CollapseRow, DropIcon, FieldType, PropertyTable } from '../styles';
 import { IField, IFieldGroup } from '../types';
 
 type Props = {
@@ -155,7 +155,7 @@ class PropertyRow extends React.Component<Props, State> {
           ))}
         </CollapseRow>
         <Collapse in={this.state.collapse}>
-          <div>{this.renderTable(fields)}</div>
+          <PropertyTable>{this.renderTable(fields)}</PropertyTable>
         </Collapse>
       </li>
     );

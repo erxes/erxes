@@ -31,6 +31,14 @@ const FieldType = styled.span`
   display: flex;
 `;
 
+const PropertyTable = styled.div`
+  table td {
+    &:last-child {
+      text-align: center;
+    }
+  }
+`;
+
 const CollapseRow = styled.div`
   font-size: ${coreSpace};
   position: relative;
@@ -85,5 +93,6 @@ export {
   InputDescription,
   CollapseRow,
   SidebarContent,
-  SelectInput
+  SelectInput,
+  PropertyTable
 };
