@@ -10,8 +10,8 @@ type Props = {
 };
 
 type State = {
-  dateValue?: Date | string | number;
-  dateTimeValue: Date | string | number;
+  dateValue?: Date | string;
+  dateTimeValue: Date | string;
   isAttachingFile?: boolean;
 };
 
@@ -130,12 +130,12 @@ export default class Field extends React.Component<Props, State> {
     }
   };
 
-  onDateChange = (date?: Date | string | number) => {
+  onDateChange = (date?: Date | string) => {
     this.setState({ dateValue: date || '' });
     this.onChange(date || '');
   };
 
-  onDateTimeChange = (date?: Date | string | number) => {
+  onDateTimeChange = (date?: Date | string) => {
     this.setState({ dateTimeValue: date || '' });
     this.onChange(date || '');
   };
@@ -174,6 +174,8 @@ export default class Field extends React.Component<Props, State> {
     return (
       <Datetime
         value={this.state.dateValue}
+        viewDate={new Date()}
+        defaultValue={new Date()}
         onChange={this.onDateChange}
         dateFormat="YYYY/MM/DD"
         timeFormat={false}
@@ -185,6 +187,8 @@ export default class Field extends React.Component<Props, State> {
     return (
       <Datetime
         value={this.state.dateTimeValue}
+        viewDate={new Date()}
+        defaultValue={new Date()}
         onChange={this.onDateTimeChange}
         timeFormat="HH:mm"
         dateFormat="YYYY/MM/DD"
