@@ -1,3 +1,4 @@
+import { HeaderButton } from 'modules/boards/styles/header';
 import { rgba } from 'modules/common/styles/color';
 import styled from 'styled-components';
 import styledTS from 'styled-components-ts';
@@ -5,7 +6,7 @@ import { colors, dimensions } from '../common/styles';
 
 const rowHeight = 40;
 const borderColor = '#D9E2EC';
-const textColor = '#70757a';
+const textColor = '#486581';
 
 const CalendarWrapper = styled.div`
   z-index: auto;
@@ -36,15 +37,22 @@ const Header = styled.div`
   border-bottom: ${borderColor} 1px solid;
 `;
 
-const ColumnHeader = styled.div`
-  border-right: ${borderColor} 1px solid;
+const ColumnHeader = styledTS<{ isCurrent?: boolean; isWeek?: boolean }>(
+  styled.div
+)`
   flex: 1 1 0%;
   text-align: center;
   font-size: 11px;
   line-height: 20px;
-  color: ${textColor};
-  font-weight: 500;
+  color: ${props => (props.isCurrent ? colors.colorSecondary : textColor)};
+  font-weight: ${props => (props.isCurrent ? 'bold' : '500')};
   text-transform: uppercase;
+  transform: ${props => props.isWeek && 'translateY(5px)'};
+
+  strong {
+    display: block;
+    font-size: 13px;
+  }
 
   &:last-child {
     border: none;
@@ -77,19 +85,22 @@ const RowWrapper = styled.div`
   display: flex;
 `;
 
-const Cell = styled.div`
+const Cell = styledTS<{ isCurrent?: boolean }>(styled.div)`
   border-right: ${borderColor} 1px solid;
   color: ${textColor};
   flex: 1 1 0%;
   display: block;
   min-height: 70px;
+  background: ${props => props.isCurrent && colors.bgLight};
 
   &:last-child {
     border: none;
   }
 `;
 
-const Day = styledTS<{ isSelectedDate?: boolean }>(styled.h2)`
+const Day = styledTS<{ isSelectedDate?: boolean; isSameMonth: boolean }>(
+  styled.h2
+)`
   font-size: 14px;
   line-height: 30px;
   margin: 2px 0 0 2px;
@@ -101,7 +112,7 @@ const Day = styledTS<{ isSelectedDate?: boolean }>(styled.h2)`
   white-space: nowrap;
   width: max-content;
   min-width: 22px;
-  color: ${textColor};
+  color: ${props => (props.isSameMonth ? textColor : '#9FB3C8')};
   line-height: 22px;
   border-radius: 8px;
   
@@ -112,7 +123,6 @@ const Day = styledTS<{ isSelectedDate?: boolean }>(styled.h2)`
     color: #fff;
   `}
 
-  
   &:hover {
     cursor: pointer;
     background-color: ${colors.colorPrimary};
@@ -137,7 +147,6 @@ const AddEventBtn = styled.div`
 `;
 
 const DayRow = styled.div`
-  border-bottom: ${borderColor} 1px solid;
   display: flex;
   position: relative;
 
@@ -149,7 +158,6 @@ const DayRow = styled.div`
   }
 
   span {
-    border-right: ${borderColor} 1px solid;
     display: inline-block;
     min-height: ${rowHeight}px;
     line-height: ${rowHeight}px;
@@ -166,12 +174,13 @@ const DayRow = styled.div`
 
 const WeekContainer = styled.div`
   display: flex;
+  padding-top: 10px;
 `;
 
 const WeekData = styled.div`
   height: ${rowHeight}px;
   line-height: ${rowHeight}px;
-  border-bottom: ${borderColor} 1px solid;
+  border-top: ${borderColor} 1px solid;
   box-sizing: content-box;
   overflow: hidden;
   position: relative;
@@ -189,7 +198,15 @@ const WeekHours = styled.div`
   line-height: ${rowHeight}px;
   width: 60px;
   text-align: center;
-  border-right: ${borderColor} 1px solid;
+  transform: translateY(-20px);
+  background: #fff;
+
+  ${WeekData} {
+    border-color: transparent;
+    font-size: 10px;
+    padding-right: 10px;
+    text-align: right;
+  }
 `;
 
 const MainContainer = styled.div`
@@ -271,7 +288,7 @@ const EventTitle = styledTS<{
     props.height &&
     `
       position: absolute;
-      top: ${rowHeight * props.start + 13}px;
+      top: ${rowHeight * props.start + 14}px;
       width: 100%;  
       left: ${props.order > 0 ? `${100 / (props.order + 1)}%` : '1px'};
       width: calc(${100 / props.count}% - 2px);
@@ -281,24 +298,54 @@ const EventTitle = styledTS<{
 `;
 
 const EventContent = styled.div`
-  i {
-    position: absolute;
+  font-size: 14px;
+`;
+
+const EventHeading = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-bottom: 20px;
+
+  h4 {
+    margin: 0 10px 0 0;
   }
 
-  div {
-    padding-left: 20px;
+  > div {
+    flex-shrink: 0;
+  }
+`;
+
+const EventRow = styled.div`
+  display: flex;
+  align-items: baseline;
+  margin-bottom: 10px;
+
+  i {
+    margin-right: 10px;
+    font-size: 16px;
+    color: ${colors.colorCoreGray};
+  }
+
+  ul {
+    display: block;
+    list-style: none;
+    margin: 0;
+    padding-left: 26px;
   }
 `;
 
 const WeekWrapper = styled.div`
   display: flex;
   flex: 1 1 0%;
+  border-left: 1px solid ${borderColor};
 `;
 
-const WeekCol = styled.div`
+const WeekCol = styledTS<{ isCurrent?: boolean }>(styled.div)`
   border-right: ${borderColor} 1px solid;
   flex: 1 1 0%;
   position: relative;
+  background: ${props => props.isCurrent && colors.bgLight};
 
   &:last-child {
     border: none;
@@ -316,6 +363,35 @@ const SidebarHeading = styled.h4`
   line-height: 20px;
   margin: 0 0 15px;
   padding: 0 20px;
+`;
+
+const Indicator = styledTS<{ hour: number }>(styled.div)`
+  position: absolute;
+  top: ${props => props.hour * 41}px;
+  border-top: 2px solid ${colors.colorCoreRed};
+  background: red;
+  left: 0;
+  right: 0;
+
+  &:before {
+    content: '';
+    width: 10px;
+    height: 10px;
+    position: absolute;
+    border-radius: 5px;
+    background: ${colors.colorCoreRed};
+    top: -6px;
+    left: -5px;
+  }
+`;
+
+const HeadButton = styled(HeaderButton)`
+  background: ${colors.bgLight};
+
+  i {
+    font-size: 16px;
+    margin: 0;
+  }
 `;
 
 export {
@@ -342,5 +418,9 @@ export {
   AddEventBtn,
   CommonWrapper,
   CalendarItem,
-  EventWrapper
+  EventWrapper,
+  Indicator,
+  EventRow,
+  EventHeading,
+  HeadButton
 };
