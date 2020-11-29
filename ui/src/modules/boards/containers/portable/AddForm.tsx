@@ -41,8 +41,6 @@ type FinalProps = {
 class AddFormContainer extends React.Component<FinalProps> {
   saveItem = (doc: IItemParams, callback: (item: IItem) => void) => {
     const {
-      // addMutation,
-      // editMutation,
       conversationConvertToCard,
       options,
       relType,

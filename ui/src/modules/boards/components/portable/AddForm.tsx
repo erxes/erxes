@@ -41,16 +41,13 @@ class AddForm extends React.Component<Props, State> {
       pipelineId: props.pipelineId || '',
       stageId: props.stageId || '',
       cardId: props.cardId || '',
-      name: localStorage.getItem(`${props.options.type}Name`) || ''
+      name: ''
     };
   }
 
   onChangeField = <T extends keyof State>(name: T, value: State[T]) => {
     this.setState(({ [name]: value } as unknown) as Pick<State, keyof State>);
   };
-
-
-  
 
   save = e => {
     e.preventDefault();

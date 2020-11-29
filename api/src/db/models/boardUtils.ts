@@ -46,21 +46,16 @@ const orderHeler = (aboveOrder, belowOrder) => {
   return randomBetween(aboveOrder, belowOrder);
 };
 
-export const getNewOrder = async ({
-  collection,
-  stageId,
-  aboveItemId
-}: ISetOrderParam) => {
+export const getNewOrder = async ({ collection, stageId, aboveItemId }: ISetOrderParam) => {
+
+  console.log('collection: ',collection)
+
   const aboveItem = await collection.findOne({ _id: aboveItemId });
 
   const aboveOrder = aboveItem?.order || 0;
 
   const belowItems = await collection
-    .find({
-      stageId,
-      order: { $gt: aboveOrder },
-      status: { $ne: BOARD_STATUSES.ARCHIVED }
-    })
+    .find({ stageId, order: { $gt: aboveOrder }, status: { $ne: BOARD_STATUSES.ARCHIVED } })
     .sort({ order: 1 })
     .limit(1);
 
@@ -83,9 +78,9 @@ export const getNewOrder = async ({
       .find(
         {
           stageId,
-          status: { $ne: BOARD_STATUSES.ARCHIVED }
+          status: { $ne: BOARD_STATUSES.ARCHIVED },
         },
-        { _id: 1, order: 1 }
+        { _id: 1, order: 1 },
       )
       .sort({ order: 1 });
 
@@ -93,8 +88,8 @@ export const getNewOrder = async ({
       bulkOps.push({
         updateOne: {
           filter: { _id: item._id },
-          update: { order: ord }
-        }
+          update: { order: ord },
+        },
       });
 
       ord = ord + 10;
@@ -173,35 +168,41 @@ export const fillSearchTextItem = (
 
 export const getCollection = (type: string) => {
   let collection;
+  let create;
+  let update;
 
   switch (type) {
     case BOARD_TYPES.DEAL: {
       collection = Deals;
-
+      create = Deals.createDeal;
+      update = Deals.updateDeal;
       break;
     }
     case BOARD_TYPES.GROWTH_HACK: {
       collection = GrowthHacks;
-
+      create = GrowthHacks.createGrowthHack;
+      update = GrowthHacks.updateGrowthHack;
       break;
     }
     case BOARD_TYPES.TASK: {
       collection = Tasks;
-
+      create = Tasks.createTask;
+      update = Tasks.updateTask;
       break;
     }
     case BOARD_TYPES.TICKET: {
       collection = Tickets;
-
+      create = Tickets.createTicket;
+      update = Tickets.updateTicket;
       break;
     }
   }
 
-  return collection;
+  return { collection, create, update };
 };
 
 export const getItem = async (type: string, _id: string) => {
-  const item = await getCollection(type).findOne({ _id });
+  const item = await getCollection(type).collection.findOne({ _id });
 
   if (!item) {
     throw new Error(`${type} not found`);
