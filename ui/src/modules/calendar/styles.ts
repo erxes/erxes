@@ -144,6 +144,7 @@ const AddEventBtn = styled.div`
   cursor: pointer;
   opacity: 0;
   transition: all ease 0.4s;
+  z-index: 3;
 `;
 
 const DayRow = styled.div`
