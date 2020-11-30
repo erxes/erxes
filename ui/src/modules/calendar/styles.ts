@@ -289,7 +289,7 @@ const EventTitle = styledTS<{
     props.height &&
     `
       position: absolute;
-      top: ${rowHeight * props.start + 14}px;
+      top: ${(rowHeight + 1) * props.start + 1}px;
       width: 100%;  
       left: ${
         props.order > 0 ? `${(100 / props.count) * props.order}%` : '1px'
