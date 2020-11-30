@@ -133,7 +133,7 @@ class LeftSidebar extends React.Component<Props, State> {
             componentClass="checkbox"
             onChange={this.toggleCheckbox.bind(this, calendarId)}
             checked={calendarIds.includes(calendarId)}
-            color={color}
+            color={calendar.color || color}
           >
             {calendar.name}
           </FormControl>

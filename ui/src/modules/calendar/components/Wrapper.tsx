@@ -151,6 +151,7 @@ class CalendarWrapper extends React.Component<Props, State> {
 
     const actionBar = (
       <Wrapper.ActionBar
+        zIndex={1}
         left={this.renderMonthController()}
         right={this.renderTypeChoose()}
       />

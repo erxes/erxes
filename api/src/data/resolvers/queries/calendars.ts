@@ -116,7 +116,8 @@ const calendarQueries = {
       const calendars = await dataSources.IntegrationsAPI.fetchApi(
         '/nylas/get-calendars',
         {
-          accountId: account.accountId
+          accountId: account.accountId,
+          show: true
         }
       );
 

@@ -112,4 +112,5 @@ export const mutations = `
   calendarBoardsAdd(name: String!): CalendarBoard
   calendarBoardsEdit(_id: String!, name: String): CalendarBoard
   calendarBoardsDelete(_id: String!): JSON
+  editAccountCalendar(_id: String!, name: String, color: String, show: Boolean): JSON
 `;

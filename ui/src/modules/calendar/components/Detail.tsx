@@ -181,7 +181,9 @@ class Detail extends React.Component<FinalProps, { toggle: boolean }> {
               {...props}
               order={order}
               count={count || 1}
-              color={this.getColor(color, event.providerCalendarId)}
+              color={
+                event.color || this.getColor(color, event.providerCalendarId)
+              }
             >
               {dayjs(startTime).format('ha')} &nbsp;
               <b>{event.title}</b>

@@ -95,6 +95,20 @@ export type RemoveGroupMutationResponse = {
   }) => Promise<void>;
 };
 
+export type EditAccountCalendarMutationVariables = {
+  _id: string;
+  name?: string;
+  color?: string;
+  show?: boolean;
+};
+
+export type EditAccountCalendarMutationResponse = {
+  editMutation: (params: {
+    variables: EditAccountCalendarMutationVariables;
+    refetchQueries?: string[];
+  }) => Promise<void>;
+};
+
 export type AddBoardMutationVariables = {
   name: string;
 };

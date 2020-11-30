@@ -15,7 +15,10 @@ import React from 'react';
 import { graphql } from 'react-apollo';
 import { withRouter } from 'react-router-dom';
 import Calendar from '../components/Main';
-import { STORAGE_CALENDAR_GROUP_KEY, STORAGE_CALENDAR_KEY } from '../constants';
+import {
+  STORAGE_CALENDAR_BOARD_KEY,
+  STORAGE_CALENDAR_GROUP_KEY
+} from '../constants';
 
 type Props = {
   history: any;
@@ -59,8 +62,8 @@ class Main extends React.Component<FinalProps> {
     const { groupId } = queryParams;
 
     if (boardId && groupId) {
-      localStorage.setItem(STORAGE_CALENDAR_GROUP_KEY, boardId);
-      localStorage.setItem(STORAGE_CALENDAR_KEY, groupId);
+      localStorage.setItem(STORAGE_CALENDAR_BOARD_KEY, boardId);
+      localStorage.setItem(STORAGE_CALENDAR_GROUP_KEY, groupId);
     }
 
     // wait for load
@@ -79,8 +82,8 @@ class Main extends React.Component<FinalProps> {
 
     // if there is no boardId in queryparams and there is one in localstorage
     // then put those in queryparams
-    const defaultBoardId = localStorage.getItem(STORAGE_CALENDAR_GROUP_KEY);
-    const defaultGroupId = localStorage.getItem(STORAGE_CALENDAR_KEY);
+    const defaultBoardId = localStorage.getItem(STORAGE_CALENDAR_BOARD_KEY);
+    const defaultGroupId = localStorage.getItem(STORAGE_CALENDAR_GROUP_KEY);
 
     if (!boardId && defaultBoardId) {
       routerUtils.setParams(history, {
@@ -106,6 +109,16 @@ class Main extends React.Component<FinalProps> {
         groupId: firstGroup._id
       });
 
+      return null;
+    }
+
+    // If there is an invalid boardId localstorage then remove invalid keys
+    // and reload the page
+    if (!currentBoard && boardId) {
+      localStorage.removeItem(STORAGE_CALENDAR_BOARD_KEY);
+      localStorage.removeItem(STORAGE_CALENDAR_GROUP_KEY);
+
+      window.location.href = `/calendar`;
       return null;
     }
 

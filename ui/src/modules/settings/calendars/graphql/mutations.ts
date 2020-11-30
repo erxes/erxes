@@ -92,6 +92,12 @@ const calendarRemove = `
   }
 `;
 
+const editAccountCalendar = `
+  mutation editAccountCalendar($_id: String!, $name: String, $color: String, $show: Boolean) {
+    editAccountCalendar(_id: $_id, name: $name, color: $color, show: $show)
+  }
+`;
+
 export default {
   boardAdd,
   boardEdit,
@@ -101,5 +107,6 @@ export default {
   groupRemove,
   calendarAdd,
   calendarEdit,
-  calendarRemove
+  calendarRemove,
+  editAccountCalendar
 };
