@@ -269,16 +269,17 @@ const EventTitle = styledTS<{
   height: 22px;
   overflow: hidden;
   word-break: break-all;
+  background: #fff;
+  position: relative;
 
   b {
     font-weight: 500;
   }
 
   ${props => `
-    background-color: ${rgba(props.color, 0.2)};
     color: ${props.color};
 
-    &:hover {
+    &:hover:before {
       background-color: ${rgba(props.color, 0.3)};
     }
   `}
@@ -290,11 +291,25 @@ const EventTitle = styledTS<{
       position: absolute;
       top: ${rowHeight * props.start + 14}px;
       width: 100%;  
-      left: ${props.order > 0 ? `${100 / (props.order + 1)}%` : '1px'};
+      left: ${
+        props.order > 0 ? `${(100 / props.count) * props.order}%` : '1px'
+      };
       width: calc(${100 / props.count}% - 2px);
       height: ${rowHeight * props.height}px;
       min-height: ${rowHeight / 2}px;
   `}
+
+  &:before {
+    content: '';
+    border-radius: 4px;
+    position: absolute;
+    left: 0;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    transition: background 0.3s ease;
+    ${props => ` background-color: ${rgba(props.color, 0.2)};`}
+  }
 `;
 
 const EventContent = styled.div`
