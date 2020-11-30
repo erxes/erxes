@@ -2,7 +2,7 @@ import { connect } from '../db/connection';
 import { Deals, Tasks, Tickets } from '../db/models';
 
 /**
- * Rename crad's sourceConversationId to sourceConversationIds
+ * Rename card's sourceConversationId to sourceConversationIds
  *
  */
 module.exports.up = async () => {
