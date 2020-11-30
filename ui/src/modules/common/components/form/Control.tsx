@@ -41,6 +41,7 @@ type Props = {
   onBlur?: (e: React.FormEvent<HTMLElement>) => void;
   maxHeight?: number;
   maxLength?: number;
+  color?: string;
 };
 
 const renderElement = (Element, attributes, type, child) => {
@@ -110,7 +111,8 @@ class FormControl extends React.Component<Props> {
       max: props.max,
       id: props.id,
       maxHeight: props.maxHeight,
-      maxLength: props.maxLength
+      maxLength: props.maxLength,
+      color: props.color
     };
 
     if (elementType === 'select') {

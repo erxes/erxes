@@ -83,6 +83,17 @@ const calendarMutations = {
   },
 
   /**
+   * Update a account calendar
+   */
+  async editAccountCalendar(
+    _root,
+    doc: { _id: string; name?: string; show?: boolean; color?: string },
+    { dataSources }: IContext
+  ) {
+    return dataSources.IntegrationsAPI.editCalendar(doc);
+  },
+
+  /**
    * Create a new calendar
    */
   async calendarsAdd(

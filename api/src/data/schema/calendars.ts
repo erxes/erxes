@@ -6,6 +6,7 @@ export const types = `
     userId: String
     groupId: String
     accountId: String
+    isPrimary: Boolean
   }
 
   type CalendarGroup {
@@ -32,6 +33,8 @@ export const types = `
     name: String
     description: String
     readOnly: Boolean
+    color: String
+    customName: String
   }
 
   type FullCalendar {
@@ -39,6 +42,8 @@ export const types = `
     name: String
     color: String
     accountId: String
+    userId: String
+    isPrimary: Boolean
 
     calendars: [NylasCalendar]
   }
@@ -66,6 +71,7 @@ const eventParams = `
 const commonParams = `
   groupId: String!,
   color: String,
+  isPrimary: Boolean,
 `;
 
 const commonGroupParams = `
@@ -108,4 +114,5 @@ export const mutations = `
   calendarBoardsAdd(name: String!): CalendarBoard
   calendarBoardsEdit(_id: String!, name: String): CalendarBoard
   calendarBoardsDelete(_id: String!): JSON
+  editAccountCalendar(_id: String!, name: String, color: String, show: Boolean): JSON
 `;

@@ -7,6 +7,7 @@ export interface ICalendar {
   color: string;
   groupId: string;
   accountId: string;
+  userId: string;
 }
 
 export interface IGroup {
@@ -90,6 +91,20 @@ export type RemoveGroupMutationVariables = {
 export type RemoveGroupMutationResponse = {
   removeMutation: (params: {
     variables: RemoveGroupMutationVariables;
+    refetchQueries?: string[];
+  }) => Promise<void>;
+};
+
+export type EditAccountCalendarMutationVariables = {
+  _id: string;
+  name?: string;
+  color?: string;
+  show?: boolean;
+};
+
+export type EditAccountCalendarMutationResponse = {
+  editMutation: (params: {
+    variables: EditAccountCalendarMutationVariables;
     refetchQueries?: string[];
   }) => Promise<void>;
 };

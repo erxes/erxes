@@ -1,3 +1,4 @@
+import { AppConsumer } from 'appContext';
 import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
 import Spinner from 'modules/common/components/Spinner';
@@ -37,7 +38,13 @@ class SidebarContainer extends React.Component<FinalProps> {
       accounts: calendarsQuery.calendarAccounts || []
     };
 
-    return <Wrapper {...updatedProps} />;
+    return (
+      <AppConsumer>
+        {({ currentUser }) => {
+          return <Wrapper {...updatedProps} currentUser={currentUser} />;
+        }}
+      </AppConsumer>
+    );
   }
 }
 
