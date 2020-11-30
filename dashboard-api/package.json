@@ -12,6 +12,7 @@
     "dotenv": "^8.2.0",
     "elasticsearch": "^16.7.1",
     "express": "^4.17.1",
+    "jsonwebtoken": "^8.5.1",
     "sqlstring": "^2.3.2"
   }
 }
