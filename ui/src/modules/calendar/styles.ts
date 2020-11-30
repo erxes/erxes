@@ -73,7 +73,7 @@ const Row = styled.div`
   border-bottom: ${borderColor} 1px solid;
   display: flex;
   flex: 1 1 0%;
-  min-height: 80px;
+  min-height: 98px;
 `;
 
 const RowWrapper = styled.div`
@@ -335,6 +335,7 @@ const EventRow = styled.div`
   display: flex;
   align-items: baseline;
   margin-bottom: 10px;
+  word-break: break-word;
 
   i {
     margin-right: 10px;

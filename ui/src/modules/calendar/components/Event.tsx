@@ -47,16 +47,29 @@ type State = {
   selectedDate?: Date;
   event?: IEvent;
   account?: IAccount;
+  cellHeight: number;
 };
 
 class Event extends React.Component<Props, State> {
+  private ref;
+
   constructor(props) {
     super(props);
 
+    this.ref = React.createRef();
+
     this.state = {
       isPopupVisible: false,
-      selectedDate: new Date()
+      selectedDate: new Date(),
+      cellHeight: 0
     };
+  }
+
+  componentDidMount() {
+    if (this.props.type === TYPES.MONTH) {
+      this.setState({ cellHeight: this.ref.current.clientHeight });
+      console.log(this.ref.current.clientHeight);
+    }
   }
 
   getElapsedHours = () => {
@@ -287,6 +300,7 @@ class Event extends React.Component<Props, State> {
                     <Cell
                       isCurrent={isCurrentDate(day, new Date())}
                       key={dayIndex}
+                      innerRef={this.ref}
                     >
                       {this.renderContent(day)}
                     </Cell>
