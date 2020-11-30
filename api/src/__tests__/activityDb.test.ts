@@ -52,7 +52,7 @@ describe('Test activity model', () => {
   });
 
   test('Activity create board item log', async () => {
-    const deal = await dealFactory({ sourceConversationId: '123' });
+    const deal = await dealFactory({ sourceConversationIds: ['123'] });
 
     const activity = await ActivityLogs.createBoardItemLog({
       item: deal,
