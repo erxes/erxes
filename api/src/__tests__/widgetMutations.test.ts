@@ -997,4 +997,19 @@ describe('lead', () => {
 
     spyEmail.mockRestore();
   });
+
+  test('widgets send email', async() => {
+    const emailParams = {
+      toEmails: ['test-mail@gmail.com'],
+      fromEmail: 'admin@erxes.io',
+      title: 'Thank you for submitting.',
+      content: 'We have received your request'
+    };
+    const response = await widgetMutations.widgetsSendEmail(
+      {},
+      emailParams
+    );
+
+    expect(response).toBe(undefined);
+  });
 });
