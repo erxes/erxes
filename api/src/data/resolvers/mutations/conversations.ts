@@ -701,10 +701,6 @@ const conversationMutations = {
     if (itemId) {
       const oldItem = await collection.findOne({ _id: itemId }).lean();
 
-      if (!oldItem) {
-        throw new Error('Item not found');
-      }
-
       const doc = oldItem;
 
       if (conversation.assignedUserId) {
