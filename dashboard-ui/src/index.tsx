@@ -12,24 +12,33 @@ import Routes from './routes';
 
 const target = document.getElementById('root');
 
-const {
-  REACT_APP_DASHBOARD_CUBE_TOKEN,
-  REACT_APP_DASHBOARD_API_URL
-} = getEnv();
+const { REACT_APP_DASHBOARD_API_URL } = getEnv();
+
+fetch(`${REACT_APP_DASHBOARD_API_URL}/get-token`)
+  .then(response => {
+    if (response.ok) {
+      return response.json();
+    }
+
+    throw new Error(response.status.toString());
+  })
+  .then(response => {
+    const dashboardToken = response.dashboardToken;
+
+    localStorage.setItem('dashboardToken', dashboardToken);
+
+    const cubejsApi = cubejs(dashboardToken, {
+      apiUrl: `${REACT_APP_DASHBOARD_API_URL}/cubejs-api/v1`
+    });
+
+    render(
+      <CubeProvider cubejsApi={cubejsApi}>
+        <ApolloProvider client={apolloClient}>
+          <Routes />
+        </ApolloProvider>
+      </CubeProvider>,
+      target
+    );
+  });
 
 // tslint:disable-next-line:no-console
-
-const cubejsApi = cubejs(REACT_APP_DASHBOARD_CUBE_TOKEN, {
-  apiUrl: `${REACT_APP_DASHBOARD_API_URL}/cubejs-api/v1`
-});
-
-// tslint:disable-next-line:no-console
-
-render(
-  <CubeProvider cubejsApi={cubejsApi}>
-    <ApolloProvider client={apolloClient}>
-      <Routes />
-    </ApolloProvider>
-  </CubeProvider>,
-  target
-);
