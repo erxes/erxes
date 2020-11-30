@@ -813,6 +813,10 @@ export const sendNotification = async (doc: ISendNotification) => {
   for (const receiverId of receiverIds) {
     try {
       // send web and mobile notification
+
+      if (!receiverId) {
+        continue;
+      }
       const notification = await Notifications.createNotification(
         {
           link,
@@ -837,6 +841,7 @@ export const sendNotification = async (doc: ISendNotification) => {
       });
     } catch (e) {
       // Any other error is serious
+
       if (e.message !== 'Configuration does not exist') {
         throw e;
       }

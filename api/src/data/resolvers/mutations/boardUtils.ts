@@ -1,4 +1,4 @@
-import resolvers from '..';
+import resolvers from "..";
 import {
   ActivityLogs,
   Boards,
@@ -6,65 +6,65 @@ import {
   Conformities,
   Notifications,
   Pipelines,
-  Stages
-} from '../../../db/models';
+  Stages,
+} from "../../../db/models";
 import {
   getCollection,
   getCompanies,
   getCustomers,
   getItem,
-  getNewOrder
-} from '../../../db/models/boardUtils';
+  getNewOrder,
+} from "../../../db/models/boardUtils";
 import {
   IItemCommonFields,
   IItemDragCommonFields,
-  IStageDocument
-} from '../../../db/models/definitions/boards';
+  IStageDocument,
+} from "../../../db/models/definitions/boards";
 import {
   BOARD_STATUSES,
-  NOTIFICATION_TYPES
-} from '../../../db/models/definitions/constants';
-import { IDeal, IDealDocument } from '../../../db/models/definitions/deals';
+  NOTIFICATION_TYPES,
+} from "../../../db/models/definitions/constants";
+import { IDeal, IDealDocument } from "../../../db/models/definitions/deals";
 import {
   IGrowthHack,
-  IGrowthHackDocument
-} from '../../../db/models/definitions/growthHacks';
-import { ITaskDocument } from '../../../db/models/definitions/tasks';
+  IGrowthHackDocument,
+} from "../../../db/models/definitions/growthHacks";
+import { ITaskDocument } from "../../../db/models/definitions/tasks";
 import {
   ITicket,
-  ITicketDocument
-} from '../../../db/models/definitions/tickets';
-import { IUserDocument } from '../../../db/models/definitions/users';
-import { graphqlPubsub } from '../../../pubsub';
-import { putCreateLog, putDeleteLog, putUpdateLog } from '../../logUtils';
-import { checkUserIds } from '../../utils';
+  ITicketDocument,
+} from "../../../db/models/definitions/tickets";
+import { IUserDocument } from "../../../db/models/definitions/users";
+import { graphqlPubsub } from "../../../pubsub";
+import { putCreateLog, putDeleteLog, putUpdateLog } from "../../logUtils";
+import { checkUserIds } from "../../utils";
 import {
   copyChecklists,
   copyPipelineLabels,
   createConformity,
   IBoardNotificationParams,
   prepareBoardItemDoc,
-  sendNotifications
-} from '../boardUtils';
+  sendNotifications,
+} from "../boardUtils";
 
 const itemResolver = async (type: string, item: IItemCommonFields) => {
-  let resolverType = '';
+  let resolverType = "";
 
   switch (type) {
-    case 'deal':
-      resolverType = 'Deal';
+    case "deal":
+      resolverType = "Deal";
       break;
 
-    case 'task':
-      resolverType = 'Task';
+    case "task":
+      resolverType = "Task";
       break;
 
-    case 'ticket':
-      resolverType = 'Ticket';
+    case "ticket":
+      resolverType = "Ticket";
       break;
 
-    case 'growthHack':
-      resolverType = 'GrowthHack';
+    case "growthHack":
+      resolverType = "GrowthHack";
       break;
   }
 
@@ -104,17 +104,17 @@ export const itemsAdd = async (
     order: await getNewOrder({
       collection,
       stageId: doc.stageId,
-      aboveItemId: doc.aboveItemId
-    })
+      aboveItemId: doc.aboveItemId,
+    }),
   };
 
   const item = await createModel(extendedDoc);
-  
+
   await createConformity({
     mainType: type,
     mainTypeId: item._id,
     companyIds: doc.companyIds,
-    customerIds: doc.customerIds
+    customerIds: doc.customerIds,
   });
 
   await sendNotifications({
@@ -123,31 +123,31 @@ export const itemsAdd = async (
     type: NOTIFICATION_TYPES.DEAL_ADD,
     action: `invited you to the ${type}`,
     content: `'${item.name}'.`,
-    contentType: type
+    contentType: type,
   });
 
   await putCreateLog(
     {
       type,
       newData: extendedDoc,
-      object: item
+      object: item,
     },
     user
   );
 
   const stage = await Stages.getStage(item.stageId);
 
-  graphqlPubsub.publish('pipelinesChanged', {
+  graphqlPubsub.publish("pipelinesChanged", {
     pipelinesChanged: {
       _id: stage.pipelineId,
       proccessId: doc.proccessId,
-      action: 'itemAdd',
+      action: "itemAdd",
       data: {
         item,
         aboveItemId: doc.aboveItemId,
-        destinationStageId: stage._id
-      }
-    }
+        destinationStageId: stage._id,
+      },
+    },
   });
 
   return item;
@@ -158,7 +158,7 @@ export const changeItemStatus = async ({
   item,
   status,
   proccessId,
-  stage
+  stage,
 }: {
   type: string;
   item: any;
@@ -166,17 +166,17 @@ export const changeItemStatus = async ({
   proccessId: string;
   stage: IStageDocument;
 }) => {
-  if (status === 'archived') {
-    graphqlPubsub.publish('pipelinesChanged', {
+  if (status === "archived") {
+    graphqlPubsub.publish("pipelinesChanged", {
       pipelinesChanged: {
         _id: stage.pipelineId,
         proccessId,
-        action: 'itemRemove',
+        action: "itemRemove",
         data: {
           item,
-          oldStageId: item.stageId
-        }
-      }
+          oldStageId: item.stageId,
+        },
+      },
     });
 
     return;
@@ -188,38 +188,38 @@ export const changeItemStatus = async ({
     .find({
       stageId: item.stageId,
       status: { $ne: BOARD_STATUSES.ARCHIVED },
-      order: { $lt: item.order }
+      order: { $lt: item.order },
     })
     .sort({ order: -1 })
     .limit(1);
 
-  const aboveItemId = aboveItems[0]?._id || '';
+  const aboveItemId = aboveItems[0]?._id || "";
 
   // maybe, recovered order includes to oldOrders
   await collection.updateOne(
     {
-      _id: item._id
+      _id: item._id,
     },
     {
       order: await getNewOrder({
         collection,
         stageId: item.stageId,
-        aboveItemId
-      })
+        aboveItemId,
+      }),
     }
   );
 
-  graphqlPubsub.publish('pipelinesChanged', {
+  graphqlPubsub.publish("pipelinesChanged", {
     pipelinesChanged: {
       _id: stage.pipelineId,
       proccessId,
-      action: 'itemAdd',
+      action: "itemAdd",
       data: {
         item: { ...item._doc, ...(await itemResolver(type, item)) },
         aboveItemId,
-        destinationStageId: item.stageId
-      }
-    }
+        destinationStageId: item.stageId,
+      },
+    },
   });
 };
 
@@ -235,7 +235,7 @@ export const itemsEdit = async (
   const extendedDoc = {
     ...doc,
     modifiedAt: new Date(),
-    modifiedBy: user._id
+    modifiedBy: user._id,
   };
 
   const updatedItem = await modelUpate(_id, extendedDoc);
@@ -248,19 +248,19 @@ export const itemsEdit = async (
     item: updatedItem,
     user,
     type: NOTIFICATION_TYPES.TASK_EDIT,
-    contentType: type
+    contentType: type,
   };
 
   const stage = await Stages.getStage(updatedItem.stageId);
 
   if (doc.status && oldItem.status && oldItem.status !== doc.status) {
-    const activityAction = doc.status === 'active' ? 'activated' : 'archived';
+    const activityAction = doc.status === "active" ? "activated" : "archived";
 
     await ActivityLogs.createArchiveLog({
       item: updatedItem,
       contentType: type,
       action: activityAction,
-      userId: user._id
+      userId: user._id,
     });
 
     // order notification
@@ -269,7 +269,7 @@ export const itemsEdit = async (
       item: updatedItem,
       status: activityAction,
       proccessId,
-      stage
+      stage,
     });
   }
 
@@ -285,7 +285,7 @@ export const itemsEdit = async (
       contentId: _id,
       userId: user._id,
       contentType: type,
-      content: activityContent
+      content: activityContent,
     });
 
     notificationDoc.invitedUsers = addedUserIds;
@@ -299,7 +299,7 @@ export const itemsEdit = async (
       type,
       object: oldItem,
       newData: extendedDoc,
-      updatedDocument: updatedItem
+      updatedDocument: updatedItem,
     },
     user
   );
@@ -307,18 +307,18 @@ export const itemsEdit = async (
   const pipelinesChangedIds = [updatedItem._id, stage.pipelineId];
 
   for (const pipelinesChangedId of pipelinesChangedIds) {
-    graphqlPubsub.publish('pipelinesChanged', {
+    graphqlPubsub.publish("pipelinesChanged", {
       pipelinesChanged: {
         _id: pipelinesChangedId,
         proccessId,
-        action: 'itemUpdate',
+        action: "itemUpdate",
         data: {
           item: {
             ...updatedItem._doc,
-            ...(await itemResolver(type, updatedItem))
-          }
-        }
-      }
+            ...(await itemResolver(type, updatedItem)),
+          },
+        },
+      },
     });
   }
 
@@ -340,7 +340,7 @@ export const itemsEdit = async (
     type: NOTIFICATION_TYPES.TASK_CHANGE,
     content,
     action,
-    contentType: type
+    contentType: type,
   });
 
   return updatedItem;
@@ -374,7 +374,7 @@ export const itemMover = async (
     const activityLogContent = {
       oldStageId,
       destinationStageId,
-      text: `${oldStage.name} to ${stage.name}`
+      text: `${oldStage.name} to ${stage.name}`,
     };
 
     ActivityLogs.createBoardItemMovementLog(
@@ -407,7 +407,7 @@ export const itemsChange = async (
     itemId,
     aboveItemId,
     destinationStageId,
-    sourceStageId
+    sourceStageId,
   } = doc;
 
   const item = await getItem(type, itemId);
@@ -419,8 +419,8 @@ export const itemsChange = async (
     order: await getNewOrder({
       collection,
       stageId: destinationStageId,
-      aboveItemId
-    })
+      aboveItemId,
+    }),
   };
 
   const updatedItem = await modelUpdate(itemId, extendedDoc);
@@ -438,7 +438,7 @@ export const itemsChange = async (
     type: NOTIFICATION_TYPES.DEAL_CHANGE,
     content,
     action,
-    contentType: type
+    contentType: type,
   });
 
   await putUpdateLog(
@@ -446,7 +446,7 @@ export const itemsChange = async (
       type,
       object: item,
       newData: extendedDoc,
-      updatedDocument: updatedItem
+      updatedDocument: updatedItem,
     },
     user
   );
@@ -454,18 +454,18 @@ export const itemsChange = async (
   // order notification
   const stage = await Stages.getStage(item.stageId);
 
-  graphqlPubsub.publish('pipelinesChanged', {
+  graphqlPubsub.publish("pipelinesChanged", {
     pipelinesChanged: {
       _id: stage.pipelineId,
       proccessId,
-      action: 'orderUpdated',
+      action: "orderUpdated",
       data: {
         item: { ...item._doc, ...(await itemResolver(type, item)) },
         aboveItemId,
         destinationStageId,
-        oldStageId: sourceStageId
-      }
-    }
+        oldStageId: sourceStageId,
+      },
+    },
   });
 
   return item;
@@ -484,7 +484,7 @@ export const itemsRemove = async (
     type: `${type}Delete`,
     action: `deleted ${type}:`,
     content: `'${item.name}'`,
-    contentType: type
+    contentType: type,
   });
 
   await Conformities.removeConformity({ mainType: type, mainTypeId: item._id });
@@ -522,31 +522,31 @@ export const itemsCopy = async (
   await createConformity({
     mainType: type,
     mainTypeId: clone._id,
-    customerIds: customers.map(c => c._id),
-    companyIds: companies.map(c => c._id)
+    customerIds: customers.map((c) => c._id),
+    companyIds: companies.map((c) => c._id),
   });
 
   await copyChecklists({
     contentType: type,
     contentTypeId: item._id,
     targetContentId: clone._id,
-    user
+    user,
   });
 
   // order notification
   const stage = await Stages.getStage(clone.stageId);
 
-  graphqlPubsub.publish('pipelinesChanged', {
+  graphqlPubsub.publish("pipelinesChanged", {
     pipelinesChanged: {
       _id: stage.pipelineId,
       proccessId,
-      action: 'itemAdd',
+      action: "itemAdd",
       data: {
         item: { ...clone._doc, ...(await itemResolver(type, clone)) },
         aboveItemId: _id,
-        destinationStageId: stage._id
-      }
-    }
+        destinationStageId: stage._id,
+      },
+    },
   });
 
   return clone;
@@ -562,7 +562,7 @@ export const itemsArchive = async (
 
   const items = await collection.find({
     stageId,
-    status: { $ne: BOARD_STATUSES.ARCHIVED }
+    status: { $ne: BOARD_STATUSES.ARCHIVED },
   });
 
   await collection.updateMany(
@@ -574,24 +574,24 @@ export const itemsArchive = async (
     await ActivityLogs.createArchiveLog({
       item,
       contentType: type,
-      action: 'archived',
-      userId: user._id
+      action: "archived",
+      userId: user._id,
     });
   }
 
   // order notification
   const stage = await Stages.getStage(stageId);
 
-  graphqlPubsub.publish('pipelinesChanged', {
+  graphqlPubsub.publish("pipelinesChanged", {
     pipelinesChanged: {
       _id: stage.pipelineId,
       proccessId,
-      action: 'itemsRemove',
+      action: "itemsRemove",
       data: {
-        destinationStageId: stage._id
-      }
-    }
+        destinationStageId: stage._id,
+      },
+    },
   });
 
-  return 'ok';
+  return "ok";
 };
