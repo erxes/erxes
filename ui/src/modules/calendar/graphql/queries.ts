@@ -15,6 +15,7 @@ const calendars = `
         name
         description
         readOnly
+        color
       }
     }
   }

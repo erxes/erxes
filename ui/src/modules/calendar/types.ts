@@ -49,6 +49,8 @@ export interface INylasCalendar {
   name: string;
   description: string;
   readOnly: boolean;
+  color: string;
+  customName: string;
 }
 
 export interface IAccount {

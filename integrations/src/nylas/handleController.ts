@@ -251,24 +251,6 @@ export const nylasGetAllEvents = async (account: IAccount) => {
   }
 };
 
-export const updateCalendar = async (doc: ICalendarParams) => {
-  try {
-    const { _id, ...params } = doc;
-
-    await NylasCalendars.updateOne({ _id }, { $set: params });
-    const calendar = await NylasCalendars.findOne({ _id });
-
-    if (calendar && doc.color) {
-      await NylasEvent.updateMany(
-        { providerCalendarId: calendar.providerCalendarId },
-        { $set: { color: doc.color } }
-      );
-    }
-  } catch (e) {
-    throw e;
-  }
-};
-
 export const nylasGetCalendarOrEvent = async (
   id: string,
   type: 'calendars' | 'events',
@@ -410,4 +392,20 @@ export const nylasSendEventAttendance = async ({
 
     throw e;
   }
+};
+
+export const updateCalendar = async (doc: ICalendarParams) => {
+  const { _id, ...params } = doc;
+
+  await NylasCalendars.updateOne({ _id }, { $set: params });
+  const calendar = await NylasCalendars.findOne({ _id });
+
+  if (calendar && doc.color) {
+    await NylasEvent.updateMany(
+      { providerCalendarId: calendar.providerCalendarId },
+      { $set: { color: doc.color } }
+    );
+  }
+
+  return calendar;
 };

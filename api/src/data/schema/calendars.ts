@@ -33,6 +33,8 @@ export const types = `
     name: String
     description: String
     readOnly: Boolean
+    color: String
+    customName: String
   }
 
   type FullCalendar {
