@@ -1,7 +1,7 @@
-import { SimpleButton } from 'modules/common/styles/main';
-import React, { useState, useEffect } from 'react';
-import styled from 'styled-components';
 import Icon from '../Icon';
+import React, { useState, useEffect } from 'react';
+import { SimpleButton } from 'modules/common/styles/main';
+import styled from 'styled-components';
 import Tip from '../Tip';
 
 const ContactsTableWrapper = styled.div`
