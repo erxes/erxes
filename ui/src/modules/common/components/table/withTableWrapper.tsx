@@ -1,5 +1,8 @@
+import { SimpleButton } from 'modules/common/styles/main';
 import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
+import Icon from '../Icon';
+import Tip from '../Tip';
 
 const ContactsTableWrapper = styled.div`
   td {
@@ -33,9 +36,22 @@ const withTableWrapper = (attr, Component) => {
       localStorage.setItem(`isExpand${attr}Table`, isExpand.toString());
     }, [isExpand]);
 
+    const renderExpandButton = () => {
+      return (
+        <Tip
+          text={isExpand ? 'Shrink table row' : 'Expand table row'}
+          placement="bottom"
+        >
+          <SimpleButton isActive={isExpand} onClick={toggleExpand}>
+            <Icon icon={isExpand ? 'merge' : 'split'} size={14} />
+          </SimpleButton>
+        </Tip>
+      );
+    };
+
     const updatedProps = {
       ...props,
-      toggleExpand,
+      renderExpandButton,
       isExpand
     };
 

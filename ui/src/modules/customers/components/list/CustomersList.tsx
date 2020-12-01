@@ -11,8 +11,6 @@ import Pagination from 'modules/common/components/pagination/Pagination';
 import SortHandler from 'modules/common/components/SortHandler';
 import Table from 'modules/common/components/table';
 import withTableWrapper from 'modules/common/components/table/withTableWrapper';
-import Tip from 'modules/common/components/Tip';
-import { SimpleButton } from 'modules/common/styles/main';
 import { menuContacts } from 'modules/common/utils/menus';
 import routerUtils from 'modules/common/utils/router';
 import {
@@ -71,7 +69,7 @@ interface IProps extends IRouterProps {
   exportData: (bulk: Array<{ _id: string }>) => void;
   responseId: string;
   refetch?: () => void;
-  toggleExpand?: () => void;
+  renderExpandButton?: any;
   isExpand?: boolean;
 }
 
@@ -228,21 +226,6 @@ class CustomersList extends React.Component<IProps, State> {
     }
   };
 
-  renderExpandButton = () => {
-    const { isExpand, toggleExpand } = this.props;
-
-    return (
-      <Tip
-        text={isExpand ? 'Shrink table row' : 'Expand table row'}
-        placement="bottom"
-      >
-        <SimpleButton isActive={isExpand} onClick={toggleExpand}>
-          <Icon icon={isExpand ? 'merge' : 'split'} size={14} />
-        </SimpleButton>
-      </Tip>
-    );
-  };
-
   render() {
     const {
       type,
@@ -256,6 +239,7 @@ class CustomersList extends React.Component<IProps, State> {
       history,
       queryParams,
       exportData,
+      renderExpandButton,
       mergeCustomerLoading
     } = this.props;
 
@@ -355,7 +339,7 @@ class CustomersList extends React.Component<IProps, State> {
           onFocus={this.moveCursorAtTheEnd}
         />
 
-        {this.renderExpandButton()}
+        {renderExpandButton()}
 
         {dateFilter}
 
