@@ -1,37 +1,6 @@
-import { rgba } from 'modules/common/styles/color';
 import { SidebarList } from 'modules/layout/styles';
 import styled from 'styled-components';
 import { colors, dimensions } from '../common/styles';
-
-const ContactsTableWrapper = styled.div`
-  td {
-    max-width: 250px;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-  }
-
-  .expand {
-    tr,
-    td {
-      white-space: pre-wrap;
-    }
-  }
-`;
-
-const ExpandRowWrapper = styled.div`
-  background: ${rgba(colors.colorBlack, 0.05)};
-  color: ${colors.colorCoreGray};
-  transition: background 0.3s ease;
-  padding: 2px ${dimensions.unitSpacing}px;
-  border-radius: ${dimensions.unitSpacing}px;
-  cursor: pointer;
-
-  &.active {
-    background: ${rgba(colors.colorSecondary, 0.1)};
-    color: ${colors.colorSecondary};
-  }
-`;
 
 const CompanyLogo = styled.div`
   width: ${dimensions.headerSpacing}px;
@@ -68,4 +37,4 @@ const FlexItem = styled.div`
   align-items: center;
 `;
 
-export { ContactsTableWrapper, ExpandRowWrapper, CompanyLogo, List, FlexItem };
+export { CompanyLogo, List, FlexItem };
