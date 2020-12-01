@@ -15,7 +15,6 @@ import Tip from 'modules/common/components/Tip';
 import { SimpleButton } from 'modules/common/styles/main';
 import { menuContacts } from 'modules/common/utils/menus';
 import routerUtils from 'modules/common/utils/router';
-import { ExpandRowWrapper } from 'modules/companies/styles';
 import {
   EMAIL_VALIDATION_STATUSES,
   PHONE_VALIDATION_STATUSES
@@ -80,7 +79,6 @@ type State = {
   searchValue?: string;
   searchType?: string;
   showDropDown?: boolean;
-  isExpandRow: boolean;
 };
 
 class CustomersList extends React.Component<IProps, State> {
@@ -90,11 +88,7 @@ class CustomersList extends React.Component<IProps, State> {
     super(props);
 
     this.state = {
-      searchValue: this.props.searchValue,
-      isExpandRow:
-        localStorage.getItem('isExpandCustomerTable') === 'true'
-          ? true
-          : false || false
+      searchValue: this.props.searchValue
     };
   }
 
@@ -115,15 +109,6 @@ class CustomersList extends React.Component<IProps, State> {
     const { toggleAll, customers } = this.props;
 
     toggleAll(customers, 'customers');
-  };
-
-  onExpandRow = () => {
-    this.setState({ isExpandRow: !this.state.isExpandRow }, () => {
-      localStorage.setItem(
-        'isExpandCustomerTable',
-        this.state.isExpandRow.toString()
-      );
-    });
   };
 
   removeCustomers = customers => {
@@ -176,7 +161,7 @@ class CustomersList extends React.Component<IProps, State> {
     } = this.props;
 
     return (
-      <withTableWrapper.Wrapper isExpand={isExpand}>
+      <withTableWrapper.Wrapper>
         <Table whiteSpace="nowrap" hover={true} bordered={true}>
           <thead>
             <tr>
@@ -195,10 +180,7 @@ class CustomersList extends React.Component<IProps, State> {
               <th>{__('Tags')}</th>
             </tr>
           </thead>
-          <tbody
-            id="customers"
-            className={this.state.isExpandRow ? 'expand' : ''}
-          >
+          <tbody id="customers" className={isExpand ? 'expand' : ''}>
             {customers.map(customer => (
               <CustomerRow
                 customer={customer}
@@ -247,16 +229,15 @@ class CustomersList extends React.Component<IProps, State> {
   };
 
   renderExpandButton = () => {
+    const { isExpand, toggleExpand } = this.props;
+
     return (
       <Tip
-        text={this.props.isExpand ? 'Shrink table row' : 'Expand table row'}
+        text={isExpand ? 'Shrink table row' : 'Expand table row'}
         placement="bottom"
       >
-        <SimpleButton
-          isActive={this.props.isExpand}
-          onClick={this.props.toggleExpand}
-        >
-          <Icon icon="expand-arrows-alt" size={14} />
+        <SimpleButton isActive={isExpand} onClick={toggleExpand}>
+          <Icon icon={isExpand ? 'merge' : 'split'} size={14} />
         </SimpleButton>
       </Tip>
     );
@@ -365,7 +346,6 @@ class CustomersList extends React.Component<IProps, State> {
 
     const actionBarRight = (
       <BarItems>
-        {this.renderExpandButton()}
         <FormControl
           type="text"
           placeholder={__('Type to search')}
@@ -375,21 +355,9 @@ class CustomersList extends React.Component<IProps, State> {
           onFocus={this.moveCursorAtTheEnd}
         />
 
-        {dateFilter}
+        {this.renderExpandButton()}
 
-        <Tip
-          text={
-            this.state.isExpandRow ? 'Shrink table row' : 'Expand table row'
-          }
-          placement="bottom"
-        >
-          <ExpandRowWrapper
-            className={this.state.isExpandRow ? 'active' : ''}
-            onClick={this.onExpandRow}
-          >
-            <Icon icon="expand-arrows-alt" size={14} />
-          </ExpandRowWrapper>
-        </Tip>
+        {dateFilter}
 
         <Dropdown className="dropdown-btn" alignRight={true}>
           <Dropdown.Toggle as={DropdownToggle} id="dropdown-customize">
@@ -571,4 +539,4 @@ class CustomersList extends React.Component<IProps, State> {
   }
 }
 
-export default withTableWrapper(withRouter(CustomersList));
+export default withTableWrapper('Customer', withRouter(CustomersList));
