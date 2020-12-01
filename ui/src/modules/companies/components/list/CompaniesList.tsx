@@ -8,14 +8,10 @@ import ModalTrigger from 'modules/common/components/ModalTrigger';
 import Pagination from 'modules/common/components/pagination/Pagination';
 import SortHandler from 'modules/common/components/SortHandler';
 import Table from 'modules/common/components/table';
-import Tip from 'modules/common/components/Tip';
+import TableWrapper from 'modules/common/components/table/tableWrapper';
 import { __, Alert, confirm, router } from 'modules/common/utils';
 import { menuContacts } from 'modules/common/utils/menus';
 import { queries } from 'modules/companies/graphql';
-import {
-  ContactsTableWrapper,
-  ExpandRowWrapper
-} from 'modules/companies/styles';
 import Wrapper from 'modules/layout/components/Wrapper';
 import { BarItems } from 'modules/layout/styles';
 import ManageColumns from 'modules/settings/properties/containers/ManageColumns';
@@ -56,7 +52,6 @@ interface IProps extends IRouterProps {
 
 type State = {
   searchValue?: string;
-  isExpandRow: boolean;
 };
 
 class CompaniesList extends React.Component<IProps, State> {
@@ -66,26 +61,13 @@ class CompaniesList extends React.Component<IProps, State> {
     super(props);
 
     this.state = {
-      searchValue: this.props.searchValue,
-      isExpandRow:
-        localStorage.getItem('isExpandCompanyTable') === 'true'
-          ? true
-          : false || false
+      searchValue: this.props.searchValue
     };
   }
 
   onChange = () => {
     const { toggleAll, companies } = this.props;
     toggleAll(companies, 'companies');
-  };
-
-  onExpandRow = () => {
-    this.setState({ isExpandRow: !this.state.isExpandRow }, () => {
-      localStorage.setItem(
-        'isExpandCompanyTable',
-        this.state.isExpandRow.toString()
-      );
-    });
   };
 
   search = e => {
@@ -144,7 +126,7 @@ class CompaniesList extends React.Component<IProps, State> {
     } = this.props;
 
     const mainContent = (
-      <ContactsTableWrapper>
+      <TableWrapper>
         <Table whiteSpace="nowrap" bordered={true} hover={true}>
           <thead>
             <tr>
@@ -163,10 +145,7 @@ class CompaniesList extends React.Component<IProps, State> {
               <th>{__('Tags')}</th>
             </tr>
           </thead>
-          <tbody
-            id="companies"
-            className={this.state.isExpandRow ? 'expand' : ''}
-          >
+          <tbody id="companies">
             {companies.map(company => (
               <CompanyRow
                 company={company}
@@ -179,7 +158,7 @@ class CompaniesList extends React.Component<IProps, State> {
             ))}
           </tbody>
         </Table>
-      </ContactsTableWrapper>
+      </TableWrapper>
     );
 
     const addTrigger = (
@@ -281,19 +260,7 @@ class CompaniesList extends React.Component<IProps, State> {
           onFocus={this.moveCursorAtTheEnd}
         />
 
-        <Tip
-          text={
-            this.state.isExpandRow ? 'Shrink table row' : 'Expand table row'
-          }
-          placement="bottom"
-        >
-          <ExpandRowWrapper
-            className={this.state.isExpandRow ? 'active' : ''}
-            onClick={this.onExpandRow}
-          >
-            <Icon icon="expand-arrows-alt" size={14} />
-          </ExpandRowWrapper>
-        </Tip>
+        <TableWrapper.ExpandButton />
 
         <Dropdown className="dropdown-btn" alignRight={true}>
           <Dropdown.Toggle as={DropdownToggle} id="dropdown-customize">
