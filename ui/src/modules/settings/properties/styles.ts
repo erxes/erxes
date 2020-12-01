@@ -1,3 +1,4 @@
+import { ActionButton } from 'modules/common/components/ActionButtons';
 import { colors, dimensions } from 'modules/common/styles';
 import styled from 'styled-components';
 import styledTS from 'styled-components-ts';
@@ -32,10 +33,8 @@ const FieldType = styled.span`
 `;
 
 const PropertyTable = styled.div`
-  table td {
-    &:last-child {
-      text-align: center;
-    }
+  ${ActionButton} {
+    margin-right: 50px;
   }
 `;
 

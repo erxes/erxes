@@ -141,22 +141,24 @@ class PropertyRow extends React.Component<Props, State> {
 
     return (
       <li key={group._id}>
-        <CollapseRow>
-          <div style={{ flex: 1 }} onClick={this.handleCollapse}>
-            <DropIcon isOpen={this.state.collapse} />
-            {group.name} <span>{group.description}</span>
-          </div>
-          {this.renderActionButtons(group, removePropertyGroup, props => (
-            <PropertyGroupForm
-              {...props}
-              group={group}
-              queryParams={queryParams}
-            />
-          ))}
-        </CollapseRow>
-        <Collapse in={this.state.collapse}>
-          <PropertyTable>{this.renderTable(fields)}</PropertyTable>
-        </Collapse>
+        <PropertyTable>
+          <CollapseRow>
+            <div style={{ flex: 1 }} onClick={this.handleCollapse}>
+              <DropIcon isOpen={this.state.collapse} />
+              {group.name} <span>{group.description}</span>
+            </div>
+            {this.renderActionButtons(group, removePropertyGroup, props => (
+              <PropertyGroupForm
+                {...props}
+                group={group}
+                queryParams={queryParams}
+              />
+            ))}
+          </CollapseRow>
+          <Collapse in={this.state.collapse}>
+            <div>{this.renderTable(fields)}</div>
+          </Collapse>
+        </PropertyTable>
       </li>
     );
   }
