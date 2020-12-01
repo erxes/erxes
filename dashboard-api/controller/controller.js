@@ -8,80 +8,48 @@ const client = new elasticsearch.Client({
   hosts: [CUBEJS_DB_URL]
 });
 
-const cubejsApi = cubejs.default(CUBEJS_TOKEN, {
-  apiUrl: `${CUBEJS_URL}/cubejs-api/v1`
-});
-
-const resolver = async (data, dimensions) => {
-  const resolver = resolvers.find(res => res.name === dimensions);
-
-  if (resolver) {
-    const foundedValue = [];
-
-    for (let i = 0; i < data.length; i++) {
-      value = data[i];
-
-      const prevValue = foundedValue.find(
-        founded => founded.name === value[dimensions]
-      );
-
-      if (prevValue) {
-        value[dimensions] = prevValue.value;
-      } else {
-        if (value[dimensions]) {
-          try {
-            const response = await client.get({
-              index: resolver.indexname,
-              id: value[dimensions]
-            });
-
-            foundedValue.push({
-              name: value[dimensions],
-              value: response._source[resolver.fieldname] || 'unknown'
-            });
-
-            value[dimensions] =
-              response._source[resolver.fieldname] || 'unknown';
-          } catch (e) {
-            data.splice(i, 1);
-            i--;
-          }
-        } else {
-          data.splice(i, 1);
-          i--;
-        }
-      }
-    }
-
-    return data;
-  }
-
-  return data;
-};
-
 const generateReport = async (req, res) => {
   const { query } = req;
 
-  if (query.timeDimensions[0]) {
-    query.timeDimensions[0] = JSON.parse(query.timeDimensions);
-  }
+  const { dashboardToken } = query;
 
-  const resultSet = await cubejsApi.load(query);
+  const dashboardQuery = JSON.parse(query.dashboardQuery);
 
-  if (query.dimensions) {
-    const data = await resolver(
-      resultSet.loadResponse.data,
-      query.dimensions[0]
-    );
+  const cubejsApi = cubejs.default(dashboardToken, {
+    apiUrl: `${CUBEJS_URL}/cubejs-api/v1`
+  });
 
-    resultSet.loadResponse.data = data;
+  const resultSet = await cubejsApi.load(dashboardQuery);
+
+  if (resultSet.loadResponse.query.dimensions[0]) {
+    const dimensions = resultSet.loadResponse.query.dimensions[0];
+    const resolver = resolvers.find(res => res.name === dimensions);
+
+    if (resolver) {
+      await Promise.all(
+        resultSet.loadResponse.data.map(async data => {
+          try {
+            const response = await client.get({
+              index: resolver.indexname,
+              id: data[dimensions]
+            });
+
+            data[dimensions] =
+              response._source[resolver.fieldname] || 'unknown';
+          } catch (e) {
+            data[dimensions] = 'unknown';
+          }
+        })
+      );
+    }
   }
 
   const result = {
     chartPivot: resultSet.chartPivot(),
     seriesNames: resultSet.seriesNames(),
     tableColumns: resultSet.tableColumns(),
-    tablePivot: resultSet.tablePivot()
+    tablePivot: resultSet.tablePivot(),
+    totalRow: resultSet.totalRow()
   };
 
   res.send(result);

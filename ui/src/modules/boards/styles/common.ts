@@ -23,7 +23,8 @@ export const BoardContent = styledTS<{
   transparent?: boolean;
 }>(styled(MainContent))`
   margin: 0;
-  background-color: ${({ bgColor }) => bgColor || colors.colorSecondary};
+  background-color: ${({ bgColor, transparent }) =>
+    transparent ? 'transparent' : bgColor || colors.colorSecondary};
 `;
 
 export const ScrolledContent = styled.div`

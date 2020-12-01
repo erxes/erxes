@@ -1,4 +1,3 @@
-import dayjs from 'dayjs';
 import Icon from 'modules/common/components/Icon';
 import React from 'react';
 import { TYPES, WEEKS } from '../constants';
@@ -9,10 +8,10 @@ import {
   Cell,
   ColumnHeader,
   Day,
-  DayHeader,
   DayRow,
   Grid,
   Header,
+  Indicator,
   Presentation,
   Row,
   RowWrapper,
@@ -23,7 +22,14 @@ import {
   WeekWrapper
 } from '../styles';
 import { IAccount, IEvent } from '../types';
-import { extractDate, filterEvents, getDaysInMonth } from '../utils';
+import {
+  extractDate,
+  filterEvents,
+  getDaysInMonth,
+  isCurrentDate,
+  isSameMonth,
+  timeConvert
+} from '../utils';
 import Detail from './Detail';
 
 type Props = {
@@ -53,6 +59,10 @@ class Event extends React.Component<Props, State> {
     };
   }
 
+  getElapsedHours = () => {
+    return new Date().getHours() + new Date().getMinutes() / 60;
+  };
+
   onHideModal = (date?: Date) => {
     this.setState({
       isPopupVisible: !this.state.isPopupVisible,
@@ -77,13 +87,22 @@ class Event extends React.Component<Props, State> {
       <Header>
         {WEEKS.map((week, index) => {
           return (
-            <ColumnHeader key={week}>
+            <ColumnHeader
+              key={week}
+              isWeek={dt ? true : false}
+              isCurrent={
+                dt &&
+                isCurrentDate(
+                  new Date(dt.year, dt.month, dt.date + index),
+                  new Date()
+                )
+              }
+            >
               {week}
               {dt && (
-                <>
-                  <br />
+                <strong>
                   {new Date(dt.year, dt.month, dt.date + index).getDate()}
-                </>
+                </strong>
               )}
             </ColumnHeader>
           );
@@ -93,7 +112,7 @@ class Event extends React.Component<Props, State> {
   };
 
   renderEvents = (events: IEvent[], showHour: boolean) => {
-    return events.map(event => {
+    return events.map((event, index) => {
       return (
         <Detail
           key={event._id}
@@ -101,6 +120,8 @@ class Event extends React.Component<Props, State> {
           showHour={showHour}
           editEvent={this.editEvent}
           deleteEvent={this.deleteEvent}
+          count={events.length}
+          order={index}
         />
       );
     });
@@ -117,16 +138,12 @@ class Event extends React.Component<Props, State> {
   renderContent = (day: Date) => {
     const events = filterEvents(this.props.events, day);
 
-    const currentDate = this.props.currentDate;
-    const isSelectedDate =
-      dayjs(currentDate).diff(day, 'day') === 0 &&
-      new Date(currentDate).getDate() === day.getDate();
-
     return (
       <>
         <Day
-          isSelectedDate={isSelectedDate}
+          isSelectedDate={isCurrentDate(day, this.props.currentDate)}
           onClick={this.onHideModal.bind(this, day)}
+          isSameMonth={isSameMonth(day, this.props.currentDate)}
         >
           {day.getDate()}
         </Day>
@@ -144,11 +161,9 @@ class Event extends React.Component<Props, State> {
       const data: any = [];
 
       for (let h = 0; h < 24; h++) {
-        const hour = h.toString().length === 1 ? `0${h}` : h;
-
         data.push(
           <WeekData key={isHour ? h : `data-${h}`}>
-            {isHour ? hour : this.addEventBtn(currentDate)}
+            {isHour ? timeConvert(h) : this.addEventBtn(currentDate)}
           </WeekData>
         );
       }
@@ -163,6 +178,9 @@ class Event extends React.Component<Props, State> {
           <WeekCol>
             {renderRows()}
             {this.renderEvents(events, true)}
+            {isCurrentDate(currentDate, new Date()) && (
+              <Indicator hour={this.getElapsedHours()} />
+            )}
           </WeekCol>
         </WeekWrapper>
       </WeekContainer>
@@ -183,11 +201,7 @@ class Event extends React.Component<Props, State> {
         }
       } else {
         for (let h = 0; h < 24; h++) {
-          data.push(
-            <WeekData key={h}>
-              {h.toString().length === 1 ? `0${h}` : h}
-            </WeekData>
-          );
+          data.push(<WeekData key={h}>{timeConvert(h)}</WeekData>);
         }
       }
 
@@ -204,11 +218,13 @@ class Event extends React.Component<Props, State> {
           {WEEKS.map((week, index) => {
             const day = new Date(year, month, date + index);
             const events = filterEvents(this.props.events, day);
+            const isCurrentWeek = isCurrentDate(day, new Date());
 
             return (
-              <WeekCol key={`week_${index}`}>
+              <WeekCol isCurrent={isCurrentWeek} key={`week_${index}`}>
                 {renderData(day, week)}
                 {this.renderEvents(events, true)}
+                {isCurrentWeek && <Indicator hour={this.getElapsedHours()} />}
               </WeekCol>
             );
           })}
@@ -237,7 +253,6 @@ class Event extends React.Component<Props, State> {
     if (type === TYPES.DAY) {
       return (
         <>
-          <DayHeader>{dayjs(currentDate).format('MMM D')}</DayHeader>
           {this.generateDayData()}
           {createForm}
         </>
@@ -269,7 +284,12 @@ class Event extends React.Component<Props, State> {
               <Row key={index}>
                 <RowWrapper>
                   {days.map((day, dayIndex) => (
-                    <Cell key={dayIndex}>{this.renderContent(day)}</Cell>
+                    <Cell
+                      isCurrent={isCurrentDate(day, new Date())}
+                      key={dayIndex}
+                    >
+                      {this.renderContent(day)}
+                    </Cell>
                   ))}
                 </RowWrapper>
               </Row>

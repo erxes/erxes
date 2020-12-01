@@ -19,6 +19,10 @@ export const getEnv = (): any => {
   return envs;
 };
 
+export const getDashboardToken = () => {
+  return localStorage.getItem('dashboardToken');
+};
+
 const { REACT_APP_API_URL, REACT_APP_API_SUBSCRIPTION_URL } = getEnv();
 
 // Create an http link:

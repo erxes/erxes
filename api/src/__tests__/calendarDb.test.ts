@@ -34,7 +34,9 @@ describe('Calendars db', () => {
     const args: any = {
       name: _calendar.name,
       code: _calendar.code,
-      groupId: _group._id
+      groupId: _group._id,
+      isPrimary: true,
+      userId: _user._id
     };
 
     const calendarObj = await Calendars.createCalendar(args);

@@ -61,11 +61,13 @@ const boardRemove = `
 const commonParamsDef = `
   $groupId: String!,
   $color: String,
+  $isPrimary: Boolean,
 `;
 
 const commonParams = `
   color: $color,
-  groupId: $groupId
+  groupId: $groupId,
+  isPrimary: $isPrimary
 `;
 
 const calendarAdd = `
@@ -90,6 +92,12 @@ const calendarRemove = `
   }
 `;
 
+const editAccountCalendar = `
+  mutation editAccountCalendar($_id: String!, $name: String, $color: String, $show: Boolean) {
+    editAccountCalendar(_id: $_id, name: $name, color: $color, show: $show)
+  }
+`;
+
 export default {
   boardAdd,
   boardEdit,
@@ -99,5 +107,6 @@ export default {
   groupRemove,
   calendarAdd,
   calendarEdit,
-  calendarRemove
+  calendarRemove,
+  editAccountCalendar
 };

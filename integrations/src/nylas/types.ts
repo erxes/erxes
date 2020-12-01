@@ -231,3 +231,10 @@ export interface INylasIntegrationData {
   uid?: string;
   billingState?: string;
 }
+
+export interface ICalendarParams {
+  _id: string;
+  name?: string;
+  color?: string;
+  show?: boolean;
+}

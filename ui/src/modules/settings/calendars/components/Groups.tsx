@@ -156,27 +156,25 @@ class Groups extends React.Component<Props, State> {
     }
 
     return (
-      <>
-        <Dropdown className="dropdown-btn" alignRight={true}>
-          <Dropdown.Toggle as={DropdownToggle} id="dropdown-customize">
-            <Button btnStyle="simple" size="small">
-              {__('Add calendar')} <Icon icon="angle-down" />
-            </Button>
-          </Dropdown.Toggle>
-          <Dropdown.Menu>
-            {CALENDAR_INTEGRATIONS.map(i => (
-              <li key={i.kind}>
-                <a
-                  href={`#${i.kind}`}
-                  onClick={this.connectCalendar.bind(this, i.kind)}
-                >
-                  {i.name}
-                </a>
-              </li>
-            ))}
-          </Dropdown.Menu>
-        </Dropdown>
-      </>
+      <Dropdown className="dropdown-btn" alignRight={true}>
+        <Dropdown.Toggle as={DropdownToggle} id="dropdown-customize">
+          <Button btnStyle="simple">
+            {__('Add calendar')} <Icon icon="angle-down" />
+          </Button>
+        </Dropdown.Toggle>
+        <Dropdown.Menu>
+          {CALENDAR_INTEGRATIONS.map(i => (
+            <li key={i.kind}>
+              <a
+                href={`#${i.kind}`}
+                onClick={this.connectCalendar.bind(this, i.kind)}
+              >
+                {i.name}
+              </a>
+            </li>
+          ))}
+        </Dropdown.Menu>
+      </Dropdown>
     );
   }
 
@@ -191,7 +189,6 @@ class Groups extends React.Component<Props, State> {
       <>
         {this.addButton()}
         <Button
-          size="small"
           btnStyle="primary"
           uppercase={false}
           icon="plus-circle"

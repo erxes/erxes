@@ -1,9 +1,15 @@
 import dayjs from 'dayjs';
-import Button from 'modules/common/components/Button';
 import Icon from 'modules/common/components/Icon';
 import ModalTrigger from 'modules/common/components/ModalTrigger';
 import React from 'react';
-import { EventContainer, EventContent, EventTitle } from '../styles';
+import {
+  EventContent,
+  EventHeading,
+  EventRow,
+  EventTitle,
+  EventWrapper,
+  HeadButton
+} from '../styles';
 import { IAccount, IEvent } from '../types';
 import { milliseconds } from '../utils';
 import { CalendarConsumer } from './Wrapper';
@@ -13,6 +19,8 @@ type Props = {
   showHour: boolean;
   editEvent: (event: IEvent, account?: IAccount) => void;
   deleteEvent: (_id: string, accountId: string) => void;
+  count: number;
+  order: number;
 };
 
 type FinalProps = {
@@ -56,7 +64,15 @@ class Detail extends React.Component<FinalProps, { toggle: boolean }> {
   };
 
   render() {
-    const { event, showHour, editEvent, deleteEvent, color } = this.props;
+    const {
+      event,
+      showHour,
+      editEvent,
+      deleteEvent,
+      color,
+      order,
+      count
+    } = this.props;
     const startTime = milliseconds(event.when.start_time);
     const endTime = milliseconds(event.when.end_time);
 
@@ -85,52 +101,66 @@ class Detail extends React.Component<FinalProps, { toggle: boolean }> {
 
       return (
         <EventContent>
-          <Icon icon="clock" />
-          <div>
-            {dayjs(startDate).format('dddd, MMMM D , HH:mm')}
-            {dayjs(endDate).format(isToday ? ' - HH:mma' : ' - MMMM D, HH:mma')}
-          </div>
-          <br />
-          <Icon icon="calendar-alt" />
-          <div>{event.owner}</div>
-          <br />
-          <Icon icon="users" />
-          <div>
-            {guestCount} guests &nbsp;
-            {guestCount !== 0 && (
-              <Icon
-                icon={`arrow-${toggle ? 'up' : 'down'}`}
-                onClick={this.onToggle}
-                style={{ cursor: 'pointer' }}
-              />
-            )}
-          </div>
+          <EventHeading>
+            <h4>{event.title || ''}</h4>
+            <div>
+              <HeadButton onClick={edit}>
+                <Icon icon="pen-1" />
+              </HeadButton>
+              <HeadButton onClick={remove}>
+                <Icon icon="trash-alt" />
+              </HeadButton>
+            </div>
+          </EventHeading>
+
+          <EventRow>
+            <Icon icon="clock-eight" />
+            <div>
+              {dayjs(startDate).format('dddd, MMMM D , HH:mm')}
+              {dayjs(endDate).format(
+                isToday ? ' - HH:mma' : ' - MMMM D, HH:mma'
+              )}
+            </div>
+          </EventRow>
+          <EventRow>
+            <Icon icon="calendar-alt" />
+            <div>{event.owner}</div>
+          </EventRow>
+          <EventRow>
+            <Icon icon="users-alt" />
+            <div>
+              {guestCount} guests &nbsp;
+              {guestCount !== 0 && (
+                <Icon
+                  icon={`arrow-${toggle ? 'up' : 'down'}`}
+                  onClick={this.onToggle}
+                  style={{ cursor: 'pointer' }}
+                />
+              )}
+            </div>
+          </EventRow>
           {toggle && (
-            <ul>
-              {event.participants.map(p => (
-                <li key={p.email}>{p.name}</li>
-              ))}
-            </ul>
-          )}
-          {event.description && (
-            <>
-              <br /> <Icon icon="book" />
-              <div dangerouslySetInnerHTML={{ __html: event.description }} />
-            </>
+            <EventRow>
+              <ul>
+                {event.participants.map(p => (
+                  <li key={p.email}>{p.name}</li>
+                ))}
+              </ul>
+            </EventRow>
           )}
 
-          <br />
-          <Button btnStyle="warning" size="small" onClick={edit}>
-            Edit
-          </Button>
-          <Button btnStyle="danger" size="small" onClick={remove}>
-            Delete
-          </Button>
+          {event.description && (
+            <EventRow>
+              <Icon icon="align-left" />
+              <div dangerouslySetInnerHTML={{ __html: event.description }} />
+            </EventRow>
+          )}
         </EventContent>
       );
     };
 
     const props: { start?: number; height?: number } = {};
+
     const calculate = (date: Date) => {
       return date.getHours() + date.getMinutes() / 60;
     };
@@ -141,22 +171,27 @@ class Detail extends React.Component<FinalProps, { toggle: boolean }> {
     }
 
     return (
-      <EventContainer key={event._id}>
+      <EventWrapper key={event._id}>
         <ModalTrigger
           title={event.title || ''}
+          hideHeader={true}
+          centered={true}
           trigger={
             <EventTitle
               {...props}
-              color={this.getColor(color, event.providerCalendarId)}
+              order={order}
+              count={count || 1}
+              color={
+                event.color || this.getColor(color, event.providerCalendarId)
+              }
             >
-              <Icon icon="check-circle" />
               {dayjs(startTime).format('ha')} &nbsp;
               <b>{event.title}</b>
             </EventTitle>
           }
           content={content}
         />
-      </EventContainer>
+      </EventWrapper>
     );
   }
 }

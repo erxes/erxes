@@ -1,5 +1,5 @@
 import { Col, Row, Statistic, Table } from 'antd';
-import { getEnv } from 'apolloClient';
+import { getDashboardToken, getEnv } from 'apolloClient';
 import axios from 'axios';
 import dayjs from 'dayjs';
 import Spinner from 'modules/common/components/Spinner';
@@ -26,6 +26,7 @@ import {
 import { chartColors, replaceTexts } from '../constants';
 
 const { REACT_APP_DASHBOARD_API_URL } = getEnv();
+const dashboardToken = getDashboardToken();
 
 const numberFormatter = item => numeral(item).format('0,0');
 
@@ -301,7 +302,10 @@ export class ChartRenderer extends React.Component<Props, State> {
 
     axios
       .get(`${REACT_APP_DASHBOARD_API_URL}/get`, {
-        params: query
+        params: {
+          dashboardQuery: query,
+          dashboardToken
+        }
       })
       .then(response => this.setState({ result: response.data }));
   };
