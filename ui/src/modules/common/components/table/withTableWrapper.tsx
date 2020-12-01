@@ -1,6 +1,6 @@
 import Icon from '../Icon';
-import React, { useState, useEffect } from 'react';
 import { SimpleButton } from 'modules/common/styles/main';
+import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import Tip from '../Tip';
 
