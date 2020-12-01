@@ -165,10 +165,6 @@ class AddOns extends React.Component<Props, State> {
   };
 
   renderRemoveInput = (i: number) => {
-    if (this.state.websites.length <= 1) {
-      return null;
-    }
-
     return (
       <Tip text={__('Remove')} placement="top">
         <RemoveButton onClick={this.handleRemoveWebsite.bind(null, i)}>
