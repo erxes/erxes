@@ -8,6 +8,9 @@ import ModalTrigger from 'modules/common/components/ModalTrigger';
 import Pagination from 'modules/common/components/pagination/Pagination';
 import SortHandler from 'modules/common/components/SortHandler';
 import Table from 'modules/common/components/table';
+import withTableWrapper from 'modules/common/components/table/withTableWrapper';
+import Tip from 'modules/common/components/Tip';
+import { SimpleButton } from 'modules/common/styles/main';
 import { __, Alert, confirm, router } from 'modules/common/utils';
 import { menuContacts } from 'modules/common/utils/menus';
 import { queries } from 'modules/companies/graphql';
@@ -47,6 +50,8 @@ interface IProps extends IRouterProps {
   queryParams: any;
   exportCompanies: (bulk: string[]) => void;
   refetch?: () => void;
+  toggleExpand?: () => void;
+  isExpand?: boolean;
 }
 
 type State = {
@@ -108,6 +113,21 @@ class CompaniesList extends React.Component<IProps, State> {
     }
   };
 
+  renderExpandButton = () => {
+    const { isExpand, toggleExpand } = this.props;
+
+    return (
+      <Tip
+        text={isExpand ? 'Shrink table row' : 'Expand table row'}
+        placement="bottom"
+      >
+        <SimpleButton isActive={isExpand} onClick={toggleExpand}>
+          <Icon icon={isExpand ? 'merge' : 'split'} size={14} />
+        </SimpleButton>
+      </Tip>
+    );
+  };
+
   render() {
     const {
       columnsConfig,
@@ -121,41 +141,44 @@ class CompaniesList extends React.Component<IProps, State> {
       totalCount,
       mergeCompanies,
       queryParams,
-      exportCompanies
+      exportCompanies,
+      isExpand
     } = this.props;
 
     const mainContent = (
-      <Table whiteSpace="nowrap" bordered={true} hover={true}>
-        <thead>
-          <tr>
-            <th>
-              <FormControl
-                checked={isAllSelected}
-                componentClass="checkbox"
-                onChange={this.onChange}
-              />
-            </th>
-            {columnsConfig.map(({ name, label }) => (
-              <th key={name}>
-                <SortHandler sortField={name} label={__(label)} />
+      <withTableWrapper.Wrapper>
+        <Table whiteSpace="nowrap" bordered={true} hover={true}>
+          <thead>
+            <tr>
+              <th>
+                <FormControl
+                  checked={isAllSelected}
+                  componentClass="checkbox"
+                  onChange={this.onChange}
+                />
               </th>
+              {columnsConfig.map(({ name, label }) => (
+                <th key={name}>
+                  <SortHandler sortField={name} label={__(label)} />
+                </th>
+              ))}
+              <th>{__('Tags')}</th>
+            </tr>
+          </thead>
+          <tbody id="companies" className={isExpand ? 'expand' : ''}>
+            {companies.map(company => (
+              <CompanyRow
+                company={company}
+                columnsConfig={columnsConfig}
+                isChecked={bulk.includes(company)}
+                key={company._id}
+                history={history}
+                toggleBulk={toggleBulk}
+              />
             ))}
-            <th>{__('Tags')}</th>
-          </tr>
-        </thead>
-        <tbody id="companies">
-          {companies.map(company => (
-            <CompanyRow
-              company={company}
-              columnsConfig={columnsConfig}
-              isChecked={bulk.includes(company)}
-              key={company._id}
-              history={history}
-              toggleBulk={toggleBulk}
-            />
-          ))}
-        </tbody>
-      </Table>
+          </tbody>
+        </Table>
+      </withTableWrapper.Wrapper>
     );
 
     const addTrigger = (
@@ -257,6 +280,8 @@ class CompaniesList extends React.Component<IProps, State> {
           onFocus={this.moveCursorAtTheEnd}
         />
 
+        {this.renderExpandButton()}
+
         <Dropdown className="dropdown-btn" alignRight={true}>
           <Dropdown.Toggle as={DropdownToggle} id="dropdown-customize">
             <Button btnStyle="simple" size="small">
@@ -329,4 +354,7 @@ class CompaniesList extends React.Component<IProps, State> {
   }
 }
 
-export default withRouter<IRouterProps>(CompaniesList);
+export default withTableWrapper(
+  'Company',
+  withRouter<IRouterProps>(CompaniesList)
+);

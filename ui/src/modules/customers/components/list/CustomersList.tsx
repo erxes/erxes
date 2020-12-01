@@ -71,7 +71,7 @@ interface IProps extends IRouterProps {
   exportData: (bulk: Array<{ _id: string }>) => void;
   responseId: string;
   refetch?: () => void;
-  toggleExpand;
+  toggleExpand?: () => void;
   isExpand?: boolean;
 }
 
