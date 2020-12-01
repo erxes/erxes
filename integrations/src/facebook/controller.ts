@@ -391,9 +391,10 @@ const init = async app => {
       // receive post and comment
       if (entry.changes) {
         for (const event of entry.changes) {
-          debugFacebook(`Received post data ${JSON.stringify(event.value)}`);
-
           if (event.value.item === 'comment') {
+            debugFacebook(
+              `Received comment data ${JSON.stringify(event.value)}`
+            );
             try {
               await receiveComment(event.value, entry.id);
               debugFacebook(
@@ -408,9 +409,12 @@ const init = async app => {
 
           if (FACEBOOK_POST_TYPES.includes(event.value.item)) {
             try {
+              debugFacebook(
+                `Received post data ${JSON.stringify(event.value)}`
+              );
               await receivePost(event.value, entry.id);
               debugFacebook(
-                `Successfully saved  ${JSON.stringify(event.value)}`
+                `Successfully saved post ${JSON.stringify(event.value)}`
               );
               res.end('success');
             } catch (e) {

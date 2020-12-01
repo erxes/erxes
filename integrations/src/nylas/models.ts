@@ -319,6 +319,9 @@ export interface ICalendar {
   name: string;
   description: string;
   readOnly: boolean;
+  show: boolean;
+  customName: string;
+  color: string;
 }
 
 export interface ICalendarDocument extends ICalendar, Document {}
@@ -331,7 +334,10 @@ const calendarSchema = {
   accountUid: String,
   name: String,
   description: String,
-  readOnly: Boolean
+  readOnly: Boolean,
+  show: Boolean,
+  customName: String,
+  color: String
 };
 
 // tslint:disable-next-line
@@ -366,6 +372,7 @@ export interface IEvent {
   };
   busy: boolean;
   status: string;
+  color: string;
 }
 
 export interface IEventDocument extends IEvent, Document {}
@@ -398,7 +405,8 @@ const eventSchema = {
   location: String,
   when: Schema.Types.Mixed,
   busy: Boolean,
-  status: String
+  status: String,
+  color: String
 };
 
 // tslint:disable-next-line

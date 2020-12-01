@@ -75,7 +75,8 @@ const storeCalendars = async (calendars: ICalendar[]) => {
       accountUid: calendar.account_id,
       name: calendar.name || '',
       description: calendar.description,
-      readOnly: calendar.read_only
+      readOnly: calendar.read_only,
+      show: !calendar.read_only
     });
   }
 

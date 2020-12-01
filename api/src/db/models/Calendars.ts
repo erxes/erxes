@@ -17,12 +17,22 @@ export interface ICalendarModel extends Model<ICalendarDocument> {
   removeCalendar(_id: string): Promise<{ n: number; ok: number }>;
 }
 
+const setPrimaryCalendar = async (doc: ICalendar) => {
+  const { isPrimary, userId } = doc;
+
+  if (isPrimary && userId) {
+    await Calendars.updateMany({ userId }, { $set: { isPrimary: false } });
+  }
+};
+
 export const loadCalendarClass = () => {
   class Calendar {
     /**
      * Create a calendar
      */
     public static async createCalendar(doc: ICalendar) {
+      await setPrimaryCalendar(doc);
+
       const calendar = await Calendars.create(doc);
 
       return calendar;
@@ -32,6 +42,12 @@ export const loadCalendarClass = () => {
      * Update Calendar
      */
     public static async updateCalendar(_id: string, doc: ICalendar) {
+      const calendar = await Calendars.findOne({ _id });
+
+      if (calendar) {
+        await setPrimaryCalendar(calendar);
+      }
+
       await Calendars.updateOne({ _id }, { $set: doc });
 
       return Calendars.findOne({ _id });

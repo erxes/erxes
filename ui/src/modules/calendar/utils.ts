@@ -1,3 +1,4 @@
+import dayjs from 'dayjs';
 import { TYPES } from './constants';
 import { IEvent } from './types';
 
@@ -81,4 +82,20 @@ export const filterEvents = (events: IEvent[], day: Date) => {
       (start_time < second && end_time > second)
     );
   });
+};
+
+export const isCurrentDate = (day: Date, currentDate: Date) => {
+  return (
+    dayjs(currentDate).diff(day, 'day') === 0 &&
+    new Date(currentDate).getDate() === day.getDate()
+  );
+};
+
+// convert 24 hour to am/pm
+export const timeConvert = (time: number) => {
+  return `${time % 12 || 12} ${time < 12 ? 'AM' : 'PM'}`;
+};
+
+export const isSameMonth = (date: Date, currentDate: Date) => {
+  return new Date(currentDate).getMonth() === date.getMonth();
 };

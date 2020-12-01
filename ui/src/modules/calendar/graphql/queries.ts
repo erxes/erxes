@@ -5,6 +5,8 @@ const calendars = `
       name
       color
       accountId
+      userId
+      isPrimary
 
       calendars {
         _id
@@ -13,6 +15,7 @@ const calendars = `
         name
         description
         readOnly
+        color
       }
     }
   }
