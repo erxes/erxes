@@ -8,7 +8,6 @@ import ModalTrigger from 'modules/common/components/ModalTrigger';
 import Pagination from 'modules/common/components/pagination/Pagination';
 import SortHandler from 'modules/common/components/SortHandler';
 import Table from 'modules/common/components/table';
-import TableWrapper from 'modules/common/components/table/tableWrapper';
 import { __, Alert, confirm, router } from 'modules/common/utils';
 import { menuContacts } from 'modules/common/utils/menus';
 import { queries } from 'modules/companies/graphql';
@@ -126,39 +125,37 @@ class CompaniesList extends React.Component<IProps, State> {
     } = this.props;
 
     const mainContent = (
-      <TableWrapper>
-        <Table whiteSpace="nowrap" bordered={true} hover={true}>
-          <thead>
-            <tr>
-              <th>
-                <FormControl
-                  checked={isAllSelected}
-                  componentClass="checkbox"
-                  onChange={this.onChange}
-                />
-              </th>
-              {columnsConfig.map(({ name, label }) => (
-                <th key={name}>
-                  <SortHandler sortField={name} label={__(label)} />
-                </th>
-              ))}
-              <th>{__('Tags')}</th>
-            </tr>
-          </thead>
-          <tbody id="companies">
-            {companies.map(company => (
-              <CompanyRow
-                company={company}
-                columnsConfig={columnsConfig}
-                isChecked={bulk.includes(company)}
-                key={company._id}
-                history={history}
-                toggleBulk={toggleBulk}
+      <Table whiteSpace="nowrap" bordered={true} hover={true}>
+        <thead>
+          <tr>
+            <th>
+              <FormControl
+                checked={isAllSelected}
+                componentClass="checkbox"
+                onChange={this.onChange}
               />
+            </th>
+            {columnsConfig.map(({ name, label }) => (
+              <th key={name}>
+                <SortHandler sortField={name} label={__(label)} />
+              </th>
             ))}
-          </tbody>
-        </Table>
-      </TableWrapper>
+            <th>{__('Tags')}</th>
+          </tr>
+        </thead>
+        <tbody id="companies">
+          {companies.map(company => (
+            <CompanyRow
+              company={company}
+              columnsConfig={columnsConfig}
+              isChecked={bulk.includes(company)}
+              key={company._id}
+              history={history}
+              toggleBulk={toggleBulk}
+            />
+          ))}
+        </tbody>
+      </Table>
     );
 
     const addTrigger = (
@@ -259,8 +256,6 @@ class CompaniesList extends React.Component<IProps, State> {
           autoFocus={true}
           onFocus={this.moveCursorAtTheEnd}
         />
-
-        <TableWrapper.ExpandButton />
 
         <Dropdown className="dropdown-btn" alignRight={true}>
           <Dropdown.Toggle as={DropdownToggle} id="dropdown-customize">

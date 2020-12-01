@@ -10,13 +10,12 @@ import ModalTrigger from 'modules/common/components/ModalTrigger';
 import Pagination from 'modules/common/components/pagination/Pagination';
 import SortHandler from 'modules/common/components/SortHandler';
 import Table from 'modules/common/components/table';
+import withTableWrapper from 'modules/common/components/table/withTableWrapper';
 import Tip from 'modules/common/components/Tip';
+import { SimpleButton } from 'modules/common/styles/main';
 import { menuContacts } from 'modules/common/utils/menus';
 import routerUtils from 'modules/common/utils/router';
-import {
-  ContactsTableWrapper,
-  ExpandRowWrapper
-} from 'modules/companies/styles';
+import { ExpandRowWrapper } from 'modules/companies/styles';
 import {
   EMAIL_VALIDATION_STATUSES,
   PHONE_VALIDATION_STATUSES
@@ -73,6 +72,8 @@ interface IProps extends IRouterProps {
   exportData: (bulk: Array<{ _id: string }>) => void;
   responseId: string;
   refetch?: () => void;
+  toggleExpand;
+  isExpand?: boolean;
 }
 
 type State = {
@@ -170,11 +171,12 @@ class CustomersList extends React.Component<IProps, State> {
       bulk,
       toggleBulk,
       history,
-      isAllSelected
+      isAllSelected,
+      isExpand
     } = this.props;
 
     return (
-      <ContactsTableWrapper>
+      <withTableWrapper.Wrapper isExpand={isExpand}>
         <Table whiteSpace="nowrap" hover={true} bordered={true}>
           <thead>
             <tr>
@@ -209,7 +211,7 @@ class CustomersList extends React.Component<IProps, State> {
             ))}
           </tbody>
         </Table>
-      </ContactsTableWrapper>
+      </withTableWrapper.Wrapper>
     );
   }
 
@@ -242,6 +244,22 @@ class CustomersList extends React.Component<IProps, State> {
     if (this.props.refetch) {
       this.props.refetch();
     }
+  };
+
+  renderExpandButton = () => {
+    return (
+      <Tip
+        text={this.props.isExpand ? 'Shrink table row' : 'Expand table row'}
+        placement="bottom"
+      >
+        <SimpleButton
+          isActive={this.props.isExpand}
+          onClick={this.props.toggleExpand}
+        >
+          <Icon icon="expand-arrows-alt" size={14} />
+        </SimpleButton>
+      </Tip>
+    );
   };
 
   render() {
@@ -347,6 +365,7 @@ class CustomersList extends React.Component<IProps, State> {
 
     const actionBarRight = (
       <BarItems>
+        {this.renderExpandButton()}
         <FormControl
           type="text"
           placeholder={__('Type to search')}
@@ -552,4 +571,4 @@ class CustomersList extends React.Component<IProps, State> {
   }
 }
 
-export default withRouter(CustomersList);
+export default withTableWrapper(withRouter(CustomersList));
