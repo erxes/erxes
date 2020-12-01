@@ -67,6 +67,7 @@ export const types = `
     type: String,
     month: String,
     day: String,
+    dateTime: String,
   }
 
   input EngageMessageEmail {

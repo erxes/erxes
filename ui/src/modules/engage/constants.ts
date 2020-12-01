@@ -109,7 +109,8 @@ export const SCHEDULE_TYPES = [
   { value: 4, label: 'Every Thursday' },
   { value: 5, label: 'Every Friday' },
   { value: 6, label: 'Every Saturday' },
-  { value: 0, label: 'Every Sunday' }
+  { value: 0, label: 'Every Sunday' },
+  { value: 'once', label: 'Schedule for later' }
 ];
 
 export const SMS_DELIVERY_STATUSES = {
