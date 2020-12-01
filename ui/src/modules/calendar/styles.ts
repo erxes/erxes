@@ -92,6 +92,7 @@ const Cell = styledTS<{ isCurrent?: boolean }>(styled.div)`
   display: block;
   min-height: 70px;
   background: ${props => props.isCurrent && colors.bgLight};
+  position: relative;
 
   &:last-child {
     border: none;
@@ -411,6 +412,25 @@ const HeadButton = styled(HeaderButton)`
   }
 `;
 
+const PopoverCell = styled.div`
+  padding: 10px;
+
+  h5 {
+    text-align: center;
+    margin: 0 0 10px 0;
+    font-size: 18px;
+  }
+`;
+
+const SeeAll = styled.div`
+  position: absolute;
+  bottom: 1px;
+  left: 2px;
+  right: 2px;
+  background: ${colors.bgActive};
+  border-radius: 4px;
+`;
+
 export {
   CalendarWrapper,
   Grid,
@@ -439,5 +459,7 @@ export {
   Indicator,
   EventRow,
   EventHeading,
-  HeadButton
+  HeadButton,
+  SeeAll,
+  PopoverCell
 };

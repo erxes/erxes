@@ -1,5 +1,7 @@
 import Icon from 'modules/common/components/Icon';
 import React from 'react';
+import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
+import Popover from 'react-bootstrap/Popover';
 import { TYPES, WEEKS } from '../constants';
 import EventForm from '../containers/EventForm';
 import {
@@ -12,9 +14,11 @@ import {
   Grid,
   Header,
   Indicator,
+  PopoverCell,
   Presentation,
   Row,
   RowWrapper,
+  SeeAll,
   WeekCol,
   WeekContainer,
   WeekData,
@@ -52,6 +56,7 @@ type State = {
 
 class Event extends React.Component<Props, State> {
   private ref;
+  private overlayTrigger;
 
   constructor(props) {
     super(props);
@@ -86,7 +91,9 @@ class Event extends React.Component<Props, State> {
   };
 
   editEvent = (event: IEvent, account?: IAccount) => {
-    this.setState({ event, account, isPopupVisible: true });
+    this.setState({ event, account, isPopupVisible: true }, () => {
+      this.onClosePopover();
+    });
   };
 
   deleteEvent = (_id: string, accountId: string) => {
@@ -148,6 +155,40 @@ class Event extends React.Component<Props, State> {
     );
   };
 
+  onClosePopover = () => {
+    this.overlayTrigger.hide();
+  };
+
+  seeOthers = (events, day) => {
+    if (this.state.cellHeight - 24 > events.length * 24) {
+      return null;
+    }
+
+    const content = (
+      <Popover id="calendar-popover">
+        <PopoverCell>
+          <h5>{day.getDate()}</h5>
+          {this.renderEvents(events, false)}
+        </PopoverCell>
+      </Popover>
+    );
+
+    return (
+      <OverlayTrigger
+        ref={overlayTrigger => {
+          this.overlayTrigger = overlayTrigger;
+        }}
+        trigger="click"
+        placement="top-start"
+        rootClose={true}
+        container={this}
+        overlay={content}
+      >
+        <SeeAll>See more</SeeAll>
+      </OverlayTrigger>
+    );
+  };
+
   renderContent = (day: Date) => {
     const events = filterEvents(this.props.events, day);
 
@@ -160,8 +201,8 @@ class Event extends React.Component<Props, State> {
         >
           {day.getDate()}
         </Day>
-
         {this.renderEvents(events, false)}
+        {this.seeOthers(events, day)}
       </>
     );
   };
