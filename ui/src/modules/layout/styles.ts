@@ -106,13 +106,15 @@ const ContentBox = styledTS<{ transparent?: boolean }>(styled.div)`
   background-color: ${props => !props.transparent && colors.colorWhite};
 `;
 
-const ContentHeader = styledTS<{ background: string }>(styled.div)`
+const ContentHeader = styledTS<{ background: string; zIndex?: number }>(
+  styled.div
+)`
   background: ${props =>
     props.background === 'transparent' ? 'none' : colors[props.background]};
   padding: ${props =>
     props.background === 'transparent' ? 0 : `0 ${dimensions.coreSpacing}px`};
   border-bottom: 1px solid ${colors.borderPrimary};
-  z-index: 2;
+  z-index: ${props => props.zIndex || 2};
 `;
 
 const HeaderContent = styled.div`

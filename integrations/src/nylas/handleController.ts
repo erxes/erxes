@@ -22,9 +22,14 @@ import {
   connectYahooAndOutlookToNylas
 } from './auth';
 import { NYLAS_API_URL } from './constants';
-import { NylasCalendars } from './models';
+import { NylasCalendars, NylasEvent } from './models';
 import { NYLAS_MODELS, storeCalendars, storeEvents } from './store';
-import { ICalendar, IEventDoc, INylasIntegrationData } from './types';
+import {
+  ICalendar,
+  ICalendarParams,
+  IEventDoc,
+  INylasIntegrationData
+} from './types';
 import { buildEmailAddress } from './utils';
 
 export const createNylasIntegration = async (
@@ -387,4 +392,20 @@ export const nylasSendEventAttendance = async ({
 
     throw e;
   }
+};
+
+export const updateCalendar = async (doc: ICalendarParams) => {
+  const { _id, ...params } = doc;
+
+  await NylasCalendars.updateOne({ _id }, { $set: params });
+  const calendar = await NylasCalendars.findOne({ _id });
+
+  if (calendar && doc.color) {
+    await NylasEvent.updateMany(
+      { providerCalendarId: calendar.providerCalendarId },
+      { $set: { color: doc.color } }
+    );
+  }
+
+  return calendar;
 };

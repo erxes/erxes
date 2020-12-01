@@ -3,24 +3,17 @@ import dayjs from 'dayjs';
 import Button from 'modules/common/components/Button';
 import FormControl from 'modules/common/components/form/Control';
 import FormGroup from 'modules/common/components/form/Group';
-import Label from 'modules/common/components/form/Label';
-import ControlLabel from 'modules/common/components/form/Label';
-import Icon from 'modules/common/components/Icon';
+import { __ } from 'modules/common/utils';
 import Sidebar from 'modules/layout/components/Sidebar';
 import React from 'react';
-import Select from 'react-select-plus';
-import { TYPES } from '../constants';
 import EventForm from '../containers/EventForm';
-import { CalendarController, SidebarWrapper } from '../styles';
+import { CalendarItem, CommonWrapper, SidebarHeading } from '../styles';
 import { IAccount } from '../types';
-import { extractDate } from '../utils';
 
 type Props = {
   dateOnChange: (date: string | Date | undefined) => void;
   currentDate: Date;
-  typeOnChange: ({ value, label }: { value: string; label: string }) => void;
   onChangeCalendarIds: (ids: string[]) => void;
-  type: string;
   history: any;
   queryParams: any;
   startTime: Date;
@@ -80,32 +73,6 @@ class LeftSidebar extends React.Component<Props, State> {
     });
   };
 
-  renderOptions = (list: string[]) => {
-    return list.map(item => ({ value: item, label: item.toUpperCase() }));
-  };
-
-  onChange = (increment: boolean) => {
-    const { currentDate, type, dateOnChange } = this.props;
-    const { month, year, date } = extractDate(currentDate);
-
-    let day: Date = currentDate;
-    const inc = increment ? 1 : -1;
-
-    if (type === TYPES.DAY) {
-      day = new Date(year, month, date + inc);
-    }
-
-    if (type === TYPES.WEEK) {
-      day = new Date(year, month, date + inc * 7);
-    }
-
-    if (type === TYPES.MONTH) {
-      day = new Date(year, month + inc);
-    }
-
-    dateOnChange(day);
-  };
-
   toggleCheckbox = (calendarId, e: React.FormEvent<HTMLElement>) => {
     const checked = (e.target as HTMLInputElement).checked;
     const calendarIds = this.state.calendarIds;
@@ -151,14 +118,14 @@ class LeftSidebar extends React.Component<Props, State> {
     this.props.onChangeCalendarIds(calendarIds);
   };
 
-  renderCalendars = calendars => {
+  renderCalendars = (calendars, color) => {
     const { calendarIds } = this.state;
 
     return calendars.map(calendar => {
       const calendarId = calendar.providerCalendarId;
 
       return (
-        <div key={calendar._id}>
+        <CalendarItem key={calendar._id}>
           &nbsp; &nbsp; &nbsp;
           <FormControl
             key={calendar._id}
@@ -166,10 +133,11 @@ class LeftSidebar extends React.Component<Props, State> {
             componentClass="checkbox"
             onChange={this.toggleCheckbox.bind(this, calendarId)}
             checked={calendarIds.includes(calendarId)}
+            color={calendar.color || color}
           >
             {calendar.name}
           </FormControl>
-        </div>
+        </CalendarItem>
       );
     });
   };
@@ -177,24 +145,22 @@ class LeftSidebar extends React.Component<Props, State> {
   renderAccounts = () => {
     return (
       <FormGroup>
-        <ControlLabel>Calendars</ControlLabel>
-        <br />
-        <br />
-
+        <SidebarHeading>My Calendars</SidebarHeading>
         {this.props.accounts.map(account => {
           return (
             <div key={account._id}>
-              <FormControl
-                className="toggle-message"
-                componentClass="checkbox"
-                onChange={this.toggleAccountCheckbox.bind(this, account)}
-                checked={this.state.calendarIds.includes(account._id)}
-              >
-                <Icon icon={'circle'} style={{ color: account.color }} /> &nbsp;
-                {account.name}
-              </FormControl>
-              {this.renderCalendars(account.calendars)}
-              <br />
+              <CalendarItem>
+                <FormControl
+                  className="toggle-message"
+                  componentClass="checkbox"
+                  onChange={this.toggleAccountCheckbox.bind(this, account)}
+                  checked={this.state.calendarIds.includes(account._id)}
+                  color={account.color}
+                >
+                  {account.name}
+                </FormControl>
+              </CalendarItem>
+              {this.renderCalendars(account.calendars, account.color)}
             </div>
           );
         })}
@@ -202,73 +168,54 @@ class LeftSidebar extends React.Component<Props, State> {
     );
   };
 
-  render() {
-    const { type, typeOnChange, currentDate, dateOnChange } = this.props;
+  renderSidebarHeader() {
+    if (this.props.accounts.length === 0) {
+      return null;
+    }
 
     return (
-      <Sidebar>
-        <SidebarWrapper>
-          <FormGroup>
-            <CalendarController>
-              <Icon
-                icon="angle-left"
-                onClick={this.onChange.bind(this, false)}
-              />
-              <Icon
-                icon="angle-right"
-                onClick={this.onChange.bind(this, true)}
-              />
-              <Label uppercase={true}>
-                {dayjs(currentDate).format('MMMM, YYYY')}
-              </Label>
-            </CalendarController>
-          </FormGroup>
+      <CommonWrapper>
+        <Button
+          uppercase={false}
+          btnStyle="success"
+          onClick={this.onHideModal}
+          block={true}
+          icon="plus-circle"
+        >
+          {__('Create Event')}
+        </Button>
+        <EventForm
+          {...this.props}
+          isPopupVisible={this.state.isPopupVisible}
+          onHideModal={this.onHideModal}
+        />
+      </CommonWrapper>
+    );
+  }
 
-          <FormGroup>
-            <Select
-              isRequired={true}
-              value={type}
-              onChange={typeOnChange}
-              options={this.renderOptions(TYPES.all)}
-              clearable={false}
-            />
-          </FormGroup>
+  render() {
+    const { currentDate, dateOnChange } = this.props;
 
-          <FormGroup>
-            <Datetime
-              inputProps={{ placeholder: 'Click to select a date' }}
-              dateFormat="YYYY/MM/DD"
-              timeFormat="HH:mm"
-              closeOnSelect={true}
-              utc={true}
-              input={false}
-              value={currentDate}
-              onChange={dateOnChange}
-              defaultValue={dayjs()
-                .startOf('day')
-                .add(12, 'hour')
-                .format('YYYY-MM-DD HH:mm:ss')}
-            />
-          </FormGroup>
+    return (
+      <Sidebar full={true} header={this.renderSidebarHeader()}>
+        <FormGroup>
+          <Datetime
+            inputProps={{ placeholder: 'Click to select a date' }}
+            dateFormat="YYYY/MM/DD"
+            timeFormat="HH:mm"
+            closeOnSelect={true}
+            utc={true}
+            input={false}
+            value={currentDate}
+            onChange={dateOnChange}
+            defaultValue={dayjs()
+              .startOf('day')
+              .add(12, 'hour')
+              .format('YYYY-MM-DD HH:mm:ss')}
+          />
+        </FormGroup>
 
-          {this.renderAccounts()}
-
-          <FormGroup>
-            <Button
-              size="small"
-              uppercase={false}
-              btnStyle="success"
-              onClick={this.onHideModal}
-            >
-              Create Event
-            </Button>
-            <EventForm
-              {...this.props}
-              isPopupVisible={this.state.isPopupVisible}
-              onHideModal={this.onHideModal}
-            />
-          </FormGroup>
-        </SidebarWrapper>
+        {this.renderAccounts()}
       </Sidebar>
     );
   }

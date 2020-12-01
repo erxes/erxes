@@ -155,7 +155,7 @@ class ButtonMutate extends React.Component<Props, { isLoading: boolean }> {
 
     return (
       <Button
-        uppercase={uppercase}
+        uppercase={uppercase || false}
         disabled={disabled || isLoading}
         btnStyle={btnStyle}
         size={btnSize}

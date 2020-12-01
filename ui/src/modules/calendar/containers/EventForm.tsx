@@ -59,7 +59,6 @@ class FormContainer extends React.Component<Props> {
           callback={callBackResponse}
           refetchQueries={[refetchQuery]}
           isSubmitted={isSubmitted}
-          btnSize="small"
           type="submit"
           icon="check-1"
         />
