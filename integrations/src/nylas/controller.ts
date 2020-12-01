@@ -218,12 +218,12 @@ export const initNylas = async app => {
         return c.providerCalendarId;
       });
 
+      await revokeToken(email, googleAccessToken);
+      await enableOrDisableAccount(nylasAccountId, false);
+
       await Accounts.deleteOne({ _id: accountId });
       await NylasCalendars.deleteMany({ accountUid: nylasAccountId });
       await NylasEvent.deleteMany({ providerCalendarId: { $in: calendarIds } });
-
-      await revokeToken(email, googleAccessToken);
-      await enableOrDisableAccount(nylasAccountId, false);
     } catch (e) {
       return next(e);
     }
