@@ -93,6 +93,15 @@ const Cell = styledTS<{ isCurrent?: boolean }>(styled.div)`
   min-height: 70px;
   background: ${props => props.isCurrent && colors.bgLight};
   position: relative;
+  transition: background 0.3s ease;
+  
+  &:hover {
+    background: ${colors.bgLight};
+  }
+
+  &:active, &:focus {
+    background: ${colors.bgActive};
+  }
 
   &:last-child {
     border: none;
