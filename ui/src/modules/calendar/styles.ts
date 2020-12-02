@@ -73,7 +73,7 @@ const Row = styled.div`
   border-bottom: ${borderColor} 1px solid;
   display: flex;
   flex: 1 1 0%;
-  min-height: 80px;
+  min-height: 98px;
 `;
 
 const RowWrapper = styled.div`
@@ -92,6 +92,7 @@ const Cell = styledTS<{ isCurrent?: boolean }>(styled.div)`
   display: block;
   min-height: 70px;
   background: ${props => props.isCurrent && colors.bgLight};
+  position: relative;
 
   &:last-child {
     border: none;
@@ -336,6 +337,7 @@ const EventRow = styled.div`
   display: flex;
   align-items: baseline;
   margin-bottom: 10px;
+  word-break: break-word;
 
   i {
     margin-right: 10px;
@@ -410,6 +412,38 @@ const HeadButton = styled(HeaderButton)`
   }
 `;
 
+const PopoverCell = styled.div`
+  padding: 10px;
+
+  h5 {
+    text-align: center;
+    margin: 0 0 10px 0;
+    font-size: 18px;
+  }
+
+  > i {
+    position: absolute;
+    right: 10px;
+    top: 6px;
+    color: ${colors.colorCoreGray};
+    cursor: pointer;
+  }
+`;
+
+const SeeAll = styled.div`
+  background: ${colors.bgActive};
+  padding: 1px 8px;
+  border-radius: 4px;
+  margin: 2px;
+  line-height: 20px;
+  font-size: 12px;
+
+  &:hover {
+    background: ${colors.bgGray};
+    cursor: pointer;
+  }
+`;
+
 export {
   CalendarWrapper,
   Grid,
@@ -438,5 +472,7 @@ export {
   Indicator,
   EventRow,
   EventHeading,
-  HeadButton
+  HeadButton,
+  SeeAll,
+  PopoverCell
 };
