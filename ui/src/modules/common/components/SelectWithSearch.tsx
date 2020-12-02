@@ -218,6 +218,7 @@ const withQuery = ({ customQuery }) =>
               context,
               variables: {
                 ids: typeof values === 'string' ? [values] : values,
+                fetchExtra: true,
                 ...filterParams
               },
               fetchPolicy: 'network-only',
