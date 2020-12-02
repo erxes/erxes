@@ -1,5 +1,6 @@
 export const STORAGE_CALENDAR_BOARD_KEY = 'erxesCurrentCalendarBoardId';
 export const STORAGE_CALENDAR_GROUP_KEY = 'erxesCurrentCalendarGroupId';
+export const STORAGE_CALENDAR_IDS = 'erxesCalendarIds';
 
 export const TYPES = {
   DAY: 'day',

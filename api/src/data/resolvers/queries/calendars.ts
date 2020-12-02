@@ -114,18 +114,18 @@ const calendarQueries = {
 
     for (const account of accounts) {
       try {
-        const calendars = await dataSources.IntegrationsAPI.fetchApi(
-          '/nylas/get-calendars',
-          {
+        const calendars =
+          (await dataSources.IntegrationsAPI.fetchApi('/nylas/get-calendars', {
             accountId: account.accountId,
             show: true
-          }
-        );
+          })) || [];
 
-        result.push({
-          ...account.toJSON(),
-          calendars
-        });
+        if (calendars.length !== 0) {
+          result.push({
+            ...account.toJSON(),
+            calendars
+          });
+        }
       } catch (e) {
         if (e.message === 'Account not found') {
           await Calendars.deleteOne({ _id: account._id });

@@ -1,5 +1,6 @@
 import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
+import { queries as calendarQueries } from 'modules/calendar/graphql';
 import Spinner from 'modules/common/components/Spinner';
 import { __, Alert, withProps } from 'modules/common/utils';
 import React from 'react';
@@ -14,6 +15,7 @@ import {
 
 type Props = {
   accountId: string;
+  groupId: string;
 };
 
 type FinalProps = {
@@ -23,7 +25,7 @@ type FinalProps = {
 
 class EventContainer extends React.Component<FinalProps, {}> {
   render() {
-    const { fetchApiQuery, editMutation } = this.props;
+    const { fetchApiQuery, editMutation, groupId } = this.props;
 
     if (fetchApiQuery.loading) {
       return <Spinner objective={true} />;
@@ -38,7 +40,8 @@ class EventContainer extends React.Component<FinalProps, {}> {
     // edit action
     const editCalendar = (doc: EditAccountCalendarMutationVariables) => {
       editMutation({
-        variables: doc
+        variables: doc,
+        refetchQueries: getRefetchQueries(groupId)
       })
         .then(() => {
           fetchApiQuery.refetch();
@@ -60,6 +63,15 @@ class EventContainer extends React.Component<FinalProps, {}> {
     return <CalendarAccounts {...updatedProps} />;
   }
 }
+
+const getRefetchQueries = (groupId: string) => {
+  return [
+    {
+      query: gql(calendarQueries.calendars),
+      variables: { groupId }
+    }
+  ];
+};
 
 export default withProps<Props>(
   compose(
