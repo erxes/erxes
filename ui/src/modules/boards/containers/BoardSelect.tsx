@@ -80,61 +80,61 @@ class BoardSelectContainer extends React.Component<FinalProps> {
   };
 
   onChangeStage = (stageId: string, callback?: any) => {
-      this.props.tasksQuery
-        .refetch({ stageId })
-        .then(({ data }) => {
-          const tasks = data.tasks;
+    this.props.tasksQuery
+      .refetch({ stageId })
+      .then(({ data }) => {
+        const tasks = data.tasks;
 
-          if (this.props.onChangeStage) {
-            this.props.onChangeStage(stageId);
-          }
+        if (this.props.onChangeStage) {
+          this.props.onChangeStage(stageId);
+        }
 
-
-          if (
-            tasks.length > 0 &&
-            typeof this.props.autoSelectCard === 'undefined'
-          ) {
-            this.onChangeStage(tasks[0]._id);
-          }
-        })
-        .catch(e => {
-          Alert.error(e.message);
-        });
-    
+        if (
+          tasks.length > 0 &&
+          typeof this.props.autoSelectCard === 'undefined'
+        ) {
+          this.onChangeStage(tasks[0]._id);
+        }
+      })
+      .catch(e => {
+        Alert.error(e.message);
+      });
 
     if (callback) {
       callback();
     }
-
   };
 
   onChangeCard = (cardId: string) => {
- 
     if (this.props.onChangeCard) {
       this.props.onChangeCard(cardId);
     }
-
-  }
+  };
 
   render() {
-    const { boardsQuery, pipelinesQuery, stagesQuery, tasksQuery, ticketsQuery, dealsQuery ,type} = this.props;
+    const {
+      boardsQuery,
+      pipelinesQuery,
+      stagesQuery,
+      tasksQuery,
+      ticketsQuery,
+      dealsQuery,
+      type
+    } = this.props;
 
     const boards = boardsQuery.boards || [];
     const pipelines = pipelinesQuery.pipelines || [];
     const stages = stagesQuery.stages || [];
-    
 
     let cards: any[] = [];
 
-    if (type === "deal"){
+    if (type === 'deal') {
       cards = dealsQuery.deals || [];
-    }else if (type === "task") {
+    } else if (type === 'task') {
       cards = tasksQuery.tasks || [];
-    }else if (type === "ticket") {
+    } else if (type === 'ticket') {
       cards = ticketsQuery.tickets || [];
     }
-
-    
 
     const extendedProps = {
       ...this.props,

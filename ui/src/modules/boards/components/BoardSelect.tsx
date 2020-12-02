@@ -4,7 +4,7 @@ import { __ } from 'modules/common/utils';
 import React from 'react';
 import Select from 'react-select-plus';
 import { FormContainer } from '../styles/common';
-import { IBoard, IPipeline ,IStage} from '../types';
+import { IBoard, IPipeline, IStage } from '../types';
 import { selectOptions } from '../utils';
 
 type Props = {

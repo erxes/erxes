@@ -95,7 +95,7 @@ class AddForm extends React.Component<Props, State> {
       return null;
     }
 
-    const { stageId, pipelineId, boardId, cardId} = this.state;
+    const { stageId, pipelineId, boardId, cardId } = this.state;
 
     const stgIdOnChange = stgId => this.onChangeField('stageId', stgId);
     const plIdOnChange = plId => this.onChangeField('pipelineId', plId);
