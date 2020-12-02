@@ -46,16 +46,21 @@ const orderHeler = (aboveOrder, belowOrder) => {
   return randomBetween(aboveOrder, belowOrder);
 };
 
-export const getNewOrder = async ({ collection, stageId, aboveItemId }: ISetOrderParam) => {
-
-  console.log('collection: ',collection)
-
+export const getNewOrder = async ({
+  collection,
+  stageId,
+  aboveItemId
+}: ISetOrderParam) => {
   const aboveItem = await collection.findOne({ _id: aboveItemId });
 
   const aboveOrder = aboveItem?.order || 0;
 
   const belowItems = await collection
-    .find({ stageId, order: { $gt: aboveOrder }, status: { $ne: BOARD_STATUSES.ARCHIVED } })
+    .find({
+      stageId,
+      order: { $gt: aboveOrder },
+      status: { $ne: BOARD_STATUSES.ARCHIVED }
+    })
     .sort({ order: 1 })
     .limit(1);
 
@@ -78,9 +83,9 @@ export const getNewOrder = async ({ collection, stageId, aboveItemId }: ISetOrde
       .find(
         {
           stageId,
-          status: { $ne: BOARD_STATUSES.ARCHIVED },
+          status: { $ne: BOARD_STATUSES.ARCHIVED }
         },
-        { _id: 1, order: 1 },
+        { _id: 1, order: 1 }
       )
       .sort({ order: 1 });
 
@@ -88,8 +93,8 @@ export const getNewOrder = async ({ collection, stageId, aboveItemId }: ISetOrde
       bulkOps.push({
         updateOne: {
           filter: { _id: item._id },
-          update: { order: ord },
-        },
+          update: { order: ord }
+        }
       });
 
       ord = ord + 10;
