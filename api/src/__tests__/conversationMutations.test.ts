@@ -1,8 +1,7 @@
-import "./setup.ts";
-
-import * as faker from "faker";
-import * as sinon from "sinon";
-import messageBroker from "../messageBroker";
+import './setup.ts';
+import * as faker from 'faker';
+import * as sinon from 'sinon';
+import messageBroker from '../messageBroker';
 
 import {
   channelFactory,
@@ -12,7 +11,7 @@ import {
   integrationFactory,
   stageFactory,
   userFactory,
-} from "../db/factories";
+} from '../db/factories';
 import {
   ConversationMessages,
   Conversations,
@@ -20,21 +19,21 @@ import {
   Deals,
   Integrations,
   Users,
-} from "../db/models";
+} from '../db/models';
 import {
   CONVERSATION_OPERATOR_STATUS,
   CONVERSATION_STATUSES,
   KIND_CHOICES,
-} from "../db/models/definitions/constants";
+} from '../db/models/definitions/constants';
 
-import { AUTO_BOT_MESSAGES } from "../data/constants";
-import { IntegrationsAPI } from "../data/dataSources";
-import utils from "../data/utils";
-import { graphqlRequest } from "../db/connection";
-import { IConversationDocument } from "../db/models/definitions/conversations";
-import { ICustomerDocument } from "../db/models/definitions/customers";
-import { IIntegrationDocument } from "../db/models/definitions/integrations";
-import { IUserDocument } from "../db/models/definitions/users";
+import { AUTO_BOT_MESSAGES } from '../data/constants';
+import { IntegrationsAPI } from '../data/dataSources';
+import utils from '../data/utils';
+import { graphqlRequest } from '../db/connection';
+import { IConversationDocument } from '../db/models/definitions/conversations';
+import { ICustomerDocument } from '../db/models/definitions/customers';
+import { IIntegrationDocument } from '../db/models/definitions/integrations';
+import { IUserDocument } from '../db/models/definitions/users';
 
 const toJSON = (value) => {
   // sometimes object key order is different even though it has same value.
@@ -871,7 +870,9 @@ describe("Conversation message mutations", () => {
   });
 
   test("Convert conversation to card", async () => {
-    const conversation = await conversationFactory({assignedUserId: user._id});
+    const conversation = await conversationFactory({
+      assignedUserId: user._id,
+    });
     const stage = await stageFactory({ type: "deal" });
 
     const mutation = `
@@ -892,7 +893,9 @@ describe("Conversation message mutations", () => {
       { dataSources }
     );
 
-    const deal = Deals.findOne({ sourceConversationIds: { $in: [conversation._id] } });
+    const deal = Deals.findOne({
+      sourceConversationIds: { $in: [conversation._id] },
+    });
 
     expect(deal).toBeDefined();
   });
@@ -903,9 +906,15 @@ describe("Conversation message mutations", () => {
     const stage = await stageFactory({ type: "deal" });
 
     const oldConversation = await conversationFactory({});
-    const newConversation = await conversationFactory({assignedUserId: assignedUser._id});
-    
-    const deal = await dealFactory({sourceConversationIds:[oldConversation._id], stageId: stage._id, assignedUserIds: [user._id]});
+    const newConversation = await conversationFactory({
+      assignedUserId: assignedUser._id,
+    });
+
+    const deal = await dealFactory({
+      sourceConversationIds: [oldConversation._id],
+      stageId: stage._id,
+      assignedUserIds: [user._id],
+    });
 
     const mutation = `
       mutation conversationConvertToCard($_id: String!, $type: String!, $itemId: String, $itemName: String, $stageId: String) {
@@ -925,11 +934,13 @@ describe("Conversation message mutations", () => {
       { dataSources }
     );
 
-    const updatedDeal = await Deals.findOne({ sourceConversationIds: { $in: [newConversation._id] } });
+    const updatedDeal = await Deals.findOne({
+      sourceConversationIds: { $in: [newConversation._id] },
+    });
 
-      if (!updatedDeal) {
-        throw new Error('deal not found');
-      }
+    if (!updatedDeal) {
+      throw new Error("deal not found");
+    }
     const sourcesIds = updatedDeal.sourceConversationIds || [];
 
     expect(updatedDeal).toBeDefined();
