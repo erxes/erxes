@@ -1,3 +1,4 @@
+import { ActionButton } from 'modules/common/components/ActionButtons';
 import { colors, dimensions } from 'modules/common/styles';
 import styled from 'styled-components';
 import styledTS from 'styled-components-ts';
@@ -29,6 +30,12 @@ const FieldType = styled.span`
   font-size: 11px;
   color: ${colors.colorCoreGray};
   display: flex;
+`;
+
+const PropertyTable = styled.div`
+  ${ActionButton} {
+    margin-right: 50px;
+  }
 `;
 
 const CollapseRow = styled.div`
@@ -85,5 +92,6 @@ export {
   InputDescription,
   CollapseRow,
   SidebarContent,
-  SelectInput
+  SelectInput,
+  PropertyTable
 };
