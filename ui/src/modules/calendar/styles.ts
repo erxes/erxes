@@ -420,15 +420,28 @@ const PopoverCell = styled.div`
     margin: 0 0 10px 0;
     font-size: 18px;
   }
+
+  > i {
+    position: absolute;
+    right: 10px;
+    top: 6px;
+    color: ${colors.colorCoreGray};
+    cursor: pointer;
+  }
 `;
 
 const SeeAll = styled.div`
-  position: absolute;
-  bottom: 1px;
-  left: 2px;
-  right: 2px;
   background: ${colors.bgActive};
+  padding: 1px 8px;
   border-radius: 4px;
+  margin: 2px;
+  line-height: 20px;
+  font-size: 12px;
+
+  &:hover {
+    background: ${colors.bgGray};
+    cursor: pointer;
+  }
 `;
 
 export {
