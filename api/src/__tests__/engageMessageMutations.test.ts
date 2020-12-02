@@ -267,7 +267,7 @@ describe('engage message mutation tests', () => {
       expect(e.message).toEqual('User not found');
     }
 
-    const integration = await integrationFactory({
+    await integrationFactory({
       brandId: brand._id,
       kind: KIND_CHOICES.MESSENGER
     });
