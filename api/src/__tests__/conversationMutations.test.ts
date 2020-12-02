@@ -24,7 +24,6 @@ import {
   CONVERSATION_STATUSES,
   KIND_CHOICES
 } from '../db/models/definitions/constants';
-
 import { AUTO_BOT_MESSAGES } from '../data/constants';
 import { IntegrationsAPI } from '../data/dataSources';
 import utils from '../data/utils';
