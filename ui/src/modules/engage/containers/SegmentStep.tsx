@@ -128,7 +128,8 @@ export default withProps<Props>(
           variables: {
             only: 'bySegment',
             source: 'engages'
-          }
+          },
+          fetchPolicy: 'network-only'
         }
       }
     ),
