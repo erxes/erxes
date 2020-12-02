@@ -169,6 +169,10 @@ class LeftSidebar extends React.Component<Props, State> {
   };
 
   renderSidebarHeader() {
+    if (this.props.accounts.length === 0) {
+      return null;
+    }
+
     return (
       <CommonWrapper>
         <Button
