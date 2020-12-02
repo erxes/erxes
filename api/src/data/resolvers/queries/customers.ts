@@ -19,6 +19,7 @@ import { IContext } from '../../types';
 
 interface ICountParams extends IListArgs {
   only: string;
+  source: string;
 }
 
 const countByIntegrationType = async (qb): Promise<ICountBy> => {

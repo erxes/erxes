@@ -40,6 +40,10 @@ class Steps extends React.Component<Props, State> {
     return (
       <StepContainer>
         {React.Children.map(children, (child: any, index: number) => {
+          if (!child) {
+            return null;
+          }
+
           return React.cloneElement(child, {
             stepNumber: index + 1,
             active: this.state.activeStep,
