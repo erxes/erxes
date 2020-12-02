@@ -128,7 +128,10 @@ class GroupRow extends React.Component<Props, State> {
             </ActionButtons>
           </td>
         </tr>
-        <AccountCalendars accountId={calendar.accountId} />
+        <AccountCalendars
+          accountId={calendar.accountId}
+          groupId={this.props.group._id}
+        />
       </>
     ));
   }
