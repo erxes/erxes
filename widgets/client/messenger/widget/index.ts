@@ -3,9 +3,10 @@ import "./index.css";
 
 import {
   generateIntegrationUrl,
-  getBrowserInfo,
+  getStorage,
+  listenForCommonRequests,
   setErxesProperty
-} from "../../utils";
+} from "../../widgetUtils";
 
 declare const window: any;
 
@@ -113,7 +114,8 @@ iframe.onload = async () => {
   contentWindow.postMessage(
     {
       fromPublisher: true,
-      setting
+      setting,
+      storage: getStorage()
     },
     "*"
   );
@@ -123,6 +125,8 @@ iframe.onload = async () => {
 window.addEventListener("message", async (event: MessageEvent) => {
   const data = event.data;
   const { isVisible, message, isSmallContainer } = data;
+
+  listenForCommonRequests(event, iframe);
 
   if (data.fromErxes && data.source === "fromMessenger") {
     if (isMobile) {
@@ -167,18 +171,6 @@ window.addEventListener("message", async (event: MessageEvent) => {
       } else {
         delaydSetClass("erxes-messenger-hidden");
       }
-    }
-
-    if (message === "requestingBrowserInfo" && iframe.contentWindow) {
-      iframe.contentWindow.postMessage(
-        {
-          fromPublisher: true,
-          source: "fromMessenger",
-          message: "sendingBrowserInfo",
-          browserInfo: await getBrowserInfo()
-        },
-        "*"
-      );
     }
   }
 });
