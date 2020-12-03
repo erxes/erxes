@@ -1,4 +1,3 @@
-import { PassThrough } from 'stream';
 import {
   conversationFactory,
   conversationMessageFactory,
@@ -551,8 +550,13 @@ describe('Conversation db', () => {
 
     await Conversations.removeEngageConversations(engageMessage._id);
 
-    expect(
-      await ConversationMessages.find({ conversationId: conversation._id })
-    ).toHaveLength(0);
+    await new Promise(resolve =>
+      setTimeout(async () => {
+        expect(
+          await ConversationMessages.find({ conversationId: conversation._id })
+        ).toHaveLength(0);
+        resolve();
+      }, 1000)
+    );
   });
 });
