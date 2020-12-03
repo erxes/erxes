@@ -148,7 +148,8 @@ export const INTEGRATION_NAMES_MAP = {
   'smooch-telegram': 'Telegram',
   'smooch-twilio': 'Twilio SMS',
   whatsapp: 'WhatsApp',
-  webhook: 'Webhook'
+  webhook: 'Webhook',
+  telnyx: 'Telnyx SMS'
 };
 
 // messenger data availability constants
