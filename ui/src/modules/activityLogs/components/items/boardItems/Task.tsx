@@ -228,7 +228,7 @@ class Task extends React.Component<Props, State> {
               <SelectTeamMembers
                 label={__('Choose team member')}
                 name="assignedUserIds"
-                value={assignedUserIds}
+                initialValue={assignedUserIds}
                 onSelect={onAssignedUserSelect}
               />
             </Row>

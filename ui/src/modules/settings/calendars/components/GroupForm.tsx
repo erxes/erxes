@@ -108,7 +108,7 @@ class GroupForm extends React.Component<Props, State> {
         <SelectTeamMembers
           label="Choose members"
           name="selectedMemberIds"
-          value={selectedMemberIds}
+          initialValue={selectedMemberIds}
           onSelect={this.onChangeMembers}
         />
       </FormGroup>

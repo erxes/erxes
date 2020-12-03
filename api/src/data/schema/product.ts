@@ -54,7 +54,7 @@ export const queries = `
   productCategoriesTotalCount: Int
   productCategoryDetail(_id: String): ProductCategory
 
-  products(type: String, categoryId: String, searchValue: String, tag: String, page: Int, perPage: Int ids: [String]): [Product]
+  products(type: String, categoryId: String, searchValue: String, tag: String, page: Int, perPage: Int ids: [String], excludeIds: Boolean): [Product]
   productsTotalCount(type: String): Int
   productDetail(_id: String): Product
   productCountByTags: JSON

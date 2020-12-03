@@ -195,7 +195,7 @@ class PermissionForm extends React.Component<Props, State> {
               <SelectTeamMembers
                 label="Choose users"
                 name="selectedUserIds"
-                value={selectedUserIds}
+                initialValue={selectedUserIds}
                 onSelect={usersOnChange}
               />
             </FormGroup>

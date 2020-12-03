@@ -171,7 +171,7 @@ class PipelineForm extends React.Component<Props, State> {
           <SelectTeamMembers
             label="Choose members"
             name="selectedMemberIds"
-            value={selectedMemberIds}
+            initialValue={selectedMemberIds}
             onSelect={onChange}
           />
         </SelectMemberStyled>
