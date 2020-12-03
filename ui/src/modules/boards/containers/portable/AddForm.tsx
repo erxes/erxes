@@ -9,8 +9,15 @@ import {
 import React from 'react';
 import { graphql } from 'react-apollo';
 import AddForm from '../../components/portable/AddForm';
-import { mutations as boardMutations ,queries } from '../../graphql';
-import { ConvertToMutationResponse, ConvertToMutationVariables, IItem, IItemParams, IOptions, SaveMutation, UpdateMutation } from '../../types';
+import { mutations as boardMutations, queries } from '../../graphql';
+import {
+  ConvertToMutationResponse,
+  ConvertToMutationVariables,
+  IItem,
+  IItemParams,
+  IOptions,
+  SaveMutation
+} from '../../types';
 
 type IProps = {
   options: IOptions;
@@ -33,14 +40,15 @@ type IProps = {
 
 type FinalProps = {
   addMutation: SaveMutation;
-  editMutation: UpdateMutation;
   conversationConvertToCard: ConvertToMutationResponse;
   editConformity: EditConformityMutation;
-} & IProps & ConvertToMutationResponse;
+} & IProps &
+  ConvertToMutationResponse;
 
 class AddFormContainer extends React.Component<FinalProps> {
   saveItem = (doc: IItemParams, callback: (item: IItem) => void) => {
     const {
+      addMutation,
       conversationConvertToCard,
       options,
       relType,
@@ -52,11 +60,11 @@ class AddFormContainer extends React.Component<FinalProps> {
       getAssociatedItem,
       aboveItemId,
       description,
-      attachments,
+      attachments
     } = this.props;
 
     doc.assignedUserIds = assignedUserIds;
-    doc.sourceConversationIds = [sourceConversationId || ""];
+    doc.sourceConversationIds = [sourceConversationId || ''];
 
     const proccessId = Math.random().toString();
 
@@ -67,54 +75,87 @@ class AddFormContainer extends React.Component<FinalProps> {
     doc.description = description;
     doc.attachments = attachments;
 
-    conversationConvertToCard({
-      variables: {
-        _id: sourceConversationId || "",
-        type: options.type,
-        itemId: doc._id,
-        itemName: doc.name,
-        stageId: doc.stageId
-      },
-    }).then(({ data }) => {
-
-      if (options.texts.addSuccessText) {
-        Alert.success(options.texts.addSuccessText);
-      }
-
-      if (!doc._id && relType && relTypeIds) {
-        editConformity({
-          variables: {
-            mainType: options.type,
-            mainTypeId: data.conversationConvertToCard,
-            relType,
-            relTypeIds
+    if (sourceConversationId) {
+      conversationConvertToCard({
+        variables: {
+          _id: sourceConversationId || '',
+          type: options.type,
+          itemId: doc._id,
+          itemName: doc.name,
+          stageId: doc.stageId
+        }
+      })
+        .then(({ data }) => {
+          if (options.texts.addSuccessText) {
+            Alert.success(options.texts.addSuccessText);
           }
+
+          if (!doc._id && relType && relTypeIds) {
+            editConformity({
+              variables: {
+                mainType: options.type,
+                mainTypeId: data.conversationConvertToCard,
+                relType,
+                relTypeIds
+              }
+            });
+          }
+
+          callback(data);
+
+          if (getAssociatedItem) {
+            getAssociatedItem(data.conversationConvertToCard);
+          }
+
+          if (refetch) {
+            refetch();
+          }
+        })
+        .catch(error => {
+          Alert.error(error.message);
         });
-      }
+    } else {
+      addMutation({ variables: doc })
+        .then(({ data }) => {
+          if (options.texts.addSuccessText) {
+            Alert.success(options.texts.addSuccessText);
+          }
 
-      callback(data);
+          if (relType && relTypeIds) {
+            editConformity({
+              variables: {
+                mainType: options.type,
+                mainTypeId: data[options.mutationsName.addMutation]._id,
+                relType,
+                relTypeIds
+              }
+            });
+          }
 
-      if (getAssociatedItem) {
-        getAssociatedItem(data.conversationConvertToCard);
-      }
+          callback(data[options.mutationsName.addMutation]);
 
-      if (refetch) {
-        refetch();
-      }
-    })
-      .catch(error => {
-        Alert.error(error.message);
-      });
-};
+          if (getAssociatedItem) {
+            getAssociatedItem(data[options.mutationsName.addMutation]);
+          }
 
-render() {
-  const extendedProps = {
-    ...this.props,
-    saveItem: this.saveItem
+          if (refetch) {
+            refetch();
+          }
+        })
+        .catch(error => {
+          Alert.error(error.message);
+        });
+    }
   };
 
-  return <AddForm {...extendedProps} />;
-}
+  render() {
+    const extendedProps = {
+      ...this.props,
+      saveItem: this.saveItem
+    };
+
+    return <AddForm {...extendedProps} />;
+  }
 }
 
 export default (props: IProps) =>
@@ -141,30 +182,10 @@ export default (props: IProps) =>
           }
         }
       ),
-      graphql<IProps, UpdateMutation, IItem>(
-        gql(props.options.mutations.editMutation),
-        {
-          name: 'editMutation',
-          options: ({ stageId }: { stageId?: string }) => {
-            if (!stageId) {
-              return {};
-            }
-
-            return {
-              refetchQueries: [
-                {
-                  query: gql(queries.stageDetail),
-                  variables: { _id: stageId }
-                }
-              ]
-            };
-          }
-        }
-      ),
       graphql<IProps, ConvertToMutationResponse, ConvertToMutationVariables>(
         gql(boardMutations.conversationConvertToCard),
         {
-          name: 'conversationConvertToCard',
+          name: 'conversationConvertToCard'
         }
       ),
       graphql<FinalProps, EditConformityMutation, IConformityEdit>(
