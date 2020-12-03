@@ -40,6 +40,10 @@ export const milliseconds = (sec: number) => {
   return sec * 1000;
 };
 
+export const calcRowCount = (wrapperHeight: number, rowHeight: number) => {
+  return Math.trunc((wrapperHeight - rowHeight) / rowHeight);
+};
+
 export const extractDate = (date: Date) => {
   return {
     month: date.getMonth(),

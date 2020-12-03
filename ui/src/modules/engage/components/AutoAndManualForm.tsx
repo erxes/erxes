@@ -306,7 +306,7 @@ class AutoAndManualForm extends React.Component<Props, State> {
     const { method } = this.state;
 
     if (method !== METHODS.MESSENGER) {
-      return <div />;
+      return null;
     }
 
     return (

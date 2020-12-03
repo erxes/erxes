@@ -2,7 +2,7 @@
  * Event's embeddable script
  */
 
-import { generateIntegrationUrl, setErxesProperty } from "../../utils";
+import { generateIntegrationUrl, setErxesProperty } from "../../widgetUtils";
 
 // add iframe
 const iframe = document.createElement("iframe");

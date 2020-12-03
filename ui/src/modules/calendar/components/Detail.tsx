@@ -176,6 +176,7 @@ class Detail extends React.Component<FinalProps, { toggle: boolean }> {
           title={event.title || ''}
           hideHeader={true}
           centered={true}
+          isAnimate={true}
           trigger={
             <EventTitle
               {...props}

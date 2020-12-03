@@ -40,5 +40,3 @@ fetch(`${REACT_APP_DASHBOARD_API_URL}/get-token`)
       target
     );
   });
-
-// tslint:disable-next-line:no-console
