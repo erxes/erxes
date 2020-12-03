@@ -2,15 +2,6 @@ import { SidebarList } from 'modules/layout/styles';
 import styled from 'styled-components';
 import { colors, dimensions } from '../common/styles';
 
-const CompaniesTableWrapper = styled.div`
-  td {
-    max-width: 250px;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-  }
-`;
-
 const CompanyLogo = styled.div`
   width: ${dimensions.headerSpacing}px;
   height: ${dimensions.headerSpacing}px;
@@ -46,4 +37,4 @@ const FlexItem = styled.div`
   align-items: center;
 `;
 
-export { CompaniesTableWrapper, CompanyLogo, List, FlexItem };
+export { CompanyLogo, List, FlexItem };

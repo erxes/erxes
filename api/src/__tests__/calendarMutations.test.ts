@@ -423,4 +423,28 @@ describe('Test calendars mutations', () => {
       }
     );
   });
+
+  test('Update account calendar', async () => {
+    const mutation = `
+      mutation editAccountCalendar($_id: String!, $name: String, $color: String, $show: Boolean) {
+        editAccountCalendar(_id: $_id, name: $name, color: $color, show: $show)
+      }
+    `;
+
+    const editCalendarSpy = jest.spyOn(
+      dataSources.IntegrationsAPI,
+      'editCalendar'
+    );
+
+    editCalendarSpy.mockImplementation(() => Promise.resolve());
+
+    await graphqlRequest(
+      mutation,
+      'editCalendar',
+      { _id: 'eventId', color: '#fff' },
+      {
+        dataSources
+      }
+    );
+  });
 });

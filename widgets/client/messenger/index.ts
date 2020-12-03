@@ -1,6 +1,6 @@
 import gql from 'graphql-tag';
 import client, { wsLink } from '../apollo-client';
-import { getLocalStorageItem, setLocalStorageItem } from '../common';
+import { getLocalStorageItem, initStorage, setLocalStorageItem } from '../common';
 import { setLocale } from '../utils';
 import widgetConnect from '../widgetConnect';
 import { connection } from './connection';
@@ -11,9 +11,11 @@ import { IConnectResponse } from './types';
 
 widgetConnect({
   connectMutation: (event: MessageEvent) => {
-    const setting = event.data.setting;
+    const { setting, storage } = event.data;
 
     connection.setting = setting;
+
+    initStorage(storage);
 
     return client.mutate({
       mutation: gql(graphqTypes.connect),

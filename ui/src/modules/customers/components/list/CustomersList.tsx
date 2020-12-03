@@ -10,6 +10,7 @@ import ModalTrigger from 'modules/common/components/ModalTrigger';
 import Pagination from 'modules/common/components/pagination/Pagination';
 import SortHandler from 'modules/common/components/SortHandler';
 import Table from 'modules/common/components/table';
+import withTableWrapper from 'modules/common/components/table/withTableWrapper';
 import { menuContacts } from 'modules/common/utils/menus';
 import routerUtils from 'modules/common/utils/router';
 import {
@@ -68,6 +69,8 @@ interface IProps extends IRouterProps {
   exportData: (bulk: Array<{ _id: string }>) => void;
   responseId: string;
   refetch?: () => void;
+  renderExpandButton?: any;
+  isExpand?: boolean;
 }
 
 type State = {
@@ -151,41 +154,44 @@ class CustomersList extends React.Component<IProps, State> {
       bulk,
       toggleBulk,
       history,
-      isAllSelected
+      isAllSelected,
+      isExpand
     } = this.props;
 
     return (
-      <Table whiteSpace="nowrap" hover={true} bordered={true}>
-        <thead>
-          <tr>
-            <th>
-              <FormControl
-                checked={isAllSelected}
-                componentClass="checkbox"
-                onChange={this.onChange}
-              />
-            </th>
-            {columnsConfig.map(({ name, label }) => (
-              <th key={name}>
-                <SortHandler sortField={name} label={__(label)} />
+      <withTableWrapper.Wrapper>
+        <Table whiteSpace="nowrap" hover={true} bordered={true}>
+          <thead>
+            <tr>
+              <th>
+                <FormControl
+                  checked={isAllSelected}
+                  componentClass="checkbox"
+                  onChange={this.onChange}
+                />
               </th>
+              {columnsConfig.map(({ name, label }) => (
+                <th key={name}>
+                  <SortHandler sortField={name} label={__(label)} />
+                </th>
+              ))}
+              <th>{__('Tags')}</th>
+            </tr>
+          </thead>
+          <tbody id="customers" className={isExpand ? 'expand' : ''}>
+            {customers.map(customer => (
+              <CustomerRow
+                customer={customer}
+                columnsConfig={columnsConfig}
+                key={customer._id}
+                isChecked={bulk.includes(customer)}
+                toggleBulk={toggleBulk}
+                history={history}
+              />
             ))}
-            <th>{__('Tags')}</th>
-          </tr>
-        </thead>
-        <tbody id="customers">
-          {customers.map(customer => (
-            <CustomerRow
-              customer={customer}
-              columnsConfig={columnsConfig}
-              key={customer._id}
-              isChecked={bulk.includes(customer)}
-              toggleBulk={toggleBulk}
-              history={history}
-            />
-          ))}
-        </tbody>
-      </Table>
+          </tbody>
+        </Table>
+      </withTableWrapper.Wrapper>
     );
   }
 
@@ -233,6 +239,7 @@ class CustomersList extends React.Component<IProps, State> {
       history,
       queryParams,
       exportData,
+      renderExpandButton,
       mergeCustomerLoading
     } = this.props;
 
@@ -331,6 +338,8 @@ class CustomersList extends React.Component<IProps, State> {
           autoFocus={true}
           onFocus={this.moveCursorAtTheEnd}
         />
+
+        {renderExpandButton()}
 
         {dateFilter}
 
@@ -514,4 +523,4 @@ class CustomersList extends React.Component<IProps, State> {
   }
 }
 
-export default withRouter(CustomersList);
+export default withTableWrapper('Customer', withRouter(CustomersList));

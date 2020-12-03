@@ -19,7 +19,8 @@ import {
   nylasGetCalendars,
   nylasSendEmail,
   nylasSendEventAttendance,
-  nylasUpdateEvent
+  nylasUpdateEvent,
+  updateCalendar
 } from '../nylas/handleController';
 import {
   NylasCalendars,
@@ -950,5 +951,30 @@ describe('Test nylas controller', () => {
     }
 
     mockFail.restore();
+  });
+
+  test('Update calendar', async () => {
+    try {
+      await updateCalendar({ _id: 'calendarId' });
+    } catch (e) {
+      expect(e.message).toBe('Calendar not found');
+    }
+
+    const integration = await integrationFactory({
+      erxesApiId: 'erxesApiId',
+      nylasAccountId: 'nylasAccountId',
+      nylasToken: 'token'
+    });
+
+    const calendar = await NylasCalendars.create({
+      accountUid: integration.nylasAccountId,
+      providerCalendarId: '123'
+    });
+
+    const color = '#fff';
+
+    const updated = await updateCalendar({ _id: calendar._id, color });
+
+    expect(updated.color).toBe(color);
   });
 });

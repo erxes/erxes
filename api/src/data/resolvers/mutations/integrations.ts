@@ -1,5 +1,4 @@
 import * as telemetry from 'erxes-telemetry';
-
 import { getUniqueValue } from '../../../db/factories';
 import {
   Channels,
@@ -370,9 +369,23 @@ const integrationMutations = {
       kind = 'nylas';
     }
 
-    const customer = customerId
-      ? await Customers.findOne({ _id: customerId })
-      : undefined;
+    let customer;
+
+    const selector = customerId
+      ? { _id: customerId }
+      : { primaryEmail: { $in: doc.to } };
+
+    customer = await Customers.findOne(selector);
+
+    if (!customer) {
+      const [primaryEmail] = doc.to;
+
+      customer = await Customers.create({
+        state: 'lead',
+        primaryEmail
+      });
+    }
+
     const { replacedContent } = await replaceEditorAttributes({
       content: body,
       user,
@@ -398,7 +411,7 @@ const integrationMutations = {
     doc.userId = user._id;
 
     for (const cusId of customerIds) {
-      await EmailDeliveries.createEmailDelivery({ ...doc, cusId });
+      await EmailDeliveries.createEmailDelivery({ ...doc, customerId: cusId });
     }
 
     return;

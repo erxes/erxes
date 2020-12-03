@@ -258,7 +258,9 @@ describe('calendarQueries', () => {
 
     const getCalendarsSpy = jest.spyOn(dataSources.IntegrationsAPI, 'fetchApi');
 
-    getCalendarsSpy.mockImplementation(() => Promise.resolve());
+    getCalendarsSpy.mockImplementation(() =>
+      Promise.resolve([{ _id: 'calendarId', name: 'test calendar' }])
+    );
 
     const response = await graphqlRequest(
       qry,
@@ -274,5 +276,24 @@ describe('calendarQueries', () => {
     expect(response).toBeDefined();
     expect(response[0]._id).toEqual(_calendar._id);
     expect(response[0].name).toEqual(_calendar.name);
+
+    getCalendarsSpy.mockImplementation(() => {
+      throw new Error('Account not found');
+    });
+
+    await graphqlRequest(
+      qry,
+      'calendarAccounts',
+      {
+        groupId: _group._id
+      },
+      {
+        dataSources
+      }
+    );
+
+    const calendar = await Calendars.findOne({ _id: _calendar._id });
+
+    expect(calendar).toBeNull();
   });
 });

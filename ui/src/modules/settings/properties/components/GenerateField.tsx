@@ -173,6 +173,10 @@ export default class GenerateField extends React.Component<Props, State> {
     const { field, onValueChange } = this.props;
     const { validation, type } = field;
 
+    if (!e.target) {
+      return;
+    }
+
     let value = optionValue || e.target.value;
 
     if (validation === 'number') {
