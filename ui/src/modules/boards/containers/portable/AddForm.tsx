@@ -64,7 +64,6 @@ class AddFormContainer extends React.Component<FinalProps> {
     } = this.props;
 
     doc.assignedUserIds = assignedUserIds;
-    doc.sourceConversationIds = [sourceConversationId || ''];
 
     const proccessId = Math.random().toString();
 
@@ -76,6 +75,8 @@ class AddFormContainer extends React.Component<FinalProps> {
     doc.attachments = attachments;
 
     if (sourceConversationId) {
+      doc.sourceConversationIds = [sourceConversationId];
+
       conversationConvertToCard({
         variables: {
           _id: sourceConversationId || '',
