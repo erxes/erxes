@@ -1,5 +1,7 @@
 import Icon from 'modules/common/components/Icon';
 import React from 'react';
+import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
+import Popover from 'react-bootstrap/Popover';
 import { TYPES, WEEKS } from '../constants';
 import EventForm from '../containers/EventForm';
 import {
@@ -12,9 +14,11 @@ import {
   Grid,
   Header,
   Indicator,
+  PopoverCell,
   Presentation,
   Row,
   RowWrapper,
+  SeeAll,
   WeekCol,
   WeekContainer,
   WeekData,
@@ -23,6 +27,7 @@ import {
 } from '../styles';
 import { IAccount, IEvent } from '../types';
 import {
+  calcRowCount,
   extractDate,
   filterEvents,
   getDaysInMonth,
@@ -47,23 +52,56 @@ type State = {
   selectedDate?: Date;
   event?: IEvent;
   account?: IAccount;
+  cellHeight: number;
 };
 
 class Event extends React.Component<Props, State> {
+  private ref;
+  private overlayTrigger;
+  private timeout;
+
   constructor(props) {
     super(props);
 
+    this.ref = React.createRef();
+
     this.state = {
       isPopupVisible: false,
-      selectedDate: new Date()
+      selectedDate: new Date(),
+      cellHeight: 0
     };
+  }
+
+  updateCellHeight = () => {
+    this.setState({ cellHeight: this.ref.current.clientHeight });
+  };
+
+  handleResize = () => {
+    if (this.timeout) {
+      clearTimeout(this.timeout);
+    }
+
+    this.timeout = setTimeout(() => {
+      this.updateCellHeight();
+    }, 1000);
+  };
+
+  componentDidMount() {
+    if (this.props.type === TYPES.MONTH) {
+      this.updateCellHeight();
+      window.addEventListener('resize', this.handleResize);
+    }
+  }
+
+  componentWillUnmount() {
+    window.removeEventListener('resize', this.handleResize);
   }
 
   getElapsedHours = () => {
     return new Date().getHours() + new Date().getMinutes() / 60;
   };
 
-  onHideModal = (date?: Date) => {
+  onToggleModal = (date?: Date) => {
     this.setState({
       isPopupVisible: !this.state.isPopupVisible,
       selectedDate: date,
@@ -74,6 +112,7 @@ class Event extends React.Component<Props, State> {
 
   editEvent = (event: IEvent, account?: IAccount) => {
     this.setState({ event, account, isPopupVisible: true });
+    this.onClosePopover();
   };
 
   deleteEvent = (_id: string, accountId: string) => {
@@ -129,26 +168,74 @@ class Event extends React.Component<Props, State> {
 
   addEventBtn = (day: Date) => {
     return (
-      <AddEventBtn onClick={this.onHideModal.bind(this, day)}>
+      <AddEventBtn onClick={this.onToggleModal.bind(this, day)}>
         <Icon icon="plus-circle" />
       </AddEventBtn>
     );
   };
 
+  onClosePopover = () => {
+    this.overlayTrigger.hide();
+  };
+
+  seeAllEvents = (events, day) => {
+    const { cellHeight } = this.state;
+    // 24 row height
+    if (cellHeight - 24 > events.length * 24) {
+      return null;
+    }
+
+    const rowCount = calcRowCount(cellHeight, 24);
+
+    if (rowCount > 1) {
+      const content = (
+        <Popover id="calendar-popover">
+          <PopoverCell>
+            <Icon icon="times" onClick={this.onClosePopover} size={18} />
+            <h5>{day.getDate()}</h5>
+            {this.renderEvents(events, false)}
+          </PopoverCell>
+        </Popover>
+      );
+
+      return (
+        <OverlayTrigger
+          ref={overlayTrigger => {
+            this.overlayTrigger = overlayTrigger;
+          }}
+          trigger="click"
+          placement="auto"
+          rootClose={false}
+          overlay={content}
+        >
+          <SeeAll>{events.length - (rowCount - 1)} more</SeeAll>
+        </OverlayTrigger>
+      );
+    }
+
+    return null;
+  };
+
   renderContent = (day: Date) => {
     const events = filterEvents(this.props.events, day);
+    const rowCount = calcRowCount(this.state.cellHeight, 24);
+    let filteredEvents = events;
+
+    if (rowCount > 1 && rowCount < events.length) {
+      filteredEvents = events.slice(0, rowCount - 1);
+    }
 
     return (
       <>
         <Day
           isSelectedDate={isCurrentDate(day, this.props.currentDate)}
-          onClick={this.onHideModal.bind(this, day)}
           isSameMonth={isSameMonth(day, this.props.currentDate)}
+          onClick={this.onToggleModal.bind(this, day)}
         >
           {day.getDate()}
         </Day>
-
-        {this.renderEvents(events, false)}
+        {this.renderEvents(filteredEvents, false)}
+        {this.seeAllEvents(events, day)}
       </>
     );
   };
@@ -243,7 +330,7 @@ class Event extends React.Component<Props, State> {
         endTime={endTime}
         queryParams={queryParams}
         isPopupVisible={isPopupVisible}
-        onHideModal={this.onHideModal}
+        onHideModal={this.onToggleModal}
         selectedDate={selectedDate}
         event={event}
         account={account}
@@ -287,6 +374,7 @@ class Event extends React.Component<Props, State> {
                     <Cell
                       isCurrent={isCurrentDate(day, new Date())}
                       key={dayIndex}
+                      innerRef={this.ref}
                     >
                       {this.renderContent(day)}
                     </Cell>

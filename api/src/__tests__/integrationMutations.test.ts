@@ -561,7 +561,8 @@ describe('mutations', () => {
       bcc: ['bcc'],
       from: 'from',
       kind: 'nylas-gmail',
-      body: 'body'
+      body: 'body',
+      customerId: '123'
     };
 
     const spy = jest.spyOn(dataSources.IntegrationsAPI, 'sendEmail');

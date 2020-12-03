@@ -9,9 +9,10 @@ import './index.css';
 
 import {
   generateIntegrationUrl,
-  getBrowserInfo,
+  getStorage,
+  listenForCommonRequests,
   setErxesProperty
-} from '../../utils';
+} from '../../widgetUtils';
 
 // add meta to head
 const meta = document.createElement('meta');
@@ -94,7 +95,8 @@ const createIframe = (setting: Setting) => {
       {
         fromPublisher: true,
         hasPopupHandlers: document.querySelectorAll(handlerSelector).length > 0,
-        setting: modifiedSetting
+        setting: modifiedSetting,
+        storage: getStorage()
       },
       '*'
     );
@@ -218,17 +220,7 @@ window.addEventListener('message', async (event: MessageEvent) => {
     container.style = data.style;
   }
 
-  if (message === 'requestingBrowserInfo') {
-    iframe.contentWindow.postMessage(
-      {
-        fromPublisher: true,
-        source: 'fromForms',
-        message: 'sendingBrowserInfo',
-        browserInfo: await getBrowserInfo()
-      },
-      '*'
-    );
-  }
+  listenForCommonRequests(event, iframe);
 
   return null;
 });

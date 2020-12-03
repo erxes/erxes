@@ -120,14 +120,16 @@ export default withProps<Props>(
         }
       }
     }),
-    graphql<Props, CountQueryResponse, { only: string }>(
+    graphql<Props, CountQueryResponse, { only: string; source: string }>(
       gql(queries.customerCounts),
       {
         name: 'customerCountsQuery',
         options: {
           variables: {
-            only: 'bySegment'
-          }
+            only: 'bySegment',
+            source: 'engages'
+          },
+          fetchPolicy: 'network-only'
         }
       }
     ),
