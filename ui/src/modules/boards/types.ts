@@ -311,8 +311,6 @@ export type WatchVariables = {
 
 export type SaveMutation = ({ variables: IItemParams }) => Promise<any>;
 
-export type UpdateMutation = ({ variables: IItemParams }) => Promise<any>;
-
 export type WatchMutation = ({ variables: WatchVariables }) => Promise<any>;
 
 export type RemoveVariables = {
@@ -423,13 +421,11 @@ export type ConvertToMutationVariables = {
   _id: string;
   itemId?: string;
   itemName?: string;
-  stageId?: string
+  stageId?: string;
 };
 
 export type ConvertToMutationResponse = {
-  conversationConvertToCard: (
-    doc: {
-      variables: ConvertToMutationVariables;
-    }
-  ) => Promise<any>;
+  conversationConvertToCard: (doc: {
+    variables: ConvertToMutationVariables;
+  }) => Promise<any>;
 };
