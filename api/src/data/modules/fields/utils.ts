@@ -4,7 +4,8 @@ import {
   Fields,
   FieldsGroups,
   Integrations,
-  Products
+  Products,
+  Tags
 } from '../../../db/models';
 import { fetchElk } from '../../../elasticsearch';
 import { EXTEND_FIELDS, FIELD_CONTENT_TYPES } from '../../constants';
@@ -171,6 +172,33 @@ const getIntegrations = async () => {
   ]);
 };
 
+const getTags = async (isCustomer: boolean) => {
+  let type = 'company';
+
+  if (isCustomer) {
+    type = 'customer';
+  }
+
+  const tags = await Tags.aggregate([
+    { $match: { type } },
+    {
+      $project: {
+        _id: 0,
+        label: '$name',
+        value: '$_id'
+      }
+    }
+  ]);
+
+  return {
+    _id: Math.random(),
+    name: 'tagId',
+    label: `${type[0].toUpperCase() + type.slice(1)} tag`,
+    type: 'String',
+    selectOptions: tags
+  };
+};
+
 /*
  * Generates fields using given schema
  */
@@ -273,6 +301,11 @@ export const fieldsCombinedByContentType = async ({
 
   if (contentType === 'customer' && usageType) {
     extendFields = EXTEND_FIELDS.CUSTOMER;
+  }
+
+  if (contentType === 'customer') {
+    const tags = await getTags(true);
+    fields = [...fields, ...[tags]];
   }
 
   for (const extendFeild of extendFields) {
