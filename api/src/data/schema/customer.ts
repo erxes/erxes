@@ -90,7 +90,7 @@ const queryParams = `
 export const queries = `
   customersMain(${queryParams}): CustomersListResponse
   customers(${queryParams}): [Customer]
-  customerCounts(${queryParams}, only: String): JSON
+  customerCounts(${queryParams}, only: String, source: String): JSON
   customerDetail(_id: String!): Customer
 `;
 

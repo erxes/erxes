@@ -350,6 +350,10 @@ a:hover {
 
 /* popover */
 
+#calendar-popover {
+  z-index: 1040;
+}
+
 .popover {
   font-family: system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Oxygen,Ubuntu,Cantarell,"Fira Sans","Droid Sans","Helvetica Neue",sans-serif;
   border: none;

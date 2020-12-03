@@ -105,7 +105,7 @@ export type EditAccountCalendarMutationVariables = {
 export type EditAccountCalendarMutationResponse = {
   editMutation: (params: {
     variables: EditAccountCalendarMutationVariables;
-    refetchQueries?: string[];
+    refetchQueries?: any[];
   }) => Promise<void>;
 };
 

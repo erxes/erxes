@@ -126,6 +126,7 @@ interface ICommonListArgs {
   conformityMainTypeId?: string;
   conformityIsRelated?: boolean;
   conformityIsSaved?: boolean;
+  source?: string;
 }
 
 export class CommonBuilder<IListArgs extends ICommonListArgs> {

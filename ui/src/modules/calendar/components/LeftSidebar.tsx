@@ -6,9 +6,10 @@ import FormGroup from 'modules/common/components/form/Group';
 import { __ } from 'modules/common/utils';
 import Sidebar from 'modules/layout/components/Sidebar';
 import React from 'react';
+import { STORAGE_CALENDAR_IDS } from '../constants';
 import EventForm from '../containers/EventForm';
 import { CalendarItem, CommonWrapper, SidebarHeading } from '../styles';
-import { IAccount } from '../types';
+import { IAccount, INylasCalendar } from '../types';
 
 type Props = {
   dateOnChange: (date: string | Date | undefined) => void;
@@ -55,6 +56,11 @@ class LeftSidebar extends React.Component<Props, State> {
 
   getCalendarIds(accounts: IAccount[]) {
     const calendarIds: string[] = [];
+    const storedCalendarIds = localStorage.getItem(STORAGE_CALENDAR_IDS);
+
+    if (storedCalendarIds) {
+      return JSON.parse(storedCalendarIds);
+    }
 
     accounts.map(acc => {
       calendarIds.push(acc._id);
@@ -63,6 +69,8 @@ class LeftSidebar extends React.Component<Props, State> {
         .filter(c => !c.readOnly)
         .map(cal => calendarIds.push(cal.providerCalendarId));
     });
+
+    localStorage.setItem(STORAGE_CALENDAR_IDS, JSON.stringify(calendarIds));
 
     return calendarIds;
   }
@@ -88,6 +96,7 @@ class LeftSidebar extends React.Component<Props, State> {
     }
 
     this.setState({ calendarIds });
+    localStorage.setItem(STORAGE_CALENDAR_IDS, JSON.stringify(calendarIds));
 
     this.props.onChangeCalendarIds(calendarIds);
   };
@@ -118,7 +127,11 @@ class LeftSidebar extends React.Component<Props, State> {
     this.props.onChangeCalendarIds(calendarIds);
   };
 
-  renderCalendars = (calendars, color) => {
+  renderCalendars = (
+    calendars: INylasCalendar[],
+    color: string,
+    calendarCount: number
+  ) => {
     const { calendarIds } = this.state;
 
     return calendars.map(calendar => {
@@ -126,7 +139,7 @@ class LeftSidebar extends React.Component<Props, State> {
 
       return (
         <CalendarItem key={calendar._id}>
-          &nbsp; &nbsp; &nbsp;
+          {calendarCount !== 1 && <>&nbsp; &nbsp; &nbsp;</>}
           <FormControl
             key={calendar._id}
             className="toggle-message"
@@ -147,20 +160,28 @@ class LeftSidebar extends React.Component<Props, State> {
       <FormGroup>
         <SidebarHeading>My Calendars</SidebarHeading>
         {this.props.accounts.map(account => {
+          const calendarCount = account.calendars.length;
+
           return (
             <div key={account._id}>
-              <CalendarItem>
-                <FormControl
-                  className="toggle-message"
-                  componentClass="checkbox"
-                  onChange={this.toggleAccountCheckbox.bind(this, account)}
-                  checked={this.state.calendarIds.includes(account._id)}
-                  color={account.color}
-                >
-                  {account.name}
-                </FormControl>
-              </CalendarItem>
-              {this.renderCalendars(account.calendars, account.color)}
+              {calendarCount !== 1 && (
+                <CalendarItem>
+                  <FormControl
+                    className="toggle-message"
+                    componentClass="checkbox"
+                    onChange={this.toggleAccountCheckbox.bind(this, account)}
+                    checked={this.state.calendarIds.includes(account._id)}
+                    color={account.color}
+                  >
+                    {account.name}
+                  </FormControl>
+                </CalendarItem>
+              )}
+              {this.renderCalendars(
+                account.calendars,
+                account.color,
+                calendarCount
+              )}
             </div>
           );
         })}

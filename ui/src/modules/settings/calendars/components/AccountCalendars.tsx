@@ -2,6 +2,7 @@ import { COLORS } from 'modules/boards/constants';
 import { ICalendar as IAccountCalendar } from 'modules/calendar/types';
 import ActionButtons from 'modules/common/components/ActionButtons';
 import Button from 'modules/common/components/Button';
+import FormControl from 'modules/common/components/form/Control';
 import Icon from 'modules/common/components/Icon';
 import Tip from 'modules/common/components/Tip';
 import { colors } from 'modules/common/styles';
@@ -19,7 +20,7 @@ type Props = {
 };
 
 type State = {
-  showModal: boolean;
+  calendarNames: object;
 };
 
 const ColorPicker = styled.div`
@@ -28,7 +29,35 @@ const ColorPicker = styled.div`
   border-radius: 2px;
 `;
 
+const InputContainer = styled.div`
+  display: inline-block;
+  width: 500px;
+`;
+
 class AccountCalendars extends React.Component<Props, State> {
+  constructor(props) {
+    super(props);
+
+    this.state = {
+      calendarNames: {}
+    };
+  }
+
+  onNameBlur(calendarId, name) {
+    const updatedName = this.state.calendarNames[calendarId];
+
+    if (updatedName !== name) {
+      this.props.editCalendar({ _id: calendarId, name: updatedName });
+    }
+  }
+
+  onChangeName(calendarId, e) {
+    const { calendarNames } = this.state;
+    calendarNames[calendarId] = e.target.value;
+
+    this.setState({ calendarNames });
+  }
+
   renderExtraLinks(calendar: IAccountCalendar) {
     const onColorChange = e => {
       this.props.editCalendar({ _id: calendar._id, color: e.hex });
@@ -83,19 +112,32 @@ class AccountCalendars extends React.Component<Props, State> {
 
   render() {
     const { calendars } = this.props;
+    const { calendarNames } = this.state;
 
-    return calendars.map((calendar, i) => (
-      <tr key={calendar._id}>
-        <td>
-          &nbsp; &nbsp; &nbsp;{' '}
-          <Icon icon={'circle'} style={{ color: calendar.color }} />{' '}
-          {calendar.name}
-        </td>
-        <td>
-          <ActionButtons>{this.renderExtraLinks(calendar)}</ActionButtons>
-        </td>
-      </tr>
-    ));
+    return calendars.map((calendar, i) => {
+      const calendarId = calendar._id;
+      const calendarName = calendar.name;
+
+      return (
+        <tr key={calendarId}>
+          <td>
+            &nbsp; &nbsp; &nbsp;{' '}
+            <Icon icon={'circle'} style={{ color: calendar.color }} />{' '}
+            <InputContainer>
+              <FormControl
+                value={calendarNames[calendarId] || calendarName}
+                required={true}
+                onBlur={this.onNameBlur.bind(this, calendarId, calendarName)}
+                onChange={this.onChangeName.bind(this, calendarId)}
+              />
+            </InputContainer>
+          </td>
+          <td>
+            <ActionButtons>{this.renderExtraLinks(calendar)}</ActionButtons>
+          </td>
+        </tr>
+      );
+    });
   }
 }
 

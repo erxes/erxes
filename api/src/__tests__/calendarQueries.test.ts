@@ -258,7 +258,9 @@ describe('calendarQueries', () => {
 
     const getCalendarsSpy = jest.spyOn(dataSources.IntegrationsAPI, 'fetchApi');
 
-    getCalendarsSpy.mockImplementation(() => Promise.resolve());
+    getCalendarsSpy.mockImplementation(() =>
+      Promise.resolve([{ _id: 'calendarId', name: 'test calendar' }])
+    );
 
     const response = await graphqlRequest(
       qry,
