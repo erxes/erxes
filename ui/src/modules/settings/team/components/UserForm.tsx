@@ -102,7 +102,7 @@ class UserForm extends React.Component<Props, State> {
 
         <SelectBrands
           label="Brand"
-          value={self.state.selectedBrands}
+          initialValue={self.state.selectedBrands}
           onSelect={onChange}
           name="selectedBrands"
           multi={true}

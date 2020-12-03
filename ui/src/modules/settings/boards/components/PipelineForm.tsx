@@ -137,7 +137,7 @@ class PipelineForm extends React.Component<Props, State> {
           <SelectTeamMembers
             label="Choose members"
             name="selectedMemberIds"
-            value={selectedMemberIds}
+            initialValue={selectedMemberIds}
             onSelect={this.onChangeMembers}
           />
         </SelectMemberStyled>
@@ -167,7 +167,7 @@ class PipelineForm extends React.Component<Props, State> {
           <SelectTeamMembers
             label="Choose members"
             name="excludeCheckUserIds"
-            value={excludeCheckUserIds}
+            initialValue={excludeCheckUserIds}
             onSelect={this.onChangeDominantUsers}
           />
         </SelectMemberStyled>

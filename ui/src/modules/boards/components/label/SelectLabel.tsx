@@ -22,20 +22,20 @@ type ISelectParams = {
   onSelect: (value: string[] | string, name: string) => void;
   multi?: boolean;
   customOption?: IOption;
-  value?: string | string[];
+  initialValue?: string | string[];
   name: string;
 };
 
 export default ({
   queryParams,
-  value,
+  initialValue,
   name,
   filterParams,
   onSelect,
   customOption,
   multi
 }: ISelectParams) => {
-  const defaultValue = queryParams ? queryParams[name] : value;
+  const defaultValue = queryParams ? queryParams[name] : initialValue;
 
   return (
     <SelectWithSearch
@@ -43,13 +43,7 @@ export default ({
       queryName="pipelineLabels"
       name={name}
       filterParams={filterParams}
-      values={
-        typeof defaultValue === 'string'
-          ? multi
-            ? [defaultValue]
-            : defaultValue
-          : defaultValue
-      }
+      initialValue={defaultValue}
       generateOptions={generateLabelOptions}
       onSelect={onSelect}
       customQuery={queries.pipelineLabels}

@@ -7,7 +7,7 @@ interface IListArgs {
   page?: number;
   perPage?: number;
   searchValue?: string;
-  fetchExtra?: boolean;
+  excludeIds?: boolean;
   isActive?: boolean;
   requireUsername: boolean;
   ids?: string[];
@@ -19,11 +19,11 @@ interface IListArgs {
 const queryBuilder = async (params: IListArgs) => {
   const {
     searchValue,
-    fetchExtra,
     isActive,
     requireUsername,
     ids,
     status,
+    excludeIds,
     brandIds
   } = params;
 
@@ -49,10 +49,8 @@ const queryBuilder = async (params: IListArgs) => {
     selector.isActive = true;
   }
 
-  // without fetchExtra - in combobox edit mode just want to get previous saved values
-  // with fetchExra     - in combobox edit mode want to get all including this ids
-  if (ids && ids.length > 0 && !fetchExtra) {
-    return { _id: { $in: ids } };
+  if (ids && ids.length > 0) {
+    return { _id: { [excludeIds ? '$nin' : '$in']: ids } };
   }
 
   if (status) {
