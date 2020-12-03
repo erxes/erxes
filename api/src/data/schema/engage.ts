@@ -47,6 +47,7 @@ export const types = `
     type: String,
     month: String,
     day: String,
+    dateTime: Date,
   }
 
   type DeliveryReport {
@@ -67,7 +68,7 @@ export const types = `
     type: String,
     month: String,
     day: String,
-    dateTime: String,
+    dateTime: Date,
   }
 
   input EngageMessageEmail {

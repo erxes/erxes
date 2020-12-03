@@ -39,7 +39,7 @@ class Scheduler extends React.Component<Props, State> {
     }
 
     this.setState({ scheduleDate });
-    
+
     this.props.onChange('scheduleDate', scheduleDate);
   };
 
@@ -85,7 +85,7 @@ class Scheduler extends React.Component<Props, State> {
     }
 
     const onChange = e =>
-    this.changeSchedule('day', (e.target as HTMLInputElement).value);
+      this.changeSchedule('day', (e.target as HTMLInputElement).value);
 
     return (
       <React.Fragment>
@@ -98,15 +98,18 @@ class Scheduler extends React.Component<Props, State> {
   }
 
   renderDateTimeSelector() {
-    const { type, dateTime } = this.state.scheduleDate || { type: '', dateTime: '' };
+    const { type, dateTime } = this.state.scheduleDate || {
+      type: '',
+      dateTime: ''
+    };
 
-    if (type !== 'once') {
+    if (type !== 'pre') {
       return null;
     }
 
     const onChange = e => {
       this.changeSchedule('dateTime', e);
-    }
+    };
 
     return (
       <React.Fragment>

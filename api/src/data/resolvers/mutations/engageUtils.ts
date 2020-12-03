@@ -88,6 +88,19 @@ export const send = async (engageMessage: IEngageMessageDocument) => {
     fromUserId
   } = engageMessage;
 
+  // Check for pre scheduled engages
+  if (
+    engageMessage.scheduleDate?.type === 'pre' &&
+    engageMessage.scheduleDate.dateTime
+  ) {
+    const scheduledDate = new Date(engageMessage.scheduleDate.dateTime);
+    const now = new Date();
+
+    if (scheduledDate.getTime() > now.getTime()) {
+      return;
+    }
+  }
+
   const user = await Users.findOne({ _id: fromUserId });
 
   if (!user) {
@@ -179,6 +192,13 @@ const sendEmailOrSms = async (
       'validCustomersCount',
       customerInfos.length
     );
+
+    if (engageMessage.scheduleDate?.type === 'pre') {
+      await EngageMessages.updateOne(
+        { _id: engageMessage._id },
+        { $set: { 'scheduleDate.type': 'sent' } }
+      );
+    }
 
     if (customerInfos.length > 0) {
       const data: any = {
