@@ -119,7 +119,7 @@ class GroupRow extends React.Component<Props, State> {
       <>
         <tr key={calendar._id}>
           <td>
-            &nbsp; <Icon icon={'circle'} style={{ color: calendar.color }} />{' '}
+            <Icon icon={'circle'} style={{ color: calendar.color }} />{' '}
             {calendar.name}
           </td>
           <td>
@@ -143,7 +143,7 @@ class GroupRow extends React.Component<Props, State> {
       <>
         <tr>
           <td>
-            {group.name} ({group.calendars.length})
+            <strong>{group.name}</strong> ({group.calendars.length})
           </td>
           <td>
             <ActionButtons>{this.renderExtraLinks()}</ActionButtons>

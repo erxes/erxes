@@ -29,7 +29,7 @@ const ColorPicker = styled.div`
   border-radius: 2px;
 `;
 
-const InputContainer = styled.div`
+const InputContainer = styled.span`
   display: inline-block;
   width: 500px;
 `;

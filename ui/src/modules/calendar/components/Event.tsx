@@ -321,14 +321,13 @@ class Event extends React.Component<Props, State> {
   };
 
   render() {
-    const { startTime, endTime, currentDate, type, queryParams } = this.props;
+    const { startTime, endTime, currentDate, type } = this.props;
     const { isPopupVisible, selectedDate, event, account } = this.state;
 
     const createForm = (
       <EventForm
         startTime={startTime}
         endTime={endTime}
-        queryParams={queryParams}
         isPopupVisible={isPopupVisible}
         onHideModal={this.onToggleModal}
         selectedDate={selectedDate}
