@@ -7,7 +7,7 @@ import { putCreateLog, putDeleteLog, putUpdateLog } from '../../logUtils';
 import { checkPermission } from '../../permissions/wrappers';
 import { IContext } from '../../types';
 import { registerOnboardHistory, sendToWebhook } from '../../utils';
-import { send, checkSmsContent } from './engageUtils';
+import { checkSmsContent, send } from './engageUtils';
 
 interface IEngageMessageEdit extends IEngageMessage {
   _id: string;
