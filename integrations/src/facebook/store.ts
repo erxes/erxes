@@ -124,6 +124,10 @@ export const getOrCreatePost = async (
 
   const doc = generatePostDoc(postParams, pageId, userId);
 
+  if (doc.attachments && doc.content === '...') {
+    throw new Error();
+  }
+
   doc.permalink_url = postUrl;
 
   post = await Posts.create(doc);
