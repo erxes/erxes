@@ -28,7 +28,6 @@ const Home = (props: FinalProps) => {
     }
 
     if (!props.loading && props.dashboards.length > 0) {
-      console.log('klkasl;djkal');
       return props.history.replace(`/dashboard/${props.dashboards[0]._id}`);
     }
   });
