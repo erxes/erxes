@@ -295,6 +295,10 @@ a:hover {
   font-weight: normal;
 }
 
+.dropdown-menu > li.active > a {
+  background: ${colors.bgActive};
+}
+
 .dropdown-menu > li > a:focus,
 .dropdown-menu > li > a:hover,
 .dropdown-menu li a:focus,
