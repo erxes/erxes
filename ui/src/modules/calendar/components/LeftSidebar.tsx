@@ -1,25 +1,30 @@
 import Datetime from '@nateradebaugh/react-datetime';
 import dayjs from 'dayjs';
 import Button from 'modules/common/components/Button';
+import EmptyState from 'modules/common/components/EmptyState';
 import FormControl from 'modules/common/components/form/Control';
 import FormGroup from 'modules/common/components/form/Group';
 import { __ } from 'modules/common/utils';
 import Sidebar from 'modules/layout/components/Sidebar';
+import { IBoard, IGroup } from 'modules/settings/calendars/types';
 import React from 'react';
+import { Link } from 'react-router-dom';
 import { STORAGE_CALENDAR_IDS } from '../constants';
 import EventForm from '../containers/EventForm';
 import { CalendarItem, CommonWrapper, SidebarHeading } from '../styles';
 import { IAccount, INylasCalendar } from '../types';
+import BoardChooser from './BoardChooser';
 
 type Props = {
   dateOnChange: (date: string | Date | undefined) => void;
   currentDate: Date;
   onChangeCalendarIds: (ids: string[]) => void;
-  history: any;
-  queryParams: any;
   startTime: Date;
   endTime: Date;
   accounts: IAccount[];
+  currentGroup: IGroup;
+  currentBoard?: IBoard;
+  boards: IBoard[];
 };
 
 type State = {
@@ -156,12 +161,34 @@ class LeftSidebar extends React.Component<Props, State> {
   };
 
   renderAccounts = () => {
+    const { accounts, currentBoard } = this.props;
+
+    if (accounts.length === 0) {
+      return (
+        <CommonWrapper>
+          <Link
+            to={`/settings/calendars?boardId=${
+              currentBoard ? currentBoard._id : ''
+            }`}
+          >
+            <Button
+              block={true}
+              uppercase={false}
+              btnStyle="success"
+              icon="cog"
+            >
+              Connect account
+            </Button>
+          </Link>
+        </CommonWrapper>
+      );
+    }
+
     return (
       <FormGroup>
         <SidebarHeading>My Calendars</SidebarHeading>
         {this.props.accounts.map(account => {
           const calendarCount = account.calendars.length;
-
           return (
             <div key={account._id}>
               {calendarCount !== 1 && (
@@ -190,18 +217,17 @@ class LeftSidebar extends React.Component<Props, State> {
   };
 
   renderSidebarHeader() {
-    if (this.props.accounts.length === 0) {
-      return null;
-    }
+    const disabled = this.props.accounts.length === 0;
 
     return (
       <CommonWrapper>
         <Button
           uppercase={false}
-          btnStyle="success"
+          btnStyle={!disabled ? 'success' : 'simple'}
           onClick={this.onHideModal}
           block={true}
           icon="plus-circle"
+          disabled={disabled}
         >
           {__('Create Event')}
         </Button>
@@ -215,7 +241,32 @@ class LeftSidebar extends React.Component<Props, State> {
   }
 
   render() {
-    const { currentDate, dateOnChange } = this.props;
+    const {
+      currentDate,
+      dateOnChange,
+      currentGroup,
+      currentBoard,
+      boards
+    } = this.props;
+
+    if (!currentBoard) {
+      return (
+        <Sidebar full={true}>
+          <EmptyState
+            text="There is no connected account"
+            image="/images/actions/6.svg"
+            size="full"
+            extra={
+              <Link to="/settings/calendars">
+                <Button uppercase={false} btnStyle="success" icon="cog">
+                  Create Board & Group
+                </Button>
+              </Link>
+            }
+          />
+        </Sidebar>
+      );
+    }
 
     return (
       <Sidebar full={true} header={this.renderSidebarHeader()}>
@@ -236,6 +287,11 @@ class LeftSidebar extends React.Component<Props, State> {
           />
         </FormGroup>
 
+        <BoardChooser
+          currentGroup={currentGroup}
+          currentBoard={currentBoard}
+          boards={boards}
+        />
         {this.renderAccounts()}
       </Sidebar>
     );

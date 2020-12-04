@@ -220,10 +220,6 @@ const WeekHours = styled.div`
   }
 `;
 
-const MainContainer = styled.div`
-  height: calc(100vh - 175px);
-`;
-
 const CalendarController = styled.div`
   display: flex;
   align-items: center;
@@ -388,7 +384,7 @@ const SidebarHeading = styled.h4`
   font-weight: 500;
   letter-spacing: 0.25px;
   line-height: 20px;
-  margin: 0 0 15px;
+  margin: 10px 0 10px 0;
   padding: 0 20px;
 `;
 
@@ -464,7 +460,6 @@ export {
   Cell,
   Day,
   DayRow,
-  MainContainer,
   SidebarHeading,
   EventTitle,
   EventContent,
