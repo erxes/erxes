@@ -117,6 +117,7 @@ interface ICommonListArgs {
   segment?: string;
   tag?: string;
   ids?: string[];
+  excludeIds?: boolean;
   searchValue?: string;
   autoCompletion?: boolean;
   autoCompletionType?: string;
@@ -202,11 +203,11 @@ export class CommonBuilder<IListArgs extends ICommonListArgs> {
 
   // filter by id
   public idsFilter(ids: string[]): void {
-    this.positiveList.push({
-      terms: {
-        _id: ids
-      }
-    });
+    if (this.params.excludeIds) {
+      this.negativeList.push({ terms: { _id: ids } });
+    } else {
+      this.positiveList.push({ terms: { _id: ids } });
+    }
   }
 
   // filter by leadStatus
@@ -284,7 +285,7 @@ export class CommonBuilder<IListArgs extends ICommonListArgs> {
     }
 
     // If there are ids and form params, returning ids filter only filter by ids
-    if (this.params.ids) {
+    if (this.params.ids && this.params.ids.length > 0) {
       this.idsFilter(this.params.ids.filter(id => id));
     }
 

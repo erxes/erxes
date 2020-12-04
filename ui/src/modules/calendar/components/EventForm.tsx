@@ -183,7 +183,7 @@ class EditForm extends React.Component<Props, State> {
             {...formProps}
             label="Choose members"
             name="memberIds"
-            value={selectedMemberIds}
+            initialValue={selectedMemberIds}
             onSelect={this.onChangeMembers}
           />
         </FormGroup>

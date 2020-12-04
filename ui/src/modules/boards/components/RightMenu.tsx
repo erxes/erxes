@@ -170,11 +170,12 @@ export default class RightMenu extends React.Component<Props, State> {
             label: 'Assigned to no one'
           }}
         />
+
         <SelectLabel
           queryParams={queryParams}
           name="labelIds"
           onSelect={onSelect}
-          filterParams={{ pipelineId: queryParams.pipelineId }}
+          filterParams={{ pipelineId: queryParams.pipelineId || '' }}
           multi={true}
           customOption={{ value: '', label: 'No label chosen' }}
         />

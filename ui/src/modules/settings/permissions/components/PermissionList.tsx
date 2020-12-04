@@ -113,7 +113,7 @@ class PermissionList extends React.Component<Props> {
           <SelectTeamMembers
             label={__('Choose users')}
             name="userId"
-            value={queryParams.userId}
+            initialValue={queryParams.userId}
             onSelect={usersOnChange}
             multi={false}
           />

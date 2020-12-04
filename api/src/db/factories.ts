@@ -1485,9 +1485,9 @@ interface IWebhookParams {
 
 export function webhookFactory(params: IWebhookParams) {
   const webhook = new Webhooks({
-    url: params.url || `https://${faker.random.word()}.com`,
+    url: params.url || `https://${faker.random.uuid()}.com`,
     actions: params.actions || WEBHOOK_ACTIONS,
-    token: params.token || faker.unique
+    token: params.token || faker.random.uuid()
   });
 
   return webhook.save();

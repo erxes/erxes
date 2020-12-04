@@ -30,7 +30,7 @@ class Sidebar extends React.Component<Props> {
           <SelectTeamMembers
             label="Choose users"
             name="assignedUserIds"
-            value={assignedUserIds}
+            initialValue={assignedUserIds}
             onSelect={userOnChange}
           />
         </FormGroup>
