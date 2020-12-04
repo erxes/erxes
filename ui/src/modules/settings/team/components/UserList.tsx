@@ -244,7 +244,7 @@ class UserList extends React.Component<FinalProps, States> {
         <SelectBrands
           label={__('Choose brands')}
           onSelect={onSelect}
-          value={queryParams.brandIds}
+          initialValue={queryParams.brandIds}
           name="selectedBrands"
         />
       </FlexItem>

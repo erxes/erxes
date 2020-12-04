@@ -169,10 +169,11 @@ class CompanyForm extends React.Component<Props, State> {
       primaryPhone,
       phones,
       primaryEmail,
+      ownerId,
       emails
     } = company;
 
-    const { parentCompanyId, ownerId } = this.state;
+    const { parentCompanyId } = this.state;
 
     const onSelectOwner = value => {
       return this.handleSelect(value, 'ownerId');
@@ -211,7 +212,7 @@ class CompanyForm extends React.Component<Props, State> {
                   <SelectTeamMembers
                     label="Choose an owner"
                     name="ownerId"
-                    value={ownerId}
+                    initialValue={ownerId}
                     onSelect={onSelectOwner}
                     multi={false}
                   />
@@ -281,7 +282,7 @@ class CompanyForm extends React.Component<Props, State> {
                   <SelectCompanies
                     label="Choose parent company"
                     name="parentCompanyId"
-                    value={parentCompanyId}
+                    initialValue={parentCompanyId}
                     onSelect={onSelectParentCompany}
                     multi={false}
                   />
