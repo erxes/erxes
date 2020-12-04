@@ -1,6 +1,6 @@
 import gql from 'graphql-tag';
 import client from '../apollo-client';
-import { getLocalStorageItem } from '../common';
+import { getLocalStorageItem, initStorage } from '../common';
 import { setLocale } from '../utils';
 import widgetConnect from '../widgetConnect';
 import { connection } from './connection';
@@ -15,10 +15,12 @@ widgetConnect({
   },
 
   connectMutation: (event: MessageEvent) => {
-    const { setting, hasPopupHandlers } = event.data;
+    const { setting, hasPopupHandlers, storage } = event.data;
 
     connection.setting = setting;
     connection.hasPopupHandlers = hasPopupHandlers;
+
+    initStorage(storage);
 
     // call connect mutation
     return client.mutate({

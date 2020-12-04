@@ -219,7 +219,7 @@ class CustomerForm extends React.Component<Props, State> {
     const { values, isSubmitted, resetSubmit } = formProps;
 
     const customer = this.props.customer || ({} as ICustomer);
-    const { primaryEmail, primaryPhone } = customer;
+    const { primaryEmail, primaryPhone, ownerId } = customer;
 
     return (
       <>
@@ -248,7 +248,7 @@ class CustomerForm extends React.Component<Props, State> {
                   <SelectTeamMembers
                     label="Choose an owner"
                     name="ownerId"
-                    value={this.state.ownerId}
+                    initialValue={ownerId}
                     onSelect={this.onOwnerChange}
                     multi={false}
                   />
