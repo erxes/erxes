@@ -172,13 +172,7 @@ const getIntegrations = async () => {
   ]);
 };
 
-const getTags = async (isCustomer: boolean) => {
-  let type = 'company';
-
-  if (isCustomer) {
-    type = 'customer';
-  }
-
+const getTags = async (type: string) => {
   const tags = await Tags.aggregate([
     { $match: { type } },
     {
@@ -303,8 +297,8 @@ export const fieldsCombinedByContentType = async ({
     extendFields = EXTEND_FIELDS.CUSTOMER;
   }
 
-  if (contentType === 'customer') {
-    const tags = await getTags(true);
+  if (contentType === 'customer' || contentType === 'company') {
+    const tags = await getTags(contentType);
     fields = [...fields, ...[tags]];
   }
 

@@ -190,7 +190,7 @@ class Form extends React.Component<Props, State> {
 
   renderCondition(condition: ISegmentCondition) {
     const { fields, events } = this.props;
-    console.log('fields: ', fields);
+
     if (condition.type === 'property') {
       return (
         <PropertyCondition
@@ -223,7 +223,7 @@ class Form extends React.Component<Props, State> {
 
   renderConditions() {
     const { conditions } = this.state;
-    console.log('contidiotns; ', conditions);
+
     if (conditions.length === 0) {
       return <EmptyContent content={EMPTY_NEW_SEGMENT_CONTENT} />;
     }
