@@ -15,6 +15,7 @@ export const GOOGLE_OAUTH_ACCESS_TOKEN_URL =
 
 // Nylas
 export const NYLAS_API_URL = 'https://api.nylas.com';
+export const NYLAS_SCHEDULE_API_URL = 'https://schedule.api.nylas.com';
 export const AUTHORIZED_REDIRECT_URL = `${MAIN_APP_DOMAIN}/settings/integrations`;
 export const AUTHORIZED_CALENDAR_REDIRECT_URL = `${MAIN_APP_DOMAIN}/settings/calendars`;
 export const CONNECT_AUTHORIZE_URL = NYLAS_API_URL + '/connect/authorize';

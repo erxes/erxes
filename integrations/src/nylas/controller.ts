@@ -18,6 +18,7 @@ import {
   nylasGetAttachment,
   nylasGetCalendarOrEvent,
   nylasGetCalendars,
+  nylasGetSchedulePages,
   nylasSendEmail,
   nylasUpdateEvent,
   updateCalendar
@@ -393,6 +394,20 @@ export const initNylas = async app => {
         accountId,
         eventId: _id
       });
+
+      return res.json(response);
+    } catch (e) {
+      next(e);
+    }
+  });
+
+  app.get('/nylas/get-schedule-pages', async (req, res, next) => {
+    debugRequest(debugNylas, req);
+
+    const { accountId } = req.query;
+
+    try {
+      const response = await nylasGetSchedulePages(accountId);
 
       return res.json(response);
     } catch (e) {

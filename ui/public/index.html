@@ -29,6 +29,7 @@
   </head>
   <body>
     <script src="%PUBLIC_URL%/js/env.js"></script>
+    <script src="https://schedule.nylas.com/schedule-editor/v1.0/schedule-editor.js"></script>
     <noscript> You need to enable JavaScript to run this app. </noscript>
 
     <script>
@@ -65,6 +66,39 @@
           `erxes_env_${envMap.name}`,
           getEnv(envMap.name, envMap.processValue)
         );
+      }
+
+      // schedule
+      function editSchedule(pageEditToken, inDarkMode) {
+        nylas.scheduler.show({
+          auth: {
+            pageEditToken: pageEditToken
+          },
+          style: {
+            tintColor: inDarkMode ? '#1B95E0' : '#6130c2',
+            backgroundColor: inDarkMode ? '#222' : '#FFF'
+          }
+        });
+      }
+
+      function manageSchedulingPage(accessToken, inDarkMode) {
+        nylas.scheduler.show({
+          auth: {
+            // Nylas API token of the current user is provided to the modal
+            accessToken: accessToken,
+          },
+          style: {
+            tintColor: inDarkMode ? '#1B95E0' : '#6130c2',
+            backgroundColor: inDarkMode ? '#222' : '#FFF',
+          },
+          defaults: {
+            event: {
+              title: 'Introductions',
+              duration: 45,
+            },
+            reminders: [],
+          },
+        });
       }
     </script>
 

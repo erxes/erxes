@@ -10,6 +10,7 @@ import {
   getAttachment,
   getCalendarOrEvent,
   getCalenderOrEventList,
+  getSchedulePages,
   sendEventAttendance,
   sendMessage,
   updateEvent,
@@ -408,4 +409,25 @@ export const updateCalendar = async (doc: ICalendarParams) => {
   }
 
   return calendar;
+};
+
+// schedule
+export const nylasGetSchedulePages = async (accountId: string) => {
+  try {
+    debugNylas(`Creating event in calendar with accountId: ${accountId}`);
+
+    const account = await Accounts.findOne({ _id: accountId });
+
+    if (!account) {
+      throw new Error(`Account not found with id: ${accountId}`);
+    }
+    const accessToken = account.nylasToken;
+    const pages = await getSchedulePages(accessToken);
+
+    return { pages, accessToken };
+  } catch (e) {
+    debugNylas(`Failed to create event: ${e.message}`);
+
+    throw e;
+  }
 };
