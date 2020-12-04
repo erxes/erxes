@@ -7,7 +7,7 @@ import { putCreateLog, putDeleteLog, putUpdateLog } from '../../logUtils';
 import { checkPermission } from '../../permissions/wrappers';
 import { IContext } from '../../types';
 import { registerOnboardHistory, sendToWebhook } from '../../utils';
-import { send } from './engageUtils';
+import { send, checkSmsContent } from './engageUtils';
 
 interface IEngageMessageEdit extends IEngageMessage {
   _id: string;
@@ -36,6 +36,9 @@ const engageMutations = {
         `SMS engage message of kind ${doc.kind} is not supported`
       );
     }
+
+    // check for restricted keywords
+    checkSmsContent(doc);
 
     // fromUserId is not required in sms engage, so set it here
     if (!doc.fromUserId) {

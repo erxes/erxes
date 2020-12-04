@@ -1,6 +1,6 @@
 import * as faker from 'faker';
 import * as sinon from 'sinon';
-import { MESSAGE_KINDS } from '../data/constants';
+import { MESSAGE_KINDS, SMS_BLACK_KEYWORDS } from '../data/constants';
 import * as engageUtils from '../data/resolvers/mutations/engageUtils';
 import { graphqlRequest } from '../db/connection';
 import {
@@ -267,7 +267,7 @@ describe('engage message mutation tests', () => {
       expect(e.message).toEqual('User not found');
     }
 
-    const integration = await integrationFactory({
+    await integrationFactory({
       brandId: brand._id,
       kind: KIND_CHOICES.MESSENGER
     });
@@ -781,5 +781,26 @@ describe('engage message mutation tests', () => {
     );
 
     expect(response.fromIntegration._id).toBe(integration._id);
+  });
+
+  test('Test sms engage message with restricted keyword', async () => {
+    try {
+      const integration = await integrationFactory({ kind: 'telnyx' });
+
+      await graphqlRequest(engageMessageAddMutation, 'engageMessageAdd', {
+        ..._doc,
+        method: METHODS.SMS,
+        kind: MESSAGE_KINDS.MANUAL,
+        brandIds: ['_id'],
+        shortMessage: {
+          content: SMS_BLACK_KEYWORDS[10],
+          fromIntegrationId: integration._id,
+        }
+      });
+    } catch (e) {
+      expect(e[0].message).toBe(
+        `"${SMS_BLACK_KEYWORDS[10]}" is a restricted keyword, can't be sent as SMS`
+      );
+    }
   });
 });

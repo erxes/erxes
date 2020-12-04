@@ -8,10 +8,10 @@ import {
 } from '../../../db/models';
 import { METHODS } from '../../../db/models/definitions/constants';
 import { ICustomerDocument } from '../../../db/models/definitions/customers';
-import { IEngageMessageDocument } from '../../../db/models/definitions/engages';
+import { IEngageMessage, IEngageMessageDocument } from '../../../db/models/definitions/engages';
 import { IUserDocument } from '../../../db/models/definitions/users';
 import messageBroker from '../../../messageBroker';
-import { MESSAGE_KINDS } from '../../constants';
+import { MESSAGE_KINDS, SMS_BLACK_KEYWORDS } from '../../constants';
 import { fetchBySegments } from '../../modules/segments/queryBuilder';
 import { chunkArray, replaceEditorAttributes } from '../../utils';
 
@@ -264,4 +264,14 @@ const sendEmailOrSms = async (
       resolve('done');
     });
   });
+};
+
+export const checkSmsContent = ({ method, shortMessage }: IEngageMessage) => {
+  if (method === METHODS.SMS && shortMessage) {
+    for (const word of SMS_BLACK_KEYWORDS) {
+      if (shortMessage.content.indexOf(word) !== -1) {
+        throw new Error(`"${word}" is a restricted keyword, can't be sent as SMS`);
+      }
+    }
+  }
 };
