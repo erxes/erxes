@@ -58,7 +58,7 @@ const segmentQueries = {
 
     const query = {
       exists: {
-        field: contentType === 'customer' ? 'customerId' : 'companyId'
+        field: contentType === 'company' ? 'companyId' : 'customerId'
       }
     };
 
