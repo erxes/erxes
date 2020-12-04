@@ -186,9 +186,9 @@ const getTags = async (type: string) => {
 
   return {
     _id: Math.random(),
-    name: 'tagId',
+    name: 'tagIds',
     label: `${type[0].toUpperCase() + type.slice(1)} tag`,
-    type: 'String',
+    type: 'tag',
     selectOptions: tags
   };
 };
