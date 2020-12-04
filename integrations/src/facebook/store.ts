@@ -124,7 +124,7 @@ export const getOrCreatePost = async (
 
   const doc = generatePostDoc(postParams, pageId, userId);
 
-  if (doc.attachments && doc.content === '...') {
+  if (!doc.attachments && doc.content === '...') {
     throw new Error();
   }
 
