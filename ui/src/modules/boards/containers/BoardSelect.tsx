@@ -80,20 +80,24 @@ class BoardSelectContainer extends React.Component<FinalProps> {
   };
 
   onChangeStage = (stageId: string, callback?: any) => {
-    this.props.tasksQuery
+    const { type } = this.props;
+    const query = `${type}sQuery`;
+    const resultModel = `${type}s`;
+
+    this.props[query]
       .refetch({ stageId })
       .then(({ data }) => {
-        const tasks = data.tasks;
+        const cards = data[resultModel];
 
         if (this.props.onChangeStage) {
           this.props.onChangeStage(stageId);
         }
 
         if (
-          tasks.length > 0 &&
+          cards.length > 0 &&
           typeof this.props.autoSelectCard === 'undefined'
         ) {
-          this.onChangeStage(tasks[0]._id);
+          this.onChangeStage(cards[0]._id);
         }
       })
       .catch(e => {

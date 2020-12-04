@@ -1,7 +1,9 @@
 import Button from 'modules/common/components/Button';
 import FormControl from 'modules/common/components/form/Control';
 import ControlLabel from 'modules/common/components/form/Label';
-import { Alert } from 'modules/common/utils';
+import { __, Alert } from 'modules/common/utils';
+import { Divider } from 'modules/deals/styles';
+
 import React from 'react';
 import BoardSelect from '../../containers/BoardSelect';
 import { FormFooter, HeaderContent, HeaderRow } from '../../styles/item';
@@ -46,6 +48,12 @@ class AddForm extends React.Component<Props, State> {
   }
 
   onChangeField = <T extends keyof State>(name: T, value: State[T]) => {
+    if (name === 'name') {
+      this.setState({ cardId: '' });
+    } else if (name === 'cardId') {
+      this.setState({ name: '' });
+    }
+
     this.setState(({ [name]: value } as unknown) as Pick<State, keyof State>);
   };
 
@@ -133,10 +141,12 @@ class AddForm extends React.Component<Props, State> {
 
         <HeaderRow>
           <HeaderContent>
+            <Divider>{__('Or')}</Divider>
             <ControlLabel required={false}>Name</ControlLabel>
             <FormControl
               value={this.state.name}
               autoFocus={true}
+              placeholder="Create a new card"
               onChange={this.onChangeName}
             />
           </HeaderContent>

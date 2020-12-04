@@ -87,9 +87,9 @@ class AddFormContainer extends React.Component<FinalProps> {
         }
       })
         .then(({ data }) => {
-          if (options.texts.addSuccessText) {
-            Alert.success(options.texts.addSuccessText);
-          }
+          Alert.success(
+            `You've successfully converted a conversation to ${options.type}`
+          );
 
           if (!doc._id && relType && relTypeIds) {
             editConformity({
@@ -118,9 +118,7 @@ class AddFormContainer extends React.Component<FinalProps> {
     } else {
       addMutation({ variables: doc })
         .then(({ data }) => {
-          if (options.texts.addSuccessText) {
-            Alert.success(options.texts.addSuccessText);
-          }
+          Alert.success(`You've successfully created ${options.type}`);
 
           if (relType && relTypeIds) {
             editConformity({

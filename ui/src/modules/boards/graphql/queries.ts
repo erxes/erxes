@@ -235,18 +235,22 @@ const boardCounts = `
   }
 `;
 
+const cardFields = `
+  _id
+  name
+  customers{
+    _id
+  }
+  companies{
+    _id
+  }
+  assignedUserIds
+`;
+
 const tasks = `
   query tasks($pipelineId: String, $stageId: String) {
     tasks(pipelineId: $pipelineId, stageId: $stageId) {
-      _id
-      name
-      customers{
-        _id
-      }
-      companies{
-        _id
-      }
-      assignedUserIds
+      ${cardFields}
     }
   } 
 `;
@@ -254,15 +258,7 @@ const tasks = `
 const tickets = `
   query tickets($pipelineId: String, $stageId: String) {
     tickets(pipelineId: $pipelineId, stageId: $stageId) {
-      _id
-      name
-      customers{
-        _id
-      }
-      companies{
-        _id
-      }
-      assignedUserIds
+      ${cardFields}
     }
   } 
 `;
@@ -270,15 +266,7 @@ const tickets = `
 const deals = `
   query deals($pipelineId: String, $stageId: String) {
     deals(pipelineId: $pipelineId, stageId: $stageId) {
-      _id
-      name
-      customers{
-        _id
-      }
-      companies{
-        _id
-      }
-      assignedUserIds
+      ${cardFields}
     }
   } 
 `;
