@@ -468,6 +468,24 @@ const MobilePreviewContent = styledTS<{ templateId?: string }>(styled.div)`
   overflow-x: hidden;
 `;
 
+const BlackWord = styledTS<{ written?: boolean }>(styled.span)`
+  padding: 5px;
+  margin: 5px;
+  color: ${colors.colorPrimary};
+  border: 1px solid ${colors.colorPrimary}
+
+  ${props => {
+    if (props.written) {
+      return `
+        border-color: ${colors.colorCoreRed};
+        color: ${colors.colorCoreRed};
+        font-weight: 700;
+      `;
+    }
+    return null;
+  }};
+`;
+
 export {
   RowTitle,
   HelperText,
@@ -504,5 +522,6 @@ export {
   RightSection,
   DesktopPreviewContent,
   MobilePreviewContent,
-  Shell
+  Shell,
+  BlackWord
 };
