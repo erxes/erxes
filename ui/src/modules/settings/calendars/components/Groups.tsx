@@ -123,7 +123,8 @@ class Groups extends React.Component<Props, State> {
     if (groups.length === 0) {
       return (
         <EmptyState
-          text={`Get started on your group`}
+          text="Get started on your group"
+          size="full"
           image="/images/actions/16.svg"
         />
       );
@@ -136,12 +137,6 @@ class Groups extends React.Component<Props, State> {
           {groups.length > 1 && 's'}
         </Count>
         <Table>
-          <thead>
-            <tr>
-              <th>{__('group')}</th>
-              <th>{__('Actions')}</th>
-            </tr>
-          </thead>
           <tbody>{this.renderRows()}</tbody>
         </Table>
       </>
@@ -208,13 +203,13 @@ class Groups extends React.Component<Props, State> {
     );
 
     return (
-      <div id="groups-content">
+      <>
         <Wrapper.ActionBar left={leftActionBar} right={this.renderButton()} />
 
         {this.renderContent()}
         {this.renderAddForm()}
         {this.renderCalendarForm()}
-      </div>
+      </>
     );
   }
 }
