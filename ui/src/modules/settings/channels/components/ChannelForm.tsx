@@ -48,7 +48,7 @@ class ChannelForm extends React.Component<Props, State> {
   };
 
   renderContent = (formProps: IFormProps) => {
-    const { closeModal, channel, renderButton } = this.props;
+    const { closeModal, channel, renderButton, selectedMembers } = this.props;
     const { values, isSubmitted } = formProps;
 
     const object = channel || ({} as IChannel);
@@ -90,7 +90,7 @@ class ChannelForm extends React.Component<Props, State> {
           <SelectTeamMembers
             label="Choose members"
             name="selectedMembers"
-            value={self.state.selectedMembers}
+            initialValue={selectedMembers}
             onSelect={onChange}
           />
         </FormGroup>

@@ -91,7 +91,7 @@ class Left extends React.Component<Props> {
           <SelectTeamMembers
             label="Choose users"
             name="assignedUserIds"
-            value={assignedUserIds}
+            initialValue={assignedUserIds}
             onSelect={onUserChange}
           />
         </FormGroup>

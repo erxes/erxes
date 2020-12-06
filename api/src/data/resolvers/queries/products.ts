@@ -16,9 +16,11 @@ const productQueries = {
       searchValue,
       tag,
       ids,
+      excludeIds,
       ...pagintationArgs
     }: {
       ids: string[];
+      excludeIds: boolean;
       type: string;
       categoryId: string;
       searchValue: string;
@@ -38,8 +40,8 @@ const productQueries = {
       filter.categoryId = categoryId;
     }
 
-    if (ids) {
-      filter._id = { $in: ids };
+    if (ids && ids.length > 0) {
+      filter._id = { [excludeIds ? '$nin' : '$in']: ids };
     }
 
     if (tag) {

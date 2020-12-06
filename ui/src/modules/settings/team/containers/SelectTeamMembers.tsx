@@ -18,26 +18,29 @@ export function generateUserOptions(array: IUser[] = []): IOption[] {
   });
 }
 
-export default ({
-  queryParams,
-  onSelect,
-  customOption,
-  value,
-  multi = true,
-  label,
-  filterParams,
-  name
-}: {
+export default (props: {
   queryParams?: IQueryParams;
   filterParams?: { status: string };
   label: string;
   onSelect: (value: string[] | string, name: string) => void;
   multi?: boolean;
   customOption?: IOption;
-  value?: string | string[];
+
+  initialValue?: string | string[];
+
   name: string;
 }) => {
-  const defaultValue = queryParams ? queryParams[name] : value;
+  const {
+    queryParams,
+    onSelect,
+    customOption,
+    initialValue,
+    multi = true,
+    label,
+    filterParams,
+    name
+  } = props;
+  const defaultValue = queryParams ? queryParams[name] : initialValue;
 
   return (
     <SelectWithSearch
@@ -45,13 +48,7 @@ export default ({
       queryName="users"
       name={name}
       filterParams={filterParams}
-      values={
-        typeof defaultValue === 'string'
-          ? multi
-            ? [defaultValue]
-            : defaultValue
-          : defaultValue
-      }
+      initialValue={defaultValue}
       generateOptions={generateUserOptions}
       onSelect={onSelect}
       customQuery={queries.users}

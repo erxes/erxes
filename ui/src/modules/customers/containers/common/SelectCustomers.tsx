@@ -20,7 +20,7 @@ function generateCustomerOptions(array: ICustomer[] = []): IOption[] {
 export default ({
   queryParams,
   onSelect,
-  value,
+  initialValue,
   multi = true,
   label,
   name
@@ -30,10 +30,10 @@ export default ({
   onSelect: (values: string[] | string, name: string) => void;
   multi?: boolean;
   customOption?: IOption;
-  value?: string | string[];
+  initialValue?: string | string[];
   name: string;
 }) => {
-  const defaultValue = queryParams ? queryParams[name] : value;
+  const defaultValue = queryParams ? queryParams[name] : initialValue;
 
   return (
     <SelectWithSearch
@@ -41,13 +41,7 @@ export default ({
       queryName="customers"
       name={name}
       customQuery={queries.customers}
-      values={
-        typeof defaultValue === 'string'
-          ? multi
-            ? [defaultValue]
-            : defaultValue
-          : defaultValue
-      }
+      initialValue={defaultValue}
       generateOptions={generateCustomerOptions}
       onSelect={onSelect}
       multi={multi}

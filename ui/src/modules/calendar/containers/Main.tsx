@@ -1,6 +1,5 @@
 import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
-import { PageHeader } from 'modules/boards/styles/header';
 import Spinner from 'modules/common/components/Spinner';
 import { IRouterProps } from 'modules/common/types';
 import { router as routerUtils, withProps } from 'modules/common/utils';
@@ -14,14 +13,13 @@ import queryString from 'query-string';
 import React from 'react';
 import { graphql } from 'react-apollo';
 import { withRouter } from 'react-router-dom';
-import Calendar from '../components/Main';
 import {
   STORAGE_CALENDAR_BOARD_KEY,
   STORAGE_CALENDAR_GROUP_KEY
 } from '../constants';
+import Wrapper from './Wrapper';
 
 type Props = {
-  history: any;
   queryParams: any;
 } & IRouterProps;
 
@@ -54,7 +52,7 @@ class Main extends React.Component<FinalProps> {
     } = this.props;
 
     if (boardsQuery.loading) {
-      return <PageHeader />;
+      return <Spinner />;
     }
 
     const queryParams = generateQueryParams({ location });
@@ -136,11 +134,7 @@ class Main extends React.Component<FinalProps> {
       boards: boardsQuery.calendarBoards || []
     };
 
-    const extendedProps = {
-      ...props
-    };
-
-    return <Calendar {...extendedProps} />;
+    return <Wrapper {...props} />;
   }
 }
 
