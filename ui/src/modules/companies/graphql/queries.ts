@@ -51,6 +51,7 @@ const listParamsDef = `
   $segment: String
   $tag: String
   $ids: [String]
+  $excludeIds: Boolean
   $searchValue: String
   $autoCompletion: Boolean
   $autoCompletionType: String
@@ -66,6 +67,7 @@ const listParamsValue = `
   segment: $segment
   tag: $tag
   ids: $ids
+  excludeIds: $excludeIds
   searchValue: $searchValue
   autoCompletion: $autoCompletion
   autoCompletionType: $autoCompletionType

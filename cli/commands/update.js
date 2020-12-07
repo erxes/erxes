@@ -14,11 +14,19 @@ module.exports = async function() {
       console.log(e.message);
     }
 
+    log('Backing up privite folder ...');
+
+    await fse.copy(filePath('build/api/private'), filePath('private'));
+
     log('Removing old build ...');
 
     await fse.remove(filePath('build'));
 
     await start();
+
+    log('Restoring privite folder ...');
+
+    await fse.copy(filePath('private'), filePath('build/api/private'));
   } catch (e) {
     console.log(e);
   }

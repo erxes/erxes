@@ -162,6 +162,7 @@ const customerCounts = `
     $brand: String,
     $tag: String,
     $ids: [String],
+    $source: String,
     $only: String
   ) {
     customerCounts(
@@ -171,6 +172,7 @@ const customerCounts = `
       brand: $brand,
       tag: $tag,
       ids: $ids,
+      source: $source,
       only: $only
     )
   }

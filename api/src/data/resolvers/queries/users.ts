@@ -7,6 +7,7 @@ interface IListArgs {
   page?: number;
   perPage?: number;
   searchValue?: string;
+  excludeIds?: boolean;
   isActive?: boolean;
   requireUsername: boolean;
   ids?: string[];
@@ -22,6 +23,7 @@ const queryBuilder = async (params: IListArgs) => {
     requireUsername,
     ids,
     status,
+    excludeIds,
     brandIds
   } = params;
 
@@ -48,7 +50,7 @@ const queryBuilder = async (params: IListArgs) => {
   }
 
   if (ids && ids.length > 0) {
-    return { _id: { $in: ids } };
+    return { _id: { [excludeIds ? '$nin' : '$in']: ids } };
   }
 
   if (status) {

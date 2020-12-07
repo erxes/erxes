@@ -1,6 +1,7 @@
-import dayjs from 'dayjs';
 import Icon from 'modules/common/components/Icon';
 import React from 'react';
+import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
+import Popover from 'react-bootstrap/Popover';
 import { TYPES, WEEKS } from '../constants';
 import EventForm from '../containers/EventForm';
 import {
@@ -9,13 +10,15 @@ import {
   Cell,
   ColumnHeader,
   Day,
-  DayHeader,
   DayRow,
   Grid,
   Header,
+  Indicator,
+  PopoverCell,
   Presentation,
   Row,
   RowWrapper,
+  SeeAll,
   WeekCol,
   WeekContainer,
   WeekData,
@@ -23,7 +26,15 @@ import {
   WeekWrapper
 } from '../styles';
 import { IAccount, IEvent } from '../types';
-import { extractDate, filterEvents, getDaysInMonth } from '../utils';
+import {
+  calcRowCount,
+  extractDate,
+  filterEvents,
+  getDaysInMonth,
+  isCurrentDate,
+  isSameMonth,
+  timeConvert
+} from '../utils';
 import Detail from './Detail';
 
 type Props = {
@@ -41,19 +52,56 @@ type State = {
   selectedDate?: Date;
   event?: IEvent;
   account?: IAccount;
+  cellHeight: number;
 };
 
 class Event extends React.Component<Props, State> {
+  private ref;
+  private overlayTrigger;
+  private timeout;
+
   constructor(props) {
     super(props);
 
+    this.ref = React.createRef();
+
     this.state = {
       isPopupVisible: false,
-      selectedDate: new Date()
+      selectedDate: new Date(),
+      cellHeight: 0
     };
   }
 
-  onHideModal = (date?: Date) => {
+  updateCellHeight = () => {
+    this.setState({ cellHeight: this.ref.current.clientHeight });
+  };
+
+  handleResize = () => {
+    if (this.timeout) {
+      clearTimeout(this.timeout);
+    }
+
+    this.timeout = setTimeout(() => {
+      this.updateCellHeight();
+    }, 1000);
+  };
+
+  componentDidMount() {
+    if (this.props.type === TYPES.MONTH) {
+      this.updateCellHeight();
+      window.addEventListener('resize', this.handleResize);
+    }
+  }
+
+  componentWillUnmount() {
+    window.removeEventListener('resize', this.handleResize);
+  }
+
+  getElapsedHours = () => {
+    return new Date().getHours() + new Date().getMinutes() / 60;
+  };
+
+  onToggleModal = (date?: Date) => {
     this.setState({
       isPopupVisible: !this.state.isPopupVisible,
       selectedDate: date,
@@ -64,6 +112,7 @@ class Event extends React.Component<Props, State> {
 
   editEvent = (event: IEvent, account?: IAccount) => {
     this.setState({ event, account, isPopupVisible: true });
+    this.onClosePopover();
   };
 
   deleteEvent = (_id: string, accountId: string) => {
@@ -77,13 +126,22 @@ class Event extends React.Component<Props, State> {
       <Header>
         {WEEKS.map((week, index) => {
           return (
-            <ColumnHeader key={week}>
+            <ColumnHeader
+              key={week}
+              isWeek={dt ? true : false}
+              isCurrent={
+                dt &&
+                isCurrentDate(
+                  new Date(dt.year, dt.month, dt.date + index),
+                  new Date()
+                )
+              }
+            >
               {week}
               {dt && (
-                <>
-                  <br />
+                <strong>
                   {new Date(dt.year, dt.month, dt.date + index).getDate()}
-                </>
+                </strong>
               )}
             </ColumnHeader>
           );
@@ -93,7 +151,7 @@ class Event extends React.Component<Props, State> {
   };
 
   renderEvents = (events: IEvent[], showHour: boolean) => {
-    return events.map(event => {
+    return events.map((event, index) => {
       return (
         <Detail
           key={event._id}
@@ -101,6 +159,8 @@ class Event extends React.Component<Props, State> {
           showHour={showHour}
           editEvent={this.editEvent}
           deleteEvent={this.deleteEvent}
+          count={events.length}
+          order={index}
         />
       );
     });
@@ -108,30 +168,74 @@ class Event extends React.Component<Props, State> {
 
   addEventBtn = (day: Date) => {
     return (
-      <AddEventBtn onClick={this.onHideModal.bind(this, day)}>
+      <AddEventBtn onClick={this.onToggleModal.bind(this, day)}>
         <Icon icon="plus-circle" />
       </AddEventBtn>
     );
   };
 
+  onClosePopover = () => {
+    this.overlayTrigger.hide();
+  };
+
+  seeAllEvents = (events, day) => {
+    const { cellHeight } = this.state;
+    // 24 row height
+    if (cellHeight - 24 > events.length * 24) {
+      return null;
+    }
+
+    const rowCount = calcRowCount(cellHeight, 24);
+
+    if (rowCount > 1) {
+      const content = (
+        <Popover id="calendar-popover">
+          <PopoverCell>
+            <Icon icon="times" onClick={this.onClosePopover} size={18} />
+            <h5>{day.getDate()}</h5>
+            {this.renderEvents(events, false)}
+          </PopoverCell>
+        </Popover>
+      );
+
+      return (
+        <OverlayTrigger
+          ref={overlayTrigger => {
+            this.overlayTrigger = overlayTrigger;
+          }}
+          trigger="click"
+          placement="auto"
+          rootClose={false}
+          overlay={content}
+        >
+          <SeeAll>{events.length - (rowCount - 1)} more</SeeAll>
+        </OverlayTrigger>
+      );
+    }
+
+    return null;
+  };
+
   renderContent = (day: Date) => {
     const events = filterEvents(this.props.events, day);
+    const rowCount = calcRowCount(this.state.cellHeight, 24);
+    let filteredEvents = events;
 
-    const currentDate = this.props.currentDate;
-    const isSelectedDate =
-      dayjs(currentDate).diff(day, 'day') === 0 &&
-      new Date(currentDate).getDate() === day.getDate();
+    if (rowCount > 1 && rowCount < events.length) {
+      filteredEvents = events.slice(0, rowCount - 1);
+    }
 
     return (
       <>
         <Day
-          isSelectedDate={isSelectedDate}
-          onClick={this.onHideModal.bind(this, day)}
+          isSelectedDate={isCurrentDate(day, this.props.currentDate)}
+          isSameMonth={isSameMonth(day, this.props.currentDate)}
+          onClick={this.onToggleModal.bind(this, day)}
         >
           {day.getDate()}
         </Day>
-
-        {this.renderEvents(events, false)}
+        {this.renderEvents(filteredEvents, false)}
+        {this.seeAllEvents(events, day)}
       </>
     );
   };
@@ -144,11 +248,9 @@ class Event extends React.Component<Props, State> {
       const data: any = [];
 
       for (let h = 0; h < 24; h++) {
-        const hour = h.toString().length === 1 ? `0${h}` : h;
-
         data.push(
           <WeekData key={isHour ? h : `data-${h}`}>
-            {isHour ? hour : this.addEventBtn(currentDate)}
+            {isHour ? timeConvert(h) : this.addEventBtn(currentDate)}
           </WeekData>
         );
       }
@@ -163,6 +265,9 @@ class Event extends React.Component<Props, State> {
           <WeekCol>
             {renderRows()}
             {this.renderEvents(events, true)}
+            {isCurrentDate(currentDate, new Date()) && (
+              <Indicator hour={this.getElapsedHours()} />
+            )}
           </WeekCol>
         </WeekWrapper>
       </WeekContainer>
@@ -183,11 +288,7 @@ class Event extends React.Component<Props, State> {
         }
       } else {
         for (let h = 0; h < 24; h++) {
-          data.push(
-            <WeekData key={h}>
-              {h.toString().length === 1 ? `0${h}` : h}
-            </WeekData>
-          );
+          data.push(<WeekData key={h}>{timeConvert(h)}</WeekData>);
         }
       }
 
@@ -204,11 +305,13 @@ class Event extends React.Component<Props, State> {
           {WEEKS.map((week, index) => {
             const day = new Date(year, month, date + index);
             const events = filterEvents(this.props.events, day);
+            const isCurrentWeek = isCurrentDate(day, new Date());
 
             return (
-              <WeekCol key={`week_${index}`}>
+              <WeekCol isCurrent={isCurrentWeek} key={`week_${index}`}>
                 {renderData(day, week)}
                 {this.renderEvents(events, true)}
+                {isCurrentWeek && <Indicator hour={this.getElapsedHours()} />}
               </WeekCol>
             );
           })}
@@ -218,16 +321,15 @@ class Event extends React.Component<Props, State> {
   };
 
   render() {
-    const { startTime, endTime, currentDate, type, queryParams } = this.props;
+    const { startTime, endTime, currentDate, type } = this.props;
     const { isPopupVisible, selectedDate, event, account } = this.state;
 
     const createForm = (
       <EventForm
         startTime={startTime}
         endTime={endTime}
-        queryParams={queryParams}
         isPopupVisible={isPopupVisible}
-        onHideModal={this.onHideModal}
+        onHideModal={this.onToggleModal}
         selectedDate={selectedDate}
         event={event}
         account={account}
@@ -237,7 +339,6 @@ class Event extends React.Component<Props, State> {
     if (type === TYPES.DAY) {
       return (
         <>
-          <DayHeader>{dayjs(currentDate).format('MMM D')}</DayHeader>
           {this.generateDayData()}
           {createForm}
         </>
@@ -269,7 +370,13 @@ class Event extends React.Component<Props, State> {
               <Row key={index}>
                 <RowWrapper>
                   {days.map((day, dayIndex) => (
-                    <Cell key={dayIndex}>{this.renderContent(day)}</Cell>
+                    <Cell
+                      isCurrent={isCurrentDate(day, new Date())}
+                      key={dayIndex}
+                      innerRef={this.ref}
+                    >
+                      {this.renderContent(day)}
+                    </Cell>
                   ))}
                 </RowWrapper>
               </Row>

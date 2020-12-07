@@ -8,6 +8,7 @@ export interface ICalendar {
   groupId: string;
   createdAt?: Date;
   accountId: string;
+  isPrimary?: boolean;
 }
 
 export interface ICalendarDocument extends ICalendar, Document {
@@ -46,7 +47,8 @@ export const calendarSchema = schemaWrapper(
     userId: field({ type: String, label: 'Created by' }),
     groupId: field({ type: String, label: 'Group' }),
     accountId: field({ type: String, label: 'Integration Account' }),
-    createdAt: field({ type: Date, required: true, default: Date.now })
+    createdAt: field({ type: Date, required: true, default: Date.now }),
+    isPrimary: field({ type: Boolean, default: false, label: 'Is primary' })
   })
 );
 

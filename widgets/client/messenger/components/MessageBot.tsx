@@ -44,7 +44,7 @@ function MessageBot(props: Props) {
       <div
         key={idx}
         className="erxes-message top"
-        dangerouslySetInnerHTML={{ __html: xss.filterXSS(urlify(message.text || "")) }}
+        dangerouslySetInnerHTML={{ __html: xss(urlify(message.text || "")) }}
       />
     );
   };

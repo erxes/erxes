@@ -4,6 +4,7 @@ import Icon from 'modules/common/components/Icon';
 import Tip from 'modules/common/components/Tip';
 import { IButtonMutateProps } from 'modules/common/types';
 import React from 'react';
+import AccountCalendars from '../containers/AccountCalendars';
 import GroupForm from '../containers/GroupForm';
 import { ICalendar, IGroup } from '../types';
 import CalendarForm from './CalendarForm';
@@ -113,6 +114,28 @@ class GroupRow extends React.Component<Props, State> {
     );
   }
 
+  renderCalendarAccounts(calendars) {
+    return calendars.map(calendar => (
+      <>
+        <tr key={calendar._id}>
+          <td>
+            <Icon icon={'circle'} style={{ color: calendar.color }} />{' '}
+            {calendar.name}
+          </td>
+          <td>
+            <ActionButtons>
+              {this.renderCalendarActions(calendar)}
+            </ActionButtons>
+          </td>
+        </tr>
+        <AccountCalendars
+          accountId={calendar.accountId}
+          groupId={this.props.group._id}
+        />
+      </>
+    ));
+  }
+
   render() {
     const { group } = this.props;
 
@@ -120,26 +143,13 @@ class GroupRow extends React.Component<Props, State> {
       <>
         <tr>
           <td>
-            {group.name} ({group.calendars.length})
+            <strong>{group.name}</strong> ({group.calendars.length})
           </td>
           <td>
             <ActionButtons>{this.renderExtraLinks()}</ActionButtons>
           </td>
         </tr>
-        {group.calendars.map((calendar, i) => (
-          <tr key={calendar._id}>
-            <td>
-              &nbsp; <Icon icon={'circle'} style={{ color: calendar.color }} />{' '}
-              {calendar.name}
-            </td>
-            <td>
-              <ActionButtons>
-                {this.renderCalendarActions(calendar)}
-              </ActionButtons>
-            </td>
-          </tr>
-        ))}
-
+        {this.renderCalendarAccounts(group.calendars)}
         {this.renderEditForm()}
         {this.renderCalendarForm()}
       </>

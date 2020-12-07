@@ -272,84 +272,24 @@ Erxes app enables you to integrate with developer API and that means we can rece
 
 Read and send messages, manage drafts and attachments, search threads and messages, work with labels, setup push notifications, and manage Gmail settings.
 
-- Create **Google Cloud Platform project**, follow [this](#google) guide to create one
-- Enable Gmail API [here](https://console.cloud.google.com/apis/library)
+Setting up the Gmail is easy with the script we made. You will see gmail-script.sh file in your integrations repo.
 
-![](https://erxes-docs.s3-us-west-2.amazonaws.com/integration/google/google-gmail-1.png)
+First, you need to have [Google Cloud SDK](https://cloud.google.com/sdk/docs/install) on your computer.
+Now let's make it executable. In your terminal run the following command <br/>
 
-![](https://erxes-docs.s3-us-west-2.amazonaws.com/integration/google/google-gmail-2.png)
+`chmod +x gmail-setup.sh`
 
-- SideMenu => APIs Services => OAuth Consent screen => Create
+Run script as follows <br/>
 
-![](https://erxes-docs.s3-us-west-2.amazonaws.com/integration/google/google-gmail-3.png)
+`./gmail-setup.sh`
 
-- Fill out rest of the form and Click on the Add scope button
-
-![](https://erxes-docs.s3-us-west-2.amazonaws.com/integration/google/google-gmail-4.png)
-
-- Search for Gmail API and select scopes as below
-
-![](https://erxes-docs.s3-us-west-2.amazonaws.com/integration/google/google-gmail-5.png)
-
-![](https://erxes-docs.s3-us-west-2.amazonaws.com/integration/google/google-gmail-6.png)
-
-- SideMenu => APIs & Services => Credentials => Create credentials => OAuth Client
-
-![](https://erxes-docs.s3-us-west-2.amazonaws.com/integration/google/google-gmail-7.png)
-
-- Select Web application and fill out rest of the form and click on the Create button
-
-![](https://erxes-docs.s3-us-west-2.amazonaws.com/integration/google/google-gmail-8.png)
-
-- You will get your CLIENT_ID, CLIENT_SECRET, We are going to use these in the Erxes App system config later on
-
-![](https://erxes-docs.s3-us-west-2.amazonaws.com/integration/google/google-gmail-9.png)
-
-- Now select your newly created OAuth client and add redirect URI for OAuth2 authorization
-
-![](https://erxes-docs.s3-us-west-2.amazonaws.com/integration/google/google-gmail-10.png)
-
-![](https://erxes-docs.s3-us-west-2.amazonaws.com/integration/google/google-gmail-11.png)
-
-- We also need to enable **Cloud Pub/Sub API** in order to receive our email as **real-time**
-
-![](https://erxes-docs.s3-us-west-2.amazonaws.com/integration/google/google-gmail-13.png)
-
-![](https://erxes-docs.s3-us-west-2.amazonaws.com/integration/google/google-gmail-12.png)
-
-- Navigate to SideMenu => IAM & Admin => IAM
-
-- Click on the Add button and add grant publish right to **gmail-api-push@system.gserviceaccount.com** account
-
-- Select role Pub/Sub Publisher and click on the Save button
-
-![](https://erxes-docs.s3-us-west-2.amazonaws.com/integration/google/google-gmail-14.png)
-
-- Now Let's config our Erxes app
-
-- Navigate to Settings => System configs => General system config
-
-- Add your **CLIENT_ID** to **GOOGLE_CLIENT_ID** and **CLIENT_SECRET** to **GOOGLE_CLIENT_SECRET** then click on the Save button
-
-![](https://erxes-docs.s3-us-west-2.amazonaws.com/integration/google/google-gmail-15.png)
-
-- Final touch, navigate to Settings => System configs => Integrations config
-
-- Enable **USE DEFAULT GMAIL SERVICE**
-
-- Enter your **GOOGLE GMAIL TOPIC**, **GOOGLE GMAIL SUBSCRIPTION NAME** names as single string
-
-![](https://erxes-docs.s3-us-west-2.amazonaws.com/integration/google/google-gmail-16.png)
-
-- Restart the erxes-integrations and verify that corresponding topic, subscriptions created in pub/sub console [here](https://console.cloud.google.com/cloudpubsub/subscription).
-
-Now you are good to create your a Gmail integration
+This script basically will do most of the things for you. However there are a few steps you will have to make manually. When you successfully run the script it will show the rest of the steps.
 
 ### Facebook
 
-Erxes app can be integrated with facebook developer API and that means we can receive our Facebook pages' inbox messages directly to our erxes app's inbox. With the help of Facebook developer API we have many more possibilities, like receiving notifications about page comment, page post feed etc. There is an active development process going on this subject.
+Erxes app can be integrated with facebook developer API and that means we can receive our Facebook pages' inbox messages and posts directly to our erxes app's inbox. With the help of Facebook developer API we have many more possibilities, like receiving notifications about page comment, page post feed etc. There is an active development process going on this subject.
 
-#### Requirements:
+<!-- #### Requirements:
 
 - Working sub domain with SSL pointing to your erxes-api server.
 - [Create a Facebook App](https://developers.facebook.com/docs/apps/)
@@ -364,74 +304,123 @@ FACEBOOK_APP_ID="your faceboook application's app id"
 FACEBOOK_APP_SECRET="your faceboook application's secret key"
 FACEBOOK_VERIFY_TOKEN="insert facebook application verify token"
 
+``` -->
+
+#### Creating a Facebook App
+
+1.  The first step is to go to [developers.facebook.com](https://developers.facebook.com) to create an App
+
+    ![](https://erxes-docs.s3-us-west-2.amazonaws.com/facebook/facebook-1.png)
+
+2.  From the various options that are given, please choose “something else”.
+
+    ![](https://erxes-docs.s3-us-west-2.amazonaws.com/facebook/facebook-2.png)
+
+3.  After creating the App, please go to Settings and choose the Basic option. On this page everything has to be filled such as the display name, app domains, privacy policy URLS. Moreover, please keep in mind that your business profile has to be connected in order to complete the business verification process as well. By completing this step, you’ll be able to use Facebook Application.
+
+![](https://erxes-docs.s3-us-west-2.amazonaws.com/facebook/facebook-3.png)
+
+#### Connecting Erxes with your Facebook
+
+Please go to Settings > System Configuration > Integrations configurations in order to integrate your Facebook on your erxes.
+
+```
+FACEBOOK_APP_ID="your faceboook application's app id"Note: Facebook App Id can be found on the basic page on your Facebook App.
+FACEBOOK_APP_SECRET="your faceboook application's secret key" Note: Facebook Secret can be found on the basic page on your Facebook App.
+FACEBOOK_VERIFY_TOKEN="insert facebook application verify token" Note: In terms of Facebook App Token, you’ll receive it once you generate the token
+FACEBOOK PERMISSIONS="insert facebook application permissions" Note: You’ll find the Facebook Permissions from your Facebook application review section and it’s specifically called “my permissions and features
+
 ```
 
-#### Creating facebook app.
+![](https://erxes-docs.s3-us-west-2.amazonaws.com/facebook/facebook-5.png)
 
-1. Create new app.
-   ( Your application status must be "Live" )
-2. Your application must have these permissions:
-   `manage_pages, pages_show_list, pages_messaging, publish_pages, pages_messaging_phone_number, pages_messaging_subscriptions`
-   (You can get these permissions through your App Review)
-3. Go to developer application setting=> basic=> get variables
-   `FACEBOOK_APP_ID`, your Facebook application's ID
-   `FACEBOOK_APP_SECRET`, your Facebook application's Secret code
+#### The configurations that needs to be done on your Facebook Applications are :
 
-4. You must have `Facebook Login` product set up.
-5. Go to `Facebook Login` => `Settings` fill the field names `Valid OAuth Redirect URIs` like below:
-   `<your erxes-api domain>/fblogin`
-6. Now we are done on configurations.
+In order to integrate your Facebook application with your erxes there are three products that need to be used which are the Messenger, Facebook Login, and Webhook.
 
-#### Erxes facebook integration settings.
+![](https://erxes-docs.s3-us-west-2.amazonaws.com/facebook/facebook-4.png)
 
-1. Go to Erxes settings => App store
-2. Click on **Add Facebook messenger**. Click on Authorize app.
-3. Select your brand and click save.
-4. Go to Setting=> Channel=> Add new channel=> Connect facebook integration.
+**1. _Facebook login:_**
 
-#### Getting facebook permissions (_manage_pages_, _publish_pages_)
+In order to adjust this product in a section called Valid OAuth Redirect URLs, the url of your Facebook login has to be copied following your erxes login. For examplem, it should look like this
 
-**manage_pages:**
+```
+Valid OAuth Redirect URLs="yourerxesintegrationsdomain/fblogin"
+```
 
-Grants an app permission to retrieve Page Access Tokens for the Pages and Apps that the app user administers. Apps that allow users to publish as a Page must also have the **_publish_pages_** permission. To take this permission, you must complete the following 2 steps.
+Moreover, in detail it should look like this : https://exampledomain/integration/fblogin
 
-1. Provide verification details. In this step, you must provide detailed step-by-step instructions on how a reviewer can test your integration and how you are using the requested permissions or features. To do so,
+![](https://erxes-docs.s3-us-west-2.amazonaws.com/facebook/facebook-7.png)
 
-   - You provide the testing account & password. (Note: Do not provide your personal Facebook account credentials.)
-   - Then you provide each steps required to test your integration. For example:
-     1. Navigate to www.example.com
-     2. Login using by username: admin password: password
-     3. Once you've accessed the website, click the App store button to connect their managed Facebook pages
-     4. Then click the Channels button navigated in Settings to sort their pages. After completing these steps, our users can receive their managed FB page messenger messages, post comments, and likes. publish_pages permission will give our users to reply back to their posts and comments.
+**2. _Messenger:_**
 
-2. You need to send request to facebook and explain that how you will use this permission. In this step, you must provide
-   - a. a detailed description of how your app uses the permission or feature requested, how it adds value for a person using your app, and why it's necessary for app functionality.
-   - b. a step-by-step video walkthrough of below.
-   - c. [k](https://bit.ly/2J6j5Oi) is a sample video.
+The Messenger used for receiving messages and responding to messages as well.
+In order to activate the Messenger the callback url has to be adjusted.
+In the CallBack URL section : /facebook/receive has to be added following your integration URL.
+In the token section, the facebook token you’ve generated has to be added which will be found on the System Configuration section of your erxes.
 
-**publish_pages:**
+![](https://erxes-docs.s3-us-west-2.amazonaws.com/facebook/facebook-10.png)
 
-Grants your app permission to publish posts, comments, and like Pages managed by a person using your app. Also requires the **_manage_pages_** permission.
+```
+Callback Url="https://yourintegrationdomain/facebook/recieve"
+Verify Token="your generated token (FACEBOOK APP TOKEN)"
 
-To take this permission, you must complete the following 3 steps.
+```
 
-1. Provide verification details. In this step, you must provide detailed step-by-step instructions on how a reviewer can test your integration and how you are using the requested permissions or features. To do so,
+![](https://erxes-docs.s3-us-west-2.amazonaws.com/facebook/facebook-11.png)
 
-   - You provide the testing account & password. (Note: Do not provide your personal Facebook account credentials.)
-   - Then you provide each steps required to test your integration. For example:
-     1. Navigate to www.example.com
-     2. Login using by username: admin password: password
-     3. Once you've accessed the website, click the App store button to connect their managed Facebook pages
-     4. Then click the Channels button navigated in Settings to sort their pages. After completing these steps, our users can receive their managed FB page messenger messages, post comments, and likes. publish_pages permission will give our users to reply back to their posts and comments.
+**3. _Webhook_**
 
-2. Tell facebook how you will use this permission. In this step, you must provide
+The role of the Webhook is to receive posts and comments. In order to adjust the Webhook, select the Page and choose to fill the subscription form.
 
-   - a. a detailed description of how your app uses the permission or feature requested, how it adds value for a person using your app, and why it's necessary for app functionality.
-   - b. a step-by-step video walkthrough of above.
-   - c. your subbmission must include **_manage_pages_** permission
-   - d. [Here](https://bit.ly/2J6j5Oi) is a sample video.
+In order to fill the edit subscription form there are few steps that need to be made. First of all, in the CallBack Url Box please write /facebook/receive. In the token box, the token should be copied that you’ve added in the system configuration on your erxes.
 
-3. Tell facebook how you will use _manage_pages_ permission if you haven't taken it yet.
+```
+Callback Url="https://yourintegrationdomain/facebook/recieve"
+Verify Token="your generated token (FACEBOOK APP TOKEN)"
+```
+
+![](https://erxes-docs.s3-us-west-2.amazonaws.com/facebook/facebook-13.png)
+
+#### The permissions that needs to be done on your Facebook Applications are :
+
+##### [Here is the example of how to get permissions](https://developers.facebook.com/docs/app-review/resources/sample-submissions/messenger-platform/)
+
+**_For messenger:_**
+
+There are two kinds of Facebook Permissions which are required. For example, the first one is using the Facebook Messenger integration. Please allow these permissions for Facebook Messenger Integration :
+
+- pages_messaging
+
+Enables your app to send and receive messages using a Facebook Page.
+
+- pages_show_list
+
+The pages_show_list permission allows your app to access the list of Pages a person manages.
+
+**_For post & comment: _**
+
+The second permission is used for receiving posts which is called Facebook Post Integration. If you want to use the Facebook Post Integration, please allow these permissions :
+
+- pages_read_engagement
+
+The pages_read_engagement permission allows your app the ability to read content (posts, photos, videos, events) posted by the Page, read followers data including name, PSID, and profile picture, and read metadata about the Page. You can use this permission if you need it to help the Page Admin administer and manage the Page.
+
+- pages_manage_metadata
+
+The pages_manage_metadata permission allows your app the ability to subscribe and receive web hooks about activity on the Page, and to update settings on the Page. You can use this permission if you need it to help the Page Admin administer and manage the Page.
+
+- pages_read_user_content
+
+The pages_read_user_content permission allows your app the ability to read user generated content on the Page, such as posts, comments and ratings by users or other Pages. It also allows your app to read posts that the Page is tagged in. You can use this permission to read users and other Page's content posted on the Page if you need it to help manage the Page. You can also use pages_read_user_content to delete comments posted by users on the Page.
+
+- pages_manage_engagement
+
+The pages_manage_engagement permission allows your app the ability to create, edit and delete comments posted by the Page. If you have access to pages_read_user_content, you can also use pages_manage_engagement to delete comments posted other Pages. It also allows your app the ability to create, edit, and delete your own Page's likes to Page content. You can use this permission if you need it to help manage and moderate content on the Page.
+
+- pages_show_list
+
+The pages_show_list permission allows your app to access the list of Pages a person manages.
 
 ### Twitter
 
@@ -451,11 +440,13 @@ Notes:
 - Go to Erxes Settings => System config => Integrations config => Twitter.
 
 ```
+
 TWITTER_CONSUMER_KEY="your app consumer key"
 TWITTER_CONSUMER_SECRET="your app consumer secret key"
 TWITTER_ACCESS_TOKEN="your app consumer Secret"
 TWITTER_ACCESS_TOKEN_SECRET=''
 TWITTER_WEBHOOK_ENV=''
+
 ```
 
 - `TWITTER_CONSUMER_KEY`, your twitter developer account's Consumer Key (API Key) here
@@ -494,9 +485,11 @@ Erxes app can be integrated with the Daily.co API for video calls. It allows us 
 - Go to Erxes Settings => System config => Integrations config => Daily.
 
 ```
+
 VIDEO_CALL_TYPE = 'select the video calls integration server'
 DAILY_API_KEY="your daily application's api key"
 DAILY_END_POINT="your daily application's end point"
+
 ```
 
 - `DAILY_API_KEY='######'` Get API key from Daily account Developers tab.
@@ -910,3 +903,7 @@ Insert emails and verify it.
 ### Send test email
 
 ![](https://erxes-docs.s3-us-west-2.amazonaws.com/Amazon-ses/amazon+test+conf.png)
+
+```
+
+```

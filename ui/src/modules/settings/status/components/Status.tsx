@@ -15,6 +15,10 @@ class Status extends React.PureComponent<{
 
     const { os, process, mongo } = statistic;
 
+    if (!process) {
+      return null;
+    }
+
     return (
       <>
         <div>

@@ -19,7 +19,7 @@ export function generateProductOptions(array: IProduct[] = []): IOption[] {
 export default ({
   queryParams,
   onSelect,
-  value,
+  initialValue,
   multi = true,
   label,
   name
@@ -29,11 +29,11 @@ export default ({
   onSelect: (values: string[] | string, name: string) => void;
   multi?: boolean;
   customOption?: IOption;
-  value?: string | string[];
+  initialValue?: string | string[];
   setParam?: boolean;
   name: string;
 }) => {
-  const defaultValue = queryParams ? queryParams[name] : value;
+  const defaultValue = queryParams ? queryParams[name] : initialValue;
 
   return (
     <SelectWithSearch
@@ -42,13 +42,7 @@ export default ({
       queryName="products"
       name={name}
       customQuery={queries.products}
-      values={
-        typeof defaultValue === 'string'
-          ? multi
-            ? [defaultValue]
-            : defaultValue
-          : defaultValue
-      }
+      initialValue={defaultValue}
       generateOptions={generateProductOptions}
       onSelect={onSelect}
       multi={multi}

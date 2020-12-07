@@ -243,7 +243,7 @@ class LogList extends React.Component<Props, State> {
           <SelectTeamMembers
             label="Choose users"
             name="userId"
-            value={userId || ''}
+            initialValue={userId || ''}
             onSelect={onUserChange}
             multi={false}
           />

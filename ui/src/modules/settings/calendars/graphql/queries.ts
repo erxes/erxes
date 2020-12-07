@@ -4,6 +4,8 @@ const fields = `
   accountId
   groupId
   color
+  isPrimary
+  userId
 `;
 
 const groupFields = `

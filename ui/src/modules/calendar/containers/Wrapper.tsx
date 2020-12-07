@@ -1,8 +1,9 @@
+import { AppConsumer } from 'appContext';
 import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
 import Spinner from 'modules/common/components/Spinner';
 import { withProps } from 'modules/common/utils';
-import { IGroup } from 'modules/settings/calendars/types';
+import { IBoard, IGroup } from 'modules/settings/calendars/types';
 import React from 'react';
 import { graphql } from 'react-apollo';
 import Wrapper from '../components/Wrapper';
@@ -12,6 +13,8 @@ type Props = {
   currentGroup: IGroup;
   history: any;
   queryParams: any;
+  currentBoard?: IBoard;
+  boards: IBoard[];
 };
 
 type FinalProps = {
@@ -37,7 +40,13 @@ class SidebarContainer extends React.Component<FinalProps> {
       accounts: calendarsQuery.calendarAccounts || []
     };
 
-    return <Wrapper {...updatedProps} />;
+    return (
+      <AppConsumer>
+        {({ currentUser }) => {
+          return <Wrapper {...updatedProps} currentUser={currentUser} />;
+        }}
+      </AppConsumer>
+    );
   }
 }
 
@@ -45,7 +54,7 @@ export default withProps<Props>(
   compose(
     graphql<Props, any>(gql(queries.calendars), {
       name: 'calendarsQuery',
-      options: ({ currentGroup }) => {
+      options: ({ currentGroup = { _id: '' } }) => {
         return {
           variables: {
             groupId: currentGroup._id

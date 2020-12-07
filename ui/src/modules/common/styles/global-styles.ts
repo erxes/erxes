@@ -295,6 +295,10 @@ a:hover {
   font-weight: normal;
 }
 
+.dropdown-menu > li.active > a {
+  background: ${colors.bgActive};
+}
+
 .dropdown-menu > li > a:focus,
 .dropdown-menu > li > a:hover,
 .dropdown-menu li a:focus,
@@ -349,6 +353,10 @@ a:hover {
 }
 
 /* popover */
+
+#calendar-popover {
+  z-index: 1040;
+}
 
 .popover {
   font-family: system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Oxygen,Ubuntu,Cantarell,"Fira Sans","Droid Sans","Helvetica Neue",sans-serif;
@@ -660,16 +668,26 @@ a:hover {
   width: 100%;
   border: none !important;
   min-width: 220px;
-  max-width: 260px;
+  max-width: 290px;
+  padding: 2px 4px 4px 4px;
 }
 
 .rdtPicker td.rdtToday:before {
   border-bottom: 7px solid ${colors.colorSecondary} !important;
 }
 
+.rdtPicker .rdtDay:hover, 
+.rdtPicker .rdtHour:hover, 
+.rdtPicker .rdtMinute:hover, 
+.rdtPicker .rdtSecond:hover, 
+.rdtPicker .rdtTimeToggle:hover {
+  border-radius: 8px;
+}
+
 .rdtPicker td.rdtActive,
 .rdtPicker td.rdtActive:hover {
   background-color: ${colors.colorSecondary} !important;
+  border-radius: 8px;
 }
 
 .rdtPicker th,

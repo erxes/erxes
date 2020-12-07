@@ -9,7 +9,7 @@ import React from 'react';
 import Collapse from 'react-bootstrap/Collapse';
 import PropertyForm from '../containers/PropertyForm';
 import PropertyGroupForm from '../containers/PropertyGroupForm';
-import { CollapseRow, DropIcon, FieldType } from '../styles';
+import { CollapseRow, DropIcon, FieldType, PropertyTable } from '../styles';
 import { IField, IFieldGroup } from '../types';
 
 type Props = {
@@ -141,22 +141,24 @@ class PropertyRow extends React.Component<Props, State> {
 
     return (
       <li key={group._id}>
-        <CollapseRow>
-          <div style={{ flex: 1 }} onClick={this.handleCollapse}>
-            <DropIcon isOpen={this.state.collapse} />
-            {group.name} <span>{group.description}</span>
-          </div>
-          {this.renderActionButtons(group, removePropertyGroup, props => (
-            <PropertyGroupForm
-              {...props}
-              group={group}
-              queryParams={queryParams}
-            />
-          ))}
-        </CollapseRow>
-        <Collapse in={this.state.collapse}>
-          <div>{this.renderTable(fields)}</div>
-        </Collapse>
+        <PropertyTable>
+          <CollapseRow>
+            <div style={{ flex: 1 }} onClick={this.handleCollapse}>
+              <DropIcon isOpen={this.state.collapse} />
+              {group.name} <span>{group.description}</span>
+            </div>
+            {this.renderActionButtons(group, removePropertyGroup, props => (
+              <PropertyGroupForm
+                {...props}
+                group={group}
+                queryParams={queryParams}
+              />
+            ))}
+          </CollapseRow>
+          <Collapse in={this.state.collapse}>
+            <div>{this.renderTable(fields)}</div>
+          </Collapse>
+        </PropertyTable>
       </li>
     );
   }

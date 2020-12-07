@@ -121,7 +121,7 @@ class Greeting extends React.Component<Props, State> {
             <SelectTeamMembers
               label="Choose users"
               name="supporterIds"
-              value={supporterIds}
+              initialValue={supporterIds}
               onSelect={usersOnChange}
             />
           </FormGroup>
