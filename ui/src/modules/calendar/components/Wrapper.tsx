@@ -4,11 +4,13 @@ import { IUser } from 'modules/auth/types';
 import { ButtonGroup } from 'modules/boards/styles/header';
 import Button from 'modules/common/components/Button';
 import Icon from 'modules/common/components/Icon';
+import { __ } from 'modules/common/utils';
 import Wrapper from 'modules/layout/components/Wrapper';
+import { IBoard, IGroup } from 'modules/settings/calendars/types';
 import React from 'react';
 import { TYPES } from '../constants';
 import Event from '../containers/Event';
-import { CalendarController, MainContainer } from '../styles';
+import { CalendarController } from '../styles';
 import { IAccount } from '../types';
 import { generateFilters } from '../utils';
 import { extractDate } from '../utils';
@@ -19,6 +21,9 @@ type Props = {
   queryParams: any;
   accounts: IAccount[];
   currentUser?: IUser;
+  currentGroup: IGroup;
+  currentBoard?: IBoard;
+  boards: IBoard[];
 };
 
 type State = {
@@ -37,6 +42,7 @@ const CalendarContext = React.createContext({} as IStore);
 
 export const CalendarConsumer = CalendarContext.Consumer;
 
+const breadcrumb = [{ title: __('Calendar'), link: '/calendar' }];
 class CalendarWrapper extends React.Component<Props, State> {
   constructor(props) {
     super(props);
@@ -122,7 +128,7 @@ class CalendarWrapper extends React.Component<Props, State> {
     return list.map(item => ({ value: item, label: item.toUpperCase() }));
   };
 
-  renderTypeChoose = () => {
+  renderTypeChooser = () => {
     const { type } = this.state;
 
     return (
@@ -147,40 +153,47 @@ class CalendarWrapper extends React.Component<Props, State> {
 
   render() {
     const { type, currentDate, calendarIds } = this.state;
-    const { history, queryParams, accounts, currentUser } = this.props;
+    const {
+      queryParams,
+      accounts,
+      currentUser,
+      currentGroup,
+      currentBoard,
+      boards
+    } = this.props;
 
     const actionBar = (
       <Wrapper.ActionBar
         zIndex={1}
         left={this.renderMonthController()}
-        right={this.renderTypeChoose()}
+        right={this.renderTypeChooser()}
       />
     );
 
     const mainContent = (
       <Wrapper
+        header={<Wrapper.Header title="Calendar" breadcrumb={breadcrumb} />}
         leftSidebar={
           <Sidebar
             dateOnChange={this.dateOnChange}
             currentDate={currentDate}
-            history={history}
-            queryParams={queryParams}
             {...generateFilters(currentDate, type)}
             onChangeCalendarIds={this.onChangeCalendarIds}
             accounts={accounts}
+            currentGroup={currentGroup}
+            currentBoard={currentBoard}
+            boards={boards}
           />
         }
         actionBar={actionBar}
         content={
-          <MainContainer>
-            <Event
-              {...generateFilters(currentDate, type)}
-              type={type}
-              currentDate={currentDate}
-              calendarIds={calendarIds}
-              queryParams={queryParams}
-            />
-          </MainContainer>
+          <Event
+            {...generateFilters(currentDate, type)}
+            type={type}
+            currentDate={currentDate}
+            calendarIds={calendarIds}
+            queryParams={queryParams}
+          />
         }
       />
     );

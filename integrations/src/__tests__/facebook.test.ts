@@ -179,6 +179,25 @@ describe('Facebook test', () => {
 
     expect(await Posts.countDocuments()).toEqual(1);
 
+    const postParamCustom = {
+      from: { id: '607538079688785123', name: 'Enkee' },
+      post_id: '607538079688785_815921688850422123',
+      created_time: 1577926986,
+      item: 'status',
+      published: 1
+    };
+
+    try {
+      await store.getOrCreatePost(
+        postParamCustom,
+        'pageId123',
+        postParamCustom.from.id,
+        'customerErxesApiId'
+      );
+    } catch (e) {
+      expect(e).toBeDefined();
+    }
+
     mock.restore();
   });
 
