@@ -1,5 +1,6 @@
 import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
+import debounce from 'lodash/debounce';
 import { IRouterProps } from 'modules/common/types';
 import { __, Alert } from 'modules/common/utils';
 import { confirm } from 'modules/common/utils';
@@ -40,7 +41,9 @@ function CustomerChooser(props: FinalProps) {
           }
         })
           .then(() => {
-            Alert.success('You successfully converted to customer', 5000);
+            debounce(() => {
+              Alert.success('You successfully converted to customer');
+            }, 5500)();
           })
           .catch(e => {
             Alert.error(e.message);
@@ -53,7 +56,9 @@ function CustomerChooser(props: FinalProps) {
       variables: { _id: customer._id, leadStatus: state }
     })
       .then(() => {
-        Alert.success('You successfully updated state', 5000);
+        debounce(() => {
+          Alert.success('You successfully updated state');
+        }, 5500)();
       })
       .catch(e => {
         Alert.error(e.message);
