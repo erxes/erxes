@@ -128,6 +128,11 @@ curl -s -X POST https://telemetry.erxes.io/events/ \
 EOF
       )"
 
+# Dependencies
+echo "Installing Initial Dependencies"
+apt-get -qqy update
+apt-get -qqy install -y wget gnupg apt-transport-https software-properties-common python3-pip ufw
+
 #
 # Ask ES option
 #
@@ -164,10 +169,47 @@ else
   echo "Using elasticsearch.erxes.io"
 fi
 
-# Dependencies
-echo "Installing Initial Dependencies"
+read -p "Would you like to install Redis on your server (y/n)?" choice
+case "$choice" in 
+  y|Y )
+    echo "Redis will be installed"
+    echo "Installing Redis"
+    apt -qqy install -y redis-server
+    systemctl enable redis-server
+    systemctl start redis-server
+    echo "Installed Redis successfully"
+    ;;
+
+  n|N ) echo "Using runtime variable for in memory storage";;
+  * ) echo "invalid";;
+esac
+
+read -p "Would you like to install RabbitMQ on your server (y/n)?" choice
+case "$choice" in 
+  y|Y )
+  echo "Installing RabbitMQ"
+curl -fsSL https://github.com/rabbitmq/signing-keys/releases/download/2.0/rabbitmq-release-signing-key.asc | apt-key add -
+tee /etc/apt/sources.list.d/bintray.rabbitmq.list <<EOF
+## Installs the latest Erlang 22.x release.
+## Change component to "erlang-21.x" to install the latest 21.x version.
+## "bionic" as distribution name should work for any later Ubuntu or Debian release.
+## See the release to distribution mapping table in RabbitMQ doc guides to learn more.
+deb https://dl.bintray.com/rabbitmq-erlang/debian bionic erlang
+deb https://dl.bintray.com/rabbitmq/debian bionic main
+EOF
+
 apt-get -qqy update
-apt-get -qqy install -y wget gnupg apt-transport-https software-properties-common python3-pip ufw
+apt-get -qqy install rabbitmq-server -y --fix-missing
+systemctl enable rabbitmq-server
+rabbitmq-plugins enable rabbitmq_management
+systemctl start rabbitmq-server
+echo "Installed RabbitMQ successfully"
+
+    ;;
+
+  n|N ) echo "Using http for service communications";;
+  * ) echo "invalid";;
+esac
 
 # MongoDB
 echo "Installing MongoDB"
