@@ -1,3 +1,26 @@
+## [0.20.8](https://github.com/erxes/erxes/compare/0.20.7...0.20.8) (2020-12-07)
+
+
+### Bug Fixes
+
+* **inbox:** fix email send button, email subject can editable  ([2b501ca](https://github.com/erxes/erxes/commit/2b501cae5b4c7b22beae92be0e3296cc720e6b6f))
+* **messenger:** fix  integration social url close [#2501](https://github.com/erxes/erxes/issues/2501) ([2c67034](https://github.com/erxes/erxes/commit/2c670346f6da2ec4f5705e30e1ae080da150b523))
+* **nylas:** enable account ([b75701e](https://github.com/erxes/erxes/commit/b75701e94a474502d2982085c9013b42f21b6c83))
+* **search:** fixed multiple word search with space in customers, companies list ([0acf074](https://github.com/erxes/erxes/commit/0acf074be31afde93dffaee608cc641c9b0086cd))
+* **select-multi:** added fetchExtra option to solve reopen autocompletion issue ([2c07ac1](https://github.com/erxes/erxes/commit/2c07ac1f7533ece45044ae316ae22c1e2a15a5e6))
+* **select-multi:** applied SelectWithSearch fixes in SelectCompanies, SelectCustomers, ([abd1b31](https://github.com/erxes/erxes/commit/abd1b3196d6d7ca2b9844cf21f600db080d82e96))
+
+
+### Features
+
+* **segments:** added tags on contact segment ([17b748e](https://github.com/erxes/erxes/commit/17b748e5a7b526842fe50a7d358bc9b63b3cae67)), closes [#2518](https://github.com/erxes/erxes/issues/2518)
+
+
+### Performance Improvements
+
+* **calendar:** move calendar header to sidebar ([d522efb](https://github.com/erxes/erxes/commit/d522efb940651a65ff39412782800b90dd559e4c))
+* **contacts:** make table shrinkable and expandable ([0a491f9](https://github.com/erxes/erxes/commit/0a491f9cc5942f036cb9ab5d4fc89e056e4edebc))
+
 ## [0.20.7](https://github.com/erxes/erxes/compare/0.20.6...0.20.7) (2020-11-26)
 
 
