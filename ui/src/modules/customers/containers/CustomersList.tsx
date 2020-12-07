@@ -3,6 +3,7 @@ import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
 import { Alert, withProps } from 'modules/common/utils';
 import { generatePaginationParams } from 'modules/common/utils/router';
+import routerUtils from 'modules/common/utils/router';
 import queryString from 'query-string';
 import React from 'react';
 import { graphql } from 'react-apollo';
@@ -58,6 +59,16 @@ class CustomerListContainer extends React.Component<FinalProps, State> {
       mergeCustomerLoading: false,
       responseId: ''
     };
+  }
+
+  componentDidMount() {
+    const { history } = this.props;
+
+    const shouldRefetchList = routerUtils.getParam(history, 'customersRefetch');
+
+    if (shouldRefetchList) {
+      this.refetchWithDelay();
+    }
   }
 
   componentWillUnmount() {
