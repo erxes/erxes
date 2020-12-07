@@ -5,10 +5,6 @@ export const types = `
     value: JSON
   }
 
-  type GeneralInfo {
-    packageVersion: String
-  }
-
   type OSInfo {
     type: String
     platform: String
@@ -33,7 +29,6 @@ export const types = `
   }
 
   type Statistic {
-    packageVersion: String
     os: OSInfo
     process: ProcessInfo
     mongo: MongoInfo
@@ -42,7 +37,6 @@ export const types = `
   type ProjectStatistics {
     erxesApi: Statistic
     erxesIntegration: Statistic
-    erxes: GeneralInfo
   }
 
   type ENV {
@@ -52,6 +46,7 @@ export const types = `
 
 export const queries = `
   configs: [Config]
+  configsGetVersion: JSON
   configsStatus: ProjectStatistics
   configsGetEnv: ENV
   configsConstants: JSON

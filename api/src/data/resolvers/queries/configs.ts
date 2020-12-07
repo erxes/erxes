@@ -1,15 +1,9 @@
 import * as mongoose from 'mongoose';
 import * as os from 'os';
-import * as path from 'path';
 import { Configs } from '../../../db/models';
 import { DEFAULT_CONSTANT_VALUES } from '../../../db/models/definitions/constants';
 import { moduleRequireLogin } from '../../permissions/wrappers';
-import {
-  getEnv,
-  getErxesSaasDomain,
-  getSubServiceDomain,
-  sendRequest
-} from '../../utils';
+import { getEnv, getErxesSaasDomain, sendRequest } from '../../utils';
 
 const configQueries = {
   /**
@@ -19,11 +13,33 @@ const configQueries = {
     return Configs.find({});
   },
 
+  async configsGetVersion(_root, _args) {
+    const result = {
+      version: '-',
+      isUsingRedis: Boolean(process.env.REDIS_HOST),
+      isUsingRabbitMQ: Boolean(process.env.RABBITMQ_HOST),
+      isUsingElkSyncer: Boolean(process.env.ELK_SYNCER !== 'false')
+    };
+
+    try {
+      const erxesDomain = getEnv({ name: 'MAIN_APP_DOMAIN' });
+      const erxesVersion = await sendRequest({
+        url: `${erxesDomain}/version.json`,
+        method: 'GET'
+      });
+
+      result.version = erxesVersion.packageVersion || '-';
+    } catch (e) {
+      result.version = '-';
+    }
+
+    return result;
+  },
+
   async configsStatus(_root, _args) {
     const status: any = {
       erxesApi: {},
-      erxesIntegration: {},
-      erxes: {}
+      erxesIntegration: {}
     };
 
     const { version, storageEngine } = await mongoose.connection.db.command({
@@ -52,40 +68,6 @@ const configQueries = {
       version,
       storageEngine: storageEngine.name
     };
-
-    const projectPath = process.cwd();
-    status.erxesApi.packageVersion = require(path.join(
-      projectPath,
-      'package.json'
-    )).version;
-
-    try {
-      const erxesDomain = getEnv({ name: 'MAIN_APP_DOMAIN' });
-      const erxesVersion = await sendRequest({
-        url: `${erxesDomain}/version.json`,
-        method: 'GET'
-      });
-
-      status.erxes.packageVersion = erxesVersion.packageVersion || '-';
-    } catch (e) {
-      status.erxes.packageVersion = '-';
-    }
-
-    try {
-      const erxesIntegrationDomain = getSubServiceDomain({
-        name: 'INTEGRATIONS_API_DOMAIN'
-      });
-      const erxesIntegration = await sendRequest({
-        url: `${erxesIntegrationDomain}/system-status`,
-        method: 'GET'
-      });
-
-      status.erxesIntegration = erxesIntegration || '-';
-    } catch (e) {
-      status.erxesIntegration = {
-        packageVersion: '-'
-      };
-    }
 
     return status;
   },

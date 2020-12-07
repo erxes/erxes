@@ -5,6 +5,7 @@ import { bustIframe } from 'modules/common/utils';
 import { NotifProvider } from 'modules/notifications/context';
 import Robot from 'modules/robot/containers/Robot';
 import ImportIndicator from 'modules/settings/importHistory/containers/ImportIndicator';
+import Version from 'modules/settings/status/containers/Version';
 import React from 'react';
 import { withRouter } from 'react-router-dom';
 import Navigation from '../containers/Navigation';
@@ -97,7 +98,10 @@ class MainLayout extends React.Component<IProps> {
           </MainWrapper>
           <DetectBrowser />
         </Layout>
+
         <Robot />
+
+        <Version />
       </>
     );
   }
