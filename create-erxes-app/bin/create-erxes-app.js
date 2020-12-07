@@ -22,8 +22,9 @@ program
   .arguments('<directory>')
   .option('--domain <domain>', 'Domain')
   .option('--mongoUrl <mongoUrl>', 'Mongo url')
+  .option('--redisHost <redisHost>', 'Redis host')
+  .option('--rabbitmqHost <rabbitmqHost>', 'RabbitMQ host')
   .option('--elasticsearchUrl <elasticsearchUrl>', 'Elasticsearch url')
-  .option('--quickStart', 'Not going to ask a lot of configurations')
   .description('create a new application')
   .action(directory => {
     projectName = directory;
@@ -36,6 +37,15 @@ if (projectName === undefined) {
   process.exit(1);
 }
 
+let domain = program.domain;
+let rabbitmqHost = program.rabbitmqHost || '';
+let redisHost = program.redisHost || '';
+let redisPort = 6379;
+let redisPassword = '';
+let elasticsearchUrl = program.elasticsearchUrl;
+let elkSyncer = false;
+let useDashboard = false;
+
 const stopProcess = message => {
   if (message) console.error(message);
 
@@ -43,6 +53,118 @@ const stopProcess = message => {
 };
 
 const rootPath = resolve(projectName);
+
+const readline = createInterface({
+  input: process.stdin,
+  output: process.stdout
+});
+
+const askQuestion = question => {
+  return new Promise(resolve => {
+    readline.question(question, answer => {
+      return resolve(answer);
+    });
+  });
+};
+
+const main = (async function() {
+  if (!domain) {
+    const inputDomain = await askQuestion(
+      'Please enter your domain (localhost): '
+    );
+
+    domain = inputDomain || 'localhost';
+  }
+
+  if (!rabbitmqHost) {
+    const rabbitmqHostInput = await askQuestion(
+      'Rabbitmq host (optional): '
+    );
+
+    if (rabbitmqHostInput) {
+      rabbitmqHost = rabbitmqHostInput;
+    }
+  }
+
+  if (!redisHost) {
+    const redisHostInput = await askQuestion(
+      'Redis host (optional): '
+    );
+
+    if (redisHostInput) {
+      redisHost = redisHostInput;
+
+      const redisPortInput = await askQuestion('Redis port (6379): ');
+
+      if (redisPortInput) {
+        redisPort = redisPortInput;
+      }
+
+      const redisPasswordInput = await askQuestion('Redis password (optional): ');
+
+      if (redisPasswordInput) {
+        redisPassword = redisPasswordInput;
+      }
+    }
+  }
+
+  if (!elasticsearchUrl) {
+    let answer;
+    let answers = await inquirer.prompt([
+      {
+        type: 'list',
+        name: 'elasticsearch',
+        message: 'Elasticsearch url ?',
+        choices: [
+          'http://localhost:9200 (on local)',
+          'https://elasticsearch.erxes.io (limited erxes.io offering)',
+          'enter your elasticsearch url'
+        ]
+      }
+    ]);
+
+    if (answers.elasticsearch.includes('http://localhost:9200')) {
+      elasticsearchUrl = 'http://localhost:9200';
+    }
+
+    if (answers.elasticsearch.includes('https://elasticsearch.erxes.io')) {
+      elasticsearchUrl = 'https://elasticsearch.erxes.io';
+    }
+
+    if (answers.elasticsearch.includes('enter')) {
+      answer = await inquirer.prompt({
+        type: 'input',
+        name: 'customElasticsearchUrl',
+        message: 'Please enter your elasticsearch url ?'
+      });
+
+      elasticsearchUrl = answer.customElasticsearchUrl;
+    }
+  }
+
+  if (elasticsearchUrl !== 'https://elasticsearch.erxes.io') {
+    const answers = await inquirer.prompt([
+      {
+        type: 'list',
+        name: 'elkSyncer',
+        message: 'How do you want to sync mongo to elasticsearch ?',
+        choices: [
+          'Using mongo change stream',
+          'Using seperate process written in python which requires more specs and more dependencies'
+        ]
+      }
+    ]);
+
+    if (answers.elkSyncer.includes('python')) {
+      elkSyncer = true;
+    }
+  }
+
+  readline.close();
+
+  await generate();
+})();
+
 
 const generate = async () => {
   if (await fse.exists(rootPath)) {
@@ -82,7 +204,7 @@ const generate = async () => {
   const configs = {
     JWT_TOKEN_SECRET: Math.random().toString(),
     MONGO_URL: program.mongoUrl || 'mongodb://localhost',
-    ELASTICSEARCH_URL: program.elasticsearchUrl || elasticsearchUrl,
+    ELASTICSEARCH_URL: elasticsearchUrl,
     ELK_SYNCER: elkSyncer,
     USE_DASHBOARD: useDashboard,
     DOMAIN: maindomain
@@ -127,121 +249,4 @@ const generate = async () => {
   execa('yarn', ['install'], { cwd: rootPath }).stdout.pipe(process.stdout);
 };
 
-let domain = program.domain || 'localhost';
-let rabbitmqHost;
-let redisHost;
-let redisPort = 6379;
-let redisPassword = '';
-let elasticsearchUrl = 'http:/localhost:9200';
-let elkSyncer = false;
-let useDashboard = false;
-
-const readline = createInterface({
-  input: process.stdin,
-  output: process.stdout
-});
-
-const askQuestion = question => {
-  return new Promise(resolve => {
-    readline.question(question, answer => {
-      return resolve(answer);
-    });
-  });
-};
-
-module.exports = (async function() {
-  if (program.quickStart) {
-    await generate();
-    return readline.close();
-  }
-
-  const inputDomain = await askQuestion(
-    'Please enter your domain (localhost): '
-  );
-
-  if (inputDomain) {
-    domain = inputDomain;
-  }
-
-  const rabbitmqHostInput = await askQuestion(
-    'Are you using rabbitmq then enter rabbitmq host (optional): '
-  );
-
-  if (rabbitmqHostInput) {
-    rabbitmqHost = rabbitmqHostInput;
-  }
-
-  const redisHostInput = await askQuestion(
-    'Are you using redis then enter redis host (optional): '
-  );
-
-  if (redisHostInput) {
-    redisHost = redisHostInput;
-
-    const redisPortInput = await askQuestion('Redis port (6379): ');
-
-    if (redisPortInput) {
-      redisPort = redisPortInput;
-    }
-
-    const redisPasswordInput = await askQuestion('Redis password (optional): ');
-
-    if (redisPasswordInput) {
-      redisPassword = redisPasswordInput;
-    }
-  }
-
-  let answer;
-  let answers = await inquirer.prompt([
-    {
-      type: 'list',
-      name: 'elasticsearch',
-      message: 'Elasticsearch url ?',
-      choices: [
-        'http://localhost:9200 (on local)',
-        'https://elasticsearch.erxes.io (limited erxes.io offering)',
-        'enter your elasticsearch url'
-      ]
-    }
-  ]);
-
-  if (answers.elasticsearch.includes('http://localhost:9200')) {
-    elasticsearchUrl = 'http://localhost:9200';
-  }
-
-  if (answers.elasticsearch.includes('https://elasticsearch.erxes.io')) {
-    elasticsearchUrl = 'https://elasticsearch.erxes.io';
-  }
-
-  if (answers.elasticsearch.includes('enter')) {
-    answer = await inquirer.prompt({
-      type: 'input',
-      name: 'customElasticsearchUrl',
-      message: 'Please enter your elasticsearch url ?'
-    });
-
-    elasticsearchUrl = answer.customElasticsearchUrl;
-  }
-
-  if (elasticsearchUrl !== 'https://elasticsearch.erxes.io') {
-    answers = await inquirer.prompt([
-      {
-        type: 'list',
-        name: 'elkSyncer',
-        message: 'How do you want to sync mongo to elasticsearch ?',
-        choices: [
-          'Using mongo change stream',
-          'Using seperate process written in python which requires more specs and more dependencies'
-        ]
-      }
-    ]);
-
-    if (answers.elkSyncer.includes('python')) {
-      elkSyncer = true;
-    }
-  }
-
-  readline.close();
-
-  await generate();
-})();
+module.exports = main;
