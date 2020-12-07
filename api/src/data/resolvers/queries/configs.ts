@@ -36,7 +36,7 @@ const configQueries = {
     }
 
     const response = await sendRequest({
-      url: 'https://api.github.com/repos/erxes/erxes/releases/latest',
+      url: `${process.env.CORE_URL || 'https://erxes.io'}/git-release-info`,
       method: 'GET'
     });
 
