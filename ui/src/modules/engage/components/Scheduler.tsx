@@ -98,12 +98,16 @@ class Scheduler extends React.Component<Props, State> {
   }
 
   renderDateTimeSelector() {
-    const { type, dateTime } = this.state.scheduleDate || {
-      type: '',
+    const schedule = this.state.scheduleDate || {
+      type: 'pre',
       dateTime: ''
     };
 
-    if (type !== 'pre') {
+    if (schedule.type === undefined) {
+      schedule.type = 'pre';
+    }
+
+    if (schedule.type !== 'pre') {
       return null;
     }
 
@@ -120,7 +124,7 @@ class Scheduler extends React.Component<Props, State> {
             timeFormat={true}
             required={false}
             name="dateTime"
-            value={dateTime}
+            value={schedule.dateTime}
             placeholder={'Date time'}
             onChange={onChange}
           />
@@ -139,7 +143,6 @@ class Scheduler extends React.Component<Props, State> {
       <FormGroup>
         <ControlLabel>Schedule:</ControlLabel>
         <FormControl componentClass="select" value={type} onChange={onChange}>
-          <option />{' '}
           {SCHEDULE_TYPES.map(scheduleType => (
             <option key={scheduleType.value} value={scheduleType.value}>
               {__(scheduleType.label)}

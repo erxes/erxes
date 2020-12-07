@@ -98,6 +98,7 @@ export const RULE_CONDITIONS = {
 };
 
 export const SCHEDULE_TYPES = [
+  { value: 'pre', label: 'Schedule for later' },
   { value: 'minute', label: 'Every minute' },
   { value: 'hour', label: 'Every hour' },
   { value: 'day', label: 'Every Day' },
@@ -109,8 +110,7 @@ export const SCHEDULE_TYPES = [
   { value: 4, label: 'Every Thursday' },
   { value: 5, label: 'Every Friday' },
   { value: 6, label: 'Every Saturday' },
-  { value: 0, label: 'Every Sunday' },
-  { value: 'pre', label: 'Schedule for later' }
+  { value: 0, label: 'Every Sunday' }
 ];
 
 export const SMS_DELIVERY_STATUSES = {
