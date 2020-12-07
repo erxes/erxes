@@ -3,11 +3,9 @@ import * as compose from 'lodash.flowright';
 import { IRouterProps } from 'modules/common/types';
 import { __, Alert } from 'modules/common/utils';
 import { confirm } from 'modules/common/utils';
-import routerUtils from 'modules/common/utils/router';
 import LeadState from 'modules/customers/components/detail/LeadState';
 import React from 'react';
 import { graphql } from 'react-apollo';
-import { withRouter } from 'react-router-dom';
 import { mutations } from '../graphql';
 import {
   ChangeStateMutationResponse,
@@ -30,7 +28,7 @@ type FinalProps = {
   IRouterProps;
 
 function CustomerChooser(props: FinalProps) {
-  const { customersEdit, customer, history, customersChangeState } = props;
+  const { customersEdit, customer, customersChangeState } = props;
 
   const changeState = (value: string) => {
     confirm(__('Are your sure you want to convert lead to customer?')).then(
@@ -42,9 +40,7 @@ function CustomerChooser(props: FinalProps) {
           }
         })
           .then(() => {
-            Alert.success('You successfully converted to customer');
-
-            routerUtils.setParams(history, { customersRefetch: true });
+            Alert.success('You successfully converted to customer', 5000);
           })
           .catch(e => {
             Alert.error(e.message);
@@ -57,9 +53,7 @@ function CustomerChooser(props: FinalProps) {
       variables: { _id: customer._id, leadStatus: state }
     })
       .then(() => {
-        Alert.success('You successfully updated state');
-
-        routerUtils.setParams(history, { customersRefetch: true });
+        Alert.success('You successfully updated state', 5000);
       })
       .catch(e => {
         Alert.error(e.message);
@@ -80,7 +74,11 @@ export default compose(
   graphql<Props, EditMutationResponse, ICustomerDoc>(
     gql(mutations.customersEdit),
     {
-      name: 'customersEdit'
+      name: 'customersEdit',
+      options: {
+        awaitRefetchQueries: true,
+        refetchQueries: ['customersMain', 'customerCounts']
+      }
     }
   ),
   graphql<Props, ChangeStateMutationResponse, ChangeStateMutationVariables>(
@@ -88,8 +86,9 @@ export default compose(
     {
       name: 'customersChangeState',
       options: {
+        awaitRefetchQueries: true,
         refetchQueries: ['customersMain', 'customerCounts', 'customerDetail']
       }
     }
   )
-)(withRouter(CustomerChooser));
+)(CustomerChooser);

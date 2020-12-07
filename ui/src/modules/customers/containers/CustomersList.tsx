@@ -61,16 +61,6 @@ class CustomerListContainer extends React.Component<FinalProps, State> {
     };
   }
 
-  componentDidMount() {
-    const { history } = this.props;
-
-    const shouldRefetchList = routerUtils.getParam(history, 'customersRefetch');
-
-    if (shouldRefetchList) {
-      this.refetchWithDelay();
-    }
-  }
-
   componentWillUnmount() {
     if (this.timer) {
       clearTimeout(this.timer);
