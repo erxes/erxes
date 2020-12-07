@@ -9,6 +9,12 @@
 # 
 # * we expect you have configured your domain DNS settings already as per the instructions.
 
+IS_ENABLED_TELEMETRY=true
+
+if [[ $1 == 'disable-telemetry' ]]; then
+  IS_ENABLED_TELEMETRY=false
+fi
+
 set -Eeuo pipefail
 
 trap notify ERR
@@ -116,6 +122,7 @@ done
 # install curl for telemetry
 apt-get -qqy install -y curl 
 
+if $IS_ENABLED_TELEMETRY; then
 curl -s -X POST https://telemetry.erxes.io/events/ \
   -H 'content-type: application/json' \
   -d "$(cat <<EOF
@@ -127,6 +134,7 @@ curl -s -X POST https://telemetry.erxes.io/events/ \
       }]
 EOF
       )"
+fi
 
 # Dependencies
 echo "Installing Initial Dependencies"
@@ -320,7 +328,10 @@ nginx -t
 # reload nginx service
 systemctl reload nginx
 
-su $username -c "$sourceCommand && cd $erxes_root_dir/erxes/build/api && node ./commands/trackTelemetry \"success\""
+if $IS_ENABLED_TELEMETRY; then
+  su $username -c "$sourceCommand && cd $erxes_root_dir/erxes/build/api && node ./commands/trackTelemetry \"success\""
+fi
+
 su $username -c "$sourceCommand && cd $erxes_root_dir/erxes/build/api && node ./commands/loadInitialData"
 su $username -c "$sourceCommand && cd $erxes_root_dir/erxes/build/api && node ./commands/loadInitialData growthHack"
 
