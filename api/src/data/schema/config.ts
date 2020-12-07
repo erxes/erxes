@@ -46,7 +46,7 @@ export const types = `
 
 export const queries = `
   configs: [Config]
-  configsGetVersion: JSON
+  configsGetVersion(releaseNotes: Boolean): JSON
   configsStatus: ProjectStatistics
   configsGetEnv: ENV
   configsConstants: JSON

@@ -13,12 +13,14 @@ const configQueries = {
     return Configs.find({});
   },
 
-  async configsGetVersion(_root, _args) {
+  async configsGetVersion(_root, { releaseNotes }) {
     const result = {
       version: '-',
       isUsingRedis: Boolean(process.env.REDIS_HOST),
       isUsingRabbitMQ: Boolean(process.env.RABBITMQ_HOST),
-      isUsingElkSyncer: Boolean(process.env.ELK_SYNCER !== 'false')
+      isUsingElkSyncer: Boolean(process.env.ELK_SYNCER !== 'false'),
+      isLatest: false,
+      releaseInfo: {}
     };
 
     try {
@@ -31,6 +33,17 @@ const configQueries = {
       result.version = erxesVersion.packageVersion || '-';
     } catch (e) {
       result.version = '-';
+    }
+
+    const response = await sendRequest({
+      url: 'https://api.github.com/repos/erxes/erxes/releases/latest',
+      method: 'GET'
+    });
+
+    result.isLatest = result.version === response.tag_name;
+
+    if (releaseNotes) {
+      result.releaseInfo = response;
     }
 
     return result;

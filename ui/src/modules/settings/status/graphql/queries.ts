@@ -56,8 +56,8 @@ const configsStatus = `
 `;
 
 const configsGetVersion = `
-  query configsGetVersion {
-    configsGetVersion
+  query configsGetVersion($releaseNotes: Boolean) {
+    configsGetVersion(releaseNotes: $releaseNotes)
   }
 `;
 
