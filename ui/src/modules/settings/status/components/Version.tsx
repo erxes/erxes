@@ -8,19 +8,19 @@ type Props = {
 };
 
 const VersionContainer = styledTS<{ isLatest?: boolean }>(styled.div)`
-  position: fixed;
-  bottom: 0px;
   padding: 0px 14px;
-  z-index: 15;
   font-size: 11px;
+  font-weight: bold;
   text-align: center;
+
   color: ${props =>
-    props.isLatest ? colors.colorCoreGreen : colors.colorCoreYellow};
+    props.isLatest ? colors.colorCoreGreen : colors.colorCoreRed};
+
   cursor: pointer;
 
   a {
     color: ${props =>
-      props.isLatest ? colors.colorCoreGreen : colors.colorCoreYellow};
+      props.isLatest ? colors.colorCoreGreen : colors.colorCoreRed};
   }
 `;
 

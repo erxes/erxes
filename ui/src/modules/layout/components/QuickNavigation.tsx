@@ -10,6 +10,7 @@ import { lighten, rgba } from 'modules/common/styles/color';
 import { __, can } from 'modules/common/utils';
 import Widget from 'modules/notifications/containers/Widget';
 import NotificationSettings from 'modules/settings/profile/containers/NotificationSettings';
+import Version from 'modules/settings/status/containers/Version';
 import React from 'react';
 import Dropdown from 'react-bootstrap/Dropdown';
 import { Link, NavLink } from 'react-router-dom';
@@ -143,6 +144,10 @@ const QuickNavigation = ({
 
   return (
     <nav id={'SettingsNav'}>
+      <Round>
+        <Version />
+      </Round>
+
       {brandsCombo}
 
       {can('showCalendars', currentUser) && (
