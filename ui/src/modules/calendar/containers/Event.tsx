@@ -16,6 +16,7 @@ type Props = {
   startTime: Date;
   endTime: Date;
   calendarIds: string[];
+  onDayClick: (date) => void;
 };
 
 type FinalProps = {

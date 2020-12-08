@@ -33,6 +33,7 @@ import {
   getDaysInMonth,
   isCurrentDate,
   isSameMonth,
+  milliseconds,
   timeConvert
 } from '../utils';
 import Detail from './Detail';
@@ -45,6 +46,7 @@ type Props = {
   endTime: Date;
   queryParams: any;
   remove: (_id: string, accountId: string) => void;
+  onDayClick: (date) => void;
 };
 
 type State = {
@@ -94,7 +96,9 @@ class Event extends React.Component<Props, State> {
   }
 
   componentWillUnmount() {
-    window.removeEventListener('resize', this.handleResize);
+    if (this.props.type === TYPES.MONTH) {
+      window.removeEventListener('resize', this.handleResize);
+    }
   }
 
   getElapsedHours = () => {
@@ -151,7 +155,38 @@ class Event extends React.Component<Props, State> {
   };
 
   renderEvents = (events: IEvent[], showHour: boolean) => {
+    let counts;
+    let order = 0;
+    const calculate = (date: Date) => {
+      return date.getHours() + date.getMinutes() / 60;
+    };
+
+    const calculateStartTime = startTime => {
+      const st = milliseconds(startTime);
+      const sd = new Date(st);
+      const start = calculate(sd);
+      return Math.trunc(start);
+    };
+
+    if (showHour) {
+      counts = {};
+
+      events.forEach(event => {
+        const el = calculateStartTime(event.when.start_time);
+        counts[el] = (counts[el] || 0) + 1;
+      });
+
+      console.log(counts);
+    }
+
     return events.map((event, index) => {
+      const el = calculateStartTime(event.when.start_time);
+      if (counts && counts[el] === 1) {
+        order = 0;
+      } else {
+        order++;
+      }
+
       return (
         <Detail
           key={event._id}
@@ -159,23 +194,21 @@ class Event extends React.Component<Props, State> {
           showHour={showHour}
           editEvent={this.editEvent}
           deleteEvent={this.deleteEvent}
-          count={events.length}
-          order={index}
+          count={counts ? counts[el] : 1}
+          order={order}
         />
       );
     });
   };
 
   addEventBtn = (day: Date) => {
-    return (
-      <AddEventBtn onClick={this.onToggleModal.bind(this, day)}>
-        <Icon icon="plus-circle" />
-      </AddEventBtn>
-    );
+    return <AddEventBtn onClick={this.onToggleModal.bind(this, day)} />;
   };
 
   onClosePopover = () => {
-    this.overlayTrigger.hide();
+    if (this.overlayTrigger) {
+      this.overlayTrigger.hide();
+    }
   };
 
   seeAllEvents = (events, day) => {
@@ -230,10 +263,11 @@ class Event extends React.Component<Props, State> {
         <Day
           isSelectedDate={isCurrentDate(day, this.props.currentDate)}
           isSameMonth={isSameMonth(day, this.props.currentDate)}
-          onClick={this.onToggleModal.bind(this, day)}
+          onClick={this.props.onDayClick.bind(this, day)}
         >
           {day.getDate()}
         </Day>
+        {this.addEventBtn(day)}
         {this.renderEvents(filteredEvents, false)}
         {this.seeAllEvents(events, day)}
       </>
@@ -265,6 +299,7 @@ class Event extends React.Component<Props, State> {
           <WeekCol>
             {renderRows()}
             {this.renderEvents(events, true)}
+
             {isCurrentDate(currentDate, new Date()) && (
               <Indicator hour={this.getElapsedHours()} />
             )}
