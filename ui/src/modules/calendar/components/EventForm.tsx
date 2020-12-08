@@ -24,16 +24,19 @@ type Props = {
   selectedDate?: Date;
   event?: IEvent;
   account?: IAccount;
+};
+
+type FinalProps = {
   accounts: IAccount[];
   currentUser?: IUser;
-};
+} & Props;
 
 type State = {
   calendar: INylasCalendar;
   accountId?: string;
 };
 
-class EditForm extends React.Component<Props, State> {
+class EditForm extends React.Component<FinalProps, State> {
   constructor(props) {
     super(props);
     const { currentUser, accounts } = props;
