@@ -36,7 +36,7 @@ const Version = (props: Props) => {
       <br />
       <span>
         {info.isUsingRedis && info.isUsingRabbitMQ && info.isUsingElkSyncer
-          ? 'Full'
+          ? 'Enterprise'
           : 'Lite'}
       </span>
     </VersionContainer>

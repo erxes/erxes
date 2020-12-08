@@ -42,14 +42,15 @@ describe('configQueries', () => {
     const qry = `
       query configsStatus {
         configsStatus {
-          erxes {
-            packageVersion
-          }
           erxesApi {
-            packageVersion
+            os {
+              type
+            }
           }
           erxesIntegration {
-            packageVersion
+            os {
+              type
+            }
           }
         }
       }
@@ -57,17 +58,11 @@ describe('configQueries', () => {
 
     let config = await graphqlRequest(qry, 'configsStatus');
 
-    expect(config.erxes.packageVersion).toBe('-');
-    expect(config.erxesIntegration.packageVersion).toBeDefined();
-
     const mock = sinon.stub(utils, 'sendRequest').callsFake(() => {
       return Promise.resolve({ packageVersion: '-' });
     });
 
     config = await graphqlRequest(qry, 'configsStatus');
-
-    expect(config.erxes.packageVersion).toBe('-');
-    expect(config.erxesIntegration.packageVersion).toBe('-');
 
     mock.restore();
   });

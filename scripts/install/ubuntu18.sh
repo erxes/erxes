@@ -20,11 +20,11 @@ MEMORY_INFO=$(awk '/MemTotal/ {print $2}' /proc/meminfo)
 TOTAL_MEMERY_SIZE=$(($MEMORY_INFO/1024))
 
 IS_BIG_SERVER=false
-ELK_SYNCER=false
+ELK_SYNCER="false"
 
 if [ $CPU_COUNT -ge 4 ] && [ $TOTAL_MEMERY_SIZE -ge 7900 ]; then
         IS_BIG_SERVER=true
-        ELK_SYNCER=true
+        ELK_SYNCER="true"
 fi
 
 set -Eeuo pipefail
@@ -155,7 +155,7 @@ echo "Installing Initial Dependencies"
 apt-get -qqy update
 apt-get -qqy install -y wget gnupg apt-transport-https software-properties-common python3-pip ufw
 
-if ELK_SYNCER; then
+if $ELK_SYNCER; then
   pip3 install mongo-connector==3.1.1
   pip3 install elasticsearch==7.5.1
   pip3 install elastic2-doc-manager==1.0.0
