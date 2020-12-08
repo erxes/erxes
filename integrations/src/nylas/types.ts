@@ -217,6 +217,8 @@ export interface IEventDoc {
   readonly: boolean;
   participants: IParticipants[];
   notifyParticipants: boolean;
+  rrule?: string;
+  timezone?: string;
 }
 
 export interface INylasIntegrationData {

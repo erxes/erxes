@@ -444,7 +444,19 @@ const SeeAll = styled.div`
   }
 `;
 
+const CalendarForm = styled.div`
+  ul {
+    list-style: none;
+    padding-left: 20px;
+
+    ul li {
+      cursor: pointer;
+    }
+  }
+`;
+
 export {
+  CalendarForm,
   CalendarWrapper,
   Grid,
   Header,

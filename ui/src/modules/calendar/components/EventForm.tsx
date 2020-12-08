@@ -1,14 +1,18 @@
 import dayjs from 'dayjs';
+import { IUser } from 'modules/auth/types';
+import DropdownToggle from 'modules/common/components/DropdownToggle';
 import FormControl from 'modules/common/components/form/Control';
 import Form from 'modules/common/components/form/Form';
 import FormGroup from 'modules/common/components/form/Group';
 import ControlLabel from 'modules/common/components/form/Label';
+import Icon from 'modules/common/components/Icon';
 import { ModalFooter } from 'modules/common/styles/main';
 import { IButtonMutateProps, IFormProps } from 'modules/common/types';
 import { __ } from 'modules/common/utils';
-import SelectTeamMembers from 'modules/settings/team/containers/SelectTeamMembers';
 import React from 'react';
+import Dropdown from 'react-bootstrap/Dropdown';
 import Modal from 'react-bootstrap/Modal';
+import { CalendarForm } from '../styles';
 import { IAccount, IEvent, INylasCalendar } from '../types';
 import { milliseconds } from '../utils';
 import { CalendarConsumer } from './Wrapper';
@@ -20,38 +24,60 @@ type Props = {
   selectedDate?: Date;
   event?: IEvent;
   account?: IAccount;
+  accounts: IAccount[];
+  currentUser?: IUser;
 };
 
 type State = {
-  calendars: INylasCalendar[];
+  calendar: INylasCalendar;
   accountId?: string;
-  selectedMemberIds: string[];
 };
 
 class EditForm extends React.Component<Props, State> {
   constructor(props) {
     super(props);
+    const { currentUser, accounts } = props;
+    let account = props.account;
+
+    if (!account && currentUser) {
+      account =
+        accounts.find(cal => {
+          return cal.isPrimary && cal.userId === currentUser._id;
+        }) || accounts[0];
+    }
 
     this.state = {
-      calendars: [],
-      selectedMemberIds: []
+      accountId: account && account.accountId,
+      calendar: account && account.calendars[0]
     };
 
     this.hideModal = this.hideModal.bind(this);
   }
 
-  onChangeMembers = items => {
-    this.setState({ selectedMemberIds: items });
-  };
+  componentWillReceiveProps(nextProps) {
+    if (nextProps.account !== this.props.account) {
+      const { accounts, currentUser, event } = nextProps;
 
-  renderHeader() {
-    return (
-      <Modal.Header closeButton={true}>
-        <Modal.Title>
-          {__(`${this.props.event ? 'Edit' : 'Create'}  Event`)}
-        </Modal.Title>
-      </Modal.Header>
-    );
+      let account = nextProps.account;
+
+      if (!account && currentUser) {
+        account =
+          accounts.find(cal => {
+            return cal.isPrimary && cal.userId === currentUser._id;
+          }) || accounts[0];
+      }
+
+      if (account.accountId) {
+        this.setState({
+          accountId: account.accountId,
+          calendar: !event
+            ? account.calendars[0]
+            : account.calendars.find(
+                cal => cal.providerCalendarId === event.providerCalendarId
+              )
+        });
+      }
+    }
   }
 
   dateDefaulValue = (start?: boolean) => {
@@ -66,91 +92,78 @@ class EditForm extends React.Component<Props, State> {
     return day.format('YYYY-MM-DD HH:mm');
   };
 
-  onChangeAccount = (accounts, e: React.FormEvent<HTMLElement>) => {
-    const selectedId = (e.target as HTMLInputElement).value;
-
-    this.setCalendars(accounts, selectedId);
-  };
-
-  setCalendars = (accounts, selectedId) => {
-    const account = accounts.find(acc => acc._id === selectedId);
-
-    this.setState({
-      calendars: account.calendars,
-      accountId: account.accountId
-    });
+  onChangeCalendar = (calendar, accountId) => {
+    this.setState({ calendar, accountId });
   };
 
   hideModal() {
-    this.setState({ selectedMemberIds: [], calendars: [] });
+    this.setState({ accountId: '' });
     this.props.onHideModal();
+  }
+
+  renderHeader() {
+    return (
+      <Modal.Header closeButton={true}>
+        <Modal.Title>
+          {__(`${this.props.event ? 'Edit' : 'Create'}  Event`)}
+        </Modal.Title>
+      </Modal.Header>
+    );
   }
 
   renderContent = (formProps: IFormProps) => {
     const { values, isSubmitted } = formProps;
-    const { renderButton, event, account } = this.props;
-    const { selectedMemberIds } = this.state;
+    const { renderButton, event, accounts } = this.props;
+    const { calendar } = this.state;
 
     const renderAccounts = () => {
       return (
-        <CalendarConsumer>
-          {({ accounts, currentUser }) => {
-            let defaultValue = account && account._id;
-
-            if (!defaultValue && currentUser) {
-              const acc = accounts.find(cal => {
-                return cal.isPrimary && cal.userId === currentUser._id;
-              });
-
-              defaultValue = acc && acc._id;
-            }
-
-            return (
-              <FormGroup>
-                <ControlLabel>Account</ControlLabel>
-
-                <FormControl
-                  componentClass="select"
-                  onChange={this.onChangeAccount.bind(this, accounts)}
-                  defaultValue={defaultValue}
-                >
-                  <option>Select account</option>
-                  {accounts.map(acc => (
-                    <option key={acc._id} value={acc._id}>
-                      {acc.name}
-                    </option>
-                  ))}
-                </FormControl>
-              </FormGroup>
-            );
-          }}
-        </CalendarConsumer>
+        <Dropdown>
+          <Dropdown.Toggle as={DropdownToggle} id="dropdown-board">
+            {calendar ? calendar.name : 'Select calendar'}
+            <Icon icon="angle-down" />
+          </Dropdown.Toggle>
+          <Dropdown.Menu>
+            <ul>
+              {accounts.map(acc => {
+                return (
+                  <li key={acc._id}>
+                    {acc.name}
+                    <ul>
+                      {acc.calendars.map(cal => {
+                        return (
+                          <li
+                            key={cal._id}
+                            onClick={this.onChangeCalendar.bind(
+                              this,
+                              cal,
+                              acc.accountId
+                            )}
+                          >
+                            <Icon
+                              icon={'circle'}
+                              style={{
+                                color: cal.color || (acc && acc.color)
+                              }}
+                            />{' '}
+                            &nbsp;
+                            {cal.name}
+                          </li>
+                        );
+                      })}
+                    </ul>
+                  </li>
+                );
+              })}
+            </ul>
+          </Dropdown.Menu>
+        </Dropdown>
       );
     };
 
     return (
-      <>
+      <CalendarForm>
         {renderAccounts()}
-
-        <FormGroup>
-          <ControlLabel required={true}>Calendar</ControlLabel>
-
-          <FormControl
-            {...formProps}
-            name="calendarId"
-            componentClass="select"
-            defaultValue={event && event.providerCalendarId}
-          >
-            <option>Select calendar</option>
-            {((account && account.calendars) || this.state.calendars)
-              .filter(c => !c.readOnly)
-              .map(calendar => (
-                <option key={calendar._id} value={calendar.providerCalendarId}>
-                  {calendar.name}
-                </option>
-              ))}
-          </FormControl>
-        </FormGroup>
 
         <FormGroup>
           <ControlLabel required={true}>Title</ControlLabel>
@@ -173,18 +186,6 @@ class EditForm extends React.Component<Props, State> {
             componentClass="textarea"
             rows={5}
             defaultValue={event && event.description}
-          />
-        </FormGroup>
-
-        <FormGroup>
-          <ControlLabel>Members</ControlLabel>
-
-          <SelectTeamMembers
-            {...formProps}
-            label="Choose members"
-            name="memberIds"
-            value={selectedMemberIds}
-            onSelect={this.onChangeMembers}
           />
         </FormGroup>
 
@@ -214,14 +215,14 @@ class EditForm extends React.Component<Props, State> {
           {renderButton({
             values: {
               ...values,
-              accountId: this.state.accountId || (account && account.accountId),
-              memberIds: selectedMemberIds
+              accountId: this.state.accountId,
+              calendarId: calendar.providerCalendarId
             },
             isSubmitted,
             callback: this.hideModal
           })}
         </ModalFooter>
-      </>
+      </CalendarForm>
     );
   };
 
@@ -242,4 +243,14 @@ class EditForm extends React.Component<Props, State> {
   }
 }
 
-export default EditForm;
+const WithConsumer = (props: Props) => {
+  return (
+    <CalendarConsumer>
+      {({ currentUser, accounts }) => (
+        <EditForm {...props} currentUser={currentUser} accounts={accounts} />
+      )}
+    </CalendarConsumer>
+  );
+};
+
+export default WithConsumer;

@@ -251,6 +251,18 @@ export const enableOrDisableAccount = async (
   });
 };
 
+/**
+ * Revoke nylas token
+ * @param {String} accountId
+ */
+export const revokeTokenAccount = async (accountId: string) => {
+  debugNylas(`account with uid: ${accountId}`);
+
+  await nylasInstance('accounts', 'find', accountId).then(account =>
+    account.revokeAll()
+  );
+};
+
 export const checkEmailDuplication = async (
   email: string,
   kind: string
@@ -307,11 +319,15 @@ const getCalenderOrEventList = async (
     };
   };
 
+  if (type === 'events') {
+    options.expand_recurring = true;
+  }
+
   if (type === 'events' && !filter.date) {
     const { month, year } = extractDate(new Date());
 
     options.starts_after = new Date(year, month, 1).getTime() / 1000;
-    options.ends_before = new Date(year, month + 3, 0).getTime() / 1000;
+    options.ends_before = new Date(year, month + 1, 0).getTime() / 1000;
   }
 
   try {
@@ -389,6 +405,26 @@ const deleteCalendarEvent = async (eventId: string, accessToken: string) => {
   }
 };
 
+const generateEventParams = (doc: IEventDoc) => {
+  const start = new Date(doc.start).getTime() / 1000;
+  const end = new Date(doc.end).getTime() / 1000;
+
+  const params = { when: { start_time: start, end_time: end }, start, end };
+  const { rrule, timezone } = doc;
+
+  if (!rrule) {
+    return params;
+  }
+
+  return {
+    ...params,
+    recurrence: {
+      rrule: [rrule],
+      timezone
+    }
+  };
+};
+
 const createEvent = async (
   doc: IEventDoc,
   accessToken: string
@@ -400,8 +436,17 @@ const createEvent = async (
       method: 'build'
     });
 
-    const start = new Date(doc.start).getTime() / 1000;
-    const end = new Date(doc.end).getTime() / 1000;
+    const {
+      start,
+      end,
+      when,
+      recurrence
+    }: {
+      start: number;
+      end: number;
+      when: { [key: string]: number };
+      recurrence?: any;
+    } = generateEventParams(doc);
 
     event.title = doc.title;
     event.location = doc.location;
@@ -409,9 +454,13 @@ const createEvent = async (
     event.busy = doc.busy;
     event.calendarId = doc.calendarId;
     event.participants = doc.participants;
-    event.when = { start_time: start, end_time: end };
+    event.when = when;
     event.start = start;
     event.end = end;
+
+    if (recurrence) {
+      event.recurrence = recurrence;
+    }
 
     debugNylas(`Successfully created the calendar event`);
 
@@ -429,6 +478,8 @@ const updateEvent = async (
   accessToken: string
 ): Promise<IEvent> => {
   try {
+    const params = generateEventParams(doc);
+
     const response = await sendRequest({
       url: `${NYLAS_API_URL}/events/${eventId}`,
       method: 'PUT',
@@ -449,7 +500,9 @@ const updateEvent = async (
         read_only: doc.readonly,
         participants: doc.participants,
         description: doc.description,
-        when: doc.when
+        when: params.when || doc.when,
+        start: params.start,
+        end: params.end
       }
     });
 

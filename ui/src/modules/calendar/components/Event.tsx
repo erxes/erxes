@@ -112,7 +112,7 @@ class Event extends React.Component<Props, State> {
 
   editEvent = (event: IEvent, account?: IAccount) => {
     this.setState({ event, account, isPopupVisible: true });
-    this.onClosePopover();
+    // this.onClosePopover();
   };
 
   deleteEvent = (_id: string, accountId: string) => {
