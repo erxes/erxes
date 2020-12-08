@@ -18,7 +18,8 @@ module.exports = async function() {
     await fse.copy(filePath('build/api/private'), filePath('private'));
 
     log('Dumping database ...');
-    await execCommand('mongodump');
+    const configsJson = await fse.readJSON(filePath('configs.json'));
+    await execCommand(`mongodump --uri ${configsJson.MONGO_URL}`);
 
     log('Removing old build ...');
     await fse.remove(filePath('build'));
