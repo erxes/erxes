@@ -22,7 +22,7 @@ TOTAL_MEMERY_SIZE=$(($MEMORY_INFO/1024))
 IS_BIG_SERVER=false
 ELK_SYNCER="false"
 
-if [ $CPU_COUNT -ge 4 ] && [ $TOTAL_MEMERY_SIZE -ge 7900 ]; then
+if [ $CPU_COUNT -ge 8 ] && [ $TOTAL_MEMERY_SIZE -ge 16000 ]; then
         IS_BIG_SERVER=true
         ELK_SYNCER="true"
 fi
