@@ -20,6 +20,7 @@ let projectName;
 program
   .version(packageJson.version)
   .arguments('<directory>')
+  .option('--quickStart', 'Not going to ask a lot of configurations')
   .option('--domain <domain>', 'Domain')
   .option('--mongoUrl <mongoUrl>', 'Mongo url')
   .option('--redisHost <redisHost>', 'Redis host')
@@ -68,6 +69,11 @@ const askQuestion = question => {
 };
 
 const main = (async function() {
+  if (program.quickStart) {
+    await generate();
+    return readline.close();
+  }
+
   if (!domain) {
     const inputDomain = await askQuestion(
       'Please enter your domain (localhost): '

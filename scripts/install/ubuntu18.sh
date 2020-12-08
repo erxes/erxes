@@ -15,6 +15,16 @@ if [[ $1 == 'disable-telemetry' ]]; then
   IS_ENABLED_TELEMETRY=false
 fi
 
+CPU_COUNT=`nproc --all`
+MEMORY_INFO=$(awk '/MemTotal/ {print $2}' /proc/meminfo)
+TOTAL_MEMERY_SIZE=$(($MEMORY_INFO/1024))
+
+IS_BIG_SERVER=false
+
+if [ $CPU_COUNT -ge 4 ] && [ $TOTAL_MEMERY_SIZE -ge 7900 ]; then
+        IS_BIG_SERVER=true
+fi
+
 set -Eeuo pipefail
 
 trap notify ERR
@@ -22,6 +32,8 @@ trap notify ERR
 NODE_VERSION=v12.19.0
 
 ELASTICSEARCH_URL="http://localhost:9200"
+RABBITMQ_HOST=""
+REDIS_HOST=""
 
 OS_NAME=notset
 DISTRO=notset
@@ -141,21 +153,7 @@ echo "Installing Initial Dependencies"
 apt-get -qqy update
 apt-get -qqy install -y wget gnupg apt-transport-https software-properties-common python3-pip ufw
 
-#
-# Ask ES option
-#
-esMessage="Would you like to install ElasticSearch on your server or use our free ElasticSearch service https://elasticsearch.erxes.io ?"
-while true; do
-  esChoice=$(whiptail --radiolist --nocancel --title "ElasticSearch" "$esMessage" 20 50 2 -- 1 "Install ElasticSearch" "ON" 2 "Use elasticsearch.erxes.io" "OFF" 3>&1 1>&2 2>&3)
-  if [ -z "$esChoice" ]; then
-      continue
-  else
-      break
-  fi
-done
-
-if [ $esChoice -eq 1 ];
-then
+function installEs () {
   echo "ElasticSearch will be installed"
   # Java , elasticsearch dependency
   echo "Installing Java"
@@ -172,30 +170,62 @@ then
   systemctl enable elasticsearch
   systemctl start elasticsearch
   echo "Installed Elasticsearch successfully"
+}
+
+if $IS_BIG_SERVER;
+then
+  installEs
 else
-  ELASTICSEARCH_URL="https://elasticsearch.erxes.io"
-  echo "Using elasticsearch.erxes.io"
+  #
+  # Ask ES option
+  #
+  esMessage="Would you like to install ElasticSearch on your server or use our free ElasticSearch service https://elasticsearch.erxes.io ?"
+  while true; do
+    esChoice=$(whiptail --radiolist --nocancel --title "ElasticSearch" "$esMessage" 20 50 2 -- 1 "Install ElasticSearch" "ON" 2 "Use elasticsearch.erxes.io" "OFF" 3>&1 1>&2 2>&3)
+    if [ -z "$esChoice" ]; then
+        continue
+    else
+        break
+    fi
+  done
+
+  if [ $esChoice -eq 1 ];
+  then
+    installEs
+  else
+    ELASTICSEARCH_URL="https://elasticsearch.erxes.io"
+    echo "Using elasticsearch.erxes.io"
+  fi
 fi
 
-read -p "Would you like to install Redis on your server (y/n)?" choice
-case "$choice" in 
-  y|Y )
-    echo "Redis will be installed"
-    echo "Installing Redis"
-    apt -qqy install -y redis-server
-    systemctl enable redis-server
-    systemctl start redis-server
-    echo "Installed Redis successfully"
-    ;;
+function installRedis () {
+  REDIS_HOST="localhost"
+  echo "Redis will be installed"
+  echo "Installing Redis"
+  apt -qqy install -y redis-server
+  systemctl enable redis-server
+  systemctl start redis-server
+  echo "Installed Redis successfully"
+}
 
-  n|N ) echo "Using runtime variable for in memory storage";;
-  * ) echo "invalid";;
-esac
+if $IS_BIG_SERVER;
+then
+  installRedis
+else
+  read -p "Would you like to install Redis on your server (y/n)?" choice
+  case "$choice" in 
+    y|Y )
+      installRedis
+      ;;
 
-read -p "Would you like to install RabbitMQ on your server (y/n)?" choice
-case "$choice" in 
-  y|Y )
-  echo "Installing RabbitMQ"
+    n|N ) echo "Using runtime variable for in memory storage";;
+    * ) echo "invalid";;
+  esac
+fi
+
+function installRabbitMQ () {
+RABBITMQ_HOST="amqp://localhost"
+echo "Installing RabbitMQ"
 curl -fsSL https://github.com/rabbitmq/signing-keys/releases/download/2.0/rabbitmq-release-signing-key.asc | apt-key add -
 tee /etc/apt/sources.list.d/bintray.rabbitmq.list <<EOF
 ## Installs the latest Erlang 22.x release.
@@ -212,12 +242,22 @@ systemctl enable rabbitmq-server
 rabbitmq-plugins enable rabbitmq_management
 systemctl start rabbitmq-server
 echo "Installed RabbitMQ successfully"
+}
 
-    ;;
+if $IS_BIG_SERVER;
+then
+  installRabbitMQ
+else
+  read -p "Would you like to install RabbitMQ on your server (y/n)?" choice
+  case "$choice" in 
+    y|Y )
+    installRabbitMQ
+      ;;
 
-  n|N ) echo "Using http for service communications";;
-  * ) echo "invalid";;
-esac
+    n|N ) echo "Using http for service communications";;
+    * ) echo "invalid";;
+  esac
+fi
 
 # MongoDB
 echo "Installing MongoDB"
