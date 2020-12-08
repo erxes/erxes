@@ -45,7 +45,7 @@ let redisHost = program.redisHost || '';
 let redisPort = 6379;
 let redisPassword = '';
 let elasticsearchUrl = program.elasticsearchUrl;
-let elkSyncer = program.elkSyncer | false;
+let elkSyncer = program.elkSyncer || false;
 let useDashboard = false;
 
 const stopProcess = message => {
