@@ -9,6 +9,24 @@
 # 
 # * we expect you have configured your domain DNS settings already as per the instructions.
 
+IS_ENABLED_TELEMETRY=true
+
+if [[ $1 == 'disable-telemetry' ]]; then
+  IS_ENABLED_TELEMETRY=false
+fi
+
+CPU_COUNT=`nproc --all`
+MEMORY_INFO=$(awk '/MemTotal/ {print $2}' /proc/meminfo)
+TOTAL_MEMERY_SIZE=$(($MEMORY_INFO/1024))
+
+IS_BIG_SERVER=false
+ELK_SYNCER="false"
+
+if [ $CPU_COUNT -ge 8 ] && [ $TOTAL_MEMERY_SIZE -ge 16000 ]; then
+        IS_BIG_SERVER=true
+        ELK_SYNCER="true"
+fi
+
 set -Eeuo pipefail
 
 trap notify ERR
@@ -16,6 +34,8 @@ trap notify ERR
 NODE_VERSION=v12.19.0
 
 ELASTICSEARCH_URL="http://localhost:9200"
+RABBITMQ_HOST=""
+REDIS_HOST=""
 
 OS_NAME=notset
 DISTRO=notset
@@ -116,6 +136,7 @@ done
 # install curl for telemetry
 apt-get -qqy install -y curl 
 
+if $IS_ENABLED_TELEMETRY; then
 curl -s -X POST https://telemetry.erxes.io/events/ \
   -H 'content-type: application/json' \
   -d "$(cat <<EOF
@@ -127,22 +148,23 @@ curl -s -X POST https://telemetry.erxes.io/events/ \
       }]
 EOF
       )"
+fi
 
-#
-# Ask ES option
-#
-esMessage="Would you like to install ElasticSearch on your server or use our free ElasticSearch service https://elasticsearch.erxes.io ?"
-while true; do
-  esChoice=$(whiptail --radiolist --nocancel --title "ElasticSearch" "$esMessage" 20 50 2 -- 1 "Install ElasticSearch" "ON" 2 "Use elasticsearch.erxes.io" "OFF" 3>&1 1>&2 2>&3)
-  if [ -z "$esChoice" ]; then
-      continue
-  else
-      break
-  fi
-done
+# Dependencies
+echo "Installing Initial Dependencies"
+apt-get -qqy update
+apt-get -qqy install -y wget gnupg apt-transport-https software-properties-common python3-pip ufw
 
-if [ $esChoice -eq 1 ];
-then
+if $ELK_SYNCER; then
+  pip3 install mongo-connector==3.1.1
+  pip3 install elasticsearch==7.5.1
+  pip3 install elastic2-doc-manager==1.0.0
+  pip3 install python-dotenv==0.11.0
+  pip3 install certifi==0.0.8
+  pip3 install pymongo==3.11.0
+fi
+
+function installEs () {
   echo "ElasticSearch will be installed"
   # Java , elasticsearch dependency
   echo "Installing Java"
@@ -159,15 +181,94 @@ then
   systemctl enable elasticsearch
   systemctl start elasticsearch
   echo "Installed Elasticsearch successfully"
+}
+
+if $IS_BIG_SERVER;
+then
+  installEs
 else
-  ELASTICSEARCH_URL="https://elasticsearch.erxes.io"
-  echo "Using elasticsearch.erxes.io"
+  #
+  # Ask ES option
+  #
+  esMessage="Would you like to install ElasticSearch on your server or use our free ElasticSearch service https://elasticsearch.erxes.io ?"
+  while true; do
+    esChoice=$(whiptail --radiolist --nocancel --title "ElasticSearch" "$esMessage" 20 50 2 -- 1 "Install ElasticSearch" "ON" 2 "Use elasticsearch.erxes.io" "OFF" 3>&1 1>&2 2>&3)
+    if [ -z "$esChoice" ]; then
+        continue
+    else
+        break
+    fi
+  done
+
+  if [ $esChoice -eq 1 ];
+  then
+    installEs
+  else
+    ELASTICSEARCH_URL="https://elasticsearch.erxes.io"
+    echo "Using elasticsearch.erxes.io"
+  fi
 fi
 
-# Dependencies
-echo "Installing Initial Dependencies"
+function installRedis () {
+  REDIS_HOST="localhost"
+  echo "Redis will be installed"
+  echo "Installing Redis"
+  apt -qqy install -y redis-server
+  systemctl enable redis-server
+  systemctl start redis-server
+  echo "Installed Redis successfully"
+}
+
+if $IS_BIG_SERVER;
+then
+  installRedis
+else
+  read -p "Would you like to install Redis on your server (y/n)?" choice
+  case "$choice" in 
+    y|Y )
+      installRedis
+      ;;
+
+    n|N ) echo "Using runtime variable for in memory storage";;
+    * ) echo "invalid";;
+  esac
+fi
+
+function installRabbitMQ () {
+RABBITMQ_HOST="amqp://localhost"
+echo "Installing RabbitMQ"
+curl -fsSL https://github.com/rabbitmq/signing-keys/releases/download/2.0/rabbitmq-release-signing-key.asc | apt-key add -
+tee /etc/apt/sources.list.d/bintray.rabbitmq.list <<EOF
+## Installs the latest Erlang 22.x release.
+## Change component to "erlang-21.x" to install the latest 21.x version.
+## "bionic" as distribution name should work for any later Ubuntu or Debian release.
+## See the release to distribution mapping table in RabbitMQ doc guides to learn more.
+deb https://dl.bintray.com/rabbitmq-erlang/debian bionic erlang
+deb https://dl.bintray.com/rabbitmq/debian bionic main
+EOF
+
 apt-get -qqy update
-apt-get -qqy install -y wget gnupg apt-transport-https software-properties-common python3-pip ufw
+apt-get -qqy install rabbitmq-server -y --fix-missing
+systemctl enable rabbitmq-server
+rabbitmq-plugins enable rabbitmq_management
+systemctl start rabbitmq-server
+echo "Installed RabbitMQ successfully"
+}
+
+if $IS_BIG_SERVER;
+then
+  installRabbitMQ
+else
+  read -p "Would you like to install RabbitMQ on your server (y/n)?" choice
+  case "$choice" in 
+    y|Y )
+    installRabbitMQ
+      ;;
+
+    n|N ) echo "Using http for service communications";;
+    * ) echo "invalid";;
+  esac
+fi
 
 # MongoDB
 echo "Installing MongoDB"
@@ -268,7 +369,7 @@ systemctl enable pm2-$username
 MONGO_URL="mongodb://erxes:$MONGO_PASS@localhost/erxes?authSource=admin\&replicaSet=rs0"
 
 sourceCommand="source ~/.nvm/nvm.sh && nvm use $NODE_VERSION && export MONGO_URL=$MONGO_URL"
-su $username -c "$sourceCommand && yarn create erxes-app erxes --quickStart --domain=$erxes_domain --mongoUrl=\"$MONGO_URL\" --elasticsearchUrl=$ELASTICSEARCH_URL"
+su $username -c "$sourceCommand && yarn create erxes-app erxes --quickStart --domain=$erxes_domain --mongoUrl=\"$MONGO_URL\" --elasticsearchUrl=$ELASTICSEARCH_URL --redisHost=$REDIS_HOST --rabbitmqHost=$RABBITMQ_HOST --elkSyncer=$ELK_SYNCER"
 cd erxes
 su $username -c "$sourceCommand && yarn start"
 cp nginx.conf /etc/nginx/sites-enabled/erxes.conf
@@ -278,7 +379,10 @@ nginx -t
 # reload nginx service
 systemctl reload nginx
 
-su $username -c "$sourceCommand && cd $erxes_root_dir/erxes/build/api && node ./commands/trackTelemetry \"success\""
+if $IS_ENABLED_TELEMETRY; then
+  su $username -c "$sourceCommand && cd $erxes_root_dir/erxes/build/api && node ./commands/trackTelemetry \"success\""
+fi
+
 su $username -c "$sourceCommand && cd $erxes_root_dir/erxes/build/api && node ./commands/loadInitialData"
 su $username -c "$sourceCommand && cd $erxes_root_dir/erxes/build/api && node ./commands/loadInitialData growthHack"
 

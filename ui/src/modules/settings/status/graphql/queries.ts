@@ -24,13 +24,7 @@ const mongoInfo = `
 const configsStatus = `
   query configsStatus {
     configsStatus {
-      erxes {
-        packageVersion
-      }
-
       erxesApi {
-        packageVersion
-
         os {
           ${osInfo}
         }
@@ -45,8 +39,6 @@ const configsStatus = `
       }
 
       erxesIntegration {
-        packageVersion
-
         os {
           ${osInfo}
         }
@@ -63,6 +55,13 @@ const configsStatus = `
   }
 `;
 
+const configsGetVersion = `
+  query configsGetVersion($releaseNotes: Boolean) {
+    configsGetVersion(releaseNotes: $releaseNotes)
+  }
+`;
+
 export default {
-  configsStatus
+  configsStatus,
+  configsGetVersion
 };

@@ -97,6 +97,7 @@ class MainLayout extends React.Component<IProps> {
           </MainWrapper>
           <DetectBrowser />
         </Layout>
+
         <Robot />
       </>
     );
