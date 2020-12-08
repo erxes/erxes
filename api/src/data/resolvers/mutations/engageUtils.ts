@@ -85,15 +85,13 @@ export const send = async (engageMessage: IEngageMessageDocument) => {
     segmentIds,
     tagIds,
     brandIds,
-    fromUserId
+    fromUserId,
+    scheduleDate
   } = engageMessage;
 
   // Check for pre scheduled engages
-  if (
-    engageMessage.scheduleDate?.type === 'pre' &&
-    engageMessage.scheduleDate.dateTime
-  ) {
-    const scheduledDate = new Date(engageMessage.scheduleDate.dateTime);
+  if (scheduleDate && scheduleDate?.type === 'pre' && scheduleDate.dateTime) {
+    const scheduledDate = new Date(scheduleDate.dateTime);
     const now = new Date();
 
     if (scheduledDate.getTime() > now.getTime()) {
@@ -193,7 +191,10 @@ const sendEmailOrSms = async (
       customerInfos.length
     );
 
-    if (engageMessage.scheduleDate?.type === 'pre') {
+    if (
+      engageMessage.scheduleDate &&
+      engageMessage.scheduleDate.type === 'pre'
+    ) {
       await EngageMessages.updateOne(
         { _id: engageMessage._id },
         { $set: { 'scheduleDate.type': 'sent' } }
