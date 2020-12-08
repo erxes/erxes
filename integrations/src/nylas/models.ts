@@ -410,7 +410,7 @@ const eventSchema = {
 };
 
 // tslint:disable-next-line
-export const NylasEvent = model<IEventDocument, IEventModel>(
+export const NylasEvents = model<IEventDocument, IEventModel>(
   'event',
   new Schema(eventSchema)
 );

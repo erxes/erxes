@@ -13,7 +13,7 @@ import {
   MICROSOFT_OAUTH_AUTH_URL,
   MICROSOFT_SCOPES
 } from './constants';
-import { NylasCalendars, NylasEvent } from './models';
+import { NylasCalendars, NylasEvents } from './models';
 import {
   createOrGetNylasConversation as storeConversation,
   createOrGetNylasConversationMessage as storeMessage,
@@ -62,7 +62,7 @@ export const syncEvents = async (
         await storeEvents([newEvent]);
         break;
       case 'event.deleted':
-        await NylasEvent.deleteOne({ accountUid, providerEventId: eventId });
+        await NylasEvents.deleteOne({ accountUid, providerEventId: eventId });
         break;
       case 'event.updated':
         const event: IEvent = await getCalendarOrEvent(
@@ -113,7 +113,7 @@ export const syncCalendars = async (
         break;
       case 'calendar.deleted':
         await NylasCalendars.deleteOne({ providerCalendarId: calendarId });
-        await NylasEvent.deleteMany({ providerCalendarId: calendarId });
+        await NylasEvents.deleteMany({ providerCalendarId: calendarId });
         break;
       case 'calendar.updated':
         const calendar: ICalendar = await getCalendarOrEvent(

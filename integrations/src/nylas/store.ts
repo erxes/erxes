@@ -4,7 +4,7 @@ import { sendRPCMessage } from '../messageBroker';
 import { cleanHtml } from '../utils';
 import {
   NylasCalendars,
-  NylasEvent,
+  NylasEvents,
   NylasExchangeConversationMessages,
   NylasExchangeConversations,
   NylasExchangeCustomers,
@@ -70,14 +70,16 @@ const storeCalendars = async (calendars: ICalendar[]) => {
   const doc = [];
 
   for (const calendar of calendars) {
-    doc.push({
-      providerCalendarId: calendar.id,
-      accountUid: calendar.account_id,
-      name: calendar.name || '',
-      description: calendar.description,
-      readOnly: calendar.read_only,
-      show: !calendar.read_only
-    });
+    if (!calendar.read_only) {
+      doc.push({
+        providerCalendarId: calendar.id,
+        accountUid: calendar.account_id,
+        name: calendar.name || '',
+        description: calendar.description,
+        readOnly: calendar.read_only,
+        show: true
+      });
+    }
   }
 
   return NylasCalendars.insertMany(doc);
@@ -100,7 +102,7 @@ const updateCalendar = async (calendar: ICalendar) => {
 };
 
 const updateEvent = async (event: IEvent) => {
-  const prevEvent = await NylasEvent.findOne({ providerEventId: event.id });
+  const prevEvent = await NylasEvents.findOne({ providerEventId: event.id });
 
   if (!prevEvent) {
     throw new Error(`Event not found to be updated ${event.id}`);
@@ -145,7 +147,7 @@ const storeEvents = async (events: IEvent[]) => {
     });
   }
 
-  return NylasEvent.insertMany(doc);
+  return NylasEvents.insertMany(doc);
 };
 
 /**
