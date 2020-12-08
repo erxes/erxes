@@ -88,6 +88,8 @@ const log = (msg, color = 'green') => {
   console.log(chalk[color](msg));
 };
 
+module.exports.execCommand = execCommand;
+
 module.exports.log = log;
 
 module.exports.filePath = filePath;
@@ -126,9 +128,9 @@ module.exports.downloadLatesVersion = async configs => {
     await execCommand(`mv build-local build`);
   }
 
-  log('Removing temp files ...');
+  log('Backing up build tar ...');
 
-  await fse.remove(filePath('build.tar.gz'));
+  await fse.copy(filePath('build.tar.gz'), filePath('build-backup.tar.gz'));
 };
 
 const runCommand = (command, args, pipe) => {
