@@ -267,7 +267,7 @@ describe('engage message mutation tests', () => {
       expect(e.message).toEqual('User not found');
     }
 
-    const integration = await integrationFactory({
+    await integrationFactory({
       brandId: brand._id,
       kind: KIND_CHOICES.MESSENGER
     });
@@ -301,6 +301,51 @@ describe('engage message mutation tests', () => {
 
     await engageUtils.send(emessageNoMessenger);
   }); // end engage utils send via messenger
+
+  test('Engage utils send pre scheduled message', async () => {
+    const now = new Date();
+
+    const scheduledEngage = await engageMessageFactory({
+      scheduleDate: {
+        type: 'pre',
+        dateTime: new Date(now.setHours(now.getHours() + 1))
+      }
+    });
+
+    await engageUtils.send(scheduledEngage);
+
+    const messages = await ConversationMessages.find({
+      'engageData.messageId': scheduledEngage._id
+    });
+
+    expect(messages.length).toEqual(0);
+
+    const customer = await customerFactory({});
+
+    const scheduledEngage2 = await engageMessageFactory({
+      scheduleDate: {
+        type: 'pre',
+        dateTime: new Date(now.setSeconds(now.getSeconds() + 1))
+      },
+      customerIds: [customer._id],
+      method: 'email',
+      isLive: true,
+      userId: _user._id
+    });
+
+    const mock = sinon.useFakeTimers({
+      now: new Date(now.setMinutes(now.getMinutes() + 1)),
+      toFake: ['Date']
+    });
+
+    await engageUtils.send(scheduledEngage2);
+
+    const engages = await EngageMessages.find({ 'scheduleDate.type': 'sent' });
+
+    expect(engages.length).toEqual(1);
+
+    mock.restore();
+  });
 
   test('Engage utils send via messenger without initial values', async () => {
     _customer.firstName = undefined;

@@ -12,6 +12,7 @@ export interface IScheduleDate {
   type?: string;
   month?: string | number;
   day?: string | number;
+  dateTime?: string | Date;
 }
 
 interface IScheduleDateDocument extends IScheduleDate, Document {}
@@ -80,7 +81,8 @@ export const scheduleDateSchema = new Schema(
   {
     type: field({ type: String, optional: true, label: 'Type' }),
     month: field({ type: String, optional: true, label: 'Month' }),
-    day: field({ type: String, optional: true, label: 'Day' })
+    day: field({ type: String, optional: true, label: 'Day' }),
+    dateTime: field({type: Date, optional: true, label: 'DateTime', min: [Date.now, `Date time value must be greather than today` ]})
   },
   { _id: false }
 );
