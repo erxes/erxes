@@ -11,6 +11,7 @@ export type IEngageScheduleDate = {
   type: string;
   month: string;
   day: string;
+  dateTime: string;
 } | null;
 
 export interface IEngageMessenger {
