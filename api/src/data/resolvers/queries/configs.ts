@@ -23,17 +23,14 @@ const configQueries = {
       releaseInfo: {}
     };
 
-    try {
-      const erxesDomain = getEnv({ name: 'MAIN_APP_DOMAIN' });
-      const erxesVersion = await sendRequest({
-        url: `${erxesDomain}/version.json`,
-        method: 'GET'
-      });
+    const erxesDomain = getEnv({ name: 'MAIN_APP_DOMAIN' });
 
-      result.version = erxesVersion.packageVersion || '-';
-    } catch (e) {
-      result.version = '-';
-    }
+    const erxesVersion = await sendRequest({
+      url: `${erxesDomain}/version.json`,
+      method: 'GET'
+    });
+
+    result.version = erxesVersion.packageVersion || '-';
 
     const response = await sendRequest({
       url: `${process.env.CORE_URL || 'https://erxes.io'}/git-release-info`,

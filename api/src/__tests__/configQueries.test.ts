@@ -38,6 +38,22 @@ describe('configQueries', () => {
     expect(response.USE_BRAND_RESTRICTIONS).toBe('true');
   });
 
+  test('configsGetVersion', async () => {
+    const qry = `
+      query configsGetVersion($releaseNotes: Boolean) {
+        configsGetVersion(releaseNotes: $releaseNotes)
+      }
+    `;
+
+    const mock = sinon.stub(utils, 'sendRequest').callsFake(() => {
+      return Promise.resolve({});
+    });
+
+    await graphqlRequest(qry, 'configsGetVersion', { releaseNotes: true });
+
+    mock.restore();
+  });
+
   test('configsStatus', async () => {
     const qry = `
       query configsStatus {
