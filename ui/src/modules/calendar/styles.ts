@@ -93,6 +93,15 @@ const Cell = styledTS<{ isCurrent?: boolean }>(styled.div)`
   min-height: 70px;
   background: ${props => props.isCurrent && colors.bgLight};
   position: relative;
+  transition: background 0.3s ease;
+  
+  &:hover {
+    background: ${colors.bgLight};
+  }
+
+  &:active, &:focus {
+    background: ${colors.bgActive};
+  }
 
   &:last-child {
     border: none;
@@ -209,10 +218,6 @@ const WeekHours = styled.div`
     padding-right: 10px;
     text-align: right;
   }
-`;
-
-const MainContainer = styled.div`
-  height: calc(100vh - 175px);
 `;
 
 const CalendarController = styled.div`
@@ -379,7 +384,7 @@ const SidebarHeading = styled.h4`
   font-weight: 500;
   letter-spacing: 0.25px;
   line-height: 20px;
-  margin: 0 0 15px;
+  margin: 10px 0 10px 0;
   padding: 0 20px;
 `;
 
@@ -467,7 +472,6 @@ export {
   Cell,
   Day,
   DayRow,
-  MainContainer,
   SidebarHeading,
   EventTitle,
   EventContent,

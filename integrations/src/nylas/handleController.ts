@@ -8,15 +8,16 @@ import {
   checkCalendarAvailability,
   createEvent,
   deleteCalendarEvent,
+  enableOrDisableAccount,
   getAttachment,
   getCalendarOrEvent,
   getCalenderOrEventList,
+  revokeTokenAccount,
   sendEventAttendance,
   sendMessage,
   updateEvent,
   uploadFile
 } from './api';
-import { enableOrDisableAccount, revokeTokenAccount } from './api';
 import {
   connectExchangeToNylas,
   connectImapToNylas,

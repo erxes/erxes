@@ -20,7 +20,7 @@ export function generateCompanyOptions(array: ICompany[] = []): IOption[] {
 export default ({
   queryParams,
   onSelect,
-  value,
+  initialValue,
   multi = true,
   label,
   name
@@ -30,23 +30,17 @@ export default ({
   onSelect: (value: string[] | string, name: string) => void;
   multi?: boolean;
   customOption?: IOption;
-  value?: string | string[];
+  initialValue?: string | string[];
   name: string;
 }) => {
-  const defaultValue = queryParams ? queryParams[name] : value;
+  const defaultValue = queryParams ? queryParams[name] : initialValue;
 
   return (
     <SelectWithSearch
       label={label}
       queryName="companies"
       name={name}
-      values={
-        typeof defaultValue === 'string'
-          ? multi
-            ? [defaultValue]
-            : defaultValue
-          : defaultValue
-      }
+      initialValue={defaultValue}
       generateOptions={generateCompanyOptions}
       onSelect={onSelect}
       customQuery={queries.companies}

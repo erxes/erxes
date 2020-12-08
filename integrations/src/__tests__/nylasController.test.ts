@@ -24,7 +24,7 @@ import {
 } from '../nylas/handleController';
 import {
   NylasCalendars,
-  NylasEvent,
+  NylasEvents,
   NylasGmailConversationMessages
 } from '../nylas/models';
 import * as nylasUtils from '../nylas/utils';
@@ -68,7 +68,7 @@ describe('Test nylas controller', () => {
     nylasInstanceMock.restore();
 
     await NylasGmailConversationMessages.deleteMany({});
-    await NylasEvent.deleteMany({});
+    await NylasEvents.deleteMany({});
     await NylasCalendars.deleteMany({});
     await Integrations.deleteMany({});
   });
@@ -487,7 +487,7 @@ describe('Test nylas controller', () => {
 
     await nylasGetAllEvents(_account);
 
-    const event = await NylasEvent.findOne({
+    const event = await NylasEvents.findOne({
       providerCalendarId: calendar.providerCalendarId
     });
 
@@ -762,7 +762,7 @@ describe('Test nylas controller', () => {
       'eventId'
     );
 
-    const eventCreated = await NylasEvent.findOne({
+    const eventCreated = await NylasEvents.findOne({
       providerEventId: 'eventId'
     });
 
@@ -788,7 +788,7 @@ describe('Test nylas controller', () => {
       'eventId'
     );
 
-    const response = await NylasEvent.findOne({ providerEventId: 'eventId' });
+    const response = await NylasEvents.findOne({ providerEventId: 'eventId' });
 
     expect(response.providerCalendarId).toBe('calendarId123');
 
@@ -817,7 +817,7 @@ describe('Test nylas controller', () => {
       'eventId123'
     );
 
-    expect(await NylasEvent.findOne({ providerEventId: 'eventId123' })).toBe(
+    expect(await NylasEvents.findOne({ providerEventId: 'eventId123' })).toBe(
       null
     );
 
@@ -933,7 +933,7 @@ describe('Test nylas controller', () => {
       await NylasCalendars.findOne({ providerCalendarId: 'calendarId123123v' })
     ).toBe(null);
     expect(
-      await NylasEvent.findOne({ providerCalendarId: 'calendarId123123v' })
+      await NylasEvents.findOne({ providerCalendarId: 'calendarId123123v' })
     ).toBe(null);
 
     const mockFail = sinon

@@ -101,7 +101,7 @@ class Event extends React.Component<Props, State> {
     return new Date().getHours() + new Date().getMinutes() / 60;
   };
 
-  onHideModal = (date?: Date) => {
+  onToggleModal = (date?: Date) => {
     this.setState({
       isPopupVisible: !this.state.isPopupVisible,
       selectedDate: date,
@@ -168,7 +168,7 @@ class Event extends React.Component<Props, State> {
 
   addEventBtn = (day: Date) => {
     return (
-      <AddEventBtn onClick={this.onHideModal.bind(this, day)}>
+      <AddEventBtn onClick={this.onToggleModal.bind(this, day)}>
         <Icon icon="plus-circle" />
       </AddEventBtn>
     );
@@ -221,7 +221,7 @@ class Event extends React.Component<Props, State> {
     const rowCount = calcRowCount(this.state.cellHeight, 24);
     let filteredEvents = events;
 
-    if (rowCount > 1) {
+    if (rowCount > 1 && rowCount < events.length) {
       filteredEvents = events.slice(0, rowCount - 1);
     }
 
@@ -229,8 +229,8 @@ class Event extends React.Component<Props, State> {
       <>
         <Day
           isSelectedDate={isCurrentDate(day, this.props.currentDate)}
-          onClick={this.onHideModal.bind(this, day)}
           isSameMonth={isSameMonth(day, this.props.currentDate)}
+          onClick={this.onToggleModal.bind(this, day)}
         >
           {day.getDate()}
         </Day>
@@ -321,16 +321,15 @@ class Event extends React.Component<Props, State> {
   };
 
   render() {
-    const { startTime, endTime, currentDate, type, queryParams } = this.props;
+    const { startTime, endTime, currentDate, type } = this.props;
     const { isPopupVisible, selectedDate, event, account } = this.state;
 
     const createForm = (
       <EventForm
         startTime={startTime}
         endTime={endTime}
-        queryParams={queryParams}
         isPopupVisible={isPopupVisible}
-        onHideModal={this.onHideModal}
+        onHideModal={this.onToggleModal}
         selectedDate={selectedDate}
         event={event}
         account={account}

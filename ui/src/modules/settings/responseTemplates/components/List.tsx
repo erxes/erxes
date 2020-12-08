@@ -102,7 +102,7 @@ class ResponseTemplateList extends React.Component<FinalProps, States> {
             <ControlLabel>Brand</ControlLabel>
             <SelectBrands
               label="Brand"
-              value={brandId}
+              initialValue={brandId}
               onSelect={this.onSelect}
               name="brandId"
               multi={false}
