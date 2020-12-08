@@ -153,27 +153,17 @@ class Row extends React.Component<Props> {
       }
     }
 
-    if (
-      scheduleDate &&
-      (scheduleDate.type === 'pre' || scheduleDate.type === 'sent')
-    ) {
+    if (scheduleDate && scheduleDate.type === 'pre') {
       const scheduledDate = new Date(scheduleDate.dateTime);
       const now = new Date();
 
       if (scheduledDate.getTime() > now.getTime()) {
         return <Label>scheduled</Label>;
       } else {
-        if (
-          validCustomersCount === totalCount ||
-          validCustomersCount === smsStats.total
-        ) {
-          return <Label lblStyle="success">Sent</Label>;
-        }
-      }
-
-      if (message.method === METHODS.SMS && smsStats.total === 0) {
         return <Label lblStyle="warning">Not sent</Label>;
       }
+    } else if (scheduleDate && scheduleDate.type === 'sent') {
+      return <Label lblStyle="success">Sent</Label>;
     }
 
     return <Label>Sending</Label>;
