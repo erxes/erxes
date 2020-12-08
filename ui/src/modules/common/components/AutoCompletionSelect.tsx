@@ -12,7 +12,6 @@ import Icon from './Icon';
 const Wrapper = styled.div`
   display: flex;
   align-items: center;
-  background: green;
   input {
     display: block;
     width: 100%;
