@@ -1,9 +1,7 @@
 import Button from 'modules/common/components/Button';
 import FormControl from 'modules/common/components/form/Control';
 import ControlLabel from 'modules/common/components/form/Label';
-import { __, Alert } from 'modules/common/utils';
-import { Divider } from 'modules/deals/styles';
-
+import { Alert } from 'modules/common/utils';
 import React from 'react';
 import BoardSelect from '../../containers/BoardSelect';
 import { FormFooter, HeaderContent, HeaderRow } from '../../styles/item';
@@ -48,6 +46,9 @@ class AddForm extends React.Component<Props, State> {
   }
 
   onChangeField = <T extends keyof State>(name: T, value: State[T]) => {
+    console.log('name: ', name);
+    console.log('value: ', value);
+
     if (name === 'name') {
       this.setState({ cardId: '' });
     } else if (name === 'cardId') {
@@ -109,6 +110,7 @@ class AddForm extends React.Component<Props, State> {
     const plIdOnChange = plId => this.onChangeField('pipelineId', plId);
     const brIdOnChange = brId => this.onChangeField('boardId', brId);
     const cdIdOnChange = cdId => this.onChangeField('cardId', cdId);
+    const cdNameOnChange = cdName => this.onChangeField('name', cdName);
 
     return (
       <BoardSelect
@@ -122,6 +124,7 @@ class AddForm extends React.Component<Props, State> {
         onChangePipeline={plIdOnChange}
         onChangeBoard={brIdOnChange}
         onChangeCard={cdIdOnChange}
+        onChangeCardName={cdNameOnChange}
       />
     );
   }
@@ -135,22 +138,26 @@ class AddForm extends React.Component<Props, State> {
   };
 
   render() {
+    const { showSelect } = this.props;
+
     return (
       <form onSubmit={this.save}>
         {this.renderSelect()}
-
-        <HeaderRow>
-          <HeaderContent>
-            <Divider>{__('Or')}</Divider>
-            <ControlLabel required={false}>Name</ControlLabel>
-            <FormControl
-              value={this.state.name}
-              autoFocus={true}
-              placeholder="Create a new card"
-              onChange={this.onChangeName}
-            />
-          </HeaderContent>
-        </HeaderRow>
+        {!showSelect ? (
+          <HeaderRow>
+            <HeaderContent>
+              <ControlLabel required={false}>Name</ControlLabel>
+              <FormControl
+                value={this.state.name}
+                autoFocus={true}
+                placeholder="Create a new card"
+                onChange={this.onChangeName}
+              />
+            </HeaderContent>
+          </HeaderRow>
+        ) : (
+          <div />
+        )}
 
         <FormFooter>
           <Button

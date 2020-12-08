@@ -6,8 +6,10 @@ import Select from 'react-select-plus';
 import { FormContainer } from '../styles/common';
 import { IBoard, IPipeline, IStage } from '../types';
 import { selectOptions } from '../utils';
+import CardAutoCompletion from './CardAutoCompletion';
 
 type Props = {
+  type: string;
   boards: IBoard[];
   pipelines: IPipeline[];
   stages: IStage[];
@@ -20,10 +22,22 @@ type Props = {
   onChangePipeline: (value: string) => void;
   onChangeStage: (value: string, callback?: () => void) => void;
   onChangeCard: (value: string) => void;
+  onChangeCardName: (value: string) => void;
   callback?: () => void;
 };
 
 class BoardSelect extends React.Component<Props> {
+  onCardChange = (params: { cardId?: string; cardName?: string }) => {
+    console.log('params: ');
+    if (params.cardId) {
+      this.props.onChangeCard(params.cardId);
+    }
+
+    if (params.cardName) {
+      this.props.onChangeCardName(params.cardName);
+    }
+  };
+
   renderOptions = option => {
     return (
       <div className="simple-option">
@@ -48,6 +62,7 @@ class BoardSelect extends React.Component<Props> {
 
   renderContent() {
     const {
+      type,
       boards,
       pipelines,
       stages,
@@ -55,13 +70,13 @@ class BoardSelect extends React.Component<Props> {
       boardId,
       pipelineId,
       stageId,
-      cardId,
       onChangeBoard,
       onChangePipeline,
       onChangeStage,
-      onChangeCard,
       callback
     } = this.props;
+
+    console.log('cards: ', cards);
 
     return (
       <>
@@ -96,13 +111,15 @@ class BoardSelect extends React.Component<Props> {
         </FormGroup>
 
         <FormGroup>
-          <ControlLabel>Card</ControlLabel>
-          {this.renderSelect(
-            __('Attach to an existing card'),
-            cardId,
-            card => onChangeCard(card.value),
-            selectOptions(cards)
-          )}
+          <ControlLabel>{type}</ControlLabel>
+          <CardAutoCompletion
+            required={true}
+            defaultValue={''}
+            defaultOptions={cards}
+            autoCompletionType={type}
+            placeholder="asd"
+            onChange={this.onCardChange}
+          />
         </FormGroup>
       </>
     );

@@ -26,6 +26,7 @@ type Props = {
   onChangePipeline: (pipelineId: string, stages: IStage[]) => void;
   onChangeBoard: (boardId: string) => void;
   onChangeCard?: (cardId: string) => void;
+  onChangeCardName?: (name: string) => void;
   autoSelectStage?: boolean;
   autoSelectCard?: boolean;
 };
@@ -83,7 +84,7 @@ class BoardSelectContainer extends React.Component<FinalProps> {
     const { type } = this.props;
     const query = `${type}sQuery`;
     const resultModel = `${type}s`;
-
+    console.log('onChangeStage: ', type);
     this.props[query]
       .refetch({ stageId })
       .then(({ data }) => {
@@ -97,7 +98,7 @@ class BoardSelectContainer extends React.Component<FinalProps> {
           cards.length > 0 &&
           typeof this.props.autoSelectCard === 'undefined'
         ) {
-          this.onChangeStage(cards[0]._id);
+          this.onChangeCard(cards[0]._id);
         }
       })
       .catch(e => {
@@ -112,6 +113,12 @@ class BoardSelectContainer extends React.Component<FinalProps> {
   onChangeCard = (cardId: string) => {
     if (this.props.onChangeCard) {
       this.props.onChangeCard(cardId);
+    }
+  };
+
+  onChangeCardName = (name: string) => {
+    if (this.props.onChangeCardName) {
+      this.props.onChangeCardName(name);
     }
   };
 
@@ -149,7 +156,8 @@ class BoardSelectContainer extends React.Component<FinalProps> {
       onChangeBoard: this.onChangeBoard,
       onChangePipeline: this.onChangePipeline,
       onChangeStage: this.onChangeStage,
-      onChangeCard: this.onChangeCard
+      onChangeCard: this.onChangeCard,
+      onChangeCardName: this.onChangeCardName
     };
 
     return <BoardSelect {...extendedProps} />;
