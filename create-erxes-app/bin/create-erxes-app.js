@@ -26,6 +26,7 @@ program
   .option('--redisHost <redisHost>', 'Redis host')
   .option('--rabbitmqHost <rabbitmqHost>', 'RabbitMQ host')
   .option('--elasticsearchUrl <elasticsearchUrl>', 'Elasticsearch url')
+  .option('--elkSyncer <elkSyncer>', 'Use elkSyncer service sync elasticsearch')
   .description('create a new application')
   .action(directory => {
     projectName = directory;
@@ -44,7 +45,7 @@ let redisHost = program.redisHost || '';
 let redisPort = 6379;
 let redisPassword = '';
 let elasticsearchUrl = program.elasticsearchUrl;
-let elkSyncer = false;
+let elkSyncer = program.elkSyncer | false;
 let useDashboard = false;
 
 const stopProcess = message => {
@@ -66,6 +67,89 @@ const askQuestion = question => {
       return resolve(answer);
     });
   });
+};
+
+const generate = async () => {
+  if (await fse.exists(rootPath)) {
+    const stat = await fse.stat(rootPath);
+
+    if (!stat.isDirectory()) {
+      stopProcess(
+        `⛔️ ${chalk.green(
+          rootPath
+        )} is not a directory. Make sure to create a Erxes application in an empty directory.`
+      );
+    }
+
+    const files = await fse.readdir(rootPath);
+
+    if (files.length > 0) {
+      stopProcess(
+        `⛔️ You can only create a Erxes app in an empty directory.\nMake sure ${chalk.green(
+          rootPath
+        )} is empty.`
+      );
+    }
+  }
+
+  await fs.promises.mkdir(rootPath);
+
+  let maindomain = 'http://localhost:3000';
+
+  if (domain !== 'localhost') {
+    if (!domain.includes('http')) {
+      domain = `https://${domain}`;
+    }
+
+    maindomain = domain;
+  }
+
+  const configs = {
+    JWT_TOKEN_SECRET: Math.random().toString(),
+    MONGO_URL: program.mongoUrl || 'mongodb://localhost',
+    ELASTICSEARCH_URL: elasticsearchUrl,
+    ELK_SYNCER: elkSyncer,
+    USE_DASHBOARD: useDashboard,
+    DOMAIN: maindomain
+  };
+
+  if (rabbitmqHost) {
+    configs.RABBITMQ_HOST = rabbitmqHost;
+  }
+
+  if (redisHost) {
+    configs.REDIS_HOST = redisHost;
+    configs.REDIS_PORT = redisPort;
+    configs.REDIS_PASSWORD = redisPassword;
+  }
+
+  // create configs.json
+  await fse.writeJSON(join(rootPath, 'configs.json'), configs, {
+    spaces: 2
+  });
+
+  // create package.json
+  await fse.writeJSON(
+    join(rootPath, 'package.json'),
+    {
+      name: projectName,
+      private: true,
+      version: '0.1.0',
+      scripts: {
+        start: 'erxes start',
+        restart: 'erxes start --ignoreDownload',
+        update: 'erxes update'
+      },
+      dependencies: {
+        erxes: '^0.1.20'
+      }
+    },
+    {
+      spaces: 2
+    }
+  );
+
+  execa('yarn', ['install'], { cwd: rootPath }).stdout.pipe(process.stdout);
 };
 
 const main = (async function() {
@@ -170,89 +254,5 @@ const main = (async function() {
 
   await generate();
 })();
-
-
-const generate = async () => {
-  if (await fse.exists(rootPath)) {
-    const stat = await fse.stat(rootPath);
-
-    if (!stat.isDirectory()) {
-      stopProcess(
-        `⛔️ ${chalk.green(
-          rootPath
-        )} is not a directory. Make sure to create a Erxes application in an empty directory.`
-      );
-    }
-
-    const files = await fse.readdir(rootPath);
-
-    if (files.length > 0) {
-      stopProcess(
-        `⛔️ You can only create a Erxes app in an empty directory.\nMake sure ${chalk.green(
-          rootPath
-        )} is empty.`
-      );
-    }
-  }
-
-  await fs.promises.mkdir(rootPath);
-
-  let maindomain = 'http://localhost:3000';
-
-  if (domain !== 'localhost') {
-    if (!domain.includes('http')) {
-      domain = `https://${domain}`;
-    }
-
-    maindomain = domain;
-  }
-
-  const configs = {
-    JWT_TOKEN_SECRET: Math.random().toString(),
-    MONGO_URL: program.mongoUrl || 'mongodb://localhost',
-    ELASTICSEARCH_URL: elasticsearchUrl,
-    ELK_SYNCER: elkSyncer,
-    USE_DASHBOARD: useDashboard,
-    DOMAIN: maindomain
-  };
-
-  if (rabbitmqHost) {
-    configs.RABBITMQ_HOST = rabbitmqHost;
-  }
-
-  if (redisHost) {
-    configs.REDIS_HOST = redisHost;
-    configs.REDIS_PORT = redisPort;
-    configs.REDIS_PASSWORD = redisPassword;
-  }
-
-  // create configs.json
-  await fse.writeJSON(join(rootPath, 'configs.json'), configs, {
-    spaces: 2
-  });
-
-  // create package.json
-  await fse.writeJSON(
-    join(rootPath, 'package.json'),
-    {
-      name: projectName,
-      private: true,
-      version: '0.1.0',
-      scripts: {
-        start: 'erxes start',
-        restart: 'erxes start --ignoreDownload',
-        update: 'erxes update'
-      },
-      dependencies: {
-        erxes: '^0.1.20'
-      }
-    },
-    {
-      spaces: 2
-    }
-  );
-
-  execa('yarn', ['install'], { cwd: rootPath }).stdout.pipe(process.stdout);
-};
 
 module.exports = main;
