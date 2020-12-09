@@ -84,7 +84,7 @@ class BoardSelectContainer extends React.Component<FinalProps> {
     const { type } = this.props;
     const query = `${type}sQuery`;
     const resultModel = `${type}s`;
-    console.log('onChangeStage: ', type);
+
     this.props[query]
       .refetch({ stageId })
       .then(({ data }) => {
