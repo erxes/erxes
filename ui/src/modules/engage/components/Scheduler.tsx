@@ -1,6 +1,8 @@
 import FormControl from 'modules/common/components/form/Control';
+import DateControl from 'modules/common/components/form/DateControl';
 import FormGroup from 'modules/common/components/form/Group';
 import ControlLabel from 'modules/common/components/form/Label';
+import { DateContainer } from 'modules/common/styles/main';
 import { __ } from 'modules/common/utils';
 import { SCHEDULE_TYPES } from 'modules/engage/constants';
 import React from 'react';
@@ -95,6 +97,42 @@ class Scheduler extends React.Component<Props, State> {
     );
   }
 
+  renderDateTimeSelector() {
+    const schedule = this.state.scheduleDate || {
+      type: 'pre',
+      dateTime: ''
+    };
+
+    if (schedule.type === undefined) {
+      schedule.type = 'pre';
+    }
+
+    if (schedule.type !== 'pre') {
+      return null;
+    }
+
+    const onChange = e => {
+      this.changeSchedule('dateTime', e);
+    };
+
+    return (
+      <React.Fragment>
+        <ControlLabel>Choose date:</ControlLabel>
+        <DateContainer>
+          <DateControl
+            dateFormat="YYYY/MM/DD"
+            timeFormat={true}
+            required={false}
+            name="dateTime"
+            value={schedule.dateTime}
+            placeholder={'Date time'}
+            onChange={onChange}
+          />
+        </DateContainer>
+      </React.Fragment>
+    );
+  }
+
   render() {
     const { type } = this.state.scheduleDate || { type: '' };
 
@@ -105,7 +143,6 @@ class Scheduler extends React.Component<Props, State> {
       <FormGroup>
         <ControlLabel>Schedule:</ControlLabel>
         <FormControl componentClass="select" value={type} onChange={onChange}>
-          <option />{' '}
           {SCHEDULE_TYPES.map(scheduleType => (
             <option key={scheduleType.value} value={scheduleType.value}>
               {__(scheduleType.label)}
@@ -116,6 +153,7 @@ class Scheduler extends React.Component<Props, State> {
         <SelectMonth>
           {this.renderMonthSelector()}
           {this.renderDaySelector()}
+          {this.renderDateTimeSelector()}
         </SelectMonth>
       </FormGroup>
     );

@@ -14,6 +14,10 @@ const VersionContainer = (props: Props) => {
   const { versionQuery } = props;
   const info = versionQuery.configsGetVersion || {};
 
+  if (versionQuery.loading) {
+    return null;
+  }
+
   return <Version info={info} />;
 };
 
