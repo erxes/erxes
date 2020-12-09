@@ -22,6 +22,11 @@ const checkEveryMinuteJobs = async () => {
   await runJobs(messages);
 };
 
+const checkPreScheduledJobs = async () => {
+  const messages = await findMessages({ 'scheduleDate.type': 'pre' });
+  await runJobs(messages);
+};
+
 const checkHourMinuteJobs = async () => {
   debugCrons('Checking every hour jobs ....');
 
@@ -116,6 +121,7 @@ const checkDayJobs = async () => {
 // every minute at 1sec
 schedule.scheduleJob('1 * * * * *', async () => {
   await checkEveryMinuteJobs();
+  await checkPreScheduledJobs();
 });
 
 // every hour at 10min:10sec
