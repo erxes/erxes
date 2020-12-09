@@ -41,7 +41,8 @@ describe('EmailForm component', () => {
   const testIEngageScheduleDate: IEngageScheduleDate = {
     type: 'string',
     month: 'string',
-    day: 'string'
+    day: 'string',
+    dateTime: 'string'
   };
 
   const defaultProps = {

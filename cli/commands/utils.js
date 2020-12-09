@@ -318,13 +318,7 @@ module.exports.startServices = async configs => {
       );
     }
 
-    const jwt = require('jsonwebtoken');
-
     const CUBE_API_SECRET = Math.random().toString();
-
-    const cubejsToken = await jwt.sign({}, CUBE_API_SECRET, {
-      expiresIn: '10year'
-    });
 
     apps.push({
       name: 'dashboard-api',
@@ -336,7 +330,6 @@ module.exports.startServices = async configs => {
         DB_NAME: 'erxes',
         CUBEJS_URL: DASHBOARD_API_DOMAIN,
         CUBEJS_API_SECRET: CUBE_API_SECRET,
-        CUBEJS_TOKEN: cubejsToken,
         CUBEJS_DB_TYPE: 'elasticsearch',
         CUBEJS_DB_URL: ELASTICSEARCH_URL,
         SCHEMA_PATH: dasbhoardSchemaPath,
@@ -356,7 +349,6 @@ module.exports.startServices = async configs => {
         NODE_ENV: "production",
         REACT_APP_API_URL: "${API_DOMAIN}",
         REACT_APP_DASHBOARD_API_URL: "${DASHBOARD_API_DOMAIN}",
-        REACT_APP_DASHBOARD_CUBE_TOKEN: "${cubejsToken}",
         REACT_APP_API_SUBSCRIPTION_URL: "${subscriptionsUrl}"
       }
     `
@@ -465,7 +457,11 @@ module.exports.startServices = async configs => {
 
   log('Running migrations ...');
 
-  await execCommand(`MONGO_URL="${API_MONGO_URL}" node ${filePath('build/api/commands/migrate.js')}`);
+  await execCommand(
+    `MONGO_URL="${API_MONGO_URL}" node ${filePath(
+      'build/api/commands/migrate.js'
+    )}`
+  );
 
   return runCommand('pm2', ['start', filePath('ecosystem.config.js')], false);
 };
