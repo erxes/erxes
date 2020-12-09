@@ -95,7 +95,7 @@ class Step extends React.Component<Props> {
 
               <StepHeaderTitle>{__(title || '')}</StepHeaderTitle>
             </StepHeader>
-            {noButton || this.renderButton()}
+            {!noButton && this.renderButton()}
           </StepHeaderContainer>
 
           <StepContent>{children}</StepContent>
