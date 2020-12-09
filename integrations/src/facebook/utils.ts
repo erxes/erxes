@@ -256,7 +256,7 @@ export const sendReply = async (
         data
       )}`
     );
-    if (e.message.includes('Invalid OAuth')) {
+    if (e.message.includes('access token')) {
       // Update expired token for selected page
       const newPageAccessToken = await getPageAccessToken(
         recipientId,
