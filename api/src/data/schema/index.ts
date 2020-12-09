@@ -169,7 +169,7 @@ import {
 import {
   mutations as SkillMutations,
   queries as SkillQueries,
-  types as Skills
+  types as SkillTypes
 } from './skills';
 import {
   mutations as TagMutations,
@@ -215,7 +215,7 @@ export const types = `
   ${IntegrationTypes}
   ${ResponseTemplate}
   ${Script}
-  ${Skills}
+  ${SkillTypes}
   ${EmailTemplate}
   ${EngageTypes}
   ${EmailDelivery}
@@ -261,7 +261,6 @@ export const queries = `
     ${ResponseTemplateQueries}
     ${ScriptQueries}
     ${SkillQueries}
-    ${SkillMutations}
     ${EmailTemplateQueries}
     ${EmailDeliveryQueries}
     ${FieldQueries}
@@ -334,6 +333,7 @@ export const mutations = `
     ${ConformityMutations}
     ${ChecklistMutations}
     ${RobotMutations}
+    ${SkillMutations}
     ${PipelineLabelMutations}
     ${WidgetMutations}
     ${WebhookMutations}
