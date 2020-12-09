@@ -75,16 +75,6 @@ export interface ISkillModel extends Model<ISkillDocument> {
 
 export const loadSkillClass = () => {
   class Skill {
-    public static async getSkill(_id: string) {
-      const skill = await Skills.findOne({ _id }).lean();
-
-      if (!skill) {
-        throw new Error('Skill not found');
-      }
-
-      return skill;
-    }
-
     public static async getSkills(typeId: string) {
       const skills = await Skills.find({ typeId });
 

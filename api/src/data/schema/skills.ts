@@ -14,13 +14,13 @@ export const types = `
 
 export const queries = `
   getSkillTypes: [SkillType]
-  createSkillType(name: String!): SkillType
 
   getSkill(_id: String!): Skill
   getSkills(typeId: String!): [Skill]
 `;
 
 export const mutations = `
+  createSkillType(name: String!): SkillType
   updateSkillType(_id: String!, name: String!): SkillType
   removeSkillType(_id: String!): JSON
 
