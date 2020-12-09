@@ -156,6 +156,7 @@ class Event extends React.Component<Props, State> {
 
   renderEvents = (events: IEvent[], showHour: boolean) => {
     let counts;
+    let tempCounts;
     let order = 0;
     const calculate = (date: Date) => {
       return date.getHours() + date.getMinutes() / 60;
@@ -176,15 +177,20 @@ class Event extends React.Component<Props, State> {
         counts[el] = (counts[el] || 0) + 1;
       });
 
+      tempCounts = { ...counts };
       console.log(counts);
     }
 
     return events.map((event, index) => {
       const el = calculateStartTime(event.when.start_time);
-      if (counts && counts[el] === 1) {
-        order = 0;
-      } else {
-        order++;
+
+      if (showHour) {
+        if (tempCounts[el] === 1) {
+          order = 0;
+        } else {
+          order = tempCounts[el] - 1;
+          tempCounts[el] = order;
+        }
       }
 
       return (

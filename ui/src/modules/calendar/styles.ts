@@ -287,13 +287,14 @@ const EventTitle = styledTS<{
       position: absolute;
       top: ${(rowHeight + 1) * props.start + 1}px;
       width: 100%;  
-      left: ${
-        props.order > 0 ? `${(100 / props.count) * props.order - 1}%` : '1px'
-      };
-      width: calc(${100 / props.count}% - 2px);
-      height: ${rowHeight * props.height}px;
+      left: ${props.order > 0 ? `${(100 / props.count) * props.order}%` : '0'};
+      width: ${100 / props.count}%;
+      height: ${rowHeight * props.height + props.height - 1}px;
       min-height: ${rowHeight / 2}px;
+      line-height: 18px;
       z-index: 2;
+      border-left: 1px solid #fff;
+      border-right: 1px solid #fff;
   `}
 
   &:before {
@@ -360,6 +361,10 @@ const WeekCol = styledTS<{ isCurrent?: boolean }>(styled.div)`
   flex: 1 1 0%;
   position: relative;
   background: ${props => props.isCurrent && colors.bgLight};
+
+  ${EventTitle} {
+    padding: 1px 4px;
+  }
 
   &:last-child {
     border: none;
