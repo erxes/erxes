@@ -85,7 +85,7 @@ export const getUniqueValue = async (
   defaultValue?: string
 ) => {
   const getRandomValue = (type: string) =>
-    type === 'email' ? faker.internet.email() : Random.id();
+    type === 'email' ? faker.internet.email().toLowerCase() : Random.id();
 
   let uniqueValue = defaultValue || getRandomValue(fieldName);
 
