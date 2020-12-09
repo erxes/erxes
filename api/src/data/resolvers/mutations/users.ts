@@ -84,8 +84,8 @@ const userMutations = {
 
     const doc: IUser = {
       isOwner: true,
-      email,
-      password,
+      email: (email || '').toLocaleLowerCase().trim(),
+      password: (password || '').toLocaleLowerCase().trim(),
       details: {
         fullName: `${firstName} ${lastName || ''}`
       }

@@ -220,7 +220,10 @@ export const loadClass = () => {
         brandIds
       }: IUpdateUser
     ) {
-      const doc = {
+      email = (email || '').toLocaleLowerCase().trim();
+      password = (password || '').toLocaleLowerCase().trim();
+
+      const doc: any = {
         username,
         email,
         password,
@@ -579,7 +582,9 @@ export const loadClass = () => {
      */
     public static async forgotPassword(email: string) {
       // find user
-      const user = await Users.findOne({ email });
+      const user = await Users.findOne({
+        email: (email || '').toLocaleLowerCase().trim()
+      });
 
       if (!user) {
         throw new Error('Invalid email');
