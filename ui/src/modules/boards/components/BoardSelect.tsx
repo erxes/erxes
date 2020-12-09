@@ -1,3 +1,4 @@
+import AutoCompletionSelect from 'modules/common/components/AutoCompletionSelect';
 import FormGroup from 'modules/common/components/form/Group';
 import ControlLabel from 'modules/common/components/form/Label';
 import { __ } from 'modules/common/utils';
@@ -6,7 +7,6 @@ import Select from 'react-select-plus';
 import { FormContainer } from '../styles/common';
 import { IBoard, IPipeline, IStage } from '../types';
 import { selectOptions } from '../utils';
-import CardAutoCompletion from './CardAutoCompletion';
 
 type Props = {
   type: string;
@@ -27,14 +27,15 @@ type Props = {
 };
 
 class BoardSelect extends React.Component<Props> {
-  onCardChange = (params: { cardId?: string; cardName?: string }) => {
-    console.log('params: ');
-    if (params.cardId) {
-      this.props.onChangeCard(params.cardId);
-    }
+  onCardChange = ({ selectedOption }) => {
+    const { cards } = this.props;
 
-    if (params.cardName) {
-      this.props.onChangeCardName(params.cardName);
+    const filtered = cards.filter(card => card._id === selectedOption);
+
+    if (filtered.length > 0) {
+      this.props.onChangeCard(selectedOption);
+    } else {
+      this.props.onChangeCardName(selectedOption);
     }
   };
 
@@ -76,8 +77,6 @@ class BoardSelect extends React.Component<Props> {
       callback
     } = this.props;
 
-    console.log('cards: ', cards);
-
     return (
       <>
         <FormGroup>
@@ -112,13 +111,15 @@ class BoardSelect extends React.Component<Props> {
 
         <FormGroup>
           <ControlLabel>{type}</ControlLabel>
-          <CardAutoCompletion
+          <AutoCompletionSelect
             required={true}
             defaultValue={''}
             defaultOptions={cards}
-            autoCompletionType={type}
-            placeholder="asd"
+            autoCompletionType={`${type}s`}
+            placeholder={`Choose a ${type}`}
             onChange={this.onCardChange}
+            optionMappingKey={{ value: '_id', label: 'name' }}
+            isSimpleAutoCompletion={true}
           />
         </FormGroup>
       </>

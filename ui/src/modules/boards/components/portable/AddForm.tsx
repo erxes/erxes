@@ -46,15 +46,6 @@ class AddForm extends React.Component<Props, State> {
   }
 
   onChangeField = <T extends keyof State>(name: T, value: State[T]) => {
-    console.log('name: ', name);
-    console.log('value: ', value);
-
-    if (name === 'name') {
-      this.setState({ cardId: '' });
-    } else if (name === 'cardId') {
-      this.setState({ name: '' });
-    }
-
     this.setState(({ [name]: value } as unknown) as Pick<State, keyof State>);
   };
 

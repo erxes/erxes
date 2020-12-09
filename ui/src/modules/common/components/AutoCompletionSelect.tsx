@@ -16,6 +16,7 @@ const Wrapper = styled.div`
     display: block;
     width: 100%;
     border: none;
+    background: none;
   }
 `;
 
@@ -46,8 +47,10 @@ const FillContent = styled.div`
 function Option(props: {
   option: { label: string; value: string; onRemove: (value: string) => void };
   onSelect: (option: Option, e: any) => void;
+  isSimpleAutoCompletion: boolean;
 }) {
-  const { option, onSelect } = props;
+  const { option, onSelect, isSimpleAutoCompletion = false } = props;
+
   const { onRemove } = option;
 
   const onClick = e => {
@@ -62,9 +65,9 @@ function Option(props: {
 
   if (!onRemove) {
     return (
-      <OptionWrapper>
+      <OptionWrapper onClick={onClick}>
         <FillContent>{option.label}</FillContent>
-        <small>({__('Already exist')})</small>
+        {isSimpleAutoCompletion ? null : <small>({__('Already exist')})</small>}
       </OptionWrapper>
     );
   }
@@ -72,6 +75,7 @@ function Option(props: {
   return (
     <OptionWrapper onClick={onClick}>
       <FillContent>{option.label}</FillContent>
+
       <Icon
         style={{ float: 'right' }}
         icon="times-circle"
@@ -93,8 +97,10 @@ type Props = {
   defaultValue?: string;
   defaultOptions: string[];
   autoCompletionType: string;
-  queryName: string;
-  query: string;
+  queryName?: string;
+  query?: string;
+  isSimpleAutoCompletion?: boolean;
+  optionMappingKey?: { label: string; value: string };
   checkFormat?: (value) => boolean;
   onChange: (params: { options: string[]; selectedOption: any }) => void;
 };
@@ -114,6 +120,8 @@ function AutoCompletionSelect({
   autoCompletionType,
   defaultValue,
   required,
+  isSimpleAutoCompletion,
+  optionMappingKey,
   checkFormat,
   onChange
 }: Props) {
@@ -180,11 +188,16 @@ function AutoCompletionSelect({
 
   useEffect(() => {
     if (defaultOptions.length > 0) {
-      const options = defaultOptions.map(item => ({
-        label: item,
-        value: item,
-        onRemove: handleRemove
-      }));
+      const options = optionMappingKey
+        ? defaultOptions.map(item => ({
+            label: item[optionMappingKey.label],
+            value: item[optionMappingKey.value]
+          }))
+        : defaultOptions.map(item => ({
+            label: item,
+            value: item,
+            onRemove: handleRemove
+          }));
 
       const currentOptions = fields.added.options;
 
@@ -213,6 +226,10 @@ function AutoCompletionSelect({
   );
 
   const fetch = useCallback(() => {
+    if (!query && !queryName) {
+      return;
+    }
+
     setLoading(true);
 
     return client
@@ -225,7 +242,9 @@ function AutoCompletionSelect({
         }
       })
       .then(({ data }) => {
-        setFetchResult(data[queryName]);
+        if (queryName) {
+          setFetchResult(data[queryName]);
+        }
       });
   }, [searchValue, autoCompletionType, query, queryName, setFetchResult]);
 
@@ -344,6 +363,10 @@ function AutoCompletionSelect({
     return <input {...props} value={searchValue} />;
   };
 
+  const renderOptionComponent = props => (
+    <Option {...props} isSimpleAutoCompletion={isSimpleAutoCompletion} />
+  );
+
   return (
     <Wrapper>
       <FillContent>
@@ -361,7 +384,7 @@ function AutoCompletionSelect({
           onChange={handleChange}
           onInputKeyDown={handleKeyDown}
           onInputChange={handleInput}
-          optionComponent={Option}
+          optionComponent={renderOptionComponent}
           noResultsText={renderNoResult()}
         />
       </FillContent>
