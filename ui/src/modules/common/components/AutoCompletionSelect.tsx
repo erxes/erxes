@@ -207,7 +207,7 @@ function AutoCompletionSelect({
     const updatedOptions = [fields.added, fields.search];
 
     setSelectOptions(updatedOptions);
-  }, [defaultOptions, fields, handleRemove]);
+  }, [defaultOptions, fields, handleRemove, optionMappingKey]);
 
   const setFetchResult = useCallback(
     list => {
