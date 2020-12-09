@@ -11,7 +11,6 @@ import {
   usersGroupFactory
 } from '../db/factories';
 import { Brands, Channels, Users } from '../db/models';
-
 import './setup.ts';
 
 /*
@@ -19,7 +18,7 @@ import './setup.ts';
  */
 const args = {
   username: faker.internet.userName(),
-  email: faker.internet.email(),
+  email: faker.internet.email().toLowerCase(),
   details: {
     avatar: faker.image.avatar(),
     fullName: faker.name.findName(),

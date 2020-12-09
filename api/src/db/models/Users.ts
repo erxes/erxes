@@ -220,8 +220,8 @@ export const loadClass = () => {
         brandIds
       }: IUpdateUser
     ) {
-      email = (email || '').toLocaleLowerCase().trim();
-      password = (password || '').toLocaleLowerCase().trim();
+      email = (email || '').toLowerCase().trim();
+      password = (password || '').trim();
 
       const doc: any = {
         username,
@@ -274,7 +274,7 @@ export const loadClass = () => {
       password: string;
       groupId: string;
     }) {
-      email = (email || '').toLocaleLowerCase().trim();
+      email = (email || '').toLowerCase().trim();
       password = (password || '').trim();
 
       // Checking duplicated email
@@ -583,7 +583,7 @@ export const loadClass = () => {
     public static async forgotPassword(email: string) {
       // find user
       const user = await Users.findOne({
-        email: (email || '').toLocaleLowerCase().trim()
+        email: (email || '').toLowerCase().trim()
       });
 
       if (!user) {
@@ -672,7 +672,7 @@ export const loadClass = () => {
       password: string;
       deviceToken?: string;
     }) {
-      email = (email || '').toLocaleLowerCase().trim();
+      email = (email || '').toLowerCase().trim();
       password = (password || '').trim();
 
       const user = await Users.findOne({

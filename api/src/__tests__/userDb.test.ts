@@ -15,7 +15,7 @@ describe('User db utils', () => {
 
   beforeEach(async () => {
     // Creating test data
-    _user = await userFactory({ email: 'Info@erxes.io', isActive: true });
+    _user = await userFactory({ email: 'info@erxes.io', isActive: true });
   });
 
   afterEach(async () => {
