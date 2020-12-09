@@ -6,7 +6,8 @@ import { Accounts, Integrations } from '../models';
 import {
   getFacebookUser,
   getFacebookUserProfilePic,
-  getPostLink
+  getPostLink,
+  refreshPageAccesToken
 } from './utils';
 
 export const generatePostDoc = (
@@ -198,16 +199,27 @@ export const getOrCreateCustomer = async (
     $and: [{ facebookPageIds: { $in: pageId } }, { kind }]
   });
 
-  const { facebookPageTokensMap } = integration;
+  let { facebookPageTokensMap } = integration;
 
   let customer = await Customers.findOne({ userId });
 
   if (customer) {
     return customer;
   }
+
   // create customer
-  const fbUser =
-    (await getFacebookUser(pageId, facebookPageTokensMap, userId)) || {};
+  let fbUser = {} as any;
+
+  try {
+    fbUser =
+      (await getFacebookUser(pageId, facebookPageTokensMap, userId)) || {};
+  } catch (e) {
+    facebookPageTokensMap = await refreshPageAccesToken(pageId, integration);
+
+    fbUser =
+      (await getFacebookUser(pageId, facebookPageTokensMap, userId)) || {};
+  }
+
   const fbUserProfilePic =
     fbUser.profile_pic ||
     (await getFacebookUserProfilePic(pageId, facebookPageTokensMap, userId));
