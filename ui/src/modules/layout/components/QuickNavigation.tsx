@@ -6,7 +6,7 @@ import ModalTrigger from 'modules/common/components/ModalTrigger';
 import NameCard from 'modules/common/components/nameCard/NameCard';
 import Tip from 'modules/common/components/Tip';
 import { colors } from 'modules/common/styles';
-import { lighten } from 'modules/common/styles/color';
+import { lighten, rgba } from 'modules/common/styles/color';
 import { __, can } from 'modules/common/utils';
 import Widget from 'modules/notifications/containers/Widget';
 import NotificationSettings from 'modules/settings/profile/containers/NotificationSettings';
@@ -85,6 +85,7 @@ const Round = styled(NavItem)`
     &.active,
     &:hover {
       background: ${lighten(colors.colorPrimary, 15)};
+      color: ${rgba(colors.colorWhite, 0.8)};
     }
   }
 
