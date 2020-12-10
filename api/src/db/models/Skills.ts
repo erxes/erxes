@@ -47,8 +47,6 @@ interface ISkillUpdateParam extends Omit<ISkillParams, 'typeId'> {
 }
 
 export interface ISkillModel extends Model<ISkillDocument> {
-  getSkill(_id: string): Promise<ISkillDocument>;
-  getSkills(typeId: string): Promise<ISkillDocument[]>;
   createSkill({
     name,
     typeId,
@@ -64,16 +62,6 @@ export interface ISkillModel extends Model<ISkillDocument> {
 
 export const loadSkillClass = () => {
   class Skill {
-    public static async getSkills(typeId: string) {
-      const skills = await Skills.find({ typeId });
-
-      if (!skills) {
-        throw new Error('Skills not found');
-      }
-
-      return skills;
-    }
-
     public static async createSkill(doc: ISkillParams) {
       return Skills.create(doc);
     }

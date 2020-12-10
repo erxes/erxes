@@ -1,6 +1,6 @@
-const getSkillTypes = `
-  query skillTypes($page: Int, $perPage: Int) {
-    skillTypes(page: $page, perPage: $perPage) {
+const skillTypes = `
+  query skillTypes {
+    skillTypes {
       _id
       name
     }
@@ -13,7 +13,26 @@ const skillTypesTotalCount = `
   }
 `;
 
+const skills = `
+  query skills($typeId: String, $page: Int, $perPage: Int) {
+    skills(typeId: $typeId, page: $page, perPage: $perPage) {
+      _id
+      name
+      typeId
+      memberIds
+    }
+  }
+`;
+
+const skillsTotalCount = `
+  query skillsTotalCount($typeId: String!) {
+    skillsTotalCount
+  }
+`;
+
 export default {
-  getSkillTypes,
+  skills,
+  skillsTotalCount,
+  skillTypes,
   skillTypesTotalCount
 };

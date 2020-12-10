@@ -31,3 +31,26 @@ export type SkillTypesEditMutation = {
 export type SkillTypesRemoveMutation = {
   removeSkillType: (params: { variables: { _id: string } }) => Promise<any>;
 };
+
+export interface ISkill {
+  name: string;
+  typeId: string;
+  memberIds: string[];
+}
+export interface ISkillDocument extends ISkill {
+  _id: string;
+}
+
+export type SkillsQueryResponse = {
+  skills: ISkillDocument[];
+  loading: boolean;
+};
+
+export type SkillsTotalCountQueryResponse = {
+  skillsTotalCount: number;
+  loading: boolean;
+};
+
+export type SkillsRemoveMutationResponse = {
+  removeSkill: (params: { variables: { _id: string } }) => Promise<void>;
+};

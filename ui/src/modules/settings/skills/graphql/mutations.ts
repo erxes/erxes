@@ -18,8 +18,15 @@ const skillTypeRemove = `
   }
 `;
 
+const skillRemove = `
+  mutation removeSkill($_id: String!) {
+    removeSkill
+  }
+`;
+
 export default {
   skillTypeAdd,
   skillTypeEdit,
-  skillTypeRemove
+  skillTypeRemove,
+  skillRemove
 };

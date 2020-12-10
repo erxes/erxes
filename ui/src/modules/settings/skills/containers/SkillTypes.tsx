@@ -17,7 +17,7 @@ type Props = {
 };
 
 const commonOptions = () => ({
-  refetchQueries: [{ query: gql(queries.getSkillTypes) }]
+  refetchQueries: [{ query: gql(queries.skillTypes) }]
 });
 
 export default commonListComposer<Props>({
@@ -26,15 +26,18 @@ export default commonListComposer<Props>({
   stringEditMutation: mutations.skillTypeEdit,
   stringAddMutation: mutations.skillTypeAdd,
 
+  confirmProps: {
+    message:
+      'This will permanently delete this skill type and skills in it. Are you absolutely sure?',
+    options: { hasDeleteConfirm: true }
+  },
+
   gqlListQuery: graphql<Props, SkillTypesQueryResponse>(
-    gql(queries.getSkillTypes),
+    gql(queries.skillTypes),
     {
       name: 'listQuery',
-      options: ({ queryParams }) => ({
-        notifyOnNetworkStatusChange: true,
-        variabes: {
-          perPage: queryParams.limit ? parseInt(queryParams.limit, 10) : 20
-        }
+      options: () => ({
+        notifyOnNetworkStatusChange: true
       })
     }
   ),

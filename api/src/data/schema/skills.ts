@@ -13,11 +13,12 @@ export const types = `
 `;
 
 export const queries = `
-  skillTypes(page: Int, perPage: Int): [SkillType]
+  skillTypes: [SkillType]
   skillTypesTotalCount: Int
 
-  getSkill(_id: String!): Skill
-  getSkills(typeId: String!): [Skill]
+  skill(_id: String!): Skill
+  skills(typeId: String, page: Int, perPage: Int): [Skill]
+  skillsTotalCount(typeId: String!): Int
 `;
 
 export const mutations = `

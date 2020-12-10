@@ -3,8 +3,8 @@ import { requireLogin } from '../../permissions/wrappers';
 import { paginate } from '../../utils';
 
 const skillTypesQueries = {
-  skillTypes(_root, args: { page?: number; perPage?: number }) {
-    return paginate(SkillTypes.find({}), args).sort({ name: 1 });
+  skillTypes() {
+    return SkillTypes.find({}).sort({ name: 1 });
   },
 
   skillTypesTotalCount() {
@@ -12,13 +12,36 @@ const skillTypesQueries = {
   }
 };
 
+const getSkillSelector = typeId => {
+  const selector: { [key: string]: string } = {};
+
+  if (typeId) {
+    selector.typeId = typeId;
+  }
+
+  return selector;
+};
+
 const skillQueries = {
-  async getSkill(_root, { _id }: { _id: string }) {
-    return Skills.getSkill(_id);
+  async skill(_root, { _id }: { _id: string }) {
+    const skill = await Skills.findOne({ _id });
+
+    if (!skill) {
+      throw new Error('Skill not found');
+    }
+
+    return skill;
   },
 
-  async getSkills(_root, { typeId }: { typeId: string }) {
-    return Skills.getSkills(typeId);
+  async skills(
+    _root,
+    { typeId, ...args }: { typeId: string; page?: number; perPage?: number }
+  ) {
+    return paginate(Skills.find(getSkillSelector(typeId)), args);
+  },
+
+  async skillsTotalCount(_root, { typeId }: { typeId: string }) {
+    return Skills.countDocuments(getSkillSelector(typeId));
   }
 };
 
