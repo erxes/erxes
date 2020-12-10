@@ -135,7 +135,8 @@ function withSaveAndEdit<IComponentProps>(Component) {
             ? {
                 type: scheduleDate.type,
                 month: scheduleDate.month,
-                day: scheduleDate.day
+                day: scheduleDate.day,
+                dateTime: scheduleDate.dateTime
               }
             : null
         }

@@ -11,6 +11,10 @@ const Capitalize = styledTS<{ isCapital?: boolean }>(styled.span)`
   text-transform: ${props => (props.isCapital ? 'capitalize' : 'none')};
 `;
 
+const Text = styled.div`
+  line-height: 36px;
+`;
+
 type Props = {
   percentage: number;
   id: string;
@@ -123,7 +127,7 @@ class ImportIndicator extends React.Component<Props> {
       return this.getSuccessText();
     }
 
-    return <div>{this.getIndicatorText()}</div>;
+    return <Text>{this.getIndicatorText()}</Text>;
   };
 
   renderCloseButton = () => {
