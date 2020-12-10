@@ -32,6 +32,7 @@ export const skillSchema = schemaWrapper(
   new Schema({
     _id: field({ pkey: true }),
     name: field({ type: String, label: 'Name' }),
+    typeId: field({ type: String }),
     memberIds: field({ type: [String] }),
     createdAt: field({ type: Date })
   })

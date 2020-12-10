@@ -1,9 +1,12 @@
+import ActionButtons from 'modules/common/components/ActionButtons';
 import Button from 'modules/common/components/Button';
 import Icon from 'modules/common/components/Icon';
+import ModalTrigger from 'modules/common/components/ModalTrigger';
 import Tip from 'modules/common/components/Tip';
-import { ActionButtons } from 'modules/settings/styles';
+import { __ } from 'modules/common/utils';
 import React from 'react';
 import { ISkillDocument, ISkillTypesDocument } from '../types';
+import SkillForm from './SkillForm';
 
 type Props = {
   skill: ISkillDocument;
@@ -12,7 +15,7 @@ type Props = {
   removeItem: (id: string) => void;
 };
 
-function SkillRow({ skill, skillTypes, removeItem }: Props) {
+function SkillRow({ skill, skillTypes, refetchQueries, removeItem }: Props) {
   const handleRemove = () => removeItem(skill._id);
   const getSkillType = () => {
     const type = skillTypes.find(item => item._id === skill.typeId);
@@ -24,19 +27,48 @@ function SkillRow({ skill, skillTypes, removeItem }: Props) {
     return type.name;
   };
 
+  const renderForm = formProps => {
+    return (
+      <SkillForm
+        {...formProps}
+        skill={skill}
+        skillTypes={skillTypes}
+        refetchQueries={refetchQueries}
+      />
+    );
+  };
+
+  function renderActions() {
+    const trigger = (
+      <Button id="edit-skill" btnStyle="link">
+        <Tip text={__('Edit')} placement="bottom">
+          <Icon icon="edit" />
+        </Tip>
+      </Button>
+    );
+
+    return (
+      <ActionButtons>
+        <ModalTrigger
+          title="Edit skill"
+          size="lg"
+          trigger={trigger}
+          content={renderForm}
+        />
+        <Tip text="Delete" placement="top">
+          <Button btnStyle="link" onClick={handleRemove}>
+            <Icon icon="times-circle" />
+          </Button>
+        </Tip>
+      </ActionButtons>
+    );
+  }
+
   return (
     <tr key={skill._id}>
       <td>{skill.name}</td>
       <td>{getSkillType()}</td>
-      <td>
-        <ActionButtons>
-          <Tip text="Delete" placement="top">
-            <Button btnStyle="link" onClick={handleRemove}>
-              <Icon icon="times-circle" />
-            </Button>
-          </Tip>
-        </ActionButtons>
-      </td>
+      <td>{renderActions()}</td>
     </tr>
   );
 }

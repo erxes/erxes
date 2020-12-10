@@ -11,26 +11,39 @@ import SelectTeamMembers from 'modules/settings/team/containers/SelectTeamMember
 import React, { useState } from 'react';
 import Select from 'react-select-plus';
 import mutations from '../graphql/mutations';
-import { ISkillTypesDocument } from '../types';
+import { ISkillDocument, ISkillTypesDocument } from '../types';
 
 type Props = {
+  skill: ISkillDocument;
   skillTypes: ISkillTypesDocument[];
   refetchQueries: any;
   closeModal: () => void;
 };
 
-function SkillForm({ closeModal, skillTypes, refetchQueries }: Props) {
-  const [isSubmitted, setSubmitted] = useState(false);
-  const [name, setName] = useState('');
-  const [typeId, setTypeId] = useState(null);
-  const [memberIds, setMemberIds] = useState([]);
+const getSkillType = (skill, types) => {
+  const option = types.find(type => type._id === skill.typeId);
 
-  const handleSubmit = () => {
+  if (!option) {
+    return null;
+  }
+
+  return option._id;
+};
+
+function SkillForm({ closeModal, skill, skillTypes, refetchQueries }: Props) {
+  const [isSubmitted, setSubmitted] = useState(false);
+  const [name, setName] = useState<string>(skill.name || '');
+  const [type, setType] = useState(getSkillType(skill, skillTypes));
+  const [memberIds, setMemberIds] = useState<string[]>(skill.memberIds || []);
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+
     if (name.length === 0) {
       return Alert.error('Please enter a name');
     }
 
-    if (!typeId) {
+    if (!type) {
       return Alert.error('Please select a type');
     }
 
@@ -42,16 +55,21 @@ function SkillForm({ closeModal, skillTypes, refetchQueries }: Props) {
   };
 
   const getVariables = () => {
+    if (!type) {
+      return;
+    }
+
     return {
       name,
-      typeId,
-      memberIds
+      memberIds,
+      typeId: type.value,
+      ...(skill ? { _id: skill._id } : {})
     };
   };
 
   function renderContent() {
     const handleInputChange = e => setName(e.target.value);
-    const handleTypeSelect = value => setTypeId(value);
+    const handleTypeSelect = option => setType(option);
     const handleTeamMemberSelect = ids => setMemberIds(ids);
 
     const generateSkillTypes = () => {
@@ -64,6 +82,7 @@ function SkillForm({ closeModal, skillTypes, refetchQueries }: Props) {
           <ControlLabel required={true}>name</ControlLabel>
           <FormControl
             required={true}
+            autoFocus={true}
             onChange={handleInputChange}
             defaultValue={name}
           />
@@ -72,8 +91,8 @@ function SkillForm({ closeModal, skillTypes, refetchQueries }: Props) {
           <ControlLabel required={true}>Skill type</ControlLabel>
           <Select
             placeholder={__('Choose a skill type')}
+            value={type}
             options={generateSkillTypes()}
-            value={typeId}
             onChange={handleTypeSelect}
           />
         </FormGroup>
@@ -95,6 +114,7 @@ function SkillForm({ closeModal, skillTypes, refetchQueries }: Props) {
       {renderContent()}
       <ModalFooter>
         <Button
+          id="skill-form"
           btnStyle="simple"
           type="button"
           onClick={closeModal}
@@ -109,7 +129,7 @@ function SkillForm({ closeModal, skillTypes, refetchQueries }: Props) {
           refetchQueries={refetchQueries}
           isSubmitted={isSubmitted}
           type="submit"
-          successMessage={__('You successfully added a skil')}
+          successMessage={__('You successfully added a skill')}
         />
       </ModalFooter>
     </form>
