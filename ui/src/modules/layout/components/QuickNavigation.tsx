@@ -37,7 +37,11 @@ const UserInfo = styled.div`
 
   span {
     float: none;
-    margin: 0 5px 0 10px;
+    margin: 0 5px 0 0;
+  }
+
+  i {
+    width: 10px;
   }
 `;
 
@@ -51,9 +55,13 @@ const NavItem = styled.div`
   vertical-align: middle;
 
   > a {
-    color: ${colors.textPrimary};
+    color: ${colors.textSecondary};
     display: flex;
     align-items: center;
+
+    &:hover {
+      color: ${colors.colorSecondary};
+    }
   }
 
   .dropdown-menu {
@@ -61,25 +69,9 @@ const NavItem = styled.div`
   }
 `;
 
-const Square = styled(NavItem)`
-  padding: 0;
-  background: ${rgba(colors.colorSecondary, 0.1)};
-  transition: background 0.3s ease;
-  border-left: 1px solid #fff;
-
-  &:hover {
-    background: ${rgba(colors.colorSecondary, 0.18)};
-  }
-
-  > a {
-    padding: 0 14px 0 17px;
-    color: ${colors.colorSecondary};
-    display: block;
-    line-height: 48px;
-  }
-`;
-
 const Round = styled(NavItem)`
+  padding-left: 24px;
+
   > a {
     padding: 0 10px;
     background: ${lighten(colors.colorPrimary, 5)};
@@ -93,6 +85,7 @@ const Round = styled(NavItem)`
     &.active,
     &:hover {
       background: ${lighten(colors.colorPrimary, 15)};
+      color: ${rgba(colors.colorWhite, 0.8)};
     }
   }
 
@@ -144,29 +137,26 @@ const QuickNavigation = ({
 
   return (
     <nav id={'SettingsNav'}>
-      <Round>
-        <Version />
-      </Round>
-
       {brandsCombo}
 
       {can('showCalendars', currentUser) && (
-        <Tip text={__('Calendar')} placement="bottom">
-          <Square>
+        <NavItem>
+          <Tip text={__('Calendar')} placement="bottom">
             <Link to="/calendar">
-              <Icon icon="calendar-alt" size={19} />
+              <Icon icon="calendar-alt" size={20} />
             </Link>
-          </Square>
-        </Tip>
+          </Tip>
+        </NavItem>
       )}
 
-      <Tip text={__('Task')} placement="bottom">
-        <Square>
+      <NavItem>
+        <Tip text={__('Task')} placement="bottom">
           <Link to="/task">
-            <Icon icon="file-check-alt" size={19} />
+            <Icon icon="file-check-alt" size={21} />
           </Link>
-        </Square>
-      </Tip>
+        </Tip>
+      </NavItem>
+
       <Round>
         <NavLink to="/tutorial#defaultStage">
           <Icon icon="question-circle" size={20} />{' '}
@@ -187,7 +177,7 @@ const QuickNavigation = ({
             <UserHelper>
               <UserInfo>
                 <NameCard.Avatar user={currentUser} size={30} />
-                <Icon icon="angle-down" />
+                <Icon icon="angle-down" size={14} />
               </UserInfo>
             </UserHelper>
           </Dropdown.Toggle>
@@ -234,6 +224,7 @@ const QuickNavigation = ({
 
             <Dropdown.Divider />
             <Dropdown.Item onClick={logout}>{__('Sign out')}</Dropdown.Item>
+            <Version kind="plain" />
           </Dropdown.Menu>
         </Dropdown>
       </NavItem>

@@ -7,19 +7,28 @@ import Version from '../components/Version';
 import { queries } from '../graphql';
 
 type Props = {
-  versionQuery;
+  kind: 'notify' | 'plain';
+  showNotify?: boolean;
 };
 
-const VersionContainer = (props: Props) => {
-  const { versionQuery } = props;
+type FinalProps = {
+  versionQuery;
+} & Props;
+
+const VersionContainer = (props: FinalProps) => {
+  const { versionQuery, kind, showNotify } = props;
   const info = versionQuery.configsGetVersion || {};
 
-  return <Version info={info} />;
+  if (versionQuery.loading) {
+    return null;
+  }
+
+  return <Version showNotify={showNotify} kind={kind} info={info} />;
 };
 
-export default withProps<{}>(
+export default withProps<Props>(
   compose(
-    graphql<{}, {}>(gql(queries.configsGetVersion), {
+    graphql<Props>(gql(queries.configsGetVersion), {
       name: 'versionQuery'
     })
   )(VersionContainer)
