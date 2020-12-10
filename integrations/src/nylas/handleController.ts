@@ -436,11 +436,13 @@ export const nylasConnectCalendars = async (uid: string) => {
 
 export const nylasRemoveCalendars = async (accountId: string) => {
   try {
-    const {
-      email,
-      nylasAccountId,
-      googleAccessToken
-    } = await Accounts.findOne({ _id: accountId });
+    const account = await Accounts.findOne({ _id: accountId });
+
+    if (!account) {
+      throw new Error('Account not found');
+    }
+
+    const { email, nylasAccountId, googleAccessToken } = account;
 
     const calendars = await NylasCalendars.find({
       accountUid: nylasAccountId
@@ -468,7 +470,7 @@ export const nylasRemoveCalendars = async (accountId: string) => {
 
 export const nylasGetAccountCalendars = async (
   accountId: string,
-  show: boolean
+  show?: boolean
 ) => {
   const account = await Accounts.findOne({ _id: accountId });
 
@@ -486,13 +488,7 @@ export const nylasGetAccountCalendars = async (
     params.show = true;
   }
 
-  const calendars = await NylasCalendars.find(params);
-
-  if (!calendars) {
-    throw new Error('Calendars not found');
-  }
-
-  return calendars;
+  return NylasCalendars.find(params);
 };
 
 export const nylasGetEvents = async ({

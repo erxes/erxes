@@ -5,6 +5,7 @@ import {
   nylasCalendarFactory,
   nylasEventFactory
 } from '../factories';
+import * as gmailApi from '../gmail/api';
 import memoryStorage, { initMemoryStorage } from '../inmemoryStorage';
 import * as messageBroker from '../messageBroker';
 import { Integrations } from '../models';
@@ -19,11 +20,13 @@ import {
   nylasCreateCalenderEvent,
   nylasDeleteCalendarEvent,
   nylasFileUpload,
+  nylasGetAccountCalendars,
   nylasGetAllEvents,
   nylasGetAttachment,
   nylasGetCalendarOrEvent,
   nylasGetCalendars,
   nylasGetEvents,
+  nylasRemoveCalendars,
   nylasSendEmail,
   nylasSendEventAttendance,
   nylasUpdateEvent,
@@ -989,30 +992,120 @@ describe('Test nylas controller', () => {
     const uid = 'google-uid';
     const accountEmail = 'email321@gmail.com';
     const kind = 'gmail';
+    const nylasAccountId = 'nylasId';
 
-    const redisMock = sinon.stub(memoryStorage(), 'get').callsFake(() => {
-      return Promise.resolve(`${accountEmail},refrshToken,${kind}`);
-    });
+    const redisMock = sinon
+      .stub(memoryStorage(), 'get')
+      .returns(Promise.resolve(`${accountEmail},refrshToken,${kind}`));
 
     const account = await accountFactory({
       email: accountEmail,
       kind,
-      nylasAccountId: 'nylasId'
+      nylasAccountId,
+      nylasToken: 'token'
     });
 
     const { accountId, email } = await nylasConnectCalendars(uid);
 
     expect(account._id).toBe(accountId);
-    expect(email).toBe(accountEmail);
+    expect(accountEmail).toBe(email);
 
+    try {
+      await nylasConnectCalendars(uid);
+    } catch (e) {
+      expect(e.message).toBe('revoke error');
+    }
+
+    const connectProviderMock = sinon
+      .stub(auth, 'connectProviderToNylas')
+      .returns(Promise.resolve({ account }));
+
+    const calendarList = sinon.stub(api, 'getCalendarList').returns(
+      Promise.resolve([
+        {
+          id: 1,
+          account_id: nylasAccountId,
+          name: 'my calendar',
+          description: 'description',
+          read_only: false
+        }
+      ])
+    );
+
+    try {
+      await nylasConnectCalendars(uid);
+    } catch (e) {
+      expect(e.message).toBe('events not found');
+    }
+
+    connectProviderMock.restore();
+    calendarList.restore();
     redisMock.restore();
+  });
+
+  test('Remove calendars', async () => {
+    try {
+      await nylasRemoveCalendars('accId');
+    } catch (e) {
+      expect(e.message).toBe('Account not found');
+    }
+
+    const mock = sinon
+      .stub(gmailApi, 'revokeToken')
+      .throws(new Error('revoke error'));
+
+    const account = await accountFactory({
+      nylasAccountId: 'nylasId'
+    });
+
+    try {
+      await nylasRemoveCalendars(account._id);
+    } catch (e) {
+      expect(e.message).toBe('revoke error');
+    }
+
+    const account2 = await accountFactory({
+      nylasAccountId: 'nylasId2'
+    });
+
+    await nylasCalendarFactory({
+      providerCalendarId: 'calendar.id',
+      accountUid: account2.nylasAccountId
+    });
+
+    mock.onCall(1).returns(Promise.resolve(true));
+
+    const nylasRevokeTokenMock = sinon
+      .stub(api, 'revokeTokenAccount')
+      .returns(true);
+
+    await nylasRemoveCalendars(account2._id);
+
+    mock.restore();
+    nylasRevokeTokenMock.restore();
+  });
+
+  test('Get account calendars', async () => {
+    try {
+      await nylasGetAccountCalendars('accId');
+    } catch (e) {
+      expect(e.message).toBe('Account not found');
+    }
+
+    const account = await accountFactory({
+      nylasAccountId: 'nylasId2'
+    });
+
+    const calendars = await nylasGetAccountCalendars(account._id, true);
+
+    expect(calendars.length).toEqual(0);
   });
 
   test('Nylas get events', async () => {
     const providerCalendarId = 'calendarId';
     const account = await Accounts.findOne({});
 
-    await nylasCalendarFactory({
+    const calendar = await nylasCalendarFactory({
       providerCalendarId,
       accountUid: account.nylasAccountId
     });
@@ -1021,7 +1114,7 @@ describe('Test nylas controller', () => {
       return new Date(date).getTime() / 1000;
     };
 
-    const mock1 = sinon.stub(api, 'getEventList').returns(
+    const mock = sinon.stub(api, 'getEventList').returns(
       Promise.resolve([
         {
           id: '321',
@@ -1043,18 +1136,32 @@ describe('Test nylas controller', () => {
       }
     });
 
-    const events = await nylasGetEvents({
+    const params = {
       calendarIds: providerCalendarId,
       startTime: '2020-10-27',
       endTime: '2020-11-27'
-    });
+    };
+
+    const events = await nylasGetEvents(params);
 
     expect(events.length).toEqual(1);
     expect(_event._id).toEqual(events[0]._id);
 
-    mock1.restore();
+    await NylasCalendars.updateOne(
+      { _id: calendar._id },
+      { $set: { syncedMonths: ['2020-10'] } }
+    );
 
-    const mock = sinon.stub(api, 'getEventList').throws(new Error('error'));
+    await nylasGetEvents(params);
+
+    const events2 = await nylasGetEvents({
+      ...params,
+      calendarIds: 'providerCalendarId'
+    });
+
+    expect(events2.length).toEqual(0);
+
+    mock.onCall(1).throws(new Error('error'));
 
     try {
       await nylasGetEvents({
@@ -1065,6 +1172,10 @@ describe('Test nylas controller', () => {
     } catch (e) {
       expect(e.message).toBe('error');
     }
+
+    const milliseconds = nylasUtils.getTime(new Date('2020-11-27'));
+
+    expect(milliseconds).toBeDefined();
 
     mock.restore();
   });
