@@ -8,6 +8,7 @@ type Props = {
   relTypeIds?: string[];
   assignedUserIds?: string[];
   sourceConversationId?: string;
+  subject?: string;
   url?: string;
   refetch: () => void;
   description?: string;
