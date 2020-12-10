@@ -1,9 +1,14 @@
 import { Skills, SkillTypes } from '../../../db/models/Skills';
 import { requireLogin } from '../../permissions/wrappers';
+import { paginate } from '../../utils';
 
 const skillTypesQueries = {
-  getSkillTypes() {
-    return SkillTypes.getSkilltypes();
+  skillTypes(_root, args: { page?: number; perPage?: number }) {
+    return paginate(SkillTypes.find({}), args).sort({ name: 1 });
+  },
+
+  skillTypesTotalCount() {
+    return SkillTypes.countDocuments({});
   }
 };
 
@@ -17,6 +22,6 @@ const skillQueries = {
   }
 };
 
-requireLogin(skillTypesQueries, 'getSkillTypes');
+requireLogin(skillTypesQueries, 'skillTypes');
 
 export { skillTypesQueries, skillQueries };

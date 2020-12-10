@@ -19,6 +19,7 @@ import ProfileRoutes from './profile/routes';
 import PropertiesRoutes from './properties/routes';
 import ResponseTemplatesRoutes from './responseTemplates/routes';
 import ScriptsRoutes from './scripts/routes';
+import SkillsRoutes from './skills/routes';
 import StatusRoutes from './status/routes';
 import TeamRoutes from './team/routes';
 import WebhookRoutes from './webhook/routes';
@@ -47,6 +48,7 @@ const routes = () => (
     <GrowthHackRoutes key="GrowthHackRoutes" />
     <WebhookRoutes key="WebhookRoutes" />
     <CalendarRoutes key="CalendarRoutes" />
+    <SkillsRoutes key="SkillsRoutes" />
   </React.Fragment>
 );
 

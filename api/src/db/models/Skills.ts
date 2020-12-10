@@ -7,7 +7,6 @@ import {
 } from './definitions/skills';
 
 export interface ISkillTypeModel extends Model<ISkillTypeDocument> {
-  getSkilltypes(): Promise<ISkillTypeDocument[]>;
   createSkillType(name: string): Promise<ISkillTypeDocument>;
   updateSkillType(_id: string, name: string): Promise<ISkillTypeDocument>;
   removeSkillType(_id: string): Promise<void>;
@@ -15,16 +14,6 @@ export interface ISkillTypeModel extends Model<ISkillTypeDocument> {
 
 export const loadSkillTypeClass = () => {
   class SkillType {
-    public static async getSkilltypes() {
-      const skilltypes = await SkillTypes.find({});
-
-      if (!skilltypes) {
-        throw new Error('Skill types not found');
-      }
-
-      return skilltypes;
-    }
-
     public static async createSkillType(name: string) {
       return SkillTypes.create({ name });
     }

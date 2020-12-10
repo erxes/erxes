@@ -218,6 +218,19 @@ class Settings extends React.PureComponent {
               '/settings/webhooks',
               ''
             )}
+            {this.renderBox(
+              'Skills',
+              '/images/icons/erxes-02.svg',
+              '/settings/skills',
+              'skillTypesAll',
+              [
+                'getSkillTypes',
+                'getSkill',
+                'getSkills',
+                'manageSkills',
+                'manageSkillTypes'
+              ]
+            )}
           </div>
         </Row>
         <Divider />

@@ -13,7 +13,8 @@ export const types = `
 `;
 
 export const queries = `
-  getSkillTypes: [SkillType]
+  skillTypes(page: Int, perPage: Int): [SkillType]
+  skillTypesTotalCount: Int
 
   getSkill(_id: String!): Skill
   getSkills(typeId: String!): [Skill]
@@ -21,7 +22,7 @@ export const queries = `
 
 export const mutations = `
   createSkillType(name: String!): SkillType
-  updateSkillType(_id: String!, name: String!): SkillType
+  updateSkillType(_id: String!, name: String): JSON
   removeSkillType(_id: String!): JSON
 
   createSkill(name: String!, typeId: String!, memberIds: [String]): Skill
