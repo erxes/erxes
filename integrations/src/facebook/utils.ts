@@ -1,6 +1,7 @@
 import * as graph from 'fbgraph';
 import { debugFacebook } from '../debuggers';
 import { Accounts, Integrations } from '../models';
+import { IIntegrationDocument } from '../models/Integrations';
 import { generateAttachmentUrl } from '../utils';
 import { IAttachment, IAttachmentMessage } from './types';
 
@@ -54,6 +55,26 @@ export const getPageAccessToken = async (
   );
 
   return response.access_token;
+};
+
+export const refreshPageAccesToken = async (
+  pageId: string,
+  integration: IIntegrationDocument
+) => {
+  const account = await Accounts.getAccount({ _id: integration.accountId });
+
+  const facebookPageTokensMap = integration.facebookPageTokensMap;
+
+  const pageAccessToken = await getPageAccessToken(pageId, account.token);
+
+  facebookPageTokensMap[pageId] = pageAccessToken;
+
+  await Integrations.updateOne(
+    { _id: integration._id },
+    { $set: { facebookPageTokensMap } }
+  );
+
+  return facebookPageTokensMap;
 };
 
 export const getPageAccessTokenFromMap = (
@@ -137,8 +158,7 @@ export const getFacebookUser = async (
     console.log(response);
     return response;
   } catch (e) {
-    debugFacebook(`Error occurred while getting facebook user: ${e.message}`);
-    return null;
+    throw new Error(e);
   }
 };
 
@@ -236,7 +256,7 @@ export const sendReply = async (
         data
       )}`
     );
-    if (e.message.includes('Invalid OAuth')) {
+    if (e.message.includes('access token')) {
       // Update expired token for selected page
       const newPageAccessToken = await getPageAccessToken(
         recipientId,

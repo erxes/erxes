@@ -10,8 +10,9 @@ import {
   deleteCalendarEvent,
   enableOrDisableAccount,
   getAttachment,
+  getCalendarList,
   getCalendarOrEvent,
-  getCalenderOrEventList,
+  getEventList,
   revokeTokenAccount,
   sendEventAttendance,
   sendMessage,
@@ -33,7 +34,7 @@ import {
   IEventDoc,
   INylasIntegrationData
 } from './types';
-import { buildEmailAddress } from './utils';
+import { buildEmailAddress, extractDate } from './utils';
 
 export const createNylasIntegration = async (
   kind: string,
@@ -217,10 +218,7 @@ export const nylasGetCalendars = async (account: IAccount) => {
       throw new Error('Account not found');
     }
 
-    const calendars: ICalendar[] = await getCalenderOrEventList(
-      'calendars',
-      account.nylasToken
-    );
+    const calendars: ICalendar[] = await getCalendarList(account.nylasToken);
 
     return storeCalendars(calendars);
   } catch (e) {
@@ -242,7 +240,7 @@ export const nylasGetAllEvents = async (account: IAccount) => {
 
     for (const calendar of calendars) {
       await storeEvents(
-        await getCalenderOrEventList('events', account.nylasToken, {
+        await getEventList(account.nylasToken, {
           calendar_id: calendar.providerCalendarId
         })
       );
@@ -472,35 +470,29 @@ export const nylasGetAccountCalendars = async (
   accountId: string,
   show: boolean
 ) => {
-  try {
-    const account = await Accounts.findOne({ _id: accountId });
+  const account = await Accounts.findOne({ _id: accountId });
 
-    if (!account) {
-      throw new Error('Account not found');
-    }
-
-    const accountUid = account.nylasAccountId;
-
-    debugNylas(`Get calendars with accountUid: $${accountUid}`);
-
-    const params: { accountUid: string; show?: boolean } = { accountUid };
-
-    if (show) {
-      params.show = true;
-    }
-
-    const calendars = await NylasCalendars.find(params);
-
-    if (!calendars) {
-      throw new Error('Calendars not found');
-    }
-
-    return calendars;
-  } catch (e) {
-    debugNylas(`Failed to get calendars: ${e.message}`);
-
-    throw e;
+  if (!account) {
+    throw new Error('Account not found');
   }
+
+  const accountUid = account.nylasAccountId;
+
+  debugNylas(`Get calendars with accountUid: $${accountUid}`);
+
+  const params: { accountUid: string; show?: boolean } = { accountUid };
+
+  if (show) {
+    params.show = true;
+  }
+
+  const calendars = await NylasCalendars.find(params);
+
+  if (!calendars) {
+    throw new Error('Calendars not found');
+  }
+
+  return calendars;
 };
 
 export const nylasGetEvents = async ({
@@ -513,23 +505,75 @@ export const nylasGetEvents = async ({
   endTime: string;
 }) => {
   try {
-    const getTime = (date: string) => {
-      return new Date(date).getTime() / 1000;
-    };
-
     debugNylas(`Get events with calendarIds: ${calendarIds}`);
 
+    const getTime = (date: Date) => {
+      return date.getTime() / 1000;
+    };
+
+    const ids = (calendarIds && calendarIds.split(',')) || [];
+
+    // sync events
+    for (const id of ids) {
+      const calendar = await NylasCalendars.findOne({ providerCalendarId: id });
+
+      if (calendar) {
+        const syncedMonths = calendar.syncedMonths || [];
+        let syncDate = new Date(startTime);
+
+        const { month, year, date } = extractDate(syncDate);
+
+        let sYear = year;
+        let sMonth = month;
+
+        if (date !== 1) {
+          syncDate = new Date(year, month + 1, 1);
+          const currentMonth = extractDate(new Date(year, month + 1, 1));
+
+          sYear = currentMonth.year;
+          sMonth = currentMonth.month;
+        }
+
+        if (!syncedMonths.includes(`${sYear}-${sMonth}`)) {
+          const account = await Accounts.findOne({
+            nylasAccountId: calendar.accountUid
+          });
+
+          const calendarEvents = await NylasEvents.find({
+            providerCalendarId: calendar.providerCalendarId,
+            $and: [
+              { 'when.start_time': { $gte: getTime(syncDate) } },
+              {
+                'when.end_time': {
+                  $lte: getTime(new Date(sYear, sMonth + 1, 0))
+                }
+              }
+            ]
+          }).select({ providerEventId: 1 });
+
+          const eventIds = calendarEvents.map(e => e.providerEventId);
+
+          storeEvents(
+            await getEventList(
+              account.nylasToken,
+              {
+                calendar_id: calendar.providerCalendarId
+              },
+              syncDate
+            ),
+            eventIds
+          );
+        }
+      }
+    }
+
     const events = await NylasEvents.find({
-      providerCalendarId: { $in: calendarIds && calendarIds.split(',') },
+      providerCalendarId: { $in: ids },
       $and: [
-        { 'when.start_time': { $gte: getTime(startTime) } },
-        { 'when.end_time': { $lte: getTime(endTime) } }
+        { 'when.start_time': { $gte: getTime(new Date(startTime)) } },
+        { 'when.end_time': { $lte: getTime(new Date(endTime)) } }
       ]
     });
-
-    if (!events) {
-      throw new Error('Events not found');
-    }
 
     return events;
   } catch (e) {
