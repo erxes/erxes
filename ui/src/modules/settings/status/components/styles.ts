@@ -1,7 +1,7 @@
-import styled from 'styled-components';
-import styledTS from 'styled-components-ts';
 import { colors } from 'modules/common/styles';
 import { Content, NavButton } from 'modules/robot/components/styles';
+import styled from 'styled-components';
+import styledTS from 'styled-components-ts';
 
 const VersionContainer = styledTS<{ isLatest?: boolean }>(styled.div)`
   padding: 3px 10px 3px 1.5rem;

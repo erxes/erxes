@@ -3,7 +3,7 @@ import DropdownToggle from 'modules/common/components/DropdownToggle';
 import Icon from 'modules/common/components/Icon';
 import { __ } from 'modules/common/utils';
 import DealConvertTrigger from 'modules/deals/components/DealConvertTrigger';
-import { IConversation } from 'modules/inbox/types';
+import { IConversation, IMessage } from 'modules/inbox/types';
 import TaskConvertTrigger from 'modules/tasks/components/TaskConvertTrigger';
 import TicketConvertTrigger from 'modules/tickets/components/TicketConvertTrigger';
 import React from 'react';
@@ -25,6 +25,7 @@ const Container = styled.div`
 
 type Props = {
   conversation: IConversation;
+  conversationMessage: IMessage;
   convertToInfo: {
     ticketUrl?: string;
     dealUrl?: string;
@@ -34,7 +35,7 @@ type Props = {
 };
 
 export default (props: Props) => {
-  const { conversation, convertToInfo, refetch } = props;
+  const { conversation, convertToInfo, conversationMessage, refetch } = props;
 
   const assignedUserIds = conversation.assignedUserId
     ? [conversation.assignedUserId]
@@ -47,6 +48,10 @@ export default (props: Props) => {
     relTypeIds: customerIds,
     relType: 'customer',
     sourceConversationId,
+    subject:
+      Object.keys(conversationMessage).length !== 0
+        ? conversationMessage.mailData && conversationMessage.mailData.subject
+        : '',
     refetch
   };
 

@@ -3,12 +3,13 @@ import * as compose from 'lodash.flowright';
 import { withProps } from 'modules/common/utils';
 import ConvertTo from 'modules/inbox/components/conversationDetail/workarea/ConvertTo';
 import { queries } from 'modules/inbox/graphql';
-import { IConversation } from 'modules/inbox/types';
+import { IConversation, IMessage } from 'modules/inbox/types';
 import React from 'react';
 import { graphql } from 'react-apollo';
 
 type Props = {
   conversation: IConversation;
+  conversationMessage: IMessage;
 };
 
 type FinalProps = {
