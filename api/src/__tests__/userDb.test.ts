@@ -3,7 +3,6 @@ import * as jwt from 'jsonwebtoken';
 import * as moment from 'moment';
 import { userFactory, usersGroupFactory } from '../db/factories';
 import { Users } from '../db/models';
-
 import './setup.ts';
 
 beforeAll(() => {
@@ -16,7 +15,7 @@ describe('User db utils', () => {
 
   beforeEach(async () => {
     // Creating test data
-    _user = await userFactory({ email: 'Info@erxes.io', isActive: true });
+    _user = await userFactory({ email: 'info@erxes.io', isActive: true });
   });
 
   afterEach(async () => {
