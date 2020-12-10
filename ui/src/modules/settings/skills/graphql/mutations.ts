@@ -18,6 +18,17 @@ const skillTypeRemove = `
   }
 `;
 
+const skillAdd = `
+  mutation createSkill($name: String!, $typeId: String!, memberIds: [String]) {
+    createSkill(name: $name, typeId: $typeId, memberIds: $memberIds) {
+      _id
+      name
+      typeId
+      memberIds
+    }
+  }
+`;
+
 const skillRemove = `
   mutation removeSkill($_id: String!) {
     removeSkill
@@ -28,5 +39,6 @@ export default {
   skillTypeAdd,
   skillTypeEdit,
   skillTypeRemove,
+  skillAdd,
   skillRemove
 };

@@ -25,8 +25,8 @@ const skills = `
 `;
 
 const skillsTotalCount = `
-  query skillsTotalCount($typeId: String!) {
-    skillsTotalCount
+  query skillsTotalCount($typeId: String) {
+    skillsTotalCount(typeId: $typeId)
   }
 `;
 

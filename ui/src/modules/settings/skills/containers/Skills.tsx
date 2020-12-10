@@ -20,13 +20,13 @@ type Props = {
   queryParams: any;
   removeSkill: (params: { variables: { _id: string } }) => Promise<void>;
   skillsQuery: SkillsQueryResponse;
-  skillsTotalCount: SkillsTotalCountQueryResponse;
+  skillsTotalCountQuery: SkillsTotalCountQueryResponse;
   skillTypesQuery: SkillTypesQueryResponse;
 };
 
 const List = ({
   skillsQuery,
-  skillsTotalCount,
+  skillsTotalCountQuery,
   skillTypesQuery,
   removeSkill,
   history,
@@ -45,7 +45,9 @@ const List = ({
   };
 
   const isLoading =
-    skillsTotalCount.loading || skillsQuery.loading || skillTypesQuery.loading;
+    skillsTotalCountQuery.loading ||
+    skillsQuery.loading ||
+    skillTypesQuery.loading;
 
   const skillTypes = skillTypesQuery.skillTypes || [];
   const currentType =
@@ -56,8 +58,9 @@ const List = ({
     history,
     queryParams,
     remove,
-    totalCount: skillsTotalCount.skillsTotalCount || 0,
+    totalCount: skillsTotalCountQuery.skillsTotalCount || 0,
     isLoading,
+    skills: skillsQuery.skills || [],
     skillTypes,
     currentTypeName: currentType.name,
     refetchQueries: commonOptions(queryParams)

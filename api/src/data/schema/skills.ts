@@ -18,7 +18,7 @@ export const queries = `
 
   skill(_id: String!): Skill
   skills(typeId: String, page: Int, perPage: Int): [Skill]
-  skillsTotalCount(typeId: String!): Int
+  skillsTotalCount(typeId: String): Int
 `;
 
 export const mutations = `
