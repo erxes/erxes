@@ -4,12 +4,14 @@ import { debugNylas } from '../debuggers';
 import { Integrations } from '../models';
 import { sendRequest } from '../utils';
 import { NYLAS_API_URL } from './constants';
+import { NylasCalendars } from './models';
 import {
   ICalendarAvailability,
   IEvent,
   IEventDoc,
   IMessageDraft
 } from './types';
+import { extractDate } from './utils';
 
 /**
  * Build message and send API request
@@ -297,8 +299,29 @@ const getCalendarOrEvent = async (
   }
 };
 
-const getCalenderOrEventList = async (
-  type: 'calendars' | 'events',
+const getCalendarList = async (accessToken: string) => {
+  const type = 'calendars';
+
+  try {
+    const responses = await nylasInstanceWithToken({
+      accessToken,
+      name: type,
+      method: 'list'
+    });
+
+    if (!responses) {
+      throw new Error(`${type} not found`);
+    }
+
+    return responses.map(response => JSON.parse(response));
+  } catch (e) {
+    debugNylas(`Failed to get calendar list: ${e.message}`);
+
+    throw e;
+  }
+};
+
+const getEventList = async (
   accessToken: string,
   filter?: {
     show_cancelled?: boolean;
@@ -306,29 +329,17 @@ const getCalenderOrEventList = async (
     calendar_id?: string;
     description?: string;
     title?: string;
-    date?: string;
-  }
+  },
+  date?: Date
 ) => {
   const options: any = filter || {};
+  const type = 'events';
 
-  const extractDate = (date: Date) => {
-    return {
-      month: date.getMonth(),
-      year: date.getFullYear(),
-      date: date.getDate()
-    };
-  };
+  const { month, year } = extractDate(date || new Date());
 
-  if (type === 'events') {
-    options.expand_recurring = true;
-  }
-
-  if (type === 'events' && !filter.date) {
-    const { month, year } = extractDate(new Date());
-
-    options.starts_after = new Date(year, month, 1).getTime() / 1000;
-    options.ends_before = new Date(year, month + 1, 0).getTime() / 1000;
-  }
+  options.expand_recurring = true;
+  options.starts_after = new Date(year, month, 1).getTime() / 1000;
+  options.ends_before = new Date(year, month + 1, 0).getTime() / 1000;
 
   try {
     const responses = await nylasInstanceWithToken({
@@ -342,9 +353,23 @@ const getCalenderOrEventList = async (
       throw new Error(`${type} not found`);
     }
 
+    const calendar = await NylasCalendars.findOne({
+      providerCalendarId: filter.calendar_id
+    });
+
+    if (calendar) {
+      const { syncedMonths = [] } = calendar;
+      syncedMonths.push(`${year}-${month}`);
+
+      await NylasCalendars.update(
+        { providerCalendarId: filter.calendar_id },
+        { $set: { syncedMonths } }
+      );
+    }
+
     return responses.map(response => JSON.parse(response));
   } catch (e) {
-    debugNylas(`Failed to get list: ${e.message}`);
+    debugNylas(`Failed to get event list: ${e.message}`);
 
     throw e;
   }
@@ -357,7 +382,6 @@ const checkCalendarAvailability = async (
 ): Promise<ICalendarAvailability[]> => {
   try {
     const responses = await sendRequest({
-      url: `${NYLAS_API_URL}/calendars/free-busy`,
       method: 'POST',
       headerParams: {
         Authorization: `Basic ${Buffer.from(`${accessToken}:`).toString(
@@ -551,7 +575,8 @@ export {
   getMessages,
   getAttachment,
   checkCredentials,
-  getCalenderOrEventList,
+  getCalendarList,
+  getEventList,
   getCalendarOrEvent,
   checkCalendarAvailability,
   deleteCalendarEvent,

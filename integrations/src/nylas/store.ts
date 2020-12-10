@@ -126,25 +126,27 @@ const updateEvent = async (event: IEvent) => {
   return prevEvent.save();
 };
 
-const storeEvents = async (events: IEvent[]) => {
+const storeEvents = async (events: IEvent[], eventIds?: string[]) => {
   const doc = [];
 
   for (const event of events) {
-    doc.push({
-      providerEventId: event.id,
-      providerCalendarId: event.calendar_id,
-      messageId: event.message_id,
-      title: event.title,
-      accountUid: event.account_id,
-      description: event.description,
-      owner: event.owner,
-      participants: event.participants,
-      readOnly: event.read_only,
-      location: event.location,
-      when: event.when,
-      busy: event.busy,
-      status: event.status
-    });
+    if (!eventIds || !eventIds.includes(event.id)) {
+      doc.push({
+        providerEventId: event.id,
+        providerCalendarId: event.calendar_id,
+        messageId: event.message_id,
+        title: event.title,
+        accountUid: event.account_id,
+        description: event.description,
+        owner: event.owner,
+        participants: event.participants,
+        readOnly: event.read_only,
+        location: event.location,
+        when: event.when,
+        busy: event.busy,
+        status: event.status
+      });
+    }
   }
 
   return NylasEvents.insertMany(doc);
