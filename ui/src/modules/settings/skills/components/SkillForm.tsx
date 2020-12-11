@@ -30,7 +30,12 @@ const getSkillType = (skill, types) => {
   return option._id;
 };
 
-function SkillForm({ closeModal, skill, skillTypes, refetchQueries }: Props) {
+function SkillForm({
+  closeModal,
+  skill = {} as ISkillDocument,
+  skillTypes,
+  refetchQueries
+}: Props) {
   const [isSubmitted, setSubmitted] = useState(false);
   const [name, setName] = useState<string>(skill.name || '');
   const [type, setType] = useState(getSkillType(skill, skillTypes));
@@ -109,6 +114,13 @@ function SkillForm({ closeModal, skill, skillTypes, refetchQueries }: Props) {
     );
   }
 
+  const mutateProps = {
+    mutation: skill._id ? mutations.skillEdit : mutations.skillAdd,
+    successMessage: __(
+      `You successfully ${skill._id ? 'updated' : 'added'} a skill`
+    )
+  };
+
   return (
     <form onSubmit={handleSubmit}>
       {renderContent()}
@@ -123,13 +135,12 @@ function SkillForm({ closeModal, skill, skillTypes, refetchQueries }: Props) {
           Cancel
         </Button>
         <ButtonMutate
-          mutation={mutations.skillAdd}
+          {...mutateProps}
           variables={getVariables()}
           callback={closeModal}
           refetchQueries={refetchQueries}
           isSubmitted={isSubmitted}
           type="submit"
-          successMessage={__('You successfully added a skill')}
         />
       </ModalFooter>
     </form>

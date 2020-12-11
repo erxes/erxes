@@ -26,7 +26,7 @@ export const mutations = `
   updateSkillType(_id: String!, name: String): JSON
   removeSkillType(_id: String!): JSON
 
-  createSkill(name: String!, typeId: String!, memberIds: [String]): Skill
-  updateSkill(_id: String!, name: String, memberIds: [String]): Skill
+  createSkill(name: String!, typeId: String!, memberIds: [String]): JSON
+  updateSkill(_id: String!, typeId: String!, name: String, memberIds: [String]): JSON
   removeSkill(_id: String!): JSON
 `;

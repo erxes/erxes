@@ -25,7 +25,7 @@ const skillsMutations = {
 
   async updateSkill(
     _root,
-    doc: { _id: string; name: string; memberIds: string[] }
+    doc: { _id: string; name: string; typeId: string; memberIds: string[] }
   ) {
     return Skills.updateSkill(doc);
   },

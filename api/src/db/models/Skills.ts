@@ -23,10 +23,7 @@ export const loadSkillTypeClass = () => {
     }
 
     public static async removeSkillType(_id: string) {
-      // TODO - Force remove related skills?
-
       await Skills.remove({ typeId: _id });
-
       return SkillTypes.remove({ _id });
     }
   }
@@ -42,7 +39,7 @@ interface ISkillParams {
   memberIds: string[];
 }
 
-interface ISkillUpdateParam extends Omit<ISkillParams, 'typeId'> {
+interface ISkillUpdateParam extends ISkillParams {
   _id: string;
 }
 
@@ -55,6 +52,7 @@ export interface ISkillModel extends Model<ISkillDocument> {
   updateSkill({
     _id,
     name,
+    typeId,
     memberIds
   }: ISkillUpdateParam): Promise<ISkillDocument>;
   removeSkill(_id: string): Promise<void>;
@@ -69,9 +67,10 @@ export const loadSkillClass = () => {
     public static async updateSkill({
       _id,
       memberIds,
+      typeId,
       name
     }: ISkillUpdateParam) {
-      return Skills.updateOne({ _id }, { $set: { memberIds, name } });
+      return Skills.updateOne({ _id }, { $set: { typeId, memberIds, name } });
     }
 
     public static async removeSkill(_id: string) {

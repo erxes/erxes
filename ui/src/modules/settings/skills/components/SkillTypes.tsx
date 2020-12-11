@@ -53,7 +53,7 @@ function SkillTypes({
 
   function renderEditAction(object: ISkillTypesDocument) {
     const trigger = (
-      <Button btnStyle="link">
+      <Button id="skilltype-edit" btnStyle="link">
         <Tip text={__('Edit')} placement="bottom">
           <Icon icon="edit" />
         </Tip>
@@ -96,7 +96,7 @@ function SkillTypes({
   function renderHeader() {
     const trigger = (
       <Button
-        id="new-skill-type"
+        id="skilltype-new"
         btnStyle="success"
         uppercase={false}
         icon="plus-circle"
