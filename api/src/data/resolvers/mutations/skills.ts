@@ -30,6 +30,13 @@ const skillsMutations = {
     return Skills.updateSkill(doc);
   },
 
+  async excludeUserSkill(
+    _root,
+    { _id, memberIds }: { _id: string; memberIds: string[] }
+  ) {
+    return Skills.excludeUserSkill(_id, memberIds);
+  },
+
   async removeSkill(_root, { _id }: { _id: string }) {
     return Skills.removeSkill(_id);
   }

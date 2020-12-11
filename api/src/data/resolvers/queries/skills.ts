@@ -35,8 +35,16 @@ const skillQueries = {
 
   async skills(
     _root,
-    { typeId, ...args }: { typeId: string; page?: number; perPage?: number }
+    {
+      typeId,
+      memberIds,
+      ...args
+    }: { typeId: string; memberIds: string[]; page?: number; perPage?: number }
   ) {
+    if (memberIds) {
+      return Skills.find({ memberIds: { $in: memberIds } });
+    }
+
     return paginate(Skills.find(getSkillSelector(typeId)), args);
   },
 

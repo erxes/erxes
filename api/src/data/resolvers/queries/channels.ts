@@ -17,6 +17,8 @@ const channelQueries = {
     const query: IChannelQuery = {};
     const sort = { createdAt: -1 };
 
+    console.log(memberIds);
+
     if (memberIds) {
       query.memberIds = { $in: memberIds };
     }

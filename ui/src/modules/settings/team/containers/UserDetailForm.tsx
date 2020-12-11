@@ -4,9 +4,13 @@ import { IUser } from 'modules/auth/types';
 import ButtonMutate from 'modules/common/components/ButtonMutate';
 import Spinner from 'modules/common/components/Spinner';
 import { IButtonMutateProps } from 'modules/common/types';
+import {
+  SkillsExcludeUserMutationResponse,
+  SkillsQueryResponse
+} from 'modules/settings/skills/types';
 import React from 'react';
 import { graphql } from 'react-apollo';
-import { withProps } from '../../../common/utils';
+import { Alert, confirm, withProps } from '../../../common/utils';
 import { queries as channelQueries } from '../../channels/graphql';
 import { ChannelsQueryResponse } from '../../channels/types';
 import UserDetailForm from '../components/detail/UserDetailForm';
@@ -20,6 +24,9 @@ import UserForm from './UserForm';
 type Props = {
   _id: string;
   queryParams: any;
+  userExcludeSkill: (params: {
+    variables: { _id: string; memberIds: string[] };
+  }) => Promise<void>;
   renderEditForm?: ({
     closeModal,
     user
@@ -33,6 +40,7 @@ type FinalProps = {
   userDetailQuery: UserDetailQueryResponse;
   channelsQuery: ChannelsQueryResponse;
   userConversationsQuery: UserConverationsQueryResponse;
+  skillsQuery: SkillsQueryResponse;
 };
 
 const UserDetailFormContainer = (props: Props & FinalProps) => {
@@ -40,8 +48,24 @@ const UserDetailFormContainer = (props: Props & FinalProps) => {
     userDetailQuery,
     channelsQuery,
     userConversationsQuery,
+    skillsQuery,
+    userExcludeSkill,
     renderEditForm
   } = props;
+
+  const excludeUserSkill = (skillId: string, userId: string) => {
+    confirm().then(() => {
+      userExcludeSkill({ variables: { _id: skillId, memberIds: [userId] } })
+        .then(() => {
+          Alert.success('Successfully removed from the skill.');
+
+          skillsQuery.refetch();
+        })
+        .catch(e => {
+          Alert.error(e.message);
+        });
+    });
+  };
 
   if (userDetailQuery.loading) {
     return <Spinner />;
@@ -97,7 +121,9 @@ const UserDetailFormContainer = (props: Props & FinalProps) => {
     user: userDetailQuery.userDetail || {},
     participatedConversations: list,
     totalConversationCount: totalCount,
-    channels: channelsQuery.channels || []
+    channels: channelsQuery.channels || [],
+    skills: skillsQuery.skills || [],
+    excludeUserSkill
   };
 
   return <UserDetailForm {...updatedProps} />;
@@ -134,6 +160,18 @@ export default withProps<Props>(
     graphql(gql(channelQueries.channels), {
       name: 'channelsQuery',
       options: commonOptions
-    })
+    }),
+    graphql<Props, SkillsQueryResponse>(gql(queries.userSkills), {
+      name: 'skillsQuery',
+      options: ({ _id }: { _id: string }) => ({
+        variables: { memberIds: [_id] }
+      })
+    }),
+    graphql<Props, SkillsExcludeUserMutationResponse>(
+      gql(mutations.userExcludeSkill),
+      {
+        name: 'userExcludeSkill'
+      }
+    )
   )(UserDetailFormContainer)
 );

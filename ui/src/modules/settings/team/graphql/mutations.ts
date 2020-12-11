@@ -82,6 +82,12 @@ const usersResetMemberPassword = `
   }
 `;
 
+const userExcludeSkill = `
+  mutation excludeUserSkill($_id: String!, $memberIds: [String]!) {
+    excludeUserSkill(_id: $_id, memberIds: $memberIds)
+  }
+`;
+
 export default {
   usersEditProfile,
   usersEdit,
@@ -89,5 +95,6 @@ export default {
   usersResendInvitation,
   usersConfirmInvitation,
   usersSetActiveStatus,
-  usersResetMemberPassword
+  usersResetMemberPassword,
+  userExcludeSkill
 };

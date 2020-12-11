@@ -101,7 +101,17 @@ const usersTotalCount = `
   }
 `;
 
+const userSkills = `
+  query skills($memberIds: [String]) {
+    skills(memberIds: $memberIds) {
+      _id
+      name
+    }
+  }
+`;
+
 export default {
+  userSkills,
   userDetail,
   userConversations,
   users,

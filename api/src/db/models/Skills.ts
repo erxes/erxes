@@ -44,17 +44,14 @@ interface ISkillUpdateParam extends ISkillParams {
 }
 
 export interface ISkillModel extends Model<ISkillDocument> {
-  createSkill({
-    name,
-    typeId,
-    memberIds
-  }: ISkillParams): Promise<ISkillDocument>;
+  excludeUserSkill(_id: string, memberIds: string[]): Promise<void>;
+  createSkill({ name, typeId, memberIds }: ISkillParams): Promise<void>;
   updateSkill({
     _id,
     name,
     typeId,
     memberIds
-  }: ISkillUpdateParam): Promise<ISkillDocument>;
+  }: ISkillUpdateParam): Promise<void>;
   removeSkill(_id: string): Promise<void>;
 }
 
@@ -62,6 +59,13 @@ export const loadSkillClass = () => {
   class Skill {
     public static async createSkill(doc: ISkillParams) {
       return Skills.create(doc);
+    }
+
+    public static async excludeUserSkill(_id: string, memberIds: string[]) {
+      return Skills.updateOne(
+        { _id },
+        { $pull: { memberIds: { $in: memberIds } } }
+      );
     }
 
     public static async updateSkill({

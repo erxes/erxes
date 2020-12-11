@@ -43,6 +43,7 @@ export interface ISkillDocument extends ISkill {
 
 export type SkillsQueryResponse = {
   skills: ISkillDocument[];
+  refetch: any;
   loading: boolean;
 };
 
@@ -53,4 +54,23 @@ export type SkillsTotalCountQueryResponse = {
 
 export type SkillsRemoveMutationResponse = {
   removeSkill: (params: { variables: { _id: string } }) => Promise<void>;
+};
+
+export type SkillsUpdateMutationResponse = {
+  updateSkill: (params: {
+    variables: {
+      _id: string;
+      name?: string;
+      typeId?: string;
+      memberIds?: string[];
+      exclude?: boolean;
+    };
+  }) => Promise<void>;
+};
+
+export type SkillsExcludeUserMutationResponse = {
+  excludeUserSkill: (params: {
+    _id: string;
+    memberIds: string[];
+  }) => Promise<void>;
 };
