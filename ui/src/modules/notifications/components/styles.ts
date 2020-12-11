@@ -89,10 +89,7 @@ const NotifButton = styled.div`
   width: 100%;
   position: relative;
   transition: all 0.3s ease;
-
-  i {
-    font-size: 20px;
-  }
+  color: ${colors.textSecondary};
 
   span {
     position: absolute;

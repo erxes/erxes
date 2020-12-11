@@ -98,6 +98,7 @@ export const RULE_CONDITIONS = {
 };
 
 export const SCHEDULE_TYPES = [
+  { value: 'pre', label: 'Schedule for later' },
   { value: 'minute', label: 'Every minute' },
   { value: 'hour', label: 'Every hour' },
   { value: 'day', label: 'Every Day' },

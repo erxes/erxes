@@ -29,14 +29,16 @@ class BaseContainer extends React.Component<FinalProps, {}> {
       );
     }
 
-    const res = fetchApiQuery.integrationsFetchApi || {};
     const refetchQueries = () => {
       getRefetchQueries(accountId);
     };
 
+    const res = fetchApiQuery.integrationsFetchApi || {};
+
     const updatedProps = {
       pages: res.pages || [],
       accessToken: res.accessToken,
+      name: res.name || '',
       refetchQueries
     };
 

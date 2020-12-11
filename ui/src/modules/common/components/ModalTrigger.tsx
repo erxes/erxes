@@ -12,7 +12,7 @@ type Props = {
   title: string;
   trigger?: React.ReactNode;
   autoOpenKey?: string;
-  content: ({ closeModal }: { closeModal: () => void }) => void;
+  content: ({ closeModal }: { closeModal: () => void }) => React.ReactNode;
   size?: 'sm' | 'lg' | 'xl';
   ignoreTrans?: boolean;
   dialogClassName?: string;

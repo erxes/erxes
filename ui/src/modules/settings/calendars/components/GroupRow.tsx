@@ -87,7 +87,9 @@ class GroupRow extends React.Component<Props, State> {
     return (
       <>
         <Tip text="Schedule">
-          <Link to={`/settings/schedule/${calendar.accountId}`}>Schedule</Link>
+          <Link to={`/settings/schedule/${calendar.accountId}`}>
+            <Button btnStyle="link" icon="calendar-alt" />
+          </Link>
         </Tip>
         <Tip text="Edit" placement="top">
           <Button btnStyle="link" onClick={edit} icon="edit-3" />
@@ -123,7 +125,7 @@ class GroupRow extends React.Component<Props, State> {
       <>
         <tr key={calendar._id}>
           <td>
-            &nbsp; <Icon icon={'circle'} style={{ color: calendar.color }} />{' '}
+            <Icon icon={'circle'} style={{ color: calendar.color }} />{' '}
             {calendar.name}
           </td>
           <td>
@@ -147,7 +149,7 @@ class GroupRow extends React.Component<Props, State> {
       <>
         <tr>
           <td>
-            {group.name} ({group.calendars.length})
+            <strong>{group.name}</strong> ({group.calendars.length})
           </td>
           <td>
             <ActionButtons>{this.renderExtraLinks()}</ActionButtons>

@@ -135,7 +135,7 @@ describe('Facebook test', () => {
         store.getOrCreateCustomer(pageId, '123', 'facebook-messenger')
       ]);
     } catch (e) {
-      expect(await Customers.find({}).countDocuments()).toBe(2);
+      expect(await Customers.find({}).countDocuments()).toBe(1);
     }
 
     mock.restore();
@@ -178,6 +178,25 @@ describe('Facebook test', () => {
     );
 
     expect(await Posts.countDocuments()).toEqual(1);
+
+    const postParamCustom = {
+      from: { id: '607538079688785123', name: 'Enkee' },
+      post_id: '607538079688785_815921688850422123',
+      created_time: 1577926986,
+      item: 'status',
+      published: 1
+    };
+
+    try {
+      await store.getOrCreatePost(
+        postParamCustom,
+        'pageId123',
+        postParamCustom.from.id,
+        'customerErxesApiId'
+      );
+    } catch (e) {
+      expect(e).toBeDefined();
+    }
 
     mock.restore();
   });
