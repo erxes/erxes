@@ -164,6 +164,7 @@ export default withProps<Props>(
     graphql<Props, SkillsQueryResponse>(gql(queries.userSkills), {
       name: 'skillsQuery',
       options: ({ _id }: { _id: string }) => ({
+        notifyOnNetworkStatusChange: true,
         variables: { memberIds: [_id] }
       })
     }),

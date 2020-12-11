@@ -41,6 +41,8 @@ function SkillForm({
   const [type, setType] = useState(getSkillType(skill, skillTypes));
   const [memberIds, setMemberIds] = useState<string[]>(skill.memberIds || []);
 
+  const handleRefetch = () => refetchQueries(memberIds);
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -140,7 +142,7 @@ function SkillForm({
           {...mutateProps}
           variables={getVariables()}
           callback={closeModal}
-          refetchQueries={refetchQueries}
+          refetchQueries={handleRefetch}
           isSubmitted={isSubmitted}
           type="submit"
         />

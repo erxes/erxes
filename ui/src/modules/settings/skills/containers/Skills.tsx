@@ -54,6 +54,10 @@ const List = ({
     skillTypes.find(type => queryParams.typeId === type._id) ||
     ({} as ISkillType);
 
+  const refetchQueries = memberIds => {
+    return commonOptions(queryParams, memberIds);
+  };
+
   const updatedProps = {
     history,
     queryParams,
@@ -63,13 +67,13 @@ const List = ({
     skills: skillsQuery.skills || [],
     skillTypes,
     currentTypeName: currentType.name,
-    refetchQueries: commonOptions(queryParams)
+    refetchQueries
   };
 
   return <Skills {...updatedProps} />;
 };
 
-const commonOptions = queryParams => {
+const commonOptions = (queryParams, memberIds?: string[]) => {
   const variables = {
     typeId: queryParams.typeId,
     ...generatePaginationParams(queryParams)
@@ -77,7 +81,10 @@ const commonOptions = queryParams => {
 
   return [
     { query: gql(queries.skills), variables },
-    { query: gql(queries.skillsTotalCount), variables }
+    { query: gql(queries.skillsTotalCount), variables },
+
+    // Update user skills
+    { query: gql(queries.skills), variables: { memberIds } }
   ];
 };
 
