@@ -78,7 +78,9 @@ export const loadSkillClass = () => {
     }
 
     public static async removeSkill(_id: string) {
-      return Skills.remove({ _id });
+      await Skills.remove({ _id });
+
+      return _id;
     }
   }
 

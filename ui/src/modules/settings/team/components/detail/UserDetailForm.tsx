@@ -16,6 +16,13 @@ type Props = {
   participatedConversations: IConversation[];
   totalConversationCount: number;
   excludeUserSkill: (skillId: string, userId: string) => void;
+  renderSkillForm: ({
+    closeModal,
+    user
+  }: {
+    closeModal: () => void;
+    user: IUser;
+  }) => React.ReactNode;
   renderEditForm: ({
     closeModal,
     user
@@ -30,6 +37,7 @@ function UserDetails({
   skills,
   channels,
   excludeUserSkill,
+  renderSkillForm,
   renderEditForm
 }: Props) {
   const { details = {} } = user;
@@ -73,6 +81,7 @@ function UserDetails({
           channels={channels}
           skills={skills}
           excludeUserSkill={excludeUserSkill}
+          renderSkillForm={renderSkillForm}
           renderEditForm={renderEditForm}
         />
       }

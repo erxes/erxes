@@ -1,9 +1,11 @@
 import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
+import withCurrentUser from 'modules/auth/containers/withCurrentUser';
+import { IUser } from 'modules/auth/types';
 import { Alert, confirm } from 'modules/common/utils';
 import { generatePaginationParams } from 'modules/common/utils/router';
 import React from 'react';
-import { graphql } from 'react-apollo';
+import { graphql, useMutation } from 'react-apollo';
 import Skills from '../components/Skills';
 import mutations from '../graphql/mutations';
 import queries from '../graphql/queries';
@@ -16,22 +18,58 @@ import {
 } from '../types';
 
 type Props = {
+  currentUser: IUser;
   history: any;
   queryParams: any;
-  removeSkill: (params: { variables: { _id: string } }) => Promise<void>;
   skillsQuery: SkillsQueryResponse;
   skillsTotalCountQuery: SkillsTotalCountQueryResponse;
   skillTypesQuery: SkillTypesQueryResponse;
 };
 
 const List = ({
+  currentUser,
   skillsQuery,
   skillsTotalCountQuery,
   skillTypesQuery,
-  removeSkill,
   history,
   queryParams
 }: Props) => {
+  const [removeSkill] = useMutation<SkillsRemoveMutationResponse>(
+    gql(mutations.skillRemove),
+    {
+      update: (cache, result) => {
+        const _id = result.data.removeSkill;
+
+        const commonSkillQuery = {
+          query: gql(queries.skills),
+          variables: {
+            typeId: queryParams.typeId,
+            ...generatePaginationParams(queryParams)
+          }
+        };
+
+        const cachedData: any = cache.readQuery(commonSkillQuery);
+
+        const { skills } = cachedData;
+
+        const filteredSkills = skills.filter(skil => skil._id !== _id);
+
+        // update user profile cache
+        cache.writeQuery({
+          query: gql(queries.skills),
+          variables: { memberIds: [currentUser._id] },
+          data: { skills: filteredSkills }
+        });
+
+        // update list cache
+        cache.writeQuery({
+          ...commonSkillQuery,
+          data: { skills: filteredSkills }
+        });
+      }
+    }
+  );
+
   const remove = (_id: string) => {
     confirm().then(() => {
       removeSkill({ variables: { _id } })
@@ -110,11 +148,5 @@ export default compose(
   }),
   graphql<Props, SkillTypesQueryResponse>(gql(queries.skillTypes), {
     name: 'skillTypesQuery'
-  }),
-  graphql<Props, SkillsRemoveMutationResponse>(gql(mutations.skillRemove), {
-    name: 'removeSkill',
-    options: ({ queryParams }) => ({
-      refetchQueries: commonOptions(queryParams)
-    })
   })
-)(List);
+)(withCurrentUser(List));

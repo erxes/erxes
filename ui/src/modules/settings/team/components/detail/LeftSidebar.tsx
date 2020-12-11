@@ -18,6 +18,13 @@ type Props = {
   channels: IChannel[];
   skills: ISkillDocument[];
   excludeUserSkill: (skillId: string, userId: string) => void;
+  renderSkillForm: ({
+    closeModal,
+    user
+  }: {
+    closeModal: () => void;
+    user: IUser;
+  }) => React.ReactNode;
   renderEditForm: ({
     closeModal,
     user
@@ -35,6 +42,7 @@ function LeftSidebar({
   skills = [],
   channels,
   excludeUserSkill,
+  renderSkillForm,
   renderEditForm
 }: Props) {
   const { details = {}, links = {} } = user;
@@ -137,9 +145,20 @@ function LeftSidebar({
   }
 
   function renderSkills() {
+    const getContent = props => {
+      return renderSkillForm(props);
+    };
+
     return (
       <Section>
         <Title>{__('Skills')}</Title>
+        <Section.QuickButtons>
+          <ModalTrigger
+            title="Edit"
+            trigger={<Button btnStyle="simple" size="small" icon="cog" />}
+            content={getContent}
+          />
+        </Section.QuickButtons>
         <SkillList>
           {skills.map(skill => {
             const handleRemove = () => excludeUserSkill(skill._id, user._id);

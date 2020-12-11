@@ -6,14 +6,17 @@ import Spinner from 'modules/common/components/Spinner';
 import { IButtonMutateProps } from 'modules/common/types';
 import {
   SkillsExcludeUserMutationResponse,
-  SkillsQueryResponse
+  SkillsQueryResponse,
+  SkillTypesQueryResponse
 } from 'modules/settings/skills/types';
 import React from 'react';
 import { graphql } from 'react-apollo';
 import { Alert, confirm, withProps } from '../../../common/utils';
 import { queries as channelQueries } from '../../channels/graphql';
 import { ChannelsQueryResponse } from '../../channels/types';
+import skillQueries from '../../skills/graphql/queries';
 import UserDetailForm from '../components/detail/UserDetailForm';
+import UserSkillForm from '../components/detail/UserSkillForm';
 import { mutations, queries } from '../graphql';
 import {
   UserConverationsQueryResponse,
@@ -41,6 +44,7 @@ type FinalProps = {
   channelsQuery: ChannelsQueryResponse;
   userConversationsQuery: UserConverationsQueryResponse;
   skillsQuery: SkillsQueryResponse;
+  skillTypesQuery: SkillTypesQueryResponse;
 };
 
 const UserDetailFormContainer = (props: Props & FinalProps) => {
@@ -49,6 +53,7 @@ const UserDetailFormContainer = (props: Props & FinalProps) => {
     channelsQuery,
     userConversationsQuery,
     skillsQuery,
+    skillTypesQuery,
     userExcludeSkill,
     renderEditForm
   } = props;
@@ -116,8 +121,18 @@ const UserDetailFormContainer = (props: Props & FinalProps) => {
     );
   };
 
+  const renderSkillForm = formProps => {
+    return (
+      <UserSkillForm
+        {...formProps}
+        skillTypes={skillTypesQuery.skillTypes || []}
+      />
+    );
+  };
+
   const updatedProps = {
     renderEditForm: renderEditForm ? renderEditForm : editForm,
+    renderSkillForm,
     user: userDetailQuery.userDetail || {},
     participatedConversations: list,
     totalConversationCount: totalCount,
@@ -164,9 +179,11 @@ export default withProps<Props>(
     graphql<Props, SkillsQueryResponse>(gql(queries.userSkills), {
       name: 'skillsQuery',
       options: ({ _id }: { _id: string }) => ({
-        notifyOnNetworkStatusChange: true,
         variables: { memberIds: [_id] }
       })
+    }),
+    graphql<Props, SkillTypesQueryResponse>(gql(skillQueries.skillTypes), {
+      name: 'skillTypesQuery'
     }),
     graphql<Props, SkillsExcludeUserMutationResponse>(
       gql(mutations.userExcludeSkill),
