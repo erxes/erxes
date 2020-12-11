@@ -64,12 +64,14 @@ function SkillForm({
       return;
     }
 
-    return {
+    const doc: { [key: string]: string | string[] } = {
       name,
       memberIds,
-      typeId: type.value,
+      typeId: typeof type === 'string' ? type : type.value,
       ...(skill ? { _id: skill._id } : {})
     };
+
+    return doc;
   };
 
   function renderContent() {
