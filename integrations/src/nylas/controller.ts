@@ -9,6 +9,7 @@ import {
   nylasCheckCalendarAvailability,
   nylasConnectCalendars,
   nylasCreateCalenderEvent,
+  nylasCreateSchedulePage,
   nylasDeleteCalendarEvent,
   nylasFileUpload,
   nylasGetAccountCalendars,
@@ -72,6 +73,22 @@ export const initNylas = async app => {
           break;
       }
     }
+
+    return res.status(200).send('success');
+  });
+
+  app.post('/nylas/schedule/webhook', async (req, res) => {
+    // Verify the request to make sure it's from Nylas
+    if (!verifyNylasSignature(req)) {
+      debugNylas('Failed to verify nylas');
+      return res.status(401).send('X-Nylas-Signature failed verification');
+    }
+
+    debugNylas('Received new email in nylas...');
+
+    const deltas = req.body.deltas;
+
+    console.log(deltas);
 
     return res.status(200).send('success');
   });
@@ -320,6 +337,20 @@ export const initNylas = async app => {
 
     try {
       const response = await nylasGetSchedulePages(accountId);
+
+      return res.json(response);
+    } catch (e) {
+      next(e);
+    }
+  });
+
+  app.post('/nylas/create-schedule-page', async (req, res, next) => {
+    debugRequest(debugNylas, req);
+
+    const { accountId, ...doc } = req.body;
+
+    try {
+      const response = await nylasCreateSchedulePage(accountId, doc);
 
       return res.json(response);
     } catch (e) {

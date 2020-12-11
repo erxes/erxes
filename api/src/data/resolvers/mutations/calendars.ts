@@ -38,6 +38,13 @@ type Event = {
 
 const calendarMutations = {
   /**
+   * Create a new schedule page
+   */
+  async createSchedulePage(_root, doc: object, { dataSources }: IContext) {
+    return dataSources.IntegrationsAPI.createSchedulePage(doc);
+  },
+
+  /**
    * Create a new calendar event
    */
   async createCalendarEvent(_root, doc: Event, { dataSources }: IContext) {

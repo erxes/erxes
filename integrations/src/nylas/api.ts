@@ -3,7 +3,11 @@ import * as Nylas from 'nylas';
 import { debugNylas } from '../debuggers';
 import { Integrations } from '../models';
 import { sendRequest } from '../utils';
-import { NYLAS_API_URL, NYLAS_SCHEDULE_API_URL } from './constants';
+import {
+  NYLAS_API_URL,
+  NYLAS_SCHEDULE_API_URL,
+  NYLAS_SCHEDULE_WEBHOOK_URL
+} from './constants';
 import { NylasCalendars } from './models';
 import {
   ICalendarAvailability,
@@ -590,6 +594,69 @@ const getSchedulePages = async (accessToken: string) => {
   }
 };
 
+const createSchedulePage = async (
+  accessToken: string,
+  {
+    eventTitle,
+    name,
+    slug,
+    location,
+    companyName
+  }: {
+    [key: string]: string;
+  }
+) => {
+  try {
+    const body = {
+      access_tokens: [accessToken],
+      name,
+      slug,
+      config: {
+        appearance: {
+          company_name: companyName,
+          logo: 'http://www.erxes.org/img/logo_dark.svg',
+          show_nylas_branding: false,
+          thank_you_redirect: 'http://www.erxes.org',
+          thank_you_text: 'Баярлалаа'
+        },
+        event: {
+          title: eventTitle,
+          location
+        },
+        reminders: [
+          {
+            delivery_method: 'webhook',
+            delivery_recipient: 'customer',
+            time_before_event: 60,
+            webhook_url: NYLAS_SCHEDULE_WEBHOOK_URL
+          }
+        ]
+      }
+    };
+
+    console.log(body);
+
+    const response = await sendRequest({
+      url: `${NYLAS_SCHEDULE_API_URL}/manage/pages`,
+      method: 'POST',
+      headerParams: {
+        Authorization: `Bearer ${accessToken}`
+      },
+      body
+    });
+
+    if (!response) {
+      throw new Error(`page not found`);
+    }
+
+    return response;
+  } catch (e) {
+    debugNylas(`Failed to get pages: ${e.message}`);
+
+    throw e;
+  }
+};
+
 export {
   uploadFile,
   sendMessage,
@@ -605,5 +672,6 @@ export {
   createEvent,
   updateEvent,
   sendEventAttendance,
-  getSchedulePages
+  getSchedulePages,
+  createSchedulePage
 };

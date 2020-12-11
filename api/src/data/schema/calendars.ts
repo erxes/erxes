@@ -56,6 +56,23 @@ export const types = `
   }
 `;
 
+export const queries = `
+  calendarBoards: [CalendarBoard]
+  calendarBoardCounts: Int
+  calendarBoardGetLast: CalendarBoard
+  calendarBoardDetail(_id: String!): CalendarBoard
+
+  calendarGroups(boardId: String): [CalendarGroup]
+  calendarGroupCounts: Int
+  calendarGroupGetLast: CalendarGroup
+  calendarGroupDetail(_id: String!): CalendarGroup
+
+  calendars(groupId: String, page: Int, perPage: Int): [Calendar]
+  calendarDetail(_id: String!): Calendar
+
+  calendarAccounts(groupId: String): [FullCalendar]
+`;
+
 const eventParams = `
   accountId: String!,
   calendarId: String!,
@@ -84,27 +101,20 @@ const commonGroupParams = `
   memberIds: [String],
 `;
 
-export const queries = `
-  calendarBoards: [CalendarBoard]
-  calendarBoardCounts: Int
-  calendarBoardGetLast: CalendarBoard
-  calendarBoardDetail(_id: String!): CalendarBoard
-
-  calendarGroups(boardId: String): [CalendarGroup]
-  calendarGroupCounts: Int
-  calendarGroupGetLast: CalendarGroup
-  calendarGroupDetail(_id: String!): CalendarGroup
-
-  calendars(groupId: String, page: Int, perPage: Int): [Calendar]
-  calendarDetail(_id: String!): Calendar
-
-  calendarAccounts(groupId: String): [FullCalendar]
+const scheduleParams = `
+  accountId: String!,
+  name: String!,
+  eventTitle: String!,
+  slug: String!,
+  location: String,
+  companyName: String
 `;
 
 export const mutations = `
   createCalendarEvent(${eventParams}): JSON
   editCalendarEvent(_id: String!, ${eventParams}): JSON
   deleteCalendarEvent(_id: String!, accountId: String!): JSON
+  createSchedulePage(${scheduleParams}): JSON
 
   calendarsAdd(uid: String, ${commonParams}): Calendar
   calendarsEdit(_id: String!, ${commonParams}): Calendar

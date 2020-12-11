@@ -98,6 +98,26 @@ const editAccountCalendar = `
   }
 `;
 
+const createSchedulePage = `
+  mutation createSchedulePage(
+    $accountId: String!,
+    $name: String!,
+    $slug: String!,
+    $eventTitle: String!,
+    $location: String,
+    $companyName: String,
+  ) {
+    createSchedulePage(
+      accountId: $accountId,
+      name: $name,
+      slug: $slug,
+      eventTitle: $eventTitle,
+      location: $location,
+      companyName: $companyName,
+    )
+  }
+`;
+
 export default {
   boardAdd,
   boardEdit,
@@ -108,5 +128,6 @@ export default {
   calendarAdd,
   calendarEdit,
   calendarRemove,
-  editAccountCalendar
+  editAccountCalendar,
+  createSchedulePage
 };

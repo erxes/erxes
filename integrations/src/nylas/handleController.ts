@@ -7,6 +7,7 @@ import { sendRequest } from '../utils';
 import {
   checkCalendarAvailability,
   createEvent,
+  createSchedulePage,
   deleteCalendarEvent,
   enableOrDisableAccount,
   getAttachment,
@@ -596,6 +597,25 @@ export const nylasGetSchedulePages = async (accountId: string) => {
     const pages = await getSchedulePages(accessToken);
 
     return { pages, accessToken, name };
+  } catch (e) {
+    debugNylas(`Failed to create event: ${e.message}`);
+  }
+};
+
+export const nylasCreateSchedulePage = async (
+  accountId: string,
+  doc: { [key: string]: string }
+) => {
+  try {
+    debugNylas(`Creating event in calendar with accountId: ${accountId}`);
+
+    const account = await Accounts.findOne({ _id: accountId });
+
+    if (!account) {
+      throw new Error(`Account not found with id: ${accountId}`);
+    }
+
+    return createSchedulePage(account.nylasToken, doc);
   } catch (e) {
     debugNylas(`Failed to create event: ${e.message}`);
   }
