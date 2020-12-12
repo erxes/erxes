@@ -1,3 +1,4 @@
-import { components } from 'erxes-ui';
+import { Button } from 'erxes-ui';
 
-export default components.Button;
+
+export default Button;

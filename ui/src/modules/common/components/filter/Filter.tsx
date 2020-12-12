@@ -1,3 +1,3 @@
-import { components } from 'erxes-ui';
+import { Filter } from 'erxes-ui';
 
-export default components.Filter;
+export default Filter;

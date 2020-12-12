@@ -1,3 +1,3 @@
-import { components } from 'erxes-ui';
+import { Form } from 'erxes-ui';
 
-export default components.Form;
+export default Form;

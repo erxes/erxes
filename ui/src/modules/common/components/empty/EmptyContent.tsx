@@ -1,3 +1,3 @@
-import { components } from 'erxes-ui';
+import { EmptyContent } from 'erxes-ui';
 
-export default components.EmptyContent;
+export default EmptyContent;

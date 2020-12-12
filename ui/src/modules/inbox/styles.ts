@@ -1,4 +1,4 @@
-import { components } from 'erxes-ui';
+import { PopoverButton } from 'erxes-ui';
 import {
   RichEditorControlsRoot,
   RichEditorRoot
@@ -348,8 +348,6 @@ const SmallEditor = styled.div`
 const CallLabel = styledTS<{ type: string }>(styled.span)`
   color: ${props => (props.type === 'answered' ? 'green' : 'red')};
 `;
-
-const PopoverButton = components.PopoverButton;
 
 export {
   PopoverButton,

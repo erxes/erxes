@@ -1,3 +1,3 @@
-import { components } from 'erxes-ui';
+import { FilterableList } from 'erxes-ui';
 
-export default components.FilterableList;
+export default FilterableList;
