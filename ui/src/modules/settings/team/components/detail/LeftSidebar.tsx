@@ -63,15 +63,15 @@ function LeftSidebar({
     );
   }
 
-  function renderLinks(links) {
+  function renderLinks(item) {
     return (
       <Links>
-        {renderLink(links.facebook, 'facebook-official')}
-        {renderLink(links.linkedIn, 'linkedin')}
-        {renderLink(links.twitter, 'twitter')}
-        {renderLink(links.youtube, 'youtube-play')}
-        {renderLink(links.github, 'github-circled')}
-        {renderLink(links.website, 'external-link-alt')}
+        {renderLink(item.facebook, 'facebook-official')}
+        {renderLink(item.linkedIn, 'linkedin')}
+        {renderLink(item.twitter, 'twitter')}
+        {renderLink(item.youtube, 'youtube-play')}
+        {renderLink(item.github, 'github-circled')}
+        {renderLink(item.website, 'external-link-alt')}
       </Links>
     );
   }
