@@ -1,12 +1,12 @@
-import { FilterableListStyles } from 'erxes-ui';
+import { components } from 'erxes-ui';
 
-const PopoverHeader = FilterableListStyles.PopoverHeader;
-const PopoverBody = FilterableListStyles.PopoverBody;
-const PopoverList = FilterableListStyles.PopoverList;
-const PopoverFooter = FilterableListStyles.PopoverFooter;
-const FlexRow = FilterableListStyles.FlexRow;
-const AvatarImg = FilterableListStyles.AvatarImg;
-const IconWrapper = FilterableListStyles.IconWrapper;
+const PopoverHeader = components.FilterableListStyles.PopoverHeader;
+const PopoverBody = components.FilterableListStyles.PopoverBody;
+const PopoverList = components.FilterableListStyles.PopoverList;
+const PopoverFooter = components.FilterableListStyles.PopoverFooter;
+const FlexRow = components.FilterableListStyles.FlexRow;
+const AvatarImg = components.FilterableListStyles.AvatarImg;
+const IconWrapper = components.FilterableListStyles.IconWrapper;
 
 export {
   PopoverHeader,

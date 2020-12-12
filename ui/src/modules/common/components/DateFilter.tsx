@@ -1,3 +1,3 @@
-import { DateFilter } from 'erxes-ui';
+import { components } from 'erxes-ui';
 
-export default DateFilter;
+export default components.DateFilter;

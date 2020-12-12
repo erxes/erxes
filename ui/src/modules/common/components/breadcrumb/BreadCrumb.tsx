@@ -1,3 +1,3 @@
-import { BreadCrumb } from 'erxes-ui';
+import { components } from 'erxes-ui';
 
-export default BreadCrumb;
+export default components.BreadCrumb;
