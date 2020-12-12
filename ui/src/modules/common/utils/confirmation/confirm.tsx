@@ -1,8 +1,3 @@
-import createConfirmation from './createConfirmation';
+import { confirm } from 'erxes-ui';
 
-// create confirm function
-const confirm = createConfirmation();
-
-export default function(confirmation?: string, options?: {}) {
-  return confirm({ confirmation, options: options || {} });
-}
+export default confirm
