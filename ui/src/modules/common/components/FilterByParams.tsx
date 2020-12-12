@@ -1,3 +1,3 @@
-import { FilterByParams } from 'erxes-ui';
+import { components } from 'erxes-ui';
 
-export default FilterByParams;
+export default components.FilterByParams;
