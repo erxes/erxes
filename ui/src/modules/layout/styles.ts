@@ -14,7 +14,7 @@ import {
   SidebarCounter,
   SidebarList,
   SidebarTitle
-} from 'erxes-ui/layout/styles';
+} from 'erxes-ui/lib/layout/styles';
 import { twinkling } from 'modules/common/utils/animations';
 import styled, { css } from 'styled-components';
 import styledTS from 'styled-components-ts';

@@ -1,3 +1,3 @@
-import { TabCaption, TabContainer } from 'erxes-ui/components/tabs/styles';
+import { TabCaption, TabContainer } from 'erxes-ui/lib/components/tabs/styles';
 
 export { TabContainer, TabCaption };

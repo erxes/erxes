@@ -4,7 +4,7 @@ import {
   IUserDetails as IUserDetailsC,
   IUserDoc as IUserDocC,
   IUserLinks as IUserLinksC
-} from 'erxes-ui/auth/types';
+} from 'erxes-ui/lib/auth/types';
 
 export type IUser = IUserC;
 export type IUserDetails = IUserDetailsC;

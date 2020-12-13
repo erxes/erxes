@@ -24,7 +24,7 @@ import {
   ScrollWrapper,
   SimpleButton,
   Title
-} from 'erxes-ui/styles/main';
+} from 'erxes-ui/lib/styles/main';
 
 export {
   BoxRoot,

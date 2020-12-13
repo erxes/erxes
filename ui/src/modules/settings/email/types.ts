@@ -1,4 +1,4 @@
-import { IEmailSignature as IEmailSignatureC } from 'erxes-ui/auth/types';
+import { IEmailSignature as IEmailSignatureC } from 'erxes-ui/lib/auth/types';
 
 export type IEmailSignature = IEmailSignatureC;
 

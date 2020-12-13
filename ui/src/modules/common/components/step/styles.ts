@@ -17,7 +17,7 @@ import {
   StepItem,
   StepWrapper,
   TitleContainer
-} from 'erxes-ui/components/step/styles';
+} from 'erxes-ui/lib/components/step/styles';
 
 export {
   StepContainer,
