@@ -1,6 +1,3 @@
-import { CommonStep } from 'erxes-ui';
-
-const Step = CommonStep.Step;
-const Steps = CommonStep.Steps;
+import { Step, Steps } from 'erxes-ui';
 
 export { Step, Steps };
