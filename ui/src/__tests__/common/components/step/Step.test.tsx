@@ -1,7 +1,7 @@
 import { shallow } from 'enzyme';
 import React from 'react';
 
-import Step from 'erxes-ui/lib/components/step/Step';
+import Step from 'erxes-ui/components/step/Step';
 
 describe('Step component', () => {
   const defaultProps = {

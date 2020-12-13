@@ -1,8 +1,8 @@
-import { getEnv } from 'apolloClient';
 import CKEditor from 'ckeditor4-react';
 import { colors } from 'modules/common/styles';
 import React from 'react';
 import { IEditorProps } from '../types';
+import { getEnv } from '../utils';
 
 const { REACT_APP_API_URL } = getEnv();
 

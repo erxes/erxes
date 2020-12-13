@@ -1,7 +1,7 @@
 import { shallow } from 'enzyme';
 import React from 'react';
 
-import HeadlinesButton from 'erxes-ui/lib/components/editor/HeadlinesButton'
+import HeadlinesButton from 'erxes-ui/components/editor/HeadlinesButton';
 
 describe('HeadlinesButton component', () => {
   const defaultProps = {
