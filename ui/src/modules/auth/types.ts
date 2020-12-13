@@ -1,13 +1,16 @@
 import {
-    IUser as IUserC, IUserConversation as IUserConversationC, IUserDetails as IUserDetailsC,
-    IUserDoc as IUserDocC, IUserLinks as IUserLinksC
-} from 'erxes-ui/lib/auth/types';
+  IUser as IUserC,
+  IUserConversation as IUserConversationC,
+  IUserDetails as IUserDetailsC,
+  IUserDoc as IUserDocC,
+  IUserLinks as IUserLinksC
+} from 'erxes-ui/auth/types';
 
-export type IUser = IUserC
-export type IUserDetails = IUserDetailsC
-export type IUserLinks = IUserLinksC
-export type IUserConversation = IUserConversationC
-export type IUserDoc = IUserDocC
+export type IUser = IUserC;
+export type IUserDetails = IUserDetailsC;
+export type IUserLinks = IUserLinksC;
+export type IUserConversation = IUserConversationC;
+export type IUserDoc = IUserDocC;
 
 export interface IOwner {
   email: string;

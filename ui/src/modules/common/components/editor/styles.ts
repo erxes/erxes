@@ -1,3 +1,6 @@
-import { RichEditorRoot, RichEditorControlsRoot } from 'erxes-ui/lib/components/editor/styles'
+import {
+  RichEditorControlsRoot,
+  RichEditorRoot
+} from 'erxes-ui/components/editor/styles';
 
 export { RichEditorRoot, RichEditorControlsRoot };

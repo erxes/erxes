@@ -1,8 +1,23 @@
 import {
-  ControlWrapper, FlexItem, FlexPad, FullStep, Indicator, InlineForm, LeftItem, Preview,
-  ShortStep, StepContainer, StepContent, StepHeader, StepHeaderContainer, StepHeaderTitle,
-  StepImg, StepItem, StepWrapper, TitleContainer
-} from 'erxes-ui/lib/components/step/styles';
+  ControlWrapper,
+  FlexItem,
+  FlexPad,
+  FullStep,
+  Indicator,
+  InlineForm,
+  LeftItem,
+  Preview,
+  ShortStep,
+  StepContainer,
+  StepContent,
+  StepHeader,
+  StepHeaderContainer,
+  StepHeaderTitle,
+  StepImg,
+  StepItem,
+  StepWrapper,
+  TitleContainer
+} from 'erxes-ui/components/step/styles';
 
 export {
   StepContainer,

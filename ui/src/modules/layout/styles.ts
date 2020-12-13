@@ -1,25 +1,25 @@
 import {
+  CenterContent,
+  ContenFooter,
+  Contents,
+  HeightedWrapper,
+  MainContent,
+  PageHeader
+} from 'erxes-ui';
+import {
   ContentBox,
   ContentHeader,
+  FieldStyle,
   SidebarBox,
   SidebarCounter,
-  SidebarTitle,
   SidebarList,
-  FieldStyle
-} from 'erxes-ui/lib/layout/styles'
+  SidebarTitle
+} from 'erxes-ui/layout/styles';
 import { twinkling } from 'modules/common/utils/animations';
 import styled, { css } from 'styled-components';
 import styledTS from 'styled-components-ts';
 import { colors, dimensions } from '../common/styles';
 import { rgba } from '../common/styles/color';
-import {
-  PageHeader,
-  HeightedWrapper,
-  Contents,
-  MainContent,
-  ContenFooter,
-  CenterContent,
-} from 'erxes-ui';
 
 const UserHelper = styled.div`
   height: 50px;

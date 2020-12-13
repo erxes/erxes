@@ -1,4 +1,4 @@
-import { ITag as ITagC } from 'erxes-ui/lib/tags/types'
+import { ITag as ITagC } from 'erxes-ui/tags/types';
 export type ITag = ITagC;
 
 export interface ITagSaveParams {
