@@ -3,7 +3,7 @@ import DropdownToggle from 'modules/common/components/DropdownToggle';
 import Icon from 'modules/common/components/Icon';
 import { __ } from 'modules/common/utils';
 import DealConvertTrigger from 'modules/deals/components/DealConvertTrigger';
-import { IConversation, IMessage } from 'modules/inbox/types';
+import { IConversation, IMail, IMessage } from 'modules/inbox/types';
 import TaskConvertTrigger from 'modules/tasks/components/TaskConvertTrigger';
 import TicketConvertTrigger from 'modules/tickets/components/TicketConvertTrigger';
 import React from 'react';
@@ -34,8 +34,13 @@ type Props = {
   refetch: () => void;
 };
 
-export default (props: Props) => {
-  const { conversation, convertToInfo, conversationMessage, refetch } = props;
+export default function ConvertTo(props: Props) {
+  const {
+    conversation,
+    convertToInfo,
+    conversationMessage = {} as IMessage,
+    refetch
+  } = props;
 
   const assignedUserIds = conversation.assignedUserId
     ? [conversation.assignedUserId]
@@ -43,15 +48,14 @@ export default (props: Props) => {
   const customerIds = conversation.customerId ? [conversation.customerId] : [];
   const sourceConversationId = conversation._id;
 
-  const triggerProps = {
+  const { mailData = {} as IMail } = conversationMessage;
+
+  const triggerProps: any = {
     assignedUserIds,
     relTypeIds: customerIds,
     relType: 'customer',
     sourceConversationId,
-    subject:
-      Object.keys(conversationMessage).length !== 0
-        ? conversationMessage.mailData && conversationMessage.mailData.subject
-        : '',
+    subject: mailData.subject ? mailData.subject : '',
     refetch
   };
 
@@ -80,4 +84,4 @@ export default (props: Props) => {
       </Dropdown>
     </Container>
   );
-};
+}
