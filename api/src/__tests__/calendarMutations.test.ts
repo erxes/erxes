@@ -327,8 +327,11 @@ describe('Test calendars mutations', () => {
     $start: String,
     $end: String
 
-    $participants: [Participant]
-    $memberIds: [String]
+    $participants: [Participant],
+    $rrule: String,
+    $timezone: String,
+    $location: String,
+    $busy: Boolean,
   `;
 
   const eventParams = `
@@ -340,7 +343,10 @@ describe('Test calendars mutations', () => {
     end: $end
 
     participants: $participants,
-    memberIds: $memberIds
+    rrule: $rrule,
+    timezone: $timezone,
+    location: $location,
+    busy: $busy,
   `;
 
   const eventArgs = {
