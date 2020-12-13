@@ -1,4 +1,4 @@
-import { uploadHandler, uploadDeleteHandler } from 'erxes-ui';
+import { uploadDeleteHandler, uploadHandler } from 'erxes-ui';
 
 export const deleteHandler = uploadDeleteHandler;
 
