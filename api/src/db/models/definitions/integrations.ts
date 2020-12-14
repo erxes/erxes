@@ -43,7 +43,7 @@ export interface IMessageDataMessages {
 export interface IMessengerData {
   botEndpointUrl?: string;
   botShowInitialMessage?: boolean;
-  skillData: object;
+  skillData?: object;
   supporterIds?: string[];
   notifyCustomer?: boolean;
   availabilityMethod?: string;

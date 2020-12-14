@@ -97,6 +97,14 @@ export interface IIntegrationMessengerDataMessagesItem {
 }
 
 export interface IIntegrationMessengerData {
+  skillData?: {
+    typeId: string,
+    options: Array<{
+      response: string;
+      label: string;
+      skillId: string;
+    }>
+  };
   botEndpointUrl?: string;
   botShowInitialMessage?: boolean;
   supporterIds: string[];

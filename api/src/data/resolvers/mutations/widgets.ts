@@ -23,6 +23,7 @@ import {
 } from '../../../db/models/definitions/constants';
 import {
   IIntegrationDocument,
+  IMessengerDataDocument,
   IMessengerDataMessagesItem
 } from '../../../db/models/definitions/integrations';
 import {
@@ -859,6 +860,24 @@ const widgetMutations = {
     );
 
     return { botData: botRequest.responses };
+  },
+
+  async widgetGetMessageSkills(
+    _root,
+    { integrationId }: { integrationId: string }
+  ) {
+    const integration = await Integrations.findOne({ _id: integrationId });
+
+    if (!integration) {
+      throw new Error('Integration not found');
+    }
+
+    const { messengerData = {} as IMessengerDataDocument } = integration;
+    const { skillData } = messengerData;
+
+    if (!skillData) {
+      return;
+    }
   }
 };
 

@@ -58,6 +58,7 @@ interface IStore extends IState {
   readMessages: (conversationId: string) => void;
   replyAutoAnswer: (message: string, payload: string, type: string) => void;
   getBotInitialMessage: (callback: (bodData: any) => void) => void;
+  getMessageSkills: (callback: (data: any) => void) => void;
   changeOperatorStatus: (
     _id: string,
     operatorStatus: string,
@@ -470,6 +471,22 @@ export class AppProvider extends React.Component<{}, IState> {
       });
   };
 
+  getMessageSkills = (callback: (data: any) => void) => {
+    return client.mutate({
+      mutation: gql(`
+        mutation widgetGetMessageSkills($integrationId: String) {
+          widgetGetMessageSkills(integrationId: $integrationId)
+        }
+      `),
+      variables: { integrationId: connection.data.integrationId }
+    })
+      .then(({ data }) => {
+        if (data.widgetGetMessageSkills) {
+          callback(data.widgetGetMessageSkills);
+        }
+      })
+  };
+
   getBotInitialMessage = (callback: (botData: any) => void) => {
     return client.mutate({
       mutation: gql`
@@ -717,6 +734,7 @@ export class AppProvider extends React.Component<{}, IState> {
           readMessages: this.readMessages,
           replyAutoAnswer: this.replyAutoAnswer,
           getBotInitialMessage: this.getBotInitialMessage,
+          getMessageSkills: this.getMessageSkills,
           changeOperatorStatus: this.changeOperatorStatus,
           sendMessage: this.sendMessage,
           sendTypingInfo: this.sendTypingInfo,
