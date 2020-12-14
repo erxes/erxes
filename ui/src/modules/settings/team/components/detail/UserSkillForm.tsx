@@ -1,42 +1,65 @@
 import { IUser } from 'modules/auth/types';
 import Button from 'modules/common/components/Button';
 import ButtonMutate from 'modules/common/components/ButtonMutate';
-import {
-  ControlLabel,
-  FormControl,
-  FormGroup
-} from 'modules/common/components/form';
+import { ControlLabel, FormGroup } from 'modules/common/components/form';
 import { ModalFooter } from 'modules/common/styles/main';
 import { __, Alert } from 'modules/common/utils';
-import { ISkillDocument } from 'modules/settings/skills/types';
+import {
+  ISkillDocument,
+  ISkillTypesDocument
+} from 'modules/settings/skills/types';
 import React, { useState } from 'react';
-import mutations from '../../../skills/graphql/mutations';
+import Select from 'react-select-plus';
+import mutations from '../../graphql/mutations';
 
 type Props = {
-  user: IUser;
+  refetchSkills: (memberId: string) => void;
   closeModal: () => void;
-  skillTypes: ISkillDocument[];
+  handleSkillTypeSelect: (typeId: string, userId: string) => void;
+  user: IUser;
+  loading: boolean;
+  skillTypes: ISkillTypesDocument[];
+  skills: ISkillDocument[];
 };
 
-function UserSkillForm({ skillTypes, closeModal, user }: Props) {
+function UserSkillForm({
+  skillTypes,
+  skills,
+  loading,
+  handleSkillTypeSelect,
+  refetchSkills,
+  closeModal,
+  user
+}: Props) {
   const [isSubmitted, setSubmitted] = useState<boolean>(false);
   const [type, setType] = useState(null);
-  const [skillId] = useState<string | null>(null);
+  const [skillIds, setSkillIds] = useState<string[]>([]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!skillId) {
-      return Alert.error('Please choose a skill');
+    if (skillIds.length === 0) {
+      return Alert.error('Please choose a skills');
     }
 
     setSubmitted(true);
   };
 
   function renderContent() {
-    const handleTypeSelect = option => setType(option);
+    const handleTypeSelect = option => {
+      setType(option);
+
+      handleSkillTypeSelect(option.value, user._id);
+    };
+
+    const handleSkillsChange = (
+      options: [{ label: string; value: string }]
+    ) => {
+      setSkillIds(options.map(option => option.value));
+    };
+
     const handleRefetch = () => {
-      return null;
+      return refetchSkills(user._id);
     };
 
     const getVariables = () => {
@@ -45,29 +68,36 @@ function UserSkillForm({ skillTypes, closeModal, user }: Props) {
       }
 
       return {
-        memberIds: [user._id],
-        // typeId: type.value,
-        skillId
+        memberId: user._id,
+        skillIds
       };
     };
 
-    const generateSkillTypes = () => {
-      return skillTypes.map(item => ({ label: item.name, value: item._id }));
+    const generateOptions = options => {
+      return options.map(item => ({ label: item.name, value: item._id }));
     };
 
     return (
       <>
         <FormGroup>
           <ControlLabel>Skill type</ControlLabel>
-          <FormControl
+          <Select
             placeholder={__('Choose a skill type')}
             value={type}
-            options={generateSkillTypes()}
+            options={generateOptions(skillTypes)}
             onChange={handleTypeSelect}
           />
         </FormGroup>
         <FormGroup>
           <ControlLabel>Skills</ControlLabel>
+          <Select
+            placeholder={__('Choose a skill type first')}
+            value={skillIds}
+            isLoading={loading}
+            options={generateOptions(skills)}
+            onChange={handleSkillsChange}
+            multi={true}
+          />
         </FormGroup>
         <ModalFooter>
           <Button
@@ -79,7 +109,7 @@ function UserSkillForm({ skillTypes, closeModal, user }: Props) {
             Cancel
           </Button>
           <ButtonMutate
-            mutation={mutations.skillTypeEdit}
+            mutation={mutations.userAddSkill}
             variables={getVariables()}
             callback={closeModal}
             refetchQueries={handleRefetch}

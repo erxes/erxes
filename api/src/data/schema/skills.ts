@@ -17,7 +17,7 @@ export const queries = `
   skillTypesTotalCount: Int
 
   skill(_id: String!): Skill
-  skills(typeId: String, page: Int, perPage: Int, memberIds: [String]): [Skill]
+  skills(typeId: String, page: Int, perPage: Int, memberIds: [String], list: Boolean): [Skill]
   skillsTotalCount(typeId: String): Int
 `;
 
@@ -29,5 +29,6 @@ export const mutations = `
   createSkill(name: String!, typeId: String!, memberIds: [String]): JSON
   updateSkill(_id: String!, typeId: String, name: String, memberIds: [String], exclude: Boolean): JSON
   excludeUserSkill(_id: String!, memberIds: [String]!): JSON
+  addUserSkills(memberId: String!, skillIds: [String]!): JSON
   removeSkill(_id: String!): JSON
 `;

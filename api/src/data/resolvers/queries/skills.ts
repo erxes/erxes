@@ -12,11 +12,15 @@ const skillTypesQueries = {
   }
 };
 
-const getSkillSelector = typeId => {
-  const selector: { [key: string]: string } = {};
+const getSkillSelector = (typeId: string, memberIds?: string[]) => {
+  const selector: any = {};
 
   if (typeId) {
     selector.typeId = typeId;
+  }
+
+  if (memberIds) {
+    selector.memberIds = { $nin: memberIds };
   }
 
   return selector;
@@ -38,11 +42,22 @@ const skillQueries = {
     {
       typeId,
       memberIds,
+      list = false,
       ...args
-    }: { typeId: string; memberIds: string[]; page?: number; perPage?: number }
+    }: {
+      typeId: string;
+      memberIds: string[];
+      page?: number;
+      perPage?: number;
+      list?: boolean;
+    }
   ) {
-    if (memberIds) {
+    if (!list && memberIds) {
       return Skills.find({ memberIds: { $in: memberIds } });
+    }
+
+    if (list && memberIds) {
+      return Skills.find(getSkillSelector(typeId, memberIds));
     }
 
     return paginate(Skills.find(getSkillSelector(typeId)), args);

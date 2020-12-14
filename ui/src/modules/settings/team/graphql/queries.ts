@@ -102,8 +102,8 @@ const usersTotalCount = `
 `;
 
 const userSkills = `
-  query skills($memberIds: [String]) {
-    skills(memberIds: $memberIds) {
+  query skills($memberIds: [String], $typeId: String, $list: Boolean) {
+    skills(memberIds: $memberIds, typeId: $typeId, list: $list) {
       _id
       name
     }

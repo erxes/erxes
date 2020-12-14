@@ -88,6 +88,12 @@ const userExcludeSkill = `
   }
 `;
 
+const userAddSkill = `
+  mutation addUserSkills($memberId: String!, $skillIds: [String]!) {
+    addUserSkills(memberId: $memberId, skillIds: $skillIds)
+  }
+`;
+
 export default {
   usersEditProfile,
   usersEdit,
@@ -96,5 +102,6 @@ export default {
   usersConfirmInvitation,
   usersSetActiveStatus,
   usersResetMemberPassword,
+  userAddSkill,
   userExcludeSkill
 };

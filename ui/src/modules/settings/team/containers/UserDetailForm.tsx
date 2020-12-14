@@ -10,7 +10,7 @@ import {
   SkillTypesQueryResponse
 } from 'modules/settings/skills/types';
 import React from 'react';
-import { graphql } from 'react-apollo';
+import { graphql, useLazyQuery } from 'react-apollo';
 import { Alert, confirm, withProps } from '../../../common/utils';
 import { queries as channelQueries } from '../../channels/graphql';
 import { ChannelsQueryResponse } from '../../channels/types';
@@ -57,6 +57,13 @@ const UserDetailFormContainer = (props: Props & FinalProps) => {
     userExcludeSkill,
     renderEditForm
   } = props;
+  const [
+    getSkills,
+    { loading, data = {} as SkillsQueryResponse }
+  ] = useLazyQuery(gql(queries.userSkills));
+
+  const handleSkillTypeSelect = (typeId: string, userId: string) =>
+    getSkills({ variables: { typeId, list: true, memberIds: [userId] } });
 
   const excludeUserSkill = (skillId: string, userId: string) => {
     confirm().then(() => {
@@ -122,10 +129,21 @@ const UserDetailFormContainer = (props: Props & FinalProps) => {
   };
 
   const renderSkillForm = formProps => {
+    const refetchSkills = (id: string) => {
+      return [
+        { query: gql(queries.userSkills), variables: { memberIds: [id] } }
+      ];
+    };
+
     return (
       <UserSkillForm
         {...formProps}
+        handleSkillTypeSelect={handleSkillTypeSelect}
+        refetchSkills={refetchSkills}
+        user={userDetailQuery.userDetail || {}}
         skillTypes={skillTypesQuery.skillTypes || []}
+        skills={data.skills || []}
+        loading={loading}
       />
     );
   };

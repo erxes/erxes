@@ -30,6 +30,20 @@ const skillsMutations = {
     return Skills.updateSkill(doc);
   },
 
+  async addUserSkills(
+    _root,
+    { memberId, skillIds }: { memberId: string; skillIds: string[] }
+  ) {
+    if (!memberId) {
+      throw new Error('User not provided');
+    }
+
+    return Skills.updateMany(
+      { _id: { $in: skillIds } },
+      { $push: { memberIds: memberId } }
+    );
+  },
+
   async excludeUserSkill(
     _root,
     { _id, memberIds }: { _id: string; memberIds: string[] }
