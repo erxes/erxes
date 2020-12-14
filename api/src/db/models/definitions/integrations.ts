@@ -43,6 +43,7 @@ export interface IMessageDataMessages {
 export interface IMessengerData {
   botEndpointUrl?: string;
   botShowInitialMessage?: boolean;
+  skillData: object;
   supporterIds?: string[];
   notifyCustomer?: boolean;
   availabilityMethod?: string;
@@ -145,6 +146,7 @@ const messengerOnlineHoursSchema = new Schema(
 // subdocument schema for MessengerData
 const messengerDataSchema = new Schema(
   {
+    skillData: field({ type: Object, optional: true }),
     botEndpointUrl: field({ type: String }),
     botShowInitialMessage: field({ type: Boolean }),
     supporterIds: field({ type: [String] }),

@@ -71,6 +71,7 @@ export const types = `
     _id: String
     notifyCustomer: Boolean
     botEndpointUrl: String
+    skillData: JSON
     botShowInitialMessage: Boolean
     availabilityMethod: String
     isOnline: Boolean,

@@ -14,8 +14,8 @@ const skillTypesTotalCount = `
 `;
 
 const skills = `
-  query skills($typeId: String, $page: Int, $perPage: Int, $memberIds: [String]) {
-    skills(typeId: $typeId, page: $page, perPage: $perPage, memberIds: $memberIds) {
+  query skills($typeId: String, $page: Int, $perPage: Int, $memberIds: [String], $list: Boolean) {
+    skills(typeId: $typeId, page: $page, perPage: $perPage, memberIds: $memberIds, list: $list) {
       _id
       name
       typeId

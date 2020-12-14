@@ -27,9 +27,6 @@ import UserForm from './UserForm';
 type Props = {
   _id: string;
   queryParams: any;
-  userExcludeSkill: (params: {
-    variables: { _id: string; memberIds: string[] };
-  }) => Promise<void>;
   renderEditForm?: ({
     closeModal,
     user
@@ -45,6 +42,9 @@ type FinalProps = {
   userConversationsQuery: UserConverationsQueryResponse;
   skillsQuery: SkillsQueryResponse;
   skillTypesQuery: SkillTypesQueryResponse;
+  userExcludeSkill: (params: {
+    variables: { _id: string; memberIds: string[] };
+  }) => Promise<void>;
 };
 
 const UserDetailFormContainer = (props: Props & FinalProps) => {
