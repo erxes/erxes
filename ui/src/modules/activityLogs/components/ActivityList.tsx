@@ -14,13 +14,44 @@ type Props = {
 };
 
 class ActivityList extends React.Component<Props> {
-  renderItem(data) {
-    return data.map((item, index) => (
-      <ActivityItem key={index} activity={item} currentUser={this.props.user} />
-    ));
+  arrangeActivities(activities: any[]) {
+    activities.forEach((a, i) => {
+      if (a.action === 'convert') {
+        const conversationId = a.content;
+        let index;
+        activities.some((element, idx) => {
+          if (element._id === conversationId) {
+            index = idx;
+          }
+          return element._id === conversationId;
+        });
+        if (index) {
+          const activity = activities[index];
+          activities.splice(index, 1);
+          activities.splice(i + 1, 0, activity);
+        }
+      }
+    });
+
+    return activities;
   }
 
-  renderList(activity, index) {
+  renderItem(data: any[]) {
+    return data.map(
+      (item: IActivityLog, index: string | number | undefined) => (
+        <ActivityItem
+          key={index}
+          activity={item}
+          currentUser={this.props.user}
+        />
+      )
+    );
+  }
+
+  renderList(
+    activity: { [x: string]: any },
+    index: string | number | undefined
+  ) {
     const data = Object.keys(activity);
 
     return (
@@ -31,24 +62,32 @@ class ActivityList extends React.Component<Props> {
     );
   }
 
-  renderTimeLine(activities) {
-    const result = activities.reduce((item, activity) => {
-      const { contentType } = activity;
-      const createdDate = dayjs(activity.createdAt).format('MMMM YYYY');
+  renderTimeLine(activities: any[]) {
+    activities = this.arrangeActivities(activities);
 
-      if (
-        contentType === 'taskDetail' &&
-        dayjs(activity.createdAt) >= dayjs()
-      ) {
-        item.Upcoming = item.Upcoming || [];
-        item.Upcoming.push(activity);
-      } else {
-        item[createdDate] = item[createdDate] || [];
-        item[createdDate].push(activity);
-      }
+    const result = activities.reduce(
+      (
+        item: { [x: string]: any; Upcoming: any[] },
+        activity: { createdAt?: any; contentType?: any }
+      ) => {
+        const { contentType } = activity;
+        const createdDate = dayjs(activity.createdAt).format('MMMM YYYY');
 
-      return item;
-    }, {});
+        if (
+          contentType === 'taskDetail' &&
+          dayjs(activity.createdAt) >= dayjs()
+        ) {
+          item.Upcoming = item.Upcoming || [];
+          item.Upcoming.push(activity);
+        } else {
+          item[createdDate] = item[createdDate] || [];
+          item[createdDate].push(activity);
+        }
+
+        return item;
+      },
+      {}
+    );
 
     return (
       <Timeline>
