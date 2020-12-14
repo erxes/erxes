@@ -224,7 +224,7 @@ const QuickNavigation = ({
 
             <Dropdown.Divider />
             <Dropdown.Item onClick={logout}>{__('Sign out')}</Dropdown.Item>
-            <Version />
+            <Version kind="plain" />
           </Dropdown.Menu>
         </Dropdown>
       </NavItem>

@@ -322,6 +322,7 @@ export interface ICalendar {
   show: boolean;
   customName: string;
   color: string;
+  syncedMonths: string[];
 }
 
 export interface ICalendarDocument extends ICalendar, Document {}
@@ -337,7 +338,8 @@ const calendarSchema = {
   readOnly: Boolean,
   show: Boolean,
   customName: String,
-  color: String
+  color: String,
+  syncedMonths: [String]
 };
 
 // tslint:disable-next-line

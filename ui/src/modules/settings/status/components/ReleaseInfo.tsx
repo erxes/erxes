@@ -3,28 +3,11 @@ import { __ } from 'modules/common/utils';
 import parseMd from 'modules/common/utils/parseMd';
 import Wrapper from 'modules/layout/components/Wrapper';
 import React from 'react';
-import styled from 'styled-components';
+import { ReleaseContainer } from './styles';
 
 type Props = {
   info;
 };
-
-const Container = styled.div`
-  padding: 30px;
-
-  h2 {
-    margin-top: 0;
-  }
-
-  h3 {
-    font-size: 22px;
-    margin-bottom: 15px;
-  }
-
-  em {
-    text-transform: capitalize;
-  }
-`;
 
 const ReleaseInfo = (props: Props) => {
   const releaseInfo = props.info.releaseInfo || {};
@@ -35,13 +18,13 @@ const ReleaseInfo = (props: Props) => {
   ];
 
   const content = (
-    <Container>
+    <ReleaseContainer>
       <div
         dangerouslySetInnerHTML={{
           __html: parseMd(releaseInfo.body || '')
         }}
       />
-    </Container>
+    </ReleaseContainer>
   );
 
   return (

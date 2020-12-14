@@ -287,4 +287,16 @@ const getProviderConfigs = (kind: string) => {
   }
 };
 
+export const extractDate = (date: Date) => {
+  return {
+    month: date.getMonth(),
+    year: date.getFullYear(),
+    date: date.getDate()
+  };
+};
+
+export const getTime = (date: Date) => {
+  return date.getTime() / 1000;
+};
+
 export { getProviderConfigs, buildEmailAddress, syncMessages };

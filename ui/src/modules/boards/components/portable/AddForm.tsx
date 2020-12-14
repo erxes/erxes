@@ -13,6 +13,7 @@ type Props = {
   boardId?: string;
   pipelineId?: string;
   stageId?: string;
+  mailSubject?: string;
   saveItem: (doc: IItemParams, callback: (item: IItem) => void) => void;
   showSelect?: boolean;
   closeModal: () => void;
@@ -36,7 +37,10 @@ class AddForm extends React.Component<Props, State> {
       boardId: props.boardId || '',
       pipelineId: props.pipelineId || '',
       stageId: props.stageId || '',
-      name: localStorage.getItem(`${props.options.type}Name`) || ''
+      name:
+        localStorage.getItem(`${props.options.type}Name`) || props.mailSubject
+          ? props.mailSubject
+          : ''
     };
   }
 

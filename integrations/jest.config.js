@@ -1,7 +1,7 @@
 module.exports = {
   roots: ['<rootDir>/src/__tests__'],
   transform: {
-    '^.+\\.ts$': 'ts-jest',
+    '^.+\\.ts$': 'ts-jest'
   },
   testRegex: '/__tests__/.*\\.(ts|js)$',
   testEnvironment: 'node',
@@ -21,19 +21,20 @@ module.exports = {
     '!src/gmail/api.ts',
     '!src/gmail/controller.ts',
     '!src/twitter/api.ts',
+    '!src/facebook/store.ts',
     '!src/facebook/utils.ts',
-    '!src/facebook/handleFacebookMessage.ts',
+    '!src/facebook/handleFacebookMessage.ts'
   ],
   globals: {
     'ts-jest': {
-      tsConfigFile: 'tsconfig.json',
-    },
+      tsConfigFile: 'tsconfig.json'
+    }
   },
   coverageThreshold: {
     global: {
       functions: 100,
       lines: 100,
-      statements: 100,
-    },
-  },
+      statements: 100
+    }
+  }
 };

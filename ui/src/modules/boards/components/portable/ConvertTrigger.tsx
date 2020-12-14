@@ -11,6 +11,7 @@ type Props = {
   refetch: () => void;
   sourceConversationId?: string;
   title: string;
+  subject?: string;
   url?: string;
   type?: string;
   description?: string;
@@ -28,6 +29,7 @@ export default (props: Props) => {
     title,
     url,
     type,
+    subject,
     description,
     attachments
   } = props;
@@ -52,6 +54,7 @@ export default (props: Props) => {
       refetch={refetch}
       relType={relType}
       relTypeIds={relTypeIds}
+      mailSubject={subject}
       assignedUserIds={assignedUserIds}
       sourceConversationId={sourceConversationId}
       showSelect={true}
