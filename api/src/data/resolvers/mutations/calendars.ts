@@ -1,9 +1,4 @@
-import {
-  CalendarBoards,
-  CalendarGroups,
-  Calendars,
-  Users
-} from '../../../db/models';
+import { CalendarBoards, CalendarGroups, Calendars } from '../../../db/models';
 import {
   ICalendar,
   ICalendarBoard,
@@ -35,21 +30,10 @@ type Event = {
   accountId?: string;
 
   participants?: Participant[];
-  memberIds?: string[];
-};
-
-const generateDoc = async (doc: Event) => {
-  const participants = doc.participants || [];
-
-  if (doc.memberIds) {
-    const users = await Users.find({ _id: { $in: doc.memberIds } });
-
-    for (const user of users) {
-      participants.push({ name: user.username, email: user.email });
-    }
-  }
-
-  return { ...doc, participants };
+  rrule: string;
+  timezone: string;
+  location: string;
+  busy: boolean;
 };
 
 const calendarMutations = {
@@ -57,17 +41,13 @@ const calendarMutations = {
    * Create a new calendar event
    */
   async createCalendarEvent(_root, doc: Event, { dataSources }: IContext) {
-    return dataSources.IntegrationsAPI.createCalendarEvent(
-      await generateDoc(doc)
-    );
+    return dataSources.IntegrationsAPI.createCalendarEvent(doc);
   },
 
   /**
    * Update a new calendar event
    */
   async editCalendarEvent(_root, doc: Event, { dataSources }: IContext) {
-    delete doc.memberIds;
-
     return dataSources.IntegrationsAPI.editCalendarEvent(doc);
   },
 

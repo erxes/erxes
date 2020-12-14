@@ -26,7 +26,8 @@ interface IRequestParams {
       | number
       | { [key: string]: string }
       | IProviderSettings
-      | IParticipants[];
+      | IParticipants[]
+      | { [key: string]: number };
   };
 }
 

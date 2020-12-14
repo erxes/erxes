@@ -14,6 +14,7 @@ type Props = {
   pipelineId?: string;
   stageId?: string;
   cardId?: string;
+  mailSubject?: string;
   saveItem: (doc: IItemParams, callback: (item: IItem) => void) => void;
   showSelect?: boolean;
   closeModal: () => void;
