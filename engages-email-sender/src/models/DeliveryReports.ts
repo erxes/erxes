@@ -39,11 +39,11 @@ export interface IDeliveryReports {
 export interface IDeliveryReportsDocument extends IDeliveryReports, Document {}
 
 export const deliveryReportsSchema = new Schema({
-  customerId: { type: String },
-  mailId: { type: String, optional: true },
-  status: { type: String, optional: true },
-  engageMessageId: { type: String, optional: true },
-  createdAt: { type: Date }
+  customerId: { type: String, label: 'Customer id at erxes-api' },
+  mailId: { type: String, optional: true, label: 'AWS SES mail id' },
+  status: { type: String, optional: true, label: 'Delivery status' },
+  engageMessageId: { type: String, optional: true, label: 'Engage message id at erxes-api' },
+  createdAt: { type: Date, label: 'Created at', default: new Date() }
 });
 
 export interface IStatsModel extends Model<IStatsDocument> {

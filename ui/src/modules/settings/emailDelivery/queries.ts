@@ -16,8 +16,8 @@ const transactionEmailDeliveries = `
 `;
 
 const engageReportsList = `
-  query engageReportsList($page: Int, $perPage: Int) {
-    engageReportsList(page: $page, perPage: $perPage) {
+  query engageReportsList($page: Int, $perPage: Int, $customerId: String, $status: String) {
+    engageReportsList(page: $page, perPage: $perPage, customerId: $customerId, status: $status) {
       totalCount
       list {
         _id

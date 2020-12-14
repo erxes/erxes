@@ -32,6 +32,13 @@ interface ICountsByTag {
   [index: string]: number;
 }
 
+interface IReportParams {
+  page?: number;
+  perPage?: number;
+  customerId?: string;
+  status?: string;
+}
+
 // basic count helper
 const count = async (selector: {}): Promise<number> => {
   const res = await EngageMessages.find(selector).countDocuments();
@@ -224,7 +231,7 @@ const engageQueries = {
     return dataSources.EngagesAPI.engagesConfigDetail();
   },
 
-  engageReportsList(_root, params, { dataSources }: IContext) {
+  engageReportsList(_root, params: IReportParams, { dataSources }: IContext) {
     return dataSources.EngagesAPI.engageReportsList(params);
   },
 

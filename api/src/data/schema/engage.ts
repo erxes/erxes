@@ -114,7 +114,7 @@ export const queries = `
   engageMessageCounts(name: String!, kind: String, status: String): JSON
   engagesConfigDetail: JSON
   engageVerifiedEmails: [String]
-  engageReportsList(page: Int, perPage: Int): EngageDeliveryReport 
+  engageReportsList(page: Int, perPage: Int, customerId: String, status: String): EngageDeliveryReport 
 `;
 
 const commonParams = `
