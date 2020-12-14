@@ -35,12 +35,7 @@ type Props = {
 };
 
 export default function ConvertTo(props: Props) {
-  const {
-    conversation,
-    convertToInfo,
-    conversationMessage = {} as IMessage,
-    refetch
-  } = props;
+  const { conversation, convertToInfo, conversationMessage, refetch } = props;
 
   const assignedUserIds = conversation.assignedUserId
     ? [conversation.assignedUserId]
@@ -48,7 +43,8 @@ export default function ConvertTo(props: Props) {
   const customerIds = conversation.customerId ? [conversation.customerId] : [];
   const sourceConversationId = conversation._id;
 
-  const { mailData = {} as IMail } = conversationMessage;
+  const message: IMessage = conversationMessage || {};
+  const mailData = message.mailData || ({} as IMail);
 
   const triggerProps: any = {
     assignedUserIds,
