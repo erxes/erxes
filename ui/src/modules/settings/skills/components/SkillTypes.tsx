@@ -7,7 +7,6 @@ import Tip from 'modules/common/components/Tip';
 import { TopHeader } from 'modules/common/styles/main';
 import { IButtonMutateProps, IRouterProps } from 'modules/common/types';
 import { __ } from 'modules/common/utils';
-import router from 'modules/common/utils/router';
 import Sidebar from 'modules/layout/components/Sidebar';
 import Wrapper from 'modules/layout/components/Wrapper';
 import { FieldStyle, SidebarList } from 'modules/layout/styles';

@@ -60,7 +60,9 @@ const UserDetailFormContainer = (props: Props & FinalProps) => {
   const [
     getSkills,
     { loading, data = {} as SkillsQueryResponse }
-  ] = useLazyQuery(gql(queries.userSkills));
+  ] = useLazyQuery(gql(queries.userSkills), {
+    fetchPolicy: 'network-only'
+  } as any);
 
   const handleSkillTypeSelect = (typeId: string, userId: string) =>
     getSkills({ variables: { typeId, list: true, memberIds: [userId] } });
