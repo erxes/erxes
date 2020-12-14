@@ -51,7 +51,7 @@ type State = {
   title: string;
   botEndpointUrl?: string;
   botShowInitialMessage?: boolean;
-  skillData?: ISkillData[];
+  skillData?: ISkillData;
   brandId: string;
   channelIds: string[];
   languageCode: string;

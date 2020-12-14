@@ -63,15 +63,18 @@ export interface IMessages {
 }
 
 export interface ISkillData {
-  label: string;
-  response: string;
-  skillId: string;
+  typeId: string;
+  options: Array<{
+    label: string;
+    response: string;
+    skillId: string;
+  }>;
 }
 
 export interface IMessengerData {
   botEndpointUrl?: string;
   botShowInitialMessage?: boolean;
-  skillData?: ISkillData[];
+  skillData?: ISkillData;
   messages?: IMessages;
   notifyCustomer?: boolean;
   supporterIds?: string[];

@@ -5,14 +5,14 @@ import {
   SkillsQueryResponse,
   SkillTypesQueryResponse
 } from 'modules/settings/skills/types';
-import React from 'react';
+import React, { useCallback, useEffect } from 'react';
 import { graphql, useLazyQuery } from 'react-apollo';
 import queries from '../../../skills/graphql/queries';
 import BuildSkill from '../../components/messenger/steps/BuildSkill';
 import { ISkillData } from '../../types';
 
 type Props = {
-  skillData?: ISkillData[];
+  skillData?: ISkillData;
   onChange: (name: any, value: any) => void;
 };
 
@@ -25,14 +25,22 @@ function BuildSkillContainer({
   skillData,
   onChange
 }: FinalProps) {
+  const initialTypeId = (skillData || ({} as ISkillData)).typeId || '';
+
   const [
     getSkills,
     { loading, data = {} as SkillsQueryResponse }
   ] = useLazyQuery<SkillsQueryResponse>(gql(queries.skills));
 
-  const handleSkillTypeSelect = (typeId: string) => {
+  const handleSkillTypeSelect = useCallback((typeId: string) => {
     getSkills({ variables: { typeId, list: true } });
-  };
+  }, []);
+
+  useEffect(() => {
+    if (initialTypeId.length > 0) {
+      handleSkillTypeSelect(initialTypeId);
+    }
+  }, [initialTypeId, handleSkillTypeSelect]);
 
   return (
     <BuildSkill

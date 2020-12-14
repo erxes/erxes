@@ -9,7 +9,7 @@ import { SubHeading } from 'modules/settings/styles';
 import React from 'react';
 
 type Props = {
-  skillData?: ISkillData[];
+  skillData?: ISkillData;
   onChange: (
     name: 'supporterIds' | 'messages',
     value: IMessages | string[]
