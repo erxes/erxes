@@ -16,7 +16,7 @@ type Props = {
   attachments?: any[];
 };
 
-export default (props: Props) => {
+export default function TicketConvertTrigger(props: Props) {
   const title = props.url ? __('Go to a ticket') : __('Convert to a ticket');
 
   const extendedProps = {
@@ -26,4 +26,4 @@ export default (props: Props) => {
   };
 
   return <ConvertTrigger {...extendedProps} />;
-};
+}
