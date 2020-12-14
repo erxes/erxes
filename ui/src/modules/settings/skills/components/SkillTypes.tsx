@@ -47,10 +47,6 @@ function SkillTypes({
     return currentType === id;
   };
 
-  const clearFilter = () => {
-    router.setParams(history, { typeId: null });
-  };
-
   function renderEditAction(object: ISkillTypesDocument) {
     const trigger = (
       <Button id="skilltype-edit" btnStyle="link">
@@ -109,18 +105,7 @@ function SkillTypes({
     return (
       <>
         <TopHeader>{renderFormTrigger(trigger)}</TopHeader>
-        <Section.Title>
-          {__('Skill types')}
-          <Section.QuickButtons>
-            {router.getParam(history, 'groupId') && (
-              <a href="#cancel" tabIndex={0} onClick={clearFilter}>
-                <Tip text={__('Clear filter')}>
-                  <Icon icon="cancel-1" />
-                </Tip>
-              </a>
-            )}
-          </Section.QuickButtons>
-        </Section.Title>
+        <Section.Title>{__('Skill types')}</Section.Title>
       </>
     );
   }
