@@ -42,7 +42,10 @@ class AddForm extends React.Component<Props, State> {
       pipelineId: props.pipelineId || '',
       stageId: props.stageId || '',
       cardId: props.cardId || '',
-      name: ''
+      name:
+        localStorage.getItem(`${props.options.type}Name`) || props.mailSubject
+          ? props.mailSubject
+          : ''
     };
   }
 
