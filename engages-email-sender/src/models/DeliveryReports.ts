@@ -16,17 +16,17 @@ export interface IStats {
 export interface IStatsDocument extends IStats, Document {}
 
 export const statsSchema = new Schema({
-  engageMessageId: { type: String },
+  engageMessageId: { type: String, label: 'Engage message id at erxes-api' },
   createdAt: { type: Date, default: new Date() },
-  open: { type: Number, default: 0 },
-  click: { type: Number, default: 0 },
-  complaint: { type: Number, default: 0 },
-  delivery: { type: Number, default: 0 },
-  bounce: { type: Number, default: 0 },
-  reject: { type: Number, default: 0 },
-  send: { type: Number, default: 0 },
-  renderingfailure: { type: Number, default: 0 },
-  total: { type: Number, default: 0 }
+  open: { type: Number, default: 0, label: 'The recipient received the message and opened it in their email client' },
+  click: { type: Number, default: 0, label: 'The recipient clicked one or more links in the email' },
+  complaint: { type: Number, default: 0, label: 'The email was successfully delivered to the recipient. The recipient marked the email as spam' },
+  delivery: { type: Number, default: 0, label: `Amazon SES successfully delivered the email to the recipient's mail server` },
+  bounce: { type: Number, default: 0, label: `The recipient's mail server permanently rejected the email` },
+  reject: { type: Number, default: 0, label: 'Amazon SES accepted the email, determined that it contained a virus, and rejected it' },
+  send: { type: Number, default: 0, label: 'The call to Amazon SES was successful and Amazon SES will attempt to deliver the email' },
+  renderingfailure: { type: Number, default: 0, label: `The email wasn't sent because of a template rendering issue` },
+  total: { type: Number, default: 0, label: 'Total of all cases above' }
 });
 
 export interface IDeliveryReports {
