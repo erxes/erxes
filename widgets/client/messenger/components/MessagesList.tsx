@@ -173,7 +173,7 @@ class MessagesList extends React.Component<Props, State> {
     const messages =
       messengerData.messages || ({} as IIntegrationMessengerDataMessagesItem);
 
-    if (isOnline || !messages.welcome) {
+    if (!isOnline || !messages.welcome) {
       return null;
     }
 

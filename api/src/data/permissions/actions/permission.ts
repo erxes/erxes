@@ -1134,7 +1134,8 @@ export const moduleObjects = {
           'getSkillTypes',
           'createSkillType',
           'updateSkillType',
-          'removeSkillType'
+          'removeSkillType',
+          'manageSkillTypes'
         ]
       },
       {
@@ -1167,7 +1168,8 @@ export const moduleObjects = {
           'getSkills',
           'createSkill',
           'updateSkill',
-          'removeSkill'
+          'removeSkill',
+          'manageSkills'
         ]
       },
       {

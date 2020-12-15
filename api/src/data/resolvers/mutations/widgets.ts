@@ -888,6 +888,7 @@ const widgetMutations = {
     const conversation = await Conversations.createConversation({
       customerId,
       integrationId,
+      skillIds: [skillId],
       content: skillOption ? skillOption.label : '',
       status: CONVERSATION_STATUSES.OPEN
     });

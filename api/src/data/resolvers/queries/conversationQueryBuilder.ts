@@ -1,5 +1,5 @@
 import * as _ from 'underscore';
-import { Channels, Integrations } from '../../../db/models';
+import { Channels, Integrations, Skills } from '../../../db/models';
 import { CONVERSATION_STATUSES } from '../../../db/models/definitions/constants';
 import { fixDate } from '../../utils';
 
@@ -65,7 +65,12 @@ export default class Builder {
       {},
       { _id: 1 }
     );
+
     this.activeIntegrationIds = activeIntegrations.map(integ => integ._id);
+
+    const skillIds = await Skills.find({
+      memberIds: { $in: [this.user._id] }
+    }).distinct('_id');
 
     let statusFilter = this.statusFilter([
       CONVERSATION_STATUSES.NEW,
@@ -86,6 +91,11 @@ export default class Builder {
         },
         {
           userId: { $exists: false }
+        }
+      ],
+      $and: [
+        {
+          skillIds: { $in: skillIds }
         }
       ]
     };
