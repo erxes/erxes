@@ -30,9 +30,9 @@ type Props = {
   ) => void;
   isLoggedIn: () => boolean;
   getColor?: string;
+  getUserSkillSelectionResponse: (skillId: string) => void;
   toggleVideoCall: () => void;
   replyAutoAnswer: (message: string, payload: string, type: string) => void;
-  getMessageSkills: (callback: (data: any) => void) => void;
   sendTypingInfo: (conversationId: string, text: string) => void;
   conversationId: string | null;
   changeOperatorStatus: (_id: string, operatorStatus: string) => void;
@@ -66,7 +66,6 @@ class MessagesList extends React.Component<Props, State> {
       messages,
       conversationId = "",
       getBotInitialMessage,
-      getMessageSkills
     } = this.props;
 
     const newConversation = 
@@ -77,16 +76,6 @@ class MessagesList extends React.Component<Props, State> {
       getBotInitialMessage((initialMessage) => {
         this.setState({ initialMessage });
       });
-    }
-
-    if (messengerData.skillData && newConversation) {
-      const typeId = (messengerData.skillData || {}).typeId || '';
-
-      if (typeId.length > 0) {
-        getMessageSkills((skillOptionsMessage) => {
-          this.setState({ skillOptionsMessage });
-        });
-      }
     }
 
     if (this.node) {
@@ -137,14 +126,6 @@ class MessagesList extends React.Component<Props, State> {
     return this.renderSingleMessage(initialMessage);
   }
 
-  renderSkillOptionsMessage(messengerData: IIntegrationMessengerData) {
-    const { skillOptionsMessage } = this.state;
-
-    if (!skillOptionsMessage || !messengerData.skillData) {
-      return null;
-    }
-  }
-
   renderAwayMessage(messengerData: IIntegrationMessengerData) {
     const { isOnline } = this.props;
     const messages =
@@ -192,11 +173,37 @@ class MessagesList extends React.Component<Props, State> {
     const messages =
       messengerData.messages || ({} as IIntegrationMessengerDataMessagesItem);
 
-    if (!isOnline || !messages.welcome) {
+    if (isOnline || !messages.welcome) {
       return null;
     }
 
     return <li className="erxes-spacial-message">{messages.welcome}</li>;
+  }
+
+  renderSkillOptionsMessage(messengerData: IIntegrationMessengerData) {
+    const { conversationId, messages } = this.props;
+
+    const newConversation = 
+      messages.length === 0 &&
+      (!conversationId || (conversationId || "").length === 0)
+
+    if (!messengerData.skillData || !newConversation) {
+      return null;
+    }
+
+    const { options } = messengerData.skillData;
+    
+    return (
+      <div className="skill-content">
+        {options.map((option, index) => {
+          const handleClick = () => this.props.getUserSkillSelectionResponse(option.skillId);
+
+          return (
+            <div key={index} className="skill-card" onClick={handleClick}>{option.label}</div>
+          );
+        })}
+      </div>
+    );
   }
 
   renderCallRequest() {

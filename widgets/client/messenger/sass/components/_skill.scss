@@ -1,0 +1,20 @@
+.skill-content {
+	display: flex;
+	align-items: flex-start;
+	transition: transform .3s;
+}
+
+.skill-card {
+  padding: 8px 16px;
+  margin-right: 8px;
+  border: 1px solid rgb(219, 225, 232);
+  border-radius: 6px;
+  display: block;
+  text-align: center;
+  font-weight: 500;
+
+  &:hover {
+    background: $bg-color;
+    cursor: pointer;
+  }
+}

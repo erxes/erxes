@@ -862,9 +862,13 @@ const widgetMutations = {
     return { botData: botRequest.responses };
   },
 
-  async widgetGetMessageSkills(
+  async widgetUserSelectSkill(
     _root,
-    { integrationId }: { integrationId: string }
+    {
+      integrationId,
+      skillId,
+      customerId
+    }: { integrationId: string; skillId: string; customerId: string }
   ) {
     const integration = await Integrations.findOne({ _id: integrationId });
 
@@ -874,10 +878,37 @@ const widgetMutations = {
 
     const { messengerData = {} as IMessengerDataDocument } = integration;
     const { skillData } = messengerData;
+    const { options } = skillData as {
+      typeId: string;
+      options: Array<{ label: string; response: string; skillId: string }>;
+    };
 
-    if (!skillData) {
-      return;
-    }
+    const skillOption = options.find(option => option.skillId === skillId);
+
+    const conversation = await Conversations.createConversation({
+      customerId,
+      integrationId,
+      content: skillOption ? skillOption.label : '',
+      status: CONVERSATION_STATUSES.OPEN
+    });
+
+    const msg = await Messages.createMessage({
+      conversationId: conversation._id,
+      customerId,
+      content: skillOption
+        ? skillOption.response
+        : AUTO_BOT_MESSAGES.NO_RESPONSE
+    });
+
+    graphqlPubsub.publish('conversationClientMessageInserted', {
+      conversationClientMessageInserted: msg
+    });
+
+    graphqlPubsub.publish('conversationMessageInserted', {
+      conversationMessageInserted: msg
+    });
+
+    return msg;
   }
 };
 

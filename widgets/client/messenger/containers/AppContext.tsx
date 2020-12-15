@@ -38,6 +38,7 @@ interface IStore extends IState {
   getUiOptions: () => IIntegrationUiOptions;
   getBrand: () => IBrand;
   getMessengerData: () => IIntegrationMessengerData;
+  getUserSkillSelectionResponse: (skillId: string) => void;
   saveBrowserInfo: () => void;
   toggle: (isVisible?: boolean) => void;
   toggleNotifier: (isVisible?: boolean) => void;
@@ -58,7 +59,7 @@ interface IStore extends IState {
   readMessages: (conversationId: string) => void;
   replyAutoAnswer: (message: string, payload: string, type: string) => void;
   getBotInitialMessage: (callback: (bodData: any) => void) => void;
-  getMessageSkills: (callback: (data: any) => void) => void;
+  // getMessageSkills: (callback: (data: any) => void) => void;
   changeOperatorStatus: (
     _id: string,
     operatorStatus: string,
@@ -471,21 +472,41 @@ export class AppProvider extends React.Component<{}, IState> {
       });
   };
 
-  getMessageSkills = (callback: (data: any) => void) => {
+  getUserSkillSelectionResponse = (skillId: string) => {
+    this.setState({ sendingMessage: true });
+
     return client.mutate({
       mutation: gql(`
-        mutation widgetGetMessageSkills($integrationId: String) {
-          widgetGetMessageSkills(integrationId: $integrationId)
-        }
+        mutation widgetUserSelectSkill(
+          $integrationId: String!,
+          $skillId: String!
+          $customerId: String!
+        ) {
+          widgetUserSelectSkill(
+            integrationId: $integrationId,
+            skillId: $skillId
+            customerId: $customerId
+          )
+        },
       `),
-      variables: { integrationId: connection.data.integrationId }
+      variables: {
+        integrationId: connection.data.integrationId,
+        skillId,
+        customerId: connection.data.customerId
+      }
     })
       .then(({ data }) => {
-        if (data.widgetGetMessageSkills) {
-          callback(data.widgetGetMessageSkills);
-        }
+        const { conversationId } = data.widgetUserSelectSkill;
+
+        this.setState({
+          sendingMessage: false,
+          activeConversation: conversationId
+        });
       })
-  };
+      .catch(() => {
+        this.setState({ sendingMessage: false });
+      });
+  }
 
   getBotInitialMessage = (callback: (botData: any) => void) => {
     return client.mutate({
@@ -734,7 +755,7 @@ export class AppProvider extends React.Component<{}, IState> {
           readMessages: this.readMessages,
           replyAutoAnswer: this.replyAutoAnswer,
           getBotInitialMessage: this.getBotInitialMessage,
-          getMessageSkills: this.getMessageSkills,
+          getUserSkillSelectionResponse: this.getUserSkillSelectionResponse,
           changeOperatorStatus: this.changeOperatorStatus,
           sendMessage: this.sendMessage,
           sendTypingInfo: this.sendTypingInfo,

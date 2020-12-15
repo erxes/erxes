@@ -32,9 +32,12 @@ function BuildSkillContainer({
     { loading, data = {} as SkillsQueryResponse }
   ] = useLazyQuery<SkillsQueryResponse>(gql(queries.skills));
 
-  const handleSkillTypeSelect = useCallback((typeId: string) => {
-    getSkills({ variables: { typeId, list: true } });
-  }, []);
+  const handleSkillTypeSelect = useCallback(
+    (typeId: string) => {
+      getSkills({ variables: { typeId, list: true } });
+    },
+    [getSkills]
+  );
 
   useEffect(() => {
     if (initialTypeId.length > 0) {

@@ -27,6 +27,7 @@ export default (props: Props) => {
         sendTypingInfo,
         replyAutoAnswer,
         changeOperatorStatus,
+        getUserSkillSelectionResponse,
         botTyping,
         activeConversation
       }) => {
@@ -39,6 +40,7 @@ export default (props: Props) => {
             messengerData={getMessengerData()}
             saveGetNotified={saveGetNotified}
             getBotInitialMessage={getBotInitialMessage}
+            getUserSkillSelectionResponse={getUserSkillSelectionResponse}
             getColor={getColor()}
             isLoggedIn={isLoggedIn}
             sendTypingInfo={sendTypingInfo}
