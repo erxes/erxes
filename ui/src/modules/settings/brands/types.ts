@@ -1,4 +1,4 @@
-import { IBrand as IBrandC } from 'erxes-ui/lib/auth/types';
+import { IBrand as IBrandC } from 'erxes-ui/lib/types';
 import { QueryResponse } from 'modules/common/types';
 import { IIntegration } from 'modules/settings/integrations/types';
 

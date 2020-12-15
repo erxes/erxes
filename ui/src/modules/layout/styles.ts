@@ -1,23 +1,12 @@
 import {
-  CenterContent,
-  ContenFooter,
-  Contents,
-  HeightedWrapper,
-  MainContent,
-  PageHeader
+    CenterContent, ContenFooter, ContentBox, ContentHeader, Contents, FieldStyle, HeightedWrapper,
+    MainContent, PageHeader, SidebarBox, SidebarCounter, SidebarList, SidebarTitle, WhiteBox,
+    WhiteBoxRoot
 } from 'erxes-ui';
-import {
-  ContentBox,
-  ContentHeader,
-  FieldStyle,
-  SidebarBox,
-  SidebarCounter,
-  SidebarList,
-  SidebarTitle
-} from 'erxes-ui/lib/layout/styles';
 import { twinkling } from 'modules/common/utils/animations';
 import styled, { css } from 'styled-components';
 import styledTS from 'styled-components-ts';
+
 import { colors, dimensions } from '../common/styles';
 import { rgba } from '../common/styles/color';
 
@@ -121,18 +110,6 @@ const FlexItem = styledTS<{ count?: number; hasSpace?: boolean }>(styled.div)`
 
 const FlexRightItem = styled.div`
   margin-left: auto;
-`;
-
-const WhiteBoxRoot = styled.div`
-  margin-bottom: ${dimensions.coreSpacing}px;
-  background-color: ${colors.colorWhite};
-  box-shadow: 0 0 6px 1px ${colors.shadowPrimary};
-`;
-
-const WhiteBox = styled(WhiteBoxRoot)`
-  flex: 1;
-  overflow: auto;
-  position: relative;
 `;
 
 const Authlayout = styled.div`
