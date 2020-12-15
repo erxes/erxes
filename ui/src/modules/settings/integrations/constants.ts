@@ -85,6 +85,7 @@ export const INTEGRATION_KINDS = {
   WHATSAPP: 'whatsapp',
   TELNYX: 'telnyx',
   WEBHOOK: 'webhook',
+  PARTNERSTACK: 'partnerStack',
   ALL: [
     { text: 'Messenger', value: 'messenger' },
     { text: 'Facebook post', value: 'facebook-post' },
@@ -109,7 +110,8 @@ export const INTEGRATION_KINDS = {
     { text: 'Twilio', value: 'smooch-twilio' },
     { text: 'WhatsApp', value: 'whatsapp' },
     { text: 'Telnyx', value: 'telnyx' },
-    { text: 'Webhook', value: 'webhook' }
+    { text: 'Webhook', value: 'webhook' },
+    { text: 'Partner Stack', value: 'partnerStack' }
   ]
 };
 
@@ -359,6 +361,16 @@ export const INTEGRATIONS = [
     logo: '/images/integrations/webhook.png',
     createModal: 'webhook',
     category: 'All integrations, For support teams, Conversation'
+  },
+  {
+    name: 'Partner Stack',
+    description: 'Track partnership events',
+    inMessenger: false,
+    isAvailable: true,
+    kind: 'partnerStack',
+    logo: '/images/integrations/partnerstack.png',
+    createModal: 'partnerStack',
+    category: 'All integrations, For marketing teams, For sales teams'
   }
 ];
 

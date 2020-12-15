@@ -137,7 +137,11 @@ export const KEY_LABELS = {
   company_industry_types: 'Company industry types',
   social_links: 'Social links',
 
-  PRODUCT_BOARD_TOKEN: 'Product Board Access token'
+  PRODUCT_BOARD_TOKEN: 'Product Board Access token',
+
+  PARTNER_STACK_KEY: 'Partner Stack Public Key',
+  PARTNER_STACK_SECRET_KEY: 'Partner Stack Secret Key',
+  PARTNER_STACK_WEBHOOK_CALLBACK_URL: 'Partner Stack Webhook Callback Url'
 };
 
 export const FILE_MIME_TYPES = [

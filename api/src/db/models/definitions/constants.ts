@@ -103,6 +103,7 @@ export const KIND_CHOICES = {
   WHATSAPP: 'whatsapp',
   TELNYX: 'telnyx',
   WEBHOOK: 'webhook',
+  PARTNERSTACK: 'partnerStack',
   ALL: [
     'messenger',
     'lead',
@@ -124,7 +125,8 @@ export const KIND_CHOICES = {
     'smooch-twilio',
     'whatsapp',
     'telnyx',
-    'webhook'
+    'webhook',
+    'partnerStack'
   ]
 };
 
@@ -149,7 +151,8 @@ export const INTEGRATION_NAMES_MAP = {
   'smooch-twilio': 'Twilio SMS',
   whatsapp: 'WhatsApp',
   webhook: 'Webhook',
-  telnyx: 'Telnyx SMS'
+  telnyx: 'Telnyx SMS',
+  partnerStack: 'Partner Stack'
 };
 
 // messenger data availability constants

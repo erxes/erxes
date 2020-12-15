@@ -12,6 +12,7 @@ import {
   debugFacebook,
   debugGmail,
   debugNylas,
+  debugPartnerStack,
   debugSmooch,
   debugTelnyx,
   debugTwitter,
@@ -497,6 +498,10 @@ export const removeIntegration = async (
     } catch (e) {
       throw new Error(e.message);
     }
+  }
+
+  if (kind === 'partnerStack') {
+    debugPartnerStack('Removing partner stack');
   }
 
   await Integrations.deleteOne({ _id });

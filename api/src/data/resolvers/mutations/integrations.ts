@@ -313,7 +313,8 @@ const integrationMutations = {
           'smooch-line',
           'smooch-twilio',
           'whatsapp',
-          'telnyx'
+          'telnyx',
+          'partnerStack'
         ].includes(integration.kind)
       ) {
         await dataSources.IntegrationsAPI.removeIntegration({
