@@ -94,9 +94,9 @@ describe('skillsQueries', () => {
 
     expect(response2.length).toBe(3);
 
-    const response3 = await graphqlRequest(qry, 'skills', {});
+    const response3 = await graphqlRequest(qry, 'skills', { typeId: 'typeId' });
 
-    expect(response3.length).toBe(5);
+    expect(response3.length).toBe(2);
   });
 
   test('skillTotalCount', async () => {

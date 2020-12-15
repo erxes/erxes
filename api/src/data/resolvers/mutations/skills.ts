@@ -34,10 +34,6 @@ const skillsMutations = {
     _root,
     { memberId, skillIds }: { memberId: string; skillIds: string[] }
   ) {
-    if (!memberId) {
-      throw new Error('User not provided');
-    }
-
     return Skills.updateMany(
       { _id: { $in: skillIds } },
       { $push: { memberIds: memberId } }
