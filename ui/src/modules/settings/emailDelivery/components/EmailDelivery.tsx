@@ -36,7 +36,7 @@ const emailTypeOptions = [
 
 const tableHeaders = {
   transaction: ['Subject', 'To', 'Cc', 'Bcc', 'From', 'Status', 'Created at'],
-  engage: ['Customer id', 'Title', 'Status', 'Created at']
+  engage: ['Customer', 'Title', 'Status', 'Created at']
 };
 
 export const STATUS_OPTIONS = [

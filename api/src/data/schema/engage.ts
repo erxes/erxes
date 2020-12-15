@@ -56,7 +56,8 @@ export const types = `
     mailId: String,
     status: String,
     engage: EngageMessage,
-    createdAt: Date
+    createdAt: Date,
+    customerName: String
   }
 
   type EngageDeliveryReport {

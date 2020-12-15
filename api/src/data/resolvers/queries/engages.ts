@@ -1,4 +1,4 @@
-import { EngageMessages, Tags } from '../../../db/models';
+import { Customers, EngageMessages, Tags } from '../../../db/models';
 import { IUserDocument } from '../../../db/models/definitions/users';
 import { checkPermission, requireLogin } from '../../permissions/wrappers';
 import { IContext } from '../../types';
@@ -231,8 +231,25 @@ const engageQueries = {
     return dataSources.EngagesAPI.engagesConfigDetail();
   },
 
-  engageReportsList(_root, params: IReportParams, { dataSources }: IContext) {
-    return dataSources.EngagesAPI.engageReportsList(params);
+  async engageReportsList(_root, params: IReportParams, { dataSources }: IContext) {
+    const { list = [], count } = await dataSources.EngagesAPI.engageReportsList(params);
+    const modifiedList: any[] = [];
+
+    for (const item of list) {
+      const modifiedItem = item;
+
+      if (item.customerId) {
+        const customer = await Customers.findOne({ _id: item.customerId });
+
+        if (customer) {
+          modifiedItem.customerName = Customers.getCustomerName(customer);
+        }
+      }
+
+      modifiedList.push(modifiedItem);
+    }
+
+    return { count, list: modifiedList };
   },
 
   /**
