@@ -19,6 +19,7 @@ type IProps = {
   stageId?: string;
   showSelect?: boolean;
   relType?: string;
+  mailSubject?: string;
   sourceConversationId?: string;
   relTypeIds?: string[];
   assignedUserIds?: string[];

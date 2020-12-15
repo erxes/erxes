@@ -144,6 +144,7 @@ class List extends React.Component<Props> {
             <th>{__('Type')}</th>
             <th>{__('Brand')}</th>
             <th>{__('Created date')}</th>
+            <th>{__('Scheduled date')}</th>
             <th>{__('Tags')}</th>
             <th>{__('Actions')}</th>
           </tr>
