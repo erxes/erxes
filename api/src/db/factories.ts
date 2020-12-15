@@ -48,6 +48,8 @@ import {
   ResponseTemplates,
   Scripts,
   Segments,
+  Skills,
+  SkillTypes,
   Stages,
   Tags,
   Tasks,
@@ -1567,4 +1569,26 @@ export const calendarGroupFactory = async (
   });
 
   return calendarGroup.save();
+};
+
+export const skillTypeFactor = async (params: { name?: string }) => {
+  const skillType = new SkillTypes({
+    name: params.name || faker.random.word()
+  });
+
+  return skillType.save();
+};
+
+export const skillFactor = async (params: {
+  name?: string;
+  typeId?: string;
+  memberIds?: string[];
+}) => {
+  const skill = new Skills({
+    name: params.name || faker.random.word(),
+    typeId: params.typeId || faker.random.word(),
+    memberIds: params.memberIds || [faker.random.word()]
+  });
+
+  return skill.save();
 };

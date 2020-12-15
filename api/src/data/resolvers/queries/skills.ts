@@ -28,13 +28,7 @@ const getSkillSelector = (typeId: string, memberIds?: string[]) => {
 
 const skillQueries = {
   async skill(_root, { _id }: { _id: string }) {
-    const skill = await Skills.findOne({ _id });
-
-    if (!skill) {
-      throw new Error('Skill not found');
-    }
-
-    return skill;
+    return Skills.findOne({ _id });
   },
 
   async skills(

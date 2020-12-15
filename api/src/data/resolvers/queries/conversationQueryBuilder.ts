@@ -68,9 +68,10 @@ export default class Builder {
 
     this.activeIntegrationIds = activeIntegrations.map(integ => integ._id);
 
-    const skillIds = await Skills.find({
-      memberIds: { $in: [this.user._id] }
-    }).distinct('_id');
+    const skillIds =
+      (await Skills.find({
+        memberIds: { $in: [this.user._id] }
+      }).distinct('_id')) || [];
 
     let statusFilter = this.statusFilter([
       CONVERSATION_STATUSES.NEW,
@@ -93,11 +94,7 @@ export default class Builder {
           userId: { $exists: false }
         }
       ],
-      $and: [
-        {
-          skillIds: { $in: skillIds }
-        }
-      ]
+      ...(skillIds.length > 0 ? { skillIds: { $in: skillIds } } : {})
     };
   }
 

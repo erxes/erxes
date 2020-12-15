@@ -20,6 +20,7 @@ export const skillTypeSchema = schemaWrapper(
 
 export interface ISkill {
   name: string;
+  typeId: string;
   memberIds: string[];
 }
 
