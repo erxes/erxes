@@ -7,7 +7,7 @@ import ActivityItem from '../components/ActivityItem';
 class ActivityList extends React.Component<IActivityListProps> {
 
   render() {
-    return <ActivityLogsList {...this.props} activityRenderItem={ActivityItem}/>;
+    return <ActivityLogsList {...this.props} activityRenderItem={ActivityItem} />;
   }
 }
 export default ActivityList;
