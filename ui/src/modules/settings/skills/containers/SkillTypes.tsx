@@ -1,4 +1,5 @@
 import gql from 'graphql-tag';
+import { generatePaginationParams } from 'modules/common/utils/router';
 import { graphql } from 'react-apollo';
 import { commonListComposer } from '../../utils';
 import SkillTypes from '../components/SkillTypes';
@@ -16,8 +17,18 @@ type Props = {
   queryParams: any;
 };
 
-const commonOptions = () => ({
-  refetchQueries: [{ query: gql(queries.skillTypes) }]
+const commonOptions = ({ queryParams }: { queryParams?: any }) => ({
+  refetchQueries: [
+    { query: gql(queries.skillTypes) },
+    { query: gql(queries.skills) },
+    {
+      query: gql(queries.skills),
+      variables: {
+        typeId: queryParams.typeId,
+        ...generatePaginationParams(queryParams)
+      }
+    }
+  ]
 });
 
 export default commonListComposer<Props>({
@@ -53,7 +64,7 @@ export default commonListComposer<Props>({
     gql(mutations.skillTypeAdd),
     {
       name: 'addMutation',
-      options: commonOptions()
+      options: commonOptions
     }
   ),
 
@@ -61,15 +72,15 @@ export default commonListComposer<Props>({
     gql(mutations.skillTypeEdit),
     {
       name: 'editMutation',
-      options: commonOptions()
+      options: commonOptions
     }
   ),
 
-  gqlRemoveMutation: graphql<{}, SkillTypesRemoveMutation>(
+  gqlRemoveMutation: graphql<Props, SkillTypesRemoveMutation>(
     gql(mutations.skillTypeRemove),
     {
       name: 'removeMutation',
-      options: commonOptions()
+      options: commonOptions
     }
   ),
 

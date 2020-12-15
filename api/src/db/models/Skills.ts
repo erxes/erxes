@@ -5,6 +5,7 @@ import {
   skillSchema,
   skillTypeSchema
 } from './definitions/skills';
+import Integrations from './Integrations';
 
 export interface ISkillTypeModel extends Model<ISkillTypeDocument> {
   createSkillType(name: string): Promise<ISkillTypeDocument>;
@@ -23,6 +24,15 @@ export const loadSkillTypeClass = () => {
     }
 
     public static async removeSkillType(_id: string) {
+      const integrationIds = await Integrations.find({
+        'messengerData.skillData.typeId': _id
+      }).distinct('_id');
+
+      await Integrations.updateMany(
+        { _id: { $in: integrationIds } },
+        { $unset: { 'messengerData.skillData': '' } }
+      );
+
       await Skills.remove({ typeId: _id });
       return SkillTypes.remove({ _id });
     }
@@ -78,6 +88,20 @@ export const loadSkillClass = () => {
     }
 
     public static async removeSkill(_id: string) {
+      const integrationIds = await Integrations.find({
+        'messengerData.skillData.options': {
+          $elemMatch: { skillId: _id }
+        }
+      }).distinct('_id');
+
+      for (const id of integrationIds) {
+        await Integrations.update(
+          { _id: id },
+          { $pull: { 'messengerData.skillData.options': { skillId: _id } } },
+          { multi: true }
+        );
+      }
+
       await Skills.remove({ _id });
 
       return _id;
