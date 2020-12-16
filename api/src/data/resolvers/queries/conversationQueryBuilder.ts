@@ -68,11 +68,6 @@ export default class Builder {
 
     this.activeIntegrationIds = activeIntegrations.map(integ => integ._id);
 
-    const skillIds =
-      (await Skills.find({
-        memberIds: { $in: [this.user._id] }
-      }).distinct('_id')) || [];
-
     let statusFilter = this.statusFilter([
       CONVERSATION_STATUSES.NEW,
       CONVERSATION_STATUSES.OPEN
@@ -82,7 +77,7 @@ export default class Builder {
       statusFilter = this.statusFilter([CONVERSATION_STATUSES.CLOSED]);
     }
 
-    const filters: { [key: string]: object } = {
+    return {
       ...statusFilter,
       // exclude engage messages if customer did not reply
       $or: [
@@ -95,12 +90,6 @@ export default class Builder {
         }
       ]
     };
-
-    if (skillIds.length > 0) {
-      filters.skillIds = { $in: skillIds };
-    }
-
-    return filters;
   }
 
   public async intersectIntegrationIds(
@@ -123,6 +112,21 @@ export default class Builder {
 
     return {
       integrationId: { $in: integrationids }
+    };
+  }
+
+  public async skillFilter(): Promise<any> {
+    const skillIds =
+      (await Skills.find({
+        memberIds: { $in: [this.user._id] }
+      }).distinct('_id')) || [];
+
+    if (skillIds.length === 0) {
+      return {};
+    }
+
+    return {
+      skillIds: { $in: skillIds }
     };
   }
 
@@ -335,6 +339,9 @@ export default class Builder {
         this.params.endDate
       );
     }
+
+    // filter by user skillId
+    this.queries.skills = await this.skillFilter();
   }
 
   public mainQuery(): any {
@@ -348,7 +355,8 @@ export default class Builder {
       ...this.queries.starred,
       ...this.queries.tag,
       ...this.queries.createdAt,
-      ...this.queries.awaitingResponse
+      ...this.queries.awaitingResponse,
+      ...this.queries.skills
     };
   }
 }

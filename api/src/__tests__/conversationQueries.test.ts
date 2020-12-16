@@ -461,13 +461,17 @@ describe('conversationQueries', () => {
   test('Conversations by skillId', async () => {
     // with user has skillId
     const newUser = await userFactory({});
+    const newUser2 = await userFactory({});
+    const newUser3 = await userFactory({});
 
     await Channels.update(
       { _id: channel._id },
-      { $push: { memberIds: [newUser._id] } }
+      { $push: { memberIds: [newUser._id, newUser2._id] } }
     );
 
     const skill = await skillFactor({ memberIds: [newUser._id] });
+
+    await skillFactor({ memberIds: [newUser3._id] });
 
     await conversationFactory({ integrationId: integration._id });
     await conversationFactory({
@@ -489,16 +493,24 @@ describe('conversationQueries', () => {
     expect(responses.length).toBe(1);
 
     // user without skillId
-    await conversationFactory({ integrationId: integration._id });
-
     const responses2 = await graphqlRequest(
       qryConversations,
       'conversations',
       { channelId: channel._id },
-      { user }
+      { user: newUser2 }
     );
 
-    expect(responses2.length).toBe(4);
+    expect(responses2.length).toBe(3);
+
+    // user with skillId no related conversations
+    const responses3 = await graphqlRequest(
+      qryConversations,
+      'conversations',
+      { channelId: channel._id },
+      { user: newUser3 }
+    );
+
+    expect(responses3.length).toBe(0);
   });
 
   test('Conversations filtered by channel', async () => {

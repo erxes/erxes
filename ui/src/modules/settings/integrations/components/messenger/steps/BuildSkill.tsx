@@ -84,7 +84,15 @@ function BuildSkill({
     };
   };
 
-  const handleToggle = e => setShow(e.target.checked);
+  const handleToggle = e => {
+    if (!e.target.checked) {
+      onChange('skillData', {});
+      setSkillType(null);
+    }
+
+    setShow(e.target.checked);
+  };
+
   const handleSkillOptionChange = (
     index: number,
     type: string,
