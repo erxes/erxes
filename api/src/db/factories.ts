@@ -635,6 +635,7 @@ export const fieldFactory = async (params: IFieldFactoryInput) => {
 };
 
 interface IConversationFactoryInput {
+  skillIds?: string[];
   customerId?: string;
   assignedUserId?: string;
   integrationId?: string;
@@ -658,6 +659,7 @@ export const conversationFactory = (params: IConversationFactoryInput = {}) => {
   const doc = {
     content: params.content || faker.random.word(),
     customerId: params.customerId || Random.id(),
+    skillIds: params.skillIds || Random.id(),
     integrationId: params.integrationId || Random.id(),
     status: params.status || CONVERSATION_STATUSES.NEW,
     operatorStatus:

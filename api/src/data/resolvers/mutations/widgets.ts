@@ -440,7 +440,7 @@ const widgetMutations = {
       customerId: string;
       conversationId?: string;
       message: string;
-      skillId: string;
+      skillId?: string;
       attachments?: any[];
       contentType: string;
     }

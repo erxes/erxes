@@ -1,4 +1,5 @@
 import * as moment from 'moment';
+import { IntegrationsAPI } from '../data/dataSources';
 import { graphqlRequest } from '../db/connection';
 import {
   brandFactory,
@@ -6,6 +7,7 @@ import {
   conversationFactory,
   conversationMessageFactory,
   integrationFactory,
+  skillFactor,
   tagsFactory,
   userFactory
 } from '../db/factories';
@@ -14,11 +16,10 @@ import {
   Channels,
   Conversations,
   Integrations,
+  Skills,
   Tags,
   Users
 } from '../db/models';
-
-import { IntegrationsAPI } from '../data/dataSources';
 import { MESSAGE_TYPES } from '../db/models/definitions/constants';
 import './setup.ts';
 
@@ -206,6 +207,7 @@ describe('conversationQueries', () => {
     await Brands.deleteMany({});
     await Channels.deleteMany({});
     await Tags.deleteMany({});
+    await Skills.deleteMany({});
     await Integrations.deleteMany({});
   });
 
@@ -454,6 +456,49 @@ describe('conversationQueries', () => {
     });
 
     expect(responses.length).toBe(3);
+  });
+
+  test('Conversations by skillId', async () => {
+    // with user has skillId
+    const newUser = await userFactory({});
+
+    await Channels.update(
+      { _id: channel._id },
+      { $push: { memberIds: [newUser._id] } }
+    );
+
+    const skill = await skillFactor({ memberIds: [newUser._id] });
+
+    await conversationFactory({ integrationId: integration._id });
+    await conversationFactory({
+      integrationId: integration._id,
+      skillIds: [skill._id]
+    });
+    await conversationFactory({
+      integrationId: integration._id,
+      skillIds: ['123123']
+    });
+
+    const responses = await graphqlRequest(
+      qryConversations,
+      'conversations',
+      { channelId: channel._id },
+      { user: newUser }
+    );
+
+    expect(responses.length).toBe(1);
+
+    // user without skillId
+    await conversationFactory({ integrationId: integration._id });
+
+    const responses2 = await graphqlRequest(
+      qryConversations,
+      'conversations',
+      { channelId: channel._id },
+      { user }
+    );
+
+    expect(responses2.length).toBe(4);
   });
 
   test('Conversations filtered by channel', async () => {

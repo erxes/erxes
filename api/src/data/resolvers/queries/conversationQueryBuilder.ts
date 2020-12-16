@@ -82,7 +82,7 @@ export default class Builder {
       statusFilter = this.statusFilter([CONVERSATION_STATUSES.CLOSED]);
     }
 
-    return {
+    const filters: { [key: string]: object } = {
       ...statusFilter,
       // exclude engage messages if customer did not reply
       $or: [
@@ -93,9 +93,14 @@ export default class Builder {
         {
           userId: { $exists: false }
         }
-      ],
-      ...(skillIds.length > 0 ? { skillIds: { $in: skillIds } } : {})
+      ]
     };
+
+    if (skillIds.length > 0) {
+      filters.skillIds = { $in: skillIds };
+    }
+
+    return filters;
   }
 
   public async intersectIntegrationIds(

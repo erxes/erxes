@@ -267,6 +267,25 @@ describe('insertMessage()', () => {
     }
 
     expect(customer.isOnline).toBeTruthy();
+
+    const message2 = await widgetMutations.widgetsInsertMessage(
+      {},
+      {
+        contentType: MESSAGE_TYPES.TEXT,
+        integrationId: _integration._id,
+        customerId: _customer._id,
+        message: faker.lorem.sentence(),
+        skillId: '123'
+      }
+    );
+
+    const conversation2 = await Conversations.findById(
+      message2.conversationId
+    ).lean();
+
+    if (conversation2) {
+      expect(conversation2.skillIds).toEqual(['123']);
+    }
   });
 
   test('with conversationId', async () => {
@@ -996,63 +1015,5 @@ describe('lead', () => {
     expect(response).toBe(null);
 
     spyEmail.mockRestore();
-  });
-
-  test('widgetUserSelectSkill', async () => {
-    try {
-      await widgetMutations.widgetUserSelectSkill(
-        {},
-        {
-          integrationId: '_id',
-          customerId: 'customerId',
-          skillId: 'skillId'
-        }
-      );
-    } catch (e) {
-      expect(e.message).toBe('Integration not found');
-    }
-
-    const integration = await integrationFactory({
-      kind: 'messenger',
-      messengerData: {
-        skillData: {
-          typeId: '123',
-          options: [
-            {
-              label: 'label1',
-              response: 'response1',
-              skillId: 'skillId1'
-            },
-            {
-              label: 'label2',
-              response: 'response2',
-              skillId: 'skillId2'
-            }
-          ]
-        }
-      }
-    });
-
-    const response = await widgetMutations.widgetUserSelectSkill(
-      {},
-      {
-        integrationId: integration._id,
-        customerId: 'customerId',
-        skillId: 'skillId1'
-      }
-    );
-
-    const conversation = await Conversations.findOne({
-      _id: response.conversationId
-    });
-    const message = await ConversationMessages.findOne({ _id: response._id });
-
-    if (conversation) {
-      expect(conversation.content).toBe('label1');
-    }
-
-    if (message) {
-      expect(message.content).toBe('response1');
-    }
   });
 });
