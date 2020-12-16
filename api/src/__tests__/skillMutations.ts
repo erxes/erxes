@@ -1,6 +1,12 @@
 import { graphqlRequest } from '../db/connection';
-import { skillFactor, skillTypeFactor, userFactory } from '../db/factories';
-import { Skills, SkillTypes, Users } from '../db/models';
+import {
+  integrationFactory,
+  skillFactor,
+  skillTypeFactor,
+  userFactory
+} from '../db/factories';
+import { Integrations, Skills, SkillTypes, Users } from '../db/models';
+import { IMessengerData } from '../db/models/definitions/integrations';
 import './setup.ts';
 
 describe('skillMutations', () => {
@@ -8,6 +14,7 @@ describe('skillMutations', () => {
     await SkillTypes.remove({});
     await Skills.remove({});
     await Users.remove({});
+    await Integrations.remove({});
   });
 
   test('createSkillType', async () => {
@@ -53,8 +60,17 @@ describe('skillMutations', () => {
     }
   });
 
-  test('Remove skill', async () => {
+  test('Remove skillType', async () => {
     const skillType = await skillTypeFactor({});
+
+    const integration = await integrationFactory({
+      messengerData: {
+        skillData: {
+          typeId: skillType._id
+        }
+      }
+    });
+
     const skill = await skillFactor({ typeId: skillType._id });
 
     const mutation = `
@@ -65,8 +81,16 @@ describe('skillMutations', () => {
 
     await graphqlRequest(mutation, 'removeSkillType', { _id: skillType._id });
 
+    const updatedIntegration = await Integrations.findOne({
+      _id: integration._id
+    });
+
     expect(await Skills.findOne({ _id: skill._id })).toBe(null);
     expect(await SkillTypes.findOne({ _id: skillType._id })).toBe(null);
+
+    if (updatedIntegration && updatedIntegration.messengerData) {
+      expect(updatedIntegration.messengerData.skillData).toBeUndefined();
+    }
   });
 
   test('Create skill', async () => {
@@ -157,6 +181,22 @@ describe('skillMutations', () => {
 
   test('removeSkill', async () => {
     const skill = await skillFactor({});
+    const skillType = await skillTypeFactor({});
+
+    const integration = await integrationFactory({
+      messengerData: {
+        skillData: {
+          typeId: skillType._id,
+          options: [
+            {
+              label: 'French',
+              response: 'Bonjour',
+              skillId: skill._id
+            }
+          ]
+        }
+      }
+    });
 
     const mutation = `
       mutation removeSkill($_id: String!) {
@@ -166,6 +206,20 @@ describe('skillMutations', () => {
 
     await graphqlRequest(mutation, 'removeSkill', { _id: skill._id });
 
+    const updatedIntegration = await Integrations.findOne({
+      _id: integration._id
+    });
+
     expect(await Skills.findOne({ _id: skill._id })).toBe(null);
+
+    const { messengerData = {} as IMessengerData } = updatedIntegration || {};
+
+    const skillData = messengerData.skillData;
+
+    if (skillData) {
+      expect(skillData.options.length).toBe(0);
+    } else {
+      fail('SkillData not found');
+    }
   });
 });

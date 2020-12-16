@@ -94,13 +94,11 @@ export const loadSkillClass = () => {
         }
       }).distinct('_id');
 
-      for (const id of integrationIds) {
-        await Integrations.update(
-          { _id: id },
-          { $pull: { 'messengerData.skillData.options': { skillId: _id } } },
-          { multi: true }
-        );
-      }
+      await Integrations.update(
+        { _id: { $in: integrationIds } },
+        { $pull: { 'messengerData.skillData.options': { skillId: _id } } },
+        { multi: true }
+      );
 
       await Skills.remove({ _id });
 
