@@ -3,6 +3,7 @@ import FormControl from 'modules/common/components/form/Control';
 import Form from 'modules/common/components/form/Form';
 import FormGroup from 'modules/common/components/form/Group';
 import ControlLabel from 'modules/common/components/form/Label';
+import Toggle from 'modules/common/components/Toggle';
 import { ModalFooter } from 'modules/common/styles/main';
 import { IButtonMutateProps, IFormProps } from 'modules/common/types';
 import { __ } from 'modules/common/utils';
@@ -10,12 +11,17 @@ import { MarkdownWrapper } from 'modules/settings/styles';
 import React from 'react';
 import SelectBrand from '../../containers/SelectBrand';
 import SelectChannels from '../../containers/SelectChannels';
+import { Description } from '../../styles';
 
 type Props = {
   renderButton: (props: IButtonMutateProps) => JSX.Element;
   callback: () => void;
   onChannelChange: () => void;
   channelIds: string[];
+};
+
+type State = {
+  isPartnerStack: boolean;
 };
 
 const examplePayload = `{
@@ -35,14 +41,38 @@ const examplePayload = `{
     ]
 }`;
 
-class Webhook extends React.Component<Props> {
-  generateDoc = (values: { name: string; script: string; brandId: string }) => {
+class Webhook extends React.Component<Props, State> {
+  constructor(props) {
+    super(props);
+
+    this.state = {
+      isPartnerStack: false
+    };
+  }
+
+  onSwitchHandler = e => {
+    this.setState({ isPartnerStack: e.target.checked });
+  };
+
+  generateDoc = (values: {
+    name: string;
+    script: string;
+    token: string;
+    origin: string;
+    brandId: string;
+    isPartnerStack: boolean;
+  }) => {
+    const { isPartnerStack } = this.state;
+
     return {
       name: values.name,
       brandId: values.brandId,
       kind: 'webhook',
       data: {
-        script: values.script
+        script: values.script,
+        token: values.token,
+        origin: values.origin,
+        isPartnerStack
       }
     };
   };
@@ -50,6 +80,8 @@ class Webhook extends React.Component<Props> {
   renderContent = (formProps: IFormProps) => {
     const { renderButton, callback, onChannelChange, channelIds } = this.props;
     const { values, isSubmitted } = formProps;
+
+    const { isPartnerStack } = this.state;
 
     return (
       <>
@@ -60,6 +92,26 @@ class Webhook extends React.Component<Props> {
             name="name"
             required={true}
             autoFocus={true}
+          />
+        </FormGroup>
+
+        <FormGroup>
+          <ControlLabel required={false}>Token</ControlLabel>
+          <FormControl
+            {...formProps}
+            name="token"
+            required={false}
+            autoFocus={false}
+          />
+        </FormGroup>
+
+        <FormGroup>
+          <ControlLabel required={false}>Origin</ControlLabel>
+          <FormControl
+            {...formProps}
+            name="origin"
+            required={false}
+            autoFocus={false}
           />
         </FormGroup>
 
@@ -88,6 +140,24 @@ class Webhook extends React.Component<Props> {
           isRequired={true}
           onChange={onChannelChange}
         />
+
+        <FormGroup>
+          <ControlLabel>Partner Stack</ControlLabel>
+          <Description>
+            Turn on if you want to receive data from the Partner Stack.
+          </Description>
+          <div>
+            <Toggle
+              checked={isPartnerStack || false}
+              name="isPartnerStack"
+              onChange={this.onSwitchHandler}
+              icons={{
+                checked: <span>Yes</span>,
+                unchecked: <span>No</span>
+              }}
+            />
+          </div>
+        </FormGroup>
 
         <ModalFooter>
           <Button

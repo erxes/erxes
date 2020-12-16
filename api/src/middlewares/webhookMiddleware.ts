@@ -31,20 +31,24 @@ const findCustomer = async doc => {
 };
 
 const webhookMiddleware = async (req, res, next) => {
+  console.log('params: ', req.body);
+  console.log(req.headers);
+  console.log(req.socket.remoteAddress);
   try {
     const integration = await Integrations.findOne({ _id: req.params.id });
 
     if (!integration) {
-      return next(new Error('Invalid request'));
+      return next(new Error('Invalid request 1'));
     }
 
     const webhookData = integration.webhookData;
 
     if (
       !webhookData ||
-      !Object.values(req.headers).includes(webhookData.token)
+      (!Object.values(req.headers).includes(webhookData.token) &&
+        !Object.values(req.headers).includes(webhookData.origin))
     ) {
-      return next(new Error('Invalid request'));
+      return next(new Error('Invalid request 2'));
     }
 
     const params = req.body;

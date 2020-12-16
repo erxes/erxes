@@ -85,7 +85,12 @@ import {
   Conversations as TwitterConversations,
   Customers as TwitterCustomers
 } from './twitter/models';
-import { getEnv, resetConfigsCache, sendRequest } from './utils';
+import {
+  getEnv,
+  removePartnerStack,
+  resetConfigsCache,
+  sendRequest
+} from './utils';
 import { logout, setupChatApi as setupWhatsapp } from './whatsapp/api';
 import {
   ConversationMessages as WhatsappConversationMessages,
@@ -502,6 +507,7 @@ export const removeIntegration = async (
 
   if (kind === 'partnerStack') {
     debugPartnerStack('Removing partner stack');
+    await removePartnerStack(integration.partnerStackKey);
   }
 
   await Integrations.deleteOne({ _id });

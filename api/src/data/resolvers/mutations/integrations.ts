@@ -172,12 +172,22 @@ const integrationMutations = {
   ) {
     const modifiedDoc: any = { ...doc };
 
+    let isPartnerStack = false;
+
     if (modifiedDoc.kind === KIND_CHOICES.WEBHOOK) {
       modifiedDoc.webhookData = { ...data };
-      modifiedDoc.webhookData.token = await getUniqueValue(
-        Integrations,
-        'token'
-      );
+
+      if (
+        !modifiedDoc.webhookData.token ||
+        modifiedDoc.webhookData.token === ''
+      ) {
+        modifiedDoc.webhookData.token = await getUniqueValue(
+          Integrations,
+          'token'
+        );
+      }
+
+      isPartnerStack = modifiedDoc.webhookData.isPartnerStack;
     }
 
     const integration = await Integrations.createExternalIntegration(
@@ -211,7 +221,7 @@ const integrationMutations = {
     }
 
     try {
-      if (KIND_CHOICES.WEBHOOK !== kind) {
+      if (KIND_CHOICES.WEBHOOK !== kind || isPartnerStack) {
         await dataSources.IntegrationsAPI.createIntegration(kind, {
           accountId: doc.accountId,
           kind: doc.kind,
@@ -314,7 +324,7 @@ const integrationMutations = {
           'smooch-twilio',
           'whatsapp',
           'telnyx',
-          'partnerStack'
+          'webhook'
         ].includes(integration.kind)
       ) {
         await dataSources.IntegrationsAPI.removeIntegration({
