@@ -88,7 +88,8 @@ export const mutations = `
     conversationId: String
     message: String,
     attachments: [AttachmentInput],
-    contentType: String
+    contentType: String,
+    skillId: String
   ): ConversationMessage
 
   widgetBotRequest(
@@ -125,7 +126,6 @@ export const mutations = `
   ): String
 
   widgetGetBotInitialMessage(integrationId: String): JSON
-  widgetUserSelectSkill(integrationId: String!, skillId: String!, customerId: String!): JSON
 
   widgetsKnowledgebaseIncReactionCount(articleId: String!, reactionChoice: String!): String
   widgetsLeadIncreaseViewCount(formId: String!): JSON

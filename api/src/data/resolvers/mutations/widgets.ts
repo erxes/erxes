@@ -23,7 +23,6 @@ import {
 } from '../../../db/models/definitions/constants';
 import {
   IIntegrationDocument,
-  IMessengerDataDocument,
   IMessengerDataMessagesItem
 } from '../../../db/models/definitions/integrations';
 import {
@@ -441,6 +440,7 @@ const widgetMutations = {
       customerId: string;
       conversationId?: string;
       message: string;
+      skillId: string;
       attachments?: any[];
       contentType: string;
     }
@@ -450,10 +450,10 @@ const widgetMutations = {
       customerId,
       conversationId,
       message,
+      skillId,
       attachments,
       contentType
     } = args;
-
     const conversationContent = strip(message || '').substring(0, 100);
 
     // customer can write a message
@@ -507,7 +507,8 @@ const widgetMutations = {
           ? CONVERSATION_OPERATOR_STATUS.BOT
           : CONVERSATION_OPERATOR_STATUS.OPERATOR,
         status: getConversationStatus(),
-        content: conversationContent
+        content: conversationContent,
+        ...(!HAS_BOTENDPOINT_URL && skillId ? { skillIds: [skillId] } : {})
       });
     }
 
@@ -860,56 +861,6 @@ const widgetMutations = {
     );
 
     return { botData: botRequest.responses };
-  },
-
-  async widgetUserSelectSkill(
-    _root,
-    {
-      integrationId,
-      skillId,
-      customerId
-    }: { integrationId: string; skillId: string; customerId: string }
-  ) {
-    const integration = await Integrations.findOne({ _id: integrationId });
-
-    if (!integration) {
-      throw new Error('Integration not found');
-    }
-
-    const { messengerData = {} as IMessengerDataDocument } = integration;
-    const { skillData } = messengerData;
-    const { options } = skillData as {
-      typeId: string;
-      options: Array<{ label: string; response: string; skillId: string }>;
-    };
-
-    const skillOption = options.find(option => option.skillId === skillId);
-
-    const conversation = await Conversations.createConversation({
-      customerId,
-      integrationId,
-      skillIds: [skillId],
-      content: skillOption ? skillOption.label : '',
-      status: CONVERSATION_STATUSES.OPEN
-    });
-
-    const msg = await Messages.createMessage({
-      conversationId: conversation._id,
-      customerId,
-      content: skillOption
-        ? skillOption.response
-        : AUTO_BOT_MESSAGES.NO_RESPONSE
-    });
-
-    graphqlPubsub.publish('conversationClientMessageInserted', {
-      conversationClientMessageInserted: msg
-    });
-
-    graphqlPubsub.publish('conversationMessageInserted', {
-      conversationMessageInserted: msg
-    });
-
-    return msg;
   }
 };
 

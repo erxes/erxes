@@ -31,6 +31,7 @@ interface IState {
   headHeight: number;
   botTyping: boolean;
   browserInfo: IBrowserInfo;
+  selectedSkill: string | null
 }
 
 interface IStore extends IState {
@@ -38,7 +39,7 @@ interface IStore extends IState {
   getUiOptions: () => IIntegrationUiOptions;
   getBrand: () => IBrand;
   getMessengerData: () => IIntegrationMessengerData;
-  getUserSkillSelectionResponse: (skillId: string) => void;
+  onSelectSkill: (skillId: string) => void;
   saveBrowserInfo: () => void;
   toggle: (isVisible?: boolean) => void;
   toggleNotifier: (isVisible?: boolean) => void;
@@ -78,6 +79,7 @@ interface IStore extends IState {
   setBotTyping: (typing: boolean) => void;
   botTyping: boolean;
   browserInfo: IBrowserInfo;
+  selectedSkill: string | null;
 }
 
 export const MESSAGE_TYPES = {
@@ -127,7 +129,8 @@ export class AppProvider extends React.Component<{}, IState> {
       isBrowserInfoSaved: false,
       headHeight: 200,
       botTyping: false,
-      browserInfo: {}
+      browserInfo: {},
+      selectedSkill: null
     };
   }
 
@@ -232,10 +235,10 @@ export class AppProvider extends React.Component<{}, IState> {
       connection.data.messengerData.requireAuth
     ) {
       // if visitor did not give email or phone then ask
-      return this.setState({ activeRoute: 'accquireInformation' });
+      return this.setState({ activeRoute: 'accquireInformation', selectedSkill: null });
     }
 
-    this.setState({ activeRoute: route });
+    this.setState({ activeRoute: route, selectedSkill: null });
   };
 
   changeConversation = (_id: string) => {
@@ -472,40 +475,8 @@ export class AppProvider extends React.Component<{}, IState> {
       });
   };
 
-  getUserSkillSelectionResponse = (skillId: string) => {
-    this.setState({ sendingMessage: true });
-
-    return client.mutate({
-      mutation: gql(`
-        mutation widgetUserSelectSkill(
-          $integrationId: String!,
-          $skillId: String!
-          $customerId: String!
-        ) {
-          widgetUserSelectSkill(
-            integrationId: $integrationId,
-            skillId: $skillId
-            customerId: $customerId
-          )
-        },
-      `),
-      variables: {
-        integrationId: connection.data.integrationId,
-        skillId,
-        customerId: connection.data.customerId
-      }
-    })
-      .then(({ data }) => {
-        const { conversationId } = data.widgetUserSelectSkill;
-
-        this.setState({
-          sendingMessage: false,
-          activeConversation: conversationId
-        });
-      })
-      .catch(() => {
-        this.setState({ sendingMessage: false });
-      });
+  onSelectSkill = (skillId: string) => {
+    this.setState({ selectedSkill: skillId });
   }
 
   getBotInitialMessage = (callback: (botData: any) => void) => {
@@ -654,6 +625,7 @@ export class AppProvider extends React.Component<{}, IState> {
               $contentType: String
               $conversationId: String
               $attachments: [AttachmentInput]
+              $skillId: String
             ) {
 
             widgetsInsertMessage(
@@ -662,6 +634,7 @@ export class AppProvider extends React.Component<{}, IState> {
               message: $message
               conversationId: $conversationId
               attachments: $attachments
+              skillId: $skillId
             ) {
               ${graphqlTypes.messageFields}
             }
@@ -671,6 +644,7 @@ export class AppProvider extends React.Component<{}, IState> {
             integrationId: connection.data.integrationId,
             customerId: connection.data.customerId,
             conversationId: activeConversation,
+            skillId: this.state.selectedSkill,
             contentType,
             message: newLineToBr(message),
             attachments
@@ -755,7 +729,7 @@ export class AppProvider extends React.Component<{}, IState> {
           readMessages: this.readMessages,
           replyAutoAnswer: this.replyAutoAnswer,
           getBotInitialMessage: this.getBotInitialMessage,
-          getUserSkillSelectionResponse: this.getUserSkillSelectionResponse,
+          onSelectSkill: this.onSelectSkill,
           changeOperatorStatus: this.changeOperatorStatus,
           sendMessage: this.sendMessage,
           sendTypingInfo: this.sendTypingInfo,

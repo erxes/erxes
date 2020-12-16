@@ -30,7 +30,7 @@ type Props = {
   ) => void;
   isLoggedIn: () => boolean;
   getColor?: string;
-  getUserSkillSelectionResponse: (skillId: string) => void;
+  onSelectSkill: (skillId: string) => void;
   toggleVideoCall: () => void;
   replyAutoAnswer: (message: string, payload: string, type: string) => void;
   sendTypingInfo: (conversationId: string, text: string) => void;
@@ -41,12 +41,13 @@ type Props = {
   sendMessage: (contentType: string, message: string) => void;
   showVideoCallRequest: boolean;
   botTyping?: boolean;
+  selectedSkill?: string | null;
 };
 
 type State = {
   hideNotifyInput: boolean;
   initialMessage: { botData: IBotData } | null;
-  skillOptionsMessage: any;
+  skillResponse: string | null;
 };
 
 class MessagesList extends React.Component<Props, State> {
@@ -56,7 +57,12 @@ class MessagesList extends React.Component<Props, State> {
   constructor(props: Props) {
     super(props);
 
-    this.state = { hideNotifyInput: false, initialMessage: null, skillOptionsMessage: null };
+    this.state = {
+      hideNotifyInput: false,
+      initialMessage: null,
+      skillResponse: null
+    };
+
     this.onNotify = this.onNotify.bind(this);
   }
 
@@ -68,9 +74,9 @@ class MessagesList extends React.Component<Props, State> {
       getBotInitialMessage,
     } = this.props;
 
-    const newConversation = 
+    const newConversation =
       messages.length === 0 &&
-      (!conversationId || (conversationId || "").length === 0)
+      (!conversationId || (conversationId || "").length === 0);
 
     if (messengerData.botShowInitialMessage && newConversation) {
       getBotInitialMessage((initialMessage) => {
@@ -115,6 +121,11 @@ class MessagesList extends React.Component<Props, State> {
       );
     });
   };
+
+  handleSkillSelect(skillId: string, response: string) {
+    this.setState({ skillResponse: response });
+    this.props.onSelectSkill(skillId);
+  }
 
   renderBotGreetingMessage(messengerData: IIntegrationMessengerData) {
     const { initialMessage } = this.state;
@@ -183,26 +194,42 @@ class MessagesList extends React.Component<Props, State> {
   renderSkillOptionsMessage(messengerData: IIntegrationMessengerData) {
     const { conversationId, messages } = this.props;
 
-    const newConversation = 
+    const newConversation =
       messages.length === 0 &&
-      (!conversationId || (conversationId || "").length === 0)
+      (!conversationId || (conversationId || "").length === 0);
 
-    if (!messengerData.skillData || !newConversation) {
+    if (
+      !messengerData.skillData ||
+      !newConversation ||
+      this.props.selectedSkill
+    ) {
       return null;
     }
 
     const { options } = messengerData.skillData;
-    
+
     return (
       <div className="skill-content">
         {options.map((option, index) => {
-          const handleClick = () => this.props.getUserSkillSelectionResponse(option.skillId);
+          const handleClick = () => this.handleSkillSelect(option.skillId, option.response);
 
           return (
-            <div key={index} className="skill-card" onClick={handleClick}>{option.label}</div>
+            <div key={index} className="skill-card" onClick={handleClick}>
+              {option.label}
+            </div>
           );
         })}
       </div>
+    );
+  }
+
+  renderSkillResponse = () => {
+    if (!this.props.selectedSkill || !this.state.skillResponse) {
+      return null;
+    }
+
+    return (
+      <li className="erxes-spacial-message">{this.state.skillResponse}</li>
     );
   }
 
@@ -375,6 +402,7 @@ class MessagesList extends React.Component<Props, State> {
           {this.renderBotGreetingMessage(messengerData)}
           {this.renderWelcomeMessage(messengerData)}
           {this.renderSkillOptionsMessage(messengerData)}
+          {this.renderSkillResponse()}
           {this.renderCallRequest()}
           {this.renderMessages()}
           {this.renderBotOperator()}
