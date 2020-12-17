@@ -5,7 +5,6 @@ import { mutations } from 'modules/settings/integrations/graphql';
 import React from 'react';
 import { withRouter } from 'react-router-dom';
 import Chatfuel from '../../components/chatfuel/Form';
-import PartnerStackForm from '../../components/partnerStack/PartnerStack';
 import Telegram from '../../components/telegram/Telegram';
 import TelnyxForm from '../../components/telnyx/TelnyxForm';
 import Viber from '../../components/viber/Viber';
@@ -31,8 +30,7 @@ const INTEGRATION_FORM = {
   'smooch-telegram': Telegram,
   whatsapp: Whatsapp,
   telnyx: TelnyxForm,
-  webhook: WebHookForm,
-  partnerStack: PartnerStackForm
+  webhook: WebHookForm
 };
 
 class IntegrationFormContainer extends React.Component<FinalProps, State> {

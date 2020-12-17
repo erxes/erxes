@@ -30,7 +30,6 @@ type TotalCount = {
   whatsapp: number;
   exchange: number;
   telnyx: number;
-  partnerStack: number;
 };
 
 type Props = {
@@ -151,14 +150,6 @@ function renderCreate(createUrl, kind) {
       <ModalTrigger title="Add telnyx" trigger={trigger} content={content} />
     );
   }
-
-  // if (kind === INTEGRATION_KINDS.PARTNERSTACK) {
-  //   const content = props => <PartnerStack {...props} />;
-
-  //   return (
-  //     <ModalTrigger title="Add parter stack" trigger={trigger} content={content} />
-  //   );
-  // }
 
   const formContent = props => <IntegrationForm {...props} type={kind} />;
 

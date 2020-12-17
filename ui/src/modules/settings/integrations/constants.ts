@@ -85,7 +85,6 @@ export const INTEGRATION_KINDS = {
   WHATSAPP: 'whatsapp',
   TELNYX: 'telnyx',
   WEBHOOK: 'webhook',
-  PARTNERSTACK: 'partnerStack',
   ALL: [
     { text: 'Messenger', value: 'messenger' },
     { text: 'Facebook post', value: 'facebook-post' },
@@ -110,8 +109,7 @@ export const INTEGRATION_KINDS = {
     { text: 'Twilio', value: 'smooch-twilio' },
     { text: 'WhatsApp', value: 'whatsapp' },
     { text: 'Telnyx', value: 'telnyx' },
-    { text: 'Webhook', value: 'webhook' },
-    { text: 'Partner Stack', value: 'partnerStack' }
+    { text: 'Webhook', value: 'webhook' }
   ]
 };
 
