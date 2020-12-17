@@ -49,7 +49,10 @@ import {
   Users,
   UsersGroups
 } from '../db/models/index';
+import memoryStorage from '../inmemoryStorage';
 import messageBroker from '../messageBroker';
+import { allConstants, allModels, callAfterMutations } from '../pluginUtils';
+import { graphqlPubsub } from '../pubsub';
 import { MODULE_NAMES, RABBITMQ_QUEUES } from './constants';
 import {
   getSubServiceDomain,
@@ -1474,6 +1477,25 @@ export const putDeleteLog = async (
 };
 
 const putLog = async (params: IFinalLogParams, user: IUserDocument) => {
+  try {
+    // mutation after wrapper
+    if (callAfterMutations) {
+      const { type, action } = params;
+      if (callAfterMutations[type] && callAfterMutations[type][action].length) {
+        for (const handler of callAfterMutations[type][action]) {
+          await handler({}, params, {
+            constants: allConstants,
+            models: allModels,
+            memoryStorage,
+            graphqlPubsub
+          });
+        }
+      }
+    }
+  }catch (e) {
+    return e.message
+  }
+
   try {
     return messageBroker().sendMessage(RABBITMQ_QUEUES.PUT_LOG, {
       ...params,

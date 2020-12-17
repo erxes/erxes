@@ -1,3 +1,4 @@
+import { EMAIL_DELIVERY_STATUS } from 'erxes-api-utils';
 import { Document, Schema } from 'mongoose';
 import { field } from './utils';
 
@@ -26,11 +27,7 @@ export interface IEmailDeliveriesDocument extends IEmailDeliveries, Document {
   id: string;
 }
 
-export const EMAIL_DELIVERY_STATUS = {
-  PENDING: 'pending',
-  RECEIVED: 'received',
-  ALL: ['pending', 'received']
-};
+export { EMAIL_DELIVERY_STATUS }
 
 export const emailDeliverySchema = new Schema({
   _id: field({ pkey: true }),
