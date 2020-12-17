@@ -70,7 +70,7 @@ const init = async app => {
       }
     }
 
-    if (integration && integration.kind === 'nylas-imap') {
+    if (integration && integration.kind === 'imap') {
       const conversation = await NylasImapConversations.findOne({
         erxesApiId: erxesApiConversationId
       });
