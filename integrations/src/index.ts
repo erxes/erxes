@@ -98,7 +98,7 @@ app.get('/configs', async (req, res) => {
 
 app.post('/integrations/remove', async (req, res) => {
   const { integrationId } = req.body;
-  console.log('remove integraiont: ', integrationId);
+
   try {
     await removeIntegration(integrationId);
   } catch (e) {
