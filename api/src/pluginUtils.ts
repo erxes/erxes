@@ -1,32 +1,32 @@
 import * as fs from 'fs';
 import * as mongoose from 'mongoose';
 import * as path from 'path';
+import * as dataConstants from './data/constants';
 import { can, registerModule } from './data/permissions/utils';
 import { checkLogin } from './data/permissions/wrappers';
+import * as allModels from './db/models';
+import * as defConstants from './db/models/definitions/constants';
 import memoryStorage from './inmemoryStorage';
 import { graphqlPubsub } from './pubsub';
 
-export const allModels = require('./db/models');
-
-export const defConstants = require('./db/models/definitions/constants');
-export const dataConstants = require('./data/constants')
 export const allConstants = { ...dataConstants, ...defConstants }
 
 export const pluginsConsumers = {}
 
+interface ISubAfterMutations {
+  [action: string]: {
+    callBack: void
+  }
+}
 interface IAfterMutations {
-  [type: string]: {
-    [action: string]: {
-      callBack: void
-    }[];
-  };
+  [type: string]: ISubAfterMutations[];
 }
 
 export const callAfterMutations: IAfterMutations[] | {} = {};
 
-const tryRequire = (path) => {
+const tryRequire = (requirPath) => {
   try {
-    return require(`${path}`);
+    return require(`${requirPath}`);
   } catch (err) {
     return {};
   }

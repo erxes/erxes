@@ -1,7 +1,10 @@
 import * as AWS from 'aws-sdk';
 import utils from 'erxes-api-utils';
-import { IEmailParams as IEmailParamsC } from 'erxes-api-utils/lib/emails'
-import { ISendNotification as ISendNotificationC, IRequestParams } from 'erxes-api-utils/lib/requests'
+import { IEmailParams as IEmailParamsC } from 'erxes-api-utils/lib/emails';
+import {
+  IRequestParams,
+  ISendNotification as ISendNotificationC
+} from 'erxes-api-utils/lib/requests';
 import * as fileType from 'file-type';
 import * as admin from 'firebase-admin';
 import * as fs from 'fs';
@@ -512,7 +515,7 @@ export const replaceEditorAttributes = async (args: {
   replacedContent?: string;
   customerFields?: string[];
 }> => {
-  return utils.replaceEditorAttributes({...args, models, fetchElk})
+  return utils.replaceEditorAttributes({ ...args, models, fetchElk })
 };
 
 /**
