@@ -4,8 +4,10 @@ import {
   ConversationMessages,
   Conversations,
   Customers,
+  Fields,
   Integrations
 } from '../db/models';
+import { ICustomField } from '../db/models/definitions/common';
 import { graphqlPubsub } from '../pubsub';
 
 const findCustomer = async doc => {
@@ -31,9 +33,6 @@ const findCustomer = async doc => {
 };
 
 const webhookMiddleware = async (req, res, next) => {
-  console.log('params: ', req.body);
-  console.log(req.headers);
-  console.log(req.socket.remoteAddress);
   try {
     const integration = await Integrations.findOne({ _id: req.params.id });
 
@@ -61,6 +60,29 @@ const webhookMiddleware = async (req, res, next) => {
       vm.run(webhookData.script);
     }
 
+    const customFieldsData: ICustomField[] = [];
+
+    if (params.customFields) {
+      params.customFields.forEach(async element => {
+        console.log(element);
+        const customField = await Fields.findOne({ text: element.name });
+
+        if (customField) {
+          let value = element.value;
+          if (customField.validation === 'date') {
+            value = new Date(element.value);
+            console.log('value: ', value);
+          }
+
+          const customFieldData = {
+            field: customField._id,
+            value
+          };
+          customFieldsData.push(customFieldData);
+        }
+      });
+    }
+
     // get or create customer
     let customer = await findCustomer(params);
 
@@ -71,7 +93,8 @@ const webhookMiddleware = async (req, res, next) => {
         code: params.customerCode,
         firstName: params.customerFirstName,
         lastName: params.customerLastName,
-        avatar: params.customerAvatar
+        avatar: params.customerAvatar,
+        customFieldsData
       });
     }
 
