@@ -361,16 +361,6 @@ export const INTEGRATIONS = [
     logo: '/images/integrations/webhook.png',
     createModal: 'webhook',
     category: 'All integrations, For support teams, Conversation'
-  },
-  {
-    name: 'Partner Stack',
-    description: 'Track partnership events',
-    inMessenger: false,
-    isAvailable: true,
-    kind: 'partnerStack',
-    logo: '/images/integrations/partnerstack.png',
-    createModal: 'partnerStack',
-    category: 'All integrations, For marketing teams, For sales teams'
   }
 ];
 
