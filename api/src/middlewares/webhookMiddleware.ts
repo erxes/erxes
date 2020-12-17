@@ -37,7 +37,7 @@ const webhookMiddleware = async (req, res, next) => {
     const integration = await Integrations.findOne({ _id: req.params.id });
 
     if (!integration) {
-      return next(new Error('Invalid request 1'));
+      return next(new Error('Invalid request'));
     }
 
     const webhookData = integration.webhookData;
@@ -47,7 +47,7 @@ const webhookMiddleware = async (req, res, next) => {
       (!Object.values(req.headers).includes(webhookData.token) &&
         !Object.values(req.headers).includes(webhookData.origin))
     ) {
-      return next(new Error('Invalid request 2'));
+      return next(new Error('Invalid request'));
     }
 
     const params = req.body;
