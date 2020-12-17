@@ -87,7 +87,10 @@ export const integrationSchema = new Schema({
   whatsappinstanceId: String,
   whatsappToken: String,
   telnyxPhoneNumber: field({ type: String, label: 'Telnyx phone number' }),
-  telnyxProfileId: field({ type: String, label: 'Telnyx messaging profile id' })
+  telnyxProfileId: field({
+    type: String,
+    label: 'Telnyx messaging profile id'
+  })
 });
 
 export interface IIntegrationModel extends Model<IIntegrationDocument> {
