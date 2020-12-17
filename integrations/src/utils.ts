@@ -288,8 +288,7 @@ export const removePartnerStack = async (partnerStackKey: string) => {
   };
 
   try {
-    const r = await request(options);
-    console.log(r);
+    await request(options);
   } catch (e) {
     throw e.message;
   }

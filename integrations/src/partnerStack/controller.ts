@@ -21,7 +21,6 @@ const init = async app => {
 
     const webhookUrl = `${MAIN_API_DOMAIN}/webhooks/${integrationId}`;
 
-    console.log('webhookUrl: ', webhookUrl);
     const password = await getConfig('PARTNER_STACK_SECRET_KEY');
 
     if (!password) {
@@ -61,10 +60,9 @@ const init = async app => {
         partnerStackKey: key
       });
     } catch (e) {
-      console.log('sda aldaa: ', e.message);
       await Integrations.deleteOne({ _id: integration.id });
 
-      return next('sda error chachlaa: ', e.message);
+      return next(e.message);
     }
 
     return res.json({ status: 'ok' });

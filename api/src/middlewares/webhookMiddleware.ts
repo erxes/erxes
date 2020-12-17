@@ -64,14 +64,15 @@ const webhookMiddleware = async (req, res, next) => {
 
     if (params.customFields) {
       params.customFields.forEach(async element => {
-        console.log(element);
-        const customField = await Fields.findOne({ text: element.name });
+        const customField = await Fields.findOne({
+          contentType: 'customer',
+          text: element.name
+        });
 
         if (customField) {
           let value = element.value;
           if (customField.validation === 'date') {
             value = new Date(element.value);
-            console.log('value: ', value);
           }
 
           const customFieldData = {
