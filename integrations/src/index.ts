@@ -17,7 +17,6 @@ import { initMemoryStorage } from './inmemoryStorage';
 import { initBroker } from './messageBroker';
 import { Accounts, Configs, Integrations } from './models/index';
 import { initNylas } from './nylas/controller';
-import initPartnerStack from './partnerStack/controller';
 import initProductBoard from './productBoard/controller';
 import initSmooch from './smooch/controller';
 import { init } from './startup';
@@ -175,8 +174,6 @@ initProductBoard(app);
 
 // init telnyx
 initTelnyx(app);
-
-initPartnerStack(app);
 
 // Error handling middleware
 app.use((error, _req, res, _next) => {

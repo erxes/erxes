@@ -31,7 +31,6 @@ export interface IIntegration {
   whatsappToken?: string;
   telnyxPhoneNumber?: string;
   telnyxProfileId?: string;
-  partnerStackKey?: string;
 }
 
 export interface IIntegrationDocument extends IIntegration, Document {}
@@ -91,8 +90,7 @@ export const integrationSchema = new Schema({
   telnyxProfileId: field({
     type: String,
     label: 'Telnyx messaging profile id'
-  }),
-  partnerStackKey: String
+  })
 });
 
 export interface IIntegrationModel extends Model<IIntegrationDocument> {

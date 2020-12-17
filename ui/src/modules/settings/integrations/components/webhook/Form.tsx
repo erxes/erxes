@@ -20,10 +20,6 @@ type Props = {
   channelIds: string[];
 };
 
-type State = {
-  isPartnerStack: boolean;
-};
-
 const examplePayload = `{
   "customerPrimaryEmail": "example@gmail.com",
   "customerPrimaryPhone": 99999999,
@@ -43,29 +39,14 @@ const examplePayload = `{
   }]
 }`;
 
-class Webhook extends React.Component<Props, State> {
-  constructor(props) {
-    super(props);
-
-    this.state = {
-      isPartnerStack: false
-    };
-  }
-
-  onSwitchHandler = e => {
-    this.setState({ isPartnerStack: e.target.checked });
-  };
-
+class Webhook extends React.Component<Props> {
   generateDoc = (values: {
     name: string;
     script: string;
     token: string;
     origin: string;
     brandId: string;
-    isPartnerStack: boolean;
   }) => {
-    const { isPartnerStack } = this.state;
-
     return {
       name: values.name,
       brandId: values.brandId,
@@ -73,8 +54,7 @@ class Webhook extends React.Component<Props, State> {
       data: {
         script: values.script,
         token: values.token,
-        origin: values.origin,
-        isPartnerStack
+        origin: values.origin
       }
     };
   };
@@ -82,8 +62,6 @@ class Webhook extends React.Component<Props, State> {
   renderContent = (formProps: IFormProps) => {
     const { renderButton, callback, onChannelChange, channelIds } = this.props;
     const { values, isSubmitted } = formProps;
-
-    const { isPartnerStack } = this.state;
 
     return (
       <>
@@ -154,24 +132,6 @@ class Webhook extends React.Component<Props, State> {
           isRequired={true}
           onChange={onChannelChange}
         />
-
-        <FormGroup>
-          <ControlLabel>Partner Stack</ControlLabel>
-          <Description>
-            Turn on if you want to receive data from the Partner Stack.
-          </Description>
-          <div>
-            <Toggle
-              checked={isPartnerStack || false}
-              name="isPartnerStack"
-              onChange={this.onSwitchHandler}
-              icons={{
-                checked: <span>Yes</span>,
-                unchecked: <span>No</span>
-              }}
-            />
-          </div>
-        </FormGroup>
 
         <ModalFooter>
           <Button

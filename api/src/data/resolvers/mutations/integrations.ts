@@ -172,8 +172,6 @@ const integrationMutations = {
   ) {
     const modifiedDoc: any = { ...doc };
 
-    let isPartnerStack = false;
-
     if (modifiedDoc.kind === KIND_CHOICES.WEBHOOK) {
       modifiedDoc.webhookData = { ...data };
 
@@ -186,8 +184,6 @@ const integrationMutations = {
           'token'
         );
       }
-
-      isPartnerStack = modifiedDoc.webhookData.isPartnerStack;
     }
 
     const integration = await Integrations.createExternalIntegration(
@@ -221,7 +217,7 @@ const integrationMutations = {
     }
 
     try {
-      if (KIND_CHOICES.WEBHOOK !== kind || isPartnerStack) {
+      if (KIND_CHOICES.WEBHOOK !== kind) {
         await dataSources.IntegrationsAPI.createIntegration(kind, {
           accountId: doc.accountId,
           kind: doc.kind,

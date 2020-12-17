@@ -270,26 +270,3 @@ export const getRecordings = async (recordings: IRecording[]) => {
 
   return newRecordings;
 };
-
-export const removePartnerStack = async (partnerStackKey: string) => {
-  const password = await getConfig('PARTNER_STACK_SECRET_KEY');
-  const username = await getConfig('PARTNER_STACK_KEY');
-
-  const auth =
-    'Basic ' + Buffer.from(username + ':' + password).toString('base64');
-
-  const options = {
-    uri: `https://api.partnerstack.com/v1/webhooks/${partnerStackKey}`,
-    method: 'DELETE',
-    headers: {
-      Accept: 'application/json',
-      Authorization: auth
-    }
-  };
-
-  try {
-    await request(options);
-  } catch (e) {
-    throw e.message;
-  }
-};
