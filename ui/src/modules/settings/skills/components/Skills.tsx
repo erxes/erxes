@@ -70,7 +70,6 @@ function Skills(props: Props) {
       <NotWrappable>
         <ModalTrigger
           title="New Skill"
-          size="lg"
           trigger={trigger}
           content={renderForm}
         />

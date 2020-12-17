@@ -10,8 +10,7 @@ import { __ } from 'modules/common/utils';
 import Sidebar from 'modules/layout/components/Sidebar';
 import Wrapper from 'modules/layout/components/Wrapper';
 import { FieldStyle, SidebarList } from 'modules/layout/styles';
-import { SidebarItem } from 'modules/settings/permissions/styles';
-import { ActionButtons } from 'modules/settings/styles';
+import { ActionButtons, SidebarListItem } from 'modules/settings/styles';
 import React from 'react';
 import { Link, withRouter } from 'react-router-dom';
 import { ISkillType, ISkillTypesDocument } from '../types';
@@ -113,7 +112,7 @@ function SkillTypes({
     return (
       <SidebarList>
         {objects.map(object => (
-          <SidebarItem key={object._id} isActive={isItemActive(object._id)}>
+          <SidebarListItem key={object._id} isActive={isItemActive(object._id)}>
             <Link to={`?typeId=${object._id}`}>
               <FieldStyle>{object.name}</FieldStyle>
             </Link>
@@ -121,7 +120,7 @@ function SkillTypes({
               {renderEditAction(object)}
               {renderRemoveAction(object)}
             </ActionButtons>
-          </SidebarItem>
+          </SidebarListItem>
         ))}
       </SidebarList>
     );

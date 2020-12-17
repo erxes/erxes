@@ -1,20 +1,25 @@
 .skill-content {
 	display: flex;
 	align-items: flex-start;
-	transition: transform .3s;
+  transition: transform .3s;
+  flex-wrap: wrap;
+  margin: 0 -4px;
 }
 
 .skill-card {
-  padding: 8px 16px;
-  margin-right: 8px;
-  border: 1px solid rgb(219, 225, 232);
-  border-radius: 6px;
+  margin: 4px;
+  border: 1px solid rgba(0, 0, 0, 0.03);
   display: block;
   text-align: center;
   font-weight: 500;
+  white-space: nowrap;
+  flex: 1;
+  font-size: 14px;
+  box-shadow: 0 1px 5px 1px rgba($black, .1);
 
   &:hover {
-    background: $bg-color;
     cursor: pointer;
+    box-shadow: 0 1px 10px 2px rgba($black, .15);
+    opacity: 0.9;
   }
 }

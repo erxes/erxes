@@ -125,6 +125,7 @@ class MessagesList extends React.Component<Props, State> {
   handleSkillSelect(skillId: string, response: string) {
     this.setState({ skillResponse: response });
     this.props.onSelectSkill(skillId);
+    this.props.inputFocus();
   }
 
   renderBotGreetingMessage(messengerData: IIntegrationMessengerData) {
@@ -207,6 +208,8 @@ class MessagesList extends React.Component<Props, State> {
     }
 
     const { options } = messengerData.skillData;
+    const { uiOptions } = this.props;
+    const { color, textColor = "#fff" } = uiOptions;
 
     return (
       <div className="skill-content">
@@ -214,7 +217,12 @@ class MessagesList extends React.Component<Props, State> {
           const handleClick = () => this.handleSkillSelect(option.skillId, option.response);
 
           return (
-            <div key={index} className="skill-card" onClick={handleClick}>
+            <div 
+              key={index} 
+              className="skill-card erxes-button" 
+              onClick={handleClick}
+              style={{ background: color, color: textColor }}
+            >
               {option.label}
             </div>
           );

@@ -133,8 +133,9 @@ function SkillForm({
           id="skill-form"
           btnStyle="simple"
           type="button"
+          uppercase={false}
           onClick={closeModal}
-          icon="cancel-1"
+          icon="times-circle"
         >
           Cancel
         </Button>

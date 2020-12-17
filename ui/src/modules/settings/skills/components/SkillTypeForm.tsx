@@ -1,7 +1,6 @@
 import Button from 'modules/common/components/Button';
 import FormControl from 'modules/common/components/form/Control';
 import Form from 'modules/common/components/form/Form';
-import FormGroup from 'modules/common/components/form/Group';
 import ControlLabel from 'modules/common/components/form/Label';
 import { ModalFooter } from 'modules/common/styles/main';
 import { IButtonMutateProps, IFormProps } from 'modules/common/types';
@@ -36,34 +35,33 @@ function SkillTypeForm({ closeModal, object, renderButton }: Props) {
 
     return (
       <>
-        <FormGroup>
-          <ControlLabel>Name</ControlLabel>
-          <FormControl
-            {...formProps}
-            name="name"
-            defaultValue={item.name}
-            autoFocus={true}
-            required={true}
-          />
-          <ModalFooter>
-            <Button
-              btnStyle="simple"
-              type="button"
-              onClick={closeModal}
-              icon="cancel-1"
-            >
-              Cancel
-            </Button>
+        <ControlLabel>Name</ControlLabel>
+        <FormControl
+          {...formProps}
+          name="name"
+          defaultValue={item.name}
+          autoFocus={true}
+          required={true}
+        />
+        <ModalFooter>
+          <Button
+            btnStyle="simple"
+            type="button"
+            uppercase={false}
+            onClick={closeModal}
+            icon="times-circle"
+          >
+            Cancel
+          </Button>
 
-            {renderButton({
-              name: 'skill type',
-              values: generateDoc(values),
-              isSubmitted,
-              callback: closeModal,
-              object
-            })}
-          </ModalFooter>
-        </FormGroup>
+          {renderButton({
+            name: 'skill type',
+            values: generateDoc(values),
+            isSubmitted,
+            callback: closeModal,
+            object
+          })}
+        </ModalFooter>
       </>
     );
   };

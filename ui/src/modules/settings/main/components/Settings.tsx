@@ -202,7 +202,7 @@ class Settings extends React.PureComponent {
             )}
             {this.renderBox(
               'Logs',
-              '/images/icons/erxes-07.svg',
+              '/images/icons/erxes-14.svg',
               '/settings/logs',
               'viewLogs'
             )}
@@ -220,7 +220,7 @@ class Settings extends React.PureComponent {
             )}
             {this.renderBox(
               'Skills',
-              '/images/icons/erxes-02.svg',
+              '/images/icons/erxes-07.svg',
               '/settings/skills',
               'skillTypesAll',
               [

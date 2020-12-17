@@ -168,10 +168,11 @@ function LeftSidebar({
                 key={skill._id}
                 btnStyle="simple"
                 size="small"
-                icon="cancel-1"
+                uppercase={false}
                 onClick={handleRemove}
               >
-                {skill.name}
+                {skill.name}&nbsp;
+                <Icon icon="times-circle" color="#EA475D" />
               </Button>
             );
           })}

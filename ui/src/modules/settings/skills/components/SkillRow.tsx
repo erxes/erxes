@@ -42,7 +42,7 @@ function SkillRow({ skill, skillTypes, refetchQueries, removeItem }: Props) {
     const trigger = (
       <Button id="skill-edit-skill" btnStyle="link">
         <Tip text={__('Edit')} placement="bottom">
-          <Icon icon="edit" />
+          <Icon icon="edit-3" />
         </Tip>
       </Button>
     );
@@ -51,7 +51,6 @@ function SkillRow({ skill, skillTypes, refetchQueries, removeItem }: Props) {
       <ActionButtons>
         <ModalTrigger
           title="Edit skill"
-          size="lg"
           trigger={trigger}
           content={renderForm}
         />
