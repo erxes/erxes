@@ -99,9 +99,15 @@ class Webhook extends React.Component<Props, State> {
 
         <FormGroup>
           <ControlLabel required={false}>Token</ControlLabel>
+          <Description>
+            {
+              'This token will be used to sign the incoming payload, so that erxes can verify that the request came from trusted sources.'
+            }
+          </Description>
           <FormControl
             {...formProps}
-            name="token"
+            name="Token (otional)"
+            placeholder=""
             required={false}
             autoFocus={false}
           />
@@ -109,9 +115,15 @@ class Webhook extends React.Component<Props, State> {
 
         <FormGroup>
           <ControlLabel required={false}>Origin</ControlLabel>
+          <Description>
+            {
+              'Enter the IP address of the host that sending request payload, so that erxes can verify that the request came from trusted sources.'
+            }
+          </Description>
           <FormControl
             {...formProps}
             name="origin"
+            placeholder="0.0.0.0 (optional)"
             required={false}
             autoFocus={false}
           />
