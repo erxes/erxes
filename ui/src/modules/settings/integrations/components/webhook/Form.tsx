@@ -107,7 +107,7 @@ class Webhook extends React.Component<Props, State> {
           <FormControl
             {...formProps}
             name="Token (otional)"
-            placeholder=""
+            placeholder="Will be generated automatically when left blank"
             required={false}
             autoFocus={false}
           />
