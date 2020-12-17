@@ -1,4 +1,5 @@
 import Attachment from 'modules/common/components/Attachment';
+import HelpPopover from 'modules/common/components/HelpPopover';
 import Icon from 'modules/common/components/Icon';
 import { __ } from 'modules/common/utils';
 import Wrapper from 'modules/layout/components/Wrapper';
@@ -36,8 +37,13 @@ class EmailStatistics extends React.Component<Props> {
           </IconContainer>
         </BoxHeader>
         <BoxContent>
-          <h5>{name}</h5>
-          {type || 0}
+          <h5>
+            {name}
+            <HelpPopover title={name}>Description content</HelpPopover>
+          </h5>
+          <strong>
+            {type || 0} <span>(0%)</span>
+          </strong>
         </BoxContent>
       </Box>
     );
