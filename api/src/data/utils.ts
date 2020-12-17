@@ -25,7 +25,6 @@ import { debugBase } from '../debuggers';
 import { fetchElk } from '../elasticsearch';
 import memoryStorage from '../inmemoryStorage';
 import { graphqlPubsub } from '../pubsub';
-import { fieldsCombinedByContentType } from './modules/fields/utils';
 
 const models = {
   Configs,
