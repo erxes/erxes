@@ -3176,10 +3176,10 @@ error-ex@^1.2.0, error-ex@^1.3.1:
   dependencies:
     is-arrayish "^0.2.1"
 
-erxes-api-utils@^0.0.9:
-  version "0.0.9"
-  resolved "https://registry.yarnpkg.com/erxes-api-utils/-/erxes-api-utils-0.0.9.tgz#7464722d71de456f0e7eb5d3bf8aaa80536ec579"
-  integrity sha512-WLoAqlqaTdQsWZhwdqi7CxxBgwL+j5ziadXzyN6ueEKxs8cLpiMkj96Iro6sdhfTBJpSsgpjsABttjXZy8Pllw==
+erxes-api-utils@^0.0.10:
+  version "0.0.10"
+  resolved "https://registry.yarnpkg.com/erxes-api-utils/-/erxes-api-utils-0.0.10.tgz#2f6ea9b9fe4eb385e271aea6f4f07a060740ffcc"
+  integrity sha512-5vcHUOyeBeD2yE3hzjVdf8b8e1M5dbYnO+erQlmJuRCDPHATuBhnc+EBEmOTCLkn5Ul4/6Mwv+H2efbg6xklOg==
 
 erxes-inmemory-storage@^1.0.16:
   version "1.0.16"
