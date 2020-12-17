@@ -25,20 +25,22 @@ type State = {
 };
 
 const examplePayload = `{
-    "customerPrimaryEmail": "example@gmail.com",
-    "customerPrimaryPhone": 99999999,
-    "customerCode": 99999,
-    "customerFirstName": "David",
-    "customerLastName": "Anna",
-    "content": "Content"
-    "attachments": [
-      {
-        "url": "/images/example.png",
-        "text": "Example",
-        "size": 1048576, // 1mb
-        "type": "image/png"
-      }
-    ]
+  "customerPrimaryEmail": "example@gmail.com",
+  "customerPrimaryPhone": 99999999,
+  "customerCode": 99999,
+  "customerFirstName": "David",
+  "customerLastName": "Anna",
+  "content": "Content"
+  "attachments": [{
+      "url": "/images/example.png",
+      "text": "Example",
+      "size": 1048576, // 1mb
+      "type": "image/png"
+  }]
+  "customFields": [{
+      "name": "custom field name",
+      "value": "custom field value"
+  }]
 }`;
 
 class Webhook extends React.Component<Props, State> {
