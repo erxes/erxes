@@ -1,4 +1,4 @@
-import { boardQueries } from 'erxes-ui';
+import { queries as boardQueries } from 'erxes-ui/lib/boards/graphql';
 
 const pipelineLabelFields = `
   _id

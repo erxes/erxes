@@ -1,8 +1,20 @@
 import {
-    CenterContent, ContenFooter, ContentBox, ContentHeader, Contents, FieldStyle, HeightedWrapper,
-    MainContent, PageHeader, SidebarBox, SidebarCounter, SidebarList, SidebarTitle, WhiteBox,
-    WhiteBoxRoot
-} from 'erxes-ui';
+  CenterContent,
+  ContenFooter,
+  ContentBox,
+  ContentHeader,
+  Contents,
+  FieldStyle,
+  HeightedWrapper,
+  MainContent,
+  PageHeader,
+  SidebarBox,
+  SidebarCounter,
+  SidebarList,
+  SidebarTitle,
+  WhiteBox,
+  WhiteBoxRoot
+} from 'erxes-ui/lib/layout/styles';
 import { twinkling } from 'modules/common/utils/animations';
 import styled, { css } from 'styled-components';
 import styledTS from 'styled-components-ts';

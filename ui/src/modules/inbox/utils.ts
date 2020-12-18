@@ -2,7 +2,7 @@ import gql from 'graphql-tag';
 import queryString from 'query-string';
 import { queries } from './graphql';
 import { IConversation } from './types';
-import { getConfig, setConfig } from 'erxes-ui'
+import { getConfig, setConfig } from 'erxes-ui/lib/utils/core';
 
 export const generateParams = queryParams => ({
   limit: queryParams.limit ? parseInt(queryParams.limit, 10) : 10,

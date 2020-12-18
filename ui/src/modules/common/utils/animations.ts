@@ -1,4 +1,4 @@
-import { animations } from 'erxes-ui';
+import * as animations from 'erxes-ui/lib/utils/animations';
 
 const rotate = animations.rotate;
 const fadeIn = animations.fadeIn;

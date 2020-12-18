@@ -1,3 +1,3 @@
-import { ActionBar } from 'erxes-ui';
+import ActionBar from 'erxes-ui/lib/layout/components/ActionBar';
 
 export default ActionBar;
