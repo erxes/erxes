@@ -1,5 +1,9 @@
 import * as _ from 'underscore';
-
+import {
+  putCreateLog as putCreateLogC,
+  putUpdateLog as putUpdateLogC,
+  putDeleteLog as putDeleteLogC
+} from 'erxes-api-utils'
 import { IPipelineDocument } from '../db/models/definitions/boards';
 import { IChannelDocument } from '../db/models/definitions/channels';
 import { ICompanyDocument } from '../db/models/definitions/companies';
@@ -53,7 +57,7 @@ import memoryStorage from '../inmemoryStorage';
 import messageBroker from '../messageBroker';
 import { allConstants, allModels, callAfterMutations } from '../pluginUtils';
 import { graphqlPubsub } from '../pubsub';
-import { MODULE_NAMES, RABBITMQ_QUEUES } from './constants';
+import { MODULE_NAMES } from './constants';
 import {
   getSubServiceDomain,
   registerOnboardHistory,
@@ -1400,23 +1404,17 @@ export const putCreateLog = async (
 ) => {
   await registerOnboardHistory({ type: `${params.type}Create`, user });
 
-  const descriptions = await gatherDescriptions({
-    action: LOG_ACTIONS.CREATE,
-    type: params.type,
-    obj: params.object
-  });
-
   await sendToWebhook(LOG_ACTIONS.CREATE, params.type, params);
 
-  return putLog(
+  await afterMutations(
     {
       ...params,
-      action: LOG_ACTIONS.CREATE,
-      extraDesc: descriptions.extraDesc,
-      description: params.description || descriptions.description
+      action: LOG_ACTIONS.CREATE
     },
     user
   );
+
+  return putCreateLogC(messageBroker, gatherDescriptions, params, user)
 };
 
 /**
@@ -1428,24 +1426,17 @@ export const putUpdateLog = async (
   params: ILogDataParams,
   user: IUserDocument
 ) => {
-  const descriptions = await gatherDescriptions({
-    action: LOG_ACTIONS.UPDATE,
-    type: params.type,
-    obj: params.object,
-    updatedDocument: params.updatedDocument
-  });
-
   await sendToWebhook(LOG_ACTIONS.UPDATE, params.type, params);
 
-  return putLog(
+  await afterMutations(
     {
       ...params,
       action: LOG_ACTIONS.UPDATE,
-      description: params.description || descriptions.description,
-      extraDesc: descriptions.extraDesc
     },
     user
   );
+
+  return putUpdateLogC(messageBroker, gatherDescriptions, params, user);
 };
 
 /**
@@ -1457,64 +1448,24 @@ export const putDeleteLog = async (
   params: ILogDataParams,
   user: IUserDocument
 ) => {
-  const descriptions = await gatherDescriptions({
-    action: LOG_ACTIONS.DELETE,
-    type: params.type,
-    obj: params.object
-  });
-
   await sendToWebhook(LOG_ACTIONS.DELETE, params.type, params);
 
-  return putLog(
+  await afterMutations(
     {
       ...params,
-      action: LOG_ACTIONS.DELETE,
-      extraDesc: descriptions.extraDesc,
-      description: params.description || descriptions.description
+      action: LOG_ACTIONS.DELETE
     },
     user
   );
-};
 
-const putLog = async (params: IFinalLogParams, user: IUserDocument) => {
-  try {
-    // mutation after wrapper
-    if (callAfterMutations) {
-      const { type, action } = params;
-      if (callAfterMutations[type] && callAfterMutations[type][action].length) {
-        for (const handler of callAfterMutations[type][action]) {
-          await handler({}, params, {
-            constants: allConstants,
-            models: allModels,
-            memoryStorage,
-            graphqlPubsub
-          });
-        }
-      }
-    }
-  }catch (e) {
-    return e.message
-  }
-
-  try {
-    return messageBroker().sendMessage(RABBITMQ_QUEUES.PUT_LOG, {
-      ...params,
-      createdBy: user._id,
-      unicode: user.username || user.email || user._id,
-      object: JSON.stringify(params.object),
-      newData: JSON.stringify(params.newData),
-      extraDesc: JSON.stringify(params.extraDesc)
-    });
-  } catch (e) {
-    return e.message;
-  }
+  return putDeleteLogC(messageBroker, gatherDescriptions, params, user);
 };
 
 /**
  * Sends a request to logs api
  * @param {Object} param0 Request
  */
-export const fetchLogs = (params: ILogQueryParams) => {
+export const fetchLogs = async (params: ILogQueryParams) => {
   const LOGS_DOMAIN = getSubServiceDomain({ name: 'LOGS_API_DOMAIN' });
 
   return sendRequest(
@@ -1526,3 +1477,25 @@ export const fetchLogs = (params: ILogQueryParams) => {
     'Failed to connect to logs api. Check whether LOGS_API_DOMAIN env is missing or logs api is not running'
   );
 };
+
+const afterMutations = async (params: IFinalLogParams, user: IUserDocument) => {
+  try {
+    // mutation after wrapper
+    if (callAfterMutations) {
+      const { type, action } = params;
+      if (callAfterMutations[type] && callAfterMutations[type][action].length) {
+        for (const handler of callAfterMutations[type][action]) {
+          await handler({}, params, {
+            user,
+            constants: allConstants,
+            models: allModels,
+            memoryStorage,
+            graphqlPubsub
+          });
+        }
+      }
+    }
+  } catch (e) {
+    return e.message
+  }
+}

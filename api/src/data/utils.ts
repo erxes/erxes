@@ -18,13 +18,12 @@ import {
   EmailDeliveries,
   Notifications,
   Users,
-  Webhooks
+  Webhooks,
+  OnboardingHistories,
 } from '../db/models';
 import { IBrandDocument } from '../db/models/definitions/brands';
 import { ICustomer } from '../db/models/definitions/customers';
 import { IUser, IUserDocument } from '../db/models/definitions/users';
-import { OnboardingHistories } from '../db/models/Robot';
-import { debugBase } from '../debuggers';
 import { fetchElk } from '../elasticsearch';
 import memoryStorage from '../inmemoryStorage';
 import { graphqlPubsub } from '../pubsub';
@@ -35,7 +34,8 @@ const models = {
   EmailDeliveries,
   Notifications,
   Users,
-  Webhooks
+  Webhooks,
+  OnboardingHistories,
 }
 
 export const uploadsFolderPath = path.join(__dirname, '../private/uploads');
@@ -564,7 +564,7 @@ export const sendRequest = async (
   { url, method, headers, form, body, params }: IRequestParams,
   errorMessage?: string
 ) => {
-  return utils.sendRequest(models, { url, method, headers, form, body, params }, errorMessage)
+  return utils.sendRequest({ url, method, headers, form, body, params }, errorMessage)
 };
 
 export const registerOnboardHistory = ({
@@ -574,15 +574,7 @@ export const registerOnboardHistory = ({
   type: string;
   user: IUserDocument;
 }) =>
-  OnboardingHistories.getOrCreate({ type, user })
-    .then(({ status }) => {
-      if (status === 'created') {
-        graphqlPubsub.publish('onboardingChanged', {
-          onboardingChanged: { userId: user._id, type }
-        });
-      }
-    })
-    .catch(e => debugBase(e));
+  utils.registerOnboardHistory(models, graphqlPubsub, { type, user });
 
 export const authCookieOptions = (secure: boolean) => {
   const oneDay = 1 * 24 * 3600 * 1000; // 1 day

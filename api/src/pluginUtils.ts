@@ -9,6 +9,7 @@ import * as defConstants from './db/models/definitions/constants';
 import memoryStorage from './inmemoryStorage';
 import { graphqlPubsub } from './pubsub';
 
+export { allModels }
 export const allConstants = { ...dataConstants, ...defConstants }
 
 export const pluginsConsumers = {}
