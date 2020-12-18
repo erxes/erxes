@@ -2,7 +2,6 @@ import * as AWS from 'aws-sdk';
 import utils from 'erxes-api-utils';
 import { IEmailParams as IEmailParamsC } from 'erxes-api-utils/lib/emails';
 import {
-  IRequestParams,
   ISendNotification as ISendNotificationC
 } from 'erxes-api-utils/lib/requests';
 import * as fileType from 'file-type';
@@ -12,31 +11,13 @@ import * as path from 'path';
 import * as puppeteer from 'puppeteer';
 import * as strip from 'strip';
 import * as xlsxPopulate from 'xlsx-populate';
-import {
-  Configs,
-  Customers,
-  EmailDeliveries,
-  Notifications,
-  Users,
-  Webhooks,
-  OnboardingHistories,
-} from '../db/models';
+import * as models from '../db/models';
 import { IBrandDocument } from '../db/models/definitions/brands';
 import { ICustomer } from '../db/models/definitions/customers';
 import { IUser, IUserDocument } from '../db/models/definitions/users';
 import { fetchElk } from '../elasticsearch';
 import memoryStorage from '../inmemoryStorage';
 import { graphqlPubsub } from '../pubsub';
-
-const models = {
-  Configs,
-  Customers,
-  EmailDeliveries,
-  Notifications,
-  Users,
-  Webhooks,
-  OnboardingHistories,
-}
 
 export const uploadsFolderPath = path.join(__dirname, '../private/uploads');
 
@@ -560,12 +541,7 @@ export const generateXlsx = async (workbook: any): Promise<string> => {
 /**
  * Sends post request to specific url
  */
-export const sendRequest = async (
-  { url, method, headers, form, body, params }: IRequestParams,
-  errorMessage?: string
-) => {
-  return utils.sendRequest({ url, method, headers, form, body, params }, errorMessage)
-};
+export const sendRequest = utils.sendRequest;
 
 export const registerOnboardHistory = ({
   type,
@@ -678,11 +654,11 @@ export const handleUnsubscription = async (query: {
   const { cid, uid } = query;
 
   if (cid) {
-    await Customers.updateOne({ _id: cid }, { $set: { doNotDisturb: 'Yes' } });
+    await models.Customers.updateOne({ _id: cid }, { $set: { doNotDisturb: 'Yes' } });
   }
 
   if (uid) {
-    await Users.updateOne({ _id: uid }, { $set: { doNotDisturb: 'Yes' } });
+    await models.Users.updateOne({ _id: uid }, { $set: { doNotDisturb: 'Yes' } });
   }
 };
 
