@@ -38,19 +38,19 @@ class WidgetContent extends React.Component<Props> {
       <>
         <ErxesMessagesList className={backgroundClasses}>
           {isOnline && this.renderMessage(message && message.welcome)}
-          <li>
-            <ErxesAvatar>
-              <img src="/images/avatar-colored.svg" alt="avatar" />
-            </ErxesAvatar>
-            <ErxesMessage>{__('Hi, any questions?')}</ErxesMessage>
-            <ErxesDate>{__('1 hour ago')}</ErxesDate>
-          </li>
           <ErxesFromCustomer>
             <FromCustomer style={{ backgroundColor: color, color: textColor }}>
               {__('We need your help!')}
             </FromCustomer>
             <ErxesDate>{__('6 minutes ago')}</ErxesDate>
           </ErxesFromCustomer>
+          <li>
+            <ErxesAvatar>
+              <img src="/images/avatar-colored.svg" alt="avatar" />
+            </ErxesAvatar>
+            <ErxesMessage>{__('Hi, how can i help you?')}</ErxesMessage>
+            <ErxesDate>{__('1 hour ago')}</ErxesDate>
+          </li>
           {!isOnline && this.renderMessage(message && message.away)}
         </ErxesMessagesList>
 

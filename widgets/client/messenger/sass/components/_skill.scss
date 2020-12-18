@@ -1,20 +1,18 @@
 .skill-content {
-	display: flex;
-	align-items: flex-start;
   transition: transform .3s;
-  flex-wrap: wrap;
-  margin: 0 -4px;
+  margin: -5px 0;
+  text-align: right;
 }
 
 .skill-card {
-  margin: 4px;
+  margin: 5px 0;
   border: 1px solid rgba(0, 0, 0, 0.03);
-  display: block;
+  display: inline-block;
   text-align: center;
-  font-weight: 500;
+  line-height: 18px;
   white-space: nowrap;
-  flex: 1;
   font-size: 14px;
+  border-radius: 20px;
   box-shadow: 0 1px 5px 1px rgba($black, .1);
 
   &:hover {

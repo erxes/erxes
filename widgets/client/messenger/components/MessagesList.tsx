@@ -147,7 +147,7 @@ class MessagesList extends React.Component<Props, State> {
       return null;
     }
 
-    return <li className="erxes-spacial-message away">{messages.away}</li>;
+    return <li className="erxes-spacial-message right away">{messages.away}</li>;
   }
 
   renderNotifyInput(messengerData: IIntegrationMessengerData) {
@@ -162,14 +162,14 @@ class MessagesList extends React.Component<Props, State> {
         messengerData.messages || ({} as IIntegrationMessengerDataMessagesItem);
 
       return (
-        <li className="erxes-spacial-message">
+        <li className="erxes-spacial-message with-background">
           <span> {messages.thank || __("Thank you") + "."}</span>
         </li>
       );
     }
 
     return (
-      <li className="erxes-spacial-message auth">
+      <li className="erxes-spacial-message with-background auth">
         <AccquireInformation
           save={this.onNotify}
           color={getColor}
@@ -189,7 +189,7 @@ class MessagesList extends React.Component<Props, State> {
       return null;
     }
 
-    return <li className="erxes-spacial-message">{messages.welcome}</li>;
+    return <li className="erxes-spacial-message right">{messages.welcome}</li>;
   }
 
   renderSkillOptionsMessage(messengerData: IIntegrationMessengerData) {
@@ -217,13 +217,14 @@ class MessagesList extends React.Component<Props, State> {
           const handleClick = () => this.handleSkillSelect(option.skillId, option.response);
 
           return (
-            <div 
-              key={index} 
-              className="skill-card erxes-button" 
-              onClick={handleClick}
-              style={{ background: color, color: textColor }}
-            >
-              {option.label}
+            <div key={index} >
+              <div 
+                className="skill-card erxes-button" 
+                onClick={handleClick}
+                style={{ background: color, color: textColor }}
+              >
+                {option.label}
+              </div>
             </div>
           );
         })}
@@ -237,7 +238,9 @@ class MessagesList extends React.Component<Props, State> {
     }
 
     return (
-      <li className="erxes-spacial-message">{this.state.skillResponse}</li>
+      <li className="from-customer">
+        <div className="erxes-message from-customer gray">{this.state.skillResponse}</div>
+      </li>
     );
   }
 
