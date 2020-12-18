@@ -1,3 +1,3 @@
-import { EditorCK } from 'erxes-ui';
+import EditorCK from 'erxes-ui/lib/components/EditorCK';
 
 export default EditorCK;

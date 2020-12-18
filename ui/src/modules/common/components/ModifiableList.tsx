@@ -1,3 +1,3 @@
-import { ModifiableList } from 'erxes-ui';
+import ModifiableList from 'erxes-ui/lib/components/ModifiableList';
 
 export default ModifiableList;

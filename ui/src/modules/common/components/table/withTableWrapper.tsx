@@ -1,3 +1,3 @@
-import { withTableWrapper } from 'erxes-ui';
+import withTableWrapper from 'erxes-ui/lib/components/table/withTableWrapper';
 
 export default withTableWrapper;
