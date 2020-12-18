@@ -1,10 +1,9 @@
-import { getEnv } from 'apolloClient';
 import Button from 'modules/common/components/Button';
 import EmptyState from 'modules/common/components/EmptyState';
 import Info from 'modules/common/components/Info';
 import { Tabs, TabTitle } from 'modules/common/components/tabs';
 import { ModalFooter } from 'modules/common/styles/main';
-import { __ } from 'modules/common/utils';
+import { __, getEnv } from 'modules/common/utils';
 import { IIntegration } from 'modules/settings/integrations/types';
 import { MarkdownWrapper } from 'modules/settings/styles';
 import React from 'react';

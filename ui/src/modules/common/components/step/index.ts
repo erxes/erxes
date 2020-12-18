@@ -1,4 +1,3 @@
-import Step from './Step';
-import Steps from './Steps';
+import { Step, Steps } from 'erxes-ui';
 
 export { Step, Steps };
