@@ -199,9 +199,7 @@ function AutoCompletionSelect({
             onRemove: handleRemove
           }));
 
-      const currentOptions = fields.added.options;
-
-      fields.added.options = _.uniqBy([...currentOptions, ...options], 'label');
+      fields.added.options = _.uniqBy(options, 'label');
     }
 
     const updatedOptions = [fields.added, fields.search];
