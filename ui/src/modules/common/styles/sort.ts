@@ -1,3 +1,3 @@
-import { SortItem, SortableWrapper, DragHandler } from 'erxes-ui';
+import { DragHandler, SortableWrapper, SortItem } from 'erxes-ui';
 
 export { SortItem, SortableWrapper, DragHandler };
