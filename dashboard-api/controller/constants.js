@@ -27,6 +27,14 @@ const resolvers = [
     fieldname: 'probability'
   },
   {
+    name: 'Deals.pipelineName',
+    indexname: `${tableSchema()}__stages`,
+    fieldname: 'name',
+    secondIndexname: `${tableSchema()}__pipelines`,
+    relationField: 'pipelineId',
+    isMulti: true
+  },
+  {
     name: 'Deals.modifiedBy',
     indexname: `${tableSchema()}__users`,
     fieldname: 'username'

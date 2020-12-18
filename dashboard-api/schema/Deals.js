@@ -37,6 +37,11 @@ cube(`Deals`, {
       type: `string`
     },
 
+    pipelineName: {
+      sql: `${CUBE}."stageId"`,
+      type: `string`
+    },
+
     status: {
       sql: `status`,
       type: `string`

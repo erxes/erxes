@@ -185,7 +185,6 @@ const TypeToChartComponent = {
             <Pie
               isAnimationActive={false}
               data={renderData(resultSet.chartPivot)}
-              nameKey="x"
               dataKey={resultSet.seriesNames[0].key}
               fill="#8884d8"
             >
@@ -246,7 +245,7 @@ const TypeToChartComponent = {
     >
       <Col>
         {resultSet.seriesNames.map(s => (
-          <Statistic key={s.key} value={resultSet.totalRow()[s.key]} />
+          <Statistic key={s.key} value={resultSet.totalRow[s.key]} />
         ))}
       </Col>
     </Row>
