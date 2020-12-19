@@ -13,7 +13,6 @@ import Label from 'modules/common/components/Label';
 import Tip from 'modules/common/components/Tip';
 import { IEngageEmail, IEngageMessage } from 'modules/engage/types';
 import React from 'react';
-import xss from 'xss';
 
 type Props = {
   email: IEngageMessage;
@@ -45,7 +44,7 @@ class EngageEmail extends React.Component<Props, { expand: boolean }> {
         <EmailContent
           longEmail={longEmail}
           expand={expand}
-          dangerouslySetInnerHTML={{ __html: xss(content) }}
+          dangerouslySetInnerHTML={{ __html: content }}
         />
         {longEmail && (
           <>
