@@ -17,7 +17,7 @@ const MainBar = asyncComponent(() =>
 
 interface IProps extends IRouterProps {
   currentUser?: IUser;
-  plugins?;
+  plugins?: any;
   children: React.ReactNode;
   isShownIndicator: boolean;
   closeLoadingBar: () => void;
@@ -87,7 +87,7 @@ class MainLayout extends React.Component<IProps> {
         <div id="anti-clickjack" style={{ display: 'none' }} />
         {this.renderBackgroundProccess()}
         <Layout isSqueezed={isShownIndicator}>
-          {currentUser && <Navigation currentUser={currentUser} plugins={plugins}/>}
+          {currentUser && <Navigation currentUser={currentUser} plugins={plugins} />}
 
           <MainWrapper>
             <NotifProvider currentUser={currentUser}>

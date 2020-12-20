@@ -12,7 +12,7 @@ import Navigation from '../components/Navigation';
 class NavigationContainer extends React.Component<{
   unreadConversationsCountQuery: UnreadConversationsTotalCountQueryResponse;
   currentUser: IUser;
-  plugins?;
+  plugins?: any;
 }> {
   componentWillMount() {
     const { unreadConversationsCountQuery, currentUser } = this.props;

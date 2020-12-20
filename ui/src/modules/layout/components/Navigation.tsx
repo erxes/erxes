@@ -126,7 +126,7 @@ const NavIcon = styled.i`
 
 class Navigation extends React.Component<{
   unreadConversationsCount?: number;
-  plugins?;
+  plugins?: any;
 }> {
   componentWillReceiveProps(nextProps) {
     const unreadCount = nextProps.unreadConversationsCount;
@@ -188,11 +188,11 @@ class Navigation extends React.Component<{
         </NavLink>
         {REACT_APP_DASHBOARD_URL !== 'undefined'
           ? this.renderNavItem(
-              'showDashboards',
-              __('Dashboard'),
-              '/dashboard',
-              'icon-dashboard'
-            )
+            'showDashboards',
+            __('Dashboard'),
+            '/dashboard',
+            'icon-dashboard'
+          )
           : null}
         <Nav id="navigation">
           {this.renderNavItem(
