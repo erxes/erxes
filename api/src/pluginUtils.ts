@@ -186,7 +186,7 @@ export const extendViaPlugins = (app, resolvers, typeDefDetails): Promise<any> =
       });
     }
 
-    if (constants.length) {
+    if (constants) {
       for (const key of Object.keys(constants)) {
         let all = [];
         if (allConstants[key] && allConstants[key].ALL) {
