@@ -126,6 +126,7 @@ const NavIcon = styled.i`
 
 class Navigation extends React.Component<{
   unreadConversationsCount?: number;
+  plugins?;
 }> {
   componentWillReceiveProps(nextProps) {
     const unreadCount = nextProps.unreadConversationsCount;
@@ -155,13 +156,30 @@ class Navigation extends React.Component<{
   };
 
   render() {
-    const { unreadConversationsCount } = this.props;
+    const { unreadConversationsCount, plugins } = this.props;
 
     const unreadIndicator = unreadConversationsCount !== 0 && (
       <Label shake={true} lblStyle="danger" ignoreTrans={true}>
         {unreadConversationsCount}
       </Label>
     );
+
+    const pluginMenus: any = [];
+
+    for (const plugin of plugins || []) {
+      const menu = plugin.menu;
+
+      if (menu) {
+        pluginMenus.push(
+          this.renderNavItem(
+            menu.permission,
+            menu.label,
+            `/${plugin.name}${menu.link}`,
+            menu.icon,
+          )
+        )
+      }
+    }
 
     return (
       <LeftNavigation>
@@ -220,6 +238,8 @@ class Navigation extends React.Component<{
             '/knowledgeBase',
             'icon-book'
           )}
+
+          {pluginMenus}
         </Nav>
       </LeftNavigation>
     );
