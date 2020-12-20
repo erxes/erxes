@@ -37,7 +37,7 @@ class NavigationContainer extends React.Component<{
   }
 
   render() {
-    const { unreadConversationsCountQuery, plugins  } = this.props;
+    const { unreadConversationsCountQuery, plugins } = this.props;
     const unreadConversationsCount =
       unreadConversationsCountQuery.conversationsTotalUnreadCount || 0;
 
@@ -50,7 +50,7 @@ class NavigationContainer extends React.Component<{
   }
 }
 
-export default withProps<{ currentUser: IUser, plugins}>(
+export default withProps<{ currentUser: IUser, plugins }>(
   compose(
     graphql<{}, UnreadConversationsTotalCountQueryResponse>(
       gql(queries.unreadConversationsCount),
