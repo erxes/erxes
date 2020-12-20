@@ -10,6 +10,7 @@ import { MarkdownWrapper } from 'modules/settings/styles';
 import React from 'react';
 import SelectBrand from '../../containers/SelectBrand';
 import SelectChannels from '../../containers/SelectChannels';
+import { Description } from '../../styles';
 
 type Props = {
   renderButton: (props: IButtonMutateProps) => JSX.Element;
@@ -19,30 +20,40 @@ type Props = {
 };
 
 const examplePayload = `{
-    "customerPrimaryEmail": "example@gmail.com",
-    "customerPrimaryPhone": 99999999,
-    "customerCode": 99999,
-    "customerFirstName": "David",
-    "customerLastName": "Anna",
-    "content": "Content"
-    "attachments": [
-      {
-        "url": "/images/example.png",
-        "text": "Example",
-        "size": 1048576, // 1mb
-        "type": "image/png"
-      }
-    ]
+  "customerPrimaryEmail": "example@gmail.com",
+  "customerPrimaryPhone": 99999999,
+  "customerCode": 99999,
+  "customerFirstName": "David",
+  "customerLastName": "Anna",
+  "content": "Content"
+  "attachments": [{
+      "url": "/images/example.png",
+      "text": "Example",
+      "size": 1048576, // 1mb
+      "type": "image/png"
+  }]
+  "customFields": [{
+      "name": "custom field name",
+      "value": "custom field value"
+  }]
 }`;
 
 class Webhook extends React.Component<Props> {
-  generateDoc = (values: { name: string; script: string; brandId: string }) => {
+  generateDoc = (values: {
+    name: string;
+    script: string;
+    token: string;
+    origin: string;
+    brandId: string;
+  }) => {
     return {
       name: values.name,
       brandId: values.brandId,
       kind: 'webhook',
       data: {
-        script: values.script
+        script: values.script,
+        token: values.token,
+        origin: values.origin
       }
     };
   };
@@ -60,6 +71,38 @@ class Webhook extends React.Component<Props> {
             name="name"
             required={true}
             autoFocus={true}
+          />
+        </FormGroup>
+
+        <FormGroup>
+          <ControlLabel required={false}>Token</ControlLabel>
+          <Description>
+            {
+              'This token will be used to sign the incoming payload, so that erxes can verify that the request came from trusted sources.'
+            }
+          </Description>
+          <FormControl
+            {...formProps}
+            name="Token (otional)"
+            placeholder="Will be generated automatically when left blank"
+            required={false}
+            autoFocus={false}
+          />
+        </FormGroup>
+
+        <FormGroup>
+          <ControlLabel required={false}>Origin</ControlLabel>
+          <Description>
+            {
+              'Enter the IP address of the host that sending request payload, so that erxes can verify that the request came from trusted sources.'
+            }
+          </Description>
+          <FormControl
+            {...formProps}
+            name="origin"
+            placeholder="0.0.0.0 (optional)"
+            required={false}
+            autoFocus={false}
           />
         </FormGroup>
 

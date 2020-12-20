@@ -91,22 +91,49 @@ class CommonFieldForm extends React.PureComponent<Props, CommonTypes> {
 
     const { webhookData } = this.state;
 
-    const onScriptChange = e => {
+    const onChangeWebhookData = e => {
+      webhookData[e.target.name] = e.target.value;
+
       this.setState({
-        webhookData: { ...webhookData, script: e.target.value }
+        webhookData: { ...webhookData }
       });
     };
 
     return (
-      <FormGroup>
-        <ControlLabel required={true}>{__('Script')}</ControlLabel>
-        <FormControl
-          componentClass="textarea"
-          required={true}
-          defaultValue={webhookData.script}
-          onChange={onScriptChange}
-        />
-      </FormGroup>
+      <>
+        <FormGroup>
+          <ControlLabel required={false}>Token</ControlLabel>
+          <FormControl
+            name="token"
+            required={false}
+            autoFocus={false}
+            defaultValue={webhookData.token}
+            onChange={onChangeWebhookData}
+          />
+        </FormGroup>
+
+        <FormGroup>
+          <ControlLabel required={false}>Origin</ControlLabel>
+          <FormControl
+            name="origin"
+            required={false}
+            autoFocus={false}
+            defaultValue={webhookData.origin}
+            onChange={onChangeWebhookData}
+          />
+        </FormGroup>
+
+        <FormGroup>
+          <ControlLabel required={false}>{__('Script')}</ControlLabel>
+          <FormControl
+            name="script"
+            componentClass="textarea"
+            required={true}
+            defaultValue={webhookData.script}
+            onChange={onChangeWebhookData}
+          />
+        </FormGroup>
+      </>
     );
   };
 

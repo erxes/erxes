@@ -1,4 +1,9 @@
 import { debugProductBoard, debugRequest } from '../debuggers';
+import { Integrations } from '../models';
+import {
+  NylasImapConversationMessages,
+  NylasImapConversations
+} from '../nylas/models';
 import { getConfig, getEnv, sendRequest } from '../utils';
 import { Conversations } from './models';
 
@@ -20,7 +25,18 @@ const init = async app => {
     const PRODUCT_BOARD_TOKEN = await getConfig('PRODUCT_BOARD_TOKEN');
     const MAIN_APP_DOMAIN = getEnv({ name: 'MAIN_APP_DOMAIN' });
 
-    const { customer, messages, tags, erxesApiConversationId, user } = req.body;
+    const {
+      customer,
+      messages,
+      tags,
+      erxesApiConversationId,
+      user,
+      integrationId
+    } = req.body;
+
+    const integration = await Integrations.findOne({
+      erxesApiId: integrationId
+    });
 
     let content = '';
 
@@ -31,6 +47,14 @@ const init = async app => {
         content = content.concat(
           `<b>${customer.primaryEmail}</b> <i>${messageDate}</i><p>${message.content}</p><hr>`
         );
+
+        if (message.formWidgetData) {
+          message.formWidgetData.forEach(field => {
+            content = content.concat(
+              `<b>${field.text} : ${field.value}</b> <hr>`
+            );
+          });
+        }
       } else {
         content = content.concat(
           `<b>${user.details.fullName}</b> <i>${messageDate}</i><p>${message.content}</p><hr>`
@@ -44,6 +68,23 @@ const init = async app => {
           );
         }
       }
+    }
+
+    if (integration && integration.kind === 'imap') {
+      const conversation = await NylasImapConversations.findOne({
+        erxesApiId: erxesApiConversationId
+      });
+      const conversationMessages = await NylasImapConversationMessages.find({
+        conversationId: conversation._id
+      });
+
+      conversationMessages.forEach(conversationMessage => {
+        content = content.concat(
+          `<b>${user.details.fullName}</b> <i>${new Date(
+            conversationMessage.date
+          )}</i> <p>${conversationMessage.body}</p><hr>`
+        );
+      });
     }
 
     const origin = messages[messages.length - 1].content;
