@@ -6,6 +6,7 @@ import { can, registerModule } from './data/permissions/utils';
 import { checkLogin } from './data/permissions/wrappers';
 import * as allModels from './db/models';
 import * as defConstants from './db/models/definitions/constants';
+import { debugError } from './debuggers';
 import memoryStorage from './inmemoryStorage';
 import { graphqlPubsub } from './pubsub';
 
@@ -29,11 +30,18 @@ const tryRequire = (requirPath) => {
   try {
     return require(`${requirPath}`);
   } catch (err) {
+    debugError(err.message)
     return {};
   }
 };
 
 export const execInEveryPlugin = (callback) => {
+  const graphqlSchema = {
+    types: '',
+    queries: '',
+    mutations: '',
+  };
+
   const pluginsPath = path.resolve(__dirname, process.env.NODE_ENV === 'production' ? './plugins' : '../../plugins');
 
   if (fs.existsSync(pluginsPath)) {
@@ -50,12 +58,6 @@ export const execInEveryPlugin = (callback) => {
         let graphqlMutations = [];
         let afterMutations = [];
         let constants = {};
-
-        const graphqlSchema = {
-          types: '',
-          queries: '',
-          mutations: '',
-        }
 
         const ext = process.env.NODE_ENV === 'production' ? 'js' : 'ts';
 
@@ -142,6 +144,19 @@ export const execInEveryPlugin = (callback) => {
         })
       })
     })
+  } else {
+    callback({
+      isLastIteration: true,
+      constants: {},
+      graphqlSchema,
+      graphqlResolvers: [],
+      graphqlQueries: [],
+      graphqlMutations: [],
+      afterMutations: {},
+      routes: [],
+      models: [],
+      messageBrokers: []
+    })
   }
 }
 
@@ -176,7 +191,7 @@ export const extendViaPlugins = (app, resolvers, typeDefDetails): Promise<any> =
       })
     });
 
-    if (models.length) {
+    if (models && models.length) {
       models.forEach(model => {
         if (model.klass) {
           model.schema = new mongoose.Schema(model.schema).loadClass(model.klass);
@@ -186,7 +201,7 @@ export const extendViaPlugins = (app, resolvers, typeDefDetails): Promise<any> =
       });
     }
 
-    if (constants.length) {
+    if (constants) {
       for (const key of Object.keys(constants)) {
         let all = [];
         if (allConstants[key] && allConstants[key].ALL) {
@@ -256,7 +271,7 @@ export const extendViaPlugins = (app, resolvers, typeDefDetails): Promise<any> =
       }
     }
 
-    if (messageBrokers.length) {
+    if (messageBrokers && messageBrokers.length) {
       messageBrokers.forEach(async (mbroker) => {
         if (!Object.keys(pluginsConsumers).includes(mbroker.channel)) {
           pluginsConsumers[mbroker.channel] = {}
@@ -265,7 +280,7 @@ export const extendViaPlugins = (app, resolvers, typeDefDetails): Promise<any> =
       });
     }
 
-    if (afterMutations.length) {
+    if (afterMutations && afterMutations.length) {
       afterMutations.forEach(async (afterMutation) => {
         const { type, action } = afterMutation;
 
