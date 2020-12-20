@@ -272,8 +272,6 @@ a:hover {
   color: ${colors.textPrimary};
   min-width: 100%;
   box-shadow: 0 5px 15px 1px rgba(0, 0, 0, 0.15);
-  max-height: 100vh;
-  overflow: auto;
 }
 
 .dropdown-menu > span {
