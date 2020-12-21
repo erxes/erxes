@@ -40,6 +40,7 @@
     "draft-js-plugins-editor": "^2.0.3",
     "draft-js-static-toolbar-plugin": "^3.0.0",
     "erxes-icon": "^1.2.1",
+    "erxes-ui": "^0.0.15",
     "fuzzysearch-highlight": "^1.0.3",
     "graphql": "^0.12.3",
     "graphql-tag": "^2.6.1",
@@ -84,11 +85,11 @@
     "record-cypress": "cypress run --record --key fd048d49-6b4c-4e6b-885f-819a533c2fc4"
   },
   "devDependencies": {
+    "cypress": "^4.9.0",
     "enzyme": "^3.3.0",
     "enzyme-adapter-react-16": "^1.1.1",
     "ts-jest": "^23.0.1",
-    "typescript": "^3.0.3",
-    "cypress": "^4.9.0"
+    "typescript": "^3.0.3"
   },
   "browserslist": [
     ">0.2%",

@@ -1,14 +1,8 @@
+import { IBrand as IBrandC } from 'erxes-ui/lib/types';
 import { QueryResponse } from 'modules/common/types';
 import { IIntegration } from 'modules/settings/integrations/types';
 
-export interface IBrand {
-  _id: string;
-  code: string;
-  name?: string;
-  createdAt: string;
-  description?: string;
-  emailConfig: { type: string; template: string };
-}
+export type IBrand = IBrandC;
 
 export interface IChooseBrand {
   _id?: string;
