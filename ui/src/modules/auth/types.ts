@@ -1,6 +1,16 @@
-import { IOnboardingHistory } from 'modules/robot/types';
-import { IBrand } from 'modules/settings/brands/types';
-import { IEmailSignature } from 'modules/settings/email/types';
+import {
+  IUser as IUserC,
+  IUserConversation as IUserConversationC,
+  IUserDetails as IUserDetailsC,
+  IUserDoc as IUserDocC,
+  IUserLinks as IUserLinksC
+} from 'erxes-ui/lib/auth/types';
+
+export type IUser = IUserC;
+export type IUserDetails = IUserDetailsC;
+export type IUserLinks = IUserLinksC;
+export type IUserConversation = IUserConversationC;
+export type IUserDoc = IUserDocC;
 
 export interface IOwner {
   email: string;
@@ -8,53 +18,6 @@ export interface IOwner {
   firstName: string;
   lastName?: string;
   subscribeEmail?: boolean;
-}
-
-export interface IUserDetails {
-  avatar?: string;
-  fullName?: string;
-  shortName?: string;
-  description?: string;
-  position?: string;
-  location?: string;
-  operatorPhone?: string;
-}
-
-export interface IUserLinks {
-  facebook?: string;
-  twitter?: string;
-  linkedIn?: string;
-  youtube?: string;
-  github?: string;
-  website?: string;
-}
-
-export interface IUserConversation {
-  list: any[];
-  totalCount: number;
-}
-
-export interface IUserDoc {
-  createdAt?: Date;
-  username: string;
-  email: string;
-  isActive?: boolean;
-  details?: IUserDetails;
-  isOwner?: boolean;
-  status?: string;
-  links?: IUserLinks;
-  getNotificationByEmail?: boolean;
-  participatedConversations?: IUserConversation[];
-  permissionActions?: string[];
-  configs?: any;
-  configsConstants?: any;
-}
-
-export interface IUser extends IUserDoc {
-  _id: string;
-  brands?: IBrand[];
-  emailSignatures?: IEmailSignature[];
-  onboardingHistory?: IOnboardingHistory;
 }
 
 export type ForgotPasswordMutationVariables = {

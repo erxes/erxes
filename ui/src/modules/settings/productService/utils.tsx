@@ -1,36 +1,7 @@
-import React from 'react';
+import { generateCategoryOptions } from 'erxes-ui/lib/utils';
 import { PRODUCT_TYPE_CHOISES } from './constants';
-import { IProductCategory } from './types';
 
-export const generateCategoryOptions = (
-  categories: IProductCategory[],
-  currentCategoryId?: string
-) => {
-  const result: React.ReactNode[] = [];
-
-  for (const category of categories) {
-    const order = category.order;
-
-    const foundedString = order.match(/[/]/gi);
-
-    let space = '';
-
-    if (foundedString) {
-      space = '\u00A0 '.repeat(foundedString.length);
-    }
-
-    if (currentCategoryId !== category._id) {
-      result.push(
-        <option key={category._id} value={category._id}>
-          {space}
-          {category.name}
-        </option>
-      );
-    }
-  }
-
-  return result;
-};
+export { generateCategoryOptions };
 
 export const productTypeChoises = __ => {
   const options: Array<{ value: string; label: string }> = [];

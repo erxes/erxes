@@ -1,4 +1,4 @@
-import client, { getEnv } from 'apolloClient';
+import client from 'apolloClient';
 import gql from 'graphql-tag';
 import ActionButtons from 'modules/common/components/ActionButtons';
 import Button from 'modules/common/components/Button';
@@ -7,7 +7,7 @@ import Label from 'modules/common/components/Label';
 import ModalTrigger from 'modules/common/components/ModalTrigger';
 import Tip from 'modules/common/components/Tip';
 import WithPermission from 'modules/common/components/WithPermission';
-import { Alert } from 'modules/common/utils';
+import { Alert, getEnv } from 'modules/common/utils';
 import { __ } from 'modules/common/utils';
 import InstallCode from 'modules/settings/integrations/components/InstallCode';
 import { INTEGRATION_KINDS } from 'modules/settings/integrations/constants';

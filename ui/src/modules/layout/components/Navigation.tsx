@@ -1,9 +1,8 @@
-import { getEnv } from 'apolloClient';
 import Label from 'modules/common/components/Label';
 import Tip from 'modules/common/components/Tip';
 import WithPermission from 'modules/common/components/WithPermission';
 import { colors, dimensions } from 'modules/common/styles';
-import { __, setBadge } from 'modules/common/utils';
+import { __, getEnv, setBadge } from 'modules/common/utils';
 import React from 'react';
 import { NavLink } from 'react-router-dom';
 import styled from 'styled-components';

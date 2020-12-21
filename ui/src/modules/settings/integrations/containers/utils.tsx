@@ -1,3 +1,4 @@
+import { cleanIntegrationKind } from 'erxes-ui/lib/utils';
 import gql from 'graphql-tag';
 import juice from 'juice';
 import { generatePaginationParams } from 'modules/common/utils/router';
@@ -59,18 +60,7 @@ export const formatStr = (emailString?: string) => {
   return emailString ? emailString.split(/[ ,]+/) : [];
 };
 
-export const cleanIntegrationKind = (name: string) => {
-  if (name.includes('nylas')) {
-    name = name.replace('nylas-', '');
-  }
-  if (name.includes('smooch')) {
-    name = name.replace('smooch-', '');
-  }
-  if (name === 'lead') {
-    name = 'popups';
-  }
-  return name;
-};
+export { cleanIntegrationKind };
 
 export const formatObj = (emailArray: IEmail[]) => {
   if (!emailArray || emailArray.length === 0) {
