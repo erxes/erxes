@@ -50,7 +50,7 @@ class NavigationContainer extends React.Component<{
   }
 }
 
-export default withProps<{ currentUser: IUser, plugins }>(
+export default withProps<{ currentUser: IUser; plugins }>(
   compose(
     graphql<{}, UnreadConversationsTotalCountQueryResponse>(
       gql(queries.unreadConversationsCount),

@@ -1,4 +1,4 @@
-import {calendar } from 'erxes-ui';
+import * as calendar from 'erxes-ui/lib/utils/calendar';
 
 export const monthColumns = calendar.monthColumns;
 export const getCurrentDate = calendar.getCurrentDate;

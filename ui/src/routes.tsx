@@ -49,7 +49,7 @@ export const unsubscribe = ({ location }) => {
   return <Unsubscribe queryParams={queryParams} />;
 };
 
-const tryRequire = (requirPath) => {
+const tryRequire = requirPath => {
   try {
     return require(`${requirPath}`);
   } catch (err) {
@@ -83,16 +83,11 @@ const renderRoutes = currentUser => {
       if (plugin.routes) {
         for (const route of plugin.routes) {
           const { component } = route;
-          const path = `/${pluginName}${route.path}`
+          const path = `/${pluginName}${route.path}`;
 
           pluginRoutes.push(
-            <Route
-              key={path}
-              exact={true}
-              path={path}
-              component={component}
-            />
-          )
+            <Route key={path} exact={true} path={path} component={component} />
+          );
         }
       }
     }

@@ -1,3 +1,3 @@
-import { confirm } from 'erxes-ui';
+import confirm from 'erxes-ui/lib/utils/confirmation/confirm';
 
-export default confirm
+export default confirm;

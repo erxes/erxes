@@ -1,4 +1,4 @@
-import { PopoverButton } from 'erxes-ui';
+import { PopoverButton } from 'erxes-ui/lib/styles/eindex';
 import {
   RichEditorControlsRoot,
   RichEditorRoot

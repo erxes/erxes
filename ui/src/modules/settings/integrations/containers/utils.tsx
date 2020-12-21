@@ -1,4 +1,4 @@
-import { cleanIntegrationKind } from 'erxes-ui';
+import { cleanIntegrationKind } from 'erxes-ui/lib/utils';
 import gql from 'graphql-tag';
 import juice from 'juice';
 import { generatePaginationParams } from 'modules/common/utils/router';
@@ -60,7 +60,7 @@ export const formatStr = (emailString?: string) => {
   return emailString ? emailString.split(/[ ,]+/) : [];
 };
 
-export { cleanIntegrationKind }
+export { cleanIntegrationKind };
 
 export const formatObj = (emailArray: IEmail[]) => {
   if (!emailArray || emailArray.length === 0) {

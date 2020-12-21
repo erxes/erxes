@@ -1,5 +1,4 @@
-import { Chooser } from 'erxes-ui';
-import { CommonProps as Props } from 'erxes-ui/lib/components/Chooser';
+import Chooser, { CommonProps as Props } from 'erxes-ui/lib/components/Chooser';
 
 export type CommonProps = Props;
 

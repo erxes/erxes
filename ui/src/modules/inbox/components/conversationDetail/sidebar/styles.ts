@@ -1,4 +1,4 @@
-import { SectionContainer, SidebarCollapse } from 'erxes-ui'
+import { SectionContainer, SidebarCollapse } from 'erxes-ui/lib/layout/styles';
 import {
   ActivityDate,
   ActivityIcon,

@@ -1,8 +1,26 @@
 import {
-  BarItems, CenterContent, ContenFooter, ContentBox, ContentHeader, Contents, FieldStyle,
-  FlexContent, FlexItem, FlexRightItem, HeightedWrapper, MainContent, PageHeader, SectionBodyItem,
-  SidebarBox, SidebarCounter, SidebarFlexRow, SidebarList, SidebarTitle, WhiteBox, WhiteBoxRoot
-} from 'erxes-ui';
+  BarItems,
+  CenterContent,
+  ContenFooter,
+  ContentBox,
+  ContentHeader,
+  Contents,
+  FieldStyle,
+  FlexContent,
+  FlexItem,
+  FlexRightItem,
+  HeightedWrapper,
+  MainContent,
+  PageHeader,
+  SectionBodyItem,
+  SidebarBox,
+  SidebarCounter,
+  SidebarFlexRow,
+  SidebarList,
+  SidebarTitle,
+  WhiteBox,
+  WhiteBoxRoot
+} from 'erxes-ui/lib/layout/styles';
 import { twinkling } from 'modules/common/utils/animations';
 import styled, { css } from 'styled-components';
 import styledTS from 'styled-components-ts';

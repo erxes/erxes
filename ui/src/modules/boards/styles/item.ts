@@ -1,4 +1,4 @@
-import { PipelinePopoverContent } from 'erxes-ui';
+import { PipelinePopoverContent } from 'erxes-ui/lib/boards/styles/item';
 import Button from 'modules/common/components/Button';
 import { colors, dimensions } from 'modules/common/styles';
 import { rgba } from 'modules/common/styles/color';
