@@ -16,7 +16,7 @@ class PageRow extends React.Component<Props> {
 
   onView = e => {
     e.preventDefault();
-    window.open(`https://schedule.nylas.com/${this.props.page.slug}`);
+    window.open(`/schedule/${this.props.page.slug}`);
   };
 
   renderExtraLinks() {

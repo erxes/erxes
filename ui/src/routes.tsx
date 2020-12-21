@@ -43,10 +43,22 @@ const UserConfirmation = asyncComponent(() =>
   )
 );
 
+const Schedule = asyncComponent(() =>
+  import(
+    /* webpackChunkName: "Calendar - Schedule" */ 'modules/calendar/components/scheduler/Index'
+  )
+);
+
 export const unsubscribe = ({ location }) => {
   const queryParams = queryString.parse(location.search);
 
   return <Unsubscribe queryParams={queryParams} />;
+};
+
+const schedule = ({ match }) => {
+  const slug = match.params.slug;
+
+  return <Schedule slug={slug} />;
 };
 
 const renderRoutes = currentUser => {
@@ -57,6 +69,12 @@ const renderRoutes = currentUser => {
       <UserConfirmation queryParams={queryParams} currentUser={currentUser} />
     );
   };
+
+  const { pathname } = window.location;
+
+  if (pathname.search('/schedule/') === 0) {
+    return null;
+  }
 
   if (currentUser) {
     return (
@@ -114,6 +132,13 @@ const Routes = ({ currentUser }: { currentUser: IUser }) => (
         exact={true}
         path="/unsubscribe"
         component={unsubscribe}
+      />
+
+      <Route
+        key="/schedule"
+        exact={true}
+        path="/schedule/:slug"
+        component={schedule}
       />
 
       {renderRoutes(currentUser)}
