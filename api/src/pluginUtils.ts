@@ -36,12 +36,6 @@ const tryRequire = (requirPath) => {
 };
 
 export const execInEveryPlugin = (callback) => {
-  const graphqlSchema = {
-    types: '',
-    queries: '',
-    mutations: '',
-  };
-
   const pluginsPath = path.resolve(__dirname, process.env.NODE_ENV === 'production' ? './plugins' : '../../plugins');
 
   if (fs.existsSync(pluginsPath)) {
@@ -58,6 +52,12 @@ export const execInEveryPlugin = (callback) => {
         let graphqlMutations = [];
         let afterMutations = [];
         let constants = {};
+
+        const graphqlSchema = {
+          types: '',
+          queries: '',
+          mutations: '',
+        };
 
         const ext = process.env.NODE_ENV === 'production' ? 'js' : 'ts';
 
@@ -148,7 +148,7 @@ export const execInEveryPlugin = (callback) => {
     callback({
       isLastIteration: true,
       constants: {},
-      graphqlSchema,
+      graphqlSchema: {},
       graphqlResolvers: [],
       graphqlQueries: [],
       graphqlMutations: [],
@@ -241,6 +241,7 @@ export const extendViaPlugins = (app, resolvers, typeDefDetails): Promise<any> =
         graphqlPubsub,
         checkLogin,
         checkPermission,
+        messageBrokers,
       };
     };
 

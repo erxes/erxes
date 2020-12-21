@@ -20,7 +20,6 @@ export const internalNoteSchema = new Schema({
   _id: field({ pkey: true }),
   contentType: field({
     type: String,
-    // enum: ACTIVITY_CONTENT_TYPES.ALL,
     label: 'Content type'
   }),
   contentTypeId: field({ type: String, label: 'Content item' }),
