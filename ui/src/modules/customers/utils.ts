@@ -1,16 +1,7 @@
+import * as activityLogsUtils from 'erxes-ui/lib/activityLogs/utils';
 import { GENDER_TYPES, LEAD_STATUS_TYPES } from './constants';
 
-export const hasAnyActivity = log => {
-  let hasAny = false;
-
-  log.forEach(item => {
-    if (item) {
-      hasAny = true;
-    }
-  });
-
-  return hasAny;
-};
+export const hasAnyActivity = activityLogsUtils.hasAnyActivity;
 
 export const leadStatusChoices = __ => {
   const options: Array<{ value: string; label: string }> = [];

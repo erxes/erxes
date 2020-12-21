@@ -1,11 +1,10 @@
-import { getEnv } from 'apolloClient';
 import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
 import { queries as calendarQueries } from 'modules/calendar/graphql';
 import ButtonMutate from 'modules/common/components/ButtonMutate';
 import Spinner from 'modules/common/components/Spinner';
 import { IButtonMutateProps } from 'modules/common/types';
-import { __, Alert, confirm, withProps } from 'modules/common/utils';
+import { __, Alert, confirm, getEnv, withProps } from 'modules/common/utils';
 import React from 'react';
 import { graphql } from 'react-apollo';
 import { getWarningMessage } from '../../boards/constants';

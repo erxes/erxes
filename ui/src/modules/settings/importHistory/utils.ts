@@ -1,5 +1,4 @@
-import { getEnv } from 'apolloClient';
-import { uploadHandler } from 'modules/common/utils';
+import { getEnv, uploadHandler } from 'modules/common/utils';
 
 export const handleXlsUpload = ({
   e,
