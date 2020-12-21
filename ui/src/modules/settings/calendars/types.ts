@@ -152,3 +152,48 @@ export type RemoveCalendarMutationResponse = {
     refetchQueries: any[];
   }) => Promise<void>;
 };
+
+export type SchedulePageMutationVariables = {
+  name: string;
+  slug: string;
+  timezone: string;
+  calendarIds: [string];
+  event: {
+    title: string;
+    location: string;
+    duration: number;
+  };
+  appearance?: {
+    color: string;
+    companyName?: string;
+    logo?: string;
+    submitText?: string;
+    thankYouText?: string;
+  };
+  booking?: {
+    openingHours?: {
+      days: [string];
+      start: string;
+      end: string;
+    };
+    additionalFields?: {
+      label: string;
+      name: string;
+      required: boolean;
+      type: string;
+    };
+    cancellationPolicy?: string;
+    confirmationMethod?: string;
+    minBookingNotice?: number;
+    availableDaysInFuture?: number;
+    minBuffer?: number;
+    minCancellationNotice?: number;
+  };
+};
+
+export type CreateSchedulePageMutationResponse = {
+  createMutation: (params: {
+    variables: SchedulePageMutationVariables;
+    refetchQueries?: any[];
+  }) => Promise<void>;
+};

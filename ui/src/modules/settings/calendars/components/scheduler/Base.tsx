@@ -1,21 +1,18 @@
 import Button from 'modules/common/components/Button';
 import HeaderDescription from 'modules/common/components/HeaderDescription';
-import ModalTrigger from 'modules/common/components/ModalTrigger';
 import Table from 'modules/common/components/table';
 import { Title } from 'modules/common/styles/main';
-import { IButtonMutateProps } from 'modules/common/types';
 import { __ } from 'modules/common/utils';
 import Wrapper from 'modules/layout/components/Wrapper';
 import React from 'react';
-import PageForm from './PageForm';
+import { Link } from 'react-router-dom';
 import PageRow from './PageRow';
 
 type Props = {
+  accountId: string;
   pages: any[];
   accessToken: string;
   name: string;
-  refetchQueries: () => void;
-  renderButton: (props: IButtonMutateProps) => JSX.Element;
 };
 
 declare function manageSchedulingPage(
@@ -24,43 +21,18 @@ declare function manageSchedulingPage(
 ): any;
 
 class Base extends React.Component<Props> {
-  renderPageForm(props) {
-    return <PageForm {...props} />;
-  }
-
-  renderAddPage() {
-    const { renderButton } = this.props;
-
-    const addPage = (
-      <Button btnStyle="success" icon="plus-circle" uppercase={false}>
-        Add New Page
-      </Button>
-    );
-
-    const content = props => {
-      return this.renderPageForm({ ...props, renderButton });
-    };
-
-    return (
-      <ModalTrigger
-        title={__('New Page')}
-        trigger={addPage}
-        autoOpenKey="showPageModal"
-        content={content}
-      />
-    );
-  }
-
   managePages = () => {
     manageSchedulingPage(this.props.accessToken, false);
-
-    this.props.refetchQueries();
   };
 
   renderButtons() {
     return (
       <>
-        {this.renderAddPage()}
+        <Button btnStyle="success" icon="plus-circle" uppercase={false}>
+          <Link to={`/settings/schedule/createPage/${this.props.accountId}`}>
+            Add New Page
+          </Link>
+        </Button>
         <Button onClick={this.managePages}>Manage scheduling pages</Button>
       </>
     );

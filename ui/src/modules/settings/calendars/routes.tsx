@@ -7,20 +7,35 @@ const Home = asyncComponent(() =>
   import(/* webpackChunkName: "Settings - Calendar Home" */ './containers/Home')
 );
 
-const ScheduleBase = asyncComponent(() =>
-  import(/* webpackChunkName: "Schedule" */ './containers/scheduler/Base')
-);
-
 const Calendar = ({ location, history }) => {
   const queryParams = queryString.parse(location.search);
 
   return <Home queryParams={queryParams} history={history} />;
 };
 
+const ScheduleBase = asyncComponent(() =>
+  import(/* webpackChunkName: "Schedule" */ './containers/scheduler/Base')
+);
+
 const schedule = ({ match }) => {
   const id = match.params.id;
 
   return <ScheduleBase accountId={id} />;
+};
+
+const CreateSchedulePage = asyncComponent(() =>
+  import(
+    /* webpackChunkName: "Settings CreateSchedulePage" */ './containers/scheduler/PageForm'
+  )
+);
+
+const createPage = ({ location, match }) => {
+  return (
+    <CreateSchedulePage
+      queryParams={queryString.parse(location.search)}
+      accountId={match.params.id}
+    />
+  );
 };
 
 const routes = () => (
@@ -32,6 +47,13 @@ const routes = () => (
       exact={true}
       key="/settings/schedule/:id"
       component={schedule}
+    />
+
+    <Route
+      path="/settings/schedule/createPage/:id"
+      exact={true}
+      key="/settings/schedule/createPage/:id"
+      component={createPage}
     />
   </React.Fragment>
 );

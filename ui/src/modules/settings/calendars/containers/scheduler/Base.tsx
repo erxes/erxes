@@ -1,14 +1,11 @@
 import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
-import ButtonMutate from 'modules/common/components/ButtonMutate';
 import Spinner from 'modules/common/components/Spinner';
-import { IButtonMutateProps } from 'modules/common/types';
 import { withProps } from 'modules/common/utils';
 import React from 'react';
 import { graphql } from 'react-apollo';
 import { queries } from '../../../integrations/graphql';
 import Base from '../../components/scheduler/Base';
-import { mutations } from '../../graphql';
 
 type Props = {
   accountId: string;
@@ -32,50 +29,18 @@ class BaseContainer extends React.Component<FinalProps, {}> {
       );
     }
 
-    const refetchQueries = () => {
-      getRefetchQueries(accountId);
-    };
-
-    const renderButton = ({
-      values,
-      isSubmitted,
-      callback
-    }: IButtonMutateProps) => {
-      return (
-        <ButtonMutate
-          mutation={mutations.createSchedulePage}
-          variables={{ ...values, accountId }}
-          callback={callback}
-          refetchQueries={refetchQueries()}
-          isSubmitted={isSubmitted}
-          type="submit"
-          successMessage={`You successfully added a page`}
-        />
-      );
-    };
-
     const res = fetchApiQuery.integrationsFetchApi || {};
 
     const updatedProps = {
+      accountId,
       pages: res.pages || [],
       accessToken: res.accessToken,
-      name: res.name || '',
-      refetchQueries,
-      renderButton
+      name: res.name || ''
     };
 
     return <Base {...updatedProps} />;
   }
 }
-
-const getRefetchQueries = (accountId: string) => {
-  return [
-    {
-      query: gql(queries.fetchApi),
-      variables: { accountId }
-    }
-  ];
-};
 
 export default withProps<Props>(
   compose(

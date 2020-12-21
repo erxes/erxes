@@ -1,3 +1,43 @@
+const scheduleTypes = `
+  input ScheduleAppearance {
+    color: String
+    companyName: String
+    logo: String
+    submitText: String
+    thankYouText: String
+  }
+
+  input ScheduleOpeningHours {
+    days: [String]
+    start: String
+    end: String
+  }
+
+  input ScheduleAdditionalField {
+    label: String
+    name: String
+    required: Boolean
+    type: String
+  }
+
+  input ScheduleBooking {
+    openingHours: ScheduleOpeningHours,
+    additionalFields: [ScheduleAdditionalField],
+    cancellationPolicy: String,
+    confirmationMethod: String,
+    minBookingNotice: Int
+    availableDaysInFuture: Int
+    minBuffer: Int
+    minCancellationNotice: Int
+  }
+
+  input ScheduleEvent {
+    title: String!
+    location: String!
+    duration: Int!
+  }
+`;
+
 export const types = `
   type Calendar {
     _id: String!
@@ -54,11 +94,13 @@ export const types = `
     status: String
     comment: String
   }
+
+  ${scheduleTypes}
 `;
 
 export const queries = `
   calendarBoards: [CalendarBoard]
-  calendarBoardCounts: Int
+  calendarBoardCounts: Int!
   calendarBoardGetLast: CalendarBoard
   calendarBoardDetail(_id: String!): CalendarBoard
 
@@ -103,11 +145,13 @@ const commonGroupParams = `
 
 const scheduleParams = `
   accountId: String!,
+  appearance: ScheduleAppearance,
+  calendarIds: [String],
+  booking: ScheduleBooking
+  event: ScheduleEvent!,
+  timezone: String!,
   name: String!,
-  eventTitle: String!,
-  slug: String!,
-  location: String,
-  companyName: String
+  slug: String!
 `;
 
 export const mutations = `

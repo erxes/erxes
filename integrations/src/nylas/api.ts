@@ -13,7 +13,8 @@ import {
   ICalendarAvailability,
   IEvent,
   IEventDoc,
-  IMessageDraft
+  IMessageDraft,
+  INylasSchedulePage
 } from './types';
 import { extractDate } from './utils';
 
@@ -596,32 +597,29 @@ const getSchedulePages = async (accessToken: string) => {
 
 const createSchedulePage = async (
   accessToken: string,
-  {
-    eventTitle,
-    name,
-    slug,
-    location,
-    companyName
-  }: {
-    [key: string]: string;
-  }
+  doc: INylasSchedulePage
 ) => {
   try {
+    const appearance = doc.appearance;
+    const booking = doc.booking;
+
     const body = {
       access_tokens: [accessToken],
-      name,
-      slug,
+      name: doc.name,
+      slug: doc.slug,
+      timezone: doc.timezone,
       config: {
         appearance: {
-          company_name: companyName,
-          logo: 'http://www.erxes.org/img/logo_dark.svg',
+          color: appearance.color,
+          company_name: appearance.companyName,
+          submit_text: appearance.submitText,
           show_nylas_branding: false,
-          thank_you_redirect: 'http://www.erxes.org',
-          thank_you_text: 'Баярлалаа'
+          thank_you_text: appearance.thankYouText
         },
-        event: {
-          title: eventTitle,
-          location
+        event: doc.event,
+        booking: {
+          cancellation_policy: booking.cancellationPolicy,
+          confirmation_method: booking.confirmationMethod
         },
         reminders: [
           {
@@ -634,7 +632,7 @@ const createSchedulePage = async (
       }
     };
 
-    console.log(body);
+    console.log(accessToken, body);
 
     const response = await sendRequest({
       url: `${NYLAS_SCHEDULE_API_URL}/manage/pages`,

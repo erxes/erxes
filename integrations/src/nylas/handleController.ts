@@ -34,7 +34,8 @@ import {
   ICalendar,
   ICalendarParams,
   IEventDoc,
-  INylasIntegrationData
+  INylasIntegrationData,
+  INylasSchedulePage
 } from './types';
 import { buildEmailAddress, extractDate } from './utils';
 
@@ -604,7 +605,7 @@ export const nylasGetSchedulePages = async (accountId: string) => {
 
 export const nylasCreateSchedulePage = async (
   accountId: string,
-  doc: { [key: string]: string }
+  doc: INylasSchedulePage
 ) => {
   try {
     debugNylas(`Creating event in calendar with accountId: ${accountId}`);

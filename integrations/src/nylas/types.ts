@@ -240,3 +240,41 @@ export interface ICalendarParams {
   color?: string;
   show?: boolean;
 }
+
+export interface INylasSchedulePage {
+  name: string;
+  slug: string;
+  timezone: string;
+  calendarIds: [string];
+  event: {
+    title: string;
+    location: string;
+    duration: number;
+  };
+  appearance?: {
+    color: string;
+    companyName?: string;
+    logo?: string;
+    submitText?: string;
+    thankYouText?: string;
+  };
+  booking?: {
+    openingHours?: {
+      days: [string];
+      start: string;
+      end: string;
+    };
+    additionalFields?: {
+      label: string;
+      name: string;
+      required: boolean;
+      type: string;
+    };
+    cancellationPolicy?: string;
+    confirmationMethod?: string;
+    minBookingNotice?: number;
+    availableDaysInFuture?: number;
+    minBuffer?: number;
+    minCancellationNotice?: number;
+  };
+}

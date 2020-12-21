@@ -101,19 +101,23 @@ const editAccountCalendar = `
 const createSchedulePage = `
   mutation createSchedulePage(
     $accountId: String!,
+    $appearance: ScheduleAppearance!,
+    $event: ScheduleEvent!,
+    $timezone: String!,
+    $booking: ScheduleBooking,
+    $calendarIds: [String],
     $name: String!,
-    $slug: String!,
-    $eventTitle: String!,
-    $location: String,
-    $companyName: String,
+    $slug: String!
   ) {
     createSchedulePage(
       accountId: $accountId,
+      appearance: $appearance,
+      event: $event,
+      timezone: $timezone,
+      booking: $booking,
+      calendarIds: $calendarIds,
       name: $name,
       slug: $slug,
-      eventTitle: $eventTitle,
-      location: $location,
-      companyName: $companyName,
     )
   }
 `;
