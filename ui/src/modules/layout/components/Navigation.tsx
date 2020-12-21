@@ -126,7 +126,6 @@ const NavIcon = styled.i`
 
 class Navigation extends React.Component<{
   unreadConversationsCount?: number;
-  plugins?: any;
 }> {
   componentWillReceiveProps(nextProps) {
     const unreadCount = nextProps.unreadConversationsCount;
@@ -156,30 +155,13 @@ class Navigation extends React.Component<{
   };
 
   render() {
-    const { unreadConversationsCount, plugins } = this.props;
+    const { unreadConversationsCount } = this.props;
 
     const unreadIndicator = unreadConversationsCount !== 0 && (
       <Label shake={true} lblStyle="danger" ignoreTrans={true}>
         {unreadConversationsCount}
       </Label>
     );
-
-    const pluginMenus: any = [];
-
-    for (const plugin of plugins || []) {
-      const menu = plugin.menu;
-
-      if (menu) {
-        pluginMenus.push(
-          this.renderNavItem(
-            menu.permission,
-            menu.label,
-            `/${plugin.name}${menu.link}`,
-            menu.icon
-          )
-        );
-      }
-    }
 
     return (
       <LeftNavigation>
@@ -188,11 +170,11 @@ class Navigation extends React.Component<{
         </NavLink>
         {REACT_APP_DASHBOARD_URL !== 'undefined'
           ? this.renderNavItem(
-              'showDashboards',
-              __('Dashboard'),
-              '/dashboard',
-              'icon-dashboard'
-            )
+            'showDashboards',
+            __('Dashboard'),
+            '/dashboard',
+            'icon-dashboard'
+          )
           : null}
         <Nav id="navigation">
           {this.renderNavItem(
@@ -239,7 +221,6 @@ class Navigation extends React.Component<{
             'icon-book'
           )}
 
-          {pluginMenus}
         </Nav>
       </LeftNavigation>
     );

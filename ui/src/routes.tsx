@@ -49,14 +49,6 @@ export const unsubscribe = ({ location }) => {
   return <Unsubscribe queryParams={queryParams} />;
 };
 
-const tryRequire = requirPath => {
-  try {
-    return require(`${requirPath}`);
-  } catch (err) {
-    return {};
-  }
-};
-
 const renderRoutes = currentUser => {
   const userConfirmation = ({ location }) => {
     const queryParams = queryString.parse(location.search);
@@ -67,34 +59,9 @@ const renderRoutes = currentUser => {
   };
 
   if (currentUser) {
-    const pluginModules = tryRequire('./plugins').default || {};
-
-    const plugins: any = [];
-    const pluginRoutes: any = [];
-
-    for (const pluginName of Object.keys(pluginModules)) {
-      const plugin = pluginModules[pluginName]();
-
-      plugins.push({
-        name: pluginName,
-        ...plugin
-      });
-
-      if (plugin.routes) {
-        for (const route of plugin.routes) {
-          const { component } = route;
-          const path = `/${pluginName}${route.path}`;
-
-          pluginRoutes.push(
-            <Route key={path} exact={true} path={path} component={component} />
-          );
-        }
-      }
-    }
-
     return (
       <>
-        <MainLayout currentUser={currentUser} plugins={plugins}>
+        <MainLayout currentUser={currentUser}>
           <NotificationRoutes />
           <InboxRoutes />
           <SegmentsRoutes />
@@ -114,8 +81,6 @@ const renderRoutes = currentUser => {
           <TutorialRoutes />
           <CalendarRoutes />
           <DashboardRoutes />
-
-          {pluginRoutes}
 
           <Route
             key="/confirmation"

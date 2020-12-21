@@ -5,12 +5,11 @@ import MainLayout from '../components/MainLayout';
 
 type Props = {
   currentUser?: IUser;
-  plugins?: any;
   children: React.ReactNode;
 };
 
 const container = (props: Props) => (
-  <AppProvider currentUser={props.currentUser} plugins={props.plugins}>
+  <AppProvider currentUser={props.currentUser}>
     <AppConsumer>
       {({ isShownIndicator, closeLoadingBar }) => (
         <MainLayout

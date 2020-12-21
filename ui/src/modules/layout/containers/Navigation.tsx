@@ -12,7 +12,6 @@ import Navigation from '../components/Navigation';
 class NavigationContainer extends React.Component<{
   unreadConversationsCountQuery: UnreadConversationsTotalCountQueryResponse;
   currentUser: IUser;
-  plugins?: any;
 }> {
   componentWillMount() {
     const { unreadConversationsCountQuery, currentUser } = this.props;
@@ -37,20 +36,19 @@ class NavigationContainer extends React.Component<{
   }
 
   render() {
-    const { unreadConversationsCountQuery, plugins } = this.props;
+    const { unreadConversationsCountQuery } = this.props;
     const unreadConversationsCount =
       unreadConversationsCountQuery.conversationsTotalUnreadCount || 0;
 
     const props = {
-      unreadConversationsCount,
-      plugins
+      unreadConversationsCount
     };
 
     return <Navigation {...props} />;
   }
 }
 
-export default withProps<{ currentUser: IUser; plugins }>(
+export default withProps<{ currentUser: IUser }>(
   compose(
     graphql<{}, UnreadConversationsTotalCountQueryResponse>(
       gql(queries.unreadConversationsCount),
