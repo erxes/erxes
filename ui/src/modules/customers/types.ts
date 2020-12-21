@@ -1,22 +1,26 @@
 import {
-  AddMutationResponse as AddMutationResponseC, CustomersQueryResponse as CustomersQueryResponseC,
-  ICustomer as ICustomerC, ICustomerDoc as ICustomerDocC, ICustomerLinks as ICustomerLinksC,
-  IUrlVisits as IUrlVisitsC, IVisitorContact as IVisitorContactC
+  AddMutationResponse as AddMutationResponseC,
+  CustomersQueryResponse as CustomersQueryResponseC,
+  ICustomer as ICustomerC,
+  ICustomerDoc as ICustomerDocC,
+  ICustomerLinks as ICustomerLinksC,
+  IUrlVisits as IUrlVisitsC,
+  IVisitorContact as IVisitorContactC
 } from 'erxes-ui/lib/customers/types';
 import { QueryResponse } from 'modules/common/types';
 import { IActivityLog } from '../activityLogs/types';
 import { IIntegration } from '../settings/integrations/types';
 
-export interface IVisitorContact extends IVisitorContactC { }
+export type IVisitorContact = IVisitorContactC;
 
-export interface ICustomerLinks extends ICustomerLinksC { }
+export type ICustomerLinks = ICustomerLinksC;
 
-export interface ICustomerDoc extends ICustomerDocC { }
+export type ICustomerDoc = ICustomerDocC;
 
-export interface IUrlVisits extends IUrlVisitsC { }
+export type IUrlVisits = IUrlVisitsC;
 
 export interface ICustomer extends ICustomerC {
-  integration?: IIntegration
+  integration?: IIntegration;
 }
 
 // mutation types

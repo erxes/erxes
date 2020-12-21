@@ -1,7 +1,7 @@
 import {
-  SortItem,
+  DragHandler,
   SortableWrapper,
-  DragHandler
+  SortItem
 } from 'erxes-ui/lib/styles/sort';
 
 export { SortItem, SortableWrapper, DragHandler };

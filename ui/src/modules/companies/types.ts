@@ -1,13 +1,16 @@
 import {
-  AddMutationResponse as AddMutationResponseC, CompaniesQueryResponse as CompaniesQueryResponseC,
-  ICompany as ICompanyC, ICompanyDoc as ICompanyDocC, ICompanyLinks as ICompanyLinksC
+  AddMutationResponse as AddMutationResponseC,
+  CompaniesQueryResponse as CompaniesQueryResponseC,
+  ICompany as ICompanyC,
+  ICompanyDoc as ICompanyDocC,
+  ICompanyLinks as ICompanyLinksC
 } from 'erxes-ui/lib/companies/types';
 import { QueryResponse } from 'modules/common/types';
 import { IActivityLog, IActivityLogForMonth } from '../activityLogs/types';
 
-export interface ICompanyLinks extends ICompanyLinksC { }
+export type ICompanyLinks = ICompanyLinksC;
 
-export interface ICompanyDoc extends ICompanyDocC { }
+export type ICompanyDoc = ICompanyDocC;
 
 export interface IActivityLogYearMonthDoc {
   year: number;
@@ -19,7 +22,7 @@ export interface ICompanyActivityLog {
   list: IActivityLog[];
 }
 
-export interface ICompany extends ICompanyC { }
+export type ICompany = ICompanyC;
 
 // mutation types
 
