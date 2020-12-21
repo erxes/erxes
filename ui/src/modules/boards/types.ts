@@ -1,11 +1,11 @@
 import {
+  BoardsQueryResponse as BoardsQueryResponseC,
   IBoard as IBoardC,
   IPipeline as IPipelineC,
   IStage as IStageC,
-  BoardsQueryResponse as BoardsQueryResponseC,
   PipelinesQueryResponse as PipelinesQueryResponseC,
-  StagesQueryResponse as StagesQueryResponseC,
-} from 'erxes-ui/lib/boards/types'
+  StagesQueryResponse as StagesQueryResponseC
+} from 'erxes-ui/lib/boards/types';
 import { IAttachment, QueryResponse } from 'modules/common/types';
 import { ISavedConformity } from 'modules/conformity/types';
 import { IUser } from '../auth/types';

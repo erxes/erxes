@@ -90,6 +90,7 @@ export interface ILeadData {
 export interface IWebhookData {
   script: string;
   token: string;
+  origin: string;
 }
 
 export interface ILeadDataDocument extends ILeadData, Document {
@@ -304,7 +305,8 @@ const uiOptionsSchema = new Schema(
 const webhookDataSchema = new Schema(
   {
     script: field({ type: String, optional: true }),
-    token: field({ type: String })
+    token: field({ type: String }),
+    origin: field({ type: String, optional: true })
   },
   { _id: false }
 );
