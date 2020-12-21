@@ -1,4 +1,4 @@
-import { generateCategoryOptions } from 'erxes-ui';
+import { generateCategoryOptions } from 'erxes-ui/lib/utils';
 import { PRODUCT_TYPE_CHOISES } from './constants';
 
 export { generateCategoryOptions };

@@ -1,8 +1,8 @@
-import { customerMutations } from 'erxes-ui';
+import { mutations as customerMutations } from 'erxes-ui/lib/customers/graphql';
 
-const customersAdd = customerMutations.customersAdd
+const customersAdd = customerMutations.customersAdd;
 
-const customersEdit = customerMutations.customersEdit
+const customersEdit = customerMutations.customersEdit;
 
 const customersRemove = `
   mutation customersRemove($customerIds: [String]) {

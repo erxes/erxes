@@ -1,3 +1,3 @@
-import { SelectCompanies } from 'erxes-ui';
+import SelectCompanies from 'erxes-ui/lib/companies/containers/SelectCompanies';
 
-export default SelectCompanies
+export default SelectCompanies;

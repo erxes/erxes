@@ -1,4 +1,4 @@
-import { companyMutations } from 'erxes-ui';
+import { mutations as companyMutations } from 'erxes-ui/lib/companies/graphql';
 
 const companiesAdd = companyMutations.companiesAdd;
 
