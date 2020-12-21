@@ -16,7 +16,11 @@ export interface IStats {
 export interface IStatsDocument extends IStats, Document {}
 
 export const statsSchema = new Schema({
-  engageMessageId: { type: String, label: 'Engage message id at erxes-api' },
+  engageMessageId: {
+    type: String,
+    label: 'Engage message id at erxes-api',
+    unique: true
+  },
   createdAt: { type: Date, default: new Date() },
   open: {
     type: Number,
