@@ -26,6 +26,10 @@ export default function EngageStatItem({
 
   if (count && totalCount) {
     percent = (count * 100) / totalCount;
+
+    if (count > totalCount) {
+      percent = 100;
+    }
   }
 
   let options: any[] = [];
