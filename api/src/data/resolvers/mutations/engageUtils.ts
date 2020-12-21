@@ -1,5 +1,6 @@
 import { Transform } from 'stream';
 import {
+  ConversationMessages,
   Customers,
   EngageMessages,
   Integrations,
@@ -7,13 +8,16 @@ import {
   Users
 } from '../../../db/models';
 import { METHODS } from '../../../db/models/definitions/constants';
+import { IMessageDocument } from '../../../db/models/definitions/conversationMessages';
 import { ICustomerDocument } from '../../../db/models/definitions/customers';
 import { IEngageMessageDocument } from '../../../db/models/definitions/engages';
 import { IUserDocument } from '../../../db/models/definitions/users';
+import { fetchElk } from '../../../elasticsearch';
 import messageBroker from '../../../messageBroker';
 import { MESSAGE_KINDS } from '../../constants';
 import { fetchBySegments } from '../../modules/segments/queryBuilder';
-import { chunkArray, replaceEditorAttributes } from '../../utils';
+import { chunkArray, getEnv, replaceEditorAttributes } from '../../utils';
+import customer from '../customer';
 
 interface IEngageParams {
   engageMessage: IEngageMessageDocument;
@@ -286,3 +290,36 @@ const sendEmailOrSms = async (
     });
   });
 };
+
+export const getPreviousMessage = async (customerId, messageId) => {
+  
+  const ELK_SYNCER = getEnv({ name: 'ELK_SYNCER', defaultValue: 'true' });
+
+  if (ELK_SYNCER) {
+    const response = await fetchElk(
+      'search',
+      'conversation_messages',
+      {
+        "query": {
+          "bool": {
+            "must": [
+              { "match": { customerId: customerId } },
+              { "match": { 'engageData.messageId': messageId } }
+            ]
+          }
+        }
+      },         
+    );
+
+    if (response.hits.hits){
+      return response.hits.hits[0]._source;
+    }
+  }else {
+    return await ConversationMessages.findOne(
+      {
+        customerId: customerId,
+        'engageData.messageId': messageId
+      }
+    );
+  }
+}

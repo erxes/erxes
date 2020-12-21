@@ -1,7 +1,8 @@
 import { Model, model } from 'mongoose';
 import { ConversationMessages, Conversations, Users } from '.';
 import { generateCustomerSelector } from '../../data/resolvers/mutations/engageUtils';
-import { replaceEditorAttributes } from '../../data/utils';
+import { getEnv, replaceEditorAttributes } from '../../data/utils';
+import { fetchElk } from '../../elasticsearch';
 import { getNumberOfVisits } from '../../events';
 import Customers, { IBrowserInfo } from './Customers';
 import { IBrandDocument } from './definitions/brands';
@@ -360,13 +361,39 @@ export const loadClass = () => {
     }) {
       const { customer, integration, user, engageData, replacedContent } = args;
 
-      const prevMessage: IMessageDocument | null = await ConversationMessages.findOne(
-        {
-          customerId: customer._id,
-          'engageData.messageId': engageData.messageId
-        }
-      );
+      let prevMessage: IMessageDocument | null;
 
+      const ELK_SYNCER = getEnv({ name: 'ELK_SYNCER', defaultValue: 'true' });
+
+      if (ELK_SYNCER) {
+        const response = await fetchElk(
+          'search',
+          'conversation_messages',
+          {
+            "query": {
+              "bool": {
+                "must": [
+                  { "match": { customerId: customer._id, } },
+                  { "match": { 'engageData.messageId': engageData.messageId } }
+                ]
+              }
+            }
+          },         
+        );
+
+        if (response.hits.hits){
+          prevMessage = response.hits.hits[0]._source;
+        }
+      }else {
+        prevMessage = await ConversationMessages.findOne(
+          {
+            customerId: customer._id,
+            'engageData.messageId': engageData.messageId
+          }
+        );
+      }
+
+console.log(prevMessage)
       if (prevMessage) {
         if (
           JSON.stringify(prevMessage.engageData) === JSON.stringify(engageData)
