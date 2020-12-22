@@ -3,7 +3,13 @@ import * as Random from 'meteor-random';
 import { debugEngages } from './debuggers';
 import { Logs, SmsRequests, Stats } from './models';
 import { getTelnyxInfo } from './telnyxUtils';
-import { createTransporter, getConfigs, getEnv, ICustomer } from './utils';
+import {
+  cleanIgnoredCustomers,
+  createTransporter,
+  getConfigs,
+  getEnv,
+  ICustomer
+} from './utils';
 
 dotenv.config();
 
@@ -243,7 +249,13 @@ export const start = async (data: {
     );
   }
 
-  for (const customer of filteredCustomers) {
+  // cleans customers who do not open or click emails often
+  const cleanCustomers = await cleanIgnoredCustomers({
+    customers: filteredCustomers,
+    engageMessageId
+  });
+
+  for (const customer of cleanCustomers) {
     await new Promise(resolve => {
       setTimeout(resolve, 1000);
     });

@@ -1,7 +1,10 @@
 import * as AWS from 'aws-sdk';
 import * as nodemailer from 'nodemailer';
+import { SES_DELIVERY_STATUSES } from './constants';
 import { debugBase } from './debuggers';
+import messageBroker from './messageBroker';
 import Configs, { ISESConfig } from './models/Configs';
+import { DeliveryReports } from './models/index';
 import { getApi } from './trackers/engageTracker';
 
 export const createTransporter = async () => {
@@ -27,6 +30,11 @@ export interface IUser {
   name: string;
   position: string;
   email: string;
+}
+
+interface ICustomerAnalyzeParams {
+  customers: ICustomer[];
+  engageMessageId: string;
 }
 
 export const getEnv = ({
@@ -172,4 +180,47 @@ export const getConfig = async (code, defaultValue?) => {
   }
 
   return configs[code];
+};
+
+export const cleanIgnoredCustomers = async ({
+  customers,
+  engageMessageId
+}: ICustomerAnalyzeParams) => {
+  const customerIds = customers.map(c => c._id);
+  const ignoredCustomerIds: string[] = [];
+
+  const allowedEmailSkipLimit = await getConfig('allowedEmailSkipLimit', '5');
+
+  // reduce previously customers who did not open or click
+  const deliveries = await DeliveryReports.aggregate([
+    {
+      $match: {
+        engageMessageId: { $ne: engageMessageId },
+        customerId: { $in: customerIds },
+        status: {
+          $nin: [SES_DELIVERY_STATUSES.OPEN, SES_DELIVERY_STATUSES.CLICK]
+        }
+      }
+    },
+    {
+      $group: { _id: '$customerId', count: { $sum: 1 } }
+    }
+  ]);
+
+  for (const delivery of deliveries) {
+    if (delivery.count > parseInt(allowedEmailSkipLimit, 10)) {
+      ignoredCustomerIds.push(delivery._id);
+    }
+  }
+
+  if (ignoredCustomerIds.length > 0) {
+    await messageBroker().sendMessage('engagesNotification', {
+      action: 'setDoNotDisturb',
+      data: { customerIds: ignoredCustomerIds }
+    });
+
+    return customers.filter(c => ignoredCustomerIds.indexOf(c._id) === -1);
+  }
+
+  return customers;
 };

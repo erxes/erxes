@@ -173,14 +173,22 @@ export const receiveEngagesNotification = async msg => {
   const { action, data } = msg;
 
   if (action === 'setDoNotDisturb') {
-    const { customerId, status } = data;
+    const { customerId, status, customerIds = [] } = data;
     const update: any = { doNotDisturb: 'Yes' };
 
     if (status === AWS_EMAIL_STATUSES.BOUNCE) {
       update.emailValidationStatus = EMAIL_VALIDATION_STATUSES.INVALID;
     }
 
-    await Customers.updateOne({ _id: customerId }, { $set: update });
+    if (customerId) {
+      await Customers.updateOne({ _id: customerId }, { $set: update });
+    }
+    if (customerIds.length > 0 && !status) {
+      await Customers.updateMany(
+        { _id: { $in: customerIds } },
+        { $set: update }
+      );
+    }
   }
 
   if (action === 'transactionEmail') {

@@ -48,3 +48,14 @@ export const SMS_DELIVERY_STATUSES = {
     }
   ]
 };
+
+export const SES_DELIVERY_STATUSES = {
+  SEND: 'send',
+  DELIVERY: 'delivery',
+  OPEN: 'open',
+  CLICK: 'click',
+  COMPLAINT: 'complaint',
+  BOUNCE: 'bounce',
+  RENDERING_FAILURE: 'renderingfailure',
+  REJECT: 'reject'
+};
