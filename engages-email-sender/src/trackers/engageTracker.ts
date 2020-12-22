@@ -53,7 +53,7 @@ const handleMessage = async message => {
   const type = eventType.toLowerCase();
 
   if (emailDeliveryId) {
-    await messageBroker().sendMessage('engagesNotification', {
+    return messageBroker().sendMessage('engagesNotification', {
       action: 'transactionEmail',
       data: { emailDeliveryId: emailDeliveryId.value, status: type }
     });
