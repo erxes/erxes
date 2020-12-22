@@ -1,20 +1,11 @@
-import * as faker from 'faker';
-import * as sinon from 'sinon';
-import { MESSAGE_KINDS } from '../data/constants';
+import './setup.ts';
+
 import * as elk from '../elasticsearch';
 import * as engageUtils from '../data/resolvers/mutations/engageUtils';
-import { graphqlRequest } from '../db/connection';
-import {
-  brandFactory,
-  conversationFactory,
-  conversationMessageFactory,
-  customerFactory,
-  engageMessageFactory,
-  integrationFactory,
-  segmentFactory,
-  tagsFactory,
-  userFactory
-} from '../db/factories';
+import * as faker from 'faker';
+import * as sinon from 'sinon';
+import * as utils from '../data/utils';
+
 import {
   Brands,
   ConversationMessages,
@@ -27,13 +18,23 @@ import {
   Tags,
   Users
 } from '../db/models';
-import messageBroker from '../messageBroker';
+import { KIND_CHOICES, METHODS } from '../db/models/definitions/constants';
+import {
+  brandFactory,
+  conversationFactory,
+  conversationMessageFactory,
+  customerFactory,
+  engageMessageFactory,
+  integrationFactory,
+  segmentFactory,
+  tagsFactory,
+  userFactory
+} from '../db/factories';
 
 import { EngagesAPI } from '../data/dataSources';
-import * as utils from '../data/utils';
-import { KIND_CHOICES, METHODS } from '../db/models/definitions/constants';
-import './setup.ts';
-
+import { MESSAGE_KINDS } from '../data/constants';
+import { graphqlRequest } from '../db/connection';
+import messageBroker from '../messageBroker';
 
 // to prevent duplicate expect checks
 const checkEngageMessage = (src, result) => {
@@ -238,7 +239,7 @@ describe('engage message mutation tests', () => {
 
     const envMock = sinon.stub(utils, 'getEnv').callsFake(() => {
       return 'true';
-    })
+    });
 
     const mock = sinon.stub(elk, 'fetchElk').callsFake(() => {
       return Promise.resolve({
@@ -249,10 +250,15 @@ describe('engage message mutation tests', () => {
     });
 
     const customer = await customerFactory({});
- 
 
-    const response1 = await engageUtils.getMessages({ customerId: customer._id}, true)
-    const response2 = await engageUtils.getMessages({ customerId: customer._id}, false)
+    const response1 = await engageUtils.getMessages(
+      { customerId: customer._id },
+      true
+    );
+    const response2 = await engageUtils.getMessages(
+      { customerId: customer._id },
+      false
+    );
 
     expect(response1).toBe(conversationMessage);
     expect(response2[0]).toBe(conversationMessage);
