@@ -1,45 +1,54 @@
 import Button from 'modules/common/components/Button';
+import EmptyState from 'modules/common/components/EmptyState';
 import HeaderDescription from 'modules/common/components/HeaderDescription';
 import Table from 'modules/common/components/table';
 import { Title } from 'modules/common/styles/main';
 import { __ } from 'modules/common/utils';
+import { router as routerUtils } from 'modules/common/utils';
 import Wrapper from 'modules/layout/components/Wrapper';
 import React from 'react';
 import { Link } from 'react-router-dom';
+import { ICalendar } from '../../types';
 import PageRow from './PageRow';
+import Sidebar from './Sidebar';
 
 type Props = {
-  accountId: string;
   pages: any[];
-  accessToken: string;
-  name: string;
+  calendars: ICalendar[];
+  history: any;
+  queryParams: { accountId?: string };
 };
 
-declare function manageSchedulingPage(
-  accessToken: string,
-  inDarkMode: boolean
-): any;
-
 class Base extends React.Component<Props> {
-  managePages = () => {
-    manageSchedulingPage(this.props.accessToken, false);
-  };
+  componentDidMount() {
+    const { calendars, queryParams, history } = this.props;
+
+    if (calendars.length > 0 && !queryParams.accountId) {
+      routerUtils.setParams(history, { accountId: calendars[0].accountId });
+    }
+  }
 
   renderButtons() {
+    if (this.props.calendars.length === 0) {
+      return;
+    }
+
     return (
       <>
         <Button btnStyle="success" icon="plus-circle" uppercase={false}>
-          <Link to={`/settings/schedule/createPage/${this.props.accountId}`}>
+          <Link
+            to={`/settings/schedule/createPage/${this.props.queryParams.accountId}`}
+          >
             Add New Page
           </Link>
         </Button>
-        <Button onClick={this.managePages}>Manage scheduling pages</Button>
       </>
     );
   }
 
   render() {
-    const { pages, name } = this.props;
+    const { pages, calendars, queryParams } = this.props;
+    const { accountId } = queryParams;
 
     const breadcrumb = [
       { title: __('Settings'), link: '/settings' },
@@ -47,34 +56,53 @@ class Base extends React.Component<Props> {
       { title: __('Schedule'), link: '' }
     ];
 
-    const content = (
-      <div>
-        <Wrapper.ActionBar
-          left={<Title>{name}</Title>}
-          right={this.renderButtons()}
+    let calendarName = '';
+
+    if (accountId) {
+      calendarName = (
+        calendars.find(c => c.accountId === accountId) || ({} as ICalendar)
+      ).name;
+    }
+
+    const content =
+      calendars.length > 0 ? (
+        <div>
+          <Wrapper.ActionBar
+            left={<Title>{calendarName}</Title>}
+            right={this.renderButtons()}
+          />
+
+          <Table>
+            <thead>
+              <tr>
+                <th>Your Scheduling Pages</th>
+                <th> Action</th>
+              </tr>
+            </thead>
+
+            <tbody>
+              {pages.map(page => (
+                <PageRow key={page.id} page={page} />
+              ))}
+            </tbody>
+          </Table>
+        </div>
+      ) : (
+        <EmptyState
+          text={`Get started on your board`}
+          image="/images/actions/16.svg"
         />
-
-        <Table>
-          <thead>
-            <tr>
-              <th>Your Scheduling Pages</th>
-              <th> Action</th>
-            </tr>
-          </thead>
-
-          <tbody>
-            {pages.map(page => (
-              <PageRow key={page.id} page={page} />
-            ))}
-          </tbody>
-        </Table>
-      </div>
-    );
+      );
 
     return (
       <Wrapper
         header={
           <Wrapper.Header title={__('Schedule')} breadcrumb={breadcrumb} />
+        }
+        leftSidebar={
+          calendars.length > 1 && (
+            <Sidebar accountId={accountId} calendars={calendars} />
+          )
         }
         mainHead={
           <HeaderDescription

@@ -343,12 +343,19 @@ class Settings extends React.PureComponent {
         </Row>
         <Divider />
         <Row>
-          <RowTitle>{__('Calendar Settings')}</RowTitle>
+          <RowTitle>{__('Calendar & Schedule Settings')}</RowTitle>
           <div id={'SettingsCalendarSettings'}>
             {this.renderBox(
               'Groups & Calendars',
               '/images/icons/erxes-21.svg',
               '/settings/calendars',
+              'calendarsAll',
+              calendarActions
+            )}
+            {this.renderBox(
+              'Schedule',
+              '/images/icons/erxes-21.svg',
+              '/settings/schedule',
               'calendarsAll',
               calendarActions
             )}

@@ -28,14 +28,14 @@ import {
   connectYahooAndOutlookToNylas
 } from './auth';
 import { NYLAS_API_URL } from './constants';
-import { NylasCalendars, NylasEvents } from './models';
-import { NYLAS_MODELS, storeCalendars, storeEvents } from './store';
+import { NylasCalendars, NylasEvents, NylasPages } from './models';
+import { NYLAS_MODELS, storeCalendars, storeEvents, storePages } from './store';
 import {
   ICalendar,
   ICalendarParams,
   IEventDoc,
   INylasIntegrationData,
-  INylasSchedulePage
+  INylasSchedulePageDoc
 } from './types';
 import { buildEmailAddress, extractDate } from './utils';
 
@@ -460,6 +460,7 @@ export const nylasRemoveCalendars = async (accountId: string) => {
     await NylasEvents.deleteMany({
       providerCalendarId: { $in: calendarIds }
     });
+    await NylasPages.deleteMany({ accountId });
 
     await revokeToken(email, googleAccessToken);
     await enableOrDisableAccount(nylasAccountId, false);
@@ -593,11 +594,15 @@ export const nylasGetSchedulePages = async (accountId: string) => {
       throw new Error(`Account not found with id: ${accountId}`);
     }
 
-    const accessToken = account.nylasToken;
-    const name = account.email;
-    const pages = await getSchedulePages(accessToken);
+    const pages = await NylasPages.find({ accountId });
 
-    return { pages, accessToken, name };
+    if (pages.length !== 0) {
+      return pages;
+    }
+
+    const accessToken = account.nylasToken;
+
+    return storePages(await getSchedulePages(accessToken), accountId);
   } catch (e) {
     debugNylas(`Failed to create event: ${e.message}`);
   }
@@ -605,7 +610,7 @@ export const nylasGetSchedulePages = async (accountId: string) => {
 
 export const nylasCreateSchedulePage = async (
   accountId: string,
-  doc: INylasSchedulePage
+  doc: INylasSchedulePageDoc
 ) => {
   try {
     debugNylas(`Creating event in calendar with accountId: ${accountId}`);

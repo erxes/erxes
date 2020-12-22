@@ -14,7 +14,7 @@ import {
   IEvent,
   IEventDoc,
   IMessageDraft,
-  INylasSchedulePage
+  INylasSchedulePageDoc
 } from './types';
 import { extractDate } from './utils';
 
@@ -597,7 +597,7 @@ const getSchedulePages = async (accessToken: string) => {
 
 const createSchedulePage = async (
   accessToken: string,
-  doc: INylasSchedulePage
+  doc: INylasSchedulePageDoc
 ) => {
   try {
     const appearance = doc.appearance;

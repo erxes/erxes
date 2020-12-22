@@ -20,6 +20,7 @@ import {
   NylasOutlookConversationMessages,
   NylasOutlookConversations,
   NylasOutlookCustomers,
+  NylasPages,
   NylasYahooConversationMessages,
   NylasYahooConversations,
   NylasYahooCustomers
@@ -30,7 +31,8 @@ import {
   IGetOrCreateArguments,
   INylasConversationArguments,
   INylasConversationMessageArguments,
-  INylasCustomerArguments
+  INylasCustomerArguments,
+  IPage
 } from './types';
 
 const NYLAS_MODELS = {
@@ -150,6 +152,40 @@ const storeEvents = async (events: IEvent[], eventIds?: string[]) => {
   }
 
   return NylasEvents.insertMany(doc);
+};
+
+const storePages = async (pages: IPage[], accountId: string) => {
+  const doc = [];
+
+  for (const page of pages) {
+    const config = page.config;
+    const appearance = config.appearance;
+
+    doc.push({
+      accountId,
+      name: page.name,
+      slug: page.slug,
+      appClientId: page.app_client_id,
+      appOrganizationId: page.app_organization_id,
+      editToken: page.edit_token,
+      pageId: page.id,
+      createdAt: page.created_at,
+      modifiedAt: page.modified_at,
+      config: {
+        appearance: {
+          color: appearance.color,
+          companyName: appearance.company_name,
+          logo: appearance.logo,
+          submitText: appearance.submit_text,
+          thankYouText: appearance.thank_you_text,
+          showAutoschedule: appearance.show_autoschedule,
+          showNylasBranding: appearance.show_nylas_branding
+        }
+      }
+    });
+  }
+
+  return NylasPages.insertMany(doc);
 };
 
 /**
@@ -418,5 +454,6 @@ export {
   storeEvents,
   updateEvent,
   updateCalendar,
-  NYLAS_MODELS
+  NYLAS_MODELS,
+  storePages
 };

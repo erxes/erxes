@@ -109,7 +109,7 @@ export const queries = `
   calendarGroupGetLast: CalendarGroup
   calendarGroupDetail(_id: String!): CalendarGroup
 
-  calendars(groupId: String, page: Int, perPage: Int): [Calendar]
+  calendars(groupId: String, userId: String, page: Int, perPage: Int): [Calendar]
   calendarDetail(_id: String!): Calendar
 
   calendarAccounts(groupId: String): [FullCalendar]

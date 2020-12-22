@@ -17,10 +17,13 @@ const ScheduleBase = asyncComponent(() =>
   import(/* webpackChunkName: "Schedule" */ './containers/scheduler/Base')
 );
 
-const schedule = ({ match }) => {
-  const id = match.params.id;
-
-  return <ScheduleBase accountId={id} />;
+const schedule = ({ history, location }) => {
+  return (
+    <ScheduleBase
+      history={history}
+      queryParams={queryString.parse(location.search)}
+    />
+  );
 };
 
 const CreateSchedulePage = asyncComponent(() =>
@@ -43,9 +46,9 @@ const routes = () => (
     <Route path="/settings/calendars" component={Calendar} />
 
     <Route
-      path="/settings/schedule/:id"
+      path="/settings/schedule"
       exact={true}
-      key="/settings/schedule/:id"
+      key="/settings/schedule"
       component={schedule}
     />
 

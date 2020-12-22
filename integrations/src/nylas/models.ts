@@ -416,3 +416,122 @@ export const NylasEvents = model<IEventDocument, IEventModel>(
   'event',
   new Schema(eventSchema)
 );
+
+export interface IPage {
+  name: string;
+  slug: string;
+  appClientId: string;
+  appOrganizationId: number;
+  editToken: string;
+  pageId: number;
+  createdAt: Date;
+  modifiedAt: Date;
+
+  config: {
+    timezone: string;
+    calendarIds: [string];
+    event: {
+      title: string;
+      location: string;
+      duration: number;
+    };
+    appearance?: {
+      color: string;
+      companyName?: string;
+      logo?: string;
+      submitText?: string;
+      thankYouText?: string;
+      showAutoschedule: boolean;
+      showNylasBranding: boolean;
+    };
+    booking?: {
+      openingHours?: {
+        days: [string];
+        start: string;
+        end: string;
+      };
+      additionalFields?: {
+        label: string;
+        name?: string;
+        required: boolean;
+        type: string;
+      };
+      cancellationPolicy?: string;
+      confirmationMethod?: string;
+      minBookingNotice?: number;
+      availableDaysInFuture?: number;
+      minBuffer?: number;
+      minCancellationNotice?: number;
+    };
+  };
+}
+
+export interface IPageDocument extends IPage, Document {}
+export interface IPageModel extends Model<IPageDocument> {}
+
+const pageEventSchema = new Schema(
+  {
+    title: String,
+    location: String,
+    duration: Number
+  },
+  { _id: false }
+);
+
+const pageConfigSchema = new Schema(
+  {
+    timezone: String,
+    calendarIds: [String],
+    event: pageEventSchema,
+    appearance: {
+      color: String,
+      companyName: String,
+      logo: String,
+      submitText: String,
+      thankYouText: String,
+      showAutoschedule: Boolean,
+      showNylasBranding: Boolean
+    },
+    booking: {
+      openingHours: {
+        days: [String],
+        start: String,
+        end: String
+      },
+      additionalFields: {
+        label: String,
+        name: String,
+        required: Boolean,
+        type: String
+      },
+      cancellationPolicy: String,
+      confirmationMethod: String,
+      minBookingNotice: Number,
+      availableDaysInFuture: Number,
+      minBuffer: Number,
+      minCancellationNotice: Number
+    }
+  },
+  { _id: false }
+);
+
+const pageSchema = {
+  _id: field({ pkey: true }),
+
+  name: String,
+  slug: String,
+  appClientId: String,
+  appOrganizationId: Number,
+  editToken: String,
+  pageId: { type: String, unique: true },
+  createdAt: Date,
+  modifiedAt: Date,
+  config: pageConfigSchema,
+  accountId: String
+};
+
+// tslint:disable-next-line
+export const NylasPages = model<IPageDocument, IPageModel>(
+  'schedule_pages',
+  new Schema(pageSchema)
+);

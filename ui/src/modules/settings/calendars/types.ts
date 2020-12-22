@@ -59,7 +59,6 @@ export type GroupDetailQueryResponse = {
 export type CalendarsQueryResponse = {
   calendars: ICalendar[];
   loading: boolean;
-  refetch: ({ groupId }: { groupId?: string }) => Promise<any>;
 };
 
 // mutations

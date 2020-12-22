@@ -4,7 +4,6 @@ import Icon from 'modules/common/components/Icon';
 import Tip from 'modules/common/components/Tip';
 import { IButtonMutateProps } from 'modules/common/types';
 import React from 'react';
-import { Link } from 'react-router-dom';
 import AccountCalendars from '../containers/AccountCalendars';
 import GroupForm from '../containers/GroupForm';
 import { ICalendar, IGroup } from '../types';
@@ -86,11 +85,6 @@ class GroupRow extends React.Component<Props, State> {
 
     return (
       <>
-        <Tip text="Schedule">
-          <Link to={`/settings/schedule/${calendar.accountId}`}>
-            <Button btnStyle="link" icon="calendar-alt" />
-          </Link>
-        </Tip>
         <Tip text="Edit" placement="top">
           <Button btnStyle="link" onClick={edit} icon="edit-3" />
         </Tip>

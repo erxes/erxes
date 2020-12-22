@@ -133,7 +133,7 @@ class CreateSchedulePage extends React.Component<Props, State> {
 
   renderButtons() {
     const cancelButton = (
-      <Link to={`/settings/schedule/${this.props.accountId}`}>
+      <Link to={`/settings/schedule`}>
         <Button btnStyle="simple" icon="times-circle" uppercase={false}>
           Cancel
         </Button>
@@ -163,7 +163,7 @@ class CreateSchedulePage extends React.Component<Props, State> {
   };
 
   render() {
-    const { accountId, calendars } = this.props;
+    const { calendars } = this.props;
     const {
       duration,
       location,
@@ -188,7 +188,7 @@ class CreateSchedulePage extends React.Component<Props, State> {
     const breadcrumb = [
       { title: __('Settings'), link: '/settings' },
       { title: __('Calendar'), link: '/settings/calendars' },
-      { title: __('Schedule'), link: `/settings/schedule/${accountId}` }
+      { title: __('Schedule'), link: `/settings/schedule` }
     ];
 
     const onChangeCalendar = item => this.setState({ calendarId: item.value });
