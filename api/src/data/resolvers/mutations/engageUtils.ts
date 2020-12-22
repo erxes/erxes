@@ -239,19 +239,19 @@ const sendEmailOrSms = async (
   const customerTransformerStream = new Transform({
     objectMode: true,
 
-    async transform(customer: ICustomerDocument, _encoding, callback) {
+    async transform(customerObj: ICustomerDocument, _encoding, callback) {
       const { replacers } = await replaceEditorAttributes({
         content: emailContent,
-        customer,
+        customer: customerObj,
         customerFields
       });
 
       customerInfos.push({
-        _id: customer._id,
-        primaryEmail: customer.primaryEmail,
-        emailValidationStatus: customer.emailValidationStatus,
-        phoneValidationStatus: customer.phoneValidationStatus,
-        primaryPhone: customer.primaryPhone,
+        _id: customerObj._id,
+        primaryEmail: customerObj.primaryEmail,
+        emailValidationStatus: customerObj.emailValidationStatus,
+        phoneValidationStatus: customerObj.phoneValidationStatus,
+        primaryPhone: customerObj.primaryPhone,
         replacers
       });
 
