@@ -1,5 +1,4 @@
 import { Transform } from 'stream';
-import { object } from 'underscore';
 import {
   ConversationMessages,
   Customers,
@@ -9,7 +8,6 @@ import {
   Users
 } from '../../../db/models';
 import { METHODS } from '../../../db/models/definitions/constants';
-import { IMessageDocument } from '../../../db/models/definitions/conversationMessages';
 import { ICustomerDocument } from '../../../db/models/definitions/customers';
 import { IEngageMessageDocument } from '../../../db/models/definitions/engages';
 import { IUserDocument } from '../../../db/models/definitions/users';
@@ -18,8 +16,6 @@ import messageBroker from '../../../messageBroker';
 import { MESSAGE_KINDS } from '../../constants';
 import { fetchBySegments } from '../../modules/segments/queryBuilder';
 import { chunkArray, getEnv, replaceEditorAttributes } from '../../utils';
-import customer from '../customer';
-
 interface IEngageParams {
   engageMessage: IEngageMessageDocument;
   customersSelector: any;
@@ -239,19 +235,19 @@ const sendEmailOrSms = async (
   const customerTransformerStream = new Transform({
     objectMode: true,
 
-    async transform(customerObj: ICustomerDocument, _encoding, callback) {
+    async transform(customer: ICustomerDocument, _encoding, callback) {
       const { replacers } = await replaceEditorAttributes({
         content: emailContent,
-        customer: customerObj,
+        customer,
         customerFields
       });
 
       customerInfos.push({
-        _id: customerObj._id,
-        primaryEmail: customerObj.primaryEmail,
-        emailValidationStatus: customerObj.emailValidationStatus,
-        phoneValidationStatus: customerObj.phoneValidationStatus,
-        primaryPhone: customerObj.primaryPhone,
+        _id: customer._id,
+        primaryEmail: customer.primaryEmail,
+        emailValidationStatus: customer.emailValidationStatus,
+        phoneValidationStatus: customer.phoneValidationStatus,
+        primaryPhone: customer.primaryPhone,
         replacers
       });
 
