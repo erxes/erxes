@@ -252,9 +252,9 @@ export const sendReply = async (
     return response;
   } catch (e) {
     debugFacebook(
-      `Error ocurred while trying to send post request to facebook ${e} data: ${JSON.stringify(
-        data
-      )}`
+      `Error ocurred while trying to send post request to facebook ${
+        e.message
+      } data: ${JSON.stringify(data)}`
     );
     if (e.message.includes('access token')) {
       // Update expired token for selected page
