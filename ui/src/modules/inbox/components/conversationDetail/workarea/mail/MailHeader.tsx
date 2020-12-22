@@ -1,7 +1,7 @@
 import dayjs from 'dayjs';
 import DropdownToggle from 'modules/common/components/DropdownToggle';
 import Icon from 'modules/common/components/Icon';
-import Avatar from 'modules/common/components/nameCard/Avatar';
+import NameCard from 'modules/common/components/nameCard/NameCard';
 import Tip from 'modules/common/components/Tip';
 import { __ } from 'modules/common/utils';
 import { ICustomer } from 'modules/customers/types';
@@ -239,7 +239,7 @@ class MailHeader extends React.Component<Props, State> {
 
     return (
       <Meta toggle={isContentCollapsed} onClick={onToggleContent}>
-        <Avatar customer={customer} size={32} letterCount={1} />
+        <NameCard.Avatar customer={customer} size={32} letterCount={1} />
         {this.renderDetails(mailData)}
         {this.renderRightSide(hasAttachments, createdAt)}
       </Meta>

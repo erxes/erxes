@@ -1,13 +1,6 @@
-export const conformityQueryFields = `
-  $mainType: String,
-  $mainTypeId: String,
-  $isRelated: Boolean,
-  $isSaved: Boolean,
-`;
+import {
+  conformityQueryFieldDefs,
+  conformityQueryFields
+} from 'erxes-ui/lib/conformity/graphql/queries';
 
-export const conformityQueryFieldDefs = `
-  conformityMainType: $mainType,
-  conformityMainTypeId: $mainTypeId,
-  conformityIsRelated: $isRelated,
-  conformityIsSaved: $isSaved,
-`;
+export { conformityQueryFields, conformityQueryFieldDefs };

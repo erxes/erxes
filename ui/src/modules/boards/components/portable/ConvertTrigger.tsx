@@ -18,7 +18,7 @@ type Props = {
   attachments?: any[];
 };
 
-export default (props: Props) => {
+export default function ConvertTrigger(props: Props) {
   const {
     relType,
     relTypeIds,
@@ -62,4 +62,4 @@ export default (props: Props) => {
   );
 
   return <ModalTrigger title={title} trigger={trigger} content={content} />;
-};
+}
