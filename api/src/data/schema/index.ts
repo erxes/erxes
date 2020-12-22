@@ -1,3 +1,5 @@
+import { gql } from 'apollo-server-express';
+
 import { types as CommonTypes } from './common';
 
 import {
@@ -235,7 +237,7 @@ import {
   types as WidgetTypes
 } from './widget';
 
-export let types = `
+export const types = `
   scalar JSON
   scalar Date
   ${CommonTypes}
@@ -283,89 +285,92 @@ export let types = `
   ${CalendarTypes}
 `;
 
-export let queries = `
-  ${UserQueries}
-  ${ChannelQueries}
-  ${BrandQueries}
-  ${BoardQueries}
-  ${IntegrationQueries}
-  ${ResponseTemplateQueries}
-  ${ScriptQueries}
-  ${EmailTemplateQueries}
-  ${EmailDeliveryQueries}
-  ${FieldQueries}
-  ${EngageQueries}
-  ${FormQueries}
-  ${TagQueries}
-  ${InternalNoteQueries}
-  ${CompanyQueries}
-  ${CustomerQueries}
-  ${SegmentQueries}
-  ${ConversationQueries}
-  ${InsightQueries}
-  ${KnowledgeBaseQueries}
-  ${NotificationQueries}
-  ${ActivityLogQueries}
-  ${DealQueries}
-  ${DashboardQueries}
-  ${ProductQueries}
-  ${ConfigQueries}
-  ${FieldGroupQueries}
-  ${ImportHistoryQueries}
-  ${PermissionQueries}
-  ${TicketQueries}
-  ${TaskQueries}
-  ${LogQueries}
-  ${GrowthHackQueries}
-  ${PipelineTemplateQueries}
-  ${ChecklistQueries}
-  ${RobotQueries}
-  ${PipelineLabelQueries}
-  ${WidgetQueries}
-  ${WebhookQueries}
-  ${CalendarQueries}
-
+export const queries = `
+  type Query {
+    ${UserQueries}
+    ${ChannelQueries}
+    ${BrandQueries}
+    ${BoardQueries}
+    ${IntegrationQueries}
+    ${ResponseTemplateQueries}
+    ${ScriptQueries}
+    ${EmailTemplateQueries}
+    ${EmailDeliveryQueries}
+    ${FieldQueries}
+    ${EngageQueries}
+    ${FormQueries}
+    ${TagQueries}
+    ${InternalNoteQueries}
+    ${CompanyQueries}
+    ${CustomerQueries}
+    ${SegmentQueries}
+    ${ConversationQueries}
+    ${InsightQueries}
+    ${KnowledgeBaseQueries}
+    ${NotificationQueries}
+    ${ActivityLogQueries}
+    ${DealQueries}
+    ${DashboardQueries}
+    ${ProductQueries}
+    ${ConfigQueries}
+    ${FieldGroupQueries}
+    ${ImportHistoryQueries}
+    ${PermissionQueries}
+    ${TicketQueries}
+    ${TaskQueries}
+    ${LogQueries}
+    ${GrowthHackQueries}
+    ${PipelineTemplateQueries}
+    ${ChecklistQueries}
+    ${RobotQueries}
+    ${PipelineLabelQueries}
+    ${WidgetQueries}
+    ${WebhookQueries}
+    ${CalendarQueries}
+  }
 `;
 
-export let mutations = `
-  ${UserMutations}
-  ${CompanyMutations}
-  ${ConversationMutations}
-  ${EngageMutations}
-  ${TagMutations}
-  ${BoardMutations}
-  ${BrandMutations}
-  ${ResponseTemplateMutations}
-  ${ScriptMutations}
-  ${EmailTemplateMutations}
-  ${InternalNoteMutations}
-  ${CustomerMutations}
-  ${SegmentMutations}
-  ${FieldMutations}
-  ${ChannelMutations}
-  ${FormMutatons}
-  ${IntegrationMutations}
-  ${KnowledgeBaseMutations}
-  ${NotificationMutations}
-  ${DealMutations}
-  ${DashboardMutations}
-  ${ProductMutations}
-  ${ConfigMutations}
-  ${FieldGroupMutations}
-  ${ImportHistoryMutations}
-  ${MessengerAppMutations}
-  ${PermissionMutations}
-  ${TicketMutations}
-  ${TaskMutations}
-  ${GrowthHackMutations}
-  ${PipelineTemplateMutations}
-  ${ConformityMutations}
-  ${ChecklistMutations}
-  ${RobotMutations}
-  ${PipelineLabelMutations}
-  ${WidgetMutations}
-  ${WebhookMutations}
-  ${CalendarMutations}
+export const mutations = `
+  type Mutation {
+    ${UserMutations}
+    ${CompanyMutations}
+    ${ConversationMutations}
+    ${EngageMutations}
+    ${TagMutations}
+    ${BoardMutations}
+    ${BrandMutations}
+    ${ResponseTemplateMutations}
+    ${ScriptMutations}
+    ${EmailTemplateMutations}
+    ${InternalNoteMutations}
+    ${CustomerMutations}
+    ${SegmentMutations}
+    ${FieldMutations}
+    ${ChannelMutations}
+    ${FormMutatons}
+    ${IntegrationMutations}
+    ${KnowledgeBaseMutations}
+    ${NotificationMutations}
+    ${DealMutations}
+    ${DashboardMutations}
+    ${ProductMutations}
+    ${ConfigMutations}
+    ${FieldGroupMutations}
+    ${ImportHistoryMutations}
+    ${MessengerAppMutations}
+    ${PermissionMutations}
+    ${TicketMutations}
+    ${TaskMutations}
+    ${GrowthHackMutations}
+    ${PipelineTemplateMutations}
+    ${ConformityMutations}
+    ${ChecklistMutations}
+    ${RobotMutations}
+    ${PipelineLabelMutations}
+    ${WidgetMutations}
+    ${WebhookMutations}
+    ${CalendarMutations}
+  }
 `;
 
 export const subscriptions = `
@@ -391,4 +396,6 @@ export const subscriptions = `
   }
 `;
 
-export default { types, queries, mutations, subscriptions };
+const typeDefs = gql(`${types} ${queries} ${mutations} ${subscriptions}`);
+
+export default typeDefs;

@@ -1,14 +1,11 @@
 import * as dotenv from 'dotenv';
 import messageBroker from 'erxes-message-broker';
-
 import {
   receiveEngagesNotification,
   receiveIntegrationsNotification,
   receiveRpcMessage
 } from './data/modules/integrations/receiveMessage';
 import { getEnv } from './data/utils';
-import memoryStorage from './inmemoryStorage';
-import { allConstants, allModels, pluginsConsumers } from './pluginUtils';
 import { graphqlPubsub } from './pubsub';
 
 dotenv.config();
@@ -43,37 +40,6 @@ export const initBroker = async (server?) => {
   consumeQueue('engagesNotification'.concat(prefix), async data => {
     await receiveEngagesNotification(data);
   });
-
-  for (const channel of Object.keys(pluginsConsumers)) {
-    const mbroker = pluginsConsumers[channel]
-    if (mbroker.method === "RPCQueue") {
-      consumeRPCQueue(
-        channel.concat(prefix),
-        async msg => mbroker.handler(
-          msg, {
-          constants: allConstants,
-          models: allModels,
-          memoryStorage,
-          graphqlPubsub
-        }
-        )
-      );
-    } else {
-      return consumeQueue(
-        channel.concat(prefix),
-        async msg => {
-          await mbroker.handler(
-            msg, {
-            constants: allConstants,
-            models: allModels,
-            memoryStorage,
-            graphqlPubsub
-          }
-          )
-        }
-      );
-    }
-  }
 };
 
 export default function () {
