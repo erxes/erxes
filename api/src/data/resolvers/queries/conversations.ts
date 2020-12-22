@@ -108,6 +108,7 @@ const conversationQueries = {
     // initiate query builder
     const qb = new QueryBuilder(params, {
       _id: user._id,
+      orderNumber: user.orderNumber,
       starredConversationIds: user.starredConversationIds
     });
 
@@ -216,6 +217,7 @@ const conversationQueries = {
 
     const qb = new QueryBuilder(params, {
       _id: user._id,
+      orderNumber: user.orderNumber,
       starredConversationIds: user.starredConversationIds
     });
 
@@ -294,6 +296,7 @@ const conversationQueries = {
     // initiate query builder
     const qb = new QueryBuilder(params, {
       _id: user._id,
+      orderNumber: user.orderNumber,
       starredConversationIds: user.starredConversationIds
     });
 
@@ -309,6 +312,7 @@ const conversationQueries = {
     // initiate query builder
     const qb = new QueryBuilder(params, {
       _id: user._id,
+      orderNumber: user.orderNumber,
       starredConversationIds: user.starredConversationIds
     });
 
@@ -322,7 +326,10 @@ const conversationQueries = {
    */
   async conversationsTotalUnreadCount(_root, _args, { user }: IContext) {
     // initiate query builder
-    const qb = new QueryBuilder({}, { _id: user._id });
+    const qb = new QueryBuilder(
+      {},
+      { _id: user._id, orderNumber: user.orderNumber }
+    );
     await qb.buildAllQueries();
 
     // get all possible integration ids

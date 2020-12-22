@@ -10,6 +10,7 @@ import {
   Integrations,
   KnowledgeBaseArticles,
   MessengerApps,
+  Skills,
   Users
 } from '../../../db/models';
 import Messages from '../../../db/models/ConversationMessages';
@@ -33,8 +34,13 @@ import { debugBase } from '../../../debuggers';
 import { trackViewPageEvent } from '../../../events';
 import memoryStorage from '../../../inmemoryStorage';
 import { graphqlPubsub } from '../../../pubsub';
-import { AUTO_BOT_MESSAGES, BOT_MESSAGE_TYPES } from '../../constants';
 import {
+  AUTO_BOT_MESSAGES,
+  BOT_MESSAGE_TYPES,
+  RELEVANCE_TYPES
+} from '../../constants';
+import {
+  generateRelevanceId,
   registerOnboardHistory,
   sendEmail,
   sendMobileNotification,
@@ -500,6 +506,26 @@ const widgetMutations = {
       );
       // create conversation
     } else {
+      const relevanceIds: string[] = [];
+
+      if (!HAS_BOTENDPOINT_URL && skillId) {
+        const skill = await Skills.findOne({ _id: skillId }).lean();
+
+        const { memberIds } = skill;
+
+        const users = await Users.find({ _id: { $in: memberIds } });
+
+        users.map(user => {
+          relevanceIds.push(
+            generateRelevanceId(
+              user.orderNumber,
+              RELEVANCE_TYPES.SKILL,
+              skillId
+            )
+          );
+        });
+      }
+
       conversation = await Conversations.createConversation({
         customerId,
         integrationId,
@@ -508,7 +534,7 @@ const widgetMutations = {
           : CONVERSATION_OPERATOR_STATUS.OPERATOR,
         status: getConversationStatus(),
         content: conversationContent,
-        ...(!HAS_BOTENDPOINT_URL && skillId ? { skillIds: [skillId] } : {})
+        relevanceIds
       });
     }
 

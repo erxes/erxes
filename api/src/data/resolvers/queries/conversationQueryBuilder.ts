@@ -1,7 +1,8 @@
 import * as _ from 'underscore';
 import { Channels, Integrations, Skills } from '../../../db/models';
 import { CONVERSATION_STATUSES } from '../../../db/models/definitions/constants';
-import { fixDate } from '../../utils';
+import { RELEVANCE_TYPES } from '../../constants';
+import { fixDate, generateRelevanceId } from '../../utils';
 
 interface IIn {
   $in: string[];
@@ -30,6 +31,7 @@ export interface IListArgs {
 
 interface IUserArgs {
   _id: string;
+  orderNumber: string;
   starredConversationIds?: string[];
 }
 
@@ -115,18 +117,24 @@ export default class Builder {
     };
   }
 
-  public async skillFilter(): Promise<any> {
+  public async relevanceFilter(): Promise<any> {
+    const ids: string[] = [];
+
     const skillIds =
       (await Skills.find({
         memberIds: { $in: [this.user._id] }
       }).distinct('_id')) || [];
 
-    if (skillIds.length === 0) {
-      return {};
+    if (skillIds.length > 0) {
+      skillIds.map(id => {
+        ids.push(
+          generateRelevanceId(this.user.orderNumber, RELEVANCE_TYPES.SKILL, id)
+        );
+      });
     }
 
     return {
-      skillIds: { $in: skillIds }
+      relevanceIds: { $in: ids }
     };
   }
 
@@ -341,7 +349,7 @@ export default class Builder {
     }
 
     // filter by user skillId
-    this.queries.skills = await this.skillFilter();
+    this.queries.relevanceIds = await this.relevanceFilter();
   }
 
   public mainQuery(): any {
