@@ -54,13 +54,13 @@ const apolloServer = new ApolloServer({
 
       return {
         dataSources: generateDataSources(),
-        user,
+        user
       };
     }
 
     const requestInfo = {
       secure: req.secure,
-      cookies: req.cookies,
+      cookies: req.cookies
     };
 
     if (USE_BRAND_RESTRICTIONS !== 'true') {
@@ -72,7 +72,7 @@ const apolloServer = new ApolloServer({
         commonQuerySelector: {},
         user,
         res,
-        requestInfo,
+        requestInfo
       };
     }
 
@@ -152,8 +152,8 @@ const apolloServer = new ApolloServer({
             graphqlPubsub.publish('customerConnectionChanged', {
               customerConnectionChanged: {
                 _id: customerId,
-                status: 'connected',
-              },
+                status: 'connected'
+              }
             });
           }
         }
@@ -172,7 +172,7 @@ const apolloServer = new ApolloServer({
       }
 
       return {
-        user,
+        user
       };
     },
 
@@ -220,14 +220,14 @@ const apolloServer = new ApolloServer({
 
             for (const message of conversationMessages) {
               graphqlPubsub.publish('conversationMessageInserted', {
-                conversationMessageInserted: message,
+                conversationMessageInserted: message
               });
 
               graphqlPubsub.publish('conversationClientTypingStatusChanged', {
                 conversationClientTypingStatusChanged: {
                   conversationId: message.conversationId,
-                  text: '',
-                },
+                  text: ''
+                }
               });
             }
           }
@@ -236,13 +236,13 @@ const apolloServer = new ApolloServer({
           graphqlPubsub.publish('customerConnectionChanged', {
             customerConnectionChanged: {
               _id: customerId,
-              status: 'disconnected',
-            },
+              status: 'disconnected'
+            }
           });
         }, 60000);
       }
-    },
-  },
+    }
+  }
 });
 
 export default apolloServer;
