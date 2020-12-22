@@ -19,7 +19,7 @@
   content: ' ';
   position: absolute;
   right: 50%;
-  top: 100px;
+  top: 85px;
   margin-left: -10px;
   border: 2px solid #ddd;
   animation: spin 1s linear infinite;
