@@ -30,8 +30,10 @@ import messageBroker from '../messageBroker';
 
 import { EngagesAPI } from '../data/dataSources';
 import { handleUnsubscription } from '../data/utils';
+import * as utils from '../data/utils';
 import { KIND_CHOICES, METHODS } from '../db/models/definitions/constants';
 import './setup.ts';
+import * as elk from '../elasticsearch';
 
 // to prevent duplicate expect checks
 const checkEngageMessage = (src, result) => {
@@ -227,6 +229,36 @@ describe('engage message mutation tests', () => {
       segmentIds: [segment._id],
       brandIds: [brand._id]
     });
+  });
+
+  test('engage utils getMessages', async () => {
+    // const utilsMock = sinon.stub(engageUtils, 'getMessages').callsFake();
+
+    const conversationMessage = await conversationMessageFactory({});
+
+    const envMock = sinon.stub(utils, 'getEnv').callsFake(() => {
+      return 'true';
+    })
+
+    const mock = sinon.stub(elk, 'fetchElk').callsFake(() => {
+      return Promise.resolve({
+        hits: {
+          hits: [{ _source: conversationMessage }]
+        }
+      });
+    });
+
+    const customer = await customerFactory({});
+ 
+
+    const response1 = await engageUtils.getMessages({ customerId: customer._id}, true)
+    const response2 = await engageUtils.getMessages({ customerId: customer._id}, false)
+
+    expect(response1).toBe(conversationMessage);
+    expect(response2[0]).toBe(conversationMessage);
+
+    mock.restore();
+    envMock.restore();
   });
 
   test('Engage utils send via messenger', async () => {
