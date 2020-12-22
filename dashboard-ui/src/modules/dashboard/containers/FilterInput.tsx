@@ -20,7 +20,7 @@ class FilterInputContainer extends React.Component<FinalProps, {}> {
   render() {
     const { dashboardFiltersQuery } = this.props;
 
-    if (dashboardFiltersQuery.loading) {
+    if (dashboardFiltersQuery && dashboardFiltersQuery.loading) {
       return <Spinner objective={true} />;
     }
 
@@ -38,6 +38,7 @@ class FilterInputContainer extends React.Component<FinalProps, {}> {
 export default compose(
   graphql<Props, any, { type: string }>(gql(queries.dashboardFilters), {
     name: 'dashboardFiltersQuery',
+    skip: ({ type }) => !type,
     options: ({ type }: { type: string }) => ({
       variables: {
         type

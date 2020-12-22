@@ -1,12 +1,10 @@
-import {
-  DashboardItems,
-  Dashboards,
-  Integrations,
-  Pipelines,
-  Stages,
-  Users
-} from '../../../db/models';
+import { DashboardItems, Dashboards } from '../../../db/models';
 import { DashboardFilters } from '../../dashboardConstants';
+import {
+  getIntegrations,
+  getPipelines,
+  getUsers
+} from '../../modules/dashboard/utils';
 import { checkPermission } from '../../permissions/wrappers';
 import { IContext } from '../../types';
 import { paginate } from '../../utils';
@@ -45,57 +43,23 @@ const dashBoardQueries = {
   },
 
   async dashboardFilters(_root, { type }: { type: string }) {
-    if (type) {
-      let filters = DashboardFilters[type];
+    const filters = DashboardFilters[type];
 
-      if (filters) {
-        return filters;
-      } else {
-        filters = [] as any;
-
-        if (type.includes('pipelineName')) {
-          const pipelineIds = await Stages.find({ type: 'deal' }).distinct(
-            'pipelineId'
-          );
-
-          const pipelines = await Pipelines.find({ _id: { $in: pipelineIds } });
-          await Promise.all(
-            pipelines.map(async pipeline => {
-              const stageIds = await Stages.find({
-                pipelineId: pipeline._id
-              }).distinct('_id');
-              filters.push({ label: pipeline.name, value: stageIds });
-            })
-          );
-        }
-
-        if (
-          type.includes('modifiedBy') ||
-          type.includes('firstRespondedUser')
-        ) {
-          const users = await Users.find({ username: { $exists: true } });
-
-          users.map(user => {
-            filters.push({ label: user.username, value: user._id });
-          });
-        }
-
-        if (type.includes('integrationName')) {
-          const integrations = await Integrations.find({});
-
-          integrations.map(integration => {
-            filters.push({
-              label: integration.name,
-              value: integration._id
-            });
-          });
-        }
+    if (!filters) {
+      if (type.includes('pipelineName')) {
+        return getPipelines();
       }
 
-      return filters;
+      if (type.includes('modifiedBy') || type.includes('firstRespondedUser')) {
+        return getUsers();
+      }
+
+      if (type.includes('integrationName')) {
+        return getIntegrations();
+      }
     }
 
-    return null;
+    return filters;
   }
 };
 

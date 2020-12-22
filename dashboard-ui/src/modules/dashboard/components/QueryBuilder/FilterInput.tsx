@@ -1,7 +1,6 @@
 import React from 'react';
 // tslint:disable-next-line:ordered-imports
 import { Select, Input } from 'antd';
-import * as _ from 'underscore';
 
 const FilterInputs = {
   string: ({ values, onChange, filters }) => {

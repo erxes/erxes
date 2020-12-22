@@ -12,11 +12,6 @@ cube(`Deals`, {
   },
 
   dimensions: {
-    iscomplete: {
-      sql: `${CUBE}."isComplete"`,
-      type: `string`
-    },
-
     modifiedBy: {
       sql: `${CUBE}."modifiedBy"`,
       type: `string`

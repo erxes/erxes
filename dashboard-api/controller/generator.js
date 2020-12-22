@@ -1,3 +1,4 @@
+const { tableSchema } = require('../tablePrefix');
 const elasticsearch = require('elasticsearch');
 
 const { CUBEJS_DB_URL } = process.env;
@@ -10,8 +11,6 @@ const generateReport = async query => {
   if (query.filters) {
     const filters = query.filters;
 
-    console.log('sjdkajdlk');
-
     await Promise.all(
       filters.map(async filter => {
         if (filter.dimension === 'Deals.stageProbability') {
@@ -22,7 +21,7 @@ const generateReport = async query => {
           });
 
           const result = await client.search({
-            index: 'erxes__stages',
+            index: `${tableSchema()}__stages`,
             _source: false,
             body: {
               query: {

@@ -18,10 +18,6 @@ const server = new CubejsServer({
     });
   },
   queryTransformer: async query => {
-    console.log(
-      'llllllllllllllllllllllllllllllllllllllllllllllllllllll',
-      query
-    );
     await generateQuery(query);
     return query;
   }
