@@ -69,8 +69,8 @@ class FilterInput extends React.Component<Props> {
       member.values &&
       member.dimension.name === 'Deals.pipelineName'
     ) {
-      filters.map(filter => {
-        member.values.map(value => {
+      for (const filter of filters) {
+        for (const value of member.values) {
           const found = filter.value.find(element => element === value);
 
           if (found) {
@@ -78,8 +78,8 @@ class FilterInput extends React.Component<Props> {
               customValues.push(filter.value);
             }
           }
-        });
-      });
+        }
+      }
     } else {
       customValues = member.values;
     }
