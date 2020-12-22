@@ -298,7 +298,7 @@ export const getMessages = async (selector: any, isFindOne: boolean) => {
 
   if (ELK_SYNCER === 'true') {
 
-    const must: { match: any }[] = [];
+    const must: any[] = [];
 
     Object.keys(selector).forEach(key => {
       const obj = {}

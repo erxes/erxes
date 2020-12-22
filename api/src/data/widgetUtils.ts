@@ -47,7 +47,7 @@ export const getOrCreateEngageMessage = async (
   return Messages.findOne(Conversations.widgetsUnreadMessagesQuery(convs));
 };
 
-const getConversation = async (integrationId:String, customerId:String) => {
+const getConversation = async (integrationId:string, customerId:string) => {
   const ELK_SYNCER = getEnv({ name: 'ELK_SYNCER', defaultValue: 'true' });
 
   if (ELK_SYNCER === 'true') {
