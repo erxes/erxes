@@ -1,7 +1,7 @@
 import { shallow } from 'enzyme';
 import React from 'react';
 
-import Avatar from '../../../../modules/common/components/nameCard/Avatar';
+import Avatar from 'erxes-ui/lib/components/nameCard/Avatar';
 
 describe('Avatar component', () => {
   test('renders Avatar successfully', () => {

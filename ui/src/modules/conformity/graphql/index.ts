@@ -1,3 +1,3 @@
-import mutations from './mutations';
+import mutations from 'erxes-ui/lib/conformity/graphql/mutations';
 
 export { mutations };

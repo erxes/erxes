@@ -1,6 +1,6 @@
-import { getEnv } from 'apolloClient';
 import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
+import { getEnv } from 'modules/common/utils';
 import { queries as userQueries } from 'modules/settings/team/graphql';
 import { UsersQueryResponse } from 'modules/settings/team/types';
 import queryString from 'query-string';
