@@ -37,7 +37,7 @@ import {
   uploadHandler,
   urlParser,
   withProps
-} from 'erxes-ui';
+} from 'erxes-ui/lib/utils';
 
 export {
   Alert,

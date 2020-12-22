@@ -214,12 +214,12 @@ export const getOrCreateCustomer = async (
     fbUser =
       (await getFacebookUser(pageId, facebookPageTokensMap, userId)) || {};
   } catch (e) {
-    facebookPageTokensMap = await refreshPageAccesToken(pageId, integration);
     if (e.message.includes('access token')) {
-      fbUser =
-        (await getFacebookUser(pageId, facebookPageTokensMap, userId)) || {};
+      facebookPageTokensMap = await refreshPageAccesToken(pageId, integration);
     }
   }
+
+  fbUser = (await getFacebookUser(pageId, facebookPageTokensMap, userId)) || {};
 
   const fbUserProfilePic =
     fbUser.profile_pic ||

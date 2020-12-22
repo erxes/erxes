@@ -1,4 +1,4 @@
-import { activityLogsUtils } from 'erxes-ui'
+import * as activityLogsUtils from 'erxes-ui/lib/activityLogs/utils';
 
 export const getIconAndColor = activityLogsUtils.getIconAndColor;
 

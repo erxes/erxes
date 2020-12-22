@@ -239,7 +239,6 @@ class Navigation extends React.Component<{
             'icon-book'
           )}
 
-          {pluginMenus}
         </Nav>
       </LeftNavigation>
     );

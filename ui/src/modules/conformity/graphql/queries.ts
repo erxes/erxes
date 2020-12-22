@@ -1,3 +1,6 @@
-import { conformityQueryFieldDefs, conformityQueryFields } from 'erxes-ui';
+import {
+  conformityQueryFieldDefs,
+  conformityQueryFields
+} from 'erxes-ui/lib/conformity/graphql/queries';
 
-export { conformityQueryFields, conformityQueryFieldDefs }
+export { conformityQueryFields, conformityQueryFieldDefs };

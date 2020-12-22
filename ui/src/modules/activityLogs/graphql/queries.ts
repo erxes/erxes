@@ -1,4 +1,4 @@
-import { ActivityLogsQueiries } from 'erxes-ui';
+import ActivityLogsQueiries from 'erxes-ui/lib/activityLogs/graphql/queries';
 
 const activityLogs = ActivityLogsQueiries.activityLogs;
 

@@ -1,5 +1,5 @@
-import { EditorCKPlain } from 'erxes-ui';
+import EditorCK from 'erxes-ui/lib/components/EditorCK';
 
-export const getMentionedUserIds = EditorCKPlain.getMentionedUserIds;
+export const getMentionedUserIds = EditorCK.getMentionedUserIds;
 
-export default EditorCKPlain;
+export default EditorCK;

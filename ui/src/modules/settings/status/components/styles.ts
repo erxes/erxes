@@ -1,4 +1,5 @@
 import { colors } from 'modules/common/styles';
+import { darken } from 'modules/common/styles/color';
 import { Content, NavButton } from 'modules/robot/components/styles';
 import styled from 'styled-components';
 import styledTS from 'styled-components-ts';
@@ -69,7 +70,7 @@ const Wrapper = styled.div`
 `;
 
 const VersionNotifier = styled(Content)`
-  background: ${colors.colorCoreBlue};
+  background: ${darken(colors.colorCoreTeal, 15)};
   color: ${colors.colorWhite};
   padding: 12px 16px;
 

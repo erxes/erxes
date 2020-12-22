@@ -1,7 +1,7 @@
-import { generateCategoryOptions } from 'erxes-ui';
+import { generateCategoryOptions } from 'erxes-ui/lib/utils';
 import { PRODUCT_TYPE_CHOISES } from './constants';
 
-export { generateCategoryOptions }
+export { generateCategoryOptions };
 
 export const productTypeChoises = __ => {
   const options: Array<{ value: string; label: string }> = [];

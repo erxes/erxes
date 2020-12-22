@@ -1,10 +1,10 @@
 import {
-    ChooserActionTop as ActionTop,
-    ChooserColumn as Column,
-    ChooserColumns as Columns,
-    ChooserFooter as Footer,
-    ChooserSelect as Select,
-    ChooserTitle as Title
-} from 'erxes-ui';
+  ActionTop,
+  Column,
+  Columns,
+  Footer,
+  Select,
+  Title
+} from 'erxes-ui/lib/styles/chooser';
 
 export { Columns, Column, Title, Footer, Select, ActionTop };

@@ -1,4 +1,4 @@
-import { getConfig, setConfig } from 'erxes-ui';
+import { getConfig, setConfig } from 'erxes-ui/lib/utils/core';
 import gql from 'graphql-tag';
 import queryString from 'query-string';
 import { queries } from './graphql';
@@ -33,7 +33,6 @@ export const refetchSidebarConversationsOptions = () => {
 };
 
 export { getConfig };
-
 export { setConfig };
 
 export const isConversationMailKind = (conversation: IConversation) => {

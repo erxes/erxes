@@ -1,4 +1,4 @@
-import { ActivityLogsStyles } from 'erxes-ui';
+import * as ActivityLogsStyles from 'erxes-ui/lib/activityLogs/styles';
 
 const ShowMore = ActivityLogsStyles.ShowMore;
 const Timeline = ActivityLogsStyles.Timeline;
