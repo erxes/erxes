@@ -9,7 +9,7 @@ dotenv.config();
 const app = express();
 
 // for health checking
-app.get('/health', async (_req, res) => {
+app.get('/health', async (req, res) => {
   res.end('ok');
 });
 
