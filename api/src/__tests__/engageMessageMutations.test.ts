@@ -1,6 +1,7 @@
 import * as faker from 'faker';
 import * as sinon from 'sinon';
 import { MESSAGE_KINDS } from '../data/constants';
+import * as elk from '../elasticsearch';
 import * as engageUtils from '../data/resolvers/mutations/engageUtils';
 import { graphqlRequest } from '../db/connection';
 import {
@@ -29,11 +30,10 @@ import {
 import messageBroker from '../messageBroker';
 
 import { EngagesAPI } from '../data/dataSources';
-import { handleUnsubscription } from '../data/utils';
 import * as utils from '../data/utils';
 import { KIND_CHOICES, METHODS } from '../db/models/definitions/constants';
 import './setup.ts';
-import * as elk from '../elasticsearch';
+
 
 // to prevent duplicate expect checks
 const checkEngageMessage = (src, result) => {
@@ -737,7 +737,7 @@ describe('engage message mutation tests', () => {
     const customer = await customerFactory({ doNotDisturb: 'No' });
     const user = await userFactory({ doNotDisturb: 'No' });
 
-    await handleUnsubscription({ cid: customer._id, uid: user._id });
+    await utils.handleUnsubscription({ cid: customer._id, uid: user._id });
 
     const updatedCustomer = await Customers.getCustomer(customer._id);
 
