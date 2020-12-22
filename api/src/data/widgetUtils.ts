@@ -43,38 +43,29 @@ export const getOrCreateEngageMessage = async (
 
   // find conversations
   const convs = await getConversation(integration._id, customer._id);
-  console.log(convs);
+
   return Messages.findOne(Conversations.widgetsUnreadMessagesQuery(convs));
 };
 
-const getConversation = async (integrationId:string, customerId:string) => {
+const getConversation = async (integrationId: string, customerId: string) => {
   const ELK_SYNCER = getEnv({ name: 'ELK_SYNCER', defaultValue: 'true' });
 
   if (ELK_SYNCER === 'true') {
-    const response = await fetchElk(
-      'search',
-      'conversation_messages',
-      {
-        query: {
-          bool: {
-            must: [
-              { match: {integrationId}},
-              { match: {customerId}}
-            ]
-          }
+    const response = await fetchElk('search', 'conversation_messages', {
+      query: {
+        bool: {
+          must: [{ match: { integrationId } }, { match: { customerId } }]
         }
-      },
-    );
+      }
+    });
 
-    if (response.hits.hits.length > 0 ) {
+    if (response.hits.hits.length > 0) {
       return response.hits.hits[0]._source;
     }
   }
 
   return await Conversations.find({
     integrationId,
-    customerId,
+    customerId
   });
-
-  
-}
+};
