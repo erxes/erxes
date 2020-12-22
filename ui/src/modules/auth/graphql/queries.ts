@@ -1,37 +1,4 @@
-const currentUser = `
-  query currentUser {
-    currentUser {
-      _id
-      createdAt
-      username
-      email
-      isOwner
-      brands {
-        _id
-        name
-      }
-      details {
-        avatar
-        fullName
-        shortName
-        position
-        location
-        description
-      }
-      links
-      emailSignatures
-      getNotificationByEmail
-      permissionActions
-      configs
-      configsConstants
-      onboardingHistory {
-        _id
-        userId
-        isCompleted
-        completedSteps
-      }
-    }
-  }
-`;
+import { currentUser as currentUserQuery } from 'erxes-ui/lib/auth/graphql';
 
+const currentUser = currentUserQuery;
 export default { currentUser };

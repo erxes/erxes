@@ -1,3 +1,5 @@
+import { queries as boardQueries } from 'erxes-ui/lib/boards/graphql';
+
 const pipelineLabelFields = `
   _id
   name
@@ -23,19 +25,7 @@ const pipelineLabelDetail = `
   }
 `;
 
-const boards = `
-  query boards($type: String!) {
-    boards(type: $type) {
-      _id
-      name
-
-      pipelines {
-        _id
-        name
-      }
-    }
-  }
-`;
+const boards = boardQueries.boards;
 
 const boardGetLast = `
   query boardGetLast($type: String!) {
@@ -81,19 +71,7 @@ const boardDetail = `
   }
 `;
 
-const pipelines = `
-  query pipelines($boardId: String, $type: String, $perPage: Int, $page: Int) {
-    pipelines(boardId: $boardId, type: $type, perPage: $perPage, page: $page) {
-      _id
-      name
-      boardId
-      state
-      startDate
-      endDate
-      itemsTotalCount
-    }
-  }
-`;
+const pipelines = boardQueries.pipelines;
 
 const pipelineDetail = `
   query pipelineDetail($_id: String!) {
@@ -107,58 +85,17 @@ const pipelineDetail = `
   }
 `;
 
-const commonParams = `
-  $search: String,
-  $customerIds: [String],
-  $companyIds: [String],
-  $assignedUserIds: [String],
-  $labelIds: [String],
-  $extraParams: JSON,
-  $closeDateType: String
-`;
+const commonParams = boardQueries.commonParams;
 
-const commonParamDefs = `
-  search: $search,
-  customerIds: $customerIds,
-  companyIds: $companyIds,
-  assignedUserIds: $assignedUserIds,
-  labelIds: $labelIds,
-  extraParams: $extraParams,
-  closeDateType: $closeDateType
-`;
+const commonParamDefs = boardQueries.commonParamDefs;
 
-const stageParams = `
-  $isNotLost: Boolean,
-  $pipelineId: String!,
-  ${commonParams}
-`;
+const stageParams = boardQueries.stageParams;
 
-const stageParamDefs = `
-  isNotLost: $isNotLost,
-  pipelineId: $pipelineId,
-  ${commonParamDefs}
-`;
+const stageParamDefs = boardQueries.stageParamDefs;
 
-const stageCommon = `
-  _id
-  name
-  order
-  amount
-  itemsTotalCount
-  pipelineId
-`;
+const stageCommon = boardQueries.stageCommon;
 
-const stages = `
-  query stages(
-    ${stageParams}
-  ) {
-    stages(
-      ${stageParamDefs}
-    ) {
-      ${stageCommon}
-    }
-  }
-`;
+const stages = boardQueries.stages;
 
 const conversionStages = `
   query stages(

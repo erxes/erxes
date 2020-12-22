@@ -1,3 +1,4 @@
+import { PopoverButton } from 'erxes-ui/lib/styles/eindex';
 import {
   RichEditorControlsRoot,
   RichEditorRoot
@@ -10,26 +11,6 @@ import styled from 'styled-components';
 import styledTS from 'styled-components-ts';
 import { colors, dimensions } from '../common/styles';
 import { darken, rgba } from '../common/styles/color';
-
-const PopoverButton = styled.div`
-  display: inline-block;
-  position: relative;
-
-  > * {
-    display: inline-block;
-  }
-
-  > i {
-    margin-left: 3px;
-    margin-right: -4px;
-    transition: all ease 0.3s;
-    color: ${colors.colorCoreGray};
-  }
-
-  &:hover {
-    cursor: pointer;
-  }
-`;
 
 const RichEditorRight = styled.div`
   float: right;
@@ -178,7 +159,7 @@ const PopoverList = styledTS<{ center?: boolean }>(styled(RootList))`
     a {
       color: ${colors.colorCoreDarkGray};
     }
-    
+
   }
 `;
 

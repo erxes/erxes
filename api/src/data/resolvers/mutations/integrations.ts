@@ -174,10 +174,16 @@ const integrationMutations = {
 
     if (modifiedDoc.kind === KIND_CHOICES.WEBHOOK) {
       modifiedDoc.webhookData = { ...data };
-      modifiedDoc.webhookData.token = await getUniqueValue(
-        Integrations,
-        'token'
-      );
+
+      if (
+        !modifiedDoc.webhookData.token ||
+        modifiedDoc.webhookData.token === ''
+      ) {
+        modifiedDoc.webhookData.token = await getUniqueValue(
+          Integrations,
+          'token'
+        );
+      }
     }
 
     const integration = await Integrations.createExternalIntegration(
@@ -313,7 +319,8 @@ const integrationMutations = {
           'smooch-line',
           'smooch-twilio',
           'whatsapp',
-          'telnyx'
+          'telnyx',
+          'webhook'
         ].includes(integration.kind)
       ) {
         await dataSources.IntegrationsAPI.removeIntegration({
