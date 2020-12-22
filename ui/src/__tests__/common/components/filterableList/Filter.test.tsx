@@ -1,7 +1,7 @@
 import { shallow } from 'enzyme';
 import React from 'react';
 
-import Filter from '../../../../modules/common/components/filterableList/Filter';
+import Filter from 'erxes-ui/lib/components/filterableList/Filter';
 
 describe('Filter component', () => {
   const defaultProps = {

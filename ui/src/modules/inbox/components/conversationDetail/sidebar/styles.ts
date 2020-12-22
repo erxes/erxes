@@ -1,3 +1,4 @@
+import { SectionContainer, SidebarCollapse } from 'erxes-ui/lib/layout/styles';
 import {
   ActivityDate,
   ActivityIcon,
@@ -9,7 +10,6 @@ import {
 } from 'modules/activityLogs/styles';
 import { colors, dimensions, typography } from 'modules/common/styles';
 import { ActivityContent, DateContainer } from 'modules/common/styles/main';
-import { SidebarBox, SidebarTitle } from 'modules/layout/styles';
 import styled from 'styled-components';
 import {
   FormTable,
@@ -32,28 +32,6 @@ const FlexRow = styled(DateContainer)`
 const FlexItem = styled.div`
   flex: 1;
   margin-left: 5px;
-`;
-
-const SectionContainer = styled.div`
-  position: relative;
-  box-shadow: 0 0 6px 0 rgba(0, 0, 0, 0.08);
-  margin-bottom: 10px;
-
-  > div {
-    margin-bottom: 0;
-  }
-
-  &:last-child {
-    margin-bottom: 0;
-  }
-
-  ${SidebarBox} {
-    box-shadow: none;
-  }
-
-  ${SidebarTitle} {
-    height: 40px;
-  }
 `;
 
 const NoteFormContainer = styled.div`
@@ -138,22 +116,6 @@ const BasicInfo = styled.div`
 const TabContent = styled.div`
   ul {
     padding: ${dimensions.unitSpacing}px 0;
-  }
-`;
-
-const SidebarCollapse = styled.a`
-  color: ${colors.colorCoreGray};
-  position: absolute;
-  top: ${dimensions.unitSpacing - 2}px;
-  right: ${dimensions.coreSpacing - 3}px;
-  font-size: 14px;
-
-  &:hover {
-    cursor: pointer;
-  }
-
-  &:focus {
-    outline: 0;
   }
 `;
 

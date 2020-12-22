@@ -1,14 +1,3 @@
-import React from 'react';
-import { Formgroup } from './styles';
-
-function FormGroup({
-  children,
-  horizontal
-}: {
-  children: React.ReactNode;
-  horizontal?: boolean;
-}) {
-  return <Formgroup horizontal={horizontal}>{children}</Formgroup>;
-}
+import FormGroup from 'erxes-ui/lib/components/form/Group';
 
 export default FormGroup;

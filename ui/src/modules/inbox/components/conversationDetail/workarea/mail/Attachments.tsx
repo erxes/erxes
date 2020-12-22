@@ -1,7 +1,6 @@
-import { getEnv } from 'apolloClient';
 import Icon from 'modules/common/components/Icon';
 import Tip from 'modules/common/components/Tip';
-import { __ } from 'modules/common/utils';
+import { __, getEnv } from 'modules/common/utils';
 import { IMailAttachment } from 'modules/inbox/types';
 import * as React from 'react';
 import {
