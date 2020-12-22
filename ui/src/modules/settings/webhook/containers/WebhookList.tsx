@@ -1,4 +1,3 @@
-// import client from 'apolloClient';
 import gql from 'graphql-tag';
 import { IButtonMutateProps } from 'modules/common/types';
 import { generatePaginationParams } from 'modules/common/utils/router';

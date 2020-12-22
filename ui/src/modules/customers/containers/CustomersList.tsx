@@ -1,7 +1,6 @@
-import { getEnv } from 'apolloClient';
 import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
-import { Alert, withProps } from 'modules/common/utils';
+import { Alert, getEnv, withProps } from 'modules/common/utils';
 import { generatePaginationParams } from 'modules/common/utils/router';
 import queryString from 'query-string';
 import React from 'react';

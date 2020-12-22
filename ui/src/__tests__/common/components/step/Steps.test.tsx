@@ -1,7 +1,7 @@
 import { shallow } from 'enzyme';
 import React from 'react';
 
-import Steps from '../../../../modules/common/components/step/Steps';
+import Steps from 'erxes-ui/lib/components/step/Steps';
 
 describe('Group component', () => {
   const defaultProps = {
