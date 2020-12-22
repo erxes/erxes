@@ -1,11 +1,21 @@
-import './setup.ts';
-
-import * as elk from '../elasticsearch';
-import * as engageUtils from '../data/resolvers/mutations/engageUtils';
 import * as faker from 'faker';
 import * as sinon from 'sinon';
+import { MESSAGE_KINDS } from '../data/constants';
+import { EngagesAPI } from '../data/dataSources';
+import * as engageUtils from '../data/resolvers/mutations/engageUtils';
 import * as utils from '../data/utils';
-
+import { graphqlRequest } from '../db/connection';
+import {
+  brandFactory,
+  conversationFactory,
+  conversationMessageFactory,
+  customerFactory,
+  engageMessageFactory,
+  integrationFactory,
+  segmentFactory,
+  tagsFactory,
+  userFactory
+} from '../db/factories';
 import {
   Brands,
   ConversationMessages,
@@ -19,22 +29,9 @@ import {
   Users
 } from '../db/models';
 import { KIND_CHOICES, METHODS } from '../db/models/definitions/constants';
-import {
-  brandFactory,
-  conversationFactory,
-  conversationMessageFactory,
-  customerFactory,
-  engageMessageFactory,
-  integrationFactory,
-  segmentFactory,
-  tagsFactory,
-  userFactory
-} from '../db/factories';
-
-import { EngagesAPI } from '../data/dataSources';
-import { MESSAGE_KINDS } from '../data/constants';
-import { graphqlRequest } from '../db/connection';
+import * as elk from '../elasticsearch';
 import messageBroker from '../messageBroker';
+import './setup.ts';
 
 // to prevent duplicate expect checks
 const checkEngageMessage = (src, result) => {
