@@ -1,4 +1,5 @@
 import { Transform } from 'stream';
+import { object } from 'underscore';
 import {
   ConversationMessages,
   Customers,
@@ -291,35 +292,45 @@ const sendEmailOrSms = async (
   });
 };
 
-export const getPreviousMessage = async (customerId, messageId) => {
-  
+export const getMessages = async (selector: any, isFindOne: boolean) => {
+
   const ELK_SYNCER = getEnv({ name: 'ELK_SYNCER', defaultValue: 'true' });
 
-  if (ELK_SYNCER) {
+  if (ELK_SYNCER === 'true') {
+
+    const must: { match: any }[] = [];
+
+    Object.keys(selector).forEach(key => {
+      const obj = {}
+      obj[key] = selector[key];
+      const match = { match: obj }
+      must.push(match);
+    });
+
     const response = await fetchElk(
       'search',
       'conversation_messages',
       {
-        "query": {
-          "bool": {
-            "must": [
-              { "match": { customerId: customerId } },
-              { "match": { 'engageData.messageId': messageId } }
-            ]
+        query: {
+          bool: {
+            must
           }
         }
-      },         
+      },
     );
 
-    if (response.hits.hits){
+    if (response.hits.hits.length > 0 && isFindOne) {
       return response.hits.hits[0]._source;
     }
-  }else {
-    return await ConversationMessages.findOne(
-      {
-        customerId: customerId,
-        'engageData.messageId': messageId
-      }
-    );
+
+    return response.hits.hits.map(hit => {
+      return hit._source;
+    });
   }
+
+  if (isFindOne) {
+    return await ConversationMessages.findOne(selector);
+  }
+  return await ConversationMessages.find(selector);
 }
+

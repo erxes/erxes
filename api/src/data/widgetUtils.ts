@@ -7,6 +7,8 @@ import {
 } from '../db/models';
 import Messages from '../db/models/ConversationMessages';
 import { IBrowserInfo } from '../db/models/Customers';
+import { fetchElk } from '../elasticsearch';
+import { getEnv } from './utils';
 
 export const getOrCreateEngageMessage = async (
   customerId: string,
@@ -40,10 +42,39 @@ export const getOrCreateEngageMessage = async (
   });
 
   // find conversations
-  const convs = await Conversations.find({
-    integrationId: integration._id,
-    customerId: customer._id
-  });
-
+  const convs = await getConversation(integration._id, customer._id);
+  console.log(convs);
   return Messages.findOne(Conversations.widgetsUnreadMessagesQuery(convs));
 };
+
+const getConversation = async (integrationId:String, customerId:String) => {
+  const ELK_SYNCER = getEnv({ name: 'ELK_SYNCER', defaultValue: 'true' });
+
+  if (ELK_SYNCER === 'true') {
+    const response = await fetchElk(
+      'search',
+      'conversation_messages',
+      {
+        query: {
+          bool: {
+            must: [
+              { match: {integrationId}},
+              { match: {customerId}}
+            ]
+          }
+        }
+      },
+    );
+
+    if (response.hits.hits.length > 0 ) {
+      return response.hits.hits[0]._source;
+    }
+  }
+
+  return await Conversations.find({
+    integrationId,
+    customerId,
+  });
+
+  
+}

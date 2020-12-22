@@ -1,8 +1,7 @@
 import { Model, model } from 'mongoose';
 import { ConversationMessages, Conversations, Users } from '.';
-import { generateCustomerSelector } from '../../data/resolvers/mutations/engageUtils';
-import { getEnv, replaceEditorAttributes } from '../../data/utils';
-import { fetchElk } from '../../elasticsearch';
+import { generateCustomerSelector, getMessages } from '../../data/resolvers/mutations/engageUtils';
+import { replaceEditorAttributes } from '../../data/utils';
 import { getNumberOfVisits } from '../../events';
 import Customers, { IBrowserInfo } from './Customers';
 import { IBrandDocument } from './definitions/brands';
@@ -361,39 +360,11 @@ export const loadClass = () => {
     }) {
       const { customer, integration, user, engageData, replacedContent } = args;
 
-      let prevMessage: IMessageDocument | null;
+      const selector = {customerId: customer._id, 'engageData.messageId': engageData.messageId}
 
-      const ELK_SYNCER = getEnv({ name: 'ELK_SYNCER', defaultValue: 'true' });
+      const prevMessage: IMessageDocument | null = await getMessages(selector, true);
 
-      if (ELK_SYNCER) {
-        const response = await fetchElk(
-          'search',
-          'conversation_messages',
-          {
-            "query": {
-              "bool": {
-                "must": [
-                  { "match": { customerId: customer._id, } },
-                  { "match": { 'engageData.messageId': engageData.messageId } }
-                ]
-              }
-            }
-          },         
-        );
-
-        if (response.hits.hits){
-          prevMessage = response.hits.hits[0]._source;
-        }
-      }else {
-        prevMessage = await ConversationMessages.findOne(
-          {
-            customerId: customer._id,
-            'engageData.messageId': engageData.messageId
-          }
-        );
-      }
-
-console.log(prevMessage)
+      // if previously created conversation for this customer
       if (prevMessage) {
         if (
           JSON.stringify(prevMessage.engageData) === JSON.stringify(engageData)
@@ -401,9 +372,7 @@ console.log(prevMessage)
           return null;
         }
 
-        const messages = await ConversationMessages.find({
-          conversationId: prevMessage.conversationId
-        });
+        const messages = await getMessages({conversationId: prevMessage.conversationId}, false);
 
         // leave conversations with responses alone
         if (messages.length > 1) {
