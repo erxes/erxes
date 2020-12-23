@@ -91,7 +91,6 @@ class InitialData extends React.Component<Props, State> {
       return (
         <EmptyWrapper>
           <Empty
-            image="/images/empty.svg"
             imageStyle={{
               height: 200
             }}

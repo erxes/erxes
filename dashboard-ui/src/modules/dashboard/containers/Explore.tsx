@@ -36,7 +36,7 @@ class DashboardContainer extends React.Component<FinalProps, State> {
       addDashboardItemMutation,
       editDashboardItemMutation,
       history,
-      queryParams,
+      queryParams
     } = this.props;
 
     const { vizState, name, type } = queryParams;
@@ -49,7 +49,7 @@ class DashboardContainer extends React.Component<FinalProps, State> {
 
     const dashboardId = queryParams.dashboardId;
 
-    const save = (params) => {
+    const save = params => {
       this.setState({ isLoading: true });
 
       params.dashboardId = dashboardId;
@@ -60,14 +60,14 @@ class DashboardContainer extends React.Component<FinalProps, State> {
         : addDashboardItemMutation;
 
       return mutation({
-        variables: { ...params },
+        variables: { ...params }
       })
         .then(() => {
           Alert.success('Success');
           history.goBack();
         })
 
-        .catch((error) => {
+        .catch(error => {
           this.setState({ isLoading: false });
           return Alert.error(error.message);
         });
@@ -77,7 +77,7 @@ class DashboardContainer extends React.Component<FinalProps, State> {
       dashboardItem = {
         vizState,
         name,
-        type,
+        type
       };
     } else {
       dashboardItem = dashBoardItemDetailsQuery
@@ -104,21 +104,21 @@ export default compose(
       skip: ({ queryParams }) => !queryParams.itemId,
       options: ({ queryParams }) => ({
         variables: {
-          _id: queryParams.itemId,
-        },
-      }),
+          _id: queryParams.itemId
+        }
+      })
     }
   ),
   graphql(gql(mutations.dashboardItemAdd), {
     name: 'addDashboardItemMutation',
     options: () => ({
-      refetchQueries: ['dashboardItemsQuery'],
-    }),
+      refetchQueries: ['dashboardItemsQuery']
+    })
   }),
   graphql(gql(mutations.dashboardItemEdit), {
     name: 'editDashboardItemMutation',
     options: () => ({
-      refetchQueries: ['dashboardItemsQuery'],
-    }),
+      refetchQueries: ['dashboardItemsQuery']
+    })
   })
 )(DashboardContainer);

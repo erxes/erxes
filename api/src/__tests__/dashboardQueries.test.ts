@@ -151,4 +151,27 @@ describe('dashboardQueries', () => {
 
     spy.mockRestore();
   });
+
+  test('Get filters of dashboard', async () => {
+    const qry = `
+      query dashboardFilters($type: String) {
+        dashboardFilters(type: $type)
+      }
+    `;
+
+    const types = [
+      'pipelineName',
+      'modifiedBy',
+      'integrationName',
+      'Customers.state'
+    ];
+
+    types.map(async type => {
+      const response = await graphqlRequest(qry, 'dashboardFilters', {
+        type
+      });
+
+      expect(response).toBeDefined();
+    });
+  });
 });

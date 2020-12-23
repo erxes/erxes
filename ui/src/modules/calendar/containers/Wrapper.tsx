@@ -1,6 +1,7 @@
 import { AppConsumer } from 'appContext';
 import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
+import Info from 'modules/common/components/Info';
 import Spinner from 'modules/common/components/Spinner';
 import { withProps } from 'modules/common/utils';
 import { IBoard, IGroup } from 'modules/settings/calendars/types';
@@ -30,9 +31,7 @@ class SidebarContainer extends React.Component<FinalProps> {
     }
 
     if (calendarsQuery.error) {
-      return (
-        <span style={{ color: 'red' }}>Integrations api is not running</span>
-      );
+      return <Info bordered={false}>{calendarsQuery.error.message}</Info>;
     }
 
     const updatedProps = {
