@@ -533,7 +533,7 @@ const pageSchema = {
   appClientId: String,
   appOrganizationId: Number,
   editToken: String,
-  pageId: { type: String, unique: true },
+  pageId: { type: Number, unique: true },
   createdAt: Date,
   modifiedAt: Date,
   config: pageConfigSchema,

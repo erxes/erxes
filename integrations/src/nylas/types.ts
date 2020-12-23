@@ -245,7 +245,7 @@ export interface INylasSchedulePageDoc {
   name: string;
   slug: string;
   timezone: string;
-  calendarIds: [string];
+  calendarIds: string[];
   event: {
     title: string;
     location: string;
@@ -260,7 +260,7 @@ export interface INylasSchedulePageDoc {
   };
   booking?: {
     openingHours?: {
-      days: [string];
+      days: string[];
       start: string;
       end: string;
     };

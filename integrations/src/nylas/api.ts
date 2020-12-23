@@ -650,7 +650,7 @@ const createSchedulePage = async (
     if (!response) {
       throw new Error(`page not found`);
     }
-
+    console.log(response);
     await storePages([response], accountId);
 
     return response;

@@ -1,3 +1,4 @@
+import { ConsoleTranscriptLogger } from 'botbuilder';
 import { debugNylas } from '../debuggers';
 import { revokeToken } from '../gmail/api';
 import memoryStorage from '../inmemoryStorage';
@@ -626,19 +627,15 @@ export const nylasGetSchedulePages = async (accountId: string) => {
 };
 
 export const nylasGetSchedulePage = async (pageId: string) => {
-  try {
-    return NylasPages.findOne(
-      { _id: pageId },
-      {
-        appClientId: 0,
-        appOrganizationId: 0,
-        editToken: 0,
-        pageId: 0
-      }
-    );
-  } catch (e) {
-    debugNylas(`Failed to get schedule page: ${e.message}`);
-  }
+  return NylasPages.findOne(
+    { _id: pageId },
+    {
+      appClientId: 0,
+      appOrganizationId: 0,
+      editToken: 0,
+      pageId: 0
+    }
+  );
 };
 
 export const nylasCreateSchedulePage = async (
@@ -673,10 +670,6 @@ export const nylasDeleteSchedulePage = async (_id: string) => {
     const { pageId, accountId } = page;
 
     const account = await Accounts.findOne({ _id: accountId });
-
-    if (!account) {
-      throw new Error(`Account not found with id: ${accountId}`);
-    }
 
     await deleteSchedulePage(pageId, account.nylasToken);
 

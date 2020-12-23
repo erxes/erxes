@@ -453,4 +453,80 @@ describe('Test calendars mutations', () => {
       }
     );
   });
+
+  test('Create schedule page', async () => {
+    const mutation = `
+      mutation createSchedulePage(
+        $accountId: String!,
+        $appearance: ScheduleAppearance,
+        $calendarIds: [String],
+        $booking: ScheduleBooking
+        $event: ScheduleEvent!,
+        $timezone: String!,
+        $name: String!,
+        $slug: String!
+      ) {
+        createSchedulePage(
+          accountId: $accountId,
+          appearance: $appearance,
+          calendarIds: $calendarIds,
+          booking: $booking,
+          event: $event,
+          timezone: $timezone,
+          name: $name,
+          slug: $slug,
+        )
+      }
+    `;
+
+    const createPageSpy = jest.spyOn(
+      dataSources.IntegrationsAPI,
+      'createSchedulePage'
+    );
+
+    createPageSpy.mockImplementation(() => Promise.resolve());
+
+    await graphqlRequest(
+      mutation,
+      'createSchedulePage',
+      {
+        name: 'New schedule page',
+        slug: 'join-me',
+        accountId: 'accountId',
+        timezone: 'UlanBator',
+        event: {
+          title: 'Event title',
+          location: 'Mongolia',
+          duration: 30
+        }
+      },
+      {
+        dataSources
+      }
+    );
+  });
+
+  test('Delete schedule page', async () => {
+    const mutation = `
+      mutation deleteSchedulePage($pageId: String!) {
+        deleteSchedulePage(pageId: $pageId)
+      }
+    `;
+
+    const deleteCalendarSpy = jest.spyOn(
+      dataSources.IntegrationsAPI,
+      'deleteSchedulePage'
+    );
+
+    deleteCalendarSpy.mockImplementation(() => Promise.resolve());
+
+    await graphqlRequest(
+      mutation,
+      'deleteSchedulePage',
+      { pageId: 'pageId' },
+      {
+        dataSources
+      }
+    );
+  });
 });
