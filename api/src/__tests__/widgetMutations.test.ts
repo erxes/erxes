@@ -971,7 +971,7 @@ describe('lead', () => {
   });
 
   test('widgetsSendEmail', async () => {
-    const customer = await customerFactory({});
+    const submittedCustomer = await customerFactory({});
     const form = await formFactory({});
 
     const emailParams = {
@@ -979,7 +979,7 @@ describe('lead', () => {
       fromEmail: 'admin@erxes.io',
       title: 'Thank you for submitting.',
       content: 'We have received your request',
-      customerId: customer._id,
+      customerId: submittedCustomer._id,
       formId: form._id
     };
 
