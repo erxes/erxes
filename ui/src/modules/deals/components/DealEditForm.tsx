@@ -1,3 +1,4 @@
+import { AppConsumer } from 'appContext';
 import EditForm from 'modules/boards/components/editForm/EditForm';
 import Left from 'modules/boards/components/editForm/Left';
 import Sidebar from 'modules/boards/components/editForm/Sidebar';
@@ -153,11 +154,36 @@ export default class DealEditForm extends React.Component<Props, State> {
     );
   };
 
+  renderPluginsSidebarSections(plugins, deal) {
+    return plugins.map(plugin => {
+      const rsSection = plugin.dealRightSidebarSection;
+
+      if (!rsSection) {
+        return <></>;
+      }
+
+      const Component = rsSection.section;
+      return (<Component
+        mainType={'deal'}
+        mainTypeId={deal._id}
+      />)
+    })
+  }
+
   renderItems = () => {
+    const { item } = this.props
     return (
       <>
-        <PortableTickets mainType="deal" mainTypeId={this.props.item._id} />
-        <PortableTasks mainType="deal" mainTypeId={this.props.item._id} />
+        <PortableTickets mainType="deal" mainTypeId={item._id} />
+        <PortableTasks mainType="deal" mainTypeId={item._id} />
+
+        <AppConsumer>
+          {({ plugins }) => (
+            <div>
+              {this.renderPluginsSidebarSections(plugins, item)}
+            </div>
+          )}
+        </AppConsumer>
       </>
     );
   };

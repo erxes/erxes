@@ -1,3 +1,4 @@
+import { AppConsumer } from 'appContext';
 import Box from 'modules/common/components/Box';
 import EmptyState from 'modules/common/components/EmptyState';
 import Icon from 'modules/common/components/Icon';
@@ -70,6 +71,22 @@ export default class RightSidebar extends React.Component<Props> {
     );
   }
 
+  renderPluginsSidebarSections(plugins, customer) {
+    return plugins.map(plugin => {
+      const rsSection = plugin.customerRightSidebarSection;
+
+      if (!rsSection) {
+        return <></>;
+      }
+
+      const Component = rsSection.section;
+      return (<Component
+        mainType={'customer'}
+        mainTypeId={customer._id}
+      />)
+    })
+  }
+
   render() {
     const { customer } = this.props;
 
@@ -79,6 +96,13 @@ export default class RightSidebar extends React.Component<Props> {
         <PortableDeals mainType="customer" mainTypeId={customer._id} />
         <PortableTickets mainType="customer" mainTypeId={customer._id} />
         <PortableTasks mainType="customer" mainTypeId={customer._id} />
+        <AppConsumer>
+          {({ plugins }) => (
+            <div>
+              {this.renderPluginsSidebarSections(plugins, customer)}
+            </div>
+          )}
+        </AppConsumer>
         {this.renderOther()}
       </Sidebar>
     );

@@ -1,3 +1,4 @@
+import { AppConsumer } from 'appContext';
 import dayjs from 'dayjs';
 import Box from 'modules/common/components/Box';
 import { __ } from 'modules/common/utils';
@@ -28,6 +29,22 @@ export default class RightSidebar extends React.Component<Props> {
     );
   }
 
+  renderPluginsSidebarSections(plugins, company) {
+    return plugins.map(plugin => {
+      const rsSection = plugin.companyRightSidebarSection;
+
+      if (!rsSection) {
+        return <></>;
+      }
+
+      const Component = rsSection.section;
+      return (<Component
+        mainType={'company'}
+        mainTypeId={company._id}
+      />)
+    })
+  }
+
   render() {
     const { company } = this.props;
 
@@ -37,7 +54,13 @@ export default class RightSidebar extends React.Component<Props> {
         <PortableDeals mainType="company" mainTypeId={company._id} />
         <PortableTickets mainType="company" mainTypeId={company._id} />
         <PortableTasks mainType="company" mainTypeId={company._id} />
-
+        <AppConsumer>
+          {({ plugins }) => (
+            <div>
+              {this.renderPluginsSidebarSections(plugins, company)}
+            </div>
+          )}
+        </AppConsumer>
         <Box title={__('Other')} name="showOthers">
           <List>
             <li>
