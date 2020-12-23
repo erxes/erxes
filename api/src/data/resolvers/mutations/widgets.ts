@@ -36,6 +36,7 @@ import { graphqlPubsub } from '../../../pubsub';
 import { AUTO_BOT_MESSAGES, BOT_MESSAGE_TYPES } from '../../constants';
 import {
   registerOnboardHistory,
+  replaceEditorAttributes,
   sendEmail,
   sendMobileNotification,
   sendRequest,
@@ -56,6 +57,8 @@ interface IWidgetEmailParams {
   fromEmail: string;
   title: string;
   content: string;
+  customerId?: string;
+  formId?: string;
 }
 
 export const getMessengerData = async (integration: IIntegrationDocument) => {
@@ -706,13 +709,38 @@ const widgetMutations = {
   },
 
   async widgetsSendEmail(_root, args: IWidgetEmailParams) {
-    const { toEmails, fromEmail, title, content } = args;
+    const { toEmails, fromEmail, title, content, customerId, formId } = args;
+
+    let customer;
+    let user;
+
+    if (customerId) {
+      customer = await Customers.getCustomer(customerId);
+    }
+
+    if (formId) {
+      const { createdUserId } = await Forms.getForm(formId);
+      user = await Users.getUser(createdUserId);
+    }
+
+    const { customerFields } = await replaceEditorAttributes({
+      content
+    });
+
+    const { replacedContent } = await replaceEditorAttributes({
+      content,
+      customerFields,
+      customer,
+      user
+    });
+
+    console.log('replaced content = ', replacedContent);
 
     await sendEmail({
       toEmails,
       fromEmail,
       title,
-      template: { data: { content } }
+      template: { data: { content: replacedContent } }
     });
   },
 
