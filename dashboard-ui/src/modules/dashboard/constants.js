@@ -145,3 +145,16 @@ export const replaceTexts = [
   { name: 'nylas-yahoo', value: 'yahoo' },
   { name: 'smooch-twilio', value: 'twilio' }
 ];
+
+export const ignoredFilters = [
+  'createdat',
+  'modifiedat',
+  'birthdate',
+  'iscomplete',
+  'stageName',
+  'closedate',
+  'updatedat',
+  'firstrespondeddate',
+  'messagecount',
+  'integrationKind'
+];

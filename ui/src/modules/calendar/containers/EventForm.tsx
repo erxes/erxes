@@ -62,7 +62,7 @@ class FormContainer extends React.Component<Props> {
           refetchQueries={[refetchQuery]}
           isSubmitted={isSubmitted}
           type="submit"
-          icon="check-1"
+          icon="check-circle"
         />
       );
     };
