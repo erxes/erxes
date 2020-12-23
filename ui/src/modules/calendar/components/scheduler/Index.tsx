@@ -24,7 +24,6 @@ class Schedule extends React.Component<
   }
 
   componentDidMount() {
-    console.log(window.document.body.scrollHeight);
     this.setState({ iFrameHeight: window.document.body.scrollHeight });
   }
 

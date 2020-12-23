@@ -309,6 +309,7 @@ export interface IPage {
       min_cancellation_notice: number;
       opening_hours: any;
       scheduling_method: string;
+      cancellation_policy: string;
     };
     calendar_ids: {
       [key: string]: { availability: any; booking: string };

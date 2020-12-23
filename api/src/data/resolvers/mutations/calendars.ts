@@ -45,6 +45,17 @@ const calendarMutations = {
   },
 
   /**
+   * Delete schedule page
+   */
+  async deleteSchedulePage(
+    _root,
+    doc: { pageId: string },
+    { dataSources }: IContext
+  ) {
+    return dataSources.IntegrationsAPI.deleteSchedulePage(doc);
+  },
+
+  /**
    * Create a new calendar event
    */
   async createCalendarEvent(_root, doc: Event, { dataSources }: IContext) {

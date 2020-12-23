@@ -122,6 +122,12 @@ const createSchedulePage = `
   }
 `;
 
+const deleteSchedulePage = `
+  mutation deleteSchedulePage($pageId: String!) {
+    deleteSchedulePage(pageId: $pageId)
+  }
+`;
+
 export default {
   boardAdd,
   boardEdit,
@@ -133,5 +139,6 @@ export default {
   calendarEdit,
   calendarRemove,
   editAccountCalendar,
-  createSchedulePage
+  createSchedulePage,
+  deleteSchedulePage
 };

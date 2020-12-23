@@ -8,6 +8,7 @@ import { mutations } from '../../graphql';
 
 import Spinner from 'modules/common/components/Spinner';
 import { Alert, withProps } from 'modules/common/utils';
+import { queries as integrationQueries } from '../../../integrations/graphql';
 import {
   CreateSchedulePageMutationResponse,
   SchedulePageMutationVariables
@@ -15,6 +16,7 @@ import {
 
 type Props = {
   accountId: string;
+  history: any;
 };
 
 type FinalProps = {
@@ -24,7 +26,7 @@ type FinalProps = {
 
 class FormContainer extends React.Component<FinalProps, {}> {
   render() {
-    const { fetchApiQuery, accountId, createMutation } = this.props;
+    const { fetchApiQuery, accountId, createMutation, history } = this.props;
 
     if (fetchApiQuery.loading) {
       return <Spinner objective={true} />;
@@ -38,12 +40,12 @@ class FormContainer extends React.Component<FinalProps, {}> {
 
     const save = (doc: SchedulePageMutationVariables) => {
       createMutation({
-        variables: doc
+        variables: doc,
+        refetchQueries: getRefetchQueries(accountId)
       })
         .then(() => {
           Alert.success('You successfully created a page');
-
-          window.location.href = `/settings/schedule/${accountId}`;
+          history.push('/settings/schedule');
         })
         .catch(error => {
           Alert.error(error.message);
@@ -59,6 +61,18 @@ class FormContainer extends React.Component<FinalProps, {}> {
     return <PageForm {...updatedProps} />;
   }
 }
+
+const getRefetchQueries = (accountId: string) => {
+  return [
+    {
+      query: gql(integrationQueries.fetchApi),
+      variables: {
+        path: '/nylas/get-schedule-pages',
+        params: { accountId }
+      }
+    }
+  ];
+};
 
 export default withProps<Props>(
   compose(

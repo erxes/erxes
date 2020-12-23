@@ -120,4 +120,8 @@ export default class IntegrationsAPI extends RESTDataSource {
   public async createSchedulePage(params) {
     return this.post('/nylas/create-schedule-page', params);
   }
+
+  public async deleteSchedulePage(params) {
+    return this.post('/nylas/delete-page', params);
+  }
 }

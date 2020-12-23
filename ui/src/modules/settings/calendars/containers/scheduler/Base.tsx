@@ -3,13 +3,16 @@ import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
 import { IUser } from 'modules/auth/types';
 import Spinner from 'modules/common/components/Spinner';
-import { withProps } from 'modules/common/utils';
+import { Alert, confirm, withProps } from 'modules/common/utils';
 import React from 'react';
 import { graphql } from 'react-apollo';
 import { queries as integrationQueries } from '../../../integrations/graphql';
 import Base from '../../components/scheduler/Base';
-import { queries } from '../../graphql';
-import { CalendarsQueryResponse } from '../../types';
+import { mutations, queries } from '../../graphql';
+import {
+  CalendarsQueryResponse,
+  RemoveSchedulePageMutationResponse
+} from '../../types';
 
 type Props = {
   queryParams: { accountId?: string };
@@ -20,11 +23,17 @@ type Props = {
 type FinalProps = {
   calendarsQuery: CalendarsQueryResponse;
   fetchApiQuery: any;
-} & Props;
-
-class BaseContainer extends React.Component<FinalProps, {}> {
+} & Props &
+  RemoveSchedulePageMutationResponse;
+class BaseContainer extends React.Component<FinalProps> {
   render() {
-    const { fetchApiQuery, queryParams, history, calendarsQuery } = this.props;
+    const {
+      fetchApiQuery,
+      queryParams,
+      history,
+      calendarsQuery,
+      removeMutation
+    } = this.props;
 
     if (
       (fetchApiQuery && fetchApiQuery.loading) ||
@@ -38,7 +47,22 @@ class BaseContainer extends React.Component<FinalProps, {}> {
         <span style={{ color: 'red' }}>Integrations api is not running</span>
       );
     }
-    console.log(fetchApiQuery);
+
+    const remove = (_id: string) => {
+      confirm().then(() => {
+        removeMutation({
+          variables: { pageId: _id }
+        })
+          .then(() => {
+            fetchApiQuery.refetch();
+
+            Alert.success('You successfully deleted a page');
+          })
+          .catch(error => {
+            Alert.error(error.message);
+          });
+      });
+    };
 
     const pages = (fetchApiQuery && fetchApiQuery.integrationsFetchApi) || [];
 
@@ -46,7 +70,8 @@ class BaseContainer extends React.Component<FinalProps, {}> {
       calendars: (calendarsQuery && calendarsQuery.calendars) || [],
       pages,
       queryParams,
-      history
+      history,
+      remove
     };
 
     return <Base {...updatedProps} />;
@@ -76,7 +101,13 @@ const WithProps = withProps<Props>(
         variables: { userId: currentUser && currentUser._id },
         fetchPolicy: 'network-only'
       })
-    })
+    }),
+    graphql<Props, RemoveSchedulePageMutationResponse, { pageId: string }>(
+      gql(mutations.deleteSchedulePage),
+      {
+        name: 'removeMutation'
+      }
+    )
   )(BaseContainer)
 );
 

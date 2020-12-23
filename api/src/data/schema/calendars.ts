@@ -159,6 +159,7 @@ export const mutations = `
   editCalendarEvent(_id: String!, ${eventParams}): JSON
   deleteCalendarEvent(_id: String!, accountId: String!): JSON
   createSchedulePage(${scheduleParams}): JSON
+  deleteSchedulePage(pageId: String!): JSON
 
   calendarsAdd(uid: String, ${commonParams}): Calendar
   calendarsEdit(_id: String!, ${commonParams}): Calendar

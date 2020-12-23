@@ -160,6 +160,7 @@ const storePages = async (pages: IPage[], accountId: string) => {
   for (const page of pages) {
     const config = page.config;
     const appearance = config.appearance;
+    const booking = config.booking;
 
     doc.push({
       accountId,
@@ -180,7 +181,25 @@ const storePages = async (pages: IPage[], accountId: string) => {
           thankYouText: appearance.thank_you_text,
           showAutoschedule: appearance.show_autoschedule,
           showNylasBranding: appearance.show_nylas_branding
-        }
+        },
+        event: {
+          title: config.event.title,
+          location: config.event.location,
+          duration: config.event.duration
+        },
+        booking: {
+          openingHours: booking.opening_hours,
+          additionalFields: booking.additional_fields,
+          cancellationPolicy: booking.cancellation_policy,
+          confirmationMethod: booking.confirmation_method,
+          minBookingNotice: booking.min_booking_notice,
+          availableDaysInFuture: booking.available_days_in_future,
+          minBuffer: booking.min_buffer,
+          minCancellationNotice: booking.min_cancellation_notice
+        },
+        pageCalendarIds: config.calendar_ids,
+        locale: config.locale,
+        timezone: config.timezone
       }
     });
   }

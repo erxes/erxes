@@ -5,6 +5,8 @@ import React from 'react';
 
 type Props = {
   page: any;
+  accountId: string;
+  remove: (pageId: string) => void;
 };
 
 declare function editSchedule(editToken: string, inDarkMode: boolean): any;
@@ -19,19 +21,24 @@ class PageRow extends React.Component<Props> {
     window.open(`/schedule/${this.props.page.slug}`);
   };
 
+  remove = pageId => {
+    this.props.remove(pageId);
+  };
+
   renderExtraLinks() {
     const { page } = this.props;
 
     return (
       <>
-        <Tip text="Edit" placement="top">
+        <Tip text="Delete">
           <Button
             btnStyle="link"
-            onClick={this.onEdit.bind(this, page.edit_token)}
-            icon="edit-3"
+            onClick={this.remove.bind(this, page._id)}
+            icon="times-circle"
           />
         </Tip>
-        <Tip text="Delete">
+
+        <Tip text="View">
           <Button btnStyle="link" onClick={this.onView} icon="eye" />
         </Tip>
       </>

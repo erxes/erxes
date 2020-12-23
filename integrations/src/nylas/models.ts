@@ -478,9 +478,29 @@ const pageEventSchema = new Schema(
   { _id: false }
 );
 
+const bookingHoursSchema = new Schema(
+  {
+    days: [String],
+    start: String,
+    end: String
+  },
+  { _id: false }
+);
+
+const additionalFieldSchema = new Schema(
+  {
+    label: String,
+    name: String,
+    required: Boolean,
+    type: String
+  },
+  { _id: false }
+);
+
 const pageConfigSchema = new Schema(
   {
     timezone: String,
+    pageCalendarIds: Object,
     calendarIds: [String],
     event: pageEventSchema,
     appearance: {
@@ -493,17 +513,8 @@ const pageConfigSchema = new Schema(
       showNylasBranding: Boolean
     },
     booking: {
-      openingHours: {
-        days: [String],
-        start: String,
-        end: String
-      },
-      additionalFields: {
-        label: String,
-        name: String,
-        required: Boolean,
-        type: String
-      },
+      openingHours: [bookingHoursSchema],
+      additionalFields: [additionalFieldSchema],
       cancellationPolicy: String,
       confirmationMethod: String,
       minBookingNotice: Number,
@@ -517,7 +528,6 @@ const pageConfigSchema = new Schema(
 
 const pageSchema = {
   _id: field({ pkey: true }),
-
   name: String,
   slug: String,
   appClientId: String,

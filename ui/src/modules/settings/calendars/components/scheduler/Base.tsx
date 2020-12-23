@@ -17,6 +17,7 @@ type Props = {
   calendars: ICalendar[];
   history: any;
   queryParams: { accountId?: string };
+  remove: (pageId: string) => void;
 };
 
 class Base extends React.Component<Props> {
@@ -37,7 +38,7 @@ class Base extends React.Component<Props> {
       <>
         <Button btnStyle="success" icon="plus-circle" uppercase={false}>
           <Link
-            to={`/settings/schedule/createPage/${this.props.queryParams.accountId}`}
+            to={`/settings/schedule/create/${this.props.queryParams.accountId}`}
           >
             Add New Page
           </Link>
@@ -47,7 +48,7 @@ class Base extends React.Component<Props> {
   }
 
   render() {
-    const { pages, calendars, queryParams } = this.props;
+    const { pages, calendars, queryParams, remove } = this.props;
     const { accountId } = queryParams;
 
     const breadcrumb = [
@@ -65,7 +66,7 @@ class Base extends React.Component<Props> {
     }
 
     const content =
-      calendars.length > 0 ? (
+      accountId && calendars.length > 0 ? (
         <div>
           <Wrapper.ActionBar
             left={<Title>{calendarName}</Title>}
@@ -82,7 +83,12 @@ class Base extends React.Component<Props> {
 
             <tbody>
               {pages.map(page => (
-                <PageRow key={page.id} page={page} />
+                <PageRow
+                  key={page.id}
+                  page={page}
+                  accountId={accountId}
+                  remove={remove}
+                />
               ))}
             </tbody>
           </Table>

@@ -5,10 +5,11 @@ import { Integrations } from '../models';
 import { sendRequest } from '../utils';
 import {
   NYLAS_API_URL,
-  NYLAS_SCHEDULE_API_URL,
+  NYLAS_SCHEDULE_MANAGE_PAGES,
   NYLAS_SCHEDULE_WEBHOOK_URL
 } from './constants';
 import { NylasCalendars } from './models';
+import { storePages } from './store';
 import {
   ICalendarAvailability,
   IEvent,
@@ -573,10 +574,12 @@ const sendEventAttendance = async (
   }
 };
 
+// schedule
+
 const getSchedulePages = async (accessToken: string) => {
   try {
     const response = await sendRequest({
-      url: `${NYLAS_SCHEDULE_API_URL}/manage/pages`,
+      url: NYLAS_SCHEDULE_MANAGE_PAGES,
       method: 'GET',
       headerParams: {
         Authorization: `Bearer ${accessToken}`
@@ -597,7 +600,8 @@ const getSchedulePages = async (accessToken: string) => {
 
 const createSchedulePage = async (
   accessToken: string,
-  doc: INylasSchedulePageDoc
+  doc: INylasSchedulePageDoc,
+  accountId: string
 ) => {
   try {
     const appearance = doc.appearance;
@@ -619,7 +623,9 @@ const createSchedulePage = async (
         event: doc.event,
         booking: {
           cancellation_policy: booking.cancellationPolicy,
-          confirmation_method: booking.confirmationMethod
+          confirmation_method: booking.confirmationMethod,
+          confirmation_emails_to_host: false,
+          confirmation_emails_to_guests: false
         },
         reminders: [
           {
@@ -632,10 +638,8 @@ const createSchedulePage = async (
       }
     };
 
-    console.log(accessToken, body);
-
     const response = await sendRequest({
-      url: `${NYLAS_SCHEDULE_API_URL}/manage/pages`,
+      url: NYLAS_SCHEDULE_MANAGE_PAGES,
       method: 'POST',
       headerParams: {
         Authorization: `Bearer ${accessToken}`
@@ -647,9 +651,34 @@ const createSchedulePage = async (
       throw new Error(`page not found`);
     }
 
+    await storePages([response], accountId);
+
     return response;
   } catch (e) {
     debugNylas(`Failed to get pages: ${e.message}`);
+
+    throw e;
+  }
+};
+
+const deleteSchedulePage = async (pageId: string, accessToken: string) => {
+  try {
+    await sendRequest({
+      url: `${NYLAS_SCHEDULE_MANAGE_PAGES}/${pageId}`,
+      method: 'DELETE',
+      headerParams: {
+        Authorization: `Basic ${Buffer.from(`${accessToken}:`).toString(
+          'base64'
+        )}`
+      },
+      body: {
+        notify_participants: true
+      }
+    });
+
+    debugNylas(`Successfully deleted the page`);
+  } catch (e) {
+    debugNylas(`Failed to delete page: ${e.message}`);
 
     throw e;
   }
@@ -671,5 +700,6 @@ export {
   updateEvent,
   sendEventAttendance,
   getSchedulePages,
-  createSchedulePage
+  createSchedulePage,
+  deleteSchedulePage
 };

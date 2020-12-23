@@ -28,16 +28,27 @@ const schedule = ({ history, location }) => {
 
 const CreateSchedulePage = asyncComponent(() =>
   import(
-    /* webpackChunkName: "Settings CreateSchedulePage" */ './containers/scheduler/PageForm'
+    /* webpackChunkName: "Settings CreateSchedulePage" */ './containers/scheduler/CreatePage'
   )
 );
 
-const createPage = ({ location, match }) => {
+const createPage = ({ history, match }) => {
   return (
-    <CreateSchedulePage
-      queryParams={queryString.parse(location.search)}
-      accountId={match.params.id}
-    />
+    <CreateSchedulePage history={history} accountId={match.params.accountId} />
+  );
+};
+
+const EditSchedulePage = asyncComponent(() =>
+  import(
+    /* webpackChunkName: "Settings CreateSchedulePage" */ './containers/scheduler/EditPage'
+  )
+);
+
+const editPage = ({ history, match }) => {
+  const { id, accountId } = match.params;
+
+  return (
+    <EditSchedulePage history={history} pageId={id} accountId={accountId} />
   );
 };
 
@@ -53,10 +64,17 @@ const routes = () => (
     />
 
     <Route
-      path="/settings/schedule/createPage/:id"
+      path="/settings/schedule/create/:accountId"
       exact={true}
-      key="/settings/schedule/createPage/:id"
+      key="/settings/schedule/create/:accountId"
       component={createPage}
+    />
+
+    <Route
+      path="/settings/schedule/edit/:accountId/:id"
+      exact={true}
+      key="/settings/schedule/edit:id"
+      component={editPage}
     />
   </React.Fragment>
 );

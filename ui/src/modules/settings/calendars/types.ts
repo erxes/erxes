@@ -152,7 +152,21 @@ export type RemoveCalendarMutationResponse = {
   }) => Promise<void>;
 };
 
+type openingHour = {
+  days: [string];
+  start: string;
+  end: string;
+};
+
+type additionalField = {
+  label: string;
+  name: string;
+  required: boolean;
+  type: string;
+};
+
 export type SchedulePageMutationVariables = {
+  _id?: string;
   name: string;
   slug: string;
   timezone: string;
@@ -170,17 +184,8 @@ export type SchedulePageMutationVariables = {
     thankYouText?: string;
   };
   booking?: {
-    openingHours?: {
-      days: [string];
-      start: string;
-      end: string;
-    };
-    additionalFields?: {
-      label: string;
-      name: string;
-      required: boolean;
-      type: string;
-    };
+    openingHours?: openingHour[];
+    additionalFields?: additionalField[];
     cancellationPolicy?: string;
     confirmationMethod?: string;
     minBookingNotice?: number;
@@ -194,5 +199,19 @@ export type CreateSchedulePageMutationResponse = {
   createMutation: (params: {
     variables: SchedulePageMutationVariables;
     refetchQueries?: any[];
+  }) => Promise<void>;
+};
+
+export type EditSchedulePageMutationResponse = {
+  editMutation: (params: {
+    variables: SchedulePageMutationVariables;
+    refetchQueries?: any[];
+  }) => Promise<void>;
+};
+
+export type RemoveSchedulePageMutationResponse = {
+  removeMutation: (params: {
+    variables: { pageId: string };
+    refetchQueries?: any;
   }) => Promise<void>;
 };

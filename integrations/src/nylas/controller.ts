@@ -11,11 +11,13 @@ import {
   nylasCreateCalenderEvent,
   nylasCreateSchedulePage,
   nylasDeleteCalendarEvent,
+  nylasDeleteSchedulePage,
   nylasFileUpload,
   nylasGetAccountCalendars,
   nylasGetAttachment,
   nylasGetCalendarOrEvent,
   nylasGetEvents,
+  nylasGetSchedulePage,
   nylasGetSchedulePages,
   nylasRemoveCalendars,
   nylasSendEmail,
@@ -344,6 +346,20 @@ export const initNylas = async app => {
     }
   });
 
+  app.get('/nylas/get-schedule-page', async (req, res, next) => {
+    debugRequest(debugNylas, req);
+
+    const { pageId } = req.query;
+
+    try {
+      const response = await nylasGetSchedulePage(pageId);
+
+      return res.json(response);
+    } catch (e) {
+      next(e);
+    }
+  });
+
   app.post('/nylas/create-schedule-page', async (req, res, next) => {
     debugRequest(debugNylas, req);
 
@@ -356,6 +372,18 @@ export const initNylas = async app => {
     } catch (e) {
       next(e);
     }
+  });
+
+  app.post('/nylas/delete-page', async (req, res, next) => {
+    const { pageId } = req.body;
+
+    try {
+      await nylasDeleteSchedulePage(pageId);
+    } catch (e) {
+      return next(e);
+    }
+
+    return res.json({ status: 'ok' });
   });
 };
 

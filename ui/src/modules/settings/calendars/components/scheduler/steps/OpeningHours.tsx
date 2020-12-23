@@ -4,22 +4,6 @@ import ControlLabel from 'modules/common/components/form/Label';
 import { FlexItem, LeftItem } from 'modules/common/components/step/styles';
 import timezones from 'modules/common/constants/timezones';
 import React from 'react';
-import styled from 'styled-components';
-
-const WeekContainers = styled.div`
-  display: inline-block;
-
-  button {
-    background-color: #fff;
-    border: 1px solid #eee;
-    cursor: pointer;
-
-    &.checked {
-      background-color: #9900ef;
-      color: #fff;
-    }
-  }
-`;
 
 type NameInput = 'timezone';
 
@@ -42,9 +26,6 @@ class OpeningHours extends React.Component<Props, State> {
   render() {
     const { timezone } = this.props;
 
-    const weeks = ['S', 'M', 'T', 'W', 'T', 'F', 'S'];
-    const weekValues = ['U', 'M', 'T', 'W', 'R', 'F', 'S'];
-
     return (
       <FlexItem>
         <LeftItem>
@@ -61,22 +42,6 @@ class OpeningHours extends React.Component<Props, State> {
               onChange={this.onChangeInput.bind(null, 'timezone')}
             />
           </FormGroup>
-
-          <div>
-            <WeekContainers>
-              {weeks.map((k, index) => {
-                return (
-                  <button
-                    key={index}
-                    value={weekValues[index]}
-                    className={index !== 0 && index !== 6 ? 'checked' : ''}
-                  >
-                    {k}
-                  </button>
-                );
-              })}
-            </WeekContainers>
-          </div>
         </LeftItem>
       </FlexItem>
     );

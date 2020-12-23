@@ -41,7 +41,8 @@ class Event extends React.Component<Props, State> {
     name: 'title' | 'location' | 'duration' | 'cancellationPolicy',
     e: React.FormEvent
   ) => {
-    const { value } = e.target as HTMLInputElement;
+    const val = (e.target as HTMLInputElement).value;
+    const value = name === 'duration' ? parseInt(val, 10) : val;
 
     this.setState({ [name]: value }, () => this.props.onChange(name, value));
   };

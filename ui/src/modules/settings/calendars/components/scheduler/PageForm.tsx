@@ -127,7 +127,9 @@ class CreateSchedulePage extends React.Component<Props, State> {
     if (['title', 'slug'].includes(key)) {
       const { title, duration } = this.state;
 
-      this.setState({ slug: `${title.replace(/ /g, '-')}-${duration}` });
+      this.setState({
+        slug: `${title.toLocaleLowerCase().replace(/ /g, '-')}-${duration}`
+      });
     }
   };
 
