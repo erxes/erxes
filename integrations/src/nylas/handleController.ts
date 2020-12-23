@@ -1,4 +1,3 @@
-import { ConsoleTranscriptLogger } from 'botbuilder';
 import { debugNylas } from '../debuggers';
 import { revokeToken } from '../gmail/api';
 import memoryStorage from '../inmemoryStorage';
