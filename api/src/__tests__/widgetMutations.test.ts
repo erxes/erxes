@@ -1,7 +1,6 @@
 import * as faker from 'faker';
 import * as Random from 'meteor-random';
 import * as sinon from 'sinon';
-import customer from '../data/resolvers/customer';
 import widgetMutations, {
   getMessengerData
 } from '../data/resolvers/mutations/widgets';
@@ -971,7 +970,7 @@ describe('lead', () => {
   });
 
   test('widgetsSendEmail', async () => {
-    const submittedCustomer = await customerFactory({});
+    const customer = await customerFactory({});
     const form = await formFactory({});
 
     const emailParams = {
@@ -979,7 +978,7 @@ describe('lead', () => {
       fromEmail: 'admin@erxes.io',
       title: 'Thank you for submitting.',
       content: 'We have received your request',
-      customerId: submittedCustomer._id,
+      customerId: customer._id,
       formId: form._id
     };
 
