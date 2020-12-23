@@ -1,4 +1,5 @@
 import * as AWS from 'aws-sdk';
+import * as csvParser from 'csv-parser';
 import * as fileType from 'file-type';
 import * as admin from 'firebase-admin';
 import * as fs from 'fs';
@@ -7,6 +8,7 @@ import * as nodemailer from 'nodemailer';
 import * as path from 'path';
 import * as puppeteer from 'puppeteer';
 import * as requestify from 'requestify';
+import { Writable } from 'stream';
 import * as strip from 'strip';
 import * as xlsxPopulate from 'xlsx-populate';
 import {
@@ -1376,4 +1378,65 @@ export const getErxesSaasDomain = () => {
   return NODE_ENV === 'production'
     ? 'https://erxes.io'
     : 'http://localhost:3500';
+};
+
+export const importBulkStream = ({
+  fileName,
+  bulkLimit = 1000,
+  uploadType,
+  save
+}: {
+  fileName: string;
+  bulkLimit: number;
+  uploadType: 'S3' | 'local';
+  save: any;
+}) => {
+  return new Promise(async (resolve, reject) => {
+    let rows: any = [];
+
+    let readSteam;
+
+    if (uploadType === 'S3') {
+      const AWS_BUCKET = await getConfig('AWS_BUCKET');
+
+      const s3 = await createAWS();
+
+      const errorCallback = error => {
+        throw new Error(error.code);
+      };
+
+      readSteam = s3
+        .getObject({ Bucket: AWS_BUCKET, Key: fileName })
+        .createReadStream();
+
+      readSteam.on('error', errorCallback);
+    } else {
+      readSteam = fs.createReadStream(`${uploadsFolderPath}/${fileName}`);
+    }
+
+    readSteam
+      .pipe(csvParser())
+      .pipe(
+        new Writable({
+          write(row, _, callback) {
+            rows.push(row);
+            if (rows.length === bulkLimit) {
+              save(rows).then(() => {
+                rows = [];
+                callback();
+              });
+            } else {
+              callback();
+            }
+          },
+          objectMode: true
+        })
+      )
+      .on('finish', () => {
+        save(rows);
+
+        resolve('success');
+      })
+      .on('error', () => reject('fail'));
+  });
 };

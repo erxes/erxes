@@ -1,10 +1,13 @@
 import * as mongoose from 'mongoose';
+import { validateSingle } from '../data/verifierUtils';
 import {
+  ActivityLogs,
   Boards,
   Companies,
   Conformities,
   Customers,
   Deals,
+  Fields,
   ImportHistory,
   Pipelines,
   Products,
@@ -14,44 +17,105 @@ import {
   Tickets,
   Users
 } from '../db/models';
-import {
-  clearEmptyValues,
-  connect,
-  generatePronoun,
-  updateDuplicatedValue
-} from './utils';
+import { IUserDocument } from '../db/models/definitions/users';
+import { connect, generatePronoun, IMPORT_CONTENT_TYPE } from './utils';
 
-// tslint:disable-next-line
-const { parentPort, workerData } = require('worker_threads');
+const customCreate = async (doc, user, type) => {
+  let object;
 
-let cancel = false;
+  if (type === IMPORT_CONTENT_TYPE.CUSTOMER) {
+    if (!doc.ownerId && user) {
+      doc.ownerId = user._id;
+    }
 
-parentPort.once('message', message => {
-  if (message === 'cancel') {
-    parentPort.postMessage('Cancelled');
-    cancel = true;
+    if (doc.primaryEmail && !doc.emails) {
+      doc.emails = [doc.primaryEmail];
+    }
+
+    if (doc.primaryPhone && !doc.phones) {
+      doc.phones = [doc.primaryPhone];
+    }
+
+    // clean custom field values
+    doc.customFieldsData = await Fields.prepareCustomFieldsData(
+      doc.customFieldsData
+    );
+
+    if (doc.integrationId) {
+      doc.relatedIntegrationIds = [doc.integrationId];
+    }
+
+    const pssDoc = await Customers.calcPSS(doc);
+
+    object = await Customers.create({
+      createdAt: new Date(),
+      modifiedAt: new Date(),
+      ...doc,
+      ...pssDoc
+    });
+
+    if (
+      (doc.primaryEmail && !doc.emailValidationStatus) ||
+      (doc.primaryEmail && doc.emailValidationStatus === 'unknown')
+    ) {
+      validateSingle({ email: doc.primaryEmail });
+    }
+
+    if (
+      (doc.primaryPhone && !doc.phoneValidationStatus) ||
+      (doc.primaryPhone && doc.phoneValidationStatus === 'unknown')
+    ) {
+      validateSingle({ phone: doc.primaryPhone });
+    }
   }
-});
 
-connect().then(async () => {
-  if (cancel) {
-    return;
+  if (type === IMPORT_CONTENT_TYPE.COMPANY) {
+    if (!doc.ownerId && user) {
+      doc.ownerId = user._id;
+    }
+
+    // clean custom field values
+    doc.customFieldsData = await Fields.prepareCustomFieldsData(
+      doc.customFieldsData
+    );
+
+    object = await Companies.create({
+      ...doc,
+      createdAt: new Date(),
+      modifiedAt: new Date(),
+      searchText: Companies.fillSearchText(doc)
+    });
   }
 
+  await ActivityLogs.createCocLog({
+    coc: object,
+    contentType: type
+  });
+
+  return object;
+};
+
+export const bulkInsert = async (data: {
+  user: IUserDocument;
+  scopeBrandIds: string[];
+  result;
+  contentType: string;
+  properties: Array<{ [key: string]: string }>;
+  importHistoryId: string;
+}) => {
   const {
     user,
     scopeBrandIds,
     result,
     contentType,
     properties,
-    importHistoryId,
-    percentagePerData
-  } = workerData;
-
-  console.log(result);
+    importHistoryId
+  } = data;
+  if (mongoose.connection.readyState === 0) {
+    await connect();
+  }
 
   let create: any = null;
-  let model: any = null;
 
   const isBoardItem = (): boolean =>
     contentType === 'deal' ||
@@ -60,20 +124,12 @@ connect().then(async () => {
 
   switch (contentType) {
     case 'company':
-      create = Companies.createCompany;
-      model = Companies;
-      break;
     case 'customer':
-      create = Customers.createCustomer;
-      model = Customers;
-      break;
     case 'lead':
-      create = Customers.createCustomer;
-      model = Customers;
+      create = customCreate;
       break;
     case 'product':
       create = Products.createProduct;
-      model = Products;
       break;
     case 'deal':
       create = Deals.createDeal;
@@ -94,15 +150,10 @@ connect().then(async () => {
 
   // Iterating field values
   for (const fieldValue of result) {
-    if (cancel) {
-      return;
-    }
-
     // Import history result statistics
-    const inc: { success: number; failed: number; percentage: number } = {
+    const inc: { success: number; failed: number } = {
       success: 0,
-      failed: 0,
-      percentage: percentagePerData
+      failed: 0
     };
 
     // Collecting errors
@@ -330,28 +381,8 @@ connect().then(async () => {
         inc.success++;
       })
       .catch(async (e: Error) => {
-        const updatedDoc = clearEmptyValues(doc);
-
-        // Increasing failed count and pushing into error message
-
-        switch (e.message) {
-          case 'Duplicated email':
-            inc.success++;
-            await updateDuplicatedValue(model, 'primaryEmail', updatedDoc);
-            break;
-          case 'Duplicated phone':
-            inc.success++;
-            await updateDuplicatedValue(model, 'primaryPhone', updatedDoc);
-            break;
-          case 'Duplicated name':
-            inc.success++;
-            await updateDuplicatedValue(model, 'primaryName', updatedDoc);
-            break;
-          default:
-            inc.failed++;
-            errorMsgs.push(e.message);
-            break;
-        }
+        inc.failed++;
+        errorMsgs.push(e.message);
       });
 
     await ImportHistory.updateOne(
@@ -378,8 +409,4 @@ connect().then(async () => {
       throw new Error('Could not find import history');
     }
   }
-
-  mongoose.connection.close();
-
-  parentPort.postMessage('Successfully finished job');
-});
+};
