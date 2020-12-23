@@ -734,8 +734,6 @@ const widgetMutations = {
       user
     });
 
-    console.log('replaced content = ', replacedContent);
-
     await sendEmail({
       toEmails,
       fromEmail,
