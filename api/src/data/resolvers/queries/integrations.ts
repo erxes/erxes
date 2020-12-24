@@ -91,8 +91,6 @@ const integrationQueries = {
     },
     { singleBrandIdSelector }: IContext
   ) {
-    console.log('ISACTIVE = ', args.isActive);
-
     const query = {
       ...singleBrandIdSelector,
       ...(await generateFilterQuery(args))
@@ -101,8 +99,6 @@ const integrationQueries = {
       Integrations.findAllIntegrations(query),
       args
     );
-
-    console.log('QUERY = ', query);
 
     return integrations.sort({ name: 1 });
   },
