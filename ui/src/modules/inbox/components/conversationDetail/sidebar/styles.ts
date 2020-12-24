@@ -15,8 +15,10 @@ import {
   FlexCenterContent,
   FlexContent,
   Header,
+  IconWrapper,
   Row,
-  Timeline
+  Timeline,
+  Title
 } from 'modules/activityLogs/styles';
 import { colors, dimensions, typography } from 'modules/common/styles';
 import { ActivityContent, DateContainer } from 'modules/common/styles/main';
@@ -168,6 +170,7 @@ const ActivityLogContent = styled(ActivityContent)`
   ${Meta}, ${FlexCenterContent}, ${FlexBody} {
     flex-direction: column;
     align-items: baseline;
+    width: 100%;
   }
 
   ${CenterText} {
@@ -176,6 +179,20 @@ const ActivityLogContent = styled(ActivityContent)`
 
   ${DeleteAction} {
     visibility: visible;
+  }
+
+  ${Title} {
+    margin: 0 0 10px;
+    font-size: 14px;
+
+    h4 {
+      margin: 10px 0;
+      font-size: 14px;
+    }
+  }
+
+  ${IconWrapper} {
+    margin-top: 10px;
   }
 
   //Bot
@@ -215,7 +232,7 @@ const ActivityLogContent = styled(ActivityContent)`
     flex-direction: column;
 
     > button {
-      margin: 0 4px
+      margin: 4px 0;
     }
   }
 
