@@ -144,6 +144,7 @@ export const start = async (data: {
 }) => {
   const { fromEmail, email, engageMessageId, customers } = data;
   const { content, subject, attachments, sender, replyTo } = email;
+  const configs = await getConfigs();
 
   await Stats.findOneAndUpdate(
     { engageMessageId },
@@ -192,7 +193,7 @@ export const start = async (data: {
         attachments: mailAttachment,
         html: replacedContent,
         headers: {
-          'X-SES-CONFIGURATION-SET': 'erxes',
+          'X-SES-CONFIGURATION-SET': configs.configSet || 'erxes',
           EngageMessageId: engageMessageId,
           CustomerId: customer._id,
           MailMessageId: mailMessageId
@@ -213,7 +214,6 @@ export const start = async (data: {
     await Stats.updateOne({ engageMessageId }, { $inc: { total: 1 } });
   };
 
-  const configs = await getConfigs();
   const unverifiedEmailsLimit = parseInt(
     configs.unverifiedEmailsLimit || '100',
     10
