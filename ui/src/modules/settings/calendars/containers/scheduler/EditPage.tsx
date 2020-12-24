@@ -8,6 +8,7 @@ import { mutations } from '../../graphql';
 
 import Spinner from 'modules/common/components/Spinner';
 import { Alert, withProps } from 'modules/common/utils';
+import { queries as integrationQueries } from '../../../integrations/graphql';
 import {
   EditSchedulePageMutationResponse,
   SchedulePageMutationVariables
@@ -20,19 +21,27 @@ type Props = {
 };
 
 type FinalProps = {
-  fetchApiQuery: any;
+  fetchCalendarQuery: any;
+  fetchPageQuery: any;
 } & Props &
   EditSchedulePageMutationResponse;
 
 class EditPageContainer extends React.Component<FinalProps, {}> {
   render() {
-    const { fetchApiQuery, accountId, editMutation, history } = this.props;
+    const {
+      fetchCalendarQuery,
+      fetchPageQuery,
+      accountId,
+      editMutation,
+      history,
+      pageId
+    } = this.props;
 
-    if (fetchApiQuery.loading) {
+    if (fetchCalendarQuery.loading || fetchPageQuery.loading) {
       return <Spinner objective={true} />;
     }
 
-    if (fetchApiQuery.error) {
+    if (fetchCalendarQuery.error || fetchPageQuery.error) {
       return (
         <span style={{ color: 'red' }}>Integrations api is not running</span>
       );
@@ -40,10 +49,11 @@ class EditPageContainer extends React.Component<FinalProps, {}> {
 
     const save = (doc: SchedulePageMutationVariables) => {
       editMutation({
-        variables: doc
+        variables: { _id: pageId, ...doc }
       })
         .then(() => {
-          Alert.success('You successfully created a page');
+          Alert.success('You successfully updated a page');
+
           history.push('/settings/schedule');
         })
         .catch(error => {
@@ -54,7 +64,8 @@ class EditPageContainer extends React.Component<FinalProps, {}> {
     const updatedProps = {
       save,
       accountId,
-      calendars: fetchApiQuery.integrationsFetchApi || []
+      calendars: fetchCalendarQuery.integrationsFetchApi || [],
+      page: fetchPageQuery.integrationsFetchApi
     };
 
     return <PageForm {...updatedProps} />;
@@ -63,8 +74,21 @@ class EditPageContainer extends React.Component<FinalProps, {}> {
 
 export default withProps<Props>(
   compose(
+    graphql<Props, any>(gql(integrationQueries.fetchApi), {
+      name: 'fetchPageQuery',
+      options: ({ pageId }) => {
+        return {
+          variables: {
+            path: '/nylas/get-schedule-page',
+            params: {
+              pageId
+            }
+          }
+        };
+      }
+    }),
     graphql<Props, any>(gql(queries.fetchApi), {
-      name: 'fetchApiQuery',
+      name: 'fetchCalendarQuery',
       options: ({ accountId }) => {
         return {
           variables: {
@@ -80,7 +104,7 @@ export default withProps<Props>(
       Props,
       SchedulePageMutationVariables,
       EditSchedulePageMutationResponse
-    >(gql(mutations.createSchedulePage), {
+    >(gql(mutations.editSchedulePage), {
       name: 'editMutation'
     })
   )(EditPageContainer)

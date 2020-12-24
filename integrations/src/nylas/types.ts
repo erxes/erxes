@@ -266,7 +266,7 @@ export interface INylasSchedulePageDoc {
     };
     additionalFields?: {
       label: string;
-      name: string;
+      name?: string;
       required: boolean;
       type: string;
     };
@@ -277,6 +277,25 @@ export interface INylasSchedulePageDoc {
     minBuffer?: number;
     minCancellationNotice?: number;
   };
+}
+export interface ISchedulePageConfig {
+  eas_server_host?: string;
+  imap_username?: string;
+  imap_password?: string;
+  smtp_username?: string;
+  smtp_password?: string;
+  imap_host?: string;
+  imap_port?: number;
+  smtp_host?: string;
+  smtp_port?: number;
+  ssl_required?: boolean;
+  redirect_uri?: string;
+  google_refresh_token?: string;
+  google_client_id?: string;
+  google_client_secret?: string;
+  email?: string;
+  username?: string;
+  password?: string;
 }
 export interface IPage {
   app_client_id: string;

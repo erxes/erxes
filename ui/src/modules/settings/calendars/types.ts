@@ -152,13 +152,13 @@ export type RemoveCalendarMutationResponse = {
   }) => Promise<void>;
 };
 
-type openingHour = {
+export type openingHour = {
   days: [string];
   start: string;
   end: string;
 };
 
-type additionalField = {
+export type additionalField = {
   label: string;
   name: string;
   required: boolean;
@@ -214,4 +214,42 @@ export type RemoveSchedulePageMutationResponse = {
     variables: { pageId: string };
     refetchQueries?: any;
   }) => Promise<void>;
+};
+
+export type IPage = {
+  _id: string;
+  name: string;
+  slug: string;
+  createdAt: Date;
+  modifiedAt: Date;
+  accountId: string;
+  config: {
+    timezone: string;
+    pageCalendarIds?: any;
+    calendarIds?: string[];
+    event: {
+      title: string;
+      location: string;
+      duration: number;
+    };
+    appearance: {
+      color?: string;
+      companyName?: string;
+      logo?: string;
+      submitText?: string;
+      thankYouText?: string;
+      showAutoschedule?: boolean;
+      showNylasBranding?: boolean;
+    };
+    booking: {
+      openingHours: openingHour[];
+      additionalFields?: additionalField[];
+      cancellationPolicy?: string;
+      confirmationMethod?: string;
+      minBookingNotice?: number;
+      availableDaysInFuture?: number;
+      minBuffer?: number;
+      minCancellationNotice?: number;
+    };
+  };
 };

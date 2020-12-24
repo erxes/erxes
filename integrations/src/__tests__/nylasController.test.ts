@@ -34,6 +34,7 @@ import {
   nylasSendEmail,
   nylasSendEventAttendance,
   nylasUpdateEvent,
+  nylasUpdateSchedulePage,
   updateCalendar
 } from '../nylas/handleController';
 import {
@@ -1281,6 +1282,46 @@ describe('Test nylas controller', () => {
 
     try {
       await nylasCreateSchedulePage('account._id', doc);
+    } catch (e) {
+      expect(e.message).toBe('error');
+    }
+
+    mock.restore();
+  });
+
+  test('Nylas update schedule page', async () => {
+    const page = await NylasPages.findOne({});
+    const doc = {
+      name: 'Page name',
+      slug: 'page-slug',
+
+      timezone: 'string',
+      calendarIds: ['id'],
+      event: {
+        title: 'title',
+        location: 'location',
+        duration: 30
+      }
+    };
+
+    try {
+      await nylasUpdateSchedulePage('erxesApiId123', doc);
+    } catch (e) {
+      expect(e.message).toBe('Page not found with id: erxesApiId123');
+    }
+
+    const mock = sinon
+      .stub(api, 'updateSchedulePage')
+      .returns(Promise.resolve());
+
+    await nylasUpdateSchedulePage(page._id, doc);
+
+    mock.onCall(1).callsFake(() => {
+      throw new Error('error');
+    });
+
+    try {
+      await nylasUpdateSchedulePage(page._id, doc);
     } catch (e) {
       expect(e.message).toBe('error');
     }

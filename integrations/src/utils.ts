@@ -24,7 +24,7 @@ interface IRequestParams {
       | boolean
       | number
       | {
-          [key: string]: string | number | boolean;
+          [key: string]: string | number | boolean | any;
         }
       | IProviderSettings
       | IParticipants[]

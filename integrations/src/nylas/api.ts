@@ -594,8 +594,46 @@ const getSchedulePages = async (accessToken: string) => {
   } catch (e) {
     debugNylas(`Failed to get pages: ${e.message}`);
 
-    throw e;
+    throw e.error;
   }
+};
+
+const generatePageBody = (doc: INylasSchedulePageDoc, accessToken: string) => {
+  const appearance = doc.appearance;
+  const booking = doc.booking;
+
+  return {
+    access_tokens: [accessToken],
+    name: doc.name,
+    slug: doc.slug,
+    config: {
+      appearance: {
+        color: appearance.color,
+        company_name: appearance.companyName,
+        submit_text: appearance.submitText,
+        show_nylas_branding: false,
+        thank_you_text: appearance.thankYouText
+      },
+      event: doc.event,
+      booking: {
+        cancellation_policy: booking.cancellationPolicy,
+        confirmation_method: booking.confirmationMethod,
+        additional_fields: booking.additionalFields,
+        opening_hours: booking.openingHours,
+        confirmation_emails_to_host: false,
+        confirmation_emails_to_guests: false
+      },
+      reminders: [
+        {
+          delivery_method: 'webhook',
+          delivery_recipient: 'customer',
+          time_before_event: 60,
+          webhook_url: NYLAS_SCHEDULE_WEBHOOK_URL
+        }
+      ],
+      timezone: doc.timezone
+    }
+  };
 };
 
 const createSchedulePage = async (
@@ -604,60 +642,54 @@ const createSchedulePage = async (
   accountId: string
 ) => {
   try {
-    const appearance = doc.appearance;
-    const booking = doc.booking;
-
-    const body = {
-      access_tokens: [accessToken],
-      name: doc.name,
-      slug: doc.slug,
-      timezone: doc.timezone,
-      config: {
-        appearance: {
-          color: appearance.color,
-          company_name: appearance.companyName,
-          submit_text: appearance.submitText,
-          show_nylas_branding: false,
-          thank_you_text: appearance.thankYouText
-        },
-        event: doc.event,
-        booking: {
-          cancellation_policy: booking.cancellationPolicy,
-          confirmation_method: booking.confirmationMethod,
-          confirmation_emails_to_host: false,
-          confirmation_emails_to_guests: false
-        },
-        reminders: [
-          {
-            delivery_method: 'webhook',
-            delivery_recipient: 'customer',
-            time_before_event: 60,
-            webhook_url: NYLAS_SCHEDULE_WEBHOOK_URL
-          }
-        ]
-      }
-    };
+    const body = generatePageBody(doc, accessToken);
 
     const response = await sendRequest({
       url: NYLAS_SCHEDULE_MANAGE_PAGES,
       method: 'POST',
-      headerParams: {
-        Authorization: `Bearer ${accessToken}`
-      },
       body
     });
 
     if (!response) {
       throw new Error(`page not found`);
     }
-    console.log(response);
+
     await storePages([response], accountId);
 
     return response;
   } catch (e) {
     debugNylas(`Failed to get pages: ${e.message}`);
 
-    throw e;
+    throw e.error || e.statusCode;
+  }
+};
+
+const updateSchedulePage = async (
+  pageId: number,
+  doc: INylasSchedulePageDoc,
+  editToken: string
+) => {
+  try {
+    const body = generatePageBody(doc, editToken);
+
+    const response = await sendRequest({
+      url: `${NYLAS_SCHEDULE_MANAGE_PAGES}/${pageId}`,
+      method: 'PUT',
+      headerParams: {
+        Authorization: `Basic ${Buffer.from(`${editToken}:`).toString(
+          'base64'
+        )}`
+      },
+      body
+    });
+
+    debugNylas(`Successfully updated the page`);
+
+    return response;
+  } catch (e) {
+    debugNylas(`Failed to delete page: ${e.message}`);
+
+    throw e.error;
   }
 };
 
@@ -680,7 +712,7 @@ const deleteSchedulePage = async (pageId: string, accessToken: string) => {
   } catch (e) {
     debugNylas(`Failed to delete page: ${e.message}`);
 
-    throw e;
+    throw e.error;
   }
 };
 
@@ -701,5 +733,6 @@ export {
   sendEventAttendance,
   getSchedulePages,
   createSchedulePage,
-  deleteSchedulePage
+  deleteSchedulePage,
+  updateSchedulePage
 };

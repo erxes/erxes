@@ -454,28 +454,44 @@ describe('Test calendars mutations', () => {
     );
   });
 
+  const pageParamsDef = `
+    $accountId: String!,
+    $appearance: ScheduleAppearance,
+    $calendarIds: [String],
+    $booking: ScheduleBooking
+    $event: ScheduleEvent!,
+    $timezone: String!,
+    $name: String!,
+    $slug: String!
+  `;
+
+  const pageParams = `
+    accountId: $accountId,
+    appearance: $appearance,
+    calendarIds: $calendarIds,
+    booking: $booking,
+    event: $event,
+    timezone: $timezone,
+    name: $name,
+    slug: $slug,
+  `;
+
+  const pageDoc = {
+    name: 'New schedule page',
+    slug: 'join-me',
+    accountId: 'accountId',
+    timezone: 'UlanBator',
+    event: {
+      title: 'Event title',
+      location: 'Mongolia',
+      duration: 30
+    }
+  };
+
   test('Create schedule page', async () => {
     const mutation = `
-      mutation createSchedulePage(
-        $accountId: String!,
-        $appearance: ScheduleAppearance,
-        $calendarIds: [String],
-        $booking: ScheduleBooking
-        $event: ScheduleEvent!,
-        $timezone: String!,
-        $name: String!,
-        $slug: String!
-      ) {
-        createSchedulePage(
-          accountId: $accountId,
-          appearance: $appearance,
-          calendarIds: $calendarIds,
-          booking: $booking,
-          event: $event,
-          timezone: $timezone,
-          name: $name,
-          slug: $slug,
-        )
+      mutation createSchedulePage(${pageParamsDef}) {
+        createSchedulePage(${pageParams})
       }
     `;
 
@@ -486,24 +502,37 @@ describe('Test calendars mutations', () => {
 
     createPageSpy.mockImplementation(() => Promise.resolve());
 
+    await graphqlRequest(mutation, 'createSchedulePage', pageDoc, {
+      dataSources
+    });
+
+    createPageSpy.mockRestore();
+  });
+
+  test('Update schedule page', async () => {
+    const mutation = `
+      mutation editSchedulePage($_id: String!, ${pageParamsDef}) {
+        editSchedulePage(_id: $_id, ${pageParams})
+      }
+    `;
+
+    const updatePageSpy = jest.spyOn(
+      dataSources.IntegrationsAPI,
+      'editSchedulePage'
+    );
+
+    updatePageSpy.mockImplementation(() => Promise.resolve());
+
     await graphqlRequest(
       mutation,
-      'createSchedulePage',
-      {
-        name: 'New schedule page',
-        slug: 'join-me',
-        accountId: 'accountId',
-        timezone: 'UlanBator',
-        event: {
-          title: 'Event title',
-          location: 'Mongolia',
-          duration: 30
-        }
-      },
+      'editSchedulePage',
+      { _id: 'pageId', ...pageDoc },
       {
         dataSources
       }
     );
+
+    updatePageSpy.mockRestore();
   });
 
   test('Delete schedule page', async () => {

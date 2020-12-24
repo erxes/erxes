@@ -8,12 +8,12 @@ import { router as routerUtils } from 'modules/common/utils';
 import Wrapper from 'modules/layout/components/Wrapper';
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { ICalendar } from '../../types';
+import { ICalendar, IPage } from '../../types';
 import PageRow from './PageRow';
 import Sidebar from './Sidebar';
 
 type Props = {
-  pages: any[];
+  pages: IPage[];
   calendars: ICalendar[];
   history: any;
   queryParams: { accountId?: string };
@@ -35,15 +35,13 @@ class Base extends React.Component<Props> {
     }
 
     return (
-      <>
-        <Button btnStyle="success" icon="plus-circle" uppercase={false}>
-          <Link
-            to={`/settings/schedule/create/${this.props.queryParams.accountId}`}
-          >
-            Add New Page
-          </Link>
-        </Button>
-      </>
+      <Button btnStyle="success" icon="plus-circle" uppercase={false}>
+        <Link
+          to={`/settings/schedule/create/${this.props.queryParams.accountId}`}
+        >
+          Add New Page
+        </Link>
+      </Button>
     );
   }
 
@@ -84,7 +82,7 @@ class Base extends React.Component<Props> {
             <tbody>
               {pages.map(page => (
                 <PageRow
-                  key={page.id}
+                  key={page._id}
                   page={page}
                   accountId={accountId}
                   remove={remove}

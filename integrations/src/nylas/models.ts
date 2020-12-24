@@ -464,6 +464,7 @@ export interface IPage {
       minCancellationNotice?: number;
     };
   };
+  accountId: string;
 }
 
 export interface IPageDocument extends IPage, Document {}

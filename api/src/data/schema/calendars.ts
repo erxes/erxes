@@ -21,7 +21,7 @@ const scheduleTypes = `
   }
 
   input ScheduleBooking {
-    openingHours: ScheduleOpeningHours,
+    openingHours: [ScheduleOpeningHours],
     additionalFields: [ScheduleAdditionalField],
     cancellationPolicy: String,
     confirmationMethod: String,
@@ -159,6 +159,7 @@ export const mutations = `
   editCalendarEvent(_id: String!, ${eventParams}): JSON
   deleteCalendarEvent(_id: String!, accountId: String!): JSON
   createSchedulePage(${scheduleParams}): JSON
+  editSchedulePage(_id: String!, ${scheduleParams}): JSON
   deleteSchedulePage(pageId: String!): JSON
 
   calendarsAdd(uid: String, ${commonParams}): Calendar

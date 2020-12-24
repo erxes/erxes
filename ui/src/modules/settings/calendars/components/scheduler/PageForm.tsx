@@ -1,3 +1,5 @@
+import { AppConsumer } from 'appContext';
+import { IUser } from 'modules/auth/types';
 import { ICalendar as IAccountCalendar } from 'modules/calendar/types';
 import Button from 'modules/common/components/Button';
 import FormGroup from 'modules/common/components/form/Group';
@@ -15,7 +17,12 @@ import { Content, LeftContent } from 'modules/settings/integrations/styles';
 import React from 'react';
 import { Link } from 'react-router-dom';
 import Select from 'react-select-plus';
-import { SchedulePageMutationVariables } from '../../types';
+import {
+  additionalField,
+  IPage,
+  openingHour,
+  SchedulePageMutationVariables
+} from '../../types';
 import {
   BookingFlow,
   CustomFields,
@@ -23,48 +30,68 @@ import {
   OpeningHours,
   PageStyles
 } from './steps';
-import { ScheduleAdditionalField } from './types';
 
 type Props = {
-  page?: any;
+  page?: IPage;
   accountId: string;
   calendars: IAccountCalendar[];
   save: (doc: SchedulePageMutationVariables) => void;
 };
 
+type FinalProps = {
+  currentUser?: IUser;
+} & Props;
+
 type State = {
   title: string;
   location: string;
   duration: number;
-  cancellationPolicy?: string;
+  cancellationPolicy: string;
 
   calendarId: string;
-  confirmationMethod?: string;
+  confirmationMethod: string;
 
   timezone: string;
 
-  additionalFields?: ScheduleAdditionalField[];
+  additionalFields?: additionalField[];
+  openingHours?: openingHour[];
 
-  companyName?: string;
+  companyName: string;
   slug?: string;
   color: string;
-  submitText?: string;
-  thankYouText?: string;
+  submitText: string;
+  thankYouText: string;
 };
 
-class CreateSchedulePage extends React.Component<Props, State> {
-  constructor(props: Props) {
+class CreateSchedulePage extends React.Component<FinalProps, State> {
+  constructor(props: FinalProps) {
     super(props);
     const calendar = props.calendars[0] || ({} as IAccountCalendar);
 
+    const page = props.page || ({} as IPage);
+    const config = page.config || {};
+
+    const event = config.event || {};
+    const appearance = config.appearance || {};
+    const booking = config.booking || {};
+
     this.state = {
-      title: '',
-      location: '',
-      duration: 45,
+      slug: page.slug,
+
+      title: event.title || '',
+      location: event.location || '',
+      duration: event.duration || 45,
+
       calendarId: calendar._id,
-      confirmationMethod: 'automatic',
-      color: '#9900ef',
-      timezone: 'Asia/Ulaanbaatar'
+      timezone: config.timezone || 'Asia/Ulaanbaatar',
+
+      confirmationMethod: booking.confirmationMethod || 'automatic',
+      cancellationPolicy: booking.cancellationPolicy || '',
+
+      color: appearance.color || '#9900ef',
+      companyName: appearance.companyName || '',
+      submitText: appearance.submitText || '',
+      thankYouText: appearance.thankYouText || ''
     };
   }
 
@@ -73,7 +100,6 @@ class CreateSchedulePage extends React.Component<Props, State> {
 
     const {
       title,
-      slug,
       timezone,
       calendarId,
       location,
@@ -83,8 +109,12 @@ class CreateSchedulePage extends React.Component<Props, State> {
       submitText,
       thankYouText,
       cancellationPolicy,
-      confirmationMethod
+      confirmationMethod,
+      additionalFields,
+      openingHours
     } = this.state;
+
+    let slug = this.state.slug;
 
     if (!title) {
       return Alert.error('Write title');
@@ -95,7 +125,7 @@ class CreateSchedulePage extends React.Component<Props, State> {
     }
 
     if (!slug) {
-      return Alert.error('Write slug');
+      slug = this.generateSlug();
     }
 
     this.props.save({
@@ -116,19 +146,31 @@ class CreateSchedulePage extends React.Component<Props, State> {
       },
       booking: {
         cancellationPolicy,
-        confirmationMethod
+        confirmationMethod,
+        additionalFields,
+        openingHours
       }
     });
+  };
+
+  generateSlug = () => {
+    const { title, duration } = this.state;
+    const user = this.props.currentUser;
+    const text = user
+      ? (user.details && user.details.fullName) || title
+      : title;
+
+    return `${text.toLocaleLowerCase().replace(/ /g, '-')}-${duration}`;
   };
 
   onChange = <T extends keyof State>(key: T, value: State[T]) => {
     this.setState(({ [key]: value } as unknown) as Pick<State, keyof State>);
 
-    if (['title', 'slug'].includes(key)) {
-      const { title, duration } = this.state;
+    if (!this.props.page && key === 'duration') {
+      const slug = this.generateSlug();
 
       this.setState({
-        slug: `${title.toLocaleLowerCase().replace(/ /g, '-')}-${duration}`
+        slug
       });
     }
   };
@@ -166,6 +208,7 @@ class CreateSchedulePage extends React.Component<Props, State> {
 
   render() {
     const { calendars } = this.props;
+
     const {
       duration,
       location,
@@ -220,7 +263,7 @@ class CreateSchedulePage extends React.Component<Props, State> {
                       </ControlLabel>
 
                       <Select
-                        placeholder={__('Choose a group')}
+                        placeholder={__('Choose a calendar')}
                         value={calendarId}
                         options={this.renderOptions(calendars)}
                         onChange={onChangeCalendar}
@@ -274,4 +317,10 @@ class CreateSchedulePage extends React.Component<Props, State> {
   }
 }
 
-export default CreateSchedulePage;
+export default (props: Props) => (
+  <AppConsumer>
+    {({ currentUser }) => (
+      <CreateSchedulePage {...props} currentUser={currentUser} />
+    )}
+  </AppConsumer>
+);

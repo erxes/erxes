@@ -10,7 +10,7 @@ import Tip from 'modules/common/components/Tip';
 import { __ } from 'modules/common/utils';
 import React from 'react';
 import styled from 'styled-components';
-import { ScheduleAdditionalField } from '../types';
+import { additionalField } from '../../../types';
 
 const WebsiteItem = styled.div`
   padding: 12px 16px 0 16px;
@@ -50,24 +50,26 @@ const RequiredField = styled.div`
 
 type Props = {
   onChange: (name: 'additionalFields', value: any) => void;
-  additionalFields?: ScheduleAdditionalField[];
+  additionalFields?: additionalField[];
 };
 
 type State = {
-  additionalFields: ScheduleAdditionalField[];
+  additionalFields: additionalField[];
 };
+
+const emptyField = { label: '', name: '', type: 'text', required: false };
 
 class CustomFields extends React.Component<Props, State> {
   constructor(props: Props) {
     super(props);
 
     this.state = {
-      additionalFields: [{ label: '', type: '', required: false }]
+      additionalFields: [emptyField]
     };
   }
 
   updateFieldValues = () => {
-    console.log(this.state.additionalFields);
+    this.props.onChange('additionalFields', this.state.additionalFields);
   };
 
   onChangeInput = (
@@ -75,11 +77,16 @@ class CustomFields extends React.Component<Props, State> {
     type: 'label' | 'type' | 'required',
     e: React.FormEvent
   ) => {
-    const { value } = e.target as HTMLInputElement;
+    const element = e.target as HTMLInputElement;
+    const value = type === 'required' ? element.checked : element.value;
 
     const entries = [...this.state.additionalFields];
 
     entries[i] = { ...entries[i], [type]: value };
+
+    if (type === 'label') {
+      entries[i] = { ...entries[i], name: element.value };
+    }
 
     this.setState({ additionalFields: entries }, () =>
       this.updateFieldValues()
@@ -109,10 +116,7 @@ class CustomFields extends React.Component<Props, State> {
 
   onAddMoreInput = () => {
     this.setState({
-      additionalFields: [
-        ...this.state.additionalFields,
-        { label: '', type: '', required: false }
-      ]
+      additionalFields: [...this.state.additionalFields, emptyField]
     });
   };
 
@@ -156,7 +160,7 @@ class CustomFields extends React.Component<Props, State> {
                   <ControlLabel required={true}>Type</ControlLabel>
 
                   <FormControl
-                    value={field.type || 'text'}
+                    value={field.type}
                     name="type"
                     onChange={this.onChangeInput.bind(null, index, 'type')}
                     componentClass="select"

@@ -20,6 +20,7 @@ import {
   sendEventAttendance,
   sendMessage,
   updateEvent,
+  updateSchedulePage,
   uploadFile
 } from './api';
 import {
@@ -651,6 +652,27 @@ export const nylasCreateSchedulePage = async (
     }
 
     return createSchedulePage(account.nylasToken, doc, accountId);
+  } catch (e) {
+    debugNylas(`Failed to create event: ${e.message}`);
+  }
+};
+
+export const nylasUpdateSchedulePage = async (
+  _id: string,
+  doc: INylasSchedulePageDoc
+) => {
+  try {
+    debugNylas(`Updating page id: ${_id}`);
+
+    const page = await NylasPages.findOne({ _id });
+
+    if (!page) {
+      throw new Error(`Page not found with id: ${_id}`);
+    }
+
+    const { pageId, editToken } = page;
+
+    return updateSchedulePage(pageId, doc, editToken);
   } catch (e) {
     debugNylas(`Failed to create event: ${e.message}`);
   }

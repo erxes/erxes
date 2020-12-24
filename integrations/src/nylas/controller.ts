@@ -22,6 +22,7 @@ import {
   nylasRemoveCalendars,
   nylasSendEmail,
   nylasUpdateEvent,
+  nylasUpdateSchedulePage,
   updateCalendar
 } from './handleController';
 import loginMiddleware from './loginMiddleware';
@@ -367,6 +368,20 @@ export const initNylas = async app => {
 
     try {
       const response = await nylasCreateSchedulePage(accountId, doc);
+
+      return res.json(response);
+    } catch (e) {
+      next(e);
+    }
+  });
+
+  app.post('/nylas/edit-schedule-page', async (req, res, next) => {
+    debugRequest(debugNylas, req);
+
+    const { _id, ...doc } = req.body;
+
+    try {
+      const response = await nylasUpdateSchedulePage(_id, doc);
 
       return res.json(response);
     } catch (e) {
