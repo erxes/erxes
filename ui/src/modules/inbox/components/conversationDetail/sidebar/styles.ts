@@ -3,14 +3,22 @@ import {
   ActivityDate,
   ActivityIcon,
   ActivityRow,
+  ActivityTitle,
   AvatarWrapper,
+  CenterText,
+  Collapse,
+  ConversationContent,
+  Count,
   EmailContent,
+  FlexBody,
   FlexCenterContent,
+  Header,
   Timeline
 } from 'modules/activityLogs/styles';
 import { colors, dimensions, typography } from 'modules/common/styles';
 import { ActivityContent, DateContainer } from 'modules/common/styles/main';
 import styled from 'styled-components';
+import { CardItem } from '../workarea/conversation/messages/bot/styles';
 import {
   FormTable,
   MessageBody,
@@ -18,9 +26,15 @@ import {
   MessageItem,
   UserInfo
 } from '../workarea/conversation/styles';
-import { Meta } from '../workarea/mail/style';
-
-const iconWrapperWidth = '60px';
+import {
+  AttachmentItem,
+  AttachmentsContainer,
+  Content,
+  Details,
+  Meta,
+  Reply,
+  RightSide
+} from '../workarea/mail/style';
 
 const FlexRow = styled(DateContainer)`
   display: flex;
@@ -49,28 +63,62 @@ const NoteFormContainer = styled.div`
 `;
 
 const ActivityLogContent = styled(ActivityContent)`
-  padding: 0 ${dimensions.coreSpacing}px;
-  margin-bottom: 30px;
+  padding: 0 16px;
+  margin-bottom: ${dimensions.coreSpacing}px;
+
+  img {
+    max-width: 100%;
+  }
 
   ${Timeline} {
-    padding-left: 30px;
+    padding-left: 0;
 
     &:before {
-      left: 5px;
+      display: none;
     }
   }
 
-  ${AvatarWrapper} {
+  ${Collapse} {
+    padding: 16px;
+  }
+
+  ${Header} {
+    font-size: 13px;
+    word-break: break-word;
+  }
+
+  ${AvatarWrapper}, 
+  ${MessageItem} > span, 
+  ${Meta} > span,
+  ${ConversationContent},
+  ${Count} {
     display: none;
   }
 
   ${ActivityIcon} {
-    left: calc(-${iconWrapperWidth} + ${iconWrapperWidth} * 0.3);
+    left: -8px;
+    width: 20px;
+    height: 20px;
+    line-height: 20px;
+    font-size: 11px;
+    top: -8px;
+    z-index: 1;
+  }
+
+  ${ActivityTitle} {
+    padding: ${dimensions.coreSpacing}px 0;
+    font-weight: 500;
   }
 
   ${ActivityRow} {
-    padding: ${dimensions.unitSpacing * 1.5}px 0;
     box-shadow: none;
+    background: ${colors.bgActive};
+    border-radius: 4px;
+    margin-bottom: 16px;
+
+    &:hover {
+      background: ${colors.bgActive};
+    }
   }
 
   ${ActivityDate} {
@@ -84,27 +132,85 @@ const ActivityLogContent = styled(ActivityContent)`
   }
 
   ${MessageContent}, ${UserInfo} {
-    padding: 5px 10px;
+    padding: 8px 16px;
   }
 
   ${MessageBody} {
     margin: 0;
     flex-direction: column;
+    align-items: flex-start;
 
     footer {
-      margin: 5px 10px 0;
+      display: none;
     }
   }
 
-  ${Meta}, ${FlexCenterContent} {
-    flex-direction: column;
+  ${FlexBody} {
+    align-self: baseline;
   }
 
+  ${Meta}, ${FlexCenterContent}, ${FlexBody} {
+    flex-direction: column;
+    align-items: baseline;
+  }
+
+  ${CenterText} {
+    font-size: 12px;
+  }
+
+  //Bot
+  ${CardItem} {
+    width: 100%;
+    margin-right: 0;
+  } 
+
+  // form
   ${FormTable} {
     overflow: auto;
 
     td {
       white-space: nowrap;
+    }
+  }
+
+  // email
+  ${Meta} {
+    padding: 8px;
+  }
+
+  ${Details} {
+    align-self: normal;
+    margin: 0;
+    word-break: break-word;
+  }
+
+  ${RightSide} {
+    margin-left: 0;
+  }
+
+  ${Reply} {
+    padding: 8px 16px;
+    display: flex;
+    flex-direction: column;
+
+    > button {
+      margin: 0 4px
+    }
+  }
+
+  ${AttachmentsContainer} {
+    margin: 0 16px 8px 16px
+  }
+
+  ${AttachmentItem} {
+    width: 180px;
+  }
+
+  ${Content} {
+    padding: 8px 16px;
+
+    > div {
+      min-width: 300px;
     }
   }
 `;
