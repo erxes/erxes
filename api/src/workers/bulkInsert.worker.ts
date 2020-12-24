@@ -48,8 +48,6 @@ connect().then(async () => {
     percentagePerData
   } = workerData;
 
-  console.log(result);
-
   let create: any = null;
   let model: any = null;
 
