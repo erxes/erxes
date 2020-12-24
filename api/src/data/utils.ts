@@ -7,6 +7,7 @@ import * as Handlebars from 'handlebars';
 import * as nodemailer from 'nodemailer';
 import * as path from 'path';
 import * as puppeteer from 'puppeteer';
+import * as readline from 'readline';
 import * as requestify from 'requestify';
 import { Writable } from 'stream';
 import * as strip from 'strip';
@@ -1380,21 +1381,46 @@ export const getErxesSaasDomain = () => {
     : 'http://localhost:3500';
 };
 
+const getCsvTotalSize = (
+  filePath: string,
+  uploadType: string
+): Promise<number> => {
+  return new Promise(resolve => {
+    if (uploadType === 'local') {
+      const readSteam = fs.createReadStream(filePath);
+
+      let total = 0;
+
+      const rl = readline.createInterface({
+        input: readSteam,
+        terminal: false
+      });
+
+      rl.on('line', () => total++);
+      rl.on('close', () => resolve(total));
+    }
+  });
+};
+
 export const importBulkStream = ({
   fileName,
-  bulkLimit = 1000,
+  cpuCount,
   uploadType,
   save
 }: {
   fileName: string;
-  bulkLimit: number;
+  cpuCount: number;
   uploadType: 'S3' | 'local';
   save: any;
 }) => {
   return new Promise(async (resolve, reject) => {
+    const filePath: string = `${uploadsFolderPath}/${fileName}`;
+
     let rows: any = [];
 
     let readSteam;
+
+    const total = await getCsvTotalSize(filePath, uploadType);
 
     if (uploadType === 'S3') {
       const AWS_BUCKET = await getConfig('AWS_BUCKET');
@@ -1411,30 +1437,29 @@ export const importBulkStream = ({
 
       readSteam.on('error', errorCallback);
     } else {
-      readSteam = fs.createReadStream(`${uploadsFolderPath}/${fileName}`);
+      readSteam = fs.createReadStream(filePath);
     }
+
+    const limit = Number((total / cpuCount).toFixed());
+
+    const write = (row, _, callback) => {
+      rows.push(row);
+
+      if (rows.length === limit) {
+        save(rows, total).then(() => {
+          rows = [];
+          callback();
+        });
+      } else {
+        callback();
+      }
+    };
 
     readSteam
       .pipe(csvParser())
-      .pipe(
-        new Writable({
-          write(row, _, callback) {
-            rows.push(row);
-            if (rows.length === bulkLimit) {
-              save(rows).then(() => {
-                rows = [];
-                callback();
-              });
-            } else {
-              callback();
-            }
-          },
-          objectMode: true
-        })
-      )
+      .pipe(new Writable({ write, objectMode: true }))
       .on('finish', () => {
-        save(rows);
-
+        save(rows, total);
         resolve('success');
       })
       .on('error', () => reject('fail'));

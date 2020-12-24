@@ -12,7 +12,6 @@ import {
   default as ImportHistory
 } from '../db/models/ImportHistory';
 import { debugImport, debugWorkers } from '../debuggers';
-import { bulkInsert } from './bulkInsert';
 
 const { MONGO_URL = '' } = process.env;
 
@@ -23,6 +22,49 @@ dotenv.config();
 
 let workers: any[] = [];
 let intervals: any[] = [];
+
+const createSingleWorkers = (
+  workerPath: string,
+  workerData: any,
+  result: unknown[]
+) => {
+  // tslint:disable-next-line
+  const Worker = require('worker_threads').Worker;
+
+  const cpuCount = os.cpus().length;
+
+  if (workers.length === cpuCount) {
+    throw new Error('Workers are busy or not working');
+  }
+
+  try {
+    const worker = new Worker(workerPath, {
+      workerData: {
+        ...workerData,
+        result
+      }
+    });
+
+    workers.push(worker);
+
+    worker.on('message', () => {
+      removeWorker(worker);
+    });
+
+    worker.on('error', e => {
+      debugImport(e);
+      removeWorker(worker);
+    });
+
+    worker.on('exit', code => {
+      if (code !== 0) {
+        debugImport(`Worker stopped with exit code ${code}`);
+      }
+    });
+  } catch (e) {
+    throw e;
+  }
+};
 
 export const createWorkers = (
   workerPath: string,
@@ -296,7 +338,7 @@ export const receiveImportCreate = async (content: any) => {
       return false;
     };
 
-    const handleSave = async rows => {
+    const handleSave = async (rows, totalRows) => {
       let errorMsgs: Error[] = [];
 
       total += rows.length;
@@ -324,15 +366,6 @@ export const receiveImportCreate = async (content: any) => {
         }
       }
 
-      await bulkInsert({
-        user,
-        scopeBrandIds,
-        contentType: type,
-        result,
-        properties,
-        importHistoryId: importHistory.id
-      });
-
       if (errorMsgs.length > 0) {
         await ImportHistory.updateOne(
           { _id: importHistory.id },
@@ -341,12 +374,31 @@ export const receiveImportCreate = async (content: any) => {
 
         errorMsgs = [];
       }
+
+      const workerFile = getWorkerFile('bulkInsert');
+
+      const workerPath = path.resolve(workerFile);
+
+      const percentagePerData = Number(((1 / totalRows) * 100).toFixed(3));
+
+      const workerData = {
+        scopeBrandIds,
+        user,
+        contentType: type,
+        properties,
+        importHistoryId: importHistory._id,
+        percentagePerData
+      };
+
+      await createSingleWorkers(workerPath, workerData, result);
     };
+
+    const cpuCount = os.cpus().length;
 
     await importBulkStream({
       fileName,
       uploadType,
-      bulkLimit: 100,
+      cpuCount,
       save: handleSave
     });
 
