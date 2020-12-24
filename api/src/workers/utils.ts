@@ -115,6 +115,33 @@ export const clearIntervals = () => {
   intervals = [];
 };
 
+export const clearEmptyValues = (objs: any) => {
+  for (const obj of objs) {
+    Object.keys(obj).forEach(key => {
+      if (obj[key] === '' || obj[key] === 'unknown') {
+        delete obj[key];
+      }
+
+      if (Array.isArray(obj[key]) && obj[key].length === 0) {
+        delete obj[key];
+      }
+    });
+  }
+
+  return objs;
+};
+
+export const updateDuplicatedValue = async (
+  model: any,
+  field: string,
+  doc: any
+) => {
+  return model.updateOne(
+    { [field]: doc[field] },
+    { $set: { ...doc, modifiedAt: new Date() } }
+  );
+};
+
 const getWorkerFile = fileName => {
   if (process.env.NODE_ENV !== 'production') {
     return `./src/workers/${fileName}.worker.import.js`;
@@ -155,7 +182,11 @@ export const receiveImportCancel = () => {
 export const IMPORT_CONTENT_TYPE = {
   CUSTOMER: 'customer',
   COMPANY: 'company',
-  LEAD: 'lead'
+  LEAD: 'lead',
+  PRODUCT: 'product',
+  DEAL: 'deal',
+  TASK: 'task',
+  TICKET: 'ticket'
 };
 
 export const beforeImport = async (type: string) => {
@@ -176,10 +207,10 @@ export const beforeImport = async (type: string) => {
       code: 1
     });
 
-    for (const value of customerValues) {
-      existingEmails.push(value.primaryEmail || '');
-      existingPhones.push(value.primaryPhone || '');
-      existingCodes.push(value.code || '');
+    for (const value of customerValues || []) {
+      existingEmails.push((value || {}).primaryEmail || '');
+      existingPhones.push((value || {}).primaryPhone || '');
+      existingCodes.push((value || {}).code || '');
     }
   }
 
@@ -190,9 +221,9 @@ export const beforeImport = async (type: string) => {
       code: 1
     });
 
-    for (const value of companyValues) {
-      existingNames.push(value.primaryName || '');
-      existingCodes.push(value.code || '');
+    for (const value of companyValues || []) {
+      existingNames.push((value || {}).primaryName || '');
+      existingCodes.push((value || {}).code || '');
     }
   }
 
@@ -234,35 +265,40 @@ export const receiveImportCreate = async (content: any) => {
     const validationValues = await beforeImport(type);
 
     const isRowValid = (row: any) => {
+      let status;
+
       const {
         existingCodes,
         existingEmails,
         existingPhones,
         existingNames
-      } = validationValues[type];
+      } = validationValues;
 
       if (type === CUSTOMER || type === LEAD) {
         const { primaryEmail, primaryPhone, code } = row;
 
-        return (
-          !existingCodes.includes(code) ||
-          !existingEmails.includes(primaryEmail) ||
-          !existingPhones.includes(primaryPhone)
-        );
+        status = existingCodes.includes(code) ? 'code' : null;
+        status = existingEmails.includes(primaryEmail) ? 'email' : null;
+        status = existingPhones.includes(primaryPhone) ? 'phone' : null;
+
+        return status;
       }
 
       if (type === COMPANY) {
         const { primaryName, code } = row;
 
-        return (
-          !existingNames.includes(primaryName) || !existingCodes.includes(code)
-        );
+        status = existingNames.includes(primaryName) ? 'name' : null;
+        status = existingCodes.includes(code) ? 'code' : null;
+
+        return status;
       }
 
-      return true;
+      return false;
     };
 
     const handleSave = async rows => {
+      let errorMsgs: Error[] = [];
+
       total += rows.length;
 
       if (total === 0) {
@@ -279,8 +315,12 @@ export const receiveImportCreate = async (content: any) => {
       const result: unknown[] = [];
 
       for (const row of rows) {
-        if (isRowValid(row)) {
+        const hasErrorStatus = isRowValid(row);
+
+        if (!hasErrorStatus) {
           result.push(Object.values(row));
+        } else {
+          errorMsgs.push(new Error(`Duplicated ${hasErrorStatus}`));
         }
       }
 
@@ -292,6 +332,15 @@ export const receiveImportCreate = async (content: any) => {
         properties,
         importHistoryId: importHistory.id
       });
+
+      if (errorMsgs.length > 0) {
+        await ImportHistory.updateOne(
+          { _id: importHistory.id },
+          { $inc: { failed: errorMsgs.length }, $push: { errorMsgs } }
+        );
+
+        errorMsgs = [];
+      }
     };
 
     await importBulkStream({
