@@ -3,11 +3,8 @@ import * as Nylas from 'nylas';
 import { debugNylas } from '../debuggers';
 import { Integrations } from '../models';
 import { sendRequest } from '../utils';
-import {
-  NYLAS_API_URL,
-  NYLAS_SCHEDULE_MANAGE_PAGES,
-  NYLAS_SCHEDULE_WEBHOOK_URL
-} from './constants';
+import { getConfig } from '../utils';
+import { NYLAS_API_URL, NYLAS_SCHEDULE_MANAGE_PAGES } from './constants';
 import { NylasCalendars } from './models';
 import { storePages } from './store';
 import {
@@ -598,7 +595,14 @@ const getSchedulePages = async (accessToken: string) => {
   }
 };
 
-const generatePageBody = (doc: INylasSchedulePageDoc, accessToken: string) => {
+const generatePageBody = async (
+  doc: INylasSchedulePageDoc,
+  accessToken: string
+) => {
+  const NYLAS_WEBHOOK_CALLBACK_URL = await getConfig(
+    'NYLAS_WEBHOOK_CALLBACK_URL'
+  );
+
   const appearance = doc.appearance;
   const booking = doc.booking;
 
@@ -628,7 +632,7 @@ const generatePageBody = (doc: INylasSchedulePageDoc, accessToken: string) => {
           delivery_method: 'webhook',
           delivery_recipient: 'customer',
           time_before_event: 60,
-          webhook_url: NYLAS_SCHEDULE_WEBHOOK_URL
+          webhook_url: NYLAS_WEBHOOK_CALLBACK_URL
         }
       ],
       timezone: doc.timezone
@@ -642,7 +646,7 @@ const createSchedulePage = async (
   accountId: string
 ) => {
   try {
-    const body = generatePageBody(doc, accessToken);
+    const body = await generatePageBody(doc, accessToken);
 
     const response = await sendRequest({
       url: NYLAS_SCHEDULE_MANAGE_PAGES,
@@ -670,7 +674,7 @@ const updateSchedulePage = async (
   editToken: string
 ) => {
   try {
-    const body = generatePageBody(doc, editToken);
+    const body = await generatePageBody(doc, editToken);
 
     const response = await sendRequest({
       url: `${NYLAS_SCHEDULE_MANAGE_PAGES}/${pageId}`,

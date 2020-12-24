@@ -502,6 +502,7 @@ const pageConfigSchema = new Schema(
   {
     timezone: String,
     pageCalendarIds: Object,
+    reminders: Object,
     calendarIds: [String],
     event: pageEventSchema,
     appearance: {

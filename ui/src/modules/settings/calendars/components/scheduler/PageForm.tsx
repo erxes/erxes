@@ -165,14 +165,6 @@ class CreateSchedulePage extends React.Component<FinalProps, State> {
 
   onChange = <T extends keyof State>(key: T, value: State[T]) => {
     this.setState(({ [key]: value } as unknown) as Pick<State, keyof State>);
-
-    if (!this.props.page && key === 'duration') {
-      const slug = this.generateSlug();
-
-      this.setState({
-        slug
-      });
-    }
   };
 
   renderButtons() {

@@ -197,6 +197,7 @@ const storePages = async (pages: IPage[], accountId: string) => {
           minBuffer: booking.min_buffer,
           minCancellationNotice: booking.min_cancellation_notice
         },
+        reminders: config.reminders,
         pageCalendarIds: config.calendar_ids,
         locale: config.locale,
         timezone: config.timezone

@@ -53,7 +53,11 @@ export const initNylas = async app => {
 
     debugNylas('Received new email in nylas...');
 
-    const deltas = req.body.deltas;
+    const { page, booking, deltas } = req.body;
+
+    if (page && booking) {
+      return res.status(200).send('success');
+    }
 
     for (const delta of deltas) {
       const data = delta.object_data || {};
@@ -76,22 +80,6 @@ export const initNylas = async app => {
           break;
       }
     }
-
-    return res.status(200).send('success');
-  });
-
-  app.post('/nylas/schedule/webhook', async (req, res) => {
-    // Verify the request to make sure it's from Nylas
-    if (!verifyNylasSignature(req)) {
-      debugNylas('Failed to verify nylas');
-      return res.status(401).send('X-Nylas-Signature failed verification');
-    }
-
-    debugNylas('Received new email in nylas...');
-
-    const deltas = req.body.deltas;
-
-    console.log(deltas);
 
     return res.status(200).send('success');
   });
