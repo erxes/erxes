@@ -9,6 +9,7 @@ import * as defConstants from './db/models/definitions/constants';
 import { debugError } from './debuggers';
 import memoryStorage from './inmemoryStorage';
 import { graphqlPubsub } from './pubsub';
+import messageBroker from './messageBroker';
 
 export { allModels }
 export const allConstants = { ...dataConstants, ...defConstants }
@@ -45,7 +46,7 @@ export const execInEveryPlugin = (callback) => {
 
       plugins.forEach((plugin, index) => {
         let routes = [];
-        let messageBrokers = [];
+        let msgBrokers = [];
         let models = [];
         let graphqlQueries = [];
         let graphqlResolvers = [];
@@ -63,7 +64,7 @@ export const execInEveryPlugin = (callback) => {
 
         const permissionsPath = `${pluginsPath}/${plugin}/api/permissions.${ext}`
         const routesPath = `${pluginsPath}/${plugin}/api/routes.${ext}`
-        const messageBrokersPath = `${pluginsPath}/${plugin}/api/messageBrokers.${ext}`
+        const msgBrokersPath = `${pluginsPath}/${plugin}/api/msgBrokers.${ext}`
         const graphqlSchemaPath = `${pluginsPath}/${plugin}/api/graphql/schema.${ext}`
         const graphqlQueriesPath = `${pluginsPath}/${plugin}/api/graphql/queries.${ext}`
         const graphqlResolversPath = `${pluginsPath}/${plugin}/api/graphql/resolvers.${ext}`
@@ -86,8 +87,8 @@ export const execInEveryPlugin = (callback) => {
           routes = tryRequire(routesPath).default.routes;
         }
 
-        if (fs.existsSync(messageBrokersPath)) {
-          messageBrokers = tryRequire(messageBrokersPath).default;
+        if (fs.existsSync(msgBrokersPath)) {
+          msgBrokers = tryRequire(msgBrokersPath).default;
         }
 
         if (fs.existsSync(modelsPath)) {
@@ -133,7 +134,7 @@ export const execInEveryPlugin = (callback) => {
         callback({
           isLastIteration: pluginsCount === index + 1,
           routes,
-          messageBrokers,
+          msgBrokers,
           graphqlSchema,
           graphqlResolvers,
           graphqlQueries,
@@ -155,7 +156,7 @@ export const execInEveryPlugin = (callback) => {
       afterMutations: {},
       routes: [],
       models: [],
-      messageBrokers: []
+      msgBrokers: []
     })
   }
 }
@@ -183,7 +184,7 @@ export const extendViaPlugins = (app, resolvers, typeDefDetails): Promise<any> =
     afterMutations,
     routes,
     models,
-    messageBrokers
+    msgBrokers
   }) => {
     routes.forEach(route => {
       app[route.method.toLowerCase()](route.path, (req, res) => {
@@ -241,7 +242,7 @@ export const extendViaPlugins = (app, resolvers, typeDefDetails): Promise<any> =
         graphqlPubsub,
         checkLogin,
         checkPermission,
-        messageBrokers,
+        messageBroker,
       };
     };
 
@@ -272,8 +273,8 @@ export const extendViaPlugins = (app, resolvers, typeDefDetails): Promise<any> =
       }
     }
 
-    if (messageBrokers && messageBrokers.length) {
-      messageBrokers.forEach(async (mbroker) => {
+    if (msgBrokers && msgBrokers.length) {
+      msgBrokers.forEach(async (mbroker) => {
         if (!Object.keys(pluginsConsumers).includes(mbroker.channel)) {
           pluginsConsumers[mbroker.channel] = {}
         }
