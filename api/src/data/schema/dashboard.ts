@@ -21,6 +21,7 @@ export const queries = `
   dashboardItems(dashboardId: String!): [DashboardItem]
   dashboardItemDetail(_id: String!): DashboardItem
   dashboardInitialDatas(type: String): [DashboardItem]
+  dashboardFilters(type: String): JSON
 `;
 
 export const mutations = `
