@@ -9,10 +9,13 @@ import {
   Collapse,
   ConversationContent,
   Count,
+  DeleteAction,
   EmailContent,
   FlexBody,
   FlexCenterContent,
+  FlexContent,
   Header,
+  Row,
   Timeline
 } from 'modules/activityLogs/styles';
 import { colors, dimensions, typography } from 'modules/common/styles';
@@ -145,6 +148,15 @@ const ActivityLogContent = styled(ActivityContent)`
     }
   }
 
+  ${FlexContent} {
+    flex-direction: column;
+  }
+
+  ${Row} {
+    margin-right: 0;
+    margin-bottom: 20px;
+  }
+
   ${FlexBody} {
     align-self: baseline;
   }
@@ -156,6 +168,10 @@ const ActivityLogContent = styled(ActivityContent)`
 
   ${CenterText} {
     font-size: 12px;
+  }
+
+  ${DeleteAction} {
+    visibility: visible;
   }
 
   //Bot
@@ -186,6 +202,7 @@ const ActivityLogContent = styled(ActivityContent)`
 
   ${RightSide} {
     margin-left: 0;
+    padding: 0;
   }
 
   ${Reply} {
@@ -204,6 +221,7 @@ const ActivityLogContent = styled(ActivityContent)`
 
   ${AttachmentItem} {
     width: 180px;
+    margin: 8px 0px 0px 0px;
   }
 
   ${Content} {
