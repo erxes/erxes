@@ -300,19 +300,19 @@ export const loadClass = () => {
         ...pssDoc
       });
 
-      // if (
-      //   (doc.primaryEmail && !doc.emailValidationStatus) ||
-      //   (doc.primaryEmail && doc.emailValidationStatus === 'unknown')
-      // ) {
-      //   validateSingle({ email: doc.primaryEmail });
-      // }
+      if (
+        (doc.primaryEmail && !doc.emailValidationStatus) ||
+        (doc.primaryEmail && doc.emailValidationStatus === 'unknown')
+      ) {
+        validateSingle({ email: doc.primaryEmail });
+      }
 
-      // if (
-      //   (doc.primaryPhone && !doc.phoneValidationStatus) ||
-      //   (doc.primaryPhone && doc.phoneValidationStatus === 'unknown')
-      // ) {
-      //   validateSingle({ phone: doc.primaryPhone });
-      // }
+      if (
+        (doc.primaryPhone && !doc.phoneValidationStatus) ||
+        (doc.primaryPhone && doc.phoneValidationStatus === 'unknown')
+      ) {
+        validateSingle({ phone: doc.primaryPhone });
+      }
 
       await ActivityLogs.createCocLog({
         coc: customer,
