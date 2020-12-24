@@ -62,7 +62,8 @@ export default withProps<Props>(
       name: 'leadIntegrationsQuery',
       options: () => ({
         variables: {
-          kind: 'lead'
+          kind: 'lead',
+          isActive: true
         }
       })
     }),

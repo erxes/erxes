@@ -103,7 +103,8 @@ export const queries = `
     searchValue: String,
     channelId: String,
     brandId: String,
-    tag: String
+    tag: String,
+    isActive: Boolean
   ): [Integration]
 
   integrationsGetUsedTypes: [integrationsGetUsedTypes]

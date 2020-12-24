@@ -68,7 +68,8 @@ const commonParamsDef = `
   $kind: String,
   $perPage: Int,
   $page: Int,
-  $searchValue: String
+  $searchValue: String,
+  $isActive: Boolean
 `;
 
 const commonParams = `
@@ -77,7 +78,8 @@ const commonParams = `
   kind: $kind,
   perPage: $perPage,
   page: $page,
-  searchValue: $searchValue
+  searchValue: $searchValue,
+  isActive: $isActive
 `;
 
 const integrations = `

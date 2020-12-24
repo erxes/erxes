@@ -13,6 +13,7 @@ import messageBroker from '../../../messageBroker';
 import { RABBITMQ_QUEUES } from '../../constants';
 import { IContext } from '../../types';
 import { paginate } from '../../utils';
+
 /**
  * Common helper for integrations & integrationsTotalCount
  */
@@ -21,7 +22,8 @@ const generateFilterQuery = async ({
   channelId,
   brandId,
   searchValue,
-  tag
+  tag,
+  isActive
 }) => {
   const query: any = {};
 
@@ -63,6 +65,10 @@ const generateFilterQuery = async ({
     query.tagIds = tag;
   }
 
+  if (isActive !== undefined) {
+    query.isActive = isActive;
+  }
+
   return query;
 };
 
@@ -76,6 +82,7 @@ const integrationQueries = {
       page: number;
       perPage: number;
       kind: string;
+      isActive: boolean;
 
       searchValue: string;
       channelId: string;
@@ -84,6 +91,8 @@ const integrationQueries = {
     },
     { singleBrandIdSelector }: IContext
   ) {
+    console.log('ISACTIVE = ', args.isActive);
+
     const query = {
       ...singleBrandIdSelector,
       ...(await generateFilterQuery(args))
@@ -92,6 +101,8 @@ const integrationQueries = {
       Integrations.findAllIntegrations(query),
       args
     );
+
+    console.log('QUERY = ', query);
 
     return integrations.sort({ name: 1 });
   },
