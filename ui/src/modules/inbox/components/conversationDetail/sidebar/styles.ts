@@ -20,6 +20,10 @@ import {
 } from 'modules/activityLogs/styles';
 import { colors, dimensions, typography } from 'modules/common/styles';
 import { ActivityContent, DateContainer } from 'modules/common/styles/main';
+import {
+  SpaceBetweenRow,
+  Subject
+} from 'modules/settings/integrations/components/mail/styles';
 import styled from 'styled-components';
 import { CardItem } from '../workarea/conversation/messages/bot/styles';
 import {
@@ -230,6 +234,24 @@ const ActivityLogContent = styled(ActivityContent)`
     > div {
       min-width: 300px;
     }
+  }
+
+  //email form 
+  ${SpaceBetweenRow} {
+    flex-direction: column;
+
+    > a {
+      padding-left: 0;
+    }
+
+    button {
+      width: 100%;
+      margin: 4px 0;
+    }
+  }
+
+  ${Subject} {
+    padding: 8px 16px;
   }
 `;
 
