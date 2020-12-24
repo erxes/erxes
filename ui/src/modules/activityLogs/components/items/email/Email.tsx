@@ -36,7 +36,7 @@ class Email extends React.Component<Props, { expand: boolean }> {
   renderContent() {
     const { body } = this.props.email;
     const { expand } = this.state;
-    const longEmail = body.length >= 800;
+    const longEmail = body.length >= 1500;
 
     return (
       <>
