@@ -129,7 +129,8 @@ const widgetMutations = {
     // find integration by brandId & formId
     const integ = await Integrations.findOne({
       brandId: brand._id,
-      formId: form._id
+      formId: form._id,
+      isActive: true
     });
 
     if (!integ) {
