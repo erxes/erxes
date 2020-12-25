@@ -3,13 +3,16 @@ import * as Nylas from 'nylas';
 import { debugNylas } from '../debuggers';
 import { Integrations } from '../models';
 import { sendRequest } from '../utils';
-import { NYLAS_API_URL } from './constants';
+import { getConfig } from '../utils';
+import { NYLAS_API_URL, NYLAS_SCHEDULE_MANAGE_PAGES } from './constants';
 import { NylasCalendars } from './models';
+import { storePages } from './store';
 import {
   ICalendarAvailability,
   IEvent,
   IEventDoc,
-  IMessageDraft
+  IMessageDraft,
+  INylasSchedulePageDoc
 } from './types';
 import { extractDate } from './utils';
 
@@ -568,6 +571,155 @@ const sendEventAttendance = async (
   }
 };
 
+// schedule
+
+const getSchedulePages = async (accessToken: string) => {
+  try {
+    const response = await sendRequest({
+      url: NYLAS_SCHEDULE_MANAGE_PAGES,
+      method: 'GET',
+      headerParams: {
+        Authorization: `Bearer ${accessToken}`
+      }
+    });
+
+    if (!response) {
+      throw new Error(`page not found`);
+    }
+
+    return response;
+  } catch (e) {
+    debugNylas(`Failed to get pages: ${e.message}`);
+
+    throw e.error;
+  }
+};
+
+const generatePageBody = async (
+  doc: INylasSchedulePageDoc,
+  accessToken: string
+) => {
+  const NYLAS_WEBHOOK_CALLBACK_URL = await getConfig(
+    'NYLAS_WEBHOOK_CALLBACK_URL'
+  );
+
+  const appearance = doc.appearance;
+  const booking = doc.booking;
+
+  return {
+    access_tokens: [accessToken],
+    name: doc.name,
+    slug: doc.slug,
+    config: {
+      appearance: {
+        color: appearance.color,
+        company_name: appearance.companyName,
+        submit_text: appearance.submitText,
+        show_nylas_branding: false,
+        thank_you_text: appearance.thankYouText
+      },
+      event: doc.event,
+      booking: {
+        cancellation_policy: booking.cancellationPolicy,
+        confirmation_method: booking.confirmationMethod,
+        additional_fields: booking.additionalFields,
+        opening_hours: booking.openingHours,
+        confirmation_emails_to_host: false,
+        confirmation_emails_to_guests: false
+      },
+      reminders: [
+        {
+          delivery_method: 'webhook',
+          delivery_recipient: 'customer',
+          time_before_event: 60,
+          webhook_url: NYLAS_WEBHOOK_CALLBACK_URL
+        }
+      ],
+      timezone: doc.timezone
+    }
+  };
+};
+
+const createSchedulePage = async (
+  accessToken: string,
+  doc: INylasSchedulePageDoc,
+  accountId: string
+) => {
+  try {
+    const body = await generatePageBody(doc, accessToken);
+
+    const response = await sendRequest({
+      url: NYLAS_SCHEDULE_MANAGE_PAGES,
+      method: 'POST',
+      body
+    });
+
+    if (!response) {
+      throw new Error(`page not found`);
+    }
+
+    await storePages([response], accountId);
+
+    return response;
+  } catch (e) {
+    debugNylas(`Failed to get pages: ${e.message}`);
+
+    throw e.error || e.statusCode;
+  }
+};
+
+const updateSchedulePage = async (
+  pageId: number,
+  doc: INylasSchedulePageDoc,
+  editToken: string
+) => {
+  try {
+    const body = await generatePageBody(doc, editToken);
+
+    const response = await sendRequest({
+      url: `${NYLAS_SCHEDULE_MANAGE_PAGES}/${pageId}`,
+      method: 'PUT',
+      headerParams: {
+        Authorization: `Basic ${Buffer.from(`${editToken}:`).toString(
+          'base64'
+        )}`
+      },
+      body
+    });
+
+    debugNylas(`Successfully updated the page`);
+
+    return response;
+  } catch (e) {
+    debugNylas(`Failed to delete page: ${e.message}`);
+
+    throw e.error;
+  }
+};
+
+const deleteSchedulePage = async (pageId: string, accessToken: string) => {
+  try {
+    await sendRequest({
+      url: `${NYLAS_SCHEDULE_MANAGE_PAGES}/${pageId}`,
+      method: 'DELETE',
+      headerParams: {
+        Authorization: `Basic ${Buffer.from(`${accessToken}:`).toString(
+          'base64'
+        )}`
+      },
+      body: {
+        notify_participants: true
+      }
+    });
+
+    debugNylas(`Successfully deleted the page`);
+  } catch (e) {
+    debugNylas(`Failed to delete page: ${e.message}`);
+
+    throw e.error;
+  }
+};
+
 export {
   uploadFile,
   sendMessage,
@@ -582,5 +734,9 @@ export {
   deleteCalendarEvent,
   createEvent,
   updateEvent,
-  sendEventAttendance
+  sendEventAttendance,
+  getSchedulePages,
+  createSchedulePage,
+  deleteSchedulePage,
+  updateSchedulePage
 };
