@@ -83,6 +83,7 @@ export default class RightSidebar extends React.Component<Props> {
       return (<Component
         mainType={'customer'}
         mainTypeId={customer._id}
+        customerId={customer._id}
       />)
     })
   }

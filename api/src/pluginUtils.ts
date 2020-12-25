@@ -64,7 +64,7 @@ export const execInEveryPlugin = (callback) => {
 
         const permissionsPath = `${pluginsPath}/${plugin}/api/permissions.${ext}`
         const routesPath = `${pluginsPath}/${plugin}/api/routes.${ext}`
-        const msgBrokersPath = `${pluginsPath}/${plugin}/api/msgBrokers.${ext}`
+        const msgBrokersPath = `${pluginsPath}/${plugin}/api/messageBrokers.${ext}`
         const graphqlSchemaPath = `${pluginsPath}/${plugin}/api/graphql/schema.${ext}`
         const graphqlQueriesPath = `${pluginsPath}/${plugin}/api/graphql/queries.${ext}`
         const graphqlResolversPath = `${pluginsPath}/${plugin}/api/graphql/resolvers.${ext}`
