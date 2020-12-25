@@ -22,8 +22,7 @@ const generateFilterQuery = async ({
   channelId,
   brandId,
   searchValue,
-  tag,
-  isActive
+  tag
 }) => {
   const query: any = {};
 
@@ -65,10 +64,6 @@ const generateFilterQuery = async ({
     query.tagIds = tag;
   }
 
-  if (isActive !== undefined) {
-    query.isActive = isActive;
-  }
-
   return query;
 };
 
@@ -82,7 +77,6 @@ const integrationQueries = {
       page: number;
       perPage: number;
       kind: string;
-      isActive: boolean;
 
       searchValue: string;
       channelId: string;

@@ -25,7 +25,6 @@ describe('integrationQueries', () => {
       $channelId: String
       $brandId: String
       $tag: String
-      $isActive: Boolean
     ) {
       integrations(
         page: $page
@@ -35,7 +34,6 @@ describe('integrationQueries', () => {
         channelId: $channelId
         brandId: $brandId
         tag: $tag
-        isActive: $isActive
       ) {
         _id
       }
@@ -172,22 +170,6 @@ describe('integrationQueries', () => {
     });
 
     expect(responses.length).toBe(1);
-  });
-
-  test('Integrations filtered by isActive', async () => {
-    await integrationFactory({
-      kind: 'lead'
-    });
-    await integrationFactory({
-      kind: 'lead'
-    });
-
-    const responses = await graphqlRequest(qryIntegrations, 'integrations', {
-      isActive: true,
-      kind: 'lead'
-    });
-
-    expect(responses.length).toBe(2);
   });
 
   test('Integration detail', async () => {
