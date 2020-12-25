@@ -13,7 +13,6 @@ import messageBroker from '../../../messageBroker';
 import { RABBITMQ_QUEUES } from '../../constants';
 import { IContext } from '../../types';
 import { paginate } from '../../utils';
-
 /**
  * Common helper for integrations & integrationsTotalCount
  */
