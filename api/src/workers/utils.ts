@@ -12,6 +12,7 @@ import {
   default as ImportHistory
 } from '../db/models/ImportHistory';
 import { debugImport, debugWorkers } from '../debuggers';
+import CustomWorker from './workerUtil';
 
 const { MONGO_URL = '' } = process.env;
 
@@ -22,49 +23,6 @@ dotenv.config();
 
 let workers: any[] = [];
 let intervals: any[] = [];
-
-const createSingleWorkers = (
-  workerPath: string,
-  workerData: any,
-  result: unknown[]
-) => {
-  // tslint:disable-next-line
-  const Worker = require('worker_threads').Worker;
-
-  const cpuCount = os.cpus().length;
-
-  if (workers.length === cpuCount) {
-    throw new Error('Workers are busy or not working');
-  }
-
-  try {
-    const worker = new Worker(workerPath, {
-      workerData: {
-        ...workerData,
-        result
-      }
-    });
-
-    workers.push(worker);
-
-    worker.on('message', () => {
-      removeWorker(worker);
-    });
-
-    worker.on('error', e => {
-      debugImport(e);
-      removeWorker(worker);
-    });
-
-    worker.on('exit', code => {
-      if (code !== 0) {
-        debugImport(`Worker stopped with exit code ${code}`);
-      }
-    });
-  } catch (e) {
-    throw e;
-  }
-};
 
 export const createWorkers = (
   workerPath: string,
@@ -288,6 +246,8 @@ export const receiveImportCreate = async (content: any) => {
       fileType
     } = content;
 
+    const myWorker = new CustomWorker();
+
     let fieldNames;
     let properties;
     let total = 0;
@@ -302,12 +262,12 @@ export const receiveImportCreate = async (content: any) => {
       date: Date.now()
     });
 
-    const { LEAD, CUSTOMER, COMPANY } = IMPORT_CONTENT_TYPE;
-
     const validationValues = await beforeImport(type);
 
     const isRowValid = (row: any) => {
       let status;
+
+      const { LEAD, CUSTOMER, COMPANY } = IMPORT_CONTENT_TYPE;
 
       const {
         existingCodes,
@@ -338,7 +298,7 @@ export const receiveImportCreate = async (content: any) => {
       return false;
     };
 
-    const handleSave = async (rows, totalRows) => {
+    const handleBulkOperation = async (rows: any, totalRows: number) => {
       let errorMsgs: Error[] = [];
 
       total += rows.length;
@@ -375,31 +335,25 @@ export const receiveImportCreate = async (content: any) => {
         errorMsgs = [];
       }
 
-      const workerFile = getWorkerFile('bulkInsert');
-
-      const workerPath = path.resolve(workerFile);
-
-      const percentagePerData = Number(((1 / totalRows) * 100).toFixed(3));
-
+      const workerPath = path.resolve(getWorkerFile('bulkInsert'));
       const workerData = {
         scopeBrandIds,
         user,
         contentType: type,
         properties,
         importHistoryId: importHistory._id,
-        percentagePerData
+        result,
+        percentagePerData: Number(((1 / totalRows) * 100).toFixed(3))
       };
 
-      await createSingleWorkers(workerPath, workerData, result);
+      await myWorker.createWorker(workerPath, workerData);
     };
-
-    const cpuCount = os.cpus().length;
 
     await importBulkStream({
       fileName,
       uploadType,
-      cpuCount,
-      save: handleSave
+      bulkLimit: 1000,
+      handleBulkOperation
     });
 
     await ImportHistory.update({ _id: importHistory.id }, { $set: { total } });

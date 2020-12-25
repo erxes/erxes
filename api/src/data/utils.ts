@@ -1381,12 +1381,19 @@ export const getErxesSaasDomain = () => {
     : 'http://localhost:3500';
 };
 
-const getCsvTotalSize = (
-  filePath: string,
-  uploadType: string
-): Promise<number> => {
+const getCsvTotalSize = ({
+  filePath,
+  uploadType,
+  s3,
+  params
+}: {
+  filePath?: string;
+  uploadType: string;
+  params?: { Bucket: string; Key: string };
+  s3?: any;
+}): Promise<number> => {
   return new Promise(resolve => {
-    if (uploadType === 'local') {
+    if (uploadType === 'local' && filePath) {
       const readSteam = fs.createReadStream(filePath);
 
       let total = 0;
@@ -1398,29 +1405,57 @@ const getCsvTotalSize = (
 
       rl.on('line', () => total++);
       rl.on('close', () => resolve(total));
+    } else {
+      s3.selectObjectContent(
+        {
+          ...params,
+          ExpressionType: 'SQL',
+          Expression: 'SELECT COUNT(*) FROM S3Object',
+          InputSerialization: {
+            CSV: {
+              FileHeaderInfo: 'USE',
+              RecordDelimiter: '\n',
+              FieldDelimiter: ','
+            }
+          },
+          OutputSerialization: {
+            CSV: {}
+          }
+        },
+        (_, data) => {
+          // data.Payload is a Readable Stream
+          const eventStream = data.Payload;
+
+          let total = 0;
+
+          // Read events as they are available
+          eventStream.on('data', event => {
+            if (event.Records) {
+              total = event.Records.Payload.toString();
+            }
+          });
+          eventStream.on('end', resolve(total));
+        }
+      );
     }
   });
 };
 
 export const importBulkStream = ({
   fileName,
-  cpuCount,
+  bulkLimit,
   uploadType,
-  save
+  handleBulkOperation
 }: {
   fileName: string;
-  cpuCount: number;
+  bulkLimit: number;
   uploadType: 'S3' | 'local';
-  save: any;
+  handleBulkOperation: (rows: any, total: number) => Promise<void>;
 }) => {
   return new Promise(async (resolve, reject) => {
-    const filePath: string = `${uploadsFolderPath}/${fileName}`;
-
     let rows: any = [];
-
     let readSteam;
-
-    const total = await getCsvTotalSize(filePath, uploadType);
+    let total;
 
     if (uploadType === 'S3') {
       const AWS_BUCKET = await getConfig('AWS_BUCKET');
@@ -1431,35 +1466,37 @@ export const importBulkStream = ({
         throw new Error(error.code);
       };
 
-      readSteam = s3
-        .getObject({ Bucket: AWS_BUCKET, Key: fileName })
-        .createReadStream();
+      const params = { Bucket: AWS_BUCKET, Key: fileName };
 
+      total = await getCsvTotalSize({ s3, params, uploadType: 's3' });
+
+      readSteam = s3.getObject(params).createReadStream();
       readSteam.on('error', errorCallback);
     } else {
-      readSteam = fs.createReadStream(filePath);
-    }
+      const filePath: string = `${uploadsFolderPath}/${fileName}`;
 
-    const limit = Number((total / cpuCount).toFixed());
+      readSteam = fs.createReadStream(filePath);
+      total = await getCsvTotalSize({ filePath, uploadType });
+    }
 
     const write = (row, _, callback) => {
       rows.push(row);
 
-      if (rows.length === limit) {
-        save(rows, total).then(() => {
+      if (rows.length === bulkLimit) {
+        return handleBulkOperation(rows, total).then(() => {
           rows = [];
           callback();
         });
-      } else {
-        callback();
       }
+
+      return callback();
     };
 
     readSteam
       .pipe(csvParser())
       .pipe(new Writable({ write, objectMode: true }))
       .on('finish', () => {
-        save(rows, total);
+        handleBulkOperation(rows, total);
         resolve('success');
       })
       .on('error', () => reject('fail'));

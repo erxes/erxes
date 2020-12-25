@@ -1,5 +1,4 @@
 import * as mongoose from 'mongoose';
-import { validateSingle } from '../data/verifierUtils';
 import {
   ActivityLogs,
   Boards,
@@ -90,22 +89,6 @@ const create = async ({
     }
 
     objects = await Customers.insertMany(docs);
-
-    for (const doc of docs) {
-      if (
-        (doc.primaryEmail && !doc.emailValidationStatus) ||
-        (doc.primaryEmail && doc.emailValidationStatus === 'unknown')
-      ) {
-        validateSingle({ email: doc.primaryEmail });
-      }
-
-      if (
-        (doc.primaryPhone && !doc.phoneValidationStatus) ||
-        (doc.primaryPhone && doc.phoneValidationStatus === 'unknown')
-      ) {
-        validateSingle({ phone: doc.primaryPhone });
-      }
-    }
   }
 
   if (contentType === COMPANY) {
@@ -205,7 +188,7 @@ connect().then(async () => {
   }: {
     user: IUserDocument;
     scopeBrandIds: string[];
-    result;
+    result: any;
     contentType: string;
     properties: Array<{ [key: string]: string }>;
     importHistoryId: string;
@@ -535,5 +518,8 @@ connect().then(async () => {
 
   mongoose.connection.close();
 
-  parentPort.postMessage('Successfully finished job');
+  parentPort.postMessage({
+    action: 'remove',
+    message: 'Successfully finished the job'
+  });
 });
