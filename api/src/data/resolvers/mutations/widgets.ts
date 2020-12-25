@@ -711,34 +711,31 @@ const widgetMutations = {
   async widgetsSendEmail(_root, args: IWidgetEmailParams) {
     const { toEmails, fromEmail, title, content, customerId, formId } = args;
 
-    let customer;
-    let user;
+    const customer = await Customers.getCustomer(customerId || '');
+    const form = await Forms.getForm(formId || '');
 
-    if (customerId) {
-      customer = await Customers.getCustomer(customerId);
+    let finalContent = content;
+
+    if (customer && form) {
+      const { customerFields } = await replaceEditorAttributes({
+        content
+      });
+
+      const { replacedContent } = await replaceEditorAttributes({
+        content,
+        customerFields,
+        customer,
+        user: await Users.getUser(form.createdUserId)
+      });
+
+      finalContent = replacedContent || '';
     }
-
-    if (formId) {
-      const { createdUserId } = await Forms.getForm(formId);
-      user = await Users.getUser(createdUserId);
-    }
-
-    const { customerFields } = await replaceEditorAttributes({
-      content
-    });
-
-    const { replacedContent } = await replaceEditorAttributes({
-      content,
-      customerFields,
-      customer,
-      user
-    });
 
     await sendEmail({
       toEmails,
       fromEmail,
       title,
-      template: { data: { content: replacedContent } }
+      template: { data: { content: finalContent } }
     });
   },
 
