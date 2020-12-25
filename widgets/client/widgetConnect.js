@@ -30,7 +30,7 @@ const widgetConnect = params => {
         const { data } = response;
 
         // check connection and save connection info
-        connectCallback(rdata);
+        connectCallback(data);
 
         // notify parent window that connected
         window.parent.postMessage(
