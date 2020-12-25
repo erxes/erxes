@@ -2,7 +2,6 @@ import ActionButtons from 'modules/common/components/ActionButtons';
 import Button from 'modules/common/components/Button';
 import Tip from 'modules/common/components/Tip';
 import React from 'react';
-import { Link } from 'react-router-dom';
 import { IPage } from '../../types';
 
 type Props = {
@@ -28,15 +27,10 @@ class PageRow extends React.Component<Props> {
   };
 
   renderExtraLinks() {
-    const { page, accountId } = this.props;
+    const { page } = this.props;
 
     return (
       <>
-        <Tip text="Edit">
-          <Link to={`/settings/schedule/edit/${accountId}/${page._id}`}>
-            <Button btnStyle="link" icon="edit-3" />
-          </Link>
-        </Tip>
         <Tip text="Delete">
           <Button
             btnStyle="link"
