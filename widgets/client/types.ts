@@ -60,6 +60,7 @@ export interface IEmailParams {
   fromEmail: string;
   title: string;
   content: string;
+  formId: string;
 }
 
 export interface IIntegrationTwitterData {
