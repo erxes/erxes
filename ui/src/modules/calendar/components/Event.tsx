@@ -178,7 +178,6 @@ class Event extends React.Component<Props, State> {
       });
 
       tempCounts = { ...counts };
-      console.log(counts);
     }
 
     return events.map((event, index) => {
