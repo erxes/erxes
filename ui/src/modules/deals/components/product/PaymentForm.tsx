@@ -1,3 +1,4 @@
+import { AppConsumer } from 'appContext';
 import { FormControl } from 'modules/common/components/form';
 import ControlLabel from 'modules/common/components/form/Label';
 import CURRENCIES from 'modules/common/constants/currencies';
@@ -162,8 +163,44 @@ class PaymentForm extends React.Component<Props, State> {
     );
   }
 
+  renderPlugins(plugins) {
+    return plugins.map(plugin => {
+      const item = plugin.payments;
+
+      if (!item) {
+        return <></>;
+      }
+
+      const paymentsTypes: JSX.Element[] = [];
+      for (const perPayment of plugin.payments) {
+        if (perPayment.component) {
+          paymentsTypes.push(
+            perPayment.component({ ...perPayment })
+          )
+        } else {
+          paymentsTypes.push(
+            this.renderPaymentsByType({ ...perPayment })
+          )
+        }
+      }
+      return paymentsTypes;
+    })
+  }
+
   renderPayments() {
     return PAYMENT_TYPES.map(type => this.renderPaymentsByType(type));
+  }
+
+  renderPluginsPayments() {
+    return (
+      <AppConsumer>
+        {({ plugins }) => (
+          <>
+            {this.renderPlugins(plugins)}
+          </>
+        )}
+      </AppConsumer>
+    )
   }
 
   render() {
@@ -184,6 +221,7 @@ class PaymentForm extends React.Component<Props, State> {
         <Divider />
 
         {this.renderPayments()}
+        {this.renderPluginsPayments()}
       </>
     );
   }

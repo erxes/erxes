@@ -1497,6 +1497,6 @@ const afterMutations = async (params: IFinalLogParams, user: IUserDocument) => {
       }
     }
   } catch (e) {
-    return e.message
+    throw new Error(e.message);
   }
 }
