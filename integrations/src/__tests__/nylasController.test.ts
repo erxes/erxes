@@ -18,7 +18,9 @@ import {
   nylasCheckCalendarAvailability,
   nylasConnectCalendars,
   nylasCreateCalenderEvent,
+  nylasCreateSchedulePage,
   nylasDeleteCalendarEvent,
+  nylasDeleteSchedulePage,
   nylasFileUpload,
   nylasGetAccountCalendars,
   nylasGetAllEvents,
@@ -26,16 +28,20 @@ import {
   nylasGetCalendarOrEvent,
   nylasGetCalendars,
   nylasGetEvents,
+  nylasGetSchedulePage,
+  nylasGetSchedulePages,
   nylasRemoveCalendars,
   nylasSendEmail,
   nylasSendEventAttendance,
   nylasUpdateEvent,
+  nylasUpdateSchedulePage,
   updateCalendar
 } from '../nylas/handleController';
 import {
   NylasCalendars,
   NylasEvents,
-  NylasGmailConversationMessages
+  NylasGmailConversationMessages,
+  NylasPages
 } from '../nylas/models';
 import * as nylasUtils from '../nylas/utils';
 import * as utils from '../utils';
@@ -1176,6 +1182,179 @@ describe('Test nylas controller', () => {
     const milliseconds = nylasUtils.getTime(new Date('2020-11-27'));
 
     expect(milliseconds).toBeDefined();
+
+    mock.restore();
+  });
+
+  test('Nylas get schedule pages', async () => {
+    try {
+      await nylasGetSchedulePages('erxesApiId123');
+    } catch (e) {
+      expect(e.message).toBe('Account not found with id: erxesApiId123');
+    }
+
+    const mock = sinon.stub(api, 'getSchedulePages').returns(
+      Promise.resolve([
+        {
+          id: 321,
+          name: 'Page name',
+          slug: 'page-slug',
+          config: {
+            appearance: {},
+            event: {
+              title: 'title',
+              location: 'location',
+              duration: 30
+            },
+            booking: {}
+          }
+        }
+      ])
+    );
+
+    const pages = await nylasGetSchedulePages(_account._id);
+
+    expect(pages.length).toEqual(1);
+    expect('title').toEqual(pages[0].config.event.title);
+
+    const alreadyExists = await nylasGetSchedulePages(_account._id);
+    expect(alreadyExists.length).toEqual(1);
+    expect('title').toEqual(alreadyExists[0].config.event.title);
+
+    mock.restore();
+  });
+
+  test('Nylas get schedule page', async () => {
+    const page = await nylasGetSchedulePage(_account._id);
+
+    expect(page).toBeNull();
+  });
+
+  test('Nylas create schedule page', async () => {
+    const account = await Accounts.findOne({});
+    const doc = {
+      name: 'Page name',
+      slug: 'page-slug',
+
+      timezone: 'string',
+      calendarIds: ['id'],
+      event: {
+        title: 'title',
+        location: 'location',
+        duration: 30
+      }
+    };
+
+    try {
+      await nylasCreateSchedulePage('erxesApiId123', doc);
+    } catch (e) {
+      expect(e.message).toBe('Account not found with id: erxesApiId123');
+    }
+
+    const mock = sinon.stub(api, 'createSchedulePage').returns(
+      Promise.resolve([
+        {
+          id: 321,
+          name: 'Page name',
+          slug: 'page-slug',
+          config: {
+            appearance: {},
+            event: {
+              title: 'title',
+              location: 'location',
+              duration: 30
+            },
+            booking: {}
+          }
+        }
+      ])
+    );
+
+    await nylasCreateSchedulePage(account._id, doc);
+    const pages = await NylasPages.find();
+
+    expect(pages.length).toEqual(1);
+    expect(pages[0].pageId).toEqual(321);
+
+    mock.onCall(1).callsFake(() => {
+      throw new Error('error');
+    });
+
+    try {
+      await nylasCreateSchedulePage('account._id', doc);
+    } catch (e) {
+      expect(e.message).toBe('error');
+    }
+
+    mock.restore();
+  });
+
+  test('Nylas update schedule page', async () => {
+    const page = await NylasPages.findOne({});
+    const doc = {
+      name: 'Page name',
+      slug: 'page-slug',
+
+      timezone: 'string',
+      calendarIds: ['id'],
+      event: {
+        title: 'title',
+        location: 'location',
+        duration: 30
+      }
+    };
+
+    try {
+      await nylasUpdateSchedulePage('erxesApiId123', doc);
+    } catch (e) {
+      expect(e.message).toBe('Page not found with id: erxesApiId123');
+    }
+
+    const mock = sinon
+      .stub(api, 'updateSchedulePage')
+      .returns(Promise.resolve());
+
+    await nylasUpdateSchedulePage(page._id, doc);
+
+    mock.onCall(1).callsFake(() => {
+      throw new Error('error');
+    });
+
+    try {
+      await nylasUpdateSchedulePage(page._id, doc);
+    } catch (e) {
+      expect(e.message).toBe('error');
+    }
+
+    mock.restore();
+  });
+
+  test('Nylas delete schedule page', async () => {
+    try {
+      await nylasDeleteSchedulePage('_id');
+    } catch (e) {
+      expect(e.message).toBe('page not found with id: _id');
+    }
+
+    const mock = sinon.stub(api, 'deleteSchedulePage');
+
+    mock.onCall(0).callsFake(() => {
+      throw new Error('error');
+    });
+
+    const page = await NylasPages.findOne({});
+
+    try {
+      await nylasDeleteSchedulePage(page._id);
+    } catch (e) {
+      expect(e.message).toBe('error');
+    }
+
+    mock.onCall(2).returns(() => {
+      Promise.resolve();
+    });
+
+    await nylasDeleteSchedulePage(page._id);
 
     mock.restore();
   });

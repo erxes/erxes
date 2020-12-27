@@ -7,16 +7,20 @@ import { sendRequest } from '../utils';
 import {
   checkCalendarAvailability,
   createEvent,
+  createSchedulePage,
   deleteCalendarEvent,
+  deleteSchedulePage,
   enableOrDisableAccount,
   getAttachment,
   getCalendarList,
   getCalendarOrEvent,
   getEventList,
+  getSchedulePages,
   revokeTokenAccount,
   sendEventAttendance,
   sendMessage,
   updateEvent,
+  updateSchedulePage,
   uploadFile
 } from './api';
 import {
@@ -26,13 +30,14 @@ import {
   connectYahooAndOutlookToNylas
 } from './auth';
 import { NYLAS_API_URL } from './constants';
-import { NylasCalendars, NylasEvents } from './models';
-import { NYLAS_MODELS, storeCalendars, storeEvents } from './store';
+import { NylasCalendars, NylasEvents, NylasPages } from './models';
+import { NYLAS_MODELS, storeCalendars, storeEvents, storePages } from './store';
 import {
   ICalendar,
   ICalendarParams,
   IEventDoc,
-  INylasIntegrationData
+  INylasIntegrationData,
+  INylasSchedulePageDoc
 } from './types';
 import { buildEmailAddress, extractDate } from './utils';
 
@@ -457,6 +462,7 @@ export const nylasRemoveCalendars = async (accountId: string) => {
     await NylasEvents.deleteMany({
       providerCalendarId: { $in: calendarIds }
     });
+    await NylasPages.deleteMany({ accountId });
 
     await revokeToken(email, googleAccessToken);
     await enableOrDisableAccount(nylasAccountId, false);
@@ -574,6 +580,123 @@ export const nylasGetEvents = async ({
     return events;
   } catch (e) {
     debugNylas(`Failed to get calendars: ${e.message}`);
+
+    throw e;
+  }
+};
+
+// schedule
+export const nylasGetSchedulePages = async (accountId: string) => {
+  try {
+    const account = await Accounts.findOne({ _id: accountId });
+
+    if (!account) {
+      throw new Error(`Account not found with id: ${accountId}`);
+    }
+
+    const pages = await NylasPages.find(
+      { accountId },
+      {
+        appClientId: 0,
+        appOrganizationId: 0,
+        editToken: 0,
+        pageId: 0
+      }
+    );
+
+    if (pages.length !== 0) {
+      return pages;
+    }
+
+    const accessToken = account.nylasToken;
+
+    await storePages(await getSchedulePages(accessToken), accountId);
+
+    return NylasPages.find(
+      { accountId },
+      {
+        appClientId: 0,
+        appOrganizationId: 0,
+        editToken: 0,
+        pageId: 0
+      }
+    );
+  } catch (e) {
+    debugNylas(`Failed to get schedule pages: ${e.message}`);
+  }
+};
+
+export const nylasGetSchedulePage = async (pageId: string) => {
+  return NylasPages.findOne(
+    { _id: pageId },
+    {
+      appClientId: 0,
+      appOrganizationId: 0,
+      editToken: 0,
+      pageId: 0
+    }
+  );
+};
+
+export const nylasCreateSchedulePage = async (
+  accountId: string,
+  doc: INylasSchedulePageDoc
+) => {
+  try {
+    debugNylas(`Creating event in calendar with accountId: ${accountId}`);
+
+    const account = await Accounts.findOne({ _id: accountId });
+
+    if (!account) {
+      throw new Error(`Account not found with id: ${accountId}`);
+    }
+
+    return createSchedulePage(account.nylasToken, doc, accountId);
+  } catch (e) {
+    debugNylas(`Failed to create event: ${e.message}`);
+  }
+};
+
+export const nylasUpdateSchedulePage = async (
+  _id: string,
+  doc: INylasSchedulePageDoc
+) => {
+  try {
+    debugNylas(`Updating page id: ${_id}`);
+
+    const page = await NylasPages.findOne({ _id });
+
+    if (!page) {
+      throw new Error(`Page not found with id: ${_id}`);
+    }
+
+    const { pageId, editToken } = page;
+
+    return updateSchedulePage(pageId, doc, editToken);
+  } catch (e) {
+    debugNylas(`Failed to create event: ${e.message}`);
+  }
+};
+
+export const nylasDeleteSchedulePage = async (_id: string) => {
+  try {
+    debugNylas(`Deleting schedule page id: ${_id}`);
+
+    const page = await NylasPages.findOne({ _id }).lean();
+
+    if (!page) {
+      throw new Error(`page not found with id: ${_id}`);
+    }
+
+    const { pageId, accountId } = page;
+
+    const account = await Accounts.findOne({ _id: accountId });
+
+    await deleteSchedulePage(pageId, account.nylasToken);
+
+    await NylasPages.deleteOne({ _id });
+  } catch (e) {
+    debugNylas(`Failed to delete event: ${e.message}`);
 
     throw e;
   }

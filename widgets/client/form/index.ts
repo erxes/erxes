@@ -30,6 +30,8 @@ widgetConnect({
         formCode: setting.form_id,
         cachedCustomerId: getLocalStorageItem('customerId')
       }
+    }).catch(e => {
+      console.log(e.message);
     });
   },
 
