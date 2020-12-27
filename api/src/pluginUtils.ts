@@ -84,7 +84,7 @@ export const execInEveryPlugin = (callback) => {
         }
 
         if (fs.existsSync(routesPath)) {
-          routes = tryRequire(routesPath).default.routes;
+          routes = (tryRequire(routesPath).default || {}).routes;
         }
 
         if (fs.existsSync(msgBrokersPath)) {

@@ -1491,7 +1491,8 @@ const afterMutations = async (params: IFinalLogParams, user: IUserDocument) => {
             constants: allConstants,
             models: allModels,
             memoryStorage,
-            graphqlPubsub
+            graphqlPubsub,
+            messageBroker
           });
         }
       }
