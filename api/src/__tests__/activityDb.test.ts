@@ -1,6 +1,4 @@
 import * as faker from 'faker';
-import { ActivityLogs, Customers, Deals, Segments } from '../db/models';
-
 import {
   activityLogFactory,
   checklistFactory,
@@ -8,6 +6,13 @@ import {
   dealFactory,
   segmentFactory
 } from '../db/factories';
+import { ActivityLogs, Customers, Deals, Segments } from '../db/models';
+import {
+  IActivityLog,
+  IActivityLogInput
+} from '../db/models/definitions/activityLogs';
+import { IItemCommonFieldsDocument } from '../db/models/definitions/boards';
+import { ACTIVITY_ACTIONS } from '../db/models/definitions/constants';
 import './setup.ts';
 
 describe('Test activity model', () => {
@@ -39,6 +44,40 @@ describe('Test activity model', () => {
     expect(activity.action).toEqual(action);
   });
 
+  test('Activity add activities', async () => {
+    const docs: IActivityLogInput[] = [];
+
+    new Array(2).fill(0).forEach(() => {
+      const item = {} as IActivityLog;
+
+      item.contentId = faker.random.uuid();
+      item.contentType = 'customer';
+      item.createdBy = faker.random.uuid();
+      item.action = 'create';
+
+      docs.push(item);
+    });
+
+    const activities = await ActivityLogs.addActivityLogs(docs);
+
+    const count = await ActivityLogs.count({ contentType: 'customer' });
+
+    for (const doc of docs) {
+      const log = await ActivityLogs.findOne({ contentId: doc.contentId });
+
+      if (!log) {
+        fail('Log not found');
+      }
+
+      expect(log.contentType).toBe(doc.contentType);
+      expect(log.createdBy).toBe(doc.createdBy);
+      expect(log.action).toBe(doc.action);
+    }
+
+    expect(activities).toBeDefined();
+    expect(count).toBe(2);
+  });
+
   test('Activity remove activity', async () => {
     const activity = await activityLogFactory();
 
@@ -49,6 +88,45 @@ describe('Test activity model', () => {
     }).countDocuments();
 
     expect(count).toBe(0);
+  });
+
+  test('Activity create board items log', async () => {
+    const items = [] as IItemCommonFieldsDocument[];
+
+    const deal = await dealFactory({ sourceConversationId: '123' });
+
+    new Array(3).fill(0).forEach(() => {
+      const item = {} as any;
+
+      item._id = faker.random.uuid();
+      item.userId = faker.random.uuid();
+      item.sourceConversationId = '123';
+
+      items.push(item);
+    });
+
+    const logs = await ActivityLogs.createBoardItemsLog({
+      items,
+      contentType: 'deal'
+    });
+
+    const logsCount = await ActivityLogs.count({ contentType: 'deal' });
+
+    for (const item of items) {
+      const log = await ActivityLogs.findOne({ contentId: item._id });
+
+      if (!log) {
+        fail('Log not found');
+      }
+
+      expect(log.contentType).toBe('deal');
+      expect(log.createdBy).toBe(item.userId);
+      expect(log.action).toBe(ACTIVITY_ACTIONS.CONVERT);
+      expect(log.content).toBe(deal.sourceConversationId);
+    }
+
+    expect(logs).toBeDefined();
+    expect(logsCount).toBe(3);
   });
 
   test('Activity create board item log', async () => {
@@ -76,6 +154,46 @@ describe('Test activity model', () => {
 
     expect(activity1.contentId).toEqual(item._id);
     expect(activity2.contentId).toEqual(item._id);
+  });
+
+  test('Activity create coc logs', async () => {
+    const customer = await customerFactory({ mergedIds: ['1', '2'] });
+    const cocs: any[] = [];
+
+    new Array(3).fill(0).forEach(() => {
+      const item: any = {};
+
+      item._id = faker.random.uuid();
+      item.ownerId = faker.random.uuid();
+      item.mergedIds = customer.mergedIds;
+
+      cocs.push(item);
+    });
+
+    const activities = await ActivityLogs.createCocLogs({
+      cocs,
+      contentType: 'customer'
+    });
+
+    const count = await ActivityLogs.count({ contentType: 'customer' });
+
+    for (const coc of cocs) {
+      const log = await ActivityLogs.findOne({ contentId: coc._id }).lean();
+
+      if (!log) {
+        fail('Log not found');
+      }
+
+      expect(log.createdBy).toBe(coc.ownerId);
+      expect(log.content.toString()).toEqual(
+        (customer.mergedIds || []).toString()
+      );
+      expect(log.action).toBe(ACTIVITY_ACTIONS.MERGE);
+      expect(log.contentType).toBe('customer');
+    }
+
+    expect(activities).toBeDefined();
+    expect(count).toBe(3);
   });
 
   test('Activity create coc log', async () => {
