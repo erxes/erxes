@@ -9,15 +9,20 @@ import {
   nylasCheckCalendarAvailability,
   nylasConnectCalendars,
   nylasCreateCalenderEvent,
+  nylasCreateSchedulePage,
   nylasDeleteCalendarEvent,
+  nylasDeleteSchedulePage,
   nylasFileUpload,
   nylasGetAccountCalendars,
   nylasGetAttachment,
   nylasGetCalendarOrEvent,
   nylasGetEvents,
+  nylasGetSchedulePage,
+  nylasGetSchedulePages,
   nylasRemoveCalendars,
   nylasSendEmail,
   nylasUpdateEvent,
+  nylasUpdateSchedulePage,
   updateCalendar
 } from './handleController';
 import loginMiddleware from './loginMiddleware';
@@ -48,7 +53,11 @@ export const initNylas = async app => {
 
     debugNylas('Received new email in nylas...');
 
-    const deltas = req.body.deltas;
+    const { page, booking, deltas } = req.body;
+
+    if (page && booking) {
+      return res.status(200).send('success');
+    }
 
     for (const delta of deltas) {
       const data = delta.object_data || {};
@@ -310,6 +319,74 @@ export const initNylas = async app => {
     } catch (e) {
       next(e);
     }
+  });
+
+  app.get('/nylas/get-schedule-pages', async (req, res, next) => {
+    debugRequest(debugNylas, req);
+
+    const { accountId } = req.query;
+
+    try {
+      const response = await nylasGetSchedulePages(accountId);
+
+      return res.json(response);
+    } catch (e) {
+      next(e);
+    }
+  });
+
+  app.get('/nylas/get-schedule-page', async (req, res, next) => {
+    debugRequest(debugNylas, req);
+
+    const { pageId } = req.query;
+
+    try {
+      const response = await nylasGetSchedulePage(pageId);
+
+      return res.json(response);
+    } catch (e) {
+      next(e);
+    }
+  });
+
+  app.post('/nylas/create-schedule-page', async (req, res, next) => {
+    debugRequest(debugNylas, req);
+
+    const { accountId, ...doc } = req.body;
+
+    try {
+      const response = await nylasCreateSchedulePage(accountId, doc);
+
+      return res.json(response);
+    } catch (e) {
+      next(e);
+    }
+  });
+
+  app.post('/nylas/edit-schedule-page', async (req, res, next) => {
+    debugRequest(debugNylas, req);
+
+    const { _id, ...doc } = req.body;
+
+    try {
+      const response = await nylasUpdateSchedulePage(_id, doc);
+
+      return res.json(response);
+    } catch (e) {
+      next(e);
+    }
+  });
+
+  app.post('/nylas/delete-page', async (req, res, next) => {
+    const { pageId } = req.body;
+
+    try {
+      await nylasDeleteSchedulePage(pageId);
+    } catch (e) {
+      return next(e);
+    }
+
+    return res.json({ status: 'ok' });
   });
 };
 

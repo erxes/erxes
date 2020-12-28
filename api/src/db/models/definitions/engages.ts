@@ -82,7 +82,12 @@ export const scheduleDateSchema = new Schema(
     type: field({ type: String, optional: true, label: 'Type' }),
     month: field({ type: String, optional: true, label: 'Month' }),
     day: field({ type: String, optional: true, label: 'Day' }),
-    dateTime: field({type: Date, optional: true, label: 'DateTime', min: [Date.now, `Date time value must be greather than today` ]})
+    dateTime: field({
+      type: Date,
+      optional: true,
+      label: 'DateTime',
+      min: [Date.now, `Date time value must be greather than today`]
+    })
   },
   { _id: false }
 );
