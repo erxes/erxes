@@ -52,10 +52,6 @@ export default class CustomWorker {
     }
   }
 
-  /**
-   * Return first free worker if availably or
-   * Wait till free worker found
-   */
   async getFreeWorker(): Promise<{ worker: any; workerIndex: number }> {
     return new Promise(resolve => {
       let interval;
@@ -75,8 +71,6 @@ export default class CustomWorker {
 
           return;
         }
-
-        debugWorkers('Workers are busy');
 
         return findFreeWorker;
       };

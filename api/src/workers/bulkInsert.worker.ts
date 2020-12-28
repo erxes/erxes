@@ -183,8 +183,7 @@ connect().then(async () => {
     result,
     contentType,
     properties,
-    importHistoryId,
-    percentagePerData
+    importHistoryId
   }: {
     user: IUserDocument;
     scopeBrandIds: string[];
@@ -192,7 +191,6 @@ connect().then(async () => {
     contentType: string;
     properties: Array<{ [key: string]: string }>;
     importHistoryId: string;
-    percentagePerData: number;
   } = workerData;
 
   let model: any = null;
@@ -221,13 +219,6 @@ connect().then(async () => {
   }
 
   const bulkDoc: any = [];
-
-  // Import history result statistics
-  const inc: { success: number; failed: number; percentage: number } = {
-    success: 0,
-    failed: 0,
-    percentage: percentagePerData
-  };
 
   // Collecting errors
   const errorMsgs: string[] = [];
@@ -483,38 +474,10 @@ connect().then(async () => {
         { _id: importHistoryId },
         { $push: { ids: cocIds } }
       );
-
-      // Increasing success count
-      inc.success += bulkDoc.length;
     })
     .catch(async (e: Error) => {
-      inc.failed += bulkDoc.length;
       errorMsgs.push(e.message);
     });
-
-  await ImportHistory.updateOne(
-    { _id: importHistoryId },
-    { $inc: inc, $push: { errorMsgs } }
-  );
-
-  let importHistory = await ImportHistory.findOne({ _id: importHistoryId });
-
-  if (!importHistory) {
-    throw new Error('Could not find import history');
-  }
-
-  if (importHistory.failed + importHistory.success === importHistory.total) {
-    await ImportHistory.updateOne(
-      { _id: importHistoryId },
-      { $set: { status: 'Done', percentage: 100 } }
-    );
-
-    importHistory = await ImportHistory.findOne({ _id: importHistoryId });
-  }
-
-  if (!importHistory) {
-    throw new Error('Could not find import history');
-  }
 
   mongoose.connection.close();
 

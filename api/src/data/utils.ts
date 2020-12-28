@@ -1445,12 +1445,14 @@ export const importBulkStream = ({
   fileName,
   bulkLimit,
   uploadType,
-  handleBulkOperation
+  handleBulkOperation,
+  handleOnEndBulkOperation
 }: {
   fileName: string;
   bulkLimit: number;
   uploadType: 'S3' | 'local';
   handleBulkOperation: (rows: any, total: number) => Promise<void>;
+  handleOnEndBulkOperation: () => Promise<void>;
 }) => {
   return new Promise(async (resolve, reject) => {
     let rows: any = [];
@@ -1479,6 +1481,9 @@ export const importBulkStream = ({
       total = await getCsvTotalSize({ filePath, uploadType });
     }
 
+    // exclude column
+    total--;
+
     const write = (row, _, callback) => {
       rows.push(row);
 
@@ -1496,8 +1501,10 @@ export const importBulkStream = ({
       .pipe(csvParser())
       .pipe(new Writable({ write, objectMode: true }))
       .on('finish', () => {
-        handleBulkOperation(rows, total);
-        resolve('success');
+        handleBulkOperation(rows, total).then(() => {
+          handleOnEndBulkOperation();
+          resolve('success');
+        });
       })
       .on('error', () => reject('fail'));
   });

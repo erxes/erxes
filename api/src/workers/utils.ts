@@ -250,7 +250,6 @@ export const receiveImportCreate = async (content: any) => {
 
     let fieldNames;
     let properties;
-    let total = 0;
 
     if (fileType !== 'csv') {
       throw new Error('Invalid file type');
@@ -261,6 +260,10 @@ export const receiveImportCreate = async (content: any) => {
       userId: user._id,
       date: Date.now()
     });
+
+    const updateImportHistory = async doc => {
+      return ImportHistory.updateOne({ _id: importHistory.id }, doc);
+    };
 
     const validationValues = await beforeImport(type);
 
@@ -299,12 +302,22 @@ export const receiveImportCreate = async (content: any) => {
     };
 
     const handleBulkOperation = async (rows: any, totalRows: number) => {
+      const inc: { success: number; failed: number; percentage: number } = {
+        success: 0,
+        failed: 0,
+        percentage: 0
+      };
+
       let errorMsgs: Error[] = [];
 
-      total += rows.length;
+      if (!importHistory.total) {
+        await updateImportHistory({
+          $set: { total: totalRows }
+        });
+      }
 
-      if (total === 0) {
-        throw new Error('Please import at least one row of data');
+      if (rows.length === 0) {
+        debugWorkers('Please import at least one row of data');
       }
 
       if (!fieldNames) {
@@ -327,10 +340,10 @@ export const receiveImportCreate = async (content: any) => {
       }
 
       if (errorMsgs.length > 0) {
-        await ImportHistory.updateOne(
-          { _id: importHistory.id },
-          { $inc: { failed: errorMsgs.length }, $push: { errorMsgs } }
-        );
+        await updateImportHistory({
+          $inc: { failed: errorMsgs.length },
+          $push: { errorMsgs }
+        });
 
         errorMsgs = [];
       }
@@ -342,23 +355,54 @@ export const receiveImportCreate = async (content: any) => {
         contentType: type,
         properties,
         importHistoryId: importHistory._id,
-        result,
-        percentagePerData: Number(((1 / totalRows) * 100).toFixed(3))
+        result
       };
 
-      await myWorker.createWorker(workerPath, workerData);
+      try {
+        await myWorker.createWorker(workerPath, workerData);
+        inc.success += result.length;
+        inc.percentage += Number(
+          ((result.length / totalRows) * 100).toFixed(3)
+        );
+      } catch (e) {
+        errorMsgs.push(e.message);
+        inc.failed += result.length;
+      }
+
+      await updateImportHistory({
+        $inc: inc,
+        $push: { errorMsgs }
+      });
     };
 
-    await importBulkStream({
+    const handleOnEndBulkOperation = async () => {
+      const updatedImportHistory = await ImportHistory.findOne({
+        _id: importHistory.id
+      });
+
+      if (!updatedImportHistory) {
+        throw new Error('Import history not found');
+      }
+
+      if (
+        updatedImportHistory.failed + updatedImportHistory.success ===
+        updatedImportHistory.total
+      ) {
+        await updateImportHistory({
+          $set: { status: 'Done', percentage: 100 }
+        });
+      }
+
+      await deleteFile(fileName);
+    };
+
+    importBulkStream({
       fileName,
       uploadType,
-      bulkLimit: 1000,
-      handleBulkOperation
+      bulkLimit: 100,
+      handleBulkOperation,
+      handleOnEndBulkOperation
     });
-
-    await ImportHistory.update({ _id: importHistory.id }, { $set: { total } });
-
-    await deleteFile(fileName);
 
     return { id: importHistory.id };
   } catch (e) {
