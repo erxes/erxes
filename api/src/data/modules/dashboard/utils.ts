@@ -1,4 +1,10 @@
-import { Integrations, Pipelines, Stages, Users } from '../../../db/models';
+import {
+  Brands,
+  Integrations,
+  Pipelines,
+  Stages,
+  Users
+} from '../../../db/models';
 
 export const getUsers = async () => {
   return Users.aggregate([
@@ -7,6 +13,19 @@ export const getUsers = async () => {
       $project: {
         _id: 0,
         label: '$username',
+        value: '$_id'
+      }
+    }
+  ]);
+};
+
+export const getBrands = async () => {
+  return Brands.aggregate([
+    { $match: {} },
+    {
+      $project: {
+        _id: 0,
+        label: '$name',
         value: '$_id'
       }
     }
