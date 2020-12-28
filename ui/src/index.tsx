@@ -1,4 +1,5 @@
 import '@nateradebaugh/react-datetime/css/react-datetime.css';
+import * as Sentry from '@sentry/browser';
 import 'abortcontroller-polyfill/dist/polyfill-patch-fetch';
 import dayjs from 'dayjs';
 import localizedFormat from 'dayjs/plugin/localizedFormat';
@@ -24,6 +25,12 @@ dayjs.extend(utc, { parseLocal: true });
 const target = document.querySelector('#root');
 
 const envs = getEnv();
+
+if (envs.REACT_APP_SENTRY_DSN) {
+  Sentry.init({
+    dsn: envs.REACT_APP_SENTRY_DSN
+  });
+}
 
 fetch(`${envs.REACT_APP_API_URL}/initial-setup?envs=${JSON.stringify(envs)}`, {
   credentials: 'include'
