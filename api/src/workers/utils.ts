@@ -115,20 +115,18 @@ export const clearIntervals = () => {
   intervals = [];
 };
 
-export const clearEmptyValues = (objs: any) => {
-  for (const obj of objs) {
-    Object.keys(obj).forEach(key => {
-      if (obj[key] === '' || obj[key] === 'unknown') {
-        delete obj[key];
-      }
+export const clearEmptyValues = (obj: any) => {
+  Object.keys(obj).forEach(key => {
+    if (obj[key] === '' || obj[key] === 'unknown') {
+      delete obj[key];
+    }
 
-      if (Array.isArray(obj[key]) && obj[key].length === 0) {
-        delete obj[key];
-      }
-    });
-  }
+    if (Array.isArray(obj[key]) && obj[key].length === 0) {
+      delete obj[key];
+    }
+  });
 
-  return objs;
+  return obj;
 };
 
 export const updateDuplicatedValue = async (
@@ -154,7 +152,7 @@ const getWorkerFile = fileName => {
   return `./dist/workers/${fileName}.worker.js`;
 };
 
-// xls file import, cancel, removal
+// csv file import, cancel, removal
 export const receiveImportRemove = async (content: any) => {
   const { contentType, importHistoryId } = content;
 
@@ -265,10 +263,17 @@ export const receiveImportCreate = async (content: any) => {
       return ImportHistory.updateOne({ _id: importHistory.id }, doc);
     };
 
-    const validationValues = await beforeImport(type);
+    let validationValues;
+
+    const updateValidationValues = async () => {
+      validationValues = await beforeImport(type);
+    };
+
+    // collect initial validation values
+    updateValidationValues();
 
     const isRowValid = (row: any) => {
-      let status;
+      const errors: Error[] = [];
 
       const { LEAD, CUSTOMER, COMPANY } = IMPORT_CONTENT_TYPE;
 
@@ -282,23 +287,36 @@ export const receiveImportCreate = async (content: any) => {
       if (type === CUSTOMER || type === LEAD) {
         const { primaryEmail, primaryPhone, code } = row;
 
-        status = existingCodes.includes(code) ? 'code' : null;
-        status = existingEmails.includes(primaryEmail) ? 'email' : null;
-        status = existingPhones.includes(primaryPhone) ? 'phone' : null;
+        if (existingCodes.includes(code)) {
+          errors.push(new Error(`Duplicated code: ${code}`));
+        }
 
-        return status;
+        if (existingEmails.includes(primaryEmail)) {
+          errors.push(new Error(`Duplicated email: ${primaryEmail}`));
+        }
+
+        if (existingPhones.includes(primaryPhone)) {
+          errors.push(new Error(`Duplicated phone: ${primaryPhone}`));
+        }
+
+        return errors;
       }
 
       if (type === COMPANY) {
         const { primaryName, code } = row;
 
-        status = existingNames.includes(primaryName) ? 'name' : null;
-        status = existingCodes.includes(code) ? 'code' : null;
+        if (existingNames.includes(primaryName)) {
+          errors.push(new Error(`Duplicated name: ${primaryName}`));
+        }
 
-        return status;
+        if (existingCodes.includes(code)) {
+          errors.push(new Error(`Duplicated code: ${code}`));
+        }
+
+        return errors;
       }
 
-      return false;
+      return errors;
     };
 
     const handleBulkOperation = async (rows: any, totalRows: number) => {
@@ -330,49 +348,33 @@ export const receiveImportCreate = async (content: any) => {
       const result: unknown[] = [];
 
       for (const row of rows) {
-        const hasErrorStatus = isRowValid(row);
+        const errors = isRowValid(row);
 
-        if (!hasErrorStatus) {
-          result.push(Object.values(row));
-        } else {
-          errorMsgs.push(new Error(`Duplicated ${hasErrorStatus}`));
-        }
-      }
-
-      if (errorMsgs.length > 0) {
-        await updateImportHistory({
-          $inc: { failed: errorMsgs.length },
-          $push: { errorMsgs }
-        });
-
-        errorMsgs = [];
+        errors.length > 0
+          ? errorMsgs.push(...errors)
+          : result.push(Object.values(row));
       }
 
       const workerPath = path.resolve(getWorkerFile('bulkInsert'));
-      const workerData = {
+
+      await myWorker.createWorker(workerPath, {
         scopeBrandIds,
         user,
         contentType: type,
         properties,
         importHistoryId: importHistory._id,
         result
-      };
-
-      try {
-        await myWorker.createWorker(workerPath, workerData);
-        inc.success += result.length;
-        inc.percentage += Number(
-          ((result.length / totalRows) * 100).toFixed(3)
-        );
-      } catch (e) {
-        errorMsgs.push(e.message);
-        inc.failed += result.length;
-      }
-
-      await updateImportHistory({
-        $inc: inc,
-        $push: { errorMsgs }
       });
+
+      // update import history status
+      inc.success += result.length;
+      inc.failed += errorMsgs.length;
+      inc.percentage += Number(((result.length / totalRows) * 100).toFixed(3));
+
+      await updateImportHistory({ $inc: inc, $push: { errorMsgs } });
+      await updateValidationValues();
+
+      errorMsgs = [];
     };
 
     const handleOnEndBulkOperation = async () => {

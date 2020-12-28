@@ -20,6 +20,7 @@ import {
 import { fillSearchTextItem } from '../db/models/boardUtils';
 import { IConformityAdd } from '../db/models/definitions/conformities';
 import { IUserDocument } from '../db/models/definitions/users';
+import { debugWorkers } from '../debuggers';
 import { connect, generatePronoun, IMPORT_CONTENT_TYPE } from './utils';
 
 // tslint:disable-next-line
@@ -56,8 +57,10 @@ const create = async ({
 
   let objects;
 
+  const conformityMapping = {};
+
   if (contentType === CUSTOMER) {
-    for (const doc of docs) {
+    docs.map(async (doc, docIndex) => {
       if (!doc.ownerId && user) {
         doc.ownerId = user._id;
       }
@@ -86,13 +89,31 @@ const create = async ({
       doc.state = state;
       doc.createdAt = new Date();
       doc.modifiedAt = new Date();
-    }
+
+      if (doc.companiesPrimaryNames && doc.companiesPrimaryNames.length > 0) {
+        const companyIds = await Companies.find({
+          primaryName: { $in: doc.companiesPrimaryNames }
+        }).distinct('_id');
+
+        for (const id of companyIds) {
+          if (!conformityMapping[docIndex]) {
+            conformityMapping[docIndex] = [];
+          }
+
+          conformityMapping[docIndex].push({
+            relType: 'company',
+            mainType: contentType === 'lead' ? 'customer' : contentType,
+            relTypeId: id
+          });
+        }
+      }
+    });
 
     objects = await Customers.insertMany(docs);
   }
 
   if (contentType === COMPANY) {
-    for (const doc of docs) {
+    docs.map(async (doc, docIndex) => {
       if (!doc.ownerId && user) {
         doc.ownerId = user._id;
       }
@@ -105,7 +126,25 @@ const create = async ({
       doc.searchText = Companies.fillSearchText(doc);
       doc.createdAt = new Date();
       doc.modifiedAt = new Date();
-    }
+
+      if (doc.customersPrimaryEmails && doc.customersPrimaryEmails.length > 0) {
+        const customerIds = await Customers.find({
+          primaryEmail: { $in: doc.customersPrimaryEmails }
+        }).distinct('_id');
+
+        for (const id of customerIds) {
+          if (!conformityMapping[docIndex]) {
+            conformityMapping[docIndex] = [];
+          }
+
+          conformityMapping[docIndex].push({
+            relType: 'customer',
+            mainType: contentType === 'lead' ? 'customer' : contentType,
+            relTypeId: id
+          });
+        }
+      }
+    });
 
     objects = await Companies.insertMany(docs);
   }
@@ -167,6 +206,22 @@ const create = async ({
       cocs: objects,
       contentType
     });
+
+    if (Object.keys(conformityMapping).length > 0) {
+      const conformityDocs: IConformityAdd[] = [];
+
+      objects.map(async (object, objectIndex) => {
+        const companyConformityDocs = conformityMapping[objectIndex];
+
+        for (const confDoc of companyConformityDocs) {
+          confDoc.mainTypeId = object._id;
+        }
+
+        conformityDocs.push(companyConformityDocs);
+      });
+
+      await Conformities.insertMany(conformityDocs);
+    }
   }
 
   return objects;
@@ -219,9 +274,6 @@ connect().then(async () => {
   }
 
   const bulkDoc: any = [];
-
-  // Collecting errors
-  const errorMsgs: string[] = [];
 
   // Iterating field values
   for (const fieldValue of result) {
@@ -389,85 +441,8 @@ connect().then(async () => {
     bulkDoc.push(doc);
   }
 
-  await create({
-    docs: bulkDoc,
-    user,
-    contentType,
-    model
-  })
+  await create({ docs: bulkDoc, user, contentType, model })
     .then(async cocObjs => {
-      const customerConformitiesDoc: IConformityAdd[] = [];
-      const companyConformitiesDoc: IConformityAdd[] = [];
-
-      const findCoc = (value: string, type: string) =>
-        cocObjs.find(obj => {
-          return obj[type] === value;
-        });
-
-      if (
-        contentType === IMPORT_CONTENT_TYPE.COMPANY ||
-        contentType === IMPORT_CONTENT_TYPE.CUSTOMER
-      ) {
-        for (const doc of bulkDoc) {
-          if (
-            doc.companiesPrimaryNames &&
-            doc.companiesPrimaryNames.length > 0 &&
-            contentType !== 'company'
-          ) {
-            const companyIds: string[] = [];
-            const createCompaniesDoc: Array<{ primaryName: string }> = [];
-
-            for (const primaryName of doc.companiesPrimaryNames) {
-              const company = await Companies.findOne({ primaryName }).lean();
-              company
-                ? companyIds.push(company._id)
-                : createCompaniesDoc.push({ primaryName });
-            }
-
-            const newCompanies = await Companies.insertMany(createCompaniesDoc);
-
-            const newCompaniesIds = newCompanies.map(company => company._id);
-
-            companyIds.push(...newCompaniesIds);
-
-            const cocObj = findCoc(doc.primaryEmail, 'primaryEmail');
-
-            for (const id of companyIds) {
-              customerConformitiesDoc.push({
-                mainType: contentType === 'lead' ? 'customer' : contentType,
-                mainTypeId: cocObj._id,
-                relType: 'company',
-                relTypeId: id
-              });
-            }
-          }
-
-          if (
-            doc.customersPrimaryEmails &&
-            doc.customersPrimaryEmails.length > 0 &&
-            contentType !== 'customer'
-          ) {
-            const customerIds = await Customers.find({
-              primaryEmail: { $in: doc.customersPrimaryEmails }
-            }).distinct('_id');
-
-            const cocObj = findCoc(doc.primaryName, 'primaryName');
-
-            for (const _id of customerIds) {
-              companyConformitiesDoc.push({
-                mainType: contentType === 'lead' ? 'customer' : contentType,
-                mainTypeId: cocObj._id,
-                relType: 'customer',
-                relTypeId: _id
-              });
-            }
-          }
-        }
-
-        await Conformities.insertMany(customerConformitiesDoc);
-        await Conformities.insertMany(companyConformitiesDoc);
-      }
-
       const cocIds = cocObjs.map(obj => obj._id).filter(obj => obj);
 
       await ImportHistory.updateOne(
@@ -476,7 +451,8 @@ connect().then(async () => {
       );
     })
     .catch(async (e: Error) => {
-      errorMsgs.push(e.message);
+      debugWorkers(e.message);
+      throw e;
     });
 
   mongoose.connection.close();
