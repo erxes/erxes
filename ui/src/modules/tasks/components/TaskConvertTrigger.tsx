@@ -9,6 +9,7 @@ type Props = {
   assignedUserIds?: string[];
   sourceConversationId?: string;
   url?: string;
+  subject?: string;
   refetch: () => void;
   description?: string;
   attachments?: any[];

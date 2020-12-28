@@ -1,7 +1,6 @@
-import { getEnv } from 'apolloClient';
 import Button from 'modules/common/components/Button';
 import ModalTrigger from 'modules/common/components/ModalTrigger';
-import { __ } from 'modules/common/utils';
+import { __, getEnv } from 'modules/common/utils';
 import { ILeadIntegration } from 'modules/leads/types';
 import React from 'react';
 import styled from 'styled-components';

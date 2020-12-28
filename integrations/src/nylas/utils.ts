@@ -13,7 +13,7 @@ import {
   MICROSOFT_OAUTH_AUTH_URL,
   MICROSOFT_SCOPES
 } from './constants';
-import { NylasCalendars, NylasEvent } from './models';
+import { NylasCalendars, NylasEvents } from './models';
 import {
   createOrGetNylasConversation as storeConversation,
   createOrGetNylasConversationMessage as storeMessage,
@@ -62,7 +62,7 @@ export const syncEvents = async (
         await storeEvents([newEvent]);
         break;
       case 'event.deleted':
-        await NylasEvent.deleteOne({ accountUid, providerEventId: eventId });
+        await NylasEvents.deleteOne({ accountUid, providerEventId: eventId });
         break;
       case 'event.updated':
         const event: IEvent = await getCalendarOrEvent(
@@ -113,7 +113,7 @@ export const syncCalendars = async (
         break;
       case 'calendar.deleted':
         await NylasCalendars.deleteOne({ providerCalendarId: calendarId });
-        await NylasEvent.deleteMany({ providerCalendarId: calendarId });
+        await NylasEvents.deleteMany({ providerCalendarId: calendarId });
         break;
       case 'calendar.updated':
         const calendar: ICalendar = await getCalendarOrEvent(
@@ -142,41 +142,39 @@ const syncMessages = async (accountId: string, messageId: string) => {
     nylasAccountId: accountId
   }).lean();
 
-  if (!integration) {
-    throw new Error(`Integration not found with nylasAccountId: ${accountId}`);
-  }
+  if (integration) {
+    const { nylasToken, email, kind } = integration;
 
-  const { nylasToken, email, kind } = integration;
+    let message;
 
-  let message;
+    try {
+      message = await getMessageById(nylasToken, messageId);
+    } catch (e) {
+      debugNylas(`Failed to get nylas message by id: ${e.message}`);
 
-  try {
-    message = await getMessageById(nylasToken, messageId);
-  } catch (e) {
-    debugNylas(`Failed to get nylas message by id: ${e.message}`);
-
-    throw e;
-  }
-
-  const [from] = message.from;
-
-  // Prevent to send email to itself
-  if (from.email === integration.email && !message.subject.includes('Re:')) {
-    return;
-  }
-
-  const doc = {
-    kind,
-    message: JSON.parse(JSON.stringify(message)),
-    toEmail: email,
-    integrationIds: {
-      id: integration._id,
-      erxesApiId: integration.erxesApiId
+      throw e;
     }
-  };
 
-  // Store new received message
-  return compose(storeMessage, storeConversation, storeCustomer)(doc);
+    const [from] = message.from;
+
+    // Prevent to send email to itself
+    if (from.email === integration.email && !message.subject.includes('Re:')) {
+      return;
+    }
+
+    const doc = {
+      kind,
+      message: JSON.parse(JSON.stringify(message)),
+      toEmail: email,
+      integrationIds: {
+        id: integration._id,
+        erxesApiId: integration.erxesApiId
+      }
+    };
+
+    // Store new received message
+    return compose(storeMessage, storeConversation, storeCustomer)(doc);
+  }
 };
 
 export const getNylasConfig = async () => {
@@ -285,6 +283,18 @@ const getProviderConfigs = (kind: string) => {
       };
     }
   }
+};
+
+export const extractDate = (date: Date) => {
+  return {
+    month: date.getMonth(),
+    year: date.getFullYear(),
+    date: date.getDate()
+  };
+};
+
+export const getTime = (date: Date) => {
+  return date.getTime() / 1000;
 };
 
 export { getProviderConfigs, buildEmailAddress, syncMessages };

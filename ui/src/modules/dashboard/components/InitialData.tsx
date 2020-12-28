@@ -1,7 +1,6 @@
-import { getEnv } from 'apolloClient';
 import Button from 'modules/common/components/Button';
 import { Title } from 'modules/common/styles/main';
-import { __ } from 'modules/common/utils';
+import { __, getEnv } from 'modules/common/utils';
 import Wrapper from 'modules/layout/components/Wrapper';
 import React from 'react';
 import { Link } from 'react-router-dom';

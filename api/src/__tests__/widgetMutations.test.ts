@@ -970,18 +970,23 @@ describe('lead', () => {
   });
 
   test('widgetsSendEmail', async () => {
+    const customer = await customerFactory({});
+    const form = await formFactory({});
+
     const emailParams = {
       toEmails: ['test-mail@gmail.com'],
       fromEmail: 'admin@erxes.io',
       title: 'Thank you for submitting.',
-      content: 'We have received your request'
+      content: 'We have received your request',
+      customerId: customer._id,
+      formId: form._id
     };
 
     const spyEmail = jest.spyOn(widgetMutations, 'widgetsSendEmail');
 
     const mutation = `
-      mutation widgetsSendEmail($toEmails: [String], $fromEmail: String, $title: String, $content: String) {
-        widgetsSendEmail(toEmails: $toEmails, fromEmail: $fromEmail, title: $title, content: $content)
+      mutation widgetsSendEmail($toEmails: [String], $fromEmail: String, $title: String, $content: String, $formId: String, $customerId: String) {
+        widgetsSendEmail(toEmails: $toEmails, fromEmail: $fromEmail, title: $title, content: $content, formId: $formId, customerId: $customerId)
       }
     `;
 

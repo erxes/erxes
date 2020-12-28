@@ -1,6 +1,7 @@
 import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
 import { queries as calendarQueries } from 'modules/calendar/graphql';
+import Info from 'modules/common/components/Info';
 import Spinner from 'modules/common/components/Spinner';
 import { __, Alert, withProps } from 'modules/common/utils';
 import React from 'react';
@@ -32,9 +33,7 @@ class EventContainer extends React.Component<FinalProps, {}> {
     }
 
     if (fetchApiQuery.error) {
-      return (
-        <span style={{ color: 'red' }}>Integrations api is not running</span>
-      );
+      return <Info bordered={false}>{fetchApiQuery.error.message}</Info>;
     }
 
     // edit action
