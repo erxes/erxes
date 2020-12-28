@@ -270,7 +270,7 @@ export const receiveImportCreate = async (content: any) => {
     };
 
     // collect initial validation values
-    updateValidationValues();
+    await updateValidationValues();
 
     const isRowValid = (row: any) => {
       const errors: Error[] = [];
