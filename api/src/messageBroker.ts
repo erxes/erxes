@@ -59,7 +59,7 @@ export const initBroker = async (server?) => {
         )
       );
     } else {
-      return consumeQueue(
+      consumeQueue(
         channel.concat(prefix),
         async msg => {
           await mbroker.handler(
