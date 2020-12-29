@@ -82,20 +82,6 @@ describe('Brands db', () => {
     }
   });
 
-  test('Update brand email config', async () => {
-    const brandObj = await Brands.updateEmailConfig(
-      _brand.id,
-      _brand.emailConfig
-    );
-
-    if (!brandObj || !brandObj.emailConfig) {
-      throw new Error('Brand not found');
-    }
-
-    expect(brandObj.emailConfig.type).toBe(_brand.emailConfig.type);
-    expect(brandObj.emailConfig.template).toBe(_brand.emailConfig.template);
-  });
-
   test('Manage integrations', async () => {
     const brand = await brandFactory({});
 
