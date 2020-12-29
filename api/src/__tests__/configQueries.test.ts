@@ -72,7 +72,9 @@ describe('configQueries', () => {
       }
     `;
 
-    let config = await graphqlRequest(qry, 'configsStatus');
+    let config;
+
+    config = await graphqlRequest(qry, 'configsStatus');
 
     const mock = sinon.stub(utils, 'sendRequest').callsFake(() => {
       return Promise.resolve({ packageVersion: '-' });
