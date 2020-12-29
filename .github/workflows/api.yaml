@@ -53,7 +53,7 @@ jobs:
         run: |
           yarn install
           cd api
-          yarn install
+          yarn install --frozen-lockfile
 
       - name: Lint
         run: |
@@ -81,13 +81,13 @@ jobs:
         run: |
           cd api
           rm -rf node_modules
-          yarn install --production
+          yarn install --frozen-lockfile --production
           yarn build
 
       - name: Build docker image
         if: github.event_name == 'push' && ( github.ref == 'refs/heads/master' || github.ref == 'refs/heads/develop' || github.ref == 'refs/heads/crons' || github.ref == 'refs/heads/workers')
         env:
-          BASE_IMAGE: erxes/erxes-api:base-12.19.0-slim
+          BASE_IMAGE: erxes/erxes-api:base-12.19.1-slim
         run: |
           cd api
           echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin

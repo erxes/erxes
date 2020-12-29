@@ -1,5 +1,6 @@
 import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
+import Info from 'modules/common/components/Info';
 import Spinner from 'modules/common/components/Spinner';
 import { __, Alert, confirm, withProps } from 'modules/common/utils';
 import { getWarningMessage } from 'modules/settings/boards/constants';
@@ -16,6 +17,7 @@ type Props = {
   startTime: Date;
   endTime: Date;
   calendarIds: string[];
+  onDayClick: (date) => void;
 };
 
 type FinalProps = {
@@ -59,9 +61,7 @@ class EventContainer extends React.Component<FinalProps, {}> {
     }
 
     if (fetchApiQuery.error) {
-      return (
-        <span style={{ color: 'red' }}>Integrations api is not running</span>
-      );
+      return <Info bordered={false}>{fetchApiQuery.error.message}</Info>;
     }
 
     // remove action

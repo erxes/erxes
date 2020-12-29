@@ -52,7 +52,7 @@ const TimeGroup = ({
             availableMembers={availableMembers}
             schemaType={type}
           >
-            {m.dimension.title}
+            {m.dimension.shortTitle}
           </MemberDropdown>
         </RemoveButtonGroup>,
         <strong key={`${m.dimension.name}-for`}>FOR</strong>,

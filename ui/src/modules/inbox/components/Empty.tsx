@@ -1,7 +1,7 @@
 import { IUser } from 'modules/auth/types';
 import Button from 'modules/common/components/Button';
 import EmptyState from 'modules/common/components/EmptyState';
-import { __, can } from 'modules/common/utils';
+import { __ } from 'modules/common/utils';
 import Sidebar from 'modules/inbox/containers/leftSidebar/Sidebar';
 import Wrapper from 'modules/layout/components/Wrapper';
 import React from 'react';
@@ -17,10 +17,6 @@ function Empty({ queryParams, currentUser }: Props) {
     { title: 'Team Inbox', link: '/inbox/index' },
     { title: 'Ticket', link: '/inbox/ticket' }
   ];
-
-  if (can('showInsights', currentUser)) {
-    menuInbox.push({ title: 'Insights', link: '/inbox/insights' });
-  }
 
   const suggestContent = (
     <>

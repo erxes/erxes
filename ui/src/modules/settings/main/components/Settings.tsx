@@ -304,13 +304,6 @@ class Settings extends React.PureComponent {
               ['showEmailTemplates', 'manageEmailTemplate']
             )}
             {this.renderBox(
-              'Email Appearance',
-              '/images/icons/erxes-08.svg',
-              '/settings/emails',
-              'emailAppearanceAll',
-              ['manageEmailAppearance', 'showEmailappearance']
-            )}
-            {this.renderBox(
               'Script manager',
               '/images/icons/erxes-12.svg',
               '/settings/scripts',
@@ -387,12 +380,19 @@ class Settings extends React.PureComponent {
         </Row>
         <Divider />
         <Row>
-          <RowTitle>{__('Calendar Settings')}</RowTitle>
+          <RowTitle>{__('Calendar & Schedule Settings')}</RowTitle>
           <div id={'SettingsCalendarSettings'}>
             {this.renderBox(
               'Groups & Calendars',
               '/images/icons/erxes-21.svg',
               '/settings/calendars',
+              'calendarsAll',
+              calendarActions
+            )}
+            {this.renderBox(
+              'Schedule',
+              '/images/icons/erxes-21.svg',
+              '/settings/schedule',
               'calendarsAll',
               calendarActions
             )}

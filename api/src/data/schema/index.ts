@@ -104,8 +104,6 @@ import {
   types as SegmentTypes
 } from './segment';
 
-import { queries as InsightQueries, types as InsightTypes } from './insight';
-
 import {
   mutations as KnowledgeBaseMutations,
   queries as KnowledgeBaseQueries,
@@ -258,7 +256,6 @@ export let types = `
   ${CustomerTypes}
   ${SegmentTypes}
   ${ConversationTypes}
-  ${InsightTypes}
   ${KnowledgeBaseTypes}
   ${NotificationTypes}
   ${BoardTypes}
@@ -302,7 +299,6 @@ export let queries = `
   ${CustomerQueries}
   ${SegmentQueries}
   ${ConversationQueries}
-  ${InsightQueries}
   ${KnowledgeBaseQueries}
   ${NotificationQueries}
   ${ActivityLogQueries}

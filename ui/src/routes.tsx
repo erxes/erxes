@@ -13,7 +13,6 @@ import DealsRoutes from './modules/deals/routes';
 import EngageRoutes from './modules/engage/routes';
 import GrowthHackRoutes from './modules/growthHacks/routes';
 import InboxRoutes from './modules/inbox/routes';
-import InsightsRoutes from './modules/insights/routes';
 import KnowledgeBaseRoutes from './modules/knowledgeBase/routes';
 import LeadRoutes from './modules/leads/routes';
 import NotificationRoutes from './modules/notifications/routes';
@@ -43,6 +42,12 @@ const UserConfirmation = asyncComponent(() =>
   )
 );
 
+const Schedule = asyncComponent(() =>
+  import(
+    /* webpackChunkName: "Calendar - Schedule" */ 'modules/calendar/components/scheduler/Index'
+  )
+);
+
 export const unsubscribe = ({ location }) => {
   const queryParams = queryString.parse(location.search);
 
@@ -57,6 +62,12 @@ const tryRequire = (requirPath) => {
   }
 };
 
+const schedule = ({ match }) => {
+  const slug = match.params.slug;
+
+  return <Schedule slug={slug} />;
+};
+
 const renderRoutes = currentUser => {
   const userConfirmation = ({ location }) => {
     const queryParams = queryString.parse(location.search);
@@ -68,6 +79,12 @@ const renderRoutes = currentUser => {
 
   if (!sessionStorage.getItem('sessioncode')) {
     sessionStorage.setItem('sessioncode', Math.random().toString());
+  }
+
+  const { pathname } = window.location;
+
+  if (pathname.search('/schedule/') === 0) {
+    return null;
   }
 
   if (currentUser) {
@@ -117,7 +134,6 @@ const renderRoutes = currentUser => {
           <SegmentsRoutes />
           <CustomersRoutes />
           <CompaniesRoutes />
-          <InsightsRoutes />
           <EngageRoutes />
           <KnowledgeBaseRoutes />
           <LeadRoutes />
@@ -167,6 +183,13 @@ const Routes = ({ currentUser }: { currentUser: IUser }) => (
         exact={true}
         path="/unsubscribe"
         component={unsubscribe}
+      />
+
+      <Route
+        key="/schedule"
+        exact={true}
+        path="/schedule/:slug"
+        component={schedule}
       />
 
       {renderRoutes(currentUser)}
