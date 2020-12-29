@@ -1,6 +1,7 @@
 FROM node:12.19-alpine
 WORKDIR /erxes-email-verifier
-RUN chown -R node:node /erxes-email-verifier
+RUN chown -R node:node /erxes-email-verifier \
+ && apk add --no-cache tzdata
 COPY --chown=node:node . /erxes-email-verifier
 USER node
 EXPOSE 4100

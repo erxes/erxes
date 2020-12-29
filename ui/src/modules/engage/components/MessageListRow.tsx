@@ -130,7 +130,8 @@ class Row extends React.Component<Props> {
       stats = { send: '' },
       kind,
       validCustomersCount,
-      smsStats = { total: 0 }
+      smsStats = { total: 0 },
+      scheduleDate
     } = message;
     const totalCount = stats.total || 0;
 
@@ -150,6 +151,19 @@ class Row extends React.Component<Props> {
       if (message.method === METHODS.SMS && smsStats.total === 0) {
         return <Label lblStyle="warning">Not sent</Label>;
       }
+    }
+
+    if (scheduleDate && scheduleDate.type === 'pre') {
+      const scheduledDate = new Date(scheduleDate.dateTime);
+      const now = new Date();
+
+      if (scheduledDate.getTime() > now.getTime()) {
+        return <Label>scheduled</Label>;
+      } else {
+        return <Label lblStyle="warning">Not sent</Label>;
+      }
+    } else if (scheduleDate && scheduleDate.type === 'sent') {
+      return <Label lblStyle="success">Sent</Label>;
     }
 
     return <Label>Sending</Label>;
@@ -192,7 +206,8 @@ class Row extends React.Component<Props> {
       stats = { send: '' },
       brand = { name: '' },
       smsStats = { total: 0 },
-      method
+      method,
+      scheduleDate
     } = message;
     let totalCount = 0;
 
@@ -234,6 +249,13 @@ class Row extends React.Component<Props> {
         <td>
           <Icon icon="calender" />{' '}
           {dayjs(message.createdAt).format('DD MMM YYYY')}
+        </td>
+
+        <td>
+          <Icon icon="clock" />{' '}
+          {scheduleDate && scheduleDate.dateTime
+            ? dayjs(scheduleDate.dateTime).format('DD MMM YYYY HH:mm')
+            : '-- --- ---- --:--'}
         </td>
 
         <td>

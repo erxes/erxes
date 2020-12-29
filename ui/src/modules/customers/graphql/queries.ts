@@ -1,118 +1,14 @@
-import {
-  conformityQueryFieldDefs,
-  conformityQueryFields
-} from 'modules/conformity/graphql/queries';
+import { queries as customerQueries } from 'erxes-ui/lib/customers/graphql';
 
-const basicFields = `
-  _id
-  firstName
-  lastName
-  avatar
-  sex
-  birthDate
-  primaryEmail
-  emails
-  primaryPhone
-  phones
+const basicFields = customerQueries.basicFields;
 
-  state
-  visitorContactInfo
+const customerFields = customerQueries.customerFields;
 
-  modifiedAt
+const listParamsDef = customerQueries.listParamsDef;
 
-  position
-  department
-  leadStatus
-  hasAuthority
-  description
-  doNotDisturb
-  code
-  emailValidationStatus
-  phoneValidationStatus
+const listParamsValue = customerQueries.listParamsValue;
 
-  isOnline
-  lastSeenAt
-  sessionCount
-
-  links
-  ownerId
-  owner {
-    _id
-    details {
-      fullName
-    }
-  }
-`;
-
-const customerFields = `
-  ${basicFields}
-  integrationId
-  createdAt
-  remoteAddress
-  location
-
-  customFieldsData
-  trackedData
-
-  tagIds
-  getTags {
-    _id
-    name
-    colorCode
-  }
-`;
-
-const listParamsDef = `
-  $page: Int,
-  $perPage: Int,
-  $segment: String,
-  $tag: String,
-  $type: String,
-  $ids: [String],
-  $excludeIds: Boolean,
-  $searchValue: String,
-  $autoCompletionType: String,
-  $autoCompletion: Boolean,
-  $brand: String,
-  $integration: String,
-  $form: String,
-  $startDate: String,
-  $endDate: String,
-  $leadStatus: String,
-  $sortField: String,
-  $sortDirection: Int,
-  ${conformityQueryFields}
-`;
-
-const listParamsValue = `
-  page: $page,
-  perPage: $perPage,
-  segment: $segment,
-  tag: $tag,
-  type: $type,
-  ids: $ids,
-  excludeIds: $excludeIds,
-  autoCompletionType: $autoCompletionType,
-  autoCompletion: $autoCompletion,
-  searchValue: $searchValue,
-  brand: $brand,
-  integration: $integration
-  form: $form,
-  startDate: $startDate,
-  endDate: $endDate,
-  leadStatus: $leadStatus,
-  sortField: $sortField,
-  sortDirection: $sortDirection,
-  ${conformityQueryFieldDefs}
-`;
-
-const customers = `
-  query customers(${listParamsDef}) {
-    customers(${listParamsValue}) {
-      ${customerFields}
-    }
-  }
-`;
+const customers = customerQueries.customers;
 
 const customersMain = `
   query customersMain(${listParamsDef}) {

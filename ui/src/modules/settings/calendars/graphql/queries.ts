@@ -80,8 +80,8 @@ const groupDetail = `
 `;
 
 const calendars = `
-  query calendars($groupId: String!) {
-    calendars(groupId: $groupId) {
+  query calendars($groupId: String, $userId: String) {
+    calendars(groupId: $groupId, userId: $userId) {
       ${fields}
     }
   }

@@ -1,16 +1,33 @@
+import { SectionContainer, SidebarCollapse } from 'erxes-ui/lib/layout/styles';
 import {
   ActivityDate,
   ActivityIcon,
   ActivityRow,
+  ActivityTitle,
   AvatarWrapper,
+  CenterText,
+  Collapse,
+  ConversationContent,
+  Count,
+  DeleteAction,
   EmailContent,
+  FlexBody,
   FlexCenterContent,
-  Timeline
+  FlexContent,
+  Header,
+  IconWrapper,
+  Row,
+  Timeline,
+  Title
 } from 'modules/activityLogs/styles';
 import { colors, dimensions, typography } from 'modules/common/styles';
 import { ActivityContent, DateContainer } from 'modules/common/styles/main';
-import { SidebarBox, SidebarTitle } from 'modules/layout/styles';
+import {
+  SpaceBetweenRow,
+  Subject
+} from 'modules/settings/integrations/components/mail/styles';
 import styled from 'styled-components';
+import { CardItem } from '../workarea/conversation/messages/bot/styles';
 import {
   FormTable,
   MessageBody,
@@ -18,9 +35,15 @@ import {
   MessageItem,
   UserInfo
 } from '../workarea/conversation/styles';
-import { Meta } from '../workarea/mail/style';
-
-const iconWrapperWidth = '60px';
+import {
+  AttachmentItem,
+  AttachmentsContainer,
+  Content,
+  Details,
+  Meta,
+  Reply,
+  RightSide
+} from '../workarea/mail/style';
 
 const FlexRow = styled(DateContainer)`
   display: flex;
@@ -32,28 +55,6 @@ const FlexRow = styled(DateContainer)`
 const FlexItem = styled.div`
   flex: 1;
   margin-left: 5px;
-`;
-
-const SectionContainer = styled.div`
-  position: relative;
-  box-shadow: 0 0 6px 0 rgba(0, 0, 0, 0.08);
-  margin-bottom: 10px;
-
-  > div {
-    margin-bottom: 0;
-  }
-
-  &:last-child {
-    margin-bottom: 0;
-  }
-
-  ${SidebarBox} {
-    box-shadow: none;
-  }
-
-  ${SidebarTitle} {
-    height: 40px;
-  }
 `;
 
 const NoteFormContainer = styled.div`
@@ -71,28 +72,62 @@ const NoteFormContainer = styled.div`
 `;
 
 const ActivityLogContent = styled(ActivityContent)`
-  padding: 0 ${dimensions.coreSpacing}px;
-  margin-bottom: 30px;
+  padding: 0 16px;
+  margin-bottom: ${dimensions.coreSpacing}px;
+
+  img {
+    max-width: 100%;
+  }
 
   ${Timeline} {
-    padding-left: 30px;
+    padding-left: 0;
 
     &:before {
-      left: 5px;
+      display: none;
     }
   }
 
-  ${AvatarWrapper} {
+  ${Collapse} {
+    padding: 16px;
+  }
+
+  ${Header} {
+    font-size: 13px;
+    word-break: break-word;
+  }
+
+  ${AvatarWrapper}, 
+  ${MessageItem} > span, 
+  ${Meta} > span,
+  ${ConversationContent},
+  ${Count} {
     display: none;
   }
 
   ${ActivityIcon} {
-    left: calc(-${iconWrapperWidth} + ${iconWrapperWidth} * 0.3);
+    left: -8px;
+    width: 20px;
+    height: 20px;
+    line-height: 20px;
+    font-size: 11px;
+    top: -8px;
+    z-index: 1;
+  }
+
+  ${ActivityTitle} {
+    padding: ${dimensions.coreSpacing}px 0;
+    font-weight: 500;
   }
 
   ${ActivityRow} {
-    padding: ${dimensions.unitSpacing * 1.5}px 0;
     box-shadow: none;
+    background: ${colors.bgActive};
+    border-radius: 4px;
+    margin-bottom: 16px;
+
+    &:hover {
+      background: ${colors.bgActive};
+    }
   }
 
   ${ActivityDate} {
@@ -106,28 +141,134 @@ const ActivityLogContent = styled(ActivityContent)`
   }
 
   ${MessageContent}, ${UserInfo} {
-    padding: 5px 10px;
+    padding: 8px 16px;
   }
 
   ${MessageBody} {
     margin: 0;
     flex-direction: column;
+    align-items: flex-start;
 
     footer {
-      margin: 5px 10px 0;
+      display: none;
     }
   }
 
-  ${Meta}, ${FlexCenterContent} {
+  ${FlexContent} {
     flex-direction: column;
   }
 
+  ${Row} {
+    margin-right: 0;
+    margin-bottom: 20px;
+  }
+
+  ${FlexBody} {
+    align-self: baseline;
+  }
+
+  ${Meta}, ${FlexCenterContent}, ${FlexBody} {
+    flex-direction: column;
+    align-items: baseline;
+    width: 100%;
+  }
+
+  ${CenterText} {
+    font-size: 12px;
+  }
+
+  ${DeleteAction} {
+    visibility: visible;
+  }
+
+  ${Title} {
+    margin: 0 0 10px;
+    font-size: 14px;
+
+    h4 {
+      margin: 10px 0;
+      font-size: 14px;
+    }
+  }
+
+  ${IconWrapper} {
+    margin-top: 10px;
+  }
+
+  //Bot
+  ${CardItem} {
+    width: 100%;
+    margin-right: 0;
+  } 
+
+  // form
   ${FormTable} {
     overflow: auto;
 
     td {
       white-space: nowrap;
     }
+  }
+
+  // email
+  ${Meta} {
+    padding: 8px;
+  }
+
+  ${Details} {
+    align-self: normal;
+    margin: 0;
+    word-break: break-word;
+  }
+
+  ${RightSide} {
+    margin-left: 0;
+    padding: 0;
+  }
+
+  ${Reply} {
+    padding: 8px 16px;
+    display: flex;
+    flex-direction: column;
+
+    > button {
+      margin: 4px 0;
+    }
+  }
+
+  ${AttachmentsContainer} {
+    margin: 0 16px 8px 16px
+  }
+
+  ${AttachmentItem} {
+    width: 180px;
+    margin: 8px 0px 0px 0px;
+  }
+
+  ${Content} {
+    padding: 8px 16px;
+
+    > div {
+      min-width: 300px;
+    }
+  }
+
+  //email form 
+  ${SpaceBetweenRow} {
+    flex-direction: column;
+
+    > a {
+      padding-left: 0;
+    }
+
+    button {
+      width: 100%;
+      margin: 4px 0;
+    }
+  }
+
+  ${Subject} {
+    padding: 8px 16px;
   }
 `;
 
@@ -138,22 +279,6 @@ const BasicInfo = styled.div`
 const TabContent = styled.div`
   ul {
     padding: ${dimensions.unitSpacing}px 0;
-  }
-`;
-
-const SidebarCollapse = styled.a`
-  color: ${colors.colorCoreGray};
-  position: absolute;
-  top: ${dimensions.unitSpacing - 2}px;
-  right: ${dimensions.coreSpacing - 3}px;
-  font-size: 14px;
-
-  &:hover {
-    cursor: pointer;
-  }
-
-  &:focus {
-    outline: 0;
   }
 `;
 

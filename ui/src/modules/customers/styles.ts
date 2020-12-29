@@ -1,3 +1,4 @@
+import { Actions } from 'erxes-ui/lib/styles/main';
 import { colors, dimensions, typography } from 'modules/common/styles';
 import { SidebarList } from 'modules/layout/styles';
 import styled, { css } from 'styled-components';
@@ -24,30 +25,6 @@ const InfoDetail = styled.p`
   font-size: 12px;
   font-weight: normal;
   color: ${colors.colorCoreGray};
-`;
-
-const Actions = styledTS<{ isSmall?: boolean }>(styled.div)`
-  display: flex;
-  justify-content: space-between;
-  padding: 0 ${dimensions.coreSpacing}px ${dimensions.unitSpacing}px;
-
-  > a, button {
-    flex: 1;
-    padding: 4px 15px;
-
-    i {
-      font-size: 12px;
-      line-height: 16px;
-    }
-  }
-
-  > div {
-    margin-left: 10px;
-  }
-
-  .dropdown {
-    display: ${props => (props.isSmall ? 'inline-block' : 'block')};
-  }
 `;
 
 const Action = styled.div`
@@ -246,7 +223,7 @@ export const StateItem = styledTS<{ active?: boolean; past?: boolean }>(
 		right: -5px;
 		left: -5px;
 	}
-	
+
 	&:after {
 		background: ${colors.bgGray};
 		transform: skew(-30deg) translate3d(0, 0, 0);
@@ -307,7 +284,7 @@ export const StateItem = styledTS<{ active?: boolean; past?: boolean }>(
 		font-size: 90%;
 		margin-left: 5px;
   }
-  
+
   @media (max-width: 768px) {
     margin-bottom: 5px;
   }

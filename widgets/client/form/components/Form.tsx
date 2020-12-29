@@ -1,7 +1,8 @@
 import * as React from 'react';
 import { AppConsumer } from '../../messenger/containers/AppContext';
 import { IEmailParams, IIntegration } from '../../types';
-import { __, fixErrorMessage } from '../../utils';
+import { fixErrorMessage, __ } from '../../utils';
+import { connection } from '../connection';
 import {
   FieldValue,
   ICurrentStatus,
@@ -193,6 +194,7 @@ class Form extends React.Component<Props, State> {
 
   render() {
     const { form, currentStatus, sendEmail, integration } = this.props;
+    const doc = this.state.doc;
 
     if (currentStatus.status === 'SUCCESS') {
       const {
@@ -227,7 +229,8 @@ class Form extends React.Component<Props, State> {
               toEmails: [email],
               fromEmail,
               title: userEmailTitle,
-              content: userEmailContent
+              content: userEmailContent,
+              formId: connection.data.form._id,
             });
           }
         }
@@ -238,7 +241,8 @@ class Form extends React.Component<Props, State> {
             toEmails: adminEmails,
             fromEmail,
             title: adminEmailTitle,
-            content: adminEmailContent
+            content: adminEmailContent,
+            formId: connection.data.form._id,
           });
         }
       } // end successAction = "email"

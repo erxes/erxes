@@ -1,4 +1,14 @@
 import { DashboardItems, Dashboards } from '../../../db/models';
+import {
+  DashboardFilters,
+  DashboardFilterTypes
+} from '../../dashboardConstants';
+import {
+  getBrands,
+  getIntegrations,
+  getPipelines,
+  getUsers
+} from '../../modules/dashboard/utils';
 import { checkPermission } from '../../permissions/wrappers';
 import { IContext } from '../../types';
 import { paginate } from '../../utils';
@@ -34,6 +44,30 @@ const dashBoardQueries = {
     { dataSources }: IContext
   ) {
     return dataSources.HelpersApi.fetchApi('/get-dashboards', { type });
+  },
+
+  async dashboardFilters(_root, { type }: { type: string }) {
+    const filters = DashboardFilters[type];
+
+    if (!filters) {
+      if (type.includes('pipelineName')) {
+        return getPipelines();
+      }
+
+      if (DashboardFilterTypes.User.some(name => type.includes(name))) {
+        return getUsers();
+      }
+
+      if (type.includes('brand')) {
+        return getBrands();
+      }
+
+      if (type.includes('integrationName')) {
+        return getIntegrations();
+      }
+    }
+
+    return filters;
   }
 };
 

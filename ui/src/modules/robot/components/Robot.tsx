@@ -1,5 +1,6 @@
 import debounce from 'lodash/debounce';
 import { IUser } from 'modules/auth/types';
+import Version from 'modules/settings/status/containers/Version';
 import * as React from 'react';
 import RTG from 'react-transition-group';
 import AssistantContent from '../containers/AssistantContent';
@@ -29,13 +30,16 @@ class Robot extends React.Component<Props, State> {
     const { currentUser } = this.props;
 
     return (
-      <AssistantContent
-        changeRoute={this.changeRoute}
-        currentUser={currentUser}
-        currentRoute={this.state.currentRoute}
-        showContent={this.state.showContent}
-        toggleContent={this.toggleContent}
-      />
+      <>
+        <Version showNotify={!this.state.showContent} kind="notify" />
+        <AssistantContent
+          changeRoute={this.changeRoute}
+          currentUser={currentUser}
+          currentRoute={this.state.currentRoute}
+          showContent={this.state.showContent}
+          toggleContent={this.toggleContent}
+        />
+      </>
     );
   };
 

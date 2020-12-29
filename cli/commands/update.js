@@ -1,7 +1,7 @@
 const fse = require("fs-extra");
 const execa = require("execa");
 const start = require('./start');
-const { filePath, log } = require('./utils');
+const { filePath, log, execCommand } = require('./utils');
 
 module.exports = async function() {
   try {
@@ -15,11 +15,13 @@ module.exports = async function() {
     }
 
     log('Backing up privite folder ...');
-
     await fse.copy(filePath('build/api/private'), filePath('private'));
 
-    log('Removing old build ...');
+    log('Dumping database ...');
+    const configsJson = await fse.readJSON(filePath('configs.json'));
+    await execCommand(`mongodump --uri ${configsJson.MONGO_URL}`);
 
+    log('Removing old build ...');
     await fse.remove(filePath('build'));
 
     await start();

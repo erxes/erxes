@@ -45,7 +45,7 @@ jobs:
     - name: Build
       run: |
         cd docs
-        yarn install
+        yarn install --frozen-lockfile
         yarn run build
 
   gh-release:
@@ -99,5 +99,5 @@ jobs:
         cd docs
         git config --global user.email "github-actions[bot]@users.noreply.github.com"
         git config --global user.name "github-actions[bot]"
-        yarn install
+        yarn install --frozen-lockfile
         yarn deploy

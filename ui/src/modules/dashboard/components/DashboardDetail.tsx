@@ -1,9 +1,8 @@
-import { getEnv } from 'apolloClient';
 import { BoardContainer, BoardContent } from 'modules/boards/styles/common';
 import Button from 'modules/common/components/Button';
 import DropdownToggle from 'modules/common/components/DropdownToggle';
 import Icon from 'modules/common/components/Icon';
-import { __ } from 'modules/common/utils';
+import { __, getEnv } from 'modules/common/utils';
 import Header from 'modules/layout/components/Header';
 import React from 'react';
 import Dropdown from 'react-bootstrap/Dropdown';

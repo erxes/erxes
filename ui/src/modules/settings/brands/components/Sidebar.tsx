@@ -51,12 +51,17 @@ class Sidebar extends React.Component<Props, {}> {
     );
 
     const content = props => (
-      <BrandForm {...props} renderButton={this.props.renderButton} />
+      <BrandForm
+        {...props}
+        extended={true}
+        renderButton={this.props.renderButton}
+      />
     );
 
     return (
       <TopHeader>
         <ModalTrigger
+          size="lg"
           title="New Brand"
           autoOpenKey="showBrandAddModal"
           trigger={addBrand}

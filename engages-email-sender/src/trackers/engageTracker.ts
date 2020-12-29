@@ -58,9 +58,9 @@ const handleMessage = async message => {
   }
 
   const mailHeaders = {
-    engageMessageId: engageMessageId.value,
-    mailId: mailId.value,
-    customerId: customerId.value
+    engageMessageId: engageMessageId && engageMessageId.value,
+    mailId: mailId && mailId.value,
+    customerId: customerId && customerId.value
   };
 
   await Stats.updateStats(mailHeaders.engageMessageId, type);
@@ -73,7 +73,7 @@ const handleMessage = async message => {
   if (rejected === 'reject') {
     await messageBroker().sendMessage('engagesNotification', {
       action: 'setDoNotDisturb',
-      data: { customerId: mail.customerId }
+      data: { customerId: mailHeaders.customerId }
     });
   }
 

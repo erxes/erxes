@@ -137,8 +137,8 @@ describe('calendarQueries', () => {
     await calendarFactory({ groupId: secondGroup._id });
 
     const qry = `
-      query calendars($groupId: String, $page: Int, $perPage: Int) {
-        calendars(groupId: $groupId, page: $page, perPage: $perPage) {
+      query calendars($groupId: String, $userId: String, $page: Int, $perPage: Int) {
+        calendars(groupId: $groupId, userId: $userId, page: $page, perPage: $perPage) {
           _id,
           name,
           color,
@@ -157,6 +157,10 @@ describe('calendarQueries', () => {
     response = await graphqlRequest(qry, 'calendars', { groupId: _group._id });
 
     expect(response.length).toBe(1);
+
+    response = await graphqlRequest(qry, 'calendars', { userId: _user._id });
+
+    expect(response.length).toBe(0);
   });
 
   test('Calendar detail', async () => {

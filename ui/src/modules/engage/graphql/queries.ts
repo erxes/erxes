@@ -55,6 +55,11 @@ const commonFields = `
     content
     fromIntegrationId
   }
+
+  scheduleDate {
+    type
+    dateTime
+  }
 `;
 
 const engageMessages = `
@@ -89,6 +94,7 @@ export const engageDetailFields = `
     type
     month
     day
+    dateTime
   }
   brand {
     name
