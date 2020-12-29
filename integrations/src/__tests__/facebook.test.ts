@@ -135,7 +135,7 @@ describe('Facebook test', () => {
         store.getOrCreateCustomer(pageId, '123', 'facebook-messenger')
       ]);
     } catch (e) {
-      expect(await Customers.find({}).countDocuments()).toBe(2);
+      expect(await Customers.find({}).countDocuments()).toBe(1);
     }
 
     mock.restore();

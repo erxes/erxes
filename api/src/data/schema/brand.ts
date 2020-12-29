@@ -26,6 +26,12 @@ const mutationParams = `
   emailConfig: JSON
 `;
 
+const mutationParams = `
+  name: String!
+  description: String
+  emailConfig: JSON
+`;
+
 export const mutations = `
   brandsAdd(${mutationParams}): Brand
   brandsEdit(_id: String! ${mutationParams}): Brand
