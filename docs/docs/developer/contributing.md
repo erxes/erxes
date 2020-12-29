@@ -330,7 +330,7 @@ If the prefix is `feat`, `fix` or `perf`, it will appear in the changelog. Howev
 
 ### Scope
 
-The scope could be anything specifying place of the commit change. For example `insights`, `deal`, `inbox`, etc...
+The scope could be anything specifying place of the commit change. For example `deal`, `inbox`, etc...
 
 ### Subject
 

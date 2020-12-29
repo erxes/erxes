@@ -13,7 +13,6 @@ import DealsRoutes from './modules/deals/routes';
 import EngageRoutes from './modules/engage/routes';
 import GrowthHackRoutes from './modules/growthHacks/routes';
 import InboxRoutes from './modules/inbox/routes';
-import InsightsRoutes from './modules/insights/routes';
 import KnowledgeBaseRoutes from './modules/knowledgeBase/routes';
 import LeadRoutes from './modules/leads/routes';
 import NotificationRoutes from './modules/notifications/routes';
@@ -85,7 +84,6 @@ const renderRoutes = currentUser => {
           <SegmentsRoutes />
           <CustomersRoutes />
           <CompaniesRoutes />
-          <InsightsRoutes />
           <EngageRoutes />
           <KnowledgeBaseRoutes />
           <LeadRoutes />
