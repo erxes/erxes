@@ -38,7 +38,7 @@ class EngageEmail extends React.Component<Props, { expand: boolean }> {
     const { email = {} as IEngageEmail } = this.props.email;
     const { content } = email;
     const { expand } = this.state;
-    const longEmail = content.length >= 800;
+    const longEmail = content.length >= 1500;
 
     return (
       <>

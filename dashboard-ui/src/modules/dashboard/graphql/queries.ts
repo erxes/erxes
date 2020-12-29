@@ -46,10 +46,17 @@ const totalCount = `
   }
 `;
 
+const dashboardFilters = `
+  query dashboardFilters($type: String) {
+    dashboardFilters(type: $type)
+  }
+`;
+
 export default {
   dashboardItemDetail,
   dashboardItems,
   totalCount,
   dashboards,
   dashboardInitialDatas,
+  dashboardFilters
 };

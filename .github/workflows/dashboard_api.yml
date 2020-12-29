@@ -51,7 +51,7 @@ jobs:
       - name: Install
         run: |
           cd dashboard-api
-          yarn install
+          yarn install --frozen-lockfile
       - name: Build docker image [push]
         if: github.event_name == 'push' && ( github.ref == 'refs/heads/master' || github.ref == 'refs/heads/develop' || github.ref == 'refs/heads/apm' || github.ref == 'refs/heads/automations')
         run: |

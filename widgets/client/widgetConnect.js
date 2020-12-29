@@ -22,7 +22,13 @@ const widgetConnect = params => {
 
     // call connect mutation
     connectMutation(event)
-      .then(({ data }) => {
+      .then((response) => {
+        if (!response){
+          return
+        }
+
+        const { data } = response;
+
         // check connection and save connection info
         connectCallback(data);
 

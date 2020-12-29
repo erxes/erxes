@@ -12,11 +12,6 @@ cube(`Deals`, {
   },
 
   dimensions: {
-    iscomplete: {
-      sql: `${CUBE}."isComplete"`,
-      type: `string`
-    },
-
     modifiedBy: {
       sql: `${CUBE}."modifiedBy"`,
       type: `string`
@@ -33,6 +28,11 @@ cube(`Deals`, {
     },
 
     stageProbability: {
+      sql: `${CUBE}."stageId"`,
+      type: `string`
+    },
+
+    pipelineName: {
       sql: `${CUBE}."stageId"`,
       type: `string`
     },

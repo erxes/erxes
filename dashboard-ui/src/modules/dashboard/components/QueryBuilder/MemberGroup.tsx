@@ -19,7 +19,7 @@ class MemberGroup extends React.Component<Props> {
       addMemberName,
       availableMembers,
       updateMethods,
-      type,
+      type
     } = this.props;
 
     if (members.length > 0) {
@@ -28,7 +28,7 @@ class MemberGroup extends React.Component<Props> {
 
     return (
       <MemberDropdown
-        onClick={(m) => updateMethods.add(m)}
+        onClick={m => updateMethods.add(m)}
         availableMembers={availableMembers}
         type="dashed"
         schemaType={type}
@@ -43,14 +43,14 @@ class MemberGroup extends React.Component<Props> {
 
     return (
       <>
-        {members.map((m) => (
+        {members.map(m => (
           <RemoveButtonGroup
             key={m.index || m.name}
             onRemoveClick={() => updateMethods.remove(m)}
           >
             <MemberDropdown
               availableMembers={availableMembers}
-              onClick={(updateWith) => updateMethods.update(m, updateWith)}
+              onClick={updateWith => updateMethods.update(m, updateWith)}
               schemaType={type}
             >
               {m.title}
