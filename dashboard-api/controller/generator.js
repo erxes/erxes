@@ -1,5 +1,5 @@
-const { tableSchema } = require('../tablePrefix');
 const elasticsearch = require('elasticsearch');
+const { filterResolvers } = require('./constants');
 
 const { CUBEJS_DB_URL } = process.env;
 
@@ -13,15 +13,17 @@ const generateReport = async query => {
 
     await Promise.all(
       filters.map(async filter => {
-        if (filter.dimension === 'Deals.stageProbability') {
+        if (filterResolvers[filter.dimension]) {
+          const resolver = filterResolvers[filter.dimension];
           const should = [];
+          const field = resolver.field;
 
           filter.values.map(value => {
-            should.push({ match: { probability: value } });
+            should.push({ match: { [field]: value } });
           });
 
           const result = await client.search({
-            index: `${tableSchema()}__stages`,
+            index: resolver.index,
             _source: false,
             body: {
               query: {

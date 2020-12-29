@@ -670,25 +670,6 @@ export const moduleObjects = {
       }
     ]
   },
-  insights: {
-    name: 'insights',
-    description: 'Insights',
-    actions: [
-      {
-        name: 'insightsAll',
-        description: 'All',
-        use: ['manageExportInsights', 'showInsights']
-      },
-      {
-        name: 'manageExportInsights',
-        description: 'Manage export insights'
-      },
-      {
-        name: 'showInsights',
-        description: 'Show insights'
-      }
-    ]
-  },
   knowledgeBase: {
     name: 'knowledgeBase',
     description: 'KnowledgeBase',

@@ -1,6 +1,6 @@
 const cubejs = require('@cubejs-client/core');
 const elasticsearch = require('elasticsearch');
-const resolvers = require('./constants.js');
+const { resolvers } = require('./constants.js');
 
 const { CUBEJS_URL, CUBEJS_DB_URL } = process.env;
 
@@ -28,34 +28,16 @@ const generateReport = async (req, res) => {
     if (resolver) {
       await Promise.all(
         resultSet.loadResponse.data.map(async data => {
-          if (resolver.isMulti) {
-            try {
-              const response = await client.get({
-                index: resolver.indexname,
-                id: data[dimensions]
-              });
+          try {
+            const response = await client.get({
+              index: resolver.indexname,
+              id: data[dimensions]
+            });
 
-              const secondResponse = await client.get({
-                index: resolver.secondIndexname,
-                id: response._source[resolver.relationField]
-              });
-              data[dimensions] =
-                secondResponse._source[resolver.fieldname] || 'unknown';
-            } catch (e) {
-              data[dimensions] = 'unknown';
-            }
-          } else {
-            try {
-              const response = await client.get({
-                index: resolver.indexname,
-                id: data[dimensions]
-              });
-
-              data[dimensions] =
-                response._source[resolver.fieldname] || 'unknown';
-            } catch (e) {
-              data[dimensions] = 'unknown';
-            }
+            data[dimensions] =
+              response._source[resolver.fieldname] || 'unknown';
+          } catch (e) {
+            data[dimensions] = 'unknown';
           }
         })
       );

@@ -1,6 +1,10 @@
 import { DashboardItems, Dashboards } from '../../../db/models';
-import { DashboardFilters } from '../../dashboardConstants';
 import {
+  DashboardFilters,
+  DashboardFilterTypes
+} from '../../dashboardConstants';
+import {
+  getBrands,
   getIntegrations,
   getPipelines,
   getUsers
@@ -50,8 +54,12 @@ const dashBoardQueries = {
         return getPipelines();
       }
 
-      if (type.includes('modifiedBy') || type.includes('firstRespondedUser')) {
+      if (DashboardFilterTypes.User.some(name => type.includes(name))) {
         return getUsers();
+      }
+
+      if (type.includes('brand')) {
+        return getBrands();
       }
 
       if (type.includes('integrationName')) {
