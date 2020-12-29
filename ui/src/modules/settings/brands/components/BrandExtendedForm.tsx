@@ -22,7 +22,7 @@ const ContentWrapper = styled.div`
 const BrandExtendedForm = (props: Props) => {
   const { data } = useQuery(gql(queries.brandsGetDefaultEmailConfig));
 
-  const defaultTemplate = data.brandsGetDefaultEmailConfig || {};
+  const defaultTemplate = data ? data.brandsGetDefaultEmailConfig : {};
 
   const { emailConfig, setEmailConfig } = props;
 
