@@ -1,4 +1,3 @@
-import utils from 'erxes-api-utils';
 import {
   Companies,
   Customers,
@@ -9,6 +8,7 @@ import {
   Tags
 } from '../../../db/models';
 import { fetchElk } from '../../../elasticsearch';
+import { EXTEND_FIELDS, FIELD_CONTENT_TYPES } from '../../constants';
 import { BOARD_BASIC_INFOS } from '../fileExporter/constants';
 
 const generateBasicInfosFromSchema = async (
@@ -160,6 +160,74 @@ export const checkFieldNames = async (type: string, fields: string[]) => {
   return properties;
 };
 
+const getIntegrations = async () => {
+  return Integrations.aggregate([
+    {
+      $project: {
+        _id: 0,
+        label: '$name',
+        value: '$_id'
+      }
+    }
+  ]);
+};
+
+const getTags = async (type: string) => {
+  const tags = await Tags.aggregate([
+    { $match: { type } },
+    {
+      $project: {
+        _id: 0,
+        label: '$name',
+        value: '$_id'
+      }
+    }
+  ]);
+
+  return {
+    _id: Math.random(),
+    name: 'tagIds',
+    label: 'Tag',
+    type: 'tag',
+    selectOptions: tags
+  };
+};
+
+/*
+ * Generates fields using given schema
+ */
+const generateFieldsFromSchema = async (queSchema: any, namePrefix: string) => {
+  const queFields: any = [];
+
+  // field definations
+  const paths = queSchema.paths;
+
+  const integrations = await getIntegrations();
+
+  for (const name of Object.keys(paths)) {
+    const path = paths[name];
+
+    const label = path.options.label;
+    const type = path.instance;
+    const selectOptions =
+      name === 'integrationId'
+        ? integrations || []
+        : path.options.selectOptions;
+
+    if (['String', 'Number', 'Date', 'Boolean'].includes(type) && label) {
+      // add to fields list
+      queFields.push({
+        _id: Math.random(),
+        name: `${namePrefix}${name}`,
+        label,
+        type: path.instance,
+        selectOptions
+      });
+    }
+  }
+
+  return queFields;
+};
 
 /**
  * Generates all field choices base on given kind.
@@ -173,16 +241,116 @@ export const fieldsCombinedByContentType = async ({
   usageType?: string;
   excludedNames?: string[];
 }) => {
-  return utils.fieldsCombinedByContentType({
-    models: {
-      Companies,
-      Customers,
-      Fields,
-      FieldsGroups,
-      Integrations,
-      Products,
-      Tags
-    }, fetchElk,
-    contentType, usageType, excludedNames
-  })
+  let schema: any;
+  let extendFields: Array<{ name: string; label?: string }> = [];
+  let fields: Array<{ _id: number; name: string; label?: string }> = [];
+
+  switch (contentType) {
+    case FIELD_CONTENT_TYPES.COMPANY:
+      schema = Companies.schema;
+
+      break;
+
+    case FIELD_CONTENT_TYPES.PRODUCT:
+      schema = Products.schema;
+      extendFields = EXTEND_FIELDS.PRODUCT;
+      break;
+
+    case FIELD_CONTENT_TYPES.CUSTOMER:
+      schema = Customers.schema;
+      break;
+  }
+
+  // generate list using customer or company schema
+  fields = [...fields, ...(await generateFieldsFromSchema(schema, ''))];
+
+  for (const name of Object.keys(schema.paths)) {
+    const path = schema.paths[name];
+
+    // extend fields list using sub schema fields
+    if (path.schema) {
+      fields = [
+        ...fields,
+        ...(await generateFieldsFromSchema(path.schema, `${name}.`))
+      ];
+    }
+  }
+
+  const customFields = await Fields.find({
+    contentType
+  });
+
+  // extend fields list using custom fields data
+  for (const customField of customFields) {
+    const group = await FieldsGroups.findOne({ _id: customField.groupId });
+
+    if (group && group.isVisible && customField.isVisible) {
+      fields.push({
+        _id: Math.random(),
+        name: `customFieldsData.${customField._id}`,
+        label: customField.text
+      });
+    }
+  }
+
+  if (contentType === 'customer' && usageType) {
+    extendFields = EXTEND_FIELDS.CUSTOMER;
+  }
+
+  if (contentType === 'customer' || contentType === 'company') {
+    const tags = await getTags(contentType);
+    fields = [...fields, ...[tags]];
+  }
+
+  for (const extendFeild of extendFields) {
+    fields.push({
+      _id: Math.random(),
+      ...extendFeild
+    });
+  }
+
+  if (
+    (contentType === 'company' || contentType === 'customer') &&
+    (!usageType || usageType === 'export')
+  ) {
+    const aggre = await fetchElk(
+      'search',
+      contentType === 'company' ? 'companies' : 'customers',
+      {
+        size: 0,
+        _source: false,
+        aggs: {
+          trackedDataKeys: {
+            nested: {
+              path: 'trackedData'
+            },
+            aggs: {
+              fieldKeys: {
+                terms: {
+                  field: 'trackedData.field',
+                  size: 10000
+                }
+              }
+            }
+          }
+        }
+      },
+      '',
+      { aggregations: { trackedDataKeys: {} } }
+    );
+
+    const aggregations = aggre.aggregations || { trackedDataKeys: {} };
+    const buckets = (aggregations.trackedDataKeys.fieldKeys || { buckets: [] })
+      .buckets;
+
+    for (const bucket of buckets) {
+      fields.push({
+        _id: Math.random(),
+        name: `trackedData.${bucket.key}`,
+        label: bucket.key
+      });
+    }
+  }
+
+  return fields.filter(field => !(excludedNames || []).includes(field.name));
 };

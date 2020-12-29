@@ -1,5 +1,3 @@
-import { EXTEND_FIELDS, FIELD_CONTENT_TYPES } from 'erxes-api-utils';
-
 export const EMAIL_CONTENT_CLASS = 'erxes-email-content';
 export const EMAIL_CONTENT_PLACEHOLDER = `<div class="${EMAIL_CONTENT_CLASS}"></div>`;
 
@@ -43,9 +41,22 @@ export const FORM_FIELDS = {
   }
 };
 
-export { FIELD_CONTENT_TYPES }
+export const FIELD_CONTENT_TYPES = {
+  FORM: 'form',
+  CUSTOMER: 'customer',
+  COMPANY: 'company',
+  PRODUCT: 'product',
+  ALL: ['form', 'customer', 'company', 'product']
+}
 
-export { EXTEND_FIELDS };
+export const EXTEND_FIELDS = {
+  CUSTOMER: [
+    { name: 'tag', label: 'Tag' },
+    { name: 'ownerEmail', label: 'Owner' },
+    { name: 'companiesPrimaryNames', label: 'Companies' }
+  ],
+  PRODUCT: [{ name: 'categoryCode', label: 'Category Code' }]
+};
 
 export const COC_LEAD_STATUS_TYPES = [
   '',

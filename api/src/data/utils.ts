@@ -12,12 +12,14 @@ import * as puppeteer from 'puppeteer';
 import * as strip from 'strip';
 import * as xlsxPopulate from 'xlsx-populate';
 import * as models from '../db/models';
+import { Webhooks } from '../db/models';
 import { IBrandDocument } from '../db/models/definitions/brands';
+import { WEBHOOK_STATUS } from '../db/models/definitions/constants';
 import { ICustomer } from '../db/models/definitions/customers';
 import { IUser, IUserDocument } from '../db/models/definitions/users';
-import { fetchElk } from '../elasticsearch';
 import memoryStorage from '../inmemoryStorage';
 import { graphqlPubsub } from '../pubsub';
+import { fieldsCombinedByContentType } from './modules/fields/utils';
 
 export const uploadsFolderPath = path.join(__dirname, '../private/uploads');
 
@@ -496,7 +498,94 @@ export const replaceEditorAttributes = async (args: {
   replacedContent?: string;
   customerFields?: string[];
 }> => {
-  return utils.replaceEditorAttributes({ ...args, models, fetchElk })
+  const { content, customer, user, brand } = args;
+  const replacers: IReplacer[] = [];
+
+  let replacedContent = content || '';
+  let customerFields = args.customerFields;
+
+  if (!customerFields || customerFields.length === 0) {
+    const possibleCustomerFields = await fieldsCombinedByContentType({
+      contentType: 'customer'
+    });
+
+    customerFields = ['firstName', 'lastName'];
+
+    for (const field of possibleCustomerFields) {
+      if (content.includes(`{{ customer.${field.name} }}`)) {
+        if (field.name.includes('trackedData')) {
+          customerFields.push('trackedData');
+          continue;
+        }
+
+        if (field.name.includes('customFieldsData')) {
+          customerFields.push('customFieldsData');
+          continue;
+        }
+
+        customerFields.push(field.name);
+      }
+    }
+  }
+
+  // replace customer fields
+  if (customer) {
+    replacers.push({
+      key: '{{ customer.name }}',
+      value: models.Customers.getCustomerName(customer)
+    });
+
+    for (const field of customerFields) {
+      if (field.includes('trackedData') || field.includes('customFieldsData')) {
+        const dbFieldName = field.includes('trackedData')
+          ? 'trackedData'
+          : 'customFieldsData';
+
+        for (const subField of customer[dbFieldName] || []) {
+          replacers.push({
+            key: `{{ customer.${dbFieldName}.${subField.field} }}`,
+            value: subField.value || ''
+          });
+        }
+
+        continue;
+      }
+
+      replacers.push({
+        key: `{{ customer.${field} }}`,
+        value: customer[field] || ''
+      });
+    }
+  }
+
+  // replace user fields
+  if (user) {
+    replacers.push({ key: '{{ user.email }}', value: user.email || '' });
+
+    if (user.details) {
+      replacers.push({
+        key: '{{ user.fullName }}',
+        value: user.details.fullName || ''
+      });
+      replacers.push({
+        key: '{{ user.position }}',
+        value: user.details.position || ''
+      });
+    }
+  }
+
+  // replace brand fields
+  if (brand) {
+    replacers.push({ key: '{{ brandName }}', value: brand.name || '' });
+  }
+
+  for (const replacer of replacers) {
+    const regex = new RegExp(replacer.key, 'gi');
+
+    replacedContent = replacedContent.replace(regex, replacer.value);
+  }
+
+  return { replacedContent, replacers, customerFields };
 };
 
 /**
@@ -620,7 +709,40 @@ export const sendToWebhook = async (
   type: string,
   params: any
 ) => {
-  await utils.sendToWebhook(models, action, type, params);
+  const webhooks = await Webhooks.find({
+    'actions.action': action,
+    'actions.type': type
+  });
+
+  if (!webhooks) {
+    return;
+  }
+
+  let data = params;
+  for (const webhook of webhooks) {
+    if (!webhook.url || webhook.url.length === 0) {
+      continue;
+    }
+
+    if (action === 'delete') {
+      data = { type, object: { _id: params.object._id } };
+    }
+
+    sendRequest({
+      url: webhook.url,
+      headers: {
+        'Erxes-token': webhook.token || ''
+      },
+      method: 'post',
+      body: { data: JSON.stringify(data), action, type }
+    })
+      .then(async () => {
+        await Webhooks.updateStatus(webhook._id, WEBHOOK_STATUS.AVAILABLE);
+      })
+      .catch(async () => {
+        await Webhooks.updateStatus(webhook._id, WEBHOOK_STATUS.UNAVAILABLE);
+      });
+  }
 };
 
 export default {
