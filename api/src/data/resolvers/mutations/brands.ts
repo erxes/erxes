@@ -1,8 +1,5 @@
 import { Brands } from '../../../db/models';
-import {
-  IBrand,
-  IBrandEmailConfig
-} from '../../../db/models/definitions/brands';
+import { IBrand } from '../../../db/models/definitions/brands';
 import { MODULE_NAMES } from '../../constants';
 import { putCreateLog, putDeleteLog, putUpdateLog } from '../../logUtils';
 import { moduleCheckPermission } from '../../permissions/wrappers';
@@ -60,30 +57,6 @@ const brandMutations = {
     await putDeleteLog({ type: MODULE_NAMES.BRAND, object: brand }, user);
 
     return removed;
-  },
-
-  /**
-   * Update brands email config
-   */
-  async brandsConfigEmail(
-    _root,
-    { _id, emailConfig }: { _id: string; emailConfig: IBrandEmailConfig },
-    { user }: IContext
-  ) {
-    const brand = await Brands.getBrand(_id);
-    const updated = await Brands.updateEmailConfig(_id, emailConfig);
-
-    await putUpdateLog(
-      {
-        type: MODULE_NAMES.BRAND,
-        object: brand,
-        newData: { emailConfig },
-        description: `${brand.name} email config has been changed`
-      },
-      user
-    );
-
-    return updated;
   },
 
   /**

@@ -1,11 +1,13 @@
 const commonParamsDef = `
   $name: String!,
   $description: String,
+  $emailConfig: JSON,
 `;
 
 const commonParams = `
   name: $name,
   description: $description,
+  emailConfig: $emailConfig,
 `;
 
 const brandAdd = `
@@ -38,14 +40,6 @@ const brandManageIntegrations = `
   }
 `;
 
-const brandsConfigEmail = `
-  mutation brandsConfigEmail($_id: String!, $emailConfig: JSON) {
-    brandsConfigEmail(_id: $_id, emailConfig: $emailConfig) {
-      _id
-    }
-  }
-`;
-
 const integrationsCreateMessenger = `
   mutation add($name: String!, $brandId: String!) {
     integrationsCreateMessengerIntegration(
@@ -73,7 +67,6 @@ export default {
   brandAdd,
   brandEdit,
   brandRemove,
-  brandsConfigEmail,
   brandManageIntegrations,
   integrationsCreateMessenger,
   integrationsEditMessenger
