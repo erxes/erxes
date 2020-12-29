@@ -1,13 +1,13 @@
+import gql from 'graphql-tag';
 import FormControl from 'modules/common/components/form/Control';
 import FormGroup from 'modules/common/components/form/Group';
 import ControlLabel from 'modules/common/components/form/Label';
+import Info from 'modules/common/components/Info';
 import EditorCK from 'modules/common/containers/EditorCK';
 import { __ } from 'modules/common/utils';
 import React from 'react';
-import styled from 'styled-components';
-import Info from 'modules/common/components/Info';
-import gql from 'graphql-tag';
 import { useQuery } from 'react-apollo';
+import styled from 'styled-components';
 import { queries } from '../graphql';
 
 type Props = {
@@ -81,6 +81,9 @@ const BrandExtendedForm = (props: Props) => {
     <>
       <FormGroup>
         <ControlLabel>Email</ControlLabel>
+        <p>
+          Set an email address you wish to send your transactional emails from.
+        </p>
 
         <FormControl
           type="email"
@@ -92,6 +95,7 @@ const BrandExtendedForm = (props: Props) => {
 
       <FormGroup>
         <ControlLabel>Type</ControlLabel>
+        <p>Choose "custom" to change the template of transactional emails.</p>
 
         <FormControl
           componentClass="select"
