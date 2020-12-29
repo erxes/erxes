@@ -51,11 +51,16 @@ const calendarQueries = {
     _root,
     {
       groupId,
+      userId,
       ...queryParams
-    }: { groupId: string; page: number; perPage: number }
+    }: { groupId: string; userId: string; page: number; perPage: number }
   ) {
     const query: any = {};
     const { page, perPage } = queryParams;
+
+    if (userId) {
+      query.userId = userId;
+    }
 
     if (groupId) {
       query.groupId = groupId;

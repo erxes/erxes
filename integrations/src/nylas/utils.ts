@@ -142,41 +142,39 @@ const syncMessages = async (accountId: string, messageId: string) => {
     nylasAccountId: accountId
   }).lean();
 
-  if (!integration) {
-    throw new Error(`Integration not found with nylasAccountId: ${accountId}`);
-  }
+  if (integration) {
+    const { nylasToken, email, kind } = integration;
 
-  const { nylasToken, email, kind } = integration;
+    let message;
 
-  let message;
+    try {
+      message = await getMessageById(nylasToken, messageId);
+    } catch (e) {
+      debugNylas(`Failed to get nylas message by id: ${e.message}`);
 
-  try {
-    message = await getMessageById(nylasToken, messageId);
-  } catch (e) {
-    debugNylas(`Failed to get nylas message by id: ${e.message}`);
-
-    throw e;
-  }
-
-  const [from] = message.from;
-
-  // Prevent to send email to itself
-  if (from.email === integration.email && !message.subject.includes('Re:')) {
-    return;
-  }
-
-  const doc = {
-    kind,
-    message: JSON.parse(JSON.stringify(message)),
-    toEmail: email,
-    integrationIds: {
-      id: integration._id,
-      erxesApiId: integration.erxesApiId
+      throw e;
     }
-  };
 
-  // Store new received message
-  return compose(storeMessage, storeConversation, storeCustomer)(doc);
+    const [from] = message.from;
+
+    // Prevent to send email to itself
+    if (from.email === integration.email && !message.subject.includes('Re:')) {
+      return;
+    }
+
+    const doc = {
+      kind,
+      message: JSON.parse(JSON.stringify(message)),
+      toEmail: email,
+      integrationIds: {
+        id: integration._id,
+        erxesApiId: integration.erxesApiId
+      }
+    };
+
+    // Store new received message
+    return compose(storeMessage, storeConversation, storeCustomer)(doc);
+  }
 };
 
 export const getNylasConfig = async () => {

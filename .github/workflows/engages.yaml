@@ -45,7 +45,7 @@ jobs:
         run: |
           yarn install
           cd engages-email-sender
-          yarn install
+          yarn install --frozen-lockfile
 
       - name: Lint
         run: |
@@ -55,7 +55,7 @@ jobs:
         run: |
           cd engages-email-sender
           rm -rf node_modules
-          yarn install --production
+          yarn install --frozen-lockfile --production
           yarn build
 
       - name: Build docker image

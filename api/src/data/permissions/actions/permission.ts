@@ -1075,25 +1075,6 @@ export const moduleObjects = {
       }
     ]
   },
-  emailAppearance: {
-    name: 'emailAppearance',
-    description: 'Email appearance',
-    actions: [
-      {
-        name: 'emailAppearanceAll',
-        description: 'All',
-        use: ['manageEmailAppearance', 'showEmailappearance']
-      },
-      {
-        name: 'showEmailappearance',
-        description: 'Show email appearance'
-      },
-      {
-        name: 'manageEmailAppearance',
-        description: 'Manage email appearance'
-      }
-    ]
-  },
   logs: {
     name: 'logs',
     description: 'Logs',

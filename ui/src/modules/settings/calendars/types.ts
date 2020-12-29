@@ -59,7 +59,6 @@ export type GroupDetailQueryResponse = {
 export type CalendarsQueryResponse = {
   calendars: ICalendar[];
   loading: boolean;
-  refetch: ({ groupId }: { groupId?: string }) => Promise<any>;
 };
 
 // mutations
@@ -151,4 +150,106 @@ export type RemoveCalendarMutationResponse = {
     variables: RemoveCalendarMutationVariables;
     refetchQueries: any[];
   }) => Promise<void>;
+};
+
+export type openingHour = {
+  days: [string];
+  start: string;
+  end: string;
+};
+
+export type additionalField = {
+  label: string;
+  name: string;
+  required: boolean;
+  type: string;
+};
+
+export type SchedulePageMutationVariables = {
+  _id?: string;
+  name: string;
+  slug: string;
+  timezone: string;
+  calendarIds: [string];
+  event: {
+    title: string;
+    location: string;
+    duration: number;
+  };
+  appearance?: {
+    color: string;
+    companyName?: string;
+    logo?: string;
+    submitText?: string;
+    thankYouText?: string;
+  };
+  booking?: {
+    openingHours?: openingHour[];
+    additionalFields?: additionalField[];
+    cancellationPolicy?: string;
+    confirmationMethod?: string;
+    minBookingNotice?: number;
+    availableDaysInFuture?: number;
+    minBuffer?: number;
+    minCancellationNotice?: number;
+  };
+};
+
+export type CreateSchedulePageMutationResponse = {
+  createMutation: (params: {
+    variables: SchedulePageMutationVariables;
+    refetchQueries?: any[];
+  }) => Promise<void>;
+};
+
+export type EditSchedulePageMutationResponse = {
+  editMutation: (params: {
+    variables: SchedulePageMutationVariables;
+    refetchQueries?: any[];
+  }) => Promise<void>;
+};
+
+export type RemoveSchedulePageMutationResponse = {
+  removeMutation: (params: {
+    variables: { pageId: string };
+    refetchQueries?: any;
+  }) => Promise<void>;
+};
+
+export type IPage = {
+  _id: string;
+  name: string;
+  slug: string;
+  createdAt: Date;
+  modifiedAt: Date;
+  accountId: string;
+  config: {
+    timezone: string;
+    pageCalendarIds?: any;
+    calendarIds?: string[];
+    event: {
+      title: string;
+      location: string;
+      duration: number;
+    };
+    appearance: {
+      color?: string;
+      companyName?: string;
+      logo?: string;
+      submitText?: string;
+      thankYouText?: string;
+      showAutoschedule?: boolean;
+      showNylasBranding?: boolean;
+    };
+    booking: {
+      openingHours: openingHour[];
+      additionalFields?: additionalField[];
+      cancellationPolicy?: string;
+      confirmationMethod?: string;
+      minBookingNotice?: number;
+      availableDaysInFuture?: number;
+      minBuffer?: number;
+      minCancellationNotice?: number;
+    };
+  };
 };

@@ -1,6 +1,7 @@
 import { Comments, Customers, Posts } from './models';
 import { ICommentParams, IPostParams } from './types';
 
+import { debugFacebook } from '../debuggers';
 import { sendMessage, sendRPCMessage } from '../messageBroker';
 import { Accounts, Integrations } from '../models';
 import {
@@ -214,9 +215,8 @@ export const getOrCreateCustomer = async (
     fbUser =
       (await getFacebookUser(pageId, facebookPageTokensMap, userId)) || {};
   } catch (e) {
-    if (e.message.includes('access token')) {
-      facebookPageTokensMap = await refreshPageAccesToken(pageId, integration);
-    }
+    debugFacebook(`Error during get customer info: ${e.message}`);
+    facebookPageTokensMap = await refreshPageAccesToken(pageId, integration);
   }
 
   fbUser = (await getFacebookUser(pageId, facebookPageTokensMap, userId)) || {};
