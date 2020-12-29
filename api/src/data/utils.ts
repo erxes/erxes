@@ -1,9 +1,7 @@
 import * as AWS from 'aws-sdk';
 import utils from 'erxes-api-utils';
 import { IEmailParams as IEmailParamsC } from 'erxes-api-utils/lib/emails';
-import {
-  ISendNotification as ISendNotificationC
-} from 'erxes-api-utils/lib/requests';
+import { ISendNotification as ISendNotificationC } from 'erxes-api-utils/lib/requests';
 import * as fileType from 'file-type';
 import * as admin from 'firebase-admin';
 import * as fs from 'fs';
@@ -11,12 +9,18 @@ import * as path from 'path';
 import * as puppeteer from 'puppeteer';
 import * as strip from 'strip';
 import * as xlsxPopulate from 'xlsx-populate';
-import * as models from '../db/models';
-import { Webhooks } from '../db/models';
+import * as models from '../db/models'
+import {
+  Customers,
+  OnboardingHistories,
+  Users,
+  Webhooks
+} from '../db/models';
 import { IBrandDocument } from '../db/models/definitions/brands';
 import { WEBHOOK_STATUS } from '../db/models/definitions/constants';
 import { ICustomer } from '../db/models/definitions/customers';
 import { IUser, IUserDocument } from '../db/models/definitions/users';
+import { debugBase } from '../debuggers';
 import memoryStorage from '../inmemoryStorage';
 import { graphqlPubsub } from '../pubsub';
 import { fieldsCombinedByContentType } from './modules/fields/utils';
@@ -499,6 +503,7 @@ export const replaceEditorAttributes = async (args: {
   customerFields?: string[];
 }> => {
   const { content, customer, user, brand } = args;
+
   const replacers: IReplacer[] = [];
 
   let replacedContent = content || '';
@@ -532,7 +537,7 @@ export const replaceEditorAttributes = async (args: {
   if (customer) {
     replacers.push({
       key: '{{ customer.name }}',
-      value: models.Customers.getCustomerName(customer)
+      value: Customers.getCustomerName(customer)
     });
 
     for (const field of customerFields) {
@@ -639,7 +644,15 @@ export const registerOnboardHistory = ({
   type: string;
   user: IUserDocument;
 }) =>
-  utils.registerOnboardHistory(models, graphqlPubsub, { type, user });
+  OnboardingHistories.getOrCreate({ type, user })
+    .then(({ status }) => {
+      if (status === 'created') {
+        graphqlPubsub.publish('onboardingChanged', {
+          onboardingChanged: { userId: user._id, type }
+        });
+      }
+    })
+    .catch(e => debugBase(e));
 
 export const authCookieOptions = (secure: boolean) => {
   const oneDay = 1 * 24 * 3600 * 1000; // 1 day
@@ -751,7 +764,7 @@ export default {
   sendMobileNotification,
   readFile,
   createTransporter,
-  sendToWebhook,
+  sendToWebhook
 };
 
 export const cleanHtml = (content?: string) =>
@@ -776,11 +789,11 @@ export const handleUnsubscription = async (query: {
   const { cid, uid } = query;
 
   if (cid) {
-    await models.Customers.updateOne({ _id: cid }, { $set: { doNotDisturb: 'Yes' } });
+    await Customers.updateOne({ _id: cid }, { $set: { doNotDisturb: 'Yes' } });
   }
 
   if (uid) {
-    await models.Users.updateOne({ _id: uid }, { $set: { doNotDisturb: 'Yes' } });
+    await Users.updateOne({ _id: uid }, { $set: { doNotDisturb: 'Yes' } });
   }
 };
 

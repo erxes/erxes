@@ -248,12 +248,12 @@ export const fieldsCombinedByContentType = async ({
   switch (contentType) {
     case FIELD_CONTENT_TYPES.COMPANY:
       schema = Companies.schema;
-
       break;
 
     case FIELD_CONTENT_TYPES.PRODUCT:
       schema = Products.schema;
       extendFields = EXTEND_FIELDS.PRODUCT;
+
       break;
 
     case FIELD_CONTENT_TYPES.CUSTOMER:
