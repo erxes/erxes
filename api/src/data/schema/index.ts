@@ -368,27 +368,25 @@ export let mutations = `
   ${CalendarMutations}
 `;
 
-export const subscriptions = `
-  type Subscription {
-    conversationChanged(_id: String!): ConversationChangedResponse
-    conversationMessageInserted(_id: String!): ConversationMessage
-    conversationClientMessageInserted(userId: String!): ConversationMessage
-    conversationClientTypingStatusChanged(_id: String!): ConversationClientTypingStatusChangedResponse
-    conversationAdminMessageInserted(customerId: String!): ConversationAdminMessageInsertedResponse
-    conversationExternalIntegrationMessageInserted: JSON
-    conversationBotTypingStatus(_id: String!): JSON
-    customerConnectionChanged(_id: String): CustomerConnectionChangedResponse
-    activityLogsChanged: Boolean
-    importHistoryChanged(_id: String!): ImportHistory
-    notificationInserted(userId: String): Notification
-    onboardingChanged(userId: String!): OnboardingNotification
+export let subscriptions = `
+  conversationChanged(_id: String!): ConversationChangedResponse
+  conversationMessageInserted(_id: String!): ConversationMessage
+  conversationClientMessageInserted(userId: String!): ConversationMessage
+  conversationClientTypingStatusChanged(_id: String!): ConversationClientTypingStatusChangedResponse
+  conversationAdminMessageInserted(customerId: String!): ConversationAdminMessageInsertedResponse
+  conversationExternalIntegrationMessageInserted: JSON
+  conversationBotTypingStatus(_id: String!): JSON
+  customerConnectionChanged(_id: String): CustomerConnectionChangedResponse
+  activityLogsChanged: Boolean
+  importHistoryChanged(_id: String!): ImportHistory
+  notificationInserted(userId: String): Notification
+  onboardingChanged(userId: String!): OnboardingNotification
 
-    pipelinesChanged(_id: String!): PipelineChangeResponse
+  pipelinesChanged(_id: String!): PipelineChangeResponse
 
-    checklistsChanged(contentType: String!, contentTypeId: String!): Checklist
-    checklistDetailChanged(_id: String!): Checklist
-    calendarEventUpdated: JSON
-  }
+  checklistsChanged(contentType: String!, contentTypeId: String!): Checklist
+  checklistDetailChanged(_id: String!): Checklist
+  calendarEventUpdated: JSON
 `;
 
 export default { types, queries, mutations, subscriptions };

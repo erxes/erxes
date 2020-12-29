@@ -10,6 +10,7 @@ import { debugError } from './debuggers';
 import memoryStorage from './inmemoryStorage';
 import { graphqlPubsub } from './pubsub';
 import messageBroker from './messageBroker';
+import { withFilter } from 'apollo-server-express';
 
 export { allModels }
 export const allConstants = { ...dataConstants, ...defConstants }
@@ -51,6 +52,7 @@ export const execInEveryPlugin = (callback) => {
         let graphqlQueries = [];
         let graphqlResolvers = [];
         let graphqlMutations = [];
+        let graphqlSubscriptions = [];
         let afterMutations = [];
         let constants = {};
 
@@ -58,6 +60,7 @@ export const execInEveryPlugin = (callback) => {
           types: '',
           queries: '',
           mutations: '',
+          subscriptions: '',
         };
 
         const ext = process.env.NODE_ENV === 'production' ? 'js' : 'ts';
@@ -69,6 +72,7 @@ export const execInEveryPlugin = (callback) => {
         const graphqlQueriesPath = `${pluginsPath}/${plugin}/api/graphql/queries.${ext}`
         const graphqlResolversPath = `${pluginsPath}/${plugin}/api/graphql/resolvers.${ext}`
         const graphqlMutationsPath = `${pluginsPath}/${plugin}/api/graphql/mutations.${ext}`
+        const graphqlSubscriptionsPath = `${pluginsPath}/${plugin}/api/graphql/subscriptions.${ext}`
         const afterMutationsPath = `${pluginsPath}/${plugin}/api/graphql/afterMutations.${ext}`
         const modelsPath = `${pluginsPath}/${plugin}/api/models.${ext}`
         const constantsPath = `${pluginsPath}/${plugin}/api/constants.${ext}`
@@ -111,12 +115,16 @@ export const execInEveryPlugin = (callback) => {
           graphqlMutations = tryRequire(graphqlMutationsPath).default;
         }
 
+        if (fs.existsSync(graphqlSubscriptionsPath)) {
+          graphqlSubscriptions = tryRequire(graphqlSubscriptionsPath).default;
+        }
+
         if (fs.existsSync(afterMutationsPath)) {
           afterMutations = tryRequire(afterMutationsPath).default;
         }
 
         if (fs.existsSync(graphqlSchemaPath)) {
-          const { types, queries, mutations } = tryRequire(graphqlSchemaPath);
+          const { types, queries, mutations, subscriptions } = tryRequire(graphqlSchemaPath);
 
           if (types) {
             graphqlSchema.types = types;
@@ -129,6 +137,10 @@ export const execInEveryPlugin = (callback) => {
           if (mutations) {
             graphqlSchema.mutations = mutations;
           }
+
+          if (subscriptions) {
+            graphqlSchema.subscriptions = subscriptions;
+          }
         }
 
         callback({
@@ -139,6 +151,7 @@ export const execInEveryPlugin = (callback) => {
           graphqlResolvers,
           graphqlQueries,
           graphqlMutations,
+          graphqlSubscriptions,
           afterMutations,
           models,
           constants
@@ -153,6 +166,7 @@ export const execInEveryPlugin = (callback) => {
       graphqlResolvers: [],
       graphqlQueries: [],
       graphqlMutations: [],
+      graphqlSubscriptions: [],
       afterMutations: {},
       routes: [],
       models: [],
@@ -172,7 +186,7 @@ const checkPermission = async (actionName, user) => {
 }
 
 export const extendViaPlugins = (app, resolvers, typeDefDetails): Promise<any> => new Promise((resolve) => {
-  let { types, queries, mutations } = typeDefDetails;
+  let { types, queries, mutations, subscriptions } = typeDefDetails;
 
   execInEveryPlugin(async ({
     constants,
@@ -181,6 +195,7 @@ export const extendViaPlugins = (app, resolvers, typeDefDetails): Promise<any> =
     graphqlResolvers,
     graphqlQueries,
     graphqlMutations,
+    graphqlSubscriptions,
     afterMutations,
     routes,
     models,
@@ -233,6 +248,13 @@ export const extendViaPlugins = (app, resolvers, typeDefDetails): Promise<any> =
       `
     }
 
+    if (graphqlSchema.subscriptions) {
+      subscriptions = `
+        ${subscriptions}
+        ${graphqlSchema.subscriptions}
+      `
+    }
+
     const generateCtx = context => {
       return {
         ...context,
@@ -258,6 +280,19 @@ export const extendViaPlugins = (app, resolvers, typeDefDetails): Promise<any> =
       for (const mutation of graphqlMutations) {
         resolvers.Mutation[mutation.name] = (_root, _args, context) => {
           return mutation.handler(_root, _args, generateCtx(context))
+        }
+      }
+    }
+
+    if (graphqlSubscriptions) {
+      for (const subscription of graphqlSubscriptions) {
+        resolvers.Subscription[subscription.name] = {
+          subscribe: withFilter(
+            () => graphqlPubsub.asyncIterator(subscription.name),
+            (payload, variables) => {
+              return subscription.handler(payload, variables)
+            }
+          )
         }
       }
     }
@@ -301,7 +336,7 @@ export const extendViaPlugins = (app, resolvers, typeDefDetails): Promise<any> =
     }
 
     if (isLastIteration) {
-      return resolve({ types, queries, mutations })
+      return resolve({ types, queries, mutations, subscriptions })
     }
   });
 });

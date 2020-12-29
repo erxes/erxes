@@ -73,7 +73,9 @@ const typeDefs = gql(`
     ${mutations}
   }
 
-  ${subscriptions}
+  type Subscription {
+    ${subscriptions}
+  }
 `);
 
 const schema = makeExecutableSchema({

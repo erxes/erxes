@@ -66,11 +66,16 @@ const renderRoutes = currentUser => {
     );
   };
 
+  if (!sessionStorage.getItem('sessioncode')) {
+    sessionStorage.setItem('sessioncode', Math.random().toString());
+  }
+
   if (currentUser) {
     const pluginModules = tryRequire('./plugins').default || {};
 
     const plugins: any = [];
     const pluginRoutes: any = [];
+    const specialPluginRoutes: any = [];
 
     for (const pluginName of Object.keys(pluginModules)) {
       const plugin = pluginModules[pluginName]();
@@ -79,6 +84,13 @@ const renderRoutes = currentUser => {
         name: pluginName,
         ...plugin
       });
+
+      if (plugin.response) {
+        const Component = plugin.response;
+        specialPluginRoutes.push(
+          <Component currentUser={currentUser} />
+        )
+      }
 
       if (plugin.routes) {
         for (const route of plugin.routes) {
@@ -120,6 +132,7 @@ const renderRoutes = currentUser => {
           <CalendarRoutes />
           <DashboardRoutes />
 
+          {specialPluginRoutes}
           {pluginRoutes}
 
           <Route
