@@ -34,11 +34,21 @@ class BrandRow extends React.Component<Props> {
     );
 
     const content = props => (
-      <BrandForm {...props} brand={brand} renderButton={renderButton} />
+      <BrandForm
+        {...props}
+        brand={brand}
+        extended={true}
+        renderButton={renderButton}
+      />
     );
 
     return (
-      <ModalTrigger title="Edit" trigger={editTrigger} content={content} />
+      <ModalTrigger
+        size="lg"
+        title="Edit"
+        trigger={editTrigger}
+        content={content}
+      />
     );
   };
 
