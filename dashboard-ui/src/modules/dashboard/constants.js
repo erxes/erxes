@@ -147,14 +147,17 @@ export const replaceTexts = [
 ];
 
 export const ignoredFilters = [
-  'createdat',
-  'modifiedat',
-  'birthdate',
+  'createdDate',
+  'modifiedDate',
+  'birthDate',
   'iscomplete',
   'stageName',
-  'closedate',
-  'updatedat',
+  'closeDate',
+  'closedDate',
+  'updatedDate',
   'firstrespondeddate',
   'messagecount',
   'integrationKind'
 ];
+
+export const ignoredMeasures = ['pipelineName', 'brand', 'stageProbability'];

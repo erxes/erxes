@@ -55,7 +55,7 @@ jobs:
         run: |
           yarn install
           cd integrations
-          yarn install
+          yarn install --frozen-lockfile
 
       - name: Lint
         run: |
@@ -78,7 +78,7 @@ jobs:
         run: |
           cd integrations
           rm -rf node_modules
-          yarn install --production
+          yarn install --frozen-lockfile --production
           yarn build
 
       - name: Build docker image

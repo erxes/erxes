@@ -1,32 +1,23 @@
 import { Menu } from 'antd';
-import { ignoredFilters } from 'modules/dashboard/constants';
+import { ignoredFilters, ignoredMeasures } from 'modules/dashboard/constants';
 import React from 'react';
 import ButtonDropdown from './ButtonDropdown';
 
 const generateMember = (availableMembers, schemaType, isFilter) => {
   const generatedMembers = [] as any;
+  const hideFields = isFilter ? ignoredFilters : ignoredMeasures;
 
   if (availableMembers) {
-    if (isFilter) {
-      availableMembers.forEach(members => {
-        const name = members.name;
+    availableMembers.forEach(members => {
+      const name = members.name;
 
-        if (
-          !ignoredFilters.includes(name.split('.')[1]) &&
-          name.startsWith(schemaType)
-        ) {
-          generatedMembers.push(members);
-        }
-      });
-    } else {
-      availableMembers.forEach(members => {
-        const name = members.name;
-
-        if (name.startsWith(schemaType)) {
-          generatedMembers.push(members);
-        }
-      });
-    }
+      if (
+        !hideFields.includes(name.split('.')[1]) &&
+        name.startsWith(schemaType)
+      ) {
+        generatedMembers.push(members);
+      }
+    });
   }
 
   return generatedMembers;
@@ -44,7 +35,7 @@ const memberMenu = (onClick, availableMembers, schemaType, isFilter) => {
       {generatedMembers.length ? (
         generatedMembers.map(m => (
           <Menu.Item key={m.name} onClick={() => onClick(m)}>
-            {m.title}
+            {m.shortTitle}
           </Menu.Item>
         ))
       ) : (

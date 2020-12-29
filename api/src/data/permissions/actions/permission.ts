@@ -670,25 +670,6 @@ export const moduleObjects = {
       }
     ]
   },
-  insights: {
-    name: 'insights',
-    description: 'Insights',
-    actions: [
-      {
-        name: 'insightsAll',
-        description: 'All',
-        use: ['manageExportInsights', 'showInsights']
-      },
-      {
-        name: 'manageExportInsights',
-        description: 'Manage export insights'
-      },
-      {
-        name: 'showInsights',
-        description: 'Show insights'
-      }
-    ]
-  },
   knowledgeBase: {
     name: 'knowledgeBase',
     description: 'KnowledgeBase',
@@ -1072,25 +1053,6 @@ export const moduleObjects = {
       {
         name: 'manageGeneralSettings',
         description: 'Manage general settings'
-      }
-    ]
-  },
-  emailAppearance: {
-    name: 'emailAppearance',
-    description: 'Email appearance',
-    actions: [
-      {
-        name: 'emailAppearanceAll',
-        description: 'All',
-        use: ['manageEmailAppearance', 'showEmailappearance']
-      },
-      {
-        name: 'showEmailappearance',
-        description: 'Show email appearance'
-      },
-      {
-        name: 'manageEmailAppearance',
-        description: 'Manage email appearance'
       }
     ]
   },
