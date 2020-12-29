@@ -1,5 +1,3 @@
-import { WEBHOOK_STATUS } from 'erxes-api-utils';
-
 export const CONVERSATION_STATUSES = {
   NEW: 'new',
   OPEN: 'open',
@@ -748,4 +746,8 @@ export const WEBHOOK_ACTIONS = [
   { label: 'Popup submitted', action: 'create', type: 'popupSubmitted' }
 ];
 
-export { WEBHOOK_STATUS }
+export const WEBHOOK_STATUS = {
+  AVAILABLE: 'available',
+  UNAVAILABLE: 'unavailable',
+  ALL: ['available', 'unavailable']
+};

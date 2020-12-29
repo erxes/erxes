@@ -73,13 +73,13 @@ export const initApolloServer = async (app) => {
 
         return {
           dataSources: generateDataSources(),
-          user,
+          user
         };
       }
 
       const requestInfo = {
         secure: req.secure,
-        cookies: req.cookies,
+        cookies: req.cookies
       };
 
       if (USE_BRAND_RESTRICTIONS !== 'true') {
@@ -91,7 +91,7 @@ export const initApolloServer = async (app) => {
           commonQuerySelector: {},
           user,
           res,
-          requestInfo,
+          requestInfo
         };
       }
 
@@ -145,8 +145,14 @@ export const initApolloServer = async (app) => {
             const customerId = webSocket.messengerData.customerId;
 
             // get status from inmemory storage
-            const inConnectedClients = await memoryStorage().inArray('connectedClients', customerId);
-            const inClients = await memoryStorage().inArray('clients', customerId);
+            const inConnectedClients = await memoryStorage().inArray(
+              'connectedClients',
+              customerId
+            );
+            const inClients = await memoryStorage().inArray(
+              'clients',
+              customerId
+            );
 
             if (!inConnectedClients) {
               await memoryStorage().addToArray('connectedClients', customerId);
@@ -165,8 +171,8 @@ export const initApolloServer = async (app) => {
               graphqlPubsub.publish('customerConnectionChanged', {
                 customerConnectionChanged: {
                   _id: customerId,
-                  status: 'connected',
-                },
+                  status: 'connected'
+                }
               });
             }
           }
@@ -185,7 +191,7 @@ export const initApolloServer = async (app) => {
         }
 
         return {
-          user,
+          user
         };
       },
 
@@ -204,8 +210,13 @@ export const initApolloServer = async (app) => {
 
           setTimeout(async () => {
             // get status from inmemory storage
-            const inNewConnectedClients = await memoryStorage().inArray('connectedClients', customerId);
-            const customerLastStatus = await memoryStorage().get(`customer_last_status_${customerId}`);
+            const inNewConnectedClients = await memoryStorage().inArray(
+              'connectedClients',
+              customerId
+            );
+            const customerLastStatus = await memoryStorage().get(
+              `customer_last_status_${customerId}`
+            );
 
             if (inNewConnectedClients) {
               return;
@@ -220,18 +231,22 @@ export const initApolloServer = async (app) => {
               memoryStorage().set(`customer_last_status_${customerId}`, 'left');
 
               // customer has left + time
-              const conversationMessages = await Conversations.changeCustomerStatus('left', customerId, integrationId);
+              const conversationMessages = await Conversations.changeCustomerStatus(
+                'left',
+                customerId,
+                integrationId
+              );
 
               for (const message of conversationMessages) {
                 graphqlPubsub.publish('conversationMessageInserted', {
-                  conversationMessageInserted: message,
+                  conversationMessageInserted: message
                 });
 
                 graphqlPubsub.publish('conversationClientTypingStatusChanged', {
                   conversationClientTypingStatusChanged: {
                     conversationId: message.conversationId,
-                    text: '',
-                  },
+                    text: ''
+                  }
                 });
               }
             }
@@ -240,13 +255,13 @@ export const initApolloServer = async (app) => {
             graphqlPubsub.publish('customerConnectionChanged', {
               customerConnectionChanged: {
                 _id: customerId,
-                status: 'disconnected',
-              },
+                status: 'disconnected'
+              }
             });
           }, 60000);
         }
-      },
-    },
+      }
+    }
   });
 
   return apolloServer;

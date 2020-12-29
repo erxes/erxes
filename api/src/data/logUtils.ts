@@ -1466,7 +1466,7 @@ export const putDeleteLog = async (
  * Sends a request to logs api
  * @param {Object} param0 Request
  */
-export const fetchLogs = async (params: ILogQueryParams) => {
+export const fetchLogs = (params: ILogQueryParams) => {
   const LOGS_DOMAIN = getSubServiceDomain({ name: 'LOGS_API_DOMAIN' });
 
   return sendRequest(
