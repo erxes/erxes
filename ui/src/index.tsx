@@ -1,3 +1,6 @@
+import * as Sentry from '@sentry/react';
+import { Integrations } from '@sentry/tracing';
+
 import '@nateradebaugh/react-datetime/css/react-datetime.css';
 import 'abortcontroller-polyfill/dist/polyfill-patch-fetch';
 import dayjs from 'dayjs';
@@ -16,6 +19,16 @@ import { ApolloProvider } from 'react-apollo';
 import { render } from 'react-dom';
 import apolloClient from './apolloClient';
 import Routes from './routes';
+
+Sentry.init({
+  dsn: 'https://7086b642db984d5b9c191d148d0ec710@sentry.erxes.io/3',
+  autoSessionTracking: true,
+  integrations: [new Integrations.BrowserTracing()],
+
+  // We recommend adjusting this value in production, or using tracesSampler
+  // for finer control
+  tracesSampleRate: 1.0
+});
 
 dayjs.extend(localizedFormat);
 dayjs.extend(relativeTime);

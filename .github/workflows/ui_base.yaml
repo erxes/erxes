@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - 'develop'
+      - 'apm'
     paths:
       - 'ui/nginx/**'
       - 'ui/docker-entrypoint.sh'
