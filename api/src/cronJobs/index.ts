@@ -10,6 +10,7 @@ import './conversations';
 import './deals';
 import './engages';
 import './integrations';
+import './notificatons';
 import './robot';
 
 // load environment variables
