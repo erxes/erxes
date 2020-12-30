@@ -210,13 +210,17 @@ const create = async ({
       const conformityDocs: IConformityAdd[] = [];
 
       objects.map(async (object, objectIndex) => {
-        const companyConformityDocs = conformityMapping[objectIndex];
+        const items = conformityMapping[objectIndex] || [];
 
-        for (const confDoc of companyConformityDocs) {
-          confDoc.mainTypeId = object._id;
+        if (items.length === 0) {
+          return;
         }
 
-        conformityDocs.push(companyConformityDocs);
+        for (const item of items) {
+          item.mainTypeId = object._id;
+        }
+
+        conformityDocs.push(...items);
       });
 
       await Conformities.insertMany(conformityDocs);

@@ -1,9 +1,17 @@
+import * as csvParser from 'csv-parser';
 import * as dotenv from 'dotenv';
 import * as fs from 'fs';
 import * as mongoose from 'mongoose';
 import * as path from 'path';
+import * as readline from 'readline';
+import { Writable } from 'stream';
 import { checkFieldNames } from '../data/modules/fields/utils';
-import { deleteFile, importBulkStream } from '../data/utils';
+import {
+  createAWS,
+  deleteFile,
+  getConfig,
+  uploadsFolderPath
+} from '../data/utils';
 import { Companies, Customers } from '../db/models';
 import { CUSTOMER_SELECT_OPTIONS } from '../db/models/definitions/constants';
 import {
@@ -32,6 +40,132 @@ export const IMPORT_CONTENT_TYPE = {
   DEAL: 'deal',
   TASK: 'task',
   TICKET: 'ticket'
+};
+
+const getCsvTotalRowCount = ({
+  filePath,
+  uploadType,
+  s3,
+  params
+}: {
+  filePath?: string;
+  uploadType: string;
+  params?: { Bucket: string; Key: string };
+  s3?: any;
+}): Promise<number> => {
+  return new Promise(resolve => {
+    if (uploadType === 'local' && filePath) {
+      const readSteam = fs.createReadStream(filePath);
+
+      let total = 0;
+
+      const rl = readline.createInterface({
+        input: readSteam,
+        terminal: false
+      });
+
+      rl.on('line', () => total++);
+      rl.on('close', () => resolve(total));
+    } else {
+      s3.selectObjectContent(
+        {
+          ...params,
+          ExpressionType: 'SQL',
+          Expression: 'SELECT COUNT(*) FROM S3Object',
+          InputSerialization: {
+            CSV: {
+              FileHeaderInfo: 'USE',
+              RecordDelimiter: '\n',
+              FieldDelimiter: ','
+            }
+          },
+          OutputSerialization: {
+            CSV: {}
+          }
+        },
+        (_, data) => {
+          // data.Payload is a Readable Stream
+          const eventStream = data.Payload;
+
+          let total = 0;
+
+          // Read events as they are available
+          eventStream.on('data', event => {
+            if (event.Records) {
+              total = event.Records.Payload.toString();
+            }
+          });
+          eventStream.on('end', resolve(total));
+        }
+      );
+    }
+  });
+};
+
+const importBulkStream = ({
+  fileName,
+  bulkLimit,
+  uploadType,
+  handleBulkOperation
+}: {
+  fileName: string;
+  bulkLimit: number;
+  uploadType: 'S3' | 'local';
+  handleBulkOperation: (rows: any, total: number) => Promise<void>;
+}) => {
+  return new Promise(async (resolve, reject) => {
+    let rows: any = [];
+    let readSteam;
+    let total;
+
+    if (uploadType === 'S3') {
+      const AWS_BUCKET = await getConfig('AWS_BUCKET');
+
+      const s3 = await createAWS();
+
+      const errorCallback = error => {
+        throw new Error(error.code);
+      };
+
+      const params = { Bucket: AWS_BUCKET, Key: fileName };
+
+      total = await getCsvTotalRowCount({ s3, params, uploadType: 's3' });
+
+      readSteam = s3.getObject(params).createReadStream();
+      readSteam.on('error', errorCallback);
+    } else {
+      const filePath: string = `${uploadsFolderPath}/${fileName}`;
+
+      readSteam = fs.createReadStream(filePath);
+      total = await getCsvTotalRowCount({ filePath, uploadType });
+    }
+
+    // exclude column
+    total--;
+
+    const write = (row, _, callback) => {
+      rows.push(row);
+
+      if (rows.length === bulkLimit) {
+        return handleBulkOperation(rows, total).then(() => {
+          rows = [];
+          callback();
+        });
+      }
+
+      return callback();
+    };
+
+    readSteam
+      .pipe(csvParser())
+      .pipe(new Writable({ write, objectMode: true }))
+      .on('finish', () => {
+        handleBulkOperation(rows, total).then(() => {
+          resolve('success');
+        });
+      })
+      .on('error', () => reject('fail'));
+  });
 };
 
 const getWorkerFile = fileName => {
