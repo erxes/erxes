@@ -57,10 +57,6 @@ const CardItem = styled.div`
 
 const CardContent = styled.div`
   padding: 8px 16px 16px 16px;
-
-  p {
-    color: $text-color;
-  }
 `;
 
 const CardAction = styled.div`

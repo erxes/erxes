@@ -47,7 +47,7 @@ jobs:
       - name: Api - Install dependencies
         run: |
           cd api
-          yarn install
+          yarn install --frozen-lockfile
 
       - name: Api - Lint
         run: |
@@ -62,12 +62,12 @@ jobs:
         run: |
           cd api
           rm -rf node_modules
-          yarn install --production
+          yarn install --frozen-lockfile --production
           yarn build
 
       - name: Api - Build docker image
         env:
-          BASE_IMAGE: erxes/erxes-api:base-12.19.0-slim
+          BASE_IMAGE: erxes/erxes-api:base-12.19.1-slim
         run: |
           cd api
           echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin
@@ -84,7 +84,7 @@ jobs:
       - name: Email Verifier - Install dependencies
         run: |
           cd email-verifier
-          yarn install --production
+          yarn install --frozen-lockfile --production
 
       - name: Email Verifier - Build
         run: |
@@ -101,7 +101,7 @@ jobs:
       - name: Engages - Install dependencies
         run: |
           cd engages-email-sender
-          yarn install --production
+          yarn install --frozen-lockfile --production
 
       - name: Engages - Build
         run: |
@@ -118,7 +118,7 @@ jobs:
       - name: Logger - Install dependencies
         run: |
           cd logger
-          yarn install --production
+          yarn install --frozen-lockfile --production
 
       - name: Logger - Build
         run: |
@@ -135,7 +135,7 @@ jobs:
       - name: Integrations - Install dependencies
         run: |
           cd integrations
-          yarn install
+          yarn install --frozen-lockfile
 
       - name: Integrations - Lint
         run: |
@@ -157,7 +157,7 @@ jobs:
         run: |
           cd integrations
           rm -rf node_modules
-          yarn install --production
+          yarn install --frozen-lockfile --production
           yarn build
 
       - name: Integrations - Build docker image
@@ -170,7 +170,7 @@ jobs:
       - name: UI - Install dependencies
         run: |
           cd ui
-          yarn install
+          yarn install --frozen-lockfile
 
       - name: UI - Lint
         run: |
@@ -185,7 +185,7 @@ jobs:
         run: |
           cd ui
           rm -rf node_modules
-          yarn install --production
+          yarn install --frozen-lockfile --production
           yarn build
 
       - name: UI - Build docker image
@@ -200,7 +200,7 @@ jobs:
       - name: Widgets - Install dependencies
         run: |
           cd widgets
-          yarn install
+          yarn install --frozen-lockfile
 
       - name: Widgets - Lint
         run: |
@@ -210,7 +210,7 @@ jobs:
         run: |
           cd widgets
           rm -rf node_modules
-          yarn install --production
+          yarn install --frozen-lockfile --production
           yarn build
 
       - name: Widgets - Build docker image
@@ -225,9 +225,9 @@ jobs:
           mkdir dashboard-ui-build-local
           cd dashboard-ui
           rm -rf node_modules
-          yarn install --production
+          yarn install --frozen-lockfile --production
           yarn build-local
-          cd .. 
+          cd ..
           cp -r dashboard-ui/build dashboard-ui-build-local
           cd dashboard-ui
           rm -rf build
@@ -243,7 +243,7 @@ jobs:
       - name: Dashboard - API - Build
         run: |
           cd dashboard-api
-          yarn install
+          yarn install --frozen-lockfile
 
       - name: Dashobard - API - Build docker image
         run: |

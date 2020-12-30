@@ -184,7 +184,7 @@ describe('permissionQueries', () => {
 
     const modules = await graphqlRequest(qry, 'permissionModules');
 
-    expect(modules.length).toBe(32);
+    expect(modules.length).toBe(28);
   });
 
   test(`Permissions actions`, async () => {
@@ -200,7 +200,7 @@ describe('permissionQueries', () => {
 
     const modules = await graphqlRequest(qry, 'permissionActions');
 
-    expect(modules.length).toBe(214);
+    expect(modules.length).toBe(197);
   });
 });
 

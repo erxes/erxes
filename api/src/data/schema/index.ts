@@ -100,7 +100,6 @@ import {
   queries as ImportHistoryQueries,
   types as ImportHistoryTypes
 } from './importHistory';
-import { queries as InsightQueries, types as InsightTypes } from './insight';
 import {
   mutations as IntegrationMutations,
   queries as IntegrationQueries,
@@ -111,6 +110,7 @@ import {
   queries as InternalNoteQueries,
   types as InternalNoteTypes
 } from './internalNote';
+
 import {
   mutations as KnowledgeBaseMutations,
   queries as KnowledgeBaseQueries,
@@ -226,7 +226,6 @@ export const types = `
   ${CustomerTypes}
   ${SegmentTypes}
   ${ConversationTypes}
-  ${InsightTypes}
   ${KnowledgeBaseTypes}
   ${NotificationTypes}
   ${BoardTypes}
@@ -272,7 +271,6 @@ export const queries = `
     ${CustomerQueries}
     ${SegmentQueries}
     ${ConversationQueries}
-    ${InsightQueries}
     ${KnowledgeBaseQueries}
     ${NotificationQueries}
     ${ActivityLogQueries}

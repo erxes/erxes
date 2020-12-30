@@ -209,7 +209,7 @@ class Conversation extends React.Component<Props, { toggleMessage: boolean }> {
           <Header onClick={this.onCollapse}>
             {integration.kind.includes('messenger') ? (
               <span>
-                {__('Conversation with')}
+                {__('Conversation with')}&nbsp;
                 <b>{renderFullName(customer)}</b>
               </span>
             ) : (

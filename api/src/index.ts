@@ -13,7 +13,6 @@ import { filterXSS } from 'xss';
 import apolloServer from './apolloClient';
 import { buildFile } from './data/modules/fileExporter/exporter';
 import { templateExport } from './data/modules/fileExporter/templateExport';
-import insightExports from './data/modules/insights/insightExports';
 import {
   authCookieOptions,
   deleteFile,
@@ -237,19 +236,6 @@ app.get('/health', async (_req, res, next) => {
   }
 
   res.end('ok');
-});
-
-// export insights
-app.get('/insights-export', async (req: any, res) => {
-  try {
-    const { name, response } = await insightExports(req.query, req.user);
-
-    res.attachment(`${name}.xlsx`);
-
-    return res.send(response);
-  } catch (e) {
-    return res.end(filterXSS(e.message));
-  }
 });
 
 // export board

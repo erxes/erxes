@@ -104,7 +104,7 @@ export const queries = `
     searchValue: String,
     channelId: String,
     brandId: String,
-    tag: String
+    tag: String,
   ): [Integration]
 
   integrationsGetUsedTypes: [integrationsGetUsedTypes]

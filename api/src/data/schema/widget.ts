@@ -123,6 +123,8 @@ export const mutations = `
     fromEmail: String
     title: String
     content: String
+    customerId: String
+    formId: String
   ): String
 
   widgetGetBotInitialMessage(integrationId: String): JSON

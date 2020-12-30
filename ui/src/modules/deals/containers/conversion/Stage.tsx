@@ -6,8 +6,7 @@ import Spinner from 'modules/common/components/Spinner';
 import { withProps } from 'modules/common/utils';
 import Stage from 'modules/deals/components/conversion/table/Stage';
 import { queries } from 'modules/deals/graphql';
-import { DealsQueryResponse, IDeal } from 'modules/deals/types';
-import { IQueryParams } from 'modules/insights/types';
+import { DealsQueryResponse, IDeal, IQueryParams } from 'modules/deals/types';
 import * as React from 'react';
 import { graphql } from 'react-apollo';
 
