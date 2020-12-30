@@ -20,7 +20,6 @@ import {
 import { fillSearchTextItem } from '../db/models/boardUtils';
 import { IConformityAdd } from '../db/models/definitions/conformities';
 import { IUserDocument } from '../db/models/definitions/users';
-import { debugWorkers } from '../debuggers';
 import { connect, generatePronoun, IMPORT_CONTENT_TYPE } from './utils';
 
 // tslint:disable-next-line
@@ -238,7 +237,8 @@ connect().then(async () => {
     result,
     contentType,
     properties,
-    importHistoryId
+    importHistoryId,
+    percentage
   }: {
     user: IUserDocument;
     scopeBrandIds: string[];
@@ -246,6 +246,7 @@ connect().then(async () => {
     contentType: string;
     properties: Array<{ [key: string]: string }>;
     importHistoryId: string;
+    percentage: number;
   } = workerData;
 
   let model: any = null;
@@ -441,19 +442,17 @@ connect().then(async () => {
     bulkDoc.push(doc);
   }
 
-  await create({ docs: bulkDoc, user, contentType, model })
-    .then(async cocObjs => {
-      const cocIds = cocObjs.map(obj => obj._id).filter(obj => obj);
+  const cocObjs = await create({ docs: bulkDoc, user, contentType, model });
 
-      await ImportHistory.updateOne(
-        { _id: importHistoryId },
-        { $push: { ids: cocIds } }
-      );
-    })
-    .catch(async (e: Error) => {
-      debugWorkers(e.message);
-      throw e;
-    });
+  const cocIds = cocObjs.map(obj => obj._id).filter(obj => obj);
+
+  await ImportHistory.updateOne(
+    { _id: importHistoryId },
+    {
+      $inc: { success: bulkDoc.length, percentage },
+      $push: { ids: cocIds }
+    }
+  );
 
   mongoose.connection.close();
 

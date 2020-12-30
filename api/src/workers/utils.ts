@@ -1,7 +1,6 @@
 import * as dotenv from 'dotenv';
 import * as fs from 'fs';
 import * as mongoose from 'mongoose';
-import * as os from 'os';
 import * as path from 'path';
 import { checkFieldNames } from '../data/modules/fields/utils';
 import { deleteFile, importBulkStream } from '../data/utils';
@@ -11,7 +10,7 @@ import {
   default as ImportHistories,
   default as ImportHistory
 } from '../db/models/ImportHistory';
-import { debugImport, debugWorkers } from '../debuggers';
+import { debugWorkers } from '../debuggers';
 import CustomWorker from './workerUtil';
 
 const { MONGO_URL = '' } = process.env;
@@ -21,123 +20,18 @@ export const connect = () =>
 
 dotenv.config();
 
-let workers: any[] = [];
-let intervals: any[] = [];
+const WORKER_BULK_LIMIT = 1000;
 
-export const createWorkers = (
-  workerPath: string,
-  workerData: any,
-  results: string[]
-) => {
-  return new Promise((resolve, reject) => {
-    // tslint:disable-next-line
-    const Worker = require('worker_threads').Worker;
+const myWorker = new CustomWorker();
 
-    if (workers && workers.length > 0) {
-      return reject(new Error('Workers are busy or not working'));
-    }
-
-    const interval = setImmediate(() => {
-      results.forEach(result => {
-        try {
-          const worker = new Worker(workerPath, {
-            workerData: {
-              ...workerData,
-              result
-            }
-          });
-
-          workers.push(worker);
-
-          worker.on('message', () => {
-            removeWorker(worker);
-          });
-
-          worker.on('error', e => {
-            debugImport(e);
-            removeWorker(worker);
-          });
-
-          worker.on('exit', code => {
-            if (code !== 0) {
-              debugImport(`Worker stopped with exit code ${code}`);
-            }
-          });
-        } catch (e) {
-          reject(new Error(e));
-        }
-      });
-
-      clearIntervals();
-    });
-
-    intervals.push(interval);
-
-    resolve(true);
-  });
-};
-
-export const splitToCore = (datas: any[]) => {
-  const cpuCount = os.cpus().length;
-
-  const results: any[] = [];
-
-  const calc = Math.ceil(datas.length / cpuCount);
-
-  for (let index = 0; index < cpuCount; index++) {
-    const start = index * calc;
-    const end = start + calc;
-    const row = datas.slice(start, end);
-
-    results.push(row);
-  }
-
-  return results;
-};
-
-export const removeWorker = worker => {
-  workers = workers.filter(workerObj => {
-    return worker.threadId !== workerObj.threadId;
-  });
-};
-
-export const removeWorkers = () => {
-  workers.forEach(worker => {
-    worker.postMessage('cancel');
-  });
-};
-
-export const clearIntervals = () => {
-  intervals.forEach(interval => {
-    clearImmediate(interval);
-  });
-
-  intervals = [];
-};
-
-export const clearEmptyValues = (obj: any) => {
-  Object.keys(obj).forEach(key => {
-    if (obj[key] === '' || obj[key] === 'unknown') {
-      delete obj[key];
-    }
-
-    if (Array.isArray(obj[key]) && obj[key].length === 0) {
-      delete obj[key];
-    }
-  });
-
-  return obj;
-};
-
-export const updateDuplicatedValue = async (
-  model: any,
-  field: string,
-  doc: any
-) => {
-  return model.updateOne(
-    { [field]: doc[field] },
-    { $set: { ...doc, modifiedAt: new Date() } }
-  );
+export const IMPORT_CONTENT_TYPE = {
+  CUSTOMER: 'customer',
+  COMPANY: 'company',
+  LEAD: 'lead',
+  PRODUCT: 'product',
+  DEAL: 'deal',
+  TASK: 'task',
+  TICKET: 'ticket'
 };
 
 const getWorkerFile = fileName => {
@@ -154,37 +48,59 @@ const getWorkerFile = fileName => {
 
 // csv file import, cancel, removal
 export const receiveImportRemove = async (content: any) => {
-  const { contentType, importHistoryId } = content;
+  try {
+    const { contentType, importHistoryId } = content;
 
-  const importHistory = await ImportHistories.getImportHistory(importHistoryId);
+    const handleOnEndWorker = async () => {
+      const updatedImportHistory = await ImportHistory.findOne({
+        _id: importHistoryId
+      });
 
-  const results = splitToCore(importHistory.ids || []);
+      if (updatedImportHistory && updatedImportHistory.status === 'Removed') {
+        await ImportHistory.deleteOne({ _id: importHistoryId });
+      }
+    };
 
-  const workerFile = getWorkerFile('importHistoryRemove');
+    myWorker.setHandleEnd(handleOnEndWorker);
 
-  const workerPath = path.resolve(workerFile);
+    const importHistory = await ImportHistories.getImportHistory(
+      importHistoryId
+    );
 
-  await createWorkers(workerPath, { contentType, importHistoryId }, results);
+    const ids = importHistory.ids || [];
 
-  return { status: 'ok' };
+    const workerPath = path.resolve(getWorkerFile('importHistoryRemove'));
+
+    const calc = Math.ceil(ids.length / WORKER_BULK_LIMIT);
+    const results: any[] = [];
+
+    for (let index = 0; index < calc; index++) {
+      const start = index * WORKER_BULK_LIMIT;
+      const end = start + WORKER_BULK_LIMIT;
+      const row = ids.slice(start, end);
+
+      results.push(row);
+    }
+
+    for (const result of results) {
+      await myWorker.createWorker(workerPath, {
+        contentType,
+        importHistoryId,
+        result
+      });
+    }
+
+    return { status: 'ok' };
+  } catch (e) {
+    debugWorkers('Failed to remove import: ', e.message);
+    throw e;
+  }
 };
 
 export const receiveImportCancel = () => {
-  clearIntervals();
-
-  removeWorkers();
+  myWorker.removeWorkers();
 
   return { status: 'ok' };
-};
-
-export const IMPORT_CONTENT_TYPE = {
-  CUSTOMER: 'customer',
-  COMPANY: 'company',
-  LEAD: 'lead',
-  PRODUCT: 'product',
-  DEAL: 'deal',
-  TASK: 'task',
-  TICKET: 'ticket'
 };
 
 export const beforeImport = async (type: string) => {
@@ -244,30 +160,51 @@ export const receiveImportCreate = async (content: any) => {
       fileType
     } = content;
 
-    const myWorker = new CustomWorker();
-
     let fieldNames;
     let properties;
+    let validationValues;
+    let importHistory;
 
     if (fileType !== 'csv') {
       throw new Error('Invalid file type');
     }
 
-    const importHistory = await ImportHistory.create({
+    const updateImportHistory = async doc => {
+      return ImportHistory.updateOne({ _id: importHistory.id }, doc);
+    };
+
+    const updateValidationValues = async () => {
+      validationValues = await beforeImport(type);
+    };
+
+    const handleOnEndBulkOperation = async () => {
+      const updatedImportHistory = await ImportHistory.findOne({
+        _id: importHistory.id
+      });
+
+      if (!updatedImportHistory) {
+        throw new Error('Import history not found');
+      }
+
+      if (
+        updatedImportHistory.failed + updatedImportHistory.success ===
+        updatedImportHistory.total
+      ) {
+        await updateImportHistory({
+          $set: { status: 'Done', percentage: 100 }
+        });
+      }
+
+      await deleteFile(fileName);
+    };
+
+    importHistory = await ImportHistory.create({
       contentType: type,
       userId: user._id,
       date: Date.now()
     });
 
-    const updateImportHistory = async doc => {
-      return ImportHistory.updateOne({ _id: importHistory.id }, doc);
-    };
-
-    let validationValues;
-
-    const updateValidationValues = async () => {
-      validationValues = await beforeImport(type);
-    };
+    myWorker.setHandleEnd(handleOnEndBulkOperation);
 
     // collect initial validation values
     await updateValidationValues();
@@ -320,12 +257,6 @@ export const receiveImportCreate = async (content: any) => {
     };
 
     const handleBulkOperation = async (rows: any, totalRows: number) => {
-      const inc: { success: number; failed: number; percentage: number } = {
-        success: 0,
-        failed: 0,
-        percentage: 0
-      };
-
       let errorMsgs: Error[] = [];
 
       if (!importHistory.total) {
@@ -363,47 +294,24 @@ export const receiveImportCreate = async (content: any) => {
         contentType: type,
         properties,
         importHistoryId: importHistory._id,
-        result
+        result,
+        percentage: Number(((result.length / totalRows) * 100).toFixed(3))
       });
 
-      // update import history status
-      inc.success += result.length;
-      inc.failed += errorMsgs.length;
-      inc.percentage += Number(((result.length / totalRows) * 100).toFixed(3));
-
-      await updateImportHistory({ $inc: inc, $push: { errorMsgs } });
+      await updateImportHistory({
+        $inc: { failed: errorMsgs.length },
+        $push: { errorMsgs }
+      });
       await updateValidationValues();
 
       errorMsgs = [];
     };
 
-    const handleOnEndBulkOperation = async () => {
-      const updatedImportHistory = await ImportHistory.findOne({
-        _id: importHistory.id
-      });
-
-      if (!updatedImportHistory) {
-        throw new Error('Import history not found');
-      }
-
-      if (
-        updatedImportHistory.failed + updatedImportHistory.success ===
-        updatedImportHistory.total
-      ) {
-        await updateImportHistory({
-          $set: { status: 'Done', percentage: 100 }
-        });
-      }
-
-      await deleteFile(fileName);
-    };
-
     importBulkStream({
       fileName,
       uploadType,
-      bulkLimit: 100,
-      handleBulkOperation,
-      handleOnEndBulkOperation
+      bulkLimit: WORKER_BULK_LIMIT,
+      handleBulkOperation
     });
 
     return { id: importHistory.id };
