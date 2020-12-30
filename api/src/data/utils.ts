@@ -1381,7 +1381,7 @@ export const getErxesSaasDomain = () => {
     : 'http://localhost:3500';
 };
 
-const getCsvTotalSize = ({
+const getCsvTotalRowCount = ({
   filePath,
   uploadType,
   s3,
@@ -1445,14 +1445,12 @@ export const importBulkStream = ({
   fileName,
   bulkLimit,
   uploadType,
-  handleBulkOperation,
-  handleOnEndBulkOperation
+  handleBulkOperation
 }: {
   fileName: string;
   bulkLimit: number;
   uploadType: 'S3' | 'local';
   handleBulkOperation: (rows: any, total: number) => Promise<void>;
-  handleOnEndBulkOperation: () => Promise<void>;
 }) => {
   return new Promise(async (resolve, reject) => {
     let rows: any = [];
@@ -1470,7 +1468,7 @@ export const importBulkStream = ({
 
       const params = { Bucket: AWS_BUCKET, Key: fileName };
 
-      total = await getCsvTotalSize({ s3, params, uploadType: 's3' });
+      total = await getCsvTotalRowCount({ s3, params, uploadType: 's3' });
 
       readSteam = s3.getObject(params).createReadStream();
       readSteam.on('error', errorCallback);
@@ -1478,7 +1476,7 @@ export const importBulkStream = ({
       const filePath: string = `${uploadsFolderPath}/${fileName}`;
 
       readSteam = fs.createReadStream(filePath);
-      total = await getCsvTotalSize({ filePath, uploadType });
+      total = await getCsvTotalRowCount({ filePath, uploadType });
     }
 
     // exclude column
@@ -1502,7 +1500,6 @@ export const importBulkStream = ({
       .pipe(new Writable({ write, objectMode: true }))
       .on('finish', () => {
         handleBulkOperation(rows, total).then(() => {
-          handleOnEndBulkOperation();
           resolve('success');
         });
       })
