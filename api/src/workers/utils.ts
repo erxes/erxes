@@ -28,7 +28,7 @@ export const connect = () =>
 
 dotenv.config();
 
-const WORKER_BULK_LIMIT = 1000;
+const WORKER_BULK_LIMIT = 500;
 
 const myWorker = new CustomWorker();
 
@@ -147,10 +147,12 @@ const importBulkStream = ({
       rows.push(row);
 
       if (rows.length === bulkLimit) {
-        return handleBulkOperation(rows, total).then(() => {
-          rows = [];
-          callback();
-        });
+        return handleBulkOperation(rows, total)
+          .then(() => {
+            rows = [];
+            callback();
+          })
+          .catch(e => reject(e));
       }
 
       return callback();
@@ -164,7 +166,7 @@ const importBulkStream = ({
           resolve('success');
         });
       })
-      .on('error', () => reject('fail'));
+      .on('error', e => reject(e));
   });
 };
 
@@ -309,113 +311,106 @@ export const beforeImport = async (type: string) => {
 };
 
 export const receiveImportCreate = async (content: any) => {
-  try {
-    const {
-      fileName,
-      type,
-      scopeBrandIds,
-      user,
-      uploadType,
-      fileType
-    } = content;
+  const { fileName, type, scopeBrandIds, user, uploadType, fileType } = content;
 
-    let fieldNames;
-    let properties;
-    let validationValues;
-    let importHistory;
+  let fieldNames;
+  let properties;
+  let validationValues;
+  let importHistory;
 
-    if (fileType !== 'csv') {
-      throw new Error('Invalid file type');
-    }
+  if (fileType !== 'csv') {
+    throw new Error('Invalid file type');
+  }
 
-    const updateImportHistory = async doc => {
-      return ImportHistory.updateOne({ _id: importHistory.id }, doc);
-    };
+  const updateImportHistory = async doc => {
+    return ImportHistory.updateOne({ _id: importHistory.id }, doc);
+  };
 
-    const updateValidationValues = async () => {
-      validationValues = await beforeImport(type);
-    };
+  const updateValidationValues = async () => {
+    validationValues = await beforeImport(type);
+  };
 
-    const handleOnEndBulkOperation = async () => {
-      const updatedImportHistory = await ImportHistory.findOne({
-        _id: importHistory.id
-      });
-
-      if (!updatedImportHistory) {
-        throw new Error('Import history not found');
-      }
-
-      if (
-        updatedImportHistory.failed + updatedImportHistory.success ===
-        updatedImportHistory.total
-      ) {
-        await updateImportHistory({
-          $set: { status: 'Done', percentage: 100 }
-        });
-      }
-
-      await deleteFile(fileName);
-    };
-
-    importHistory = await ImportHistory.create({
-      contentType: type,
-      userId: user._id,
-      date: Date.now()
+  const handleOnEndBulkOperation = async () => {
+    const updatedImportHistory = await ImportHistory.findOne({
+      _id: importHistory.id
     });
 
-    myWorker.setHandleEnd(handleOnEndBulkOperation);
+    if (!updatedImportHistory) {
+      throw new Error('Import history not found');
+    }
 
-    // collect initial validation values
-    await updateValidationValues();
+    if (
+      updatedImportHistory.failed + updatedImportHistory.success ===
+      updatedImportHistory.total
+    ) {
+      await updateImportHistory({
+        $set: { status: 'Done', percentage: 100 }
+      });
+    }
 
-    const isRowValid = (row: any) => {
-      const errors: Error[] = [];
+    await deleteFile(fileName);
+  };
 
-      const { LEAD, CUSTOMER, COMPANY } = IMPORT_CONTENT_TYPE;
+  importHistory = await ImportHistory.create({
+    contentType: type,
+    userId: user._id,
+    date: Date.now()
+  });
 
-      const {
-        existingCodes,
-        existingEmails,
-        existingPhones,
-        existingNames
-      } = validationValues;
+  myWorker.setHandleEnd(handleOnEndBulkOperation);
 
-      if (type === CUSTOMER || type === LEAD) {
-        const { primaryEmail, primaryPhone, code } = row;
+  // collect initial validation values
+  await updateValidationValues();
 
-        if (existingCodes.includes(code)) {
-          errors.push(new Error(`Duplicated code: ${code}`));
-        }
+  const isRowValid = (row: any) => {
+    const errors: Error[] = [];
 
-        if (existingEmails.includes(primaryEmail)) {
-          errors.push(new Error(`Duplicated email: ${primaryEmail}`));
-        }
+    const { LEAD, CUSTOMER, COMPANY } = IMPORT_CONTENT_TYPE;
 
-        if (existingPhones.includes(primaryPhone)) {
-          errors.push(new Error(`Duplicated phone: ${primaryPhone}`));
-        }
+    const {
+      existingCodes,
+      existingEmails,
+      existingPhones,
+      existingNames
+    } = validationValues;
 
-        return errors;
+    if (type === CUSTOMER || type === LEAD) {
+      const { primaryEmail, primaryPhone, code } = row;
+
+      if (existingCodes.includes(code)) {
+        errors.push(new Error(`Duplicated code: ${code}`));
       }
 
-      if (type === COMPANY) {
-        const { primaryName, code } = row;
+      if (existingEmails.includes(primaryEmail)) {
+        errors.push(new Error(`Duplicated email: ${primaryEmail}`));
+      }
 
-        if (existingNames.includes(primaryName)) {
-          errors.push(new Error(`Duplicated name: ${primaryName}`));
-        }
-
-        if (existingCodes.includes(code)) {
-          errors.push(new Error(`Duplicated code: ${code}`));
-        }
-
-        return errors;
+      if (existingPhones.includes(primaryPhone)) {
+        errors.push(new Error(`Duplicated phone: ${primaryPhone}`));
       }
 
       return errors;
-    };
+    }
 
-    const handleBulkOperation = async (rows: any, totalRows: number) => {
+    if (type === COMPANY) {
+      const { primaryName, code } = row;
+
+      if (existingNames.includes(primaryName)) {
+        errors.push(new Error(`Duplicated name: ${primaryName}`));
+      }
+
+      if (existingCodes.includes(code)) {
+        errors.push(new Error(`Duplicated code: ${code}`));
+      }
+
+      return errors;
+    }
+
+    return errors;
+  };
+
+  const handleBulkOperation = async (rows: any, totalRows: number) => {
+    try {
       let errorMsgs: Error[] = [];
 
       if (!importHistory.total) {
@@ -465,20 +460,20 @@ export const receiveImportCreate = async (content: any) => {
       await updateValidationValues();
 
       errorMsgs = [];
-    };
+    } catch (e) {
+      debugWorkers(e.message);
+      throw e;
+    }
+  };
 
-    importBulkStream({
-      fileName,
-      uploadType,
-      bulkLimit: WORKER_BULK_LIMIT,
-      handleBulkOperation
-    });
+  importBulkStream({
+    fileName,
+    uploadType,
+    bulkLimit: WORKER_BULK_LIMIT,
+    handleBulkOperation
+  });
 
-    return { id: importHistory.id };
-  } catch (e) {
-    debugWorkers(e.message);
-    throw e;
-  }
+  return { id: importHistory.id };
 };
 
 export const generateUid = () => {

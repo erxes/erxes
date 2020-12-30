@@ -57,7 +57,51 @@ const create = async ({
 
   let objects;
 
-  const conformityMapping = {};
+  const conformityCompanyMapping = {};
+  const conformityCustomerMapping = {};
+
+  const createConformityMapping = async ({
+    index,
+    field,
+    values,
+    conformityTypeModel,
+    relType
+  }: {
+    index: number;
+    field: string;
+    values: string[];
+    conformityTypeModel: any;
+    relType: string;
+  }) => {
+    if (values.length === 0 && contentType !== relType) {
+      return;
+    }
+
+    const mapping =
+      relType === 'customer'
+        ? conformityCustomerMapping
+        : conformityCompanyMapping;
+
+    const ids = await conformityTypeModel
+      .find({ [field]: { $in: values } })
+      .distinct('_id');
+
+    if (ids.length === 0) {
+      return;
+    }
+
+    for (const id of ids) {
+      if (!mapping[index]) {
+        mapping[index] = [];
+      }
+
+      mapping[index].push({
+        relType,
+        mainType: contentType === 'lead' ? 'customer' : contentType,
+        relTypeId: id
+      });
+    }
+  };
 
   if (contentType === CUSTOMER || contentType === LEAD) {
     docs.map(async (doc, docIndex) => {
@@ -90,23 +134,13 @@ const create = async ({
       doc.createdAt = new Date();
       doc.modifiedAt = new Date();
 
-      if (doc.companiesPrimaryNames && doc.companiesPrimaryNames.length > 0) {
-        const companyIds = await Companies.find({
-          primaryName: { $in: doc.companiesPrimaryNames }
-        }).distinct('_id');
-
-        for (const id of companyIds) {
-          if (!conformityMapping[docIndex]) {
-            conformityMapping[docIndex] = [];
-          }
-
-          conformityMapping[docIndex].push({
-            relType: 'company',
-            mainType: contentType === 'lead' ? 'customer' : contentType,
-            relTypeId: id
-          });
-        }
-      }
+      await createConformityMapping({
+        index: docIndex,
+        field: 'primaryName',
+        values: doc.companiesPrimaryNames || [],
+        conformityTypeModel: Companies,
+        relType: 'company'
+      });
     });
 
     objects = await Customers.insertMany(docs);
@@ -127,23 +161,13 @@ const create = async ({
       doc.createdAt = new Date();
       doc.modifiedAt = new Date();
 
-      if (doc.customersPrimaryEmails && doc.customersPrimaryEmails.length > 0) {
-        const customerIds = await Customers.find({
-          primaryEmail: { $in: doc.customersPrimaryEmails }
-        }).distinct('_id');
-
-        for (const id of customerIds) {
-          if (!conformityMapping[docIndex]) {
-            conformityMapping[docIndex] = [];
-          }
-
-          conformityMapping[docIndex].push({
-            relType: 'customer',
-            mainType: contentType === 'lead' ? 'customer' : contentType,
-            relTypeId: id
-          });
-        }
-      }
+      await createConformityMapping({
+        index: docIndex,
+        field: 'primaryEmail',
+        values: doc.customersPrimaryEmails || [],
+        conformityTypeModel: Customers,
+        relType: 'customer'
+      });
     });
 
     objects = await Companies.insertMany(docs);
@@ -177,21 +201,39 @@ const create = async ({
   }
 
   if ([DEAL, TASK, TICKET].includes(contentType)) {
-    const conversationIds = docs.map(doc => doc.sourceConversationId);
+    const conversationIds = docs
+      .map(doc => doc.sourceConversationId)
+      .filter(item => item);
 
     const conversations = await model.find({
       sourceConversationId: { $in: conversationIds }
     });
 
-    if (conversations) {
+    if (conversations && conversations.length > 0) {
       throw new Error(`Already converted a ${contentType}`);
     }
 
-    for (const doc of docs) {
+    docs.map(async (doc, docIndex) => {
       doc.createdAt = new Date();
       doc.modifiedAt = new Date();
       doc.searchText = fillSearchTextItem(doc);
-    }
+
+      await createConformityMapping({
+        index: docIndex,
+        field: 'primaryEmail',
+        values: doc.customersPrimaryEmails || [],
+        conformityTypeModel: Customers,
+        relType: 'customer'
+      });
+
+      await createConformityMapping({
+        index: docIndex,
+        field: 'primaryName',
+        values: doc.companiesPrimaryNames || [],
+        conformityTypeModel: Companies,
+        relType: 'company'
+      });
+    });
 
     objects = await model.insertMany(docs);
 
@@ -201,17 +243,17 @@ const create = async ({
     });
   }
 
-  if ([CUSTOMER, COMPANY, LEAD].includes(contentType)) {
-    await ActivityLogs.createCocLogs({
-      cocs: objects,
-      contentType
-    });
+  // create conformity
+  if (contentType !== PRODUCT) {
+    const createConformity = async mapping => {
+      if (Object.keys(mapping).length === 0) {
+        return;
+      }
 
-    if (Object.keys(conformityMapping).length > 0) {
       const conformityDocs: IConformityAdd[] = [];
 
       objects.map(async (object, objectIndex) => {
-        const items = conformityMapping[objectIndex] || [];
+        const items = mapping[objectIndex] || [];
 
         if (items.length === 0) {
           return;
@@ -225,7 +267,17 @@ const create = async ({
       });
 
       await Conformities.insertMany(conformityDocs);
-    }
+    };
+
+    await createConformity(conformityCompanyMapping);
+    await createConformity(conformityCustomerMapping);
+  }
+
+  if ([CUSTOMER, COMPANY, LEAD].includes(contentType)) {
+    await ActivityLogs.createCocLogs({
+      cocs: objects,
+      contentType
+    });
   }
 
   return objects;
