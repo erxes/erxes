@@ -46,6 +46,31 @@ const getWorkerFile = fileName => {
   return `./dist/workers/${fileName}.worker.js`;
 };
 
+export const clearEmptyValues = (obj: any) => {
+  Object.keys(obj).forEach(key => {
+    if (obj[key] === '' || obj[key] === 'unknown') {
+      delete obj[key];
+    }
+
+    if (Array.isArray(obj[key]) && obj[key].length === 0) {
+      delete obj[key];
+    }
+  });
+
+  return obj;
+};
+
+export const updateDuplicatedValue = async (
+  model: any,
+  field: string,
+  doc: any
+) => {
+  return model.updateOne(
+    { [field]: doc[field] },
+    { $set: { ...doc, modifiedAt: new Date() } }
+  );
+};
+
 // csv file import, cancel, removal
 export const receiveImportRemove = async (content: any) => {
   try {
