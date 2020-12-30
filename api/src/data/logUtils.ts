@@ -1003,19 +1003,16 @@ const gatherDescriptions = async (
       extraDesc.push({ contentTypeId: obj.contentTypeId, name: itemName });
 
       if (action === LOG_ACTIONS.CREATE) {
-        description = `"${
-          obj.title
-        }" has been created in ${obj.contentType.toUpperCase()} "${itemName}"`;
+        description = `"${obj.title
+          }" has been created in ${obj.contentType.toUpperCase()} "${itemName}"`;
       }
       if (action === LOG_ACTIONS.UPDATE) {
-        description = `"${
-          obj.title
-        }" saved in ${obj.contentType.toUpperCase()} "${itemName}" has been edited`;
+        description = `"${obj.title
+          }" saved in ${obj.contentType.toUpperCase()} "${itemName}" has been edited`;
       }
       if (action === LOG_ACTIONS.DELETE) {
-        description = `"${
-          obj.title
-        }" from ${obj.contentType.toUpperCase()} "${itemName}" has been removed`;
+        description = `"${obj.title
+          }" from ${obj.contentType.toUpperCase()} "${itemName}" has been removed`;
       }
 
       break;
@@ -1484,7 +1481,11 @@ const afterMutations = async (params: IFinalLogParams, user: IUserDocument) => {
     // mutation after wrapper
     if (callAfterMutations) {
       const { type, action } = params;
-      if (callAfterMutations[type] && callAfterMutations[type][action].length) {
+      if (
+        callAfterMutations[type] &&
+        callAfterMutations[type][action] &&
+        callAfterMutations[type][action].length
+      ) {
         for (const handler of callAfterMutations[type][action]) {
           await handler({}, params, {
             user,
