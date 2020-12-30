@@ -240,3 +240,102 @@ export interface ICalendarParams {
   color?: string;
   show?: boolean;
 }
+
+export interface INylasSchedulePageDoc {
+  name: string;
+  slug: string;
+  timezone: string;
+  calendarIds: string[];
+  event: {
+    title: string;
+    location: string;
+    duration: number;
+  };
+  appearance?: {
+    color: string;
+    companyName?: string;
+    logo?: string;
+    submitText?: string;
+    thankYouText?: string;
+  };
+  booking?: {
+    openingHours?: {
+      days: string[];
+      start: string;
+      end: string;
+    };
+    additionalFields?: {
+      label: string;
+      name?: string;
+      required: boolean;
+      type: string;
+    };
+    cancellationPolicy?: string;
+    confirmationMethod?: string;
+    minBookingNotice?: number;
+    availableDaysInFuture?: number;
+    minBuffer?: number;
+    minCancellationNotice?: number;
+  };
+}
+export interface ISchedulePageConfig {
+  eas_server_host?: string;
+  imap_username?: string;
+  imap_password?: string;
+  smtp_username?: string;
+  smtp_password?: string;
+  imap_host?: string;
+  imap_port?: number;
+  smtp_host?: string;
+  smtp_port?: number;
+  ssl_required?: boolean;
+  redirect_uri?: string;
+  google_refresh_token?: string;
+  google_client_id?: string;
+  google_client_secret?: string;
+  email?: string;
+  username?: string;
+  password?: string;
+}
+export interface IPage {
+  app_client_id: string;
+  app_organization_id: number;
+  created_at: string;
+  edit_token: string;
+  id: number;
+  modified_at: string;
+  name: string;
+  slug: string;
+  config: {
+    appearance: {
+      color: string;
+      company_name: string;
+      logo: string;
+      show_autoschedule: boolean;
+      show_nylas_branding: boolean;
+      submit_text: string;
+      thank_you_text: string;
+    };
+    booking: {
+      additional_fields: any;
+      available_days_in_future: number;
+      calendar_invite_to_guests: boolean;
+      confirmation_emails_to_guests: boolean;
+      confirmation_emails_to_host: boolean;
+      confirmation_method: string;
+      min_booking_notice: number;
+      min_buffer: number;
+      min_cancellation_notice: number;
+      opening_hours: any;
+      scheduling_method: string;
+      cancellation_policy: string;
+    };
+    calendar_ids: {
+      [key: string]: { availability: any; booking: string };
+    };
+    event: { duration: number; location: string; title: string };
+    locale: string;
+    reminders: any;
+    timezone: string;
+  };
+}

@@ -12,6 +12,21 @@ cube(`Conversations`, {
   },
 
   dimensions: {
+    brand: {
+      sql: `${CUBE}."integrationId"`,
+      type: `string`
+    },
+
+    status: {
+      sql: `status`,
+      type: `string`
+    },
+
+    assignedUser: {
+      sql: `${CUBE}."assignedUserId"`,
+      type: `string`
+    },
+
     integrationName: {
       sql: `${CUBE}."integrationId"`,
       type: `string`
@@ -22,32 +37,27 @@ cube(`Conversations`, {
       type: `string`
     },
 
-    messagecount: {
-      sql: `${CUBE}."messageCount"`,
-      type: `string`
-    },
-
-    status: {
-      sql: `status`,
-      type: `string`
-    },
-
     firstRespondedUser: {
       sql: `${CUBE}."firstRespondedUserId"`,
       type: `string`
     },
 
-    createdat: {
+    createdDate: {
       sql: `${CUBE}."createdAt"`,
       type: `time`
     },
 
-    updatedat: {
+    updatedDate: {
       sql: `${CUBE}."updatedAt"`,
       type: `time`
     },
 
-    firstrespondeddate: {
+    closedDate: {
+      sql: `${CUBE}."closedAt"`,
+      type: `time`
+    },
+
+    firstRespondedDate: {
       sql: `${CUBE}."firstRespondedDate"`,
       type: `time`
     }

@@ -5,8 +5,6 @@
   "dependencies": {
     "@daily-co/daily-js": "^0.9.995",
     "@nateradebaugh/react-datetime": "^4.0.0-rc.10",
-    "@nivo/line": "0.35.0",
-    "@nivo/pie": "0.35.0",
     "@types/bunyan": "^1.8.6",
     "@types/draft-js": "^0.10.24",
     "@types/enzyme": "^3.1.12",

@@ -230,6 +230,10 @@ class EditForm extends React.Component<FinalProps, State> {
   };
 
   render() {
+    if (!this.state.calendar) {
+      return null;
+    }
+
     return (
       <Modal
         enforceFocus={false}

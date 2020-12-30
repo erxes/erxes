@@ -2,11 +2,10 @@ import { Document, Schema } from 'mongoose';
 import { field } from './utils';
 
 export interface IBrandEmailConfig {
+  email?: string;
   type?: string;
   template?: string;
 }
-
-interface IBrandEmailConfigDocument extends IBrandEmailConfig, Document {}
 
 export interface IBrand {
   code?: string;
@@ -18,19 +17,26 @@ export interface IBrand {
 
 export interface IBrandDocument extends IBrand, Document {
   _id: string;
-  emailConfig?: IBrandEmailConfigDocument;
   createdAt: Date;
 }
 
 // Mongoose schemas ===========
-export const brandEmailConfigSchema = new Schema({
-  type: field({
-    type: String,
-    enum: ['simple', 'custom'],
-    label: 'Type'
-  }),
-  template: field({ type: String, label: 'Template' })
-});
+export const brandEmailConfigSchema = new Schema(
+  {
+    type: field({
+      type: String,
+      enum: ['simple', 'custom'],
+      label: 'Type'
+    }),
+    template: field({ type: String, label: 'Template', optional: true }),
+    email: field({
+      type: String,
+      label: 'Email',
+      optional: true
+    })
+  },
+  { _id: false }
+);
 
 export const brandSchema = new Schema({
   _id: field({ pkey: true }),

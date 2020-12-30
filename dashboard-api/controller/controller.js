@@ -1,8 +1,8 @@
 const cubejs = require('@cubejs-client/core');
 const elasticsearch = require('elasticsearch');
-const resolvers = require('./constants.js');
+const { resolvers } = require('./constants.js');
 
-const { CUBEJS_TOKEN, CUBEJS_URL, CUBEJS_DB_URL } = process.env;
+const { CUBEJS_URL, CUBEJS_DB_URL } = process.env;
 
 const client = new elasticsearch.Client({
   hosts: [CUBEJS_DB_URL]
