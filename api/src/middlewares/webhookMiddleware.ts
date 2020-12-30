@@ -33,6 +33,7 @@ const findCustomer = async doc => {
 };
 
 const webhookMiddleware = async (req, res, next) => {
+  console.log('HEADERS = ', req.headers);
   try {
     const integration = await Integrations.findOne({ _id: req.params.id });
 

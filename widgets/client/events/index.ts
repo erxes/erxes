@@ -24,6 +24,7 @@ const Events: any = {
   },
 
   sendRequest(path: string, data: any) {
+    console.log('path: ',path)
     const { API_URL } = getEnv();
 
     fetch(`${API_URL}/${path}`, {

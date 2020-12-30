@@ -15,6 +15,8 @@ widgetConnect({
 
     connection.setting = setting;
 
+    console.log(connection);
+
     initStorage(storage);
 
     return client.mutate({

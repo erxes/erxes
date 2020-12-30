@@ -164,11 +164,11 @@ const readConversationMessages = `
 const connect = `
   mutation connect($brandCode: String!, $email: String, $phone: String, $code: String
     $isUser: Boolean, $data: JSON,
-    $companyData: JSON, $cachedCustomerId: String) {
+    $companyData: JSON, $cachedCustomerId: String, $ipAddress: String) {
 
     widgetsMessengerConnect(brandCode: $brandCode, email: $email, phone: $phone, code: $code,
       isUser: $isUser, data: $data, companyData: $companyData,
-      cachedCustomerId: $cachedCustomerId) {
+      cachedCustomerId: $cachedCustomerId, ipAddress: $ipAddress) {
       integrationId,
       messengerData,
       languageCode,
@@ -183,8 +183,8 @@ const connect = `
 `;
 
 const saveBrowserInfo = `
-  mutation widgetsSaveBrowserInfo($customerId: String!  $browserInfo: JSON!) {
-    widgetsSaveBrowserInfo(customerId: $customerId browserInfo: $browserInfo) {
+  mutation widgetsSaveBrowserInfo($customerId: String  $browserInfo: JSON!, $integrationId: String!) {
+    widgetsSaveBrowserInfo(customerId: $customerId browserInfo: $browserInfo integrationId: $integrationId) {
       ${messageFields}
     }
   }

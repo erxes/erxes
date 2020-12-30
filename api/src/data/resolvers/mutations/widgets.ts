@@ -34,6 +34,7 @@ import { trackViewPageEvent } from '../../../events';
 import memoryStorage from '../../../inmemoryStorage';
 import { graphqlPubsub } from '../../../pubsub';
 import { AUTO_BOT_MESSAGES, BOT_MESSAGE_TYPES } from '../../constants';
+import { visitorLog } from '../../logUtils';
 import {
   registerOnboardHistory,
   sendEmail,
@@ -378,13 +379,13 @@ const widgetMutations = {
       deviceToken
     };
 
-    customer = customer
-      ? await Customers.updateMessengerCustomer({
-          _id: customer._id,
-          doc,
-          customData
-        })
-      : await Customers.createMessengerCustomer({ doc, customData });
+    if (customer) {
+      customer = await Customers.updateMessengerCustomer({
+        _id: customer._id,
+        doc,
+        customData
+      });
+    }
 
     // get or create company
     if (companyData && companyData.name) {
@@ -405,13 +406,15 @@ const widgetMutations = {
         });
       }
 
-      // add company to customer's companyIds list
-      await Conformities.create({
-        mainType: 'customer',
-        mainTypeId: customer._id,
-        relType: 'company',
-        relTypeId: company._id
-      });
+      if (customer) {
+        // add company to customer's companyIds list
+        await Conformities.create({
+          mainType: 'customer',
+          mainTypeId: customer._id,
+          relType: 'company',
+          relTypeId: company._id
+        });
+      }
     }
 
     if (integration.createdUserId) {
@@ -425,7 +428,8 @@ const widgetMutations = {
       uiOptions: integration.uiOptions,
       languageCode: integration.languageCode,
       messengerData: await getMessengerData(integration),
-      customerId: customer._id,
+      customerId: customer?._id,
+      visitorId: '',
       brand
     };
   },
@@ -673,9 +677,16 @@ const widgetMutations = {
     _root,
     {
       customerId,
-      browserInfo
-    }: { customerId: string; browserInfo: IBrowserInfo }
+      browserInfo,
+      integrationId
+    }: { customerId: string; browserInfo: IBrowserInfo; integrationId: string }
   ) {
+    if (!customerId) {
+      const doc = { integrationId, location: browserInfo };
+      const visitor = await visitorLog(doc);
+      console.log('V = ', visitor);
+    }
+
     // update location
     await Customers.updateLocation(customerId, browserInfo);
 

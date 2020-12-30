@@ -75,11 +75,13 @@ export const mutations = `
 
     cachedCustomerId: String
     deviceToken: String
+    ipAddress: String
   ): MessengerConnectResponse
 
   widgetsSaveBrowserInfo(
-    customerId: String!
+    customerId: String
     browserInfo: JSON!
+    integrationId: String!
   ): ConversationMessage
 
   widgetsInsertMessage(

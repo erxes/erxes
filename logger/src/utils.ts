@@ -1,5 +1,6 @@
 import { debugBase } from './debuggers';
 import Logs from './models/Logs';
+import Visitors from './models/Visitors';
 
 /**
  * Takes 2 arrays and detect changes between them.
@@ -266,4 +267,11 @@ export const receivePutLogCommand = async params => {
     description,
     extraDesc
   });
+};
+
+export const receiveVisitorLog = async params => {
+  debugBase(params);
+  const { location, integrationId } = params;
+  console.log('ASD = ', { ...location, integrationId });
+  return Visitors.createOrUpdate({ ...location, integrationId });
 };

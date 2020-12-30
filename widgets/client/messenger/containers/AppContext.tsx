@@ -171,7 +171,8 @@ export class AppProvider extends React.Component<{}, IState> {
       callback: (browserInfo: IBrowserInfo) => {
         const variables = {
           customerId: connection.data.customerId,
-          browserInfo
+          browserInfo,
+          integrationId: connection.data.integrationId
         };
 
         client
