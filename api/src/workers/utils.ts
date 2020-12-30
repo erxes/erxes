@@ -461,6 +461,7 @@ export const receiveImportCreate = async (content: any) => {
         $inc: { failed: errorMsgs.length },
         $push: { errorMsgs }
       });
+
       await updateValidationValues();
 
       errorMsgs = [];

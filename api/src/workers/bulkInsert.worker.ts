@@ -51,14 +51,15 @@ const create = async ({
     COMPANY,
     DEAL,
     TASK,
-    TICKET
+    TICKET,
+    LEAD
   } = IMPORT_CONTENT_TYPE;
 
   let objects;
 
   const conformityMapping = {};
 
-  if (contentType === CUSTOMER) {
+  if (contentType === CUSTOMER || contentType === LEAD) {
     docs.map(async (doc, docIndex) => {
       if (!doc.ownerId && user) {
         doc.ownerId = user._id;
@@ -200,7 +201,7 @@ const create = async ({
     });
   }
 
-  if (contentType === CUSTOMER || contentType === COMPANY) {
+  if ([CUSTOMER, COMPANY, LEAD].includes(contentType)) {
     await ActivityLogs.createCocLogs({
       cocs: objects,
       contentType
