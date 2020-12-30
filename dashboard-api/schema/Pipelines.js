@@ -16,9 +16,9 @@ cube(`Pipelines`, {
         templateid,
         userid,
         watcheduserids,
-        createdat,
-        enddate,
-        startdate
+        createdDate,
+        endDate,
+        startDate
       ]
     }
   },
@@ -99,17 +99,17 @@ cube(`Pipelines`, {
       type: `string`
     },
 
-    createdat: {
+    createdDate: {
       sql: `${CUBE}."createdAt"`,
       type: `time`
     },
 
-    enddate: {
+    endDate: {
       sql: `${CUBE}."endDate"`,
       type: `time`
     },
 
-    startdate: {
+    startDate: {
       sql: `${CUBE}."startDate"`,
       type: `time`
     }

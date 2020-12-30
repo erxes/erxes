@@ -20,10 +20,15 @@ export const queries = `
   brandsGetDefaultEmailConfig: String
 `;
 
+const mutationParams = `
+  name: String!
+  description: String
+  emailConfig: JSON
+`;
+
 export const mutations = `
-  brandsAdd(name: String!, description: String): Brand
-  brandsEdit(_id: String!, name: String!, description: String): Brand
+  brandsAdd(${mutationParams}): Brand
+  brandsEdit(_id: String! ${mutationParams}): Brand
   brandsRemove(_id: String!): JSON
-  brandsConfigEmail(_id: String!, emailConfig: JSON): Brand
   brandsManageIntegrations(_id: String!, integrationIds: [String]!): [Integration]
 `;

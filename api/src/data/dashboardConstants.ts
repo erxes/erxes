@@ -1,8 +1,6 @@
-export const CustomerSate = [
-  { label: 'Visitor', value: 'visitor' },
-  { label: 'Lead', value: 'lead' },
-  { label: 'Customer', value: 'customer' }
-];
+export const DashboardFilterTypes = {
+  User: ['modifiedBy', 'firstRespondedUser', 'assignedUser']
+};
 
 export const DashboardFilters = {
   'Customers.state': [
