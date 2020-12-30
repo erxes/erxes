@@ -3,7 +3,9 @@ import { debugImport, debugWorkers } from '../debuggers';
 
 export default class CustomWorker {
   readonly cpuCount: number = os.cpus().length;
+  handleEnd?: () => Promise<void>;
   workers: Array<{ id?: string; status: 'free' | 'busy'; instance?: any }> = [];
+  pendingWorkers: number = 0;
 
   constructor() {
     new Array(this.cpuCount).fill(0).forEach(() => {
@@ -13,6 +15,8 @@ export default class CustomWorker {
 
   async createWorker(workerPath: string, workerData: object) {
     try {
+      this.pendingWorkers++;
+
       const { worker, workerIndex } = await this.getFreeWorker();
 
       // tslint:disable-next-line
@@ -29,10 +33,16 @@ export default class CustomWorker {
       workerInstance.on('message', data => {
         const { action, message } = data;
 
+        this.pendingWorkers--;
+
         debugWorkers(message);
 
         if (action === 'remove') {
           this.removeWorker(workerInstance.threadId);
+        }
+
+        if (this.handleEnd && this.pendingWorkers === 0) {
+          this.handleEnd();
         }
       });
 
@@ -75,8 +85,12 @@ export default class CustomWorker {
         return findFreeWorker;
       };
 
-      interval = setInterval(findFreeWorker() as any, 2000);
+      interval = setInterval(findFreeWorker() as any, 1500);
     });
+  }
+
+  setHandleEnd(handleEnd: () => Promise<void>) {
+    this.handleEnd = handleEnd;
   }
 
   removeWorker(id: string) {
@@ -93,7 +107,9 @@ export default class CustomWorker {
 
   removeWorkers() {
     this.workers = this.workers.map(worker => {
-      worker.instance.postMessage('cancel');
+      if (worker && worker.instance) {
+        worker.instance.postMessage('cancel');
+      }
 
       return this.clearWorker(worker);
     });
