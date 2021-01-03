@@ -56,7 +56,7 @@ import {
 } from '../db/models/index';
 import memoryStorage from '../inmemoryStorage';
 import messageBroker from '../messageBroker';
-import { allConstants, allModels, callAfterMutations } from '../pluginUtils';
+import { allModels, callAfterMutations } from '../pluginUtils';
 import { graphqlPubsub } from '../pubsub';
 import { MODULE_NAMES } from './constants';
 import {
@@ -1489,7 +1489,6 @@ const afterMutations = async (params: IFinalLogParams, user: IUserDocument) => {
         for (const handler of callAfterMutations[type][action]) {
           await handler({}, params, {
             user,
-            constants: allConstants,
             models: allModels,
             memoryStorage,
             graphqlPubsub,

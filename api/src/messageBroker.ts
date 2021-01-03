@@ -8,7 +8,7 @@ import {
 } from './data/modules/integrations/receiveMessage';
 import { getEnv } from './data/utils';
 import memoryStorage from './inmemoryStorage';
-import { allConstants, allModels, pluginsConsumers } from './pluginUtils';
+import { allModels, pluginsConsumers } from './pluginUtils';
 import { graphqlPubsub } from './pubsub';
 
 dotenv.config();
@@ -51,7 +51,6 @@ export const initBroker = async (server?) => {
         channel.concat(prefix),
         async msg => mbroker.handler(
           msg, {
-          constants: allConstants,
           models: allModels,
           memoryStorage,
           graphqlPubsub
@@ -64,7 +63,6 @@ export const initBroker = async (server?) => {
         async msg => {
           await mbroker.handler(
             msg, {
-            constants: allConstants,
             models: allModels,
             memoryStorage,
             graphqlPubsub

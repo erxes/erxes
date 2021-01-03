@@ -1,11 +1,9 @@
 import * as fs from 'fs';
 import * as mongoose from 'mongoose';
 import * as path from 'path';
-import * as dataConstants from './data/constants';
 import { can, registerModule } from './data/permissions/utils';
 import { checkLogin } from './data/permissions/wrappers';
 import * as allModels from './db/models';
-import * as defConstants from './db/models/definitions/constants';
 import { debugError } from './debuggers';
 import memoryStorage from './inmemoryStorage';
 import { graphqlPubsub } from './pubsub';
@@ -13,7 +11,6 @@ import messageBroker from './messageBroker';
 import { withFilter } from 'apollo-server-express';
 
 export { allModels }
-export const allConstants = { ...dataConstants, ...defConstants }
 
 export const pluginsConsumers = {}
 
@@ -189,7 +186,6 @@ export const extendViaPlugins = (app, resolvers, typeDefDetails): Promise<any> =
   let { types, queries, mutations, subscriptions } = typeDefDetails;
 
   execInEveryPlugin(async ({
-    constants,
     isLastIteration,
     graphqlSchema,
     graphqlResolvers,
@@ -203,7 +199,7 @@ export const extendViaPlugins = (app, resolvers, typeDefDetails): Promise<any> =
   }) => {
     routes.forEach(route => {
       app[route.method.toLowerCase()](route.path, (req, res) => {
-        return res.send(route.handler({ req, models: allModels, constants: allConstants }));
+        return res.send(route.handler({ req, models: allModels }));
       })
     });
 
@@ -215,16 +211,6 @@ export const extendViaPlugins = (app, resolvers, typeDefDetails): Promise<any> =
 
         allModels[model.name] = mongoose.model(model.name.replace(/([a-z])([A-Z])/g, "$1_$2").toLowerCase(), model.schema);
       });
-    }
-
-    if (constants) {
-      for (const key of Object.keys(constants)) {
-        let all = [];
-        if (allConstants[key] && allConstants[key].ALL) {
-          all = allConstants[key].ALL.concat(constants[key].ALL);
-        }
-        allConstants[key] = { ...allConstants[key], ...constants[key], ...{ ALL: all } };
-      }
     }
 
     if (graphqlSchema.types) {
@@ -258,7 +244,6 @@ export const extendViaPlugins = (app, resolvers, typeDefDetails): Promise<any> =
     const generateCtx = context => {
       return {
         ...context,
-        constants: allConstants,
         models: allModels,
         memoryStorage,
         graphqlPubsub,
