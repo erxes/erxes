@@ -95,7 +95,9 @@ const getCsvTotalRowCount = ({
               total = event.Records.Payload.toString();
             }
           });
-          eventStream.on('end', resolve(total));
+          eventStream.on('end', () => {
+            return resolve(total);
+          });
         }
       );
     }
@@ -110,7 +112,7 @@ const importBulkStream = ({
 }: {
   fileName: string;
   bulkLimit: number;
-  uploadType: 'S3' | 'local';
+  uploadType: 'AWS' | 'local';
   handleBulkOperation: (rows: any, total: number) => Promise<void>;
 }) => {
   return new Promise(async (resolve, reject) => {
@@ -118,7 +120,7 @@ const importBulkStream = ({
     let readSteam;
     let total;
 
-    if (uploadType === 'S3') {
+    if (uploadType === 'AWS') {
       const AWS_BUCKET = await getConfig('AWS_BUCKET');
 
       const s3 = await createAWS();
@@ -138,10 +140,10 @@ const importBulkStream = ({
 
       readSteam = fs.createReadStream(filePath);
       total = await getCsvTotalRowCount({ filePath, uploadType });
-    }
 
-    // exclude column
-    total--;
+      // exclude column
+      total--;
+    }
 
     const write = (row, _, callback) => {
       rows.push(row);
