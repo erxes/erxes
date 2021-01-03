@@ -17,5 +17,5 @@ module.exports = {
     // without it, compilation error occurs in apolloClient
     "fetch": {}
   },
-  setupFilesAfterEnv: ["./src/setupTests.ts"],
+  setupFilesAfterEnv: ["./setupTests.ts"],
 };
