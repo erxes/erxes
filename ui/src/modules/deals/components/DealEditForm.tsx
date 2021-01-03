@@ -164,6 +164,7 @@ export default class DealEditForm extends React.Component<Props, State> {
 
       const Component = rsSection.section;
       return (<Component
+        key={plugin.name}
         mainType={'deal'}
         mainTypeId={deal._id}
       />)

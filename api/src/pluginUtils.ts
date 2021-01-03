@@ -1,3 +1,4 @@
+import { withFilter } from 'apollo-server-express';
 import * as fs from 'fs';
 import * as mongoose from 'mongoose';
 import * as path from 'path';
@@ -6,9 +7,8 @@ import { checkLogin } from './data/permissions/wrappers';
 import * as allModels from './db/models';
 import { debugError } from './debuggers';
 import memoryStorage from './inmemoryStorage';
-import { graphqlPubsub } from './pubsub';
 import messageBroker from './messageBroker';
-import { withFilter } from 'apollo-server-express';
+import { graphqlPubsub } from './pubsub';
 
 export { allModels }
 

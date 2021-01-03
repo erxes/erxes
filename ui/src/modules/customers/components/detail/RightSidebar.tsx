@@ -81,6 +81,7 @@ export default class RightSidebar extends React.Component<Props> {
 
       const Component = rsSection.section;
       return (<Component
+        key={plugin.name}
         mainType={'customer'}
         mainTypeId={customer._id}
         customerId={customer._id}
