@@ -61,7 +61,7 @@ class FilterGroup extends React.Component<Props> {
                   }
                   availableMembers={availableMembers}
                 >
-                  {m.dimension.title}
+                  {m.dimension.shortTitle}
                 </MemberDropdown>
               </RemoveButtonGroup>
               <Select

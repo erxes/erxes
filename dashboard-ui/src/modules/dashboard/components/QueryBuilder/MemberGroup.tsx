@@ -53,7 +53,7 @@ class MemberGroup extends React.Component<Props> {
               onClick={updateWith => updateMethods.update(m, updateWith)}
               schemaType={type}
             >
-              {m.title}
+              {m.shortTitle}
             </MemberDropdown>
           </RemoveButtonGroup>
         ))}

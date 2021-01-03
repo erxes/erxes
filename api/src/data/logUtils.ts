@@ -1,3 +1,8 @@
+import {
+  putCreateLog as putCreateLogC,
+  putDeleteLog as putDeleteLogC,
+  putUpdateLog as putUpdateLogC
+} from 'erxes-api-utils';
 import * as _ from 'underscore';
 import { IBrowserInfo } from '../db/models/Customers';
 
@@ -55,7 +60,7 @@ import {
   UsersGroups
 } from '../db/models/index';
 import messageBroker from '../messageBroker';
-import { MODULE_NAMES, RABBITMQ_QUEUES } from './constants';
+import { MODULE_NAMES } from './constants';
 import {
   getSubServiceDomain,
   registerOnboardHistory,
@@ -95,10 +100,6 @@ export interface ILogDataParams {
   newData?: object;
   extraDesc?: object[];
   updatedDocument?: any;
-}
-
-interface IFinalLogParams extends ILogDataParams {
-  action: string;
 }
 
 export interface ILogQueryParams {
@@ -1412,23 +1413,9 @@ export const putCreateLog = async (
 ) => {
   await registerOnboardHistory({ type: `${params.type}Create`, user });
 
-  const descriptions = await gatherDescriptions({
-    action: LOG_ACTIONS.CREATE,
-    type: params.type,
-    obj: params.object
-  });
-
   await sendToWebhook(LOG_ACTIONS.CREATE, params.type, params);
 
-  return putLog(
-    {
-      ...params,
-      action: LOG_ACTIONS.CREATE,
-      extraDesc: descriptions.extraDesc,
-      description: params.description || descriptions.description
-    },
-    user
-  );
+  return putCreateLogC(messageBroker, gatherDescriptions, params, user)
 };
 
 /**
@@ -1440,24 +1427,9 @@ export const putUpdateLog = async (
   params: ILogDataParams,
   user: IUserDocument
 ) => {
-  const descriptions = await gatherDescriptions({
-    action: LOG_ACTIONS.UPDATE,
-    type: params.type,
-    obj: params.object,
-    updatedDocument: params.updatedDocument
-  });
-
   await sendToWebhook(LOG_ACTIONS.UPDATE, params.type, params);
 
-  return putLog(
-    {
-      ...params,
-      action: LOG_ACTIONS.UPDATE,
-      description: params.description || descriptions.description,
-      extraDesc: descriptions.extraDesc
-    },
-    user
-  );
+  return putUpdateLogC(messageBroker, gatherDescriptions, params, user);
 };
 
 /**
@@ -1469,38 +1441,9 @@ export const putDeleteLog = async (
   params: ILogDataParams,
   user: IUserDocument
 ) => {
-  const descriptions = await gatherDescriptions({
-    action: LOG_ACTIONS.DELETE,
-    type: params.type,
-    obj: params.object
-  });
-
   await sendToWebhook(LOG_ACTIONS.DELETE, params.type, params);
 
-  return putLog(
-    {
-      ...params,
-      action: LOG_ACTIONS.DELETE,
-      extraDesc: descriptions.extraDesc,
-      description: params.description || descriptions.description
-    },
-    user
-  );
-};
-
-const putLog = async (params: IFinalLogParams, user: IUserDocument) => {
-  try {
-    return messageBroker().sendMessage(RABBITMQ_QUEUES.PUT_LOG, {
-      ...params,
-      createdBy: user._id,
-      unicode: user.username || user.email || user._id,
-      object: JSON.stringify(params.object),
-      newData: JSON.stringify(params.newData),
-      extraDesc: JSON.stringify(params.extraDesc)
-    });
-  } catch (e) {
-    return e.message;
-  }
+  return putDeleteLogC(messageBroker, gatherDescriptions, params, user);
 };
 
 export const visitorLog = async (params: IVisitorLogParams) => {

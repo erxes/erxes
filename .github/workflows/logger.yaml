@@ -47,7 +47,7 @@ jobs:
         run: |
           yarn install
           cd logger
-          yarn install --production
+          yarn install --frozen-lockfile --production
 
       - name: Lint
         run: |

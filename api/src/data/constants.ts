@@ -89,32 +89,6 @@ export const FIELDS_GROUPS_CONTENT_TYPES = {
   ALL: ['customer', 'company', 'product']
 };
 
-export const INSIGHT_BASIC_INFOS = {
-  count: 'Customer count',
-  messageCount: 'Conversation message count',
-  customerCount: 'Conversations by customer count',
-  customerCountPercentage: 'Customer Count Percentage',
-  resolvedCount: 'Resolved conversation',
-  averageResponseDuration: 'Average duration of total',
-  firstResponseDuration: 'Average duration of first response',
-  ALL: [
-    'date',
-    'count',
-    'customerCount',
-    'customerCountPercentage',
-    'messageCount',
-    'resolvedCount',
-    'averageResponseDuration',
-    'firstResponseDuration'
-  ]
-};
-
-export const INSIGHT_TYPES = {
-  DEAL: 'deal',
-  CONVERSATION: 'conversation',
-  ALL: ['deal', 'conversation']
-};
-
 export const NOTIFICATION_MODULES = [
   {
     name: 'conversations',

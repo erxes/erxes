@@ -11,8 +11,14 @@ const resolvers = [
     indexname: `${tableSchema()}__integrations`,
     fieldname: 'kind'
   },
+
   {
     name: 'Conversations.firstRespondedUser',
+    indexname: `${tableSchema()}__users`,
+    fieldname: 'username'
+  },
+  {
+    name: 'Conversations.assignedUser',
     indexname: `${tableSchema()}__users`,
     fieldname: 'username'
   },
@@ -26,14 +32,7 @@ const resolvers = [
     indexname: `${tableSchema()}__stages`,
     fieldname: 'probability'
   },
-  {
-    name: 'Deals.pipelineName',
-    indexname: `${tableSchema()}__stages`,
-    fieldname: 'name',
-    secondIndexname: `${tableSchema()}__pipelines`,
-    relationField: 'pipelineId',
-    isMulti: true
-  },
+
   {
     name: 'Deals.modifiedBy',
     indexname: `${tableSchema()}__users`,
@@ -41,4 +40,15 @@ const resolvers = [
   }
 ];
 
-module.exports = resolvers;
+const filterResolvers = {
+  'Deals.stageProbability': {
+    index: `${tableSchema()}__stages`,
+    field: 'probability'
+  },
+  'Conversations.brand': {
+    index: `${tableSchema()}__integrations`,
+    field: 'brandId'
+  }
+};
+
+module.exports = { resolvers, filterResolvers };
