@@ -161,6 +161,7 @@ interface IUserFactoryInput {
   fullName?: string;
   avatar?: string;
   position?: string;
+  orderNumber?: string;
   twitter?: string;
   facebook?: string;
   linkedIn?: string;
@@ -206,7 +207,8 @@ export const userFactory = async (params: IUserFactoryInput = {}) => {
     groupIds: params.groupIds || [],
     brandIds: params.brandIds,
     deviceTokens: params.deviceTokens,
-    doNotDisturb: params.doNotDisturb
+    doNotDisturb: params.doNotDisturb,
+    ...(params.orderNumber ? { orderNumber: params.orderNumber } : {})
   });
 
   return user.save();
@@ -635,7 +637,6 @@ export const fieldFactory = async (params: IFieldFactoryInput) => {
 };
 
 interface IConversationFactoryInput {
-  skillIds?: string[];
   customerId?: string;
   assignedUserId?: string;
   integrationId?: string;
@@ -649,6 +650,7 @@ interface IConversationFactoryInput {
   readUserIds?: string[];
   tagIds?: string[];
   messageCount?: number;
+  userRelevanceIds?: string[];
   number?: number;
   firstRespondedUserId?: string;
   firstRespondedDate?: dateType;
@@ -659,7 +661,7 @@ export const conversationFactory = (params: IConversationFactoryInput = {}) => {
   const doc = {
     content: params.content || faker.random.word(),
     customerId: params.customerId || Random.id(),
-    skillIds: params.skillIds || Random.id(),
+    userRelevanceIds: params.userRelevanceIds || [Random.id()],
     integrationId: params.integrationId || Random.id(),
     status: params.status || CONVERSATION_STATUSES.NEW,
     operatorStatus:

@@ -1,8 +1,7 @@
 import * as _ from 'underscore';
 import { Channels, Integrations, Skills } from '../../../db/models';
 import { CONVERSATION_STATUSES } from '../../../db/models/definitions/constants';
-import { RELEVANCE_TYPES } from '../../constants';
-import { fixDate, generateRelevanceId } from '../../utils';
+import { fixDate } from '../../utils';
 
 interface IIn {
   $in: string[];
@@ -117,25 +116,14 @@ export default class Builder {
     };
   }
 
-  public async relevanceFilter(): Promise<any> {
-    const ids: string[] = [];
+  public async userRelevanceFilter(): Promise<any> {
+    const skills = await Skills.find({
+      memberIds: { $in: [this.user._id] }
+    }).lean();
 
-    const skillIds =
-      (await Skills.find({
-        memberIds: { $in: [this.user._id] }
-      }).distinct('_id')) || [];
-
-    if (skillIds.length > 0) {
-      skillIds.map(id => {
-        ids.push(
-          generateRelevanceId(this.user.orderNumber, RELEVANCE_TYPES.SKILL, id)
-        );
-      });
-    }
-
-    return {
-      relevanceIds: { $in: ids }
-    };
+    return skills.length > 0
+      ? { userRelevanceIds: { $in: [this.user.orderNumber] } }
+      : {};
   }
 
   /*
@@ -349,7 +337,7 @@ export default class Builder {
     }
 
     // filter by user skillId
-    this.queries.relevanceIds = await this.relevanceFilter();
+    this.queries.userRelevanceIds = await this.userRelevanceFilter();
   }
 
   public mainQuery(): any {
@@ -364,7 +352,7 @@ export default class Builder {
       ...this.queries.tag,
       ...this.queries.createdAt,
       ...this.queries.awaitingResponse,
-      ...this.queries.skills
+      ...this.queries.userRelevanceIds
     };
   }
 }

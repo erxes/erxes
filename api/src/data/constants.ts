@@ -292,7 +292,3 @@ export const AUTO_BOT_MESSAGES = {
 export const BOT_MESSAGE_TYPES = {
   SAY_SOMETHING: 'say_something'
 };
-
-export const RELEVANCE_TYPES = {
-  SKILL: 'SS'
-};

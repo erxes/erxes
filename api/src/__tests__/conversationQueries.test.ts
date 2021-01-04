@@ -460,7 +460,7 @@ describe('conversationQueries', () => {
 
   test('Conversations by skillId', async () => {
     // with user has skillId
-    const newUser = await userFactory({});
+    const newUser = await userFactory({ orderNumber: '321312' });
     const newUser2 = await userFactory({});
     const newUser3 = await userFactory({});
 
@@ -469,18 +469,13 @@ describe('conversationQueries', () => {
       { $push: { memberIds: [newUser._id, newUser2._id] } }
     );
 
-    const skill = await skillFactor({ memberIds: [newUser._id] });
-
+    await skillFactor({ memberIds: [newUser._id] });
     await skillFactor({ memberIds: [newUser3._id] });
 
     await conversationFactory({ integrationId: integration._id });
     await conversationFactory({
       integrationId: integration._id,
-      skillIds: [skill._id]
-    });
-    await conversationFactory({
-      integrationId: integration._id,
-      skillIds: ['123123']
+      userRelevanceIds: [newUser.orderNumber]
     });
 
     const responses = await graphqlRequest(
@@ -500,7 +495,7 @@ describe('conversationQueries', () => {
       { user: newUser2 }
     );
 
-    expect(responses2.length).toBe(3);
+    expect(responses2.length).toBe(2);
 
     // user with skillId no related conversations
     const responses3 = await graphqlRequest(

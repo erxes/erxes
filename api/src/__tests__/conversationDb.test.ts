@@ -4,6 +4,7 @@ import {
   customerFactory,
   engageDataFactory,
   engageMessageFactory,
+  skillFactor,
   userFactory
 } from '../db/factories';
 import { ConversationMessages, Conversations, Users } from '../db/models';
@@ -558,5 +559,27 @@ describe('Conversation db', () => {
         resolve();
       }, 1000)
     );
+  });
+
+  test('Conversation getUserRelevanceId', async () => {
+    const user1 = await userFactory({ orderNumber: '123' });
+    const user2 = await userFactory({ orderNumber: '321' });
+
+    const skill = await skillFactor({ memberIds: [user1._id, user2._id] });
+    const skill2 = await skillFactor({});
+
+    const response1 = await Conversations.getUserRelevance(skill._id);
+
+    expect(response1).toEqual(['123', '321']);
+
+    // without skill
+    const response2 = await Conversations.getUserRelevance('123123');
+
+    expect(response2).toEqual([]);
+
+    // without team member
+    const response3 = await Conversations.getUserRelevance(skill2._id);
+
+    expect(response3).toEqual([]);
   });
 });

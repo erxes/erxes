@@ -9,6 +9,7 @@ import {
   IConversation,
   IConversationDocument
 } from './definitions/conversations';
+import { Skills } from './Skills';
 
 export interface IConversationModel extends Model<IConversationDocument> {
   getConversation(_id: string): IConversationDocument;
@@ -65,6 +66,8 @@ export interface IConversationModel extends Model<IConversationDocument> {
   widgetsUnreadMessagesQuery(conversations: IConversationDocument[]): any;
 
   removeEngageConversations(engageMessageId: string): any;
+
+  getUserRelevance(skillId: string): Promise<string[]>;
 
   resolveAllConversation(
     query: any,
@@ -406,6 +409,26 @@ export const loadClass = () => {
         { $set: { status, closedAt, closedUserId } },
         { multi: true }
       );
+    }
+
+    public static async getUserRelevance(skillId: string) {
+      const skill = await Skills.findOne({ _id: skillId }).lean();
+
+      if (!skill) {
+        return [];
+      }
+
+      const { memberIds } = skill;
+
+      const users = (await Users.find({ _id: { $in: memberIds } })) || [];
+
+      if (users.length === 0) {
+        return [];
+      }
+
+      return users
+        .map(user => user.orderNumber)
+        .filter(number => number !== '' && number !== undefined);
     }
   }
 

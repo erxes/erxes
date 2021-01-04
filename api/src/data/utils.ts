@@ -875,17 +875,3 @@ export const getErxesSaasDomain = () => {
     ? 'https://erxes.io'
     : 'http://localhost:3500';
 };
-
-export const generateRelevanceId = (
-  userNumber: string,
-  group: string,
-  itemId: string
-): string => {
-  /**
-   * Group
-   * SS - Skills Skill
-   * SR - Skills Rule
-   * IM - Integration Messenger
-   */
-  return `${userNumber}${group}${itemId.substring(0, 3)}`;
-};

@@ -13,7 +13,7 @@ export interface IConversation {
   userId?: string;
   assignedUserId?: string;
   participatedUserIds?: string[];
-  relevanceIds?: string[];
+  userRelevanceIds?: string[];
   readUserIds?: string[];
 
   createdAt?: Date;
@@ -55,7 +55,7 @@ export const conversationSchema = new Schema({
   userId: field({ type: String }),
   assignedUserId: field({ type: String }),
   participatedUserIds: field({ type: [String] }),
-  relevanceIds: field({ type: [String], index: true }),
+  userRelevanceIds: field({ type: [String], index: true }),
   readUserIds: field({ type: [String] }),
   createdAt: field({ type: Date, index: true }),
   updatedAt: field({ type: Date }),
