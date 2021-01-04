@@ -4,6 +4,7 @@ import {
   putUpdateLog as putUpdateLogC
 } from 'erxes-api-utils';
 import * as _ from 'underscore';
+
 import { IPipelineDocument } from '../db/models/definitions/boards';
 import { IChannelDocument } from '../db/models/definitions/channels';
 import { ICompanyDocument } from '../db/models/definitions/companies';
@@ -61,6 +62,7 @@ import {
   sendRequest,
   sendToWebhook
 } from './utils';
+
 export type LogDesc = {
   [key: string]: any;
 } & { name: any };
