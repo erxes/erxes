@@ -18,7 +18,7 @@ import {
   IEngageMessage,
   IEngageMessageDocument
 } from '../db/models/definitions/engages';
-import { IGrowthHackDocument } from '../db/models/defiitions/growthHacks';
+import { IGrowthHackDocument } from '../db/models/definitions/growthHacks';
 import { IIntegrationDocument } from '../db/models/definitions/integrations';
 import {
   ICategoryDocument,

@@ -4,7 +4,7 @@ import { Users } from '../db/models';
 const main = async () => {
   await connect();
 
-  const users = await Users.find();
+  const users = await Users.find().lean();
 
   const formatNumber = n => ('00' + n).slice(-3);
 
