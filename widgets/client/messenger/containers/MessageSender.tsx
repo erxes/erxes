@@ -20,11 +20,13 @@ const Container = (props: Props) => {
         sendTypingInfo,
         sendFile,
         readMessages,
-        getMessengerData
+        getMessengerData,
+        inputDisabled
       }) => {
         return (
           <MessageSender
             {...props}
+            inputDisabled={inputDisabled}
             isAttachingFile={isAttachingFile}
             conversationId={activeConversation}
             sendTypingInfo={sendTypingInfo}

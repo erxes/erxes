@@ -331,9 +331,11 @@ const conversationQueries = {
 
     // get all possible integration ids
     const integrationsFilter = await qb.integrationsFilter();
+    const userRelevanceFilter = await qb.userRelevanceFilter();
 
     return Conversations.find({
       ...integrationsFilter,
+      ...userRelevanceFilter,
       status: { $in: [CONVERSATION_STATUSES.NEW, CONVERSATION_STATUSES.OPEN] },
       readUserIds: { $ne: user._id },
 

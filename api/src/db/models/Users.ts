@@ -297,7 +297,8 @@ export const loadClass = () => {
         // hash password
         password: await this.generatePassword(password),
         registrationToken: token,
-        registrationTokenExpires: expires
+        registrationTokenExpires: expires,
+        code: await this.generateUserCode()
       });
 
       return token;
@@ -619,7 +620,8 @@ export const loadClass = () => {
         isOwner: _user.isOwner,
         groupIds: _user.groupIds,
         brandIds: _user.brandIds,
-        username: _user.username
+        username: _user.username,
+        code: _user.code
       };
 
       const createToken = await jwt.sign({ user }, secret, { expiresIn: '1d' });

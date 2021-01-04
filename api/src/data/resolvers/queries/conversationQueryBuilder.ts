@@ -122,7 +122,7 @@ export default class Builder {
     }).lean();
 
     return skills.length > 0
-      ? { $text: { $search: this.user.code || '' } }
+      ? { userRelevance: new RegExp(this.user.code || '') }
       : {};
   }
 

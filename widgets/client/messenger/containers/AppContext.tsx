@@ -32,6 +32,7 @@ interface IState {
   botTyping: boolean;
   browserInfo: IBrowserInfo;
   selectedSkill: string | null
+  inputDisabled: boolean;
 }
 
 interface IStore extends IState {
@@ -80,6 +81,7 @@ interface IStore extends IState {
   botTyping: boolean;
   browserInfo: IBrowserInfo;
   selectedSkill: string | null;
+  inputDisabled: boolean;
 }
 
 export const MESSAGE_TYPES = {
@@ -98,9 +100,10 @@ export class AppProvider extends React.Component<{}, IState> {
     super(props);
 
     let activeRoute = 'conversationList';
+    let inputDisabled = false;
 
     const { messengerData } = connection.data;
-    const { requireAuth, showChat } = messengerData;
+    const { requireAuth, showChat, skillData } = messengerData;
 
     // if visitor did not give email or phone then ask
     if (!this.isLoggedIn() && requireAuth) {
@@ -113,6 +116,10 @@ export class AppProvider extends React.Component<{}, IState> {
 
     if (!showChat) {
       activeRoute = 'home';
+    }
+
+    if (skillData) {
+      inputDisabled = true;
     }
 
     this.state = {
@@ -130,7 +137,8 @@ export class AppProvider extends React.Component<{}, IState> {
       headHeight: 200,
       botTyping: false,
       browserInfo: {},
-      selectedSkill: null
+      selectedSkill: null,
+      inputDisabled
     };
   }
 
@@ -238,7 +246,13 @@ export class AppProvider extends React.Component<{}, IState> {
       return this.setState({ activeRoute: 'accquireInformation', selectedSkill: null });
     }
 
-    this.setState({ activeRoute: route, selectedSkill: null });
+    const { skillData = {} } = connection.data.messengerData;
+
+    this.setState({
+      activeRoute: route,
+      selectedSkill: null,
+      inputDisabled: Object.keys(skillData).length > 0 
+    });
   };
 
   changeConversation = (_id: string) => {
@@ -476,7 +490,7 @@ export class AppProvider extends React.Component<{}, IState> {
   };
 
   onSelectSkill = (skillId: string) => {
-    this.setState({ selectedSkill: skillId });
+    this.setState({ selectedSkill: skillId, inputDisabled: false });
   }
 
   getBotInitialMessage = (callback: (botData: any) => void) => {
@@ -739,6 +753,7 @@ export class AppProvider extends React.Component<{}, IState> {
           setUnreadCount: this.setUnreadCount,
           isLoggedIn: this.isLoggedIn,
           browserInfo: this.state.browserInfo,
+          inputDisabled: this.state.inputDisabled
         }}
       >
         {this.props.children}
