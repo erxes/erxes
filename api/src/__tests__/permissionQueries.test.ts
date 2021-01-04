@@ -3,6 +3,7 @@ import {
   usersGroupQueries
 } from '../data/resolvers/queries/permissions';
 import { graphqlRequest } from '../db/connection';
+
 import {
   permissionFactory,
   userFactory,
