@@ -30,7 +30,7 @@ export interface IListArgs {
 
 interface IUserArgs {
   _id: string;
-  code: string;
+  code?: string;
   starredConversationIds?: string[];
 }
 
