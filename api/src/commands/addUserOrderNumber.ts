@@ -11,7 +11,7 @@ const main = async () => {
   users.map(async (user, index) => {
     await Users.update(
       { _id: user._id },
-      { $addFields: { orderNumber: formatNumber(index++) } }
+      { $addFields: { code: formatNumber(index) } }
     );
   });
 

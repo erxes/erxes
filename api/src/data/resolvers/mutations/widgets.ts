@@ -504,12 +504,6 @@ const widgetMutations = {
       );
       // create conversation
     } else {
-      let userRelevanceIds: string[] = [];
-
-      if (!HAS_BOTENDPOINT_URL && skillId) {
-        userRelevanceIds = await Conversations.getUserRelevance(skillId);
-      }
-
       conversation = await Conversations.createConversation({
         customerId,
         integrationId,
@@ -518,7 +512,7 @@ const widgetMutations = {
           : CONVERSATION_OPERATOR_STATUS.OPERATOR,
         status: getConversationStatus(),
         content: conversationContent,
-        userRelevanceIds
+        ...(skillId ? { skillId } : {})
       });
     }
 

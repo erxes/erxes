@@ -45,6 +45,7 @@ export interface IUserModel extends Model<IUserDocument> {
   createUser(doc: IUser): Promise<IUserDocument>;
   updateUser(_id: string, doc: IUpdateUser): Promise<IUserDocument>;
   editProfile(_id: string, doc: IEditProfile): Promise<IUserDocument>;
+  generateUserCode(): Promise<string>;
   configEmailSignatures(
     _id: string,
     signatures: IEmailSignature[]
@@ -201,7 +202,8 @@ export const loadClass = () => {
         groupIds,
         isActive: true,
         // hash password
-        password: await this.generatePassword(password)
+        password: await this.generatePassword(password),
+        code: await this.generateUserCode()
       });
     }
 
@@ -715,6 +717,29 @@ export const loadClass = () => {
         token,
         refreshToken
       };
+    }
+
+    public static async generateUserCode() {
+      const codes = await Users.find().distinct('code');
+
+      const sortedCodes = codes.sort((firstCode, secondCode) => {
+        const firstNumber = Number((firstCode || '').substring(2));
+        const secondNumber = Number((secondCode || '').substring(2));
+
+        if (firstNumber > secondNumber) {
+          return -1;
+        }
+
+        return 1;
+      });
+
+      const [highestCodeValue] = sortedCodes;
+
+      let code = Number((highestCodeValue || '').split(2));
+
+      code++;
+
+      return ('00' + code).slice(-3);
     }
   }
 

@@ -30,7 +30,7 @@ export interface IListArgs {
 
 interface IUserArgs {
   _id: string;
-  orderNumber: string;
+  code: string;
   starredConversationIds?: string[];
 }
 
@@ -122,7 +122,7 @@ export default class Builder {
     }).lean();
 
     return skills.length > 0
-      ? { userRelevanceIds: { $in: [this.user.orderNumber] } }
+      ? { $text: { $search: this.user.code || '' } }
       : {};
   }
 
@@ -337,7 +337,7 @@ export default class Builder {
     }
 
     // filter by user skillId
-    this.queries.userRelevanceIds = await this.userRelevanceFilter();
+    this.queries.userRelevance = await this.userRelevanceFilter();
   }
 
   public mainQuery(): any {
@@ -352,7 +352,7 @@ export default class Builder {
       ...this.queries.tag,
       ...this.queries.createdAt,
       ...this.queries.awaitingResponse,
-      ...this.queries.userRelevanceIds
+      ...this.queries.userRelevance
     };
   }
 }

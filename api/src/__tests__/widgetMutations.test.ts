@@ -269,7 +269,7 @@ describe('insertMessage()', () => {
 
     expect(customer.isOnline).toBeTruthy();
 
-    const user = await userFactory({ orderNumber: '123 ' });
+    const user = await userFactory({ code: '123 ' });
     const skill = await skillFactor({ memberIds: [user._id] });
 
     const message2 = await widgetMutations.widgetsInsertMessage(
@@ -288,7 +288,7 @@ describe('insertMessage()', () => {
     ).lean();
 
     if (conversation2) {
-      expect(conversation2.userRelevanceIds).toEqual([user.orderNumber]);
+      expect(conversation2.userRelevance).toBe(`${user.code}SS`);
     }
   });
 

@@ -157,11 +157,11 @@ export const dashboardItemsFactory = async (params: IDashboardFactoryInput) => {
 };
 
 interface IUserFactoryInput {
+  code?: string;
   username?: string;
   fullName?: string;
   avatar?: string;
   position?: string;
-  orderNumber?: string;
   twitter?: string;
   facebook?: string;
   linkedIn?: string;
@@ -208,7 +208,7 @@ export const userFactory = async (params: IUserFactoryInput = {}) => {
     brandIds: params.brandIds,
     deviceTokens: params.deviceTokens,
     doNotDisturb: params.doNotDisturb,
-    ...(params.orderNumber ? { orderNumber: params.orderNumber } : {})
+    ...(params.code ? { code: params.code } : {})
   });
 
   return user.save();
@@ -650,7 +650,7 @@ interface IConversationFactoryInput {
   readUserIds?: string[];
   tagIds?: string[];
   messageCount?: number;
-  userRelevanceIds?: string[];
+  userRelevance?: string;
   number?: number;
   firstRespondedUserId?: string;
   firstRespondedDate?: dateType;
@@ -661,7 +661,7 @@ export const conversationFactory = (params: IConversationFactoryInput = {}) => {
   const doc = {
     content: params.content || faker.random.word(),
     customerId: params.customerId || Random.id(),
-    userRelevanceIds: params.userRelevanceIds || [Random.id()],
+    userRelevance: params.userRelevance || Random.id(),
     integrationId: params.integrationId || Random.id(),
     status: params.status || CONVERSATION_STATUSES.NEW,
     operatorStatus:

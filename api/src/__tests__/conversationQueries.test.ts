@@ -460,7 +460,7 @@ describe('conversationQueries', () => {
 
   test('Conversations by skillId', async () => {
     // with user has skillId
-    const newUser = await userFactory({ orderNumber: '321312' });
+    const newUser = await userFactory({ code: '321312' });
     const newUser2 = await userFactory({});
     const newUser3 = await userFactory({});
 
@@ -475,7 +475,7 @@ describe('conversationQueries', () => {
     await conversationFactory({ integrationId: integration._id });
     await conversationFactory({
       integrationId: integration._id,
-      userRelevanceIds: [newUser.orderNumber]
+      userRelevance: newUser.code
     });
 
     const responses = await graphqlRequest(

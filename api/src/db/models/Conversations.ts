@@ -67,7 +67,7 @@ export interface IConversationModel extends Model<IConversationDocument> {
 
   removeEngageConversations(engageMessageId: string): any;
 
-  getUserRelevance(skillId: string): Promise<string[]>;
+  getUserRelevance(args: { skillId: string }): Promise<string>;
 
   resolveAllConversation(
     query: any,
@@ -109,6 +109,9 @@ export const loadClass = () => {
      */
     public static async createConversation(doc: IConversation) {
       const now = new Date();
+      const userRelevance = await this.getUserRelevance({
+        skillId: doc.skillId
+      });
 
       const result = await Conversations.create({
         status: CONVERSATION_STATUSES.NEW,
@@ -117,7 +120,8 @@ export const loadClass = () => {
         createdAt: doc.createdAt || now,
         updatedAt: doc.createdAt || now,
         number: (await Conversations.find().countDocuments()) + 1,
-        messageCount: 0
+        messageCount: 0,
+        ...(userRelevance ? { userRelevance } : {})
       });
 
       await sendToWebhook('create', 'conversation', result);
@@ -411,24 +415,28 @@ export const loadClass = () => {
       );
     }
 
-    public static async getUserRelevance(skillId: string) {
-      const skill = await Skills.findOne({ _id: skillId }).lean();
+    public static async getUserRelevance(args: { skillId?: string }) {
+      const skill = await Skills.findOne({ _id: args.skillId }).lean();
 
       if (!skill) {
-        return [];
+        return;
       }
 
-      const { memberIds } = skill;
-
-      const users = (await Users.find({ _id: { $in: memberIds } })) || [];
+      const users =
+        (await Users.find({ _id: { $in: skill.memberIds || [] } }).sort({
+          createdAt: 1
+        })) || [];
 
       if (users.length === 0) {
-        return [];
+        return;
       }
 
+      const type = args.skillId ? 'SS' : '';
+
       return users
-        .map(user => user.orderNumber)
-        .filter(number => number !== '' && number !== undefined);
+        .map(user => user.code + type)
+        .filter(code => code !== '' && code !== undefined)
+        .join('|');
     }
   }
 

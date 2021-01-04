@@ -36,7 +36,7 @@ describe('User db utils', () => {
   });
 
   test('Create user', async () => {
-    const userObj = await Users.createUser({
+    const userObjWithoutCode = await Users.createUser({
       ..._user._doc,
       details: { ..._user.details.toJSON() },
       links: { ..._user.links },
@@ -44,18 +44,52 @@ describe('User db utils', () => {
       email: 'qwerty@qwerty.com'
     });
 
-    if (!userObj.details || !userObj.links) {
+    if (!userObjWithoutCode.details || !userObjWithoutCode.links) {
       throw new Error('User not found');
     }
 
-    expect(userObj).toBeDefined();
-    expect(userObj._id).toBeDefined();
-    expect(userObj.username).toBe(_user.username);
-    expect(userObj.email).toBe('qwerty@qwerty.com');
-    expect(bcrypt.compare(strongPassword, userObj.password)).toBeTruthy();
-    expect(userObj.details.position).toBe(_user.details.position);
-    expect(userObj.details.fullName).toBe(_user.details.fullName);
-    expect(userObj.details.avatar).toBe(_user.details.avatar);
+    expect(userObjWithoutCode).toBeDefined();
+    expect(userObjWithoutCode._id).toBeDefined();
+    expect(userObjWithoutCode.username).toBe(_user.username);
+    expect(userObjWithoutCode.email).toBe('qwerty@qwerty.com');
+    expect(userObjWithoutCode.code).toBe('001');
+    expect(
+      bcrypt.compare(strongPassword, userObjWithoutCode.password)
+    ).toBeTruthy();
+    expect(userObjWithoutCode.details.position).toBe(_user.details.position);
+    expect(userObjWithoutCode.details.fullName).toBe(_user.details.fullName);
+    expect(userObjWithoutCode.details.avatar).toBe(_user.details.avatar);
+
+    const userObjWithCode = await Users.createUser({
+      ..._user._doc,
+      email: 'qwerty123@qwerty.com'
+    });
+
+    expect(userObjWithCode.code).toBe('002');
+    expect(userObjWithCode.email).toBe('qwerty123@qwerty.com');
+  });
+
+  test('Generate user code', async () => {
+    await userFactory({ code: '000' });
+    await userFactory({ code: '001' });
+
+    const code1 = await Users.generateUserCode();
+
+    expect(code1).toBe('002');
+
+    await userFactory({ code: '004' });
+    await userFactory({ code: '003' });
+
+    const code2 = await Users.generateUserCode();
+
+    expect(code2).toBe('005');
+
+    await userFactory({ code: '006' });
+    await userFactory({ code: '006' });
+
+    const code3 = await Users.generateUserCode();
+
+    expect(code3).toBe('007');
   });
 
   test('Create user with empty string password', async () => {
