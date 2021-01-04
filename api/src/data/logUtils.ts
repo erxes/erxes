@@ -61,8 +61,6 @@ import {
   sendRequest,
   sendToWebhook
 } from './utils';
-
-
 export type LogDesc = {
   [key: string]: any;
 } & { name: any };
