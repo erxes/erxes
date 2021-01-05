@@ -69,6 +69,29 @@ describe('User db utils', () => {
     expect(userObjWithCode.email).toBe('qwerty123@qwerty.com');
   });
 
+  test('Generate user code field', async () => {
+    await userFactory({ code: '000' });
+    await userFactory({ code: '001' });
+
+    const user = await userFactory();
+
+    await Users.generateUserCodeField();
+
+    const updatedUser = await Users.findOne({ _id: user._id });
+
+    if (updatedUser) {
+      expect(updatedUser.code).toBe('002');
+    } else {
+      fail('User not found');
+    }
+
+    await Users.remove({});
+
+    const response = await Users.generateUserCodeField();
+
+    expect(response).toBeUndefined();
+  });
+
   test('Generate user code', async () => {
     await userFactory({ code: '000' });
     await userFactory({ code: '001' });
@@ -562,7 +585,7 @@ describe('User db utils', () => {
   });
 
   test('Login', async () => {
-    expect.assertions(8);
+    expect.assertions(9);
 
     // invalid email ==============
     try {
@@ -613,6 +636,24 @@ describe('User db utils', () => {
 
     expect(response.token).toBeDefined();
     expect(response.refreshToken).toBeDefined();
+
+    // generate code field
+    await Users.remove({});
+
+    const user1 = await userFactory({});
+
+    await Users.login({
+      email: user1.email || '',
+      password: 'pass'
+    });
+
+    const updatedUser = await Users.findOne({ _id: user1._id });
+
+    if (updatedUser) {
+      expect(updatedUser.code).toBe('001');
+    } else {
+      fail('User not found');
+    }
   });
 
   test('Refresh tokens', async () => {

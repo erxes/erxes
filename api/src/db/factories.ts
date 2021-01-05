@@ -661,11 +661,11 @@ export const conversationFactory = (params: IConversationFactoryInput = {}) => {
   const doc = {
     content: params.content || faker.random.word(),
     customerId: params.customerId || Random.id(),
-    userRelevance: params.userRelevance || Random.id(),
     integrationId: params.integrationId || Random.id(),
     status: params.status || CONVERSATION_STATUSES.NEW,
     operatorStatus:
-      params.operatorStatus || CONVERSATION_OPERATOR_STATUS.OPERATOR
+      params.operatorStatus || CONVERSATION_OPERATOR_STATUS.OPERATOR,
+    ...(params.userRelevance ? { userRelevance: params.userRelevance } : {})
   };
 
   return Conversations.createConversation({

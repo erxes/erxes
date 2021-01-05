@@ -461,23 +461,30 @@ describe('conversationQueries', () => {
   test('Conversations by skillId', async () => {
     // with user has skillId
     const newUser = await userFactory({ code: '321312' });
-    const newUser2 = await userFactory({});
-    const newUser3 = await userFactory({});
+    const newUser2 = await userFactory({ code: 'ABC' });
+    const newUser3 = await userFactory({ code: '0099' });
 
     await Channels.update(
       { _id: channel._id },
-      { $push: { memberIds: [newUser._id, newUser2._id] } }
+      { $push: { memberIds: [newUser._id, newUser2._id, newUser3._id] } }
     );
 
     await skillFactor({ memberIds: [newUser._id] });
     await skillFactor({ memberIds: [newUser3._id] });
 
     await conversationFactory({ integrationId: integration._id });
+    await conversationFactory({ integrationId: integration._id });
+    await conversationFactory({ integrationId: integration._id });
+    await conversationFactory({
+      integrationId: integration._id,
+      userRelevance: newUser.code
+    });
     await conversationFactory({
       integrationId: integration._id,
       userRelevance: newUser.code
     });
 
+    // with skill - only related conversations
     const responses = await graphqlRequest(
       qryConversations,
       'conversations',
@@ -485,9 +492,9 @@ describe('conversationQueries', () => {
       { user: newUser }
     );
 
-    expect(responses.length).toBe(1);
+    expect(responses.length).toBe(5);
 
-    // user without skillId
+    // user without skillId - all conversations
     const responses2 = await graphqlRequest(
       qryConversations,
       'conversations',
@@ -495,9 +502,9 @@ describe('conversationQueries', () => {
       { user: newUser2 }
     );
 
-    expect(responses2.length).toBe(2);
+    expect(responses2.length).toBe(3);
 
-    // user with skillId no related conversations
+    // user with skillId no related conversations - conversations without userRelevance field
     const responses3 = await graphqlRequest(
       qryConversations,
       'conversations',
@@ -505,7 +512,7 @@ describe('conversationQueries', () => {
       { user: newUser3 }
     );
 
-    expect(responses3.length).toBe(0);
+    expect(responses3.length).toBe(3);
   });
 
   test('Conversations filtered by channel', async () => {

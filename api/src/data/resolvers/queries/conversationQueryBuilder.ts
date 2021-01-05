@@ -1,5 +1,5 @@
 import * as _ from 'underscore';
-import { Channels, Integrations, Skills } from '../../../db/models';
+import { Channels, Integrations } from '../../../db/models';
 import { CONVERSATION_STATUSES } from '../../../db/models/definitions/constants';
 import { fixDate } from '../../utils';
 
@@ -61,6 +61,31 @@ export default class Builder {
     this.user = user;
   }
 
+  public defaultLogicalQueries(): any {
+    return {
+      $and: [
+        {
+          // exclude engage messages if customer did not reply
+          $or: [
+            {
+              userId: { $exists: true },
+              messageCount: { $gt: 1 }
+            },
+            {
+              userId: { $exists: false }
+            }
+          ]
+        },
+        {
+          $or: [
+            { userRelevance: { $exists: false } },
+            { userRelevance: new RegExp(this.user.code || '') }
+          ]
+        }
+      ]
+    };
+  }
+
   public async defaultFilters(): Promise<any> {
     const activeIntegrations = await Integrations.findIntegrations(
       {},
@@ -80,16 +105,7 @@ export default class Builder {
 
     return {
       ...statusFilter,
-      // exclude engage messages if customer did not reply
-      $or: [
-        {
-          userId: { $exists: true },
-          messageCount: { $gt: 1 }
-        },
-        {
-          userId: { $exists: false }
-        }
-      ]
+      ...this.defaultLogicalQueries()
     };
   }
 
@@ -114,16 +130,6 @@ export default class Builder {
     return {
       integrationId: { $in: integrationids }
     };
-  }
-
-  public async userRelevanceFilter(): Promise<any> {
-    const skills = await Skills.find({
-      memberIds: { $in: [this.user._id] }
-    }).lean();
-
-    return skills.length > 0
-      ? { userRelevance: new RegExp(this.user.code || '') }
-      : {};
   }
 
   /*
@@ -232,20 +238,18 @@ export default class Builder {
   // filter by integration type
   public async integrationTypeFilter(
     integrationType: string
-  ): Promise<{ $and: IIntersectIntegrationIds[] }> {
+  ): Promise<IIntersectIntegrationIds[]> {
     const integrations = await Integrations.findIntegrations({
       kind: integrationType
     });
 
-    return {
-      $and: [
-        // add channel && brand filter
-        this.queries.integrations,
+    return [
+      // add channel && brand filter
+      this.queries.integrations,
 
-        // filter by integration type
-        { integrationId: { $in: _.pluck(integrations, '_id') } }
-      ]
-    };
+      // filter by integration type
+      { integrationId: { $in: _.pluck(integrations, '_id') } }
+    ];
   }
 
   // filter by tag
@@ -322,13 +326,6 @@ export default class Builder {
       this.queries.tag = this.tagFilter(this.params.tag);
     }
 
-    // filter by integration type
-    if (this.params.integrationType) {
-      this.queries.integrationType = await this.integrationTypeFilter(
-        this.params.integrationType
-      );
-    }
-
     if (this.params.startDate && this.params.endDate) {
       this.queries.createdAt = this.dateFilter(
         this.params.startDate,
@@ -336,23 +333,25 @@ export default class Builder {
       );
     }
 
-    // filter by user skillId
-    this.queries.userRelevance = await this.userRelevanceFilter();
+    // filter by integration type
+    if (this.params.integrationType) {
+      this.queries.default.$and.push(
+        ...(await this.integrationTypeFilter(this.params.integrationType))
+      );
+    }
   }
 
   public mainQuery(): any {
     return {
       ...this.queries.default,
       ...this.queries.integrations,
-      ...this.queries.integrationType,
       ...this.queries.unassigned,
       ...this.queries.participating,
       ...this.queries.status,
       ...this.queries.starred,
       ...this.queries.tag,
       ...this.queries.createdAt,
-      ...this.queries.awaitingResponse,
-      ...this.queries.userRelevance
+      ...this.queries.awaitingResponse
     };
   }
 }

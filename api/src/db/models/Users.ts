@@ -46,6 +46,7 @@ export interface IUserModel extends Model<IUserDocument> {
   updateUser(_id: string, doc: IUpdateUser): Promise<IUserDocument>;
   editProfile(_id: string, doc: IEditProfile): Promise<IUserDocument>;
   generateUserCode(): Promise<string>;
+  generateUserCodeField(): Promise<void>;
   configEmailSignatures(
     _id: string,
     signatures: IEmailSignature[]
@@ -715,10 +716,47 @@ export const loadClass = () => {
         }
       }
 
+      // generate user code
+      await this.generateUserCodeField();
+
       return {
         token,
         refreshToken
       };
+    }
+
+    public static async generateUserCodeField() {
+      const users = await Users.find({}, { code: 1 });
+
+      if (users.length === 0) {
+        return;
+      }
+
+      const doc: Array<{
+        updateOne: {
+          filter: { _id: string };
+          update: { $set: { code: string } };
+        };
+      }> = [];
+
+      for (const user of users) {
+        if (!user.code) {
+          const code = await this.generateUserCode();
+
+          doc.push({
+            updateOne: {
+              filter: { _id: user._id },
+              update: { $set: { code } }
+            }
+          });
+        }
+      }
+
+      if (doc.length === 0) {
+        return;
+      }
+
+      return Users.bulkWrite(doc);
     }
 
     public static async generateUserCode() {
