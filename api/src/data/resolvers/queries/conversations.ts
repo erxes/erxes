@@ -50,23 +50,10 @@ const countByIntegrationTypes = async (qb: any): Promise<ICountBy> => {
   const byIntegrationTypes: ICountBy = {};
 
   for (const intT of KIND_CHOICES.ALL) {
-    const query = qb.mainQuery();
-
-    const integrationType = await qb.integrationTypeFilter(intT);
-
-    const integrationTypeLength = integrationType.length;
-    const currentLogicQueryLength = query.$and.length;
-
-    // append specific integration type
-    query.$and.push(...integrationType);
-
-    byIntegrationTypes[intT] = await count(query);
-
-    // clear appended specific integration type
-    query.$and = query.$and.splice(
-      currentLogicQueryLength,
-      integrationTypeLength
-    );
+    byIntegrationTypes[intT] = await count({
+      ...qb.mainQuery(),
+      ...(await qb.extendedQueryFilter({ integrationType: intT }))
+    });
   }
 
   return byIntegrationTypes;
@@ -81,7 +68,7 @@ const countByTags = async (qb: any): Promise<ICountBy> => {
     byTags[tag._id] = await count({
       ...qb.mainQuery(),
       ...queries.integrations,
-      ...queries.integrationType,
+      ...queries.extended,
       ...qb.tagFilter(tag._id)
     });
   }
@@ -259,7 +246,7 @@ const conversationQueries = {
     const mainQuery = {
       ...qb.mainQuery(),
       ...queries.integrations,
-      ...queries.integrationType
+      ...queries.extended
     };
 
     // unassigned count
@@ -340,6 +327,7 @@ const conversationQueries = {
   async conversationsTotalUnreadCount(_root, _args, { user }: IContext) {
     // initiate query builder
     const qb = new QueryBuilder({}, { _id: user._id, code: user.code });
+
     await qb.buildAllQueries();
 
     // get all possible integration ids
@@ -349,7 +337,7 @@ const conversationQueries = {
       ...integrationsFilter,
       status: { $in: [CONVERSATION_STATUSES.NEW, CONVERSATION_STATUSES.OPEN] },
       readUserIds: { $ne: user._id },
-      ...qb.defaultLogicalQueries()
+      $and: [{ $or: qb.defaultUserQuery() }, { $or: qb.userRelevanceQuery() }]
     }).countDocuments();
   }
 };

@@ -61,29 +61,24 @@ export default class Builder {
     this.user = user;
   }
 
-  public defaultLogicalQueries(): any {
-    return {
-      $and: [
-        {
-          // exclude engage messages if customer did not reply
-          $or: [
-            {
-              userId: { $exists: true },
-              messageCount: { $gt: 1 }
-            },
-            {
-              userId: { $exists: false }
-            }
-          ]
-        },
-        {
-          $or: [
-            { userRelevance: { $exists: false } },
-            { userRelevance: new RegExp(this.user.code || '') }
-          ]
-        }
-      ]
-    };
+  public defaultUserQuery() {
+    return [
+      // exclude engage messages if customer did not reply
+      {
+        userId: { $exists: true },
+        messageCount: { $gt: 1 }
+      },
+      {
+        userId: { $exists: false }
+      }
+    ];
+  }
+
+  public userRelevanceQuery() {
+    return [
+      { userRelevance: { $exists: false } },
+      { userRelevance: new RegExp(this.user.code || '') }
+    ];
   }
 
   public async defaultFilters(): Promise<any> {
@@ -91,7 +86,6 @@ export default class Builder {
       {},
       { _id: 1 }
     );
-
     this.activeIntegrationIds = activeIntegrations.map(integ => integ._id);
 
     let statusFilter = this.statusFilter([
@@ -103,10 +97,7 @@ export default class Builder {
       statusFilter = this.statusFilter([CONVERSATION_STATUSES.CLOSED]);
     }
 
-    return {
-      ...statusFilter,
-      ...this.defaultLogicalQueries()
-    };
+    return statusFilter;
   }
 
   public async intersectIntegrationIds(
@@ -268,6 +259,18 @@ export default class Builder {
     };
   }
 
+  public async extendedQueryFilter({ integrationType }: IListArgs) {
+    return {
+      $and: [
+        { $or: this.defaultUserQuery() },
+        { $or: this.userRelevanceQuery() },
+        ...(integrationType
+          ? await this.integrationTypeFilter(integrationType)
+          : [])
+      ]
+    };
+  }
+
   /*
    * prepare all queries. do not do any action
    */
@@ -333,12 +336,7 @@ export default class Builder {
       );
     }
 
-    // filter by integration type
-    if (this.params.integrationType) {
-      this.queries.default.$and.push(
-        ...(await this.integrationTypeFilter(this.params.integrationType))
-      );
-    }
+    this.queries.extended = await this.extendedQueryFilter(this.params);
   }
 
   public mainQuery(): any {
@@ -351,7 +349,8 @@ export default class Builder {
       ...this.queries.starred,
       ...this.queries.tag,
       ...this.queries.createdAt,
-      ...this.queries.awaitingResponse
+      ...this.queries.awaitingResponse,
+      ...this.queries.extended
     };
   }
 }
