@@ -1,7 +1,10 @@
+import Button from 'modules/common/components/Button';
 import EmptyState from 'modules/common/components/EmptyState';
 import FormControl from 'modules/common/components/form/Control';
 import FormGroup from 'modules/common/components/form/Group';
 import ControlLabel from 'modules/common/components/form/Label';
+import Icon from 'modules/common/components/Icon';
+import ModalTrigger from 'modules/common/components/ModalTrigger';
 import { FlexItem, FlexPad } from 'modules/common/components/step/styles';
 import colors from 'modules/common/styles/colors';
 import { ISelectedOption } from 'modules/common/types';
@@ -11,12 +14,13 @@ import React from 'react';
 import Select from 'react-select-plus';
 import styled from 'styled-components';
 import styledTS from 'styled-components-ts';
+import BlacklistedKeywords from './BlacklistedKeywords';
+
 import {
   IEngageScheduleDate,
   IEngageSms,
   IIntegrationWithPhone
 } from '../types';
-import Scheduler from './Scheduler';
 import SmsPreview from './SmsPreview';
 
 const SMSInfo = styled.div`
@@ -102,21 +106,6 @@ class MessengerForm extends React.Component<Props, State> {
     return maxChar - character.length;
   }
 
-  renderScheduler() {
-    const { messageKind, onChange } = this.props;
-
-    if (messageKind === 'manual') {
-      return null;
-    }
-
-    return (
-      <Scheduler
-        scheduleDate={this.state.scheduleDate || ({} as IEngageScheduleDate)}
-        onChange={onChange}
-      />
-    );
-  }
-
   fromSelectOptions = () => {
     const { integrations } = this.props;
     const options: IOption[] = [];
@@ -188,6 +177,8 @@ class MessengerForm extends React.Component<Props, State> {
       );
     }
 
+    const BlackKeywords = () => <BlacklistedKeywords content={message} />;
+
     return (
       <FlexItem>
         <FlexPad overflow="auto" direction="column" count="3">
@@ -215,7 +206,20 @@ class MessengerForm extends React.Component<Props, State> {
           </FormGroup>
           <FormGroup>
             <SMSInfo>
-              <ControlLabel>{__('SMS marketing content')}:</ControlLabel>
+              <ControlLabel>
+                {__('SMS marketing content')}:
+                <ModalTrigger
+                  size="xl"
+                  title={`${__('Blacklisted keywords')}`}
+                  trigger={
+                    <Button size="small" btnStyle="link" type="error">
+                      <Icon icon="help-circled" />
+                    </Button>
+                  }
+                  content={BlackKeywords}
+                  dialogClassName="wide-modal"
+                />
+              </ControlLabel>
               <Char count={characterCount}>{characterCount}</Char>
             </SMSInfo>
             <FormControl
@@ -227,7 +231,6 @@ class MessengerForm extends React.Component<Props, State> {
               maxLength={160}
             />
           </FormGroup>
-          {this.renderScheduler()}
         </FlexPad>
 
         <FlexItem overflow="auto" count="2">
