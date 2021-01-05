@@ -32,7 +32,7 @@ class WidgetContent extends React.Component<Props> {
   render() {
     const { color, wallpaper, message, isOnline, textColor } = this.props;
 
-    const backgroundClasses = `background-{wallpaper}`;
+    const backgroundClasses = `background-${wallpaper}`;
 
     return (
       <>
@@ -62,4 +62,4 @@ class WidgetContent extends React.Component<Props> {
   }
 }
 
-export default WidgetContent;$
+export default WidgetContent;
