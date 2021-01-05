@@ -18,7 +18,7 @@ import {
 } from '../db/models';
 import { IBrandDocument } from '../db/models/definitions/brands';
 import { WEBHOOK_STATUS } from '../db/models/definitions/constants';
-import { ICstomer } from '../db/models/definitions/customers';
+import { ICustomer } from '../db/models/definitions/customers';
 import { IUser, IUserDocument } from '../db/models/definitions/users';
 import { debugBase } from '../debuggers';
 import memoryStorage from '../inmemoryStorage';
