@@ -27,7 +27,7 @@ export const fetchBySegments = async (
   if (contentType !== 'company') {
     propertyNegative.push({
       term: {
-        status: 'Deleted'
+        status: 'deleted'
       }
     });
   }
