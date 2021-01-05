@@ -30,6 +30,15 @@ export const FILE_SYSTEM_TYPES = [
   { label: 'Private', value: 'false' }
 ];
 
+export const DATA_RETENTION_DURATION = [
+  { label: '3 months', value: 3 },
+  { label: '4 months', value: 4 },
+  { label: '5 months', value: 5 },
+  { label: '6 months', value: 6 },
+  { label: '9 months', value: 9 },
+  { label: '12 months', value: 12 }
+];
+
 export const MEASUREMENTS = [
   { label: 'Bag BG', value: 'BG' },
   { label: 'Barrel BA', value: 'BA' },
@@ -137,7 +146,8 @@ export const KEY_LABELS = {
   company_industry_types: 'Company industry types',
   social_links: 'Social links',
 
-  PRODUCT_BOARD_TOKEN: 'Product Board Access token'
+  PRODUCT_BOARD_TOKEN: 'Product Board Access token',
+  NOTIFICATION_DATA_RETENTION: 'Notification data retention'
 };
 
 export const FILE_MIME_TYPES = [
