@@ -151,6 +151,11 @@ export class CommonBuilder<IListArgs extends ICommonListArgs> {
     this.negativeList = [];
 
     this.resetPositiveList();
+    this.resetNegativeList();
+  }
+
+  public resetNegativeList() {
+    this.negativeList = [{ term: { status: 'deleted' } }];
   }
 
   public resetPositiveList() {
@@ -280,7 +285,7 @@ export class CommonBuilder<IListArgs extends ICommonListArgs> {
    */
   public async buildAllQueries(): Promise<void> {
     this.resetPositiveList();
-    this.negativeList = [];
+    this.resetNegativeList();
 
     // filter by segment
     if (this.params.segment) {
