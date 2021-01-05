@@ -53,6 +53,7 @@ const CreateMessenger = (props: FinalProps) => {
     messengerAppSaveMutation,
     knowledgeBaseTopicsQuery
   } = props;
+
   if (usersQuery.loading || brandsQuery.loading) {
     return <Spinner />;
   }

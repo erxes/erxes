@@ -9,11 +9,16 @@ import * as path from 'path';
 import * as puppeteer from 'puppeteer';
 import * as strip from 'strip';
 import * as xlsxPopulate from 'xlsx-populate';
-import * as models from '../db/models';
-import { Customers, OnboardingHistories, Users, Webhooks } from '../db/models';
+import * as models from '../db/models'
+import {
+  Customers,
+  OnboardingHistories,
+  Users,
+  Webhooks
+} from '../db/models';
 import { IBrandDocument } from '../db/models/definitions/brands';
 import { WEBHOOK_STATUS } from '../db/models/definitions/constants';
-import { ICustomer } from '../db/models/definitions/customers';
+import { ICstomer } from '../db/models/definitions/customers';
 import { IUser, IUserDocument } from '../db/models/definitions/users';
 import { debugBase } from '../debuggers';
 import memoryStorage from '../inmemoryStorage';
@@ -474,7 +479,7 @@ export const readFile = utils.readFile;
  * Create default or ses transporter
  */
 export const createTransporter = async ({ ses }) => {
-  return utils.createTransporter(models, memoryStorage, { ses });
+  return utils.createTransporter(models, memoryStorage, { ses })
 };
 
 export type IEmailParams = IEmailParamsC;
@@ -690,7 +695,8 @@ export const sendMobileNotification = async ({
     body,
     customerId,
     conversationId
-  });
+
+  })
 };
 
 export const paginate = utils.paginate;

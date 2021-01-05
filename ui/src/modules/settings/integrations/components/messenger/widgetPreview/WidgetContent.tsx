@@ -32,25 +32,25 @@ class WidgetContent extends React.Component<Props> {
   render() {
     const { color, wallpaper, message, isOnline, textColor } = this.props;
 
-    const backgroundClasses = `background-${wallpaper}`;
+    const backgroundClasses = `background-{wallpaper}`;
 
     return (
       <>
         <ErxesMessagesList className={backgroundClasses}>
           {isOnline && this.renderMessage(message && message.welcome)}
+          <li>
+            <ErxesAvatar>
+              <img src="/images/avatar-colored.svg" alt="avatar" />
+            </ErxesAvatar>
+            <ErxesMessage>{__('Hi, any questions?')}</ErxesMessage>
+            <ErxesDate>{__('1 hour ago')}</ErxesDate>
+          </li>
           <ErxesFromCustomer>
             <FromCustomer style={{ backgroundColor: color, color: textColor }}>
               {__('We need your help!')}
             </FromCustomer>
             <ErxesDate>{__('6 minutes ago')}</ErxesDate>
           </ErxesFromCustomer>
-          <li>
-            <ErxesAvatar>
-              <img src="/images/avatar-colored.svg" alt="avatar" />
-            </ErxesAvatar>
-            <ErxesMessage>{__('Hi, how can i help you?')}</ErxesMessage>
-            <ErxesDate>{__('1 hour ago')}</ErxesDate>
-          </li>
           {!isOnline && this.renderMessage(message && message.away)}
         </ErxesMessagesList>
 
@@ -62,4 +62,4 @@ class WidgetContent extends React.Component<Props> {
   }
 }
 
-export default WidgetContent;
+export default WidgetContent;$
