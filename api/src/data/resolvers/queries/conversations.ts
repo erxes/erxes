@@ -50,10 +50,23 @@ const countByIntegrationTypes = async (qb: any): Promise<ICountBy> => {
   const byIntegrationTypes: ICountBy = {};
 
   for (const intT of KIND_CHOICES.ALL) {
-    byIntegrationTypes[intT] = await count({
-      ...qb.mainQuery(),
-      ...(await qb.integrationTypeFilter(intT))
-    });
+    const query = qb.mainQuery();
+
+    const integrationType = await qb.integrationTypeFilter(intT);
+
+    const integrationTypeLength = integrationType.length;
+    const currentLogicQueryLength = query.$and.length;
+
+    // append specific integration type
+    query.$and.push(...integrationType);
+
+    byIntegrationTypes[intT] = await count(query);
+
+    // clear appended specific integration type
+    query.$and = query.$and.splice(
+      currentLogicQueryLength,
+      integrationTypeLength
+    );
   }
 
   return byIntegrationTypes;
