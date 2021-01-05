@@ -5,8 +5,9 @@ import FormGroup from 'modules/common/components/form/Group';
 import ControlLabel from 'modules/common/components/form/Label';
 import { ModalFooter } from 'modules/common/styles/main';
 import { IButtonMutateProps, IFormProps } from 'modules/common/types';
-import React from 'react';
+import React, { useState } from 'react';
 import { IBrand } from '../types';
+import BrandExtendedForm from './BrandExtendedForm';
 
 type Props = {
   brand?: IBrand;
@@ -14,16 +15,26 @@ type Props = {
   renderButton: (props: IButtonMutateProps) => JSX.Element;
   afterSave?: () => void;
   modal?: boolean;
+  extended?: boolean;
 };
 
-class BrandForm extends React.Component<Props> {
-  renderFooter(formProps: IFormProps) {
-    const { brand, closeModal, renderButton, afterSave } = this.props;
+const BrandForm = (props: Props) => {
+  const { brand, closeModal, renderButton, afterSave } = props;
+  const object = brand || ({} as IBrand);
+
+  const [emailConfig, setEmailConfig] = useState(object.emailConfig || {});
+
+  const renderFooter = (formProps: IFormProps) => {
     const { values, isSubmitted } = formProps;
 
     if (brand) {
       values._id = brand._id;
     }
+
+    const updatedValues = {
+      ...values,
+      emailConfig
+    };
 
     return (
       <ModalFooter>
@@ -39,18 +50,31 @@ class BrandForm extends React.Component<Props> {
 
         {renderButton({
           name: 'brand',
-          values,
+          values: updatedValues,
           isSubmitted,
           callback: closeModal || afterSave,
           object: brand
         })}
       </ModalFooter>
     );
-  }
+  };
 
-  renderContent = (formProps: IFormProps) => {
-    const object = this.props.brand || ({} as IBrand);
+  const renderExtraContent = () => {
+    const { extended } = props;
 
+    if (!extended) {
+      return null;
+    }
+
+    return (
+      <BrandExtendedForm
+        emailConfig={emailConfig}
+        setEmailConfig={setEmailConfig}
+      />
+    );
+  };
+
+  const renderContent = (formProps: IFormProps) => {
     return (
       <>
         <FormGroup>
@@ -77,14 +101,14 @@ class BrandForm extends React.Component<Props> {
           />
         </FormGroup>
 
-        {this.renderFooter({ ...formProps })}
+        {renderExtraContent()}
+
+        {renderFooter({ ...formProps })}
       </>
     );
   };
 
-  render() {
-    return <Form renderContent={this.renderContent} />;
-  }
-}
+  return <Form renderContent={renderContent} />;
+};
 
 export default BrandForm;

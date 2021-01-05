@@ -1,13 +1,9 @@
 const menuInbox = [
   { title: 'Team Inbox', link: '/inbox/index' },
-  { title: 'Ticket', link: '/inbox/ticket/board' },
-  { title: 'Insights', link: '/inbox/insights' }
+  { title: 'Ticket', link: '/inbox/ticket/board' }
 ];
 
-const menuDeal = [
-  { title: 'Sales pipeline', link: '/deal/board' },
-  { title: 'Insights', link: '/deal/insights' }
-];
+const menuDeal = [{ title: 'Sales pipeline', link: '/deal/board' }];
 
 const menuContacts = [
   { title: 'Visitors', link: '/contacts/visitor' },

@@ -260,13 +260,6 @@ class Settings extends React.PureComponent {
               ['showEmailTemplates', 'manageEmailTemplate']
             )}
             {this.renderBox(
-              'Email Appearance',
-              '/images/icons/erxes-08.svg',
-              '/settings/emails',
-              'emailAppearanceAll',
-              ['manageEmailAppearance', 'showEmailappearance']
-            )}
-            {this.renderBox(
               'Script manager',
               '/images/icons/erxes-12.svg',
               '/settings/scripts',

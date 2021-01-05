@@ -1,4 +1,4 @@
-import * as Sentry from '@sentry/react';
+import * as Sentry from '@sentry/browser';
 
 import '@nateradebaugh/react-datetime/css/react-datetime.css';
 import 'abortcontroller-polyfill/dist/polyfill-patch-fetch';
@@ -21,7 +21,6 @@ import Routes from './routes';
 
 Sentry.init({
   dsn: 'https://7086b642db984d5b9c191d148d0ec710@sentry.erxes.io/3',
-  autoSessionTracking: true,
 
   // We recommend adjusting this value in production, or using tracesSampler
   // for finer control
