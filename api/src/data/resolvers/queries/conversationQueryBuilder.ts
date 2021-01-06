@@ -154,7 +154,10 @@ export default class Builder {
     // filter by brand
     if (this.params.brandId) {
       const brandQuery = await this.brandFilter(this.params.brandId);
-      nestedIntegrationIds.push(brandQuery);
+
+      if (brandQuery) {
+        nestedIntegrationIds.push(brandQuery);
+      }
     }
 
     return this.intersectIntegrationIds(...nestedIntegrationIds);
@@ -176,8 +179,15 @@ export default class Builder {
   }
 
   // filter by brand
-  public async brandFilter(brandId: string): Promise<{ integrationId: IIn }> {
+  public async brandFilter(
+    brandId: string
+  ): Promise<{ integrationId: IIn } | undefined> {
     const integrations = await Integrations.findIntegrations({ brandId });
+
+    if (integrations.length === 0) {
+      return;
+    }
+
     const integrationIds = _.pluck(integrations, '_id');
 
     return {

@@ -1288,19 +1288,62 @@ describe('conversationQueries', () => {
   });
 
   test('Count conversations by brand', async () => {
-    const integration1 = await integrationFactory({});
+    const brandCountQuery = () => {
+      return graphqlRequest(
+        qryCount,
+        'conversationCounts',
+        {
+          only: 'byBrands'
+        },
+        { user }
+      );
+    };
 
     // conversation with brand
     await conversationFactory({ integrationId: integration._id });
-    await conversationFactory({ integrationId: integration1._id });
-    await conversationFactory({ integrationId: integration1._id });
 
-    const response = await graphqlRequest(qryCount, 'conversationCounts', {
-      brandId: brand._id,
-      only: 'byBrands'
-    });
+    const response = await brandCountQuery();
 
+    expect(Object.keys(response.byBrands).length).toBe(1);
     expect(response.byBrands[brand._id]).toBe(1);
+
+    const newBrand = await brandFactory({});
+
+    const response1 = await brandCountQuery();
+    expect(Object.keys(response1.byBrands).length).toBe(2);
+    expect(response1.byBrands[newBrand._id]).toBe(0);
+
+    const integration1 = await integrationFactory({ brandId: newBrand._id });
+    await conversationFactory({ integrationId: integration1._id });
+
+    const response2 = await brandCountQuery();
+
+    expect(Object.keys(response2.byBrands).length).toBe(2);
+    expect(response2.byBrands[brand._id]).toBe(1);
+    expect(response2.byBrands[newBrand._id]).toBe(0);
+
+    await Channels.updateOne(
+      { _id: channel._id },
+      { $set: { integrationIds: [integration._id, integration1._id] } }
+    );
+
+    await conversationFactory({ integrationId: integration1._id });
+    const response3 = await brandCountQuery();
+
+    expect(response3.byBrands[brand._id]).toBe(1);
+    expect(response3.byBrands[newBrand._id]).toBe(2);
+
+    const response4 = await graphqlRequest(
+      qryCount,
+      'conversationCounts',
+      {
+        brandId: newBrand._id,
+        only: 'byBrands'
+      },
+      { user }
+    );
+
+    expect(response4.byBrands[newBrand._id]).toBe(2);
   });
 
   test('Count conversations by unassigned', async () => {
