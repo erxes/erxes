@@ -500,8 +500,6 @@ describe('conversationQueries', () => {
     expect(responseUserInChannelConv.length).toBe(3);
 
     // User with code but no skills, channel ====================
-    const userWithCode = await userFactory({ code: '001' });
-
     const responseUserWithCode = await graphqlRequest(
       qryConversations,
       'conversations',
