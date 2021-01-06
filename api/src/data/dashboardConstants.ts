@@ -1,16 +1,14 @@
-export const CustomerSate = [
-  { label: 'Visitor', value: 'visitor' },
-  { label: 'Lead', value: 'lead' },
-  { label: 'Customer', value: 'customer' }
-];
+export const DashboardFilterTypes = {
+  User: ['modifiedBy', 'firstRespondedUser', 'assignedUser']
+};
 
 export const DashboardFilters = {
-  'Customers.state': [
+  'Contacts.state': [
     { label: 'Visitor', value: 'visitor' },
     { label: 'Lead', value: 'lead' },
     { label: 'Customer', value: 'customer' }
   ],
-  'Customers.status': [
+  'Contacts.status': [
     { label: 'Active', value: 'Active' },
     { label: 'Deleted', value: 'Deleted' }
   ],

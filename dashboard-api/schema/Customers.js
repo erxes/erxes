@@ -1,6 +1,6 @@
 const { tableSchema } = require('../tablePrefix');
 
-cube(`Customers`, {
+cube(`Contacts`, {
   sql: `SELECT * FROM ${tableSchema()}__customers`,
 
   joins: {},
@@ -22,17 +22,17 @@ cube(`Customers`, {
       type: `string`
     },
 
-    createdat: {
+    createdDate: {
       sql: `${CUBE}."createdAt"`,
       type: `time`
     },
 
-    birthdate: {
+    birthDate: {
       sql: `${CUBE}."birthDate"`,
       type: `time`
     },
 
-    modifiedat: {
+    modifiedDate: {
       sql: `${CUBE}."modifiedAt"`,
       type: `time`
     }

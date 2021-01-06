@@ -315,7 +315,7 @@ const readCsvFile = async (
 
       return resolve({ fieldNames, datas: mainDatas });
     } catch (e) {
-      return resolve();
+      return resolve({ fieldNames: [], datas: [] });
     }
   });
 };

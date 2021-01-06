@@ -88,27 +88,6 @@ describe('Brands mutations', () => {
     expect(await Brands.findOne({ _id: _brand._id })).toBe(null);
   });
 
-  test('Config email brand', async () => {
-    const args = {
-      _id: _brand._id,
-      emailConfig: _brand.emailConfig
-    };
-
-    const mutation = `
-      mutation brandsConfigEmail($_id: String!, $emailConfig: JSON) {
-        brandsConfigEmail(_id: $_id, emailConfig: $emailConfig){
-          _id
-          emailConfig
-        }
-      }
-    `;
-
-    const brand = await graphqlRequest(mutation, 'brandsConfigEmail', args);
-
-    expect(brand._id).toBe(args._id);
-    expect(brand.emailConfig.toJSON()).toEqual(args.emailConfig.toJSON());
-  });
-
   test('Manage brand integrations', async () => {
     const args = {
       _id: _brand._id,

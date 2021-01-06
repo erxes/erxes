@@ -118,15 +118,15 @@ export const sendMessageEmail = async () => {
     }
 
     const email = customer.primaryEmail || customer.emails[0];
+    const emailConfig = brand.emailConfig || {};
 
     const emailOptions: IEmailParams = {
       toEmails: [email],
-      title: `Reply from "${brand.name}"`
+      title: `Reply from "${brand.name}"`,
+      fromEmail: emailConfig.email
     };
 
-    const emailConfig = brand.emailConfig;
-
-    if (emailConfig && emailConfig.type === 'custom') {
+    if (emailConfig.type === 'custom') {
       emailOptions.customHtml = emailConfig.template;
       emailOptions.customHtmlData = data;
     } else {

@@ -38,15 +38,18 @@ class Chart extends React.Component<Props, State> {
         : {},
       type: dashboardItem.type,
       name: dashboardItem.name,
-      visible: false,
+      visible: false
     };
   }
 
-  setVizState = (vizState) => {
+  setVizState = vizState => {
     this.setState({ vizState });
   };
 
-  setType = (type) => {
+  setType = type => {
+    this.setVizState({
+      query: { dimensions: [], measures: [], timeDimensions: [] }
+    });
     this.setState({ type });
   };
 
@@ -66,15 +69,15 @@ class Chart extends React.Component<Props, State> {
       name,
       vizState,
       dashboardId,
-      type,
+      type
     };
 
     this.props.save(doc);
   };
 
-  setTitleModalVisible = (value) => {
+  setTitleModalVisible = value => {
     this.setState({
-      visible: value,
+      visible: value
     });
   };
 
@@ -85,7 +88,7 @@ class Chart extends React.Component<Props, State> {
   render() {
     const { vizState, type, visible, name } = this.state;
 
-    const onChange = (e) =>
+    const onChange = e =>
       this.onChange('name', (e.currentTarget as HTMLInputElement).value);
 
     return (
@@ -113,15 +116,21 @@ class Chart extends React.Component<Props, State> {
               this.onChange('visible', false);
               this.handleSubmit();
             }}
-            okButtonProps={{shape: "round", icon: <Icon icon="check-circle" />}}
-            cancelButtonProps={{shape: "round", icon: <Icon icon="times-circle" />}}
+            okButtonProps={{
+              shape: 'round',
+              icon: <Icon icon="check-circle" />
+            }}
+            cancelButtonProps={{
+              shape: 'round',
+              icon: <Icon icon="times-circle" />
+            }}
             onCancel={() => this.setTitleModalVisible(false)}
           >
             <label>Dashboard Item Title</label>
             <Input
               placeholder="Write here..."
               value={name}
-              onChange={(e) => onChange(e)}
+              onChange={e => onChange(e)}
             />
           </Modal>
         </ShadowedHeader>

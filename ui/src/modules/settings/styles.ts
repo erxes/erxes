@@ -1,5 +1,6 @@
 import { colors, dimensions, typography } from 'modules/common/styles';
 import { rgba } from 'modules/common/styles/color';
+import { DateContainer } from 'modules/common/styles/main';
 import styled from 'styled-components';
 import styledTS from 'styled-components-ts';
 
@@ -291,7 +292,25 @@ const ExpandWrapper = styled.div`
   }
 `;
 
+const FlexRow = styled.div`
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+`;
+
+const FlexItem = styled(DateContainer)`
+  flex: 1;
+  margin: 0;
+  margin-left: ${dimensions.coreSpacing}px;
+
+  &:first-child {
+    margin-left: 0;
+  }
+`;
+
 export {
+  FlexRow,
+  FlexItem,
   ContentBox,
   ModuleBox,
   SubHeading,
