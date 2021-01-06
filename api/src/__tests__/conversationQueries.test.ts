@@ -599,7 +599,9 @@ describe('conversationQueries', () => {
   });
 
   test('Conversations filtered by channel', async () => {
+    // common conversation
     await conversationFactory({ integrationId: integration._id });
+
     await conversationFactory();
     await conversationFactory();
 
@@ -618,18 +620,75 @@ describe('conversationQueries', () => {
     });
 
     expect(responses.length).toBe(0);
+
+    // Conversations userRelevance ===================
+    await conversationFactory({ integrationId: integration._id });
+    await conversationFactory({
+      integrationId: integration._id,
+      userRelevance: userWithCode.code
+    });
+
+    // exclude =====================
+    await conversationFactory();
+    await conversationFactory({
+      integrationId: integration._id,
+      userRelevance: 'ASD'
+    });
+
+    responses = await graphqlRequest(
+      qryConversations,
+      'conversations',
+      { channelId: channelNoIntegration._id },
+      { user: userWithCode }
+    );
+
+    expect(responses.length).toBe(3);
   });
 
   test('Conversations filtered by brand', async () => {
+    // common conversation
     await conversationFactory({ integrationId: integration._id });
     await conversationFactory();
     await conversationFactory();
 
-    const responses = await graphqlRequest(qryConversations, 'conversations', {
+    const responses1 = await graphqlRequest(qryConversations, 'conversations', {
       brandId: brand._id
     });
 
-    expect(responses.length).toBe(1);
+    expect(responses1.length).toBe(1);
+
+    // Conversations userRelevance
+    await conversationFactory({ integrationId: integration._id });
+    await conversationFactory({
+      integrationId: integration._id,
+      userRelevance: userWithCode.code
+    });
+    await conversationFactory({
+      integrationId: integration._id,
+      userRelevance: `${userWithCode.code}|SAD`
+    });
+
+    // exclude ================
+    await conversationFactory({
+      integrationId: integration._id,
+      userRelevance: 'ASD'
+    });
+    await conversationFactory({
+      integrationId: integration._id,
+      userRelevance: 'WEQ'
+    });
+
+    await conversationFactory();
+    await conversationFactory();
+
+    const responses2 = await graphqlRequest(
+      qryConversations,
+      'conversations',
+      { brandId: brand._id },
+      { user: userWithCode }
+    );
+
+    expect(responses2.length).toBe(4);
   });
 
   test('Conversations filtered by participating user', async () => {
@@ -641,34 +700,104 @@ describe('conversationQueries', () => {
     await conversationFactory({ integrationId: integration._id });
     await conversationFactory({ integrationId: integration._id });
 
-    const responses = await graphqlRequest(
+    const responses1 = await graphqlRequest(
       qryConversations,
       'conversations',
       { participating: 'true' },
       { user }
     );
 
-    expect(responses.length).toBe(1);
+    expect(responses1.length).toBe(1);
+
+    // Conversations userRelevance ======================
+    await conversationFactory({
+      integrationId: integration._id,
+      participatedUserIds: [userWithCode._id]
+    });
+    await conversationFactory({
+      integrationId: integration._id,
+      participatedUserIds: [userWithCode._id],
+      userRelevance: userWithCode.code
+    });
+
+    // exclude =====================
+    await conversationFactory({ integrationId: integration._id });
+    await conversationFactory({
+      integrationId: integration._id,
+      participatedUserIds: [userWithCode._id],
+      userRelevance: 'QWE'
+    });
+
+    const responses2 = await graphqlRequest(
+      qryConversations,
+      'conversations',
+      { participating: 'true' },
+      { user: userWithCode }
+    );
+
+    expect(responses2.length).toBe(2);
   });
 
   test('Conversations filtered by awaiting response', async () => {
+    // common conversation
     const conv = await conversationFactory({ integrationId: integration._id });
+
     await conversationMessageFactory({
       conversationId: conv._id,
       customerId: 'customerId'
     });
 
-    const responses = await graphqlRequest(
+    const responses1 = await graphqlRequest(
       qryConversations,
       'conversations',
       { awaitingResponse: 'true' },
       { user }
     );
 
-    expect(responses.length).toBe(1);
+    expect(responses1.length).toBe(1);
+
+    // Conversations userRelevance ==================
+    const conv1 = await conversationFactory({ integrationId: integration._id });
+
+    const conv2 = await conversationFactory({
+      integrationId: integration._id,
+      userRelevance: userWithCode.code
+    });
+
+    await conversationMessageFactory({
+      conversationId: conv1._id,
+      customerId: 'customerId'
+    });
+    await conversationMessageFactory({
+      conversationId: conv2._id,
+      customerId: 'customerId'
+    });
+
+    // exclude ============================
+    await conversationFactory({ integrationId: integration._id });
+
+    const conv3 = await conversationFactory({
+      integrationId: integration._id,
+      userRelevance: 'CCC'
+    });
+
+    await conversationMessageFactory({
+      conversationId: conv3._id,
+      customerId: 'customerId'
+    });
+
+    const responses2 = await graphqlRequest(
+      qryConversations,
+      'conversations',
+      { awaitingResponse: 'true' },
+      { user: userWithCode }
+    );
+
+    expect(responses2.length).toBe(3);
   });
 
   test('Conversations filtered by status', async () => {
+    // common conversation
     await conversationFactory({
       status: 'closed',
       integrationId: integration._id
@@ -684,14 +813,50 @@ describe('conversationQueries', () => {
       integrationId: integration._id
     });
 
-    const responses = await graphqlRequest(
+    const responses1 = await graphqlRequest(
       qryConversations,
       'conversations',
       { status: 'closed' },
       { user }
     );
 
-    expect(responses.length).toBe(1);
+    expect(responses1.length).toBe(1);
+
+    // Conversation userRelevance ===================
+    await conversationFactory({
+      status: 'closed',
+      integrationId: integration._id
+    });
+    await conversationFactory({
+      status: 'closed',
+      integrationId: integration._id,
+      userRelevance: userWithCode.code
+    });
+    await conversationFactory({
+      status: 'closed',
+      integrationId: integration._id,
+      userRelevance: `${userWithCode.code}|QWE`
+    });
+
+    // exclude ==============
+    await conversationFactory({
+      status: 'new',
+      integrationId: integration._id
+    });
+    await conversationFactory({
+      status: 'closed',
+      integrationId: integration._id,
+      userRelevance: 'GGG'
+    });
+
+    const responses2 = await graphqlRequest(
+      qryConversations,
+      'conversations',
+      { status: 'closed' },
+      { user: userWithCode }
+    );
+
+    expect(responses2.length).toBe(4);
   });
 
   test('Conversations filtered by unassigned', async () => {
@@ -710,22 +875,66 @@ describe('conversationQueries', () => {
       assignedUserId: user._id
     });
 
+    // common conversation
     await conversationFactory({
       integrationId: integration._id
     });
 
-    const responses = await graphqlRequest(
+    const responses1 = await graphqlRequest(
       qryConversations,
       'conversations',
       { unassigned: 'true' },
       { user }
     );
 
-    expect(responses.length).toBe(1);
+    expect(responses1.length).toBe(1);
+
+    // Conversations userRelevance ====================
+    await conversationFactory({
+      integrationId: integration._id
+    });
+    await conversationFactory({
+      integrationId: integration._id
+    });
+    await conversationFactory({
+      integrationId: integration._id,
+      userRelevance: userWithCode.code
+    });
+    await conversationFactory({
+      integrationId: integration._id,
+      userRelevance: `${userWithCode.code}|WQE`
+    });
+
+    // exclude ===============
+    await conversationFactory({
+      integrationId: integration._id,
+      assignedUserId: user._id
+    });
+    await conversationFactory({
+      integrationId: integration._id,
+      assignedUserId: user._id
+    });
+    await conversationFactory({
+      integrationId: integration._id,
+      userRelevance: 'GGG'
+    });
+    await conversationFactory({
+      integrationId: integration._id,
+      userRelevance: 'GGG|ANC'
+    });
+
+    const responses2 = await graphqlRequest(
+      qryConversations,
+      'conversations',
+      { unassigned: 'true' },
+      { user: userWithCode }
+    );
+
+    expect(responses2.length).toBe(5);
   });
 
   test('Conversations filtered by starred', async () => {
-    const conversation = await conversationFactory({
+    const conversation1 = await conversationFactory({
       integrationId: integration._id
     });
 
@@ -734,58 +943,190 @@ describe('conversationQueries', () => {
 
     await Users.updateOne(
       { _id: user._id },
-      { $set: { starredConversationIds: [conversation._id] } }
+      { $set: { starredConversationIds: [conversation1._id] } }
     );
 
-    const updatedUser = await Users.findOne({ _id: user._id });
+    const updatedUser1 = await Users.findOne({ _id: user._id });
 
-    const responses = await graphqlRequest(
+    const responses1 = await graphqlRequest(
       qryConversations,
       'conversations',
       { starred: 'true' },
-      { user: updatedUser }
+      { user: updatedUser1 }
     );
 
-    expect(responses.length).toBe(1);
+    expect(responses1.length).toBe(1);
+
+    // Conversations userRelevance
+    const conversation2 = await conversationFactory({
+      integrationId: integration._id
+    });
+    const conversation3 = await conversationFactory({
+      integrationId: integration._id,
+      userRelevance: userWithCode.code
+    });
+
+    // exclude ===========
+    await conversationFactory({ integrationId: integration._id });
+    await conversationFactory({ integrationId: integration._id });
+    const conversation4 = await conversationFactory({
+      integrationId: integration._id,
+      userRelevance: 'ANC'
+    });
+    const conversation5 = await conversationFactory({
+      integrationId: integration._id,
+      userRelevance: 'RBC'
+    });
+
+    await Users.updateOne(
+      { _id: userWithCode._id },
+      {
+        $set: {
+          starredConversationIds: [
+            conversation2._id,
+            conversation3._id,
+            conversation4._id,
+            conversation5._id
+          ]
+        }
+      }
+    );
+
+    const updatedUser2 = await Users.findOne({ _id: userWithCode._id });
+
+    const responses2 = await graphqlRequest(
+      qryConversations,
+      'conversations',
+      { starred: 'true' },
+      { user: updatedUser2 }
+    );
+
+    expect(responses2.length).toBe(2);
   });
 
   test('Conversations filtered by integration type', async () => {
     const integration1 = await integrationFactory({ kind: 'lead' });
     const integration2 = await integrationFactory({ kind: 'lead' });
 
+    // common conversation
     await conversationFactory({ integrationId: integration._id });
+
     await conversationFactory({ integrationId: integration1._id });
     await conversationFactory({ integrationId: integration2._id });
 
-    const responses = await graphqlRequest(
+    const responses1 = await graphqlRequest(
       qryConversations,
       'conversations',
       { integrationType: 'messenger' },
       { user }
     );
 
-    expect(responses.length).toBe(1);
+    expect(responses1.length).toBe(1);
+
+    // Conversations with userRevelance
+    const integration3 = await integrationFactory({ kind: 'lead' });
+
+    await conversationFactory({ integrationId: integration._id });
+    await conversationFactory({
+      integrationId: integration._id,
+      userRelevance: userWithCode.code
+    });
+    await conversationFactory({
+      integrationId: integration._id,
+      userRelevance: `${userWithCode.code}|GGE`
+    });
+
+    // exclude ==================
+    await conversationFactory({
+      integrationId: integration._id,
+      userRelevance: 'ABC'
+    });
+    await conversationFactory({
+      integrationId: integration._id,
+      userRelevance: 'WEQ'
+    });
+
+    // lead integration
+    await conversationFactory({ integrationId: integration3._id });
+
+    const responses2 = await graphqlRequest(
+      qryConversations,
+      'conversations',
+      { integrationType: 'messenger' },
+      { user: userWithCode }
+    );
+
+    expect(responses2.length).toBe(4);
   });
 
   test('Conversations filtered by tag', async () => {
-    const tag = await tagsFactory({ type: 'conversation' });
+    const tag1 = await tagsFactory({ type: 'conversation' });
 
     await conversationFactory({
-      tagIds: [tag._id],
+      tagIds: [tag1._id],
       integrationId: integration._id
     });
 
     await conversationFactory({ integrationId: integration._id });
     await conversationFactory({ integrationId: integration._id });
 
-    const responses = await graphqlRequest(
+    const responses1 = await graphqlRequest(
       qryConversations,
       'conversations',
-      { tag: tag._id },
+      { tag: tag1._id },
       { user }
     );
 
-    expect(responses.length).toBe(1);
+    expect(responses1.length).toBe(1);
+
+    // Conversations with userRelevance
+    const tag2 = await tagsFactory({ type: 'conversation' });
+
+    await conversationFactory({
+      tagIds: [tag2._id],
+      integrationId: integration._id
+    });
+
+    await conversationFactory({
+      tagIds: [tag2._id],
+      integrationId: integration._id,
+      userRelevance: userWithCode.code
+    });
+
+    await conversationFactory({
+      tagIds: [tag2._id],
+      integrationId: integration._id,
+      userRelevance: userWithCode.code
+    });
+
+    await conversationFactory({
+      tagIds: [tag2._id],
+      integrationId: integration._id,
+      userRelevance: `${userWithCode.code}|ABC`
+    });
+
+    // exclude ================
+    await conversationFactory({ integrationId: integration._id });
+    await conversationFactory({ integrationId: integration._id });
+    await conversationFactory({
+      tagIds: [tag2._id],
+      integrationId: integration._id,
+      userRelevance: `ASD`
+    });
+    await conversationFactory({
+      tagIds: [tag2._id],
+      integrationId: integration._id,
+      userRelevance: `DWQ`
+    });
+
+    const responses2 = await graphqlRequest(
+      qryConversations,
+      'conversations',
+      { tag: tag2._id },
+      { user: userWithCode }
+    );
+
+    expect(responses2.length).toBe(4);
   });
 
   test('Conversations filtered by date', async () => {
@@ -863,6 +1204,70 @@ describe('conversationQueries', () => {
     );
 
     expect(responses.length).toBe(2);
+
+    // Conversations with userRevelance ==================
+    startDate = moment('2018-04-04 15:00');
+    endDate = moment('2018-04-04 22:00');
+
+    const commonFields = {
+      integrationId: integration._id,
+      customerId: '12312',
+      content: '123312123',
+      status: 'new',
+      number: 3,
+      messageCount: 0
+    };
+
+    await Conversations.create({
+      ...commonFields,
+      createdAt: moment(startDate)
+        .add(5, 'hours')
+        .toDate(),
+      userRelevance: userWithCode.code
+    });
+
+    await Conversations.create({
+      ...commonFields,
+      createdAt: moment(startDate)
+        .add(5, 'hours')
+        .toDate()
+    });
+
+    await Conversations.create({
+      ...commonFields,
+      createdAt: moment(startDate)
+        .add(5, 'hours')
+        .toDate(),
+      userRelevance: `${userWithCode.code}|GGG`
+    });
+
+    // exclude ==================
+    await Conversations.create({
+      createdAt: moment(startDate)
+        .add(5, 'hours')
+        .toDate(),
+      ...commonFields,
+      userRelevance: 'ABC'
+    });
+    await Conversations.create({
+      createdAt: moment(startDate)
+        .add(8, 'hours')
+        .toDate(),
+      ...commonFields
+    });
+
+    // From 15 to 22 hours and userRelevance
+    responses = await graphqlRequest(
+      qryConversations,
+      'conversations',
+      {
+        startDate: startDate.toString(),
+        endDate: endDate.toString()
+      },
+      { user: userWithCode }
+    );
+
+    expect(responses.length).toBe(3);
   });
 
   test('Count conversations by channel', async () => {
