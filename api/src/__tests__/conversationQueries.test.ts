@@ -2233,41 +2233,99 @@ describe('conversationQueries', () => {
   test('Get last conversation by channel', async () => {
     await conversationFactory({ integrationId: integration._id });
     await conversationFactory({ integrationId: integration._id });
-    const conversation = await conversationFactory({
+    const conversation1 = await conversationFactory({
       integrationId: integration._id
     });
 
-    const response = await graphqlRequest(
+    const response1 = await graphqlRequest(
       qryGetLast,
       'conversationsGetLast',
       {},
       { user }
     );
 
-    expect(response._id).toBe(conversation._id);
+    expect(response1._id).toBe(conversation1._id);
+
+    // Conversations userRelevance =================
+    await conversationFactory({ integrationId: integration._id });
+
+    const conversation2 = await conversationFactory({
+      integrationId: integration._id,
+      userRelevance: userWithCode.code
+    });
+
+    await conversationFactory({
+      integrationId: integration._id,
+      userRelevance: '123'
+    });
+
+    const response2 = await graphqlRequest(
+      qryGetLast,
+      'conversationsGetLast',
+      {},
+      { user: userWithCode }
+    );
+
+    expect(response2._id).toBe(conversation2._id);
   });
 
   test('Get all unread conversations', async () => {
     await conversationFactory({
       integrationId: integration._id,
       status: 'new',
-      readUserIds: [user._id]
+      readUserIds: [user._id, userWithCode]
     });
 
+    // common conversation
     await conversationFactory({
       integrationId: integration._id,
       status: 'new',
       readUserIds: []
     });
 
-    const response = await graphqlRequest(
+    const response1 = await graphqlRequest(
       qryTotalUnread,
       'conversationsTotalUnreadCount',
       {},
       { user }
     );
 
-    expect(response).toBe(1);
+    expect(response1).toBe(1);
+
+    // Conversations userRelevance =====================
+    await conversationFactory({
+      integrationId: integration._id,
+      status: 'new',
+      readUserIds: []
+    });
+    await conversationFactory({
+      integrationId: integration._id,
+      status: 'new',
+      readUserIds: [],
+      userRelevance: userWithCode.code
+    });
+
+    // exclude ===============
+    await conversationFactory({
+      integrationId: integration._id,
+      status: 'new',
+      readUserIds: [userWithCode._id]
+    });
+    await conversationFactory({
+      integrationId: integration._id,
+      status: 'new',
+      readUserIds: [],
+      userRelevance: 'ABC'
+    });
+
+    const response2 = await graphqlRequest(
+      qryTotalUnread,
+      'conversationsTotalUnreadCount',
+      {},
+      { user: userWithCode }
+    );
+
+    expect(response2).toBe(3);
   });
 
   test('Facebook comments', async () => {
