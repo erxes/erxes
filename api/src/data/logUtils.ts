@@ -1400,7 +1400,7 @@ export const putCreateLog = async (
 
   await sendToWebhook(LOG_ACTIONS.CREATE, params.type, params);
 
-  return putCreateLogC(messageBroker, gatherDescriptions, params, user)
+  return putCreateLogC(messageBroker, gatherDescriptions, params, user);
 };
 
 /**

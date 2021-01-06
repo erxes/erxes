@@ -1,3 +1,5 @@
+import * as Sentry from '@sentry/browser';
+
 import '@nateradebaugh/react-datetime/css/react-datetime.css';
 import * as Sentry from '@sentry/browser';
 import 'abortcontroller-polyfill/dist/polyfill-patch-fetch';
@@ -17,6 +19,13 @@ import { ApolloProvider } from 'react-apollo';
 import { render } from 'react-dom';
 import apolloClient from './apolloClient';
 import Routes from './routes';
+
+Sentry.init({
+  dsn:
+    'https://ee258b631459426f976a22261da3bfdc@o427075.ingest.sentry.io/5580254',
+
+  tracesSampleRate: 1.0
+});
 
 dayjs.extend(localizedFormat);
 dayjs.extend(relativeTime);
