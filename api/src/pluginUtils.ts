@@ -2,17 +2,15 @@ import { withFilter } from 'apollo-server-express';
 import * as fs from 'fs';
 import * as mongoose from 'mongoose';
 import * as path from 'path';
+import { ILogDataParams } from './data/logUtils';
 import { can, registerModule } from './data/permissions/utils';
 import { checkLogin } from './data/permissions/wrappers';
 import * as allModels from './db/models';
+import { IUserDocument } from './db/models/definitions/users';
 import { debugError } from './debuggers';
 import memoryStorage from './inmemoryStorage';
 import messageBroker from './messageBroker';
 import { graphqlPubsub } from './pubsub';
-
-export { allModels }
-
-export const pluginsConsumers = {}
 
 interface ISubAfterMutations {
   [action: string]: {
@@ -23,7 +21,8 @@ interface IAfterMutations {
   [type: string]: ISubAfterMutations[];
 }
 
-export const callAfterMutations: IAfterMutations[] | {} = {};
+const callAfterMutations: IAfterMutations[] | {} = {};
+const pluginsConsumers = {}
 
 const tryRequire = (requirPath) => {
   try {
@@ -325,3 +324,65 @@ export const extendViaPlugins = (app, resolvers, typeDefDetails): Promise<any> =
     }
   });
 });
+
+export const pluginsConsume = (client, prefix) => {
+  const { consumeQueue, consumeRPCQueue } = client;
+  const context = {
+    models: allModels,
+    memoryStorage,
+    graphqlPubsub
+  };
+
+  for (const channel of Object.keys(pluginsConsumers)) {
+    const mbroker = pluginsConsumers[channel];
+
+    if (mbroker.method === "RPCQueue") {
+      consumeRPCQueue(
+        channel.concat(prefix),
+        async msg => mbroker.handler(msg, context)
+      );
+
+    } else {
+      consumeQueue(
+        channel.concat(prefix),
+        async msg => await mbroker.handler(msg, context)
+      );
+    }
+  }
+}
+
+interface IFinalLogParams extends ILogDataParams {
+  action: string;
+}
+
+export const callAfterMutation = async (params: IFinalLogParams, user: IUserDocument) => {
+  if (!callAfterMutations) {
+    return;
+  }
+
+  const { type, action } = params;
+
+  // not used type in plugins
+  if (!callAfterMutations[type]) {
+    return;
+  }
+
+  // not used this type's action in plugins
+  if (!callAfterMutations[type][action]) {
+    return;
+  }
+
+  try {
+    for (const handler of callAfterMutations[type][action]) {
+      await handler({}, params, {
+        user,
+        models: allModels,
+        memoryStorage,
+        graphqlPubsub,
+        messageBroker
+      });
+    }
+  } catch (e) {
+    throw new Error(e.message);
+  }
+}

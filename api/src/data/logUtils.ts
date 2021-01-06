@@ -54,10 +54,8 @@ import {
   Users,
   UsersGroups
 } from '../db/models/index';
-import memoryStorage from '../inmemoryStorage';
 import messageBroker from '../messageBroker';
-import { allModels, callAfterMutations } from '../pluginUtils';
-import { graphqlPubsub } from '../pubsub';
+import { callAfterMutation } from '../pluginUtils';
 import { MODULE_NAMES } from './constants';
 import {
   getSubServiceDomain,
@@ -98,10 +96,6 @@ export interface ILogDataParams {
   newData?: object;
   extraDesc?: object[];
   updatedDocument?: any;
-}
-
-interface IFinalLogParams extends ILogDataParams {
-  action: string;
 }
 
 export interface ILogQueryParams {
@@ -1404,13 +1398,7 @@ export const putCreateLog = async (
 
   await sendToWebhook(LOG_ACTIONS.CREATE, params.type, params);
 
-  await afterMutations(
-    {
-      ...params,
-      action: LOG_ACTIONS.CREATE
-    },
-    user
-  );
+  await callAfterMutation({ ...params, action: LOG_ACTIONS.CREATE }, user);
 
   return putCreateLogC(messageBroker, gatherDescriptions, params, user)
 };
@@ -1426,13 +1414,7 @@ export const putUpdateLog = async (
 ) => {
   await sendToWebhook(LOG_ACTIONS.UPDATE, params.type, params);
 
-  await afterMutations(
-    {
-      ...params,
-      action: LOG_ACTIONS.UPDATE,
-    },
-    user
-  );
+  await callAfterMutation({ ...params, action: LOG_ACTIONS.UPDATE, }, user);
 
   return putUpdateLogC(messageBroker, gatherDescriptions, params, user);
 };
@@ -1448,13 +1430,7 @@ export const putDeleteLog = async (
 ) => {
   await sendToWebhook(LOG_ACTIONS.DELETE, params.type, params);
 
-  await afterMutations(
-    {
-      ...params,
-      action: LOG_ACTIONS.DELETE
-    },
-    user
-  );
+  await callAfterMutation({ ...params, action: LOG_ACTIONS.DELETE }, user);
 
   return putDeleteLogC(messageBroker, gatherDescriptions, params, user);
 };
@@ -1475,29 +1451,3 @@ export const fetchLogs = (params: ILogQueryParams) => {
     'Failed to connect to logs api. Check whether LOGS_API_DOMAIN env is missing or logs api is not running'
   );
 };
-
-const afterMutations = async (params: IFinalLogParams, user: IUserDocument) => {
-  try {
-    // mutation after wrapper
-    if (callAfterMutations) {
-      const { type, action } = params;
-      if (
-        callAfterMutations[type] &&
-        callAfterMutations[type][action] &&
-        callAfterMutations[type][action].length
-      ) {
-        for (const handler of callAfterMutations[type][action]) {
-          await handler({}, params, {
-            user,
-            models: allModels,
-            memoryStorage,
-            graphqlPubsub,
-            messageBroker
-          });
-        }
-      }
-    }
-  } catch (e) {
-    throw new Error(e.message);
-  }
-}
