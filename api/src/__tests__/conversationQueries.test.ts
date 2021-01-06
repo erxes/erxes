@@ -7,7 +7,6 @@ import {
   conversationFactory,
   conversationMessageFactory,
   integrationFactory,
-  skillFactor,
   tagsFactory,
   userFactory
 } from '../db/factories';
@@ -458,61 +457,142 @@ describe('conversationQueries', () => {
     expect(responses.length).toBe(3);
   });
 
-  test('Conversations by skillId', async () => {
-    // with user has skillId
-    const newUser = await userFactory({ code: '321312' });
-    const newUser2 = await userFactory({ code: 'ABC' });
-    const newUser3 = await userFactory({ code: '0099' });
+  test('Conversations by skill based routing', async () => {
+    // User not in channel =================================
+    const userNoChannel = await userFactory({});
+
+    await conversationFactory();
+    await conversationFactory();
+
+    const responseUserNoChannelConv = await graphqlRequest(
+      qryConversations,
+      'conversations',
+      { channelId: channel._id },
+      { user: userNoChannel }
+    );
+
+    expect(responseUserNoChannelConv.length).toBe(0);
+
+    // User in channel ======================================
+    const userInChannel = await userFactory({});
+
+    await conversationFactory({ integrationId: integration._id });
+    await conversationFactory({ integrationId: integration._id });
+    await conversationFactory({ integrationId: integration._id });
 
     await Channels.update(
       { _id: channel._id },
-      { $push: { memberIds: [newUser._id, newUser2._id, newUser3._id] } }
+      { $push: { memberIds: [userInChannel._id] } }
     );
 
-    await skillFactor({ memberIds: [newUser._id] });
-    await skillFactor({ memberIds: [newUser3._id] });
+    const responseUserInChannelConv = await graphqlRequest(
+      qryConversations,
+      'conversations',
+      { channelId: channel._id },
+      { user: userInChannel }
+    );
+
+    expect(responseUserInChannelConv.length).toBe(3);
+
+    // User with code but no skills, channel ====================
+    const userWithCode = await userFactory({ code: '001' });
+
+    const responseUserWithCode = await graphqlRequest(
+      qryConversations,
+      'conversations',
+      { user: userWithCode }
+    );
+
+    expect(responseUserWithCode.length).toBe(0);
+
+    // User with code and in channel but no skill =================
+    const userWithCodeChannel = await userFactory({ code: '001' });
 
     await conversationFactory({ integrationId: integration._id });
     await conversationFactory({ integrationId: integration._id });
+
+    await Channels.update(
+      { _id: channel._id },
+      { $push: { memberIds: [userWithCodeChannel._id] } }
+    );
+
+    const responseUserWithCodeChannel = await graphqlRequest(
+      qryConversations,
+      'conversations',
+      { channelId: channel._id },
+      { user: userWithCodeChannel }
+    );
+
+    expect(responseUserWithCodeChannel.length).toBe(5);
+
+    // User with skill and code but no channel ===============
+    const userWithCodeSkill = await userFactory({ code: '002' });
+
     await conversationFactory({ integrationId: integration._id });
     await conversationFactory({
       integrationId: integration._id,
-      userRelevance: newUser.code
+      userRelevance: userWithCodeSkill.code
+    });
+
+    const responseUserWithCodeSkill = await graphqlRequest(
+      qryConversations,
+      'conversations',
+      { user: userWithCodeSkill }
+    );
+
+    expect(responseUserWithCodeSkill.length).toBe(0);
+
+    // User with skill, code and in channel =================
+    const userWithCodeSkillChannel = await userFactory({ code: '003' });
+
+    await Channels.update(
+      { _id: channel._id },
+      { $push: { memberIds: [userWithCodeSkillChannel._id] } }
+    );
+
+    await conversationFactory({ integrationId: integration._id });
+    await conversationFactory({
+      integrationId: integration._id,
+      userRelevance: userWithCodeSkillChannel.code
+    });
+
+    const responseUserWithCodeSkillChannel = await graphqlRequest(
+      qryConversations,
+      'conversations',
+      { channelId: channel._id },
+      { user: userWithCodeSkillChannel }
+    );
+
+    expect(responseUserWithCodeSkillChannel.length).toBe(8);
+
+    // User with skill, code and no conv
+    const userWithNoCov = await userFactory({ code: '004' });
+
+    await Channels.update(
+      { _id: channel._id },
+      { $push: { memberIds: [userWithNoCov._id] } }
+    );
+
+    await conversationFactory({ integrationId: integration._id });
+
+    // Conversation with different user code
+    await conversationFactory({
+      integrationId: integration._id,
+      userRelevance: userWithCodeSkillChannel.code
     });
     await conversationFactory({
       integrationId: integration._id,
-      userRelevance: newUser.code
+      userRelevance: userWithCodeSkillChannel.code
     });
 
-    // with skill - only related conversations
-    const responses = await graphqlRequest(
+    const responseUserWithSkillNoConv = await graphqlRequest(
       qryConversations,
       'conversations',
       { channelId: channel._id },
-      { user: newUser }
+      { user: userWithNoCov }
     );
 
-    expect(responses.length).toBe(5);
-
-    // user without skillId - all conversations
-    const responses2 = await graphqlRequest(
-      qryConversations,
-      'conversations',
-      { channelId: channel._id },
-      { user: newUser2 }
-    );
-
-    expect(responses2.length).toBe(3);
-
-    // user with skillId no related conversations - conversations without userRelevance field
-    const responses3 = await graphqlRequest(
-      qryConversations,
-      'conversations',
-      { channelId: channel._id },
-      { user: newUser3 }
-    );
-
-    expect(responses3.length).toBe(3);
+    expect(responseUserWithSkillNoConv.length).toBe(8);
   });
 
   test('Conversations filtered by channel', async () => {
