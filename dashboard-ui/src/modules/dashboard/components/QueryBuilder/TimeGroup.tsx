@@ -51,6 +51,7 @@ const TimeGroup = ({
             }
             availableMembers={availableMembers}
             schemaType={type}
+            addMemberName={addMemberName}
           >
             {m.dimension.shortTitle}
           </MemberDropdown>
@@ -87,6 +88,7 @@ const TimeGroup = ({
           type="dashed"
           icon={<Icon icon="plus-1" />}
           schemaType={type}
+          addMemberName={addMemberName}
         >
           {addMemberName}
         </MemberDropdown>

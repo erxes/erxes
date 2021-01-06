@@ -32,6 +32,7 @@ class MemberGroup extends React.Component<Props> {
         availableMembers={availableMembers}
         type="dashed"
         schemaType={type}
+        addMemberName={addMemberName}
         icon={<Icon icon="plus-1" />}
       >
         {addMemberName}
@@ -39,7 +40,13 @@ class MemberGroup extends React.Component<Props> {
     );
   };
   render() {
-    const { members, availableMembers, updateMethods, type } = this.props;
+    const {
+      members,
+      availableMembers,
+      updateMethods,
+      type,
+      addMemberName
+    } = this.props;
 
     return (
       <>
@@ -52,6 +59,7 @@ class MemberGroup extends React.Component<Props> {
               availableMembers={availableMembers}
               onClick={updateWith => updateMethods.update(m, updateWith)}
               schemaType={type}
+              addMemberName={addMemberName}
             >
               {m.shortTitle}
             </MemberDropdown>

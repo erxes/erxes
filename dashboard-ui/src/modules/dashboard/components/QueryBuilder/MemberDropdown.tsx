@@ -3,9 +3,14 @@ import { ignoredFilters, ignoredMeasures } from 'modules/dashboard/constants';
 import React from 'react';
 import ButtonDropdown from './ButtonDropdown';
 
-const generateMember = (availableMembers, schemaType, isFilter) => {
+const generateMember = (availableMembers, schemaType, addMemberName) => {
   const generatedMembers = [] as any;
-  const hideFields = isFilter ? ignoredFilters : ignoredMeasures;
+  const hideFields =
+    addMemberName === 'Filter'
+      ? ignoredFilters
+      : addMemberName !== 'Time'
+      ? ignoredMeasures
+      : [];
 
   if (availableMembers) {
     availableMembers.forEach(members => {
@@ -23,11 +28,11 @@ const generateMember = (availableMembers, schemaType, isFilter) => {
   return generatedMembers;
 };
 
-const memberMenu = (onClick, availableMembers, schemaType, isFilter) => {
+const memberMenu = (onClick, availableMembers, schemaType, addMemberName) => {
   const generatedMembers = generateMember(
     availableMembers,
     schemaType,
-    isFilter
+    addMemberName
   ) as any[];
 
   return (
@@ -49,11 +54,11 @@ const MemberDropdown = ({
   onClick,
   availableMembers,
   schemaType,
-  isFilter = false,
+  addMemberName,
   ...buttonProps
 }) => (
   <ButtonDropdown
-    overlay={memberMenu(onClick, availableMembers, schemaType, isFilter)}
+    overlay={memberMenu(onClick, availableMembers, schemaType, addMemberName)}
     {...buttonProps}
   />
 );
