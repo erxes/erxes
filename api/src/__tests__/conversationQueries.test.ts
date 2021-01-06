@@ -24,6 +24,8 @@ import './setup.ts';
 
 describe('conversationQueries', () => {
   let user;
+  let userWithCode;
+  let userWithoutCode;
   let channel;
   let brand;
   let integration;
@@ -186,13 +188,16 @@ describe('conversationQueries', () => {
     brand = await brandFactory();
     user = await userFactory({});
 
+    userWithCode = await userFactory({ code: '000' });
+    userWithoutCode = await userFactory({});
+
     integration = await integrationFactory({
       kind: 'messenger',
       brandId: brand._id
     });
 
     channel = await channelFactory({
-      memberIds: [user._id],
+      memberIds: [user._id, userWithCode._id, userWithoutCode._id],
       integrationIds: [integration._id]
     });
 
@@ -1042,13 +1047,13 @@ describe('conversationQueries', () => {
     const integration1 = await integrationFactory({});
     const integration2 = await integrationFactory({});
 
-    // integration with channel
+    // integration with channel - common conversation
     await conversationFactory({ integrationId: integration._id });
 
     await conversationFactory({ integrationId: integration1._id });
     await conversationFactory({ integrationId: integration2._id });
 
-    const response = await graphqlRequest(
+    const response1 = await graphqlRequest(
       qryTotalCount,
       'conversationsTotalCount',
       {
@@ -1056,20 +1061,82 @@ describe('conversationQueries', () => {
       }
     );
 
-    expect(response).toBe(1);
+    expect(response1).toBe(1);
+
+    // Conversations with userRelevance ========================
+    await conversationFactory({ integrationId: integration._id });
+    await conversationFactory({
+      integrationId: integration._id,
+      userRelevance: userWithCode.code
+    });
+    await conversationFactory({
+      integrationId: integration._id,
+      userRelevance: userWithCode.code
+    });
+    await conversationFactory({
+      integrationId: integration._id,
+      userRelevance: `${userWithCode.code}|ABC`
+    });
+
+    // exclude ======================
+    await conversationFactory({ integrationId: integration1._id });
+    await conversationFactory({ integrationId: integration2._id });
+    await conversationFactory({
+      integrationId: integration._id,
+      userRelevance: 'ZXC'
+    });
+
+    const response2 = await graphqlRequest(
+      qryTotalCount,
+      'conversationsTotalCount',
+      { channelId: channel._id },
+      { user: userWithCode }
+    );
+
+    expect(response2).toBe(5);
+
+    const integration3 = await integrationFactory({});
+
+    const channel2 = await channelFactory({
+      integrationIds: [integration3._id]
+    });
+
+    const user2 = await userFactory({ code: '004' });
+
+    await conversationFactory({
+      integrationId: integration3._id,
+      userRelevance: user2.code
+    });
+    await conversationFactory({
+      integrationId: integration3._id,
+      userRelevance: user2.code
+    });
+    await conversationFactory({
+      integrationId: integration._id,
+      userRelevance: user2.code
+    });
+
+    const response3 = await graphqlRequest(
+      qryTotalCount,
+      'conversationsTotalCount',
+      { channelId: channel2._id },
+      { user: user2 }
+    );
+
+    expect(response3).toBe(2);
   });
 
   test('Get total count of conversations by brand', async () => {
     const integration1 = await integrationFactory({});
     const integration2 = await integrationFactory({});
 
-    // integration with brand
+    // integration with brand - common conversation
     await conversationFactory({ integrationId: integration._id });
 
     await conversationFactory({ integrationId: integration1._id });
     await conversationFactory({ integrationId: integration2._id });
 
-    const response = await graphqlRequest(
+    const response1 = await graphqlRequest(
       qryTotalCount,
       'conversationsTotalCount',
       {
@@ -1077,10 +1144,43 @@ describe('conversationQueries', () => {
       }
     );
 
-    expect(response).toBe(1);
+    expect(response1).toBe(1);
+
+    // Conversations with userRelevance ===================
+    await conversationFactory({
+      integrationId: integration._id,
+      userRelevance: userWithCode.code
+    });
+    await conversationFactory({
+      integrationId: integration._id,
+      userRelevance: userWithCode.code
+    });
+    await conversationFactory({
+      integrationId: integration._id
+    });
+
+    // exclude =========================
+    await conversationFactory({
+      integrationId: integration._id,
+      userRelevance: 'ABC'
+    });
+
+    await conversationFactory({ integrationId: integration1._id });
+    await conversationFactory({ integrationId: integration2._id });
+    await conversationFactory({ integrationId: integration2._id });
+
+    const response2 = await graphqlRequest(
+      qryTotalCount,
+      'conversationsTotalCount',
+      { brandId: brand._id },
+      { user: userWithCode }
+    );
+
+    expect(response2).toBe(4);
   });
 
   test('Get total count of conversations by unassigned', async () => {
+    // common conversation
     await conversationFactory({
       integrationId: integration._id
     });
@@ -1100,14 +1200,55 @@ describe('conversationQueries', () => {
       assignedUserId: user._id
     });
 
-    const response = await graphqlRequest(
+    const response1 = await graphqlRequest(
       qryTotalCount,
       'conversationsTotalCount',
       { unassigned: 'true' },
       { user }
     );
 
-    expect(response).toBe(1);
+    expect(response1).toBe(1);
+
+    // Conversations with userRelevance ========================
+    await conversationFactory({
+      integrationId: integration._id
+    });
+    await conversationFactory({
+      integrationId: integration._id
+    });
+    await conversationFactory({
+      integrationId: integration._id,
+      userRelevance: userWithCode.code
+    });
+
+    // exclude =====================
+    await conversationFactory({
+      integrationId: integration._id,
+      userRelevance: 'ABC'
+    });
+    await conversationFactory({
+      integrationId: integration._id,
+      assignedUserId: user._id,
+      userRelevance: userWithCode.code
+    });
+    await conversationFactory({
+      integrationId: integration._id,
+      assignedUserId: user._id,
+      userRelevance: userWithCode.code
+    });
+    await conversationFactory({
+      integrationId: integration._id,
+      assignedUserId: user._id
+    });
+
+    const response = await graphqlRequest(
+      qryTotalCount,
+      'conversationsTotalCount',
+      { unassigned: 'true' },
+      { user: userWithCode }
+    );
+
+    expect(response).toBe(4);
   });
 
   test('Get total count of conversations by participating', async () => {
@@ -1119,14 +1260,41 @@ describe('conversationQueries', () => {
     await conversationFactory({ integrationId: integration._id });
     await conversationFactory({ integrationId: integration._id });
 
-    const response = await graphqlRequest(
+    const response1 = await graphqlRequest(
       qryTotalCount,
       'conversationsTotalCount',
       { participating: 'true' },
       { user }
     );
 
-    expect(response).toBe(1);
+    expect(response1).toBe(1);
+
+    // Conversations with userRelevance ===========================
+    await conversationFactory({
+      integrationId: integration._id,
+      participatedUserIds: [userWithCode._id],
+      userRelevance: userWithCode.code
+    });
+    await conversationFactory({
+      integrationId: integration._id,
+      participatedUserIds: [userWithCode._id]
+    });
+    await conversationFactory({
+      integrationId: integration._id,
+      participatedUserIds: [userWithCode._id]
+    });
+
+    await conversationFactory({ integrationId: integration._id });
+    await conversationFactory({ integrationId: integration._id });
+
+    const response = await graphqlRequest(
+      qryTotalCount,
+      'conversationsTotalCount',
+      { participating: 'true' },
+      { user: userWithCode }
+    );
+
+    expect(response).toBe(3);
   });
 
   test('Get total count of conversations by starred', async () => {
@@ -1142,19 +1310,109 @@ describe('conversationQueries', () => {
       { $set: { starredConversationIds: [conversation._id] } }
     );
 
-    const updatedUser = await Users.findOne({ _id: user._id });
+    const updatedUser1 = await Users.findOne({ _id: user._id });
+
+    const response1 = await graphqlRequest(
+      qryTotalCount,
+      'conversationsTotalCount',
+      { starred: 'true' },
+      { user: updatedUser1 }
+    );
+
+    expect(response1).toBe(1);
+
+    // Conversations with userRelevance ========================
+    await conversationFactory({ integrationId: integration._id });
+    await conversationFactory({ integrationId: integration._id });
+    await conversationFactory({ integrationId: integration._id });
+
+    const conversation1 = await conversationFactory({
+      integrationId: integration._id,
+      userRelevance: userWithCode.code
+    });
+    const conversation2 = await conversationFactory({
+      integrationId: integration._id,
+      userRelevance: userWithCode.code
+    });
+    const conversation3 = await conversationFactory({
+      integrationId: integration._id,
+      userRelevance: userWithCode.code
+    });
+
+    // common conversation
+    const conversation4 = await conversationFactory({
+      integrationId: integration._id
+    });
+
+    // exclude ==============================
+    const conversation5 = await conversationFactory({
+      integrationId: integration._id,
+      userRelevance: 'ABC'
+    });
+
+    const conversation6 = await conversationFactory({
+      integrationId: integration._id,
+      userRelevance: 'QWE'
+    });
+
+    await Users.updateOne(
+      { _id: userWithCode._id },
+      {
+        $set: {
+          starredConversationIds: [
+            conversation1._id,
+            conversation2._id,
+            conversation3._id,
+            conversation4._id,
+            conversation5._id,
+            conversation6._id
+          ]
+        }
+      }
+    );
+
+    const updatedUser2 = await Users.findOne({ _id: userWithCode._id });
+
+    const response2 = await graphqlRequest(
+      qryTotalCount,
+      'conversationsTotalCount',
+      { starred: 'true' },
+      { user: updatedUser2 }
+    );
+
+    expect(response2).toBe(4);
+
+    // Conversations without userRelevance ====================
+    await Users.updateOne(
+      { _id: userWithoutCode._id },
+      {
+        $set: {
+          starredConversationIds: [
+            conversation1._id,
+            conversation2._id,
+            conversation3._id,
+            conversation4._id,
+            conversation5._id,
+            conversation6._id
+          ]
+        }
+      }
+    );
+
+    const updatedUser3 = await Users.findOne({ _id: userWithoutCode._id });
 
     const response = await graphqlRequest(
       qryTotalCount,
       'conversationsTotalCount',
       { starred: 'true' },
-      { user: updatedUser }
+      { user: updatedUser3 }
     );
 
-    expect(response).toBe(1);
+    expect(response).toBe(6);
   });
 
   test('Get total count of conversations by status', async () => {
+    // Common conversations
     await conversationFactory({
       integrationId: integration._id,
       status: 'closed'
@@ -1170,37 +1428,166 @@ describe('conversationQueries', () => {
       status: 'new'
     });
 
-    const response = await graphqlRequest(
+    const response1 = await graphqlRequest(
       qryTotalCount,
       'conversationsTotalCount',
       { status: 'closed' },
       { user }
     );
 
-    expect(response).toBe(1);
+    expect(response1).toBe(1);
+
+    // Conversations with userRelevance ========================
+    await conversationFactory({
+      integrationId: integration._id,
+      status: 'closed'
+    });
+    await conversationFactory({
+      integrationId: integration._id,
+      status: 'closed'
+    });
+    await conversationFactory({
+      integrationId: integration._id,
+      status: 'new'
+    });
+    await conversationFactory({
+      integrationId: integration._id,
+      status: 'new'
+    });
+
+    // userRevelance conversations
+    await conversationFactory({
+      integrationId: integration._id,
+      status: 'closed',
+      userRelevance: userWithCode.code
+    });
+    await conversationFactory({
+      integrationId: integration._id,
+      status: 'closed',
+      userRelevance: userWithCode.code
+    });
+    await conversationFactory({
+      integrationId: integration._id,
+      status: 'closed',
+      userRelevance: `${userWithCode.code}|POI`
+    });
+
+    // exclude ================
+    await conversationFactory({
+      integrationId: integration._id,
+      status: 'new',
+      userRelevance: userWithCode.code
+    });
+    await conversationFactory({
+      integrationId: integration._id,
+      status: 'closed',
+      userRelevance: 'ABC'
+    });
+    await conversationFactory({
+      integrationId: integration._id,
+      status: 'new',
+      userRelevance: 'QWE'
+    });
+
+    const response2 = await graphqlRequest(
+      qryTotalCount,
+      'conversationsTotalCount',
+      { status: 'closed' },
+      { user: userWithCode }
+    );
+
+    expect(response2).toBe(6);
+
+    // Conversations by user without code ====================
+    const response3 = await graphqlRequest(
+      qryTotalCount,
+      'conversationsTotalCount',
+      { status: 'closed' },
+      { user: userWithoutCode }
+    );
+
+    expect(response3).toBe(7);
   });
 
   test('Get total count of conversations by integration type', async () => {
+    // Conversations without userRelevance =========================
     const integration1 = await integrationFactory({ kind: 'lead' });
     const integration2 = await integrationFactory({ kind: 'lead' });
 
-    // integration with type messenger
+    // integration type messenger - common conversation
     await conversationFactory({ integrationId: integration._id });
 
     await conversationFactory({ integrationId: integration1._id });
     await conversationFactory({ integrationId: integration2._id });
 
-    const response = await graphqlRequest(
+    const response1 = await graphqlRequest(
       qryTotalCount,
       'conversationsTotalCount',
       { integrationType: 'messenger' },
       { user }
     );
 
-    expect(response).toBe(1);
+    expect(response1).toBe(1);
+
+    // Conversations with userRelevance =========================
+    const integrationLead = await integrationFactory({ kind: 'lead' });
+
+    await conversationFactory({ integrationId: integrationLead._id });
+    await conversationFactory({ integrationId: integrationLead._id });
+    await conversationFactory({ integrationId: integrationLead._id });
+
+    // integration type messenger - common conversation
+    await conversationFactory({ integrationId: integration._id });
+    await conversationFactory({ integrationId: integration._id });
+
+    // integration type messenger with userRelevance
+    await conversationFactory({
+      integrationId: integration._id,
+      userRelevance: userWithCode.code
+    });
+    await conversationFactory({
+      integrationId: integration._id,
+      userRelevance: userWithCode.code
+    });
+    await conversationFactory({
+      integrationId: integration._id,
+      userRelevance: `${userWithCode.code}|ZXC`
+    });
+
+    // exclude =======================
+    await conversationFactory({
+      integrationId: integration._id,
+      userRelevance: 'ABC'
+    });
+
+    await conversationFactory({
+      integrationId: integration._id,
+      userRelevance: 'ASD'
+    });
+
+    const response2 = await graphqlRequest(
+      qryTotalCount,
+      'conversationsTotalCount',
+      { integrationType: 'messenger' },
+      { user: userWithCode }
+    );
+
+    expect(response2).toBe(6);
+
+    // Conversations by user without code =====================
+    const response3 = await graphqlRequest(
+      qryTotalCount,
+      'conversationsTotalCount',
+      { integrationType: 'messenger' },
+      { user: userWithoutCode }
+    );
+
+    // all conversations with messenger type
+    expect(response3).toBe(8);
   });
 
   test('Get total count of conversations by tag', async () => {
+    // Conversation without userRelevance =====================
     const tag = await tagsFactory({ type: 'conversation' });
 
     await conversationFactory({
@@ -1211,14 +1598,87 @@ describe('conversationQueries', () => {
     await conversationFactory({ integrationId: integration._id });
     await conversationFactory({ integrationId: integration._id });
 
-    const response = await graphqlRequest(
+    const response1 = await graphqlRequest(
       qryTotalCount,
       'conversationsTotalCount',
       { tag: tag._id },
       { user }
     );
 
-    expect(response).toBe(1);
+    expect(response1).toBe(1);
+
+    // Conversations with single userRelevance =======================
+    const tag1 = await tagsFactory({ type: 'conversation' });
+
+    const user1 = await userFactory({ code: '001' });
+    const user2 = await userFactory({ code: '003' });
+
+    await Channels.update(
+      { _id: channel._id },
+      { $push: { memberIds: [user1._id, user2._id] } }
+    );
+
+    // common conversation user1, user2 ==============
+    await conversationFactory({
+      tagIds: [tag1._id],
+      integrationId: integration._id
+    });
+
+    await conversationFactory({
+      tagIds: [tag1._id],
+      integrationId: integration._id,
+      userRelevance: user1.code
+    });
+
+    // exclude ===================
+    await conversationFactory({
+      tagIds: [tag1._id],
+      integrationId: integration._id,
+      userRelevance: '002'
+    });
+
+    const response2 = await graphqlRequest(
+      qryTotalCount,
+      'conversationsTotalCount',
+      { tag: tag1._id },
+      { user: user1 }
+    );
+
+    expect(response2).toBe(2);
+
+    // Conversations multiple userRelevance =========
+    await conversationFactory({
+      tagIds: [tag1._id],
+      integrationId: integration._id
+    });
+
+    await conversationFactory({
+      tagIds: [tag1._id],
+      integrationId: integration._id,
+      userRelevance: `${user1.code}|${user2.code}`
+    });
+
+    await conversationFactory({
+      tagIds: [tag1._id],
+      integrationId: integration._id,
+      userRelevance: user2.code
+    });
+
+    // exclude ===================
+    await conversationFactory({
+      tagIds: [tag1._id],
+      integrationId: integration._id,
+      userRelevance: user1.code
+    });
+
+    const response3 = await graphqlRequest(
+      qryTotalCount,
+      'conversationsTotalCount',
+      { tag: tag1._id },
+      { user: user2 }
+    );
+
+    expect(response3).toBe(4);
   });
 
   test('Conversation detail', async () => {

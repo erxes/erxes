@@ -343,14 +343,14 @@ export default class Builder {
     return {
       ...this.queries.default,
       ...this.queries.integrations,
+      ...this.queries.extended,
       ...this.queries.unassigned,
       ...this.queries.participating,
       ...this.queries.status,
       ...this.queries.starred,
       ...this.queries.tag,
       ...this.queries.createdAt,
-      ...this.queries.awaitingResponse,
-      ...this.queries.extended
+      ...this.queries.awaitingResponse
     };
   }
 }
