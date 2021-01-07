@@ -279,6 +279,21 @@ const verifiedEmails = `
   }
 `;
 
+const engageEmailPercentages = `
+  query engageEmailPercentages {
+    engageEmailPercentages {
+      avgBouncePercent
+      avgClickPercent
+      avgComplaintPercent
+      avgDeliveryPercent
+      avgOpenPercent
+      avgRejectPercent
+      avgRenderingFailurePercent
+      avgSendPercent
+    }
+  }
+`;
+
 export default {
   engageMessages,
   engageMessagesTotalCount,
@@ -296,5 +311,6 @@ export default {
   statusCounts,
   tagCounts,
   tags,
-  verifiedEmails
+  verifiedEmails,
+  engageEmailPercentages
 };

@@ -277,12 +277,19 @@ const engageQueries = {
    */
   engageVerifiedEmails(_root, _args, { dataSources }: IContext) {
     return dataSources.EngagesAPI.engagesGetVerifiedEmails();
+  },
+
+  async engageEmailPercentages(_root, _args, { dataSources }: IContext) {
+    const response = await dataSources.EngagesAPI.getAverageStats();
+
+    return response.data;
   }
 };
 
 requireLogin(engageQueries, 'engageMessagesTotalCount');
 requireLogin(engageQueries, 'engageMessageCounts');
 requireLogin(engageQueries, 'engageMessageDetail');
+requireLogin(engageQueries, 'engageEmailPercentages');
 
 checkPermission(engageQueries, 'engageMessages', 'showEngagesMessages', []);
 

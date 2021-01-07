@@ -1,5 +1,6 @@
 import { Router } from 'express';
 import { prepareSmsStats } from '../telnyxUtils';
+import { prepareAvgStats } from '../utils';
 
 const router = Router();
 
@@ -84,6 +85,14 @@ router.get(`/logs/:engageMessageId`, async (req, res) => {
   const logs = await Logs.find({ engageMessageId: req.params.engageMessageId });
 
   return res.json(logs);
+});
+
+router.get('/avgStatPercentages', async (req: any, res) => {
+  debugRequest(debugEngages, req);
+
+  const stats = await prepareAvgStats();
+
+  return res.json({ data: stats[0] });
 });
 
 export default router;

@@ -65,6 +65,18 @@ export const types = `
     totalCount: Int
   }
 
+  type AvgEmailStats {
+    avgBouncePercent: Float,
+    avgClickPercent: Float,
+    avgComplaintPercent: Float,
+    avgDeliveryPercent: Float,
+    avgOpenPercent: Float,
+    avgRejectPercent: Float,
+    avgRenderingFailurePercent: Float,
+    avgSendPercent: Float,
+    total: Float
+  }
+
   input EngageScheduleDateInput {
     type: String,
     month: String,
@@ -116,6 +128,7 @@ export const queries = `
   engagesConfigDetail: JSON
   engageVerifiedEmails: [String]
   engageReportsList(page: Int, perPage: Int, customerId: String, status: String): EngageDeliveryReport 
+  engageEmailPercentages: AvgEmailStats
 `;
 
 const commonParams = `
