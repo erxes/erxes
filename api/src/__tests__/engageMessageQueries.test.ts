@@ -465,4 +465,24 @@ describe('engageQueries', () => {
       expect(e[0].message).toBe('Engages api is not running');
     }
   });
+
+  test('Test getAverageStats()', async () => {
+    const qry = `
+      query engageEmailPercentages {
+        engageEmailPercentages {
+          avgBouncePercent
+        }
+      }
+    `;
+
+    const mock = sinon
+      .stub(dataSources.EngagesAPI, 'getAverageStats')
+      .callsFake(() => {
+        return Promise.resolve({ data: { avgBouncePercent: 0 } });
+      });
+
+    await graphqlRequest(qry, 'engageEmailPercentages', {}, { dataSources });
+
+    mock.restore();
+  });
 });
