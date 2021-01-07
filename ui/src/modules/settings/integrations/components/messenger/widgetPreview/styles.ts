@@ -97,12 +97,10 @@ const ErxesState = styled.div`
 `;
 
 const ErxesSpacialMessage = styled.li`
-  background-color: ${messageBg};
   border-radius: ${unitSpace};
-  box-shadow: 0 1px 1px 0 ${rgba(colors.colorBlack, 0.2)};
   color: ${colors.textSecondary};
   margin-bottom: ${coreSpace};
-  padding: ${coreSpace};
+  text-align: right;
 `;
 
 const ErxesAvatar = styled.div`
@@ -127,6 +125,9 @@ const ErxesMessagesList = styled.ul`
   margin: 0;
   flex: 1;
   list-style: none;
+  display: flex;
+  justify-content: flex-end;
+  flex-direction: column;
 
   &.background-1 {
     background-image: url('/images/patterns/bg-1.png');
@@ -144,6 +145,10 @@ const ErxesMessagesList = styled.ul`
   li {
     position: relative;
     margin-bottom: ${unitSpace};
+
+    &:last-child {
+      margin-bottom: 0;
+    }
   }
 `;
 

@@ -30,6 +30,7 @@ export interface IListArgs {
 
 interface IUserArgs {
   _id: string;
+  code?: string;
   starredConversationIds?: string[];
 }
 
@@ -60,6 +61,26 @@ export default class Builder {
     this.user = user;
   }
 
+  public defaultUserQuery() {
+    return [
+      // exclude engage messages if customer did not reply
+      {
+        userId: { $exists: true },
+        messageCount: { $gt: 1 }
+      },
+      {
+        userId: { $exists: false }
+      }
+    ];
+  }
+
+  public userRelevanceQuery() {
+    return [
+      { userRelevance: { $exists: false } },
+      { userRelevance: new RegExp(this.user.code || '') }
+    ];
+  }
+
   public async defaultFilters(): Promise<any> {
     const activeIntegrations = await Integrations.findIntegrations(
       {},
@@ -76,19 +97,7 @@ export default class Builder {
       statusFilter = this.statusFilter([CONVERSATION_STATUSES.CLOSED]);
     }
 
-    return {
-      ...statusFilter,
-      // exclude engage messages if customer did not reply
-      $or: [
-        {
-          userId: { $exists: true },
-          messageCount: { $gt: 1 }
-        },
-        {
-          userId: { $exists: false }
-        }
-      ]
-    };
+    return statusFilter;
   }
 
   public async intersectIntegrationIds(
@@ -145,7 +154,10 @@ export default class Builder {
     // filter by brand
     if (this.params.brandId) {
       const brandQuery = await this.brandFilter(this.params.brandId);
-      nestedIntegrationIds.push(brandQuery);
+
+      if (brandQuery) {
+        nestedIntegrationIds.push(brandQuery);
+      }
     }
 
     return this.intersectIntegrationIds(...nestedIntegrationIds);
@@ -156,6 +168,15 @@ export default class Builder {
     channelId: string
   ): Promise<{ integrationId: IIn }> {
     const channel = await Channels.getChannel(channelId);
+    const memberIds = channel.memberIds || [];
+
+    if (!memberIds.includes(this.user._id)) {
+      return {
+        integrationId: {
+          $in: []
+        }
+      };
+    }
 
     return {
       integrationId: {
@@ -167,8 +188,15 @@ export default class Builder {
   }
 
   // filter by brand
-  public async brandFilter(brandId: string): Promise<{ integrationId: IIn }> {
+  public async brandFilter(
+    brandId: string
+  ): Promise<{ integrationId: IIn } | undefined> {
     const integrations = await Integrations.findIntegrations({ brandId });
+
+    if (integrations.length === 0) {
+      return;
+    }
+
     const integrationIds = _.pluck(integrations, '_id');
 
     return {
@@ -220,20 +248,18 @@ export default class Builder {
   // filter by integration type
   public async integrationTypeFilter(
     integrationType: string
-  ): Promise<{ $and: IIntersectIntegrationIds[] }> {
+  ): Promise<IIntersectIntegrationIds[]> {
     const integrations = await Integrations.findIntegrations({
       kind: integrationType
     });
 
-    return {
-      $and: [
-        // add channel && brand filter
-        this.queries.integrations,
+    return [
+      // add channel && brand filter
+      this.queries.integrations,
 
-        // filter by integration type
-        { integrationId: { $in: _.pluck(integrations, '_id') } }
-      ]
-    };
+      // filter by integration type
+      { integrationId: { $in: _.pluck(integrations, '_id') } }
+    ];
   }
 
   // filter by tag
@@ -249,6 +275,18 @@ export default class Builder {
         $gte: fixDate(startDate),
         $lte: fixDate(endDate)
       }
+    };
+  }
+
+  public async extendedQueryFilter({ integrationType }: IListArgs) {
+    return {
+      $and: [
+        { $or: this.defaultUserQuery() },
+        { $or: this.userRelevanceQuery() },
+        ...(integrationType
+          ? await this.integrationTypeFilter(integrationType)
+          : [])
+      ]
     };
   }
 
@@ -310,26 +348,21 @@ export default class Builder {
       this.queries.tag = this.tagFilter(this.params.tag);
     }
 
-    // filter by integration type
-    if (this.params.integrationType) {
-      this.queries.integrationType = await this.integrationTypeFilter(
-        this.params.integrationType
-      );
-    }
-
     if (this.params.startDate && this.params.endDate) {
       this.queries.createdAt = this.dateFilter(
         this.params.startDate,
         this.params.endDate
       );
     }
+
+    this.queries.extended = await this.extendedQueryFilter(this.params);
   }
 
   public mainQuery(): any {
     return {
       ...this.queries.default,
       ...this.queries.integrations,
-      ...this.queries.integrationType,
+      ...this.queries.extended,
       ...this.queries.unassigned,
       ...this.queries.participating,
       ...this.queries.status,

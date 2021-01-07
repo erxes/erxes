@@ -14,6 +14,10 @@ export const validateSingle = async (contact: IVisitorContact) => {
     defaultValue: ''
   });
 
+  if (!EMAIL_VERIFIER_ENDPOINT) {
+    return;
+  }
+
   const { email, phone } = contact;
   const hostname = await memoryStorage().get('hostname');
 
