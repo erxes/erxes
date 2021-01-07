@@ -252,7 +252,7 @@ class Row extends React.Component<Props> {
         </td>
 
         <td>
-          <Icon icon="clock" />{' '}
+          <Icon icon="clock-eight" />{' '}
           {scheduleDate && scheduleDate.dateTime
             ? dayjs(scheduleDate.dateTime).format('DD MMM YYYY HH:mm')
             : '-- --- ---- --:--'}

@@ -56,12 +56,25 @@ export const types = `
     mailId: String,
     status: String,
     engage: EngageMessage,
-    createdAt: Date
+    createdAt: Date,
+    customerName: String
   }
 
   type EngageDeliveryReport {
     list: [DeliveryReport]
     totalCount: Int
+  }
+
+  type AvgEmailStats {
+    avgBouncePercent: Float,
+    avgClickPercent: Float,
+    avgComplaintPercent: Float,
+    avgDeliveryPercent: Float,
+    avgOpenPercent: Float,
+    avgRejectPercent: Float,
+    avgRenderingFailurePercent: Float,
+    avgSendPercent: Float,
+    total: Float
   }
 
   input EngageScheduleDateInput {
@@ -114,7 +127,8 @@ export const queries = `
   engageMessageCounts(name: String!, kind: String, status: String): JSON
   engagesConfigDetail: JSON
   engageVerifiedEmails: [String]
-  engageReportsList(page: Int, perPage: Int): EngageDeliveryReport 
+  engageReportsList(page: Int, perPage: Int, customerId: String, status: String): EngageDeliveryReport 
+  engageEmailPercentages: AvgEmailStats
 `;
 
 const commonParams = `

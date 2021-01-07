@@ -191,6 +191,21 @@ class EngageSettingsContent extends React.Component<Props, State> {
           />
         </FormGroup>
 
+        <FormGroup>
+          <ControlLabel>Allowed email skip limit</ControlLabel>
+          <p>
+            The number of times that each customer can skip to open or click
+            engage emails. If this limit is exceeded, then the customer will
+            automatically set to
+            <strong> do not disturb </strong>mode.
+          </p>
+          <FormControl
+            {...formProps}
+            name="allowedEmailSkipLimit"
+            defaultValue={configsMap.allowedEmailSkipLimit || 10}
+          />
+        </FormGroup>
+
         <ModalFooter>
           {renderButton({
             name: 'configsMap',
