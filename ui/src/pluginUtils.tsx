@@ -58,7 +58,7 @@ export const pluginsOfRoutes = (currentUser: IUser) => {
   return { plugins, pluginRoutes, specialPluginRoutes }
 }
 
-const PluginsWrapper = ({ itemName, callBack }: { itemName: string, callBack: any }) => {
+const PluginsWrapper = ({ itemName, callBack }: { itemName: string, callBack : (plugin: any, item: any) => React.ReactNode }) => {
   return (
     <AppConsumer>
       {({ plugins }) => (
@@ -87,7 +87,7 @@ export const pluginsOfNavigations = (
     url: string,
     icon: string,
     label?: React.ReactNode
-  ) => JSX.Element
+  ) => React.ReactNode
 ) => {
   return (
     <PluginsWrapper itemName={'menu'} callBack={
@@ -110,7 +110,7 @@ const renderSettings = (
     to: string,
     action: string,
     permissions?: string[]
-  ) => JSX.Element
+  ) => React.ReactNode
 ) => {
   let hasPluginsSettings = false;
 
@@ -122,7 +122,7 @@ const renderSettings = (
     }
 
     hasPluginsSettings = true;
-    const pluginSettings: JSX.Element[] = [];
+    const pluginSettings: React.ReactNode[] = [];
     for (const perSettings of plugin.settings) {
       pluginSettings.push(
         <span key={Math.random()}>
@@ -164,7 +164,7 @@ export const pluginsOfSettings = (renderBox: (
   to: string,
   action: string,
   permissions?: string[]
-) => JSX.Element
+) => React.ReactNode
 ) => {
   return (
     <AppConsumer>
