@@ -1,5 +1,3 @@
-import * as Sentry from '@sentry/browser';
-
 import '@nateradebaugh/react-datetime/css/react-datetime.css';
 import * as Sentry from '@sentry/browser';
 import 'abortcontroller-polyfill/dist/polyfill-patch-fetch';
