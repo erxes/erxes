@@ -28,7 +28,7 @@ describe('skillMutations', () => {
 
     await graphqlRequest(mutation, 'createSkillType', { name: 'Language' });
 
-    const skillType = await await SkillTypes.findOne({ name: 'Language' });
+    const skillType = await SkillTypes.findOne({ name: 'Language' });
 
     if (skillType) {
       expect(skillType.name).toBe('Language');

@@ -108,7 +108,7 @@ export const loadSkillClass = () => {
 
   skillSchema.loadClass(Skill);
 
-  return skillTypeSchema;
+  return skillSchema;
 };
 
 loadSkillClass();
