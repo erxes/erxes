@@ -50,16 +50,16 @@ export const types = `
 `;
 
 export const queries = `
-  widgetsConversations(integrationId: String!, customerId: String!): [Conversation]
+  widgetsConversations(integrationId: String!, customerId: String): [Conversation]
   widgetsConversationDetail(_id: String, integrationId: String!): ConversationDetailResponse
   widgetsGetMessengerIntegration(brandCode: String!): Integration
   widgetsMessages(conversationId: String): [ConversationMessage]
   widgetsUnreadCount(conversationId: String): Int
-  widgetsTotalUnreadCount(integrationId: String!, customerId: String!): Int
+  widgetsTotalUnreadCount(integrationId: String!, customerId: String): Int
   widgetsMessengerSupporters(integrationId: String!): MessengerSupportersResponse
   widgetsKnowledgeBaseArticles(topicId: String!, searchString: String) : [KnowledgeBaseArticle]
   widgetsKnowledgeBaseTopicDetail(_id: String!): KnowledgeBaseTopic
-  widgetsGetEngageMessage(customerId: String!, browserInfo: JSON!): ConversationMessage
+  widgetsGetEngageMessage(customerId: String, browserInfo: JSON!): ConversationMessage
 `;
 
 export const mutations = `
@@ -74,19 +74,19 @@ export const mutations = `
     data: JSON
 
     cachedCustomerId: String
+    fingerPrint: String
     deviceToken: String
-    ipAddress: String
   ): MessengerConnectResponse
 
   widgetsSaveBrowserInfo(
     customerId: String
-    browserInfo: JSON!
-    integrationId: String!
+    fingerPrint: String
+    browserInfo: JSON
   ): ConversationMessage
 
   widgetsInsertMessage(
     integrationId: String!
-    customerId: String!
+    customerId: String
     conversationId: String
     message: String,
     attachments: [AttachmentInput],

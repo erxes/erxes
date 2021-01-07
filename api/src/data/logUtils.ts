@@ -60,7 +60,7 @@ import {
   UsersGroups
 } from '../db/models/index';
 import messageBroker from '../messageBroker';
-import { MODULE_NAMES } from './constants';
+import { MODULE_NAMES, RABBITMQ_QUEUES } from './constants';
 import {
   getSubServiceDomain,
   registerOnboardHistory,
@@ -137,9 +137,8 @@ const LOG_ACTIONS = {
 };
 
 export interface IVisitorLogParams {
-  relatedIntegrationIds?: string[];
+  fingerPrint: string;
   integrationId?: string;
-  tagIds?: string[];
   location?: IBrowserInfo;
   isOnline?: boolean;
   lastSeenAt?: Date;
@@ -1415,7 +1414,7 @@ export const putCreateLog = async (
 
   await sendToWebhook(LOG_ACTIONS.CREATE, params.type, params);
 
-  return putCreateLogC(messageBroker, gatherDescriptions, params, user)
+  return putCreateLogC(messageBroker, gatherDescriptions, params, user);
 };
 
 /**
@@ -1446,10 +1445,11 @@ export const putDeleteLog = async (
   return putDeleteLogC(messageBroker, gatherDescriptions, params, user);
 };
 
-export const visitorLog = async (params: IVisitorLogParams) => {
+export const visitorLog = async (params: IVisitorLogParams, action) => {
   try {
     return messageBroker().sendMessage(RABBITMQ_QUEUES.VISITOR_LOG, {
-      ...params
+      ...params,
+      action
     });
   } catch (e) {
     return e.message;

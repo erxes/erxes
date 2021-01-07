@@ -3,6 +3,7 @@ import { connection } from "./connection";
 const messageFields = `
   _id
   conversationId
+  customerId
   user {
     _id
     details {
@@ -148,7 +149,7 @@ const allConversations = `
 `;
 
 const getEngageMessage = `
-  query widgetsGetEngageMessage($customerId: String!  $browserInfo: JSON!) {
+  query widgetsGetEngageMessage($customerId: String  $browserInfo: JSON!) {
     widgetsGetEngageMessage(customerId: $customerId browserInfo: $browserInfo) {
       ${messageFields}
     }
@@ -164,11 +165,11 @@ const readConversationMessages = `
 const connect = `
   mutation connect($brandCode: String!, $email: String, $phone: String, $code: String
     $isUser: Boolean, $data: JSON,
-    $companyData: JSON, $cachedCustomerId: String, $ipAddress: String) {
+    $companyData: JSON, $cachedCustomerId: String, $fingerPrint: String) {
 
     widgetsMessengerConnect(brandCode: $brandCode, email: $email, phone: $phone, code: $code,
       isUser: $isUser, data: $data, companyData: $companyData,
-      cachedCustomerId: $cachedCustomerId, ipAddress: $ipAddress) {
+      cachedCustomerId: $cachedCustomerId, fingerPrint: $fingerPrint) {
       integrationId,
       messengerData,
       languageCode,
@@ -183,8 +184,8 @@ const connect = `
 `;
 
 const saveBrowserInfo = `
-  mutation widgetsSaveBrowserInfo($customerId: String  $browserInfo: JSON!, $integrationId: String!) {
-    widgetsSaveBrowserInfo(customerId: $customerId browserInfo: $browserInfo integrationId: $integrationId) {
+  mutation widgetsSaveBrowserInfo($customerId: String $fingerPrint: String $browserInfo: JSON!) {
+    widgetsSaveBrowserInfo(customerId: $customerId fingerPrint: $fingerPrint browserInfo: $browserInfo) {
       ${messageFields}
     }
   }

@@ -57,6 +57,7 @@ export interface IUpdateMessengerCustomerParams {
     code?: string;
     isUser?: boolean;
     deviceToken?: string;
+    fingerPrint?: string;
   };
   customData?: any;
 }

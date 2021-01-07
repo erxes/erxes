@@ -28,7 +28,7 @@ type Props = ChildProps<BaseProps, QueryResponse>;
 class Launcher extends React.Component<Props, {}> {
   componentDidMount() {
     const { data, setUnreadCount } = this.props;
-
+    console.log('componentDidMount')
     if (data) {
       data.subscribeToMore({
         document: gql(graphqlTypes.adminMessageInserted),
@@ -44,7 +44,7 @@ class Launcher extends React.Component<Props, {}> {
 
   componentDidUpdate({ data }: Props) {
     const cData = this.props.data;
-
+    console.log('componentDidUpdate')
     if (data && data.loading && cData && !cData.loading) {
       this.props.setUnreadCount(cData.widgetsTotalUnreadCount || 0);
     }

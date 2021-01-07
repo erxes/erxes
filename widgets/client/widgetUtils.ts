@@ -1,4 +1,5 @@
-import { ENV } from './types';
+import { ENV } from "./types";
+import FingerprintJS from "@fingerprintjs/fingerprintjs";
 
 export const getEnv = (): ENV => {
   return (window as any).erxesEnv;
@@ -6,10 +7,12 @@ export const getEnv = (): ENV => {
 
 export const getStorage = () => {
   return localStorage.getItem("erxes") || "{}";
-}
+};
 
 export const listenForCommonRequests = async (event: any, iframe: any) => {
   const { message, fromErxes, source, key, value } = event.data;
+
+  const browserInfo = await getBrowserInfo();
 
   if (fromErxes && iframe.contentWindow) {
     if (message === "requestingBrowserInfo") {
@@ -18,7 +21,7 @@ export const listenForCommonRequests = async (event: any, iframe: any) => {
           fromPublisher: true,
           source,
           message: "sendingBrowserInfo",
-          browserInfo: await getBrowserInfo()
+          browserInfo,
         },
         "*"
       );
@@ -32,7 +35,7 @@ export const listenForCommonRequests = async (event: any, iframe: any) => {
       localStorage.setItem("erxes", JSON.stringify(erxesStorage));
     }
   }
-}
+};
 
 declare const window: any;
 
@@ -43,7 +46,7 @@ export const generateIntegrationUrl = (integrationKind: string): string => {
   const script =
     document.currentScript ||
     (() => {
-      const scripts = document.getElementsByTagName('script');
+      const scripts = document.getElementsByTagName("script");
 
       return scripts[scripts.length - 1];
     })();
@@ -55,34 +58,35 @@ export const generateIntegrationUrl = (integrationKind: string): string => {
     );
   }
 
-  return '';
+  return "";
 };
 
 export const getBrowserInfo = async () => {
-  if (window.location.hostname === 'localhost') {
+  if (window.location.hostname === "localhost") {
     return {
       url: window.location.pathname,
       hostname: window.location.origin,
       language: navigator.language,
-      userAgent: navigator.userAgent
+      userAgent: navigator.userAgent,
     };
   }
 
   let location;
 
   try {
-    const response = await fetch('https://geo.erxes.io');
+    const response = await fetch("https://geo.erxes.io");
 
     location = await response.json();
   } catch (e) {
     location = {
-      city: '',
-      remoteAddress: '',
-      region: '',
-      country: '',
-      countryCode: ''
+      city: "",
+      remoteAddress: "",
+      region: "",
+      country: "",
+      countryCode: "",
     };
   }
+
 
   return {
     remoteAddress: location.network,
@@ -93,7 +97,7 @@ export const getBrowserInfo = async () => {
     url: window.location.pathname,
     hostname: window.location.origin,
     language: navigator.language,
-    userAgent: navigator.userAgent
+    userAgent: navigator.userAgent,
   };
 };
 
@@ -103,9 +107,9 @@ export const postMessage = (source: string, message: string, postData = {}) => {
       fromErxes: true,
       source,
       message,
-      ...postData
+      ...postData,
     },
-    '*'
+    "*"
   );
 };
 
@@ -115,4 +119,16 @@ export const setErxesProperty = (name: string, value: any) => {
   erxes[name] = value;
 
   window.Erxes = erxes;
+};
+
+export const getFingerPrint = async () => {
+  const fp = await FingerprintJS.load();
+
+  // The FingerprintJS agent is ready.
+  // Get a visitor identifier when you'd like to.
+  const result = await fp.get();
+
+  // This is the visitor identifier:
+  return result.visitorId;
+ 
 };

@@ -24,7 +24,6 @@ const Events: any = {
   },
 
   sendRequest(path: string, data: any) {
-    console.log('path: ',path)
     const { API_URL } = getEnv();
 
     fetch(`${API_URL}/${path}`, {
@@ -38,6 +37,7 @@ const Events: any = {
       .then(response => response.json())
       .then(response => {
         if (response.customerId) {
+          console.log('bishda')
           setLocalStorageItem("customerId", response.customerId);
         }
       })

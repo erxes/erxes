@@ -332,6 +332,7 @@ const widgetMutations = {
       companyData?: any;
       data?: any;
       cachedCustomerId?: string;
+      fingerPrint?: string;
       deviceToken?: string;
     }
   ) {
@@ -344,6 +345,7 @@ const widgetMutations = {
       companyData,
       data,
       cachedCustomerId,
+      fingerPrint,
       deviceToken
     } = args;
 
@@ -380,7 +382,8 @@ const widgetMutations = {
       phone,
       code,
       isUser,
-      deviceToken
+      deviceToken,
+      fingerPrint
     };
 
     if (customer) {
@@ -389,6 +392,17 @@ const widgetMutations = {
         doc,
         customData
       });
+    }
+
+    if (fingerPrint && !customer) {
+      try {
+        await visitorLog(
+          { fingerPrint, integrationId: integration._id },
+          'create'
+        );
+      } catch (e) {
+        console.log(e.message);
+      }
     }
 
     // get or create company
@@ -433,7 +447,6 @@ const widgetMutations = {
       languageCode: integration.languageCode,
       messengerData: await getMessengerData(integration),
       customerId: customer?._id,
-      visitorId: '',
       brand
     };
   },
@@ -454,12 +467,20 @@ const widgetMutations = {
   ) {
     const {
       integrationId,
-      customerId,
       conversationId,
       message,
       attachments,
       contentType
     } = args;
+
+    let { customerId } = args;
+
+    if (!customerId) {
+      const customer = await Customers.createMessengerCustomer({
+        doc: { integrationId }
+      });
+      customerId = customer._id;
+    }
 
     const conversationContent = strip(message || '').substring(0, 100);
 
@@ -681,32 +702,38 @@ const widgetMutations = {
     _root,
     {
       customerId,
-      browserInfo,
-      integrationId
-    }: { customerId: string; browserInfo: IBrowserInfo; integrationId: string }
+      fingerPrint,
+      browserInfo
+    }: { customerId: string; fingerPrint: string; browserInfo: IBrowserInfo }
   ) {
     if (!customerId) {
-      const doc = { integrationId, location: browserInfo };
-      const visitor = await visitorLog(doc);
-      console.log('V = ', visitor);
+      try {
+        await visitorLog({ fingerPrint, location: browserInfo }, 'update');
+      } catch (e) {
+        console.log(e.message);
+      }
     }
 
-    // update location
-    await Customers.updateLocation(customerId, browserInfo);
+    if (customerId) {
+      // update location
+      await Customers.updateLocation(customerId, browserInfo);
+      console.log('widgetsSaveBrowserInfo');
+      try {
+        await trackViewPageEvent({
+          customerId,
+          attributes: { url: browserInfo.url }
+        });
+      } catch (e) {
+        /* istanbul ignore next */
+        debugBase(
+          `Error occurred during widgets save browser info ${e.message}`
+        );
+      }
 
-    try {
-      await trackViewPageEvent({
-        customerId,
-        attributes: { url: browserInfo.url }
-      });
-    } catch (e) {
-      /* istanbul ignore next */
-      debugBase(`Error occurred during widgets save browser info ${e.message}`);
+      await Customers.updateSession(customerId);
     }
 
-    await Customers.updateSession(customerId);
-
-    return await getOrCreateEngageMessage(customerId, browserInfo);
+    return await getOrCreateEngageMessage(customerId, fingerPrint, browserInfo);
   },
 
   widgetsSendTypingInfo(

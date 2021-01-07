@@ -157,7 +157,6 @@ export default {
     args: { integrationId: string; customerId: string }
   ) {
     const { integrationId, customerId } = args;
-
     // find conversations
     const convs = await Conversations.find({ integrationId, customerId });
 

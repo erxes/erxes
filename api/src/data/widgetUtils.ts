@@ -8,13 +8,19 @@ import {
 import Messages from '../db/models/ConversationMessages';
 import { IBrowserInfo } from '../db/models/Customers';
 import { fetchElk } from '../elasticsearch';
+import { visitorLog } from './logUtils';
 import { getEnv } from './utils';
 
 export const getOrCreateEngageMessage = async (
   customerId: string,
+  fingerPrint: string,
   browserInfo: IBrowserInfo
 ) => {
-  const customer = await Customers.getCustomer(customerId);
+  let customer;
+  if (customerId) {
+    customer = await Customers.getCustomer(customerId);
+  }
+  await visitorLog({ fingerPrint }, 'get');
 
   // Preventing from displaying non messenger integrations like form's messages
   // as last unread message
