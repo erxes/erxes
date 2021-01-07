@@ -1524,28 +1524,90 @@ describe('conversationQueries', () => {
   });
 
   test('Count conversations by integration type', async () => {
-    const integration1 = await integrationFactory({ kind: 'lead' });
-    const integration2 = await integrationFactory({ kind: 'lead' });
+    const integrationTypeQuery = (qUser?: IUser) => {
+      return graphqlRequest(
+        qryCount,
+        'conversationCounts',
+        { only: 'byIntegrationTypes' },
+        { user: qUser || user }
+      );
+    };
 
     // conversation with integration type 'messenger'
     await conversationFactory({ integrationId: integration._id });
 
+    const response = await integrationTypeQuery();
+    const keys = Object.keys(response.byIntegrationTypes).filter(
+      k => k !== 'messenger'
+    );
+
+    expect(response.byIntegrationTypes.messenger).toBe(1);
+
+    for (const key of keys) {
+      expect(response.byIntegrationTypes[key]).toBe(0);
+    }
+
+    const integration1 = await integrationFactory({ kind: 'lead' });
+    const integration2 = await integrationFactory({ kind: 'lead' });
+
+    await Channels.updateOne(
+      { _id: channel._id },
+      {
+        $set: {
+          integrationIds: [integration._id, integration1._id, integration2._id]
+        }
+      }
+    );
+
+    // conversation with integration type 'lead'
     await conversationFactory({ integrationId: integration1._id });
     await conversationFactory({ integrationId: integration2._id });
 
-    let response = await graphqlRequest(
-      qryCount,
-      'conversationCounts',
-      { integrationType: 'messenger', only: 'byIntegrationTypes' },
-      { user }
-    );
+    const response1 = await integrationTypeQuery();
 
-    response = response.byIntegrationTypes.messenger;
+    expect(response1.byIntegrationTypes.messenger).toBe(1);
+    expect(response1.byIntegrationTypes.lead).toBe(2);
 
-    expect(response).toBe(1);
+    const response2 = await integrationTypeQuery(userWithCode);
+
+    expect(response2.byIntegrationTypes.messenger).toBe(1);
+    expect(response2.byIntegrationTypes.lead).toBe(2);
+
+    await conversationFactory({
+      integrationId: integration._id,
+      userRelevance: 'wrongCode'
+    });
+
+    await conversationFactory({
+      integrationId: integration2._id,
+      userRelevance: userWithCode.code
+    });
+
+    const response3 = await integrationTypeQuery(userWithCode);
+
+    expect(response3.byIntegrationTypes.messenger).toBe(1);
+    expect(response3.byIntegrationTypes.lead).toBe(3);
+
+    const newUser = await userFactory();
+    const response4 = await integrationTypeQuery(newUser);
+
+    expect(response4.byIntegrationTypes.messenger).toBe(0);
+    expect(response4.byIntegrationTypes.lead).toBe(0);
   });
 
   test('Count conversations by tag', async () => {
+    const tagCountQuery = (qUser?: IUser) => {
+      return graphqlRequest(
+        qryCount,
+        'conversationCounts',
+        { only: 'byTags' },
+        { user: qUser || user }
+      );
+    };
+
+    const response = await tagCountQuery();
+    expect(response.byTags).toEqual({});
+
     const tag = await tagsFactory({ type: 'conversation' });
 
     await conversationFactory({
@@ -1553,17 +1615,32 @@ describe('conversationQueries', () => {
       integrationId: integration._id
     });
 
-    await conversationFactory({ integrationId: integration._id });
+    await conversationFactory({
+      tagIds: [tag._id],
+      integrationId: integration._id
+    });
     await conversationFactory({ integrationId: integration._id });
 
-    const response = await graphqlRequest(
-      qryCount,
-      'conversationCounts',
-      { tag: tag._id, only: 'byTags' },
-      { user }
-    );
+    const response1 = await tagCountQuery();
 
-    expect(response.byTags[tag._id]).toBe(1);
+    expect(Object.keys(response1.byTags).length).toEqual(1);
+    expect(response1.byTags[tag._id]).toBe(2);
+
+    await conversationFactory({
+      integrationId: integration._id,
+      userRelevance: 'wrongCode',
+      tagIds: [tag._id]
+    });
+
+    await conversationFactory({
+      integrationId: integration._id,
+      userRelevance: userWithCode.code,
+      tagIds: [tag._id]
+    });
+
+    const response2 = await tagCountQuery(userWithCode);
+
+    expect(response2.byTags[tag._id]).toBe(3);
   });
 
   test('Get total count of conversations by channel', async () => {
