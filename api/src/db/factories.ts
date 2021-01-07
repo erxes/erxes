@@ -48,6 +48,8 @@ import {
   ResponseTemplates,
   Scripts,
   Segments,
+  Skills,
+  SkillTypes,
   Stages,
   Tags,
   Tasks,
@@ -155,6 +157,7 @@ export const dashboardItemsFactory = async (params: IDashboardFactoryInput) => {
 };
 
 interface IUserFactoryInput {
+  code?: string;
   username?: string;
   fullName?: string;
   avatar?: string;
@@ -204,7 +207,8 @@ export const userFactory = async (params: IUserFactoryInput = {}) => {
     groupIds: params.groupIds || [],
     brandIds: params.brandIds,
     deviceTokens: params.deviceTokens,
-    doNotDisturb: params.doNotDisturb
+    doNotDisturb: params.doNotDisturb,
+    ...(params.code ? { code: params.code } : {})
   });
 
   return user.save();
@@ -646,6 +650,7 @@ interface IConversationFactoryInput {
   readUserIds?: string[];
   tagIds?: string[];
   messageCount?: number;
+  userRelevance?: string;
   number?: number;
   firstRespondedUserId?: string;
   firstRespondedDate?: dateType;
@@ -659,7 +664,8 @@ export const conversationFactory = (params: IConversationFactoryInput = {}) => {
     integrationId: params.integrationId || Random.id(),
     status: params.status || CONVERSATION_STATUSES.NEW,
     operatorStatus:
-      params.operatorStatus || CONVERSATION_OPERATOR_STATUS.OPERATOR
+      params.operatorStatus || CONVERSATION_OPERATOR_STATUS.OPERATOR,
+    ...(params.userRelevance ? { userRelevance: params.userRelevance } : {})
   };
 
   return Conversations.createConversation({
@@ -1567,4 +1573,26 @@ export const calendarGroupFactory = async (
   });
 
   return calendarGroup.save();
+};
+
+export const skillTypeFactor = async (params: { name?: string }) => {
+  const skillType = new SkillTypes({
+    name: params.name || faker.random.word()
+  });
+
+  return skillType.save();
+};
+
+export const skillFactor = async (params: {
+  name?: string;
+  typeId?: string;
+  memberIds?: string[];
+}) => {
+  const skill = new Skills({
+    name: params.name || faker.random.word(),
+    typeId: params.typeId || faker.random.word(),
+    memberIds: params.memberIds || [faker.random.word()]
+  });
+
+  return skill.save();
 };
