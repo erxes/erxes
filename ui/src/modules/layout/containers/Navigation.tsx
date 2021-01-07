@@ -41,7 +41,7 @@ class NavigationContainer extends React.Component<{
       unreadConversationsCountQuery.conversationsTotalUnreadCount || 0;
 
     const props = {
-      unreadConversationsCount,
+      unreadConversationsCount
     };
 
     return <Navigation {...props} />;

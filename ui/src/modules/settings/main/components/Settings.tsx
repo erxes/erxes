@@ -144,7 +144,7 @@ class Settings extends React.PureComponent {
   render() {
     const content = (
       <MenusContainer id={'SettingsMain'}>
-          <Row>
+        <Row>
           <RowTitle>{__('General Settings')}</RowTitle>
           <div id={'SettingsGeneralSettings'}>
             {this.renderBox(
