@@ -71,7 +71,7 @@ $darker-blue: #3b85f4;
 .erxes-spacial-message {
   color: $text-color;
   margin-bottom: 15px;
-  
+
   &.right {
     line-height: normal;
     text-align: right;
@@ -315,16 +315,16 @@ $darker-blue: #3b85f4;
   &.call-request {
     margin-bottom: 20px;
     padding: 16px;
-  
+
     h5 {
       margin: 0 0 5px 0;
       font-size: 15px;
       font-weight: 700;
     }
-  
+
     .call-buttons {
       display: flex;
-  
+
       button {
         flex: 1;
         padding: 8px 16px;
@@ -332,15 +332,15 @@ $darker-blue: #3b85f4;
         display: flex;
         align-items: center;
         justify-content: center;
-  
+
         &:last-child {
           margin-left: 10px;
         }
-  
+
         &:hover {
           opacity: 0.9;
         }
-  
+
         span {
           margin-left: 5px;
         }
@@ -350,7 +350,7 @@ $darker-blue: #3b85f4;
         }
       }
     }
-  
+
     p {
       margin: 0 0 15px;
     }
