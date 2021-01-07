@@ -1411,19 +1411,19 @@ describe('conversationQueries', () => {
     expect(response4.byBrands[newBrand._id]).toBe(2);
   });
 
-  // conversation count main query
-  const converstaionCountQuery = (qUser?: IUser) => {
-    return graphqlRequest(
-      qryCount,
-      'conversationCounts',
-      {},
-      {
-        user: qUser || user
-      }
-    );
-  };
-
   test('Count conversations by default values', async () => {
+    // conversation count main query
+    const converstaionCountQuery = (qUser?: IUser) => {
+      return graphqlRequest(
+        qryCount,
+        'conversationCounts',
+        {},
+        {
+          user: qUser || user
+        }
+      );
+    };
+
     const conversation1 = await conversationFactory({
       integrationId: integration._id
     });
