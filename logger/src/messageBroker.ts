@@ -20,8 +20,8 @@ export const initBroker = async server => {
   });
 
   consumeQueue('visitorLog', async data => {
-    console.log('visitor log = ', data);
-    await receiveVisitorLog(data);
+    console.log('DATA = ', data);
+    return await receiveVisitorLog(data);
   });
 };
 

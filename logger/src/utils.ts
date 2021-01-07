@@ -271,7 +271,20 @@ export const receivePutLogCommand = async params => {
 
 export const receiveVisitorLog = async params => {
   debugBase(params);
-  const { location, integrationId } = params;
-  console.log('ASD = ', { ...location, integrationId });
-  return Visitors.createOrUpdate({ ...location, integrationId });
+  const { location, integrationId, fingerPrint, action } = params;
+
+  switch (action) {
+    case 'update':
+      return Visitors.updateLog({ ...location, integrationId, fingerPrint });
+    case 'create':
+      return Visitors.createLog({ ...location, integrationId, fingerPrint });
+    case 'get':
+      return Visitors.getVisitor(fingerPrint);
+
+    default:
+      break;
+  }
+
+  if (action === 'update') {
+  }
 };

@@ -15,9 +15,8 @@ export const field = options => {
 };
 
 export interface IVistiorDoc {
-  relatedIntegrationIds?: string[];
+  fingerPrint: string;
   integrationId?: string;
-  tagIds?: string[];
   remoteAddress: string;
   country: string;
   countryCode: string;
@@ -35,31 +34,29 @@ export interface IVistiorDoc {
 export interface IVisitorDocument extends IVistiorDoc, Document {}
 
 export interface IVisitorModel extends Model<IVisitorDocument> {
-  createOrUpdate(doc: IVistiorDoc): Promise<IVisitorDocument>;
+  createLog(doc: IVistiorDoc): Promise<IVisitorDocument>;
+  updateLog(doc: IVistiorDoc): Promise<IVisitorDocument>;
   deleteVisitor(customerIds: string[]): Promise<{ n: number; ok: number }>;
   getVisitors(): Promise<IVisitorDocument[]>;
-  getVisitor(ipAddress: string): Promise<IVisitorDocument>;
+  getVisitor(fingerPrint: string): Promise<IVisitorDocument>;
 }
 
 export const schema = new Schema({
-  relatedIntegrationIds: field({ type: [String], optional: true }),
   integrationId: field({
     type: String,
     optional: true,
-    label: 'Integration',
-    esType: 'keyword'
+    label: 'Integration'
   }),
-  tagIds: field({
-    type: [String],
-    optional: true,
-    index: true,
-    label: 'Tags'
-  }),
-
   remoteAddress: field({
     type: String,
     label: 'Remote address',
-    required: true,
+    optional: true,
+    index: { unique: true }
+  }),
+  fingerPrint: field({
+    type: String,
+    label: 'Fingerprint ID',
+    optional: true,
     index: { unique: true }
   }),
   country: field({ type: String, label: 'Country', optional: true }),
@@ -79,38 +76,52 @@ export const schema = new Schema({
   lastSeenAt: field({
     type: Date,
     label: 'Last seen at',
-    optional: true,
-    esType: 'date'
+    optional: true
   }),
   sessionCount: field({
     type: Number,
     label: 'Session count',
-    optional: true,
-    esType: 'number'
-  })
+    optional: true
+  }),
+  createdAt: field({ type: Date, default: Date.now })
 });
 
 export const loadLogClass = () => {
   class Visitor {
-    public static async createOrUpdate(doc: IVistiorDoc) {
+    public static async createLog(doc: IVistiorDoc) {
+      const visitor = await Visitors.findOne({
+        fingerPrint: doc.fingerPrint
+      });
+
+      if (visitor) {
+        throw new Error('visitor already exists');
+      }
+
+      return Visitors.create({
+        ...doc,
+        sessionCount: 1,
+        lastSeenAt: new Date()
+      });
+    }
+
+    public static async updateLog(doc: IVistiorDoc) {
       const now = new Date();
 
       const visitor = await Visitors.findOne({
-        remoteAddress: doc.remoteAddress
+        fingerPrint: doc.fingerPrint
       });
 
       if (!visitor) {
-        return Visitors.create({
-          ...doc,
-          sessionCount: 1,
-          lastSeenAt: new Date()
-        });
+        throw new Error('Visitor not found');
       }
+
+      delete doc.integrationId;
 
       const query: any = {
         $set: {
           lastSeenAt: now,
-          isOnline: true
+          isOnline: true,
+          ...doc
         }
       };
 
@@ -126,13 +137,14 @@ export const loadLogClass = () => {
       }
 
       // update
-      await Visitors.findOneAndUpdate(
-        { remoteAddress: doc.remoteAddress },
-        query
-      );
+      await Visitors.findOneAndUpdate({ fingerPrint: doc.fingerPrint }, query);
 
       // updated customer
-      return Visitors.findOne({ remoteAddress: doc.remoteAddress });
+      return Visitors.findOne({ fingerPrint: doc.fingerPrint });
+    }
+
+    public static async getVisitor(fingerPrint: string) {
+      return Visitors.findOne({ fingerPrint });
     }
   }
 
