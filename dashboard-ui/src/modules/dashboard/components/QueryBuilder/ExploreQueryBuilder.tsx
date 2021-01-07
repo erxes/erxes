@@ -3,7 +3,7 @@ import { Card, Col, Divider, Empty, Menu, Row } from 'antd';
 import { schemaTypes } from 'modules/dashboard/constants';
 import React from 'react';
 import styled from 'styled-components';
-import { ChartRenderer } from '../ChartRenderer';
+import ChartRenderer from '../ChartRenderer';
 import {
   ChartWraper,
   EmptyWrapper,

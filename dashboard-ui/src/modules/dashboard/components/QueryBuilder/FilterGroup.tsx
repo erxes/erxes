@@ -60,6 +60,7 @@ class FilterGroup extends React.Component<Props> {
                     updateMethods.update(m, { ...m, dimension: updateWith })
                   }
                   availableMembers={availableMembers}
+                  addMemberName={addMemberName}
                 >
                   {m.dimension.shortTitle}
                 </MemberDropdown>
@@ -93,7 +94,7 @@ class FilterGroup extends React.Component<Props> {
           availableMembers={availableMembers}
           type="dashed"
           schemaType={schemaType}
-          isFilter={true}
+          addMemberName={addMemberName}
         >
           {addMemberName}
         </MemberDropdown>

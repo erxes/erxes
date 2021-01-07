@@ -1,4 +1,4 @@
-export const schemaTypes = ['Customers', 'Deals', 'Conversations'];
+export const schemaTypes = ['Contacts', 'Deals', 'Conversations'];
 
 export const chartTypeWithoutDeminsions = [
   {
@@ -152,12 +152,22 @@ export const ignoredFilters = [
   'birthDate',
   'iscomplete',
   'stageName',
-  'closeDate',
   'closedDate',
   'updatedDate',
   'firstrespondeddate',
   'messagecount',
-  'integrationKind'
+  'integrationKind',
+  'firstRespondedDate'
 ];
 
-export const ignoredMeasures = ['pipelineName', 'brand', 'stageProbability'];
+export const ignoredMeasures = [
+  'pipelineName',
+  'brand',
+  'stageProbability',
+  'createdDate',
+  'modifiedDate',
+  'birthDate',
+  'closedDate',
+  'updatedDate',
+  'firstRespondedDate'
+];
