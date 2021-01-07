@@ -45,6 +45,8 @@ export interface IUserModel extends Model<IUserDocument> {
   createUser(doc: IUser): Promise<IUserDocument>;
   updateUser(_id: string, doc: IUpdateUser): Promise<IUserDocument>;
   editProfile(_id: string, doc: IEditProfile): Promise<IUserDocument>;
+  generateUserCode(): Promise<string>;
+  generateUserCodeField(): Promise<void>;
   configEmailSignatures(
     _id: string,
     signatures: IEmailSignature[]
@@ -201,7 +203,8 @@ export const loadClass = () => {
         groupIds,
         isActive: true,
         // hash password
-        password: await this.generatePassword(password)
+        password: await this.generatePassword(password),
+        code: await this.generateUserCode()
       });
     }
 
@@ -295,7 +298,8 @@ export const loadClass = () => {
         // hash password
         password: await this.generatePassword(password),
         registrationToken: token,
-        registrationTokenExpires: expires
+        registrationTokenExpires: expires,
+        code: await this.generateUserCode()
       });
 
       return token;
@@ -617,7 +621,8 @@ export const loadClass = () => {
         isOwner: _user.isOwner,
         groupIds: _user.groupIds,
         brandIds: _user.brandIds,
-        username: _user.username
+        username: _user.username,
+        code: _user.code
       };
 
       const createToken = await jwt.sign({ user }, secret, { expiresIn: '1d' });
@@ -711,10 +716,70 @@ export const loadClass = () => {
         }
       }
 
+      // generate user code
+      await this.generateUserCodeField();
+
       return {
         token,
         refreshToken
       };
+    }
+
+    public static async generateUserCodeField() {
+      const users = await Users.find({}, { code: 1 });
+
+      if (users.length === 0) {
+        return;
+      }
+
+      const doc: Array<{
+        updateOne: {
+          filter: { _id: string };
+          update: { $set: { code: string } };
+        };
+      }> = [];
+
+      for (const user of users) {
+        if (!user.code) {
+          const code = await this.generateUserCode();
+
+          doc.push({
+            updateOne: {
+              filter: { _id: user._id },
+              update: { $set: { code } }
+            }
+          });
+        }
+      }
+
+      if (doc.length === 0) {
+        return;
+      }
+
+      return Users.bulkWrite(doc);
+    }
+
+    public static async generateUserCode() {
+      const codes = await Users.find().distinct('code');
+
+      const sortedCodes = codes.sort((firstCode, secondCode) => {
+        const firstNumber = Number((firstCode || '').substring(2));
+        const secondNumber = Number((secondCode || '').substring(2));
+
+        if (firstNumber > secondNumber) {
+          return -1;
+        }
+
+        return 1;
+      });
+
+      const [highestCodeValue] = sortedCodes;
+
+      let code = Number((highestCodeValue || '').split(2));
+
+      code++;
+
+      return ('00' + code).slice(-3);
     }
   }
 

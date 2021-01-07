@@ -65,8 +65,8 @@ class Sidebar extends React.Component<Props> {
             true
           )}
           {this.renderListItem(
-            `/dashboard/reports/${dashboardId}?type=customers`,
-            'Customer',
+            `/dashboard/reports/${dashboardId}?type=contacts`,
+            'Contacts',
             false
           )}
           {this.renderListItem(

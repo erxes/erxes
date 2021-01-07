@@ -444,6 +444,7 @@ const widgetMutations = {
       customerId: string;
       conversationId?: string;
       message: string;
+      skillId?: string;
       attachments?: any[];
       contentType: string;
     }
@@ -453,10 +454,10 @@ const widgetMutations = {
       customerId,
       conversationId,
       message,
+      skillId,
       attachments,
       contentType
     } = args;
-
     const conversationContent = strip(message || '').substring(0, 100);
 
     // customer can write a message
@@ -510,7 +511,8 @@ const widgetMutations = {
           ? CONVERSATION_OPERATOR_STATUS.BOT
           : CONVERSATION_OPERATOR_STATUS.OPERATOR,
         status: getConversationStatus(),
-        content: conversationContent
+        content: conversationContent,
+        ...(skillId ? { skillId } : {})
       });
     }
 

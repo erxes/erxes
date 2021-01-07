@@ -180,6 +180,11 @@ export const removeIntegration = async (
       }
     } catch (e) {
       debugGmail('Failed to unsubscribe gmail account');
+
+      if (e.message.includes('Token has been expired or revoked')) {
+        return;
+      }
+
       throw e;
     }
   }
@@ -517,7 +522,7 @@ export const removeAccount = async (
 
   const integrations = await Integrations.find({ accountId: account._id });
 
-  if (integrations.length) {
+  if (integrations.length > 0) {
     for (const integration of integrations) {
       try {
         const response = await removeIntegration(integration.erxesApiId, true);

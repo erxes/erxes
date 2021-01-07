@@ -12,6 +12,7 @@ import React from 'react';
 import Select from 'react-select-plus';
 import { ContentBox } from '../../styles';
 import {
+  DATA_RETENTION_DURATION,
   FILE_MIME_TYPES,
   FILE_SYSTEM_TYPES,
   KEY_LABELS,
@@ -375,6 +376,20 @@ class GeneralSettings extends React.Component<Props, State> {
           {this.renderItem('MAIL_USER')}
           {this.renderItem('MAIL_PASS')}
           {this.renderItem('MAIL_HOST')}
+        </CollapseContent>
+
+        <CollapseContent title={__('Data retention')}>
+          <ControlLabel>{KEY_LABELS.NOTIFICATION_DATA_RETENTION}</ControlLabel>
+          <Select
+            options={DATA_RETENTION_DURATION}
+            value={configsMap.NOTIFICATION_DATA_RETENTION || 3}
+            clearable={false}
+            searchable={false}
+            onChange={this.onChangeSingleCombo.bind(
+              this,
+              'NOTIFICATION_DATA_RETENTION'
+            )}
+          />
         </CollapseContent>
 
         <CollapseContent title={__('Constants')}>
