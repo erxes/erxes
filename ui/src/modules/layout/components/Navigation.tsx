@@ -3,7 +3,7 @@ import Tip from 'modules/common/components/Tip';
 import WithPermission from 'modules/common/components/WithPermission';
 import { colors, dimensions } from 'modules/common/styles';
 import { __, getEnv, setBadge } from 'modules/common/utils';
-import { navigations } from 'pluginUtils';
+import { pluginsOfNavigations } from 'pluginUtils';
 import React from 'react';
 import { NavLink } from 'react-router-dom';
 import styled from 'styled-components';
@@ -222,7 +222,7 @@ class Navigation extends React.Component<{
             'icon-book'
           )}
 
-          {navigations(this.renderNavItem)}
+          {pluginsOfNavigations(this.renderNavItem)}
         </Nav>
       </LeftNavigation>
     );

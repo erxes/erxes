@@ -3,7 +3,7 @@ import ControlLabel from 'modules/common/components/form/Label';
 import CURRENCIES from 'modules/common/constants/currencies';
 import { __ } from 'modules/common/utils';
 import { selectConfigOptions } from 'modules/deals/utils';
-import { paymentForm } from 'pluginUtils';
+import { pluginsOfPaymentForm } from 'pluginUtils';
 import React from 'react';
 import Select from 'react-select-plus';
 import { PAYMENT_TYPES } from '../../constants';
@@ -185,7 +185,7 @@ class PaymentForm extends React.Component<Props, State> {
         <Divider />
 
         {this.renderPayments()}
-        {paymentForm(type => this.renderPaymentsByType(type))}
+        {pluginsOfPaymentForm(type => this.renderPaymentsByType(type))}
       </>
     );
   }

@@ -1,6 +1,6 @@
 import withCurrentUser from 'modules/auth/containers/withCurrentUser';
 import asyncComponent from 'modules/common/components/AsyncComponent';
-import { pluginsRoutes } from 'pluginUtils';
+import { pluginsOfRoutes } from 'pluginUtils';
 import queryString from 'query-string';
 import React from 'react';
 import { BrowserRouter as Router, Route, Switch } from 'react-router-dom';
@@ -81,7 +81,7 @@ const renderRoutes = currentUser => {
   }
 
   if (currentUser) {
-    const { plugins, pluginRoutes, specialPluginRoutes } = pluginsRoutes(currentUser);
+    const { plugins, pluginRoutes, specialPluginRoutes } = pluginsOfRoutes(currentUser);
 
     return (
       <>

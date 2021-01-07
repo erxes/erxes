@@ -1,5 +1,9 @@
 import { AppConsumer } from 'appContext';
+import { IUser } from 'modules/auth/types';
+import { IItem } from 'modules/boards/types';
 import { __ } from 'modules/common/utils';
+import { ICompany } from 'modules/companies/types';
+import { ICustomer } from 'modules/customers/types';
 import { Divider, Row, RowTitle } from 'modules/settings/main/styles';
 import React from 'react';
 import { Route } from 'react-router-dom';
@@ -12,7 +16,7 @@ const tryRequire = (requirPath) => {
   }
 };
 
-export const pluginsRoutes = (currentUser) => {
+export const pluginsOfRoutes = (currentUser: IUser) => {
   const pluginModules = tryRequire('./plugins').default || {};
 
   const plugins: any = [];
@@ -54,34 +58,60 @@ export const pluginsRoutes = (currentUser) => {
   return { plugins, pluginRoutes, specialPluginRoutes }
 }
 
-export const navigations = (renderNavItem) => {
+const PluginsWrapper = ({ itemName, callBack }: { itemName: string, callBack: any }) => {
   return (
     <AppConsumer>
       {({ plugins }) => (
-        <>
-          {plugins.map(plugin => {
-            const menu = plugin.menu;
 
-            if (!menu) {
-              return undefined
-            }
+        plugins.map(plugin => {
+          const item = plugin[itemName];
 
-            return (
-              renderNavItem(
-                menu.permission,
-                menu.label,
-                `/${plugin.name}${menu.link}`,
-                menu.icon,
-              )
-            )
-          })}
-        </>
+          if (!item) {
+            return undefined;
+          }
+
+          return (
+            callBack(plugin, item)
+          );
+        })
+
       )}
     </AppConsumer>
+  );
+}
+
+export const pluginsOfNavigations = (
+  renderNavItem: (
+    permission: string,
+    text: string,
+    url: string,
+    icon: string,
+    label?: React.ReactNode
+  ) => JSX.Element
+) => {
+  return (
+    <PluginsWrapper itemName={'menu'} callBack={
+      (plugin, menu) => {
+        return renderNavItem(
+          menu.permission,
+          menu.label,
+          `/${plugin.name}${menu.link}`,
+          menu.icon
+        );
+      }
+    } />
   )
 }
 
-const renderPlugins = (plugins, renderBox) => {
+const renderSettings = (
+  plugins: any[], renderBox: (
+    name: string,
+    image: string,
+    to: string,
+    action: string,
+    permissions?: string[]
+  ) => JSX.Element
+) => {
   let hasPluginsSettings = false;
 
   const pluginsBoxs = plugins.map(plugin => {
@@ -128,116 +158,92 @@ const renderPlugins = (plugins, renderBox) => {
   );
 }
 
-export const settingsLayout = (renderBox) => {
+export const pluginsOfSettings = (renderBox: (
+  name: string,
+  image: string,
+  to: string,
+  action: string,
+  permissions?: string[]
+) => JSX.Element
+) => {
   return (
     <AppConsumer>
       {({ plugins }) => (
         <>
-          {renderPlugins(plugins, renderBox)}
+          {renderSettings(plugins, renderBox)}
         </>
       )}
     </AppConsumer>
   )
 }
 
-export const customerRightSidebar = (customer) => {
+export const pluginsOfCustomerSidebar = (customer: ICustomer) => {
   return (
-    <AppConsumer>
-      {({ plugins }) => (
-        plugins.map(plugin => {
-          const rsSection = plugin.customerRightSidebarSection;
-
-          if (!rsSection) {
-            return undefined;
-          }
-
-          const Component = rsSection.section;
-          return (<Component
-            key={plugin.name}
-            customerId={customer._id}
-            mainType={'customer'}
-            mainTypeId={customer._id}
-          />)
-        })
-      )}
-    </AppConsumer>
+    <PluginsWrapper itemName={'customerRightSidebarSection'} callBack={
+      (_plugin, section) => {
+        const Component = section.section;
+        return <Component
+          key={Math.random()}
+          customerId={customer._id}
+          mainType={'customer'}
+          mainTypeId={customer._id}
+        />
+      }
+    } />
   )
 }
 
-export const companyRightSidebar = (company) => {
+export const pluginsOfCompanySidebar = (company: ICompany) => {
   return (
-    <AppConsumer>
-      {({ plugins }) => (
-        plugins.map(plugin => {
-          const rsSection = plugin.companyRightSidebarSection;
-
-          if (!rsSection) {
-            return undefined;
-          }
-
-          const Component = rsSection.section;
-          return (<Component
-            key={plugin.name}
-            companyId={company._id}
-            mainType={'company'}
-            mainTypeId={company._id}
-          />)
-        })
-      )}
-    </AppConsumer>
+    <PluginsWrapper itemName={'companyRightSidebarSection'} callBack={
+      (_plugin, section) => {
+        const Component = section.section;
+        return <Component
+          key={Math.random()}
+          companyId={company._id}
+          mainType={'company'}
+          mainTypeId={company._id}
+        />
+      }
+    } />
   )
 }
 
-export const itemRightSidebar = (item) => {
+export const pluginsOfItemSidebar = (item: IItem, type: string) => {
   return (
-    <AppConsumer>
-      {({ plugins }) => (
-        plugins.map(plugin => {
-          const rsSection = plugin.dealRightSidebarSection;
-
-          if (!rsSection) {
-            return undefined;
-          }
-
-          const Component = rsSection.section;
-          return (<Component
-            key={plugin.name}
-            itemId={item._id}
-            mainType={'deal'}
-            mainTypeId={item._id}
-          />)
-        })
-      )}
-    </AppConsumer>
+    <PluginsWrapper itemName={`${type}RightSidebarSection`} callBack={
+      (_plugin, section) => {
+        const Component = section.section;
+        return <Component
+          key={Math.random()}
+          itemId={item._id}
+          mainType={type}
+          mainTypeId={item._id}
+        />
+      }
+    } />
   )
 }
 
-export const paymentForm = (renderPaymentsByType) => {
+export const pluginsOfPaymentForm = (renderPaymentsByType: (type) => JSX.Element) => {
   return (
-    <AppConsumer>
-      {({ plugins }) => (
-        plugins.map(plugin => {
-            const item = plugin.payments;
-
-            if (!item) {
-              return undefined;
-            }
-
-            const paymentsTypes: JSX.Element[] = [];
-            for (const perPayment of plugin.payments) {
-              if (perPayment.component) {
-                paymentsTypes.push(
-                  perPayment.component({ ...perPayment })
-                )
-              } else {
-                paymentsTypes.push(
-                  renderPaymentsByType({ ...perPayment })
-                )
-              }
-            }
-            return paymentsTypes;
-          })
-      )}
-    </AppConsumer>
+    <PluginsWrapper itemName={'payments'} callBack={
+      (_plugin, payments) => {
+        const paymentsTypes: JSX.Element[] = [];
+        for (const perPayment of payments) {
+          if (perPayment.component) {
+            paymentsTypes.push(
+              perPayment.component({ ...perPayment })
+            )
+          } else {
+            paymentsTypes.push(
+              renderPaymentsByType({ ...perPayment })
+            )
+          }
+        }
+        return paymentsTypes;
+      }
+    } />
   )
+
 }

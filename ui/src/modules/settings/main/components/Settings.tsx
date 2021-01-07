@@ -1,7 +1,7 @@
 import WithPermission from 'modules/common/components/WithPermission';
 import { __ } from 'modules/common/utils';
 import Wrapper from 'modules/layout/components/Wrapper';
-import { settingsLayout } from 'pluginUtils';
+import { pluginsOfSettings } from 'pluginUtils';
 import React from 'react';
 import { Link } from 'react-router-dom';
 import {
@@ -144,7 +144,7 @@ class Settings extends React.PureComponent {
   render() {
     const content = (
       <MenusContainer id={'SettingsMain'}>
-        <Row>
+          <Row>
           <RowTitle>{__('General Settings')}</RowTitle>
           <div id={'SettingsGeneralSettings'}>
             {this.renderBox(
@@ -355,7 +355,7 @@ class Settings extends React.PureComponent {
             )}
           </div>
         </Row>
-        {settingsLayout(this.renderBox)}
+        {pluginsOfSettings(this.renderBox)}
       </MenusContainer>
     );
 
