@@ -251,7 +251,7 @@ export class AppProvider extends React.Component<{}, IState> {
     this.setState({
       activeRoute: route,
       selectedSkill: null,
-      inputDisabled: Object.keys(skillData).length > 0 
+      inputDisabled: Object.keys(skillData).length > 0
     });
   };
 
@@ -422,7 +422,7 @@ export class AppProvider extends React.Component<{}, IState> {
   };
 
   readMessages = (conversationId: string) => {
-    
+
     client
       .mutate({
         mutation: gql(graphqlTypes.readConversationMessages),
