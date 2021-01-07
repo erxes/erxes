@@ -20,6 +20,7 @@ import {
   Users
 } from '../db/models';
 import { MESSAGE_TYPES } from '../db/models/definitions/constants';
+import { IUser } from '../db/models/definitions/users';
 import './setup.ts';
 
 describe('conversationQueries', () => {
@@ -605,9 +606,14 @@ describe('conversationQueries', () => {
     await conversationFactory();
     await conversationFactory();
 
-    let responses = await graphqlRequest(qryConversations, 'conversations', {
-      channelId: channel._id
-    });
+    let responses = await graphqlRequest(
+      qryConversations,
+      'conversations',
+      {
+        channelId: channel._id
+      },
+      { user }
+    );
 
     expect(responses.length).toBe(1);
 
@@ -1271,31 +1277,94 @@ describe('conversationQueries', () => {
   });
 
   test('Count conversations by channel', async () => {
-    const integration1 = await integrationFactory({});
+    const channelCountQuery = ({
+      qUser,
+      params
+    }: {
+      qUser?: IUser;
+      params?: { channelId: string };
+    }) => {
+      return graphqlRequest(
+        qryCount,
+        'conversationCounts',
+        {
+          ...params,
+          only: 'byChannels'
+        },
+        { user: qUser || user }
+      );
+    };
 
     // conversation with channel
     await conversationFactory({ integrationId: integration._id });
 
-    await conversationFactory({ integrationId: integration1._id });
-    await conversationFactory({ integrationId: integration1._id });
-
-    const response = await graphqlRequest(qryCount, 'conversationCounts', {
-      channelId: channel._id,
-      only: 'byChannels'
-    });
+    const response = await channelCountQuery({});
 
     expect(response.byChannels[channel._id]).toBe(1);
+
+    await conversationFactory({
+      integrationId: integration._id,
+      userRelevance: 'wrongCode'
+    });
+
+    const response2 = await channelCountQuery({});
+
+    expect(Object.keys(response2.byChannels).length).toBe(1);
+    expect(response2.byChannels[channel._id]).toBe(2);
+
+    const integration1 = await integrationFactory({});
+    const channel1 = await channelFactory({
+      memberIds: [user._id, userWithCode._id, userWithoutCode._id],
+      integrationIds: [integration1._id]
+    });
+
+    await conversationFactory({ integrationId: integration1._id });
+
+    const response3 = await channelCountQuery({});
+
+    expect(Object.keys(response3.byChannels).length).toBe(2);
+    expect(response3.byChannels[channel._id]).toBe(2);
+    expect(response3.byChannels[channel1._id]).toBe(1);
+
+    const response4 = await channelCountQuery({
+      params: { channelId: channel1._id },
+      qUser: userWithoutCode
+    });
+
+    expect(response4.byChannels[channel._id]).toBe(2);
+    expect(response4.byChannels[channel1._id]).toBe(1);
+
+    await conversationFactory({
+      integrationId: integration1._id,
+      userRelevance: userWithCode.code
+    });
+
+    const response5 = await channelCountQuery({
+      qUser: userWithCode
+    });
+
+    expect(response5.byChannels[channel._id]).toBe(1);
+    expect(response5.byChannels[channel1._id]).toBe(2);
+
+    const newUser = await userFactory({ code: '002' });
+
+    const response6 = await channelCountQuery({
+      qUser: newUser
+    });
+
+    expect(response6.byChannels[channel._id]).toBe(0);
+    expect(response6.byChannels[channel1._id]).toBe(0);
   });
 
   test('Count conversations by brand', async () => {
-    const brandCountQuery = () => {
+    const brandCountQuery = (qUser?: IUser) => {
       return graphqlRequest(
         qryCount,
         'conversationCounts',
         {
           only: 'byBrands'
         },
-        { user }
+        qUser ? { user: qUser } : {}
       );
     };
 
@@ -1320,130 +1389,138 @@ describe('conversationQueries', () => {
 
     expect(Object.keys(response2.byBrands).length).toBe(2);
     expect(response2.byBrands[brand._id]).toBe(1);
-    expect(response2.byBrands[newBrand._id]).toBe(0);
+    expect(response2.byBrands[newBrand._id]).toBe(1);
 
     await Channels.updateOne(
       { _id: channel._id },
       { $set: { integrationIds: [integration._id, integration1._id] } }
     );
 
-    await conversationFactory({ integrationId: integration1._id });
+    await conversationFactory({
+      integrationId: integration1._id,
+      userRelevance: `${userWithCode.code}SS`
+    });
+
     const response3 = await brandCountQuery();
 
     expect(response3.byBrands[brand._id]).toBe(1);
     expect(response3.byBrands[newBrand._id]).toBe(2);
 
-    const response4 = await graphqlRequest(
-      qryCount,
-      'conversationCounts',
-      {
-        brandId: newBrand._id,
-        only: 'byBrands'
-      },
-      { user }
-    );
+    const response4 = await brandCountQuery(userWithCode);
 
     expect(response4.byBrands[newBrand._id]).toBe(2);
   });
 
-  test('Count conversations by unassigned', async () => {
-    await conversationFactory({
-      integrationId: integration._id,
-      assignedUserId: user._id
-    });
+  // conversation count main query
+  const converstaionCountQuery = (qUser?: IUser) => {
+    return graphqlRequest(
+      qryCount,
+      'conversationCounts',
+      {},
+      {
+        user: qUser || user
+      }
+    );
+  };
 
-    await conversationFactory({
-      integrationId: integration._id,
-      assignedUserId: user._id
-    });
-
-    await conversationFactory({
-      integrationId: integration._id,
-      assignedUserId: user._id
-    });
-
-    await conversationFactory({
+  test('Count conversations by default values', async () => {
+    const conversation1 = await conversationFactory({
       integrationId: integration._id
     });
 
-    const response = await graphqlRequest(
-      qryCount,
-      'conversationCounts',
-      { unassigned: 'true' },
-      { user }
-    );
+    // unassigned
+    const response = await converstaionCountQuery();
+
+    expect(Object.keys(response).length).toBe(5);
 
     expect(response.unassigned).toBe(1);
-  });
+    expect(response.participating).toBe(0);
+    expect(response.starred).toBe(0);
+    expect(response.resolved).toBe(0);
+    expect(response.awaitingResponse).toBe(0);
 
-  test('Count conversations by participating', async () => {
-    await conversationFactory({
+    const conversation2 = await conversationFactory({
       integrationId: integration._id,
       participatedUserIds: [user._id]
     });
 
-    await conversationFactory({ integrationId: integration._id });
-    await conversationFactory({ integrationId: integration._id });
-
-    const response = await graphqlRequest(
-      qryCount,
-      'conversationCounts',
-      { participating: 'true' },
-      { user }
-    );
-
-    expect(response.participating).toBe(1);
-  });
-
-  test('Count conversations by starred', async () => {
-    const conversation = await conversationFactory({
-      integrationId: integration._id
+    await conversationFactory({
+      integrationId: integration._id,
+      assignedUserId: user._id
     });
 
-    await conversationFactory({ integrationId: integration._id });
-    await conversationFactory({ integrationId: integration._id });
+    // participating
+    const response2 = await converstaionCountQuery();
 
+    expect(response2.unassigned).toBe(2);
+    expect(response2.participating).toBe(2);
+
+    await conversationFactory({
+      integrationId: integration._id,
+      userRelevance: userWithCode.code
+    });
+
+    await conversationFactory({
+      integrationId: integration._id,
+      userRelevance: 'wrongCode'
+    });
+
+    // unassigned & participating with out code
+    const response3 = await converstaionCountQuery(userWithoutCode);
+
+    expect(response3.unassigned).toBe(4);
+    expect(response3.participating).toBe(0);
+
+    // unassigned & participating  with code
+    const response4 = await converstaionCountQuery(userWithCode);
+
+    expect(response4.unassigned).toBe(3);
+    expect(response4.participating).toBe(0);
+
+    // starred
     await Users.updateOne(
       { _id: user._id },
-      { $set: { starredConversationIds: [conversation._id] } }
+      {
+        $set: { starredConversationIds: [conversation1._id, conversation2._id] }
+      }
     );
 
-    const updatedUser = await Users.findOne({ _id: user._id });
+    const updatedUser =
+      (await Users.findOne({ _id: user._id })) || ({} as IUser);
 
-    const response = await graphqlRequest(
-      qryCount,
-      'conversationCounts',
-      { starred: 'true' },
-      { user: updatedUser }
-    );
+    const response5 = await converstaionCountQuery(updatedUser);
 
-    expect(response.starred).toBe(1);
-  });
+    expect(response5.starred).toBe(2);
 
-  test('Count conversations by resolved', async () => {
+    // closed
     await conversationFactory({
       integrationId: integration._id,
       status: 'closed'
     });
 
-    await conversationFactory({
-      integrationId: integration._id,
-      status: 'new'
-    });
+    const response6 = await converstaionCountQuery();
 
-    await conversationFactory({
-      integrationId: integration._id,
-      status: 'new'
-    });
+    expect(response6.resolved).toBe(1);
 
-    const response = await graphqlRequest(
-      qryCount,
-      'conversationCounts',
-      { status: 'closed' },
-      { user }
+    // awaiting response
+    await Conversations.updateMany(
+      { integrationId: integration._id },
+      { $set: { isCustomerRespondedLast: true } }
     );
 
-    expect(response.resolved).toBe(1);
+    const response7 = await converstaionCountQuery();
+
+    expect(response7.awaitingResponse).toBe(5);
+
+    // new user
+    const newUser = await userFactory();
+    const response10 = await converstaionCountQuery(newUser);
+
+    expect(response10.unassigned).toBe(0);
+    expect(response10.participating).toBe(0);
+    expect(response10.starred).toBe(0);
+    expect(response10.resolved).toBe(0);
+    expect(response10.awaitingResponse).toBe(0);
   });
 
   test('Count conversations by integration type', async () => {
@@ -1504,7 +1581,8 @@ describe('conversationQueries', () => {
       'conversationsTotalCount',
       {
         channelId: channel._id
-      }
+      },
+      { user }
     );
 
     expect(response1).toBe(1);
@@ -1543,11 +1621,12 @@ describe('conversationQueries', () => {
 
     const integration3 = await integrationFactory({});
 
-    const channel2 = await channelFactory({
-      integrationIds: [integration3._id]
-    });
-
     const user2 = await userFactory({ code: '004' });
+
+    const channel2 = await channelFactory({
+      integrationIds: [integration3._id],
+      memberIds: [user2._id]
+    });
 
     await conversationFactory({
       integrationId: integration3._id,

@@ -168,6 +168,15 @@ export default class Builder {
     channelId: string
   ): Promise<{ integrationId: IIn }> {
     const channel = await Channels.getChannel(channelId);
+    const memberIds = channel.memberIds || [];
+
+    if (!memberIds.includes(this.user._id)) {
+      return {
+        integrationId: {
+          $in: []
+        }
+      };
+    }
 
     return {
       integrationId: {
