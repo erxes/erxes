@@ -34,6 +34,7 @@ import { trackViewPageEvent } from '../../../events';
 import memoryStorage from '../../../inmemoryStorage';
 import { graphqlPubsub } from '../../../pubsub';
 import { AUTO_BOT_MESSAGES, BOT_MESSAGE_TYPES } from '../../constants';
+import { visitorLog } from '../../logUtils';
 import {
   registerOnboardHistory,
   replaceEditorAttributes,
@@ -331,6 +332,7 @@ const widgetMutations = {
       companyData?: any;
       data?: any;
       cachedCustomerId?: string;
+      fingerPrint?: string;
       deviceToken?: string;
     }
   ) {
@@ -343,6 +345,7 @@ const widgetMutations = {
       companyData,
       data,
       cachedCustomerId,
+      fingerPrint,
       deviceToken
     } = args;
 
@@ -379,16 +382,28 @@ const widgetMutations = {
       phone,
       code,
       isUser,
-      deviceToken
+      deviceToken,
+      fingerPrint
     };
 
-    customer = customer
-      ? await Customers.updateMessengerCustomer({
-          _id: customer._id,
-          doc,
-          customData
-        })
-      : await Customers.createMessengerCustomer({ doc, customData });
+    if (customer) {
+      customer = await Customers.updateMessengerCustomer({
+        _id: customer._id,
+        doc,
+        customData
+      });
+    }
+
+    if (fingerPrint && !customer) {
+      try {
+        await visitorLog(
+          { fingerPrint, integrationId: integration._id },
+          'create'
+        );
+      } catch (e) {
+        console.log(e.message);
+      }
+    }
 
     // get or create company
     if (companyData && companyData.name) {
@@ -409,13 +424,15 @@ const widgetMutations = {
         });
       }
 
-      // add company to customer's companyIds list
-      await Conformities.create({
-        mainType: 'customer',
-        mainTypeId: customer._id,
-        relType: 'company',
-        relTypeId: company._id
-      });
+      if (customer) {
+        // add company to customer's companyIds list
+        await Conformities.create({
+          mainType: 'customer',
+          mainTypeId: customer._id,
+          relType: 'company',
+          relTypeId: company._id
+        });
+      }
     }
 
     if (integration.createdUserId) {
@@ -429,7 +446,7 @@ const widgetMutations = {
       uiOptions: integration.uiOptions,
       languageCode: integration.languageCode,
       messengerData: await getMessengerData(integration),
-      customerId: customer._id,
+      customerId: customer?._id,
       brand
     };
   },
@@ -450,12 +467,20 @@ const widgetMutations = {
   ) {
     const {
       integrationId,
-      customerId,
       conversationId,
       message,
       attachments,
       contentType
     } = args;
+
+    let { customerId } = args;
+
+    if (!customerId) {
+      const customer = await Customers.createMessengerCustomer({
+        doc: { integrationId }
+      });
+      customerId = customer._id;
+    }
 
     const conversationContent = strip(message || '').substring(0, 100);
 
@@ -677,25 +702,38 @@ const widgetMutations = {
     _root,
     {
       customerId,
+      fingerPrint,
       browserInfo
-    }: { customerId: string; browserInfo: IBrowserInfo }
+    }: { customerId: string; fingerPrint: string; browserInfo: IBrowserInfo }
   ) {
-    // update location
-    await Customers.updateLocation(customerId, browserInfo);
-
-    try {
-      await trackViewPageEvent({
-        customerId,
-        attributes: { url: browserInfo.url }
-      });
-    } catch (e) {
-      /* istanbul ignore next */
-      debugBase(`Error occurred during widgets save browser info ${e.message}`);
+    if (!customerId) {
+      try {
+        await visitorLog({ fingerPrint, location: browserInfo }, 'update');
+      } catch (e) {
+        console.log(e.message);
+      }
     }
 
-    await Customers.updateSession(customerId);
+    if (customerId) {
+      // update location
+      await Customers.updateLocation(customerId, browserInfo);
+      console.log('widgetsSaveBrowserInfo');
+      try {
+        await trackViewPageEvent({
+          customerId,
+          attributes: { url: browserInfo.url }
+        });
+      } catch (e) {
+        /* istanbul ignore next */
+        debugBase(
+          `Error occurred during widgets save browser info ${e.message}`
+        );
+      }
 
-    return await getOrCreateEngageMessage(customerId, browserInfo);
+      await Customers.updateSession(customerId);
+    }
+
+    return await getOrCreateEngageMessage(customerId, fingerPrint, browserInfo);
   },
 
   widgetsSendTypingInfo(

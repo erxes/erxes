@@ -1,5 +1,6 @@
 import { Transform } from 'stream';
 import {
+  ConversationMessages,
   Customers,
   EngageMessages,
   Integrations,
@@ -10,11 +11,11 @@ import { METHODS } from '../../../db/models/definitions/constants';
 import { ICustomerDocument } from '../../../db/models/definitions/customers';
 import { IEngageMessageDocument } from '../../../db/models/definitions/engages';
 import { IUserDocument } from '../../../db/models/definitions/users';
+import { fetchElk } from '../../../elasticsearch';
 import messageBroker from '../../../messageBroker';
 import { MESSAGE_KINDS } from '../../constants';
 import { fetchBySegments } from '../../modules/segments/queryBuilder';
-import { chunkArray, replaceEditorAttributes } from '../../utils';
-
+import { chunkArray, getEnv, replaceEditorAttributes } from '../../utils';
 interface IEngageParams {
   engageMessage: IEngageMessageDocument;
   customersSelector: any;
@@ -286,3 +287,46 @@ const sendEmailOrSms = async (
     });
   });
 };
+
+export const getMessages = async (selector: any, isFindOne: boolean) => {
+
+  const ELK_SYNCER = getEnv({ name: 'ELK_SYNCER', defaultValue: 'true' });
+
+  if (ELK_SYNCER === 'true') {
+
+    const must: any[] = [];
+
+    Object.keys(selector).forEach(key => {
+      const obj = {}
+      obj[key] = selector[key];
+      const match = { match: obj }
+      must.push(match);
+    });
+
+    const response = await fetchElk(
+      'search',
+      'conversation_messages',
+      {
+        query: {
+          bool: {
+            must
+          }
+        }
+      },
+    );
+
+    if (response.hits.hits.length > 0 && isFindOne) {
+      return response.hits.hits[0]._source;
+    }
+
+    return response.hits.hits.map(hit => {
+      return hit._source;
+    });
+  }
+
+  if (isFindOne) {
+    return await ConversationMessages.findOne(selector);
+  }
+  return await ConversationMessages.find(selector);
+}
+

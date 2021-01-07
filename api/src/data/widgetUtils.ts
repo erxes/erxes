@@ -7,12 +7,20 @@ import {
 } from '../db/models';
 import Messages from '../db/models/ConversationMessages';
 import { IBrowserInfo } from '../db/models/Customers';
+import { fetchElk } from '../elasticsearch';
+import { visitorLog } from './logUtils';
+import { getEnv } from './utils';
 
 export const getOrCreateEngageMessage = async (
   customerId: string,
+  fingerPrint: string,
   browserInfo: IBrowserInfo
 ) => {
-  const customer = await Customers.getCustomer(customerId);
+  let customer;
+  if (customerId) {
+    customer = await Customers.getCustomer(customerId);
+  }
+  await visitorLog({ fingerPrint }, 'get');
 
   // Preventing from displaying non messenger integrations like form's messages
   // as last unread message
@@ -40,10 +48,30 @@ export const getOrCreateEngageMessage = async (
   });
 
   // find conversations
-  const convs = await Conversations.find({
-    integrationId: integration._id,
-    customerId: customer._id
-  });
+  const convs = await getConversation(integration._id, customer._id);
 
   return Messages.findOne(Conversations.widgetsUnreadMessagesQuery(convs));
+};
+
+const getConversation = async (integrationId: string, customerId: string) => {
+  const ELK_SYNCER = getEnv({ name: 'ELK_SYNCER', defaultValue: 'true' });
+
+  if (ELK_SYNCER === 'true') {
+    const response = await fetchElk('search', 'conversation_messages', {
+      query: {
+        bool: {
+          must: [{ match: { integrationId } }, { match: { customerId } }]
+        }
+      }
+    });
+
+    if (response.hits.hits.length > 0) {
+      return response.hits.hits[0]._source;
+    }
+  }
+
+  return await Conversations.find({
+    integrationId,
+    customerId
+  });
 };

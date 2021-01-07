@@ -37,6 +37,7 @@ const Events: any = {
       .then(response => response.json())
       .then(response => {
         if (response.customerId) {
+          console.log('bishda')
           setLocalStorageItem("customerId", response.customerId);
         }
       })

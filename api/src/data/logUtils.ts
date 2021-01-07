@@ -4,12 +4,17 @@ import {
   putUpdateLog as putUpdateLogC
 } from 'erxes-api-utils';
 import * as _ from 'underscore';
+import { IBrowserInfo } from '../db/models/Customers';
 
 import { IPipelineDocument } from '../db/models/definitions/boards';
 import { IChannelDocument } from '../db/models/definitions/channels';
+import { ICustomField } from '../db/models/definitions/common';
 import { ICompanyDocument } from '../db/models/definitions/companies';
 import { ACTIVITY_CONTENT_TYPES } from '../db/models/definitions/constants';
-import { ICustomerDocument } from '../db/models/definitions/customers';
+import {
+  ICustomerDocument,
+  ILocation
+} from '../db/models/definitions/customers';
 import {
   IDealDocument,
   IProductDocument
@@ -55,7 +60,7 @@ import {
   UsersGroups
 } from '../db/models/index';
 import messageBroker from '../messageBroker';
-import { MODULE_NAMES } from './constants';
+import { MODULE_NAMES, RABBITMQ_QUEUES } from './constants';
 import {
   getSubServiceDomain,
   registerOnboardHistory,
@@ -130,6 +135,15 @@ const LOG_ACTIONS = {
   UPDATE: 'update',
   DELETE: 'delete'
 };
+
+export interface IVisitorLogParams {
+  fingerPrint: string;
+  integrationId?: string;
+  location?: IBrowserInfo;
+  isOnline?: boolean;
+  lastSeenAt?: Date;
+  sessionCount?: number;
+}
 
 // used in internalNotes mutations
 const findContentItemName = async (
@@ -1400,7 +1414,7 @@ export const putCreateLog = async (
 
   await sendToWebhook(LOG_ACTIONS.CREATE, params.type, params);
 
-  return putCreateLogC(messageBroker, gatherDescriptions, params, user)
+  return putCreateLogC(messageBroker, gatherDescriptions, params, user);
 };
 
 /**
@@ -1429,6 +1443,17 @@ export const putDeleteLog = async (
   await sendToWebhook(LOG_ACTIONS.DELETE, params.type, params);
 
   return putDeleteLogC(messageBroker, gatherDescriptions, params, user);
+};
+
+export const visitorLog = async (params: IVisitorLogParams, action) => {
+  try {
+    return messageBroker().sendMessage(RABBITMQ_QUEUES.VISITOR_LOG, {
+      ...params,
+      action
+    });
+  } catch (e) {
+    return e.message;
+  }
 };
 
 /**

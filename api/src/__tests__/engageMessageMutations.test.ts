@@ -1,7 +1,9 @@
 import * as faker from 'faker';
 import * as sinon from 'sinon';
 import { MESSAGE_KINDS } from '../data/constants';
+import { EngagesAPI } from '../data/dataSources';
 import * as engageUtils from '../data/resolvers/mutations/engageUtils';
+import * as utils from '../data/utils';
 import { graphqlRequest } from '../db/connection';
 import {
   brandFactory,
@@ -26,11 +28,9 @@ import {
   Tags,
   Users
 } from '../db/models';
-import messageBroker from '../messageBroker';
-
-import { EngagesAPI } from '../data/dataSources';
-import { handleUnsubscription } from '../data/utils';
 import { KIND_CHOICES, METHODS } from '../db/models/definitions/constants';
+import * as elk from '../elasticsearch';
+import messageBroker from '../messageBroker';
 import './setup.ts';
 
 // to prevent duplicate expect checks
@@ -227,6 +227,41 @@ describe('engage message mutation tests', () => {
       segmentIds: [segment._id],
       brandIds: [brand._id]
     });
+  });
+
+  test('engage utils getMessages', async () => {
+    // const utilsMock = sinon.stub(engageUtils, 'getMessages').callsFake();
+
+    const conversationMessage = await conversationMessageFactory({});
+
+    const envMock = sinon.stub(utils, 'getEnv').callsFake(() => {
+      return 'true';
+    });
+
+    const mock = sinon.stub(elk, 'fetchElk').callsFake(() => {
+      return Promise.resolve({
+        hits: {
+          hits: [{ _source: conversationMessage }]
+        }
+      });
+    });
+
+    const customer = await customerFactory({});
+
+    const response1 = await engageUtils.getMessages(
+      { customerId: customer._id },
+      true
+    );
+    const response2 = await engageUtils.getMessages(
+      { customerId: customer._id },
+      false
+    );
+
+    expect(response1).toBe(conversationMessage);
+    expect(response2[0]).toBe(conversationMessage);
+
+    mock.restore();
+    envMock.restore();
   });
 
   test('Engage utils send via messenger', async () => {
@@ -705,7 +740,7 @@ describe('engage message mutation tests', () => {
     const customer = await customerFactory({ doNotDisturb: 'No' });
     const user = await userFactory({ doNotDisturb: 'No' });
 
-    await handleUnsubscription({ cid: customer._id, uid: user._id });
+    await utils.handleUnsubscription({ cid: customer._id, uid: user._id });
 
     const updatedCustomer = await Customers.getCustomer(customer._id);
 

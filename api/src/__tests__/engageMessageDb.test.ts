@@ -29,6 +29,8 @@ import { IUserDocument } from '../db/models/definitions/users';
 import * as events from '../events';
 import './setup.ts';
 
+
+
 describe('engage messages model tests', () => {
   let _user;
   let _segment;
@@ -383,6 +385,24 @@ describe('createConversation', () => {
     });
 
     expect(response).toBe(null);
+
+    response = await EngageMessages.createOrUpdateConversationAndMessages({
+      customer: _customer,
+      integration: _integration,
+      user,
+      replacedContent,
+      engageData: {
+        rules: [],
+        messageId: engageMessage._id,
+        brandId: 'brandId',
+        content: 'new content',
+        fromUserId: user._id,
+        kind: 'chat',
+        sentAs: 'snippet'
+      }
+    });
+
+    expect(response).toBeDefined();
   });
 });
 

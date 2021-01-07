@@ -1,6 +1,6 @@
 import * as dotenv from 'dotenv';
 import messageBroker from 'erxes-message-broker';
-import { receivePutLogCommand } from './utils';
+import { receivePutLogCommand, receiveVisitorLog } from './utils';
 
 dotenv.config();
 
@@ -17,6 +17,11 @@ export const initBroker = async server => {
 
   consumeQueue('putLog', async data => {
     await receivePutLogCommand(data);
+  });
+
+  consumeQueue('visitorLog', async data => {
+    console.log('DATA = ', data);
+    return await receiveVisitorLog(data);
   });
 };
 

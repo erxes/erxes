@@ -1,6 +1,6 @@
 import { Model, model } from 'mongoose';
 import { ConversationMessages, Conversations, Users } from '.';
-import { generateCustomerSelector } from '../../data/resolvers/mutations/engageUtils';
+import { generateCustomerSelector, getMessages } from '../../data/resolvers/mutations/engageUtils';
 import { replaceEditorAttributes } from '../../data/utils';
 import { getNumberOfVisits } from '../../events';
 import Customers, { IBrowserInfo } from './Customers';
@@ -360,13 +360,11 @@ export const loadClass = () => {
     }) {
       const { customer, integration, user, engageData, replacedContent } = args;
 
-      const prevMessage: IMessageDocument | null = await ConversationMessages.findOne(
-        {
-          customerId: customer._id,
-          'engageData.messageId': engageData.messageId
-        }
-      );
+      const selector = {customerId: customer._id, 'engageData.messageId': engageData.messageId}
 
+      const prevMessage: IMessageDocument | null = await getMessages(selector, true);
+
+      // if previously created conversation for this customer
       if (prevMessage) {
         if (
           JSON.stringify(prevMessage.engageData) === JSON.stringify(engageData)
@@ -374,9 +372,7 @@ export const loadClass = () => {
           return null;
         }
 
-        const messages = await ConversationMessages.find({
-          conversationId: prevMessage.conversationId
-        });
+        const messages = await getMessages({conversationId: prevMessage.conversationId}, false);
 
         // leave conversations with responses alone
         if (messages.length > 1) {
