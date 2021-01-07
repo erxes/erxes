@@ -726,7 +726,7 @@ export const loadClass = () => {
     }
 
     public static async generateUserCodeField() {
-      const users = await Users.find({}, { code: 1 });
+      const users = await Users.find({ code: { $exists: false } });
 
       if (users.length === 0) {
         return;
@@ -739,46 +739,41 @@ export const loadClass = () => {
         };
       }> = [];
 
+      let code = parseInt((await this.generateUserCode()) || '', 10);
+
       for (const user of users) {
-        if (!user.code) {
-          const code = await this.generateUserCode();
+        code++;
 
-          doc.push({
-            updateOne: {
-              filter: { _id: user._id },
-              update: { $set: { code } }
-            }
-          });
-        }
-      }
-
-      if (doc.length === 0) {
-        return;
+        doc.push({
+          updateOne: {
+            filter: { _id: user._id },
+            update: { $set: { code: this.getCodeString(code) } }
+          }
+        });
       }
 
       return Users.bulkWrite(doc);
     }
 
     public static async generateUserCode() {
-      const codes = await Users.find().distinct('code');
+      const users = await Users.find({ code: { $exists: true } })
+        .sort({ code: -1 })
+        .limit(1);
 
-      const sortedCodes = codes.sort((firstCode, secondCode) => {
-        const firstNumber = Number((firstCode || '').substring(2));
-        const secondNumber = Number((secondCode || '').substring(2));
+      if (users.length === 0) {
+        return '000';
+      }
 
-        if (firstNumber > secondNumber) {
-          return -1;
-        }
+      const [user] = users;
 
-        return 1;
-      });
-
-      const [highestCodeValue] = sortedCodes;
-
-      let code = Number((highestCodeValue || '').split(2));
+      let code = parseInt(user.code || '', 10);
 
       code++;
 
+      return this.getCodeString(code);
+    }
+
+    public static getCodeString(code: number) {
       return ('00' + code).slice(-3);
     }
   }
