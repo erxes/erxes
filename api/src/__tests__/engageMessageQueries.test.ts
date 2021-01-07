@@ -218,10 +218,10 @@ describe('engageQueries', () => {
             },
             {
               _id: '234',
-              customerId: customer._id,
+              customerId: customer._id
             }
           ],
-          count: 2
+          totalCount: 2
         });
       });
 

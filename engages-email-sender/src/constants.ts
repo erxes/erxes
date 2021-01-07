@@ -57,5 +57,15 @@ export const SES_DELIVERY_STATUSES = {
   COMPLAINT: 'complaint',
   BOUNCE: 'bounce',
   RENDERING_FAILURE: 'renderingfailure',
-  REJECT: 'reject'
+  REJECT: 'reject',
+  ALL: [
+    'bounce',
+    'click',
+    'complaint',
+    'delivery',
+    'open',
+    'reject',
+    'renderingfailure',
+    'send'
+  ]
 };

@@ -238,7 +238,7 @@ const engageQueries = {
   ) {
     const {
       list = [],
-      count: listCount
+      totalCount
     } = await dataSources.EngagesAPI.engageReportsList(params);
     const modifiedList: any[] = [];
 
@@ -256,7 +256,7 @@ const engageQueries = {
       modifiedList.push(modifiedItem);
     }
 
-    return { count: listCount, list: modifiedList };
+    return { totalCount, list: modifiedList };
   },
 
   /**

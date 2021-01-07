@@ -1,7 +1,7 @@
 import HelpPopover from 'modules/common/components/HelpPopover';
 import Icon from 'modules/common/components/Icon';
-import { numberFormat } from 'modules/common/utils';
 import React from 'react';
+import s from 'underscore.string';
 import {
   AWS_EMAIL_DELIVERY_STATUSES,
   METHODS,
@@ -65,7 +65,7 @@ export default function EngageStatItem({
           <HelpPopover title={label}>{description}</HelpPopover>
         </h5>
         <strong>
-          {numberFormat(count)} {percent ? <span>({percent}%)</span> : null}
+          {s.numberFormat(count)} {percent ? <span>({percent}%)</span> : null}
         </strong>
       </BoxContent>
     </Box>

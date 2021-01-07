@@ -79,9 +79,3 @@ export {
   formatValue,
   isEmptyContent
 };
-
-export const numberFormat = (amount, precision = 2) => {
-  const am = parseFloat(amount);
-
-  return amount ? Number(am.toFixed(precision) || 0).toLocaleString() : 0;
-};

@@ -191,7 +191,7 @@ export const cleanIgnoredCustomers = async ({
 
   const allowedEmailSkipLimit = await getConfig('allowedEmailSkipLimit', '5');
 
-  // reduce previously customers who did not open or click
+  // gather customers who did not open or click previously
   const deliveries = await DeliveryReports.aggregate([
     {
       $match: {
