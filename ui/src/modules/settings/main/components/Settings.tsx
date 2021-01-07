@@ -1,7 +1,7 @@
-import { AppConsumer } from 'appContext';
 import WithPermission from 'modules/common/components/WithPermission';
 import { __ } from 'modules/common/utils';
 import Wrapper from 'modules/layout/components/Wrapper';
+import { settingsLayout } from 'pluginUtils';
 import React from 'react';
 import { Link } from 'react-router-dom';
 import {
@@ -138,49 +138,6 @@ class Settings extends React.PureComponent {
       <WithPermission action={action} actions={permissions}>
         {box}
       </WithPermission>
-    );
-  }
-
-  renderPlugins(plugins) {
-    let hasPluginsSettings = false;
-
-    const pluginsBoxs = plugins.map(plugin => {
-      const item = plugin.settings;
-
-      if (!item) {
-        return <></>;
-      }
-
-      hasPluginsSettings = true;
-      const pluginSettings: JSX.Element[] = [];
-      for (const perSettings of plugin.settings) {
-        pluginSettings.push(
-          this.renderBox(
-            perSettings.name,
-            perSettings.image,
-            perSettings.to,
-            perSettings.action,
-            perSettings.permissions
-          )
-        )
-      }
-      return pluginSettings;
-    })
-
-    if (!hasPluginsSettings) {
-      return <></>;
-    }
-
-    return (
-      <>
-        <Divider />
-        <Row>
-          <RowTitle>{__('Plugins Settings')}</RowTitle>
-          <div id={'PluginsSettings'}>
-            {pluginsBoxs}
-          </div>
-        </Row>
-      </>
     );
   }
 
@@ -398,13 +355,7 @@ class Settings extends React.PureComponent {
             )}
           </div>
         </Row>
-        <AppConsumer>
-          {({ plugins }) => (
-            <div>
-              {this.renderPlugins(plugins)}
-            </div>
-          )}
-        </AppConsumer>
+        {settingsLayout(this.renderBox)}
       </MenusContainer>
     );
 

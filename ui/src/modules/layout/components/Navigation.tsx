@@ -3,6 +3,7 @@ import Tip from 'modules/common/components/Tip';
 import WithPermission from 'modules/common/components/WithPermission';
 import { colors, dimensions } from 'modules/common/styles';
 import { __, getEnv, setBadge } from 'modules/common/utils';
+import { navigations } from 'pluginUtils';
 import React from 'react';
 import { NavLink } from 'react-router-dom';
 import styled from 'styled-components';
@@ -126,7 +127,6 @@ const NavIcon = styled.i`
 
 class Navigation extends React.Component<{
   unreadConversationsCount?: number;
-  plugins?: any;
 }> {
   componentWillReceiveProps(nextProps) {
     const unreadCount = nextProps.unreadConversationsCount;
@@ -156,30 +156,13 @@ class Navigation extends React.Component<{
   };
 
   render() {
-    const { unreadConversationsCount, plugins } = this.props;
+    const { unreadConversationsCount } = this.props;
 
     const unreadIndicator = unreadConversationsCount !== 0 && (
       <Label shake={true} lblStyle="danger" ignoreTrans={true}>
         {unreadConversationsCount}
       </Label>
     );
-
-    const pluginMenus: any = [];
-
-    for (const plugin of plugins || []) {
-      const menu = plugin.menu;
-
-      if (menu) {
-        pluginMenus.push(
-          this.renderNavItem(
-            menu.permission,
-            menu.label,
-            `/${plugin.name}${menu.link}`,
-            menu.icon,
-          )
-        )
-      }
-    }
 
     return (
       <LeftNavigation>
@@ -239,7 +222,7 @@ class Navigation extends React.Component<{
             'icon-book'
           )}
 
-          {pluginMenus}
+          {navigations(this.renderNavItem)}
         </Nav>
       </LeftNavigation>
     );

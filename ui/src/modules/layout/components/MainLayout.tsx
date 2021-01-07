@@ -17,7 +17,6 @@ const MainBar = asyncComponent(() =>
 
 interface IProps extends IRouterProps {
   currentUser?: IUser;
-  plugins?: any;
   children: React.ReactNode;
   isShownIndicator: boolean;
   closeLoadingBar: () => void;
@@ -80,8 +79,7 @@ class MainLayout extends React.Component<IProps> {
       currentUser,
       children,
       isShownIndicator,
-      history,
-      plugins
+      history
     } = this.props;
 
     if (history.location.pathname.startsWith('/videoCall')) {
@@ -95,7 +93,6 @@ class MainLayout extends React.Component<IProps> {
         <Layout isSqueezed={isShownIndicator}>
           {currentUser && <Navigation
             currentUser={currentUser}
-            plugins={plugins}
           />}
 
           <MainWrapper>

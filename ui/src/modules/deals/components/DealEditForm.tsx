@@ -1,4 +1,3 @@
-import { AppConsumer } from 'appContext';
 import EditForm from 'modules/boards/components/editForm/EditForm';
 import Left from 'modules/boards/components/editForm/Left';
 import Sidebar from 'modules/boards/components/editForm/Sidebar';
@@ -10,6 +9,7 @@ import ProductSection from 'modules/deals/components/ProductSection';
 import { IProduct } from 'modules/settings/productService/types';
 import PortableTasks from 'modules/tasks/components/PortableTasks';
 import PortableTickets from 'modules/tickets/components/PortableTickets';
+import { itemRightSidebar } from 'pluginUtils';
 import React from 'react';
 import { IDeal, IDealParams, IPaymentsData } from '../types';
 
@@ -154,37 +154,13 @@ export default class DealEditForm extends React.Component<Props, State> {
     );
   };
 
-  renderPluginsSidebarSections(plugins, deal) {
-    return plugins.map(plugin => {
-      const rsSection = plugin.dealRightSidebarSection;
-
-      if (!rsSection) {
-        return <></>;
-      }
-
-      const Component = rsSection.section;
-      return (<Component
-        key={plugin.name}
-        mainType={'deal'}
-        mainTypeId={deal._id}
-      />)
-    })
-  }
-
   renderItems = () => {
     const { item } = this.props
     return (
       <>
         <PortableTickets mainType="deal" mainTypeId={item._id} />
         <PortableTasks mainType="deal" mainTypeId={item._id} />
-
-        <AppConsumer>
-          {({ plugins }) => (
-            <div>
-              {this.renderPluginsSidebarSections(plugins, item)}
-            </div>
-          )}
-        </AppConsumer>
+        {itemRightSidebar(item)}
       </>
     );
   };

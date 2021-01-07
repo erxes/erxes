@@ -1,4 +1,3 @@
-import { AppConsumer } from 'appContext';
 import dayjs from 'dayjs';
 import Box from 'modules/common/components/Box';
 import { __ } from 'modules/common/utils';
@@ -8,6 +7,7 @@ import PortableDeals from 'modules/deals/components/PortableDeals';
 import Sidebar from 'modules/layout/components/Sidebar';
 import PortableTasks from 'modules/tasks/components/PortableTasks';
 import PortableTickets from 'modules/tickets/components/PortableTickets';
+import { companyRightSidebar } from 'pluginUtils';
 import React from 'react';
 import { List } from '../../styles';
 
@@ -29,23 +29,6 @@ export default class RightSidebar extends React.Component<Props> {
     );
   }
 
-  renderPluginsSidebarSections(plugins, company) {
-    return plugins.map(plugin => {
-      const rsSection = plugin.companyRightSidebarSection;
-
-      if (!rsSection) {
-        return <></>;
-      }
-
-      const Component = rsSection.section;
-      return (<Component
-        key={plugin.name}
-        mainType={'company'}
-        mainTypeId={company._id}
-      />)
-    })
-  }
-
   render() {
     const { company } = this.props;
 
@@ -55,13 +38,7 @@ export default class RightSidebar extends React.Component<Props> {
         <PortableDeals mainType="company" mainTypeId={company._id} />
         <PortableTickets mainType="company" mainTypeId={company._id} />
         <PortableTasks mainType="company" mainTypeId={company._id} />
-        <AppConsumer>
-          {({ plugins }) => (
-            <div>
-              {this.renderPluginsSidebarSections(plugins, company)}
-            </div>
-          )}
-        </AppConsumer>
+        {companyRightSidebar(company)}
         <Box title={__('Other')} name="showOthers">
           <List>
             <li>

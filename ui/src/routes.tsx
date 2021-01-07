@@ -1,5 +1,6 @@
 import withCurrentUser from 'modules/auth/containers/withCurrentUser';
 import asyncComponent from 'modules/common/components/AsyncComponent';
+import { pluginsRoutes } from 'pluginUtils';
 import queryString from 'query-string';
 import React from 'react';
 import { BrowserRouter as Router, Route, Switch } from 'react-router-dom';
@@ -54,14 +55,6 @@ export const unsubscribe = ({ location }) => {
   return <Unsubscribe queryParams={queryParams} />;
 };
 
-const tryRequire = (requirPath) => {
-  try {
-    return require(`${requirPath}`);
-  } catch (err) {
-    return {};
-  }
-};
-
 const schedule = ({ match }) => {
   const slug = match.params.slug;
 
@@ -88,43 +81,7 @@ const renderRoutes = currentUser => {
   }
 
   if (currentUser) {
-    const pluginModules = tryRequire('./plugins').default || {};
-
-    const plugins: any = [];
-    const pluginRoutes: any = [];
-    const specialPluginRoutes: any = [];
-
-    for (const pluginName of Object.keys(pluginModules)) {
-      const plugin = pluginModules[pluginName]();
-
-      plugins.push({
-        name: pluginName,
-        ...plugin
-      });
-
-      if (plugin.response) {
-        const Component = plugin.response;
-        specialPluginRoutes.push(
-          <Component currentUser={currentUser} />
-        )
-      }
-
-      if (plugin.routes) {
-        for (const route of plugin.routes) {
-          const { component } = route;
-          const path = `/${pluginName}${route.path}`
-
-          pluginRoutes.push(
-            <Route
-              key={path}
-              exact={true}
-              path={path}
-              component={component}
-            />
-          )
-        }
-      }
-    }
+    const { plugins, pluginRoutes, specialPluginRoutes } = pluginsRoutes(currentUser);
 
     return (
       <>
