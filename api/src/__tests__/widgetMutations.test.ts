@@ -17,6 +17,7 @@ import {
   integrationFactory,
   knowledgeBaseArticleFactory,
   messengerAppFactory,
+  skillFactor,
   userFactory
 } from '../db/factories';
 import {
@@ -267,6 +268,28 @@ describe('insertMessage()', () => {
     }
 
     expect(customer.isOnline).toBeTruthy();
+
+    const user = await userFactory({ code: '123 ' });
+    const skill = await skillFactor({ memberIds: [user._id] });
+
+    const message2 = await widgetMutations.widgetsInsertMessage(
+      {},
+      {
+        contentType: MESSAGE_TYPES.TEXT,
+        integrationId: _integration._id,
+        customerId: _customer._id,
+        message: faker.lorem.sentence(),
+        skillId: skill._id
+      }
+    );
+
+    const conversation2 = await Conversations.findById(
+      message2.conversationId
+    ).lean();
+
+    if (conversation2) {
+      expect(conversation2.userRelevance).toBe(`${user.code}SS`);
+    }
   });
 
   test('with conversationId', async () => {

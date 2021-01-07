@@ -70,8 +70,8 @@ export const generateCustomerSelector = async ({
   }
 
   return {
-    $or: [{ doNotDisturb: 'No' }, { doNotDisturb: { $exists: false } }],
-    ...customerQuery
+    ...customerQuery,
+    $or: [{ doNotDisturb: 'No' }, { doNotDisturb: { $exists: false } }]
   };
 };
 

@@ -64,7 +64,17 @@ const usersTotalCount = `
   }
 `;
 
+const userSkills = `
+  query skills($memberIds: [String], $typeId: String, $list: Boolean) {
+    skills(memberIds: $memberIds, typeId: $typeId, list: $list) {
+      _id
+      name
+    }
+  }
+`;
+
 export default {
+  userSkills,
   userDetail,
   userConversations,
   users,

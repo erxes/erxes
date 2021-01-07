@@ -9,6 +9,7 @@ import {
   IConversation,
   IConversationDocument
 } from './definitions/conversations';
+import { Skills } from './Skills';
 
 export interface IConversationModel extends Model<IConversationDocument> {
   getConversation(_id: string): IConversationDocument;
@@ -66,6 +67,8 @@ export interface IConversationModel extends Model<IConversationDocument> {
 
   removeEngageConversations(engageMessageId: string): any;
 
+  getUserRelevance(args: { skillId: string }): Promise<string>;
+
   resolveAllConversation(
     query: any,
     userId: string
@@ -106,6 +109,9 @@ export const loadClass = () => {
      */
     public static async createConversation(doc: IConversation) {
       const now = new Date();
+      const userRelevance = await this.getUserRelevance({
+        skillId: doc.skillId
+      });
 
       const result = await Conversations.create({
         status: CONVERSATION_STATUSES.NEW,
@@ -114,7 +120,8 @@ export const loadClass = () => {
         createdAt: doc.createdAt || now,
         updatedAt: doc.createdAt || now,
         number: (await Conversations.find().countDocuments()) + 1,
-        messageCount: 0
+        messageCount: 0,
+        ...(userRelevance ? { userRelevance } : {})
       });
 
       await sendToWebhook('create', 'conversation', result);
@@ -406,6 +413,30 @@ export const loadClass = () => {
         { $set: { status, closedAt, closedUserId } },
         { multi: true }
       );
+    }
+
+    public static async getUserRelevance(args: { skillId?: string }) {
+      const skill = await Skills.findOne({ _id: args.skillId }).lean();
+
+      if (!skill) {
+        return;
+      }
+
+      const users =
+        (await Users.find({ _id: { $in: skill.memberIds || [] } }).sort({
+          createdAt: 1
+        })) || [];
+
+      if (users.length === 0) {
+        return;
+      }
+
+      const type = args.skillId ? 'SS' : '';
+
+      return users
+        .map(user => user.code + type)
+        .filter(code => code !== '' && code !== undefined)
+        .join('|');
     }
   }
 

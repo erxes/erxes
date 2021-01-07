@@ -171,11 +171,11 @@ class Navigation extends React.Component<{
         </NavLink>
         {REACT_APP_DASHBOARD_URL !== 'undefined'
           ? this.renderNavItem(
-            'showDashboards',
-            __('Dashboard'),
-            '/dashboard',
-            'icon-dashboard'
-          )
+              'showDashboards',
+              __('Dashboard'),
+              '/dashboard',
+              'icon-dashboard'
+            )
           : null}
         <Nav id="navigation">
           {this.renderNavItem(
