@@ -30,7 +30,7 @@ export const pluginsRoutes = (currentUser) => {
     if (plugin.response) {
       const Component = plugin.response;
       specialPluginRoutes.push(
-        <Component currentUser={currentUser} />
+        <Component key={Math.random()} currentUser={currentUser} />
       )
     }
 
@@ -63,7 +63,7 @@ export const navigations = (renderNavItem) => {
             const menu = plugin.menu;
 
             if (!menu) {
-              return <></>;
+              return undefined
             }
 
             return (
@@ -88,27 +88,31 @@ const renderPlugins = (plugins, renderBox) => {
     const item = plugin.settings;
 
     if (!item) {
-      return <></>;
+      return undefined;
     }
 
     hasPluginsSettings = true;
     const pluginSettings: JSX.Element[] = [];
     for (const perSettings of plugin.settings) {
       pluginSettings.push(
-        renderBox(
-          perSettings.name,
-          perSettings.image,
-          perSettings.to,
-          perSettings.action,
-          perSettings.permissions
-        )
+        <span key={Math.random()}>
+          {
+            renderBox(
+              perSettings.name,
+              perSettings.image,
+              perSettings.to,
+              perSettings.action,
+              perSettings.permissions
+            )
+          }
+        </span>
       )
     }
     return pluginSettings;
   })
 
   if (!hasPluginsSettings) {
-    return <></>;
+    return undefined;
   }
 
   return (
@@ -140,23 +144,21 @@ export const customerRightSidebar = (customer) => {
   return (
     <AppConsumer>
       {({ plugins }) => (
-        <div>
-          {plugins.map(plugin => {
-            const rsSection = plugin.customerRightSidebarSection;
+        plugins.map(plugin => {
+          const rsSection = plugin.customerRightSidebarSection;
 
-            if (!rsSection) {
-              return <></>;
-            }
+          if (!rsSection) {
+            return undefined;
+          }
 
-            const Component = rsSection.section;
-            return (<Component
-              key={plugin.name}
-              customerId={customer._id}
-              mainType={'customer'}
-              mainTypeId={customer._id}
-            />)
-          })}
-        </div>
+          const Component = rsSection.section;
+          return (<Component
+            key={plugin.name}
+            customerId={customer._id}
+            mainType={'customer'}
+            mainTypeId={customer._id}
+          />)
+        })
       )}
     </AppConsumer>
   )
@@ -166,23 +168,21 @@ export const companyRightSidebar = (company) => {
   return (
     <AppConsumer>
       {({ plugins }) => (
-        <div>
-          {plugins.map(plugin => {
-            const rsSection = plugin.companyRightSidebarSection;
+        plugins.map(plugin => {
+          const rsSection = plugin.companyRightSidebarSection;
 
-            if (!rsSection) {
-              return <></>;
-            }
+          if (!rsSection) {
+            return undefined;
+          }
 
-            const Component = rsSection.section;
-            return (<Component
-              key={plugin.name}
-              companyId={company._id}
-              mainType={'company'}
-              mainTypeId={company._id}
-            />)
-          })}
-        </div>
+          const Component = rsSection.section;
+          return (<Component
+            key={plugin.name}
+            companyId={company._id}
+            mainType={'company'}
+            mainTypeId={company._id}
+          />)
+        })
       )}
     </AppConsumer>
   )
@@ -192,23 +192,21 @@ export const itemRightSidebar = (item) => {
   return (
     <AppConsumer>
       {({ plugins }) => (
-        <div>
-          {plugins.map(plugin => {
-            const rsSection = plugin.dealRightSidebarSection;
+        plugins.map(plugin => {
+          const rsSection = plugin.dealRightSidebarSection;
 
-            if (!rsSection) {
-              return <></>;
-            }
+          if (!rsSection) {
+            return undefined;
+          }
 
-            const Component = rsSection.section;
-            return (<Component
-              key={plugin.name}
-              itemId={item._id}
-              mainType={'deal'}
-              mainTypeId={item._id}
-            />)
-          })}
-        </div>
+          const Component = rsSection.section;
+          return (<Component
+            key={plugin.name}
+            itemId={item._id}
+            mainType={'deal'}
+            mainTypeId={item._id}
+          />)
+        })
       )}
     </AppConsumer>
   )
@@ -218,12 +216,11 @@ export const paymentForm = (renderPaymentsByType) => {
   return (
     <AppConsumer>
       {({ plugins }) => (
-        <>
-          {plugins.map(plugin => {
+        plugins.map(plugin => {
             const item = plugin.payments;
 
             if (!item) {
-              return <></>;
+              return undefined;
             }
 
             const paymentsTypes: JSX.Element[] = [];
@@ -239,8 +236,7 @@ export const paymentForm = (renderPaymentsByType) => {
               }
             }
             return paymentsTypes;
-          })}
-        </>
+          })
       )}
     </AppConsumer>
   )

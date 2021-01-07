@@ -144,7 +144,7 @@ class Navigation extends React.Component<{
     label?: React.ReactNode
   ) => {
     return (
-      <WithPermission action={permission}>
+      <WithPermission key={url} action={permission}>
         <Tip placement="right" text={text}>
           <NavLink to={url}>
             <NavIcon className={icon} />
