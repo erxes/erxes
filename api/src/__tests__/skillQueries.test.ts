@@ -19,7 +19,7 @@ describe('skillTypeQueries', () => {
       query skillTypes {
         skillTypes {
           _id
-        } 
+        }
       }
     `;
 

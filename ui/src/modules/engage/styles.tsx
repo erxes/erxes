@@ -217,6 +217,13 @@ const BoxContent = styled.div`
   h5 {
     margin-bottom: ${dimensions.coreSpacing}px;
   }
+
+  span {
+    font-weight: normal;
+    color: ${colors.colorCoreGray};
+    font-size: 80%;
+    display: initial;
+  }
 `;
 
 const BoxHeader = styled.div`

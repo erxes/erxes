@@ -2,6 +2,7 @@ import * as sinon from 'sinon';
 import { graphqlRequest } from '../db/connection';
 import {
   brandFactory,
+  customerFactory,
   engageMessageFactory,
   segmentFactory,
   tagsFactory,
@@ -205,6 +206,7 @@ describe('engageQueries', () => {
   });
 
   test('Enage email delivery report list', async () => {
+    const customer = await customerFactory();
     const dataSourceMock = sinon
       .stub(dataSources.EngagesAPI, 'engageReportsList')
       .callsFake(() => {
@@ -213,9 +215,13 @@ describe('engageQueries', () => {
             {
               _id: '123',
               status: 'pending'
+            },
+            {
+              _id: '234',
+              customerId: customer._id
             }
           ],
-          totalCount: 1
+          totalCount: 2
         });
       });
 
@@ -243,7 +249,7 @@ describe('engageQueries', () => {
       { dataSources }
     );
 
-    expect(response.list.length).toBe(1);
+    expect(response.list.length).toBe(2);
 
     dataSourceMock.restore();
   });
@@ -458,5 +464,25 @@ describe('engageQueries', () => {
     } catch (e) {
       expect(e[0].message).toBe('Engages api is not running');
     }
+  });
+
+  test('Test getAverageStats()', async () => {
+    const qry = `
+      query engageEmailPercentages {
+        engageEmailPercentages {
+          avgBouncePercent
+        }
+      }
+    `;
+
+    const mock = sinon
+      .stub(dataSources.EngagesAPI, 'getAverageStats')
+      .callsFake(() => {
+        return Promise.resolve({ data: { avgBouncePercent: 0 } });
+      });
+
+    await graphqlRequest(qry, 'engageEmailPercentages', {}, { dataSources });
+
+    mock.restore();
   });
 });
