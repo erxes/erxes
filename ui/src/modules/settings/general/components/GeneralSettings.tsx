@@ -8,6 +8,7 @@ import CURRENCIES from 'modules/common/constants/currencies';
 import { Title } from 'modules/common/styles/main';
 import { __ } from 'modules/common/utils';
 import Wrapper from 'modules/layout/components/Wrapper';
+import EmailConfigForm from 'modules/settings/general/components/EmailConfigForm';
 import React from 'react';
 import Select from 'react-select-plus';
 import { ContentBox } from '../../styles';
@@ -24,7 +25,6 @@ import { IConfigsMap } from '../types';
 import ActivateInstallation from './ActivateInstallation';
 import Header from './Header';
 import Sidebar from './Sidebar';
-import EmailConfigForm from 'modules/settings/general/components/EmailConfigForm';
 
 type Props = {
   currentLanguage: string;
