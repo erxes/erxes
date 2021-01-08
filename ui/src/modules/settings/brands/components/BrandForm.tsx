@@ -7,7 +7,7 @@ import { ModalFooter } from 'modules/common/styles/main';
 import { IButtonMutateProps, IFormProps } from 'modules/common/types';
 import React, { useState } from 'react';
 import { IBrand } from '../types';
-import BrandExtendedForm from './BrandExtendedForm';
+import EmailConfigForm from '../../general/components/EmailConfigForm';
 
 type Props = {
   brand?: IBrand;
@@ -67,9 +67,11 @@ const BrandForm = (props: Props) => {
     }
 
     return (
-      <BrandExtendedForm
+      <EmailConfigForm
+        emailText="Set an email address you wish to send your transactional emails to your customers. For example, chat reply notification to offline customers."
         emailConfig={emailConfig}
         setEmailConfig={setEmailConfig}
+        templateName="conversationCron"
       />
     );
   };
