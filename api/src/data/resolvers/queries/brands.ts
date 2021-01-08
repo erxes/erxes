@@ -1,7 +1,6 @@
 import { Brands } from '../../../db/models';
 import { checkPermission, requireLogin } from '../../permissions/wrappers';
 import { IContext } from '../../types';
-import { readFile } from '../../utils';
 
 interface IListArgs {
   page?: number;
@@ -50,10 +49,6 @@ const brandQueries = {
    */
   brandsGetLast() {
     return Brands.findOne({}).sort({ createdAt: -1 });
-  },
-
-  brandsGetDefaultEmailConfig() {
-    return readFile('conversationCron');
   }
 };
 

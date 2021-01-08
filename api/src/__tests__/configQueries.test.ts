@@ -124,4 +124,16 @@ describe('configQueries', () => {
 
     mock.restore();
   });
+
+  test('Default email template', async () => {
+    const qry = `
+      query configsGetEmailTemplate($name: String) {
+        configsGetEmailTemplate(name: $name)
+      }
+    `;
+
+    const template = await graphqlRequest(qry, 'configsGetEmailTemplate');
+
+    expect(template).toBeDefined();
+  });
 });
