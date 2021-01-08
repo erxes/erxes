@@ -218,8 +218,8 @@ class MessagesList extends React.Component<Props, State> {
 
           return (
             <div key={index} >
-              <div 
-                className="skill-card erxes-button" 
+              <div
+                className="skill-card erxes-button"
                 onClick={handleClick}
                 style={{ background: color, color: textColor }}
               >
