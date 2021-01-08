@@ -103,7 +103,7 @@ export class AppProvider extends React.Component<{}, IState> {
     let inputDisabled = false;
 
     const { messengerData } = connection.data;
-    const { requireAuth, showChat, skillData } = messengerData;
+    const { requireAuth, showChat, skillData = {} } = messengerData;
 
     // if visitor did not give email or phone then ask
     if (!this.isLoggedIn() && requireAuth) {
@@ -118,7 +118,9 @@ export class AppProvider extends React.Component<{}, IState> {
       activeRoute = 'home';
     }
 
-    if (skillData) {
+    const { options = [] } = skillData;
+
+    if (options.length > 0) {
       inputDisabled = true;
     }
 
@@ -247,11 +249,12 @@ export class AppProvider extends React.Component<{}, IState> {
     }
 
     const { skillData = {} } = connection.data.messengerData;
+    const { options = [] } = skillData;
 
     this.setState({
       activeRoute: route,
       selectedSkill: null,
-      inputDisabled: Object.keys(skillData).length > 0
+      inputDisabled: options.length > 0
     });
   };
 

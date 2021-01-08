@@ -207,9 +207,13 @@ class MessagesList extends React.Component<Props, State> {
       return null;
     }
 
-    const { options } = messengerData.skillData;
+    const { options = [] } = messengerData.skillData;
     const { uiOptions } = this.props;
     const { color, textColor = "#fff" } = uiOptions;
+
+    if (options.length === 0) {
+      return null;
+    }
 
     return (
       <div className="skill-content">
