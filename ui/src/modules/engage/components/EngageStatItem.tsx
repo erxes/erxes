@@ -65,7 +65,8 @@ export default function EngageStatItem({
           <HelpPopover title={label}>{description}</HelpPopover>
         </h5>
         <strong>
-          {s.numberFormat(count)} {percent ? <span>({percent}%)</span> : null}
+          {s.numberFormat(count)}{' '}
+          {percent ? <span>({s.numberFormat(percent, 2)}%)</span> : null}
         </strong>
       </BoxContent>
     </Box>
