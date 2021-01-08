@@ -1,5 +1,3 @@
-import * as Sentry from '@sentry/browser';
-
 import '@nateradebaugh/react-datetime/css/react-datetime.css';
 import * as Sentry from '@sentry/browser';
 import 'abortcontroller-polyfill/dist/polyfill-patch-fetch';
@@ -21,8 +19,7 @@ import apolloClient from './apolloClient';
 import Routes from './routes';
 
 Sentry.init({
-  dsn:
-    'https://ee258b631459426f976a22261da3bfdc@o427075.ingest.sentry.io/5580254',
+  dsn: 'https://7086b642db984d5b9c191d148d0ec710@sentry.erxes.io/3',
 
   tracesSampleRate: 1.0
 });
@@ -34,12 +31,6 @@ dayjs.extend(utc, { parseLocal: true });
 const target = document.querySelector('#root');
 
 const envs = getEnv();
-
-if (envs.REACT_APP_SENTRY_DSN) {
-  Sentry.init({
-    dsn: envs.REACT_APP_SENTRY_DSN
-  });
-}
 
 fetch(`${envs.REACT_APP_API_URL}/initial-setup?envs=${JSON.stringify(envs)}`, {
   credentials: 'include'
