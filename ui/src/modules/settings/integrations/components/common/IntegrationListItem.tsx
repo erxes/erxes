@@ -23,6 +23,7 @@ type Props = {
   _id?: string;
   integration: IIntegration;
   archive: (id: string, status: boolean) => void;
+  repair: (id: string) => void;
   removeIntegration: (integration: IIntegration) => void;
   disableAction?: boolean;
   editIntegration: (
@@ -222,6 +223,20 @@ class IntegrationListItem extends React.Component<Props, State> {
     );
   }
 
+  renderHealthyAction() {
+    const { repair, integration } = this.props;
+
+    const onClick = () => repair(integration._id);
+
+    return (
+      <WithPermission action="integrationsArchive">
+        <Tip text={__('Repair')} placement="top">
+          <Button btnStyle="link" onClick={onClick} icon="refresh" />
+        </Tip>
+      </WithPermission>
+    );
+  }
+
   renderExternalData(integration) {
     const { externalData } = this.state;
     const { kind } = integration;
@@ -261,7 +276,10 @@ class IntegrationListItem extends React.Component<Props, State> {
   }
 
   renderFetchAction(integration: IIntegration) {
-    if (integration.kind === INTEGRATION_KINDS.MESSENGER) {
+    if (
+      integration.kind === INTEGRATION_KINDS.MESSENGER ||
+      integration.kind.includes('facebook')
+    ) {
       return null;
     }
 
@@ -292,8 +310,12 @@ class IntegrationListItem extends React.Component<Props, State> {
   render() {
     const { integration } = this.props;
     const integrationKind = cleanIntegrationKind(integration.kind);
-    const labelStyle = integration.isActive ? 'success' : 'warning';
+    const labelStyle = integration.isActive ? 'success' : 'error';
     const status = integration.isActive ? __('Active') : __('Archived');
+    const labelStyleHealthy =
+      integration.isHealthy === 'true' ? 'success' : 'danger';
+    const isHealthy =
+      integration.isHealthy === 'true' ? __('Healthy') : __('Unhealthy');
 
     return (
       <tr key={integration._id}>
@@ -307,12 +329,16 @@ class IntegrationListItem extends React.Component<Props, State> {
         <td>
           <Label lblStyle={labelStyle}>{status}</Label>
         </td>
+        <td>
+          <Label lblStyle={labelStyleHealthy}>{isHealthy}</Label>
+        </td>
         {this.renderExternalData(integration)}
         <td>
           <ActionButtons>
             {this.renderFetchAction(integration)}
             {this.renderMessengerActions(integration)}
             {this.renderGetAction()}
+            {this.renderHealthyAction()}
             {this.renderEditAction()}
             {this.renderArchiveAction()}
             {this.renderUnarchiveAction()}

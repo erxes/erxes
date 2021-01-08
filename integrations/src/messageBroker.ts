@@ -1,5 +1,5 @@
 import * as dotenv from 'dotenv';
-import { removeAccount, removeCustomers } from './helpers';
+import { removeAccount, removeCustomers, repairIntegrations } from './helpers';
 
 import messageBroker from 'erxes-message-broker';
 import { handleFacebookMessage } from './facebook/handleFacebookMessage';
@@ -44,6 +44,10 @@ export const initBroker = async server => {
             integrations: await Integrations.find({ kind: 'telnyx' })
           }
         };
+      }
+
+      if (action === 'repair-integrations') {
+        response = { data: await repairIntegrations(data._id) };
       }
 
       response.status = 'success';

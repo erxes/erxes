@@ -452,6 +452,23 @@ const integrationMutations = {
     return Integrations.findOne({ _id });
   },
 
+  async integrationsRepair(_root, { _id }: { _id: string }) {
+    try {
+      await messageBroker().sendRPCMessage(
+        RABBITMQ_QUEUES.RPC_API_TO_INTEGRATIONS,
+        {
+          action: 'repair-integrations',
+          data: { _id }
+        }
+      );
+
+      return 'success';
+    } catch (e) {
+      debugExternalApi(e);
+      throw e;
+    }
+  },
+
   async integrationsUpdateConfigs(
     _root,
     { configsMap },

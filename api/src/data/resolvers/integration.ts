@@ -1,6 +1,7 @@
 import { Brands, Channels, Forms, MessengerApps, Tags } from '../../db/models';
 import { KIND_CHOICES } from '../../db/models/definitions/constants';
 import { IIntegrationDocument } from '../../db/models/definitions/integrations';
+import { IContext } from '../types';
 
 export default {
   brand(integration: IIntegrationDocument) {
@@ -47,5 +48,28 @@ export default {
       });
     }
     return [];
+  },
+
+  async isHealthy(
+    integration: IIntegrationDocument,
+    _args,
+    { dataSources }: IContext
+  ) {
+    if (integration.kind.includes('facebook')) {
+      try {
+        const response = await dataSources.IntegrationsAPI.fetchApi(
+          '/facebook/get-status',
+          {
+            integrationId: integration._id
+          }
+        );
+
+        return response;
+      } catch (e) {
+        return false;
+      }
+    }
+
+    return true;
   }
 };

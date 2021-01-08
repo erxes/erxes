@@ -134,6 +134,16 @@ const init = async app => {
     });
   });
 
+  app.get('/facebook/get-status', async (req, res) => {
+    const { integrationId } = req.query;
+
+    const integration = await Integrations.findOne({
+      erxesApiId: integrationId
+    });
+
+    return res.send(integration.isHealthy || true);
+  });
+
   app.get('/facebook/get-comments-count', async (req, res) => {
     debugFacebook(
       `Request to get post data with: ${JSON.stringify(req.query)}`
