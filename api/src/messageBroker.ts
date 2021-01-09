@@ -6,6 +6,7 @@ import {
   receiveRpcMessage
 } from './data/modules/integrations/receiveMessage';
 import { getEnv } from './data/utils';
+import { pluginsConsume } from './pluginUtils';
 import { graphqlPubsub } from './pubsub';
 
 dotenv.config();
@@ -40,6 +41,8 @@ export const initBroker = async (server?) => {
   consumeQueue('engagesNotification'.concat(prefix), async data => {
     await receiveEngagesNotification(data);
   });
+
+  pluginsConsume(client, prefix);
 };
 
 export default function () {
