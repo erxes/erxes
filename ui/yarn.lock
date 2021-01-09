@@ -3995,9 +3995,9 @@ cyclist@~0.2.2:
   integrity sha1-GzN5LhHpFKL9bW7WRHRkRE5fpkA=
 
 cypress-file-upload@^4.0.7:
-  version "4.0.7"
-  resolved "https://registry.yarnpkg.com/cypress-file-upload/-/cypress-file-upload-4.0.7.tgz#1136139bb3c660b9c39a69f231ac1da7785acaae"
-  integrity sha512-rFFmnoZ2bWyWFpSV09AhkSUgYEiVy70pcQ6nf/mGTMTrVHvKCCCIfRu3TbgVYHbgBq+0hqjfjQrtz4IbgH7qZA==
+  version "4.1.1"
+  resolved "https://registry.yarnpkg.com/cypress-file-upload/-/cypress-file-upload-4.1.1.tgz#952713c8104ab7008de99c65bd63f74b244fe4df"
+  integrity sha512-tX6UhuJ63rNgjdzxglpX+ZYf/bM6PDhFMtt1qCBljLtAgdearqyfD1AHqyh59rOHCjfM+bf6FA3o9b/mdaX6pw==
   dependencies:
     mime "^2.4.4"
 
@@ -7985,9 +7985,9 @@ mime@^2.0.3, mime@^2.4.2:
   integrity sha512-LRxmNwziLPT828z+4YkNzloCFC2YM4wrB99k+AV5ZbEyfGNWfG8SO1FUXLmLDBSo89NrJZ4DIWeLjy1CHGhMGA==
 
 mime@^2.4.4:
-  version "2.4.6"
-  resolved "https://registry.yarnpkg.com/mime/-/mime-2.4.6.tgz#e5b407c90db442f2beb5b162373d07b69affa4d1"
-  integrity sha512-RZKhC3EmpBchfTGBVb8fb+RL2cWyw/32lshnsETttkBAyAUXSGHxbEJWWRXc751DrIxG1q04b8QwMbAwkRPpUA==
+  version "2.4.7"
+  resolved "https://registry.yarnpkg.com/mime/-/mime-2.4.7.tgz#962aed9be0ed19c91fd7dc2ece5d7f4e89a90d74"
+  integrity sha512-dhNd1uA2u397uQk3Nv5LM4lm93WYDUXFn3Fu291FJerns4jyTudqhIWe4W04YLy7Uk1tm1Ore04NpjRvQp/NPA==
 
 mimer@^1.0.0:
   version "1.0.0"
