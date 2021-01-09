@@ -10,7 +10,7 @@ const {
 module.exports = override(
   babelInclude([
     path.resolve("src"),
-    path.resolve("../plugins"),
+    path.resolve("../plugins/**/ui"),
   ]),
   addBabelPlugins(
     "@babel/plugin-proposal-class-properties",
