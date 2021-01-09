@@ -1,4 +1,3 @@
-import { gql } from 'apollo-server-express';
 import {
   queries as ActivityLogQueries,
   types as ActivityLogTypes
@@ -202,7 +201,7 @@ import {
   types as WidgetTypes
 } from './widget';
 
-export const types = `
+export let types = `
   scalar JSON
   scalar Date
   ${CommonTypes}
@@ -250,118 +249,111 @@ export const types = `
   ${CalendarTypes}
 `;
 
-export const queries = `
-  type Query {
-    ${UserQueries}
-    ${ChannelQueries}
-    ${BrandQueries}
-    ${BoardQueries}
-    ${IntegrationQueries}
-    ${ResponseTemplateQueries}
-    ${ScriptQueries}
-    ${SkillQueries}
-    ${EmailTemplateQueries}
-    ${EmailDeliveryQueries}
-    ${FieldQueries}
-    ${EngageQueries}
-    ${FormQueries}
-    ${TagQueries}
-    ${InternalNoteQueries}
-    ${CompanyQueries}
-    ${CustomerQueries}
-    ${SegmentQueries}
-    ${ConversationQueries}
-    ${KnowledgeBaseQueries}
-    ${NotificationQueries}
-    ${ActivityLogQueries}
-    ${DealQueries}
-    ${DashboardQueries}
-    ${ProductQueries}
-    ${ConfigQueries}
-    ${FieldGroupQueries}
-    ${ImportHistoryQueries}
-    ${PermissionQueries}
-    ${TicketQueries}
-    ${TaskQueries}
-    ${LogQueries}
-    ${GrowthHackQueries}
-    ${PipelineTemplateQueries}
-    ${ChecklistQueries}
-    ${RobotQueries}
-    ${PipelineLabelQueries}
-    ${WidgetQueries}
-    ${WebhookQueries}
-    ${CalendarQueries}
-  }
+export let queries = `
+  ${UserQueries}
+  ${ChannelQueries}
+  ${BrandQueries}
+  ${BoardQueries}
+  ${IntegrationQueries}
+  ${ResponseTemplateQueries}
+  ${ScriptQueries}
+  ${SkillQueries}
+  ${EmailTemplateQueries}
+  ${EmailDeliveryQueries}
+  ${FieldQueries}
+  ${EngageQueries}
+  ${FormQueries}
+  ${TagQueries}
+  ${InternalNoteQueries}
+  ${CompanyQueries}
+  ${CustomerQueries}
+  ${SegmentQueries}
+  ${ConversationQueries}
+  ${KnowledgeBaseQueries}
+  ${NotificationQueries}
+  ${ActivityLogQueries}
+  ${DealQueries}
+  ${DashboardQueries}
+  ${ProductQueries}
+  ${ConfigQueries}
+  ${FieldGroupQueries}
+  ${ImportHistoryQueries}
+  ${PermissionQueries}
+  ${TicketQueries}
+  ${TaskQueries}
+  ${LogQueries}
+  ${GrowthHackQueries}
+  ${PipelineTemplateQueries}
+  ${ChecklistQueries}
+  ${RobotQueries}
+  ${PipelineLabelQueries}
+  ${WidgetQueries}
+  ${WebhookQueries}
+  ${CalendarQueries}
 `;
 
-export const mutations = `
-  type Mutation {
-    ${UserMutations}
-    ${CompanyMutations}
-    ${ConversationMutations}
-    ${EngageMutations}
-    ${TagMutations}
-    ${BoardMutations}
-    ${BrandMutations}
-    ${ResponseTemplateMutations}
-    ${ScriptMutations}
-    ${EmailTemplateMutations}
-    ${InternalNoteMutations}
-    ${CustomerMutations}
-    ${SegmentMutations}
-    ${FieldMutations}
-    ${ChannelMutations}
-    ${FormMutatons}
-    ${IntegrationMutations}
-    ${KnowledgeBaseMutations}
-    ${NotificationMutations}
-    ${DealMutations}
-    ${DashboardMutations}
-    ${ProductMutations}
-    ${ConfigMutations}
-    ${FieldGroupMutations}
-    ${ImportHistoryMutations}
-    ${MessengerAppMutations}
-    ${PermissionMutations}
-    ${TicketMutations}
-    ${TaskMutations}
-    ${GrowthHackMutations}
-    ${PipelineTemplateMutations}
-    ${ConformityMutations}
-    ${ChecklistMutations}
-    ${RobotMutations}
-    ${SkillMutations}
-    ${PipelineLabelMutations}
-    ${WidgetMutations}
-    ${WebhookMutations}
-    ${CalendarMutations}
-  }
+export let mutations = `
+  ${UserMutations}
+  ${CompanyMutations}
+  ${ConversationMutations}
+  ${EngageMutations}
+  ${TagMutations}
+  ${BoardMutations}
+  ${BrandMutations}
+  ${ResponseTemplateMutations}
+  ${ScriptMutations}
+  ${EmailTemplateMutations}
+  ${InternalNoteMutations}
+  ${CustomerMutations}
+  ${SegmentMutations}
+  ${FieldMutations}
+  ${ChannelMutations}
+  ${FormMutatons}
+  ${IntegrationMutations}
+  ${KnowledgeBaseMutations}
+  ${NotificationMutations}
+  ${DealMutations}
+  ${DashboardMutations}
+  ${ProductMutations}
+  ${ConfigMutations}
+  ${FieldGroupMutations}
+  ${ImportHistoryMutations}
+  ${MessengerAppMutations}
+  ${PermissionMutations}
+  ${TicketMutations}
+  ${TaskMutations}
+  ${GrowthHackMutations}
+  ${PipelineTemplateMutations}
+  ${ConformityMutations}
+  ${ChecklistMutations}
+  ${RobotMutations}
+  ${SkillMutations}
+  ${PipelineLabelMutations}
+  ${WidgetMutations}
+  ${WebhookMutations}
+  ${CalendarMutations}
 `;
 
-export const subscriptions = `
-  type Subscription {
-    conversationChanged(_id: String!): ConversationChangedResponse
-    conversationMessageInserted(_id: String!): ConversationMessage
-    conversationClientMessageInserted(userId: String!): ConversationMessage
-    conversationClientTypingStatusChanged(_id: String!): ConversationClientTypingStatusChangedResponse
-    conversationAdminMessageInserted(customerId: String!): ConversationAdminMessageInsertedResponse
-    conversationExternalIntegrationMessageInserted: JSON
-    conversationBotTypingStatus(_id: String!): JSON
-    customerConnectionChanged(_id: String): CustomerConnectionChangedResponse
-    activityLogsChanged: Boolean
-    importHistoryChanged(_id: String!): ImportHistory
-    notificationInserted(userId: String): Notification
-    onboardingChanged(userId: String!): OnboardingNotification
 
-    pipelinesChanged(_id: String!): PipelineChangeResponse
+export let subscriptions = `
+  conversationChanged(_id: String!): ConversationChangedResponse
+  conversationMessageInserted(_id: String!): ConversationMessage
+  conversationClientMessageInserted(userId: String!): ConversationMessage
+  conversationClientTypingStatusChanged(_id: String!): ConversationClientTypingStatusChangedResponse
+  conversationAdminMessageInserted(customerId: String!): ConversationAdminMessageInsertedResponse
+  conversationExternalIntegrationMessageInserted: JSON
+  conversationBotTypingStatus(_id: String!): JSON
+  customerConnectionChanged(_id: String): CustomerConnectionChangedResponse
+  activityLogsChanged: Boolean
+  importHistoryChanged(_id: String!): ImportHistory
+  notificationInserted(userId: String): Notification
+  onboardingChanged(userId: String!): OnboardingNotification
 
-    checklistsChanged(contentType: String!, contentTypeId: String!): Checklist
-    checklistDetailChanged(_id: String!): Checklist
-    calendarEventUpdated: JSON
-  }
+  pipelinesChanged(_id: String!): PipelineChangeResponse
+
+  checklistsChanged(contentType: String!, contentTypeId: String!): Checklist
+  checklistDetailChanged(_id: String!): Checklist
+  calendarEventUpdated: JSON
 `;
 
-const typeDefs = gql(`${types} ${queries} ${mutations} ${subscriptions}`);
-
-export default typeDefs;
+export default { types, queries, mutations, subscriptions };

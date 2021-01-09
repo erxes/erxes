@@ -1,5 +1,6 @@
 import withCurrentUser from 'modules/auth/containers/withCurrentUser';
 import asyncComponent from 'modules/common/components/AsyncComponent';
+import { pluginsOfRoutes } from 'pluginUtils';
 import queryString from 'query-string';
 import React from 'react';
 import { BrowserRouter as Router, Route, Switch } from 'react-router-dom';
@@ -69,6 +70,10 @@ const renderRoutes = currentUser => {
     );
   };
 
+  if (!sessionStorage.getItem('sessioncode')) {
+    sessionStorage.setItem('sessioncode', Math.random().toString());
+  }
+
   const { pathname } = window.location;
 
   if (pathname.search('/schedule/') === 0) {
@@ -76,9 +81,11 @@ const renderRoutes = currentUser => {
   }
 
   if (currentUser) {
+    const { plugins, pluginRoutes, specialPluginRoutes } = pluginsOfRoutes(currentUser);
+
     return (
       <>
-        <MainLayout currentUser={currentUser}>
+        <MainLayout currentUser={currentUser} plugins={plugins}>
           <NotificationRoutes />
           <InboxRoutes />
           <SegmentsRoutes />
@@ -97,6 +104,9 @@ const renderRoutes = currentUser => {
           <TutorialRoutes />
           <CalendarRoutes />
           <DashboardRoutes />
+
+          {specialPluginRoutes}
+          {pluginRoutes}
 
           <Route
             key="/confirmation"

@@ -43,6 +43,7 @@ export interface IUser {
   deviceTokens?: string[];
   code?: string;
   doNotDisturb?: string;
+  sessionCode?: string;
 }
 
 export interface IUserDocument extends IUser, Document {

@@ -3,6 +3,7 @@ import Tip from 'modules/common/components/Tip';
 import WithPermission from 'modules/common/components/WithPermission';
 import { colors, dimensions } from 'modules/common/styles';
 import { __, getEnv, setBadge } from 'modules/common/utils';
+import { pluginsOfNavigations } from 'pluginUtils';
 import React from 'react';
 import { NavLink } from 'react-router-dom';
 import styled from 'styled-components';
@@ -143,7 +144,7 @@ class Navigation extends React.Component<{
     label?: React.ReactNode
   ) => {
     return (
-      <WithPermission action={permission}>
+      <WithPermission key={url} action={permission}>
         <Tip placement="right" text={text}>
           <NavLink to={url}>
             <NavIcon className={icon} />
@@ -220,6 +221,8 @@ class Navigation extends React.Component<{
             '/knowledgeBase',
             'icon-book'
           )}
+
+          {pluginsOfNavigations(this.renderNavItem)}
         </Nav>
       </LeftNavigation>
     );
