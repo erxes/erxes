@@ -45,7 +45,9 @@
     "typescript": "^3.0.3"
   },
   "dependencies": {
-    "@sentry/browser": "^5.29.2",
+    "@sentry/node": "^5.29.2",
+    "@sentry/react": "^5.29.2",
+    "@sentry/tracing": "^5.29.2",
     "fs-extra": "^9.0.1"
   }
 }
