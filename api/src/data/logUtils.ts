@@ -4,7 +4,6 @@ import {
   putUpdateLog as putUpdateLogC
 } from 'erxes-api-utils';
 import * as _ from 'underscore';
-
 import { IPipelineDocument } from '../db/models/definitions/boards';
 import { IChannelDocument } from '../db/models/definitions/channels';
 import { ICompanyDocument } from '../db/models/definitions/companies';
@@ -63,6 +62,7 @@ import {
   sendRequest,
   sendToWebhook
 } from './utils';
+
 
 export type LogDesc = {
   [key: string]: any;
@@ -1403,7 +1403,7 @@ export const putCreateLog = async (
 
   await callAfterMutation({ ...params, action: LOG_ACTIONS.CREATE }, user);
 
-  return putCreateLogC(messageBroker, gatherDescriptions, params, user);
+  return putCreateLogC(messageBroker, gatherDescriptions, params, user)
 };
 
 /**
@@ -1417,7 +1417,7 @@ export const putUpdateLog = async (
 ) => {
   await sendToWebhook(LOG_ACTIONS.UPDATE, params.type, params);
 
-  await callAfterMutation({ ...params, action: LOG_ACTIONS.UPDATE }, user);
+  await callAfterMutation({ ...params, action: LOG_ACTIONS.UPDATE, }, user);
 
   return putUpdateLogC(messageBroker, gatherDescriptions, params, user);
 };

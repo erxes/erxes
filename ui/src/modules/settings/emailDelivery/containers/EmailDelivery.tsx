@@ -56,13 +56,7 @@ function EmailDeliveryContainer(props: Props) {
     setStatus('');
 
     if (type === EMAIL_TYPES.TRANSACTION) {
-      return router.removeParams(
-        history,
-        'page',
-        'perPage',
-        'searchValue',
-        'status'
-      );
+      return router.removeParams(history, 'page', 'perPage', 'searchValue', 'status');
     }
 
     return router.removeParams(history, 'page', 'perPage', 'searchValue');

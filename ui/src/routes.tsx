@@ -81,9 +81,7 @@ const renderRoutes = currentUser => {
   }
 
   if (currentUser) {
-    const { plugins, pluginRoutes, specialPluginRoutes } = pluginsOfRoutes(
-      currentUser
-    );
+    const { plugins, pluginRoutes, specialPluginRoutes } = pluginsOfRoutes(currentUser);
 
     return (
       <>

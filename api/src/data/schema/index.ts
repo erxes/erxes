@@ -109,7 +109,6 @@ import {
   queries as InternalNoteQueries,
   types as InternalNoteTypes
 } from './internalNote';
-
 import {
   mutations as KnowledgeBaseMutations,
   queries as KnowledgeBaseQueries,
@@ -200,6 +199,7 @@ import {
   queries as WidgetQueries,
   types as WidgetTypes
 } from './widget';
+
 
 export let types = `
   scalar JSON
@@ -333,6 +333,7 @@ export let mutations = `
   ${WebhookMutations}
   ${CalendarMutations}
 `;
+
 
 export let subscriptions = `
   conversationChanged(_id: String!): ConversationChangedResponse
