@@ -106,7 +106,10 @@ const DASHBOARD_DOMAIN = getSubServiceDomain({
 export const app = express();
 
 Sentry.init({
-  dsn: 'https://369f3d770a2a4cfd820cd1958ab34f5a@sentry.erxes.io/8',
+  dsn:
+    process.env.NODE_ENV === 'development'
+      ? 'https://8e173a20ee1147a9a12cce71f62a8188@sentry.erxes.io/5'
+      : 'https://369f3d770a2a4cfd820cd1958ab34f5a@sentry.erxes.io/8',
 
   integrations: [
     new Tracing.Integrations.Mongo(),

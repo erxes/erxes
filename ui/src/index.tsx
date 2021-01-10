@@ -15,7 +15,10 @@ import { ApolloProvider } from 'react-apollo';
 import { render } from 'react-dom';
 
 Sentry.init({
-  dsn: 'https://cac03570cc504ec88e1d47c797f96177@sentry.erxes.io/7',
+  dsn:
+    process.env.NODE_ENV === 'development'
+      ? 'https://125ed83537ee441d9b16b20d631e6130@sentry.erxes.io/6'
+      : 'https://cac03570cc504ec88e1d47c797f96177@sentry.erxes.io/7',
 
   integrations: [
     new Integrations.BrowserTracing({
