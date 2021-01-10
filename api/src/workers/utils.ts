@@ -12,7 +12,6 @@ import {
   getConfig,
   uploadsFolderPath
 } from '../data/utils';
-import { Companies, Customers } from '../db/models';
 import { CUSTOMER_SELECT_OPTIONS } from '../db/models/definitions/constants';
 import {
   default as ImportHistories,
@@ -21,14 +20,14 @@ import {
 import { debugWorkers } from '../debuggers';
 import CustomWorker from './workerUtil';
 
-const { MONGO_URL = '' } = process.env;
+const { MONGO_URL = '', ELK_SYNCER } = process.env;
 
 export const connect = () =>
   mongoose.connect(MONGO_URL, { useNewUrlParser: true, useCreateIndex: true });
 
 dotenv.config();
 
-const WORKER_BULK_LIMIT = 500;
+const WORKER_BULK_LIMIT = 1000;
 
 const myWorker = new CustomWorker();
 
@@ -42,21 +41,66 @@ export const IMPORT_CONTENT_TYPE = {
   TICKET: 'ticket'
 };
 
-const getCsvTotalRowCount = ({
-  filePath,
-  uploadType,
-  s3,
-  params
-}: {
-  filePath?: string;
-  uploadType: string;
-  params?: { Bucket: string; Key: string };
-  s3?: any;
-}): Promise<number> => {
-  return new Promise(resolve => {
-    if (uploadType === 'local' && filePath) {
-      const readSteam = fs.createReadStream(filePath);
+export const generateUid = () => {
+  return (
+    '_' +
+    Math.random()
+      .toString(36)
+      .substr(2, 9)
+  );
+};
+export const generatePronoun = value => {
+  const pronoun = CUSTOMER_SELECT_OPTIONS.SEX.find(
+    sex => sex.label.toUpperCase() === value.toUpperCase()
+  );
 
+  return pronoun ? pronoun.value : '';
+};
+
+const getS3FileInfo = async ({ s3, query, params }): Promise<string> => {
+  return new Promise(resolve => {
+    s3.selectObjectContent(
+      {
+        ...params,
+        ExpressionType: 'SQL',
+        Expression: query,
+        InputSerialization: {
+          CSV: {
+            FileHeaderInfo: 'None',
+            RecordDelimiter: '\n',
+            FieldDelimiter: ','
+          }
+        },
+        OutputSerialization: {
+          CSV: {}
+        }
+      },
+      (_, data) => {
+        // data.Payload is a Readable Stream
+        const eventStream: any = data.Payload;
+
+        let result;
+
+        // Read events as they are available
+        eventStream.on('data', event => {
+          if (event.Records) {
+            result = event.Records.Payload.toString();
+          }
+        });
+        eventStream.on('end', () => {
+          resolve(result);
+        });
+      }
+    );
+  });
+};
+
+const getCsvInfo = (fileName: string, uploadType: string) => {
+  return new Promise(async resolve => {
+    if (uploadType === 'local') {
+      const readSteam = fs.createReadStream(`${uploadsFolderPath}/${fileName}`);
+
+      let columns;
       let total = 0;
 
       const rl = readline.createInterface({
@@ -64,42 +108,43 @@ const getCsvTotalRowCount = ({
         terminal: false
       });
 
-      rl.on('line', () => total++);
-      rl.on('close', () => resolve(total));
-    } else {
-      s3.selectObjectContent(
-        {
-          ...params,
-          ExpressionType: 'SQL',
-          Expression: 'SELECT COUNT(*) FROM S3Object',
-          InputSerialization: {
-            CSV: {
-              FileHeaderInfo: 'USE',
-              RecordDelimiter: '\n',
-              FieldDelimiter: ','
-            }
-          },
-          OutputSerialization: {
-            CSV: {}
-          }
-        },
-        (_, data) => {
-          // data.Payload is a Readable Stream
-          const eventStream = data.Payload;
-
-          let total = 0;
-
-          // Read events as they are available
-          eventStream.on('data', event => {
-            if (event.Records) {
-              total = event.Records.Payload.toString();
-            }
-          });
-          eventStream.on('end', () => {
-            return resolve(total);
-          });
+      rl.on('line', input => {
+        if (total === 0) {
+          columns = input;
         }
-      );
+
+        total++;
+      });
+      rl.on('close', () => {
+        // exclude column
+        total--;
+
+        resolve({ total, columns });
+      });
+    } else {
+      const AWS_BUCKET = await getConfig('AWS_BUCKET');
+      const s3 = await createAWS();
+
+      const params = { Bucket: AWS_BUCKET, Key: fileName };
+
+      const rowCountString = await getS3FileInfo({
+        s3,
+        params,
+        query: 'SELECT COUNT(*) FROM S3Object'
+      });
+
+      // exclude column
+      let total = Number(rowCountString);
+
+      total--;
+
+      const columns = await getS3FileInfo({
+        s3,
+        params,
+        query: 'SELECT * FROM S3Object LIMIT 1'
+      });
+
+      return resolve({ total, columns });
     }
   });
 };
@@ -113,12 +158,11 @@ const importBulkStream = ({
   fileName: string;
   bulkLimit: number;
   uploadType: 'AWS' | 'local';
-  handleBulkOperation: (rows: any, total: number) => Promise<void>;
+  handleBulkOperation: (rows: any) => Promise<void>;
 }) => {
   return new Promise(async (resolve, reject) => {
     let rows: any = [];
     let readSteam;
-    let total;
 
     if (uploadType === 'AWS') {
       const AWS_BUCKET = await getConfig('AWS_BUCKET');
@@ -131,40 +175,32 @@ const importBulkStream = ({
 
       const params = { Bucket: AWS_BUCKET, Key: fileName };
 
-      total = await getCsvTotalRowCount({ s3, params, uploadType: 's3' });
-
       readSteam = s3.getObject(params).createReadStream();
       readSteam.on('error', errorCallback);
     } else {
-      const filePath: string = `${uploadsFolderPath}/${fileName}`;
-
-      readSteam = fs.createReadStream(filePath);
-      total = await getCsvTotalRowCount({ filePath, uploadType });
-
-      // exclude column
-      total--;
+      readSteam = fs.createReadStream(`${uploadsFolderPath}/${fileName}`);
     }
 
-    const write = (row, _, callback) => {
+    const write = (row, _, next) => {
       rows.push(row);
 
       if (rows.length === bulkLimit) {
-        return handleBulkOperation(rows, total)
+        return handleBulkOperation(rows)
           .then(() => {
             rows = [];
-            callback();
+            next();
           })
           .catch(e => reject(e));
       }
 
-      return callback();
+      return next();
     };
 
     readSteam
       .pipe(csvParser())
       .pipe(new Writable({ write, objectMode: true }))
       .on('finish', () => {
-        handleBulkOperation(rows, total).then(() => {
+        handleBulkOperation(rows).then(() => {
           resolve('success');
         });
       })
@@ -266,70 +302,32 @@ export const receiveImportCancel = () => {
   return { status: 'ok' };
 };
 
-export const beforeImport = async (type: string) => {
-  const { LEAD, CUSTOMER, COMPANY } = IMPORT_CONTENT_TYPE;
-
-  const existingEmails: string[] = [];
-  const existingPhones: string[] = [];
-  const existingCodes: string[] = [];
-  const existingNames: string[] = [];
-
-  const commonQuery = { status: { $ne: 'deleted' } };
-
-  if (type === CUSTOMER || type === LEAD) {
-    const customerValues = await Customers.find(commonQuery, {
-      _id: 0,
-      primaryEmail: 1,
-      primaryPhone: 1,
-      code: 1
-    });
-
-    for (const value of customerValues || []) {
-      existingEmails.push((value || {}).primaryEmail || '');
-      existingPhones.push((value || {}).primaryPhone || '');
-      existingCodes.push((value || {}).code || '');
-    }
-  }
-
-  if (type === COMPANY) {
-    const companyValues = await Companies.find(commonQuery, {
-      _id: 0,
-      primaryName: 1,
-      code: 1
-    });
-
-    for (const value of companyValues || []) {
-      existingNames.push((value || {}).primaryName || '');
-      existingCodes.push((value || {}).code || '');
-    }
-  }
-
-  return {
-    existingEmails,
-    existingPhones,
-    existingCodes,
-    existingNames
-  };
-};
-
 export const receiveImportCreate = async (content: any) => {
   const { fileName, type, scopeBrandIds, user, uploadType, fileType } = content;
 
-  let fieldNames;
-  let properties;
-  let validationValues;
   let importHistory;
+
+  const useElkSyncer = ELK_SYNCER === 'true';
 
   if (fileType !== 'csv') {
     throw new Error('Invalid file type');
   }
 
+  const { total, columns }: any = await getCsvInfo(fileName, uploadType);
+
+  const updatedColumns = (columns || '').replace(/\n|\r/g, '').split(',');
+
+  const properties = await checkFieldNames(type, updatedColumns);
+
+  importHistory = await ImportHistory.create({
+    contentType: type,
+    userId: user._id,
+    date: Date.now(),
+    total
+  });
+
   const updateImportHistory = async doc => {
     return ImportHistory.updateOne({ _id: importHistory.id }, doc);
-  };
-
-  const updateValidationValues = async () => {
-    validationValues = await beforeImport(type);
   };
 
   const handleOnEndBulkOperation = async () => {
@@ -353,120 +351,32 @@ export const receiveImportCreate = async (content: any) => {
     await deleteFile(fileName);
   };
 
-  importHistory = await ImportHistory.create({
-    contentType: type,
-    userId: user._id,
-    date: Date.now()
-  });
+  const handleBulkOperation = async (rows: any) => {
+    if (rows.length === 0) {
+      return debugWorkers('Please import at least one row of data');
+    }
+
+    const result: unknown[] = [];
+
+    for (const row of rows) {
+      result.push(Object.values(row));
+    }
+
+    const workerPath = path.resolve(getWorkerFile('bulkInsert'));
+
+    await myWorker.createWorker(workerPath, {
+      scopeBrandIds,
+      user,
+      contentType: type,
+      properties,
+      importHistoryId: importHistory._id,
+      result,
+      useElkSyncer,
+      percentage: Number(((result.length / total) * 100).toFixed(3))
+    });
+  };
 
   myWorker.setHandleEnd(handleOnEndBulkOperation);
-
-  // collect initial validation values
-  await updateValidationValues();
-
-  const isRowValid = (row: any) => {
-    const errors: Error[] = [];
-
-    const { LEAD, CUSTOMER, COMPANY } = IMPORT_CONTENT_TYPE;
-
-    const {
-      existingCodes,
-      existingEmails,
-      existingPhones,
-      existingNames
-    } = validationValues;
-
-    if (type === CUSTOMER || type === LEAD) {
-      const { primaryEmail, primaryPhone, code } = row;
-
-      if (existingCodes.includes(code)) {
-        errors.push(new Error(`Duplicated code: ${code}`));
-      }
-
-      if (existingEmails.includes(primaryEmail)) {
-        errors.push(new Error(`Duplicated email: ${primaryEmail}`));
-      }
-
-      if (existingPhones.includes(primaryPhone)) {
-        errors.push(new Error(`Duplicated phone: ${primaryPhone}`));
-      }
-
-      return errors;
-    }
-
-    if (type === COMPANY) {
-      const { primaryName, code } = row;
-
-      if (existingNames.includes(primaryName)) {
-        errors.push(new Error(`Duplicated name: ${primaryName}`));
-      }
-
-      if (existingCodes.includes(code)) {
-        errors.push(new Error(`Duplicated code: ${code}`));
-      }
-
-      return errors;
-    }
-
-    return errors;
-  };
-
-  const handleBulkOperation = async (rows: any, totalRows: number) => {
-    try {
-      let errorMsgs: Error[] = [];
-
-      if (!importHistory.total) {
-        await updateImportHistory({
-          $set: { total: totalRows }
-        });
-      }
-
-      if (rows.length === 0) {
-        debugWorkers('Please import at least one row of data');
-      }
-
-      if (!fieldNames) {
-        const [fields] = rows;
-
-        fieldNames = Object.keys(fields);
-        properties = await checkFieldNames(type, fieldNames);
-      }
-
-      const result: unknown[] = [];
-
-      for (const row of rows) {
-        const errors = isRowValid(row);
-
-        errors.length > 0
-          ? errorMsgs.push(...errors)
-          : result.push(Object.values(row));
-      }
-
-      const workerPath = path.resolve(getWorkerFile('bulkInsert'));
-
-      await myWorker.createWorker(workerPath, {
-        scopeBrandIds,
-        user,
-        contentType: type,
-        properties,
-        importHistoryId: importHistory._id,
-        result,
-        percentage: Number(((result.length / totalRows) * 100).toFixed(3))
-      });
-
-      await updateImportHistory({
-        $inc: { failed: errorMsgs.length },
-        $push: { errorMsgs }
-      });
-
-      await updateValidationValues();
-
-      errorMsgs = [];
-    } catch (e) {
-      debugWorkers(e.message);
-      throw e;
-    }
-  };
 
   importBulkStream({
     fileName,
@@ -476,20 +386,4 @@ export const receiveImportCreate = async (content: any) => {
   });
 
   return { id: importHistory.id };
-};
-
-export const generateUid = () => {
-  return (
-    '_' +
-    Math.random()
-      .toString(36)
-      .substr(2, 9)
-  );
-};
-export const generatePronoun = value => {
-  const pronoun = CUSTOMER_SELECT_OPTIONS.SEX.find(
-    sex => sex.label.toUpperCase() === value.toUpperCase()
-  );
-
-  return pronoun ? pronoun.value : '';
 };

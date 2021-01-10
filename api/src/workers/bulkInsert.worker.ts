@@ -20,7 +20,13 @@ import {
 import { fillSearchTextItem } from '../db/models/boardUtils';
 import { IConformityAdd } from '../db/models/definitions/conformities';
 import { IUserDocument } from '../db/models/definitions/users';
-import { connect, generatePronoun, IMPORT_CONTENT_TYPE } from './utils';
+import { fetchElk } from '../elasticsearch';
+import {
+  clearEmptyValues,
+  connect,
+  generatePronoun,
+  IMPORT_CONTENT_TYPE
+} from './utils';
 
 // tslint:disable-next-line
 const { parentPort, workerData } = require('worker_threads');
@@ -38,12 +44,14 @@ const create = async ({
   docs,
   user,
   contentType,
-  model
+  model,
+  useElkSyncer
 }: {
   docs: any;
   user: IUserDocument;
   contentType: string;
   model: any;
+  useElkSyncer: boolean;
 }) => {
   const {
     PRODUCT,
@@ -59,6 +67,93 @@ const create = async ({
 
   const conformityCompanyMapping = {};
   const conformityCustomerMapping = {};
+  const updateDocs: any = [];
+
+  let insertDocs: any = [];
+
+  const bulkValues: {
+    primaryEmail: string[];
+    primaryPhone: string[];
+    primaryName: string[];
+    code: string[];
+  } = {
+    primaryEmail: [],
+    primaryPhone: [],
+    primaryName: [],
+    code: []
+  };
+
+  const docIdsByPrimaryEmail = {};
+  const docIdsByPrimaryPhone = {};
+  const docIdsByCode = {};
+
+  const generateUpdateDocs = (_id, doc) => {
+    updateDocs.push({
+      updateOne: {
+        filter: { _id },
+        update: {
+          $set: { ...clearEmptyValues(doc), modifiedAt: new Date() }
+        }
+      }
+    });
+  };
+
+  const prepareDocs = async (body, type, collectionDocs) => {
+    const response = await fetchElk('search', type, {
+      query: { bool: { should: body } },
+      _source: ['_id', 'primaryEmail', 'primaryPhone', 'primaryName', 'code']
+    });
+
+    const collections = response.hits.hits || [];
+
+    for (const collection of collections) {
+      const doc = collection._source;
+
+      if (doc.primaryEmail) {
+        docIdsByPrimaryEmail[doc.primaryEmail] = collection._id;
+        continue;
+      }
+
+      if (doc.primaryPhone) {
+        docIdsByPrimaryPhone[doc.primaryPhone] = collection._id;
+        continue;
+      }
+
+      if (doc.primaryName) {
+        docIdsByCode[doc.primaryName] = collection._id;
+        continue;
+      }
+
+      if (doc.code) {
+        docIdsByCode[doc.code] = collection._id;
+        continue;
+      }
+    }
+
+    for (const doc of collectionDocs) {
+      if (doc.primaryEmail && docIdsByPrimaryEmail[doc.primaryEmail]) {
+        generateUpdateDocs(docIdsByPrimaryEmail[doc.primaryEmail], doc);
+        continue;
+      }
+
+      if (doc.primaryPhone && docIdsByPrimaryPhone[doc.primaryPhone]) {
+        generateUpdateDocs(docIdsByPrimaryPhone[doc.primaryPhone], doc);
+        continue;
+      }
+
+      if (doc.primaryName && docIdsByCode[doc.primaryName]) {
+        generateUpdateDocs(docIdsByCode[doc.primaryName], doc);
+        continue;
+      }
+
+      if (doc.code && docIdsByCode[doc.code]) {
+        generateUpdateDocs(docIdsByCode[doc.code], doc);
+        continue;
+      }
+
+      insertDocs.push(doc);
+    }
+  };
 
   const createConformityMapping = async ({
     index,
@@ -104,7 +199,7 @@ const create = async ({
   };
 
   if (contentType === CUSTOMER || contentType === LEAD) {
-    docs.map(async (doc, docIndex) => {
+    for (const doc of docs) {
       if (!doc.ownerId && user) {
         doc.ownerId = user._id;
       }
@@ -134,6 +229,38 @@ const create = async ({
       doc.createdAt = new Date();
       doc.modifiedAt = new Date();
 
+      bulkValues.primaryEmail.push(doc.primaryEmail);
+      bulkValues.primaryPhone.push(doc.primaryPhone);
+      bulkValues.code.push(doc.code);
+    }
+
+    if (useElkSyncer) {
+      bulkValues.primaryEmail = bulkValues.primaryEmail.filter(value => value);
+      bulkValues.primaryPhone = bulkValues.primaryPhone.filter(value => value);
+      bulkValues.code = bulkValues.code.filter(value => value);
+
+      const queries: Array<{ terms: { [key: string]: string[] } }> = [];
+
+      if (bulkValues.primaryEmail.length > 0) {
+        queries.push({ terms: { primaryEmail: bulkValues.primaryEmail } });
+      }
+
+      if (bulkValues.primaryPhone.length > 0) {
+        queries.push({
+          terms: { 'primaryPhone.raw': bulkValues.primaryPhone }
+        });
+      }
+
+      if (bulkValues.code.length > 0) {
+        queries.push({ terms: { 'code.raw': bulkValues.code } });
+      }
+
+      await prepareDocs(queries, 'customers', docs);
+    } else {
+      insertDocs = docs;
+    }
+
+    insertDocs.map(async (doc, docIndex) => {
       await createConformityMapping({
         index: docIndex,
         field: 'primaryName',
@@ -143,11 +270,15 @@ const create = async ({
       });
     });
 
-    objects = await Customers.insertMany(docs);
+    if (updateDocs.length > 0) {
+      await Customers.bulkWrite(updateDocs);
+    }
+
+    objects = await Customers.insertMany(insertDocs);
   }
 
   if (contentType === COMPANY) {
-    docs.map(async (doc, docIndex) => {
+    for (const doc of docs) {
       if (!doc.ownerId && user) {
         doc.ownerId = user._id;
       }
@@ -161,6 +292,22 @@ const create = async ({
       doc.createdAt = new Date();
       doc.modifiedAt = new Date();
 
+      bulkValues.primaryName.push(doc.primaryName);
+    }
+
+    if (useElkSyncer) {
+      bulkValues.primaryName = bulkValues.primaryName.filter(value => value);
+
+      await prepareDocs(
+        [{ terms: { 'primaryName.raw': bulkValues.primaryName } }],
+        'companies',
+        docs
+      );
+    } else {
+      insertDocs = docs;
+    }
+
+    insertDocs.map(async (doc, docIndex) => {
       await createConformityMapping({
         index: docIndex,
         field: 'primaryEmail',
@@ -170,7 +317,11 @@ const create = async ({
       });
     });
 
-    objects = await Companies.insertMany(docs);
+    if (updateDocs.length > 0) {
+      await Companies.bulkWrite(updateDocs);
+    }
+
+    objects = await Companies.insertMany(insertDocs);
   }
 
   if (contentType === PRODUCT) {
@@ -295,6 +446,7 @@ connect().then(async () => {
     contentType,
     properties,
     importHistoryId,
+    useElkSyncer,
     percentage
   }: {
     user: IUserDocument;
@@ -304,6 +456,7 @@ connect().then(async () => {
     properties: Array<{ [key: string]: string }>;
     importHistoryId: string;
     percentage: number;
+    useElkSyncer: boolean;
   } = workerData;
 
   let model: any = null;
@@ -314,6 +467,13 @@ connect().then(async () => {
     contentType === 'ticket';
 
   switch (contentType) {
+    case 'customer':
+    case 'lead':
+      model = Customers;
+      break;
+    case 'company':
+      model = Companies;
+      break;
     case 'deal':
       model = Deals;
       break;
@@ -499,7 +659,13 @@ connect().then(async () => {
     bulkDoc.push(doc);
   }
 
-  const cocObjs = await create({ docs: bulkDoc, user, contentType, model });
+  const cocObjs = await create({
+    docs: bulkDoc,
+    user,
+    contentType,
+    model,
+    useElkSyncer
+  });
 
   const cocIds = cocObjs.map(obj => obj._id).filter(obj => obj);
 
