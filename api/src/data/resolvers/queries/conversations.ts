@@ -52,7 +52,7 @@ const countByIntegrationTypes = async (qb: any): Promise<ICountBy> => {
   for (const intT of KIND_CHOICES.ALL) {
     byIntegrationTypes[intT] = await count({
       ...qb.mainQuery(),
-      ...(await qb.integrationTypeFilter(intT))
+      ...(await qb.extendedQueryFilter({ integrationType: intT }))
     });
   }
 
@@ -64,11 +64,15 @@ const countByTags = async (qb: any): Promise<ICountBy> => {
   const queries = qb.queries;
   const tags = await Tags.find();
 
+  const tagQueries = {
+    ...qb.mainQuery(),
+    ...queries.integrations,
+    ...queries.extended
+  };
+
   for (const tag of tags) {
     byTags[tag._id] = await count({
-      ...qb.mainQuery(),
-      ...queries.integrations,
-      ...queries.integrationType,
+      ...tagQueries,
       ...qb.tagFilter(tag._id)
     });
   }
@@ -81,13 +85,17 @@ const countByBrands = async (qb: any): Promise<ICountBy> => {
   const brands = await Brands.find();
 
   for (const brand of brands) {
-    byBrands[brand._id] = await count({
-      ...qb.mainQuery(),
-      ...(await qb.intersectIntegrationIds(
-        qb.queries.channel,
-        await qb.brandFilter(brand._id)
-      ))
-    });
+    const brandQuery = await qb.brandFilter(brand._id);
+
+    byBrands[brand._id] = brandQuery
+      ? await count({
+          ...qb.mainQuery(),
+          ...(await qb.intersectIntegrationIds(
+            qb.queries.integrations,
+            brandQuery
+          ))
+        })
+      : 0;
   }
 
   return byBrands;
@@ -108,6 +116,7 @@ const conversationQueries = {
     // initiate query builder
     const qb = new QueryBuilder(params, {
       _id: user._id,
+      code: user.code,
       starredConversationIds: user.starredConversationIds
     });
 
@@ -216,6 +225,7 @@ const conversationQueries = {
 
     const qb = new QueryBuilder(params, {
       _id: user._id,
+      code: user.code,
       starredConversationIds: user.starredConversationIds
     });
 
@@ -244,7 +254,7 @@ const conversationQueries = {
     const mainQuery = {
       ...qb.mainQuery(),
       ...queries.integrations,
-      ...queries.integrationType
+      ...queries.extended
     };
 
     // unassigned count
@@ -294,6 +304,7 @@ const conversationQueries = {
     // initiate query builder
     const qb = new QueryBuilder(params, {
       _id: user._id,
+      code: user.code,
       starredConversationIds: user.starredConversationIds
     });
 
@@ -309,6 +320,7 @@ const conversationQueries = {
     // initiate query builder
     const qb = new QueryBuilder(params, {
       _id: user._id,
+      code: user.code,
       starredConversationIds: user.starredConversationIds
     });
 
@@ -322,7 +334,8 @@ const conversationQueries = {
    */
   async conversationsTotalUnreadCount(_root, _args, { user }: IContext) {
     // initiate query builder
-    const qb = new QueryBuilder({}, { _id: user._id });
+    const qb = new QueryBuilder({}, { _id: user._id, code: user.code });
+
     await qb.buildAllQueries();
 
     // get all possible integration ids
@@ -332,17 +345,7 @@ const conversationQueries = {
       ...integrationsFilter,
       status: { $in: [CONVERSATION_STATUSES.NEW, CONVERSATION_STATUSES.OPEN] },
       readUserIds: { $ne: user._id },
-
-      // exclude engage messages if customer did not reply
-      $or: [
-        {
-          userId: { $exists: true },
-          messageCount: { $gt: 1 }
-        },
-        {
-          userId: { $exists: false }
-        }
-      ]
+      $and: [{ $or: qb.defaultUserQuery() }, { $or: qb.userRelevanceQuery() }]
     }).countDocuments();
   }
 };

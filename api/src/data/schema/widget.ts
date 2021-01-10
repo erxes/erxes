@@ -88,7 +88,8 @@ export const mutations = `
     conversationId: String
     message: String,
     attachments: [AttachmentInput],
-    contentType: String
+    contentType: String,
+    skillId: String
   ): ConversationMessage
 
   widgetBotRequest(

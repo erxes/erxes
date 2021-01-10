@@ -1085,6 +1085,77 @@ export const moduleObjects = {
       }
     ]
   },
+  skillTypes: {
+    name: 'skillTypes',
+    description: 'Skill Types',
+    actions: [
+      {
+        name: 'skillTypesAll',
+        description: 'All',
+        use: [
+          'getSkillTypes',
+          'createSkillType',
+          'updateSkillType',
+          'removeSkillType',
+          'manageSkillTypes'
+        ]
+      },
+      {
+        name: 'getSkillTypes',
+        description: 'Get skill types'
+      },
+      {
+        name: 'createSkillType',
+        description: 'Create skill type'
+      },
+      {
+        name: 'updateSkillType',
+        description: 'Update skill type'
+      },
+      {
+        name: 'removeSkillType',
+        description: 'Remove skill type'
+      }
+    ]
+  },
+  skills: {
+    name: 'skills',
+    description: 'Skills',
+    actions: [
+      {
+        name: 'skillsAll',
+        description: 'All',
+        use: [
+          'getSkill',
+          'getSkills',
+          'createSkill',
+          'updateSkill',
+          'removeSkill',
+          'manageSkills'
+        ]
+      },
+      {
+        name: 'getSkill',
+        description: 'Get skill'
+      },
+      {
+        name: 'getSkills',
+        description: 'Get skills'
+      },
+      {
+        name: 'createSkill',
+        description: 'Create skill'
+      },
+      {
+        name: 'updateSkill',
+        description: 'Update skill'
+      },
+      {
+        name: 'removeSkill',
+        description: 'Remove skill'
+      }
+    ]
+  },
   calendars: {
     name: 'calendars',
     description: 'Calendars',

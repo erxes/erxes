@@ -11,6 +11,7 @@ import PortableDeals from 'modules/deals/components/PortableDeals';
 import Sidebar from 'modules/layout/components/Sidebar';
 import PortableTasks from 'modules/tasks/components/PortableTasks';
 import PortableTickets from 'modules/tickets/components/PortableTickets';
+import { pluginsOfCustomerSidebar } from 'pluginUtils';
 import React from 'react';
 
 type Props = {
@@ -79,6 +80,7 @@ export default class RightSidebar extends React.Component<Props> {
         <PortableDeals mainType="customer" mainTypeId={customer._id} />
         <PortableTickets mainType="customer" mainTypeId={customer._id} />
         <PortableTasks mainType="customer" mainTypeId={customer._id} />
+        {pluginsOfCustomerSidebar(customer)}
         {this.renderOther()}
       </Sidebar>
     );

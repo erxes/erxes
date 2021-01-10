@@ -51,6 +51,7 @@ export const queries = `
   configsGetEnv: ENV
   configsConstants: JSON
   configsCheckActivateInstallation(hostname: String!): JSON
+  configsGetEmailTemplate(name: String): String
 `;
 
 export const mutations = `

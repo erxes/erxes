@@ -31,6 +31,8 @@ interface IState {
   headHeight: number;
   botTyping: boolean;
   browserInfo: IBrowserInfo;
+  selectedSkill: string | null
+  inputDisabled: boolean;
 }
 
 interface IStore extends IState {
@@ -38,6 +40,7 @@ interface IStore extends IState {
   getUiOptions: () => IIntegrationUiOptions;
   getBrand: () => IBrand;
   getMessengerData: () => IIntegrationMessengerData;
+  onSelectSkill: (skillId: string) => void;
   saveBrowserInfo: () => void;
   toggle: (isVisible?: boolean) => void;
   toggleNotifier: (isVisible?: boolean) => void;
@@ -58,6 +61,7 @@ interface IStore extends IState {
   readMessages: (conversationId: string) => void;
   replyAutoAnswer: (message: string, payload: string, type: string) => void;
   getBotInitialMessage: (callback: (bodData: any) => void) => void;
+  // getMessageSkills: (callback: (data: any) => void) => void;
   changeOperatorStatus: (
     _id: string,
     operatorStatus: string,
@@ -76,6 +80,8 @@ interface IStore extends IState {
   setBotTyping: (typing: boolean) => void;
   botTyping: boolean;
   browserInfo: IBrowserInfo;
+  selectedSkill: string | null;
+  inputDisabled: boolean;
 }
 
 export const MESSAGE_TYPES = {
@@ -94,9 +100,10 @@ export class AppProvider extends React.Component<{}, IState> {
     super(props);
 
     let activeRoute = 'conversationList';
+    let inputDisabled = false;
 
     const { messengerData } = connection.data;
-    const { requireAuth, showChat } = messengerData;
+    const { requireAuth, showChat, skillData = {} } = messengerData;
 
     // if visitor did not give email or phone then ask
     if (!this.isLoggedIn() && requireAuth) {
@@ -109,6 +116,12 @@ export class AppProvider extends React.Component<{}, IState> {
 
     if (!showChat) {
       activeRoute = 'home';
+    }
+
+    const { options = [] } = skillData;
+
+    if (options.length > 0) {
+      inputDisabled = true;
     }
 
     this.state = {
@@ -125,7 +138,9 @@ export class AppProvider extends React.Component<{}, IState> {
       isBrowserInfoSaved: false,
       headHeight: 200,
       botTyping: false,
-      browserInfo: {}
+      browserInfo: {},
+      selectedSkill: null,
+      inputDisabled
     };
   }
 
@@ -230,10 +245,17 @@ export class AppProvider extends React.Component<{}, IState> {
       connection.data.messengerData.requireAuth
     ) {
       // if visitor did not give email or phone then ask
-      return this.setState({ activeRoute: 'accquireInformation' });
+      return this.setState({ activeRoute: 'accquireInformation', selectedSkill: null });
     }
 
-    this.setState({ activeRoute: route });
+    const { skillData = {} } = connection.data.messengerData;
+    const { options = [] } = skillData;
+
+    this.setState({
+      activeRoute: route,
+      selectedSkill: null,
+      inputDisabled: options.length > 0
+    });
   };
 
   changeConversation = (_id: string) => {
@@ -403,7 +425,7 @@ export class AppProvider extends React.Component<{}, IState> {
   };
 
   readMessages = (conversationId: string) => {
-    
+
     client
       .mutate({
         mutation: gql(graphqlTypes.readConversationMessages),
@@ -469,6 +491,10 @@ export class AppProvider extends React.Component<{}, IState> {
         }
       });
   };
+
+  onSelectSkill = (skillId: string) => {
+    this.setState({ selectedSkill: skillId, inputDisabled: false });
+  }
 
   getBotInitialMessage = (callback: (botData: any) => void) => {
     return client.mutate({
@@ -616,6 +642,7 @@ export class AppProvider extends React.Component<{}, IState> {
               $contentType: String
               $conversationId: String
               $attachments: [AttachmentInput]
+              $skillId: String
             ) {
 
             widgetsInsertMessage(
@@ -624,6 +651,7 @@ export class AppProvider extends React.Component<{}, IState> {
               message: $message
               conversationId: $conversationId
               attachments: $attachments
+              skillId: $skillId
             ) {
               ${graphqlTypes.messageFields}
             }
@@ -633,6 +661,7 @@ export class AppProvider extends React.Component<{}, IState> {
             integrationId: connection.data.integrationId,
             customerId: connection.data.customerId,
             conversationId: activeConversation,
+            skillId: this.state.selectedSkill,
             contentType,
             message: newLineToBr(message),
             attachments
@@ -717,6 +746,7 @@ export class AppProvider extends React.Component<{}, IState> {
           readMessages: this.readMessages,
           replyAutoAnswer: this.replyAutoAnswer,
           getBotInitialMessage: this.getBotInitialMessage,
+          onSelectSkill: this.onSelectSkill,
           changeOperatorStatus: this.changeOperatorStatus,
           sendMessage: this.sendMessage,
           sendTypingInfo: this.sendTypingInfo,
@@ -726,6 +756,7 @@ export class AppProvider extends React.Component<{}, IState> {
           setUnreadCount: this.setUnreadCount,
           isLoggedIn: this.isLoggedIn,
           browserInfo: this.state.browserInfo,
+          inputDisabled: this.state.inputDisabled
         }}
       >
         {this.props.children}

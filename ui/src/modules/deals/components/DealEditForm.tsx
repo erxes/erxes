@@ -9,6 +9,7 @@ import ProductSection from 'modules/deals/components/ProductSection';
 import { IProduct } from 'modules/settings/productService/types';
 import PortableTasks from 'modules/tasks/components/PortableTasks';
 import PortableTickets from 'modules/tickets/components/PortableTickets';
+import { pluginsOfItemSidebar } from 'pluginUtils';
 import React from 'react';
 import { IDeal, IDealParams, IPaymentsData } from '../types';
 
@@ -154,10 +155,12 @@ export default class DealEditForm extends React.Component<Props, State> {
   };
 
   renderItems = () => {
+    const { item } = this.props;
     return (
       <>
-        <PortableTickets mainType="deal" mainTypeId={this.props.item._id} />
-        <PortableTasks mainType="deal" mainTypeId={this.props.item._id} />
+        <PortableTickets mainType="deal" mainTypeId={item._id} />
+        <PortableTasks mainType="deal" mainTypeId={item._id} />
+        {pluginsOfItemSidebar(item, 'deal')}
       </>
     );
   };

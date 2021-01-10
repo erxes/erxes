@@ -245,10 +245,11 @@ class Conversation extends React.Component<Props, { toggleMessage: boolean }> {
   }
 
   render() {
-    const { conversation, activity } = this.props;
-    const { integration } = conversation;
+    const { conversation = {} as IConversation, activity } = this.props;
 
-    const kind = integration ? integration.kind : 'conversation';
+    const integration = conversation.integration || {};
+
+    const kind = integration.kind ? integration.kind : 'conversation';
 
     const condition =
       activity.contentType === 'comment' ? activity.contentType : kind;

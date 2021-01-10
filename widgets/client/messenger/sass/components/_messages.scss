@@ -14,6 +14,10 @@ $darker-blue: #3b85f4;
   list-style: none;
   margin: 0;
   padding: 20px;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
 
   li {
     margin-bottom: 10px;
@@ -40,7 +44,7 @@ $darker-blue: #3b85f4;
   display: flex;
   flex: 1;
   flex-direction: column;
-  overflow: auto;
+  overflow: scroll;
   overflow-x: hidden;
 
   &.bg-1 {
@@ -65,20 +69,30 @@ $darker-blue: #3b85f4;
 }
 
 .erxes-spacial-message {
-  background-color: $grey;
-  border-radius: 10px;
-  box-shadow: $message-shadow;
   color: $text-color;
-  margin-bottom: 20px;
-  padding: 20px;
+  margin-bottom: 15px;
+
+  &.right {
+    line-height: normal;
+    text-align: right;
+    color: $text-color-light;
+    margin-bottom: 15px;
+  }
 
   &.away {
     margin-bottom: 0;
-    margin-top: auto;
+    margin-top: 15px;
   }
 
   &.ml50 {
     margin-left: 50px;
+  }
+
+  &.with-background {
+    background-color: $grey;
+    border-radius: 10px;
+    box-shadow: $message-shadow;
+    padding: 20px;
   }
 
   &.auth {
@@ -122,6 +136,12 @@ $darker-blue: #3b85f4;
 
     a {
       color: $white;
+    }
+
+    &.gray {
+      background-color: $grey;
+      color: $text-color;
+      margin-bottom: 0;
     }
   }
 
@@ -295,16 +315,16 @@ $darker-blue: #3b85f4;
   &.call-request {
     margin-bottom: 20px;
     padding: 16px;
-  
+
     h5 {
       margin: 0 0 5px 0;
       font-size: 15px;
       font-weight: 700;
     }
-  
+
     .call-buttons {
       display: flex;
-  
+
       button {
         flex: 1;
         padding: 8px 16px;
@@ -312,15 +332,15 @@ $darker-blue: #3b85f4;
         display: flex;
         align-items: center;
         justify-content: center;
-  
+
         &:last-child {
           margin-left: 10px;
         }
-  
+
         &:hover {
           opacity: 0.9;
         }
-  
+
         span {
           margin-left: 5px;
         }
@@ -330,7 +350,7 @@ $darker-blue: #3b85f4;
         }
       }
     }
-  
+
     p {
       margin: 0 0 15px;
     }
