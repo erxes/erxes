@@ -9,8 +9,8 @@ import { ACTIVITY_ACTIONS } from './definitions/constants';
 import { ISegmentDocument } from './definitions/segments';
 
 export interface IActivityLogModel extends Model<IActivityLogDocument> {
-  addActivityLog(doc: IActivityLogInput): Promise<IActivityLogDocument[]>;
-  addActivityLogs(docs: IActivityLogInput[]): Promise<IActivityLogDocument>;
+  addActivityLog(doc: IActivityLogInput): Promise<IActivityLogDocument>;
+  addActivityLogs(docs: IActivityLogInput[]): Promise<IActivityLogDocument[]>;
   removeActivityLog(contentId: string): void;
 
   createSegmentLog(
