@@ -7,15 +7,16 @@ on:
     paths:
       - "api/**"
       - ".github/workflows/api.yaml"
+      - "../plugins/**/api"
   pull_request:
     branches:
-      - master
-      - develop
+      - priuscenter
       - crons
       - workers
     paths:
       - "api/**"
       - ".github/workflows/api.yaml"
+      - "../plugins/**/api"
 
 jobs:
   api:
@@ -52,6 +53,7 @@ jobs:
       - name: Install dependencies
         run: |
           yarn install
+          yarn prepare-plugins-api
           cd api
           yarn install --frozen-lockfile
 
@@ -82,10 +84,13 @@ jobs:
           cd api
           rm -rf node_modules
           yarn install --frozen-lockfile --production
+          cd ..
+          yarn prepare-plugins-api
+          cd api
           yarn build
 
       - name: Build docker image
-        if: github.event_name == 'push' && ( github.ref == 'refs/heads/master' || github.ref == 'refs/heads/develop' || github.ref == 'refs/heads/crons' || github.ref == 'refs/heads/workers')
+        if: github.event_name == 'push' && ( github.ref == 'refs/heads/priuscenter'|| github.ref == 'refs/heads/crons' || github.ref == 'refs/heads/workers')
         env:
           BASE_IMAGE: erxes/erxes-api:base-12.19.1-slim
         run: |

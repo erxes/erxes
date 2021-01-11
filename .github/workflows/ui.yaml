@@ -11,18 +11,17 @@ on:
       - '!ui/docker-entrypoint.sh'
       - '!ui/base.Dockerfile'
       - '!ui/base.Dockerfile.dockerignore'
+      - "../plugins/**/ui"
   pull_request:
     branches:
-      - master
-      - develop
-      - apm
-      - automations
+      - priuscenter
     paths:
       - 'ui/**'
       - '!ui/nginx/**'
       - '!ui/docker-entrypoint.sh'
       - '!ui/base.Dockerfile'
       - '!ui/base.Dockerfile.dockerignore'
+      - "../plugins/**/ui"
 
 jobs:
   ui:
@@ -53,6 +52,7 @@ jobs:
     - name: Install dependencies
       run: |
         yarn install
+        yarn prepare-plugins-ui
         cd ui
         yarn install --frozen-lockfile
 
@@ -72,10 +72,13 @@ jobs:
         rm -rf src/__tests__
         rm src/setupTests.ts
         yarn install --frozen-lockfile --production
+        cd ..
+        yarn prepare-plugins-ui
+        cd ui
         yarn build
 
     - name: Build docker image
-      if: github.event_name == 'push' && ( github.ref == 'refs/heads/master' || github.ref == 'refs/heads/develop' || github.ref == 'refs/heads/apm' || github.ref == 'refs/heads/automations')
+      if: github.event_name == 'push' && ( github.ref == 'refs/heads/priuscenter')
       env:
         BASE_IMAGE: erxes/erxes:base-1.18-alpine
       run: |
