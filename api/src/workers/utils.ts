@@ -1,116 +1,223 @@
-import * as csv from 'csvtojson';
+import * as csvParser from 'csv-parser';
 import * as dotenv from 'dotenv';
 import * as fs from 'fs';
 import * as mongoose from 'mongoose';
-import * as os from 'os';
 import * as path from 'path';
-import * as XlsxStreamReader from 'xlsx-stream-reader';
+import * as readline from 'readline';
+import { Writable } from 'stream';
 import { checkFieldNames } from '../data/modules/fields/utils';
-import { deleteFile, s3Stream, uploadsFolderPath } from '../data/utils';
-import { ImportHistory } from '../db/models';
+import {
+  createAWS,
+  deleteFile,
+  getConfig,
+  uploadsFolderPath
+} from '../data/utils';
 import { CUSTOMER_SELECT_OPTIONS } from '../db/models/definitions/constants';
-import ImportHistories from '../db/models/ImportHistory';
-import { debugImport, debugWorkers } from '../debuggers';
+import {
+  default as ImportHistories,
+  default as ImportHistory
+} from '../db/models/ImportHistory';
+import { debugWorkers } from '../debuggers';
+import CustomWorker from './workerUtil';
 
-const { MONGO_URL = '' } = process.env;
+const { MONGO_URL = '', ELK_SYNCER } = process.env;
 
 export const connect = () =>
   mongoose.connect(MONGO_URL, { useNewUrlParser: true, useCreateIndex: true });
 
 dotenv.config();
 
-let workers: any[] = [];
-let intervals: any[] = [];
+const WORKER_BULK_LIMIT = 1000;
 
-export const createWorkers = (
-  workerPath: string,
-  workerData: any,
-  results: string[]
-) => {
-  return new Promise((resolve, reject) => {
-    // tslint:disable-next-line
-    const Worker = require('worker_threads').Worker;
+const myWorker = new CustomWorker();
 
-    if (workers && workers.length > 0) {
-      return reject(new Error('Workers are busy or not working'));
-    }
+export const IMPORT_CONTENT_TYPE = {
+  CUSTOMER: 'customer',
+  COMPANY: 'company',
+  LEAD: 'lead',
+  PRODUCT: 'product',
+  DEAL: 'deal',
+  TASK: 'task',
+  TICKET: 'ticket'
+};
 
-    const interval = setImmediate(() => {
-      results.forEach(result => {
-        try {
-          const worker = new Worker(workerPath, {
-            workerData: {
-              ...workerData,
-              result
-            }
-          });
+export const generateUid = () => {
+  return (
+    '_' +
+    Math.random()
+      .toString(36)
+      .substr(2, 9)
+  );
+};
+export const generatePronoun = value => {
+  const pronoun = CUSTOMER_SELECT_OPTIONS.SEX.find(
+    sex => sex.label.toUpperCase() === value.toUpperCase()
+  );
 
-          workers.push(worker);
+  return pronoun ? pronoun.value : '';
+};
 
-          worker.on('message', () => {
-            removeWorker(worker);
-          });
-
-          worker.on('error', e => {
-            debugImport(e);
-            removeWorker(worker);
-          });
-
-          worker.on('exit', code => {
-            if (code !== 0) {
-              debugImport(`Worker stopped with exit code ${code}`);
-            }
-          });
-        } catch (e) {
-          reject(new Error(e));
+const getS3FileInfo = async ({ s3, query, params }): Promise<string> => {
+  return new Promise(resolve => {
+    s3.selectObjectContent(
+      {
+        ...params,
+        ExpressionType: 'SQL',
+        Expression: query,
+        InputSerialization: {
+          CSV: {
+            FileHeaderInfo: 'None',
+            RecordDelimiter: '\n',
+            FieldDelimiter: ','
+          }
+        },
+        OutputSerialization: {
+          CSV: {}
         }
+      },
+      (_, data) => {
+        // data.Payload is a Readable Stream
+        const eventStream: any = data.Payload;
+
+        let result;
+
+        // Read events as they are available
+        eventStream.on('data', event => {
+          if (event.Records) {
+            result = event.Records.Payload.toString();
+          }
+        });
+        eventStream.on('end', () => {
+          resolve(result);
+        });
+      }
+    );
+  });
+};
+
+const getCsvInfo = (fileName: string, uploadType: string) => {
+  return new Promise(async resolve => {
+    if (uploadType === 'local') {
+      const readSteam = fs.createReadStream(`${uploadsFolderPath}/${fileName}`);
+
+      let columns;
+      let total = 0;
+
+      const rl = readline.createInterface({
+        input: readSteam,
+        terminal: false
       });
 
-      clearIntervals();
-    });
+      rl.on('line', input => {
+        if (total === 0) {
+          columns = input;
+        }
 
-    intervals.push(interval);
+        total++;
+      });
+      rl.on('close', () => {
+        // exclude column
+        total--;
 
-    resolve(true);
+        resolve({ total, columns });
+      });
+    } else {
+      const AWS_BUCKET = await getConfig('AWS_BUCKET');
+      const s3 = await createAWS();
+
+      const params = { Bucket: AWS_BUCKET, Key: fileName };
+
+      const rowCountString = await getS3FileInfo({
+        s3,
+        params,
+        query: 'SELECT COUNT(*) FROM S3Object'
+      });
+
+      // exclude column
+      let total = Number(rowCountString);
+
+      total--;
+
+      const columns = await getS3FileInfo({
+        s3,
+        params,
+        query: 'SELECT * FROM S3Object LIMIT 1'
+      });
+
+      return resolve({ total, columns });
+    }
   });
 };
 
-export const splitToCore = (datas: any[]) => {
-  const cpuCount = os.cpus().length;
+const importBulkStream = ({
+  fileName,
+  bulkLimit,
+  uploadType,
+  handleBulkOperation
+}: {
+  fileName: string;
+  bulkLimit: number;
+  uploadType: 'AWS' | 'local';
+  handleBulkOperation: (rows: any) => Promise<void>;
+}) => {
+  return new Promise(async (resolve, reject) => {
+    let rows: any = [];
+    let readSteam;
 
-  const results: any[] = [];
+    if (uploadType === 'AWS') {
+      const AWS_BUCKET = await getConfig('AWS_BUCKET');
 
-  const calc = Math.ceil(datas.length / cpuCount);
+      const s3 = await createAWS();
 
-  for (let index = 0; index < cpuCount; index++) {
-    const start = index * calc;
-    const end = start + calc;
-    const row = datas.slice(start, end);
+      const errorCallback = error => {
+        throw new Error(error.code);
+      };
 
-    results.push(row);
+      const params = { Bucket: AWS_BUCKET, Key: fileName };
+
+      readSteam = s3.getObject(params).createReadStream();
+      readSteam.on('error', errorCallback);
+    } else {
+      readSteam = fs.createReadStream(`${uploadsFolderPath}/${fileName}`);
+    }
+
+    const write = (row, _, next) => {
+      rows.push(row);
+
+      if (rows.length === bulkLimit) {
+        return handleBulkOperation(rows)
+          .then(() => {
+            rows = [];
+            next();
+          })
+          .catch(e => reject(e));
+      }
+
+      return next();
+    };
+
+    readSteam
+      .pipe(csvParser())
+      .pipe(new Writable({ write, objectMode: true }))
+      .on('finish', () => {
+        handleBulkOperation(rows).then(() => {
+          resolve('success');
+        });
+      })
+      .on('error', e => reject(e));
+  });
+};
+
+const getWorkerFile = fileName => {
+  if (process.env.NODE_ENV !== 'production') {
+    return `./src/workers/${fileName}.worker.import.js`;
   }
 
-  return results;
-};
+  if (fs.existsSync('./build/api')) {
+    return `./build/api/workers/${fileName}.worker.js`;
+  }
 
-export const removeWorker = worker => {
-  workers = workers.filter(workerObj => {
-    return worker.threadId !== workerObj.threadId;
-  });
-};
-
-export const removeWorkers = () => {
-  workers.forEach(worker => {
-    worker.postMessage('cancel');
-  });
-};
-
-export const clearIntervals = () => {
-  intervals.forEach(interval => {
-    clearImmediate(interval);
-  });
-
-  intervals = [];
+  return `./dist/workers/${fileName}.worker.js`;
 };
 
 export const clearEmptyValues = (obj: any) => {
@@ -138,273 +245,145 @@ export const updateDuplicatedValue = async (
   );
 };
 
-const getWorkerFile = fileName => {
-  if (process.env.NODE_ENV !== 'production') {
-    return `./src/workers/${fileName}.worker.import.js`;
-  }
-
-  if (fs.existsSync('./build/api')) {
-    return `./build/api/workers/${fileName}.worker.js`;
-  }
-
-  return `./dist/workers/${fileName}.worker.js`;
-};
-
-// xls file import, cancel, removal
+// csv file import, cancel, removal
 export const receiveImportRemove = async (content: any) => {
-  const { contentType, importHistoryId } = content;
+  try {
+    const { contentType, importHistoryId } = content;
 
-  const importHistory = await ImportHistories.getImportHistory(importHistoryId);
+    const handleOnEndWorker = async () => {
+      const updatedImportHistory = await ImportHistory.findOne({
+        _id: importHistoryId
+      });
 
-  const results = splitToCore(importHistory.ids || []);
+      if (updatedImportHistory && updatedImportHistory.status === 'Removed') {
+        await ImportHistory.deleteOne({ _id: importHistoryId });
+      }
+    };
 
-  const workerFile = getWorkerFile('importHistoryRemove');
+    myWorker.setHandleEnd(handleOnEndWorker);
 
-  const workerPath = path.resolve(workerFile);
+    const importHistory = await ImportHistories.getImportHistory(
+      importHistoryId
+    );
 
-  await createWorkers(workerPath, { contentType, importHistoryId }, results);
+    const ids = importHistory.ids || [];
 
-  return { status: 'ok' };
+    const workerPath = path.resolve(getWorkerFile('importHistoryRemove'));
+
+    const calc = Math.ceil(ids.length / WORKER_BULK_LIMIT);
+    const results: any[] = [];
+
+    for (let index = 0; index < calc; index++) {
+      const start = index * WORKER_BULK_LIMIT;
+      const end = start + WORKER_BULK_LIMIT;
+      const row = ids.slice(start, end);
+
+      results.push(row);
+    }
+
+    for (const result of results) {
+      await myWorker.createWorker(workerPath, {
+        contentType,
+        importHistoryId,
+        result
+      });
+    }
+
+    return { status: 'ok' };
+  } catch (e) {
+    debugWorkers('Failed to remove import: ', e.message);
+    throw e;
+  }
 };
 
 export const receiveImportCancel = () => {
-  clearIntervals();
-
-  removeWorkers();
+  myWorker.removeWorkers();
 
   return { status: 'ok' };
 };
 
-const readXlsFile = async (
-  fileName: string,
-  uploadType: string
-): Promise<{ fieldNames: string[]; datas: any[] }> => {
-  return new Promise(async (resolve, reject) => {
-    let rowCount = 0;
-
-    const usedSheets: any[] = [];
-
-    const xlsxReader = XlsxStreamReader();
-
-    const errorCallback = error => {
-      reject(new Error(error.code));
-    };
-
-    try {
-      const stream =
-        uploadType === 'local'
-          ? fs.createReadStream(`${uploadsFolderPath}/${fileName}`)
-          : await s3Stream(fileName, errorCallback);
-
-      stream.pipe(xlsxReader);
-
-      xlsxReader.on('worksheet', workSheetReader => {
-        if (workSheetReader > 1) {
-          return workSheetReader.skip();
-        }
-
-        workSheetReader.on('row', row => {
-          if (rowCount > 100000) {
-            return reject(
-              new Error('You can only import 100000 rows one at a time')
-            );
-          }
-
-          if (row.values.length > 0) {
-            usedSheets.push(row.values);
-            rowCount++;
-          }
-        });
-
-        workSheetReader.process();
-      });
-
-      xlsxReader.on('end', () => {
-        const compactedRows: any = [];
-
-        for (const row of usedSheets) {
-          if (row.length > 0) {
-            row.shift();
-
-            compactedRows.push(row);
-          }
-        }
-
-        const fieldNames = usedSheets[0];
-
-        // Removing column
-        compactedRows.shift();
-
-        return resolve({ fieldNames, datas: compactedRows });
-      });
-
-      xlsxReader.on('error', error => {
-        return reject(error);
-      });
-    } catch (e) {
-      reject(e);
-    }
-  });
-};
-
-const readCsvFile = async (
-  fileName: string,
-  uploadType: string
-): Promise<{ fieldNames: string[]; datas: any[] }> => {
-  return new Promise(async (resolve, reject) => {
-    const errorCallback = error => {
-      reject(new Error(error.code));
-    };
-
-    const mainDatas: any[] = [];
-
-    try {
-      const stream =
-        uploadType === 'local'
-          ? fs.createReadStream(`${uploadsFolderPath}/${fileName}`)
-          : await s3Stream(fileName, errorCallback);
-
-      const results = await csv().fromStream(stream);
-
-      if (!results || results.length === 0) {
-        return reject(new Error('Please import at least one row of data'));
-      }
-
-      if (results && results.length > 100000) {
-        return reject(
-          new Error('You can only import 100000 rows one at a time')
-        );
-      }
-
-      const fieldNames: string[] = [];
-
-      for (const [key, value] of Object.entries(results[0])) {
-        if (value && typeof value === 'object') {
-          const subFields = Object.keys(value || {});
-
-          for (const subField of subFields) {
-            fieldNames.push(`${key}.${subField}`);
-          }
-        } else {
-          fieldNames.push(key);
-        }
-      }
-
-      for (const result of results) {
-        let data: any[] = [];
-
-        for (const mainValue of Object.values(result)) {
-          if (mainValue) {
-            if (typeof mainValue !== 'object') {
-              data.push(mainValue || '');
-            } else if (typeof mainValue === 'object') {
-              const subFieldValues = Object.values(mainValue || {});
-              subFieldValues.forEach(subFieldValue => {
-                data.push(subFieldValue || '');
-              });
-            }
-          }
-        }
-
-        if (data.length > 1) {
-          mainDatas.push(data);
-        }
-
-        data = [];
-      }
-
-      return resolve({ fieldNames, datas: mainDatas });
-    } catch (e) {
-      return resolve({ fieldNames: [], datas: [] });
-    }
-  });
-};
-
 export const receiveImportCreate = async (content: any) => {
-  try {
-    const {
-      fileName,
-      type,
-      scopeBrandIds,
-      user,
-      uploadType,
-      fileType
-    } = content;
-    let fieldNames: string[] = [];
-    let datas: string[] = [];
-    let result: any = {};
+  const { fileName, type, scopeBrandIds, user, uploadType, fileType } = content;
 
-    switch (fileType) {
-      case 'csv':
-        result = await readCsvFile(fileName, uploadType);
+  let importHistory;
 
-        fieldNames = result.fieldNames;
-        datas = result.datas;
+  const useElkSyncer = ELK_SYNCER === 'true';
 
-        break;
+  if (fileType !== 'csv') {
+    throw new Error('Invalid file type');
+  }
 
-      case 'xlsx':
-        result = await readXlsFile(fileName, uploadType);
+  const { total, columns }: any = await getCsvInfo(fileName, uploadType);
 
-        fieldNames = result.fieldNames;
-        datas = result.datas;
+  const updatedColumns = (columns || '').replace(/\n|\r/g, '').split(',');
 
-        break;
-    }
+  const properties = await checkFieldNames(type, updatedColumns);
 
-    if (datas.length === 0) {
-      throw new Error('Please import at least one row of data');
-    }
+  importHistory = await ImportHistory.create({
+    contentType: type,
+    userId: user._id,
+    date: Date.now(),
+    total
+  });
 
-    const properties = await checkFieldNames(type, fieldNames);
+  const updateImportHistory = async doc => {
+    return ImportHistory.updateOne({ _id: importHistory.id }, doc);
+  };
 
-    const importHistory = await ImportHistory.create({
-      contentType: type,
-      total: datas.length,
-      userId: user._id,
-      date: Date.now()
+  const handleOnEndBulkOperation = async () => {
+    const updatedImportHistory = await ImportHistory.findOne({
+      _id: importHistory.id
     });
 
-    const results: string[] = splitToCore(datas);
+    if (!updatedImportHistory) {
+      throw new Error('Import history not found');
+    }
 
-    const workerFile = getWorkerFile('bulkInsert');
+    if (
+      updatedImportHistory.failed + updatedImportHistory.success ===
+      updatedImportHistory.total
+    ) {
+      await updateImportHistory({
+        $set: { status: 'Done', percentage: 100 }
+      });
+    }
 
-    const workerPath = path.resolve(workerFile);
+    await deleteFile(fileName);
+  };
 
-    const percentagePerData = Number(((1 / datas.length) * 100).toFixed(3));
+  const handleBulkOperation = async (rows: any) => {
+    if (rows.length === 0) {
+      return debugWorkers('Please import at least one row of data');
+    }
 
-    const workerData = {
+    const result: unknown[] = [];
+
+    for (const row of rows) {
+      result.push(Object.values(row));
+    }
+
+    const workerPath = path.resolve(getWorkerFile('bulkInsert'));
+
+    await myWorker.createWorker(workerPath, {
       scopeBrandIds,
       user,
       contentType: type,
       properties,
       importHistoryId: importHistory._id,
-      percentagePerData
-    };
+      result,
+      useElkSyncer,
+      percentage: Number(((result.length / total) * 100).toFixed(3))
+    });
+  };
 
-    await createWorkers(workerPath, workerData, results);
+  myWorker.setHandleEnd(handleOnEndBulkOperation);
 
-    await deleteFile(fileName);
+  importBulkStream({
+    fileName,
+    uploadType,
+    bulkLimit: WORKER_BULK_LIMIT,
+    handleBulkOperation
+  });
 
-    return { id: importHistory.id };
-  } catch (e) {
-    debugWorkers(e.message);
-    throw e;
-  }
-};
-
-export const generateUid = () => {
-  return (
-    '_' +
-    Math.random()
-      .toString(36)
-      .substr(2, 9)
-  );
-};
-export const generatePronoun = value => {
-  const pronoun = CUSTOMER_SELECT_OPTIONS.SEX.find(
-    sex => sex.label.toUpperCase() === value.toUpperCase()
-  );
-
-  return pronoun ? pronoun.value : '';
+  return { id: importHistory.id };
 };

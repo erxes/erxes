@@ -1,12 +1,15 @@
 import * as mongoose from 'mongoose';
 import {
+  ActivityLogs,
   Boards,
   Companies,
   Conformities,
   Customers,
   Deals,
+  Fields,
   ImportHistory,
   Pipelines,
+  ProductCategories,
   Products,
   Stages,
   Tags,
@@ -14,11 +17,15 @@ import {
   Tickets,
   Users
 } from '../db/models';
+import { fillSearchTextItem } from '../db/models/boardUtils';
+import { IConformityAdd } from '../db/models/definitions/conformities';
+import { IUserDocument } from '../db/models/definitions/users';
+import { fetchElk } from '../elasticsearch';
 import {
   clearEmptyValues,
   connect,
   generatePronoun,
-  updateDuplicatedValue
+  IMPORT_CONTENT_TYPE
 } from './utils';
 
 // tslint:disable-next-line
@@ -33,6 +40,400 @@ parentPort.once('message', message => {
   }
 });
 
+const create = async ({
+  docs,
+  user,
+  contentType,
+  model,
+  useElkSyncer
+}: {
+  docs: any;
+  user: IUserDocument;
+  contentType: string;
+  model: any;
+  useElkSyncer: boolean;
+}) => {
+  const {
+    PRODUCT,
+    CUSTOMER,
+    COMPANY,
+    DEAL,
+    TASK,
+    TICKET,
+    LEAD
+  } = IMPORT_CONTENT_TYPE;
+
+  let objects;
+
+  const conformityCompanyMapping = {};
+  const conformityCustomerMapping = {};
+  const updateDocs: any = [];
+
+  let insertDocs: any = [];
+
+  const bulkValues: {
+    primaryEmail: string[];
+    primaryPhone: string[];
+    primaryName: string[];
+    code: string[];
+  } = {
+    primaryEmail: [],
+    primaryPhone: [],
+    primaryName: [],
+    code: []
+  };
+
+  const docIdsByPrimaryEmail = {};
+  const docIdsByPrimaryPhone = {};
+  const docIdsByCode = {};
+
+  const generateUpdateDocs = (_id, doc) => {
+    updateDocs.push({
+      updateOne: {
+        filter: { _id },
+        update: {
+          $set: { ...clearEmptyValues(doc), modifiedAt: new Date() }
+        }
+      }
+    });
+  };
+
+  const prepareDocs = async (body, type, collectionDocs) => {
+    const response = await fetchElk('search', type, {
+      query: { bool: { should: body } },
+      _source: ['_id', 'primaryEmail', 'primaryPhone', 'primaryName', 'code']
+    });
+
+    const collections = response.hits.hits || [];
+
+    for (const collection of collections) {
+      const doc = collection._source;
+
+      if (doc.primaryEmail) {
+        docIdsByPrimaryEmail[doc.primaryEmail] = collection._id;
+        continue;
+      }
+
+      if (doc.primaryPhone) {
+        docIdsByPrimaryPhone[doc.primaryPhone] = collection._id;
+        continue;
+      }
+
+      if (doc.primaryName) {
+        docIdsByCode[doc.primaryName] = collection._id;
+        continue;
+      }
+
+      if (doc.code) {
+        docIdsByCode[doc.code] = collection._id;
+        continue;
+      }
+    }
+
+    for (const doc of collectionDocs) {
+      if (doc.primaryEmail && docIdsByPrimaryEmail[doc.primaryEmail]) {
+        generateUpdateDocs(docIdsByPrimaryEmail[doc.primaryEmail], doc);
+        continue;
+      }
+
+      if (doc.primaryPhone && docIdsByPrimaryPhone[doc.primaryPhone]) {
+        generateUpdateDocs(docIdsByPrimaryPhone[doc.primaryPhone], doc);
+        continue;
+      }
+
+      if (doc.primaryName && docIdsByCode[doc.primaryName]) {
+        generateUpdateDocs(docIdsByCode[doc.primaryName], doc);
+        continue;
+      }
+
+      if (doc.code && docIdsByCode[doc.code]) {
+        generateUpdateDocs(docIdsByCode[doc.code], doc);
+        continue;
+      }
+
+      insertDocs.push(doc);
+    }
+  };
+
+  const createConformityMapping = async ({
+    index,
+    field,
+    values,
+    conformityTypeModel,
+    relType
+  }: {
+    index: number;
+    field: string;
+    values: string[];
+    conformityTypeModel: any;
+    relType: string;
+  }) => {
+    if (values.length === 0 && contentType !== relType) {
+      return;
+    }
+
+    const mapping =
+      relType === 'customer'
+        ? conformityCustomerMapping
+        : conformityCompanyMapping;
+
+    const ids = await conformityTypeModel
+      .find({ [field]: { $in: values } })
+      .distinct('_id');
+
+    if (ids.length === 0) {
+      return;
+    }
+
+    for (const id of ids) {
+      if (!mapping[index]) {
+        mapping[index] = [];
+      }
+
+      mapping[index].push({
+        relType,
+        mainType: contentType === 'lead' ? 'customer' : contentType,
+        relTypeId: id
+      });
+    }
+  };
+
+  if (contentType === CUSTOMER || contentType === LEAD) {
+    for (const doc of docs) {
+      if (!doc.ownerId && user) {
+        doc.ownerId = user._id;
+      }
+
+      if (doc.primaryEmail && !doc.emails) {
+        doc.emails = [doc.primaryEmail];
+      }
+
+      if (doc.primaryPhone && !doc.phones) {
+        doc.phones = [doc.primaryPhone];
+      }
+
+      // clean custom field values
+      doc.customFieldsData = await Fields.prepareCustomFieldsData(
+        doc.customFieldsData
+      );
+
+      if (doc.integrationId) {
+        doc.relatedIntegrationIds = [doc.integrationId];
+      }
+
+      const { profileScore, searchText, state } = await Customers.calcPSS(doc);
+
+      doc.profileScore = profileScore;
+      doc.searchText = searchText;
+      doc.state = state;
+      doc.createdAt = new Date();
+      doc.modifiedAt = new Date();
+
+      bulkValues.primaryEmail.push(doc.primaryEmail);
+      bulkValues.primaryPhone.push(doc.primaryPhone);
+      bulkValues.code.push(doc.code);
+    }
+
+    if (useElkSyncer) {
+      bulkValues.primaryEmail = bulkValues.primaryEmail.filter(value => value);
+      bulkValues.primaryPhone = bulkValues.primaryPhone.filter(value => value);
+      bulkValues.code = bulkValues.code.filter(value => value);
+
+      const queries: Array<{ terms: { [key: string]: string[] } }> = [];
+
+      if (bulkValues.primaryEmail.length > 0) {
+        queries.push({ terms: { primaryEmail: bulkValues.primaryEmail } });
+      }
+
+      if (bulkValues.primaryPhone.length > 0) {
+        queries.push({
+          terms: { 'primaryPhone.raw': bulkValues.primaryPhone }
+        });
+      }
+
+      if (bulkValues.code.length > 0) {
+        queries.push({ terms: { 'code.raw': bulkValues.code } });
+      }
+
+      await prepareDocs(queries, 'customers', docs);
+    } else {
+      insertDocs = docs;
+    }
+
+    insertDocs.map(async (doc, docIndex) => {
+      await createConformityMapping({
+        index: docIndex,
+        field: 'primaryName',
+        values: doc.companiesPrimaryNames || [],
+        conformityTypeModel: Companies,
+        relType: 'company'
+      });
+    });
+
+    if (updateDocs.length > 0) {
+      await Customers.bulkWrite(updateDocs);
+    }
+
+    objects = await Customers.insertMany(insertDocs);
+  }
+
+  if (contentType === COMPANY) {
+    for (const doc of docs) {
+      if (!doc.ownerId && user) {
+        doc.ownerId = user._id;
+      }
+
+      // clean custom field values
+      doc.customFieldsData = await Fields.prepareCustomFieldsData(
+        doc.customFieldsData
+      );
+
+      doc.searchText = Companies.fillSearchText(doc);
+      doc.createdAt = new Date();
+      doc.modifiedAt = new Date();
+
+      bulkValues.primaryName.push(doc.primaryName);
+    }
+
+    if (useElkSyncer) {
+      bulkValues.primaryName = bulkValues.primaryName.filter(value => value);
+
+      await prepareDocs(
+        [{ terms: { 'primaryName.raw': bulkValues.primaryName } }],
+        'companies',
+        docs
+      );
+    } else {
+      insertDocs = docs;
+    }
+
+    insertDocs.map(async (doc, docIndex) => {
+      await createConformityMapping({
+        index: docIndex,
+        field: 'primaryEmail',
+        values: doc.customersPrimaryEmails || [],
+        conformityTypeModel: Customers,
+        relType: 'customer'
+      });
+    });
+
+    if (updateDocs.length > 0) {
+      await Companies.bulkWrite(updateDocs);
+    }
+
+    objects = await Companies.insertMany(insertDocs);
+  }
+
+  if (contentType === PRODUCT) {
+    const codes = docs.map(doc => doc.code);
+
+    const categories = await ProductCategories.find(
+      { code: { $in: codes } },
+      { _id: 1, code: 1 }
+    );
+
+    if (!categories) {
+      throw new Error('Product & service category not found');
+    }
+
+    for (const doc of docs) {
+      const category = categories.find(cat => cat.code === doc.code);
+
+      if (category) {
+        doc.categoryId = category._id;
+      }
+
+      doc.customFieldsData = await Fields.prepareCustomFieldsData(
+        doc.customFieldsData
+      );
+    }
+
+    objects = await Products.insertMany(docs);
+  }
+
+  if ([DEAL, TASK, TICKET].includes(contentType)) {
+    const conversationIds = docs
+      .map(doc => doc.sourceConversationId)
+      .filter(item => item);
+
+    const conversations = await model.find({
+      sourceConversationId: { $in: conversationIds }
+    });
+
+    if (conversations && conversations.length > 0) {
+      throw new Error(`Already converted a ${contentType}`);
+    }
+
+    docs.map(async (doc, docIndex) => {
+      doc.createdAt = new Date();
+      doc.modifiedAt = new Date();
+      doc.searchText = fillSearchTextItem(doc);
+
+      await createConformityMapping({
+        index: docIndex,
+        field: 'primaryEmail',
+        values: doc.customersPrimaryEmails || [],
+        conformityTypeModel: Customers,
+        relType: 'customer'
+      });
+
+      await createConformityMapping({
+        index: docIndex,
+        field: 'primaryName',
+        values: doc.companiesPrimaryNames || [],
+        conformityTypeModel: Companies,
+        relType: 'company'
+      });
+    });
+
+    objects = await model.insertMany(docs);
+
+    await ActivityLogs.createBoardItemsLog({
+      items: docs,
+      contentType
+    });
+  }
+
+  // create conformity
+  if (contentType !== PRODUCT) {
+    const createConformity = async mapping => {
+      if (Object.keys(mapping).length === 0) {
+        return;
+      }
+
+      const conformityDocs: IConformityAdd[] = [];
+
+      objects.map(async (object, objectIndex) => {
+        const items = mapping[objectIndex] || [];
+
+        if (items.length === 0) {
+          return;
+        }
+
+        for (const item of items) {
+          item.mainTypeId = object._id;
+        }
+
+        conformityDocs.push(...items);
+      });
+
+      await Conformities.insertMany(conformityDocs);
+    };
+
+    await createConformity(conformityCompanyMapping);
+    await createConformity(conformityCustomerMapping);
+  }
+
+  if ([CUSTOMER, COMPANY, LEAD].includes(contentType)) {
+    await ActivityLogs.createCocLogs({
+      cocs: objects,
+      contentType
+    });
+  }
+
+  return objects;
+};
+
 connect().then(async () => {
   if (cancel) {
     return;
@@ -45,10 +446,19 @@ connect().then(async () => {
     contentType,
     properties,
     importHistoryId,
-    percentagePerData
+    useElkSyncer,
+    percentage
+  }: {
+    user: IUserDocument;
+    scopeBrandIds: string[];
+    result: any;
+    contentType: string;
+    properties: Array<{ [key: string]: string }>;
+    importHistoryId: string;
+    percentage: number;
+    useElkSyncer: boolean;
   } = workerData;
 
-  let create: any = null;
   let model: any = null;
 
   const isBoardItem = (): boolean =>
@@ -57,55 +467,34 @@ connect().then(async () => {
     contentType === 'ticket';
 
   switch (contentType) {
+    case 'customer':
+    case 'lead':
+      model = Customers;
+      break;
     case 'company':
-      create = Companies.createCompany;
       model = Companies;
       break;
-    case 'customer':
-      create = Customers.createCustomer;
-      model = Customers;
-      break;
-    case 'lead':
-      create = Customers.createCustomer;
-      model = Customers;
-      break;
-    case 'product':
-      create = Products.createProduct;
-      model = Products;
-      break;
     case 'deal':
-      create = Deals.createDeal;
+      model = Deals;
       break;
     case 'task':
-      create = Tasks.createTask;
+      model = Tasks;
       break;
     case 'ticket':
-      create = Tickets.createTicket;
+      model = Tickets;
       break;
     default:
       break;
   }
 
-  if (!create) {
+  if (!Object.values(IMPORT_CONTENT_TYPE).includes(contentType)) {
     throw new Error(`Unsupported content type "${contentType}"`);
   }
 
+  const bulkDoc: any = [];
+
   // Iterating field values
   for (const fieldValue of result) {
-    if (cancel) {
-      return;
-    }
-
-    // Import history result statistics
-    const inc: { success: number; failed: number; percentage: number } = {
-      success: 0,
-      failed: 0,
-      percentage: percentagePerData
-    };
-
-    // Collecting errors
-    const errorMsgs: string[] = [];
-
     const doc: any = {
       scopeBrandIds,
       customFieldsData: []
@@ -267,117 +656,31 @@ connect().then(async () => {
       }
     }
 
-    await create(doc, user)
-      .then(async cocObj => {
-        if (
-          doc.companiesPrimaryNames &&
-          doc.companiesPrimaryNames.length > 0 &&
-          contentType !== 'company'
-        ) {
-          const companyIds: string[] = [];
-
-          for (const primaryName of doc.companiesPrimaryNames) {
-            let company = await Companies.findOne({ primaryName }).lean();
-
-            if (company) {
-              companyIds.push(company._id);
-            } else {
-              company = await Companies.createCompany({ primaryName });
-
-              companyIds.push(company._id);
-            }
-          }
-
-          for (const _id of companyIds) {
-            await Conformities.addConformity({
-              mainType: contentType === 'lead' ? 'customer' : contentType,
-              mainTypeId: cocObj._id,
-              relType: 'company',
-              relTypeId: _id
-            });
-          }
-        }
-
-        if (
-          doc.customersPrimaryEmails &&
-          doc.customersPrimaryEmails.length > 0 &&
-          contentType !== 'customer'
-        ) {
-          const customers = await Customers.find(
-            { primaryEmail: { $in: doc.customersPrimaryEmails } },
-            { _id: 1 }
-          );
-          const customerIds = customers.map(customer => customer._id);
-
-          for (const _id of customerIds) {
-            await Conformities.addConformity({
-              mainType: contentType === 'lead' ? 'customer' : contentType,
-              mainTypeId: cocObj._id,
-              relType: 'customer',
-              relTypeId: _id
-            });
-          }
-        }
-
-        await ImportHistory.updateOne(
-          { _id: importHistoryId },
-          { $push: { ids: [cocObj._id] } }
-        );
-
-        // Increasing success count
-        inc.success++;
-      })
-      .catch(async (e: Error) => {
-        const updatedDoc = clearEmptyValues(doc);
-
-        // Increasing failed count and pushing into error message
-
-        switch (e.message) {
-          case 'Duplicated email':
-            inc.success++;
-            await updateDuplicatedValue(model, 'primaryEmail', updatedDoc);
-            break;
-          case 'Duplicated phone':
-            inc.success++;
-            await updateDuplicatedValue(model, 'primaryPhone', updatedDoc);
-            break;
-          case 'Duplicated name':
-            inc.success++;
-            await updateDuplicatedValue(model, 'primaryName', updatedDoc);
-            break;
-          default:
-            inc.failed++;
-            errorMsgs.push(e.message);
-            break;
-        }
-      });
-
-    await ImportHistory.updateOne(
-      { _id: importHistoryId },
-      { $inc: inc, $push: { errorMsgs } }
-    );
-
-    let importHistory = await ImportHistory.findOne({ _id: importHistoryId });
-
-    if (!importHistory) {
-      throw new Error('Could not find import history');
-    }
-
-    if (importHistory.failed + importHistory.success === importHistory.total) {
-      await ImportHistory.updateOne(
-        { _id: importHistoryId },
-        { $set: { status: 'Done', percentage: 100 } }
-      );
-
-      importHistory = await ImportHistory.findOne({ _id: importHistoryId });
-    }
-
-    if (!importHistory) {
-      throw new Error('Could not find import history');
-    }
+    bulkDoc.push(doc);
   }
+
+  const cocObjs = await create({
+    docs: bulkDoc,
+    user,
+    contentType,
+    model,
+    useElkSyncer
+  });
+
+  const cocIds = cocObjs.map(obj => obj._id).filter(obj => obj);
+
+  await ImportHistory.updateOne(
+    { _id: importHistoryId },
+    {
+      $inc: { success: bulkDoc.length, percentage },
+      $push: { ids: cocIds }
+    }
+  );
 
   mongoose.connection.close();
 
-  parentPort.postMessage('Successfully finished job');
+  parentPort.postMessage({
+    action: 'remove',
+    message: 'Successfully finished the job'
+  });
 });

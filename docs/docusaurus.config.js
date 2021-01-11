@@ -102,6 +102,10 @@ module.exports = {
               to: "/interviews",
             },
             {
+              label: "Customer case studies",
+              to: "/caseStudies",
+            },
+            {
               label: "Roadmap",
               href: "https://erxes.io/roadmap",
             },
@@ -154,6 +158,14 @@ module.exports = {
         id: "interviews",
         routeBasePath: "interviews",
         path: "./interviews",
+      },
+    ],
+    [
+      "@docusaurus/plugin-content-blog",
+      {
+        id: "caseStudies",
+        routeBasePath: "caseStudies",
+        path: "./caseStudies",
       },
     ],
   ],

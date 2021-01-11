@@ -94,6 +94,15 @@ html[data-theme="dark"] .react-toggle-track {
   margin-left: 8px;
 }
 
+.avatar__photo > img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: top;
+  transform-origin: 50% 100%;
+  transition: all 0.3s ease-in-out;
+}
+
 .footer {
   padding-top: 60px;
 }
