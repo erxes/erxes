@@ -791,24 +791,12 @@ test('Repair integrations', async () => {
     }
   `;
 
-  const integration1 = await integrationFactory();
-
   const spy = jest.spyOn(messageBroker(), 'sendRPCMessage');
-  spy.mockImplementation(() =>
-    Promise.resolve({ erxesApiIds: [integration1._id] })
-  );
+  spy.mockImplementation(() => Promise.resolve('success'));
 
   const response = await graphqlRequest(mutation, 'integrationsRepair', {
-    _id: 'accountId'
+    _id: 'integrationId'
   });
-
-  try {
-    await graphqlRequest(mutation, 'integrationsRepair', {
-      _id: 'accountId'
-    });
-  } catch (e) {
-    expect(e[0].message).toBeDefined();
-  }
 
   expect(response).toBe('success');
 

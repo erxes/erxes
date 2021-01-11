@@ -453,20 +453,15 @@ const integrationMutations = {
   },
 
   async integrationsRepair(_root, { _id }: { _id: string }) {
-    try {
-      await messageBroker().sendRPCMessage(
-        RABBITMQ_QUEUES.RPC_API_TO_INTEGRATIONS,
-        {
-          action: 'repair-integrations',
-          data: { _id }
-        }
-      );
+    await messageBroker().sendRPCMessage(
+      RABBITMQ_QUEUES.RPC_API_TO_INTEGRATIONS,
+      {
+        action: 'repair-integrations',
+        data: { _id }
+      }
+    );
 
-      return 'success';
-    } catch (e) {
-      debugExternalApi(e);
-      throw e;
-    }
+    return 'success';
   },
 
   async integrationsUpdateConfigs(
