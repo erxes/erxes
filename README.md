@@ -30,7 +30,7 @@
 
 <img src="https://s3.amazonaws.com/erxes/github/features-transparent.png" width="400" align="right" style="max-width: 50%">
 
-erxes helps you attract and engage more customers while helping you achieve high lead conversion. With erxes, all your marketing, sales, and customer service tools are merged into one platform for greater output.
+erxes helps you attract and engage many customers while helping you achieve high lead conversion. With erxes, all your marketing, sales, and customer service tools are merged into one platform for greater output.
 
 - **Growth Hacking:** Manage your entire growth operation easily. Erxes makes growing a pleasure by consolidating ideas and making actual performance a reality. Erxes makes sure everything is recorded, prioritized, and centralized in a single platform.
 - **Email & SMS Marketing:** Reach your customers with personalized messaging. Keeping your customers hooked is a challenge. Start converting your prospects into potential customers through email, SMS, Live chat, Botpress and In-app-messaging and more interactions to drive them to a successful close. You can connect to your customers in a whole new complete way with erxes!
