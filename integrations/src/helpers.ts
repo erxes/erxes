@@ -555,7 +555,8 @@ export const repairIntegrations = async (
 
     await Integrations.remove({
       erxesApiId: { $ne: integrationId },
-      facebookPageIds: pageId
+      facebookPageIds: pageId,
+      kind: integration.kind
     });
   }
 
