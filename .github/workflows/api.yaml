@@ -83,6 +83,7 @@ jobs:
         run: |
           cd api
           rm -rf node_modules
+          rm -rf dist
           yarn install --frozen-lockfile --production
           cd ..
           yarn prepare-plugins-api
