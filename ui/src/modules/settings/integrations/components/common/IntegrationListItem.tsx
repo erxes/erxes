@@ -17,6 +17,7 @@ import { cleanIntegrationKind } from '../../containers/utils';
 import { queries } from '../../graphql/index';
 import { INTEGRATIONS_COLORS } from '../../integrationColors';
 import { IIntegration, IntegrationMutationVariables } from '../../types';
+import RefreshPermissionForm from '../facebook/RefreshPermission';
 import CommonFieldForm from './CommonFieldForm';
 
 type Props = {
@@ -223,35 +224,63 @@ class IntegrationListItem extends React.Component<Props, State> {
     );
   }
 
+  // popupWindow(url, title, win, w, h) {
+  //   const y = win.top.outerHeight / 2 + win.top.screenY - h / 2;
+  //   const x = win.top.outerWidth / 2 + win.top.screenX - w / 2;
+
+  //   return (
+  //     <ActionButtons>
+  //       <ModalTrigger
+  //         title="Edit integration"
+  //         trigger={editTrigger}
+  //         content={content}
+  //       />
+  //     </ActionButtons>
+  //   );
+
+  //   return win.open(
+  //     url,
+  //     title,
+  //     `toolbar=no, location=no, directories=no, status=no, menubar=no, scrollbars=no, resizable=no, copyhistory=no, width=${w}, height=${h}, top=${y}, left=${x}`
+  //   );
+  // }
+
   renderRepairAction() {
     const { repair, integration } = this.props;
 
-    let onClick = () => repair(integration._id);
+    const onClick = () => repair(integration._id);
 
     if (
       integration.kind.includes('facebook') &&
       integration.healthStatus &&
       integration.healthStatus === 'acount-token'
     ) {
-      onClick = () => {
-        const link = 'fblogin';
-        const kind = 'facebook';
+      const editTrigger = (
+        <Button btnStyle="link">
+          <Tip text={__('Repair')} placement="top">
+            <Icon icon="refresh" />
+          </Tip>
+        </Button>
+      );
 
-        const { REACT_APP_API_URL } = getEnv();
+      const content = props => <RefreshPermissionForm {...props} />;
 
-        const url = `${REACT_APP_API_URL}/connect-integration?link=${link}&kind=${kind}`;
-
-        window.location.replace(url);
-      };
-    }
-
-    return (
-      <WithPermission action="integrationsArchive">
+      return (
+        <ActionButtons>
+          <ModalTrigger
+            title="Edit integration"
+            trigger={editTrigger}
+            content={content}
+          />
+        </ActionButtons>
+      );
+    } else {
+      return (
         <Tip text={__('Repair')} placement="top">
           <Button btnStyle="link" onClick={onClick} icon="refresh" />
         </Tip>
-      </WithPermission>
-    );
+      );
+    }
   }
 
   renderExternalData(integration) {
@@ -332,7 +361,7 @@ class IntegrationListItem extends React.Component<Props, State> {
     const labelStyleHealthy =
       integration.healthStatus === 'healthy' ? 'success' : 'danger';
     const healthStatus =
-      integration.healthStatus === 'healthy ' ? __('Healthy') : __('Unhealthy');
+      integration.healthStatus === 'healthy' ? __('Healthy') : __('Unhealthy');
 
     return (
       <tr key={integration._id}>

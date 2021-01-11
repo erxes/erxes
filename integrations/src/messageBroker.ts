@@ -24,7 +24,7 @@ export const initBroker = async server => {
 
   // listen for rpc queue =========
   consumeRPCQueue('rpc_queue:api_to_integrations', async parsedObject => {
-    const { action, data } = parsedObject;
+    const { action, data, type } = parsedObject;
 
     let response = null;
 
@@ -50,6 +50,10 @@ export const initBroker = async server => {
         response = { data: await repairIntegrations(data._id) };
       }
 
+      if (type === 'facebook') {
+        response = { data: await handleFacebookMessage(parsedObject) };
+      }
+
       response.status = 'success';
     } catch (e) {
       response = {
@@ -65,9 +69,6 @@ export const initBroker = async server => {
     const { action, payload, type } = content;
 
     switch (type) {
-      case 'facebook':
-        await handleFacebookMessage(content);
-        break;
       case 'removeCustomers':
         await removeCustomers(content);
         break;

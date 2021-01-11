@@ -280,7 +280,7 @@ export const sendReply = async (
     } else {
       await Integrations.updateOne(
         { _id: integration._id },
-        { $set: { healthStatus: 'page-token' } }
+        { $set: { healthStatus: 'acount-token' } }
       );
     }
 

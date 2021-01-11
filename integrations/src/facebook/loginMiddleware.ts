@@ -86,7 +86,7 @@ const loginMiddleware = async (req, res) => {
       });
 
       if (integration) {
-        await repairIntegrations(integration._id);
+        await repairIntegrations(integration.erxesApiId);
       }
     } else {
       await Accounts.create({
