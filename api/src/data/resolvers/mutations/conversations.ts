@@ -407,20 +407,15 @@ const conversationMutations = {
     const type = 'facebook';
     const action = 'reply-post';
 
-    try {
-      await sendConversationToIntegrations(
-        type,
-        integrationId,
-        conversationId,
-        requestName,
-        doc,
-        dataSources,
-        action
-      );
-    } catch (e) {
-      debugExternalApi(e.message);
-      throw new Error(e.message);
-    }
+    await sendConversationToIntegrations(
+      type,
+      integrationId,
+      conversationId,
+      requestName,
+      doc,
+      dataSources,
+      action
+    );
   },
 
   async conversationsChangeStatusFacebookComment(
@@ -434,20 +429,15 @@ const conversationMutations = {
     const conversationId = doc.commentId;
     doc.content = '';
 
-    try {
-      await sendConversationToIntegrations(
-        type,
-        '',
-        conversationId,
-        requestName,
-        doc,
-        dataSources,
-        action
-      );
-    } catch (e) {
-      debugExternalApi(e.message);
-      throw new Error(e.message);
-    }
+    return sendConversationToIntegrations(
+      type,
+      '',
+      conversationId,
+      requestName,
+      doc,
+      dataSources,
+      action
+    );
   },
 
   /**
