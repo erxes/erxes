@@ -223,10 +223,27 @@ class IntegrationListItem extends React.Component<Props, State> {
     );
   }
 
-  renderHealthyAction() {
+  renderRepairAction() {
     const { repair, integration } = this.props;
 
-    const onClick = () => repair(integration._id);
+    let onClick = () => repair(integration._id);
+
+    if (
+      integration.kind.includes('facebook') &&
+      integration.healthStatus &&
+      integration.healthStatus === 'acount-token'
+    ) {
+      onClick = () => {
+        const link = 'fblogin';
+        const kind = 'facebook';
+
+        const { REACT_APP_API_URL } = getEnv();
+
+        const url = `${REACT_APP_API_URL}/connect-integration?link=${link}&kind=${kind}`;
+
+        window.location.replace(url);
+      };
+    }
 
     return (
       <WithPermission action="integrationsArchive">
@@ -313,9 +330,9 @@ class IntegrationListItem extends React.Component<Props, State> {
     const labelStyle = integration.isActive ? 'success' : 'error';
     const status = integration.isActive ? __('Active') : __('Archived');
     const labelStyleHealthy =
-      integration.isHealthy === 'true' ? 'success' : 'danger';
-    const isHealthy =
-      integration.isHealthy === 'true' ? __('Healthy') : __('Unhealthy');
+      integration.healthStatus === 'healthy' ? 'success' : 'danger';
+    const healthStatus =
+      integration.healthStatus === 'healthy ' ? __('Healthy') : __('Unhealthy');
 
     return (
       <tr key={integration._id}>
@@ -330,7 +347,7 @@ class IntegrationListItem extends React.Component<Props, State> {
           <Label lblStyle={labelStyle}>{status}</Label>
         </td>
         <td>
-          <Label lblStyle={labelStyleHealthy}>{isHealthy}</Label>
+          <Label lblStyle={labelStyleHealthy}>{healthStatus}</Label>
         </td>
         {this.renderExternalData(integration)}
         <td>
@@ -338,7 +355,7 @@ class IntegrationListItem extends React.Component<Props, State> {
             {this.renderFetchAction(integration)}
             {this.renderMessengerActions(integration)}
             {this.renderGetAction()}
-            {this.renderHealthyAction()}
+            {this.renderRepairAction()}
             {this.renderEditAction()}
             {this.renderArchiveAction()}
             {this.renderUnarchiveAction()}

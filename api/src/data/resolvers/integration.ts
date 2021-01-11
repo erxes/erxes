@@ -50,7 +50,7 @@ export default {
     return [];
   },
 
-  async isHealthy(
+  async healthStatus(
     integration: IIntegrationDocument,
     _args,
     { dataSources }: IContext

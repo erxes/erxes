@@ -544,9 +544,9 @@ export const removeAccount = async (
 };
 
 export const repairIntegrations = async (
-  _id: string
+  integrationId: string
 ): Promise<true | Error> => {
-  const integration = await Integrations.findOne({ erxesApiId: _id });
+  const integration = await Integrations.findOne({ erxesApiId: integrationId });
 
   for (const pageId of integration.facebookPageIds) {
     const pageTokens = await refreshPageAccesToken(pageId, integration);
@@ -554,14 +554,14 @@ export const repairIntegrations = async (
     await subscribePage(pageId, pageTokens[pageId]);
 
     await Integrations.remove({
-      erxesApiId: { $ne: _id },
+      erxesApiId: { $ne: integrationId },
       facebookPageIds: pageId
     });
   }
 
   await Integrations.updateOne(
-    { erxesApiId: _id },
-    { $set: { isHealthy: true } }
+    { erxesApiId: integrationId },
+    { $set: { healthStatus: 'healthy' } }
   );
 
   return true;

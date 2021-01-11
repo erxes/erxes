@@ -147,7 +147,7 @@ export interface IIntegration {
   brand: IBrand;
   channels: IChannel[];
   isActive?: boolean;
-  isHealthy?: string;
+  healthStatus?: string;
   webhookData?: IWebhookData;
   leadMessengerApps?: ILeadMessengerApp[];
   websiteMessengerApps?: IWebsiteMessengerApp[];

@@ -31,7 +31,7 @@ export interface IIntegration {
   whatsappToken?: string;
   telnyxPhoneNumber?: string;
   telnyxProfileId?: string;
-  isHealthy?: string;
+  healthStatus?: string;
 }
 
 export interface IIntegrationDocument extends IIntegration, Document {}
@@ -92,7 +92,7 @@ export const integrationSchema = new Schema({
     type: String,
     label: 'Telnyx messaging profile id'
   }),
-  isHealthy: String
+  healthStatus: String
 });
 
 export interface IIntegrationModel extends Model<IIntegrationDocument> {

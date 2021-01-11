@@ -7,8 +7,7 @@ import { Accounts, Integrations } from '../models';
 import {
   getFacebookUser,
   getFacebookUserProfilePic,
-  getPostLink,
-  refreshPageAccesToken
+  getPostLink
 } from './utils';
 
 export const generatePostDoc = (
@@ -200,7 +199,7 @@ export const getOrCreateCustomer = async (
     $and: [{ facebookPageIds: { $in: pageId } }, { kind }]
   });
 
-  let { facebookPageTokensMap } = integration;
+  const { facebookPageTokensMap } = integration;
 
   let customer = await Customers.findOne({ userId });
 
@@ -216,10 +215,7 @@ export const getOrCreateCustomer = async (
       (await getFacebookUser(pageId, facebookPageTokensMap, userId)) || {};
   } catch (e) {
     debugFacebook(`Error during get customer info: ${e.message}`);
-    facebookPageTokensMap = await refreshPageAccesToken(pageId, integration);
   }
-
-  fbUser = (await getFacebookUser(pageId, facebookPageTokensMap, userId)) || {};
 
   const fbUserProfilePic =
     fbUser.profile_pic ||
