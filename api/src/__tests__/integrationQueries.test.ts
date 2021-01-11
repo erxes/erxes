@@ -200,9 +200,6 @@ describe('integrationQueries', () => {
       }
     `;
 
-    const spy = jest.spyOn(dataSources.IntegrationsAPI, 'fetchApi');
-    spy.mockImplementation(() => Promise.resolve('healthy'));
-
     const tag = await tagsFactory();
     const messengerIntegration = await integrationFactory({
       tagIds: [tag._id],
@@ -235,6 +232,19 @@ describe('integrationQueries', () => {
     expect(response.websiteMessengerApps.length).toBe(0);
     expect(response.knowledgeBaseMessengerApps.length).toBe(0);
     expect(response.leadMessengerApps.length).toBe(0);
+    expect(response.healthStatus).toBe('healthy');
+
+    const spy = jest.spyOn(dataSources.IntegrationsAPI, 'fetchApi');
+    spy.mockImplementation(() => Promise.resolve([]));
+
+    const facebookIntegration = await integrationFactory({
+      kind: 'facebook-post'
+    });
+
+    response = await graphqlRequest(qry, 'integrationDetail', {
+      _id: facebookIntegration._id
+    });
+
     expect(response.healthStatus).toBe('healthy');
 
     spy.mockRestore();

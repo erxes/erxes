@@ -66,10 +66,10 @@ export default {
 
         return response;
       } catch (e) {
-        return false;
+        return 'healthy';
       }
     }
 
-    return true;
+    return 'healthy';
   }
 };
