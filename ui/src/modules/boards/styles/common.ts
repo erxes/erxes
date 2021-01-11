@@ -114,6 +114,7 @@ export const DragDisabler = styled.div`
   height: 100%;
   width: 100%;
   cursor: progress;
+  z-index: 10;
 `;
 
 export const ItemContainer = styledTS<{
