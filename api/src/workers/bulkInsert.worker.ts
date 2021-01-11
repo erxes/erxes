@@ -202,6 +202,9 @@ const create = async ({
   };
 
   if (contentType === CUSTOMER || contentType === LEAD) {
+    debugWorkers('Worker: Import customer data');
+    debugWorkers('useElkSyncer: ', useElkSyncer);
+
     for (const doc of docs) {
       if (!doc.ownerId && user) {
         doc.ownerId = user._id;
@@ -263,6 +266,8 @@ const create = async ({
       insertDocs = docs;
     }
 
+    debugWorkers('Insert doc length: ', insertDocs.length);
+
     insertDocs.map(async (doc, docIndex) => {
       await createConformityMapping({
         index: docIndex,
@@ -272,6 +277,8 @@ const create = async ({
         relType: 'company'
       });
     });
+
+    debugWorkers('Update doc length: ', updateDocs.length);
 
     if (updateDocs.length > 0) {
       await Customers.bulkWrite(updateDocs);
