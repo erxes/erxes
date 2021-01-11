@@ -110,8 +110,8 @@ module.exports = {
               href: "https://erxes.io/roadmap",
             },
             {
-              label: "Case studies",
-              href: "https://erxes.io/blog/customer-stories",
+              label: "Install server",
+              href: "http://localhost:3500/install",
             },
           ],
         },
