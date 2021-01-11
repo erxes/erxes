@@ -20,6 +20,7 @@ import {
 import { fillSearchTextItem } from '../db/models/boardUtils';
 import { IConformityAdd } from '../db/models/definitions/conformities';
 import { IUserDocument } from '../db/models/definitions/users';
+import { debugWorkers } from '../debuggers';
 import { fetchElk } from '../elasticsearch';
 import {
   clearEmptyValues,
@@ -99,6 +100,8 @@ const create = async ({
   };
 
   const prepareDocs = async (body, type, collectionDocs) => {
+    debugWorkers(`prepareDocs called`);
+
     const response = await fetchElk('search', type, {
       query: { bool: { should: body } },
       _source: ['_id', 'primaryEmail', 'primaryPhone', 'primaryName', 'code']
@@ -199,6 +202,9 @@ const create = async ({
   };
 
   if (contentType === CUSTOMER || contentType === LEAD) {
+    debugWorkers('Worker: Import customer data');
+    debugWorkers('useElkSyncer: ', useElkSyncer);
+
     for (const doc of docs) {
       if (!doc.ownerId && user) {
         doc.ownerId = user._id;
@@ -260,6 +266,8 @@ const create = async ({
       insertDocs = docs;
     }
 
+    debugWorkers('Insert doc length: ', insertDocs.length);
+
     insertDocs.map(async (doc, docIndex) => {
       await createConformityMapping({
         index: docIndex,
@@ -269,6 +277,8 @@ const create = async ({
         relType: 'company'
       });
     });
+
+    debugWorkers('Update doc length: ', updateDocs.length);
 
     if (updateDocs.length > 0) {
       await Customers.bulkWrite(updateDocs);
@@ -438,6 +448,8 @@ connect().then(async () => {
   if (cancel) {
     return;
   }
+
+  debugWorkers(`Worker message received`);
 
   const {
     user,
@@ -678,6 +690,8 @@ connect().then(async () => {
   );
 
   mongoose.connection.close();
+
+  debugWorkers(`Worker done`);
 
   parentPort.postMessage({
     action: 'remove',

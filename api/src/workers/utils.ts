@@ -119,6 +119,8 @@ const getCsvInfo = (fileName: string, uploadType: string) => {
         // exclude column
         total--;
 
+        debugWorkers(`Get CSV Info type: local, totalRow: ${total}`);
+
         resolve({ total, columns });
       });
     } else {
@@ -143,6 +145,8 @@ const getCsvInfo = (fileName: string, uploadType: string) => {
         params,
         query: 'SELECT * FROM S3Object LIMIT 1'
       });
+
+      debugWorkers(`Get CSV Info type: AWS, totalRow: ${total}`);
 
       return resolve({ total, columns });
     }
@@ -248,6 +252,8 @@ export const updateDuplicatedValue = async (
 // csv file import, cancel, removal
 export const receiveImportRemove = async (content: any) => {
   try {
+    debugWorkers(`Remove import called`);
+
     const { contentType, importHistoryId } = content;
 
     const handleOnEndWorker = async () => {
@@ -258,6 +264,8 @@ export const receiveImportRemove = async (content: any) => {
       if (updatedImportHistory && updatedImportHistory.status === 'Removed') {
         await ImportHistory.deleteOne({ _id: importHistoryId });
       }
+
+      debugWorkers(`Remove import ended`);
     };
 
     myWorker.setHandleEnd(handleOnEndWorker);
@@ -305,6 +313,8 @@ export const receiveImportCancel = () => {
 export const receiveImportCreate = async (content: any) => {
   const { fileName, type, scopeBrandIds, user, uploadType, fileType } = content;
 
+  debugWorkers(`Import created called`);
+
   let importHistory;
 
   const useElkSyncer = ELK_SYNCER === 'true';
@@ -349,6 +359,8 @@ export const receiveImportCreate = async (content: any) => {
     }
 
     await deleteFile(fileName);
+
+    debugWorkers(`Import create ended`);
   };
 
   const handleBulkOperation = async (rows: any) => {
