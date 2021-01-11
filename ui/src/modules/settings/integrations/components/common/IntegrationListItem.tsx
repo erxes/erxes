@@ -224,34 +224,16 @@ class IntegrationListItem extends React.Component<Props, State> {
     );
   }
 
-  // popupWindow(url, title, win, w, h) {
-  //   const y = win.top.outerHeight / 2 + win.top.screenY - h / 2;
-  //   const x = win.top.outerWidth / 2 + win.top.screenX - w / 2;
-
-  //   return (
-  //     <ActionButtons>
-  //       <ModalTrigger
-  //         title="Edit integration"
-  //         trigger={editTrigger}
-  //         content={content}
-  //       />
-  //     </ActionButtons>
-  //   );
-
-  //   return win.open(
-  //     url,
-  //     title,
-  //     `toolbar=no, location=no, directories=no, status=no, menubar=no, scrollbars=no, resizable=no, copyhistory=no, width=${w}, height=${h}, top=${y}, left=${x}`
-  //   );
-  // }
-
   renderRepairAction() {
     const { repair, integration } = this.props;
+
+    if (!integration.kind.includes('facebook')) {
+      return null;
+    }
 
     const onClick = () => repair(integration._id);
 
     if (
-      integration.kind.includes('facebook') &&
       integration.healthStatus &&
       integration.healthStatus === 'acount-token'
     ) {
