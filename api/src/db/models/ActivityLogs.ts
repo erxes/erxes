@@ -4,13 +4,13 @@ import {
   IActivityLogDocument,
   IActivityLogInput
 } from './definitions/activityLogs';
-
 import { IItemCommonFieldsDocument } from './definitions/boards';
 import { ACTIVITY_ACTIONS } from './definitions/constants';
 import { ISegmentDocument } from './definitions/segments';
 
 export interface IActivityLogModel extends Model<IActivityLogDocument> {
-  addActivityLog(doc: IActivityLogInput): Promise<IActivityLogDocument>;
+  addActivityLog(doc: IActivityLogInput): Promise<IActivityLogDocument[]>;
+  addActivityLogs(docs: IActivityLogInput[]): Promise<IActivityLogDocument>;
   removeActivityLog(contentId: string): void;
 
   createSegmentLog(
@@ -27,6 +27,20 @@ export interface IActivityLogModel extends Model<IActivityLogDocument> {
     coc: any;
     contentType: string;
   }): Promise<IActivityLogDocument>;
+  createCocLogs({
+    cocs,
+    contentType
+  }: {
+    cocs: any;
+    contentType: string;
+  }): Promise<IActivityLogDocument[]>;
+  createBoardItemsLog({
+    items,
+    contentType
+  }: {
+    items: IItemCommonFieldsDocument[];
+    contentType: string;
+  }): Promise<IActivityLogDocument[]>;
   createBoardItemLog({
     item,
     contentType
@@ -80,6 +94,10 @@ export const loadClass = () => {
       return ActivityLogs.create(doc);
     }
 
+    public static addActivityLogs(docs: IActivityLogInput[]) {
+      return ActivityLogs.insertMany(docs);
+    }
+
     public static async removeActivityLog(contentId: IActivityLogInput) {
       await ActivityLogs.deleteMany({ contentId });
     }
@@ -102,6 +120,36 @@ export const loadClass = () => {
         content,
         createdBy: userId || ''
       });
+    }
+
+    public static createBoardItemsLog({
+      items,
+      contentType
+    }: {
+      items: IItemCommonFieldsDocument[];
+      contentType: string;
+    }) {
+      const docs: IActivityLogInput[] = [];
+
+      for (const item of items) {
+        let action = ACTIVITY_ACTIONS.CREATE;
+        let content = '';
+
+        if (item.sourceConversationId) {
+          action = ACTIVITY_ACTIONS.CONVERT;
+          content = item.sourceConversationId;
+        }
+
+        docs.push({
+          contentType,
+          action,
+          content,
+          contentId: item._id,
+          createdBy: item.userId || ''
+        });
+      }
+
+      return ActivityLogs.addActivityLogs(docs);
     }
 
     public static createBoardItemLog({
@@ -156,6 +204,36 @@ export const loadClass = () => {
             contentType: 'company'
           });
       }
+    }
+
+    public static createCocLogs({
+      cocs,
+      contentType
+    }: {
+      cocs: any;
+      contentType: string;
+    }) {
+      const docs: IActivityLogInput[] = [];
+
+      for (const coc of cocs) {
+        let action = ACTIVITY_ACTIONS.CREATE;
+        let content = '';
+
+        if (coc.mergedIds && coc.mergedIds.length > 0) {
+          action = ACTIVITY_ACTIONS.MERGE;
+          content = coc.mergedIds;
+        }
+
+        docs.push({
+          action,
+          content,
+          contentType,
+          contentId: coc._id,
+          createdBy: coc.ownerId || coc.integrationId
+        });
+      }
+
+      return ActivityLogs.addActivityLogs(docs);
     }
 
     public static createCocLog({

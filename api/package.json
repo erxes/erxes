@@ -42,7 +42,7 @@
     "cookie-parser": "^1.4.3",
     "cors": "^2.8.1",
     "cote": "^1.0.0",
-    "csvtojson": "^2.0.10",
+    "csv-parser": "^3.0.0",
     "debug": "^4.1.1",
     "dotenv": "^4.0.0",
     "elasticsearch": "^16.6.0",
@@ -89,7 +89,7 @@
     "validator": "^9.0.0",
     "vm2": "^3.9.2",
     "xlsx-populate": "^1.20.1",
-    "xlsx-stream-reader": "^1.1.0",
+    "xlsx-stream-reader": "^1.1.1",
     "xss": "^1.0.6"
   },
   "peerOptionalDependencies": {
