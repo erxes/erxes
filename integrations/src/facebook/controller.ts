@@ -149,7 +149,11 @@ const init = async app => {
       erxesApiId: integrationId
     });
 
-    return res.send(integration.healthStatus || true);
+    const result = integration
+      ? integration.healthStatus || 'healthy'
+      : 'healthy';
+
+    return res.send(result);
   });
 
   app.get('/facebook/get-comments-count', async (req, res) => {
