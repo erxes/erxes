@@ -783,3 +783,34 @@ describe('mutations', () => {
     spy.mockRestore();
   });
 });
+
+test('Repair integrations', async () => {
+  const mutation = `
+    mutation integrationsRepair($_id: String!) {
+      integrationsRepair(_id: $_id)
+    }
+  `;
+
+  const integration1 = await integrationFactory();
+
+  const spy = jest.spyOn(messageBroker(), 'sendRPCMessage');
+  spy.mockImplementation(() =>
+    Promise.resolve({ erxesApiIds: [integration1._id] })
+  );
+
+  const response = await graphqlRequest(mutation, 'integrationsRepair', {
+    _id: 'accountId'
+  });
+
+  try {
+    await graphqlRequest(mutation, 'integrationsRepair', {
+      _id: 'accountId'
+    });
+  } catch (e) {
+    expect(e[0].message).toBeDefined();
+  }
+
+  expect(response).toBe('success');
+
+  spy.mockRestore();
+});
