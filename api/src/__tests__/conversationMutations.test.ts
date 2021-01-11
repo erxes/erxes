@@ -271,7 +271,7 @@ describe('Conversation message mutations', () => {
   });
 
   test('Add conversation message using third party integration', async () => {
-    const mock = sinon.stub(messageBroker(), 'sendMessage').callsFake(() => {
+    let mock = sinon.stub(messageBroker(), 'sendMessage').callsFake(() => {
       return Promise.resolve('success');
     });
 
@@ -380,6 +380,20 @@ describe('Conversation message mutations', () => {
 
     // telnyx
     args.conversationId = telnyxConversation._id;
+
+    try {
+      await graphqlRequest(addMutation, 'conversationMessageAdd', args, {
+        dataSources
+      });
+    } catch (e) {
+      expect(e).toBeDefined();
+    }
+
+    mock.restore();
+
+    mock = sinon.stub(messageBroker(), 'sendRPCMessage').callsFake(() => {
+      throw new Error();
+    });
 
     try {
       await graphqlRequest(addMutation, 'conversationMessageAdd', args, {

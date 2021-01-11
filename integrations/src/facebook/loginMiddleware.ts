@@ -81,11 +81,11 @@ const loginMiddleware = async (req, res) => {
         { $set: { token: access_token } }
       );
 
-      const integration = await Integrations.findOne({
+      const integrations = await Integrations.find({
         accountId: account._id
       });
 
-      if (integration) {
+      for (const integration of integrations) {
         await repairIntegrations(integration.erxesApiId);
       }
     } else {
