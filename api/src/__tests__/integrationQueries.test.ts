@@ -245,7 +245,13 @@ describe('integrationQueries', () => {
       _id: facebookIntegration._id
     });
 
-    expect(response.healthStatus).toBe('healthy');
+    try {
+      await graphqlRequest(qry, 'integrationDetail', {
+        _id: facebookIntegration._id
+      });
+    } catch (e) {
+      expect(e[0].message).toBeDefined();
+    }
 
     spy.mockRestore();
   });

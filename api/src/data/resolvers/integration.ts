@@ -57,14 +57,9 @@ export default {
   ) {
     if (integration.kind.includes('facebook')) {
       try {
-        const response = await dataSources.IntegrationsAPI.fetchApi(
-          '/facebook/get-status',
-          {
-            integrationId: integration._id
-          }
-        );
-
-        return response;
+        return dataSources.IntegrationsAPI.fetchApi('/facebook/get-status', {
+          integrationId: integration._id
+        });
       } catch (e) {
         return 'healthy';
       }
