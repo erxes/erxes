@@ -3,7 +3,7 @@ import * as os from 'os';
 import { Configs } from '../../../db/models';
 import { DEFAULT_CONSTANT_VALUES } from '../../../db/models/definitions/constants';
 import { moduleRequireLogin } from '../../permissions/wrappers';
-import { getEnv, getErxesSaasDomain, sendRequest } from '../../utils';
+import { getEnv, getErxesSaasDomain, readFile, sendRequest } from '../../utils';
 
 const configQueries = {
   /**
@@ -105,6 +105,10 @@ const configQueries = {
     } catch (e) {
       throw new Error(e.message);
     }
+  },
+
+  configsGetEmailTemplate(_root, { name }: { name?: string }) {
+    return readFile(name || 'base');
   }
 };
 

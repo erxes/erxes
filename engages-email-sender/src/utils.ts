@@ -1,7 +1,10 @@
 import * as AWS from 'aws-sdk';
 import * as nodemailer from 'nodemailer';
+import { SES_DELIVERY_STATUSES } from './constants';
 import { debugBase } from './debuggers';
+import messageBroker from './messageBroker';
 import Configs, { ISESConfig } from './models/Configs';
+import { DeliveryReports, Stats } from './models/index';
 import { getApi } from './trackers/engageTracker';
 
 export const createTransporter = async () => {
@@ -27,6 +30,11 @@ export interface IUser {
   name: string;
   position: string;
   email: string;
+}
+
+interface ICustomerAnalyzeParams {
+  customers: ICustomer[];
+  engageMessageId: string;
 }
 
 export const getEnv = ({
@@ -172,4 +180,91 @@ export const getConfig = async (code, defaultValue?) => {
   }
 
   return configs[code];
+};
+
+export const cleanIgnoredCustomers = async ({
+  customers,
+  engageMessageId
+}: ICustomerAnalyzeParams) => {
+  const customerIds = customers.map(c => c._id);
+  const ignoredCustomerIds: string[] = [];
+
+  const allowedEmailSkipLimit = await getConfig('allowedEmailSkipLimit', '5');
+
+  // gather customers who did not open or click previously
+  const deliveries = await DeliveryReports.aggregate([
+    {
+      $match: {
+        engageMessageId: { $ne: engageMessageId },
+        customerId: { $in: customerIds },
+        status: {
+          $nin: [SES_DELIVERY_STATUSES.OPEN, SES_DELIVERY_STATUSES.CLICK]
+        }
+      }
+    },
+    {
+      $group: { _id: '$customerId', count: { $sum: 1 } }
+    }
+  ]);
+
+  for (const delivery of deliveries) {
+    if (delivery.count > parseInt(allowedEmailSkipLimit, 10)) {
+      ignoredCustomerIds.push(delivery._id);
+    }
+  }
+
+  if (ignoredCustomerIds.length > 0) {
+    await messageBroker().sendMessage('engagesNotification', {
+      action: 'setDoNotDisturb',
+      data: { customerIds: ignoredCustomerIds }
+    });
+
+    return customers.filter(c => ignoredCustomerIds.indexOf(c._id) === -1);
+  }
+
+  return customers;
+};
+
+const getAvgCondition = (fieldName: string) => ({
+  $cond: [
+    { $gt: [`$${fieldName}`, 0] },
+    { $divide: [{ $multiply: [`$${fieldName}`, 100] }, '$total'] },
+    0
+  ]
+});
+
+// Prepares average engage stats of email delivery stats
+export const prepareAvgStats = () => {
+  return Stats.aggregate([
+    {
+      $match: { total: { $gt: 0 } }
+    },
+    {
+      $project: {
+        createdAt: '$createdAt',
+        engageMessageId: '$engageMessageId',
+        pctBounce: getAvgCondition('bounce'),
+        pctClick: getAvgCondition('click'),
+        pctComplaint: getAvgCondition('complaint'),
+        pctDelivery: getAvgCondition('delivery'),
+        pctOpen: getAvgCondition('open'),
+        pctReject: getAvgCondition('reject'),
+        pctRenderingFailure: getAvgCondition('renderingfailure'),
+        pctSend: getAvgCondition('send')
+      }
+    },
+    {
+      $group: {
+        _id: null,
+        avgBouncePercent: { $avg: '$pctBounce' },
+        avgComplaintPercent: { $avg: '$pctComplaint' },
+        avgClickPercent: { $avg: '$pctClick' },
+        avgDeliveryPercent: { $avg: '$pctDelivery' },
+        avgOpenPercent: { $avg: '$pctOpen' },
+        avgRejectPercent: { $avg: '$pctReject' },
+        avgRenderingFailurePercent: { $avg: '$pctRenderingFailure' },
+        avgSendPercent: { $avg: '$pctSend' }
+      }
+    }
+  ]);
 };

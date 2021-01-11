@@ -10,7 +10,7 @@ import * as mongoose from 'mongoose';
 import * as path from 'path';
 import * as request from 'request';
 import { filterXSS } from 'xss';
-import apolloServer from './apolloClient';
+import { initApolloServer } from './apolloClient';
 import { buildFile } from './data/modules/fileExporter/exporter';
 import { templateExport } from './data/modules/fileExporter/templateExport';
 import {
@@ -361,8 +361,6 @@ app.get('/unsubscribe', async (req: any, res) => {
   return res.send(template);
 });
 
-apolloServer.applyMiddleware({ app, path: '/graphql', cors: corsOptions });
-
 // verifier web hook
 app.post(`/verifier/webhook`, async (req, res) => {
   const { emails, phones, email, phone } = req.body;
@@ -393,15 +391,19 @@ const PORT = getEnv({ name: 'PORT' });
 const MONGO_URL = getEnv({ name: 'MONGO_URL' });
 const TEST_MONGO_URL = getEnv({ name: 'TEST_MONGO_URL' });
 
-// subscriptions server
-apolloServer.installSubscriptionHandlers(httpServer);
-
 httpServer.listen(PORT, () => {
   let mongoUrl = MONGO_URL;
 
   if (NODE_ENV === 'test') {
     mongoUrl = TEST_MONGO_URL;
   }
+
+  initApolloServer(app).then((apolloServer) => {
+    apolloServer.applyMiddleware({ app, path: '/graphql', cors: corsOptions });
+
+    // subscriptions server
+    apolloServer.installSubscriptionHandlers(httpServer);
+  });
 
   // connect to mongo database
   connect(mongoUrl).then(async () => {

@@ -1,4 +1,4 @@
-import { EngageMessages, Tags } from '../../../db/models';
+import { Customers, EngageMessages, Tags } from '../../../db/models';
 import { IUserDocument } from '../../../db/models/definitions/users';
 import { checkPermission, requireLogin } from '../../permissions/wrappers';
 import { IContext } from '../../types';
@@ -30,6 +30,13 @@ interface ICountsByStatus {
 
 interface ICountsByTag {
   [index: string]: number;
+}
+
+interface IReportParams {
+  page?: number;
+  perPage?: number;
+  customerId?: string;
+  status?: string;
 }
 
 // basic count helper
@@ -224,8 +231,32 @@ const engageQueries = {
     return dataSources.EngagesAPI.engagesConfigDetail();
   },
 
-  engageReportsList(_root, params, { dataSources }: IContext) {
-    return dataSources.EngagesAPI.engageReportsList(params);
+  async engageReportsList(
+    _root,
+    params: IReportParams,
+    { dataSources }: IContext
+  ) {
+    const {
+      list = [],
+      totalCount
+    } = await dataSources.EngagesAPI.engageReportsList(params);
+    const modifiedList: any[] = [];
+
+    for (const item of list) {
+      const modifiedItem = item;
+
+      if (item.customerId) {
+        const customer = await Customers.findOne({ _id: item.customerId });
+
+        if (customer) {
+          modifiedItem.customerName = Customers.getCustomerName(customer);
+        }
+      }
+
+      modifiedList.push(modifiedItem);
+    }
+
+    return { totalCount, list: modifiedList };
   },
 
   /**
@@ -246,12 +277,19 @@ const engageQueries = {
    */
   engageVerifiedEmails(_root, _args, { dataSources }: IContext) {
     return dataSources.EngagesAPI.engagesGetVerifiedEmails();
+  },
+
+  async engageEmailPercentages(_root, _args, { dataSources }: IContext) {
+    const response = await dataSources.EngagesAPI.getAverageStats();
+
+    return response.data;
   }
 };
 
 requireLogin(engageQueries, 'engageMessagesTotalCount');
 requireLogin(engageQueries, 'engageMessageCounts');
 requireLogin(engageQueries, 'engageMessageDetail');
+requireLogin(engageQueries, 'engageEmailPercentages');
 
 checkPermission(engageQueries, 'engageMessages', 'showEngagesMessages', []);
 

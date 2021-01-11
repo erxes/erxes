@@ -20,7 +20,7 @@ export const getApi = async (type: string): Promise<any> => {
   return new AWS.SNS();
 };
 
-/*
+/**
  * Receives notification from amazon simple notification service
  * And updates engage message status and stats
  */
@@ -48,6 +48,8 @@ const handleMessage = async message => {
     header => header.name === 'Emaildeliveryid'
   );
 
+  const to = headers.find(header => header.name === 'To');
+
   const type = eventType.toLowerCase();
 
   if (emailDeliveryId) {
@@ -60,7 +62,8 @@ const handleMessage = async message => {
   const mailHeaders = {
     engageMessageId: engageMessageId && engageMessageId.value,
     mailId: mailId && mailId.value,
-    customerId: customerId && customerId.value
+    customerId: customerId && customerId.value,
+    email: to && to.value
   };
 
   await Stats.updateStats(mailHeaders.engageMessageId, type);
@@ -73,7 +76,7 @@ const handleMessage = async message => {
   if (rejected === 'reject') {
     await messageBroker().sendMessage('engagesNotification', {
       action: 'setDoNotDisturb',
-      data: { customerId: mailHeaders.customerId }
+      data: { customerId: mailHeaders.customerId, status: type }
     });
   }
 

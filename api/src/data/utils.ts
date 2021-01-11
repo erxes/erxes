@@ -124,7 +124,7 @@ export const checkFile = async (file, source?: string) => {
 /**
  * Create AWS instance
  */
-const createAWS = async () => {
+export const createAWS = async () => {
   const AWS_ACCESS_KEY_ID = await getConfig('AWS_ACCESS_KEY_ID');
   const AWS_SECRET_ACCESS_KEY = await getConfig('AWS_SECRET_ACCESS_KEY');
   const AWS_BUCKET = await getConfig('AWS_BUCKET');

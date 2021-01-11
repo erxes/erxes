@@ -52,7 +52,7 @@ describe('User db utils', () => {
     expect(userObjWithoutCode._id).toBeDefined();
     expect(userObjWithoutCode.username).toBe(_user.username);
     expect(userObjWithoutCode.email).toBe('qwerty@qwerty.com');
-    expect(userObjWithoutCode.code).toBe('001');
+    expect(userObjWithoutCode.code).toBe('000');
     expect(
       bcrypt.compare(strongPassword, userObjWithoutCode.password)
     ).toBeTruthy();
@@ -65,7 +65,7 @@ describe('User db utils', () => {
       email: 'qwerty123@qwerty.com'
     });
 
-    expect(userObjWithCode.code).toBe('002');
+    expect(userObjWithCode.code).toBe('001');
     expect(userObjWithCode.email).toBe('qwerty123@qwerty.com');
   });
 
@@ -73,14 +73,14 @@ describe('User db utils', () => {
     await userFactory({ code: '000' });
     await userFactory({ code: '001' });
 
+    // 003
     const user = await userFactory();
-
     await Users.generateUserCodeField();
 
     const updatedUser = await Users.findOne({ _id: user._id });
 
     if (updatedUser) {
-      expect(updatedUser.code).toBe('002');
+      expect(updatedUser.code).toBe('004');
     } else {
       fail('User not found');
     }

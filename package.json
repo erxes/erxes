@@ -25,6 +25,9 @@
     }
   },
   "scripts": {
+    "prepare-plugins": "node scripts/prepare-plugins",
+    "prepare-plugins-api": "node scripts/prepare-plugins-api",
+    "prepare-plugins-ui": "node scripts/prepare-plugins-ui",
     "format": "prettier --single-quote --write '@(api|integrations|email-verifier|engages-email-sender|logger)/src/**/*.ts' && prettier --single-quote --write '@(ui|widgets)/src/**/*.@(ts|tsx|json|css)'",
     "precommit": "lint-staged",
     "lint": "func () { if [ -z \"$1\" ]; then tslint '@(api|integrations|email-verifier|engages-email-sender|logger|ui|widgets)/src/**/*.ts?(x)'; else echo \"${1}/src/**/*.ts?(x)\" && tslint ${1}'/src/**/*.ts?(x)'; fi ;}; func",
@@ -40,5 +43,8 @@
     "tslint-config-prettier": "^1.18.0",
     "tslint-react": "^4.0.0",
     "typescript": "^3.0.3"
+  },
+  "dependencies": {
+    "fs-extra": "^9.0.1"
   }
 }

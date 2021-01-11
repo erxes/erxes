@@ -1,5 +1,6 @@
 import { Router } from 'express';
 import { prepareSmsStats } from '../telnyxUtils';
+import { prepareAvgStats } from '../utils';
 
 const router = Router();
 
@@ -33,12 +34,21 @@ router.get('/smsStats/:engageMessageId', async (req, res) => {
 router.get('/reportsList', async (req, res) => {
   debugRequest(debugEngages, req);
 
-  const { page, perPage } = req.query;
+  const { page, perPage, customerId, status } = req.query;
 
   const _page = Number(page || '1');
   const _limit = Number(perPage || '20');
 
-  const deliveryReports = await DeliveryReports.find()
+  const filter: any = {};
+
+  if (customerId) {
+    filter.customerId = customerId;
+  }
+  if (status) {
+    filter.status = status;
+  }
+
+  const deliveryReports = await DeliveryReports.find(filter)
     .limit(_limit)
     .skip((_page - 1) * _limit)
     .sort({ createdAt: -1 });
@@ -75,6 +85,14 @@ router.get(`/logs/:engageMessageId`, async (req, res) => {
   const logs = await Logs.find({ engageMessageId: req.params.engageMessageId });
 
   return res.json(logs);
+});
+
+router.get('/avgStatPercentages', async (req: any, res) => {
+  debugRequest(debugEngages, req);
+
+  const stats = await prepareAvgStats();
+
+  return res.json({ data: stats[0] });
 });
 
 export default router;

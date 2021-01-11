@@ -55,6 +55,7 @@ import {
   UsersGroups
 } from '../db/models/index';
 import messageBroker from '../messageBroker';
+import { callAfterMutation } from '../pluginUtils';
 import { MODULE_NAMES } from './constants';
 import {
   getSubServiceDomain,
@@ -1400,6 +1401,8 @@ export const putCreateLog = async (
 
   await sendToWebhook(LOG_ACTIONS.CREATE, params.type, params);
 
+  await callAfterMutation({ ...params, action: LOG_ACTIONS.CREATE }, user);
+
   return putCreateLogC(messageBroker, gatherDescriptions, params, user)
 };
 
@@ -1414,6 +1417,8 @@ export const putUpdateLog = async (
 ) => {
   await sendToWebhook(LOG_ACTIONS.UPDATE, params.type, params);
 
+  await callAfterMutation({ ...params, action: LOG_ACTIONS.UPDATE, }, user);
+
   return putUpdateLogC(messageBroker, gatherDescriptions, params, user);
 };
 
@@ -1427,6 +1432,8 @@ export const putDeleteLog = async (
   user: IUserDocument
 ) => {
   await sendToWebhook(LOG_ACTIONS.DELETE, params.type, params);
+
+  await callAfterMutation({ ...params, action: LOG_ACTIONS.DELETE }, user);
 
   return putDeleteLogC(messageBroker, gatherDescriptions, params, user);
 };

@@ -1,16 +1,16 @@
-import dayjs from 'dayjs';
 import DataWithLoader from 'modules/common/components/DataWithLoader';
 import { FormControl } from 'modules/common/components/form';
-import Label from 'modules/common/components/Label';
 import Pagination from 'modules/common/components/pagination/Pagination';
 import Table from 'modules/common/components/table';
-import { DateWrapper, Title } from 'modules/common/styles/main';
+import { colors } from 'modules/common/styles';
+import { Title } from 'modules/common/styles/main';
 import { __, router } from 'modules/common/utils';
 import Wrapper from 'modules/layout/components/Wrapper';
 import { BarItems } from 'modules/layout/styles';
 import * as React from 'react';
 import Select from 'react-select-plus';
 import { EMAIL_TYPES } from '../containers/EmailDelivery';
+import Row from './Row';
 
 type Props = {
   list: any;
@@ -20,6 +20,8 @@ type Props = {
   count: number;
   emailType: string;
   handleSelectEmailType: (type: string) => void;
+  handleSelectStatus: (status: string) => void;
+  status: string;
 };
 
 const breadcrumb = [
@@ -34,8 +36,19 @@ const emailTypeOptions = [
 
 const tableHeaders = {
   transaction: ['Subject', 'To', 'Cc', 'Bcc', 'From', 'Status', 'Created at'],
-  engage: ['Customer id', 'Title', 'Status', 'Created at']
+  engage: ['Customer', 'Title', 'Status', 'Created at']
 };
+
+export const STATUS_OPTIONS = [
+  { value: 'send', label: 'Sent', color: colors.colorPrimary },
+  { value: 'delivery', label: 'Delivered', color: colors.colorCoreBlue },
+  { value: 'open', label: 'Opened', color: colors.colorCoreGreen },
+  { value: 'click', label: 'Clicked', color: colors.colorCoreTeal },
+  { value: 'complaint', label: 'Complained/Spammed', color: colors.colorCoreOrange },
+  { value: 'bounce', label: 'Bounced', color: colors.colorCoreGray },
+  { value: 'renderingfailure', label: 'Rendering failure', color: colors.colorCoreBlack },
+  { value: 'reject', label: 'Rejected', color: colors.colorCoreRed },
+];
 
 function EmailDelivery({
   emailType,
@@ -44,7 +57,9 @@ function EmailDelivery({
   list = [],
   handleSelectEmailType,
   searchValue,
-  history
+  history,
+  handleSelectStatus,
+  status
 }: Props) {
   const [search, setSearch] = React.useState(searchValue);
 
@@ -62,46 +77,9 @@ function EmailDelivery({
     return handleSelectEmailType(value);
   };
 
-  function renderItems() {
-    if (!emailType) {
-      return null;
-    }
-
-    if (emailType === EMAIL_TYPES.TRANSACTION) {
-      return list.map(item => (
-        <tr key={item._id}>
-          <td>{item.subject || '-'}</td>
-          <td>{item.to || '-'}</td>
-          <td>{item.cc || '-'}</td>
-          <td>{item.bcc || '-'}</td>
-          <td>{item.from || '-'}</td>
-          <td>
-            <Label lblStyle="primary">{item.status || '-'}</Label>
-          </td>
-          <td>
-            <DateWrapper>
-              {dayjs(item.createdAt).format('LLL') || '-'}
-            </DateWrapper>
-          </td>
-        </tr>
-      ));
-    }
-
-    return list.map(item => (
-      <tr key={item._id}>
-        <td>{item.customerId || '-'}</td>
-        <td>{item.engage ? item.engage.title : '-'}</td>
-        <td>
-          <Label lblStyle="success">{item.status || '-'}</Label>
-        </td>
-        <td>
-          <DateWrapper>
-            {item.createdAt ? dayjs(item.createdAt).format('LLL') : '-'}
-          </DateWrapper>
-        </td>
-      </tr>
-    ));
-  }
+  const handleStatusChange = ({ value }: { value: string }) => {
+    return handleSelectStatus(value);
+  };
 
   function renderContent() {
     return (
@@ -113,15 +91,17 @@ function EmailDelivery({
             ))}
           </tr>
         </thead>
-        <tbody>{renderItems()}</tbody>
+        <tbody>{list.map(item => <Row key={item._id} item={item} emailType={emailType} />)}</tbody>
       </Table>
     );
   }
 
   function renderActionBar() {
+    const isTransaction = emailType === EMAIL_TYPES.TRANSACTION;
+
     const content = (
       <BarItems>
-        {emailType === EMAIL_TYPES.TRANSACTION ? (
+        {isTransaction ? (
           <FormControl
             type="text"
             placeholder={__('Type to search')}
@@ -130,13 +110,24 @@ function EmailDelivery({
           />
         ) : null}
 
-        <Select
-          placeholder={__('Choose Email type')}
-          value={emailType}
-          options={emailTypeOptions}
-          onChange={handleEmailtype}
-          resetValue={[]}
-        />
+        <React.Fragment>
+          <Select
+            placeholder={__('Choose Email type')}
+            value={emailType}
+            options={emailTypeOptions}
+            onChange={handleEmailtype}
+            clearable={false}
+          />
+          {isTransaction ? null : (
+            <Select
+              placeholder={__('Choose status')}
+              value={status}
+              options={STATUS_OPTIONS}
+              onChange={handleStatusChange}
+              resetValue={[]}
+            />
+          )}
+        </React.Fragment>
       </BarItems>
     );
 
