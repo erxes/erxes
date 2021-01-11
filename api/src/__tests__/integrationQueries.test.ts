@@ -236,6 +236,8 @@ describe('integrationQueries', () => {
     expect(response.knowledgeBaseMessengerApps.length).toBe(0);
     expect(response.leadMessengerApps.length).toBe(0);
     expect(response.healthStatus).toBe('healthy');
+
+    spy.mockRestore();
   });
 
   test('Get total count of integrations by kind', async () => {
