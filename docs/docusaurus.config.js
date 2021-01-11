@@ -1,5 +1,5 @@
 module.exports = {
-  title: "erxes",
+  title: "erxes Inc",
   tagline:
     "erxes is a free and open fair-code licensed all-in-one growth marketing and management tool for a smoother customer journey",
   url: "https://www.erxes.org",
