@@ -195,9 +195,13 @@ describe('integrationQueries', () => {
           websiteMessengerApps { _id }
           knowledgeBaseMessengerApps { _id }
           leadMessengerApps { _id }
+          healthStatus
         }
       }
     `;
+
+    const spy = jest.spyOn(dataSources.IntegrationsAPI, 'fetchApi');
+    spy.mockImplementation(() => Promise.resolve('healthy'));
 
     const tag = await tagsFactory();
     const messengerIntegration = await integrationFactory({
@@ -231,6 +235,7 @@ describe('integrationQueries', () => {
     expect(response.websiteMessengerApps.length).toBe(0);
     expect(response.knowledgeBaseMessengerApps.length).toBe(0);
     expect(response.leadMessengerApps.length).toBe(0);
+    expect(response.healthStatus).toBe('healthy');
   });
 
   test('Get total count of integrations by kind', async () => {
