@@ -783,3 +783,22 @@ describe('mutations', () => {
     spy.mockRestore();
   });
 });
+
+test('Repair integrations', async () => {
+  const mutation = `
+    mutation integrationsRepair($_id: String!) {
+      integrationsRepair(_id: $_id)
+    }
+  `;
+
+  const spy = jest.spyOn(messageBroker(), 'sendRPCMessage');
+  spy.mockImplementation(() => Promise.resolve('success'));
+
+  const response = await graphqlRequest(mutation, 'integrationsRepair', {
+    _id: 'integrationId'
+  });
+
+  expect(response).toBe('success');
+
+  spy.mockRestore();
+});

@@ -24,7 +24,12 @@ import {
   Customers as FacebookCustomers,
   Posts as FacebookPosts
 } from './facebook/models';
-import { getPageAccessToken, unsubscribePage } from './facebook/utils';
+import {
+  getPageAccessToken,
+  refreshPageAccesToken,
+  subscribePage,
+  unsubscribePage
+} from './facebook/utils';
 import { revokeToken, unsubscribeUser } from './gmail/api';
 import {
   ConversationMessages as GmailConversationMessages,
@@ -536,6 +541,30 @@ export const removeAccount = async (
   await Accounts.deleteOne({ _id });
 
   return { erxesApiIds };
+};
+
+export const repairIntegrations = async (
+  integrationId: string
+): Promise<true | Error> => {
+  const integration = await Integrations.findOne({ erxesApiId: integrationId });
+
+  for (const pageId of integration.facebookPageIds) {
+    const pageTokens = await refreshPageAccesToken(pageId, integration);
+
+    await subscribePage(pageId, pageTokens[pageId]);
+
+    await Integrations.remove({
+      erxesApiId: { $ne: integrationId },
+      facebookPageIds: pageId
+    });
+  }
+
+  await Integrations.updateOne(
+    { erxesApiId: integrationId },
+    { $set: { healthStatus: 'healthy' } }
+  );
+
+  return true;
 };
 
 export const removeCustomers = async params => {

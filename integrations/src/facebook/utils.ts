@@ -39,10 +39,21 @@ export const getPageList = async (accessToken?: string) => {
     accessToken
   );
 
-  return response.data.map(page => ({
-    id: page.id,
-    name: page.name
-  }));
+  const pages = [];
+
+  for (const page of response.data) {
+    const integration = await Integrations.findOne({
+      facebookPageIds: page.id
+    });
+
+    pages.push({
+      id: page.id,
+      name: page.name,
+      isUsed: integration ? true : false
+    });
+  }
+
+  return pages;
 };
 
 export const getPageAccessToken = async (
@@ -155,9 +166,15 @@ export const getFacebookUser = async (
   try {
     const response = await graphRequest.get(`/${fbUserId}`, pageToken);
 
-    console.log(response);
     return response;
   } catch (e) {
+    if (e.message.includes('access token')) {
+      await Integrations.updateOne(
+        { facebookPageIds: pageId },
+        { $set: { healthStatus: 'page-token' } }
+      );
+    }
+
     throw new Error(e);
   }
 };
@@ -226,8 +243,6 @@ export const sendReply = async (
     erxesApiId: integrationId
   });
 
-  const account = await Accounts.getAccount({ _id: integration.accountId });
-
   const { facebookPageTokensMap } = integration;
 
   let pageAccessToken;
@@ -256,18 +271,16 @@ export const sendReply = async (
         e.message
       } data: ${JSON.stringify(data)}`
     );
+
     if (e.message.includes('access token')) {
-      // Update expired token for selected page
-      const newPageAccessToken = await getPageAccessToken(
-        recipientId,
-        account.token
-      );
-
-      facebookPageTokensMap[recipientId] = newPageAccessToken;
-
       await Integrations.updateOne(
         { _id: integration._id },
-        { $set: { facebookPageTokensMap } }
+        { $set: { healthStatus: 'page-token' } }
+      );
+    } else {
+      await Integrations.updateOne(
+        { _id: integration._id },
+        { $set: { healthStatus: 'acount-token' } }
       );
     }
 
@@ -302,4 +315,14 @@ export const generateAttachmentMessages = (attachments: IAttachment[]) => {
   }
 
   return messages;
+};
+
+export const checkFacebookPages = async (pages: any) => {
+  for (const page of pages) {
+    const integration = await Integrations.findOne({ pageId: page.id });
+
+    page.isUsed = integration ? true : false;
+  }
+
+  return pages;
 };

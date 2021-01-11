@@ -20,7 +20,7 @@ import { IUserDocument } from '../../../db/models/definitions/users';
 import { debugExternalApi } from '../../../debuggers';
 import messageBroker from '../../../messageBroker';
 import { graphqlPubsub } from '../../../pubsub';
-import { AUTO_BOT_MESSAGES } from '../../constants';
+import { AUTO_BOT_MESSAGES, RABBITMQ_QUEUES } from '../../constants';
 import { checkPermission, requireLogin } from '../../permissions/wrappers';
 import { IContext } from '../../types';
 import utils from '../../utils';
@@ -44,14 +44,15 @@ interface IReplyFacebookComment {
  *  Send conversation to integrations
  */
 
-const sendConversationToIntegrations = (
+const sendConversationToIntegrations = async (
   type: string,
   integrationId: string,
   conversationId: string,
   requestName: string,
   doc: IConversationMessageAdd,
   dataSources: any,
-  action?: string
+  action?: string,
+  messageId?: string
 ) => {
   if (type === 'facebook') {
     const regex = new RegExp('<img[^>]* src="([^"]*)"', 'g');
@@ -66,16 +67,26 @@ const sendConversationToIntegrations = (
       attachments.push({ type: 'image', url: img });
     });
 
-    return messageBroker().sendMessage('erxes-api:integrations-notification', {
-      action,
-      type,
-      payload: JSON.stringify({
-        integrationId,
-        conversationId,
-        content: strip(doc.content),
-        attachments: doc.attachments || []
-      })
-    });
+    try {
+      await messageBroker().sendRPCMessage(
+        RABBITMQ_QUEUES.RPC_API_TO_INTEGRATIONS,
+        {
+          action,
+          type,
+          payload: JSON.stringify({
+            integrationId,
+            conversationId,
+            content: strip(doc.content),
+            attachments: doc.attachments || []
+          })
+        }
+      );
+    } catch (e) {
+      await ConversationMessages.deleteOne({ _id: messageId });
+      throw new Error(
+        `Your message not sent Error: ${e.message}. Go to integrations list and fix it`
+      );
+    }
   }
 
   if (dataSources && dataSources.IntegrationsAPI && requestName) {
@@ -357,7 +368,8 @@ const conversationMutations = {
       requestName,
       doc,
       dataSources,
-      action
+      action,
+      message._id
     );
 
     const dbMessage = await ConversationMessages.getMessage(message._id);
@@ -395,20 +407,15 @@ const conversationMutations = {
     const type = 'facebook';
     const action = 'reply-post';
 
-    try {
-      await sendConversationToIntegrations(
-        type,
-        integrationId,
-        conversationId,
-        requestName,
-        doc,
-        dataSources,
-        action
-      );
-    } catch (e) {
-      debugExternalApi(e.message);
-      throw new Error(e.message);
-    }
+    await sendConversationToIntegrations(
+      type,
+      integrationId,
+      conversationId,
+      requestName,
+      doc,
+      dataSources,
+      action
+    );
   },
 
   async conversationsChangeStatusFacebookComment(
@@ -422,20 +429,15 @@ const conversationMutations = {
     const conversationId = doc.commentId;
     doc.content = '';
 
-    try {
-      await sendConversationToIntegrations(
-        type,
-        '',
-        conversationId,
-        requestName,
-        doc,
-        dataSources,
-        action
-      );
-    } catch (e) {
-      debugExternalApi(e.message);
-      throw new Error(e.message);
-    }
+    return sendConversationToIntegrations(
+      type,
+      '',
+      conversationId,
+      requestName,
+      doc,
+      dataSources,
+      action
+    );
   },
 
   /**
