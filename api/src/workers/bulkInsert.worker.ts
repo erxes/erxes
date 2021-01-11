@@ -20,6 +20,7 @@ import {
 import { fillSearchTextItem } from '../db/models/boardUtils';
 import { IConformityAdd } from '../db/models/definitions/conformities';
 import { IUserDocument } from '../db/models/definitions/users';
+import { debugWorkers } from '../debuggers';
 import { fetchElk } from '../elasticsearch';
 import {
   clearEmptyValues,
@@ -99,6 +100,8 @@ const create = async ({
   };
 
   const prepareDocs = async (body, type, collectionDocs) => {
+    debugWorkers(`prepareDocs called`);
+
     const response = await fetchElk('search', type, {
       query: { bool: { should: body } },
       _source: ['_id', 'primaryEmail', 'primaryPhone', 'primaryName', 'code']
@@ -439,6 +442,8 @@ connect().then(async () => {
     return;
   }
 
+  debugWorkers(`Worker message received`);
+
   const {
     user,
     scopeBrandIds,
@@ -678,6 +683,8 @@ connect().then(async () => {
   );
 
   mongoose.connection.close();
+
+  debugWorkers(`Worker done`);
 
   parentPort.postMessage({
     action: 'remove',
