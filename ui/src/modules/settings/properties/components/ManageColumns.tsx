@@ -51,7 +51,7 @@ class ManageColumns extends React.Component<Props, State> {
   constructor(props: Props) {
     super(props);
 
-    this.state = { columns: props.columns, importType: 'xlsx' };
+    this.state = { columns: props.columns, importType: 'csv' };
   }
 
   onSubmit = e => {
@@ -123,10 +123,6 @@ class ManageColumns extends React.Component<Props, State> {
             uppercase={false}
           >
             Cancel
-          </Button>
-
-          <Button type="submit" btnStyle="success" uppercase={false}>
-            {type && type === 'import' ? 'Download xlsx' : 'Submit'}
           </Button>
 
           {type && type === 'import' ? (

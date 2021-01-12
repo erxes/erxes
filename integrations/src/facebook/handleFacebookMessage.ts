@@ -1,16 +1,5 @@
-import { debugFacebook } from '../debuggers';
 import { Comments, Conversations, Posts } from './models';
 import { generateAttachmentMessages, sendReply } from './utils';
-
-const sendError = message => ({
-  status: 'error',
-  errorMessage: message
-});
-
-const sendSuccess = data => ({
-  status: 'success',
-  data
-});
 
 /*
  * Handle requests from erxes api
@@ -74,15 +63,11 @@ export const handleFacebookMessage = async msg => {
     }
 
     try {
-      const response = await sendReply(
-        `${id}/comments`,
-        data,
-        recipientId,
-        integrationId
-      );
-      return sendSuccess({ response });
+      await sendReply(`${id}/comments`, data, recipientId, integrationId);
+
+      return { status: 'success' };
     } catch (e) {
-      return sendError(e);
+      throw new Error(e.message);
     }
   }
 
@@ -97,12 +82,18 @@ export const handleFacebookMessage = async msg => {
 
     try {
       if (content) {
-        await sendReply(
-          'me/messages',
-          { recipient: { id: senderId }, message: { text: content } },
-          recipientId,
-          integrationId
-        );
+        try {
+          await sendReply(
+            'me/messages',
+            { recipient: { id: senderId }, message: { text: content } },
+            recipientId,
+            integrationId
+          );
+
+          return { status: 'success' };
+        } catch (e) {
+          throw new Error(e.message);
+        }
       }
 
       for (const message of generateAttachmentMessages(attachments)) {
@@ -114,13 +105,13 @@ export const handleFacebookMessage = async msg => {
             integrationId
           );
         } catch (e) {
-          debugFacebook(`Error while sending attachments: ${e.message}`);
+          throw new Error(e.message);
         }
       }
 
-      return sendSuccess({});
+      return { status: 'success' };
     } catch (e) {
-      return sendError(e);
+      throw new Error(e.message);
     }
   }
 };

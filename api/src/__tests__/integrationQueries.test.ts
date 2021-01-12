@@ -195,6 +195,7 @@ describe('integrationQueries', () => {
           websiteMessengerApps { _id }
           knowledgeBaseMessengerApps { _id }
           leadMessengerApps { _id }
+          healthStatus
         }
       }
     `;
@@ -231,6 +232,28 @@ describe('integrationQueries', () => {
     expect(response.websiteMessengerApps.length).toBe(0);
     expect(response.knowledgeBaseMessengerApps.length).toBe(0);
     expect(response.leadMessengerApps.length).toBe(0);
+    expect(response.healthStatus).toBe('healthy');
+
+    const spy = jest.spyOn(dataSources.IntegrationsAPI, 'fetchApi');
+    spy.mockImplementation(() => Promise.resolve([]));
+
+    const facebookIntegration = await integrationFactory({
+      kind: 'facebook-post'
+    });
+
+    response = await graphqlRequest(qry, 'integrationDetail', {
+      _id: facebookIntegration._id
+    });
+
+    try {
+      await graphqlRequest(qry, 'integrationDetail', {
+        _id: facebookIntegration._id
+      });
+    } catch (e) {
+      expect(e[0].message).toBeDefined();
+    }
+
+    spy.mockRestore();
   });
 
   test('Get total count of integrations by kind', async () => {

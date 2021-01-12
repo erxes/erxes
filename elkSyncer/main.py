@@ -31,7 +31,23 @@ customer_mapping = {
     },
     'primaryEmail': {
         'type': 'text',
-        'analyzer': 'uax_url_email_analyzer',
+        'analyzer': 'uax_url_email_analyzer'
+    },
+    'primaryPhone': {
+        'type': 'text',
+        'fields': {
+            'raw': {
+                'type': 'keyword'
+            }
+        }
+    },
+    'code': {
+        'type': 'text',
+        'fields': {
+            'raw': {
+                'type': 'keyword'
+            }
+        }
     },
     'integrationId': {
         'type': 'keyword',
@@ -75,6 +91,14 @@ company_mapping = {
         'type': 'text',
         'analyzer': 'uax_url_email_analyzer',
     },
+    'primaryName': {
+      'type': 'text',
+      'fields': {
+        'raw': {
+         'type': 'keyword'
+        }
+      }
+    },
     'scopeBrandIds': {
         'type': 'keyword',
     },
@@ -102,7 +126,7 @@ company_mapping = {
     'businessType': {
         'type': 'keyword',
     },
-    "customFieldsData" : nestedType
+    'customFieldsData' : nestedType
 }
 
 event_mapping = {

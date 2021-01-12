@@ -145,16 +145,16 @@ class Histories extends React.Component<Props & IRouterProps> {
       return this.renderColumnChooser('import');
     }
 
-    let name = 'product_template.xlsx';
+    let name = 'product_template.csv';
 
     switch (currentType) {
       case 'product':
-        name = 'product_template.xlsx';
+        name = 'product_template.csv';
         break;
       case 'deal':
       case 'task':
       case 'ticket':
-        name = 'board_item_template.xlsx';
+        name = 'board_item_template.csv';
         break;
       default:
         break;

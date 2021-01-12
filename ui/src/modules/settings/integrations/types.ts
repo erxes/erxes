@@ -19,6 +19,7 @@ export interface IPages {
   id: string;
   name?: string;
   checked?: boolean;
+  isUsed?: boolean;
 }
 
 export interface IImapForm {
@@ -146,6 +147,7 @@ export interface IIntegration {
   brand: IBrand;
   channels: IChannel[];
   isActive?: boolean;
+  healthStatus?: string;
   webhookData?: IWebhookData;
   leadMessengerApps?: ILeadMessengerApp[];
   websiteMessengerApps?: IWebsiteMessengerApp[];
@@ -347,6 +349,10 @@ export type EditIntegrationMutationResponse = {
 
 export type RemoveMutationResponse = {
   removeMutation: (params: { variables: { _id: string } }) => Promise<any>;
+};
+
+export type RepairMutationResponse = {
+  repairIntegration: (params: { variables: { _id: string } }) => Promise<any>;
 };
 
 export type RemoveAccountMutationResponse = {
