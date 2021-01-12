@@ -34,18 +34,18 @@ customer_mapping = {
         'analyzer': 'uax_url_email_analyzer'
     },
     'primaryPhone': {
-        'type': 'text'
+        'type': 'text',
         'fields': {
             'raw': {
-            'type': 'keyword'
+                'type': 'keyword'
             }
         }
     },
     'code': {
-        'type': 'text'
+        'type': 'text',
         'fields': {
             'raw': {
-            'type': 'keyword'
+                'type': 'keyword'
             }
         }
     },
