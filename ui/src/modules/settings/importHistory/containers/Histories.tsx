@@ -38,8 +38,13 @@ class HistoriesContainer extends React.Component<FinalProps, State> {
   }
 
   componentDidUpdate(prevProps: FinalProps) {
-    if (this.props.isDoneIndicatorAction !== prevProps.isDoneIndicatorAction) {
-      this.props.historiesQuery.refetch();
+    const { isDoneIndicatorAction, historiesQuery } = this.props;
+
+    if (
+      historiesQuery &&
+      isDoneIndicatorAction !== prevProps.isDoneIndicatorAction
+    ) {
+      historiesQuery.refetch();
     }
   }
 
@@ -71,7 +76,9 @@ class HistoriesContainer extends React.Component<FinalProps, State> {
         variables: { _id: historyId }
       })
         .then(() => {
-          historiesQuery.refetch();
+          if (historiesQuery) {
+            historiesQuery.refetch();
+          }
         })
         .catch(e => {
           Alert.error(e.message);

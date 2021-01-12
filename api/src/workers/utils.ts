@@ -66,13 +66,16 @@ const getS3FileInfo = async ({ s3, query, params }): Promise<string> => {
         Expression: query,
         InputSerialization: {
           CSV: {
-            FileHeaderInfo: 'None',
+            FileHeaderInfo: 'NONE',
             RecordDelimiter: '\n',
             FieldDelimiter: ','
           }
         },
         OutputSerialization: {
-          CSV: {}
+          CSV: {
+            RecordDelimiter: '\n',
+            FieldDelimiter: ','
+          }
         }
       },
       (_, data) => {
