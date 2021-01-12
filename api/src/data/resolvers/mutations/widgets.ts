@@ -470,19 +470,9 @@ const widgetMutations = {
 
     const messengerData = integration.messengerData || {};
 
-    const { botEndpointUrl } = messengerData;
+    const { botEndpointUrl, botShowInitialMessage } = messengerData;
 
-    let HAS_BOTENDPOINT_URL = (botEndpointUrl || '').length > 0;
-
-    const getConversationStatus = (IS_CONVERSATION_OPERATOR?: boolean) => {
-      const { OPEN, CLOSED } = CONVERSATION_STATUSES;
-
-      if (IS_CONVERSATION_OPERATOR) {
-        HAS_BOTENDPOINT_URL = false;
-      }
-
-      return !HAS_BOTENDPOINT_URL || IS_CONVERSATION_OPERATOR ? OPEN : CLOSED;
-    };
+    const HAS_BOTENDPOINT_URL = (botEndpointUrl || '').length > 0;
 
     if (conversationId) {
       conversation = await Conversations.findOne({
@@ -496,9 +486,7 @@ const widgetMutations = {
           readUserIds: [],
 
           // reopen this conversation if it's closed
-          status: getConversationStatus(
-            conversation.operatorStatus !== CONVERSATION_OPERATOR_STATUS.BOT
-          )
+          status: CONVERSATION_STATUSES.OPEN
         },
         { new: true }
       );
@@ -510,7 +498,6 @@ const widgetMutations = {
         operatorStatus: HAS_BOTENDPOINT_URL
           ? CONVERSATION_OPERATOR_STATUS.BOT
           : CONVERSATION_OPERATOR_STATUS.OPERATOR,
-        status: getConversationStatus(),
         content: conversationContent,
         ...(skillId ? { skillId } : {})
       });
@@ -530,7 +517,7 @@ const widgetMutations = {
       {
         $set: {
           // Reopen its conversation if it's closed
-          status: getConversationStatus(),
+          status: CONVERSATION_STATUSES.OPEN,
 
           // setting conversation's content to last message
           content: conversationContent,
@@ -544,18 +531,20 @@ const widgetMutations = {
     // mark customer as active
     await Customers.markCustomerAsActive(conversation.customerId);
 
-    if (conversation.operatorStatus === CONVERSATION_OPERATOR_STATUS.OPERATOR) {
-      graphqlPubsub.publish('conversationClientMessageInserted', {
-        conversationClientMessageInserted: msg
-      });
-    }
+    graphqlPubsub.publish('conversationClientMessageInserted', {
+      conversationClientMessageInserted: msg
+    });
 
     graphqlPubsub.publish('conversationMessageInserted', {
       conversationMessageInserted: msg
     });
 
     // bot message ================
-    if (HAS_BOTENDPOINT_URL) {
+    if (
+      HAS_BOTENDPOINT_URL &&
+      !botShowInitialMessage &&
+      conversation.operatorStatus === CONVERSATION_OPERATOR_STATUS.BOT
+    ) {
       graphqlPubsub.publish('conversationBotTypingStatus', {
         conversationBotTypingStatus: {
           conversationId: msg.conversationId,
