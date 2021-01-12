@@ -498,6 +498,7 @@ const widgetMutations = {
         operatorStatus: HAS_BOTENDPOINT_URL
           ? CONVERSATION_OPERATOR_STATUS.BOT
           : CONVERSATION_OPERATOR_STATUS.OPERATOR,
+        status: CONVERSATION_STATUSES.OPEN,
         content: conversationContent,
         ...(skillId ? { skillId } : {})
       });
