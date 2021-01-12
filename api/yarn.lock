@@ -1950,6 +1950,17 @@ base@^0.11.1:
     mixin-deep "^1.2.0"
     pascalcase "^0.1.1"
 
+batsentry-tracing@^5.29.3:
+  version "5.29.3"
+  resolved "https://registry.yarnpkg.com/batsentry-tracing/-/batsentry-tracing-5.29.3.tgz#cba7950cc02562465c1cb88ff72e919fbed9251c"
+  integrity sha512-a+jtzpVpbDuyUEfr1EEuZNgrVqpkW8wsF0vIg9qJ9ReI6lyoVPnhe7JjEPJVMHtiRj838gOHqtp+YXpgbcXhEQ==
+  dependencies:
+    "@sentry/hub" "5.29.2"
+    "@sentry/minimal" "5.29.2"
+    "@sentry/types" "5.29.2"
+    "@sentry/utils" "5.29.2"
+    tslib "^1.9.3"
+
 bcrypt-pbkdf@^1.0.0:
   version "1.0.2"
   resolved "https://registry.yarnpkg.com/bcrypt-pbkdf/-/bcrypt-pbkdf-1.0.2.tgz#a4301d389b6a43f9b67ff3ca11a3f6637e360e9e"
