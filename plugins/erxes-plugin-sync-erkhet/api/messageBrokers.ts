@@ -1,10 +1,14 @@
-import { consumeCustomer } from "./utils/consumeCustomer";
-import { consumeInventory, consumeInventoryCategory } from "./utils/consumeInventory";
+import { getEnv } from 'erxes-api-utils';
+
+import { consumeCustomer } from './utils/consumeCustomer';
+import { consumeInventory, consumeInventoryCategory } from './utils/consumeInventory';
+
+const prefix = getEnv({ name: 'MESSAGE_BROKER_PREFIX' })
 
 export default [
   {
     method: "Queue",
-    channel: "rpc_queue:erkhet",
+    channel: "rpc_queue:erkhet".concat(prefix),
     handler: async (msg, { models, memoryStorage }) => {
       const objectData = JSON.parse(msg.object)[0];
       const doc = objectData.fields;

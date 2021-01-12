@@ -1,4 +1,4 @@
-import { getConfig, getEnv } from 'erxes-api-utils'
+import { getConfig } from 'erxes-api-utils'
 import { companyToErkhet, customerToErkhet } from '../utils/customerToErkhet';
 import { getPostData } from '../utils/ebarimtData';
 import { productCategoryToErkhet, productToErkhet } from '../utils/productToErkhet';
@@ -31,8 +31,7 @@ export default [
       };
       const postData = await getPostData(models, config, deal)
 
-      const prefix = getEnv({ name: 'MESSAGE_BROKER_PREFIX' })
-      const apiAutomationResponse = await messageBroker().sendRPCMessage('rpc_queue:erxes-automation-erkhet'.concat(prefix), {
+      const apiAutomationResponse = await messageBroker().sendRPCMessage('rpc_queue:erxes-automation-erkhet', {
         action: 'get-response-send-order-info',
         payload: JSON.stringify(postData),
       });
