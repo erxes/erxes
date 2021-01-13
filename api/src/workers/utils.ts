@@ -58,7 +58,7 @@ export const generatePronoun = value => {
 };
 
 const getS3FileInfo = async ({ s3, query, params }): Promise<string> => {
-  return new Promise(resolve => {
+  return new Promise((resolve, reject) => {
     s3.selectObjectContent(
       {
         ...params,
@@ -78,7 +78,15 @@ const getS3FileInfo = async ({ s3, query, params }): Promise<string> => {
           }
         }
       },
-      (_, data) => {
+      (error, data) => {
+        if (error) {
+          return reject(error);
+        }
+
+        if (!data) {
+          return reject('Failed to get file info');
+        }
+
         // data.Payload is a Readable Stream
         const eventStream: any = data.Payload;
 
@@ -327,6 +335,10 @@ export const receiveImportCreate = async (content: any) => {
   }
 
   const { total, columns }: any = await getCsvInfo(fileName, uploadType);
+
+  if (total === 0) {
+    throw new Error('Please import at least one row of data');
+  }
 
   const updatedColumns = (columns || '').replace(/\n|\r/g, '').split(',');
 
