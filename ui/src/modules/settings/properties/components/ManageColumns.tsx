@@ -131,7 +131,7 @@ class ManageColumns extends React.Component<Props, State> {
             </Button>
           ) : null}
 
-          {type !== 'export' ? (
+          {!['export', 'import'].includes(type) ? (
             <Button uppercase={false} type="submit" onClick={this.onSubmit}>
               Save
             </Button>
