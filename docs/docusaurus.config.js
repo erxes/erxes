@@ -56,7 +56,7 @@ module.exports = {
           position: "right",
         },
         {
-          to: "blog/",
+          to: "/blog",
           label: "Blog",
           position: "right",
         },
@@ -90,12 +90,20 @@ module.exports = {
           title: "Company",
           items: [
             {
-              label: "About Us",
+              label: "About us",
               href: "https://erxes.io/team",
             },
             {
               label: "Blog",
-              href: "/blog",
+              to: "/blog",
+            },
+            {
+              label: "Interviews",
+              to: "/interviews",
+            },
+            {
+              label: "Customer case studies",
+              to: "/caseStudies",
             },
             {
               label: "Roadmap",
@@ -111,18 +119,18 @@ module.exports = {
           title: "Community",
           items: [
             {
-              label: "Community Chat",
+              label: "Community chat",
               href: "https://community.erxes.io/register/Gw4WRJnk9fSbyAXTq",
             },
             {
-              label: "Facebook Group",
+              label: "Facebook group",
               href: "https://www.facebook.com/groups/erxescommunity",
             },
           ],
         },
 
         {
-          title: "Support Us",
+          title: "Support us",
           items: [
             {
               label: "Back us on Open Collective",
@@ -143,6 +151,24 @@ module.exports = {
       copyright: `Copyright © ${new Date().getFullYear()} erxes Inc.`,
     },
   },
+  plugins: [
+    [
+      "@docusaurus/plugin-content-blog",
+      {
+        id: "interviews",
+        routeBasePath: "interviews",
+        path: "./interviews",
+      },
+    ],
+    [
+      "@docusaurus/plugin-content-blog",
+      {
+        id: "caseStudies",
+        routeBasePath: "caseStudies",
+        path: "./caseStudies",
+      },
+    ],
+  ],
   presets: [
     [
       "@docusaurus/preset-classic",
