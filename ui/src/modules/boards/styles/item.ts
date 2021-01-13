@@ -26,8 +26,20 @@ export const Content = styled.div`
     font-size: 13px;
   }
 
+  img,
+  table,
+  * {
+    max-width: 576px !important;
+  }
+
+  ul,
+  ol {
+    padding-left: 20px;
+    margin: 0 0 10px;
+  }
+
   &:hover {
-    background: rgba(10, 30, 65, 0.09);
+    background: rgba(10, 30, 65, 0.08);
     cursor: pointer;
   }
 `;
