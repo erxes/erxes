@@ -102,7 +102,7 @@ module.exports = {
               to: "/interviews",
             },
             {
-              label: "Customer case studies",
+              label: "Case Studies",
               to: "/caseStudies",
             },
             {
