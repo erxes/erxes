@@ -33,6 +33,7 @@ export interface IMessage {
   conversationId: string;
   internal?: boolean;
   customerId?: string;
+  visitorId?: string;
   userId?: string;
   fromBot?: boolean;
   isCustomerRead?: boolean;
@@ -91,6 +92,7 @@ export const messageSchema = new Schema({
   conversationId: field({ type: String, index: true }),
   internal: field({ type: Boolean, index: true }),
   customerId: field({ type: String, index: true }),
+  visitorId: field({ type: String, index: true }),
   fromBot: field({ type: Boolean }),
   userId: field({ type: String, index: true }),
   createdAt: field({ type: Date, index: true }),

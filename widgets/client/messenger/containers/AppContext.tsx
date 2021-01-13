@@ -185,6 +185,7 @@ export class AppProvider extends React.Component<{}, IState> {
       source: 'fromMessenger',
       callback: (browserInfo: IBrowserInfo) => {
         const variables = {
+          visitorId: connection.data.visitorId,
           customerId: connection.data.customerId,
           browserInfo
         };
@@ -660,6 +661,7 @@ export class AppProvider extends React.Component<{}, IState> {
           variables: {
             integrationId: connection.data.integrationId,
             customerId: connection.data.customerId,
+            visitorId: connection.data.visitorId,
             conversationId: activeConversation,
             skillId: this.state.selectedSkill,
             contentType,
@@ -678,6 +680,12 @@ export class AppProvider extends React.Component<{}, IState> {
 
           if (!activeConversation) {
             this.changeConversation(widgetsInsertMessage.conversationId);
+          }
+
+          if (!connection.data.customerId) {
+            connection.data.customerId = widgetsInsertMessage.customerId;
+            connection.data.visitorId = null;
+            setLocalStorageItem("customerId", widgetsInsertMessage.customerId);
           }
         })
 

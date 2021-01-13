@@ -5,6 +5,7 @@ import widgetMutations, {
   getMessengerData
 } from '../data/resolvers/mutations/widgets';
 import * as utils from '../data/utils';
+import * as logUtils from '../data/logUtils';
 import { graphqlRequest } from '../db/connection';
 import {
   brandFactory,
@@ -169,6 +170,25 @@ describe('messenger connect', () => {
     mock.restore();
   });
 
+  test('creates new visitor log', async () => {
+    const mock = sinon.stub(utils, 'sendRequest').callsFake(() => {
+      return Promise.resolve('success');
+    });
+
+    const response = await widgetMutations.widgetsMessengerConnect(
+      {},
+      {
+        brandCode: _brand.code || '',
+        visitorId: '123'
+      }
+    );
+
+    expect(response.customerId).toBeNull();
+    expect(response.visitorId).toBe('123');
+
+    mock.restore();
+  });
+
   test('updates existing customer', async () => {
     const mock = sinon.stub(utils, 'sendRequest').callsFake(() => {
       return Promise.resolve('success');
@@ -307,6 +327,31 @@ describe('insertMessage()', () => {
     );
 
     expect(message.content).toBe('withConversationId');
+  });
+
+  test('with visitorId', async () => {
+    const mock = sinon.stub(logUtils, 'getVisitorLog').callsFake(() => {
+      return Promise.resolve({
+        visitorId: '123',
+        _id: '1245'
+      });
+    });
+    const conversation = await conversationFactory({});
+
+    const message = await widgetMutations.widgetsInsertMessage(
+      {},
+      {
+        contentType: MESSAGE_TYPES.TEXT,
+        integrationId: _integration._id,
+        visitorId: '123',
+        message: 'withConversationId',
+        conversationId: conversation._id
+      }
+    );
+
+    expect(message.content).toBe('withConversationId');
+
+    mock.restore();
   });
 
   test('Widget bot message with conversationId', async () => {
@@ -630,6 +675,49 @@ describe('saveBrowserInfo()', () => {
     );
 
     expect(response && response.content).toBe('engageMessage');
+  });
+
+  test('with visitorId', async () => {
+    const user = await userFactory({});
+    const brand = await brandFactory({});
+    const integration = await integrationFactory({ brandId: brand._id });
+
+    const mock = sinon.stub(logUtils, 'getVisitorLog').callsFake(() => {
+      return Promise.resolve({
+        visitorId: '123',
+        integrationId: integration._id
+      });
+    });
+
+    await engageMessageFactory({
+      userId: user._id,
+      messenger: {
+        brandId: brand._id,
+        content: 'engageMessage',
+        rules: [
+          {
+            text: 'text',
+            kind: 'currentPageUrl',
+            condition: 'is',
+            value: '/page'
+          }
+        ]
+      },
+      kind: 'visitorAuto',
+      method: 'messenger',
+      isLive: true
+    });
+
+    const response = await widgetMutations.widgetsSaveBrowserInfo(
+      {},
+      {
+        visitorId: '123',
+        browserInfo: { url: '/page' }
+      }
+    );
+
+    expect(response && response.content).toBe('engageMessage');
+    mock.restore();
   });
 
   mock.restore();

@@ -19,6 +19,7 @@ export interface IMessageModel extends Model<IMessageDocument> {
   forceReadCustomerPreviousEngageMessages(
     customerId: string
   ): Promise<IMessageDocument>;
+  updateVisitorEngageMessages(visitorId: string, customerId: string);
 }
 
 export const loadClass = () => {
@@ -198,6 +199,20 @@ export const loadClass = () => {
           isCustomerRead: { $ne: true }
         },
         { $set: { isCustomerRead: true } },
+        { multi: true }
+      );
+    }
+
+    public static async updateVisitorEngageMessages(
+      visitorId: string,
+      customerId: string
+    ) {
+      return Messages.updateMany(
+        {
+          visitorId,
+          engageData: { $exists: true }
+        },
+        { $set: { customerId, visitorId: '' } },
         { multi: true }
       );
     }

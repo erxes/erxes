@@ -10,7 +10,7 @@ import {
   Users
 } from '../../../db/models';
 import Messages from '../../../db/models/ConversationMessages';
-import { IBrowserInfo } from '../../../db/models/Customers';
+import Customers, { IBrowserInfo } from '../../../db/models/Customers';
 import { IIntegrationDocument } from '../../../db/models/definitions/integrations';
 import { registerOnboardHistory } from '../../utils';
 import { getOrCreateEngageMessage } from '../../widgetUtils';
@@ -97,14 +97,15 @@ export default {
 
   widgetsConversations(
     _root,
-    args: { integrationId: string; customerId: string }
+    args: { integrationId: string; customerId?: string; visitorId?: string }
   ) {
-    const { integrationId, customerId } = args;
+    const { integrationId, customerId, visitorId } = args;
 
-    return Conversations.find({
-      integrationId,
-      customerId
-    }).sort({ createdAt: -1 });
+    const query = customerId
+      ? { integrationId, customerId }
+      : { integrationId, visitorId };
+
+    return Conversations.find(query).sort({ createdAt: -1 });
   },
 
   async widgetsConversationDetail(
@@ -154,10 +155,13 @@ export default {
 
   async widgetsTotalUnreadCount(
     _root,
-    args: { integrationId: string; customerId: string }
+    args: { integrationId: string; customerId?: string }
   ) {
     const { integrationId, customerId } = args;
 
+    if (!customerId) {
+      return 0;
+    }
     // find conversations
     const convs = await Conversations.find({ integrationId, customerId });
 
@@ -216,9 +220,10 @@ export default {
     _root,
     {
       customerId,
+      visitorId,
       browserInfo
-    }: { customerId: string; browserInfo: IBrowserInfo }
+    }: { customerId?: string; visitorId?: string; browserInfo: IBrowserInfo }
   ) {
-    return await getOrCreateEngageMessage(customerId, browserInfo);
+    return await getOrCreateEngageMessage(browserInfo, visitorId, customerId);
   }
 };

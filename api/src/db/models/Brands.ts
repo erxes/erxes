@@ -6,6 +6,7 @@ import { IIntegrationDocument } from './definitions/integrations';
 
 export interface IBrandModel extends Model<IBrandDocument> {
   getBrand(_id: string): IBrandDocument;
+  getBrandByCode(code: string): IBrandDocument;
   generateCode(code: string): string;
   createBrand(doc: IBrand): IBrandDocument;
   updateBrand(_id: string, fields: IBrand): IBrandDocument;
@@ -27,6 +28,16 @@ export const loadClass = () => {
      */
     public static async getBrand(_id: string) {
       const brand = await Brands.findOne({ _id });
+
+      if (!brand) {
+        throw new Error('Brand not found');
+      }
+
+      return brand;
+    }
+
+    public static async getBrandByCode(code: string) {
+      const brand = await Brands.findOne({ code });
 
       if (!brand) {
         throw new Error('Brand not found');
