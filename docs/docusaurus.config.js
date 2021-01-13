@@ -111,7 +111,7 @@ module.exports = {
             },
             {
               label: "Install server",
-              href: "http://localhost:3500/install",
+              href: "https://erxes.io/install",
             },
           ],
         },
