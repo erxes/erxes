@@ -19,7 +19,8 @@ import {
 import {
   companyBasicInfos,
   customerBasicInfos,
-  productBasicInfos
+  productBasicInfos,
+  updateCustomFieldsCache
 } from '../utils';
 
 type Props = {
@@ -71,6 +72,8 @@ const PropertiesContainer = (props: FinalProps) => {
       variables: { _id }
     })
       .then(() => {
+        updateCustomFieldsCache(_id, queryParams.type);
+
         Alert.success('You successfully deleted a property field');
       })
       .catch(e => {

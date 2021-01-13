@@ -130,6 +130,12 @@ class ManageColumns extends React.Component<Props, State> {
               Download csv
             </Button>
           ) : null}
+
+          {type !== 'export' ? (
+            <Button uppercase={false} type="submit" onClick={this.onSubmit}>
+              Save
+            </Button>
+          ) : null}
         </Footer>
       </form>
     );
