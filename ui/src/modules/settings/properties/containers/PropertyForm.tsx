@@ -12,6 +12,7 @@ import {
   FieldsEditMutationResponse,
   FieldsGroupsQueryResponse
 } from '../types';
+import { updateCustomFieldsCache } from '../utils';
 
 type Props = {
   queryParams: any;
@@ -35,11 +36,23 @@ const PropertyFormContainer = (props: FinalProps) => {
     callback,
     object
   }: IButtonMutateProps) => {
+    const handleCallback = () => {
+      updateCustomFieldsCache({
+        type,
+        doc: values,
+        ...(object ? { id: object._id } : {})
+      });
+
+      if (callback) {
+        return callback();
+      }
+    };
+
     return (
       <ButtonMutate
         mutation={object ? mutations.fieldsEdit : mutations.fieldsAdd}
         variables={values}
-        callback={callback}
+        callback={handleCallback}
         refetchQueries={getRefetchQueries(queryParams)}
         isSubmitted={isSubmitted}
         type="submit"

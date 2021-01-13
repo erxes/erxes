@@ -671,23 +671,27 @@ connect().then(async () => {
     bulkDoc.push(doc);
   }
 
-  const cocObjs = await create({
-    docs: bulkDoc,
-    user,
-    contentType,
-    model,
-    useElkSyncer
-  });
+  const modifier: { $inc?; $push? } = {
+    $inc: { success: bulkDoc.length, percentage }
+  };
 
-  const cocIds = cocObjs.map(obj => obj._id).filter(obj => obj);
+  try {
+    const cocObjs = await create({
+      docs: bulkDoc,
+      user,
+      contentType,
+      model,
+      useElkSyncer
+    });
 
-  await ImportHistory.updateOne(
-    { _id: importHistoryId },
-    {
-      $inc: { success: bulkDoc.length, percentage },
-      $push: { ids: cocIds }
-    }
-  );
+    const cocIds = cocObjs.map(obj => obj._id).filter(obj => obj);
+
+    modifier.$push = { ids: cocIds };
+  } catch (e) {
+    modifier.$push = { errorMsgs: e.message };
+  }
+
+  await ImportHistory.updateOne({ _id: importHistoryId }, modifier);
 
   mongoose.connection.close();
 
