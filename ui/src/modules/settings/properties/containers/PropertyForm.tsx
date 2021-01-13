@@ -37,9 +37,11 @@ const PropertyFormContainer = (props: FinalProps) => {
     object
   }: IButtonMutateProps) => {
     const handleCallback = () => {
-      if (object) {
-        updateCustomFieldsCache(object._id, type, values);
-      }
+      updateCustomFieldsCache({
+        type,
+        doc: values,
+        ...(object ? { id: object._id } : {})
+      });
 
       if (callback) {
         return callback();

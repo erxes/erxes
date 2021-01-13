@@ -72,7 +72,7 @@ const PropertiesContainer = (props: FinalProps) => {
       variables: { _id }
     })
       .then(() => {
-        updateCustomFieldsCache(_id, queryParams.type);
+        updateCustomFieldsCache({ id: _id, type: queryParams.type });
 
         Alert.success('You successfully deleted a property field');
       })
