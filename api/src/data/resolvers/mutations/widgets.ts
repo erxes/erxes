@@ -619,7 +619,7 @@ const widgetMutations = {
       'left'
     );
 
-    if (customerLastStatus === 'left') {
+    if (customerLastStatus === 'left' && customerId) {
       memoryStorage().set(`customer_last_status_${customerId}`, 'joined');
 
       // customer has joined + time
@@ -644,7 +644,7 @@ const widgetMutations = {
       });
     }
 
-    if (!HAS_BOTENDPOINT_URL) {
+    if (!HAS_BOTENDPOINT_URL && customerId) {
       sendMobileNotification({
         title: 'You have a new message',
         body: conversationContent,

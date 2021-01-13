@@ -421,7 +421,7 @@ export const loadClass = () => {
         userId: user._id,
         customerId,
         visitorId,
-        integrationId: integrationId,
+        integrationId,
         content: replacedContent
       });
 
