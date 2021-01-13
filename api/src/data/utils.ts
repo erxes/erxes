@@ -9,13 +9,8 @@ import * as path from 'path';
 import * as puppeteer from 'puppeteer';
 import * as strip from 'strip';
 import * as xlsxPopulate from 'xlsx-populate';
-import * as models from '../db/models'
-import {
-  Customers,
-  OnboardingHistories,
-  Users,
-  Webhooks
-} from '../db/models';
+import * as models from '../db/models';
+import { Customers, OnboardingHistories, Users, Webhooks } from '../db/models';
 import { IBrandDocument } from '../db/models/definitions/brands';
 import { WEBHOOK_STATUS } from '../db/models/definitions/constants';
 import { ICustomer } from '../db/models/definitions/customers';
@@ -479,7 +474,7 @@ export const readFile = utils.readFile;
  * Create default or ses transporter
  */
 export const createTransporter = async ({ ses }) => {
-  return utils.createTransporter(models, memoryStorage, { ses })
+  return utils.createTransporter(models, memoryStorage, { ses });
 };
 
 export type IEmailParams = IEmailParamsC;
@@ -493,8 +488,8 @@ interface IReplacer {
  */
 export const replaceEditorAttributes = async (args: {
   content: string;
-  customer?: ICustomer;
-  user?: IUser;
+  customer?: ICustomer | null;
+  user?: IUser | null;
   customerFields?: string[];
   brand?: IBrandDocument;
 }): Promise<{
@@ -695,8 +690,7 @@ export const sendMobileNotification = async ({
     body,
     customerId,
     conversationId
-
-  })
+  });
 };
 
 export const paginate = utils.paginate;
