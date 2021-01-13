@@ -101,7 +101,8 @@ class SettingsContainer extends React.Component<Props> {
         variables: {
           from,
           to,
-          content
+          content,
+          title: 'This is a test'
         }
       })
         .then(() => {

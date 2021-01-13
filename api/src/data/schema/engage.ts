@@ -161,5 +161,5 @@ export const mutations = `
   engagesUpdateConfigs(configsMap: JSON!): JSON
   engageMessageVerifyEmail(email: String!): String
   engageMessageRemoveVerifiedEmail(email: String!): String
-  engageMessageSendTestEmail(from: String!, to: String!, content: String!): String
+  engageMessageSendTestEmail(from: String!, to: String!, content: String!, title: String!): String
 `;

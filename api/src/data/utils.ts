@@ -488,8 +488,8 @@ interface IReplacer {
  */
 export const replaceEditorAttributes = async (args: {
   content: string;
-  customer?: ICustomer;
-  user?: IUser;
+  customer?: ICustomer | null;
+  user?: IUser | null;
   customerFields?: string[];
   brand?: IBrandDocument;
 }): Promise<{

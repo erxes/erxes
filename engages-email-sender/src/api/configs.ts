@@ -64,7 +64,7 @@ router.post('/remove-verified-email', async (req, res, next) => {
 router.post('/send-test-email', async (req, res, next) => {
   debugRequest(debugEngages, req);
 
-  const { from, to, content } = req.body;
+  const { from, to, content, title } = req.body;
 
   const transporter = await createTransporter();
 
@@ -72,7 +72,7 @@ router.post('/send-test-email', async (req, res, next) => {
     const response = await transporter.sendMail({
       from,
       to,
-      subject: content,
+      subject: title,
       html: content
     });
 

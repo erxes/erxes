@@ -31,8 +31,8 @@ const engagesUpdateConfigs = `
 `;
 
 const sendTestEmail = `
-  mutation engageMessageSendTestEmail($from: String!, $to: String!, $content: String!) {
-    engageMessageSendTestEmail(from: $from, to: $to, content: $content)
+  mutation engageMessageSendTestEmail($from: String!, $to: String!, $content: String!, $title: String!) {
+    engageMessageSendTestEmail(from: $from, to: $to, content: $content, title: $title)
   }
 `;
 
