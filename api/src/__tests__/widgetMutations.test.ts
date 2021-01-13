@@ -1,11 +1,11 @@
 import * as faker from 'faker';
 import * as Random from 'meteor-random';
 import * as sinon from 'sinon';
+import * as logUtils from '../data/logUtils';
 import widgetMutations, {
   getMessengerData
 } from '../data/resolvers/mutations/widgets';
 import * as utils from '../data/utils';
-import * as logUtils from '../data/logUtils';
 import { graphqlRequest } from '../db/connection';
 import {
   brandFactory,
@@ -682,12 +682,14 @@ describe('saveBrowserInfo()', () => {
     const brand = await brandFactory({});
     const integration = await integrationFactory({ brandId: brand._id });
 
-    const mock = sinon.stub(logUtils, 'getVisitorLog').callsFake(() => {
-      return Promise.resolve({
-        visitorId: '123',
-        integrationId: integration._id
+    const visitorLogMock = sinon
+      .stub(logUtils, 'getVisitorLog')
+      .callsFake(() => {
+        return Promise.resolve({
+          visitorId: '123',
+          integrationId: integration._id
+        });
       });
-    });
 
     await engageMessageFactory({
       userId: user._id,
@@ -717,7 +719,7 @@ describe('saveBrowserInfo()', () => {
     );
 
     expect(response && response.content).toBe('engageMessage');
-    mock.restore();
+    visitorLogMock.restore();
   });
 
   mock.restore();
