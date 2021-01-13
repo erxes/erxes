@@ -10,7 +10,7 @@ import {
   Users
 } from '../../../db/models';
 import Messages from '../../../db/models/ConversationMessages';
-import Customers, { IBrowserInfo } from '../../../db/models/Customers';
+import { IBrowserInfo } from '../../../db/models/Customers';
 import { IIntegrationDocument } from '../../../db/models/definitions/integrations';
 import { registerOnboardHistory } from '../../utils';
 import { getOrCreateEngageMessage } from '../../widgetUtils';
