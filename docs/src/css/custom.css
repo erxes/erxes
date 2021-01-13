@@ -29,8 +29,8 @@
   --ifm-footer-background-color: var(--moon-grey);
   --ifm-menu-color-background-active: var(--ifm-color-emphasis-200);
   --ifm-color-primary: var(--nebula-blue);
-  --ifm-heading-color:  var(--cosmos-black);
-  --ifm-menu-color-active: #5629B6;
+  --ifm-heading-color: var(--cosmos-black);
+  --ifm-menu-color-active: #5629b6;
   --ifm-color-primary-dark: #4d25a4;
   --ifm-color-primary-darker: #49239b;
   --ifm-color-primary-darkest: #3c1d7f;
@@ -39,7 +39,7 @@
   --ifm-color-primary-lightest: #784bd7;
 }
 
-html[data-theme='dark'] {
+html[data-theme="dark"] {
   --ifm-font-base-color: #dee0f2;
   --ifm-navbar-link-hover-color: #8b9dff;
   --ifm-link-color: #8b9dff;
@@ -58,7 +58,7 @@ html[data-theme='dark'] {
   );
 }
 
-html[data-theme='dark'] .react-toggle-track {
+html[data-theme="dark"] .react-toggle-track {
   background-color: var(--ifm-footer-background-color);
 }
 
@@ -94,6 +94,15 @@ html[data-theme='dark'] .react-toggle-track {
   margin-left: 8px;
 }
 
+.avatar__photo > img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: top;
+  transform-origin: 50% 100%;
+  transition: all 0.3s ease-in-out;
+}
+
 .footer {
   padding-top: 60px;
 }
@@ -107,14 +116,14 @@ html[data-theme='dark'] .react-toggle-track {
 }
 
 .even-column {
-  background: rgba(180,180,180, 0.08);
+  background: rgba(180, 180, 180, 0.08);
 }
 
 @media (min-width: 600px) {
-	.center-desktop {
-		text-align: center;
+  .center-desktop {
+    text-align: center;
   }
-  
+
   .navbar__items > span {
     display: block;
   }

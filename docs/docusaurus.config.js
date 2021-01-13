@@ -95,7 +95,6 @@ module.exports = {
             },
             {
               label: "Blog",
-<<<<<<< HEAD
               to: "/blog",
             },
             {
@@ -105,9 +104,6 @@ module.exports = {
             {
               label: "Customer case studies",
               to: "/caseStudies",
-=======
-              href: "/blog",
->>>>>>> aba0df205675fa2888f7aed9244c5f5dcd80ac25
             },
             {
               label: "Roadmap",
@@ -123,30 +119,18 @@ module.exports = {
           title: "Community",
           items: [
             {
-<<<<<<< HEAD
-              label: "Community chat",
-              href: "https://community.erxes.io/register/Gw4WRJnk9fSbyAXTq",
-            },
-            {
-              label: "Facebook group",
-=======
               label: "Community Chat",
               href: "https://community.erxes.io/register/Gw4WRJnk9fSbyAXTq",
             },
             {
               label: "Facebook Group",
->>>>>>> aba0df205675fa2888f7aed9244c5f5dcd80ac25
               href: "https://www.facebook.com/groups/erxescommunity",
             },
           ],
         },
 
         {
-<<<<<<< HEAD
-          title: "Support us",
-=======
           title: "Support Us",
->>>>>>> aba0df205675fa2888f7aed9244c5f5dcd80ac25
           items: [
             {
               label: "Back us on Open Collective",
