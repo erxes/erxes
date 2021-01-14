@@ -1,7 +1,7 @@
 {
   "extends": "./tsconfig.json",
   "compilerOptions": {
-    "outDir": "./dist/api/src",
+    "outDir": "dist",
     "sourceMap": false,
     "inlineSourceMap": false,
     "inlineSources": false,
