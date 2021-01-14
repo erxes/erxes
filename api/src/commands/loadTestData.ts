@@ -132,6 +132,20 @@ const main = async () => {
     strict: true
   });
 
+  const path = require('path')
+  const jsonPath = '../../../ui/cypress.json'
+  const cypressSettings = require(jsonPath);
+
+  cypressSettings.env.userPassword = newPwd;
+  const newJson = JSON.stringify(cypressSettings, null, 2);
+
+  fs.writeFile(path.resolve(__dirname, jsonPath), newJson, (err) => {
+    if (err)
+      return console.log(err);
+    console.log(JSON.stringify(cypressSettings, null, 2));
+    console.log('writing to ' + jsonPath);
+  })
+
   const userDoc = {
     createdAt: faker.date.recent(),
     username: faker.internet.userName(),
