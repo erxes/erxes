@@ -19,6 +19,7 @@ on:
       - automations
     paths:
       - 'ui/**'
+      - '.github/workflows/ui.yaml'
       - '!ui/nginx/**'
       - '!ui/docker-entrypoint.sh'
       - '!ui/base.Dockerfile'
