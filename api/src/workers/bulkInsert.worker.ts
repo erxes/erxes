@@ -672,7 +672,7 @@ connect().then(async () => {
   }
 
   const modifier: { $inc?; $push? } = {
-    $inc: { success: bulkDoc.length, percentage }
+    $inc: { percentage }
   };
 
   try {
@@ -687,8 +687,10 @@ connect().then(async () => {
     const cocIds = cocObjs.map(obj => obj._id).filter(obj => obj);
 
     modifier.$push = { ids: cocIds };
+    modifier.$inc.success = bulkDoc.length;
   } catch (e) {
     modifier.$push = { errorMsgs: e.message };
+    modifier.$inc.failed = bulkDoc.length;
   }
 
   await ImportHistory.updateOne({ _id: importHistoryId }, modifier);

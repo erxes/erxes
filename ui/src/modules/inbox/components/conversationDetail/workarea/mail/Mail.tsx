@@ -15,6 +15,7 @@ type Props = {
   kind: string;
   isLast: boolean;
   brandId?: string;
+  mails: IMessage[];
 };
 
 type State = {
@@ -104,7 +105,8 @@ class Mail extends React.PureComponent<Props, State> {
       message,
       integrationId,
       customerId,
-      brandId
+      brandId,
+      mails
     } = this.props;
 
     return (
@@ -122,6 +124,8 @@ class Mail extends React.PureComponent<Props, State> {
           refetchQueries={['detailQuery']}
           mailData={mailData}
           brandId={brandId}
+          mails={mails}
+          messageId={message._id}
         />
       </BoxItem>
     );
