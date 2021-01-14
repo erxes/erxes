@@ -56,7 +56,7 @@ export const queries = `
   widgetsGetMessengerIntegration(brandCode: String!): Integration
   widgetsMessages(conversationId: String): [ConversationMessage]
   widgetsUnreadCount(conversationId: String): Int
-  widgetsTotalUnreadCount(integrationId: String!, customerId: String): Int
+  widgetsTotalUnreadCount(integrationId: String!, customerId: String, visitorId: String): Int
   widgetsMessengerSupporters(integrationId: String!): MessengerSupportersResponse
   widgetsKnowledgeBaseArticles(topicId: String!, searchString: String) : [KnowledgeBaseArticle]
   widgetsKnowledgeBaseTopicDetail(_id: String!): KnowledgeBaseTopic
