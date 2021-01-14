@@ -66,22 +66,23 @@ jobs:
         cd ui
         yarn tsc
 
+    - name: Cypress prepare
+      run: |
+        cd api
+        cp .env.sample .env
+        yarn install
+        yarn loadTestData
+        yarn dev &
+        cd ../ui
+        cp .env.sample .env
+        yarn install
+        yarn start &
+
     - name: Cypress run
       uses: cypress-io/github/action@v1
       with:
         record: true
         parallel: true
-        run: |
-          cd api
-          cp .env.sample .env
-          yarn install
-          yarn loadTestData
-          yarn dev &
-          cd ../ui
-          cp .env.sample .env
-          yarn install
-          yarn start &
-
         wait-on: http://localhost:3000
 
         run: |
