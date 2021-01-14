@@ -189,7 +189,7 @@ class CreateMessenger extends React.Component<Props, State> {
       forceLogoutWhenResolve,
       showVideoCallRequest,
       messengerApps,
-      skillData = {} as ISkillData
+      skillData
     } = this.state;
 
     if (!languageCode) {
@@ -204,19 +204,21 @@ class CreateMessenger extends React.Component<Props, State> {
       return Alert.error('Choose a brand');
     }
 
-    const skillOptions = skillData.options || [];
+    if (skillData) {
+      const skillOptions = (skillData as ISkillData).options || [];
 
-    if (skillOptions.length === 0) {
-      return Alert.error('Please add skill options');
-    }
+      if (skillOptions.length === 0) {
+        return Alert.error('Please add skill options');
+      }
 
-    if (skillOptions.length === 1) {
-      return Alert.error('Please add more than one skill option');
-    }
+      if (skillOptions.length === 1) {
+        return Alert.error('Please add more than one skill option');
+      }
 
-    for (const option of skillOptions) {
-      if (!option.label || !option.skillId) {
-        return Alert.error('Please select skill or enter label');
+      for (const option of skillOptions) {
+        if (!option.label || !option.skillId) {
+          return Alert.error('Please select skill or enter label');
+        }
       }
     }
 
