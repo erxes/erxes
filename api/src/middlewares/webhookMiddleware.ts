@@ -89,17 +89,21 @@ const webhookMiddleware = async (req, res, next) => {
     // get or create customer
     let customer = await findCustomer(params);
 
+    const doc = {
+      primaryEmail: params.customerPrimaryEmail,
+      primaryPhone: params.customerPrimaryPhone,
+      code: params.customerCode,
+      firstName: params.customerFirstName,
+      lastName: params.customerLastName,
+      avatar: params.customerAvatar,
+      customFieldsData
+    };
+
     if (!customer) {
-      customer = await Customers.createCustomer({
-        primaryEmail: params.customerPrimaryEmail,
-        primaryPhone: params.customerPrimaryPhone,
-        code: params.customerCode,
-        firstName: params.customerFirstName,
-        lastName: params.customerLastName,
-        avatar: params.customerAvatar,
-        customFieldsData
-      });
+      customer = await Customers.createCustomer(doc);
     }
+
+    customer = await Customers.updateCustomer(customer._id, doc);
 
     // get or create conversation
     let conversation = await Conversations.findOne({
