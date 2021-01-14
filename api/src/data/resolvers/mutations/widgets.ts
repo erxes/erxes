@@ -120,23 +120,13 @@ export const caches = {
     return `erxes_${key}`;
   },
 
-  async get({
-    key,
-    selector,
-    callback
-  }: {
-    key: string;
-    selector?: any;
-    callback?: any;
-  }) {
-    const model: any = key.startsWith('brand') ? Brands : Integrations;
-
+  async get({ key, callback }: { key: string; callback?: any }) {
     key = this.generateKey(key);
 
     let object = JSON.parse((await memoryStorage().get(key)) || '{}') || {};
 
     if (Object.keys(object).length === 0) {
-      object = !callback ? await model.findOne(selector) : await callback();
+      object = await callback();
 
       memoryStorage().set(key, JSON.stringify(object));
 
@@ -163,16 +153,51 @@ export const caches = {
   }
 };
 
+const getBrand = async (code: string) => {
+  const brand = await caches.get({
+    key: `brand_${code}`,
+    callback: async () => {
+      return Brands.findOne({ code });
+    }
+  });
+
+  return brand;
+};
+
+const getIntegration = async ({
+  brandId,
+  type,
+  selector,
+  callback
+}: {
+  brandId: string;
+  type: string;
+  selector?: { [key: string]: string | number | boolean };
+  callback?: () => Promise<void>;
+}) => {
+  const integration = await caches.get({
+    key: `integration_${type}_${brandId}`,
+    callback: callback
+      ? callback
+      : async () => {
+          return Integrations.findOne(selector);
+        }
+  });
+
+  if (!integration) {
+    throw new Error('Integration not found');
+  }
+
+  return integration;
+};
+
 const widgetMutations = {
   // Find integrationId by brandCode
   async widgetsLeadConnect(
     _root,
     args: { brandCode: string; formCode: string; cachedCustomerId?: string }
   ) {
-    const brand = await caches.get({
-      key: `brand_${args.brandCode}`,
-      selector: { code: args.brandCode }
-    });
+    const brand = await getBrand(args.brandCode);
 
     const form = await Forms.findOne({ code: args.formCode });
 
@@ -181,18 +206,15 @@ const widgetMutations = {
     }
 
     // find integration by brandId & formId
-    const integ = await caches.get({
-      key: `integration_lead_${brand._id}`,
+    const integ = await getIntegration({
+      brandId: brand._id,
+      type: 'lead',
       selector: {
         brandId: brand._id,
         formId: form._id,
         isActive: true
       }
     });
-
-    if (!integ) {
-      throw new Error('Integration not found');
-    }
 
     if (integ.leadData && integ.leadData.loadType === 'embedded') {
       await Integrations.increaseViewCount(form._id);
@@ -406,18 +428,16 @@ const widgetMutations = {
     const customData = data;
 
     // find brand
-    const brand = await caches.get({
-      key: `brand_${brandCode}`,
-      selector: { code: brandCode }
-    });
+    const brand = await getBrand(brandCode);
 
     if (!brand) {
       throw new Error('Brand not found');
     }
 
     // find integration
-    const integration = await caches.get({
-      key: `integration_messenger_${brand._id}`,
+    const integration = await getIntegration({
+      brandId: brand._id,
+      type: 'messenger',
       callback: async () => {
         return Integrations.getWidgetIntegration(brandCode, 'messenger');
       }
