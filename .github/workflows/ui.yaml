@@ -81,6 +81,7 @@ jobs:
         PORT: 3300
 
     - name: Cypress prepare ui
+      run: |
         cd ../ui
         yarn install
         yarn start
