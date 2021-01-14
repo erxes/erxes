@@ -140,8 +140,9 @@ const main = async () => {
   const newJson = JSON.stringify(cypressSettings, null, 2);
 
   fs.writeFile(path.resolve(__dirname, jsonPath), newJson, (err) => {
-    if (err)
+    if (err) {
       return console.log(err);
+    }
     console.log(JSON.stringify(cypressSettings, null, 2));
     console.log('writing to ' + jsonPath);
   })
