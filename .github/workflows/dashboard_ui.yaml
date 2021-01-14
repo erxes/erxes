@@ -11,8 +11,7 @@ on:
       - '*'
   pull_request:
     branches:
-      - master
-      - develop
+      - priuscenter
       - crons
       - workers
     paths:
@@ -61,7 +60,7 @@ jobs:
           cd dashboard-ui
           yarn build
       - name: Build docker image [push]
-        if: github.event_name == 'push' && ( github.ref == 'refs/heads/master' || github.ref == 'refs/heads/develop' || github.ref == 'refs/heads/apm' || github.ref == 'refs/heads/automations')
+        if: github.event_name == 'push' && ( github.ref == 'refs/heads/priuscenter')
         run: |
           cd dashboard-ui
           echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin

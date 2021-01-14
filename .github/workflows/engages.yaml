@@ -9,8 +9,7 @@ on:
       - ".github/workflows/engages.yaml"
   pull_request:
     branches:
-      - master
-      - develop
+      - priuscenter
     paths:
       - "engages-email-sender/**"
       - ".github/workflows/engages.yaml"
@@ -59,7 +58,7 @@ jobs:
           yarn build
 
       - name: Build docker image
-        if: github.event_name == 'push' && ( github.ref == 'refs/heads/master' || github.ref == 'refs/heads/develop' )
+        if: github.event_name == 'push' && ( github.ref == 'refs/heads/priuscenter' )
         run: |
           cd engages-email-sender
           echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin
