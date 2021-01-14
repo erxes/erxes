@@ -60,28 +60,30 @@ const webhookMiddleware = async (req, res, next) => {
       vm.run(webhookData.script);
     }
 
-    const customFieldsData: ICustomField[] = [];
+    let customFieldsData: ICustomField[] = [];
 
     if (params.customFields) {
-      params.customFields.forEach(async element => {
-        const customField = await Fields.findOne({
-          contentType: 'customer',
-          text: element.name
-        });
+      customFieldsData = await Promise.all(
+        params.customFields.map(async element => {
+          const customField = await Fields.findOne({
+            contentType: 'customer',
+            text: element.name
+          });
 
-        if (customField) {
-          let value = element.value;
-          if (customField.validation === 'date') {
-            value = new Date(element.value);
+          if (customField) {
+            let value = element.value;
+            if (customField.validation === 'date') {
+              value = new Date(element.value);
+            }
+
+            const customFieldData = {
+              field: customField._id,
+              value
+            };
+            return customFieldData;
           }
-
-          const customFieldData = {
-            field: customField._id,
-            value
-          };
-          customFieldsData.push(customFieldData);
-        }
-      });
+        })
+      );
     }
 
     // get or create customer
