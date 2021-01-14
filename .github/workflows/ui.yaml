@@ -85,5 +85,5 @@ jobs:
         run: |
           cd ui
           echo ${{ secrets.REGISTRY_TOKEN }} | docker login ${{ secrets.REGISTRY_URL }} -u ${{ secrets.REGISTRY_USERNAME }} --password-stdin
-          docker build --build-arg BASE_IMAGE=$BASE_IMAGE -t ${{ secrets.REGISTRY_URL }}/erxes/erxes-enterprise:${GITHUB_REF#refs/heads/} -f ui.Dockerfile .
-          docker push ${{ secrets.REGISTRY_URL }}/erxes/erxes-enterprise:${GITHUB_REF#refs/heads/}
+          docker build --build-arg BASE_IMAGE=$BASE_IMAGE -t ${{ secrets.REGISTRY_URL }}/erxes-enterprise/erxes:${GITHUB_REF#refs/heads/} -f ui.Dockerfile .
+          docker push ${{ secrets.REGISTRY_URL }}/erxes-enterprise/erxes:${GITHUB_REF#refs/heads/}
