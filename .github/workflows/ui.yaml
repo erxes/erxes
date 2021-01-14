@@ -87,7 +87,7 @@ jobs:
 
     - name: Cypress prepare ui
       run: |
-        cd ../ui
+        cd ui
         yarn install
         yarn start &
       env:
