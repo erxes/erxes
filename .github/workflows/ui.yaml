@@ -79,7 +79,7 @@ jobs:
         yarn start &
 
     - name: Cypress run
-      uses: cypress-io/github/action@v1
+      uses: cypress-io/github-action@v2
       with:
         record: true
         parallel: true
