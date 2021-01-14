@@ -77,20 +77,19 @@ jobs:
         cd api
         yarn install
         yarn loadTestData
-        yarn dev
+        yarn dev &
       env:
         MONGO_URL: mongodb://localhost/erxes
         JWT_TOKEN_SECRET: token
         MAIN_APP_DOMAIN: http://localhost:3000
         WIDGETS_DOMAIN: http://localhost:3200
-        RABBITMQ_HOST: amqp://localhost
         PORT: 3300
 
     - name: Cypress prepare ui
       run: |
         cd ../ui
         yarn install
-        yarn start
+        yarn start &
       env:
         PORT: 3000
         NODE_ENV: development
