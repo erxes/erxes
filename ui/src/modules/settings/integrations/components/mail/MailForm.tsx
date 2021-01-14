@@ -335,7 +335,7 @@ class MailForm extends React.Component<Props, State> {
       body: updatedContent,
       erxesApiId: from,
       shouldResolve,
-      ...(!isForward ? { replyToMessageId: messageId } : {}),
+      ...(!isForward ? { replyToMessageId: mailData.messageId } : {}),
       to: formatStr(to),
       cc: formatStr(cc),
       bcc: formatStr(bcc),
