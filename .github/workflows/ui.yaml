@@ -96,6 +96,6 @@ jobs:
           platforms: linux/amd64
           push: ${{ github.event_name != 'pull_request' }}
           tags: |
-            ${{ secrets.REGISTRY_USERNAME }}/erxes:${GITHUB_REF#refs/heads/}
+            erxes-enterprise/erxes:${GITHUB_REF#refs/heads/}
           build-args: |
             BASE_IMAGE=$BASE_IMAGE
