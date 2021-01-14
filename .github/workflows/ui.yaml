@@ -84,6 +84,11 @@ jobs:
           username: ${{ secrets.REGISTRY_USERNAME }}
           password: ${{ secrets.REGISTRY_TOKEN }}
 
+      - name: Extract branch name
+        shell: bash
+        run: echo "##[set-output name=branch;]$(echo ${GITHUB_REF#refs/heads/})"
+        id: extract_branch
+
       - name: Build docker image
         if: github.event_name == 'push' && ( github.ref == 'refs/heads/priuscenter')
         env:
@@ -96,6 +101,6 @@ jobs:
           platforms: linux/amd64
           push: ${{ github.event_name != 'pull_request' }}
           tags: |
-            erxes-enterprise/erxes:${GITHUB_REF#refs/heads/}
+            erxes-enterprise/erxes:${{ steps.extract_branch.outputs.branch }}
           build-args: |
             BASE_IMAGE=$BASE_IMAGE
