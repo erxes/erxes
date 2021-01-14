@@ -44,20 +44,20 @@ const ImportLoader = styled.i`
 `;
 
 type Props = {
-  uploadXls: (e: React.FormEvent<HTMLInputElement>) => void;
+  uploadCsv: (e: React.FormEvent<HTMLInputElement>) => void;
   uploading: boolean;
   text: string;
 };
 
-function DataImporter({ uploadXls, uploading, text }: Props) {
+function DataImporter({ uploadCsv, uploading, text }: Props) {
   return (
     <ImportButton>
       {uploading ? <ImportLoader /> : <Icon icon="import" />}
       {text}
       <input
         type="file"
-        onChange={uploadXls}
-        accept=".xlsx, .xls, .csv"
+        onChange={uploadCsv}
+        accept=".csv"
         disabled={uploading}
       />
     </ImportButton>

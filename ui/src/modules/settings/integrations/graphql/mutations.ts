@@ -159,6 +159,12 @@ const integrationsArchive = `
   }
 `;
 
+const integrationsRepair = `
+  mutation integrationsRepair($_id: String!) {
+    integrationsRepair(_id: $_id) 
+  }
+`;
+
 const integrationsSendSms = `
   mutation integrationsSendSms($integrationId: String!, $content: String!, $to: String!) {
     integrationsSendSms(integrationId: $integrationId, content: $content, to: $to)
@@ -167,6 +173,7 @@ const integrationsSendSms = `
 
 export default {
   integrationsArchive,
+  integrationsRepair,
   integrationsUpdateConfigs,
   integrationsCreateMessenger,
   integrationsCreateExternalIntegration,

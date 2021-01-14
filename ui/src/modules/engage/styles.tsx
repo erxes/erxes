@@ -475,6 +475,16 @@ const MobilePreviewContent = styledTS<{ templateId?: string }>(styled.div)`
   overflow-x: hidden;
 `;
 
+const TestEmailWrapper = styled.div`
+  margin: 20px 0;
+  padding: 20px 0;
+  border-top: 1px dashed #ddd;
+
+  button {
+    margin-top: 10px;
+  }
+`;
+
 export {
   RowTitle,
   HelperText,
@@ -511,5 +521,6 @@ export {
   RightSection,
   DesktopPreviewContent,
   MobilePreviewContent,
-  Shell
+  Shell,
+  TestEmailWrapper
 };
