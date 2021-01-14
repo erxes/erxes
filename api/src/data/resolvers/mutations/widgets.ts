@@ -66,7 +66,9 @@ export const getMessengerData = async (integration: IIntegrationDocument) => {
   let messengerData = integration.messengerData;
 
   if (messengerData) {
-    messengerData = messengerData.toJSON();
+    if (messengerData.toJSON) {
+      messengerData = messengerData.toJSON();
+    }
 
     const languageCode = integration.languageCode || 'en';
     const messages = (messengerData || {}).messages;
@@ -113,13 +115,65 @@ export const getMessengerData = async (integration: IIntegrationDocument) => {
   };
 };
 
+export const caches = {
+  generateKey(key: string) {
+    return `erxes_${key}`;
+  },
+
+  async get({
+    key,
+    selector,
+    callback
+  }: {
+    key: string;
+    selector?: any;
+    callback?: any;
+  }) {
+    const model: any = key.startsWith('brand') ? Brands : Integrations;
+
+    key = this.generateKey(key);
+
+    let object = JSON.parse((await memoryStorage().get(key)) || '{}') || {};
+
+    if (Object.keys(object).length === 0) {
+      object = !callback ? await model.findOne(selector) : await callback();
+
+      memoryStorage().set(key, JSON.stringify(object));
+
+      return object;
+    }
+
+    return object;
+  },
+
+  async update(key: string, data: object) {
+    const storageKey = this.generateKey(key);
+
+    const value = await memoryStorage().get(storageKey);
+
+    if (!value) {
+      return;
+    }
+
+    memoryStorage().set(this.generateKey(key), JSON.stringify(data));
+  },
+
+  remove(key: string) {
+    memoryStorage().removeKey(this.generateKey(key));
+  }
+};
+
 const widgetMutations = {
   // Find integrationId by brandCode
   async widgetsLeadConnect(
     _root,
     args: { brandCode: string; formCode: string; cachedCustomerId?: string }
   ) {
-    const brand = await Brands.findOne({ code: args.brandCode });
+    const brand = await caches.get({
+      key: `brand_${args.brandCode}`,
+      selector: { code: args.brandCode }
+    });
+
     const form = await Forms.findOne({ code: args.formCode });
 
     if (!brand || !form) {
@@ -127,10 +181,13 @@ const widgetMutations = {
     }
 
     // find integration by brandId & formId
-    const integ = await Integrations.findOne({
-      brandId: brand._id,
-      formId: form._id,
-      isActive: true
+    const integ = await caches.get({
+      key: `integration_lead_${brand._id}`,
+      selector: {
+        brandId: brand._id,
+        formId: form._id,
+        isActive: true
+      }
     });
 
     if (!integ) {
@@ -349,17 +406,22 @@ const widgetMutations = {
     const customData = data;
 
     // find brand
-    const brand = await Brands.findOne({ code: brandCode });
+    const brand = await caches.get({
+      key: `brand_${brandCode}`,
+      selector: { code: brandCode }
+    });
 
     if (!brand) {
       throw new Error('Brand not found');
     }
 
     // find integration
-    const integration = await Integrations.getWidgetIntegration(
-      brandCode,
-      'messenger'
-    );
+    const integration = await caches.get({
+      key: `integration_messenger_${brand._id}`,
+      callback: async () => {
+        return Integrations.getWidgetIntegration(brandCode, 'messenger');
+      }
+    });
 
     if (!integration) {
       throw new Error('Integration not found');
