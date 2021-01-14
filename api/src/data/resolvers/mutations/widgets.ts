@@ -443,10 +443,6 @@ const widgetMutations = {
       }
     });
 
-    if (!integration) {
-      throw new Error('Integration not found');
-    }
-
     let customer = await Customers.getWidgetCustomer({
       integrationId: integration._id,
       cachedCustomerId,
