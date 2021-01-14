@@ -1,6 +1,12 @@
-import { ITag as ITagC } from 'erxes-ui/lib/tags/types';
-export type ITag = ITagC;
-
+export interface ITag {
+  _id: string;
+  type: string;
+  name: string;
+  colorCode: string;
+  objectCount?: number;
+  parentId?: string;
+  order?: string;
+}
 export interface ITagSaveParams {
   tag?: ITag;
   doc: {

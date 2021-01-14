@@ -132,6 +132,30 @@ export const loadClass = () => {
       );
     }
 
+    /*
+     * Get a parent tag
+     */
+    static async getParentTag(doc: ITag) {
+      const tag = await Tags.findOne({
+        _id: doc.parentId
+      }).lean();
+
+      if (tag && !tag.order) {
+        await Tags.updateOne(
+          {
+            _id: doc.parentId
+          },
+          { $set: { order: `${tag.name}${tag.type}` } }
+        );
+
+        return Tags.findOne({
+          _id: doc.parentId
+        }).lean();
+      }
+
+      return tag;
+    }
+
     /**
      * Create a tag
      */
@@ -141,6 +165,11 @@ export const loadClass = () => {
       if (!isUnique) {
         throw new Error('Tag duplicated');
       }
+
+      const parentTag = await this.getParentTag(doc);
+
+      // Generatingg order
+      doc.order = await this.generateOrder(parentTag, doc);
 
       return Tags.create({
         ...doc,
@@ -161,6 +190,15 @@ export const loadClass = () => {
       if (!isUnique) {
         throw new Error('Tag duplicated');
       }
+
+      const parentTag = await this.getParentTag(doc);
+
+      if (parentTag && parentTag.parentId === _id) {
+        throw new Error('Cannot change tag');
+      }
+
+      // Generatingg  order
+      doc.order = await this.generateOrder(parentTag, doc);
 
       await Tags.updateOne({ _id }, { $set: doc });
 
@@ -233,6 +271,20 @@ export const loadClass = () => {
         collection,
         tagType: type
       });
+    }
+
+    /**
+     * Generating order
+     */
+    public static async generateOrder(
+      parentTag: ITag,
+      { name, type }: { name: string; type: string }
+    ) {
+      const order = parentTag
+        ? `${parentTag.order}/${name}${type}`
+        : `${name}${type}`;
+
+      return order;
     }
   }
 

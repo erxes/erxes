@@ -6,6 +6,8 @@ export const types = `
     colorCode: String
     createdAt: Date
     objectCount: Int
+    parentId: String
+    order: String
   }
 `;
 
@@ -14,9 +16,16 @@ export const queries = `
   tagDetail(_id: String!): Tag
 `;
 
+const params = `
+  name: String!,
+  type: String!,
+  colorCode: String,
+  parentId: String,
+`;
+
 export const mutations = `
-	tagsAdd(name: String!, type: String!, colorCode: String): Tag
-	tagsEdit(_id: String!, name: String!, type: String!, colorCode: String): Tag
+	tagsAdd(${params}): Tag
+	tagsEdit(_id: String!, ${params}): Tag
   tagsRemove(ids: [String!]!): JSON
 	tagsTag(type: String!, targetIds: [String!]!, tagIds: [String!]!): String
 `;

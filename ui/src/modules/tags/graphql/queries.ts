@@ -7,6 +7,8 @@ const tags = `
       colorCode
       createdAt
       objectCount
+      parentId
+      order
     }
   }
 `;
