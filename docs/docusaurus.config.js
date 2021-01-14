@@ -109,10 +109,6 @@ module.exports = {
               label: "Roadmap",
               href: "https://erxes.io/roadmap",
             },
-            {
-              label: "Install server",
-              href: "https://erxes.io/install",
-            },
           ],
         },
         {
