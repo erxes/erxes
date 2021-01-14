@@ -92,10 +92,16 @@ jobs:
         run: echo "##[set-output name=branch;]$(echo ${GITHUB_REF#refs/heads/})"
         id: extract_branch
 
+      - name: Extract base image name
+        shell: bash
+        env:
+          BASE_IMAGE: erxes/erxes:base-1.18-alpine
+        run: echo "##[set-output name=base-image;]$(echo ${BASE_IMAGE})"
+        id: extract_base_image
+
       - name: Build docker image
         if: github.event_name == 'push' && ( github.ref == 'refs/heads/priuscenter')
         env:
-          BASE_IMAGE: erxes/erxes:base-1.18-alpine
           DOCKER_BUILDKIT: 1
         uses: docker/build-push-action@v2
         with:
@@ -106,4 +112,4 @@ jobs:
           tags: |
             erxes-enterprise/erxes:${{ steps.extract_branch.outputs.branch }}
           build-args: |
-            BASE_IMAGE=$BASE_IMAGE
+            BASE_IMAGE=${{ steps.extract_base_image.outputs.base-image }}
