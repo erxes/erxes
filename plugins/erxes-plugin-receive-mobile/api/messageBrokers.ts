@@ -474,10 +474,6 @@ export default [
       const { action, data } = msg;
       let customer: any = null;
 
-      if (!customer) {
-        return;
-      }
-
       switch (action) {
         case "createCustomer":
           customer = await models.Customers.getWidgetCustomer({
