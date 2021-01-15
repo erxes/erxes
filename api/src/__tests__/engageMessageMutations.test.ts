@@ -774,20 +774,6 @@ describe('engage message mutation tests', () => {
       { email: 'email@yahoo.com' }
     );
 
-    mock = sinon.stub(api, 'engagesSendTestEmail').callsFake(() => {
-      return Promise.resolve('true');
-    });
-
-    await check(
-      `
-      mutation engageMessageSendTestEmail($from: String!, $to: String!, $content: String!) {
-        engageMessageSendTestEmail(from: $from, to: $to, content: $content)
-      }
-    `,
-      'engageMessageSendTestEmail',
-      { from: 'from@yahoo.com', to: 'to@yahoo.com', content: 'content' }
-    );
-
     mock.restore();
   });
 
@@ -826,5 +812,61 @@ describe('engage message mutation tests', () => {
     );
 
     expect(response.fromIntegration._id).toBe(integration._id);
+  });
+
+  test('Test engageMessageSendTestEmail()', async () => {
+    const sendRequest = args => {
+      return graphqlRequest(
+        `
+          mutation engageMessageSendTestEmail(
+            $from: String!,
+            $to: String!,
+            $content: String!,
+            $title: String!
+          ) {
+            engageMessageSendTestEmail(from: $from, to: $to, content: $content, title: $title)
+          }
+        `,
+        'engageMessageSendTestEmail',
+        args,
+        { dataSources }
+      );
+    };
+
+    const mock = sinon
+      .stub(dataSources.EngagesAPI, 'engagesSendTestEmail')
+      .callsFake(() => {
+        return Promise.resolve('true');
+      });
+
+    const params = {
+      from: 'from@yahoo.com',
+      to: 'to@yahoo.com',
+      content: 'content',
+      title: 'hello'
+    };
+
+    const response = await sendRequest(params);
+
+    expect(response).toBe('true');
+
+    // check missing title
+    try {
+      params.title = '';
+
+      await sendRequest(params);
+    } catch (e) {
+      expect(e[0].message).toBe(
+        'Email content, title, from address or to address is missing'
+      );
+    }
+
+    // check with valid customer
+    params.to = _customer.primaryEmail;
+    params.title = 'hello';
+
+    await sendRequest(params);
+
+    mock.restore();
   });
 });
