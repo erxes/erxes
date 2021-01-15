@@ -31,10 +31,10 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
-      - name: Use Node.js 12.19.x
+      - name: Use Node.js 12.20.x
         uses: actions/setup-node@v1
         with:
-          node-version: 12.19.x
+          node-version: 12.20.x
 
       # https://github.com/actions/cache/blob/master/examples.md#node---yarn
       - name: Get yarn cache directory path
@@ -84,6 +84,6 @@ jobs:
         if: github.event_name == 'push' && ( github.ref == 'refs/heads/priuscenter' )
         run: |
           cd integrations
-          echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin
-          docker build -t erxes/erxes-integrations:${GITHUB_REF#refs/heads/} -f Dockerfile .
-          docker push erxes/erxes-integrations:${GITHUB_REF#refs/heads/}
+          echo ${{ secrets.REGISTRY_TOKEN }} | docker login ${{ secrets.REGISTRY_URL }} -u ${{ secrets.REGISTRY_USERNAME }} --password-stdin
+          docker build -t ${{ secrets.REGISTRY_URL }}/erxes-enterprise/erxes-integrations:${GITHUB_REF#refs/heads/} -f Dockerfile .
+          docker push ${{ secrets.REGISTRY_URL }}/erxes-enterprise/erxes-integrations:${GITHUB_REF#refs/heads/}

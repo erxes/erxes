@@ -6,8 +6,8 @@ on:
       - "**"
     paths:
       - "api/**"
+      - "plugins/**/api"
       - ".github/workflows/api.yaml"
-      - "../plugins/**/api"
   pull_request:
     branches:
       - priuscenter
@@ -15,8 +15,8 @@ on:
       - workers
     paths:
       - "api/**"
+      - "plugins/**/api"
       - ".github/workflows/api.yaml"
-      - "../plugins/**/api"
 
 jobs:
   api:
@@ -31,10 +31,10 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
-      - name: Use Node.js 12.19.x
+      - name: Use Node.js 12.20.x
         uses: actions/setup-node@v1
         with:
-          node-version: 12.19.x
+          node-version: 12.20.x
 
       # https://github.com/actions/cache/blob/master/examples.md#node---yarn
       - name: Get yarn cache directory path
@@ -91,11 +91,12 @@ jobs:
           yarn build
 
       - name: Build docker image
-        if: github.event_name == 'push' && ( github.ref == 'refs/heads/priuscenter'|| github.ref == 'refs/heads/crons' || github.ref == 'refs/heads/workers')
+        if: github.event_name == 'push' && ( github.ref == 'refs/heads/priuscenter'|| github.ref == 'refs/heads/crons' || github.ref == 'refs/heads/workers' )
         env:
           BASE_IMAGE: erxes/erxes-api:base-12.19.1-slim
+          DOCKER_BUILDKIT: 1
         run: |
           cd api
-          echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin
-          DOCKER_BUILDKIT=1 docker build --build-arg BASE_IMAGE=$BASE_IMAGE -t erxes/erxes-api:${GITHUB_REF#refs/heads/} -f api.Dockerfile .
-          docker push erxes/erxes-api:${GITHUB_REF#refs/heads/}
+          echo ${{ secrets.REGISTRY_TOKEN }} | docker login ${{ secrets.REGISTRY_URL }} -u ${{ secrets.REGISTRY_USERNAME }} --password-stdin
+          docker build --build-arg BASE_IMAGE=$BASE_IMAGE -t ${{ secrets.REGISTRY_URL }}/erxes-enterprise/erxes-api:${GITHUB_REF#refs/heads/} -f api.Dockerfile .
+          docker push ${{ secrets.REGISTRY_URL }}/erxes-enterprise/erxes-api:${GITHUB_REF#refs/heads/}
