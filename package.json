@@ -1,6 +1,6 @@
 {
   "name": "erxes",
-  "version": "0.20.6",
+  "version": "0.20.8",
   "description": "Free and open fair-code licensed all-in-one growth marketing & management software",
   "homepage": "https://erxes.io",
   "repository": "https://github.com/erxes/erxes",
@@ -45,6 +45,7 @@
     "typescript": "^3.0.3"
   },
   "dependencies": {
+    "@sentry/react": "^5.29.2",
     "fs-extra": "^9.0.1"
   }
 }

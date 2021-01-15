@@ -1,4 +1,6 @@
 import '@nateradebaugh/react-datetime/css/react-datetime.css';
+import * as Sentry from '@sentry/react';
+import { Integrations } from '@sentry/tracing';
 import 'abortcontroller-polyfill/dist/polyfill-patch-fetch';
 import dayjs from 'dayjs';
 import localizedFormat from 'dayjs/plugin/localizedFormat';
@@ -11,6 +13,21 @@ import { getEnv } from 'modules/common/utils';
 import React from 'react';
 import { ApolloProvider } from 'react-apollo';
 import { render } from 'react-dom';
+
+Sentry.init({
+  dsn:
+    process.env.NODE_ENV === 'development'
+      ? 'https://125ed83537ee441d9b16b20d631e6130@sentry.erxes.io/6'
+      : 'https://6d8ffc15437e46ff852e14633ddcfbe3@sentry.erxes.io/12',
+
+  integrations: [
+    new Integrations.BrowserTracing({
+      tracingOrigins: [process.env.REACT_APP_API_URL || '']
+    })
+  ],
+
+  tracesSampleRate: 1.0
+});
 
 dayjs.extend(localizedFormat);
 dayjs.extend(relativeTime);
@@ -26,7 +43,7 @@ fetch(`${envs.REACT_APP_API_URL}/initial-setup?envs=${JSON.stringify(envs)}`, {
   .then(response => response.text())
   .then(res => {
     const apolloClient = require('./apolloClient').default;
-    const { OwnerDescription }  = require('modules/auth/components/OwnerSetup');
+    const { OwnerDescription } = require('modules/auth/components/OwnerSetup');
     const OwnerSetup = require('modules/auth/containers/OwnerSetup').default;
     const Routes = require('./routes').default;
     const AuthLayout = require('modules/layout/components/AuthLayout').default;

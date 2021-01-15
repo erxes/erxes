@@ -21,6 +21,7 @@
   "dependencies": {
     "@google-cloud/pubsub": "^1.1.5",
     "@google-cloud/storage": "^4.0.0",
+    "@sentry/node": "^5.29.2",
     "@types/cors": "^2.8.4",
     "@types/dotenv": "^4.0.3",
     "@types/express": "^4.17.6",
@@ -37,6 +38,7 @@
     "apollo-datasource-rest": "^0.5.1",
     "apollo-server-express": "^2.9.7",
     "aws-sdk": "^2.151.0",
+    "batsentry-tracing": "^5.29.3",
     "bcryptjs": "^2.4.3",
     "cookie": "^0.4.1",
     "cookie-parser": "^1.4.3",

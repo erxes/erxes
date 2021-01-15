@@ -20,7 +20,7 @@ export const initBroker = async (server?) => {
     envs: process.env
   });
 
-  const prefix = getEnv({ name: 'MESSAGE_BROKER_PREFIX' })
+  const prefix = getEnv({ name: 'MESSAGE_BROKER_PREFIX' });
 
   const { consumeQueue, consumeRPCQueue } = client;
 
@@ -45,6 +45,6 @@ export const initBroker = async (server?) => {
   pluginsConsume(client, prefix);
 };
 
-export default function () {
+export default function() {
   return client;
 }

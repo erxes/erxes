@@ -2,6 +2,7 @@ import { ApolloServer, gql, PlaygroundConfig } from 'apollo-server-express';
 import * as cookie from 'cookie';
 import * as dotenv from 'dotenv';
 import * as jwt from 'jsonwebtoken';
+import apolloPlugins from './apolloPlugins';
 import { EngagesAPI, HelpersApi, IntegrationsAPI } from './data/dataSources';
 import resolvers from './data/resolvers';
 import * as typeDefDetails from './data/schema';
@@ -41,8 +42,12 @@ const generateDataSources = () => {
 
 let apolloServer;
 
-export const initApolloServer = async (app) => {
-  const { types, queries, mutations, subscriptions } = await extendViaPlugins(app, resolvers, typeDefDetails);
+export const initApolloServer = async app => {
+  const { types, queries, mutations, subscriptions } = await extendViaPlugins(
+    app,
+    resolvers,
+    typeDefDetails
+  );
 
   const typeDefs = gql(`
     ${types}
@@ -60,6 +65,7 @@ export const initApolloServer = async (app) => {
   apolloServer = new ApolloServer({
     typeDefs,
     resolvers,
+    plugins: apolloPlugins,
     dataSources: generateDataSources,
     playground,
     uploads: false,
@@ -181,9 +187,14 @@ export const initApolloServer = async (app) => {
         let user;
 
         try {
-          const cookies = cookie.parse(connectionContext.request.headers.cookie);
+          const cookies = cookie.parse(
+            connectionContext.request.headers.cookie
+          );
 
-          const jwtContext = jwt.verify(cookies['auth-token'], Users.getSecret());
+          const jwtContext = jwt.verify(
+            cookies['auth-token'],
+            Users.getSecret()
+          );
 
           user = jwtContext.user;
         } catch (e) {
@@ -265,6 +276,6 @@ export const initApolloServer = async (app) => {
   });
 
   return apolloServer;
-}
+};
 
 export default apolloServer;
