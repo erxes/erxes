@@ -171,7 +171,7 @@ export const getFacebookUser = async (
     if (e.message.includes('access token')) {
       await Integrations.updateOne(
         { facebookPageIds: pageId },
-        { $set: { healthStatus: 'page-token' } }
+        { $set: { healthStatus: 'page-token', error: `${e.message}` } }
       );
     }
 
@@ -275,12 +275,12 @@ export const sendReply = async (
     if (e.message.includes('access token')) {
       await Integrations.updateOne(
         { _id: integration._id },
-        { $set: { healthStatus: 'page-token' } }
+        { $set: { healthStatus: 'page-token', error: `${e.message}` } }
       );
     } else {
       await Integrations.updateOne(
         { _id: integration._id },
-        { $set: { healthStatus: 'acount-token' } }
+        { $set: { healthStatus: 'account-token', error: `${e.message}` } }
       );
     }
 

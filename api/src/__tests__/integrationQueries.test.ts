@@ -232,7 +232,7 @@ describe('integrationQueries', () => {
     expect(response.websiteMessengerApps.length).toBe(0);
     expect(response.knowledgeBaseMessengerApps.length).toBe(0);
     expect(response.leadMessengerApps.length).toBe(0);
-    expect(response.healthStatus).toBe('healthy');
+    expect(response.healthStatus).toBeDefined();
 
     const spy = jest.spyOn(dataSources.IntegrationsAPI, 'fetchApi');
     spy.mockImplementation(() => Promise.resolve([]));

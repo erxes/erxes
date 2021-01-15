@@ -68,6 +68,9 @@ describe('messenger connect', () => {
     await Integrations.deleteMany({});
     await Customers.deleteMany({});
     await MessengerApps.deleteMany({});
+
+    memoryStorage().removeKey(`erxes_integration_messenger_${_brand.id}`);
+    memoryStorage().removeKey(`erxes_brand_{_brand.code}`);
   });
 
   test('brand not found', async () => {
@@ -130,6 +133,7 @@ describe('messenger connect', () => {
     expect(brand.code).toBe(_brand.code);
     expect(messengerData.formCode).toBe('formCode');
     expect(messengerData.knowledgeBaseTopicId).toBe('topicId');
+
     mock.restore();
   });
 
@@ -792,6 +796,10 @@ describe('lead', () => {
     } catch (e) {
       expect(e.message).toBe('Integration not found');
     }
+
+    memoryStorage().removeKey(`erxes_brand_${brand.code}`);
+    memoryStorage().removeKey(`erxes_brand_code`);
+    memoryStorage().removeKey(`erxes_integration_lead_${brand._id}`);
   });
 
   test('leadConnect: success', async () => {
@@ -810,6 +818,23 @@ describe('lead', () => {
       }
     });
 
+    const response1 = await widgetMutations.widgetsLeadConnect(
+      {},
+      {
+        brandCode: brand.code || '',
+        formCode: form.code || ''
+      }
+    );
+
+    expect(response1 && response1.integration._id).toBe(integration._id);
+    expect(response1 && response1.form._id).toBe(form._id);
+
+    // Get integration from cache ===========================
+    memoryStorage().set(
+      `erxes_integration_lead_${brand._id}`,
+      JSON.stringify(integration)
+    );
+
     const response = await widgetMutations.widgetsLeadConnect(
       {},
       {
@@ -820,6 +845,9 @@ describe('lead', () => {
 
     expect(response && response.integration._id).toBe(integration._id);
     expect(response && response.form._id).toBe(form._id);
+
+    memoryStorage().removeKey(`erxes_brand_${brand.code}`);
+    memoryStorage().removeKey(`erxes_integration_lead_${brand._id}`);
 
     mock.restore();
   });
@@ -854,9 +882,14 @@ describe('lead', () => {
         cachedCustomerId: '123123'
       }
     );
+
     expect(conversation).toBeDefined();
     expect(response).toBeNull();
+
     mock.restore();
+
+    memoryStorage().removeKey(`erxes_brand_${brand.code}`);
+    memoryStorage().removeKey(`erxes_integration_lead_${brand._id}`);
   });
 
   test('saveLead: form not found', async () => {
