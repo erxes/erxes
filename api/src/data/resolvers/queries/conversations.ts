@@ -73,7 +73,7 @@ const countByTags = async (qb: any): Promise<ICountBy> => {
   for (const tag of tags) {
     byTags[tag._id] = await count({
       ...tagQueries,
-      ...qb.tagFilter(tag._id)
+      ...qb.tagFilter([tag._id])
     });
   }
 

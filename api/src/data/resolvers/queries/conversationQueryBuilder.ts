@@ -263,9 +263,9 @@ export default class Builder {
   }
 
   // filter by tag
-  public tagFilter(tagId: string): { tagIds: IIn } {
+  public tagFilter(tagIds: string[]): { tagIds: IIn } {
     return {
-      tagIds: { $in: [tagId] }
+      tagIds: { $in: tagIds }
     };
   }
 
@@ -345,7 +345,7 @@ export default class Builder {
 
     // filter by tag
     if (this.params.tag) {
-      this.queries.tag = this.tagFilter(this.params.tag);
+      this.queries.tag = this.tagFilter(this.params.tag.split(','));
     }
 
     if (this.params.startDate && this.params.endDate) {

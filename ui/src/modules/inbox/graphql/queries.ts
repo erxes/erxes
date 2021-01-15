@@ -211,6 +211,8 @@ const tagList = `
       _id
       name
       colorCode
+      order
+      parentId
     }
   }
 `;
