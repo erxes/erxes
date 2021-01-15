@@ -362,7 +362,7 @@ export const loadClass = () => {
       kind: string,
       brandObject = false
     ) {
-      const brand = await Brands.getBrandByCode(brandCode);
+      const brand = await Brands.getBrand({ code: brandCode });
 
       const integration = await Integrations.findOne({
         brandId: brand._id,

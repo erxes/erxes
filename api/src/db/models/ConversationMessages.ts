@@ -198,8 +198,7 @@ export const loadClass = () => {
           'engageData.engageKind': { $ne: 'auto' },
           isCustomerRead: { $ne: true }
         },
-        { $set: { isCustomerRead: true } },
-        { multi: true }
+        { $set: { isCustomerRead: true } }
       );
     }
 
@@ -212,8 +211,7 @@ export const loadClass = () => {
           visitorId,
           engageData: { $exists: true }
         },
-        { $set: { customerId, visitorId: '' } },
-        { multi: true }
+        { $set: { customerId, visitorId: '' } }
       );
     }
   }

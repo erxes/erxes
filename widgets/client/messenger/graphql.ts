@@ -3,6 +3,7 @@ import { connection } from "./connection";
 const messageFields = `
   _id
   conversationId
+  customerId
   user {
     _id
     details {

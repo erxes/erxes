@@ -5,7 +5,7 @@ import { brandSchema, IBrand, IBrandDocument } from './definitions/brands';
 import { IIntegrationDocument } from './definitions/integrations';
 
 export interface IBrandModel extends Model<IBrandDocument> {
-  getBrand(_id: string): IBrandDocument;
+  getBrand(doc: any): IBrandDocument;
   getBrandByCode(code: string): IBrandDocument;
   generateCode(code: string): string;
   createBrand(doc: IBrand): IBrandDocument;
@@ -26,18 +26,8 @@ export const loadClass = () => {
     /*
      * Get a Brand
      */
-    public static async getBrand(_id: string) {
-      const brand = await Brands.findOne({ _id });
-
-      if (!brand) {
-        throw new Error('Brand not found');
-      }
-
-      return brand;
-    }
-
-    public static async getBrandByCode(code: string) {
-      const brand = await Brands.findOne({ code });
+    public static async getBrand(doc: any) {
+      const brand = await Brands.findOne(doc);
 
       if (!brand) {
         throw new Error('Brand not found');

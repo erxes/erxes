@@ -31,8 +31,6 @@ export const getOrCreateEngageMessage = async (
     integrationId = visitor.integrationId;
   }
 
-  // Preventing from displaying non messenger integrations like form's messages
-  // as last unread message
   const integration = await Integrations.findOne({
     _id: integrationId,
     kind: KIND_CHOICES.MESSENGER
@@ -42,7 +40,7 @@ export const getOrCreateEngageMessage = async (
     throw new Error('Integration not found');
   }
 
-  const brand = await Brands.getBrand(integration.brandId || '');
+  const brand = await Brands.getBrand({ _id: integration.brandId || '' });
 
   // try to create engage chat auto messages
   await EngageMessages.createVisitorOrCustomerMessages({
@@ -63,7 +61,7 @@ export const getOrCreateEngageMessage = async (
   return Messages.findOne(Conversations.widgetsUnreadMessagesQuery(convs));
 };
 
-export const createVisitorFromVisitorLog = async (visitorId: string) => {
+export const convertVisitorToCustomer = async (visitorId: string) => {
   const visitor = await getVisitorLog(visitorId);
 
   delete visitor.visitorId;
@@ -76,8 +74,7 @@ export const createVisitorFromVisitorLog = async (visitorId: string) => {
     {
       visitorId
     },
-    { $set: { customerId: customer._id, visitorId: '' } },
-    { multi: true }
+    { $set: { customerId: customer._id, visitorId: '' } }
   );
 
   return customer;

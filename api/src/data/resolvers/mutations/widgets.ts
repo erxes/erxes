@@ -44,7 +44,7 @@ import {
   sendToWebhook
 } from '../../utils';
 import {
-  createVisitorFromVisitorLog,
+  convertVisitorToCustomer,
   getOrCreateEngageMessage
 } from '../../widgetUtils';
 import { conversationNotifReceivers } from './conversations';
@@ -355,7 +355,7 @@ const widgetMutations = {
     const customData = data;
 
     // find brand
-    const brand = await Brands.getBrandByCode(brandCode);
+    const brand = await Brands.getBrand({ code: brandCode });
 
     // find integration
     const integration = await Integrations.getWidgetIntegration(
@@ -393,7 +393,10 @@ const widgetMutations = {
     }
 
     if (visitorId) {
-      await visitorLog({ visitorId, integrationId: integration._id }, 'create');
+      await visitorLog(
+        { visitorId, integrationId: integration._id },
+        'createOrUpdate'
+      );
     }
 
     // get or create company
@@ -436,7 +439,7 @@ const widgetMutations = {
       uiOptions: integration.uiOptions,
       languageCode: integration.languageCode,
       messengerData: await getMessengerData(integration),
-      customerId: customer ? customer?._id : null,
+      customerId: customer && customer._id,
       visitorId,
       brand
     };
@@ -471,7 +474,7 @@ const widgetMutations = {
     let { customerId } = args;
 
     if (visitorId && !customerId) {
-      const customer = await createVisitorFromVisitorLog(visitorId);
+      const customer = await convertVisitorToCustomer(visitorId);
       customerId = customer._id;
     }
 

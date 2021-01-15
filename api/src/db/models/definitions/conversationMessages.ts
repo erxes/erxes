@@ -92,7 +92,11 @@ export const messageSchema = new Schema({
   conversationId: field({ type: String, index: true }),
   internal: field({ type: Boolean, index: true }),
   customerId: field({ type: String, index: true }),
-  visitorId: field({ type: String, index: true }),
+  visitorId: field({
+    type: String,
+    index: true,
+    label: 'unique visitor id on logger database'
+  }),
   fromBot: field({ type: Boolean }),
   userId: field({ type: String, index: true }),
   createdAt: field({ type: Date, index: true }),

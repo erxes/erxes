@@ -17,6 +17,7 @@ import {
   IEngageMessageDocument
 } from './definitions/engages';
 import { IIntegrationDocument } from './definitions/integrations';
+import { CONTENT_TYPES } from './definitions/segments';
 import { IUserDocument } from './definitions/users';
 
 interface ICheckRulesParams {
@@ -236,7 +237,7 @@ export const loadClass = () => {
       const { brand, integration, customer, visitor, browserInfo } = params;
       if (visitor) {
         delete visitor._id;
-        visitor.state = 'visitor';
+        visitor.state = CONTENT_TYPES.VISITOR;
       }
       const customerObj = customer ? customer : visitor;
 
@@ -269,7 +270,7 @@ export const loadClass = () => {
 
         const customersSelector = {
           _id: customerObj._id,
-          state: { $ne: 'visitor' },
+          state: { $ne: CONTENT_TYPES.VISITOR },
           ...(await generateCustomerSelector({
             customerIds,
             segmentIds,
@@ -286,7 +287,7 @@ export const loadClass = () => {
 
         if (
           message.kind === MESSAGE_KINDS.VISITOR_AUTO &&
-          customerObj.state !== 'visitor'
+          customerObj.state !== CONTENT_TYPES.VISITOR
         ) {
           continue;
         }
@@ -303,7 +304,7 @@ export const loadClass = () => {
           customerId: customer ? customer._id : undefined
         });
 
-        const isPassedAllRules = await this.checkRules({
+        const hasPassedAllRules = await this.checkRules({
           rules: messenger.rules,
           browserInfo,
           numberOfVisits
@@ -311,7 +312,7 @@ export const loadClass = () => {
 
         // if given visitor is matched with given condition then create
         // conversations
-        if (isPassedAllRules) {
+        if (hasPassedAllRules) {
           // replace keys in content
           const { replacedContent } = await replaceEditorAttributes({
             content: messenger.content,
@@ -330,8 +331,8 @@ export const loadClass = () => {
 
           const conversationMessage = await this.createOrUpdateConversationAndMessages(
             {
-              customerId: customer?._id,
-              visitorId: visitor ? visitor.visitorId : undefined,
+              customerId: customer && customer._id,
+              visitorId: visitor && visitor.visitorId,
               integrationId: integration._id,
               user,
               replacedContent: replacedContent || '',

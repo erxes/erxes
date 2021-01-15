@@ -57,7 +57,7 @@ export const locationSchema = new Schema(
 export interface IVisitorDocument extends IVistiorDoc, Document {}
 
 export interface IVisitorModel extends Model<IVisitorDocument> {
-  createVisitorLog(doc: IVistiorDoc): Promise<IVisitorDocument>;
+  createOrUpdateVisitorLog(doc: IVistiorDoc): Promise<IVisitorDocument>;
   updateVisitorLog(doc: IVistiorDoc): Promise<IVisitorDocument>;
   deleteVisitor(customerIds: string[]): Promise<{ n: number; ok: number }>;
   getVisitorLog(visitorId: string): Promise<IVisitorDocument>;
@@ -100,15 +100,13 @@ export const schema = new Schema({
   createdAt: field({ type: Date, default: Date.now })
 });
 
-export const loadLogClass = () => {
+export const loadVisitorClass = () => {
   class Visitor {
-    public static async createVisitorLog(doc: IVistiorDoc) {
-      const visitor = await Visitors.findOne({
-        visitorId: doc.visitorId
-      });
+    public static async createOrUpdateVisitorLog(doc: IVistiorDoc) {
+      const visitor = await Visitors.getVisitorLog(doc.visitorId);
 
       if (visitor) {
-        throw new Error('visitor already exists');
+        return Visitors.findOneAndUpdate({ visitorId: doc.visitorId }, doc);
       }
 
       return Visitors.create({
@@ -121,13 +119,7 @@ export const loadLogClass = () => {
     public static async updateVisitorLog(doc: IVistiorDoc) {
       const now = new Date();
 
-      const visitor = await Visitors.findOne({
-        visitorId: doc.visitorId
-      });
-
-      if (!visitor) {
-        throw new Error('Visitor not found');
-      }
+      const visitor = await Visitors.getVisitorLog(doc.visitorId);
 
       delete doc.integrationId;
 
@@ -161,9 +153,9 @@ export const loadLogClass = () => {
       const visitor = Visitors.findOne({ visitorId });
 
       if (!visitor) {
-        throw new Error('Visitor not');
+        throw new Error('Visitor not found');
       }
-      return Visitors.findOne({ visitorId });
+      return visitor;
     }
   }
 
@@ -172,7 +164,7 @@ export const loadLogClass = () => {
   return schema;
 };
 
-loadLogClass();
+loadVisitorClass();
 
 // tslint:disable-next-line
 const Visitors = model<IVisitorDocument, IVisitorModel>('visitors', schema);

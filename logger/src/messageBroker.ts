@@ -25,8 +25,8 @@ export const initBroker = async server => {
 
     if (action === 'update') {
       return Visitors.updateVisitorLog(data);
-    } else if (action === 'create') {
-      return Visitors.createVisitorLog(data);
+    } else if (action === 'createOrUpdate') {
+      return Visitors.createOrUpdateVisitorLog(data);
     }
   });
 

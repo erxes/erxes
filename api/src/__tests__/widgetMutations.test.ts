@@ -1,6 +1,7 @@
 import * as faker from 'faker';
 import * as Random from 'meteor-random';
 import * as sinon from 'sinon';
+import { MESSAGE_KINDS } from '../data/constants';
 import * as logUtils from '../data/logUtils';
 import widgetMutations, {
   getMessengerData
@@ -661,7 +662,7 @@ describe('saveBrowserInfo()', () => {
           }
         ]
       },
-      kind: 'visitorAuto',
+      kind: MESSAGE_KINDS.VISITOR_AUTO,
       method: 'messenger',
       isLive: true
     });
