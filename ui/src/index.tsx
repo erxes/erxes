@@ -18,7 +18,7 @@ Sentry.init({
   dsn:
     process.env.NODE_ENV === 'development'
       ? 'https://125ed83537ee441d9b16b20d631e6130@sentry.erxes.io/6'
-      : 'https://6d8ffc15437e46ff852e14633ddcfbe3@sentry.erxes.io/12',
+      : 'https://42a5f5d167524ab4b15a66e78a78fb49@sentry.erxes.io/17',
 
   integrations: [
     new Integrations.BrowserTracing({

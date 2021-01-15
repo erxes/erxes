@@ -109,7 +109,7 @@ Sentry.init({
   dsn:
     process.env.NODE_ENV === 'development'
       ? 'https://8e173a20ee1147a9a12cce71f62a8188@sentry.erxes.io/5'
-      : 'https://32238b5910b540b6954392dd29ef5a4e@sentry.erxes.io/13',
+      : 'https://c1dafcb26ce847e5a128b3db9c61aae2@sentry.erxes.io/18',
 
   integrations: [
     new Tracing.Integrations.Mongo(),
