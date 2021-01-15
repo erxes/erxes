@@ -6,7 +6,7 @@ on:
       - "**"
     paths:
       - "api/**"
-      - "plugins/**/api"
+      - "plugins/**/api/**"
       - ".github/workflows/api.yaml"
   pull_request:
     branches:
@@ -15,7 +15,7 @@ on:
       - workers
     paths:
       - "api/**"
-      - "plugins/**/api"
+      - "plugins/**/api/**"
       - ".github/workflows/api.yaml"
 
 jobs:

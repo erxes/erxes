@@ -6,7 +6,7 @@ on:
       - "**"
     paths:
       - "ui/**"
-      - "plugins/**/ui"
+      - "plugins/**/ui/**"
       - ".github/workflows/ui.yaml"
       - "!ui/nginx/**"
       - "!ui/docker-entrypoint.sh"
@@ -17,7 +17,7 @@ on:
       - priuscenter
     paths:
       - "ui/**"
-      - "plugins/**/ui"
+      - "plugins/**/ui/**"
       - "!ui/nginx/**"
       - "!ui/docker-entrypoint.sh"
       - "!ui/base.Dockerfile"
