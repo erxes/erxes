@@ -22,7 +22,7 @@ export const getPostData = async (models, config, deal) => {
         const checkCompanyRes = await sendRequest({
           url: config.checkCompanyUrl,
           method: 'GET',
-          params: { ttd: company.code },
+          params: { regno: company.code },
         });
 
         if (checkCompanyRes.found) {

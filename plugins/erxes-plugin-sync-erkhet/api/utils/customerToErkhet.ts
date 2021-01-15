@@ -40,7 +40,7 @@ export const validCompanyCode = async (config, companyCode) => {
   const re = new RegExp('(^[А-ЯЁӨҮ]{2}[0-9]{8}$)|(^\\d{7}$)', 'gui');
 
   if (re.test(companyCode)) {
-    const jsonResponse = await sendRequest({ url: config.checkCompanyUrl, method: 'GET', params: { ttd: companyCode } });
+    const jsonResponse = await sendRequest({ url: config.checkCompanyUrl, method: 'GET', params: { regno: companyCode } });
     const response = JSON.parse(jsonResponse);
 
     if (response.found) {
