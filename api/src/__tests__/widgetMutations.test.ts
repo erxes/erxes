@@ -188,7 +188,7 @@ describe('messenger connect', () => {
       }
     );
 
-    expect(response.customerId).toBeNull();
+    expect(response.customerId).toBeUndefined();
     expect(response.visitorId).toBe('123');
 
     mock.restore();
