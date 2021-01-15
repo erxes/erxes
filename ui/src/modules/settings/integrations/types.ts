@@ -130,6 +130,11 @@ export interface IMessengerApps {
   leads?: ILead[];
 }
 
+interface IIntegartionHealthStatus {
+  status: string;
+  error: string;
+}
+
 export interface IIntegration {
   _id: string;
   kind: string;
@@ -147,7 +152,7 @@ export interface IIntegration {
   brand: IBrand;
   channels: IChannel[];
   isActive?: boolean;
-  healthStatus?: string;
+  healthStatus?: IIntegartionHealthStatus;
   webhookData?: IWebhookData;
   leadMessengerApps?: ILeadMessengerApp[];
   websiteMessengerApps?: IWebsiteMessengerApp[];
