@@ -63,3 +63,7 @@ export GOOGLE_APPLICATION_CREDENTIALS="/Path/to/your/[google_cred].json"
 **Error Sending test Message to Cloud PubSub projects topics/gmail_topic: Resource not found (resource=topic)**
 
 Please make sure that you added an **absolute** path in **GOOGLE_APPLICATION_CREDENTIALS**.
+
+## Elksyncer
+
+If you encounter **Last entry no longer in oplog cannot recover!** when you start elksyncer, Please remove **oplog.timestamp** file inside erxes/elksyncer directory. Then start it up again and elksyncer should be fine.
