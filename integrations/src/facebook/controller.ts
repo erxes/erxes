@@ -115,7 +115,7 @@ const init = async app => {
       if (!e.message.includes('Application request limit reached')) {
         await Integrations.updateOne(
           { accountId },
-          { $set: { healthStatus: 'account-token' } }
+          { $set: { healthStatus: 'account-token', error: `${e.message}` } }
         );
       }
 
@@ -149,9 +149,16 @@ const init = async app => {
       erxesApiId: integrationId
     });
 
-    const result = integration
-      ? integration.healthStatus || 'healthy'
-      : 'healthy';
+    let result = {
+      status: 'healthy'
+    } as any;
+
+    if (integration) {
+      result = {
+        status: integration.healthStatus || 'healthy',
+        error: integration.error
+      };
+    }
 
     return res.send(result);
   });
