@@ -3,7 +3,6 @@ import {
   Conformities,
   Customers,
   Fields,
-  Notifications,
   PipelineLabels,
   Pipelines,
   Products,
