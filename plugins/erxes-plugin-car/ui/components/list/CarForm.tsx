@@ -126,14 +126,6 @@ class CarForm extends React.Component<Props, State> {
     );
   }
 
-  // onChange = (
-  //   optionsName: string,
-  //   optionName: string,
-  //   { options, selectedOption }: { options: string[]; selectedOption: string }
-  // ) => {
-  //   this.setState({ [optionsName]: options, [optionName]: selectedOption });
-  // };
-
   renderContent = (formProps: IFormProps) => {
     const car = this.props.car || ({} as ICar);
     const { closeModal, renderButton, carCategories } = this.props;
