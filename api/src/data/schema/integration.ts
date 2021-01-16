@@ -22,7 +22,7 @@ export const types = `
     websiteMessengerApps: [MessengerApp]
     knowledgeBaseMessengerApps: [MessengerApp]
     leadMessengerApps: [MessengerApp]
-    healthStatus: String
+    healthStatus: JSON
   }
 
   type integrationsTotalCount {

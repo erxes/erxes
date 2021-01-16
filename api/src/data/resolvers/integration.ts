@@ -61,10 +61,10 @@ export default {
           integrationId: integration._id
         });
       } catch (e) {
-        return 'healthy';
+        return { status: 'healthy' };
       }
     }
 
-    return 'healthy';
+    return { status: 'healthy' };
   }
 };

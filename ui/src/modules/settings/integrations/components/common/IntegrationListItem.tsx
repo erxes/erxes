@@ -235,7 +235,7 @@ class IntegrationListItem extends React.Component<Props, State> {
 
     if (
       integration.healthStatus &&
-      integration.healthStatus === 'acount-token'
+      integration.healthStatus.status === 'account-token'
     ) {
       const editTrigger = (
         <Button btnStyle="link">
@@ -338,12 +338,20 @@ class IntegrationListItem extends React.Component<Props, State> {
   render() {
     const { integration } = this.props;
     const integrationKind = cleanIntegrationKind(integration.kind);
+
+    const healthStatus = integration.healthStatus
+      ? integration.healthStatus.status
+      : '';
+
+    const error = integration.healthStatus
+      ? integration.healthStatus.error
+      : '';
+
     const labelStyle = integration.isActive ? 'success' : 'error';
     const status = integration.isActive ? __('Active') : __('Archived');
-    const labelStyleHealthy =
-      integration.healthStatus === 'healthy' ? 'success' : 'danger';
-    const healthStatus =
-      integration.healthStatus === 'healthy' ? __('Healthy') : __('Unhealthy');
+    const labelStyleHealthy = healthStatus === 'healthy' ? 'success' : 'danger';
+    const healthStatusText =
+      healthStatus === 'healthy' ? __('Healthy') : __('Unhealthy');
 
     return (
       <tr key={integration._id}>
@@ -358,7 +366,9 @@ class IntegrationListItem extends React.Component<Props, State> {
           <Label lblStyle={labelStyle}>{status}</Label>
         </td>
         <td>
-          <Label lblStyle={labelStyleHealthy}>{healthStatus}</Label>
+          <Tip text={error}>
+            <Label lblStyle={labelStyleHealthy}>{healthStatusText}</Label>
+          </Tip>
         </td>
         {this.renderExternalData(integration)}
         <td>
