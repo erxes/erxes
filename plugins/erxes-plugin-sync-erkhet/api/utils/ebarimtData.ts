@@ -14,7 +14,7 @@ export const getPostData = async (models, config, deal) => {
 
   const companyIds = await models.Conformities.savedConformity({ mainType: 'deal', mainTypeId: deal._id, relTypes: ['company'] });
   if (companyIds.length > 0) {
-    const companies = models.Companies.find({ _id: { $in: companyIds } });
+    const companies = await models.Companies.find({ _id: { $in: companyIds } }) || [];
     const re = new RegExp('(^[А-ЯЁӨҮ]{2}[0-9]{8}$)|(^\\d{7}$)', 'gui');
     for (const company of companies) {
 
