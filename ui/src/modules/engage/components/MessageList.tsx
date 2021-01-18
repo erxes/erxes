@@ -171,7 +171,7 @@ class List extends React.Component<Props> {
       </Button>
     );
 
-    const content = props => (
+    const content = () => (
       <FlexContainer direction="column">
         {this.renderBox(
           'Auto message',
@@ -236,6 +236,7 @@ class List extends React.Component<Props> {
               />
             </th>
             <th>{__('Title')}</th>
+            <th>{__('Created')}</th>
             <th>{__('From')}</th>
             <th>{__('Status')}</th>
             <th>{__('Total')}</th>
