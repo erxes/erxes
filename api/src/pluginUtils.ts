@@ -325,7 +325,7 @@ export const extendViaPlugins = (app, resolvers, typeDefDetails): Promise<any> =
   });
 });
 
-export const pluginsConsume = (client, prefix) => {
+export const pluginsConsume = (client) => {
   const { consumeQueue, consumeRPCQueue } = client;
   const context = {
     models: allModels,
@@ -338,13 +338,13 @@ export const pluginsConsume = (client, prefix) => {
 
     if (mbroker.method === "RPCQueue") {
       consumeRPCQueue(
-        channel.concat(prefix),
+        channel,
         async msg => mbroker.handler(msg, context)
       );
 
     } else {
       consumeQueue(
-        channel.concat(prefix),
+        channel,
         async msg => await mbroker.handler(msg, context)
       );
     }
