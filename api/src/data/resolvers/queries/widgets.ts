@@ -105,8 +105,6 @@ export default {
       ? { integrationId, customerId }
       : { integrationId, visitorId };
 
-    console.log(query);
-
     return Conversations.find(query).sort({ createdAt: -1 });
   },
 

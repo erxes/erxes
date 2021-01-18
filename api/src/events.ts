@@ -32,16 +32,13 @@ export const saveEvent = async (args: ISaveEventArgs) => {
 
   let visitorId = args.visitorId;
   let customerId = args.customerId;
-  let newlyCreatedId;
-
-  if (!customerId && !visitorId) {
-    customerId = await Customers.createVisitor();
-    newlyCreatedId = customerId;
-  }
 
   const searchQuery = {
     bool: {
-      must: [{ term: { name } }, { term: { customerId } }]
+      must: [
+        { term: { name } },
+        { term: customerId ? { customerId } : { visitorId } }
+      ]
     }
   };
 
@@ -74,10 +71,6 @@ export const saveEvent = async (args: ISaveEventArgs) => {
   } catch (e) {
     debugBase(`Save event error ${e.message}`);
 
-    if (newlyCreatedId) {
-      await Customers.remove({ _id: newlyCreatedId });
-    }
-
     customerId = undefined;
     visitorId = undefined;
   }
@@ -100,7 +93,27 @@ export const getNumberOfVisits = async (params: {
           must: [
             { term: { name: 'viewPage' } },
             { term: searchId },
-            { term: { 'attributes.url.keyword': params.url } }
+            {
+              nested: {
+                path: 'attributes',
+                query: {
+                  bool: {
+                    must: [
+                      {
+                        term: {
+                          'attributes.field': 'url'
+                        }
+                      },
+                      {
+                        match: {
+                          'attributes.value': params.url
+                        }
+                      }
+                    ]
+                  }
+                }
+              }
+            }
           ]
         }
       }
@@ -138,13 +151,24 @@ export const trackViewPageEvent = (args: {
       bool: {
         must: [
           {
-            term: {
-              'attributes.field': 'url'
-            }
-          },
-          {
-            term: {
-              'attributes.value': attributes.url
+            nested: {
+              path: 'attributes',
+              query: {
+                bool: {
+                  must: [
+                    {
+                      term: {
+                        'attributes.field': 'url'
+                      }
+                    },
+                    {
+                      match: {
+                        'attributes.value': attributes.url
+                      }
+                    }
+                  ]
+                }
+              }
             }
           }
         ]

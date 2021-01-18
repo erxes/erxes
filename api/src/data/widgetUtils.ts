@@ -1,3 +1,4 @@
+import * as getUuid from 'uuid-by-string';
 import {
   Brands,
   Conversations,
@@ -8,6 +9,8 @@ import {
 import Messages from '../db/models/ConversationMessages';
 import { IBrowserInfo } from '../db/models/Customers';
 import { KIND_CHOICES } from '../db/models/definitions/constants';
+import { debugBase } from '../debuggers';
+import { client, getIndexPrefix } from '../elasticsearch';
 import { getVisitorLog } from './logUtils';
 
 export const getOrCreateEngageMessage = async (
@@ -76,6 +79,33 @@ export const convertVisitorToCustomer = async (visitorId: string) => {
     },
     { $set: { customerId: customer._id, visitorId: '' } }
   );
+
+  const index = `${getIndexPrefix()}events`;
+
+  try {
+    const response = await client.updateByQuery({
+      index,
+      body: {
+        script: {
+          lang: 'painless',
+          source:
+            'ctx._source.visitorId = null; ctx._source.customerId = params.customerId',
+          params: {
+            customerId: customer._id
+          }
+        },
+        query: {
+          term: {
+            visitorId
+          }
+        }
+      }
+    });
+
+    debugBase(`Response ${JSON.stringify(response)}`);
+  } catch (e) {
+    debugBase(`Update event error ${e.message}`);
+  }
 
   return customer;
 };
