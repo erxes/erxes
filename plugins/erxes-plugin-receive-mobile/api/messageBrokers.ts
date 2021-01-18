@@ -23,6 +23,31 @@ export default [
 
       try {
         switch (action) {
+          case "createCustomer":
+            customer = await models.Customers.getWidgetCustomer({
+              email: data.email,
+              phone: data.phoneNumber,
+            });
+
+            const doc = {
+              email: data.email,
+              phone: data.phoneNumber,
+              deviceToken: data.deviceToken,
+              firstName: data.firstName,
+              lastName: data.lastName,
+              description: data.address,
+              integrationId: data.integrationId,
+            };
+
+            customer = customer
+              ? await models.Customers.updateMessengerCustomer({
+                _id: customer._id,
+                doc,
+              })
+              : await models.Customers.createMessengerCustomer({ doc });
+
+            return sendSuccess(customer);
+
           case "getUserAdditionInfo":
             customer = await models.Customers.getWidgetCustomer({
               email: data.user.email,
@@ -475,31 +500,6 @@ export default [
       let customer: any = null;
 
       switch (action) {
-        case "createCustomer":
-          customer = await models.Customers.getWidgetCustomer({
-            email: data.email,
-            phone: data.phoneNumber,
-          });
-
-          const doc = {
-            email: data.email,
-            phone: data.phoneNumber,
-            deviceToken: data.deviceToken,
-            firstName: data.firstName,
-            lastName: data.lastName,
-            description: data.address,
-            integrationId: data.integrationId,
-          };
-
-          customer = customer
-            ? await models.Customers.updateMessengerCustomer({
-                _id: customer._id,
-                doc,
-              })
-            : await models.Customers.createMessengerCustomer({ doc });
-
-          return sendSuccess(customer);
-
         case 'sendEmail':
           return sendSuccess(await sendEmail(models, memoryStorage, process, {
             toEmails: [data.email],
