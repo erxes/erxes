@@ -27,6 +27,7 @@ export const types = `
     status: String!
     errors: [Error]
     messageId: String
+    customerId: String
   }
 
   type Error {

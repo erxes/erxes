@@ -1,6 +1,6 @@
 import gql from "graphql-tag";
 import client from "../../apollo-client";
-import { getLocalStorageItem } from "../../common";
+import { getLocalStorageItem, setLocalStorageItem } from "../../common";
 import { IBrowserInfo, IEmailParams } from "../../types";
 import { requestBrowserInfo } from "../../utils";
 import { connection } from "../connection";
@@ -114,6 +114,12 @@ export const saveLead = (params: {
 
     .then(({ data }) => {
       if (data) {
+        if(data.widgetsSaveLead.customerId) {
+          setLocalStorageItem('customerId',data.widgetsSaveLead.customerId)
+        }
+
+        console.log("ASDASDA: ",getLocalStorageItem('customerId'))
+
         saveCallback(data.widgetsSaveLead);
 
         if (data.widgetsSaveLead && data.widgetsSaveLead.status === "ok") {

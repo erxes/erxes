@@ -385,7 +385,7 @@ const widgetMutations = {
       cachedCustomerId: args.cachedCustomerId
     });
 
-    return { status: 'ok', messageId: message._id };
+    return { status: 'ok', messageId: message._id, customerId: customer._id };
   },
 
   widgetsLeadIncreaseViewCount(_root, { formId }: { formId: string }) {

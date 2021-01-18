@@ -304,11 +304,15 @@ export const loadClass = () => {
           customerId: customer ? customer._id : undefined
         });
 
+        console.log('number of visits = ', numberOfVisits);
+
         const hasPassedAllRules = await this.checkRules({
           rules: messenger.rules,
           browserInfo,
           numberOfVisits
         });
+
+        console.log('hasPassedAllRules: ', hasPassedAllRules);
 
         // if given visitor is matched with given condition then create
         // conversations

@@ -15,6 +15,16 @@ export const getLocalStorageItem = (key: string): any => {
 export const setLocalStorageItem = (key: string, value: string) => {
   storage[key] = value;
 
+  window.postMessage(
+    {
+      fromErxes: true,
+      message: 'setLocalStorageItem',
+      key,
+      value
+    },
+    '*'
+  );
+
   window.parent.postMessage(
     {
       fromErxes: true,
