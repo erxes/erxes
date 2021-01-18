@@ -74,7 +74,8 @@ describe('engage messages model tests', () => {
       brandIds: [_brand._id],
       tagIds: [_tag._id],
       isLive: true,
-      isDraft: false
+      isDraft: false,
+      createdBy: _user._id
     };
 
     const message = await EngageMessages.createEngageMessage(doc);
@@ -86,6 +87,7 @@ describe('engage messages model tests', () => {
     expect(message.tagIds).toEqual(expect.arrayContaining(doc.tagIds));
     expect(message.isLive).toEqual(doc.isLive);
     expect(message.isDraft).toEqual(doc.isDraft);
+    expect(message.createdBy).toBe(doc.createdBy);
   });
 
   test('update messages', async () => {
