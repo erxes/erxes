@@ -61,7 +61,7 @@ type Props = {
   closeModal?: () => void;
   toggleReply?: () => void;
   emailSignatures: IEmailSignature[];
-  fetchMoreEmailTemplates: () => void;
+  fetchMoreEmailTemplates: (page: number) => void;
   createdAt?: Date;
   sendMail: ({
     variables,
