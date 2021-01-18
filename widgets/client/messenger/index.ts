@@ -61,7 +61,6 @@ widgetConnect({
     // save customer id to identify visitor next time
     setLocalStorageItem('customerId', messengerData.customerId);
 
-    console.log(getLocalStorageItem('customerId'))
     // send connected message to ws server and server will save given
     // data to connection. So when connection closed, we will use
     // customerId to mark customer as not active

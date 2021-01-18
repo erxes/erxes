@@ -114,12 +114,6 @@ export const saveLead = (params: {
 
     .then(({ data }) => {
       if (data) {
-        if(data.widgetsSaveLead.customerId) {
-          setLocalStorageItem('customerId',data.widgetsSaveLead.customerId)
-        }
-
-        console.log("ASDASDA: ",getLocalStorageItem('customerId'))
-
         saveCallback(data.widgetsSaveLead);
 
         if (data.widgetsSaveLead && data.widgetsSaveLead.status === "ok") {
