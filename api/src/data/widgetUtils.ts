@@ -1,4 +1,3 @@
-import * as getUuid from 'uuid-by-string';
 import {
   Brands,
   Conversations,
