@@ -123,7 +123,7 @@ export default {
   },
 
   hasNotified(_deal: IDealDocument, _args) {
-    return false;
+    return true;
   },
 
   labels(deal: IDealDocument) {
