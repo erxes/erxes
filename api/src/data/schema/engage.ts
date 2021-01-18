@@ -29,6 +29,7 @@ export const types = `
     email: JSON
     messenger: JSON
     shortMessage: EngageMessageSms
+    createdBy: String
 
     scheduleDate: EngageScheduleDate
     segments: [Segment]
@@ -37,6 +38,7 @@ export const types = `
     fromUser: User
     getTags: [Tag]
     fromIntegration: Integration
+    createdUser: String
 
     stats: JSON
     logs: JSON
