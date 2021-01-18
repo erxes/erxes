@@ -1,6 +1,6 @@
 import gql from "graphql-tag";
 import client from "../../apollo-client";
-import { getLocalStorageItem, setLocalStorageItem } from "../../common";
+import { getLocalStorageItem } from "../../common";
 import { IBrowserInfo, IEmailParams } from "../../types";
 import { requestBrowserInfo } from "../../utils";
 import { connection } from "../connection";
