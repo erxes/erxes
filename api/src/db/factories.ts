@@ -247,6 +247,7 @@ interface IEngageMessageFactoryInput {
   fromUserId?: string;
   fromIntegrationId?: string;
   scheduleDate?: IScheduleDate;
+  createdBy?: string;
 }
 
 export const engageMessageFactory = (
@@ -258,6 +259,7 @@ export const engageMessageFactory = (
     method: params.method || 'messenger',
     title: params.title || faker.random.word(),
     fromUserId: params.userId || faker.random.uuid(),
+    createdBy: params.createdBy || faker.random.uuid(),
     segmentIds: params.segmentIds || [],
     brandIds: params.brandIds || [],
     tagIds: params.tagIds || [],

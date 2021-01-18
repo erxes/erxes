@@ -28,14 +28,35 @@ interface IUpdateUser extends IEditProfile {
   brandIds?: string[];
 }
 
+interface IConfirmParams {
+  token: string;
+  password: string;
+  passwordConfirmation: string;
+  fullName?: string;
+  username?: string;
+}
+
+interface IInviteParams {
+  email: string;
+  password: string;
+  groupId: string;
+}
+
+interface ILoginParams {
+  email: string;
+  password?: string;
+  deviceToken?: string;
+}
+
+interface IPasswordParams {
+  _id: string;
+  newPassword: string;
+}
+
 export interface IUserModel extends Model<IUserDocument> {
   getUser(_id: string): Promise<IUserDocument>;
   checkPassword(password: string): void;
-  checkDuplication({
-    email,
-    idsToExclude,
-    emails
-  }: {
+  checkDuplication(params: {
     email?: string;
     idsToExclude?: string | string[];
     emails?: string[];
@@ -57,67 +78,24 @@ export interface IUserModel extends Model<IUserDocument> {
   ): Promise<IUserDocument>;
   setUserActiveOrInactive(_id: string): Promise<IUserDocument>;
   generatePassword(password: string): Promise<string>;
-  invite({
-    email,
-    password,
-    groupId
-  }: {
-    email: string;
-    password: string;
-    groupId: string;
-  }): string;
+  invite(params: IInviteParams): string;
   resendInvitation({ email }: { email: string }): string;
-  confirmInvitation({
-    token,
-    password,
-    passwordConfirmation,
-    fullName,
-    username
-  }: {
-    token: string;
-    password: string;
-    passwordConfirmation: string;
-    fullName?: string;
-    username?: string;
-  }): Promise<IUserDocument>;
+  confirmInvitation(params: IConfirmParams): Promise<IUserDocument>;
   comparePassword(password: string, userPassword: string): boolean;
-  resetPassword({
-    token,
-    newPassword
-  }: {
+  resetPassword(params: {
     token: string;
     newPassword: string;
   }): Promise<IUserDocument>;
-  resetMemberPassword({
-    _id,
-    newPassword
-  }: {
-    _id: string;
-    newPassword: string;
-  }): Promise<IUserDocument>;
-  changePassword({
-    _id,
-    currentPassword,
-    newPassword
-  }: {
-    _id: string;
-    currentPassword: string;
-    newPassword: string;
-  }): Promise<IUserDocument>;
+  resetMemberPassword(params: IPasswordParams): Promise<IUserDocument>;
+  changePassword(
+    params: IPasswordParams & { currentPassword: string }
+  ): Promise<IUserDocument>;
   forgotPassword(email: string): string;
   createTokens(_user: IUserDocument, secret: string): string[];
   refreshTokens(
     refreshToken: string
   ): { token: string; refreshToken: string; user: IUserDocument };
-  login({
-    email,
-    password,
-    deviceToken
-  }: {
-    email: string;
-    password?: string;
-    deviceToken?: string;
-  }): { token: string; refreshToken: string };
+  login(params: ILoginParams): { token: string; refreshToken: string };
 }
 
 export const loadClass = () => {

@@ -60,9 +60,11 @@ describe('engageQueries', () => {
   });
 
   test('Engage messages', async () => {
+    const user = await userFactory();
+
     await engageMessageFactory({});
     await engageMessageFactory({});
-    await engageMessageFactory({});
+    await engageMessageFactory({ createdBy: user._id });
 
     const responses = await graphqlRequest(qryEngageMessages, 'engageMessages');
 
@@ -205,7 +207,7 @@ describe('engageQueries', () => {
     expect(response.length).toBe(2);
   });
 
-  test('Enage email delivery report list', async () => {
+  test('Engage email delivery report list', async () => {
     const customer = await customerFactory();
     const dataSourceMock = sinon
       .stub(dataSources.EngagesAPI, 'engageReportsList')
@@ -255,7 +257,8 @@ describe('engageQueries', () => {
   });
 
   test('Engage message detail', async () => {
-    const engageMessage = await engageMessageFactory();
+    const user = await userFactory();
+    const engageMessage = await engageMessageFactory({ createdBy: user._id });
 
     const qry = `
       query engageMessageDetail($_id: String) {
@@ -277,6 +280,8 @@ describe('engageQueries', () => {
 
           email
           messenger
+          createdBy
+          createdUser
 
           brands { _id }
           segments { _id }
@@ -300,6 +305,7 @@ describe('engageQueries', () => {
     );
 
     expect(response._id).toBe(engageMessage._id);
+    expect(response.createdBy).toBe(user._id);
 
     const brand = await brandFactory();
     const messenger = { brandId: brand._id, content: 'Content' };
