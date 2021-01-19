@@ -180,6 +180,12 @@ describe('messenger connect', () => {
       return Promise.resolve('success');
     });
 
+    const logUtilsMock = sinon
+      .stub(logUtils, 'isLoggerRunning')
+      .callsFake(() => {
+        return Promise.resolve(true);
+      });
+
     const response = await widgetMutations.widgetsMessengerConnect(
       {},
       {
@@ -191,6 +197,32 @@ describe('messenger connect', () => {
     expect(response.customerId).toBeUndefined();
     expect(response.visitorId).toBe('123');
 
+    logUtilsMock.restore();
+    mock.restore();
+  });
+
+  test('creates new customer when logger is not running', async () => {
+    const mock = sinon.stub(utils, 'sendRequest').callsFake(() => {
+      return Promise.resolve('success');
+    });
+
+    const logUtilsMock = sinon
+      .stub(logUtils, 'isLoggerRunning')
+      .callsFake(() => {
+        return Promise.resolve(false);
+      });
+
+    const response = await widgetMutations.widgetsMessengerConnect(
+      {},
+      {
+        brandCode: _brand.code || '',
+        visitorId: '123'
+      }
+    );
+
+    expect(response.customerId).toBeDefined();
+
+    logUtilsMock.restore();
     mock.restore();
   });
 

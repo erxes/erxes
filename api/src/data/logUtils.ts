@@ -55,6 +55,7 @@ import {
   Users,
   UsersGroups
 } from '../db/models/index';
+import { debugBase } from '../debuggers';
 import messageBroker from '../messageBroker';
 import { callAfterMutation } from '../pluginUtils';
 import { MODULE_NAMES, RABBITMQ_QUEUES } from './constants';
@@ -1483,18 +1484,23 @@ export const getVisitorLog = async visitorId => {
 
 export const isLoggerRunning = async () => {
   // check logger api is running
-  const LOGS_DOMAIN = getEnv({ name: 'LOGGER_API_DOMAIN' });
+  const LOGS_DOMAIN = getSubServiceDomain({ name: 'LOGS_API_DOMAIN' });
   try {
-    await sendRequest(
+    const response = await sendRequest(
       {
-        url: `${LOGS_DOMAIN}`,
+        url: `${LOGS_DOMAIN}/health`,
         method: 'get'
       },
       'Failed to connect to logs api. Check whether LOGS_API_DOMAIN env is missing or logs api is not running'
     );
 
-    return true;
+    if (response === 'ok') {
+      return true;
+    }
+
+    return false;
   } catch (e) {
+    debugBase('Logger is not running. Error: ', e.message);
     return false;
   }
 };

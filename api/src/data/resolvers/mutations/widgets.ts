@@ -475,7 +475,7 @@ const widgetMutations = {
     }
 
     if (visitorId) {
-      const isRunning = isLoggerRunning();
+      const isRunning = await isLoggerRunning();
 
       if (isRunning) {
         await sendToVisitorLog(
