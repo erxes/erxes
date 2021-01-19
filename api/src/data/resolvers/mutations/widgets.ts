@@ -233,7 +233,7 @@ const widgetMutations = {
     if (integ.leadData?.isRequireOnce && args.cachedCustomerId) {
       const conversation = await Conversations.findOne({
         customerId: args.cachedCustomerId,
-        integrationId: integ.id
+        integrationId: integ._id
       });
       if (conversation) {
         return null;
