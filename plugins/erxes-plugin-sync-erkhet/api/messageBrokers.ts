@@ -1,5 +1,3 @@
-import { getEnv } from 'erxes-api-utils';
-
 import { consumeCustomer } from './utils/consumeCustomer';
 import { consumeInventory, consumeInventoryCategory } from './utils/consumeInventory';
 
