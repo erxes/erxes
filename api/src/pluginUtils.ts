@@ -14,30 +14,32 @@ import { graphqlPubsub } from './pubsub';
 
 interface ISubAfterMutations {
   [action: string]: {
-    callBack: void
-  }
+    callBack: void;
+  };
 }
 interface IAfterMutations {
   [type: string]: ISubAfterMutations[];
 }
 
 const callAfterMutations: IAfterMutations[] | {} = {};
-const pluginsConsumers = {}
+const pluginsConsumers = {};
 
-const tryRequire = (requirPath) => {
+const tryRequire = requirPath => {
   try {
     return require(`${requirPath}`);
   } catch (err) {
-    debugError(err.message)
+    debugError(err.message);
     return {};
   }
 };
 
-export const execInEveryPlugin = (callback) => {
-  const pluginsPath = path.resolve(__dirname, process.env.NODE_ENV === 'production' ? './plugins' : '../../plugins');
+export const execInEveryPlugin = callback => {
+  const pluginsPath = path.resolve(
+    __dirname,
+    process.env.NODE_ENV === 'production' ? './plugins' : '../../plugins'
+  );
 
   if (fs.existsSync(pluginsPath)) {
-
     fs.readdir(pluginsPath, (_error, plugins) => {
       const pluginsCount = plugins.length;
 
@@ -56,22 +58,22 @@ export const execInEveryPlugin = (callback) => {
           types: '',
           queries: '',
           mutations: '',
-          subscriptions: '',
+          subscriptions: ''
         };
 
         const ext = process.env.NODE_ENV === 'production' ? 'js' : 'ts';
 
-        const permissionsPath = `${pluginsPath}/${plugin}/api/permissions.${ext}`
-        const routesPath = `${pluginsPath}/${plugin}/api/routes.${ext}`
-        const msgBrokersPath = `${pluginsPath}/${plugin}/api/messageBrokers.${ext}`
-        const graphqlSchemaPath = `${pluginsPath}/${plugin}/api/graphql/schema.${ext}`
-        const graphqlQueriesPath = `${pluginsPath}/${plugin}/api/graphql/queries.${ext}`
-        const graphqlResolversPath = `${pluginsPath}/${plugin}/api/graphql/resolvers.${ext}`
-        const graphqlMutationsPath = `${pluginsPath}/${plugin}/api/graphql/mutations.${ext}`
-        const graphqlSubscriptionsPath = `${pluginsPath}/${plugin}/api/graphql/subscriptions.${ext}`
-        const afterMutationsPath = `${pluginsPath}/${plugin}/api/graphql/afterMutations.${ext}`
-        const modelsPath = `${pluginsPath}/${plugin}/api/models.${ext}`
-        const constantsPath = `${pluginsPath}/${plugin}/api/constants.${ext}`
+        const permissionsPath = `${pluginsPath}/${plugin}/api/permissions.${ext}`;
+        const routesPath = `${pluginsPath}/${plugin}/api/routes.${ext}`;
+        const msgBrokersPath = `${pluginsPath}/${plugin}/api/messageBrokers.${ext}`;
+        const graphqlSchemaPath = `${pluginsPath}/${plugin}/api/graphql/schema.${ext}`;
+        const graphqlQueriesPath = `${pluginsPath}/${plugin}/api/graphql/queries.${ext}`;
+        const graphqlResolversPath = `${pluginsPath}/${plugin}/api/graphql/resolvers.${ext}`;
+        const graphqlMutationsPath = `${pluginsPath}/${plugin}/api/graphql/mutations.${ext}`;
+        const graphqlSubscriptionsPath = `${pluginsPath}/${plugin}/api/graphql/subscriptions.${ext}`;
+        const afterMutationsPath = `${pluginsPath}/${plugin}/api/graphql/afterMutations.${ext}`;
+        const modelsPath = `${pluginsPath}/${plugin}/api/models.${ext}`;
+        const constantsPath = `${pluginsPath}/${plugin}/api/constants.${ext}`;
 
         if (fs.existsSync(permissionsPath)) {
           registerModule({
@@ -80,7 +82,7 @@ export const execInEveryPlugin = (callback) => {
               description: plugin,
               actions: tryRequire(permissionsPath).default
             }
-          })
+          });
         }
 
         if (fs.existsSync(routesPath)) {
@@ -120,7 +122,9 @@ export const execInEveryPlugin = (callback) => {
         }
 
         if (fs.existsSync(graphqlSchemaPath)) {
-          const { types, queries, mutations, subscriptions } = tryRequire(graphqlSchemaPath);
+          const { types, queries, mutations, subscriptions } = tryRequire(
+            graphqlSchemaPath
+          );
 
           if (types) {
             graphqlSchema.types = types;
@@ -151,9 +155,9 @@ export const execInEveryPlugin = (callback) => {
           afterMutations,
           models,
           constants
-        })
-      })
-    })
+        });
+      });
+    });
   } else {
     callback({
       isLastIteration: true,
@@ -167,9 +171,9 @@ export const execInEveryPlugin = (callback) => {
       routes: [],
       models: [],
       msgBrokers: []
-    })
+    });
   }
-}
+};
 
 const checkPermission = async (actionName, user) => {
   checkLogin(user);
@@ -179,153 +183,167 @@ const checkPermission = async (actionName, user) => {
   if (!allowed) {
     throw new Error('Permission required');
   }
-}
+};
 
-export const extendViaPlugins = (app, resolvers, typeDefDetails): Promise<any> => new Promise((resolve) => {
-  let { types, queries, mutations, subscriptions } = typeDefDetails;
+export const extendViaPlugins = (
+  app,
+  resolvers,
+  typeDefDetails
+): Promise<any> =>
+  new Promise(resolve => {
+    let { types, queries, mutations, subscriptions } = typeDefDetails;
 
-  execInEveryPlugin(async ({
-    isLastIteration,
-    graphqlSchema,
-    graphqlResolvers,
-    graphqlQueries,
-    graphqlMutations,
-    graphqlSubscriptions,
-    afterMutations,
-    routes,
-    models,
-    msgBrokers
-  }) => {
-    routes.forEach(route => {
-      app[route.method.toLowerCase()](route.path, (req, res) => {
-        return res.send(route.handler({ req, models: allModels }));
-      })
-    });
+    execInEveryPlugin(
+      async ({
+        isLastIteration,
+        graphqlSchema,
+        graphqlResolvers,
+        graphqlQueries,
+        graphqlMutations,
+        graphqlSubscriptions,
+        afterMutations,
+        routes,
+        models,
+        msgBrokers
+      }) => {
+        routes.forEach(route => {
+          app[route.method.toLowerCase()](route.path, (req, res) => {
+            return res.send(route.handler({ req, models: allModels }));
+          });
+        });
 
-    if (models && models.length) {
-      models.forEach(model => {
-        if (model.klass) {
-          model.schema = new mongoose.Schema(model.schema).loadClass(model.klass);
+        if (models && models.length) {
+          models.forEach(model => {
+            if (model.klass) {
+              model.schema = new mongoose.Schema(model.schema).loadClass(
+                model.klass
+              );
+            }
+
+            allModels[model.name] = mongoose.model(
+              model.name.replace(/([a-z])([A-Z])/g, '$1_$2').toLowerCase(),
+              model.schema
+            );
+          });
         }
 
-        allModels[model.name] = mongoose.model(model.name.replace(/([a-z])([A-Z])/g, "$1_$2").toLowerCase(), model.schema);
-      });
-    }
-
-    if (graphqlSchema.types) {
-      types = `
+        if (graphqlSchema.types) {
+          types = `
         ${types}
         ${graphqlSchema.types}
-      `
-    }
+      `;
+        }
 
-    if (graphqlSchema.queries) {
-      queries = `
+        if (graphqlSchema.queries) {
+          queries = `
         ${queries}
         ${graphqlSchema.queries}
-      `
-    }
+      `;
+        }
 
-    if (graphqlSchema.mutations) {
-      mutations = `
+        if (graphqlSchema.mutations) {
+          mutations = `
         ${mutations}
         ${graphqlSchema.mutations}
-      `
-    }
+      `;
+        }
 
-    if (graphqlSchema.subscriptions) {
-      subscriptions = `
+        if (graphqlSchema.subscriptions) {
+          subscriptions = `
         ${subscriptions}
         ${graphqlSchema.subscriptions}
-      `
-    }
-
-    const generateCtx = context => {
-      return {
-        ...context,
-        models: allModels,
-        memoryStorage,
-        graphqlPubsub,
-        checkLogin,
-        checkPermission,
-        messageBroker,
-      };
-    };
-
-    if (graphqlQueries) {
-      for (const query of graphqlQueries) {
-        resolvers.Query[query.name] = (_root, _args, context) => {
-          return query.handler(_root, _args, generateCtx(context))
+      `;
         }
-      }
-    }
 
-    if (graphqlMutations) {
-      for (const mutation of graphqlMutations) {
-        resolvers.Mutation[mutation.name] = (_root, _args, context) => {
-          return mutation.handler(_root, _args, generateCtx(context))
+        const generateCtx = context => {
+          return {
+            ...context,
+            models: allModels,
+            memoryStorage,
+            graphqlPubsub,
+            checkLogin,
+            checkPermission,
+            messageBroker
+          };
+        };
+
+        if (graphqlQueries) {
+          for (const query of graphqlQueries) {
+            resolvers.Query[query.name] = (_root, _args, context) => {
+              return query.handler(_root, _args, generateCtx(context));
+            };
+          }
         }
-      }
-    }
 
-    if (graphqlSubscriptions) {
-      for (const subscription of graphqlSubscriptions) {
-        resolvers.Subscription[subscription.name] = {
-          subscribe: withFilter(
-            () => graphqlPubsub.asyncIterator(subscription.name),
-            (payload, variables) => {
-              return subscription.handler(payload, variables)
+        if (graphqlMutations) {
+          for (const mutation of graphqlMutations) {
+            resolvers.Mutation[mutation.name] = (_root, _args, context) => {
+              return mutation.handler(_root, _args, generateCtx(context));
+            };
+          }
+        }
+
+        if (graphqlSubscriptions) {
+          for (const subscription of graphqlSubscriptions) {
+            resolvers.Subscription[subscription.name] = {
+              subscribe: withFilter(
+                () => graphqlPubsub.asyncIterator(subscription.name),
+                (payload, variables) => {
+                  return subscription.handler(payload, variables);
+                }
+              )
+            };
+          }
+        }
+
+        if (graphqlResolvers) {
+          for (const resolver of graphqlResolvers) {
+            if (!Object.keys(resolvers).includes(resolver.type)) {
+              resolvers[resolver.type] = {};
             }
-          )
+            resolvers[resolver.type][resolver.field] = (
+              _root,
+              _args,
+              context
+            ) => {
+              return resolver.handler(_root, _args, generateCtx(context));
+            };
+          }
+        }
+
+        if (msgBrokers && msgBrokers.length) {
+          msgBrokers.forEach(async mbroker => {
+            if (!Object.keys(pluginsConsumers).includes(mbroker.channel)) {
+              pluginsConsumers[mbroker.channel] = {};
+            }
+            pluginsConsumers[mbroker.channel] = mbroker;
+          });
+        }
+
+        if (afterMutations && afterMutations.length) {
+          afterMutations.forEach(async afterMutation => {
+            const { type, action } = afterMutation;
+
+            if (!Object.keys(callAfterMutations).includes(type)) {
+              callAfterMutations[type] = {};
+            }
+
+            if (!Object.keys(callAfterMutations[type]).includes(action)) {
+              callAfterMutations[type][action] = [];
+            }
+
+            callAfterMutations[type][action].push(afterMutation.handler);
+          });
+        }
+
+        if (isLastIteration) {
+          return resolve({ types, queries, mutations, subscriptions });
         }
       }
-    }
-
-    if (graphqlResolvers) {
-      for (const resolver of graphqlResolvers) {
-        if (!Object.keys(resolvers).includes(resolver.type)) {
-          resolvers[resolver.type] = {}
-        }
-        resolvers[resolver.type][resolver.field] = (_root, _args, context) => {
-          return resolver.handler(_root, _args, generateCtx(context));
-        }
-      }
-    }
-
-    if (msgBrokers && msgBrokers.length) {
-      msgBrokers.forEach(async (mbroker) => {
-        if (!Object.keys(pluginsConsumers).includes(mbroker.channel)) {
-          pluginsConsumers[mbroker.channel] = {}
-        }
-        pluginsConsumers[mbroker.channel] = mbroker
-      });
-    }
-
-    if (afterMutations && afterMutations.length) {
-      afterMutations.forEach(async (afterMutation) => {
-        const { type, action } = afterMutation;
-
-        if (!Object.keys(callAfterMutations).includes(type)) {
-          callAfterMutations[type] = {};
-        }
-
-        if (!Object.keys(callAfterMutations[type]).includes(action)) {
-          callAfterMutations[type][action] = [];
-        }
-
-        callAfterMutations[type][action].push(
-          afterMutation.handler
-        )
-      });
-    }
-
-    if (isLastIteration) {
-      return resolve({ types, queries, mutations, subscriptions })
-    }
+    );
   });
-});
 
-export const pluginsConsume = (client, prefix) => {
+export const pluginsConsume = client => {
   const { consumeQueue, consumeRPCQueue } = client;
   const context = {
     models: allModels,
@@ -336,26 +354,22 @@ export const pluginsConsume = (client, prefix) => {
   for (const channel of Object.keys(pluginsConsumers)) {
     const mbroker = pluginsConsumers[channel];
 
-    if (mbroker.method === "RPCQueue") {
-      consumeRPCQueue(
-        channel.concat(prefix),
-        async msg => mbroker.handler(msg, context)
-      );
-
+    if (mbroker.method === 'RPCQueue') {
+      consumeRPCQueue(channel, async msg => mbroker.handler(msg, context));
     } else {
-      consumeQueue(
-        channel.concat(prefix),
-        async msg => await mbroker.handler(msg, context)
-      );
+      consumeQueue(channel, async msg => await mbroker.handler(msg, context));
     }
   }
-}
+};
 
 interface IFinalLogParams extends ILogDataParams {
   action: string;
 }
 
-export const callAfterMutation = async (params: IFinalLogParams, user: IUserDocument) => {
+export const callAfterMutation = async (
+  params: IFinalLogParams,
+  user: IUserDocument
+) => {
   if (!callAfterMutations) {
     return;
   }
@@ -385,4 +399,4 @@ export const callAfterMutation = async (params: IFinalLogParams, user: IUserDocu
   } catch (e) {
     throw new Error(e.message);
   }
-}
+};
