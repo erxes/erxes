@@ -1462,7 +1462,7 @@ export const fetchLogs = (params: ILogQueryParams) => {
   );
 };
 
-export const visitorLog = async (params: IVisitorLogParams, action) => {
+export const sendToVisitorLog = async (params: IVisitorLogParams, action) => {
   try {
     return messageBroker().sendMessage(RABBITMQ_QUEUES.VISITOR_LOG, {
       action,

@@ -34,7 +34,7 @@ import { trackViewPageEvent } from '../../../events';
 import memoryStorage from '../../../inmemoryStorage';
 import { graphqlPubsub } from '../../../pubsub';
 import { AUTO_BOT_MESSAGES, BOT_MESSAGE_TYPES } from '../../constants';
-import { visitorLog } from '../../logUtils';
+import { sendToVisitorLog } from '../../logUtils';
 import {
   registerOnboardHistory,
   replaceEditorAttributes,
@@ -475,7 +475,7 @@ const widgetMutations = {
     }
 
     if (visitorId) {
-      await visitorLog(
+      await sendToVisitorLog(
         { visitorId, integrationId: integration._id },
         'createOrUpdate'
       );
@@ -787,7 +787,7 @@ const widgetMutations = {
     }
 
     if (visitorId) {
-      await visitorLog({ visitorId, location: browserInfo }, 'update');
+      await sendToVisitorLog({ visitorId, location: browserInfo }, 'update');
     }
 
     try {

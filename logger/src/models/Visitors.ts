@@ -89,7 +89,7 @@ export const schema = new Schema({
 export const loadVisitorClass = () => {
   class Visitor {
     public static async createOrUpdateVisitorLog(doc: IVistiorDoc) {
-      const visitor = await Visitors.getVisitorLog(doc.visitorId);
+      const visitor = await Visitors.findOne({ visitorId: doc.visitorId });
 
       if (visitor) {
         return Visitors.findOneAndUpdate({ visitorId: doc.visitorId }, doc);
