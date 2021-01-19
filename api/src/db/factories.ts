@@ -70,7 +70,11 @@ import {
   PRODUCT_TYPES,
   WEBHOOK_ACTIONS
 } from './models/definitions/constants';
-import { IEmail, IMessenger } from './models/definitions/engages';
+import {
+  IEmail,
+  IMessenger,
+  IScheduleDate
+} from './models/definitions/engages';
 import { IMessengerAppCrendentials } from './models/definitions/messengerApps';
 import { IUserDocument } from './models/definitions/users';
 import PipelineTemplates from './models/PipelineTemplates';
@@ -81,7 +85,7 @@ export const getUniqueValue = async (
   defaultValue?: string
 ) => {
   const getRandomValue = (type: string) =>
-    type === 'email' ? faker.internet.email() : Random.id();
+    type === 'email' ? faker.internet.email().toLowerCase() : Random.id();
 
   let uniqueValue = defaultValue || getRandomValue(fieldName);
 
@@ -238,6 +242,7 @@ interface IEngageMessageFactoryInput {
   smsContent?: string;
   fromUserId?: string;
   fromIntegrationId?: string;
+  scheduleDate?: IScheduleDate;
 }
 
 export const engageMessageFactory = (
@@ -259,6 +264,9 @@ export const engageMessageFactory = (
     smsContent: {
       content: params.smsContent || 'Sms content',
       fromIntegrationId: params.fromIntegrationId
+    },
+    scheduleDate: params.scheduleDate || {
+      type: 'day'
     }
   });
 

@@ -1,6 +1,7 @@
 const CubejsServer = require('@cubejs-backend/server');
 const dotenv = require('dotenv');
 const generateReport = require('./controller/controller.js');
+const generateQuery = require('./controller/generator.js');
 const ModifiedElasticSearchDriver = require('./driver.js');
 const jwt = require('jsonwebtoken');
 
@@ -15,6 +16,10 @@ const server = new CubejsServer({
       xpack: true,
       dataSource
     });
+  },
+  queryTransformer: async query => {
+    await generateQuery(query);
+    return query;
   }
 });
 

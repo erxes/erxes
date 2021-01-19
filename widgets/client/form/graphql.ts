@@ -52,8 +52,8 @@ export const saveFormMutation = `
 `;
 
 export const sendEmailMutation = `
-  mutation widgetsSendEmail($toEmails: [String], $fromEmail: String, $title: String, $content: String) {
-    widgetsSendEmail(toEmails: $toEmails, fromEmail: $fromEmail, title: $title, content: $content)
+  mutation widgetsSendEmail($toEmails: [String], $fromEmail: String, $title: String, $content: String, $customerId: String, $formId: String) {
+    widgetsSendEmail(toEmails: $toEmails, fromEmail: $fromEmail, title: $title, content: $content, customerId: $customerId, formId: $formId)
   }
 `;
 

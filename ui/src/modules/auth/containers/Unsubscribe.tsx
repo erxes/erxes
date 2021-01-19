@@ -1,4 +1,4 @@
-import { getEnv } from 'apolloClient';
+import { getEnv } from 'modules/common/utils';
 
 const redirect = (name, value) => {
   const { REACT_APP_API_URL } = getEnv();

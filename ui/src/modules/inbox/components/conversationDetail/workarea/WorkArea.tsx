@@ -200,7 +200,14 @@ export default class WorkArea extends React.Component<Props, State> {
       <BarItems>
         <Tagger targets={[currentConversation]} trigger={tagTrigger} />
 
-        <ConvertTo conversation={currentConversation} />
+        <ConvertTo
+          conversation={currentConversation}
+          conversationMessage={
+            kind.includes('nylas') || kind === 'gmail'
+              ? conversationMessages[0]
+              : {}
+          }
+        />
 
         <Resolver conversations={[currentConversation]} />
       </BarItems>

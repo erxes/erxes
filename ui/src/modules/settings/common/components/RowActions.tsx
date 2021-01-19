@@ -13,7 +13,7 @@ type Props = {
     object: any;
     closeModal: () => void;
     save: () => void;
-  }) => void;
+  }) => React.ReactNode;
   additionalActions?: (object: any) => void;
   remove?: (id: string) => void;
   save: () => void;

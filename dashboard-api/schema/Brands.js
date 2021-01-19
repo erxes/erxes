@@ -8,7 +8,7 @@ cube(`Brands`, {
   measures: {
     count: {
       type: `count`,
-      drillMembers: [name, userid, createdat]
+      drillMembers: [name, userid]
     }
   },
 
@@ -33,7 +33,7 @@ cube(`Brands`, {
       type: `string`
     },
 
-    createdat: {
+    createdDate: {
       sql: `${CUBE}."createdAt"`,
       type: `time`
     }

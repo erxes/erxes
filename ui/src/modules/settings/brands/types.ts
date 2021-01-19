@@ -1,14 +1,8 @@
+import { IBrand as IBrandC } from 'erxes-ui/lib/types';
 import { QueryResponse } from 'modules/common/types';
 import { IIntegration } from 'modules/settings/integrations/types';
 
-export interface IBrand {
-  _id: string;
-  code: string;
-  name?: string;
-  createdAt: string;
-  description?: string;
-  emailConfig: { type: string; template: string };
-}
+export type IBrand = IBrandC & { emailConfig: any };
 
 export interface IChooseBrand {
   _id?: string;
@@ -67,15 +61,4 @@ export type BrandRemoveMutationResponse = {
 export type EmailConfig = {
   type: string;
   template: string;
-};
-
-export type BrandsConfigEmailMutationVariables = {
-  _id: string;
-  emailConfig: EmailConfig;
-};
-
-export type BrandsConfigEmailMutationResponse = {
-  configEmailMutation: (params: {
-    variables: BrandsConfigEmailMutationVariables;
-  }) => Promise<void>;
 };

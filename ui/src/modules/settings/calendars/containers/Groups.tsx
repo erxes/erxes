@@ -1,10 +1,10 @@
-import { getEnv } from 'apolloClient';
 import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
+import { queries as calendarQueries } from 'modules/calendar/graphql';
 import ButtonMutate from 'modules/common/components/ButtonMutate';
 import Spinner from 'modules/common/components/Spinner';
 import { IButtonMutateProps } from 'modules/common/types';
-import { __, Alert, confirm, withProps } from 'modules/common/utils';
+import { __, Alert, confirm, getEnv, withProps } from 'modules/common/utils';
 import React from 'react';
 import { graphql } from 'react-apollo';
 import { getWarningMessage } from '../../boards/constants';
@@ -129,10 +129,10 @@ class GroupsContainer extends React.Component<FinalProps> {
               _id: calendar._id,
               accountId: calendar.accountId
             },
-            refetchQueries: getRefetchQueries(boardId)
+            refetchQueries: getRefetchQueries(boardId, calendar.groupId)
           })
             .then(() => {
-              getRefetchQueries(boardId);
+              getRefetchQueries(boardId, calendar.groupId);
 
               const msg = `${__(`You successfully deleted a`)} ${__(
                 'calendar'
@@ -205,8 +205,8 @@ class GroupsContainer extends React.Component<FinalProps> {
   }
 }
 
-const getRefetchQueries = boardId => {
-  return [
+const getRefetchQueries = (boardId: string, groupId?: string) => {
+  const refetchQueries = [
     {
       query: gql(queries.groups),
       variables: { boardId }
@@ -214,6 +214,18 @@ const getRefetchQueries = boardId => {
     {
       query: gql(queries.boardDetail),
       variables: { _id: boardId }
+    }
+  ];
+
+  if (!groupId) {
+    return refetchQueries;
+  }
+
+  return [
+    ...refetchQueries,
+    {
+      query: gql(calendarQueries.calendars),
+      variables: { groupId }
     }
   ];
 };

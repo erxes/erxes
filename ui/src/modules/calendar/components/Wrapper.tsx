@@ -62,6 +62,10 @@ class CalendarWrapper extends React.Component<Props, State> {
     this.setState({ currentDate: date });
   };
 
+  onDayClick = date => {
+    this.setState({ type: TYPES.DAY, currentDate: date });
+  };
+
   onChangeCalendarIds = calendarIds => {
     this.setState({ calendarIds });
   };
@@ -193,6 +197,7 @@ class CalendarWrapper extends React.Component<Props, State> {
             currentDate={currentDate}
             calendarIds={calendarIds}
             queryParams={queryParams}
+            onDayClick={this.onDayClick}
           />
         }
       />

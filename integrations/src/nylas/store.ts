@@ -4,7 +4,7 @@ import { sendRPCMessage } from '../messageBroker';
 import { cleanHtml } from '../utils';
 import {
   NylasCalendars,
-  NylasEvent,
+  NylasEvents,
   NylasExchangeConversationMessages,
   NylasExchangeConversations,
   NylasExchangeCustomers,
@@ -20,6 +20,7 @@ import {
   NylasOutlookConversationMessages,
   NylasOutlookConversations,
   NylasOutlookCustomers,
+  NylasPages,
   NylasYahooConversationMessages,
   NylasYahooConversations,
   NylasYahooCustomers
@@ -30,7 +31,8 @@ import {
   IGetOrCreateArguments,
   INylasConversationArguments,
   INylasConversationMessageArguments,
-  INylasCustomerArguments
+  INylasCustomerArguments,
+  IPage
 } from './types';
 
 const NYLAS_MODELS = {
@@ -70,14 +72,16 @@ const storeCalendars = async (calendars: ICalendar[]) => {
   const doc = [];
 
   for (const calendar of calendars) {
-    doc.push({
-      providerCalendarId: calendar.id,
-      accountUid: calendar.account_id,
-      name: calendar.name || '',
-      description: calendar.description,
-      readOnly: calendar.read_only,
-      show: !calendar.read_only
-    });
+    if (!calendar.read_only) {
+      doc.push({
+        providerCalendarId: calendar.id,
+        accountUid: calendar.account_id,
+        name: calendar.name || '',
+        description: calendar.description,
+        readOnly: calendar.read_only,
+        show: true
+      });
+    }
   }
 
   return NylasCalendars.insertMany(doc);
@@ -100,7 +104,7 @@ const updateCalendar = async (calendar: ICalendar) => {
 };
 
 const updateEvent = async (event: IEvent) => {
-  const prevEvent = await NylasEvent.findOne({ providerEventId: event.id });
+  const prevEvent = await NylasEvents.findOne({ providerEventId: event.id });
 
   if (!prevEvent) {
     throw new Error(`Event not found to be updated ${event.id}`);
@@ -124,28 +128,84 @@ const updateEvent = async (event: IEvent) => {
   return prevEvent.save();
 };
 
-const storeEvents = async (events: IEvent[]) => {
+const storeEvents = async (events: IEvent[], eventIds?: string[]) => {
   const doc = [];
 
   for (const event of events) {
+    if (!eventIds || !eventIds.includes(event.id)) {
+      doc.push({
+        providerEventId: event.id,
+        providerCalendarId: event.calendar_id,
+        messageId: event.message_id,
+        title: event.title,
+        accountUid: event.account_id,
+        description: event.description,
+        owner: event.owner,
+        participants: event.participants,
+        readOnly: event.read_only,
+        location: event.location,
+        when: event.when,
+        busy: event.busy,
+        status: event.status
+      });
+    }
+  }
+
+  return NylasEvents.insertMany(doc);
+};
+
+const storePages = async (pages: IPage[], accountId: string) => {
+  const doc = [];
+
+  for (const page of pages) {
+    const config = page.config;
+    const appearance = config.appearance;
+    const booking = config.booking;
+
     doc.push({
-      providerEventId: event.id,
-      providerCalendarId: event.calendar_id,
-      messageId: event.message_id,
-      title: event.title,
-      accountUid: event.account_id,
-      description: event.description,
-      owner: event.owner,
-      participants: event.participants,
-      readOnly: event.read_only,
-      location: event.location,
-      when: event.when,
-      busy: event.busy,
-      status: event.status
+      accountId,
+      name: page.name,
+      slug: page.slug,
+      appClientId: page.app_client_id,
+      appOrganizationId: page.app_organization_id,
+      editToken: page.edit_token,
+      pageId: page.id,
+      createdAt: page.created_at,
+      modifiedAt: page.modified_at,
+      config: {
+        appearance: {
+          color: appearance.color,
+          companyName: appearance.company_name,
+          logo: appearance.logo,
+          submitText: appearance.submit_text,
+          thankYouText: appearance.thank_you_text,
+          showAutoschedule: appearance.show_autoschedule,
+          showNylasBranding: appearance.show_nylas_branding
+        },
+        event: {
+          title: config.event.title,
+          location: config.event.location,
+          duration: config.event.duration
+        },
+        booking: {
+          openingHours: booking.opening_hours,
+          additionalFields: booking.additional_fields,
+          cancellationPolicy: booking.cancellation_policy,
+          confirmationMethod: booking.confirmation_method,
+          minBookingNotice: booking.min_booking_notice,
+          availableDaysInFuture: booking.available_days_in_future,
+          minBuffer: booking.min_buffer,
+          minCancellationNotice: booking.min_cancellation_notice
+        },
+        reminders: config.reminders,
+        pageCalendarIds: config.calendar_ids,
+        locale: config.locale,
+        timezone: config.timezone
+      }
     });
   }
 
-  return NylasEvent.insertMany(doc);
+  return NylasPages.insertMany(doc);
 };
 
 /**
@@ -414,5 +474,6 @@ export {
   storeEvents,
   updateEvent,
   updateCalendar,
-  NYLAS_MODELS
+  NYLAS_MODELS,
+  storePages
 };

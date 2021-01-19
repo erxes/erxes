@@ -1,11 +1,10 @@
-import { getEnv } from 'apolloClient';
 import Button from 'modules/common/components/Button';
 import FormControl from 'modules/common/components/form/Control';
 import FormGroup from 'modules/common/components/form/Group';
 import ControlLabel from 'modules/common/components/form/Label';
 import Info from 'modules/common/components/Info';
 import { ModalFooter } from 'modules/common/styles/main';
-import { __ } from 'modules/common/utils';
+import { __, getEnv } from 'modules/common/utils';
 import React from 'react';
 import { INTEGRATION_KINDS } from '../../constants';
 import SelectBrand from '../../containers/SelectBrand';
@@ -91,22 +90,49 @@ class CommonFieldForm extends React.PureComponent<Props, CommonTypes> {
 
     const { webhookData } = this.state;
 
-    const onScriptChange = e => {
+    const onChangeWebhookData = e => {
+      webhookData[e.target.name] = e.target.value;
+
       this.setState({
-        webhookData: { ...webhookData, script: e.target.value }
+        webhookData: { ...webhookData }
       });
     };
 
     return (
-      <FormGroup>
-        <ControlLabel required={true}>{__('Script')}</ControlLabel>
-        <FormControl
-          componentClass="textarea"
-          required={true}
-          defaultValue={webhookData.script}
-          onChange={onScriptChange}
-        />
-      </FormGroup>
+      <>
+        <FormGroup>
+          <ControlLabel required={false}>Token</ControlLabel>
+          <FormControl
+            name="token"
+            required={false}
+            autoFocus={false}
+            defaultValue={webhookData.token}
+            onChange={onChangeWebhookData}
+          />
+        </FormGroup>
+
+        <FormGroup>
+          <ControlLabel required={false}>Origin</ControlLabel>
+          <FormControl
+            name="origin"
+            required={false}
+            autoFocus={false}
+            defaultValue={webhookData.origin}
+            onChange={onChangeWebhookData}
+          />
+        </FormGroup>
+
+        <FormGroup>
+          <ControlLabel required={false}>{__('Script')}</ControlLabel>
+          <FormControl
+            name="script"
+            componentClass="textarea"
+            required={true}
+            defaultValue={webhookData.script}
+            onChange={onChangeWebhookData}
+          />
+        </FormGroup>
+      </>
     );
   };
 

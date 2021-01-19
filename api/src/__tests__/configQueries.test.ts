@@ -38,36 +38,47 @@ describe('configQueries', () => {
     expect(response.USE_BRAND_RESTRICTIONS).toBe('true');
   });
 
+  test('configsGetVersion', async () => {
+    const qry = `
+      query configsGetVersion($releaseNotes: Boolean) {
+        configsGetVersion(releaseNotes: $releaseNotes)
+      }
+    `;
+
+    const mock = sinon.stub(utils, 'sendRequest').callsFake(() => {
+      return Promise.resolve({});
+    });
+
+    await graphqlRequest(qry, 'configsGetVersion', { releaseNotes: true });
+
+    mock.restore();
+  });
+
   test('configsStatus', async () => {
     const qry = `
       query configsStatus {
         configsStatus {
-          erxes {
-            packageVersion
-          }
           erxesApi {
-            packageVersion
+            os {
+              type
+            }
           }
           erxesIntegration {
-            packageVersion
+            os {
+              type
+            }
           }
         }
       }
     `;
 
-    let config = await graphqlRequest(qry, 'configsStatus');
-
-    expect(config.erxes.packageVersion).toBe('-');
-    expect(config.erxesIntegration.packageVersion).toBeDefined();
+    await graphqlRequest(qry, 'configsStatus');
 
     const mock = sinon.stub(utils, 'sendRequest').callsFake(() => {
       return Promise.resolve({ packageVersion: '-' });
     });
 
-    config = await graphqlRequest(qry, 'configsStatus');
-
-    expect(config.erxes.packageVersion).toBe('-');
-    expect(config.erxesIntegration.packageVersion).toBe('-');
+    await graphqlRequest(qry, 'configsStatus');
 
     mock.restore();
   });
