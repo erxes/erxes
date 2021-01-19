@@ -12,7 +12,7 @@ export const getLocalStorageItem = (key: string): any => {
 };
 
 // set local storage item
-export const setLocalStorageItem = (key: string, value: string) => {
+export const setLocalStorageItem = (key: string, value: string, setting?: any) => {
   storage[key] = value;
 
   window.parent.postMessage(
@@ -20,7 +20,8 @@ export const setLocalStorageItem = (key: string, value: string) => {
       fromErxes: true,
       message: 'setLocalStorageItem',
       key,
-      value
+      value,
+      setting
     },
     '*'
   );

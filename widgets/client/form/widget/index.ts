@@ -167,15 +167,8 @@ formSettings.forEach((formSetting: Setting) => {
 // listen for messages from widget
 window.addEventListener('message', async (event: MessageEvent) => {
   const data = event.data || {};
-  const { fromErxes, source, message } = data;
+  const { fromErxes, source, message, setting } = data;
   
-  let {setting} = data
-
-  console.log(setting)
-  if(!setting) {
-    setting = {brand_id: "xbb8bW", form_id: "zkSEM7"}
-  }
-
   const { container, iframe } = iframesMapping[getMappingKey(setting)];
 
   listenForCommonRequests(event, iframe);
