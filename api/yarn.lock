@@ -2656,9 +2656,9 @@ cron-parser@^2.7.3:
     moment-timezone "^0.5.25"
 
 cross-env@^7.0.2:
-  version "7.0.2"
-  resolved "https://registry.yarnpkg.com/cross-env/-/cross-env-7.0.2.tgz#bd5ed31339a93a3418ac4f3ca9ca3403082ae5f9"
-  integrity sha512-KZP/bMEOJEDCkDQAyRhu3RL2ZO/SUVrxQVI0G3YEQ+OLbRA3c6zgixe8Mq8a/z7+HKlNEjo8oiLUs8iRijY2Rw==
+  version "7.0.3"
+  resolved "https://registry.yarnpkg.com/cross-env/-/cross-env-7.0.3.tgz#865264b29677dc015ba8418918965dd232fc54cf"
+  integrity sha512-+/HKd6EgcQCJGh2PSjZuUitQBQynKor4wrFbRg4DtAgS1aWO+gU52xpH7M9ScGgXSYmAVS9bIJ8EzuaGw0oNAw==
   dependencies:
     cross-spawn "^7.0.1"
 
@@ -3203,10 +3203,10 @@ erxes-inmemory-storage@^1.0.16:
     "@babel/runtime" "^7.11.2"
     redis "^3.0.2"
 
-erxes-message-broker@^1.0.18:
-  version "1.0.18"
-  resolved "https://registry.yarnpkg.com/erxes-message-broker/-/erxes-message-broker-1.0.18.tgz#d77374cbe59a9c6ff7fc507ecc5876547310369b"
-  integrity sha512-zvDPkhv5YExqXRzaWSgaQhH1uQjLNW++UrhyJnkdcu6zNVw4vLFkWEfhV30Rrd+tscQNvOTpuBXjnB/ue5cPzg==
+erxes-message-broker@^1.0.20:
+  version "1.0.20"
+  resolved "https://registry.yarnpkg.com/erxes-message-broker/-/erxes-message-broker-1.0.20.tgz#df595e1eea2c1c2a50c1f447f0883a69a57f536f"
+  integrity sha512-qqIXPEJLwY1VKo6khgnVz6/xV4adKzwxyWSBrYW9mdk/+QDhertlmE3RD23/TK3bqoTZ5sOltDVN6ErgWVveKg==
   dependencies:
     "@babel/runtime" "^7.11.2"
     amqplib "^0.6.0"
@@ -8848,9 +8848,9 @@ uuid@3.4.0, uuid@^3.1.0, uuid@^3.3.2, uuid@^3.3.3:
   integrity sha512-HjSDRw6gZE5JMggctHBcjVak08+KEVhSIiDzFnT9S9aegmp85S/bReBVTb4QTFaRNptJ9kuYaNhnbNEOkbKb/A==
 
 uuid@^8.3.0:
-  version "8.3.0"
-  resolved "https://registry.yarnpkg.com/uuid/-/uuid-8.3.0.tgz#ab738085ca22dc9a8c92725e459b1d507df5d6ea"
-  integrity sha512-fX6Z5o4m6XsXBdli9g7DtWgAx+osMsRRZFKma1mIUsLCz6vRvv+pz5VNbyu9UEDzpMWulZfvpgb/cmDXVulYFQ==
+  version "8.3.2"
+  resolved "https://registry.yarnpkg.com/uuid/-/uuid-8.3.2.tgz#80d5b5ced271bb9af6c445f21a1a04c606cefbe2"
+  integrity sha512-+NYs2QeMWy+GWFOEm9xnn6HCDp0l7QBD7ml8zLUmJ+93Q5NF0NocErnwkTkXVFNiX3/fpC6afS8Dhb/gz7R7eg==
 
 validate-npm-package-license@^3.0.1:
   version "3.0.4"
