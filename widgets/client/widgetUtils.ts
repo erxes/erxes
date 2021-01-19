@@ -11,6 +11,8 @@ export const getStorage = () => {
 export const listenForCommonRequests = async (event: any, iframe: any) => {
   const { message, fromErxes, source, key, value } = event.data;
 
+  console.log('msg = ',message)
+
   if (fromErxes && iframe.contentWindow) {
     if (message === "requestingBrowserInfo") {
       iframe.contentWindow.postMessage(
@@ -25,6 +27,7 @@ export const listenForCommonRequests = async (event: any, iframe: any) => {
     }
 
     if (message === "setLocalStorageItem") {
+      console.log("ASJDHJAS")
       const erxesStorage = JSON.parse(localStorage.getItem("erxes") || "{}");
 
       erxesStorage[key] = value;

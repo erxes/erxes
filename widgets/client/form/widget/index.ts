@@ -151,9 +151,10 @@ const formSettings = window.erxesSettings.forms || [];
 // create iframes and save with index
 const iframesMapping: any = {};
 
-const getMappingKey = (setting: Setting) =>
+ const getMappingKey = (setting: Setting) => 
   JSON.stringify({ form_id: setting.form_id, brand_id: setting.brand_id });
-const getSetting = (setting: Setting) =>
+
+const getSetting = (setting: Setting) => 
   formSettings.find(
     (s: Setting) =>
       s.brand_id === setting.brand_id && s.form_id === setting.form_id
@@ -166,11 +167,18 @@ formSettings.forEach((formSetting: Setting) => {
 // listen for messages from widget
 window.addEventListener('message', async (event: MessageEvent) => {
   const data = event.data || {};
-  const { fromErxes, source, message, setting } = data;
+  const { fromErxes, source, message } = data;
+  
+  let {setting} = data
 
-  if (!(fromErxes && source === 'fromForms')) {
-    return null;
+  console.log(setting)
+  if(!setting) {
+    setting = {brand_id: "xbb8bW", form_id: "zkSEM7"}
   }
+
+  const { container, iframe } = iframesMapping[getMappingKey(setting)];
+
+  listenForCommonRequests(event, iframe);
 
   const completeSetting = getSetting(setting);
 
@@ -178,7 +186,10 @@ window.addEventListener('message', async (event: MessageEvent) => {
     return null;
   }
 
-  const { container, iframe } = iframesMapping[getMappingKey(setting)];
+  if (!(fromErxes && source === 'fromForms')) {
+    return null;
+  }
+
 
   if (message === 'submitResponse' && completeSetting.onAction) {
     completeSetting.onAction(data);
@@ -220,7 +231,7 @@ window.addEventListener('message', async (event: MessageEvent) => {
     container.style = data.style;
   }
 
-  listenForCommonRequests(event, iframe);
+  
 
   return null;
 });
