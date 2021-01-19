@@ -19,7 +19,8 @@ import {
 } from '../../../db/models/Customers';
 import {
   CONVERSATION_OPERATOR_STATUS,
-  CONVERSATION_STATUSES
+  CONVERSATION_STATUSES,
+  METHODS
 } from '../../../db/models/definitions/constants';
 import {
   IIntegrationDocument,
@@ -439,9 +440,9 @@ const widgetMutations = {
     // find integration
     const integration = await getIntegration({
       brandId: brand._id,
-      type: 'messenger',
+      type: METHODS.MESSENGER,
       callback: async () => {
-        return Integrations.getWidgetIntegration(brandCode, 'messenger');
+        return Integrations.getWidgetIntegration(brandCode, METHODS.MESSENGER);
       }
     });
 
