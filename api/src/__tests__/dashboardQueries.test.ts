@@ -164,7 +164,8 @@ describe('dashboardQueries', () => {
       'modifiedBy',
       'integrationName',
       'Contacts.state',
-      'brand'
+      'brand',
+      'test'
     ];
 
     types.map(async type => {

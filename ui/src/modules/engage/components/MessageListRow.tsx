@@ -232,6 +232,7 @@ class Row extends React.Component<Props> {
           {message.isDraft ? <Label lblStyle="simple">Draft</Label> : null}
           {this.renderRules()}
         </td>
+        <td className="text-normal">{message.createdUser || '-'}</td>
         <td className="text-normal">
           <NameCard user={message.fromUser} avatarSize={30} />
         </td>
