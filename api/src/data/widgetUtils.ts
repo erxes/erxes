@@ -10,7 +10,7 @@ import { IBrowserInfo } from '../db/models/Customers';
 import { KIND_CHOICES } from '../db/models/definitions/constants';
 import { debugBase } from '../debuggers';
 import { client, getIndexPrefix } from '../elasticsearch';
-import { getVisitorLog } from './logUtils';
+import { getVisitorLog, sendToVisitorLog } from './logUtils';
 
 export const getOrCreateEngageMessage = async (
   browserInfo: IBrowserInfo,
@@ -105,6 +105,8 @@ export const convertVisitorToCustomer = async (visitorId: string) => {
   } catch (e) {
     debugBase(`Update event error ${e.message}`);
   }
+
+  await sendToVisitorLog({ visitorId }, 'remove');
 
   return customer;
 };

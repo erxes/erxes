@@ -27,6 +27,8 @@ export const initBroker = async server => {
       return Visitors.updateVisitorLog(data);
     } else if (action === 'createOrUpdate') {
       return Visitors.createOrUpdateVisitorLog(data);
+    } else if (action === 'remove') {
+      return Visitors.removeVisitorLog(data.visitorId);
     }
   });
 

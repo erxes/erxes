@@ -45,7 +45,7 @@ export interface IVisitorDocument extends IVistiorDoc, Document {}
 export interface IVisitorModel extends Model<IVisitorDocument> {
   createOrUpdateVisitorLog(doc: IVistiorDoc): Promise<IVisitorDocument>;
   updateVisitorLog(doc: IVistiorDoc): Promise<IVisitorDocument>;
-  deleteVisitor(customerIds: string[]): Promise<{ n: number; ok: number }>;
+  removeVisitorLog(visitorId: string): void;
   getVisitorLog(visitorId: string): Promise<IVisitorDocument>;
 }
 
@@ -141,6 +141,10 @@ export const loadVisitorClass = () => {
         throw new Error('Visitor not found');
       }
       return visitor;
+    }
+
+    public static removeVisitorLog(visitorId: string) {
+      return Visitors.deleteOne({ visitorId });
     }
   }
 
