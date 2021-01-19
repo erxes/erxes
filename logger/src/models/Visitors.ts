@@ -1,19 +1,5 @@
 import { Document, model, Model, Schema } from 'mongoose';
-
-/**
- * Mongoose field options wrapper
- * @param {Object} options Mongoose schema options
- */
-export const field = options => {
-  const { type, optional } = options;
-
-  if (type === String && !optional) {
-    options.validate = /\S+/;
-  }
-
-  return options;
-};
-
+import { field } from './Logs';
 export interface ILocation {
   remoteAddress: string;
   country: string;
