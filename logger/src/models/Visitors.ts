@@ -149,7 +149,7 @@ export const loadVisitorClass = () => {
     }
 
     public static async getVisitorLog(visitorId: string) {
-      const visitor = Visitors.findOne({ visitorId });
+      const visitor = await Visitors.findOne({ visitorId });
 
       if (!visitor) {
         throw new Error('Visitor not found');
