@@ -126,7 +126,6 @@ export const loadVisitorClass = () => {
       const query: any = {
         $set: {
           lastSeenAt: now,
-          isOnline: true,
           ...doc
         }
       };
