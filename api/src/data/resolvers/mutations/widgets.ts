@@ -20,7 +20,7 @@ import {
 import {
   CONVERSATION_OPERATOR_STATUS,
   CONVERSATION_STATUSES,
-  METHODS
+  KIND_CHOICES
 } from '../../../db/models/definitions/constants';
 import {
   IIntegrationDocument,
@@ -440,9 +440,12 @@ const widgetMutations = {
     // find integration
     const integration = await getIntegration({
       brandId: brand._id,
-      type: METHODS.MESSENGER,
+      type: KIND_CHOICES.MESSENGER,
       callback: async () => {
-        return Integrations.getWidgetIntegration(brandCode, METHODS.MESSENGER);
+        return Integrations.getWidgetIntegration(
+          brandCode,
+          KIND_CHOICES.MESSENGER
+        );
       }
     });
 
