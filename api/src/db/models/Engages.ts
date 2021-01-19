@@ -6,6 +6,7 @@ import { replaceEditorAttributes } from '../../data/utils';
 import { getNumberOfVisits } from '../../events';
 import Customers, { IBrowserInfo } from './Customers';
 import { IBrandDocument } from './definitions/brands';
+import { METHODS } from './definitions/constants';
 import {
   IEngageData,
   IMessageDocument
@@ -243,7 +244,7 @@ export const loadClass = () => {
 
       const messages = await EngageMessages.find({
         'messenger.brandId': brand._id,
-        method: 'messenger',
+        method: METHODS.MESSENGER,
         isLive: true
       });
 
