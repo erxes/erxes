@@ -36,7 +36,8 @@ import { IBrandDocument } from '../db/models/definitions/brands';
 import {
   CONVERSATION_OPERATOR_STATUS,
   CONVERSATION_STATUSES,
-  MESSAGE_TYPES
+  MESSAGE_TYPES,
+  METHODS
 } from '../db/models/definitions/constants';
 import { ICustomerDocument } from '../db/models/definitions/customers';
 import { IIntegrationDocument } from '../db/models/definitions/integrations';
@@ -742,8 +743,8 @@ describe('saveBrowserInfo()', () => {
           }
         ]
       },
-      kind: 'visitorAuto',
-      method: 'messenger',
+      kind: MESSAGE_KINDS.VISITOR_AUTO,
+      method: METHODS.MESSENGER,
       isLive: true
     });
 
