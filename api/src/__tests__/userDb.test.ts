@@ -3,7 +3,6 @@ import * as jwt from 'jsonwebtoken';
 import * as moment from 'moment';
 import { userFactory, usersGroupFactory } from '../db/factories';
 import { Users } from '../db/models';
-
 import './setup.ts';
 
 beforeAll(() => {
@@ -16,7 +15,7 @@ describe('User db utils', () => {
 
   beforeEach(async () => {
     // Creating test data
-    _user = await userFactory({ email: 'Info@erxes.io', isActive: true });
+    _user = await userFactory({ email: 'info@erxes.io', isActive: true });
   });
 
   afterEach(async () => {
@@ -37,7 +36,7 @@ describe('User db utils', () => {
   });
 
   test('Create user', async () => {
-    const userObj = await Users.createUser({
+    const userObjWithoutCode = await Users.createUser({
       ..._user._doc,
       details: { ..._user.details.toJSON() },
       links: { ..._user.links },
@@ -45,18 +44,75 @@ describe('User db utils', () => {
       email: 'qwerty@qwerty.com'
     });
 
-    if (!userObj.details || !userObj.links) {
+    if (!userObjWithoutCode.details || !userObjWithoutCode.links) {
       throw new Error('User not found');
     }
 
-    expect(userObj).toBeDefined();
-    expect(userObj._id).toBeDefined();
-    expect(userObj.username).toBe(_user.username);
-    expect(userObj.email).toBe('qwerty@qwerty.com');
-    expect(bcrypt.compare(strongPassword, userObj.password)).toBeTruthy();
-    expect(userObj.details.position).toBe(_user.details.position);
-    expect(userObj.details.fullName).toBe(_user.details.fullName);
-    expect(userObj.details.avatar).toBe(_user.details.avatar);
+    expect(userObjWithoutCode).toBeDefined();
+    expect(userObjWithoutCode._id).toBeDefined();
+    expect(userObjWithoutCode.username).toBe(_user.username);
+    expect(userObjWithoutCode.email).toBe('qwerty@qwerty.com');
+    expect(userObjWithoutCode.code).toBe('000');
+    expect(
+      bcrypt.compare(strongPassword, userObjWithoutCode.password)
+    ).toBeTruthy();
+    expect(userObjWithoutCode.details.position).toBe(_user.details.position);
+    expect(userObjWithoutCode.details.fullName).toBe(_user.details.fullName);
+    expect(userObjWithoutCode.details.avatar).toBe(_user.details.avatar);
+
+    const userObjWithCode = await Users.createUser({
+      ..._user._doc,
+      email: 'qwerty123@qwerty.com'
+    });
+
+    expect(userObjWithCode.code).toBe('001');
+    expect(userObjWithCode.email).toBe('qwerty123@qwerty.com');
+  });
+
+  test('Generate user code field', async () => {
+    await userFactory({ code: '000' });
+    await userFactory({ code: '001' });
+
+    // 003
+    const user = await userFactory();
+    await Users.generateUserCodeField();
+
+    const updatedUser = await Users.findOne({ _id: user._id });
+
+    if (updatedUser) {
+      expect(updatedUser.code).toBe('004');
+    } else {
+      fail('User not found');
+    }
+
+    await Users.remove({});
+
+    const response = await Users.generateUserCodeField();
+
+    expect(response).toBeUndefined();
+  });
+
+  test('Generate user code', async () => {
+    await userFactory({ code: '000' });
+    await userFactory({ code: '001' });
+
+    const code1 = await Users.generateUserCode();
+
+    expect(code1).toBe('002');
+
+    await userFactory({ code: '004' });
+    await userFactory({ code: '003' });
+
+    const code2 = await Users.generateUserCode();
+
+    expect(code2).toBe('005');
+
+    await userFactory({ code: '006' });
+    await userFactory({ code: '006' });
+
+    const code3 = await Users.generateUserCode();
+
+    expect(code3).toBe('007');
   });
 
   test('Create user with empty string password', async () => {
@@ -529,7 +585,7 @@ describe('User db utils', () => {
   });
 
   test('Login', async () => {
-    expect.assertions(8);
+    expect.assertions(9);
 
     // invalid email ==============
     try {
@@ -580,6 +636,24 @@ describe('User db utils', () => {
 
     expect(response.token).toBeDefined();
     expect(response.refreshToken).toBeDefined();
+
+    // generate code field
+    await Users.remove({});
+
+    const user1 = await userFactory({});
+
+    await Users.login({
+      email: user1.email || '',
+      password: 'pass'
+    });
+
+    const updatedUser = await Users.findOne({ _id: user1._id });
+
+    if (updatedUser) {
+      expect(updatedUser.code).toBe('001');
+    } else {
+      fail('User not found');
+    }
   });
 
   test('Refresh tokens', async () => {

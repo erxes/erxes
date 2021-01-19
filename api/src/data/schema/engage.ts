@@ -29,6 +29,7 @@ export const types = `
     email: JSON
     messenger: JSON
     shortMessage: EngageMessageSms
+    createdBy: String
 
     scheduleDate: EngageScheduleDate
     segments: [Segment]
@@ -37,6 +38,7 @@ export const types = `
     fromUser: User
     getTags: [Tag]
     fromIntegration: Integration
+    createdUser: String
 
     stats: JSON
     logs: JSON
@@ -47,6 +49,7 @@ export const types = `
     type: String,
     month: String,
     day: String,
+    dateTime: Date,
   }
 
   type DeliveryReport {
@@ -55,7 +58,8 @@ export const types = `
     mailId: String,
     status: String,
     engage: EngageMessage,
-    createdAt: Date
+    createdAt: Date,
+    customerName: String
   }
 
   type EngageDeliveryReport {
@@ -63,10 +67,23 @@ export const types = `
     totalCount: Int
   }
 
+  type AvgEmailStats {
+    avgBouncePercent: Float,
+    avgClickPercent: Float,
+    avgComplaintPercent: Float,
+    avgDeliveryPercent: Float,
+    avgOpenPercent: Float,
+    avgRejectPercent: Float,
+    avgRenderingFailurePercent: Float,
+    avgSendPercent: Float,
+    total: Float
+  }
+
   input EngageScheduleDateInput {
     type: String,
     month: String,
     day: String,
+    dateTime: Date,
   }
 
   input EngageMessageEmail {
@@ -112,7 +129,8 @@ export const queries = `
   engageMessageCounts(name: String!, kind: String, status: String): JSON
   engagesConfigDetail: JSON
   engageVerifiedEmails: [String]
-  engageReportsList(page: Int, perPage: Int): EngageDeliveryReport 
+  engageReportsList(page: Int, perPage: Int, customerId: String, status: String): EngageDeliveryReport
+  engageEmailPercentages: AvgEmailStats
 `;
 
 const commonParams = `
@@ -145,5 +163,5 @@ export const mutations = `
   engagesUpdateConfigs(configsMap: JSON!): JSON
   engageMessageVerifyEmail(email: String!): String
   engageMessageRemoveVerifiedEmail(email: String!): String
-  engageMessageSendTestEmail(from: String!, to: String!, content: String!): String
+  engageMessageSendTestEmail(from: String!, to: String!, content: String!, title: String!): String
 `;

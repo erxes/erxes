@@ -10,7 +10,6 @@ import { sendDailyRequest } from './videoCall/controller';
 import { IRecording } from './videoCall/models';
 
 dotenv.config();
-
 interface IRequestParams {
   url?: string;
   path?: string;
@@ -24,9 +23,16 @@ interface IRequestParams {
       | string[]
       | boolean
       | number
-      | { [key: string]: string }
+      | {
+          [key: string]: string | number | boolean | any;
+        }
       | IProviderSettings
-      | IParticipants[];
+      | IParticipants[]
+      | {
+          [key: string]: {
+            [key: string]: string | boolean | any;
+          };
+        };
   };
 }
 

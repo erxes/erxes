@@ -20,6 +20,7 @@ import { putCreateLog, putDeleteLog, putUpdateLog } from '../../logUtils';
 import { checkPermission } from '../../permissions/wrappers';
 import { IContext } from '../../types';
 import { registerOnboardHistory, replaceEditorAttributes } from '../../utils';
+import { caches } from './widgets';
 
 interface IEditIntegration extends IIntegration {
   _id: string;
@@ -106,27 +107,42 @@ const integrationMutations = {
       user
     );
 
+    caches.remove(`integration_messenger_${integration.brandId}`);
+
+    await caches.update(`integration_messenger_${updated.brandId}`, updated);
+
     return updated;
   },
 
   /**
    * Update/save messenger appearance data
    */
-  integrationsSaveMessengerAppearanceData(
+  async integrationsSaveMessengerAppearanceData(
     _root,
     { _id, uiOptions }: { _id: string; uiOptions: IUiOptions }
   ) {
-    return Integrations.saveMessengerAppearanceData(_id, uiOptions);
+    const updated = await Integrations.saveMessengerAppearanceData(
+      _id,
+      uiOptions
+    );
+
+    await caches.update(`integration_messenger_${updated.brandId}`, updated);
+
+    return updated;
   },
 
   /**
    * Update/save messenger data
    */
-  integrationsSaveMessengerConfigs(
+  async integrationsSaveMessengerConfigs(
     _root,
     { _id, messengerData }: { _id: string; messengerData: IMessengerData }
   ) {
-    return Integrations.saveMessengerConfigs(_id, messengerData);
+    const updated = await Integrations.saveMessengerConfigs(_id, messengerData);
+
+    await caches.update(`integration_messenger_${updated.brandId}`, updated);
+
+    return updated;
   },
 
   /**
@@ -158,8 +174,15 @@ const integrationMutations = {
   /**
    * Edit a lead integration
    */
-  integrationsEditLeadIntegration(_root, { _id, ...doc }: IEditIntegration) {
-    return Integrations.updateLeadIntegration(_id, doc);
+  async integrationsEditLeadIntegration(
+    _root,
+    { _id, ...doc }: IEditIntegration
+  ) {
+    const updated = await Integrations.updateLeadIntegration(_id, doc);
+
+    await caches.update(`integration_lead_${updated.brandId}`, updated);
+
+    return updated;
   },
 
   /**
@@ -174,10 +197,16 @@ const integrationMutations = {
 
     if (modifiedDoc.kind === KIND_CHOICES.WEBHOOK) {
       modifiedDoc.webhookData = { ...data };
-      modifiedDoc.webhookData.token = await getUniqueValue(
-        Integrations,
-        'token'
-      );
+
+      if (
+        !modifiedDoc.webhookData.token ||
+        modifiedDoc.webhookData.token === ''
+      ) {
+        modifiedDoc.webhookData.token = await getUniqueValue(
+          Integrations,
+          'token'
+        );
+      }
     }
 
     const integration = await Integrations.createExternalIntegration(
@@ -256,7 +285,14 @@ const integrationMutations = {
     }
 
     await Integrations.update({ _id }, { $set: doc });
+
     const updated = await Integrations.getIntegration(_id);
+
+    if (
+      [KIND_CHOICES.LEAD, KIND_CHOICES.MESSENGER].includes(integration.kind)
+    ) {
+      caches.remove(`integration_${integration.kind}_${integration.brandId}`);
+    }
 
     await Channels.updateMany(
       { integrationIds: integration._id },
@@ -313,7 +349,8 @@ const integrationMutations = {
           'smooch-line',
           'smooch-twilio',
           'whatsapp',
-          'telnyx'
+          'telnyx',
+          'webhook'
         ].includes(integration.kind)
       ) {
         await dataSources.IntegrationsAPI.removeIntegration({
@@ -325,6 +362,12 @@ const integrationMutations = {
         { type: MODULE_NAMES.INTEGRATION, object: integration },
         user
       );
+
+      if (
+        [KIND_CHOICES.LEAD, KIND_CHOICES.MESSENGER].includes(integration.kind)
+      ) {
+        caches.remove(`integration_${integration.kind}_${integration.brandId}`);
+      }
 
       return Integrations.removeIntegration(_id);
     } catch (e) {
@@ -424,10 +467,16 @@ const integrationMutations = {
   ) {
     const integration = await Integrations.getIntegration(_id);
 
-    const updated = await Integrations.updateOne(
-      { _id },
-      { $set: { isActive: !status } }
-    );
+    await Integrations.updateOne({ _id }, { $set: { isActive: !status } });
+
+    const updated = await Integrations.findOne({ _id });
+
+    if (
+      [KIND_CHOICES.LEAD, KIND_CHOICES.MESSENGER].includes(integration.kind) &&
+      updated
+    ) {
+      caches.remove(`integration_${integration.kind}_${updated.brandId}`);
+    }
 
     await putUpdateLog(
       {
@@ -442,7 +491,19 @@ const integrationMutations = {
       user
     );
 
-    return Integrations.findOne({ _id });
+    return updated;
+  },
+
+  async integrationsRepair(_root, { _id }: { _id: string }) {
+    await messageBroker().sendRPCMessage(
+      RABBITMQ_QUEUES.RPC_API_TO_INTEGRATIONS,
+      {
+        action: 'repair-integrations',
+        data: { _id }
+      }
+    );
+
+    return 'success';
   },
 
   async integrationsUpdateConfigs(

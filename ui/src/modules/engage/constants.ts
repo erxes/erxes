@@ -58,46 +58,8 @@ export const SENT_AS_CHOICES = {
   ]
 };
 
-export const VISITOR_AUDIENCE_RULES = [
-  { value: '', text: '' },
-  { value: 'browserLanguage', text: 'Browser language' },
-  { value: 'currentPageUrl', text: 'Current page url' },
-  { value: 'country', text: 'Country' },
-  { value: 'city', text: 'City' },
-  { value: 'numberOfVisits', text: 'Number of visits' }
-];
-
-const stringTypeChoices = [
-  { value: '', text: '' },
-  { value: 'is', text: 'is' },
-  { value: 'isNot', text: 'is not' },
-  { value: 'startsWith', text: 'starts with' },
-  { value: 'endsWith', text: 'ends with' },
-  { value: 'contains', text: 'contains' },
-  { value: 'doesNotContain', text: 'does not contain' },
-  { value: 'isUnknown', text: 'is unknown' },
-  { value: 'hasAnyValue', text: 'has any value' }
-];
-
-const numberTypeChoices = [
-  { value: '', text: '' },
-  { value: 'greaterThan', text: 'Greater than' },
-  { value: 'lessThan', text: 'Less than' },
-  { value: 'is', text: 'is' },
-  { value: 'isNot', text: 'is not' },
-  { value: 'isUnknown', text: 'is unknown' },
-  { value: 'hasAnyValue', text: 'has any value' }
-];
-
-export const RULE_CONDITIONS = {
-  browserLanguage: stringTypeChoices,
-  currentPageUrl: stringTypeChoices,
-  country: stringTypeChoices,
-  city: stringTypeChoices,
-  numberOfVisits: numberTypeChoices
-};
-
 export const SCHEDULE_TYPES = [
+  { value: 'pre', label: 'Schedule for later' },
   { value: 'minute', label: 'Every minute' },
   { value: 'hour', label: 'Every hour' },
   { value: 'day', label: 'Every Day' },
@@ -132,33 +94,113 @@ export const SMS_DELIVERY_STATUSES = {
   OPTIONS: [
     {
       value: 'queued',
-      label: `The message is queued up on Telnyx's side`
+      label: 'Queued',
+      icon: 'list-ul',
+      description: `The message is queued up on Telnyx's side`
     },
     {
       value: 'sending',
-      label: 'The message is currently being sent to an upstream provider'
+      label: 'Sending',
+      icon: 'comment-alt-message',
+      description: 'The message is currently being sent to an upstream provider'
     },
     {
       value: 'sent',
-      label: 'The message has been sent to the upstream provider'
+      label: 'Sent',
+      icon: 'send',
+      description: 'The message has been sent to the upstream provider'
     },
     {
       value: 'delivered',
-      label: 'The upstream provider has confirmed delivery of the message'
+      label: 'Delivered',
+      icon: 'checked',
+      description: 'The upstream provider has confirmed delivery of the message'
     },
     {
       value: 'sending_failed',
-      label: 'Telnyx has failed to send the message to the upstream provider'
+      label: 'Sending failed',
+      icon: 'comment-alt-block',
+      description:
+        'Telnyx has failed to send the message to the upstream provider'
     },
     {
       value: 'delivery_failed',
-      label:
+      label: 'Delivery failed',
+      icon: 'multiply',
+      description:
         'The upstream provider has failed to send the message to the receiver'
     },
     {
       value: 'delivery_unconfirmed',
-      label:
+      label: 'Delivery unconfirmed',
+      icon: 'comment-alt-question',
+      description:
         'There is no indication whether or not the message has reached the receiver'
+    }
+  ]
+};
+
+export const AWS_EMAIL_DELIVERY_STATUSES = {
+  SEND: 'send',
+  DELIVERY: 'delivery',
+  OPEN: 'open',
+  CLICK: 'click',
+  COMPLAINT: 'complaint',
+  BOUNCE: 'bounce',
+  RENDERING_FAILURE: 'renderingfailure',
+  REJECT: 'reject',
+  OPTIONS: [
+    {
+      value: 'send',
+      label: 'Sent',
+      description:
+        'The call to Amazon SES was successful and Amazon SES will attempt to deliver the email',
+      icon: 'telegram-alt'
+    },
+    {
+      value: 'delivery',
+      label: 'Delivered',
+      description: `Amazon SES successfully delivered the email to the recipient's mail server`,
+      icon: 'comment-check'
+    },
+    {
+      value: 'open',
+      label: 'Opened',
+      description:
+        'The recipient received the message and opened it in their email client',
+      icon: 'envelope-open'
+    },
+    {
+      value: 'click',
+      label: 'Clicked',
+      description: 'The recipient clicked one or more links in the email',
+      icon: 'mouse-alt'
+    },
+    {
+      value: 'complaint',
+      label: 'Complaint/Spam',
+      description:
+        'The email was successfully delivered to the recipient. The recipient marked the email as spam',
+      icon: 'frown'
+    },
+    {
+      value: 'bounce',
+      label: 'Bounce',
+      description: `The recipient's mail server permanently rejected the email`,
+      icon: 'arrows-up-right'
+    },
+    {
+      value: 'reject',
+      label: 'Rejected',
+      description:
+        'Amazon SES accepted the email, determined that it contained a virus, and rejected it',
+      icon: 'times-circle'
+    },
+    {
+      value: 'renderingfailure',
+      label: 'Rendering failure',
+      description: `The email wasn't sent because of a template rendering issue`,
+      icon: 'ban'
     }
   ]
 };

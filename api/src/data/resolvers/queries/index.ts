@@ -9,7 +9,6 @@ import configs from './configs';
 import conversations from './conversations';
 import customers from './customers';
 import dashboards from './dashboards';
-import dealInsights from './dealInsights';
 import deals from './deals';
 import emailDeliveries from './emailDelivery';
 import emailTemplates from './emailTemplates';
@@ -21,7 +20,6 @@ import {
 import forms from './forms';
 import growthHack from './growthHacks';
 import importHistory from './importHistory';
-import insights from './insights';
 import integrations from './integrations';
 import internalNotes from './internalNotes';
 import knowledgeBase from './knowledgeBase';
@@ -38,6 +36,7 @@ import responseTemplates from './responseTemplates';
 import robot from './robot';
 import scripts from './scripts';
 import segments from './segments';
+import { skillQueries, skillTypesQueries } from './skills';
 import tags from './tags';
 import tasks from './tasks';
 import tickets from './tickets';
@@ -63,13 +62,11 @@ export default {
   ...companies,
   ...segments,
   ...conversations,
-  ...insights,
   ...knowledgeBase,
   ...notifications,
   ...activityLogs,
   ...deals,
   ...boards,
-  ...dealInsights,
   ...products,
   ...configs,
   ...fieldsgroups,
@@ -87,5 +84,7 @@ export default {
   ...widgets,
   ...webhooks,
   ...calendars,
-  ...dashboards
+  ...dashboards,
+  ...skillTypesQueries,
+  ...skillQueries
 };

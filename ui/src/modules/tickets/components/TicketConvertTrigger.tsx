@@ -9,13 +9,14 @@ type Props = {
   assignedUserIds?: string[];
   sourceConversationId?: string;
   url?: string;
+  subject?: string;
   refetch: () => void;
   type?: string;
   description?: string;
   attachments?: any[];
 };
 
-export default (props: Props) => {
+export default function TicketConvertTrigger(props: Props) {
   const title = props.url ? __('Go to a ticket') : __('Convert to a ticket');
 
   const extendedProps = {
@@ -25,4 +26,4 @@ export default (props: Props) => {
   };
 
   return <ConvertTrigger {...extendedProps} />;
-};
+}

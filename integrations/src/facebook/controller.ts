@@ -101,6 +101,7 @@ const init = async app => {
 
   app.get('/facebook/get-pages', async (req, res, next) => {
     debugRequest(debugFacebook, req);
+    const accountId = req.query.accountId;
 
     const account = await Accounts.getAccount({ _id: req.query.accountId });
 
@@ -111,6 +112,13 @@ const init = async app => {
     try {
       pages = await getPageList(accessToken);
     } catch (e) {
+      if (!e.message.includes('Application request limit reached')) {
+        await Integrations.updateOne(
+          { accountId },
+          { $set: { healthStatus: 'account-token', error: `${e.message}` } }
+        );
+      }
+
       debugFacebook(`Error occured while connecting to facebook ${e.message}`);
       return next(e);
     }
@@ -132,6 +140,27 @@ const init = async app => {
     return res.json({
       ...post
     });
+  });
+
+  app.get('/facebook/get-status', async (req, res) => {
+    const { integrationId } = req.query;
+
+    const integration = await Integrations.findOne({
+      erxesApiId: integrationId
+    });
+
+    let result = {
+      status: 'healthy'
+    } as any;
+
+    if (integration) {
+      result = {
+        status: integration.healthStatus || 'healthy',
+        error: integration.error
+      };
+    }
+
+    return res.send(result);
   });
 
   app.get('/facebook/get-comments-count', async (req, res) => {

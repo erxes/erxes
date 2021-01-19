@@ -88,7 +88,8 @@ export const mutations = `
     conversationId: String
     message: String,
     attachments: [AttachmentInput],
-    contentType: String
+    contentType: String,
+    skillId: String
   ): ConversationMessage
 
   widgetBotRequest(
@@ -122,6 +123,8 @@ export const mutations = `
     fromEmail: String
     title: String
     content: String
+    customerId: String
+    formId: String
   ): String
 
   widgetGetBotInitialMessage(integrationId: String): JSON

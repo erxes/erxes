@@ -1,16 +1,27 @@
 import * as _ from 'underscore';
-import { EngageMessages } from '../../../db/models';
+import { Customers, EngageMessages, Users } from '../../../db/models';
 import { METHODS } from '../../../db/models/definitions/constants';
 import { IEngageMessage } from '../../../db/models/definitions/engages';
 import { MESSAGE_KINDS, MODULE_NAMES } from '../../constants';
 import { putCreateLog, putDeleteLog, putUpdateLog } from '../../logUtils';
 import { checkPermission } from '../../permissions/wrappers';
 import { IContext } from '../../types';
-import { registerOnboardHistory, sendToWebhook } from '../../utils';
+import {
+  registerOnboardHistory,
+  replaceEditorAttributes,
+  sendToWebhook
+} from '../../utils';
 import { send } from './engageUtils';
 
 interface IEngageMessageEdit extends IEngageMessage {
   _id: string;
+}
+
+interface ITestEmailParams {
+  from: string;
+  to: string;
+  content: string;
+  title: string;
 }
 
 /**
@@ -43,7 +54,7 @@ const engageMutations = {
     }
 
     const engageMessage = await EngageMessages.createEngageMessage(
-      docModifier(doc)
+      docModifier({ ...doc, createdBy: user._id })
     );
 
     await sendToWebhook('create', 'engageMessages', engageMessage);
@@ -166,12 +177,32 @@ const engageMutations = {
 
   async engageMessageSendTestEmail(
     _root,
-    args,
+    args: ITestEmailParams,
     { dataSources, user }: IContext
   ) {
     await registerOnboardHistory({ type: 'engageSendTestEmail', user });
 
-    return dataSources.EngagesAPI.engagesSendTestEmail(args);
+    const { content, from, to, title } = args;
+
+    if (!(content && from && to && title)) {
+      throw new Error(
+        'Email content, title, from address or to address is missing'
+      );
+    }
+
+    const customer = await Customers.findOne({ primaryEmail: to });
+    const targetUser = await Users.findOne({ email: to });
+
+    const { replacedContent } = await replaceEditorAttributes({
+      content,
+      customer,
+      user: targetUser
+    });
+
+    return dataSources.EngagesAPI.engagesSendTestEmail({
+      ...args,
+      content: replacedContent
+    });
   }
 };
 

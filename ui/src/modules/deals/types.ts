@@ -2,6 +2,15 @@ import { IItem, IItemParams } from 'modules/boards/types';
 import { IActivityLogForMonth } from '../activityLogs/types';
 import { IProduct, IProductDoc } from '../settings/productService/types';
 
+export interface IQueryParams {
+  brandIds: string;
+  integrationIds: string;
+  boardId: string;
+  pipelineIds: string;
+  endDate: string;
+  startDate: string;
+}
+
 export interface IDealTotalAmount {
   _id: string;
   dealCount: number;

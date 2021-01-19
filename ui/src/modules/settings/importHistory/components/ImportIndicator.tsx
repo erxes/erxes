@@ -11,8 +11,13 @@ const Capitalize = styledTS<{ isCapital?: boolean }>(styled.span)`
   text-transform: ${props => (props.isCapital ? 'capitalize' : 'none')};
 `;
 
+const Text = styled.div`
+  line-height: 36px;
+`;
+
 type Props = {
   percentage: number;
+  isImportRemoved: boolean;
   id: string;
   importHistory: IImportHistory;
   close: () => void;
@@ -23,10 +28,10 @@ type Props = {
 
 class ImportIndicator extends React.Component<Props> {
   isDone = () => {
-    const { importHistory, isRemovingImport } = this.props;
+    const { importHistory, isRemovingImport, isImportRemoved } = this.props;
     const { status } = importHistory;
 
-    if ((!isRemovingImport && status === 'Done') || status === 'Removed') {
+    if ((!isRemovingImport && status === 'Done') || isImportRemoved) {
       return true;
     }
 
@@ -71,12 +76,7 @@ class ImportIndicator extends React.Component<Props> {
     const { errorMsgs = [], contentType } = importHistory;
 
     if (isRemovingImport) {
-      return (
-        <div>
-          {this.renderType(contentType, true)} {__('data successfully removed')}
-          .
-        </div>
-      );
+      return <div>{__('Data successfully removed')}.</div>;
     }
 
     return (
@@ -123,7 +123,7 @@ class ImportIndicator extends React.Component<Props> {
       return this.getSuccessText();
     }
 
-    return <div>{this.getIndicatorText()}</div>;
+    return <Text>{this.getIndicatorText()}</Text>;
   };
 
   renderCloseButton = () => {

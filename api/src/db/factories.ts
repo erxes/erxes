@@ -48,6 +48,8 @@ import {
   ResponseTemplates,
   Scripts,
   Segments,
+  Skills,
+  SkillTypes,
   Stages,
   Tags,
   Tasks,
@@ -70,7 +72,11 @@ import {
   PRODUCT_TYPES,
   WEBHOOK_ACTIONS
 } from './models/definitions/constants';
-import { IEmail, IMessenger } from './models/definitions/engages';
+import {
+  IEmail,
+  IMessenger,
+  IScheduleDate
+} from './models/definitions/engages';
 import { IMessengerAppCrendentials } from './models/definitions/messengerApps';
 import { IUserDocument } from './models/definitions/users';
 import PipelineTemplates from './models/PipelineTemplates';
@@ -81,7 +87,7 @@ export const getUniqueValue = async (
   defaultValue?: string
 ) => {
   const getRandomValue = (type: string) =>
-    type === 'email' ? faker.internet.email() : Random.id();
+    type === 'email' ? faker.internet.email().toLowerCase() : Random.id();
 
   let uniqueValue = defaultValue || getRandomValue(fieldName);
 
@@ -151,6 +157,7 @@ export const dashboardItemsFactory = async (params: IDashboardFactoryInput) => {
 };
 
 interface IUserFactoryInput {
+  code?: string;
   username?: string;
   fullName?: string;
   avatar?: string;
@@ -200,7 +207,8 @@ export const userFactory = async (params: IUserFactoryInput = {}) => {
     groupIds: params.groupIds || [],
     brandIds: params.brandIds,
     deviceTokens: params.deviceTokens,
-    doNotDisturb: params.doNotDisturb
+    doNotDisturb: params.doNotDisturb,
+    ...(params.code ? { code: params.code } : {})
   });
 
   return user.save();
@@ -238,6 +246,8 @@ interface IEngageMessageFactoryInput {
   smsContent?: string;
   fromUserId?: string;
   fromIntegrationId?: string;
+  scheduleDate?: IScheduleDate;
+  createdBy?: string;
 }
 
 export const engageMessageFactory = (
@@ -249,6 +259,7 @@ export const engageMessageFactory = (
     method: params.method || 'messenger',
     title: params.title || faker.random.word(),
     fromUserId: params.userId || faker.random.uuid(),
+    createdBy: params.createdBy || faker.random.uuid(),
     segmentIds: params.segmentIds || [],
     brandIds: params.brandIds || [],
     tagIds: params.tagIds || [],
@@ -259,6 +270,9 @@ export const engageMessageFactory = (
     smsContent: {
       content: params.smsContent || 'Sms content',
       fromIntegrationId: params.fromIntegrationId
+    },
+    scheduleDate: params.scheduleDate || {
+      type: 'day'
     }
   });
 
@@ -638,6 +652,7 @@ interface IConversationFactoryInput {
   readUserIds?: string[];
   tagIds?: string[];
   messageCount?: number;
+  userRelevance?: string;
   number?: number;
   firstRespondedUserId?: string;
   firstRespondedDate?: dateType;
@@ -651,7 +666,8 @@ export const conversationFactory = (params: IConversationFactoryInput = {}) => {
     integrationId: params.integrationId || Random.id(),
     status: params.status || CONVERSATION_STATUSES.NEW,
     operatorStatus:
-      params.operatorStatus || CONVERSATION_OPERATOR_STATUS.OPERATOR
+      params.operatorStatus || CONVERSATION_OPERATOR_STATUS.OPERATOR,
+    ...(params.userRelevance ? { userRelevance: params.userRelevance } : {})
   };
 
   return Conversations.createConversation({
@@ -1559,4 +1575,26 @@ export const calendarGroupFactory = async (
   });
 
   return calendarGroup.save();
+};
+
+export const skillTypeFactor = async (params: { name?: string }) => {
+  const skillType = new SkillTypes({
+    name: params.name || faker.random.word()
+  });
+
+  return skillType.save();
+};
+
+export const skillFactor = async (params: {
+  name?: string;
+  typeId?: string;
+  memberIds?: string[];
+}) => {
+  const skill = new Skills({
+    name: params.name || faker.random.word(),
+    typeId: params.typeId || faker.random.word(),
+    memberIds: params.memberIds || [faker.random.word()]
+  });
+
+  return skill.save();
 };

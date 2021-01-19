@@ -7,6 +7,7 @@ import PortableDeals from 'modules/deals/components/PortableDeals';
 import Sidebar from 'modules/layout/components/Sidebar';
 import PortableTasks from 'modules/tasks/components/PortableTasks';
 import PortableTickets from 'modules/tickets/components/PortableTickets';
+import { pluginsOfCompanySidebar } from 'pluginUtils';
 import React from 'react';
 import { List } from '../../styles';
 
@@ -37,7 +38,7 @@ export default class RightSidebar extends React.Component<Props> {
         <PortableDeals mainType="company" mainTypeId={company._id} />
         <PortableTickets mainType="company" mainTypeId={company._id} />
         <PortableTasks mainType="company" mainTypeId={company._id} />
-
+        {pluginsOfCompanySidebar(company)}
         <Box title={__('Other')} name="showOthers">
           <List>
             <li>

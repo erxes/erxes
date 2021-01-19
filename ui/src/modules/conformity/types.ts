@@ -1,40 +1,14 @@
-export interface IConformityDoc {
-  mainType?: string;
-  mainTypeId?: string;
-  relType?: string;
-  relTypeId?: string;
-}
+import {
+  EditConformityMutation as EditConformityMutationC,
+  EditConformityVariables as EditConformityVariablesC,
+  IConformityEdit as IConformityEditC,
+  ISavedConformity as ISavedConformityC
+} from 'erxes-ui/lib/conformity/types';
 
-export interface ISavedConformity {
-  mainType?: string;
-  mainTypeId?: string;
-  isSaved?: boolean;
-  isRelated?: boolean;
-}
+export type ISavedConformity = ISavedConformityC;
 
-export type ConformityQueryResponse = {
-  loading: boolean;
-  refetch: () => void;
-  fetchMore: any;
-  subscribeToMore: any;
-};
+export type IConformityEdit = IConformityEditC;
 
-export interface IConformityEdit {
-  mainType?: string;
-  mainTypeId?: string;
-  relType?: string;
-  relTypeIds?: string[];
-}
+export type EditConformityVariables = EditConformityVariablesC;
 
-export type EditConformityVariables = {
-  _id: string;
-  relType: string;
-  relTypeIds: string[];
-};
-
-// mutation types
-export type AddConformityMutation = ({ variables: IConformityDoc }) => void;
-
-export type EditConformityMutation = ({
-  variables: EditConformityVariables
-}) => Promise<any>;
+export type EditConformityMutation = EditConformityMutationC;

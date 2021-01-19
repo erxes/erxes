@@ -5,16 +5,12 @@ import localizedFormat from 'dayjs/plugin/localizedFormat';
 import relativeTime from 'dayjs/plugin/relativeTime';
 import utc from 'dayjs/plugin/utc';
 import 'erxes-icon/css/erxes.min.css';
-import { OwnerDescription } from 'modules/auth/components/OwnerSetup';
-import OwnerSetup from 'modules/auth/containers/OwnerSetup';
 // global style
 import 'modules/common/styles/global-styles.ts';
-import AuthLayout from 'modules/layout/components/AuthLayout';
+import { getEnv } from 'modules/common/utils';
 import React from 'react';
 import { ApolloProvider } from 'react-apollo';
 import { render } from 'react-dom';
-import apolloClient, { getEnv } from './apolloClient';
-import Routes from './routes';
 
 dayjs.extend(localizedFormat);
 dayjs.extend(relativeTime);
@@ -29,6 +25,12 @@ fetch(`${envs.REACT_APP_API_URL}/initial-setup?envs=${JSON.stringify(envs)}`, {
 })
   .then(response => response.text())
   .then(res => {
+    const apolloClient = require('./apolloClient').default;
+    const { OwnerDescription }  = require('modules/auth/components/OwnerSetup');
+    const OwnerSetup = require('modules/auth/containers/OwnerSetup').default;
+    const Routes = require('./routes').default;
+    const AuthLayout = require('modules/layout/components/AuthLayout').default;
+
     let body = <Routes />;
 
     if (res === 'no owner') {

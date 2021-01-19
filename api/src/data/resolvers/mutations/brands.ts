@@ -1,12 +1,10 @@
 import { Brands } from '../../../db/models';
-import {
-  IBrand,
-  IBrandEmailConfig
-} from '../../../db/models/definitions/brands';
+import { IBrand } from '../../../db/models/definitions/brands';
 import { MODULE_NAMES } from '../../constants';
 import { putCreateLog, putDeleteLog, putUpdateLog } from '../../logUtils';
 import { moduleCheckPermission } from '../../permissions/wrappers';
 import { IContext } from '../../types';
+import { caches } from './widgets';
 
 interface IBrandsEdit extends IBrand {
   _id: string;
@@ -38,6 +36,8 @@ const brandMutations = {
     const brand = await Brands.getBrand(_id);
     const updated = await Brands.updateBrand(_id, fields);
 
+    await caches.update(`brand_${brand.code}`, updated);
+
     await putUpdateLog(
       {
         type: MODULE_NAMES.BRAND,
@@ -57,33 +57,16 @@ const brandMutations = {
     const brand = await Brands.getBrand(_id);
     const removed = await Brands.removeBrand(_id);
 
+    if (brand.code) {
+      caches.remove(`brand_${brand.code}`);
+    }
+
+    caches.remove(`integration_messenger_${brand._id}`);
+    caches.remove(`integration_lead_${brand._id}`);
+
     await putDeleteLog({ type: MODULE_NAMES.BRAND, object: brand }, user);
 
     return removed;
-  },
-
-  /**
-   * Update brands email config
-   */
-  async brandsConfigEmail(
-    _root,
-    { _id, emailConfig }: { _id: string; emailConfig: IBrandEmailConfig },
-    { user }: IContext
-  ) {
-    const brand = await Brands.getBrand(_id);
-    const updated = await Brands.updateEmailConfig(_id, emailConfig);
-
-    await putUpdateLog(
-      {
-        type: MODULE_NAMES.BRAND,
-        object: brand,
-        newData: { emailConfig },
-        description: `${brand.name} email config has been changed`
-      },
-      user
-    );
-
-    return updated;
   },
 
   /**

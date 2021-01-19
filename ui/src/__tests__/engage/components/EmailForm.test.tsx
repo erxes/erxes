@@ -41,7 +41,12 @@ describe('EmailForm component', () => {
   const testIEngageScheduleDate: IEngageScheduleDate = {
     type: 'string',
     month: 'string',
-    day: 'string'
+    day: 'string',
+    dateTime: 'string'
+  };
+
+  const sendTestEmail = () => {
+    console.log('test email');
   };
 
   const defaultProps = {
@@ -57,7 +62,8 @@ describe('EmailForm component', () => {
     fromUserId: 'string',
     content: 'string',
     scheduleDate: testIEngageScheduleDate,
-    verifiedEmails: []
+    verifiedEmails: [],
+    sendTestEmail
   };
 
   test('renders successfully', () => {

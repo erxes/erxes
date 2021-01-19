@@ -53,8 +53,6 @@ type Props = {
 };
 
 type State = {
-  activeStep: number;
-  maxStep: number;
   method: string;
   title: string;
   segmentIds: string[];
@@ -88,8 +86,6 @@ class AutoAndManualForm extends React.Component<Props, State> {
     }
 
     this.state = {
-      activeStep: 1,
-      maxStep: 3,
       method: message.method || METHODS.EMAIL,
       title: message.title || '',
       segmentIds: message.segmentIds || [],
@@ -310,7 +306,7 @@ class AutoAndManualForm extends React.Component<Props, State> {
     }
 
     return (
-      <Step img="/images/icons/erxes-02.svg" title="Rule">
+      <Step img="/images/icons/erxes-04.svg" title="Rule" stepNumber={3}>
         <ConditionsRule
           rules={this.state.rules || []}
           onChange={this.changeState}
@@ -323,7 +319,7 @@ class AutoAndManualForm extends React.Component<Props, State> {
     const { content, email, method } = this.state;
 
     if (method !== METHODS.EMAIL) {
-      return <div />;
+      return null;
     }
 
     return (
@@ -343,14 +339,7 @@ class AutoAndManualForm extends React.Component<Props, State> {
   render() {
     const { renderTitle, breadcrumbs } = this.props;
 
-    const {
-      activeStep,
-      maxStep,
-      segmentIds,
-      brandIds,
-      title,
-      tagIds
-    } = this.state;
+    const { segmentIds, brandIds, title, tagIds } = this.state;
 
     const onChange = e =>
       this.changeState('title', (e.target as HTMLInputElement).value);
@@ -368,7 +357,7 @@ class AutoAndManualForm extends React.Component<Props, State> {
           />
           {this.renderSaveButton()}
         </TitleContainer>
-        <Steps maxStep={maxStep} active={activeStep}>
+        <Steps maxStep={4} active={1}>
           <Step img="/images/icons/erxes-05.svg" title="Choose channel">
             <ChannelStep
               onChange={this.changeState}
@@ -377,7 +366,7 @@ class AutoAndManualForm extends React.Component<Props, State> {
           </Step>
 
           <Step
-            img="/images/icons/erxes-02.svg"
+            img="/images/icons/erxes-06.svg"
             title="Who is this message for?"
           >
             <MessageTypeStep

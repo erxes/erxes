@@ -1,3 +1,4 @@
+import { cleanIntegrationKind } from 'erxes-ui/lib/utils';
 import gql from 'graphql-tag';
 import juice from 'juice';
 import { generatePaginationParams } from 'modules/common/utils/router';
@@ -59,18 +60,7 @@ export const formatStr = (emailString?: string) => {
   return emailString ? emailString.split(/[ ,]+/) : [];
 };
 
-export const cleanIntegrationKind = (name: string) => {
-  if (name.includes('nylas')) {
-    name = name.replace('nylas-', '');
-  }
-  if (name.includes('smooch')) {
-    name = name.replace('smooch-', '');
-  }
-  if (name === 'lead') {
-    name = 'popups';
-  }
-  return name;
-};
+export { cleanIntegrationKind };
 
 export const formatObj = (emailArray: IEmail[]) => {
   if (!emailArray || emailArray.length === 0) {
@@ -80,18 +70,18 @@ export const formatObj = (emailArray: IEmail[]) => {
   return emailArray ? emailArray.map(s => s.email).join(', ') : '';
 };
 
-type Params = {
-  fromEmail: string;
-  date: string;
-  to: IEmail[];
-  cc: IEmail[];
-  bcc: IEmail[];
-  subject: string;
-  body: string;
-  emailSignature: string;
+export type GenerateMailParam = {
+  fromEmail?: string;
+  date?: string;
+  to?: IEmail[];
+  cc?: IEmail[];
+  bcc?: IEmail[];
+  subject?: string;
+  body?: string;
+  emailSignature?: string;
 };
 
-export const generateForwardMailContent = (params: Params) => {
+export const generateForwardMailContent = (params: GenerateMailParam) => {
   const {
     fromEmail,
     date,
@@ -111,10 +101,10 @@ export const generateForwardMailContent = (params: Params) => {
     <br/>
     <b>Sent</b>: ${date}
     <br/>
-    <b>To</b>: ${formatObj(to)}
+    <b>To</b>: ${formatObj(to || [])}
     <br/>
     ${
-      cc.length > 0
+      cc && cc.length > 0
         ? `
       <b>Cc</b>: ${formatObj(cc)}
       <br/>
@@ -122,7 +112,7 @@ export const generateForwardMailContent = (params: Params) => {
         : ''
     }
     ${
-      bcc.length > 0
+      bcc && bcc.length > 0
         ? `
       <b>Bcc</b>: ${formatObj(bcc)}
       <br/>
@@ -138,4 +128,30 @@ export const generateForwardMailContent = (params: Params) => {
   `;
 
   return cleanHtml(generatedContent);
+};
+
+export const generatePreviousContents = msgs => {
+  if (msgs.length === 0) {
+    return '';
+  }
+
+  let content = '';
+
+  msgs.forEach((msg, index) => {
+    const marginSpace = index >= 7 ? 70 : index * 10;
+
+    content += `
+      <div style="margin-left:${marginSpace}px;border-left: 1px solid #ddd;padding-left: 1ex;">
+        <div style="border-bottom:1px dotted #ddd;margin-bottom: 8px">
+          <p>${msg.date} ${msg.fromEmail} wrote:</p>
+          ${msg.body}
+          <br/>
+          <p>&nbsp;</p>
+        </div>
+        <p>&nbsp;</p>
+      </div>
+    `;
+  });
+
+  return cleanHtml(content);
 };

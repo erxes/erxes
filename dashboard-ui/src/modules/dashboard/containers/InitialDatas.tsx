@@ -21,23 +21,22 @@ type FinalProps = {
 
 class DashboardContainer extends React.Component<FinalProps, {}> {
   render() {
-    const { addDashboardItemMutation, history } = this.props;
+    const { addDashboardItemMutation } = this.props;
 
-    const save = (params) => {
+    const save = params => {
       this.setState({ isLoading: true });
 
       params.dashboardId = dashboardId;
       const mutation = addDashboardItemMutation;
 
       return mutation({
-        variables: { ...params },
+        variables: { ...params }
       })
         .then(() => {
           Alert.success('Success');
-          history.goBack();
         })
 
-        .catch((error) => {
+        .catch(error => {
           return Alert.error(error.message);
         });
     };
@@ -62,15 +61,15 @@ export default compose(
       name: 'dashboardInitialDatasQuery',
       options: ({ queryParams }) => ({
         variables: {
-          type: queryParams.type,
-        },
-      }),
+          type: queryParams.type
+        }
+      })
     }
   ),
   graphql(gql(mutations.dashboardItemAdd), {
     name: 'addDashboardItemMutation',
     options: () => ({
-      refetchQueries: ['dashboardItemsQuery'],
-    }),
+      refetchQueries: ['dashboardItemsQuery']
+    })
   })
 )(DashboardContainer);

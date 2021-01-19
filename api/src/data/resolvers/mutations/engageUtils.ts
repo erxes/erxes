@@ -70,8 +70,8 @@ export const generateCustomerSelector = async ({
   }
 
   return {
-    $or: [{ doNotDisturb: 'No' }, { doNotDisturb: { $exists: false } }],
-    ...customerQuery
+    ...customerQuery,
+    $or: [{ doNotDisturb: 'No' }, { doNotDisturb: { $exists: false } }]
   };
 };
 
@@ -85,8 +85,19 @@ export const send = async (engageMessage: IEngageMessageDocument) => {
     segmentIds,
     tagIds,
     brandIds,
-    fromUserId
+    fromUserId,
+    scheduleDate
   } = engageMessage;
+
+  // Check for pre scheduled engages
+  if (scheduleDate && scheduleDate?.type === 'pre' && scheduleDate.dateTime) {
+    const scheduledDate = new Date(scheduleDate.dateTime);
+    const now = new Date();
+
+    if (scheduledDate.getTime() > now.getTime()) {
+      return;
+    }
+  }
 
   const user = await Users.findOne({ _id: fromUserId });
 
@@ -179,6 +190,16 @@ const sendEmailOrSms = async (
       'validCustomersCount',
       customerInfos.length
     );
+
+    if (
+      engageMessage.scheduleDate &&
+      engageMessage.scheduleDate.type === 'pre'
+    ) {
+      await EngageMessages.updateOne(
+        { _id: engageMessage._id },
+        { $set: { 'scheduleDate.type': 'sent' } }
+      );
+    }
 
     if (customerInfos.length > 0) {
       const data: any = {

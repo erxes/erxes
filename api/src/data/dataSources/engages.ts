@@ -90,4 +90,17 @@ export default class EngagesAPI extends RESTDataSource {
       return {};
     }
   }
+
+  // fetches average email delivery stat percentages
+  public async getAverageStats() {
+    try {
+      const response = await this.get(`/deliveryReports/avgStatPercentages`);
+
+      return response;
+    } catch (e) {
+      debugBase(e);
+
+      return { error: e.message };
+    }
+  }
 } // end class

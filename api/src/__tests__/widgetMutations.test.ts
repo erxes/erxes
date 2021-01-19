@@ -17,6 +17,7 @@ import {
   integrationFactory,
   knowledgeBaseArticleFactory,
   messengerAppFactory,
+  skillFactor,
   userFactory
 } from '../db/factories';
 import {
@@ -67,6 +68,9 @@ describe('messenger connect', () => {
     await Integrations.deleteMany({});
     await Customers.deleteMany({});
     await MessengerApps.deleteMany({});
+
+    memoryStorage().removeKey(`erxes_integration_messenger_${_brand.id}`);
+    memoryStorage().removeKey(`erxes_brand_{_brand.code}`);
   });
 
   test('brand not found', async () => {
@@ -129,6 +133,7 @@ describe('messenger connect', () => {
     expect(brand.code).toBe(_brand.code);
     expect(messengerData.formCode).toBe('formCode');
     expect(messengerData.knowledgeBaseTopicId).toBe('topicId');
+
     mock.restore();
   });
 
@@ -267,6 +272,28 @@ describe('insertMessage()', () => {
     }
 
     expect(customer.isOnline).toBeTruthy();
+
+    const user = await userFactory({ code: '123 ' });
+    const skill = await skillFactor({ memberIds: [user._id] });
+
+    const message2 = await widgetMutations.widgetsInsertMessage(
+      {},
+      {
+        contentType: MESSAGE_TYPES.TEXT,
+        integrationId: _integration._id,
+        customerId: _customer._id,
+        message: faker.lorem.sentence(),
+        skillId: skill._id
+      }
+    );
+
+    const conversation2 = await Conversations.findById(
+      message2.conversationId
+    ).lean();
+
+    if (conversation2) {
+      expect(conversation2.userRelevance).toBe(`${user.code}SS`);
+    }
   });
 
   test('with conversationId', async () => {
@@ -769,6 +796,10 @@ describe('lead', () => {
     } catch (e) {
       expect(e.message).toBe('Integration not found');
     }
+
+    memoryStorage().removeKey(`erxes_brand_${brand.code}`);
+    memoryStorage().removeKey(`erxes_brand_code`);
+    memoryStorage().removeKey(`erxes_integration_lead_${brand._id}`);
   });
 
   test('leadConnect: success', async () => {
@@ -787,6 +818,23 @@ describe('lead', () => {
       }
     });
 
+    const response1 = await widgetMutations.widgetsLeadConnect(
+      {},
+      {
+        brandCode: brand.code || '',
+        formCode: form.code || ''
+      }
+    );
+
+    expect(response1 && response1.integration._id).toBe(integration._id);
+    expect(response1 && response1.form._id).toBe(form._id);
+
+    // Get integration from cache ===========================
+    memoryStorage().set(
+      `erxes_integration_lead_${brand._id}`,
+      JSON.stringify(integration)
+    );
+
     const response = await widgetMutations.widgetsLeadConnect(
       {},
       {
@@ -797,6 +845,9 @@ describe('lead', () => {
 
     expect(response && response.integration._id).toBe(integration._id);
     expect(response && response.form._id).toBe(form._id);
+
+    memoryStorage().removeKey(`erxes_brand_${brand.code}`);
+    memoryStorage().removeKey(`erxes_integration_lead_${brand._id}`);
 
     mock.restore();
   });
@@ -831,9 +882,14 @@ describe('lead', () => {
         cachedCustomerId: '123123'
       }
     );
+
     expect(conversation).toBeDefined();
     expect(response).toBeNull();
+
     mock.restore();
+
+    memoryStorage().removeKey(`erxes_brand_${brand.code}`);
+    memoryStorage().removeKey(`erxes_integration_lead_${brand._id}`);
   });
 
   test('saveLead: form not found', async () => {
@@ -970,18 +1026,23 @@ describe('lead', () => {
   });
 
   test('widgetsSendEmail', async () => {
+    const customer = await customerFactory({});
+    const form = await formFactory({});
+
     const emailParams = {
       toEmails: ['test-mail@gmail.com'],
       fromEmail: 'admin@erxes.io',
       title: 'Thank you for submitting.',
-      content: 'We have received your request'
+      content: 'We have received your request',
+      customerId: customer._id,
+      formId: form._id
     };
 
     const spyEmail = jest.spyOn(widgetMutations, 'widgetsSendEmail');
 
     const mutation = `
-      mutation widgetsSendEmail($toEmails: [String], $fromEmail: String, $title: String, $content: String) {
-        widgetsSendEmail(toEmails: $toEmails, fromEmail: $fromEmail, title: $title, content: $content)
+      mutation widgetsSendEmail($toEmails: [String], $fromEmail: String, $title: String, $content: String, $formId: String, $customerId: String) {
+        widgetsSendEmail(toEmails: $toEmails, fromEmail: $fromEmail, title: $title, content: $content, formId: $formId, customerId: $customerId)
       }
     `;
 

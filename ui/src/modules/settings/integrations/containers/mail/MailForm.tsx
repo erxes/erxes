@@ -6,7 +6,7 @@ import { IUser } from 'modules/auth/types';
 import Spinner from 'modules/common/components/Spinner';
 import { Alert, withProps } from 'modules/common/utils';
 import { queries as messageQueries } from 'modules/inbox/graphql';
-import { IMail } from 'modules/inbox/types';
+import { IMail, IMessage } from 'modules/inbox/types';
 import {
   EmailTemplatesQueryResponse,
   EmailTemplatesTotalCountQueryResponse
@@ -36,6 +36,8 @@ type Props = {
   isForward?: boolean;
   replyAll?: boolean;
   createdAt?: Date;
+  mails?: IMessage[];
+  messageId?: string;
   toggleReply?: (toAll?: boolean) => void;
   closeModal?: () => void;
   closeReply?: () => void;
@@ -62,15 +64,17 @@ const MailFormContainer = (props: FinalProps) => {
     emailTemplatesQuery,
     emailTemplatesTotalCountQuery,
     sendMailMutation,
-    currentUser
+    currentUser,
+    mails,
+    messageId
   } = props;
 
   if (integrationsQuery.loading) {
     return <Spinner objective={true} />;
   }
 
-  const fetchMoreEmailTemplates = () => {
-    const { fetchMore, emailTemplates, variables } = emailTemplatesQuery;
+  const fetchMoreEmailTemplates = (page: number) => {
+    const { fetchMore, emailTemplates } = emailTemplatesQuery;
     const { emailTemplatesTotalCount } = emailTemplatesTotalCountQuery;
 
     if (emailTemplatesTotalCount === emailTemplates.length) {
@@ -78,7 +82,7 @@ const MailFormContainer = (props: FinalProps) => {
     }
 
     return fetchMore({
-      variables: { page: Number(variables.page) + 1 },
+      variables: { page },
       updateQuery: (prev, { fetchMoreResult }) => {
         if (!fetchMoreResult) {
           return prev;
@@ -218,7 +222,9 @@ const MailFormContainer = (props: FinalProps) => {
     currentUser,
     fetchMoreEmailTemplates,
     emailTemplates: emailTemplatesQuery.emailTemplates,
-    emailSignatures: currentUser.emailSignatures || []
+    emailSignatures: currentUser.emailSignatures || [],
+    mails,
+    messageId
   };
 
   return <MailForm {...updatedProps} />;

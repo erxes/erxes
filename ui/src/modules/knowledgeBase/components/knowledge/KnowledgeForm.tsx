@@ -1,4 +1,3 @@
-import { getEnv } from 'apolloClient';
 import Button from 'modules/common/components/Button';
 import EmptyState from 'modules/common/components/EmptyState';
 import FormControl from 'modules/common/components/form/Control';
@@ -14,7 +13,7 @@ import {
   IButtonMutateProps,
   IFormProps
 } from 'modules/common/types';
-import { __ } from 'modules/common/utils';
+import { __, getEnv } from 'modules/common/utils';
 import { FlexContent } from 'modules/layout/styles';
 import { IBrand } from 'modules/settings/brands/types';
 import SelectBrand from 'modules/settings/integrations/containers/SelectBrand';

@@ -11,7 +11,8 @@ import {
   CommonFieldsEditResponse,
   IntegrationMutationVariables,
   IntegrationsQueryResponse,
-  RemoveMutationResponse
+  RemoveMutationResponse,
+  RepairMutationResponse
 } from '../../types';
 import { integrationsListParams } from '../utils';
 
@@ -28,13 +29,15 @@ type FinalProps = {
 } & Props &
   RemoveMutationResponse &
   ArchiveIntegrationResponse &
-  CommonFieldsEditResponse;
+  CommonFieldsEditResponse &
+  RepairMutationResponse;
 
 const IntegrationListContainer = (props: FinalProps) => {
   const {
     integrationsQuery,
     removeMutation,
     archiveIntegration,
+    repairIntegration,
     editCommonFields
   } = props;
 
@@ -87,6 +90,16 @@ const IntegrationListContainer = (props: FinalProps) => {
     });
   };
 
+  const repair = (id: string) => {
+    repairIntegration({ variables: { _id: id } })
+      .then(() => {
+        Alert.success(`Sucess`);
+      })
+      .catch((error: Error) => {
+        Alert.error(error.message);
+      });
+  };
+
   const editIntegration = (
     id: string,
     { name, brandId, channelIds, data }: IntegrationMutationVariables
@@ -114,6 +127,7 @@ const IntegrationListContainer = (props: FinalProps) => {
 
   const updatedProps = {
     ...props,
+    repair,
     integrations,
     removeIntegration,
     loading: integrationsQuery.loading,
@@ -175,6 +189,10 @@ export default withProps<Props>(
         options: mutationOptions
       }
     ),
+    graphql<Props, RepairMutationResponse>(gql(mutations.integrationsRepair), {
+      name: 'repairIntegration',
+      options: mutationOptions
+    }),
     graphql<Props, CommonFieldsEditResponse>(
       gql(mutations.integrationsEditCommonFields),
       {

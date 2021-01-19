@@ -1,3 +1,4 @@
+import { PipelinePopoverContent } from 'erxes-ui/lib/boards/styles/item';
 import Button from 'modules/common/components/Button';
 import { colors, dimensions } from 'modules/common/styles';
 import { rgba } from 'modules/common/styles/color';
@@ -25,8 +26,20 @@ export const Content = styled.div`
     font-size: 13px;
   }
 
+  img,
+  table,
+  * {
+    max-width: 576px !important;
+  }
+
+  ul,
+  ol {
+    padding-left: 20px;
+    margin: 0 0 10px;
+  }
+
   &:hover {
-    background: rgba(10, 30, 65, 0.09);
+    background: rgba(10, 30, 65, 0.08);
     cursor: pointer;
   }
 `;
@@ -281,10 +294,7 @@ export const PipelineName = styled.div`
   }
 `;
 
-export const PipelinePopoverContent = styled.div`
-  padding: 30px 10px 10px 30px;
-  width: 300px;
-`;
+export { PipelinePopoverContent };
 
 export const Stages = styled.ul`
   flex: 1;

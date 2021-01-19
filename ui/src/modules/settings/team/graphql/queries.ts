@@ -1,12 +1,6 @@
-const detailFields = `
-  avatar
-  fullName
-  shortName
-  position
-  location
-  description
-  operatorPhone
-`;
+import * as teamQueries from 'erxes-ui/lib/team/graphql';
+
+const detailFields = teamQueries.detailFields;
 
 const userDetail = `
   query userDetail($_id: String) {
@@ -60,40 +54,9 @@ const listParamsValue = `
   brandIds: $brandIds
 `;
 
-const users = `
-  query users($page: Int, $perPage: Int, $status: String, $excludeIds: Boolean, ${listParamsDef}) {
-    users(page: $page, perPage: $perPage, status: $status, excludeIds: $excludeIds, ${listParamsValue}) {
-      _id
-      username
-      email
-      status
-      isActive
-      groupIds
-      brandIds
+const users = teamQueries.users;
 
-      details {
-        ${detailFields}
-      }
-
-      links
-    }
-  }
-`;
-
-const allUsers = `
-  query allUsers($isActive: Boolean) {
-    allUsers(isActive: $isActive) {
-      _id
-      email
-      username
-      isActive
-      details {
-        avatar
-        fullName
-      }
-    }
-  }
-`;
+const allUsers = teamQueries.allUsers;
 
 const usersTotalCount = `
   query usersTotalCount(${listParamsDef}) {
@@ -101,7 +64,17 @@ const usersTotalCount = `
   }
 `;
 
+const userSkills = `
+  query skills($memberIds: [String], $typeId: String, $list: Boolean) {
+    skills(memberIds: $memberIds, typeId: $typeId, list: $list) {
+      _id
+      name
+    }
+  }
+`;
+
 export default {
+  userSkills,
   userDetail,
   userConversations,
   users,

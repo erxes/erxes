@@ -28,14 +28,35 @@ interface IUpdateUser extends IEditProfile {
   brandIds?: string[];
 }
 
+interface IConfirmParams {
+  token: string;
+  password: string;
+  passwordConfirmation: string;
+  fullName?: string;
+  username?: string;
+}
+
+interface IInviteParams {
+  email: string;
+  password: string;
+  groupId: string;
+}
+
+interface ILoginParams {
+  email: string;
+  password?: string;
+  deviceToken?: string;
+}
+
+interface IPasswordParams {
+  _id: string;
+  newPassword: string;
+}
+
 export interface IUserModel extends Model<IUserDocument> {
   getUser(_id: string): Promise<IUserDocument>;
   checkPassword(password: string): void;
-  checkDuplication({
-    email,
-    idsToExclude,
-    emails
-  }: {
+  checkDuplication(params: {
     email?: string;
     idsToExclude?: string | string[];
     emails?: string[];
@@ -45,6 +66,8 @@ export interface IUserModel extends Model<IUserDocument> {
   createUser(doc: IUser): Promise<IUserDocument>;
   updateUser(_id: string, doc: IUpdateUser): Promise<IUserDocument>;
   editProfile(_id: string, doc: IEditProfile): Promise<IUserDocument>;
+  generateUserCode(): Promise<string>;
+  generateUserCodeField(): Promise<void>;
   configEmailSignatures(
     _id: string,
     signatures: IEmailSignature[]
@@ -55,67 +78,24 @@ export interface IUserModel extends Model<IUserDocument> {
   ): Promise<IUserDocument>;
   setUserActiveOrInactive(_id: string): Promise<IUserDocument>;
   generatePassword(password: string): Promise<string>;
-  invite({
-    email,
-    password,
-    groupId
-  }: {
-    email: string;
-    password: string;
-    groupId: string;
-  }): string;
+  invite(params: IInviteParams): string;
   resendInvitation({ email }: { email: string }): string;
-  confirmInvitation({
-    token,
-    password,
-    passwordConfirmation,
-    fullName,
-    username
-  }: {
-    token: string;
-    password: string;
-    passwordConfirmation: string;
-    fullName?: string;
-    username?: string;
-  }): Promise<IUserDocument>;
+  confirmInvitation(params: IConfirmParams): Promise<IUserDocument>;
   comparePassword(password: string, userPassword: string): boolean;
-  resetPassword({
-    token,
-    newPassword
-  }: {
+  resetPassword(params: {
     token: string;
     newPassword: string;
   }): Promise<IUserDocument>;
-  resetMemberPassword({
-    _id,
-    newPassword
-  }: {
-    _id: string;
-    newPassword: string;
-  }): Promise<IUserDocument>;
-  changePassword({
-    _id,
-    currentPassword,
-    newPassword
-  }: {
-    _id: string;
-    currentPassword: string;
-    newPassword: string;
-  }): Promise<IUserDocument>;
+  resetMemberPassword(params: IPasswordParams): Promise<IUserDocument>;
+  changePassword(
+    params: IPasswordParams & { currentPassword: string }
+  ): Promise<IUserDocument>;
   forgotPassword(email: string): string;
   createTokens(_user: IUserDocument, secret: string): string[];
   refreshTokens(
     refreshToken: string
   ): { token: string; refreshToken: string; user: IUserDocument };
-  login({
-    email,
-    password,
-    deviceToken
-  }: {
-    email: string;
-    password?: string;
-    deviceToken?: string;
-  }): { token: string; refreshToken: string };
+  login(params: ILoginParams): { token: string; refreshToken: string };
 }
 
 export const loadClass = () => {
@@ -201,7 +181,8 @@ export const loadClass = () => {
         groupIds,
         isActive: true,
         // hash password
-        password: await this.generatePassword(password)
+        password: await this.generatePassword(password),
+        code: await this.generateUserCode()
       });
     }
 
@@ -220,7 +201,10 @@ export const loadClass = () => {
         brandIds
       }: IUpdateUser
     ) {
-      const doc = {
+      email = (email || '').toLowerCase().trim();
+      password = (password || '').trim();
+
+      const doc: any = {
         username,
         email,
         password,
@@ -271,7 +255,7 @@ export const loadClass = () => {
       password: string;
       groupId: string;
     }) {
-      email = (email || '').toLocaleLowerCase().trim();
+      email = (email || '').toLowerCase().trim();
       password = (password || '').trim();
 
       // Checking duplicated email
@@ -292,7 +276,8 @@ export const loadClass = () => {
         // hash password
         password: await this.generatePassword(password),
         registrationToken: token,
-        registrationTokenExpires: expires
+        registrationTokenExpires: expires,
+        code: await this.generateUserCode()
       });
 
       return token;
@@ -579,7 +564,9 @@ export const loadClass = () => {
      */
     public static async forgotPassword(email: string) {
       // find user
-      const user = await Users.findOne({ email });
+      const user = await Users.findOne({
+        email: (email || '').toLowerCase().trim()
+      });
 
       if (!user) {
         throw new Error('Invalid email');
@@ -612,7 +599,8 @@ export const loadClass = () => {
         isOwner: _user.isOwner,
         groupIds: _user.groupIds,
         brandIds: _user.brandIds,
-        username: _user.username
+        username: _user.username,
+        code: _user.code
       };
 
       const createToken = await jwt.sign({ user }, secret, { expiresIn: '1d' });
@@ -667,7 +655,7 @@ export const loadClass = () => {
       password: string;
       deviceToken?: string;
     }) {
-      email = (email || '').toLocaleLowerCase().trim();
+      email = (email || '').toLowerCase().trim();
       password = (password || '').trim();
 
       const user = await Users.findOne({
@@ -706,10 +694,65 @@ export const loadClass = () => {
         }
       }
 
+      // generate user code
+      await this.generateUserCodeField();
+
       return {
         token,
         refreshToken
       };
+    }
+
+    public static async generateUserCodeField() {
+      const users = await Users.find({ code: { $exists: false } });
+
+      if (users.length === 0) {
+        return;
+      }
+
+      const doc: Array<{
+        updateOne: {
+          filter: { _id: string };
+          update: { $set: { code: string } };
+        };
+      }> = [];
+
+      let code = parseInt((await this.generateUserCode()) || '', 10);
+
+      for (const user of users) {
+        code++;
+
+        doc.push({
+          updateOne: {
+            filter: { _id: user._id },
+            update: { $set: { code: this.getCodeString(code) } }
+          }
+        });
+      }
+
+      return Users.bulkWrite(doc);
+    }
+
+    public static async generateUserCode() {
+      const users = await Users.find({ code: { $exists: true } })
+        .sort({ code: -1 })
+        .limit(1);
+
+      if (users.length === 0) {
+        return '000';
+      }
+
+      const [user] = users;
+
+      let code = parseInt(user.code || '', 10);
+
+      code++;
+
+      return this.getCodeString(code);
+    }
+
+    public static getCodeString(code: number) {
+      return ('00' + code).slice(-3);
     }
   }
 

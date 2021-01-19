@@ -31,7 +31,7 @@ const Greeting = styled(SubContent)`
 
 const Bot = styled.div`
   position: fixed;
-  bottom: 0;
+  bottom: 0px;
   width: 70px;
   padding: 10px 0;
   text-align: center;

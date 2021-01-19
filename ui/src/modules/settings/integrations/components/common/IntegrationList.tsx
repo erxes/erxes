@@ -13,6 +13,7 @@ type Props = {
   integrations: IIntegration[];
   removeIntegration: (integration: IIntegration, callback?: any) => void;
   archive: (id: string, status: boolean) => void;
+  repair: (id: string) => void;
   kind?: string | null;
   editIntegration: (
     id: string,
@@ -31,7 +32,8 @@ class IntegrationList extends React.Component<Props> {
       archive,
       editIntegration,
       queryParams: { _id },
-      disableAction
+      disableAction,
+      repair
     } = this.props;
 
     return integrations.map(i => (
@@ -41,6 +43,7 @@ class IntegrationList extends React.Component<Props> {
         integration={i}
         removeIntegration={removeIntegration}
         archive={archive}
+        repair={repair}
         disableAction={disableAction}
         editIntegration={editIntegration}
       />
@@ -75,6 +78,7 @@ class IntegrationList extends React.Component<Props> {
               <th>{__('Kind')}</th>
               <th>{__('Brand')}</th>
               <th>{__('Status')}</th>
+              <th>{__('Health status')}</th>
               <th>{__('External info')}</th>
               <th style={{ width: 130 }}>{__('Actions')}</th>
             </tr>

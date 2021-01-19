@@ -6,6 +6,7 @@ import {
 import { field } from './utils';
 
 export interface IConversation {
+  skillId?: string;
   operatorStatus?: string;
   content?: string;
   integrationId: string;
@@ -13,6 +14,7 @@ export interface IConversation {
   userId?: string;
   assignedUserId?: string;
   participatedUserIds?: string[];
+  userRelevance?: string;
   readUserIds?: string[];
 
   createdAt?: Date;
@@ -54,6 +56,7 @@ export const conversationSchema = new Schema({
   userId: field({ type: String }),
   assignedUserId: field({ type: String }),
   participatedUserIds: field({ type: [String] }),
+  userRelevance: field({ type: String, index: true }),
   readUserIds: field({ type: [String] }),
   createdAt: field({ type: Date, index: true }),
   updatedAt: field({ type: Date }),

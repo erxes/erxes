@@ -17,3 +17,11 @@ static
 package-lock.json
 dump.rdb
 oplog.timestamp
+dump
+gitinfo.json
+ecosystem.config.js
+nginx.conf
+private
+/plugins
+engages-email-sender/src/__tests__/coverage/
+*.js.map

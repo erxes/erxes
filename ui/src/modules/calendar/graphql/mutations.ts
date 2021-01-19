@@ -6,8 +6,11 @@ const commonParamsDef = `
   $start: String,
   $end: String
 
-  $participants: [Participant]
-  $memberIds: [String]
+  $participants: [Participant],
+  $rrule: String,
+  $timezone: String,
+  $location: String,
+  $busy: Boolean,
 `;
 
 const commonParams = `
@@ -18,8 +21,11 @@ const commonParams = `
   start: $start,
   end: $end,
 
-  participants: $participants
-  memberIds: $memberIds
+  participants: $participants,
+  rrule: $rrule,
+  timezone: $timezone,
+  location: $location,
+  busy: $busy,
 `;
 
 const createEvent = `

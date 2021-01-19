@@ -192,8 +192,8 @@ class MessengerForm extends React.Component<Props, State> {
               ))}
             </FormControl>
           </FormGroup>
-
-          {this.renderScheduler()}
+          {/* TODO enable after engage update */}
+          {/* {this.renderScheduler()} */}
         </FlexPad>
 
         <FlexItem overflow="auto" count="2">

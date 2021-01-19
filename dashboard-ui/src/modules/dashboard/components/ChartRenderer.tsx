@@ -5,7 +5,7 @@ import dayjs from 'dayjs';
 import Spinner from 'modules/common/components/Spinner';
 import numeral from 'numeral';
 
-import React from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import {
   Area,
   AreaChart,
@@ -47,7 +47,7 @@ const dateFormatter = (item, dateType) => {
   }
 };
 
-function decamelize(str, separator) {
+const decamelize = (str, separator) => {
   separator = typeof separator === 'undefined' ? ' ' : separator;
 
   const replace = replaceTexts.find(value => {
@@ -64,7 +64,7 @@ function decamelize(str, separator) {
     .replace('-', ' ');
 
   return str.toLowerCase();
-}
+};
 
 const xAxisFormatter = (item, dateType) => {
   if (dateType) {
@@ -246,7 +246,7 @@ const TypeToChartComponent = {
     >
       <Col>
         {resultSet.seriesNames.map(s => (
-          <Statistic key={s.key} value={resultSet.totalRow()[s.key]} />
+          <Statistic key={s.key} value={resultSet.totalRow[s.key]} />
         ))}
       </Col>
     </Row>
@@ -272,34 +272,28 @@ type Props = {
   chartHeight?: any;
 };
 
-type State = {
-  result;
-};
+function usePrevious(value) {
+  const ref = useRef();
+  useEffect(() => {
+    ref.current = value;
+  });
+  return ref.current;
+}
 
-export class ChartRenderer extends React.Component<Props, State> {
-  constructor(props) {
-    super(props);
+export default function ChartRenderer(props: Props) {
+  const [result, setResult] = useState<any>({ result: {} });
 
-    this.state = {
-      result: {}
-    };
-  }
+  const { query, chartType, chartHeight } = props;
 
-  componentDidMount() {
-    this.setState({ result: {} }, () => {
-      this.getDatas();
-    });
-  }
+  const prevAmount = usePrevious({ query }) || ({} as any);
 
-  componentWillReceiveProps() {
-    this.setState({ result: {} }, () => {
-      this.getDatas();
-    });
-  }
+  useEffect(() => {
+    if (JSON.stringify(prevAmount.query) !== JSON.stringify(query)) {
+      getDatas();
+    }
+  });
 
-  getDatas = () => {
-    const { query } = this.props;
-
+  const getDatas = () => {
     axios
       .get(`${REACT_APP_DASHBOARD_API_URL}/get`, {
         params: {
@@ -307,30 +301,25 @@ export class ChartRenderer extends React.Component<Props, State> {
           dashboardToken
         }
       })
-      .then(response => this.setState({ result: response.data }));
+      .then(response => setResult(response.data));
   };
 
-  render() {
-    const { result } = this.state;
-    const { query, chartType, chartHeight } = this.props;
+  const component = TypeToMemoChartComponent[chartType];
 
-    const component = TypeToMemoChartComponent[chartType];
+  let dateType = '';
 
-    let dateType = '';
+  if (result.seriesNames) {
+    const { timeDimensions } = query;
 
-    if (result.seriesNames) {
-      const { timeDimensions } = query;
-
-      if (timeDimensions[0]) {
-        dateType = timeDimensions[0].granularity;
-      }
-      return renderChart(component)({
-        height: chartHeight,
-        result,
-        dateType
-      });
+    if (timeDimensions[0]) {
+      dateType = timeDimensions[0].granularity;
     }
-
-    return <Spinner objective={true} />;
+    return renderChart(component)({
+      height: chartHeight,
+      result,
+      dateType
+    });
   }
+
+  return <Spinner objective={true} />;
 }

@@ -79,7 +79,7 @@ export interface IFacebookComment {
 }
 
 export interface IEmail {
-  name: string;
+  name?: string;
   email: string;
 }
 

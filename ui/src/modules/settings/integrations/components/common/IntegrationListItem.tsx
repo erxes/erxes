@@ -1,4 +1,4 @@
-import client, { getEnv } from 'apolloClient';
+import client from 'apolloClient';
 import gql from 'graphql-tag';
 import ActionButtons from 'modules/common/components/ActionButtons';
 import Button from 'modules/common/components/Button';
@@ -7,7 +7,7 @@ import Label from 'modules/common/components/Label';
 import ModalTrigger from 'modules/common/components/ModalTrigger';
 import Tip from 'modules/common/components/Tip';
 import WithPermission from 'modules/common/components/WithPermission';
-import { Alert } from 'modules/common/utils';
+import { Alert, getEnv } from 'modules/common/utils';
 import { __ } from 'modules/common/utils';
 import InstallCode from 'modules/settings/integrations/components/InstallCode';
 import { INTEGRATION_KINDS } from 'modules/settings/integrations/constants';
@@ -17,12 +17,14 @@ import { cleanIntegrationKind } from '../../containers/utils';
 import { queries } from '../../graphql/index';
 import { INTEGRATIONS_COLORS } from '../../integrationColors';
 import { IIntegration, IntegrationMutationVariables } from '../../types';
+import RefreshPermissionForm from '../facebook/RefreshPermission';
 import CommonFieldForm from './CommonFieldForm';
 
 type Props = {
   _id?: string;
   integration: IIntegration;
   archive: (id: string, status: boolean) => void;
+  repair: (id: string) => void;
   removeIntegration: (integration: IIntegration) => void;
   disableAction?: boolean;
   editIntegration: (
@@ -222,6 +224,47 @@ class IntegrationListItem extends React.Component<Props, State> {
     );
   }
 
+  renderRepairAction() {
+    const { repair, integration } = this.props;
+
+    if (!integration.kind.includes('facebook')) {
+      return null;
+    }
+
+    const onClick = () => repair(integration._id);
+
+    if (
+      integration.healthStatus &&
+      integration.healthStatus.status === 'account-token'
+    ) {
+      const editTrigger = (
+        <Button btnStyle="link">
+          <Tip text={__('Repair')} placement="top">
+            <Icon icon="refresh" />
+          </Tip>
+        </Button>
+      );
+
+      const content = props => <RefreshPermissionForm {...props} />;
+
+      return (
+        <ActionButtons>
+          <ModalTrigger
+            title="Edit integration"
+            trigger={editTrigger}
+            content={content}
+          />
+        </ActionButtons>
+      );
+    } else {
+      return (
+        <Tip text={__('Repair')} placement="top">
+          <Button btnStyle="link" onClick={onClick} icon="refresh" />
+        </Tip>
+      );
+    }
+  }
+
   renderExternalData(integration) {
     const { externalData } = this.state;
     const { kind } = integration;
@@ -261,7 +304,10 @@ class IntegrationListItem extends React.Component<Props, State> {
   }
 
   renderFetchAction(integration: IIntegration) {
-    if (integration.kind === INTEGRATION_KINDS.MESSENGER) {
+    if (
+      integration.kind === INTEGRATION_KINDS.MESSENGER ||
+      integration.kind.includes('facebook')
+    ) {
       return null;
     }
 
@@ -292,8 +338,20 @@ class IntegrationListItem extends React.Component<Props, State> {
   render() {
     const { integration } = this.props;
     const integrationKind = cleanIntegrationKind(integration.kind);
-    const labelStyle = integration.isActive ? 'success' : 'warning';
+
+    const healthStatus = integration.healthStatus
+      ? integration.healthStatus.status
+      : '';
+
+    const error = integration.healthStatus
+      ? integration.healthStatus.error
+      : '';
+
+    const labelStyle = integration.isActive ? 'success' : 'error';
     const status = integration.isActive ? __('Active') : __('Archived');
+    const labelStyleHealthy = healthStatus === 'healthy' ? 'success' : 'danger';
+    const healthStatusText =
+      healthStatus === 'healthy' ? __('Healthy') : __('Unhealthy');
 
     return (
       <tr key={integration._id}>
@@ -307,12 +365,18 @@ class IntegrationListItem extends React.Component<Props, State> {
         <td>
           <Label lblStyle={labelStyle}>{status}</Label>
         </td>
+        <td>
+          <Tip text={error}>
+            <Label lblStyle={labelStyleHealthy}>{healthStatusText}</Label>
+          </Tip>
+        </td>
         {this.renderExternalData(integration)}
         <td>
           <ActionButtons>
             {this.renderFetchAction(integration)}
             {this.renderMessengerActions(integration)}
             {this.renderGetAction()}
+            {this.renderRepairAction()}
             {this.renderEditAction()}
             {this.renderArchiveAction()}
             {this.renderUnarchiveAction()}

@@ -11,13 +11,14 @@ type Props = {
   refetch: () => void;
   sourceConversationId?: string;
   title: string;
+  subject?: string;
   url?: string;
   type?: string;
   description?: string;
   attachments?: any[];
 };
 
-export default (props: Props) => {
+export default function ConvertTrigger(props: Props) {
   const {
     relType,
     relTypeIds,
@@ -28,6 +29,7 @@ export default (props: Props) => {
     title,
     url,
     type,
+    subject,
     description,
     attachments
   } = props;
@@ -52,6 +54,7 @@ export default (props: Props) => {
       refetch={refetch}
       relType={relType}
       relTypeIds={relTypeIds}
+      mailSubject={subject}
       assignedUserIds={assignedUserIds}
       sourceConversationId={sourceConversationId}
       showSelect={true}
@@ -59,4 +62,4 @@ export default (props: Props) => {
   );
 
   return <ModalTrigger title={title} trigger={trigger} content={content} />;
-};
+}

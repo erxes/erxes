@@ -98,6 +98,46 @@ const editAccountCalendar = `
   }
 `;
 
+const pageParamsDef = `
+  $accountId: String!,
+  $appearance: ScheduleAppearance!,
+  $event: ScheduleEvent!,
+  $timezone: String!,
+  $booking: ScheduleBooking,
+  $calendarIds: [String],
+  $name: String!,
+  $slug: String!
+`;
+
+const pageParams = `
+  accountId: $accountId,
+  appearance: $appearance,
+  event: $event,
+  timezone: $timezone,
+  booking: $booking,
+  calendarIds: $calendarIds,
+  name: $name,
+  slug: $slug,
+`;
+
+const createSchedulePage = `
+  mutation createSchedulePage(${pageParamsDef}) {
+    createSchedulePage(${pageParams})
+  }
+`;
+
+const editSchedulePage = `
+  mutation editSchedulePage($_id: String!, ${pageParamsDef}) {
+    editSchedulePage(_id: $_id, ${pageParams})
+  }
+`;
+
+const deleteSchedulePage = `
+  mutation deleteSchedulePage($pageId: String!) {
+    deleteSchedulePage(pageId: $pageId)
+  }
+`;
+
 export default {
   boardAdd,
   boardEdit,
@@ -108,5 +148,8 @@ export default {
   calendarAdd,
   calendarEdit,
   calendarRemove,
-  editAccountCalendar
+  editAccountCalendar,
+  createSchedulePage,
+  deleteSchedulePage,
+  editSchedulePage
 };

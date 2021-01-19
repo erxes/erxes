@@ -1,5 +1,6 @@
 import withCurrentUser from 'modules/auth/containers/withCurrentUser';
 import asyncComponent from 'modules/common/components/AsyncComponent';
+import { pluginsOfRoutes } from 'pluginUtils';
 import queryString from 'query-string';
 import React from 'react';
 import { BrowserRouter as Router, Route, Switch } from 'react-router-dom';
@@ -13,7 +14,6 @@ import DealsRoutes from './modules/deals/routes';
 import EngageRoutes from './modules/engage/routes';
 import GrowthHackRoutes from './modules/growthHacks/routes';
 import InboxRoutes from './modules/inbox/routes';
-import InsightsRoutes from './modules/insights/routes';
 import KnowledgeBaseRoutes from './modules/knowledgeBase/routes';
 import LeadRoutes from './modules/leads/routes';
 import NotificationRoutes from './modules/notifications/routes';
@@ -43,10 +43,22 @@ const UserConfirmation = asyncComponent(() =>
   )
 );
 
+const Schedule = asyncComponent(() =>
+  import(
+    /* webpackChunkName: "Calendar - Schedule" */ 'modules/calendar/components/scheduler/Index'
+  )
+);
+
 export const unsubscribe = ({ location }) => {
   const queryParams = queryString.parse(location.search);
 
   return <Unsubscribe queryParams={queryParams} />;
+};
+
+const schedule = ({ match }) => {
+  const slug = match.params.slug;
+
+  return <Schedule slug={slug} />;
 };
 
 const renderRoutes = currentUser => {
@@ -58,16 +70,27 @@ const renderRoutes = currentUser => {
     );
   };
 
+  if (!sessionStorage.getItem('sessioncode')) {
+    sessionStorage.setItem('sessioncode', Math.random().toString());
+  }
+
+  const { pathname } = window.location;
+
+  if (pathname.search('/schedule/') === 0) {
+    return null;
+  }
+
   if (currentUser) {
+    const { plugins, pluginRoutes, specialPluginRoutes } = pluginsOfRoutes(currentUser);
+
     return (
       <>
-        <MainLayout currentUser={currentUser}>
+        <MainLayout currentUser={currentUser} plugins={plugins}>
           <NotificationRoutes />
           <InboxRoutes />
           <SegmentsRoutes />
           <CustomersRoutes />
           <CompaniesRoutes />
-          <InsightsRoutes />
           <EngageRoutes />
           <KnowledgeBaseRoutes />
           <LeadRoutes />
@@ -81,6 +104,9 @@ const renderRoutes = currentUser => {
           <TutorialRoutes />
           <CalendarRoutes />
           <DashboardRoutes />
+
+          {specialPluginRoutes}
+          {pluginRoutes}
 
           <Route
             key="/confirmation"
@@ -114,6 +140,13 @@ const Routes = ({ currentUser }: { currentUser: IUser }) => (
         exact={true}
         path="/unsubscribe"
         component={unsubscribe}
+      />
+
+      <Route
+        key="/schedule"
+        exact={true}
+        path="/schedule/:slug"
+        component={schedule}
       />
 
       {renderRoutes(currentUser)}

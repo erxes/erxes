@@ -101,6 +101,7 @@ class Facebook extends React.Component<Props, State> {
       return <EmptyState icon="folder-2" text={__('There is no pages')} />;
     }
 
+    console.log(pages);
     return (
       <FlexItem>
         <LeftItem>
@@ -111,6 +112,7 @@ class Facebook extends React.Component<Props, State> {
                 {page.name}
 
                 <Button
+                  disabled={page.isUsed}
                   uppercase={false}
                   btnStyle={
                     this.state.selectedPages.includes(page.id)
