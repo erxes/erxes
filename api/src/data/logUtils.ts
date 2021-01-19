@@ -59,6 +59,7 @@ import messageBroker from '../messageBroker';
 import { callAfterMutation } from '../pluginUtils';
 import { MODULE_NAMES, RABBITMQ_QUEUES } from './constants';
 import {
+  getEnv,
   getSubServiceDomain,
   registerOnboardHistory,
   sendRequest,
@@ -1478,4 +1479,22 @@ export const getVisitorLog = async visitorId => {
     action: 'get',
     data: { visitorId }
   });
+};
+
+export const isLoggerRunning = async () => {
+  //check logger api is running
+  const LOGS_DOMAIN = getEnv({ name: 'LOGGER_API_DOMAIN' });
+  try {
+    await sendRequest(
+      {
+        url: `${LOGS_DOMAIN}`,
+        method: 'get'
+      },
+      'Failed to connect to logs api. Check whether LOGS_API_DOMAIN env is missing or logs api is not running'
+    );
+
+    return true;
+  } catch (e) {
+    return false;
+  }
 };

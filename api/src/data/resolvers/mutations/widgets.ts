@@ -34,7 +34,7 @@ import { trackViewPageEvent } from '../../../events';
 import memoryStorage from '../../../inmemoryStorage';
 import { graphqlPubsub } from '../../../pubsub';
 import { AUTO_BOT_MESSAGES, BOT_MESSAGE_TYPES } from '../../constants';
-import { sendToVisitorLog } from '../../logUtils';
+import { isLoggerRunning, sendToVisitorLog } from '../../logUtils';
 import {
   registerOnboardHistory,
   replaceEditorAttributes,
@@ -475,10 +475,19 @@ const widgetMutations = {
     }
 
     if (visitorId) {
-      await sendToVisitorLog(
-        { visitorId, integrationId: integration._id },
-        'createOrUpdate'
-      );
+      const isRunning = isLoggerRunning();
+
+      if (isRunning) {
+        await sendToVisitorLog(
+          { visitorId, integrationId: integration._id },
+          'createOrUpdate'
+        );
+      } else {
+        customer = await Customers.createMessengerCustomer({
+          doc: { integrationId: integration._id },
+          customData
+        });
+      }
     }
 
     // get or create company
@@ -522,7 +531,7 @@ const widgetMutations = {
       languageCode: integration.languageCode,
       messengerData: await getMessengerData(integration),
       customerId: customer && customer._id,
-      visitorId,
+      visitorId: customer ? null : visitorId,
       brand
     };
   },
