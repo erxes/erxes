@@ -1482,7 +1482,7 @@ export const getVisitorLog = async visitorId => {
 };
 
 export const isLoggerRunning = async () => {
-  //check logger api is running
+  // check logger api is running
   const LOGS_DOMAIN = getEnv({ name: 'LOGGER_API_DOMAIN' });
   try {
     await sendRequest(
