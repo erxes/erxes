@@ -33,6 +33,7 @@ export default [
 
       const apiAutomationResponse = await messageBroker().sendRPCMessage('rpc_queue:erxes-automation-erkhet', {
         action: 'get-response-send-order-info',
+        isEbarimt: config.isEbarimt,
         payload: JSON.stringify(postData),
       });
 
