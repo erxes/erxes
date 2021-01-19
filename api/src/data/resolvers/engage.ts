@@ -82,5 +82,15 @@ export const message = {
     }
 
     return null;
+  },
+
+  async createdUser(engageMessage: IEngageMessageDocument): Promise<string> {
+    const user = await Users.findOne({ _id: engageMessage.createdBy });
+
+    if (!user) {
+      return '';
+    }
+
+    return user.username || user.email || user._id;
   }
 };
