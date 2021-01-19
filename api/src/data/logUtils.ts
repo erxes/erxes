@@ -60,7 +60,6 @@ import messageBroker from '../messageBroker';
 import { callAfterMutation } from '../pluginUtils';
 import { MODULE_NAMES, RABBITMQ_QUEUES } from './constants';
 import {
-  getEnv,
   getSubServiceDomain,
   registerOnboardHistory,
   sendRequest,
