@@ -507,7 +507,7 @@ export default [
             template: {
               name: data.title,
               data: {
-                content: data.newPassword,
+                content: data.content,
               },
             }
           }));

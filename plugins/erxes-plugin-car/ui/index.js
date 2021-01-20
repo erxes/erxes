@@ -35,6 +35,7 @@ export default () => ({
     label: 'Plugin Car',
     icon: 'icon-car',
     link: '/list',
+    permission: 'showCars'
   },
   customerRightSidebarSection: {
     section: CarSection,
