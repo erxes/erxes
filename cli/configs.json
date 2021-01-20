@@ -1,8 +1,0 @@
-{
-  "JWT_TOKEN_SECRET": "token",
-  "MONGO_URL": "mongodb://localhost",
-  "ELASTICSEARCH_URL": "http://localhost:9200",
-  "DOMAIN": "http://localhost:3000",
-  "USE_DASHBOARD": false,
-  "ELK_SYNCER": false
-}

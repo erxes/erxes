@@ -1,7 +1,0 @@
-settings.js
-server/settings.js
-npm-debug.log*
-coverage
-google_cred.json
-.cache
-yarn-error.log
