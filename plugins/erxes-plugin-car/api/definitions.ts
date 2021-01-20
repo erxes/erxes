@@ -5,6 +5,7 @@ const getEnum = (fieldName: string): string[] => {
 };
 
 export const carCategorySchema = {
+  _id: { pkey: true },
   name: { type: String, label: 'Name' },
   code: { type: String, unique: true, label: 'Code' },
   order: { type: String, label: 'Order' },
@@ -18,14 +19,14 @@ export const carCategorySchema = {
 };
 
 export const carSchema = {
-  // _id: {type: String },
+  _id: { pkey: true },
   createdAt: { type: Date, label: 'Created at' },
   modifiedAt: { type: Date, label: 'Modified at' },
   ownerId: { type: String, optional: true, label: 'Owner' },
 
   plateNumber: { type: String, optional: true, label: 'Plate number', index: true },
   vinNumber: { type: String, label: 'VIN number', optional: true, index: true },
-  colorCode: { type: String, label: 'Color code' },
+  colorCode: { type: String, label: 'Color code', optional: true },
 
   categoryId: { type: String, label: 'Category', index: true },
 

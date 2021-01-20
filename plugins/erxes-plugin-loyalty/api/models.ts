@@ -1,9 +1,10 @@
 import { getConfig } from 'erxes-api-utils';
 
 export const loyaltySchema = {
+  _id: { pkey: true },
   modifiedAt: { type: Date, label: 'Modified at' },
   customerId: { type: String, label: 'Customer', index: true },
-  value: { type: Number, label: 'Value' },
+  value: { type: Number, label: 'Value', default: 0 },
   dealId: { type: String, label: 'Deal', optional: true, index: true },
   userId: { type: String, optional: true, label: 'User' },
 };
