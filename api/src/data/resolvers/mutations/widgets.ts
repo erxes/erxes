@@ -782,7 +782,8 @@ const widgetMutations = {
   async widgetsSendEmail(_root, args: IWidgetEmailParams) {
     const { toEmails, fromEmail, title, content, customerId, formId } = args;
 
-    const customer = await Customers.getCustomer(customerId || '');
+    // do not use Customers.getCustomer() because it throws error if not found
+    const customer = await Customers.findOne({ _id: customerId });
     const form = await Forms.getForm(formId || '');
 
     let finalContent = content;
