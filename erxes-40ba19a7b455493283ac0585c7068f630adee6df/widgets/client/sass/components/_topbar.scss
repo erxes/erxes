@@ -1,0 +1,139 @@
+.erxes-topbar {
+  background: $main-color;
+  border-top-left-radius: $border-radius;
+  border-top-right-radius: $border-radius;
+  color: $white;
+  flex-shrink: 0;
+  text-align: center;
+  width: 100%;
+
+  .topbar-button {
+    &.left {
+      left: 15px;
+    }
+
+    &.right {
+      right: 15px;
+
+      @media screen and (max-width: $break-small) {
+        display: block;
+      }
+    }
+  }
+
+  .erxes-middle {
+    display: inline-block;
+  }
+}
+
+.topbar-button {
+  @include prefix((
+    transition: background .3s ease-in-out
+  ), webkit moz ms o);
+  background: none;
+  border: 0;
+  border-radius: $border-radius;
+  cursor: pointer;
+  display: block;
+  height: $core-spacing * 2;
+  line-height: $core-spacing * 2;
+  outline: none;
+  position: absolute;
+  padding: 0;
+  text-align: center;
+  top: 15px;
+  width: $core-spacing * 2;
+  z-index: 100;
+
+  &:hover, &.dropdown-open {
+    background-color: rgba($black, .2);
+  }
+
+  &.dropdown-open ul {
+    visibility: visible;
+    opacity: 1;
+  }
+
+  ul {
+    @include prefix((box-shadow: $base-shadow), webkit moz);
+    @include prefix((
+      transition: all .2s ease-in-out
+    ), webkit moz ms o);
+    background: $white;
+    border-radius: $border-radius / 2;
+    font-size: 12px;
+    list-style: none;
+    position: absolute;
+    right: 0;
+    padding: 5px 0;
+    margin: 0;
+    line-height: 20px;
+    text-align: left;
+    top: 100%;
+    overflow: hidden;
+    visibility: hidden;
+    opacity: 0;
+
+    li a {
+      padding: 5px 15px;
+      white-space: nowrap;
+      text-decoration: none;
+      color: lighten($black, 20%);
+      display: block;
+
+      &:hover {
+        background: $bg-color;
+      }
+    }
+  }
+}
+
+.erxes-staff-profile {
+  line-height: 1.3em;
+  margin-top: 15px;
+  position: relative;
+  text-align: left;
+
+  img {
+    border-radius: $core-spacing;
+    float: left;
+    height: $core-spacing * 2;
+    overflow: hidden;
+    width: $core-spacing * 2;
+  }
+
+  > div {
+    margin-left: 50px;
+  }
+}
+
+.erxes-state {
+  background-color: $border-color;
+  border-radius: $border-radius;
+  display: inline-block;
+  height: 8px;
+  margin-bottom: 1px;
+  width: 8px;
+
+  &.online {
+    background-color: $green;
+  }
+}
+
+.erxes-topbar-title {
+  align-self: center;
+  font-weight: 600;
+  line-height: 1.2em;
+
+  > div span {
+    display: inline;
+    opacity: .8;
+  }
+
+  span {
+    display: block;
+    font-size: $font-size - 2;
+    font-weight: 300;
+    margin-top: 3px;
+  }
+}

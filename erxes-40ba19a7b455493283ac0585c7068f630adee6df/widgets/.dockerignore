@@ -1,0 +1,6 @@
+*.yml
+.git*
+*.md
+.snyk
+Dockerfile*
+*.tar.gz

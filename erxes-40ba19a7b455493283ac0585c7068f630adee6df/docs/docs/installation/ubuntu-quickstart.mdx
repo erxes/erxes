@@ -1,0 +1,180 @@
+---
+id: ubuntu-quickstart
+title: CE Quick Start Installation
+---
+
+## Getting familiar with erxes with Quick Start
+
+These Quick Start installation instructions are meant to install erxes quickly and with the least amount of effort. This installation is intended for evaluation purposes but smaller sites with low traffic usage will work fine with this installation. **Note:** Due to the minimum server size required for **Quick Start**, we install the search feature with erxes hosting elasticsearch. _What that means is parts of your data are stored on erxes servers._
+
+## First steps: Setting up a server with Ubuntu 18.04
+
+You must have an account with your hosting provider prior to doing these steps.
+
+- Choose a server size that corresponds with the **minimum** requirements for installing with **Quickstart**:
+  - **Ubuntu 18.04** installed and running
+  - **1 CPU**
+  - **minimum 1GB RAM**
+  - ability to to SSH into the server
+  - If you're using a **subdomain**, then the **subdomain** must be created with your hosting provider hosting your main domain's website or app. The DNS needs to be pointed to your server. (See below)
+
+### Configure your DNS Records to point at your server
+
+Your server will have an **ip address**. You will need to point your domain name to your new server.
+
+- If you are using a **subdomain**, you will need to follow the instructions of updating the `A Records' of the hosting company for your website.
+- If you are NOT using a **subdomain**, then you will need to follow the instructions of your domain name registrar.
+
+:::note Example with a domain called, example.com
+
+If your domain name is **example.com**, and the **ip address** assigned to your server is **44.123.32.12**, then you will have two `A records` that look like this:
+
+| Type | Name            | Value                  |
+| ---- | --------------- | ---------------------- |
+| A    | www.example.com | points to 44.123.32.12 |
+| A    | example.com     | points to 44.123.32.12 |
+
+:::
+
+:::note Example with a subdomain called, erxes.example.com
+
+You first need to create a subdomain. For example, "erxes.example.com". Then you need to edit the **DNS**.
+
+If your domain name is **erxes.example.com**, and the **ip address** assigned to your server is **44.123.32.12**, then you will have a two `A records` that look like this:
+
+| Type | Name                  | Value                  |
+| ---- | --------------------- | ---------------------- |
+| A    | erxes.example.com     | points to 44.123.32.12 |
+| A    | www.erxes.example.com | points to 44.123.32.12 |
+
+**Note:** You do not need to create a subdomain called "erxes.example.com", you can use another name of your choice such as "admin.example.com".
+:::
+
+## Quickstart - Installing erxes on Ubuntu 18.04
+
+## Log into server as root
+
+- Open the terminal or command prompt on your computer. You will need your **IP address**. (In this example, **44.123.32.12**). Type `yes`, when asked if you want to continue connecting.
+
+```bash
+# example ssh root@44.123.32.12
+ssh root@your-ip-address
+```
+
+(**Note**: Some people get an error, **WARNING: REMOTE HOST IDENTIFICATION HAS CHANGED!**, please see the solution [here](/installation/ubuntu-troubleshooting).)
+
+- Run the **Quickstart Script** to
+
+```bash
+bash -c "$(wget -O - https://raw.githubusercontent.com/erxes/erxes/develop/scripts/install/ubuntu18.sh)"
+```
+
+- You will be asked to enter the domain name you would like to use. If you are using a subdomain, enter in the complete subdomain. For example, `erxes.example.com`.
+
+See example below:
+
+```
+Please enter a domain name you wish to use: erxes.example.com
+```
+
+- You will next be asked: **Would you like to install ElasticSearch on your server or use our free ElasticSearch service https:// elasticsearch.erxes.io?**
+
+You will have two options,
+
+- **1 Install ElasticSearch** or
+- **2 Use elasticsearch.erxes.io**.
+
+If you are using a basic server (the above minimum server requirements), you **must use** Option **2 Use elasticsearch.erxes.io** which uses elasticsearch hosted by erxes (free). Option 1 requires a server with 4GB RAM or higher. **Note:** By selecting the option to use the elasticsearch hosted at erxes.io, you are allowing parts of your data to be stored on erxes servers.
+
+The installation process takes a few minutes to complete.
+
+- You will know the installation was successful if no errors occurred and you see the following output at the end of the installation. All processes should have a status of `online`, and the final line should say, `Installation complete`.
+
+```
+┌────┬────────────────────┬──────────┬──────┬───────────┬──────────┬──────────┐
+│ id │ name               │ mode     │ ↺    │ status    │ cpu      │ memory   │
+├────┼────────────────────┼──────────┼──────┼───────────┼──────────┼──────────┤
+│ 0  │ erxes-api          │ fork     │ 0    │ online    │ 0%       │ 37.9mb   │
+│ 1  │ erxes-api-cronjob  │ fork     │ 0    │ online    │ 0%       │ 38.6mb   │
+│ 2  │ erxes-api-worker   │ fork     │ 0    │ online    │ 0%       │ 35.6mb   │
+│ 7  │ erxes-elkSyncer    │ fork     │ 0    │ online    │ 0%       │ 11.2mb   │
+│ 6  │ erxes-email-verif… │ fork     │ 0    │ online    │ 0%       │ 29.3mb   │
+│ 4  │ erxes-engages      │ fork     │ 0    │ online    │ 0%       │ 33.6mb   │
+│ 8  │ erxes-integrations │ fork     │ 0    │ online    │ 0%       │ 26.8mb   │
+│ 5  │ erxes-logger       │ fork     │ 0    │ online    │ 0%       │ 29.7mb   │
+│ 3  │ erxes-widgets      │ fork     │ 0    │ online    │ 0%       │ 34.4mb   │
+└────┴────────────────────┴──────────┴──────┴───────────┴──────────┴──────────┘
+[PM2] Saving current process list...
+[PM2] Successfully saved in /home/erxes/.pm2/dump.pm2
+Now using node v12.19.0 (npm v6.14.8)
+
+Installation complete
+```
+
+## Create a user password and log out of root user
+
+An **erxes** user was automatically created. Now we need a unique password.
+
+- Create a password for the **erxes** user.
+
+```bash
+passwd erxes
+```
+
+You will be prompted to enter and verify and password for the `erxes` user. It will look something like this after you finish entering a new password.
+
+```
+Enter new UNIX password:
+Retype new UNIX password:
+passwd: password updated successfully
+```
+
+- Log out of the `root` user.
+
+```
+exit
+```
+
+## Log in as the `erxes` user
+
+- Open the terminal or command prompt on your computer. You will need your **IP address**. (In this example, **44.123.32.12**). Use the following command to log in as the `erxes` user and use the password you created in the previous steps.
+
+```bash
+# example ssh erxes@44.123.32.12
+# erxes@44.123.32.12's password:
+
+ssh erxes@your-ip-address
+erxes@your-ip-address's password:
+```
+
+After successful logging back into the server as `erxes`, you are ready to continue and finish the installation process for **erxes**.
+
+## Install Let's Encrypt using Certbot
+
+**Let's Encrypt** enables you to use **HTTPS** on your website. It will issue you a certificate which shows that you control your domain. [Let's Encrypt additional information](https://www.nginx.com/resources/wiki/start/topics/tutorials/install/).
+
+Execute Certbot.
+
+```bash
+sudo certbot --nginx
+```
+
+- You will asked several questions, you can answer as follows:
+
+  - Enter your email address
+  - Agree with the **Terms of Service**
+  - Answer `Yes` or `No`, if you want to share your email address with the Electronic Frontier Foundation
+  - Select the corresponding number associated with your domain name, usually `1`
+  - Choose `2` to redirect all your traffic to a secure **HTTPS**
+
+- Now run the following to **test and set-up** automatic renewal of your 90 day certbot. This needs to succeed so that your renewals are automatic.
+
+```bash
+sudo certbot renew --dry-run
+```
+
+Check your website in the browser. You should see the **Secure Padlock** next to your URL.
+
+## Congratulations, time to log in
+
+You have installed **erxes**. You may now visit your url and complete the sign-up process. We recommend opting-in to the newsletter and email update notifications to receive immediate notifications of important updates, instructions, and new tutorials.

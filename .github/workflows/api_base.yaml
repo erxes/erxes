@@ -1,0 +1,25 @@
+name: Api Base Image CI
+
+on:
+  push:
+    branches:
+      - develop
+    paths:
+      - '.github/workflows/api_base.yaml'
+      - 'api/base.Dockerfile'
+      - 'api/base.Dockerfile.dockerignore'
+
+jobs:
+  build_base_docker_image:
+    runs-on: ubuntu-18.04
+    steps:
+    - uses: actions/checkout@v2
+    - name: Build base docker image
+      env:
+        BASE_IMAGE: node:12.19.0-slim
+        TAG_VERSION: base-12.19.0-slim
+      run: |
+        cd api
+        echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin
+        DOCKER_BUILDKIT=1 docker build --build-arg BASE_IMAGE=$BASE_IMAGE -t erxes/erxes-api:$TAG_VERSION -f base.Dockerfile .
+        docker push erxes/erxes-api:$TAG_VERSION

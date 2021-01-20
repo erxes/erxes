@@ -1,0 +1,12 @@
+{
+    "compilerOptions": {
+        "sourceMap": true,
+        "module": "commonjs",
+         "lib": ["es5", "es6" ],
+        "target": "es5",
+        "skipLibCheck": true,
+        "outDir": "dist",
+        "strict": true
+    },
+    "include": ["server/*.ts"],
+}

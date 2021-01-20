@@ -1,0 +1,10 @@
+{
+  "compilerOptions": {
+    "outDir": "./dist",
+    "sourceMap": false,
+    "inlineSourceMap": false,
+    "inlineSources": false
+  },
+  "extends": "./tsconfig.json",
+  "exclude": ["node_modules", "dist", "src/__tests__"]
+}

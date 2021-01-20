@@ -1,0 +1,58 @@
+{
+  "name": "erxes-integrations",
+  "description": "erxes integrations",
+  "keywords": ["node", "express", "graphql", "apollo"],
+  "website": "https://erxes.io",
+  "repository": "https://github.com/erxes/erxes-logger",
+  "logo": "https://raw.githubusercontent.com/erxes/erxes/master/ui/public/images/logo-dark.png",
+  "success_url": "/",
+  "env": {
+    "PORT": {
+      "description": "A port number",
+      "value": "3400"
+    },
+    "DOMAIN": {
+      "description": "Integration app domain",
+      "value": "https://erxes-integration.herokuapp.com"
+    },
+    "MAIN_APP_DOMAIN": {
+      "description": "erxes front app domain",
+      "value": "https://erxes.herokuapp.com"
+    },
+    "MAIN_API_DOMAIN": {
+      "description": "erxes-api domain",
+      "value": "https://erxes-api.herokuapp.com"
+    },
+    "MONGO_URL": {
+      "description": "Integration MONGO URL",
+      "value": "INTEGRATION_MONGO_URL"
+    },
+    "RABBITMQ_HOST": {
+      "description": "RABBITMQ_HOST",
+      "value": "copy and paste from erxes-api RABBITMQ_HOST config var"
+    },
+    "REDIS_HOST": {
+      "description": "REDIS_HOST",
+      "value": "copy and paste from erxes-api REDIS_HOST config var"
+    },
+    "REDIS_PORT": {
+      "description": "REDIS_PORT",
+      "value": "copy and paste from erxes-api REDIS_PORT config var"
+    },
+    "REDIS_PASSWORD": {
+      "description": "REDIS_PASSWORD",
+      "value": "copy and paste from erxes-api REDIS_PASSWORD config var"
+    }
+  },
+  "addons": [
+    {
+      "plan": "mongolab:sandbox",
+      "as": "MONGO"
+    }
+  ],
+  "buildpacks": [
+    {
+      "url": "https://github.com/heroku/heroku-buildpack-nodejs"
+    }
+  ]
+}
