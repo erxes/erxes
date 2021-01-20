@@ -118,7 +118,7 @@ export const saveLead = (params: {
         const {widgetsSaveLead} = data;
         saveCallback(widgetsSaveLead);
 
-        if (widgetsSaveLead.customerId && !getLocalStorageItem('customerId')){
+        if (widgetsSaveLead.customerId){
           setLocalStorageItem('customerId', widgetsSaveLead.customerId, connection.setting)
         }
 
