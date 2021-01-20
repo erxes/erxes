@@ -7,6 +7,7 @@ import { can, registerModule } from './data/permissions/utils';
 import { checkLogin } from './data/permissions/wrappers';
 import * as allModels from './db/models';
 import { IUserDocument } from './db/models/definitions/users';
+import { field } from './db/models/definitions/utils';
 import { debugError } from './debuggers';
 import memoryStorage from './inmemoryStorage';
 import messageBroker from './messageBroker';
@@ -214,6 +215,10 @@ export const extendViaPlugins = (
 
         if (models && models.length) {
           models.forEach(model => {
+            for (const perField of Object.keys(model.schema)) {
+              model.schema[perField] = field(model.schema[perField]);
+            }
+
             if (model.klass) {
               model.schema = new mongoose.Schema(model.schema).loadClass(
                 model.klass
