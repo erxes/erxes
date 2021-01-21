@@ -78,6 +78,11 @@ class Loyalty {
 
   static async UseLoyalty(models, memoryStorage, deal) {
     const ratio = await getConfig(models, memoryStorage, 'LOYALTY_RATIO_CURRENCY', 1);
+
+    if (!parseFloat(ratio)){
+      return 0
+    }
+
     return (deal.paymentsData?.loyalty?.amount || 0) / ratio;
   }
 
