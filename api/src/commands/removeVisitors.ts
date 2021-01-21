@@ -25,8 +25,6 @@ const command = async () => {
     }
   }
 
-  // await Customers.deleteMany({ _id: { $in: idsToRemove } });
-
   await stream(
     async chunk => {
       await Customers.deleteMany({ _id: { $in: chunk } });
@@ -48,8 +46,8 @@ const command = async () => {
     },
     1000
   );
-
-  process.exit();
 };
 
-command();
+command().then(() => {
+  process.exit();
+});
