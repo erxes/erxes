@@ -35,7 +35,7 @@ import { trackViewPageEvent } from '../../../events';
 import memoryStorage from '../../../inmemoryStorage';
 import { graphqlPubsub } from '../../../pubsub';
 import { AUTO_BOT_MESSAGES, BOT_MESSAGE_TYPES } from '../../constants';
-import { isLoggerRunning, sendToVisitorLog } from '../../logUtils';
+import { sendToVisitorLog } from '../../logUtils';
 import {
   registerOnboardHistory,
   replaceEditorAttributes,
@@ -435,7 +435,7 @@ const widgetMutations = {
     const customData = data;
 
     // find brand
-    const brand = await Brands.getBrand({ code: brandCode });
+    const brand = await getBrand(brandCode);
 
     // find integration
     const integration = await getIntegration({
