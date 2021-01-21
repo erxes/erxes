@@ -1464,25 +1464,6 @@ export const fetchLogs = (params: ILogQueryParams) => {
 };
 
 export const sendToVisitorLog = async (params: IVisitorLogParams, action) => {
-  try {
-    return messageBroker().sendMessage(RABBITMQ_QUEUES.VISITOR_LOG, {
-      action,
-      data: params
-    });
-  } catch (e) {
-    return e.message;
-  }
-};
-
-export const getVisitorLog = async visitorId => {
-  return await messageBroker().sendRPCMessage(RABBITMQ_QUEUES.RPC_VISITOR_LOG, {
-    action: 'get',
-    data: { visitorId }
-  });
-};
-
-export const isLoggerRunning = async () => {
-  // check logger api is running
   const LOGS_DOMAIN = getSubServiceDomain({ name: 'LOGS_API_DOMAIN' });
   try {
     const response = await sendRequest(
@@ -1494,12 +1475,22 @@ export const isLoggerRunning = async () => {
     );
 
     if (response === 'ok') {
-      return true;
+      return messageBroker().sendMessage(RABBITMQ_QUEUES.VISITOR_LOG, {
+        action,
+        data: params
+      });
     }
 
-    return false;
+    throw new Error('Logger api is not running');
   } catch (e) {
     debugBase('Logger is not running. Error: ', e.message);
-    return false;
+    throw new Error(e.message);
   }
+};
+
+export const getVisitorLog = async visitorId => {
+  return await messageBroker().sendRPCMessage(RABBITMQ_QUEUES.RPC_VISITOR_LOG, {
+    action: 'get',
+    data: { visitorId }
+  });
 };

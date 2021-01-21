@@ -479,14 +479,12 @@ const widgetMutations = {
     }
 
     if (visitorId) {
-      const isRunning = await isLoggerRunning();
-
-      if (isRunning) {
+      try {
         await sendToVisitorLog(
           { visitorId, integrationId: integration._id },
           'createOrUpdate'
         );
-      } else {
+      } catch (_e) {
         customer = await Customers.createMessengerCustomer({
           doc: { integrationId: integration._id },
           customData
