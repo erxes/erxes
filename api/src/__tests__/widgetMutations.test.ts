@@ -83,7 +83,7 @@ describe('messenger connect', () => {
         { brandCode: 'invalidCode' }
       );
     } catch (e) {
-      expect(e.message).toBe('Brand not found');
+      expect(e.message).toBe('Invalid configuration');
     }
   });
 
@@ -182,9 +182,9 @@ describe('messenger connect', () => {
     });
 
     const logUtilsMock = sinon
-      .stub(logUtils, 'isLoggerRunning')
+      .stub(logUtils, 'sendToVisitorLog')
       .callsFake(() => {
-        return Promise.resolve(true);
+        return Promise.resolve('ok');
       });
 
     const response = await widgetMutations.widgetsMessengerConnect(
@@ -208,9 +208,9 @@ describe('messenger connect', () => {
     });
 
     const logUtilsMock = sinon
-      .stub(logUtils, 'isLoggerRunning')
+      .stub(logUtils, 'sendToVisitorLog')
       .callsFake(() => {
-        return Promise.resolve(false);
+        throw new Error('fake error');
       });
 
     const response = await widgetMutations.widgetsMessengerConnect(
@@ -368,6 +368,12 @@ describe('insertMessage()', () => {
   });
 
   test('with visitorId', async () => {
+    const logUtilsMock = sinon
+      .stub(logUtils, 'sendToVisitorLog')
+      .callsFake(() => {
+        return Promise.resolve('ok');
+      });
+
     const mock = sinon.stub(logUtils, 'getVisitorLog').callsFake(() => {
       return Promise.resolve({
         visitorId: '123',
@@ -390,6 +396,7 @@ describe('insertMessage()', () => {
     expect(message.content).toBe('withConversationId');
 
     mock.restore();
+    logUtilsMock.restore();
   });
 
   test('Widget bot message with conversationId', async () => {

@@ -437,6 +437,10 @@ const widgetMutations = {
     // find brand
     const brand = await getBrand(brandCode);
 
+    if (!brand) {
+      throw new Error('Invalid configuration');
+    }
+
     // find integration
     const integration = await getIntegration({
       brandId: brand._id,
@@ -798,7 +802,11 @@ const widgetMutations = {
     }
 
     if (visitorId) {
-      await sendToVisitorLog({ visitorId, location: browserInfo }, 'update');
+      try {
+        await sendToVisitorLog({ visitorId, location: browserInfo }, 'update');
+      } catch (e) {
+        debugBase(e.message);
+      }
     }
 
     try {
