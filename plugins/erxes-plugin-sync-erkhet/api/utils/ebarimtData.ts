@@ -37,7 +37,7 @@ export const getPostData = async (models, config, deal) => {
   if (billType === 1) {
     const customerIds = await models.Conformities.savedConformity({ mainType: 'deal', mainTypeId: deal._id, relTypes: ['customer'] });
     if (customerIds.length > 0) {
-      const customers = models.Customers.find({ _id: { $in: customerIds } });
+      const customers = await models.Customers.find({ _id: { $in: customerIds } });
       customerCode = customers.length > 0 ? customers[0].code : '' || '';
     }
   }
