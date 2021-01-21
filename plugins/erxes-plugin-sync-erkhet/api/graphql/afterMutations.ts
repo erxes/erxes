@@ -10,7 +10,6 @@ export default [
     type: 'deal',
     action: 'update',
     handler: async (_root, params, { models, memoryStorage, user, messageBroker, graphqlPubsub }) => {
-      await models.Loyalties.dealChangeCheckLoyalty(models, memoryStorage, params.object, params.updatedDocument.stageId, user);
       const deal = params.updatedDocument
       const oldDeal = params.object;
       const destinationStageId = deal.stageId || '';
