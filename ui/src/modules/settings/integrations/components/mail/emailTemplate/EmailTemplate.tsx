@@ -14,16 +14,35 @@ import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
 import Popover from 'react-bootstrap/Popover';
 
 type Props = {
-  fetchMoreEmailTemplates: () => void;
+  fetchMoreEmailTemplates: (page: number) => void;
   targets: Array<{ value: string; label: string }>;
   onSelect: (id: string) => void;
 };
 
-class EmailTemplate extends React.Component<Props> {
+type State = {
+  page: number;
+};
+
+class EmailTemplate extends React.Component<Props, State> {
   private overlayRef;
 
+  constructor(props) {
+    super(props);
+
+    this.state = {
+      page: 1
+    };
+  }
+
   handleFetch = () => {
-    this.props.fetchMoreEmailTemplates();
+    this.setState(
+      {
+        page: this.state.page + 1
+      },
+      () => {
+        this.props.fetchMoreEmailTemplates(this.state.page);
+      }
+    );
   };
 
   handleClick(value: string) {

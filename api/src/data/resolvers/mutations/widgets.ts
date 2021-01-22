@@ -229,7 +229,7 @@ const widgetMutations = {
     if (integ.leadData?.isRequireOnce && args.cachedCustomerId) {
       const conversation = await Conversations.findOne({
         customerId: args.cachedCustomerId,
-        integrationId: integ.id
+        integrationId: integ._id
       });
       if (conversation) {
         return null;
@@ -381,7 +381,7 @@ const widgetMutations = {
       cachedCustomerId: args.cachedCustomerId
     });
 
-    return { status: 'ok', messageId: message._id };
+    return { status: 'ok', messageId: message._id, customerId: customer._id };
   },
 
   widgetsLeadIncreaseViewCount(_root, { formId }: { formId: string }) {
@@ -782,7 +782,8 @@ const widgetMutations = {
   async widgetsSendEmail(_root, args: IWidgetEmailParams) {
     const { toEmails, fromEmail, title, content, customerId, formId } = args;
 
-    const customer = await Customers.getCustomer(customerId || '');
+    // do not use Customers.getCustomer() because it throws error if not found
+    const customer = await Customers.findOne({ _id: customerId });
     const form = await Forms.getForm(formId || '');
 
     let finalContent = content;

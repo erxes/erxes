@@ -73,8 +73,8 @@ const MailFormContainer = (props: FinalProps) => {
     return <Spinner objective={true} />;
   }
 
-  const fetchMoreEmailTemplates = () => {
-    const { fetchMore, emailTemplates, variables } = emailTemplatesQuery;
+  const fetchMoreEmailTemplates = (page: number) => {
+    const { fetchMore, emailTemplates } = emailTemplatesQuery;
     const { emailTemplatesTotalCount } = emailTemplatesTotalCountQuery;
 
     if (emailTemplatesTotalCount === emailTemplates.length) {
@@ -82,7 +82,7 @@ const MailFormContainer = (props: FinalProps) => {
     }
 
     return fetchMore({
-      variables: { page: Number(variables.page) + 1 },
+      variables: { page },
       updateQuery: (prev, { fetchMoreResult }) => {
         if (!fetchMoreResult) {
           return prev;

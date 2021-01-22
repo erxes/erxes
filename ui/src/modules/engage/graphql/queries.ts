@@ -37,6 +37,7 @@ const commonFields = `
   messenger
   email
   smsStats
+  createdUser
 
   totalCustomersCount
   validCustomersCount
