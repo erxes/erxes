@@ -359,6 +359,10 @@ const create = async ({
         );
       }
 
+      doc.unitPrice = parseFloat(
+        doc.unitPrice ? doc.unitPrice.replace(/,/g, '') : 0
+      );
+
       doc.customFieldsData = await Fields.prepareCustomFieldsData(
         doc.customFieldsData
       );
