@@ -3,7 +3,7 @@ import FormControl from 'modules/common/components/form/Control';
 import FormGroup from 'modules/common/components/form/Group';
 import ControlLabel from 'modules/common/components/form/Label';
 import { ModalFooter } from 'modules/common/styles/main';
-import { __ } from 'modules/common/utils';
+import { __, getEnv } from 'modules/common/utils';
 import React from 'react';
 import { INTEGRATION_KINDS } from '../../constants';
 import SelectBrand from '../../containers/SelectBrand';
