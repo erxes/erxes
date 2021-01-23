@@ -41,7 +41,7 @@ export const EMPTY_IMPORT_CONTENT = {
     {
       title: 'Export your data',
       description:
-        'You can export your data from the list on the left. If you wish to export your popup forms, go to Customer and click on “Export Popups Data”',
+        'You can export your data from the list on the left. If you wish to export your popup forms, go to Customer and click on “Export Forms Data”',
       url: '/settings/importHistories?type=customer',
       isOutside: false,
       urlText: 'Go to Customers',
@@ -100,7 +100,7 @@ export const EMPTY_NEW_SEGMENT_CONTENT = {
 export const EMPTY_CONTENT_SCRIPT = {
   title: 'Getting Started with erxes Scripts',
   description:
-    'Avoid duplication of erxes widget scripts on your website, which might disable some of your erxes widgets (messenger, popups, etc.)',
+    'Avoid duplication of erxes widget scripts on your website, which might disable some of your erxes widgets (messenger, forms, etc.)',
   steps: [
     {
       title: 'Generate the combination of scripts',
@@ -116,15 +116,15 @@ export const EMPTY_CONTENT_SCRIPT = {
 };
 
 export const EMPTY_CONTENT_POPUPS = {
-  title: 'Getting Started with erxes Popups',
+  title: 'Getting Started with erxes Forms',
   description:
-    'Never miss a potential lead by capturing them with a customizable Popups & Forms',
+    'Never miss a potential lead by capturing them with a customizable Forms',
   steps: [
     {
-      title: 'Create Popup',
-      description: 'Fill out the details and create your popup message or form',
+      title: 'Create Form',
+      description: 'Fill out the details and create your message or form',
       url: '/leads/create',
-      urlText: 'Create Popup'
+      urlText: 'Create Form'
     },
     {
       title: 'Install the script',
@@ -260,8 +260,8 @@ export const EMPTY_CONTENT_CONTACTS = {
       urlText: 'Visit AppStore'
     },
     {
-      title: 'Generate contacts through Popups',
-      description: 'Create your popups and start collecting Leads',
+      title: 'Generate contacts through Forms',
+      description: 'Create your forms and start collecting Leads',
       url: '/leads/create',
       urlText: 'Create a Popup'
     }

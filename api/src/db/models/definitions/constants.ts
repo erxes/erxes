@@ -83,7 +83,7 @@ export const LEAD_SUCCESS_ACTIONS = {
 
 export const KIND_CHOICES = {
   MESSENGER: 'messenger',
-  LEAD: 'lead',
+  FORMS: 'forms',
   FACEBOOK_MESSENGER: 'facebook-messenger',
   FACEBOOK_POST: 'facebook-post',
   GMAIL: 'gmail',
@@ -105,7 +105,7 @@ export const KIND_CHOICES = {
   WEBHOOK: 'webhook',
   ALL: [
     'messenger',
-    'lead',
+    'forms',
     'facebook-messenger',
     'facebook-post',
     'gmail',
@@ -130,7 +130,7 @@ export const KIND_CHOICES = {
 
 export const INTEGRATION_NAMES_MAP = {
   messenger: 'Web messenger',
-  lead: 'Lead',
+  forms: 'Forms',
   'facebook-messenger': 'Facebook messenger',
   'facebook-post': 'Facebook post',
   gmail: 'Gmail',

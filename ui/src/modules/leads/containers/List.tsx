@@ -4,6 +4,7 @@ import Bulk from 'modules/common/components/Bulk';
 import { IRouterProps } from 'modules/common/types';
 import { Alert, confirm, withProps } from 'modules/common/utils';
 import { generatePaginationParams } from 'modules/common/utils/router';
+import { INTEGRATION_KINDS } from 'modules/settings/integrations/constants';
 import { mutations as integrationMutations } from 'modules/settings/integrations/graphql/index';
 import { ArchiveIntegrationResponse } from 'modules/settings/integrations/types';
 import React from 'react';
@@ -69,7 +70,7 @@ class ListContainer extends React.Component<FinalProps> {
 
     const remove = (integrationId: string) => {
       const message =
-        'If you remove a pop ups, then all related conversations, customers will also be removed. Are you sure?';
+        'If you remove a forms, then all related conversations, customers will also be removed. Are you sure?';
 
       confirm(message).then(() => {
         removeMutation({
@@ -79,7 +80,7 @@ class ListContainer extends React.Component<FinalProps> {
             // refresh queries
             this.refetch();
 
-            Alert.success('You successfully deleted a pop ups.');
+            Alert.success('You successfully deleted a forms.');
           })
           .catch(e => {
             Alert.error(e.message);
@@ -88,11 +89,11 @@ class ListContainer extends React.Component<FinalProps> {
     };
 
     const archive = (integrationId: string, status: boolean) => {
-      let message = `If you archive a pop ups, then you won't be able to see customers & conversations related to this pop ups anymore. Are you sure?`;
+      let message = `If you archive a forms, then you won't be able to see customers & conversations related to this forms anymore. Are you sure?`;
       let action = 'archived';
 
       if (!status) {
-        message = 'You are going to unarchive this pop ups. Are you sure?';
+        message = 'You are going to unarchive this forms. Are you sure?';
         action = 'unarchived';
       }
 
@@ -102,7 +103,7 @@ class ListContainer extends React.Component<FinalProps> {
             const integration = data.integrationsArchive;
 
             if (integration) {
-              Alert.success(`Pop ups has been ${action}.`);
+              Alert.success(`Forms has been ${action}.`);
             }
 
             this.refetch();
@@ -145,21 +146,10 @@ export default withProps<Props>(
           variables: {
             ...generatePaginationParams(queryParams),
             tag: queryParams.tag,
-            kind: 'lead'
+            kind: INTEGRATION_KINDS.FORMS
           }
         };
       }
-    }),
-    graphql<Props, CountQueryResponse>(gql(queries.integrationsTotalCount), {
-      name: 'integrationsTotalCountQuery'
-    }),
-    graphql<Props, TagsQueryResponse, { type: string }>(gql(queries.tags), {
-      name: 'tagsQuery',
-      options: () => ({
-        variables: {
-          type: 'integration'
-        }
-      })
     }),
     graphql<Props, RemoveMutationResponse, RemoveMutationVariables>(
       gql(mutations.integrationRemove),

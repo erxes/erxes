@@ -1,5 +1,4 @@
 import Button from 'modules/common/components/Button';
-import CountsByTag from 'modules/common/components/CountsByTag';
 import DataWithLoader from 'modules/common/components/DataWithLoader';
 import EmptyContent from 'modules/common/components/empty/EmptyContent';
 import FormControl from 'modules/common/components/form/Control';
@@ -13,6 +12,7 @@ import TaggerPopover from 'modules/tags/components/TaggerPopover';
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { ITag } from '../../tags/types';
+import Sidebar from '../containers/Sidebar';
 import { ILeadIntegration } from '../types';
 import Row from './Row';
 
@@ -64,9 +64,8 @@ class List extends React.Component<Props, {}> {
   render() {
     const {
       totalCount,
-      tagsCount,
+      queryParams,
       loading,
-      tags,
       bulk,
       emptyBulk,
       isAllSelected,
@@ -97,24 +96,13 @@ class List extends React.Component<Props, {}> {
     const actionBarRight = (
       <Link to="/leads/create">
         <Button btnStyle="success" size="small" icon="plus-circle">
-          {__('Create Pop Ups')}
+          {__('Create Forms')}
         </Button>
       </Link>
     );
 
     const actionBar = (
       <Wrapper.ActionBar right={actionBarRight} left={actionBarLeft} />
-    );
-
-    const sidebar = (
-      <Wrapper.Sidebar>
-        <CountsByTag
-          tags={tags}
-          manageUrl={'tags/integration'}
-          counts={tagsCount}
-          loading={false}
-        />
-      </Wrapper.Sidebar>
     );
 
     const content = (
@@ -148,11 +136,11 @@ class List extends React.Component<Props, {}> {
       <Wrapper
         header={
           <Wrapper.Header
-            title={__('Pop Ups')}
-            breadcrumb={[{ title: __('Pop Ups') }]}
+            title={__('Forms')}
+            breadcrumb={[{ title: __('Forms') }]}
           />
         }
-        leftSidebar={sidebar}
+        leftSidebar={<Sidebar queryParams={queryParams} />}
         actionBar={actionBar}
         footer={<Pagination count={totalCount} />}
         content={

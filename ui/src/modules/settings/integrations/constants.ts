@@ -74,7 +74,7 @@ export const INTEGRATION_KINDS = {
   NYLAS_EXCHANGE: 'nylas-exchange',
   NYLAS_OFFICE365: 'nylas-office365',
   NYLAS_YAHOO: 'nylas-yahoo',
-  LEAD: 'lead',
+  FORMS: 'forms',
   CALLPRO: 'callpro',
   TWITTER_DM: 'twitter-dm',
   CHATFUEL: 'chatfuel',
@@ -99,7 +99,7 @@ export const INTEGRATION_KINDS = {
     { text: 'Exchange', value: 'nylas-exchange' },
     { text: 'Outlook', value: 'nylas-outlook' },
     { text: 'Yahoo', value: 'nylas-yahoo' },
-    { text: 'Pop Ups', value: 'lead' },
+    { text: 'Forms', value: 'forms' },
     { text: 'Callpro', value: 'callpro' },
     { text: 'Twitter direct message', value: 'twitter-dm' },
     { text: 'Chatfuel', value: 'chatfuel' },
@@ -375,7 +375,7 @@ export const INTEGRATION_FILTERS = [
 
   {
     name: 'Works with',
-    items: ['Conversation', 'Pop ups']
+    items: ['Conversation', 'Forms']
   },
   {
     name: 'Categories',

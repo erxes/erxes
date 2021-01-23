@@ -238,7 +238,7 @@ class Lead extends React.Component<Props, State> {
     const { integration } = this.props;
     const leadData = integration && integration.leadData;
     const brand = integration && integration.brand;
-    const breadcrumb = [{ title: __('Pop Ups'), link: '/leads' }];
+    const breadcrumb = [{ title: __('Forms'), link: '/leads' }];
     const constant = isSkip ? 'form' : 'callout';
 
     const onChange = e =>

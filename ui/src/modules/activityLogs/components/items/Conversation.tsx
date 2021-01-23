@@ -166,9 +166,9 @@ class Conversation extends React.Component<Props, { toggleMessage: boolean }> {
         kind = 'message';
         item = 'by Facebook Messenger';
         break;
-      case 'lead':
+      case 'forms':
         action = 'filled in';
-        kind = 'Pop ups';
+        kind = 'Forms';
         item = '';
         break;
       case 'nylas-gmail':
