@@ -146,8 +146,10 @@ export const initApolloServer = async app => {
           if (parsedMessage.type === 'messengerConnected') {
             webSocket.messengerData = parsedMessage.value;
 
-            const customerId = webSocket.messengerData.customerId;
-            const visitorId = webSocket.messengerData.visitorId;
+            const customerId =
+              webSocket.messengerData && webSocket.messengerData.customerId;
+            const visitorId =
+              webSocket.messengerData && webSocket.messengerData.visitorId;
 
             const memoryStorageValue = customerId ? customerId : visitorId;
 
