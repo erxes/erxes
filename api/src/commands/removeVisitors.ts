@@ -8,20 +8,20 @@ dotenv.config();
 const command = async () => {
   await connect();
 
-  const customerIds = await Customers.find({
-    state: 'visitor',
-    profileScore: 0
-  }).distinct('_id');
+  const customers = await Customers.aggregate([
+    { $match: { $and: [{ state: 'visitor' }, { profileScore: 0 }] } },
+    { $project: { _id: '$_id' } }
+  ]);
 
   const idsToRemove: string[] = [];
 
-  for (const customerId of customerIds) {
+  for (const customer of customers) {
     const conversationExists = await Conversations.exists({
-      customerId
+      customerId: customer._id
     });
 
     if (!conversationExists) {
-      idsToRemove.push(customerId);
+      idsToRemove.push(customer._id);
     }
   }
 
