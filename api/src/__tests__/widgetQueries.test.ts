@@ -194,7 +194,7 @@ describe('widgetQueries', () => {
     });
 
     const qry = `
-      query widgetsTotalUnreadCount($integrationId: String!, $customerId: String!) {
+      query widgetsTotalUnreadCount($integrationId: String!, $customerId: String) {
         widgetsTotalUnreadCount(integrationId: $integrationId, customerId: $customerId)
       }
     `;
@@ -205,6 +205,23 @@ describe('widgetQueries', () => {
     });
 
     expect(response).toBe(1);
+  });
+
+  test('widgetsTotalUnreadCount without customerId', async () => {
+    // Creating test data
+    const integration = await integrationFactory({ kind: 'messenger' });
+
+    const qry = `
+      query widgetsTotalUnreadCount($integrationId: String!, $customerId: String) {
+        widgetsTotalUnreadCount(integrationId: $integrationId, customerId: $customerId)
+      }
+    `;
+
+    const response = await graphqlRequest(qry, 'widgetsTotalUnreadCount', {
+      integrationId: integration._id
+    });
+
+    expect(response).toBe(0);
   });
 
   test('widgetsUnreadCount', async () => {

@@ -1,6 +1,8 @@
 import * as faker from 'faker';
 import * as Random from 'meteor-random';
 import * as sinon from 'sinon';
+import { MESSAGE_KINDS } from '../data/constants';
+import * as logUtils from '../data/logUtils';
 import widgetMutations, {
   getMessengerData
 } from '../data/resolvers/mutations/widgets';
@@ -34,7 +36,8 @@ import { IBrandDocument } from '../db/models/definitions/brands';
 import {
   CONVERSATION_OPERATOR_STATUS,
   CONVERSATION_STATUSES,
-  MESSAGE_TYPES
+  MESSAGE_TYPES,
+  METHODS
 } from '../db/models/definitions/constants';
 import { ICustomerDocument } from '../db/models/definitions/customers';
 import { IIntegrationDocument } from '../db/models/definitions/integrations';
@@ -80,7 +83,7 @@ describe('messenger connect', () => {
         { brandCode: 'invalidCode' }
       );
     } catch (e) {
-      expect(e.message).toBe('Brand not found');
+      expect(e.message).toBe('Invalid configuration');
     }
   });
 
@@ -170,6 +173,57 @@ describe('messenger connect', () => {
     expect(customer.deviceTokens).toContain('111');
     expect(customer.createdAt >= now).toBeTruthy();
     expect(customer.sessionCount).toBe(1);
+    mock.restore();
+  });
+
+  test('creates new visitor log', async () => {
+    const mock = sinon.stub(utils, 'sendRequest').callsFake(() => {
+      return Promise.resolve('success');
+    });
+
+    const logUtilsMock = sinon
+      .stub(logUtils, 'sendToVisitorLog')
+      .callsFake(() => {
+        return Promise.resolve('ok');
+      });
+
+    const response = await widgetMutations.widgetsMessengerConnect(
+      {},
+      {
+        brandCode: _brand.code || '',
+        visitorId: '123'
+      }
+    );
+
+    expect(response.customerId).toBeUndefined();
+    expect(response.visitorId).toBe('123');
+
+    logUtilsMock.restore();
+    mock.restore();
+  });
+
+  test('creates new customer when logger is not running', async () => {
+    const mock = sinon.stub(utils, 'sendRequest').callsFake(() => {
+      return Promise.resolve('success');
+    });
+
+    const logUtilsMock = sinon
+      .stub(logUtils, 'sendToVisitorLog')
+      .callsFake(() => {
+        throw new Error('fake error');
+      });
+
+    const response = await widgetMutations.widgetsMessengerConnect(
+      {},
+      {
+        brandCode: _brand.code || '',
+        visitorId: '123'
+      }
+    );
+
+    expect(response.customerId).toBeDefined();
+
+    logUtilsMock.restore();
     mock.restore();
   });
 
@@ -311,6 +365,38 @@ describe('insertMessage()', () => {
     );
 
     expect(message.content).toBe('withConversationId');
+  });
+
+  test('with visitorId', async () => {
+    const logUtilsMock = sinon
+      .stub(logUtils, 'sendToVisitorLog')
+      .callsFake(() => {
+        return Promise.resolve('ok');
+      });
+
+    const mock = sinon.stub(logUtils, 'getVisitorLog').callsFake(() => {
+      return Promise.resolve({
+        visitorId: '123',
+        _id: '1245'
+      });
+    });
+    const conversation = await conversationFactory({});
+
+    const message = await widgetMutations.widgetsInsertMessage(
+      {},
+      {
+        contentType: MESSAGE_TYPES.TEXT,
+        integrationId: _integration._id,
+        visitorId: '123',
+        message: 'withConversationId',
+        conversationId: conversation._id
+      }
+    );
+
+    expect(message.content).toBe('withConversationId');
+
+    mock.restore();
+    logUtilsMock.restore();
   });
 
   test('Widget bot message with conversationId', async () => {
@@ -620,7 +706,7 @@ describe('saveBrowserInfo()', () => {
           }
         ]
       },
-      kind: 'visitorAuto',
+      kind: MESSAGE_KINDS.VISITOR_AUTO,
       method: 'messenger',
       isLive: true
     });
@@ -634,6 +720,51 @@ describe('saveBrowserInfo()', () => {
     );
 
     expect(response && response.content).toBe('engageMessage');
+  });
+
+  test('with visitorId', async () => {
+    const user = await userFactory({});
+    const brand = await brandFactory({});
+    const integration = await integrationFactory({ brandId: brand._id });
+
+    const visitorLogMock = sinon
+      .stub(logUtils, 'getVisitorLog')
+      .callsFake(() => {
+        return Promise.resolve({
+          visitorId: '123',
+          integrationId: integration._id
+        });
+      });
+
+    await engageMessageFactory({
+      userId: user._id,
+      messenger: {
+        brandId: brand._id,
+        content: 'engageMessage',
+        rules: [
+          {
+            text: 'text',
+            kind: 'currentPageUrl',
+            condition: 'is',
+            value: '/page'
+          }
+        ]
+      },
+      kind: MESSAGE_KINDS.VISITOR_AUTO,
+      method: METHODS.MESSENGER,
+      isLive: true
+    });
+
+    const response = await widgetMutations.widgetsSaveBrowserInfo(
+      {},
+      {
+        visitorId: '123',
+        browserInfo: { url: '/page' }
+      }
+    );
+
+    expect(response && response.content).toBe('engageMessage');
+    visitorLogMock.restore();
   });
 
   mock.restore();
