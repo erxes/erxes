@@ -17,10 +17,10 @@ import { datadogRum } from '@datadog/browser-rum';
 datadogRum.init({
   applicationId: process.env.REACT_APP_DD_APPLICATION_ID || '',
   clientToken: process.env.REACT_APP_DD_CLIENT_TOKEN || '',
+  service: process.env.REACT_APP_DD_SERVICE || '',
   // applicationId: 'a38ad11b-3427-47c6-a317-32c8bb25a248',
   // clientToken: 'pub487ab821e2db8e946d52bda8c03d6ee5',
   site: 'datadoghq.com',
-  service: 'erxes-ui',
   sampleRate: 100,
   trackInteractions: true,
   allowedTracingOrigins: [process.env.REACT_APP_API_URL || '']
