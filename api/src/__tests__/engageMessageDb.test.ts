@@ -244,8 +244,8 @@ describe('createConversation', () => {
     const replacedContent = 'hi Full name';
 
     const kwargs = {
-      customer: _customer,
-      integration: _integration,
+      customerId: _customer._id,
+      integrationId: _integration._id,
       user,
       replacedContent,
       engageData: engageDataFactory({
@@ -369,8 +369,8 @@ describe('createConversation', () => {
     });
 
     response = await EngageMessages.createOrUpdateConversationAndMessages({
-      customer: _customer,
-      integration: _integration,
+      customerId: _customer._id,
+      integrationId: _integration._id,
       user,
       replacedContent,
       engageData: {

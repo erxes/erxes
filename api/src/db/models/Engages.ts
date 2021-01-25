@@ -1,10 +1,12 @@
 import { Model, model } from 'mongoose';
 import { ConversationMessages, Conversations, Users } from '.';
+import { MESSAGE_KINDS } from '../../data/constants';
 import { generateCustomerSelector } from '../../data/resolvers/mutations/engageUtils';
 import { replaceEditorAttributes } from '../../data/utils';
 import { getNumberOfVisits } from '../../events';
 import Customers, { IBrowserInfo } from './Customers';
 import { IBrandDocument } from './definitions/brands';
+import { METHODS } from './definitions/constants';
 import {
   IEngageData,
   IMessageDocument
@@ -16,6 +18,7 @@ import {
   IEngageMessageDocument
 } from './definitions/engages';
 import { IIntegrationDocument } from './definitions/integrations';
+import { CONTENT_TYPES } from './definitions/segments';
 import { IUserDocument } from './definitions/users';
 
 interface ICheckRulesParams {
@@ -67,8 +70,9 @@ export interface IEngageMessageModel extends Model<IEngageMessageDocument> {
   checkRule(params: ICheckRuleParams): boolean;
   checkRules(params: ICheckRulesParams): Promise<boolean>;
   createOrUpdateConversationAndMessages(args: {
-    customer: ICustomerDocument;
-    integration: IIntegrationDocument;
+    customerId?: string;
+    visitorId?: string;
+    integrationId: string;
     user: IUserDocument;
     engageData: IEngageData;
     replacedContent: string;
@@ -76,7 +80,8 @@ export interface IEngageMessageModel extends Model<IEngageMessageDocument> {
   createVisitorOrCustomerMessages(params: {
     brand: IBrandDocument;
     integration: IIntegrationDocument;
-    customer: ICustomerDocument;
+    customer?: ICustomerDocument;
+    visitor?: any;
     browserInfo: any;
   }): Promise<IMessageDocument[]>;
 }
@@ -226,14 +231,20 @@ export const loadClass = () => {
     public static async createVisitorOrCustomerMessages(params: {
       brand: IBrandDocument;
       integration: IIntegrationDocument;
-      customer: ICustomerDocument;
+      customer?: ICustomerDocument;
+      visitor?: any;
       browserInfo: any;
     }) {
-      const { brand, integration, customer, browserInfo } = params;
+      const { brand, integration, customer, visitor, browserInfo } = params;
+      if (visitor) {
+        delete visitor._id;
+        visitor.state = CONTENT_TYPES.VISITOR;
+      }
+      const customerObj = customer ? customer : visitor;
 
       const messages = await EngageMessages.find({
         'messenger.brandId': brand._id,
-        method: 'messenger',
+        method: METHODS.MESSENGER,
         isLive: true
       });
 
@@ -253,14 +264,14 @@ export const loadClass = () => {
         if (
           message.kind === 'manual' &&
           (customerIds || []).length > 0 &&
-          !customerIds.includes(customer._id)
+          !customerIds.includes(customerObj._id)
         ) {
           continue;
         }
 
         const customersSelector = {
-          _id: customer._id,
-          state: { $ne: 'visitor' },
+          _id: customerObj._id,
+          state: { $ne: CONTENT_TYPES.VISITOR },
           ...(await generateCustomerSelector({
             customerIds,
             segmentIds,
@@ -271,11 +282,14 @@ export const loadClass = () => {
 
         const customerExists = await Customers.findOne(customersSelector);
 
-        if (message.kind !== 'visitorAuto' && !customerExists) {
+        if (message.kind !== MESSAGE_KINDS.VISITOR_AUTO && !customerExists) {
           continue;
         }
 
-        if (message.kind === 'visitorAuto' && customer.state !== 'visitor') {
+        if (
+          message.kind === MESSAGE_KINDS.VISITOR_AUTO &&
+          customerObj.state !== CONTENT_TYPES.VISITOR
+        ) {
           continue;
         }
 
@@ -284,14 +298,14 @@ export const loadClass = () => {
         if (!user) {
           continue;
         }
-
         // check for rules ===
-        const numberOfVisits = await getNumberOfVisits(
-          customer._id,
-          browserInfo.url
-        );
+        const numberOfVisits = await getNumberOfVisits({
+          url: browserInfo.url,
+          visitorId: visitor ? visitor.visitorId : undefined,
+          customerId: customer ? customer._id : undefined
+        });
 
-        const isPassedAllRules = await this.checkRules({
+        const hasPassedAllRules = await this.checkRules({
           rules: messenger.rules,
           browserInfo,
           numberOfVisits
@@ -299,7 +313,7 @@ export const loadClass = () => {
 
         // if given visitor is matched with given condition then create
         // conversations
-        if (isPassedAllRules) {
+        if (hasPassedAllRules) {
           // replace keys in content
           const { replacedContent } = await replaceEditorAttributes({
             content: messenger.content,
@@ -318,8 +332,9 @@ export const loadClass = () => {
 
           const conversationMessage = await this.createOrUpdateConversationAndMessages(
             {
-              customer,
-              integration,
+              customerId: customer && customer._id,
+              visitorId: visitor && visitor.visitorId,
+              integrationId: integration._id,
               user,
               replacedContent: replacedContent || '',
               engageData: {
@@ -337,10 +352,12 @@ export const loadClass = () => {
             conversationMessages.push(conversationMessage);
 
             // add given customer to customerIds list
-            await EngageMessages.updateOne(
-              { _id: message._id },
-              { $push: { customerIds: customer._id } }
-            );
+            if (customer) {
+              await EngageMessages.updateOne(
+                { _id: message._id },
+                { $push: { customerIds: customer._id } }
+              );
+            }
           }
         }
       }
@@ -352,19 +369,28 @@ export const loadClass = () => {
      * Creates or update conversation & message object using given info
      */
     public static async createOrUpdateConversationAndMessages(args: {
-      customer: ICustomerDocument;
-      integration: IIntegrationDocument;
+      customerId?: string;
+      visitorId?: string;
+      integrationId: string;
       user: IUserDocument;
       engageData: IEngageData;
       replacedContent: string;
     }) {
-      const { customer, integration, user, engageData, replacedContent } = args;
+      const {
+        customerId,
+        visitorId,
+        integrationId,
+        user,
+        engageData,
+        replacedContent
+      } = args;
+
+      const query = customerId
+        ? { customerId, 'engageData.messageId': engageData.messageId }
+        : { visitorId, 'engageData.messageId': engageData.messageId };
 
       const prevMessage: IMessageDocument | null = await ConversationMessages.findOne(
-        {
-          customerId: customer._id,
-          'engageData.messageId': engageData.messageId
-        }
+        query
       );
 
       if (prevMessage) {
@@ -395,8 +421,9 @@ export const loadClass = () => {
       // create conversation
       const conversation = await Conversations.createConversation({
         userId: user._id,
-        customerId: customer._id,
-        integrationId: integration._id,
+        customerId,
+        visitorId,
+        integrationId,
         content: replacedContent
       });
 
@@ -405,7 +432,8 @@ export const loadClass = () => {
         engageData,
         conversationId: conversation._id,
         userId: user._id,
-        customerId: customer._id,
+        customerId,
+        visitorId,
         content: replacedContent
       });
     }

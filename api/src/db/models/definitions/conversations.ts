@@ -11,6 +11,7 @@ export interface IConversation {
   content?: string;
   integrationId: string;
   customerId?: string;
+  visitorId?: string;
   userId?: string;
   assignedUserId?: string;
   participatedUserIds?: string[];
@@ -53,6 +54,11 @@ export const conversationSchema = new Schema({
   content: field({ type: String, optional: true }),
   integrationId: field({ type: String, index: true }),
   customerId: field({ type: String }),
+  visitorId: field({
+    type: String,
+    index: true,
+    label: 'unique visitor id on logger database'
+  }),
   userId: field({ type: String }),
   assignedUserId: field({ type: String }),
   participatedUserIds: field({ type: [String] }),
