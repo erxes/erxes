@@ -1,18 +1,20 @@
 import BoardSelect from 'erxes-ui/lib/boards/containers/BoardSelect';
 import { PipelinePopoverContent } from 'modules/boards/styles/item';
+import AvatarUpload from 'modules/common/components/AvatarUpload';
 import {
   ControlLabel,
   FormControl,
   FormGroup
 } from 'modules/common/components/form';
 import Icon from 'modules/common/components/Icon';
-import { __ } from 'modules/common/utils';
 import React, { useState } from 'react';
 import { OverlayTrigger, Popover } from 'react-bootstrap';
 
 type Props = {
   name?: string;
   description?: string;
+  icon?: string;
+  logo?: string;
   knowledgeBaseLabel?: string;
   ticketLabel?: string;
   taskLabel?: string;
@@ -28,6 +30,8 @@ type Props = {
 function General({
   name,
   description,
+  icon,
+  logo,
   knowledgeBaseLabel,
   ticketLabel,
   taskLabel,
@@ -140,6 +144,29 @@ function General({
     );
   }
 
+  function renderFavicon() {
+    const handleAvatarUploader = (url: string) => handleFormChange('icon', url);
+
+    return (
+      <FormGroup>
+        <ControlLabel>Favicon</ControlLabel>
+        <p>16x16px transparent PNG.</p>
+        <AvatarUpload avatar={icon} onAvatarUpload={handleAvatarUploader} />
+      </FormGroup>
+    );
+  }
+
+  function renderLogo() {
+    const handleAvatarUploader = (url: string) => handleFormChange('logo', url);
+
+    return (
+      <FormGroup>
+        <ControlLabel>Main Logo</ControlLabel>
+        <AvatarUpload avatar={logo} onAvatarUpload={handleAvatarUploader} />
+      </FormGroup>
+    );
+  }
+
   return (
     <div>
       {renderControl({
@@ -157,6 +184,9 @@ function General({
         formValueName: 'description',
         formValue: description
       })}
+
+      {renderFavicon()}
+      {renderLogo()}
 
       {renderControl({
         label: 'Knowledge Base',

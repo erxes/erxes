@@ -3,9 +3,11 @@ import React, { useState } from 'react';
 import { CONFIG_TYPES } from '../constants';
 import General from './General';
 
-type GeneralFormType = {
+export type GeneralFormType = {
   name?: string;
   description?: string;
+  logo?: string;
+  icon?: string;
   knowledgeBaseLabel?: string;
   ticketLabel?: string;
   taskLabel?: string;
@@ -19,22 +21,25 @@ type GeneralFormType = {
 
 type Props = {
   configType: string;
-  defaultFormValues?: GeneralFormType;
+  defaultConfigValues?: GeneralFormType;
+  handleUpdate: (doc: GeneralFormType) => void;
 };
 
-function Form({ defaultFormValues = {}, configType }: Props) {
+function Form({ defaultConfigValues = {}, handleUpdate, configType }: Props) {
   const [formValues, setFormValues] = useState<GeneralFormType>({
-    name: defaultFormValues.name || '',
-    description: defaultFormValues.description || '',
-    knowledgeBaseLabel: defaultFormValues.knowledgeBaseLabel || '',
-    ticketLabel: defaultFormValues.ticketLabel || '',
-    taskLabel: defaultFormValues.taskLabel || '',
-    taskStageId: defaultFormValues.taskStageId || '',
-    taskBoardId: defaultFormValues.taskBoardId || '',
-    taskPipelineId: defaultFormValues.taskPipelineId || '',
-    ticketStageId: defaultFormValues.ticketStageId || '',
-    ticketBoardId: defaultFormValues.ticketBoardId || '',
-    ticketPipelineId: defaultFormValues.ticketPipelineId || ''
+    name: defaultConfigValues.name || '',
+    description: defaultConfigValues.description || '',
+    icon: defaultConfigValues.icon || '',
+    logo: defaultConfigValues.logo || '',
+    knowledgeBaseLabel: defaultConfigValues.knowledgeBaseLabel || '',
+    ticketLabel: defaultConfigValues.ticketLabel || '',
+    taskLabel: defaultConfigValues.taskLabel || '',
+    taskStageId: defaultConfigValues.taskStageId || '',
+    taskBoardId: defaultConfigValues.taskBoardId || '',
+    taskPipelineId: defaultConfigValues.taskPipelineId || '',
+    ticketStageId: defaultConfigValues.ticketStageId || '',
+    ticketBoardId: defaultConfigValues.ticketBoardId || '',
+    ticketPipelineId: defaultConfigValues.ticketPipelineId || ''
   });
 
   const handleFormChange = (name: string, value: string) => {
@@ -46,6 +51,8 @@ function Form({ defaultFormValues = {}, configType }: Props) {
 
   const handleSubmit = e => {
     e.preventDefault();
+
+    handleUpdate(formValues);
   };
 
   function renderContent() {

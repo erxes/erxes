@@ -3,6 +3,7 @@ import brands from './brands';
 import calendars from './calendars';
 import channels from './channels';
 import checklists from './checklists';
+import clientPortal from './clientPortal';
 import companies from './companies';
 import configs from './configs';
 import conformity from './conformities';
@@ -84,5 +85,6 @@ export default {
   ...calendars,
   ...dashboards,
   ...skillTypesMutations,
-  ...skillsMutations
+  ...skillsMutations,
+  ...clientPortal
 };
