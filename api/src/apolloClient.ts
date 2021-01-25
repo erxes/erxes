@@ -2,7 +2,6 @@ import { ApolloServer, gql, PlaygroundConfig } from 'apollo-server-express';
 import * as cookie from 'cookie';
 import * as dotenv from 'dotenv';
 import * as jwt from 'jsonwebtoken';
-import apolloPlugins from './apolloPlugins';
 import { EngagesAPI, HelpersApi, IntegrationsAPI } from './data/dataSources';
 import resolvers from './data/resolvers';
 import * as typeDefDetails from './data/schema';
@@ -65,7 +64,6 @@ export const initApolloServer = async app => {
   apolloServer = new ApolloServer({
     typeDefs,
     resolvers,
-    plugins: apolloPlugins,
     dataSources: generateDataSources,
     playground,
     uploads: false,

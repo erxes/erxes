@@ -1,14 +1,28 @@
-import * as debug from 'debug';
+import tracer from 'dd-trace';
+import * as formats from 'dd-trace/ext/formats';
 
-export const debugExternalApi = debug('erxes-api:external-api-fetcher');
-export const debugInit = debug('erxes-api:init');
-export const debugCrons = debug('erxes-crons:');
-export const debugWorkers = debug('erxes-workers:');
-export const debugDb = debug('erxes-api:db');
-export const debugImport = debug('erxes-api:import');
-export const debugBase = debug('erxes-api:base');
-export const debugEmail = debug('erxes-api:email');
-export const debugError = debug('erxes-api:error');
+export const ddLogger = message => {
+  const span = tracer.scope().active();
+  const time = new Date().toISOString();
+
+  const record = { time, level: 'info', message };
+
+  if (span) {
+    tracer.inject(span.context(), formats.LOG, record);
+  }
+
+  console.log(JSON.stringify(record));
+};
+
+export const debugExternalApi = ddLogger;
+export const debugInit = ddLogger;
+export const debugCrons = ddLogger;
+export const debugWorkers = ddLogger;
+export const debugDb = ddLogger;
+export const debugImport = ddLogger;
+export const debugBase = ddLogger;
+export const debugEmail = ddLogger;
+export const debugError = ddLogger;
 
 export const debugRequest = (debugInstance, req) =>
   debugInstance(`
