@@ -16,8 +16,6 @@ import { datadogRum } from '@datadog/browser-rum';
 
 const envs = getEnv();
 
-console.log(envs);
-
 datadogRum.init({
   applicationId: envs.REACT_APP_DD_APPLICATION_ID || '',
   clientToken: envs.REACT_APP_DD_CLIENT_TOKEN || '',
