@@ -139,6 +139,9 @@ event_mapping = {
     'customerId': {
         'type': 'keyword',
     },
+    'visitorId': {
+        'type': 'keyword',
+    },
     "attributes" : nestedType
 }
 

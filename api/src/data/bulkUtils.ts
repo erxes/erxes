@@ -15,7 +15,7 @@ export const stream = (
 
       if (chunks.length) {
         for (const chunk of chunks) {
-          executeChunk(chunk);
+          await executeChunk(chunk);
         }
       }
     }
