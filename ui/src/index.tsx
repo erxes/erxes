@@ -14,16 +14,20 @@ import { render } from 'react-dom';
 
 import { datadogRum } from '@datadog/browser-rum';
 
+const envs = getEnv();
+
+console.log(envs);
+
 datadogRum.init({
-  applicationId: process.env.REACT_APP_DD_APPLICATION_ID || '',
-  clientToken: process.env.REACT_APP_DD_CLIENT_TOKEN || '',
-  service: process.env.REACT_APP_DD_SERVICE || '',
+  applicationId: envs.REACT_APP_DD_APPLICATION_ID || '',
+  clientToken: envs.REACT_APP_DD_CLIENT_TOKEN || '',
+  service: envs.REACT_APP_DD_SERVICE || '',
   // applicationId: 'a38ad11b-3427-47c6-a317-32c8bb25a248',
   // clientToken: 'pub487ab821e2db8e946d52bda8c03d6ee5',
   site: 'datadoghq.com',
   sampleRate: 100,
   trackInteractions: true,
-  allowedTracingOrigins: [process.env.REACT_APP_API_URL || '']
+  allowedTracingOrigins: [envs.REACT_APP_API_URL || '']
 });
 
 dayjs.extend(localizedFormat);
@@ -31,8 +35,6 @@ dayjs.extend(relativeTime);
 dayjs.extend(utc, { parseLocal: true });
 
 const target = document.querySelector('#root');
-
-const envs = getEnv();
 
 fetch(`${envs.REACT_APP_API_URL}/initial-setup?envs=${JSON.stringify(envs)}`, {
   credentials: 'include'
