@@ -181,7 +181,7 @@ class VisitorForm extends React.Component<Props, State> {
         <Steps maxStep={maxStep} active={activeStep}>
           <Step
             img="/images/icons/erxes-02.svg"
-            title="Who is this message for?"
+            title="Who is this campaign for?"
           >
             <ConditionsRule
               rules={this.state.rules}
@@ -191,7 +191,7 @@ class VisitorForm extends React.Component<Props, State> {
 
           <Step
             img="/images/icons/erxes-08.svg"
-            title="Compose your message"
+            title="Compose your campaign"
             noButton={true}
           >
             <MessengerForm

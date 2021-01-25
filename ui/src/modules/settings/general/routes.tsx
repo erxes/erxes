@@ -28,7 +28,7 @@ const routes = () => {
         path="/settings/integration-configs/"
         component={IntegrationConfigs}
       />
-      <Route path="/settings/engage-configs/" component={EngageConfigs} />
+      <Route path="/settings/campaign-configs/" component={EngageConfigs} />
     </React.Fragment>
   );
 };

@@ -277,7 +277,7 @@ class AutoAndManualForm extends React.Component<Props, State> {
     return (
       <Step
         img={imagePath}
-        title="Compose your message"
+        title="Compose your campaign"
         message={message}
         noButton={method !== METHODS.EMAIL && true}
       >
@@ -367,7 +367,7 @@ class AutoAndManualForm extends React.Component<Props, State> {
 
           <Step
             img="/images/icons/erxes-06.svg"
-            title="Who is this message for?"
+            title="Who is this campaign for?"
           >
             <MessageTypeStep
               onChange={this.changeState}
