@@ -21,9 +21,9 @@ export default [
       let car: any = null;
       let dealIdsOfCustomer = [];
 
-      try {
-        switch (action) {
-          case "createCustomer":
+      switch (action) {
+        case "createCustomer":
+          try {
             customer = await models.Customers.getWidgetCustomer({
               email: data.email,
               phone: data.phoneNumber,
@@ -47,8 +47,12 @@ export default [
               : await models.Customers.createMessengerCustomer({ doc });
 
             return sendSuccess(customer);
+          } catch (e) {
+            return sendError(e.message);
+          }
 
-          case "getUserAdditionInfo":
+        case "getUserAdditionInfo":
+          try {
             customer = await models.Customers.getWidgetCustomer({
               email: data.user.email,
               phone: data.user.phoneNumber,
@@ -86,37 +90,41 @@ export default [
             }).countDocuments();
 
             return sendSuccess({ loyalty, dealCount });
+          } catch (e) {
+            return sendError(e.message);
+          }
 
-          case "createCar":
-            try {
-              car = await models.Cars.createCar(models, { ...data });
-              customer = await models.Customers.getWidgetCustomer({
-                email: data.user.email,
-                phone: data.user.phoneNumber,
+        case "createCar":
+          try {
+            car = await models.Cars.createCar(models, { ...data });
+            customer = await models.Customers.getWidgetCustomer({
+              email: data.user.email,
+              phone: data.user.phoneNumber,
+            });
+            if (!customer) {
+              customer = await models.Customers.createMessengerCustomer({
+                doc: {
+                  email: data.user.email,
+                  phone: data.user.phoneNumber,
+                  deviceToken: data.deviceToken,
+                  integrationId: data.integrationId,
+                },
               });
-              if (!customer) {
-                customer = await models.Customers.createMessengerCustomer({
-                  doc: {
-                    email: data.user.email,
-                    phone: data.user.phoneNumber,
-                    deviceToken: data.deviceToken,
-                    integrationId: data.integrationId,
-                  },
-                });
-              }
-              await models.Conformities.addConformity({
-                mainType: "customer",
-                mainTypeId: customer._id,
-                relType: "car",
-                relTypeId: car._id,
-              });
-            } catch (e) {
-              return sendError(e.message);
             }
+            await models.Conformities.addConformity({
+              mainType: "customer",
+              mainTypeId: customer._id,
+              relType: "car",
+              relTypeId: car._id,
+            });
 
             return sendSuccess(car);
+          } catch (e) {
+            return sendError(e.message);
+          }
 
-          case "filterCars":
+        case "filterCars":
+          try {
             customer = await models.Customers.getWidgetCustomer({
               email: data.user.email,
               phone: data.user.phoneNumber,
@@ -161,13 +169,13 @@ export default [
                 { $unwind: "$category" },
               ])
             );
+          } catch (e) {
+            return sendError(e.message);
+          }
 
-          case "getCar":
-            car = await models.Cars.findOne({ _id: data._id });
-
-            if (!car) {
-              return sendError("Car not found");
-            }
+        case "getCar":
+          try {
+            car = await models.Cars.getCar(models, data._id);
 
             return sendSuccess({
               car,
@@ -175,8 +183,12 @@ export default [
                 _id: car.categoryId,
               }),
             });
+          } catch (e) {
+            return sendError(e.message);
+          }
 
-          case "filterCarCategories":
+        case "filterCarCategories":
+          try {
             filter = {};
             filter["parentId"] = data.parentId || "";
 
@@ -208,23 +220,28 @@ export default [
                 { $sort: { order: 1 } },
               ])
             );
+          } catch (e) {
+            return sendError(e.message);
+          }
 
-          case "getProduct":
-            const product = await models.Products.findOne({
+        case "getProduct":
+          try {
+            const product = await models.Products.getProduct({
               _id: data.productId,
             });
 
-            if (!product) {
-              return sendError("Product not found");
-            }
             return sendSuccess({
               product,
               category: await models.ProductCategories.findOne({
                 _id: product.categoryId,
               }),
             });
+          } catch (e) {
+            return sendError(e.message);
+          }
 
-          case "filterProductCategories":
+        case "filterProductCategories":
+          try {
             filter = {};
             filter["parentId"] = data.parentId;
 
@@ -256,8 +273,12 @@ export default [
                 { $sort: { order: 1 } },
               ])
             );
+          } catch (e) {
+            return sendError(e.message);
+          }
 
-          case "filterProducts":
+        case "filterProducts":
+          try {
             const {
               page = 0,
               perPage = 0,
@@ -306,8 +327,12 @@ export default [
                 { $limit: _limit },
               ])
             );
+          } catch (e) {
+            return sendError(e.message);
+          }
 
-          case "filterDeals":
+        case "filterDeals":
+          try {
             customer = await models.Customers.getWidgetCustomer({
               email: data.user.email,
               phone: data.user.phoneNumber,
@@ -385,11 +410,19 @@ export default [
             }
 
             return sendSuccess(extDeals);
+          } catch (e) {
+            return sendError(e.message);
+          }
 
-          case "getDeal":
-            return sendSuccess(await models.Deals.findOne({ _id: data._id }));
+        case "getDeal":
+          try {
+            return sendSuccess(await models.Deals.getDeal(data._id));
+          } catch (e) {
+            return sendError(e.message);
+          }
 
-          case "createDeal":
+        case "createDeal":
+          try {
             customer = await models.Customers.getWidgetCustomer({
               email: data.user.email,
               phone: data.user.phoneNumber,
@@ -432,13 +465,21 @@ export default [
             }
 
             return sendSuccess(deal);
+          } catch (e) {
+            return sendError(e.message);
+          }
 
-          case "getKnowledgeBaseTopicDetail":
+        case "getKnowledgeBaseTopicDetail":
+          try {
             return sendSuccess(
               await models.KnowledgeBaseTopics.getTopic(data._id)
             );
+          } catch (e) {
+            return sendError(e.message);
+          }
 
-          case "getKnowlegeBaseForCatIds":
+        case "getKnowlegeBaseForCatIds":
+          try {
             return sendSuccess({
               topics: await models.KnowledgeBaseTopics.find({
                 categoryIds: { $in: data.categoryIds },
@@ -447,8 +488,12 @@ export default [
                 _id: { $in: data.categoryIds },
               }),
             });
+          } catch (e) {
+            return sendError(e.message);
+          }
 
-          case "filterKnowledgeBaseCategories":
+        case "filterKnowledgeBaseCategories":
+          try {
             const topic = await models.KnowledgeBaseTopics.getTopic(
               data.topicId
             );
@@ -461,13 +506,21 @@ export default [
 
             // return sendSuccess(await paginate(knowledgeBaseCategories, { ...data }));
             return sendSuccess(knowledgeBaseCategories);
+          } catch (e) {
+            return sendError(e.message);
+          }
 
-          case "getKnowledgeBaseCategory":
+        case "getKnowledgeBaseCategory":
+          try {
             return sendSuccess(
               await models.KnowledgeBaseCategories.getCategory(data)
             );
+          } catch (e) {
+            return sendError(e.message);
+          }
 
-          case "filterKnowledgeBaseArticles":
+        case "filterKnowledgeBaseArticles":
+          try {
             const category = await models.KnowledgeBaseCategories.getCategory(
               data.categoryId
             );
@@ -481,15 +534,20 @@ export default [
 
             // return sendSuccess(await paginate(articles, { ...data }));
             return sendSuccess(articles);
+          } catch (e) {
+            return sendError(e.message);
+          }
 
-          case "getKnowledgeBaseArticle":
+        case "getKnowledgeBaseArticle":
+          try {
             return sendSuccess(
               await models.KnowledgeBaseArticles.getArticle(data._id)
             );
-        }
-      } catch (e) {
-        sendError(e.message);
+          } catch (e) {
+            return sendError(e.message);
+          }
       }
+
     },
   },
   {
