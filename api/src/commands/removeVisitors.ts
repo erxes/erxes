@@ -32,12 +32,13 @@ const command = async () => {
 
     if (!conversations || conversations.length === 0) {
       idsToRemove.push(customer._id);
-      spinner.info(`collected visitors count: ${idsToRemove.length}`);
     }
   }
 
+  spinner.info(`collected visitors count: ${idsToRemove.length}`);
+
   spinner.succeed(
-    `Successfully collected visitors to remove. Going to delete ${idsToRemove.length} of ${customers.length}`
+    `Successfully collected visitors. Going to delete ${idsToRemove.length} of ${customers.length}`
   );
 
   await stream(
