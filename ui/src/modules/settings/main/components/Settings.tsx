@@ -232,6 +232,19 @@ class Settings extends React.PureComponent {
                 'manageSkillTypes'
               ]
             )}
+            {this.renderBox(
+              'Client Portal',
+              '/images/icons/deal-insight-volume.svg',
+              '/settings/client-portal',
+              'skillTypesAll',
+              [
+                'getSkillTypes',
+                'getSkill',
+                'getSkills',
+                'manageSkills',
+                'manageSkillTypes'
+              ]
+            )}
           </div>
         </Row>
         <Divider />
