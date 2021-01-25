@@ -1,8 +1,5 @@
-import { Tasks } from '../../../db/models';
-import {
-  checkPermission,
-  moduleRequireLogin
-} from '../../permissions/wrappers';
+import { ClientPortals, Tasks } from '../../../db/models';
+import { checkPermission, requireLogin } from '../../permissions/wrappers';
 import { IContext } from '../../types';
 import { IListParams } from './boards';
 import {
@@ -53,10 +50,23 @@ const taskQueries = {
     const task = await Tasks.getTask(_id);
 
     return checkItemPermByUser(user._id, task);
+  },
+
+  async clientPortalTasks(_root) {
+    const config = await ClientPortals.findOne({}).lean();
+
+    if (!config) {
+      return [];
+    }
+
+    return Tasks.find({ stageId: config.taskStageId });
   }
 };
 
-moduleRequireLogin(taskQueries);
+requireLogin(taskQueries, 'tasks');
+requireLogin(taskQueries, 'archivedTasks');
+requireLogin(taskQueries, 'archivedTasksCount');
+requireLogin(taskQueries, 'taskDetail');
 
 checkPermission(taskQueries, 'tasks', 'showTasks', []);
 
