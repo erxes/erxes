@@ -1,6 +1,4 @@
 import '@nateradebaugh/react-datetime/css/react-datetime.css';
-import * as Sentry from '@sentry/react';
-import { Integrations } from '@sentry/tracing';
 import 'abortcontroller-polyfill/dist/polyfill-patch-fetch';
 import dayjs from 'dayjs';
 import localizedFormat from 'dayjs/plugin/localizedFormat';
@@ -14,19 +12,18 @@ import React from 'react';
 import { ApolloProvider } from 'react-apollo';
 import { render } from 'react-dom';
 
-Sentry.init({
-  dsn:
-    process.env.NODE_ENV === 'development'
-      ? 'https://125ed83537ee441d9b16b20d631e6130@sentry.erxes.io/6'
-      : 'https://6d8ffc15437e46ff852e14633ddcfbe3@sentry.erxes.io/12',
+import { datadogRum } from '@datadog/browser-rum';
 
-  integrations: [
-    new Integrations.BrowserTracing({
-      tracingOrigins: [process.env.REACT_APP_API_URL || '']
-    })
-  ],
-
-  tracesSampleRate: 1.0
+datadogRum.init({
+  applicationId: process.env.REACT_APP_DD_APPLICATION_ID || '',
+  clientToken: process.env.REACT_APP_DD_CLIENT_TOKEN || '',
+  // applicationId: 'a38ad11b-3427-47c6-a317-32c8bb25a248',
+  // clientToken: 'pub487ab821e2db8e946d52bda8c03d6ee5',
+  site: 'datadoghq.com',
+  service: 'erxes-ui',
+  sampleRate: 100,
+  trackInteractions: true,
+  allowedTracingOrigins: [process.env.REACT_APP_API_URL || '']
 });
 
 dayjs.extend(localizedFormat);
