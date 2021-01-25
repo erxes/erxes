@@ -176,17 +176,17 @@ class List extends React.Component<Props> {
         {this.renderBox(
           'Auto campaign',
           'Auto message description',
-          '/engage/messages/create?kind=auto'
+          '/campaigns/create?kind=auto'
         )}
         {this.renderBox(
           'Manual campaign',
           'Manual message description',
-          '/engage/messages/create?kind=manual'
+          '/campaigns/create?kind=manual'
         )}
         {this.renderBox(
           'Visitor auto campaign',
           'Visitor auto message description',
-          '/engage/messages/create?kind=visitorAuto'
+          '/campaigns/create?kind=visitorAuto'
         )}
       </FlexContainer>
     );

@@ -212,7 +212,7 @@ class Navigation extends React.Component<{
           {this.renderNavItem(
             'showEngagesMessages',
             __('Campaigns'),
-            '/engage',
+            '/campaigns',
             'icon-megaphone'
           )}
           {this.renderNavItem(

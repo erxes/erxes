@@ -27,7 +27,7 @@ class Sidebar extends React.Component<Props> {
 
         <SidebarList>
           <li>
-            <Link to="/engage">
+            <Link to="/campaigns">
               <FieldStyle>{__('All')}</FieldStyle>
               <SidebarCounter>{kindCounts.all}</SidebarCounter>
             </Link>
@@ -40,7 +40,7 @@ class Sidebar extends React.Component<Props> {
                 className={
                   router.getParam(history, 'kind') === kind.name ? 'active' : ''
                 }
-                to={`/engage?kind=${kind.name}`}
+                to={`/campaigns?kind=${kind.name}`}
               >
                 <FieldStyle>{__(kind.text)}</FieldStyle>
                 <SidebarCounter>{kindCounts[kind.name]}</SidebarCounter>
@@ -69,7 +69,7 @@ class Sidebar extends React.Component<Props> {
                     ? 'active'
                     : ''
                 }
-                to={`/engage?status=${status.key}`}
+                to={`/campaigns?status=${status.key}`}
               >
                 <FieldStyle>{__(status.value)}</FieldStyle>
                 <SidebarCounter>{statusCounts[status.key]}</SidebarCounter>

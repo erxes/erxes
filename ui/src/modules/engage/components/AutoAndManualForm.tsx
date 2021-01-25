@@ -180,7 +180,7 @@ class AutoAndManualForm extends React.Component<Props, State> {
     const { isActionLoading, kind } = this.props;
 
     const cancelButton = (
-      <Link to="/engage">
+      <Link to="/campaigns">
         <Button btnStyle="simple" uppercase={false} icon="times-circle">
           Cancel
         </Button>
