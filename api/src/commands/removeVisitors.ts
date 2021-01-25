@@ -1,4 +1,5 @@
 import * as dotenv from 'dotenv';
+import * as ora from 'ora';
 import { stream } from '../data/bulkUtils';
 import { connect } from '../db/connection';
 import { Conversations, Customers } from '../db/models';
@@ -6,6 +7,15 @@ import { Conversations, Customers } from '../db/models';
 dotenv.config();
 
 const command = async () => {
+  console.log(`Process started at: ${new Date()}`);
+
+  const spinnerOptions = {
+    prefixText: `Collecting visitors`
+  };
+
+  const spinner = ora(spinnerOptions);
+  spinner.start();
+
   await connect();
 
   const customers = await Customers.aggregate([
@@ -16,14 +26,20 @@ const command = async () => {
   const idsToRemove: string[] = [];
 
   for (const customer of customers) {
-    const conversationExists = await Conversations.exists({
+    const conversations = await Conversations.find({
       customerId: customer._id
     });
 
-    if (!conversationExists) {
+    if (!conversations || conversations.length === 0) {
       idsToRemove.push(customer._id);
     }
   }
+
+  spinner.info(`collected visitors count: ${idsToRemove.length}`);
+
+  spinner.succeed(
+    `Successfully collected visitors. Going to delete ${idsToRemove.length} of ${customers.length}`
+  );
 
   await stream(
     async chunk => {
@@ -49,5 +65,6 @@ const command = async () => {
 };
 
 command().then(() => {
+  console.log(`Process finished at: ${new Date()}`);
   process.exit();
 });
