@@ -311,7 +311,7 @@ export const receiveImportRemove = async (content: any) => {
 
     return { status: 'ok' };
   } catch (e) {
-    debugWorkers('Failed to remove import: ', e.message);
+    debugWorkers(`Failed to remove import: ${e.message}`);
     throw e;
   }
 };

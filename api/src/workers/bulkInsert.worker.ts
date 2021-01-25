@@ -203,7 +203,7 @@ const create = async ({
 
   if (contentType === CUSTOMER || contentType === LEAD) {
     debugWorkers('Worker: Import customer data');
-    debugWorkers('useElkSyncer: ', useElkSyncer);
+    debugWorkers(`useElkSyncer:  ${useElkSyncer}`);
 
     for (const doc of docs) {
       if (!doc.ownerId && user) {
@@ -266,7 +266,7 @@ const create = async ({
       insertDocs = docs;
     }
 
-    debugWorkers('Insert doc length: ', insertDocs.length);
+    debugWorkers(`Insert doc length: ${insertDocs.length}`);
 
     insertDocs.map(async (doc, docIndex) => {
       await createConformityMapping({
@@ -278,7 +278,7 @@ const create = async ({
       });
     });
 
-    debugWorkers('Update doc length: ', updateDocs.length);
+    debugWorkers(`Update doc length: ${updateDocs.length}`);
 
     if (updateDocs.length > 0) {
       await Customers.bulkWrite(updateDocs);
