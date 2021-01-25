@@ -1,4 +1,5 @@
 
 export default [
-  { name: 'loyaltyConfig', description: 'loyalty Config' },
+  { name: 'loyaltyConfig', description: 'Loyalty Config' },
+  { name: 'showLoyalties', description: 'Show Loyalties' },
 ];
