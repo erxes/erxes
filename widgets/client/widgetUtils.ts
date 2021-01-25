@@ -1,4 +1,5 @@
 import { ENV } from './types';
+import FingerprintJS from '@fingerprintjs/fingerprintjs';
 
 export const getEnv = (): ENV => {
   return (window as any).erxesEnv;
@@ -116,3 +117,13 @@ export const setErxesProperty = (name: string, value: any) => {
 
   window.Erxes = erxes;
 };
+
+export const getVisitorId = async () => {
+  const fp = await FingerprintJS.load();
+
+  // The FingerprintJS agent is ready.
+  const result = await fp.get();
+
+  // This is the visitor identifier:
+  return result.visitorId;
+}

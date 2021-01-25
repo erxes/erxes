@@ -1,6 +1,8 @@
-import * as Sentry from '@sentry/node';
-import * as Tracing from 'batsentry-tracing';
+import * as connect_datadog from 'connect-datadog';
+import ddTracer from 'dd-trace';
+
 import * as cookieParser from 'cookie-parser';
+
 import * as cors from 'cors';
 import * as dotenv from 'dotenv';
 import * as telemetry from 'erxes-telemetry';
@@ -45,10 +47,16 @@ import { importer, uploader } from './middlewares/fileMiddleware';
 import userMiddleware from './middlewares/userMiddleware';
 import webhookMiddleware from './middlewares/webhookMiddleware';
 import widgetsMiddleware from './middlewares/widgetsMiddleware';
+
 import init from './startup';
 
 // load environment variables
 dotenv.config();
+
+ddTracer.init({
+  hostname: process.env.DD_HOST,
+  logInjection: true
+});
 
 const { NODE_ENV, JWT_TOKEN_SECRET } = process.env;
 
@@ -105,36 +113,12 @@ const DASHBOARD_DOMAIN = getSubServiceDomain({
 
 export const app = express();
 
-Sentry.init({
-  dsn:
-    process.env.NODE_ENV === 'development'
-      ? 'https://8e173a20ee1147a9a12cce71f62a8188@sentry.erxes.io/5'
-      : 'https://c1dafcb26ce847e5a128b3db9c61aae2@sentry.erxes.io/18',
-
-  integrations: [
-    new Tracing.Integrations.Mongo(),
-    // enable HTTP calls tracing
-    new Sentry.Integrations.Http({ tracing: true }),
-    // enable Express.js middleware tracing
-    new Tracing.Integrations.Express({
-      // to trace all requests to the default router
-      app
-      // alternatively, you can specify the routes you want to trace:
-      // router: someRouter,
-    })
-  ],
-
-  // We recommend adjusting this value in production, or using tracesSampler
-  // for finer control
-  tracesSampleRate: 1.0
+const datadogMiddleware = connect_datadog({
+  response_code: true,
+  tags: ['api']
 });
 
-// RequestHandler creates a separate execution context using domains, so that every
-// transaction/span/breadcrumb is attached to its own Hub instance
-app.use(Sentry.Handlers.requestHandler());
-
-// TracingHandler creates a trace for every incoming request
-app.use(Sentry.Handlers.tracingHandler());
+app.use(datadogMiddleware);
 
 app.disable('x-powered-by');
 
@@ -416,8 +400,6 @@ app.use((error, _req, res, _next) => {
   console.error(error.stack);
   res.status(500).send(error.message);
 });
-
-app.use(Sentry.Handlers.errorHandler());
 
 // Wrap the Express server
 const httpServer = createServer(app);
