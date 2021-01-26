@@ -268,7 +268,7 @@ const boardQueries = {
    *  ConvertTo info
    */
   async convertToInfo(_root, { conversationId }: { conversationId: string }) {
-    const filter = { sourceConversationId: conversationId };
+    const filter = { sourceConversationIds: { $in: [conversationId] } };
     let dealUrl = '';
     let ticketUrl = '';
     let taskUrl = '';

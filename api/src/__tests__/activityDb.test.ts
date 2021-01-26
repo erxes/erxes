@@ -93,7 +93,7 @@ describe('Test activity model', () => {
   test('Activity create board items log', async () => {
     const items = [] as IItemCommonFieldsDocument[];
 
-    const deal = await dealFactory({ sourceConversationId: '123' });
+    const deal = await dealFactory({ sourceConversationIds: ['123'] });
 
     new Array(3).fill(0).forEach(() => {
       const item = {} as any;
@@ -122,7 +122,7 @@ describe('Test activity model', () => {
       expect(log.contentType).toBe('deal');
       expect(log.createdBy).toBe(item.userId);
       expect(log.action).toBe(ACTIVITY_ACTIONS.CONVERT);
-      expect(log.content).toBe(deal.sourceConversationId);
+      expect(log.content).toBe(deal.sourceConversationIds);
     }
 
     expect(logs).toBeDefined();
@@ -130,7 +130,7 @@ describe('Test activity model', () => {
   });
 
   test('Activity create board item log', async () => {
-    const deal = await dealFactory({ sourceConversationId: '123' });
+    const deal = await dealFactory({ sourceConversationIds: ['123'] });
 
     const activity = await ActivityLogs.createBoardItemLog({
       item: deal,

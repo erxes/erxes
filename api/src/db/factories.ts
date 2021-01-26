@@ -1062,7 +1062,7 @@ interface IDealFactoryInput {
   searchText?: string;
   userId?: string;
   initialStageId?: string;
-  sourceConversationId?: string;
+  sourceConversationIds?: string[];
 }
 
 export const dealFactory = async (params: IDealFactoryInput = {}) => {
@@ -1090,7 +1090,7 @@ export const dealFactory = async (params: IDealFactoryInput = {}) => {
     order: params.order,
     probability: params.probability,
     searchText: params.searchText,
-    sourceConversationId: params.sourceConversationId,
+    sourceConversationIds: params.sourceConversationIds,
     createdAt: new Date()
   });
 
@@ -1106,7 +1106,7 @@ interface ITaskFactoryInput {
   priority?: string;
   watchedUserIds?: string[];
   labelIds?: string[];
-  sourceConversationId?: string;
+  sourceConversationIds?: string[];
   initialStageId?: string;
 }
 
@@ -1140,7 +1140,7 @@ export const taskFactory = async (params: ITaskFactoryInput = {}) => {
     priority: params.priority,
     watchedUserIds: params.watchedUserIds,
     labelIds: params.labelIds || [],
-    sourceConversationId: params.sourceConversationId,
+    sourceConversationIds: params.sourceConversationIds,
     attachments: [attachmentFactory(), attachmentFactory()]
   });
 
@@ -1157,7 +1157,7 @@ interface ITicketFactoryInput {
   source?: string;
   watchedUserIds?: string[];
   labelIds?: string[];
-  sourceConversationId?: string;
+  sourceConversationIds?: string[];
 }
 
 export const ticketFactory = async (params: ITicketFactoryInput = {}) => {
@@ -1184,7 +1184,7 @@ export const ticketFactory = async (params: ITicketFactoryInput = {}) => {
     source: params.source,
     watchedUserIds: params.watchedUserIds,
     labelIds: params.labelIds || [],
-    sourceConversationId: params.sourceConversationId
+    sourceConversationIds: params.sourceConversationIds
   });
 
   return ticket.save();

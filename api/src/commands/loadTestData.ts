@@ -469,7 +469,7 @@ const main = async () => {
     name: faker.random.word(),
     userId: admin._id,
     initialStageId: selectedTicketStage?._id,
-    sourceConversationId: randomConversation?._id,
+    sourceConversationIds: [randomConversation?._id || ''],
     stageId: selectedTicketStage?._id || ''
   });
 

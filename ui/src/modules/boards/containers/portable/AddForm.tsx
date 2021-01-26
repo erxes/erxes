@@ -9,8 +9,15 @@ import {
 import React from 'react';
 import { graphql } from 'react-apollo';
 import AddForm from '../../components/portable/AddForm';
-import { queries } from '../../graphql';
-import { IItem, IItemParams, IOptions, SaveMutation } from '../../types';
+import { mutations as boardMutations, queries } from '../../graphql';
+import {
+  ConvertToMutationResponse,
+  ConvertToMutationVariables,
+  IItem,
+  IItemParams,
+  IOptions,
+  SaveMutation
+} from '../../types';
 
 type IProps = {
   options: IOptions;
@@ -34,13 +41,16 @@ type IProps = {
 
 type FinalProps = {
   addMutation: SaveMutation;
+  conversationConvertToCard: ConvertToMutationResponse;
   editConformity: EditConformityMutation;
-} & IProps;
+} & IProps &
+  ConvertToMutationResponse;
 
 class AddFormContainer extends React.Component<FinalProps> {
   saveItem = (doc: IItemParams, callback: (item: IItem) => void) => {
     const {
       addMutation,
+      conversationConvertToCard,
       options,
       relType,
       relTypeIds,
@@ -55,7 +65,6 @@ class AddFormContainer extends React.Component<FinalProps> {
     } = this.props;
 
     doc.assignedUserIds = assignedUserIds;
-    doc.sourceConversationId = sourceConversationId;
 
     const proccessId = Math.random().toString();
 
@@ -66,36 +75,77 @@ class AddFormContainer extends React.Component<FinalProps> {
     doc.description = description;
     doc.attachments = attachments;
 
-    addMutation({ variables: doc })
-      .then(({ data }) => {
-        if (options.texts.addSuccessText) {
-          Alert.success(options.texts.addSuccessText);
-        }
+    if (sourceConversationId) {
+      doc.sourceConversationIds = [sourceConversationId];
 
-        if (relType && relTypeIds) {
-          editConformity({
-            variables: {
-              mainType: options.type,
-              mainTypeId: data[options.mutationsName.addMutation]._id,
-              relType,
-              relTypeIds
-            }
-          });
-        }
-
-        callback(data[options.mutationsName.addMutation]);
-
-        if (getAssociatedItem) {
-          getAssociatedItem(data[options.mutationsName.addMutation]);
-        }
-
-        if (refetch) {
-          refetch();
+      conversationConvertToCard({
+        variables: {
+          _id: sourceConversationId || '',
+          type: options.type,
+          itemId: doc._id,
+          itemName: doc.name,
+          stageId: doc.stageId
         }
       })
-      .catch(error => {
-        Alert.error(error.message);
-      });
+        .then(({ data }) => {
+          Alert.success(
+            `You've successfully converted a conversation to ${options.type}`
+          );
+
+          if (!doc._id && relType && relTypeIds) {
+            editConformity({
+              variables: {
+                mainType: options.type,
+                mainTypeId: data.conversationConvertToCard,
+                relType,
+                relTypeIds
+              }
+            });
+          }
+
+          callback(data);
+
+          if (getAssociatedItem) {
+            getAssociatedItem(data.conversationConvertToCard);
+          }
+
+          if (refetch) {
+            refetch();
+          }
+        })
+        .catch(error => {
+          Alert.error(error.message);
+        });
+    } else {
+      addMutation({ variables: doc })
+        .then(({ data }) => {
+          Alert.success(`You've successfully created ${options.type}`);
+
+          if (relType && relTypeIds) {
+            editConformity({
+              variables: {
+                mainType: options.type,
+                mainTypeId: data[options.mutationsName.addMutation]._id,
+                relType,
+                relTypeIds
+              }
+            });
+          }
+
+          callback(data[options.mutationsName.addMutation]);
+
+          if (getAssociatedItem) {
+            getAssociatedItem(data[options.mutationsName.addMutation]);
+          }
+
+          if (refetch) {
+            refetch();
+          }
+        })
+        .catch(error => {
+          Alert.error(error.message);
+        });
+    }
   };
 
   render() {
@@ -130,6 +180,12 @@ export default (props: IProps) =>
               ]
             };
           }
+        }
+      ),
+      graphql<IProps, ConvertToMutationResponse, ConvertToMutationVariables>(
+        gql(boardMutations.conversationConvertToCard),
+        {
+          name: 'conversationConvertToCard'
         }
       ),
       graphql<FinalProps, EditConformityMutation, IConformityEdit>(
