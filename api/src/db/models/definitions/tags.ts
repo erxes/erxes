@@ -7,7 +7,7 @@ export interface ITag {
   type: string;
   colorCode?: string;
   objectCount?: number;
-  order: string;
+  order?: string;
   parentId?: string;
 }
 

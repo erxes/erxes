@@ -2,14 +2,14 @@ import {
   Brands,
   Channels,
   ConversationMessages,
-  Conversations,
-  Tags
+  Conversations
 } from '../../../db/models';
-import {
-  CONVERSATION_STATUSES,
-  KIND_CHOICES
-} from '../../../db/models/definitions/constants';
+import { CONVERSATION_STATUSES } from '../../../db/models/definitions/constants';
 import { IMessageDocument } from '../../../db/models/definitions/conversationMessages';
+import {
+  countByIntegrationTypes,
+  countByTags
+} from '../../modules/conversations/utils';
 import {
   checkPermission,
   moduleRequireLogin
@@ -44,40 +44,6 @@ const countByChannels = async (qb: any): Promise<ICountBy> => {
   }
 
   return byChannels;
-};
-
-const countByIntegrationTypes = async (qb: any): Promise<ICountBy> => {
-  const byIntegrationTypes: ICountBy = {};
-
-  for (const intT of KIND_CHOICES.ALL) {
-    byIntegrationTypes[intT] = await count({
-      ...qb.mainQuery(),
-      ...(await qb.extendedQueryFilter({ integrationType: intT }))
-    });
-  }
-
-  return byIntegrationTypes;
-};
-
-const countByTags = async (qb: any): Promise<ICountBy> => {
-  const byTags: ICountBy = {};
-  const queries = qb.queries;
-  const tags = await Tags.find();
-
-  const tagQueries = {
-    ...qb.mainQuery(),
-    ...queries.integrations,
-    ...queries.extended
-  };
-
-  for (const tag of tags) {
-    byTags[tag._id] = await count({
-      ...tagQueries,
-      ...qb.tagFilter([tag._id])
-    });
-  }
-
-  return byTags;
 };
 
 const countByBrands = async (qb: any): Promise<ICountBy> => {
@@ -222,16 +188,18 @@ const conversationQueries = {
     const { only } = params;
 
     const response: IConversationRes = {};
-
-    const qb = new QueryBuilder(params, {
+    const _user = {
       _id: user._id,
       code: user.code,
       starredConversationIds: user.starredConversationIds
-    });
+    };
+
+    const qb = new QueryBuilder(params, _user);
 
     await qb.buildAllQueries();
 
     const queries = qb.queries;
+    const integrationIds = queries.integrations.integrationId.$in;
 
     switch (only) {
       case 'byChannels':
@@ -239,7 +207,11 @@ const conversationQueries = {
         break;
 
       case 'byIntegrationTypes':
-        response.byIntegrationTypes = await countByIntegrationTypes(qb);
+        response.byIntegrationTypes = await countByIntegrationTypes(
+          params,
+          integrationIds,
+          _user
+        );
         break;
 
       case 'byBrands':
@@ -247,7 +219,7 @@ const conversationQueries = {
         break;
 
       case 'byTags':
-        response.byTags = await countByTags(qb);
+        response.byTags = await countByTags(params, integrationIds, _user);
         break;
     }
 
