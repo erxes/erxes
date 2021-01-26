@@ -900,5 +900,12 @@ describe('engage message mutation tests', () => {
     expect(response.isDraft).toBe(true);
     expect(response.isLive).toBe(false);
     expect(response.scheduleDate).toBeFalsy();
+
+    // test non existing campaign
+    try {
+      await graphqlRequest(mutation, 'engageMessageCopy', { _id: 'fakeId' });
+    } catch (e) {
+      expect(e[0].message).toBe('Campaign not found');
+    }
   });
 });
