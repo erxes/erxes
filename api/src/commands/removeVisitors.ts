@@ -9,13 +9,6 @@ dotenv.config();
 const command = async () => {
   console.log(`Process started at: ${new Date()}`);
 
-  const spinnerOptions = {
-    prefixText: `Collecting visitors`
-  };
-
-  const spinner = ora(spinnerOptions);
-  spinner.start();
-
   await connect();
 
   const customers = await Customers.aggregate([
@@ -23,27 +16,23 @@ const command = async () => {
     { $project: { _id: '$_id' } }
   ]);
 
-  const idsToRemove: string[] = [];
+  const customerIds = customers.map(c => c._id);
 
-  for (const customer of customers) {
-    const conversations = await Conversations.find({
-      customerId: customer._id
-    });
+  const conversations = await Conversations.find().distinct('customerId');
 
-    if (!conversations || conversations.length === 0) {
-      idsToRemove.push(customer._id);
-    }
-  }
+  const idsToRemove = customerIds.filter(e => !conversations.includes(e));
 
-  spinner.info(`collected visitors count: ${idsToRemove.length}`);
-
-  spinner.succeed(
-    `Successfully collected visitors. Going to delete ${idsToRemove.length} of ${customers.length}`
-  );
-
+  const spinnerOptions = {
+    prefixText: `Collected visitors count: ${idsToRemove.length}`
+  };
+  const spinner = ora(spinnerOptions);
+  spinner.start();
+  let deletedCount = 0;
   await stream(
     async chunk => {
+      deletedCount = deletedCount + chunk.length;
       await Customers.deleteMany({ _id: { $in: chunk } });
+      spinner.succeed(`Successfully deleted ${deletedCount}`);
     },
     (variables, root) => {
       const parentIds = variables.parentIds || [];

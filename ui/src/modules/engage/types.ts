@@ -143,6 +143,10 @@ export type SetLiveMutationResponse = {
   setLiveMutation: (params: { variables: MutationVariables }) => Promise<void>;
 };
 
+export type CopyMutationResponse = {
+  copyMutation: (params: { variables: MutationVariables }) => Promise<void>;
+};
+
 export type SetLiveManualMutationResponse = {
   setLiveManualMutation: (params: {
     variables: MutationVariables;
