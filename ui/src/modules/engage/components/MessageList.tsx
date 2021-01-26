@@ -29,6 +29,7 @@ type Props = {
   loading: boolean;
   queryParams: any;
   emailPercentages: any;
+  refetch: () => void;
 };
 
 class List extends React.Component<Props> {
@@ -214,7 +215,8 @@ class List extends React.Component<Props> {
       toggleBulk,
       loading,
       queryParams,
-      isAllSelected
+      isAllSelected,
+      refetch
     } = this.props;
 
     const actionBar = (
@@ -256,6 +258,7 @@ class List extends React.Component<Props> {
               key={message._id}
               message={message}
               queryParams={queryParams}
+              refetch={refetch}
             />
           ))}
         </tbody>

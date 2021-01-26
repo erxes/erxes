@@ -869,4 +869,36 @@ describe('engage message mutation tests', () => {
 
     mock.restore();
   });
+
+  test('test engageMessageCopy()', async () => {
+    const campaign = await engageMessageFactory();
+
+    const mutation = `
+      mutation engageMessageCopy($_id: String!) {
+        engageMessageCopy(_id: $_id) {
+          _id
+          createdBy
+          scheduleDate {
+            type
+          }
+          title
+          isDraft
+          isLive
+        }
+      }
+    `;
+
+    const response = await graphqlRequest(
+      mutation,
+      'engageMessageCopy',
+      { _id: campaign._id },
+      { dataSources, user: _user }
+    );
+
+    expect(response.createdBy).toBe(_user._id);
+    expect(response.title).toBe(`${campaign.title}-copied`);
+    expect(response.isDraft).toBe(true);
+    expect(response.isLive).toBe(false);
+    expect(response.scheduleDate).toBeFalsy();
+  });
 });
