@@ -159,12 +159,13 @@ export class CommonBuilder<IArgs extends IListArgs> {
   }
 
   public async defaultFilters(): Promise<any> {
-    this.filterList = [];
-    // this.filterList = [{
-    //   terms: {
-    //     integrationId: this.integrationIds
-    //   }
-    // }];
+    this.filterList = [
+      {
+        terms: {
+          'integrationId.keyword': this.integrationIds
+        }
+      }
+    ];
 
     // filter by status
     if (this.params.status === 'closed') {
@@ -270,7 +271,7 @@ export class CommonBuilder<IArgs extends IListArgs> {
 
   // filter by tagId
   public tagFilter(tagId: string) {
-    this.positiveList.push({
+    this.filterList.push({
       match: {
         tagIds: tagId
       }
