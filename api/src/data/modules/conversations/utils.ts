@@ -16,31 +16,45 @@ export interface ICountBy {
   [index: string]: number;
 }
 
-export const countByBrands = async (qb): Promise<ICountBy> => {
-  const counts: ICountBy = {};
+interface IUserArgs {
+  _id: string;
+  code?: string;
+  starredConversationIds?: string[];
+}
 
-  // Count customers by brand
+// Count conversatio  by channel
+const countByChannels = async (
+  qb: any,
+  counts: ICountBy
+): Promise<ICountBy> => {
+  const channels = await Channels.find();
+
+  for (const channel of channels) {
+    await qb.buildAllQueries();
+    await qb.channelFilter(channel._id);
+
+    counts[channel._id] = await qb.runQueries();
+  }
+
+  return counts;
+};
+
+// Count conversation by brand
+const countByBrands = async (qb: any, counts: ICountBy): Promise<ICountBy> => {
   const brands = await Brands.find({});
 
   for (const brand of brands) {
     await qb.buildAllQueries();
     await qb.brandFilter(brand._id);
 
-    counts[brand._id] = await qb.runQueries('count');
+    counts[brand._id] = await qb.runQueries();
   }
 
   return counts;
 };
 
-export const countByTags = async (
-  params: IListArgs,
-  integrationIds: string[],
-  user: IUserArgs
-): Promise<ICountBy> => {
-  const counts: ICountBy = {};
-  const qb = new CommonBuilder(params, integrationIds, user);
-
-  // Count converstaion by tag
+// Count converstaion by tag
+const countByTags = async (qb: any, counts: ICountBy): Promise<ICountBy> => {
   const tags = await Tags.find({ type: 'conversation' }).select('_id');
 
   for (const tag of tags) {
@@ -53,18 +67,11 @@ export const countByTags = async (
   return counts;
 };
 
-export const countByIntegrationTypes = async (
-  params: IListArgs,
-  integrationIds: string[],
-  user: IUserArgs
+// Count conversation by integration
+const countByIntegrationTypes = async (
+  qb: any,
+  counts: ICountBy
 ): Promise<ICountBy> => {
-  const counts: ICountBy = {};
-
-  const qb = new CommonBuilder(params, integrationIds, user);
-
-  await qb.buildAllQueries();
-  console.log(await qb.runQueries(), ' all conversation');
-
   for (const type of KIND_CHOICES.ALL) {
     await qb.buildAllQueries();
     await qb.integrationTypeFilter(type);
@@ -75,11 +82,36 @@ export const countByIntegrationTypes = async (
   return counts;
 };
 
-interface IUserArgs {
-  _id: string;
-  code?: string;
-  starredConversationIds?: string[];
-}
+export const countByConversations = async (
+  params: IListArgs,
+  integrationIds: string[],
+  user: IUserArgs,
+  only: string
+): Promise<ICountBy> => {
+  const counts: ICountBy = {};
+
+  const qb = new CommonBuilder(params, integrationIds, user);
+
+  switch (only) {
+    case 'byChannels':
+      await countByChannels(qb, counts);
+      break;
+
+    case 'byIntegrationTypes':
+      await countByIntegrationTypes(qb, counts);
+      break;
+
+    case 'byBrands':
+      await countByBrands(qb, counts);
+      break;
+
+    case 'byTags':
+      await countByTags(qb, counts);
+      break;
+  }
+
+  return counts;
+};
 
 export class CommonBuilder<IArgs extends IListArgs> {
   public params: IArgs;
@@ -200,9 +232,45 @@ export class CommonBuilder<IArgs extends IListArgs> {
 
     this.filterList.push({
       terms: {
-        integrationId: (channel.integrationIds || []).filter(id =>
+        'integrationId.keyword': (channel.integrationIds || []).filter(id =>
           this.activeIntegrationIds.includes(id)
         )
+      }
+    });
+  }
+
+  public integrationNotFound() {
+    this.filterList.push({
+      match: {
+        integrationId: 'integrationNotFound'
+      }
+    });
+  }
+
+  // filter by brand
+  public async brandFilter(brandId: string) {
+    const integrations = await Integrations.findIntegrations({
+      brandId
+    }).select('_id');
+
+    if (integrations.length === 0) {
+      this.integrationNotFound();
+      return;
+    }
+
+    const integrationIds: string[] = _.intersection(
+      this.integrationIds,
+      _.pluck(integrations, '_id')
+    );
+
+    if (integrationIds.length === 0) {
+      this.integrationNotFound();
+      return;
+    }
+
+    this.filterList.push({
+      terms: {
+        'integrationId.keyword': integrationIds
       }
     });
   }
@@ -303,7 +371,7 @@ export class CommonBuilder<IArgs extends IListArgs> {
 
     this.filterList.push({
       terms: {
-        integrationId: _.pluck(integrations, '_id')
+        'integrationId.keyword': _.pluck(integrations, '_id')
       }
     });
   }
@@ -347,7 +415,7 @@ export class CommonBuilder<IArgs extends IListArgs> {
 
       this.filterList.push({
         terms: {
-          tagIds
+          'tagIds.keyword': tagIds
         }
       });
     }
