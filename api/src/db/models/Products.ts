@@ -25,7 +25,6 @@ export interface IProductModel extends Model<IProductDocument> {
     productFields: IProduct,
   ): Promise<IProductDocument>;
 
-
 }
 
 export const loadProductClass = () => {
@@ -105,7 +104,7 @@ export const loadProductClass = () => {
     }
 
     /**
-     * Merge companies
+     * Merge products
      */
 
     public static async mergeProducts(
@@ -128,8 +127,6 @@ export const loadProductClass = () => {
       let description: string = productFields.description || '';
       let categoryId: string = productFields.categoryId || '';
 
-
-      // Merging company tags
       for (const productId of productIds) {
         const productObj = await Products.getProduct({ _id: productId });
 
@@ -141,7 +138,7 @@ export const loadProductClass = () => {
           ...(productObj.customFieldsData || [])
         ];
 
-        // Merging company's tag into 1 array
+        // Merging products tagIds
         tagIds = tagIds.concat(productTags);
 
         await Products.findByIdAndUpdate(productId, {
@@ -152,7 +149,7 @@ export const loadProductClass = () => {
       // Removing Duplicates
       tagIds = Array.from(new Set(tagIds));
 
-      // Creating company with properties
+      // Creating product with properties
       const product = await Products.createProduct({
         ...productFields,
         customFieldsData,
