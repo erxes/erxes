@@ -95,7 +95,7 @@ export const loadClass = () => {
       const engageMessage = await EngageMessages.findOne({ _id });
 
       if (!engageMessage) {
-        throw new Error('Engage message not found');
+        throw new Error('Campaign not found');
       }
 
       return engageMessage;
@@ -153,7 +153,7 @@ export const loadClass = () => {
       const message = await EngageMessages.findOne({ _id });
 
       if (!message) {
-        throw new Error(`Engage message not found with id ${_id}`);
+        throw new Error(`Campaign not found with id ${_id}`);
       }
 
       await Conversations.removeEngageConversations(_id);
@@ -236,6 +236,7 @@ export const loadClass = () => {
       browserInfo: any;
     }) {
       const { brand, integration, customer, visitor, browserInfo } = params;
+
       if (visitor) {
         delete visitor._id;
         visitor.state = CONTENT_TYPES.VISITOR;

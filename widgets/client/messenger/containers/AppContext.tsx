@@ -530,7 +530,8 @@ export class AppProvider extends React.Component<{}, IState> {
             $payload: String!
             $type: String!
             $conversationId: String
-            $customerId: String!
+            $customerId: String
+            $visitorId: String
             $integrationId: String!
           ) {
             widgetBotRequest(
@@ -539,6 +540,7 @@ export class AppProvider extends React.Component<{}, IState> {
               type: $type
               conversationId: $conversationId
               customerId: $customerId
+              visitorId: $visitorId
               integrationId: $integrationId
             )
           }
@@ -547,14 +549,18 @@ export class AppProvider extends React.Component<{}, IState> {
           conversationId: this.state.activeConversation,
           integrationId: connection.data.integrationId,
           customerId: connection.data.customerId,
+          visitorId: connection.data.visitorId,
           message: newLineToBr(message),
           type,
           payload
         }
       })
       .then(({ data }) => {
-        const { conversationId } = data.widgetBotRequest;
+        const { conversationId , customerId} = data.widgetBotRequest;
 
+        setLocalStorageItem('customerId', customerId);
+        connection.data.customerId = customerId;
+        
         this.setState({
           sendingMessage: false,
           activeConversation: conversationId

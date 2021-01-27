@@ -98,7 +98,8 @@ export const mutations = `
   ): ConversationMessage
 
   widgetBotRequest(
-    customerId: String!
+    customerId: String
+    visitorId: String
     conversationId: String
     integrationId: String!,
     message: String!

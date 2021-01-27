@@ -70,6 +70,7 @@ export interface IEngageMessage {
 export interface IEngageMessageDocument extends IEngageMessage, Document {
   scheduleDate?: IScheduleDateDocument;
   createdBy: string;
+  createdAt: Date;
 
   email?: IEmailDocument;
   messenger?: IMessengerDocument;
