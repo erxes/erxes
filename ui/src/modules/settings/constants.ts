@@ -93,6 +93,14 @@ export const EMPTY_NEW_SEGMENT_CONTENT = {
       title: 'Create your Segment',
       description:
         'Select the property/event you want to filter by, select one of the operators and type in or select the value from the dropdown menu.'
+    },
+    {
+      title: 'See our documentation',
+      description: 'Walk through step by step instructions.',
+      url: 'https://www.erxes.org/user/segments/',
+      urlText: 'Go to the docs',
+      target: '_blank',
+      isOutside: true
     }
   ]
 };
