@@ -12,6 +12,7 @@ import {
   IProductDocument
 } from '../db/models/definitions/deals';
 import './setup.ts';
+import { PRODUCT_STATUSES } from '../db/models/definitions/constants';
 
 describe('Test products model', () => {
   let product: IProductDocument;
@@ -113,16 +114,15 @@ describe('Test products model', () => {
     }
   });
 
-  test('Can not remove products', async () => {
+  test('Remove products and update status', async () => {
     expect.assertions(1);
 
-    try {
-      await Products.removeProducts([product._id]);
-    } catch (e) {
-      expect(e.message).toEqual(
-        `Can not remove products. Following deals are used ${deal.name},${deal2.name}`
-      );
-    }
+    await Products.removeProducts([product._id]);
+
+    const removedProduct = await Products.getProduct({ _id: product._id });
+
+    expect(removedProduct.status).toEqual(PRODUCT_STATUSES.DELETED);
+
   });
 
   test('Remove product', async () => {
@@ -234,4 +234,22 @@ describe('Test products model', () => {
       expect(e.message).toBe("Can't remove a product category");
     }
   });
+
+  test('Can not merge products', async () => {
+    const args: any = {
+      name: `${product.name}`,
+      type: `${product.type}`,
+      description: `${product.description}`,
+      sku: `${product.sku}-update`,
+      categoryId: productCategory._id,
+      unitPrice: '1234',
+    };
+
+    try {
+      await Products.mergeProducts([product._id], args);
+    } catch (e) {
+      expect(e.message).toBe(`Can not merge products. Must choose code field.`);
+    }
+
+  })
 });
