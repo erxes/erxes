@@ -339,7 +339,8 @@ module.exports.startServices = async configs => {
         CUBEJS_DB_TYPE: 'elasticsearch',
         CUBEJS_DB_URL: ELASTICSEARCH_URL,
         SCHEMA_PATH: dasbhoardSchemaPath,
-        REDIS_URL: `redis://${REDIS_HOST}:${REDIS_PORT}?password=${REDIS_PASSWORD}`,
+        REDIS_URL: `redis://${REDIS_HOST}:${REDIS_PORT ||
+          6379}?password=${REDIS_PASSWORD || ''}`,
         REDIS_PASSWORD: REDIS_PASSWORD
       }
     });
