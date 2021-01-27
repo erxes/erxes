@@ -4,8 +4,11 @@ import gql from 'graphql-tag';
 import React from 'react';
 import { useMutation, useQuery } from 'react-apollo';
 import ClientPortal from '../components/ClientPortal';
+import { GeneralFormType } from '../components/Form';
 import mutations from '../graphql/mutations';
 import queries from '../graphql/queries';
+
+type DocTypes = GeneralFormType;
 
 function ClientPortalContainer() {
   const { loading, data } = useQuery(gql(queries.getConfig));
@@ -15,7 +18,7 @@ function ClientPortalContainer() {
     return <Spinner />;
   }
 
-  const handleUpdate = (doc: any) => {
+  const handleUpdate = (doc: DocTypes) => {
     update({ variables: doc })
       .then(() =>
         Alert.success('Successfully updated the Client portal config')

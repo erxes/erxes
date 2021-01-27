@@ -1,7 +1,6 @@
-import Button from 'erxes-ui/lib/components/Button';
 import { __ } from 'modules/common/utils';
 import Sidebar from 'modules/layout/components/Sidebar';
-import { SidebarList } from 'modules/layout/styles';
+import { FieldStyle, SidebarList } from 'modules/layout/styles';
 import React, { useState } from 'react';
 import { CONFIG_TYPES } from '../constants';
 
@@ -11,6 +10,13 @@ type Props = {
 };
 
 const { Title } = Sidebar.Section;
+const {
+  GENERAL,
+  CUSTOM_DOMAIN,
+  ADVANCED,
+  COLOR_FONTS,
+  STYLE_SHEET
+} = CONFIG_TYPES;
 
 function ClientPortalSidebar({ selectedConfig, handleConfigType }: Props) {
   const [selected, setSelected] = useState<string>(selectedConfig);
@@ -23,12 +29,14 @@ function ClientPortalSidebar({ selectedConfig, handleConfigType }: Props) {
 
     return (
       <li>
-        <Button
-          btnStyle={selected === name ? 'simple' : 'link'}
+        <a
+          href="#active"
+          tabIndex={0}
+          className={selected === name ? 'active' : ''}
           onClick={handleClick}
         >
-          {__(label)}
-        </Button>
+          <FieldStyle>{__(label)}</FieldStyle>
+        </a>
       </li>
     );
   }
@@ -38,11 +46,11 @@ function ClientPortalSidebar({ selectedConfig, handleConfigType }: Props) {
       <Sidebar.Section>
         <Title>{__('Configs')}</Title>
         <SidebarList id={'ClientPortalConfigsSidebar'}>
-          {renderButton('General', CONFIG_TYPES.GENERAL)}
-          {renderButton('Advanced Settings', CONFIG_TYPES.ADVANCED)}
-          {renderButton('Custom Domain', CONFIG_TYPES.CUSTOM_DOMAIN)}
-          {renderButton('Color and Fonts', CONFIG_TYPES.COLOR_FONTS)}
-          {renderButton('Stylesheet', CONFIG_TYPES.STYLE_SHEET)}
+          {renderButton(GENERAL.LABEL, GENERAL.VALUE)}
+          {renderButton(ADVANCED.LABEL, ADVANCED.VALUE)}
+          {renderButton(CUSTOM_DOMAIN.LABEL, CUSTOM_DOMAIN.VALUE)}
+          {renderButton(COLOR_FONTS.LABEL, COLOR_FONTS.VALUE)}
+          {renderButton(STYLE_SHEET.LABEL, STYLE_SHEET.VALUE)}
         </SidebarList>
       </Sidebar.Section>
     </Sidebar>

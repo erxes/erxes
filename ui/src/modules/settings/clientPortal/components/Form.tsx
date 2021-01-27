@@ -63,7 +63,7 @@ function Form({ defaultConfigValues = {}, handleUpdate, configType }: Props) {
   };
 
   function renderContent() {
-    if (configType === CONFIG_TYPES.GENERAL) {
+    if (configType === CONFIG_TYPES.GENERAL.VALUE) {
       return <General {...formValues} handleFormChange={handleFormChange} />;
     }
 
