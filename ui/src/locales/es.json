@@ -1651,5 +1651,17 @@
   "Select operator...": "Seleccionar operador ...",
   "Creating lead segment": "Crear segmento de clientes potenciales",
   "Creating visitor segment": "Crear Segmento de visitantes",
-  "Creating company segment": "Crear Segmento de empresa"
+  "Creating company segment": "Crear Segmento de empresa",
+  "Dashboard": "Tablero",
+  "Create a dashboard": "Crea un tablero",
+  "Edit dashboard": "Editar tablero",
+  "Add chart from library": "Agregar gráfico de la biblioteca",
+  "Create a new chart": "Crear un gráfico nuevo",
+  "Reports library": "Biblioteca de informes",
+  "Reports Library": "Biblioteca de informes",
+  "Create custom charts": "Crear gráficos personalizados",
+  "All": "Todas",
+  "Contacts": "Contactos",
+  "Conversation": "Conversacion",
+  "Deal": "Acuerdos"
 }
