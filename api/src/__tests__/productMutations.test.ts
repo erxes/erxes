@@ -246,9 +246,8 @@ describe('Test products mutations', () => {
     );
   });
 
-
   test('Merge product', async () => {
-    let args = {
+    const args = {
       productIds: [product._id],
       productFields: {
         name: product.name,
@@ -272,11 +271,7 @@ describe('Test products mutations', () => {
       }   
     `;
 
-    const product1 = await graphqlRequest(
-      mutation,
-      'productsMerge',
-      args,
-    );
+    const product1 = await graphqlRequest(mutation, 'productsMerge', args);
 
     expect(product1.code).toBe(args.productFields.code);
   });

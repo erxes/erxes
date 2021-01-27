@@ -17,8 +17,8 @@ import { Link } from 'react-router-dom';
 import Form from '../../containers/product/ProductForm';
 import CategoryList from '../../containers/productCategory/CategoryList';
 import { IProduct, IProductCategory } from '../../types';
-import Row from './ProductRow';
 import ProductsMerge from './detail/ProductsMerge';
+import Row from './ProductRow';
 
 interface IProps extends IRouterProps {
   history: any;
@@ -35,7 +35,7 @@ interface IProps extends IRouterProps {
   searchValue: string;
   currentCategory: IProductCategory;
   mergeProducts: () => void;
-  mergeProductLoading
+  mergeProductLoading;
 }
 
 type State = {
@@ -201,7 +201,14 @@ class List extends React.Component<IProps, State> {
     }
 
     const productsMerge = props => {
-      return <ProductsMerge {...props} objects={bulk} save={mergeProducts} mergeProductLoading={mergeProductLoading} />;
+      return (
+        <ProductsMerge
+          {...props}
+          objects={bulk}
+          save={mergeProducts}
+          mergeProductLoading={mergeProductLoading}
+        />
+      );
     };
 
     if (bulk.length > 0) {
@@ -220,15 +227,15 @@ class List extends React.Component<IProps, State> {
             Alert.error(error.message);
           });
 
-          const mergeButton = (
-            <Button btnStyle="primary" size="small" icon="merge">
-              Merge
-            </Button>
-          );
+      const mergeButton = (
+        <Button btnStyle="primary" size="small" icon="merge">
+          Merge
+        </Button>
+      );
 
       actionBarRight = (
         <BarItems>
-        {bulk.length === 2 && (
+          {bulk.length === 2 && (
             <ModalTrigger
               title="Merge Product"
               size="lg"

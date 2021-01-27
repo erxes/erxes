@@ -9,11 +9,11 @@ import List from '../../components/product/ProductList';
 import { mutations, queries } from '../../graphql';
 import {
   CategoryDetailQueryResponse,
+  MergeMutationResponse,
+  MergeMutationVariables,
   ProductRemoveMutationResponse,
   ProductsCountQueryResponse,
-  ProductsQueryResponse,
-  MergeMutationVariables,
-  MergeMutationResponse
+  ProductsQueryResponse
 } from '../../types';
 
 type Props = {
@@ -31,13 +31,11 @@ type FinalProps = {
   MergeMutationResponse;
 
 class ProductListContainer extends React.Component<FinalProps> {
-
   constructor(props) {
     super(props);
 
     this.state = {
-      mergeProductLoading: false,
-
+      mergeProductLoading: false
     };
   }
 
@@ -81,7 +79,9 @@ class ProductListContainer extends React.Component<FinalProps> {
           callback();
           this.setState({ mergeProductLoading: false });
           Alert.success('You successfully merged a product');
-          history.push(`/settings/product-service/details/${result.data.productsMerge._id}`);
+          history.push(
+            `/settings/product-service/details/${result.data.productsMerge._id}`
+          );
         })
         .catch(e => {
           Alert.error(e.message);
@@ -100,7 +100,7 @@ class ProductListContainer extends React.Component<FinalProps> {
       searchValue,
       productsCount: productsCountQuery.productsTotalCount || 0,
       currentCategory: productCategoryDetailQuery.productCategoryDetail || {},
-      mergeProducts    
+      mergeProducts
     };
 
     const productList = props => {
@@ -149,7 +149,7 @@ export default withProps<Props>(
     ),
     graphql<Props, ProductsCountQueryResponse>(gql(queries.productsCount), {
       name: 'productsCountQuery',
-      options: () =>({
+      options: () => ({
         fetchPolicy: 'network-only'
       })
     }),

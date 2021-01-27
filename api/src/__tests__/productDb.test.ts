@@ -5,14 +5,13 @@ import {
   productFactory
 } from '../db/factories';
 import { Deals, ProductCategories, Products } from '../db/models';
-
+import { PRODUCT_STATUSES } from '../db/models/definitions/constants';
 import {
   IDealDocument,
   IProductCategoryDocument,
   IProductDocument
 } from '../db/models/definitions/deals';
 import './setup.ts';
-import { PRODUCT_STATUSES } from '../db/models/definitions/constants';
 
 describe('Test products model', () => {
   let product: IProductDocument;
@@ -122,7 +121,6 @@ describe('Test products model', () => {
     const removedProduct = await Products.getProduct({ _id: product._id });
 
     expect(removedProduct.status).toEqual(PRODUCT_STATUSES.DELETED);
-
   });
 
   test('Remove product', async () => {
@@ -242,7 +240,7 @@ describe('Test products model', () => {
       description: `${product.description}`,
       sku: `${product.sku}-update`,
       categoryId: productCategory._id,
-      unitPrice: '1234',
+      unitPrice: '1234'
     };
 
     try {
@@ -250,6 +248,5 @@ describe('Test products model', () => {
     } catch (e) {
       expect(e.message).toBe(`Can not merge products. Must choose code field.`);
     }
-
-  })
+  });
 });

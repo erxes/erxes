@@ -1,5 +1,7 @@
 import { Model, model } from 'mongoose';
 import { Deals, Fields } from '.';
+import { ICustomField } from './definitions/common';
+import { PRODUCT_STATUSES } from './definitions/constants';
 import {
   IProduct,
   IProductCategory,
@@ -9,22 +11,21 @@ import {
   productSchema
 } from './definitions/deals';
 import { IUserDocument } from './definitions/users';
-import { ICustomField } from './definitions/common';
-import { PRODUCT_STATUSES } from './definitions/constants';
-
 
 export interface IProductModel extends Model<IProductDocument> {
-
-  updateProductCategory(productIds: any, productFields: any, user: IUserDocument);
+  updateProductCategory(
+    productIds: any,
+    productFields: any,
+    user: IUserDocument
+  );
   getProduct(selector: any): Promise<IProductDocument>;
   createProduct(doc: IProduct): Promise<IProductDocument>;
   updateProduct(_id: string, doc: IProduct): Promise<IProductDocument>;
   removeProducts(_ids: string[]): Promise<{ n: number; ok: number }>;
   mergeProducts(
     productIds: string[],
-    productFields: IProduct,
+    productFields: IProduct
   ): Promise<IProductDocument>;
-
 }
 
 export const loadProductClass = () => {
@@ -82,7 +83,6 @@ export const loadProductClass = () => {
      * Remove products
      */
     public static async removeProducts(_ids: string[]) {
-
       const dealProductIds = await Deals.distinct('productsData.productId');
 
       const usedIds: string[] = [];
@@ -94,10 +94,12 @@ export const loadProductClass = () => {
         } else {
           usedIds.push(id);
         }
-      };
+      }
 
       if (dealProductIds.length > 0) {
-        await Products.findByIdAndUpdate(usedIds, { $set: { status: PRODUCT_STATUSES.DELETED } });
+        await Products.findByIdAndUpdate(usedIds, {
+          $set: { status: PRODUCT_STATUSES.DELETED }
+        });
       }
 
       return Products.deleteMany({ _id: { $in: unUsedIds } });
@@ -111,21 +113,22 @@ export const loadProductClass = () => {
       productIds: string[],
       productFields: IProduct
     ) {
-
       const fields = ['name', 'code', 'unitPrice', 'categoryId', 'type'];
 
       for (const field of fields) {
         if (!productFields[field]) {
-          throw new Error(`Can not merge products. Must choose ${field} field.`);
+          throw new Error(
+            `Can not merge products. Must choose ${field} field.`
+          );
         }
       }
 
       let customFieldsData: ICustomField[] = [];
       let tagIds: string[] = [];
-      let name: string = productFields.name || '';
-      let type: string = productFields.type || '';
-      let description: string = productFields.description || '';
-      let categoryId: string = productFields.categoryId || '';
+      const name: string = productFields.name || '';
+      const type: string = productFields.type || '';
+      const description: string = productFields.description || '';
+      const categoryId: string = productFields.categoryId || '';
 
       for (const productId of productIds) {
         const productObj = await Products.getProduct({ _id: productId });
@@ -142,7 +145,12 @@ export const loadProductClass = () => {
         tagIds = tagIds.concat(productTags);
 
         await Products.findByIdAndUpdate(productId, {
-          $set: { status: PRODUCT_STATUSES.DELETED, code: Math.random().toString().concat('^', productObj.code) }
+          $set: {
+            status: PRODUCT_STATUSES.DELETED,
+            code: Math.random()
+              .toString()
+              .concat('^', productObj.code)
+          }
         });
       }
 
@@ -265,7 +273,10 @@ export const loadProductCategoryClass = () => {
     public static async removeProductCategory(_id: string) {
       await ProductCategories.getProductCatogery({ _id });
 
-      let count = await Products.countDocuments({ categoryId: _id, status: { $ne: PRODUCT_STATUSES.DELETED } });
+      let count = await Products.countDocuments({
+        categoryId: _id,
+        status: { $ne: PRODUCT_STATUSES.DELETED }
+      });
       count += await ProductCategories.countDocuments({ parentId: _id });
 
       if (count > 0) {

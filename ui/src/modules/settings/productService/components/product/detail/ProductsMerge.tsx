@@ -1,25 +1,24 @@
-import React from 'react';
 import Button from 'modules/common/components/Button';
-import { Column, Columns, Title } from 'modules/common/styles/chooser';
 import { SmallLoader } from 'modules/common/components/ButtonMutate';
 import Icon from 'modules/common/components/Icon';
+import { Column, Columns, Title } from 'modules/common/styles/chooser';
 import { ModalFooter } from 'modules/common/styles/main';
 import { __ } from 'modules/common/utils';
-import {IProduct, IProductDoc} from '../../../types';
-import {PRODUCT_INFO} from '../../../constants';
+import React from 'react';
+import { PRODUCT_INFO } from '../../../constants';
 import { Info, InfoDetail, InfoTitle } from '../../../styles';
-
+import { IProduct, IProductDoc } from '../../../types';
 
 type Props = {
-    objects: IProduct[];
-    mergeProductLoading: boolean;
-    save: (doc: { ids: string[]; data: any; callback: () => void }) => void;
-    closeModal: () => void;
-  };
-  
-  type State = {
-    selectedValues: any;
-  };
+  objects: IProduct[];
+  mergeProductLoading: boolean;
+  save: (doc: { ids: string[]; data: any; callback: () => void }) => void;
+  closeModal: () => void;
+};
+
+type State = {
+  selectedValues: any;
+};
 
 class ProductsMerge extends React.Component<Props, State> {
   constructor(props) {
@@ -30,18 +29,14 @@ class ProductsMerge extends React.Component<Props, State> {
     };
   }
 
-
   save = (e: React.FormEvent) => {
     e.preventDefault();
     const { objects } = this.props;
     const selectedValues = { ...this.state.selectedValues };
-    
 
-    if(selectedValues.category){
+    if (selectedValues.category) {
       selectedValues.categoryId = selectedValues.category._id;
     }
-
-
 
     this.props.save({
       ids: objects.map(product => product._id),
@@ -52,11 +47,7 @@ class ProductsMerge extends React.Component<Props, State> {
     });
   };
 
-  handleChange = (
-    type: string,
-    key: string,
-    value: string 
-  ) => {
+  handleChange = (type: string, key: string, value: string) => {
     const selectedValues = { ...this.state.selectedValues };
 
     if (type === 'plus-1') {
@@ -77,28 +68,25 @@ class ProductsMerge extends React.Component<Props, State> {
   };
 
   renderProduct = (product: IProductDoc, icon: string) => {
-    const properties = PRODUCT_INFO.ALL;    
-    
+    const properties = PRODUCT_INFO.ALL;
+
     return (
       <React.Fragment>
         <Title>{product.name}</Title>
         <ul>
           {properties.map(info => {
             const key = info.field;
-            
+
             if (!product[key]) {
               return null;
             }
-            
+
             return this.renderProductProperties(key, product[key], icon);
           })}
         </ul>
       </React.Fragment>
     );
   };
-
-
-
 
   renderProductProperties(key: string, value: string, icon: string) {
     return (
@@ -110,7 +98,6 @@ class ProductsMerge extends React.Component<Props, State> {
     );
   }
 
-
   renderTitle(key: string) {
     const title = PRODUCT_INFO[key];
 
@@ -119,15 +106,13 @@ class ProductsMerge extends React.Component<Props, State> {
 
   renderValue(field: string, value: any) {
     switch (field) {
-      
       case 'category':
         return this.renderCategoryInfo(value);
-     
+
       default:
         return <InfoDetail>{value}</InfoDetail>;
     }
   }
-
 
   renderCategoryInfo(value) {
     return (
@@ -138,13 +123,11 @@ class ProductsMerge extends React.Component<Props, State> {
     );
   }
 
-
   render() {
     const { selectedValues } = this.state;
     const { objects, closeModal, mergeProductLoading } = this.props;
 
     const [product1, product2] = objects;
-
 
     return (
       <form onSubmit={this.save}>
@@ -183,7 +166,6 @@ class ProductsMerge extends React.Component<Props, State> {
       </form>
     );
   }
-
 }
 
 export default ProductsMerge;
