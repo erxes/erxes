@@ -48,10 +48,25 @@ const removeRelatedIds = async (tag: ITagDocument) => {
   const relatedIds: string[] = tag.relatedIds || [];
   relatedIds.push(tag._id);
 
+  const doc: Array<{
+    updateOne: {
+      filter: { _id: string };
+      update: { $set: { relatedIds: string[] } };
+    };
+  }> = [];
+
   tags.forEach(async t => {
     const ids = (t.relatedIds || []).filter(id => !relatedIds.includes(id));
-    await Tags.updateOne({ _id: t._id }, { $set: { relatedIds: ids } });
+
+    doc.push({
+      updateOne: {
+        filter: { _id: t._id },
+        update: { $set: { relatedIds: ids } }
+      }
+    });
   });
+
+  await Tags.bulkWrite(doc);
 };
 
 export interface ITagModel extends Model<ITagDocument> {
@@ -253,15 +268,28 @@ export const loadClass = () => {
           ]
         });
 
+        const bulkDoc: Array<{
+          updateOne: {
+            filter: { _id: string };
+            update: { $set: { order: string } };
+          };
+        }> = [];
+
         // updating child categories order
         childTags.forEach(async childTag => {
           let order = childTag.order;
 
           order = order.replace(tag.order, doc.order);
 
-          await Tags.updateOne({ _id: childTag._id }, { $set: { order } });
+          bulkDoc.push({
+            updateOne: {
+              filter: { _id: childTag._id },
+              update: { $set: { order } }
+            }
+          });
         });
 
+        await Tags.bulkWrite(bulkDoc);
         await removeRelatedIds(tag);
       }
 
