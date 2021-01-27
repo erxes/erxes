@@ -281,24 +281,3 @@ describe('Test products mutations', () => {
     expect(product1.code).toBe(args.productFields.code);
   });
 });
-
-
-/*    try {
-      await graphqlRequest(
-        mutation,
-        'productsMerge',
-        args,
-      );
-
-    } catch (e) {
-      expect(e.message).toBe(`Can not merge products. Must choose code field`);
-    }
-
-    args.productFields['code'] = product.code;
-
-    const product1 = await graphqlRequest(
-      mutation,
-      'productsMerge',
-      args,
-    );
- */
