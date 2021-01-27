@@ -1,5 +1,5 @@
-import gql from 'graphql-tag';
 import client from 'apolloClient';
+import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
 import { Alert, renderWithProps } from 'modules/common/utils';
 import { mutations } from 'modules/conformity/graphql/';
