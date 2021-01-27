@@ -251,7 +251,7 @@ describe('Test products mutations', () => {
       productIds: [product._id],
       productFields: {
         name: product.name,
-        unitPrice: product.unitPrice,
+        unitPrice: '123',
         categoryId: productCategory._id,
         type: product.type,
         code: product.code
