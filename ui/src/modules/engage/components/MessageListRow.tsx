@@ -10,6 +10,7 @@ import Tip from 'modules/common/components/Tip';
 import { __ } from 'modules/common/utils';
 import { MESSAGE_KINDS, METHODS } from 'modules/engage/constants';
 import React from 'react';
+import s from 'underscore.string';
 import { HelperText, RowTitle } from '../styles';
 import { IEngageMessage, IEngageMessenger } from '../types';
 
@@ -237,7 +238,7 @@ class Row extends React.Component<Props> {
         <td>{this.renderStatus()}</td>
         <td className="text-primary">
           <Icon icon="cube-2" />
-          <b> {totalCount}</b>
+          <b> {s.numberFormat(totalCount)}</b>
         </td>
         <td>{this.renderType(message)}</td>
 

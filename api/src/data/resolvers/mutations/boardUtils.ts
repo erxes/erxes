@@ -92,7 +92,7 @@ export const itemsAdd = async (
   docModifier: any,
   createModel: any
 ) => {
-  const collection = getCollection(type);
+  const { collection } = getCollection(type);
 
   doc.initialStageId = doc.stageId;
   doc.watchedUserIds = [user._id];
@@ -182,7 +182,7 @@ export const changeItemStatus = async ({
     return;
   }
 
-  const collection = getCollection(type);
+  const { collection } = getCollection(type);
 
   const aboveItems = await collection
     .find({
@@ -401,7 +401,7 @@ export const itemsChange = async (
   user: IUserDocument,
   modelUpdate: any
 ) => {
-  const collection = getCollection(type);
+  const { collection } = getCollection(type);
   const {
     proccessId,
     itemId,
@@ -558,7 +558,7 @@ export const itemsArchive = async (
   proccessId: string,
   user: IUserDocument
 ) => {
-  const collection = getCollection(type);
+  const { collection } = getCollection(type);
 
   const items = await collection.find({
     stageId,

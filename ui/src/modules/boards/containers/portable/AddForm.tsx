@@ -1,4 +1,5 @@
 import gql from 'graphql-tag';
+import client from 'apolloClient';
 import * as compose from 'lodash.flowright';
 import { Alert, renderWithProps } from 'modules/common/utils';
 import { mutations } from 'modules/conformity/graphql/';
@@ -148,10 +149,40 @@ class AddFormContainer extends React.Component<FinalProps> {
     }
   };
 
+  fetchCards = (stageId: string, callback: (cards: any) => void) => {
+    const { type } = this.props.options;
+    let query;
+
+    switch (type) {
+      case 'deal':
+        query = queries.deals;
+        break;
+      case 'task':
+        query = queries.tasks;
+        break;
+      case 'ticket':
+        query = queries.tickets;
+        break;
+      default:
+        break;
+    }
+
+    client
+      .query({
+        query: gql(query),
+        fetchPolicy: 'network-only',
+        variables: { stageId, limit: 0 }
+      })
+      .then(({ data }: any) => {
+        callback(data[`${type}s`]);
+      });
+  };
+
   render() {
     const extendedProps = {
       ...this.props,
-      saveItem: this.saveItem
+      saveItem: this.saveItem,
+      fetchCards: this.fetchCards
     };
 
     return <AddForm {...extendedProps} />;

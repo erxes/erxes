@@ -1,5 +1,5 @@
+import CardSelect from 'modules/boards/containers/portable/CardSelect';
 import Button from 'modules/common/components/Button';
-import FormControl from 'modules/common/components/form/Control';
 import ControlLabel from 'modules/common/components/form/Label';
 import { Alert } from 'modules/common/utils';
 import React from 'react';
@@ -13,8 +13,10 @@ type Props = {
   boardId?: string;
   pipelineId?: string;
   stageId?: string;
+  cardId?: string;
   mailSubject?: string;
   saveItem: (doc: IItemParams, callback: (item: IItem) => void) => void;
+  fetchCards: (stageId: string, callback: (cards: any) => void) => void;
   showSelect?: boolean;
   closeModal: () => void;
   callback?: (item?: IItem) => void;
@@ -26,6 +28,8 @@ type State = {
   disabled: boolean;
   boardId: string;
   pipelineId: string;
+  cards: any;
+  cardId: string;
 };
 
 class AddForm extends React.Component<Props, State> {
@@ -37,6 +41,8 @@ class AddForm extends React.Component<Props, State> {
       boardId: props.boardId || '',
       pipelineId: props.pipelineId || '',
       stageId: props.stageId || '',
+      cardId: props.cardId || '',
+      cards: [],
       name:
         localStorage.getItem(`${props.options.type}Name`) || props.mailSubject
           ? props.mailSubject
@@ -45,26 +51,35 @@ class AddForm extends React.Component<Props, State> {
   }
 
   onChangeField = <T extends keyof State>(name: T, value: State[T]) => {
+    if (name === 'stageId') {
+      const { fetchCards } = this.props;
+      fetchCards(String(value), (cards: any) => {
+        if (cards) {
+          this.setState({ cards });
+        }
+      });
+    }
     this.setState(({ [name]: value } as unknown) as Pick<State, keyof State>);
   };
 
   save = e => {
     e.preventDefault();
 
-    const { stageId, name } = this.state;
+    const { stageId, name, cardId } = this.state;
     const { saveItem, closeModal, callback } = this.props;
 
     if (!stageId) {
       return Alert.error('No stage');
     }
 
-    if (!name) {
-      return Alert.error('Enter name');
+    if (!name && !cardId) {
+      return Alert.error('Please enter name or select card');
     }
 
     const doc = {
       name,
-      stageId
+      stageId,
+      _id: cardId
     };
 
     // before save, disable save button
@@ -112,15 +127,24 @@ class AddForm extends React.Component<Props, State> {
     );
   }
 
-  onChangeName = e => {
-    const name = (e.target as HTMLInputElement).value;
+  onChangeName = option => {
+    const { cardId, name } = option;
 
-    this.onChangeField('name', name);
-
-    localStorage.setItem(`${this.props.options.type}Name`, name);
+    if (cardId) {
+      this.onChangeField('cardId', cardId);
+    } else {
+      this.onChangeField('name', name);
+      localStorage.setItem(`${this.props.options.type}Name`, name);
+    }
   };
 
   render() {
+    const { type } = this.props.options;
+
+    const cardsOptions = this.state.cards.map(c => {
+      return { value: c._id, label: c.name };
+    });
+
     return (
       <form onSubmit={this.save}>
         {this.renderSelect()}
@@ -128,10 +152,11 @@ class AddForm extends React.Component<Props, State> {
         <HeaderRow>
           <HeaderContent>
             <ControlLabel required={true}>Name</ControlLabel>
-            <FormControl
-              value={this.state.name}
-              autoFocus={true}
+            <CardSelect
+              placeholder=""
+              options={cardsOptions}
               onChange={this.onChangeName}
+              type={type}
             />
           </HeaderContent>
         </HeaderRow>

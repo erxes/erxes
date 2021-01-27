@@ -724,6 +724,8 @@ const conversationMutations = {
 
       const item = await update(oldItem._id, doc);
 
+      item.userId = user._id;
+
       await ActivityLogs.createBoardItemLog({ item, contentType: type });
 
       const relTypeIds: string[] = [];
@@ -747,7 +749,7 @@ const conversationMutations = {
       doc.stageId = stageId;
       doc.sourceConversationIds = [_id];
       doc.customerIds = [conversation.customerId];
-      doc.assignedUserIds = [conversation.assignedUserId || ''];
+      doc.assignedUserIds = [conversation.assignedUserId];
 
       const item = await itemsAdd(doc, type, user, docModifier, create);
       return item._id;

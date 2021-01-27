@@ -100,7 +100,7 @@ describe('Test activity model', () => {
 
       item._id = faker.random.uuid();
       item.userId = faker.random.uuid();
-      item.sourceConversationId = '123';
+      item.sourceConversationIds = ['123'];
 
       items.push(item);
     });
@@ -122,7 +122,7 @@ describe('Test activity model', () => {
       expect(log.contentType).toBe('deal');
       expect(log.createdBy).toBe(item.userId);
       expect(log.action).toBe(ACTIVITY_ACTIONS.CONVERT);
-      expect(log.content).toBe(deal.sourceConversationIds);
+      expect(deal.sourceConversationIds?.includes(log.content)).toBe(true);
     }
 
     expect(logs).toBeDefined();

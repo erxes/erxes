@@ -8,13 +8,16 @@ import {
   channelFactory,
   conversationFactory,
   customerFactory,
+  dealFactory,
   integrationFactory,
+  stageFactory,
   userFactory
 } from '../db/factories';
 import {
   ConversationMessages,
   Conversations,
   Customers,
+  Deals,
   Integrations,
   Users
 } from '../db/models';
@@ -902,5 +905,83 @@ describe('Conversation message mutations', () => {
     } else {
       fail('Conversation not found to update operator status');
     }
+  });
+
+  test('Convert conversation to card', async () => {
+    const conversation = await conversationFactory({
+      assignedUserId: user._id
+    });
+    const stage = await stageFactory({ type: 'deal' });
+
+    const mutation = `
+      mutation conversationConvertToCard($_id: String!, $type: String!, $itemId: String, $itemName: String, $stageId: String) {
+        conversationConvertToCard(_id: $_id, type: $type, itemId: $itemId, itemName: $itemName, stageId: $stageId)
+      }
+    `;
+
+    await graphqlRequest(
+      mutation,
+      'conversationConvertToCard',
+      {
+        _id: conversation._id,
+        type: 'deal',
+        itemName: 'test deal',
+        stageId: stage._id
+      },
+      { dataSources }
+    );
+
+    const deal = Deals.findOne({
+      sourceConversationIds: { $in: [conversation._id] }
+    });
+
+    expect(deal).toBeDefined();
+  });
+
+  test('Convert conversation to existing card', async () => {
+    const assignedUser = await userFactory({});
+
+    const stage = await stageFactory({ type: 'deal' });
+
+    const oldConversation = await conversationFactory({});
+    const newConversation = await conversationFactory({
+      assignedUserId: assignedUser._id
+    });
+
+    const deal = await dealFactory({
+      sourceConversationIds: [oldConversation._id],
+      stageId: stage._id,
+      assignedUserIds: [user._id]
+    });
+
+    const mutation = `
+      mutation conversationConvertToCard($_id: String!, $type: String!, $itemId: String, $itemName: String, $stageId: String) {
+        conversationConvertToCard(_id: $_id, type: $type, itemId: $itemId, itemName: $itemName, stageId: $stageId)
+      }
+    `;
+
+    await graphqlRequest(
+      mutation,
+      'conversationConvertToCard',
+      {
+        _id: newConversation._id,
+        type: 'deal',
+        itemId: deal._id,
+        stageId: stage._id
+      },
+      { dataSources }
+    );
+
+    const updatedDeal = await Deals.findOne({
+      sourceConversationIds: { $in: [newConversation._id] }
+    });
+
+    if (!updatedDeal) {
+      throw new Error('deal not found');
+    }
+    const sourcesIds = updatedDeal.sourceConversationIds || [];
+
+    expect(updatedDeal).toBeDefined();
+    expect(sourcesIds.length).toEqual(2);
   });
 });
