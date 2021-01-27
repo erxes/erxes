@@ -185,7 +185,6 @@ const TypeToChartComponent = {
             <Pie
               isAnimationActive={false}
               data={renderData(resultSet.chartPivot)}
-              nameKey="x"
               dataKey={resultSet.seriesNames[0].key}
               fill="#8884d8"
             >
