@@ -276,7 +276,7 @@ class EmailStatistics extends React.Component<Props> {
           <Wrapper.Header
             title={__('Show statistics')}
             breadcrumb={[
-              { title: __('Engage'), link: '/engage' },
+              { title: __('Campaigns'), link: '/campaigns' },
               { title: __('Show statistics') }
             ]}
           />

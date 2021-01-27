@@ -203,6 +203,29 @@ const engageMutations = {
       ...args,
       content: replacedContent
     });
+  },
+
+  // Helps users fill less form fields to create a campaign
+  async engageMessageCopy(_root, { _id }: { _id }, { user }: IContext) {
+    const sourceCampaign = await EngageMessages.getEngageMessage(_id);
+
+    const doc = {
+      ...sourceCampaign.toObject(),
+      createdAt: new Date(),
+      createdBy: user._id,
+      title: `${sourceCampaign.title}-copied`,
+      isDraft: true,
+      isLive: false
+    };
+
+    delete doc._id;
+
+    if (doc.scheduleDate) {
+      // schedule date should be manually set
+      delete doc.scheduleDate;
+    }
+
+    return EngageMessages.createEngageMessage(doc);
   }
 };
 

@@ -248,6 +248,7 @@ interface IEngageMessageFactoryInput {
   fromIntegrationId?: string;
   scheduleDate?: IScheduleDate;
   createdBy?: string;
+  createdAt?: Date;
 }
 
 export const engageMessageFactory = (
@@ -273,7 +274,8 @@ export const engageMessageFactory = (
     },
     scheduleDate: params.scheduleDate || {
       type: 'day'
-    }
+    },
+    createdAt: params.createdAt || new Date()
   });
 
   return engageMessage.save();

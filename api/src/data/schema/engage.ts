@@ -164,4 +164,5 @@ export const mutations = `
   engageMessageVerifyEmail(email: String!): String
   engageMessageRemoveVerifiedEmail(email: String!): String
   engageMessageSendTestEmail(from: String!, to: String!, content: String!, title: String!): String
+  engageMessageCopy(_id: String!): EngageMessage
 `;
