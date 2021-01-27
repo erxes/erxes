@@ -69,6 +69,8 @@ export interface IEngageMessage {
 
 export interface IEngageMessageDocument extends IEngageMessage, Document {
   scheduleDate?: IScheduleDateDocument;
+  createdBy: string;
+  createdAt: Date;
 
   email?: IEmailDocument;
   messenger?: IMessengerDocument;
@@ -82,7 +84,12 @@ export const scheduleDateSchema = new Schema(
     type: field({ type: String, optional: true, label: 'Type' }),
     month: field({ type: String, optional: true, label: 'Month' }),
     day: field({ type: String, optional: true, label: 'Day' }),
-    dateTime: field({type: Date, optional: true, label: 'DateTime', min: [Date.now, `Date time value must be greather than today` ]})
+    dateTime: field({
+      type: Date,
+      optional: true,
+      label: 'DateTime',
+      min: [Date.now, `Date time value must be greather than today`]
+    })
   },
   { _id: false }
 );
@@ -168,6 +175,7 @@ export const engageMessageSchema = schemaWrapper(
     totalCustomersCount: field({ type: Number, optional: true }),
     validCustomersCount: field({ type: Number, optional: true }),
 
-    shortMessage: field({ type: smsSchema, label: 'Short message' })
+    shortMessage: field({ type: smsSchema, label: 'Short message' }),
+    createdBy: field({ type: String, label: 'Created user id' })
   })
 );

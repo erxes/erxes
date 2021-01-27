@@ -190,7 +190,7 @@ module.exports.startServices = async configs => {
   let WIDGETS_DOMAIN = `http://localhost:${PORT_WIDGETS}`;
   let DASHBOARD_UI_DOMAIN = `http://localhost:${PORT_DASHBOARD_UI}`;
   let DASHBOARD_API_DOMAIN = `http://localhost:${PORT_DASHBOARD_API}`;
-  let dasbhoardSchemaPath = '/build/dashboard-api/schema';
+  const dasbhoardSchemaPath = 'build/dashboard-api/schema';
 
   const HELPERS_DOMAIN = `https://helper.erxes.io/`;
 
@@ -200,7 +200,6 @@ module.exports.startServices = async configs => {
     WIDGETS_DOMAIN = `${DOMAIN}/widgets`;
     DASHBOARD_UI_DOMAIN = `${DOMAIN}/dashboard/front`;
     DASHBOARD_API_DOMAIN = `${DOMAIN}/dashboard/api`;
-    dasbhoardSchemaPath = '/schema';
   }
 
   const API_MONGO_URL = generateMongoUrl('erxes');
@@ -333,7 +332,7 @@ module.exports.startServices = async configs => {
         CUBEJS_DB_TYPE: 'elasticsearch',
         CUBEJS_DB_URL: ELASTICSEARCH_URL,
         SCHEMA_PATH: dasbhoardSchemaPath,
-        REDIS_URL: REDIS_HOST,
+        REDIS_URL: `redis://${REDIS_HOST}:${REDIS_PORT}?password=${REDIS_PASSWORD}`,
         REDIS_PASSWORD: REDIS_PASSWORD
       }
     });
@@ -494,7 +493,7 @@ const generateNginxConf = async ({
             proxy_pass http://127.0.0.1:${PORT_DASHBOARD_UI}/;
             ${commonConfig}
         }
-        location /dashboard/api {
+        location /dashboard/api/ {
           proxy_pass http://127.0.0.1:${PORT_DASHBOARD_API}/;
           ${commonConfig}
         }

@@ -48,18 +48,31 @@ connect()
       { $pull: { ids: { $in: result } } }
     );
 
-    const historyObj = await ImportHistory.findOne({ _id: importHistoryId });
+    const importHistory = await ImportHistory.findOne({
+      _id: importHistoryId
+    }).lean();
 
-    if (historyObj && (historyObj.ids || []).length === 0) {
-      await ImportHistory.deleteOne({ _id: importHistoryId });
+    if (importHistory && (importHistory.ids || []).length === 0) {
+      await ImportHistory.updateOne(
+        { _id: importHistoryId },
+        { $set: { status: 'Removed' } }
+      );
     }
 
     mongoose.connection.close();
 
-    parentPort.postMessage('Successfully finished job');
+    parentPort.postMessage({
+      action: 'remove',
+      message: 'Successfully finished the job'
+    });
   })
   .catch(e => {
     mongoose.connection.close();
 
-    parentPort.postMessage(`Finished job with error ${e.message}`);
+    parentPort.postMessage();
+
+    parentPort.postMessage({
+      action: 'remove',
+      message: `Finished job with error ${e.message}`
+    });
   });

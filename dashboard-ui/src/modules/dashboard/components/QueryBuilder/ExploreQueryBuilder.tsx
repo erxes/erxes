@@ -3,7 +3,7 @@ import { Card, Col, Divider, Empty, Menu, Row } from 'antd';
 import { schemaTypes } from 'modules/dashboard/constants';
 import React from 'react';
 import styled from 'styled-components';
-import { ChartRenderer } from '../ChartRenderer';
+import ChartRenderer from '../ChartRenderer';
 import {
   ChartWraper,
   EmptyWrapper,
@@ -13,6 +13,7 @@ import {
   ShadowedHeader
 } from '../styles';
 import ButtonDropdown from './ButtonDropdown';
+import FilterGroup from './FilterGroup';
 import MemberGroup from './MemberGroup';
 import SelectChartType from './SelectChartType';
 import stateChangeHeuristics from './stateChangeHeuristics.js';
@@ -27,6 +28,13 @@ const ControlsRow = styled(Row)`
 const StyledDivider = styled(Divider)`
   margin: 0 12px;
   height: 57px;
+  top: 4px;
+  background: #ddd;
+`;
+
+const StyledDividerHorizintal = styled(Divider)`
+  margin: 12px;
+  height: 1px;
   top: 4px;
   background: #ddd;
 `;
@@ -72,9 +80,6 @@ class ExploreQueryBuilder extends React.Component<Props> {
           dimensions,
           availableDimensions,
           updateDimensions,
-          segments,
-          availableSegments,
-          updateSegments,
           timeDimensions,
           availableTimeDimensions,
           updateTimeDimensions,
@@ -138,6 +143,30 @@ class ExploreQueryBuilder extends React.Component<Props> {
                         </>
                       ) : null}
                     </Row>
+                    {isQueryPresent ? (
+                      <Row
+                        justify="space-around"
+                        align="top"
+                        gutter={24}
+                        style={{
+                          marginBottom: 12
+                        }}
+                      >
+                        <StyledDividerHorizintal type="horizontal" />
+                        <Col span={24}>
+                          <FilterItem>
+                            <Label>Filter by dimension</Label>
+                            <FilterGroup
+                              members={filters}
+                              availableMembers={availableDimensions}
+                              addMemberName="Filter"
+                              updateMethods={updateFilters}
+                              schemaType={type}
+                            />
+                          </FilterItem>
+                        </Col>
+                      </Row>
+                    ) : null}
                   </Col>
                 </ControlsRow>
               </ShadowedHeader>
@@ -162,14 +191,13 @@ class ExploreQueryBuilder extends React.Component<Props> {
               ) : (
                 <EmptyWrapper>
                   <Empty
-                    image="/images/empty.svg"
                     imageStyle={{
                       height: 200
                     }}
                     description={
                       <>
                         <strong>Build Your Query</strong>
-                        <p>Choose a measure or dimension to get started</p>
+                        Choose a measure or dimension to get started
                       </>
                     }
                   />

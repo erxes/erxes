@@ -670,25 +670,6 @@ export const moduleObjects = {
       }
     ]
   },
-  insights: {
-    name: 'insights',
-    description: 'Insights',
-    actions: [
-      {
-        name: 'insightsAll',
-        description: 'All',
-        use: ['manageExportInsights', 'showInsights']
-      },
-      {
-        name: 'manageExportInsights',
-        description: 'Manage export insights'
-      },
-      {
-        name: 'showInsights',
-        description: 'Show insights'
-      }
-    ]
-  },
   knowledgeBase: {
     name: 'knowledgeBase',
     description: 'KnowledgeBase',
@@ -804,7 +785,7 @@ export const moduleObjects = {
       {
         name: 'productsMerge',
         description: 'Merge products'
-      },
+      }
     ]
   },
   users: {
@@ -1079,25 +1060,6 @@ export const moduleObjects = {
       }
     ]
   },
-  emailAppearance: {
-    name: 'emailAppearance',
-    description: 'Email appearance',
-    actions: [
-      {
-        name: 'emailAppearanceAll',
-        description: 'All',
-        use: ['manageEmailAppearance', 'showEmailappearance']
-      },
-      {
-        name: 'showEmailappearance',
-        description: 'Show email appearance'
-      },
-      {
-        name: 'manageEmailAppearance',
-        description: 'Manage email appearance'
-      }
-    ]
-  },
   logs: {
     name: 'logs',
     description: 'Logs',
@@ -1124,6 +1086,77 @@ export const moduleObjects = {
       {
         name: 'manageWebhooks',
         description: 'Manage webhooks'
+      }
+    ]
+  },
+  skillTypes: {
+    name: 'skillTypes',
+    description: 'Skill Types',
+    actions: [
+      {
+        name: 'skillTypesAll',
+        description: 'All',
+        use: [
+          'getSkillTypes',
+          'createSkillType',
+          'updateSkillType',
+          'removeSkillType',
+          'manageSkillTypes'
+        ]
+      },
+      {
+        name: 'getSkillTypes',
+        description: 'Get skill types'
+      },
+      {
+        name: 'createSkillType',
+        description: 'Create skill type'
+      },
+      {
+        name: 'updateSkillType',
+        description: 'Update skill type'
+      },
+      {
+        name: 'removeSkillType',
+        description: 'Remove skill type'
+      }
+    ]
+  },
+  skills: {
+    name: 'skills',
+    description: 'Skills',
+    actions: [
+      {
+        name: 'skillsAll',
+        description: 'All',
+        use: [
+          'getSkill',
+          'getSkills',
+          'createSkill',
+          'updateSkill',
+          'removeSkill',
+          'manageSkills'
+        ]
+      },
+      {
+        name: 'getSkill',
+        description: 'Get skill'
+      },
+      {
+        name: 'getSkills',
+        description: 'Get skills'
+      },
+      {
+        name: 'createSkill',
+        description: 'Create skill'
+      },
+      {
+        name: 'updateSkill',
+        description: 'Update skill'
+      },
+      {
+        name: 'removeSkill',
+        description: 'Remove skill'
       }
     ]
   },

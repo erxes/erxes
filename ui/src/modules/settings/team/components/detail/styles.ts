@@ -23,4 +23,11 @@ const List = styled(SidebarList)`
   }
 `;
 
-export { List };
+const SkillList = styled.div`
+  padding: 10px;
+  button {
+    margin: 4px;
+  }
+`;
+
+export { List, SkillList };

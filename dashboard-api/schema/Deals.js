@@ -12,16 +12,6 @@ cube(`Deals`, {
   },
 
   dimensions: {
-    iscomplete: {
-      sql: `${CUBE}."isComplete"`,
-      type: `string`
-    },
-
-    modifiedBy: {
-      sql: `${CUBE}."modifiedBy"`,
-      type: `string`
-    },
-
     priority: {
       sql: `priority`,
       type: `string`
@@ -37,22 +27,32 @@ cube(`Deals`, {
       type: `string`
     },
 
+    pipelineName: {
+      sql: `${CUBE}."stageId"`,
+      type: `string`
+    },
+
     status: {
       sql: `status`,
       type: `string`
     },
 
-    createdat: {
+    modifiedBy: {
+      sql: `${CUBE}."modifiedBy"`,
+      type: `string`
+    },
+
+    createdDate: {
       sql: `${CUBE}."createdAt"`,
       type: `time`
     },
 
-    closedate: {
+    closeDate: {
       sql: `${CUBE}."closeDate"`,
       type: `time`
     },
 
-    modifiedat: {
+    modifiedDate: {
       sql: `${CUBE}."modifiedAt"`,
       type: `time`
     }

@@ -56,7 +56,8 @@ const connectProviderToNylas = async (uid: string, integrationId?: string) => {
     const {
       access_token,
       account_id,
-      billing_state
+      billing_state,
+      name
     } = await integrateProviderToNylas({
       email,
       kind,
@@ -90,6 +91,7 @@ const connectProviderToNylas = async (uid: string, integrationId?: string) => {
       });
     } else {
       const newAccount = await Accounts.create({
+        name,
         kind,
         email,
         googleAccessToken,

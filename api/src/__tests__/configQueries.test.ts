@@ -72,13 +72,13 @@ describe('configQueries', () => {
       }
     `;
 
-    let config = await graphqlRequest(qry, 'configsStatus');
+    await graphqlRequest(qry, 'configsStatus');
 
     const mock = sinon.stub(utils, 'sendRequest').callsFake(() => {
       return Promise.resolve({ packageVersion: '-' });
     });
 
-    config = await graphqlRequest(qry, 'configsStatus');
+    await graphqlRequest(qry, 'configsStatus');
 
     mock.restore();
   });
@@ -123,5 +123,17 @@ describe('configQueries', () => {
     expect(response).toBe('ok');
 
     mock.restore();
+  });
+
+  test('Default email template', async () => {
+    const qry = `
+      query configsGetEmailTemplate($name: String) {
+        configsGetEmailTemplate(name: $name)
+      }
+    `;
+
+    const template = await graphqlRequest(qry, 'configsGetEmailTemplate');
+
+    expect(template).toBeDefined();
   });
 });

@@ -26,6 +26,7 @@ type Props = {
 type FinalProps = {
   engageMessagesQuery: EngageMessagesQueryResponse;
   engageMessagesTotalCountQuery: EngageMessagesTotalCountQueryResponse;
+  engageStatsQuery: any;
 } & Props &
   IRouterProps;
 
@@ -58,17 +59,23 @@ class MessageListContainer extends React.Component<FinalProps, State> {
   }
 
   refetch = () => {
-    const { engageMessagesQuery, engageMessagesTotalCountQuery } = this.props;
+    const {
+      engageMessagesQuery,
+      engageMessagesTotalCountQuery,
+      engageStatsQuery
+    } = this.props;
 
     engageMessagesQuery.refetch();
     engageMessagesTotalCountQuery.refetch();
+    engageStatsQuery.refetch();
   };
 
   render() {
     const {
       queryParams,
       engageMessagesQuery,
-      engageMessagesTotalCountQuery
+      engageMessagesTotalCountQuery,
+      engageStatsQuery
     } = this.props;
 
     const updatedProps = {
@@ -78,7 +85,9 @@ class MessageListContainer extends React.Component<FinalProps, State> {
       bulk: this.state.bulk,
       isAllSelected: this.state.isAllSelected,
       queryParams,
-      loading: engageMessagesQuery.loading
+      loading: engageMessagesQuery.loading || engageStatsQuery.loading,
+      emailPercentages: engageStatsQuery.engageEmailPercentages || {},
+      refetch: this.refetch
     };
 
     const content = props => {
@@ -107,6 +116,12 @@ const MessageListContainerWithData = withProps<Props>(
         options: props => ({
           variables: generateListQueryVariables(props)
         })
+      }
+    ),
+    graphql<Props, EngageMessagesTotalCountQueryResponse, ListQueryVariables>(
+      gql(queries.engageEmailPercentages),
+      {
+        name: 'engageStatsQuery'
       }
     )
   )(MessageListContainer)

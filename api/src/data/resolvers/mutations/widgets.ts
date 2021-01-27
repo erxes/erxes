@@ -19,7 +19,8 @@ import {
 } from '../../../db/models/Customers';
 import {
   CONVERSATION_OPERATOR_STATUS,
-  CONVERSATION_STATUSES
+  CONVERSATION_STATUSES,
+  KIND_CHOICES
 } from '../../../db/models/definitions/constants';
 import {
   IIntegrationDocument,
@@ -34,14 +35,19 @@ import { trackViewPageEvent } from '../../../events';
 import memoryStorage from '../../../inmemoryStorage';
 import { graphqlPubsub } from '../../../pubsub';
 import { AUTO_BOT_MESSAGES, BOT_MESSAGE_TYPES } from '../../constants';
+import { sendToVisitorLog } from '../../logUtils';
 import {
   registerOnboardHistory,
+  replaceEditorAttributes,
   sendEmail,
   sendMobileNotification,
   sendRequest,
   sendToWebhook
 } from '../../utils';
-import { getOrCreateEngageMessage } from '../../widgetUtils';
+import {
+  convertVisitorToCustomer,
+  getOrCreateEngageMessage
+} from '../../widgetUtils';
 import { conversationNotifReceivers } from './conversations';
 
 interface ISubmission {
@@ -56,6 +62,8 @@ interface IWidgetEmailParams {
   fromEmail: string;
   title: string;
   content: string;
+  customerId?: string;
+  formId?: string;
 }
 
 export const getMessengerData = async (integration: IIntegrationDocument) => {
@@ -63,7 +71,9 @@ export const getMessengerData = async (integration: IIntegrationDocument) => {
   let messengerData = integration.messengerData;
 
   if (messengerData) {
-    messengerData = messengerData.toJSON();
+    if (messengerData.toJSON) {
+      messengerData = messengerData.toJSON();
+    }
 
     const languageCode = integration.languageCode || 'en';
     const messages = (messengerData || {}).messages;
@@ -110,13 +120,90 @@ export const getMessengerData = async (integration: IIntegrationDocument) => {
   };
 };
 
+export const caches = {
+  generateKey(key: string) {
+    return `erxes_${key}`;
+  },
+
+  async get({ key, callback }: { key: string; callback?: any }) {
+    key = this.generateKey(key);
+
+    let object = JSON.parse((await memoryStorage().get(key)) || '{}') || {};
+
+    if (Object.keys(object).length === 0) {
+      object = await callback();
+
+      memoryStorage().set(key, JSON.stringify(object));
+
+      return object;
+    }
+
+    return object;
+  },
+
+  async update(key: string, data: object) {
+    const storageKey = this.generateKey(key);
+
+    const value = await memoryStorage().get(storageKey);
+
+    if (!value) {
+      return;
+    }
+
+    memoryStorage().set(this.generateKey(key), JSON.stringify(data));
+  },
+
+  remove(key: string) {
+    memoryStorage().removeKey(this.generateKey(key));
+  }
+};
+
+const getBrand = async (code: string) => {
+  const brand = await caches.get({
+    key: `brand_${code}`,
+    callback: async () => {
+      return Brands.findOne({ code });
+    }
+  });
+
+  return brand;
+};
+
+const getIntegration = async ({
+  brandId,
+  type,
+  selector,
+  callback
+}: {
+  brandId: string;
+  type: string;
+  selector?: { [key: string]: string | number | boolean };
+  callback?: () => Promise<void>;
+}) => {
+  const integration = await caches.get({
+    key: `integration_${type}_${brandId}`,
+    callback: callback
+      ? callback
+      : async () => {
+          return Integrations.findOne(selector);
+        }
+  });
+
+  if (!integration) {
+    throw new Error('Integration not found');
+  }
+
+  return integration;
+};
+
 const widgetMutations = {
   // Find integrationId by brandCode
   async widgetsLeadConnect(
     _root,
     args: { brandCode: string; formCode: string; cachedCustomerId?: string }
   ) {
-    const brand = await Brands.findOne({ code: args.brandCode });
+    const brand = await getBrand(args.brandCode);
+
     const form = await Forms.findOne({ code: args.formCode });
 
     if (!brand || !form) {
@@ -124,14 +211,15 @@ const widgetMutations = {
     }
 
     // find integration by brandId & formId
-    const integ = await Integrations.findOne({
+    const integ = await getIntegration({
       brandId: brand._id,
-      formId: form._id
+      type: 'lead',
+      selector: {
+        brandId: brand._id,
+        formId: form._id,
+        isActive: true
+      }
     });
-
-    if (!integ) {
-      throw new Error('Integration not found');
-    }
 
     if (integ.leadData && integ.leadData.loadType === 'embedded') {
       await Integrations.increaseViewCount(form._id);
@@ -146,7 +234,7 @@ const widgetMutations = {
     if (integ.leadData?.isRequireOnce && args.cachedCustomerId) {
       const conversation = await Conversations.findOne({
         customerId: args.cachedCustomerId,
-        integrationId: integ.id
+        integrationId: integ._id
       });
       if (conversation) {
         return null;
@@ -298,7 +386,7 @@ const widgetMutations = {
       cachedCustomerId: args.cachedCustomerId
     });
 
-    return { status: 'ok', messageId: message._id };
+    return { status: 'ok', messageId: message._id, customerId: customer._id };
   },
 
   widgetsLeadIncreaseViewCount(_root, { formId }: { formId: string }) {
@@ -328,6 +416,7 @@ const widgetMutations = {
       data?: any;
       cachedCustomerId?: string;
       deviceToken?: string;
+      visitorId?: string;
     }
   ) {
     const {
@@ -339,52 +428,73 @@ const widgetMutations = {
       companyData,
       data,
       cachedCustomerId,
-      deviceToken
+      deviceToken,
+      visitorId
     } = args;
 
     const customData = data;
 
     // find brand
-    const brand = await Brands.findOne({ code: brandCode });
+    const brand = await getBrand(brandCode);
 
     if (!brand) {
-      throw new Error('Brand not found');
+      throw new Error('Invalid configuration');
     }
 
     // find integration
-    const integration = await Integrations.getWidgetIntegration(
-      brandCode,
-      'messenger'
-    );
-
-    if (!integration) {
-      throw new Error('Integration not found');
-    }
-
-    let customer = await Customers.getWidgetCustomer({
-      integrationId: integration._id,
-      cachedCustomerId,
-      email,
-      phone,
-      code
+    const integration = await getIntegration({
+      brandId: brand._id,
+      type: KIND_CHOICES.MESSENGER,
+      callback: async () => {
+        return Integrations.getWidgetIntegration(
+          brandCode,
+          KIND_CHOICES.MESSENGER
+        );
+      }
     });
 
-    const doc = {
-      integrationId: integration._id,
-      email,
-      phone,
-      code,
-      isUser,
-      deviceToken
-    };
+    let customer;
 
-    customer = customer
-      ? await Customers.updateMessengerCustomer({
-          _id: customer._id,
-          doc,
+    if (cachedCustomerId || email || phone || code) {
+      customer = await Customers.getWidgetCustomer({
+        integrationId: integration._id,
+        cachedCustomerId,
+        email,
+        phone,
+        code
+      });
+
+      const doc = {
+        integrationId: integration._id,
+        email,
+        phone,
+        code,
+        isUser,
+        deviceToken
+      };
+
+      customer = customer
+        ? await Customers.updateMessengerCustomer({
+            _id: customer._id,
+            doc,
+            customData
+          })
+        : await Customers.createMessengerCustomer({ doc, customData });
+    }
+
+    if (visitorId) {
+      try {
+        await sendToVisitorLog(
+          { visitorId, integrationId: integration._id },
+          'createOrUpdate'
+        );
+      } catch (_e) {
+        customer = await Customers.createMessengerCustomer({
+          doc: { integrationId: integration._id },
           customData
-        })
-      : await Customers.createMessengerCustomer({ doc, customData });
+        });
+      }
+    }
 
     // get or create company
     if (companyData && companyData.name) {
@@ -404,14 +514,15 @@ const widgetMutations = {
           scopeBrandIds: [brand._id]
         });
       }
-
-      // add company to customer's companyIds list
-      await Conformities.create({
-        mainType: 'customer',
-        mainTypeId: customer._id,
-        relType: 'company',
-        relTypeId: company._id
-      });
+      if (customer) {
+        // add company to customer's companyIds list
+        await Conformities.create({
+          mainType: 'customer',
+          mainTypeId: customer._id,
+          relType: 'company',
+          relTypeId: company._id
+        });
+      }
     }
 
     if (integration.createdUserId) {
@@ -425,11 +536,11 @@ const widgetMutations = {
       uiOptions: integration.uiOptions,
       languageCode: integration.languageCode,
       messengerData: await getMessengerData(integration),
-      customerId: customer._id,
+      customerId: customer && customer._id,
+      visitorId: customer ? null : visitorId,
       brand
     };
   },
-
   /*
    * Create a new message
    */
@@ -437,23 +548,32 @@ const widgetMutations = {
     _root,
     args: {
       integrationId: string;
-      customerId: string;
+      customerId?: string;
+      visitorId?: string;
       conversationId?: string;
       message: string;
+      skillId?: string;
       attachments?: any[];
       contentType: string;
     }
   ) {
     const {
       integrationId,
-      customerId,
+      visitorId,
       conversationId,
       message,
+      skillId,
       attachments,
       contentType
     } = args;
-
     const conversationContent = strip(message || '').substring(0, 100);
+
+    let { customerId } = args;
+
+    if (visitorId && !customerId) {
+      const customer = await convertVisitorToCustomer(visitorId);
+      customerId = customer._id;
+    }
 
     // customer can write a message
     // to the closed conversation even if it's closed
@@ -465,19 +585,9 @@ const widgetMutations = {
 
     const messengerData = integration.messengerData || {};
 
-    const { botEndpointUrl } = messengerData;
+    const { botEndpointUrl, botShowInitialMessage } = messengerData;
 
-    let HAS_BOTENDPOINT_URL = (botEndpointUrl || '').length > 0;
-
-    const getConversationStatus = (IS_CONVERSATION_OPERATOR?: boolean) => {
-      const { OPEN, CLOSED } = CONVERSATION_STATUSES;
-
-      if (IS_CONVERSATION_OPERATOR) {
-        HAS_BOTENDPOINT_URL = false;
-      }
-
-      return !HAS_BOTENDPOINT_URL || IS_CONVERSATION_OPERATOR ? OPEN : CLOSED;
-    };
+    const HAS_BOTENDPOINT_URL = (botEndpointUrl || '').length > 0;
 
     if (conversationId) {
       conversation = await Conversations.findOne({
@@ -491,9 +601,7 @@ const widgetMutations = {
           readUserIds: [],
 
           // reopen this conversation if it's closed
-          status: getConversationStatus(
-            conversation.operatorStatus !== CONVERSATION_OPERATOR_STATUS.BOT
-          )
+          status: CONVERSATION_STATUSES.OPEN
         },
         { new: true }
       );
@@ -505,12 +613,14 @@ const widgetMutations = {
         operatorStatus: HAS_BOTENDPOINT_URL
           ? CONVERSATION_OPERATOR_STATUS.BOT
           : CONVERSATION_OPERATOR_STATUS.OPERATOR,
-        status: getConversationStatus(),
-        content: conversationContent
+        status: CONVERSATION_STATUSES.OPEN,
+        content: conversationContent,
+        ...(skillId ? { skillId } : {})
       });
     }
 
     // create message
+
     const msg = await Messages.createMessage({
       conversationId: conversation._id,
       customerId,
@@ -524,13 +634,18 @@ const widgetMutations = {
       {
         $set: {
           // Reopen its conversation if it's closed
-          status: getConversationStatus(),
+          status: CONVERSATION_STATUSES.OPEN,
 
           // setting conversation's content to last message
           content: conversationContent,
 
           // Mark as unread
-          readUserIds: []
+          readUserIds: [],
+
+          customerId,
+
+          // clear visitorId
+          visitorId: ''
         }
       }
     );
@@ -538,18 +653,20 @@ const widgetMutations = {
     // mark customer as active
     await Customers.markCustomerAsActive(conversation.customerId);
 
-    if (conversation.operatorStatus === CONVERSATION_OPERATOR_STATUS.OPERATOR) {
-      graphqlPubsub.publish('conversationClientMessageInserted', {
-        conversationClientMessageInserted: msg
-      });
-    }
+    graphqlPubsub.publish('conversationClientMessageInserted', {
+      conversationClientMessageInserted: msg
+    });
 
     graphqlPubsub.publish('conversationMessageInserted', {
       conversationMessageInserted: msg
     });
 
     // bot message ================
-    if (HAS_BOTENDPOINT_URL) {
+    if (
+      HAS_BOTENDPOINT_URL &&
+      !botShowInitialMessage &&
+      conversation.operatorStatus === CONVERSATION_OPERATOR_STATUS.BOT
+    ) {
       graphqlPubsub.publish('conversationBotTypingStatus', {
         conversationBotTypingStatus: {
           conversationId: msg.conversationId,
@@ -602,7 +719,7 @@ const widgetMutations = {
       'left'
     );
 
-    if (customerLastStatus === 'left') {
+    if (customerLastStatus === 'left' && customerId) {
       memoryStorage().set(`customer_last_status_${customerId}`, 'joined');
 
       // customer has joined + time
@@ -627,7 +744,7 @@ const widgetMutations = {
       });
     }
 
-    if (!HAS_BOTENDPOINT_URL) {
+    if (!HAS_BOTENDPOINT_URL && customerId) {
       sendMobileNotification({
         title: 'You have a new message',
         body: conversationContent,
@@ -672,15 +789,29 @@ const widgetMutations = {
   async widgetsSaveBrowserInfo(
     _root,
     {
+      visitorId,
       customerId,
       browserInfo
-    }: { customerId: string; browserInfo: IBrowserInfo }
+    }: { visitorId?: string; customerId?: string; browserInfo: IBrowserInfo }
   ) {
     // update location
-    await Customers.updateLocation(customerId, browserInfo);
+
+    if (customerId) {
+      const customer = await Customers.updateLocation(customerId, browserInfo);
+      await Customers.updateSession(customer._id);
+    }
+
+    if (visitorId) {
+      try {
+        await sendToVisitorLog({ visitorId, location: browserInfo }, 'update');
+      } catch (e) {
+        debugBase(e.message);
+      }
+    }
 
     try {
       await trackViewPageEvent({
+        visitorId,
         customerId,
         attributes: { url: browserInfo.url }
       });
@@ -689,9 +820,7 @@ const widgetMutations = {
       debugBase(`Error occurred during widgets save browser info ${e.message}`);
     }
 
-    await Customers.updateSession(customerId);
-
-    return await getOrCreateEngageMessage(customerId, browserInfo);
+    return await getOrCreateEngageMessage(browserInfo, visitorId, customerId);
   },
 
   widgetsSendTypingInfo(
@@ -706,13 +835,34 @@ const widgetMutations = {
   },
 
   async widgetsSendEmail(_root, args: IWidgetEmailParams) {
-    const { toEmails, fromEmail, title, content } = args;
+    const { toEmails, fromEmail, title, content, customerId, formId } = args;
+
+    // do not use Customers.getCustomer() because it throws error if not found
+    const customer = await Customers.findOne({ _id: customerId });
+    const form = await Forms.getForm(formId || '');
+
+    let finalContent = content;
+
+    if (customer && form) {
+      const { customerFields } = await replaceEditorAttributes({
+        content
+      });
+
+      const { replacedContent } = await replaceEditorAttributes({
+        content,
+        customerFields,
+        customer,
+        user: await Users.getUser(form.createdUserId)
+      });
+
+      finalContent = replacedContent || '';
+    }
 
     await sendEmail({
       toEmails,
       fromEmail,
       title,
-      template: { data: { content } }
+      template: { data: { content: finalContent } }
     });
   },
 

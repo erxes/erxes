@@ -1,6 +1,7 @@
 import WithPermission from 'modules/common/components/WithPermission';
 import { __ } from 'modules/common/utils';
 import Wrapper from 'modules/layout/components/Wrapper';
+import { pluginsOfSettings } from 'pluginUtils';
 import React from 'react';
 import { Link } from 'react-router-dom';
 import {
@@ -202,7 +203,7 @@ class Settings extends React.PureComponent {
             )}
             {this.renderBox(
               'Logs',
-              '/images/icons/erxes-07.svg',
+              '/images/icons/erxes-14.svg',
               '/settings/logs',
               'viewLogs'
             )}
@@ -217,6 +218,19 @@ class Settings extends React.PureComponent {
               '/images/icons/erxes-11.svg',
               '/settings/webhooks',
               ''
+            )}
+            {this.renderBox(
+              'Skills',
+              '/images/icons/erxes-07.svg',
+              '/settings/skills',
+              'skillTypesAll',
+              [
+                'getSkillTypes',
+                'getSkill',
+                'getSkills',
+                'manageSkills',
+                'manageSkillTypes'
+              ]
             )}
           </div>
         </Row>
@@ -258,13 +272,6 @@ class Settings extends React.PureComponent {
               '/settings/email-templates',
               'emailTemplateAll',
               ['showEmailTemplates', 'manageEmailTemplate']
-            )}
-            {this.renderBox(
-              'Email Appearance',
-              '/images/icons/erxes-08.svg',
-              '/settings/emails',
-              'emailAppearanceAll',
-              ['manageEmailAppearance', 'showEmailappearance']
             )}
             {this.renderBox(
               'Script manager',
@@ -343,7 +350,7 @@ class Settings extends React.PureComponent {
         </Row>
         <Divider />
         <Row>
-          <RowTitle>{__('Calendar Settings')}</RowTitle>
+          <RowTitle>{__('Calendar & Schedule Settings')}</RowTitle>
           <div id={'SettingsCalendarSettings'}>
             {this.renderBox(
               'Groups & Calendars',
@@ -352,8 +359,16 @@ class Settings extends React.PureComponent {
               'calendarsAll',
               calendarActions
             )}
+            {this.renderBox(
+              'Schedule',
+              '/images/icons/erxes-21.svg',
+              '/settings/schedule',
+              'calendarsAll',
+              calendarActions
+            )}
           </div>
         </Row>
+        {pluginsOfSettings(this.renderBox)}
       </MenusContainer>
     );
 

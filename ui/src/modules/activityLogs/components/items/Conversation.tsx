@@ -133,7 +133,12 @@ class Conversation extends React.Component<Props, { toggleMessage: boolean }> {
   renderAction() {
     const { activity, conversation, comments } = this.props;
     const { _id, integration } = conversation;
+
     let { customer } = conversation;
+
+    if (!customer) {
+      return null;
+    }
 
     let kind = integration ? integration.kind : 'conversation';
 
@@ -209,7 +214,7 @@ class Conversation extends React.Component<Props, { toggleMessage: boolean }> {
           <Header onClick={this.onCollapse}>
             {integration.kind.includes('messenger') ? (
               <span>
-                {__('Conversation with')}
+                {__('Conversation with')}&nbsp;
                 <b>{renderFullName(customer)}</b>
               </span>
             ) : (
@@ -245,10 +250,11 @@ class Conversation extends React.Component<Props, { toggleMessage: boolean }> {
   }
 
   render() {
-    const { conversation, activity } = this.props;
-    const { integration } = conversation;
+    const { conversation = {} as IConversation, activity } = this.props;
 
-    const kind = integration ? integration.kind : 'conversation';
+    const integration = conversation.integration || {};
+
+    const kind = integration.kind ? integration.kind : 'conversation';
 
     const condition =
       activity.contentType === 'comment' ? activity.contentType : kind;

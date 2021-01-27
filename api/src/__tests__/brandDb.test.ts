@@ -32,12 +32,12 @@ describe('Brands db', () => {
 
   test('Get brand', async () => {
     try {
-      await Brands.getBrand('fakeId');
+      await Brands.getBrand({ _id: 'fakeId' });
     } catch (e) {
       expect(e.message).toBe('Brand not found');
     }
 
-    const brandObj = await Brands.getBrand(_brand._id);
+    const brandObj = await Brands.getBrand({ _id: _brand._id });
 
     expect(brandObj).toBeDefined();
   });
@@ -80,20 +80,6 @@ describe('Brands db', () => {
     } catch (e) {
       expect(e.message).toBe('Brand not found with id test');
     }
-  });
-
-  test('Update brand email config', async () => {
-    const brandObj = await Brands.updateEmailConfig(
-      _brand.id,
-      _brand.emailConfig
-    );
-
-    if (!brandObj || !brandObj.emailConfig) {
-      throw new Error('Brand not found');
-    }
-
-    expect(brandObj.emailConfig.type).toBe(_brand.emailConfig.type);
-    expect(brandObj.emailConfig.template).toBe(_brand.emailConfig.template);
   });
 
   test('Manage integrations', async () => {

@@ -7,7 +7,6 @@ import { __ } from 'modules/common/utils';
 import React from 'react';
 import { Capitalize } from '../styles';
 import { IActions, IModule, IPermissionDocument, IUserGroup } from '../types';
-import PermissionForm from './PermissionForm';
 import { filterActions } from './utils';
 
 type Props = {
@@ -20,21 +19,6 @@ type Props = {
 };
 
 class PermissionRow extends React.Component<Props> {
-  renderForm = props => {
-    const { modules, actions, groups, permission, refetchQueries } = this.props;
-
-    const extendedProps = {
-      ...props,
-      modules,
-      actions,
-      groups,
-      refetchQueries,
-      permission
-    };
-
-    return <PermissionForm {...extendedProps} />;
-  };
-
   render() {
     const { permission, actions, removeItem } = this.props;
 

@@ -1,25 +1,16 @@
 import * as Random from 'meteor-random';
 import { Model, model } from 'mongoose';
 import { Integrations } from './';
-import {
-  brandSchema,
-  IBrand,
-  IBrandDocument,
-  IBrandEmailConfig
-} from './definitions/brands';
+import { brandSchema, IBrand, IBrandDocument } from './definitions/brands';
 import { IIntegrationDocument } from './definitions/integrations';
 
 export interface IBrandModel extends Model<IBrandDocument> {
-  getBrand(_id: string): IBrandDocument;
+  getBrand(doc: any): IBrandDocument;
+  getBrandByCode(code: string): IBrandDocument;
   generateCode(code: string): string;
   createBrand(doc: IBrand): IBrandDocument;
   updateBrand(_id: string, fields: IBrand): IBrandDocument;
   removeBrand(_id: string): IBrandDocument;
-
-  updateEmailConfig(
-    _id: string,
-    emailConfig: IBrandEmailConfig
-  ): IBrandDocument;
 
   manageIntegrations({
     _id,
@@ -35,8 +26,8 @@ export const loadClass = () => {
     /*
      * Get a Brand
      */
-    public static async getBrand(_id: string) {
-      const brand = await Brands.findOne({ _id });
+    public static async getBrand(doc: any) {
+      const brand = await Brands.findOne(doc);
 
       if (!brand) {
         throw new Error('Brand not found');
@@ -67,7 +58,10 @@ export const loadClass = () => {
         ...doc,
         code: await this.generateCode(),
         createdAt: new Date(),
-        emailConfig: { type: 'simple' }
+        emailConfig:
+          Object.keys(doc.emailConfig || {}).length > 0
+            ? doc.emailConfig
+            : { type: 'simple' }
       });
     }
 
@@ -84,15 +78,6 @@ export const loadClass = () => {
       }
 
       return brandObj.remove();
-    }
-
-    public static async updateEmailConfig(
-      _id: string,
-      emailConfig: IBrandEmailConfig
-    ) {
-      await Brands.updateOne({ _id }, { $set: { emailConfig } });
-
-      return Brands.findOne({ _id });
     }
 
     public static async manageIntegrations({

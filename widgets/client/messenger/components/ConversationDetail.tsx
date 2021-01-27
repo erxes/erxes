@@ -85,7 +85,7 @@ class ConversationDetail extends React.Component<Props, State> {
       operatorStatus,
       isOnline,
       color,
-      loading
+      loading,
     } = this.props;
 
     const rootClasses = classNames('erxes-content-wrapper', {
@@ -95,6 +95,18 @@ class ConversationDetail extends React.Component<Props, State> {
     const placeholder = !messages.length
       ? __('Send a message')
       : __('Write a reply');
+
+    const handleLeftClick = (e: React.FormEvent<HTMLButtonElement>) => {
+      e.preventDefault();
+      goToConversationList();
+
+      // leave video call if you are in
+      const videoIframe = document.getElementById('erxes-video-iframe');
+
+      if (videoIframe) {
+        videoIframe.remove();
+      }
+    };
 
     return (
       <div className="erxes-conversation-detail" onWheel={this.onWheel}>
@@ -112,17 +124,7 @@ class ConversationDetail extends React.Component<Props, State> {
           }
           toggleHead={this.toggleHead}
           isExpanded={this.state.expanded}
-          onLeftButtonClick={(e: React.FormEvent<HTMLButtonElement>) => {
-            e.preventDefault();
-            goToConversationList();
-
-            // leave video call if you are in
-            const videoIframe = document.getElementById('erxes-video-iframe');
-
-            if (videoIframe) {
-              videoIframe.remove();
-            }
-          }}
+          onLeftButtonClick={handleLeftClick}
         />
 
         <div className="erxes-conversation-content">

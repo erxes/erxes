@@ -1,5 +1,6 @@
 import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
+import Info from 'modules/common/components/Info';
 import Spinner from 'modules/common/components/Spinner';
 import { IFormProps } from 'modules/common/types';
 import { Alert, getEnv, withProps } from 'modules/common/utils';
@@ -69,9 +70,7 @@ class AccountContainer extends React.Component<FinalProps, {}> {
     }
 
     if (fetchApiQuery.error) {
-      return (
-        <span style={{ color: 'red' }}>Integrations api is not running</span>
-      );
+      return <Info bordered={false}>{fetchApiQuery.error.message}</Info>;
     }
 
     const accounts = fetchApiQuery.integrationsFetchApi || [];

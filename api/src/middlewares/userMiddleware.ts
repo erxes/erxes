@@ -65,6 +65,7 @@ const userMiddleware = async (req, _res, next) => {
       // save user in request
       req.user = user;
       req.user.loginToken = token;
+      req.user.sessionCode = req.headers.sessioncode || '';
 
       const currentDate = new Date();
       const machineId = telemetry.getMachineId();

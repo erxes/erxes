@@ -2,6 +2,7 @@ import * as sinon from 'sinon';
 import { graphqlRequest } from '../db/connection';
 import {
   brandFactory,
+  customerFactory,
   engageMessageFactory,
   segmentFactory,
   tagsFactory,
@@ -59,9 +60,11 @@ describe('engageQueries', () => {
   });
 
   test('Engage messages', async () => {
+    const user = await userFactory();
+
     await engageMessageFactory({});
     await engageMessageFactory({});
-    await engageMessageFactory({});
+    await engageMessageFactory({ createdBy: user._id });
 
     const responses = await graphqlRequest(qryEngageMessages, 'engageMessages');
 
@@ -204,7 +207,8 @@ describe('engageQueries', () => {
     expect(response.length).toBe(2);
   });
 
-  test('Enage email delivery report list', async () => {
+  test('Engage email delivery report list', async () => {
+    const customer = await customerFactory();
     const dataSourceMock = sinon
       .stub(dataSources.EngagesAPI, 'engageReportsList')
       .callsFake(() => {
@@ -213,9 +217,13 @@ describe('engageQueries', () => {
             {
               _id: '123',
               status: 'pending'
+            },
+            {
+              _id: '234',
+              customerId: customer._id
             }
           ],
-          totalCount: 1
+          totalCount: 2
         });
       });
 
@@ -243,13 +251,14 @@ describe('engageQueries', () => {
       { dataSources }
     );
 
-    expect(response.list.length).toBe(1);
+    expect(response.list.length).toBe(2);
 
     dataSourceMock.restore();
   });
 
   test('Engage message detail', async () => {
-    const engageMessage = await engageMessageFactory();
+    const user = await userFactory();
+    const engageMessage = await engageMessageFactory({ createdBy: user._id });
 
     const qry = `
       query engageMessageDetail($_id: String) {
@@ -271,6 +280,8 @@ describe('engageQueries', () => {
 
           email
           messenger
+          createdBy
+          createdUser
 
           brands { _id }
           segments { _id }
@@ -294,6 +305,7 @@ describe('engageQueries', () => {
     );
 
     expect(response._id).toBe(engageMessage._id);
+    expect(response.createdBy).toBe(user._id);
 
     const brand = await brandFactory();
     const messenger = { brandId: brand._id, content: 'Content' };
@@ -458,5 +470,25 @@ describe('engageQueries', () => {
     } catch (e) {
       expect(e[0].message).toBe('Engages api is not running');
     }
+  });
+
+  test('Test getAverageStats()', async () => {
+    const qry = `
+      query engageEmailPercentages {
+        engageEmailPercentages {
+          avgBouncePercent
+        }
+      }
+    `;
+
+    const mock = sinon
+      .stub(dataSources.EngagesAPI, 'getAverageStats')
+      .callsFake(() => {
+        return Promise.resolve({ data: { avgBouncePercent: 0 } });
+      });
+
+    await graphqlRequest(qry, 'engageEmailPercentages', {}, { dataSources });
+
+    mock.restore();
   });
 });

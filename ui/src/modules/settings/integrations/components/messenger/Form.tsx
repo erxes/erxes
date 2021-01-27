@@ -22,6 +22,7 @@ import {
   IMessages,
   IMessengerApps,
   IMessengerData,
+  ISkillData,
   IUiOptions
 } from 'modules/settings/integrations/types';
 import React from 'react';
@@ -50,6 +51,7 @@ type State = {
   title: string;
   botEndpointUrl?: string;
   botShowInitialMessage?: boolean;
+  skillData?: ISkillData;
   brandId: string;
   channelIds: string[];
   languageCode: string;
@@ -85,6 +87,7 @@ class CreateMessenger extends React.Component<Props, State> {
     const integration = props.integration || ({} as IIntegration);
     const languageCode = integration.languageCode || 'en';
     const configData = integration.messengerData || {
+      skillData: undefined,
       notifyCustomer: false,
       requireAuth: true,
       showChat: true,
@@ -104,6 +107,7 @@ class CreateMessenger extends React.Component<Props, State> {
       title: integration.name,
       botEndpointUrl: configData.botEndpointUrl,
       botShowInitialMessage: configData.botShowInitialMessage,
+      skillData: configData.skillData,
       brandId: integration.brandId || '',
       languageCode,
       channelIds: channels.map(item => item._id) || [],
@@ -184,7 +188,8 @@ class CreateMessenger extends React.Component<Props, State> {
       showLauncher,
       forceLogoutWhenResolve,
       showVideoCallRequest,
-      messengerApps
+      messengerApps,
+      skillData
     } = this.state;
 
     if (!languageCode) {
@@ -199,6 +204,24 @@ class CreateMessenger extends React.Component<Props, State> {
       return Alert.error('Choose a brand');
     }
 
+    if (skillData) {
+      const skillOptions = (skillData as ISkillData).options || [];
+
+      if (skillOptions.length === 0) {
+        return Alert.error('Please add skill options');
+      }
+
+      if (skillOptions.length === 1) {
+        return Alert.error('Please add more than one skill option');
+      }
+
+      for (const option of skillOptions) {
+        if (!option.label || !option.skillId) {
+          return Alert.error('Please select skill or enter label');
+        }
+      }
+    }
+
     const links = {
       facebook: linkify(facebook),
       twitter: linkify(twitter),
@@ -211,6 +234,7 @@ class CreateMessenger extends React.Component<Props, State> {
       channelIds,
       languageCode: this.state.languageCode,
       messengerData: {
+        skillData,
         botEndpointUrl,
         botShowInitialMessage,
         notifyCustomer: this.state.notifyCustomer,
@@ -301,7 +325,8 @@ class CreateMessenger extends React.Component<Props, State> {
       showLauncher,
       forceLogoutWhenResolve,
       showVideoCallRequest,
-      channelIds
+      channelIds,
+      skillData
     } = this.state;
 
     const { integration } = this.props;
@@ -356,6 +381,7 @@ class CreateMessenger extends React.Component<Props, State> {
                 onClick={this.onStepClick.bind(null, 'intro')}
               >
                 <Intro
+                  skillData={skillData}
                   onChange={this.onChange}
                   messages={messages}
                   languageCode={languageCode}

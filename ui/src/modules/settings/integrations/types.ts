@@ -19,6 +19,7 @@ export interface IPages {
   id: string;
   name?: string;
   checked?: boolean;
+  isUsed?: boolean;
 }
 
 export interface IImapForm {
@@ -62,9 +63,19 @@ export interface IMessages {
   [key: string]: IMessagesItem;
 }
 
+export interface ISkillData {
+  typeId: string;
+  options: Array<{
+    label: string;
+    response: string;
+    skillId: string;
+  }>;
+}
+
 export interface IMessengerData {
   botEndpointUrl?: string;
   botShowInitialMessage?: boolean;
+  skillData?: ISkillData;
   messages?: IMessages;
   notifyCustomer?: boolean;
   supporterIds?: string[];
@@ -119,6 +130,11 @@ export interface IMessengerApps {
   leads?: ILead[];
 }
 
+interface IIntegartionHealthStatus {
+  status: string;
+  error: string;
+}
+
 export interface IIntegration {
   _id: string;
   kind: string;
@@ -136,6 +152,7 @@ export interface IIntegration {
   brand: IBrand;
   channels: IChannel[];
   isActive?: boolean;
+  healthStatus?: IIntegartionHealthStatus;
   webhookData?: IWebhookData;
   leadMessengerApps?: ILeadMessengerApp[];
   websiteMessengerApps?: IWebsiteMessengerApp[];
@@ -337,6 +354,10 @@ export type EditIntegrationMutationResponse = {
 
 export type RemoveMutationResponse = {
   removeMutation: (params: { variables: { _id: string } }) => Promise<any>;
+};
+
+export type RepairMutationResponse = {
+  repairIntegration: (params: { variables: { _id: string } }) => Promise<any>;
 };
 
 export type RemoveAccountMutationResponse = {

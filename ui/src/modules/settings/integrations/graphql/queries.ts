@@ -105,6 +105,7 @@ const integrations = `
         title
         code
       }
+      healthStatus
     }
   }
 `;

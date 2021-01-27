@@ -1,4 +1,10 @@
+import {
+  putCreateLog as putCreateLogC,
+  putDeleteLog as putDeleteLogC,
+  putUpdateLog as putUpdateLogC
+} from 'erxes-api-utils';
 import * as _ from 'underscore';
+import { IBrowserInfo } from '../db/models/Customers';
 
 import { IPipelineDocument } from '../db/models/definitions/boards';
 import { IChannelDocument } from '../db/models/definitions/channels';
@@ -49,7 +55,9 @@ import {
   Users,
   UsersGroups
 } from '../db/models/index';
+import { debugBase } from '../debuggers';
 import messageBroker from '../messageBroker';
+import { callAfterMutation } from '../pluginUtils';
 import { MODULE_NAMES, RABBITMQ_QUEUES } from './constants';
 import {
   getSubServiceDomain,
@@ -78,6 +86,12 @@ interface IContentTypeParams {
   contentTypeId: string;
 }
 
+export interface IVisitorLogParams {
+  visitorId: string;
+  integrationId?: string;
+  location?: IBrowserInfo;
+}
+
 /**
  * @param object - Previous state of the object
  * @param newData - Requested update data
@@ -90,10 +104,6 @@ export interface ILogDataParams {
   newData?: object;
   extraDesc?: object[];
   updatedDocument?: any;
-}
-
-interface IFinalLogParams extends ILogDataParams {
-  action: string;
 }
 
 export interface ILogQueryParams {
@@ -1397,23 +1407,11 @@ export const putCreateLog = async (
 ) => {
   await registerOnboardHistory({ type: `${params.type}Create`, user });
 
-  const descriptions = await gatherDescriptions({
-    action: LOG_ACTIONS.CREATE,
-    type: params.type,
-    obj: params.object
-  });
-
   await sendToWebhook(LOG_ACTIONS.CREATE, params.type, params);
 
-  return putLog(
-    {
-      ...params,
-      action: LOG_ACTIONS.CREATE,
-      extraDesc: descriptions.extraDesc,
-      description: params.description || descriptions.description
-    },
-    user
-  );
+  await callAfterMutation({ ...params, action: LOG_ACTIONS.CREATE }, user);
+
+  return putCreateLogC(messageBroker, gatherDescriptions, params, user);
 };
 
 /**
@@ -1425,24 +1423,11 @@ export const putUpdateLog = async (
   params: ILogDataParams,
   user: IUserDocument
 ) => {
-  const descriptions = await gatherDescriptions({
-    action: LOG_ACTIONS.UPDATE,
-    type: params.type,
-    obj: params.object,
-    updatedDocument: params.updatedDocument
-  });
-
   await sendToWebhook(LOG_ACTIONS.UPDATE, params.type, params);
 
-  return putLog(
-    {
-      ...params,
-      action: LOG_ACTIONS.UPDATE,
-      description: params.description || descriptions.description,
-      extraDesc: descriptions.extraDesc
-    },
-    user
-  );
+  await callAfterMutation({ ...params, action: LOG_ACTIONS.UPDATE }, user);
+
+  return putUpdateLogC(messageBroker, gatherDescriptions, params, user);
 };
 
 /**
@@ -1454,38 +1439,11 @@ export const putDeleteLog = async (
   params: ILogDataParams,
   user: IUserDocument
 ) => {
-  const descriptions = await gatherDescriptions({
-    action: LOG_ACTIONS.DELETE,
-    type: params.type,
-    obj: params.object
-  });
-
   await sendToWebhook(LOG_ACTIONS.DELETE, params.type, params);
 
-  return putLog(
-    {
-      ...params,
-      action: LOG_ACTIONS.DELETE,
-      extraDesc: descriptions.extraDesc,
-      description: params.description || descriptions.description
-    },
-    user
-  );
-};
+  await callAfterMutation({ ...params, action: LOG_ACTIONS.DELETE }, user);
 
-const putLog = async (params: IFinalLogParams, user: IUserDocument) => {
-  try {
-    return messageBroker().sendMessage(RABBITMQ_QUEUES.PUT_LOG, {
-      ...params,
-      createdBy: user._id,
-      unicode: user.username || user.email || user._id,
-      object: JSON.stringify(params.object),
-      newData: JSON.stringify(params.newData),
-      extraDesc: JSON.stringify(params.extraDesc)
-    });
-  } catch (e) {
-    return e.message;
-  }
+  return putDeleteLogC(messageBroker, gatherDescriptions, params, user);
 };
 
 /**
@@ -1503,4 +1461,36 @@ export const fetchLogs = (params: ILogQueryParams) => {
     },
     'Failed to connect to logs api. Check whether LOGS_API_DOMAIN env is missing or logs api is not running'
   );
+};
+
+export const sendToVisitorLog = async (params: IVisitorLogParams, action) => {
+  const LOGS_DOMAIN = getSubServiceDomain({ name: 'LOGS_API_DOMAIN' });
+  try {
+    const response = await sendRequest(
+      {
+        url: `${LOGS_DOMAIN}/health`,
+        method: 'get'
+      },
+      'Failed to connect to logs api. Check whether LOGS_API_DOMAIN env is missing or logs api is not running'
+    );
+
+    if (response === 'ok') {
+      return messageBroker().sendMessage(RABBITMQ_QUEUES.VISITOR_LOG, {
+        action,
+        data: params
+      });
+    }
+
+    throw new Error('Logger api is not running');
+  } catch (e) {
+    debugBase('Logger is not running. Error: ', e.message);
+    throw new Error(e.message);
+  }
+};
+
+export const getVisitorLog = async visitorId => {
+  return await messageBroker().sendRPCMessage(RABBITMQ_QUEUES.RPC_VISITOR_LOG, {
+    action: 'get',
+    data: { visitorId }
+  });
 };

@@ -60,44 +60,50 @@ const webhookMiddleware = async (req, res, next) => {
       vm.run(webhookData.script);
     }
 
-    const customFieldsData: ICustomField[] = [];
+    let customFieldsData: ICustomField[] = [];
 
     if (params.customFields) {
-      params.customFields.forEach(async element => {
-        const customField = await Fields.findOne({
-          contentType: 'customer',
-          text: element.name
-        });
+      customFieldsData = await Promise.all(
+        params.customFields.map(async element => {
+          const customField = await Fields.findOne({
+            contentType: 'customer',
+            text: element.name
+          });
 
-        if (customField) {
-          let value = element.value;
-          if (customField.validation === 'date') {
-            value = new Date(element.value);
+          if (customField) {
+            let value = element.value;
+            if (customField.validation === 'date') {
+              value = new Date(element.value);
+            }
+
+            const customFieldData = {
+              field: customField._id,
+              value
+            };
+            return customFieldData;
           }
-
-          const customFieldData = {
-            field: customField._id,
-            value
-          };
-          customFieldsData.push(customFieldData);
-        }
-      });
+        })
+      );
     }
 
     // get or create customer
     let customer = await findCustomer(params);
 
+    const doc = {
+      primaryEmail: params.customerPrimaryEmail,
+      primaryPhone: params.customerPrimaryPhone,
+      code: params.customerCode,
+      firstName: params.customerFirstName,
+      lastName: params.customerLastName,
+      avatar: params.customerAvatar,
+      customFieldsData
+    };
+
     if (!customer) {
-      customer = await Customers.createCustomer({
-        primaryEmail: params.customerPrimaryEmail,
-        primaryPhone: params.customerPrimaryPhone,
-        code: params.customerCode,
-        firstName: params.customerFirstName,
-        lastName: params.customerLastName,
-        avatar: params.customerAvatar,
-        customFieldsData
-      });
+      customer = await Customers.createCustomer(doc);
     }
+
+    customer = await Customers.updateCustomer(customer._id, doc);
 
     // get or create conversation
     let conversation = await Conversations.findOne({

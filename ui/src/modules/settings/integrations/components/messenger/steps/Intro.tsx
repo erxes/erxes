@@ -3,11 +3,13 @@ import FormGroup from 'modules/common/components/form/Group';
 import ControlLabel from 'modules/common/components/form/Label';
 import { FlexItem, LeftItem } from 'modules/common/components/step/styles';
 import { __ } from 'modules/common/utils';
-import { IMessages } from 'modules/settings/integrations/types';
+import BuildSkill from 'modules/settings/integrations/containers/messenger/BuildSkill';
+import { IMessages, ISkillData } from 'modules/settings/integrations/types';
 import { SubHeading } from 'modules/settings/styles';
 import React from 'react';
 
 type Props = {
+  skillData?: ISkillData;
   onChange: (
     name: 'supporterIds' | 'messages',
     value: IMessages | string[]
@@ -42,7 +44,7 @@ class Intro extends React.Component<Props, State> {
   };
 
   render() {
-    const { languageCode } = this.props;
+    const { languageCode, skillData } = this.props;
     const message = this.state.messages[languageCode] || {};
 
     const welcomeOnChange = e =>
@@ -95,6 +97,10 @@ class Intro extends React.Component<Props, State> {
               value={message.thank}
               onChange={thankMessage}
             />
+          </FormGroup>
+
+          <FormGroup>
+            <BuildSkill skillData={skillData} onChange={this.props.onChange} />
           </FormGroup>
         </LeftItem>
       </FlexItem>

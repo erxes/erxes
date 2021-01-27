@@ -60,6 +60,7 @@ export interface IEmailParams {
   fromEmail: string;
   title: string;
   content: string;
+  formId: string;
 }
 
 export interface IIntegrationTwitterData {
@@ -97,6 +98,14 @@ export interface IIntegrationMessengerDataMessagesItem {
 }
 
 export interface IIntegrationMessengerData {
+  skillData?: {
+    typeId: string,
+    options: Array<{
+      response: string;
+      label: string;
+      skillId: string;
+    }>
+  };
   botEndpointUrl?: string;
   botShowInitialMessage?: boolean;
   supporterIds: string[];

@@ -38,6 +38,31 @@ type Event = {
 
 const calendarMutations = {
   /**
+   * Create a new schedule page
+   */
+  async createSchedulePage(_root, doc: object, { dataSources }: IContext) {
+    return dataSources.IntegrationsAPI.createSchedulePage(doc);
+  },
+
+  /**
+   * Edit a schedule page
+   */
+  async editSchedulePage(_root, doc: object, { dataSources }: IContext) {
+    return dataSources.IntegrationsAPI.editSchedulePage(doc);
+  },
+
+  /**
+   * Delete schedule page
+   */
+  async deleteSchedulePage(
+    _root,
+    doc: { pageId: string },
+    { dataSources }: IContext
+  ) {
+    return dataSources.IntegrationsAPI.deleteSchedulePage(doc);
+  },
+
+  /**
    * Create a new calendar event
    */
   async createCalendarEvent(_root, doc: Event, { dataSources }: IContext) {

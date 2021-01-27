@@ -27,7 +27,7 @@ export const fetchBySegments = async (
   if (contentType !== 'company') {
     propertyNegative.push({
       term: {
-        status: 'Deleted'
+        status: 'deleted'
       }
     });
   }
@@ -58,7 +58,9 @@ export const fetchBySegments = async (
       }
     });
 
-    idsByEvents = eventsResponse.hits.hits.map(hit => hit._source[idField]);
+    idsByEvents = eventsResponse.hits.hits
+      .map(hit => hit._source[idField])
+      .filter(_id => _id);
 
     propertyPositive.push({
       terms: {

@@ -57,7 +57,7 @@ describe('engage messages model tests', () => {
     try {
       await EngageMessages.getEngageMessage('fakeId');
     } catch (e) {
-      expect(e.message).toBe('Engage message not found');
+      expect(e.message).toBe('Campaign not found');
     }
 
     const response = await EngageMessages.getEngageMessage(_message._id);
@@ -74,7 +74,8 @@ describe('engage messages model tests', () => {
       brandIds: [_brand._id],
       tagIds: [_tag._id],
       isLive: true,
-      isDraft: false
+      isDraft: false,
+      createdBy: _user._id
     };
 
     const message = await EngageMessages.createEngageMessage(doc);
@@ -86,6 +87,7 @@ describe('engage messages model tests', () => {
     expect(message.tagIds).toEqual(expect.arrayContaining(doc.tagIds));
     expect(message.isLive).toEqual(doc.isLive);
     expect(message.isDraft).toEqual(doc.isDraft);
+    expect(message.createdBy).toBe(doc.createdBy);
   });
 
   test('update messages', async () => {
@@ -133,7 +135,7 @@ describe('engage messages model tests', () => {
     const message = await EngageMessages.findOne({ _id: _message._id });
 
     if (!message) {
-      throw new Error('Engage message not found');
+      throw new Error('Campaign not found');
     }
 
     expect(message.isLive).toEqual(true);
@@ -145,21 +147,19 @@ describe('engage messages model tests', () => {
     const message = await EngageMessages.findOne({ _id: _message._id });
 
     if (!message) {
-      throw new Error('Engage message not found');
+      throw new Error('Campaign not found');
     }
 
     expect(message.isLive).toEqual(false);
   });
 
-  test('Engage message remove not found', async () => {
+  test('Campaign remove that throws not found exception', async () => {
     expect.assertions(1);
 
     try {
       await EngageMessages.removeEngageMessage(_segment._id);
     } catch (e) {
-      expect(e.message).toEqual(
-        `Engage message not found with id ${_segment._id}`
-      );
+      expect(e.message).toEqual(`Campaign not found with id ${_segment._id}`);
     }
   });
 
@@ -242,8 +242,8 @@ describe('createConversation', () => {
     const replacedContent = 'hi Full name';
 
     const kwargs = {
-      customer: _customer,
-      integration: _integration,
+      customerId: _customer._id,
+      integrationId: _integration._id,
       user,
       replacedContent,
       engageData: engageDataFactory({
@@ -367,8 +367,8 @@ describe('createConversation', () => {
     });
 
     response = await EngageMessages.createOrUpdateConversationAndMessages({
-      customer: _customer,
-      integration: _integration,
+      customerId: _customer._id,
+      integrationId: _integration._id,
       user,
       replacedContent,
       engageData: {

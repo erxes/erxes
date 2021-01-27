@@ -135,7 +135,7 @@ describe('Test tags model', () => {
     const tagObj = await Tags.findOne({ _id: _tag._id });
 
     if (!messageObj || !messageObj.tagIds) {
-      throw new Error('Engage message not found');
+      throw new Error('Campaign not found');
     }
 
     if (!tagObj) {

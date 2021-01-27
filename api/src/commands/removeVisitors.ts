@@ -1,0 +1,59 @@
+import * as dotenv from 'dotenv';
+import * as ora from 'ora';
+import { stream } from '../data/bulkUtils';
+import { connect } from '../db/connection';
+import { Conversations, Customers } from '../db/models';
+
+dotenv.config();
+
+const command = async () => {
+  console.log(`Process started at: ${new Date()}`);
+
+  await connect();
+
+  const customers = await Customers.aggregate([
+    { $match: { $and: [{ state: 'visitor' }, { profileScore: 0 }] } },
+    { $project: { _id: '$_id' } }
+  ]);
+
+  const customerIds = customers.map(c => c._id);
+
+  const conversations = await Conversations.find().distinct('customerId');
+
+  const idsToRemove = customerIds.filter(e => !conversations.includes(e));
+
+  const spinnerOptions = {
+    prefixText: `Collected visitors count: ${idsToRemove.length}`
+  };
+  const spinner = ora(spinnerOptions);
+  spinner.start();
+  let deletedCount = 0;
+  await stream(
+    async chunk => {
+      deletedCount = deletedCount + chunk.length;
+      await Customers.deleteMany({ _id: { $in: chunk } });
+      spinner.succeed(`Successfully deleted ${deletedCount}`);
+    },
+    (variables, root) => {
+      const parentIds = variables.parentIds || [];
+
+      parentIds.push(root._id);
+
+      variables.parentIds = parentIds;
+    },
+    () => {
+      return Customers.find(
+        {
+          _id: { $in: idsToRemove }
+        },
+        { _id: 1 }
+      ) as any;
+    },
+    1000
+  );
+};
+
+command().then(() => {
+  console.log(`Process finished at: ${new Date()}`);
+  process.exit();
+});

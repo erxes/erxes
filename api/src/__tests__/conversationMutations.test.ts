@@ -390,6 +390,43 @@ describe('Conversation message mutations', () => {
     }
 
     mock.restore();
+
+    const mock2 = sinon
+      .stub(messageBroker(), 'sendRPCMessage')
+      .callsFake(() => {
+        throw new Error();
+      });
+
+    try {
+      await graphqlRequest(addMutation, 'conversationMessageAdd', args, {
+        dataSources
+      });
+    } catch (e) {
+      expect(e).toBeDefined();
+    }
+
+    mock2.restore();
+  });
+
+  test('Add conversation message using third party integration with error', async () => {
+    const mock = sinon.stub(messageBroker(), 'sendRPCMessage').callsFake(() => {
+      throw new Error();
+    });
+
+    const args = {
+      conversationId: facebookConversation._id,
+      content: 'content'
+    };
+
+    try {
+      await graphqlRequest(addMutation, 'conversationMessageAdd', args, {
+        dataSources
+      });
+    } catch (e) {
+      expect(e).toBeDefined();
+    }
+
+    mock.restore();
   });
 
   test('Reply facebook comment', async () => {

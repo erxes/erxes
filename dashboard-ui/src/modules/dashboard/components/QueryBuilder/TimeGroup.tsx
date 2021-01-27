@@ -51,8 +51,9 @@ const TimeGroup = ({
             }
             availableMembers={availableMembers}
             schemaType={type}
+            addMemberName={addMemberName}
           >
-            {m.dimension.title}
+            {m.dimension.shortTitle}
           </MemberDropdown>
         </RemoveButtonGroup>,
         <strong key={`${m.dimension.name}-for`}>FOR</strong>,
@@ -87,6 +88,7 @@ const TimeGroup = ({
           type="dashed"
           icon={<Icon icon="plus-1" />}
           schemaType={type}
+          addMemberName={addMemberName}
         >
           {addMemberName}
         </MemberDropdown>

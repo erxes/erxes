@@ -24,7 +24,12 @@ import {
   Customers as FacebookCustomers,
   Posts as FacebookPosts
 } from './facebook/models';
-import { getPageAccessToken, unsubscribePage } from './facebook/utils';
+import {
+  getPageAccessToken,
+  refreshPageAccesToken,
+  subscribePage,
+  unsubscribePage
+} from './facebook/utils';
 import { revokeToken, unsubscribeUser } from './gmail/api';
 import {
   ConversationMessages as GmailConversationMessages,
@@ -180,6 +185,11 @@ export const removeIntegration = async (
       }
     } catch (e) {
       debugGmail('Failed to unsubscribe gmail account');
+
+      if (e.message.includes('Token has been expired or revoked')) {
+        return;
+      }
+
       throw e;
     }
   }
@@ -517,7 +527,7 @@ export const removeAccount = async (
 
   const integrations = await Integrations.find({ accountId: account._id });
 
-  if (integrations.length) {
+  if (integrations.length > 0) {
     for (const integration of integrations) {
       try {
         const response = await removeIntegration(integration.erxesApiId, true);
@@ -531,6 +541,31 @@ export const removeAccount = async (
   await Accounts.deleteOne({ _id });
 
   return { erxesApiIds };
+};
+
+export const repairIntegrations = async (
+  integrationId: string
+): Promise<true | Error> => {
+  const integration = await Integrations.findOne({ erxesApiId: integrationId });
+
+  for (const pageId of integration.facebookPageIds) {
+    const pageTokens = await refreshPageAccesToken(pageId, integration);
+
+    await subscribePage(pageId, pageTokens[pageId]);
+
+    await Integrations.remove({
+      erxesApiId: { $ne: integrationId },
+      facebookPageIds: pageId,
+      kind: integration.kind
+    });
+  }
+
+  await Integrations.updateOne(
+    { erxesApiId: integrationId },
+    { $set: { healthStatus: 'healthy' } }
+  );
+
+  return true;
 };
 
 export const removeCustomers = async params => {
