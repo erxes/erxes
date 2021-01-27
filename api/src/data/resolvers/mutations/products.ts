@@ -158,6 +158,20 @@ const productMutations = {
     );
 
     return removed;
+  },
+
+  /**
+   * Merge products
+   */
+  async productsMerge(
+    _root,
+    {
+      productIds,
+      productFields
+    }: { productIds: string[]; productFields: IProduct }
+  ) {
+
+    return Products.mergeProducts(productIds, { ...productFields });
   }
 };
 
