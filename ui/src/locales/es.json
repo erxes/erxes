@@ -1663,5 +1663,19 @@
   "All": "Todas",
   "Contacts": "Contactos",
   "Conversation": "Conversacion",
-  "Deal": "Acuerdos"
+  "Deal": "Acuerdos",
+  "Save to dashboard": "Guardar en el tablero",
+  "Edit in builder": "Editar en el constructor",
+  "Contacts count (last 30 days)": "Recuento de contactos (últimos 30 días)",
+  "Contacts count by state (last 30 days)": "Recuento de contactos por estado (últimos 30 días)",
+  "Contacts count by lead status (last 30 days)": "Los contactos cuentan por estado de cliente potencial (últimos 30 días)",
+  "Conversations count by integration name (last 30days)": "Las conversaciones cuentan por nombre de integración (últimos 30 días)",
+  "Conversations count (last 30days)": "Cuenta de conversaciones (últimos 30 días)",
+  "Conversations count by status (last 30days)": "Las conversaciones cuentan por estado (últimos 30 días)",
+  "Conversations count by first responsed user (last 30 days)": "Las conversaciones cuentan por el primer usuario que respondió (últimos 30 días)",
+  "Deals count (last 30 days)": "Recuento de ofertas (últimos 30 días)",
+  "Deals count by stage (last 30 days)": "Las ofertas cuentan por etapa (últimos 30 días)",
+  "Deals count by modified user (last 30 days)": "Las ofertas cuentan por usuario modificado (últimos 30 días)",
+  "Won deals count (last 30 days)": "Recuento de ofertas ganadas (últimos 30 días)",
+  "Lost deals count (last 30 days)": "Recuento de ofertas perdidas (últimos 30 días)"
 }
