@@ -5,7 +5,7 @@ import {
   IItemCommonFields
 } from './boards';
 import { customFieldSchema, ICustomField } from './common';
-import { PRODUCT_TYPES } from './constants';
+import { PRODUCT_STATUSES, PRODUCT_TYPES } from './constants';
 import { field, schemaWrapper } from './utils';
 
 export interface IProduct {
@@ -21,6 +21,9 @@ export interface IProduct {
   productId?: string;
   tagIds?: string[];
   attachment?: any;
+  status?: string;
+
+  mergedIds?: string[];
 }
 
 export interface IProductDocument extends IProduct, Document {
@@ -100,7 +103,18 @@ export const productSchema = schemaWrapper(
       default: new Date(),
       label: 'Created at'
     }),
-    attachment: field({ type: attachmentSchema, label: 'Attachments' })
+    attachment: field({ type: attachmentSchema, label: 'Attachments' }),
+    status: field({
+      type: String,
+      enum: PRODUCT_STATUSES.ALL,
+      optional: true,
+      label: 'Status',
+      default: 'active',
+      esType: 'keyword',
+      index: true,
+    }),
+    mergedIds: field({ type: [String], optional: true }),
+
   })
 );
 
