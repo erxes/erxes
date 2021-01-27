@@ -17,11 +17,48 @@ interface ITagObjectParams {
   tagType: string;
 }
 
+// set related tags
+const setRelatedIds = async (tag: ITagDocument) => {
+  if (tag.parentId) {
+    const parentTag = await Tags.findOne({ _id: tag.parentId });
+
+    if (parentTag) {
+      let relatedIds: string[];
+
+      relatedIds = tag.relatedIds || [];
+      relatedIds.push(tag._id);
+
+      relatedIds = _.union(relatedIds, parentTag.relatedIds || []);
+
+      await Tags.updateOne({ _id: parentTag._id }, { $set: { relatedIds } });
+
+      const updated = await Tags.findOne({ _id: tag.parentId });
+
+      if (updated) {
+        await setRelatedIds(updated);
+      }
+    }
+  }
+};
+
+// remove related tags
+const removeRelatedIds = async (tag: ITagDocument) => {
+  const tags = await Tags.find({ relatedIds: { $in: tag._id } });
+
+  const relatedIds: string[] = tag.relatedIds || [];
+  relatedIds.push(tag._id);
+
+  tags.forEach(async t => {
+    const ids = (t.relatedIds || []).filter(id => !relatedIds.includes(id));
+    await Tags.updateOne({ _id: t._id }, { $set: { relatedIds: ids } });
+  });
+};
+
 export interface ITagModel extends Model<ITagDocument> {
   getTag(_id: string): Promise<ITagDocument>;
   createTag(doc: ITag): Promise<ITagDocument>;
   updateTag(_id: string, doc: ITag): Promise<ITagDocument>;
-  removeTag(ids: string[]): void;
+  removeTag(_id: string): void;
   tagsTag(type: string, targetIds: string[], tagIds: string[]): void;
   tagObject(params: ITagObjectParams): void;
   validateUniqueness(
@@ -171,10 +208,14 @@ export const loadClass = () => {
       // Generatingg order
       doc.order = await this.generateOrder(parentTag, doc);
 
-      return Tags.create({
+      const tag = await Tags.create({
         ...doc,
         createdAt: new Date()
       });
+
+      await setRelatedIds(tag);
+
+      return tag;
     }
 
     /**
@@ -200,41 +241,74 @@ export const loadClass = () => {
       // Generatingg  order
       doc.order = await this.generateOrder(parentTag, doc);
 
+      const tag = await Tags.findOne({
+        _id
+      });
+
+      if (tag) {
+        const childTags = await Tags.find({
+          $and: [
+            { order: { $regex: new RegExp(tag.order, 'i') } },
+            { _id: { $ne: _id } }
+          ]
+        });
+
+        // updating child categories order
+        childTags.forEach(async childTag => {
+          let order = childTag.order;
+
+          order = order.replace(tag.order, doc.order);
+
+          await Tags.updateOne({ _id: childTag._id }, { $set: { order } });
+        });
+
+        await removeRelatedIds(tag);
+      }
+
       await Tags.updateOne({ _id }, { $set: doc });
 
-      return Tags.findOne({ _id });
+      const updated = await Tags.findOne({ _id });
+
+      if (updated) {
+        await setRelatedIds(updated);
+      }
+
+      return updated;
     }
 
     /**
      * Remove Tag
      */
-    public static async removeTag(ids: string[]) {
-      const tagCount = await Tags.find({ _id: { $in: ids } }).countDocuments();
+    public static async removeTag(_id: string) {
+      const tag = await Tags.findOne({ _id });
 
-      if (tagCount !== ids.length) {
+      if (!tag) {
         throw new Error('Tag not found');
       }
 
-      let count = 0;
+      const childCount = await Tags.countDocuments({ parentId: _id });
 
-      count += await Customers.find({ tagIds: { $in: ids } }).countDocuments();
-      count += await Conversations.find({
-        tagIds: { $in: ids }
-      }).countDocuments();
-      count += await EngageMessages.find({
-        tagIds: { $in: ids }
-      }).countDocuments();
-      count += await Companies.find({ tagIds: { $in: ids } }).countDocuments();
-      count += await Integrations.findIntegrations({
-        tagIds: { $in: ids }
-      }).countDocuments();
-      count += await Products.find({ tagIds: { $in: ids } }).countDocuments();
+      if (childCount > 0) {
+        throw new Error("Can't remove a tag");
+      }
+
+      const selector = { tagIds: { $in: [_id] } };
+
+      let count = 0;
+      count += await Customers.countDocuments(selector);
+      count += await Conversations.countDocuments(selector);
+      count += await EngageMessages.countDocuments(selector);
+      count += await Companies.countDocuments(selector);
+      count += await Integrations.findIntegrations(selector).countDocuments();
+      count += await Products.countDocuments(selector);
 
       if (count > 0) {
         throw new Error("Can't remove a tag with tagged object(s)");
       }
 
-      return Tags.deleteMany({ _id: { $in: ids } });
+      await removeRelatedIds(tag);
+
+      return Tags.deleteOne({ _id });
     }
 
     /**

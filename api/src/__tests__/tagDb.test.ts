@@ -87,7 +87,11 @@ describe('Test tags model', () => {
   test('Update tag check duplicated', async () => {
     expect.assertions(1);
     try {
-      await Tags.updateTag(_tag2._id, { name: _tag.name, type: _tag.type });
+      await Tags.updateTag(_tag2._id, {
+        name: _tag.name,
+        type: _tag.type,
+        order: `${_tag.name}${_tag.type}`
+      });
     } catch (e) {
       expect(e.message).toEqual('Tag duplicated');
     }
@@ -97,7 +101,8 @@ describe('Test tags model', () => {
     const tagObj = await Tags.createTag({
       name: `${_tag.name}1`,
       type: _tag.type,
-      colorCode: _tag.colorCode
+      colorCode: _tag.colorCode,
+      order: `${_tag.name}${_tag.type}`
     });
 
     expect(tagObj).toBeDefined();
@@ -110,7 +115,8 @@ describe('Test tags model', () => {
     const tagObj = await Tags.updateTag(_tag._id, {
       name: _tag.name,
       type: _tag.type,
-      colorCode: _tag.colorCode
+      colorCode: _tag.colorCode,
+      order: `${_tag.name}${_tag.type}`
     });
 
     expect(tagObj).toBeDefined();
@@ -120,7 +126,7 @@ describe('Test tags model', () => {
   });
 
   test('Remove tag', async () => {
-    const isDeleted = await Tags.removeTag([_tag.id]);
+    const isDeleted = await Tags.removeTag(_tag.id);
     expect(isDeleted).toBeTruthy();
   });
 
@@ -153,7 +159,7 @@ describe('Test tags model', () => {
   test('Remove tag not found', async () => {
     expect.assertions(1);
     try {
-      await Tags.removeTag([_message._id]);
+      await Tags.removeTag(_message._id);
     } catch (e) {
       expect(e.message).toEqual('Tag not found');
     }
@@ -166,7 +172,7 @@ describe('Test tags model', () => {
         { _id: _message._id },
         { $set: { tagIds: [_tag._id] } }
       );
-      await Tags.removeTag([_tag._id]);
+      await Tags.removeTag(_tag._id);
     } catch (e) {
       expect(e.message).toEqual("Can't remove a tag with tagged object(s)");
     }

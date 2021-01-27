@@ -1,5 +1,5 @@
 import * as _ from 'underscore';
-import { Channels, Integrations } from '../../../db/models';
+import { Channels, Integrations, Tags } from '../../../db/models';
 import { CONVERSATION_STATUSES } from '../../../db/models/definitions/constants';
 import { fixDate } from '../../utils';
 
@@ -263,9 +263,20 @@ export default class Builder {
   }
 
   // filter by tag
-  public tagFilter(tagIds: string[]): { tagIds: IIn } {
+  public async tagFilter(tagIds: string[]): Promise<{ tagIds: IIn }> {
+    let ids: string[] = [];
+
+    for (const _id of tagIds) {
+      const tag = await Tags.findOne({ _id });
+
+      if (tag) {
+        ids.push(_id);
+        ids = ids.concat(tag.relatedIds || []);
+      }
+    }
+
     return {
-      tagIds: { $in: tagIds }
+      tagIds: { $in: ids }
     };
   }
 
@@ -345,7 +356,7 @@ export default class Builder {
 
     // filter by tag
     if (this.params.tag) {
-      this.queries.tag = this.tagFilter(this.params.tag.split(','));
+      this.queries.tag = await this.tagFilter(this.params.tag.split(','));
     }
 
     if (this.params.startDate && this.params.endDate) {

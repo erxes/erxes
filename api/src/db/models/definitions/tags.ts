@@ -7,8 +7,9 @@ export interface ITag {
   type: string;
   colorCode?: string;
   objectCount?: number;
-  order?: string;
+  order: string;
   parentId?: string;
+  relatedIds?: string[];
 }
 
 export interface ITagDocument extends ITag, Document {
@@ -29,6 +30,7 @@ export const tagSchema = schemaWrapper(
     createdAt: field({ type: Date, label: 'Created at' }),
     objectCount: field({ type: Number, label: 'Object count' }),
     order: field({ type: String, label: 'Order' }),
-    parentId: field({ type: String, optional: true, label: 'Parent' })
+    parentId: field({ type: String, optional: true, label: 'Parent' }),
+    relatedIds: field({ type: [String], optional: true, label: 'Childrens' })
   })
 );

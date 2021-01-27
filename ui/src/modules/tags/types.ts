@@ -44,7 +44,7 @@ export type EditMutationResponse = {
 };
 
 export type RemoveMutationResponse = {
-  removeMutation: (params: { variables: { ids: string[] } }) => Promise<any>;
+  removeMutation: (params: { variables: { _id: string } }) => Promise<any>;
 };
 
 export type TagMutationVariables = {

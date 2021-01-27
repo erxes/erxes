@@ -213,6 +213,7 @@ const tagList = `
       colorCode
       order
       parentId
+      relatedIds
     }
   }
 `;

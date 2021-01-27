@@ -8,6 +8,7 @@ export const types = `
     objectCount: Int
     parentId: String
     order: String
+    relatedIds: [String]
   }
 `;
 
@@ -26,6 +27,6 @@ const params = `
 export const mutations = `
 	tagsAdd(${params}): Tag
 	tagsEdit(_id: String!, ${params}): Tag
-  tagsRemove(ids: [String!]!): JSON
+  tagsRemove(_id: String!): JSON
 	tagsTag(type: String!, targetIds: [String!]!, tagIds: [String!]!): String
 `;

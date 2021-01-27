@@ -18,8 +18,8 @@ const edit = `
 `;
 
 const remove = `
-  mutation tagsRemove($ids: [String!]!) {
-    tagsRemove(ids: $ids)
+  mutation tagsRemove($_id: String!) {
+    tagsRemove(_id: $_id)
   }
 `;
 
