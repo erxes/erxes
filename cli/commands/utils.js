@@ -317,6 +317,13 @@ module.exports.startServices = async configs => {
       );
     }
 
+    if (!REDIS_HOST || !REDIS_PORT) {
+      return log(
+        'Dashboard is not started "If you want to use dashboard you need to start redis"',
+        'red'
+      );
+    }
+
     const CUBE_API_SECRET = Math.random().toString();
 
     apps.push({
