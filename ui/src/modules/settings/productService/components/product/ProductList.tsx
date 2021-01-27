@@ -18,6 +18,7 @@ import Form from '../../containers/product/ProductForm';
 import CategoryList from '../../containers/productCategory/CategoryList';
 import { IProduct, IProductCategory } from '../../types';
 import Row from './ProductRow';
+import ProductsMerge from './detail/ProductsMerge';
 
 interface IProps extends IRouterProps {
   history: any;
@@ -33,6 +34,8 @@ interface IProps extends IRouterProps {
   loading: boolean;
   searchValue: string;
   currentCategory: IProductCategory;
+  mergeProducts: () => void;
+  mergeProductLoading
 }
 
 type State = {
@@ -119,7 +122,9 @@ class List extends React.Component<IProps, State> {
       history,
       bulk,
       emptyBulk,
-      currentCategory
+      currentCategory,
+      mergeProducts,
+      mergeProductLoading
     } = this.props;
 
     const breadcrumb = [
@@ -195,6 +200,10 @@ class List extends React.Component<IProps, State> {
       );
     }
 
+    const productsMerge = props => {
+      return <ProductsMerge {...props} objects={bulk} save={mergeProducts} mergeProductLoading={mergeProductLoading} />;
+    };
+
     if (bulk.length > 0) {
       const tagButton = (
         <Button btnStyle="simple" size="small" icon="tag-alt">
@@ -211,8 +220,23 @@ class List extends React.Component<IProps, State> {
             Alert.error(error.message);
           });
 
+          const mergeButton = (
+            <Button btnStyle="primary" size="small" icon="merge">
+              Merge
+            </Button>
+          );
+
       actionBarRight = (
         <BarItems>
+        {bulk.length === 2 && (
+            <ModalTrigger
+              title="Merge Product"
+              size="lg"
+              dialogClassName="modal-1000w"
+              trigger={mergeButton}
+              content={productsMerge}
+            />
+          )}
           <TaggerPopover
             type="product"
             successCallback={emptyBulk}
