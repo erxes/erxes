@@ -3,6 +3,7 @@ import { Alert } from 'modules/common/utils';
 import React, { useState } from 'react';
 import { CONFIG_TYPES } from '../constants';
 import General from '../containers/General';
+import { Wrapper } from '../styles';
 
 export type GeneralFormType = {
   name?: string;
@@ -79,10 +80,12 @@ function Form({ defaultConfigValues = {}, handleUpdate, configType }: Props) {
   }
 
   return (
-    <form onSubmit={handleSubmit}>
-      {renderContent()}
-      {renderSubmit()}
-    </form>
+    <Wrapper>
+      <form onSubmit={handleSubmit}>
+        {renderContent()}
+        {renderSubmit()}
+      </form>
+    </Wrapper>
   );
 }
 

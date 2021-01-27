@@ -1,4 +1,5 @@
 import BoardSelect from 'erxes-ui/lib/boards/containers/BoardSelect';
+import { FlexContent } from 'erxes-ui/lib/layout/styles';
 import { PipelinePopoverContent } from 'modules/boards/styles/item';
 import AvatarUpload from 'modules/common/components/AvatarUpload';
 import {
@@ -11,6 +12,7 @@ import { ITopic } from 'modules/knowledgeBase/types';
 import React, { useState } from 'react';
 import { OverlayTrigger, Popover } from 'react-bootstrap';
 import Select from 'react-select-plus';
+import { Content } from '../styles';
 import { GeneralFormType } from './Form';
 
 type Props = {
@@ -39,8 +41,8 @@ function General({
   const [show, setShow] = useState<boolean>(false);
 
   const handleToggleBoardSelect = () => setShow(!show);
-  const handleSelectChange = (option: { value: string; label: string }) => {
-    handleFormChange('knowledgeBaseTopicId', option.value);
+  const handleSelectChange = (option?: { value: string; label: string }) => {
+    handleFormChange('knowledgeBaseTopicId', !option ? '' : option.value);
   };
 
   function generateOptions() {
@@ -122,28 +124,30 @@ function General({
       <FormGroup>
         <ControlLabel required={required}>{label}</ControlLabel>
         {subtitle && <p>{subtitle}</p>}
-        <FormControl
-          {...formProps}
-          name={formValueName}
-          value={formValue}
-          placeholder={placeholder}
-          onChange={handleChange}
-        />
-        {boardType && (
-          <OverlayTrigger
-            trigger="click"
-            placement="bottom-start"
-            overlay={renderBoardSelect({
-              type: boardType,
-              stageId,
-              boardId,
-              pipelineId
-            })}
-            rootClose={true}
-          >
-            <Icon icon="cog" size={24} />
-          </OverlayTrigger>
-        )}
+        <FlexContent>
+          <FormControl
+            {...formProps}
+            name={formValueName}
+            value={formValue}
+            placeholder={placeholder}
+            onChange={handleChange}
+          />
+          {boardType && (
+            <OverlayTrigger
+              trigger="click"
+              placement="bottom-start"
+              overlay={renderBoardSelect({
+                type: boardType,
+                stageId,
+                boardId,
+                pipelineId
+              })}
+              rootClose={true}
+            >
+              <Icon icon="cog" size={24} />
+            </OverlayTrigger>
+          )}
+        </FlexContent>
       </FormGroup>
     );
   }
@@ -172,7 +176,7 @@ function General({
   }
 
   return (
-    <div>
+    <Content>
       {renderControl({
         required: true,
         label: 'Client Portal Name',
@@ -189,26 +193,31 @@ function General({
         formValue: description
       })}
 
-      {renderFavicon()}
-      {renderLogo()}
+      <FlexContent>
+        {renderFavicon()}
+        {renderLogo()}
+      </FlexContent>
 
-      {renderControl({
-        label: 'Knowledge Base',
-        subtitle: 'Shown name on menu',
-        formValueName: 'knowledgeBaseLabel',
-        formValue: knowledgeBaseLabel,
-        placeholder: 'Please enter a label for Knowledge base'
-      })}
+      <FlexContent>
+        {renderControl({
+          label: 'Knowledge Base',
+          subtitle: 'Shown name on menu',
+          formValueName: 'knowledgeBaseLabel',
+          formValue: knowledgeBaseLabel,
+          placeholder: 'Please enter a label for Knowledge base'
+        })}
 
-      <FormGroup>
-        <ControlLabel required={true}>Knowledge base topic</ControlLabel>
-        <Select
-          placeholder="Please select a knowledge base topic"
-          value={knowledgeBaseTopicId}
-          options={generateOptions()}
-          onChange={handleSelectChange}
-        />
-      </FormGroup>
+        <FormGroup>
+          <ControlLabel required={true}>Knowledge base topic</ControlLabel>
+          <p>Knowledge base topic in Client Portal</p>
+          <Select
+            placeholder="Select a knowledge base topic"
+            value={knowledgeBaseTopicId}
+            options={generateOptions()}
+            onChange={handleSelectChange}
+          />
+        </FormGroup>
+      </FlexContent>
 
       {renderControl({
         label: 'Tickets',
@@ -233,7 +242,7 @@ function General({
         pipelineId: taskPipelineId,
         boardId: taskBoardId
       })}
-    </div>
+    </Content>
   );
 }
 
