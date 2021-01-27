@@ -1677,5 +1677,17 @@
   "Deals count by stage (last 30 days)": "Las ofertas cuentan por etapa (últimos 30 días)",
   "Deals count by modified user (last 30 days)": "Las ofertas cuentan por usuario modificado (últimos 30 días)",
   "Won deals count (last 30 days)": "Recuento de ofertas ganadas (últimos 30 días)",
-  "Lost deals count (last 30 days)": "Recuento de ofertas perdidas (últimos 30 días)"
+  "Lost deals count (last 30 days)": "Recuento de ofertas perdidas (últimos 30 días)",
+  "TYPE": "TIPO",
+  "Type": "Tipo",
+  "Contacts": "Contactos",
+  "Deals": "Ofertas",
+  "Conversations": "Conversaciones",
+  "MEASURE": "MEDIDA",
+  "DIMENTION": "DIMENCIÓN",
+  "TIME": "TIEMPO",
+  "Measure": "Medida",
+  "Dimention": "Dimensión",
+  "Time": "Tiempo",
+  "No members found": "No se encontraron miembros"
 }
