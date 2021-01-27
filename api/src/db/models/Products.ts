@@ -8,12 +8,24 @@ import {
   productCategorySchema,
   productSchema
 } from './definitions/deals';
+import { IUserDocument } from './definitions/users';
+import { ICustomField } from './definitions/common';
+import { PRODUCT_STATUSES } from './definitions/constants';
+
 
 export interface IProductModel extends Model<IProductDocument> {
+
+  updateProductCategory(productIds: any, productFields: any, user: IUserDocument);
   getProduct(selector: any): Promise<IProductDocument>;
   createProduct(doc: IProduct): Promise<IProductDocument>;
   updateProduct(_id: string, doc: IProduct): Promise<IProductDocument>;
   removeProducts(_ids: string[]): Promise<{ n: number; ok: number }>;
+  mergeProducts(
+    productIds: string[],
+    productFields: IProduct,
+  ): Promise<IProductDocument>;
+
+
 }
 
 export const loadProductClass = () => {
@@ -71,22 +83,88 @@ export const loadProductClass = () => {
      * Remove products
      */
     public static async removeProducts(_ids: string[]) {
-      const deals = await Deals.find(
-        {
-          'productsData.productId': { $in: _ids }
-        },
-        { name: 1 }
-      ).lean();
 
-      if (deals.length > 0) {
-        const names = deals.map(deal => deal.name);
+      const dealProductIds = await Deals.distinct('productsData.productId');
 
-        throw new Error(
-          `Can not remove products. Following deals are used ${names.join(',')}`
-        );
+      const usedIds: string[] = [];
+      const unUsedIds: string[] = [];
+
+      for (const id of _ids) {
+        if (!dealProductIds.includes(id)) {
+          unUsedIds.push(id);
+        } else {
+          usedIds.push(id);
+        }
+      };
+
+      if (dealProductIds.length > 0) {
+        await Products.findByIdAndUpdate(usedIds, { $set: { status: PRODUCT_STATUSES.DELETED } });
       }
 
-      return Products.deleteMany({ _id: { $in: _ids } });
+      return Products.deleteMany({ _id: { $in: unUsedIds } });
+    }
+
+    /**
+     * Merge companies
+     */
+
+    public static async mergeProducts(
+      productIds: string[],
+      productFields: IProduct
+    ) {
+
+      const fields = ['name', 'code', 'unitPrice', 'categoryId', 'type'];
+
+      for (const field of fields) {
+        if (!productFields[field]) {
+          throw new Error(`Can not merge products. Must choose ${field} field.`);
+        }
+      }
+
+      let customFieldsData: ICustomField[] = [];
+      let tagIds: string[] = [];
+      let name: string = productFields.name || '';
+      let type: string = productFields.type || '';
+      let description: string = productFields.description || '';
+      let categoryId: string = productFields.categoryId || '';
+
+
+      // Merging company tags
+      for (const productId of productIds) {
+        const productObj = await Products.getProduct({ _id: productId });
+
+        const productTags = productObj.tagIds || [];
+
+        // merge custom fields data
+        customFieldsData = [
+          ...customFieldsData,
+          ...(productObj.customFieldsData || [])
+        ];
+
+        // Merging company's tag into 1 array
+        tagIds = tagIds.concat(productTags);
+
+        await Products.findByIdAndUpdate(productId, {
+          $set: { status: PRODUCT_STATUSES.DELETED, code: Math.random().toString().concat('^', productObj.code) }
+        });
+      }
+
+      // Removing Duplicates
+      tagIds = Array.from(new Set(tagIds));
+
+      // Creating company with properties
+      const product = await Products.createProduct({
+        ...productFields,
+        customFieldsData,
+        tagIds,
+        mergedIds: productIds,
+        name,
+        type,
+        description,
+        categoryId
+      });
+
+      return product;
     }
   }
 
@@ -190,7 +268,7 @@ export const loadProductCategoryClass = () => {
     public static async removeProductCategory(_id: string) {
       await ProductCategories.getProductCatogery({ _id });
 
-      let count = await Products.countDocuments({ categoryId: _id });
+      let count = await Products.countDocuments({ categoryId: _id, status: { $ne: PRODUCT_STATUSES.DELETED } });
       count += await ProductCategories.countDocuments({ parentId: _id });
 
       if (count > 0) {
