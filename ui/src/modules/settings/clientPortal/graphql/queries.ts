@@ -6,6 +6,7 @@ const getConfig = `
       logo
       icon
       knowledgeBaseLabel
+      knowledgeBaseTopicId
       ticketLabel
       taskLabel
       taskStageId

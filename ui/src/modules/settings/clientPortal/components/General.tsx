@@ -7,25 +7,16 @@ import {
   FormGroup
 } from 'modules/common/components/form';
 import Icon from 'modules/common/components/Icon';
+import { ITopic } from 'modules/knowledgeBase/types';
 import React, { useState } from 'react';
 import { OverlayTrigger, Popover } from 'react-bootstrap';
+import Select from 'react-select-plus';
+import { GeneralFormType } from './Form';
 
 type Props = {
-  name?: string;
-  description?: string;
-  icon?: string;
-  logo?: string;
-  knowledgeBaseLabel?: string;
-  ticketLabel?: string;
-  taskLabel?: string;
-  taskStageId?: string;
-  taskPipelineId?: string;
-  taskBoardId?: string;
-  ticketStageId?: string;
-  ticketPipelineId?: string;
-  ticketBoardId?: string;
+  topics: ITopic[];
   handleFormChange: (name: string, value: string) => void;
-};
+} & GeneralFormType;
 
 function General({
   name,
@@ -33,6 +24,8 @@ function General({
   icon,
   logo,
   knowledgeBaseLabel,
+  knowledgeBaseTopicId,
+  topics,
   ticketLabel,
   taskLabel,
   taskStageId,
@@ -46,6 +39,17 @@ function General({
   const [show, setShow] = useState<boolean>(false);
 
   const handleToggleBoardSelect = () => setShow(!show);
+  const handleSelectChange = (option: { value: string; label: string }) => {
+    handleFormChange('knowledgeBaseTopicId', option.value);
+  };
+
+  function generateOptions() {
+    if ((topics || []).length === 0) {
+      return [];
+    }
+
+    return topics.map(topic => ({ value: topic._id, label: topic.title }));
+  }
 
   function renderBoardSelect({
     type,
@@ -195,6 +199,16 @@ function General({
         formValue: knowledgeBaseLabel,
         placeholder: 'Please enter a label for Knowledge base'
       })}
+
+      <FormGroup>
+        <ControlLabel required={true}>Knowledge base topic</ControlLabel>
+        <Select
+          placeholder="Please select a knowledge base topic"
+          value={knowledgeBaseTopicId}
+          options={generateOptions()}
+          onChange={handleSelectChange}
+        />
+      </FormGroup>
 
       {renderControl({
         label: 'Tickets',

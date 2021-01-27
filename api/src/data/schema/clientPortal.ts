@@ -6,6 +6,7 @@ export const types = `
     logo: String
     icon: String
     knowledgeBaseLabel: String
+    knowledgeBaseTopicId: String
     ticketLabel: String
     taskLabel: String
     taskStageId: String
@@ -28,6 +29,7 @@ export const mutations = `
     logo: String
     icon: String
     knowledgeBaseLabel: String
+    knowledgeBaseTopicId: String
     ticketLabel: String
     taskLabel: String
     taskStageId: String

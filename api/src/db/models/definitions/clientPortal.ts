@@ -7,6 +7,7 @@ export interface IClientPortal {
   logo?: string;
   icon?: string;
   knowledgeBaseLabel?: string;
+  knowledgeBaseTopicId?: string;
   ticketLabel?: string;
   taskLabel?: string;
   taskStageId?: string;
@@ -28,6 +29,7 @@ export const clientPortalSchema = new Schema({
   logo: field({ type: String }),
   icon: field({ type: String }),
   knowledgeBaseLabel: field({ type: String }),
+  knowledgeBaseTopicId: field({ type: String }),
   ticketLabel: field({ type: String }),
   taskLabel: field({ type: String }),
   taskStageId: field({ type: String }),

@@ -1,7 +1,8 @@
 import Button from 'erxes-ui/lib/components/Button';
+import { Alert } from 'modules/common/utils';
 import React, { useState } from 'react';
 import { CONFIG_TYPES } from '../constants';
-import General from './General';
+import General from '../containers/General';
 
 export type GeneralFormType = {
   name?: string;
@@ -9,6 +10,7 @@ export type GeneralFormType = {
   logo?: string;
   icon?: string;
   knowledgeBaseLabel?: string;
+  knowledgeBaseTopicId?: string;
   ticketLabel?: string;
   taskLabel?: string;
   taskStageId?: string;
@@ -32,6 +34,7 @@ function Form({ defaultConfigValues = {}, handleUpdate, configType }: Props) {
     icon: defaultConfigValues.icon || '',
     logo: defaultConfigValues.logo || '',
     knowledgeBaseLabel: defaultConfigValues.knowledgeBaseLabel || '',
+    knowledgeBaseTopicId: defaultConfigValues.knowledgeBaseTopicId || '',
     ticketLabel: defaultConfigValues.ticketLabel || '',
     taskLabel: defaultConfigValues.taskLabel || '',
     taskStageId: defaultConfigValues.taskStageId || '',
@@ -51,6 +54,10 @@ function Form({ defaultConfigValues = {}, handleUpdate, configType }: Props) {
 
   const handleSubmit = e => {
     e.preventDefault();
+
+    if (!formValues.knowledgeBaseTopicId) {
+      return Alert.error('Please choose a Knowledge base topic');
+    }
 
     handleUpdate(formValues);
   };

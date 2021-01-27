@@ -5,6 +5,7 @@ const updateConfig = `
     $logo: String
     $icon: String
     $knowledgeBaseLabel: String
+    $knowledgeBaseTopicId: String
     $ticketLabel: String
     $taskLabel: String
     $taskStageId: String
@@ -20,6 +21,7 @@ const updateConfig = `
       logo: $logo,
       icon: $icon,
       knowledgeBaseLabel: $knowledgeBaseLabel,
+      knowledgeBaseTopicId: $knowledgeBaseTopicId,
       ticketLabel: $ticketLabel,
       taskLabel: $taskLabel,
       taskStageId: $taskStageId,
