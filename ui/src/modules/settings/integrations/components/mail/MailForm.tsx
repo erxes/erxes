@@ -102,7 +102,7 @@ class MailForm extends React.Component<Props, State> {
   constructor(props: Props) {
     super(props);
 
-    const { replyAll, mailData = {} as IMail } = props;
+    const { isForward, replyAll, mailData = {} as IMail } = props;
 
     const cc = replyAll ? formatObj(mailData.cc || []) : '';
     const bcc = replyAll ? formatObj(mailData.bcc || []) : '';
@@ -116,10 +116,13 @@ class MailForm extends React.Component<Props, State> {
     );
 
     const emailSignature = this.getEmailSignature(props.brandId);
-    const to = props.isForward ? '' : sender;
+    const to = isForward ? '' : sender;
     const mailKey = `mail_${to || this.props.currentUser._id}`;
     const showPrevEmails =
       (localStorage.getItem(`reply_${mailKey}`) || '').length > 0;
+
+    const attachments =
+      isForward && mailData.attachments ? mailData.attachments : [];
 
     this.state = {
       cc,
@@ -145,7 +148,7 @@ class MailForm extends React.Component<Props, State> {
       isUploading: false,
       kind: this.getSelectedIntegration(fromId).kind || '',
 
-      attachments: [],
+      attachments,
       fileIds: [],
       totalFileSize: 0,
 

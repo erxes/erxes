@@ -203,6 +203,51 @@ const engageMutations = {
       ...args,
       content: replacedContent
     });
+  },
+
+  // Helps users fill less form fields to create a campaign
+  async engageMessageCopy(
+    _root,
+    { _id }: { _id },
+    { docModifier, user }: IContext
+  ) {
+    const sourceCampaign = await EngageMessages.getEngageMessage(_id);
+
+    const doc = docModifier({
+      ...sourceCampaign.toObject(),
+      createdAt: new Date(),
+      createdBy: user._id,
+      title: `${sourceCampaign.title}-copied`,
+      isDraft: true,
+      isLive: false
+    });
+
+    delete doc._id;
+
+    if (doc.scheduleDate) {
+      // schedule date should be manually set
+      delete doc.scheduleDate;
+    }
+
+    const copy = await EngageMessages.createEngageMessage(doc);
+
+    await putCreateLog(
+      {
+        type: MODULE_NAMES.ENGAGE,
+        newData: {
+          ...doc,
+          ...emptyCustomers
+        },
+        object: {
+          ...copy.toObject(),
+          ...emptyCustomers
+        },
+        description: `Campaign "${sourceCampaign.title}" has been copied`
+      },
+      user
+    );
+
+    return copy;
   }
 };
 
@@ -239,5 +284,6 @@ checkPermission(
   'engageMessageSendTestEmail',
   'engageMessageRemove'
 );
+checkPermission(engageMutations, 'engageMessageCopy', 'engageMessageAdd');
 
 export default engageMutations;

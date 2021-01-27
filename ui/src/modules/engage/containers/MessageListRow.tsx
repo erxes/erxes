@@ -8,6 +8,7 @@ import { withRouter } from 'react-router-dom';
 import MessageListRow from '../components/MessageListRow';
 import { mutations, queries } from '../graphql';
 import {
+  CopyMutationResponse,
   IEngageMessage,
   MutationVariables,
   RemoveMutationResponse,
@@ -22,6 +23,7 @@ type Props = {
   toggleBulk: (value: IEngageMessage, isChecked: boolean) => void;
   message: IEngageMessage;
   queryParams: any;
+  refetch: () => void;
 };
 
 type FinalProps = Props &
@@ -29,10 +31,12 @@ type FinalProps = Props &
   SetPauseMutationResponse &
   SetLiveMutationResponse &
   SetLiveManualMutationResponse &
+  CopyMutationResponse &
   IRouterProps;
 
 const MessageRowContainer = (props: FinalProps) => {
   const {
+    copyMutation,
     history,
     message,
     removeMutation,
@@ -40,7 +44,8 @@ const MessageRowContainer = (props: FinalProps) => {
     setLiveMutation,
     setLiveManualMutation,
     isChecked,
-    toggleBulk
+    toggleBulk,
+    refetch
   } = props;
 
   const doMutation = (mutation, msg: string) =>
@@ -80,6 +85,11 @@ const MessageRowContainer = (props: FinalProps) => {
     doMutation(setLiveMutation, 'Yay! Your campaign is now live.');
   const setPause = () =>
     doMutation(setPauseMutation, 'Your campaign is paused for now.');
+  const copy = () => {
+    doMutation(copyMutation, 'Campaign has been copied.').then(() => {
+      refetch();
+    });
+  };
 
   const updatedProps = {
     ...props,
@@ -90,7 +100,8 @@ const MessageRowContainer = (props: FinalProps) => {
     setLiveManual,
     setPause,
     isChecked,
-    toggleBulk
+    toggleBulk,
+    copy
   };
 
   return <MessageListRow {...updatedProps} />;
@@ -144,6 +155,9 @@ export default withProps<Props>(
         name: 'setLiveManualMutation',
         options: statusMutationsOptions
       }
-    )
+    ),
+    graphql(gql(mutations.engageMessageCopy), {
+      name: 'copyMutation'
+    })
   )(withRouter<FinalProps>(MessageRowContainer))
 );
