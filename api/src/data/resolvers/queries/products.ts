@@ -1,5 +1,5 @@
 import { ProductCategories, Products, Tags } from '../../../db/models';
-import { TAG_TYPES } from '../../../db/models/definitions/constants';
+import { PRODUCT_STATUSES, TAG_TYPES } from '../../../db/models/definitions/constants';
 import { checkPermission, requireLogin } from '../../permissions/wrappers';
 import { IContext } from '../../types';
 import { paginate } from '../../utils';
@@ -31,6 +31,8 @@ const productQueries = {
     { commonQuerySelector }: IContext
   ) {
     const filter: any = commonQuerySelector;
+
+    filter.status = {$ne: PRODUCT_STATUSES.DELETED}
 
     if (type) {
       filter.type = type;
@@ -70,6 +72,8 @@ const productQueries = {
     { commonQuerySelector }: IContext
   ) {
     const filter: any = commonQuerySelector;
+
+    filter.status = {$ne: PRODUCT_STATUSES.DELETED}
 
     if (type) {
       filter.type = type;
@@ -116,7 +120,7 @@ const productQueries = {
 
     for (const tag of tags) {
       counts[tag._id] = await Products.find({
-        tagIds: tag._id
+        tagIds: tag._id, status: {$ne: PRODUCT_STATUSES.DELETED}
       }).countDocuments();
     }
 
