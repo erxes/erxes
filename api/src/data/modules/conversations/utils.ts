@@ -160,9 +160,8 @@ export class CommonBuilder<IArgs extends IListArgs> {
 
     const userRelevanceQuery = [
       {
-        query_string: {
-          query: `${this.user.code} OR ''`,
-          default_field: 'userRelevance'
+        regexp: {
+          userRelevance: `${this.user.code}..`
         }
       },
       {
@@ -179,14 +178,8 @@ export class CommonBuilder<IArgs extends IListArgs> {
     ];
 
     this.positiveList = [
-      {
-        bool: {
-          should: [
-            { bool: { should: defaultUserQuery } },
-            { bool: { should: userRelevanceQuery } }
-          ]
-        }
-      }
+      { bool: { should: userRelevanceQuery } },
+      { bool: { should: defaultUserQuery } }
     ];
   }
 
