@@ -151,25 +151,10 @@ class AddFormContainer extends React.Component<FinalProps> {
 
   fetchCards = (stageId: string, callback: (cards: any) => void) => {
     const { type } = this.props.options;
-    let query;
-
-    switch (type) {
-      case 'deal':
-        query = queries.deals;
-        break;
-      case 'task':
-        query = queries.tasks;
-        break;
-      case 'ticket':
-        query = queries.tickets;
-        break;
-      default:
-        break;
-    }
 
     client
       .query({
-        query: gql(query),
+        query: gql(queries[`${type}s`]),
         fetchPolicy: 'network-only',
         variables: { stageId, limit: 0 }
       })

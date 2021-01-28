@@ -1,8 +1,6 @@
-import Button from 'erxes-ui/lib/components/Button';
 import React from 'react';
 import Select from 'react-select-plus';
 import styled from 'styled-components';
-// import Button from './Button';
 
 const Wrapper = styled.div`
   display: flex;
@@ -21,15 +19,15 @@ const FillContent = styled.div`
 `;
 
 type Props = {
-  placeholder;
-  options;
-  onChange;
-  type;
+  placeholder: string;
+  options: [{ label: string; value: string }];
+  onChange: (option: { cardId?: string; name?: string }) => void;
+  type: string;
 };
 
 type State = {
   searchValue: string;
-  selectedValue: { label: string; value: string };
+  selectedValue?: { label: string; value: string };
 };
 
 class CardSelect extends React.Component<Props, State> {
@@ -37,13 +35,13 @@ class CardSelect extends React.Component<Props, State> {
     super(props);
 
     this.state = {
-      searchValue: '',
-      selectedValue: { label: '', value: '' }
+      searchValue: ''
     };
   }
 
   handleChange = option => {
     const { onChange } = this.props;
+
     this.setState({ searchValue: '', selectedValue: option });
 
     if (option) {
@@ -73,22 +71,6 @@ class CardSelect extends React.Component<Props, State> {
     });
   };
 
-  renderNoResult() {
-    const { type } = this.props;
-
-    return (
-      <Button
-        btnStyle="link"
-        uppercase={false}
-        onClick={this.handleAdd}
-        block={true}
-        icon="plus-circle"
-      >
-        Add {type}
-      </Button>
-    );
-  }
-
   render() {
     const { placeholder, options } = this.props;
     const { selectedValue } = this.state;
@@ -106,7 +88,6 @@ class CardSelect extends React.Component<Props, State> {
             onChange={this.handleChange}
             onInputChange={this.handleInput}
             onInputKeyDown={this.handleKeyDown}
-            noResultsText={this.renderNoResult()}
           />
         </FillContent>
       </Wrapper>

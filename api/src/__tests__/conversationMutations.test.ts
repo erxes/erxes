@@ -979,6 +979,7 @@ describe('Conversation message mutations', () => {
     if (!updatedDeal) {
       throw new Error('deal not found');
     }
+
     const sourcesIds = updatedDeal.sourceConversationIds || [];
 
     expect(updatedDeal).toBeDefined();

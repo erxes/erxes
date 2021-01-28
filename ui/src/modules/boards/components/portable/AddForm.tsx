@@ -1,5 +1,5 @@
-import CardSelect from 'modules/boards/containers/portable/CardSelect';
 import Button from 'modules/common/components/Button';
+import FormControl from 'modules/common/components/form/Control';
 import ControlLabel from 'modules/common/components/form/Label';
 import { Alert } from 'modules/common/utils';
 import React from 'react';
@@ -7,6 +7,7 @@ import BoardSelect from '../../containers/BoardSelect';
 import { FormFooter, HeaderContent, HeaderRow } from '../../styles/item';
 import { IItem, IItemParams, IOptions } from '../../types';
 import { invalidateCache } from '../../utils';
+import CardSelect from './CardSelect';
 
 type Props = {
   options: IOptions;
@@ -15,9 +16,9 @@ type Props = {
   stageId?: string;
   cardId?: string;
   mailSubject?: string;
+  showSelect?: boolean;
   saveItem: (doc: IItemParams, callback: (item: IItem) => void) => void;
   fetchCards: (stageId: string, callback: (cards: any) => void) => void;
-  showSelect?: boolean;
   closeModal: () => void;
   callback?: (item?: IItem) => void;
 };
@@ -55,7 +56,11 @@ class AddForm extends React.Component<Props, State> {
       const { fetchCards } = this.props;
       fetchCards(String(value), (cards: any) => {
         if (cards) {
-          this.setState({ cards });
+          this.setState({
+            cards: cards.map(c => {
+              return { value: c._id, label: c.name };
+            })
+          });
         }
       });
     }
@@ -127,23 +132,30 @@ class AddForm extends React.Component<Props, State> {
     );
   }
 
-  onChangeName = option => {
+  renderCardSelect() {}
+
+  onChangeCardSelect = option => {
     const { cardId, name } = option;
 
     if (cardId) {
-      this.onChangeField('cardId', cardId);
-    } else {
-      this.onChangeField('name', name);
-      localStorage.setItem(`${this.props.options.type}Name`, name);
+      return this.onChangeField('cardId', cardId);
     }
+
+    this.onChangeField('name', name);
+
+    localStorage.setItem(`${this.props.options.type}Name`, name);
+  };
+
+  onChangeName = e => {
+    const name = (e.target as HTMLInputElement).value;
+
+    this.onChangeField('name', name);
+
+    localStorage.setItem(`${this.props.options.type}Name`, name);
   };
 
   render() {
     const { type } = this.props.options;
-
-    const cardsOptions = this.state.cards.map(c => {
-      return { value: c._id, label: c.name };
-    });
 
     return (
       <form onSubmit={this.save}>
@@ -152,12 +164,21 @@ class AddForm extends React.Component<Props, State> {
         <HeaderRow>
           <HeaderContent>
             <ControlLabel required={true}>Name</ControlLabel>
-            <CardSelect
-              placeholder=""
-              options={cardsOptions}
-              onChange={this.onChangeName}
-              type={type}
-            />
+            {this.props.showSelect ? (
+              <CardSelect
+                placeholder={`Add a new ${type} or select one`}
+                options={this.state.cards}
+                onChange={this.onChangeCardSelect}
+                type={type}
+              />
+            ) : (
+              <FormControl
+                value={this.state.name}
+                autoFocus={true}
+                placeholder="Create a new card"
+                onChange={this.onChangeName}
+              />
+            )}
           </HeaderContent>
         </HeaderRow>
 

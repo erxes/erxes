@@ -730,10 +730,10 @@ const conversationMutations = {
 
       const relTypeIds: string[] = [];
 
-      for await (const conversationId of sourceConversationIds) {
+      sourceConversationIds.forEach(async conversationId => {
         const con = await Conversations.findOne({ _id: conversationId });
         relTypeIds.push(con?.customerId || '');
-      }
+      });
 
       await Conformities.editConformity({
         mainType: type,
@@ -745,6 +745,7 @@ const conversationMutations = {
       return item._id;
     } else {
       const doc: any = {};
+
       doc.name = itemName;
       doc.stageId = stageId;
       doc.sourceConversationIds = [_id];
@@ -752,6 +753,7 @@ const conversationMutations = {
       doc.assignedUserIds = [conversation.assignedUserId];
 
       const item = await itemsAdd(doc, type, user, docModifier, create);
+
       return item._id;
     }
   }
