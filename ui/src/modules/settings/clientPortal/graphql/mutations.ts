@@ -4,6 +4,7 @@ const updateConfig = `
     $description: String
     $logo: String
     $icon: String
+    $url: String
     $knowledgeBaseLabel: String
     $knowledgeBaseTopicId: String
     $ticketLabel: String
@@ -18,6 +19,7 @@ const updateConfig = `
     configUpdateClientPortal(
       name: $name,
       description: $description,
+      url: $url,
       logo: $logo,
       icon: $icon,
       knowledgeBaseLabel: $knowledgeBaseLabel,

@@ -25,6 +25,7 @@ function General({
   description,
   icon,
   logo,
+  url,
   knowledgeBaseLabel,
   knowledgeBaseTopicId,
   topics,
@@ -99,7 +100,8 @@ function General({
     formProps,
     stageId,
     pipelineId,
-    boardId
+    boardId,
+    url
   }: {
     required?: boolean;
     label: string;
@@ -112,6 +114,7 @@ function General({
     stageId?: string;
     pipelineId?: string;
     boardId?: string;
+    url?: string;
   }) {
     const handleChange = (e: React.FormEvent) => {
       handleFormChange(
@@ -191,6 +194,12 @@ function General({
         label: 'Description',
         formValueName: 'description',
         formValue: description
+      })}
+
+      {renderControl({
+        label: 'Website',
+        formValueName: 'url',
+        formValue: url
       })}
 
       <FlexContent>

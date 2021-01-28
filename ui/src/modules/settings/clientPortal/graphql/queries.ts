@@ -2,6 +2,7 @@ const getConfig = `
   query configClientPortal {
     configClientPortal {
       name
+      url
       description
       logo
       icon

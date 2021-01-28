@@ -8,6 +8,7 @@ import { Wrapper } from '../styles';
 export type GeneralFormType = {
   name?: string;
   description?: string;
+  url?: string;
   logo?: string;
   icon?: string;
   knowledgeBaseLabel?: string;
@@ -28,12 +29,21 @@ type Props = {
   handleUpdate: (doc: GeneralFormType) => void;
 };
 
+const isUrl = (value: string): boolean => {
+  try {
+    return Boolean(new URL(value));
+  } catch (e) {
+    return false;
+  }
+};
+
 function Form({ defaultConfigValues = {}, handleUpdate, configType }: Props) {
   const [formValues, setFormValues] = useState<GeneralFormType>({
     name: defaultConfigValues.name || '',
     description: defaultConfigValues.description || '',
     icon: defaultConfigValues.icon || '',
     logo: defaultConfigValues.logo || '',
+    url: defaultConfigValues.url || '',
     knowledgeBaseLabel: defaultConfigValues.knowledgeBaseLabel || '',
     knowledgeBaseTopicId: defaultConfigValues.knowledgeBaseTopicId || '',
     ticketLabel: defaultConfigValues.ticketLabel || '',
@@ -58,6 +68,10 @@ function Form({ defaultConfigValues = {}, handleUpdate, configType }: Props) {
 
     if (!formValues.knowledgeBaseTopicId) {
       return Alert.error('Please choose a Knowledge base topic');
+    }
+
+    if (formValues.url && !isUrl(formValues.url)) {
+      return Alert.error('Please enter a valid URL');
     }
 
     handleUpdate(formValues);

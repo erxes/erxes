@@ -3,6 +3,7 @@ export const types = `
     _id: String!
     name: String!
     description: String
+    url: String
     logo: String
     icon: String
     knowledgeBaseLabel: String
@@ -20,6 +21,8 @@ export const types = `
 
 export const queries = `
   configClientPortal: ClientPortal
+  getTaskStages: JSON
+  getStageTasks(stageId: String!): JSON
 `;
 
 export const mutations = `
@@ -28,6 +31,7 @@ export const mutations = `
     description: String
     logo: String
     icon: String
+    url: String
     knowledgeBaseLabel: String
     knowledgeBaseTopicId: String
     ticketLabel: String
