@@ -615,23 +615,40 @@ describe('insertMessage()', () => {
       JSON.stringify({ text: 'Hi there' })
     );
 
+    const logUtilsMock = sinon
+      .stub(logUtils, 'sendToVisitorLog')
+      .callsFake(() => {
+        return Promise.resolve('ok');
+      });
+
+    const mock = sinon.stub(logUtils, 'getVisitorLog').callsFake(() => {
+      return Promise.resolve({
+        visitorId: '123',
+        _id: '1245'
+      });
+    });
+
     const botMessage3 = await widgetMutations.widgetBotRequest(
       {},
       {
         integrationId: _integrationBot._id,
-        customerId: _customer._id,
+        visitorId: 'visitorId',
         message: 'Reply message',
         payload: 'Response of reply',
         type: 'postback'
       }
     );
 
+    expect(botMessage3.customerId).toBeDefined();
     expect(botMessage3.botData).toEqual([
       {
         type: 'text',
         text: 'Response of quick reply'
       }
     ]);
+
+    mock.restore();
+    logUtilsMock.restore();
 
     await memoryStorage().removeKey(
       `bot_initial_message_${_integrationBot._id}`
@@ -727,11 +744,20 @@ describe('saveBrowserInfo()', () => {
     const brand = await brandFactory({});
     const integration = await integrationFactory({ brandId: brand._id });
 
-    const visitorLogMock = sinon
+    const sendToVisitorLogMock = sinon
+      .stub(logUtils, 'sendToVisitorLog')
+      .callsFake(() => {
+        return Promise.resolve({
+          visitorId: '1234',
+          integrationId: integration._id
+        });
+      });
+
+    const getVisitorLogMock = sinon
       .stub(logUtils, 'getVisitorLog')
       .callsFake(() => {
         return Promise.resolve({
-          visitorId: '123',
+          visitorId: '1234',
           integrationId: integration._id
         });
       });
@@ -758,13 +784,34 @@ describe('saveBrowserInfo()', () => {
     const response = await widgetMutations.widgetsSaveBrowserInfo(
       {},
       {
-        visitorId: '123',
+        visitorId: '1234',
         browserInfo: { url: '/page' }
       }
     );
 
     expect(response && response.content).toBe('engageMessage');
-    visitorLogMock.restore();
+    getVisitorLogMock.restore();
+    sendToVisitorLogMock.restore();
+  });
+
+  test('with visitorId & when logger not running', async () => {
+    const logUtilsMock = sinon
+      .stub(logUtils, 'sendToVisitorLog')
+      .callsFake(() => {
+        throw new Error('fake error');
+      });
+
+    const response = await widgetMutations.widgetsSaveBrowserInfo(
+      {},
+      {
+        visitorId: '123',
+        browserInfo: { url: '/page' }
+      }
+    );
+
+    expect(response).toBe(null);
+
+    logUtilsMock.restore();
   });
 
   mock.restore();
