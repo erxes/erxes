@@ -779,7 +779,12 @@ const widgetMutations = {
     return args.conversationId;
   },
 
-  widgetsSaveCustomerGetNotified(_root, args: IVisitorContactInfoParams) {
+  async widgetsSaveCustomerGetNotified(_root, args: IVisitorContactInfoParams) {
+    if (args.visitorId && !args.customerId) {
+      const customer = await convertVisitorToCustomer(args.visitorId);
+      args.customerId = customer._id;
+    }
+
     return Customers.saveVisitorContactInfo(args);
   },
 
@@ -802,11 +807,7 @@ const widgetMutations = {
     }
 
     if (visitorId) {
-      try {
-        await sendToVisitorLog({ visitorId, location: browserInfo }, 'update');
-      } catch {
-        return null;
-      }
+      await sendToVisitorLog({ visitorId, location: browserInfo }, 'update');
     }
 
     try {
@@ -894,6 +895,7 @@ const widgetMutations = {
 
     if (visitorId && !customerId) {
       const customer = await convertVisitorToCustomer(visitorId);
+
       customerId = customer._id;
     }
 
