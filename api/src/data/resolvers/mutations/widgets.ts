@@ -802,11 +802,7 @@ const widgetMutations = {
     }
 
     if (visitorId) {
-      try {
-        await sendToVisitorLog({ visitorId, location: browserInfo }, 'update');
-      } catch (e) {
-        debugBase(e.message);
-      }
+      await sendToVisitorLog({ visitorId, location: browserInfo }, 'update');
     }
 
     try {
