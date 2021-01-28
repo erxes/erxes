@@ -802,11 +802,7 @@ const widgetMutations = {
     }
 
     if (visitorId) {
-      try {
-        await sendToVisitorLog({ visitorId, location: browserInfo }, 'update');
-      } catch {
-        return null;
-      }
+      await sendToVisitorLog({ visitorId, location: browserInfo }, 'update');
     }
 
     try {
@@ -872,14 +868,12 @@ const widgetMutations = {
       integrationId,
       conversationId,
       customerId,
-      visitorId,
       message,
       payload,
       type
     }: {
       conversationId?: string;
-      customerId?: string;
-      visitorId?: string;
+      customerId: string;
       integrationId: string;
       message: string;
       payload: string;
@@ -891,11 +885,6 @@ const widgetMutations = {
     }).lean();
 
     const { botEndpointUrl } = integration.messengerData;
-
-    if (visitorId && !customerId) {
-      const customer = await convertVisitorToCustomer(visitorId);
-      customerId = customer._id;
-    }
 
     let sessionId = conversationId;
 
