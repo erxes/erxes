@@ -777,26 +777,6 @@ describe('saveBrowserInfo()', () => {
     sendToVisitorLogMock.restore();
   });
 
-  test('with visitorId & when logger not running', async () => {
-    const logUtilsMock = sinon
-      .stub(logUtils, 'sendToVisitorLog')
-      .callsFake(() => {
-        throw new Error('fake error');
-      });
-
-    const response = await widgetMutations.widgetsSaveBrowserInfo(
-      {},
-      {
-        visitorId: '123',
-        browserInfo: { url: '/page' }
-      }
-    );
-
-    expect(response).toBe(null);
-
-    logUtilsMock.restore();
-  });
-
   mock.restore();
 });
 

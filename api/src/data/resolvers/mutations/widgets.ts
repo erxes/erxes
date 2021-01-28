@@ -804,8 +804,8 @@ const widgetMutations = {
     if (visitorId) {
       try {
         await sendToVisitorLog({ visitorId, location: browserInfo }, 'update');
-      } catch {
-        return null;
+      } catch (e) {
+        debugBase(e.message);
       }
     }
 
