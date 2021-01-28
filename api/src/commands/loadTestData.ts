@@ -237,39 +237,33 @@ const main = async () => {
   await Tags.createTag({
     name: 'happy',
     type: TAG_TYPES.CUSTOMER,
-    colorCode: '#4BBF6B',
-    order: `name${TAG_TYPES.CUSTOMER}`
+    colorCode: '#4BBF6B'
   });
   await Tags.createTag({
     name: 'angry',
     type: TAG_TYPES.CUSTOMER,
-    colorCode: '#CD5A91',
-    order: `name${TAG_TYPES.CUSTOMER}`
+    colorCode: '#CD5A91'
   });
   await Tags.createTag({
     name: 'other',
     type: TAG_TYPES.CUSTOMER,
-    colorCode: '#F7CE53',
-    order: `name${TAG_TYPES.CUSTOMER}`
+    colorCode: '#F7CE53'
   });
 
   await Tags.createTag({
     name: 'happy',
     type: TAG_TYPES.CONVERSATION,
-    colorCode: '#4BBF6B',
-    order: `name${TAG_TYPES.CONVERSATION}`
+    colorCode: '#4BBF6B'
   });
   await Tags.createTag({
     name: 'angry',
     type: TAG_TYPES.CONVERSATION,
-    colorCode: '#CD5A91',
-    order: `name${TAG_TYPES.CONVERSATION}`
+    colorCode: '#CD5A91'
   });
   await Tags.createTag({
     name: 'other',
     type: TAG_TYPES.CONVERSATION,
-    colorCode: '#F7CE53',
-    order: `name${TAG_TYPES.CONVERSATION}`
+    colorCode: '#F7CE53'
   });
 
   await Configs.createOrUpdateConfig({

@@ -7,14 +7,14 @@ export interface ITag {
   type: string;
   colorCode?: string;
   objectCount?: number;
-  order: string;
   parentId?: string;
-  relatedIds?: string[];
 }
 
 export interface ITagDocument extends ITag, Document {
   _id: string;
   createdAt: Date;
+  order?: string;
+  relatedIds?: string[];
 }
 
 export const tagSchema = schemaWrapper(

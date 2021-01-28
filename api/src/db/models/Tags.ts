@@ -45,6 +45,10 @@ const setRelatedIds = async (tag: ITagDocument) => {
 const removeRelatedIds = async (tag: ITagDocument) => {
   const tags = await Tags.find({ relatedIds: { $in: tag._id } });
 
+  if (tags.length === 0) {
+    return;
+  }
+
   const relatedIds: string[] = tag.relatedIds || [];
   relatedIds.push(tag._id);
 
@@ -188,24 +192,9 @@ export const loadClass = () => {
      * Get a parent tag
      */
     static async getParentTag(doc: ITag) {
-      const tag = await Tags.findOne({
+      return Tags.findOne({
         _id: doc.parentId
       }).lean();
-
-      if (tag && !tag.order) {
-        await Tags.updateOne(
-          {
-            _id: doc.parentId
-          },
-          { $set: { order: `${tag.name}${tag.type}` } }
-        );
-
-        return Tags.findOne({
-          _id: doc.parentId
-        }).lean();
-      }
-
-      return tag;
     }
 
     /**
@@ -221,10 +210,11 @@ export const loadClass = () => {
       const parentTag = await this.getParentTag(doc);
 
       // Generatingg order
-      doc.order = await this.generateOrder(parentTag, doc);
+      const order = await this.generateOrder(parentTag, doc);
 
       const tag = await Tags.create({
         ...doc,
+        order,
         createdAt: new Date()
       });
 
@@ -254,13 +244,13 @@ export const loadClass = () => {
       }
 
       // Generatingg  order
-      doc.order = await this.generateOrder(parentTag, doc);
+      const order = await this.generateOrder(parentTag, doc);
 
       const tag = await Tags.findOne({
         _id
       });
 
-      if (tag) {
+      if (tag && tag.order) {
         const childTags = await Tags.find({
           $and: [
             { order: { $regex: new RegExp(tag.order, 'i') } },
@@ -277,23 +267,26 @@ export const loadClass = () => {
 
         // updating child categories order
         childTags.forEach(async childTag => {
-          let order = childTag.order;
+          let childOrder = childTag.order;
 
-          order = order.replace(tag.order, doc.order);
+          if (tag.order && childOrder) {
+            childOrder = childOrder.replace(tag.order, order);
 
-          bulkDoc.push({
-            updateOne: {
-              filter: { _id: childTag._id },
-              update: { $set: { order } }
-            }
-          });
+            bulkDoc.push({
+              updateOne: {
+                filter: { _id: childTag._id },
+                update: { $set: { order: childOrder } }
+              }
+            });
+          }
         });
 
         await Tags.bulkWrite(bulkDoc);
+
         await removeRelatedIds(tag);
       }
 
-      await Tags.updateOne({ _id }, { $set: doc });
+      await Tags.updateOne({ _id }, { $set: { ...doc, order } });
 
       const updated = await Tags.findOne({ _id });
 
@@ -379,14 +372,29 @@ export const loadClass = () => {
      * Generating order
      */
     public static async generateOrder(
-      parentTag: ITag,
+      parentTag: ITagDocument,
       { name, type }: { name: string; type: string }
     ) {
-      const order = parentTag
-        ? `${parentTag.order}/${name}${type}`
-        : `${name}${type}`;
+      const order = `${name}${type}`;
 
-      return order;
+      if (!parentTag) {
+        return order;
+      }
+
+      let parentOrder = parentTag.order;
+
+      if (!parentOrder) {
+        parentOrder = `${parentTag.name}${parentTag.type}`;
+
+        await Tags.updateOne(
+          {
+            _id: parentTag._id
+          },
+          { $set: { order: parentOrder } }
+        );
+      }
+
+      return `${parentOrder}/${order}`;
     }
   }
 

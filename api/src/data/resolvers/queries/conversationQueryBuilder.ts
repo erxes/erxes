@@ -266,13 +266,11 @@ export default class Builder {
   public async tagFilter(tagIds: string[]): Promise<{ tagIds: IIn }> {
     let ids: string[] = [];
 
-    for (const _id of tagIds) {
-      const tag = await Tags.findOne({ _id });
+    const tags = await Tags.find({ _id: { $in: tagIds } });
 
-      if (tag) {
-        ids.push(_id);
-        ids = ids.concat(tag.relatedIds || []);
-      }
+    for (const tag of tags) {
+      ids.push(tag._id);
+      ids = ids.concat(tag.relatedIds || []);
     }
 
     return {
