@@ -132,8 +132,6 @@ class AddForm extends React.Component<Props, State> {
     );
   }
 
-  renderCardSelect() {}
-
   onChangeCardSelect = option => {
     const { cardId, name } = option;
 
