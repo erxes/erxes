@@ -825,6 +825,12 @@ describe('rest', () => {
       });
     });
 
+    const logUtilsMock = sinon
+      .stub(logUtils, 'sendToVisitorLog')
+      .callsFake(() => {
+        return Promise.resolve('ok');
+      });
+
     const customer = await widgetMutations.widgetsSaveCustomerGetNotified(
       {},
       {
@@ -839,6 +845,7 @@ describe('rest', () => {
       customer.visitorContactInfo && customer.visitorContactInfo.email
     ).toBe('email');
 
+    logUtilsMock.restore();
     mock.restore();
   });
 
