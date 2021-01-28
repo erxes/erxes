@@ -615,11 +615,27 @@ describe('insertMessage()', () => {
       JSON.stringify({ text: 'Hi there' })
     );
 
+    const sendToVisitorLogMock = sinon
+      .stub(logUtils, 'sendToVisitorLog')
+      .callsFake(() => {
+        return Promise.resolve({
+          visitorId: '123',
+          integrationId: _integration._id
+        });
+      });
+
+    const visitorMock = sinon.stub(logUtils, 'getVisitorLog').callsFake(() => {
+      return Promise.resolve({
+        visitorId: '123',
+        integrationId: _integration._id
+      });
+    });
+
     const botMessage3 = await widgetMutations.widgetBotRequest(
       {},
       {
         integrationId: _integrationBot._id,
-        customerId: _customer._id,
+        visitorId: '123',
         message: 'Reply message',
         payload: 'Response of reply',
         type: 'postback'
@@ -636,6 +652,9 @@ describe('insertMessage()', () => {
     await memoryStorage().removeKey(
       `bot_initial_message_${_integrationBot._id}`
     );
+
+    visitorMock.restore();
+    sendToVisitorLogMock.restore();
 
     sendRequestMock.restore();
   });
@@ -796,6 +815,31 @@ describe('rest', () => {
     expect(
       customer.visitorContactInfo && customer.visitorContactInfo.email
     ).toBe('email');
+  });
+
+  test('widgetsSaveCustomerGetNotified without customerId', async () => {
+    const mock = sinon.stub(logUtils, 'getVisitorLog').callsFake(() => {
+      return Promise.resolve({
+        visitorId: '123',
+        _id: '1245'
+      });
+    });
+
+    const customer = await widgetMutations.widgetsSaveCustomerGetNotified(
+      {},
+      {
+        visitorId: '123',
+        customerId: '',
+        type: 'email',
+        value: 'email'
+      }
+    );
+
+    expect(
+      customer.visitorContactInfo && customer.visitorContactInfo.email
+    ).toBe('email');
+
+    mock.restore();
   });
 
   test('widgetsSendTypingInfo', async () => {
