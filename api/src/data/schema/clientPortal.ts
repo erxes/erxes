@@ -22,7 +22,7 @@ export const types = `
 export const queries = `
   configClientPortal: ClientPortal
   getTaskStages: JSON
-  getStageTasks(stageId: String!): JSON
+  getTasks(stageId: String!): JSON
 `;
 
 export const mutations = `

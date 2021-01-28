@@ -23,7 +23,7 @@ const configClientPortalQueries = {
     return stages;
   },
 
-  async getStageTasks(_root, { stageId }: { stageId: string }) {
+  async getTasks(_root, { stageId }: { stageId: string }) {
     return Tasks.find({ stageId });
   }
 };
