@@ -615,40 +615,23 @@ describe('insertMessage()', () => {
       JSON.stringify({ text: 'Hi there' })
     );
 
-    const logUtilsMock = sinon
-      .stub(logUtils, 'sendToVisitorLog')
-      .callsFake(() => {
-        return Promise.resolve('ok');
-      });
-
-    const mock = sinon.stub(logUtils, 'getVisitorLog').callsFake(() => {
-      return Promise.resolve({
-        visitorId: '123',
-        _id: '1245'
-      });
-    });
-
     const botMessage3 = await widgetMutations.widgetBotRequest(
       {},
       {
         integrationId: _integrationBot._id,
-        visitorId: 'visitorId',
+        customerId: _customer._id,
         message: 'Reply message',
         payload: 'Response of reply',
         type: 'postback'
       }
     );
 
-    expect(botMessage3.customerId).toBeDefined();
     expect(botMessage3.botData).toEqual([
       {
         type: 'text',
         text: 'Response of quick reply'
       }
     ]);
-
-    mock.restore();
-    logUtilsMock.restore();
 
     await memoryStorage().removeKey(
       `bot_initial_message_${_integrationBot._id}`
