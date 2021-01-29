@@ -238,6 +238,8 @@ class LeftSidebar extends React.Component<Props, State> {
                 paramKey="tag"
                 icon="tag-alt"
                 refetchRequired={refetchRequired}
+                multiple={true}
+                treeView={true}
               />
             </FilterToggler>
           </ScrollContent>

@@ -33,7 +33,12 @@ function List({ tags, type, remove, loading, renderButton }: Props) {
   );
 
   const modalContent = props => (
-    <FormComponent {...props} type={type} renderButton={renderButton} />
+    <FormComponent
+      {...props}
+      type={type}
+      renderButton={renderButton}
+      tags={tags}
+    />
   );
 
   const actionBarRight = (
@@ -63,16 +68,23 @@ function List({ tags, type, remove, loading, renderButton }: Props) {
         </tr>
       </thead>
       <tbody id={'TagsShowing'}>
-        {tags.map(tag => (
-          <Row
-            key={tag._id}
-            tag={tag}
-            count={tag.objectCount}
-            type={type}
-            remove={remove}
-            renderButton={renderButton}
-          />
-        ))}
+        {tags.map(tag => {
+          const order = tag.order || '';
+          const foundedString = order.match(/[/]/gi);
+
+          return (
+            <Row
+              key={tag._id}
+              tag={tag}
+              count={tag.objectCount}
+              type={type}
+              space={foundedString ? foundedString.length : 0}
+              remove={remove}
+              renderButton={renderButton}
+              tags={tags}
+            />
+          );
+        })}
       </tbody>
     </Table>
   );
