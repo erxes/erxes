@@ -1,5 +1,4 @@
 import { sendNotification, getConfig, sendRequest } from 'erxes-api-utils'
-// import { sendNotification,  } from './notification';
 import { toErkhet } from './utils';
 
 export const customerToErkhet = async (models, messageBroker, memoryStorage, params, action) => {
@@ -43,7 +42,7 @@ export const validCompanyCode = async (config, companyCode) => {
     const response = await sendRequest({ url: config.checkCompanyUrl, method: 'GET', params: { regno: companyCode } });
 
     if (response.found) {
-      result = true;
+      result = response.name
     }
   }
   return result;
@@ -52,9 +51,22 @@ export const validCompanyCode = async (config, companyCode) => {
 export const companyToErkhet = async (user, models, messageBroker, memoryStorage, graphqlPubsub, params, action) => {
   const config = await getConfig(models, memoryStorage, 'ERKHET', {});
   const company = params.updatedDocument || params.object;
-  const isValid = await validCompanyCode(config, company.code);
+  const companyName = await validCompanyCode(config, company.code);
 
-  if (!isValid) {
+  if (companyName) {
+    if (company.primaryName !== companyName) {
+      company.primaryName = companyName;
+
+      await models.Companies.updateCompany(
+        company._id,
+        {
+          company,
+          primaryName: companyName,
+          names: [companyName]
+        }
+      );
+    }
+  } else {
     sendNotification(
       models,
       memoryStorage,
