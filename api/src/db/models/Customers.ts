@@ -63,6 +63,7 @@ export interface IUpdateMessengerCustomerParams {
 
 export interface IVisitorContactInfoParams {
   customerId: string;
+  visitorId?: string;
   type: string;
   value: string;
 }
