@@ -217,6 +217,7 @@ export const userFactory = async (params: IUserFactoryInput = {}) => {
 interface ITagFactoryInput {
   colorCode?: string;
   type?: string;
+  parentId?: string;
 }
 
 export const tagsFactory = (params: ITagFactoryInput = {}) => {
@@ -224,7 +225,8 @@ export const tagsFactory = (params: ITagFactoryInput = {}) => {
     name: faker.random.word(),
     type: params.type || 'engageMessage',
     colorCode: params.colorCode || Random.id(),
-    userId: Random.id()
+    userId: Random.id(),
+    parentId: params.parentId
   });
 
   return tag.save();
