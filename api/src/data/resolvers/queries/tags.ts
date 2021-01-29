@@ -7,7 +7,10 @@ const tagQueries = {
    * Tags list
    */
   tags(_root, { type }: { type: string }, { commonQuerySelector }: IContext) {
-    return Tags.find({ ...commonQuerySelector, type }).sort({ name: 1 });
+    return Tags.find({ ...commonQuerySelector, type }).sort({
+      order: 1,
+      name: 1
+    });
   },
 
   /**

@@ -53,20 +53,18 @@ const tagMutations = {
   /**
    * Removes a tag
    */
-  async tagsRemove(_root, { ids }: { ids: string[] }, { user }: IContext) {
-    const tags = await Tags.find({ _id: { $in: ids } });
-    const removed = await Tags.removeTag(ids);
+  async tagsRemove(_root, { _id }: { _id: string }, { user }: IContext) {
+    const removed = await Tags.removeTag(_id);
+    const tag = await Tags.findOne({ _id });
 
-    for (const tag of tags) {
-      await putDeleteLog(
-        {
-          type: MODULE_NAMES.TAG,
-          object: tag,
-          description: `"${tag.name}" has been removed`
-        },
-        user
-      );
-    }
+    await putDeleteLog(
+      {
+        type: MODULE_NAMES.TAG,
+        object: tag,
+        description: `"${tag && tag.name}" has been removed`
+      },
+      user
+    );
 
     return removed;
   },

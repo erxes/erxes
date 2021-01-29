@@ -1,4 +1,6 @@
+import { mockServer } from 'graphql-tools';
 import * as moment from 'moment';
+import * as sinon from 'sinon';
 import { IntegrationsAPI } from '../data/dataSources';
 import { graphqlRequest } from '../db/connection';
 import {
@@ -21,6 +23,7 @@ import {
 } from '../db/models';
 import { MESSAGE_TYPES } from '../db/models/definitions/constants';
 import { IUser } from '../db/models/definitions/users';
+import * as elk from '../elasticsearch';
 import './setup.ts';
 
 describe('conversationQueries', () => {
@@ -656,6 +659,12 @@ describe('conversationQueries', () => {
     await conversationFactory({ integrationId: integration._id });
     await conversationFactory();
     await conversationFactory();
+
+    const responses = await graphqlRequest(qryConversations, 'conversations', {
+      brandId: 'brandId'
+    });
+
+    expect(responses.length).toEqual(0);
 
     const responses1 = await graphqlRequest(qryConversations, 'conversations', {
       brandId: brand._id
@@ -1295,6 +1304,12 @@ describe('conversationQueries', () => {
       );
     };
 
+    const mock = sinon.stub(elk, 'fetchElk').callsFake(() => {
+      return Promise.resolve({
+        count: 1
+      });
+    });
+
     // conversation with channel
     await conversationFactory({ integrationId: integration._id });
 
@@ -1302,58 +1317,7 @@ describe('conversationQueries', () => {
 
     expect(response.byChannels[channel._id]).toBe(1);
 
-    await conversationFactory({
-      integrationId: integration._id,
-      userRelevance: 'wrongCode'
-    });
-
-    const response2 = await channelCountQuery({});
-
-    expect(Object.keys(response2.byChannels).length).toBe(1);
-    expect(response2.byChannels[channel._id]).toBe(2);
-
-    const integration1 = await integrationFactory({});
-    const channel1 = await channelFactory({
-      memberIds: [user._id, userWithCode._id, userWithoutCode._id],
-      integrationIds: [integration1._id]
-    });
-
-    await conversationFactory({ integrationId: integration1._id });
-
-    const response3 = await channelCountQuery({});
-
-    expect(Object.keys(response3.byChannels).length).toBe(2);
-    expect(response3.byChannels[channel._id]).toBe(2);
-    expect(response3.byChannels[channel1._id]).toBe(1);
-
-    const response4 = await channelCountQuery({
-      params: { channelId: channel1._id },
-      qUser: userWithoutCode
-    });
-
-    expect(response4.byChannels[channel._id]).toBe(2);
-    expect(response4.byChannels[channel1._id]).toBe(1);
-
-    await conversationFactory({
-      integrationId: integration1._id,
-      userRelevance: userWithCode.code
-    });
-
-    const response5 = await channelCountQuery({
-      qUser: userWithCode
-    });
-
-    expect(response5.byChannels[channel._id]).toBe(1);
-    expect(response5.byChannels[channel1._id]).toBe(2);
-
-    const newUser = await userFactory({ code: '002' });
-
-    const response6 = await channelCountQuery({
-      qUser: newUser
-    });
-
-    expect(response6.byChannels[channel._id]).toBe(0);
-    expect(response6.byChannels[channel1._id]).toBe(0);
+    mock.restore();
   });
 
   test('Count conversations by brand', async () => {
@@ -1368,6 +1332,12 @@ describe('conversationQueries', () => {
       );
     };
 
+    const mock = sinon.stub(elk, 'fetchElk').callsFake(() => {
+      return Promise.resolve({
+        count: 1
+      });
+    });
+
     // conversation with brand
     await conversationFactory({ integrationId: integration._id });
 
@@ -1376,39 +1346,7 @@ describe('conversationQueries', () => {
     expect(Object.keys(response.byBrands).length).toBe(1);
     expect(response.byBrands[brand._id]).toBe(1);
 
-    const newBrand = await brandFactory({});
-
-    const response1 = await brandCountQuery();
-    expect(Object.keys(response1.byBrands).length).toBe(2);
-    expect(response1.byBrands[newBrand._id]).toBe(0);
-
-    const integration1 = await integrationFactory({ brandId: newBrand._id });
-    await conversationFactory({ integrationId: integration1._id });
-
-    const response2 = await brandCountQuery();
-
-    expect(Object.keys(response2.byBrands).length).toBe(2);
-    expect(response2.byBrands[brand._id]).toBe(1);
-    expect(response2.byBrands[newBrand._id]).toBe(1);
-
-    await Channels.updateOne(
-      { _id: channel._id },
-      { $set: { integrationIds: [integration._id, integration1._id] } }
-    );
-
-    await conversationFactory({
-      integrationId: integration1._id,
-      userRelevance: `${userWithCode.code}SS`
-    });
-
-    const response3 = await brandCountQuery();
-
-    expect(response3.byBrands[brand._id]).toBe(1);
-    expect(response3.byBrands[newBrand._id]).toBe(2);
-
-    const response4 = await brandCountQuery(userWithCode);
-
-    expect(response4.byBrands[newBrand._id]).toBe(2);
+    mock.restore();
   });
 
   test('Count conversations by default values', async () => {
@@ -1533,6 +1471,12 @@ describe('conversationQueries', () => {
       );
     };
 
+    const mock = sinon.stub(elk, 'fetchElk').callsFake(() => {
+      return Promise.resolve({
+        count: 0
+      });
+    });
+
     // conversation with integration type 'messenger'
     await conversationFactory({ integrationId: integration._id });
 
@@ -1541,58 +1485,13 @@ describe('conversationQueries', () => {
       k => k !== 'messenger'
     );
 
-    expect(response.byIntegrationTypes.messenger).toBe(1);
+    expect(response.byIntegrationTypes.messenger).toBe(0);
 
     for (const key of keys) {
       expect(response.byIntegrationTypes[key]).toBe(0);
     }
 
-    const integration1 = await integrationFactory({ kind: 'lead' });
-    const integration2 = await integrationFactory({ kind: 'lead' });
-
-    await Channels.updateOne(
-      { _id: channel._id },
-      {
-        $set: {
-          integrationIds: [integration._id, integration1._id, integration2._id]
-        }
-      }
-    );
-
-    // conversation with integration type 'lead'
-    await conversationFactory({ integrationId: integration1._id });
-    await conversationFactory({ integrationId: integration2._id });
-
-    const response1 = await integrationTypeQuery();
-
-    expect(response1.byIntegrationTypes.messenger).toBe(1);
-    expect(response1.byIntegrationTypes.lead).toBe(2);
-
-    const response2 = await integrationTypeQuery(userWithCode);
-
-    expect(response2.byIntegrationTypes.messenger).toBe(1);
-    expect(response2.byIntegrationTypes.lead).toBe(2);
-
-    await conversationFactory({
-      integrationId: integration._id,
-      userRelevance: 'wrongCode'
-    });
-
-    await conversationFactory({
-      integrationId: integration2._id,
-      userRelevance: userWithCode.code
-    });
-
-    const response3 = await integrationTypeQuery(userWithCode);
-
-    expect(response3.byIntegrationTypes.messenger).toBe(1);
-    expect(response3.byIntegrationTypes.lead).toBe(3);
-
-    const newUser = await userFactory();
-    const response4 = await integrationTypeQuery(newUser);
-
-    expect(response4.byIntegrationTypes.messenger).toBe(0);
-    expect(response4.byIntegrationTypes.lead).toBe(0);
+    mock.restore();
   });
 
   test('Count conversations by tag', async () => {
@@ -1605,8 +1504,11 @@ describe('conversationQueries', () => {
       );
     };
 
-    const response = await tagCountQuery();
-    expect(response.byTags).toEqual({});
+    const mock = sinon.stub(elk, 'fetchElk').callsFake(() => {
+      return Promise.resolve({
+        count: 2
+      });
+    });
 
     const tag = await tagsFactory({ type: 'conversation' });
 
@@ -1621,26 +1523,12 @@ describe('conversationQueries', () => {
     });
     await conversationFactory({ integrationId: integration._id });
 
-    const response1 = await tagCountQuery();
+    const response = await tagCountQuery();
 
-    expect(Object.keys(response1.byTags).length).toEqual(1);
-    expect(response1.byTags[tag._id]).toBe(2);
+    expect(Object.keys(response.byTags).length).toEqual(1);
+    expect(response.byTags[tag._id]).toBe(2);
 
-    await conversationFactory({
-      integrationId: integration._id,
-      userRelevance: 'wrongCode',
-      tagIds: [tag._id]
-    });
-
-    await conversationFactory({
-      integrationId: integration._id,
-      userRelevance: userWithCode.code,
-      tagIds: [tag._id]
-    });
-
-    const response2 = await tagCountQuery(userWithCode);
-
-    expect(response2.byTags[tag._id]).toBe(3);
+    mock.restore();
   });
 
   test('Get total count of conversations by channel', async () => {

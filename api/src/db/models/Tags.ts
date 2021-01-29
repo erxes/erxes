@@ -17,11 +17,67 @@ interface ITagObjectParams {
   tagType: string;
 }
 
+// set related tags
+const setRelatedIds = async (tag: ITagDocument) => {
+  if (tag.parentId) {
+    const parentTag = await Tags.findOne({ _id: tag.parentId });
+
+    if (parentTag) {
+      let relatedIds: string[];
+
+      relatedIds = tag.relatedIds || [];
+      relatedIds.push(tag._id);
+
+      relatedIds = _.union(relatedIds, parentTag.relatedIds || []);
+
+      await Tags.updateOne({ _id: parentTag._id }, { $set: { relatedIds } });
+
+      const updated = await Tags.findOne({ _id: tag.parentId });
+
+      if (updated) {
+        await setRelatedIds(updated);
+      }
+    }
+  }
+};
+
+// remove related tags
+const removeRelatedIds = async (tag: ITagDocument) => {
+  const tags = await Tags.find({ relatedIds: { $in: tag._id } });
+
+  if (tags.length === 0) {
+    return;
+  }
+
+  const relatedIds: string[] = tag.relatedIds || [];
+  relatedIds.push(tag._id);
+
+  const doc: Array<{
+    updateOne: {
+      filter: { _id: string };
+      update: { $set: { relatedIds: string[] } };
+    };
+  }> = [];
+
+  tags.forEach(async t => {
+    const ids = (t.relatedIds || []).filter(id => !relatedIds.includes(id));
+
+    doc.push({
+      updateOne: {
+        filter: { _id: t._id },
+        update: { $set: { relatedIds: ids } }
+      }
+    });
+  });
+
+  await Tags.bulkWrite(doc);
+};
+
 export interface ITagModel extends Model<ITagDocument> {
   getTag(_id: string): Promise<ITagDocument>;
   createTag(doc: ITag): Promise<ITagDocument>;
   updateTag(_id: string, doc: ITag): Promise<ITagDocument>;
-  removeTag(ids: string[]): void;
+  removeTag(_id: string): void;
   tagsTag(type: string, targetIds: string[], tagIds: string[]): void;
   tagObject(params: ITagObjectParams): void;
   validateUniqueness(
@@ -132,6 +188,15 @@ export const loadClass = () => {
       );
     }
 
+    /*
+     * Get a parent tag
+     */
+    static async getParentTag(doc: ITag) {
+      return Tags.findOne({
+        _id: doc.parentId
+      }).lean();
+    }
+
     /**
      * Create a tag
      */
@@ -142,10 +207,20 @@ export const loadClass = () => {
         throw new Error('Tag duplicated');
       }
 
-      return Tags.create({
+      const parentTag = await this.getParentTag(doc);
+
+      // Generatingg order
+      const order = await this.generateOrder(parentTag, doc);
+
+      const tag = await Tags.create({
         ...doc,
+        order,
         createdAt: new Date()
       });
+
+      await setRelatedIds(tag);
+
+      return tag;
     }
 
     /**
@@ -162,41 +237,99 @@ export const loadClass = () => {
         throw new Error('Tag duplicated');
       }
 
-      await Tags.updateOne({ _id }, { $set: doc });
+      const parentTag = await this.getParentTag(doc);
 
-      return Tags.findOne({ _id });
+      if (parentTag && parentTag.parentId === _id) {
+        throw new Error('Cannot change tag');
+      }
+
+      // Generatingg  order
+      const order = await this.generateOrder(parentTag, doc);
+
+      const tag = await Tags.findOne({
+        _id
+      });
+
+      if (tag && tag.order) {
+        const childTags = await Tags.find({
+          $and: [
+            { order: { $regex: new RegExp(tag.order, 'i') } },
+            { _id: { $ne: _id } }
+          ]
+        });
+
+        const bulkDoc: Array<{
+          updateOne: {
+            filter: { _id: string };
+            update: { $set: { order: string } };
+          };
+        }> = [];
+
+        // updating child categories order
+        childTags.forEach(async childTag => {
+          let childOrder = childTag.order;
+
+          if (tag.order && childOrder) {
+            childOrder = childOrder.replace(tag.order, order);
+
+            bulkDoc.push({
+              updateOne: {
+                filter: { _id: childTag._id },
+                update: { $set: { order: childOrder } }
+              }
+            });
+          }
+        });
+
+        await Tags.bulkWrite(bulkDoc);
+
+        await removeRelatedIds(tag);
+      }
+
+      await Tags.updateOne({ _id }, { $set: { ...doc, order } });
+
+      const updated = await Tags.findOne({ _id });
+
+      if (updated) {
+        await setRelatedIds(updated);
+      }
+
+      return updated;
     }
 
     /**
      * Remove Tag
      */
-    public static async removeTag(ids: string[]) {
-      const tagCount = await Tags.find({ _id: { $in: ids } }).countDocuments();
+    public static async removeTag(_id: string) {
+      const tag = await Tags.findOne({ _id });
 
-      if (tagCount !== ids.length) {
+      if (!tag) {
         throw new Error('Tag not found');
       }
 
-      let count = 0;
+      const childCount = await Tags.countDocuments({ parentId: _id });
 
-      count += await Customers.find({ tagIds: { $in: ids } }).countDocuments();
-      count += await Conversations.find({
-        tagIds: { $in: ids }
-      }).countDocuments();
-      count += await EngageMessages.find({
-        tagIds: { $in: ids }
-      }).countDocuments();
-      count += await Companies.find({ tagIds: { $in: ids } }).countDocuments();
-      count += await Integrations.findIntegrations({
-        tagIds: { $in: ids }
-      }).countDocuments();
-      count += await Products.find({ tagIds: { $in: ids } }).countDocuments();
+      if (childCount > 0) {
+        throw new Error("Can't remove a tag");
+      }
+
+      const selector = { tagIds: { $in: [_id] } };
+
+      let count = 0;
+      count += await Customers.countDocuments(selector);
+      count += await Conversations.countDocuments(selector);
+      count += await EngageMessages.countDocuments(selector);
+      count += await Companies.countDocuments(selector);
+      count += await Integrations.findIntegrations(selector).countDocuments();
+      count += await Products.countDocuments(selector);
 
       if (count > 0) {
         throw new Error("Can't remove a tag with tagged object(s)");
       }
 
-      return Tags.deleteMany({ _id: { $in: ids } });
+      await removeRelatedIds(tag);
+
+      return Tags.deleteOne({ _id });
     }
 
     /**
@@ -233,6 +366,35 @@ export const loadClass = () => {
         collection,
         tagType: type
       });
+    }
+
+    /**
+     * Generating order
+     */
+    public static async generateOrder(
+      parentTag: ITagDocument,
+      { name, type }: { name: string; type: string }
+    ) {
+      const order = `${name}${type}`;
+
+      if (!parentTag) {
+        return order;
+      }
+
+      let parentOrder = parentTag.order;
+
+      if (!parentOrder) {
+        parentOrder = `${parentTag.name}${parentTag.type}`;
+
+        await Tags.updateOne(
+          {
+            _id: parentTag._id
+          },
+          { $set: { order: parentOrder } }
+        );
+      }
+
+      return `${parentOrder}/${order}`;
     }
   }
 

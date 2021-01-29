@@ -5,6 +5,7 @@ import { __ } from 'modules/common/utils';
 import { CustomerCounts, RadioContainer } from 'modules/engage/styles';
 import { TargetCount } from 'modules/engage/types';
 import { ISegment, ISegmentDoc } from 'modules/segments/types';
+import { ITag } from 'modules/tags/types';
 import React from 'react';
 import Targets from '../Targets';
 
@@ -22,6 +23,7 @@ type Props<Target, OnSubmit> = {
     count?: (segment: ISegmentDoc) => void;
     headSegments?: ISegment[];
     segmentFields?: any[];
+    tags?: ITag[];
   };
   customersCount: (ids: string[]) => number;
   onChange: (name: string, value: string[]) => void;

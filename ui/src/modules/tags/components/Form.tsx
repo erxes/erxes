@@ -35,10 +35,17 @@ type Props = {
   afterSave: () => void;
   renderButton: (props: IButtonMutateProps) => JSX.Element;
   closeModal?: () => void;
+  tags: ITag[];
 };
 
 type State = {
   colorCode: string;
+};
+
+type IItem = {
+  order?: string;
+  name: string;
+  _id: string;
 };
 
 class FormComponent extends React.Component<Props, State> {
@@ -56,7 +63,7 @@ class FormComponent extends React.Component<Props, State> {
     this.setState({ colorCode: e.hex });
   };
 
-  generateDoc = (values: { _id?: string; name: string }) => {
+  generateDoc = (values: { _id?: string; name: string; parentId?: string }) => {
     const { tag, type } = this.props;
     const finalValues = values;
 
@@ -68,12 +75,40 @@ class FormComponent extends React.Component<Props, State> {
       _id: finalValues._id,
       name: finalValues.name,
       colorCode: this.state.colorCode,
-      type
+      type,
+      parentId: finalValues.parentId
     };
   };
 
+  generateTagOptions = (tags: IItem[], currentTagId?: string) => {
+    const result: React.ReactNode[] = [];
+
+    for (const tag of tags) {
+      const order = tag.order || '';
+
+      const foundedString = order.match(/[/]/gi);
+
+      let space = '';
+
+      if (foundedString) {
+        space = '\u00A0 '.repeat(foundedString.length);
+      }
+
+      if (currentTagId !== tag._id) {
+        result.push(
+          <option key={tag._id} value={tag._id}>
+            {space}
+            {tag.name}
+          </option>
+        );
+      }
+    }
+
+    return result;
+  };
+
   renderContent = (formProps: IFormProps) => {
-    const { tag, closeModal, afterSave, renderButton } = this.props;
+    const { tag, closeModal, afterSave, renderButton, tags } = this.props;
     const { values, isSubmitted } = formProps;
     const { colorCode } = this.state;
     const object = tag || ({} as ITag);
@@ -115,6 +150,22 @@ class FormComponent extends React.Component<Props, State> {
             </ColorPick>
           </OverlayTrigger>
         </FormGroup>
+
+        {tags && (
+          <FormGroup>
+            <ControlLabel>Parent Tag</ControlLabel>
+
+            <FormControl
+              {...formProps}
+              name="parentId"
+              componentClass="select"
+              defaultValue={object.parentId}
+            >
+              <option value="" />
+              {this.generateTagOptions(tags, object._id)}
+            </FormControl>
+          </FormGroup>
+        )}
 
         <ModalFooter id={'AddTagButtons'}>
           <Button

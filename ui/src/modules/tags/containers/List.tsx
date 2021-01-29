@@ -24,7 +24,7 @@ const ListContainer = (props: FinalProps) => {
   const remove = tag => {
     confirm()
       .then(() => {
-        removeMutation({ variables: { ids: [tag._id] } })
+        removeMutation({ variables: { _id: tag._id } })
           .then(() => {
             Alert.success('You successfully deleted a tag');
             tagsQuery.refetch();
@@ -91,7 +91,7 @@ export default withProps<Props>(
         fetchPolicy: 'network-only'
       })
     }),
-    graphql<Props, RemoveMutationResponse, { ids: string[] }>(
+    graphql<Props, RemoveMutationResponse, { _id: string }>(
       gql(mutations.remove),
       {
         name: 'removeMutation',

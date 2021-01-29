@@ -95,14 +95,16 @@ describe('Test tags mutations', () => {
 
   test('Remove tag', async () => {
     const mutation = `
-      mutation tagsRemove($ids: [String!]!) {
-        tagsRemove(ids: $ids)
+      mutation tagsRemove($_id: String!) {
+        tagsRemove(_id: $_id)
       }
     `;
 
-    await graphqlRequest(mutation, 'tagsRemove', { ids: [_tag._id] }, context);
+    const tagId = _tag._id;
 
-    expect(await Tags.find({ _id: { $in: [_tag._id] } })).toEqual([]);
+    await graphqlRequest(mutation, 'tagsRemove', { _id: tagId }, context);
+
+    expect(await Tags.findOne({ _id: tagId })).toBeNull();
   });
 
   test('Tag tags', async () => {
