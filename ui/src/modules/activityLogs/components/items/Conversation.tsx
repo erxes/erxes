@@ -133,7 +133,12 @@ class Conversation extends React.Component<Props, { toggleMessage: boolean }> {
   renderAction() {
     const { activity, conversation, comments } = this.props;
     const { _id, integration } = conversation;
+
     let { customer } = conversation;
+
+    if (!customer) {
+      return null;
+    }
 
     let kind = integration ? integration.kind : 'conversation';
 

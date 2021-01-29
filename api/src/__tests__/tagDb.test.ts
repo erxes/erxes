@@ -85,11 +85,26 @@ describe('Test tags model', () => {
   });
 
   test('Update tag check duplicated', async () => {
-    expect.assertions(1);
+    expect.assertions(2);
     try {
-      await Tags.updateTag(_tag2._id, { name: _tag.name, type: _tag.type });
+      await Tags.updateTag(_tag2._id, {
+        name: _tag.name,
+        type: _tag.type
+      });
     } catch (e) {
       expect(e.message).toEqual('Tag duplicated');
+    }
+
+    try {
+      const childTag = await tagsFactory({ parentId: _tag2._id });
+
+      await Tags.updateTag(_tag2._id, {
+        name: 'child tag',
+        type: _tag.type,
+        parentId: childTag._id
+      });
+    } catch (e) {
+      expect(e.message).toEqual('Cannot change tag');
     }
   });
 
@@ -104,6 +119,7 @@ describe('Test tags model', () => {
     expect(tagObj.name).toEqual(`${_tag.name}1`);
     expect(tagObj.type).toEqual(_tag.type);
     expect(tagObj.colorCode).toEqual(_tag.colorCode);
+    expect(tagObj.order).toEqual(`${_tag.name}1${_tag.type}`);
   });
 
   test('Update tag', async () => {
@@ -117,11 +133,66 @@ describe('Test tags model', () => {
     expect(tagObj.name).toEqual(_tag.name);
     expect(tagObj.type).toEqual(_tag.type);
     expect(tagObj.colorCode).toEqual(_tag.colorCode);
+
+    const tag2 = await Tags.createTag({
+      name: 'sub tag',
+      type: _tag.type,
+      parentId: tagObj._id
+    });
+
+    let parentTag = await Tags.findOne({ _id: tagObj._id }).lean();
+
+    expect(tag2.order).toEqual(`${tagObj.order}/sub tag${_tag.type}`);
+    expect(parentTag.relatedIds).toEqual([tag2._id]);
+
+    const tag3 = await Tags.createTag({
+      name: 'sub tag 2',
+      type: _tag.type,
+      parentId: tag2._id
+    });
+
+    expect(tag3.order).toEqual(`${tag2.order}/sub tag 2${_tag.type}`);
+
+    const updatedTag2 = await Tags.findOne({ _id: tag2._id }).lean();
+    expect(updatedTag2.relatedIds).toEqual([tag3._id]);
+
+    parentTag = await Tags.findOne({ _id: tagObj._id }).lean();
+    expect(parentTag.relatedIds).toEqual([tag3._id, tag2._id]);
+
+    const newTag = await tagsFactory({});
+
+    await Tags.updateTag(tag2._id, {
+      name: 'change parent tag',
+      type: _tag.type,
+      parentId: newTag._id
+    });
+
+    parentTag = await Tags.findOne({ _id: tagObj._id }).lean();
+    expect(parentTag.relatedIds.length).toEqual(0);
   });
 
   test('Remove tag', async () => {
-    const isDeleted = await Tags.removeTag([_tag.id]);
+    const parentId = _tag._id;
+
+    const newTag = await Tags.createTag({
+      name: 'new',
+      type: _tag.type,
+      parentId
+    });
+
+    let parentTag = await Tags.findOne({ _id: parentId }).lean();
+
+    expect(parentTag.relatedIds.length).toEqual(1);
+    expect(parentTag.relatedIds).toEqual([newTag._id]);
+
+    const isDeleted = await Tags.removeTag(newTag.id);
+    parentTag = await Tags.findOne({ _id: parentId }).lean();
+
     expect(isDeleted).toBeTruthy();
+    expect(parentTag.relatedIds.length).toEqual(0);
+
+    const empty = await Tags.removeTag(parentId);
+    expect(empty).toBeTruthy();
   });
 
   test('Tags tag', async () => {
@@ -135,7 +206,7 @@ describe('Test tags model', () => {
     const tagObj = await Tags.findOne({ _id: _tag._id });
 
     if (!messageObj || !messageObj.tagIds) {
-      throw new Error('Engage message not found');
+      throw new Error('Campaign not found');
     }
 
     if (!tagObj) {
@@ -153,22 +224,35 @@ describe('Test tags model', () => {
   test('Remove tag not found', async () => {
     expect.assertions(1);
     try {
-      await Tags.removeTag([_message._id]);
+      await Tags.removeTag(_message._id);
     } catch (e) {
       expect(e.message).toEqual('Tag not found');
     }
   });
 
   test("Can't remove a tag", async () => {
-    expect.assertions(1);
+    expect.assertions(2);
     try {
       await EngageMessages.updateMany(
         { _id: _message._id },
         { $set: { tagIds: [_tag._id] } }
       );
-      await Tags.removeTag([_tag._id]);
+
+      await Tags.removeTag(_tag._id);
     } catch (e) {
       expect(e.message).toEqual("Can't remove a tag with tagged object(s)");
+    }
+
+    try {
+      await Tags.createTag({
+        name: 'child tag',
+        type: _tag.type,
+        parentId: _tag._id
+      });
+
+      await Tags.removeTag(_tag._id);
+    } catch (e) {
+      expect(e.message).toEqual("Can't remove a tag");
     }
   });
 });

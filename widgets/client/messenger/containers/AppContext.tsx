@@ -354,12 +354,14 @@ export class AppProvider extends React.Component<{}, IState> {
       .mutate({
         mutation: gql`
           mutation widgetsSaveCustomerGetNotified(
-            $customerId: String!
+            $customerId: String
+            $visitorId: String
             $type: String!
             $value: String!
           ) {
             widgetsSaveCustomerGetNotified(
               customerId: $customerId
+              visitorId: $visitorId
               type: $type
               value: $value
             )
@@ -368,18 +370,24 @@ export class AppProvider extends React.Component<{}, IState> {
 
         variables: {
           customerId: connection.data.customerId,
+          visitorId: connection.data.visitorId,
           type,
           value
         }
       })
 
       // after mutation
-      .then(() => {
+      .then(({ data: { widgetsSaveCustomerGetNotified } }: any) => {
+       
         this.setState({ isSavingNotified: false });
 
         if (callback) {
           callback();
         }
+
+        //cache customerId
+        setLocalStorageItem('customerId',widgetsSaveCustomerGetNotified._id)
+        connection.data.customerId = widgetsSaveCustomerGetNotified._id
 
         // save email
         setLocalStorageItem('getNotifiedType', type);
@@ -530,7 +538,8 @@ export class AppProvider extends React.Component<{}, IState> {
             $payload: String!
             $type: String!
             $conversationId: String
-            $customerId: String!
+            $customerId: String
+            $visitorId: String
             $integrationId: String!
           ) {
             widgetBotRequest(
@@ -539,6 +548,7 @@ export class AppProvider extends React.Component<{}, IState> {
               type: $type
               conversationId: $conversationId
               customerId: $customerId
+              visitorId: $visitorId
               integrationId: $integrationId
             )
           }
@@ -547,13 +557,17 @@ export class AppProvider extends React.Component<{}, IState> {
           conversationId: this.state.activeConversation,
           integrationId: connection.data.integrationId,
           customerId: connection.data.customerId,
+          visitorId: connection.data.visitorId,
           message: newLineToBr(message),
           type,
           payload
         }
       })
       .then(({ data }) => {
-        const { conversationId } = data.widgetBotRequest;
+        const { conversationId , customerId} = data.widgetBotRequest;
+
+        setLocalStorageItem('customerId',customerId);
+        connection.data.customerId = customerId;
 
         this.setState({
           sendingMessage: false,
