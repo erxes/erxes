@@ -1,3 +1,10 @@
+## [0.20.11](https://github.com/erxes/erxes/compare/0.20.10...0.20.11) (2021-01-29)
+
+
+### Bug Fixes
+
+* **api-utils:** fixed notification template not found error ([344e4c4](https://github.com/erxes/erxes/commit/344e4c41a6330dddfa47ec15a54067ebf1bb7b94))
+
 ## [0.20.10](https://github.com/erxes/erxes/compare/0.20.9...0.20.10) (2021-01-19)
 
 ## [0.20.9](https://github.com/erxes/erxes/compare/0.20.8...0.20.9) (2021-01-19)
