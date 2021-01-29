@@ -185,6 +185,7 @@ export class AppProvider extends React.Component<{}, IState> {
       source: 'fromMessenger',
       callback: (browserInfo: IBrowserInfo) => {
         const variables = {
+          visitorId: connection.data.visitorId,
           customerId: connection.data.customerId,
           browserInfo
         };
@@ -353,12 +354,14 @@ export class AppProvider extends React.Component<{}, IState> {
       .mutate({
         mutation: gql`
           mutation widgetsSaveCustomerGetNotified(
-            $customerId: String!
+            $customerId: String
+            $visitorId: String
             $type: String!
             $value: String!
           ) {
             widgetsSaveCustomerGetNotified(
               customerId: $customerId
+              visitorId: $visitorId
               type: $type
               value: $value
             )
@@ -367,18 +370,24 @@ export class AppProvider extends React.Component<{}, IState> {
 
         variables: {
           customerId: connection.data.customerId,
+          visitorId: connection.data.visitorId,
           type,
           value
         }
       })
 
       // after mutation
-      .then(() => {
+      .then(({ data: { widgetsSaveCustomerGetNotified } }: any) => {
+       
         this.setState({ isSavingNotified: false });
 
         if (callback) {
           callback();
         }
+
+        //cache customerId
+        setLocalStorageItem('customerId',widgetsSaveCustomerGetNotified._id)
+        connection.data.customerId = widgetsSaveCustomerGetNotified._id
 
         // save email
         setLocalStorageItem('getNotifiedType', type);
@@ -529,7 +538,8 @@ export class AppProvider extends React.Component<{}, IState> {
             $payload: String!
             $type: String!
             $conversationId: String
-            $customerId: String!
+            $customerId: String
+            $visitorId: String
             $integrationId: String!
           ) {
             widgetBotRequest(
@@ -538,6 +548,7 @@ export class AppProvider extends React.Component<{}, IState> {
               type: $type
               conversationId: $conversationId
               customerId: $customerId
+              visitorId: $visitorId
               integrationId: $integrationId
             )
           }
@@ -546,13 +557,17 @@ export class AppProvider extends React.Component<{}, IState> {
           conversationId: this.state.activeConversation,
           integrationId: connection.data.integrationId,
           customerId: connection.data.customerId,
+          visitorId: connection.data.visitorId,
           message: newLineToBr(message),
           type,
           payload
         }
       })
       .then(({ data }) => {
-        const { conversationId } = data.widgetBotRequest;
+        const { conversationId , customerId} = data.widgetBotRequest;
+
+        setLocalStorageItem('customerId',customerId);
+        connection.data.customerId = customerId;
 
         this.setState({
           sendingMessage: false,
@@ -660,6 +675,7 @@ export class AppProvider extends React.Component<{}, IState> {
           variables: {
             integrationId: connection.data.integrationId,
             customerId: connection.data.customerId,
+            visitorId: connection.data.visitorId,
             conversationId: activeConversation,
             skillId: this.state.selectedSkill,
             contentType,
@@ -678,6 +694,12 @@ export class AppProvider extends React.Component<{}, IState> {
 
           if (!activeConversation) {
             this.changeConversation(widgetsInsertMessage.conversationId);
+          }
+
+          if (!connection.data.customerId) {
+            connection.data.customerId = widgetsInsertMessage.customerId;
+            connection.data.visitorId = null;
+            setLocalStorageItem("customerId", widgetsInsertMessage.customerId);
           }
         })
 

@@ -32,12 +32,12 @@ describe('Brands db', () => {
 
   test('Get brand', async () => {
     try {
-      await Brands.getBrand('fakeId');
+      await Brands.getBrand({ _id: 'fakeId' });
     } catch (e) {
       expect(e.message).toBe('Brand not found');
     }
 
-    const brandObj = await Brands.getBrand(_brand._id);
+    const brandObj = await Brands.getBrand({ _id: _brand._id });
 
     expect(brandObj).toBeDefined();
   });
