@@ -5,7 +5,7 @@ export const consumeInventory = async (models, doc, old_code, action) => {
     const productCategory = await models.ProductCategories.findOne({ code: doc.category_code });
 
     const document = {
-      name: doc.name,
+      name: doc.nickname || doc.name,
       type: doc.is_service ? 'service' : 'product',
       unitPrice: doc.unit_price,
       code: doc.code,
