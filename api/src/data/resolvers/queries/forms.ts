@@ -1,4 +1,5 @@
-import { Forms } from '../../../db/models';
+import { Brands, Forms, Integrations } from '../../../db/models';
+import { KIND_CHOICES } from '../../../db/models/definitions/constants';
 import { checkPermission } from '../../permissions/wrappers';
 import { IContext } from '../../types';
 
@@ -15,6 +16,24 @@ const formQueries = {
    */
   formDetail(_root, { _id }: { _id: string }) {
     return Forms.findOne({ _id });
+  },
+
+  async formsCountByBrands(_root, _args, {}) {
+    const counts = {};
+    const count = query => {
+      return Integrations.findAllIntegrations(query).countDocuments();
+    };
+
+    const brands = await Brands.find({});
+
+    for (const brand of brands) {
+      counts[brand._id] = await count({
+        kind: KIND_CHOICES.LEAD,
+        brandId: brand._id
+      });
+    }
+
+    return counts;
   }
 };
 

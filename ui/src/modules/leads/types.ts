@@ -75,8 +75,13 @@ export type IntegrationsCount = {
   byChannel: Counts;
   byBrand: Counts;
   byKind: Counts;
+  byStatus: Counts;
 };
 
 export type CountQueryResponse = {
   integrationsTotalCount: IntegrationsCount;
+} & QueryResponse;
+
+export type BrandsCountQueryResponse = {
+  formsCountByBrands: Counts;
 } & QueryResponse;

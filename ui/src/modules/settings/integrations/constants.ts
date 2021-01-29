@@ -74,7 +74,7 @@ export const INTEGRATION_KINDS = {
   NYLAS_EXCHANGE: 'nylas-exchange',
   NYLAS_OFFICE365: 'nylas-office365',
   NYLAS_YAHOO: 'nylas-yahoo',
-  FORMS: 'forms',
+  LEAD: 'lead',
   CALLPRO: 'callpro',
   TWITTER_DM: 'twitter-dm',
   CHATFUEL: 'chatfuel',

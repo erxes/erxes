@@ -31,6 +31,7 @@ export const types = `
     byChannel: JSON
     byBrand: JSON
     byKind: JSON
+    byStatus: JSON
   }
 
   type integrationsGetUsedTypes {
@@ -106,12 +107,13 @@ export const queries = `
     channelId: String,
     brandId: String,
     tag: String,
+    status: String
   ): [Integration]
 
   integrationsGetUsedTypes: [integrationsGetUsedTypes]
   integrationGetLineWebhookUrl(_id: String!): String
   integrationDetail(_id: String!): Integration
-  integrationsTotalCount: integrationsTotalCount
+  integrationsTotalCount(kind: String, brandId: String, tag: String, channelId: String, status: String): integrationsTotalCount
   integrationsFetchApi(path: String!, params: JSON!): JSON
 `;
 

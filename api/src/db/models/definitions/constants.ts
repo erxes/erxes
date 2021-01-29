@@ -83,7 +83,7 @@ export const LEAD_SUCCESS_ACTIONS = {
 
 export const KIND_CHOICES = {
   MESSENGER: 'messenger',
-  FORMS: 'forms',
+  LEAD: 'lead',
   FACEBOOK_MESSENGER: 'facebook-messenger',
   FACEBOOK_POST: 'facebook-post',
   GMAIL: 'gmail',
@@ -105,7 +105,7 @@ export const KIND_CHOICES = {
   WEBHOOK: 'webhook',
   ALL: [
     'messenger',
-    'forms',
+    'lead',
     'facebook-messenger',
     'facebook-post',
     'gmail',

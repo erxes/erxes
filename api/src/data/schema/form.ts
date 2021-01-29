@@ -39,6 +39,7 @@ const commonFormSubmissionFields = `
 export const queries = `
   formDetail(_id: String!): Form
   forms: [Form]
+  formsCountByBrands: JSON
 `;
 
 export const mutations = `

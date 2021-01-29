@@ -10,11 +10,10 @@ import { ArchiveIntegrationResponse } from 'modules/settings/integrations/types'
 import React from 'react';
 import { graphql } from 'react-apollo';
 import routerUtils from '../../common/utils/router';
-import { TagsQueryResponse } from '../../tags/types';
+
 import List from '../components/List';
 import { mutations, queries } from '../graphql';
 import {
-  CountQueryResponse,
   LeadIntegrationsQueryResponse,
   RemoveMutationResponse,
   RemoveMutationVariables
@@ -25,9 +24,7 @@ type Props = {
 };
 
 type FinalProps = {
-  integrationsTotalCountQuery: CountQueryResponse;
   integrationsQuery: LeadIntegrationsQueryResponse;
-  tagsQuery: TagsQueryResponse;
 } & RemoveMutationResponse &
   ArchiveIntegrationResponse &
   IRouterProps &
@@ -45,26 +42,17 @@ class ListContainer extends React.Component<FinalProps> {
   }
 
   refetch = () => {
-    const { integrationsQuery, integrationsTotalCountQuery } = this.props;
+    const { integrationsQuery } = this.props;
 
     integrationsQuery.refetch();
-    integrationsTotalCountQuery.refetch();
   };
 
   render() {
     const {
       integrationsQuery,
-      integrationsTotalCountQuery,
-      tagsQuery,
       removeMutation,
       archiveIntegration
     } = this.props;
-
-    const counts = integrationsTotalCountQuery.integrationsTotalCount || {
-      byKind: {}
-    };
-    const totalCount = counts.byKind.lead || 0;
-    const tagsCount = counts.byTag || {};
 
     const integrations = integrationsQuery.integrations || [];
 
@@ -119,10 +107,8 @@ class ListContainer extends React.Component<FinalProps> {
       integrations,
       remove,
       loading: integrationsQuery.loading,
-      totalCount,
-      tagsCount,
-      tags: tagsQuery.tags || [],
-      archive
+      archive,
+      refetch: this.refetch
     };
 
     const content = props => {
@@ -138,7 +124,14 @@ export default withProps<Props>(
     graphql<
       Props,
       LeadIntegrationsQueryResponse,
-      { page?: number; perPage?: number; tag?: string; kind?: string }
+      {
+        page?: number;
+        perPage?: number;
+        tag?: string;
+        kind?: string;
+        brand?: string;
+        status?: string;
+      }
     >(gql(queries.integrations), {
       name: 'integrationsQuery',
       options: ({ queryParams }) => {
@@ -146,7 +139,9 @@ export default withProps<Props>(
           variables: {
             ...generatePaginationParams(queryParams),
             tag: queryParams.tag,
-            kind: INTEGRATION_KINDS.FORMS
+            brandId: queryParams.brand,
+            kind: INTEGRATION_KINDS.LEAD,
+            status: queryParams.status
           }
         };
       }
