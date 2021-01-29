@@ -236,6 +236,7 @@ export const loadClass = () => {
       browserInfo: any;
     }) {
       const { brand, integration, customer, visitor, browserInfo } = params;
+
       if (visitor) {
         delete visitor._id;
         visitor.state = CONTENT_TYPES.VISITOR;
