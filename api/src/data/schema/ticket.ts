@@ -38,8 +38,6 @@ export const queries = `
   ): [Ticket]
   archivedTickets(pipelineId: String!, search: String, page: Int, perPage: Int): [Ticket]
   archivedTicketsCount(pipelineId: String!, search: String): Int
-
-  clientPortalTickets: [Ticket]
 `;
 
 const ticketMutationParams = `

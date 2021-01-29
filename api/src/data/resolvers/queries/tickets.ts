@@ -1,5 +1,8 @@
-import { ClientPortals, Tickets } from '../../../db/models';
-import { checkPermission, requireLogin } from '../../permissions/wrappers';
+import { Tickets } from '../../../db/models';
+import {
+  checkPermission,
+  moduleRequireLogin
+} from '../../permissions/wrappers';
 import { IContext } from '../../types';
 import { IListParams } from './boards';
 import {
@@ -50,23 +53,10 @@ const ticketQueries = {
     const ticket = await Tickets.getTicket(_id);
 
     return checkItemPermByUser(user._id, ticket);
-  },
-
-  async clientPortalTickets(_root) {
-    const config = await ClientPortals.findOne().lean();
-
-    if (!config) {
-      return [];
-    }
-
-    return Tickets.find({ stageId: config.ticketStageId });
   }
 };
 
-requireLogin(ticketQueries, 'tickets');
-requireLogin(ticketQueries, 'archivedTickets');
-requireLogin(ticketQueries, 'archivedTicketsCount');
-requireLogin(ticketQueries, 'ticketDetail');
+moduleRequireLogin(ticketQueries);
 
 checkPermission(ticketQueries, 'tickets', 'showTickets', []);
 

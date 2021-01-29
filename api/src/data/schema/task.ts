@@ -43,8 +43,6 @@ export const queries = `
   ): [Task]
   archivedTasks(pipelineId: String!, search: String, page: Int, perPage: Int): [Task]
   archivedTasksCount(pipelineId: String!, search: String): Int
-
-  clientPortalTasks: [Task]
 `;
 
 export const mutations = `
