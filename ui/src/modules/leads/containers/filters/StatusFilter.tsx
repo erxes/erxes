@@ -1,12 +1,12 @@
 import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
+import StatusFilter from 'modules/leads/components/StatusFilter';
+import { INTEGRATION_KINDS } from 'modules/settings/integrations/constants';
 import React from 'react';
 import { graphql } from 'react-apollo';
+import { withProps } from '../../../common/utils';
 import { queries } from '../../graphql';
 import { CountQueryResponse } from '../../types';
-import { withProps } from '../../../common/utils';
-import { INTEGRATION_KINDS } from 'modules/settings/integrations/constants';
-import StatusFilter from 'modules/leads/components/StatusFilter';
 
 type Props = {
   queryParams: any;

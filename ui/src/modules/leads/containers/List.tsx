@@ -10,15 +10,14 @@ import { ArchiveIntegrationResponse } from 'modules/settings/integrations/types'
 import React from 'react';
 import { graphql } from 'react-apollo';
 import routerUtils from '../../common/utils/router';
-
 import List from '../components/List';
 import { mutations, queries } from '../graphql';
 import {
-  LeadIntegrationsQueryResponse,
+  CopyMutationResponse, LeadIntegrationsQueryResponse,
   RemoveMutationResponse,
-  RemoveMutationVariables,
-  CopyMutationResponse
+  RemoveMutationVariables
 } from '../types';
+
 
 type Props = {
   queryParams: any;

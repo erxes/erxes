@@ -1,4 +1,5 @@
 import Button from 'modules/common/components/Button';
+import { SmallLoader } from 'modules/common/components/ButtonMutate';
 import FormControl from 'modules/common/components/form/Control';
 import ConditionsRule from 'modules/common/components/rule/ConditionsRule';
 import { Step, Steps } from 'modules/common/components/step';
@@ -7,17 +8,14 @@ import {
   TitleContainer
 } from 'modules/common/components/step/styles';
 import { IConditionsRule } from 'modules/common/types';
-import { Alert } from 'modules/common/utils';
-import { __ } from 'modules/common/utils';
+import { Alert, __ } from 'modules/common/utils';
+import { IFormData } from 'modules/forms/types';
 import Wrapper from 'modules/layout/components/Wrapper';
-import { ILeadData, ILeadIntegration } from '../types';
-
+import { IEmailTemplate } from 'modules/settings/emailTemplates/types';
+import { IField } from 'modules/settings/properties/types';
 import React from 'react';
 import { Link } from 'react-router-dom';
-
-import { SmallLoader } from 'modules/common/components/ButtonMutate';
-import { IFormData } from 'modules/forms/types';
-import { IField } from 'modules/settings/properties/types';
+import { ILeadData, ILeadIntegration } from '../types';
 import {
   CallOut,
   ChooseType,
@@ -26,7 +24,8 @@ import {
   OptionStep,
   SuccessStep
 } from './step';
-import { IEmailTemplate } from 'modules/settings/emailTemplates/types';
+
+
 
 type Props = {
   integration?: ILeadIntegration;

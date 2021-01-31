@@ -1,11 +1,11 @@
+import Box from 'modules/common/components/Box';
+import DataWithLoader from 'modules/common/components/DataWithLoader';
 import { IRouterProps } from 'modules/common/types';
 import { router, __ } from 'modules/common/utils';
-import { FieldStyle, SidebarList, SidebarCounter } from 'modules/layout/styles';
+import { FieldStyle, SidebarCounter, SidebarList } from 'modules/layout/styles';
 import React from 'react';
 import { withRouter } from 'react-router-dom';
 import { statusFilters } from '../constants';
-import Box from 'modules/common/components/Box';
-import DataWithLoader from 'modules/common/components/DataWithLoader';
 
 interface IProps extends IRouterProps {
   counts: { [key: string]: number };

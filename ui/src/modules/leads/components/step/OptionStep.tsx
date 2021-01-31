@@ -6,13 +6,13 @@ import Toggle from 'modules/common/components/Toggle';
 import FieldsPreview from 'modules/forms/components/FieldsPreview';
 import { IFormData } from 'modules/forms/types';
 import SelectBrand from 'modules/settings/integrations/containers/SelectBrand';
+import SelectChannels from 'modules/settings/integrations/containers/SelectChannels';
 import { IField } from 'modules/settings/properties/types';
 import { Description } from 'modules/settings/styles';
 import React from 'react';
 import { IBrand } from '../../../settings/brands/types';
 import { FormPreview } from './preview';
 import { FlexItem } from './style';
-import SelectChannels from 'modules/settings/integrations/containers/SelectChannels';
 
 type Props = {
   type: string;

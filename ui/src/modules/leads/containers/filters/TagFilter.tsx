@@ -1,15 +1,15 @@
 import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
 import CountsByTag from 'modules/common/components/CountsByTag';
+import { TagCountQueryResponse } from 'modules/engage/types';
+import { INTEGRATION_KINDS } from 'modules/settings/integrations/constants';
 import { TAG_TYPES } from 'modules/tags/constants';
 import React from 'react';
 import { graphql } from 'react-apollo';
-import { queries } from '../../graphql';
-import { CountQueryResponse } from '../../types';
 import { withProps } from '../../../common/utils';
 import { TagsQueryResponse } from '../../../tags/types';
-import { TagCountQueryResponse } from 'modules/engage/types';
-import { INTEGRATION_KINDS } from 'modules/settings/integrations/constants';
+import { queries } from '../../graphql';
+import { CountQueryResponse } from '../../types';
 
 type Props = {
   queryParams: any;

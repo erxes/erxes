@@ -2,6 +2,7 @@ import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
 import { Alert, withProps } from 'modules/common/utils';
 import { EmailTemplatesQueryResponse } from 'modules/settings/emailTemplates/containers/List';
+import { queries as templatesQuery } from 'modules/settings/emailTemplates/graphql';
 import {
   EditIntegrationMutationResponse,
   EditIntegrationMutationVariables,
@@ -14,7 +15,6 @@ import { IRouterProps } from '../../common/types';
 import Lead from '../components/Lead';
 import { mutations, queries } from '../graphql';
 import { ILeadData } from '../types';
-import { queries as templatesQuery } from 'modules/settings/emailTemplates/graphql';
 
 type Props = {
   contentTypeId: string;
