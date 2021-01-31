@@ -199,4 +199,6 @@ export const mutations = `
   integrationsUpdateConfigs(configsMap: JSON!): JSON
 
   integrationsSendSms(integrationId: String!, content: String!, to: String!): JSON
+
+  integrationsCopyLeadIntegration(_id: String!): Integration
 `;

@@ -48,14 +48,13 @@ class FieldForm extends React.Component<Props, State> {
   };
 
   onSelectChange = (option) => {
-    console.log(option)
     const { customProperties } = this.props;
+
     if (customProperties) {
 
       this.setState({ selectedProperty: option })
 
       const { field } = this.state;
-
 
       const customProperty = customProperties.find(e => e._id === option.value);
 
@@ -64,6 +63,7 @@ class FieldForm extends React.Component<Props, State> {
         field.validation = customProperty.validation;
         field.options = customProperty.options;
       }
+      
       this.setState({ field })
     }
   }

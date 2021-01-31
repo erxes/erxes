@@ -9,6 +9,10 @@ import SuccessPreview from './preview/SuccessPreview';
 import { FlexItem } from './style';
 import { __ } from 'modules/common/utils';
 import { FORM_SUCCESS_ACTIONS } from 'modules/settings/integrations/constants';
+import Select from 'react-select-plus';
+import { IEmailTemplate } from 'modules/settings/emailTemplates/types';
+import { generateEmailTemplateParams } from 'modules/engage/utils';
+
 
 type Name =
   | 'successAction'
@@ -20,7 +24,8 @@ type Name =
   | 'adminEmailContent'
   | 'redirectUrl'
   | 'thankContent'
-  | 'thankTitle';
+  | 'thankTitle'
+  | 'templateId';
 
 type Props = {
   type: string;
@@ -32,10 +37,14 @@ type Props = {
   onChange: (name: Name, value: string) => void;
   leadData?: ILeadData;
   formId?: string;
+  templateId?: string;
+  emailTemplates: IEmailTemplate[];
 };
 
 type State = {
   successAction?: string;
+  templateId?: string;
+  leadData?: ILeadData;
 };
 
 class SuccessStep extends React.Component<Props, State> {
@@ -45,7 +54,9 @@ class SuccessStep extends React.Component<Props, State> {
     const leadData = props.leadData || {};
 
     this.state = {
-      successAction: leadData.successAction || FORM_SUCCESS_ACTIONS.ONPAGE
+      successAction: leadData.successAction || FORM_SUCCESS_ACTIONS.ONPAGE,
+      templateId: this.props.templateId,
+      leadData
     };
   }
 
@@ -72,6 +83,28 @@ class SuccessStep extends React.Component<Props, State> {
     }
     this.props.onChange(propName, e.editor.getData());
   };
+
+  findTemplate = id => {
+    const template = this.props.emailTemplates.find(t => t._id === id);
+
+    if (template) {
+      return template.content;
+    }
+
+    return '';
+  };
+
+  templateChange = e => {
+    // this.setState({ userEmailContent: this.findTemplate(e.value), templateId: e.value });
+
+    const userEmailContent = this.findTemplate(e.value);
+
+    this.setState({templateId:e.value, leadData:{userEmailContent}})
+
+    this.props.onChange('userEmailContent',this.findTemplate(e.value))
+  };
+
+  
 
   renderEmailFields(leadData: ILeadData) {
     if (this.state.successAction !== 'email') {
@@ -127,6 +160,18 @@ class SuccessStep extends React.Component<Props, State> {
             id="userEmailTitle"
             defaultValue={leadData.userEmailTitle}
             onChange={userEmailTitle}
+          />
+        </FormGroup>
+
+        <FormGroup>
+          <label>Email templates:</label>
+          <p>{__('Insert email template to content')}</p>
+
+          <Select
+            value={this.state.templateId}
+            onChange={this.templateChange}
+            options={generateEmailTemplateParams(this.props.emailTemplates)}
+            clearable={false}
           />
         </FormGroup>
 
@@ -223,25 +268,28 @@ class SuccessStep extends React.Component<Props, State> {
     }
 
     return (
-      <FormGroup>
-        <ControlLabel>Title</ControlLabel>
-        <FormControl
-          id="thankTitle"
-          type="text"
-          componentClass="textinput"
-          defaultValue={thankTitle}
-          onChange={onChange}
-        />
-
-        <ControlLabel>Confirmation message</ControlLabel>
-        <FormControl
-          id="thankContent"
-          type="text"
-          componentClass="textarea"
-          defaultValue={thankContent}
-          onChange={onChange}
-        />
-      </FormGroup>
+      <div>
+        <FormGroup>
+          <ControlLabel>Title</ControlLabel>
+          <FormControl
+            id="thankTitle"
+            type="text"
+            componentClass="textinput"
+            defaultValue={thankTitle}
+            onChange={onChange}
+          />
+        </FormGroup>
+        <FormGroup>
+          <ControlLabel>Confirmation message</ControlLabel>
+          <FormControl
+            id="thankContent"
+            type="text"
+            componentClass="textarea"
+            defaultValue={thankContent}
+            onChange={onChange}
+          />
+        </FormGroup>
+      </div>
     );
   }
 
@@ -252,7 +300,7 @@ class SuccessStep extends React.Component<Props, State> {
   }
 
   render() {
-    const leadData = this.props.leadData || {};
+    const leadData = this.state.leadData || {};
     const { successAction } = this.state;
 
     return (

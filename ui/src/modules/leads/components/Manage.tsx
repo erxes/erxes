@@ -110,7 +110,7 @@ class Manage extends React.Component<Props, State> {
           ) : (
             <EmptyState
               icon="copy"
-              text="No copyable code. You should connect Popup to brand first"
+              text="No copyable code. You should connect Form to brand first"
               size="small"
             />
           )}

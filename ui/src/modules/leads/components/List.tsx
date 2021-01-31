@@ -31,6 +31,7 @@ type Props = {
   remove: (integrationId: string) => void;
   archive: (integrationId: string, status: boolean) => void;
   refetch?: () => void;
+  copy: (integrationId: string) => void;
 };
 
 class List extends React.Component<Props, {}> {
@@ -46,7 +47,8 @@ class List extends React.Component<Props, {}> {
       bulk,
       toggleBulk,
       archive,
-      queryParams
+      queryParams,
+      copy
     } = this.props;
 
     return integrations.map(integration => (
@@ -58,6 +60,7 @@ class List extends React.Component<Props, {}> {
         remove={remove}
         archive={archive}
         showCode={integration._id === queryParams.showInstallCode}
+        copy={copy}
       />
     ));
   }

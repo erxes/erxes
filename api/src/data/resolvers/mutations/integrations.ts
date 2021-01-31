@@ -4,6 +4,8 @@ import {
   Channels,
   Customers,
   EmailDeliveries,
+  Fields,
+  Forms,
   Integrations
 } from '../../../db/models';
 import { KIND_CHOICES } from '../../../db/models/definitions/constants';
@@ -543,6 +545,75 @@ const integrationMutations = {
     { dataSources }: IContext
   ) {
     return dataSources.IntegrationsAPI.sendSms(args);
+  },
+
+  async integrationsCopyLeadIntegration(
+    _root,
+    { _id }: { _id },
+    { docModifier, user }: IContext
+  ) {
+    const sourceIntegration = await Integrations.getIntegration(_id);
+
+    if (!sourceIntegration.formId) {
+      throw new Error('Integration kind is not form');
+    }
+
+    const sourceForm = await Forms.getForm(sourceIntegration.formId);
+
+    const sourceFields = await Fields.find({contentTypeId:sourceForm._id});
+
+    const formDoc = docModifier({
+      ...sourceForm.toObject(),
+      title: `${sourceForm.title}-copied`,
+    });
+
+    
+
+    delete formDoc._id;
+    delete formDoc.code;
+
+    const copiedForm = await Forms.createForm(formDoc, user._id);
+
+    const doc = docModifier({
+      ...sourceIntegration.toObject(),
+      name: `${sourceIntegration.name}-copied`,
+      formId: copiedForm._id
+    });
+
+    delete doc._id;
+
+    const copiedIntegration = await Integrations.createLeadIntegration(doc, user._id);
+
+    let fields = sourceFields.map(e => {
+      return {
+        options: e.options,
+        isVisible: e.isVisible,
+        contentType: e.contentType,
+        contentTypeId: copiedForm._id,
+        order: e.order,
+        type: e.type,
+        text: e.text,
+        lastUpdatedUserId: user._id
+      };
+    });
+
+    await Fields.insertMany(fields);
+
+    await putCreateLog(
+      {
+        type: MODULE_NAMES.INTEGRATION,
+        newData: { ...doc, createdUserId: user._id, isActive: true },
+        object: copiedIntegration
+      },
+      user
+    );
+
+    telemetry.trackCli('integration_created', { type: 'lead' });
+
+    await registerOnboardHistory({ type: 'leadIntegrationCreate', user });
+
+    return copiedIntegration;
+
   }
 };
 
@@ -590,6 +661,11 @@ checkPermission(
   integrationMutations,
   'integrationsUpdateConfigs',
   'integrationsEdit'
+);
+checkPermission(
+  integrationMutations,
+  'integrationsCopyLeadIntegration',
+  'integrationsCreateLeadIntegration'
 );
 
 export default integrationMutations;

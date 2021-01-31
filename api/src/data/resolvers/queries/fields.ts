@@ -1,4 +1,3 @@
-import { bool } from 'aws-sdk/clients/signer';
 import {
   FIELD_CONTENT_TYPES,
   FIELDS_GROUPS_CONTENT_TYPES

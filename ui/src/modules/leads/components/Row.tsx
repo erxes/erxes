@@ -22,6 +22,7 @@ type Props = {
   toggleBulk: (integration: ILeadIntegration, checked: boolean) => void;
   remove: (integrationId: string) => void;
   archive: (integrationId: string, status: boolean) => void;
+  copy: (integrationId: string) => void;
   showCode?: boolean;
 };
 
@@ -136,6 +137,18 @@ class Row extends React.Component<Props> {
     );
   }
 
+  renderCopyAction() {
+    const { integration, copy } = this.props;
+
+    const onClick = () => copy(integration._id);
+
+    return (
+        <Tip text={__('Copy')} placement="top">
+          <Button btnStyle="link" onClick={onClick} icon="copy-1" />
+        </Tip>
+    );
+  }
+
   render() {
     const { integration, isChecked, toggleBulk } = this.props;
     const form = integration.form || {};
@@ -204,6 +217,7 @@ class Row extends React.Component<Props> {
             {this.renderArchiveAction()}
             {this.renderUnarchiveAction()}
             {this.renderExportAction()}
+            {this.renderCopyAction()}
             {this.renderRemoveAction()}
           </ActionButtons>
         </td>

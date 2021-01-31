@@ -1,6 +1,7 @@
 import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
 import { Alert, withProps } from 'modules/common/utils';
+import { EmailTemplatesQueryResponse } from 'modules/settings/emailTemplates/containers/List';
 import {
   EditIntegrationMutationResponse,
   EditIntegrationMutationVariables,
@@ -13,6 +14,7 @@ import { IRouterProps } from '../../common/types';
 import Lead from '../components/Lead';
 import { mutations, queries } from '../graphql';
 import { ILeadData } from '../types';
+import { queries as templatesQuery } from 'modules/settings/emailTemplates/graphql';
 
 type Props = {
   contentTypeId: string;
@@ -35,6 +37,7 @@ type State = {
 
 type FinalProps = {
   integrationDetailQuery: LeadIntegrationDetailQueryResponse;
+  emailTemplatesQuery: EmailTemplatesQueryResponse;
 } & Props &
   EditIntegrationMutationResponse &
   IRouterProps;
@@ -51,7 +54,8 @@ class EditLeadContainer extends React.Component<FinalProps, State> {
       formId,
       integrationDetailQuery,
       editIntegrationMutation,
-      history
+      history,
+      emailTemplatesQuery
     } = this.props;
 
     if (integrationDetailQuery.loading) {
@@ -102,7 +106,8 @@ class EditLeadContainer extends React.Component<FinalProps, State> {
       save,
       afterFormDbSave,
       isActionLoading: this.state.isLoading,
-      isReadyToSaveForm: this.state.isReadyToSaveForm
+      isReadyToSaveForm: this.state.isReadyToSaveForm,
+      emailTemplates: emailTemplatesQuery.emailTemplates || [],
     };
 
     return <Lead {...updatedProps} />;
@@ -135,6 +140,15 @@ export default withProps<Props>(
           'formDetail'
         ]
       }
-    })
+    }),
+    graphql<Props, EmailTemplatesQueryResponse>(
+      gql(templatesQuery.emailTemplates),
+      {
+        name: 'emailTemplatesQuery',
+        options: () => ({
+          variables: { page: 1 }
+        })
+      }
+    )
   )(withRouter<FinalProps>(EditLeadContainer))
 );

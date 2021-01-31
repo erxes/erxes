@@ -61,6 +61,10 @@ export type RemoveMutationResponse = {
   }) => Promise<any>;
 };
 
+export type CopyMutationResponse = {
+  copyMutation: (params: { variables: {_id: string} }) => Promise<void>;
+};
+
 // query types
 export type LeadIntegrationsQueryResponse = {
   integrations: ILeadIntegration[];

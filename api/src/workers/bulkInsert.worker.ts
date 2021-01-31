@@ -682,8 +682,6 @@ connect().then(async () => {
       }
     }
 
-    console.log(doc);
-
     bulkDoc.push(doc);
   }
 

@@ -19,9 +19,6 @@ const fieldMutations = {
    * Adds field object
    */
   async fieldsAdd(_root, args: IField, { user }: IContext) {
-
-    console.log(args)
-
     const field = await Fields.createField({
       ...args,
       lastUpdatedUserId: user._id

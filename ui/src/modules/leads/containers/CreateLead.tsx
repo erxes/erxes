@@ -1,6 +1,7 @@
 import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
 import { Alert, withProps } from 'modules/common/utils';
+import { EmailTemplatesQueryResponse } from 'modules/settings/emailTemplates/containers/List';
 import {
   AddIntegrationMutationResponse,
   AddIntegrationMutationVariables
@@ -13,8 +14,11 @@ import { IRouterProps } from '../../common/types';
 import Lead from '../components/Lead';
 import { mutations } from '../graphql';
 import { ILeadData } from '../types';
+import { queries as templatesQuery } from 'modules/settings/emailTemplates/graphql';
 
-type Props = {} & IRouterProps &
+type Props = {
+  emailTemplatesQuery: EmailTemplatesQueryResponse;
+} & IRouterProps &
   AddIntegrationMutationResponse &
   AddFieldsMutationResponse;
 
@@ -39,7 +43,7 @@ class CreateLeadContainer extends React.Component<Props, State> {
   }
 
   render() {
-    const { addIntegrationMutation, history } = this.props;
+    const { addIntegrationMutation, history , emailTemplatesQuery} = this.props;
     const afterFormDbSave = id => {
       this.setState({ isReadyToSaveForm: false });
 
@@ -89,7 +93,8 @@ class CreateLeadContainer extends React.Component<Props, State> {
       save,
       afterFormDbSave,
       isActionLoading: this.state.isLoading,
-      isReadyToSaveForm: this.state.isReadyToSaveForm
+      isReadyToSaveForm: this.state.isReadyToSaveForm,
+      emailTemplates: emailTemplatesQuery.emailTemplates || [],
     };
 
     return <Lead {...updatedProps} />;
@@ -104,6 +109,15 @@ export default withProps<{}>(
       AddIntegrationMutationVariables
     >(gql(mutations.integrationsCreateLeadIntegration), {
       name: 'addIntegrationMutation'
-    })
+    }),
+    graphql<Props, EmailTemplatesQueryResponse>(
+      gql(templatesQuery.emailTemplates),
+      {
+        name: 'emailTemplatesQuery',
+        options: () => ({
+          variables: { page: 1 }
+        })
+      }
+    )
   )(withRouter<Props>(CreateLeadContainer))
 );

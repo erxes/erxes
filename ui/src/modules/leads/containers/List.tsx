@@ -16,7 +16,8 @@ import { mutations, queries } from '../graphql';
 import {
   LeadIntegrationsQueryResponse,
   RemoveMutationResponse,
-  RemoveMutationVariables
+  RemoveMutationVariables,
+  CopyMutationResponse
 } from '../types';
 
 type Props = {
@@ -28,6 +29,7 @@ type FinalProps = {
 } & RemoveMutationResponse &
   ArchiveIntegrationResponse &
   IRouterProps &
+  CopyMutationResponse &
   Props;
 
 class ListContainer extends React.Component<FinalProps> {
@@ -51,6 +53,7 @@ class ListContainer extends React.Component<FinalProps> {
     const {
       integrationsQuery,
       removeMutation,
+      copyMutation,
       archiveIntegration
     } = this.props;
 
@@ -102,12 +105,28 @@ class ListContainer extends React.Component<FinalProps> {
       });
     };
 
+    const copy = (integrationId: string) => {
+      copyMutation({
+        variables: { _id: integrationId }
+      })
+        .then(() => {
+          // refresh queries
+          this.refetch();
+
+          Alert.success('You successfully copied a form.');
+        })
+        .catch(e => {
+          Alert.error(e.message);
+        });
+    }
+
     const updatedProps = {
       ...this.props,
       integrations,
       remove,
       loading: integrationsQuery.loading,
       archive,
+      copy,
       refetch: this.refetch
     };
 
@@ -157,6 +176,9 @@ export default withProps<Props>(
       {
         name: 'archiveIntegration'
       }
-    )
+    ),
+    graphql(gql(mutations.formCopy), {
+      name: 'copyMutation'
+    })
   )(ListContainer)
 );

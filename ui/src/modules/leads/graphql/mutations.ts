@@ -41,8 +41,17 @@ const integrationsEditLeadIntegration = `
   }
 `;
 
+const formCopy = `
+  mutation integrationsCopyLeadIntegration($_id: String!) {
+    integrationsCopyLeadIntegration(_id: $_id) {
+      _id
+    }
+  }
+`;
+
 export default {
   integrationRemove,
   integrationsEditLeadIntegration,
-  integrationsCreateLeadIntegration
+  integrationsCreateLeadIntegration,
+  formCopy
 };

@@ -26,12 +26,14 @@ import {
   OptionStep,
   SuccessStep
 } from './step';
+import { IEmailTemplate } from 'modules/settings/emailTemplates/types';
 
 type Props = {
   integration?: ILeadIntegration;
   loading?: boolean;
   isActionLoading: boolean;
   isReadyToSaveForm: boolean;
+  emailTemplates?: IEmailTemplate[];
   afterFormDbSave: (formId: string) => void;
   save: (params: {
     name: string;
@@ -86,9 +88,7 @@ class Lead extends React.Component<Props, State> {
     const callout = leadData.callout || {};
     const form = integration.form || {};
     const channels = integration.channels || [];
-
-    console.log(channels)
-
+    
     this.state = {
       activeStep: 1,
 
@@ -247,7 +247,7 @@ class Lead extends React.Component<Props, State> {
       channelIds
     } = this.state;
 
-    const { integration } = this.props;
+    const { integration, emailTemplates } = this.props;
     const leadData = integration && integration.leadData;
     const brand = integration && integration.brand;
     const breadcrumb = [{ title: __('Forms'), link: '/forms' }];
@@ -334,6 +334,7 @@ class Lead extends React.Component<Props, State> {
                 successAction={successAction}
                 leadData={leadData}
                 formId={integration && integration.formId}
+                emailTemplates={emailTemplates ? emailTemplates : []}
               />
             </Step>
             <Step
