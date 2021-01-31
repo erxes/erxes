@@ -25,8 +25,6 @@ import {
   SuccessStep
 } from './step';
 
-
-
 type Props = {
   integration?: ILeadIntegration;
   loading?: boolean;
@@ -87,7 +85,7 @@ class Lead extends React.Component<Props, State> {
     const callout = leadData.callout || {};
     const form = integration.form || {};
     const channels = integration.channels || [];
-    
+
     this.state = {
       activeStep: 1,
 
@@ -105,7 +103,7 @@ class Lead extends React.Component<Props, State> {
       rules: leadData.rules || [],
 
       brand: integration.brandId,
-      channelIds: channels.map(item => item._id) || [],
+      channelIds: channels.map((item) => item._id) || [],
       language: integration.languageCode,
       title: integration.name,
       calloutTitle: callout.title || 'Title',
@@ -120,19 +118,26 @@ class Lead extends React.Component<Props, State> {
         desc: form.description || '',
         btnText: form.buttonText || 'Send',
         fields: [],
-        type: form.type || ''
+        type: form.type || '',
       },
       theme: leadData.themeColor || '#6569DF',
       isRequireOnce: leadData.isRequireOnce,
       logoPreviewUrl: callout.featuredImage,
-      isSkip: callout.skip && true
+      isSkip: callout.skip && true,
     };
   }
 
   handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
-    const { brand, calloutTitle, title, rules, formData, channelIds } = this.state;
+    const {
+      brand,
+      calloutTitle,
+      title,
+      rules,
+      formData,
+      channelIds,
+    } = this.state;
 
     if (!title) {
       return Alert.error('Write title');
@@ -169,11 +174,11 @@ class Lead extends React.Component<Props, State> {
           body: this.state.bodyValue,
           buttonText: this.state.calloutBtnText,
           featuredImage: this.state.logoPreviewUrl,
-          skip: this.state.isSkip
+          skip: this.state.isSkip,
         },
-        rules: (rules || []).filter(rule => rule.condition && rule.value),
-        isRequireOnce: this.state.isRequireOnce
-      }
+        rules: (rules || []).filter((rule) => rule.condition && rule.value),
+        isRequireOnce: this.state.isRequireOnce,
+      },
     };
 
     this.props.save(doc);
@@ -212,7 +217,7 @@ class Lead extends React.Component<Props, State> {
     this.setState({ [key]: value } as any);
   };
 
-  onFormDocChange = formData => {
+  onFormDocChange = (formData) => {
     this.setState({ formData });
   };
 
@@ -243,7 +248,7 @@ class Lead extends React.Component<Props, State> {
       rules,
       formData,
       isRequireOnce,
-      channelIds
+      channelIds,
     } = this.state;
 
     const { integration, emailTemplates } = this.props;
@@ -252,7 +257,7 @@ class Lead extends React.Component<Props, State> {
     const breadcrumb = [{ title: __('Forms'), link: '/forms' }];
     const constant = isSkip ? 'form' : 'callout';
 
-    const onChange = e =>
+    const onChange = (e) =>
       this.onChange('title', (e.currentTarget as HTMLInputElement).value);
 
     return (
