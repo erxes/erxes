@@ -749,7 +749,7 @@ export const integrationFactory = async (
     messengerData: params.messengerData,
     leadData: params.leadData
       ? params.leadData
-      : { thankContent: 'thankContent' },
+      : {thankTitle: 'thankTitle', thankContent: 'thankContent' },
     tagIds: params.tagIds,
     isActive:
       params.isActive === undefined || params.isActive === null

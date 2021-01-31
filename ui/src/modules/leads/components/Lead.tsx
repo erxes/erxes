@@ -38,6 +38,7 @@ type Props = {
     brandId: string;
     languageCode?: string;
     leadData: ILeadData;
+    channelIds?: string[];
   }) => void;
 };
 
@@ -45,6 +46,7 @@ type State = {
   activeStep?: number;
   type: string;
   brand?: string;
+  channelIds?: string[];
   language?: string;
   title?: string;
   calloutTitle?: string;
@@ -68,6 +70,7 @@ type State = {
   adminEmails?: string[];
   adminEmailTitle?: string;
   adminEmailContent?: string;
+  thankTitle?: string;
   thankContent?: string;
   redirectUrl?: string;
   carousel?: string;
@@ -82,6 +85,9 @@ class Lead extends React.Component<Props, State> {
     const { leadData = {} as ILeadData } = integration;
     const callout = leadData.callout || {};
     const form = integration.form || {};
+    const channels = integration.channels || [];
+
+    console.log(channels)
 
     this.state = {
       activeStep: 1,
@@ -94,11 +100,13 @@ class Lead extends React.Component<Props, State> {
       adminEmails: leadData.adminEmails || [],
       adminEmailTitle: leadData.adminEmailTitle || '',
       adminEmailContent: leadData.adminEmailContent || '',
+      thankTitle: leadData.thankTitle || 'Title',
       thankContent: leadData.thankContent || 'Thank you.',
       redirectUrl: leadData.redirectUrl || '',
       rules: leadData.rules || [],
 
       brand: integration.brandId,
+      channelIds: channels.map(item => item._id) || [],
       language: integration.languageCode,
       title: integration.name,
       calloutTitle: callout.title || 'Title',
@@ -125,7 +133,7 @@ class Lead extends React.Component<Props, State> {
   handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
-    const { brand, calloutTitle, title, rules, formData } = this.state;
+    const { brand, calloutTitle, title, rules, formData, channelIds } = this.state;
 
     if (!title) {
       return Alert.error('Write title');
@@ -142,6 +150,7 @@ class Lead extends React.Component<Props, State> {
     const doc = {
       name: title,
       brandId: brand,
+      channelIds,
       languageCode: this.state.language,
       leadData: {
         loadType: this.state.type,
@@ -152,6 +161,7 @@ class Lead extends React.Component<Props, State> {
         adminEmails: this.state.adminEmails,
         adminEmailTitle: this.state.adminEmailTitle,
         adminEmailContent: this.state.adminEmailContent,
+        thankTitle: this.state.thankTitle,
         thankContent: this.state.thankContent,
         redirectUrl: this.state.redirectUrl,
         themeColor: this.state.theme || this.state.color,
@@ -224,6 +234,7 @@ class Lead extends React.Component<Props, State> {
       color,
       theme,
       logoPreviewUrl,
+      thankTitle,
       thankContent,
       carousel,
       language,
@@ -232,7 +243,8 @@ class Lead extends React.Component<Props, State> {
       isSkip,
       rules,
       formData,
-      isRequireOnce
+      isRequireOnce,
+      channelIds
     } = this.state;
 
     const { integration } = this.props;
@@ -308,11 +320,13 @@ class Lead extends React.Component<Props, State> {
                 isRequireOnce={isRequireOnce}
                 language={language}
                 formData={formData}
+                channelIds={channelIds}
               />
             </Step>
-            <Step img="/images/icons/erxes-13.svg" title="Thank content">
+            <Step img="/images/icons/erxes-13.svg" title="Confirmation">
               <SuccessStep
                 onChange={this.onChange}
+                thankTitle={thankTitle}
                 thankContent={thankContent}
                 type={type}
                 color={color}
@@ -336,6 +350,7 @@ class Lead extends React.Component<Props, State> {
                 color={color}
                 theme={theme}
                 image={logoPreviewUrl}
+                thankTitle={thankTitle}
                 thankContent={thankContent}
                 skip={isSkip}
                 carousel={carousel || constant}

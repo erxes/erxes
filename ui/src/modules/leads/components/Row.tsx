@@ -9,7 +9,7 @@ import Tags from 'modules/common/components/Tags';
 import Tip from 'modules/common/components/Tip';
 import WithPermission from 'modules/common/components/WithPermission';
 import { DateWrapper } from 'modules/common/styles/main';
-import { __ } from 'modules/common/utils';
+import { __, getEnv } from 'modules/common/utils';
 import { RowTitle } from 'modules/engage/styles';
 import React from 'react';
 import { Link } from 'react-router-dom';
@@ -30,7 +30,7 @@ class Row extends React.Component<Props> {
     const { formId } = integration;
 
     return (
-      <Link to={`/forms/edit/${integration._id}/${formId}`}>
+      <Link  to={`/forms/edit/${integration._id}/${formId}`}>
         <Button btnStyle="link">
           <Tip text={__('Manage')} placement="top">
             <Icon icon="edit-3" />
@@ -78,6 +78,24 @@ class Row extends React.Component<Props> {
           <Button btnStyle="link" onClick={onClick} icon="archive-alt" />
         </Tip>
       </WithPermission>
+    );
+  }
+
+  renderExportAction() {
+    const { integration } = this.props;
+    const { REACT_APP_API_URL } = getEnv();
+
+    const onClick = () => {
+      window.open(
+        `${REACT_APP_API_URL}/file-export?type=customer&popupData=true&form=${integration.formId}`,
+        '_blank'
+      )
+    }
+
+    return (
+        <Tip text={__('Download responses')} placement="top">
+          <Button btnStyle="link" onClick={onClick} icon="download-1" />
+        </Tip>
     );
   }
 
@@ -185,6 +203,7 @@ class Row extends React.Component<Props> {
             {this.renderEditAction(integration)}
             {this.renderArchiveAction()}
             {this.renderUnarchiveAction()}
+            {this.renderExportAction()}
             {this.renderRemoveAction()}
           </ActionButtons>
         </td>

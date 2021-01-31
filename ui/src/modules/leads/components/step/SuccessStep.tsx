@@ -7,6 +7,8 @@ import { ILeadData } from 'modules/leads/types';
 import React from 'react';
 import SuccessPreview from './preview/SuccessPreview';
 import { FlexItem } from './style';
+import { __ } from 'modules/common/utils';
+import { FORM_SUCCESS_ACTIONS } from 'modules/settings/integrations/constants';
 
 type Name =
   | 'successAction'
@@ -17,12 +19,14 @@ type Name =
   | 'adminEmailTitle'
   | 'adminEmailContent'
   | 'redirectUrl'
-  | 'thankContent';
+  | 'thankContent'
+  | 'thankTitle';
 
 type Props = {
   type: string;
   color: string;
   theme: string;
+  thankTitle?: string;
   thankContent?: string;
   successAction?: string;
   onChange: (name: Name, value: string) => void;
@@ -41,7 +45,7 @@ class SuccessStep extends React.Component<Props, State> {
     const leadData = props.leadData || {};
 
     this.state = {
-      successAction: leadData.successAction || 'onPage'
+      successAction: leadData.successAction || FORM_SUCCESS_ACTIONS.ONPAGE
     };
   }
 
@@ -104,7 +108,10 @@ class SuccessStep extends React.Component<Props, State> {
     return (
       <div>
         <FormGroup>
-          <ControlLabel>From email</ControlLabel>
+          <ControlLabel>Send a confirmation email to the responder</ControlLabel>
+        </FormGroup>
+        <FormGroup>
+          <label>Send from</label>
           <FormControl
             type="text"
             id="fromEmail"
@@ -114,7 +121,7 @@ class SuccessStep extends React.Component<Props, State> {
         </FormGroup>
 
         <FormGroup>
-          <ControlLabel>User email title</ControlLabel>
+          <label>Subject Line</label>
           <FormControl
             type="text"
             id="userEmailTitle"
@@ -124,7 +131,7 @@ class SuccessStep extends React.Component<Props, State> {
         </FormGroup>
 
         <FormGroup>
-          <ControlLabel>User email content</ControlLabel>
+          <label>Message</label>
           <EditorCK
             content={leadData.userEmailContent || ''}
             onChange={this.onEditorChange}
@@ -133,8 +140,13 @@ class SuccessStep extends React.Component<Props, State> {
           />
         </FormGroup>
 
+
         <FormGroup>
-          <ControlLabel>Admin emails</ControlLabel>
+          <ControlLabel>Get email notifications for new responses</ControlLabel>
+        </FormGroup>
+
+        <FormGroup>
+          <label>Admin emails</label>
           <FormControl
             id="adminEmails"
             type="text"
@@ -146,7 +158,7 @@ class SuccessStep extends React.Component<Props, State> {
         </FormGroup>
 
         <FormGroup>
-          <ControlLabel>Admin email title</ControlLabel>
+          <label>Subject Line</label>
           <FormControl
             type="text"
             defaultValue={leadData.adminEmailTitle}
@@ -156,7 +168,7 @@ class SuccessStep extends React.Component<Props, State> {
         </FormGroup>
 
         <FormGroup>
-          <ControlLabel>Admin email content</ControlLabel>
+          <label>Message</label>
           <EditorCK
             content={leadData.adminEmailContent || ''}
             onChange={this.onEditorChange}
@@ -182,7 +194,7 @@ class SuccessStep extends React.Component<Props, State> {
     return (
       <div>
         <FormGroup>
-          <ControlLabel>Redirect url</ControlLabel>
+          <ControlLabel>Redirect to this page after submission</ControlLabel>
           <FormControl
             type="text"
             defaultValue={leadData.redirectUrl}
@@ -193,24 +205,35 @@ class SuccessStep extends React.Component<Props, State> {
       </div>
     );
   }
+  
 
   renderThankContent() {
-    const { thankContent } = this.props;
+    const { thankContent, thankTitle} = this.props;
     const { successAction } = this.state;
 
-    const onChange = e =>
+    const onChange = e => {
       this.onChangeFunction(
-        'thankContent',
+        e.currentTarget.id,
         (e.currentTarget as HTMLInputElement).value
       );
+    }
 
-    if (successAction !== 'onPage') {
+    if (successAction !== FORM_SUCCESS_ACTIONS.ONPAGE) {
       return null;
     }
 
     return (
       <FormGroup>
-        <ControlLabel>Thank content</ControlLabel>
+        <ControlLabel>Title</ControlLabel>
+        <FormControl
+          id="thankTitle"
+          type="text"
+          componentClass="textinput"
+          defaultValue={thankTitle}
+          onChange={onChange}
+        />
+
+        <ControlLabel>Confirmation message</ControlLabel>
         <FormControl
           id="thankContent"
           type="text"
@@ -222,6 +245,12 @@ class SuccessStep extends React.Component<Props, State> {
     );
   }
 
+  renderSelectOptions(){
+    return FORM_SUCCESS_ACTIONS.ALL_LIST.map(e => {
+      return <option value={e.value}>{e.text}</option>
+     });
+  }
+
   render() {
     const leadData = this.props.leadData || {};
     const { successAction } = this.state;
@@ -231,6 +260,7 @@ class SuccessStep extends React.Component<Props, State> {
         <LeftItem>
           <FormGroup>
             <ControlLabel>On success</ControlLabel>
+            <p>{__(`You can set each confirmation message ${successAction} here.`)}</p>
             <FormControl
               componentClass="select"
               defaultValue={successAction}
@@ -238,9 +268,7 @@ class SuccessStep extends React.Component<Props, State> {
               id="successAction"
             >
               <option />
-              <option>email</option>
-              <option>redirect</option>
-              <option>onPage</option>
+              {this.renderSelectOptions()}
             </FormControl>
           </FormGroup>
 

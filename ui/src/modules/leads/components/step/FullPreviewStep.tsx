@@ -29,6 +29,7 @@ type Props = {
   image?: string;
   onChange: (name: 'carousel', value: string) => void;
   carousel: string;
+  thankTitle?: string;
   thankContent?: string;
   skip?: boolean;
 };

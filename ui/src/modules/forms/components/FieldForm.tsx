@@ -205,7 +205,7 @@ class FieldForm extends React.Component<Props, State> {
 
         <FormGroup>
           <ControlLabel htmlFor="text" required={true}>
-            Field Label
+            Field Title
           </ControlLabel>
 
           <FormControl

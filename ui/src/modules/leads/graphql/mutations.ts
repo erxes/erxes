@@ -3,6 +3,7 @@ import { commonFields } from './queries';
 const commonFormParamsDef = `
   $name: String!,
   $brandId: String!,
+  $channelIds: [String]
   $formId: String!,
   $languageCode: String,
   $leadData: IntegrationLeadData!
@@ -11,6 +12,7 @@ const commonFormParamsDef = `
 const commonFormParams = `
   name: $name,
   brandId: $brandId,
+  channelIds: $channelIds,
   formId: $formId,
   languageCode: $languageCode,
   leadData: $leadData

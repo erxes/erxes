@@ -22,6 +22,7 @@ export interface ILeadData {
   adminEmails?: string[];
   adminEmailTitle?: string;
   adminEmailContent?: string;
+  thankTitle?: string;
   thankContent?: string;
   redirectUrl?: string;
   themeColor?: string;

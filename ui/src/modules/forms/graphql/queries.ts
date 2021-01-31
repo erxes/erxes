@@ -16,6 +16,10 @@ const integrationFields = `
     name
     colorCode
   }
+  channels {
+    _id
+    name
+  }
 `;
 
 const integrations = `

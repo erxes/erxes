@@ -68,14 +68,21 @@ class Form extends React.Component<Props, State> {
   // after any field value change, save it's value to state
   onFieldValueChange = ({
     fieldId,
-    value
+    value,
+    associatedFieldId
   }: {
     fieldId: string;
     value: FieldValue;
+    associatedFieldId?: string;
   }) => {
+    console.log('sd = ',this.state.doc)
     const doc = this.state.doc;
 
     doc[fieldId].value = value;
+
+    if(associatedFieldId) {
+      doc[fieldId].associatedFieldId = associatedFieldId;
+    }
 
     this.setState({ doc });
   };

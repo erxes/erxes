@@ -48,6 +48,7 @@ export const types = `
     adminEmails: [String]
     adminEmailTitle: String
     adminEmailContent: String
+    thankTitle: String
     thankContent: String
     redirectUrl: String
     themeColor: String
@@ -144,6 +145,7 @@ export const mutations = `
   integrationsCreateLeadIntegration(
     name: String!,
     brandId: String!,
+    channelIds: [String]
     languageCode: String,
     formId: String!,
     leadData: IntegrationLeadData!): Integration
@@ -152,6 +154,7 @@ export const mutations = `
     _id: String!
     name: String!,
     brandId: String!,
+    channelIds: [String]
     languageCode: String,
     formId: String!,
     leadData: IntegrationLeadData!): Integration

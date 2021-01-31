@@ -8,6 +8,10 @@ export const commonFields = `
     name
     code
   }
+  channels {
+    _id
+    name
+  }
   languageCode
   leadData
   formId

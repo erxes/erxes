@@ -25,6 +25,7 @@ type State = {
   isReadyToSaveForm: boolean;
   doc?: {
     brandId: string;
+    channelIds?: string[];
     name: string;
     languageCode: string;
     lead: any;
@@ -61,8 +62,8 @@ class EditLeadContainer extends React.Component<FinalProps, State> {
 
     const afterFormDbSave = () => {
       if (this.state.doc) {
-        const { leadData, brandId, name, languageCode } = this.state.doc;
-
+        const { leadData, brandId, name, languageCode, channelIds } = this.state.doc;
+        console.log(this.state.doc)
         editIntegrationMutation({
           variables: {
             _id: integration._id,
@@ -70,7 +71,8 @@ class EditLeadContainer extends React.Component<FinalProps, State> {
             leadData,
             brandId,
             name,
-            languageCode
+            languageCode,
+            channelIds
           }
         })
           .then(() => {

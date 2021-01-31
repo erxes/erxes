@@ -12,6 +12,7 @@ import React from 'react';
 import { IBrand } from '../../../settings/brands/types';
 import { FormPreview } from './preview';
 import { FlexItem } from './style';
+import SelectChannels from 'modules/settings/integrations/containers/SelectChannels';
 
 type Props = {
   type: string;
@@ -21,16 +22,17 @@ type Props = {
   language?: string;
   isRequireOnce?: boolean;
   onChange: (
-    name: 'brand' | 'language' | 'isRequireOnce',
-    value: string
+    name: 'brand' | 'language' | 'isRequireOnce' | 'channelIds',
+    value: any
   ) => void;
   fields?: IField[];
   brand?: IBrand;
+  channelIds?: string[];
   onFieldEdit?: () => void;
 };
 
 class OptionStep extends React.Component<Props, {}> {
-  onChangeFunction = (name: any, value: string) => {
+  onChangeFunction = (name: any, value: any) => {
     this.props.onChange(name, value);
   };
 
@@ -48,6 +50,10 @@ class OptionStep extends React.Component<Props, {}> {
         'brand',
         (e.currentTarget as HTMLInputElement).value
       );
+
+    const channelOnChange = (values: string[]) => {
+      this.onChangeFunction('channelIds', values);
+    }
 
     const onChangeLanguage = e =>
       this.onChangeFunction(
@@ -73,6 +79,13 @@ class OptionStep extends React.Component<Props, {}> {
               defaultValue={brand ? brand._id : ' '}
             />
           </FormGroup>
+
+          <SelectChannels
+            defaultValue={this.props.channelIds}
+            isRequired={true}
+            description="Choose a channel, if you wish to see every new form in your Team Inbox."
+            onChange={channelOnChange}
+          />
           <FormGroup>
             <ControlLabel>Language</ControlLabel>
             <FormControl

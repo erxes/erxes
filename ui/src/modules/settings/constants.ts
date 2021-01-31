@@ -41,7 +41,7 @@ export const EMPTY_IMPORT_CONTENT = {
     {
       title: 'Export your data',
       description:
-        'You can export your data from the list on the left. If you wish to export your popup forms, go to Customer and click on “Export Forms Data”',
+        'You can export your data from the list on the left. If you wish to export your forms data, go to Customer and click on “Export Forms Data”',
       url: '/settings/importHistories?type=customer',
       isOutside: false,
       urlText: 'Go to Customers',

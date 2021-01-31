@@ -27,6 +27,7 @@ type State = {
     languageCode: string;
     lead: any;
     leadData: ILeadData;
+    channelIds?: string[];
   };
 };
 
@@ -43,7 +44,7 @@ class CreateLeadContainer extends React.Component<Props, State> {
       this.setState({ isReadyToSaveForm: false });
 
       if (this.state.doc) {
-        const { leadData, brandId, name, languageCode } = this.state.doc;
+        const { leadData, brandId, name, languageCode, channelIds } = this.state.doc;
 
         addIntegrationMutation({
           variables: {
@@ -51,7 +52,8 @@ class CreateLeadContainer extends React.Component<Props, State> {
             leadData,
             brandId,
             name,
-            languageCode
+            languageCode,
+            channelIds
           }
         })
           .then(

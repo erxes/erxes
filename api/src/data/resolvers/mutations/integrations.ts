@@ -155,6 +155,13 @@ const integrationMutations = {
   ) {
     const integration = await Integrations.createLeadIntegration(doc, user._id);
 
+    if (doc.channelIds) {
+      await Channels.updateMany(
+        { _id: { $in: doc.channelIds } },
+        { $push: { integrationIds: integration._id } }
+      );
+    }
+
     await putCreateLog(
       {
         type: MODULE_NAMES.INTEGRATION,
@@ -178,7 +185,23 @@ const integrationMutations = {
     _root,
     { _id, ...doc }: IEditIntegration
   ) {
+
+    const integration = await Integrations.getIntegration(_id);
     const updated = await Integrations.updateLeadIntegration(_id, doc);
+ 
+    await Channels.updateMany(
+      { integrationIds: integration._id },
+      { $pull: { integrationIds: integration._id } }
+    );
+
+    if (doc.channelIds) {
+      await Channels.updateMany(
+        { _id: { $in: doc.channelIds } },
+        { $push: { integrationIds: integration._id } }
+      );
+    }
+
+    
 
     await caches.update(`integration_lead_${updated.brandId}`, updated);
 
