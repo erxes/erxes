@@ -1,21 +1,9 @@
 import Button from 'modules/common/components/Button';
-import { SmallLoader } from 'modules/common/components/ButtonMutate';
-import FormControl from 'modules/common/components/form/Control';
 import ConditionsRule from 'modules/common/components/rule/ConditionsRule';
-import { Step, Steps } from 'modules/common/components/step';
-import {
-  StepWrapper,
-  TitleContainer
-} from 'modules/common/components/step/styles';
-import { IConditionsRule } from 'modules/common/types';
-import { Alert, __ } from 'modules/common/utils';
-import { IFormData } from 'modules/forms/types';
-import Wrapper from 'modules/layout/components/Wrapper';
-import { IEmailTemplate } from 'modules/settings/emailTemplates/types';
-import { IField } from 'modules/settings/properties/types';
+import FormControl from 'modules/common/components/form/Control';
 import React from 'react';
-import { Link } from 'react-router-dom';
-import { ILeadData, ILeadIntegration } from '../types';
+import Wrapper from 'modules/layout/components/Wrapper';
+import { __, Alert } from 'modules/common/utils';
 import {
   CallOut,
   ChooseType,
@@ -23,7 +11,16 @@ import {
   FullPreviewStep,
   OptionStep,
   SuccessStep
-} from './step';
+  } from './step';
+import { IConditionsRule } from 'modules/common/types';
+import { IEmailTemplate } from 'modules/settings/emailTemplates/types';
+import { IField } from 'modules/settings/properties/types';
+import { IFormData } from 'modules/forms/types';
+import { ILeadData, ILeadIntegration } from '../types';
+import { Link } from 'react-router-dom';
+import { SmallLoader } from 'modules/common/components/ButtonMutate';
+import { Step, Steps } from 'modules/common/components/step';
+import { StepWrapper, TitleContainer } from 'modules/common/components/step/styles';
 
 type Props = {
   integration?: ILeadIntegration;
