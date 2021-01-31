@@ -160,7 +160,8 @@ class EditFormContainer extends React.Component<FinalProps> {
       ...this.props,
       fields: dbFields.map(field => ({ ...field })),
       saveForm,
-      form
+      form,
+      customProperties: []
     };
 
     return <Form {...updatedProps} />;

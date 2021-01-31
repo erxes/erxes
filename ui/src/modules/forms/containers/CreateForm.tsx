@@ -4,19 +4,20 @@ import { Alert, withProps } from 'modules/common/utils';
 import {
   AddFieldsMutationResponse,
   AddFieldsMutationVariables,
-  IField
+  FieldsQueryResponse, IField
 } from 'modules/settings/properties/types';
 import React from 'react';
 import { graphql } from 'react-apollo';
 import { withRouter } from 'react-router-dom';
 import { IRouterProps } from '../../common/types';
 import Form from '../components/Form';
-import { mutations } from '../graphql';
+import { mutations, queries } from '../graphql';
 import {
   AddFormMutationResponse,
   AddFormMutationVariables,
   IFormData
 } from '../types';
+
 
 type Props = {
   renderPreviewWrapper: (previewRenderer, fields: IField[]) => void;
@@ -27,7 +28,9 @@ type Props = {
   showMessage?: boolean;
 };
 
-type FinalProps = {} & Props &
+type FinalProps = {
+  fieldsQuery: FieldsQueryResponse;
+} & Props &
   IRouterProps &
   AddFieldsMutationResponse &
   AddFormMutationResponse;
@@ -42,8 +45,15 @@ class CreateFormContainer extends React.Component<FinalProps, {}> {
       addFormMutation,
       addFieldsMutation,
       afterDbSave,
+      fieldsQuery,
       showMessage
     } = this.props;
+
+    if (fieldsQuery.loading) {
+      return false;
+    }
+
+    const customProperties = fieldsQuery.fields || [];
 
     const saveForm = doc => {
       let formId;
@@ -95,7 +105,8 @@ class CreateFormContainer extends React.Component<FinalProps, {}> {
     const updatedProps = {
       ...this.props,
       fields: [],
-      saveForm
+      saveForm,
+      customProperties
     };
 
     return <Form {...updatedProps} />;
@@ -118,6 +129,21 @@ export default withProps<Props>(
       {
         name: 'addFieldsMutation'
       }
-    )
+    ),
+    graphql<
+    Props,
+    FieldsQueryResponse
+  >(gql(queries.fields), {
+    name: 'fieldsQuery',
+    options: () => {
+      return {
+        variables: {
+          contentType: 'customer',
+          isVisible: true
+        },
+        fetchPolicy: 'network-only'
+      };
+    }
+  }),
   )(withRouter<FinalProps>(CreateFormContainer))
 );

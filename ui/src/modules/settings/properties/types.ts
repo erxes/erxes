@@ -18,6 +18,7 @@ export interface IField {
   groupId?: string;
   lastUpdatedUser?: IUser;
   lastUpdatedUserId?: string;
+  associatedFieldId?: string;
 }
 
 export interface IFieldGroup {

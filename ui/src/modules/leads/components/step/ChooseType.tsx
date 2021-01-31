@@ -1,15 +1,20 @@
+import { COLORS } from 'modules/boards/constants';
 import FormGroup from 'modules/common/components/form/Group';
 import ControlLabel from 'modules/common/components/form/Label';
 import Icon from 'modules/common/components/Icon';
 import { LeftItem, Preview } from 'modules/common/components/step/styles';
 import { __ } from 'modules/common/utils';
+import { ColorPick, ColorPicker } from 'modules/settings/styles';
 import React from 'react';
+import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
+import Popover from 'react-bootstrap/Popover';
+import TwitterPicker from 'react-color/lib/Twitter';
 import { CalloutPreview } from './preview';
-import { Box, BoxRow, FlexItem } from './style';
+import { BackgroundSelector, Box, BoxRow, ColorList, FlexItem } from './style';
 
 type Props = {
   type: string;
-  onChange: (name: 'type', value: string) => void;
+  onChange: (name: 'type' | 'color' | 'theme' , value: string) => void;
   calloutTitle?: string;
   calloutBtnText?: string;
   color: string;
@@ -32,7 +37,46 @@ class ChooseType extends React.Component<Props, {}> {
     return this.props.onChange('type', value);
   }
 
+  onColorChange = e => {
+    this.setState({ color: e.hex, theme: '#000' }, () => {
+      this.props.onChange('color', e.hex);
+      this.props.onChange('theme', e.hex);
+    });
+  };
+
+  renderThemeColor(value: string) {
+    const onClick = () => this.props.onChange('theme', value);
+
+    return (
+      <BackgroundSelector
+        key={value}
+        selected={this.props.theme === value}
+        onClick={onClick}
+      >
+        <div style={{ backgroundColor: value }} />
+      </BackgroundSelector>
+    );
+  }
+
   render() {
+
+    const {
+      color,
+      theme
+    } = this.props;
+
+    const popoverTop = (
+      <Popover id="color-picker">
+        <TwitterPicker
+          width="266px"
+          triangle="hide"
+          colors={COLORS}
+          color={color}
+          onChange={this.onColorChange}
+        />
+      </Popover>
+    );
+
     return (
       <FlexItem>
         <LeftItem>
@@ -57,6 +101,27 @@ class ChooseType extends React.Component<Props, {}> {
               'slideInRight'
             )}
           </BoxRow>
+
+          <FormGroup>
+            <ControlLabel>Theme color</ControlLabel>
+            <div>
+              <OverlayTrigger
+                trigger="click"
+                rootClose={true}
+                placement="bottom-start"
+                overlay={popoverTop}
+              >
+                <ColorPick>
+                  <ColorPicker style={{ backgroundColor: theme }} />
+                </ColorPick>
+              </OverlayTrigger>
+            </div>
+            <br />
+            <p>{__('Try some of these colors:')}</p>
+            <ColorList>
+              {COLORS.map(value => this.renderThemeColor(value))}
+            </ColorList>
+          </FormGroup>
         </LeftItem>
         <Preview>
           <CalloutPreview {...this.props} />

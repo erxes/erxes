@@ -21,6 +21,7 @@ type Props = {
   type: string;
   form?: IForm;
   hideOptionalFields?: boolean;
+  customProperties: IField[];
 };
 
 type State = {
@@ -30,6 +31,7 @@ type State = {
   title: string;
   desc: string;
   btnText: string;
+  
 };
 
 class Form extends React.Component<Props, State> {
@@ -184,6 +186,7 @@ class Form extends React.Component<Props, State> {
           onSubmit={this.onFieldSubmit}
           onDelete={this.onFieldDelete}
           onCancel={this.onFieldFormCancel}
+          customProperties={this.props.customProperties}
         />
       );
     }
@@ -204,8 +207,8 @@ class Form extends React.Component<Props, State> {
         <LeftItem>
           {this.renderOptionalFields()}
 
-          <Title>{__('New field')}</Title>
-
+          <Title>{__('Add a new field')}</Title>
+          <p>{__('Choose a field type from the options below.')}</p>
           <FieldChoices onChoiceClick={this.onChoiceClick} />
         </LeftItem>
 

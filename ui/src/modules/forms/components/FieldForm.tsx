@@ -9,6 +9,7 @@ import { __ } from 'modules/common/utils';
 import { IField } from 'modules/settings/properties/types';
 import React from 'react';
 import Modal from 'react-bootstrap/Modal';
+import Select from 'react-select-plus';
 import {
   FlexRow,
   LeftSection,
@@ -24,24 +25,48 @@ type Props = {
   onCancel: () => void;
   mode: 'create' | 'update';
   field: IField;
+  customProperties?: IField[];
 };
 
 type State = {
   field: IField;
+  properties?: [{ label: string; value: string }];
+  selectedProperty?: { label: string; value: string };
 };
 
 class FieldForm extends React.Component<Props, State> {
   constructor(props: Props) {
     super(props);
-
+    
     this.state = {
-      field: props.field
-    };
+      field: props.field,
+    }
   }
 
   onFieldChange = (name: string, value: string | boolean | string[]) => {
     this.setFieldAttrChanges(name, value);
   };
+
+  onSelectChange = (option) => {
+    console.log(option)
+    const { customProperties } = this.props;
+    if (customProperties) {
+
+      this.setState({ selectedProperty: option })
+
+      const { field } = this.state;
+
+
+      const customProperty = customProperties.find(e => e._id === option.value);
+
+      if(customProperty) {
+        field.associatedFieldId = customProperty._id;
+        field.validation = customProperty.validation;
+        field.options = customProperty.options;
+      }
+      this.setState({ field })
+    }
+  }
 
   onSubmit = e => {
     e.persist();
@@ -145,8 +170,19 @@ class FieldForm extends React.Component<Props, State> {
   }
 
   renderLeftContent() {
-    const { mode, onCancel } = this.props;
-    const { field } = this.state;
+    const { mode, onCancel, customProperties } = this.props;
+    const { field, selectedProperty } = this.state;
+
+
+    let options;
+
+    if(customProperties){
+      const filtered = customProperties.filter(e => e.text !== undefined && e.type === field.type);
+
+      options = filtered.map(e => {
+        return { value: e._id, label: e.text };
+      })
+    }
 
     const text = e =>
       this.onFieldChange('text', (e.currentTarget as HTMLInputElement).value);
@@ -188,6 +224,21 @@ class FieldForm extends React.Component<Props, State> {
             componentClass="textarea"
             value={field.description || ''}
             onChange={desc}
+          />
+        </FormGroup>
+
+        <FormGroup>
+          <ControlLabel htmlFor="description">Custom property</ControlLabel>
+          <p>{__('Any data collected through this field will copy to:')}</p>
+          <Select
+            placeholder='Type to search'
+            options={options}
+            value={selectedProperty}
+            onSelectResetsInput={true}
+            onBlurResetsInput={false}
+            onChange={this.onSelectChange}
+            // onInputChange={this.handleInput}
+            // onInputKeyDown={this.handleKeyDown}
           />
         </FormGroup>
 

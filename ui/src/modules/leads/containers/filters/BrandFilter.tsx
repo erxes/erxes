@@ -26,7 +26,6 @@ class BrandFilterContainer extends React.Component<FinalProps> {
       brandsQuery,
       integrationsTotalCountQuery,
       refetch,
-      queryParams
     } = this.props;
 
     const counts = (integrationsTotalCountQuery
@@ -37,7 +36,8 @@ class BrandFilterContainer extends React.Component<FinalProps> {
       ...this.props,
       brands: (brandsQuery ? brandsQuery.brands : null) || [],
       loading: (brandsQuery ? brandsQuery.loading : null) || false,
-      counts: counts.byBrand || {}
+      counts: counts.byBrand || {},
+      emptyText: 'Now easier to find forms according to your brand'
     };
 
     if (refetch) {

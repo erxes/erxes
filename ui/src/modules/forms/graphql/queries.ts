@@ -148,8 +148,8 @@ const integrationsTotalCount = `
 `;
 
 const fields = `
-  query fields($contentType: String!, $contentTypeId: String) {
-    fields(contentType: $contentType, contentTypeId: $contentTypeId) {
+  query fields($contentType: String!, $contentTypeId: String, $isVisible: Boolean) {
+    fields(contentType: $contentType, contentTypeId: $contentTypeId, isVisible: $isVisible) {
       _id
       type
       validation
@@ -158,6 +158,7 @@ const fields = `
       options
       isRequired
       order
+      associatedFieldId
     }
   }
 `;

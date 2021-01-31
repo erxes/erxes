@@ -30,7 +30,7 @@ class Row extends React.Component<Props> {
     const { formId } = integration;
 
     return (
-      <Link to={`/leads/edit/${integration._id}/${formId}`}>
+      <Link to={`/forms/edit/${integration._id}/${formId}`}>
         <Button btnStyle="link">
           <Tip text={__('Manage')} placement="top">
             <Icon icon="edit-3" />
@@ -156,7 +156,7 @@ class Row extends React.Component<Props> {
         </td>
         <td>
           <RowTitle>
-            <Link to={`/leads/edit/${integration._id}/${integration.formId}`}>
+            <Link to={`/forms/edit/${integration._id}/${integration.formId}`}>
               {integration.name}
             </Link>
           </RowTitle>

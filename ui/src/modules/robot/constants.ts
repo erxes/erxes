@@ -159,11 +159,11 @@ export const FEATURE_DETAILS = {
       },
       leadIntegrationCreate: {
         name: 'Create forms',
-        url: '/leads/create'
+        url: '/forms/create'
       },
       leadIntegrationInstalled: {
         name: 'Install on website',
-        url: '/leads'
+        url: '/forms'
       }
     }
   },

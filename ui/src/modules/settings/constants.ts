@@ -121,15 +121,15 @@ export const EMPTY_CONTENT_POPUPS = {
     'Never miss a potential lead by capturing them with a customizable Forms',
   steps: [
     {
-      title: 'Create Form',
-      description: 'Fill out the details and create your message or form',
-      url: '/leads/create',
-      urlText: 'Create Form'
+      title: 'Create a form',
+      description: 'Fill out the details and create your popup message or form',
+      url: '/forms/create',
+      urlText: 'Create a Form'
     },
     {
       title: 'Install the script',
       description:
-        'Copy the individual script or use Script Manager to avoid script duplication errors if you’re planning to display this popup along with any other erxes widgets',
+        'Copy the individual script or use Script Manager to avoid script duplication errors if you’re planning to display this form along with any other erxes widgets',
       url: '/settings/scripts',
       urlText: 'Go to Script Manager'
     }
@@ -262,7 +262,7 @@ export const EMPTY_CONTENT_CONTACTS = {
     {
       title: 'Generate contacts through Forms',
       description: 'Create your forms and start collecting Leads',
-      url: '/leads/create',
+      url: '/forms/create',
       urlText: 'Create a Popup'
     }
   ]

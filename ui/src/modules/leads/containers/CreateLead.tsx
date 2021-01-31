@@ -60,10 +60,10 @@ class CreateLeadContainer extends React.Component<Props, State> {
                 integrationsCreateLeadIntegration: { _id }
               }
             }) => {
-              Alert.success('You successfully added a lead');
+              Alert.success('You successfully added a form');
 
               history.push({
-                pathname: '/leads',
+                pathname: '/forms',
                 search: `?popUpRefetchList=true&showInstallCode=${_id}`
               });
             }

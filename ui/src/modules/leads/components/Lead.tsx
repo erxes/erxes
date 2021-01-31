@@ -174,7 +174,7 @@ class Lead extends React.Component<Props, State> {
     const { isActionLoading } = this.props;
 
     const cancelButton = (
-      <Link to="/leads">
+      <Link to="/forms">
         <Button btnStyle="simple" icon="times-circle" uppercase={false}>
           Cancel
         </Button>
@@ -238,7 +238,7 @@ class Lead extends React.Component<Props, State> {
     const { integration } = this.props;
     const leadData = integration && integration.leadData;
     const brand = integration && integration.brand;
-    const breadcrumb = [{ title: __('Forms'), link: '/leads' }];
+    const breadcrumb = [{ title: __('Forms'), link: '/forms' }];
     const constant = isSkip ? 'form' : 'callout';
 
     const onChange = e =>
@@ -246,7 +246,7 @@ class Lead extends React.Component<Props, State> {
 
     return (
       <>
-        <Wrapper.Header title={__('Leads')} breadcrumb={breadcrumb} />
+        <Wrapper.Header title={__('Forms')} breadcrumb={breadcrumb} />
         <StepWrapper>
           <TitleContainer id="CreatePopupsTitle">
             <div>{__('Title')}</div>
@@ -259,7 +259,7 @@ class Lead extends React.Component<Props, State> {
             {this.renderSaveButton()}
           </TitleContainer>
           <Steps active={activeStep || 1}>
-            <Step img="/images/icons/erxes-04.svg" title="Type">
+            <Step img="/images/icons/erxes-04.svg" title="Style">
               <ChooseType
                 onChange={this.onChange}
                 type={type}
@@ -282,7 +282,7 @@ class Lead extends React.Component<Props, State> {
                 skip={isSkip}
               />
             </Step>
-            <Step img="/images/icons/erxes-12.svg" title={'Form'}>
+            <Step img="/images/icons/erxes-12.svg" title={'Content'}>
               <FormStep
                 type={type}
                 color={color}

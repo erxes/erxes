@@ -1,22 +1,17 @@
-import { COLORS } from 'modules/boards/constants';
 import FormControl from 'modules/common/components/form/Control';
 import FormGroup from 'modules/common/components/form/Group';
 import ControlLabel from 'modules/common/components/form/Label';
 import { LeftItem, Preview } from 'modules/common/components/step/styles';
 import Toggle from 'modules/common/components/Toggle';
-import { __ } from 'modules/common/utils';
 import FieldsPreview from 'modules/forms/components/FieldsPreview';
 import { IFormData } from 'modules/forms/types';
 import SelectBrand from 'modules/settings/integrations/containers/SelectBrand';
 import { IField } from 'modules/settings/properties/types';
-import { ColorPick, ColorPicker, Description } from 'modules/settings/styles';
+import { Description } from 'modules/settings/styles';
 import React from 'react';
-import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
-import Popover from 'react-bootstrap/Popover';
-import TwitterPicker from 'react-color/lib/Twitter';
 import { IBrand } from '../../../settings/brands/types';
 import { FormPreview } from './preview';
-import { BackgroundSelector, ColorList, FlexItem } from './style';
+import { FlexItem } from './style';
 
 type Props = {
   type: string;
@@ -26,7 +21,7 @@ type Props = {
   language?: string;
   isRequireOnce?: boolean;
   onChange: (
-    name: 'brand' | 'color' | 'theme' | 'language' | 'isRequireOnce',
+    name: 'brand' | 'language' | 'isRequireOnce',
     value: string
   ) => void;
   fields?: IField[];
@@ -39,49 +34,14 @@ class OptionStep extends React.Component<Props, {}> {
     this.props.onChange(name, value);
   };
 
-  onColorChange = e => {
-    this.setState({ color: e.hex, theme: '#000' }, () => {
-      this.props.onChange('color', e.hex);
-      this.props.onChange('theme', e.hex);
-    });
-  };
-
-  renderThemeColor(value: string) {
-    const onClick = () => this.onChangeFunction('theme', value);
-
-    return (
-      <BackgroundSelector
-        key={value}
-        selected={this.props.theme === value}
-        onClick={onClick}
-      >
-        <div style={{ backgroundColor: value }} />
-      </BackgroundSelector>
-    );
-  }
-
   render() {
     const {
       language,
       brand,
       formData,
-      color,
-      theme,
       isRequireOnce
     } = this.props;
     const { fields, desc } = formData;
-
-    const popoverTop = (
-      <Popover id="color-picker">
-        <TwitterPicker
-          width="266px"
-          triangle="hide"
-          colors={COLORS}
-          color={color}
-          onChange={this.onColorChange}
-        />
-      </Popover>
-    );
 
     const onChange = e =>
       this.onChangeFunction(
@@ -143,27 +103,6 @@ class OptionStep extends React.Component<Props, {}> {
                 }}
               />
             </div>
-          </FormGroup>
-
-          <FormGroup>
-            <ControlLabel>Theme color</ControlLabel>
-            <div>
-              <OverlayTrigger
-                trigger="click"
-                rootClose={true}
-                placement="bottom-start"
-                overlay={popoverTop}
-              >
-                <ColorPick>
-                  <ColorPicker style={{ backgroundColor: theme }} />
-                </ColorPick>
-              </OverlayTrigger>
-            </div>
-            <br />
-            <p>{__('Try some of these colors:')}</p>
-            <ColorList>
-              {COLORS.map(value => this.renderThemeColor(value))}
-            </ColorList>
           </FormGroup>
         </LeftItem>
 

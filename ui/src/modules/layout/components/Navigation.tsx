@@ -206,7 +206,7 @@ class Navigation extends React.Component<{
           {this.renderNavItem(
             'showForms',
             __('Forms'),
-            '/leads',
+            '/forms',
             'icon-laptop'
           )}
           {this.renderNavItem(
