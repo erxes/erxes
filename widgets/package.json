@@ -20,6 +20,7 @@
     "start": "node dist"
   },
   "dependencies": {
+    "@fingerprintjs/fingerprintjs": "^3.0.5",
     "@nateradebaugh/react-datetime": "^4.0.0-rc.10",
     "@types/classnames": "^2.2.6",
     "@types/cors": "^2.8.4",

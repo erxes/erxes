@@ -178,11 +178,11 @@ export const FEATURE_DETAILS = {
     settingsDetails: {
       engageVerifyEmail: {
         name: 'Verify your sending email',
-        url: '/settings/engage-configs'
+        url: '/settings/campaign-configs'
       },
       engageSendTestEmail: {
         name: 'Send test email',
-        url: '/settings/engage-configs'
+        url: '/settings/campaign-configs'
       },
       emailTemplateCreate: {
         name: 'Configure email template',

@@ -93,6 +93,14 @@ export const EMPTY_NEW_SEGMENT_CONTENT = {
       title: 'Create your Segment',
       description:
         'Select the property/event you want to filter by, select one of the operators and type in or select the value from the dropdown menu.'
+    },
+    {
+      title: 'See our documentation',
+      description: 'Walk through step by step instructions.',
+      url: 'https://www.erxes.org/user/segments/',
+      urlText: 'Go to the docs',
+      target: '_blank',
+      isOutside: true
     }
   ]
 };
@@ -137,14 +145,14 @@ export const EMPTY_CONTENT_POPUPS = {
 };
 
 export const EMPTY_CONTENT_ENGAGE = {
-  title: 'Getting Started with Engage',
+  title: 'Getting Started with Campaigns',
   description:
     'Learn how to use this feature to engage your contacts and drive conversations.',
   steps: [
     {
       title: 'Email',
       description:
-        "<ul><li><strong><a href='/settings/engage-configs'>Verify</a> your email address</strong> <br/> Make sure it is the same as one of your team members</li><li><strong>Integrate that email address with <a href='/settings/integrations#showImapModal=true'>IMAP</a></strong> <br/> Connect your existing emails address as an integration</li><li><strong>Prepare your contacts by Segment / Tag / Brand</strong> <br/> For more targeted marketing, create a <a href='/segments/new/customer'>Segment</a></li></ul>",
+        "<ul><li><strong><a href='/settings/campaign-configs'>Verify</a> your email address</strong> <br/> Make sure it is the same as one of your team members</li><li><strong>Integrate that email address with <a href='/settings/integrations#showImapModal=true'>IMAP</a></strong> <br/> Connect your existing emails address as an integration</li><li><strong>Prepare your contacts by Segment / Tag / Brand</strong> <br/> For more targeted marketing, create a <a href='/segments/new/customer'>Segment</a></li></ul>",
       html: true,
       icon: 'envelope-edit'
     },
@@ -160,7 +168,7 @@ export const EMPTY_CONTENT_ENGAGE = {
     {
       title: 'SMS',
       description:
-        "<ul><li><strong><a href='/settings/engage-configs'>Claim</a> your phone number</strong> <br/> Make sure you assigned it to a team member</li><li><strong>Prepare your contacts</strong> <br/> Check the <a href='https://en.wikipedia.org/wiki/E.164' target='_blank'>format</a>, verification status, and primary phone state</li><li><strong><a href='/segments/new/customer'>Create</a> a segment</strong> <br/> Filter all contacts with valid phone numbers and other properties</li></ul>",
+        "<ul><li><strong><a href='/settings/campaign-configs'>Claim</a> your phone number</strong> <br/> Make sure you assigned it to a team member</li><li><strong>Prepare your contacts</strong> <br/> Check the <a href='https://en.wikipedia.org/wiki/E.164' target='_blank'>format</a>, verification status, and primary phone state</li><li><strong><a href='/segments/new/customer'>Create</a> a segment</strong> <br/> Filter all contacts with valid phone numbers and other properties</li></ul>",
       html: true,
       icon: 'comment-alt-message'
     }

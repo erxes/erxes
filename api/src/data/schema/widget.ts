@@ -5,6 +5,7 @@ export const types = `
     languageCode: String
     messengerData: JSON
     customerId: String
+    visitorId: String
     brand: Brand
   }
 
@@ -52,16 +53,16 @@ export const types = `
 `;
 
 export const queries = `
-  widgetsConversations(integrationId: String!, customerId: String!): [Conversation]
+  widgetsConversations(integrationId: String!, customerId: String, visitorId: String): [Conversation]
   widgetsConversationDetail(_id: String, integrationId: String!): ConversationDetailResponse
   widgetsGetMessengerIntegration(brandCode: String!): Integration
   widgetsMessages(conversationId: String): [ConversationMessage]
   widgetsUnreadCount(conversationId: String): Int
-  widgetsTotalUnreadCount(integrationId: String!, customerId: String!): Int
+  widgetsTotalUnreadCount(integrationId: String!, customerId: String, visitorId: String): Int
   widgetsMessengerSupporters(integrationId: String!): MessengerSupportersResponse
   widgetsKnowledgeBaseArticles(topicId: String!, searchString: String) : [KnowledgeBaseArticle]
   widgetsKnowledgeBaseTopicDetail(_id: String!): KnowledgeBaseTopic
-  widgetsGetEngageMessage(customerId: String!, browserInfo: JSON!): ConversationMessage
+  widgetsGetEngageMessage(customerId: String, visitorId: String, browserInfo: JSON!): ConversationMessage
 `;
 
 export const mutations = `
@@ -75,18 +76,21 @@ export const mutations = `
     companyData: JSON
     data: JSON
 
+    visitorId: String
     cachedCustomerId: String
     deviceToken: String
   ): MessengerConnectResponse
 
   widgetsSaveBrowserInfo(
-    customerId: String!
+    visitorId: String
+    customerId: String
     browserInfo: JSON!
   ): ConversationMessage
 
   widgetsInsertMessage(
     integrationId: String!
-    customerId: String!
+    customerId: String
+    visitorId: String
     conversationId: String
     message: String,
     attachments: [AttachmentInput],
@@ -95,7 +99,8 @@ export const mutations = `
   ): ConversationMessage
 
   widgetBotRequest(
-    customerId: String!
+    customerId: String
+    visitorId: String
     conversationId: String
     integrationId: String!,
     message: String!
@@ -104,7 +109,7 @@ export const mutations = `
     ): JSON
 
   widgetsReadConversationMessages(conversationId: String): JSON
-  widgetsSaveCustomerGetNotified(customerId: String!, type: String!, value: String!): JSON
+  widgetsSaveCustomerGetNotified(customerId: String, visitorId: String, type: String!, value: String!): JSON
 
   widgetsLeadConnect(
     brandCode: String!,

@@ -57,6 +57,7 @@ const TagStep = (props: Props) => {
       content={renderContent}
       renderButton={renderButton}
       icons={icons}
+      formProps={{ tags }}
     />
   );
 };

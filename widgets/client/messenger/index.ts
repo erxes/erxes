@@ -3,6 +3,7 @@ import client, { wsLink } from '../apollo-client';
 import { getLocalStorageItem, initStorage, setLocalStorageItem } from '../common';
 import { setLocale } from '../utils';
 import widgetConnect from '../widgetConnect';
+import { getVisitorId } from '../widgetUtils';
 import { connection } from './connection';
 import { App } from './containers';
 import graphqTypes from './graphql';
@@ -10,12 +11,20 @@ import './sass/style.scss';
 import { IConnectResponse } from './types';
 
 widgetConnect({
-  connectMutation: (event: MessageEvent) => {
+  connectMutation: async (event: MessageEvent) => {
     const { setting, storage } = event.data;
 
     connection.setting = setting;
 
     initStorage(storage);
+
+    const cachedCustomerId = getLocalStorageItem('customerId')
+
+    let visitorId;
+
+    if (!cachedCustomerId) {
+      visitorId = await getVisitorId();
+    }
 
     return client.mutate({
       mutation: gql(graphqTypes.connect),
@@ -24,9 +33,8 @@ widgetConnect({
         email: setting.email,
         phone: setting.phone,
         code: setting.code,
-
-        cachedCustomerId: getLocalStorageItem('customerId'),
-
+        cachedCustomerId,
+        visitorId,
         // if client passed email automatically then consider this as user
         isUser: Boolean(setting.email),
 

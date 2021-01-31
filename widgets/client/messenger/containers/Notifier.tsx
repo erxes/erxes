@@ -59,6 +59,7 @@ const withPollInterval = compose(graphql<Props>(
   options: ownProps => ({
     variables: {
       customerId: connection.data.customerId,
+      visitorId: connection.data.visitorId,
       browserInfo: ownProps.browserInfo,
     },
     notifyOnNetworkStatusChange: true,

@@ -33,7 +33,7 @@ const brandMutations = {
    * Update brand
    */
   async brandsEdit(_root, { _id, ...fields }: IBrandsEdit, { user }: IContext) {
-    const brand = await Brands.getBrand(_id);
+    const brand = await Brands.getBrand({ _id });
     const updated = await Brands.updateBrand(_id, fields);
 
     await caches.update(`brand_${brand.code}`, updated);
@@ -54,7 +54,7 @@ const brandMutations = {
    * Delete brand
    */
   async brandsRemove(_root, { _id }: { _id: string }, { user }: IContext) {
-    const brand = await Brands.getBrand(_id);
+    const brand = await Brands.getBrand({ _id });
     const removed = await Brands.removeBrand(_id);
 
     if (brand.code) {
