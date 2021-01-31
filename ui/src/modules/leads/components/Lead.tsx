@@ -5,7 +5,7 @@ import ConditionsRule from 'modules/common/components/rule/ConditionsRule';
 import { Step, Steps } from 'modules/common/components/step';
 import { StepWrapper, TitleContainer } from 'modules/common/components/step/styles';
 import { IConditionsRule } from 'modules/common/types';
-import { Alert, __ } from 'modules/common/utils';
+import { __, Alert } from 'modules/common/utils';
 import { IFormData } from 'modules/forms/types';
 import Wrapper from 'modules/layout/components/Wrapper';
 import { IEmailTemplate } from 'modules/settings/emailTemplates/types';

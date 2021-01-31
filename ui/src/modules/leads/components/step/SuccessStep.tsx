@@ -1,17 +1,17 @@
-import ControlLabel from 'modules/common/components/form/Label';
-import EditorCK from 'modules/common/containers/EditorCK';
 import FormControl from 'modules/common/components/form/Control';
 import FormGroup from 'modules/common/components/form/Group';
+import ControlLabel from 'modules/common/components/form/Label';
+import { LeftItem, Preview } from 'modules/common/components/step/styles';
+import EditorCK from 'modules/common/containers/EditorCK';
+import { __ } from 'modules/common/utils';
+import { generateEmailTemplateParams } from 'modules/engage/utils';
+import { ILeadData } from 'modules/leads/types';
+import { IEmailTemplate } from 'modules/settings/emailTemplates/types';
+import { FORM_SUCCESS_ACTIONS } from 'modules/settings/integrations/constants';
 import React from 'react';
 import Select from 'react-select-plus';
 import SuccessPreview from './preview/SuccessPreview';
-import { __ } from 'modules/common/utils';
 import { FlexItem } from './style';
-import { FORM_SUCCESS_ACTIONS } from 'modules/settings/integrations/constants';
-import { generateEmailTemplateParams } from 'modules/engage/utils';
-import { IEmailTemplate } from 'modules/settings/emailTemplates/types';
-import { ILeadData } from 'modules/leads/types';
-import { LeftItem, Preview } from 'modules/common/components/step/styles';
 
 
 type Name =
