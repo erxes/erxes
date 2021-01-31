@@ -13,7 +13,6 @@ import Select from 'react-select-plus';
 import SuccessPreview from './preview/SuccessPreview';
 import { FlexItem } from './style';
 
-
 type Name =
   | 'successAction'
   | 'fromEmail'
@@ -295,7 +294,7 @@ class SuccessStep extends React.Component<Props, State> {
 
   renderSelectOptions(){
     return FORM_SUCCESS_ACTIONS.ALL_LIST.map(e => {
-      return <option value={e.value}>{e.text}</option>
+      return <option key={e.value} value={e.value}>{e.text}</option>
      });
   }
 
