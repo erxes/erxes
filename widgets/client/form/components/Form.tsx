@@ -75,7 +75,6 @@ class Form extends React.Component<Props, State> {
     value: FieldValue;
     associatedFieldId?: string;
   }) => {
-    console.log('sd = ',this.state.doc)
     const doc = this.state.doc;
 
     doc[fieldId].value = value;

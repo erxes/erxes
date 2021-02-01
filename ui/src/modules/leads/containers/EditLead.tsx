@@ -67,7 +67,7 @@ class EditLeadContainer extends React.Component<FinalProps, State> {
     const afterFormDbSave = () => {
       if (this.state.doc) {
         const { leadData, brandId, name, languageCode, channelIds } = this.state.doc;
-        console.log(this.state.doc)
+        
         editIntegrationMutation({
           variables: {
             _id: integration._id,
