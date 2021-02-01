@@ -237,8 +237,6 @@ class FieldForm extends React.Component<Props, State> {
             onSelectResetsInput={true}
             onBlurResetsInput={false}
             onChange={this.onSelectChange}
-            // onInputChange={this.handleInput}
-            // onInputKeyDown={this.handleKeyDown}
           />
         </FormGroup>
 

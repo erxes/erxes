@@ -179,12 +179,12 @@ class Form extends React.Component<Props, State> {
     );
   }
 
-  renderSuccessForm(thankContent?: string) {
+  renderSuccessForm(thankTitle?: string, thankContent?: string) {
     const { integration, form } = this.props;
 
     return (
       <div className="erxes-form">
-        {this.renderHead(form.title || integration.name)}
+        {this.renderHead(thankTitle || form.title)}
         <div className="erxes-form-content">
           <div className="erxes-result">
             <p>
@@ -213,6 +213,7 @@ class Form extends React.Component<Props, State> {
         adminEmails,
         adminEmailTitle,
         adminEmailContent,
+        thankTitle,
         thankContent
       } = integration.leadData;
 
@@ -254,7 +255,7 @@ class Form extends React.Component<Props, State> {
         }
       } // end successAction = "email"
 
-      return this.renderSuccessForm(thankContent);
+      return this.renderSuccessForm(thankTitle, thankContent);
     }
 
     return this.renderForm();
