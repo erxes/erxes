@@ -235,12 +235,12 @@ describe('Test products model', () => {
 
   test('Can not merge products', async () => {
     const args: any = {
-      name: `${product.name}`,
-      type: `${product.type}`,
-      description: `${product.description}`,
-      sku: `${product.sku}-update`,
+      name: product.name,
+      type: product.type,
+      description: product.description,
+      sku: product.sku,
       categoryId: productCategory._id,
-      unitPrice: '1234'
+      unitPrice: 1234
     };
 
     try {
