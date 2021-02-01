@@ -137,10 +137,6 @@ export const loadProductClass = () => {
       const categoryId: string = productFields.categoryId || '';
       const usedIds: string[] = [];
 
-      const dealProductIds = await Deals.find({
-        'productsData.productId': { $in: productIds }
-      }).distinct('productsData.productId');
-
       for (const productId of productIds) {
         const productObj = await Products.getProduct({ _id: productId });
 
@@ -163,12 +159,6 @@ export const loadProductClass = () => {
               .concat('^', productObj.code)
           }
         });
-
-        for (const deal of dealProductIds) {
-          if (deal === productId) {
-            usedIds.push(deal);
-          }
-        }
       }
 
       // Removing Duplicates
@@ -186,7 +176,17 @@ export const loadProductClass = () => {
         categoryId
       });
 
-      await Deals.update(
+      const dealProductIds = await Deals.find({
+        'productsData.productId': { $in: productIds }
+      }).distinct('productsData.productId');
+
+      for (const deal of dealProductIds) {
+        if (productIds.includes(deal)) {
+          usedIds.push(deal);
+        }
+      }
+
+      await Deals.updateMany(
         { 'productsData.productId': { $in: usedIds } },
         { $set: { 'productsData.$.productId': product._id } }
       );
