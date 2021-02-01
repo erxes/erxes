@@ -62,6 +62,7 @@
     "react": "16.4.2",
     "react-apollo": "^2.1.9",
     "react-dom": "16.4.2",
+    "react-modal": "^3.12.1",
     "react-transition-group": "^2.4.0",
     "sass-loader": "^6.0.6",
     "source-map-loader": "^0.2.3",
@@ -75,6 +76,7 @@
     "xss": "^1.0.3"
   },
   "devDependencies": {
+    "@types/react-modal": "^3.10.6",
     "git-repo-info": "^2.1.0",
     "nodemon": "^1.11.0",
     "ts-node": "^8.3.0",

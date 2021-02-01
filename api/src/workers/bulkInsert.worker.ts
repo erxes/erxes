@@ -104,6 +104,7 @@ const create = async ({
 
     const response = await fetchElk('search', type, {
       query: { bool: { should: body } },
+      size: 10000,
       _source: ['_id', 'primaryEmail', 'primaryPhone', 'primaryName', 'code']
     });
 
@@ -681,8 +682,6 @@ connect().then(async () => {
         doc.stageId = stage && stage._id;
       }
     }
-
-    console.log(doc);
 
     bulkDoc.push(doc);
   }
