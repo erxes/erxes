@@ -584,7 +584,7 @@ const integrationMutations = {
 
     const copiedIntegration = await Integrations.createLeadIntegration(doc, user._id);
 
-    let fields = sourceFields.map(e => {
+    const fields = sourceFields.map(e => {
       return {
         options: e.options,
         isVisible: e.isVisible,

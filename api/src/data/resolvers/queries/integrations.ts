@@ -146,10 +146,10 @@ const integrationQueries = {
       byChannel: {},
       byBrand: {},
       byKind: {},
-      byStatus: {}
+      byStatus: { active: 0, archived: 0 }
     };
 
-    const query = {
+    const qry = {
       ...(await generateFilterQuery(args))
     };
 
@@ -161,7 +161,7 @@ const integrationQueries = {
     const tags = await Tags.find({ type: TAG_TYPES.INTEGRATION });
 
     for (const tag of tags) {
-      const countQueryResult = await count({ tagIds: tag._id, ...query });
+      const countQueryResult = await count({ tagIds: tag._id, ...qry });
       counts.byTag[tag._id] = !args.tag
         ? countQueryResult
         : args.tag === tag._id
@@ -172,7 +172,7 @@ const integrationQueries = {
     // Counting integrations by kind
 
     for (const kind of KIND_CHOICES.ALL) {
-      const countQueryResult = await count({ kind, ...query });
+      const countQueryResult = await count({ kind, ...qry });
       counts.byKind[kind] = !args.kind
         ? countQueryResult
         : args.kind === kind
@@ -186,7 +186,7 @@ const integrationQueries = {
     for (const channel of channels) {
       const countQueryResult = await count({
         _id: { $in: channel.integrationIds },
-        ...query
+        ...qry
       });
 
       counts.byChannel[channel._id] = !args.channelId
@@ -200,7 +200,7 @@ const integrationQueries = {
     const brands = await Brands.find({});
 
     for (const brand of brands) {
-      const countQueryResult = await count({ brandId: brand._id, ...query });
+      const countQueryResult = await count({ brandId: brand._id, ...qry });
       counts.byBrand[brand._id] = !args.brandId
         ? countQueryResult
         : args.brandId === brand._id
@@ -208,14 +208,14 @@ const integrationQueries = {
         : 0;
     }
 
-    counts.byStatus['active'] = await count({ isActive: true, ...query });
-    counts.byStatus['archived'] = await count({ isActive: false, ...query });
+    counts.byStatus.active = await count({ isActive: true, ...qry });
+    counts.byStatus.archived = await count({ isActive: false, ...qry });
 
     if (args.status) {
       if (args.status === 'active') {
-        counts.byStatus['archived'] = 0;
+        counts.byStatus.archived = 0;
       } else {
-        counts.byStatus['active'] = 0;
+        counts.byStatus.active = 0;
       }
     }
 
