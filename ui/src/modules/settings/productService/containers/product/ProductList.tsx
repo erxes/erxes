@@ -57,9 +57,14 @@ class ProductListContainer extends React.Component<FinalProps> {
       productsRemove({
         variables: { productIds }
       })
-        .then(() => {
+        .then(removeStatus => {
           emptyBulk();
-          Alert.success('You successfully deleted a product');
+
+          const status = removeStatus.data.productsRemove;
+
+          status === 'deleted'
+            ? Alert.success('You successfully deleted a product')
+            : Alert.warning('Product status deleted');
         })
         .catch(e => {
           Alert.error(e.message);
