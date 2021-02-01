@@ -104,6 +104,7 @@ const create = async ({
 
     const response = await fetchElk('search', type, {
       query: { bool: { should: body } },
+      size: 10000,
       _source: ['_id', 'primaryEmail', 'primaryPhone', 'primaryName', 'code']
     });
 

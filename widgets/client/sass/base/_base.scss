@@ -146,6 +146,27 @@ a {
     cursor: not-allowed;
     opacity: 0.7;
   }
+
+  &.btn-primary {
+    background: $primary-color;
+
+    &:hover,
+    &:focus {
+      background: darken($primary-color, 5%);
+    }
+  }
+
+  &.btn-outline {
+    background: transparent;
+    border: 1px solid $text-color-light;
+    color: $text-color;
+
+    &:hover,
+    &:focus {
+      background: transparent;
+      opacity: 0.8;
+    }
+  }
 }
 
 // form control
