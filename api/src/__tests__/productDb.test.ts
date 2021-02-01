@@ -116,6 +116,11 @@ describe('Test products model', () => {
   test('Remove products and update status', async () => {
     expect.assertions(1);
 
+    await Deals.updateOne(
+      { _id: deal._id },
+      { $set: { productsData: [{ productId: product._id }] } }
+    );
+
     await Products.removeProducts([product._id]);
 
     const removedProduct = await Products.getProduct({ _id: product._id });
@@ -130,6 +135,53 @@ describe('Test products model', () => {
     const isDeleted = await Products.removeProducts([product._id]);
 
     expect(isDeleted).toBeTruthy();
+  });
+
+  test('Merge products', async () => {
+    const args: any = {
+      name: product.name,
+      type: product.type,
+      description: product.description,
+      sku: product.sku,
+      categoryId: productCategory._id,
+      unitPrice: 12345
+    };
+
+    try {
+      await Products.mergeProducts([product._id], args);
+    } catch (e) {
+      expect(e.message).toBe(`Can not merge products. Must choose code field.`);
+    }
+
+    const product1 = await productFactory({ categoryId: productCategory._id });
+    const product2 = await productFactory({ categoryId: productCategory._id });
+
+    const productIds = [product1._id, product2._id];
+
+    const deal1 = await dealFactory({
+      productsData: [{ productId: product1._id }]
+    });
+
+    const deal3 = await dealFactory({
+      productsData: [{ productId: product2._id }]
+    });
+
+    args.code = 'test code';
+
+    const updatedProduct = await Products.mergeProducts(productIds, args);
+
+    const updatedDeal = await Deals.findOne({
+      _id: deal1._id
+    }).distinct('productsData.productId');
+
+    const updatedDeal2 = await Deals.findOne({
+      _id: deal3._id
+    }).distinct('productsData.productId');
+
+    expect(updatedProduct.name).toBe(args.name);
+
+    expect(updatedProduct._id).toBe(updatedDeal[0]);
+    expect(updatedProduct._id).toBe(updatedDeal2[0]);
   });
 
   test('Get product category', async () => {
@@ -230,23 +282,6 @@ describe('Test products model', () => {
       await ProductCategories.removeProductCategory(productCategory._id);
     } catch (e) {
       expect(e.message).toBe("Can't remove a product category");
-    }
-  });
-
-  test('Can not merge products', async () => {
-    const args: any = {
-      name: product.name,
-      type: product.type,
-      description: product.description,
-      sku: product.sku,
-      categoryId: productCategory._id,
-      unitPrice: 1234
-    };
-
-    try {
-      await Products.mergeProducts([product._id], args);
-    } catch (e) {
-      expect(e.message).toBe(`Can not merge products. Must choose code field.`);
     }
   });
 });
