@@ -171,8 +171,15 @@ class FieldForm extends React.Component<Props, State> {
 
   renderLeftContent() {
     const { mode, onCancel, customProperties } = this.props;
-    const { field, selectedProperty } = this.state;
+    const { field  } = this.state;
+    let { selectedProperty } = this.state;
 
+    if (field.associatedFieldId && customProperties) {
+      const property = customProperties.find(e => e._id === field.associatedFieldId)
+      if (property) {
+        selectedProperty = { label: property.text || "", value: property._id }
+      }
+    }
 
     let options;
 

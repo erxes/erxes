@@ -86,7 +86,3 @@ export type IntegrationsCount = {
 export type CountQueryResponse = {
   integrationsTotalCount: IntegrationsCount;
 } & QueryResponse;
-
-export type BrandsCountQueryResponse = {
-  formsCountByBrands: Counts;
-} & QueryResponse;

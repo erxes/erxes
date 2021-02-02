@@ -29,7 +29,7 @@ type Props = {
 };
 
 type FinalProps = {
-  fieldsQuery: FieldsQueryResponse;
+  propertiesQuery: FieldsQueryResponse;
 } & Props &
   IRouterProps &
   AddFieldsMutationResponse &
@@ -45,15 +45,15 @@ class CreateFormContainer extends React.Component<FinalProps, {}> {
       addFormMutation,
       addFieldsMutation,
       afterDbSave,
-      fieldsQuery,
+      propertiesQuery,
       showMessage
     } = this.props;
 
-    if (fieldsQuery.loading) {
+    if (propertiesQuery.loading) {
       return false;
     }
 
-    const customProperties = fieldsQuery.fields || [];
+    const customProperties = propertiesQuery.fields || [];
 
     const saveForm = doc => {
       let formId;
@@ -133,8 +133,8 @@ export default withProps<Props>(
     graphql<
     Props,
     FieldsQueryResponse
-  >(gql(queries.fields), {
-    name: 'fieldsQuery',
+  >(gql(queries.properties), {
+    name: 'propertiesQuery',
     options: () => {
       return {
         variables: {

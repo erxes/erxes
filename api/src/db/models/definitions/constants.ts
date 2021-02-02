@@ -130,7 +130,7 @@ export const KIND_CHOICES = {
 
 export const INTEGRATION_NAMES_MAP = {
   messenger: 'Web messenger',
-  forms: 'Forms',
+  lead: 'Form',
   'facebook-messenger': 'Facebook messenger',
   'facebook-post': 'Facebook post',
   gmail: 'Gmail',

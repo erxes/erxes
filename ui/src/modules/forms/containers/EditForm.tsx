@@ -36,6 +36,7 @@ type Props = {
 
 type FinalProps = {
   fieldsQuery: FieldsQueryResponse;
+  propertiesQuery: FieldsQueryResponse;
   formDetailQuery: FormDetailQueryResponse;
 } & Props &
   EditFormMutationResponse &
@@ -67,15 +68,17 @@ class EditFormContainer extends React.Component<FinalProps> {
       removeFieldMutation,
       fieldsQuery,
       formDetailQuery,
-      showMessage
+      showMessage,
+      propertiesQuery
     } = this.props;
 
-    if (fieldsQuery.loading || formDetailQuery.loading) {
+    if (fieldsQuery.loading || formDetailQuery.loading || propertiesQuery.loading) {
       return false;
     }
 
     const dbFields = fieldsQuery.fields || [];
     const form = formDetailQuery.formDetail || {};
+    const customProperties = propertiesQuery.fields || [];
 
     const saveForm = doc => {
       const { title, desc, btnText, fields, type } = doc;
@@ -161,7 +164,7 @@ class EditFormContainer extends React.Component<FinalProps> {
       fields: dbFields.map(field => ({ ...field })),
       saveForm,
       form,
-      customProperties: []
+      customProperties
     };
 
     return <Form {...updatedProps} />;
@@ -220,6 +223,21 @@ export default withProps<Props>(
       {
         name: 'removeFieldMutation'
       }
-    )
+    ),
+    graphql<
+      Props,
+      FieldsQueryResponse
+    >(gql(queries.properties), {
+      name: 'propertiesQuery',
+      options: () => {
+        return {
+          variables: {
+            contentType: 'customer',
+            isVisible: true
+          },
+          fetchPolicy: 'network-only'
+        };
+      }
+    }),
   )(withRouter<FinalProps>(EditFormContainer))
 );

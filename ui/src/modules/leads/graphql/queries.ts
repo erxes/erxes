@@ -90,17 +90,10 @@ const forms = `
   }
 `;
 
-const formsBrandCount = `
-query formsCountByBrands{
-  formsCountByBrands
-}
-`;
-
 export default {
   integrations,
   integrationDetail,
   integrationsTotalCount,
   tags,
-  forms,
-  formsBrandCount
+  forms
 };

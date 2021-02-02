@@ -31,7 +31,6 @@ type State = {
   title: string;
   desc: string;
   btnText: string;
-  
 };
 
 class Form extends React.Component<Props, State> {

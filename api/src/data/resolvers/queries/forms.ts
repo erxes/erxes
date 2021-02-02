@@ -17,24 +17,6 @@ const formQueries = {
   formDetail(_root, { _id }: { _id: string }) {
     return Forms.findOne({ _id });
   },
-
-  async formsCountByBrands(_root, _args, {}) {
-    const counts = {};
-    const count = query => {
-      return Integrations.findAllIntegrations(query).countDocuments();
-    };
-
-    const brands = await Brands.find({});
-
-    for (const brand of brands) {
-      counts[brand._id] = await count({
-        kind: KIND_CHOICES.LEAD,
-        brandId: brand._id
-      });
-    }
-
-    return counts;
-  }
 };
 
 checkPermission(formQueries, 'forms', 'showForms', []);

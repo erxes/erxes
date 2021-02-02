@@ -14,6 +14,7 @@ import * as elk from '../elasticsearch';
 
 import { KIND_CHOICES } from '../db/models/definitions/constants';
 import './setup.ts';
+import { response } from 'express';
 
 describe('fieldQueries', () => {
   afterEach(async () => {
@@ -45,14 +46,14 @@ describe('fieldQueries', () => {
 
     // company ===================
     let responses = await graphqlRequest(qry, 'fields', {
-      contentType: 'company'
+      contentType: 'company',
     });
 
     expect(responses.length).toBe(2);
 
     // customer ==================
     responses = await graphqlRequest(qry, 'fields', {
-      contentType: 'customer'
+      contentType: 'customer',
     });
 
     expect(responses.length).toBe(2);
@@ -60,7 +61,7 @@ describe('fieldQueries', () => {
     // company with contentTypeId ===
     responses = await graphqlRequest(qry, 'fields', {
       contentType: 'company',
-      contentTypeId
+      contentTypeId,
     });
 
     expect(responses.length).toBe(1);
@@ -68,7 +69,7 @@ describe('fieldQueries', () => {
     // customer with contentTypeId ===
     responses = await graphqlRequest(qry, 'fields', {
       contentType: 'customer',
-      contentTypeId
+      contentTypeId,
     });
 
     expect(responses.length).toBe(1);
@@ -92,19 +93,19 @@ describe('fieldQueries', () => {
                             attributes: [
                               {
                                 field: 'url',
-                                value: '/test'
-                              }
-                            ]
-                          }
-                        }
-                      ]
-                    }
-                  }
-                }
-              ]
-            }
-          }
-        }
+                                value: '/test',
+                              },
+                            ],
+                          },
+                        },
+                      ],
+                    },
+                  },
+                },
+              ],
+            },
+          },
+        },
       });
     });
 
@@ -117,7 +118,7 @@ describe('fieldQueries', () => {
     await fieldFactory({ contentType: 'customer', groupId: visibleGroup._id });
     await fieldFactory({
       contentType: 'customer',
-      groupId: invisibleGroup._id
+      groupId: invisibleGroup._id,
     });
 
     const qry = `
@@ -128,14 +129,14 @@ describe('fieldQueries', () => {
 
     // compnay =======================
     let responses = await graphqlRequest(qry, 'fieldsCombinedByContentType', {
-      contentType: 'company'
+      contentType: 'company',
     });
 
     // getting fields of companies schema
     const companyFields: any = [];
-    let responseFields = responses.map(response => response.name);
+    let responseFields = responses.map((response) => response.name);
 
-    Companies.schema.eachPath(path => {
+    Companies.schema.eachPath((path) => {
       companyFields.push(path);
     });
 
@@ -145,48 +146,48 @@ describe('fieldQueries', () => {
     const brand = await brandFactory({});
     const integration = await integrationFactory({
       brandId: brand._id,
-      kind: KIND_CHOICES.MESSENGER
+      kind: KIND_CHOICES.MESSENGER,
     });
     const integration1 = await integrationFactory({
       brandId: brand._id,
-      kind: KIND_CHOICES.MESSENGER
+      kind: KIND_CHOICES.MESSENGER,
     });
     const integration2 = await integrationFactory({
       brandId: brand._id,
-      kind: KIND_CHOICES.MESSENGER
+      kind: KIND_CHOICES.MESSENGER,
     });
     const integration3 = await integrationFactory({
       brandId: brand._id,
-      kind: KIND_CHOICES.MESSENGER
+      kind: KIND_CHOICES.MESSENGER,
     });
 
     await customerFactory({ integrationId: integration._id });
     await customerFactory({ integrationId: integration1._id });
     await customerFactory({
-      integrationId: integration2._id
+      integrationId: integration2._id,
     });
     await customerFactory({
-      integrationId: integration3._id
+      integrationId: integration3._id,
     });
 
     responses = await graphqlRequest(qry, 'fieldsCombinedByContentType', {
       contentType: 'customer',
-      usageType: 'import'
+      usageType: 'import',
     });
 
     responses = await graphqlRequest(qry, 'fieldsCombinedByContentType', {
-      contentType: 'customer'
+      contentType: 'customer',
     });
 
     await graphqlRequest(qry, 'fieldsCombinedByContentType', {
-      contentType: 'product'
+      contentType: 'product',
     });
 
     // getting fields of customers schema
-    responseFields = responses.map(response => response.name);
+    responseFields = responses.map((response) => response.name);
 
     const customerFields: any = [];
-    Customers.schema.eachPath(path => {
+    Customers.schema.eachPath((path) => {
       customerFields.push(path);
     });
 
@@ -207,7 +208,7 @@ describe('fieldQueries', () => {
 
     // get customer default config
     let responses = await graphqlRequest(qry, 'fieldsDefaultColumnsConfig', {
-      contentType: 'customer'
+      contentType: 'customer',
     });
 
     expect(responses.length).toBe(7);
@@ -218,7 +219,7 @@ describe('fieldQueries', () => {
 
     // get company default config
     responses = await graphqlRequest(qry, 'fieldsDefaultColumnsConfig', {
-      contentType: 'company'
+      contentType: 'company',
     });
 
     expect(responses.length).toBe(7);
@@ -231,7 +232,7 @@ describe('fieldQueries', () => {
 
     // get product default config
     responses = await graphqlRequest(qry, 'fieldsDefaultColumnsConfig', {
-      contentType: 'product'
+      contentType: 'product',
     });
 
     expect(responses[0].name).toBe('categoryCode');
@@ -265,7 +266,38 @@ describe('fieldQueries', () => {
 
     // company content type =============
     responses = await graphqlRequest(qry, 'fieldsGroups', {
-      contentType: 'company'
+      contentType: 'company',
+    });
+
+    expect(responses.length).toBe(1);
+  });
+
+  test('Fields query with isVisible filter', async () => {
+    // Creating test data
+    await fieldFactory({
+      text: 'text1',
+      contentType: 'customer',
+      visible: true,
+    });
+    await fieldFactory({
+      text: 'text2',
+      contentType: 'customer',
+      visible: false,
+    });
+
+    const qry = `
+   query fields($contentType: String! $contentTypeId: String, $isVisible: Boolean) {
+     fields(contentType: $contentType contentTypeId: $contentTypeId, isVisible: $isVisible) {
+       text
+       _id
+       isVisible
+     }
+   }
+ `;
+
+    const responses = await graphqlRequest(qry, 'fields', {
+      contentType: 'customer',
+      isVisible: true,
     });
 
     expect(responses.length).toBe(1);

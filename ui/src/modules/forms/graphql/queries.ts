@@ -151,9 +151,25 @@ const integrationsTotalCount = `
   }
 `;
 
-const fields = `
-  query fields($contentType: String!, $contentTypeId: String, $isVisible: Boolean) {
+const properties = `
+  query properties($contentType: String!, $contentTypeId: String, $isVisible: Boolean) {
     fields(contentType: $contentType, contentTypeId: $contentTypeId, isVisible: $isVisible) {
+      _id
+      type
+      validation
+      text
+      description
+      options
+      isRequired
+      order
+      associatedFieldId
+    }
+  }
+`;
+
+const fields = `
+  query fields($contentType: String!, $contentTypeId: String) {
+    fields(contentType: $contentType, contentTypeId: $contentTypeId) {
       _id
       type
       validation
@@ -212,5 +228,6 @@ export default {
   tags,
   forms,
   fieldsCombinedByContentType,
-  fieldsDefaultColumnsConfig
+  fieldsDefaultColumnsConfig,
+  properties
 };
