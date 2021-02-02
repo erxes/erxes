@@ -89,30 +89,7 @@ class AddFormContainer extends React.Component<FinalProps> {
         }
       })
         .then(({ data }) => {
-          Alert.success(
-            `You've successfully converted a conversation to ${options.type}`
-          );
-
-          if (!doc._id && relType && relTypeIds) {
-            editConformity({
-              variables: {
-                mainType: options.type,
-                mainTypeId: data.conversationConvertToCard,
-                relType,
-                relTypeIds
-              }
-            });
-          }
-
-          callback(data);
-
-          if (getAssociatedItem) {
-            getAssociatedItem(data.conversationConvertToCard);
-          }
-
-          if (refetch) {
-            refetch();
-          }
+          this.afterSave(data, `You've successfully converted a conversation to ${options.type}`, editConformity, options, callback, refetch, relType, relTypeIds, getAssociatedItem);
         })
         .catch(error => {
           Alert.error(error.message);
@@ -120,32 +97,36 @@ class AddFormContainer extends React.Component<FinalProps> {
     } else {
       addMutation({ variables: doc })
         .then(({ data }) => {
-          Alert.success(`You've successfully created ${options.type}`);
-
-          if (relType && relTypeIds) {
-            editConformity({
-              variables: {
-                mainType: options.type,
-                mainTypeId: data[options.mutationsName.addMutation]._id,
-                relType,
-                relTypeIds
-              }
-            });
-          }
-
-          callback(data[options.mutationsName.addMutation]);
-
-          if (getAssociatedItem) {
-            getAssociatedItem(data[options.mutationsName.addMutation]);
-          }
-
-          if (refetch) {
-            refetch();
-          }
+          this.afterSave(data, `You've successfully created ${options.type}`, editConformity, options, callback, refetch, relType, relTypeIds, getAssociatedItem);
         })
         .catch(error => {
           Alert.error(error.message);
         });
+    }
+  };
+
+  afterSave = (data: any, message: string, editConformity: EditConformityMutation, options: IOptions, callback: (item: IItem) => void, refetch?: () => void, relType?: string, relTypeIds?: string[], getAssociatedItem?: (itemId: string) => void) => {
+    Alert.success(message);
+
+    if (relType && relTypeIds) {
+      editConformity({
+        variables: {
+          mainType: options.type,
+          mainTypeId: data[options.mutationsName.addMutation]._id,
+          relType,
+          relTypeIds
+        }
+      });
+    }
+
+    callback(data[options.mutationsName.addMutation]);
+
+    if (getAssociatedItem) {
+      getAssociatedItem(data[options.mutationsName.addMutation]);
+    }
+
+    if (refetch) {
+      refetch();
     }
   };
 

@@ -711,13 +711,16 @@ const conversationMutations = {
       const doc = oldItem;
 
       if (conversation.assignedUserId) {
+
         const assignedUserIds = oldItem.assignedUserIds || [];
         assignedUserIds.push(conversation.assignedUserId);
+
         doc.assignedUserIds = assignedUserIds;
       }
 
       const sourceConversationIds: string[] =
         oldItem.sourceConversationIds || [];
+
       sourceConversationIds.push(conversation._id);
 
       doc.sourceConversationIds = sourceConversationIds;
@@ -731,8 +734,11 @@ const conversationMutations = {
       const relTypeIds: string[] = [];
 
       sourceConversationIds.forEach(async conversationId => {
-        const con = await Conversations.findOne({ _id: conversationId });
-        relTypeIds.push(con?.customerId || '');
+        const con = await Conversations.getConversation(conversationId);
+
+        if(con.customerId){
+          relTypeIds.push(con.customerId);
+        }
       });
 
       await Conformities.editConformity({

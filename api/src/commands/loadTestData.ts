@@ -448,7 +448,9 @@ const main = async () => {
 
   console.log('Creating: Tickets');
 
-  const randomConversation = await Conversations.findOne();
+  const customerId = await Customers.createVisitor();
+
+  const randomConversation = await Conversations.findOne() || await Conversations.createConversation({customerId, integrationId:integration._id });
   const ticketBoard = await Boards.createBoard({
     name: faker.random.word(),
     type: 'ticket',
@@ -465,11 +467,15 @@ const main = async () => {
 
   const selectedTicketStage = await Stages.findOne({ type: 'ticket' });
 
+  if(!selectedTicketStage) {
+    throw new Error('stage not found')
+  }
+
   await Tickets.createTicket({
     name: faker.random.word(),
     userId: admin._id,
-    initialStageId: selectedTicketStage?._id,
-    sourceConversationIds: [randomConversation?._id || ''],
+    initialStageId: selectedTicketStage._id,
+    sourceConversationIds: [randomConversation._id || ''],
     stageId: selectedTicketStage?._id || ''
   });
 

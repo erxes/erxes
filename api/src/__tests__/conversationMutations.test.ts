@@ -972,14 +972,8 @@ describe('Conversation message mutations', () => {
       { dataSources }
     );
 
-    const updatedDeal = await Deals.findOne({
-      sourceConversationIds: { $in: [newConversation._id] }
-    });
-
-    if (!updatedDeal) {
-      throw new Error('deal not found');
-    }
-
+    const updatedDeal = await Deals.getDeal(deal._id)
+    
     const sourcesIds = updatedDeal.sourceConversationIds || [];
 
     expect(updatedDeal).toBeDefined();
