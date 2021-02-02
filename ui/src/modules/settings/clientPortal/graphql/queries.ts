@@ -5,6 +5,8 @@ const commonFields = `
   description
   logo
   icon
+  domain
+  dnsStatus
   knowledgeBaseLabel
   knowledgeBaseTopicId
   ticketLabel

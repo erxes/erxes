@@ -5,6 +5,8 @@ export type ClientPortalConfig = {
   url?: string;
   logo?: string;
   icon?: string;
+  domain?: string;
+  dnsStatus?: string;
   knowledgeBaseLabel?: string;
   knowledgeBaseTopicId?: string;
   ticketLabel?: string;

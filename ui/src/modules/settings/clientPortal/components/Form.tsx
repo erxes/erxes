@@ -6,6 +6,7 @@ import General from '../containers/General';
 import { Wrapper } from '../styles';
 import { ClientPortalConfig } from '../types';
 import Advanced from './forms/Advanced';
+import CustomDomain from './forms/CustomDomain';
 
 export type GeneralFormType = {
   name?: string;
@@ -56,6 +57,7 @@ function Form({ defaultConfigValues = {}, handleUpdate, configType }: Props) {
     ticketStageId: defaultConfigValues.ticketStageId || '',
     ticketBoardId: defaultConfigValues.ticketBoardId || '',
     ticketPipelineId: defaultConfigValues.ticketPipelineId || '',
+    domain: defaultConfigValues.domain || '',
     advanced: defaultConfigValues.advanced || {}
   });
 
@@ -77,19 +79,34 @@ function Form({ defaultConfigValues = {}, handleUpdate, configType }: Props) {
       return Alert.error('Please enter a valid URL');
     }
 
+    if (formValues.domain && !isUrl(formValues.domain)) {
+      return Alert.error('Please enter a valid domain');
+    }
+
     handleUpdate(formValues);
   };
 
   function renderContent() {
-    if (configType === CONFIG_TYPES.GENERAL.VALUE) {
-      return <General {...formValues} handleFormChange={handleFormChange} />;
-    }
+    const commonProps = {
+      ...formValues,
+      handleFormChange
+    };
 
-    if (configType === CONFIG_TYPES.ADVANCED.VALUE) {
-      return <Advanced {...formValues} handleFormChange={handleFormChange} />;
+    switch (configType) {
+      case CONFIG_TYPES.GENERAL.VALUE:
+        return <General {...commonProps} />;
+      case CONFIG_TYPES.ADVANCED.VALUE:
+        return <Advanced {...commonProps} />;
+      case CONFIG_TYPES.CUSTOM_DOMAIN.VALUE:
+        return (
+          <CustomDomain
+            {...commonProps}
+            dnsStatus={defaultConfigValues.dnsStatus}
+          />
+        );
+      default:
+        return null;
     }
-
-    return null;
   }
 
   function renderSubmit() {

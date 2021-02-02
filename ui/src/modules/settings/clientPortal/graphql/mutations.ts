@@ -6,6 +6,7 @@ const createOrUpdateConfig = `
     $logo: String
     $icon: String
     $url: String
+    $domain: String
     $knowledgeBaseLabel: String
     $knowledgeBaseTopicId: String
     $ticketLabel: String
@@ -24,6 +25,7 @@ const createOrUpdateConfig = `
       url: $url,
       logo: $logo,
       icon: $icon,
+      domain: $domain,
       knowledgeBaseLabel: $knowledgeBaseLabel,
       knowledgeBaseTopicId: $knowledgeBaseTopicId,
       ticketLabel: $ticketLabel,

@@ -18,7 +18,9 @@ export interface IClientPortal {
   ticketStageId?: string;
   ticketPipelineId?: string;
   ticketBoardId?: string;
-  advanced: IAdvencedSettings;
+  domain?: string;
+  dnsStatus?: string;
+  advanced?: IAdvencedSettings;
 }
 
 interface IAdvencedSettings {
@@ -60,5 +62,7 @@ export const clientPortalSchema = new Schema({
   ticketStageId: field({ type: String }),
   ticketPipelineId: field({ type: String }),
   ticketBoardId: field({ type: String }),
+  domain: field({ type: String, optional: true }),
+  dnsStatus: field({ type: String, optional: true }),
   advanced: field({ type: advancedSettingsSchema })
 });

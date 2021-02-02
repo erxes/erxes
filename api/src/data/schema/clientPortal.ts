@@ -6,6 +6,8 @@ export const types = `
     url: String
     logo: String
     icon: String
+    domain: String
+    dnsStatus: String
     knowledgeBaseLabel: String
     knowledgeBaseTopicId: String
     ticketLabel: String
@@ -35,6 +37,7 @@ export const mutations = `
     logo: String
     icon: String
     url: String
+    domain: String
     knowledgeBaseLabel: String
     knowledgeBaseTopicId: String
     ticketLabel: String
