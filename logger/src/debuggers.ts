@@ -1,12 +1,26 @@
-import * as debug from 'debug';
+import tracer from 'dd-trace';
+import * as formats from 'dd-trace/ext/formats';
 import * as dotenv from 'dotenv';
+
+export const ddLogger = message => {
+  const span = tracer.scope().active();
+  const time = new Date().toISOString();
+
+  const record = { time, level: 'info', message };
+
+  if (span) {
+    tracer.inject(span.context(), formats.LOG, record);
+  }
+
+  console.log(JSON.stringify(record));
+};
 
 dotenv.config();
 
-export const debugInit = debug('erxes-logger:init');
-export const debugDb = debug('erxes-logger:db');
-export const debugBase = debug('erxes-logger:base');
-export const debugExternalRequests = debug('erxes-logger:external-requests');
+export const debugInit = ddLogger;
+export const debugDb = ddLogger;
+export const debugBase = ddLogger;
+export const debugExternalRequests = ddLogger;
 
 export const debugRequest = (debugInstance, req) =>
   debugInstance(`

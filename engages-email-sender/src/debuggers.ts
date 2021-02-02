@@ -1,9 +1,23 @@
-import * as debug from 'debug';
+import tracer from 'dd-trace';
+import * as formats from 'dd-trace/ext/formats';
 
-export const debugInit = debug('erxes-engages:init');
-export const debugDb = debug('erxes-engages:db');
-export const debugBase = debug('erxes-engages:base');
-export const debugEngages = debug('erxes-engages:engages');
+export const ddLogger = message => {
+  const span = tracer.scope().active();
+  const time = new Date().toISOString();
+
+  const record = { time, level: 'info', message };
+
+  if (span) {
+    tracer.inject(span.context(), formats.LOG, record);
+  }
+
+  console.log(JSON.stringify(record));
+};
+
+export const debugInit = ddLogger;
+export const debugDb = ddLogger;
+export const debugBase = ddLogger;
+export const debugEngages = ddLogger;
 
 export const debugRequest = (debugInstance, req) =>
   debugInstance(`
