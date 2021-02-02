@@ -27,7 +27,7 @@
     "cote": "^1.0.0",
     "debug": "^4.1.1",
     "dotenv": "^4.0.0",
-    "erxes-message-broker": "^1.0.20",
+    "erxes-message-broker": "^1.0.21",
     "express": "^4.16.4",
     "migrate": "^1.6.2",
     "mongoose": "5.7.10",
