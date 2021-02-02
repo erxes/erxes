@@ -49,8 +49,7 @@ const saveCustomer = async (customer: ISmoochCustomerInput) => {
 
   if (!integration) {
     return debugSmooch(
-      'Integration not found with smoochIntegrationId: ',
-      smoochIntegrationId
+      `Integration not found with smoochIntegrationId: ${smoochIntegrationId}`
     );
   }
 
@@ -82,8 +81,7 @@ const saveConversation = async (
 
   if (!integration) {
     return debugSmooch(
-      'Integration not found with smoochIntegrationId: ',
-      smoochIntegrationId
+      `Integration not found with smoochIntegrationId: ${smoochIntegrationId}`
     );
   }
 
@@ -116,8 +114,7 @@ const saveMessage = async (
 
   if (!integration) {
     return debugSmooch(
-      'Integration not found with smoochIntegrationId: ',
-      smoochIntegrationId
+      `Integration not found with smoochIntegrationId: ${smoochIntegrationId}`
     );
   }
 

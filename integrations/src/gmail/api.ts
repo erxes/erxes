@@ -308,7 +308,7 @@ export const revokeToken = async (email: string, accessToken?: string) => {
       }
     });
   } catch (e) {
-    debugGmail('Failed to revoke token: ', email);
+    debugGmail(`Failed to revoke token: ${email}`);
     throw e;
   }
 };
