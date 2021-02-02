@@ -6,14 +6,14 @@ import { FieldStyle, SidebarCounter, SidebarList } from 'modules/layout/styles';
 import React from 'react';
 import { withRouter } from 'react-router-dom';
 import { statusFilters } from '../constants';
+import { Counts } from '../types';
 
 interface IProps extends IRouterProps {
-  counts: { [key: string]: number };
-  loading: boolean;
+  counts: Counts;
   emptyText?: string;
 }
 
-function StatusFilter({ history, counts, loading, emptyText }: IProps) {
+function StatusFilter({ history, counts, emptyText }: IProps) {
   const data = (
     <SidebarList>
       {statusFilters.map((status, index) => {
@@ -53,7 +53,7 @@ function StatusFilter({ history, counts, loading, emptyText }: IProps) {
         data={data}
         loading={false}
         count={statusFilters.length}
-        emptyText="Loading"
+        emptyText={emptyText ? emptyText : 'Loading'}
         emptyIcon="leaf"
         size="small"
         objective={true}

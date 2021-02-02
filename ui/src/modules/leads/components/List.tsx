@@ -12,7 +12,7 @@ import TaggerPopover from 'modules/tags/components/TaggerPopover';
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { ITag } from '../../tags/types';
-import { ILeadIntegration } from '../types';
+import { ILeadIntegration, IntegrationsCount } from '../types';
 import Row from './Row';
 import Sidebar from './Sidebar';
 
@@ -32,6 +32,7 @@ type Props = {
   archive: (integrationId: string, status: boolean) => void;
   refetch?: () => void;
   copy: (integrationId: string) => void;
+  counts: IntegrationsCount;
 };
 
 class List extends React.Component<Props, {}> {
@@ -70,12 +71,14 @@ class List extends React.Component<Props, {}> {
       totalCount,
       queryParams,
       loading,
-      refetch,
       bulk,
       emptyBulk,
       isAllSelected,
-      integrations
+      integrations,
+      counts
     } = this.props;
+
+    const allCounts = counts || {};
 
     queryParams.loadingMainQuery = loading;
     let actionBarLeft: React.ReactNode;
@@ -146,7 +149,7 @@ class List extends React.Component<Props, {}> {
             breadcrumb={[{ title: __('Forms') }]}
           />
         }
-        leftSidebar={<Sidebar queryParams={queryParams} refetch={refetch} />}
+        leftSidebar={<Sidebar counts={allCounts}/>}
         actionBar={actionBar}
         footer={<Pagination count={totalCount} />}
         content={

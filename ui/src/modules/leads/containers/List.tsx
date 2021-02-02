@@ -13,7 +13,8 @@ import routerUtils from '../../common/utils/router';
 import List from '../components/List';
 import { mutations, queries } from '../graphql';
 import {
-  CopyMutationResponse, LeadIntegrationsQueryResponse,
+  CopyMutationResponse, CountQueryResponse,
+  LeadIntegrationsQueryResponse,
   RemoveMutationResponse,
   RemoveMutationVariables
 } from '../types';
@@ -25,6 +26,7 @@ type Props = {
 
 type FinalProps = {
   integrationsQuery: LeadIntegrationsQueryResponse;
+  integrationsTotalCountQuery: CountQueryResponse;
 } & RemoveMutationResponse &
   ArchiveIntegrationResponse &
   IRouterProps &
@@ -51,12 +53,17 @@ class ListContainer extends React.Component<FinalProps> {
   render() {
     const {
       integrationsQuery,
+      integrationsTotalCountQuery,
       removeMutation,
       copyMutation,
       archiveIntegration
     } = this.props;
 
     const integrations = integrationsQuery.integrations || [];
+
+    const counts = (integrationsTotalCountQuery
+      ? integrationsTotalCountQuery.integrationsTotalCount
+      : null) 
 
     const remove = (integrationId: string) => {
       const message =
@@ -122,6 +129,7 @@ class ListContainer extends React.Component<FinalProps> {
     const updatedProps = {
       ...this.props,
       integrations,
+      counts,
       remove,
       loading: integrationsQuery.loading,
       archive,
@@ -178,6 +186,17 @@ export default withProps<Props>(
     ),
     graphql(gql(mutations.formCopy), {
       name: 'copyMutation'
+    }),
+    graphql<Props, CountQueryResponse>(gql(queries.integrationsTotalCount), {
+      name: 'integrationsTotalCountQuery',
+      options: ({ queryParams }) => ({
+        variables: {
+          kind: INTEGRATION_KINDS.LEAD,
+          tag: queryParams.tag,
+          status: queryParams.status,
+          brandId: queryParams.brand
+        }
+      })
     })
   )(ListContainer)
 );
