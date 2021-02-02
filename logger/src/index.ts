@@ -24,7 +24,7 @@ const app = express();
 
 const datadogMiddleware = connect_datadog({
   response_code: true,
-  tags: ['engages']
+  tags: ['logger']
 });
 
 app.use(datadogMiddleware);

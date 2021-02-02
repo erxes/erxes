@@ -28,7 +28,7 @@ const app = express();
 
 const datadogMiddleware = connect_datadog({
   response_code: true,
-  tags: ['workers']
+  tags: ['crons']
 });
 
 app.use(datadogMiddleware);
