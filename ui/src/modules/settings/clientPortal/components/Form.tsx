@@ -64,8 +64,6 @@ function Form({ defaultConfigValues = {}, handleUpdate, configType }: Props) {
       ...formValues,
       [name]: value
     });
-
-    console.log(formValues);
   };
 
   const handleSubmit = e => {

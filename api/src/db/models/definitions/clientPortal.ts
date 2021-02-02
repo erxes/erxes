@@ -46,7 +46,7 @@ const advancedSettingsSchema = new Schema({
 export const clientPortalSchema = new Schema({
   _id: field({ pkey: true }),
   name: field({ type: String }),
-  description: field({ type: String }),
+  description: field({ type: String, optional: true }),
   url: field({ type: String }),
   logo: field({ type: String, optional: true }),
   icon: field({ type: String, optional: true }),

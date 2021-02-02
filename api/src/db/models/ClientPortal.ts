@@ -17,13 +17,19 @@ export const loadClass = () => {
     }
 
     public static async createOrUpdateConfig({ _id, ...doc }: IClientPortal) {
-      const config = await ClientPortals.findOne({ _id });
+      let config = await ClientPortals.findOne({ _id });
 
       if (!config) {
-        return ClientPortals.create(doc);
+        config = await ClientPortals.create(doc);
+
+        return config.toJSON();
       }
 
-      return ClientPortals.updateOne({ _id: config._id }, { $set: doc });
+      return ClientPortals.findOneAndUpdate(
+        { _id: config._id },
+        { $set: doc },
+        { new: true }
+      );
     }
   }
 
