@@ -4,29 +4,38 @@ import gql from 'graphql-tag';
 import React from 'react';
 import { useMutation, useQuery } from 'react-apollo';
 import ClientPortal from '../components/ClientPortal';
-import { GeneralFormType } from '../components/Form';
 import mutations from '../graphql/mutations';
 import queries from '../graphql/queries';
+import { ClientPortalConfig, ClientPortalConfigQueryResponse } from '../types';
 
-type DocTypes = GeneralFormType;
+type Props = {
+  queryParams: any;
+};
 
-function ClientPortalContainer() {
-  const { loading, data } = useQuery(gql(queries.getConfig));
-  const [update] = useMutation(gql(mutations.updateConfig));
+function ClientPortalContainer({ queryParams, ...props }: Props) {
+  const { loading, data = {} } = useQuery<ClientPortalConfigQueryResponse>(
+    gql(queries.getConfig),
+    {
+      variables: { _id: queryParams._id },
+      skip: !queryParams._id
+    }
+  );
+
+  const [mutate] = useMutation(gql(mutations.createOrUpdateConfig));
 
   if (loading) {
     return <Spinner />;
   }
 
-  const handleUpdate = (doc: DocTypes) => {
-    update({ variables: doc })
+  const handleUpdate = (doc: ClientPortalConfig) => {
+    mutate({ variables: doc })
       .then(() =>
         Alert.success('Successfully updated the Client portal config')
       )
       .catch(e => Alert.error(e.message));
   };
 
-  const config = data.configClientPortal || {};
+  const config = data.getConfig || {};
 
   return <ClientPortal config={config} handleUpdate={handleUpdate} />;
 }

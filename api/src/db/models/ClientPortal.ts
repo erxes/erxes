@@ -6,18 +6,18 @@ import {
 } from './definitions/clientPortal';
 
 export interface IClientPortalModel extends Model<IClientPortalDocument> {
-  getConfig(): Promise<IClientPortalDocument>;
+  getConfig(_id: string): Promise<IClientPortalDocument>;
   createOrUpdateConfig(args: IClientPortal): Promise<IClientPortalDocument>;
 }
 
 export const loadClass = () => {
   class ClientPortal {
-    public static async getConfig() {
-      return ClientPortals.findOne();
+    public static async getConfig(_id: string) {
+      return ClientPortals.findOne({ _id });
     }
 
-    public static async createOrUpdateConfig(doc: IClientPortal) {
-      const config = await ClientPortals.findOne({});
+    public static async createOrUpdateConfig({ _id, ...doc }: IClientPortal) {
+      const config = await ClientPortals.findOne({ _id });
 
       if (!config) {
         return ClientPortals.create(doc);

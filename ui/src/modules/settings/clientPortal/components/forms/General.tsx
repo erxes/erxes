@@ -12,13 +12,28 @@ import { ITopic } from 'modules/knowledgeBase/types';
 import React, { useState } from 'react';
 import { OverlayTrigger, Popover } from 'react-bootstrap';
 import Select from 'react-select-plus';
-import { Content } from '../styles';
-import { GeneralFormType } from './Form';
+import { Content } from '../../styles';
+import { GeneralFormType } from '../Form';
 
 type Props = {
   topics: ITopic[];
   handleFormChange: (name: string, value: string) => void;
 } & GeneralFormType;
+
+type ControlItem = {
+  required?: boolean;
+  label: string;
+  subtitle?: string;
+  formValueName: string;
+  formValue?: string;
+  boardType?: string;
+  placeholder?: string;
+  formProps?: any;
+  stageId?: string;
+  pipelineId?: string;
+  boardId?: string;
+  url?: string;
+};
 
 function General({
   name,
@@ -100,22 +115,8 @@ function General({
     formProps,
     stageId,
     pipelineId,
-    boardId,
-    url
-  }: {
-    required?: boolean;
-    label: string;
-    subtitle?: string;
-    formValueName: string;
-    formValue?: string;
-    boardType?: string;
-    placeholder?: string;
-    formProps?: any;
-    stageId?: string;
-    pipelineId?: string;
-    boardId?: string;
-    url?: string;
-  }) {
+    boardId
+  }: ControlItem) {
     const handleChange = (e: React.FormEvent) => {
       handleFormChange(
         formValueName,
@@ -156,7 +157,8 @@ function General({
   }
 
   function renderFavicon() {
-    const handleAvatarUploader = (url: string) => handleFormChange('icon', url);
+    const handleAvatarUploader = (iconUrl: string) =>
+      handleFormChange('icon', iconUrl);
 
     return (
       <FormGroup>
@@ -168,7 +170,8 @@ function General({
   }
 
   function renderLogo() {
-    const handleAvatarUploader = (url: string) => handleFormChange('logo', url);
+    const handleAvatarUploader = (logoUrl: string) =>
+      handleFormChange('logo', logoUrl);
 
     return (
       <FormGroup>

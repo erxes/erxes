@@ -15,7 +15,8 @@ type Props = {
 
 const breadcrumb = [
   { title: __('Settings'), link: '/settings' },
-  { title: __('Client Portal') }
+  { title: __('Client Portal') },
+  { title: __('Form') }
 ];
 
 const header = (

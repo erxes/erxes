@@ -6,7 +6,7 @@ import React from 'react';
 import { graphql } from 'react-apollo';
 import knowledgeBaseQueries from '../../../knowledgeBase/graphql/queries';
 import { GeneralFormType } from '../components/Form';
-import General from '../components/General';
+import General from '../components/forms/General';
 
 type Props = {
   handleFormChange: (name: string, value: string) => void;

@@ -20,14 +20,17 @@ export const types = `
 `;
 
 export const queries = `
-  configClientPortal: ClientPortal
-  getTaskStages: JSON
+  getConfigs(page: Int, perPage: Int): [ClientPortal]
+  getConfig(_id: String!): ClientPortal
+  getClientPortalTotalCount: Int
+  getTaskStages(stageId: String!): JSON
   getTasks(stageId: String!): JSON
 `;
 
 export const mutations = `
   configUpdateClientPortal(
-    name: String!
+    _id: String
+    name: String
     description: String
     logo: String
     icon: String

@@ -1,6 +1,7 @@
-const updateConfig = `
+const createOrUpdateConfig = `
   mutation configUpdateClientPortal(
-    $name: String!
+    $_id: String
+    $name: String
     $description: String
     $logo: String
     $icon: String
@@ -17,6 +18,7 @@ const updateConfig = `
     $ticketBoardId: String
   ) {
     configUpdateClientPortal(
+      _id: $_id,
       name: $name,
       description: $description,
       url: $url,
@@ -36,4 +38,4 @@ const updateConfig = `
   }
 `;
 
-export default { updateConfig };
+export default { createOrUpdateConfig };

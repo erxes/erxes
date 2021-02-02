@@ -4,6 +4,8 @@ import React, { useState } from 'react';
 import { CONFIG_TYPES } from '../constants';
 import General from '../containers/General';
 import { Wrapper } from '../styles';
+import { ClientPortalConfig } from '../types';
+import Advanced from './forms/Advanced';
 
 export type GeneralFormType = {
   name?: string;
@@ -25,8 +27,8 @@ export type GeneralFormType = {
 
 type Props = {
   configType: string;
-  defaultConfigValues?: GeneralFormType;
-  handleUpdate: (doc: GeneralFormType) => void;
+  defaultConfigValues?: ClientPortalConfig;
+  handleUpdate: (doc: ClientPortalConfig) => void;
 };
 
 const isUrl = (value: string): boolean => {
@@ -38,7 +40,7 @@ const isUrl = (value: string): boolean => {
 };
 
 function Form({ defaultConfigValues = {}, handleUpdate, configType }: Props) {
-  const [formValues, setFormValues] = useState<GeneralFormType>({
+  const [formValues, setFormValues] = useState<ClientPortalConfig>({
     name: defaultConfigValues.name || '',
     description: defaultConfigValues.description || '',
     icon: defaultConfigValues.icon || '',
@@ -53,14 +55,17 @@ function Form({ defaultConfigValues = {}, handleUpdate, configType }: Props) {
     taskPipelineId: defaultConfigValues.taskPipelineId || '',
     ticketStageId: defaultConfigValues.ticketStageId || '',
     ticketBoardId: defaultConfigValues.ticketBoardId || '',
-    ticketPipelineId: defaultConfigValues.ticketPipelineId || ''
+    ticketPipelineId: defaultConfigValues.ticketPipelineId || '',
+    advanced: defaultConfigValues.advanced || {}
   });
 
-  const handleFormChange = (name: string, value: string) => {
+  const handleFormChange = (name: string, value: string | object) => {
     setFormValues({
       ...formValues,
       [name]: value
     });
+
+    console.log(formValues);
   };
 
   const handleSubmit = e => {
@@ -80,6 +85,10 @@ function Form({ defaultConfigValues = {}, handleUpdate, configType }: Props) {
   function renderContent() {
     if (configType === CONFIG_TYPES.GENERAL.VALUE) {
       return <General {...formValues} handleFormChange={handleFormChange} />;
+    }
+
+    if (configType === CONFIG_TYPES.ADVANCED.VALUE) {
+      return <Advanced {...formValues} handleFormChange={handleFormChange} />;
     }
 
     return null;

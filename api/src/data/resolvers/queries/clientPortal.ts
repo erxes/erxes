@@ -1,12 +1,21 @@
 import { ClientPortals, Stages, Tasks } from '../../../db/models';
+import { paginate } from '../../utils';
 
 const configClientPortalQueries = {
-  async configClientPortal(_root) {
-    return ClientPortals.getConfig();
+  async getConfigs(_root, args: { page?: number; perPage?: number }) {
+    return paginate(ClientPortals.find({}), args);
   },
 
-  async getTaskStages() {
-    const config = await ClientPortals.getConfig();
+  async getClientPortalTotalCount() {
+    return ClientPortals.countDocuments();
+  },
+
+  async getConfig(_root, { _id }: { _id: string }) {
+    return ClientPortals.getConfig(_id);
+  },
+
+  async getTaskStages(_root, { _id }: { _id: string }) {
+    const config = await ClientPortals.getConfig(_id);
 
     if (!config) {
       throw new Error('Client portal configuration not found');
