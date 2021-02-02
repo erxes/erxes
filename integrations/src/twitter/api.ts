@@ -121,8 +121,9 @@ export const registerWebhook = async () => {
 
   return new Promise(async (resolve, reject) => {
     const webhooks = await retreiveWebhooks().catch(e => {
-      debugTwitter('Could not retreive webhooks', e.message);
+      debugTwitter(`Could not retreive webhooks ${e.message}`);
     });
+
     const DOMAIN = getEnv({ name: 'DOMAIN' });
 
     const webhookObj =
@@ -150,7 +151,7 @@ export const registerWebhook = async () => {
 
     for (const webhook of webhooks || []) {
       await deleteWebhook(webhook.id).catch(e => {
-        debugTwitter('Could not retreive webhooks', e.message);
+        debugTwitter(`Could not retreive webhooks ${e.message}`);
       });
     }
 
@@ -206,7 +207,7 @@ export const deleteWebhook = async webhookId => {
   return new Promise((resolve, reject) => {
     // if no webhook id provided, assume there is none to delete
     if (!webhookId) {
-      resolve();
+      resolve('ok');
       return;
     }
 
@@ -225,7 +226,7 @@ export const deleteWebhook = async webhookId => {
     request
       .delete(requestOptions)
       .then(() => {
-        resolve();
+        resolve('ok');
       })
       .catch(() => {
         reject();

@@ -1,5 +1,5 @@
-const commonParamDefs = `$name: String!, $type: String!, $colorCode: String`;
-const commonParams = `name: $name, type: $type, colorCode: $colorCode`;
+const commonParamDefs = `$name: String!, $type: String!, $colorCode: String, $parentId: String`;
+const commonParams = `name: $name, type: $type, colorCode: $colorCode, parentId: $parentId`;
 
 const add = `
   mutation tagsAdd(${commonParamDefs}) {
@@ -18,8 +18,8 @@ const edit = `
 `;
 
 const remove = `
-  mutation tagsRemove($ids: [String!]!) {
-    tagsRemove(ids: $ids)
+  mutation tagsRemove($_id: String!) {
+    tagsRemove(_id: $_id)
   }
 `;
 

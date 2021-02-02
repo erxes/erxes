@@ -109,7 +109,7 @@ export const initNylas = async app => {
   app.get('/nylas/get-message', async (req, res, next) => {
     const { erxesApiMessageId, integrationId } = req.query;
 
-    debugNylas('Get message with erxesApiId: ', erxesApiMessageId);
+    debugNylas(`Get message with erxesApiId: ${erxesApiMessageId}`);
 
     if (!erxesApiMessageId) {
       return next('erxesApiMessageId is not provided!');

@@ -28,7 +28,7 @@ mongoose.connection
     debugDb(`Disconnected from the database: ${MONGO_URL}`);
   })
   .on('error', error => {
-    debugDb(`Database connection error: ${MONGO_URL}`, error);
+    debugDb(`Database connection error: ${MONGO_URL} ${error}`);
   });
 
 export const connect = (url?: string) => {
