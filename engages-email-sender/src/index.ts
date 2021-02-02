@@ -47,7 +47,7 @@ app.use('/telnyx', telnyx);
 app.use((error, _req, res, _next) => {
   const msg = filterXSS(error.message);
 
-  debugBase(`Error: `, msg);
+  debugBase(`Error: ${msg}`);
   res.status(500).send(msg);
 });
 
