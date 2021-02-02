@@ -17,6 +17,20 @@ const commonFields = `
   ticketStageId
   ticketPipelineId
   ticketBoardId
+  styles {
+    bodyColor
+    headerColor
+    footerColor
+    helpColor
+    backgroundColor
+    activeTabColor
+    baseColor
+    headingColor
+    linkColor
+    linkHoverColor
+  }
+  css
+  mobileResponsive
 `;
 
 const getTotalCount = `

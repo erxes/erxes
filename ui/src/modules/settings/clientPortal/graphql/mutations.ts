@@ -17,6 +17,9 @@ const createOrUpdateConfig = `
     $ticketStageId: String
     $ticketPipelineId: String
     $ticketBoardId: String
+    $styles: StylesParams
+    $css: String
+    $mobileResponsive: Boolean
   ) {
     configUpdateClientPortal(
       _id: $_id,
@@ -36,6 +39,9 @@ const createOrUpdateConfig = `
       ticketStageId: $ticketStageId,
       ticketPipelineId: $ticketPipelineId,
       ticketBoardId: $ticketBoardId
+      styles: $styles
+      css: $css
+      mobileResponsive: $mobileResponsive
     )
   }
 `;

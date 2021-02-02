@@ -17,7 +17,23 @@ export type ClientPortalConfig = {
   ticketStageId?: string;
   ticketBoardId?: string;
   ticketPipelineId?: string;
+  styles?: Styles;
   advanced?: AdvancedSettings;
+  css?: string;
+  mobileResponsive?: boolean;
+};
+
+export type Styles = {
+  bodyColor?: string;
+  headerColor?: string;
+  footerColor?: string;
+  helpColor?: string;
+  backgroundColor?: string;
+  activeTabColor?: string;
+  baseColor?: string;
+  headingColor?: string;
+  linkColor?: string;
+  linkHoverColor?: string;
 };
 
 export type ClientPortalConfigsQueryResponse = {

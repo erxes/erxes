@@ -18,6 +18,35 @@ export const types = `
     ticketStageId: String
     ticketPipelineId: String
     ticketBoardId: String
+    styles: Styles
+    css: String
+    mobileResponsive: Boolean
+  }
+
+  type Styles {
+    bodyColor: String
+    headerColor: String
+    footerColor: String
+    helpColor: String
+    backgroundColor: String
+    activeTabColor: String
+    baseColor: String
+    headingColor: String
+    linkColor: String
+    linkHoverColor: String
+  }
+
+  input StylesParams {
+    bodyColor: String
+    headerColor: String
+    footerColor: String
+    helpColor: String
+    backgroundColor: String
+    activeTabColor: String
+    baseColor: String
+    headingColor: String
+    linkColor: String
+    linkHoverColor: String
   }
 `;
 
@@ -48,5 +77,8 @@ export const mutations = `
     ticketStageId: String
     ticketPipelineId: String
     ticketBoardId: String
+    styles: StylesParams
+    css: String
+    mobileResponsive: Boolean
   ): JSON
 `;

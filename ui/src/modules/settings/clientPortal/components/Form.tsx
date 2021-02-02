@@ -6,7 +6,9 @@ import General from '../containers/General';
 import { Wrapper } from '../styles';
 import { ClientPortalConfig } from '../types';
 import Advanced from './forms/Advanced';
+import ColorFont from './forms/ColorFont';
 import CustomDomain from './forms/CustomDomain';
+import StyleSheet from './forms/StyleSheet';
 
 export type GeneralFormType = {
   name?: string;
@@ -41,6 +43,8 @@ const isUrl = (value: string): boolean => {
 };
 
 function Form({ defaultConfigValues = {}, handleUpdate, configType }: Props) {
+  const { styles = {} } = defaultConfigValues;
+
   const [formValues, setFormValues] = useState<ClientPortalConfig>({
     name: defaultConfigValues.name || '',
     description: defaultConfigValues.description || '',
@@ -58,7 +62,21 @@ function Form({ defaultConfigValues = {}, handleUpdate, configType }: Props) {
     ticketBoardId: defaultConfigValues.ticketBoardId || '',
     ticketPipelineId: defaultConfigValues.ticketPipelineId || '',
     domain: defaultConfigValues.domain || '',
-    advanced: defaultConfigValues.advanced || {}
+    styles: {
+      bodyColor: styles.bodyColor || '',
+      headerColor: styles.headerColor || '',
+      footerColor: styles.footerColor || '',
+      helpColor: styles.helpColor || '',
+      backgroundColor: styles.backgroundColor || '',
+      activeTabColor: styles.activeTabColor || '',
+      baseColor: styles.baseColor || '',
+      headingColor: styles.headingColor || '',
+      linkColor: styles.linkColor || '',
+      linkHoverColor: styles.linkHoverColor || ''
+    },
+    advanced: defaultConfigValues.advanced || {},
+    css: defaultConfigValues.css || '',
+    mobileResponsive: defaultConfigValues.mobileResponsive || false
   });
 
   const handleFormChange = (name: string, value: string | object) => {
@@ -104,6 +122,10 @@ function Form({ defaultConfigValues = {}, handleUpdate, configType }: Props) {
             dnsStatus={defaultConfigValues.dnsStatus}
           />
         );
+      case CONFIG_TYPES.COLOR_FONTS.VALUE:
+        return <ColorFont {...commonProps} />;
+      case CONFIG_TYPES.STYLE_SHEET.VALUE:
+        return <StyleSheet {...commonProps} />;
       default:
         return null;
     }

@@ -20,7 +20,23 @@ export interface IClientPortal {
   ticketBoardId?: string;
   domain?: string;
   dnsStatus?: string;
+  styles?: IStyles;
   advanced?: IAdvencedSettings;
+  css?: string;
+  mobileResponsive?: boolean;
+}
+
+interface IStyles {
+  bodyColor?: string;
+  headerColor?: string;
+  footerColor?: string;
+  helpColor?: string;
+  backgroundColor?: string;
+  activeTabColor?: string;
+  baseColor?: string;
+  headingColor?: string;
+  linkColor?: string;
+  linkHoverColor?: string;
 }
 
 interface IAdvencedSettings {
@@ -35,6 +51,19 @@ interface IAdvencedSettings {
 export interface IClientPortalDocument extends IClientPortal, Document {
   _id: string;
 }
+
+const stylesSchema = new Schema({
+  bodyColor: field({ type: String, optional: true }),
+  headerColor: field({ type: String, optional: true }),
+  footerColor: field({ type: String, optional: true }),
+  helpColor: field({ type: String, optional: true }),
+  backgroundColor: field({ type: String, optional: true }),
+  activeTabColor: field({ type: String, optional: true }),
+  baseColor: field({ type: String, optional: true }),
+  headingColor: field({ type: String, optional: true }),
+  linkColor: field({ type: String, optional: true }),
+  linkHoverColor: field({ type: String, optional: true })
+});
 
 const advancedSettingsSchema = new Schema({
   autoSuggest: field({ type: Boolean }),
@@ -64,5 +93,8 @@ export const clientPortalSchema = new Schema({
   ticketBoardId: field({ type: String }),
   domain: field({ type: String, optional: true }),
   dnsStatus: field({ type: String, optional: true }),
-  advanced: field({ type: advancedSettingsSchema })
+  styles: field({ type: stylesSchema, optional: true }),
+  advanced: field({ type: advancedSettingsSchema, optional: true }),
+  css: field({ type: String, optional: true }),
+  mobileResponsive: field({ type: Boolean, optional: true })
 });
