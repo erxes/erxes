@@ -1,15 +1,8 @@
 import CallOut from './CallOut';
 import ChooseType from './ChooseType';
 import FormStep from './FormStep';
-import FullPreviewStep from './FullPreviewStep';
+import FullPreview from './FullPreview';
 import OptionStep from './OptionStep';
 import SuccessStep from './SuccessStep';
 
-export {
-  ChooseType,
-  CallOut,
-  FormStep,
-  SuccessStep,
-  OptionStep,
-  FullPreviewStep
-};
+export { ChooseType, CallOut, FormStep, SuccessStep, OptionStep, FullPreview };
