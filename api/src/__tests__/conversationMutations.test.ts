@@ -14,6 +14,7 @@ import {
   userFactory
 } from '../db/factories';
 import {
+  Conformities,
   ConversationMessages,
   Conversations,
   Customers,
@@ -931,11 +932,24 @@ describe('Conversation message mutations', () => {
       { dataSources }
     );
 
-    const deal = Deals.findOne({
+    const deal = await Deals.findOne({
       sourceConversationIds: { $in: [conversation._id] }
     });
 
+    if(!deal) {
+      fail('deal not found');
+    }
+
+    const confomity = await Conformities.findOne({mainType: 'deal', mainTypeId: deal &&  deal._id, relType:'customer'});
+    
+    if (!confomity) {
+      fail('confomity not found');
+    }
+
     expect(deal).toBeDefined();
+    expect(deal.assignedUserIds).toContain(user._id);
+    expect(confomity).toBeDefined();
+    expect(confomity.relTypeId).toBe(conversation.customerId)
   });
 
   test('Convert conversation to existing card', async () => {

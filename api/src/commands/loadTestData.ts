@@ -467,16 +467,16 @@ const main = async () => {
 
   const selectedTicketStage = await Stages.findOne({ type: 'ticket' });
 
-  if(!selectedTicketStage) {
-    throw new Error('stage not found')
+  if(!selectedTicketStage){
+    console.log('Failed: To create Tickets');
   }
 
   await Tickets.createTicket({
     name: faker.random.word(),
     userId: admin._id,
-    initialStageId: selectedTicketStage._id,
+    initialStageId: selectedTicketStage && selectedTicketStage._id || '',
     sourceConversationIds: [randomConversation._id || ''],
-    stageId: selectedTicketStage?._id || ''
+    stageId:selectedTicketStage && selectedTicketStage._id || ''
   });
 
   console.log('Finished: Tickets');

@@ -122,7 +122,10 @@ describe('Test activity model', () => {
       expect(log.contentType).toBe('deal');
       expect(log.createdBy).toBe(item.userId);
       expect(log.action).toBe(ACTIVITY_ACTIONS.CONVERT);
-      expect(deal.sourceConversationIds?.includes(log.content)).toBe(true);
+
+      if(deal.sourceConversationIds) {
+        expect(deal.sourceConversationIds.includes(log.content)).toBe(true);
+      }
     }
 
     expect(logs).toBeDefined();

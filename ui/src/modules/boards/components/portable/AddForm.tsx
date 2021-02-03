@@ -57,9 +57,7 @@ class AddForm extends React.Component<Props, State> {
       fetchCards(String(value), (cards: any) => {
         if (cards) {
           this.setState({
-            cards: cards.map(c => {
-              return { value: c._id, label: c.name };
-            })
+            cards: cards.map(c => ({ value: c._id, label: c.name }))
           });
         }
       });
