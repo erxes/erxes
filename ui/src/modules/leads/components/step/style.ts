@@ -254,18 +254,13 @@ const Tabs = styledTS<{ selected?: boolean }>(styled.div)`
 
 const FlexColumn = styled.div`
   display: flex;
-  min-width: 43.33333%;
+  flex: 1;
   flex-direction: column;
 
   ${ContentHeader} {
     border-bottom: none;
     border-top: 1px solid ${colors.borderPrimary};
   }
-`;
-
-const ColorList = styled.ul`
-  list-style: none;
-  padding: 0;
 `;
 
 export {
@@ -283,6 +278,5 @@ export {
   CarouselInner,
   FullPreview,
   ImageUpload,
-  ImagePreview,
-  ColorList
+  ImagePreview
 };
