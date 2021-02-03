@@ -4,6 +4,7 @@ import * as fs from 'fs';
 import { disconnect } from 'mongoose';
 import * as shelljs from 'shelljs';
 import * as XlsxStreamReader from 'xlsx-stream-reader';
+import { EngagesAPI, HelpersApi, IntegrationsAPI } from '../data/dataSources';
 
 import { checkFieldNames } from '../data/modules/fields/utils';
 import widgetMutations from '../data/resolvers/mutations/widgets';
@@ -420,7 +421,13 @@ const main = async () => {
 
   console.log('Creating: Conversations');
 
-  let context;
+  const context: any = {
+    dataSources: {
+      IntegrationsAPI: new IntegrationsAPI(),
+      EngagesAPI: new EngagesAPI(),
+      HelpersApi: new HelpersApi()
+    }
+  };
 
   for (let i = 0; i < 5; i++) {
     const randomCustomer = await Customers.aggregate([
