@@ -23,6 +23,7 @@ type Props = {
   formData: IFormData;
   color: string;
   theme: string;
+  title?: string;
   language?: string;
   isRequireOnce?: boolean;
   onChange: (
@@ -45,6 +46,9 @@ class OptionStep extends React.Component<Props, {}> {
       this.props.onChange('theme', e.hex);
     });
   };
+
+  onChangeTitle = e =>
+    this.onChangeFunction('title', (e.currentTarget as HTMLInputElement).value);
 
   renderThemeColor(value: string) {
     const onClick = () => this.onChangeFunction('theme', value);
@@ -106,6 +110,17 @@ class OptionStep extends React.Component<Props, {}> {
     return (
       <FlexItem>
         <LeftItem>
+          <FormGroup>
+            <ControlLabel required={true}>Popup Name</ControlLabel>
+            <p>{__('Name this popup to differentiate from the rest')}</p>
+
+            <FormControl
+              required={true}
+              onChange={this.onChangeTitle}
+              defaultValue={this.props.title}
+              autoFocus={true}
+            />
+          </FormGroup>
           <FormGroup>
             <SelectBrand
               isRequired={true}
