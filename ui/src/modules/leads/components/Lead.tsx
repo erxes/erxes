@@ -17,11 +17,7 @@ import { Link } from 'react-router-dom';
 
 import { SmallLoader } from 'modules/common/components/ButtonMutate';
 import { IFormData } from 'modules/forms/types';
-import {
-  Content,
-  LeftContent,
-  MessengerPreview
-} from 'modules/settings/integrations/styles';
+import { Content, LeftContent } from 'modules/settings/integrations/styles';
 import { IField } from 'modules/settings/properties/types';
 import {
   CallOut,
@@ -31,6 +27,7 @@ import {
   OptionStep,
   SuccessStep
 } from './step';
+import { PreviewWrapper } from './step/style';
 
 type Props = {
   integration?: ILeadIntegration;
@@ -354,7 +351,7 @@ class Lead extends React.Component<Props, State> {
             </ControlWrapper>
           </LeftContent>
 
-          <MessengerPreview>
+          <PreviewWrapper>
             <FullPreview
               onChange={this.onChange}
               calloutTitle={calloutTitle}
@@ -369,7 +366,7 @@ class Lead extends React.Component<Props, State> {
               carousel={constant}
               formData={formData}
             />
-          </MessengerPreview>
+          </PreviewWrapper>
         </Content>
       </StepWrapper>
     );

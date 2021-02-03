@@ -43,6 +43,7 @@ const FullPreview = styled.div`
   flex: 1;
   display: flex;
   flex-direction: column;
+  justify-content: space-between;
   padding: ${dimensions.coreSpacing}px;
   overflow: auto;
 `;
@@ -263,6 +264,26 @@ const FlexColumn = styled.div`
   }
 `;
 
+const PreviewWrapper = styled.div`
+  width: 40%;
+  background: ${colors.colorWhite};
+  margin-left: 5px;
+
+  ${TabletPreview} {
+    background-size: contain;
+    width: 85%;
+    height: 100%;
+
+    ${PreviewContainer} {
+      max-height: 600px;
+    }
+
+    @media (max-width: 1400px) {
+      padding: 40px 10px;
+    }
+  }
+`;
+
 export {
   FlexItem,
   FlexColumn,
@@ -277,6 +298,7 @@ export {
   Tabs,
   CarouselInner,
   FullPreview,
+  PreviewWrapper,
   ImageUpload,
   ImagePreview
 };
