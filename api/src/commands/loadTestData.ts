@@ -420,6 +420,8 @@ const main = async () => {
 
   console.log('Creating: Conversations');
 
+  let context;
+
   for (let i = 0; i < 5; i++) {
     const randomCustomer = await Customers.aggregate([
       { $sample: { size: 1 } }
@@ -437,7 +439,8 @@ const main = async () => {
           integrationId: integration._id,
           customerId: randomCustomer[0]._id || '',
           message: faker.lorem.sentence()
-        }
+        },
+        context
       );
     }
   }

@@ -155,6 +155,8 @@ class IntegrationConfigs extends React.Component<Props, State> {
           </FormGroup>
           {this.renderItem('DAILY_API_KEY')}
           {this.renderItem('DAILY_END_POINT')}
+          {this.renderItem('VIDEO_CALL_TIME_DELAY_BETWEEN_REQUESTS')}
+          {this.renderItem('VIDEO_CALL_MESSAGE_FOR_TIME_DELAY')}
         </CollapseContent>
 
         <CollapseContent title="Sunshine Conversations API">

@@ -2,6 +2,7 @@ import * as faker from 'faker';
 import * as Random from 'meteor-random';
 import * as sinon from 'sinon';
 import { MESSAGE_KINDS } from '../data/constants';
+import { IntegrationsAPI } from '../data/dataSources';
 import * as logUtils from '../data/logUtils';
 import widgetMutations, {
   getMessengerData
@@ -268,6 +269,7 @@ describe('insertMessage()', () => {
   let _integration: IIntegrationDocument;
   let _customer: ICustomerDocument;
   let _integrationBot: IIntegrationDocument;
+  let context;
 
   beforeEach(async () => {
     // Creating test data
@@ -283,6 +285,12 @@ describe('insertMessage()', () => {
       }
     });
     _customer = await customerFactory({ integrationId: _integration._id });
+
+    context = {
+      dataSources: {
+        IntegrationsAPI: new IntegrationsAPI()
+      }
+    };
   });
 
   afterEach(async () => {
@@ -301,7 +309,8 @@ describe('insertMessage()', () => {
         integrationId: _integration._id,
         customerId: _customer._id,
         message: faker.lorem.sentence()
-      }
+      },
+      context
     );
 
     // check message ==========
@@ -338,7 +347,8 @@ describe('insertMessage()', () => {
         customerId: _customer._id,
         message: faker.lorem.sentence(),
         skillId: skill._id
-      }
+      },
+      context
     );
 
     const conversation2 = await Conversations.findById(
@@ -361,7 +371,8 @@ describe('insertMessage()', () => {
         customerId: _customer._id,
         message: 'withConversationId',
         conversationId: conversation._id
-      }
+      },
+      context
     );
 
     expect(message.content).toBe('withConversationId');
@@ -390,7 +401,8 @@ describe('insertMessage()', () => {
         visitorId: '123',
         message: 'withConversationId',
         conversationId: conversation._id
-      }
+      },
+      context
     );
 
     expect(message.content).toBe('withConversationId');
@@ -427,7 +439,8 @@ describe('insertMessage()', () => {
         message: 'User message',
         customerId: _customer._id,
         conversationId: conversation._id
-      }
+      },
+      context
     );
 
     expect(message.content).toBe('User message');
@@ -456,7 +469,8 @@ describe('insertMessage()', () => {
         message: 'User message 2',
         customerId: _customer._id,
         conversationId: conversation2._id
-      }
+      },
+      context
     );
 
     expect(message2.content).toBe('User message 2');
@@ -483,7 +497,8 @@ describe('insertMessage()', () => {
         integrationId: _integrationBot._id,
         message: 'User message',
         customerId: _customer._id
-      }
+      },
+      context
     );
 
     expect(message.content).toBe('User message');
@@ -657,6 +672,69 @@ describe('insertMessage()', () => {
     sendToVisitorLogMock.restore();
 
     sendRequestMock.restore();
+  });
+
+  test('Video cal request', async () => {
+    const conversation = await conversationFactory();
+
+    // When first video call request
+    const vcrMessage = await widgetMutations.widgetsInsertMessage(
+      {},
+      {
+        contentType: MESSAGE_TYPES.VIDEO_CALL_REQUEST,
+        integrationId: _integration._id,
+        customerId: _customer._id,
+        conversationId: conversation._id,
+        message: ''
+      },
+      context
+    );
+
+    expect(vcrMessage).toBeDefined();
+
+    // When not connected with Integration API
+    const vcrMessage2 = await widgetMutations.widgetsInsertMessage(
+      {},
+      {
+        contentType: MESSAGE_TYPES.VIDEO_CALL_REQUEST,
+        integrationId: _integration._id,
+        customerId: _customer._id,
+        conversationId: conversation._id,
+        message: ''
+      },
+      context
+    );
+
+    expect(vcrMessage2).toBeDefined();
+
+    // When occured error
+    const spy = jest.spyOn(context.dataSources.IntegrationsAPI, 'fetchApi');
+
+    spy.mockImplementation(() =>
+      Promise.resolve([
+        { code: 'VIDEO_CALL_TIME_DELAY_BETWEEN_REQUESTS', value: 10 },
+        {
+          code: 'VIDEO_CALL_MESSAGE_FOR_TIME_DELAY',
+          value: 'Video call request has already sent'
+        }
+      ])
+    );
+
+    try {
+      await widgetMutations.widgetsInsertMessage(
+        {},
+        {
+          contentType: MESSAGE_TYPES.VIDEO_CALL_REQUEST,
+          integrationId: _integration._id,
+          customerId: _customer._id,
+          conversationId: conversation._id,
+          message: ''
+        },
+        context
+      );
+    } catch (e) {
+      expect(e.message).toBe('Video call request has already sent');
+    }
   });
 });
 
