@@ -1,4 +1,4 @@
-import { Products } from '../../db/models';
+import { Products, ProductCategories } from '../../db/models';
 import { PRODUCT_STATUSES } from '../../db/models/definitions/constants';
 import { IProductCategoryDocument } from '../../db/models/definitions/deals';
 
@@ -8,6 +8,14 @@ export default {
   },
 
   async productCount(category: IProductCategoryDocument, {}) {
-    return Products.countDocuments({ categoryId: category._id, status: {$ne: PRODUCT_STATUSES.DELETED} });
+    const product_category_ids = await ProductCategories.find(
+      { order: { $regex: new RegExp(category.order) } },
+      { _id: 1 }
+    );
+
+    return Products.countDocuments({
+      categoryId: { $in: product_category_ids },
+      status: { $ne: PRODUCT_STATUSES.DELETED }
+    });
   }
 };
