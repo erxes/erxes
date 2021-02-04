@@ -190,7 +190,7 @@ const getIntegration = async ({
         }
   });
 
-  if (!integration || integration.isActive === false) {
+  if (!integration || !integration.isActive) {
     throw new Error('Integration not found');
   }
 
