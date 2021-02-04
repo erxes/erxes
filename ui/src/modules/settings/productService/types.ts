@@ -110,3 +110,14 @@ export type CountByTagsQueryResponse = {
   productCountByTags: { [key: string]: number };
   loading: boolean;
 };
+
+export type MergeMutationVariables = {
+  productIds: string[];
+  productFields: IProduct;
+};
+
+export type MergeMutationResponse = {
+  productsMerge: (params: {
+    variables: MergeMutationVariables;
+  }) => Promise<any>;
+};

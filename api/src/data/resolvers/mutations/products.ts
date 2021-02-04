@@ -80,13 +80,13 @@ const productMutations = {
       _id: { $in: productIds }
     }).lean();
 
-    await Products.removeProducts(productIds);
+    const response = await Products.removeProducts(productIds);
 
     for (const product of products) {
       await putDeleteLog({ type: MODULE_NAMES.PRODUCT, object: product }, user);
     }
 
-    return productIds;
+    return response;
   },
 
   /**
@@ -158,6 +158,19 @@ const productMutations = {
     );
 
     return removed;
+  },
+
+  /**
+   * Merge products
+   */
+  async productsMerge(
+    _root,
+    {
+      productIds,
+      productFields
+    }: { productIds: string[]; productFields: IProduct }
+  ) {
+    return Products.mergeProducts(productIds, { ...productFields });
   }
 };
 

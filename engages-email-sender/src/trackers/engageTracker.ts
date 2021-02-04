@@ -96,7 +96,7 @@ export const trackEngages = expressApp => {
     req.on('end', async () => {
       const message = JSON.parse(chunks.join(''));
 
-      debugBase('receiving on tracker:', message);
+      debugBase(`receiving on tracker: ${message}`);
 
       const { Type = '', Message = {}, Token = '', TopicArn = '' } = message;
 

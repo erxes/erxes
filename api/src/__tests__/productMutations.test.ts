@@ -245,4 +245,34 @@ describe('Test products mutations', () => {
       null
     );
   });
+
+  test('Merge product', async () => {
+    const args = {
+      productIds: [product._id],
+      productFields: {
+        name: product.name,
+        unitPrice: '123',
+        categoryId: productCategory._id,
+        type: product.type,
+        code: product.code
+      }
+    };
+
+    const mutation = `
+      mutation productsMerge($productIds: [String], $productFields: JSON) {
+        productsMerge(productIds: $productIds, productFields: $productFields) {
+          _id
+          name
+          code
+          unitPrice
+          categoryId
+          type
+        }
+      }   
+    `;
+
+    const product1 = await graphqlRequest(mutation, 'productsMerge', args);
+
+    expect(product1.code).toBe(args.productFields.code);
+  });
 });
