@@ -53,13 +53,8 @@ class AddFormContainer extends React.Component<FinalProps> {
       addMutation,
       conversationConvertToCard,
       options,
-      relType,
-      relTypeIds,
-      editConformity,
-      refetch,
       assignedUserIds,
       sourceConversationId,
-      getAssociatedItem,
       aboveItemId,
       description,
       attachments
@@ -89,7 +84,13 @@ class AddFormContainer extends React.Component<FinalProps> {
         }
       })
         .then(({ data }) => {
-          this.afterSave(data, `You've successfully converted a conversation to ${options.type}`, editConformity, options, callback, refetch, relType, relTypeIds, getAssociatedItem);
+
+          const message = `You've successfully converted a conversation to ${options.type}`
+
+          this.afterSave(data.conversationConvertToCard,
+            message,
+            callback,
+            data)
         })
         .catch(error => {
           Alert.error(error.message);
@@ -97,7 +98,13 @@ class AddFormContainer extends React.Component<FinalProps> {
     } else {
       addMutation({ variables: doc })
         .then(({ data }) => {
-          this.afterSave(data, `You've successfully created ${options.type}`, editConformity, options, callback, refetch, relType, relTypeIds, getAssociatedItem);
+
+          const message = `You've successfully created ${options.type}`
+
+          this.afterSave(data[options.mutationsName.addMutation]._id,
+            message,
+            callback,
+            data[options.mutationsName.addMutation])
         })
         .catch(error => {
           Alert.error(error.message);
@@ -105,24 +112,26 @@ class AddFormContainer extends React.Component<FinalProps> {
     }
   };
 
-  afterSave = (data: any, message: string, editConformity: EditConformityMutation, options: IOptions, callback: (item: IItem) => void, refetch?: () => void, relType?: string, relTypeIds?: string[], getAssociatedItem?: (itemId: string) => void) => {
+  afterSave = (mainTypeId: string, message: string, callback: (item: IItem) => void, item: IItem) => {
     Alert.success(message);
 
-    if (relType && relTypeIds) {
-      editConformity({
-        variables: {
-          mainType: options.type,
-          mainTypeId: data[options.mutationsName.addMutation]._id,
-          relType,
-          relTypeIds
-        }
-      });
-    }
+    const { editConformity, getAssociatedItem, refetch, relType,
+      relTypeIds, options } = this.props;
 
-    callback(data[options.mutationsName.addMutation]);
+    editConformity({
+      variables: {
+        mainType: options.type,
+        mainTypeId,
+        relType,
+        relTypeIds
+      }
+    });
+
+
+    callback(item);
 
     if (getAssociatedItem) {
-      getAssociatedItem(data[options.mutationsName.addMutation]);
+      getAssociatedItem(item._id);
     }
 
     if (refetch) {
