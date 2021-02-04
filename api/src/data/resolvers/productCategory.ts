@@ -1,4 +1,4 @@
-import { Products, ProductCategories } from '../../db/models';
+import { ProductCategories, Products } from '../../db/models';
 import { PRODUCT_STATUSES } from '../../db/models/definitions/constants';
 import { IProductCategoryDocument } from '../../db/models/definitions/deals';
 
