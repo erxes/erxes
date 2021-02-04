@@ -38,6 +38,7 @@ export const types = `
     participatorCount: Int
     videoCallData: VideoCallData
     productBoardLink: String
+    isFacebookTaggedMessage: Boolean
   }
 
   type EngageData {
