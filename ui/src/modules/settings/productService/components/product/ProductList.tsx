@@ -177,6 +177,7 @@ class List extends React.Component<IProps, State> {
                   onChange={this.onChange}
                 />
               </th>
+              <th>{__('Code')}</th>
               <th>{__('Name')}</th>
               <th>{__('Type')}</th>
               <th>{__('Category')}</th>
