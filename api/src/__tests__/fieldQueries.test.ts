@@ -10,11 +10,9 @@ import {
   usersGroupFactory
 } from '../db/factories';
 import { Companies, Customers, Fields, FieldsGroups } from '../db/models';
-import * as elk from '../elasticsearch';
-
 import { KIND_CHOICES } from '../db/models/definitions/constants';
+import * as elk from '../elasticsearch';
 import './setup.ts';
-import { response } from 'express';
 
 describe('fieldQueries', () => {
   afterEach(async () => {
