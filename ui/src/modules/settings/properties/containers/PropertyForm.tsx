@@ -17,6 +17,7 @@ import { updateCustomFieldsCache } from '../utils';
 type Props = {
   queryParams: any;
   closeModal: () => void;
+  renderButton?: (props: IButtonMutateProps) => JSX.Element;
 };
 
 type FinalProps = {
@@ -27,42 +28,44 @@ type FinalProps = {
 
 const PropertyFormContainer = (props: FinalProps) => {
   const { fieldsGroupsQuery, queryParams } = props;
+  let { renderButton } = props;
   const { type } = queryParams;
 
-  const renderButton = ({
-    name,
-    values,
-    isSubmitted,
-    callback,
-    object
-  }: IButtonMutateProps) => {
-    const handleCallback = () => {
-      updateCustomFieldsCache({
-        type,
-        doc: values,
-        ...(object ? { id: object._id } : {})
-      });
+  if (!renderButton) {
+    renderButton = ({
+      name,
+      values,
+      isSubmitted,
+      callback,
+      object
+    }: IButtonMutateProps) => {
+      const handleCallback = () => {
+        updateCustomFieldsCache({
+          type,
+          doc: values,
+          ...(object ? { id: object._id } : {})
+        });
 
-      if (callback) {
-        return callback();
-      }
-    };
+        if (callback) {
+          return callback();
+        }
+      };
 
-    return (
-      <ButtonMutate
-        mutation={object ? mutations.fieldsEdit : mutations.fieldsAdd}
-        variables={values}
-        callback={handleCallback}
-        refetchQueries={getRefetchQueries(queryParams)}
-        isSubmitted={isSubmitted}
-        type="submit"
-        uppercase={false}
-        icon="check-circle"
-        successMessage={`You successfully ${
-          object ? 'updated' : 'added'
-        } a ${name}`}
-      />
-    );
+      return (
+        <ButtonMutate
+          mutation={object ? mutations.fieldsEdit : mutations.fieldsAdd}
+          variables={values}
+          callback={handleCallback}
+          refetchQueries={getRefetchQueries(queryParams)}
+          isSubmitted={isSubmitted}
+          type="submit"
+          uppercase={false}
+          icon="check-circle"
+          successMessage={`You successfully ${object ? 'updated' : 'added'
+            } a ${name}`}
+        />
+      );
+    }
   };
 
   const updatedProps = {

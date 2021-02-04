@@ -57,12 +57,13 @@ export type DefaultColumnsConfigQueryResponse = {
 export type FieldsQueryResponse = {
   fields: IField[];
   loading: boolean;
-  refetch: () => Promise<void>;
+  refetch: () => Promise<any>;
 };
 
 export type FieldsGroupsQueryResponse = {
   fieldsGroups: IFieldGroup[];
   loading: boolean;
+  refetch: ({ contentType }: { contentType?: string }) => Promise<any>;
 };
 
 export type FieldsCombinedByType = {

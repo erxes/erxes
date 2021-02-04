@@ -21,7 +21,6 @@ type Props = {
   type: string;
   form?: IForm;
   hideOptionalFields?: boolean;
-  customProperties: IField[];
 };
 
 type State = {
@@ -185,7 +184,6 @@ class Form extends React.Component<Props, State> {
           onSubmit={this.onFieldSubmit}
           onDelete={this.onFieldDelete}
           onCancel={this.onFieldFormCancel}
-          customProperties={this.props.customProperties}
         />
       );
     }

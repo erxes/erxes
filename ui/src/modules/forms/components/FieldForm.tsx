@@ -1,3 +1,4 @@
+import { IOption } from 'erxes-ui/lib/types';
 import Button from 'modules/common/components/Button';
 import FormControl from 'modules/common/components/form/Control';
 import FormGroup from 'modules/common/components/form/Group';
@@ -6,10 +7,10 @@ import Icon from 'modules/common/components/Icon';
 import { FlexItem } from 'modules/common/components/step/styles';
 import Toggle from 'modules/common/components/Toggle';
 import { __ } from 'modules/common/utils';
+import SelectProperty from 'modules/settings/properties/containers/SelectProperty';
 import { IField } from 'modules/settings/properties/types';
 import React from 'react';
 import Modal from 'react-bootstrap/Modal';
-import Select from 'react-select-plus';
 import {
   FlexRow,
   LeftSection,
@@ -25,13 +26,12 @@ type Props = {
   onCancel: () => void;
   mode: 'create' | 'update';
   field: IField;
-  customProperties?: IField[];
 };
 
 type State = {
   field: IField;
-  properties?: [{ label: string; value: string }];
-  selectedProperty?: { label: string; value: string };
+  properties?: IOption[];
+  selectedOption?: IOption;
 };
 
 class FieldForm extends React.Component<Props, State> {
@@ -47,25 +47,18 @@ class FieldForm extends React.Component<Props, State> {
     this.setFieldAttrChanges(name, value);
   };
 
-  onSelectChange = (option) => {
-    const { customProperties } = this.props;
+  onPropertyChange = (selectedField: IField) => {
+    this.setState({ selectedOption: { value: selectedField._id, label: selectedField.text || "" } });
 
-    if (customProperties) {
+    const { field } = this.state;
 
-      this.setState({ selectedProperty: option })
+    field.associatedFieldId = selectedField._id;
+    field.validation = selectedField.validation;
+    field.options = selectedField.options;
+    field.type = selectedField.type;
+    field.isRequired = selectedField.isRequired;
 
-      const { field } = this.state;
-
-      const customProperty = customProperties.find(e => e._id === option.value);
-
-      if(customProperty) {
-        field.associatedFieldId = customProperty._id;
-        field.validation = customProperty.validation;
-        field.options = customProperty.options;
-      }
-      
-      this.setState({ field })
-    }
+    this.setState({ field })
   }
 
   onSubmit = e => {
@@ -170,27 +163,9 @@ class FieldForm extends React.Component<Props, State> {
   }
 
   renderLeftContent() {
-    const { mode, onCancel, customProperties } = this.props;
-    const { field  } = this.state;
-    let { selectedProperty } = this.state;
-
-    if (field.associatedFieldId && customProperties) {
-      const property = customProperties.find(e => e._id === field.associatedFieldId)
-      if (property) {
-        selectedProperty = { label: property.text || "", value: property._id }
-      }
-    }
-
-    let options;
-
-    if(customProperties){
-      const filtered = customProperties.filter(e => e.text !== undefined && e.type === field.type);
-
-      options = filtered.map(e => {
-        return { value: e._id, label: e.text };
-      })
-    }
-
+    const { mode, onCancel } = this.props;
+    const { field ,selectedOption } = this.state;
+  
     const text = e =>
       this.onFieldChange('text', (e.currentTarget as HTMLInputElement).value);
 
@@ -235,15 +210,11 @@ class FieldForm extends React.Component<Props, State> {
         </FormGroup>
 
         <FormGroup>
-          <ControlLabel htmlFor="description">Custom property</ControlLabel>
-          <p>{__('Any data collected through this field will copy to:')}</p>
-          <Select
-            placeholder='Type to search'
-            options={options}
-            value={selectedProperty}
-            onSelectResetsInput={true}
-            onBlurResetsInput={false}
-            onChange={this.onSelectChange}
+          <SelectProperty
+            queryParams={{type:"customer"}}
+            defaultValue={selectedOption && selectedOption.label}
+            description="Any data collected through this field will copy to:"
+            onChange={this.onPropertyChange}
           />
         </FormGroup>
 

@@ -4,20 +4,19 @@ import { Alert, withProps } from 'modules/common/utils';
 import {
   AddFieldsMutationResponse,
   AddFieldsMutationVariables,
-  FieldsQueryResponse, IField
+ IField
 } from 'modules/settings/properties/types';
 import React from 'react';
 import { graphql } from 'react-apollo';
 import { withRouter } from 'react-router-dom';
 import { IRouterProps } from '../../common/types';
 import Form from '../components/Form';
-import { mutations, queries } from '../graphql';
+import { mutations } from '../graphql';
 import {
   AddFormMutationResponse,
   AddFormMutationVariables,
   IFormData
 } from '../types';
-
 
 type Props = {
   renderPreviewWrapper: (previewRenderer, fields: IField[]) => void;
@@ -29,7 +28,6 @@ type Props = {
 };
 
 type FinalProps = {
-  propertiesQuery: FieldsQueryResponse;
 } & Props &
   IRouterProps &
   AddFieldsMutationResponse &
@@ -45,15 +43,9 @@ class CreateFormContainer extends React.Component<FinalProps, {}> {
       addFormMutation,
       addFieldsMutation,
       afterDbSave,
-      propertiesQuery,
       showMessage
     } = this.props;
 
-    if (propertiesQuery.loading) {
-      return false;
-    }
-
-    const customProperties = propertiesQuery.fields || [];
 
     const saveForm = doc => {
       let formId;
@@ -105,12 +97,13 @@ class CreateFormContainer extends React.Component<FinalProps, {}> {
     const updatedProps = {
       ...this.props,
       fields: [],
-      saveForm,
-      customProperties
+      saveForm
     };
 
     return <Form {...updatedProps} />;
   }
+
+ 
 }
 
 export default withProps<Props>(
@@ -129,21 +122,6 @@ export default withProps<Props>(
       {
         name: 'addFieldsMutation'
       }
-    ),
-    graphql<
-    Props,
-    FieldsQueryResponse
-  >(gql(queries.properties), {
-    name: 'propertiesQuery',
-    options: () => {
-      return {
-        variables: {
-          contentType: 'customer',
-          isVisible: true
-        },
-        fetchPolicy: 'network-only'
-      };
-    }
-  }),
+    ) 
   )(withRouter<FinalProps>(CreateFormContainer))
 );
