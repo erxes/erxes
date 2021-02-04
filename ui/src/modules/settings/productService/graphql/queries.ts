@@ -15,6 +15,8 @@ const productFields = `
   tagIds
   createdAt
   category {
+    _id
+    code
     name
   }
   attachment {

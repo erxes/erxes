@@ -185,11 +185,12 @@ const getIntegration = async ({
     callback: callback
       ? callback
       : async () => {
+      
           return Integrations.findOne(selector);
         }
   });
 
-  if (!integration) {
+  if (!integration || !integration.isActive) {
     throw new Error('Integration not found');
   }
 

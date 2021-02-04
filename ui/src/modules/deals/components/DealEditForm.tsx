@@ -155,12 +155,12 @@ export default class DealEditForm extends React.Component<Props, State> {
   };
 
   renderItems = () => {
-    const { item } = this.props
+    const { item } = this.props;
     return (
       <>
         <PortableTickets mainType="deal" mainTypeId={item._id} />
         <PortableTasks mainType="deal" mainTypeId={item._id} />
-        {pluginsOfItemSidebar(item, "deal")}
+        {pluginsOfItemSidebar(item, 'deal')}
       </>
     );
   };
