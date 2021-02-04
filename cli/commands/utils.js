@@ -317,6 +317,13 @@ module.exports.startServices = async configs => {
       );
     }
 
+    if (!REDIS_HOST || !REDIS_PORT) {
+      return log(
+        'Dashboard is not started "If you want to use dashboard you need to start redis"',
+        'red'
+      );
+    }
+
     const CUBE_API_SECRET = Math.random().toString();
 
     apps.push({
@@ -332,7 +339,8 @@ module.exports.startServices = async configs => {
         CUBEJS_DB_TYPE: 'elasticsearch',
         CUBEJS_DB_URL: ELASTICSEARCH_URL,
         SCHEMA_PATH: dasbhoardSchemaPath,
-        REDIS_URL: `redis://${REDIS_HOST}:${REDIS_PORT}?password=${REDIS_PASSWORD}`,
+        REDIS_URL: `redis://${REDIS_HOST}:${REDIS_PORT ||
+          6379}?password=${REDIS_PASSWORD || ''}`,
         REDIS_PASSWORD: REDIS_PASSWORD
       }
     });

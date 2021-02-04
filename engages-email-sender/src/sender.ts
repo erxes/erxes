@@ -174,11 +174,13 @@ export const start = async (data: {
 
     // replace customer attributes =====
     let replacedContent = content;
+    let replacedSubject = subject;
 
     if (customer.replacers) {
       for (const replacer of customer.replacers) {
         const regex = new RegExp(replacer.key, 'gi');
         replacedContent = replacedContent.replace(regex, replacer.value);
+        replacedSubject = replacedSubject.replace(regex, replacer.value);
       }
     }
 
@@ -189,7 +191,7 @@ export const start = async (data: {
         from: `${sender || ''} <${fromEmail}>`,
         to: customer.primaryEmail,
         replyTo,
-        subject,
+        subject: replacedSubject,
         attachments: mailAttachment,
         html: replacedContent,
         headers: {

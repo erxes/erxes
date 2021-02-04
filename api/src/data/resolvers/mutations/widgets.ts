@@ -779,7 +779,12 @@ const widgetMutations = {
     return args.conversationId;
   },
 
-  widgetsSaveCustomerGetNotified(_root, args: IVisitorContactInfoParams) {
+  async widgetsSaveCustomerGetNotified(_root, args: IVisitorContactInfoParams) {
+    if (args.visitorId && !args.customerId) {
+      const customer = await convertVisitorToCustomer(args.visitorId);
+      args.customerId = customer._id;
+    }
+
     return Customers.saveVisitorContactInfo(args);
   },
 
@@ -802,11 +807,7 @@ const widgetMutations = {
     }
 
     if (visitorId) {
-      try {
-        await sendToVisitorLog({ visitorId, location: browserInfo }, 'update');
-      } catch (e) {
-        debugBase(e.message);
-      }
+      await sendToVisitorLog({ visitorId, location: browserInfo }, 'update');
     }
 
     try {
@@ -872,12 +873,14 @@ const widgetMutations = {
       integrationId,
       conversationId,
       customerId,
+      visitorId,
       message,
       payload,
       type
     }: {
       conversationId?: string;
-      customerId: string;
+      customerId?: string;
+      visitorId?: string;
       integrationId: string;
       message: string;
       payload: string;
@@ -889,6 +892,12 @@ const widgetMutations = {
     }).lean();
 
     const { botEndpointUrl } = integration.messengerData;
+
+    if (visitorId && !customerId) {
+      const customer = await convertVisitorToCustomer(visitorId);
+
+      customerId = customer._id;
+    }
 
     let sessionId = conversationId;
 
