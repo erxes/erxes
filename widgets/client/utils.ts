@@ -105,7 +105,7 @@ export const makeClickableLink = (selector: string) => {
 };
 
 // check if valid url
-const isValidURL = (url: string) => {
+export const isValidURL = (url: string) => {
   try {
     return Boolean(new URL(url));
   } catch (e) {

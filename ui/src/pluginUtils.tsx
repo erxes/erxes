@@ -8,7 +8,7 @@ import { Divider, Row, RowTitle } from 'modules/settings/main/styles';
 import React from 'react';
 import { Route } from 'react-router-dom';
 
-const tryRequire = (requirPath) => {
+const tryRequire = requirPath => {
   try {
     return require(`${requirPath}`);
   } catch (err) {
@@ -35,34 +35,34 @@ export const pluginsOfRoutes = (currentUser: IUser) => {
       const Component = plugin.response;
       specialPluginRoutes.push(
         <Component key={Math.random()} currentUser={currentUser} />
-      )
+      );
     }
 
     if (plugin.routes) {
       for (const route of plugin.routes) {
         const { component } = route;
-        const path = `/${pluginName}${route.path}`
+        const path = `/${pluginName}${route.path}`;
 
         pluginRoutes.push(
-          <Route
-            key={path}
-            exact={true}
-            path={path}
-            component={component}
-          />
-        )
+          <Route key={path} exact={true} path={path} component={component} />
+        );
       }
     }
   }
 
-  return { plugins, pluginRoutes, specialPluginRoutes }
-}
+  return { plugins, pluginRoutes, specialPluginRoutes };
+};
 
-const PluginsWrapper = ({ itemName, callBack }: { itemName: string, callBack : (plugin: any, item: any) => React.ReactNode }) => {
+const PluginsWrapper = ({
+  itemName,
+  callBack
+}: {
+  itemName: string;
+  callBack: (plugin: any, item: any) => React.ReactNode;
+}) => {
   return (
     <AppConsumer>
-      {({ plugins }) => (
-
+      {({ plugins }) =>
         plugins.map(plugin => {
           const item = plugin[itemName];
 
@@ -70,15 +70,12 @@ const PluginsWrapper = ({ itemName, callBack }: { itemName: string, callBack : (
             return undefined;
           }
 
-          return (
-            callBack(plugin, item)
-          );
+          return callBack(plugin, item);
         })
-
-      )}
+      }
     </AppConsumer>
   );
-}
+};
 
 export const pluginsOfNavigations = (
   renderNavItem: (
@@ -90,21 +87,23 @@ export const pluginsOfNavigations = (
   ) => React.ReactNode
 ) => {
   return (
-    <PluginsWrapper itemName={'menu'} callBack={
-      (plugin, menu) => {
+    <PluginsWrapper
+      itemName={'menu'}
+      callBack={(plugin, menu) => {
         return renderNavItem(
           menu.permission,
           menu.label,
           `/${plugin.name}${menu.link}`,
           menu.icon
         );
-      }
-    } />
-  )
-}
+      }}
+    />
+  );
+};
 
 const renderSettings = (
-  plugins: any[], renderBox: (
+  plugins: any[],
+  renderBox: (
     name: string,
     image: string,
     to: string,
@@ -126,20 +125,18 @@ const renderSettings = (
     for (const perSettings of plugin.settings) {
       pluginSettings.push(
         <span key={Math.random()}>
-          {
-            renderBox(
-              perSettings.name,
-              perSettings.image,
-              perSettings.to,
-              perSettings.action,
-              perSettings.permissions
-            )
-          }
+          {renderBox(
+            perSettings.name,
+            perSettings.image,
+            perSettings.to,
+            perSettings.action,
+            perSettings.permissions
+          )}
         </span>
-      )
+      );
     }
     return pluginSettings;
-  })
+  });
 
   if (!hasPluginsSettings) {
     return undefined;
@@ -150,100 +147,102 @@ const renderSettings = (
       <Divider />
       <Row>
         <RowTitle>{__('Plugins Settings')}</RowTitle>
-        <div id={'PluginsSettings'}>
-          {pluginsBoxs}
-        </div>
+        <div id={'PluginsSettings'}>{pluginsBoxs}</div>
       </Row>
     </>
   );
-}
+};
 
-export const pluginsOfSettings = (renderBox: (
-  name: string,
-  image: string,
-  to: string,
-  action: string,
-  permissions?: string[]
-) => React.ReactNode
+export const pluginsOfSettings = (
+  renderBox: (
+    name: string,
+    image: string,
+    to: string,
+    action: string,
+    permissions?: string[]
+  ) => React.ReactNode
 ) => {
   return (
     <AppConsumer>
-      {({ plugins }) => (
-        <>
-          {renderSettings(plugins, renderBox)}
-        </>
-      )}
+      {({ plugins }) => <>{renderSettings(plugins, renderBox)}</>}
     </AppConsumer>
-  )
-}
+  );
+};
 
 export const pluginsOfCustomerSidebar = (customer: ICustomer) => {
   return (
-    <PluginsWrapper itemName={'customerRightSidebarSection'} callBack={
-      (_plugin, section) => {
+    <PluginsWrapper
+      itemName={'customerRightSidebarSection'}
+      callBack={(_plugin, section) => {
         const Component = section.section;
-        return <Component
-          key={Math.random()}
-          customerId={customer._id}
-          mainType={'customer'}
-          mainTypeId={customer._id}
-        />
-      }
-    } />
-  )
-}
+        return (
+          <Component
+            key={Math.random()}
+            customerId={customer._id}
+            mainType={'customer'}
+            mainTypeId={customer._id}
+          />
+        );
+      }}
+    />
+  );
+};
 
 export const pluginsOfCompanySidebar = (company: ICompany) => {
   return (
-    <PluginsWrapper itemName={'companyRightSidebarSection'} callBack={
-      (_plugin, section) => {
+    <PluginsWrapper
+      itemName={'companyRightSidebarSection'}
+      callBack={(_plugin, section) => {
         const Component = section.section;
-        return <Component
-          key={Math.random()}
-          companyId={company._id}
-          mainType={'company'}
-          mainTypeId={company._id}
-        />
-      }
-    } />
-  )
-}
+        return (
+          <Component
+            key={Math.random()}
+            companyId={company._id}
+            mainType={'company'}
+            mainTypeId={company._id}
+          />
+        );
+      }}
+    />
+  );
+};
 
 export const pluginsOfItemSidebar = (item: IItem, type: string) => {
   return (
-    <PluginsWrapper itemName={`${type}RightSidebarSection`} callBack={
-      (_plugin, section) => {
+    <PluginsWrapper
+      itemName={`${type}RightSidebarSection`}
+      callBack={(_plugin, section) => {
         const Component = section.section;
-        return <Component
-          key={Math.random()}
-          itemId={item._id}
-          mainType={type}
-          mainTypeId={item._id}
-        />
-      }
-    } />
-  )
-}
+        return (
+          <Component
+            key={Math.random()}
+            itemId={item._id}
+            mainType={type}
+            mainTypeId={item._id}
+          />
+        );
+      }}
+    />
+  );
+};
 
-export const pluginsOfPaymentForm = (renderPaymentsByType: (type) => JSX.Element) => {
+export const pluginsOfPaymentForm = (
+  renderPaymentsByType: (type) => JSX.Element
+) => {
   return (
-    <PluginsWrapper itemName={'payments'} callBack={
-      (_plugin, payments) => {
+    <PluginsWrapper
+      itemName={'payments'}
+      callBack={(_plugin, payments) => {
         const paymentsTypes: JSX.Element[] = [];
         for (const perPayment of payments) {
           if (perPayment.component) {
-            paymentsTypes.push(
-              perPayment.component({ ...perPayment })
-            )
+            paymentsTypes.push(perPayment.component({ ...perPayment }));
           } else {
-            paymentsTypes.push(
-              renderPaymentsByType({ ...perPayment })
-            )
+            paymentsTypes.push(renderPaymentsByType({ ...perPayment }));
           }
         }
         return paymentsTypes;
-      }
-    } />
-  )
-
-}
+      }}
+    />
+  );
+};

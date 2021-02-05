@@ -148,6 +148,7 @@ describe('conversationQueries', () => {
           postId
         }
         callProAudio
+        isFacebookTaggedMessage
       }
     }
   `;
@@ -2313,6 +2314,26 @@ describe('conversationQueries', () => {
       );
     } catch (e) {
       expect(e[0].message).toBeDefined();
+    }
+  });
+
+  test('Conversation detail facebook tagged mesage', async () => {
+    const facebookIntegration = await integrationFactory({
+      kind: 'facebook-messenger'
+    });
+    const facebookConversation = await conversationFactory({
+      integrationId: facebookIntegration._id
+    });
+
+    try {
+      await graphqlRequest(
+        qryConversationDetail,
+        'conversationDetail',
+        { _id: facebookConversation._id },
+        { user, dataSources }
+      );
+    } catch (e) {
+      expect(e[0].message).toBe('Integrations api is not running');
     }
   });
 

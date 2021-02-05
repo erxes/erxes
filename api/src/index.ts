@@ -398,7 +398,7 @@ httpServer.listen(PORT, () => {
     mongoUrl = TEST_MONGO_URL;
   }
 
-  initApolloServer(app).then((apolloServer) => {
+  initApolloServer(app).then(apolloServer => {
     apolloServer.applyMiddleware({ app, path: '/graphql', cors: corsOptions });
 
     // subscriptions server
