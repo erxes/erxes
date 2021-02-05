@@ -79,7 +79,7 @@ describe('dealQueries', () => {
         initialStageId: $initialStageId
         userIds: $userIds
       ) {
-        ${commonDealFields}
+        _id
       }
     }
   `;
@@ -367,7 +367,8 @@ describe('dealQueries', () => {
     const qry = `
       query deals($stageId: String!, $pipelineId: String, $sortField: String, $sortDirection: Int) {
         deals(stageId: $stageId, pipelineId: $pipelineId, sortField: $sortField, sortDirection: $sortDirection) {
-          ${commonDealFields}
+          _id
+          name
         }
       }
     `;

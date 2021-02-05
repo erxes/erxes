@@ -9,8 +9,8 @@ import {
   archivedItems,
   archivedItemsCount,
   checkItemPermByUser,
-  generateSort,
   generateTicketCommonFilters,
+  getItemList,
   IArchiveArgs
 } from './boardUtils';
 
@@ -27,12 +27,8 @@ const ticketQueries = {
       ...commonQuerySelector,
       ...(await generateTicketCommonFilters(user._id, args))
     };
-    const sort = generateSort(args);
 
-    return Tickets.find(filter)
-      .sort(sort)
-      .skip(args.skip || 0)
-      .limit(10);
+    return await getItemList(filter, args, user, 'ticket');
   },
 
   /**

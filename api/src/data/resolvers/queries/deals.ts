@@ -10,9 +10,10 @@ import {
   archivedItemsCount,
   checkItemPermByUser,
   generateDealCommonFilters,
-  generateSort,
+  getItemList,
   IArchiveArgs
 } from './boardUtils';
+import dealResolvers from '../deals';
 
 interface IDealListParams extends IListParams {
   productIds?: [string];
@@ -31,12 +32,20 @@ const dealQueries = {
       ...commonQuerySelector,
       ...(await generateDealCommonFilters(user._id, args))
     };
-    const sort = generateSort(args);
 
-    return Deals.find(filter)
-      .sort(sort)
-      .skip(args.skip || 0)
-      .limit(10);
+    const getExtraFields = async (item: any) => ({
+      products: await dealResolvers.products(item),
+      amount: await dealResolvers.amount(item)
+    });
+
+    return await getItemList(
+      filter,
+      args,
+      user,
+      'deal',
+      { productsData: 1 },
+      getExtraFields
+    );
   },
 
   /**

@@ -1,4 +1,3 @@
-import { mockServer } from 'graphql-tools';
 import * as moment from 'moment';
 import * as sinon from 'sinon';
 import { IntegrationsAPI } from '../data/dataSources';

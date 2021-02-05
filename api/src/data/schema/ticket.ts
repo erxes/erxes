@@ -1,5 +1,6 @@
 import {
   commonDragParams,
+  commonListTypes,
   commonMutationParams,
   commonTypes,
   conformityQueryFields,
@@ -13,6 +14,10 @@ export const types = `
     companies: [Company]
     customers: [Customer]
     ${commonTypes}
+  }
+
+  type TicketListItem {
+    ${commonListTypes}
   }
 `;
 
@@ -35,7 +40,7 @@ export const queries = `
     sortDirection: Int
     userIds: [String]
     ${conformityQueryFields}
-  ): [Ticket]
+  ): [TicketListItem]
   archivedTickets(pipelineId: String!, search: String, page: Int, perPage: Int): [Ticket]
   archivedTicketsCount(pipelineId: String!, search: String): Int
 `;

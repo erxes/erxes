@@ -1,5 +1,6 @@
 import {
   commonDragParams,
+  commonListTypes,
   commonMutationParams,
   commonTypes,
   conformityQueryFields,
@@ -16,6 +17,12 @@ export const types = `
     productsData: JSON
     paymentsData: JSON
     ${commonTypes}
+  }
+
+  type DealListItem {
+    products: JSON
+    amount: JSON
+    ${commonListTypes}
   }
 
   type DealTotalCurrency {
@@ -65,7 +72,7 @@ export const queries = `
     skip: Int
     ${commonQueryParams}
     ${conformityQueryFields}
-    ): [Deal]
+    ): [DealListItem]
   archivedDeals(pipelineId: String!, search: String, page: Int, perPage: Int): [Deal]
   archivedDealsCount(pipelineId: String!, search: String): Int
   dealsTotalAmounts(

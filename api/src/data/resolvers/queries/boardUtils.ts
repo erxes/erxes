@@ -1,7 +1,9 @@
 import * as moment from 'moment';
 import { Conformities, Pipelines, Stages } from '../../../db/models';
+import { getCollection } from '../../../db/models/boardUtils';
 import { IItemCommonFields } from '../../../db/models/definitions/boards';
 import { BOARD_STATUSES } from '../../../db/models/definitions/constants';
+import { IUserDocument } from '../../../db/models/definitions/users';
 import { getNextMonth, getToday, regexSearchText } from '../../utils';
 import { IListParams } from './boards';
 
@@ -380,4 +382,84 @@ export const archivedItemsCount = async (
   }
 
   return 0;
+};
+
+export const getItemList = async (
+  filter: any,
+  args: IListParams,
+  user: IUserDocument,
+  type: string,
+  extraFields?: any,
+  getExtraFields?: any
+) => {
+  const collection = getCollection(type);
+  const sort = generateSort(args);
+
+  const list = await collection.aggregate([
+    {
+      $match: filter
+    },
+    {
+      $limit: 10
+    },
+    {
+      $skip: args.skip || 0
+    },
+    {
+      $sort: sort
+    },
+    {
+      $lookup: {
+        from: 'users',
+        localField: 'assignedUserIds',
+        foreignField: '_id',
+        as: 'users_doc'
+      }
+    },
+    {
+      $lookup: {
+        from: 'stages',
+        localField: 'stageId',
+        foreignField: '_id',
+        as: 'stages_doc'
+      }
+    },
+    {
+      $lookup: {
+        from: 'pipeline_labels',
+        localField: 'labelIds',
+        foreignField: '_id',
+        as: 'labels_doc'
+      }
+    },
+    {
+      $project: {
+        assignedUsers: '$users_doc',
+        labels: '$labels_doc',
+        stage: { $arrayElemAt: ['$stages_doc', 0] },
+        name: 1,
+        isComplete: 1,
+        closeDate: 1,
+        modifiedAt: 1,
+        priority: 1,
+        ...(extraFields || {})
+      }
+    }
+  ]);
+
+  const updatedList: any[] = [];
+  const resolvers = await import(`../${type}s`);
+
+  for (const item of list) {
+    updatedList.push({
+      ...item,
+      isWatched: (item.watchedUserIds || []).includes(user._id),
+      hasNotified: await resolvers.default.hasNotified(item, null, { user }),
+      companies: await resolvers.default.companies(item),
+      customers: await resolvers.default.customers(item),
+      ...((await getExtraFields) ? getExtraFields(item) : {})
+    });
+  }
+
+  return updatedList;
 };
