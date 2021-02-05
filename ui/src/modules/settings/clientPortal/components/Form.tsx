@@ -43,7 +43,8 @@ const isUrl = (value: string): boolean => {
 };
 
 function Form({ defaultConfigValues = {}, handleUpdate, configType }: Props) {
-  const { styles = {} } = defaultConfigValues;
+  const styles = defaultConfigValues.styles || {};
+  const advanced = defaultConfigValues.advanced || {};
 
   const [formValues, setFormValues] = useState<ClientPortalConfig>({
     name: defaultConfigValues.name || '',
@@ -71,10 +72,19 @@ function Form({ defaultConfigValues = {}, handleUpdate, configType }: Props) {
       activeTabColor: styles.activeTabColor || '',
       baseColor: styles.baseColor || '',
       headingColor: styles.headingColor || '',
+      baseFont: styles.baseFont || '',
+      headingFont: styles.headingFont || '',
       linkColor: styles.linkColor || '',
-      linkHoverColor: styles.linkHoverColor || ''
+      linkHoverColor: styles.linkHoverColor || '',
+      primaryBtnColor: styles.primaryBtnColor || '',
+      secondaryBtnColor: styles.secondaryBtnColor || '',
+      dividerColor: styles.dividerColor || ''
     },
-    advanced: defaultConfigValues.advanced || {},
+    advanced: {
+      authAllow: advanced.authAllow || '',
+      viewTicket: advanced.viewTicket || '',
+      permission: advanced.permission || ''
+    },
     css: defaultConfigValues.css || '',
     mobileResponsive: defaultConfigValues.mobileResponsive || false
   });

@@ -1,9 +1,9 @@
+import Button from 'erxes-ui/lib/components/Button';
 import FormGroup from 'erxes-ui/lib/components/form/Group';
 import ControlLabel from 'erxes-ui/lib/components/form/Label';
-import Toggle from 'erxes-ui/lib/components/Toggle';
-import { FlexContent, FlexItem } from 'erxes-ui/lib/layout/styles';
-import React from 'react';
-import { Content } from '../../styles';
+import { FlexContent } from 'erxes-ui/lib/layout/styles';
+import React, { useState } from 'react';
+import { Circle, Content } from '../../styles';
 import { AdvancedSettings } from '../../types';
 
 type Props = {
@@ -13,41 +13,40 @@ type Props = {
 
 type Item = {
   name: string;
-  value?: boolean;
+  value: string;
   label: string;
 };
 
 function Advanced({ advanced = {}, handleFormChange }: Props) {
-  const {
-    enableCaptcha,
+  const { authAllow, viewTicket, permission } = advanced;
+
+  const [toggle, setToggle] = useState<{
+    authAllow?: string;
+    viewTicket?: string;
+    permission?: string;
+  }>({
     authAllow,
-    autoSuggest,
     viewTicket,
-    showSpecificTicket,
-    submitTicket
-  } = advanced;
+    permission
+  });
 
   function renderControl({ label, name, value }: Item) {
-    const handleChange = e => {
+    const handleClick = () => {
       const currentConfig = { ...advanced };
 
-      currentConfig[name] = e.target.checked;
+      currentConfig[name] = value;
 
       handleFormChange('advanced', currentConfig);
+
+      setToggle({ ...toggle, [name]: value });
     };
 
     return (
       <FormGroup>
-        <ControlLabel>{label}</ControlLabel>
-        <Toggle
-          value={name}
-          checked={Boolean(value)}
-          onChange={handleChange}
-          icons={{
-            checked: null,
-            unchecked: null
-          }}
-        />
+        <Button btnStyle="link" onClick={handleClick}>
+          <Circle active={toggle[name] === value} />
+          {label}
+        </Button>
       </FormGroup>
     );
   }
@@ -61,7 +60,7 @@ function Advanced({ advanced = {}, handleFormChange }: Props) {
       <FormGroup>
         <h2>{title}</h2>
         <ControlLabel>{desciption}</ControlLabel>
-        <FlexItem>{content}</FlexItem>
+        {content}
       </FormGroup>
     );
   }
@@ -73,72 +72,53 @@ function Advanced({ advanced = {}, handleFormChange }: Props) {
         'Allow users to Sign Up from the customer portal',
         <FlexContent>
           {renderControl({
-            name: 'allowAuth',
+            name: 'authAllow',
             label: 'Yes',
-            value: authAllow
+            value: 'yes'
           })}
           {renderControl({
-            name: 'allowAuth',
+            name: 'authAllow',
             label: 'No',
-            value: !authAllow
+            value: 'no'
           })}
           {renderControl({
-            name: 'allowAuth',
+            name: 'authAllow',
             label: 'Connect your databse',
-            value: false
+            value: 'connectDb'
           })}
         </FlexContent>
       )}
       {renderContent(
         'User Permissions for portal',
         'Who can submit a new ticket on portal',
-        <>
-          <FlexContent>
-            {renderControl({
-              name: 'permission',
-              label: 'Logged in users',
-              value: submitTicket
-            })}
-            {renderControl({
-              name: 'permission',
-              label: 'Everyone',
-              value: !submitTicket
-            })}
-          </FlexContent>
+        <FlexContent>
           {renderControl({
-            name: 'enableCaptcha',
-            label: 'Enable CAPTCHA to help avoid spam',
-            value: enableCaptcha
+            name: 'permission',
+            label: 'Logged in users',
+            value: 'loggedInUsers'
           })}
           {renderControl({
-            name: 'autoSuggest',
-            label: 'Auto-suggest solutions while creating a new ticket',
-            value: autoSuggest
+            name: 'permission',
+            label: 'Everyone',
+            value: 'everyone'
           })}
-        </>
+        </FlexContent>
       )}
       {renderContent(
         '',
         'Who can view tickets on portal',
-        <>
-          <FlexContent>
-            {renderControl({
-              name: 'viewTicket',
-              label: 'Logged in Users',
-              value: viewTicket
-            })}
-            {renderControl({
-              name: 'viewTicket',
-              label: 'Anyone with a public ticket URL',
-              value: !viewTicket
-            })}
-          </FlexContent>
+        <FlexContent>
           {renderControl({
-            name: 'showSpecificTicket',
-            label: 'Allow users to view only portal specific tickets',
-            value: showSpecificTicket
+            name: 'viewTicket',
+            label: 'Logged in Users',
+            value: 'loggedInUsers'
           })}
-        </>
+          {renderControl({
+            name: 'viewTicket',
+            label: 'Anyone with a public ticket URL',
+            value: 'anyonePublicURL'
+          })}
+        </FlexContent>
       )}
     </Content>
   );

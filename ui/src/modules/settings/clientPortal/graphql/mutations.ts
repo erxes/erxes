@@ -18,6 +18,7 @@ const createOrUpdateConfig = `
     $ticketPipelineId: String
     $ticketBoardId: String
     $styles: StylesParams
+    $advanced: AdvancedParams
     $css: String
     $mobileResponsive: Boolean
   ) {
@@ -40,6 +41,7 @@ const createOrUpdateConfig = `
       ticketPipelineId: $ticketPipelineId,
       ticketBoardId: $ticketBoardId
       styles: $styles
+      advanced: $advanced
       css: $css
       mobileResponsive: $mobileResponsive
     )

@@ -35,3 +35,11 @@ export const COLORS = [
   '#63D2D6',
   '#F7CE53'
 ];
+
+export const FONTS = [
+  'Roboto Mono',
+  'Ubuntu',
+  'Isovka',
+  'Menlo',
+  'Operator Mono'
+];

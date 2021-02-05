@@ -34,6 +34,11 @@ export type Styles = {
   headingColor?: string;
   linkColor?: string;
   linkHoverColor?: string;
+  primaryBtnColor?: string;
+  secondaryBtnColor?: string;
+  dividerColor?: string;
+  baseFont?: string;
+  headingFont?: string;
 };
 
 export type ClientPortalConfigsQueryResponse = {
@@ -52,10 +57,7 @@ export type ClientPortalTotalQueryResponse = {
 };
 
 export type AdvancedSettings = {
-  autoSuggest?: boolean;
-  enableCaptcha?: boolean;
-  authAllow?: boolean;
-  submitTicket?: boolean;
-  viewTicket?: boolean;
-  showSpecificTicket?: boolean;
+  authAllow?: string;
+  permission?: string;
+  viewTicket?: string;
 };

@@ -28,6 +28,16 @@ const commonFields = `
     headingColor
     linkColor
     linkHoverColor
+    baseFont
+    headingFont
+    dividerColor
+    primaryBtnColor
+    secondaryBtnColor
+  }
+  advanced {
+    authAllow
+    viewTicket
+    permission
   }
   css
   mobileResponsive

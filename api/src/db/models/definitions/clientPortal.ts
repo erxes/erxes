@@ -37,15 +37,17 @@ interface IStyles {
   headingColor?: string;
   linkColor?: string;
   linkHoverColor?: string;
+  baseFont?: string;
+  headingFont?: string;
+  dividerColor?: string;
+  primaryBtnColor?: string;
+  secondaryBtnColor?: string;
 }
 
 interface IAdvencedSettings {
-  autoSuggest?: boolean;
-  enableCaptcha?: boolean;
-  authAllow?: boolean;
-  submitTicket?: boolean;
-  viewTicket?: boolean;
-  showSpecificTicket?: boolean;
+  authAllow?: string;
+  permission?: string;
+  viewTicket?: string;
 }
 
 export interface IClientPortalDocument extends IClientPortal, Document {
@@ -62,16 +64,18 @@ const stylesSchema = new Schema({
   baseColor: field({ type: String, optional: true }),
   headingColor: field({ type: String, optional: true }),
   linkColor: field({ type: String, optional: true }),
-  linkHoverColor: field({ type: String, optional: true })
+  linkHoverColor: field({ type: String, optional: true }),
+  dividerColor: field({ type: String, optional: true }),
+  primaryBtnColor: field({ type: String, optional: true }),
+  secondaryBtnColor: field({ type: String, optional: true }),
+  baseFont: field({ type: String, optional: true }),
+  headingFont: field({ type: String, optional: true })
 });
 
 const advancedSettingsSchema = new Schema({
-  autoSuggest: field({ type: Boolean }),
-  enableCaptcha: field({ type: Boolean }),
-  authAllow: field({ type: Boolean }),
-  submitTicket: field({ type: Boolean }),
-  viewTicket: field({ type: Boolean }),
-  showSpecificTicket: field({ type: Boolean })
+  authAllow: field({ type: String }),
+  permission: field({ type: String }),
+  viewTicket: field({ type: String })
 });
 
 export const clientPortalSchema = new Schema({
