@@ -44,6 +44,7 @@ export interface IConversation {
   videoCallData?: IVideoCallData;
 
   productBoardLink?: string;
+  isFacebookTaggedMessage?: boolean;
 }
 
 interface IEngageDataRules {
