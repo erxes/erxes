@@ -64,10 +64,19 @@ export const getOrCreateEngageMessage = async (
 };
 
 export const convertVisitorToCustomer = async (visitorId: string) => {
-  const visitor = await getVisitorLog(visitorId);
+  
+  let visitor;
 
-  delete visitor.visitorId;
-  delete visitor._id;
+  try{
+    visitor = await getVisitorLog(visitorId);
+
+    delete visitor.visitorId;
+    delete visitor._id;
+  
+  }catch(e){
+    debugBase(e.message)
+  }
+
   const doc = { state: 'visitor', ...visitor };
   const customer = await Customers.createCustomer(doc);
 
