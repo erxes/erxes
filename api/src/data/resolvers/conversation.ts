@@ -182,7 +182,6 @@ export default {
     }).limit(1);
 
     if (message.length && message.length >= 1) {
-      console.log('sdajkdjsklajkl');
       return false;
     }
 
