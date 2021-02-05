@@ -389,8 +389,8 @@ export const getItemList = async (
   args: IListParams,
   user: IUserDocument,
   type: string,
-  extraFields?: any,
-  getExtraFields?: any
+  extraFields?: { [key: string]: number },
+  getExtraFields?: (item: any) => { [key: string]: any }
 ) => {
   const collection = getCollection(type);
   const sort = generateSort(args);
@@ -448,16 +448,16 @@ export const getItemList = async (
   ]);
 
   const updatedList: any[] = [];
-  const resolvers = await import(`../${type}s`);
+  const resolvers = (await import(`../${type}s`)).default;
 
   for (const item of list) {
     updatedList.push({
       ...item,
       isWatched: (item.watchedUserIds || []).includes(user._id),
-      hasNotified: await resolvers.default.hasNotified(item, null, { user }),
-      companies: await resolvers.default.companies(item),
-      customers: await resolvers.default.customers(item),
-      ...((await getExtraFields) ? getExtraFields(item) : {})
+      hasNotified: await resolvers.hasNotified(item, null, { user }),
+      companies: await resolvers.companies(item),
+      customers: await resolvers.customers(item),
+      ...(getExtraFields ? await getExtraFields(item) : {})
     });
   }
 
