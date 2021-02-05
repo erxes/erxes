@@ -1,101 +1,84 @@
 import Button from 'modules/common/components/Button';
+import FormControl from 'modules/common/components/form/Control';
+import FormGroup from 'modules/common/components/form/Group';
+import ControlLabel from 'modules/common/components/form/Label';
 import ModalTrigger from 'modules/common/components/ModalTrigger';
-import colors from 'modules/common/styles/colors';
-import { BoxRoot } from 'modules/common/styles/main';
+import { ModalFooter } from 'modules/common/styles/main';
 import { __ } from 'modules/common/utils';
 import React from 'react';
-import { Link } from 'react-router-dom';
-import styled from 'styled-components';
-
-const Wrapper = styled.div`
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-
-  > a {
-    flex-basis: 33%;
-
-    &.other {
-      display: flex;
-      justify-content: flex-end;
-      align-items: flex-end;
-      padding: 8px;
-
-      &:hover {
-        text-decoration: underline;
-      }
-    }
-  }
-
-  h3 {
-    margin: 10px 0 20px;
-    font-size: 20px;
-    width: 100%;
-    align-self: center;
-    font-weight: 600;
-    text-align: center;
-  }
-`;
-
-const Box = styled(BoxRoot)`
-  min-width: 220px;
-  padding: 30px;
-  margin: 8px;
-  background: ${colors.colorWhite};
-
-  img {
-    width: 50px;
-  }
-
-  span {
-    font-weight: 500;
-    font-size: 16px;
-    margin-top: 15px;
-  }
-
-  p {
-    margin: 10px 0 0;
-    font-size: 12px;
-    color: ${colors.colorCoreLightGray};
-  }
-`;
 
 type Props = {
-  trigger?: React.ReactNode;
+  selectTag: (value: string) => void;
+  tag: string;
 };
 
-export const FacebookTaggedMessageModal = ({ trigger }: Props) => {
-  const defaultTrigger = (
-    <Button block={true} btnStyle="success" uppercase={false}>
-      {__('Send Tagged Message')}
-    </Button>
-  );
+class Modal extends React.Component<Props, {}> {
+  onSave = () => {
+    const tag = (document.getElementById(
+      'facebook-message-tag'
+    ) as HTMLInputElement).value;
 
-  const content = () => {
+    this.props.selectTag(tag);
+
+    const element = document.querySelector('button.close') as HTMLElement;
+
+    return element.click();
+  };
+
+  renderForm = () => {
+    const tags = [
+      { label: 'Confirmed Event Update', value: 'CONFIRMED_EVENT_UPDATE' },
+      { label: 'Post-Purchase Update', value: 'POST_PURCHASE_UPDATE' },
+      { label: 'Account Update', value: 'ACCOUNT_UPDATE' }
+    ];
+
     return (
-      <Wrapper>
-        <h3>{__('Which integration would you like to connect?')}</h3>
-        <Link to="/settings/integrations/createFacebook?kind=facebook-post">
-          <Box>
-            <img src="/images/integrations/facebook.png" alt="Facebook Post" />
-            <span>{__('Facebook Post')}</span>
-            <p>
-              {__('Receiving Facebook post and comments in your team inbox')}
-            </p>
-          </Box>
-        </Link>
-      </Wrapper>
+      <React.Fragment>
+        <FormGroup>
+          <ControlLabel>Tag</ControlLabel>
+          <FormControl
+            id="facebook-message-tag"
+            componentClass="select"
+            placeholder={__('Select Brand') as string}
+            defaultValue={this.props.tag}
+          >
+            {tags.map(tag => (
+              <option key={tag.value} value={tag.value}>
+                {tag.label}
+              </option>
+            ))}
+          </FormControl>
+        </FormGroup>
+
+        <ModalFooter>
+          <Button
+            onClick={this.onSave}
+            btnStyle="success"
+            icon="check-circle"
+            uppercase={false}
+          >
+            Save
+          </Button>
+        </ModalFooter>
+      </React.Fragment>
     );
   };
 
-  return (
-    <ModalTrigger
-      title="Reply"
-      trigger={trigger ? trigger : defaultTrigger}
-      content={content}
-      size="lg"
-      hideHeader={true}
-      centered={true}
-    />
-  );
-};
+  render() {
+    const trigger = (
+      <Button btnStyle="default" uppercase={false}>
+        {__('Connect Integration')}
+      </Button>
+    );
+
+    return (
+      <ModalTrigger
+        title="Choose tag"
+        trigger={trigger}
+        content={this.renderForm}
+      />
+    );
+  }
+}
+
+export default Modal;

@@ -243,6 +243,7 @@ export const mutations = `
     internal: Boolean,
     attachments: [AttachmentInput],
     contentType: String
+    facebookMessageTag: String
   ): ConversationMessage
   conversationsReplyFacebookComment(conversationId: String, commentId: String, content: String): FacebookComment
   conversationsChangeStatusFacebookComment(commentId: String): FacebookComment

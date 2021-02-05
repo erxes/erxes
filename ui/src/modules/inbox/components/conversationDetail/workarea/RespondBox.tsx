@@ -29,7 +29,7 @@ import { IUser } from '../../../../auth/types';
 import { IIntegration } from '../../../../settings/integrations/types';
 import { IResponseTemplate } from '../../../../settings/responseTemplates/types';
 import { AddMessageMutationVariables, IConversation } from '../../../types';
-import { FacebookTaggedMessageModal } from './facebook/FacebookTaggedMessageModal';
+import FacebookTaggedMessageModal from './facebook/FacebookTaggedMessageModal';
 
 const Editor = asyncComponent(
   () => import(/* webpackChunkName: "Editor-in-Inbox" */ './Editor'),
@@ -67,6 +67,7 @@ type State = {
   mentionedUserIds: string[];
   editorKey: string;
   loading: object;
+  facebookMessageTag: string;
 };
 
 class RespondBox extends React.Component<Props, State> {
@@ -83,7 +84,8 @@ class RespondBox extends React.Component<Props, State> {
       responseTemplate: '',
       content: '',
       mentionedUserIds: [],
-      loading: {}
+      loading: {},
+      facebookMessageTag: ''
     };
   }
 
@@ -114,7 +116,8 @@ class RespondBox extends React.Component<Props, State> {
     if (this.props.conversation.customer !== nextProps.conversation.customer) {
       this.setState({
         isInactive: !this.checkIsActive(nextProps.conversation),
-        isFacebookTaggedMessage: nextProps.conversation.isFacebookTaggedMessage
+        isFacebookTaggedMessage: nextProps.conversation.isFacebookTaggedMessage,
+        facebookMessageTag: ''
       });
     }
 
@@ -261,11 +264,18 @@ class RespondBox extends React.Component<Props, State> {
 
   addMessage = () => {
     const { conversation, sendMessage } = this.props;
-    const { isInternal, attachments, content, mentionedUserIds } = this.state;
+    const {
+      isInternal,
+      attachments,
+      content,
+      mentionedUserIds,
+      facebookMessageTag
+    } = this.state;
 
     const message = {
       conversationId: conversation._id,
       content: this.cleanText(content) || ' ',
+      facebookMessageTag,
       contentType: 'text',
       internal: isInternal,
       attachments,
@@ -353,16 +363,24 @@ class RespondBox extends React.Component<Props, State> {
   }
 
   renderFacebookTagMessage() {
+    const selectTag = value => {
+      this.setState({ facebookMessageTag: value });
+    };
+
     if (this.state.isFacebookTaggedMessage) {
       return (
         <Mask id="mask" onClick={this.hideMask}>
-          <p>
-            'Your last interaction with this contact was more than 24 hours ago.
-            Only Tagged Messages are allowed outside the standard messaging
-            window.'
-          </p>
-
-          <FacebookTaggedMessageModal />
+          <div>
+            {__(
+              'Your last interaction with this contact was more than 24 hours ago. Only Tagged Messages are allowed outside the standard messaging window'
+            )}
+            <div>
+              <FacebookTaggedMessageModal
+                tag={this.state.facebookMessageTag}
+                selectTag={selectTag}
+              />
+            </div>
+          </div>
         </Mask>
       );
     }

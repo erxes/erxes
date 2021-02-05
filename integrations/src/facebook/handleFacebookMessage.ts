@@ -72,7 +72,7 @@ export const handleFacebookMessage = async msg => {
   }
 
   if (action === 'reply-messenger') {
-    const { integrationId, conversationId, content, attachments } = doc;
+    const { integrationId, conversationId, content, attachments, tag } = doc;
 
     const conversation = await Conversations.getConversation({
       erxesApiId: conversationId
@@ -85,7 +85,11 @@ export const handleFacebookMessage = async msg => {
         try {
           await sendReply(
             'me/messages',
-            { recipient: { id: senderId }, message: { text: content } },
+            {
+              recipient: { id: senderId },
+              message: { text: content },
+              tag
+            },
             recipientId,
             integrationId
           );
