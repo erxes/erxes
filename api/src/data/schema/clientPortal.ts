@@ -77,7 +77,7 @@ export const queries = `
   getConfigs(page: Int, perPage: Int): [ClientPortal]
   getConfig(_id: String!): ClientPortal
   getClientPortalTotalCount: Int
-  getTaskStages(stageId: String!): JSON
+  getTaskStages(configId: String!): JSON
   getTasks(stageId: String!): JSON
 `;
 

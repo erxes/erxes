@@ -14,8 +14,8 @@ const configClientPortalQueries = {
     return ClientPortals.getConfig(_id);
   },
 
-  async getTaskStages(_root, { _id }: { _id: string }) {
-    const config = await ClientPortals.getConfig(_id);
+  async getTaskStages(_root, { configId }: { configId: string }) {
+    const config = await ClientPortals.getConfig(configId);
 
     if (!config) {
       throw new Error('Client portal configuration not found');
