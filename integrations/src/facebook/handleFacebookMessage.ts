@@ -104,7 +104,7 @@ export const handleFacebookMessage = async msg => {
         try {
           await sendReply(
             'me/messages',
-            { recipient: { id: senderId }, message },
+            { recipient: { id: senderId }, message, tag },
             recipientId,
             integrationId
           );

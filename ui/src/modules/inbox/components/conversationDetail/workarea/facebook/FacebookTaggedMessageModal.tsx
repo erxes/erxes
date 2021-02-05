@@ -9,6 +9,7 @@ import React from 'react';
 
 type Props = {
   selectTag: (value: string) => void;
+  hideMask: () => void;
   tag: string;
 };
 
@@ -19,6 +20,7 @@ class Modal extends React.Component<Props, {}> {
     ) as HTMLInputElement).value;
 
     this.props.selectTag(tag);
+    this.props.hideMask();
 
     const element = document.querySelector('button.close') as HTMLElement;
 
@@ -51,13 +53,8 @@ class Modal extends React.Component<Props, {}> {
         </FormGroup>
 
         <ModalFooter>
-          <Button
-            onClick={this.onSave}
-            btnStyle="success"
-            icon="check-circle"
-            uppercase={false}
-          >
-            Save
+          <Button onClick={this.onSave} btnStyle="success" uppercase={false}>
+            Submit
           </Button>
         </ModalFooter>
       </React.Fragment>
@@ -67,7 +64,7 @@ class Modal extends React.Component<Props, {}> {
   render() {
     const trigger = (
       <Button btnStyle="default" uppercase={false}>
-        {__('Connect Integration')}
+        {__('Choose tag')}
       </Button>
     );
 

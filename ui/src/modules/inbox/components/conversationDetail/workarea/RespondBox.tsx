@@ -30,6 +30,7 @@ import { IIntegration } from '../../../../settings/integrations/types';
 import { IResponseTemplate } from '../../../../settings/responseTemplates/types';
 import { AddMessageMutationVariables, IConversation } from '../../../types';
 import FacebookTaggedMessageModal from './facebook/FacebookTaggedMessageModal';
+import { FacebookTaggedMessage } from './styles';
 
 const Editor = asyncComponent(
   () => import(/* webpackChunkName: "Editor-in-Inbox" */ './Editor'),
@@ -153,12 +154,13 @@ class RespondBox extends React.Component<Props, State> {
   checkIsActive(conversation: IConversation) {
     return (
       conversation.integration.kind !== 'messenger' ||
-      (conversation.customer && conversation.customer.isOnline)
+      (conversation.customer && conversation.customer.isOnline) ||
+      !conversation.isFacebookTaggedMessage
     );
   }
 
   hideMask = () => {
-    this.setState({ isInactive: false });
+    this.setState({ isInactive: false, isFacebookTaggedMessage: false });
 
     const element = document.querySelector('.DraftEditor-root') as HTMLElement;
 
@@ -369,17 +371,18 @@ class RespondBox extends React.Component<Props, State> {
 
     if (this.state.isFacebookTaggedMessage) {
       return (
-        <Mask id="mask" onClick={this.hideMask}>
+        <Mask id="mask">
           <div>
             {__(
               'Your last interaction with this contact was more than 24 hours ago. Only Tagged Messages are allowed outside the standard messaging window'
             )}
-            <div>
+            <FacebookTaggedMessage>
               <FacebookTaggedMessageModal
                 tag={this.state.facebookMessageTag}
                 selectTag={selectTag}
+                hideMask={this.hideMask}
               />
-            </div>
+            </FacebookTaggedMessage>
           </div>
         </Mask>
       );
@@ -515,7 +518,7 @@ class RespondBox extends React.Component<Props, State> {
   }
 
   renderContent() {
-    const { isInternal } = this.state;
+    const { isInternal, isInactive, isFacebookTaggedMessage } = this.state;
 
     return (
       <MaskWrapper>
@@ -523,7 +526,7 @@ class RespondBox extends React.Component<Props, State> {
         {this.renderFacebookTagMessage()}
         <RespondBoxStyled
           isInternal={isInternal}
-          isInactive={this.state.isInactive}
+          isInactive={isInactive || isFacebookTaggedMessage}
         >
           {this.renderBody()}
         </RespondBoxStyled>
