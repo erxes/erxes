@@ -54,7 +54,12 @@ const MailSubject = styled.h3`
   line-height: 22px;
 `;
 
+const FacebookTaggedMessage = styled.div`
+  margin-top: 15px;
+`;
+
 export {
+  FacebookTaggedMessage,
   ConversationWrapper,
   ActionBarLeft,
   AssignTrigger,

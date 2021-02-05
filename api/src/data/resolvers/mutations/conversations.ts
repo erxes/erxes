@@ -36,6 +36,7 @@ export interface IConversationMessageAdd {
   mentionedUserIds?: string[];
   internal?: boolean;
   attachments?: any;
+  facebookMessageTag?: string;
 }
 
 interface IReplyFacebookComment {
@@ -64,7 +65,8 @@ const sendConversationToIntegrations = async (
   doc: IConversationMessageAdd,
   dataSources: any,
   action?: string,
-  messageId?: string
+  messageId?: string,
+  facebookMessageTag?: string
 ) => {
   if (type === 'facebook') {
     const regex = new RegExp('<img[^>]* src="([^"]*)"', 'g');
@@ -89,7 +91,8 @@ const sendConversationToIntegrations = async (
             integrationId,
             conversationId,
             content: strip(doc.content),
-            attachments: doc.attachments || []
+            attachments: doc.attachments || [],
+            tag: facebookMessageTag
           })
         }
       );
@@ -285,6 +288,7 @@ const conversationMutations = {
     const kind = integration.kind;
     const integrationId = integration.id;
     const conversationId = conversation.id;
+    const facebookMessageTag = doc.facebookMessageTag;
 
     const customer = await Customers.findOne({ _id: conversation.customerId });
 
@@ -381,7 +385,8 @@ const conversationMutations = {
       doc,
       dataSources,
       action,
-      message._id
+      message._id,
+      facebookMessageTag
     );
 
     const dbMessage = await ConversationMessages.getMessage(message._id);
