@@ -277,7 +277,7 @@ export const sendReply = async (
         { _id: integration._id },
         { $set: { healthStatus: 'page-token', error: `${e.message}` } }
       );
-    } else {
+    } else if (!e.message.includes('sent outside of allowed window')) {
       await Integrations.updateOne(
         { _id: integration._id },
         { $set: { healthStatus: 'account-token', error: `${e.message}` } }

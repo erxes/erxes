@@ -72,7 +72,7 @@ export const handleFacebookMessage = async msg => {
   }
 
   if (action === 'reply-messenger') {
-    const { integrationId, conversationId, content, attachments } = doc;
+    const { integrationId, conversationId, content, attachments, tag } = doc;
 
     const conversation = await Conversations.getConversation({
       erxesApiId: conversationId
@@ -85,13 +85,35 @@ export const handleFacebookMessage = async msg => {
         try {
           await sendReply(
             'me/messages',
-            { recipient: { id: senderId }, message: { text: content } },
+            {
+              recipient: { id: senderId },
+              message: { text: content },
+              tag
+            },
             recipientId,
             integrationId
           );
 
           return { status: 'success' };
         } catch (e) {
+          if (e.message.includes('sent outside of allowed window')) {
+            try {
+              await sendReply(
+                'me/messages',
+                {
+                  recipient: { id: senderId },
+                  message: { text: content },
+                  tag: 'CONFIRMED_EVENT_UPDATE'
+                },
+                recipientId,
+                integrationId
+              );
+
+              return { status: 'success' };
+            } catch (e) {
+              throw new Error(e.message);
+            }
+          }
           throw new Error(e.message);
         }
       }
@@ -100,11 +122,29 @@ export const handleFacebookMessage = async msg => {
         try {
           await sendReply(
             'me/messages',
-            { recipient: { id: senderId }, message },
+            { recipient: { id: senderId }, message, tag },
             recipientId,
             integrationId
           );
         } catch (e) {
+          if (e.message.includes('sent outside of allowed window')) {
+            try {
+              await sendReply(
+                'me/messages',
+                {
+                  recipient: { id: senderId },
+                  message: { text: content },
+                  tag: 'CONFIRMED_EVENT_UPDATE'
+                },
+                recipientId,
+                integrationId
+              );
+
+              return { status: 'success' };
+            } catch (e) {
+              throw new Error(e.message);
+            }
+          }
           throw new Error(e.message);
         }
       }
