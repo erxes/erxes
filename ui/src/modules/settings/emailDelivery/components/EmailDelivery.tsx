@@ -44,10 +44,18 @@ export const STATUS_OPTIONS = [
   { value: 'delivery', label: 'Delivered', color: colors.colorCoreBlue },
   { value: 'open', label: 'Opened', color: colors.colorCoreGreen },
   { value: 'click', label: 'Clicked', color: colors.colorCoreTeal },
-  { value: 'complaint', label: 'Complained/Spammed', color: colors.colorCoreOrange },
+  {
+    value: 'complaint',
+    label: 'Complained/Spammed',
+    color: colors.colorCoreOrange
+  },
   { value: 'bounce', label: 'Bounced', color: colors.colorCoreGray },
-  { value: 'renderingfailure', label: 'Rendering failure', color: colors.colorCoreBlack },
-  { value: 'reject', label: 'Rejected', color: colors.colorCoreRed },
+  {
+    value: 'renderingfailure',
+    label: 'Rendering failure',
+    color: colors.colorCoreBlack
+  },
+  { value: 'reject', label: 'Rejected', color: colors.colorCoreRed }
 ];
 
 function EmailDelivery({
@@ -91,7 +99,11 @@ function EmailDelivery({
             ))}
           </tr>
         </thead>
-        <tbody>{list.map(item => <Row key={item._id} item={item} emailType={emailType} />)}</tbody>
+        <tbody>
+          {list.map(item => (
+            <Row key={item._id} item={item} emailType={emailType} />
+          ))}
+        </tbody>
       </Table>
     );
   }

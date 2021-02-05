@@ -8,7 +8,7 @@ import { STATUS_OPTIONS } from './EmailDelivery';
 type Props = {
   item: any;
   emailType: string;
-}
+};
 
 export default function Row(props: Props) {
   const { emailType, item } = props;
@@ -20,7 +20,7 @@ export default function Row(props: Props) {
   const renderStatus = (status: string) => {
     const option = STATUS_OPTIONS.find(opt => opt.value === status);
 
-    return <Label lblColor={option && option.color}>{status || '-'}</Label>
+    return <Label lblColor={option && option.color}>{status || '-'}</Label>;
   };
 
   if (emailType === EMAIL_TYPES.TRANSACTION) {
@@ -55,4 +55,4 @@ export default function Row(props: Props) {
       </td>
     </tr>
   );
-};
+}
