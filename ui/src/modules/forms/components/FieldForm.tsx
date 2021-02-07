@@ -57,6 +57,8 @@ class FieldForm extends React.Component<Props, State> {
     field.options = selectedField.options;
     field.type = selectedField.type;
     field.isRequired = selectedField.isRequired;
+    field.text = selectedField.text;
+    field.description = selectedField.description;
 
     this.setState({ field })
   }
@@ -165,7 +167,7 @@ class FieldForm extends React.Component<Props, State> {
   renderLeftContent() {
     const { mode, onCancel } = this.props;
     const { field ,selectedOption } = this.state;
-  
+    
     const text = e =>
       this.onFieldChange('text', (e.currentTarget as HTMLInputElement).value);
 
@@ -212,7 +214,7 @@ class FieldForm extends React.Component<Props, State> {
         <FormGroup>
           <SelectProperty
             queryParams={{type:"customer"}}
-            defaultValue={selectedOption && selectedOption.label}
+            defaultValue={selectedOption && selectedOption.value}
             description="Any data collected through this field will copy to:"
             onChange={this.onPropertyChange}
           />
