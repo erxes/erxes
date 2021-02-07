@@ -49,16 +49,41 @@ export const commonDragParams = `
 export const commonListFields = `
   _id
   name
-  companies
-  customers
-  assignedUsers
-  stage
-  labels
+  companies {
+    _id
+    primaryName
+    links
+  }
+  customers {
+    _id
+    firstName
+    lastName
+    primaryEmail
+    primaryPhone
+    visitorContactInfo
+  }
+  assignedUsers {
+    _id
+    email
+    details {
+      fullName
+      avatar
+    }
+  }
+  labels {
+    _id
+    name
+    colorCode
+  }
+  stage {
+    probability
+  }
   isComplete
   isWatched
   closeDate
   modifiedAt
   priority
+  hasNotified
 `;
 
 export const commonFields = `
