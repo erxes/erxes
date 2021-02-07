@@ -189,6 +189,7 @@ const integrationMutations = {
   ) {
 
     const integration = await Integrations.getIntegration(_id);
+
     const updated = await Integrations.updateLeadIntegration(_id, doc);
  
     await Channels.updateMany(
@@ -202,8 +203,6 @@ const integrationMutations = {
         { $push: { integrationIds: integration._id } }
       );
     }
-
-    
 
     await caches.update(`integration_lead_${updated.brandId}`, updated);
 
@@ -481,7 +480,7 @@ const integrationMutations = {
     for (const cusId of customerIds) {
       await EmailDeliveries.createEmailDelivery({ ...doc, customerId: cusId });
     }
-
+    
     return;
   },
 
@@ -567,8 +566,6 @@ const integrationMutations = {
       title: `${sourceForm.title}-copied`,
     });
 
-    
-
     delete formDoc._id;
     delete formDoc.code;
 
@@ -613,7 +610,6 @@ const integrationMutations = {
     await registerOnboardHistory({ type: 'leadIntegrationCreate', user });
 
     return copiedIntegration;
-
   }
 };
 
