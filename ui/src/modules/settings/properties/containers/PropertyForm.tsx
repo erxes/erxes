@@ -28,8 +28,9 @@ type FinalProps = {
 
 const PropertyFormContainer = (props: FinalProps) => {
   const { fieldsGroupsQuery, queryParams } = props;
-  let { renderButton } = props;
   const { type } = queryParams;
+
+  let { renderButton } = props;
 
   if (!renderButton) {
     renderButton = ({

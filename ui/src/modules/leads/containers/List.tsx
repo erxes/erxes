@@ -189,12 +189,9 @@ export default withProps<Props>(
     }),
     graphql<Props, CountQueryResponse>(gql(queries.integrationsTotalCount), {
       name: 'integrationsTotalCountQuery',
-      options: ({ queryParams }) => ({
+      options: () => ({
         variables: {
           kind: INTEGRATION_KINDS.LEAD,
-          tag: queryParams.tag,
-          status: queryParams.status,
-          brandId: queryParams.brand
         }
       })
     })

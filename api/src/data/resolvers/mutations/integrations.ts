@@ -480,7 +480,7 @@ const integrationMutations = {
     for (const cusId of customerIds) {
       await EmailDeliveries.createEmailDelivery({ ...doc, customerId: cusId });
     }
-    
+
     return;
   },
 
@@ -581,18 +581,16 @@ const integrationMutations = {
 
     const copiedIntegration = await Integrations.createLeadIntegration(doc, user._id);
 
-    const fields = sourceFields.map(e => {
-      return {
-        options: e.options,
-        isVisible: e.isVisible,
-        contentType: e.contentType,
-        contentTypeId: copiedForm._id,
-        order: e.order,
-        type: e.type,
-        text: e.text,
-        lastUpdatedUserId: user._id
-      };
-    });
+    const fields = sourceFields.map((e) => ({
+      options: e.options,
+      isVisible: e.isVisible,
+      contentType: e.contentType,
+      contentTypeId: copiedForm._id,
+      order: e.order,
+      type: e.type,
+      text: e.text,
+      lastUpdatedUserId: user._id
+    }));
 
     await Fields.insertMany(fields);
 

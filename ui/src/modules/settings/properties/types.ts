@@ -57,7 +57,7 @@ export type DefaultColumnsConfigQueryResponse = {
 export type FieldsQueryResponse = {
   fields: IField[];
   loading: boolean;
-  refetch: () => Promise<any>;
+  refetch: () => Promise<void>;
 };
 
 export type FieldsGroupsQueryResponse = {
