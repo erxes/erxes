@@ -789,8 +789,12 @@ describe('mutations', () => {
       }
     `;
 
-    const integration = await integrationFactory({kind:KIND_CHOICES.LEAD, formId:form._id});
-    await fieldFactory({contentType:"form",contentTypeId:form._id})
+    const integration = await integrationFactory({
+      kind: KIND_CHOICES.LEAD,
+      formId: form._id
+    });
+
+    await fieldFactory({ contentType: 'form', contentTypeId: form._id });
 
     const response = await graphqlRequest(
       mutation,
@@ -811,14 +815,14 @@ describe('mutations', () => {
       }
     `;
 
-    const integration = await integrationFactory({kind:KIND_CHOICES.MESSENGER});
-   
+    const integration = await integrationFactory({
+      kind: KIND_CHOICES.MESSENGER
+    });
+
     try {
-      await graphqlRequest(
-        mutation,
-        'integrationsCopyLeadIntegration',
-        { _id: integration._id },
-      );
+      await graphqlRequest(mutation, 'integrationsCopyLeadIntegration', {
+        _id: integration._id
+      });
     } catch (e) {
       expect(e[0].message).toBe('Integration kind is not form');
     }
