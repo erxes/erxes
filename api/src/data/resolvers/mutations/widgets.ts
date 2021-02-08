@@ -3,6 +3,7 @@ import {
   Brands,
   Companies,
   Conformities,
+  ConversationMessages,
   Conversations,
   Customers,
   Forms,
@@ -20,7 +21,8 @@ import {
 import {
   CONVERSATION_OPERATOR_STATUS,
   CONVERSATION_STATUSES,
-  KIND_CHOICES
+  KIND_CHOICES,
+  MESSAGE_TYPES
 } from '../../../db/models/definitions/constants';
 import {
   IIntegrationDocument,
@@ -30,12 +32,13 @@ import {
   IKnowledgebaseCredentials,
   ILeadCredentials
 } from '../../../db/models/definitions/messengerApps';
-import { debugBase } from '../../../debuggers';
+import { debugBase, debugExternalApi } from '../../../debuggers';
 import { trackViewPageEvent } from '../../../events';
 import memoryStorage from '../../../inmemoryStorage';
 import { graphqlPubsub } from '../../../pubsub';
 import { AUTO_BOT_MESSAGES, BOT_MESSAGE_TYPES } from '../../constants';
 import { sendToVisitorLog } from '../../logUtils';
+import { IContext } from '../../types';
 import {
   registerOnboardHistory,
   replaceEditorAttributes,
@@ -558,7 +561,8 @@ const widgetMutations = {
       skillId?: string;
       attachments?: any[];
       contentType: string;
-    }
+    },
+    { dataSources }: IContext
   ) {
     const {
       integrationId,
@@ -569,6 +573,49 @@ const widgetMutations = {
       attachments,
       contentType
     } = args;
+
+    if (contentType === MESSAGE_TYPES.VIDEO_CALL_REQUEST) {
+      const videoCallRequestMessage = await ConversationMessages.findOne(
+        { conversationId, contentType },
+        { createdAt: 1 }
+      ).sort({ createdAt: -1 });
+
+      if (videoCallRequestMessage) {
+        const messageTime = new Date(
+          videoCallRequestMessage.createdAt
+        ).getTime();
+        const nowTime = new Date().getTime();
+
+        let integrationConfigs: Array<{ code: string; value?: string }> = [];
+
+        try {
+          integrationConfigs = await dataSources.IntegrationsAPI.fetchApi(
+            '/configs'
+          );
+        } catch (e) {
+          debugExternalApi(e);
+        }
+
+        const timeDelay = integrationConfigs.find(
+          config => config.code === 'VIDEO_CALL_TIME_DELAY_BETWEEN_REQUESTS'
+        ) || { value: '0' };
+
+        const timeDelayIntValue = parseInt(timeDelay.value || '0', 10);
+
+        const timeDelayValue = isNaN(timeDelayIntValue) ? 0 : timeDelayIntValue;
+
+        if (messageTime + timeDelayValue * 1000 > nowTime) {
+          const defaultValue = 'Video call request has already sent';
+
+          const messageForDelay = integrationConfigs.find(
+            config => config.code === 'VIDEO_CALL_MESSAGE_FOR_TIME_DELAY'
+          ) || { value: defaultValue };
+
+          throw new Error(messageForDelay.value || defaultValue);
+        }
+      }
+    }
+
     const conversationContent = strip(message || '').substring(0, 100);
 
     let { customerId } = args;
