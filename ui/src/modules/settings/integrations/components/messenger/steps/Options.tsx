@@ -103,6 +103,9 @@ class Options extends React.Component<Props, State> {
             } else {
               Alert.error('Please configure a video call settings');
             }
+          })
+          .catch(error => {
+            Alert.error(error.message);
           });
       } else {
         this.onChangeFunction('showVideoCallRequest', false);

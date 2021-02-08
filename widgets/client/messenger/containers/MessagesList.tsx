@@ -11,6 +11,7 @@ type Props = {
   toggleVideoCall: () => void;
   refetchConversationDetail?: () => void;
   operatorStatus?: string;
+  errorMessage: string;
 };
 
 export default (props: Props) => {
