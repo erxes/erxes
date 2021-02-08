@@ -562,7 +562,7 @@ export const repairIntegrations = async (
 
   await Integrations.updateOne(
     { erxesApiId: integrationId },
-    { $set: { healthStatus: 'healthy' } }
+    { $set: { healthStatus: 'healthy', error: '' } }
   );
 
   return true;

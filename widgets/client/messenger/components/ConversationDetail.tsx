@@ -16,6 +16,7 @@ type Props = {
   color?: string;
   loading?: boolean;
   refetchConversationDetail?: () => void;
+  errorMessage: string;
 };
 
 type State = {
@@ -86,6 +87,7 @@ class ConversationDetail extends React.Component<Props, State> {
       isOnline,
       color,
       loading,
+      errorMessage
     } = this.props;
 
     const rootClasses = classNames('erxes-content-wrapper', {
@@ -137,6 +139,7 @@ class ConversationDetail extends React.Component<Props, State> {
               toggleVideoCall={this.toggleVideoCall}
               refetchConversationDetail={refetchConversationDetail}
               operatorStatus={operatorStatus}
+              errorMessage={errorMessage}
             />
 
             <MessageSender
