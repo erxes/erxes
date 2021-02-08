@@ -4,6 +4,7 @@ import {
   moduleRequireLogin
 } from '../../permissions/wrappers';
 import { IContext } from '../../types';
+import dealResolvers from '../deals';
 import { IListParams } from './boards';
 import {
   archivedItems,
@@ -13,7 +14,6 @@ import {
   getItemList,
   IArchiveArgs
 } from './boardUtils';
-import dealResolvers from '../deals';
 
 interface IDealListParams extends IListParams {
   productIds?: [string];
