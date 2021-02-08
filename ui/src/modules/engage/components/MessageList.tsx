@@ -77,7 +77,7 @@ class List extends React.Component<Props> {
     const { emailPercentages } = this.props;
 
     if (!emailPercentages) {
-      return null;
+      return <>You haven't sent email campaigns yet.</>;
     }
 
     const trigger = (
