@@ -173,19 +173,20 @@ const getIntegration = async ({
   brandId,
   type,
   selector,
+  formId,
   callback
 }: {
   brandId: string;
+  formId?: string;
   type: string;
   selector?: { [key: string]: string | number | boolean };
   callback?: () => Promise<void>;
 }) => {
   const integration = await caches.get({
-    key: `integration_${type}_${brandId}`,
+    key: 'integration_' + type + '_' + brandId + (formId ? `_${formId}` : ''),
     callback: callback
       ? callback
       : async () => {
-      
           return Integrations.findOne(selector);
         }
   });
@@ -214,6 +215,7 @@ const widgetMutations = {
     // find integration by brandId & formId
     const integ = await getIntegration({
       brandId: brand._id,
+      formId: form._id,
       type: 'lead',
       selector: {
         brandId: brand._id,
