@@ -1069,7 +1069,9 @@ describe('lead', () => {
 
     memoryStorage().removeKey(`erxes_brand_${brand.code}`);
     memoryStorage().removeKey(`erxes_brand_code`);
-    memoryStorage().removeKey(`erxes_integration_lead_${brand._id}`);
+    memoryStorage().removeKey(
+      `erxes_integration_lead_${brand._id}_${form._id}`
+    );
   });
 
   test('leadConnect: success', async () => {
@@ -1101,7 +1103,7 @@ describe('lead', () => {
 
     // Get integration from cache ===========================
     memoryStorage().set(
-      `erxes_integration_lead_${brand._id}`,
+      `erxes_integration_lead_${brand._id}_${form._id}`,
       JSON.stringify(integration)
     );
 
@@ -1117,7 +1119,9 @@ describe('lead', () => {
     expect(response && response.form._id).toBe(form._id);
 
     memoryStorage().removeKey(`erxes_brand_${brand.code}`);
-    memoryStorage().removeKey(`erxes_integration_lead_${brand._id}`);
+    memoryStorage().removeKey(
+      `erxes_integration_lead_${brand._id}_${form._id}`
+    );
 
     mock.restore();
   });
@@ -1159,7 +1163,9 @@ describe('lead', () => {
     mock.restore();
 
     memoryStorage().removeKey(`erxes_brand_${brand.code}`);
-    memoryStorage().removeKey(`erxes_integration_lead_${brand._id}`);
+    memoryStorage().removeKey(
+      `erxes_integration_lead_${brand._id}_${form._id}`
+    );
   });
 
   test('saveLead: form not found', async () => {
