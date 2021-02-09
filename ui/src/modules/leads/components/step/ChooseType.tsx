@@ -1,10 +1,9 @@
 import FormGroup from 'modules/common/components/form/Group';
 import ControlLabel from 'modules/common/components/form/Label';
 import Icon from 'modules/common/components/Icon';
-import { LeftItem, Preview } from 'modules/common/components/step/styles';
+import { LeftItem } from 'modules/common/components/step/styles';
 import { __ } from 'modules/common/utils';
 import React from 'react';
-import { CalloutPreview } from './preview';
 import { Box, BoxRow, FlexItem } from './style';
 
 type Props = {
@@ -58,9 +57,6 @@ class ChooseType extends React.Component<Props, {}> {
             )}
           </BoxRow>
         </LeftItem>
-        <Preview>
-          <CalloutPreview {...this.props} />
-        </Preview>
       </FlexItem>
     );
   }

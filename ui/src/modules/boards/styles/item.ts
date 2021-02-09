@@ -198,6 +198,7 @@ export const FooterContent = styled.div`
 export const LeftContainer = styled.div`
   margin-right: ${dimensions.coreSpacing}px;
   flex: 1;
+  max-width: 620px;
 
   textarea {
     resize: none;

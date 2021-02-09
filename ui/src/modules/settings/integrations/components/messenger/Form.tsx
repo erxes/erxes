@@ -197,7 +197,7 @@ class CreateMessenger extends React.Component<Props, State> {
     }
 
     if (!title) {
-      return Alert.error('Write title');
+      return Alert.error('Insert integration name');
     }
 
     if (!brandId) {
