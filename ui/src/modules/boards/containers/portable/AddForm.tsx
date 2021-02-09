@@ -57,7 +57,10 @@ class AddFormContainer extends React.Component<FinalProps> {
       sourceConversationId,
       aboveItemId,
       description,
-      attachments
+      attachments,
+      relType,
+      relTypeIds,
+      editConformity
     } = this.props;
 
     doc.assignedUserIds = assignedUserIds;
@@ -84,13 +87,20 @@ class AddFormContainer extends React.Component<FinalProps> {
         }
       })
         .then(({ data }) => {
+          const message = `You've successfully converted a conversation to ${options.type}`;
 
-          const message = `You've successfully converted a conversation to ${options.type}`
+          if (!doc._id && relType && relTypeIds) {
+            editConformity({
+              variables: {
+                mainType: options.type,
+                mainTypeId: data.conversationConvertToCard,
+                relType,
+                relTypeIds
+              }
+            });
+          }
 
-          this.afterSave(data.conversationConvertToCard,
-            message,
-            callback,
-            data)
+          this.afterSave(message, callback, data);
         })
         .catch(error => {
           Alert.error(error.message);
@@ -98,13 +108,24 @@ class AddFormContainer extends React.Component<FinalProps> {
     } else {
       addMutation({ variables: doc })
         .then(({ data }) => {
+          const message = `You've successfully created ${options.type}`;
 
-          const message = `You've successfully created ${options.type}`
+          if (relType && relTypeIds) {
+            editConformity({
+              variables: {
+                mainType: options.type,
+                mainTypeId: data[options.mutationsName.addMutation]._id,
+                relType,
+                relTypeIds
+              }
+            });
+          }
 
-          this.afterSave(data[options.mutationsName.addMutation]._id,
+          this.afterSave(
             message,
             callback,
-            data[options.mutationsName.addMutation])
+            data[options.mutationsName.addMutation]
+          );
         })
         .catch(error => {
           Alert.error(error.message);
@@ -112,21 +133,14 @@ class AddFormContainer extends React.Component<FinalProps> {
     }
   };
 
-  afterSave = (mainTypeId: string, message: string, callback: (item: IItem) => void, item: IItem) => {
+  afterSave = (
+    message: string,
+    callback: (item: IItem) => void,
+    item: IItem
+  ) => {
     Alert.success(message);
 
-    const { editConformity, getAssociatedItem, refetch, relType,
-      relTypeIds, options } = this.props;
-
-    editConformity({
-      variables: {
-        mainType: options.type,
-        mainTypeId,
-        relType,
-        relTypeIds
-      }
-    });
-
+    const { getAssociatedItem, refetch } = this.props;
 
     callback(item);
 
