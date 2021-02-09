@@ -272,7 +272,7 @@ const conversationMutations = {
       conversations: [conversation],
       type: NOTIFICATION_TYPES.CONVERSATION_ADD_MESSAGE,
       mobile: true,
-      messageContent: doc.content,
+      messageContent: doc.content
     });
 
     // do not send internal message to third service integrations
@@ -301,8 +301,8 @@ const conversationMutations = {
         toEmails: [email],
         title: 'Reply',
         template: {
-          data: doc.content,
-        },
+          data: doc.content
+        }
       });
     }
 
@@ -348,8 +348,8 @@ const conversationMutations = {
           conversationId,
           integrationId,
           toPhone: customer.primaryPhone,
-          content: strip(doc.content),
-        }),
+          content: strip(doc.content)
+        })
       });
     }
 
@@ -415,7 +415,7 @@ const conversationMutations = {
       conversations: [conversation],
       type: NOTIFICATION_TYPES.CONVERSATION_ADD_MESSAGE,
       mobile: true,
-      messageContent: doc.content,
+      messageContent: doc.content
     });
 
     const requestName = 'replyFacebookPost';
@@ -464,7 +464,7 @@ const conversationMutations = {
     _root,
     {
       conversationIds,
-      assignedUserId,
+      assignedUserId
     }: { conversationIds: string[]; assignedUserId: string },
     { user }: IContext
   ) {
@@ -479,7 +479,7 @@ const conversationMutations = {
     await sendNotifications({
       user,
       conversations,
-      type: NOTIFICATION_TYPES.CONVERSATION_ASSIGNEE_CHANGE,
+      type: NOTIFICATION_TYPES.CONVERSATION_ASSIGNEE_CHANGE
     });
 
     return conversations;
@@ -501,7 +501,7 @@ const conversationMutations = {
     await sendNotifications({
       user,
       conversations: oldConversations,
-      type: 'unassign',
+      type: 'unassign'
     });
 
     // notify graphl subscription
@@ -524,13 +524,13 @@ const conversationMutations = {
     publishConversationsChanged(_ids, status);
 
     const updatedConversations = await Conversations.find({
-      _id: { $in: _ids },
+      _id: { $in: _ids }
     });
 
     await sendNotifications({
       user,
       conversations: updatedConversations,
-      type: NOTIFICATION_TYPES.CONVERSATION_STATE_CHANGE,
+      type: NOTIFICATION_TYPES.CONVERSATION_STATE_CHANGE
     });
 
     return updatedConversations;
@@ -587,7 +587,7 @@ const conversationMutations = {
       const doc = {
         conversationId: _id,
         internal: false,
-        contentType: MESSAGE_TYPES.VIDEO_CALL,
+        contentType: MESSAGE_TYPES.VIDEO_CALL
       };
 
       message = await ConversationMessages.addMessage(doc, user._id);
@@ -595,7 +595,7 @@ const conversationMutations = {
       const videoCallData = await dataSources.IntegrationsAPI.createDailyVideoChatRoom(
         {
           erxesApiConversationId: _id,
-          erxesApiMessageId: message._id,
+          erxesApiMessageId: message._id
         }
       );
 
@@ -627,9 +627,9 @@ const conversationMutations = {
     );
     const customer = await Customers.findOne({ _id: conversation.customerId });
     const messages = await ConversationMessages.find({
-      conversationId: _id,
+      conversationId: _id
     }).sort({
-      createdAt: 1,
+      createdAt: 1
     });
     const integrationId = conversation.integrationId;
 
@@ -641,7 +641,7 @@ const conversationMutations = {
           customer,
           messages,
           user,
-          integrationId,
+          integrationId
         }
       );
 
@@ -662,13 +662,13 @@ const conversationMutations = {
       botData: [
         {
           type: 'text',
-          text: AUTO_BOT_MESSAGES.CHANGE_OPERATOR,
-        },
-      ],
+          text: AUTO_BOT_MESSAGES.CHANGE_OPERATOR
+        }
+      ]
     });
 
     graphqlPubsub.publish('conversationMessageInserted', {
-      conversationMessageInserted: message,
+      conversationMessageInserted: message
     });
 
     return Conversations.updateOne({ _id }, { $set: { operatorStatus } });
@@ -678,7 +678,7 @@ const conversationMutations = {
     _root,
     {
       conversationId,
-      recordingId,
+      recordingId
     }: { conversationId: string; recordingId: string },
     { dataSources }: IContext
   ) {
@@ -686,7 +686,7 @@ const conversationMutations = {
       const response = await dataSources.IntegrationsAPI.saveDailyRecordingInfo(
         {
           erxesApiConversationId: conversationId,
-          recordingId,
+          recordingId
         }
       );
 
@@ -736,7 +736,7 @@ const conversationMutations = {
 
       const relTypeIds: string[] = [];
 
-      sourceConversationIds.forEach(async (conversationId) => {
+      sourceConversationIds.forEach(async conversationId => {
         const con = await Conversations.getConversation(conversationId);
 
         if (con.customerId) {
@@ -744,12 +744,14 @@ const conversationMutations = {
         }
       });
 
-      await Conformities.editConformity({
-        mainType: type,
-        mainTypeId: item._id,
-        relType: 'customer',
-        relTypeIds,
-      });
+      if (conversation.customerId) {
+        await Conformities.addConformity({
+          mainType: type,
+          mainTypeId: item._id,
+          relType: 'customer',
+          relTypeId: conversation.customerId
+        });
+      }
 
       return item._id;
     } else {
@@ -765,7 +767,7 @@ const conversationMutations = {
 
       return item._id;
     }
-  },
+  }
 };
 
 requireLogin(conversationMutations, 'conversationMarkAsRead');
