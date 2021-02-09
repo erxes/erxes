@@ -43,6 +43,7 @@ const FullPreview = styled.div`
   flex: 1;
   display: flex;
   flex-direction: column;
+  justify-content: space-between;
   padding: ${dimensions.coreSpacing}px;
   overflow: auto;
 `;
@@ -254,7 +255,7 @@ const Tabs = styledTS<{ selected?: boolean }>(styled.div)`
 
 const FlexColumn = styled.div`
   display: flex;
-  min-width: 43.33333%;
+  flex: 1;
   flex-direction: column;
 
   ${ContentHeader} {
@@ -263,9 +264,24 @@ const FlexColumn = styled.div`
   }
 `;
 
-const ColorList = styled.ul`
-  list-style: none;
-  padding: 0;
+const PreviewWrapper = styled.div`
+  width: 40%;
+  background: ${colors.colorWhite};
+  margin-left: 5px;
+
+  ${TabletPreview} {
+    background-size: contain;
+    width: 85%;
+    height: 100%;
+
+    ${PreviewContainer} {
+      max-height: 600px;
+    }
+
+    @media (max-width: 1400px) {
+      padding: 40px 10px;
+    }
+  }
 `;
 
 export {
@@ -282,7 +298,7 @@ export {
   Tabs,
   CarouselInner,
   FullPreview,
+  PreviewWrapper,
   ImageUpload,
-  ImagePreview,
-  ColorList
+  ImagePreview
 };

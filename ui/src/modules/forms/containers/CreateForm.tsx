@@ -3,8 +3,7 @@ import * as compose from 'lodash.flowright';
 import { Alert, withProps } from 'modules/common/utils';
 import {
   AddFieldsMutationResponse,
-  AddFieldsMutationVariables,
-  IField
+  AddFieldsMutationVariables
 } from 'modules/settings/properties/types';
 import React from 'react';
 import { graphql } from 'react-apollo';
@@ -19,7 +18,6 @@ import {
 } from '../types';
 
 type Props = {
-  renderPreviewWrapper: (previewRenderer, fields: IField[]) => void;
   afterDbSave: (formId: string) => void;
   onDocChange?: (doc: IFormData) => void;
   type: string;
