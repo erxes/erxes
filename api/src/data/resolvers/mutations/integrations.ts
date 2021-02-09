@@ -180,7 +180,10 @@ const integrationMutations = {
   ) {
     const updated = await Integrations.updateLeadIntegration(_id, doc);
 
-    await caches.update(`integration_lead_${updated.brandId}`, updated);
+    await caches.update(
+      `integration_lead_${updated.brandId}_${updated.formId}`,
+      updated
+    );
 
     return updated;
   },
@@ -291,7 +294,13 @@ const integrationMutations = {
     if (
       [KIND_CHOICES.LEAD, KIND_CHOICES.MESSENGER].includes(integration.kind)
     ) {
-      caches.remove(`integration_${integration.kind}_${integration.brandId}`);
+      let key = `integration_${integration.kind}_${integration.brandId}`;
+
+      if (integration.kind === KIND_CHOICES.LEAD) {
+        key += `_${updated.formId}`;
+      }
+
+      caches.remove(key);
     }
 
     await Channels.updateMany(
@@ -475,7 +484,13 @@ const integrationMutations = {
       [KIND_CHOICES.LEAD, KIND_CHOICES.MESSENGER].includes(integration.kind) &&
       updated
     ) {
-      caches.remove(`integration_${integration.kind}_${updated.brandId}`);
+      let key = `integration_${integration.kind}_${updated.brandId}`;
+
+      if (integration.kind === KIND_CHOICES.LEAD) {
+        key += `_${updated.formId}`;
+      }
+
+      caches.remove(key);
     }
 
     await putUpdateLog(
