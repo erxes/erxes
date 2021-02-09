@@ -276,7 +276,7 @@ class Lead extends React.Component<Props, State> {
             <Steps>
               <Step
                 img="/images/icons/erxes-04.svg"
-                title="Type"
+                title="Style"
                 onClick={this.onStepClick.bind(null, 'callout')}
               >
                 <ChooseType
@@ -307,7 +307,7 @@ class Lead extends React.Component<Props, State> {
               </Step>
               <Step
                 img="/images/icons/erxes-12.svg"
-                title={'Form'}
+                title={'Content'}
                 onClick={this.onStepClick.bind(null, 'form')}
               >
                 <FormStep
@@ -370,7 +370,7 @@ class Lead extends React.Component<Props, State> {
             <ControlWrapper>
               <Indicator>
                 {__('You are')} {integration ? 'editing' : 'creating'}{' '}
-                <strong>{title}</strong> {__('pop up')}
+                <strong>{title}</strong> {__('form')}
               </Indicator>
               {this.renderButtons()}
             </ControlWrapper>
