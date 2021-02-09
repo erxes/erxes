@@ -702,7 +702,8 @@ describe('mutations', () => {
       }
     `;
 
-    const integration = await integrationFactory();
+    const integration = await integrationFactory({ kind: 'lead' });
+
     let response = await graphqlRequest(mutation, 'integrationsArchive', {
       _id: integration._id,
       status: true
@@ -730,7 +731,7 @@ describe('mutations', () => {
       }
     `;
 
-    const integration = await integrationFactory();
+    const integration = await integrationFactory({});
 
     const doc: any = {
       _id: integration._id,
@@ -765,6 +766,27 @@ describe('mutations', () => {
     );
 
     expect(webhookResponse).toBeDefined();
+
+    // lead ====================
+    const leadIntegration = await integrationFactory({ kind: 'lead' });
+
+    const leadDoc: any = {
+      _id: leadIntegration._id,
+      name: 'updated',
+      brandId: 'brandId',
+      formId: '123',
+      channelIds: ['randomId']
+    };
+
+    const response3 = await graphqlRequest(
+      mutation,
+      'integrationsEditCommonFields',
+      leadDoc
+    );
+
+    expect(response3._id).toBe(leadDoc._id);
+    expect(response3.name).toBe(leadDoc.name);
+    expect(response3.brandId).toBe(leadDoc.brandId);
   });
 
   test('test integrationsSendSms()', async () => {
