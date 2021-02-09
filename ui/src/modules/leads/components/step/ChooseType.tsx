@@ -76,6 +76,24 @@ class ChooseType extends React.Component<Props, {}> {
       <FlexItem>
         <LeftItem>
           <FormGroup>
+            <ControlLabel>Theme color</ControlLabel>
+            <Description>Try some of these colors</Description>
+            <br />
+            <div>
+              <OverlayTrigger
+                trigger="click"
+                rootClose={true}
+                placement="bottom-start"
+                overlay={popoverTop}
+              >
+                <ColorPick>
+                  <ColorPicker style={{ backgroundColor: theme }} />
+                </ColorPick>
+              </OverlayTrigger>
+            </div>
+          </FormGroup>
+
+          <FormGroup>
             <ControlLabel>Choose a flow type</ControlLabel>
           </FormGroup>
           <BoxRow>
@@ -96,24 +114,6 @@ class ChooseType extends React.Component<Props, {}> {
               'slideInRight'
             )}
           </BoxRow>
-
-          <FormGroup>
-            <ControlLabel>Theme color</ControlLabel>
-            <Description>Try some of these colors</Description>
-            <br />
-            <div>
-              <OverlayTrigger
-                trigger="click"
-                rootClose={true}
-                placement="bottom-start"
-                overlay={popoverTop}
-              >
-                <ColorPick>
-                  <ColorPicker style={{ backgroundColor: theme }} />
-                </ColorPick>
-              </OverlayTrigger>
-            </div>
-          </FormGroup>
         </LeftItem>
       </FlexItem>
     );
