@@ -1,3 +1,4 @@
+import { SelectContainer } from 'modules/boards/styles/common';
 import Button from 'modules/common/components/Button';
 import FormControl from 'modules/common/components/form/Control';
 import ControlLabel from 'modules/common/components/form/Label';
@@ -156,28 +157,28 @@ class AddForm extends React.Component<Props, State> {
     return (
       <form onSubmit={this.save}>
         {this.renderSelect()}
-
-        <HeaderRow>
-          <HeaderContent>
-            <ControlLabel required={true}>Name</ControlLabel>
-            {this.props.showSelect ? (
-              <CardSelect
-                placeholder={`Add a new ${type} or select one`}
-                options={this.state.cards}
-                onChange={this.onChangeCardSelect}
-                type={type}
-              />
-            ) : (
-              <FormControl
-                value={this.state.name}
-                autoFocus={true}
-                placeholder="Create a new card"
-                onChange={this.onChangeName}
-              />
-            )}
-          </HeaderContent>
-        </HeaderRow>
-
+        <SelectContainer>
+          <HeaderRow>
+            <HeaderContent>
+              <ControlLabel required={true}>Name</ControlLabel>
+              {this.props.showSelect ? (
+                <CardSelect
+                  placeholder={`Add a new ${type} or select one`}
+                  options={this.state.cards}
+                  onChange={this.onChangeCardSelect}
+                  type={type}
+                />
+              ) : (
+                <FormControl
+                  value={this.state.name}
+                  autoFocus={true}
+                  placeholder="Create a new card"
+                  onChange={this.onChangeName}
+                />
+              )}
+            </HeaderContent>
+          </HeaderRow>
+        </SelectContainer>
         <FormFooter>
           <Button
             btnStyle="simple"
