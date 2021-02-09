@@ -349,7 +349,7 @@ class Lead extends React.Component<Props, State> {
               </Step>
               <Step
                 img="/images/icons/erxes-13.svg"
-                title="Thank content"
+                title="Confirmation"
                 onClick={this.onStepClick.bind(null, 'sucess')}
                 noButton={true}
               >
