@@ -4,7 +4,7 @@ import ControlLabel from 'modules/common/components/form/Label';
 import Icon from 'modules/common/components/Icon';
 import { LeftItem } from 'modules/common/components/step/styles';
 import { __ } from 'modules/common/utils';
-import { ColorPick, ColorPicker } from 'modules/settings/styles';
+import { ColorPick, ColorPicker, Description } from 'modules/settings/styles';
 import React from 'react';
 import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
 import Popover from 'react-bootstrap/Popover';
@@ -99,6 +99,8 @@ class ChooseType extends React.Component<Props, {}> {
 
           <FormGroup>
             <ControlLabel>Theme color</ControlLabel>
+            <Description>Try some of these colors</Description>
+            <br />
             <div>
               <OverlayTrigger
                 trigger="click"
@@ -111,11 +113,6 @@ class ChooseType extends React.Component<Props, {}> {
                 </ColorPick>
               </OverlayTrigger>
             </div>
-            <br />
-            <p>{__('Try some of these colors:')}</p>
-            <ColorList>
-              {COLORS.map(value => this.renderThemeColor(value))}
-            </ColorList>
           </FormGroup>
         </LeftItem>
       </FlexItem>

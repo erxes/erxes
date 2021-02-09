@@ -41,12 +41,14 @@ type Props = {
     brandId: string;
     languageCode?: string;
     leadData: ILeadData;
+    channelIds?: string[];
   }) => void;
 };
 
 type State = {
   type: string;
   brand?: string;
+  channelIds?: string[];
   language?: string;
   title?: string;
   calloutTitle?: string;
@@ -86,6 +88,7 @@ class Lead extends React.Component<Props, State> {
     const { leadData = {} as ILeadData } = integration;
     const callout = leadData.callout || {};
     const form = integration.form || {};
+    const channels = integration.channels || [];
 
     this.state = {
       type: leadData.loadType || 'shoutbox',
@@ -103,6 +106,7 @@ class Lead extends React.Component<Props, State> {
       isStepActive: false,
 
       brand: integration.brandId,
+      channelIds: channels.map(item => item._id) || [],
       language: integration.languageCode,
       title: integration.name,
       calloutTitle: callout.title || 'Title',
@@ -130,7 +134,14 @@ class Lead extends React.Component<Props, State> {
   handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
-    const { brand, calloutTitle, title, rules, formData } = this.state;
+    const {
+      brand,
+      calloutTitle,
+      title,
+      rules,
+      formData,
+      channelIds
+    } = this.state;
 
     if (!title) {
       return Alert.error('Enter a Pop up name');
@@ -144,9 +155,14 @@ class Lead extends React.Component<Props, State> {
       return Alert.error('Choose a Brand');
     }
 
+    if (!channelIds || channelIds.length === 0) {
+      return Alert.error('Choose channels');
+    }
+
     const doc = {
       name: title,
       brandId: brand,
+      channelIds,
       languageCode: this.state.language,
       leadData: {
         loadType: this.state.type,
@@ -242,18 +258,19 @@ class Lead extends React.Component<Props, State> {
       isSkip,
       rules,
       formData,
-      isRequireOnce
+      isRequireOnce,
+      channelIds
     } = this.state;
 
     const { integration, emailTemplates } = this.props;
     const leadData = integration && integration.leadData;
     const brand = integration && integration.brand;
-    const breadcrumb = [{ title: __('Pop Ups'), link: '/leads' }];
+    const breadcrumb = [{ title: __('Forms'), link: '/forms' }];
     const constant = isSkip ? 'form' : carousel;
 
     return (
       <StepWrapper>
-        <Wrapper.Header title={__('Pop ups')} breadcrumb={breadcrumb} />
+        <Wrapper.Header title={__('Forms')} breadcrumb={breadcrumb} />
         <Content>
           <LeftContent>
             <Steps>
@@ -326,6 +343,7 @@ class Lead extends React.Component<Props, State> {
                   language={language}
                   formData={formData}
                   isRequireOnce={isRequireOnce}
+                  channelIds={channelIds}
                   onChange={this.onChange}
                 />
               </Step>

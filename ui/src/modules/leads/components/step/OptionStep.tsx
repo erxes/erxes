@@ -108,8 +108,8 @@ class OptionStep extends React.Component<Props, {}> {
       <FlexItem>
         <LeftItem>
           <FormGroup>
-            <ControlLabel required={true}>Popup Name</ControlLabel>
-            <p>{__('Name this popup to differentiate from the rest')}</p>
+            <ControlLabel required={true}>Form Name</ControlLabel>
+            <p>{__('Name this form to differentiate from the rest')}</p>
 
             <FormControl
               required={true}

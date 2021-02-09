@@ -9,6 +9,7 @@ import { ILeadData } from 'modules/leads/types';
 import { IEmailTemplate } from 'modules/settings/emailTemplates/types';
 import { FORM_SUCCESS_ACTIONS } from 'modules/settings/integrations/constants';
 import React from 'react';
+import Select from 'react-select-plus';
 import { FlexItem } from './style';
 
 type Name =
