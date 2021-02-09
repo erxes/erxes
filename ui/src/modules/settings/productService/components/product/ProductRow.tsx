@@ -40,6 +40,7 @@ class Row extends React.Component<Props> {
             onChange={onChange}
           />
         </td>
+        <td>{product.code}</td>
         <td>{product.name}</td>
         <td>
           <TextInfo>{product.type}</TextInfo>

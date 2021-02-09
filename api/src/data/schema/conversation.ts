@@ -38,6 +38,7 @@ export const types = `
     participatorCount: Int
     videoCallData: VideoCallData
     productBoardLink: String
+    isFacebookTaggedMessage: Boolean
   }
 
   type EngageData {
@@ -152,7 +153,7 @@ export const types = `
   }
 
   type ConversationAdminMessageInsertedResponse {
-    customerId: String!
+    customerId: String
     unreadCount: Int
   }
 
@@ -242,6 +243,7 @@ export const mutations = `
     internal: Boolean,
     attachments: [AttachmentInput],
     contentType: String
+    facebookMessageTag: String
   ): ConversationMessage
   conversationsReplyFacebookComment(conversationId: String, commentId: String, content: String): FacebookComment
   conversationsChangeStatusFacebookComment(commentId: String): FacebookComment

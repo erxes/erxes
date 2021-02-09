@@ -104,6 +104,7 @@ const create = async ({
 
     const response = await fetchElk('search', type, {
       query: { bool: { should: body } },
+      size: 10000,
       _source: ['_id', 'primaryEmail', 'primaryPhone', 'primaryName', 'code']
     });
 
@@ -203,7 +204,7 @@ const create = async ({
 
   if (contentType === CUSTOMER || contentType === LEAD) {
     debugWorkers('Worker: Import customer data');
-    debugWorkers('useElkSyncer: ', useElkSyncer);
+    debugWorkers(`useElkSyncer:  ${useElkSyncer}`);
 
     for (const doc of docs) {
       if (!doc.ownerId && user) {
@@ -266,7 +267,7 @@ const create = async ({
       insertDocs = docs;
     }
 
-    debugWorkers('Insert doc length: ', insertDocs.length);
+    debugWorkers(`Insert doc length: ${insertDocs.length}`);
 
     insertDocs.map(async (doc, docIndex) => {
       await createConformityMapping({
@@ -278,7 +279,7 @@ const create = async ({
       });
     });
 
-    debugWorkers('Update doc length: ', updateDocs.length);
+    debugWorkers(`Update doc length: ${updateDocs.length}`);
 
     if (updateDocs.length > 0) {
       await Customers.bulkWrite(updateDocs);
@@ -335,23 +336,33 @@ const create = async ({
   }
 
   if (contentType === PRODUCT) {
-    const codes = docs.map(doc => doc.code);
+    const categoryCodes = docs.map(doc => doc.categoryCode);
 
     const categories = await ProductCategories.find(
-      { code: { $in: codes } },
+      { code: { $in: categoryCodes } },
       { _id: 1, code: 1 }
     );
 
     if (!categories) {
-      throw new Error('Product & service category not found');
+      throw new Error(
+        'Product & service category not found check categoryCode field'
+      );
     }
 
     for (const doc of docs) {
-      const category = categories.find(cat => cat.code === doc.code);
+      const category = categories.find(cat => cat.code === doc.categoryCode);
 
       if (category) {
         doc.categoryId = category._id;
+      } else {
+        throw new Error(
+          'Product & service category not found check categoryCode field'
+        );
       }
+
+      doc.unitPrice = parseFloat(
+        doc.unitPrice ? doc.unitPrice.replace(/,/g, '') : 0
+      );
 
       doc.customFieldsData = await Fields.prepareCustomFieldsData(
         doc.customFieldsData
@@ -582,6 +593,10 @@ connect().then(async () => {
           stageName = value;
           break;
 
+        case 'categoryCode':
+          doc.categoryCode = value;
+          break;
+
         case 'tag':
           {
             const tagName = value;
@@ -671,23 +686,29 @@ connect().then(async () => {
     bulkDoc.push(doc);
   }
 
-  const cocObjs = await create({
-    docs: bulkDoc,
-    user,
-    contentType,
-    model,
-    useElkSyncer
-  });
+  const modifier: { $inc?; $push? } = {
+    $inc: { percentage }
+  };
 
-  const cocIds = cocObjs.map(obj => obj._id).filter(obj => obj);
+  try {
+    const cocObjs = await create({
+      docs: bulkDoc,
+      user,
+      contentType,
+      model,
+      useElkSyncer
+    });
 
-  await ImportHistory.updateOne(
-    { _id: importHistoryId },
-    {
-      $inc: { success: bulkDoc.length, percentage },
-      $push: { ids: cocIds }
-    }
-  );
+    const cocIds = cocObjs.map(obj => obj._id).filter(obj => obj);
+
+    modifier.$push = { ids: cocIds };
+    modifier.$inc.success = bulkDoc.length;
+  } catch (e) {
+    modifier.$push = { errorMsgs: e.message };
+    modifier.$inc.failed = bulkDoc.length;
+  }
+
+  await ImportHistory.updateOne({ _id: importHistoryId }, modifier);
 
   mongoose.connection.close();
 

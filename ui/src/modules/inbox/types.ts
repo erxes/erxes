@@ -44,6 +44,7 @@ export interface IConversation {
   videoCallData?: IVideoCallData;
 
   productBoardLink?: string;
+  isFacebookTaggedMessage?: boolean;
 }
 
 interface IEngageDataRules {
@@ -79,7 +80,7 @@ export interface IFacebookComment {
 }
 
 export interface IEmail {
-  name: string;
+  name?: string;
   email: string;
 }
 

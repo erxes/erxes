@@ -69,6 +69,8 @@ export interface IEngageMessage {
 
 export interface IEngageMessageDocument extends IEngageMessage, Document {
   scheduleDate?: IScheduleDateDocument;
+  createdBy: string;
+  createdAt: Date;
 
   email?: IEmailDocument;
   messenger?: IMessengerDocument;
@@ -173,6 +175,7 @@ export const engageMessageSchema = schemaWrapper(
     totalCustomersCount: field({ type: Number, optional: true }),
     validCustomersCount: field({ type: Number, optional: true }),
 
-    shortMessage: field({ type: smsSchema, label: 'Short message' })
+    shortMessage: field({ type: smsSchema, label: 'Short message' }),
+    createdBy: field({ type: String, label: 'Created user id' })
   })
 );

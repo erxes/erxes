@@ -164,5 +164,27 @@ export default {
       debugExternalApi(e);
       return null;
     }
+  },
+
+  async isFacebookTaggedMessage(conversation: IConversationDocument) {
+    const integration = await Integrations.findOne({
+      _id: conversation.integrationId
+    }).lean();
+
+    if (integration && integration.kind !== 'facebook-messenger') {
+      return false;
+    }
+
+    const message = await ConversationMessages.find({
+      conversationId: conversation._id,
+      customerId: { $exists: true },
+      createdAt: { $gt: new Date(Date.now() - 24 * 60 * 60 * 1000) }
+    }).limit(1);
+
+    if (message.length && message.length >= 1) {
+      return false;
+    }
+
+    return true;
   }
 };

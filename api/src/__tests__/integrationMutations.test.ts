@@ -1,9 +1,7 @@
-import './setup.ts';
-
 import * as faker from 'faker';
-import messageBroker from '../messageBroker';
-
+import { IntegrationsAPI } from '../data/dataSources';
 import * as utils from '../data/utils';
+import { graphqlRequest } from '../db/connection';
 import {
   brandFactory,
   customerFactory,
@@ -19,10 +17,10 @@ import {
   Integrations,
   Users
 } from '../db/models';
-
-import { IntegrationsAPI } from '../data/dataSources';
-import { graphqlRequest } from '../db/connection';
 import { KIND_CHOICES } from '../db/models/definitions/constants';
+import memoryStorage from '../inmemoryStorage';
+import messageBroker from '../messageBroker';
+import './setup.ts';
 
 describe('mutations', () => {
   let _integration;
@@ -81,6 +79,10 @@ describe('mutations', () => {
     await Customers.deleteMany({});
     await EmailDeliveries.deleteMany({});
     await Integrations.deleteMany({});
+
+    memoryStorage().removeKey(`erxes_brand_${_brand.code}`);
+    memoryStorage().removeKey(`erxes_integration_messenger_${_brand._id}`);
+    memoryStorage().removeKey(`erxes_integration_lead_${_brand._id}`);
   });
 
   test('Create messenger integration', async () => {
@@ -154,6 +156,25 @@ describe('mutations', () => {
     expect(integration.name).toBe(args.name);
     expect(integration.brandId).toBe(args.brandId);
     expect(integration.languageCode).toBe(args.languageCode);
+
+    // update messenger integration cache
+    const storageKey = `erxes_integration_messenger_${_brand._id}`;
+
+    let cached = await memoryStorage().get(storageKey);
+
+    expect(cached).toBeUndefined();
+
+    memoryStorage().set(storageKey, JSON.stringify(_integration));
+
+    await graphqlRequest(mutation, 'integrationsEditMessengerIntegration', {
+      _id: _integration._id,
+      brandId: _brand._id,
+      name: 'updated integration name'
+    });
+
+    cached = JSON.parse((await memoryStorage().get(storageKey)) || '{}') || {};
+
+    expect(cached.name).toBe('updated integration name');
   });
 
   test('Save messenger integration appearance data', async () => {
@@ -681,7 +702,8 @@ describe('mutations', () => {
       }
     `;
 
-    const integration = await integrationFactory();
+    const integration = await integrationFactory({ kind: 'lead' });
+
     let response = await graphqlRequest(mutation, 'integrationsArchive', {
       _id: integration._id,
       status: true
@@ -709,7 +731,7 @@ describe('mutations', () => {
       }
     `;
 
-    const integration = await integrationFactory();
+    const integration = await integrationFactory({});
 
     const doc: any = {
       _id: integration._id,
@@ -744,6 +766,27 @@ describe('mutations', () => {
     );
 
     expect(webhookResponse).toBeDefined();
+
+    // lead ====================
+    const leadIntegration = await integrationFactory({ kind: 'lead' });
+
+    const leadDoc: any = {
+      _id: leadIntegration._id,
+      name: 'updated',
+      brandId: 'brandId',
+      formId: '123',
+      channelIds: ['randomId']
+    };
+
+    const response3 = await graphqlRequest(
+      mutation,
+      'integrationsEditCommonFields',
+      leadDoc
+    );
+
+    expect(response3._id).toBe(leadDoc._id);
+    expect(response3.name).toBe(leadDoc.name);
+    expect(response3.brandId).toBe(leadDoc.brandId);
   });
 
   test('test integrationsSendSms()', async () => {

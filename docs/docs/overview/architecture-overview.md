@@ -20,4 +20,4 @@ Erxes at its core is a repository that collects all customer requests from vario
 * **[Redis server](https://redis.io)** responsible for handling real-time communications.
 * **[MongoDB](https://www.mongodb.com)**
 
-  ![](https://erxes-docs.s3-us-west-2.amazonaws.com/erxes_architecture.svg)
+  ![](https://erxes-docs.s3-us-west-2.amazonaws.com/erxes+Inc_+Architecture-Open+Source+Architecture.svg)

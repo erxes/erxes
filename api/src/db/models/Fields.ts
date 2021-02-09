@@ -246,7 +246,7 @@ export const loadFieldClass = () => {
 
     public static generateTypedItem(
       field: string,
-      value: string
+      value: string | number
     ): ITypedListItem {
       let stringValue;
       let numberValue;
@@ -259,6 +259,7 @@ export const loadFieldClass = () => {
         if (validator.isFloat(value.toString())) {
           numberValue = value;
           stringValue = null;
+          value = Number(value);
         }
 
         if (isValidDate(value)) {

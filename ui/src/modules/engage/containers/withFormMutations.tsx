@@ -63,7 +63,7 @@ function withSaveAndEdit<IComponentProps>(Component) {
             Alert.success(msg);
 
             history.push({
-              pathname: '/engage',
+              pathname: '/campaigns',
               search: '?engageRefetchList=true'
             });
           })

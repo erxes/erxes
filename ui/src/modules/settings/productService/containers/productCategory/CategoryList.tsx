@@ -75,7 +75,10 @@ export default withProps<Props>(
     graphql<Props, ProductCategoriesQueryResponse, { parentId: string }>(
       gql(queries.productCategories),
       {
-        name: 'productCategoriesQuery'
+        name: 'productCategoriesQuery',
+        options: () => ({
+          fetchPolicy: 'network-only'
+        })
       }
     ),
     graphql<Props, ProductCategoriesCountQueryResponse>(

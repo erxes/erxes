@@ -217,6 +217,7 @@ export const userFactory = async (params: IUserFactoryInput = {}) => {
 interface ITagFactoryInput {
   colorCode?: string;
   type?: string;
+  parentId?: string;
 }
 
 export const tagsFactory = (params: ITagFactoryInput = {}) => {
@@ -224,7 +225,8 @@ export const tagsFactory = (params: ITagFactoryInput = {}) => {
     name: faker.random.word(),
     type: params.type || 'engageMessage',
     colorCode: params.colorCode || Random.id(),
-    userId: Random.id()
+    userId: Random.id(),
+    parentId: params.parentId
   });
 
   return tag.save();
@@ -247,6 +249,8 @@ interface IEngageMessageFactoryInput {
   fromUserId?: string;
   fromIntegrationId?: string;
   scheduleDate?: IScheduleDate;
+  createdBy?: string;
+  createdAt?: Date;
 }
 
 export const engageMessageFactory = (
@@ -258,6 +262,7 @@ export const engageMessageFactory = (
     method: params.method || 'messenger',
     title: params.title || faker.random.word(),
     fromUserId: params.userId || faker.random.uuid(),
+    createdBy: params.createdBy || faker.random.uuid(),
     segmentIds: params.segmentIds || [],
     brandIds: params.brandIds || [],
     tagIds: params.tagIds || [],
@@ -271,7 +276,8 @@ export const engageMessageFactory = (
     },
     scheduleDate: params.scheduleDate || {
       type: 'day'
-    }
+    },
+    createdAt: params.createdAt || new Date()
   });
 
   return engageMessage.save();

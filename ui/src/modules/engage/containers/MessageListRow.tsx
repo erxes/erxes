@@ -8,6 +8,7 @@ import { withRouter } from 'react-router-dom';
 import MessageListRow from '../components/MessageListRow';
 import { mutations, queries } from '../graphql';
 import {
+  CopyMutationResponse,
   IEngageMessage,
   MutationVariables,
   RemoveMutationResponse,
@@ -22,6 +23,7 @@ type Props = {
   toggleBulk: (value: IEngageMessage, isChecked: boolean) => void;
   message: IEngageMessage;
   queryParams: any;
+  refetch: () => void;
 };
 
 type FinalProps = Props &
@@ -29,10 +31,12 @@ type FinalProps = Props &
   SetPauseMutationResponse &
   SetLiveMutationResponse &
   SetLiveManualMutationResponse &
+  CopyMutationResponse &
   IRouterProps;
 
 const MessageRowContainer = (props: FinalProps) => {
   const {
+    copyMutation,
     history,
     message,
     removeMutation,
@@ -40,7 +44,8 @@ const MessageRowContainer = (props: FinalProps) => {
     setLiveMutation,
     setLiveManualMutation,
     isChecked,
-    toggleBulk
+    toggleBulk,
+    refetch
   } = props;
 
   const doMutation = (mutation, msg: string) =>
@@ -55,18 +60,18 @@ const MessageRowContainer = (props: FinalProps) => {
       });
 
   const edit = () => {
-    history.push(`/engage/messages/edit/${message._id}`);
+    history.push(`/campaigns/edit/${message._id}`);
   };
 
   const show = () => {
-    history.push(`/engage/messages/show/${message._id}`);
+    history.push(`/campaigns/show/${message._id}`);
   };
 
   const remove = () => {
     confirm().then(() => {
-      doMutation(removeMutation, `You just deleted an engagement message.`)
+      doMutation(removeMutation, `You just deleted a campaign.`)
         .then(() => {
-          history.push('/engage');
+          history.push('/campaigns');
         })
         .catch(e => {
           Alert.error(e.message);
@@ -75,14 +80,16 @@ const MessageRowContainer = (props: FinalProps) => {
   };
 
   const setLiveManual = () =>
-    doMutation(
-      setLiveManualMutation,
-      'Yay! Your engagement message is now live.'
-    );
+    doMutation(setLiveManualMutation, 'Yay! Your campaign is now live.');
   const setLive = () =>
-    doMutation(setLiveMutation, 'Yay! Your engagement message is now live.');
+    doMutation(setLiveMutation, 'Yay! Your campaign is now live.');
   const setPause = () =>
-    doMutation(setPauseMutation, 'Your engagement message is paused for now.');
+    doMutation(setPauseMutation, 'Your campaign is paused for now.');
+  const copy = () => {
+    doMutation(copyMutation, 'Campaign has been copied.').then(() => {
+      refetch();
+    });
+  };
 
   const updatedProps = {
     ...props,
@@ -93,7 +100,8 @@ const MessageRowContainer = (props: FinalProps) => {
     setLiveManual,
     setPause,
     isChecked,
-    toggleBulk
+    toggleBulk,
+    copy
   };
 
   return <MessageListRow {...updatedProps} />;
@@ -147,6 +155,9 @@ export default withProps<Props>(
         name: 'setLiveManualMutation',
         options: statusMutationsOptions
       }
-    )
+    ),
+    graphql(gql(mutations.engageMessageCopy), {
+      name: 'copyMutation'
+    })
   )(withRouter<FinalProps>(MessageRowContainer))
 );

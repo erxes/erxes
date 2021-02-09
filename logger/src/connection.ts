@@ -25,6 +25,6 @@ export const connect = () => {
       debugDb(`Disconnected from the database: ${URI}`);
     })
     .on('error', error => {
-      debugDb(`Database connection error: ${URI}`, error);
+      debugDb(`Database connection error: ${URI} ${error}`);
     });
 };

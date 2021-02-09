@@ -31,8 +31,9 @@ interface IState {
   headHeight: number;
   botTyping: boolean;
   browserInfo: IBrowserInfo;
-  selectedSkill: string | null
+  selectedSkill: string | null;
   inputDisabled: boolean;
+  errorMessage: string;
 }
 
 interface IStore extends IState {
@@ -140,7 +141,8 @@ export class AppProvider extends React.Component<{}, IState> {
       botTyping: false,
       browserInfo: {},
       selectedSkill: null,
-      inputDisabled
+      inputDisabled,
+      errorMessage: ''
     };
   }
 
@@ -185,6 +187,7 @@ export class AppProvider extends React.Component<{}, IState> {
       source: 'fromMessenger',
       callback: (browserInfo: IBrowserInfo) => {
         const variables = {
+          visitorId: connection.data.visitorId,
           customerId: connection.data.customerId,
           browserInfo
         };
@@ -245,7 +248,10 @@ export class AppProvider extends React.Component<{}, IState> {
       connection.data.messengerData.requireAuth
     ) {
       // if visitor did not give email or phone then ask
-      return this.setState({ activeRoute: 'accquireInformation', selectedSkill: null });
+      return this.setState({
+        activeRoute: 'accquireInformation',
+        selectedSkill: null
+      });
     }
 
     const { skillData = {} } = connection.data.messengerData;
@@ -353,12 +359,14 @@ export class AppProvider extends React.Component<{}, IState> {
       .mutate({
         mutation: gql`
           mutation widgetsSaveCustomerGetNotified(
-            $customerId: String!
+            $customerId: String
+            $visitorId: String
             $type: String!
             $value: String!
           ) {
             widgetsSaveCustomerGetNotified(
               customerId: $customerId
+              visitorId: $visitorId
               type: $type
               value: $value
             )
@@ -367,18 +375,23 @@ export class AppProvider extends React.Component<{}, IState> {
 
         variables: {
           customerId: connection.data.customerId,
+          visitorId: connection.data.visitorId,
           type,
           value
         }
       })
 
       // after mutation
-      .then(() => {
+      .then(({ data: { widgetsSaveCustomerGetNotified } }: any) => {
         this.setState({ isSavingNotified: false });
 
         if (callback) {
           callback();
         }
+
+        //cache customerId
+        setLocalStorageItem('customerId', widgetsSaveCustomerGetNotified._id);
+        connection.data.customerId = widgetsSaveCustomerGetNotified._id;
 
         // save email
         setLocalStorageItem('getNotifiedType', type);
@@ -425,7 +438,6 @@ export class AppProvider extends React.Component<{}, IState> {
   };
 
   readMessages = (conversationId: string) => {
-
     client
       .mutate({
         mutation: gql(graphqlTypes.readConversationMessages),
@@ -494,28 +506,25 @@ export class AppProvider extends React.Component<{}, IState> {
 
   onSelectSkill = (skillId: string) => {
     this.setState({ selectedSkill: skillId, inputDisabled: false });
-  }
+  };
 
   getBotInitialMessage = (callback: (botData: any) => void) => {
-    return client.mutate({
-      mutation: gql`
-        mutation widgetGetBotInitialMessage(
-          $integrationId: String
-        ) {
-            widgetGetBotInitialMessage(
-            integrationId: $integrationId
-          )
+    return client
+      .mutate({
+        mutation: gql`
+          mutation widgetGetBotInitialMessage($integrationId: String) {
+            widgetGetBotInitialMessage(integrationId: $integrationId)
+          }
+        `,
+        variables: {
+          integrationId: connection.data.integrationId
         }
-      `,
-      variables: {
-        integrationId: connection.data.integrationId,
-      }
-    })
+      })
       .then(({ data }) => {
         if (data.widgetGetBotInitialMessage) {
           callback(data.widgetGetBotInitialMessage);
         }
-      })
+      });
   };
 
   replyAutoAnswer = (message: string, payload: string, type: string) => {
@@ -529,7 +538,8 @@ export class AppProvider extends React.Component<{}, IState> {
             $payload: String!
             $type: String!
             $conversationId: String
-            $customerId: String!
+            $customerId: String
+            $visitorId: String
             $integrationId: String!
           ) {
             widgetBotRequest(
@@ -538,6 +548,7 @@ export class AppProvider extends React.Component<{}, IState> {
               type: $type
               conversationId: $conversationId
               customerId: $customerId
+              visitorId: $visitorId
               integrationId: $integrationId
             )
           }
@@ -546,13 +557,17 @@ export class AppProvider extends React.Component<{}, IState> {
           conversationId: this.state.activeConversation,
           integrationId: connection.data.integrationId,
           customerId: connection.data.customerId,
+          visitorId: connection.data.visitorId,
           message: newLineToBr(message),
           type,
           payload
         }
       })
       .then(({ data }) => {
-        const { conversationId } = data.widgetBotRequest;
+        const { conversationId, customerId } = data.widgetBotRequest;
+
+        setLocalStorageItem('customerId', customerId);
+        connection.data.customerId = customerId;
 
         this.setState({
           sendingMessage: false,
@@ -630,7 +645,7 @@ export class AppProvider extends React.Component<{}, IState> {
       return 'Already sending';
     }
 
-    this.setState({ sendingMessage: true });
+    this.setState({ sendingMessage: true, errorMessage: '' });
 
     return (
       client
@@ -660,6 +675,7 @@ export class AppProvider extends React.Component<{}, IState> {
           variables: {
             integrationId: connection.data.integrationId,
             customerId: connection.data.customerId,
+            visitorId: connection.data.visitorId,
             conversationId: activeConversation,
             skillId: this.state.selectedSkill,
             contentType,
@@ -679,10 +695,20 @@ export class AppProvider extends React.Component<{}, IState> {
           if (!activeConversation) {
             this.changeConversation(widgetsInsertMessage.conversationId);
           }
+
+          if (!connection.data.customerId) {
+            connection.data.customerId = widgetsInsertMessage.customerId;
+            connection.data.visitorId = null;
+            setLocalStorageItem('customerId', widgetsInsertMessage.customerId);
+          }
         })
 
         .catch((e: Error) => {
-          this.setState({ sendingMessage: false });
+          this.setState({
+            sendingMessage: false,
+            errorMessage:
+              e && e.message ? e.message.replace('GraphQL error: ', '') : ''
+          });
         })
     );
   };

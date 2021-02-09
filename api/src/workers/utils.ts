@@ -68,7 +68,8 @@ const getS3FileInfo = async ({ s3, query, params }): Promise<string> => {
           CSV: {
             FileHeaderInfo: 'NONE',
             RecordDelimiter: '\n',
-            FieldDelimiter: ','
+            FieldDelimiter: ',',
+            AllowQuotedRecordDelimiter: true
           }
         },
         OutputSerialization: {
@@ -310,7 +311,7 @@ export const receiveImportRemove = async (content: any) => {
 
     return { status: 'ok' };
   } catch (e) {
-    debugWorkers('Failed to remove import: ', e.message);
+    debugWorkers(`Failed to remove import: ${e.message}`);
     throw e;
   }
 };

@@ -3,6 +3,7 @@ import { connection } from "./connection";
 const messageFields = `
   _id
   conversationId
+  customerId
   user {
     _id
     details {
@@ -92,7 +93,7 @@ const conversationBotTypingStatus = `
 `;
 
 const adminMessageInserted = `
-  subscription conversationAdminMessageInserted($customerId: String!) {
+  subscription conversationAdminMessageInserted($customerId: String) {
     conversationAdminMessageInserted(customerId: $customerId) {
       unreadCount
     }
@@ -148,8 +149,8 @@ const allConversations = `
 `;
 
 const getEngageMessage = `
-  query widgetsGetEngageMessage($customerId: String!  $browserInfo: JSON!) {
-    widgetsGetEngageMessage(customerId: $customerId browserInfo: $browserInfo) {
+  query widgetsGetEngageMessage($customerId: String $visitorId: String $browserInfo: JSON!) {
+    widgetsGetEngageMessage(customerId: $customerId visitorId: $visitorId browserInfo: $browserInfo) {
       ${messageFields}
     }
   }
@@ -164,16 +165,17 @@ const readConversationMessages = `
 const connect = `
   mutation connect($brandCode: String!, $email: String, $phone: String, $code: String
     $isUser: Boolean, $data: JSON,
-    $companyData: JSON, $cachedCustomerId: String) {
+    $companyData: JSON, $cachedCustomerId: String $visitorId: String) {
 
     widgetsMessengerConnect(brandCode: $brandCode, email: $email, phone: $phone, code: $code,
       isUser: $isUser, data: $data, companyData: $companyData,
-      cachedCustomerId: $cachedCustomerId) {
+      cachedCustomerId: $cachedCustomerId, visitorId: $visitorId) {
       integrationId,
       messengerData,
       languageCode,
       uiOptions,
       customerId,
+      visitorId,
       brand {
         name
         description
@@ -183,8 +185,8 @@ const connect = `
 `;
 
 const saveBrowserInfo = `
-  mutation widgetsSaveBrowserInfo($customerId: String!  $browserInfo: JSON!) {
-    widgetsSaveBrowserInfo(customerId: $customerId browserInfo: $browserInfo) {
+  mutation widgetsSaveBrowserInfo($customerId: String $visitorId: String $browserInfo: JSON!) {
+    widgetsSaveBrowserInfo(customerId: $customerId visitorId: $visitorId browserInfo: $browserInfo) {
       ${messageFields}
     }
   }

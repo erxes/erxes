@@ -29,6 +29,7 @@ type Props = {
   loading: boolean;
   queryParams: any;
   emailPercentages: any;
+  refetch: () => void;
 };
 
 class List extends React.Component<Props> {
@@ -76,7 +77,7 @@ class List extends React.Component<Props> {
     const { emailPercentages } = this.props;
 
     if (!emailPercentages) {
-      return null;
+      return <>You haven't sent email campaigns yet.</>;
     }
 
     const trigger = (
@@ -167,26 +168,26 @@ class List extends React.Component<Props> {
   renderRightActionBar = () => {
     const trigger = (
       <Button btnStyle="success" size="small" icon="plus-circle">
-        {__('New message')}
+        {__('New campaign')}
       </Button>
     );
 
-    const content = props => (
+    const content = () => (
       <FlexContainer direction="column">
         {this.renderBox(
-          'Auto message',
+          'Auto campaign',
           'Auto message description',
-          '/engage/messages/create?kind=auto'
+          '/campaigns/create?kind=auto'
         )}
         {this.renderBox(
-          'Manual message',
+          'Manual campaign',
           'Manual message description',
-          '/engage/messages/create?kind=manual'
+          '/campaigns/create?kind=manual'
         )}
         {this.renderBox(
-          'Visitor auto message',
+          'Visitor auto campaign',
           'Visitor auto message description',
-          '/engage/messages/create?kind=visitorAuto'
+          '/campaigns/create?kind=visitorAuto'
         )}
       </FlexContainer>
     );
@@ -195,7 +196,7 @@ class List extends React.Component<Props> {
       <>
         {this.renderPercentage()}
         <ModalTrigger
-          title="New message"
+          title="New campaign"
           trigger={trigger}
           content={content}
           hideHeader={true}
@@ -214,7 +215,8 @@ class List extends React.Component<Props> {
       toggleBulk,
       loading,
       queryParams,
-      isAllSelected
+      isAllSelected,
+      refetch
     } = this.props;
 
     const actionBar = (
@@ -236,6 +238,7 @@ class List extends React.Component<Props> {
               />
             </th>
             <th>{__('Title')}</th>
+            <th>{__('Created by')}</th>
             <th>{__('From')}</th>
             <th>{__('Status')}</th>
             <th>{__('Total')}</th>
@@ -255,6 +258,7 @@ class List extends React.Component<Props> {
               key={message._id}
               message={message}
               queryParams={queryParams}
+              refetch={refetch}
             />
           ))}
         </tbody>
@@ -265,8 +269,8 @@ class List extends React.Component<Props> {
       <Wrapper
         header={
           <Wrapper.Header
-            title={__('Engage')}
-            breadcrumb={[{ title: __('Engage') }]}
+            title={__('Campaigns')}
+            breadcrumb={[{ title: __('Campaigns') }]}
             queryParams={queryParams}
           />
         }

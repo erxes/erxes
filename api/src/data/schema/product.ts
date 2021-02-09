@@ -63,8 +63,8 @@ export const queries = `
 export const mutations = `
   productsAdd(${productParams}): Product
   productsEdit(_id: String!, ${productParams}): Product
-  productsRemove(productIds: [String!]): JSON
-
+  productsRemove(productIds: [String!]): String
+  productsMerge(productIds: [String], productFields: JSON): Product
   productCategoriesAdd(${productCategoryParams}): ProductCategory
   productCategoriesEdit(_id: String!, ${productCategoryParams}): ProductCategory
   productCategoriesRemove(_id: String!): JSON
