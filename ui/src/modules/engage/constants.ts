@@ -1,12 +1,6 @@
 export const EMAIL_CONTENT_CLASS = 'erxes-email-content';
 export const EMAIL_CONTENT_PLACEHOLDER = `<div class="${EMAIL_CONTENT_CLASS}"></div>`;
 
-export const MESSAGE_TYPES = [
-  { label: 'Segment', value: 'segment' },
-  { label: 'Tag', value: 'tag' },
-  { label: 'Brand', value: 'brand' }
-];
-
 export const MESSAGE_KINDS = {
   AUTO: 'auto',
   VISITOR_AUTO: 'visitorAuto',
@@ -203,4 +197,11 @@ export const AWS_EMAIL_DELIVERY_STATUSES = {
       icon: 'ban'
     }
   ]
+};
+
+export const CAMPAIGN_TARGET_TYPES = {
+  SEGMENT: 'segment',
+  TAG: 'tag',
+  BRAND: 'brand',
+  ALL: ['segment', 'tag', 'brand']
 };
