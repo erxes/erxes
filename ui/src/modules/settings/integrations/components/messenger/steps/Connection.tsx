@@ -50,7 +50,7 @@ class Connection extends React.Component<Props, State> {
       <FlexItem>
         <LeftItem>
           <FormGroup>
-            <ControlLabel>Integration Name</ControlLabel>
+            <ControlLabel required={true}>Integration Name</ControlLabel>
             <p>{__('Name this integration to differentiate from the rest')}</p>
 
             <FormControl

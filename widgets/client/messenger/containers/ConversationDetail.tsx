@@ -1,13 +1,13 @@
-import gql from "graphql-tag";
-import * as React from "react";
-import { ChildProps, compose, graphql } from "react-apollo";
-import client from "../../apollo-client";
-import { IParticipator, IUser } from "../../types";
-import { ConversationDetail as DumbComponent } from "../components";
-import { connection } from "../connection";
-import graphqlTypes from "../graphql";
-import { IConversation, IMessage } from "../types";
-import { AppConsumer } from "./AppContext";
+import gql from 'graphql-tag';
+import * as React from 'react';
+import { ChildProps, compose, graphql } from 'react-apollo';
+import client from '../../apollo-client';
+import { IParticipator, IUser } from '../../types';
+import { ConversationDetail as DumbComponent } from '../components';
+import { connection } from '../connection';
+import graphqlTypes from '../graphql';
+import { IConversation, IMessage } from '../types';
+import { AppConsumer } from './AppContext';
 
 type Props = {
   conversationId: string;
@@ -19,6 +19,7 @@ type Props = {
   loading?: boolean;
   isOnline?: boolean;
   forceLogoutWhenResolve?: boolean;
+  errorMessage: string;
 };
 
 type QueryResponse = {
@@ -35,7 +36,7 @@ class ConversationDetail extends React.Component<
       endConversation,
       setBotTyping,
       conversationId,
-      forceLogoutWhenResolve,
+      forceLogoutWhenResolve
     } = this.props;
 
     if (!data || !conversationId) {
@@ -47,14 +48,14 @@ class ConversationDetail extends React.Component<
       .subscribe({
         query: gql(graphqlTypes.conversationBotTypingStatus),
         variables: { _id: conversationId },
-        fetchPolicy: "network-only",
+        fetchPolicy: 'network-only'
       })
       .subscribe({
-        next({ data: { conversationBotTypingStatus }}) {
+        next({ data: { conversationBotTypingStatus } }) {
           const { typing } = conversationBotTypingStatus;
 
           return setBotTyping(typing);
-        },
+        }
       });
 
     // lister for new message
@@ -83,12 +84,12 @@ class ConversationDetail extends React.Component<
           ...prev,
           widgetsConversationDetail: {
             ...widgetsConversationDetail,
-            messages: [...messages, message],
-          },
+            messages: [...messages, message]
+          }
         };
 
         return next;
-      },
+      }
     });
 
     // lister for conversation status change
@@ -100,10 +101,10 @@ class ConversationDetail extends React.Component<
         const conversationChanged = subData.conversationChanged || {};
         const type = conversationChanged.type;
 
-        if (forceLogoutWhenResolve && type === "closed") {
+        if (forceLogoutWhenResolve && type === 'closed') {
           endConversation(conversationId);
         }
-      },
+      }
     });
   }
 
@@ -142,13 +143,13 @@ const query = compose(
   graphql<{ conversationId: string }>(
     gql(graphqlTypes.conversationDetailQuery),
     {
-      options: (ownProps) => ({
+      options: ownProps => ({
         variables: {
           _id: ownProps.conversationId,
-          integrationId: connection.data.integrationId,
+          integrationId: connection.data.integrationId
         },
-        fetchPolicy: "network-only",
-      }),
+        fetchPolicy: 'network-only'
+      })
     }
   )
 );
@@ -170,10 +171,15 @@ const WithConsumer = (props: PropsWithConsumer) => {
         getColor,
         setBotTyping,
         getMessengerData,
-        getBotInitialMessage
+        getBotInitialMessage,
+        errorMessage
       }) => {
-        const key = activeConversation || "create";
-        const { isOnline, forceLogoutWhenResolve, botShowInitialMessage } = getMessengerData();
+        const key = activeConversation || 'create';
+        const {
+          isOnline,
+          forceLogoutWhenResolve,
+          botShowInitialMessage
+        } = getMessengerData();
 
         return (
           <WithQuery
@@ -187,6 +193,7 @@ const WithConsumer = (props: PropsWithConsumer) => {
             botShowInitialMessage={botShowInitialMessage}
             setBotTyping={setBotTyping}
             endConversation={endConversation}
+            errorMessage={errorMessage}
             color={getColor()}
           />
         );

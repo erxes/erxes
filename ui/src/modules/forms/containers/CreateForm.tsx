@@ -3,8 +3,7 @@ import * as compose from 'lodash.flowright';
 import { Alert, withProps } from 'modules/common/utils';
 import {
   AddFieldsMutationResponse,
-  AddFieldsMutationVariables,
- IField
+  AddFieldsMutationVariables
 } from 'modules/settings/properties/types';
 import React from 'react';
 import { graphql } from 'react-apollo';
@@ -19,7 +18,6 @@ import {
 } from '../types';
 
 type Props = {
-  renderPreviewWrapper: (previewRenderer, fields: IField[]) => void;
   afterDbSave: (formId: string) => void;
   onDocChange?: (doc: IFormData) => void;
   type: string;
@@ -27,8 +25,7 @@ type Props = {
   showMessage?: boolean;
 };
 
-type FinalProps = {
-} & Props &
+type FinalProps = {} & Props &
   IRouterProps &
   AddFieldsMutationResponse &
   AddFormMutationResponse;
@@ -45,7 +42,6 @@ class CreateFormContainer extends React.Component<FinalProps, {}> {
       afterDbSave,
       showMessage
     } = this.props;
-
 
     const saveForm = doc => {
       let formId;
@@ -102,8 +98,6 @@ class CreateFormContainer extends React.Component<FinalProps, {}> {
 
     return <Form {...updatedProps} />;
   }
-
- 
 }
 
 export default withProps<Props>(
@@ -122,6 +116,6 @@ export default withProps<Props>(
       {
         name: 'addFieldsMutation'
       }
-    ) 
+    )
   )(withRouter<FinalProps>(CreateFormContainer))
 );

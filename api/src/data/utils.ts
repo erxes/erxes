@@ -875,3 +875,10 @@ export const getErxesSaasDomain = () => {
     ? 'https://erxes.io'
     : 'http://localhost:3500';
 };
+
+/**
+ * Escaping, special characters
+ */
+export const escapeRegExp = (str: string) => {
+  return str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+};

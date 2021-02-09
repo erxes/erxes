@@ -23,7 +23,6 @@ import {
 } from '../types';
 
 type Props = {
-  renderPreviewWrapper: (previewRenderer, fields: IField[]) => void;
   afterDbSave: (formId: string) => void;
   onDocChange?: (doc: IFormData) => void;
   onInit?: (fields: IField[]) => void;

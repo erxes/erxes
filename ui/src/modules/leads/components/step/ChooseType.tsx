@@ -2,19 +2,18 @@ import { COLORS } from 'modules/boards/constants';
 import FormGroup from 'modules/common/components/form/Group';
 import ControlLabel from 'modules/common/components/form/Label';
 import Icon from 'modules/common/components/Icon';
-import { LeftItem, Preview } from 'modules/common/components/step/styles';
+import { LeftItem } from 'modules/common/components/step/styles';
 import { __ } from 'modules/common/utils';
 import { ColorPick, ColorPicker } from 'modules/settings/styles';
 import React from 'react';
 import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
 import Popover from 'react-bootstrap/Popover';
 import TwitterPicker from 'react-color/lib/Twitter';
-import { CalloutPreview } from './preview';
-import { BackgroundSelector, Box, BoxRow, ColorList, FlexItem } from './style';
+import { BackgroundSelector, Box, BoxRow, FlexItem } from './style';
 
 type Props = {
   type: string;
-  onChange: (name: 'type' | 'color' | 'theme' , value: string) => void;
+  onChange: (name: 'type' | 'color' | 'theme', value: string) => void;
   calloutTitle?: string;
   calloutBtnText?: string;
   color: string;
@@ -59,11 +58,7 @@ class ChooseType extends React.Component<Props, {}> {
   }
 
   render() {
-
-    const {
-      color,
-      theme
-    } = this.props;
+    const { color, theme } = this.props;
 
     const popoverTop = (
       <Popover id="color-picker">
@@ -123,9 +118,6 @@ class ChooseType extends React.Component<Props, {}> {
             </ColorList>
           </FormGroup>
         </LeftItem>
-        <Preview>
-          <CalloutPreview {...this.props} />
-        </Preview>
       </FlexItem>
     );
   }

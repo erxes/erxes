@@ -8,6 +8,7 @@ import {
   Integrations,
   Products
 } from '.';
+import { escapeRegExp } from '../../data/utils';
 import { ITag, ITagDocument, tagSchema } from './definitions/tags';
 
 interface ITagObjectParams {
@@ -253,37 +254,39 @@ export const loadClass = () => {
       if (tag && tag.order) {
         const childTags = await Tags.find({
           $and: [
-            { order: { $regex: new RegExp(tag.order, 'i') } },
+            { order: { $regex: new RegExp(escapeRegExp(tag.order), 'i') } },
             { _id: { $ne: _id } }
           ]
         });
 
-        const bulkDoc: Array<{
-          updateOne: {
-            filter: { _id: string };
-            update: { $set: { order: string } };
-          };
-        }> = [];
+        if (childTags.length > 0) {
+          const bulkDoc: Array<{
+            updateOne: {
+              filter: { _id: string };
+              update: { $set: { order: string } };
+            };
+          }> = [];
 
-        // updating child categories order
-        childTags.forEach(async childTag => {
-          let childOrder = childTag.order;
+          // updating child categories order
+          childTags.forEach(async childTag => {
+            let childOrder = childTag.order;
 
-          if (tag.order && childOrder) {
-            childOrder = childOrder.replace(tag.order, order);
+            if (tag.order && childOrder) {
+              childOrder = childOrder.replace(tag.order, order);
 
-            bulkDoc.push({
-              updateOne: {
-                filter: { _id: childTag._id },
-                update: { $set: { order: childOrder } }
-              }
-            });
-          }
-        });
+              bulkDoc.push({
+                updateOne: {
+                  filter: { _id: childTag._id },
+                  update: { $set: { order: childOrder } }
+                }
+              });
+            }
+          });
 
-        await Tags.bulkWrite(bulkDoc);
+          await Tags.bulkWrite(bulkDoc);
 
-        await removeRelatedIds(tag);
+          await removeRelatedIds(tag);
+        }
       }
 
       await Tags.updateOne({ _id }, { $set: { ...doc, order } });

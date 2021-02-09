@@ -187,11 +187,10 @@ const integrationMutations = {
     _root,
     { _id, ...doc }: IEditIntegration
   ) {
-
     const integration = await Integrations.getIntegration(_id);
 
     const updated = await Integrations.updateLeadIntegration(_id, doc);
- 
+
     await Channels.updateMany(
       { integrationIds: integration._id },
       { $pull: { integrationIds: integration._id } }
@@ -204,7 +203,10 @@ const integrationMutations = {
       );
     }
 
-    await caches.update(`integration_lead_${updated.brandId}`, updated);
+    await caches.update(
+      `integration_lead_${updated.brandId}_${updated.formId}`,
+      updated
+    );
 
     return updated;
   },
@@ -315,7 +317,13 @@ const integrationMutations = {
     if (
       [KIND_CHOICES.LEAD, KIND_CHOICES.MESSENGER].includes(integration.kind)
     ) {
-      caches.remove(`integration_${integration.kind}_${integration.brandId}`);
+      let key = `integration_${integration.kind}_${integration.brandId}`;
+
+      if (integration.kind === KIND_CHOICES.LEAD) {
+        key += `_${updated.formId}`;
+      }
+
+      caches.remove(key);
     }
 
     await Channels.updateMany(
@@ -499,7 +507,13 @@ const integrationMutations = {
       [KIND_CHOICES.LEAD, KIND_CHOICES.MESSENGER].includes(integration.kind) &&
       updated
     ) {
-      caches.remove(`integration_${integration.kind}_${updated.brandId}`);
+      let key = `integration_${integration.kind}_${updated.brandId}`;
+
+      if (integration.kind === KIND_CHOICES.LEAD) {
+        key += `_${updated.formId}`;
+      }
+
+      caches.remove(key);
     }
 
     await putUpdateLog(
@@ -559,11 +573,11 @@ const integrationMutations = {
 
     const sourceForm = await Forms.getForm(sourceIntegration.formId);
 
-    const sourceFields = await Fields.find({contentTypeId:sourceForm._id});
+    const sourceFields = await Fields.find({ contentTypeId: sourceForm._id });
 
     const formDoc = docModifier({
       ...sourceForm.toObject(),
-      title: `${sourceForm.title}-copied`,
+      title: `${sourceForm.title}-copied`
     });
 
     delete formDoc._id;
@@ -579,9 +593,12 @@ const integrationMutations = {
 
     delete doc._id;
 
-    const copiedIntegration = await Integrations.createLeadIntegration(doc, user._id);
+    const copiedIntegration = await Integrations.createLeadIntegration(
+      doc,
+      user._id
+    );
 
-    const fields = sourceFields.map((e) => ({
+    const fields = sourceFields.map(e => ({
       options: e.options,
       isVisible: e.isVisible,
       contentType: e.contentType,
