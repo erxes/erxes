@@ -23,6 +23,7 @@ type Props = {
   options: [{ label: string; value: string }];
   onChange: (option: { cardId?: string; name?: string }) => void;
   type: string;
+  additionalValue?: string;
 };
 
 type State = {
@@ -42,12 +43,15 @@ class CardSelect extends React.Component<Props, State> {
   handleChange = option => {
     const { onChange } = this.props;
 
-    this.setState({ searchValue: '', selectedValue: option });
-
     if (option) {
       onChange({
         cardId: option.value,
         name: option.label
+      });
+
+      this.setState({
+        searchValue: option.value === 'copiedItem' ? option.label : '',
+        selectedValue: option
       });
     }
   };
@@ -66,14 +70,24 @@ class CardSelect extends React.Component<Props, State> {
   handleAdd = () => {
     const { onChange } = this.props;
 
+    const { selectedValue } = this.state;
+
+    if (selectedValue && selectedValue.value !== 'copiedItem') {
+      return;
+    }
+
     onChange({
       name: this.state.searchValue
     });
   };
 
   render() {
-    const { placeholder, options } = this.props;
+    const { placeholder, options, additionalValue } = this.props;
     const { selectedValue } = this.state;
+
+    if (additionalValue) {
+      options.push({ value: 'copiedItem', label: additionalValue });
+    }
 
     return (
       <Wrapper>
@@ -88,6 +102,7 @@ class CardSelect extends React.Component<Props, State> {
             onChange={this.handleChange}
             onInputChange={this.handleInput}
             onInputKeyDown={this.handleKeyDown}
+            clearable={false}
           />
         </FillContent>
       </Wrapper>

@@ -48,7 +48,7 @@ class AddForm extends React.Component<Props, State> {
       name:
         localStorage.getItem(`${props.options.type}Name`) || props.mailSubject
           ? props.mailSubject
-          : ''
+          : `mail subject ${Math.random()}`
     };
   }
 
@@ -134,10 +134,13 @@ class AddForm extends React.Component<Props, State> {
   onChangeCardSelect = option => {
     const { cardId, name } = option;
 
-    if (cardId) {
+    if (cardId && cardId !== 'copiedItem') {
+      this.onChangeField('name', '');
+
       return this.onChangeField('cardId', cardId);
     }
 
+    this.onChangeField('cardId', '');
     this.onChangeField('name', name);
 
     localStorage.setItem(`${this.props.options.type}Name`, name);
@@ -145,7 +148,6 @@ class AddForm extends React.Component<Props, State> {
 
   onChangeName = e => {
     const name = (e.target as HTMLInputElement).value;
-
     this.onChangeField('name', name);
 
     localStorage.setItem(`${this.props.options.type}Name`, name);
@@ -167,6 +169,7 @@ class AddForm extends React.Component<Props, State> {
                   options={this.state.cards}
                   onChange={this.onChangeCardSelect}
                   type={type}
+                  additionalValue={this.state.name}
                 />
               ) : (
                 <FormControl
