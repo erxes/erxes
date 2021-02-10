@@ -59,7 +59,11 @@ class Row extends React.Component<Props> {
 
     const links: React.ReactNode[] = [copy];
 
-    if ([METHODS.EMAIL, METHODS.SMS].includes(msg.method)) {
+    if (msg.isDraft) {
+      links.push(edit);
+    }
+
+    if ([METHODS.EMAIL, METHODS.SMS].includes(msg.method) && !msg.isDraft) {
       links.push(show);
     }
 
@@ -72,10 +76,10 @@ class Row extends React.Component<Props> {
     }
 
     if (msg.isLive) {
-      return [...links, edit, pause];
+      return [...links, pause];
     }
 
-    return [...links, edit, live];
+    return [...links, live];
   }
 
   renderRemoveButton = onClick => {
