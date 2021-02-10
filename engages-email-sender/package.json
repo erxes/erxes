@@ -23,7 +23,7 @@
     "debug": "^4.1.1",
     "dotenv": "^4.0.0",
     "erxes-message-broker": "^1.0.21",
-    "express": "^4.16.4",
+    "express": "4.17.1",
     "faker": "^4.1.0",
     "meteor-random": "^0.0.3",
     "mongoose": "5.7.5",
