@@ -121,14 +121,6 @@ app.post(`/service/engage/tracker`, async (req, res, next) => {
   );
 });
 
-app.use(express.urlencoded({ extended: true }));
-
-app.use(
-  express.json({
-    limit: '15mb'
-  })
-);
-
 // relay telnyx sms web hook
 app.post(`/telnyx/webhook`, (req, res, next) => {
   return handleTelnyxWebhook(req, res, next, 'webhook');
@@ -138,6 +130,15 @@ app.post(`/telnyx/webhook`, (req, res, next) => {
 app.post(`/telnyx/webhook-failover`, (req, res, next) => {
   return handleTelnyxWebhook(req, res, next, 'webhook-failover');
 });
+
+// don't move it above telnyx controllers
+app.use(express.urlencoded({ extended: true }));
+
+app.use(
+  express.json({
+    limit: '15mb'
+  })
+);
 
 app.use(cookieParser());
 
