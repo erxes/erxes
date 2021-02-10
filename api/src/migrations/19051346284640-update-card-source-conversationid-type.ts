@@ -7,7 +7,7 @@ import { Deals, Tasks, Tickets } from '../db/models';
  */
 module.exports.up = async () => {
   await connect();
-
+  console.log('migration running');
   await Deals.find()
     .cursor()
     .eachAsync((e: any) => {
