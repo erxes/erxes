@@ -1,13 +1,14 @@
+import * as dotenv from 'dotenv';
 import { connect } from '../db/connection';
 import { Deals, Tasks, Tickets } from '../db/models';
 
-/**
- * Rename card's sourceConversationId to sourceConversationIds
- *
- */
-module.exports.up = async () => {
+dotenv.config();
+
+const command = async () => {
+  console.log(`Process started at: ${new Date()}`);
+
   await connect();
-  console.log('migration running');
+
   await Deals.find()
     .cursor()
     .eachAsync((e: any) => {
@@ -52,6 +53,9 @@ module.exports.up = async () => {
       e.sourceConversationIds = [e.sourceConversationId];
       e.save();
     });
-
-  return Promise.resolve('done');
 };
+
+command().then(() => {
+  console.log(`Process finished at: ${new Date()}`);
+  process.exit();
+});
