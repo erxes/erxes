@@ -184,25 +184,37 @@ const cardFields = `
   assignedUserIds
 `;
 
+const boardItemQueryParamsDef = `
+  $pipelineId: String,
+  $stageId: String,
+  $limit: Int
+`;
+
+const boardItemQueryParams = `
+  pipelineId: $pipelineId,
+  stageId: $stageId,
+  limit: $limit
+`;
+
 const tasks = `
-  query tasks($pipelineId: String, $stageId: String, $limit: Int) {
-    tasks(pipelineId: $pipelineId, stageId: $stageId, limit: $limit) {
+  query tasks(${boardItemQueryParamsDef}) {
+    tasks(${boardItemQueryParams}) {
       ${cardFields}
     }
   } 
 `;
 
 const tickets = `
-  query tickets($pipelineId: String, $stageId: String, $limit: Int) {
-    tickets(pipelineId: $pipelineId, stageId: $stageId, limit: $limit) {
+  query tickets(${boardItemQueryParamsDef}}) {
+    tickets(${boardItemQueryParams}) {
       ${cardFields}
     }
   } 
 `;
 
 const deals = `
-  query deals($pipelineId: String, $stageId: String, $limit: Int) {
-    deals(pipelineId: $pipelineId, stageId: $stageId, limit: $limit) {
+  query deals(${boardItemQueryParamsDef}) {
+    deals(${boardItemQueryParams}) {
       ${cardFields}
     }
   } 

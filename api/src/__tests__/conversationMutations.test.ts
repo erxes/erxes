@@ -936,12 +936,16 @@ describe('Conversation message mutations', () => {
       sourceConversationIds: { $in: [conversation._id] }
     });
 
-    if(!deal) {
+    if (!deal) {
       fail('deal not found');
     }
 
-    const confomity = await Conformities.findOne({mainType: 'deal', mainTypeId: deal &&  deal._id, relType:'customer'});
-    
+    const confomity = await Conformities.findOne({
+      mainType: 'deal',
+      mainTypeId: deal && deal._id,
+      relType: 'customer'
+    });
+
     if (!confomity) {
       fail('confomity not found');
     }
@@ -949,7 +953,7 @@ describe('Conversation message mutations', () => {
     expect(deal).toBeDefined();
     expect(deal.assignedUserIds).toContain(user._id);
     expect(confomity).toBeDefined();
-    expect(confomity.relTypeId).toBe(conversation.customerId)
+    expect(confomity.relTypeId).toBe(conversation.customerId);
   });
 
   test('Convert conversation to existing card', async () => {
@@ -986,8 +990,8 @@ describe('Conversation message mutations', () => {
       { dataSources }
     );
 
-    const updatedDeal = await Deals.getDeal(deal._id)
-    
+    const updatedDeal = await Deals.getDeal(deal._id);
+
     const sourcesIds = updatedDeal.sourceConversationIds || [];
 
     expect(updatedDeal).toBeDefined();

@@ -48,7 +48,7 @@ class AddForm extends React.Component<Props, State> {
       name:
         localStorage.getItem(`${props.options.type}Name`) || props.mailSubject
           ? props.mailSubject
-          : `mail subject ${Math.random()}`
+          : ''
     };
   }
 
