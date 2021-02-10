@@ -5,7 +5,7 @@ import {
 } from '../../../db/models/definitions/constants';
 import { checkPermission, requireLogin } from '../../permissions/wrappers';
 import { IContext } from '../../types';
-import { paginate } from '../../utils';
+import { escapeRegExp, paginate } from '../../utils';
 
 const productQueries = {
   /**
@@ -63,8 +63,10 @@ const productQueries = {
     // search =========
     if (searchValue) {
       const fields = [
-        { name: { $in: [new RegExp(`.*${searchValue}.*`, 'i')] } },
-        { code: { $in: [new RegExp(`.*${searchValue}.*`, 'i')] } }
+        {
+          name: { $in: [new RegExp(`.*${escapeRegExp(searchValue)}.*`, 'i')] }
+        },
+        { code: { $in: [new RegExp(`.*${escapeRegExp(searchValue)}.*`, 'i')] } }
       ];
 
       filter.$or = fields;

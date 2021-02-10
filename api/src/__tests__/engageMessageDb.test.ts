@@ -106,11 +106,12 @@ describe('engage messages model tests', () => {
     expect(message.tagIds).toEqual(expect.arrayContaining([_tag._id]));
   });
 
-  test('update messages: can not update manual message', async () => {
+  test('update messages: can not update manual live campaign', async () => {
     expect.assertions(1);
 
     const manualMessage = await engageMessageFactory({
-      kind: 'manual'
+      kind: 'manual',
+      isLive: true
     });
 
     try {
@@ -118,7 +119,7 @@ describe('engage messages model tests', () => {
         title: 'Message test updated'
       });
     } catch (e) {
-      expect(e.message).toBe('Can not update manual message');
+      expect(e.message).toBe('Can not update manual live campaign');
     }
   });
 
