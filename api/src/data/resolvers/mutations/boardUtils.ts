@@ -570,6 +570,9 @@ export const itemsArchive = async (
     { $set: { status: BOARD_STATUSES.ARCHIVED } }
   );
 
+  // order notification
+  const stage = await Stages.getStage(stageId);
+
   for (const item of items) {
     await ActivityLogs.createArchiveLog({
       item,
@@ -577,21 +580,19 @@ export const itemsArchive = async (
       action: 'archived',
       userId: user._id
     });
-  }
 
-  // order notification
-  const stage = await Stages.getStage(stageId);
-
-  graphqlPubsub.publish('pipelinesChanged', {
-    pipelinesChanged: {
-      _id: stage.pipelineId,
-      proccessId,
-      action: 'itemsRemove',
-      data: {
-        destinationStageId: stage._id
+    graphqlPubsub.publish('pipelinesChanged', {
+      pipelinesChanged: {
+        _id: stage.pipelineId,
+        proccessId,
+        action: 'itemsRemove',
+        data: {
+          item,
+          destinationStageId: stage._id
+        }
       }
-    }
-  });
+    });
+  }
 
   return 'ok';
 };
