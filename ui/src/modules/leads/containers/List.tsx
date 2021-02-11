@@ -13,12 +13,12 @@ import routerUtils from '../../common/utils/router';
 import List from '../components/List';
 import { mutations, queries } from '../graphql';
 import {
-  CopyMutationResponse, CountQueryResponse,
+  CopyMutationResponse,
+  CountQueryResponse,
   LeadIntegrationsQueryResponse,
   RemoveMutationResponse,
   RemoveMutationVariables
 } from '../types';
-
 
 type Props = {
   queryParams: any;
@@ -61,13 +61,13 @@ class ListContainer extends React.Component<FinalProps> {
 
     const integrations = integrationsQuery.integrations || [];
 
-    const counts = (integrationsTotalCountQuery
+    const counts = integrationsTotalCountQuery
       ? integrationsTotalCountQuery.integrationsTotalCount
-      : null) 
+      : null;
 
     const remove = (integrationId: string) => {
       const message =
-        'If you remove a forms, then all related conversations, customers will also be removed. Are you sure?';
+        'If you delete a form, all previous submissions and contacts gathered through this form will also be deleted. Are you sure?';
 
       confirm(message).then(() => {
         removeMutation({
@@ -77,7 +77,7 @@ class ListContainer extends React.Component<FinalProps> {
             // refresh queries
             this.refetch();
 
-            Alert.success('You successfully deleted a forms.');
+            Alert.success('You successfully deleted a form.');
           })
           .catch(e => {
             Alert.error(e.message);
@@ -86,11 +86,11 @@ class ListContainer extends React.Component<FinalProps> {
     };
 
     const archive = (integrationId: string, status: boolean) => {
-      let message = `If you archive a forms, then you won't be able to see customers & conversations related to this forms anymore. Are you sure?`;
+      let message = `If you archive this form, the live form on your website or erxes messenger will no longer be visible. But you can still see the contacts and submissions you've received.`;
       let action = 'archived';
 
       if (!status) {
-        message = 'You are going to unarchive this forms. Are you sure?';
+        message = 'You are going to unarchive this form. Are you sure?';
         action = 'unarchived';
       }
 
@@ -100,7 +100,7 @@ class ListContainer extends React.Component<FinalProps> {
             const integration = data.integrationsArchive;
 
             if (integration) {
-              Alert.success(`Forms has been ${action}.`);
+              Alert.success(`Form has been ${action}.`);
             }
 
             this.refetch();
@@ -124,7 +124,7 @@ class ListContainer extends React.Component<FinalProps> {
         .catch(e => {
           Alert.error(e.message);
         });
-    }
+    };
 
     const updatedProps = {
       ...this.props,
@@ -191,7 +191,7 @@ export default withProps<Props>(
       name: 'integrationsTotalCountQuery',
       options: () => ({
         variables: {
-          kind: INTEGRATION_KINDS.LEAD,
+          kind: INTEGRATION_KINDS.LEAD
         }
       })
     })

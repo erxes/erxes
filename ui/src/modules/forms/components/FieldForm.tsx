@@ -37,10 +37,10 @@ type State = {
 class FieldForm extends React.Component<Props, State> {
   constructor(props: Props) {
     super(props);
-    
+
     this.state = {
-      field: props.field,
-    }
+      field: props.field
+    };
   }
 
   onFieldChange = (name: string, value: string | boolean | string[]) => {
@@ -48,7 +48,12 @@ class FieldForm extends React.Component<Props, State> {
   };
 
   onPropertyChange = (selectedField: IField) => {
-    this.setState({ selectedOption: { value: selectedField._id, label: selectedField.text || "" } });
+    this.setState({
+      selectedOption: {
+        value: selectedField._id,
+        label: selectedField.text || ''
+      }
+    });
 
     const { field } = this.state;
 
@@ -60,8 +65,8 @@ class FieldForm extends React.Component<Props, State> {
     field.text = selectedField.text;
     field.description = selectedField.description;
 
-    this.setState({ field })
-  }
+    this.setState({ field });
+  };
 
   onSubmit = e => {
     e.persist();
@@ -166,8 +171,8 @@ class FieldForm extends React.Component<Props, State> {
 
   renderLeftContent() {
     const { mode, onCancel } = this.props;
-    const { field ,selectedOption } = this.state;
-    
+    const { field } = this.state;
+
     const text = e =>
       this.onFieldChange('text', (e.currentTarget as HTMLInputElement).value);
 
@@ -211,14 +216,7 @@ class FieldForm extends React.Component<Props, State> {
           />
         </FormGroup>
 
-        <FormGroup>
-          <SelectProperty
-            queryParams={{type:"customer"}}
-            defaultValue={selectedOption && selectedOption.value}
-            description="Any data collected through this field will copy to:"
-            onChange={this.onPropertyChange}
-          />
-        </FormGroup>
+        {this.renderCustomProperty()}
 
         {this.renderOptions()}
 
@@ -277,6 +275,26 @@ class FieldForm extends React.Component<Props, State> {
           </Preview>
         </PreviewSection>
       </FlexItem>
+    );
+  }
+
+  renderCustomProperty() {
+    const { field, selectedOption } = this.state;
+    const types = ['email', 'phone', 'firstName', 'lastName'];
+
+    if (types.includes(field.type)) {
+      return;
+    }
+
+    return (
+      <FormGroup>
+        <SelectProperty
+          queryParams={{ type: 'customer' }}
+          defaultValue={selectedOption && selectedOption.value}
+          description="Any data collected through this field will copy to:"
+          onChange={this.onPropertyChange}
+        />
+      </FormGroup>
     );
   }
 

@@ -82,7 +82,9 @@ class OptionStep extends React.Component<Props, {}> {
         <LeftItem>
           <FormGroup>
             <ControlLabel required={true}>Form Name</ControlLabel>
-            <p>{__('Name this form to differentiate from the rest')}</p>
+            <p>
+              {__('Name this form to differentiate from the rest internally')}
+            </p>
 
             <FormControl
               required={true}
@@ -101,7 +103,7 @@ class OptionStep extends React.Component<Props, {}> {
 
           <SelectChannels
             defaultValue={this.props.channelIds}
-            isRequired={true}
+            isRequired={false}
             description="Choose a channel, if you wish to see every new form in your Team Inbox."
             onChange={channelOnChange}
           />
@@ -120,10 +122,10 @@ class OptionStep extends React.Component<Props, {}> {
           </FormGroup>
 
           <FormGroup>
-            <ControlLabel>Submit once</ControlLabel>
+            <ControlLabel>Limit to 1 response</ControlLabel>
             <Description>
               Turn on to receive a submission from the visitor only once. Once a
-              submission is received, the popup will not show.
+              submission is received, the form will not display again.
             </Description>
             <br />
             <div>

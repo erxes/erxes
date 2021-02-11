@@ -606,7 +606,10 @@ const integrationMutations = {
       order: e.order,
       type: e.type,
       text: e.text,
-      lastUpdatedUserId: user._id
+      lastUpdatedUserId: user._id,
+      isRequired: e.isRequired,
+      isDefinedByErxes: false,
+      associatedFieldId: e.associatedFieldId
     }));
 
     await Fields.insertMany(fields);

@@ -307,7 +307,7 @@ class SuccessStep extends React.Component<Props, State> {
       <FlexItem>
         <LeftItem>
           <FormGroup>
-            <ControlLabel>On success</ControlLabel>
+            <ControlLabel>Confirmation message type</ControlLabel>
             <p>
               {__(
                 `You can set each confirmation message ${successAction} here.`
@@ -319,7 +319,6 @@ class SuccessStep extends React.Component<Props, State> {
               onChange={this.handleSuccessActionChange}
               id="successAction"
             >
-              <option />
               {this.renderSelectOptions()}
             </FormControl>
           </FormGroup>

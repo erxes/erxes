@@ -77,6 +77,9 @@ type State = {
   thankContent?: string;
   redirectUrl?: string;
   carousel: string;
+
+  currentMode: 'create' | 'update' | undefined;
+  currentField?: IField;
 };
 
 class Lead extends React.Component<Props, State> {
@@ -127,7 +130,10 @@ class Lead extends React.Component<Props, State> {
       isRequireOnce: leadData.isRequireOnce,
       logoPreviewUrl: callout.featuredImage,
       isSkip: callout.skip && true,
-      carousel: 'callout'
+      carousel: 'callout',
+
+      currentMode: undefined,
+      currentField: undefined
     };
   }
 
@@ -144,7 +150,7 @@ class Lead extends React.Component<Props, State> {
     } = this.state;
 
     if (!title) {
-      return Alert.error('Enter a Pop up name');
+      return Alert.error('Enter a Form name');
     }
 
     if (!formData.title) {
@@ -153,10 +159,6 @@ class Lead extends React.Component<Props, State> {
 
     if (!brand) {
       return Alert.error('Choose a Brand');
-    }
-
-    if (!channelIds || channelIds.length === 0) {
-      return Alert.error('Choose channels');
     }
 
     const doc = {
@@ -205,6 +207,11 @@ class Lead extends React.Component<Props, State> {
     formData.fields = fields;
 
     this.setState({ formData });
+  };
+
+  onFieldClick = (field: IField) => {
+    console.log(field);
+    this.setState({ currentMode: 'update', currentField: field });
   };
 
   onStepClick = carousel => {
@@ -320,6 +327,8 @@ class Lead extends React.Component<Props, State> {
                   onDocChange={this.onFormDocChange}
                   onInit={this.onFormInit}
                   isReadyToSaveForm={this.props.isReadyToSaveForm}
+                  currentMode={this.state.currentMode}
+                  currentField={this.state.currentField}
                 />
               </Step>
               <Step
@@ -391,6 +400,7 @@ class Lead extends React.Component<Props, State> {
               skip={isSkip}
               carousel={constant}
               formData={formData}
+              onFieldClick={this.onFieldClick}
             />
           </PreviewWrapper>
         </Content>

@@ -15,10 +15,13 @@ type Props = {
   fields: IField[];
   onDocChange?: (doc: IFormData) => void;
   saveForm: (params: IFormData) => void;
+  onFieldClick?: (field: IField) => void;
   isReadyToSave: boolean;
   type: string;
   form?: IForm;
   hideOptionalFields?: boolean;
+  currentMode?: 'create' | 'update' | undefined;
+  currentField?: IField;
 };
 
 type State = {
@@ -41,8 +44,8 @@ class Form extends React.Component<Props, State> {
       title: form.title || '',
       desc: form.description || '',
       btnText: form.buttonText || 'Send',
-      currentMode: undefined,
-      currentField: undefined
+      currentMode: props.currentMode || undefined,
+      currentField: props.currentField || undefined
     };
   }
 
@@ -125,10 +128,6 @@ class Form extends React.Component<Props, State> {
     });
   };
 
-  onFieldClick = (field: IField) => {
-    this.setState({ currentMode: 'update', currentField: field });
-  };
-
   onFieldSubmit = (field: IField) => {
     const { onDocChange } = this.props;
     const { fields, currentMode } = this.state;
@@ -178,6 +177,18 @@ class Form extends React.Component<Props, State> {
         <FieldForm
           mode={currentMode || 'create'}
           field={currentField}
+          onSubmit={this.onFieldSubmit}
+          onDelete={this.onFieldDelete}
+          onCancel={this.onFieldFormCancel}
+        />
+      );
+    }
+
+    if (!currentField && this.props.currentField) {
+      return (
+        <FieldForm
+          mode={this.props.currentMode || 'update'}
+          field={this.props.currentField}
           onSubmit={this.onFieldSubmit}
           onDelete={this.onFieldDelete}
           onCancel={this.onFieldFormCancel}
