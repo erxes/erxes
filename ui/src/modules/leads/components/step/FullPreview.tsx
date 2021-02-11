@@ -2,6 +2,7 @@ import Icon from 'modules/common/components/Icon';
 import { Tabs, TabTitle } from 'modules/common/components/tabs';
 
 import { __ } from 'modules/common/utils';
+import FieldForm from 'modules/forms/components/FieldForm';
 import FieldsPreview from 'modules/forms/components/FieldsPreview';
 import { IFormData } from 'modules/forms/types';
 import { IField } from 'modules/settings/properties/types';
@@ -29,7 +30,7 @@ type Props = {
   theme: string;
   image?: string;
   onChange: (name: 'carousel', value: string) => void;
-  onFieldClick?: (field: IField) => void;
+  onDocChange?: (doc: IFormData) => void;
   carousel: string;
   thankTitle?: string;
   thankContent?: string;
@@ -38,6 +39,9 @@ type Props = {
 
 type State = {
   currentTab: string;
+  currentMode: 'create' | 'update' | undefined;
+  currentField?: IField;
+  fields: IField[];
 };
 
 class FullPreviewStep extends React.Component<Props, State> {
@@ -45,8 +49,15 @@ class FullPreviewStep extends React.Component<Props, State> {
     super(props);
 
     this.state = {
-      currentTab: 'desktop'
+      currentTab: 'desktop',
+      currentMode: undefined,
+      currentField: undefined,
+      fields: (props.formData && props.formData.fields) || []
     };
+  }
+
+  componentWillReceiveProps(nextProps: Props) {
+    this.setState({ fields: nextProps.formData.fields || [] });
   }
 
   carouseItems = (name: string, value: string) => {
@@ -66,25 +77,93 @@ class FullPreviewStep extends React.Component<Props, State> {
     this.setState({ currentTab });
   };
 
+  onFieldClick = (field: IField) => {
+    this.setState({ currentMode: 'update', currentField: field });
+  };
+
+  onFieldSubmit = (field: IField) => {
+    const { fields, currentMode } = this.state;
+
+    let selector = { fields, currentField: undefined };
+
+    if (currentMode === 'create') {
+      selector = {
+        fields: [...fields, field],
+        currentField: undefined
+      };
+    }
+
+    this.setState(selector, () => {
+      this.renderReturnValues(fields);
+    });
+  };
+
+  onFieldDelete = (field: IField) => {
+    // remove field from state
+    const fields = this.state.fields.filter(f => f._id !== field._id);
+
+    this.setState({ fields, currentField: undefined }, () => {
+      this.renderReturnValues(fields);
+    });
+  };
+
+  onFieldFormCancel = () => {
+    this.setState({ currentField: undefined });
+  };
+
+  onChangeFieldsOrder = fields => {
+    this.setState({ fields }, () => {
+      this.renderReturnValues(fields);
+    });
+  };
+
   onChangePreview = (value: string) => {
     return this.props.onChange('carousel', value);
   };
 
+  renderReturnValues(fields) {
+    const { onDocChange, formData } = this.props;
+
+    if (onDocChange) {
+      onDocChange({
+        fields,
+        title: formData.title,
+        desc: formData.desc,
+        btnText: formData.btnText,
+        type: formData.type
+      });
+    }
+  }
+
   renderPreview() {
     const { carousel, formData } = this.props;
+    const { currentMode, currentField, fields } = this.state;
 
     if (carousel === 'callout') {
       return <CalloutPreview {...this.props} />;
     }
 
     if (carousel === 'form') {
-      const { desc, fields } = formData;
+      const { desc } = formData;
+
+      if (currentField) {
+        return (
+          <FieldForm
+            mode={currentMode || 'create'}
+            field={currentField}
+            onSubmit={this.onFieldSubmit}
+            onDelete={this.onFieldDelete}
+            onCancel={this.onFieldFormCancel}
+          />
+        );
+      }
 
       const previewRenderer = () => (
         <FieldsPreview
           fields={fields || []}
-          onFieldClick={this.props.onFieldClick}
           formDesc={desc}
+          onFieldClick={this.onFieldClick}
+          onChangeFieldsOrder={this.onChangeFieldsOrder}
         />
       );
 

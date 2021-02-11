@@ -10,12 +10,14 @@ import { Title } from '../styles';
 import { IForm, IFormData } from '../types';
 import FieldChoices from './FieldChoices';
 import FieldForm from './FieldForm';
+import FieldsPreview from './FieldsPreview';
 
 type Props = {
   fields: IField[];
+  renderPreviewWrapper?: (previewRenderer, fields: IField[]) => void;
   onDocChange?: (doc: IFormData) => void;
   saveForm: (params: IFormData) => void;
-  onFieldClick?: (field: IField) => void;
+  formData?: IFormData;
   isReadyToSave: boolean;
   type: string;
   form?: IForm;
@@ -30,6 +32,7 @@ type State = {
   currentField?: IField;
   title: string;
   desc: string;
+  type?: string;
   btnText: string;
 };
 
@@ -40,27 +43,38 @@ class Form extends React.Component<Props, State> {
     const { form = {} as IForm } = props;
 
     this.state = {
-      fields: props.fields || [],
+      fields: (props.formData ? props.formData.fields : props.fields) || [],
       title: form.title || '',
       desc: form.description || '',
       btnText: form.buttonText || 'Send',
-      currentMode: props.currentMode || undefined,
-      currentField: props.currentField || undefined
+      currentMode: undefined,
+      currentField: undefined,
+      type: props.type || ''
     };
   }
 
   componentWillReceiveProps(nextProps: Props) {
     const { saveForm, type, isReadyToSave } = this.props;
-    const { title, btnText, desc, fields } = this.state;
+    const { title, btnText, desc, fields, currentMode } = this.state;
+
+    if (nextProps.formData && currentMode !== 'create') {
+      this.setState({
+        fields: nextProps.formData.fields || []
+      });
+    }
 
     if (nextProps.isReadyToSave && isReadyToSave !== nextProps.isReadyToSave) {
-      saveForm({
-        title,
-        desc,
-        btnText,
-        fields,
-        type
-      });
+      saveForm(
+        nextProps.formData
+          ? { ...nextProps.formData }
+          : {
+              title,
+              desc,
+              btnText,
+              fields,
+              type
+            }
+      );
     }
   }
 
@@ -128,6 +142,10 @@ class Form extends React.Component<Props, State> {
     });
   };
 
+  onFieldClick = (field: IField) => {
+    this.setState({ currentMode: 'update', currentField: field });
+  };
+
   onFieldSubmit = (field: IField) => {
     const { onDocChange } = this.props;
     const { fields, currentMode } = this.state;
@@ -170,7 +188,8 @@ class Form extends React.Component<Props, State> {
   };
 
   render() {
-    const { currentMode, currentField } = this.state;
+    const { renderPreviewWrapper } = this.props;
+    const { currentMode, currentField, fields, desc } = this.state;
 
     if (currentField) {
       return (
@@ -184,17 +203,16 @@ class Form extends React.Component<Props, State> {
       );
     }
 
-    if (!currentField && this.props.currentField) {
+    const renderer = () => {
       return (
-        <FieldForm
-          mode={this.props.currentMode || 'update'}
-          field={this.props.currentField}
-          onSubmit={this.onFieldSubmit}
-          onDelete={this.onFieldDelete}
-          onCancel={this.onFieldFormCancel}
+        <FieldsPreview
+          formDesc={desc}
+          fields={fields}
+          onFieldClick={this.onFieldClick}
+          onChangeFieldsOrder={this.onChangeFieldsOrder}
         />
       );
-    }
+    };
 
     return (
       <FlexContent>
@@ -205,6 +223,7 @@ class Form extends React.Component<Props, State> {
           <p>{__('Choose a field type from the options below.')}</p>
           <FieldChoices onChoiceClick={this.onChoiceClick} />
         </LeftItem>
+        {renderPreviewWrapper && renderPreviewWrapper(renderer, fields)}
       </FlexContent>
     );
   }

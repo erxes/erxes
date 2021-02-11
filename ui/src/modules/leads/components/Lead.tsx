@@ -388,6 +388,7 @@ class Lead extends React.Component<Props, State> {
           <PreviewWrapper>
             <FullPreview
               onChange={this.onChange}
+              onDocChange={this.onFormDocChange}
               calloutTitle={calloutTitle}
               calloutBtnText={calloutBtnText}
               bodyValue={bodyValue}
@@ -400,7 +401,6 @@ class Lead extends React.Component<Props, State> {
               skip={isSkip}
               carousel={constant}
               formData={formData}
-              onFieldClick={this.onFieldClick}
             />
           </PreviewWrapper>
         </Content>

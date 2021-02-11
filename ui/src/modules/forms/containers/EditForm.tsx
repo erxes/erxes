@@ -26,6 +26,7 @@ type Props = {
   afterDbSave: (formId: string) => void;
   onDocChange?: (doc: IFormData) => void;
   onInit?: (fields: IField[]) => void;
+  formData?: IFormData;
   type: string;
   isReadyToSave: boolean;
   formId: string;
