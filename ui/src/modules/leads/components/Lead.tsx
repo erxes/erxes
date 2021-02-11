@@ -354,6 +354,7 @@ class Lead extends React.Component<Props, State> {
           <PreviewWrapper>
             <FullPreview
               onChange={this.onChange}
+              onDocChange={this.onFormDocChange}
               calloutTitle={calloutTitle}
               calloutBtnText={calloutBtnText}
               bodyValue={bodyValue}

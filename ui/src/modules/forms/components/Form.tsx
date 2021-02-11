@@ -17,6 +17,7 @@ type Props = {
   renderPreviewWrapper?: (previewRenderer, fields: IField[]) => void;
   onDocChange?: (doc: IFormData) => void;
   saveForm: (params: IFormData) => void;
+  formData?: IFormData;
   isReadyToSave: boolean;
   type: string;
   form?: IForm;
@@ -29,6 +30,7 @@ type State = {
   currentField?: IField;
   title: string;
   desc: string;
+  type?: string;
   btnText: string;
 };
 
@@ -39,12 +41,13 @@ class Form extends React.Component<Props, State> {
     const { form = {} as IForm } = props;
 
     this.state = {
-      fields: props.fields || [],
+      fields: (props.formData ? props.formData.fields : props.fields) || [],
       title: form.title || '',
       desc: form.description || '',
       btnText: form.buttonText || 'Send',
       currentMode: undefined,
-      currentField: undefined
+      currentField: undefined,
+      type: props.type || ''
     };
   }
 
@@ -53,13 +56,17 @@ class Form extends React.Component<Props, State> {
     const { title, btnText, desc, fields } = this.state;
 
     if (nextProps.isReadyToSave && isReadyToSave !== nextProps.isReadyToSave) {
-      saveForm({
-        title,
-        desc,
-        btnText,
-        fields,
-        type
-      });
+      saveForm(
+        nextProps.formData
+          ? { ...nextProps.formData }
+          : {
+              title,
+              desc,
+              btnText,
+              fields,
+              type
+            }
+      );
     }
   }
 

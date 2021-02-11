@@ -20,6 +20,7 @@ import {
 type Props = {
   afterDbSave: (formId: string) => void;
   onDocChange?: (doc: IFormData) => void;
+  formData?: IFormData;
   type: string;
   isReadyToSave: boolean;
   showMessage?: boolean;
