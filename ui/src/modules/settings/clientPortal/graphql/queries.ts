@@ -11,6 +11,7 @@ export const commonFields = `
   knowledgeBaseTopicId
   ticketLabel
   taskPublicPipelineId
+  taskPublicBoardId
   taskLabel
   taskStageId
   taskPipelineId

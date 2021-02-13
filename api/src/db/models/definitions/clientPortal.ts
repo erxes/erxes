@@ -14,6 +14,7 @@ export interface IClientPortal {
   taskLabel?: string;
   taskStageId?: string;
   taskPipelineId?: string;
+  taskPublicBoardId?: string;
   taskPublicPipelineId?: string;
   taskBoardId?: string;
   ticketStageId?: string;
@@ -99,6 +100,7 @@ export const clientPortalSchema = new Schema({
   knowledgeBaseLabel: field({ type: String, optional: true }),
   knowledgeBaseTopicId: field({ type: String }),
   ticketLabel: field({ type: String, optional: true }),
+  taskPublicBoardId: field({ type: String, optional: true }),
   taskPublicPipelineId: field({ type: String, optional: true }),
   taskLabel: field({ type: String, optional: true }),
   taskStageId: field({ type: String }),

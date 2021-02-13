@@ -38,6 +38,7 @@ function Form({ defaultConfigValues = {}, handleUpdate, configType }: Props) {
     knowledgeBaseTopicId: defaultConfigValues.knowledgeBaseTopicId || '',
     ticketLabel: defaultConfigValues.ticketLabel || '',
     taskLabel: defaultConfigValues.taskLabel || '',
+    taskPublicBoardId: defaultConfigValues.taskPublicBoardId || '',
     taskPublicPipelineId: defaultConfigValues.taskPublicPipelineId || '',
     taskStageId: defaultConfigValues.taskStageId || '',
     taskBoardId: defaultConfigValues.taskBoardId || '',
@@ -92,6 +93,10 @@ function Form({ defaultConfigValues = {}, handleUpdate, configType }: Props) {
 
     if (formValues.domain && !isUrl(formValues.domain)) {
       return Alert.error('Please enter a valid domain');
+    }
+
+    if (!formValues.taskPublicPipelineId) {
+      return Alert.error('Please select a public task pipeline');
     }
 
     handleUpdate(formValues);

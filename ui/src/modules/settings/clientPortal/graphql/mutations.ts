@@ -12,6 +12,7 @@ const createOrUpdateConfig = `
     $knowledgeBaseLabel: String
     $knowledgeBaseTopicId: String
     $ticketLabel: String
+    $taskPublicBoardId: String
     $taskPublicPipelineId: String
     $taskLabel: String
     $taskStageId: String
@@ -35,6 +36,7 @@ const createOrUpdateConfig = `
       domain: $domain,
       knowledgeBaseLabel: $knowledgeBaseLabel,
       knowledgeBaseTopicId: $knowledgeBaseTopicId,
+      taskPublicBoardId: $taskPublicBoardId,
       taskPublicPipelineId: $taskPublicPipelineId,
       ticketLabel: $ticketLabel,
       taskLabel: $taskLabel,

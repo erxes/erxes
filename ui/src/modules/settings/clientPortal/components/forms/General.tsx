@@ -52,6 +52,8 @@ function General({
   url,
   knowledgeBaseLabel,
   knowledgeBaseTopicId,
+  taskPublicBoardId,
+  taskPublicPipelineId,
   topics,
   boards,
   pipelines,
@@ -67,8 +69,6 @@ function General({
   handleFormChange
 }: Props) {
   const [show, setShow] = useState<boolean>(false);
-  const [board, setBoard] = useState<string>('');
-  const [pipeline, setPipeline] = useState<string>('');
 
   const handleToggleBoardSelect = () => setShow(!show);
   const handleSelectChange = (option?: { value: string; label: string }) => {
@@ -175,9 +175,9 @@ function General({
 
   function renderTaskPipelines() {
     const renderSelect = (
-      value: string,
       options: IBoard[] | IPipeline[],
-      handleSelect: (args: OptionItem) => void
+      handleSelect: (args: OptionItem) => void,
+      value?: string
     ) => {
       return (
         <Select
@@ -189,20 +189,19 @@ function General({
     };
 
     const handleSelectBoard = (option: OptionItem) => {
-      setBoard(option.value);
       fetchPipelines(option.value);
+      handleFormChange('taskPublicBoardId', option.value);
     };
 
     const handleSelecPipeline = (option: OptionItem) => {
-      setPipeline(option.value);
       handleFormChange('taskPublicPipelineId', option.value);
     };
 
     return (
       <FormGroup>
         <ControlLabel>Task public pipeline</ControlLabel>
-        {renderSelect(board, boards, handleSelectBoard)}
-        {renderSelect(pipeline, pipelines, handleSelecPipeline)}
+        {renderSelect(boards, handleSelectBoard, taskPublicBoardId)}
+        {renderSelect(pipelines, handleSelecPipeline, taskPublicPipelineId)}
       </FormGroup>
     );
   }

@@ -10,6 +10,7 @@ export type ClientPortalConfig = {
   knowledgeBaseLabel?: string;
   knowledgeBaseTopicId?: string;
   ticketLabel?: string;
+  taskPublicBoardId?: string;
   taskPublicPipelineId?: string;
   taskLabel?: string;
   taskStageId?: string;

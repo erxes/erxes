@@ -4,7 +4,7 @@ import gql from 'graphql-tag';
 import compose from 'lodash.flowright';
 import { BoardsQueryResponse, IPipeline } from 'modules/boards/types';
 import { TopicsQueryResponse } from 'modules/knowledgeBase/types';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { graphql } from 'react-apollo';
 import knowledgeBaseQueries from '../../../knowledgeBase/graphql/queries';
 import boardQueries from '../../boards/graphql/queries';
@@ -14,15 +14,13 @@ type Props = {
   handleFormChange: (name: string, value: string) => void;
   knowledgeBaseTopicsQuery: TopicsQueryResponse;
   boardsQuery: BoardsQueryResponse;
+  taskPublicPipelineId: string;
+  taskPublicBoardId: string;
 };
 
 function GeneralContainer(props: Props) {
   const { knowledgeBaseTopicsQuery, boardsQuery } = props;
   const [pipelines, setPipelines] = useState<IPipeline[]>([] as IPipeline[]);
-
-  if (knowledgeBaseTopicsQuery.loading || boardsQuery.loading) {
-    return <Spinner />;
-  }
 
   const fetchPipelines = (boardId: string) => {
     client
@@ -34,6 +32,16 @@ function GeneralContainer(props: Props) {
         setPipelines(data.pipelines || []);
       });
   };
+
+  useEffect(() => {
+    if (props.taskPublicBoardId) {
+      fetchPipelines(props.taskPublicBoardId);
+    }
+  }, [props.taskPublicBoardId]);
+
+  if (knowledgeBaseTopicsQuery.loading || boardsQuery.loading) {
+    return <Spinner />;
+  }
 
   const topics = knowledgeBaseTopicsQuery.knowledgeBaseTopics || [];
   const boards = boardsQuery.boards || [];

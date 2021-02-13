@@ -11,6 +11,7 @@ export const types = `
     knowledgeBaseLabel: String
     knowledgeBaseTopicId: String
     ticketLabel: String
+    taskPublicBoardId: String
     taskPublicPipelineId: String
     taskLabel: String
     taskStageId: String
@@ -83,6 +84,12 @@ export const queries = `
 `;
 
 export const mutations = `
+  createCustomer(
+    configId: String!
+    firstName: String!
+    lastName: String
+    email: String!
+  ): String
   configUpdateClientPortal(
     _id: String
     name: String
@@ -95,6 +102,7 @@ export const mutations = `
     knowledgeBaseTopicId: String
     ticketLabel: String
     taskLabel: String
+    taskPublicBoardId: String
     taskPublicPipelineId: String
     taskStageId: String
     taskPipelineId: String
