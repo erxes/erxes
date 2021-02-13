@@ -11,6 +11,7 @@ export const types = `
     knowledgeBaseLabel: String
     knowledgeBaseTopicId: String
     ticketLabel: String
+    taskPublicPipelineId: String
     taskLabel: String
     taskStageId: String
     taskPipelineId: String
@@ -77,7 +78,7 @@ export const queries = `
   getConfigs(page: Int, perPage: Int): [ClientPortal]
   getConfig(_id: String!): ClientPortal
   getClientPortalTotalCount: Int
-  getTaskStages(configId: String!): JSON
+  getTaskStages(taskPublicPipelineId: String!): JSON
   getTasks(stageId: String!): JSON
 `;
 
@@ -94,6 +95,7 @@ export const mutations = `
     knowledgeBaseTopicId: String
     ticketLabel: String
     taskLabel: String
+    taskPublicPipelineId: String
     taskStageId: String
     taskPipelineId: String
     taskBoardId: String
@@ -104,5 +106,5 @@ export const mutations = `
     advanced: AdvancedParams
     css: String
     mobileResponsive: Boolean
-  ): JSON
+  ): ClientPortal
 `;

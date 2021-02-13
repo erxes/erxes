@@ -1,3 +1,5 @@
+import { commonFields } from './queries';
+
 const createOrUpdateConfig = `
   mutation configUpdateClientPortal(
     $_id: String
@@ -10,6 +12,7 @@ const createOrUpdateConfig = `
     $knowledgeBaseLabel: String
     $knowledgeBaseTopicId: String
     $ticketLabel: String
+    $taskPublicPipelineId: String
     $taskLabel: String
     $taskStageId: String
     $taskPipelineId: String
@@ -32,6 +35,7 @@ const createOrUpdateConfig = `
       domain: $domain,
       knowledgeBaseLabel: $knowledgeBaseLabel,
       knowledgeBaseTopicId: $knowledgeBaseTopicId,
+      taskPublicPipelineId: $taskPublicPipelineId,
       ticketLabel: $ticketLabel,
       taskLabel: $taskLabel,
       taskStageId: $taskStageId,
@@ -44,7 +48,9 @@ const createOrUpdateConfig = `
       advanced: $advanced
       css: $css
       mobileResponsive: $mobileResponsive
-    )
+    ) {
+      ${commonFields}
+    }
   }
 `;
 

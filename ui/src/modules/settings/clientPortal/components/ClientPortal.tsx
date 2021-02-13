@@ -3,19 +3,18 @@ import { __ } from 'modules/common/utils';
 import Wrapper from 'modules/layout/components/Wrapper';
 import React, { useState } from 'react';
 import { CONFIG_TYPES } from '../constants';
-import Form, { GeneralFormType } from './Form';
+import { ClientPortalConfig } from '../types';
+import Form from './Form';
 import Sidebar from './Sidebar';
 
-type FormConfig = {} & GeneralFormType;
-
 type Props = {
-  config: FormConfig;
-  handleUpdate: (doc: FormConfig) => void;
+  config: ClientPortalConfig;
+  handleUpdate: (doc: ClientPortalConfig) => void;
 };
 
 const breadcrumb = [
   { title: __('Settings'), link: '/settings' },
-  { title: __('Client Portal') },
+  { title: __('Client Portal'), link: '/settings/client-portal' },
   { title: __('Form') }
 ];
 

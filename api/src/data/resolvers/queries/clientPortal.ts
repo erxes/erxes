@@ -14,22 +14,11 @@ const configClientPortalQueries = {
     return ClientPortals.getConfig(_id);
   },
 
-  async getTaskStages(_root, { configId }: { configId: string }) {
-    const config = await ClientPortals.getConfig(configId);
-
-    if (!config) {
-      throw new Error('Client portal configuration not found');
-    }
-
-    const { taskPipelineId } = config;
-
-    if (!taskPipelineId) {
-      throw new Error('Task pipeline not configured');
-    }
-
-    const stages = await Stages.find({ pipelineId: taskPipelineId });
-
-    return stages;
+  async getTaskStages(
+    _root,
+    { taskPublicPipelineId }: { taskPublicPipelineId: string }
+  ) {
+    return Stages.find({ pipelineId: taskPublicPipelineId });
   },
 
   async getTasks(_root, { stageId }: { stageId: string }) {

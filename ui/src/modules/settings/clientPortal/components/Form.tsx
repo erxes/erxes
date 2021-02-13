@@ -10,24 +10,6 @@ import ColorFont from './forms/ColorFont';
 import CustomDomain from './forms/CustomDomain';
 import StyleSheet from './forms/StyleSheet';
 
-export type GeneralFormType = {
-  name?: string;
-  description?: string;
-  url?: string;
-  logo?: string;
-  icon?: string;
-  knowledgeBaseLabel?: string;
-  knowledgeBaseTopicId?: string;
-  ticketLabel?: string;
-  taskLabel?: string;
-  taskStageId?: string;
-  taskBoardId?: string;
-  taskPipelineId?: string;
-  ticketStageId?: string;
-  ticketBoardId?: string;
-  ticketPipelineId?: string;
-};
-
 type Props = {
   configType: string;
   defaultConfigValues?: ClientPortalConfig;
@@ -56,6 +38,7 @@ function Form({ defaultConfigValues = {}, handleUpdate, configType }: Props) {
     knowledgeBaseTopicId: defaultConfigValues.knowledgeBaseTopicId || '',
     ticketLabel: defaultConfigValues.ticketLabel || '',
     taskLabel: defaultConfigValues.taskLabel || '',
+    taskPublicPipelineId: defaultConfigValues.taskPublicPipelineId || '',
     taskStageId: defaultConfigValues.taskStageId || '',
     taskBoardId: defaultConfigValues.taskBoardId || '',
     taskPipelineId: defaultConfigValues.taskPipelineId || '',

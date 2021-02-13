@@ -14,6 +14,7 @@ export interface IClientPortal {
   taskLabel?: string;
   taskStageId?: string;
   taskPipelineId?: string;
+  taskPublicPipelineId?: string;
   taskBoardId?: string;
   ticketStageId?: string;
   ticketPipelineId?: string;
@@ -54,29 +55,39 @@ export interface IClientPortalDocument extends IClientPortal, Document {
   _id: string;
 }
 
-const stylesSchema = new Schema({
-  bodyColor: field({ type: String, optional: true }),
-  headerColor: field({ type: String, optional: true }),
-  footerColor: field({ type: String, optional: true }),
-  helpColor: field({ type: String, optional: true }),
-  backgroundColor: field({ type: String, optional: true }),
-  activeTabColor: field({ type: String, optional: true }),
-  baseColor: field({ type: String, optional: true }),
-  headingColor: field({ type: String, optional: true }),
-  linkColor: field({ type: String, optional: true }),
-  linkHoverColor: field({ type: String, optional: true }),
-  dividerColor: field({ type: String, optional: true }),
-  primaryBtnColor: field({ type: String, optional: true }),
-  secondaryBtnColor: field({ type: String, optional: true }),
-  baseFont: field({ type: String, optional: true }),
-  headingFont: field({ type: String, optional: true })
-});
+const stylesSchema = new Schema(
+  {
+    bodyColor: field({ type: String, optional: true }),
+    headerColor: field({ type: String, optional: true }),
+    footerColor: field({ type: String, optional: true }),
+    helpColor: field({ type: String, optional: true }),
+    backgroundColor: field({ type: String, optional: true }),
+    activeTabColor: field({ type: String, optional: true }),
+    baseColor: field({ type: String, optional: true }),
+    headingColor: field({ type: String, optional: true }),
+    linkColor: field({ type: String, optional: true }),
+    linkHoverColor: field({ type: String, optional: true }),
+    dividerColor: field({ type: String, optional: true }),
+    primaryBtnColor: field({ type: String, optional: true }),
+    secondaryBtnColor: field({ type: String, optional: true }),
+    baseFont: field({ type: String, optional: true }),
+    headingFont: field({ type: String, optional: true })
+  },
+  {
+    _id: false
+  }
+);
 
-const advancedSettingsSchema = new Schema({
-  authAllow: field({ type: String }),
-  permission: field({ type: String }),
-  viewTicket: field({ type: String })
-});
+const advancedSettingsSchema = new Schema(
+  {
+    authAllow: field({ type: String }),
+    permission: field({ type: String }),
+    viewTicket: field({ type: String })
+  },
+  {
+    _id: false
+  }
+);
 
 export const clientPortalSchema = new Schema({
   _id: field({ pkey: true }),
@@ -88,6 +99,7 @@ export const clientPortalSchema = new Schema({
   knowledgeBaseLabel: field({ type: String, optional: true }),
   knowledgeBaseTopicId: field({ type: String }),
   ticketLabel: field({ type: String, optional: true }),
+  taskPublicPipelineId: field({ type: String, optional: true }),
   taskLabel: field({ type: String, optional: true }),
   taskStageId: field({ type: String }),
   taskPipelineId: field({ type: String }),

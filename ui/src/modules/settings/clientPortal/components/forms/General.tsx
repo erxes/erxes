@@ -1,6 +1,7 @@
 import BoardSelect from 'erxes-ui/lib/boards/containers/BoardSelect';
 import { FlexContent } from 'erxes-ui/lib/layout/styles';
 import { PipelinePopoverContent } from 'modules/boards/styles/item';
+import { IBoard, IPipeline } from 'modules/boards/types';
 import AvatarUpload from 'modules/common/components/AvatarUpload';
 import {
   ControlLabel,
@@ -13,12 +14,20 @@ import React, { useState } from 'react';
 import { OverlayTrigger, Popover } from 'react-bootstrap';
 import Select from 'react-select-plus';
 import { Content } from '../../styles';
-import { GeneralFormType } from '../Form';
+import { ClientPortalConfig } from '../../types';
 
 type Props = {
   topics: ITopic[];
+  boards: IBoard[];
+  pipelines: IPipeline[];
+  fetchPipelines: (boardId: string) => void;
   handleFormChange: (name: string, value: string) => void;
-} & GeneralFormType;
+} & ClientPortalConfig;
+
+type OptionItem = {
+  label: string;
+  value: string;
+};
 
 type ControlItem = {
   required?: boolean;
@@ -44,6 +53,8 @@ function General({
   knowledgeBaseLabel,
   knowledgeBaseTopicId,
   topics,
+  boards,
+  pipelines,
   ticketLabel,
   taskLabel,
   taskStageId,
@@ -52,21 +63,27 @@ function General({
   ticketStageId,
   ticketPipelineId,
   ticketBoardId,
+  fetchPipelines,
   handleFormChange
 }: Props) {
   const [show, setShow] = useState<boolean>(false);
+  const [board, setBoard] = useState<string>('');
+  const [pipeline, setPipeline] = useState<string>('');
 
   const handleToggleBoardSelect = () => setShow(!show);
   const handleSelectChange = (option?: { value: string; label: string }) => {
     handleFormChange('knowledgeBaseTopicId', !option ? '' : option.value);
   };
 
-  function generateOptions() {
-    if ((topics || []).length === 0) {
+  function generateOptions(options: any, valueKey: string, labelKey: string) {
+    if ((options || []).length === 0) {
       return [];
     }
 
-    return topics.map(topic => ({ value: topic._id, label: topic.title }));
+    return options.map(option => ({
+      value: option[valueKey],
+      label: option[labelKey]
+    }));
   }
 
   function renderBoardSelect({
@@ -156,6 +173,40 @@ function General({
     );
   }
 
+  function renderTaskPipelines() {
+    const renderSelect = (
+      value: string,
+      options: IBoard[] | IPipeline[],
+      handleSelect: (args: OptionItem) => void
+    ) => {
+      return (
+        <Select
+          value={value}
+          onChange={handleSelect}
+          options={generateOptions(options, '_id', 'name')}
+        />
+      );
+    };
+
+    const handleSelectBoard = (option: OptionItem) => {
+      setBoard(option.value);
+      fetchPipelines(option.value);
+    };
+
+    const handleSelecPipeline = (option: OptionItem) => {
+      setPipeline(option.value);
+      handleFormChange('taskPublicPipelineId', option.value);
+    };
+
+    return (
+      <FormGroup>
+        <ControlLabel>Task public pipeline</ControlLabel>
+        {renderSelect(board, boards, handleSelectBoard)}
+        {renderSelect(pipeline, pipelines, handleSelecPipeline)}
+      </FormGroup>
+    );
+  }
+
   function renderFavicon() {
     const handleAvatarUploader = (iconUrl: string) =>
       handleFormChange('icon', iconUrl);
@@ -225,7 +276,7 @@ function General({
           <Select
             placeholder="Select a knowledge base topic"
             value={knowledgeBaseTopicId}
-            options={generateOptions()}
+            options={generateOptions(topics, '_id', 'title')}
             onChange={handleSelectChange}
           />
         </FormGroup>
@@ -243,8 +294,10 @@ function General({
         boardId: ticketBoardId
       })}
 
+      {renderTaskPipelines()}
+
       {renderControl({
-        label: 'Tasks',
+        label: 'Tasks incoming pipeline',
         subtitle: 'Shown name on menu',
         formValueName: 'taskLabel',
         formValue: taskLabel,

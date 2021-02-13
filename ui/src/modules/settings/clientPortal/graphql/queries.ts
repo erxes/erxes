@@ -1,4 +1,4 @@
-const commonFields = `
+export const commonFields = `
   _id
   name
   url
@@ -10,6 +10,7 @@ const commonFields = `
   knowledgeBaseLabel
   knowledgeBaseTopicId
   ticketLabel
+  taskPublicPipelineId
   taskLabel
   taskStageId
   taskPipelineId
