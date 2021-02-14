@@ -64,7 +64,6 @@ jobs:
         yarn loadTestData
         yarn dev &
         sleep 20
-        curl http://localhost:3300/health
       env:
         DEBUG: 'erxes*'
         MONGO_URL: mongodb://localhost/erxes
@@ -76,13 +75,10 @@ jobs:
 
     - name: Cypress prepare ui
       uses: cypress-io/github-action@v2.2.7
-      with:
-        wait-on: http://localhost:3300
-        wait-on-timeout: 120
-        run: |
-          cd ui
-          yarn install
-          yarn start &
+      run: |
+        cd ui
+        yarn install
+        yarn start &
       env:
         PORT: 3000
         NODE_ENV: development
