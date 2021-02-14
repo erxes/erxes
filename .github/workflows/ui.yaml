@@ -77,7 +77,8 @@ jobs:
         cd api
         yarn install
         yarn loadTestData
-        yarn dev &
+        yarn dev
+        lsof -i tcp:3300 &
       env:
         MONGO_URL: mongodb://localhost/erxes
         JWT_TOKEN_SECRET: token
