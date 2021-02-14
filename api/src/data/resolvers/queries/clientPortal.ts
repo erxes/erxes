@@ -1,4 +1,10 @@
-import { ClientPortals, Stages, Tasks } from '../../../db/models';
+import {
+  ClientPortals,
+  Customers,
+  Stages,
+  Tasks,
+  Tickets
+} from '../../../db/models';
 import { paginate } from '../../utils';
 
 const configClientPortalQueries = {
@@ -23,6 +29,16 @@ const configClientPortalQueries = {
 
   async getTasks(_root, { stageId }: { stageId: string }) {
     return Tasks.find({ stageId });
+  },
+
+  async customerTickets(_root, { email }: { email: string }) {
+    const customer = await Customers.findOne({ primaryEmail: email }).lean();
+
+    if (!customer) {
+      throw new Error('Customer not registered');
+    }
+
+    return Tickets.find({ userId: customer._id });
   }
 };
 

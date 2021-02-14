@@ -81,9 +81,17 @@ export const queries = `
   getClientPortalTotalCount: Int
   getTaskStages(taskPublicPipelineId: String!): JSON
   getTasks(stageId: String!): JSON
+  customerTickets(email: String!): JSON
 `;
 
 export const mutations = `
+  createCustomerTicket(
+    stageId: String!
+    subject: String!
+    description: String
+    email: String!
+    priority: String
+  ): JSON
   createCustomer(
     configId: String!
     firstName: String!
