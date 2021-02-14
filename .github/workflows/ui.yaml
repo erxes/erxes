@@ -57,11 +57,6 @@ jobs:
           ${{ runner.os }}-yarn-ui-
           ${{ runner.os }}-yarn-
 
-    - name: Install dependencies
-      run: |
-        cd ui
-        yarn install --frozen-lockfile
-
     - name: Cypress prepare api
       run: |
         cd api
@@ -80,7 +75,7 @@ jobs:
         PORT: 3300
 
     - name: Cypress prepare ui
-      uses: cypress-io/github-action@v2
+      uses: cypress-io/github-action@v2.2.7
       with:
         wait-on: http://localhost:3300
         wait-on-timeout: 120
