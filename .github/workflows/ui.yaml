@@ -73,12 +73,13 @@ jobs:
         yarn tsc
 
     - name: Cypress prepare api
+      with:
+        time: '120s'
       run: |
         cd api
         yarn install
         yarn loadTestData
-        yarn dev
-        lsof -i tcp:3300 &
+        yarn dev &
       env:
         MONGO_URL: mongodb://localhost/erxes
         JWT_TOKEN_SECRET: token
