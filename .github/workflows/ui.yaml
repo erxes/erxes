@@ -62,7 +62,7 @@ jobs:
         cd api
         yarn install
         yarn loadTestData
-        yarn dev
+        yarn dev &
         sleep 10
         curl http://localhost:3300/health
       env:
