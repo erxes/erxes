@@ -68,7 +68,6 @@ jobs:
         yarn install
         yarn loadTestData
         yarn dev
-        sleep 10
       env:
         DEBUG: 'erxes*'
         MONGO_URL: mongodb://localhost/erxes
