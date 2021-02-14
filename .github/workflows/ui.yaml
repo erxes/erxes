@@ -74,12 +74,12 @@ jobs:
 
     - name: Cypress prepare api
       with:
+        run: |
+          cd api
+          yarn install
+          yarn loadTestData
+          yarn dev &
         time: '120s'
-      run: |
-        cd api
-        yarn install
-        yarn loadTestData
-        yarn dev &
       env:
         MONGO_URL: mongodb://localhost/erxes
         JWT_TOKEN_SECRET: token
