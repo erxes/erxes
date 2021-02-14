@@ -74,7 +74,6 @@ jobs:
         PORT: 3300
 
     - name: Cypress prepare ui
-      uses: cypress-io/github-action@v2.2.7
       run: |
         cd ui
         yarn install
