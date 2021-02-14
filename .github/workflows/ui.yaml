@@ -78,6 +78,7 @@ jobs:
         PORT: 3300
 
     - name: Cypress prepare ui
+      uses: cypress-io/github-action@v2
       with:
         wait-on: http://localhost:3000
         run: |
@@ -92,15 +93,10 @@ jobs:
         REACT_APP_API_SUBSCRIPTION_URL: ws://localhost:3300/subscriptions
 
     - name: Cypress run
-      uses: cypress-io/github-action@v2
-      with:
-        record: true
-        parallel: true
-        wait-on: http://localhost:3000
-        run: |
-          cd ui
-          yarn install
-          yarn record-cypress
+      run: |
+        cd ui
+        yarn install
+        yarn record-cypress
 
     - name: Build
       run: |
