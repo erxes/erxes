@@ -8,7 +8,6 @@ import initCallPro from './callpro/controller';
 import initChatfuel from './chatfuel/controller';
 import { connect, mongoStatus } from './connection';
 import {
-  debugError,
   debugInit,
   debugIntegrations,
   debugRequest,
@@ -210,14 +209,4 @@ app.listen(PORT, () => {
   });
 
   debugInit(`Integrations server is running on port ${PORT}`);
-});
-
-process.on('unhandledRejection', reason => {
-  throw reason;
-});
-
-process.on('uncaughtException', error => {
-  console.log(error.stack);
-
-  debugError(`uncaughtException: ${error.message}`);
 });

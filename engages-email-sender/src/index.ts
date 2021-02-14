@@ -13,7 +13,7 @@ import telnyx from './api/telnyx';
 dotenv.config();
 
 import { connect } from './connection';
-import { debugBase, debugError, debugInit } from './debuggers';
+import { debugBase, debugInit } from './debuggers';
 import { initBroker } from './messageBroker';
 import { trackEngages } from './trackers/engageTracker';
 
@@ -83,14 +83,4 @@ app.listen(PORT, () => {
   });
 
   debugInit(`Engages server is running on port ${PORT}`);
-});
-
-process.on('unhandledRejection', reason => {
-  throw reason;
-});
-
-process.on('uncaughtException', error => {
-  console.log(error.stack);
-
-  debugError(`uncaughtException: ${error.message}`);
 });
