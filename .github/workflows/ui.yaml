@@ -63,7 +63,7 @@ jobs:
         yarn install
         yarn loadTestData
         yarn dev &
-        sleep 10
+        sleep 20
         curl http://localhost:3300/health
       env:
         DEBUG: 'erxes*'
