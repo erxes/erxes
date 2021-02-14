@@ -25,7 +25,7 @@ context('Check Deals', () => {
       .click();
 
     cy.get('div[class="modal-body"]')
-      .get('input')
+      .get('input').eq(0)
       .type(newBrandName);
     cy.get('div[class="modal-body"]')
       .get('button[type="submit"]')

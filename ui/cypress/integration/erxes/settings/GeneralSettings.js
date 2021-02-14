@@ -70,7 +70,7 @@ context('Settings', () => {
     //Common mail config
     const mailconfig = cy.get('#GeneralSettingsMenu').children().eq(6).click();
     mailconfig.within(() => {
-      for( let i=0; i<=1; i++){
+      for( let i=0; i<1; i++){
         cy.get('input').eq(i).type('ssss' + i)
       }
     })
@@ -87,7 +87,7 @@ context('Settings', () => {
     })
     cy.get('#GeneralSettingsMenu').children().eq(7).children().eq(0).click();
 
-    cy.get('button[icon=check-circle]').click()
+    cy.get('button[id=generalSettingsSave]').click()
 
     //Integrations config
     cy.get('#SettingsSidebar').children().eq(1).click()

@@ -10,7 +10,7 @@ context("Login", () => {
   it("Sign In", () => {
     cy.signIn();
 
-    for(let i = 0; i < 13; i++){
+    for(let i = 0; i < 12; i++){
       sendMessage();
     }
 
@@ -24,7 +24,7 @@ context("Login", () => {
 
     cy.get("#btn-inbox-channel-visible").click();
 
-    cy.get('button[icon="check-circle"]').eq(1).click();
+    cy.get('button[icon="check-circle"]').click();
 
     cy.get(":nth-child(2) > .icon-angle-down").click();
     cy.get('a[href="#link"]')

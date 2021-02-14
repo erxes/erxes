@@ -23,12 +23,8 @@ context("Login", () => {
 
     cy.get('input[name="firstName"]').type(random);
 
-    cy.get('input[placeholder="Add Email"]').type(random + "@gmail.com");
-
-    cy.get("#customerPrimaryEmailSave")
-      .children()
-      .eq(1)
-      .click();
+    cy.get('div .Select-placeholder').contains('Enter an email').click().type(random + "@nmma.co");
+    cy.get('div .Select-menu-outer').click();
 
     cy.get('button[icon="check-circle"]').click();
 
@@ -38,14 +34,10 @@ context("Login", () => {
 
     cy.get('button[icon="plus-circle"]').click();
 
-    cy.get('input[placeholder="Add Email"]').type(random + "@gmail.com");
+    cy.get('div .Select-placeholder').contains('Enter an email').click().type(random + "@nmma.co");
+    cy.get('div .Select-menu-outer').click();
 
     cy.get('input[name="firstName"]').type(random);
-
-    cy.get("#customerPrimaryEmailSave")
-      .children()
-      .eq(1)
-      .click();
 
     cy.get('button[icon="check-circle"]').click();
 
@@ -70,15 +62,16 @@ context("Login", () => {
 
     cy.get('button[icon="tag-alt"]').click();
 
-    cy.get("h3")
-      .eq(1)
-      .parent()
-      .children()
-      .eq(1)
-      .click();
-    cy.get('i[icon="tag-alt"]')
-      .eq(0)
-      .click();
+    // TODO: elasticSearch
+    // cy.get("h3")
+    //   .eq(1)
+    //   .parent()
+    //   .children()
+    //   .eq(1)
+    //   .click();
+    // cy.get('i[icon="tag-alt"]')
+    //   .eq(0)
+    //   .click();
 
     cy.wait(3000);
 
@@ -119,7 +112,7 @@ context("Login", () => {
         .click();
     });
 
-    cy.get('button[icon="checked-1"]').click();
+    cy.get('button[icon="check-circle"]').click();
 
     cy.wait(5000);
 
@@ -145,12 +138,8 @@ context("Login", () => {
 
     cy.get('input[name="firstName"]').type(random);
 
-    cy.get('input[placeholder="Add Email"]').type(random + "@gmail.com");
-
-    cy.get("#customerPrimaryEmailSave")
-      .children()
-      .eq(1)
-      .click();
+    cy.get('div .Select-placeholder').contains('Enter an email').click().type(random + "@nmma.co");
+    cy.get('div .Select-menu-outer').click();
 
     cy.get('button[icon="check-circle"]').click();
 
@@ -180,42 +169,24 @@ context("Login", () => {
       .children()
       .eq(0);
 
-    cy.get('i[icon="tag-alt"]')
-      .eq(0)
-      .click();
-    cy.wait(2000);
+    // cy.get('i[icon="tag-alt"]')
+    //   .eq(0)
+    //   .click();
+    // cy.wait(2000);
 
-    cy.get('i[icon="tag-alt"]')
-      .eq(1)
-      .click();
-    cy.wait(2000);
+    // cy.get('i[icon="tag-alt"]')
+    //   .eq(1)
+    //   .click();
+    // cy.wait(2000);
 
     cy.get('a[href="/companies"]').click();
     cy.get('i[icon = "plus-circle"]').click();
 
-    cy.get('i[icon="plus-circle"]')
-      .eq(1)
-      .click();
+    cy.get('div .Select-placeholder').contains('Enter company name').click().type(random + "@nmma.co");
+    cy.get('div .Select-menu-outer').click();
 
-    cy.get('input[placeholder="Add Name"]').type(random);
-
-    cy.get('i[icon="check-circle"]')
-      .eq(0)
-      .click();
-
-    cy.get('i[icon="plus-circle"]')
-      .eq(2)
-      .click();
-
-    cy.get('input[placeholder="Add Email"]').type(random + "@gmail.com");
-
-    cy.get('i[icon="check-circle"]')
-      .eq(0)
-      .click();
-
-    cy.get('i[icon="check-circle"]')
-      .eq(1)
-      .click();
+    cy.get('div .Select-placeholder').contains('Enter company email').click().type(random + "@nmma.co");
+    cy.get('div .Select-menu-outer').click();
 
     cy.get('button[icon="check-circle"]').click();
 
@@ -245,10 +216,6 @@ context("Login", () => {
       .click();
 
     cy.wait(2000);
-
-    cy.get('i[icon="tag-alt"]')
-      .eq(1)
-      .click();
 
     cy.get("#companiesCheckBox").click();
 

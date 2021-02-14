@@ -17,7 +17,7 @@ context('Send Email Verification', () => {
     cy.url().should('include', '/settings');
 
     // General Settings Main
-    cy.get('#SettingsGeneralSettings').children().should('have.length', 11);
+    cy.get('#SettingsGeneralSettings').children().should('have.length', 12);
 
     //Segment
     cy.get('#SettingsGeneralSettings').children().eq(5).click();
@@ -89,7 +89,7 @@ context('Send Email Verification', () => {
     cy.get('#BrandSidebar').find('li').then(li => {
       const liCount = Cypress.$(li).length;
       cy.get('#NewBrandButton').click();
-      cy.get('input').type(fakeName(7));
+      cy.get('input').eq(0).type(fakeName(7));
       cy.get('textarea').type('something');
       cy.get('button[icon=check-circle]').click();
       cy.get('#BrandSidebar > li').should('have.length', liCount + 1);
@@ -104,7 +104,7 @@ context('Send Email Verification', () => {
     })
     cy.get('form').get('button[type="submit"]').click()
     cy.wait(1000)
-    cy.get('button[icon="checked-1"]').click()
+    cy.get('button[icon="check-circle"]').click()
 
     // Import & Export
     cy.get('#Settings').click();
@@ -141,7 +141,7 @@ context('Send Email Verification', () => {
               encoding: 'utf8'
             })
         })
-        cy.wait(35000);
+        cy.wait(3000);
         cy.reload();
         cy.get('#navigation').children().eq(3).click()
         cy.get('a[href="/contacts/customer"]').click()
@@ -166,12 +166,8 @@ context('Send Email Verification', () => {
 
     cy.get('input[name="firstName"]').type(random);
 
-    cy.get('input[placeholder="Add Email"]').type(random + "@nmma.co");
-
-    cy.get("#customerPrimaryEmailSave")
-      .children()
-      .eq(1)
-      .click();
+    cy.get('div .Select-placeholder').contains('Enter an email').click().type(random + "@nmma.co");
+    cy.get('div .Select-menu-outer').click();
 
     cy.get('button[icon="check-circle"]').click();
 

@@ -101,6 +101,7 @@ class OptionStep extends React.Component<Props, {}> {
             <p>{__('Name this popup to differentiate from the rest')}</p>
 
             <FormControl
+              id={'popupName'}
               required={true}
               onChange={this.onChangeTitle}
               defaultValue={this.props.title}
