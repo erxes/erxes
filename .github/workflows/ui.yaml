@@ -74,14 +74,11 @@ jobs:
         PORT: 3300
 
     - name: Cypress prepare ui
-      uses: cypress-io/github-action@v2.2.7
-      with:
-        wait-on: 'http://localhost:3300'
-        wait-on-timeout: 120
-        run: |
-          cd ui
-          yarn install
-          yarn start &
+      run: |
+        cd ui
+        yarn install
+        yarn start &
+        sleep 60
       env:
         PORT: 3000
         NODE_ENV: development
