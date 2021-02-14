@@ -68,6 +68,8 @@ jobs:
         yarn install
         yarn loadTestData
         yarn dev
+        sleep 10
+        curl http://localhost:3300/health
       env:
         DEBUG: 'erxes*'
         MONGO_URL: mongodb://localhost/erxes
