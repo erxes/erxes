@@ -2,12 +2,12 @@ import { SignIn, fakeName } from "../utils";
 
 SignIn;
 
-context("Login", () => {
+context("Inbox", () => {
   beforeEach(() => {
     cy.visit("/");
   });
 
-  it("Sign In", () => {
+  it("Conversation", () => {
     cy.signIn();
 
     for(let i = 0; i < 12; i++){

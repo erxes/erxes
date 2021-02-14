@@ -2,12 +2,12 @@ import { SignIn, fakeName } from "../utils";
 
 SignIn;
 
-context("Login", () => {
+context("Popups", () => {
   beforeEach(() => {
     cy.visit("/");
   });
 
-  it("Sign In", () => {
+  it("Popup steps", () => {
     cy.signIn();
 
     const randomm = fakeName(3);

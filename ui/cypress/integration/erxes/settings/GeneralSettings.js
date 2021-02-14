@@ -7,7 +7,7 @@ context('Settings', () => {
     cy.visit('/');
   });
 
-  it('Sign In', () => {
+  it('Settings', () => {
     cy.signIn();
 
     cy.get('#Settings').click();

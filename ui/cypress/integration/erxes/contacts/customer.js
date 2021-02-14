@@ -2,12 +2,12 @@ import { SignIn, fakeName } from '../utils';
 
 SignIn;
 
-context("Login", () => {
+context("Contacts", () => {
   beforeEach(() => {
     cy.visit("/");
   });
 
-  it("Sign In", () => {
+  it("Customer and Company", () => {
     cy.signIn();
 
     cy.get("#navigation")
