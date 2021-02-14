@@ -67,7 +67,7 @@ jobs:
         cd api
         yarn install
         yarn loadTestData
-        yarn dev
+        yarn dev &
       env:
         DEBUG: 'erxes*'
         MONGO_URL: mongodb://localhost/erxes
