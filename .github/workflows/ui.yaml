@@ -57,32 +57,20 @@ jobs:
           ${{ runner.os }}-yarn-ui-
           ${{ runner.os }}-yarn-
 
-    - name: Install dependencies
-      run: |
-        yarn install
-        cd ui
-        yarn install --frozen-lockfile
-
-    - name: Lint
-      run: |
-        yarn lint ui
-
-    - name: Tsc
-      run: |
-        cd ui
-        yarn tsc
-
     - name: Cypress prepare api
       run: |
         cd api
         yarn install
         yarn loadTestData
         yarn dev &
+        sleep 20
       env:
+        DEBUG: 'erxes*'
         MONGO_URL: mongodb://localhost/erxes
         JWT_TOKEN_SECRET: token
         MAIN_APP_DOMAIN: http://localhost:3000
         WIDGETS_DOMAIN: http://localhost:3200
+        RABBITMQ_HOST: amqp://localhost
         PORT: 3300
 
     - name: Cypress prepare ui
@@ -90,6 +78,7 @@ jobs:
         cd ui
         yarn install
         yarn start &
+        sleep 120
       env:
         PORT: 3000
         NODE_ENV: development
@@ -98,14 +87,10 @@ jobs:
         REACT_APP_API_SUBSCRIPTION_URL: ws://localhost:3300/subscriptions
 
     - name: Cypress run
-      uses: cypress-io/github-action@v2
-      with:
-        record: true
-        parallel: true
-        wait-on: http://localhost:3000
-        run: |
-          cd ui
-          yarn record-cypress
+      run: |
+        cd ui
+        yarn install
+        yarn record-cypress
 
     - name: Build
       run: |
