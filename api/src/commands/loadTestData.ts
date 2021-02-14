@@ -286,6 +286,11 @@ const main = async () => {
     type: TAG_TYPES.COMPANY,
     colorCode: '#4BBF6B'
   });
+  await Tags.createTag({
+    name: 'angry',
+    type: TAG_TYPES.COMPANY,
+    colorCode: '#CD5A91'
+  });
 
   await Configs.createOrUpdateConfig({
     code: 'UPLOAD_SERVICE_TYPE',
