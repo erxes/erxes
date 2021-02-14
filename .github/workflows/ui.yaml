@@ -59,18 +59,8 @@ jobs:
 
     - name: Install dependencies
       run: |
-        yarn install
         cd ui
         yarn install --frozen-lockfile
-
-    - name: Lint
-      run: |
-        yarn lint ui
-
-    - name: Tsc
-      run: |
-        cd ui
-        yarn tsc
 
     - name: Cypress prepare api
       run: |
@@ -88,10 +78,12 @@ jobs:
         PORT: 3300
 
     - name: Cypress prepare ui
-      run: |
-        cd ui
-        yarn install
-        yarn start &
+      with:
+        wait-on: http://localhost:3000
+        run: |
+          cd ui
+          yarn install
+          yarn start &
       env:
         PORT: 3000
         NODE_ENV: development
