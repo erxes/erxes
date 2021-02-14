@@ -88,7 +88,6 @@ jobs:
     - name: Cypress prepare ui
       run: |
         cd ui
-        rm -rf node_modules
         yarn install
         yarn start &
       env:
@@ -106,6 +105,7 @@ jobs:
         wait-on: http://localhost:3000
         run: |
           cd ui
+          yarn install
           yarn record-cypress
 
     - name: Build
