@@ -34,7 +34,12 @@ import {
 import { connect, mongoStatus } from './db/connection';
 import { Users } from './db/models';
 import initWatchers from './db/watchers';
-import { debugBase, debugExternalApi, debugInit } from './debuggers';
+import {
+  debugBase,
+  debugError,
+  debugExternalApi,
+  debugInit
+} from './debuggers';
 import {
   identifyCustomer,
   trackCustomEvent,
@@ -469,3 +474,13 @@ if (NODE_ENV === 'production') {
     });
   });
 }
+
+process.on('unhandledRejection', reason => {
+  throw reason;
+});
+
+process.on('uncaughtException', error => {
+  console.log(error.stack);
+
+  debugError(`uncaughtException: ${error.message}`);
+});

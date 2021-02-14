@@ -1,11 +1,11 @@
 import tracer from 'dd-trace';
 import * as formats from 'dd-trace/ext/formats';
 
-export const ddLogger = message => {
+export const ddLogger = (message, level) => {
   const span = tracer.scope().active();
   const time = new Date().toISOString();
 
-  const record = { time, level: 'info', message };
+  const record = { time, level, message };
 
   if (span) {
     tracer.inject(span.context(), formats.LOG, record);
@@ -14,23 +14,32 @@ export const ddLogger = message => {
   console.log(JSON.stringify(record));
 };
 
-export const debugInit = ddLogger;
-export const debugDb = ddLogger;
-export const debugCrons = ddLogger;
-export const debugBase = ddLogger;
-export const debugIntegrations = ddLogger;
-export const debugFacebook = ddLogger;
-export const debugTwitter = ddLogger;
-export const debugGmail = ddLogger;
-export const debugCallPro = ddLogger;
-export const debugChatfuel = ddLogger;
-export const debugNylas = ddLogger;
-export const debugWhatsapp = ddLogger;
-export const debugExternalRequests = ddLogger;
-export const debugDaily = ddLogger;
-export const debugSmooch = ddLogger;
-export const debugProductBoard = ddLogger;
-export const debugTelnyx = ddLogger;
+export const ddInfo = message => {
+  return ddLogger(message, 'info');
+};
+
+export const ddError = message => {
+  return ddLogger(message, 'error');
+};
+
+export const debugInit = ddInfo;
+export const debugDb = ddInfo;
+export const debugCrons = ddInfo;
+export const debugBase = ddInfo;
+export const debugIntegrations = ddInfo;
+export const debugFacebook = ddInfo;
+export const debugTwitter = ddInfo;
+export const debugGmail = ddInfo;
+export const debugCallPro = ddInfo;
+export const debugChatfuel = ddInfo;
+export const debugNylas = ddInfo;
+export const debugWhatsapp = ddInfo;
+export const debugExternalRequests = ddInfo;
+export const debugDaily = ddInfo;
+export const debugSmooch = ddInfo;
+export const debugProductBoard = ddInfo;
+export const debugTelnyx = ddInfo;
+export const debugError = ddError;
 
 export const debugRequest = (debugInstance, req) =>
   debugInstance(`
