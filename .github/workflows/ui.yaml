@@ -73,18 +73,18 @@ jobs:
         yarn tsc
 
     - name: Cypress prepare api
-      with:
-        time: '120s'
-        run: |
-          cd api
-          yarn install
-          yarn loadTestData
-          yarn dev &
+      run: |
+        cd api
+        yarn install
+        yarn loadTestData
+        yarn dev &
       env:
+        DEBUG: 'erxes*'
         MONGO_URL: mongodb://localhost/erxes
         JWT_TOKEN_SECRET: token
         MAIN_APP_DOMAIN: http://localhost:3000
         WIDGETS_DOMAIN: http://localhost:3200
+        RABBITMQ_HOST: amqp://localhost
         PORT: 3300
 
     - name: Cypress prepare ui
