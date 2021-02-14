@@ -78,7 +78,7 @@ jobs:
         cd ui
         yarn install
         yarn start &
-        sleep 60
+        sleep 120
       env:
         PORT: 3000
         NODE_ENV: development
