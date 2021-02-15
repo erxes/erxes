@@ -208,7 +208,7 @@ class AddOns extends React.Component<Props, State> {
           <FormGroup>
             <ControlLabel>Forms</ControlLabel>
             <p>
-              {__('Which popup(s) do you want to display in this messenger')}?
+              {__('Which form(s) do you want to display in this messenger')}?
             </p>
             <Select
               value={popups}
