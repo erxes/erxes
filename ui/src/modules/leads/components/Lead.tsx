@@ -210,7 +210,6 @@ class Lead extends React.Component<Props, State> {
   };
 
   onFieldClick = (field: IField) => {
-    console.log(field);
     this.setState({ currentMode: 'update', currentField: field });
   };
 
