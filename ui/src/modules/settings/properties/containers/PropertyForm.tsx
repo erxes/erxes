@@ -62,12 +62,13 @@ const PropertyFormContainer = (props: FinalProps) => {
           type="submit"
           uppercase={false}
           icon="check-circle"
-          successMessage={`You successfully ${object ? 'updated' : 'added'
-            } a ${name}`}
+          successMessage={`You successfully ${
+            object ? 'updated' : 'added'
+          } a ${name}`}
         />
       );
-    }
-  };
+    };
+  }
 
   const updatedProps = {
     ...props,
