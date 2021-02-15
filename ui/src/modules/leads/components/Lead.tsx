@@ -222,7 +222,7 @@ class Lead extends React.Component<Props, State> {
     const { isActionLoading } = this.props;
 
     const cancelButton = (
-      <Link to="/leads">
+      <Link to="/forms">
         <Button btnStyle="simple" icon="times-circle" uppercase={false}>
           Cancel
         </Button>
