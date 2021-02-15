@@ -289,6 +289,7 @@ export const receiveImportRemove = async (content: any) => {
     const ids = importHistory.ids || [];
 
     if (ids.length === 0) {
+      await ImportHistory.deleteOne({ _id: importHistoryId });
       return { status: 'ok' };
     }
 
