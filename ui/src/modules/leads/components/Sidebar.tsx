@@ -3,9 +3,17 @@ import React from 'react';
 import BrandFilter from '../containers/filters/BrandFilter';
 import StatusFilter from '../containers/filters/StatusFilter';
 import TagFilter from '../containers/filters/TagFilter';
+import { Counts } from '../types';
 
-function Sidebar({ counts }) {
-  
+type Props = {
+  counts: {
+    byTag: Counts;
+    byBrand: Counts;
+    byStatus: Counts;
+  };
+};
+
+function Sidebar({ counts }: Props) {
   return (
     <Wrapper.Sidebar>
       <TagFilter counts={counts.byTag} />

@@ -93,8 +93,6 @@ class SuccessStep extends React.Component<Props, State> {
   };
 
   templateChange = e => {
-    // this.setState({ userEmailContent: this.findTemplate(e.value), templateId: e.value });
-
     const userEmailContent = this.findTemplate(e.value);
 
     this.setState({ templateId: e.value, leadData: { userEmailContent } });

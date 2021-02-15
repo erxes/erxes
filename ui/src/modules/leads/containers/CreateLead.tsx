@@ -43,12 +43,18 @@ class CreateLeadContainer extends React.Component<Props, State> {
   }
 
   render() {
-    const { addIntegrationMutation, history , emailTemplatesQuery} = this.props;
+    const { addIntegrationMutation, history, emailTemplatesQuery } = this.props;
     const afterFormDbSave = id => {
       this.setState({ isReadyToSaveForm: false });
 
       if (this.state.doc) {
-        const { leadData, brandId, name, languageCode, channelIds } = this.state.doc;
+        const {
+          leadData,
+          brandId,
+          name,
+          languageCode,
+          channelIds
+        } = this.state.doc;
 
         addIntegrationMutation({
           variables: {
@@ -94,7 +100,7 @@ class CreateLeadContainer extends React.Component<Props, State> {
       afterFormDbSave,
       isActionLoading: this.state.isLoading,
       isReadyToSaveForm: this.state.isReadyToSaveForm,
-      emailTemplates: emailTemplatesQuery.emailTemplates || [],
+      emailTemplates: emailTemplatesQuery.emailTemplates || []
     };
 
     return <Lead {...updatedProps} />;

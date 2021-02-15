@@ -65,6 +65,8 @@ class ListContainer extends React.Component<FinalProps> {
       ? integrationsTotalCountQuery.integrationsTotalCount
       : null;
 
+    const totalCount = (counts && counts.byKind.lead) || 0;
+
     const remove = (integrationId: string) => {
       const message =
         'If you delete a form, all previous submissions and contacts gathered through this form will also be deleted. Are you sure?';
@@ -130,6 +132,7 @@ class ListContainer extends React.Component<FinalProps> {
       ...this.props,
       integrations,
       counts,
+      totalCount,
       remove,
       loading: integrationsQuery.loading,
       archive,

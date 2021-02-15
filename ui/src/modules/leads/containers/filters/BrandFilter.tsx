@@ -6,11 +6,11 @@ import React from 'react';
 import { graphql } from 'react-apollo';
 import { withProps } from '../../../common/utils';
 import { BrandsQueryResponse } from '../../../settings/brands/types';
-import {Counts } from '../../types';
+import { Counts } from '../../types';
 
 type Props = {
   counts: Counts;
-}
+};
 
 type FinalProps = {
   brandsQuery?: BrandsQueryResponse;
@@ -18,10 +18,7 @@ type FinalProps = {
 
 class BrandFilterContainer extends React.Component<FinalProps> {
   render() {
-    const {
-      brandsQuery,
-      counts
-    } = this.props;
+    const { brandsQuery, counts } = this.props;
 
     const updatedProps = {
       ...this.props,
@@ -33,13 +30,12 @@ class BrandFilterContainer extends React.Component<FinalProps> {
 
     return <BrandFilter {...updatedProps} />;
   }
-
 }
 
 export default withProps<Props>(
   compose(
     graphql<Props, BrandsQueryResponse>(gql(queries.brands), {
-      name: 'brandsQuery',
+      name: 'brandsQuery'
     })
   )(BrandFilterContainer)
 );

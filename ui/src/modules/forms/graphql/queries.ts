@@ -151,34 +151,6 @@ const integrationsTotalCount = `
   }
 `;
 
-const propertyFields = `
-  _id
-  type
-  validation
-  text
-  description
-  options
-  isRequired
-  order
-  associatedFieldId
-`;
-
-const properties = `
-  query properties($contentType: String!, $contentTypeId: String, $isVisible: Boolean) {
-    fields(contentType: $contentType, contentTypeId: $contentTypeId, isVisible: $isVisible) {
-      ${propertyFields}
-    }
-  }
-`;
-
-const fields = `
-  query fields($contentType: String!, $contentTypeId: String) {
-    fields(contentType: $contentType, contentTypeId: $contentTypeId) {
-      ${propertyFields}
-    }
-  }
-`;
-
 const fieldsCombinedByContentType = `
   query fieldsCombinedByContentType($contentType: String!,$usageType: String, $excludedNames: [String]) {
     fieldsCombinedByContentType(contentType: $contentType,usageType: $usageType, excludedNames: $excludedNames)
@@ -219,11 +191,9 @@ export default {
   integrations,
   integrationDetail,
   integrationsTotalCount,
-  fields,
   formDetail,
   tags,
   forms,
   fieldsCombinedByContentType,
-  fieldsDefaultColumnsConfig,
-  properties
+  fieldsDefaultColumnsConfig
 };

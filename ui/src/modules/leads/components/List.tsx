@@ -78,8 +78,6 @@ class List extends React.Component<Props, {}> {
       counts
     } = this.props;
 
-    const allCounts = counts || {};
-
     queryParams.loadingMainQuery = loading;
     let actionBarLeft: React.ReactNode;
 
@@ -149,7 +147,7 @@ class List extends React.Component<Props, {}> {
             breadcrumb={[{ title: __('Forms') }]}
           />
         }
-        leftSidebar={<Sidebar counts={allCounts}/>}
+        leftSidebar={<Sidebar counts={counts || {}} />}
         actionBar={actionBar}
         footer={<Pagination count={totalCount} />}
         content={

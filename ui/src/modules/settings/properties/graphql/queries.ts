@@ -34,8 +34,8 @@ const fieldsGroups = `
   }
 `;
 
-const properties = `
-  query properties($contentType: String!, $contentTypeId: String, $isVisible: Boolean) {
+const fields = `
+  query fields($contentType: String!, $contentTypeId: String, $isVisible: Boolean) {
     fields(contentType: $contentType, contentTypeId: $contentTypeId, isVisible: $isVisible) {
       _id
       type
@@ -52,5 +52,5 @@ const properties = `
 
 export default {
   fieldsGroups,
-  properties
+  fields
 };
