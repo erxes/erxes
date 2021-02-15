@@ -288,6 +288,10 @@ export const receiveImportRemove = async (content: any) => {
 
     const ids = importHistory.ids || [];
 
+    if (ids.length === 0) {
+      return { status: 'ok' };
+    }
+
     const workerPath = path.resolve(getWorkerFile('importHistoryRemove'));
 
     const calc = Math.ceil(ids.length / WORKER_BULK_LIMIT);
