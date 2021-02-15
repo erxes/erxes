@@ -4,6 +4,6 @@
   "license": "SEE LICENSE IN LICENSE",
   "main": "api/index.js",
   "dependencies": {
-    "erxes-api-utils": "^0.0.17"
+    "erxes-api-utils": "^0.0.25"
   }
 }

@@ -1,3 +1,4 @@
+export default `
 <!DOCTYPE html>
 
 <head>
@@ -110,15 +111,21 @@
           <tr>
             <td style="text-align:center;vertical-align:top;font-size:12px;padding:50px;">
               <div
-                style="cursor:auto;color:grey;font-family:Helvetica Neue;font-size:13px;font-weight:300;line-height:22px;">
+                style="cursor:auto;color:grey;font-family:Helvetica Neue;font-size:13px;font-weight:300;line-height:22px; text-align: center;">
                 <p style="font-size: 16px; color: #666; line-height:32px;">
-                  You have been invited to become team member of
-                  <a style="pointer-events: none; text-decoration: none; cursor: default; color: black">{{{ domain
-                    }}}.</a>
-                  Click the button below to continue. <br />
+                  You have been invited to become user of priuscenter app
                 </p>
+                <p>From: {{{ content }}}</p>
                 <br />
-                <a href="{{ content }}" target="_blank" style="    border-radius: 300px;
+                <p>Choose device icon, click</p>
+                <table style="margin: auto;">
+                  <tr>
+                    <td><img src="https://pics.freeicons.io/uploads/icons/png/14357284101557997011-64.png" /></td>
+                    <td><img src="https://pics.freeicons.io/uploads/icons/png/7728458831530103303-64.png" /></td>
+                  </tr>
+                  <tr>
+                    <td>
+                      <a href="https://apps.apple.com/ae/app/prius-center/id1532048827" target="_blank" style="    border-radius: 300px;
                   box-shadow: 0 4px 28px rgba(0,0,0,.1);
                   transition: .1s ease-in-out;
                   transition-property: color,background-color,border-color;
@@ -130,12 +137,30 @@
                   border: 1px solid transparent;
                   padding: 8px 40px;
                   color: #fff;" target="_blank">
-                  Click here
-                </a>
-                <br />
-                <br />
-                Or paste this link <br />
-                {{ content }}
+
+                      Click here
+                      </a>
+                    </td>
+                    <td>
+                      <a href="https://play.google.com/store/apps/details?id=com.priuscenter" target="_blank" style="    border-radius: 300px;
+                  box-shadow: 0 4px 28px rgba(0,0,0,.1);
+                  transition: .1s ease-in-out;
+                  transition-property: color,background-color,border-color;
+                  font-size: 14px;
+                  /* text-transform: uppercase; */
+                  background-color: #63d2d6;
+                  font-weight: 300;
+                  text-decoration: none;
+                  border: 1px solid transparent;
+                  padding: 8px 40px;
+                  color: #fff;" target="_blank">
+
+                      Click here
+                      </a>
+                    </td>
+                  </tr>
+                </table>
+
               </div>
             </td>
           </tr>
@@ -209,3 +234,4 @@
     </table>
   </div>
 </body>
+`

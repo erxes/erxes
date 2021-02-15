@@ -1,4 +1,4 @@
-<table role="presentation" cellpadding="0" cellspacing="0"
+export default `<table role="presentation" cellpadding="0" cellspacing="0"
   style="max-width: 560px;font-size:0px;width:100%;background: #fff;/* padding: 30px; */box-shadow: 0px 0px 4px 0px rgba(0,0,0,0.2);border-radius: 10px;padding-bottom: 40px;"
   align="center" border="0">
   <tbody>
@@ -23,28 +23,10 @@
             </table>
           </div>
           <p style="padding:0 50px; font-size: 16px;color: #666;line-height:32px;margin-top: 50px;font-weight: 400;">
-            You recently requested a password reset. Click the link below to continue. <br />
+            You recently requested a password reset. New password generated. <br />
           </p>
 
-          <table role="presentation" cellpadding="0" cellspacing="0" style="border-collapse:separate;" align="center"
-            border="0">
-            <tbody>
-              <tr>
-                <td style="border-radius:20px;color:#fff;cursor:auto;padding:10px 25px;background: #63d2d6;"
-                  align="center" valign="middle" bgcolor="#7754b3">
-                  <a href="{{{ content }}}"
-                    style="display:inline-block;text-decoration:none;background: #63d2d6;color:#fff;font-family:Helvetica, Arial, sans-serif, Helvetica, Arial, sans-serif;font-size:13px;font-weight:200;margin:0px;"
-                    target="_blank">
-                    Reset password
-                  </a>
-                </td>
-              </tr>
-            </tbody>
-          </table>
-
-          <p style="font-size: 12px; color: #666; line-height:32px;"></p>
-          <div>or click the link below</div>
-          <a style="color: #63d2d6;" href="{{{ content }}}" target="_blank">{{{ content }}}</a>
+          <strong>{{{ content }}}</strong>
           <p></p>
           <br />
         </div>
@@ -117,3 +99,4 @@
     </tr>
   </tbody>
 </table>
+`

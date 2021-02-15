@@ -1,4 +1,6 @@
 import { regexSearchText, sendEmail } from 'erxes-api-utils'
+import resetPasswordTemplate from './emailTemplates/resetPassword'
+import userInvitationTemplate from './emailTemplates/userInvitation'
 
 const sendError = (message) => ({
   status: "error",
@@ -559,15 +561,18 @@ export default [
 
       switch (action) {
         case 'sendEmail':
+          const templates = {
+            resetPassword: resetPasswordTemplate,
+            userInvitation: userInvitationTemplate
+          }
+
           return sendSuccess(await sendEmail(models, memoryStorage, {
-            toEmails: [data.email],
+            toEmails: [data.toEmail],
             title: data.title,
-            template: {
-              name: data.template,
-              data: {
-                content: data.content,
-              },
-            }
+            customHtml: templates[data.template],
+            customHtmlData: {
+              content: data.content,
+            },
           }));
 
         case "updateCar":
