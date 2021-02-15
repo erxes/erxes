@@ -40,8 +40,6 @@ export const execInEveryPlugin = callback => {
     process.env.NODE_ENV === 'production' ? './plugins' : '../../plugins'
   );
 
-  console.log('exists: ', fs.existsSync(pluginsPath));
-
   if (fs.existsSync(pluginsPath)) {
     fs.readdir(pluginsPath, (_error, plugins) => {
       const pluginsCount = plugins.length;
