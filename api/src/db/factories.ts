@@ -637,9 +637,10 @@ export const fieldFactory = async (params: IFieldFactoryInput) => {
     description: params.description || faker.random.word(),
     isRequired: params.isRequired || false,
     order: params.order || 0,
-    isVisible: params.visible === undefined || params.visible === null
-    ? true
-    : params.visible,
+    isVisible:
+      params.visible === undefined || params.visible === null
+        ? true
+        : params.visible,
     groupId: params.groupId || (groupObj ? groupObj._id : ''),
     isDefinedByErxes: params.isDefinedByErxes,
     associatedFieldId: params.associatedFieldId
@@ -757,11 +758,12 @@ export const integrationFactory = async (
     messengerData: params.messengerData,
     leadData: params.leadData
       ? params.leadData
-      : {thankTitle: 'thankTitle', thankContent: 'thankContent' },
+      : { thankTitle: 'thankTitle', thankContent: 'thankContent' },
     tagIds: params.tagIds,
-    isActive: params.isActive === undefined || params.isActive === null
-    ? true
-    : params.isActive,
+    isActive:
+      params.isActive === undefined || params.isActive === null
+        ? true
+        : params.isActive
   };
 
   if (params.messengerData && !params.messengerData.timezone) {
