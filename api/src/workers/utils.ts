@@ -329,7 +329,7 @@ export const receiveImportCreate = async (content: any) => {
 
   let importHistory;
 
-  const useElkSyncer = ELK_SYNCER === 'true';
+  const useElkSyncer = ELK_SYNCER === 'false' ? false : true;
 
   if (fileType !== 'csv') {
     throw new Error('Invalid file type');
