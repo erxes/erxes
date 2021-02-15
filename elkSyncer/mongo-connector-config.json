@@ -38,6 +38,15 @@
     },
     "erxes*.pipelines": {
       "rename": "erxes*__pipelines._doc"
+    },
+    "erxes*.tags": {
+      "rename": "erxes*__tags._doc"
+    },
+    "erxes*.tasks": {
+      "rename": "erxes*__tasks._doc"
+    },
+    "erxes*.tickets": {
+      "rename": "erxes*__tickets._doc"
     }
   },
   "docManagers": [
