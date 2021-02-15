@@ -20,14 +20,14 @@ context('Settings', () => {
     cy.get('#SettingsSidebar').children().eq(0).click();
     cy.get('#GeneralSettingsMenu').children().eq(0).click()
     cy.get('div.Select-value:first').click().get('.Select-option:contains(Italian)').click();
-    cy.get('#react-select-3--value').click().get('.Select-option:contains(Afghan)').click()
+    cy.get('#react-select-3--value').click().get('.Select-option:contains(a)').eq(0).click()
     cy.get('#react-select-4--value').click();
     cy.get('#GeneralSettingsMenu').children().eq(0).children().eq(0).click()
 
     //File upload
     cy.get('#GeneralSettingsMenu').children().eq(1).click()
-    cy.get('#react-select-5--value').click().get('.Select-option:contains(Icon)').click()
-    cy.get('#react-select-6--value').click().get('.Select-option:contains(Tagged Image File Format)').click()
+    cy.get('#react-select-5--value').click().get('.Select-option:contains(.)').eq(0).click()
+    cy.get('#react-select-6--value').click().get('.Select-option:contains(.)').eq(0).click()
     cy.get('#react-select-7--value').click().get('.Select-option:contains(Google)').click()
     cy.get('#react-select-8--value > .Select-value').click().get('.Select-option:contains(Private)').click();
     cy.get('#GeneralSettingsMenu').children().eq(1).children().eq(0).click()

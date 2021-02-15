@@ -36,7 +36,7 @@ context("Inbox", () => {
     cy.get('a[href="/inbox"]').click();
 
     tags();
-
+    cy.wait(1000)
     cy.get('div[class="RichEditor-editor"]').click();
 
     cy.get("#conversationAssignTrigger").click();
