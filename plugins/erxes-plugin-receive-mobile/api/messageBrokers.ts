@@ -559,11 +559,11 @@ export default [
 
       switch (action) {
         case 'sendEmail':
-          return sendSuccess(await sendEmail(models, memoryStorage, process, {
+          return sendSuccess(await sendEmail(models, memoryStorage, {
             toEmails: [data.email],
             title: data.title,
             template: {
-              name: data.title,
+              name: data.template,
               data: {
                 content: data.content,
               },
