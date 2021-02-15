@@ -26,7 +26,8 @@ class BrandFilterContainer extends React.Component<Props> {
       ...this.props,
       brands: (brandsQuery ? brandsQuery.brands : []) || [],
       loading: (brandsQuery && brandsQuery.loading) || false,
-      counts: counts.byBrand
+      counts: counts.byBrand,
+      emptyText: 'Now easier to find contacts according to your brand'
     };
 
     return <BrandFilter {...updatedProps} />;

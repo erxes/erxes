@@ -104,10 +104,10 @@ class Form extends React.Component<Props & ICommonFormProps, State> {
         </FormGroup>
 
         <FormGroup>
-          <ControlLabel>Leads</ControlLabel>
+          <ControlLabel>Forms</ControlLabel>
 
           <Select
-            placeholder={__('Select leads')}
+            placeholder={__('Choose the form to add in the script')}
             onChange={this.onChangeLeads}
             value={this.state.leads}
             options={this.generateLeadOptions(leads)}

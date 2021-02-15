@@ -110,7 +110,7 @@ class Manage extends React.Component<Props, State> {
           ) : (
             <EmptyState
               icon="copy"
-              text="No copyable code. You should connect Popup to brand first"
+              text="No copyable code. You should connect Form to brand first"
               size="small"
             />
           )}
@@ -118,7 +118,7 @@ class Manage extends React.Component<Props, State> {
         <br />
         <Info>
           {__(
-            'If your flow type is embedded paste the code below additionally that you want erxes pop ups to appear'
+            'If your form style is embedded, additionally paste this code after the main code. '
           )}
         </Info>
         <MarkdownWrapper>
@@ -127,7 +127,7 @@ class Manage extends React.Component<Props, State> {
         <br />
         <Info>
           {__(
-            'If your flow type is popup paste the code below additionally in your button'
+            'If your form style is a popup, additionally paste this code after the main code.'
           )}
         </Info>
         <MarkdownWrapper>
@@ -142,7 +142,7 @@ class Manage extends React.Component<Props, State> {
       <>
         <Info>
           {__(
-            'Paste the code below before the body tag on every page you want erxes pop ups to appear'
+            ' Paste this main code before the body tag on every page you want this form to appear.'
           )}
         </Info>
 

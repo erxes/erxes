@@ -16,6 +16,10 @@ const integrationFields = `
     name
     colorCode
   }
+  channels {
+    _id
+    name
+  }
 `;
 
 const integrations = `
@@ -147,21 +151,6 @@ const integrationsTotalCount = `
   }
 `;
 
-const fields = `
-  query fields($contentType: String!, $contentTypeId: String) {
-    fields(contentType: $contentType, contentTypeId: $contentTypeId) {
-      _id
-      type
-      validation
-      text
-      description
-      options
-      isRequired
-      order
-    }
-  }
-`;
-
 const fieldsCombinedByContentType = `
   query fieldsCombinedByContentType($contentType: String!,$usageType: String, $excludedNames: [String]) {
     fieldsCombinedByContentType(contentType: $contentType,usageType: $usageType, excludedNames: $excludedNames)
@@ -202,7 +191,6 @@ export default {
   integrations,
   integrationDetail,
   integrationsTotalCount,
-  fields,
   formDetail,
   tags,
   forms,
