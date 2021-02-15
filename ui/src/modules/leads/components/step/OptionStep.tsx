@@ -2,10 +2,9 @@ import { COLORS } from 'modules/boards/constants';
 import FormControl from 'modules/common/components/form/Control';
 import FormGroup from 'modules/common/components/form/Group';
 import ControlLabel from 'modules/common/components/form/Label';
-import { LeftItem, Preview } from 'modules/common/components/step/styles';
+import { LeftItem } from 'modules/common/components/step/styles';
 import Toggle from 'modules/common/components/Toggle';
 import { __ } from 'modules/common/utils';
-import FieldsPreview from 'modules/forms/components/FieldsPreview';
 import { IFormData } from 'modules/forms/types';
 import SelectBrand from 'modules/settings/integrations/containers/SelectBrand';
 import { IField } from 'modules/settings/properties/types';
@@ -15,14 +14,14 @@ import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
 import Popover from 'react-bootstrap/Popover';
 import TwitterPicker from 'react-color/lib/Twitter';
 import { IBrand } from '../../../settings/brands/types';
-import { FormPreview } from './preview';
-import { BackgroundSelector, ColorList, FlexItem } from './style';
+import { BackgroundSelector, FlexItem } from './style';
 
 type Props = {
   type: string;
   formData: IFormData;
   color: string;
   theme: string;
+  title?: string;
   language?: string;
   isRequireOnce?: boolean;
   onChange: (
@@ -46,6 +45,9 @@ class OptionStep extends React.Component<Props, {}> {
     });
   };
 
+  onChangeTitle = e =>
+    this.onChangeFunction('title', (e.currentTarget as HTMLInputElement).value);
+
   renderThemeColor(value: string) {
     const onClick = () => this.onChangeFunction('theme', value);
 
@@ -61,15 +63,7 @@ class OptionStep extends React.Component<Props, {}> {
   }
 
   render() {
-    const {
-      language,
-      brand,
-      formData,
-      color,
-      theme,
-      isRequireOnce
-    } = this.props;
-    const { fields, desc } = formData;
+    const { language, brand, color, theme, isRequireOnce } = this.props;
 
     const popoverTop = (
       <Popover id="color-picker">
@@ -95,10 +89,6 @@ class OptionStep extends React.Component<Props, {}> {
         (e.currentTarget as HTMLInputElement).value
       );
 
-    const previewRenderer = () => (
-      <FieldsPreview fields={fields || []} formDesc={desc} />
-    );
-
     const onSwitchHandler = e => {
       this.onChangeFunction('isRequireOnce', e.target.checked);
     };
@@ -106,6 +96,17 @@ class OptionStep extends React.Component<Props, {}> {
     return (
       <FlexItem>
         <LeftItem>
+          <FormGroup>
+            <ControlLabel required={true}>Popup Name</ControlLabel>
+            <p>{__('Name this popup to differentiate from the rest')}</p>
+
+            <FormControl
+              required={true}
+              onChange={this.onChangeTitle}
+              defaultValue={this.props.title}
+              autoFocus={true}
+            />
+          </FormGroup>
           <FormGroup>
             <SelectBrand
               isRequired={true}
@@ -133,6 +134,7 @@ class OptionStep extends React.Component<Props, {}> {
               Turn on to receive a submission from the visitor only once. Once a
               submission is received, the popup will not show.
             </Description>
+            <br />
             <div>
               <Toggle
                 checked={isRequireOnce || false}
@@ -147,6 +149,8 @@ class OptionStep extends React.Component<Props, {}> {
 
           <FormGroup>
             <ControlLabel>Theme color</ControlLabel>
+            <Description>Try some of these colors</Description>
+            <br />
             <div>
               <OverlayTrigger
                 trigger="click"
@@ -159,22 +163,8 @@ class OptionStep extends React.Component<Props, {}> {
                 </ColorPick>
               </OverlayTrigger>
             </div>
-            <br />
-            <p>{__('Try some of these colors:')}</p>
-            <ColorList>
-              {COLORS.map(value => this.renderThemeColor(value))}
-            </ColorList>
           </FormGroup>
         </LeftItem>
-
-        <Preview>
-          <FormPreview
-            {...this.props}
-            title={formData.title}
-            btnText={formData.btnText}
-            previewRenderer={previewRenderer}
-          />
-        </Preview>
       </FlexItem>
     );
   }
