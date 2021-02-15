@@ -62,7 +62,7 @@ export type RemoveMutationResponse = {
 };
 
 export type CopyMutationResponse = {
-  copyMutation: (params: { variables: {_id: string} }) => Promise<void>;
+  copyMutation: (params: { variables: { _id: string } }) => Promise<void>;
 };
 
 // query types

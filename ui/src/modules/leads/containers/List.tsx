@@ -169,7 +169,7 @@ export default withProps<Props>(
             ...generatePaginationParams(queryParams),
             tag: queryParams.tag,
             brandId: queryParams.brand,
-            kind: INTEGRATION_KINDS.LEAD,
+            kind: INTEGRATION_KINDS.FORMS,
             status: queryParams.status
           }
         };
@@ -194,7 +194,7 @@ export default withProps<Props>(
       name: 'integrationsTotalCountQuery',
       options: () => ({
         variables: {
-          kind: INTEGRATION_KINDS.LEAD
+          kind: INTEGRATION_KINDS.FORMS
         }
       })
     })

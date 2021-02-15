@@ -307,9 +307,7 @@ class SuccessStep extends React.Component<Props, State> {
           <FormGroup>
             <ControlLabel>Confirmation message type</ControlLabel>
             <p>
-              {__(
-                `You can set each confirmation message ${successAction} here.`
-              )}
+              {__(`You can set only one confirmation message type at a time.`)}
             </p>
             <FormControl
               componentClass="select"
