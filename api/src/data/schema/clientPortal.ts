@@ -76,29 +76,29 @@ export const types = `
 `;
 
 export const queries = `
-  getConfigs(page: Int, perPage: Int): [ClientPortal]
-  getConfig(_id: String!): ClientPortal
-  getClientPortalTotalCount: Int
-  getTaskStages(taskPublicPipelineId: String!): JSON
-  getTasks(stageId: String!): JSON
-  customerTickets(email: String!): JSON
+  clientPortalGetConfigs(page: Int, perPage: Int): [ClientPortal]
+  clientPortalGetConfig(_id: String!): ClientPortal
+  clientPortalConfigsTotalCount: Int
+  clientPortalGetTaskStages(taskPublicPipelineId: String!): [Stage]
+  clientPortalGetTasks(stageId: String!): [Task]
+  clientPortalTickets(email: String!): [Ticket]
 `;
 
 export const mutations = `
-  createCustomerTicket(
+  clientPortalCreateTicket(
     stageId: String!
     subject: String!
     description: String
     email: String!
     priority: String
-  ): JSON
-  createCustomer(
+  ): Ticket
+  clientPortalCreateCustomer(
     configId: String!
     firstName: String!
     lastName: String
     email: String!
-  ): String
-  configUpdateClientPortal(
+  ): Customer
+  clientPortalConfigUpdate(
     _id: String
     name: String
     description: String

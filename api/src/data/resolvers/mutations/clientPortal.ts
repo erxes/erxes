@@ -12,7 +12,7 @@ interface ICustomerTicket {
 }
 
 const configClientPortalMutations = {
-  async createCustomer(
+  async clientPortalCreateCustomer(
     _root,
     args: {
       configId: string;
@@ -35,7 +35,7 @@ const configClientPortalMutations = {
     });
   },
 
-  async createCustomerTicket(
+  async clientPortalCreateTicket(
     _root,
     { email, subject, priority, description, stageId }: ICustomerTicket
   ) {
@@ -55,13 +55,13 @@ const configClientPortalMutations = {
     });
   },
 
-  configUpdateClientPortal(_root, args: IClientPortal) {
+  clientPortalConfigUpdate(_root, args: IClientPortal) {
     return ClientPortals.createOrUpdateConfig(args);
   }
 };
 
 // TODO permission, requireLogin
 // moduleCheckPermission(configClientPortalMutations, 'manageGeneralSettings');
-requireLogin(configClientPortalMutations, 'configUpdateClientPortal');
+requireLogin(configClientPortalMutations, 'clientPortalConfigUpdate');
 
 export default configClientPortalMutations;
