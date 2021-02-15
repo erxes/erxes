@@ -48,13 +48,6 @@ class FieldForm extends React.Component<Props, State> {
   };
 
   onPropertyChange = (selectedField: IField) => {
-    this.setState({
-      selectedOption: {
-        value: selectedField._id,
-        label: selectedField.text || ''
-      }
-    });
-
     const { field } = this.state;
 
     field.associatedFieldId = selectedField._id;
@@ -65,7 +58,13 @@ class FieldForm extends React.Component<Props, State> {
     field.text = selectedField.text;
     field.description = selectedField.description;
 
-    this.setState({ field });
+    this.setState({
+      field,
+      selectedOption: {
+        value: selectedField._id,
+        label: selectedField.text || ''
+      }
+    });
   };
 
   onSubmit = e => {

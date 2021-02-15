@@ -151,18 +151,22 @@ const integrationsTotalCount = `
   }
 `;
 
+const propertyFields = `
+  _id
+  type
+  validation
+  text
+  description
+  options
+  isRequired
+  order
+  associatedFieldId
+`;
+
 const properties = `
   query properties($contentType: String!, $contentTypeId: String, $isVisible: Boolean) {
     fields(contentType: $contentType, contentTypeId: $contentTypeId, isVisible: $isVisible) {
-      _id
-      type
-      validation
-      text
-      description
-      options
-      isRequired
-      order
-      associatedFieldId
+      ${propertyFields}
     }
   }
 `;
@@ -170,15 +174,7 @@ const properties = `
 const fields = `
   query fields($contentType: String!, $contentTypeId: String) {
     fields(contentType: $contentType, contentTypeId: $contentTypeId) {
-      _id
-      type
-      validation
-      text
-      description
-      options
-      isRequired
-      order
-      associatedFieldId
+      ${propertyFields}
     }
   }
 `;

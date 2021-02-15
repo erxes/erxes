@@ -52,7 +52,7 @@ function Brands({ history, counts, brands, loading, emptyText }: IProps) {
         data={data}
         loading={loading}
         count={brands.length}
-        emptyText={emptyText ? emptyText : 'Loading'}
+        emptyText={emptyText || 'Empty'}
         emptyIcon="leaf"
         size="small"
         objective={true}

@@ -293,7 +293,7 @@ const widgetMutations = {
     let phone;
     let firstName = '';
     let lastName = '';
-    const customFieldsData = new Array<ICustomField>();
+    let customFieldsData = new Array<ICustomField>();
 
     submissions.forEach(submission => {
       if (submission.type === 'email') {
@@ -340,11 +340,15 @@ const widgetMutations = {
       });
     }
 
+    if (customer.customFieldsData) {
+      customFieldsData = customFieldsData.concat(customer.customFieldsData);
+    }
+
     const customerDoc = {
       location: browserInfo,
       firstName: customer.firstName || firstName,
       lastName: customer.lastName || lastName,
-      customFieldsData: customer.customFieldsData?.concat(customFieldsData),
+      customFieldsData,
       ...(customer.primaryEmail
         ? {}
         : {
