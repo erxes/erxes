@@ -10,7 +10,6 @@ import { __ } from '../../../common/utils';
 import PropertyForm from '../containers/PropertyForm';
 import { IField, IFieldGroup } from '../types';
 
-
 type Props = {
   queryParams: any;
   properties: IField[];
@@ -32,7 +31,11 @@ class SelectProperty extends React.Component<Props, {}> {
     );
 
     const content = props => (
-      <PropertyForm {...props} renderButton={renderButton} queryParams={queryParams} />
+      <PropertyForm
+        {...props}
+        renderButton={renderButton}
+        queryParams={queryParams}
+      />
     );
 
     return (
@@ -45,7 +48,7 @@ class SelectProperty extends React.Component<Props, {}> {
   };
 
   generateUserOptions(array: IField[] = []): IOption[] {
-    return array.map(e => ({ label: e.text || "", value: e._id }));
+    return array.map(e => ({ label: e.text || '', value: e._id }));
   }
 
   onChangeProperty = option => {
@@ -59,11 +62,7 @@ class SelectProperty extends React.Component<Props, {}> {
   };
 
   render() {
-    const {
-      properties,
-      defaultValue,
-      description,
-    } = this.props;
+    const { properties, defaultValue, description } = this.props;
 
     return (
       <FormGroup>
@@ -77,6 +76,7 @@ class SelectProperty extends React.Component<Props, {}> {
               onChange={this.onChangeProperty}
               options={this.generateUserOptions(properties)}
               multi={false}
+              clearable={false}
             />
           </LeftContent>
           {this.renderAddProperty()}

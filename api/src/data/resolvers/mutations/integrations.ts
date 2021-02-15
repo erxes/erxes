@@ -585,10 +585,17 @@ const integrationMutations = {
 
     const copiedForm = await Forms.createForm(formDoc, user._id);
 
+    const leadData = sourceIntegration.leadData;
+
     const doc = docModifier({
       ...sourceIntegration.toObject(),
       name: `${sourceIntegration.name}-copied`,
-      formId: copiedForm._id
+      formId: copiedForm._id,
+      leadData: leadData && {
+        ...leadData.toObject(),
+        viewCount: 0,
+        contactsGathered: 0
+      }
     });
 
     delete doc._id;
