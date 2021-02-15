@@ -80,11 +80,11 @@ export const copyParams = `companyIds: [String], customerIds: [String], labelIds
 export const commonListTypes = `
   _id: String!
   name: String
-  companies: [Company]
-  customers: [Customer]
-  assignedUsers: [User]
-  stage: Stage
-  labels: [PipelineLabel]
+  companies: JSON
+  customers: JSON
+  assignedUsers: JSON
+  stage: JSON
+  labels: JSON
   isComplete: Boolean
   isWatched: Boolean
   closeDate: Date

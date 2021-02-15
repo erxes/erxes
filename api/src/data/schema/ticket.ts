@@ -8,16 +8,16 @@ import {
 } from './common';
 
 export const types = `
+  type TicketListItem {
+    ${commonListTypes}
+  }
+    
   type Ticket {
     _id: String!
     source: String
     companies: [Company]
     customers: [Customer]
     ${commonTypes}
-  }
-
-  type TicketListItem {
-    ${commonListTypes}
   }
 `;
 

@@ -400,10 +400,10 @@ export const getItemList = async (
       $match: filter
     },
     {
-      $limit: 10
+      $skip: args.skip || 0
     },
     {
-      $skip: args.skip || 0
+      $limit: 10
     },
     {
       $sort: sort
@@ -460,6 +460,8 @@ export const getItemList = async (
       ...(getExtraFields ? await getExtraFields(item) : {})
     });
   }
+
+  console.log('updatedList: ', updatedList);
 
   return updatedList;
 };

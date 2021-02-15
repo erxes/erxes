@@ -8,6 +8,12 @@ import {
 } from './common';
 
 export const types = `
+  type DealListItem {
+    products: JSON
+    amount: JSON
+    ${commonListTypes}
+  }
+    
   type Deal {
     _id: String!
     amount: JSON
@@ -17,12 +23,6 @@ export const types = `
     productsData: JSON
     paymentsData: JSON
     ${commonTypes}
-  }
-
-  type DealListItem {
-    products: JSON
-    amount: JSON
-    ${commonListTypes}
   }
 
   type DealTotalCurrency {

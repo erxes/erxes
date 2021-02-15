@@ -8,16 +8,16 @@ import {
 } from './common';
 
 export const types = `
+  type TaskListItem {
+    ${commonListTypes}
+  }
+    
   type Task {
     _id: String!
     companies: [Company]
     customers: [Customer]
     timeTrack: TimeTrack
     ${commonTypes}
-  }
-
-  type TaskListItem {
-    ${commonListTypes}
   }
 
   type TimeTrack {
