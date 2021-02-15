@@ -157,6 +157,12 @@ export const loadFieldClass = () => {
         { $pull: { customFieldsData: { field: _id } } }
       );
 
+      // Removing form assiocated field
+      await Fields.updateMany(
+        { associatedFieldId: _id },
+        { $unset: { associatedFieldId: '' } }
+      );
+
       return fieldObj.remove();
     }
 
