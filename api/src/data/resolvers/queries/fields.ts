@@ -26,7 +26,7 @@ const fieldQueries = {
     {
       contentType,
       contentTypeId,
-      isVisible,
+      isVisible
     }: { contentType: string; contentTypeId: string; isVisible: boolean }
   ) {
     const query: IFieldsQuery = { contentType };
@@ -35,7 +35,7 @@ const fieldQueries = {
       query.contentTypeId = contentTypeId;
     }
 
-    if(isVisible){
+    if (isVisible) {
       query.isVisible = isVisible;
     }
 
