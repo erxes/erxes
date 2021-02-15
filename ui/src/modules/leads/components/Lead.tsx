@@ -10,10 +10,10 @@ import { IConditionsRule } from 'modules/common/types';
 import { Alert } from 'modules/common/utils';
 import { __ } from 'modules/common/utils';
 import Wrapper from 'modules/layout/components/Wrapper';
-import { ILeadData, ILeadIntegration } from '../types';
-
+import { IEmailTemplate } from 'modules/settings/emailTemplates/types';
 import React from 'react';
 import { Link } from 'react-router-dom';
+import { ILeadData, ILeadIntegration } from '../types';
 
 import { SmallLoader } from 'modules/common/components/ButtonMutate';
 import { IFormData } from 'modules/forms/types';
@@ -34,18 +34,21 @@ type Props = {
   loading?: boolean;
   isActionLoading: boolean;
   isReadyToSaveForm: boolean;
+  emailTemplates?: IEmailTemplate[];
   afterFormDbSave: (formId: string) => void;
   save: (params: {
     name: string;
     brandId: string;
     languageCode?: string;
     leadData: ILeadData;
+    channelIds?: string[];
   }) => void;
 };
 
 type State = {
   type: string;
   brand?: string;
+  channelIds?: string[];
   language?: string;
   title?: string;
   calloutTitle?: string;
@@ -70,9 +73,13 @@ type State = {
   adminEmails?: string[];
   adminEmailTitle?: string;
   adminEmailContent?: string;
+  thankTitle?: string;
   thankContent?: string;
   redirectUrl?: string;
   carousel: string;
+
+  currentMode: 'create' | 'update' | undefined;
+  currentField?: IField;
 };
 
 class Lead extends React.Component<Props, State> {
@@ -84,6 +91,7 @@ class Lead extends React.Component<Props, State> {
     const { leadData = {} as ILeadData } = integration;
     const callout = leadData.callout || {};
     const form = integration.form || {};
+    const channels = integration.channels || [];
 
     this.state = {
       type: leadData.loadType || 'shoutbox',
@@ -94,12 +102,14 @@ class Lead extends React.Component<Props, State> {
       adminEmails: leadData.adminEmails || [],
       adminEmailTitle: leadData.adminEmailTitle || '',
       adminEmailContent: leadData.adminEmailContent || '',
+      thankTitle: leadData.thankTitle || 'Title',
       thankContent: leadData.thankContent || 'Thank you.',
       redirectUrl: leadData.redirectUrl || '',
       rules: leadData.rules || [],
       isStepActive: false,
 
       brand: integration.brandId,
+      channelIds: channels.map(item => item._id) || [],
       language: integration.languageCode,
       title: integration.name,
       calloutTitle: callout.title || 'Title',
@@ -120,17 +130,27 @@ class Lead extends React.Component<Props, State> {
       isRequireOnce: leadData.isRequireOnce,
       logoPreviewUrl: callout.featuredImage,
       isSkip: callout.skip && true,
-      carousel: 'callout'
+      carousel: 'callout',
+
+      currentMode: undefined,
+      currentField: undefined
     };
   }
 
   handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
-    const { brand, calloutTitle, title, rules, formData } = this.state;
+    const {
+      brand,
+      calloutTitle,
+      title,
+      rules,
+      formData,
+      channelIds
+    } = this.state;
 
     if (!title) {
-      return Alert.error('Enter a Pop up name');
+      return Alert.error('Enter a Form name');
     }
 
     if (!formData.title) {
@@ -144,6 +164,7 @@ class Lead extends React.Component<Props, State> {
     const doc = {
       name: title,
       brandId: brand,
+      channelIds,
       languageCode: this.state.language,
       leadData: {
         loadType: this.state.type,
@@ -154,6 +175,7 @@ class Lead extends React.Component<Props, State> {
         adminEmails: this.state.adminEmails,
         adminEmailTitle: this.state.adminEmailTitle,
         adminEmailContent: this.state.adminEmailContent,
+        thankTitle: this.state.thankTitle,
         thankContent: this.state.thankContent,
         redirectUrl: this.state.redirectUrl,
         themeColor: this.state.theme || this.state.color,
@@ -187,6 +209,10 @@ class Lead extends React.Component<Props, State> {
     this.setState({ formData });
   };
 
+  onFieldClick = (field: IField) => {
+    this.setState({ currentMode: 'update', currentField: field });
+  };
+
   onStepClick = carousel => {
     return this.setState({ carousel });
   };
@@ -195,7 +221,7 @@ class Lead extends React.Component<Props, State> {
     const { isActionLoading } = this.props;
 
     const cancelButton = (
-      <Link to="/leads">
+      <Link to="/forms">
         <Button btnStyle="simple" icon="times-circle" uppercase={false}>
           Cancel
         </Button>
@@ -229,6 +255,7 @@ class Lead extends React.Component<Props, State> {
       color,
       theme,
       logoPreviewUrl,
+      thankTitle,
       thankContent,
       carousel,
       language,
@@ -237,24 +264,25 @@ class Lead extends React.Component<Props, State> {
       isSkip,
       rules,
       formData,
-      isRequireOnce
+      isRequireOnce,
+      channelIds
     } = this.state;
 
-    const { integration } = this.props;
+    const { integration, emailTemplates } = this.props;
     const leadData = integration && integration.leadData;
     const brand = integration && integration.brand;
-    const breadcrumb = [{ title: __('Pop Ups'), link: '/leads' }];
+    const breadcrumb = [{ title: __('Forms'), link: '/forms' }];
     const constant = isSkip ? 'form' : carousel;
 
     return (
       <StepWrapper>
-        <Wrapper.Header title={__('Pop ups')} breadcrumb={breadcrumb} />
+        <Wrapper.Header title={__('Forms')} breadcrumb={breadcrumb} />
         <Content>
           <LeftContent>
             <Steps>
               <Step
                 img="/images/icons/erxes-04.svg"
-                title="Type"
+                title="Style"
                 onClick={this.onStepClick.bind(null, 'callout')}
               >
                 <ChooseType
@@ -285,7 +313,7 @@ class Lead extends React.Component<Props, State> {
               </Step>
               <Step
                 img="/images/icons/erxes-12.svg"
-                title={'Form'}
+                title={'Content'}
                 onClick={this.onStepClick.bind(null, 'form')}
               >
                 <FormStep
@@ -298,6 +326,8 @@ class Lead extends React.Component<Props, State> {
                   onDocChange={this.onFormDocChange}
                   onInit={this.onFormInit}
                   isReadyToSaveForm={this.props.isReadyToSaveForm}
+                  currentMode={this.state.currentMode}
+                  currentField={this.state.currentField}
                 />
               </Step>
               <Step
@@ -321,17 +351,19 @@ class Lead extends React.Component<Props, State> {
                   language={language}
                   formData={formData}
                   isRequireOnce={isRequireOnce}
+                  channelIds={channelIds}
                   onChange={this.onChange}
                 />
               </Step>
               <Step
                 img="/images/icons/erxes-13.svg"
-                title="Thank content"
+                title="Confirmation"
                 onClick={this.onStepClick.bind(null, 'sucess')}
                 noButton={true}
               >
                 <SuccessStep
                   onChange={this.onChange}
+                  thankTitle={thankTitle}
                   thankContent={thankContent}
                   type={type}
                   color={color}
@@ -339,13 +371,14 @@ class Lead extends React.Component<Props, State> {
                   successAction={successAction}
                   leadData={leadData}
                   formId={integration && integration.formId}
+                  emailTemplates={emailTemplates ? emailTemplates : []}
                 />
               </Step>
             </Steps>
             <ControlWrapper>
               <Indicator>
                 {__('You are')} {integration ? 'editing' : 'creating'}{' '}
-                <strong>{title}</strong> {__('pop up')}
+                <strong>{title}</strong> {__('form')}
               </Indicator>
               {this.renderButtons()}
             </ControlWrapper>
@@ -354,6 +387,7 @@ class Lead extends React.Component<Props, State> {
           <PreviewWrapper>
             <FullPreview
               onChange={this.onChange}
+              onDocChange={this.onFormDocChange}
               calloutTitle={calloutTitle}
               calloutBtnText={calloutBtnText}
               bodyValue={bodyValue}
@@ -361,6 +395,7 @@ class Lead extends React.Component<Props, State> {
               color={color}
               theme={theme}
               image={logoPreviewUrl}
+              thankTitle={thankTitle}
               thankContent={thankContent}
               skip={isSkip}
               carousel={constant}

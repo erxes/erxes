@@ -16,6 +16,7 @@ export interface IField {
   groupId?: string;
   isVisible?: boolean;
   lastUpdatedUserId?: string;
+  associatedFieldId?: string;
 }
 
 export interface IFieldDocument extends IField, Document {
@@ -68,7 +69,8 @@ export const fieldSchema = new Schema({
   order: field({ type: Number, label: 'Order' }),
   groupId: field({ type: String, label: 'Field group' }),
   isVisible: field({ type: Boolean, default: true, label: 'Is visible' }),
-  lastUpdatedUserId: field({ type: String, label: 'Last updated by' })
+  lastUpdatedUserId: field({ type: String, label: 'Last updated by' }),
+  associatedFieldId: field({ type: String, optional: true, label: 'Stores custom property fieldId for form field id'}),
 });
 
 export const fieldGroupSchema = schemaWrapper(

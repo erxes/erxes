@@ -130,7 +130,7 @@ export const KIND_CHOICES = {
 
 export const INTEGRATION_NAMES_MAP = {
   messenger: 'Web messenger',
-  lead: 'Lead',
+  lead: 'Form',
   'facebook-messenger': 'Facebook messenger',
   'facebook-post': 'Facebook post',
   gmail: 'Gmail',
@@ -258,7 +258,7 @@ export const PRODUCT_STATUSES = {
   ACTIVE: 'active',
   DELETED: 'deleted',
   ALL: ['active', 'deleted']
-}
+};
 
 export const PIPELINE_VISIBLITIES = {
   PUBLIC: 'public',
@@ -749,7 +749,11 @@ export const WEBHOOK_ACTIONS = [
   { label: 'User messages', action: 'create', type: 'userMessages' },
   { label: 'Customer messages', action: 'create', type: 'customerMessages' },
   { label: 'Engage messages', action: 'create', type: 'engageMessages' },
-  { label: 'Popup submitted', action: 'create', type: 'popupSubmitted' }
+  {
+    label: 'Form submission received',
+    action: 'create',
+    type: 'popupSubmitted'
+  }
 ];
 
 export const WEBHOOK_STATUS = {

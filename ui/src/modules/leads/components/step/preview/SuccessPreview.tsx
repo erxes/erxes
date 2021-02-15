@@ -3,6 +3,7 @@ import CommonPreview from './CommonPreview';
 import { ThankContent } from './styles';
 
 type Props = {
+  thankTitle?: string;
   thankContent?: string;
   onChange: (name: any, value: string) => void;
   type?: string;
@@ -12,11 +13,11 @@ type Props = {
 
 class SuccessPreview extends React.Component<Props, {}> {
   render() {
-    const { theme, color, thankContent, type } = this.props;
+    const { theme, color, thankTitle, thankContent, type } = this.props;
 
     return (
       <CommonPreview
-        title={thankContent}
+        title={thankTitle}
         theme={theme}
         color={color}
         type={type}
