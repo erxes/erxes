@@ -87,6 +87,7 @@ jobs:
         MAIN_APP_DOMAIN: http://localhost:3000
         WIDGETS_DOMAIN: http://localhost:3200
         RABBITMQ_HOST: amqp://localhost
+        ELASTICSEARCH_URL: http://localhost:9200
         PORT: 3300
 
     - name: Cypress prepare ui
