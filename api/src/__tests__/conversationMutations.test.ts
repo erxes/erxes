@@ -91,6 +91,12 @@ describe('Conversation message mutations', () => {
     }
   `;
 
+  const conversationConvertToCardMutation = `
+    mutation conversationConvertToCard($_id: String!, $type: String!, $itemId: String, $itemName: String, $stageId: String) {
+    conversationConvertToCard(_id: $_id, type: $type, itemId: $itemId, itemName: $itemName, stageId: $stageId)
+  }
+`;
+
   let dataSources;
 
   beforeEach(async () => {
@@ -914,14 +920,8 @@ describe('Conversation message mutations', () => {
     });
     const stage = await stageFactory({ type: 'deal' });
 
-    const mutation = `
-      mutation conversationConvertToCard($_id: String!, $type: String!, $itemId: String, $itemName: String, $stageId: String) {
-        conversationConvertToCard(_id: $_id, type: $type, itemId: $itemId, itemName: $itemName, stageId: $stageId)
-      }
-    `;
-
     await graphqlRequest(
-      mutation,
+      conversationConvertToCardMutation,
       'conversationConvertToCard',
       {
         _id: conversation._id,
@@ -954,6 +954,7 @@ describe('Conversation message mutations', () => {
     expect(deal.assignedUserIds).toContain(user._id);
     expect(conformity).toBeDefined();
     expect(conformity.relTypeId).toBe(conversation.customerId);
+    expect(deal.sourceConversationIds).toContain(conversation._id);
   });
 
   test('Convert conversation to existing card', async () => {
@@ -972,14 +973,8 @@ describe('Conversation message mutations', () => {
       assignedUserIds: [user._id]
     });
 
-    const mutation = `
-      mutation conversationConvertToCard($_id: String!, $type: String!, $itemId: String, $itemName: String, $stageId: String) {
-        conversationConvertToCard(_id: $_id, type: $type, itemId: $itemId, itemName: $itemName, stageId: $stageId)
-      }
-    `;
-
     await graphqlRequest(
-      mutation,
+      conversationConvertToCardMutation,
       'conversationConvertToCard',
       {
         _id: newConversation._id,
