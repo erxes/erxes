@@ -81,7 +81,7 @@ const createOrUpdatePipelineStages = async (
   for (const stage of stages) {
     order++;
 
-    const doc = { ...stage, order, pipelineId };
+    const doc: any = { ...stage, order, pipelineId };
 
     const _id = doc._id;
 
