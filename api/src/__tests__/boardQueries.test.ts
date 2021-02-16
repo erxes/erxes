@@ -606,7 +606,7 @@ describe('boardQueries', () => {
     });
 
     const deal = await dealFactory({
-      sourceConversationId: conversation._id,
+      sourceConversationIds: [conversation._id],
       stageId: dealStage._id
     });
 
@@ -620,7 +620,7 @@ describe('boardQueries', () => {
       pipelineId: taskPipeline._id
     });
     const task = await taskFactory({
-      sourceConversationId: conversation._id,
+      sourceConversationIds: [conversation._id],
       stageId: taskStage._id
     });
 
@@ -634,7 +634,7 @@ describe('boardQueries', () => {
       pipelineId: ticketPipeline._id
     });
     const ticket = await ticketFactory({
-      sourceConversationId: conversation._id,
+      sourceConversationIds: [conversation._id],
       stageId: ticketStage._id
     });
 
