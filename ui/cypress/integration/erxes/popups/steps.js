@@ -68,7 +68,7 @@ context("Popups", () => {
       .eq(3)
       .click();
 
-    cy.get('i[icon="plus-circle"]').click();
+    cy.get('button[icon="plus-circle"]').eq(1).click();
     cy.get('input[name="name"]').type(randomm);
     cy.get('textarea[name="description"]').type(randomm);
     cy.get('.modal-body button[icon="check-circle"]').click();
