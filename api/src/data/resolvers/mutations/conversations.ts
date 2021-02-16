@@ -65,7 +65,6 @@ const sendConversationToIntegrations = async (
   doc: IConversationMessageAdd,
   dataSources: any,
   action?: string,
-  messageId?: string,
   facebookMessageTag?: string
 ) => {
   if (type === 'facebook') {
@@ -97,7 +96,6 @@ const sendConversationToIntegrations = async (
         }
       );
     } catch (e) {
-      await ConversationMessages.deleteOne({ _id: messageId });
       throw new Error(
         `Your message not sent Error: ${e.message}. Go to integrations list and fix it`
       );
@@ -385,7 +383,6 @@ const conversationMutations = {
       doc,
       dataSources,
       action,
-      message._id,
       facebookMessageTag
     );
 
