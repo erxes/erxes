@@ -8,7 +8,6 @@ import widgetMutations, {
   getMessengerData
 } from '../data/resolvers/mutations/widgets';
 import * as utils from '../data/utils';
-import { graphqlRequest } from '../db/connection';
 import {
   brandFactory,
   conversationFactory,
