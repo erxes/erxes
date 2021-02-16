@@ -37,7 +37,7 @@ export interface IItemCommonFields {
   order?: number;
   searchText?: string;
   priority?: string;
-  sourceConversationId?: string;
+  sourceConversationIds?: string[];
   status?: string;
   timeTrack?: {
     status: string;
@@ -175,7 +175,9 @@ export const commonItemFieldsSchema = {
   modifiedBy: field({ type: String, label: 'Modified by' }),
   searchText: field({ type: String, optional: true, index: true }),
   priority: field({ type: String, optional: true, label: 'Priority' }),
+  // TODO remove after migration
   sourceConversationId: field({ type: String, optional: true }),
+  sourceConversationIds: field({ type: [String], optional: true }),
   timeTrack: field({
     type: timeTrackSchema
   }),

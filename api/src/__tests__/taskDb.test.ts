@@ -71,7 +71,7 @@ describe('Test tasks model', () => {
     const args = {
       stageId: task.stageId,
       userId: user._id,
-      sourceConversationId: conversation._id
+      sourceConversationIds: [conversation._id]
     };
 
     const createdTicket = await Tasks.createTask(args);

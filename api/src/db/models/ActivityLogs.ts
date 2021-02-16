@@ -135,9 +135,11 @@ export const loadClass = () => {
         let action = ACTIVITY_ACTIONS.CREATE;
         let content = '';
 
-        if (item.sourceConversationId) {
+        const sourceIds = item.sourceConversationIds;
+
+        if (sourceIds && sourceIds.length > 0) {
           action = ACTIVITY_ACTIONS.CONVERT;
-          content = item.sourceConversationId;
+          content = sourceIds.slice(-1)[0];
         }
 
         docs.push({
@@ -162,9 +164,11 @@ export const loadClass = () => {
       let action = ACTIVITY_ACTIONS.CREATE;
       let content = '';
 
-      if (item.sourceConversationId) {
+      const sourceIds = item.sourceConversationIds;
+
+      if (sourceIds && sourceIds.length > 0) {
         action = ACTIVITY_ACTIONS.CONVERT;
-        content = item.sourceConversationId;
+        content = sourceIds.slice(-1)[0];
       }
 
       return ActivityLogs.addActivityLog({

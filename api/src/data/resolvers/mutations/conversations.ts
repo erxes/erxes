@@ -1,12 +1,15 @@
 import * as strip from 'strip';
 import * as _ from 'underscore';
 import {
+  ActivityLogs,
+  Conformities,
   ConversationMessages,
   Conversations,
   Customers,
   Integrations,
   Tags
 } from '../../../db/models';
+import { getCollection } from '../../../db/models/boardUtils';
 import Messages from '../../../db/models/ConversationMessages';
 import {
   KIND_CHOICES,
@@ -25,6 +28,7 @@ import { checkPermission, requireLogin } from '../../permissions/wrappers';
 import { IContext } from '../../types';
 import utils from '../../utils';
 import QueryBuilder, { IListArgs } from '../queries/conversationQueryBuilder';
+import { itemsAdd } from './boardUtils';
 
 export interface IConversationMessageAdd {
   conversationId: string;
@@ -39,6 +43,14 @@ interface IReplyFacebookComment {
   conversationId: string;
   commentId: string;
   content: string;
+}
+
+interface IConversationConvert {
+  _id: string;
+  type: string;
+  itemId: string;
+  stageId: string;
+  itemName: string;
 }
 
 /**
@@ -681,6 +693,77 @@ const conversationMutations = {
 
       throw new Error(e.message);
     }
+  },
+
+  async conversationConvertToCard(
+    _root,
+    params: IConversationConvert,
+    { user, docModifier }: IContext
+  ) {
+    const { _id, type, itemId, itemName, stageId } = params;
+
+    const conversation = await Conversations.getConversation(_id);
+
+    const { collection, update, create } = getCollection(type);
+
+    if (itemId) {
+      const oldItem = await collection.findOne({ _id: itemId }).lean();
+
+      const doc = oldItem;
+
+      if (conversation.assignedUserId) {
+        const assignedUserIds = oldItem.assignedUserIds || [];
+        assignedUserIds.push(conversation.assignedUserId);
+
+        doc.assignedUserIds = assignedUserIds;
+      }
+
+      const sourceConversationIds: string[] =
+        oldItem.sourceConversationIds || [];
+
+      sourceConversationIds.push(conversation._id);
+
+      doc.sourceConversationIds = sourceConversationIds;
+
+      const item = await update(oldItem._id, doc);
+
+      item.userId = user._id;
+
+      await ActivityLogs.createBoardItemLog({ item, contentType: type });
+
+      const relTypeIds: string[] = [];
+
+      sourceConversationIds.forEach(async conversationId => {
+        const con = await Conversations.getConversation(conversationId);
+
+        if (con.customerId) {
+          relTypeIds.push(con.customerId);
+        }
+      });
+
+      if (conversation.customerId) {
+        await Conformities.addConformity({
+          mainType: type,
+          mainTypeId: item._id,
+          relType: 'customer',
+          relTypeId: conversation.customerId
+        });
+      }
+
+      return item._id;
+    } else {
+      const doc: any = {};
+
+      doc.name = itemName;
+      doc.stageId = stageId;
+      doc.sourceConversationIds = [_id];
+      doc.customerIds = [conversation.customerId];
+      doc.assignedUserIds = [conversation.assignedUserId];
+
+      const item = await itemsAdd(doc, type, user, docModifier, create);
+
+      return item._id;
+    }
   }
 };
 
@@ -688,6 +771,7 @@ requireLogin(conversationMutations, 'conversationMarkAsRead');
 requireLogin(conversationMutations, 'conversationDeleteVideoChatRoom');
 requireLogin(conversationMutations, 'conversationCreateVideoChatRoom');
 requireLogin(conversationMutations, 'conversationsSaveVideoRecordingInfo');
+requireLogin(conversationMutations, 'conversationConvertToCard');
 
 checkPermission(
   conversationMutations,

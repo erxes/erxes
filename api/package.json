@@ -17,7 +17,8 @@
     "dev-workers": "PROCESS_NAME=workers DEBUG=erxes-workers:* NODE_ENV=development NODE_OPTIONS='--experimental-worker' node_modules/.bin/ts-node src/workers/index.ts",
     "build": "tsc -p tsconfig.prod.json && cp -rf src/private dist/ && cp -rf src/initialData dist/ && if [ -d dist/api/src ]; then mv dist/api/src/* dist; fi && rm -rf ./dist/api",
     "test": "node --expose-gc --max_old_space_size=4000 ./node_modules/.bin/jest --forceExit --silent --logHeapUsage --w=4",
-    "removeVisitors": "node_modules/.bin/ts-node src/commands/removeVisitors.ts"
+    "removeVisitors": "node_modules/.bin/ts-node src/commands/removeVisitors.ts",
+    "migrateBoardItems": "node_modules/.bin/ts-node src/commands/migrateBoardItems.ts"
   },
   "dependencies": {
     "@google-cloud/pubsub": "^1.1.5",

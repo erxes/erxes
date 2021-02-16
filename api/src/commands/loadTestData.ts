@@ -459,12 +459,21 @@ const main = async () => {
 
   console.log('Creating: Tickets');
 
-  const randomConversation = await Conversations.findOne();
+  const customerId = await Customers.createVisitor();
+
+  const randomConversation =
+    (await Conversations.findOne()) ||
+    (await Conversations.createConversation({
+      customerId,
+      integrationId: integration._id
+    }));
+
   const ticketBoard = await Boards.createBoard({
     name: faker.random.word(),
     type: 'ticket',
     userId: admin._id
   });
+
   const ticketStages = await populateStages('ticket');
 
   for (let j = 0; j < 2; j++) {
@@ -479,9 +488,9 @@ const main = async () => {
   await Tickets.createTicket({
     name: faker.random.word(),
     userId: admin._id,
-    initialStageId: selectedTicketStage?._id,
-    sourceConversationId: randomConversation?._id,
-    stageId: selectedTicketStage?._id || ''
+    initialStageId: (selectedTicketStage && selectedTicketStage._id) || '',
+    sourceConversationIds: [randomConversation._id || ''],
+    stageId: (selectedTicketStage && selectedTicketStage._id) || ''
   });
 
   console.log('Finished: Tickets');
