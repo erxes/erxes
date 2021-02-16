@@ -175,10 +175,10 @@ const boardCounts = `
 const cardFields = `
   _id
   name
-  customers{
+  customers {
     _id
   }
-  companies{
+  companies {
     _id
   }
   assignedUserIds
