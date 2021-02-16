@@ -20,6 +20,7 @@ export interface IField {
   groupId: string;
   isVisible: boolean;
   lastUpdatedUserId: string;
+  associatedFieldId?: string;
 }
 
 export interface ICallout {
@@ -59,6 +60,7 @@ export interface IFormDoc {
     text: string;
     type: string;
     validation: string;
+    associatedFieldId: string;
   };
 }
 

@@ -283,6 +283,7 @@ const main = async () => {
         loadType,
         successAction: 'redirect',
         redirectUrl: faker.internet.url(),
+        thankTitle: faker.random.word(),
         thankContent: faker.lorem.sentence()
       }
     },

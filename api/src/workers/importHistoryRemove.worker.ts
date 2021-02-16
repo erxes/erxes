@@ -69,8 +69,6 @@ connect()
   .catch(e => {
     mongoose.connection.close();
 
-    parentPort.postMessage();
-
     parentPort.postMessage({
       action: 'remove',
       message: `Finished job with error ${e.message}`

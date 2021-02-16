@@ -1,6 +1,7 @@
 import './setup.ts';
 
 import * as faker from 'faker';
+
 import messageBroker from '../messageBroker';
 
 import {
@@ -409,5 +410,48 @@ describe('integrationQueries', () => {
     expect(secondResponse).toBe('https://webhookurl');
 
     spy1.mockRestore();
+  });
+
+  test('Integrations county query with filter', async () => {
+    await integrationFactory({ kind: 'lead', isActive: true });
+    await integrationFactory({ kind: 'lead', isActive: false });
+
+    const countQuery = `
+    query integrationsTotalCount($kind: String, $status: String) {
+      integrationsTotalCount(kind: $kind, status: $status) {
+        total
+        byTag
+        byKind
+        byBrand
+        byChannel
+        byStatus
+      }
+    }
+  `;
+
+    // mail ========================
+    const activeResponse = await graphqlRequest(
+      countQuery,
+      'integrationsTotalCount',
+      {
+        kind: 'lead',
+        status: 'active',
+      }
+    );
+
+    const archivedResponse = await graphqlRequest(
+      countQuery,
+      'integrationsTotalCount',
+      {
+        kind: 'lead',
+        status: 'archived',
+      }
+    );
+
+    expect(activeResponse.total).toBe(2);
+    expect(activeResponse.byStatus.active).toBe(1);
+    expect(activeResponse.byStatus.archived).toBe(0);
+    expect(archivedResponse.byStatus.active).toBe(0);
+    expect(archivedResponse.byStatus.archived).toBe(1);
   });
 });
