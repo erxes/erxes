@@ -288,6 +288,11 @@ export const receiveImportRemove = async (content: any) => {
 
     const ids = importHistory.ids || [];
 
+    if (ids.length === 0) {
+      await ImportHistory.deleteOne({ _id: importHistoryId });
+      return { status: 'ok' };
+    }
+
     const workerPath = path.resolve(getWorkerFile('importHistoryRemove'));
 
     const calc = Math.ceil(ids.length / WORKER_BULK_LIMIT);
@@ -329,7 +334,7 @@ export const receiveImportCreate = async (content: any) => {
 
   let importHistory;
 
-  const useElkSyncer = ELK_SYNCER === 'true';
+  const useElkSyncer = ELK_SYNCER === 'false' ? false : true;
 
   if (fileType !== 'csv') {
     throw new Error('Invalid file type');

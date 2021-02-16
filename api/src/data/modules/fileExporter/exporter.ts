@@ -307,7 +307,7 @@ export const buildFile = async (
   if (type === MODULE_NAMES.CUSTOMER && query.form && query.popupData) {
     await buildLeadFile(data, query.form, sheet, columnNames, rowIndex);
 
-    type = 'Pop-Ups';
+    type = 'Forms';
   } else {
     let headers: IColumnLabel[] = fillHeaders(type);
 

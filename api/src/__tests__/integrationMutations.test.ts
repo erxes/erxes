@@ -4,7 +4,9 @@ import * as utils from '../data/utils';
 import { graphqlRequest } from '../db/connection';
 import {
   brandFactory,
+  channelFactory,
   customerFactory,
+  fieldFactory,
   formFactory,
   integrationFactory,
   tagsFactory,
@@ -277,10 +279,13 @@ describe('mutations', () => {
       kind: 'lead'
     });
 
+    const channel = await channelFactory({});
+
     const args = {
       name: leadIntegration.name,
       brandId: _brand._id,
       formId: leadIntegration.formId,
+      channelIds: [channel._id],
       ...commonLeadProperties
     };
 
@@ -288,12 +293,14 @@ describe('mutations', () => {
       mutation integrationsCreateLeadIntegration(
         ${commonParamDefs}
         $formId: String!
+        $channelIds: [String]
         $leadData: IntegrationLeadData!
       ) {
         integrationsCreateLeadIntegration(
           ${commonParams}
           formId: $formId
           leadData: $leadData
+          channelIds: $channelIds
         ) {
           name
           brandId
@@ -322,11 +329,14 @@ describe('mutations', () => {
       kind: 'lead'
     });
 
+    const channel = await channelFactory({});
+
     const args = {
       _id: leadIntegration._id,
       name: leadIntegration.name,
       brandId: _brand._id,
       formId: leadIntegration.formId,
+      channelIds: [channel._id],
       ...commonLeadProperties
     };
 
@@ -335,12 +345,14 @@ describe('mutations', () => {
         $_id: String!
         $formId: String!
         $leadData: IntegrationLeadData!
+        $channelIds: [String]
         ${commonParamDefs}
       ) {
         integrationsEditLeadIntegration(
           _id: $_id
           formId: $formId
           leadData: $leadData
+          channelIds: $channelIds
           ${commonParams}
         ) {
           _id
@@ -787,6 +799,55 @@ describe('mutations', () => {
     expect(response3._id).toBe(leadDoc._id);
     expect(response3.name).toBe(leadDoc.name);
     expect(response3.brandId).toBe(leadDoc.brandId);
+  });
+
+  test('Integrations copy form', async () => {
+    const mutation = `
+      mutation integrationsCopyLeadIntegration($_id: String!) {
+        integrationsCopyLeadIntegration(_id: $_id) {
+          _id
+          name
+        }
+      }
+    `;
+
+    const integration = await integrationFactory({
+      kind: KIND_CHOICES.LEAD,
+      formId: form._id
+    });
+
+    await fieldFactory({ contentType: 'form', contentTypeId: form._id });
+
+    const response = await graphqlRequest(
+      mutation,
+      'integrationsCopyLeadIntegration',
+      { _id: integration._id }
+    );
+
+    expect(response.name).toBe(`${integration.name}-copied`);
+  });
+
+  test('Integrations copy form with error', async () => {
+    const mutation = `
+      mutation integrationsCopyLeadIntegration($_id: String!) {
+        integrationsCopyLeadIntegration(_id: $_id) {
+          _id
+          name
+        }
+      }
+    `;
+
+    const integration = await integrationFactory({
+      kind: KIND_CHOICES.MESSENGER
+    });
+
+    try {
+      await graphqlRequest(mutation, 'integrationsCopyLeadIntegration', {
+        _id: integration._id
+      });
+    } catch (e) {
+      expect(e[0].message).toBe('Integration kind is not form');
+    }
   });
 
   test('test integrationsSendSms()', async () => {

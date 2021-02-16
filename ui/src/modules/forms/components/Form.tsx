@@ -10,15 +10,20 @@ import { Title } from '../styles';
 import { IForm, IFormData } from '../types';
 import FieldChoices from './FieldChoices';
 import FieldForm from './FieldForm';
+import FieldsPreview from './FieldsPreview';
 
 type Props = {
   fields: IField[];
+  renderPreviewWrapper?: (previewRenderer, fields: IField[]) => void;
   onDocChange?: (doc: IFormData) => void;
   saveForm: (params: IFormData) => void;
+  formData?: IFormData;
   isReadyToSave: boolean;
   type: string;
   form?: IForm;
   hideOptionalFields?: boolean;
+  currentMode?: 'create' | 'update' | undefined;
+  currentField?: IField;
 };
 
 type State = {
@@ -27,6 +32,7 @@ type State = {
   currentField?: IField;
   title: string;
   desc: string;
+  type?: string;
   btnText: string;
 };
 
@@ -37,27 +43,38 @@ class Form extends React.Component<Props, State> {
     const { form = {} as IForm } = props;
 
     this.state = {
-      fields: props.fields || [],
+      fields: (props.formData ? props.formData.fields : props.fields) || [],
       title: form.title || '',
       desc: form.description || '',
       btnText: form.buttonText || 'Send',
       currentMode: undefined,
-      currentField: undefined
+      currentField: undefined,
+      type: props.type || ''
     };
   }
 
   componentWillReceiveProps(nextProps: Props) {
     const { saveForm, type, isReadyToSave } = this.props;
-    const { title, btnText, desc, fields } = this.state;
+    const { title, btnText, desc, fields, currentMode } = this.state;
+
+    if (nextProps.formData && currentMode !== 'create') {
+      this.setState({
+        fields: nextProps.formData.fields || []
+      });
+    }
 
     if (nextProps.isReadyToSave && isReadyToSave !== nextProps.isReadyToSave) {
-      saveForm({
-        title,
-        desc,
-        btnText,
-        fields,
-        type
-      });
+      saveForm(
+        nextProps.formData
+          ? { ...nextProps.formData }
+          : {
+              title,
+              desc,
+              btnText,
+              fields,
+              type
+            }
+      );
     }
   }
 
@@ -171,7 +188,8 @@ class Form extends React.Component<Props, State> {
   };
 
   render() {
-    const { currentMode, currentField } = this.state;
+    const { renderPreviewWrapper } = this.props;
+    const { currentMode, currentField, fields, desc } = this.state;
 
     if (currentField) {
       return (
@@ -185,15 +203,27 @@ class Form extends React.Component<Props, State> {
       );
     }
 
+    const renderer = () => {
+      return (
+        <FieldsPreview
+          formDesc={desc}
+          fields={fields}
+          onFieldClick={this.onFieldClick}
+          onChangeFieldsOrder={this.onChangeFieldsOrder}
+        />
+      );
+    };
+
     return (
       <FlexContent>
         <LeftItem>
           {this.renderOptionalFields()}
 
-          <Title>{__('New field')}</Title>
-
+          <Title>{__('Add a new field')}</Title>
+          <p>{__('Choose a field type from the options below.')}</p>
           <FieldChoices onChoiceClick={this.onChoiceClick} />
         </LeftItem>
+        {renderPreviewWrapper && renderPreviewWrapper(renderer, fields)}
       </FlexContent>
     );
   }

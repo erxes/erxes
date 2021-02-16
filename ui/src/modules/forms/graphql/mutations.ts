@@ -36,6 +36,7 @@ const commonFieldParamsDef = `
   $options: [String],
   $isRequired: Boolean,
   $order: Int
+  $associatedFieldId: String
 `;
 
 const commonFieldParams = `
@@ -46,6 +47,7 @@ const commonFieldParams = `
   options: $options,
   isRequired: $isRequired,
   order: $order
+  associatedFieldId: $associatedFieldId
 `;
 
 const fieldsAdd = `

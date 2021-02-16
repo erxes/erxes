@@ -3,38 +3,39 @@ import DataWithLoader from 'modules/common/components/DataWithLoader';
 import { IRouterProps } from 'modules/common/types';
 import { __, router } from 'modules/common/utils';
 import { FieldStyle, SidebarCounter, SidebarList } from 'modules/layout/styles';
-import { IBrand } from 'modules/settings/brands/types';
 import React from 'react';
 import { withRouter } from 'react-router-dom';
+import { statusFilters } from '../constants';
+import { Counts } from '../types';
 
 interface IProps extends IRouterProps {
-  counts: { [key: string]: number };
-  brands: IBrand[];
-  loading: boolean;
+  counts: Counts;
   emptyText?: string;
 }
 
-function Brands({ history, counts, brands, loading, emptyText }: IProps) {
+function StatusFilter({ history, counts, emptyText }: IProps) {
   const data = (
     <SidebarList>
-      {brands.map(brand => {
+      {statusFilters.map((status, index) => {
         const onClick = () => {
-          router.setParams(history, { brand: brand._id });
+          router.setParams(history, { status: status.key });
           router.removeParams(history, 'page');
         };
 
         return (
-          <li key={brand._id}>
+          <li key={index}>
             <a
               href="#filter"
               tabIndex={0}
               className={
-                router.getParam(history, 'brand') === brand._id ? 'active' : ''
+                router.getParam(history, 'status') === status.key
+                  ? 'active'
+                  : ''
               }
               onClick={onClick}
             >
-              <FieldStyle>{brand.name}</FieldStyle>
-              <SidebarCounter>{counts[brand._id]}</SidebarCounter>
+              <FieldStyle>{__(status.value)}</FieldStyle>
+              <SidebarCounter>{counts[status.key]}</SidebarCounter>
             </a>
           </li>
         );
@@ -44,15 +45,15 @@ function Brands({ history, counts, brands, loading, emptyText }: IProps) {
 
   return (
     <Box
-      title={__('Filter by brand')}
-      collapsible={brands.length > 5}
-      name="showFilterByBrand"
+      title={__('Filter by status')}
+      collapsible={statusFilters.length > 5}
+      name="showFilterByStatus"
     >
       <DataWithLoader
         data={data}
-        loading={loading}
-        count={brands.length}
-        emptyText={emptyText || 'Empty'}
+        loading={false}
+        count={statusFilters.length}
+        emptyText={emptyText ? emptyText : 'Loading'}
         emptyIcon="leaf"
         size="small"
         objective={true}
@@ -61,4 +62,4 @@ function Brands({ history, counts, brands, loading, emptyText }: IProps) {
   );
 }
 
-export default withRouter<IProps>(Brands);
+export default withRouter<IProps>(StatusFilter);
