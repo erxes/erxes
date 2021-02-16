@@ -168,7 +168,8 @@ describe('dashboardQueries', () => {
       'test',
       'tag',
       'Contacts.tag',
-      'Companies.tag'
+      'Companies.tag',
+      'board'
     ];
 
     types.map(async type => {
