@@ -8,7 +8,6 @@ import widgetMutations, {
   getMessengerData
 } from '../data/resolvers/mutations/widgets';
 import * as utils from '../data/utils';
-import { graphqlRequest } from '../db/connection';
 import {
   brandFactory,
   conversationFactory,
@@ -1335,24 +1334,11 @@ describe('lead', () => {
       formId: form._id
     };
 
-    const spyEmail = jest.spyOn(widgetMutations, 'widgetsSendEmail');
-
-    const mutation = `
-      mutation widgetsSendEmail($toEmails: [String], $fromEmail: String, $title: String, $content: String, $formId: String, $customerId: String) {
-        widgetsSendEmail(toEmails: $toEmails, fromEmail: $fromEmail, title: $title, content: $content, formId: $formId, customerId: $customerId)
-      }
-    `;
-
-    spyEmail.mockImplementation(() => Promise.resolve());
-
-    const response = await graphqlRequest(
-      mutation,
-      'widgetsSendEmail',
-      emailParams
+    const response = await widgetMutations.widgetsSendEmail(
+      {},
+      { ...emailParams }
     );
 
-    expect(response).toBe(null);
-
-    spyEmail.mockRestore();
+    expect(response).toBe(undefined);
   });
 });
