@@ -6,6 +6,7 @@ import Button from 'modules/common/components/Button';
 import Pagination from 'modules/common/components/pagination/Pagination';
 import Table from 'modules/common/components/table';
 import Tip from 'modules/common/components/Tip';
+import { IRouterProps } from 'modules/common/types';
 import Wrapper from 'modules/layout/components/Wrapper';
 import React from 'react';
 import { ClientPortalConfig } from '../types';
@@ -13,8 +14,7 @@ import { ClientPortalConfig } from '../types';
 type Props = {
   configs: ClientPortalConfig[];
   totalCount: number;
-  history: any;
-};
+} & IRouterProps;
 
 const leftActionBar = (
   <HeaderDescription
@@ -26,10 +26,8 @@ const leftActionBar = (
 
 const formUrl = '/settings/client-portal/form';
 
-function ClientPortalList({ configs, ...props }: Props) {
-  const handleClick = () => {
-    props.history.push(formUrl);
-  };
+function ClientPortalList({ configs, history, ...props }: Props) {
+  const handleClick = () => history.push(formUrl);
 
   const renderRow = () => {
     return configs.map(config => {

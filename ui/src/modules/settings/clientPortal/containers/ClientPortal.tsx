@@ -1,6 +1,7 @@
 import Spinner from 'erxes-ui/lib/components/Spinner';
 import { Alert } from 'erxes-ui/lib/utils';
 import gql from 'graphql-tag';
+import { IRouterProps } from 'modules/common/types';
 import routerUtils from 'modules/common/utils/router';
 import React from 'react';
 import { useMutation, useQuery } from 'react-apollo';
@@ -11,8 +12,7 @@ import { ClientPortalConfig, ClientPortalConfigQueryResponse } from '../types';
 
 type Props = {
   queryParams: any;
-  history: any;
-};
+} & IRouterProps;
 
 function ClientPortalContainer({ queryParams, history, ...props }: Props) {
   const { loading, data = {} } = useQuery<ClientPortalConfigQueryResponse>(
@@ -32,10 +32,10 @@ function ClientPortalContainer({ queryParams, history, ...props }: Props) {
   const handleUpdate = (doc: ClientPortalConfig) => {
     mutate({ variables: { _id: queryParams._id, ...doc } })
       .then((response = {}) => {
-        const { configUpdateClientPortal = {} } = response.data || {};
+        const { clientPortalConfigUpdate = {} } = response.data || {};
 
-        if (configUpdateClientPortal) {
-          routerUtils.setParams(history, { _id: configUpdateClientPortal._id });
+        if (clientPortalConfigUpdate) {
+          routerUtils.setParams(history, { _id: clientPortalConfigUpdate._id });
         }
 
         Alert.success('Successfully updated the Client portal config');
@@ -43,9 +43,14 @@ function ClientPortalContainer({ queryParams, history, ...props }: Props) {
       .catch(e => Alert.error(e.message));
   };
 
-  const config = data.getConfig || {};
+  const updatedProps = {
+    ...props,
+    loading,
+    config: data.clientPortalGetConfig || {},
+    handleUpdate
+  };
 
-  return <ClientPortal config={config} handleUpdate={handleUpdate} />;
+  return <ClientPortal {...updatedProps} />;
 }
 
 export default ClientPortalContainer;

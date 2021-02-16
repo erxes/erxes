@@ -1,6 +1,7 @@
 import Spinner from 'erxes-ui/lib/components/Spinner';
 import gql from 'graphql-tag';
 import compose from 'lodash.flowright';
+import { IRouterProps } from 'modules/common/types';
 import React from 'react';
 import { graphql } from 'react-apollo';
 import List from '../components/List';
@@ -13,16 +14,15 @@ import {
 type Props = {
   configsQuery: ClientPortalConfigsQueryResponse;
   totalCountQuery: ClientPortalTotalQueryResponse;
-  history: any;
-};
+} & IRouterProps;
 
 function ListContainer({ configsQuery, totalCountQuery, ...props }: Props) {
   if (configsQuery.loading || totalCountQuery.loading) {
     return <Spinner />;
   }
 
-  const configs = configsQuery.getConfigs || [];
-  const totalCount = totalCountQuery.getClientPortalTotalCount || 0;
+  const configs = configsQuery.clientPortalGetConfigs || [];
+  const totalCount = totalCountQuery.clientPortalConfigsTotalCount || 0;
 
   const updatedProps = {
     ...props,
@@ -36,8 +36,11 @@ function ListContainer({ configsQuery, totalCountQuery, ...props }: Props) {
 export default compose(
   graphql(gql(queries.getConfigs), {
     name: 'configsQuery',
-    options: () => ({
-      variables: {}
+    options: ({ queryParams }: { queryParams: any }) => ({
+      variables: {
+        page: queryParams.page,
+        perPage: queryParams.perPage
+      }
     })
   }),
   graphql(gql(queries.getTotalCount), {

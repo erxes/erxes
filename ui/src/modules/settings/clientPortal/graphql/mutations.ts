@@ -1,7 +1,7 @@
 import { commonFields } from './queries';
 
 const createOrUpdateConfig = `
-  mutation configUpdateClientPortal(
+  mutation clientPortalConfigUpdate(
     $_id: String
     $name: String
     $description: String
@@ -26,7 +26,7 @@ const createOrUpdateConfig = `
     $css: String
     $mobileResponsive: Boolean
   ) {
-    configUpdateClientPortal(
+    clientPortalConfigUpdate(
       _id: $_id,
       name: $name,
       description: $description,

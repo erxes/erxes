@@ -3,10 +3,6 @@ export const CONFIG_TYPES = {
     LABEL: 'General',
     VALUE: 'general'
   },
-  CUSTOM_DOMAIN: {
-    LABEL: 'Custom domain',
-    VALUE: 'customDomain'
-  },
   ADVANCED: {
     LABEL: 'Advanced Settings',
     VALUE: 'advanced'

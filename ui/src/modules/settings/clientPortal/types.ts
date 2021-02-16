@@ -44,17 +44,17 @@ export type Styles = {
 };
 
 export type ClientPortalConfigsQueryResponse = {
-  getConfigs?: [ClientPortalConfig];
+  clientPortalGetConfigs?: [ClientPortalConfig];
   loading?: boolean;
 };
 
 export type ClientPortalConfigQueryResponse = {
-  getConfig?: ClientPortalConfig;
+  clientPortalGetConfig?: ClientPortalConfig;
   loading?: boolean;
 };
 
 export type ClientPortalTotalQueryResponse = {
-  getClientPortalTotalCount?: number;
+  clientPortalConfigsTotalCount?: number;
   loading?: boolean;
 };
 

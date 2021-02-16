@@ -35,8 +35,6 @@ function ClientPortal({ config, handleUpdate }: Props) {
     CONFIG_TYPES.GENERAL.VALUE
   );
 
-  const title = getTitle(configType);
-
   const handleConfigType = (type: string) => setConfigType(type);
 
   function renderContent() {
@@ -53,7 +51,9 @@ function ClientPortal({ config, handleUpdate }: Props) {
     <Wrapper
       header={header}
       actionBar={
-        <Wrapper.ActionBar left={<Title capitalize={true}>{title}</Title>} />
+        <Wrapper.ActionBar
+          left={<Title capitalize={true}>{getTitle(configType)}</Title>}
+        />
       }
       content={renderContent()}
       leftSidebar={

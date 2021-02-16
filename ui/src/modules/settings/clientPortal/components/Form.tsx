@@ -7,7 +7,6 @@ import { Wrapper } from '../styles';
 import { ClientPortalConfig } from '../types';
 import Advanced from './forms/Advanced';
 import ColorFont from './forms/ColorFont';
-import CustomDomain from './forms/CustomDomain';
 import StyleSheet from './forms/StyleSheet';
 
 type Props = {
@@ -113,13 +112,6 @@ function Form({ defaultConfigValues = {}, handleUpdate, configType }: Props) {
         return <General {...commonProps} />;
       case CONFIG_TYPES.ADVANCED.VALUE:
         return <Advanced {...commonProps} />;
-      case CONFIG_TYPES.CUSTOM_DOMAIN.VALUE:
-        return (
-          <CustomDomain
-            {...commonProps}
-            dnsStatus={defaultConfigValues.dnsStatus}
-          />
-        );
       case CONFIG_TYPES.COLOR_FONTS.VALUE:
         return <ColorFont {...commonProps} />;
       case CONFIG_TYPES.STYLE_SHEET.VALUE:

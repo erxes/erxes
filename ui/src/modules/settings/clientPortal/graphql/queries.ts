@@ -46,22 +46,22 @@ export const commonFields = `
 `;
 
 const getTotalCount = `
-  query getClientPortalTotalCount {
-    getClientPortalTotalCount
+  query clientPortalConfigsTotalCount {
+    clientPortalConfigsTotalCount
   }
 `;
 
 const getConfigs = `
-  query getConfigs($page: Int, $perPage: Int) {
-    getConfigs(page: $page, perPage: $perPage) {
+  query clientPortalGetConfigs($page: Int, $perPage: Int) {
+    clientPortalGetConfigs(page: $page, perPage: $perPage) {
       ${commonFields}
     }
   }
 `;
 
 const getConfig = `
-  query getConfig($_id: String!) {
-    getConfig(_id: $_id) {
+  query clientPortalGetConfig($_id: String!) {
+    clientPortalGetConfig(_id: $_id) {
       ${commonFields}
     }
   }
