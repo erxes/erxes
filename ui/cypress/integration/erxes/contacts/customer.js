@@ -39,15 +39,17 @@ context("Contacts", () => {
 
     cy.get('button[icon="check-circle"]').click();
 
-    let customer = cy.get("#customers").get("tr");
+    cy.wait(3000);
 
-    customer.within(() => {
+    cy.get("#customers").get("tr").within(() => {
       cy.get("#customersCheckBox")
         .eq(0)
         .click();
     });
 
     cy.get('button[icon="tag-alt"]').click();
+
+    cy.wait(1000);
 
     cy.get('i[class="icon icon-tag-alt"]')
       .eq(0)
