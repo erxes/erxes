@@ -882,3 +882,15 @@ export const getErxesSaasDomain = () => {
 export const escapeRegExp = (str: string) => {
   return str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 };
+
+export const wrapAsync = (fn, errorMessage?: string) => {
+  return async (req, res, next) => {
+    try {
+      await fn(req, res, next);
+    } catch (e) {
+      debugBase(errorMessage || e.message);
+
+      return next(e);
+    }
+  };
+};

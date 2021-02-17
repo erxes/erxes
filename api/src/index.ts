@@ -21,7 +21,8 @@ import {
   getSubServiceDomain,
   handleUnsubscription,
   readFileRequest,
-  registerOnboardHistory
+  registerOnboardHistory,
+  wrapAsync
 } from './data/utils';
 import {
   updateContactsValidationStatus,
@@ -227,16 +228,16 @@ app.get('/download-template', async (req: any, res) => {
 });
 
 // for health check
-app.get('/health', async (_req, res, next) => {
-  try {
+app.get(
+  '/health',
+  wrapAsync(async (_req, res) => {
     await mongoStatus();
-  } catch (e) {
-    debugBase('MongoDB is not running');
-    return next(e);
-  }
 
-  res.end('ok');
-});
+    console.log('health');
+
+    res.end('ok');
+  }, 'MongoDB is not running')
+);
 
 // export board
 app.get('/file-export', async (req: any, res) => {
