@@ -270,4 +270,35 @@ describe('fieldQueries', () => {
 
     expect(responses.length).toBe(1);
   });
+
+  test('Fields query with isVisible filter', async () => {
+    // Creating test data
+    await fieldFactory({
+      text: 'text1',
+      contentType: 'customer',
+      visible: true
+    });
+    await fieldFactory({
+      text: 'text2',
+      contentType: 'customer',
+      visible: false
+    });
+
+    const qry = `
+   query fields($contentType: String! $contentTypeId: String, $isVisible: Boolean) {
+     fields(contentType: $contentType contentTypeId: $contentTypeId, isVisible: $isVisible) {
+       text
+       _id
+       isVisible
+     }
+   }
+ `;
+
+    const responses = await graphqlRequest(qry, 'fields', {
+      contentType: 'customer',
+      isVisible: true
+    });
+
+    expect(responses.length).toBe(1);
+  });
 });

@@ -22,6 +22,11 @@ cube(`Contacts`, {
       type: `string`
     },
 
+    tag: {
+      sql: `${CUBE}."tagIds"`,
+      type: `string`
+    },
+
     createdDate: {
       sql: `${CUBE}."createdAt"`,
       type: `time`

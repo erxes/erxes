@@ -49,7 +49,7 @@ const IntegrationListContainer = (props: FinalProps) => {
 
   const removeIntegration = integration => {
     const message =
-      'If you remove an integration, then all related conversations, customers & pop ups will also be removed. Are you sure?';
+      'If you remove an integration, then all related conversations, customers & forms will also be removed. Are you sure?';
 
     confirm(message).then(() => {
       Alert.warning('Removing... Please wait!!!');

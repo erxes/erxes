@@ -96,7 +96,7 @@ export const handleFacebookMessage = async msg => {
 
           return { status: 'success' };
         } catch (e) {
-          if (e.message.includes('sent outside of allowed window')) {
+          if (e.code === '10') {
             try {
               await sendReply(
                 'me/messages',
@@ -127,7 +127,7 @@ export const handleFacebookMessage = async msg => {
             integrationId
           );
         } catch (e) {
-          if (e.message.includes('sent outside of allowed window')) {
+          if (e.code === '10') {
             try {
               await sendReply(
                 'me/messages',

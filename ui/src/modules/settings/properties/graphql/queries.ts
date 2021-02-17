@@ -34,6 +34,23 @@ const fieldsGroups = `
   }
 `;
 
+const fields = `
+  query fields($contentType: String!, $contentTypeId: String, $isVisible: Boolean) {
+    fields(contentType: $contentType, contentTypeId: $contentTypeId, isVisible: $isVisible) {
+      _id
+      type
+      validation
+      text
+      description
+      options
+      isRequired
+      order
+      associatedFieldId
+    }
+  }
+`;
+
 export default {
-  fieldsGroups
+  fieldsGroups,
+  fields
 };

@@ -347,7 +347,7 @@ class IntegrationListItem extends React.Component<Props, State> {
       ? integration.healthStatus.error
       : '';
 
-    const labelStyle = integration.isActive ? 'success' : 'error';
+    const labelStyle = integration.isActive ? 'success' : 'danger';
     const status = integration.isActive ? __('Active') : __('Archived');
     const labelStyleHealthy = healthStatus === 'healthy' ? 'success' : 'danger';
     const healthStatusText =

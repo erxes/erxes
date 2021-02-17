@@ -257,4 +257,5 @@ export const mutations = `
   changeConversationOperator(_id: String! operatorStatus: String!): JSON
   conversationResolveAll(${mutationFilterParams}): Int
   conversationsSaveVideoRecordingInfo(conversationId: String!, recordingId: String): String
+  conversationConvertToCard(_id: String!, type: String!, itemId: String, itemName: String, stageId: String): String
 `;

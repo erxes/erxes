@@ -18,6 +18,7 @@ import {
   IBrowserInfo,
   IVisitorContactInfoParams
 } from '../../../db/models/Customers';
+import { ICustomField } from '../../../db/models/definitions/common';
 import {
   CONVERSATION_OPERATOR_STATUS,
   CONVERSATION_STATUSES,
@@ -58,6 +59,7 @@ interface ISubmission {
   value: any;
   type?: string;
   validation?: string;
+  associatedFieldId?: string;
 }
 
 interface IWidgetEmailParams {
@@ -291,6 +293,7 @@ const widgetMutations = {
     let phone;
     let firstName = '';
     let lastName = '';
+    let customFieldsData = new Array<ICustomField>();
 
     submissions.forEach(submission => {
       if (submission.type === 'email') {
@@ -307,6 +310,13 @@ const widgetMutations = {
 
       if (submission.type === 'lastName') {
         lastName = submission.value;
+      }
+
+      if (submission.associatedFieldId) {
+        customFieldsData.push({
+          field: submission.associatedFieldId,
+          value: submission.value
+        });
       }
     });
 
@@ -325,14 +335,20 @@ const widgetMutations = {
         emails: [email],
         firstName,
         lastName,
-        primaryPhone: phone
+        primaryPhone: phone,
+        customFieldsData
       });
+    }
+
+    if (customer.customFieldsData) {
+      customFieldsData = customFieldsData.concat(customer.customFieldsData);
     }
 
     const customerDoc = {
       location: browserInfo,
       firstName: customer.firstName || firstName,
       lastName: customer.lastName || lastName,
+      customFieldsData,
       ...(customer.primaryEmail
         ? {}
         : {
