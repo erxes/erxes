@@ -1,7 +1,7 @@
 const { tableSchema } = require('../tablePrefix');
 
-cube(`Deals`, {
-  sql: `SELECT * FROM ${tableSchema()}__deals`,
+cube(`Tasks`, {
+  sql: `SELECT * FROM ${tableSchema()}__tasks`,
 
   joins: {},
 
@@ -18,11 +18,6 @@ cube(`Deals`, {
     },
 
     stageName: {
-      sql: `${CUBE}."stageId"`,
-      type: `string`
-    },
-
-    stageProbability: {
       sql: `${CUBE}."stageId"`,
       type: `string`
     },

@@ -160,12 +160,16 @@ describe('dashboardQueries', () => {
     `;
 
     const types = [
-      'pipelineName',
+      'pipeline',
       'modifiedBy',
       'integrationName',
       'Contacts.state',
       'brand',
-      'test'
+      'test',
+      'tag',
+      'Contacts.tag',
+      'Companies.tag',
+      'board'
     ];
 
     types.map(async type => {
