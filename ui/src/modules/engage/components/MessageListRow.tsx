@@ -7,10 +7,10 @@ import Label from 'modules/common/components/Label';
 import NameCard from 'modules/common/components/nameCard/NameCard';
 import Tags from 'modules/common/components/Tags';
 import Tip from 'modules/common/components/Tip';
-import { Alert, __ } from 'modules/common/utils';
+import { __, Alert } from 'modules/common/utils';
 import {
-  MESSAGE_KINDS,
   MESSAGE_KIND_FILTERS,
+  MESSAGE_KINDS,
   METHODS
 } from 'modules/engage/constants';
 import { ISegment } from 'modules/segments/types';
