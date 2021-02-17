@@ -31,7 +31,7 @@ class Row extends React.Component<Props> {
     const { formId } = integration;
 
     return (
-      <Link  to={`/forms/edit/${integration._id}/${formId}`}>
+      <Link to={`/forms/edit/${integration._id}/${formId}`}>
         <Button btnStyle="link">
           <Tip text={__('Manage')} placement="top">
             <Icon icon="edit-3" />
@@ -90,13 +90,13 @@ class Row extends React.Component<Props> {
       window.open(
         `${REACT_APP_API_URL}/file-export?type=customer&popupData=true&form=${integration.formId}`,
         '_blank'
-      )
-    }
+      );
+    };
 
     return (
-        <Tip text={__('Download responses')} placement="top">
-          <Button btnStyle="link" onClick={onClick} icon="download-1" />
-        </Tip>
+      <Tip text={__('Download responses')} placement="top">
+        <Button btnStyle="link" onClick={onClick} icon="download-1" />
+      </Tip>
     );
   }
 
@@ -143,9 +143,9 @@ class Row extends React.Component<Props> {
     const onClick = () => copy(integration._id);
 
     return (
-        <Tip text={__('Copy')} placement="top">
-          <Button btnStyle="link" onClick={onClick} icon="copy-1" />
-        </Tip>
+      <Tip text={__('Copy')} placement="top">
+        <Button btnStyle="link" onClick={onClick} icon="copy-1" />
+      </Tip>
     );
   }
 

@@ -16,12 +16,7 @@ class SuccessPreview extends React.Component<Props, {}> {
     const { theme, color, thankTitle, thankContent, type } = this.props;
 
     return (
-      <CommonPreview
-        title={thankTitle}
-        theme={theme}
-        color={color}
-        type={type}
-      >
+      <CommonPreview title={thankTitle} theme={theme} color={color} type={type}>
         <ThankContent>{thankContent}</ThankContent>
       </CommonPreview>
     );
