@@ -7,11 +7,18 @@ import Label from 'modules/common/components/Label';
 import NameCard from 'modules/common/components/nameCard/NameCard';
 import Tags from 'modules/common/components/Tags';
 import Tip from 'modules/common/components/Tip';
-import { __ } from 'modules/common/utils';
-import { MESSAGE_KINDS, METHODS } from 'modules/engage/constants';
+import { Alert, __ } from 'modules/common/utils';
+import {
+  MESSAGE_KINDS,
+  MESSAGE_KIND_FILTERS,
+  METHODS
+} from 'modules/engage/constants';
+import { ISegment } from 'modules/segments/types';
+import { IBrand } from 'modules/settings/brands/types';
+import { Capitalize } from 'modules/settings/permissions/styles';
 import React from 'react';
 import s from 'underscore.string';
-import { HelperText, RowTitle } from '../styles';
+import { Disabled, HelperText, RowTitle } from '../styles';
 import { IEngageMessage, IEngageMessenger } from '../types';
 
 type Props = {
@@ -32,21 +39,38 @@ type Props = {
 
 class Row extends React.Component<Props> {
   renderLink(text: string, iconName: string, onClick, disabled?: boolean) {
+    const button = <Button btnStyle="link" onClick={onClick} icon={iconName} />;
+
     return (
       <Tip
         text={__(text)}
         key={`${text}-${this.props.message._id}`}
         placement="top"
       >
-        <Button
-          btnStyle="link"
-          onClick={onClick}
-          icon={iconName}
-          disabled={disabled}
-        />
+        {disabled ? <Disabled>{button}</Disabled> : button}
       </Tip>
     );
   }
+
+  onEdit = () => {
+    const msg = this.props.message;
+
+    if (
+      msg.isLive &&
+      (msg.kind === MESSAGE_KINDS.AUTO ||
+        msg.kind === MESSAGE_KINDS.VISITOR_AUTO)
+    ) {
+      return Alert.info('Pause the Campaign first and try editing');
+    }
+
+    if (msg.isLive && msg.kind === MESSAGE_KINDS.MANUAL) {
+      return Alert.warning(
+        'Unfortunately once a campaign has been sent, it cannot be stopped or edited.'
+      );
+    }
+
+    return this.props.edit();
+  };
 
   renderLinks() {
     const msg = this.props.message;
@@ -60,14 +84,7 @@ class Row extends React.Component<Props> {
     );
     const show = this.renderLink('Show statistics', 'eye', this.props.show);
     const copy = this.renderLink('Copy', 'copy-1', this.props.copy);
-    const editLink = msg.isLive
-      ? this.renderLink(
-          'Pause the campaign & try editing',
-          'edit-3',
-          this.props.edit,
-          true
-        )
-      : this.renderLink('Edit', 'edit-3', this.props.edit);
+    const editLink = this.renderLink('Edit', 'edit-3', this.onEdit, msg.isLive);
 
     const links: React.ReactNode[] = [copy, editLink];
 
@@ -102,23 +119,33 @@ class Row extends React.Component<Props> {
     this.props.toggleBulk(this.props.message, e.target.checked);
   };
 
-  renderRules() {
-    const { message } = this.props;
+  renderSegments(message) {
+    const segments = message.segments || ([] as ISegment[]);
 
-    if (message.segment) {
-      return (
-        <HelperText>
-          <Icon icon="chart-pie-alt" /> {message.segment.name}
-        </HelperText>
-      );
-    }
+    return segments.map(segment => (
+      <HelperText key={segment._id}>
+        <Icon icon="chart-pie" /> {segment.name}
+      </HelperText>
+    ));
+  }
 
+  renderMessengerRules(message) {
     const messenger = message.messenger || ({} as IEngageMessenger);
     const rules = messenger.rules || [];
 
     return rules.map(rule => (
       <HelperText key={rule._id}>
-        <Icon icon="chart-pie-alt" /> {rule.text} {rule.condition} {rule.value}
+        <Icon icon="sign-alt" /> {rule.text} {rule.condition} {rule.value}
+      </HelperText>
+    ));
+  }
+
+  renderBrands(message) {
+    const brands = message.brands || ([] as IBrand[]);
+
+    return brands.map(brand => (
+      <HelperText key={brand._id}>
+        <Icon icon="award" /> {brand.name}
       </HelperText>
     ));
   }
@@ -156,8 +183,10 @@ class Row extends React.Component<Props> {
       }
 
       if (message.method === METHODS.SMS && smsStats.total === 0) {
-        return <Label lblStyle="warning">Not sent</Label>;
+        return <Label lblStyle="danger">Not sent</Label>;
       }
+
+      return <Label lblStyle="success">Sent</Label>;
     }
 
     if (scheduleDate && scheduleDate.type === 'pre') {
@@ -165,15 +194,15 @@ class Row extends React.Component<Props> {
       const now = new Date();
 
       if (scheduledDate.getTime() > now.getTime()) {
-        return <Label>scheduled</Label>;
+        return <Label lblStyle="warning">scheduled</Label>;
       } else {
-        return <Label lblStyle="warning">Not sent</Label>;
+        return <Label lblStyle="danger">Not sent</Label>;
       }
     } else if (scheduleDate && scheduleDate.type === 'sent') {
       return <Label lblStyle="success">Sent</Label>;
     }
 
-    return <Label>Sending</Label>;
+    return <Label lblStyle="primary">Sending</Label>;
   }
 
   renderType(msg) {
@@ -200,9 +229,13 @@ class Row extends React.Component<Props> {
         break;
     }
 
+    const kind = MESSAGE_KIND_FILTERS.find(item => item.name === msg.kind);
     return (
       <div>
         <Icon icon={icon} /> {label}
+        <HelperText>
+          <Icon icon="clipboard-notes" /> {kind && kind.text} Campaign
+        </HelperText>
       </div>
     );
   }
@@ -235,13 +268,13 @@ class Row extends React.Component<Props> {
           />
         </td>
         <td>
-          <RowTitle onClick={this.onClick}>{message.title}</RowTitle>
-          {message.isDraft ? <Label lblStyle="simple">Draft</Label> : null}
-          {this.renderRules()}
-        </td>
-        <td className="text-normal">{message.createdUser || '-'}</td>
-        <td className="text-normal">
-          <NameCard user={message.fromUser} avatarSize={30} />
+          <RowTitle onClick={this.onClick}>
+            {message.title}{' '}
+            {message.isDraft && <Label lblStyle="simple">Draft</Label>}
+          </RowTitle>
+          {this.renderBrands(message)}
+          {this.renderSegments(message)}
+          {this.renderMessengerRules(message)}
         </td>
         <td>{this.renderStatus()}</td>
         <td className="text-primary">
@@ -249,11 +282,16 @@ class Row extends React.Component<Props> {
           <b> {s.numberFormat(totalCount)}</b>
         </td>
         <td>{this.renderType(message)}</td>
-
         <td>
-          <b>{brand ? brand.name : '-'}</b>
+          <strong>{brand ? brand.name : '-'}</strong>
+        </td>
+        <td className="text-normal">
+          <NameCard user={message.fromUser} avatarSize={30} />
         </td>
 
+        <td className="text-normal">
+          <Capitalize>{message.createdUser || '-'}</Capitalize>
+        </td>
         <td>
           <Icon icon="calender" />{' '}
           {dayjs(message.createdAt).format('DD MMM YYYY')}

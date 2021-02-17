@@ -38,6 +38,10 @@ const commonFields = `
   email
   smsStats
   createdUser
+  brand {
+    _id
+    name
+  }
 
   totalCustomersCount
   validCustomersCount
@@ -69,6 +73,7 @@ const engageMessages = `
       ${commonFields}
 
       brands {
+        _id
         name
       }
       segments {
