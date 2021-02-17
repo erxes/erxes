@@ -42,7 +42,7 @@ context("Inbox", () => {
     cy.get("#conversationAssignTrigger").click();
     cy.get('input[placeholder="Search"]').type("Admin");
 
-    cy.get('li[class="none"]').eq(0).click();
+    cy.get('#assign-popover li').eq(0).click();
 
     cy.wait(1000);
 
