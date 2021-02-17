@@ -60,6 +60,7 @@ const pipeRequest = (req: any, res: any, next: any, url: string) => {
     request
       .post(url)
       .on('response', response => {
+        console.log('resposne statusMessage: ', response.statusMessage);
         if (response.statusCode !== 200) {
           return next(response.statusMessage);
         }
@@ -232,8 +233,6 @@ app.get(
   '/health',
   wrapAsync(async (_req, res) => {
     await mongoStatus();
-
-    console.log('health');
 
     res.end('ok');
   }, 'MongoDB is not running')
