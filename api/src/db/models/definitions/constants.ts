@@ -168,6 +168,7 @@ export const ACTIVITY_CONTENT_TYPES = {
   TASK: 'task',
   PRODUCT: 'product',
   GROWTH_HACK: 'growthHack',
+  SMS: 'sms',
 
   ALL: [
     'customer',
@@ -177,7 +178,8 @@ export const ACTIVITY_CONTENT_TYPES = {
     'ticket',
     'task',
     'product',
-    'growthHack'
+    'growthHack',
+    'sms'
   ]
 };
 
