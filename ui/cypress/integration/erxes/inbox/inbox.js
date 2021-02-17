@@ -10,7 +10,7 @@ context("Inbox", () => {
   it("Conversation", () => {
     cy.signIn();
 
-    for(let i = 0; i < 12; i++){
+    for(let i = 0; i < 2; i++){
       sendMessage();
     }
 
@@ -35,8 +35,12 @@ context("Inbox", () => {
 
     cy.get('a[href="/inbox"]').click();
 
-    tags();
-    cy.wait(1000)
+    waitAndClick('#conversationTags');
+
+    cy.get('input[placeholder="Search"]').type("Angry");
+    cy.get('i[class="icon icon-tag-alt"]').click();
+
+    cy.get('div[class="RichEditor-editor"]', { timeout: 10000 }).should('be.visible');
     cy.get('div[class="RichEditor-editor"]').click();
 
     cy.get("#conversationAssignTrigger").click();
@@ -44,32 +48,34 @@ context("Inbox", () => {
 
     cy.get('#assign-popover li').eq(0).click();
 
-    cy.wait(1000);
-
-    cy.get("#conversationAssignTrigger").click();
+    waitAndClick('#conversationAssignTrigger');
 
     cy.get('a[href="/inbox/index"]')
       .eq(1)
       .click()
       .then(() => {
+        waitElm('#conversationWrapper');
         cy.get("#conversationWrapper").scrollTo("top", { duration: 5000 });
       });
-
   });
 });
 
+const waitElm = (selector) => {
+  cy.get(selector, { timeout: 10000 }).should("be.visible");
+};
+
+const waitAndClick = (selector) => {
+  cy.get(selector, { timeout: 10000 }).should("be.visible");
+  cy.get(selector).click();
+};
+
 let randomm = fakeName();
+
 const sendMessage = () => {
   randomm = fakeName(15);
+
   cy.get('div[class="RichEditor-editor"]').click();
   cy.get('div[class="RichEditor-editor"]').focused().clear();
   cy.get('div[class="RichEditor-editor"]').type(randomm);
   cy.get('button[icon="message"]').click();
-};
-
-const tags = () => {
-  cy.get("#conversationTags").click();
-
-  cy.get('input[placeholder="Search"]').type("Angry");
-  cy.get('i[class="icon icon-tag-alt"]').click();
 };
