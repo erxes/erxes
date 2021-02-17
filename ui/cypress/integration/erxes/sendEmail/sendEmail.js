@@ -99,6 +99,7 @@ context('Send Email Verification', () => {
     cy.get('#ManageIntegration').click()
     cy.get('input').type('nani').clear()
     //cy.get('.modal-body').children().get('i[icon=plus-1]').click({multiple:true})
+    cy.wait(3000)
     cy.get('.modal-body').within(() => {
         cy.get('ul').children().eq(0).click()
     })

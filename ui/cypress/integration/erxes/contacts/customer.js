@@ -118,6 +118,7 @@ context("Contacts", () => {
       .eq(1)
       .click();
 
+    cy.wait(3002);
     cy.get("#customersCheckBox").click();
 
     cy.get('button[icon="times-circle"]').click();
@@ -128,6 +129,7 @@ context("Contacts", () => {
 
     cy.get('a[href="/contacts/customer"]').click();
 
+    cy.wait(3001)
     cy.get('button[icon="plus-circle"]').click();
 
     cy.get('input[name="firstName"]').type(random);
