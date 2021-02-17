@@ -27,6 +27,8 @@ context("Inbox", () => {
     cy.get('button[icon="check-circle"]').click();
 
     cy.get(":nth-child(2) > .icon-angle-down").click();
+
+    waitElm('a[href="#link"]');
     cy.get('a[href="#link"]')
       .eq(2)
       .click();
