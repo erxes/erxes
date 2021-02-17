@@ -17,6 +17,11 @@ cube(`Conversations`, {
       type: `string`
     },
 
+    tag: {
+      sql: `${CUBE}."tagIds"`,
+      type: `string`
+    },
+
     status: {
       sql: `status`,
       type: `string`
@@ -32,7 +37,7 @@ cube(`Conversations`, {
       type: `string`
     },
 
-    integrationKind: {
+    integrationType: {
       sql: `${CUBE}."integrationId"`,
       type: `string`
     },

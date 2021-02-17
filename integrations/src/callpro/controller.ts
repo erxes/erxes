@@ -1,6 +1,6 @@
 import { debugCallPro, debugRequest } from '../debuggers';
 import { sendRPCMessage } from '../messageBroker';
-import { Integrations } from '../models';
+import { Integrations, Logs } from '../models';
 import { Conversations, Customers } from './models';
 
 const init = async app => {
@@ -63,6 +63,13 @@ const init = async app => {
     debugRequest(debugCallPro, req);
 
     const { numberTo, numberFrom, disp, callID, owner } = req.body;
+
+    await Logs.createLog({
+      type: 'call-pro',
+      value: req.body,
+      specialValue: numberFrom || ''
+    });
+
     const integration = await Integrations.findOne({
       phoneNumber: numberTo
     }).lean();

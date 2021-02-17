@@ -12,7 +12,7 @@ import { Counts } from '../../types';
 
 type Props = {
   counts: Counts;
-}
+};
 
 type FinalProps = {
   tagsQuery?: TagsQueryResponse;

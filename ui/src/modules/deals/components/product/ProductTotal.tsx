@@ -10,7 +10,7 @@ import React from 'react';
 
 type Props = {
   kindTxt: string;
-  totalKind: { value: number; percent?: number };
+  totalKind: { value: string; percent?: number };
   currency: string;
   productsData: IProductData[];
   updateTotal: () => void;
@@ -136,7 +136,7 @@ class ProductTotal extends React.Component<Props, State> {
     return (
       <ContentRow>
         <FormControl
-          value={parseFloat(totalKind.value.toFixed(3))}
+          value={totalKind.value ? parseFloat(totalKind.value).toFixed(3) : 0}
           type="number"
           placeholder="0"
           name={kindTxt}
@@ -156,7 +156,7 @@ class ProductTotal extends React.Component<Props, State> {
 
     return (
       <Amount>
-        {totalKind.value.toLocaleString()} <b>{currency}</b>
+        {(totalKind.value || 0).toLocaleString()} <b>{currency}</b>
       </Amount>
     );
   }

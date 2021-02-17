@@ -70,7 +70,11 @@ export const fieldSchema = new Schema({
   groupId: field({ type: String, label: 'Field group' }),
   isVisible: field({ type: Boolean, default: true, label: 'Is visible' }),
   lastUpdatedUserId: field({ type: String, label: 'Last updated by' }),
-  associatedFieldId: field({ type: String, optional: true, label: 'Stores custom property fieldId for form field id'}),
+  associatedFieldId: field({
+    type: String,
+    optional: true,
+    label: 'Stores custom property fieldId for form field id'
+  })
 });
 
 export const fieldGroupSchema = schemaWrapper(
