@@ -1,4 +1,4 @@
-import { SignIn, fakeName } from "../utils";
+import { SignIn, fakeName, waitAndClick, waitElm } from "../utils";
 
 SignIn;
 
@@ -40,8 +40,7 @@ context("Inbox", () => {
     cy.get('input[placeholder="Search"]').type("Angry");
     cy.get('i[class="icon icon-tag-alt"]').click();
 
-    cy.get('div[class="RichEditor-editor"]', { timeout: 10000 }).should('be.visible');
-    cy.get('div[class="RichEditor-editor"]').click();
+    waitAndClick('div[class="RichEditor-editor"]')
 
     cy.get("#conversationAssignTrigger").click();
     cy.get('input[placeholder="Search"]').type("Admin");
@@ -59,15 +58,6 @@ context("Inbox", () => {
       });
   });
 });
-
-const waitElm = (selector) => {
-  cy.get(selector, { timeout: 10000 }).should("be.visible");
-};
-
-const waitAndClick = (selector) => {
-  cy.get(selector, { timeout: 10000 }).should("be.visible");
-  cy.get(selector).click();
-};
 
 let randomm = fakeName();
 

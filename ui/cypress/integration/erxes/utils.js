@@ -51,3 +51,12 @@ export const IsExistElement = Cypress.Commands.add('isExistElement', selector =>
     }
   })
 });
+
+export const waitElm = (selector) => {
+  cy.get(selector, { timeout: 10000 }).should("be.visible");
+};
+
+export const waitAndClick = (selector) => {
+  cy.get(selector, { timeout: 10000 }).should("be.visible");
+  cy.get(selector).click();
+};
