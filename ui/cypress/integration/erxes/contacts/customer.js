@@ -28,8 +28,6 @@ context("Contacts", () => {
 
     cy.get('button[icon="check-circle"]').click();
 
-    cy.wait(3000);
-
     random = fakeName(5);
 
     cy.get('button[icon="plus-circle"]').click();
@@ -40,8 +38,6 @@ context("Contacts", () => {
     cy.get('input[name="firstName"]').type(random);
 
     cy.get('button[icon="check-circle"]').click();
-
-    cy.wait(3000);
 
     let customer = cy.get("#customers").get("tr");
 
@@ -75,9 +71,7 @@ context("Contacts", () => {
 
     cy.wait(3000);
 
-    customer = cy.get("#customers").get("tr");
-
-    customer.within(() => {
+    cy.get("#customers").get("tr").within(() => {
       cy.get("#customersCheckBox")
         .eq(0)
         .click();
@@ -86,6 +80,8 @@ context("Contacts", () => {
         .eq(1)
         .click();
     });
+
+    cy.wait(3000)
 
     cy.get('i[icon="merge"]').click();
 
@@ -120,13 +116,9 @@ context("Contacts", () => {
       .eq(1)
       .click();
 
-    cy.wait(2000);
-
     cy.get("#customersCheckBox").click();
 
     cy.get('button[icon="times-circle"]').click();
-
-    cy.wait(4000);
 
     cy.get('button[icon="check-circle"]').click();
 
@@ -142,8 +134,6 @@ context("Contacts", () => {
     cy.get('div .Select-menu-outer').click();
 
     cy.get('button[icon="check-circle"]').click();
-
-    cy.wait(2000);
 
     cy.get("#customers")
       .children()
@@ -169,16 +159,6 @@ context("Contacts", () => {
       .children()
       .eq(0);
 
-    // cy.get('i[icon="tag-alt"]')
-    //   .eq(0)
-    //   .click();
-    // cy.wait(2000);
-
-    // cy.get('i[icon="tag-alt"]')
-    //   .eq(1)
-    //   .click();
-    // cy.wait(2000);
-
     cy.get('a[href="/companies"]').click();
     cy.get('i[icon = "plus-circle"]').click();
 
@@ -189,8 +169,6 @@ context("Contacts", () => {
     cy.get('div .Select-menu-outer').click();
 
     cy.get('button[icon="check-circle"]').click();
-
-    cy.wait(2000);
 
     cy.get("#companiesCheckBox").click();
 
@@ -215,14 +193,10 @@ context("Contacts", () => {
       .eq(0)
       .click();
 
-    cy.wait(2000);
-
     cy.get("#companiesCheckBox").click();
 
     cy.get('button[icon="cancel-1"]').click();
 
     cy.get('button[icon="check-circle"]').click();
-
-    cy.wait(1000);
   });
 });

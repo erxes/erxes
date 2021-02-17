@@ -2,10 +2,13 @@
   "projectId": "bg7eun",
   "ignoreTestFiles": "*.spec.js",
   "baseUrl": "http://localhost:3000",
+  "pageLoadTimeout": 100000,
+  "requestTimeout": 100000,
+  "responseTimeout": 100000,
   "viewportWidth": 1368,
   "viewportHeight": 920,
   "env": {
     "userEmail": "admin@erxes.io",
-    "userPassword": "kmdIr0z74W"
+    "userPassword": "SeoDt5QdTM"
   }
 }
