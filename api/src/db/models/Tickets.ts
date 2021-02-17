@@ -35,9 +35,9 @@ export const loadTicketClass = () => {
      * Create a Ticket
      */
     public static async createTicket(doc: ITicket) {
-      if (doc.sourceConversationId) {
+      if (doc.sourceConversationIds) {
         const convertedTicket = await Tickets.findOne({
-          sourceConversationId: doc.sourceConversationId
+          sourceConversationIds: { $in: doc.sourceConversationIds }
         });
 
         if (convertedTicket) {

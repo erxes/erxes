@@ -362,16 +362,16 @@ export const loadClass = () => {
       kind: string,
       brandObject = false
     ) {
-      const brand = await Brands.findOne({ code: brandCode });
-
-      if (!brand) {
-        throw new Error('Brand not found');
-      }
+      const brand = await Brands.getBrand({ code: brandCode });
 
       const integration = await Integrations.findOne({
         brandId: brand._id,
         kind
       });
+
+      if (!integration) {
+        throw new Error('Integration not found');
+      }
 
       if (brandObject) {
         return { integration, brand };

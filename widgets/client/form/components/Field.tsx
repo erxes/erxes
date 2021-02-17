@@ -6,7 +6,7 @@ import { FieldValue, IField, IFieldError } from '../types';
 type Props = {
   field: IField;
   error?: IFieldError;
-  onChange: (params: { fieldId: string; value: FieldValue }) => void;
+  onChange: (params: { fieldId: string; value: FieldValue; associatedFieldId?: string }) => void;
 };
 
 type State = {
@@ -96,7 +96,7 @@ export default class Field extends React.Component<Props, State> {
   onChange = (value: FieldValue) => {
     const { onChange, field } = this.props;
 
-    onChange({ fieldId: field._id, value });
+    onChange({ fieldId: field._id, value, associatedFieldId: field.associatedFieldId });
   };
 
   onInputChange = (e: React.FormEvent<HTMLInputElement>) => {

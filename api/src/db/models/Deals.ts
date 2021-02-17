@@ -32,9 +32,9 @@ export const loadDealClass = () => {
      * Create a deal
      */
     public static async createDeal(doc: IDeal) {
-      if (doc.sourceConversationId) {
+      if (doc.sourceConversationIds) {
         const convertedDeal = await Deals.findOne({
-          sourceConversationId: doc.sourceConversationId
+          sourceConversationIds: { $in: doc.sourceConversationIds }
         });
 
         if (convertedDeal) {

@@ -145,7 +145,7 @@ export const TUTORIALS = [
         url: 'https://www.youtube-nocookie.com/embed/S-dLvUPiaQI'
       },
       {
-        name: 'Leads',
+        name: 'Forms',
         url: 'https://www.youtube-nocookie.com/embed/7lz3mIbfIS4'
       },
       {

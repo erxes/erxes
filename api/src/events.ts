@@ -7,6 +7,7 @@ interface ISaveEventArgs {
   type?: string;
   name?: string;
   customerId?: string;
+  visitorId?: string;
   attributes?: any;
   additionalQuery?: any;
 }
@@ -29,17 +30,15 @@ export const saveEvent = async (args: ISaveEventArgs) => {
     throw new Error('Name is required');
   }
 
+  let visitorId = args.visitorId;
   let customerId = args.customerId;
-  let newlyCreatedId;
-
-  if (!customerId) {
-    customerId = await Customers.createVisitor();
-    newlyCreatedId = customerId;
-  }
 
   const searchQuery = {
     bool: {
-      must: [{ term: { name } }, { term: { customerId } }]
+      must: [
+        { term: { name } },
+        { term: customerId ? { customerId } : { visitorId } }
+      ]
     }
   };
 
@@ -59,6 +58,7 @@ export const saveEvent = async (args: ISaveEventArgs) => {
         upsert: {
           type,
           name,
+          visitorId,
           customerId,
           createdAt: new Date(),
           count: 1,
@@ -71,28 +71,49 @@ export const saveEvent = async (args: ISaveEventArgs) => {
   } catch (e) {
     debugBase(`Save event error ${e.message}`);
 
-    if (newlyCreatedId) {
-      await Customers.remove({ _id: newlyCreatedId });
-    }
-
     customerId = undefined;
+    visitorId = undefined;
   }
 
   return { customerId };
 };
 
-export const getNumberOfVisits = async (
-  customerId: string,
-  url: string
-): Promise<number> => {
+export const getNumberOfVisits = async (params: {
+  url: string;
+  visitorId?: string;
+  customerId?: string;
+}): Promise<number> => {
+  const searchId = params.customerId
+    ? { customerId: params.customerId }
+    : { visitorId: params.visitorId };
   try {
     const response = await fetchElk('search', 'events', {
       query: {
         bool: {
           must: [
             { term: { name: 'viewPage' } },
-            { term: { customerId } },
-            { term: { 'attributes.url.keyword': url } }
+            { term: searchId },
+            {
+              nested: {
+                path: 'attributes',
+                query: {
+                  bool: {
+                    must: [
+                      {
+                        term: {
+                          'attributes.field': 'url'
+                        }
+                      },
+                      {
+                        match: {
+                          'attributes.value': params.url
+                        }
+                      }
+                    ]
+                  }
+                }
+              }
+            }
           ]
         }
       }
@@ -114,27 +135,40 @@ export const getNumberOfVisits = async (
 };
 
 export const trackViewPageEvent = (args: {
-  customerId: string;
+  customerId?: string;
+  visitorId?: string;
   attributes: any;
 }) => {
-  const { attributes, customerId } = args;
+  const { attributes, customerId, visitorId } = args;
 
   return saveEvent({
     type: 'lifeCycle',
     name: 'viewPage',
     customerId,
+    visitorId,
     attributes,
     additionalQuery: {
       bool: {
         must: [
           {
-            term: {
-              'attributes.field': 'url'
-            }
-          },
-          {
-            term: {
-              'attributes.value': attributes.url
+            nested: {
+              path: 'attributes',
+              query: {
+                bool: {
+                  must: [
+                    {
+                      term: {
+                        'attributes.field': 'url'
+                      }
+                    },
+                    {
+                      match: {
+                        'attributes.value': attributes.url
+                      }
+                    }
+                  ]
+                }
+              }
             }
           }
         ]
@@ -145,13 +179,15 @@ export const trackViewPageEvent = (args: {
 
 export const trackCustomEvent = (args: {
   name: string;
-  customerId: string;
+  customerId?: string;
+  visitorId?: string;
   attributes: any;
 }) => {
   return saveEvent({
     type: 'custom',
     name: args.name,
     customerId: args.customerId,
+    visitorId: args.visitorId,
     attributes: args.attributes
   });
 };

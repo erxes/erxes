@@ -20,6 +20,7 @@
     "start": "node dist"
   },
   "dependencies": {
+    "@fingerprintjs/fingerprintjs": "^3.0.5",
     "@nateradebaugh/react-datetime": "^4.0.0-rc.10",
     "@types/classnames": "^2.2.6",
     "@types/cors": "^2.8.4",
@@ -28,6 +29,7 @@
     "@types/react": "^16.4.7",
     "@types/react-dom": "^16.0.6",
     "@types/react-i18next": "^7.8.0",
+    "@types/react-modal": "^3.10.6",
     "@types/react-transition-group": "^2.0.14",
     "@types/ws": "^5.1.2",
     "add-graphql-subscriptions": "^1.0.1",
@@ -61,6 +63,7 @@
     "react": "16.4.2",
     "react-apollo": "^2.1.9",
     "react-dom": "16.4.2",
+    "react-modal": "^3.12.1",
     "react-transition-group": "^2.4.0",
     "sass-loader": "^6.0.6",
     "source-map-loader": "^0.2.3",

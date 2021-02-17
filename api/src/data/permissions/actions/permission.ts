@@ -781,6 +781,10 @@ export const moduleObjects = {
       {
         name: 'showProducts',
         description: 'Show products'
+      },
+      {
+        name: 'productsMerge',
+        description: 'Merge products'
       }
     ]
   },

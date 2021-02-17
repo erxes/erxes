@@ -92,7 +92,7 @@ export const itemsAdd = async (
   docModifier: any,
   createModel: any
 ) => {
-  const collection = getCollection(type);
+  const { collection } = getCollection(type);
 
   doc.initialStageId = doc.stageId;
   doc.watchedUserIds = [user._id];
@@ -182,7 +182,7 @@ export const changeItemStatus = async ({
     return;
   }
 
-  const collection = getCollection(type);
+  const { collection } = getCollection(type);
 
   const aboveItems = await collection
     .find({
@@ -401,7 +401,7 @@ export const itemsChange = async (
   user: IUserDocument,
   modelUpdate: any
 ) => {
-  const collection = getCollection(type);
+  const { collection } = getCollection(type);
   const {
     proccessId,
     itemId,
@@ -558,7 +558,7 @@ export const itemsArchive = async (
   proccessId: string,
   user: IUserDocument
 ) => {
-  const collection = getCollection(type);
+  const { collection } = getCollection(type);
 
   const items = await collection.find({
     stageId,
@@ -570,6 +570,9 @@ export const itemsArchive = async (
     { $set: { status: BOARD_STATUSES.ARCHIVED } }
   );
 
+  // order notification
+  const stage = await Stages.getStage(stageId);
+
   for (const item of items) {
     await ActivityLogs.createArchiveLog({
       item,
@@ -577,21 +580,19 @@ export const itemsArchive = async (
       action: 'archived',
       userId: user._id
     });
-  }
 
-  // order notification
-  const stage = await Stages.getStage(stageId);
-
-  graphqlPubsub.publish('pipelinesChanged', {
-    pipelinesChanged: {
-      _id: stage.pipelineId,
-      proccessId,
-      action: 'itemsRemove',
-      data: {
-        destinationStageId: stage._id
+    graphqlPubsub.publish('pipelinesChanged', {
+      pipelinesChanged: {
+        _id: stage.pipelineId,
+        proccessId,
+        action: 'itemsRemove',
+        data: {
+          item,
+          destinationStageId: stage._id
+        }
       }
-    }
-  });
+    });
+  }
 
   return 'ok';
 };

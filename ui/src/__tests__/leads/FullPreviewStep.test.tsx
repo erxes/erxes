@@ -1,5 +1,5 @@
 import { shallow } from 'enzyme';
-import FullPreviewStep from 'modules/leads/components/step/FullPreviewStep';
+import FullPreviewStep from 'modules/leads/components/step/FullPreview';
 import React from 'react';
 
 describe('FullPreviewStep component', () => {

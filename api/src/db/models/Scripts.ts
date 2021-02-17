@@ -38,7 +38,9 @@ export const loadClass = () => {
           fields.messengerId
         );
 
-        const brand = await Brands.getBrand(messengerIntegration.brandId || '');
+        const brand = await Brands.getBrand({
+          _id: messengerIntegration.brandId || ''
+        });
 
         autoFields.messengerBrandCode = brand.code;
       }
@@ -52,7 +54,9 @@ export const loadClass = () => {
         const maps: LeadMaps = [];
 
         for (const integration of integrations) {
-          const brand = await Brands.getBrand(integration.brandId || '');
+          const brand = await Brands.getBrand({
+            _id: integration.brandId || ''
+          });
           const form = await Forms.getForm(integration.formId || '');
 
           maps.push({

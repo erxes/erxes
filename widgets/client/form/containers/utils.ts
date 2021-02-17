@@ -1,6 +1,6 @@
 import gql from "graphql-tag";
 import client from "../../apollo-client";
-import { getLocalStorageItem } from "../../common";
+import { getLocalStorageItem, setLocalStorageItem } from "../../common";
 import { IBrowserInfo, IEmailParams } from "../../types";
 import { requestBrowserInfo } from "../../utils";
 import { connection } from "../connection";
@@ -87,14 +87,15 @@ export const saveLead = (params: {
   const { doc, browserInfo, integrationId, formId, saveCallback } = params;
 
   const submissions = Object.keys(doc).map(fieldId => {
-    const { value, text, type, validation } = doc[fieldId];
+    const { value, text, type, validation, associatedFieldId} = doc[fieldId];
 
     return {
       _id: fieldId,
       type,
       text,
       value,
-      validation
+      validation,
+      associatedFieldId
     };
   });
 
@@ -114,9 +115,15 @@ export const saveLead = (params: {
 
     .then(({ data }) => {
       if (data) {
-        saveCallback(data.widgetsSaveLead);
 
-        if (data.widgetsSaveLead && data.widgetsSaveLead.status === "ok") {
+        const {widgetsSaveLead} = data;
+        saveCallback(widgetsSaveLead);
+
+        if (widgetsSaveLead.customerId){
+          setLocalStorageItem('customerId', widgetsSaveLead.customerId, connection.setting)
+        }
+
+        if (widgetsSaveLead && widgetsSaveLead.status === "ok") {
           postMessage({
             message: "formSuccess",
             variables

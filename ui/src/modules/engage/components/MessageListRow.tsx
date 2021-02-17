@@ -10,6 +10,7 @@ import Tip from 'modules/common/components/Tip';
 import { __ } from 'modules/common/utils';
 import { MESSAGE_KINDS, METHODS } from 'modules/engage/constants';
 import React from 'react';
+import s from 'underscore.string';
 import { HelperText, RowTitle } from '../styles';
 import { IEngageMessage, IEngageMessenger } from '../types';
 
@@ -23,20 +24,26 @@ type Props = {
   setLive: () => void;
   setLiveManual: () => void;
   setPause: () => void;
+  copy: () => void;
 
   isChecked: boolean;
   toggleBulk: (value: IEngageMessage, isChecked: boolean) => void;
 };
 
 class Row extends React.Component<Props> {
-  renderLink(text, className, onClick) {
+  renderLink(text: string, iconName: string, onClick, disabled?: boolean) {
     return (
       <Tip
         text={__(text)}
         key={`${text}-${this.props.message._id}`}
         placement="top"
       >
-        <Button btnStyle="link" onClick={onClick} icon={className} />
+        <Button
+          btnStyle="link"
+          onClick={onClick}
+          icon={iconName}
+          disabled={disabled}
+        />
       </Tip>
     );
   }
@@ -44,7 +51,6 @@ class Row extends React.Component<Props> {
   renderLinks() {
     const msg = this.props.message;
 
-    const edit = this.renderLink('Edit', 'edit-3', this.props.edit);
     const pause = this.renderLink('Pause', 'pause-circle', this.props.setPause);
     const live = this.renderLink('Set live', 'play-circle', this.props.setLive);
     const liveM = this.renderLink(
@@ -53,10 +59,19 @@ class Row extends React.Component<Props> {
       this.props.setLiveManual
     );
     const show = this.renderLink('Show statistics', 'eye', this.props.show);
+    const copy = this.renderLink('Copy', 'copy-1', this.props.copy);
+    const editLink = msg.isLive
+      ? this.renderLink(
+          'Pause the campaign & try editing',
+          'edit-3',
+          this.props.edit,
+          true
+        )
+      : this.renderLink('Edit', 'edit-3', this.props.edit);
 
-    const links: React.ReactNode[] = [];
+    const links: React.ReactNode[] = [copy, editLink];
 
-    if ([METHODS.EMAIL, METHODS.SMS].includes(msg.method)) {
+    if ([METHODS.EMAIL, METHODS.SMS].includes(msg.method) && !msg.isDraft) {
       links.push(show);
     }
 
@@ -68,18 +83,14 @@ class Row extends React.Component<Props> {
       return links;
     }
 
-    if (msg.isDraft) {
-      return [...links, edit, live];
-    }
-
     if (msg.isLive) {
-      return [...links, edit, pause];
+      return [...links, pause];
     }
 
-    return [...links, edit, live];
+    return [...links, live];
   }
 
-  renderRemoveButton = (message, onClick) => {
+  renderRemoveButton = onClick => {
     return (
       <Tip text={__('Delete')} placement="top">
         <Button btnStyle="link" onClick={onClick} icon="times-circle" />
@@ -134,10 +145,6 @@ class Row extends React.Component<Props> {
       scheduleDate
     } = message;
     const totalCount = stats.total || 0;
-
-    if (!message.isLive) {
-      return <Label>draft</Label>;
-    }
 
     if (kind === MESSAGE_KINDS.MANUAL) {
       if (
@@ -239,7 +246,7 @@ class Row extends React.Component<Props> {
         <td>{this.renderStatus()}</td>
         <td className="text-primary">
           <Icon icon="cube-2" />
-          <b> {totalCount}</b>
+          <b> {s.numberFormat(totalCount)}</b>
         </td>
         <td>{this.renderType(message)}</td>
 
@@ -266,7 +273,7 @@ class Row extends React.Component<Props> {
         <td>
           <ActionButtons>
             {this.renderLinks()}
-            {this.renderRemoveButton(message, remove)}
+            {this.renderRemoveButton(remove)}
           </ActionButtons>
         </td>
       </tr>

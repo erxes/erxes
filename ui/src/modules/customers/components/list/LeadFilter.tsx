@@ -65,12 +65,12 @@ function Leads({
   );
 
   return (
-    <Box title={__('Filter by Pop Ups')} name="showFilterByPopUps">
+    <Box title={__('Filter by Forms')} name="showFilterByPopUps">
       <DataWithLoader
         data={data}
         loading={loading}
         count={integrations.length}
-        emptyText="Search and filter customers by pop ups"
+        emptyText="Search and filter customers by forms"
         emptyIcon="monitor"
         size="small"
         objective={true}

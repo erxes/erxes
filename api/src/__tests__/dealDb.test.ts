@@ -99,7 +99,7 @@ describe('Test deals model', () => {
     const args = {
       stageId: deal.stageId,
       userId: user._id,
-      sourceConversationId: conversation._id
+      sourceConversationIds: [conversation._id]
     };
 
     const createdDeal = await Deals.createDeal(args);

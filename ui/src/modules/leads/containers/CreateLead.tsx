@@ -1,6 +1,8 @@
 import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
 import { Alert, withProps } from 'modules/common/utils';
+import { EmailTemplatesQueryResponse } from 'modules/settings/emailTemplates/containers/List';
+import { queries as templatesQuery } from 'modules/settings/emailTemplates/graphql';
 import {
   AddIntegrationMutationResponse,
   AddIntegrationMutationVariables
@@ -14,7 +16,9 @@ import Lead from '../components/Lead';
 import { mutations } from '../graphql';
 import { ILeadData } from '../types';
 
-type Props = {} & IRouterProps &
+type Props = {
+  emailTemplatesQuery: EmailTemplatesQueryResponse;
+} & IRouterProps &
   AddIntegrationMutationResponse &
   AddFieldsMutationResponse;
 
@@ -27,6 +31,7 @@ type State = {
     languageCode: string;
     lead: any;
     leadData: ILeadData;
+    channelIds?: string[];
   };
 };
 
@@ -38,12 +43,18 @@ class CreateLeadContainer extends React.Component<Props, State> {
   }
 
   render() {
-    const { addIntegrationMutation, history } = this.props;
+    const { addIntegrationMutation, history, emailTemplatesQuery } = this.props;
     const afterFormDbSave = id => {
       this.setState({ isReadyToSaveForm: false });
 
       if (this.state.doc) {
-        const { leadData, brandId, name, languageCode } = this.state.doc;
+        const {
+          leadData,
+          brandId,
+          name,
+          languageCode,
+          channelIds
+        } = this.state.doc;
 
         addIntegrationMutation({
           variables: {
@@ -51,7 +62,8 @@ class CreateLeadContainer extends React.Component<Props, State> {
             leadData,
             brandId,
             name,
-            languageCode
+            languageCode,
+            channelIds
           }
         })
           .then(
@@ -60,10 +72,10 @@ class CreateLeadContainer extends React.Component<Props, State> {
                 integrationsCreateLeadIntegration: { _id }
               }
             }) => {
-              Alert.success('You successfully added a lead');
+              Alert.success('You successfully added a form');
 
               history.push({
-                pathname: '/leads',
+                pathname: '/forms',
                 search: `?popUpRefetchList=true&showInstallCode=${_id}`
               });
             }
@@ -87,7 +99,8 @@ class CreateLeadContainer extends React.Component<Props, State> {
       save,
       afterFormDbSave,
       isActionLoading: this.state.isLoading,
-      isReadyToSaveForm: this.state.isReadyToSaveForm
+      isReadyToSaveForm: this.state.isReadyToSaveForm,
+      emailTemplates: emailTemplatesQuery.emailTemplates || []
     };
 
     return <Lead {...updatedProps} />;
@@ -102,6 +115,15 @@ export default withProps<{}>(
       AddIntegrationMutationVariables
     >(gql(mutations.integrationsCreateLeadIntegration), {
       name: 'addIntegrationMutation'
-    })
+    }),
+    graphql<Props, EmailTemplatesQueryResponse>(
+      gql(templatesQuery.emailTemplates),
+      {
+        name: 'emailTemplatesQuery',
+        options: () => ({
+          variables: { page: 1 }
+        })
+      }
+    )
   )(withRouter<Props>(CreateLeadContainer))
 );

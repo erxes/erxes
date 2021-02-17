@@ -17,7 +17,7 @@ import { IConfig } from 'modules/settings/general/types';
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { IBreadCrumbItem, IConditionsRule } from '../../common/types';
-import { METHODS } from '../constants';
+import { MESSAGE_KINDS, METHODS } from '../constants';
 import {
   IEngageEmail,
   IEngageMessage,
@@ -177,10 +177,10 @@ class AutoAndManualForm extends React.Component<Props, State> {
   };
 
   renderSaveButton = () => {
-    const { isActionLoading, kind } = this.props;
+    const { isActionLoading, kind, message } = this.props;
 
     const cancelButton = (
-      <Link to="/engage">
+      <Link to="/campaigns">
         <Button btnStyle="simple" uppercase={false} icon="times-circle">
           Cancel
         </Button>
@@ -188,7 +188,7 @@ class AutoAndManualForm extends React.Component<Props, State> {
     );
 
     const saveButton = () => {
-      if (kind === 'auto') {
+      if (kind === MESSAGE_KINDS.AUTO) {
         return (
           <>
             <Button
@@ -218,11 +218,15 @@ class AutoAndManualForm extends React.Component<Props, State> {
           disabled={isActionLoading}
           btnStyle="success"
           icon={isActionLoading ? undefined : 'check-circle'}
-          onClick={this.handleSubmit.bind(this, 'live')}
+          // set live only in create mode
+          onClick={this.handleSubmit.bind(
+            this,
+            message && message._id ? 'draft' : 'live'
+          )}
           uppercase={false}
         >
           {isActionLoading && <SmallLoader />}
-          Send
+          Save
         </Button>
       );
     };
@@ -277,7 +281,7 @@ class AutoAndManualForm extends React.Component<Props, State> {
     return (
       <Step
         img={imagePath}
-        title="Compose your message"
+        title="Compose your campaign"
         message={message}
         noButton={method !== METHODS.EMAIL && true}
       >
@@ -367,7 +371,7 @@ class AutoAndManualForm extends React.Component<Props, State> {
 
           <Step
             img="/images/icons/erxes-06.svg"
-            title="Who is this message for?"
+            title="Who is this campaign for?"
           >
             <MessageTypeStep
               onChange={this.changeState}

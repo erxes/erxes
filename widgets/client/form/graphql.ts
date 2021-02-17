@@ -15,6 +15,7 @@ export const formDetailQuery = `
         isRequired
         order
         validation
+        associatedFieldId
       }
     }
   }
@@ -42,6 +43,7 @@ export const saveFormMutation = `
     widgetsSaveLead(integrationId: $integrationId, formId: $formId, submissions: $submissions, browserInfo: $browserInfo, cachedCustomerId: $cachedCustomerId) {
       status
       messageId
+      customerId
       errors {
         fieldId
         code

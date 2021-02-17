@@ -1,7 +1,7 @@
 import { IBreadCrumbItem } from 'modules/common/types';
 import { __, Alert } from 'modules/common/utils';
 import React from 'react';
-import { METHODS } from '../constants';
+import { MESSAGE_KINDS, METHODS } from '../constants';
 import { IEngageMessageDoc } from '../types';
 
 type Props = {
@@ -96,14 +96,14 @@ class FormBase extends React.Component<Props> {
   renderTitle() {
     const { kind } = this.props;
 
-    let title = __('Auto message');
+    let title = __('Auto campaign');
 
-    if (kind === 'manual') {
-      title = __('Manual message');
+    if (kind === MESSAGE_KINDS.MANUAL) {
+      title = __('Manual campaign');
     }
 
-    if (kind === 'visitorAuto') {
-      title = __('Visitor auto message');
+    if (kind === MESSAGE_KINDS.VISITOR_AUTO) {
+      title = __('Visitor auto campaign');
     }
 
     return title;
@@ -111,7 +111,7 @@ class FormBase extends React.Component<Props> {
 
   render() {
     const breadcrumbs = [
-      { title: __('Engage'), link: '/engage' },
+      { title: __('Campaigns'), link: '/campaigns' },
       { title: this.renderTitle() }
     ];
 

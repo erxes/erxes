@@ -42,6 +42,6 @@ export const initBroker = async (server?) => {
   pluginsConsume(client);
 };
 
-export default function () {
+export default function() {
   return client;
 }

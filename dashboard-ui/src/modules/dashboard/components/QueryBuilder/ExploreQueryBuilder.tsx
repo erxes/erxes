@@ -196,7 +196,7 @@ class ExploreQueryBuilder extends React.Component<Props> {
                     }}
                     description={
                       <>
-                        <strong>Build Your Query</strong>
+                        <strong>Build Your Query </strong>
                         Choose a measure or dimension to get started
                       </>
                     }

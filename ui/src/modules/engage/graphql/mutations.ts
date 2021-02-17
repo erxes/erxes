@@ -17,7 +17,7 @@ const setLive = `
 `;
 
 const setLiveManual = `
-  mutation setLiveManual($_id: String!) {
+  mutation engageMessageSetLiveManual($_id: String!) {
     engageMessageSetLiveManual(_id: $_id) {
       _id
     }
@@ -132,6 +132,14 @@ const segmentsAdd = `
   }
 `;
 
+const engageMessageCopy = `
+  mutation engageMessageCopy($_id: String!) {
+    engageMessageCopy(_id: $_id) {
+      _id
+    }
+  }
+`;
+
 export default {
   setPause,
   setLive,
@@ -143,5 +151,6 @@ export default {
   segmentsAdd,
   removeVerifiedEmail,
   verifyEmail,
-  sendTestEmail
+  sendTestEmail,
+  engageMessageCopy
 };
