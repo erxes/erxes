@@ -74,7 +74,7 @@ export const INTEGRATION_KINDS = {
   NYLAS_EXCHANGE: 'nylas-exchange',
   NYLAS_OFFICE365: 'nylas-office365',
   NYLAS_YAHOO: 'nylas-yahoo',
-  LEAD: 'lead',
+  FORMS: 'lead',
   CALLPRO: 'callpro',
   TWITTER_DM: 'twitter-dm',
   CHATFUEL: 'chatfuel',
@@ -99,7 +99,7 @@ export const INTEGRATION_KINDS = {
     { text: 'Exchange', value: 'nylas-exchange' },
     { text: 'Outlook', value: 'nylas-outlook' },
     { text: 'Yahoo', value: 'nylas-yahoo' },
-    { text: 'Pop Ups', value: 'lead' },
+    { text: 'Forms', value: 'lead' },
     { text: 'Callpro', value: 'callpro' },
     { text: 'Twitter direct message', value: 'twitter-dm' },
     { text: 'Chatfuel', value: 'chatfuel' },
@@ -124,7 +124,11 @@ export const FORM_SUCCESS_ACTIONS = {
   EMAIL: 'email',
   REDIRECT: 'redirect',
   ONPAGE: 'onPage',
-  ALL_LIST: ['', 'email', 'redirect', 'onPage']
+  ALL_LIST: [
+    { text: 'On page', value: 'onPage' },
+    { text: 'Email', value: 'email' },
+    { text: 'Page redirect', value: 'redirect' }
+  ]
 };
 
 export const MAIL_TOOLBARS_CONFIG = [
@@ -375,7 +379,7 @@ export const INTEGRATION_FILTERS = [
 
   {
     name: 'Works with',
-    items: ['Conversation', 'Pop ups']
+    items: ['Conversation', 'Forms']
   },
   {
     name: 'Categories',

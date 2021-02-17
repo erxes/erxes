@@ -19,12 +19,14 @@ import {
 } from '../types';
 
 type Props = {
-  renderPreviewWrapper: (previewRenderer, fields: IField[]) => void;
   afterDbSave: (formId: string) => void;
   onDocChange?: (doc: IFormData) => void;
+  formData?: IFormData;
   type: string;
   isReadyToSave: boolean;
   showMessage?: boolean;
+  currentMode?: 'create' | 'update' | undefined;
+  currentField?: IField;
 };
 
 type FinalProps = {} & Props &

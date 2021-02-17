@@ -1,7 +1,7 @@
 import { IBreadCrumbItem } from 'modules/common/types';
 import { __, Alert } from 'modules/common/utils';
 import React from 'react';
-import { METHODS } from '../constants';
+import { MESSAGE_KINDS, METHODS } from '../constants';
 import { IEngageMessageDoc } from '../types';
 
 type Props = {
@@ -98,11 +98,11 @@ class FormBase extends React.Component<Props> {
 
     let title = __('Auto campaign');
 
-    if (kind === 'manual') {
+    if (kind === MESSAGE_KINDS.MANUAL) {
       title = __('Manual campaign');
     }
 
-    if (kind === 'visitorAuto') {
+    if (kind === MESSAGE_KINDS.VISITOR_AUTO) {
       title = __('Visitor auto campaign');
     }
 

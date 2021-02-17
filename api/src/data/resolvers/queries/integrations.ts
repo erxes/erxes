@@ -21,7 +21,8 @@ const generateFilterQuery = async ({
   channelId,
   brandId,
   searchValue,
-  tag
+  tag,
+  status
 }) => {
   const query: any = {};
 
@@ -63,6 +64,10 @@ const generateFilterQuery = async ({
     query.tagIds = tag;
   }
 
+  if (status) {
+    query.isActive = status === 'active' ? true : false;
+  }
+
   return query;
 };
 
@@ -81,6 +86,7 @@ const integrationQueries = {
       channelId: string;
       brandId: string;
       tag: string;
+      status: string;
     },
     { singleBrandIdSelector }: IContext
   ) {
@@ -123,16 +129,31 @@ const integrationQueries = {
   /**
    * Get all integrations count. We will use it in pager
    */
-  async integrationsTotalCount() {
+  async integrationsTotalCount(
+    _root,
+    args: {
+      kind: string;
+      channelId: string;
+      brandId: string;
+      tag: string;
+      searchValue: string;
+      status: string;
+    }
+  ) {
     const counts = {
       total: 0,
       byTag: {},
       byChannel: {},
       byBrand: {},
-      byKind: {}
+      byKind: {},
+      byStatus: { active: 0, archived: 0 }
     };
 
-    const count = query => {
+    const qry = {
+      ...(await generateFilterQuery(args))
+    };
+
+    const count = async query => {
       return Integrations.findAllIntegrations(query).countDocuments();
     };
 
@@ -140,28 +161,62 @@ const integrationQueries = {
     const tags = await Tags.find({ type: TAG_TYPES.INTEGRATION });
 
     for (const tag of tags) {
-      counts.byTag[tag._id] = await count({ tagIds: tag._id });
+      const countQueryResult = await count({ tagIds: tag._id, ...qry });
+      counts.byTag[tag._id] = !args.tag
+        ? countQueryResult
+        : args.tag === tag._id
+        ? countQueryResult
+        : 0;
     }
 
     // Counting integrations by kind
+
     for (const kind of KIND_CHOICES.ALL) {
-      counts.byKind[kind] = await count({ kind });
+      const countQueryResult = await count({ kind, ...qry });
+      counts.byKind[kind] = !args.kind
+        ? countQueryResult
+        : args.kind === kind
+        ? countQueryResult
+        : 0;
     }
 
     // Counting integrations by channel
     const channels = await Channels.find({});
 
     for (const channel of channels) {
-      counts.byChannel[channel._id] = await count({
-        _id: { $in: channel.integrationIds }
+      const countQueryResult = await count({
+        _id: { $in: channel.integrationIds },
+        ...qry
       });
+
+      counts.byChannel[channel._id] = !args.channelId
+        ? countQueryResult
+        : args.channelId === channel._id
+        ? countQueryResult
+        : 0;
     }
 
     // Counting integrations by brand
     const brands = await Brands.find({});
 
     for (const brand of brands) {
-      counts.byBrand[brand._id] = await count({ brandId: brand._id });
+      const countQueryResult = await count({ brandId: brand._id, ...qry });
+      counts.byBrand[brand._id] = !args.brandId
+        ? countQueryResult
+        : args.brandId === brand._id
+        ? countQueryResult
+        : 0;
+    }
+
+    counts.byStatus.active = await count({ isActive: true, ...qry });
+    counts.byStatus.archived = await count({ isActive: false, ...qry });
+
+    if (args.status) {
+      if (args.status === 'active') {
+        counts.byStatus.archived = 0;
+      } else {
+        counts.byStatus.active = 0;
+      }
     }
 
     // Counting all integrations without any filter

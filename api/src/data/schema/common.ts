@@ -64,7 +64,7 @@ export const commonMutationParams = `
   isComplete: Boolean,
   priority: String,
   status: String,
-  sourceConversationId: String,
+  sourceConversationIds: [String],
 `;
 
 export const commonDragParams = `

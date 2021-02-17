@@ -38,6 +38,7 @@ export const types = `
     participatorCount: Int
     videoCallData: VideoCallData
     productBoardLink: String
+    isFacebookTaggedMessage: Boolean
   }
 
   type EngageData {
@@ -242,6 +243,7 @@ export const mutations = `
     internal: Boolean,
     attachments: [AttachmentInput],
     contentType: String
+    facebookMessageTag: String
   ): ConversationMessage
   conversationsReplyFacebookComment(conversationId: String, commentId: String, content: String): FacebookComment
   conversationsChangeStatusFacebookComment(commentId: String): FacebookComment
@@ -255,4 +257,5 @@ export const mutations = `
   changeConversationOperator(_id: String! operatorStatus: String!): JSON
   conversationResolveAll(${mutationFilterParams}): Int
   conversationsSaveVideoRecordingInfo(conversationId: String!, recordingId: String): String
+  conversationConvertToCard(_id: String!, type: String!, itemId: String, itemName: String, stageId: String): String
 `;

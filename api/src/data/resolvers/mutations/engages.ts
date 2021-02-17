@@ -143,8 +143,34 @@ const engageMutations = {
   /**
    * Engage message set live manual
    */
-  engageMessageSetLiveManual(_root, { _id }: { _id: string }) {
-    return EngageMessages.engageMessageSetLive(_id);
+  async engageMessageSetLiveManual(
+    _root,
+    { _id }: { _id: string },
+    { user }: IContext
+  ) {
+    const draftCampaign = await EngageMessages.getEngageMessage(_id);
+    const live = await EngageMessages.engageMessageSetLive(_id);
+
+    await send(live);
+
+    await putUpdateLog(
+      {
+        type: MODULE_NAMES.ENGAGE,
+        newData: {
+          isLive: true,
+          isDraft: false
+        },
+        object: {
+          _id,
+          isLive: draftCampaign.isLive,
+          isDraft: draftCampaign.isDraft
+        },
+        description: `Campaign "${draftCampaign.title}" has been set live`
+      },
+      user
+    );
+
+    return live;
   },
 
   engagesUpdateConfigs(_root, configsMap, { dataSources }: IContext) {

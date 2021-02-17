@@ -114,10 +114,10 @@ export const loadClass = () => {
      * Update engage message
      */
     public static async updateEngageMessage(_id: string, doc: IEngageMessage) {
-      const message = await EngageMessages.findOne({ _id });
+      const message = await EngageMessages.getEngageMessage(_id);
 
-      if (message && message.kind === 'manual') {
-        throw new Error('Can not update manual message');
+      if (message.kind === MESSAGE_KINDS.MANUAL && message.isLive) {
+        throw new Error('Can not update manual live campaign');
       }
 
       await EngageMessages.updateOne({ _id }, { $set: doc });

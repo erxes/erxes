@@ -3,6 +3,7 @@ import {
   Brands,
   Companies,
   Conformities,
+  ConversationMessages,
   Conversations,
   Customers,
   Forms,
@@ -17,10 +18,12 @@ import {
   IBrowserInfo,
   IVisitorContactInfoParams
 } from '../../../db/models/Customers';
+import { ICustomField } from '../../../db/models/definitions/common';
 import {
   CONVERSATION_OPERATOR_STATUS,
   CONVERSATION_STATUSES,
-  KIND_CHOICES
+  KIND_CHOICES,
+  MESSAGE_TYPES
 } from '../../../db/models/definitions/constants';
 import {
   IIntegrationDocument,
@@ -30,12 +33,13 @@ import {
   IKnowledgebaseCredentials,
   ILeadCredentials
 } from '../../../db/models/definitions/messengerApps';
-import { debugBase } from '../../../debuggers';
+import { debugBase, debugExternalApi } from '../../../debuggers';
 import { trackViewPageEvent } from '../../../events';
 import memoryStorage from '../../../inmemoryStorage';
 import { graphqlPubsub } from '../../../pubsub';
 import { AUTO_BOT_MESSAGES, BOT_MESSAGE_TYPES } from '../../constants';
 import { sendToVisitorLog } from '../../logUtils';
+import { IContext } from '../../types';
 import {
   registerOnboardHistory,
   replaceEditorAttributes,
@@ -55,6 +59,7 @@ interface ISubmission {
   value: any;
   type?: string;
   validation?: string;
+  associatedFieldId?: string;
 }
 
 interface IWidgetEmailParams {
@@ -173,15 +178,17 @@ const getIntegration = async ({
   brandId,
   type,
   selector,
+  formId,
   callback
 }: {
   brandId: string;
+  formId?: string;
   type: string;
   selector?: { [key: string]: string | number | boolean };
   callback?: () => Promise<void>;
 }) => {
   const integration = await caches.get({
-    key: `integration_${type}_${brandId}`,
+    key: 'integration_' + type + '_' + brandId + (formId ? `_${formId}` : ''),
     callback: callback
       ? callback
       : async () => {
@@ -213,6 +220,7 @@ const widgetMutations = {
     // find integration by brandId & formId
     const integ = await getIntegration({
       brandId: brand._id,
+      formId: form._id,
       type: 'lead',
       selector: {
         brandId: brand._id,
@@ -285,6 +293,7 @@ const widgetMutations = {
     let phone;
     let firstName = '';
     let lastName = '';
+    let customFieldsData = new Array<ICustomField>();
 
     submissions.forEach(submission => {
       if (submission.type === 'email') {
@@ -301,6 +310,13 @@ const widgetMutations = {
 
       if (submission.type === 'lastName') {
         lastName = submission.value;
+      }
+
+      if (submission.associatedFieldId) {
+        customFieldsData.push({
+          field: submission.associatedFieldId,
+          value: submission.value
+        });
       }
     });
 
@@ -319,14 +335,20 @@ const widgetMutations = {
         emails: [email],
         firstName,
         lastName,
-        primaryPhone: phone
+        primaryPhone: phone,
+        customFieldsData
       });
+    }
+
+    if (customer.customFieldsData) {
+      customFieldsData = customFieldsData.concat(customer.customFieldsData);
     }
 
     const customerDoc = {
       location: browserInfo,
       firstName: customer.firstName || firstName,
       lastName: customer.lastName || lastName,
+      customFieldsData,
       ...(customer.primaryEmail
         ? {}
         : {
@@ -555,7 +577,8 @@ const widgetMutations = {
       skillId?: string;
       attachments?: any[];
       contentType: string;
-    }
+    },
+    { dataSources }: IContext
   ) {
     const {
       integrationId,
@@ -566,6 +589,49 @@ const widgetMutations = {
       attachments,
       contentType
     } = args;
+
+    if (contentType === MESSAGE_TYPES.VIDEO_CALL_REQUEST) {
+      const videoCallRequestMessage = await ConversationMessages.findOne(
+        { conversationId, contentType },
+        { createdAt: 1 }
+      ).sort({ createdAt: -1 });
+
+      if (videoCallRequestMessage) {
+        const messageTime = new Date(
+          videoCallRequestMessage.createdAt
+        ).getTime();
+        const nowTime = new Date().getTime();
+
+        let integrationConfigs: Array<{ code: string; value?: string }> = [];
+
+        try {
+          integrationConfigs = await dataSources.IntegrationsAPI.fetchApi(
+            '/configs'
+          );
+        } catch (e) {
+          debugExternalApi(e);
+        }
+
+        const timeDelay = integrationConfigs.find(
+          config => config.code === 'VIDEO_CALL_TIME_DELAY_BETWEEN_REQUESTS'
+        ) || { value: '0' };
+
+        const timeDelayIntValue = parseInt(timeDelay.value || '0', 10);
+
+        const timeDelayValue = isNaN(timeDelayIntValue) ? 0 : timeDelayIntValue;
+
+        if (messageTime + timeDelayValue * 1000 > nowTime) {
+          const defaultValue = 'Video call request has already sent';
+
+          const messageForDelay = integrationConfigs.find(
+            config => config.code === 'VIDEO_CALL_MESSAGE_FOR_TIME_DELAY'
+          ) || { value: defaultValue };
+
+          throw new Error(messageForDelay.value || defaultValue);
+        }
+      }
+    }
+
     const conversationContent = strip(message || '').substring(0, 100);
 
     let { customerId } = args;

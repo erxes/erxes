@@ -4,9 +4,11 @@ import {
   DashboardFilterTypes
 } from '../../dashboardConstants';
 import {
+  getBoards,
   getBrands,
   getIntegrations,
   getPipelines,
+  getTags,
   getUsers
 } from '../../modules/dashboard/utils';
 import { checkPermission } from '../../permissions/wrappers';
@@ -50,7 +52,7 @@ const dashBoardQueries = {
     const filters = DashboardFilters[type];
 
     if (!filters) {
-      if (type.includes('pipelineName')) {
+      if (type.includes('pipeline')) {
         return getPipelines();
       }
 
@@ -64,6 +66,24 @@ const dashBoardQueries = {
 
       if (type.includes('integrationName')) {
         return getIntegrations();
+      }
+
+      if (type.includes('board')) {
+        return getBoards();
+      }
+
+      if (type.includes('tag')) {
+        let tagType = 'conversation';
+
+        if (type.split('.')[0] === 'Contacts') {
+          tagType = 'customer';
+        }
+
+        if (type.split('.')[0] === 'Companies') {
+          tagType = 'company';
+        }
+
+        return getTags(tagType);
       }
     }
 

@@ -3,12 +3,11 @@ import FormControl from 'modules/common/components/form/Control';
 import FormGroup from 'modules/common/components/form/Group';
 import ControlLabel from 'modules/common/components/form/Label';
 import Icon from 'modules/common/components/Icon';
-import { LeftItem, Preview } from 'modules/common/components/step/styles';
+import { LeftItem } from 'modules/common/components/step/styles';
 import { __ } from 'modules/common/utils';
 import { uploadHandler } from 'modules/common/utils';
 import ActionBar from 'modules/layout/components/ActionBar';
 import React from 'react';
-import { CalloutPreview } from './preview';
 import { FlexColumn, FlexItem, ImagePreview, ImageUpload } from './style';
 
 const defaultValue = {
@@ -61,7 +60,7 @@ class CallOut extends React.Component<Props, State> {
   }
 
   onChangeFunction = <T extends keyof State>(name: T, value: State[T]) => {
-    this.setState({ [name]: value } as Pick<State, keyof State>);
+    this.setState(({ [name]: value } as unknown) as Pick<State, keyof State>);
     this.props.onChange(name, value);
   };
 
@@ -202,6 +201,11 @@ class CallOut extends React.Component<Props, State> {
           <LeftItem deactive={skip}>
             <FormGroup>
               <ControlLabel>Callout title</ControlLabel>
+              <p>
+                {__(
+                  'Call Out is a brief message you wish to display before showing the full form.'
+                )}
+              </p>
               <FormControl
                 id="callout-title"
                 type="text"
@@ -240,8 +244,6 @@ class CallOut extends React.Component<Props, State> {
           </LeftItem>
           {this.footerActions()}
         </FlexColumn>
-
-        <Preview>{!skip && <CalloutPreview {...this.props} />}</Preview>
       </FlexItem>
     );
   }

@@ -31,14 +31,19 @@ type Props = {
 };
 
 class Row extends React.Component<Props> {
-  renderLink(text: string, iconName: string, onClick) {
+  renderLink(text: string, iconName: string, onClick, disabled?: boolean) {
     return (
       <Tip
         text={__(text)}
         key={`${text}-${this.props.message._id}`}
         placement="top"
       >
-        <Button btnStyle="link" onClick={onClick} icon={iconName} />
+        <Button
+          btnStyle="link"
+          onClick={onClick}
+          icon={iconName}
+          disabled={disabled}
+        />
       </Tip>
     );
   }
@@ -46,7 +51,6 @@ class Row extends React.Component<Props> {
   renderLinks() {
     const msg = this.props.message;
 
-    const edit = this.renderLink('Edit', 'edit-3', this.props.edit);
     const pause = this.renderLink('Pause', 'pause-circle', this.props.setPause);
     const live = this.renderLink('Set live', 'play-circle', this.props.setLive);
     const liveM = this.renderLink(
@@ -56,10 +60,18 @@ class Row extends React.Component<Props> {
     );
     const show = this.renderLink('Show statistics', 'eye', this.props.show);
     const copy = this.renderLink('Copy', 'copy-1', this.props.copy);
+    const editLink = msg.isLive
+      ? this.renderLink(
+          'Pause the campaign & try editing',
+          'edit-3',
+          this.props.edit,
+          true
+        )
+      : this.renderLink('Edit', 'edit-3', this.props.edit);
 
-    const links: React.ReactNode[] = [copy];
+    const links: React.ReactNode[] = [copy, editLink];
 
-    if ([METHODS.EMAIL, METHODS.SMS].includes(msg.method)) {
+    if ([METHODS.EMAIL, METHODS.SMS].includes(msg.method) && !msg.isDraft) {
       links.push(show);
     }
 
@@ -72,10 +84,10 @@ class Row extends React.Component<Props> {
     }
 
     if (msg.isLive) {
-      return [...links, edit, pause];
+      return [...links, pause];
     }
 
-    return [...links, edit, live];
+    return [...links, live];
   }
 
   renderRemoveButton = onClick => {
@@ -133,10 +145,6 @@ class Row extends React.Component<Props> {
       scheduleDate
     } = message;
     const totalCount = stats.total || 0;
-
-    if (!message.isLive) {
-      return <Label>draft</Label>;
-    }
 
     if (kind === MESSAGE_KINDS.MANUAL) {
       if (
