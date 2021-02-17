@@ -1511,7 +1511,7 @@ export const getVisitorLog = async visitorId => {
 
     throw new Error('Logger api is not running');
   } catch (e) {
-    debugBase('Logger is not running. Error: ', e.message);
+    debugBase(`Logger is not running. Error: ${e.message}`);
     throw new Error(e.message);
   }
 };
