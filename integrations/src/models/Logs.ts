@@ -14,7 +14,7 @@ export interface ILogDocument extends ILog, Document {
 export const logSchema = new Schema({
   _id: field({ pkey: true }),
   type: field({ type: String }),
-  value: field({ type: String }),
+  value: field({ type: Object }),
   specialValue: field({ type: String })
 });
 
