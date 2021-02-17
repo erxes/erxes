@@ -43,7 +43,7 @@ function ClientPortalContainer({ queryParams, history, ...props }: Props) {
       .catch(e => Alert.error(e.message));
   };
 
-  const config = data.getConfig || {};
+  const config = data.clientPortalGetConfig || {};
 
   return <ClientPortal config={config} handleUpdate={handleUpdate} />;
 }

@@ -21,8 +21,8 @@ function ListContainer({ configsQuery, totalCountQuery, ...props }: Props) {
     return <Spinner />;
   }
 
-  const configs = configsQuery.getConfigs || [];
-  const totalCount = totalCountQuery.getClientPortalTotalCount || 0;
+  const configs = configsQuery.clientPortalGetConfigs || [];
+  const totalCount = totalCountQuery.clientPortalConfigsTotalCount || 0;
 
   const updatedProps = {
     ...props,
