@@ -47,6 +47,8 @@ context("Inbox", () => {
     cy.get("#conversationAssignTrigger").click();
     cy.get('input[placeholder="Search"]').type("Admin");
 
+    cy.wait(1000);
+
     cy.get('#assign-popover li').eq(0).click();
 
     waitAndClick('#conversationAssignTrigger');
@@ -64,7 +66,7 @@ context("Inbox", () => {
 let randomm = fakeName();
 
 const sendMessage = () => {
-  randomm = fakeName(15);
+  randomm = fakeName(2);
 
   cy.get('div[class="RichEditor-editor"]').click();
   cy.get('div[class="RichEditor-editor"]').focused().clear();

@@ -61,5 +61,5 @@ export const waitTilDisappear = (selector) => {
 
 export const waitAndClick = (selector) => {
   cy.get(selector, { timeout: 40000 }).should("be.visible");
-  cy.get(selector).click();
+  cy.get(selector).click({ force: true });
 };
