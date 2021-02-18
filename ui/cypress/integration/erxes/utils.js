@@ -17,6 +17,12 @@ export const fakeNameCustomer = () => {
 }
 
 export const SignIn = Cypress.Commands.add('signIn', () => {
+  cy.on('uncaught:exception', (err, runnable) => {
+    // returning false here prevents Cypress from
+    // failing the test
+    return false
+  })
+
   const email = Cypress.env('userEmail');
   const password = Cypress.env('userPassword');
 
