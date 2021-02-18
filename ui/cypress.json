@@ -7,7 +7,6 @@
   "responseTimeout": 100000,
   "viewportWidth": 1368,
   "viewportHeight": 920,
-  "waitForAnimations": false,
   "env": {
     "userEmail": "admin@erxes.io",
     "userPassword": "fuJBjiTR6P"

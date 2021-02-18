@@ -1,4 +1,4 @@
-import { SignIn, fakeName } from '../utils';
+import { SignIn, fakeName, waitElm, waitTilDisappear, waitAndClick } from '../utils';
 
 SignIn;
 
@@ -24,67 +24,33 @@ context("Contacts", () => {
     cy.get('input[name="firstName"]').type(random);
 
     cy.get('div .Select-placeholder').contains('Enter an email').click().type(random + "@nmma.co");
-    cy.get('div .Select-menu-outer').click();
+    waitAndClick('div .Select-menu-outer');
 
-    cy.get('button[icon="check-circle"]').click();
+    cy.get('button[type="submit"]').eq(0).click();
+    // for save button disappear which mean popup close
+    waitTilDisappear('button[type="submit"]');
 
-    random = fakeName(5);
-
-    cy.get('button[icon="plus-circle"]').click();
-
-    cy.get('div .Select-placeholder').contains('Enter an email').click().type(random + "@nmma.co");
-    cy.get('div .Select-menu-outer').click();
-
-    cy.get('input[name="firstName"]').type(random);
-
-    cy.get('button[icon="check-circle"]').click();
-
-    cy.wait(3000);
-
-    cy.get("#customers").get("tr").within(() => {
-      cy.get("#customersCheckBox")
-        .eq(0)
-        .click();
-    });
+    cy.get("#customers>.crow").eq(2).get("#customersCheckBox").click();
 
     cy.get('button[icon="tag-alt"]').click();
 
-    cy.wait(1000);
+    waitElm('i[class="icon icon-tag-alt"]');
 
-    cy.get('i[class="icon icon-tag-alt"]')
-      .eq(0)
-      .click();
-    cy.get('i[class="icon icon-tag-alt"]')
-      .eq(1)
-      .click();
+    cy.get('i[class="icon icon-tag-alt"]').eq(0).click();
 
     cy.get('button[icon="tag-alt"]').click();
 
-    // TODO: elasticSearch
-    // cy.get("h3")
-    //   .eq(1)
-    //   .parent()
-    //   .children()
-    //   .eq(1)
-    //   .click();
-    // cy.get('i[icon="tag-alt"]')
-    //   .eq(0)
-    //   .click();
+    waitTilDisappear('button[icon="tag-alt"]');
 
-    cy.wait(3000);
+    cy.get("#customers>.crow").eq(3).within(() => {
+      cy.get("#customersCheckBox").click();
+    })
 
-    cy.get("#customers").get("tr").within(() => {
-      cy.get("#customersCheckBox")
-        .eq(0)
-        .click();
+    cy.get("#customers>.crow").eq(4).within(() => {
+      cy.get("#customersCheckBox").click();
+    })
 
-      cy.get("#customersCheckBox")
-        .eq(1)
-        .click();
-    });
-
-    cy.wait(3000)
-
+    waitElm('i[icon="merge"]');
     cy.get('i[icon="merge"]').click();
 
     const mergeCustomerForm = cy.get('div[class="modal-body"]');
@@ -111,14 +77,10 @@ context("Contacts", () => {
     });
 
     cy.get('button[icon="check-circle"]').click();
+    waitTilDisappear('button[icon="check-circle"]');
 
-    cy.wait(5000);
+    cy.get('a[href="/contacts"]').click();
 
-    cy.get('a[href="/contacts"]')
-      .eq(1)
-      .click();
-
-    cy.wait(3002);
     cy.get("#customersCheckBox").click();
 
     cy.get('button[icon="times-circle"]').click();
@@ -129,13 +91,13 @@ context("Contacts", () => {
 
     cy.get('a[href="/contacts/customer"]').click();
 
-    cy.wait(3001)
+    waitElm('button[icon="plus-circle"]');
     cy.get('button[icon="plus-circle"]').click();
 
     cy.get('input[name="firstName"]').type(random);
 
     cy.get('div .Select-placeholder').contains('Enter an email').click().type(random + "@nmma.co");
-    cy.get('div .Select-menu-outer').click();
+    waitAndClick('div .Select-menu-outer');
 
     cy.get('button[icon="check-circle"]').click();
 
@@ -167,10 +129,10 @@ context("Contacts", () => {
     cy.get('i[icon = "plus-circle"]').click();
 
     cy.get('div .Select-placeholder').contains('Enter company name').click().type(random + "@nmma.co");
-    cy.get('div .Select-menu-outer').click();
+    waitAndClick('div .Select-menu-outer');
 
     cy.get('div .Select-placeholder').contains('Enter company email').click().type(random + "@nmma.co");
-    cy.get('div .Select-menu-outer').click();
+    waitAndClick('div .Select-menu-outer');
 
     cy.get('button[icon="check-circle"]').click();
 
