@@ -9,7 +9,7 @@ import Messages from '../db/models/ConversationMessages';
 import { IBrowserInfo } from '../db/models/Customers';
 import { KIND_CHOICES } from '../db/models/definitions/constants';
 import { debugBase } from '../debuggers';
-import { client, getIndexPrefix } from '../elasticsearch';
+import { client, fetchElk, getIndexPrefix } from '../elasticsearch';
 import { getVisitorLog, sendToVisitorLog } from './logUtils';
 
 export const getOrCreateEngageMessage = async (
@@ -64,17 +64,15 @@ export const getOrCreateEngageMessage = async (
 };
 
 export const convertVisitorToCustomer = async (visitorId: string) => {
-  
   let visitor;
 
-  try{
+  try {
     visitor = await getVisitorLog(visitorId);
 
     delete visitor.visitorId;
     delete visitor._id;
-  
-  }catch(e){
-    debugBase(e.message)
+  } catch (e) {
+    debugBase(e.message);
   }
 
   const doc = { state: 'visitor', ...visitor };
@@ -118,4 +116,112 @@ export const convertVisitorToCustomer = async (visitorId: string) => {
   await sendToVisitorLog({ visitorId }, 'remove');
 
   return customer;
+};
+
+export const getOrCreateEngageMessageElk = async (
+  browserInfo: IBrowserInfo,
+  visitorId?: string,
+  customerId?: string
+) => {
+  let integrationId;
+
+  let customer;
+
+  if (customerId) {
+    const response = await fetchElk(
+      'search',
+      'customers',
+      {
+        query: {
+          match: {
+            _id: customerId
+          }
+        }
+      },
+      '',
+      { hits: { hits: [] } }
+    );
+
+    const customers = response.hits.hits.map(hit => hit._source);
+
+    if (customers.length > 0) {
+      customer = customers[0];
+      integrationId = customer.integrationId;
+    }
+  }
+
+  let visitor;
+
+  if (visitorId) {
+    visitor = await getVisitorLog(visitorId);
+    integrationId = visitor.integrationId;
+  }
+
+  const integrationsResponse = await fetchElk(
+    'search',
+    'integrations',
+    {
+      query: {
+        bool: {
+          must: [
+            { match: { _id: integrationId } },
+            { match: { kind: KIND_CHOICES.MESSENGER } }
+          ]
+        }
+      }
+    },
+    '',
+    { hits: { hits: [] } }
+  );
+
+  let integration;
+  const integrations = integrationsResponse.hits.hits.map(hit => hit._source);
+
+  if (integrations.length === 0) {
+    throw new Error('Integration not found');
+  }
+
+  integration = integrations[0];
+
+  let brand;
+
+  const brandsResponse = await fetchElk(
+    'search',
+    'brands',
+    {
+      query: {
+        match: {
+          _id: integration.brandId
+        }
+      }
+    },
+    '',
+    { hits: { hits: [] } }
+  );
+
+  const brands = brandsResponse.hits.hits.map(hit => hit._source);
+
+  if (brands.length === 0) {
+    throw new Error('Brand not found');
+  }
+
+  brand = brands[0];
+
+  // try to create engage chat auto messages
+  await EngageMessages.createVisitorOrCustomerMessages({
+    brand,
+    integration,
+    customer,
+    visitor,
+    browserInfo
+  });
+
+  // find conversations
+  const query = customerId
+    ? { integrationId, customerId }
+    : { integrationId, visitorId };
+
+  const convs = await Conversations.find(query);
+
+  return Messages.findOne(Conversations.widgetsUnreadMessagesQuery(convs));
 };

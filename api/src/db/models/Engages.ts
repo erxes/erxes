@@ -2,7 +2,9 @@ import { Model, model } from 'mongoose';
 import { ConversationMessages, Conversations, Users } from '.';
 import { MESSAGE_KINDS } from '../../data/constants';
 import { generateCustomerSelector } from '../../data/resolvers/mutations/engageUtils';
-import { replaceEditorAttributes } from '../../data/utils';
+import { getEnv, replaceEditorAttributes } from '../../data/utils';
+import { getOrCreateEngageMessage } from '../../data/widgetUtils';
+import { fetchElk } from '../../elasticsearch';
 import { getNumberOfVisits } from '../../events';
 import Customers, { IBrowserInfo } from './Customers';
 import { IBrandDocument } from './definitions/brands';
@@ -243,11 +245,37 @@ export const loadClass = () => {
       }
       const customerObj = customer ? customer : visitor;
 
-      const messages = await EngageMessages.find({
+      let messages;
+
+      messages = await EngageMessages.find({
         'messenger.brandId': brand._id,
         method: METHODS.MESSENGER,
         isLive: true
       });
+
+      const ELK_SYNCER = getEnv({ name: 'ELK_SYNCER', defaultValue: 'true' });
+
+      if (ELK_SYNCER === 'true') {
+        const response = await fetchElk(
+          'search',
+          'engage_messages  ',
+          {
+            query: {
+              bool: {
+                must: [
+                  { match: { method: METHODS.MESSENGER } },
+                  { match: { isLive: true } },
+                  { match: { 'messenger.brandId': brand._id } }
+                ]
+              }
+            }
+          },
+          '',
+          { hits: { hits: [] } }
+        );
+
+        messages = response.hits.hits.map(hit => hit._source);
+      }
 
       const conversationMessages: IMessageDocument[] = [];
 
@@ -386,13 +414,44 @@ export const loadClass = () => {
         replacedContent
       } = args;
 
-      const query = customerId
-        ? { customerId, 'engageData.messageId': engageData.messageId }
-        : { visitorId, 'engageData.messageId': engageData.messageId };
+      let prevMessage: IMessageDocument | null;
 
-      const prevMessage: IMessageDocument | null = await ConversationMessages.findOne(
-        query
-      );
+      const ELK_SYNCER = getEnv({ name: 'ELK_SYNCER', defaultValue: 'true' });
+
+      if (ELK_SYNCER === 'true') {
+        const must = [
+          { match: { 'engageData.messageId': engageData.messageId } },
+          { match: customerId ? { customerId } : { visitorId } }
+        ];
+
+        const response = await fetchElk(
+          'search',
+          'conversation_messages  ',
+          {
+            query: {
+              bool: {
+                must
+              }
+            }
+          },
+          '',
+          { hits: { hits: [] } }
+        );
+
+        const conversationMessages = response.hits.hits.map(hit => hit._source);
+
+        if (conversationMessages.length > 0) {
+          prevMessage = conversationMessages[0];
+        }
+
+        prevMessage = null;
+      } else {
+        const query = customerId
+          ? { customerId, 'engageData.messageId': engageData.messageId }
+          : { visitorId, 'engageData.messageId': engageData.messageId };
+
+        prevMessage = await ConversationMessages.findOne(query);
+      }
 
       if (prevMessage) {
         if (

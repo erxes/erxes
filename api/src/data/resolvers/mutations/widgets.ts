@@ -41,6 +41,7 @@ import { AUTO_BOT_MESSAGES, BOT_MESSAGE_TYPES } from '../../constants';
 import { sendToVisitorLog } from '../../logUtils';
 import { IContext } from '../../types';
 import {
+  getEnv,
   registerOnboardHistory,
   replaceEditorAttributes,
   sendEmail,
@@ -50,7 +51,8 @@ import {
 } from '../../utils';
 import {
   convertVisitorToCustomer,
-  getOrCreateEngageMessage
+  getOrCreateEngageMessage,
+  getOrCreateEngageMessageElk
 } from '../../widgetUtils';
 import { conversationNotifReceivers } from './conversations';
 
@@ -887,7 +889,17 @@ const widgetMutations = {
       debugBase(`Error occurred during widgets save browser info ${e.message}`);
     }
 
-    return await getOrCreateEngageMessage(browserInfo, visitorId, customerId);
+    const ELK_SYNCER = getEnv({ name: 'ELK_SYNCER', defaultValue: 'true' });
+
+    if (ELK_SYNCER === 'false') {
+      return await getOrCreateEngageMessage(browserInfo, visitorId, customerId);
+    }
+
+    return await getOrCreateEngageMessageElk(
+      browserInfo,
+      visitorId,
+      customerId
+    );
   },
 
   widgetsSendTypingInfo(

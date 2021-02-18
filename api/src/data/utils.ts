@@ -812,7 +812,8 @@ export const getSubServiceDomain = ({ name }: { name: string }): string => {
     API_DOMAIN: `${MAIN_APP_DOMAIN}/api`,
     WIDGETS_DOMAIN: `${MAIN_APP_DOMAIN}/widgets`,
     INTEGRATIONS_API_DOMAIN: `${MAIN_APP_DOMAIN}/integrations`,
-    LOGS_API_DOMAIN: `${MAIN_APP_DOMAIN}/logs`,
+    // LOGS_API_DOMAIN: `${MAIN_APP_DOMAIN}/logs`,
+    LOGS_API_DOMAIN: `http://localhost:3800`,
     ENGAGES_API_DOMAIN: `${MAIN_APP_DOMAIN}/engages`,
     VERIFIER_API_DOMAIN: `${MAIN_APP_DOMAIN}/verifier`
   };
