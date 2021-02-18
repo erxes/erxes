@@ -99,7 +99,8 @@ context("Contacts", () => {
     cy.get('div .Select-placeholder').contains('Enter an email').click().type(random + "@nmma.co");
     waitAndClick('div .Select-menu-outer');
 
-    cy.get('button[icon="check-circle"]').click();
+    cy.get('button[type="submit"]').click();
+    waitTilDisappear('button[type="submit"]');
 
     cy.get("#customers")
       .children()
@@ -135,6 +136,7 @@ context("Contacts", () => {
     waitAndClick('div .Select-menu-outer');
 
     cy.get('button[icon="check-circle"]').click();
+    waitTilDisappear('button[type="submit"]');
 
     cy.get("#companiesCheckBox").click();
 
