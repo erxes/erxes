@@ -113,7 +113,7 @@ export const uploader = async (req: any, res, next) => {
       const API_DOMAIN =
         API_URL ||
         getSubServiceDomain({
-          name: 'MAIN_APP_DOMAIN'
+          name: 'API_DOMAIN'
         });
 
       try {
