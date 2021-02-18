@@ -578,7 +578,7 @@ const integrationMutations = {
       contentType: ACTIVITY_CONTENT_TYPES.SMS,
       createdBy: user._id,
       contentId: customer._id,
-      content: { to: args.to, content: args.content }
+      content: { to: args.to, text: args.content }
     });
 
     return response;
