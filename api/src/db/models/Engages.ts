@@ -238,7 +238,7 @@ export const loadClass = () => {
       browserInfo: any;
     }) {
       const { brand, integration, customer, visitor, browserInfo } = params;
-
+      console.log('brand: ', brand);
       if (visitor) {
         delete visitor._id;
         visitor.state = CONTENT_TYPES.VISITOR;
@@ -254,27 +254,32 @@ export const loadClass = () => {
       });
 
       const ELK_SYNCER = getEnv({ name: 'ELK_SYNCER', defaultValue: 'true' });
+      console.log('brandId 1: ', brand._id);
+      const query = {
+        bool: {
+          must: [
+            { match: { 'messenger.brandId': 'brand._id' } },
+            { match: { method: METHODS.MESSENGER } },
+            { match: { isLive: true } }
+          ]
+        }
+      };
+      console.log('brandId 2: ', brand._id);
 
+      console.log('1: ', JSON.stringify(query));
       if (ELK_SYNCER === 'true') {
         const response = await fetchElk(
           'search',
           'engage_messages  ',
           {
-            query: {
-              bool: {
-                must: [
-                  { match: { method: METHODS.MESSENGER } },
-                  { match: { isLive: true } },
-                  { match: { 'messenger.brandId': brand._id } }
-                ]
-              }
-            }
+            query
           },
           '',
           { hits: { hits: [] } }
         );
 
         messages = response.hits.hits.map(hit => hit._source);
+        console.log('2: messages: ', messages);
       }
 
       const conversationMessages: IMessageDocument[] = [];

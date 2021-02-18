@@ -12,8 +12,11 @@ import {
 import Messages from '../../../db/models/ConversationMessages';
 import { IBrowserInfo } from '../../../db/models/Customers';
 import { IIntegrationDocument } from '../../../db/models/definitions/integrations';
-import { registerOnboardHistory } from '../../utils';
-import { getOrCreateEngageMessage } from '../../widgetUtils';
+import { getEnv, registerOnboardHistory } from '../../utils';
+import {
+  getOrCreateEngageMessage,
+  getOrCreateEngageMessageElk
+} from '../../widgetUtils';
 
 export const isMessengerOnline = async (integration: IIntegrationDocument) => {
   if (!integration.messengerData) {
@@ -224,6 +227,16 @@ export default {
       browserInfo
     }: { customerId?: string; visitorId?: string; browserInfo: IBrowserInfo }
   ) {
-    return await getOrCreateEngageMessage(browserInfo, visitorId, customerId);
+    const ELK_SYNCER = getEnv({ name: 'ELK_SYNCER', defaultValue: 'true' });
+
+    if (ELK_SYNCER === 'false') {
+      return await getOrCreateEngageMessage(browserInfo, visitorId, customerId);
+    }
+
+    return await getOrCreateEngageMessageElk(
+      browserInfo,
+      visitorId,
+      customerId
+    );
   }
 };

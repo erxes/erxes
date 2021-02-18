@@ -206,7 +206,7 @@ export const getOrCreateEngageMessageElk = async (
   }
 
   brand = brands[0];
-
+  brand._id = brandsResponse.hits.hits[0]._id;
   // try to create engage chat auto messages
   await EngageMessages.createVisitorOrCustomerMessages({
     brand,
