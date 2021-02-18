@@ -1,5 +1,5 @@
 import 'cypress-file-upload';
-import { SignIn, fakeNameCustomer, fakeName } from "../utils";
+import { SignIn, fakeNameCustomer, fakeName, waitAndClick } from "../utils";
 
 SignIn;
 
@@ -115,7 +115,7 @@ context('Send Email Verification', () => {
     for(let i=0; i<11; i++){
       cy.get('#ImportExportSidebar').children().eq(i).click()
       if (hasDownloadsIndexs.includes(i)) {
-        cy.get('i[icon=folder-download]').click();
+        waitAndClick('i[icon=folder-download]');
         cy.wait(1000);
         cy.get('button').contains('Cancel').click();
       }
