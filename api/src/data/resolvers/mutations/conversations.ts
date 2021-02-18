@@ -247,7 +247,7 @@ const sendNotifications = async ({
           conversationId: conversation._id
         });
       } catch (e) {
-        debugBase('Failed to send mobile notification: ', e.message);
+        debugBase(`Failed to send mobile notification: ${e.message}`);
       }
     }
   }
