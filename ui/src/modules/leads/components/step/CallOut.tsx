@@ -75,12 +75,8 @@ class CallOut extends React.Component<Props, State> {
 
     this.props.onChange(name, value);
 
-    if (name === 'isSkip' && value) {
-      this.props.onChange('carousel', 'form');
-    }
-
-    if (name === 'isSkip' && !value) {
-      this.props.onChange('carousel', 'callout');
+    if (name === 'isSkip') {
+      this.props.onChange('carousel', value ? 'form' : 'callout');
     }
   };
 
