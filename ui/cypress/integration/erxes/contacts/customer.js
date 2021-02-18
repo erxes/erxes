@@ -99,7 +99,7 @@ context("Contacts", () => {
     cy.get('div .Select-placeholder').contains('Enter an email').click().type(random + "@nmma.co");
     waitAndClick('div .Select-menu-outer');
 
-    cy.get('button[type="submit"]').click();
+    cy.get('button[type="submit"]').eq(0).click();
     waitTilDisappear('button[type="submit"]');
 
     cy.get("#customers")
@@ -135,7 +135,7 @@ context("Contacts", () => {
     cy.get('div .Select-placeholder').contains('Enter company email').click().type(random + "@nmma.co");
     waitAndClick('div .Select-menu-outer');
 
-    cy.get('button[icon="check-circle"]').click();
+    cy.get('button[type="submit"]').eq(0).click();
     waitTilDisappear('button[type="submit"]');
 
     cy.get("#companiesCheckBox").click();
