@@ -84,7 +84,7 @@
     "eject": "react-scripts eject",
     "componentTest": "jest --runInBand --forceExit --detectOpenHandles --coverage",
     "open-cypress": "yarn run cypress open",
-    "record-cypress": "cypress run --record --key fd048d49-6b4c-4e6b-885f-819a533c2fc4  --spec 'cypress/integration/erxes/contacts/*'"
+    "record-cypress": "cypress run --record --key fd048d49-6b4c-4e6b-885f-819a533c2fc4  --spec 'cypress/integration/erxes/inbox/*'"
   },
   "devDependencies": {
     "cypress": "^4.9.0",
