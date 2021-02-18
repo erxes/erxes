@@ -46,20 +46,6 @@ context("Inbox", () => {
 
     cy.get("#conversationAssignTrigger").click();
     cy.get('input[placeholder="Search"]').type("Admin");
-
-    cy.wait(1000);
-
-    cy.get('#assign-popover li').eq(0).click();
-
-    waitAndClick('#conversationAssignTrigger');
-
-    cy.get('a[href="/inbox/index"]')
-      .eq(1)
-      .click()
-      .then(() => {
-        waitElm('#conversationWrapper');
-        cy.get("#conversationWrapper").scrollTo("top", { duration: 5000 });
-      });
   });
 });
 
