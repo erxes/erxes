@@ -4,6 +4,8 @@ import {
   Channels,
   Customers,
   EmailDeliveries,
+  Fields,
+  Forms,
   Integrations
 } from '../../../db/models';
 import { KIND_CHOICES } from '../../../db/models/definitions/constants';
@@ -155,6 +157,13 @@ const integrationMutations = {
   ) {
     const integration = await Integrations.createLeadIntegration(doc, user._id);
 
+    if (doc.channelIds) {
+      await Channels.updateMany(
+        { _id: { $in: doc.channelIds } },
+        { $push: { integrationIds: integration._id } }
+      );
+    }
+
     await putCreateLog(
       {
         type: MODULE_NAMES.INTEGRATION,
@@ -178,7 +187,21 @@ const integrationMutations = {
     _root,
     { _id, ...doc }: IEditIntegration
   ) {
+    const integration = await Integrations.getIntegration(_id);
+
     const updated = await Integrations.updateLeadIntegration(_id, doc);
+
+    await Channels.updateMany(
+      { integrationIds: integration._id },
+      { $pull: { integrationIds: integration._id } }
+    );
+
+    if (doc.channelIds) {
+      await Channels.updateMany(
+        { _id: { $in: doc.channelIds } },
+        { $push: { integrationIds: integration._id } }
+      );
+    }
 
     await caches.update(
       `integration_lead_${updated.brandId}_${updated.formId}`,
@@ -535,6 +558,83 @@ const integrationMutations = {
     { dataSources }: IContext
   ) {
     return dataSources.IntegrationsAPI.sendSms(args);
+  },
+
+  async integrationsCopyLeadIntegration(
+    _root,
+    { _id }: { _id },
+    { docModifier, user }: IContext
+  ) {
+    const sourceIntegration = await Integrations.getIntegration(_id);
+
+    if (!sourceIntegration.formId) {
+      throw new Error('Integration kind is not form');
+    }
+
+    const sourceForm = await Forms.getForm(sourceIntegration.formId);
+
+    const sourceFields = await Fields.find({ contentTypeId: sourceForm._id });
+
+    const formDoc = docModifier({
+      ...sourceForm.toObject(),
+      title: `${sourceForm.title}-copied`
+    });
+
+    delete formDoc._id;
+    delete formDoc.code;
+
+    const copiedForm = await Forms.createForm(formDoc, user._id);
+
+    const leadData = sourceIntegration.leadData;
+
+    const doc = docModifier({
+      ...sourceIntegration.toObject(),
+      name: `${sourceIntegration.name}-copied`,
+      formId: copiedForm._id,
+      leadData: leadData && {
+        ...leadData.toObject(),
+        viewCount: 0,
+        contactsGathered: 0
+      }
+    });
+
+    delete doc._id;
+
+    const copiedIntegration = await Integrations.createLeadIntegration(
+      doc,
+      user._id
+    );
+
+    const fields = sourceFields.map(e => ({
+      options: e.options,
+      isVisible: e.isVisible,
+      contentType: e.contentType,
+      contentTypeId: copiedForm._id,
+      order: e.order,
+      type: e.type,
+      text: e.text,
+      lastUpdatedUserId: user._id,
+      isRequired: e.isRequired,
+      isDefinedByErxes: false,
+      associatedFieldId: e.associatedFieldId
+    }));
+
+    await Fields.insertMany(fields);
+
+    await putCreateLog(
+      {
+        type: MODULE_NAMES.INTEGRATION,
+        newData: { ...doc, createdUserId: user._id, isActive: true },
+        object: copiedIntegration
+      },
+      user
+    );
+
+    telemetry.trackCli('integration_created', { type: 'lead' });
+
+    await registerOnboardHistory({ type: 'leadIntegrationCreate', user });
+
+    return copiedIntegration;
   }
 };
 
@@ -582,6 +682,11 @@ checkPermission(
   integrationMutations,
   'integrationsUpdateConfigs',
   'integrationsEdit'
+);
+checkPermission(
+  integrationMutations,
+  'integrationsCopyLeadIntegration',
+  'integrationsCreateLeadIntegration'
 );
 
 export default integrationMutations;

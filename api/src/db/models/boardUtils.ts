@@ -173,35 +173,41 @@ export const fillSearchTextItem = (
 
 export const getCollection = (type: string) => {
   let collection;
+  let create;
+  let update;
 
   switch (type) {
     case BOARD_TYPES.DEAL: {
       collection = Deals;
-
+      create = Deals.createDeal;
+      update = Deals.updateDeal;
       break;
     }
     case BOARD_TYPES.GROWTH_HACK: {
       collection = GrowthHacks;
-
+      create = GrowthHacks.createGrowthHack;
+      update = GrowthHacks.updateGrowthHack;
       break;
     }
     case BOARD_TYPES.TASK: {
       collection = Tasks;
-
+      create = Tasks.createTask;
+      update = Tasks.updateTask;
       break;
     }
     case BOARD_TYPES.TICKET: {
       collection = Tickets;
-
+      create = Tickets.createTicket;
+      update = Tickets.updateTicket;
       break;
     }
   }
 
-  return collection;
+  return { collection, create, update };
 };
 
 export const getItem = async (type: string, _id: string) => {
-  const item = await getCollection(type).findOne({ _id });
+  const item = await getCollection(type).collection.findOne({ _id });
 
   if (!item) {
     throw new Error(`${type} not found`);

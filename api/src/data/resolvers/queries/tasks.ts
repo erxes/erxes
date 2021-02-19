@@ -29,10 +29,12 @@ const taskQueries = {
     };
     const sort = generateSort(args);
 
+    const limit = args.limit !== undefined ? args.limit : 10;
+
     return Tasks.find(filter)
       .sort(sort)
       .skip(args.skip || 0)
-      .limit(10);
+      .limit(limit);
   },
 
   /**

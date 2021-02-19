@@ -68,14 +68,20 @@ class Form extends React.Component<Props, State> {
   // after any field value change, save it's value to state
   onFieldValueChange = ({
     fieldId,
-    value
+    value,
+    associatedFieldId
   }: {
     fieldId: string;
     value: FieldValue;
+    associatedFieldId?: string;
   }) => {
     const doc = this.state.doc;
 
     doc[fieldId].value = value;
+
+    if(associatedFieldId) {
+      doc[fieldId].associatedFieldId = associatedFieldId;
+    }
 
     this.setState({ doc });
   };
@@ -172,12 +178,12 @@ class Form extends React.Component<Props, State> {
     );
   }
 
-  renderSuccessForm(thankContent?: string) {
+  renderSuccessForm(thankTitle?: string, thankContent?: string) {
     const { integration, form } = this.props;
 
     return (
       <div className="erxes-form">
-        {this.renderHead(form.title || integration.name)}
+        {this.renderHead(thankTitle || form.title)}
         <div className="erxes-form-content">
           <div className="erxes-result">
             <p>
@@ -206,6 +212,7 @@ class Form extends React.Component<Props, State> {
         adminEmails,
         adminEmailTitle,
         adminEmailContent,
+        thankTitle,
         thankContent
       } = integration.leadData;
 
@@ -247,7 +254,7 @@ class Form extends React.Component<Props, State> {
         }
       } // end successAction = "email"
 
-      return this.renderSuccessForm(thankContent);
+      return this.renderSuccessForm(thankTitle, thankContent);
     }
 
     return this.renderForm();

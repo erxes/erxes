@@ -15,6 +15,8 @@ type Props = {
   afterDbSave: (formId: string) => void;
   onDocChange?: (doc: IFormData) => void;
   onInit?: (fields: IField[]) => void;
+  currentMode?: 'create' | 'update' | undefined;
+  currentField?: IField;
 };
 
 class FormStep extends React.Component<Props> {
@@ -24,6 +26,7 @@ class FormStep extends React.Component<Props> {
       onDocChange,
       afterDbSave,
       onInit,
+      formData,
       isReadyToSaveForm
     } = this.props;
 
@@ -32,6 +35,7 @@ class FormStep extends React.Component<Props> {
       onDocChange,
       isReadyToSave: isReadyToSaveForm,
       onInit,
+      formData,
       showMessage: false,
       type: 'lead'
     };

@@ -92,7 +92,7 @@ class PipelineProviderInner extends React.Component<Props, State> {
       itemMap: initialItemMap || {},
       stageLoadMap: {},
       stageIds,
-      isShowLabel: false
+      isShowLabel: false || localStorage.getItem(pipeline._id) === 'true'
     };
 
     PipelineProviderInner.tasks = [];
@@ -573,6 +573,12 @@ class PipelineProviderInner extends React.Component<Props, State> {
   };
 
   toggleLabels = () => {
+    if (!this.state.isShowLabel) {
+      localStorage.setItem(this.props.pipeline._id, 'true');
+    } else {
+      localStorage.removeItem(this.props.pipeline._id);
+    }
+
     this.setState({ isShowLabel: !this.state.isShowLabel });
   };
 
