@@ -84,7 +84,7 @@
     "eject": "react-scripts eject",
     "componentTest": "jest --runInBand --forceExit --detectOpenHandles --coverage",
     "open-cypress": "yarn run cypress open",
-    "record-cypress": "cypress run --record=false"
+    "record-cypress": "cypress run --record=false --headless --browser chrome"
   },
   "devDependencies": {
     "cypress": "^4.9.0",
