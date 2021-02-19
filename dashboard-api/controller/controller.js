@@ -24,7 +24,9 @@ const generateReport = async (req, res) => {
   try {
     resultSet = await cubejsApi.load(dashboardQuery);
   } catch (e) {
-    console.log(e);
+    if (!e.message.includes('Values required for filter')) {
+      res.send('No data');
+    }
   }
 
   if (resultSet.loadResponse.query.dimensions[0]) {
@@ -39,6 +41,8 @@ const generateReport = async (req, res) => {
               index: resolver.indexname,
               id: data[dimensions]
             });
+
+            console.log(response);
 
             data[dimensions] =
               response._source[resolver.fieldname] || 'unknown';

@@ -30,8 +30,8 @@ import {
 } from '../nylas/models';
 import * as store from '../nylas/store';
 import * as tracker from '../nylas/tracker';
-import { buildEmailAddress } from '../nylas/utils';
 import * as nylasUtils from '../nylas/utils';
+import { buildEmailAddress } from '../nylas/utils';
 import * as utils from '../utils';
 import { cleanHtml } from '../utils';
 import './setup.ts';
@@ -1028,6 +1028,33 @@ describe('Nylas gmail test', () => {
       );
     }
 
+    // Skip syncing draft message
+    const draftMessage = sinon.stub(api, 'getMessageById');
+
+    draftMessage.onCall(0).callsFake(() => {
+      return Promise.resolve({
+        folder: {
+          name: 'drafts'
+        },
+        from: [
+          {
+            email: 'email'
+          }
+        ],
+        subject: 'subject'
+      });
+    });
+
+    const response = await nylasUtils.syncMessages(
+      integration.nylasAccountId,
+      '123'
+    );
+
+    expect(response).toBeUndefined();
+
+    draftMessage.restore();
+
+    // Fail message id ===================
     const messageMock = sinon.stub(api, 'getMessageById');
 
     messageMock.onCall(0).callsFake(() => {

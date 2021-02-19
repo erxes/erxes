@@ -42,9 +42,9 @@ export const loadTaskClass = () => {
      * Create a Task
      */
     public static async createTask(doc: ITask) {
-      if (doc.sourceConversationId) {
+      if (doc.sourceConversationIds) {
         const convertedTask = await Tasks.findOne({
-          sourceConversationId: doc.sourceConversationId
+          sourceConversationIds: { $in: doc.sourceConversationIds }
         });
 
         if (convertedTask) {

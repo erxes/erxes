@@ -238,12 +238,12 @@ class List extends React.Component<Props> {
               />
             </th>
             <th>{__('Title')}</th>
-            <th>{__('Created by')}</th>
-            <th>{__('From')}</th>
             <th>{__('Status')}</th>
             <th>{__('Total')}</th>
             <th>{__('Type')}</th>
             <th>{__('Brand')}</th>
+            <th>{__('From')}</th>
+            <th>{__('Created by')}</th>
             <th>{__('Created date')}</th>
             <th>{__('Scheduled date')}</th>
             <th>{__('Tags')}</th>

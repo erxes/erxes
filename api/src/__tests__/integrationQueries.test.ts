@@ -435,7 +435,7 @@ describe('integrationQueries', () => {
       'integrationsTotalCount',
       {
         kind: 'lead',
-        status: 'active',
+        status: 'active'
       }
     );
 
@@ -444,7 +444,7 @@ describe('integrationQueries', () => {
       'integrationsTotalCount',
       {
         kind: 'lead',
-        status: 'archived',
+        status: 'archived'
       }
     );
 
