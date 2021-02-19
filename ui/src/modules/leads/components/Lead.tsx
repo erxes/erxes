@@ -130,7 +130,7 @@ class Lead extends React.Component<Props, State> {
       isRequireOnce: leadData.isRequireOnce,
       logoPreviewUrl: callout.featuredImage,
       isSkip: callout.skip && true,
-      carousel: 'callout',
+      carousel: callout.skip ? 'form' : 'callout',
 
       currentMode: undefined,
       currentField: undefined
@@ -272,7 +272,6 @@ class Lead extends React.Component<Props, State> {
     const leadData = integration && integration.leadData;
     const brand = integration && integration.brand;
     const breadcrumb = [{ title: __('Forms'), link: '/forms' }];
-    const constant = isSkip ? 'form' : carousel;
 
     return (
       <StepWrapper>
@@ -283,7 +282,10 @@ class Lead extends React.Component<Props, State> {
               <Step
                 img="/images/icons/erxes-04.svg"
                 title="Style"
-                onClick={this.onStepClick.bind(null, 'callout')}
+                onClick={this.onStepClick.bind(
+                  null,
+                  isSkip ? 'form' : 'callout'
+                )}
               >
                 <ChooseType
                   onChange={this.onChange}
@@ -297,7 +299,10 @@ class Lead extends React.Component<Props, State> {
               <Step
                 img="/images/icons/erxes-03.svg"
                 title="CallOut"
-                onClick={this.onStepClick.bind(null, 'callout')}
+                onClick={this.onStepClick.bind(
+                  null,
+                  isSkip ? 'form' : 'callout'
+                )}
               >
                 <CallOut
                   onChange={this.onChange}
@@ -398,7 +403,7 @@ class Lead extends React.Component<Props, State> {
               thankTitle={thankTitle}
               thankContent={thankContent}
               skip={isSkip}
-              carousel={constant}
+              carousel={carousel}
               formData={formData}
             />
           </PreviewWrapper>
