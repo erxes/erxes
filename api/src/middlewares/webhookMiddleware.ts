@@ -1,6 +1,8 @@
 import { NodeVM } from 'vm2';
 
 import {
+  Companies,
+  Conformities,
   ConversationMessages,
   Conversations,
   Customers,
@@ -30,6 +32,28 @@ const findCustomer = async doc => {
   }
 
   return customer;
+};
+
+const findCompany = async doc => {
+  let company;
+
+  if (doc.companyPrimaryEmail) {
+    company = await Companies.findOne({
+      primaryEmail: doc.companyPrimaryEmail
+    });
+  }
+
+  if (!company && doc.companyPrimaryPhone) {
+    company = await Companies.findOne({
+      primaryPhone: doc.companyPrimaryPhone
+    });
+  }
+
+  if (!company && doc.companyPrimaryName) {
+    company = await Companies.findOne({ primaryName: doc.primaryName });
+  }
+
+  return company;
 };
 
 const webhookMiddleware = async (req, res, next) => {
@@ -105,6 +129,25 @@ const webhookMiddleware = async (req, res, next) => {
 
     customer = await Customers.updateCustomer(customer._id, doc);
 
+    // company
+    let company = await findCompany(params);
+
+    const companyDoc = {
+      primaryEmail: params.companyPrimaryEmail,
+      primaryPhone: params.companyPrimaryPhone,
+      primaryName: params.companyPrimaryName,
+      website: params.companyWebsite,
+      industry: params.companyIndustry,
+      businessType: params.companyBusinessType,
+      avatar: params.companyAvatar
+    };
+
+    if (!company) {
+      company = await Companies.createCompany(companyDoc);
+    }
+
+    company = await Companies.updateCompany(company._id, companyDoc);
+
     // get or create conversation
     let conversation = await Conversations.findOne({
       customerId: customer._id,
@@ -141,6 +184,17 @@ const webhookMiddleware = async (req, res, next) => {
     graphqlPubsub.publish('conversationMessageInserted', {
       conversationMessageInserted: message
     });
+
+    // comformity
+    if (company && customer) {
+      const conformityDoc = {
+        mainType: 'customer',
+        mainTypeId: customer._id,
+        relType: 'company',
+        relTypeIds: [company._id]
+      };
+      await Conformities.editConformity({ ...conformityDoc });
+    }
 
     return res.send('ok');
   } catch (e) {
