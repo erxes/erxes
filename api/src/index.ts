@@ -21,7 +21,8 @@ import {
   getSubServiceDomain,
   handleUnsubscription,
   readFileRequest,
-  registerOnboardHistory
+  registerOnboardHistory,
+  routeErrorHandling
 } from './data/utils';
 import {
   updateContactsValidationStatus,
@@ -155,175 +156,190 @@ app.use(cors(corsOptions));
 
 app.use(helmet({ frameguard: { action: 'sameorigin' } }));
 
-app.get('/initial-setup', async (req: any, res) => {
-  const userCount = await Users.countDocuments();
+app.get(
+  '/initial-setup',
+  routeErrorHandling(async (req: any, res) => {
+    const userCount = await Users.countDocuments();
 
-  if (userCount === 0) {
-    return res.send('no owner');
-  }
+    if (userCount === 0) {
+      return res.send('no owner');
+    }
 
-  const envMaps = JSON.parse(req.query.envs || '{}');
+    const envMaps = JSON.parse(req.query.envs || '{}');
 
-  for (const key of Object.keys(envMaps)) {
-    res.cookie(key, envMaps[key], authCookieOptions(req.secure));
-  }
+    for (const key of Object.keys(envMaps)) {
+      res.cookie(key, envMaps[key], authCookieOptions(req.secure));
+    }
 
-  return res.send('success');
-});
+    return res.send('success');
+  })
+);
 
 app.post('/webhooks/:id', webhookMiddleware);
 app.get('/script-manager', cors({ origin: '*' }), widgetsMiddleware);
 
 // events
-app.post('/events-receive', async (req, res) => {
-  const { name, customerId, attributes } = req.body;
+app.post(
+  '/events-receive',
+  routeErrorHandling(
+    async (req, res) => {
+      const { name, customerId, attributes } = req.body;
 
-  try {
-    const response =
-      name === 'pageView'
-        ? await trackViewPageEvent({ customerId, attributes })
-        : await trackCustomEvent({ name, customerId, attributes });
-    return res.json(response);
-  } catch (e) {
-    debugBase(e.message);
-    return res.json({ status: 'success' });
-  }
-});
+      const response =
+        name === 'pageView'
+          ? await trackViewPageEvent({ customerId, attributes })
+          : await trackCustomEvent({ name, customerId, attributes });
 
-app.post('/events-identify-customer', async (req, res) => {
-  const { args } = req.body;
+      return res.json(response);
+    },
+    res => res.json({ status: 'success' })
+  )
+);
 
-  try {
-    const response = await identifyCustomer(args);
-    return res.json(response);
-  } catch (e) {
-    debugBase(e.message);
-    return res.json({});
-  }
-});
+app.post(
+  '/events-identify-customer',
+  routeErrorHandling(
+    async (req, res) => {
+      const { args } = req.body;
 
-app.post('/events-update-customer-property', async (req, res) => {
-  try {
-    const response = await updateCustomerProperty(req.body);
-    return res.json(response);
-  } catch (e) {
-    debugBase(e.message);
-    return res.json({});
-  }
-});
+      const response = await identifyCustomer(args);
+      return res.json(response);
+    },
+    res => res.json({})
+  )
+);
+
+app.post(
+  '/events-update-customer-property',
+  routeErrorHandling(
+    async (req, res) => {
+      const response = await updateCustomerProperty(req.body);
+      return res.json(response);
+    },
+    res => res.json({})
+  )
+);
 
 app.use(userMiddleware);
 
 app.use('/static', express.static(path.join(__dirname, 'private')));
 
-app.get('/download-template', async (req: any, res) => {
-  const name = req.query.name;
+app.get(
+  '/download-template',
+  routeErrorHandling(async (req: any, res) => {
+    const name = req.query.name;
 
-  registerOnboardHistory({ type: `${name}Download`, user: req.user });
+    registerOnboardHistory({ type: `${name}Download`, user: req.user });
 
-  return res.redirect(
-    `${frontendEnv({ name: 'API_URL', req })}/static/importTemplates/${name}`
-  );
-});
+    return res.redirect(
+      `${frontendEnv({ name: 'API_URL', req })}/static/importTemplates/${name}`
+    );
+  })
+);
 
 // for health check
-app.get('/health', async (_req, res, next) => {
-  try {
-    await mongoStatus();
-  } catch (e) {
-    debugBase('MongoDB is not running');
-    return next(e);
-  }
+app.get('/health', async (_req, res) => {
+  await mongoStatus();
 
   res.end('ok');
 });
 
 // export board
-app.get('/file-export', async (req: any, res) => {
-  const { query, user } = req;
+app.get(
+  '/file-export',
+  routeErrorHandling(
+    async (req: any, res) => {
+      const { query, user } = req;
 
-  let result: { name: string; response: string };
+      const result = await buildFile(query, user);
 
-  try {
-    result = await buildFile(query, user);
+      res.attachment(`${result.name}.xlsx`);
 
-    res.attachment(`${result.name}.xlsx`);
+      return res.send(result.response);
+    },
+    (res, e) => res.end(filterXSS(e.message))
+  )
+);
 
-    return res.send(result.response);
-  } catch (e) {
-    return res.end(filterXSS(e.message));
-  }
-});
+app.get(
+  '/template-export',
+  routeErrorHandling(
+    async (req: any, res) => {
+      const { importType } = req.query;
 
-app.get('/template-export', async (req: any, res) => {
-  const { importType } = req.query;
+      const { name, response } = await templateExport(req.query);
 
-  try {
-    const { name, response } = await templateExport(req.query);
-
-    res.attachment(`${name}.${importType}`);
-    return res.send(response);
-  } catch (e) {
-    return res.end(filterXSS(e.message));
-  }
-});
+      res.attachment(`${name}.${importType}`);
+      return res.send(response);
+    },
+    (res, e) => res.end(filterXSS(e.message))
+  )
+);
 
 // read file
-app.get('/read-file', async (req: any, res) => {
-  const key = req.query.key;
+app.get(
+  '/read-file',
+  routeErrorHandling(
+    async (req: any, res) => {
+      const key = req.query.key;
 
-  if (!key) {
-    return res.send('Invalid key');
-  }
+      if (!key) {
+        return res.send('Invalid key');
+      }
 
-  try {
-    const response = await readFileRequest(key);
+      const response = await readFileRequest(key);
 
-    res.attachment(key);
+      res.attachment(key);
 
-    return res.send(response);
-  } catch (e) {
-    return res.end(filterXSS(e.message));
-  }
-});
+      return res.send(response);
+    },
+    (res, e) => res.end(filterXSS(e.message))
+  )
+);
 
 // get mail attachment file
-app.get('/read-mail-attachment', async (req: any, res) => {
-  const {
-    messageId,
-    attachmentId,
-    kind,
-    integrationId,
-    filename,
-    contentType
-  } = req.query;
+app.get(
+  '/read-mail-attachment',
+  routeErrorHandling(async (req: any, res) => {
+    const {
+      messageId,
+      attachmentId,
+      kind,
+      integrationId,
+      filename,
+      contentType
+    } = req.query;
 
-  if (!messageId || !attachmentId || !integrationId || !contentType) {
-    return res.status(404).send('Attachment not found');
-  }
+    if (!messageId || !attachmentId || !integrationId || !contentType) {
+      return res.status(404).send('Attachment not found');
+    }
 
-  const integrationPath = kind.includes('nylas') ? 'nylas' : kind;
+    const integrationPath = kind.includes('nylas') ? 'nylas' : kind;
 
-  res.redirect(
-    `${INTEGRATIONS_API_DOMAIN}/${integrationPath}/get-attachment?messageId=${messageId}&attachmentId=${attachmentId}&integrationId=${integrationId}&filename=${filename}&contentType=${contentType}&userId=${req.user._id}`
-  );
-});
+    res.redirect(
+      `${INTEGRATIONS_API_DOMAIN}/${integrationPath}/get-attachment?messageId=${messageId}&attachmentId=${attachmentId}&integrationId=${integrationId}&filename=${filename}&contentType=${contentType}&userId=${req.user._id}`
+    );
+  })
+);
 
 // delete file
-app.post('/delete-file', async (req: any, res) => {
-  // require login
-  if (!req.user) {
-    return res.end('foribidden');
-  }
+app.post(
+  '/delete-file',
+  routeErrorHandling(async (req: any, res) => {
+    // require login
+    if (!req.user) {
+      return res.end('forbidden');
+    }
 
-  const status = await deleteFile(req.body.fileName);
+    const status = await deleteFile(req.body.fileName);
 
-  if (status === 'ok') {
-    return res.send(status);
-  }
+    if (status === 'ok') {
+      return res.send(status);
+    }
 
-  return res.status(500).send(status);
-});
+    return res.status(500).send(status);
+  })
+);
 
 app.post('/upload-file', uploader);
 
@@ -349,34 +365,40 @@ app.get('/connect-integration', async (req: any, res, _next) => {
 app.post('/import-file', importer);
 
 // unsubscribe
-app.get('/unsubscribe', async (req: any, res) => {
-  await handleUnsubscription(req.query);
+app.get(
+  '/unsubscribe',
+  routeErrorHandling(async (req: any, res) => {
+    await handleUnsubscription(req.query);
 
-  res.setHeader('Content-Type', 'text/html; charset=utf-8');
+    res.setHeader('Content-Type', 'text/html; charset=utf-8');
 
-  const template = fs.readFileSync(
-    __dirname + '/private/emailTemplates/unsubscribe.html'
-  );
+    const template = fs.readFileSync(
+      __dirname + '/private/emailTemplates/unsubscribe.html'
+    );
 
-  return res.send(template);
-});
+    return res.send(template);
+  })
+);
 
 // verifier web hook
-app.post(`/verifier/webhook`, async (req, res) => {
-  const { emails, phones, email, phone } = req.body;
+app.post(
+  `/verifier/webhook`,
+  routeErrorHandling(async (req, res) => {
+    const { emails, phones, email, phone } = req.body;
 
-  if (email) {
-    await updateContactValidationStatus(email);
-  } else if (emails) {
-    await updateContactsValidationStatus('email', emails);
-  } else if (phone) {
-    await updateContactValidationStatus(phone);
-  } else if (phones) {
-    await updateContactsValidationStatus('phone', phones);
-  }
+    if (email) {
+      await updateContactValidationStatus(email);
+    } else if (emails) {
+      await updateContactsValidationStatus('email', emails);
+    } else if (phone) {
+      await updateContactValidationStatus(phone);
+    } else if (phones) {
+      await updateContactsValidationStatus('phone', phones);
+    }
 
-  return res.send('success');
-});
+    return res.send('success');
+  })
+);
 
 // Error handling middleware
 app.use((error, _req, res, _next) => {
