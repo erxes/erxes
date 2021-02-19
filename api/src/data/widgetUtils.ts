@@ -46,8 +46,8 @@ export const getOrCreateEngageMessage = async (
 
   // try to create engage chat auto messages
   await EngageMessages.createVisitorOrCustomerMessages({
-    brand,
-    integration,
+    brandId: brand._id,
+    integrationId: integration._id,
     customer,
     visitor,
     browserInfo
@@ -142,7 +142,12 @@ export const getOrCreateEngageMessageElk = async (
       { hits: { hits: [] } }
     );
 
-    const customers = response.hits.hits.map(hit => hit._source);
+    const customers = response.hits.hits.map(hit => {
+      return {
+        _id: hit._id,
+        ...hit._source
+      };
+    });
 
     if (customers.length > 0) {
       customer = customers[0];
@@ -175,15 +180,18 @@ export const getOrCreateEngageMessageElk = async (
   );
 
   let integration;
-  const integrations = integrationsResponse.hits.hits.map(hit => hit._source);
+  const integrations = integrationsResponse.hits.hits.map(hit => {
+    return {
+      _id: hit._id,
+      ...hit._source
+    };
+  });
 
   if (integrations.length === 0) {
     throw new Error('Integration not found');
   }
 
   integration = integrations[0];
-
-  let brand;
 
   const brandsResponse = await fetchElk(
     'search',
@@ -199,18 +207,23 @@ export const getOrCreateEngageMessageElk = async (
     { hits: { hits: [] } }
   );
 
-  const brands = brandsResponse.hits.hits.map(hit => hit._source);
+  const brands = brandsResponse.hits.hits.map(hit => {
+    return {
+      _id: hit._id,
+      ...hit._source
+    };
+  });
 
   if (brands.length === 0) {
     throw new Error('Brand not found');
   }
 
-  brand = brands[0];
-  brand._id = brandsResponse.hits.hits[0]._id;
+  const brandId = brands[0]._id;
+
   // try to create engage chat auto messages
   await EngageMessages.createVisitorOrCustomerMessages({
-    brand,
-    integration,
+    brandId,
+    integrationId: integration._id,
     customer,
     visitor,
     browserInfo

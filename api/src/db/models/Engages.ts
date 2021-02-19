@@ -3,11 +3,10 @@ import { ConversationMessages, Conversations, Users } from '.';
 import { MESSAGE_KINDS } from '../../data/constants';
 import { generateCustomerSelector } from '../../data/resolvers/mutations/engageUtils';
 import { getEnv, replaceEditorAttributes } from '../../data/utils';
-import { getOrCreateEngageMessage } from '../../data/widgetUtils';
+import { debugBase } from '../../debuggers';
 import { fetchElk } from '../../elasticsearch';
 import { getNumberOfVisits } from '../../events';
 import Customers, { IBrowserInfo } from './Customers';
-import { IBrandDocument } from './definitions/brands';
 import { METHODS } from './definitions/constants';
 import {
   IEngageData,
@@ -19,7 +18,6 @@ import {
   IEngageMessage,
   IEngageMessageDocument
 } from './definitions/engages';
-import { IIntegrationDocument } from './definitions/integrations';
 import { CONTENT_TYPES } from './definitions/segments';
 import { IUserDocument } from './definitions/users';
 
@@ -80,8 +78,8 @@ export interface IEngageMessageModel extends Model<IEngageMessageDocument> {
     replacedContent: string;
   }): Promise<IMessageDocument | null>;
   createVisitorOrCustomerMessages(params: {
-    brand: IBrandDocument;
-    integration: IIntegrationDocument;
+    brandId: string;
+    integrationId: string;
     customer?: ICustomerDocument;
     visitor?: any;
     browserInfo: any;
@@ -231,42 +229,40 @@ export const loadClass = () => {
      * when visitor messenger connect
      */
     public static async createVisitorOrCustomerMessages(params: {
-      brand: IBrandDocument;
-      integration: IIntegrationDocument;
+      brandId: string;
+      integrationId: string;
       customer?: ICustomerDocument;
       visitor?: any;
       browserInfo: any;
     }) {
-      const { brand, integration, customer, visitor, browserInfo } = params;
-      console.log('brand: ', brand);
+      const { brandId, integrationId, customer, visitor, browserInfo } = params;
+
       if (visitor) {
         delete visitor._id;
         visitor.state = CONTENT_TYPES.VISITOR;
       }
       const customerObj = customer ? customer : visitor;
 
-      let messages;
+      let messages: IEngageMessageDocument[];
 
       messages = await EngageMessages.find({
-        'messenger.brandId': brand._id,
+        'messenger.brandId': brandId,
         method: METHODS.MESSENGER,
         isLive: true
       });
 
       const ELK_SYNCER = getEnv({ name: 'ELK_SYNCER', defaultValue: 'true' });
-      console.log('brandId 1: ', brand._id);
+
       const query = {
         bool: {
           must: [
-            { match: { 'messenger.brandId': 'brand._id' } },
+            { match: { 'messenger.brandId': brandId } },
             { match: { method: METHODS.MESSENGER } },
             { match: { isLive: true } }
           ]
         }
       };
-      console.log('brandId 2: ', brand._id);
 
-      console.log('1: ', JSON.stringify(query));
       if (ELK_SYNCER === 'true') {
         const response = await fetchElk(
           'search',
@@ -278,14 +274,27 @@ export const loadClass = () => {
           { hits: { hits: [] } }
         );
 
-        messages = response.hits.hits.map(hit => hit._source);
-        console.log('2: messages: ', messages);
+        messages = response.hits.hits.map(hit => {
+          return {
+            _id: hit._id,
+            ...hit._source
+          };
+        });
       }
 
       const conversationMessages: IMessageDocument[] = [];
 
       for (const message of messages) {
-        const messenger = message.messenger ? message.messenger.toJSON() : {};
+        let messenger;
+
+        if (message.messenger) {
+          try {
+            messenger = message.messenger.toJSON();
+          } catch (e) {
+            debugBase(e.message);
+            messenger = message.messenger;
+          }
+        }
 
         const {
           customerIds = [],
@@ -368,7 +377,7 @@ export const loadClass = () => {
             {
               customerId: customer && customer._id,
               visitorId: visitor && visitor.visitorId,
-              integrationId: integration._id,
+              integrationId,
               user,
               replacedContent: replacedContent || '',
               engageData: {
@@ -443,13 +452,18 @@ export const loadClass = () => {
           { hits: { hits: [] } }
         );
 
-        const conversationMessages = response.hits.hits.map(hit => hit._source);
+        const conversationMessages = response.hits.hits.map(hit => {
+          return {
+            _id: hit._id,
+            ...hit._source
+          };
+        });
+
+        prevMessage = null;
 
         if (conversationMessages.length > 0) {
           prevMessage = conversationMessages[0];
         }
-
-        prevMessage = null;
       } else {
         const query = customerId
           ? { customerId, 'engageData.messageId': engageData.messageId }
@@ -457,6 +471,8 @@ export const loadClass = () => {
 
         prevMessage = await ConversationMessages.findOne(query);
       }
+
+      console.log(prevMessage);
 
       if (prevMessage) {
         if (
