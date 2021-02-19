@@ -1,5 +1,5 @@
 import 'cypress-file-upload';
-import { SignIn, fakeNameCustomer, fakeName, waitAndClick } from "../utils";
+import { SignIn, fakeName, waitAndClick } from "../utils";
 
 SignIn;
 
@@ -38,7 +38,6 @@ context('Send Email Verification', () => {
 
           cy.get('input[name=name]').type('a1');
           cy.get('input[name=description]').type('testinga1');
-          // cy.get('select[name=subOf]').select('Active users');
           cy.get('div[id=segment-color]').click();
           cy.get('div > input').clear().type(`#000000`)
           cy.get('div[id=segment-color]').click();
@@ -98,11 +97,13 @@ context('Send Email Verification', () => {
 
     cy.get('#ManageIntegration').click()
     cy.get('input').type('nani').clear()
-    //cy.get('.modal-body').children().get('i[icon=plus-1]').click({multiple:true})
+
     cy.wait(3000)
+
     cy.get('.modal-body').within(() => {
         cy.get('ul').children().eq(0).click()
     })
+
     cy.get('form').get('button[type="submit"]').click()
     cy.wait(1000)
     cy.get('button[icon="check-circle"]').click()
@@ -112,8 +113,10 @@ context('Send Email Verification', () => {
     cy.get('#SettingsGeneralSettings').children().eq(6).click();
 
     const hasDownloadsIndexs = [2, 3, 4, 6];
+
     for(let i=0; i<11; i++){
       cy.get('#ImportExportSidebar').children().eq(i).click()
+
       if (hasDownloadsIndexs.includes(i)) {
         waitAndClick('i[icon=folder-download]');
         cy.wait(1000);
@@ -147,41 +150,7 @@ context('Send Email Verification', () => {
         cy.get('#navigation').children().eq(3).click()
         cy.get('a[href="/contacts/customer"]').click()
 
-        // cy.get('#customers > tr').should('have.length', trCount + 1);
         cy.wait(1000)
-
       });
-
-    //Contacts Email Verify
-      cy.get("#navigation")
-      .children()
-      .eq(3)
-      .click();
-    // random fakename
-    const random = fakeNameCustomer();
-
-    //Customer Email Verify
-    cy.get('a[href="/contacts/customer"]').click();
-
-    cy.get('button[icon="plus-circle"]').click();
-
-    cy.get('input[name="firstName"]').type(random);
-
-    cy.get('div .Select-placeholder').contains('Enter an email').click().type(random + "@nmma.co");
-    cy.get('div .Select-menu-outer').click();
-
-    cy.get('button[icon="check-circle"]').click();
-
-    cy.wait(2000);
-
-    cy.get('#customers > tr:first').children().eq(4).within(() => {
-      cy.get('i').then($itag => {
-        if($itag.hasClass('icon-shield-slash')){
-          cy.reload()
-        } else {
-          cy.log('not verified your email')
-        }
-      })
-    });
   });
 });
