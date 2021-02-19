@@ -8,6 +8,7 @@
   "viewportWidth": 1368,
   "viewportHeight": 920,
   "video": false,
+  "screenshotOnRunFailure": false,
   "env": {
     "userEmail": "admin@erxes.io",
     "userPassword": "LXf4bFPFqb"
