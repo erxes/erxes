@@ -589,7 +589,7 @@ export const loadClass = () => {
       return token;
     }
 
-    public static async getTokenFields(user: IUserDocument) {
+    public static getTokenFields(user: IUserDocument) {
       return {
         _id: user._id,
         email: user.email,
