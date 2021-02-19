@@ -18,6 +18,7 @@ type Props = {
   type: string;
   onChange: (
     name:
+      | 'carousel'
       | 'calloutBtnText'
       | 'bodyValue'
       | 'calloutTitle'
@@ -71,7 +72,12 @@ class CallOut extends React.Component<Props, State> {
         [name]: value
       }
     }));
+
     this.props.onChange(name, value);
+
+    if (name === 'isSkip') {
+      this.props.onChange('carousel', value ? 'form' : 'callout');
+    }
   };
 
   removeImage = (value: string) => {

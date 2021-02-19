@@ -1,9 +1,9 @@
-import './setup.ts';
-
 import * as faker from 'faker';
 import * as sinon from 'sinon';
-import messageBroker from '../messageBroker';
-
+import { AUTO_BOT_MESSAGES } from '../data/constants';
+import { IntegrationsAPI } from '../data/dataSources';
+import utils from '../data/utils';
+import { graphqlRequest } from '../db/connection';
 import {
   channelFactory,
   conversationFactory,
@@ -27,15 +27,12 @@ import {
   CONVERSATION_STATUSES,
   KIND_CHOICES
 } from '../db/models/definitions/constants';
-
-import { AUTO_BOT_MESSAGES } from '../data/constants';
-import { IntegrationsAPI } from '../data/dataSources';
-import utils from '../data/utils';
-import { graphqlRequest } from '../db/connection';
 import { IConversationDocument } from '../db/models/definitions/conversations';
 import { ICustomerDocument } from '../db/models/definitions/customers';
 import { IIntegrationDocument } from '../db/models/definitions/integrations';
 import { IUserDocument } from '../db/models/definitions/users';
+import messageBroker from '../messageBroker';
+import './setup.ts';
 
 const toJSON = value => {
   // sometimes object key order is different even though it has same value.
@@ -231,6 +228,19 @@ describe('Conversation message mutations', () => {
     expect(response.conversationId).toBe(args.conversationId);
     expect(response.content).toBe(args.content);
     expect(response.internal).toBeTruthy();
+
+    // Mobile notification fail
+    const mock = sinon
+      .stub(utils, 'sendMobileNotification')
+      .throws(new Error('Firebase is not configured'));
+
+    try {
+      await graphqlRequest(addMutation, 'conversationMessageAdd', args);
+    } catch (e) {
+      expect(e.message).toBe('Firebase is not configured');
+    }
+
+    mock.restore();
   });
 
   test('Add lead conversation message', async () => {
