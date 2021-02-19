@@ -192,7 +192,6 @@ const activityLogQueries = {
         await collectInternalNotes();
         await collectEngageMessages();
         await collectTasks();
-        await collectSms();
 
         break;
     }

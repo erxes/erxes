@@ -94,7 +94,7 @@ const activityItem = (activity: IActivityLog) => {
     case 'archive':
       return renderDetail('archive', <ArchiveLog activity={activity} />);
     case 'send':
-      return renderDetail('send', <SmsLog activity={activity} />);
+      return renderDetail(activity.contentType, <SmsLog activity={activity} />);
     default:
       return <div />;
   }
