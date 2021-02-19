@@ -125,7 +125,7 @@ export type CountQueryResponse = {
 } & QueryResponse;
 
 export type IntegrationGetUsedQueryResponse = {
-  integrationsGetUsedTypes: { _id: string; name: string }[];
+  integrationsGetUsedTypes: Array<{ _id: string; name: string }>;
 } & QueryResponse;
 
 export type CustomerDetailQueryResponse = {

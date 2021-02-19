@@ -3,9 +3,9 @@ import * as compose from 'lodash.flowright';
 import React from 'react';
 import { graphql } from 'react-apollo';
 import { withProps } from '../../../common/utils';
+import { queries as inboxQueries } from '../../../inbox/graphql';
 import IntegrationFilter from '../../components/list/IntegrationFilter';
 import { queries as customerQueries } from '../../graphql';
-import { queries as inboxQueries } from '../../../inbox/graphql';
 import {
   CountQueryResponse,
   IntegrationGetUsedQueryResponse
