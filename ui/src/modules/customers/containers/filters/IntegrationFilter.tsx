@@ -5,25 +5,38 @@ import { graphql } from 'react-apollo';
 import { withProps } from '../../../common/utils';
 import IntegrationFilter from '../../components/list/IntegrationFilter';
 import { queries as customerQueries } from '../../graphql';
-import { CountQueryResponse } from '../../types';
+import { queries as inboxQueries } from '../../../inbox/graphql';
+import {
+  CountQueryResponse,
+  IntegrationGetUsedQueryResponse
+} from '../../types';
 
 type Props = {
   customersCountQuery?: CountQueryResponse;
+  integrationsGetUsedTypesQuery?: IntegrationGetUsedQueryResponse;
 };
 
 class IntegrationFilterContainer extends React.Component<Props> {
   render() {
-    const { customersCountQuery } = this.props;
+    const { customersCountQuery, integrationsGetUsedTypesQuery } = this.props;
 
     const counts = (customersCountQuery
       ? customersCountQuery.customerCounts
       : null) || { byIntegrationType: {} };
 
+    const loading =
+      (customersCountQuery && customersCountQuery.loading) ||
+      (integrationsGetUsedTypesQuery &&
+        integrationsGetUsedTypesQuery.loading) ||
+      false;
+
     const updatedProps = {
       ...this.props,
-      loading:
-        (customersCountQuery ? customersCountQuery.loading : null) || false,
-      counts: counts.byIntegrationType
+      loading,
+      counts: counts.byIntegrationType,
+      integrationsGetUsedTypes: integrationsGetUsedTypesQuery
+        ? integrationsGetUsedTypesQuery.integrationsGetUsedTypes || []
+        : []
     };
 
     return <IntegrationFilter {...updatedProps} />;
@@ -45,6 +58,12 @@ export default withProps<WrapperProps>(
         options: ({ type }) => ({
           variables: { type, only: 'byIntegrationType' }
         })
+      }
+    ),
+    graphql<WrapperProps, IntegrationGetUsedQueryResponse>(
+      gql(inboxQueries.integrationsGetUsedTypes),
+      {
+        name: 'integrationsGetUsedTypesQuery'
       }
     )
   )(IntegrationFilterContainer)
