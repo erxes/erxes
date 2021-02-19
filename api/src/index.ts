@@ -72,11 +72,22 @@ const pipeRequest = (req: any, res: any, next: any, url: string) => {
   );
 };
 
-const handleTelnyxWebhook = (req, res, next, hookName: string) => {
-  const ENGAGES_API_DOMAIN = getSubServiceDomain({
-    name: 'ENGAGES_API_DOMAIN'
-  });
+const MAIN_APP_DOMAIN = getEnv({ name: 'MAIN_APP_DOMAIN' });
+const WIDGETS_DOMAIN = getSubServiceDomain({ name: 'WIDGETS_DOMAIN' });
+const INTEGRATIONS_API_DOMAIN = getSubServiceDomain({
+  name: 'INTEGRATIONS_API_DOMAIN'
+});
+const CLIENT_PORTAL_DOMAIN = getSubServiceDomain({
+  name: 'CLIENT_PORTAL_DOMAIN'
+});
+const DASHBOARD_DOMAIN = getSubServiceDomain({
+  name: 'DASHBOARD_DOMAIN'
+});
+const ENGAGES_API_DOMAIN = getSubServiceDomain({
+  name: 'ENGAGES_API_DOMAIN'
+});
 
+const handleTelnyxWebhook = (req, res, next, hookName: string) => {
   if (NODE_ENV === 'test') {
     return res.json(req.body);
   }
@@ -89,28 +100,12 @@ const handleTelnyxWebhook = (req, res, next, hookName: string) => {
   );
 };
 
-const MAIN_APP_DOMAIN = getEnv({ name: 'MAIN_APP_DOMAIN' });
-const WIDGETS_DOMAIN = getSubServiceDomain({ name: 'WIDGETS_DOMAIN' });
-const INTEGRATIONS_API_DOMAIN = getSubServiceDomain({
-  name: 'INTEGRATIONS_API_DOMAIN'
-});
-const CLIENT_PORTAL_DOMAIN = getSubServiceDomain({
-  name: 'CLIENT_PORTAL_DOMAIN'
-});
-const DASHBOARD_DOMAIN = getSubServiceDomain({
-  name: 'DASHBOARD_DOMAIN'
-});
-
 export const app = express();
 
 app.disable('x-powered-by');
 
 // handle engage trackers
 app.post(`/service/engage/tracker`, async (req, res, next) => {
-  const ENGAGES_API_DOMAIN = getSubServiceDomain({
-    name: 'ENGAGES_API_DOMAIN'
-  });
-
   debugBase('SES notification received ======');
 
   return pipeRequest(
