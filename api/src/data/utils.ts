@@ -882,3 +882,19 @@ export const getErxesSaasDomain = () => {
 export const escapeRegExp = (str: string) => {
   return str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 };
+
+export const routeErrorHandling = (fn, callback?: any) => {
+  return async (req, res, next) => {
+    try {
+      await fn(req, res, next);
+    } catch (e) {
+      debugBase(e.message);
+
+      if (callback) {
+        return callback(res, e);
+      }
+
+      return next(e);
+    }
+  };
+};
