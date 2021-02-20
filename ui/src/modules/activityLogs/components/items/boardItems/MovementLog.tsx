@@ -4,17 +4,13 @@ import {
   FlexBody,
   FlexCenterContent
 } from 'modules/activityLogs/styles';
-import { IActivityLog } from 'modules/activityLogs/types';
+import { IActivityLogItemProps } from 'modules/activityLogs/types';
 import Tip from 'modules/common/components/Tip';
 import { renderUserFullName } from 'modules/common/utils';
 import React from 'react';
 import { Link } from 'react-router-dom';
 
-type Props = {
-  activity: IActivityLog;
-};
-
-class MovementLog extends React.Component<Props> {
+class MovementLog extends React.Component<IActivityLogItemProps> {
   renderContent = () => {
     const { activity } = this.props;
     const { contentType, contentDetail, createdByDetail } = activity;
