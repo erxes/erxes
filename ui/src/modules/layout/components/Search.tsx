@@ -125,7 +125,7 @@ class Search extends React.Component<Props, { showInput: boolean }> {
       let href = '#';
 
       if (module === 'conversationMessages') {
-        href = `/inbox/index?id=${source.conversationId}`;
+        href = `/inbox/index?_id=${source.conversationId}`;
       }
 
       if (module === 'contacts') {
