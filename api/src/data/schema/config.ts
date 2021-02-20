@@ -45,6 +45,7 @@ export const types = `
 `;
 
 export const queries = `
+  search(value: String!): [JSON]
   configs: [Config]
   configsGetVersion(releaseNotes: Boolean): JSON
   configsStatus: ProjectStatistics
