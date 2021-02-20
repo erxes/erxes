@@ -1,3 +1,4 @@
+import * as faker from 'faker';
 import * as request from 'supertest';
 
 import { app } from '../index';
@@ -11,8 +12,8 @@ describe('HTTP endpoint tests', () => {
   test('Test /telnyx/webhook', async () => {
     const smsRequest = await smsRequestFactory({});
     const webhookParams = {
-      from: '+13322200406',
-      to: '+97688276317',
+      from: faker.phone.phoneNumber(),
+      to: faker.phone.phoneNumber(),
       telnyxId: smsRequest.telnyxId
     };
     const webhookData = telnyxWebhookDataFactory(webhookParams);

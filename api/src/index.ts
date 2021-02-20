@@ -83,23 +83,6 @@ const pipeRequest = (req: any, res: any, next: any, url: string) => {
   );
 };
 
-const handleTelnyxWebhook = (req, res, next, hookName: string) => {
-  const ENGAGES_API_DOMAIN = getSubServiceDomain({
-    name: 'ENGAGES_API_DOMAIN'
-  });
-
-  if (NODE_ENV === 'test') {
-    return res.json(req.body);
-  }
-
-  return pipeRequest(
-    req,
-    res,
-    next,
-    `${ENGAGES_API_DOMAIN}/telnyx/${hookName}`
-  );
-};
-
 const MAIN_APP_DOMAIN = getEnv({ name: 'MAIN_APP_DOMAIN' });
 const WIDGETS_DOMAIN = getSubServiceDomain({ name: 'WIDGETS_DOMAIN' });
 const INTEGRATIONS_API_DOMAIN = getSubServiceDomain({
@@ -111,6 +94,22 @@ const CLIENT_PORTAL_DOMAIN = getSubServiceDomain({
 const DASHBOARD_DOMAIN = getSubServiceDomain({
   name: 'DASHBOARD_DOMAIN'
 });
+const ENGAGES_API_DOMAIN = getSubServiceDomain({
+  name: 'ENGAGES_API_DOMAIN'
+});
+
+const handleTelnyxWebhook = (req, res, next, hookName: string) => {
+  if (NODE_ENV === 'test') {
+    return res.json(req.body);
+  }
+
+  return pipeRequest(
+    req,
+    res,
+    next,
+    `${ENGAGES_API_DOMAIN}/telnyx/${hookName}`
+  );
+};
 
 export const app = express();
 
@@ -125,10 +124,6 @@ app.disable('x-powered-by');
 
 // handle engage trackers
 app.post(`/service/engage/tracker`, async (req, res, next) => {
-  const ENGAGES_API_DOMAIN = getSubServiceDomain({
-    name: 'ENGAGES_API_DOMAIN'
-  });
-
   debugBase('SES notification received ======');
 
   return pipeRequest(
@@ -139,14 +134,6 @@ app.post(`/service/engage/tracker`, async (req, res, next) => {
   );
 });
 
-app.use(express.urlencoded({ extended: true }));
-
-app.use(
-  express.json({
-    limit: '15mb'
-  })
-);
-
 // relay telnyx sms web hook
 app.post(`/telnyx/webhook`, (req, res, next) => {
   return handleTelnyxWebhook(req, res, next, 'webhook');
@@ -156,6 +143,15 @@ app.post(`/telnyx/webhook`, (req, res, next) => {
 app.post(`/telnyx/webhook-failover`, (req, res, next) => {
   return handleTelnyxWebhook(req, res, next, 'webhook-failover');
 });
+
+// don't move it above telnyx controllers
+app.use(express.urlencoded({ extended: true }));
+
+app.use(
+  express.json({
+    limit: '15mb'
+  })
+);
 
 app.use(cookieParser());
 

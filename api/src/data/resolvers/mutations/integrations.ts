@@ -1,6 +1,7 @@
 import * as telemetry from 'erxes-telemetry';
 import { getUniqueValue } from '../../../db/factories';
 import {
+  ActivityLogs,
   Channels,
   Customers,
   EmailDeliveries,
@@ -8,7 +9,11 @@ import {
   Forms,
   Integrations
 } from '../../../db/models';
-import { KIND_CHOICES } from '../../../db/models/definitions/constants';
+import {
+  ACTIVITY_ACTIONS,
+  ACTIVITY_CONTENT_TYPES,
+  KIND_CHOICES
+} from '../../../db/models/definitions/constants';
 import {
   IIntegration,
   IMessengerData,
@@ -555,9 +560,28 @@ const integrationMutations = {
   async integrationsSendSms(
     _root,
     args: ISmsParams,
-    { dataSources }: IContext
+    { dataSources, user }: IContext
   ) {
-    return dataSources.IntegrationsAPI.sendSms(args);
+    const customer = await Customers.findOne({ primaryPhone: args.to });
+
+    if (!customer) {
+      throw new Error(`Customer not found with primary phone "${args.to}"`);
+    }
+    if (customer.phoneValidationStatus !== 'valid') {
+      throw new Error(`Customer's primary phone ${args.to} is not valid`);
+    }
+
+    const response = await dataSources.IntegrationsAPI.sendSms(args);
+
+    await ActivityLogs.addActivityLog({
+      action: ACTIVITY_ACTIONS.SEND,
+      contentType: ACTIVITY_CONTENT_TYPES.SMS,
+      createdBy: user._id,
+      contentId: customer._id,
+      content: { to: args.to, text: args.content }
+    });
+
+    return response;
   },
 
   async integrationsCopyLeadIntegration(
