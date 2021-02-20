@@ -101,7 +101,8 @@ class CustomerDetails extends React.Component<Props> {
           extraTabs={[
             { name: 'conversation', label: 'Conversation' },
             { name: 'email', label: 'Email' },
-            { name: 'task', label: 'Task' }
+            { name: 'task', label: 'Task' },
+            { name: 'sms', label: 'Sms' }
           ]}
         />
       </>
