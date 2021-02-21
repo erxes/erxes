@@ -29,16 +29,6 @@ jobs:
   ui:
     runs-on: ubuntu-18.04
 
-    strategy:
-      # when one test fails, DO NOT cancel the other
-      # containers, because this will kill Cypress processes
-      # leaving the Dashboard hanging
-      # https://github.com/cypress-io/github-action/issues/48
-      fail-fast: false
-      matrix:
-        # run 10 copies of the current job in parallel
-        containers: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
-
     services:
       mongodb:
         image: mongo:4.0
