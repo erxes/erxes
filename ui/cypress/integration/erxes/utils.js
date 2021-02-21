@@ -58,14 +58,14 @@ export const IsExistElement = Cypress.Commands.add('isExistElement', selector =>
 });
 
 export const waitElm = (selector) => {
-  cy.get(selector, { timeout: 40000 }).should("be.visible");
+  cy.get(selector, { timeout: 5000 }).should("be.visible");
 };
 
 export const waitTilDisappear = (selector) => {
-  cy.get(selector, { timeout: 40000 }).should("not.be.visible");
+  cy.get(selector, { timeout: 5000 }).should("not.be.visible");
 };
 
 export const waitAndClick = (selector) => {
-  cy.get(selector, { timeout: 40000 }).should("be.visible");
+  cy.get(selector, { timeout: 5000 }).should("be.visible");
   cy.get(selector).click({ force: true });
 };
