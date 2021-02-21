@@ -875,6 +875,36 @@ describe('mutations', () => {
 
     spy.mockImplementation(() => Promise.resolve({ status: 'ok' }));
 
+    try {
+      await graphqlRequest(mutation, 'integrationsSendSms', args, {
+        dataSources
+      });
+    } catch (e) {
+      expect(e[0].message).toBe(
+        `Customer not found with primary phone "${args.to}"`
+      );
+    }
+
+    let customer = await customerFactory({ primaryPhone: args.to });
+
+    try {
+      await graphqlRequest(mutation, 'integrationsSendSms', args, {
+        dataSources
+      });
+    } catch (e) {
+      expect(e[0].message).toBe(
+        `Customer's primary phone ${args.to} is not valid`
+      );
+    }
+
+    // test successful case
+    await Customers.deleteOne({ _id: customer._id });
+
+    customer = await customerFactory({
+      primaryPhone: args.to,
+      phoneValidationStatus: 'valid'
+    });
+
     const response = await graphqlRequest(
       mutation,
       'integrationsSendSms',

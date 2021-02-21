@@ -9,9 +9,14 @@ import { withRouter } from 'react-router-dom';
 
 interface IProps extends IRouterProps {
   counts: { [key: string]: number };
+  integrationsGetUsedTypes: Array<{ _id: string; name: string }>;
 }
 
-function IntegrationFilter({ history, counts }: IProps) {
+function IntegrationFilter({
+  history,
+  counts,
+  integrationsGetUsedTypes
+}: IProps) {
   const onClick = kind => {
     router.setParams(history, { integrationType: kind });
     router.removeParams(history, 'page');
@@ -19,20 +24,20 @@ function IntegrationFilter({ history, counts }: IProps) {
 
   const data = (
     <SidebarList capitalize={true}>
-      {INTEGRATION_KINDS.ALL.map(kind => (
-        <li key={kind.value}>
+      {integrationsGetUsedTypes.map(kind => (
+        <li key={kind._id}>
           <a
             href="#filter"
             tabIndex={0}
             className={
-              router.getParam(history, 'integrationType') === kind.value
+              router.getParam(history, 'integrationType') === kind._id
                 ? 'active'
                 : ''
             }
-            onClick={onClick.bind(null, kind.value)}
+            onClick={onClick.bind(null, kind._id)}
           >
-            <FieldStyle>{kind.text}</FieldStyle>
-            <SidebarCounter>{counts[kind.value] || 0}</SidebarCounter>
+            <FieldStyle>{kind.name}</FieldStyle>
+            <SidebarCounter>{counts[kind._id] || 0}</SidebarCounter>
           </a>
         </li>
       ))}

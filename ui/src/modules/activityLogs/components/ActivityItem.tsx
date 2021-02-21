@@ -15,6 +15,7 @@ import CreatedLog from './items/create/CreatedLog';
 import DeletedLog from './items/delete/DeletedLog';
 import MergedLog from './items/MergedLog';
 import SegmentLog from './items/SegmentLog';
+import SmsLog from './items/SmsLog';
 
 const renderDetail = (type: string, children: React.ReactNode) => {
   const iconAndColor = getIconAndColor(type) || {};
@@ -33,7 +34,7 @@ const renderDetail = (type: string, children: React.ReactNode) => {
       {children}
     </ActivityRow>
   );
-}
+};
 
 const activityItem = (activity: IActivityLog) => {
   const { _id, contentType, action } = activity;
@@ -87,20 +88,16 @@ const activityItem = (activity: IActivityLog) => {
         <ConvertLog activity={activity} />
       );
     case 'segment':
-      return renderDetail(
-        activity.action,
-        <SegmentLog activity={activity} />
-      );
+      return renderDetail(activity.action, <SegmentLog activity={activity} />);
     case 'assignee':
-      return renderDetail(
-        'assignee',
-        <AssigneeLog activity={activity} />
-      );
+      return renderDetail('assignee', <AssigneeLog activity={activity} />);
     case 'archive':
       return renderDetail('archive', <ArchiveLog activity={activity} />);
+    case 'send':
+      return renderDetail(activity.contentType, <SmsLog activity={activity} />);
     default:
       return <div />;
   }
-}
+};
 
 export default activityItem;
