@@ -38,7 +38,7 @@ context("Popups", () => {
 
     cy.get("#callout-btn-text").type(randomm);
 
-    cy.wait(1000);
+    // cy.wait(1000);
 
     cy.get("button[icon=arrow-right]")
       .eq(1)
@@ -51,18 +51,19 @@ context("Popups", () => {
     cy.get('i[icon="edit-alt"]').click();
 
     addField();
-    cy.wait(1000);
+
+    // cy.wait(1000);
 
     cy.get('i[icon="paragraph"]').click();
     addField();
-    cy.wait(1000);
+    // cy.wait(1000);
 
     cy.get("button[icon=arrow-right]")
       .eq(2)
       .click();
 
     cy.get("select").eq(2);
-    cy.wait(1000);
+    // cy.wait(1000);
 
     cy.get("button[icon=arrow-right]")
       .eq(3)
@@ -72,7 +73,7 @@ context("Popups", () => {
     cy.get('input[name="name"]').type(randomm);
     cy.get('textarea[name="description"]').type(randomm);
     cy.get('.modal-body button[icon="check-circle"]').click();
-    cy.wait(1000);
+    // cy.wait(1000);
 
     cy.get('input[id="popupName"]').type('popup name')
     cy.get('select[name="brandId"]').select(randomm);
@@ -88,7 +89,7 @@ context("Popups", () => {
     cy.get('select[id="successAction"]').select("redirect");
     cy.get('input[id="redirectUrl"]').type(randomm);
 
-    cy.wait(1000);
+    // cy.wait(1000);
 
     cy.get("ul")
       .eq(1)
@@ -96,7 +97,7 @@ context("Popups", () => {
 
     cy.get('i[icon="mobile-android"]').click();
 
-    cy.wait(1000);
+    // cy.wait(1000);
 
     cy.get('button[icon="check-circle"]').click();
   });

@@ -26,7 +26,8 @@ context('Send Email Verification', () => {
       cy.get('#SegmentSidebar').children().eq(i).click()
       cy.url().should('include', '/segments/' + segmentsSidebar[i]);
 
-      cy.wait(1000)
+      // cy.wait(1000)
+
       cy.get('body').then(($body) => {
         if ( $body.find('tr').length ){
           return $body.find('tbody').find('tr').length;
@@ -51,7 +52,7 @@ context('Send Email Verification', () => {
 
           //greather than old counted number.
           cy.get('#SegmentShowing > tr').should('have.length', trCount + 1);
-          cy.wait(1000)
+          // cy.wait(1000)
         });
     }
 
@@ -62,7 +63,7 @@ context('Send Email Verification', () => {
 
     for(let i=0; i<=4; i++){
       cy.get("#TagsSidebar").children().eq(i).click()
-      cy.wait(1000);
+      // cy.wait(1000);
       cy.get('body').then(($body) => {
         if ( $body.find('tr').length ){
           return $body.find('tbody').find('tr').length;
@@ -84,7 +85,7 @@ context('Send Email Verification', () => {
     cy.get('#Settings').click();
     cy.get('#SettingsIntegrationSettings').children().eq(1).click();
     cy.url().should('include', '/settings/brands');
-    cy.wait(1500)
+    // cy.wait(1500)
     cy.get('#BrandSidebar').find('li').then(li => {
       const liCount = Cypress.$(li).length;
       cy.get('#NewBrandButton').click();
@@ -98,14 +99,16 @@ context('Send Email Verification', () => {
     cy.get('#ManageIntegration').click()
     cy.get('input').type('nani').clear()
 
-    cy.wait(3000)
+    // cy.wait(3000)
 
     cy.get('.modal-body').within(() => {
         cy.get('ul').children().eq(0).click()
     })
 
     cy.get('form').get('button[type="submit"]').click()
-    cy.wait(1000)
+
+    // cy.wait(1000)
+
     cy.get('button[icon="check-circle"]').click()
 
     // Import & Export
@@ -119,10 +122,13 @@ context('Send Email Verification', () => {
 
       if (hasDownloadsIndexs.includes(i)) {
         waitAndClick('i[icon=folder-download]');
-        cy.wait(1000);
+
+        // cy.wait(1000);
+
         cy.get('button').contains('Cancel').click();
       }
-      cy.wait(1000);
+
+      // cy.wait(1000);
     }
 
     cy.get('#navigation').children().eq(3).click()
@@ -145,12 +151,14 @@ context('Send Email Verification', () => {
               encoding: 'utf8'
             })
         })
-        cy.wait(3000);
+
+        // cy.wait(3000);
+
         cy.reload();
         cy.get('#navigation').children().eq(3).click()
         cy.get('a[href="/contacts/customer"]').click()
 
-        cy.wait(1000)
+        // cy.wait(1000)
       });
   });
 });

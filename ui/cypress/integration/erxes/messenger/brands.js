@@ -18,7 +18,7 @@ context('Check Deals', () => {
 
     const newBrandName = fakeName(10);
 
-    cy.wait(5000);
+    // cy.wait(5000);
 
     cy.get('button')
       .contains('Add New')
