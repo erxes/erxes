@@ -2,6 +2,7 @@ import Icon from 'modules/common/components/Icon';
 import Spinner from 'modules/common/components/Spinner';
 import { colors } from 'modules/common/styles';
 import React from 'react';
+import { Link } from 'react-router-dom';
 import styled from 'styled-components';
 
 const MainContainer = styled.div`
@@ -154,10 +155,10 @@ class Search extends React.Component<Props, { showInput: boolean }> {
 
       return (
         <li key={index} className="highlight">
-          <a href={href}>
+          <Link to={href}>
             <h5>Found in {keyText} field:</h5>
             <p dangerouslySetInnerHTML={{ __html: highlights[key] || '' }} />
-          </a>
+          </Link>
         </li>
       );
     });
