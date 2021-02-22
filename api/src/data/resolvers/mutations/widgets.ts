@@ -41,7 +41,6 @@ import { AUTO_BOT_MESSAGES, BOT_MESSAGE_TYPES } from '../../constants';
 import { sendToVisitorLog } from '../../logUtils';
 import { IContext } from '../../types';
 import {
-  getEnv,
   registerOnboardHistory,
   replaceEditorAttributes,
   sendEmail,
@@ -49,11 +48,7 @@ import {
   sendRequest,
   sendToWebhook
 } from '../../utils';
-import {
-  convertVisitorToCustomer,
-  getOrCreateEngageMessage,
-  getOrCreateEngageMessageElk
-} from '../../widgetUtils';
+import { convertVisitorToCustomer } from '../../widgetUtils';
 import { conversationNotifReceivers } from './conversations';
 
 interface ISubmission {
