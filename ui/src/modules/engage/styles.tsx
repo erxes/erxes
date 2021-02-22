@@ -27,6 +27,7 @@ const RowTitle = styled.div`
 const HelperText = styled.div`
   color: ${colors.colorCoreGray};
   font-size: 12px;
+  line-height: 16px;
 `;
 
 const FlexContainer = styledTS<{ direction?: string }>(styled.div)`
@@ -485,6 +486,15 @@ const TestEmailWrapper = styled.div`
   }
 `;
 
+const Disabled = styled.div`
+  display: inline-block;
+  opacity: 0.7;
+
+  > button:hover {
+    cursor: not-allowed;
+  }
+`;
+
 export {
   RowTitle,
   HelperText,
@@ -522,5 +532,6 @@ export {
   DesktopPreviewContent,
   MobilePreviewContent,
   Shell,
-  TestEmailWrapper
+  TestEmailWrapper,
+  Disabled
 };

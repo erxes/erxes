@@ -8,7 +8,6 @@ import widgetMutations, {
   getMessengerData
 } from '../data/resolvers/mutations/widgets';
 import * as utils from '../data/utils';
-import { graphqlRequest } from '../db/connection';
 import {
   brandFactory,
   conversationFactory,
@@ -1257,6 +1256,21 @@ describe('lead', () => {
       options: ['radio1', 'radio2']
     });
 
+    const customProperty = await fieldFactory({
+      type: 'input',
+      validation: 'number',
+      isVisible: true,
+      contentType: 'customer'
+    });
+
+    const inputField = await fieldFactory({
+      type: customProperty.type,
+      validation: customProperty.validation,
+      contentTypeId: form._id,
+      contentType: 'form',
+      associatedFieldId: customProperty._id
+    });
+
     const integration = await integrationFactory({ formId: form._id });
 
     const response = await widgetMutations.widgetsSaveLead(
@@ -1270,7 +1284,13 @@ describe('lead', () => {
           { _id: lastNameField._id, type: 'lastName', value: 'lastName' },
           { _id: phoneField._id, type: 'phone', value: '+88998833' },
           { _id: radioField._id, type: 'radio', value: 'radio2' },
-          { _id: checkField._id, type: 'check', value: 'check1, check2' }
+          { _id: checkField._id, type: 'check', value: 'check1, check2' },
+          {
+            _id: inputField._id,
+            type: 'input',
+            value: 1,
+            associatedFieldId: inputField.associatedFieldId
+          }
         ],
         browserInfo: {
           currentPageUrl: '/page'
@@ -1314,24 +1334,11 @@ describe('lead', () => {
       formId: form._id
     };
 
-    const spyEmail = jest.spyOn(widgetMutations, 'widgetsSendEmail');
-
-    const mutation = `
-      mutation widgetsSendEmail($toEmails: [String], $fromEmail: String, $title: String, $content: String, $formId: String, $customerId: String) {
-        widgetsSendEmail(toEmails: $toEmails, fromEmail: $fromEmail, title: $title, content: $content, formId: $formId, customerId: $customerId)
-      }
-    `;
-
-    spyEmail.mockImplementation(() => Promise.resolve());
-
-    const response = await graphqlRequest(
-      mutation,
-      'widgetsSendEmail',
-      emailParams
+    const response = await widgetMutations.widgetsSendEmail(
+      {},
+      { ...emailParams }
     );
 
-    expect(response).toBe(null);
-
-    spyEmail.mockRestore();
+    expect(response).toBe(undefined);
   });
 });

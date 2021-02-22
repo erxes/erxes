@@ -394,6 +394,7 @@ export const getItemList = async (
 ) => {
   const collection = getCollection(type);
   const sort = generateSort(args);
+  const limit = args.limit !== undefined ? args.limit : 10;
 
   const list = await collection.aggregate([
     {
@@ -403,7 +404,7 @@ export const getItemList = async (
       $skip: args.skip || 0
     },
     {
-      $limit: 10
+      $limit: limit
     },
     {
       $sort: sort

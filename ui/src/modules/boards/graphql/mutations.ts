@@ -11,7 +11,7 @@ export const commonMutationVariables = `
   $isComplete: Boolean,
   $status: String,
   $priority: String,
-  $sourceConversationId: String,
+  $sourceConversationIds: [String],
 `;
 
 export const commonMutationParams = `
@@ -27,7 +27,7 @@ export const commonMutationParams = `
   isComplete: $isComplete,
   status: $status,
   priority: $priority,
-  sourceConversationId: $sourceConversationId,
+  sourceConversationIds: $sourceConversationIds,
 `;
 
 export const commonDragVariables = `
@@ -186,6 +186,12 @@ const stagesRemove = `
   }
 `;
 
+const conversationConvertToCard = `
+  mutation conversationConvertToCard($_id: String!, $type:String!, $stageId: String, $itemName:String, $itemId:String){
+    conversationConvertToCard(_id:$_id,type:$type,itemId:$itemId,stageId:$stageId,itemName:$itemName )
+  }
+`;
+
 export default {
   stagesUpdateOrder,
   pipelinesWatch,
@@ -194,5 +200,6 @@ export default {
   pipelineLabelsEdit,
   pipelineLabelsRemove,
   stagesEdit,
-  stagesRemove
+  stagesRemove,
+  conversationConvertToCard
 };

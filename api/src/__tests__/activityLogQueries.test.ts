@@ -141,6 +141,7 @@ describe('activityLogQueries', () => {
 
   test('Activity log with all activity types', async () => {
     const customer = await customerFactory({});
+
     await conformityFactory({
       mainType: 'customer',
       mainTypeId: customer._id,
@@ -154,6 +155,8 @@ describe('activityLogQueries', () => {
       customerIds: [customer._id],
       method: 'email'
     });
+    // sms
+    await activityLogFactory({ contentType: 'sms', contentId: customer._id });
 
     const dataSources = { IntegrationsAPI: new IntegrationsAPI() };
     const spy = jest.spyOn(dataSources.IntegrationsAPI, 'fetchApi');
@@ -164,15 +167,17 @@ describe('activityLogQueries', () => {
       { type: 'conversation', content: 'company' },
       { type: 'email', content: 'email' },
       { type: 'internal_note', content: 'internal_note' },
-      { type: 'task', content: 'task' }
+      { type: 'task', content: 'task' },
+      { type: 'sms', content: 'sms sent' }
     ];
 
-    for (const activityType of activityTypes) {
+    for (const t of activityTypes) {
       const args = {
         contentId: customer._id,
-        contentType: 'customer',
-        activityType: activityType.type
+        contentType: t.type === 'sms' ? 'sms' : 'customer',
+        activityType: t.type
       };
+
       const response = await graphqlRequest(
         qryActivityLogs,
         'activityLogs',

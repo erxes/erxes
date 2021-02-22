@@ -3,6 +3,7 @@ import { graphqlRequest } from '../db/connection';
 import * as sinon from 'sinon';
 import * as utils from '../data/utils';
 import { configFactory } from '../db/factories';
+import * as elk from '../elasticsearch';
 import './setup.ts';
 
 describe('configQueries', () => {
@@ -135,5 +136,37 @@ describe('configQueries', () => {
     const template = await graphqlRequest(qry, 'configsGetEmailTemplate');
 
     expect(template).toBeDefined();
+  });
+
+  test('search', async () => {
+    const mock = sinon.stub(elk, 'fetchElk').callsFake(() => {
+      return Promise.resolve({
+        hits: {
+          hits: [
+            {
+              _source: {
+                primaryName: 'primaryName'
+              }
+            }
+          ]
+        }
+      });
+    });
+
+    const qry = `
+      query search($value: String!) {
+        search(value: $value)
+      }
+    `;
+
+    const responses = await graphqlRequest(qry, 'search', {
+      value: 'primaryName'
+    });
+
+    const contacts = responses.find(response => response.module === 'contacts');
+
+    expect(contacts.items.length).toBe(1);
+
+    mock.restore();
   });
 });

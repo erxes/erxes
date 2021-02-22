@@ -48,6 +48,7 @@ export const types = `
     validation: String
     text: String
     value: String
+    associatedFieldId: String
   }
 `;
 

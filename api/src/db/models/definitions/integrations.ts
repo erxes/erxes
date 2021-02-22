@@ -85,6 +85,7 @@ export interface ILeadData {
   adminEmails?: string;
   adminEmailTitle?: string;
   adminEmailContent?: string;
+  thankTitle?: string;
   thankContent?: string;
   redirectUrl?: string;
   themeColor?: string;
@@ -255,6 +256,11 @@ export const leadDataSchema = new Schema(
       type: String,
       optional: true,
       label: 'Admin email content'
+    }),
+    thankTitle: field({
+      type: String,
+      optional: true,
+      label: 'Thank content title'
     }),
     thankContent: field({
       type: String,

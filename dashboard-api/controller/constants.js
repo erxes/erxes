@@ -7,9 +7,15 @@ const resolvers = [
     fieldname: 'name'
   },
   {
-    name: 'Conversations.integrationKind',
+    name: 'Conversations.integrationType',
     indexname: `${tableSchema()}__integrations`,
     fieldname: 'kind'
+  },
+
+  {
+    name: 'Conversations.tag',
+    indexname: `${tableSchema()}__tags`,
+    fieldname: 'name'
   },
 
   {
@@ -37,6 +43,64 @@ const resolvers = [
     name: 'Deals.modifiedBy',
     indexname: `${tableSchema()}__users`,
     fieldname: 'username'
+  },
+  {
+    name: 'Deals.assignedUser',
+    indexname: `${tableSchema()}__users`,
+    fieldname: 'username'
+  },
+  {
+    name: 'Tasks.stageName',
+    indexname: `${tableSchema()}__stages`,
+    fieldname: 'name'
+  },
+  {
+    name: 'Tasks.stageProbability',
+    indexname: `${tableSchema()}__stages`,
+    fieldname: 'probability'
+  },
+  {
+    name: 'Tasks.modifiedBy',
+    indexname: `${tableSchema()}__users`,
+    fieldname: 'username'
+  },
+  {
+    name: 'Tasks.assignedUser',
+    indexname: `${tableSchema()}__users`,
+    fieldname: 'username'
+  },
+  {
+    name: 'Tickets.stageName',
+    indexname: `${tableSchema()}__stages`,
+    fieldname: 'name'
+  },
+  {
+    name: 'Tickets.stageProbability',
+    indexname: `${tableSchema()}__stages`,
+    fieldname: 'probability'
+  },
+
+  {
+    name: 'Tickets.modifiedBy',
+    indexname: `${tableSchema()}__users`,
+    fieldname: 'username'
+  },
+  {
+    name: 'Tickets.assignedUser',
+    indexname: `${tableSchema()}__users`,
+    fieldname: 'username'
+  },
+
+  {
+    name: 'Contacts.tag',
+    indexname: `${tableSchema()}__tags`,
+    fieldname: 'name'
+  },
+
+  {
+    name: 'Companies.tag',
+    indexname: `${tableSchema()}__tags`,
+    fieldname: 'name'
   }
 ];
 
@@ -45,6 +109,16 @@ const filterResolvers = {
     index: `${tableSchema()}__stages`,
     field: 'probability'
   },
+
+  'Tasks.stageProbability': {
+    index: `${tableSchema()}__stages`,
+    field: 'probability'
+  },
+  'Tickets.stageProbability': {
+    index: `${tableSchema()}__stages`,
+    field: 'probability'
+  },
+
   'Conversations.brand': {
     index: `${tableSchema()}__integrations`,
     field: 'brandId'

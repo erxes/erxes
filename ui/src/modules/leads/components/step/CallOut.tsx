@@ -18,6 +18,7 @@ type Props = {
   type: string;
   onChange: (
     name:
+      | 'carousel'
       | 'calloutBtnText'
       | 'bodyValue'
       | 'calloutTitle'
@@ -60,7 +61,7 @@ class CallOut extends React.Component<Props, State> {
   }
 
   onChangeFunction = <T extends keyof State>(name: T, value: State[T]) => {
-    this.setState({ [name]: value } as Pick<State, keyof State>);
+    this.setState(({ [name]: value } as unknown) as Pick<State, keyof State>);
     this.props.onChange(name, value);
   };
 
@@ -71,7 +72,12 @@ class CallOut extends React.Component<Props, State> {
         [name]: value
       }
     }));
+
     this.props.onChange(name, value);
+
+    if (name === 'isSkip') {
+      this.props.onChange('carousel', value ? 'form' : 'callout');
+    }
   };
 
   removeImage = (value: string) => {
@@ -201,6 +207,11 @@ class CallOut extends React.Component<Props, State> {
           <LeftItem deactive={skip}>
             <FormGroup>
               <ControlLabel>Callout title</ControlLabel>
+              <p>
+                {__(
+                  'Call Out is a brief message you wish to display before showing the full form.'
+                )}
+              </p>
               <FormControl
                 id="callout-title"
                 type="text"

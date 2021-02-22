@@ -36,6 +36,7 @@ export const queries = `
     companyIds: [String]
     date: ItemDate
     skip: Int
+    limit: Int
     search: String
     assignedUserIds: [String]
     closeDateType: String

@@ -74,7 +74,7 @@ export const INTEGRATION_KINDS = {
   NYLAS_EXCHANGE: 'nylas-exchange',
   NYLAS_OFFICE365: 'nylas-office365',
   NYLAS_YAHOO: 'nylas-yahoo',
-  LEAD: 'lead',
+  FORMS: 'lead',
   CALLPRO: 'callpro',
   TWITTER_DM: 'twitter-dm',
   CHATFUEL: 'chatfuel',
@@ -87,29 +87,31 @@ export const INTEGRATION_KINDS = {
   WEBHOOK: 'webhook',
   ALL: [
     { text: 'Messenger', value: 'messenger' },
-    { text: 'Facebook post', value: 'facebook-post' },
+    { text: 'Forms', value: 'lead' },
     {
-      text: 'Facebook messenger',
+      text: 'Facebook Messenger',
       value: 'facebook-messenger'
     },
+    { text: 'Facebook Post', value: 'facebook-post' },
     { text: 'Gmail', value: 'gmail' },
-    { text: 'Nylas gmail', value: 'nylas-gmail' },
-    { text: 'IMAP', value: 'nylas-imap' },
-    { text: 'Office 365', value: 'nylas-office365' },
-    { text: 'Exchange', value: 'nylas-exchange' },
-    { text: 'Outlook', value: 'nylas-outlook' },
-    { text: 'Yahoo', value: 'nylas-yahoo' },
-    { text: 'Pop Ups', value: 'lead' },
+    { text: 'Webhook', value: 'webhook' },
     { text: 'Callpro', value: 'callpro' },
-    { text: 'Twitter direct message', value: 'twitter-dm' },
     { text: 'Chatfuel', value: 'chatfuel' },
-    { text: 'Telegram', value: 'smooch-telegram' },
-    { text: 'Viber', value: 'smooch-viber' },
-    { text: 'Line', value: 'smooch-line' },
-    { text: 'Twilio', value: 'smooch-twilio' },
-    { text: 'WhatsApp', value: 'whatsapp' },
-    { text: 'Telnyx', value: 'telnyx' },
-    { text: 'Webhook', value: 'webhook' }
+
+    { text: 'WhatsApp by Smooch', value: 'whatsapp' },
+    { text: 'Telegram by Smooch', value: 'smooch-telegram' },
+    { text: 'Viber by Smooch', value: 'smooch-viber' },
+    { text: 'Line by Smooch', value: 'smooch-line' },
+    { text: 'SMS Twilio by Smooch', value: 'smooch-twilio' },
+
+    { text: 'IMAP by Nylas', value: 'nylas-imap' },
+    { text: 'Gmail by Nylas', value: 'nylas-gmail' },
+    { text: 'Office 365 by Nylas', value: 'nylas-office365' },
+    { text: 'Microsoft Exchange by Nylas', value: 'nylas-exchange' },
+    { text: 'Outlook by Nylas', value: 'nylas-outlook' },
+    { text: 'Yahoo by Nylas', value: 'nylas-yahoo' },
+
+    { text: 'SMS by Telnyx', value: 'telnyx' }
   ]
 };
 
@@ -124,7 +126,11 @@ export const FORM_SUCCESS_ACTIONS = {
   EMAIL: 'email',
   REDIRECT: 'redirect',
   ONPAGE: 'onPage',
-  ALL_LIST: ['', 'email', 'redirect', 'onPage']
+  ALL_LIST: [
+    { text: 'On page', value: 'onPage' },
+    { text: 'Email', value: 'email' },
+    { text: 'Page redirect', value: 'redirect' }
+  ]
 };
 
 export const MAIL_TOOLBARS_CONFIG = [
@@ -147,7 +153,7 @@ export const MAIL_TOOLBARS_CONFIG = [
 
 export const INTEGRATIONS = [
   {
-    name: 'Facebook post',
+    name: 'Facebook Post',
     description: 'Connect to Facebook posts right from your Team Inbox',
     inMessenger: false,
     isAvailable: true,
@@ -159,7 +165,7 @@ export const INTEGRATIONS = [
       'All integrations, For support teams, Marketing automation, Social media'
   },
   {
-    name: 'Facebook messenger',
+    name: 'Facebook Messenger',
     description:
       'Connect and manage Facebook Messages right from your Team Inbox',
     inMessenger: false,
@@ -297,7 +303,7 @@ export const INTEGRATIONS = [
       'All integrations, For support teams, Marketing automation, Messaging, Conversation'
   },
   {
-    name: 'WhatsApp',
+    name: 'WhatsApp by Smooch',
     description: 'Get a hold of your Whatsapp messages through your Team Inbox',
     inMessenger: false,
     isAvailable: true,
@@ -307,7 +313,7 @@ export const INTEGRATIONS = [
     category: 'All integrations, For support teams, Messaging, Conversation'
   },
   {
-    name: 'Telegram',
+    name: 'Telegram by Smooch',
     description:
       'Connect to your Telegram, a cloud-based mobile and desktop messaging app',
     inMessenger: false,
@@ -318,7 +324,7 @@ export const INTEGRATIONS = [
     category: 'All integrations, For support teams, Messaging, Conversation'
   },
   {
-    name: 'Viber',
+    name: 'Viber by Smooch',
     description: 'Connect Viber to your Team Inbox',
     inMessenger: false,
     isAvailable: true,
@@ -329,7 +335,7 @@ export const INTEGRATIONS = [
       'All integrations, For support teams, Marketing automation, Messaging, Conversation'
   },
   {
-    name: 'Line',
+    name: 'Line by Smooch',
     description: 'See and reply to Line messages in your Team Inbox',
     inMessenger: false,
     isAvailable: true,
@@ -340,7 +346,7 @@ export const INTEGRATIONS = [
       'All integrations, For support teams, For sales teams, For marketing teams, Marketing automation, Messaging, Phone and video, Conversation'
   },
   {
-    name: 'Telnyx',
+    name: 'SMS by Telnyx',
     description: 'Connect your Telnyx account to send & receive SMS',
     inMessenger: false,
     isAvailable: true,
@@ -375,7 +381,7 @@ export const INTEGRATION_FILTERS = [
 
   {
     name: 'Works with',
-    items: ['Conversation', 'Pop ups']
+    items: ['Conversation', 'Forms']
   },
   {
     name: 'Categories',

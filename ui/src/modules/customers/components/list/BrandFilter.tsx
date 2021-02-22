@@ -11,9 +11,10 @@ interface IProps extends IRouterProps {
   counts: { [key: string]: number };
   brands: IBrand[];
   loading: boolean;
+  emptyText?: string;
 }
 
-function Brands({ history, counts, brands, loading }: IProps) {
+function Brands({ history, counts, brands, loading, emptyText }: IProps) {
   const data = (
     <SidebarList>
       {brands.map(brand => {
@@ -51,7 +52,7 @@ function Brands({ history, counts, brands, loading }: IProps) {
         data={data}
         loading={loading}
         count={brands.length}
-        emptyText="Now easier to find contacts according to your brand"
+        emptyText={emptyText || 'Empty'}
         emptyIcon="leaf"
         size="small"
         objective={true}
