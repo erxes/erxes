@@ -8,6 +8,26 @@ import { IItemCommonFieldsDocument } from './definitions/boards';
 import { ACTIVITY_ACTIONS } from './definitions/constants';
 import { ISegmentDocument } from './definitions/segments';
 
+interface IAssigneeParams {
+  contentId: string;
+  userId: string;
+  contentType: string;
+  content: object;
+}
+
+interface IChecklistParams {
+  item: any;
+  contentType: string;
+  action: string;
+}
+
+interface IArchiveParams {
+  item: any;
+  contentType: string;
+  action: string;
+  userId: string;
+}
+
 export interface IActivityLogModel extends Model<IActivityLogDocument> {
   addActivityLog(doc: IActivityLogInput): Promise<IActivityLogDocument>;
   addActivityLogs(docs: IActivityLogInput[]): Promise<IActivityLogDocument[]>;
@@ -20,31 +40,19 @@ export interface IActivityLogModel extends Model<IActivityLogDocument> {
     maxBulk?: number
   );
   createLogFromWidget(type: string, payload): Promise<IActivityLogDocument>;
-  createCocLog({
-    coc,
-    contentType
-  }: {
+  createCocLog(params: {
     coc: any;
     contentType: string;
   }): Promise<IActivityLogDocument>;
-  createCocLogs({
-    cocs,
-    contentType
-  }: {
+  createCocLogs(params: {
     cocs: any;
     contentType: string;
   }): Promise<IActivityLogDocument[]>;
-  createBoardItemsLog({
-    items,
-    contentType
-  }: {
+  createBoardItemsLog(params: {
     items: IItemCommonFieldsDocument[];
     contentType: string;
   }): Promise<IActivityLogDocument[]>;
-  createBoardItemLog({
-    item,
-    contentType
-  }: {
+  createBoardItemLog(params: {
     item: IItemCommonFieldsDocument;
     contentType: string;
   }): Promise<IActivityLogDocument>;
@@ -54,38 +62,10 @@ export interface IActivityLogModel extends Model<IActivityLogDocument> {
     userId: string,
     content: object
   ): Promise<IActivityLogDocument>;
-  createAssigneLog({
-    contentId,
-    userId,
-    contentType,
-    content
-  }: {
-    contentId: string;
-    userId: string;
-    contentType: string;
-    content: object;
-  }): Promise<IActivityLogDocument>;
-  createChecklistLog({
-    item,
-    contentType,
-    action
-  }: {
-    item: any;
-    contentType: string;
-    action: string;
-  }): Promise<IActivityLogDocument>;
+  createAssigneLog(params: IAssigneeParams): Promise<IActivityLogDocument>;
+  createChecklistLog(params: IChecklistParams): Promise<IActivityLogDocument>;
 
-  createArchiveLog({
-    item,
-    contentType,
-    action,
-    userId
-  }: {
-    item: any;
-    contentType: string;
-    action: string;
-    userId: string;
-  }): Promise<IActivityLogDocument>;
+  createArchiveLog(params: IArchiveParams): Promise<IActivityLogDocument>;
 }
 
 export const loadClass = () => {
@@ -107,12 +87,7 @@ export const loadClass = () => {
       userId,
       contentType,
       content
-    }: {
-      contentId: string;
-      userId: string;
-      contentType: string;
-      content: object;
-    }) {
+    }: IAssigneeParams) {
       return ActivityLogs.addActivityLog({
         contentType,
         contentId,
@@ -135,9 +110,11 @@ export const loadClass = () => {
         let action = ACTIVITY_ACTIONS.CREATE;
         let content = '';
 
-        if (item.sourceConversationId) {
+        const sourceIds = item.sourceConversationIds;
+
+        if (sourceIds && sourceIds.length > 0) {
           action = ACTIVITY_ACTIONS.CONVERT;
-          content = item.sourceConversationId;
+          content = sourceIds.slice(-1)[0];
         }
 
         docs.push({
@@ -162,9 +139,11 @@ export const loadClass = () => {
       let action = ACTIVITY_ACTIONS.CREATE;
       let content = '';
 
-      if (item.sourceConversationId) {
+      const sourceIds = item.sourceConversationIds;
+
+      if (sourceIds && sourceIds.length > 0) {
         action = ACTIVITY_ACTIONS.CONVERT;
-        content = item.sourceConversationId;
+        content = sourceIds.slice(-1)[0];
       }
 
       return ActivityLogs.addActivityLog({
@@ -326,12 +305,7 @@ export const loadClass = () => {
       contentType,
       action,
       userId
-    }: {
-      item: any;
-      contentType: string;
-      action: string;
-      userId: string;
-    }) {
+    }: IArchiveParams) {
       return ActivityLogs.addActivityLog({
         contentType,
         contentId: item._id,
@@ -345,11 +319,7 @@ export const loadClass = () => {
       item,
       contentType,
       action
-    }: {
-      item: any;
-      contentType: string;
-      action: string;
-    }) {
+    }: IChecklistParams) {
       if (action === 'delete') {
         await ActivityLogs.updateMany(
           { 'content._id': item._id },

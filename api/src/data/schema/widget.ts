@@ -48,6 +48,7 @@ export const types = `
     validation: String
     text: String
     value: String
+    associatedFieldId: String
   }
 `;
 
@@ -98,7 +99,8 @@ export const mutations = `
   ): ConversationMessage
 
   widgetBotRequest(
-    customerId: String!
+    customerId: String
+    visitorId: String
     conversationId: String
     integrationId: String!,
     message: String!
@@ -107,7 +109,7 @@ export const mutations = `
     ): JSON
 
   widgetsReadConversationMessages(conversationId: String): JSON
-  widgetsSaveCustomerGetNotified(customerId: String!, type: String!, value: String!): JSON
+  widgetsSaveCustomerGetNotified(customerId: String, visitorId: String, type: String!, value: String!): JSON
 
   widgetsLeadConnect(
     brandCode: String!,

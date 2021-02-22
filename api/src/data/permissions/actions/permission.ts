@@ -625,7 +625,7 @@ export const moduleObjects = {
   },
   engages: {
     name: 'engages',
-    description: 'Engages',
+    description: 'Campaigns',
     actions: [
       {
         name: 'engagesAll',
@@ -642,31 +642,31 @@ export const moduleObjects = {
       },
       {
         name: 'engageMessageSetLive',
-        description: 'Set live engage message'
+        description: 'Set an auto campaign live'
       },
       {
         name: 'engageMessageSetPause',
-        description: 'Set pause engage message'
+        description: 'Pause a campaign'
       },
       {
         name: 'engageMessageSetLiveManual',
-        description: 'Set live engage message manual'
+        description: 'Set a manual campaign live'
       },
       {
         name: 'engageMessageRemove',
-        description: 'Remove engage message'
+        description: 'Remove a campaign'
       },
       {
         name: 'engageMessageEdit',
-        description: 'Edit engage message'
+        description: 'Edit a campaign'
       },
       {
         name: 'engageMessageAdd',
-        description: 'Add engage message'
+        description: 'Add a campaign'
       },
       {
         name: 'showEngagesMessages',
-        description: 'Show engages messages list'
+        description: 'See campaign list'
       }
     ]
   },
@@ -781,6 +781,10 @@ export const moduleObjects = {
       {
         name: 'showProducts',
         description: 'Show products'
+      },
+      {
+        name: 'productsMerge',
+        description: 'Merge products'
       }
     ]
   },

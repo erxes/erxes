@@ -1,20 +1,24 @@
-import './setup.ts';
-
 import * as faker from 'faker';
 import * as sinon from 'sinon';
-import messageBroker from '../messageBroker';
-
+import { AUTO_BOT_MESSAGES } from '../data/constants';
+import { IntegrationsAPI } from '../data/dataSources';
+import utils from '../data/utils';
+import { graphqlRequest } from '../db/connection';
 import {
   channelFactory,
   conversationFactory,
   customerFactory,
+  dealFactory,
   integrationFactory,
+  stageFactory,
   userFactory
 } from '../db/factories';
 import {
+  Conformities,
   ConversationMessages,
   Conversations,
   Customers,
+  Deals,
   Integrations,
   Users
 } from '../db/models';
@@ -23,15 +27,12 @@ import {
   CONVERSATION_STATUSES,
   KIND_CHOICES
 } from '../db/models/definitions/constants';
-
-import { AUTO_BOT_MESSAGES } from '../data/constants';
-import { IntegrationsAPI } from '../data/dataSources';
-import utils from '../data/utils';
-import { graphqlRequest } from '../db/connection';
 import { IConversationDocument } from '../db/models/definitions/conversations';
 import { ICustomerDocument } from '../db/models/definitions/customers';
 import { IIntegrationDocument } from '../db/models/definitions/integrations';
 import { IUserDocument } from '../db/models/definitions/users';
+import messageBroker from '../messageBroker';
+import './setup.ts';
 
 const toJSON = value => {
   // sometimes object key order is different even though it has same value.
@@ -86,6 +87,12 @@ describe('Conversation message mutations', () => {
       }
     }
   `;
+
+  const conversationConvertToCardMutation = `
+    mutation conversationConvertToCard($_id: String!, $type: String!, $itemId: String, $itemName: String, $stageId: String) {
+    conversationConvertToCard(_id: $_id, type: $type, itemId: $itemId, itemName: $itemName, stageId: $stageId)
+  }
+`;
 
   let dataSources;
 
@@ -221,6 +228,19 @@ describe('Conversation message mutations', () => {
     expect(response.conversationId).toBe(args.conversationId);
     expect(response.content).toBe(args.content);
     expect(response.internal).toBeTruthy();
+
+    // Mobile notification fail
+    const mock = sinon
+      .stub(utils, 'sendMobileNotification')
+      .throws(new Error('Firebase is not configured'));
+
+    try {
+      await graphqlRequest(addMutation, 'conversationMessageAdd', args);
+    } catch (e) {
+      expect(e.message).toBe('Firebase is not configured');
+    }
+
+    mock.restore();
   });
 
   test('Add lead conversation message', async () => {
@@ -902,5 +922,84 @@ describe('Conversation message mutations', () => {
     } else {
       fail('Conversation not found to update operator status');
     }
+  });
+
+  test('Convert conversation to card', async () => {
+    const conversation = await conversationFactory({
+      assignedUserId: user._id
+    });
+    const stage = await stageFactory({ type: 'deal' });
+
+    await graphqlRequest(
+      conversationConvertToCardMutation,
+      'conversationConvertToCard',
+      {
+        _id: conversation._id,
+        type: 'deal',
+        itemName: 'test deal',
+        stageId: stage._id
+      },
+      { dataSources }
+    );
+
+    const deal = await Deals.findOne({
+      sourceConversationIds: { $in: [conversation._id] }
+    });
+
+    if (!deal) {
+      fail('deal not found');
+    }
+
+    const conformity = await Conformities.findOne({
+      mainType: 'deal',
+      mainTypeId: deal && deal._id,
+      relType: 'customer'
+    });
+
+    if (!conformity) {
+      fail('conformity not found');
+    }
+
+    expect(deal).toBeDefined();
+    expect(deal.assignedUserIds).toContain(user._id);
+    expect(conformity).toBeDefined();
+    expect(conformity.relTypeId).toBe(conversation.customerId);
+    expect(deal.sourceConversationIds).toContain(conversation._id);
+  });
+
+  test('Convert conversation to existing card', async () => {
+    const assignedUser = await userFactory({});
+
+    const stage = await stageFactory({ type: 'deal' });
+
+    const oldConversation = await conversationFactory({});
+    const newConversation = await conversationFactory({
+      assignedUserId: assignedUser._id
+    });
+
+    const deal = await dealFactory({
+      sourceConversationIds: [oldConversation._id],
+      stageId: stage._id,
+      assignedUserIds: [user._id]
+    });
+
+    await graphqlRequest(
+      conversationConvertToCardMutation,
+      'conversationConvertToCard',
+      {
+        _id: newConversation._id,
+        type: 'deal',
+        itemId: deal._id,
+        stageId: stage._id
+      },
+      { dataSources }
+    );
+
+    const updatedDeal = await Deals.getDeal(deal._id);
+
+    const sourcesIds = updatedDeal.sourceConversationIds || [];
+
+    expect(updatedDeal).toBeDefined();
+    expect(sourcesIds.length).toEqual(2);
   });
 });

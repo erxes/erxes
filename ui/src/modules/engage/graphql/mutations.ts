@@ -17,7 +17,7 @@ const setLive = `
 `;
 
 const setLiveManual = `
-  mutation setLiveManual($_id: String!) {
+  mutation engageMessageSetLiveManual($_id: String!) {
     engageMessageSetLiveManual(_id: $_id) {
       _id
     }

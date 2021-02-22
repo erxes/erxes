@@ -4,6 +4,7 @@ import * as fs from 'fs';
 import { disconnect } from 'mongoose';
 import * as shelljs from 'shelljs';
 import * as XlsxStreamReader from 'xlsx-stream-reader';
+import { EngagesAPI, HelpersApi, IntegrationsAPI } from '../data/dataSources';
 
 import { checkFieldNames } from '../data/modules/fields/utils';
 import widgetMutations from '../data/resolvers/mutations/widgets';
@@ -282,6 +283,7 @@ const main = async () => {
         loadType,
         successAction: 'redirect',
         redirectUrl: faker.internet.url(),
+        thankTitle: faker.random.word(),
         thankContent: faker.lorem.sentence()
       }
     },
@@ -420,6 +422,14 @@ const main = async () => {
 
   console.log('Creating: Conversations');
 
+  const context: any = {
+    dataSources: {
+      IntegrationsAPI: new IntegrationsAPI(),
+      EngagesAPI: new EngagesAPI(),
+      HelpersApi: new HelpersApi()
+    }
+  };
+
   for (let i = 0; i < 5; i++) {
     const randomCustomer = await Customers.aggregate([
       { $sample: { size: 1 } }
@@ -437,7 +447,8 @@ const main = async () => {
           integrationId: integration._id,
           customerId: randomCustomer[0]._id || '',
           message: faker.lorem.sentence()
-        }
+        },
+        context
       );
     }
   }
@@ -448,12 +459,21 @@ const main = async () => {
 
   console.log('Creating: Tickets');
 
-  const randomConversation = await Conversations.findOne();
+  const customerId = await Customers.createVisitor();
+
+  const randomConversation =
+    (await Conversations.findOne()) ||
+    (await Conversations.createConversation({
+      customerId,
+      integrationId: integration._id
+    }));
+
   const ticketBoard = await Boards.createBoard({
     name: faker.random.word(),
     type: 'ticket',
     userId: admin._id
   });
+
   const ticketStages = await populateStages('ticket');
 
   for (let j = 0; j < 2; j++) {
@@ -468,9 +488,9 @@ const main = async () => {
   await Tickets.createTicket({
     name: faker.random.word(),
     userId: admin._id,
-    initialStageId: selectedTicketStage?._id,
-    sourceConversationId: randomConversation?._id,
-    stageId: selectedTicketStage?._id || ''
+    initialStageId: (selectedTicketStage && selectedTicketStage._id) || '',
+    sourceConversationIds: [randomConversation._id || ''],
+    stageId: (selectedTicketStage && selectedTicketStage._id) || ''
   });
 
   console.log('Finished: Tickets');

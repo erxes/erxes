@@ -75,7 +75,7 @@ export interface IItemParams {
   reminderMinute?: number;
   companyIds?: string[];
   customerIds?: string[];
-  sourceConversationId?: string;
+  sourceConversationIds?: string[];
   labelIds?: string[];
   proccessId?: string;
   aboveItemId?: string;
@@ -330,3 +330,17 @@ export interface IEditFormContent {
   copy: () => void;
   remove: (id: string) => void;
 }
+
+export type ConvertToMutationVariables = {
+  type: string;
+  _id: string;
+  itemId?: string;
+  itemName?: string;
+  stageId?: string;
+};
+
+export type ConvertToMutationResponse = {
+  conversationConvertToCard: (doc: {
+    variables: ConvertToMutationVariables;
+  }) => Promise<any>;
+};

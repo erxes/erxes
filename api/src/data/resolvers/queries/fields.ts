@@ -14,6 +14,7 @@ interface IFieldsDefaultColmns {
 export interface IFieldsQuery {
   contentType: string;
   contentTypeId?: string;
+  isVisible?: boolean;
 }
 
 const fieldQueries = {
@@ -24,13 +25,18 @@ const fieldQueries = {
     _root,
     {
       contentType,
-      contentTypeId
-    }: { contentType: string; contentTypeId: string }
+      contentTypeId,
+      isVisible
+    }: { contentType: string; contentTypeId: string; isVisible: boolean }
   ) {
     const query: IFieldsQuery = { contentType };
 
     if (contentTypeId) {
       query.contentTypeId = contentTypeId;
+    }
+
+    if (isVisible) {
+      query.isVisible = isVisible;
     }
 
     return Fields.find(query).sort({ order: 1 });

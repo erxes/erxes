@@ -875,3 +875,26 @@ export const getErxesSaasDomain = () => {
     ? 'https://erxes.io'
     : 'http://localhost:3500';
 };
+
+/**
+ * Escaping, special characters
+ */
+export const escapeRegExp = (str: string) => {
+  return str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+};
+
+export const routeErrorHandling = (fn, callback?: any) => {
+  return async (req, res, next) => {
+    try {
+      await fn(req, res, next);
+    } catch (e) {
+      debugBase(e.message);
+
+      if (callback) {
+        return callback(res, e);
+      }
+
+      return next(e);
+    }
+  };
+};

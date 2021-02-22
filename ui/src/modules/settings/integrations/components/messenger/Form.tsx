@@ -197,14 +197,14 @@ class CreateMessenger extends React.Component<Props, State> {
     }
 
     if (!title) {
-      return Alert.error('Write title');
+      return Alert.error('Insert integration name');
     }
 
     if (!brandId) {
       return Alert.error('Choose a brand');
     }
 
-    if (skillData) {
+    if (skillData && Object.keys(skillData).length !== 0) {
       const skillOptions = (skillData as ISkillData).options || [];
 
       if (skillOptions.length === 0) {

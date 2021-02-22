@@ -15,6 +15,7 @@ export const formDetailQuery = `
         isRequired
         order
         validation
+        associatedFieldId
       }
     }
   }

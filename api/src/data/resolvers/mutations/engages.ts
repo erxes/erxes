@@ -143,8 +143,34 @@ const engageMutations = {
   /**
    * Engage message set live manual
    */
-  engageMessageSetLiveManual(_root, { _id }: { _id: string }) {
-    return EngageMessages.engageMessageSetLive(_id);
+  async engageMessageSetLiveManual(
+    _root,
+    { _id }: { _id: string },
+    { user }: IContext
+  ) {
+    const draftCampaign = await EngageMessages.getEngageMessage(_id);
+    const live = await EngageMessages.engageMessageSetLive(_id);
+
+    await send(live);
+
+    await putUpdateLog(
+      {
+        type: MODULE_NAMES.ENGAGE,
+        newData: {
+          isLive: true,
+          isDraft: false
+        },
+        object: {
+          _id,
+          isLive: draftCampaign.isLive,
+          isDraft: draftCampaign.isDraft
+        },
+        description: `Campaign "${draftCampaign.title}" has been set live`
+      },
+      user
+    );
+
+    return live;
   },
 
   engagesUpdateConfigs(_root, configsMap, { dataSources }: IContext) {
@@ -206,17 +232,21 @@ const engageMutations = {
   },
 
   // Helps users fill less form fields to create a campaign
-  async engageMessageCopy(_root, { _id }: { _id }, { user }: IContext) {
+  async engageMessageCopy(
+    _root,
+    { _id }: { _id },
+    { docModifier, user }: IContext
+  ) {
     const sourceCampaign = await EngageMessages.getEngageMessage(_id);
 
-    const doc = {
+    const doc = docModifier({
       ...sourceCampaign.toObject(),
       createdAt: new Date(),
       createdBy: user._id,
       title: `${sourceCampaign.title}-copied`,
       isDraft: true,
       isLive: false
-    };
+    });
 
     delete doc._id;
 
@@ -225,7 +255,25 @@ const engageMutations = {
       delete doc.scheduleDate;
     }
 
-    return EngageMessages.createEngageMessage(doc);
+    const copy = await EngageMessages.createEngageMessage(doc);
+
+    await putCreateLog(
+      {
+        type: MODULE_NAMES.ENGAGE,
+        newData: {
+          ...doc,
+          ...emptyCustomers
+        },
+        object: {
+          ...copy.toObject(),
+          ...emptyCustomers
+        },
+        description: `Campaign "${sourceCampaign.title}" has been copied`
+      },
+      user
+    );
+
+    return copy;
   }
 };
 
@@ -262,5 +310,6 @@ checkPermission(
   'engageMessageSendTestEmail',
   'engageMessageRemove'
 );
+checkPermission(engageMutations, 'engageMessageCopy', 'engageMessageAdd');
 
 export default engageMutations;

@@ -1,50 +1,54 @@
 import Button from 'modules/common/components/Button';
-import FormControl from 'modules/common/components/form/Control';
 import ConditionsRule from 'modules/common/components/rule/ConditionsRule';
 import { Step, Steps } from 'modules/common/components/step';
 import {
-  StepWrapper,
-  TitleContainer
+  ControlWrapper,
+  Indicator,
+  StepWrapper
 } from 'modules/common/components/step/styles';
 import { IConditionsRule } from 'modules/common/types';
 import { Alert } from 'modules/common/utils';
 import { __ } from 'modules/common/utils';
 import Wrapper from 'modules/layout/components/Wrapper';
-import { ILeadData, ILeadIntegration } from '../types';
-
+import { IEmailTemplate } from 'modules/settings/emailTemplates/types';
 import React from 'react';
 import { Link } from 'react-router-dom';
+import { ILeadData, ILeadIntegration } from '../types';
 
 import { SmallLoader } from 'modules/common/components/ButtonMutate';
 import { IFormData } from 'modules/forms/types';
+import { Content, LeftContent } from 'modules/settings/integrations/styles';
 import { IField } from 'modules/settings/properties/types';
 import {
   CallOut,
   ChooseType,
   FormStep,
-  FullPreviewStep,
+  FullPreview,
   OptionStep,
   SuccessStep
 } from './step';
+import { PreviewWrapper } from './step/style';
 
 type Props = {
   integration?: ILeadIntegration;
   loading?: boolean;
   isActionLoading: boolean;
   isReadyToSaveForm: boolean;
+  emailTemplates?: IEmailTemplate[];
   afterFormDbSave: (formId: string) => void;
   save: (params: {
     name: string;
     brandId: string;
     languageCode?: string;
     leadData: ILeadData;
+    channelIds?: string[];
   }) => void;
 };
 
 type State = {
-  activeStep?: number;
   type: string;
   brand?: string;
+  channelIds?: string[];
   language?: string;
   title?: string;
   calloutTitle?: string;
@@ -59,6 +63,7 @@ type State = {
   defaultValue: { [key: string]: boolean };
   logo?: string;
   rules?: IConditionsRule[];
+  isStepActive: boolean;
   formData: IFormData;
 
   successAction?: string;
@@ -68,9 +73,13 @@ type State = {
   adminEmails?: string[];
   adminEmailTitle?: string;
   adminEmailContent?: string;
+  thankTitle?: string;
   thankContent?: string;
   redirectUrl?: string;
-  carousel?: string;
+  carousel: string;
+
+  currentMode: 'create' | 'update' | undefined;
+  currentField?: IField;
 };
 
 class Lead extends React.Component<Props, State> {
@@ -82,10 +91,9 @@ class Lead extends React.Component<Props, State> {
     const { leadData = {} as ILeadData } = integration;
     const callout = leadData.callout || {};
     const form = integration.form || {};
+    const channels = integration.channels || [];
 
     this.state = {
-      activeStep: 1,
-
       type: leadData.loadType || 'shoutbox',
       successAction: leadData.successAction || '',
       fromEmail: leadData.fromEmail || '',
@@ -94,11 +102,14 @@ class Lead extends React.Component<Props, State> {
       adminEmails: leadData.adminEmails || [],
       adminEmailTitle: leadData.adminEmailTitle || '',
       adminEmailContent: leadData.adminEmailContent || '',
+      thankTitle: leadData.thankTitle || 'Title',
       thankContent: leadData.thankContent || 'Thank you.',
       redirectUrl: leadData.redirectUrl || '',
       rules: leadData.rules || [],
+      isStepActive: false,
 
       brand: integration.brandId,
+      channelIds: channels.map(item => item._id) || [],
       language: integration.languageCode,
       title: integration.name,
       calloutTitle: callout.title || 'Title',
@@ -118,30 +129,42 @@ class Lead extends React.Component<Props, State> {
       theme: leadData.themeColor || '#6569DF',
       isRequireOnce: leadData.isRequireOnce,
       logoPreviewUrl: callout.featuredImage,
-      isSkip: callout.skip && true
+      isSkip: callout.skip && true,
+      carousel: callout.skip ? 'form' : 'callout',
+
+      currentMode: undefined,
+      currentField: undefined
     };
   }
 
   handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
-    const { brand, calloutTitle, title, rules, formData } = this.state;
+    const {
+      brand,
+      calloutTitle,
+      title,
+      rules,
+      formData,
+      channelIds
+    } = this.state;
 
     if (!title) {
-      return Alert.error('Write title');
+      return Alert.error('Enter a Form name');
     }
 
     if (!formData.title) {
-      return Alert.error('Write Form title');
+      return Alert.error('Enter a Form title');
     }
 
     if (!brand) {
-      return Alert.error('Choose a brand');
+      return Alert.error('Choose a Brand');
     }
 
     const doc = {
       name: title,
       brandId: brand,
+      channelIds,
       languageCode: this.state.language,
       leadData: {
         loadType: this.state.type,
@@ -152,6 +175,7 @@ class Lead extends React.Component<Props, State> {
         adminEmails: this.state.adminEmails,
         adminEmailTitle: this.state.adminEmailTitle,
         adminEmailContent: this.state.adminEmailContent,
+        thankTitle: this.state.thankTitle,
         thankContent: this.state.thankContent,
         redirectUrl: this.state.redirectUrl,
         themeColor: this.state.theme || this.state.color,
@@ -170,11 +194,34 @@ class Lead extends React.Component<Props, State> {
     this.props.save(doc);
   };
 
-  renderSaveButton = () => {
+  onChange = (key: string, value: any) => {
+    this.setState({ [key]: value } as any);
+  };
+
+  onFormDocChange = formData => {
+    this.setState({ formData });
+  };
+
+  onFormInit = (fields: IField[]) => {
+    const formData = this.state.formData;
+    formData.fields = fields;
+
+    this.setState({ formData });
+  };
+
+  onFieldClick = (field: IField) => {
+    this.setState({ currentMode: 'update', currentField: field });
+  };
+
+  onStepClick = carousel => {
+    return this.setState({ carousel });
+  };
+
+  renderButtons = () => {
     const { isActionLoading } = this.props;
 
     const cancelButton = (
-      <Link to="/leads">
+      <Link to="/forms">
         <Button btnStyle="simple" icon="times-circle" uppercase={false}>
           Cancel
         </Button>
@@ -199,24 +246,8 @@ class Lead extends React.Component<Props, State> {
     );
   };
 
-  onChange = (key: string, value: any) => {
-    this.setState({ [key]: value } as any);
-  };
-
-  onFormDocChange = formData => {
-    this.setState({ formData });
-  };
-
-  onFormInit = (fields: IField[]) => {
-    const formData = this.state.formData;
-    formData.fields = fields;
-
-    this.setState({ formData });
-  };
-
   render() {
     const {
-      activeStep,
       calloutTitle,
       type,
       calloutBtnText,
@@ -224,6 +255,7 @@ class Lead extends React.Component<Props, State> {
       color,
       theme,
       logoPreviewUrl,
+      thankTitle,
       thankContent,
       carousel,
       language,
@@ -232,119 +264,151 @@ class Lead extends React.Component<Props, State> {
       isSkip,
       rules,
       formData,
-      isRequireOnce
+      isRequireOnce,
+      channelIds
     } = this.state;
 
-    const { integration } = this.props;
+    const { integration, emailTemplates } = this.props;
     const leadData = integration && integration.leadData;
     const brand = integration && integration.brand;
-    const breadcrumb = [{ title: __('Pop Ups'), link: '/leads' }];
-    const constant = isSkip ? 'form' : 'callout';
-
-    const onChange = e =>
-      this.onChange('title', (e.currentTarget as HTMLInputElement).value);
+    const breadcrumb = [{ title: __('Forms'), link: '/forms' }];
 
     return (
-      <>
-        <Wrapper.Header title={__('Leads')} breadcrumb={breadcrumb} />
-        <StepWrapper>
-          <TitleContainer id="CreatePopupsTitle">
-            <div>{__('Title')}</div>
-            <FormControl
-              required={true}
-              onChange={onChange}
-              defaultValue={title}
-              autoFocus={true}
+      <StepWrapper>
+        <Wrapper.Header title={__('Forms')} breadcrumb={breadcrumb} />
+        <Content>
+          <LeftContent>
+            <Steps>
+              <Step
+                img="/images/icons/erxes-04.svg"
+                title="Style"
+                onClick={this.onStepClick.bind(
+                  null,
+                  isSkip ? 'form' : 'callout'
+                )}
+              >
+                <ChooseType
+                  onChange={this.onChange}
+                  type={type}
+                  calloutTitle={calloutTitle}
+                  calloutBtnText={calloutBtnText}
+                  color={color}
+                  theme={theme}
+                />
+              </Step>
+              <Step
+                img="/images/icons/erxes-03.svg"
+                title="CallOut"
+                onClick={this.onStepClick.bind(
+                  null,
+                  isSkip ? 'form' : 'callout'
+                )}
+              >
+                <CallOut
+                  onChange={this.onChange}
+                  type={type}
+                  calloutTitle={calloutTitle}
+                  calloutBtnText={calloutBtnText}
+                  bodyValue={bodyValue}
+                  color={color}
+                  theme={theme}
+                  image={logoPreviewUrl}
+                  skip={isSkip}
+                />
+              </Step>
+              <Step
+                img="/images/icons/erxes-12.svg"
+                title={'Content'}
+                onClick={this.onStepClick.bind(null, 'form')}
+              >
+                <FormStep
+                  type={type}
+                  color={color}
+                  theme={theme}
+                  formId={integration && integration.formId}
+                  formData={formData}
+                  afterDbSave={this.props.afterFormDbSave}
+                  onDocChange={this.onFormDocChange}
+                  onInit={this.onFormInit}
+                  isReadyToSaveForm={this.props.isReadyToSaveForm}
+                  currentMode={this.state.currentMode}
+                  currentField={this.state.currentField}
+                />
+              </Step>
+              <Step
+                img="/images/icons/erxes-02.svg"
+                title="Rule"
+                onClick={this.onStepClick.bind(null, 'form')}
+              >
+                <ConditionsRule rules={rules || []} onChange={this.onChange} />
+              </Step>
+              <Step
+                img="/images/icons/erxes-06.svg"
+                title="Options"
+                onClick={this.onStepClick.bind(null, 'form')}
+              >
+                <OptionStep
+                  title={title}
+                  type={type}
+                  color={color}
+                  brand={brand}
+                  theme={theme}
+                  language={language}
+                  formData={formData}
+                  isRequireOnce={isRequireOnce}
+                  channelIds={channelIds}
+                  onChange={this.onChange}
+                />
+              </Step>
+              <Step
+                img="/images/icons/erxes-13.svg"
+                title="Confirmation"
+                onClick={this.onStepClick.bind(null, 'sucess')}
+                noButton={true}
+              >
+                <SuccessStep
+                  onChange={this.onChange}
+                  thankTitle={thankTitle}
+                  thankContent={thankContent}
+                  type={type}
+                  color={color}
+                  theme={theme}
+                  successAction={successAction}
+                  leadData={leadData}
+                  formId={integration && integration.formId}
+                  emailTemplates={emailTemplates ? emailTemplates : []}
+                />
+              </Step>
+            </Steps>
+            <ControlWrapper>
+              <Indicator>
+                {__('You are')} {integration ? 'editing' : 'creating'}{' '}
+                <strong>{title}</strong> {__('form')}
+              </Indicator>
+              {this.renderButtons()}
+            </ControlWrapper>
+          </LeftContent>
+
+          <PreviewWrapper>
+            <FullPreview
+              onChange={this.onChange}
+              onDocChange={this.onFormDocChange}
+              calloutTitle={calloutTitle}
+              calloutBtnText={calloutBtnText}
+              bodyValue={bodyValue}
+              type={type}
+              color={color}
+              theme={theme}
+              image={logoPreviewUrl}
+              thankTitle={thankTitle}
+              thankContent={thankContent}
+              skip={isSkip}
+              carousel={carousel}
+              formData={formData}
             />
-            {this.renderSaveButton()}
-          </TitleContainer>
-          <Steps active={activeStep || 1}>
-            <Step img="/images/icons/erxes-04.svg" title="Type">
-              <ChooseType
-                onChange={this.onChange}
-                type={type}
-                calloutTitle={calloutTitle}
-                calloutBtnText={calloutBtnText}
-                color={color}
-                theme={theme}
-              />
-            </Step>
-            <Step img="/images/icons/erxes-03.svg" title="CallOut">
-              <CallOut
-                onChange={this.onChange}
-                type={type}
-                calloutTitle={calloutTitle}
-                calloutBtnText={calloutBtnText}
-                bodyValue={bodyValue}
-                color={color}
-                theme={theme}
-                image={logoPreviewUrl}
-                skip={isSkip}
-              />
-            </Step>
-            <Step img="/images/icons/erxes-12.svg" title={'Form'}>
-              <FormStep
-                type={type}
-                color={color}
-                theme={theme}
-                formId={integration && integration.formId}
-                formData={formData}
-                afterDbSave={this.props.afterFormDbSave}
-                onDocChange={this.onFormDocChange}
-                onInit={this.onFormInit}
-                isReadyToSaveForm={this.props.isReadyToSaveForm}
-              />
-            </Step>
-            <Step img="/images/icons/erxes-02.svg" title="Rule">
-              <ConditionsRule rules={rules || []} onChange={this.onChange} />
-            </Step>
-            <Step img="/images/icons/erxes-06.svg" title="Options">
-              <OptionStep
-                onChange={this.onChange}
-                type={type}
-                color={color}
-                brand={brand}
-                theme={theme}
-                isRequireOnce={isRequireOnce}
-                language={language}
-                formData={formData}
-              />
-            </Step>
-            <Step img="/images/icons/erxes-13.svg" title="Thank content">
-              <SuccessStep
-                onChange={this.onChange}
-                thankContent={thankContent}
-                type={type}
-                color={color}
-                theme={theme}
-                successAction={successAction}
-                leadData={leadData}
-                formId={integration && integration.formId}
-              />
-            </Step>
-            <Step
-              img="/images/icons/erxes-19.svg"
-              title="Full Preview"
-              noButton={true}
-            >
-              <FullPreviewStep
-                onChange={this.onChange}
-                calloutTitle={calloutTitle}
-                calloutBtnText={calloutBtnText}
-                bodyValue={bodyValue}
-                type={type}
-                color={color}
-                theme={theme}
-                image={logoPreviewUrl}
-                thankContent={thankContent}
-                skip={isSkip}
-                carousel={carousel || constant}
-                formData={formData}
-              />
-            </Step>
-          </Steps>
-        </StepWrapper>
-      </>
+          </PreviewWrapper>
+        </Content>
+      </StepWrapper>
     );
   }
 }

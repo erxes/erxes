@@ -83,7 +83,7 @@ const moduleOptions = [
   { value: 'growthHack', label: 'Growth hacks' },
   { value: 'integration', label: 'Integrations' },
   { value: 'segment', label: 'Segments' },
-  { value: 'engage', label: 'Engages' },
+  { value: 'engage', label: 'Campaigns' },
   { value: 'script', label: 'Scripts' }
 ];
 

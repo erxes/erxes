@@ -123,6 +123,7 @@ const ManageColumnsContainer = (props: FinalProps) => {
   const updatedProps = {
     ...props,
     save,
+    contentType,
     columns
   };
 
