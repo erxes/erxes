@@ -889,17 +889,7 @@ const widgetMutations = {
       debugBase(`Error occurred during widgets save browser info ${e.message}`);
     }
 
-    const ELK_SYNCER = getEnv({ name: 'ELK_SYNCER', defaultValue: 'true' });
-
-    if (ELK_SYNCER === 'false') {
-      return await getOrCreateEngageMessage(browserInfo, visitorId, customerId);
-    }
-
-    return await getOrCreateEngageMessageElk(
-      browserInfo,
-      visitorId,
-      customerId
-    );
+    return null;
   },
 
   widgetsSendTypingInfo(
