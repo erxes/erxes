@@ -392,7 +392,7 @@ export const getItemList = async (
   extraFields?: { [key: string]: number },
   getExtraFields?: (item: any) => { [key: string]: any }
 ) => {
-  const collection = getCollection(type);
+  const { collection } = getCollection(type);
   const sort = generateSort(args);
   const limit = args.limit !== undefined ? args.limit : 10;
 
