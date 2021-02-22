@@ -3,7 +3,6 @@ import { ConversationMessages, Conversations, Users } from '.';
 import { MESSAGE_KINDS } from '../../data/constants';
 import { generateCustomerSelector } from '../../data/resolvers/mutations/engageUtils';
 import { getEnv, replaceEditorAttributes } from '../../data/utils';
-import { debugBase } from '../../debuggers';
 import { fetchElk } from '../../elasticsearch';
 import { getNumberOfVisits } from '../../events';
 import Customers, { IBrowserInfo } from './Customers';
