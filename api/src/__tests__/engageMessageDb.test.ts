@@ -539,9 +539,9 @@ describe('createVisitorOrCustomerMessages', () => {
     });
     // main call
     const msgs = await EngageMessages.createVisitorOrCustomerMessages({
-      brand: _brand,
+      brandId: _brand._id,
       customer: _customer,
-      integration: _integration,
+      integrationId: _integration._id,
       browserInfo: {
         url: '/index'
       }
@@ -595,18 +595,18 @@ describe('createVisitorOrCustomerMessages', () => {
     });
 
     await EngageMessages.createVisitorOrCustomerMessages({
-      brand: _brand,
+      brandId: _brand._id,
       customer: customer2,
-      integration: _integration,
+      integrationId: _integration._id,
       browserInfo: {
         url: '/index'
       }
     });
 
     await EngageMessages.createVisitorOrCustomerMessages({
-      brand: _brand,
+      brandId: _brand._id,
       customer: customer1,
-      integration: _integration,
+      integrationId: _integration._id,
       browserInfo: {
         url: '/index'
       }
@@ -662,9 +662,9 @@ describe('createVisitorOrCustomerMessages', () => {
     });
 
     await EngageMessages.createVisitorOrCustomerMessages({
-      brand: _brand,
+      brandId: _brand._id,
       customer,
-      integration: _integration,
+      integrationId: _integration._id,
       browserInfo: {
         url: '/index'
       }

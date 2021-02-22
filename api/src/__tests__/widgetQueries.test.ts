@@ -1,6 +1,7 @@
-import { graphqlRequest } from '../db/connection';
-
+import * as sinon from 'sinon';
 import { isMessengerOnline } from '../data/resolvers/queries/widgets';
+import * as utils from '../data/utils';
+import { graphqlRequest } from '../db/connection';
 import {
   brandFactory,
   conversationFactory,
@@ -16,6 +17,15 @@ import { Brands, Conversations, Customers, Integrations } from '../db/models';
 import './setup.ts';
 
 describe('widgetQueries', () => {
+  const widgetsGetEngageMessageQuery = `query widgetsGetEngageMessage($customerId: String!, $browserInfo: JSON!) {
+    widgetsGetEngageMessage(customerId: $customerId, browserInfo: $browserInfo) {
+      _id
+      engageData {
+        messageId
+      }
+    }
+  }`;
+
   afterEach(async () => {
     // Clearing test data
     await Conversations.deleteMany({});
@@ -342,46 +352,36 @@ describe('widgetQueries', () => {
     const integration = await integrationFactory({ brandId: brand._id });
     const customer = await customerFactory({ integrationId: integration._id });
 
-    const qry = `query widgetsGetEngageMessage($customerId: String!, $browserInfo: JSON!) {
-      widgetsGetEngageMessage(customerId: $customerId, browserInfo: $browserInfo) {
-        _id
-        engageData {
-          messageId
+    const response = await graphqlRequest(
+      widgetsGetEngageMessageQuery,
+      'widgetsGetEngageMessage',
+      {
+        customerId: customer._id,
+        browserInfo: {
+          url: 'url',
+          hostname: 'hostname'
         }
       }
-    }
-    `;
-
-    const response = await graphqlRequest(qry, 'widgetsGetEngageMessage', {
-      customerId: customer._id,
-      browserInfo: {
-        url: 'url',
-        hostname: 'hostname'
-      }
-    });
+    );
 
     expect(response).toBe(null);
   });
 
   test('widgetsGetEngageMessage integarion not found', async () => {
     const customer = await customerFactory({});
-    const qry = `query widgetsGetEngageMessage($customerId: String!, $browserInfo: JSON!) {
-      widgetsGetEngageMessage(customerId: $customerId, browserInfo: $browserInfo) {
-        _id
-        engageData {
-          messageId
-        }
-      }
-    }`;
 
     try {
-      await graphqlRequest(qry, 'widgetsGetEngageMessage', {
-        customerId: customer._id,
-        browserInfo: {
-          url: 'url',
-          hostname: 'hostname'
+      await graphqlRequest(
+        widgetsGetEngageMessageQuery,
+        'widgetsGetEngageMessage',
+        {
+          customerId: customer._id,
+          browserInfo: {
+            url: 'url',
+            hostname: 'hostname'
+          }
         }
-      });
+      );
     } catch (e) {
       expect(e[0].message).toBe('Integration not found');
     }
@@ -391,25 +391,46 @@ describe('widgetQueries', () => {
     const integration = await integrationFactory({});
     const customer = await customerFactory({ integrationId: integration._id });
 
-    const qry = `query widgetsGetEngageMessage($customerId: String!, $browserInfo: JSON!) {
-      widgetsGetEngageMessage(customerId: $customerId, browserInfo: $browserInfo) {
-        _id
-        engageData {
-          messageId
-        }
-      }
-    }`;
-
     try {
-      await graphqlRequest(qry, 'widgetsGetEngageMessage', {
-        customerId: customer._id,
-        browserInfo: {
-          url: 'url',
-          hostname: 'hostname'
+      await graphqlRequest(
+        widgetsGetEngageMessageQuery,
+        'widgetsGetEngageMessage',
+        {
+          customerId: customer._id,
+          browserInfo: {
+            url: 'url',
+            hostname: 'hostname'
+          }
         }
-      });
+      );
     } catch (e) {
       expect(e[0].message).toBe('Brand not found');
     }
+  });
+
+  test('widgetsGetEngageMessage with elksyncer', async () => {
+    const customer = await customerFactory({});
+
+    const envMock = sinon.stub(utils, 'getEnv').callsFake(() => {
+      return 'true';
+    });
+
+    try {
+      await graphqlRequest(
+        widgetsGetEngageMessageQuery,
+        'widgetsGetEngageMessage',
+        {
+          customerId: customer._id,
+          browserInfo: {
+            url: 'url',
+            hostname: 'hostname'
+          }
+        }
+      );
+    } catch (e) {
+      expect(e[0].message).toBe('Integration not found');
+    }
+
+    envMock.restore();
   });
 });

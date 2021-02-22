@@ -180,6 +180,7 @@ export const getOrCreateEngageMessageElk = async (
   );
 
   let integration;
+
   const integrations = integrationsResponse.hits.hits.map(hit => {
     return {
       _id: hit._id,
