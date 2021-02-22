@@ -1,6 +1,5 @@
 import * as faker from 'faker';
 import * as sinon from 'sinon';
-import user from '../data/resolvers/user';
 import * as utils from '../data/utils';
 import {
   brandFactory,
