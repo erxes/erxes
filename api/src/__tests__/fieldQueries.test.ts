@@ -276,12 +276,12 @@ describe('fieldQueries', () => {
     await fieldFactory({
       text: 'text1',
       contentType: 'customer',
-      visible: true,
+      visible: true
     });
     await fieldFactory({
       text: 'text2',
       contentType: 'customer',
-      visible: false,
+      visible: false
     });
 
     const qry = `
@@ -296,7 +296,7 @@ describe('fieldQueries', () => {
 
     const responses = await graphqlRequest(qry, 'fields', {
       contentType: 'customer',
-      isVisible: true,
+      isVisible: true
     });
 
     expect(responses.length).toBe(1);

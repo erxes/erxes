@@ -71,6 +71,7 @@ export default class EngagesAPI extends RESTDataSource {
       const response = await this.get(
         `/deliveryReports/logs/${engageMessageId}`
       );
+
       return response;
     } catch (e) {
       debugBase(e.message);

@@ -149,6 +149,13 @@ const syncMessages = async (accountId: string, messageId: string) => {
 
     try {
       message = await getMessageById(nylasToken, messageId);
+
+      const folder = message.folder || {};
+      const folderName = folder.name || '';
+
+      if (folderName === 'drafts') {
+        return;
+      }
     } catch (e) {
       debugNylas(`Failed to get nylas message by id: ${e.message}`);
 

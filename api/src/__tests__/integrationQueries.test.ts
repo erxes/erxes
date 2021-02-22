@@ -365,7 +365,7 @@ describe('integrationQueries', () => {
     const usedTypes = await graphqlRequest(qry, 'integrationsGetUsedTypes');
 
     expect(usedTypes[0]._id).toBe('messenger');
-    expect(usedTypes[0].name).toBe('Web messenger');
+    expect(usedTypes[0].name).toBe('Messenger');
   });
 
   test('line webhook', async () => {
@@ -435,7 +435,7 @@ describe('integrationQueries', () => {
       'integrationsTotalCount',
       {
         kind: 'lead',
-        status: 'active',
+        status: 'active'
       }
     );
 
@@ -444,7 +444,7 @@ describe('integrationQueries', () => {
       'integrationsTotalCount',
       {
         kind: 'lead',
-        status: 'archived',
+        status: 'archived'
       }
     );
 
