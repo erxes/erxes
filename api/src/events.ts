@@ -87,7 +87,6 @@ export const getNumberOfVisits = async (params: {
     ? { customerId: params.customerId }
     : { visitorId: params.visitorId };
 
-  console.log(searchId);
   try {
     const response = await fetchElk('search', 'events', {
       query: {

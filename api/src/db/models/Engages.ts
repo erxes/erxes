@@ -285,16 +285,9 @@ export const loadClass = () => {
       const conversationMessages: IMessageDocument[] = [];
 
       for (const message of messages) {
-        let messenger;
+        const jsonString = JSON.stringify(message.messenger);
 
-        if (message.messenger) {
-          try {
-            messenger = message.messenger.toJSON();
-          } catch (e) {
-            debugBase(e.message);
-            messenger = message.messenger;
-          }
-        }
+        const messenger = JSON.parse(jsonString);
 
         const {
           customerIds = [],
@@ -472,8 +465,6 @@ export const loadClass = () => {
         prevMessage = await ConversationMessages.findOne(query);
       }
 
-      console.log(prevMessage);
-
       if (prevMessage) {
         if (
           JSON.stringify(prevMessage.engageData) === JSON.stringify(engageData)
@@ -495,7 +486,6 @@ export const loadClass = () => {
           { _id: prevMessage._id },
           { $set: { engageData, isCustomerRead: false } }
         );
-
         return null;
       }
 

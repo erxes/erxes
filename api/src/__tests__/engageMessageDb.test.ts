@@ -1,4 +1,6 @@
+import * as faker from 'faker';
 import * as sinon from 'sinon';
+import user from '../data/resolvers/user';
 import * as utils from '../data/utils';
 import {
   brandFactory,
@@ -22,12 +24,12 @@ import {
   Tags,
   Users
 } from '../db/models';
-
 import Messages from '../db/models/ConversationMessages';
 import { IBrandDocument } from '../db/models/definitions/brands';
 import { ICustomerDocument } from '../db/models/definitions/customers';
 import { IIntegrationDocument } from '../db/models/definitions/integrations';
 import { IUserDocument } from '../db/models/definitions/users';
+import * as elk from '../elasticsearch';
 import * as events from '../events';
 import './setup.ts';
 
@@ -369,6 +371,43 @@ describe('createConversation', () => {
       customerId: _customer._id
     });
 
+    const envMock = sinon.stub(utils, 'getEnv').callsFake(() => {
+      return 'true';
+    });
+
+    const elkMock = sinon.stub(elk, 'fetchElk').callsFake(() => {
+      return Promise.resolve({
+        hits: {
+          hits: [
+            {
+              _index: 'erxes__conversation_messages',
+              _type: '_doc',
+              _id: 'JKbe4Z4kmGsGekEt4',
+              _score: 1.0,
+              _source: {
+                mentionedUserIds: [],
+                contentType: 'text',
+                internal: false,
+                engageData: {
+                  rules: [],
+                  messageId: engageMessage._id,
+                  brandId: 'brandId',
+                  content: 'content',
+                  fromUserId: user._id,
+                  kind: 'chat',
+                  sentAs: 'snippet'
+                },
+                conversationId: 'Y5hKjytzDyT3fkfoM',
+                userId: user._id,
+                visitorId: '60d1aa3afba2f8e352e4b01d316ad175',
+                content: 'content'
+              }
+            }
+          ]
+        }
+      });
+    });
+
     response = await EngageMessages.createOrUpdateConversationAndMessages({
       customerId: _customer._id,
       integrationId: _integration._id,
@@ -386,6 +425,9 @@ describe('createConversation', () => {
     });
 
     expect(response).toBe(null);
+
+    elkMock.restore();
+    envMock.restore();
   });
 });
 
@@ -679,26 +721,69 @@ describe('createVisitorOrCustomerMessages', () => {
     expect(conversation).toBeNull();
   });
 
-  test('engageMessage with elkSyncer', async () => {
-    const customer = await customerFactory({
-      state: 'visitor',
-      firstName: 'john',
-      lastName: 'doe'
-    });
+  test('visitorAuto with visitor', async () => {
+    faker.random.uuid();
+    const visitor = {
+      _id: '123456',
+      integrationId: _integration._id,
+      visitorId: 'abc123'
+    };
 
     const envMock = sinon.stub(utils, 'getEnv').callsFake(() => {
       return 'true';
     });
 
-    await engageMessageFactory({
-      kind: 'visitorAuto',
-      userId: _user._id,
-      isLive: true,
-      customerIds: [_visitor.id, customer._id],
-      messenger: {
-        brandId: _brand._id,
-        content: 'hi, {{ customer.firstName }} {{ customer.lastName }}'
+    const elkMock = sinon.stub(elk, 'fetchElk').callsFake(() => {
+      return Promise.resolve({
+        hits: {
+          hits: [
+            {
+              _id: faker.random.uuid(),
+              _source: {
+                kind: 'visitorAuto',
+                method: 'messenger',
+                fromUserId: _user._id,
+                isDraft: false,
+                isLive: true,
+                messenger: {
+                  brandId: _brand._id,
+                  sentAs: 'snippet',
+                  content: '',
+                  rules: []
+                },
+                createdBy: _user._id
+              }
+            }
+          ]
+        }
+      });
+    });
+
+    await EngageMessages.createVisitorOrCustomerMessages({
+      brandId: _brand._id,
+      visitor,
+      integrationId: _integration._id,
+      browserInfo: {
+        url: '/index'
       }
+    });
+
+    const conversation = await Conversations.findOne({
+      visitorId: visitor.visitorId,
+      integrationId: _integration._id
+    });
+
+    expect(conversation).toBeNull();
+
+    elkMock.restore();
+    envMock.restore();
+  });
+
+  test('engageMessage with elkSyncer', async () => {
+    const customer = await customerFactory({
+      state: 'visitor',
+      firstName: 'john',
+      lastName: 'doe'
     });
 
     await EngageMessages.createVisitorOrCustomerMessages({
@@ -728,9 +813,7 @@ describe('createVisitorOrCustomerMessages', () => {
     }
 
     expect(conversation).toBeDefined();
-    expect(conversationMessage.content).toBe('hi, john doe');
-
-    envMock.restore();
+    expect(conversationMessage.content).toBe('hi,john doe');
   });
 
   const browserLanguageRule = {
