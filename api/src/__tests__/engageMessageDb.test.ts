@@ -1,4 +1,5 @@
 import * as sinon from 'sinon';
+import * as utils from '../data/utils';
 import {
   brandFactory,
   conversationMessageFactory,
@@ -12,6 +13,7 @@ import {
 } from '../db/factories';
 import {
   Brands,
+  ConversationMessages,
   Conversations,
   Customers,
   EngageMessages,
@@ -675,6 +677,60 @@ describe('createVisitorOrCustomerMessages', () => {
     });
 
     expect(conversation).toBeNull();
+  });
+
+  test('engageMessage with elkSyncer', async () => {
+    const customer = await customerFactory({
+      state: 'visitor',
+      firstName: 'john',
+      lastName: 'doe'
+    });
+
+    const envMock = sinon.stub(utils, 'getEnv').callsFake(() => {
+      return 'true';
+    });
+
+    await engageMessageFactory({
+      kind: 'visitorAuto',
+      userId: _user._id,
+      isLive: true,
+      customerIds: [_visitor.id, customer._id],
+      messenger: {
+        brandId: _brand._id,
+        content: 'hi, {{ customer.firstName }} {{ customer.lastName }}'
+      }
+    });
+
+    await EngageMessages.createVisitorOrCustomerMessages({
+      brandId: _brand._id,
+      customer,
+      integrationId: _integration._id,
+      browserInfo: {
+        url: '/index'
+      }
+    });
+
+    const conversation = await Conversations.findOne({
+      customerId: customer._id
+    });
+
+    if (!conversation) {
+      fail('conversation not found');
+    }
+
+    const conversationMessage = await ConversationMessages.findOne({
+      customerId: customer._id,
+      conversationId: conversation._id
+    });
+
+    if (!conversationMessage) {
+      fail('conversationMessage not found');
+    }
+
+    expect(conversation).toBeDefined();
+    expect(conversationMessage.content).toBe('hi, john doe');
+
+    envMock.restore();
   });
 
   const browserLanguageRule = {
