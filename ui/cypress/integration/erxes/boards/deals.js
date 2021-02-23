@@ -16,9 +16,7 @@ context('Check Deals', () => {
 
     cy.url().should('include', '/settings/boards/deal');
 
-    const createdBoardsCount = 0;
     const newBoardName = 'board-' + fakeName(10);
-    // const newBoardName = 'board-VETQA5T6df'
     const pipelineNames = [];
 
     cy.get('section').eq(0).find('a').then((a) => {
@@ -89,10 +87,11 @@ context('Check Deals', () => {
     }
 
     cy.get('a[href="/deal"]').click();
+
     cy.reload();
+
     cy.get('a').contains('Sales pipeline').then(() => {
       cy.get('body').find('section').find('#board-pipeline-header');
     })
-    cy.get('div[class="dropdown"]').should('have.length', 3);
   });
 });
