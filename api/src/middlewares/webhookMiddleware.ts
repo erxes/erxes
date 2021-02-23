@@ -12,6 +12,15 @@ import {
 import { ICustomField } from '../db/models/definitions/common';
 import { graphqlPubsub } from '../pubsub';
 
+const checkCompanyFieldsExists = async doc => {
+  for (const key in doc) {
+    if (key.includes('company')) {
+      return true;
+    }
+  }
+  return false;
+};
+
 const findCustomer = async doc => {
   let customer;
 
@@ -129,25 +138,6 @@ const webhookMiddleware = async (req, res, next) => {
 
     customer = await Customers.updateCustomer(customer._id, doc);
 
-    // company
-    let company = await findCompany(params);
-
-    const companyDoc = {
-      primaryEmail: params.companyPrimaryEmail,
-      primaryPhone: params.companyPrimaryPhone,
-      primaryName: params.companyPrimaryName,
-      website: params.companyWebsite,
-      industry: params.companyIndustry,
-      businessType: params.companyBusinessType,
-      avatar: params.companyAvatar
-    };
-
-    if (!company) {
-      company = await Companies.createCompany(companyDoc);
-    }
-
-    company = await Companies.updateCompany(company._id, companyDoc);
-
     // get or create conversation
     let conversation = await Conversations.findOne({
       customerId: customer._id,
@@ -185,8 +175,31 @@ const webhookMiddleware = async (req, res, next) => {
       conversationMessageInserted: message
     });
 
+    // company
+    let company = await findCompany(params);
+
+    const hasCompanyFields = await checkCompanyFieldsExists(params);
+
+    if (hasCompanyFields) {
+      const companyDoc = {
+        primaryEmail: params.companyPrimaryEmail,
+        primaryPhone: params.companyPrimaryPhone,
+        primaryName: params.companyPrimaryName,
+        website: params.companyWebsite,
+        industry: params.companyIndustry,
+        businessType: params.companyBusinessType,
+        avatar: params.companyAvatar
+      };
+
+      if (!company) {
+        company = await Companies.createCompany(companyDoc);
+      }
+
+      company = await Companies.updateCompany(company._id, companyDoc);
+    }
+
     // comformity
-    if (company && customer) {
+    if (company && company !== undefined && customer) {
       const conformityDoc = {
         mainType: 'customer',
         mainTypeId: customer._id,
