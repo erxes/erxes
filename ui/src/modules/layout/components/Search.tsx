@@ -64,14 +64,15 @@ const Results = styled.div`
   z-index: 10;
   right: 0;
   top: 36px;
-  background-color: ${colors.colorWhite};
-  border-radius: 4px;
+  background-color: #fbfcff;
+  border-radius: 5px;
   box-shadow: 0 5px 15px 1px rgba(0, 0, 0, 0.15);
+  padding-bottom: 5px;
 
   ul {
     list-style: none;
     padding: 0px;
-    margin: 0 0 ${dimensions.unitSpacing}px;
+    margin: 0;
 
     li {
       padding: 0 ${dimensions.unitSpacing}px;
@@ -88,16 +89,16 @@ const Results = styled.div`
     }
 
     li a {
-      padding: 5px ${dimensions.unitSpacing}px;
+      padding: 6px ${dimensions.unitSpacing}px;
       border-radius: 5px;
       display: flex;
       justify-content: space-between;
       align-items: center;
       color: ${colors.colorCoreDarkGray};
-      background: rgba(0, 0, 0, 0.02);
+      background: #f3f4f9;
 
       &:hover {
-        background: ${colors.bgActive};
+        background: #eeeff4;
       }
     }
   }
@@ -111,7 +112,7 @@ const Results = styled.div`
   small {
     margin: 0 0 0 ${dimensions.unitSpacing}px;
     padding: 0;
-    color: ${colors.colorCoreLightGray};
+    color: #b2b2c0;
     flex-shrink: 0;
     font-style: italic;
     font-size: ${dimensions.unitSpacing}px;
@@ -122,17 +123,18 @@ const SearchTitle = styled.h4`
   margin: 0;
   font-size: 12px;
   text-transform: capitalize;
-  color: ${colors.colorCoreGray};
+  color: #9d9da4;
   padding: ${dimensions.unitSpacing}px ${dimensions.coreSpacing}px;
   position: sticky;
   top: 0;
-  background: ${colors.bgLight};
-  border-bottom: 1px solid ${colors.borderDarker};
-  margin-bottom: ${dimensions.unitSpacing}px;
+  background: #fbfcff;
+  font-weight: 600;
+  margin-top: 5px;
 `;
 
 type Props = {
   onSearch: (e) => void;
+  clearSearch: () => void;
   results;
   loading: boolean;
 };
@@ -278,10 +280,12 @@ class Search extends React.Component<
       return null;
     }
 
+    console.log(loading);
+
     if (loading) {
       return (
         <Results>
-          <Spinner />
+          <Spinner objective={true} />
         </Results>
       );
     }
@@ -327,6 +331,7 @@ class Search extends React.Component<
   closeInput = e => {
     e.stopPropagation();
     this.setState({ showInput: false, searchValue: '' });
+    this.props.clearSearch();
   };
 
   handleInput = e => {
