@@ -393,27 +393,6 @@ describe('widgetQueries', () => {
     }
   });
 
-  // test('widgetsGetEngageMessage Integration not found', async () => {
-  //   const integration = await integrationFactory({});
-  //   const customer = await customerFactory({ integrationId: integration._id });
-
-  //   try {
-  //     await graphqlRequest(
-  //       widgetsGetEngageMessageQuery,
-  //       'widgetsGetEngageMessage',
-  //       {
-  //         customerId: customer._id,
-  //         browserInfo: {
-  //           url: 'url',
-  //           hostname: 'hostname'
-  //         }
-  //       }
-  //     );
-  //   } catch (e) {
-  //     expect(e[0].message).toBe('Integration not found');
-  //   }
-  // });
-
   test('widgetsGetEngageMessage with elksyncer', async () => {
     const customer = await customerFactory({});
 
