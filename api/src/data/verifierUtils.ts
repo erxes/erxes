@@ -37,7 +37,6 @@ export const validateSingle = async (contact: IVisitorContact) => {
     debugExternalApi(
       `An error occurred while sending request to the email verifier. Error: ${e.message}`
     );
-    throw e;
   }
 };
 
