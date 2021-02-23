@@ -1,5 +1,5 @@
 import 'cypress-file-upload';
-import { SignIn, waitAndClick } from "../utils";
+import { SignIn } from "../utils";
 
 SignIn;
 
@@ -10,25 +10,6 @@ context('Import/Export', () => {
 
   it('Import/Export', () => {
     cy.signIn();
-
-    // Import & Export
-    cy.get('#Settings').click();
-    cy.get('#SettingsGeneralSettings').children().eq(6).click();
-
-    const hasDownloadsIndexs = [2, 3, 4, 6];
-
-    for(let i=0; i<11; i++){
-      cy.get('#ImportExportSidebar').children().eq(i).click()
-
-      if (hasDownloadsIndexs.includes(i)) {
-        waitAndClick('i[icon=folder-download]');
-
-        cy.get('button').contains('Cancel').click();
-      }
-    }
-
-    cy.get('#navigation').children().eq(3).click()
-    cy.get('a[href="/contacts/customer"]').click()
 
     cy.get('#Settings').click()
     cy.get('#SettingsGeneralSettings').children().eq(6).click();
