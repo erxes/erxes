@@ -201,24 +201,34 @@ export class CommonBuilder<IListArgs extends ICommonListArgs> {
 
   // filter by search value
   public searchFilter(value: string): void {
-    this.positiveList.push({
-      bool: {
-        should: [
-          {
-            match: {
-              searchText: {
-                query: value
+    if (value.includes('@')) {
+      this.positiveList.push({
+        match_phrase: {
+          searchText: {
+            query: value
+          }
+        }
+      });
+    } else {
+      this.positiveList.push({
+        bool: {
+          should: [
+            {
+              match: {
+                searchText: {
+                  query: value
+                }
+              }
+            },
+            {
+              wildcard: {
+                searchText: `*${value.toLowerCase()}*`
               }
             }
-          },
-          {
-            wildcard: {
-              searchText: `*${value.toLowerCase()}*`
-            }
-          }
-        ]
-      }
-    });
+          ]
+        }
+      });
+    }
   }
 
   // filter by auto-completion type

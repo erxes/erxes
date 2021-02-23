@@ -18,6 +18,9 @@
     "erxes*.conversations": {
       "rename": "erxes*__conversations._doc"
     },
+    "erxes*.conversation_messages": {
+      "rename": "erxes*__conversation_messages._doc"
+    },
     "erxes*.integrations": {
       "rename": "erxes*__integrations._doc"
     },
@@ -47,6 +50,9 @@
     },
     "erxes*.tickets": {
       "rename": "erxes*__tickets._doc"
+    },
+    "erxes*.engage_messages": {
+      "rename": "erxes*__engage_messages._doc"
     }
   },
   "docManagers": [
