@@ -1,8 +1,8 @@
-import EmptyState from 'erxes-ui/lib/components/EmptyState';
-import { __ } from 'erxes-ui/lib/utils/core';
+import EmptyState from 'modules/common/components/EmptyState';
 import Icon from 'modules/common/components/Icon';
 import Spinner from 'modules/common/components/Spinner';
 import { colors, dimensions } from 'modules/common/styles';
+import { __ } from 'modules/common/utils';
 import React from 'react';
 import { Link } from 'react-router-dom';
 import styled from 'styled-components';
