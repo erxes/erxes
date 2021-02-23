@@ -35,7 +35,6 @@ context('Check Deals', () => {
 
     // added 1 board
     cy.get('@createdBoardsCount').then((createdBoardsCount) => {
-      // cy.wait(1000);
       cy.get('section').eq(0).find('a').should('have.length', createdBoardsCount + 1);
     });
 
@@ -91,7 +90,6 @@ context('Check Deals', () => {
 
     cy.get('a[href="/deal"]').click();
     cy.reload();
-    // cy.wait(5000);
     cy.get('a').contains('Sales pipeline').then(() => {
       cy.get('body').find('section').find('#board-pipeline-header');
     })
