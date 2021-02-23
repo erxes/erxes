@@ -1,13 +1,13 @@
-import { SignIn, fakeName } from '../utils';
+import { SignIn, fakeName, waitElm } from '../utils';
 
 SignIn;
 
-context('Check Deals', () => {
+context('Check brands', () => {
   beforeEach(() => {
     cy.visit('/');
   });
 
-  it('Deals', () => {
+  it('Brands', () => {
     cy.signIn();
 
     cy.get('a[href="/settings"]').click();
@@ -18,7 +18,7 @@ context('Check Deals', () => {
 
     const newBrandName = fakeName(10);
 
-    // cy.wait(5000);
+    waitElm('#BrandSidebar li');
 
     cy.get('button')
       .contains('Add New')
@@ -27,8 +27,7 @@ context('Check Deals', () => {
     cy.get('div[class="modal-body"]')
       .get('input').eq(0)
       .type(newBrandName);
-    cy.get('div[class="modal-body"]')
-      .get('button[type="submit"]')
-      .click();
+
+    cy.get('button[type="submit"]').click();
   });
 });
