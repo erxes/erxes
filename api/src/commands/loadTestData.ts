@@ -133,6 +133,21 @@ const main = async () => {
     strict: true
   });
 
+  const path = require('path');
+  const jsonPath = '../../../ui/cypress.json';
+  const cypressSettings = require(jsonPath);
+
+  cypressSettings.env.userPassword = newPwd;
+  const newJson = JSON.stringify(cypressSettings, null, 2);
+
+  fs.writeFile(path.resolve(__dirname, jsonPath), newJson, err => {
+    if (err) {
+      return console.log(err);
+    }
+    console.log(JSON.stringify(cypressSettings, null, 2));
+    console.log('writing to ' + jsonPath);
+  });
+
   const userDoc = {
     createdAt: faker.date.recent(),
     username: faker.internet.userName(),
@@ -265,6 +280,16 @@ const main = async () => {
     name: 'other',
     type: TAG_TYPES.CONVERSATION,
     colorCode: '#F7CE53'
+  });
+  await Tags.createTag({
+    name: 'happy',
+    type: TAG_TYPES.COMPANY,
+    colorCode: '#4BBF6B'
+  });
+  await Tags.createTag({
+    name: 'angry',
+    type: TAG_TYPES.COMPANY,
+    colorCode: '#CD5A91'
   });
 
   await Configs.createOrUpdateConfig({
