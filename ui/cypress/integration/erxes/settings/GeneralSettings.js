@@ -130,16 +130,6 @@ context('Settings', () => {
     })
     cy.get('#IntegrationSettingsMenu').children().eq(3).children().eq(0).click();
 
-    // // gmail
-    // const gmail = cy.get('#IntegrationSettingsMenu').children().eq(4).click();
-    // gmail.within(() => {
-    //   cy.get('.react-toggle-track').click()
-    //   for( let i=1; i<=2; i++){
-    //     cy.get('input').eq(i).type('ssss' + i)
-    //   }
-    // })
-    // cy.get('#IntegrationSettingsMenu').children().eq(4).children().eq(0).click();
-
     //conversation api
     const conversationapi = cy.get('#IntegrationSettingsMenu').children().eq(4).click();
     conversationapi.within(() => {

@@ -31,11 +31,6 @@ context('Check Deals', () => {
     cy.get('div[class="modal-body"]').get('input').type(newBoardName);
     cy.get('div[class="modal-body"]').get('button[type="submit"]').click();
 
-    // added 1 board
-    cy.get('@createdBoardsCount').then((createdBoardsCount) => {
-      cy.get('section').eq(0).find('a').should('have.length', createdBoardsCount + 1);
-    });
-
     cy.get('section').eq(0).within(() => {
       cy.get('a').contains(newBoardName).click();
     })
