@@ -241,6 +241,10 @@ describe('createConversation', () => {
   });
 
   test('createOrUpdateConversationAndMessages', async () => {
+    const elkSyncerEnvMock = sinon.stub(utils, 'getEnv').callsFake(() => {
+      return 'false';
+    });
+
     const user = await userFactory({ fullName: 'Full name' });
 
     const replacedContent = 'hi Full name';
@@ -344,6 +348,8 @@ describe('createConversation', () => {
     expect(message1.isCustomerRead).toBe(true);
     expect(message2.isCustomerRead).toBe(true);
 
+    elkSyncerEnvMock.restore();
+
     // message is equal with previous one =====================
     const engageMessage = await engageMessageFactory({
       messenger: {
@@ -379,10 +385,7 @@ describe('createConversation', () => {
         hits: {
           hits: [
             {
-              _index: 'erxes__conversation_messages',
-              _type: '_doc',
-              _id: 'JKbe4Z4kmGsGekEt4',
-              _score: 1.0,
+              _id: 'conversationMessageId',
               _source: {
                 mentionedUserIds: [],
                 contentType: 'text',
@@ -396,9 +399,9 @@ describe('createConversation', () => {
                   kind: 'chat',
                   sentAs: 'snippet'
                 },
-                conversationId: 'Y5hKjytzDyT3fkfoM',
+                conversationId: 'conversationId',
                 userId: user._id,
-                visitorId: '60d1aa3afba2f8e352e4b01d316ad175',
+                visitorId: 'visitorId',
                 content: 'content'
               }
             }
@@ -437,6 +440,7 @@ describe('createVisitorOrCustomerMessages', () => {
   let _integration: IIntegrationDocument;
   let _visitor: ICustomerDocument;
   let mock;
+  let envMock;
 
   beforeEach(async () => {
     // Creating test data
@@ -448,6 +452,10 @@ describe('createVisitorOrCustomerMessages', () => {
 
     _visitor = await customerFactory({
       state: 'visitor'
+    });
+
+    envMock = sinon.stub(utils, 'getEnv').callsFake(() => {
+      return 'false';
     });
 
     mock = sinon.stub(events, 'getNumberOfVisits').callsFake(() => {
@@ -528,6 +536,7 @@ describe('createVisitorOrCustomerMessages', () => {
     await Brands.deleteMany({});
 
     mock.restore();
+    envMock.restore();
   });
 
   test('must create conversation & message object', async () => {
@@ -718,101 +727,6 @@ describe('createVisitorOrCustomerMessages', () => {
     });
 
     expect(conversation).toBeNull();
-  });
-
-  test('visitorAuto with visitor', async () => {
-    faker.random.uuid();
-    const visitor = {
-      _id: '123456',
-      integrationId: _integration._id,
-      visitorId: 'abc123'
-    };
-
-    const envMock = sinon.stub(utils, 'getEnv').callsFake(() => {
-      return 'true';
-    });
-
-    const elkMock = sinon.stub(elk, 'fetchElk').callsFake(() => {
-      return Promise.resolve({
-        hits: {
-          hits: [
-            {
-              _id: faker.random.uuid(),
-              _source: {
-                kind: 'visitorAuto',
-                method: 'messenger',
-                fromUserId: _user._id,
-                isDraft: false,
-                isLive: true,
-                messenger: {
-                  brandId: _brand._id,
-                  sentAs: 'snippet',
-                  content: '',
-                  rules: []
-                },
-                createdBy: _user._id
-              }
-            }
-          ]
-        }
-      });
-    });
-
-    await EngageMessages.createVisitorOrCustomerMessages({
-      brandId: _brand._id,
-      visitor,
-      integrationId: _integration._id,
-      browserInfo: {
-        url: '/index'
-      }
-    });
-
-    const conversation = await Conversations.findOne({
-      visitorId: visitor.visitorId,
-      integrationId: _integration._id
-    });
-
-    expect(conversation).toBeNull();
-
-    elkMock.restore();
-    envMock.restore();
-  });
-
-  test('engageMessage with elkSyncer', async () => {
-    const customer = await customerFactory({
-      state: 'visitor',
-      firstName: 'john',
-      lastName: 'doe'
-    });
-
-    await EngageMessages.createVisitorOrCustomerMessages({
-      brandId: _brand._id,
-      customer,
-      integrationId: _integration._id,
-      browserInfo: {
-        url: '/index'
-      }
-    });
-
-    const conversation = await Conversations.findOne({
-      customerId: customer._id
-    });
-
-    if (!conversation) {
-      fail('conversation not found');
-    }
-
-    const conversationMessage = await ConversationMessages.findOne({
-      customerId: customer._id,
-      conversationId: conversation._id
-    });
-
-    if (!conversationMessage) {
-      fail('conversationMessage not found');
-    }
-
-    expect(conversation).toBeDefined();
-    expect(conversationMessage.content).toBe('hi,john doe');
   });
 
   const browserLanguageRule = {
@@ -1104,5 +1018,183 @@ describe('createVisitorOrCustomerMessages', () => {
 
       expect(response).toBe(true);
     });
+  });
+});
+
+describe('createVisitorOrCustomerMessages with elk', () => {
+  let _user: IUserDocument;
+  let _brand: IBrandDocument;
+  let _customer: ICustomerDocument;
+  let _integration: IIntegrationDocument;
+  let _visitor: ICustomerDocument;
+  let envMock;
+  let elkMock;
+
+  beforeEach(async () => {
+    // Creating test data
+    _customer = await customerFactory({
+      firstName: 'firstName',
+      lastName: 'lastName',
+      state: 'customer'
+    });
+
+    _visitor = await customerFactory({
+      state: 'visitor'
+    });
+
+    envMock = sinon.stub(utils, 'getEnv').callsFake(() => {
+      return 'true';
+    });
+
+    elkMock = sinon.stub(elk, 'fetchElk').callsFake(() => {
+      return Promise.resolve({
+        hits: {
+          hits: [
+            {
+              _id: faker.random.uuid(),
+              _source: {
+                kind: 'visitorAuto',
+                method: 'messenger',
+                fromUserId: _user._id,
+                isDraft: false,
+                isLive: true,
+                messenger: {
+                  brandId: _brand._id,
+                  sentAs: 'snippet',
+                  content: '',
+                  rules: []
+                },
+                createdBy: _user._id
+              }
+            }
+          ]
+        }
+      });
+    });
+
+    _brand = await brandFactory({});
+    _integration = await integrationFactory({ brandId: _brand._id });
+    _user = await userFactory({});
+
+    const message = new EngageMessages({
+      title: 'Visitor',
+      fromUserId: _user._id,
+      kind: 'visitorAuto',
+      method: 'messenger',
+      isLive: true,
+      messenger: {
+        brandId: _brand._id,
+        rules: [
+          {
+            kind: 'currentPageUrl',
+            condition: 'is',
+            value: '/page'
+          },
+          {
+            kind: 'numberOfVisits',
+            condition: 'greaterThan',
+            value: 10
+          }
+        ],
+        content: 'hi,{{ customer.name }}'
+      }
+    });
+
+    // invalid from user id
+    await engageMessageFactory({
+      kind: 'auto',
+      userId: 'invalid',
+      isLive: true,
+      messenger: {
+        brandId: _brand._id,
+        content: 'hi,{{ customer.firstName }} {{ customer.lastName }}'
+      }
+    });
+
+    await engageMessageFactory({
+      kind: 'visitorAuto',
+      userId: _user._id,
+      isLive: true,
+      customerIds: [_visitor.id],
+      messenger: {
+        brandId: _brand._id,
+        content: 'hi,{{ customer.firstName }} {{ customer.lastName }}'
+      }
+    });
+
+    await engageMessageFactory({
+      kind: 'manual',
+      userId: _user._id,
+      isLive: true,
+      customerIds: [_customer.id],
+      messenger: {
+        brandId: _brand._id,
+        content: 'hi,{{ customer.firstName }} {{ customer.lastName }}'
+      }
+    });
+
+    return message.save();
+  });
+
+  afterEach(async () => {
+    // Clearing test data
+    await Customers.deleteMany({});
+    await Integrations.deleteMany({});
+    await Conversations.deleteMany({});
+    await EngageMessages.deleteMany({});
+    await Messages.deleteMany({});
+    await Brands.deleteMany({});
+
+    elkMock.restore();
+    envMock.restore();
+  });
+
+  test('visitorAuto with visitor', async () => {
+    const visitor = {
+      _id: '123456',
+      integrationId: _integration._id,
+      visitorId: faker.random.uuid()
+    };
+
+    await EngageMessages.createVisitorOrCustomerMessages({
+      brandId: _brand._id,
+      visitor,
+      integrationId: _integration._id,
+      browserInfo: {
+        url: '/index'
+      }
+    });
+
+    const conv = await Conversations.findOne({
+      visitorId: visitor.visitorId,
+      integrationId: _integration._id
+    });
+
+    expect(conv).toBeNull();
+  });
+
+  test('engageMessage with elkSyncer', async () => {
+    const customer = await customerFactory({
+      state: 'visitor',
+      firstName: 'john',
+      lastName: 'doe'
+    });
+
+    customer._id = 'qwe123';
+
+    await EngageMessages.createVisitorOrCustomerMessages({
+      brandId: _brand._id,
+      customer,
+      integrationId: _integration._id,
+      browserInfo: {
+        url: '/index'
+      }
+    });
+
+    const conversation = await Conversations.findOne({
+      customerId: customer._id
+    });
+
+    expect(conversation).toBeNull();
   });
 });
