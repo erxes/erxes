@@ -146,7 +146,7 @@ const syncMessages = async (accountId: string, messageId: string) => {
   if (integration) {
     const { nylasToken, email, kind } = integration;
 
-    let message;
+    let message: any = {};
 
     try {
       message = await getMessageById(nylasToken, messageId);
