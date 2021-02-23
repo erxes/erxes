@@ -1,74 +1,134 @@
+import EmptyState from 'erxes-ui/lib/components/EmptyState';
+import { __ } from 'erxes-ui/lib/utils/core';
 import Icon from 'modules/common/components/Icon';
 import Spinner from 'modules/common/components/Spinner';
-import { colors } from 'modules/common/styles';
+import { colors, dimensions } from 'modules/common/styles';
 import React from 'react';
 import { Link } from 'react-router-dom';
 import styled from 'styled-components';
+import styledTS from 'styled-components-ts';
 
-const MainContainer = styled.div`
+const MainContainer = styledTS<{ active?: boolean }>(styled.div)`
+  background-color: ${props =>
+    props.active ? colors.colorWhite : colors.bgMain};
+  border: 1px solid ${props =>
+    props.active ? colors.borderDarker : colors.bgMain};
+  border-radius: 35px;
+  height: 32px;
+  position: relative;
+  transition: .3s all;
+  width: ${props => (props.active ? '280px' : '120px')};
+  display: flex;
+  padding: 0 ${dimensions.unitSpacing}px;
+  align-items: center;
+  position: relative;
+
+  > span {
+    color: ${colors.colorCoreGray};
+    padding-left: ${dimensions.unitSpacing}px;
+  }
+  
   i {
     cursor: pointer;
+    color: ${colors.colorCoreDarkGray};
   }
 
   input {
-    margin-right: 5px;
+    background: 0 0;
+    border: none;
+    padding: 5px ${dimensions.unitSpacing}px;
+    flex: 1;
+    height: 100%;
+    outline: 0;
+
+    &:focus {
+      outline: 0;
+    }
   }
+`;
+
+const Suggest = styled.div`
+  font-size: 12px;
+  margin-top: -${dimensions.unitSpacing}px;
+  color: ${colors.colorCoreLightGray};
 `;
 
 const Results = styled.div`
   position: absolute;
-  width: 800px;
-  max-height: 500px;
+  width: 440px;
+  max-width: 100vw;
+  max-height: 100vh;
+  max-height: 400px;
+  max-height: 50vh;
   overflow-x: auto;
   z-index: 10;
-  right: 350px;
-  padding: 20px 40px;
+  right: 0;
+  top: 36px;
+  background-color: ${colors.colorWhite};
+  border-radius: 4px;
+  box-shadow: 0 5px 15px 1px rgba(0, 0, 0, 0.15);
 
-  background-color: #f7f7f7;
-  border: 1px solid #dfdfdf;
-
-  ul,
-  ul > li {
+  ul {
     list-style: none;
     padding: 0px;
-    margin: 0px;
-  }
+    margin: 0 0 ${dimensions.unitSpacing}px;
 
-  .title {
-    text-transform: capitalize;
-  }
+    li {
+      padding: 0 ${dimensions.unitSpacing}px;
+      margin-bottom: 5px;
+      line-height: 18px;
 
-  h4 {
-    margin-bottom: 20px;
-  }
+      p {
+        margin: 0;
+      }
 
-  em {
-    color: ${colors.colorCoreRed};
-  }
+      &::last-child {
+        margin-bottom: 0;
+      }
+    }
 
-  h5 {
-    margin: 0px;
-    padding: 0px;
-    color: #bdb7b7;
-  }
+    li a {
+      padding: 5px ${dimensions.unitSpacing}px;
+      border-radius: 5px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      color: ${colors.colorCoreDarkGray};
+      background: rgba(0, 0, 0, 0.02);
 
-  .module {
-    margin-bottom: 40px;
-  }
-
-  .highlight {
-    border: 1px solid #eae7e7;
-    margin-bottom: 20px;
-    padding: 4px 8px;
-
-    p {
-      color: ${colors.colorPrimaryDark};
+      &:hover {
+        background: ${colors.bgActive};
+      }
     }
   }
 
-  .highlight:hover {
-    background-color: #eaeaea;
+  em {
+    font-style: normal;
+    background-color: ${colors.bgInternal};
+    flex-shrink: 1;
   }
+
+  small {
+    margin: 0 0 0 ${dimensions.unitSpacing}px;
+    padding: 0;
+    color: ${colors.colorCoreLightGray};
+    flex-shrink: 0;
+    font-style: italic;
+    font-size: ${dimensions.unitSpacing}px;
+  }
+`;
+
+const SearchTitle = styled.h4`
+  margin: 0;
+  font-size: 12px;
+  text-transform: capitalize;
+  color: ${colors.colorCoreGray};
+  padding: ${dimensions.unitSpacing}px ${dimensions.coreSpacing}px;
+  position: sticky;
+  top: 0;
+  background: ${colors.bgLight};
+  border-bottom: 1px solid ${colors.borderDarker};
+  margin-bottom: ${dimensions.unitSpacing}px;
 `;
 
 type Props = {
@@ -77,12 +137,38 @@ type Props = {
   loading: boolean;
 };
 
-class Search extends React.Component<Props, { showInput: boolean }> {
+class Search extends React.Component<
+  Props,
+  { showInput: boolean; searchValue: string }
+> {
+  private wrapperRef;
+
   constructor(props) {
     super(props);
 
-    this.state = { showInput: false };
+    this.state = { showInput: false, searchValue: '' };
+
+    this.setWrapperRef = this.setWrapperRef.bind(this);
+    this.handleClickOutside = this.handleClickOutside.bind(this);
   }
+
+  setWrapperRef(node) {
+    this.wrapperRef = node;
+  }
+
+  componentDidMount() {
+    document.addEventListener('click', this.handleClickOutside, true);
+  }
+
+  componentWillUnmount() {
+    document.removeEventListener('click', this.handleClickOutside, true);
+  }
+
+  handleClickOutside = event => {
+    if (this.wrapperRef && !this.wrapperRef.contains(event.target)) {
+      this.setState({ showInput: false });
+    }
+  };
 
   renderTitle = module => {
     let text = module;
@@ -95,7 +181,7 @@ class Search extends React.Component<Props, { showInput: boolean }> {
       text = 'Campaigns';
     }
 
-    return <h4 className="title">{text}</h4>;
+    return <SearchTitle>{text}</SearchTitle>;
   };
 
   renderItem = (module, item) => {
@@ -108,19 +194,23 @@ class Search extends React.Component<Props, { showInput: boolean }> {
       let keyText = key;
 
       if (keyText === 'firstName') {
-        keyText = 'first name';
+        keyText = 'First name';
       }
 
       if (keyText === 'lastName') {
-        keyText = 'last name';
+        keyText = 'Last name';
       }
 
       if (keyText === 'primaryPhone') {
-        keyText = 'primary phone';
+        keyText = 'Primary phone';
       }
 
       if (keyText === 'primaryEmail') {
-        keyText = 'primary email';
+        keyText = 'Primary email';
+      }
+
+      if (keyText === 'primaryName') {
+        keyText = 'Primary name';
       }
 
       let href = '#';
@@ -154,10 +244,10 @@ class Search extends React.Component<Props, { showInput: boolean }> {
       }
 
       return (
-        <li key={index} className="highlight">
+        <li key={index}>
           <Link to={href}>
-            <h5>Found in {keyText} field:</h5>
             <p dangerouslySetInnerHTML={{ __html: highlights[key] || '' }} />
+            <small>Found in {keyText}</small>
           </Link>
         </li>
       );
@@ -170,13 +260,13 @@ class Search extends React.Component<Props, { showInput: boolean }> {
     }
 
     return (
-      <li key={index} className="module">
+      <div key={index}>
         {this.renderTitle(result.module)}
 
         <ul>
           {result.items.map(item => this.renderItem(result.module, item))}
         </ul>
-      </li>
+      </div>
     );
   };
 
@@ -191,11 +281,7 @@ class Search extends React.Component<Props, { showInput: boolean }> {
     if (loading) {
       return (
         <Results>
-          <h2>Searching ... </h2>
-
-          <div>
-            <Spinner />
-          </div>
+          <Spinner />
         </Results>
       );
     }
@@ -213,41 +299,72 @@ class Search extends React.Component<Props, { showInput: boolean }> {
     if (totalItems === 0) {
       return (
         <Results>
-          <h2>Search results: </h2>
-          <h6>No results found</h6>
+          <EmptyState
+            image="/images/actions/5.svg"
+            text={__('No results found')}
+            size="full"
+            extra={
+              <Suggest>
+                {__('It seems we can’t find any results based on your search')}
+              </Suggest>
+            }
+          />
         </Results>
       );
     }
 
     return (
       <Results>
-        <h2>Search results: </h2>
-        <ul>
-          {results.map((result, index) => this.renderResult(result, index))}
-        </ul>
+        {results.map((result, index) => this.renderResult(result, index))}
       </Results>
     );
   };
 
-  toggleInput = () => {
-    this.setState({ showInput: !this.state.showInput });
+  openInput = () => {
+    this.setState({ showInput: true });
+  };
+
+  closeInput = e => {
+    e.stopPropagation();
+    this.setState({ showInput: false, searchValue: '' });
+  };
+
+  handleInput = e => {
+    this.setState({ searchValue: e.target.value });
   };
 
   renderInput = () => {
     const { onSearch } = this.props;
-    const { showInput } = this.state;
+    const { showInput, searchValue } = this.state;
 
     return (
       <>
-        {showInput ? <input onKeyDown={onSearch} /> : null}
-        <Icon icon="search-alt" size={21} onClick={this.toggleInput} />
+        <Icon icon="search-1" size={18} />
+        {showInput ? (
+          <>
+            <input
+              placeholder={__('Search')}
+              value={searchValue}
+              autoFocus={true}
+              onKeyDown={onSearch}
+              onChange={this.handleInput}
+            />
+            <Icon icon="times" size={18} onClick={this.closeInput} />
+          </>
+        ) : (
+          <span>{__('Search')}...</span>
+        )}
       </>
     );
   };
 
   render() {
     return (
-      <MainContainer>
+      <MainContainer
+        innerRef={this.setWrapperRef}
+        active={this.state.showInput}
+        onClick={this.openInput}
+      >
         {this.renderInput()}
         {this.renderResults()}
       </MainContainer>

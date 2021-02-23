@@ -26,7 +26,7 @@ export const Button = styledTS<{
   padding: 5px 15px;
   background: ${props => buttonColor(props.colorName)};
   color: #fff;
-  border-radius: 2px;
+  border-radius: 16px;
   font-weight: 500;
   transition: background 0.3s ease;
   display: inline-block;
@@ -80,10 +80,10 @@ export const DateGrid = styled.div`
     span {
       border-radius: 4px;
       display: block;
-      border: 2px solid ${colors.borderPrimary}
+      border: 2px solid ${colors.borderPrimary};
       padding: 4px 8px;
     }
-    
+
     &:first-child {
       margin-right: 10px;
     }
