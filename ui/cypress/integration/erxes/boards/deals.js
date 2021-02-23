@@ -31,10 +31,6 @@ context('Check Deals', () => {
     cy.get('div[class="modal-body"]').get('input').type(newBoardName);
     cy.get('div[class="modal-body"]').get('button[type="submit"]').click();
 
-    cy.get('section').eq(0).within(() => {
-      cy.get('a').contains(newBoardName).click();
-    })
-
     let pipelineIndex = 0;
     const pipelinesCount = 3
     const perStagesCount = 2;
