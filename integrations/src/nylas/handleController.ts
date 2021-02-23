@@ -72,7 +72,7 @@ export const createNylasIntegration = async (
         await connectYahooAndOutlookToNylas(kind, integrationId, data);
         break;
       default:
-        await connectProviderToNylas(data.uid, integrationId);
+        await connectProviderToNylas({ uid: data.uid, integrationId });
         break;
     }
   } catch (e) {
@@ -421,7 +421,10 @@ export const updateCalendar = async (doc: ICalendarParams) => {
 
 export const nylasConnectCalendars = async (uid: string) => {
   try {
-    const { account, isAlreadyExists } = await connectProviderToNylas(uid);
+    const { account, isAlreadyExists } = await connectProviderToNylas({
+      uid,
+      isCalendar: true
+    });
 
     if (!isAlreadyExists) {
       await nylasGetCalendars(account);
