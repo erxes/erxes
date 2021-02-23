@@ -14,8 +14,8 @@ import initFacebook from './facebook/controller';
 import initGmail from './gmail/controller';
 import {
   removeIntegration,
-  updateIntegrationConfigs,
-  routeErrorHandling
+  routeErrorHandling,
+  updateIntegrationConfigs
 } from './helpers';
 import { initMemoryStorage } from './inmemoryStorage';
 import { initBroker } from './messageBroker';
