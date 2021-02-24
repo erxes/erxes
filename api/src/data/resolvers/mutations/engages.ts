@@ -250,9 +250,9 @@ const engageMutations = {
 
     delete doc._id;
 
-    if (doc.scheduleDate) {
+    if (doc.scheduleDate && doc.scheduleDate.dateTime) {
       // schedule date should be manually set
-      delete doc.scheduleDate;
+      doc.scheduleDate.dateTime = null;
     }
 
     const copy = await EngageMessages.createEngageMessage(doc);
