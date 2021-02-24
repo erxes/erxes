@@ -166,10 +166,7 @@ export default withProps<Props>(
         options: ({ contentType }) => {
           return {
             variables: {
-              contentType:
-                contentType === ['lead', 'visitor'].includes(contentType)
-                  ? 'customer'
-                  : contentType
+              contentType: ['lead', 'visitor'] ? 'customer' : contentType
             }
           };
         }
