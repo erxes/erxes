@@ -45,14 +45,14 @@ interface IShortMessage {
 }
 
 export interface IEngageMessage {
-  kind?: string;
+  kind: string;
   segmentIds?: string[];
   brandIds?: string[];
   tagIds?: string[];
   customerIds?: string[];
-  title?: string;
+  title: string;
   fromUserId?: string;
-  method?: string;
+  method: string;
   isDraft?: boolean;
   isLive?: boolean;
   stopDate?: Date;
