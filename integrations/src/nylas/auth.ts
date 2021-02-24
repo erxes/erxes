@@ -7,7 +7,9 @@ import { checkEmailDuplication, enableOrDisableAccount } from './api';
 import {
   CONNECT_AUTHORIZE_URL,
   CONNECT_TOKEN_URL,
-  NYLAS_API_URL
+  NYLAS_API_URL,
+  NYLAS_CALENDAR_SCOPES,
+  NYLAS_GMAIL_SCOPES
 } from './constants';
 import { IIntegrateProvider, INylasIntegrationData } from './types';
 import { getNylasConfig, getProviderSettings } from './utils';
@@ -20,7 +22,15 @@ dotenv.config();
  * @param {String} kind
  * @param {Object} account
  */
-const connectProviderToNylas = async (uid: string, integrationId?: string) => {
+const connectProviderToNylas = async ({
+  uid,
+  integrationId,
+  isCalendar
+}: {
+  uid: string;
+  integrationId?: string;
+  isCalendar?: boolean;
+}) => {
   const crendentialKey = `${uid}-credential`;
 
   const providerCredential = await memoryStorage().get(crendentialKey, false);
@@ -63,10 +73,7 @@ const connectProviderToNylas = async (uid: string, integrationId?: string) => {
       kind,
       settings,
       ...(kind === 'gmail'
-        ? {
-            scopes:
-              'contacts,calendar,email.read_only,email.drafts,email.send,email.modify'
-          }
+        ? { scopes: isCalendar ? NYLAS_CALENDAR_SCOPES : NYLAS_GMAIL_SCOPES }
         : {})
     });
 
