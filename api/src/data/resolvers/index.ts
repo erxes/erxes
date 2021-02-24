@@ -40,6 +40,7 @@ import Script from './script';
 import Segment from './segment';
 import Stage from './stages';
 import Subscription from './subscriptions';
+import Tag from './tags';
 import Task from './tasks';
 import Ticket from './tickets';
 import User from './user';
@@ -94,7 +95,8 @@ const resolvers: any = {
   Pipeline,
   GrowthHack,
   CalendarGroup,
-  CalendarBoard
+  CalendarBoard,
+  Tag
 };
 
 export default resolvers;
