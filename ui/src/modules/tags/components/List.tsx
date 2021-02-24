@@ -63,6 +63,7 @@ function List({ tags, type, remove, loading, renderButton }: Props) {
       <thead>
         <tr>
           <th>{__('Name')}</th>
+          <th>{__('Total item counts')}</th>
           <th>{__('Item counts')}</th>
           <th>{__('Actions')}</th>
         </tr>

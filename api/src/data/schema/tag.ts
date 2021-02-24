@@ -6,6 +6,7 @@ export const types = `
     colorCode: String
     createdAt: Date
     objectCount: Int
+    totalObjectCount: Int
     parentId: String
     order: String
     relatedIds: [String]
