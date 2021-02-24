@@ -69,40 +69,6 @@ const Results = styled.div`
   box-shadow: 0 5px 15px 1px rgba(0, 0, 0, 0.15);
   padding-bottom: 5px;
 
-  ul {
-    list-style: none;
-    padding: 0px;
-    margin: 0;
-
-    li {
-      padding: 0 ${dimensions.unitSpacing}px;
-      margin-bottom: 5px;
-      line-height: 18px;
-
-      p {
-        margin: 0;
-      }
-
-      &::last-child {
-        margin-bottom: 0;
-      }
-    }
-
-    li a {
-      padding: 6px ${dimensions.unitSpacing}px;
-      border-radius: 5px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      color: ${colors.colorCoreDarkGray};
-      background: #f3f4f9;
-
-      &:hover {
-        background: #eeeff4;
-      }
-    }
-  }
-
   em {
     font-style: normal;
     background-color: ${colors.bgInternal};
@@ -116,6 +82,50 @@ const Results = styled.div`
     flex-shrink: 0;
     font-style: italic;
     font-size: ${dimensions.unitSpacing}px;
+  }
+`;
+
+const List = styled.ul`
+  list-style: none;
+  padding: 0px;
+  margin: 0;
+
+  li {
+    padding: 0 ${dimensions.unitSpacing}px;
+    margin-bottom: 5px;
+    line-height: 18px;
+
+    p {
+      margin: 0;
+      word-break: break-word;
+
+      ul,
+      ol {
+        padding-left: 20px;
+
+        li {
+          padding: 0;
+        }
+      }
+    }
+
+    &::last-child {
+      margin-bottom: 0;
+    }
+  }
+
+  li a {
+    padding: 6px ${dimensions.unitSpacing}px;
+    border-radius: 5px;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    color: ${colors.colorCoreDarkGray};
+    background: #f3f4f9;
+
+    &:hover {
+      background: #eeeff4;
+    }
   }
 `;
 
@@ -265,9 +275,9 @@ class Search extends React.Component<
       <div key={index}>
         {this.renderTitle(result.module)}
 
-        <ul>
+        <List>
           {result.items.map(item => this.renderItem(result.module, item))}
-        </ul>
+        </List>
       </div>
     );
   };
