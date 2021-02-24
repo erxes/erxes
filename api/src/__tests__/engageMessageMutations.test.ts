@@ -610,9 +610,13 @@ describe('engage message mutation tests', () => {
 
     expect(response.isLive).toBe(true);
 
-    await graphqlRequest(mutation, 'engageMessageSetLive', {
-      _id: _message._id
-    });
+    try {
+      await graphqlRequest(mutation, 'engageMessageSetLive', {
+        _id: _message._id
+      });
+    } catch (e) {
+      expect(e[0].message).toBe('Campaign is already live');
+    }
   });
 
   test('Set pause engage message', async () => {
@@ -870,8 +874,14 @@ describe('engage message mutation tests', () => {
     mock.restore();
   });
 
-  test('test engageMessageCopy()', async () => {
-    const campaign = await engageMessageFactory();
+  test('Test engageMessageCopy()', async () => {
+    const monthFromNow = new Date();
+    monthFromNow.setMonth(monthFromNow.getMonth() + 1);
+
+    const campaign = await engageMessageFactory({
+      scheduleDate: { type: 'pre', dateTime: monthFromNow },
+      kind: MESSAGE_KINDS.AUTO
+    });
 
     const mutation = `
       mutation engageMessageCopy($_id: String!) {
@@ -899,13 +909,43 @@ describe('engage message mutation tests', () => {
     expect(response.title).toBe(`${campaign.title}-copied`);
     expect(response.isDraft).toBe(true);
     expect(response.isLive).toBe(false);
-    expect(response.scheduleDate).toBeFalsy();
+    expect(response.scheduleDate).toBeDefined();
+    expect(response.scheduleDate.dateTime).toBeFalsy();
 
     // test non existing campaign
     try {
       await graphqlRequest(mutation, 'engageMessageCopy', { _id: 'fakeId' });
     } catch (e) {
       expect(e[0].message).toBe('Campaign not found');
+    }
+  });
+
+  test('Test engageUtils.checkCampaignDoc()', async () => {
+    const doc = {
+      ..._doc,
+      kind: MESSAGE_KINDS.AUTO,
+      method: METHODS.EMAIL,
+      scheduleDate: { type: 'pre' }
+    };
+
+    try {
+      engageUtils.checkCampaignDoc(doc);
+    } catch (e) {
+      expect(e.message).toBe(
+        'Schedule date & type must be chosen in auto campaign'
+      );
+    }
+
+    try {
+      engageUtils.checkCampaignDoc({
+        ...doc,
+        scheduleDate: { type: 'month' },
+        brandIds: null,
+        segmentIds: null,
+        tagIds: null
+      });
+    } catch (e) {
+      expect(e.message).toBe('One of brand or segment or tag must be chosen');
     }
   });
 });
