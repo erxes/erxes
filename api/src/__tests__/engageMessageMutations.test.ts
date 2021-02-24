@@ -871,7 +871,13 @@ describe('engage message mutation tests', () => {
   });
 
   test('test engageMessageCopy()', async () => {
-    const campaign = await engageMessageFactory();
+    const monthFromNow = new Date();
+    monthFromNow.setMonth(monthFromNow.getMonth() + 1);
+
+    const campaign = await engageMessageFactory({
+      scheduleDate: { type: 'pre', dateTime: monthFromNow },
+      kind: MESSAGE_KINDS.AUTO
+    });
 
     const mutation = `
       mutation engageMessageCopy($_id: String!) {
@@ -899,7 +905,8 @@ describe('engage message mutation tests', () => {
     expect(response.title).toBe(`${campaign.title}-copied`);
     expect(response.isDraft).toBe(true);
     expect(response.isLive).toBe(false);
-    expect(response.scheduleDate).toBeFalsy();
+    expect(response.scheduleDate).toBeDefined();
+    expect(response.scheduleDate.dateTime).toBeFalsy();
 
     // test non existing campaign
     try {
