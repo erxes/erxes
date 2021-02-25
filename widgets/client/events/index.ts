@@ -1,4 +1,4 @@
-import { getLocalStorageItem, setLocalStorageItem } from "../common";
+import { getLocalStorageItem, initStorage, setLocalStorageItem } from "../common";
 import { getEnv } from "../utils";
 
 const Events: any = {
@@ -62,7 +62,9 @@ window.addEventListener("message", event => {
     return;
   }
 
-  const { action, args } = data;
+  const { action, args, storage } = data;
+
+  initStorage(storage);
 
   Events[action](args);
 });
