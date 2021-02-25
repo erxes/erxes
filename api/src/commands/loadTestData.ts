@@ -50,7 +50,7 @@ import {
   TAG_TYPES
 } from '../db/models/definitions/constants';
 import { debugWorkers } from '../debuggers';
-import memoryStorage, { initMemoryStorage } from '../inmemoryStorage';
+import { initMemoryStorage, set } from '../inmemoryStorage';
 import {
   clearEmptyValues,
   generatePronoun,
@@ -463,10 +463,7 @@ const main = async () => {
     ]);
 
     if (randomCustomer[0]) {
-      memoryStorage().set(
-        `customer_last_status_${randomCustomer[0]._id}`,
-        'left'
-      );
+      set(`customer_last_status_${randomCustomer[0]._id}`, 'left');
       await widgetMutations.widgetsInsertMessage(
         {},
         {
