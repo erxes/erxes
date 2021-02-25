@@ -108,8 +108,8 @@ export const locationSchema = new Schema(
 
 export const visitorContactSchema = new Schema(
   {
-    email: field({ type: String, label: 'Email' }),
-    phone: field({ type: String, label: 'Phone' })
+    email: field({ type: String, label: 'Email', optional: true }),
+    phone: field({ type: String, label: 'Phone', optional: true })
   },
   { _id: false }
 );
