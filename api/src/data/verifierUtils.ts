@@ -5,7 +5,7 @@ import {
   IVisitorContact
 } from '../db/models/definitions/customers';
 import { debugBase, debugExternalApi } from '../debuggers';
-import memoryStorage from '../inmemoryStorage';
+import { get } from '../inmemoryStorage';
 import { getEnv, sendRequest } from './utils';
 
 export const validateSingle = async (contact: IVisitorContact) => {
@@ -19,7 +19,7 @@ export const validateSingle = async (contact: IVisitorContact) => {
   }
 
   const { email, phone } = contact;
-  const hostname = await memoryStorage().get('hostname');
+  const hostname = await get('hostname');
 
   let body = {};
 
@@ -66,7 +66,7 @@ export const validateBulk = async (verificationType: string) => {
     defaultValue: ''
   });
 
-  const hostname = await memoryStorage().get('hostname');
+  const hostname = await get('hostname');
 
   if (verificationType === 'email') {
     const emails: Array<{}> = [];
