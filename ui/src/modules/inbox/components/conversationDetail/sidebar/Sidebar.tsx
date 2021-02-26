@@ -10,6 +10,7 @@ import { __ } from 'modules/common/utils';
 import CompanySection from 'modules/companies/components/common/CompanySection';
 import WebsiteActivity from 'modules/customers/components/common/WebsiteActivity';
 import { ICustomer } from 'modules/customers/types';
+import { IField } from 'modules/settings/properties/types';
 import { IConversation } from '../../../types';
 
 const ActionSection = asyncComponent(() =>
@@ -104,6 +105,7 @@ type IndexProps = {
   currentUser: IUser;
   conversation: IConversation;
   customer: ICustomer;
+  fields: IField[];
   loading: boolean;
   toggleSection: () => void;
   taggerRefetchQueries: any;
@@ -169,7 +171,8 @@ class Index extends React.Component<IndexProps, IndexState> {
       conversation,
       customer,
       toggleSection,
-      loading
+      loading,
+      fields
     } = this.props;
 
     const { kind = '' } = customer.integration || {};
@@ -177,7 +180,7 @@ class Index extends React.Component<IndexProps, IndexState> {
     if (currentSubTab === 'details') {
       return (
         <TabContent>
-          <DetailInfo customer={customer} />
+          <DetailInfo customer={customer} fields={fields} isDetail={false} />
           <Box
             title={__('Conversation details')}
             name="showConversationDetails"
@@ -191,7 +194,11 @@ class Index extends React.Component<IndexProps, IndexState> {
             refetchQueries={taggerRefetchQueries}
             collapseCallback={toggleSection}
           />
-          <CustomFieldsSection loading={loading} customer={customer} />
+          <CustomFieldsSection
+            loading={loading}
+            customer={customer}
+            isDetail={false}
+          />
           {this.renderTrackedData({ customer, kind, toggleSection })}
           {this.renderDeviceProperties({ customer, kind, toggleSection })}
           <WebsiteActivity urlVisits={customer.urlVisits || []} />

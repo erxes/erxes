@@ -49,6 +49,7 @@ export const commonTypes = `
   labels: [PipelineLabel]
   pipeline: Pipeline
   createdUser: User
+  customFieldsData: JSON
 `;
 
 export const commonMutationParams = `
@@ -65,6 +66,7 @@ export const commonMutationParams = `
   priority: String,
   status: String,
   sourceConversationIds: [String],
+  customFieldsData: JSON
 `;
 
 export const commonDragParams = `

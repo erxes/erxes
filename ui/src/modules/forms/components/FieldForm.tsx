@@ -26,6 +26,7 @@ type Props = {
   onCancel: () => void;
   mode: 'create' | 'update';
   field: IField;
+  type: string;
 };
 
 type State = {
@@ -278,6 +279,7 @@ class FieldForm extends React.Component<Props, State> {
   }
 
   renderCustomProperty() {
+    const { type } = this.props;
     const { field, selectedOption } = this.state;
     const types = ['email', 'phone', 'firstName', 'lastName'];
 
@@ -288,7 +290,7 @@ class FieldForm extends React.Component<Props, State> {
     return (
       <FormGroup>
         <SelectProperty
-          queryParams={{ type: 'customer' }}
+          queryParams={{ type }}
           defaultValue={selectedOption && selectedOption.value}
           description="Any data collected through this field will copy to:"
           onChange={this.onPropertyChange}

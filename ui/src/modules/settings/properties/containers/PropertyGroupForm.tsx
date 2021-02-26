@@ -21,6 +21,9 @@ const PropertyGroupFormContainer = (props: Props) => {
     callback,
     object
   }: IButtonMutateProps) => {
+    const contentType = getContentType(queryParams.type);
+    values.contentType = contentType;
+
     return (
       <ButtonMutate
         mutation={
@@ -47,6 +50,16 @@ const PropertyGroupFormContainer = (props: Props) => {
   };
 
   return <PropertyGroupForm {...updatedProps} />;
+};
+
+const getContentType = type => {
+  let contentType = type;
+
+  if (['lead', 'visitor', 'customer'].includes(type)) {
+    contentType = 'customer';
+  }
+
+  return contentType;
 };
 
 const getRefetchQueries = queryParams => {

@@ -62,10 +62,19 @@ const fieldMutations = {
    */
   fieldsUpdateVisible(
     _root,
-    { _id, isVisible }: { _id: string; isVisible: boolean },
+    {
+      _id,
+      isVisible,
+      isVisibleInDetail
+    }: { _id: string; isVisible?: boolean; isVisibleInDetail?: boolean },
     { user }: IContext
   ) {
-    return Fields.updateFieldsVisible(_id, isVisible, user._id);
+    return Fields.updateFieldsVisible(
+      _id,
+      user._id,
+      isVisible,
+      isVisibleInDetail
+    );
   }
 };
 
@@ -105,10 +114,23 @@ const fieldsGroupsMutations = {
    */
   fieldsGroupsUpdateVisible(
     _root,
-    { _id, isVisible }: { _id: string; isVisible: boolean },
+    {
+      _id,
+      isVisible,
+      isVisibleInDetail
+    }: { _id: string; isVisible?: boolean; isVisibleInDetail?: boolean },
     { user }: IContext
   ) {
-    return FieldsGroups.updateGroupVisible(_id, isVisible, user._id);
+    return FieldsGroups.updateGroupVisible(
+      _id,
+      user._id,
+      isVisible,
+      isVisibleInDetail
+    );
+  },
+
+  fieldsGroupsLoadInitialData(_root) {
+    return FieldsGroups.createSystemGroupsFields();
   }
 };
 

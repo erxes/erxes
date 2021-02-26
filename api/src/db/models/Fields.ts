@@ -5,7 +5,14 @@
 import { Model, model } from 'mongoose';
 import * as validator from 'validator';
 import { Customers, Forms } from '.';
-import { FIELD_CONTENT_TYPES } from '../../data/constants';
+import {
+  COMPANY_INFO,
+  CUSTOMER_BASIC_INFO,
+  FIELD_CONTENT_TYPES,
+  PRODUCT_INFO,
+  PROPERTY_GROUPS
+} from '../../data/constants';
+import { FIELDS_GROUPS_CONTENT_TYPES } from './definitions/constants';
 import {
   fieldGroupSchema,
   fieldSchema,
@@ -57,9 +64,14 @@ export interface IFieldModel extends Model<IFieldDocument> {
   ): Promise<ITypedListItem[]>;
   updateFieldsVisible(
     _id: string,
-    isVisible: boolean,
-    lastUpdatedUserId: string
+    lastUpdatedUserId: string,
+    isVisible?: boolean,
+    isVisibleInDetail?: boolean
   ): Promise<IFieldDocument>;
+  createSystemFields(
+    groupId: string,
+    contentType: string
+  ): Promise<IFieldDocument[]>;
 }
 
 export const loadFieldClass = () => {
@@ -72,6 +84,15 @@ export const loadFieldClass = () => {
 
       // Checking if the field is defined by the erxes
       if (fieldObj && fieldObj.isDefinedByErxes) {
+        throw new Error('Cant update this field');
+      }
+    }
+
+    public static async checkCanToggleVisible(_id: string) {
+      const fieldObj = await Fields.findOne({ _id });
+
+      // Checking if the field is defined by the erxes
+      if (fieldObj && !fieldObj.canHide) {
         throw new Error('Cant update this field');
       }
     }
@@ -152,15 +173,10 @@ export const loadFieldClass = () => {
       await this.checkIsDefinedByErxes(_id);
 
       // Removing field value from customer
+      const index = `customFieldsData.${_id}`;
       await Customers.updateMany(
-        { customFieldsData: { $elemMatch: { field: _id } } },
-        { $pull: { customFieldsData: { field: _id } } }
-      );
-
-      // Removing form assiocated field
-      await Fields.updateMany(
-        { associatedFieldId: _id },
-        { $unset: { associatedFieldId: '' } }
+        { [index]: { $exists: true } },
+        { $unset: { [index]: 1 } }
       );
 
       return fieldObj.remove();
@@ -304,18 +320,101 @@ export const loadFieldClass = () => {
      */
     public static async updateFieldsVisible(
       _id: string,
-      isVisible: boolean,
-      lastUpdatedUserId: string
+      lastUpdatedUserId: string,
+      isVisible?: boolean,
+      isVisibleInDetail?: boolean
     ) {
-      await this.checkIsDefinedByErxes(_id);
+      await this.checkCanToggleVisible(_id);
 
       // Updating visible
-      await Fields.updateOne(
-        { _id },
-        { $set: { isVisible, lastUpdatedUserId } }
-      );
+      const set =
+        isVisible !== undefined
+          ? { isVisible, lastUpdatedUserId }
+          : { isVisibleInDetail, lastUpdatedUserId };
+
+      await Fields.updateOne({ _id }, { $set: set });
 
       return Fields.findOne({ _id });
+    }
+
+    public static async createSystemFields(
+      groupId: string,
+      contentType: string
+    ) {
+      switch (contentType) {
+        case FIELDS_GROUPS_CONTENT_TYPES.CUSTOMER:
+          const customerFields = CUSTOMER_BASIC_INFO.ALL.map(e => {
+            return {
+              text: e.label,
+              field: e.field,
+              canHide: e.canHide,
+              validation: e.validation,
+              groupId,
+              contentType,
+              isDefinedByErxes: true
+            };
+          });
+          await Fields.insertMany(customerFields);
+          break;
+        case FIELDS_GROUPS_CONTENT_TYPES.VISITOR:
+          const visitorFields = CUSTOMER_BASIC_INFO.ALL.map(e => {
+            return {
+              text: e.label,
+              field: e.field,
+              canHide: e.canHide,
+              validation: e.validation,
+              groupId,
+              contentType,
+              isDefinedByErxes: true
+            };
+          });
+          await Fields.insertMany(visitorFields);
+          break;
+        case FIELDS_GROUPS_CONTENT_TYPES.LEAD:
+          const leadFields = CUSTOMER_BASIC_INFO.ALL.map(e => {
+            return {
+              text: e.label,
+              field: e.field,
+              canHide: e.canHide,
+              validation: e.validation,
+              groupId,
+              contentType,
+              isDefinedByErxes: true
+            };
+          });
+          await Fields.insertMany(leadFields);
+          break;
+        case FIELDS_GROUPS_CONTENT_TYPES.COMPANY:
+          const companyFields = COMPANY_INFO.ALL.map(e => {
+            return {
+              text: e.label,
+              field: e.field,
+              canHide: e.canHide,
+              validation: e.validation,
+              groupId,
+              contentType,
+              isDefinedByErxes: true
+            };
+          });
+          await Fields.insertMany(companyFields);
+          break;
+        case FIELDS_GROUPS_CONTENT_TYPES.PRODUCT:
+          const productFields = PRODUCT_INFO.ALL.map(e => {
+            return {
+              text: e.label,
+              field: e.field,
+              groupId,
+              contentType,
+              canHide: false,
+              isDefinedByErxes: true
+            };
+          });
+          await Fields.insertMany(productFields);
+          break;
+
+        default:
+          break;
+      }
     }
   }
 
@@ -332,9 +431,11 @@ export interface IFieldGroupModel extends Model<IFieldGroupDocument> {
 
   updateGroupVisible(
     _id: string,
-    isVisible: boolean,
-    lastUpdatedUserId: string
+    lastUpdatedUserId: string,
+    isVisible?: boolean,
+    isVisibleInDetail?: boolean
   ): Promise<IFieldGroupDocument>;
+  createSystemGroupsFields(): Promise<IFieldGroupDocument[]>;
 }
 
 export const loadGroupClass = () => {
@@ -421,19 +522,68 @@ export const loadGroupClass = () => {
      */
     public static async updateGroupVisible(
       _id: string,
-      isVisible: boolean,
-      lastUpdatedUserId: string
+      lastUpdatedUserId: string,
+      isVisible?: boolean,
+      isVisibleInDetail?: boolean
     ) {
       // Can not update group that is defined by erxes
       await this.checkIsDefinedByErxes(_id);
 
       // Updating visible
-      await FieldsGroups.updateOne(
-        { _id },
-        { $set: { isVisible, lastUpdatedUserId } }
-      );
+      const set =
+        isVisible !== undefined
+          ? { isVisible, lastUpdatedUserId }
+          : { isVisibleInDetail, lastUpdatedUserId };
+
+      await FieldsGroups.updateOne({ _id }, { $set: set });
 
       return FieldsGroups.findOne({ _id });
+    }
+
+    /**
+     * Create system fields & groups
+     */
+    public static async createSystemGroupsFields() {
+      for (const group of PROPERTY_GROUPS) {
+        if (['ticket', 'task', 'lead', 'visitor'].includes(group.value)) {
+          continue;
+        }
+
+        for (const subType of group.types) {
+          const doc = {
+            name: 'Basic information',
+            contentType: subType.value,
+            order: 0,
+            isDefinedByErxes: true,
+            description: `Basic information of a ${subType.value}`,
+            isVisible: true
+          };
+
+          const { contentType } = doc;
+
+          // Automatically setting order of group to the bottom
+          let order = 0;
+
+          const lastGroup = await FieldsGroups.findOne({ contentType }).sort({
+            order: -1
+          });
+
+          if (lastGroup) {
+            order = (lastGroup.order || 0) + 1;
+          }
+
+          if (['ticket', 'task', 'lead', 'visitor'].includes(doc.contentType)) {
+            continue;
+          }
+
+          const fieldGroup = await FieldsGroups.create({
+            ...doc,
+            order
+          });
+
+          await Fields.createSystemFields(fieldGroup._id, subType.value);
+        }
+      }
     }
   }
 

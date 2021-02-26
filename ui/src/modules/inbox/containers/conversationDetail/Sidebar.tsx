@@ -5,8 +5,12 @@ import withCurrentUser from 'modules/auth/containers/withCurrentUser';
 import { IUser } from 'modules/auth/types';
 import DumbSidebar from 'modules/inbox/components/conversationDetail/sidebar/Sidebar';
 import { queries } from 'modules/inbox/graphql';
+import { FIELDS_GROUPS_CONTENT_TYPES } from 'modules/settings/properties/constants';
+import { queries as fieldQueries } from 'modules/settings/properties/graphql';
+import { SystemFieldsGroupsQueryResponse } from 'modules/settings/properties/types';
 import React from 'react';
 import { graphql } from 'react-apollo';
+import Spinner from '../../../common/components/Spinner';
 import { withProps } from '../../../common/utils';
 import {
   CustomerDetailQueryResponse,
@@ -21,6 +25,7 @@ type Props = {
 
 type FinalProps = {
   customerDetailQuery: CustomerDetailQueryResponse;
+  fieldsGroupsQuery: SystemFieldsGroupsQueryResponse;
   currentUser: IUser;
 } & Props;
 
@@ -35,7 +40,10 @@ class Sidebar extends React.Component<FinalProps, State> {
   constructor(props) {
     super(props);
 
-    this.state = { customer: {} as ICustomer, loading: false };
+    this.state = {
+      customer: {} as ICustomer,
+      loading: false
+    };
   }
 
   componentDidMount() {
@@ -88,6 +96,7 @@ class Sidebar extends React.Component<FinalProps, State> {
   };
 
   render() {
+    const { fieldsGroupsQuery } = this.props;
     const { customer, loading } = this.state;
 
     const taggerRefetchQueries = [
@@ -97,12 +106,19 @@ class Sidebar extends React.Component<FinalProps, State> {
       }
     ];
 
+    if (fieldsGroupsQuery.loading) {
+      return <Spinner />;
+    }
+
+    const fields = fieldsGroupsQuery.getSystemFieldsGroup.fields;
+
     const updatedProps = {
       ...this.props,
       customer,
       loading,
       toggleSection: this.toggleSection,
-      taggerRefetchQueries
+      taggerRefetchQueries,
+      fields
     };
 
     return <DumbSidebar {...updatedProps} />;
@@ -118,6 +134,17 @@ export default withProps<Props>(
         options: ({ conversation }) => ({
           variables: {
             _id: conversation.customerId
+          }
+        })
+      }
+    ),
+    graphql<Props, SystemFieldsGroupsQueryResponse>(
+      gql(fieldQueries.getSystemFieldsGroup),
+      {
+        name: 'fieldsGroupsQuery',
+        options: () => ({
+          variables: {
+            contentType: FIELDS_GROUPS_CONTENT_TYPES.CUSTOMER
           }
         })
       }

@@ -1,11 +1,11 @@
-const fieldsGroups = `
-  query fieldsGroups($contentType: String!) {
-    fieldsGroups(contentType: $contentType) {
+const commonFields = `
       _id
       name
       description
       order
       isVisible
+      isVisibleInDetail
+      contentType
       lastUpdatedUser {
         details {
           fullName
@@ -17,7 +17,10 @@ const fieldsGroups = `
         contentType
         type
         text
+        field
         isVisible
+        isVisibleInDetail
+        canHide
         validation
         order
         options
@@ -31,6 +34,19 @@ const fieldsGroups = `
         }
       }
     }
+`;
+
+const fieldsGroups = `
+  query fieldsGroups($contentType: String!) {
+    fieldsGroups(contentType: $contentType) {
+      ${commonFields}
+  }
+`;
+
+const getSystemFieldsGroup = `
+  query getSystemFieldsGroup($contentType: String!) {
+    getSystemFieldsGroup(contentType: $contentType) {
+      ${commonFields}
   }
 `;
 
@@ -52,5 +68,6 @@ const fields = `
 
 export default {
   fieldsGroups,
-  fields
+  fields,
+  getSystemFieldsGroup
 };

@@ -15,6 +15,7 @@ export interface IFieldsQuery {
   contentType: string;
   contentTypeId?: string;
   isVisible?: boolean;
+  isDefinedByErxes?: boolean;
 }
 
 const fieldQueries = {
@@ -38,6 +39,8 @@ const fieldQueries = {
     if (isVisible) {
       query.isVisible = isVisible;
     }
+
+    query.isDefinedByErxes = false;
 
     return Fields.find(query).sort({ order: 1 });
   },
@@ -108,6 +111,20 @@ const fieldsGroupQueries = {
     query.contentType = contentType || FIELDS_GROUPS_CONTENT_TYPES.CUSTOMER;
 
     return FieldsGroups.find(query).sort({ order: 1 });
+  },
+
+  getSystemFieldsGroup(
+    _root,
+    { contentType }: { contentType: string },
+    { commonQuerySelector }: IContext
+  ) {
+    const query: any = commonQuerySelector;
+
+    // querying by content type
+    query.contentType = contentType || FIELDS_GROUPS_CONTENT_TYPES.CUSTOMER;
+    query.isDefinedByErxes = true;
+
+    return FieldsGroups.findOne(query);
   }
 };
 
