@@ -723,11 +723,11 @@ export const routeErrorHandling = (fn, callback?: any) => {
     try {
       await fn(req, res, next);
     } catch (e) {
-      debugBase(e.message);
-
       if (callback) {
-        return callback(res, e);
+        return callback(res, e, next);
       }
+
+      debugBase(e.message);
 
       return next(e);
     }
