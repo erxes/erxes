@@ -34,6 +34,7 @@ type DescProps = {
 const Description = (props: DescProps) => {
   const { item, saveItem, contentType } = props;
   const [edit, setEdit] = useState(false);
+  const [isSubmitted, setSubmit] = useState(false);
   const [description, setDescription] = useState(item.description);
 
   useEffect(() => {
@@ -43,9 +44,13 @@ const Description = (props: DescProps) => {
   const onSend = () => {
     saveItem({ description });
     setEdit(false);
+    setSubmit(true);
   };
 
-  const toggleEdit = () => setEdit(currentValue => !currentValue);
+  const toggleEdit = () => {
+    setEdit(currentValue => !currentValue);
+    setSubmit(false);
+  };
 
   const onChangeDescription = e => {
     setDescription(e.editor.getData());
@@ -92,8 +97,8 @@ const Description = (props: DescProps) => {
           <Content
             onClick={toggleEdit}
             dangerouslySetInnerHTML={{
-              __html: description
-                ? xss(description)
+              __html: item.description
+                ? xss(item.description)
                 : `${__('Add a more detailed description')}...`
             }}
           />
@@ -104,6 +109,7 @@ const Description = (props: DescProps) => {
               content={description}
               onChange={onChangeDescription}
               height={120}
+              isSubmitted={isSubmitted}
               autoFocus={true}
               name={`${contentType}_description_${item._id}`}
               toolbar={[

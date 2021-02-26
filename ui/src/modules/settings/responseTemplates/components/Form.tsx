@@ -76,9 +76,10 @@ class Form extends React.Component<Props & ICommonFormProps, State> {
           <ControlLabel>Content</ControlLabel>
 
           <EditorCK
-            content={object.content}
+            content={this.state.content}
             onChange={this.onChange}
             height={300}
+            isSubmitted={formProps.isSubmitted}
             name={`responseTemplates_${object._id || 'create'}`}
           />
         </FormGroup>
