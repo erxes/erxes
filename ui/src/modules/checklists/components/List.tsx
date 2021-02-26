@@ -236,25 +236,19 @@ function List(props: Props) {
   }
 
   function renderItems() {
-    if (isHidden) {
-      return item.items
-        .filter(data => !data.isChecked)
-        .map(data => (
-          <Item
-            key={data._id}
-            item={data}
-            convertToCard={props.convertToCard}
-          />
-        ));
-    }
+    const child = childItem => {
+      if (isHidden && !childItem.isChecked) {
+        return null;
+      }
 
-    const child = childItem => (
-      <Item
-        key={childItem._id}
-        item={childItem}
-        convertToCard={props.convertToCard}
-      />
-    );
+      return (
+        <Item
+          key={childItem._id}
+          item={childItem}
+          convertToCard={props.convertToCard}
+        />
+      );
+    };
 
     return (
       <SortableList
@@ -263,6 +257,7 @@ function List(props: Props) {
         isModal={false}
         onChangeFields={onChangeItems}
         isDragDisabled={false}
+        showDragHandler={false}
       />
     );
   }
