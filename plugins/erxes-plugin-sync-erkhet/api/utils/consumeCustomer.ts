@@ -21,7 +21,7 @@ export const consumeCustomer = async (models, memoryStorage, doc, old_code, acti
         models.Companies.createCompany({ ...document })
       }
     } else if (action === 'delete' && company) {
-      models.Companies.removeCompanies(company._id)
+      models.Companies.removeCompanies([company._id])
     }
 
   } else {
@@ -42,7 +42,7 @@ export const consumeCustomer = async (models, memoryStorage, doc, old_code, acti
         models.Customers.createCustomer({ ...document })
       }
     } else if (action === 'delete' && customer) {
-      models.Customer.removeCustomers(customer._id)
+      models.Customer.removeCustomers([customer._id])
     }
   }
 }

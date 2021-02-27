@@ -21,7 +21,7 @@ export const consumeInventory = async (models, doc, old_code, action) => {
       await models.Products.createProduct({ ...document });
     }
   } else if (action === 'delete' && product) {
-    await models.Products.removeProducts(product._id);
+    await models.Products.removeProducts([product._id]);
   }
 }
 
