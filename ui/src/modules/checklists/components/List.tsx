@@ -134,7 +134,10 @@ function List(props: Props) {
 
   function renderIsCheckedBtn() {
     const onClickHideShowBtn = () => setIsHidden(!isHidden);
-    const btnText = isHidden ? 'Show checked items' : 'Hide completed items';
+    const checkedItems = item.items.filter(data => data.isChecked);
+    const btnText = isHidden
+      ? `Show checked items (${isHidden && checkedItems.length})`
+      : 'Hide completed items';
 
     if (item.percent) {
       return (
@@ -237,7 +240,7 @@ function List(props: Props) {
 
   function renderItems() {
     const child = childItem => {
-      if (isHidden && !childItem.isChecked) {
+      if (isHidden && childItem.isChecked) {
         return null;
       }
 
