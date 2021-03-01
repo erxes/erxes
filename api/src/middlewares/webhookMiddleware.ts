@@ -1,5 +1,4 @@
 import { NodeVM } from 'vm2';
-
 import {
   Companies,
   Conformities,
@@ -59,9 +58,8 @@ const findCompany = async doc => {
   }
 
   if (!company && doc.companyPrimaryName) {
-    company = await Companies.findOne({ primaryName: doc.primaryName });
+    company = await Companies.findOne({ primaryName: doc.companyPrimaryName });
   }
-
   return company;
 };
 
@@ -134,9 +132,9 @@ const webhookMiddleware = async (req, res, next) => {
 
     if (!customer) {
       customer = await Customers.createCustomer(doc);
+    } else {
+      customer = await Customers.updateCustomer(customer._id, doc);
     }
-
-    customer = await Customers.updateCustomer(customer._id, doc);
 
     // get or create conversation
     let conversation = await Conversations.findOne({
@@ -193,22 +191,22 @@ const webhookMiddleware = async (req, res, next) => {
 
       if (!company) {
         company = await Companies.createCompany(companyDoc);
+      } else {
+        company = await Companies.updateCompany(company._id, companyDoc);
       }
-
-      company = await Companies.updateCompany(company._id, companyDoc);
     }
 
     // comformity
-    if (company && company !== undefined && customer) {
-      const conformityDoc = {
-        mainType: 'customer',
-        mainTypeId: customer._id,
-        relType: 'company',
-        relTypeIds: [company._id]
-      };
-      await Conformities.editConformity({ ...conformityDoc });
+    if (company && customer) {
+      await Conformities.editConformity({
+        ...{
+          mainType: 'customer',
+          mainTypeId: customer._id,
+          relType: 'company',
+          relTypeIds: [company._id]
+        }
+      });
     }
-
     return res.send('ok');
   } catch (e) {
     return next(e);
