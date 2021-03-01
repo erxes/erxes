@@ -240,7 +240,12 @@ export const customerSchema = schemaWrapper(
     }),
     links: field({ type: Object, default: {}, label: 'Links' }),
 
-    relatedIntegrationIds: field({ type: [String], optional: true }),
+    relatedIntegrationIds: field({
+      type: [String],
+      label: 'Related integrations',
+      esType: 'keyword',
+      optional: true
+    }),
     integrationId: field({
       type: String,
       optional: true,
