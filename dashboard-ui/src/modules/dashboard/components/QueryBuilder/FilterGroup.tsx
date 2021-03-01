@@ -37,7 +37,9 @@ class FilterGroup extends React.Component<Props> {
   renderInput = m => {
     const { updateMethods } = this.props;
 
-    if (['set', 'notSet'].includes(m.operator)) return;
+    if (['set', 'notSet'].includes(m.operator)) {
+      return;
+    }
 
     return (
       <FilterInputContainer
