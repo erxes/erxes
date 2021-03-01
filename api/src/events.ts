@@ -192,7 +192,7 @@ export const trackCustomEvent = (args: {
   });
 };
 
-export const identifyCustomer = async (args: ICustomerIdentifyParams) => {
+export const identifyCustomer = async (args: ICustomerIdentifyParams = {}) => {
   // get or create customer
   let customer = await Customers.getWidgetCustomer(args);
 
