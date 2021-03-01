@@ -63,10 +63,12 @@ const ChecklistWrapper = styled.div`
     background: transparent;
     border: 0;
     margin-bottom: 0;
-    padding: ${dimensions.unitSpacing - 2}px;
+    padding: 6px ${dimensions.unitSpacing - 2}px;
 
     &:hover {
       background: rgba(10, 30, 65, 0.05);
+      box-shadow: none;
+      border-radius: 4px;
     }
 
     &:empty {
