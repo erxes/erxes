@@ -4,6 +4,7 @@ import DropdownToggle from 'modules/common/components/DropdownToggle';
 import { FormControl } from 'modules/common/components/form';
 import Icon from 'modules/common/components/Icon';
 import { isEmptyContent } from 'modules/common/utils';
+import { urlify } from 'modules/inbox/utils';
 import React, { useEffect, useState } from 'react';
 import Dropdown from 'react-bootstrap/Dropdown';
 import xss from 'xss';
@@ -150,7 +151,7 @@ function Item(props: Props) {
       <ChecklistText isChecked={isChecked}>
         <label
           onClick={onClick}
-          dangerouslySetInnerHTML={{ __html: xss(content) }}
+          dangerouslySetInnerHTML={{ __html: xss(urlify(content)) }}
         />
 
         <Dropdown>

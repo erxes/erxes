@@ -42,10 +42,14 @@ const generateReport = async (req, res) => {
               id: data[dimensions]
             });
 
-            console.log(response);
+            const fieldName = resolver.fieldname.split('.');
 
-            data[dimensions] =
-              response._source[resolver.fieldname] || 'unknown';
+            if (fieldName.length == 2) {
+              data[dimensions] =
+                response._source[fieldName[0]][fieldName[1]] || 'unknown';
+            } else {
+              data[dimensions] = response._source[fieldName] || 'unknown';
+            }
           } catch (e) {
             data[dimensions] = 'unknown';
           }

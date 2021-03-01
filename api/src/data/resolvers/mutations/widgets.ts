@@ -811,13 +811,17 @@ const widgetMutations = {
     }
 
     if (!HAS_BOTENDPOINT_URL && customerId) {
-      sendMobileNotification({
-        title: 'You have a new message',
-        body: conversationContent,
-        customerId,
-        conversationId: conversation._id,
-        receivers: conversationNotifReceivers(conversation, customerId)
-      });
+      try {
+        sendMobileNotification({
+          title: 'You have a new message',
+          body: conversationContent,
+          customerId,
+          conversationId: conversation._id,
+          receivers: conversationNotifReceivers(conversation, customerId)
+        });
+      } catch (e) {
+        debugBase(`Failed to send mobile notification: ${e.message}`);
+      }
     }
 
     await sendToWebhook('create', 'customerMessages', msg);
