@@ -165,18 +165,20 @@ class Row extends React.Component<Props> {
   renderStatus() {
     const { message } = this.props;
     const {
-      stats = { send: '' },
+      stats = { send: 0, total: 0 },
       kind,
       validCustomersCount,
       smsStats = { total: 0 },
-      scheduleDate
+      scheduleDate,
+      isLive
     } = message;
-    const totalCount = stats.total || 0;
+
+    const totalEmailsMatch = validCustomersCount === stats.total;
 
     if (kind === MESSAGE_KINDS.MANUAL) {
       if (
         message.method === METHODS.MESSENGER ||
-        validCustomersCount === totalCount ||
+        totalEmailsMatch ||
         validCustomersCount === smsStats.total
       ) {
         return <Label lblStyle="success">Sent</Label>;
@@ -189,17 +191,34 @@ class Row extends React.Component<Props> {
       return <Label lblStyle="success">Sent</Label>;
     }
 
-    if (scheduleDate && scheduleDate.type === 'pre') {
+    // scheduled auto campaign
+    if (scheduleDate && kind === MESSAGE_KINDS.AUTO) {
       const scheduledDate = new Date(scheduleDate.dateTime);
       const now = new Date();
+      let labelStyle = 'primary';
+      let labelText = 'Sending';
 
-      if (scheduledDate.getTime() > now.getTime()) {
-        return <Label lblStyle="warning">scheduled</Label>;
-      } else {
-        return <Label lblStyle="danger">Not sent</Label>;
+      if (
+        scheduleDate.type === 'pre' &&
+        scheduledDate.getTime() > now.getTime()
+      ) {
+        labelStyle = 'warning';
+        labelText = 'Scheduled';
       }
-    } else if (scheduleDate && scheduleDate.type === 'sent') {
-      return <Label lblStyle="success">Sent</Label>;
+      if (scheduleDate.type === 'sent') {
+        labelStyle = 'success';
+        labelText = 'Sent';
+      }
+      if (!isLive) {
+        labelStyle = totalEmailsMatch ? 'success' : 'simple';
+        labelText = totalEmailsMatch ? 'Sent' : 'Paused';
+      }
+      if (isLive) {
+        labelStyle = 'primary';
+        labelText = 'Sending';
+      }
+
+      return <Label lblStyle={labelStyle}>{labelText}</Label>;
     }
 
     return <Label lblStyle="primary">Sending</Label>;
@@ -305,7 +324,7 @@ class Row extends React.Component<Props> {
         </td>
 
         <td>
-          <Tags tags={message.getTags} limit={1} />
+          <Tags tags={message.getTags} />
         </td>
 
         <td>

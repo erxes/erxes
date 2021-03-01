@@ -3,12 +3,15 @@ export const DashboardFilterTypes = {
 };
 
 export const DashboardFilters = {
-  'Contacts.state': [
-    { label: 'Visitor', value: 'visitor' },
-    { label: 'Lead', value: 'lead' },
-    { label: 'Customer', value: 'customer' }
+  'Customer.status': [
+    { label: 'Active', value: 'Active' },
+    { label: 'Deleted', value: 'Deleted' }
   ],
-  'Contacts.status': [
+  'Visitors.status': [
+    { label: 'Active', value: 'Active' },
+    { label: 'Deleted', value: 'Deleted' }
+  ],
+  'Leads.status': [
     { label: 'Active', value: 'Active' },
     { label: 'Deleted', value: 'Deleted' }
   ],
