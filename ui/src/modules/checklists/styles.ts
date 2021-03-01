@@ -1,5 +1,5 @@
-import { SortItem } from 'erxes-ui/lib/styles/sort';
 import { colors, dimensions } from 'modules/common/styles';
+import { SortItem } from 'modules/common/styles/sort';
 import styled from 'styled-components';
 import styledTS from 'styled-components-ts';
 
