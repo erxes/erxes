@@ -53,10 +53,10 @@ const Progress = styled.div`
 `;
 
 const ChecklistWrapper = styled.div`
-  margin-bottom: ${dimensions.coreSpacing}px;
+  margin: 0 0 ${dimensions.coreSpacing}px -8px;
 
   > button {
-    margin: ${dimensions.unitSpacing}px 0 0 28px;
+    margin: ${dimensions.unitSpacing}px 0 0 36px;
   }
 
   ${SortItem} {
