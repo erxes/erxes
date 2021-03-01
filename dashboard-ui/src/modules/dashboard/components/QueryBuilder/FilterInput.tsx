@@ -26,6 +26,7 @@ const FilterInputs = {
         mode="tags"
         onChange={onChange}
         value={values}
+        optionFilterProp="key"
       >
         {selectOptions}
       </Select>

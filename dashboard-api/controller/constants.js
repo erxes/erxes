@@ -21,12 +21,12 @@ const resolvers = [
   {
     name: 'Conversations.firstRespondedUser',
     indexname: `${tableSchema()}__users`,
-    fieldname: 'username'
+    fieldname: 'details.fullName'
   },
   {
     name: 'Conversations.assignedUser',
     indexname: `${tableSchema()}__users`,
-    fieldname: 'username'
+    fieldname: 'details.fullName'
   },
   {
     name: 'Deals.stageName',
@@ -42,12 +42,12 @@ const resolvers = [
   {
     name: 'Deals.modifiedBy',
     indexname: `${tableSchema()}__users`,
-    fieldname: 'username'
+    fieldname: 'details.fullName'
   },
   {
     name: 'Deals.assignedUser',
     indexname: `${tableSchema()}__users`,
-    fieldname: 'username'
+    fieldname: 'details.fullName'
   },
   {
     name: 'Tasks.stageName',
@@ -62,12 +62,12 @@ const resolvers = [
   {
     name: 'Tasks.modifiedBy',
     indexname: `${tableSchema()}__users`,
-    fieldname: 'username'
+    fieldname: 'details.fullName'
   },
   {
     name: 'Tasks.assignedUser',
     indexname: `${tableSchema()}__users`,
-    fieldname: 'username'
+    fieldname: 'details.fullName'
   },
   {
     name: 'Tickets.stageName',
@@ -83,16 +83,28 @@ const resolvers = [
   {
     name: 'Tickets.modifiedBy',
     indexname: `${tableSchema()}__users`,
-    fieldname: 'username'
+    fieldname: 'details.fullName'
   },
   {
     name: 'Tickets.assignedUser',
     indexname: `${tableSchema()}__users`,
-    fieldname: 'username'
+    fieldname: 'details.fullName'
   },
 
   {
-    name: 'Contacts.tag',
+    name: 'Customers.tag',
+    indexname: `${tableSchema()}__tags`,
+    fieldname: 'name'
+  },
+
+  {
+    name: 'Leads.tag',
+    indexname: `${tableSchema()}__tags`,
+    fieldname: 'name'
+  },
+
+  {
+    name: 'Visitors.tag',
     indexname: `${tableSchema()}__tags`,
     fieldname: 'name'
   },
@@ -120,6 +132,21 @@ const filterResolvers = {
   },
 
   'Conversations.brand': {
+    index: `${tableSchema()}__integrations`,
+    field: 'brandId'
+  },
+
+  'Customers.brand': {
+    index: `${tableSchema()}__integrations`,
+    field: 'brandId'
+  },
+
+  'Leads.brand': {
+    index: `${tableSchema()}__integrations`,
+    field: 'brandId'
+  },
+
+  'Visitors.brand': {
     index: `${tableSchema()}__integrations`,
     field: 'brandId'
   }
