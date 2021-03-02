@@ -19,6 +19,10 @@ export interface IField {
   lastUpdatedUser?: IUser;
   lastUpdatedUserId?: string;
   associatedFieldId?: string;
+  associatedField?: {
+    _id: string;
+    text: string;
+  };
 }
 
 export interface IFieldGroup {
