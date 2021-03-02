@@ -2,7 +2,7 @@ import * as dotenv from 'dotenv';
 import * as elasticsearch from 'elasticsearch';
 import * as telemetry from 'erxes-telemetry';
 import * as mongoUri from 'mongo-uri';
-import { debugBase } from './debuggers';
+import { debugError } from './debuggers';
 
 // load environment variables
 dotenv.config();
@@ -59,7 +59,7 @@ export const fetchElk = async (
 
     return response;
   } catch (e) {
-    debugBase(`Error during elk query ${e}`);
+    debugError(`Error during elk query ${e}`);
 
     if (defaultValue) {
       return defaultValue;
