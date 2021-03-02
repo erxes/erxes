@@ -3302,10 +3302,10 @@ erxes-inmemory-storage@^1.0.16:
     "@babel/runtime" "^7.11.2"
     redis "^3.0.2"
 
-erxes-message-broker@^1.0.24:
-  version "1.0.24"
-  resolved "https://registry.yarnpkg.com/erxes-message-broker/-/erxes-message-broker-1.0.24.tgz#5e70ca0a84c1bbdd16068cb5566810f27513e0b6"
-  integrity sha512-RkYG2LOp47a9h07MQd7Rr+xzhxzE0W/Rdbvsnrw2A63YwI4csE4vyR1Ktc3tk/8QKgit8YpkVafF0o3rPgACrA==
+erxes-message-broker@^1.0.25:
+  version "1.0.25"
+  resolved "https://registry.yarnpkg.com/erxes-message-broker/-/erxes-message-broker-1.0.25.tgz#dc13c037c2dda62d2570cbc79ea4b40164c4fbc5"
+  integrity sha512-9anJU85DFcvgt7xWqPWswNLFgva2eXBYht6BjZx3JO83SC4l//d1Y5m7I9BES5Of5FnRSrDUwlnDeQkEazC1SA==
   dependencies:
     "@babel/runtime" "^7.11.2"
     amqplib "^0.6.0"
