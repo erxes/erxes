@@ -472,7 +472,7 @@ export const getItemList = async (
       if (conf.mainType === cocType) {
         cocIds.push(conf.mainTypeId);
 
-        if (!Object.keys(cocIdsByItemId).includes(conf.relTypeId)) {
+        if (!cocIdsByItemId[conf.relTypeId]) {
           cocIdsByItemId[conf.relTypeId] = [];
         }
 
@@ -480,7 +480,7 @@ export const getItemList = async (
       } else {
         cocIds.push(conf.relTypeId);
 
-        if (!Object.keys(cocIdsByItemId).includes(conf.mainTypeId)) {
+        if (!cocIdsByItemId[conf.mainTypeId]) {
           cocIdsByItemId[conf.mainTypeId] = [];
         }
 
@@ -488,10 +488,9 @@ export const getItemList = async (
       }
     }
 
-    const uniqueIds: string[] = [...new Set(cocIds)];
     const cocs = await cocCollection.find(
       {
-        _id: { $in: uniqueIds }
+        _id: { $in: [...new Set(cocIds)] }
       },
       { ...fields, primaryEmail: 1, primaryPhone: 1, emails: 1, phones: 1 }
     );
