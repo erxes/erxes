@@ -244,30 +244,22 @@ export const loadClass = () => {
 
       let messages: IEngageMessageDocument[];
 
-      messages = await EngageMessages.find({
-        'messenger.brandId': brandId,
-        method: METHODS.MESSENGER,
-        isLive: true
-      });
-
       const ELK_SYNCER = getEnv({ name: 'ELK_SYNCER', defaultValue: 'true' });
-
-      const query = {
-        bool: {
-          must: [
-            { match: { 'messenger.brandId': brandId } },
-            { match: { method: METHODS.MESSENGER } },
-            { match: { isLive: true } }
-          ]
-        }
-      };
 
       if (ELK_SYNCER === 'true') {
         const response = await fetchElk(
           'search',
           'engage_messages  ',
           {
-            query
+            query: {
+              bool: {
+                must: [
+                  { match: { 'messenger.brandId': brandId } },
+                  { match: { method: METHODS.MESSENGER } },
+                  { match: { isLive: true } }
+                ]
+              }
+            }
           },
           '',
           { hits: { hits: [] } }
@@ -278,6 +270,12 @@ export const loadClass = () => {
             _id: hit._id,
             ...hit._source
           };
+        });
+      } else {
+        messages = await EngageMessages.find({
+          'messenger.brandId': brandId,
+          method: METHODS.MESSENGER,
+          isLive: true
         });
       }
 
