@@ -33,8 +33,8 @@ const examplePayload = `{
       "type": "image/png"
   }],
   "companyPrimaryEmail":"example@company.com",
-  "companyPrimaryPhone:"+123456789",
-  "companyPrimaryName:"example llc",
+  "companyPrimaryPhone":"+123456789",
+  "companyPrimaryName":"example llc",
   "companyWebsite":"https://company.com",
   "companyIndustry":"Automobiles",
   "companyBusinessType":"Investor",
