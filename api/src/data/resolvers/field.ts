@@ -14,6 +14,13 @@ export const field = {
 
     // Returning user who updated the field last
     return Users.findOne({ _id: lastUpdatedUserId });
+  },
+
+  associatedField(root: IFieldDocument) {
+    const { associatedFieldId } = root;
+
+    // Returning field that associated with form field
+    return Fields.findOne({ _id: associatedFieldId });
   }
 };
 
