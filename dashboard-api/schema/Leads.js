@@ -27,13 +27,18 @@ cube(`Leads`, {
       type: `string`
     },
 
-    createdDate: {
-      sql: `${CUBE}."createdAt"`,
-      type: `time`
+    country: {
+      sql: `${CUBE}."location.country"`,
+      type: `string`
     },
 
-    birthDate: {
-      sql: `${CUBE}."birthDate"`,
+    city: {
+      sql: `${CUBE}."location.city"`,
+      type: `string`
+    },
+
+    createdDate: {
+      sql: `${CUBE}."createdAt"`,
       type: `time`
     },
 
