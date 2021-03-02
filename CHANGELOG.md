@@ -1,3 +1,29 @@
+## [0.20.12](https://github.com/erxes/erxes/compare/0.20.11...0.20.12) (2021-03-02)
+
+
+### Bug Fixes
+
+* **campaign:** Fix campaign preview height without an email template ([d887c1e](https://github.com/erxes/erxes/commit/d887c1e65146fa77543742187fa23a7784384850))
+* **deal/task/ticket:** fix real-time issue while clicks "Archive all carts in this list" ([332804e](https://github.com/erxes/erxes/commit/332804e0fcb64e78822060b37e44a970390f3827)), closes [#2629](https://github.com/erxes/erxes/issues/2629)
+* **deal/tast/ticket:** fix pipeline, board chooser dropdown scrolling issue ([34e190e](https://github.com/erxes/erxes/commit/34e190e1e7ae5127422075b0194a6bb16aec0209))
+* **skills:** fix can not disable skills on messenger ([fb79088](https://github.com/erxes/erxes/commit/fb7908819563413c814b9a5469d89f493c130382))
+* **widget:** fix confirmation dialog, description text placement ([bec10a1](https://github.com/erxes/erxes/commit/bec10a1868fa251b404f5471c257a19c3b3f40c4))
+* **widget:** fix displaying wrong social link ([df84f64](https://github.com/erxes/erxes/commit/df84f64a888ee623f32fecb59902fdfff74e4088))
+* **workers:** fixed check duplication issue ([7607f43](https://github.com/erxes/erxes/commit/7607f432daff417b3733e2c0a11ebc89569cfd91))
+* **workers:** not removing import history when there is no customer ids ([bdccfa6](https://github.com/erxes/erxes/commit/bdccfa651018254158fcb09afaeaa70101ba1e67))
+* **workers:** not removing import history when there is no customer ids ([2db3580](https://github.com/erxes/erxes/commit/2db35800367a21559f6f15df46e0e3b8aeb8f65d))
+
+
+### Features
+
+* **search:** added global search feature ([9709185](https://github.com/erxes/erxes/commit/97091852822d38e1dbf98c1649b8fe1b40ac9370)), closes [#2655](https://github.com/erxes/erxes/issues/2655)
+* **segments:** added related integrations filter ([8db1316](https://github.com/erxes/erxes/commit/8db13169ba276d3450cfbdb9f4932891598f18f0))
+
+
+### Performance Improvements
+
+* **tag:** add ability to create subtag ([607e92d](https://github.com/erxes/erxes/commit/607e92d11aee5a7a11f667c4ca43a934110b447b)), closes [#2612](https://github.com/erxes/erxes/issues/2612)
+
 ## [0.20.11](https://github.com/erxes/erxes/compare/0.20.10...0.20.11) (2021-01-29)
 
 
