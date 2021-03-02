@@ -3,6 +3,7 @@ import {
   Companies,
   Conformities,
   Customers,
+  Notifications,
   Pipelines,
   Stages
 } from '../../../db/models';
@@ -535,13 +536,20 @@ export const getItemList = async (
   };
 
   const updatedList: any[] = [];
-  const resolvers = (await import(`../${type}s`)).default;
+
+  const notifications = await Notifications.find(
+    { contentTypeId: { $in: ids }, isRead: false, receiver: user._id },
+    { contentTypeId: 1 }
+  );
 
   for (const item of list) {
+    console.log('item.watchedUserIds: ', item.watchedUserIds);
     updatedList.push({
       ...item,
       isWatched: (item.watchedUserIds || []).includes(user._id),
-      hasNotified: await resolvers.hasNotified(item, null, { user }),
+      hasNotified: notifications.find(n => n.contentTypeId === item._id)
+        ? false
+        : true,
       customers: getCustomersByItemId(item._id),
       companies: getCompaniesByItemId(item._id),
       ...(getExtraFields ? await getExtraFields(item) : {})
