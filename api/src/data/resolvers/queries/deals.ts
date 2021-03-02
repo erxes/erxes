@@ -63,16 +63,16 @@ const dealQueries = {
         continue;
       }
 
-      deal['products'] = [];
+      deal.products = [];
 
       for (const pData of deal.productsData) {
         if (!pData.productId) {
           continue;
         }
 
-        deal['products'].push({
+        deal.products.push({
           ...(typeof pData.toJSON === 'function' ? pData.toJSON() : pData),
-          product: products.find(p => p._id == pData.productId) || {}
+          product: products.find(p => p._id === pData.productId) || {}
         });
       }
     }

@@ -457,7 +457,7 @@ export const getItemList = async (
 
   const ids = list.map(item => item._id);
 
-  const getCoc = async (cocType: string, collection: any, fields: any) => {
+  const getCoc = async (cocType: string, cocCollection: any, fields: any) => {
     const conformities = await Conformities.getConformities({
       mainType: type,
       mainTypeIds: ids,
@@ -488,7 +488,7 @@ export const getItemList = async (
     }
 
     const uniqueIds: string[] = [...new Set(cocIds)];
-    const cocs = await collection.find(
+    const cocs = await cocCollection.find(
       {
         _id: { $in: uniqueIds }
       },
@@ -510,7 +510,10 @@ export const getItemList = async (
     return customerIds.flatMap((customerId: string) => {
       const found = customer.cocs.find(cus => customerId === cus._id);
 
-      if (found) return found;
+      if (found) {
+        return found;
+      }
+
       return [];
     });
   };
@@ -523,7 +526,10 @@ export const getItemList = async (
     return companyIds.flatMap((companyId: string) => {
       const found = company.cocs.find(com => companyId === com._id);
 
-      if (found) return found;
+      if (found) {
+        return found;
+      }
+
       return [];
     });
   };
