@@ -67,7 +67,7 @@ export default function PercentItem({ name, percent, icon, color }: Props) {
       <div>
         <span>{name}</span>
         <Number>
-          {s.numberFormat(percent, 2)}
+          {percent > 100 ? 100 : s.numberFormat(percent, 2)}
           <span>%</span>
         </Number>
       </div>
