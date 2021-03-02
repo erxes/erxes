@@ -1,5 +1,6 @@
 import * as faker from 'faker';
 import * as sinon from 'sinon';
+import { MESSAGE_KINDS } from '../data/constants';
 import * as utils from '../data/utils';
 import {
   brandFactory,
@@ -25,6 +26,7 @@ import {
 } from '../db/models';
 import Messages from '../db/models/ConversationMessages';
 import { IBrandDocument } from '../db/models/definitions/brands';
+import { MESSENGER_KINDS, METHODS } from '../db/models/definitions/constants';
 import { ICustomerDocument } from '../db/models/definitions/customers';
 import { IIntegrationDocument } from '../db/models/definitions/integrations';
 import { IUserDocument } from '../db/models/definitions/users';
@@ -396,7 +398,7 @@ describe('createConversation', () => {
                   brandId: 'brandId',
                   content: 'content',
                   fromUserId: user._id,
-                  kind: 'chat',
+                  kind: MESSENGER_KINDS.CHAT,
                   sentAs: 'snippet'
                 },
                 conversationId: 'conversationId',
@@ -1053,7 +1055,7 @@ describe('createVisitorOrCustomerMessages with elk', () => {
             {
               _id: faker.random.uuid(),
               _source: {
-                kind: 'visitorAuto',
+                kind: MESSAGE_KINDS.VISITOR_AUTO,
                 method: 'messenger',
                 fromUserId: _user._id,
                 isDraft: false,
@@ -1079,8 +1081,8 @@ describe('createVisitorOrCustomerMessages with elk', () => {
     const message = new EngageMessages({
       title: 'Visitor',
       fromUserId: _user._id,
-      kind: 'visitorAuto',
-      method: 'messenger',
+      kind: MESSAGE_KINDS.VISITOR_AUTO,
+      method: METHODS.MESSENGER,
       isLive: true,
       messenger: {
         brandId: _brand._id,
@@ -1102,7 +1104,7 @@ describe('createVisitorOrCustomerMessages with elk', () => {
 
     // invalid from user id
     await engageMessageFactory({
-      kind: 'auto',
+      kind: MESSAGE_KINDS.AUTO,
       userId: 'invalid',
       isLive: true,
       messenger: {
@@ -1112,7 +1114,7 @@ describe('createVisitorOrCustomerMessages with elk', () => {
     });
 
     await engageMessageFactory({
-      kind: 'visitorAuto',
+      kind: MESSAGE_KINDS.VISITOR_AUTO,
       userId: _user._id,
       isLive: true,
       customerIds: [_visitor.id],
@@ -1123,7 +1125,7 @@ describe('createVisitorOrCustomerMessages with elk', () => {
     });
 
     await engageMessageFactory({
-      kind: 'manual',
+      kind: MESSAGE_KINDS.MANUAL,
       userId: _user._id,
       isLive: true,
       customerIds: [_customer.id],
