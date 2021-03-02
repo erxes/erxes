@@ -19,6 +19,7 @@ on:
       - automations
     paths:
       - 'ui/**'
+      - '.github/workflows/ui.yaml'
       - '!ui/nginx/**'
       - '!ui/docker-entrypoint.sh'
       - '!ui/base.Dockerfile'
@@ -28,7 +29,29 @@ jobs:
   ui:
     runs-on: ubuntu-18.04
 
+    services:
+      mongodb:
+        image: mongo:4.0
+        ports:
+          - 27017:27017
+
     steps:
+    - name: Configure sysctl limits
+      run: |
+        sudo swapoff -a
+        sudo sysctl -w vm.swappiness=1
+        sudo sysctl -w fs.file-max=262144
+        sudo sysctl -w vm.max_map_count=262144
+
+    - uses: getong/elasticsearch-action@v1.2
+      with:
+        elasticsearch version: '7.6.1'
+        host port: 9200
+        container port: 9200
+        host node port: 9300
+        node port: 9300
+        discovery type: 'single-node'
+
     - uses: actions/checkout@v2
 
     - name: Use Node.js 12.19.x
@@ -50,20 +73,41 @@ jobs:
           ${{ runner.os }}-yarn-ui-
           ${{ runner.os }}-yarn-
 
-    - name: Install dependencies
+    - name: Cypress prepare api
       run: |
+        cd api
         yarn install
-        cd ui
-        yarn install --frozen-lockfile
+        yarn loadTestData
+        yarn dev &
+        sleep 20
+      env:
+        DEBUG: 'erxes*'
+        MONGO_URL: mongodb://localhost/erxes
+        JWT_TOKEN_SECRET: token
+        MAIN_APP_DOMAIN: http://localhost:3000
+        WIDGETS_DOMAIN: http://localhost:3200
+        RABBITMQ_HOST: amqp://localhost
+        ELASTICSEARCH_URL: http://localhost:9200
+        PORT: 3300
 
-    - name: Lint
-      run: |
-        yarn lint ui
-
-    - name: Tsc
+    - name: Cypress prepare ui
       run: |
         cd ui
-        yarn tsc
+        yarn install
+        yarn start &
+        sleep 120
+      env:
+        PORT: 3000
+        NODE_ENV: development
+        REACT_APP_CDN_HOST: http://localhost:3200
+        REACT_APP_API_URL: http://localhost:3300
+        REACT_APP_API_SUBSCRIPTION_URL: ws://localhost:3300/subscriptions
+
+    - name: Cypress run
+      run: |
+        cd ui
+        yarn install
+        yarn record-cypress
 
     - name: Build
       run: |

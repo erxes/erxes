@@ -152,10 +152,15 @@ export const loadFieldClass = () => {
       await this.checkIsDefinedByErxes(_id);
 
       // Removing field value from customer
-      const index = `customFieldsData.${_id}`;
       await Customers.updateMany(
-        { [index]: { $exists: true } },
-        { $unset: { [index]: 1 } }
+        { customFieldsData: { $elemMatch: { field: _id } } },
+        { $pull: { customFieldsData: { field: _id } } }
+      );
+
+      // Removing form associated field
+      await Fields.updateMany(
+        { associatedFieldId: _id },
+        { $unset: { associatedFieldId: '' } }
       );
 
       return fieldObj.remove();

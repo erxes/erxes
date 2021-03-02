@@ -85,7 +85,7 @@ const ManageColumnsContainer = (props: FinalProps) => {
             : checkedConfigsForImport,
         type: contentType,
         importType,
-        fromHistory: true
+        unlimited: true
       });
 
       window.open(`${REACT_APP_API_URL}${reqUrl}?${stringified}`, '_blank');
@@ -123,6 +123,7 @@ const ManageColumnsContainer = (props: FinalProps) => {
   const updatedProps = {
     ...props,
     save,
+    contentType,
     columns
   };
 
@@ -138,7 +139,9 @@ export default withProps<Props>(
         options: ({ contentType, type }) => {
           return {
             variables: {
-              contentType: contentType === 'lead' ? 'customer' : contentType,
+              contentType: ['lead', 'visitor'].includes(contentType)
+                ? 'customer'
+                : contentType,
               usageType: type,
               excludedNames: [
                 'state',
@@ -163,7 +166,7 @@ export default withProps<Props>(
         options: ({ contentType }) => {
           return {
             variables: {
-              contentType: contentType === 'lead' ? 'customer' : contentType
+              contentType: ['lead', 'visitor'] ? 'customer' : contentType
             }
           };
         }

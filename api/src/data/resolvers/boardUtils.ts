@@ -328,7 +328,7 @@ export const prepareBoardItemDoc = async (
   type: string,
   userId: string
 ) => {
-  const collection = await getCollection(type);
+  const { collection } = await getCollection(type);
   const item = await collection.findOne({ _id });
 
   const doc = {

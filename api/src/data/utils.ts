@@ -812,8 +812,7 @@ export const getSubServiceDomain = ({ name }: { name: string }): string => {
     API_DOMAIN: `${MAIN_APP_DOMAIN}/api`,
     WIDGETS_DOMAIN: `${MAIN_APP_DOMAIN}/widgets`,
     INTEGRATIONS_API_DOMAIN: `${MAIN_APP_DOMAIN}/integrations`,
-    // LOGS_API_DOMAIN: `${MAIN_APP_DOMAIN}/logs`,
-    LOGS_API_DOMAIN: `http://localhost:3800`,
+    LOGS_API_DOMAIN: `${MAIN_APP_DOMAIN}/logs`,
     ENGAGES_API_DOMAIN: `${MAIN_APP_DOMAIN}/engages`,
     VERIFIER_API_DOMAIN: `${MAIN_APP_DOMAIN}/verifier`
   };
@@ -875,4 +874,27 @@ export const getErxesSaasDomain = () => {
   return NODE_ENV === 'production'
     ? 'https://erxes.io'
     : 'http://localhost:3500';
+};
+
+/**
+ * Escaping, special characters
+ */
+export const escapeRegExp = (str: string) => {
+  return str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+};
+
+export const routeErrorHandling = (fn, callback?: any) => {
+  return async (req, res, next) => {
+    try {
+      await fn(req, res, next);
+    } catch (e) {
+      debugBase(e.message);
+
+      if (callback) {
+        return callback(res, e);
+      }
+
+      return next(e);
+    }
+  };
 };

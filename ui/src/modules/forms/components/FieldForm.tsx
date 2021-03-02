@@ -1,3 +1,4 @@
+import { IOption } from 'erxes-ui/lib/types';
 import Button from 'modules/common/components/Button';
 import FormControl from 'modules/common/components/form/Control';
 import FormGroup from 'modules/common/components/form/Group';
@@ -6,6 +7,7 @@ import Icon from 'modules/common/components/Icon';
 import { FlexItem } from 'modules/common/components/step/styles';
 import Toggle from 'modules/common/components/Toggle';
 import { __ } from 'modules/common/utils';
+import SelectProperty from 'modules/settings/properties/containers/SelectProperty';
 import { IField } from 'modules/settings/properties/types';
 import React from 'react';
 import Modal from 'react-bootstrap/Modal';
@@ -28,19 +30,47 @@ type Props = {
 
 type State = {
   field: IField;
+  selectedOption?: IOption;
 };
 
 class FieldForm extends React.Component<Props, State> {
   constructor(props: Props) {
     super(props);
 
+    const { field } = props;
+    const selectedOption = field.associatedField && {
+      value: field.associatedField._id,
+      label: field.associatedField.text
+    };
+
     this.state = {
-      field: props.field
+      field,
+      selectedOption
     };
   }
 
   onFieldChange = (name: string, value: string | boolean | string[]) => {
     this.setFieldAttrChanges(name, value);
+  };
+
+  onPropertyChange = (selectedField: IField) => {
+    const { field } = this.state;
+
+    field.associatedFieldId = selectedField._id;
+    field.validation = selectedField.validation;
+    field.options = selectedField.options;
+    field.type = selectedField.type;
+    field.isRequired = selectedField.isRequired;
+    field.text = selectedField.text;
+    field.description = selectedField.description;
+
+    this.setState({
+      field,
+      selectedOption: {
+        value: selectedField._id,
+        label: selectedField.text || ''
+      }
+    });
   };
 
   onSubmit = e => {
@@ -169,7 +199,7 @@ class FieldForm extends React.Component<Props, State> {
 
         <FormGroup>
           <ControlLabel htmlFor="text" required={true}>
-            Field Label
+            Field Title
           </ControlLabel>
 
           <FormControl
@@ -190,6 +220,8 @@ class FieldForm extends React.Component<Props, State> {
             onChange={desc}
           />
         </FormGroup>
+
+        {this.renderCustomProperty()}
 
         {this.renderOptions()}
 
@@ -248,6 +280,25 @@ class FieldForm extends React.Component<Props, State> {
           </Preview>
         </PreviewSection>
       </FlexItem>
+    );
+  }
+
+  renderCustomProperty() {
+    const { field, selectedOption } = this.state;
+
+    if (['email', 'phone', 'firstName', 'lastName'].includes(field.type)) {
+      return;
+    }
+
+    return (
+      <FormGroup>
+        <SelectProperty
+          queryParams={{ type: 'customer' }}
+          defaultValue={selectedOption && selectedOption.value}
+          description="Any data collected through this field will copy to:"
+          onChange={this.onPropertyChange}
+        />
+      </FormGroup>
     );
   }
 

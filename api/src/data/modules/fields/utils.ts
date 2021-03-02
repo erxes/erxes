@@ -202,9 +202,9 @@ const getTags = async (type: string) => {
  * Generates fields using given schema
  */
 const generateFieldsFromSchema = async (queSchema: any, namePrefix: string) => {
-  const queFields: any = [];
+  const fields: any = [];
 
-  // field definations
+  // field definitions
   const paths = queSchema.paths;
 
   const integrations = await getIntegrations();
@@ -214,6 +214,7 @@ const generateFieldsFromSchema = async (queSchema: any, namePrefix: string) => {
 
     const label = path.options.label;
     const type = path.instance;
+
     const selectOptions =
       name === 'integrationId'
         ? integrations || []
@@ -221,7 +222,7 @@ const generateFieldsFromSchema = async (queSchema: any, namePrefix: string) => {
 
     if (['String', 'Number', 'Date', 'Boolean'].includes(type) && label) {
       // add to fields list
-      queFields.push({
+      fields.push({
         _id: Math.random(),
         name: `${namePrefix}${name}`,
         label,
@@ -231,7 +232,7 @@ const generateFieldsFromSchema = async (queSchema: any, namePrefix: string) => {
     }
   }
 
-  return queFields;
+  return fields;
 };
 
 /**
@@ -248,7 +249,15 @@ export const fieldsCombinedByContentType = async ({
 }) => {
   let schema: any;
   let extendFields: Array<{ name: string; label?: string }> = [];
-  let fields: Array<{ _id: number; name: string; label?: string }> = [];
+  let fields: Array<{
+    _id: number;
+    name: string;
+    label?: string;
+    type?: string;
+    validation?: string;
+    options?: string[];
+    selectOptions?: Array<{ label: string; value: string }>;
+  }> = [];
 
   switch (contentType) {
     case FIELD_CONTENT_TYPES.COMPANY:
@@ -293,7 +302,10 @@ export const fieldsCombinedByContentType = async ({
       fields.push({
         _id: Math.random(),
         name: `customFieldsData.${customField._id}`,
-        label: customField.text
+        label: customField.text,
+        options: customField.options,
+        validation: customField.validation,
+        type: customField.type
       });
     }
   }
@@ -305,12 +317,23 @@ export const fieldsCombinedByContentType = async ({
   if (contentType === 'customer' || contentType === 'company') {
     const tags = await getTags(contentType);
     fields = [...fields, ...[tags]];
+
+    if (contentType === 'customer') {
+      const integrations = await getIntegrations();
+
+      fields.push({
+        _id: Math.random(),
+        name: 'relatedIntegrationIds',
+        label: 'Related integration',
+        selectOptions: integrations
+      });
+    }
   }
 
-  for (const extendFeild of extendFields) {
+  for (const extendField of extendFields) {
     fields.push({
       _id: Math.random(),
-      ...extendFeild
+      ...extendField
     });
   }
 

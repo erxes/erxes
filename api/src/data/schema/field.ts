@@ -16,6 +16,8 @@ export const fieldsTypes = `
     groupId: String
     lastUpdatedUser: User
     lastUpdatedUserId: String
+    associatedFieldId: String
+    associatedField: Field
   }
 
   input OrderItem {
@@ -31,7 +33,7 @@ export const fieldsTypes = `
 `;
 
 export const fieldsQueries = `
-  fields(contentType: String!, contentTypeId: String): [Field]
+  fields(contentType: String!, contentTypeId: String, isVisible: Boolean): [Field]
   fieldsCombinedByContentType(contentType: String!, usageType: String, excludedNames: [String]): JSON
   fieldsDefaultColumnsConfig(contentType: String!): [ColumnConfigItem]
 `;
@@ -46,6 +48,7 @@ const fieldsCommonFields = `
   order: Int
   groupId: String
   isVisible: Boolean
+  associatedFieldId: String
 `;
 
 export const fieldsMutations = `
@@ -81,6 +84,7 @@ const fieldsGroupsCommonFields = `
 
 export const fieldsGroupsQueries = `
   fieldsGroups(contentType: String): [FieldsGroup]
+  getFields(contentType: String): [Field]
 `;
 
 export const fieldsGroupsMutations = `

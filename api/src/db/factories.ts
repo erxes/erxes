@@ -217,6 +217,8 @@ export const userFactory = async (params: IUserFactoryInput = {}) => {
 interface ITagFactoryInput {
   colorCode?: string;
   type?: string;
+  parentId?: string;
+  relatedIds?: string[];
 }
 
 export const tagsFactory = (params: ITagFactoryInput = {}) => {
@@ -224,7 +226,9 @@ export const tagsFactory = (params: ITagFactoryInput = {}) => {
     name: faker.random.word(),
     type: params.type || 'engageMessage',
     colorCode: params.colorCode || Random.id(),
-    userId: Random.id()
+    userId: Random.id(),
+    parentId: params.parentId,
+    relatedIds: params.relatedIds || []
   });
 
   return tag.save();
@@ -616,6 +620,7 @@ interface IFieldFactoryInput {
   isDefinedByErxes?: boolean;
   isVisible?: boolean;
   options?: string[];
+  associatedFieldId?: string;
 }
 
 export const fieldFactory = async (params: IFieldFactoryInput) => {
@@ -634,9 +639,13 @@ export const fieldFactory = async (params: IFieldFactoryInput) => {
     description: params.description || faker.random.word(),
     isRequired: params.isRequired || false,
     order: params.order || 0,
-    isVisible: params.visible || true,
+    isVisible:
+      params.visible === undefined || params.visible === null
+        ? true
+        : params.visible,
     groupId: params.groupId || (groupObj ? groupObj._id : ''),
-    isDefinedByErxes: params.isDefinedByErxes
+    isDefinedByErxes: params.isDefinedByErxes,
+    associatedFieldId: params.associatedFieldId
   });
 };
 
@@ -751,7 +760,7 @@ export const integrationFactory = async (
     messengerData: params.messengerData,
     leadData: params.leadData
       ? params.leadData
-      : { thankContent: 'thankContent' },
+      : { thankTitle: 'thankTitle', thankContent: 'thankContent' },
     tagIds: params.tagIds,
     isActive:
       params.isActive === undefined || params.isActive === null
@@ -765,7 +774,7 @@ export const integrationFactory = async (
 
   const user = await userFactory({});
 
-  return Integrations.createIntegration(doc, user._id);
+  return Integrations.create({ createdUserId: user._id, ...doc });
 };
 
 interface IFormFactoryInput {
@@ -1062,7 +1071,7 @@ interface IDealFactoryInput {
   searchText?: string;
   userId?: string;
   initialStageId?: string;
-  sourceConversationId?: string;
+  sourceConversationIds?: string[];
 }
 
 export const dealFactory = async (params: IDealFactoryInput = {}) => {
@@ -1090,7 +1099,7 @@ export const dealFactory = async (params: IDealFactoryInput = {}) => {
     order: params.order,
     probability: params.probability,
     searchText: params.searchText,
-    sourceConversationId: params.sourceConversationId,
+    sourceConversationIds: params.sourceConversationIds,
     createdAt: new Date()
   });
 
@@ -1106,7 +1115,7 @@ interface ITaskFactoryInput {
   priority?: string;
   watchedUserIds?: string[];
   labelIds?: string[];
-  sourceConversationId?: string;
+  sourceConversationIds?: string[];
   initialStageId?: string;
 }
 
@@ -1140,7 +1149,7 @@ export const taskFactory = async (params: ITaskFactoryInput = {}) => {
     priority: params.priority,
     watchedUserIds: params.watchedUserIds,
     labelIds: params.labelIds || [],
-    sourceConversationId: params.sourceConversationId,
+    sourceConversationIds: params.sourceConversationIds,
     attachments: [attachmentFactory(), attachmentFactory()]
   });
 
@@ -1157,7 +1166,7 @@ interface ITicketFactoryInput {
   source?: string;
   watchedUserIds?: string[];
   labelIds?: string[];
-  sourceConversationId?: string;
+  sourceConversationIds?: string[];
 }
 
 export const ticketFactory = async (params: ITicketFactoryInput = {}) => {
@@ -1184,7 +1193,7 @@ export const ticketFactory = async (params: ITicketFactoryInput = {}) => {
     source: params.source,
     watchedUserIds: params.watchedUserIds,
     labelIds: params.labelIds || [],
-    sourceConversationId: params.sourceConversationId
+    sourceConversationIds: params.sourceConversationIds
   });
 
   return ticket.save();

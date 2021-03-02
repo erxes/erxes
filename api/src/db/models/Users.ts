@@ -96,6 +96,7 @@ export interface IUserModel extends Model<IUserDocument> {
     refreshToken: string
   ): { token: string; refreshToken: string; user: IUserDocument };
   login(params: ILoginParams): { token: string; refreshToken: string };
+  getTokenFields(user: IUserDocument);
 }
 
 export const loadClass = () => {
@@ -588,20 +589,24 @@ export const loadClass = () => {
       return token;
     }
 
+    public static getTokenFields(user: IUserDocument) {
+      return {
+        _id: user._id,
+        email: user.email,
+        details: user.details,
+        isOwner: user.isOwner,
+        groupIds: user.groupIds,
+        brandIds: user.brandIds,
+        username: user.username,
+        code: user.code
+      };
+    }
+
     /*
      * Creates regular and refresh tokens using given user information
      */
     public static async createTokens(_user: IUserDocument, secret: string) {
-      const user = {
-        _id: _user._id,
-        email: _user.email,
-        details: _user.details,
-        isOwner: _user.isOwner,
-        groupIds: _user.groupIds,
-        brandIds: _user.brandIds,
-        username: _user.username,
-        code: _user.code
-      };
+      const user = this.getTokenFields(_user);
 
       const createToken = await jwt.sign({ user }, secret, { expiresIn: '1d' });
 

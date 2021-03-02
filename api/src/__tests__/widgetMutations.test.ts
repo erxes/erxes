@@ -2,12 +2,12 @@ import * as faker from 'faker';
 import * as Random from 'meteor-random';
 import * as sinon from 'sinon';
 import { MESSAGE_KINDS } from '../data/constants';
+import { IntegrationsAPI } from '../data/dataSources';
 import * as logUtils from '../data/logUtils';
 import widgetMutations, {
   getMessengerData
 } from '../data/resolvers/mutations/widgets';
 import * as utils from '../data/utils';
-import { graphqlRequest } from '../db/connection';
 import {
   brandFactory,
   conversationFactory,
@@ -268,6 +268,7 @@ describe('insertMessage()', () => {
   let _integration: IIntegrationDocument;
   let _customer: ICustomerDocument;
   let _integrationBot: IIntegrationDocument;
+  let context;
 
   beforeEach(async () => {
     // Creating test data
@@ -283,6 +284,12 @@ describe('insertMessage()', () => {
       }
     });
     _customer = await customerFactory({ integrationId: _integration._id });
+
+    context = {
+      dataSources: {
+        IntegrationsAPI: new IntegrationsAPI()
+      }
+    };
   });
 
   afterEach(async () => {
@@ -301,7 +308,8 @@ describe('insertMessage()', () => {
         integrationId: _integration._id,
         customerId: _customer._id,
         message: faker.lorem.sentence()
-      }
+      },
+      context
     );
 
     // check message ==========
@@ -338,7 +346,8 @@ describe('insertMessage()', () => {
         customerId: _customer._id,
         message: faker.lorem.sentence(),
         skillId: skill._id
-      }
+      },
+      context
     );
 
     const conversation2 = await Conversations.findById(
@@ -361,7 +370,8 @@ describe('insertMessage()', () => {
         customerId: _customer._id,
         message: 'withConversationId',
         conversationId: conversation._id
-      }
+      },
+      context
     );
 
     expect(message.content).toBe('withConversationId');
@@ -390,7 +400,8 @@ describe('insertMessage()', () => {
         visitorId: '123',
         message: 'withConversationId',
         conversationId: conversation._id
-      }
+      },
+      context
     );
 
     expect(message.content).toBe('withConversationId');
@@ -427,7 +438,8 @@ describe('insertMessage()', () => {
         message: 'User message',
         customerId: _customer._id,
         conversationId: conversation._id
-      }
+      },
+      context
     );
 
     expect(message.content).toBe('User message');
@@ -456,7 +468,8 @@ describe('insertMessage()', () => {
         message: 'User message 2',
         customerId: _customer._id,
         conversationId: conversation2._id
-      }
+      },
+      context
     );
 
     expect(message2.content).toBe('User message 2');
@@ -483,7 +496,8 @@ describe('insertMessage()', () => {
         integrationId: _integrationBot._id,
         message: 'User message',
         customerId: _customer._id
-      }
+      },
+      context
     );
 
     expect(message.content).toBe('User message');
@@ -657,6 +671,94 @@ describe('insertMessage()', () => {
     sendToVisitorLogMock.restore();
 
     sendRequestMock.restore();
+  });
+
+  test('Video call request', async () => {
+    const conversation = await conversationFactory();
+
+    // When first video call request
+    const vcrMessage = await widgetMutations.widgetsInsertMessage(
+      {},
+      {
+        contentType: MESSAGE_TYPES.VIDEO_CALL_REQUEST,
+        integrationId: _integration._id,
+        customerId: _customer._id,
+        conversationId: conversation._id,
+        message: ''
+      },
+      context
+    );
+
+    expect(vcrMessage).toBeDefined();
+
+    // When not connected with Integration API
+    const vcrMessage2 = await widgetMutations.widgetsInsertMessage(
+      {},
+      {
+        contentType: MESSAGE_TYPES.VIDEO_CALL_REQUEST,
+        integrationId: _integration._id,
+        customerId: _customer._id,
+        conversationId: conversation._id,
+        message: ''
+      },
+      context
+    );
+
+    expect(vcrMessage2).toBeDefined();
+
+    // When occured error
+    const spy = jest.spyOn(context.dataSources.IntegrationsAPI, 'fetchApi');
+
+    spy.mockImplementation(() =>
+      Promise.resolve([
+        { code: 'VIDEO_CALL_TIME_DELAY_BETWEEN_REQUESTS', value: 10 },
+        {
+          code: 'VIDEO_CALL_MESSAGE_FOR_TIME_DELAY',
+          value: 'Video call request has already sent'
+        }
+      ])
+    );
+
+    try {
+      await widgetMutations.widgetsInsertMessage(
+        {},
+        {
+          contentType: MESSAGE_TYPES.VIDEO_CALL_REQUEST,
+          integrationId: _integration._id,
+          customerId: _customer._id,
+          conversationId: conversation._id,
+          message: ''
+        },
+        context
+      );
+    } catch (e) {
+      expect(e.message).toBe('Video call request has already sent');
+    }
+  });
+
+  test('Failed to send notification to mobile', async () => {
+    const spy = jest.spyOn(utils, 'sendMobileNotification');
+    spy.mockImplementation(() => {
+      throw new Error('error');
+    });
+
+    const conversation = await conversationFactory();
+
+    const message = await widgetMutations.widgetsInsertMessage(
+      {},
+      {
+        contentType: MESSAGE_TYPES.TEXT,
+        integrationId: _integration._id,
+        customerId: _customer._id,
+        conversationId: conversation._id,
+        message: 'message'
+      },
+      context
+    );
+
+    expect(message.content).toBe('message');
+
+    spy.mockRestore();
   });
 });
 
@@ -991,7 +1093,9 @@ describe('lead', () => {
 
     memoryStorage().removeKey(`erxes_brand_${brand.code}`);
     memoryStorage().removeKey(`erxes_brand_code`);
-    memoryStorage().removeKey(`erxes_integration_lead_${brand._id}`);
+    memoryStorage().removeKey(
+      `erxes_integration_lead_${brand._id}_${form._id}`
+    );
   });
 
   test('leadConnect: success', async () => {
@@ -1023,7 +1127,7 @@ describe('lead', () => {
 
     // Get integration from cache ===========================
     memoryStorage().set(
-      `erxes_integration_lead_${brand._id}`,
+      `erxes_integration_lead_${brand._id}_${form._id}`,
       JSON.stringify(integration)
     );
 
@@ -1039,7 +1143,9 @@ describe('lead', () => {
     expect(response && response.form._id).toBe(form._id);
 
     memoryStorage().removeKey(`erxes_brand_${brand.code}`);
-    memoryStorage().removeKey(`erxes_integration_lead_${brand._id}`);
+    memoryStorage().removeKey(
+      `erxes_integration_lead_${brand._id}_${form._id}`
+    );
 
     mock.restore();
   });
@@ -1081,7 +1187,9 @@ describe('lead', () => {
     mock.restore();
 
     memoryStorage().removeKey(`erxes_brand_${brand.code}`);
-    memoryStorage().removeKey(`erxes_integration_lead_${brand._id}`);
+    memoryStorage().removeKey(
+      `erxes_integration_lead_${brand._id}_${form._id}`
+    );
   });
 
   test('saveLead: form not found', async () => {
@@ -1173,6 +1281,21 @@ describe('lead', () => {
       options: ['radio1', 'radio2']
     });
 
+    const customProperty = await fieldFactory({
+      type: 'input',
+      validation: 'number',
+      isVisible: true,
+      contentType: 'customer'
+    });
+
+    const inputField = await fieldFactory({
+      type: customProperty.type,
+      validation: customProperty.validation,
+      contentTypeId: form._id,
+      contentType: 'form',
+      associatedFieldId: customProperty._id
+    });
+
     const integration = await integrationFactory({ formId: form._id });
 
     const response = await widgetMutations.widgetsSaveLead(
@@ -1186,7 +1309,13 @@ describe('lead', () => {
           { _id: lastNameField._id, type: 'lastName', value: 'lastName' },
           { _id: phoneField._id, type: 'phone', value: '+88998833' },
           { _id: radioField._id, type: 'radio', value: 'radio2' },
-          { _id: checkField._id, type: 'check', value: 'check1, check2' }
+          { _id: checkField._id, type: 'check', value: 'check1, check2' },
+          {
+            _id: inputField._id,
+            type: 'input',
+            value: 1,
+            associatedFieldId: inputField.associatedFieldId
+          }
         ],
         browserInfo: {
           currentPageUrl: '/page'
@@ -1230,24 +1359,11 @@ describe('lead', () => {
       formId: form._id
     };
 
-    const spyEmail = jest.spyOn(widgetMutations, 'widgetsSendEmail');
-
-    const mutation = `
-      mutation widgetsSendEmail($toEmails: [String], $fromEmail: String, $title: String, $content: String, $formId: String, $customerId: String) {
-        widgetsSendEmail(toEmails: $toEmails, fromEmail: $fromEmail, title: $title, content: $content, formId: $formId, customerId: $customerId)
-      }
-    `;
-
-    spyEmail.mockImplementation(() => Promise.resolve());
-
-    const response = await graphqlRequest(
-      mutation,
-      'widgetsSendEmail',
-      emailParams
+    const response = await widgetMutations.widgetsSendEmail(
+      {},
+      { ...emailParams }
     );
 
-    expect(response).toBe(null);
-
-    spyEmail.mockRestore();
+    expect(response).toBe(undefined);
   });
 });

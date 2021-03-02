@@ -225,7 +225,12 @@ class Form extends React.Component<Props, State> {
     const { conditions } = this.state;
 
     if (conditions.length === 0) {
-      return <EmptyContent content={EMPTY_NEW_SEGMENT_CONTENT} />;
+      return (
+        <EmptyContent
+          content={EMPTY_NEW_SEGMENT_CONTENT}
+          maxItemWidth="200px"
+        />
+      );
     }
 
     return (

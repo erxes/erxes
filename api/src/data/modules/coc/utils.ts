@@ -201,24 +201,34 @@ export class CommonBuilder<IListArgs extends ICommonListArgs> {
 
   // filter by search value
   public searchFilter(value: string): void {
-    this.positiveList.push({
-      bool: {
-        should: [
-          {
-            match: {
-              searchText: {
-                query: value
+    if (value.includes('@')) {
+      this.positiveList.push({
+        match_phrase: {
+          searchText: {
+            query: value
+          }
+        }
+      });
+    } else {
+      this.positiveList.push({
+        bool: {
+          should: [
+            {
+              match: {
+                searchText: {
+                  query: value
+                }
+              }
+            },
+            {
+              wildcard: {
+                searchText: `*${value.toLowerCase()}*`
               }
             }
-          },
-          {
-            wildcard: {
-              searchText: `*${value.toLowerCase()}*`
-            }
-          }
-        ]
-      }
-    });
+          ]
+        }
+      });
+    }
   }
 
   // filter by auto-completion type
@@ -341,7 +351,10 @@ export class CommonBuilder<IListArgs extends ICommonListArgs> {
   /*
    * Run queries
    */
-  public async runQueries(action = 'search', isExport?: boolean): Promise<any> {
+  public async runQueries(
+    action = 'search',
+    unlimited?: boolean
+  ): Promise<any> {
     const {
       page = 0,
       perPage = 0,
@@ -354,12 +367,12 @@ export class CommonBuilder<IListArgs extends ICommonListArgs> {
     const _page = Number(page || 1);
     let _limit = Number(perPage || 20);
 
-    if (isExport) {
+    if (unlimited) {
       _limit = 10000;
     }
 
     if (
-      !isExport &&
+      !unlimited &&
       page === 1 &&
       perPage === 20 &&
       (paramKeys === 'page,perPage' || paramKeys === 'page,perPage,type')

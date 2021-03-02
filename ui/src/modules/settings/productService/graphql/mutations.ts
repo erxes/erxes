@@ -80,11 +80,20 @@ const productCategoryRemove = `
   }
 `;
 
+const productsMerge = `
+  mutation productsMerge($productIds: [String], $productFields: JSON) {
+    productsMerge(productIds: $productIds, productFields: $productFields) {
+      _id
+    }
+  }
+`;
+
 export default {
   productAdd,
   productEdit,
   productsRemove,
   productCategoryAdd,
   productCategoryEdit,
-  productCategoryRemove
+  productCategoryRemove,
+  productsMerge
 };

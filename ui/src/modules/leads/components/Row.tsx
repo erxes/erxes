@@ -9,7 +9,7 @@ import Tags from 'modules/common/components/Tags';
 import Tip from 'modules/common/components/Tip';
 import WithPermission from 'modules/common/components/WithPermission';
 import { DateWrapper } from 'modules/common/styles/main';
-import { __ } from 'modules/common/utils';
+import { __, getEnv } from 'modules/common/utils';
 import { RowTitle } from 'modules/engage/styles';
 import React from 'react';
 import { Link } from 'react-router-dom';
@@ -22,6 +22,7 @@ type Props = {
   toggleBulk: (integration: ILeadIntegration, checked: boolean) => void;
   remove: (integrationId: string) => void;
   archive: (integrationId: string, status: boolean) => void;
+  copy: (integrationId: string) => void;
   showCode?: boolean;
 };
 
@@ -30,7 +31,7 @@ class Row extends React.Component<Props> {
     const { formId } = integration;
 
     return (
-      <Link to={`/leads/edit/${integration._id}/${formId}`}>
+      <Link to={`/forms/edit/${integration._id}/${formId}`}>
         <Button btnStyle="link">
           <Tip text={__('Manage')} placement="top">
             <Icon icon="edit-3" />
@@ -81,6 +82,24 @@ class Row extends React.Component<Props> {
     );
   }
 
+  renderExportAction() {
+    const { integration } = this.props;
+    const { REACT_APP_API_URL } = getEnv();
+
+    const onClick = () => {
+      window.open(
+        `${REACT_APP_API_URL}/file-export?type=customer&popupData=true&form=${integration.formId}`,
+        '_blank'
+      );
+    };
+
+    return (
+      <Tip text={__('Download responses')} placement="top">
+        <Button btnStyle="link" onClick={onClick} icon="download-1" />
+      </Tip>
+    );
+  }
+
   renderUnarchiveAction() {
     const { integration, archive } = this.props;
 
@@ -115,6 +134,18 @@ class Row extends React.Component<Props> {
           />
         </Tip>
       </WithPermission>
+    );
+  }
+
+  renderCopyAction() {
+    const { integration, copy } = this.props;
+
+    const onClick = () => copy(integration._id);
+
+    return (
+      <Tip text={__('Copy')} placement="top">
+        <Button btnStyle="link" onClick={onClick} icon="copy-1" />
+      </Tip>
     );
   }
 
@@ -156,7 +187,7 @@ class Row extends React.Component<Props> {
         </td>
         <td>
           <RowTitle>
-            <Link to={`/leads/edit/${integration._id}/${integration.formId}`}>
+            <Link to={`/forms/edit/${integration._id}/${integration.formId}`}>
               {integration.name}
             </Link>
           </RowTitle>
@@ -185,6 +216,8 @@ class Row extends React.Component<Props> {
             {this.renderEditAction(integration)}
             {this.renderArchiveAction()}
             {this.renderUnarchiveAction()}
+            {this.renderExportAction()}
+            {this.renderCopyAction()}
             {this.renderRemoveAction()}
           </ActionButtons>
         </td>

@@ -6,9 +6,10 @@ import { Accounts, Integrations } from '../models';
 import { compose, getConfig, getEnv } from '../utils';
 import { getCalendarOrEvent, getMessageById } from './api';
 import {
+  GOOGLE_CALENDAR_SCOPES,
+  GOOGLE_GMAIL_SCOPES,
   GOOGLE_OAUTH_ACCESS_TOKEN_URL,
   GOOGLE_OAUTH_AUTH_URL,
-  GOOGLE_SCOPES,
   MICROSOFT_OAUTH_ACCESS_TOKEN_URL,
   MICROSOFT_OAUTH_AUTH_URL,
   MICROSOFT_SCOPES
@@ -145,10 +146,17 @@ const syncMessages = async (accountId: string, messageId: string) => {
   if (integration) {
     const { nylasToken, email, kind } = integration;
 
-    let message;
+    let message: any = {};
 
     try {
       message = await getMessageById(nylasToken, messageId);
+
+      const folder = message.folder || {};
+      const folderName = folder.name || '';
+
+      if (folderName === 'drafts') {
+        return;
+      }
     } catch (e) {
       debugNylas(`Failed to get nylas message by id: ${e.message}`);
 
@@ -254,13 +262,14 @@ export const getProviderSettings = async (
  * @param {String} kind
  * @returns {Object} configs
  */
-const getProviderConfigs = (kind: string) => {
+const getProviderConfigs = (kind: string, type?: string) => {
   switch (kind) {
     case 'gmail': {
       return {
         params: {
           access_type: 'offline',
-          scope: GOOGLE_SCOPES
+          scope:
+            type === 'calendar' ? GOOGLE_CALENDAR_SCOPES : GOOGLE_GMAIL_SCOPES
         },
         urls: {
           authUrl: GOOGLE_OAUTH_AUTH_URL,

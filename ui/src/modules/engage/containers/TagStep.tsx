@@ -5,7 +5,7 @@ import { IButtonMutateProps } from 'modules/common/types';
 import { withProps } from 'modules/common/utils';
 import { CountQueryResponse } from 'modules/customers/types';
 import TagStep from 'modules/engage/components/step/TagStep';
-import { mutations } from 'modules/tags/graphql';
+import { mutations, queries as tagQueries } from 'modules/tags/graphql';
 import { TagsQueryResponse } from 'modules/tags/types';
 import React from 'react';
 import { graphql } from 'react-apollo';
@@ -78,7 +78,7 @@ const getRefetchQueries = () => {
       variables: { only: 'byTag' }
     },
     {
-      query: gql(queries.tags),
+      query: gql(tagQueries.tags),
       variables: { type: 'customer' }
     }
   ];
@@ -86,7 +86,7 @@ const getRefetchQueries = () => {
 
 export default withProps<Props>(
   compose(
-    graphql<Props, TagsQueryResponse>(gql(queries.tags), {
+    graphql<Props, TagsQueryResponse>(gql(tagQueries.tags), {
       name: 'tagsQuery',
       options: () => ({ variables: { type: 'customer' } })
     }),

@@ -74,4 +74,5 @@ export default `
     permalink_url
   }
   productBoardLink
+  isFacebookTaggedMessage
 `;

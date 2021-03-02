@@ -8,6 +8,7 @@ import {
   Customers as ChatfuelCustomers
 } from './chatfuel/models';
 import {
+  debugBase,
   debugCallPro,
   debugFacebook,
   debugGmail,
@@ -562,7 +563,7 @@ export const repairIntegrations = async (
 
   await Integrations.updateOne(
     { erxesApiId: integrationId },
-    { $set: { healthStatus: 'healthy' } }
+    { $set: { healthStatus: 'healthy', error: '' } }
   );
 
   return true;
@@ -715,4 +716,20 @@ export const updateIntegrationConfigs = async (configsMap): Promise<void> => {
       debugWhatsapp(e);
     }
   }
+};
+
+export const routeErrorHandling = (fn, callback?: any) => {
+  return async (req, res, next) => {
+    try {
+      await fn(req, res, next);
+    } catch (e) {
+      if (callback) {
+        return callback(res, e, next);
+      }
+
+      debugBase(e.message);
+
+      return next(e);
+    }
+  };
 };

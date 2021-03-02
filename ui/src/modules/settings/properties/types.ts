@@ -18,6 +18,11 @@ export interface IField {
   groupId?: string;
   lastUpdatedUser?: IUser;
   lastUpdatedUserId?: string;
+  associatedFieldId?: string;
+  associatedField?: {
+    _id: string;
+    text: string;
+  };
 }
 
 export interface IFieldGroup {
@@ -62,6 +67,7 @@ export type FieldsQueryResponse = {
 export type FieldsGroupsQueryResponse = {
   fieldsGroups: IFieldGroup[];
   loading: boolean;
+  refetch: ({ contentType }: { contentType?: string }) => Promise<any>;
 };
 
 export type FieldsCombinedByType = {

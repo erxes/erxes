@@ -69,7 +69,7 @@ describe('Test Tickets model', () => {
 
     const args = {
       stageId: ticket.stageId,
-      sourceConversationId: conversation._id,
+      sourceConversationIds: [conversation._id],
       userId: user._id
     };
 

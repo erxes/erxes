@@ -270,4 +270,76 @@ describe('fieldQueries', () => {
 
     expect(responses.length).toBe(1);
   });
+
+  test('Fields query with isVisible filter', async () => {
+    // Creating test data
+    await fieldFactory({
+      text: 'text1',
+      contentType: 'customer',
+      visible: true
+    });
+    await fieldFactory({
+      text: 'text2',
+      contentType: 'customer',
+      visible: false
+    });
+
+    const qry = `
+   query fields($contentType: String! $contentTypeId: String, $isVisible: Boolean) {
+     fields(contentType: $contentType contentTypeId: $contentTypeId, isVisible: $isVisible) {
+       text
+       _id
+       isVisible
+     }
+   }
+ `;
+
+    const responses = await graphqlRequest(qry, 'fields', {
+      contentType: 'customer',
+      isVisible: true
+    });
+
+    expect(responses.length).toBe(1);
+  });
+
+  test('Fields query with associated field', async () => {
+    // Creating test data
+    const customField = await fieldFactory({
+      text: 'text2',
+      contentType: 'customer',
+      visible: true
+    });
+
+    await fieldFactory({
+      text: 'text1',
+      contentType: 'form',
+      visible: true,
+      associatedFieldId: customField._id
+    });
+
+    const qry = `
+   query fields($contentType: String! $contentTypeId: String, $isVisible: Boolean) {
+     fields(contentType: $contentType contentTypeId: $contentTypeId, isVisible: $isVisible) {
+       text
+       _id
+       isVisible
+       associatedField {
+         _id
+         text
+       }
+     }
+   }
+ `;
+
+    const responses = await graphqlRequest(qry, 'fields', {
+      contentType: 'form',
+      isVisible: true
+    });
+
+    expect(responses.length).toBe(1);
+
+    const field = responses[0];
+
+    expect(field.associatedField._id).toBe(customField._id);
+  });
 });

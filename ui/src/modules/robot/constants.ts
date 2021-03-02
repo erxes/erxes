@@ -149,7 +149,7 @@ export const FEATURE_DETAILS = {
     color: '#c84b49',
     icon: 'laptop',
     description:
-      'Turn regular visitors into qualified pop ups by capturing them with a customizable landing page, forms, pop-up or embed placements.',
+      'Turn regular visitors into qualified forms by capturing them with a customizable landing page, forms, pop-up or embed placements.',
     videoUrl: 'https://www.youtube.com/embed/P2muPQVTTD8?autoplay=1',
     videoThumb: 'https://img.youtube.com/vi/P2muPQVTTD8/mqdefault.jpg',
     settingsDetails: {
@@ -158,12 +158,12 @@ export const FEATURE_DETAILS = {
         url: '/settings/brands#showBrandAddModal=true'
       },
       leadIntegrationCreate: {
-        name: 'Create pop ups',
-        url: '/leads/create'
+        name: 'Create forms',
+        url: '/forms/create'
       },
       leadIntegrationInstalled: {
         name: 'Install on website',
-        url: '/leads'
+        url: '/forms'
       }
     }
   },
@@ -178,11 +178,11 @@ export const FEATURE_DETAILS = {
     settingsDetails: {
       engageVerifyEmail: {
         name: 'Verify your sending email',
-        url: '/settings/engage-configs'
+        url: '/settings/campaign-configs'
       },
       engageSendTestEmail: {
         name: 'Send test email',
-        url: '/settings/engage-configs'
+        url: '/settings/campaign-configs'
       },
       emailTemplateCreate: {
         name: 'Configure email template',

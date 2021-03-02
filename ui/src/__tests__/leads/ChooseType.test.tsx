@@ -5,7 +5,7 @@ import React from 'react';
 describe('ChooseType component', () => {
   const defaultProps = {
     type: 'string',
-    onChange: (name: 'type', value: string) => null,
+    onChange: (name: 'type' | 'color' | 'theme', value: string) => null,
     color: 'pink',
     theme: 'default'
   };
