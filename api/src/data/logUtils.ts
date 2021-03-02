@@ -55,7 +55,7 @@ import {
   Users,
   UsersGroups
 } from '../db/models/index';
-import { debugBase } from '../debuggers';
+import { debugError } from '../debuggers';
 import messageBroker from '../messageBroker';
 import { callAfterMutation } from '../pluginUtils';
 import { MODULE_NAMES, RABBITMQ_QUEUES } from './constants';
@@ -1483,7 +1483,7 @@ export const sendToVisitorLog = async (params: IVisitorLogParams, action) => {
 
     throw new Error('Logger api is not running');
   } catch (e) {
-    debugBase(`Logger is not running. Error: ${e.message}`);
+    debugError('Logger is not running. Error: ', e.message);
     throw new Error(e.message);
   }
 };
@@ -1511,7 +1511,7 @@ export const getVisitorLog = async visitorId => {
 
     throw new Error('Logger api is not running');
   } catch (e) {
-    debugBase(`Logger is not running. Error: ${e.message}`);
+    debugError('Logger is not running. Error: ', e.message);
     throw new Error(e.message);
   }
 };

@@ -1,5 +1,5 @@
 import { HTTPCache, RESTDataSource } from 'apollo-datasource-rest';
-import { debugBase } from '../../debuggers';
+import { debugBase, debugError } from '../../debuggers';
 import { getSubServiceDomain } from '../utils';
 
 export default class EngagesAPI extends RESTDataSource {
@@ -57,7 +57,7 @@ export default class EngagesAPI extends RESTDataSource {
       );
       return response;
     } catch (e) {
-      debugBase(e.message);
+      debugError(e.message);
       return {};
     }
   }
@@ -74,7 +74,7 @@ export default class EngagesAPI extends RESTDataSource {
 
       return response;
     } catch (e) {
-      debugBase(e.message);
+      debugError(e.message);
       return [];
     }
   }
@@ -87,7 +87,7 @@ export default class EngagesAPI extends RESTDataSource {
 
       return response;
     } catch (e) {
-      debugBase(e.message);
+      debugError(e.message);
       return {};
     }
   }
@@ -99,7 +99,7 @@ export default class EngagesAPI extends RESTDataSource {
 
       return response;
     } catch (e) {
-      debugBase(e);
+      debugError(e);
 
       return { error: e.message };
     }

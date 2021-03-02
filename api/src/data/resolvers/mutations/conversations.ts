@@ -20,7 +20,7 @@ import {
 import { IMessageDocument } from '../../../db/models/definitions/conversationMessages';
 import { IConversationDocument } from '../../../db/models/definitions/conversations';
 import { IUserDocument } from '../../../db/models/definitions/users';
-import { debugBase, debugExternalApi } from '../../../debuggers';
+import { debugError, debugExternalApi } from '../../../debuggers';
 import messageBroker from '../../../messageBroker';
 import { graphqlPubsub } from '../../../pubsub';
 import { AUTO_BOT_MESSAGES, RABBITMQ_QUEUES } from '../../constants';
@@ -247,7 +247,7 @@ const sendNotifications = async ({
           conversationId: conversation._id
         });
       } catch (e) {
-        debugBase(`Failed to send mobile notification: ${e.message}`);
+        debugError(`Failed to send mobile notification: ${e.message}`);
       }
     }
   }
