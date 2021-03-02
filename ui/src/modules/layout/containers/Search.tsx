@@ -14,6 +14,10 @@ class SearchContainer extends React.Component<
     this.state = { results: null, loading: false };
   }
 
+  clearSearch = () => {
+    this.setState({ results: null });
+  };
+
   onSearch = e => {
     if (e.key === 'Enter') {
       e.preventDefault();
@@ -47,6 +51,7 @@ class SearchContainer extends React.Component<
         onSearch={this.onSearch}
         results={this.state.results}
         loading={this.state.loading}
+        clearSearch={this.clearSearch}
       />
     );
   }

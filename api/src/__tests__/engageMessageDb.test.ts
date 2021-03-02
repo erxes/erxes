@@ -1,4 +1,5 @@
 import * as sinon from 'sinon';
+import { MESSAGE_KINDS } from '../data/constants';
 import {
   brandFactory,
   conversationMessageFactory,
@@ -20,9 +21,9 @@ import {
   Tags,
   Users
 } from '../db/models';
-
 import Messages from '../db/models/ConversationMessages';
 import { IBrandDocument } from '../db/models/definitions/brands';
+import { METHODS } from '../db/models/definitions/constants';
 import { ICustomerDocument } from '../db/models/definitions/customers';
 import { IIntegrationDocument } from '../db/models/definitions/integrations';
 import { IUserDocument } from '../db/models/definitions/users';
@@ -41,7 +42,7 @@ describe('engage messages model tests', () => {
     _segment = await segmentFactory({});
     _brand = await brandFactory({});
     _tag = await tagsFactory({});
-    _message = await engageMessageFactory({ kind: 'auto' });
+    _message = await engageMessageFactory({ kind: MESSAGE_KINDS.AUTO });
   });
 
   afterEach(async () => {
@@ -67,7 +68,7 @@ describe('engage messages model tests', () => {
 
   test('create messages', async () => {
     const doc = {
-      kind: 'manual',
+      kind: MESSAGE_KINDS.MANUAL,
       title: 'Message test',
       fromUserId: _user._id,
       segmentIds: [_segment._id],
@@ -78,7 +79,11 @@ describe('engage messages model tests', () => {
       createdBy: _user._id
     };
 
-    const message = await EngageMessages.createEngageMessage(doc);
+    const message = await EngageMessages.createEngageMessage({
+      ...doc,
+      method: METHODS.EMAIL
+    });
+
     expect(message.kind).toEqual(doc.kind);
     expect(message.title).toEqual(doc.title);
     expect(message.fromUserId).toEqual(_user._id);
@@ -96,7 +101,9 @@ describe('engage messages model tests', () => {
       fromUserId: _user._id,
       segmentIds: [_segment._id],
       brandIds: [_brand._id],
-      tagIds: [_tag._id]
+      tagIds: [_tag._id],
+      method: _message.method,
+      kind: _message.kind
     });
 
     expect(message.title).toEqual('Message test updated');
@@ -110,13 +117,15 @@ describe('engage messages model tests', () => {
     expect.assertions(1);
 
     const manualMessage = await engageMessageFactory({
-      kind: 'manual',
+      kind: MESSAGE_KINDS.MANUAL,
       isLive: true
     });
 
     try {
       await EngageMessages.updateEngageMessage(manualMessage._id, {
-        title: 'Message test updated'
+        title: 'Message test updated',
+        method: manualMessage.method,
+        kind: manualMessage.kind
       });
     } catch (e) {
       expect(e.message).toBe('Can not update manual live campaign');

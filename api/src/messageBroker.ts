@@ -22,8 +22,9 @@ export const initBroker = async (server?) => {
   const { consumeQueue, consumeRPCQueue } = client;
 
   // listen for rpc queue =========
-  consumeRPCQueue('rpc_queue:integrations_to_api', async data =>
-    receiveRpcMessage(data)
+  consumeRPCQueue(
+    'rpc_queue:integrations_to_api',
+    async data => await receiveRpcMessage(data)
   );
 
   // graphql subscriptions call =========

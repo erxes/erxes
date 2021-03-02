@@ -1,6 +1,6 @@
-import { colors, dimensions } from 'modules/common/styles';
-import styled, { css } from 'styled-components';
-import styledTS from 'styled-components-ts';
+import { colors, dimensions } from "modules/common/styles";
+import styled, { css } from "styled-components";
+import styledTS from "styled-components-ts";
 
 const NotificationWrapper = styled.div`
   position: relative;
@@ -40,6 +40,7 @@ const Content = styled.div`
   border-radius: 3px;
   margin: ${dimensions.unitSpacing - 5}px 0;
   display: inline-block;
+  max-width: 270px;
 
   > p {
     margin: 0;
@@ -119,7 +120,7 @@ const PopoverContent = styled.div`
 
 const CreatedUser = styledTS<{ isList?: boolean }>(styled.div)`
   font-weight: 600;
-  max-width: ${props => props.isList && '80%'};
+  max-width: ${(props) => props.isList && "80%"};
 
   span {
     padding-left: ${dimensions.unitSpacing - 5}px;
@@ -132,7 +133,7 @@ const CreatedDate = styledTS<{ isList?: boolean }>(styled.div)`
   color: ${colors.colorCoreGray};
   padding-top: 3px;
 
-  ${props =>
+  ${(props) =>
     props.isList &&
     css`
       position: absolute;
@@ -150,7 +151,7 @@ const Item = styledTS<{ background?: string }>(styled.div)`
   padding: ${dimensions.coreSpacing}px;
   border-radius: 10px;
   color: ${colors.colorWhite};
-  background: ${props => props.background || colors.colorCoreBlue};
+  background: ${(props) => props.background || colors.colorCoreBlue};
   max-width: 300px;
   box-shadow: 0 0 15px 2px rgba(0, 0, 0, 0.1);
   margin-bottom: 10px;
@@ -191,5 +192,5 @@ export {
   PopoverContent,
   Item,
   PopoverLink,
-  MarkAllRead
+  MarkAllRead,
 };

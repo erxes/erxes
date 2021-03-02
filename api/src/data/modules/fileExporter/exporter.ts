@@ -28,11 +28,9 @@ import { fillCellValue, fillHeaders, IColumnLabel } from './spreadsheet';
 
 // Prepares data depending on module type
 const prepareData = async (query: any, user: IUserDocument): Promise<any[]> => {
-  const { type, fromHistory } = query;
+  const { type, unlimited = false } = query;
 
   let data: any[] = [];
-
-  const isExport = fromHistory ? true : false;
 
   switch (type) {
     case MODULE_NAMES.COMPANY:
@@ -45,7 +43,7 @@ const prepareData = async (query: any, user: IUserDocument): Promise<any[]> => {
       const companyQb = new CompanyBuildQuery(companyParams, {});
       await companyQb.buildAllQueries();
 
-      const companyResponse = await companyQb.runQueries('search', isExport);
+      const companyResponse = await companyQb.runQueries('search', unlimited);
 
       data = companyResponse.list;
 
@@ -56,10 +54,21 @@ const prepareData = async (query: any, user: IUserDocument): Promise<any[]> => {
       const leadQp = new CustomerBuildQuery(leadParams, {});
       await leadQp.buildAllQueries();
 
-      const leadResponse = await leadQp.runQueries('search', isExport);
+      const leadResponse = await leadQp.runQueries('search', unlimited);
 
       data = leadResponse.list;
       break;
+
+    case 'visitor':
+      const visitorParams: ICustomerListArgs = query;
+      const visitorQp = new CustomerBuildQuery(visitorParams, {});
+      await visitorQp.buildAllQueries();
+
+      const visitorResponse = await visitorQp.runQueries('search', unlimited);
+
+      data = visitorResponse.list;
+      break;
+
     case MODULE_NAMES.CUSTOMER:
       if (!(await can('exportCustomers', user))) {
         throw new Error('Permission denied');
@@ -141,7 +150,7 @@ const prepareData = async (query: any, user: IUserDocument): Promise<any[]> => {
         const qb = new CustomerBuildQuery(customerParams, {});
         await qb.buildAllQueries();
 
-        const customerResponse = await qb.runQueries('search', isExport);
+        const customerResponse = await qb.runQueries('search', unlimited);
 
         data = customerResponse.list;
       }

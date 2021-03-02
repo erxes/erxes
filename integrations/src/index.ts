@@ -12,7 +12,11 @@ import {
 } from './debuggers';
 import initFacebook from './facebook/controller';
 import initGmail from './gmail/controller';
-import { removeIntegration, updateIntegrationConfigs } from './helpers';
+import {
+  removeIntegration,
+  routeErrorHandling,
+  updateIntegrationConfigs
+} from './helpers';
 import { initMemoryStorage } from './inmemoryStorage';
 import { initBroker } from './messageBroker';
 import { Accounts, Configs, Integrations } from './models/index';
@@ -73,19 +77,18 @@ app.get('/system-status', async (_req, res) => {
   return res.json(await systemStatus());
 });
 
-app.post('/update-configs', async (req, res, next) => {
-  const { configsMap } = req.body;
+app.post(
+  '/update-configs',
+  routeErrorHandling(async (req, res) => {
+    const { configsMap } = req.body;
 
-  try {
     await updateIntegrationConfigs(configsMap);
-  } catch (e) {
-    return next(e);
-  }
 
-  debugResponse(debugIntegrations, req);
+    debugResponse(debugIntegrations, req);
 
-  return res.json({ status: 'ok' });
-});
+    return res.json({ status: 'ok' });
+  })
+);
 
 app.get('/configs', async (req, res) => {
   const configs = await Configs.find({});
@@ -95,19 +98,21 @@ app.get('/configs', async (req, res) => {
   return res.json(configs);
 });
 
-app.post('/integrations/remove', async (req, res) => {
-  const { integrationId } = req.body;
+app.post(
+  '/integrations/remove',
+  routeErrorHandling(
+    async (req, res) => {
+      const { integrationId } = req.body;
 
-  try {
-    await removeIntegration(integrationId);
-  } catch (e) {
-    return res.json({ status: e.message });
-  }
+      await removeIntegration(integrationId);
 
-  debugResponse(debugIntegrations, req);
+      debugResponse(debugIntegrations, req);
 
-  return res.json({ status: 'ok' });
-});
+      return res.json({ status: 'ok' });
+    },
+    (res, e) => res.json({ status: e.message })
+  )
+);
 
 app.get('/accounts', async (req, res) => {
   let { kind } = req.query;
