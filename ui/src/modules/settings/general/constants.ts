@@ -26,7 +26,7 @@ export const SERVICE_TYPES = [
   { label: 'Google Cloud Service', value: 'GCS' }
 ];
 
-export const FILE_SYSTEM_TYPES = [
+export const FILE_SYSTEM_TYPES = [ 
   { label: 'Public', value: 'true' },
   { label: 'Private', value: 'false' }
 ];
