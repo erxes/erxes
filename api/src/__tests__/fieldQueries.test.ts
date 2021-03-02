@@ -14,6 +14,7 @@ import * as elk from '../elasticsearch';
 
 import { KIND_CHOICES } from '../db/models/definitions/constants';
 import './setup.ts';
+import { response } from 'express';
 
 describe('fieldQueries', () => {
   afterEach(async () => {
@@ -300,5 +301,46 @@ describe('fieldQueries', () => {
     });
 
     expect(responses.length).toBe(1);
+  });
+
+  test('Fields query with associated field', async () => {
+    // Creating test data
+    const customField = await fieldFactory({
+      text: 'text2',
+      contentType: 'customer',
+      visible: true
+    });
+
+    await fieldFactory({
+      text: 'text1',
+      contentType: 'form',
+      visible: true,
+      associatedFieldId: customField._id
+    });
+
+    const qry = `
+   query fields($contentType: String! $contentTypeId: String, $isVisible: Boolean) {
+     fields(contentType: $contentType contentTypeId: $contentTypeId, isVisible: $isVisible) {
+       text
+       _id
+       isVisible
+       associatedField {
+         _id
+         text
+       }
+     }
+   }
+ `;
+
+    const responses = await graphqlRequest(qry, 'fields', {
+      contentType: 'form',
+      isVisible: true
+    });
+
+    expect(responses.length).toBe(1);
+
+    const field = responses[0];
+
+    expect(field.associatedField._id).toBe(customField._id);
   });
 });
