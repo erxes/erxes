@@ -1,5 +1,5 @@
 import * as moment from 'moment';
-import { Conformities, Pipelines, Stages } from '../../../db/models';
+import { Conformities, Customers, Pipelines, Stages } from '../../../db/models';
 import { getCollection } from '../../../db/models/boardUtils';
 import { IItemCommonFields } from '../../../db/models/definitions/boards';
 import { BOARD_STATUSES } from '../../../db/models/definitions/constants';
@@ -443,10 +443,47 @@ export const getItemList = async (
         closeDate: 1,
         modifiedAt: 1,
         priority: 1,
+        watchedUserIds: 1,
         ...(extraFields || {})
       }
     }
   ]);
+
+  const ids = list.map(i => i._id);
+  const customerConformities = await Conformities.getConformities({
+    mainType: type,
+    mainTypeIds: ids,
+    relType: 'customer'
+  });
+
+  const customerIds: string[] = [];
+  const customerIdByDealId = {};
+
+  for (const conf of customerConformities) {
+    if (conf.mainType === 'customer') {
+      customerIds.push(conf.mainTypeId);
+
+      if (!Object.keys(customerIdByDealId).includes(conf.relTypeId)) {
+        customerIdByDealId[conf.relTypeId] = [];
+      }
+      customerIdByDealId[conf.relTypeId].push(conf.mainTypeId);
+    } else {
+      customerIds.push(conf.relTypeId);
+
+      if (!Object.keys(customerIdByDealId).includes(conf.mainTypeId)) {
+        customerIdByDealId[conf.mainTypeId] = [];
+      }
+      customerIdByDealId[conf.mainTypeId].push(conf.relTypeId);
+    }
+  }
+  const customers = await Customers.find({
+    _id: { $in: [...new Set(customerIds)] }
+  });
+
+  const customerById = {};
+  for (const customer of customers) {
+    customerById[customer._id] = customer;
+  }
 
   const updatedList: any[] = [];
   const resolvers = (await import(`../${type}s`)).default;
@@ -457,12 +494,15 @@ export const getItemList = async (
       isWatched: (item.watchedUserIds || []).includes(user._id),
       hasNotified: await resolvers.hasNotified(item, null, { user }),
       companies: await resolvers.companies(item),
-      customers: await resolvers.customers(item),
+      // customers: await resolvers.customers(item),
+      customers: (customerIdByDealId[list[0]._id] || []).map(cusId => {
+        return customerById[cusId];
+      }),
       ...(getExtraFields ? await getExtraFields(item) : {})
     });
   }
 
-  console.log('updatedList: ', updatedList);
+  // console.log('updatedList: ', updatedList);
 
   return updatedList;
 };

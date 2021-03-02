@@ -1,4 +1,4 @@
-import { Deals } from '../../../db/models';
+import { Deals, Products } from '../../../db/models';
 import {
   checkPermission,
   moduleRequireLogin
@@ -34,11 +34,12 @@ const dealQueries = {
     };
 
     const getExtraFields = async (item: any) => ({
-      products: await dealResolvers.products(item),
+      // products: await dealResolvers.products(item),
       amount: await dealResolvers.amount(item)
     });
 
-    return await getItemList(
+    console.log('------------------------------', args.stageId);
+    const deals = await getItemList(
       filter,
       args,
       user,
@@ -46,6 +47,43 @@ const dealQueries = {
       { productsData: 1 },
       getExtraFields
     );
+
+    const dealProductIds: string[] = [];
+    for (const deal of deals) {
+      for (const pData of deal.productsData) {
+        dealProductIds.push(pData.productId);
+      }
+    }
+
+    const products = await Products.find({
+      _id: { $in: [...new Set(dealProductIds)] }
+    });
+
+    const products_by_id = {};
+    for (const product of products) {
+      if (!Object.keys(products_by_id).includes(product._id)) {
+        products_by_id[product._id] = product;
+      }
+    }
+
+    for (const deal of deals) {
+      if (!deal.productsData) {
+        continue;
+      }
+
+      deal['products'] = [];
+      for (const pData of deal.productsData) {
+        if (!pData.productId) {
+          continue;
+        }
+        deal['products'].push({
+          ...(typeof pData.toJSON === 'function' ? pData.toJSON() : pData),
+          product: products_by_id[pData.productId]
+        });
+      }
+    }
+
+    return deals;
   },
 
   /**
