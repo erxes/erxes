@@ -34,11 +34,9 @@ const dealQueries = {
     };
 
     const getExtraFields = async (item: any) => ({
-      // products: await dealResolvers.products(item),
       amount: await dealResolvers.amount(item)
     });
 
-    console.log('------------------------------', args.stageId);
     const deals = await getItemList(
       filter,
       args,
@@ -48,23 +46,17 @@ const dealQueries = {
       getExtraFields
     );
 
-    const dealProductIds: string[] = [];
-    for (const deal of deals) {
-      for (const pData of deal.productsData) {
-        dealProductIds.push(pData.productId);
+    const dealProductIds = deals.flatMap(deal => {
+      if (deal.productsData) {
+        return deal.productsData.flatMap(pData => pData.productId || []);
       }
-    }
+
+      return [];
+    });
 
     const products = await Products.find({
       _id: { $in: [...new Set(dealProductIds)] }
     });
-
-    const products_by_id = {};
-    for (const product of products) {
-      if (!Object.keys(products_by_id).includes(product._id)) {
-        products_by_id[product._id] = product;
-      }
-    }
 
     for (const deal of deals) {
       if (!deal.productsData) {
@@ -72,13 +64,15 @@ const dealQueries = {
       }
 
       deal['products'] = [];
+
       for (const pData of deal.productsData) {
         if (!pData.productId) {
           continue;
         }
+
         deal['products'].push({
           ...(typeof pData.toJSON === 'function' ? pData.toJSON() : pData),
-          product: products_by_id[pData.productId]
+          product: products.find(p => p._id == pData.productId) || {}
         });
       }
     }

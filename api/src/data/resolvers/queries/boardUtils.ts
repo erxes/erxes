@@ -1,5 +1,11 @@
 import * as moment from 'moment';
-import { Conformities, Customers, Pipelines, Stages } from '../../../db/models';
+import {
+  Companies,
+  Conformities,
+  Customers,
+  Pipelines,
+  Stages
+} from '../../../db/models';
 import { getCollection } from '../../../db/models/boardUtils';
 import { IItemCommonFields } from '../../../db/models/definitions/boards';
 import { BOARD_STATUSES } from '../../../db/models/definitions/constants';
@@ -449,41 +455,78 @@ export const getItemList = async (
     }
   ]);
 
-  const ids = list.map(i => i._id);
-  const customerConformities = await Conformities.getConformities({
-    mainType: type,
-    mainTypeIds: ids,
-    relType: 'customer'
-  });
+  const ids = list.map(item => item._id);
 
-  const customerIds: string[] = [];
-  const customerIdByDealId = {};
+  const getCoc = async (cocType: string, collection: any, fields: any) => {
+    const conformities = await Conformities.getConformities({
+      mainType: type,
+      mainTypeIds: ids,
+      relType: cocType
+    });
 
-  for (const conf of customerConformities) {
-    if (conf.mainType === 'customer') {
-      customerIds.push(conf.mainTypeId);
+    const cocIds: string[] = [];
+    const cocIdsByItemId = {};
 
-      if (!Object.keys(customerIdByDealId).includes(conf.relTypeId)) {
-        customerIdByDealId[conf.relTypeId] = [];
+    for (const conf of conformities) {
+      if (conf.mainType === cocType) {
+        cocIds.push(conf.mainTypeId);
+
+        if (!Object.keys(cocIdsByItemId).includes(conf.relTypeId)) {
+          cocIdsByItemId[conf.relTypeId] = [];
+        }
+
+        cocIdsByItemId[conf.relTypeId].push(conf.mainTypeId);
+      } else {
+        cocIds.push(conf.relTypeId);
+
+        if (!Object.keys(cocIdsByItemId).includes(conf.mainTypeId)) {
+          cocIdsByItemId[conf.mainTypeId] = [];
+        }
+
+        cocIdsByItemId[conf.mainTypeId].push(conf.relTypeId);
       }
-      customerIdByDealId[conf.relTypeId].push(conf.mainTypeId);
-    } else {
-      customerIds.push(conf.relTypeId);
-
-      if (!Object.keys(customerIdByDealId).includes(conf.mainTypeId)) {
-        customerIdByDealId[conf.mainTypeId] = [];
-      }
-      customerIdByDealId[conf.mainTypeId].push(conf.relTypeId);
     }
-  }
-  const customers = await Customers.find({
-    _id: { $in: [...new Set(customerIds)] }
+
+    const uniqueIds: string[] = [...new Set(cocIds)];
+    const cocs = await collection.find(
+      {
+        _id: { $in: uniqueIds }
+      },
+      { ...fields, primaryEmail: 1, primaryPhone: 1, emails: 1, phones: 1 }
+    );
+
+    return { cocs, cocIdsByItemId };
+  };
+
+  const customer = await getCoc('customer', Customers, {
+    firstName: 1,
+    lastName: 1,
+    visitorContactInfo: 1
   });
 
-  const customerById = {};
-  for (const customer of customers) {
-    customerById[customer._id] = customer;
-  }
+  const getCustomersByItemId = (itemId: string) => {
+    const customerIds = customer.cocIdsByItemId[itemId] || [];
+
+    return customerIds.flatMap((customerId: string) => {
+      const found = customer.cocs.find(cus => customerId === cus._id);
+
+      if (found) return found;
+      return [];
+    });
+  };
+
+  const company = await getCoc('company', Companies, { primaryName: 1 });
+
+  const getCompaniesByItemId = (itemId: string) => {
+    const companyIds = company.cocIdsByItemId[itemId] || [];
+
+    return companyIds.flatMap((companyId: string) => {
+      const found = company.cocs.find(com => companyId === com._id);
+
+      if (found) return found;
+      return [];
+    });
+  };
 
   const updatedList: any[] = [];
   const resolvers = (await import(`../${type}s`)).default;
@@ -493,16 +536,11 @@ export const getItemList = async (
       ...item,
       isWatched: (item.watchedUserIds || []).includes(user._id),
       hasNotified: await resolvers.hasNotified(item, null, { user }),
-      companies: await resolvers.companies(item),
-      // customers: await resolvers.customers(item),
-      customers: (customerIdByDealId[list[0]._id] || []).map(cusId => {
-        return customerById[cusId];
-      }),
+      customers: getCustomersByItemId(item._id),
+      companies: getCompaniesByItemId(item._id),
       ...(getExtraFields ? await getExtraFields(item) : {})
     });
   }
-
-  // console.log('updatedList: ', updatedList);
 
   return updatedList;
 };
