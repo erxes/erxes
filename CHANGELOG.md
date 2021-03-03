@@ -1,3 +1,10 @@
+## [0.20.14](https://github.com/erxes/erxes/compare/0.20.13...0.20.14) (2021-03-03)
+
+
+### Bug Fixes
+
+* **migrations:** readded db-migrate-store ([747c6f4](https://github.com/erxes/erxes/commit/747c6f48eda9f9a8bc511412d4be66645007013b))
+
 ## [0.20.13](https://github.com/erxes/erxes/compare/0.20.12...0.20.13) (2021-03-03)
 
 
