@@ -213,7 +213,6 @@ describe('Test tags model', () => {
       throw new Error('Tag not found');
     }
 
-    expect(tagObj.objectCount).toBe(1);
     expect(messageObj.tagIds[0]).toEqual(_tag.id);
   });
 

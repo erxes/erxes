@@ -307,7 +307,10 @@ export const checkCampaignDoc = (doc: IEngageMessage) => {
   if (kind === MESSAGE_KINDS.AUTO && method === METHODS.EMAIL && noDate) {
     throw new Error('Schedule date & type must be chosen in auto campaign');
   }
-  if (!(brandIds || segmentIds || customerTagIds)) {
+  if (
+    kind !== MESSAGE_KINDS.VISITOR_AUTO &&
+    !(brandIds || segmentIds || customerTagIds)
+  ) {
     throw new Error('One of brand or segment or tag must be chosen');
   }
 };
