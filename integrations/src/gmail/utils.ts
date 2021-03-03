@@ -1,5 +1,5 @@
 import * as parseMessage from 'gmail-api-parse-message';
-import { debugGmail } from '../debuggers';
+import { debugError } from '../debuggers';
 import { Accounts } from '../models';
 import { getCommonGoogleConfigs, sendRequest } from '../utils';
 import { BASE_URL } from './constant';
@@ -266,7 +266,7 @@ export const gmailRequest = async ({
 
     return response;
   } catch (e) {
-    debugGmail(
+    debugError(
       `Failed: gmailRequest email: ${email} type: ${type} ${e.message}`
     );
     throw e;

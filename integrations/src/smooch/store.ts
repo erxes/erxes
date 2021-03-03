@@ -22,7 +22,7 @@ import {
   ISmoochCustomerArguments
 } from './types';
 
-import { debugSmooch } from '../debuggers';
+import { debugError, debugSmooch } from '../debuggers';
 import { sendRPCMessage } from '../messageBroker';
 import { checkConcurrentError } from '../utils';
 
@@ -93,7 +93,7 @@ const createOrGetSmoochCustomer = async ({
       fields: { doc, api }
     });
   } catch (e) {
-    debugSmooch(`Failed to getOrCreate customer: ${e.message}`);
+    debugError(`Failed to getOrCreate customer: ${e.message}`);
     throw e;
   }
 
@@ -139,7 +139,7 @@ const createOrGetSmoochConversation = async ({
       selector: { smoochConversationId }
     });
   } catch (e) {
-    debugSmooch(`Failed to getOrCreate conversation: ${e.message}`);
+    debugError(`Failed to getOrCreate conversation: ${e.message}`);
     throw e;
   }
 
@@ -196,7 +196,7 @@ const createOrGetSmoochConversationMessage = async ({
       fields: { doc, api }
     });
   } catch (e) {
-    debugSmooch(`Failed to getOrCreate conversationMessage: ${e.message}`);
+    debugError(`Failed to getOrCreate conversationMessage: ${e.message}`);
     throw e;
   }
 

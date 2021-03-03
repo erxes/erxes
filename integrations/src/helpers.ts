@@ -8,8 +8,8 @@ import {
   Customers as ChatfuelCustomers
 } from './chatfuel/models';
 import {
-  debugBase,
   debugCallPro,
+  debugError,
   debugFacebook,
   debugGmail,
   debugNylas,
@@ -127,7 +127,7 @@ export const removeIntegration = async (
       try {
         pageTokenResponse = await getPageAccessToken(pageId, account.token);
       } catch (e) {
-        debugFacebook(
+        debugError(
           `Error ocurred while trying to get page access token with ${e.message}`
         );
         throw e;
@@ -139,7 +139,7 @@ export const removeIntegration = async (
       try {
         await unsubscribePage(pageId, pageTokenResponse);
       } catch (e) {
-        debugFacebook(
+        debugError(
           `Error occured while trying to unsubscribe page pageId: ${pageId}`
         );
         throw e;
@@ -185,7 +185,7 @@ export const removeIntegration = async (
         await revokeToken(integration.email);
       }
     } catch (e) {
-      debugGmail('Failed to unsubscribe gmail account');
+      debugError('Failed to unsubscribe gmail account');
 
       if (e.message.includes('Token has been expired or revoked')) {
         return;
@@ -215,7 +215,7 @@ export const removeIntegration = async (
       await enableOrDisableAccount(nylasAccountId, false);
       await revokeToken(email, googleAccessToken);
     } catch (e) {
-      debugNylas('Failed to cancel nylas-gmail account subscription');
+      debugError('Failed to cancel nylas-gmail account subscription');
       throw e;
     }
   }
@@ -241,7 +241,7 @@ export const removeIntegration = async (
     try {
       unsubscribe(account.uid);
     } catch (e) {
-      debugNylas('Failed to unsubscribe twitter account');
+      debugError('Failed to unsubscribe twitter account');
       throw e;
     }
 
@@ -258,7 +258,7 @@ export const removeIntegration = async (
     try {
       await logout(integration.whatsappinstanceId, integration.whatsappToken);
     } catch (e) {
-      debugWhatsapp('Failed to logout WhatsApp account');
+      debugError('Failed to logout WhatsApp account');
       throw e;
     }
 
@@ -310,7 +310,7 @@ export const removeIntegration = async (
       // Cancel nylas subscription
       await enableOrDisableAccount(integration.nylasAccountId, false);
     } catch (e) {
-      debugNylas('Failed to cancel subscription of nylas-imap account');
+      debugError('Failed to cancel subscription of nylas-imap account');
       throw e;
     }
   }
@@ -332,7 +332,7 @@ export const removeIntegration = async (
       // Cancel nylas subscription
       await enableOrDisableAccount(integration.nylasAccountId, false);
     } catch (e) {
-      debugNylas('Failed to subscription nylas-office365 account');
+      debugError('Failed to subscription nylas-office365 account');
       throw e;
     }
   }
@@ -354,7 +354,7 @@ export const removeIntegration = async (
       // Cancel nylas subscription
       await enableOrDisableAccount(integration.nylasAccountId, false);
     } catch (e) {
-      debugNylas('Failed to subscription nylas-outlook account');
+      debugError('Failed to subscription nylas-outlook account');
       throw e;
     }
   }
@@ -376,7 +376,7 @@ export const removeIntegration = async (
       // Cancel nylas subscription
       await enableOrDisableAccount(integration.nylasAccountId, false);
     } catch (e) {
-      debugNylas('Failed to subscription nylas-exchange account');
+      debugError('Failed to subscription nylas-exchange account');
       throw e;
     }
   }
@@ -398,7 +398,7 @@ export const removeIntegration = async (
       // Cancel nylas subscription
       await enableOrDisableAccount(integration.nylasAccountId, false);
     } catch (e) {
-      debugNylas('Failed to subscription nylas-yahoo account');
+      debugError('Failed to subscription nylas-yahoo account');
       throw e;
     }
   }
@@ -663,7 +663,7 @@ export const updateIntegrationConfigs = async (configsMap): Promise<void> => {
       await createNylasWebhook();
     }
   } catch (e) {
-    debugNylas(e.message);
+    debugError(e.message);
     throw e;
   }
 
@@ -686,7 +686,7 @@ export const updateIntegrationConfigs = async (configsMap): Promise<void> => {
       await twitterApi.registerWebhook();
     }
   } catch (e) {
-    debugTwitter(e);
+    debugError(e);
   }
 
   try {
@@ -703,7 +703,7 @@ export const updateIntegrationConfigs = async (configsMap): Promise<void> => {
       await smoochApi.setupSmoochWebhook();
     }
   } catch (e) {
-    debugSmooch(e);
+    debugError(e);
   }
 
   if (
@@ -713,7 +713,7 @@ export const updateIntegrationConfigs = async (configsMap): Promise<void> => {
     try {
       await setupWhatsapp();
     } catch (e) {
-      debugWhatsapp(e);
+      debugError(e);
     }
   }
 };
@@ -727,7 +727,7 @@ export const routeErrorHandling = (fn, callback?: any) => {
         return callback(res, e, next);
       }
 
-      debugBase(e.message);
+      debugError(e.message);
 
       return next(e);
     }

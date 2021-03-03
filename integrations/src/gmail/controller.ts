@@ -1,4 +1,4 @@
-import { debugGmail, debugRequest } from '../debuggers';
+import { debugError, debugGmail, debugRequest } from '../debuggers';
 import { routeErrorHandling } from '../helpers';
 import { Accounts } from '../models';
 import {
@@ -29,7 +29,7 @@ const init = async app => {
 
       return res.status(200).send();
     } catch (e) {
-      debugGmail('Failed: Webhook request could not acknowledge');
+      debugError('Failed: Webhook request could not acknowledge');
       return next(e);
     }
   });
