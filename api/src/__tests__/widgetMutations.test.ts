@@ -673,7 +673,7 @@ describe('insertMessage()', () => {
     sendRequestMock.restore();
   });
 
-  test('Video cal request', async () => {
+  test('Video call request', async () => {
     const conversation = await conversationFactory();
 
     // When first video call request
@@ -734,6 +734,31 @@ describe('insertMessage()', () => {
     } catch (e) {
       expect(e.message).toBe('Video call request has already sent');
     }
+  });
+
+  test('Failed to send notification to mobile', async () => {
+    const spy = jest.spyOn(utils, 'sendMobileNotification');
+    spy.mockImplementation(() => {
+      throw new Error('error');
+    });
+
+    const conversation = await conversationFactory();
+
+    const message = await widgetMutations.widgetsInsertMessage(
+      {},
+      {
+        contentType: MESSAGE_TYPES.TEXT,
+        integrationId: _integration._id,
+        customerId: _customer._id,
+        conversationId: conversation._id,
+        message: 'message'
+      },
+      context
+    );
+
+    expect(message.content).toBe('message');
+
+    spy.mockRestore();
   });
 });
 

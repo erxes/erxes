@@ -38,7 +38,13 @@ const DATA_IMPORT_TYPES = [
   'lead'
 ];
 
-const DYNAMICLY_TEMPLATE_TYPES = ['customer', 'company', 'product', 'lead'];
+const DYNAMICLY_TEMPLATE_TYPES = [
+  'customer',
+  'company',
+  'product',
+  'lead',
+  'visitor'
+];
 
 class Histories extends React.Component<Props & IRouterProps> {
   renderHistories = () => {

@@ -33,9 +33,9 @@ import {
   IKnowledgebaseCredentials,
   ILeadCredentials
 } from '../../../db/models/definitions/messengerApps';
-import { debugBase, debugExternalApi } from '../../../debuggers';
+import { debugError, debugExternalApi } from '../../../debuggers';
 import { trackViewPageEvent } from '../../../events';
-import memoryStorage from '../../../inmemoryStorage';
+import { get, removeKey, set } from '../../../inmemoryStorage';
 import { graphqlPubsub } from '../../../pubsub';
 import { AUTO_BOT_MESSAGES, BOT_MESSAGE_TYPES } from '../../constants';
 import { sendToVisitorLog } from '../../logUtils';
@@ -130,12 +130,12 @@ export const caches = {
   async get({ key, callback }: { key: string; callback?: any }) {
     key = this.generateKey(key);
 
-    let object = JSON.parse((await memoryStorage().get(key)) || '{}') || {};
+    let object = JSON.parse((await get(key)) || '{}') || {};
 
     if (Object.keys(object).length === 0) {
       object = await callback();
 
-      memoryStorage().set(key, JSON.stringify(object));
+      set(key, JSON.stringify(object));
 
       return object;
     }
@@ -146,17 +146,17 @@ export const caches = {
   async update(key: string, data: object) {
     const storageKey = this.generateKey(key);
 
-    const value = await memoryStorage().get(storageKey);
+    const value = await get(storageKey);
 
     if (!value) {
       return;
     }
 
-    memoryStorage().set(this.generateKey(key), JSON.stringify(data));
+    set(this.generateKey(key), JSON.stringify(data));
   },
 
   remove(key: string) {
-    memoryStorage().removeKey(this.generateKey(key));
+    removeKey(this.generateKey(key));
   }
 };
 
@@ -777,13 +777,13 @@ const widgetMutations = {
       });
     }
 
-    const customerLastStatus = await memoryStorage().get(
+    const customerLastStatus = await get(
       `customer_last_status_${customerId}`,
       'left'
     );
 
     if (customerLastStatus === 'left' && customerId) {
-      memoryStorage().set(`customer_last_status_${customerId}`, 'joined');
+      set(`customer_last_status_${customerId}`, 'joined');
 
       // customer has joined + time
       const conversationMessages = await Conversations.changeCustomerStatus(
@@ -808,13 +808,17 @@ const widgetMutations = {
     }
 
     if (!HAS_BOTENDPOINT_URL && customerId) {
-      sendMobileNotification({
-        title: 'You have a new message',
-        body: conversationContent,
-        customerId,
-        conversationId: conversation._id,
-        receivers: conversationNotifReceivers(conversation, customerId)
-      });
+      try {
+        sendMobileNotification({
+          title: 'You have a new message',
+          body: conversationContent,
+          customerId,
+          conversationId: conversation._id,
+          receivers: conversationNotifReceivers(conversation, customerId)
+        });
+      } catch (e) {
+        debugError(`Failed to send mobile notification: ${e.message}`);
+      }
     }
 
     await sendToWebhook('create', 'customerMessages', msg);
@@ -881,7 +885,9 @@ const widgetMutations = {
       });
     } catch (e) {
       /* istanbul ignore next */
-      debugBase(`Error occurred during widgets save browser info ${e.message}`);
+      debugError(
+        `Error occurred during widgets save browser info ${e.message}`
+      );
     }
 
     return null;
@@ -965,9 +971,7 @@ const widgetMutations = {
     let sessionId = conversationId;
 
     if (!conversationId) {
-      sessionId = await memoryStorage().get(
-        `bot_initial_message_session_id_${integrationId}`
-      );
+      sessionId = await get(`bot_initial_message_session_id_${integrationId}`);
 
       const conversation = await Conversations.createConversation({
         customerId,
@@ -978,7 +982,7 @@ const widgetMutations = {
 
       conversationId = conversation._id;
 
-      const initialMessageBotData = await memoryStorage().get(
+      const initialMessageBotData = await get(
         `bot_initial_message_${integrationId}`
       );
 
@@ -1055,10 +1059,7 @@ const widgetMutations = {
       .toString(36)
       .substr(2, 9)}`;
 
-    await memoryStorage().set(
-      `bot_initial_message_session_id_${integrationId}`,
-      sessionId
-    );
+    await set(`bot_initial_message_session_id_${integrationId}`, sessionId);
 
     const integration = await Integrations.findOne({
       _id: integrationId
@@ -1075,7 +1076,7 @@ const widgetMutations = {
       }
     });
 
-    await memoryStorage().set(
+    await set(
       `bot_initial_message_${integrationId}`,
       JSON.stringify(botRequest.responses)
     );

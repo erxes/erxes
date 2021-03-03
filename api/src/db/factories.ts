@@ -218,6 +218,7 @@ interface ITagFactoryInput {
   colorCode?: string;
   type?: string;
   parentId?: string;
+  relatedIds?: string[];
 }
 
 export const tagsFactory = (params: ITagFactoryInput = {}) => {
@@ -226,7 +227,8 @@ export const tagsFactory = (params: ITagFactoryInput = {}) => {
     type: params.type || 'engageMessage',
     colorCode: params.colorCode || Random.id(),
     userId: Random.id(),
-    parentId: params.parentId
+    parentId: params.parentId,
+    relatedIds: params.relatedIds || []
   });
 
   return tag.save();

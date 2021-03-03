@@ -56,6 +56,7 @@ function Row({ tag, type, count, renderButton, remove, space, tags }: Props) {
           <Tags tags={[tag]} size="medium" />
         </TagWrapper>
       </td>
+      <td>{tag.totalObjectCount || '-'}</td>
       <td>{count || '0'}</td>
       <td>
         <ActionButtons>

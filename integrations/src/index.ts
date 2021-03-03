@@ -5,6 +5,7 @@ import initCallPro from './callpro/controller';
 import initChatfuel from './chatfuel/controller';
 import { connect, mongoStatus } from './connection';
 import {
+  debugError,
   debugInit,
   debugIntegrations,
   debugRequest,
@@ -67,7 +68,7 @@ app.get('/health', async (_req, res, next) => {
   try {
     await mongoStatus();
   } catch (e) {
-    debugIntegrations('MongoDB is not running');
+    debugError('MongoDB is not running');
     return next(e);
   }
   res.end('ok');

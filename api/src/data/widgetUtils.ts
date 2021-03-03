@@ -8,7 +8,7 @@ import {
 import Messages from '../db/models/ConversationMessages';
 import { IBrowserInfo } from '../db/models/Customers';
 import { KIND_CHOICES } from '../db/models/definitions/constants';
-import { debugBase } from '../debuggers';
+import { debugBase, debugError } from '../debuggers';
 import { client, fetchElk, getIndexPrefix } from '../elasticsearch';
 import { getVisitorLog, sendToVisitorLog } from './logUtils';
 
@@ -72,7 +72,7 @@ export const convertVisitorToCustomer = async (visitorId: string) => {
     delete visitor.visitorId;
     delete visitor._id;
   } catch (e) {
-    debugBase(e.message);
+    debugError(e.message);
   }
 
   const doc = { state: 'visitor', ...visitor };
@@ -110,7 +110,7 @@ export const convertVisitorToCustomer = async (visitorId: string) => {
 
     debugBase(`Response ${JSON.stringify(response)}`);
   } catch (e) {
-    debugBase(`Update event error ${e.message}`);
+    debugError(`Update event error ${e.message}`);
   }
 
   await sendToVisitorLog({ visitorId }, 'remove');

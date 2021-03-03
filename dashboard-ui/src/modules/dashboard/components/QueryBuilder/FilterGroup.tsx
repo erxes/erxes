@@ -34,6 +34,23 @@ class FilterGroup extends React.Component<Props> {
     });
   };
 
+  renderInput = m => {
+    const { updateMethods } = this.props;
+
+    if (['set', 'notSet'].includes(m.operator)) {
+      return;
+    }
+
+    return (
+      <FilterInputContainer
+        type={m.dimension.name}
+        member={m}
+        key="filterInput"
+        updateMethods={updateMethods}
+      />
+    );
+  };
+
   render() {
     const {
       members,
@@ -80,12 +97,7 @@ class FilterGroup extends React.Component<Props> {
                   </Select.Option>
                 ))}
               </Select>
-              <FilterInputContainer
-                type={m.dimension.name}
-                member={m}
-                key="filterInput"
-                updateMethods={updateMethods}
-              />
+              {this.renderInput(m)}
             </div>
           );
         })}
