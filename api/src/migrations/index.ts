@@ -1,3 +1,3 @@
 module.exports.up = async () => {
-  console.log("empty");
+  console.log('empty');
 };
