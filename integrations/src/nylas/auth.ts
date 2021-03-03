@@ -1,5 +1,5 @@
 import * as dotenv from 'dotenv';
-import { debugNylas } from '../debuggers';
+import { debugError, debugNylas } from '../debuggers';
 import memoryStorage from '../inmemoryStorage';
 import { Accounts, Integrations } from '../models';
 import { getConfig, sendRequest } from '../utils';
@@ -267,7 +267,7 @@ export const integrateProviderToNylas = async (args: IIntegrateProvider) => {
 
     code = codeResponse.code;
   } catch (e) {
-    debugNylas(`Failed to get token code nylas: ${e}`);
+    debugError(`Failed to get token code nylas: ${e}`);
     throw new Error(
       'Error when connecting to the server. Please check your settings'
     );
@@ -288,7 +288,7 @@ export const integrateProviderToNylas = async (args: IIntegrateProvider) => {
 
     return response;
   } catch (e) {
-    debugNylas(`Failed to get token from nylas: ${e}`);
+    debugError(`Failed to get token from nylas: ${e}`);
     throw new Error(
       'Error when connecting to the server. Please check your settings'
     );
@@ -334,7 +334,7 @@ const removeExistingNylasWebhook = async (): Promise<void> => {
 
     debugNylas(`Successfully removed existing Nylas webhooks`);
   } catch (e) {
-    debugNylas(e.message);
+    debugError(e.message);
   }
 };
 

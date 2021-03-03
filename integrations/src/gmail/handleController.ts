@@ -1,4 +1,4 @@
-import { debugGmail } from '../debuggers';
+import { debugError, debugGmail } from '../debuggers';
 import { Accounts, Integrations } from '../models';
 import { compose } from '../utils';
 import {
@@ -49,7 +49,7 @@ export const createIntegration = async (
       erxesApiId: integrationId
     });
   } catch (e) {
-    debugGmail(`Error Google: Could not subscribe user ${email} to a topic`);
+    debugError(`Error Google: Could not subscribe user ${email} to a topic`);
     throw e;
   }
 };
@@ -72,7 +72,7 @@ export const sendEmail = async (erxesApiId: string, mailParams: any) => {
   try {
     return send(email, { from: email, ...mailParams });
   } catch (e) {
-    debugGmail('Error Google: Failed to send email');
+    debugError('Error Google: Failed to send email');
     throw e;
   }
 };
@@ -176,7 +176,7 @@ export const handleMessage = async ({
 
     return updateLastChangesHistoryId(email, historyId);
   } catch (e) {
-    debugGmail(`Failed: handleMessage email ${email}`);
+    debugError(`Failed: handleMessage email ${email}`);
     throw e;
   }
 };

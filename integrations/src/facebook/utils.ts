@@ -1,5 +1,5 @@
 import * as graph from 'fbgraph';
-import { debugFacebook } from '../debuggers';
+import { debugError, debugFacebook } from '../debuggers';
 import { Accounts, Integrations } from '../models';
 import { IIntegrationDocument } from '../models/Integrations';
 import { generateAttachmentUrl } from '../utils';
@@ -114,9 +114,7 @@ export const getPostLink = async (
   try {
     pageAccessToken = getPageAccessTokenFromMap(pageId, pageTokens);
   } catch (e) {
-    debugFacebook(
-      `Error occurred while getting page access token: ${e.message}`
-    );
+    debugError(`Error occurred while getting page access token: ${e.message}`);
     throw new Error();
   }
 
@@ -127,7 +125,7 @@ export const getPostLink = async (
     );
     return response.permalink_url ? response.permalink_url : '';
   } catch (e) {
-    debugFacebook(`Error occurred while getting facebook post: ${e.message}`);
+    debugError(`Error occurred while getting facebook post: ${e.message}`);
     return null;
   }
 };
@@ -140,7 +138,7 @@ export const unsubscribePage = async (
     .delete(`${pageId}/subscribed_apps`, pageToken)
     .then(res => res)
     .catch(e => {
-      debugFacebook(e);
+      debugError(e);
       throw e;
     });
 };
@@ -155,9 +153,7 @@ export const getFacebookUser = async (
   try {
     pageAccessToken = getPageAccessTokenFromMap(pageId, pageTokens);
   } catch (e) {
-    debugFacebook(
-      `Error occurred while getting page access token: ${e.message}`
-    );
+    debugError(`Error occurred while getting page access token: ${e.message}`);
     return null;
   }
 
@@ -189,9 +185,7 @@ export const getFacebookUserProfilePic = async (
   try {
     pageAccessToken = getPageAccessTokenFromMap(pageId, pageTokens);
   } catch (e) {
-    debugFacebook(
-      `Error occurred while getting page access token: ${e.message}`
-    );
+    debugError(`Error occurred while getting page access token: ${e.message}`);
     throw new Error();
   }
 
@@ -202,7 +196,7 @@ export const getFacebookUserProfilePic = async (
     );
     return response.image ? response.location : '';
   } catch (e) {
-    debugFacebook(
+    debugError(
       `Error occurred while getting facebook user profile pic: ${e.message}`
     );
     return null;
@@ -219,7 +213,7 @@ export const restorePost = async (
   try {
     pageAccessToken = await getPageAccessTokenFromMap(pageId, pageTokens);
   } catch (e) {
-    debugFacebook(
+    debugError(
       `Error ocurred while trying to get page access token with ${e.message}`
     );
   }
@@ -253,7 +247,7 @@ export const sendReply = async (
       facebookPageTokensMap
     );
   } catch (e) {
-    debugFacebook(
+    debugError(
       `Error ocurred while trying to get page access token with ${e.message}`
     );
     return e;
@@ -266,7 +260,7 @@ export const sendReply = async (
     debugFacebook(`Successfully sent data to facebook ${JSON.stringify(data)}`);
     return response;
   } catch (e) {
-    debugFacebook(
+    debugError(
       `Error ocurred while trying to send post request to facebook ${
         e.message
       } data: ${JSON.stringify(data)}`

@@ -4,7 +4,7 @@ import ddTracer from 'dd-trace';
 import * as dotenv from 'dotenv';
 import * as express from 'express';
 import { connect } from '../db/connection';
-import { debugCrons } from '../debuggers';
+import { debugCrons, debugError } from '../debuggers';
 
 import { initMemoryStorage } from '../inmemoryStorage';
 import { initBroker } from '../messageBroker';
@@ -46,7 +46,7 @@ app.listen(PORT_CRONS, () => {
     initMemoryStorage();
 
     initBroker(app).catch(e => {
-      debugCrons(`Error ocurred during broker init ${e.message}`);
+      debugError(`Error ocurred during broker init ${e.message}`);
     });
   });
 

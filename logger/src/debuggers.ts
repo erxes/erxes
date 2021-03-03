@@ -2,11 +2,11 @@ import tracer from 'dd-trace';
 import * as formats from 'dd-trace/ext/formats';
 import * as dotenv from 'dotenv';
 
-export const ddLogger = message => {
+export const ddLogger = (message, level) => {
   const span = tracer.scope().active();
   const time = new Date().toISOString();
 
-  const record = { time, level: 'info', message };
+  const record = { time, level, message };
 
   if (span) {
     tracer.inject(span.context(), formats.LOG, record);
@@ -17,10 +17,19 @@ export const ddLogger = message => {
 
 dotenv.config();
 
-export const debugInit = ddLogger;
-export const debugDb = ddLogger;
-export const debugBase = ddLogger;
-export const debugExternalRequests = ddLogger;
+export const ddInfo = message => {
+  return ddLogger(message, 'info');
+};
+
+export const ddError = message => {
+  return ddLogger(message, 'error');
+};
+
+export const debugInit = ddInfo;
+export const debugDb = ddInfo;
+export const debugBase = ddInfo;
+export const debugExternalRequests = ddInfo;
+export const debugError = ddError;
 
 export const debugRequest = (debugInstance, req) =>
   debugInstance(`

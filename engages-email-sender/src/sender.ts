@@ -1,6 +1,6 @@
 import * as dotenv from 'dotenv';
 import * as Random from 'meteor-random';
-import { debugEngages } from './debuggers';
+import { debugEngages, debugError } from './debuggers';
 import { Logs, SmsRequests, Stats } from './models';
 import { getTelnyxInfo } from './telnyxUtils';
 import {
@@ -205,7 +205,7 @@ export const start = async (data: {
       debugEngages(msg);
       await Logs.createLog(engageMessageId, 'success', msg);
     } catch (e) {
-      debugEngages(e.message);
+      debugError(e.message);
       await Logs.createLog(
         engageMessageId,
         'failure',
