@@ -1056,7 +1056,7 @@ describe('createVisitorOrCustomerMessages with elk', () => {
               _id: faker.random.uuid(),
               _source: {
                 kind: MESSAGE_KINDS.VISITOR_AUTO,
-                method: 'messenger',
+                method: METHODS.MESSENGER,
                 fromUserId: _user._id,
                 isDraft: false,
                 isLive: true,
