@@ -57,7 +57,8 @@ export default class GenerateField extends React.Component<Props, State> {
   }
 
   renderInput(attrs) {
-    const { value, checkBoxValues } = this.state;
+    const { value } = this.state;
+    const checkBoxValues = this.state.checkBoxValues || [];
     const { validation, type } = this.props.field;
 
     attrs.type = 'text';
