@@ -1,5 +1,5 @@
 import * as os from 'os';
-import { debugImport, debugWorkers } from '../debuggers';
+import { debugError, debugImport, debugWorkers } from '../debuggers';
 
 export default class CustomWorker {
   readonly cpuCount: number = os.cpus().length;
@@ -57,7 +57,7 @@ export default class CustomWorker {
         }
       });
     } catch (e) {
-      debugWorkers('Failed to create a worker');
+      debugError('Failed to create a worker');
       throw e;
     }
   }

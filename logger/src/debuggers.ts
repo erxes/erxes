@@ -7,6 +7,7 @@ export const debugInit = debug('erxes-logger:init');
 export const debugDb = debug('erxes-logger:db');
 export const debugBase = debug('erxes-logger:base');
 export const debugExternalRequests = debug('erxes-logger:external-requests');
+export const debugError = debug('erxes-logger:error');
 
 export const debugRequest = (debugInstance, req) =>
   debugInstance(`

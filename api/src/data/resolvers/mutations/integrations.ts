@@ -20,7 +20,7 @@ import {
   IUiOptions
 } from '../../../db/models/definitions/integrations';
 import { IExternalIntegrationParams } from '../../../db/models/Integrations';
-import { debugExternalApi } from '../../../debuggers';
+import { debugError } from '../../../debuggers';
 import messageBroker from '../../../messageBroker';
 import { MODULE_NAMES, RABBITMQ_QUEUES } from '../../constants';
 import { putCreateLog, putDeleteLog, putUpdateLog } from '../../logUtils';
@@ -408,7 +408,7 @@ const integrationMutations = {
 
       return Integrations.removeIntegration(_id);
     } catch (e) {
-      debugExternalApi(e);
+      debugError(e);
       throw e;
     }
   },
@@ -432,7 +432,7 @@ const integrationMutations = {
 
       return 'success';
     } catch (e) {
-      debugExternalApi(e);
+      debugError(e);
       throw e;
     }
   },
@@ -480,7 +480,7 @@ const integrationMutations = {
         data: JSON.stringify(doc)
       });
     } catch (e) {
-      debugExternalApi(e);
+      debugError(e);
       throw e;
     }
 

@@ -7,7 +7,7 @@ import {
   ICalendarGroup,
   ICalendarGroupDocument
 } from '../../../db/models/definitions/calendars';
-import { debugExternalApi } from '../../../debuggers';
+import { debugError } from '../../../debuggers';
 import {
   checkPermission,
   moduleRequireLogin
@@ -126,7 +126,7 @@ const calendarMutations = {
     } catch (e) {
       await Calendars.removeCalendar(calendar._id);
 
-      debugExternalApi(e.message);
+      debugError(e.message);
 
       throw new Error(e.message);
     }
@@ -156,7 +156,7 @@ const calendarMutations = {
       try {
         await dataSources.IntegrationsAPI.deleteCalendars({ accountId });
       } catch (e) {
-        debugExternalApi(e.message);
+        debugError(e.message);
 
         throw new Error(e.message);
       }

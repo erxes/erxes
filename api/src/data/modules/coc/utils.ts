@@ -4,7 +4,7 @@ import { companySchema } from '../../../db/models/definitions/companies';
 import { KIND_CHOICES } from '../../../db/models/definitions/constants';
 import { customerSchema } from '../../../db/models/definitions/customers';
 import { ISegmentDocument } from '../../../db/models/definitions/segments';
-import { debugBase } from '../../../debuggers';
+import { debugError } from '../../../debuggers';
 import { fetchElk } from '../../../elasticsearch';
 import { COC_LEAD_STATUS_TYPES } from '../../constants';
 import { fetchBySegments } from '../segments/queryBuilder';
@@ -54,7 +54,7 @@ export const countBySegment = async (
       await qb.segmentFilter(s._id);
       counts[s._id] = await qb.runQueries('count');
     } catch (e) {
-      debugBase(`Error during segment count ${e.message}`);
+      debugError(`Error during segment count ${e.message}`);
       counts[s._id] = 0;
     }
   }

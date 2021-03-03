@@ -1,5 +1,5 @@
 import * as dotenv from 'dotenv';
-import { debugNylas } from '../debuggers';
+import { debugError, debugNylas } from '../debuggers';
 import { getGoogleConfigs } from '../gmail/utils';
 import { sendMessage } from '../messageBroker';
 import { Accounts, Integrations } from '../models';
@@ -75,7 +75,7 @@ export const syncEvents = async (
         break;
     }
   } catch (e) {
-    debugNylas(`Failed to sync events: ${e.message}`);
+    debugError(`Failed to sync events: ${e.message}`);
 
     throw e;
   }
@@ -126,7 +126,7 @@ export const syncCalendars = async (
         break;
     }
   } catch (e) {
-    debugNylas(`Failed to sync calendars: ${e.message}`);
+    debugError(`Failed to sync calendars: ${e.message}`);
 
     throw e;
   }
@@ -158,7 +158,7 @@ const syncMessages = async (accountId: string, messageId: string) => {
         return;
       }
     } catch (e) {
-      debugNylas(`Failed to get nylas message by id: ${e.message}`);
+      debugError(`Failed to get nylas message by id: ${e.message}`);
 
       throw e;
     }

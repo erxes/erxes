@@ -4,7 +4,7 @@ import * as fs from 'fs';
 import * as request from 'request-promise';
 import { PHONE_VALIDATION_STATUSES, Phones } from './models';
 import { getArray, setArray } from './redisClient';
-import { debugBase, getEnv, sendRequest } from './utils';
+import { debugBase, debugError, getEnv, sendRequest } from './utils';
 
 dotenv.config();
 
@@ -42,7 +42,7 @@ const singleClearOut = async (phone: string): Promise<any> => {
 
     return response;
   } catch (e) {
-    debugBase(`Error occured during single phone validation ${e.message}`);
+    debugError(`Error occured during single phone validation ${e.message}`);
     throw e;
   }
 };
