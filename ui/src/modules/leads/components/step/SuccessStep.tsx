@@ -74,9 +74,11 @@ class SuccessStep extends React.Component<Props, State> {
   };
 
   onEditorChange = e => {
+    const editorNumber: number = e.editor.name.replace(/[^\d.]/g, '');
+
     let propName: Name = 'adminEmailContent';
 
-    if (e.editor.id === 'cke_1') {
+    if (editorNumber % 2 !== 0) {
       propName = 'userEmailContent';
     }
     this.props.onChange(propName, e.editor.getData());

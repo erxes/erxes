@@ -31,7 +31,13 @@ const examplePayload = `{
       "text": "Example",
       "size": 1048576, // 1mb
       "type": "image/png"
-  }]
+  }],
+  "companyPrimaryEmail":"example@company.com",
+  "companyPrimaryPhone":"+123456789",
+  "companyPrimaryName":"example llc",
+  "companyWebsite":"https://company.com",
+  "companyIndustry":"Automobiles",
+  "companyBusinessType":"Investor",
   "customFields": [{
       "name": "custom field name",
       "value": "custom field value"

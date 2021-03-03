@@ -108,8 +108,8 @@ export const locationSchema = new Schema(
 
 export const visitorContactSchema = new Schema(
   {
-    email: field({ type: String, label: 'Email' }),
-    phone: field({ type: String, label: 'Phone' })
+    email: field({ type: String, label: 'Email', optional: true }),
+    phone: field({ type: String, label: 'Phone', optional: true })
   },
   { _id: false }
 );
@@ -240,7 +240,12 @@ export const customerSchema = schemaWrapper(
     }),
     links: field({ type: Object, default: {}, label: 'Links' }),
 
-    relatedIntegrationIds: field({ type: [String], optional: true }),
+    relatedIntegrationIds: field({
+      type: [String],
+      label: 'Related integrations',
+      esType: 'keyword',
+      optional: true
+    }),
     integrationId: field({
       type: String,
       optional: true,

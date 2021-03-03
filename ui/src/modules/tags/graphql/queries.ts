@@ -7,6 +7,7 @@ const tags = `
       colorCode
       createdAt
       objectCount
+      totalObjectCount
       parentId
       order
     }

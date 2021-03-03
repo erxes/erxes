@@ -15,6 +15,7 @@ import React from 'react';
 import Dropdown from 'react-bootstrap/Dropdown';
 import { Link, NavLink } from 'react-router-dom';
 import styled from 'styled-components';
+import Search from '../containers/Search';
 import { UserHelper } from '../styles';
 import BrandChooser from './BrandChooser';
 
@@ -138,6 +139,10 @@ const QuickNavigation = ({
   return (
     <nav id={'SettingsNav'}>
       {brandsCombo}
+
+      <NavItem>
+        <Search />
+      </NavItem>
 
       {can('showCalendars', currentUser) && (
         <NavItem>

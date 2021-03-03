@@ -4,18 +4,14 @@ import {
   FlexBody,
   FlexCenterContent
 } from 'modules/activityLogs/styles';
-import { IActivityLog } from 'modules/activityLogs/types';
+import { IActivityLogItemProps } from 'modules/activityLogs/types';
 import Icon from 'modules/common/components/Icon';
 import Tip from 'modules/common/components/Tip';
 import { renderUserFullName } from 'modules/common/utils';
 import React from 'react';
 import { Link } from 'react-router-dom';
 
-type Props = {
-  activity: IActivityLog;
-};
-
-class BoardItemCreate extends React.Component<Props> {
+class BoardItemCreate extends React.Component<IActivityLogItemProps> {
   renderContent = () => {
     const { activity } = this.props;
     const { contentTypeDetail, contentType, createdByDetail } = activity;

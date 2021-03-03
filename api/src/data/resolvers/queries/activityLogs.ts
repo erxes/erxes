@@ -8,6 +8,7 @@ import {
   Tasks
 } from '../../../db/models';
 import { IActivityLogDocument } from '../../../db/models/definitions/activityLogs';
+import { ACTIVITY_CONTENT_TYPES } from '../../../db/models/definitions/constants';
 import { debugExternalApi } from '../../../debuggers';
 import { moduleRequireLogin } from '../../permissions/wrappers';
 import { IContext } from '../../types';
@@ -63,6 +64,7 @@ const activityLogQueries = {
             result.contentType = type;
             result.createdAt = item.closeDate || item.createdAt;
           }
+
           activities.push(result);
         });
       }
@@ -115,12 +117,24 @@ const activityLogQueries = {
 
     const collectEngageMessages = async () => {
       collectItems(
-        await EngageMessages.find({ customerIds: contentId, method: 'email' }),
+        await EngageMessages.find({
+          customerIds: { $in: [contentId] },
+          method: 'email'
+        }),
         'engage-email'
       );
       collectItems(
         await EmailDeliveries.find({ customerId: contentId }),
         'email'
+      );
+    };
+
+    const collectSms = async () => {
+      collectItems(
+        await ActivityLogs.find({
+          contentId,
+          contentType: ACTIVITY_CONTENT_TYPES.SMS
+        })
       );
     };
 
@@ -166,6 +180,10 @@ const activityLogQueries = {
 
       case 'email':
         await collectEngageMessages();
+        break;
+
+      case ACTIVITY_CONTENT_TYPES.SMS:
+        await collectSms();
         break;
 
       default:

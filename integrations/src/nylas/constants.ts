@@ -54,13 +54,19 @@ export const MICROSOFT_SCOPES = [
   'profile'
 ].join(' ');
 
-export const GOOGLE_SCOPES = [
+export const GOOGLE_GMAIL_SCOPES = [
+  'https://www.googleapis.com/auth/gmail.send',
+  'https://www.googleapis.com/auth/gmail.modify',
+  'https://www.googleapis.com/auth/userinfo.email',
+  'https://www.googleapis.com/auth/userinfo.profile'
+].join(' ');
+
+export const NYLAS_GMAIL_SCOPES = 'email.modify, email.send';
+export const NYLAS_CALENDAR_SCOPES = 'contacts, calendar';
+
+export const GOOGLE_CALENDAR_SCOPES = [
   'https://www.googleapis.com/auth/calendar',
   'https://www.googleapis.com/auth/contacts',
-  'https://www.googleapis.com/auth/gmail.compose',
-  'https://www.googleapis.com/auth/gmail.send',
-  'https://www.googleapis.com/auth/gmail.readonly',
-  'https://www.googleapis.com/auth/gmail.modify',
   'https://www.googleapis.com/auth/userinfo.email',
   'https://www.googleapis.com/auth/userinfo.profile'
 ].join(' ');

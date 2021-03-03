@@ -47,7 +47,7 @@ const getOAuthCredential = async (req, res, next) => {
 
   const redirectUri = `${DOMAIN}/nylas/oauth2/callback`;
 
-  const { params, urls, otherParams } = getProviderConfigs(kind);
+  const { params, urls, otherParams } = getProviderConfigs(kind, type);
 
   if (!req.query.code) {
     if (!req.query.error) {

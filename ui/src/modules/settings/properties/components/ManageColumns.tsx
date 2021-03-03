@@ -3,7 +3,7 @@ import FormControl from 'modules/common/components/form/Control';
 import SortableList from 'modules/common/components/SortableList';
 import { colors } from 'modules/common/styles';
 import { ScrollWrapper } from 'modules/common/styles/main';
-import { __, getEnv } from 'modules/common/utils';
+import { __ } from 'modules/common/utils';
 import React from 'react';
 import styled from 'styled-components';
 import { IConfigColumn } from '../types';
@@ -81,7 +81,6 @@ class ManageColumns extends React.Component<Props, State> {
   };
 
   render() {
-    const { REACT_APP_API_URL } = getEnv();
     const { type, contentType } = this.props;
 
     const child = col => {
@@ -101,13 +100,6 @@ class ManageColumns extends React.Component<Props, State> {
       this.setState({ importType: 'csv' }, () => {
         this.onSubmit(e);
       });
-    };
-
-    const exportData = () => {
-      window.open(
-        `${REACT_APP_API_URL}/file-export?type=${contentType}`,
-        '_blank'
-      );
     };
 
     return (
@@ -141,7 +133,7 @@ class ManageColumns extends React.Component<Props, State> {
           ) : null}
 
           {type && type === 'export' ? (
-            <Button uppercase={false} type="submit" onClick={exportData}>
+            <Button uppercase={false} type="submit" onClick={this.onSubmit}>
               Export {contentType}
             </Button>
           ) : null}

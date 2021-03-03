@@ -1,4 +1,5 @@
 import { DashboardItems, Dashboards } from '../../../db/models';
+import { BOARD_TYPES } from '../../../db/models/definitions/constants';
 import {
   DashboardFilters,
   DashboardFilterTypes
@@ -51,9 +52,31 @@ const dashBoardQueries = {
   async dashboardFilters(_root, { type }: { type: string }) {
     const filters = DashboardFilters[type];
 
+    const shemaType = type.split('.')[0];
+    let tagType = 'customer';
+    let stageType = BOARD_TYPES.DEAL;
+
+    switch (shemaType) {
+      case 'Conversations':
+        tagType = 'conversation';
+        break;
+
+      case 'Companies':
+        tagType = 'company';
+        break;
+
+      case 'Tasks':
+        stageType = BOARD_TYPES.TASK;
+        break;
+
+      case 'Tickets':
+        stageType = BOARD_TYPES.TICKET;
+        break;
+    }
+
     if (!filters) {
       if (type.includes('pipeline')) {
-        return getPipelines();
+        return getPipelines(stageType);
       }
 
       if (DashboardFilterTypes.User.some(name => type.includes(name))) {
@@ -69,20 +92,10 @@ const dashBoardQueries = {
       }
 
       if (type.includes('board')) {
-        return getBoards();
+        return getBoards(stageType);
       }
 
       if (type.includes('tag')) {
-        let tagType = 'conversation';
-
-        if (type.split('.')[0] === 'Contacts') {
-          tagType = 'customer';
-        }
-
-        if (type.split('.')[0] === 'Companies') {
-          tagType = 'company';
-        }
-
         return getTags(tagType);
       }
     }
