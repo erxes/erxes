@@ -33,7 +33,7 @@ import {
   IKnowledgebaseCredentials,
   ILeadCredentials
 } from '../../../db/models/definitions/messengerApps';
-import { debugError, debugExternalApi } from '../../../debuggers';
+import { debugError } from '../../../debuggers';
 import { trackViewPageEvent } from '../../../events';
 import { get, removeKey, set } from '../../../inmemoryStorage';
 import { graphqlPubsub } from '../../../pubsub';
@@ -606,7 +606,7 @@ const widgetMutations = {
             '/configs'
           );
         } catch (e) {
-          debugExternalApi(e);
+          debugError(e);
         }
 
         const timeDelay = integrationConfigs.find(
