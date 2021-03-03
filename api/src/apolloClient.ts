@@ -157,14 +157,15 @@ export const initApolloServer = async app => {
             const visitorId =
               webSocket.messengerData && webSocket.messengerData.visitorId;
 
-            const memoryStorageValue = customerId ? customerId : visitorId;
+            const memoryStorageValue = customerId || visitorId;
 
             // get status from inmemory storage
             const inConnectedClients = await inArray(
               'connectedClients',
-              customerId
+              memoryStorageValue
             );
-            const inClients = await inArray('clients', customerId);
+
+            const inClients = await inArray('clients', memoryStorageValue);
 
             if (!inConnectedClients) {
               await addToArray('connectedClients', memoryStorageValue);
@@ -234,7 +235,7 @@ export const initApolloServer = async app => {
             // get status from inmemory storage
             const inNewConnectedClients = await inArray(
               'connectedClients',
-              customerId
+              memoryStorageValue
             );
             const customerLastStatus = await get(
               `customer_last_status_${customerId}`

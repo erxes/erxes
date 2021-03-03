@@ -41,6 +41,7 @@ export default class Field extends React.Component<Props, State> {
   static renderCheckboxes(
     name: string,
     options: string[],
+    id: string,
     onChange: () => void
   ) {
     return (
@@ -52,6 +53,7 @@ export default class Field extends React.Component<Props, State> {
                 type: 'checkbox',
                 'data-option': option,
                 name,
+                id,
                 onChange
               })}
               {option}
@@ -65,6 +67,7 @@ export default class Field extends React.Component<Props, State> {
   static renderRadioButtons(
     name: string,
     options: string[],
+    id: string,
     onChange: (e: React.FormEvent<HTMLInputElement>) => void
   ) {
     return (
@@ -75,6 +78,7 @@ export default class Field extends React.Component<Props, State> {
               type: 'radio',
               'data-option': option,
               name,
+              id,
               onChange
             })}
             <span>{option}</span>
@@ -170,9 +174,10 @@ export default class Field extends React.Component<Props, State> {
     this.onChange(e.currentTarget.value);
   };
 
-  renderDatepicker() {
+  renderDatepicker(id:string) {
     return (
       <Datetime
+        inputProps={{id}}
         value={this.state.dateValue}
         viewDate={new Date()}
         defaultValue={new Date()}
@@ -183,9 +188,10 @@ export default class Field extends React.Component<Props, State> {
     );
   }
 
-  renderDateTimepicker() {
+  renderDateTimepicker(id:string) {
     return (
       <Datetime
+        inputProps={{id}}
         value={this.state.dateTimeValue}
         viewDate={new Date()}
         defaultValue={new Date()}
@@ -202,40 +208,43 @@ export default class Field extends React.Component<Props, State> {
     const name = field._id;
 
     if (validation === 'date') {
-      return this.renderDatepicker();
+      return this.renderDatepicker(field._id);
     }
 
     if (validation === 'datetime') {
-      return this.renderDateTimepicker();
+      return this.renderDateTimepicker(field._id);
     }
 
     switch (field.type) {
       case 'select':
-        return Field.renderSelect(options, { onChange: this.onSelectChange });
+        return Field.renderSelect(options, { onChange: this.onSelectChange, id: field._id });
 
       case 'check':
-        return Field.renderCheckboxes(name, options, this.onCheckboxesChange);
+        return Field.renderCheckboxes(name, options, field._id, this.onCheckboxesChange);
 
       case 'radio':
         return Field.renderRadioButtons(
           name,
           options,
+          field._id,
           this.onRadioButtonsChange
         );
 
       case 'file':
         return Field.renderInput({
           onChange: this.handleFileInput,
-          type: 'file'
+          type: 'file',
+          id: field._id
         });
 
       case 'textarea':
-        return Field.renderTextarea({ onChange: this.onTextAreaChange });
+        return Field.renderTextarea({ onChange: this.onTextAreaChange, id:field._id });
 
       default:
         return Field.renderInput({
           onChange: this.onInputChange,
-          type: validation
+          type: validation,
+          id: field._id
         });
     }
   }

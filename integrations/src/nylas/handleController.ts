@@ -1,4 +1,4 @@
-import { debugNylas } from '../debuggers';
+import { debugError, debugNylas } from '../debuggers';
 import { revokeToken } from '../gmail/api';
 import memoryStorage from '../inmemoryStorage';
 import { Accounts, Integrations } from '../models';
@@ -211,7 +211,7 @@ export const nylasSendEmail = async (erxesApiId: string, params: any) => {
 
     return 'success';
   } catch (e) {
-    debugNylas(`Failed to send message: ${e.message}`);
+    debugError(`Failed to send message: ${e.message}`);
 
     throw e;
   }
@@ -227,7 +227,7 @@ export const nylasGetCalendars = async (account: IAccount) => {
 
     return storeCalendars(calendars);
   } catch (e) {
-    debugNylas(`Failed to get calendars: ${e.message}`);
+    debugError(`Failed to get calendars: ${e.message}`);
 
     throw e;
   }
@@ -251,7 +251,7 @@ export const nylasGetAllEvents = async (account: IAccount) => {
       );
     }
   } catch (e) {
-    debugNylas(`Failed to get events: ${e.message}`);
+    debugError(`Failed to get events: ${e.message}`);
 
     throw e;
   }
@@ -273,7 +273,7 @@ export const nylasGetCalendarOrEvent = async (
 
     return getCalendarOrEvent(id, type, integration.nylasToken);
   } catch (e) {
-    debugNylas(`Failed to get events: ${e.message}`);
+    debugError(`Failed to get events: ${e.message}`);
 
     throw e;
   }
@@ -294,7 +294,7 @@ export const nylasCheckCalendarAvailability = async (
 
     return checkCalendarAvailability(account.email, dates, account.nylasToken);
   } catch (e) {
-    debugNylas(`Failed to check Availability: ${e.message}`);
+    debugError(`Failed to check Availability: ${e.message}`);
 
     throw e;
   }
@@ -321,7 +321,7 @@ export const nylasDeleteCalendarEvent = async ({
 
     await NylasEvents.deleteOne({ providerEventId: eventId });
   } catch (e) {
-    debugNylas(`Failed to delete event: ${e.message}`);
+    debugError(`Failed to delete event: ${e.message}`);
 
     throw e;
   }
@@ -345,7 +345,7 @@ export const nylasCreateCalenderEvent = async ({
 
     return createEvent(doc, account.nylasToken);
   } catch (e) {
-    debugNylas(`Failed to create event: ${e.message}`);
+    debugError(`Failed to create event: ${e.message}`);
 
     throw e;
   }
@@ -371,7 +371,7 @@ export const nylasUpdateEvent = async ({
 
     return updateEvent(eventId, doc, account.nylasToken);
   } catch (e) {
-    debugNylas(`Failed to update event: ${e.message}`);
+    debugError(`Failed to update event: ${e.message}`);
 
     throw e;
   }
@@ -397,7 +397,7 @@ export const nylasSendEventAttendance = async ({
 
     return sendEventAttendance(eventId, doc, integration.nylasToken);
   } catch (e) {
-    debugNylas(`Failed to send event attendance: ${e.message}`);
+    debugError(`Failed to send event attendance: ${e.message}`);
 
     throw e;
   }
@@ -436,7 +436,7 @@ export const nylasConnectCalendars = async (uid: string) => {
       email: account.email
     };
   } catch (e) {
-    debugNylas(`Failed to sync calendars & events: ${e.message}`);
+    debugError(`Failed to sync calendars & events: ${e.message}`);
 
     throw e;
   }
@@ -471,7 +471,7 @@ export const nylasRemoveCalendars = async (accountId: string) => {
     await enableOrDisableAccount(nylasAccountId, false);
     await revokeTokenAccount(nylasAccountId);
   } catch (e) {
-    debugNylas(`Failed to remove calendars: ${e.message}`);
+    debugError(`Failed to remove calendars: ${e.message}`);
 
     throw e;
   }
@@ -582,7 +582,7 @@ export const nylasGetEvents = async ({
 
     return events;
   } catch (e) {
-    debugNylas(`Failed to get calendars: ${e.message}`);
+    debugError(`Failed to get calendars: ${e.message}`);
 
     throw e;
   }
@@ -625,7 +625,7 @@ export const nylasGetSchedulePages = async (accountId: string) => {
       }
     );
   } catch (e) {
-    debugNylas(`Failed to get schedule pages: ${e.message}`);
+    debugError(`Failed to get schedule pages: ${e.message}`);
   }
 };
 
@@ -656,7 +656,7 @@ export const nylasCreateSchedulePage = async (
 
     return createSchedulePage(account.nylasToken, doc, accountId);
   } catch (e) {
-    debugNylas(`Failed to create event: ${e.message}`);
+    debugError(`Failed to create event: ${e.message}`);
   }
 };
 
@@ -677,7 +677,7 @@ export const nylasUpdateSchedulePage = async (
 
     return updateSchedulePage(pageId, doc, editToken);
   } catch (e) {
-    debugNylas(`Failed to create event: ${e.message}`);
+    debugError(`Failed to create event: ${e.message}`);
   }
 };
 
@@ -699,7 +699,7 @@ export const nylasDeleteSchedulePage = async (_id: string) => {
 
     await NylasPages.deleteOne({ _id });
   } catch (e) {
-    debugNylas(`Failed to delete event: ${e.message}`);
+    debugError(`Failed to delete event: ${e.message}`);
 
     throw e;
   }

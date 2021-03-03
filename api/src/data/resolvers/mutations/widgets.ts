@@ -33,7 +33,7 @@ import {
   IKnowledgebaseCredentials,
   ILeadCredentials
 } from '../../../db/models/definitions/messengerApps';
-import { debugBase, debugExternalApi } from '../../../debuggers';
+import { debugError } from '../../../debuggers';
 import { trackViewPageEvent } from '../../../events';
 import { get, removeKey, set } from '../../../inmemoryStorage';
 import { graphqlPubsub } from '../../../pubsub';
@@ -609,7 +609,7 @@ const widgetMutations = {
             '/configs'
           );
         } catch (e) {
-          debugExternalApi(e);
+          debugError(e);
         }
 
         const timeDelay = integrationConfigs.find(
@@ -820,7 +820,7 @@ const widgetMutations = {
           receivers: conversationNotifReceivers(conversation, customerId)
         });
       } catch (e) {
-        debugBase(`Failed to send mobile notification: ${e.message}`);
+        debugError(`Failed to send mobile notification: ${e.message}`);
       }
     }
 
@@ -888,7 +888,9 @@ const widgetMutations = {
       });
     } catch (e) {
       /* istanbul ignore next */
-      debugBase(`Error occurred during widgets save browser info ${e.message}`);
+      debugError(
+        `Error occurred during widgets save browser info ${e.message}`
+      );
     }
 
     return await getOrCreateEngageMessage(browserInfo, visitorId, customerId);

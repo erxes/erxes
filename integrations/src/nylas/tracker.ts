@@ -1,4 +1,4 @@
-import { debugNylas } from '../debuggers';
+import { debugError, debugNylas } from '../debuggers';
 import { getConfig } from '../utils';
 import { checkCredentials, nylasInstance } from './api';
 import { MESSAGE_WEBHOOKS } from './constants';
@@ -34,11 +34,11 @@ export const createNylasWebhook = async () => {
     return nylasWebhook.id;
   } catch (e) {
     if (e.message.includes('already exists')) {
-      debugNylas('Nylas webhook callback url already exists');
+      debugError('Nylas webhook callback url already exists');
       throw new Error('Nylas webhook callback url already exists');
     }
 
-    debugNylas(`Error occured while creating webhook: ${e.message}`);
+    debugError(`Error occured while creating webhook: ${e.message}`);
 
     throw e;
   }
