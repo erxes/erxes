@@ -1,3 +1,10 @@
+## [0.20.13](https://github.com/erxes/erxes/compare/0.20.12...0.20.13) (2021-03-03)
+
+
+### Bug Fixes
+
+* **migrations:** fixed migrations ([b37bb7a](https://github.com/erxes/erxes/commit/b37bb7a5938e554bf0016ca78056d17cd19cc71f))
+
 ## [0.20.12](https://github.com/erxes/erxes/compare/0.20.11...0.20.12) (2021-03-02)
 
 
