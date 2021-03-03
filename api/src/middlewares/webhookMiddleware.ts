@@ -1,6 +1,7 @@
 import { NodeVM } from 'vm2';
-
 import {
+  Companies,
+  Conformities,
   ConversationMessages,
   Conversations,
   Customers,
@@ -9,6 +10,15 @@ import {
 } from '../db/models';
 import { ICustomField } from '../db/models/definitions/common';
 import { graphqlPubsub } from '../pubsub';
+
+const checkCompanyFieldsExists = async doc => {
+  for (const key in doc) {
+    if (key.includes('company')) {
+      return true;
+    }
+  }
+  return false;
+};
 
 const findCustomer = async doc => {
   let customer;
@@ -30,6 +40,27 @@ const findCustomer = async doc => {
   }
 
   return customer;
+};
+
+const findCompany = async doc => {
+  let company;
+
+  if (doc.companyPrimaryEmail) {
+    company = await Companies.findOne({
+      primaryEmail: doc.companyPrimaryEmail
+    });
+  }
+
+  if (!company && doc.companyPrimaryPhone) {
+    company = await Companies.findOne({
+      primaryPhone: doc.companyPrimaryPhone
+    });
+  }
+
+  if (!company && doc.companyPrimaryName) {
+    company = await Companies.findOne({ primaryName: doc.companyPrimaryName });
+  }
+  return company;
 };
 
 const webhookMiddleware = async (req, res, next) => {
@@ -101,9 +132,9 @@ const webhookMiddleware = async (req, res, next) => {
 
     if (!customer) {
       customer = await Customers.createCustomer(doc);
+    } else {
+      customer = await Customers.updateCustomer(customer._id, doc);
     }
-
-    customer = await Customers.updateCustomer(customer._id, doc);
 
     // get or create conversation
     let conversation = await Conversations.findOne({
@@ -142,6 +173,40 @@ const webhookMiddleware = async (req, res, next) => {
       conversationMessageInserted: message
     });
 
+    // company
+    let company = await findCompany(params);
+
+    const hasCompanyFields = await checkCompanyFieldsExists(params);
+
+    if (hasCompanyFields) {
+      const companyDoc = {
+        primaryEmail: params.companyPrimaryEmail,
+        primaryPhone: params.companyPrimaryPhone,
+        primaryName: params.companyPrimaryName,
+        website: params.companyWebsite,
+        industry: params.companyIndustry,
+        businessType: params.companyBusinessType,
+        avatar: params.companyAvatar
+      };
+
+      if (!company) {
+        company = await Companies.createCompany(companyDoc);
+      } else {
+        company = await Companies.updateCompany(company._id, companyDoc);
+      }
+    }
+
+    // comformity
+    if (company && customer) {
+      await Conformities.editConformity({
+        ...{
+          mainType: 'customer',
+          mainTypeId: customer._id,
+          relType: 'company',
+          relTypeIds: [company._id]
+        }
+      });
+    }
     return res.send('ok');
   } catch (e) {
     return next(e);

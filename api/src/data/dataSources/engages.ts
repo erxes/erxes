@@ -1,5 +1,5 @@
 import { HTTPCache, RESTDataSource } from 'apollo-datasource-rest';
-import { debugBase, debugError } from '../../debuggers';
+import { debugError } from '../../debuggers';
 import { getSubServiceDomain } from '../utils';
 
 export default class EngagesAPI extends RESTDataSource {
