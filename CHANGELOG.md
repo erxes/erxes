@@ -1,3 +1,10 @@
+## [0.20.15](https://github.com/erxes/erxes/compare/0.20.14...0.20.15) (2021-03-03)
+
+
+### Bug Fixes
+
+* **contacts:** fixed little null check in customer detail ([9f264d3](https://github.com/erxes/erxes/commit/9f264d32437726c6d563d1930653b0fa4823f35b))
+
 ## [0.20.14](https://github.com/erxes/erxes/compare/0.20.13...0.20.14) (2021-03-03)
 
 
