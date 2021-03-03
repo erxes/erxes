@@ -1,49 +1,43 @@
 import * as dotenv from 'dotenv';
+import { MESSAGE_KINDS } from '../data/constants';
 import { connect } from '../db/connection';
-import { Customers } from '../db/models';
+import { EngageMessages } from '../db/models';
 
 dotenv.config();
 
 const command = async () => {
   await connect();
 
-  const argv = process.argv;
-  const limit = argv.pop();
+  const campaigns = await EngageMessages.find({
+    kind: { $ne: MESSAGE_KINDS.VISITOR_AUTO },
+    tagIds: { $exists: true, $not: { $size: 0 } },
+    customerTagIds: { $exists: false }
+  });
 
-  const selector = {
-    relatedIntegrationIds: { $exists: false },
-    integrationId: { $exists: true, $ne: null },
-    profileScore: { $gt: 0 }
-  };
-
-  const customers = await Customers.find(selector).limit(
-    limit ? parseInt(limit, 10) : 10000
-  );
-
-  console.log(`Limit: ${limit}, length: ${customers.length}`);
+  console.log(`Found ${campaigns.length} campaigns`);
 
   const bulkOptions: any[] = [];
 
-  for (const customer of customers) {
-    if (!customer.integrationId) {
-      continue;
-    }
-
+  for (const campaign of campaigns) {
     bulkOptions.push({
       updateOne: {
         filter: {
-          _id: customer._id
+          _id: campaign._id
         },
         update: {
           $set: {
-            relatedIntegrationIds: [customer.integrationId]
+            customerTagIds: campaign.tagIds || []
           }
         }
       }
     });
   }
 
-  await Customers.bulkWrite(bulkOptions);
+  if (bulkOptions.length > 0) {
+    await EngageMessages.bulkWrite(bulkOptions);
+  }
+
+  console.log(`Completed with ${bulkOptions.length} rows`);
 
   process.exit();
 };
