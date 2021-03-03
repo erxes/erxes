@@ -12,7 +12,7 @@ import {
 import Messages from '../../../db/models/ConversationMessages';
 import { IBrowserInfo } from '../../../db/models/Customers';
 import { IIntegrationDocument } from '../../../db/models/definitions/integrations';
-import { getEnv, registerOnboardHistory } from '../../utils';
+import { isUsingElk, registerOnboardHistory } from '../../utils';
 import {
   getOrCreateEngageMessage,
   getOrCreateEngageMessageElk
@@ -227,16 +227,10 @@ export default {
       browserInfo
     }: { customerId?: string; visitorId?: string; browserInfo: IBrowserInfo }
   ) {
-    const ELK_SYNCER = getEnv({ name: 'ELK_SYNCER', defaultValue: 'true' });
-
-    if (ELK_SYNCER === 'false') {
-      return await getOrCreateEngageMessage(browserInfo, visitorId, customerId);
+    if (isUsingElk()) {
+      return getOrCreateEngageMessageElk(browserInfo, visitorId, customerId);
     }
 
-    return await getOrCreateEngageMessageElk(
-      browserInfo,
-      visitorId,
-      customerId
-    );
+    return getOrCreateEngageMessage(browserInfo, visitorId, customerId);
   }
 };

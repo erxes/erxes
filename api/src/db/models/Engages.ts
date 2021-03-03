@@ -2,7 +2,7 @@ import { Model, model } from 'mongoose';
 import { ConversationMessages, Conversations, Users } from '.';
 import { MESSAGE_KINDS } from '../../data/constants';
 import { generateCustomerSelector } from '../../data/resolvers/mutations/engageUtils';
-import { getEnv, replaceEditorAttributes } from '../../data/utils';
+import { isUsingElk, replaceEditorAttributes } from '../../data/utils';
 import { fetchElk } from '../../elasticsearch';
 import { getNumberOfVisits } from '../../events';
 import Customers, { IBrowserInfo } from './Customers';
@@ -244,9 +244,7 @@ export const loadClass = () => {
 
       let messages: IEngageMessageDocument[];
 
-      const ELK_SYNCER = getEnv({ name: 'ELK_SYNCER', defaultValue: 'true' });
-
-      if (ELK_SYNCER === 'true') {
+      if (isUsingElk()) {
         const response = await fetchElk(
           'search',
           'engage_messages  ',
@@ -420,9 +418,7 @@ export const loadClass = () => {
 
       let prevMessage: IMessageDocument | null;
 
-      const ELK_SYNCER = getEnv({ name: 'ELK_SYNCER', defaultValue: 'true' });
-
-      if (ELK_SYNCER === 'true') {
+      if (isUsingElk()) {
         const must = [
           { match: { 'engageData.messageId': engageData.messageId } },
           { match: customerId ? { customerId } : { visitorId } }
