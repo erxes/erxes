@@ -430,7 +430,7 @@ export const loadClass = () => {
 
         const response = await fetchElk(
           'search',
-          'conversation_messages  ',
+          'conversation_messages',
           {
             query: {
               bool: {
