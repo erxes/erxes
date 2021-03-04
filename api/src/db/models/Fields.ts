@@ -217,7 +217,11 @@ export const loadFieldClass = () => {
         }
 
         // number
-        if (validation === 'number' && !validator.isFloat(value.toString())) {
+        if (
+          !['check', 'radio', 'select'].includes(type || '') &&
+          validation === 'number' &&
+          !validator.isFloat(value.toString())
+        ) {
           throwError('Invalid number');
         }
 
@@ -301,8 +305,6 @@ export const loadFieldClass = () => {
           )
         );
       }
-
-      console.log(result);
 
       return result;
     }
