@@ -114,11 +114,8 @@ export const types = `
 const listParams = `
   kind: String
   status: String
-  segmentIds: [String]
-  brandIds: [String]
-  tagIds: [String]
   tag: String
-  ids: [String]
+  ids: String
   page: Int
   perPage: Int
 `;
