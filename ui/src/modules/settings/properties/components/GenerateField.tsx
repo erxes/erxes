@@ -17,13 +17,14 @@ type Props = {
 type State = {
   value?: any;
   checkBoxValues: any[];
+  errorCounter: number;
 };
 
 export default class GenerateField extends React.Component<Props, State> {
   constructor(props: Props) {
     super(props);
 
-    this.state = this.generateState(props);
+    this.state = { errorCounter: 0, ...this.generateState(props) };
   }
 
   generateState = props => {
@@ -56,10 +57,16 @@ export default class GenerateField extends React.Component<Props, State> {
     );
   }
 
-  renderInput(attrs) {
-    const { value } = this.state;
-    const checkBoxValues = this.state.checkBoxValues || [];
+  renderInput(attrs, hasError?: boolean) {
+    let { value, errorCounter } = this.state;
+    let checkBoxValues = this.state.checkBoxValues || [];
     const { validation, type } = this.props.field;
+
+    if (hasError) {
+      value = '';
+      checkBoxValues = [];
+      this.setState({ value, checkBoxValues });
+    }
 
     attrs.type = 'text';
 
@@ -71,7 +78,7 @@ export default class GenerateField extends React.Component<Props, State> {
     if (type === 'radio') {
       attrs.type = 'radio';
       attrs.componentClass = 'radio';
-      attrs.checked = value === attrs.option;
+      attrs.checked = String(value) === attrs.option;
     }
 
     if (type === 'check') {
@@ -124,6 +131,12 @@ export default class GenerateField extends React.Component<Props, State> {
       attrs.type = 'number';
     }
 
+    if (hasError && errorCounter < 10) {
+      errorCounter = errorCounter + 1;
+
+      this.setState({ errorCounter });
+    }
+
     return <FormControl {...attrs} />;
   }
 
@@ -131,12 +144,12 @@ export default class GenerateField extends React.Component<Props, State> {
     return <FormControl componentClass="textarea" {...attrs} />;
   }
 
-  renderRadioOrCheckInputs(options, attrs) {
+  renderRadioOrCheckInputs(options, attrs, hasError?: boolean) {
     return (
       <div>
         {options.map((option, index) => (
           <SelectInput key={index}>
-            {this.renderInput({ ...attrs, option })}
+            {this.renderInput({ ...attrs, option }, hasError)}
             <span>{option}</span>
           </SelectInput>
         ))}
@@ -187,7 +200,6 @@ export default class GenerateField extends React.Component<Props, State> {
     if (type === 'check') {
       let checkBoxValues = this.state.checkBoxValues;
       const isChecked = e.target.checked;
-
       // if selected value is not already in list then add it
       if (isChecked && !checkBoxValues.includes(optionValue)) {
         checkBoxValues.push(optionValue);
@@ -227,11 +239,19 @@ export default class GenerateField extends React.Component<Props, State> {
         return this.renderSelect(options, attrs);
 
       case 'check':
-        return this.renderRadioOrCheckInputs(options, attrs);
+        try {
+          return this.renderRadioOrCheckInputs(options, attrs);
+        } catch {
+          return this.renderRadioOrCheckInputs(options, attrs, true);
+        }
 
       case 'radio':
         attrs.name = Math.random().toString();
-        return this.renderRadioOrCheckInputs(options, attrs);
+        try {
+          return this.renderRadioOrCheckInputs(options, attrs);
+        } catch {
+          return this.renderRadioOrCheckInputs(options, attrs, true);
+        }
 
       case 'textarea':
         return this.renderTextarea(attrs);
@@ -241,7 +261,11 @@ export default class GenerateField extends React.Component<Props, State> {
       }
 
       default:
-        return this.renderInput(attrs);
+        try {
+          return this.renderInput(attrs);
+        } catch {
+          return this.renderInput(attrs, true);
+        }
     }
   }
 
