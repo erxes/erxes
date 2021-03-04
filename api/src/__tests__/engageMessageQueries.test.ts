@@ -4,7 +4,6 @@ import {
   brandFactory,
   customerFactory,
   engageMessageFactory,
-  segmentFactory,
   tagsFactory,
   userFactory
 } from '../db/factories';
