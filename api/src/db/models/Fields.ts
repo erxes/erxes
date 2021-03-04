@@ -272,12 +272,6 @@ export const loadFieldClass = () => {
           dateValue = value;
           stringValue = null;
         }
-
-        if (type && type === 'check' && typeof value === 'number') {
-          value = [String(value)];
-          numberValue = undefined;
-          stringValue = String(value);
-        }
       }
       return { field, value, stringValue, numberValue, dateValue };
     }
