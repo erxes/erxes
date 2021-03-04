@@ -2,10 +2,7 @@ const listParamsDef = `
   $kind: String
   $status: String
   $tag: String
-  $ids: [String]
-  $tagIds: [String]
-  $brandIds: [String]
-  $segmentIds: [String]
+  $ids: String
   $page: Int
   $perPage: Int
 `;
@@ -15,9 +12,6 @@ const listParamsValue = `
   status: $status
   tag: $tag
   ids: $ids
-  tagIds: $tagIds
-  brandIds: $brandIds
-  segmentIds: $segmentIds
   page: $page
   perPage: $perPage
 `;
