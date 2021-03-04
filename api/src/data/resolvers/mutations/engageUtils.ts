@@ -12,11 +12,13 @@ import {
   IEngageMessage,
   IEngageMessageDocument
 } from '../../../db/models/definitions/engages';
+import { CONTENT_TYPES } from '../../../db/models/definitions/segments';
 import { IUserDocument } from '../../../db/models/definitions/users';
+import { fetchElk } from '../../../elasticsearch';
 import messageBroker from '../../../messageBroker';
 import { MESSAGE_KINDS } from '../../constants';
 import { fetchBySegments } from '../../modules/segments/queryBuilder';
-import { chunkArray, replaceEditorAttributes } from '../../utils';
+import { chunkArray, isUsingElk, replaceEditorAttributes } from '../../utils';
 
 interface IEngageParams {
   engageMessage: IEngageMessageDocument;
@@ -306,4 +308,186 @@ export const checkCampaignDoc = (doc: IEngageMessage) => {
   ) {
     throw new Error('One of brand or segment or tag must be chosen');
   }
+};
+
+// find integration from elastic or mongo
+const findIntegrationsElk = async (brandIds: string[]) => {
+  const response = await fetchElk(
+    'search',
+    'integrations  ',
+    {
+      query: {
+        bool: {
+          must: [{ terms: { 'brandId.keyword': brandIds } }]
+        }
+      }
+    },
+    '',
+    { hits: { hits: [] } }
+  );
+
+  return response.hits.hits.map(hit => {
+    return {
+      _id: hit._id
+    };
+  });
+};
+
+// find user from elastic or mongo
+export const findUser = async (userId: string) => {
+  if (isUsingElk()) {
+    const response = await fetchElk(
+      'search',
+      'users  ',
+      {
+        query: {
+          match: {
+            _id: userId
+          }
+        }
+      },
+      '',
+      { hits: { hits: [] } }
+    );
+
+    const users = response.hits.hits.map(hit => {
+      return {
+        _id: hit._id,
+        ...hit._source
+      };
+    });
+
+    if (users.length > 0) {
+      return users[0];
+    }
+
+    return null;
+  }
+
+  return await Users.findOne({ _id: userId });
+};
+
+// check customer exists from elastic or mongo
+export const checkCustomerExists = async (
+  id?: string,
+  customerIds?: string[],
+  segmentIds?: string[],
+  tagIds?: string[],
+  brandIds?: string[]
+) => {
+  if (isUsingElk()) {
+    if (!id) {
+      return false;
+    }
+
+    const must: any[] = [
+      { terms: { state: [CONTENT_TYPES.CUSTOMER, CONTENT_TYPES.LEAD] } }
+    ];
+
+    must.push({
+      term: {
+        _id: id
+      }
+    });
+
+    if (customerIds && customerIds.length > 0) {
+      must.push({
+        terms: {
+          _id: customerIds
+        }
+      });
+    }
+
+    if (tagIds && tagIds.length > 0) {
+      must.push({
+        terms: {
+          tagIds
+        }
+      });
+    }
+
+    if (brandIds && brandIds.length > 0) {
+      const integraiontIds = await findIntegrationsElk(brandIds);
+      must.push({
+        terms: {
+          integrationId: integraiontIds
+        }
+      });
+    }
+
+    if (segmentIds && segmentIds.length > 0) {
+      const segments = await Segments.find({ _id: { $in: segmentIds } });
+
+      let customerIdsBySegments: string[] = [];
+
+      for (const segment of segments) {
+        const cIds = await fetchBySegments(segment);
+
+        customerIdsBySegments = [...customerIdsBySegments, ...cIds];
+      }
+
+      must.push({
+        terms: {
+          _id: customerIdsBySegments
+        }
+      });
+    }
+
+    must.push({
+      bool: {
+        should: [
+          { term: { doNotDisturb: 'no' } },
+          {
+            bool: {
+              must_not: {
+                exists: {
+                  field: 'doNotDisturb'
+                }
+              }
+            }
+          }
+        ]
+      }
+    });
+
+    const response = await fetchElk(
+      'search',
+      'customers  ',
+      {
+        query: {
+          bool: {
+            filter: {
+              bool: {
+                must
+              }
+            }
+          }
+        }
+      },
+      '',
+      { hits: { hits: [] } }
+    );
+
+    const customers = response.hits.hits.map(hit => {
+      return {
+        _id: hit._id,
+        ...hit._source
+      };
+    });
+
+    return customers.length > 0;
+  }
+
+  const customersSelector = {
+    _id: id,
+    state: { $ne: CONTENT_TYPES.VISITOR },
+    ...(await generateCustomerSelector({
+      customerIds,
+      segmentIds,
+      tagIds,
+      brandIds
+    }))
+  };
+
+  return await Customers.findOne(customersSelector);
 };
