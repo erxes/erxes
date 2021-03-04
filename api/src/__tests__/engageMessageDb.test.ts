@@ -660,10 +660,10 @@ describe('createVisitorOrCustomerMessages', () => {
     const customer = await customerFactory({ state: 'customer' });
 
     await engageMessageFactory({
-      kind: 'manual',
+      kind: MESSAGE_KINDS.MANUAL,
       userId: _user._id,
       isLive: true,
-      tagIds: [(await tagsFactory({}))._id],
+      customerTagIds: [(await tagsFactory({}))._id],
       messenger: {
         brandId: _brand._id,
         content: 'hi,{{ customer.firstName }} {{ customer.lastName }}'

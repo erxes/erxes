@@ -22,6 +22,12 @@ const listParamsValue = `
   perPage: $perPage
 `;
 
+const tagFields = `
+  _id
+  name
+  colorCode
+`;
+
 const commonFields = `
   _id
   title
@@ -31,6 +37,7 @@ const commonFields = `
   createdAt
   method
   tagIds
+  customerTagIds
   brandIds
   segmentIds
   stats
@@ -38,6 +45,7 @@ const commonFields = `
   email
   smsStats
   createdUser
+
   brand {
     _id
     name
@@ -81,9 +89,10 @@ const engageMessages = `
         name
       }
       getTags {
-        _id
-        name
-        colorCode
+        ${tagFields}
+      }
+      customerTags {
+        ${tagFields}
       }
     }
   }
@@ -104,6 +113,9 @@ export const engageDetailFields = `
   }
   brand {
     name
+  }
+  customerTags {
+    ${tagFields}
   }
 `;
 
