@@ -1,7 +1,12 @@
 import { Model, model } from 'mongoose';
-import { ConversationMessages, Conversations, Users } from '.';
+import { ConversationMessages, Conversations, Segments, Users } from '.';
 import { MESSAGE_KINDS } from '../../data/constants';
-import { generateCustomerSelector } from '../../data/resolvers/mutations/engageUtils';
+import { fetchBySegments } from '../../data/modules/segments/queryBuilder';
+import {
+  checkCustomerExists,
+  findUser,
+  generateCustomerSelector
+} from '../../data/resolvers/mutations/engageUtils';
 import { isUsingElk, replaceEditorAttributes } from '../../data/utils';
 import { fetchElk } from '../../elasticsearch';
 import { getNumberOfVisits } from '../../events';
@@ -240,6 +245,7 @@ export const loadClass = () => {
         delete visitor._id;
         visitor.state = CONTENT_TYPES.VISITOR;
       }
+
       const customerObj = customer ? customer : visitor;
 
       let messages: IEngageMessageDocument[];
@@ -300,18 +306,13 @@ export const loadClass = () => {
           continue;
         }
 
-        const customersSelector = {
-          _id: customerObj._id,
-          state: { $ne: CONTENT_TYPES.VISITOR },
-          ...(await generateCustomerSelector({
-            customerIds,
-            segmentIds,
-            tagIds,
-            brandIds
-          }))
-        };
-
-        const customerExists = await Customers.findOne(customersSelector);
+        const customerExists = await checkCustomerExists(
+          customerObj._id,
+          customerIds,
+          segmentIds,
+          tagIds,
+          brandIds
+        );
 
         if (message.kind !== MESSAGE_KINDS.VISITOR_AUTO && !customerExists) {
           continue;
@@ -324,7 +325,7 @@ export const loadClass = () => {
           continue;
         }
 
-        const user = await Users.findOne({ _id: fromUserId });
+        const user = await findUser(fromUserId || '');
 
         if (!user) {
           continue;
