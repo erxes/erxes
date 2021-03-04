@@ -191,10 +191,18 @@ export class CommonBuilder<IListArgs extends ICommonListArgs> {
   }
 
   // filter by tagId
-  public tagFilter(tagId: string) {
+  public async tagFilter(tagId: string, withRelated?: boolean) {
+    let tagIds: string[] = [tagId];
+
+    if (withRelated) {
+      const tag = await Tags.findOne({ _id: tagId });
+
+      tagIds = [tagId, ...(tag?.relatedIds || [])];
+    }
+
     this.positiveList.push({
       terms: {
-        tagIds: [tagId]
+        tagIds
       }
     });
   }
@@ -315,7 +323,7 @@ export class CommonBuilder<IListArgs extends ICommonListArgs> {
 
     // filter by tag
     if (this.params.tag) {
-      this.tagFilter(this.params.tag);
+      await this.tagFilter(this.params.tag, true);
     }
 
     // filter by leadStatus

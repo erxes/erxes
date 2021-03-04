@@ -67,6 +67,7 @@ const integrationsTotalCount = `
       byTag
       byBrand
       byStatus
+      total
     }
   }
 `;

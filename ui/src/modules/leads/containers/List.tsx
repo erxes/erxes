@@ -65,7 +65,7 @@ class ListContainer extends React.Component<FinalProps> {
       ? integrationsTotalCountQuery.integrationsTotalCount
       : null;
 
-    const totalCount = (counts && counts.byKind.lead) || 0;
+    const totalCount = (counts && counts.total) || 0;
 
     const remove = (integrationId: string) => {
       const message =
@@ -192,9 +192,12 @@ export default withProps<Props>(
     }),
     graphql<Props, CountQueryResponse>(gql(queries.integrationsTotalCount), {
       name: 'integrationsTotalCountQuery',
-      options: () => ({
+      options: ({ queryParams }) => ({
         variables: {
-          kind: INTEGRATION_KINDS.FORMS
+          kind: INTEGRATION_KINDS.FORMS,
+          tag: queryParams.tag,
+          brandId: queryParams.brand,
+          status: queryParams.status
         }
       })
     })
