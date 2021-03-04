@@ -324,7 +324,7 @@ class Row extends React.Component<Props> {
         </td>
 
         <td>
-          <Tags tags={message.getTags} />
+          <Tags tags={message.customerTags || []} />
         </td>
 
         <td>

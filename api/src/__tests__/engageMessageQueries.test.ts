@@ -19,18 +19,12 @@ describe('engageQueries', () => {
       $kind: String
       $status: String
       $tag: String
-      $tagIds: [String]
-      $segmentIds: [String]
-      $brandIds: [String]
-      $ids: [String]
+      $ids: String
     ) {
       engageMessages(
         kind: $kind
         status: $status
         tag: $tag
-        tagIds: $tagIds
-        segmentIds: $segmentIds
-        brandIds: $brandIds
         ids: $ids
       ) {
         _id
@@ -78,7 +72,7 @@ describe('engageQueries', () => {
 
     await engageMessageFactory({});
 
-    const ids = [engageMessage1._id, engageMessage2._id, engageMessage3._id];
+    const ids = `${engageMessage1._id},${engageMessage2._id},${engageMessage3._id}`;
 
     const responses = await graphqlRequest(
       qryEngageMessages,
@@ -87,48 +81,6 @@ describe('engageQueries', () => {
     );
 
     expect(responses.length).toBe(3);
-  });
-
-  test('Engage messages filtered by tagIds', async () => {
-    const tag = await tagsFactory();
-
-    await engageMessageFactory({ tagIds: [tag._id] });
-
-    const responses = await graphqlRequest(
-      qryEngageMessages,
-      'engageMessages',
-      { tagIds: [tag._id] }
-    );
-
-    expect(responses.length).toBe(1);
-  });
-
-  test('Engage messages filtered by brandIds', async () => {
-    const brand = await brandFactory();
-
-    await engageMessageFactory({ brandIds: [brand._id] });
-
-    const responses = await graphqlRequest(
-      qryEngageMessages,
-      'engageMessages',
-      { brandIds: [brand._id] }
-    );
-
-    expect(responses.length).toBe(1);
-  });
-
-  test('Engage messages filtered by segmentIds', async () => {
-    const segment = await segmentFactory();
-
-    await engageMessageFactory({ segmentIds: [segment._id] });
-
-    const responses = await graphqlRequest(
-      qryEngageMessages,
-      'engageMessages',
-      { segmentIds: [segment._id] }
-    );
-
-    expect(responses.length).toBe(1);
   });
 
   test('Engage messages filtered by kind', async () => {
@@ -286,7 +238,7 @@ describe('engageQueries', () => {
           brands { _id }
           segments { _id }
           brand { _id }
-          tags { _id }
+          customerTags { _id }
           fromUser { _id }
           getTags { _id }
 

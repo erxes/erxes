@@ -90,7 +90,7 @@ class AutoAndManualForm extends React.Component<Props, State> {
       title: message.title || '',
       segmentIds: message.segmentIds || [],
       brandIds: message.brandIds || [],
-      tagIds: message.tagIds || [],
+      tagIds: message.customerTagIds || [],
       content,
       fromUserId: message.fromUserId,
       messenger: message.messenger,
@@ -117,7 +117,7 @@ class AutoAndManualForm extends React.Component<Props, State> {
   handleSubmit = (type: string): Promise<any> | void => {
     const doc = {
       segmentIds: this.state.segmentIds,
-      tagIds: this.state.tagIds,
+      customerTagIds: this.state.tagIds,
       brandIds: this.state.brandIds,
       title: this.state.title,
       fromUserId: this.state.fromUserId,

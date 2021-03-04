@@ -3,11 +3,11 @@ import * as compose from 'lodash.flowright';
 import CountsByTag from 'modules/common/components/CountsByTag';
 import { TagCountQueryResponse } from 'modules/engage/types';
 import { TAG_TYPES } from 'modules/tags/constants';
+import { queries as tagQueries } from 'modules/tags/graphql';
 import React from 'react';
 import { graphql } from 'react-apollo';
 import { withProps } from '../../../common/utils';
 import { TagsQueryResponse } from '../../../tags/types';
-import { queries } from '../../graphql';
 import { Counts } from '../../types';
 
 type Props = {
@@ -39,7 +39,7 @@ export default withProps<Props>(
       { loadingMainQuery: boolean },
       TagCountQueryResponse,
       { type: string }
-    >(gql(queries.tags), {
+    >(gql(tagQueries.tags), {
       name: 'tagsQuery',
       skip: ({ loadingMainQuery }) => loadingMainQuery,
       options: () => ({
