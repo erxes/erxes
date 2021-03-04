@@ -48,7 +48,10 @@ export interface IEngageMessage {
   kind: string;
   segmentIds?: string[];
   brandIds?: string[];
+  // normal tagging
   tagIds?: string[];
+  // customer selection tags
+  customerTagIds?: string[];
   customerIds?: string[];
   title: string;
   fromUserId?: string;
@@ -162,6 +165,11 @@ export const engageMessageSchema = schemaWrapper(
     stopDate: field({ type: Date, label: 'Stop date' }),
     createdAt: field({ type: Date, default: Date.now, label: 'Created at' }),
     tagIds: field({ type: [String], optional: true, label: 'Tags' }),
+    customerTagIds: field({
+      type: [String],
+      optional: true,
+      label: 'Chosen customer tag ids'
+    }),
     messengerReceivedCustomerIds: field({
       type: [String],
       label: 'Received customers'

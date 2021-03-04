@@ -286,7 +286,7 @@ describe('engageQueries', () => {
           brands { _id }
           segments { _id }
           brand { _id }
-          tags { _id }
+          customerTags { _id }
           fromUser { _id }
           getTags { _id }
 
