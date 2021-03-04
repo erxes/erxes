@@ -360,8 +360,6 @@ export const findUser = async (userId: string) => {
     if (users.length > 0) {
       return users[0];
     }
-
-    return null;
   }
 
   return await Users.findOne({ _id: userId });

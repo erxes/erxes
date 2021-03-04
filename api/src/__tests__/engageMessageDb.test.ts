@@ -1038,6 +1038,7 @@ describe('createVisitorOrCustomerMessages with elk', () => {
   let _visitor: ICustomerDocument;
   let envMock;
   let elkMock;
+  let _segment;
 
   beforeEach(async () => {
     // Creating test data
@@ -1046,6 +1047,8 @@ describe('createVisitorOrCustomerMessages with elk', () => {
       lastName: 'lastName',
       state: 'customer'
     });
+
+    _segment = await segmentFactory({});
 
     _visitor = await customerFactory({
       state: 'visitor'
@@ -1067,6 +1070,45 @@ describe('createVisitorOrCustomerMessages with elk', () => {
                 fromUserId: _user._id,
                 isDraft: false,
                 isLive: true,
+                messenger: {
+                  brandId: _brand._id,
+                  sentAs: 'snippet',
+                  content: '',
+                  rules: []
+                },
+                createdBy: _user._id
+              }
+            },
+            {
+              _id: faker.random.uuid(),
+              _source: {
+                kind: MESSAGE_KINDS.AUTO,
+                method: METHODS.MESSENGER,
+                fromUserId: _user._id,
+                isDraft: false,
+                isLive: true,
+                customerIds: [_customer._id],
+                tagIds: ['tagid'],
+                segmentIds: [_segment._id],
+                brandIds: [_brand._id],
+                messenger: {
+                  brandId: _brand._id,
+                  sentAs: 'snippet',
+                  content: '',
+                  rules: []
+                },
+                createdBy: _user._id
+              }
+            },
+            {
+              _id: faker.random.uuid(),
+              _source: {
+                kind: MESSAGE_KINDS.AUTO,
+                method: METHODS.MESSENGER,
+                fromUserId: _user._id,
+                isDraft: false,
+                isLive: true,
+                brandIds: [_brand._id],
                 messenger: {
                   brandId: _brand._id,
                   sentAs: 'snippet',
@@ -1153,6 +1195,7 @@ describe('createVisitorOrCustomerMessages with elk', () => {
     await EngageMessages.deleteMany({});
     await Messages.deleteMany({});
     await Brands.deleteMany({});
+    await Segments.deleteMany({});
 
     elkMock.restore();
     envMock.restore();
@@ -1188,8 +1231,6 @@ describe('createVisitorOrCustomerMessages with elk', () => {
       firstName: 'john',
       lastName: 'doe'
     });
-
-    customer._id = 'qwe123';
 
     await EngageMessages.createVisitorOrCustomerMessages({
       brandId: _brand._id,

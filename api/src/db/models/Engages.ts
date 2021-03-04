@@ -1,16 +1,14 @@
 import { Model, model } from 'mongoose';
-import { ConversationMessages, Conversations, Segments, Users } from '.';
+import { ConversationMessages, Conversations } from '.';
 import { MESSAGE_KINDS } from '../../data/constants';
-import { fetchBySegments } from '../../data/modules/segments/queryBuilder';
 import {
   checkCustomerExists,
-  findUser,
-  generateCustomerSelector
+  findUser
 } from '../../data/resolvers/mutations/engageUtils';
 import { isUsingElk, replaceEditorAttributes } from '../../data/utils';
 import { fetchElk } from '../../elasticsearch';
 import { getNumberOfVisits } from '../../events';
-import Customers, { IBrowserInfo } from './Customers';
+import { IBrowserInfo } from './Customers';
 import { METHODS } from './definitions/constants';
 import {
   IEngageData,
