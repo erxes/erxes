@@ -46,7 +46,6 @@ const carQueries = [
   {
     name: 'cars',
     handler: async (_root, params, { commonQuerySelector, models, checkPermission, user }) => {
-      await checkPermission('showCars', user);
       return paginate(models.Cars.find(await generateFilter(models, params, commonQuerySelector)), {
         page: params.page,
         perPage: params.perPage
