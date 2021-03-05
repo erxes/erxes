@@ -31,7 +31,6 @@ type Props = {
 
 type State = {
   field: IField;
-  properties?: IOption[];
   selectedOption?: IOption;
 };
 
@@ -39,8 +38,15 @@ class FieldForm extends React.Component<Props, State> {
   constructor(props: Props) {
     super(props);
 
+    const { field } = props;
+    const selectedOption = field.associatedField && {
+      value: field.associatedField._id,
+      label: field.associatedField.text
+    };
+
     this.state = {
-      field: props.field
+      field,
+      selectedOption
     };
   }
 
@@ -281,9 +287,8 @@ class FieldForm extends React.Component<Props, State> {
   renderCustomProperty() {
     const { type } = this.props;
     const { field, selectedOption } = this.state;
-    const types = ['email', 'phone', 'firstName', 'lastName'];
 
-    if (types.includes(field.type)) {
+    if (['email', 'phone', 'firstName', 'lastName'].includes(field.type)) {
       return;
     }
 

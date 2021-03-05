@@ -61,7 +61,9 @@ const generateFilterQuery = async ({
 
   // filtering integrations by tag
   if (tag) {
-    query.tagIds = tag;
+    const object = await Tags.findOne({ _id: tag });
+
+    query.tagIds = { $in: [tag, ...(object?.relatedIds || [])] };
   }
 
   if (status) {
@@ -94,6 +96,7 @@ const integrationQueries = {
       ...singleBrandIdSelector,
       ...(await generateFilterQuery(args))
     };
+
     const integrations = paginate(
       Integrations.findAllIntegrations(query),
       args

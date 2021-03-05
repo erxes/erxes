@@ -1,4 +1,4 @@
-import { debugBase } from './debuggers';
+import { debugBase, debugError } from './debuggers';
 import Logs from './models/Logs';
 
 /**
@@ -266,4 +266,20 @@ export const receivePutLogCommand = async params => {
     description,
     extraDesc
   });
+};
+
+export const routeErrorHandling = (fn, callback?: any) => {
+  return async (req, res, next) => {
+    try {
+      await fn(req, res, next);
+    } catch (e) {
+      debugError(e.message);
+
+      if (callback) {
+        return callback(res, e);
+      }
+
+      return next(e);
+    }
+  };
 };

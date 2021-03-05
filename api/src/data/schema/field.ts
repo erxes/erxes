@@ -20,6 +20,7 @@ export const fieldsTypes = `
     lastUpdatedUser: User
     lastUpdatedUserId: String
     associatedFieldId: String
+    associatedField: Field
   }
 
   input OrderItem {

@@ -163,12 +163,13 @@ describe('dashboardQueries', () => {
       'pipeline',
       'modifiedBy',
       'integrationName',
-      'Contacts.state',
       'brand',
       'test',
       'tag',
-      'Contacts.tag',
+      'Conversations.tag',
       'Companies.tag',
+      'Tasks.board',
+      'Tickets.board',
       'board'
     ];
 

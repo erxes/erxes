@@ -152,7 +152,8 @@ export default withProps<Props>(
                 'categoryId',
                 'emailValidationStatus',
                 'phoneValidationStatus',
-                'location.countryCode'
+                'location.countryCode',
+                'tagIds'
               ]
             }
           };

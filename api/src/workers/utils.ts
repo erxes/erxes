@@ -17,7 +17,7 @@ import {
   default as ImportHistories,
   default as ImportHistory
 } from '../db/models/ImportHistory';
-import { debugWorkers } from '../debuggers';
+import { debugError, debugWorkers } from '../debuggers';
 import CustomWorker from './workerUtil';
 
 const { MONGO_URL = '', ELK_SYNCER } = process.env;
@@ -316,7 +316,7 @@ export const receiveImportRemove = async (content: any) => {
 
     return { status: 'ok' };
   } catch (e) {
-    debugWorkers(`Failed to remove import: ${e.message}`);
+    debugError(`Failed to remove import: ${e.message}`);
     throw e;
   }
 };

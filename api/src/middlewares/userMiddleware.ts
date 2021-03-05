@@ -2,7 +2,7 @@ import * as telemetry from 'erxes-telemetry';
 import * as jwt from 'jsonwebtoken';
 import { frontendEnv, sendRequest } from '../data/utils';
 import { Users } from '../db/models';
-import memoryStorage from '../inmemoryStorage';
+import { get, set } from '../inmemoryStorage';
 /*
  * Finds user object by passed tokens
  * @param {Object} req - Request object
@@ -70,18 +70,18 @@ const userMiddleware = async (req, _res, next) => {
       const currentDate = new Date();
       const machineId = telemetry.getMachineId();
 
-      const lastLoginDate = new Date(await memoryStorage().get(machineId));
+      const lastLoginDate = new Date(await get(machineId));
 
       if (lastLoginDate.getDay() !== currentDate.getDay()) {
-        memoryStorage().set(machineId, currentDate);
+        set(machineId, currentDate);
 
         telemetry.trackCli('last_login', { updatedAt: currentDate });
       }
 
-      const hostname = await memoryStorage().get('hostname');
+      const hostname = await get('hostname');
 
       if (!hostname) {
-        memoryStorage().set('hostname', frontendEnv({ name: 'API_URL', req }));
+        set('hostname', frontendEnv({ name: 'API_URL', req }));
       }
     } catch (e) {
       return next();

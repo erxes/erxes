@@ -118,9 +118,9 @@ const init = async app => {
       return res.send(result.links.html);
     } catch (e) {
       if (e.statusCode === 422) {
-        next(new Error('already exists'));
+        return next(new Error('already exists'));
       } else if (e.statusCode === 401) {
-        next(
+        return next(
           new Error(
             'Please enter the product board access token in system config.'
           )

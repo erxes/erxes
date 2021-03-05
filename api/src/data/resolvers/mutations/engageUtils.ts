@@ -8,7 +8,10 @@ import {
 } from '../../../db/models';
 import { METHODS } from '../../../db/models/definitions/constants';
 import { ICustomerDocument } from '../../../db/models/definitions/customers';
-import { IEngageMessageDocument } from '../../../db/models/definitions/engages';
+import {
+  IEngageMessage,
+  IEngageMessageDocument
+} from '../../../db/models/definitions/engages';
 import { IUserDocument } from '../../../db/models/definitions/users';
 import messageBroker from '../../../messageBroker';
 import { MESSAGE_KINDS } from '../../constants';
@@ -83,14 +86,14 @@ export const send = async (engageMessage: IEngageMessageDocument) => {
   const {
     customerIds,
     segmentIds,
-    tagIds,
+    customerTagIds,
     brandIds,
     fromUserId,
     scheduleDate
   } = engageMessage;
 
   // Check for pre scheduled engages
-  if (scheduleDate && scheduleDate?.type === 'pre' && scheduleDate.dateTime) {
+  if (scheduleDate && scheduleDate.type === 'pre' && scheduleDate.dateTime) {
     const scheduledDate = new Date(scheduleDate.dateTime);
     const now = new Date();
 
@@ -112,7 +115,7 @@ export const send = async (engageMessage: IEngageMessageDocument) => {
   const customersSelector = await generateCustomerSelector({
     customerIds,
     segmentIds,
-    tagIds,
+    tagIds: customerTagIds,
     brandIds
   });
 
@@ -285,4 +288,29 @@ const sendEmailOrSms = async (
       resolve('done');
     });
   });
+};
+
+// check & validate campaign doc
+export const checkCampaignDoc = (doc: IEngageMessage) => {
+  const {
+    brandIds,
+    kind,
+    method,
+    scheduleDate,
+    segmentIds,
+    customerTagIds
+  } = doc;
+  const noDate =
+    !scheduleDate ||
+    (scheduleDate && scheduleDate.type === 'pre' && !scheduleDate.dateTime);
+
+  if (kind === MESSAGE_KINDS.AUTO && method === METHODS.EMAIL && noDate) {
+    throw new Error('Schedule date & type must be chosen in auto campaign');
+  }
+  if (
+    kind !== MESSAGE_KINDS.VISITOR_AUTO &&
+    !(brandIds || segmentIds || customerTagIds)
+  ) {
+    throw new Error('One of brand or segment or tag must be chosen');
+  }
 };

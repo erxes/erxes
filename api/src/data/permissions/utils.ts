@@ -1,6 +1,6 @@
 import { Permissions, Users } from '../../db/models';
 import { IUserDocument } from '../../db/models/definitions/users';
-import memoryStorage from '../../inmemoryStorage';
+import { get, set } from '../../inmemoryStorage';
 
 export interface IModuleMap {
   name: string;
@@ -109,7 +109,7 @@ export const getUserActionsMap = async (
   user: IUserDocument
 ): Promise<IActionMap> => {
   const key = getKey(user);
-  const permissionCache = await memoryStorage().get(key);
+  const permissionCache = await get(key);
 
   let actionMap: IActionMap;
 
@@ -118,7 +118,7 @@ export const getUserActionsMap = async (
   } else {
     actionMap = await userActionsMap(user);
 
-    memoryStorage().set(key, JSON.stringify(actionMap));
+    set(key, JSON.stringify(actionMap));
   }
 
   return actionMap;
@@ -152,7 +152,7 @@ export const resetPermissionsCache = async () => {
   for (const user of users) {
     const key = getKey(user);
 
-    memoryStorage().set(key, '');
+    set(key, '');
   }
 };
 
