@@ -79,7 +79,7 @@ class Form extends React.Component<Props & ICommonFormProps, State> {
             content={this.state.content}
             onChange={this.onChange}
             height={300}
-            isSubmitted={formProps.isSubmitted}
+            isSubmitted={formProps.isSaved}
             name={`responseTemplates_${object._id || 'create'}`}
           />
         </FormGroup>

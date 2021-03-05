@@ -67,7 +67,7 @@ class Form extends React.Component<Props & ICommonFormProps, State> {
             content={this.state.content}
             onChange={this.onEditorChange}
             autoGrow={true}
-            isSubmitted={formProps.isSubmitted}
+            isSubmitted={formProps.isSaved}
             name={`emailTemplates_${object._id || 'create'}`}
           />
         </FormGroup>

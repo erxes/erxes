@@ -140,7 +140,7 @@ class Form extends React.Component<Props> {
             content={product ? product.description : ''}
             onChange={onChangeDescription}
             height={150}
-            isSubmitted={formProps.isSubmitted}
+            isSubmitted={formProps.isSaved}
             name={`product_description_${product ? product._id : ''}`}
             toolbar={[
               {

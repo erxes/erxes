@@ -65,6 +65,7 @@ type State = {
   scheduleDate: IEngageScheduleDate;
   shortMessage?: IEngageSms;
   rules: IConditionsRule[];
+  isSaved: boolean;
 };
 
 class AutoAndManualForm extends React.Component<Props, State> {
@@ -97,7 +98,8 @@ class AutoAndManualForm extends React.Component<Props, State> {
       email: message.email,
       scheduleDate: message.scheduleDate,
       shortMessage: message.shortMessage,
-      rules
+      rules,
+      isSaved: false
     };
   }
 
@@ -172,6 +174,8 @@ class AutoAndManualForm extends React.Component<Props, State> {
     }
 
     if (response.status === 'ok' && response.doc) {
+      this.setState({ isSaved: true });
+
       return this.props.save(response.doc);
     }
   };
@@ -180,7 +184,12 @@ class AutoAndManualForm extends React.Component<Props, State> {
     const { isActionLoading, kind, message } = this.props;
 
     const cancelButton = (
-      <Link to="/campaigns">
+      <Link
+        to="/campaigns"
+        onClick={() => {
+          this.setState({ isSaved: true });
+        }}
+      >
         <Button btnStyle="simple" uppercase={false} icon="times-circle">
           Cancel
         </Button>
@@ -257,7 +266,8 @@ class AutoAndManualForm extends React.Component<Props, State> {
       content,
       scheduleDate,
       method,
-      shortMessage
+      shortMessage,
+      isSaved
     } = this.state;
 
     const imagePath = '/images/icons/erxes-08.svg';
@@ -297,6 +307,7 @@ class AutoAndManualForm extends React.Component<Props, State> {
           fromUserId={fromUserId}
           content={content}
           scheduleDate={scheduleDate}
+          isSaved={isSaved}
         />
       </Step>
     );

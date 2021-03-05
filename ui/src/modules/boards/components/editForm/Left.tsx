@@ -41,9 +41,14 @@ const Description = (props: DescProps) => {
     setDescription(item.description);
   }, [item.description]);
 
+  useEffect(() => {
+    if (isSubmitted) {
+      setEdit(false);
+    }
+  }, [isSubmitted]);
+
   const onSend = () => {
     saveItem({ description });
-    setEdit(false);
     setSubmit(true);
   };
 

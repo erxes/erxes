@@ -153,7 +153,7 @@ class ArticleForm extends React.Component<Props, State> {
           <EditorCK
             content={content}
             onChange={this.onChange}
-            isSubmitted={formProps.isSubmitted}
+            isSubmitted={formProps.isSaved}
             height={300}
             name={`knowledgeBase_${article ? article._id : 'create'}`}
           />
