@@ -67,6 +67,7 @@ export interface IFormProps {
   runValidations?: (callback: any) => void;
   resetSubmit?: () => void;
   isSubmitted: boolean;
+  isSaved?: boolean;
 }
 
 export type IOption = {
