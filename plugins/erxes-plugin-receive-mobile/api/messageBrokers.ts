@@ -192,6 +192,7 @@ export default [
         case "filterCarCategories":
           try {
             filter = {};
+            filter["status"] = { $ne: 'deleted' }
             filter["parentId"] = data.parentId || "";
 
             if (data.searchValue) {
@@ -289,6 +290,7 @@ export default [
               searchValue,
               categoryId,
             } = data;
+            filter["status"] = { $ne: 'deleted' }
             if (ids) {
               filter["_id"] = { $in: ids };
             }
