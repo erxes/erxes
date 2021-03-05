@@ -1,4 +1,4 @@
-import { debugBase } from './debuggers';
+import { debugBase, debugError } from './debuggers';
 import Logs from './models/Logs';
 
 /**
@@ -273,7 +273,7 @@ export const routeErrorHandling = (fn, callback?: any) => {
     try {
       await fn(req, res, next);
     } catch (e) {
-      debugBase(e.message);
+      debugError(e.message);
 
       if (callback) {
         return callback(res, e);

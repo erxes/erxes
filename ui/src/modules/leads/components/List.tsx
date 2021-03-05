@@ -145,6 +145,7 @@ class List extends React.Component<Props, {}> {
           <Wrapper.Header
             title={__('Forms')}
             breadcrumb={[{ title: __('Forms') }]}
+            queryParams={queryParams}
           />
         }
         leftSidebar={<Sidebar counts={counts || {}} />}

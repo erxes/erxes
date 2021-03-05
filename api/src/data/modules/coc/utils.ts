@@ -4,7 +4,7 @@ import { companySchema } from '../../../db/models/definitions/companies';
 import { KIND_CHOICES } from '../../../db/models/definitions/constants';
 import { customerSchema } from '../../../db/models/definitions/customers';
 import { ISegmentDocument } from '../../../db/models/definitions/segments';
-import { debugBase } from '../../../debuggers';
+import { debugError } from '../../../debuggers';
 import { fetchElk } from '../../../elasticsearch';
 import { COC_LEAD_STATUS_TYPES } from '../../constants';
 import { fetchBySegments } from '../segments/queryBuilder';
@@ -54,7 +54,7 @@ export const countBySegment = async (
       await qb.segmentFilter(s._id);
       counts[s._id] = await qb.runQueries('count');
     } catch (e) {
-      debugBase(`Error during segment count ${e.message}`);
+      debugError(`Error during segment count ${e.message}`);
       counts[s._id] = 0;
     }
   }
@@ -191,10 +191,18 @@ export class CommonBuilder<IListArgs extends ICommonListArgs> {
   }
 
   // filter by tagId
-  public tagFilter(tagId: string) {
+  public async tagFilter(tagId: string, withRelated?: boolean) {
+    let tagIds: string[] = [tagId];
+
+    if (withRelated) {
+      const tag = await Tags.findOne({ _id: tagId });
+
+      tagIds = [tagId, ...(tag?.relatedIds || [])];
+    }
+
     this.positiveList.push({
       terms: {
-        tagIds: [tagId]
+        tagIds
       }
     });
   }
@@ -315,7 +323,7 @@ export class CommonBuilder<IListArgs extends ICommonListArgs> {
 
     // filter by tag
     if (this.params.tag) {
-      this.tagFilter(this.params.tag);
+      await this.tagFilter(this.params.tag, true);
     }
 
     // filter by leadStatus

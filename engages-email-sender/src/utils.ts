@@ -1,7 +1,7 @@
 import * as AWS from 'aws-sdk';
 import * as nodemailer from 'nodemailer';
 import { SES_DELIVERY_STATUSES } from './constants';
-import { debugBase } from './debuggers';
+import { debugBase, debugError } from './debuggers';
 import messageBroker from './messageBroker';
 import Configs, { ISESConfig } from './models/Configs';
 import { DeliveryReports, Stats } from './models/index';
@@ -274,7 +274,7 @@ export const routeErrorHandling = (fn, callback?: any) => {
     try {
       await fn(req, res, next);
     } catch (e) {
-      debugBase(e.message);
+      debugError(e.message);
 
       if (callback) {
         return callback(res, e);

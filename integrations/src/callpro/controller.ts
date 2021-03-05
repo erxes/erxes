@@ -1,4 +1,4 @@
-import { debugCallPro, debugRequest } from '../debuggers';
+import { debugCallPro, debugError, debugRequest } from '../debuggers';
 import { routeErrorHandling } from '../helpers';
 import { sendRPCMessage } from '../messageBroker';
 import { Integrations, Logs } from '../models';
@@ -93,7 +93,7 @@ const init = async app => {
       } catch (e) {
         const message = `Failed creating call pro log. Error: ${e.message}`;
 
-        debugCallPro(message);
+        debugError(message);
         throw new Error(message);
       }
 
@@ -122,7 +122,7 @@ const init = async app => {
             ? 'Concurrent request: customer duplication'
             : e.message;
 
-          debugCallPro(message);
+          debugError(message);
           throw new Error(message);
         }
 
@@ -143,7 +143,7 @@ const init = async app => {
         } catch (e) {
           await Customers.deleteOne({ _id: customer._id });
 
-          debugCallPro(e.message);
+          debugError(e.message);
           throw new Error(e);
         }
       }
@@ -167,7 +167,7 @@ const init = async app => {
             ? 'Concurrent request: conversation duplication'
             : e.message;
 
-          debugCallPro(message);
+          debugError(message);
           throw new Error(message);
         }
       }
@@ -189,7 +189,7 @@ const init = async app => {
             })
           });
         } catch (e) {
-          debugCallPro(e.message);
+          debugError(e.message);
           throw new Error(e);
         }
 
@@ -213,7 +213,7 @@ const init = async app => {
       } catch (e) {
         await Conversations.deleteOne({ _id: conversation._id });
 
-        debugCallPro(e.message);
+        debugError(e.message);
         throw new Error(e);
       }
 

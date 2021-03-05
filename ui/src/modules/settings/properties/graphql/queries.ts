@@ -46,6 +46,10 @@ const fields = `
       isRequired
       order
       associatedFieldId
+      associatedField {
+        _id
+        text
+      }
     }
   }
 `;

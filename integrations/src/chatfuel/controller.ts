@@ -1,4 +1,4 @@
-import { debugChatfuel, debugRequest } from '../debuggers';
+import { debugChatfuel, debugError, debugRequest } from '../debuggers';
 import { generateAttachmentMessages } from '../facebook/utils';
 import { routeErrorHandling } from '../helpers';
 import { sendRPCMessage } from '../messageBroker';
@@ -39,7 +39,7 @@ const init = async app => {
           }
         });
       } catch (e) {
-        debugChatfuel(`Failed to create integration: ${e}`);
+        debugError(`Failed to create integration: ${e}`);
         throw new Error(e);
       }
 
@@ -122,7 +122,7 @@ const init = async app => {
             ? 'Concurrent request: customer duplication'
             : e.message;
 
-          debugChatfuel(errorMessage);
+          debugError(errorMessage);
           throw new Error(errorMessage);
         }
 
