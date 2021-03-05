@@ -59,9 +59,9 @@ export const fetchElk = async (
 
     return response;
   } catch (e) {
-    debugError(`Error during elk query ${e}`);
+    debugError(`Error during elk query ${e.message}`);
 
-    if (defaultValue) {
+    if (typeof defaultValue !== undefined) {
       return defaultValue;
     }
 
