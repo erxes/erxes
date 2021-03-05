@@ -1,3 +1,11 @@
+## [0.20.16](https://github.com/erxes/erxes/compare/0.20.15...0.20.16) (2021-03-05)
+
+
+### Bug Fixes
+
+* **elasticsearch:** checked some index not found cases in inbox, search ([9f54797](https://github.com/erxes/erxes/commit/9f547974ed3f56715232b6a81130ca1398094178))
+* **tags:** sub tag and tag count related bug fixes ([2bafe0f](https://github.com/erxes/erxes/commit/2bafe0ff2bd7548e0c1b88d007654199121f5219))
+
 ## [0.20.15](https://github.com/erxes/erxes/compare/0.20.14...0.20.15) (2021-03-03)
 
 
