@@ -281,6 +281,8 @@ export const HACK_SCORING_TYPES = {
 export const FIELDS_GROUPS_CONTENT_TYPES = {
   CUSTOMER: 'customer',
   COMPANY: 'company',
+  CONVERSATION: 'conversation',
+  DEVICE: 'device',
   PRODUCT: 'product',
   TICKET: 'ticket',
   TASK: 'task',
@@ -290,6 +292,8 @@ export const FIELDS_GROUPS_CONTENT_TYPES = {
   ALL: [
     'customer',
     'company',
+    'conversation',
+    'device',
     'product',
     'ticket',
     'task',

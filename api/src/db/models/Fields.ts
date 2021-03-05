@@ -7,7 +7,9 @@ import * as validator from 'validator';
 import { Customers, Forms } from '.';
 import {
   COMPANY_INFO,
+  CONVERSATION_INFO,
   CUSTOMER_BASIC_INFO,
+  DEVICE_PROPERTIES_INFO,
   FIELD_CONTENT_TYPES,
   PRODUCT_INFO,
   PROPERTY_GROUPS
@@ -426,6 +428,30 @@ export const loadFieldClass = () => {
             };
           });
           await Fields.insertMany(productFields);
+          break;
+        case FIELDS_GROUPS_CONTENT_TYPES.CONVERSATION:
+          const conversationFields = CONVERSATION_INFO.ALL.map(e => {
+            return {
+              text: e.label,
+              field: e.field,
+              groupId,
+              contentType,
+              isDefinedByErxes: true
+            };
+          });
+          await Fields.insertMany(conversationFields);
+          break;
+        case FIELDS_GROUPS_CONTENT_TYPES.DEVICE:
+          const deviceFields = DEVICE_PROPERTIES_INFO.ALL.map(e => {
+            return {
+              text: e.label,
+              field: e.field,
+              groupId,
+              contentType,
+              isDefinedByErxes: true
+            };
+          });
+          await Fields.insertMany(deviceFields);
           break;
 
         default:

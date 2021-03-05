@@ -5,9 +5,11 @@ import withCurrentUser from 'modules/auth/containers/withCurrentUser';
 import { IUser } from 'modules/auth/types';
 import DumbSidebar from 'modules/inbox/components/conversationDetail/sidebar/Sidebar';
 import { queries } from 'modules/inbox/graphql';
-import { FIELDS_GROUPS_CONTENT_TYPES } from 'modules/settings/properties/constants';
 import { queries as fieldQueries } from 'modules/settings/properties/graphql';
-import { SystemFieldsGroupsQueryResponse } from 'modules/settings/properties/types';
+import {
+  IField,
+  InboxFieldsQueryResponse
+} from 'modules/settings/properties/types';
 import React from 'react';
 import { graphql } from 'react-apollo';
 import Spinner from '../../../common/components/Spinner';
@@ -21,11 +23,12 @@ import { getConfig } from '../../utils';
 
 type Props = {
   conversation: IConversation;
+  conversationFields: IField[];
 };
 
 type FinalProps = {
   customerDetailQuery: CustomerDetailQueryResponse;
-  fieldsGroupsQuery: SystemFieldsGroupsQueryResponse;
+  fieldsInboxQuery: InboxFieldsQueryResponse;
   currentUser: IUser;
 } & Props;
 
@@ -96,7 +99,7 @@ class Sidebar extends React.Component<FinalProps, State> {
   };
 
   render() {
-    const { fieldsGroupsQuery } = this.props;
+    const { fieldsInboxQuery } = this.props;
     const { customer, loading } = this.state;
 
     const taggerRefetchQueries = [
@@ -106,11 +109,7 @@ class Sidebar extends React.Component<FinalProps, State> {
       }
     ];
 
-    if (fieldsGroupsQuery.loading) {
-      return <Spinner />;
-    }
-
-    const fields = fieldsGroupsQuery.getSystemFieldsGroup.fields;
+    const fields = fieldsInboxQuery.fieldsInbox;
 
     const updatedProps = {
       ...this.props,
@@ -118,7 +117,8 @@ class Sidebar extends React.Component<FinalProps, State> {
       loading,
       toggleSection: this.toggleSection,
       taggerRefetchQueries,
-      fields
+      customerFields: fields.customer,
+      conversationFields: fields.conversation
     };
 
     return <DumbSidebar {...updatedProps} />;
@@ -138,16 +138,8 @@ export default withProps<Props>(
         })
       }
     ),
-    graphql<Props, SystemFieldsGroupsQueryResponse>(
-      gql(fieldQueries.getSystemFieldsGroup),
-      {
-        name: 'fieldsGroupsQuery',
-        options: () => ({
-          variables: {
-            contentType: FIELDS_GROUPS_CONTENT_TYPES.CUSTOMER
-          }
-        })
-      }
-    )
+    graphql<Props, InboxFieldsQueryResponse>(gql(fieldQueries.inboxFields), {
+      name: 'fieldsInbox'
+    })
   )(withCurrentUser(Sidebar))
 );

@@ -86,7 +86,9 @@ export const FIELDS_GROUPS_CONTENT_TYPES = {
   CUSTOMER: 'customer',
   COMPANY: 'company',
   PRODUCT: 'product',
-  ALL: ['customer', 'company', 'product']
+  CONVERSATION: 'conversation',
+  DEVICE: 'device',
+  ALL: ['customer', 'company', 'product', 'conversation', 'device']
 };
 
 export const NOTIFICATION_MODULES = [
@@ -326,7 +328,9 @@ export const PROPERTY_GROUPS = [
       { value: 'visitor', label: 'Visitors' },
       { value: 'lead', label: 'Leads' },
       { value: 'customer', label: 'Customers' },
-      { value: 'company', label: 'Companies' }
+      { value: 'company', label: 'Companies' },
+      { value: 'conversation', label: 'Conversation details' },
+      { value: 'device', label: 'Device properties' }
     ]
   },
   {
@@ -450,5 +454,39 @@ export const PRODUCT_INFO = {
     { field: 'category', label: 'Category' },
     { field: 'description', label: 'Description' },
     { field: 'sku', label: 'Sku' }
+  ]
+};
+
+export const CONVERSATION_INFO = {
+  opened: 'Opened',
+  channels: 'Channels',
+  brand: 'Brand',
+  integration: 'Integration',
+  count: 'Conversations',
+  ALL: [
+    { field: 'opened', label: 'Opened' },
+    { field: 'channels', label: 'Channels' },
+    { field: 'brand', label: 'Brand' },
+    { field: 'integration', label: 'Integration' },
+    { field: 'count', label: 'Conversations' }
+  ]
+};
+
+export const DEVICE_PROPERTIES_INFO = {
+  location: 'Location',
+  browser: 'Browser',
+  platform: 'Platform',
+  ipAddress: 'IP Address',
+  hostName: 'Hostname',
+  language: 'Language',
+  agent: 'User Agent',
+  ALL: [
+    { field: 'location', label: 'Location' },
+    { field: 'browser', label: 'Browser' },
+    { field: 'platform', label: 'Platform' },
+    { field: 'ipAddress', label: 'IP Address' },
+    { field: 'hostName', label: 'Hostname' },
+    { field: 'language', label: 'Language' },
+    { field: 'agent', label: 'User Agent' }
   ]
 };

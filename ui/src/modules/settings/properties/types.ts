@@ -80,6 +80,15 @@ export type SystemFieldsGroupsQueryResponse = {
   refetch: ({ contentType }: { contentType?: string }) => Promise<any>;
 };
 
+export type InboxFieldsQueryResponse = {
+  fieldsInbox: {
+    customer: IField[];
+    device: IField[];
+    conversation: IField[];
+  };
+  loading: boolean;
+};
+
 export type FieldsCombinedByType = {
   _id: string;
   name: string;

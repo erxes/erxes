@@ -105,7 +105,8 @@ type IndexProps = {
   currentUser: IUser;
   conversation: IConversation;
   customer: ICustomer;
-  fields: IField[];
+  customerFields: IField[];
+  conversationFields: IField[];
   loading: boolean;
   toggleSection: () => void;
   taggerRefetchQueries: any;
@@ -172,7 +173,8 @@ class Index extends React.Component<IndexProps, IndexState> {
       customer,
       toggleSection,
       loading,
-      fields
+      customerFields,
+      conversationFields
     } = this.props;
 
     const { kind = '' } = customer.integration || {};
@@ -180,13 +182,20 @@ class Index extends React.Component<IndexProps, IndexState> {
     if (currentSubTab === 'details') {
       return (
         <TabContent>
-          <DetailInfo customer={customer} fields={fields} isDetail={false} />
+          <DetailInfo
+            customer={customer}
+            fields={customerFields}
+            isDetail={false}
+          />
           <Box
             title={__('Conversation details')}
             name="showConversationDetails"
             callback={toggleSection}
           >
-            <ConversationDetails conversation={conversation} />
+            <ConversationDetails
+              conversation={conversation}
+              fields={conversationFields}
+            />
           </Box>
           <TaggerSection
             data={customer}

@@ -3,6 +3,7 @@ import {
   FIELDS_GROUPS_CONTENT_TYPES
 } from '../../../data/constants';
 import { Fields, FieldsGroups } from '../../../db/models';
+import { IFieldDocument } from '../../../db/models/definitions/fields';
 import { fieldsCombinedByContentType } from '../../modules/fields/utils';
 import { checkPermission, requireLogin } from '../../permissions/wrappers';
 import { IContext } from '../../types';
@@ -88,6 +89,45 @@ const fieldQueries = {
       { name: 'sessionCount', label: 'Session count', order: 5 },
       { name: 'profileScore', label: 'Profile score', order: 6 }
     ];
+  },
+
+  async fieldsInbox(_root) {
+    const response: {
+      customer?: IFieldDocument[];
+      conversation?: IFieldDocument[];
+      device?: IFieldDocument[];
+    } = {};
+
+    const customerGroup = await FieldsGroups.findOne({
+      contentType: FIELDS_GROUPS_CONTENT_TYPES.CUSTOMER,
+      isDefinedByErxes: true
+    });
+
+    if (customerGroup) {
+      response.customer = await Fields.find({ groupId: customerGroup._id });
+    }
+
+    const converstionGroup = await FieldsGroups.findOne({
+      contentType: FIELDS_GROUPS_CONTENT_TYPES.CONVERSATION,
+      isDefinedByErxes: true
+    });
+
+    if (converstionGroup) {
+      response.conversation = await Fields.find({
+        groupId: converstionGroup._id
+      });
+    }
+
+    const deviceGroup = await FieldsGroups.findOne({
+      contentType: FIELDS_GROUPS_CONTENT_TYPES.DEVICE,
+      isDefinedByErxes: true
+    });
+
+    if (deviceGroup) {
+      response.device = await Fields.find({ groupId: deviceGroup._id });
+    }
+
+    return response;
   }
 };
 

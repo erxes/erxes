@@ -2,7 +2,9 @@ export const FIELDS_GROUPS_CONTENT_TYPES = {
   CUSTOMER: 'customer',
   COMPANY: 'company',
   PRODUCT: 'product',
-  ALL: ['customer', 'company', 'product']
+  CONVERSATION: 'conversation',
+  DEVICE: 'device',
+  ALL: ['customer', 'company', 'product', 'conversation', 'device']
 };
 
 export const PROPERTY_GROUPS = [
@@ -11,7 +13,9 @@ export const PROPERTY_GROUPS = [
     value: 'contact',
     types: [
       { value: 'customer', label: 'Customers' },
-      { value: 'company', label: 'Companies' }
+      { value: 'company', label: 'Companies' },
+      { value: 'conversation', label: 'Conversation details' },
+      { value: 'device', label: 'Device properties' }
     ]
   },
   {

@@ -115,7 +115,9 @@ class PropertyRow extends React.Component<Props, State> {
             onChange={onChange}
           />
         </td>
-        {['visitor', 'lead', 'customer'].includes(field.contentType) ? (
+        {['visitor', 'lead', 'customer', 'device'].includes(
+          field.contentType
+        ) ? (
           <td>
             <Toggle
               id="visibleDetailToggle"
@@ -150,7 +152,7 @@ class PropertyRow extends React.Component<Props, State> {
       );
     }
 
-    if (['visitor', 'lead', 'customer'].includes(contentType)) {
+    if (['visitor', 'lead', 'customer', 'device'].includes(contentType)) {
       return (
         <Table hover={true}>
           <thead>

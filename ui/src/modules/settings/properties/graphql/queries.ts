@@ -1,3 +1,27 @@
+const field = `
+   {
+    _id
+    contentType
+    type
+    text
+    field
+    isVisible
+    isVisibleInDetail
+    canHide
+    validation
+    order
+    options
+    groupId
+    description
+    isDefinedByErxes
+    lastUpdatedUser {
+      details {
+        fullName
+      }
+    }
+  }
+`;
+
 const commonFields = `
       _id
       name
@@ -12,7 +36,7 @@ const commonFields = `
         }
       }
       isDefinedByErxes
-      fields {
+      fields  {
         _id
         contentType
         type
@@ -70,8 +94,19 @@ const fields = `
   }
 `;
 
+const inboxFields = `
+  query fieldsInbox {
+    fieldsInbox {
+      customer ${field}
+      device ${field}
+      conversation ${field}
+    }
+  }
+`;
+
 export default {
   fieldsGroups,
   fields,
-  getSystemFieldsGroup
+  getSystemFieldsGroup,
+  inboxFields
 };
