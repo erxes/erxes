@@ -93,6 +93,7 @@ export interface IEngageMessageDoc {
   type?: string;
   segmentIds?: string[];
   tagIds?: string[];
+  customerTagIds?: string[];
   brandIds?: string[];
   customerIds?: string[];
   title: string;
@@ -115,6 +116,7 @@ export interface IEngageMessage extends IEngageMessageDoc {
   segment: ISegment;
   fromUser: IUser;
   tagIds: string[];
+  customerTags: ITag[];
   getTags: ITag[];
   totalCustomersCount?: number;
   validCustomersCount?: number;
