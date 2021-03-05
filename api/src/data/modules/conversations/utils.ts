@@ -431,7 +431,13 @@ export class CommonBuilder<IArgs extends IListArgs> {
       }
     };
 
-    const response = await fetchElk('count', 'conversations', queryOptions);
+    const response = await fetchElk(
+      'count',
+      'conversations',
+      queryOptions,
+      '',
+      0
+    );
 
     return response.count;
   }
