@@ -45,7 +45,7 @@ const carQueries = [
    */
   {
     name: 'cars',
-    handler: async (_root, params, { commonQuerySelector, models, checkPermission, user }) => {
+    handler: async (_root, params, { commonQuerySelector, models }) => {
       return paginate(models.Cars.find(await generateFilter(models, params, commonQuerySelector)), {
         page: params.page,
         perPage: params.perPage
