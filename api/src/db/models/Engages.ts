@@ -257,7 +257,7 @@ export const loadClass = () => {
         const {
           customerIds = [],
           segmentIds,
-          tagIds,
+          customerTagIds,
           brandIds,
           fromUserId
         } = message;
@@ -276,7 +276,7 @@ export const loadClass = () => {
           ...(await generateCustomerSelector({
             customerIds,
             segmentIds,
-            tagIds,
+            tagIds: customerTagIds,
             brandIds
           }))
         };
