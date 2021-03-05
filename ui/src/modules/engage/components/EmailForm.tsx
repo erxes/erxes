@@ -318,7 +318,8 @@ class EmailForm extends React.Component<Props, State> {
           <EditorContainer>
             <ControlLabel>Content:</ControlLabel>
             <EditorCK
-              content={this.state.content}
+              content={this.props.content}
+              isSubmitted={this.props.isSaved}
               onChange={this.onEditorChange}
               height={500}
               name={`engage_email_${this.props.kind}_${this.props.fromUserId}`}

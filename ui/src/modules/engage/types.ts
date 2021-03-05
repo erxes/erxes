@@ -248,6 +248,7 @@ export type IEmailFormProps = {
   fromUserId: string;
   content: string;
   scheduleDate: IEngageScheduleDate;
+  isSaved?: boolean;
 };
 
 export type EngageConfigQueryResponse = {
