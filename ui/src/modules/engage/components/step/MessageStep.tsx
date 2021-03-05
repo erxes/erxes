@@ -73,6 +73,7 @@ class MessageStep extends React.Component<Props> {
         fromUserId={fromUserId}
         content={content}
         scheduleDate={scheduleDate}
+        isSaved={isSaved}
       />
     );
   }
