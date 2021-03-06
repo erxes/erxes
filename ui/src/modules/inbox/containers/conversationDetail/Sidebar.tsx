@@ -109,6 +109,10 @@ class Sidebar extends React.Component<FinalProps, State> {
       }
     ];
 
+    if (fieldsInboxQuery.loading) {
+      return <Spinner />;
+    }
+
     const fields = fieldsInboxQuery.fieldsInbox;
 
     const updatedProps = {
@@ -118,7 +122,8 @@ class Sidebar extends React.Component<FinalProps, State> {
       toggleSection: this.toggleSection,
       taggerRefetchQueries,
       customerFields: fields.customer,
-      conversationFields: fields.conversation
+      conversationFields: fields.conversation,
+      deviceFields: fields.device
     };
 
     return <DumbSidebar {...updatedProps} />;
@@ -139,7 +144,7 @@ export default withProps<Props>(
       }
     ),
     graphql<Props, InboxFieldsQueryResponse>(gql(fieldQueries.inboxFields), {
-      name: 'fieldsInbox'
+      name: 'fieldsInboxQuery'
     })
   )(withCurrentUser(Sidebar))
 );

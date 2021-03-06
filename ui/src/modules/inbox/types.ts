@@ -45,6 +45,10 @@ export interface IConversation {
 
   productBoardLink?: string;
   isFacebookTaggedMessage?: boolean;
+
+  customFieldsData?: {
+    [key: string]: any;
+  };
 }
 
 interface IEngageDataRules {

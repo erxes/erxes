@@ -4,9 +4,8 @@ import * as compose from 'lodash.flowright';
 import EmptyState from 'modules/common/components/EmptyState';
 import Spinner from 'modules/common/components/Spinner';
 import { withProps } from 'modules/common/utils';
-import { FIELDS_GROUPS_CONTENT_TYPES } from 'modules/settings/properties/constants';
 import { queries as fieldQueries } from 'modules/settings/properties/graphql';
-import { SystemFieldsGroupsQueryResponse } from 'modules/settings/properties/types';
+import { InboxFieldsQueryResponse } from 'modules/settings/properties/types';
 import React from 'react';
 import { graphql } from 'react-apollo';
 import CustomerDetails from '../components/detail/CustomerDetails';
@@ -19,7 +18,7 @@ type Props = {
 
 type FinalProps = {
   customerDetailQuery: CustomerDetailQueryResponse;
-  fieldsGroupsQuery: SystemFieldsGroupsQueryResponse;
+  fieldsInboxQuery: InboxFieldsQueryResponse;
 } & Props;
 
 type State = {
@@ -60,7 +59,7 @@ class CustomerDetailsContainer extends React.Component<FinalProps, State> {
   }
 
   render() {
-    const { id, fieldsGroupsQuery } = this.props;
+    const { id, fieldsInboxQuery } = this.props;
     const { loading, customer } = this.state;
 
     if (loading) {
@@ -73,11 +72,11 @@ class CustomerDetailsContainer extends React.Component<FinalProps, State> {
       );
     }
 
-    if (fieldsGroupsQuery.loading) {
+    if (fieldsInboxQuery.loading) {
       return <Spinner />;
     }
 
-    const fields = fieldsGroupsQuery.getSystemFieldsGroup.fields;
+    const fields = fieldsInboxQuery.fieldsInbox;
 
     const taggerRefetchQueries = [
       {
@@ -90,7 +89,8 @@ class CustomerDetailsContainer extends React.Component<FinalProps, State> {
       ...this.props,
       customer: this.state.customer,
       taggerRefetchQueries,
-      fields
+      fields: fields.customer,
+      deviceFields: fields.device
     };
 
     return <CustomerDetails {...updatedProps} />;
@@ -99,16 +99,8 @@ class CustomerDetailsContainer extends React.Component<FinalProps, State> {
 
 export default withProps<Props>(
   compose(
-    graphql<Props, SystemFieldsGroupsQueryResponse>(
-      gql(fieldQueries.getSystemFieldsGroup),
-      {
-        name: 'fieldsGroupsQuery',
-        options: () => ({
-          variables: {
-            contentType: FIELDS_GROUPS_CONTENT_TYPES.CUSTOMER
-          }
-        })
-      }
-    )
+    graphql<Props, InboxFieldsQueryResponse>(gql(fieldQueries.inboxFields), {
+      name: 'fieldsInboxQuery'
+    })
   )(CustomerDetailsContainer)
 );

@@ -20,6 +20,7 @@ import RightSidebar from './RightSidebar';
 type Props = {
   customer: ICustomer;
   fields: IField[];
+  deviceFields: IField[];
   taggerRefetchQueries?: any[];
 };
 
@@ -80,7 +81,7 @@ class CustomerDetails extends React.Component<Props> {
   };
 
   render() {
-    const { customer, fields, taggerRefetchQueries } = this.props;
+    const { customer, fields, deviceFields, taggerRefetchQueries } = this.props;
 
     const breadcrumb = [
       { title: __('Contacts'), link: '/contacts' },
@@ -131,6 +132,7 @@ class CustomerDetails extends React.Component<Props> {
             wide={true}
             customer={customer}
             fields={fields}
+            deviceFields={deviceFields}
             taggerRefetchQueries={taggerRefetchQueries}
           />
         }

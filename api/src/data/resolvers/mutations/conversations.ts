@@ -768,6 +768,13 @@ const conversationMutations = {
 
       return item._id;
     }
+  },
+
+  async conversationEditCustomFields(
+    _root,
+    { _id, customFieldsData }: { _id: string; customFieldsData: any }
+  ) {
+    return await Conversations.updateConversation(_id, { customFieldsData });
   }
 };
 

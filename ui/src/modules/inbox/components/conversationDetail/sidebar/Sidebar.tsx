@@ -27,6 +27,14 @@ const CustomFieldsSection = asyncComponent(
   { height: '200px', width: '100%', color: '#fff' }
 );
 
+const ConversationCustomFieldsSection = asyncComponent(
+  () =>
+    import(
+      /* webpackChunkName:"Inbox-Sidebar-ConversationCustomFieldsSection" */ 'modules/inbox/containers/conversationDetail/ConversationCustomFieldsSection'
+    ),
+  { height: '200px', width: '100%', color: '#fff' }
+);
+
 const PortableDeals = asyncComponent(() =>
   import(
     /* webpackChunkName:"Inbox-Sidebar-PortableDeals" */ 'modules/deals/components/PortableDeals'
@@ -107,6 +115,7 @@ type IndexProps = {
   customer: ICustomer;
   customerFields: IField[];
   conversationFields: IField[];
+  deviceFields: IField[];
   loading: boolean;
   toggleSection: () => void;
   taggerRefetchQueries: any;
@@ -120,6 +129,7 @@ type IndexState = {
 
 interface IRenderData {
   customer: ICustomer;
+  fields?: IField[];
   kind: string;
   toggleSection: () => void;
 }
@@ -151,14 +161,21 @@ class Index extends React.Component<IndexProps, IndexState> {
     );
   };
 
-  renderDeviceProperties = ({ customer, kind, toggleSection }: IRenderData) => {
+  renderDeviceProperties = ({
+    customer,
+    kind,
+    fields,
+    toggleSection
+  }: IRenderData) => {
     if (!(kind === 'messenger' || kind === 'form')) {
       return null;
     }
     return (
       <DevicePropertiesSection
         customer={customer}
+        fields={fields}
         collapseCallback={toggleSection}
+        isDetail={false}
       />
     );
   };
@@ -174,6 +191,7 @@ class Index extends React.Component<IndexProps, IndexState> {
       toggleSection,
       loading,
       customerFields,
+      deviceFields,
       conversationFields
     } = this.props;
 
@@ -187,6 +205,11 @@ class Index extends React.Component<IndexProps, IndexState> {
             fields={customerFields}
             isDetail={false}
           />
+          <CustomFieldsSection
+            loading={loading}
+            customer={customer}
+            isDetail={false}
+          />
           <Box
             title={__('Conversation details')}
             name="showConversationDetails"
@@ -196,6 +219,7 @@ class Index extends React.Component<IndexProps, IndexState> {
               conversation={conversation}
               fields={conversationFields}
             />
+            <ConversationCustomFieldsSection conversation={conversation} />
           </Box>
           <TaggerSection
             data={customer}
@@ -203,13 +227,14 @@ class Index extends React.Component<IndexProps, IndexState> {
             refetchQueries={taggerRefetchQueries}
             collapseCallback={toggleSection}
           />
-          <CustomFieldsSection
-            loading={loading}
-            customer={customer}
-            isDetail={false}
-          />
+
           {this.renderTrackedData({ customer, kind, toggleSection })}
-          {this.renderDeviceProperties({ customer, kind, toggleSection })}
+          {this.renderDeviceProperties({
+            customer,
+            kind,
+            fields: deviceFields,
+            toggleSection
+          })}
           <WebsiteActivity urlVisits={customer.urlVisits || []} />
         </TabContent>
       );

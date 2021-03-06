@@ -1,12 +1,7 @@
 import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
-import {
-  IItem,
-  IItemParams,
-  IOptions,
-  SaveMutation
-} from 'modules/boards/types';
 import Spinner from 'modules/common/components/Spinner';
+import { IConversation } from 'modules/inbox/types';
 import Sidebar from 'modules/layout/components/Sidebar';
 import GenerateCustomFields from 'modules/settings/properties/components/GenerateCustomFields';
 import { queries as fieldQueries } from 'modules/settings/properties/graphql';
@@ -16,18 +11,17 @@ import { renderWithProps } from '../../../common/utils';
 import { FieldsGroupsQueryResponse } from '../../../settings/properties/types';
 
 type Props = {
-  item: IItem;
-  options: IOptions;
+  conversation: IConversation;
   loading?: boolean;
 };
 
 type FinalProps = {
   fieldsGroupsQuery: FieldsGroupsQueryResponse;
-  editMutation: SaveMutation;
+  //   editMutation: SaveMutation;
 } & Props;
 
-const CustomFieldsSection = (props: FinalProps) => {
-  const { loading, item, fieldsGroupsQuery, editMutation } = props;
+const ConversationCustomFieldsSection = (props: FinalProps) => {
+  const { loading, conversation, fieldsGroupsQuery } = props;
 
   if (fieldsGroupsQuery.loading) {
     return (
@@ -37,34 +31,34 @@ const CustomFieldsSection = (props: FinalProps) => {
     );
   }
 
-  const { _id } = item;
+  //   const { _id } = item;
 
   const save = (data, callback) => {
-    editMutation({
-      variables: { _id, ...data }
-    })
-      .then(() => {
-        callback();
-      })
-      .catch(e => {
-        callback(e);
-      });
+    // editMutation({
+    //   variables: { _id, ...data }
+    // })
+    //   .then(() => {
+    //     callback();
+    //   })
+    //   .catch(e => {
+    //     callback(e);
+    //   });
   };
+
+  const groups = fieldsGroupsQuery.fieldsGroups;
 
   const updatedProps = {
     save,
     loading,
     isDetail: false,
-    customFieldsData: item.customFieldsData,
-    fieldsGroups: fieldsGroupsQuery.fieldsGroups || []
+    customFieldsData: conversation.customFieldsData,
+    fieldsGroups: groups.filter(e => !e.isDefinedByErxes)
   };
 
   return <GenerateCustomFields {...updatedProps} />;
 };
 
 export default (props: Props) => {
-  const { options } = props;
-
   return renderWithProps<Props>(
     props,
     compose(
@@ -74,17 +68,17 @@ export default (props: Props) => {
           name: 'fieldsGroupsQuery',
           options: () => ({
             variables: {
-              contentType: options.type
+              contentType: 'conversation'
             }
           })
         }
-      ),
-      graphql<Props, SaveMutation, IItemParams>(
-        gql(options.mutations.editMutation),
-        {
-          name: 'editMutation'
-        }
       )
-    )(CustomFieldsSection)
+      //   graphql<Props, SaveMutation, IItemParams>(
+      //     gql(options.mutations.editMutation),
+      //     {
+      //       name: 'editMutation'
+      //     }
+      //   )
+    )(ConversationCustomFieldsSection)
   );
 };
