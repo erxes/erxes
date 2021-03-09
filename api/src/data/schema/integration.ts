@@ -115,7 +115,7 @@ export const queries = `
   integrationsGetUsedTypes: [integrationsGetUsedTypes]
   integrationGetLineWebhookUrl(_id: String!): String
   integrationDetail(_id: String!): Integration
-  integrationsTotalCount(kind: String, brandId: String, tag: String, channelId: String, status: String): integrationsTotalCount
+  integrationsTotalCount(kind: String, brandId: String, tag: String, channelId: String, status: String, formLoadType: String): integrationsTotalCount
   integrationsFetchApi(path: String!, params: JSON!): JSON
 `;
 
