@@ -898,3 +898,9 @@ export const routeErrorHandling = (fn, callback?: any) => {
     }
   };
 };
+
+export const isUsingElk = () => {
+  const ELK_SYNCER = getEnv({ name: 'ELK_SYNCER', defaultValue: 'true' });
+
+  return ELK_SYNCER === 'false' ? false : true;
+};

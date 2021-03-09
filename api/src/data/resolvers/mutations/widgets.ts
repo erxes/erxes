@@ -48,10 +48,7 @@ import {
   sendRequest,
   sendToWebhook
 } from '../../utils';
-import {
-  convertVisitorToCustomer,
-  getOrCreateEngageMessage
-} from '../../widgetUtils';
+import { convertVisitorToCustomer } from '../../widgetUtils';
 import { conversationNotifReceivers } from './conversations';
 
 interface ISubmission {
@@ -898,7 +895,7 @@ const widgetMutations = {
       );
     }
 
-    return await getOrCreateEngageMessage(browserInfo, visitorId, customerId);
+    return null;
   },
 
   widgetsSendTypingInfo(

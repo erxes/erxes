@@ -1,11 +1,14 @@
 import { Model, model } from 'mongoose';
-import { ConversationMessages, Conversations, Users } from '.';
+import { ConversationMessages, Conversations } from '.';
 import { MESSAGE_KINDS } from '../../data/constants';
-import { generateCustomerSelector } from '../../data/resolvers/mutations/engageUtils';
-import { replaceEditorAttributes } from '../../data/utils';
+import {
+  checkCustomerExists,
+  findElk,
+  findUser
+} from '../../data/resolvers/mutations/engageUtils';
+import { isUsingElk, replaceEditorAttributes } from '../../data/utils';
 import { getNumberOfVisits } from '../../events';
-import Customers, { IBrowserInfo } from './Customers';
-import { IBrandDocument } from './definitions/brands';
+import { IBrowserInfo } from './Customers';
 import { METHODS } from './definitions/constants';
 import {
   IEngageData,
@@ -17,7 +20,6 @@ import {
   IEngageMessage,
   IEngageMessageDocument
 } from './definitions/engages';
-import { IIntegrationDocument } from './definitions/integrations';
 import { CONTENT_TYPES } from './definitions/segments';
 import { IUserDocument } from './definitions/users';
 
@@ -78,8 +80,8 @@ export interface IEngageMessageModel extends Model<IEngageMessageDocument> {
     replacedContent: string;
   }): Promise<IMessageDocument | null>;
   createVisitorOrCustomerMessages(params: {
-    brand: IBrandDocument;
-    integration: IIntegrationDocument;
+    brandId: string;
+    integrationId: string;
     customer?: ICustomerDocument;
     visitor?: any;
     browserInfo: any;
@@ -229,30 +231,47 @@ export const loadClass = () => {
      * when visitor messenger connect
      */
     public static async createVisitorOrCustomerMessages(params: {
-      brand: IBrandDocument;
-      integration: IIntegrationDocument;
+      brandId: string;
+      integrationId: string;
       customer?: ICustomerDocument;
       visitor?: any;
       browserInfo: any;
     }) {
-      const { brand, integration, customer, visitor, browserInfo } = params;
+      const { brandId, integrationId, customer, visitor, browserInfo } = params;
 
       if (visitor) {
         delete visitor._id;
         visitor.state = CONTENT_TYPES.VISITOR;
       }
+
       const customerObj = customer ? customer : visitor;
 
-      const messages = await EngageMessages.find({
-        'messenger.brandId': brand._id,
-        method: METHODS.MESSENGER,
-        isLive: true
-      });
+      let messages: IEngageMessageDocument[];
+
+      if (isUsingElk()) {
+        messages = await findElk('engage_messages', {
+          bool: {
+            must: [
+              { match: { 'messenger.brandId': brandId } },
+              { match: { method: METHODS.MESSENGER } },
+              { match: { isLive: true } }
+            ]
+          }
+        });
+      } else {
+        messages = await EngageMessages.find({
+          'messenger.brandId': brandId,
+          method: METHODS.MESSENGER,
+          isLive: true
+        });
+      }
 
       const conversationMessages: IMessageDocument[] = [];
 
       for (const message of messages) {
-        const messenger = message.messenger ? message.messenger.toJSON() : {};
+        const jsonString = JSON.stringify(message.messenger);
+
+        const messenger = JSON.parse(jsonString);
 
         const {
           customerIds = [],
@@ -270,18 +289,13 @@ export const loadClass = () => {
           continue;
         }
 
-        const customersSelector = {
-          _id: customerObj._id,
-          state: { $ne: CONTENT_TYPES.VISITOR },
-          ...(await generateCustomerSelector({
-            customerIds,
-            segmentIds,
-            tagIds: customerTagIds,
-            brandIds
-          }))
-        };
-
-        const customerExists = await Customers.findOne(customersSelector);
+        const customerExists = await checkCustomerExists(
+          customerObj._id,
+          customerIds,
+          segmentIds,
+          customerTagIds,
+          brandIds
+        );
 
         if (message.kind !== MESSAGE_KINDS.VISITOR_AUTO && !customerExists) {
           continue;
@@ -294,7 +308,7 @@ export const loadClass = () => {
           continue;
         }
 
-        const user = await Users.findOne({ _id: fromUserId });
+        const user = await findUser(fromUserId || '');
 
         if (!user) {
           continue;
@@ -335,7 +349,7 @@ export const loadClass = () => {
             {
               customerId: customer && customer._id,
               visitorId: visitor && visitor.visitorId,
-              integrationId: integration._id,
+              integrationId,
               user,
               replacedContent: replacedContent || '',
               engageData: {
@@ -386,13 +400,30 @@ export const loadClass = () => {
         replacedContent
       } = args;
 
-      const query = customerId
-        ? { customerId, 'engageData.messageId': engageData.messageId }
-        : { visitorId, 'engageData.messageId': engageData.messageId };
+      let prevMessage: IMessageDocument | null;
 
-      const prevMessage: IMessageDocument | null = await ConversationMessages.findOne(
-        query
-      );
+      if (isUsingElk()) {
+        const conversationMessages = await findElk('conversation_messages', {
+          bool: {
+            must: [
+              { match: { 'engageData.messageId': engageData.messageId } },
+              { match: customerId ? { customerId } : { visitorId } }
+            ]
+          }
+        });
+
+        prevMessage = null;
+
+        if (conversationMessages.length > 0) {
+          prevMessage = conversationMessages[0];
+        }
+      } else {
+        const query = customerId
+          ? { customerId, 'engageData.messageId': engageData.messageId }
+          : { visitorId, 'engageData.messageId': engageData.messageId };
+
+        prevMessage = await ConversationMessages.findOne(query);
+      }
 
       if (prevMessage) {
         if (
@@ -415,7 +446,6 @@ export const loadClass = () => {
           { _id: prevMessage._id },
           { $set: { engageData, isCustomerRead: false } }
         );
-
         return null;
       }
 

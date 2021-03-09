@@ -859,7 +859,7 @@ describe('saveBrowserInfo()', () => {
       }
     );
 
-    expect(response && response.content).toBe('engageMessage');
+    expect(response).toBe(null);
   });
 
   test('with visitorId', async () => {
@@ -912,7 +912,7 @@ describe('saveBrowserInfo()', () => {
       }
     );
 
-    expect(response && response.content).toBe('engageMessage');
+    expect(response).toBe(null);
     getVisitorLogMock.restore();
     sendToVisitorLogMock.restore();
   });
