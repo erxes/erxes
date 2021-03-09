@@ -33,6 +33,12 @@ import * as elk from '../elasticsearch';
 import * as events from '../events';
 import './setup.ts';
 
+const getEnvMock = value => {
+  return sinon.stub(utils, 'getEnv').callsFake(() => {
+    return value;
+  });
+};
+
 describe('engage messages model tests', () => {
   let _user;
   let _segment;
@@ -250,10 +256,7 @@ describe('createConversation', () => {
   });
 
   test('createOrUpdateConversationAndMessages', async () => {
-    const elkSyncerEnvMock = sinon.stub(utils, 'getEnv').callsFake(() => {
-      return 'false';
-    });
-
+    const elkSyncerEnvMock = getEnvMock('false');
     const user = await userFactory({ fullName: 'Full name' });
 
     const replacedContent = 'hi Full name';
@@ -385,9 +388,7 @@ describe('createConversation', () => {
       customerId: _customer._id
     });
 
-    const envMock = sinon.stub(utils, 'getEnv').callsFake(() => {
-      return 'true';
-    });
+    const envMock = getEnvMock('true');
 
     const elkMock = sinon.stub(elk, 'fetchElk').callsFake(() => {
       return Promise.resolve({
@@ -463,9 +464,7 @@ describe('createVisitorOrCustomerMessages', () => {
       state: 'visitor'
     });
 
-    envMock = sinon.stub(utils, 'getEnv').callsFake(() => {
-      return 'false';
-    });
+    envMock = getEnvMock('false');
 
     mock = sinon.stub(events, 'getNumberOfVisits').callsFake(() => {
       return Promise.resolve(11);
@@ -1054,9 +1053,7 @@ describe('createVisitorOrCustomerMessages with elk', () => {
       state: 'visitor'
     });
 
-    envMock = sinon.stub(utils, 'getEnv').callsFake(() => {
-      return 'true';
-    });
+    envMock = getEnvMock('true');
 
     elkMock = sinon.stub(elk, 'fetchElk').callsFake(() => {
       return Promise.resolve({
