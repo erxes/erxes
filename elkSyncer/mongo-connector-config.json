@@ -53,6 +53,9 @@
     },
     "erxes*.engage_messages": {
       "rename": "erxes*__engage_messages._doc"
+    },
+    "erxes*.segments": {
+      "rename": "erxes*__segments._doc"
     }
   },
   "docManagers": [
