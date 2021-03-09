@@ -26,6 +26,7 @@ describe('integrationQueries', () => {
       $channelId: String
       $brandId: String
       $tag: String
+      $formLoadType: String
     ) {
       integrations(
         page: $page
@@ -35,6 +36,7 @@ describe('integrationQueries', () => {
         channelId: $channelId
         brandId: $brandId
         tag: $tag
+        formLoadType: $formLoadType
       ) {
         _id
       }
@@ -159,6 +161,19 @@ describe('integrationQueries', () => {
     });
 
     expect(responses.length).toBe(2);
+  });
+
+  test('Integrations filtered by formLoadType', async () => {
+    await integrationFactory({
+      kind: 'lead',
+      leadData: { loadType: 'popup' }
+    });
+
+    const responses = await graphqlRequest(qryIntegrations, 'integrations', {
+      formLoadType: 'popup'
+    });
+
+    expect(responses.length).toBe(1);
   });
 
   test('Integrations filtered by search value', async () => {
