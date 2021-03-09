@@ -2,11 +2,6 @@
 # yarn lockfile v1
 
 
-"@assemblyscript/loader@^0.10.1":
-  version "0.10.1"
-  resolved "https://registry.yarnpkg.com/@assemblyscript/loader/-/loader-0.10.1.tgz#70e45678f06c72fa2e350e8553ec4a4d72b92e06"
-  integrity sha512-H71nDOOL8Y7kWRLqf6Sums+01Q5msqBW2KhDUTemh1tvY04eSkSXrK0uj/4mmY0Xr16/3zyZmsrxN7CKuRbNRg==
-
 "@azure/ms-rest-js@1.2.6":
   version "1.2.6"
   resolved "https://registry.yarnpkg.com/@azure/ms-rest-js/-/ms-rest-js-1.2.6.tgz#2ebd4f922677f31437c82f4f626cec9def4d32cd"
@@ -1624,7 +1619,7 @@ dateformat@~1.0.4-1.2.3:
     get-stdin "^4.0.1"
     meow "^3.3.0"
 
-dd-trace@^0.30.5:
+dd-trace@0.30.5, dd-trace@^0.30.5:
   version "0.30.5"
   resolved "https://registry.yarnpkg.com/dd-trace/-/dd-trace-0.30.5.tgz#d4c7505f96e2dfdeb30738a37d3bb6d05e5aa36e"
   integrity sha512-hm6cPlXundAdXYfGrAU1wk3oJ0m5i2oyLY5ZKo/7ZTUTZuuv0gnp3puEAAO8DV09WWMVf1joFmgYNS/2vQ32TQ==
@@ -1634,41 +1629,6 @@ dd-trace@^0.30.5:
     core-js "^3.6.0"
     form-data "^3.0.0"
     hdr-histogram-js "^1.1.4"
-    koalas "^1.0.2"
-    limiter "^1.1.4"
-    lodash.kebabcase "^4.1.1"
-    lodash.pick "^4.4.0"
-    lodash.sortby "^4.7.0"
-    lodash.uniq "^4.5.0"
-    methods "^1.1.2"
-    module-details-from-path "^1.0.3"
-    multer "^1.4.2"
-    nan "^2.12.1"
-    node-gyp-build "^3.8.0"
-    opentracing ">=0.12.1"
-    parent-module "^0.1.0"
-    path-to-regexp "^0.1.2"
-    performance-now "^2.1.0"
-    protobufjs "^6.9.0"
-    read-pkg-up "^3.0.0"
-    require-in-the-middle "^2.2.2"
-    semver "^5.5.0"
-    shimmer "^1.2.0"
-    source-map "^0.7.3"
-    source-map-resolve "^0.6.0"
-    url-parse "^1.4.3"
-    whatwg-fetch "^3.0.0"
-
-dd-trace@^0.31.1:
-  version "0.31.1"
-  resolved "https://registry.yarnpkg.com/dd-trace/-/dd-trace-0.31.1.tgz#36339d9998780c44bf13fc5c99145b935bcf18a4"
-  integrity sha512-JExKxwYmXOl4+CiBviUuVjq/OSh1qiu/fCEtkPyEiLuUdTkvXP4Tji+ZQdTctLMiwfVMUy3XwADgyzu8s0x5PA==
-  dependencies:
-    "@types/node" "^10.12.18"
-    axios "^0.21.1"
-    core-js "^3.6.0"
-    form-data "^3.0.0"
-    hdr-histogram-js "^2.0.1"
     koalas "^1.0.2"
     limiter "^1.1.4"
     lodash.kebabcase "^4.1.1"
@@ -2795,15 +2755,6 @@ hdr-histogram-js@^1.1.4:
   resolved "https://registry.yarnpkg.com/hdr-histogram-js/-/hdr-histogram-js-1.2.0.tgz#1213c0b317f39b9c05bc4f208cb7931dbbc192ae"
   integrity sha512-h0YToJ3ewqsaZ3nFTTa6dLOD7sqx+EgdC4+OcJ9Ou7zZDlT0sXSPHHr3cyenQsPqqbVHGn/oFY6zjfEKXGvzmQ==
   dependencies:
-    base64-js "^1.2.0"
-    pako "^1.0.3"
-
-hdr-histogram-js@^2.0.1:
-  version "2.0.1"
-  resolved "https://registry.yarnpkg.com/hdr-histogram-js/-/hdr-histogram-js-2.0.1.tgz#ecb1ff2bcb6181c3e93ff4af9472c28c7e97284e"
-  integrity sha512-uPZxl1dAFnjUFHWLZmt93vUUvtHeaBay9nVNHu38SdOjMSF/4KqJUqa1Seuj08ptU1rEb6AHvB41X8n/zFZ74Q==
-  dependencies:
-    "@assemblyscript/loader" "^0.10.1"
     base64-js "^1.2.0"
     pako "^1.0.3"
 
