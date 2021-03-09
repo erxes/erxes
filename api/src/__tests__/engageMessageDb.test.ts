@@ -1088,7 +1088,7 @@ describe('createVisitorOrCustomerMessages with elk', () => {
                 isDraft: false,
                 isLive: true,
                 customerIds: [_customer._id],
-                tagIds: ['tagid'],
+                customerTagIds: ['tagid'],
                 segmentIds: [_segment._id],
                 brandIds: [_brand._id],
                 messenger: {
