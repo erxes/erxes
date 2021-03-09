@@ -147,6 +147,7 @@ const integrationQueries = {
       tag: string;
       searchValue: string;
       status: string;
+      formLoadType: string;
     }
   ) {
     const counts = {
