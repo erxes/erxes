@@ -47,7 +47,7 @@
     "cors": "^2.8.1",
     "cote": "^1.0.0",
     "csv-parser": "^3.0.0",
-    "dd-trace": "^0.30.5",
+    "dd-trace": "^0.31.1",
     "debug": "^4.1.1",
     "dotenv": "^4.0.0",
     "elasticsearch": "^16.6.0",
