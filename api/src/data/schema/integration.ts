@@ -108,7 +108,8 @@ export const queries = `
     channelId: String,
     brandId: String,
     tag: String,
-    status: String
+    status: String,
+    formLoadType: String
   ): [Integration]
 
   integrationsGetUsedTypes: [integrationsGetUsedTypes]
