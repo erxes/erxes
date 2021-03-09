@@ -37,7 +37,6 @@ import './setup.ts';
 const checkEngageMessage = (src, result) => {
   expect(result.kind).toBe(src.kind);
   expect(new Date(result.stopDate)).toEqual(src.stopDate);
-  expect(result.tagIds).toEqual(src.tagIds);
   expect(result.brandIds).toEqual(src.brandIds);
   expect(result.customerIds).toEqual(src.customerIds);
   expect(result.title).toBe(src.title);
@@ -67,7 +66,7 @@ describe('engage message mutation tests', () => {
     $stopDate: Date,
     $segmentIds: [String],
     $brandIds: [String],
-    $tagIds: [String],
+    $customerTagIds: [String],
     $customerIds: [String],
     $email: EngageMessageEmail,
     $scheduleDate: EngageScheduleDateInput,
@@ -85,7 +84,7 @@ describe('engage message mutation tests', () => {
     stopDate: $stopDate,
     segmentIds: $segmentIds,
     brandIds: $brandIds,
-    tagIds: $tagIds,
+    customerTagIds: $customerTagIds,
     customerIds: $customerIds,
     email: $email,
     scheduleDate: $scheduleDate,
@@ -159,7 +158,7 @@ describe('engage message mutation tests', () => {
       },
       customerIds: [_customer._id],
       brandIds: [_brand._id],
-      tagIds: [_tag._id]
+      customerTagIds: [_tag._id]
     });
 
     _doc = {
@@ -171,7 +170,7 @@ describe('engage message mutation tests', () => {
       isLive: true,
       stopDate: new Date(),
       brandIds: [_brand._id],
-      tagIds: [_tag._id],
+      customerTagIds: [_tag._id],
       customerIds: [_customer._id],
       email: {
         subject: faker.random.word(),
@@ -515,10 +514,7 @@ describe('engage message mutation tests', () => {
       _doc
     );
 
-    const tags = engageMessage.getTags.map(tag => tag._id);
-
     expect(engageMessage.messengerReceivedCustomerIds).toEqual([]);
-    expect(tags).toEqual(_doc.tagIds);
     expect(engageMessage.scheduleDate.type).toEqual('year');
     expect(engageMessage.scheduleDate.month).toEqual('2');
     expect(engageMessage.scheduleDate.day).toEqual('14');
@@ -547,8 +543,6 @@ describe('engage message mutation tests', () => {
       args
     );
 
-    const tags = engageMessage.getTags.map(tag => tag._id);
-
     expect(engageMessage.messenger.brandId).toBe(_doc.messenger.brandId);
     expect(engageMessage.messenger.kind).toBe(_doc.messenger.kind);
     expect(engageMessage.messenger.sentAs).toBe(_doc.messenger.sentAs);
@@ -562,7 +556,6 @@ describe('engage message mutation tests', () => {
       _doc.messenger.rules.value
     );
     expect(engageMessage.messengerReceivedCustomerIds).toEqual([]);
-    expect(tags).toEqual(_doc.tagIds);
 
     checkEngageMessage(engageMessage, args);
   });
@@ -942,7 +935,7 @@ describe('engage message mutation tests', () => {
         scheduleDate: { type: 'month' },
         brandIds: null,
         segmentIds: null,
-        tagIds: null
+        customerTagIds: null
       });
     } catch (e) {
       expect(e.message).toBe('One of brand or segment or tag must be chosen');

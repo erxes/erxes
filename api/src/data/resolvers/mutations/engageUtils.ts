@@ -88,14 +88,14 @@ export const send = async (engageMessage: IEngageMessageDocument) => {
   const {
     customerIds,
     segmentIds,
-    tagIds,
+    customerTagIds,
     brandIds,
     fromUserId,
     scheduleDate
   } = engageMessage;
 
   // Check for pre scheduled engages
-  if (scheduleDate && scheduleDate?.type === 'pre' && scheduleDate.dateTime) {
+  if (scheduleDate && scheduleDate.type === 'pre' && scheduleDate.dateTime) {
     const scheduledDate = new Date(scheduleDate.dateTime);
     const now = new Date();
 
@@ -117,7 +117,7 @@ export const send = async (engageMessage: IEngageMessageDocument) => {
   const customersSelector = await generateCustomerSelector({
     customerIds,
     segmentIds,
-    tagIds,
+    tagIds: customerTagIds,
     brandIds
   });
 
@@ -294,7 +294,14 @@ const sendEmailOrSms = async (
 
 // check & validate campaign doc
 export const checkCampaignDoc = (doc: IEngageMessage) => {
-  const { brandIds, kind, method, scheduleDate, segmentIds, tagIds } = doc;
+  const {
+    brandIds,
+    kind,
+    method,
+    scheduleDate,
+    segmentIds,
+    customerTagIds
+  } = doc;
   const noDate =
     !scheduleDate ||
     (scheduleDate && scheduleDate.type === 'pre' && !scheduleDate.dateTime);
@@ -304,7 +311,7 @@ export const checkCampaignDoc = (doc: IEngageMessage) => {
   }
   if (
     kind !== MESSAGE_KINDS.VISITOR_AUTO &&
-    !(brandIds || segmentIds || tagIds)
+    !(brandIds || segmentIds || customerTagIds)
   ) {
     throw new Error('One of brand or segment or tag must be chosen');
   }

@@ -112,6 +112,7 @@ class Histories extends React.Component<Props & IRouterProps> {
         btnStyle = 'success';
         text = 'Download template';
         break;
+
       case 'export':
         icon = 'export';
         btnStyle = 'primary';
@@ -120,7 +121,14 @@ class Histories extends React.Component<Props & IRouterProps> {
     }
 
     const manageColumns = props => {
-      return <ManageColumns {...props} contentType={currentType} type={type} />;
+      return (
+        <ManageColumns
+          {...props}
+          contentType={currentType}
+          type={type}
+          isImport={true}
+        />
+      );
     };
 
     const editColumns = (

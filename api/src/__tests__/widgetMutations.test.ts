@@ -24,6 +24,7 @@ import {
 } from '../db/factories';
 import {
   Brands,
+  Companies,
   ConversationMessages,
   Conversations,
   Customers,
@@ -87,7 +88,7 @@ describe('messenger connect', () => {
     }
   });
 
-  test('brand not found', async () => {
+  test('integration not found', async () => {
     const brand = await brandFactory({});
 
     try {
@@ -98,6 +99,24 @@ describe('messenger connect', () => {
     } catch (e) {
       expect(e.message).toBe('Integration not found');
     }
+  });
+
+  test('Company data (Not a valid enum value for path `industry`)', async () => {
+    const brand = await brandFactory();
+    await integrationFactory({ brandId: brand._id });
+
+    const companyName = faker.name.findName();
+
+    await widgetMutations.widgetsMessengerConnect(
+      {},
+      {
+        brandCode: brand.code || '',
+        companyData: { name: companyName, industry: 'үйлчилгээ' }
+      }
+    );
+
+    // company isn't created because industry is not a valid
+    expect(await Companies.findOne({ name: companyName })).toBeNull();
   });
 
   test('returns proper integrationId', async () => {

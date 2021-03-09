@@ -291,7 +291,7 @@ export const loadClass = () => {
         const {
           customerIds = [],
           segmentIds,
-          tagIds,
+          customerTagIds,
           brandIds,
           fromUserId
         } = message;
@@ -308,7 +308,7 @@ export const loadClass = () => {
           customerObj._id,
           customerIds,
           segmentIds,
-          tagIds,
+          customerTagIds,
           brandIds
         );
 
