@@ -3,10 +3,10 @@ import { ConversationMessages, Conversations } from '.';
 import { MESSAGE_KINDS } from '../../data/constants';
 import {
   checkCustomerExists,
+  findElk,
   findUser
 } from '../../data/resolvers/mutations/engageUtils';
 import { isUsingElk, replaceEditorAttributes } from '../../data/utils';
-import { fetchElk } from '../../elasticsearch';
 import { getNumberOfVisits } from '../../events';
 import { IBrowserInfo } from './Customers';
 import { METHODS } from './definitions/constants';
@@ -249,29 +249,14 @@ export const loadClass = () => {
       let messages: IEngageMessageDocument[];
 
       if (isUsingElk()) {
-        const response = await fetchElk(
-          'search',
-          'engage_messages  ',
-          {
-            query: {
-              bool: {
-                must: [
-                  { match: { 'messenger.brandId': brandId } },
-                  { match: { method: METHODS.MESSENGER } },
-                  { match: { isLive: true } }
-                ]
-              }
-            }
-          },
-          '',
-          { hits: { hits: [] } }
-        );
-
-        messages = response.hits.hits.map(hit => {
-          return {
-            _id: hit._id,
-            ...hit._source
-          };
+        messages = await findElk('engage_messages', {
+          bool: {
+            must: [
+              { match: { 'messenger.brandId': brandId } },
+              { match: { method: METHODS.MESSENGER } },
+              { match: { isLive: true } }
+            ]
+          }
         });
       } else {
         messages = await EngageMessages.find({
@@ -418,30 +403,13 @@ export const loadClass = () => {
       let prevMessage: IMessageDocument | null;
 
       if (isUsingElk()) {
-        const must = [
-          { match: { 'engageData.messageId': engageData.messageId } },
-          { match: customerId ? { customerId } : { visitorId } }
-        ];
-
-        const response = await fetchElk(
-          'search',
-          'conversation_messages',
-          {
-            query: {
-              bool: {
-                must
-              }
-            }
-          },
-          '',
-          { hits: { hits: [] } }
-        );
-
-        const conversationMessages = response.hits.hits.map(hit => {
-          return {
-            _id: hit._id,
-            ...hit._source
-          };
+        const conversationMessages = await findElk('conversation_messages', {
+          bool: {
+            must: [
+              { match: { 'engageData.messageId': engageData.messageId } },
+              { match: customerId ? { customerId } : { visitorId } }
+            ]
+          }
         });
 
         prevMessage = null;

@@ -317,17 +317,12 @@ export const checkCampaignDoc = (doc: IEngageMessage) => {
   }
 };
 
-// find integration from elastic or mongo
-const findIntegrationsElk = async (brandIds: string[]) => {
+export const findElk = async (index, query) => {
   const response = await fetchElk(
     'search',
-    'integrations  ',
+    index,
     {
-      query: {
-        bool: {
-          must: [{ terms: { 'brandId.keyword': brandIds } }]
-        }
-      }
+      query
     },
     '',
     { hits: { hits: [] } }
@@ -335,41 +330,27 @@ const findIntegrationsElk = async (brandIds: string[]) => {
 
   return response.hits.hits.map(hit => {
     return {
-      _id: hit._id
+      _id: hit._id,
+      ...hit._source
     };
   });
 };
 
 // find user from elastic or mongo
 export const findUser = async (userId: string) => {
-  if (isUsingElk()) {
-    const response = await fetchElk(
-      'search',
-      'users  ',
-      {
-        query: {
-          match: {
-            _id: userId
-          }
-        }
-      },
-      '',
-      { hits: { hits: [] } }
-    );
-
-    const users = response.hits.hits.map(hit => {
-      return {
-        _id: hit._id,
-        ...hit._source
-      };
-    });
-
-    if (users.length > 0) {
-      return users[0];
-    }
+  if (!isUsingElk()) {
+    return await Users.findOne({ _id: userId });
   }
 
-  return await Users.findOne({ _id: userId });
+  const users = await findElk('users', {
+    match: {
+      _id: userId
+    }
+  });
+
+  if (users.length > 0) {
+    return users[0];
+  }
 };
 
 // check customer exists from elastic or mongo
@@ -380,119 +361,113 @@ export const checkCustomerExists = async (
   tagIds?: string[],
   brandIds?: string[]
 ) => {
-  if (isUsingElk()) {
-    if (!id) {
-      return false;
-    }
+  if (!isUsingElk()) {
+    const customersSelector = {
+      _id: id,
+      state: { $ne: CONTENT_TYPES.VISITOR },
+      ...(await generateCustomerSelector({
+        customerIds,
+        segmentIds,
+        tagIds,
+        brandIds
+      }))
+    };
 
-    const must: any[] = [
-      { terms: { state: [CONTENT_TYPES.CUSTOMER, CONTENT_TYPES.LEAD] } }
-    ];
-
-    must.push({
-      term: {
-        _id: id
-      }
-    });
-
-    if (customerIds && customerIds.length > 0) {
-      must.push({
-        terms: {
-          _id: customerIds
-        }
-      });
-    }
-
-    if (tagIds && tagIds.length > 0) {
-      must.push({
-        terms: {
-          tagIds
-        }
-      });
-    }
-
-    if (brandIds && brandIds.length > 0) {
-      const integraiontIds = await findIntegrationsElk(brandIds);
-      must.push({
-        terms: {
-          integrationId: integraiontIds
-        }
-      });
-    }
-
-    if (segmentIds && segmentIds.length > 0) {
-      const segments = await Segments.find({ _id: { $in: segmentIds } });
-
-      let customerIdsBySegments: string[] = [];
-
-      for (const segment of segments) {
-        const cIds = await fetchBySegments(segment);
-
-        customerIdsBySegments = [...customerIdsBySegments, ...cIds];
-      }
-
-      must.push({
-        terms: {
-          _id: customerIdsBySegments
-        }
-      });
-    }
-
-    must.push({
-      bool: {
-        should: [
-          { term: { doNotDisturb: 'no' } },
-          {
-            bool: {
-              must_not: {
-                exists: {
-                  field: 'doNotDisturb'
-                }
-              }
-            }
-          }
-        ]
-      }
-    });
-
-    const response = await fetchElk(
-      'search',
-      'customers  ',
-      {
-        query: {
-          bool: {
-            filter: {
-              bool: {
-                must
-              }
-            }
-          }
-        }
-      },
-      '',
-      { hits: { hits: [] } }
-    );
-
-    const customers = response.hits.hits.map(hit => {
-      return {
-        _id: hit._id,
-        ...hit._source
-      };
-    });
-
-    return customers.length > 0;
+    return await Customers.findOne(customersSelector);
   }
 
-  const customersSelector = {
-    _id: id,
-    state: { $ne: CONTENT_TYPES.VISITOR },
-    ...(await generateCustomerSelector({
-      customerIds,
-      segmentIds,
-      tagIds,
-      brandIds
-    }))
-  };
+  if (!id) {
+    return false;
+  }
 
-  return await Customers.findOne(customersSelector);
+  const must: any[] = [
+    { terms: { state: [CONTENT_TYPES.CUSTOMER, CONTENT_TYPES.LEAD] } }
+  ];
+
+  must.push({
+    term: {
+      _id: id
+    }
+  });
+
+  if (customerIds && customerIds.length > 0) {
+    must.push({
+      terms: {
+        _id: customerIds
+      }
+    });
+  }
+
+  if (tagIds && tagIds.length > 0) {
+    must.push({
+      terms: {
+        tagIds
+      }
+    });
+  }
+
+  if (brandIds && brandIds.length > 0) {
+    const integraiontIds = await findElk('integrations', {
+      bool: {
+        must: [{ terms: { 'brandId.keyword': brandIds } }]
+      }
+    });
+
+    must.push({
+      terms: {
+        integrationId: integraiontIds.map(e => e._id)
+      }
+    });
+  }
+
+  if (segmentIds && segmentIds.length > 0) {
+    const segments = await findElk('segments', {
+      bool: {
+        must: [{ terms: { _id: segmentIds } }]
+      }
+    });
+
+    let customerIdsBySegments: string[] = [];
+
+    for (const segment of segments) {
+      const cIds = await fetchBySegments(segment);
+
+      customerIdsBySegments = [...customerIdsBySegments, ...cIds];
+    }
+
+    must.push({
+      terms: {
+        _id: customerIdsBySegments
+      }
+    });
+  }
+
+  must.push({
+    bool: {
+      should: [
+        { term: { doNotDisturb: 'no' } },
+        {
+          bool: {
+            must_not: {
+              exists: {
+                field: 'doNotDisturb'
+              }
+            }
+          }
+        }
+      ]
+    }
+  });
+
+  const customers = await findElk('customers', {
+    bool: {
+      filter: {
+        bool: {
+          must
+        }
+      }
+    }
+  });
+
+  return customers.length > 0;
 };
