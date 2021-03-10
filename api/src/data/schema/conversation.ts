@@ -39,6 +39,7 @@ export const types = `
     videoCallData: VideoCallData
     productBoardLink: String
     isFacebookTaggedMessage: Boolean
+    customFieldsData: JSON
   }
 
   type EngageData {

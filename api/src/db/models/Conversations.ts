@@ -1,5 +1,5 @@
 import { Model, model } from 'mongoose';
-import { ConversationMessages, Users } from '.';
+import { ConversationMessages, Fields, Users } from '.';
 import { stream } from '../../data/bulkUtils';
 import { cleanHtml, sendToWebhook } from '../../data/utils';
 import { CONVERSATION_STATUSES } from './definitions/constants';
@@ -135,6 +135,13 @@ export const loadClass = () => {
     public static async updateConversation(_id, doc) {
       if (doc.content) {
         doc.content = cleanHtml(doc.content);
+      }
+
+      if (doc.customFieldsData) {
+        // clean custom field values
+        doc.customFieldsData = await Fields.prepareCustomFieldsData(
+          doc.customFieldsData
+        );
       }
 
       return Conversations.updateOne({ _id }, { $set: doc });

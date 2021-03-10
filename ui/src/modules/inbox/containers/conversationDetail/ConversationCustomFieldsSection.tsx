@@ -1,7 +1,12 @@
 import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
 import Spinner from 'modules/common/components/Spinner';
-import { IConversation } from 'modules/inbox/types';
+import { mutations } from 'modules/inbox/graphql';
+import {
+  EditCustomFieldsMutationVariables,
+  EditMutationResponse,
+  IConversation
+} from 'modules/inbox/types';
 import Sidebar from 'modules/layout/components/Sidebar';
 import GenerateCustomFields from 'modules/settings/properties/components/GenerateCustomFields';
 import { queries as fieldQueries } from 'modules/settings/properties/graphql';
@@ -17,11 +22,11 @@ type Props = {
 
 type FinalProps = {
   fieldsGroupsQuery: FieldsGroupsQueryResponse;
-  //   editMutation: SaveMutation;
-} & Props;
+} & Props &
+  EditMutationResponse;
 
 const ConversationCustomFieldsSection = (props: FinalProps) => {
-  const { loading, conversation, fieldsGroupsQuery } = props;
+  const { loading, conversation, fieldsGroupsQuery, editCustomFields } = props;
 
   if (fieldsGroupsQuery.loading) {
     return (
@@ -31,18 +36,18 @@ const ConversationCustomFieldsSection = (props: FinalProps) => {
     );
   }
 
-  //   const { _id } = item;
+  const { _id } = conversation;
 
   const save = (data, callback) => {
-    // editMutation({
-    //   variables: { _id, ...data }
-    // })
-    //   .then(() => {
-    //     callback();
-    //   })
-    //   .catch(e => {
-    //     callback(e);
-    //   });
+    editCustomFields({
+      variables: { _id, ...data }
+    })
+      .then(() => {
+        callback();
+      })
+      .catch(e => {
+        callback(e);
+      });
   };
 
   const groups = fieldsGroupsQuery.fieldsGroups;
@@ -72,13 +77,19 @@ export default (props: Props) => {
             }
           })
         }
+      ),
+      graphql<Props, EditMutationResponse, EditCustomFieldsMutationVariables>(
+        gql(mutations.editCustomFields),
+        {
+          name: 'editCustomFields',
+          options: ({ conversation }) => ({
+            variables: {
+              _id: conversation._id,
+              customFieldsData: ''
+            }
+          })
+        }
       )
-      //   graphql<Props, SaveMutation, IItemParams>(
-      //     gql(options.mutations.editMutation),
-      //     {
-      //       name: 'editMutation'
-      //     }
-      //   )
     )(ConversationCustomFieldsSection)
   );
 };

@@ -345,3 +345,14 @@ export type ResolveFacebookCommentResponse = {
     variables: ResolveFacebookCommentMutationVariables;
   }) => Promise<any>;
 };
+
+export type EditCustomFieldsMutationVariables = {
+  _id: string;
+  customFieldsData: any;
+};
+
+export type EditMutationResponse = {
+  editCustomFields: (params: {
+    variables: EditCustomFieldsMutationVariables;
+  }) => Promise<any>;
+};
