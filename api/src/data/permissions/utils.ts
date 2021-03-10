@@ -172,31 +172,14 @@ export const userActionsMap = async (
   ];
   const allowedActions: IActionMap = {};
 
-  const allowedElsewhere = (name: string, _id: string) => {
-    const entries = totalPermissions.filter(
-      t =>
-        t._id !== _id &&
-        t.allowed === true &&
-        (t.action === name ||
-          (t.requiredActions.length > 0 && t.requiredActions.includes(name)))
-    );
-
-    return entries.length > 0;
-  };
-
   const check = (name: string, allowed: boolean, _id: string) => {
     if (typeof allowedActions[name] === 'undefined') {
       allowedActions[name] = allowed;
     }
 
-    const allowedSomewhere = allowedElsewhere(name, _id);
-
+    // if a specific permission is denied elsewhere, follow that rule
     if (allowedActions[name] && !allowed) {
       allowedActions[name] = false;
-    }
-
-    if (allowedSomewhere) {
-      allowedActions[name] = true;
     }
   };
 
