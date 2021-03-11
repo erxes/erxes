@@ -140,7 +140,7 @@ const fieldsGroupQueries = {
   /**
    * Fields group list
    */
-  fieldsGroups(
+  async fieldsGroups(
     _root,
     { contentType }: { contentType: string },
     { commonQuerySelector }: IContext
@@ -150,7 +150,23 @@ const fieldsGroupQueries = {
     // querying by content type
     query.contentType = contentType || FIELDS_GROUPS_CONTENT_TYPES.CUSTOMER;
 
-    return FieldsGroups.find(query).sort({ order: 1 });
+    const groups = await FieldsGroups.find(query);
+
+    return groups
+      .map(group => {
+        if (group.isDefinedByErxes) {
+          group.order = -1;
+        }
+        return group;
+      })
+      .sort((a, b) => {
+        if (a.order && b.order) {
+          if (a.order < b.order) {
+            return 1;
+          }
+        }
+        return 1;
+      });
   },
 
   getSystemFieldsGroup(
