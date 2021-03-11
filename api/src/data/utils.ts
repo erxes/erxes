@@ -15,7 +15,7 @@ import { IBrandDocument } from '../db/models/definitions/brands';
 import { WEBHOOK_STATUS } from '../db/models/definitions/constants';
 import { ICustomer } from '../db/models/definitions/customers';
 import { IUser, IUserDocument } from '../db/models/definitions/users';
-import { debugBase } from '../debuggers';
+import { debugBase, debugError } from '../debuggers';
 import memoryStorage from '../inmemoryStorage';
 import { graphqlPubsub } from '../pubsub';
 import { fieldsCombinedByContentType } from './modules/fields/utils';
@@ -888,7 +888,7 @@ export const routeErrorHandling = (fn, callback?: any) => {
     try {
       await fn(req, res, next);
     } catch (e) {
-      debugBase(e.message);
+      debugError(e.message);
 
       if (callback) {
         return callback(res, e);
@@ -897,4 +897,10 @@ export const routeErrorHandling = (fn, callback?: any) => {
       return next(e);
     }
   };
+};
+
+export const isUsingElk = () => {
+  const ELK_SYNCER = getEnv({ name: 'ELK_SYNCER', defaultValue: 'true' });
+
+  return ELK_SYNCER === 'false' ? false : true;
 };

@@ -1,4 +1,5 @@
 import { debugDaily, debugRequest } from '../debuggers';
+import { routeErrorHandling } from '../helpers';
 import { getConfig, getRecordings, sendRequest } from '../utils';
 import { CallRecords, ICallRecord } from './models';
 
@@ -36,25 +37,29 @@ export const sendDailyRequest = async (
 };
 
 const init = async app => {
-  app.get('/videoCall/usageStatus', async (_req, res) => {
-    const videoCallType = await getConfig('VIDEO_CALL_TYPE');
+  app.get(
+    '/videoCall/usageStatus',
+    routeErrorHandling(async (_req, res) => {
+      const videoCallType = await getConfig('VIDEO_CALL_TYPE');
 
-    switch (videoCallType) {
-      case 'daily': {
-        const { DAILY_API_KEY, DAILY_END_POINT } = await getConfigs();
+      switch (videoCallType) {
+        case 'daily': {
+          const { DAILY_API_KEY, DAILY_END_POINT } = await getConfigs();
 
-        return res.send(Boolean(DAILY_API_KEY && DAILY_END_POINT));
+          return res.send(Boolean(DAILY_API_KEY && DAILY_END_POINT));
+        }
+
+        default: {
+          return res.send(false);
+        }
       }
-
-      default: {
-        return res.send(false);
-      }
-    }
-  });
+    })
+  );
 
   // delete all rooms
-  app.delete('/daily/rooms', async (_req, res, next) => {
-    try {
+  app.delete(
+    '/daily/rooms',
+    routeErrorHandling(async (_req, res) => {
       const response = await sendDailyRequest('/api/v1/rooms', 'GET');
       const rooms = response.data || [];
 
@@ -68,15 +73,14 @@ const init = async app => {
       }
 
       return res.send('Successfully deleted all rooms');
-    } catch (e) {
-      return next(e);
-    }
-  });
+    })
+  );
 
-  app.delete('/daily/rooms/:roomName', async (req, res, next) => {
-    const { roomName } = req.params;
+  app.delete(
+    '/daily/rooms/:roomName',
+    routeErrorHandling(async (req, res) => {
+      const { roomName } = req.params;
 
-    try {
       const callRecord = await CallRecords.findOne({
         roomName,
         status: VIDEO_CALL_STATUS.ONGOING
@@ -97,18 +101,17 @@ const init = async app => {
       }
 
       return res.json({});
-    } catch (e) {
-      return next(e);
-    }
-  });
+    })
+  );
 
-  app.get('/daily/room', async (req, res, next) => {
-    debugRequest(debugDaily, req);
+  app.get(
+    '/daily/room',
+    routeErrorHandling(async (req, res) => {
+      debugRequest(debugDaily, req);
 
-    const { DAILY_END_POINT } = await getConfigs();
-    const { erxesApiMessageId } = req.query;
+      const { DAILY_END_POINT } = await getConfigs();
+      const { erxesApiMessageId } = req.query;
 
-    try {
       const callRecord = await CallRecords.findOne({ erxesApiMessageId });
 
       const response: {
@@ -132,18 +135,17 @@ const init = async app => {
       }
 
       return res.json(response);
-    } catch (e) {
-      return next(e);
-    }
-  });
+    })
+  );
 
-  app.get('/daily/get-active-room', async (req, res, next) => {
-    debugRequest(debugDaily, req);
+  app.get(
+    '/daily/get-active-room',
+    routeErrorHandling(async (req, res) => {
+      debugRequest(debugDaily, req);
 
-    const { erxesApiConversationId } = req.query;
-    const { DAILY_END_POINT } = await getConfigs();
+      const { erxesApiConversationId } = req.query;
+      const { DAILY_END_POINT } = await getConfigs();
 
-    try {
       const callRecord = await CallRecords.findOne({
         erxesApiConversationId,
         status: VIDEO_CALL_STATUS.ONGOING
@@ -171,17 +173,16 @@ const init = async app => {
       }
 
       return res.json(response);
-    } catch (e) {
-      return next(e);
-    }
-  });
+    })
+  );
 
-  app.post('/daily/saveRecordingInfo', async (req, res, next) => {
-    debugRequest(debugDaily, req);
+  app.post(
+    '/daily/saveRecordingInfo',
+    routeErrorHandling(async (req, res) => {
+      debugRequest(debugDaily, req);
 
-    const { erxesApiConversationId, recordingId } = req.body;
+      const { erxesApiConversationId, recordingId } = req.body;
 
-    try {
       await CallRecords.updateOne(
         { erxesApiConversationId, status: VIDEO_CALL_STATUS.ONGOING },
         { $push: { recordings: { id: recordingId } } }
@@ -190,19 +191,18 @@ const init = async app => {
       return res.json({
         status: 'ok'
       });
-    } catch (e) {
-      return next(e);
-    }
-  });
+    })
+  );
 
   // create room
-  app.post('/daily/room', async (req, res, next) => {
-    debugRequest(debugDaily, req);
+  app.post(
+    '/daily/room',
+    routeErrorHandling(async (req, res) => {
+      debugRequest(debugDaily, req);
 
-    const { DAILY_END_POINT } = await getConfigs();
-    const { erxesApiMessageId, erxesApiConversationId } = req.body;
+      const { DAILY_END_POINT } = await getConfigs();
+      const { erxesApiMessageId, erxesApiConversationId } = req.body;
 
-    try {
       const privacy = 'private';
 
       const response = await sendDailyRequest(`/api/v1/rooms`, 'POST', {
@@ -241,10 +241,8 @@ const init = async app => {
         name: callRecord.roomName,
         status: VIDEO_CALL_STATUS.ONGOING
       });
-    } catch (e) {
-      return next(e);
-    }
-  });
+    })
+  );
 };
 
 export default init;

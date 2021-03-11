@@ -40,6 +40,7 @@ const Content = styled.div`
   border-radius: 3px;
   margin: ${dimensions.unitSpacing - 5}px 0;
   display: inline-block;
+  max-width: 270px;
 
   > p {
     margin: 0;

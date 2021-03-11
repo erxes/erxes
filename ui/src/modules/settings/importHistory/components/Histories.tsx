@@ -38,7 +38,13 @@ const DATA_IMPORT_TYPES = [
   'lead'
 ];
 
-const DYNAMICLY_TEMPLATE_TYPES = ['customer', 'company', 'product', 'lead'];
+const DYNAMICLY_TEMPLATE_TYPES = [
+  'customer',
+  'company',
+  'product',
+  'lead',
+  'visitor'
+];
 
 class Histories extends React.Component<Props & IRouterProps> {
   renderHistories = () => {
@@ -106,6 +112,7 @@ class Histories extends React.Component<Props & IRouterProps> {
         btnStyle = 'success';
         text = 'Download template';
         break;
+
       case 'export':
         icon = 'export';
         btnStyle = 'primary';
@@ -114,7 +121,14 @@ class Histories extends React.Component<Props & IRouterProps> {
     }
 
     const manageColumns = props => {
-      return <ManageColumns {...props} contentType={currentType} type={type} />;
+      return (
+        <ManageColumns
+          {...props}
+          contentType={currentType}
+          type={type}
+          isImport={true}
+        />
+      );
     };
 
     const editColumns = (

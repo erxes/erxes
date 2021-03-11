@@ -11,7 +11,7 @@ import {
   replaceEditorAttributes,
   sendToWebhook
 } from '../../utils';
-import { send } from './engageUtils';
+import { checkCampaignDoc, send } from './engageUtils';
 
 interface IEngageMessageEdit extends IEngageMessage {
   _id: string;
@@ -47,6 +47,8 @@ const engageMutations = {
         `SMS engage message of kind ${doc.kind} is not supported`
       );
     }
+
+    checkCampaignDoc(doc);
 
     // fromUserId is not required in sms engage, so set it here
     if (!doc.fromUserId) {
@@ -87,6 +89,8 @@ const engageMutations = {
     { _id, ...doc }: IEngageMessageEdit,
     { user }: IContext
   ) {
+    checkCampaignDoc(doc);
+
     const engageMessage = await EngageMessages.getEngageMessage(_id);
     const updated = await EngageMessages.updateEngageMessage(_id, doc);
 
@@ -129,7 +133,15 @@ const engageMutations = {
   /**
    * Engage message set live
    */
-  engageMessageSetLive(_root, { _id }: { _id: string }) {
+  async engageMessageSetLive(_root, { _id }: { _id: string }) {
+    const campaign = await EngageMessages.getEngageMessage(_id);
+
+    if (campaign.isLive) {
+      throw new Error('Campaign is already live');
+    }
+
+    checkCampaignDoc(campaign);
+
     return EngageMessages.engageMessageSetLive(_id);
   },
 
@@ -250,9 +262,9 @@ const engageMutations = {
 
     delete doc._id;
 
-    if (doc.scheduleDate) {
+    if (doc.scheduleDate && doc.scheduleDate.dateTime) {
       // schedule date should be manually set
-      delete doc.scheduleDate;
+      doc.scheduleDate.dateTime = null;
     }
 
     const copy = await EngageMessages.createEngageMessage(doc);

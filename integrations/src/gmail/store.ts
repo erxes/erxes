@@ -1,4 +1,4 @@
-import { debugGmail } from '../debuggers';
+import { debugError, debugGmail } from '../debuggers';
 import { sendRPCMessage } from '../messageBroker';
 import { Integrations } from '../models';
 import { cleanHtml } from '../utils';
@@ -95,7 +95,7 @@ export const storeCustomer = async ({
       email
     };
   } catch (e) {
-    debugGmail('Failed to create customer');
+    debugError('Failed to create customer');
     throw e;
   }
 };
@@ -164,7 +164,7 @@ export const storeConversation = async (args: {
       }
     };
   } catch (e) {
-    debugGmail(`Failed to create conversation ${e.message}`);
+    debugError(`Failed to create conversation ${e.message}`);
     throw e;
   }
 };
