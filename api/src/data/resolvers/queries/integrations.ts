@@ -22,7 +22,8 @@ const generateFilterQuery = async ({
   brandId,
   searchValue,
   tag,
-  status
+  status,
+  formLoadType
 }) => {
   const query: any = {};
 
@@ -70,6 +71,10 @@ const generateFilterQuery = async ({
     query.isActive = status === 'active' ? true : false;
   }
 
+  if (formLoadType) {
+    query['leadData.loadType'] = formLoadType;
+  }
+
   return query;
 };
 
@@ -89,6 +94,7 @@ const integrationQueries = {
       brandId: string;
       tag: string;
       status: string;
+      formLoadType: string;
     },
     { singleBrandIdSelector }: IContext
   ) {
@@ -141,6 +147,7 @@ const integrationQueries = {
       tag: string;
       searchValue: string;
       status: string;
+      formLoadType: string;
     }
   ) {
     const counts = {
@@ -223,7 +230,7 @@ const integrationQueries = {
     }
 
     // Counting all integrations without any filter
-    counts.total = await count({});
+    counts.total = await count(qry);
 
     return counts;
   },

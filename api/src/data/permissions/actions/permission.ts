@@ -6,7 +6,7 @@ export const moduleObjects = {
       {
         name: 'brandsAll',
         description: 'All',
-        use: ['showBrands', 'manageBrands']
+        use: ['showBrands', 'manageBrands', 'exportBrands']
       },
       {
         name: 'manageBrands',
@@ -29,7 +29,7 @@ export const moduleObjects = {
       {
         name: 'channelsAll',
         description: 'All',
-        use: ['showChannels', 'manageChannels']
+        use: ['showChannels', 'manageChannels', 'exportChannels']
       },
       {
         name: 'manageChannels',
@@ -325,6 +325,10 @@ export const moduleObjects = {
       {
         name: 'ticketBoardsAdd',
         description: 'Add ticket board'
+      },
+      {
+        name: 'ticketBoardsEdit',
+        description: 'Edit ticket board'
       },
       {
         name: 'ticketBoardsRemove',
@@ -771,7 +775,7 @@ export const moduleObjects = {
       {
         name: 'productsAll',
         description: 'All',
-        use: ['showProducts', 'manageProducts']
+        use: ['showProducts', 'manageProducts', 'productsMerge']
       },
       {
         name: 'manageProducts',
@@ -1016,7 +1020,8 @@ export const moduleObjects = {
           'showConversations',
           'changeConversationStatus',
           'assignConversation',
-          'conversationMessageAdd'
+          'conversationMessageAdd',
+          'conversationResolveAll'
         ]
       },
       {
@@ -1134,8 +1139,7 @@ export const moduleObjects = {
           'getSkills',
           'createSkill',
           'updateSkill',
-          'removeSkill',
-          'manageSkills'
+          'removeSkill'
         ]
       },
       {

@@ -35,13 +35,19 @@ const doSearch = async (index, value, fields) => {
     };
   }
 
-  const fetchResults = await fetchElk('search', index, {
-    query,
-    size: 10,
-    highlight: {
-      fields: highlightFields
-    }
-  });
+  const fetchResults = await fetchElk(
+    'search',
+    index,
+    {
+      query,
+      size: 10,
+      highlight: {
+        fields: highlightFields
+      }
+    },
+    '',
+    { hits: { hits: [] } }
+  );
 
   const results = fetchResults.hits.hits.map(result => {
     return {
