@@ -27,7 +27,6 @@ import {
   OptionStep,
   SuccessStep
 } from './step';
-import BoardStep from './step/BoardStep';
 import { PreviewWrapper } from './step/style';
 
 type Props = {
@@ -334,18 +333,6 @@ class Lead extends React.Component<Props, State> {
                   isReadyToSaveForm={this.props.isReadyToSaveForm}
                   currentMode={this.state.currentMode}
                   currentField={this.state.currentField}
-                />
-              </Step>
-              <Step
-                img="/images/icons/erxes-12.svg"
-                title={'Task'}
-                onClick={this.onStepClick.bind(null, 'form')}
-              >
-                <BoardStep
-                  type="task"
-                  showSelect={true}
-                  formData={formData}
-                  fields={[]}
                 />
               </Step>
               <Step

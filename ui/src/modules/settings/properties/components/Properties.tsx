@@ -76,6 +76,10 @@ class Properties extends React.Component<Props> {
   renderActionBar = () => {
     const { queryParams, fieldsGroups, currentType } = this.props;
 
+    if (currentType === 'device') {
+      return;
+    }
+
     const addGroup = <Dropdown.Item>{__('Add group')}</Dropdown.Item>;
     const addField = <Dropdown.Item>{__('Add Property')}</Dropdown.Item>;
 

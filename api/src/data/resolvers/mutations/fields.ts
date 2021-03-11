@@ -127,10 +127,6 @@ const fieldsGroupsMutations = {
       isVisible,
       isVisibleInDetail
     );
-  },
-
-  fieldsGroupsLoadInitialData(_root) {
-    return FieldsGroups.createSystemGroupsFields();
   }
 };
 

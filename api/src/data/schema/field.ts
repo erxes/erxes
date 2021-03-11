@@ -105,5 +105,4 @@ export const fieldsGroupsMutations = `
   fieldsGroupsEdit(_id: String!, ${fieldsGroupsCommonFields}): FieldsGroup
   fieldsGroupsRemove(_id: String!): JSON
   fieldsGroupsUpdateVisible(_id: String, isVisible: Boolean, isVisibleInDetail: Boolean) : FieldsGroup
-  fieldsGroupsLoadInitialData: JSON
 `;

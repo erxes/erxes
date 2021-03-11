@@ -592,16 +592,29 @@ export const loadGroupClass = () => {
         }
 
         for (const subType of group.types) {
+          if (subType.value === 'deal') {
+            continue;
+          }
+
           const doc = {
             name: 'Basic information',
             contentType: subType.value,
-            order: 0,
+            order: -1,
             isDefinedByErxes: true,
             description: `Basic information of a ${subType.value}`,
             isVisible: true
           };
 
           const { contentType } = doc;
+
+          const existingGroup = await FieldsGroups.findOne({
+            contentType: doc.contentType,
+            isDefinedByErxes: true
+          });
+
+          if (existingGroup) {
+            continue;
+          }
 
           // Automatically setting order of group to the bottom
           let order = 0;
