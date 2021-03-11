@@ -594,7 +594,8 @@ describe('engage message mutation tests', () => {
     expect(response.isLive).toBe(true);
 
     const manualMessage = await engageMessageFactory({
-      kind: MESSAGE_KINDS.MANUAL
+      kind: MESSAGE_KINDS.MANUAL,
+      customerTagIds: [_tag._id]
     });
 
     response = await graphqlRequest(mutation, 'engageMessageSetLive', {
@@ -933,9 +934,9 @@ describe('engage message mutation tests', () => {
       engageUtils.checkCampaignDoc({
         ...doc,
         scheduleDate: { type: 'month' },
-        brandIds: null,
-        segmentIds: null,
-        customerTagIds: null
+        brandIds: [],
+        segmentIds: [],
+        customerTagIds: []
       });
     } catch (e) {
       expect(e.message).toBe('One of brand or segment or tag must be chosen');
