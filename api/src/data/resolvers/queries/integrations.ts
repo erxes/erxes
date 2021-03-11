@@ -230,7 +230,7 @@ const integrationQueries = {
     }
 
     // Counting all integrations without any filter
-    counts.total = await count({});
+    counts.total = await count(qry);
 
     return counts;
   },
