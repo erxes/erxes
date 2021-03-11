@@ -9,13 +9,13 @@ import { Embedded, PreviewContainer, SlideLeftContent } from './preview/styles';
 const Space = `${dimensions.unitSpacing + dimensions.coreSpacing}px`;
 
 const Box = styledTS<{ selected?: boolean }>(styled(BoxRoot))`
-  padding: ${dimensions.coreSpacing * 2}px;
+  padding: ${dimensions.coreSpacing * 1.5}px;
   width: 50%;
-  background: ${colors.bgLight};
+  background: ${colors.colorWhite};
   min-width: 160px;
 
   i {
-    font-size: 36px;
+    font-size: 34px;
     color: ${colors.colorSecondary};
   }
 
@@ -84,7 +84,7 @@ const ImageUpload = styled.div`
   display: flex;
   justify-content: center;
   align-items: center;
-  min-height: 200px;
+  min-height: 120px;
   position: relative;
   padding: 10px;
   transition: border ease 0.3s;
@@ -100,7 +100,7 @@ const ImageUpload = styled.div`
     cursor: pointer;
 
     i {
-      font-size: 26px;
+      font-size: 22px;
       display: block;
       color: ${colors.colorCoreGray};
       margin-bottom: 5px;
@@ -284,6 +284,10 @@ const PreviewWrapper = styled.div`
   }
 `;
 
+const LabelWrapper = styled.div`
+  margin-bottom: 10px;
+`;
+
 export {
   FlexItem,
   FlexColumn,
@@ -300,5 +304,6 @@ export {
   FullPreview,
   PreviewWrapper,
   ImageUpload,
-  ImagePreview
+  ImagePreview,
+  LabelWrapper
 };

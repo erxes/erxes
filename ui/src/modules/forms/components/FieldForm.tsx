@@ -1,5 +1,6 @@
 import { IOption } from 'erxes-ui/lib/types';
 import Button from 'modules/common/components/Button';
+import CollapseContent from 'modules/common/components/CollapseContent';
 import FormControl from 'modules/common/components/form/Control';
 import FormGroup from 'modules/common/components/form/Group';
 import ControlLabel from 'modules/common/components/form/Label';
@@ -7,6 +8,7 @@ import Icon from 'modules/common/components/Icon';
 import { FlexItem } from 'modules/common/components/step/styles';
 import Toggle from 'modules/common/components/Toggle';
 import { __ } from 'modules/common/utils';
+import { Divider } from 'modules/settings/permissions/styles';
 import SelectProperty from 'modules/settings/properties/containers/SelectProperty';
 import { IField } from 'modules/settings/properties/types';
 import React from 'react';
@@ -95,8 +97,9 @@ class FieldForm extends React.Component<Props, State> {
 
   renderValidation() {
     const { field } = this.state;
+    const type = field.type;
 
-    if (field.type === 'file') {
+    if (type !== 'input' && type !== 'email' && type !== 'phone') {
       return null;
     }
 
@@ -168,7 +171,12 @@ class FieldForm extends React.Component<Props, State> {
     };
 
     return (
-      <Button size="small" btnStyle="danger" onClick={onDelete} icon="cancel-1">
+      <Button
+        uppercase={false}
+        btnStyle="danger"
+        onClick={onDelete}
+        icon="minus-circle-1"
+      >
         Delete
       </Button>
     );
@@ -195,47 +203,58 @@ class FieldForm extends React.Component<Props, State> {
 
     return (
       <>
-        {this.renderValidation()}
+        <CollapseContent
+          title={__('General settings')}
+          compact={true}
+          open={true}
+        >
+          <FormGroup>
+            <ControlLabel htmlFor="text" required={true}>
+              Field Label
+            </ControlLabel>
 
-        <FormGroup>
-          <ControlLabel htmlFor="text" required={true}>
-            Field Title
-          </ControlLabel>
+            <FormControl
+              id="FieldLabel"
+              type="text"
+              value={field.text || ''}
+              onChange={text}
+              autoFocus={true}
+            />
+          </FormGroup>
 
-          <FormControl
-            id="FieldLabel"
-            type="text"
-            value={field.text || ''}
-            onChange={text}
-            autoFocus={true}
-          />
-        </FormGroup>
+          <FormGroup>
+            <ControlLabel htmlFor="description">Field description</ControlLabel>
+            <FormControl
+              id="FieldDescription"
+              componentClass="textarea"
+              value={field.description || ''}
+              onChange={desc}
+            />
+          </FormGroup>
 
-        <FormGroup>
-          <ControlLabel htmlFor="description">Field description</ControlLabel>
-          <FormControl
-            id="FieldDescription"
-            componentClass="textarea"
-            value={field.description || ''}
-            onChange={desc}
-          />
-        </FormGroup>
+          {this.renderValidation()}
 
-        {this.renderCustomProperty()}
+          {this.renderOptions()}
 
-        {this.renderOptions()}
+          <FormGroup>
+            <FlexRow>
+              <ControlLabel htmlFor="description">
+                {__('Field is required')}
+              </ControlLabel>
+              <Toggle
+                defaultChecked={field.isRequired || false}
+                icons={{
+                  checked: <span>Yes</span>,
+                  unchecked: <span>No</span>
+                }}
+                onChange={toggle}
+              />
+            </FlexRow>
+          </FormGroup>
 
-        <FlexRow>
-          <label>{__('This field is required')}</label>
-          <Toggle
-            defaultChecked={field.isRequired || false}
-            icons={{
-              checked: <span>Yes</span>,
-              unchecked: <span>No</span>
-            }}
-            onChange={toggle}
-          />
-        </FlexRow>
+          {this.renderCustomProperty()}
+        </CollapseContent>
+        <CollapseContent title={__('Logic')} compact={true}></CollapseContent>
 
         <Modal.Footer>
           <Button
@@ -256,7 +275,7 @@ class FieldForm extends React.Component<Props, State> {
             btnStyle="success"
             icon={mode === 'update' ? 'check-circle' : 'plus-circle'}
           >
-            {mode === 'update' ? 'Save' : 'Add'}
+            {mode === 'update' ? 'Save' : 'Add to Form'}
           </Button>
         </Modal.Footer>
       </>
@@ -291,14 +310,17 @@ class FieldForm extends React.Component<Props, State> {
     }
 
     return (
-      <FormGroup>
-        <SelectProperty
-          queryParams={{ type: 'customer' }}
-          defaultValue={selectedOption && selectedOption.value}
-          description="Any data collected through this field will copy to:"
-          onChange={this.onPropertyChange}
-        />
-      </FormGroup>
+      <>
+        <Divider>{__('Or')}</Divider>
+        <FormGroup>
+          <SelectProperty
+            queryParams={{ type: 'customer' }}
+            defaultValue={selectedOption && selectedOption.value}
+            description="Any data collected through this field will copy to:"
+            onChange={this.onPropertyChange}
+          />
+        </FormGroup>
+      </>
     );
   }
 

@@ -2,7 +2,7 @@ import { colors, dimensions } from 'modules/common/styles';
 import { rgba } from 'modules/common/styles/color';
 import styled from 'styled-components';
 import styledTS from 'styled-components-ts';
-import { SelectWrapper } from '../common/components/form/styles';
+import { Formgroup, SelectWrapper } from '../common/components/form/styles';
 
 const FlexRow = styled.div`
   display: flex;
@@ -27,7 +27,7 @@ const FieldWrapper = styled.div`
   float: left;
   min-height: 110px;
   border: 1px solid ${colors.borderPrimary};
-  border-radius: 2px;
+  border-radius: 4px;
   margin-bottom: 4%;
   padding: 20px;
   transition: all ease 0.3s;
@@ -47,10 +47,14 @@ const FieldWrapper = styled.div`
   }
 `;
 
+const FieldsWrapper = styled.div`
+  margin: 0 -10px;
+`;
+
 const FieldItem = styledTS<{ selectType?: boolean; noPadding?: boolean }>(
   styled.div
 )`
-  padding: ${props => !props.noPadding && `0 ${dimensions.unitSpacing}px`};
+  padding: ${props => !props.noPadding && `10px 10px 0 10px`};
   flex: 1;
 
   input,
@@ -71,7 +75,6 @@ const FieldItem = styledTS<{ selectType?: boolean; noPadding?: boolean }>(
     outline: 0;
     padding: 6px 15px;
     width: 100%;
-
 
     &:focus {
       border-color: ${colors.colorShadowGray};
@@ -94,6 +97,12 @@ const FieldItem = styledTS<{ selectType?: boolean; noPadding?: boolean }>(
 
   ${SelectWrapper} {
     margin-top: ${dimensions.unitSpacing}px;
+    height: auto;
+    border: none;
+  }
+
+  ${Formgroup} {
+    margin-bottom: 10px;
   }
 `;
 
@@ -104,7 +113,6 @@ const Options = styled.div`
 `;
 
 const LeftSection = styled.div`
-  border-right: 1px solid ${colors.borderDarker};
   padding-right: ${dimensions.coreSpacing}px;
   width: 100%;
 `;
@@ -115,7 +123,8 @@ const PreviewSection = styled.div`
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: ${dimensions.coreSpacing}px;
+  padding: ${dimensions.coreSpacing}px 0 ${dimensions.coreSpacing}px
+    ${dimensions.coreSpacing}px;
 `;
 
 const Preview = styled.div`
@@ -137,7 +146,7 @@ const ShowPreview = styled.div`
 
 const Title = styled.h4`
   font-size: 16px;
-  margin-top: 10px;
+  margin: 0 0 5px;
   font-weight: 500;
 `;
 
@@ -151,5 +160,6 @@ export {
   PreviewSection,
   FlexRow,
   FlexWrapper,
-  Title
+  Title,
+  FieldsWrapper
 };

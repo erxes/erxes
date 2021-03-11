@@ -4,6 +4,7 @@ import { LeftItem } from 'modules/common/components/step/styles';
 import { __ } from 'modules/common/utils';
 import { FlexContent } from 'modules/layout/styles';
 import { IField } from 'modules/settings/properties/types';
+import { Description } from 'modules/settings/styles';
 import React from 'react';
 import FormGroup from '../../common/components/form/Group';
 import { Title } from '../styles';
@@ -191,18 +192,6 @@ class Form extends React.Component<Props, State> {
     const { renderPreviewWrapper } = this.props;
     const { currentMode, currentField, fields, desc } = this.state;
 
-    if (currentField) {
-      return (
-        <FieldForm
-          mode={currentMode || 'create'}
-          field={currentField}
-          onSubmit={this.onFieldSubmit}
-          onDelete={this.onFieldDelete}
-          onCancel={this.onFieldFormCancel}
-        />
-      );
-    }
-
     const renderer = () => {
       return (
         <FieldsPreview
@@ -217,12 +206,22 @@ class Form extends React.Component<Props, State> {
     return (
       <FlexContent>
         <LeftItem>
-          {this.renderOptionalFields()}
-
           <Title>{__('Add a new field')}</Title>
-          <p>{__('Choose a field type from the options below.')}</p>
+          <Description>
+            {__('Choose a field type from the options below.')}
+          </Description>
           <FieldChoices onChoiceClick={this.onChoiceClick} />
+          {this.renderOptionalFields()}
         </LeftItem>
+        {currentField && (
+          <FieldForm
+            mode={currentMode || 'create'}
+            field={currentField}
+            onSubmit={this.onFieldSubmit}
+            onDelete={this.onFieldDelete}
+            onCancel={this.onFieldFormCancel}
+          />
+        )}
         {renderPreviewWrapper && renderPreviewWrapper(renderer, fields)}
       </FlexContent>
     );

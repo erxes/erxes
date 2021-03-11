@@ -19,11 +19,7 @@ class FieldPreview extends React.Component<Props, {}> {
     };
 
     return (
-      <FieldItem
-        selectType={field.type === 'select'}
-        noPadding={true}
-        onClick={onClickItem}
-      >
+      <FieldItem selectType={field.type === 'select'} onClick={onClickItem}>
         <GenerateField field={field} />
       </FieldItem>
     );
