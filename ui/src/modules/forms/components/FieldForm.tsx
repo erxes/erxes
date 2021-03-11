@@ -254,7 +254,9 @@ class FieldForm extends React.Component<Props, State> {
 
           {this.renderCustomProperty()}
         </CollapseContent>
-        <CollapseContent title={__('Logic')} compact={true}></CollapseContent>
+        <CollapseContent title={__('Logic')} compact={true}>
+          Logic
+        </CollapseContent>
 
         <Modal.Footer>
           <Button
