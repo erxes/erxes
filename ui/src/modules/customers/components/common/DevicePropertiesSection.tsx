@@ -41,8 +41,6 @@ class DevicePropertiesSection extends React.Component<Props> {
 
     const property = fields.find(e => e.field === field);
 
-    console.log('property: ', property);
-
     if (property && !property[isVisibleKey]) {
       return;
     }
@@ -62,10 +60,8 @@ class DevicePropertiesSection extends React.Component<Props> {
   };
 
   renderContent() {
-    const { customer, fields } = this.props;
+    const { customer } = this.props;
     const location = customer.location;
-
-    console.log('device fields: ', fields);
 
     if (!location) {
       return <EmptyState icon="placeholder" text="No location" size="small" />;
