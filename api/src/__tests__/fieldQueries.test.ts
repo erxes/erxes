@@ -276,12 +276,14 @@ describe('fieldQueries', () => {
     await fieldFactory({
       text: 'text1',
       contentType: 'customer',
-      visible: true
+      visible: true,
+      isDefinedByErxes: false
     });
     await fieldFactory({
       text: 'text2',
       contentType: 'customer',
-      visible: false
+      visible: false,
+      isDefinedByErxes: false
     });
 
     const qry = `
@@ -341,5 +343,98 @@ describe('fieldQueries', () => {
     const field = responses[0];
 
     expect(field.associatedField._id).toBe(customField._id);
+  });
+
+  test('get inbox system fields', async () => {
+    // Creating test data
+    const customerGroup = await fieldGroupFactory({
+      contentType: 'customer',
+      isDefinedByErxes: true
+    });
+    const conversationGroup = await fieldGroupFactory({
+      contentType: 'conversation',
+      isDefinedByErxes: true
+    });
+    const deviceGroup = await fieldGroupFactory({
+      contentType: 'device',
+      isDefinedByErxes: true
+    });
+
+    const customerField = await fieldFactory({
+      text: 'customer',
+      contentType: 'customer',
+      visible: true,
+      groupId: customerGroup ? customerGroup._id : ''
+    });
+
+    const deviceField = await fieldFactory({
+      text: 'device',
+      contentType: 'device',
+      visible: true,
+      groupId: deviceGroup ? deviceGroup._id : ''
+    });
+
+    const conversationField = await fieldFactory({
+      text: 'conversation',
+      contentType: 'conversation',
+      visible: true,
+      groupId: conversationGroup ? conversationGroup._id : ''
+    });
+
+    const qry = `
+        query fieldsInbox {
+          fieldsInbox {
+            customer {
+              _id
+            }
+            device {
+              _id
+            }
+            conversation {
+              _id
+            }
+          }
+        }
+    `;
+
+    const response = await graphqlRequest(qry, 'fieldsInbox', {});
+
+    expect(response).toBeDefined();
+    expect(response.customer[0]._id).toEqual(customerField._id);
+    expect(response.device[0]._id).toEqual(deviceField._id);
+    expect(response.conversation[0]._id).toEqual(conversationField._id);
+  });
+
+  test('getSystemFieldsGroup', async () => {
+    const customerGroup = await fieldGroupFactory({
+      contentType: 'customer',
+      isDefinedByErxes: true
+    });
+
+    const customerField = await fieldFactory({
+      text: 'customer',
+      contentType: 'customer',
+      visible: true,
+      groupId: customerGroup ? customerGroup._id : ''
+    });
+
+    const qry = `
+    query getSystemFieldsGroup($contentType: String!) {
+      getSystemFieldsGroup(contentType: $contentType) {
+        _id
+        fields {
+          _id
+        }
+      }
+    }
+    `;
+
+    const response = await graphqlRequest(qry, 'getSystemFieldsGroup', {
+      contentType: 'customer'
+    });
+
+    expect(response).toBeDefined();
+    expect(response._id).toEqual(customerGroup && customerGroup._id);
+    expect(response.fields[0]._id).toEqual(customerField._id);
   });
 });

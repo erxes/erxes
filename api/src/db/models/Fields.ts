@@ -374,34 +374,6 @@ export const loadFieldClass = () => {
           });
           await Fields.insertMany(customerFields);
           break;
-        case FIELDS_GROUPS_CONTENT_TYPES.VISITOR:
-          const visitorFields = CUSTOMER_BASIC_INFO.ALL.map(e => {
-            return {
-              text: e.label,
-              field: e.field,
-              canHide: e.canHide,
-              validation: e.validation,
-              groupId,
-              contentType,
-              isDefinedByErxes: true
-            };
-          });
-          await Fields.insertMany(visitorFields);
-          break;
-        case FIELDS_GROUPS_CONTENT_TYPES.LEAD:
-          const leadFields = CUSTOMER_BASIC_INFO.ALL.map(e => {
-            return {
-              text: e.label,
-              field: e.field,
-              canHide: e.canHide,
-              validation: e.validation,
-              groupId,
-              contentType,
-              isDefinedByErxes: true
-            };
-          });
-          await Fields.insertMany(leadFields);
-          break;
         case FIELDS_GROUPS_CONTENT_TYPES.COMPANY:
           const companyFields = COMPANY_INFO.ALL.map(e => {
             return {
@@ -453,9 +425,6 @@ export const loadFieldClass = () => {
           });
           await Fields.insertMany(deviceFields);
           break;
-
-        default:
-          break;
       }
     }
   }
@@ -504,7 +473,7 @@ export const loadGroupClass = () => {
       const { contentType } = doc;
 
       // Automatically setting order of group to the bottom
-      let order = 0;
+      let order = 1;
 
       const lastGroup = await FieldsGroups.findOne({ contentType }).sort({
         order: -1
@@ -599,7 +568,7 @@ export const loadGroupClass = () => {
           const doc = {
             name: 'Basic information',
             contentType: subType.value,
-            order: -1,
+            order: 0,
             isDefinedByErxes: true,
             description: `Basic information of a ${subType.value}`,
             isVisible: true
@@ -608,7 +577,7 @@ export const loadGroupClass = () => {
           const { contentType } = doc;
 
           const existingGroup = await FieldsGroups.findOne({
-            contentType: doc.contentType,
+            contentType,
             isDefinedByErxes: true
           });
 
@@ -616,25 +585,11 @@ export const loadGroupClass = () => {
             continue;
           }
 
-          // Automatically setting order of group to the bottom
-          let order = 0;
-
-          const lastGroup = await FieldsGroups.findOne({ contentType }).sort({
-            order: -1
-          });
-
-          if (lastGroup) {
-            order = (lastGroup.order || 0) + 1;
-          }
-
-          if (['ticket', 'task', 'lead', 'visitor'].includes(doc.contentType)) {
+          if (['ticket', 'task', 'lead', 'visitor'].includes(contentType)) {
             continue;
           }
 
-          const fieldGroup = await FieldsGroups.create({
-            ...doc,
-            order
-          });
+          const fieldGroup = await FieldsGroups.create(doc);
 
           await Fields.createSystemFields(fieldGroup._id, subType.value);
         }

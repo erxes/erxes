@@ -621,6 +621,8 @@ interface IFieldFactoryInput {
   groupId?: string;
   isDefinedByErxes?: boolean;
   isVisible?: boolean;
+  isVisibleInDetail?: boolean;
+  canHide?: boolean;
   options?: string[];
   associatedFieldId?: string;
 }
@@ -645,9 +647,21 @@ export const fieldFactory = async (params: IFieldFactoryInput) => {
       params.visible === undefined || params.visible === null
         ? true
         : params.visible,
+    isVisibleInDetail:
+      params.isVisibleInDetail === undefined ||
+      params.isVisibleInDetail === null
+        ? true
+        : params.isVisibleInDetail,
+    canHide:
+      params.canHide === undefined || params.canHide === null
+        ? true
+        : params.canHide,
     groupId: params.groupId || (groupObj ? groupObj._id : ''),
-    isDefinedByErxes: params.isDefinedByErxes,
-    associatedFieldId: params.associatedFieldId
+    associatedFieldId: params.associatedFieldId,
+    isDefinedByErxes:
+      params.isDefinedByErxes === undefined || params.isDefinedByErxes === null
+        ? false
+        : params.isDefinedByErxes
   });
 };
 
