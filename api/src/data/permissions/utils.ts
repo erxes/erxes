@@ -1,4 +1,5 @@
 import { Permissions, Users } from '../../db/models';
+import { IPermissionDocument } from '../../db/models/definitions/permissions';
 import { IUserDocument } from '../../db/models/definitions/users';
 import { get, set } from '../../inmemoryStorage';
 
@@ -164,30 +165,48 @@ export const userActionsMap = async (
     groupId: { $in: user.groupIds }
   });
 
-  const totalPermissions = [
+  const totalPermissions: IPermissionDocument[] = [
     ...userPermissions,
     ...groupPermissions,
     ...(user.customPermissions || [])
   ];
   const allowedActions: IActionMap = {};
 
-  const check = (name: string, allowed: boolean) => {
+  const allowedElsewhere = (name: string, _id: string) => {
+    const entries = totalPermissions.filter(
+      t =>
+        t._id !== _id &&
+        t.allowed === true &&
+        (t.action === name ||
+          (t.requiredActions.length > 0 && t.requiredActions.includes(name)))
+    );
+
+    return entries.length > 0;
+  };
+
+  const check = (name: string, allowed: boolean, _id: string) => {
     if (typeof allowedActions[name] === 'undefined') {
       allowedActions[name] = allowed;
     }
 
+    const allowedSomewhere = allowedElsewhere(name, _id);
+
     if (allowedActions[name] && !allowed) {
       allowedActions[name] = false;
     }
+
+    if (allowedSomewhere) {
+      allowedActions[name] = true;
+    }
   };
 
-  for (const { requiredActions, allowed, action } of totalPermissions) {
+  for (const { _id, requiredActions, allowed, action } of totalPermissions) {
     if (requiredActions.length > 0) {
       for (const actionName of requiredActions) {
-        check(actionName, allowed);
+        check(actionName, allowed, _id);
       }
     } else {
-      check(action, allowed);
+      check(action, allowed, _id);
     }
   }
 
