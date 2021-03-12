@@ -66,9 +66,12 @@ const Version = (props: Props) => {
     return (
       <VersionContainer isLatest={info.isLatest}>
         Version{' '}
-        <Link to="/settings/release-info">
+        <a
+          href={`https://github.com/erxes/erxes/releases/tag/${info.version}`}
+          target="__blank"
+        >
           <strong>{info.version}</strong>
-        </Link>
+        </a>
         &nbsp;
         <Tip
           placement="top"
