@@ -185,6 +185,8 @@ jobs:
         run: |
           cd ui
           rm -rf node_modules
+          rm -rf src/__tests__
+          rm src/setupTests.ts
           yarn install --frozen-lockfile --production
           yarn build
 
