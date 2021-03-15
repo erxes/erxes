@@ -1,28 +1,32 @@
-const field = `
-   {
-    _id
-    contentType
-    type
-    text
-    field
-    isVisible
-    isVisibleInDetail
-    canHide
-    validation
-    order
-    options
-    groupId
-    description
-    isDefinedByErxes
-    lastUpdatedUser {
-      details {
-        fullName
-      }
+const commonFields = `
+  _id
+  contentType
+  type
+  text
+  field
+  isVisible
+  isVisibleInDetail
+  canHide
+  validation
+  order
+  options
+  groupId
+  description
+  isDefinedByErxes
+  lastUpdatedUser {
+    details {
+      fullName
     }
   }
 `;
 
-const commonFields = `
+const field = `
+  {
+    ${commonFields}
+  }
+`;
+
+const commonFieldsGroups = `
       _id
       name
       description
@@ -37,25 +41,7 @@ const commonFields = `
       }
       isDefinedByErxes
       fields  {
-        _id
-        contentType
-        type
-        text
-        field
-        isVisible
-        isVisibleInDetail
-        canHide
-        validation
-        order
-        options
-        groupId
-        description
-        isDefinedByErxes
-        lastUpdatedUser {
-          details {
-            fullName
-          }
-        }
+        ${commonFields}
       }
     }
 `;
@@ -63,14 +49,14 @@ const commonFields = `
 const fieldsGroups = `
   query fieldsGroups($contentType: String!) {
     fieldsGroups(contentType: $contentType) {
-      ${commonFields}
+      ${commonFieldsGroups}
   }
 `;
 
 const getSystemFieldsGroup = `
   query getSystemFieldsGroup($contentType: String!) {
     getSystemFieldsGroup(contentType: $contentType) {
-      ${commonFields}
+      ${commonFieldsGroups}
   }
 `;
 

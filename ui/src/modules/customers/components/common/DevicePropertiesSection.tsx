@@ -2,6 +2,7 @@ import Box from 'modules/common/components/Box';
 import EmptyState from 'modules/common/components/EmptyState';
 import { __ } from 'modules/common/utils';
 import { ICustomer } from 'modules/customers/types';
+import EmptySidebar from 'modules/layout/components/Sidebar';
 import { FieldStyle, SidebarCounter, SidebarList } from 'modules/layout/styles';
 import { IField } from 'modules/settings/properties/types';
 import React from 'react';
@@ -111,7 +112,15 @@ class DevicePropertiesSection extends React.Component<Props> {
     const { collapseCallback, fields } = this.props;
 
     if (!fields || fields.length === 0) {
-      return;
+      return (
+        <EmptySidebar full={true}>
+          <EmptyState
+            text="Device properties not found"
+            size="full"
+            image="/images/actions/18.svg"
+          />
+        </EmptySidebar>
+      );
     }
 
     return (
