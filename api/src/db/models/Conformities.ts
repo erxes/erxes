@@ -52,6 +52,7 @@ export interface IConformityModel extends Model<IConformityDocument> {
   savedConformity(doc: IConformitySaved): Promise<string[]>;
   relatedConformity(doc: IConformityRelated): Promise<string[]>;
   filterConformity(doc: IConformityFilter): Promise<string[]>;
+  getConformities(doc: IConformityFilter): Promise<IConformityDocument[]>;
 }
 
 export const loadConformityClass = () => {
@@ -203,6 +204,31 @@ export const loadConformityClass = () => {
       ]);
 
       return relTypeIds.map(item => String(item.relTypeId));
+    }
+
+    public static async getConformities(doc: IConformityFilter) {
+      return Conformities.aggregate([
+        {
+          $match: {
+            $or: [
+              {
+                $and: [
+                  { mainType: doc.mainType },
+                  { mainTypeId: { $in: doc.mainTypeIds } },
+                  { relType: doc.relType }
+                ]
+              },
+              {
+                $and: [
+                  { mainType: doc.relType },
+                  { relType: doc.mainType },
+                  { relTypeId: { $in: doc.mainTypeIds } }
+                ]
+              }
+            ]
+          }
+        }
+      ]);
     }
 
     public static async relatedConformity(doc: IConformityRelated) {

@@ -1,5 +1,6 @@
 import {
   commonDragParams,
+  commonListTypes,
   commonMutationParams,
   commonTypes,
   conformityQueryFields,
@@ -7,6 +8,10 @@ import {
 } from './common';
 
 export const types = `
+  type TaskListItem {
+    ${commonListTypes}
+  }
+    
   type Task {
     _id: String!
     companies: [Company]
@@ -41,7 +46,7 @@ export const queries = `
     sortDirection: Int
     userIds: [String]
     ${conformityQueryFields}
-  ): [Task]
+  ): [TaskListItem]
   archivedTasks(pipelineId: String!, search: String, page: Int, perPage: Int): [Task]
   archivedTasksCount(pipelineId: String!, search: String): Int
 `;

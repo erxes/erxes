@@ -48,6 +48,22 @@ export const commonDragParams = `
   proccessId: $proccessId
 `;
 
+export const commonListFields = `
+  _id
+  name
+  companies
+  customers
+  assignedUsers
+  labels
+  stage
+  isComplete
+  isWatched
+  closeDate
+  modifiedAt
+  priority
+  hasNotified
+`;
+
 export const commonFields = `
   _id
   name

@@ -9,8 +9,8 @@ import {
   archivedItems,
   archivedItemsCount,
   checkItemPermByUser,
-  generateSort,
   generateTaskCommonFilters,
+  getItemList,
   IArchiveArgs
 } from './boardUtils';
 
@@ -27,14 +27,8 @@ const taskQueries = {
       ...commonQuerySelector,
       ...(await generateTaskCommonFilters(user._id, args))
     };
-    const sort = generateSort(args);
 
-    const limit = args.limit !== undefined ? args.limit : 10;
-
-    return Tasks.find(filter)
-      .sort(sort)
-      .skip(args.skip || 0)
-      .limit(limit);
+    return await getItemList(filter, args, user, 'task');
   },
 
   /**
