@@ -1,5 +1,4 @@
 import dayjs from 'dayjs';
-import EmptyState from 'modules/common/components/EmptyState';
 import IntegrationIcon from 'modules/common/components/IntegrationIcon';
 import { __ } from 'modules/common/utils';
 import Sidebar from 'modules/layout/components/Sidebar';
@@ -89,13 +88,7 @@ class ConversationDetails extends React.Component<Props> {
     const { brand = {} as IBrand, channels = [] } = integration;
 
     if (!fields || fields.length === 0) {
-      return (
-        <EmptyState
-          icon="folder-2"
-          text="Conversation properties not found"
-          size="small"
-        />
-      );
+      return null;
     }
 
     return (

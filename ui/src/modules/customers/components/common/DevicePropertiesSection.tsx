@@ -111,13 +111,7 @@ class DevicePropertiesSection extends React.Component<Props> {
     const { collapseCallback, fields } = this.props;
 
     if (!fields || fields.length === 0) {
-      return (
-        <EmptyState
-          icon="folder-2"
-          text="Device properties not found"
-          size="small"
-        />
-      );
+      return null;
     }
 
     return (

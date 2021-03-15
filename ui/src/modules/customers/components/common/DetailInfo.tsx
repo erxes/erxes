@@ -1,5 +1,4 @@
 import dayjs from 'dayjs';
-import EmptyState from 'modules/common/components/EmptyState';
 import { __ } from 'modules/common/utils';
 import { GENDER_TYPES } from 'modules/customers/constants';
 import { ICustomer } from 'modules/customers/types';
@@ -98,13 +97,7 @@ class DetailInfo extends React.PureComponent<Props> {
     const { customer, fields } = this.props;
 
     if (!fields || fields.length === 0) {
-      return (
-        <EmptyState
-          icon="folder-2"
-          text="Customer properties not found"
-          size="small"
-        />
-      );
+      return null;
     }
 
     return (
