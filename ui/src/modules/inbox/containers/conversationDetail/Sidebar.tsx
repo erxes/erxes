@@ -5,8 +5,14 @@ import withCurrentUser from 'modules/auth/containers/withCurrentUser';
 import { IUser } from 'modules/auth/types';
 import DumbSidebar from 'modules/inbox/components/conversationDetail/sidebar/Sidebar';
 import { queries } from 'modules/inbox/graphql';
+import { queries as fieldQueries } from 'modules/settings/properties/graphql';
+import {
+  IField,
+  InboxFieldsQueryResponse
+} from 'modules/settings/properties/types';
 import React from 'react';
 import { graphql } from 'react-apollo';
+import Spinner from '../../../common/components/Spinner';
 import { withProps } from '../../../common/utils';
 import {
   CustomerDetailQueryResponse,
@@ -17,10 +23,12 @@ import { getConfig } from '../../utils';
 
 type Props = {
   conversation: IConversation;
+  conversationFields: IField[];
 };
 
 type FinalProps = {
   customerDetailQuery: CustomerDetailQueryResponse;
+  fieldsInboxQuery: InboxFieldsQueryResponse;
   currentUser: IUser;
 } & Props;
 
@@ -35,7 +43,10 @@ class Sidebar extends React.Component<FinalProps, State> {
   constructor(props) {
     super(props);
 
-    this.state = { customer: {} as ICustomer, loading: false };
+    this.state = {
+      customer: {} as ICustomer,
+      loading: false
+    };
   }
 
   componentDidMount() {
@@ -88,6 +99,7 @@ class Sidebar extends React.Component<FinalProps, State> {
   };
 
   render() {
+    const { fieldsInboxQuery } = this.props;
     const { customer, loading } = this.state;
 
     const taggerRefetchQueries = [
@@ -97,12 +109,21 @@ class Sidebar extends React.Component<FinalProps, State> {
       }
     ];
 
+    if (fieldsInboxQuery.loading) {
+      return <Spinner />;
+    }
+
+    const fields = fieldsInboxQuery.fieldsInbox;
+
     const updatedProps = {
       ...this.props,
       customer,
       loading,
       toggleSection: this.toggleSection,
-      taggerRefetchQueries
+      taggerRefetchQueries,
+      customerFields: fields.customer,
+      conversationFields: fields.conversation,
+      deviceFields: fields.device
     };
 
     return <DumbSidebar {...updatedProps} />;
@@ -121,6 +142,9 @@ export default withProps<Props>(
           }
         })
       }
-    )
+    ),
+    graphql<Props, InboxFieldsQueryResponse>(gql(fieldQueries.inboxFields), {
+      name: 'fieldsInboxQuery'
+    })
   )(withCurrentUser(Sidebar))
 );

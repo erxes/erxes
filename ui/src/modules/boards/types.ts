@@ -151,6 +151,9 @@ export interface IItem {
     timeSpent: number;
     startDate?: string;
   };
+  customFieldsData?: {
+    [key: string]: any;
+  };
 }
 
 export interface IDraggableLocation {
