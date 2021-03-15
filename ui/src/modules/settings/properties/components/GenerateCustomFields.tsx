@@ -94,16 +94,20 @@ class GenerateGroup extends React.Component<Props, State> {
   renderContent() {
     const { fieldGroup, isDetail } = this.props;
     const { data } = this.state;
+    const { fields } = fieldGroup;
 
-    if (fieldGroup.fields.length === 0) {
+    const isVisibleKey = isDetail ? 'isVisibleInDetail' : 'isVisible';
+
+    if (
+      fields.length === 0 ||
+      fields.filter(e => e[isVisibleKey]).length === 0
+    ) {
       return <EmptyState icon="folder-2" text="Empty" size="small" />;
     }
 
     return (
       <SidebarContent>
-        {fieldGroup.fields.map((field, index) => {
-          const isVisibleKey = isDetail ? 'isVisibleInDetail' : 'isVisible';
-
+        {fields.map((field, index) => {
           if (!field[isVisibleKey]) {
             return null;
           }
