@@ -20,6 +20,18 @@ export default class ConversationDetail extends React.Component<Props> {
   renderSidebar() {
     const { loading, currentConversation, conversationFields } = this.props;
 
+    if (!conversationFields || conversationFields.length === 0) {
+      return (
+        <EmptySidebar full={false}>
+          <EmptyState
+            text="Conversation properties not found"
+            size="full"
+            image="/images/actions/18.svg"
+          />
+        </EmptySidebar>
+      );
+    }
+
     if (currentConversation) {
       return (
         <Sidebar

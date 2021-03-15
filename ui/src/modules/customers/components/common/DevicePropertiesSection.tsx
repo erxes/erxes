@@ -108,7 +108,11 @@ class DevicePropertiesSection extends React.Component<Props> {
   }
 
   render() {
-    const { collapseCallback } = this.props;
+    const { collapseCallback, fields } = this.props;
+
+    if (!fields || fields.length === 0) {
+      return;
+    }
 
     return (
       <Box
