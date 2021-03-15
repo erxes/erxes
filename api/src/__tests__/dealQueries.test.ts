@@ -1,4 +1,5 @@
 import * as moment from 'moment';
+import user from '../data/resolvers/user';
 import { graphqlRequest } from '../db/connection';
 import {
   boardFactory,
@@ -7,6 +8,7 @@ import {
   customerFactory,
   dealFactory,
   fieldFactory,
+  notificationFactory,
   pipelineFactory,
   pipelineLabelFactory,
   productFactory,
@@ -17,6 +19,44 @@ import { Boards, Deals, Pipelines, Stages } from '../db/models';
 
 import { BOARD_STATUSES } from '../db/models/definitions/constants';
 import './setup.ts';
+
+const generateProductsData = async () => {
+  const field1 = await fieldFactory({ contentType: 'product' });
+
+  if (!field1) {
+    throw new Error('Field not found');
+  }
+
+  const customFieldsData = [{ field: field1._id, value: 'text' }];
+
+  const product = await productFactory({ customFieldsData });
+  const productNoCustomData = await productFactory();
+  const productId = product._id;
+
+  const productsData = [
+    {
+      productId,
+      currency: 'USD',
+      amount: 200,
+      tickUsed: true
+    },
+    {
+      productId,
+      currency: 'USD'
+    },
+    {
+      productId: productNoCustomData._id
+    },
+    {
+      productId: undefined
+    }
+  ];
+
+  return {
+    productsData,
+    productId
+  };
+};
 
 describe('dealQueries', () => {
   const commonDealFields = `
@@ -181,36 +221,7 @@ describe('dealQueries', () => {
   });
 
   test('Deal filter by products', async () => {
-    const field1 = await fieldFactory({ contentType: 'product' });
-
-    if (!field1) {
-      throw new Error('Field not found');
-    }
-
-    const customFieldsData = [{ field: field1._id, value: 'text' }];
-
-    const product = await productFactory({ customFieldsData });
-    const productNoCustomData = await productFactory();
-    const productId = product._id;
-
-    const productsData = [
-      {
-        productId: product._id,
-        currency: 'USD',
-        amount: 200,
-        tickUsed: true
-      },
-      {
-        productId: product._id,
-        currency: 'USD'
-      },
-      {
-        productId: productNoCustomData._id
-      },
-      {
-        productId: undefined
-      }
-    ];
+    const { productsData, productId } = await generateProductsData();
 
     await dealFactory({ productsData });
 
@@ -243,26 +254,60 @@ describe('dealQueries', () => {
   });
 
   test('Deal filter by customers', async () => {
-    const { _id } = await customerFactory();
+    const customer1 = await customerFactory();
+    const customer2 = await customerFactory();
+    const user = await userFactory();
     const deal = await dealFactory();
+
+    await notificationFactory({
+      contentTypeId: deal._id,
+      contentType: 'deal',
+      receiver: user
+    });
 
     await conformityFactory({
       mainType: 'deal',
       mainTypeId: deal._id,
       relType: 'customer',
-      relTypeId: _id
+      relTypeId: customer1._id
     });
 
-    let response = await graphqlRequest(qryDealFilter, 'deals', {
-      customerIds: [_id]
+    await conformityFactory({
+      mainType: 'deal',
+      mainTypeId: deal._id,
+      relType: 'customer',
+      relTypeId: customer2._id
     });
+
+    await conformityFactory({
+      mainType: 'customer',
+      mainTypeId: customer1._id,
+      relType: 'deal',
+      relTypeId: deal._id
+    });
+
+    await conformityFactory({
+      mainType: 'customer',
+      mainTypeId: customer2._id,
+      relType: 'deal',
+      relTypeId: deal._id
+    });
+
+    let response = await graphqlRequest(
+      qryDealFilter,
+      'deals',
+      {
+        customerIds: [customer1._id, customer2._id]
+      },
+      { user }
+    );
 
     expect(response.length).toBe(1);
 
-    const customer1 = await customerFactory();
+    const customer3 = await customerFactory();
 
     response = await graphqlRequest(qryDealFilter, 'deals', {
-      customerIds: [customer1._id]
+      customerIds: [customer3._id]
     });
 
     expect(response.length).toBe(0);
@@ -413,9 +458,12 @@ describe('dealQueries', () => {
     const board = await boardFactory();
     const pipeline = await pipelineFactory({ boardId: board._id });
     const stage = await stageFactory({ pipelineId: pipeline._id });
+    const { productsData } = await generateProductsData();
+
     const deal = await dealFactory({
       stageId: stage._id,
-      watchedUserIds: [currentUser._id]
+      watchedUserIds: [currentUser._id],
+      productsData
     });
 
     const args = { _id: deal._id };

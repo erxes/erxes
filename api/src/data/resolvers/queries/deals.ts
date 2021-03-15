@@ -47,7 +47,7 @@ const dealQueries = {
     );
 
     const dealProductIds = deals.flatMap(deal => {
-      if (deal.productsData) {
+      if (deal.productsData && deal.productsData.length > 0) {
         return deal.productsData.flatMap(pData => pData.productId || []);
       }
 
@@ -59,7 +59,10 @@ const dealQueries = {
     });
 
     for (const deal of deals) {
-      if (!deal.productsData) {
+      if (
+        !deal.productsData ||
+        (deal.productsData && deal.productsData.length === 0)
+      ) {
         continue;
       }
 

@@ -510,11 +510,7 @@ export const getItemList = async (
     return customerIds.flatMap((customerId: string) => {
       const found = customer.cocs.find(cus => customerId === cus._id);
 
-      if (found) {
-        return found;
-      }
-
-      return [];
+      return found || [];
     });
   };
 
@@ -526,11 +522,7 @@ export const getItemList = async (
     return companyIds.flatMap((companyId: string) => {
       const found = company.cocs.find(com => companyId === com._id);
 
-      if (found) {
-        return found;
-      }
-
-      return [];
+      return found || [];
     });
   };
 
@@ -542,13 +534,12 @@ export const getItemList = async (
   );
 
   for (const item of list) {
-    console.log('item.watchedUserIds: ', item.watchedUserIds);
+    const notification = notifications.find(n => n.contentTypeId === item._id);
+
     updatedList.push({
       ...item,
       isWatched: (item.watchedUserIds || []).includes(user._id),
-      hasNotified: notifications.find(n => n.contentTypeId === item._id)
-        ? false
-        : true,
+      hasNotified: notification ? false : true,
       customers: getCustomersByItemId(item._id),
       companies: getCompaniesByItemId(item._id),
       ...(getExtraFields ? await getExtraFields(item) : {})
