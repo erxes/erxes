@@ -361,68 +361,58 @@ export const loadFieldClass = () => {
     ) {
       switch (contentType) {
         case FIELDS_GROUPS_CONTENT_TYPES.CUSTOMER:
-          const customerFields = CUSTOMER_BASIC_INFO.ALL.map(e => {
-            return {
-              text: e.label,
-              field: e.field,
-              canHide: e.canHide,
-              validation: e.validation,
-              groupId,
-              contentType,
-              isDefinedByErxes: true
-            };
-          });
+          const customerFields = CUSTOMER_BASIC_INFO.ALL.map(e => ({
+            text: e.label,
+            field: e.field,
+            canHide: e.canHide,
+            validation: e.validation,
+            groupId,
+            contentType,
+            isDefinedByErxes: true
+          }));
           await Fields.insertMany(customerFields);
           break;
         case FIELDS_GROUPS_CONTENT_TYPES.COMPANY:
-          const companyFields = COMPANY_INFO.ALL.map(e => {
-            return {
-              text: e.label,
-              field: e.field,
-              canHide: e.canHide,
-              validation: e.validation,
-              groupId,
-              contentType,
-              isDefinedByErxes: true
-            };
-          });
+          const companyFields = COMPANY_INFO.ALL.map(e => ({
+            text: e.label,
+            field: e.field,
+            canHide: e.canHide,
+            validation: e.validation,
+            groupId,
+            contentType,
+            isDefinedByErxes: true
+          }));
           await Fields.insertMany(companyFields);
           break;
         case FIELDS_GROUPS_CONTENT_TYPES.PRODUCT:
-          const productFields = PRODUCT_INFO.ALL.map(e => {
-            return {
-              text: e.label,
-              field: e.field,
-              groupId,
-              contentType,
-              canHide: false,
-              isDefinedByErxes: true
-            };
-          });
+          const productFields = PRODUCT_INFO.ALL.map(e => ({
+            text: e.label,
+            field: e.field,
+            groupId,
+            contentType,
+            canHide: false,
+            isDefinedByErxes: true
+          }));
           await Fields.insertMany(productFields);
           break;
         case FIELDS_GROUPS_CONTENT_TYPES.CONVERSATION:
-          const conversationFields = CONVERSATION_INFO.ALL.map(e => {
-            return {
-              text: e.label,
-              field: e.field,
-              groupId,
-              contentType,
-              isDefinedByErxes: true
-            };
-          });
+          const conversationFields = CONVERSATION_INFO.ALL.map(e => ({
+            text: e.label,
+            field: e.field,
+            groupId,
+            contentType,
+            isDefinedByErxes: true
+          }));
           await Fields.insertMany(conversationFields);
           break;
         case FIELDS_GROUPS_CONTENT_TYPES.DEVICE:
-          const deviceFields = DEVICE_PROPERTIES_INFO.ALL.map(e => {
-            return {
-              text: e.label,
-              field: e.field,
-              groupId,
-              contentType,
-              isDefinedByErxes: true
-            };
-          });
+          const deviceFields = DEVICE_PROPERTIES_INFO.ALL.map(e => ({
+            text: e.label,
+            field: e.field,
+            groupId,
+            contentType,
+            isDefinedByErxes: true
+          }));
           await Fields.insertMany(deviceFields);
           break;
       }
@@ -574,10 +564,8 @@ export const loadGroupClass = () => {
             isVisible: true
           };
 
-          const { contentType } = doc;
-
           const existingGroup = await FieldsGroups.findOne({
-            contentType,
+            contentType: doc.contentType,
             isDefinedByErxes: true
           });
 
@@ -585,7 +573,7 @@ export const loadGroupClass = () => {
             continue;
           }
 
-          if (['ticket', 'task', 'lead', 'visitor'].includes(contentType)) {
+          if (['ticket', 'task', 'lead', 'visitor'].includes(doc.contentType)) {
             continue;
           }
 
