@@ -40,7 +40,7 @@ import Segments from './Segments';
 import { Skills, SkillTypes } from './Skills';
 import Tags from './Tags';
 import Tasks from './Tasks';
-import Tickets from './Tickets';
+import { TicketComments, Tickets } from './Tickets';
 import Users from './Users';
 import Webhooks from './Webhook';
 
@@ -89,6 +89,7 @@ export {
   Permissions,
   UsersGroups,
   Tickets,
+  TicketComments,
   Tasks,
   RobotEntries,
   GrowthHacks,

@@ -1,6 +1,12 @@
-import { ClientPortals, Customers, Tickets } from '../../../db/models';
+import {
+  ClientPortals,
+  Customers,
+  TicketComments,
+  Tickets
+} from '../../../db/models';
 import { IClientPortal } from '../../../db/models/definitions/clientPortal';
 import { BOARD_STATUSES } from '../../../db/models/definitions/constants';
+import { IComment } from '../../../db/models/definitions/tickets';
 import { requireLogin } from '../../permissions/wrappers';
 
 interface ICustomerTicket {
@@ -9,6 +15,10 @@ interface ICustomerTicket {
   description: string;
   priority: string;
   stageId: string;
+}
+
+interface ICommentEdit extends IComment {
+  _id: string;
 }
 
 const configClientPortalMutations = {
@@ -57,6 +67,18 @@ const configClientPortalMutations = {
 
   clientPortalConfigUpdate(_root, args: IClientPortal) {
     return ClientPortals.createOrUpdateConfig(args);
+  },
+
+  createTicketComment(_root, args: IComment) {
+    return TicketComments.createComment(args);
+  },
+
+  updateTicketComment(_root, { _id, ...args }: ICommentEdit) {
+    return TicketComments.updateComment(_id, args);
+  },
+
+  removeTicketComment(_root, { _id }: { _id: string }) {
+    return TicketComments.removeComment(_id);
   }
 };
 
