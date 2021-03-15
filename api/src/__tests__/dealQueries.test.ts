@@ -1,5 +1,4 @@
 import * as moment from 'moment';
-import user from '../data/resolvers/user';
 import { graphqlRequest } from '../db/connection';
 import {
   boardFactory,
