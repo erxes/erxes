@@ -1052,5 +1052,6 @@ describe('Conversation message mutations', () => {
 
     expect(response).toBeDefined();
     expect(customFieldsData.length).toEqual(1);
+    expect(customFieldsData[0].value).toBe(123);
   });
 });
