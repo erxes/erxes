@@ -73,7 +73,7 @@ class PropertyGroupForm extends React.Component<Props, State> {
 
   renderFieldVisible() {
     if (!this.props.group) {
-      return;
+      return null;
     }
 
     return (
