@@ -2,7 +2,12 @@ import { Document, Schema } from 'mongoose';
 import { FIELDS_GROUPS_CONTENT_TYPES } from './constants';
 import { field, schemaWrapper } from './utils';
 
-export interface IField {
+interface IVisibility {
+  isVisible?: boolean;
+  isVisibleInDetail?: boolean;
+}
+
+export interface IField extends IVisibility {
   contentType?: string;
   contentTypeId?: string;
   type?: string;
@@ -14,8 +19,6 @@ export interface IField {
   isDefinedByErxes?: boolean;
   order?: number;
   groupId?: string;
-  isVisible?: boolean;
-  isVisibleInDetail?: boolean;
   canHide?: boolean;
   lastUpdatedUserId?: string;
   associatedFieldId?: string;
@@ -25,15 +28,13 @@ export interface IFieldDocument extends IField, Document {
   _id: string;
 }
 
-export interface IFieldGroup {
+export interface IFieldGroup extends IVisibility {
   name?: string;
   contentType?: string;
   order?: number;
   isDefinedByErxes?: boolean;
   description?: string;
   lastUpdatedUserId?: string;
-  isVisible?: boolean;
-  isVisibleInDetail?: boolean;
 }
 
 export interface IFieldGroupDocument extends IFieldGroup, Document {
