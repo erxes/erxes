@@ -78,3 +78,19 @@ export const commonDragParams = `
 `;
 
 export const copyParams = `companyIds: [String], customerIds: [String], labelIds: [String]`;
+
+export const commonListTypes = `
+  _id: String!
+  name: String
+  companies: JSON
+  customers: JSON
+  assignedUsers: JSON
+  stage: JSON
+  labels: JSON
+  isComplete: Boolean
+  isWatched: Boolean
+  closeDate: Date
+  modifiedAt: Date
+  priority: String
+  hasNotified: Boolean
+`;

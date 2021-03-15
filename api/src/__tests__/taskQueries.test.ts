@@ -60,7 +60,7 @@ describe('taskQueries', () => {
         priority: $priority
         closeDateType: $closeDateType
       ) {
-        ${commonTaskTypes}
+        _id
       }
     }
   `;
@@ -158,7 +158,7 @@ describe('taskQueries', () => {
     const qryList = `
       query tasks($stageId: String!) {
         tasks(stageId: $stageId) {
-          ${commonTaskTypes}
+          _id
         }
       }
     `;
