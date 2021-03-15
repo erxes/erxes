@@ -163,7 +163,7 @@ const fieldsGroupQueries = {
         if (a.order && b.order) {
           return a.order - b.order;
         }
-        return 1;
+        return -1;
       });
   },
 
