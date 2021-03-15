@@ -409,6 +409,17 @@ describe('Conversation message mutations', () => {
       expect(e).toBeDefined();
     }
 
+    // long sms content that is split
+    try {
+      args.content = faker.lorem.paragraph();
+
+      await graphqlRequest(addMutation, 'conversationMessageAdd', args, {
+        dataSources
+      });
+    } catch (e) {
+      expect(e).toBeDefined();
+    }
+
     mock.restore();
 
     const mock2 = sinon
