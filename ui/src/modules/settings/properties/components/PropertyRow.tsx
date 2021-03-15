@@ -18,6 +18,10 @@ type Props = {
   removePropertyGroup: (data: { _id: string }) => any;
   removeProperty: (data: { _id: string }) => void;
   updatePropertyVisible: (params: { _id: string; isVisible: boolean }) => void;
+  updatePropertyDetailVisible: (params: {
+    _id: string;
+    isVisibleInDetail: boolean;
+  }) => void;
 };
 
 type State = {
@@ -38,8 +42,17 @@ class PropertyRow extends React.Component<Props, State> {
   };
 
   visibleHandler = (e, property) => {
-    if (property.isDefinedByErxes) {
+    if (!property.canHide) {
       return Alert.error('You cannot update this property');
+    }
+
+    if (e.target.id === 'visibleDetailToggle') {
+      const isVisibleInDetail = e.target.checked;
+
+      return this.props.updatePropertyDetailVisible({
+        _id: property._id,
+        isVisibleInDetail
+      });
     }
 
     const isVisible = e.target.checked;
@@ -88,12 +101,13 @@ class PropertyRow extends React.Component<Props, State> {
         <td>
           {lastUpdatedUser && lastUpdatedUser.details
             ? lastUpdatedUser.details.fullName
-            : 'Unknown'}
+            : 'Erxes'}
         </td>
         <td>
           <Toggle
+            id="visibleToggle"
             defaultChecked={field.isVisible}
-            disabled={field.isDefinedByErxes}
+            disabled={!field.canHide}
             icons={{
               checked: <span>Yes</span>,
               unchecked: <span>No</span>
@@ -101,6 +115,24 @@ class PropertyRow extends React.Component<Props, State> {
             onChange={onChange}
           />
         </td>
+        {['visitor', 'lead', 'customer', 'device'].includes(
+          field.contentType
+        ) ? (
+          <td>
+            <Toggle
+              id="visibleDetailToggle"
+              defaultChecked={field.isVisibleInDetail}
+              disabled={!field.canHide}
+              icons={{
+                checked: <span>Yes</span>,
+                unchecked: <span>No</span>
+              }}
+              onChange={onChange}
+            />
+          </td>
+        ) : (
+          <></>
+        )}
         <td>
           {this.renderActionButtons(field, removeProperty, props => (
             <PropertyForm {...props} field={field} queryParams={queryParams} />
@@ -110,13 +142,30 @@ class PropertyRow extends React.Component<Props, State> {
     );
   };
 
-  renderTable = fields => {
+  renderTable = (fields, contentType) => {
     if (fields.length === 0) {
       return (
         <EmptyState
           icon="circular"
-          text="There arent't any fields in this group"
+          text="There aren't any fields in this group"
         />
+      );
+    }
+
+    if (['visitor', 'lead', 'customer', 'device'].includes(contentType)) {
+      return (
+        <Table hover={true}>
+          <thead>
+            <tr>
+              <th>{__('Name')}</th>
+              <th>{__('Last Updated By')}</th>
+              <th>{__('Visible in Team Inbox')}</th>
+              <th>{__('Visible in detail')}</th>
+              <th />
+            </tr>
+          </thead>
+          <tbody>{fields.map(field => this.renderTableRow(field))}</tbody>
+        </Table>
       );
     }
 
@@ -156,7 +205,7 @@ class PropertyRow extends React.Component<Props, State> {
             ))}
           </CollapseRow>
           <Collapse in={this.state.collapse}>
-            <div>{this.renderTable(fields)}</div>
+            <div>{this.renderTable(fields, group.contentType)}</div>
           </Collapse>
         </PropertyTable>
       </li>

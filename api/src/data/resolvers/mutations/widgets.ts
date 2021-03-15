@@ -57,6 +57,7 @@ interface ISubmission {
   type?: string;
   validation?: string;
   associatedFieldId?: string;
+  stageId?: string;
 }
 
 interface IWidgetEmailParams {

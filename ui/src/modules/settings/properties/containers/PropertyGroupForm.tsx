@@ -21,6 +21,8 @@ const PropertyGroupFormContainer = (props: Props) => {
     callback,
     object
   }: IButtonMutateProps) => {
+    values.contentType = queryParams.type;
+
     return (
       <ButtonMutate
         mutation={

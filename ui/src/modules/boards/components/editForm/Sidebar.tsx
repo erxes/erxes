@@ -1,3 +1,4 @@
+import CustomFieldsSection from 'modules/boards/containers/editForm/CustomFieldsSection';
 import FormGroup from 'modules/common/components/form/Group';
 import ControlLabel from 'modules/common/components/form/Label';
 import SelectTeamMembers from 'modules/settings/team/containers/SelectTeamMembers';
@@ -18,7 +19,7 @@ type Props = {
 
 class Sidebar extends React.Component<Props> {
   render() {
-    const { item, saveItem, sidebar } = this.props;
+    const { item, saveItem, sidebar, options } = this.props;
 
     const userOnChange = usrs => saveItem({ assignedUserIds: usrs });
     const assignedUserIds = (item.assignedUsers || []).map(user => user._id);
@@ -37,6 +38,7 @@ class Sidebar extends React.Component<Props> {
 
         {sidebar && sidebar(saveItem)}
 
+        <CustomFieldsSection item={item} options={options} />
         <SidebarConformity {...this.props} />
       </RightContent>
     );
