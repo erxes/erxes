@@ -132,6 +132,12 @@ export default class Builder {
 
     const channels = await Channels.find({ memberIds: this.user._id });
 
+    if (channels.length === 0) {
+      return {
+        integrationId: { $in: [] }
+      };
+    }
+
     channels.forEach(channel => {
       availIntegrationIds = _.union(
         availIntegrationIds,

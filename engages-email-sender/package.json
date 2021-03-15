@@ -22,7 +22,7 @@
     "body-parser": "^1.17.1",
     "debug": "^4.1.1",
     "dotenv": "^4.0.0",
-    "erxes-message-broker": "^1.0.25",
+    "erxes-message-broker": "^1.0.26",
     "express": "4.17.1",
     "faker": "^4.1.0",
     "meteor-random": "^0.0.3",
