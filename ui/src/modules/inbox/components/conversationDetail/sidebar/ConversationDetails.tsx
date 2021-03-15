@@ -1,7 +1,9 @@
 import dayjs from 'dayjs';
+import EmptyState from 'modules/common/components/EmptyState';
 import IntegrationIcon from 'modules/common/components/IntegrationIcon';
 import { __ } from 'modules/common/utils';
 import Sidebar from 'modules/layout/components/Sidebar';
+import EmptySidebar from 'modules/layout/components/Sidebar';
 import { FieldStyle, SidebarCounter, SidebarList } from 'modules/layout/styles';
 import { cleanIntegrationKind } from 'modules/settings/integrations/containers/utils';
 import { IField } from 'modules/settings/properties/types';
@@ -83,9 +85,21 @@ class ConversationDetails extends React.Component<Props> {
   render() {
     const { Section } = Sidebar;
 
-    const { conversation } = this.props;
+    const { conversation, fields } = this.props;
     const { integration = {} as IIntegration, customer } = conversation;
     const { brand = {} as IBrand, channels = [] } = integration;
+
+    if (!fields || fields.length === 0) {
+      return (
+        <EmptySidebar full={false}>
+          <EmptyState
+            text="Conversation properties not found"
+            size="full"
+            image="/images/actions/18.svg"
+          />
+        </EmptySidebar>
+      );
+    }
 
     return (
       <Section>
