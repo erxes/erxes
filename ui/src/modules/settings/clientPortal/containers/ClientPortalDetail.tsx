@@ -1,20 +1,24 @@
-import Spinner from 'erxes-ui/lib/components/Spinner';
-import { Alert } from 'erxes-ui/lib/utils';
 import gql from 'graphql-tag';
-import { IRouterProps } from 'modules/common/types';
+import Spinner from 'modules/common/components/Spinner';
+import Alert from 'modules/common/utils/Alert';
 import routerUtils from 'modules/common/utils/router';
 import React from 'react';
 import { useMutation, useQuery } from 'react-apollo';
-import ClientPortal from '../components/ClientPortal';
+import ClientPortalDetail from '../components/ClientPortalDetail';
 import mutations from '../graphql/mutations';
 import queries from '../graphql/queries';
 import { ClientPortalConfig, ClientPortalConfigQueryResponse } from '../types';
 
 type Props = {
   queryParams: any;
-} & IRouterProps;
+  history: any;
+};
 
-function ClientPortalContainer({ queryParams, history, ...props }: Props) {
+function ClientPortalDetailContainer({
+  queryParams,
+  history,
+  ...props
+}: Props) {
   const { loading, data = {} } = useQuery<ClientPortalConfigQueryResponse>(
     gql(queries.getConfig),
     {
@@ -28,6 +32,8 @@ function ClientPortalContainer({ queryParams, history, ...props }: Props) {
   if (loading) {
     return <Spinner />;
   }
+
+  console.log('container', queryParams);
 
   const handleUpdate = (doc: ClientPortalConfig) => {
     mutate({ variables: { _id: queryParams._id, ...doc } })
@@ -50,7 +56,7 @@ function ClientPortalContainer({ queryParams, history, ...props }: Props) {
     handleUpdate
   };
 
-  return <ClientPortal {...updatedProps} />;
+  return <ClientPortalDetail {...updatedProps} />;
 }
 
-export default ClientPortalContainer;
+export default ClientPortalDetailContainer;

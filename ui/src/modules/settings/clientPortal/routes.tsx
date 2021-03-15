@@ -3,38 +3,38 @@ import queryString from 'query-string';
 import React from 'react';
 import { Route } from 'react-router-dom';
 
-const List = asyncComponent(() =>
+const ClientPortalDetail = asyncComponent(() =>
   import(
-    /* webpackChunkName: "ClientPortalList  - Settings" */ './containers/List'
+    /* webpackChunkName: "ClientPortalDetail - Settings" */ './containers/ClientPortalDetail'
   )
 );
 
-const ClientPortalForm = asyncComponent(() =>
+const ClientPortal = asyncComponent(() =>
   import(
-    /* webpackChunkName: "ClientPortalForm - Settings" */ './containers/ClientPortal'
+    /* webpackChunkName: "ClientPortalDetail - Settings" */ './components/ClientPortal'
   )
 );
 
-const configsList = ({ location, history }) => {
+const clientPortal = ({ location, history }) => {
   const queryParams = queryString.parse(location.search);
 
-  return <List queryParams={queryParams} history={history} />;
+  return <ClientPortal queryParams={queryParams} history={history} />;
 };
 
 const configsForm = ({ location, history }) => {
   const queryParams = queryString.parse(location.search);
 
-  return <ClientPortalForm queryParams={queryParams} history={history} />;
+  return <ClientPortalDetail queryParams={queryParams} history={history} />;
 };
 
 const routes = () => (
   <>
     <Route
       key="/settings/client-portal/"
-      path="/settings/client-portal/configs"
-      component={configsList}
+      path="/settings/client-portal"
+      exact={true}
+      component={clientPortal}
     />
-    ,
     <Route
       key="/settings/client-portal/form"
       path="/settings/client-portal/form"

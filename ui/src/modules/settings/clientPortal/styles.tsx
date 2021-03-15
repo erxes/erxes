@@ -3,14 +3,6 @@ import { FlexContent } from 'modules/layout/styles';
 import styled from 'styled-components';
 import styledTS from 'styled-components-ts';
 
-export const Wrapper = styled.div`
-  margin: 20px;
-`;
-
-export const Content = styledTS<{ width?: number }>(styled.div)`
-  max-width: ${props => (props.width ? props.width : 500)}px;
-`;
-
 export const Domain = styled(FlexContent)`
   align-items: flex-end;
 
@@ -19,6 +11,12 @@ export const Domain = styled(FlexContent)`
     font-weight: 500;
     flex: initial;
   }
+`;
+
+export const StyledUrl = styled.div`
+  color: ${colors.colorCoreGray};
+  font-weight: normal;
+  font-size: 0.8rem;
 `;
 
 export const Circle = styledTS<{ active: boolean }>(styled.div)`

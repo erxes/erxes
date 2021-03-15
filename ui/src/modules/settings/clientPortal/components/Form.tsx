@@ -3,7 +3,6 @@ import { Alert } from 'modules/common/utils';
 import React, { useState } from 'react';
 import { CONFIG_TYPES } from '../constants';
 import General from '../containers/General';
-import { Wrapper } from '../styles';
 import { ClientPortalConfig } from '../types';
 import Advanced from './forms/Advanced';
 import ColorFont from './forms/ColorFont';
@@ -130,12 +129,10 @@ function Form({ defaultConfigValues = {}, handleUpdate, configType }: Props) {
   }
 
   return (
-    <Wrapper>
-      <form onSubmit={handleSubmit}>
-        {renderContent()}
-        {renderSubmit()}
-      </form>
-    </Wrapper>
+    <form onSubmit={handleSubmit}>
+      {renderContent()}
+      {renderSubmit()}
+    </form>
   );
 }
 

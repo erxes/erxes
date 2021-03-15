@@ -13,7 +13,6 @@ import { ITopic } from 'modules/knowledgeBase/types';
 import React, { useState } from 'react';
 import { OverlayTrigger, Popover } from 'react-bootstrap';
 import Select from 'react-select-plus';
-import { Content } from '../../styles';
 import { ClientPortalConfig } from '../../types';
 
 type Props = {
@@ -103,7 +102,7 @@ function General({
     const onChangeBoard = brId => handleFormChange(`${type}BoardId`, brId);
 
     return (
-      <Popover id="pipeline-popover">
+      <Popover id={`popover-${type}`}>
         <PipelinePopoverContent>
           <BoardSelect
             type={type}
@@ -156,7 +155,7 @@ function General({
           {boardType && (
             <OverlayTrigger
               trigger="click"
-              placement="bottom-start"
+              placement="bottom-end"
               overlay={renderBoardSelect({
                 type: boardType,
                 stageId,
@@ -232,7 +231,7 @@ function General({
   }
 
   return (
-    <Content>
+    <>
       {renderControl({
         required: true,
         label: 'Client Portal Name',
@@ -306,7 +305,7 @@ function General({
         pipelineId: taskPipelineId,
         boardId: taskBoardId
       })}
-    </Content>
+    </>
   );
 }
 

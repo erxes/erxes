@@ -4,7 +4,6 @@ import { TextArea } from 'erxes-ui/lib/components/form/styles';
 import Toggle from 'erxes-ui/lib/components/Toggle';
 import { FlexContent } from 'modules/layout/styles';
 import React from 'react';
-import { Content } from '../../styles';
 
 type Props = {
   mobileResponsive?: boolean;
@@ -22,7 +21,7 @@ function StyleSheet({ css, mobileResponsive, handleFormChange }: Props) {
   };
 
   return (
-    <Content width={800}>
+    <>
       <FormGroup>
         <FlexContent>
           <ControlLabel>Include mobile friendly stylesheet</ControlLabel>
@@ -48,7 +47,7 @@ function StyleSheet({ css, mobileResponsive, handleFormChange }: Props) {
         <p>Add or overwrite default theme styles with your own custom css.</p>
         <TextArea value={css} onChange={handleChange} />
       </FormGroup>
-    </Content>
+    </>
   );
 }
 
