@@ -1,18 +1,25 @@
-const commonFields = `
+const genericFields = `
   _id
+  description
+  order
+  isVisible
+  isVisibleInDetail
   contentType
+  isDefinedByErxes
+`;
+
+const commonFields = `
   type
   text
   field
-  isVisible
-  isVisibleInDetail
+
   canHide
   validation
-  order
   options
   groupId
-  description
-  isDefinedByErxes
+
+  ${genericFields}
+
   lastUpdatedUser {
     details {
       fullName
@@ -20,30 +27,19 @@ const commonFields = `
   }
 `;
 
-const field = `
-  {
+const commonFieldsGroups = `
+  name
+  ${genericFields}
+
+  lastUpdatedUser {
+    details {
+      fullName
+    }
+  }
+  fields  {
     ${commonFields}
   }
-`;
-
-const commonFieldsGroups = `
-      _id
-      name
-      description
-      order
-      isVisible
-      isVisibleInDetail
-      contentType
-      lastUpdatedUser {
-        details {
-          fullName
-        }
-      }
-      isDefinedByErxes
-      fields  {
-        ${commonFields}
-      }
-    }
+}
 `;
 
 const fieldsGroups = `
@@ -72,6 +68,7 @@ const fields = `
       isRequired
       order
       associatedFieldId
+
       associatedField {
         _id
         text
@@ -83,9 +80,9 @@ const fields = `
 const inboxFields = `
   query fieldsInbox {
     fieldsInbox {
-      customer ${field}
-      device ${field}
-      conversation ${field}
+      customer { ${commonFields} }
+      device { ${commonFields} }
+      conversation { ${commonFields} }
     }
   }
 `;
