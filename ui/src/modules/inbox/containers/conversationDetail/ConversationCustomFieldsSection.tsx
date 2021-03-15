@@ -50,7 +50,7 @@ const ConversationCustomFieldsSection = (props: FinalProps) => {
       });
   };
 
-  const groups = fieldsGroupsQuery.fieldsGroups;
+  const groups = fieldsGroupsQuery.fieldsGroups || [];
 
   const updatedProps = {
     save,
