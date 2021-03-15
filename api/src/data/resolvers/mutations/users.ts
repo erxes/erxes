@@ -1,6 +1,6 @@
 import * as telemetry from 'erxes-telemetry';
 import * as express from 'express';
-import { Channels, Configs, Users } from '../../../db/models';
+import { Channels, Configs, FieldsGroups, Users } from '../../../db/models';
 import { ILink } from '../../../db/models/definitions/common';
 import {
   IDetail,
@@ -109,6 +109,8 @@ const userMutations = {
       code: 'UPLOAD_SERVICE_TYPE',
       value: 'local'
     });
+
+    await FieldsGroups.createSystemGroupsFields();
 
     await messageBroker().sendMessage('erxes-api:integrations-notification', {
       type: 'addUserId',

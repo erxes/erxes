@@ -45,6 +45,10 @@ export interface IConversation {
 
   productBoardLink?: string;
   isFacebookTaggedMessage?: boolean;
+
+  customFieldsData?: {
+    [key: string]: any;
+  };
 }
 
 interface IEngageDataRules {
@@ -339,5 +343,16 @@ export type ResolveFacebookCommentMutationVariables = {
 export type ResolveFacebookCommentResponse = {
   resolveMutation: (doc: {
     variables: ResolveFacebookCommentMutationVariables;
+  }) => Promise<any>;
+};
+
+export type EditCustomFieldsMutationVariables = {
+  _id: string;
+  customFieldsData: any;
+};
+
+export type EditMutationResponse = {
+  editCustomFields: (params: {
+    variables: EditCustomFieldsMutationVariables;
   }) => Promise<any>;
 };

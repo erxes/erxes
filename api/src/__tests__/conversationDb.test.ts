@@ -4,6 +4,7 @@ import {
   customerFactory,
   engageDataFactory,
   engageMessageFactory,
+  fieldFactory,
   skillFactor,
   userFactory
 } from '../db/factories';
@@ -527,9 +528,16 @@ describe('Conversation db', () => {
 
   test('updateConversation', async () => {
     const conversation = await conversationFactory({});
+    const field = await fieldFactory({ contentType: 'conversation' });
 
     await Conversations.updateConversation(conversation._id, {
-      content: 'updated'
+      content: 'updated',
+      customFieldsData: [
+        {
+          field: field._id,
+          value: 123
+        }
+      ]
     });
 
     const updated = await Conversations.findOne({ _id: conversation._id });
