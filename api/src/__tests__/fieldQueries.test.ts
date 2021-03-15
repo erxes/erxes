@@ -241,7 +241,24 @@ describe('fieldQueries', () => {
 
   test('Field groups', async () => {
     // Creating test data
-    await fieldGroupFactory({ contentType: 'customer' });
+    await fieldGroupFactory({
+      contentType: 'customer',
+      isDefinedByErxes: true,
+      order: 2
+    });
+    await fieldGroupFactory({
+      contentType: 'customer',
+      isDefinedByErxes: false,
+      order: 1
+    });
+    await fieldGroupFactory({
+      contentType: 'customer',
+      isDefinedByErxes: false
+    });
+    await fieldGroupFactory({
+      contentType: 'customer',
+      isDefinedByErxes: false
+    });
     await fieldGroupFactory({ contentType: 'company' });
 
     const qry = `
@@ -261,7 +278,7 @@ describe('fieldQueries', () => {
     // customer content type ============
     let responses = await graphqlRequest(qry, 'fieldsGroups');
 
-    expect(responses.length).toBe(1);
+    expect(responses.length).toBe(4);
 
     // company content type =============
     responses = await graphqlRequest(qry, 'fieldsGroups', {
