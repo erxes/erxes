@@ -408,13 +408,13 @@ export const getItemList = async (
       $match: filter
     },
     {
+      $sort: sort
+    },
+    {
       $skip: args.skip || 0
     },
     {
       $limit: limit
-    },
-    {
-      $sort: sort
     },
     {
       $lookup: {
