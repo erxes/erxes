@@ -49,7 +49,7 @@ class Properties extends React.Component<Props> {
       return (
         <EmptyState
           icon="paragraph"
-          text="There arent't any groups and fields"
+          text="There aren't any groups and fields"
         />
       );
     }
@@ -77,7 +77,7 @@ class Properties extends React.Component<Props> {
     const { queryParams, fieldsGroups, currentType } = this.props;
 
     if (currentType === 'device') {
-      return;
+      return null;
     }
 
     const addGroup = <Dropdown.Item>{__('Add group')}</Dropdown.Item>;
