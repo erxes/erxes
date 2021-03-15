@@ -1,4 +1,5 @@
 import { Document, Schema } from 'mongoose';
+import { customFieldSchema, ICustomField } from './common';
 import {
   CONVERSATION_OPERATOR_STATUS,
   CONVERSATION_STATUSES
@@ -34,6 +35,7 @@ export interface IConversation {
   firstRespondedDate?: Date;
 
   isCustomerRespondedLast?: boolean;
+  customFieldsData?: ICustomField[];
 }
 
 // Conversation schema
@@ -91,5 +93,11 @@ export const conversationSchema = new Schema({
   firstRespondedUserId: field({ type: String }),
   firstRespondedDate: field({ type: Date }),
 
-  isCustomerRespondedLast: field({ type: Boolean })
+  isCustomerRespondedLast: field({ type: Boolean }),
+
+  customFieldsData: field({
+    type: [customFieldSchema],
+    optional: true,
+    label: 'Custom fields data'
+  })
 });

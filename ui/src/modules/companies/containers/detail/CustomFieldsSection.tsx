@@ -47,11 +47,14 @@ const CustomFieldsSection = (props: FinalProps) => {
       });
   };
 
+  const groups = fieldsGroupsQuery.fieldsGroups || [];
+
   const updatedProps = {
     save,
     loading,
+    isDetail: false,
     customFieldsData: company.customFieldsData,
-    fieldsGroups: fieldsGroupsQuery.fieldsGroups || []
+    fieldsGroups: groups.filter(e => !e.isDefinedByErxes)
   };
 
   return <GenerateCustomFields {...updatedProps} />;

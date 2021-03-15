@@ -49,6 +49,7 @@ export const types = `
     text: String
     value: String
     associatedFieldId: String
+    stageId: String
   }
 `;
 

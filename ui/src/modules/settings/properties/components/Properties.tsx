@@ -24,6 +24,10 @@ type Props = {
   removePropertyGroup: (data: { _id: string }) => any;
   removeProperty: (data: { _id: string }) => void;
   updatePropertyVisible: (data: { _id: string; isVisible: boolean }) => void;
+  updatePropertyDetailVisible: (data: {
+    _id: string;
+    isVisibleInDetail: boolean;
+  }) => void;
   updatePropertyGroupVisible: (data: {
     _id: string;
     isVisible: boolean;
@@ -37,14 +41,15 @@ class Properties extends React.Component<Props> {
       queryParams,
       removePropertyGroup,
       removeProperty,
-      updatePropertyVisible
+      updatePropertyVisible,
+      updatePropertyDetailVisible
     } = this.props;
 
     if (fieldsGroups.length === 0) {
       return (
         <EmptyState
           icon="paragraph"
-          text="There arent't any groups and fields"
+          text="There aren't any groups and fields"
         />
       );
     }
@@ -60,6 +65,7 @@ class Properties extends React.Component<Props> {
               removePropertyGroup={removePropertyGroup}
               removeProperty={removeProperty}
               updatePropertyVisible={updatePropertyVisible}
+              updatePropertyDetailVisible={updatePropertyDetailVisible}
             />
           );
         })}
@@ -70,6 +76,10 @@ class Properties extends React.Component<Props> {
   renderActionBar = () => {
     const { queryParams, fieldsGroups, currentType } = this.props;
 
+    if (currentType === 'device') {
+      return null;
+    }
+
     const addGroup = <Dropdown.Item>{__('Add group')}</Dropdown.Item>;
     const addField = <Dropdown.Item>{__('Add Property')}</Dropdown.Item>;
 
@@ -78,7 +88,7 @@ class Properties extends React.Component<Props> {
     );
 
     const propertyContent = modalProps => {
-      if (fieldsGroups.length === 0) {
+      if (fieldsGroups.filter(e => !e.isDefinedByErxes).length === 0) {
         return <div>{__('Please add property Group first')}!</div>;
       }
 
