@@ -479,16 +479,6 @@ class PipelineProviderInner extends React.Component<Props, State> {
     const { itemMap, itemIds } = this.state;
     const items = itemMap[stageId] || [];
 
-    if (aboveItemId === undefined) {
-      this.setState({
-        itemMap: { ...itemMap, [stageId]: [item, ...items] },
-        itemIds: [...itemIds, item._id]
-      });
-
-      return;
-    }
-
-    // archive recovery to stages begin
     if (!aboveItemId) {
       this.setState({
         itemMap: { ...itemMap, [stageId]: [item, ...items] },
