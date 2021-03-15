@@ -3,7 +3,6 @@ import EmptyState from 'modules/common/components/EmptyState';
 import IntegrationIcon from 'modules/common/components/IntegrationIcon';
 import { __ } from 'modules/common/utils';
 import Sidebar from 'modules/layout/components/Sidebar';
-import EmptySidebar from 'modules/layout/components/Sidebar';
 import { FieldStyle, SidebarCounter, SidebarList } from 'modules/layout/styles';
 import { cleanIntegrationKind } from 'modules/settings/integrations/containers/utils';
 import { IField } from 'modules/settings/properties/types';
@@ -91,13 +90,11 @@ class ConversationDetails extends React.Component<Props> {
 
     if (!fields || fields.length === 0) {
       return (
-        <EmptySidebar full={false}>
-          <EmptyState
-            text="Conversation properties not found"
-            size="full"
-            image="/images/actions/18.svg"
-          />
-        </EmptySidebar>
+        <EmptyState
+          icon="folder-2"
+          text="Conversation properties not found"
+          size="small"
+        />
       );
     }
 

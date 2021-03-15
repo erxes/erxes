@@ -3,7 +3,6 @@ import EmptyState from 'modules/common/components/EmptyState';
 import { __ } from 'modules/common/utils';
 import { GENDER_TYPES } from 'modules/customers/constants';
 import { ICustomer } from 'modules/customers/types';
-import EmptySidebar from 'modules/layout/components/Sidebar';
 import {
   FieldStyle,
   SidebarCounter,
@@ -100,13 +99,11 @@ class DetailInfo extends React.PureComponent<Props> {
 
     if (!fields || fields.length === 0) {
       return (
-        <EmptySidebar full={false}>
-          <EmptyState
-            text="Customer properties not found"
-            size="full"
-            image="/images/actions/18.svg"
-          />
-        </EmptySidebar>
+        <EmptyState
+          icon="folder-2"
+          text="Customer properties not found"
+          size="small"
+        />
       );
     }
 
