@@ -48,10 +48,7 @@ import {
   sendRequest,
   sendToWebhook
 } from '../../utils';
-import {
-  convertVisitorToCustomer,
-  getOrCreateEngageMessage
-} from '../../widgetUtils';
+import { convertVisitorToCustomer } from '../../widgetUtils';
 import { conversationNotifReceivers } from './conversations';
 
 interface ISubmission {
@@ -531,19 +528,24 @@ const widgetMutations = {
         companyData.primaryName = companyData.name;
         companyData.names = [companyData.name];
 
-        company = await Companies.createCompany({
-          ...companyData,
-          scopeBrandIds: [brand._id]
-        });
-      }
-      if (customer) {
-        // add company to customer's companyIds list
-        await Conformities.create({
-          mainType: 'customer',
-          mainTypeId: customer._id,
-          relType: 'company',
-          relTypeId: company._id
-        });
+        try {
+          company = await Companies.createCompany({
+            ...companyData,
+            scopeBrandIds: [brand._id]
+          });
+
+          if (customer) {
+            // add company to customer's companyIds list
+            await Conformities.create({
+              mainType: 'customer',
+              mainTypeId: customer._id,
+              relType: 'company',
+              relTypeId: company._id
+            });
+          }
+        } catch (e) {
+          debugError(e.message);
+        }
       }
     }
 
@@ -893,7 +895,7 @@ const widgetMutations = {
       );
     }
 
-    return await getOrCreateEngageMessage(browserInfo, visitorId, customerId);
+    return null;
   },
 
   widgetsSendTypingInfo(

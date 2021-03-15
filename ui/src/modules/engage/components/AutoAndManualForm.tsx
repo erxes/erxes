@@ -1,6 +1,5 @@
 import { IUser } from 'modules/auth/types';
 import Button from 'modules/common/components/Button';
-import { SmallLoader } from 'modules/common/components/ButtonMutate';
 import FormControl from 'modules/common/components/form/Control';
 import ConditionsRule from 'modules/common/components/rule/ConditionsRule';
 import { Step, Steps } from 'modules/common/components/step';
@@ -17,7 +16,7 @@ import { IConfig } from 'modules/settings/general/types';
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { IBreadCrumbItem, IConditionsRule } from '../../common/types';
-import { MESSAGE_KINDS, METHODS } from '../constants';
+import { METHODS } from '../constants';
 import {
   IEngageEmail,
   IEngageMessage,
@@ -65,6 +64,7 @@ type State = {
   scheduleDate: IEngageScheduleDate;
   shortMessage?: IEngageSms;
   rules: IConditionsRule[];
+  isSaved: boolean;
 };
 
 class AutoAndManualForm extends React.Component<Props, State> {
@@ -90,14 +90,15 @@ class AutoAndManualForm extends React.Component<Props, State> {
       title: message.title || '',
       segmentIds: message.segmentIds || [],
       brandIds: message.brandIds || [],
-      tagIds: message.tagIds || [],
+      tagIds: message.customerTagIds || [],
       content,
       fromUserId: message.fromUserId,
       messenger: message.messenger,
       email: message.email,
       scheduleDate: message.scheduleDate,
       shortMessage: message.shortMessage,
-      rules
+      rules,
+      isSaved: false
     };
   }
 
@@ -117,7 +118,7 @@ class AutoAndManualForm extends React.Component<Props, State> {
   handleSubmit = (type: string): Promise<any> | void => {
     const doc = {
       segmentIds: this.state.segmentIds,
-      tagIds: this.state.tagIds,
+      customerTagIds: this.state.tagIds,
       brandIds: this.state.brandIds,
       title: this.state.title,
       fromUserId: this.state.fromUserId,
@@ -172,69 +173,51 @@ class AutoAndManualForm extends React.Component<Props, State> {
     }
 
     if (response.status === 'ok' && response.doc) {
+      this.setState({ isSaved: true });
+
       return this.props.save(response.doc);
     }
   };
 
   renderSaveButton = () => {
-    const { isActionLoading, kind, message } = this.props;
+    const { isActionLoading } = this.props;
 
     const cancelButton = (
-      <Link to="/campaigns">
+      <Link
+        to="/campaigns"
+        onClick={() => {
+          this.setState({ isSaved: true });
+        }}
+      >
         <Button btnStyle="simple" uppercase={false} icon="times-circle">
           Cancel
         </Button>
       </Link>
     );
 
-    const saveButton = () => {
-      if (kind === MESSAGE_KINDS.AUTO) {
-        return (
-          <>
-            <Button
-              disabled={isActionLoading}
-              btnStyle="warning"
-              uppercase={false}
-              icon={isActionLoading ? undefined : 'file-alt'}
-              onClick={this.handleSubmit.bind(this, 'draft')}
-            >
-              Save & Draft
-            </Button>
-            <Button
-              disabled={isActionLoading}
-              btnStyle="success"
-              uppercase={false}
-              icon={isActionLoading ? undefined : 'check-circle'}
-              onClick={this.handleSubmit.bind(this, 'live')}
-            >
-              Send & Live
-            </Button>
-          </>
-        );
-      }
-
-      return (
-        <Button
-          disabled={isActionLoading}
-          btnStyle="success"
-          icon={isActionLoading ? undefined : 'check-circle'}
-          // set live only in create mode
-          onClick={this.handleSubmit.bind(
-            this,
-            message && message._id ? 'draft' : 'live'
-          )}
-          uppercase={false}
-        >
-          {isActionLoading && <SmallLoader />}
-          Save
-        </Button>
-      );
-    };
-
     return (
       <Button.Group>
         {cancelButton}
-        {saveButton()}
+        <>
+          <Button
+            disabled={isActionLoading}
+            btnStyle="warning"
+            uppercase={false}
+            icon={isActionLoading ? undefined : 'file-alt'}
+            onClick={this.handleSubmit.bind(this, 'draft')}
+          >
+            Save & Draft
+          </Button>
+          <Button
+            disabled={isActionLoading}
+            btnStyle="success"
+            uppercase={false}
+            icon={isActionLoading ? undefined : 'check-circle'}
+            onClick={this.handleSubmit.bind(this, 'live')}
+          >
+            Send & Live
+          </Button>
+        </>
       </Button.Group>
     );
   };
@@ -257,7 +240,8 @@ class AutoAndManualForm extends React.Component<Props, State> {
       content,
       scheduleDate,
       method,
-      shortMessage
+      shortMessage,
+      isSaved
     } = this.state;
 
     const imagePath = '/images/icons/erxes-08.svg';
@@ -297,6 +281,7 @@ class AutoAndManualForm extends React.Component<Props, State> {
           fromUserId={fromUserId}
           content={content}
           scheduleDate={scheduleDate}
+          isSaved={isSaved}
         />
       </Step>
     );

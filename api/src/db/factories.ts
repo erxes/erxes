@@ -253,6 +253,7 @@ interface IEngageMessageFactoryInput {
   scheduleDate?: IScheduleDate;
   createdBy?: string;
   createdAt?: Date;
+  customerTagIds?: string[];
 }
 
 export const engageMessageFactory = (
@@ -268,6 +269,7 @@ export const engageMessageFactory = (
     segmentIds: params.segmentIds || [],
     brandIds: params.brandIds || [],
     tagIds: params.tagIds || [],
+    customerTagIds: params.customerTagIds || [],
     isLive: params.isLive || false,
     isDraft: params.isDraft || false,
     messenger: params.messenger,

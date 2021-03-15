@@ -51,7 +51,7 @@ export interface IFieldModel extends Model<IFieldDocument> {
   clean(_id: string, _value: string | Date | number): string | Date | number;
   cleanMulti(data: { [key: string]: any }): any;
   generateTypedListFromMap(data: { [key: string]: any }): ITypedListItem[];
-  generateTypedItem(field: string, value: string): ITypedListItem;
+  generateTypedItem(field: string, value: string, type: string): ITypedListItem;
   prepareCustomFieldsData(
     customFieldsData?: Array<{ field: string; value: any }>
   ): Promise<ITypedListItem[]>;
@@ -217,7 +217,11 @@ export const loadFieldClass = () => {
         }
 
         // number
-        if (validation === 'number' && !validator.isFloat(value.toString())) {
+        if (
+          !['check', 'radio', 'select'].includes(type || '') &&
+          validation === 'number' &&
+          !validator.isFloat(value.toString())
+        ) {
           throwError('Invalid number');
         }
 
@@ -251,7 +255,8 @@ export const loadFieldClass = () => {
 
     public static generateTypedItem(
       field: string,
-      value: string | number
+      value: string | number | string[],
+      type: string
     ): ITypedListItem {
       let stringValue;
       let numberValue;
@@ -261,7 +266,7 @@ export const loadFieldClass = () => {
         stringValue = value.toString();
 
         // number
-        if (validator.isFloat(value.toString())) {
+        if (type !== 'check' && validator.isFloat(value.toString())) {
           numberValue = value;
           stringValue = null;
           value = Number(value);
@@ -272,7 +277,6 @@ export const loadFieldClass = () => {
           stringValue = null;
         }
       }
-
       return { field, value, stringValue, numberValue, dateValue };
     }
 
@@ -280,7 +284,7 @@ export const loadFieldClass = () => {
       [key: string]: any;
     }): ITypedListItem[] {
       const ids = Object.keys(data || {});
-      return ids.map(_id => this.generateTypedItem(_id, data[_id]));
+      return ids.map(_id => this.generateTypedItem(_id, data[_id], ''));
     }
 
     public static async prepareCustomFieldsData(
@@ -289,10 +293,16 @@ export const loadFieldClass = () => {
       const result: ITypedListItem[] = [];
 
       for (const customFieldData of customFieldsData || []) {
+        const field = await Fields.findById(customFieldData.field);
+
         await Fields.clean(customFieldData.field, customFieldData.value);
 
         result.push(
-          Fields.generateTypedItem(customFieldData.field, customFieldData.value)
+          Fields.generateTypedItem(
+            customFieldData.field,
+            customFieldData.value,
+            field ? field.type || '' : ''
+          )
         );
       }
 

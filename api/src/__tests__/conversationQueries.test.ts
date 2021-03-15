@@ -666,9 +666,14 @@ describe('conversationQueries', () => {
 
     expect(responses.length).toEqual(0);
 
-    const responses1 = await graphqlRequest(qryConversations, 'conversations', {
-      brandId: brand._id
-    });
+    const responses1 = await graphqlRequest(
+      qryConversations,
+      'conversations',
+      {
+        brandId: brand._id
+      },
+      { user }
+    );
 
     expect(responses1.length).toBe(1);
 
@@ -1631,10 +1636,26 @@ describe('conversationQueries', () => {
       'conversationsTotalCount',
       {
         brandId: brand._id
-      }
+      },
+      { user }
     );
 
     expect(response1).toBe(1);
+
+    const newBrand = await brandFactory();
+
+    await conversationFactory({ integrationId: integration._id });
+
+    const response2 = await graphqlRequest(
+      qryTotalCount,
+      'conversationsTotalCount',
+      {
+        brandId: newBrand._id
+      },
+      { user }
+    );
+
+    expect(response2).toBe(2);
 
     // Conversations with userRelevance ===================
     await conversationFactory({
@@ -1659,14 +1680,14 @@ describe('conversationQueries', () => {
     await conversationFactory({ integrationId: integration2._id });
     await conversationFactory({ integrationId: integration2._id });
 
-    const response2 = await graphqlRequest(
+    const response3 = await graphqlRequest(
       qryTotalCount,
       'conversationsTotalCount',
       { brandId: brand._id },
       { user: userWithCode }
     );
 
-    expect(response2).toBe(4);
+    expect(response3).toBe(5);
   });
 
   test('Get total count of conversations by unassigned', async () => {
