@@ -10,6 +10,12 @@ interface IFieldsEdit extends IField {
   _id: string;
 }
 
+interface IUpdateVisibleParams {
+  _id: string;
+  isVisible?: boolean;
+  isVisibleInDetail?: boolean;
+}
+
 interface IFieldsGroupsEdit extends IFieldGroup {
   _id: string;
 }
@@ -62,11 +68,7 @@ const fieldMutations = {
    */
   fieldsUpdateVisible(
     _root,
-    {
-      _id,
-      isVisible,
-      isVisibleInDetail
-    }: { _id: string; isVisible?: boolean; isVisibleInDetail?: boolean },
+    { _id, isVisible, isVisibleInDetail }: IUpdateVisibleParams,
     { user }: IContext
   ) {
     return Fields.updateFieldsVisible(
@@ -114,11 +116,7 @@ const fieldsGroupsMutations = {
    */
   fieldsGroupsUpdateVisible(
     _root,
-    {
-      _id,
-      isVisible,
-      isVisibleInDetail
-    }: { _id: string; isVisible?: boolean; isVisibleInDetail?: boolean },
+    { _id, isVisible, isVisibleInDetail }: IUpdateVisibleParams,
     { user }: IContext
   ) {
     return FieldsGroups.updateGroupVisible(
