@@ -56,7 +56,7 @@ describe('ticketQueries', () => {
         source: $source
         closeDateType: $closeDateType
       ) {
-        ${commonTicketTypes}
+        _id
       }
     }
   `;
@@ -164,7 +164,7 @@ describe('ticketQueries', () => {
     const qryList = `
       query tickets($stageId: String!) {
         tickets(stageId: $stageId) {
-          ${commonTicketTypes}
+          _id
         }
       }
     `;
