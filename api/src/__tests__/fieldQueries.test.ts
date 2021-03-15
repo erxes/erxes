@@ -280,7 +280,6 @@ describe('fieldQueries', () => {
     // customer content type ============
     let responses = await graphqlRequest(qry, 'fieldsGroups');
 
-    expect(responses[0].order).toBe(-1);
     expect(responses.length).toBe(4);
 
     // company content type =============
