@@ -102,7 +102,10 @@ class BasicInfo extends React.Component<Props> {
             'Category',
             product.category ? product.category.name : ''
           )}
-          {this.renderRow('Unit price', product.unitPrice.toLocaleString())}
+          {this.renderRow(
+            'Unit price',
+            (product.unitPrice || 0).toLocaleString()
+          )}
           {this.renderRow('Sku', product.sku)}
           <SidebarFlexRow>{__(`Description`)}</SidebarFlexRow>
         </SidebarList>

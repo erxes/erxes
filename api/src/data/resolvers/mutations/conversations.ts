@@ -26,7 +26,7 @@ import { graphqlPubsub } from '../../../pubsub';
 import { AUTO_BOT_MESSAGES, RABBITMQ_QUEUES } from '../../constants';
 import { checkPermission, requireLogin } from '../../permissions/wrappers';
 import { IContext } from '../../types';
-import utils from '../../utils';
+import utils, { splitStr } from '../../utils';
 import QueryBuilder, { IListArgs } from '../queries/conversationQueryBuilder';
 import { itemsAdd } from './boardUtils';
 
@@ -334,25 +334,32 @@ const conversationMutations = {
      * - integration is of kind telnyx
      * - customer has primary phone filled
      * - customer's primary phone is valid
-     * - content length within 160 characters
      */
     if (
       kind === KIND_CHOICES.TELNYX &&
       customer &&
       customer.primaryPhone &&
-      customer.phoneValidationStatus === 'valid' &&
-      doc.content.length <= 160
+      customer.phoneValidationStatus === 'valid'
     ) {
-      await messageBroker().sendMessage('erxes-api:integrations-notification', {
-        action: 'sendConversationSms',
-        payload: JSON.stringify({
-          conversationMessageId: message._id,
-          conversationId,
-          integrationId,
-          toPhone: customer.primaryPhone,
-          content: strip(doc.content)
-        })
-      });
+      const chunks =
+        doc.content.length > 160 ? splitStr(doc.content, 160) : [doc.content];
+
+      // tslint:disable-next-line:prefer-for-of
+      for (let i = 0; i < chunks.length; i++) {
+        await messageBroker().sendMessage(
+          'erxes-api:integrations-notification',
+          {
+            action: 'sendConversationSms',
+            payload: JSON.stringify({
+              conversationMessageId: `${message._id}-part${i + 1}`,
+              conversationId,
+              integrationId,
+              toPhone: customer.primaryPhone,
+              content: strip(chunks[i])
+            })
+          }
+        );
+      }
     }
 
     // send reply to facebook
