@@ -253,11 +253,13 @@ describe('fieldQueries', () => {
     });
     await fieldGroupFactory({
       contentType: 'customer',
-      isDefinedByErxes: false
+      isDefinedByErxes: false,
+      order: 3
     });
     await fieldGroupFactory({
       contentType: 'customer',
-      isDefinedByErxes: false
+      isDefinedByErxes: false,
+      order: 4
     });
     await fieldGroupFactory({ contentType: 'company' });
 
@@ -268,6 +270,7 @@ describe('fieldQueries', () => {
           lastUpdatedUser {
             _id
           }
+          order
           fields {
             _id
           }
