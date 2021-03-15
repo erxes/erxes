@@ -782,7 +782,7 @@ const conversationMutations = {
     { _id, customFieldsData }: { _id: string; customFieldsData: any }
   ) {
     await Conversations.updateConversation(_id, { customFieldsData });
-    return await Conversations.getConversation(_id);
+    return Conversations.getConversation(_id);
   }
 };
 
