@@ -46,7 +46,7 @@ class ConversationDetails extends React.Component<Props> {
     const property = fields.find(e => e.field === field);
 
     if (property && !property.isVisible) {
-      return;
+      return null;
     }
 
     const label = property && property.text;
@@ -66,7 +66,7 @@ class ConversationDetails extends React.Component<Props> {
     const property = fields.find(e => e.field === 'integration');
 
     if (property && !property.isVisible) {
-      return;
+      return null;
     }
 
     const label = property && property.text;

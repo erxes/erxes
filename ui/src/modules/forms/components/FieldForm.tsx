@@ -289,7 +289,7 @@ class FieldForm extends React.Component<Props, State> {
     const { field, selectedOption } = this.state;
 
     if (['email', 'phone', 'firstName', 'lastName'].includes(field.type)) {
-      return;
+      return null;
     }
 
     return (

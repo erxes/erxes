@@ -21,7 +21,7 @@ class DetailInfo extends React.Component<Props> {
     const property = fields.find(e => e.field === field);
 
     if (property && !property.isVisible) {
-      return;
+      return null;
     }
 
     const label = property && property.text;
@@ -49,7 +49,7 @@ class DetailInfo extends React.Component<Props> {
     const descriptionField = fields.find(e => e.field === 'description');
 
     if (descriptionField && !descriptionField.isVisible) {
-      return;
+      return null;
     }
 
     return (

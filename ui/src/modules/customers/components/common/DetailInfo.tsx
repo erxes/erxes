@@ -31,7 +31,7 @@ class DetailInfo extends React.PureComponent<Props> {
     const isVisibleKey = isDetail ? 'isVisibleInDetail' : 'isVisible';
 
     if (property && !property[isVisibleKey]) {
-      return;
+      return null;
     }
 
     const label = property && property.text;
@@ -76,7 +76,7 @@ class DetailInfo extends React.PureComponent<Props> {
     const isVisibleKey = isDetail ? 'isVisibleInDetail' : 'isVisible';
 
     if (descriptionField && !descriptionField[isVisibleKey]) {
-      return;
+      return null;
     }
 
     return (

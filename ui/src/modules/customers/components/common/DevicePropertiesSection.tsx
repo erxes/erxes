@@ -43,7 +43,7 @@ class DevicePropertiesSection extends React.Component<Props> {
     const property = fields.find(e => e.field === field);
 
     if (property && !property[isVisibleKey]) {
-      return;
+      return null;
     }
 
     if (value || secondValue) {
