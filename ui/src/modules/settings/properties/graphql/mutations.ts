@@ -23,7 +23,7 @@ const updateVisibleFields = `
 `;
 
 const updateVisibleTypes = `
-  _id: $id,
+  _id: $_id,
   isVisible: $isVisible,
   isVisibleInDetail: $isVisibleInDetail
 `;
