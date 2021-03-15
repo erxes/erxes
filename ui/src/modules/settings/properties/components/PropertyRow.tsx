@@ -147,7 +147,7 @@ class PropertyRow extends React.Component<Props, State> {
       return (
         <EmptyState
           icon="circular"
-          text="There arent't any fields in this group"
+          text="There aren't any fields in this group"
         />
       );
     }
