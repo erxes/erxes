@@ -357,4 +357,4 @@ export type StagesSortItemsMutationResponse = ({
     proccessId: string;
     sortType: string;
   };
-}) => Promise<string>;
+}) => Promise<any>;

@@ -422,7 +422,7 @@ describe('Test boards mutations', () => {
 
     expect(response).toEqual('ok');
 
-    let deals = await Deals.find({
+    const deals = await Deals.find({
       stageId: stage._id,
       status: 'active'
     }).sort({ order: 1 });
