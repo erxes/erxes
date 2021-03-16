@@ -61,7 +61,12 @@ export const bulkUpdateOrders = async ({
     ord = ord + 10;
   }
 
+  if (!bulkOps.length) {
+    return '';
+  }
+
   await collection.bulkWrite(bulkOps);
+  return 'ok';
 };
 
 const randomBetween = (min: number, max: number) => {
@@ -112,7 +117,7 @@ export const getNewOrder = async ({
 
   // if duplicated order, then in stages items bulkUpdate 100, 110, 120, 130
   if ([aboveOrder, belowOrder].includes(order)) {
-    bulkUpdateOrders({ collection, stageId });
+    await bulkUpdateOrders({ collection, stageId });
 
     return getNewOrder({ collection, stageId, aboveItemId });
   }

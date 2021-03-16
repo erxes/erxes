@@ -213,37 +213,32 @@ const boardMutations = {
       type,
       proccessId,
       sortType
-    }: { stageId: string; type: string; proccessId: string; sortType: string },
+    }: {
+      stageId: string;
+      type: string;
+      proccessId: string;
+      sortType: string;
+    },
     { user }: IContext
   ) {
     await checkPermission(type, user, 'Sort');
 
     const { collection } = getCollection(type);
 
-    const sort: { [key: string]: any } = {};
-    switch (sortType) {
-      case 'created-asc':
-        sort.createdAt = 1;
-        break;
+    const sortTypes = {
+      'created-asc': { createdAt: 1 },
+      'created-desc': { createdAt: -1 },
+      'modified-asc': { modifiedAt: 1 },
+      'modified-desc': { modifiedAt: -1 },
+      'alphabetically-asc': { name: 1 }
+    };
+    const sort: { [key: string]: any } = sortTypes[sortType];
 
-      case 'created-desc':
-        sort.createdAt = -1;
-        break;
+    const response = await bulkUpdateOrders({ collection, stageId, sort });
 
-      case 'modified-asc':
-        sort.modifiedAt = 1;
-        break;
-
-      case 'modified-desc':
-        sort.modifiedAt = -1;
-        break;
-
-      case 'alphabetically-asc':
-        sort.name = 1;
-        break;
+    if (!response) {
+      return;
     }
-
-    await bulkUpdateOrders({ collection, stageId, sort });
 
     const stage = await Stages.getStage(stageId);
 
