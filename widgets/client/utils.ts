@@ -273,35 +273,56 @@ export const urlify = (text: string) => {
 };
 
 export const checkLogicFulfilled = (logic: LogicParams) => {
-  
   const { operator, logicValue, fieldValue } = logic;
+  // if fieldValue is set
+  if (operator === 'is' && fieldValue) {
+    return true;
+  }
+
+  // if fieldValue is not set
+  if (operator === 'ins' && !fieldValue) {
+    return true;
+  }
+
+  // if fieldValue equals logic value
+  if (operator === 'numbere' || operator === 'e') {
+    if (logicValue === fieldValue) {
+      return true;
+    }
+  }
+
+  // if fieldValue not equal to logic value
+  if (operator === 'numberdne' || operator === 'dne') {
+    if (logicValue !== fieldValue) {
+      return true;
+    }
+  }
 
   if (typeof logicValue === 'number') {
-    
-    if (operator === 'is' && fieldValue) {
-      return true;
-    }
-
-    if (operator === 'ins' && !fieldValue) {
-      return true;
-    }
-
-    if (operator === 'numbere' && logicValue === fieldValue) {
-      return true;
-    }
-
-    if (operator === 'numberdne' && logicValue !== fieldValue) {
-      return true;
-    }
-
+    // if number value: is greater than
     if (operator === 'numberigt' && fieldValue && fieldValue > logicValue) {
       return true;
     }
 
+    // if number value: is less than
     if (operator === 'numberilt' && fieldValue && fieldValue < logicValue) {
       return true;
     }
   }
 
+  if (typeof logicValue === 'string') {
+    // if string value contains logicValue
+    if (operator === 'c' && String(fieldValue).includes(logicValue)) {
+      return true;
+    }
+
+    // if string value does not contain logicValue
+    if (operator === 'dnc' && !String(fieldValue).includes(logicValue)) {
+      return true;
+    }
+  }
+
+
+
   return false;
-}
+};

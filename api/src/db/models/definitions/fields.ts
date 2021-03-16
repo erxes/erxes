@@ -122,7 +122,8 @@ export const fieldSchema = schemaWrapper(
       type: String,
       optional: true,
       label: 'Stores custom property fieldId for form field id'
-    })
+    }),
+    logic: field({ type: logicSchema })
   })
 );
 
