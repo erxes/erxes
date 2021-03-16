@@ -139,12 +139,12 @@ class StageContainer extends React.PureComponent<FinalStageProps> {
     });
   };
 
-  sortItems = (type: string) => {
+  sortItems = (type: string, description: string) => {
     const { options, stage, stagesSortItemsMutation } = this.props;
 
     const stageId = stage._id;
 
-    confirm(__(`Sort by ${type} in This List?`)).then(() => {
+    confirm(__(`Are you sure to sort by ${description} ?`)).then(() => {
       const proccessId = Math.random().toString();
       localStorage.setItem('proccessId', proccessId);
       stagesSortItemsMutation({
