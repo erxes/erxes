@@ -13,13 +13,14 @@ import {
   StageRoot,
   StageTitle
 } from 'modules/boards/styles/stage';
+import DropdownToggle from 'modules/common/components/DropdownToggle';
 import EmptyState from 'modules/common/components/EmptyState';
 import Icon from 'modules/common/components/Icon';
 import ModalTrigger from 'modules/common/components/ModalTrigger';
 import { __ } from 'modules/common/utils';
 import React from 'react';
 import { Draggable } from 'react-beautiful-dnd';
-import { OverlayTrigger, Popover } from 'react-bootstrap';
+import { Dropdown, OverlayTrigger, Popover } from 'react-bootstrap';
 import { AddForm } from '../../containers/portable';
 import { IItem, IOptions, IStage } from '../../types';
 import { renderAmount } from '../../utils';
@@ -38,6 +39,7 @@ type Props = {
   options: IOptions;
   archiveItems: () => void;
   archiveList: () => void;
+  sortItems: (type: string) => void;
 };
 export default class Stage extends React.Component<Props, {}> {
   private bodyRef;
@@ -187,6 +189,27 @@ export default class Stage extends React.Component<Props, {}> {
       this.onClosePopover();
     };
 
+    const sortItems = (type: string) => {
+      this.props.sortItems(type);
+      this.onClosePopover();
+    };
+
+    const sortCreatedDesc = () => {
+      sortItems('created-desc');
+    };
+    const sortCreatedAsc = () => {
+      sortItems('created-asc');
+    };
+    const sortModifiedDesc = () => {
+      sortItems('modified-desc');
+    };
+    const sortModifiedAsc = () => {
+      sortItems('modified-asc');
+    };
+    const sortAlphaDesc = () => {
+      sortItems('alphabetically-asc');
+    };
+
     return (
       <Popover id="stage-popover">
         <ActionList>
@@ -199,6 +222,31 @@ export default class Stage extends React.Component<Props, {}> {
           <li onClick={removeStage} key="remove-stage">
             {__('Remove stage')}
           </li>
+          <Dropdown>
+            <Dropdown.Toggle as={DropdownToggle} id="dropdown-sort-by">
+              <li>{__('Sort By')}</li>
+            </Dropdown.Toggle>
+            <Dropdown.Menu>
+              <li onClick={sortCreatedDesc} key="created-desc">
+                Date created (Newest first)
+              </li>
+              <li onClick={sortCreatedAsc} key="created-asc">
+                Date created (Oldest first)
+              </li>
+              <li onClick={sortModifiedDesc} key="modified-desc">
+                Date modified (Newest first)
+              </li>
+              <li onClick={sortModifiedAsc} key="modified-asc">
+                Date modified (Oldest first)
+              </li>
+              <li onClick={sortAlphaDesc} key="alphabetically-asc">
+                Alphabetically
+              </li>
+            </Dropdown.Menu>
+          </Dropdown>
+          <li></li>
+          <li></li>
+          <li></li>
         </ActionList>
       </Popover>
     );

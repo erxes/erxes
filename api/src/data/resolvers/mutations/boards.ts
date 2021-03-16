@@ -1,4 +1,5 @@
 import { Boards, Pipelines, Stages } from '../../../db/models';
+import { bulkUpdateOrders, getCollection } from '../../../db/models/boardUtils';
 import {
   IBoard,
   IOrderInput,
@@ -6,6 +7,7 @@ import {
   IStage,
   IStageDocument
 } from '../../../db/models/definitions/boards';
+import { graphqlPubsub } from '../../../pubsub';
 import { putCreateLog, putDeleteLog, putUpdateLog } from '../../logUtils';
 import { IContext } from '../../types';
 import { checkPermission } from '../boardUtils';
@@ -202,6 +204,61 @@ const boardMutations = {
     await checkPermission(stage.type, user, 'stagesRemove');
 
     return Stages.removeStage(_id);
+  },
+
+  async stagesSortItems(
+    _root,
+    {
+      stageId,
+      type,
+      proccessId,
+      sortType
+    }: { stageId: string; type: string; proccessId: string; sortType: string },
+    { user }: IContext
+  ) {
+    await checkPermission(type, user, 'Sort');
+
+    const { collection } = getCollection(type);
+
+    const sort: { [key: string]: any } = {};
+    switch (sortType) {
+      case 'created-asc':
+        sort.createdAt = 1;
+        break;
+
+      case 'created-desc':
+        sort.createdAt = -1;
+        break;
+
+      case 'modified-asc':
+        sort.modifiedAt = 1;
+        break;
+
+      case 'modified-desc':
+        sort.modifiedAt = -1;
+        break;
+
+      case 'alphabetically-asc':
+        sort.name = 1;
+        break;
+    }
+
+    await bulkUpdateOrders({ collection, stageId, sort });
+
+    const stage = await Stages.getStage(stageId);
+
+    graphqlPubsub.publish('pipelinesChanged', {
+      pipelinesChanged: {
+        _id: stage.pipelineId,
+        proccessId,
+        action: 'reOrdered',
+        data: {
+          destinationStageId: stageId
+        }
+      }
+    });
+
+    return 'ok';
   }
 };
 
