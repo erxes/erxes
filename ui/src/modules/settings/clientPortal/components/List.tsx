@@ -21,8 +21,6 @@ type Props = {
   loading: boolean;
 } & IRouterProps;
 
-const formUrl = '/settings/client-portal';
-
 function ClientPortalList({
   configs,
   loading,
@@ -31,8 +29,6 @@ function ClientPortalList({
   queryParams,
   ...props
 }: Props) {
-  const handleClick = () => history.push(formUrl);
-
   const renderRow = () => {
     return configs.map(config => {
       return (
@@ -58,7 +54,6 @@ function ClientPortalList({
         block={true}
         uppercase={false}
         icon="plus-circle"
-        onClick={handleClick}
       >
         New Client Portal
       </Button>
@@ -74,7 +69,7 @@ function ClientPortalList({
           size="lg"
           title="New Client Portal"
           trigger={addBrand}
-          enforceFocus={true}
+          enforceFocus={false}
           content={content}
         />
       </TopHeader>
