@@ -347,3 +347,14 @@ export type ConvertToMutationResponse = {
     variables: ConvertToMutationVariables;
   }) => Promise<any>;
 };
+
+export type StagesSortItemsMutationResponse = ({
+  variables
+}: {
+  variables: {
+    stageId: string;
+    type: string;
+    proccessId: string;
+    sortType: string;
+  };
+}) => Promise<any>;
