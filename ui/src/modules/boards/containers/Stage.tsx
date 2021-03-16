@@ -14,7 +14,8 @@ import {
   IStage,
   ItemsQueryResponse,
   RemoveStageMutation,
-  SaveItemMutation
+  SaveItemMutation,
+  StagesSortItemsMutationResponse
 } from '../types';
 
 type StageProps = {
@@ -28,6 +29,7 @@ type StageProps = {
   refetchStages: ({ pipelineId }: { pipelineId?: string }) => Promise<any>;
   onLoad: (stageId: string, items: IItem[]) => void;
   scheduleStage: (stageId: string) => void;
+  refetchStage: (stageId: string) => void;
   onAddItem: (stageId: string, item: IItem, aboveItemId?: string) => void;
   onRemoveItem: (itemId: string, stageId: string) => void;
 };
@@ -36,6 +38,7 @@ type FinalStageProps = {
   addMutation: SaveItemMutation;
   itemsQuery?: ItemsQueryResponse;
   removeStageMutation: RemoveStageMutation;
+  stagesSortItemsMutation: StagesSortItemsMutationResponse;
 } & StageProps;
 
 class StageContainer extends React.PureComponent<FinalStageProps> {
@@ -72,7 +75,8 @@ class StageContainer extends React.PureComponent<FinalStageProps> {
           pipelineId: stage.pipelineId,
           skip: items.length,
           ...getFilterParams(queryParams, options.getExtraParams)
-        }
+        },
+        fetchPolicy: 'network-only'
       })
       .then(({ data }: any) => {
         onLoad(stage._id, [
@@ -135,6 +139,31 @@ class StageContainer extends React.PureComponent<FinalStageProps> {
     });
   };
 
+  sortItems = (type: string, description: string) => {
+    const { options, stage, stagesSortItemsMutation } = this.props;
+
+    const stageId = stage._id;
+
+    confirm(__(`Are you sure to sort by ${description} ?`)).then(() => {
+      const proccessId = Math.random().toString();
+      localStorage.setItem('proccessId', proccessId);
+      stagesSortItemsMutation({
+        variables: {
+          stageId,
+          type: options.type,
+          proccessId,
+          sortType: type
+        }
+      })
+        .then(() => {
+          this.props.refetchStage(stageId);
+        })
+        .catch((e: Error) => {
+          Alert.error(e.message);
+        });
+    });
+  };
+
   archiveList = () => {
     const { stage, refetchStages, options } = this.props;
 
@@ -188,6 +217,7 @@ class StageContainer extends React.PureComponent<FinalStageProps> {
         length={length}
         items={items}
         archiveItems={this.archiveItems}
+        sortItems={this.sortItems}
         archiveList={this.archiveList}
         removeStage={this.removeStage}
         loadingItems={loadingItems}
@@ -238,6 +268,9 @@ const withQuery = ({ options }) => {
       }),
       graphql<StageProps>(gql(mutations.stagesRemove), {
         name: 'removeStageMutation'
+      }),
+      graphql<StageProps>(gql(mutations.stagesSortItems), {
+        name: 'stagesSortItemsMutation'
       })
     )(StageContainer)
   );

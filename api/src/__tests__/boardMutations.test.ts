@@ -1,6 +1,7 @@
 import { graphqlRequest } from '../db/connection';
 import {
   boardFactory,
+  dealFactory,
   pipelineFactory,
   stageFactory,
   userFactory
@@ -385,5 +386,48 @@ describe('Test boards mutations', () => {
     await graphqlRequest(mutation, 'stagesRemove', { _id: stage._id });
 
     expect(await Stages.findOne({ _id: stage._id })).toBe(null);
+  });
+
+  test('Sort items in stages', async () => {
+    const mutation = `
+      mutation stagesSortItems($stageId: String!, $type: String, $proccessId: String, $sortType: String) {
+        stagesSortItems(stageId: $stageId, type: $type, proccessId: $proccessId, sortType: $sortType)
+      }
+    `;
+
+    // no items in stage
+    let response = await graphqlRequest(mutation, 'stagesSortItems', {
+      stageId: stage._id,
+      type: 'deal',
+      processId: Math.random().toString(),
+      sortType: 'created-asc'
+    });
+
+    expect(response).toEqual(null);
+
+    // 2 items in stage
+    const deal1 = await dealFactory({
+      stageId: stage._id
+    });
+    const deal2 = await dealFactory({
+      stageId: stage._id
+    });
+
+    response = await graphqlRequest(mutation, 'stagesSortItems', {
+      stageId: stage._id,
+      type: 'deal',
+      processId: Math.random().toString(),
+      sortType: 'created-desc'
+    });
+
+    expect(response).toEqual('ok');
+
+    const deals = await Deals.find({
+      stageId: stage._id,
+      status: 'active'
+    }).sort({ order: 1 });
+
+    expect(deals[0]._id).toEqual(deal2._id);
+    expect(deals[1]._id).toEqual(deal1._id);
   });
 });
