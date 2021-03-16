@@ -1,5 +1,6 @@
 import * as dayjs from 'dayjs';
 import T from 'i18n-react';
+import { FieldValue } from './form/types';
 import { ENV, IBrowserInfo, IRule } from './types';
 
 export const getEnv = (): ENV => {
@@ -25,6 +26,12 @@ type RequestBrowserInfoParams = {
   postData?: {};
   callback: (browserInfo: IBrowserInfo) => void;
 };
+
+export type LogicParams = {
+  operator: string;
+  logicValue: FieldValue;
+  fieldValue?: FieldValue
+}
 
 export const requestBrowserInfo = ({
   source,
@@ -264,3 +271,37 @@ export const urlify = (text: string) => {
     return `<a href="http://${url}" target="_blank">${url}</a>`;
   });
 };
+
+export const checkLogicFulfilled = (logic: LogicParams) => {
+  
+  const { operator, logicValue, fieldValue } = logic;
+
+  if (typeof logicValue === 'number') {
+    
+    if (operator === 'is' && fieldValue) {
+      return true;
+    }
+
+    if (operator === 'ins' && !fieldValue) {
+      return true;
+    }
+
+    if (operator === 'numbere' && logicValue === fieldValue) {
+      return true;
+    }
+
+    if (operator === 'numberdne' && logicValue !== fieldValue) {
+      return true;
+    }
+
+    if (operator === 'numberigt' && fieldValue && fieldValue > logicValue) {
+      return true;
+    }
+
+    if (operator === 'numberilt' && fieldValue && fieldValue < logicValue) {
+      return true;
+    }
+  }
+
+  return false;
+}

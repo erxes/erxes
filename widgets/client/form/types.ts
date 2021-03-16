@@ -5,6 +5,13 @@ export interface IConnectResponse {
   integration: IIntegration;
 }
 
+export interface ILogic {
+  fieldId: string;
+  willShow: boolean;
+  logicOperator: string;
+  logicValue: FieldValue;
+}
+
 export interface IField {
   _id: string;
   contentType: string;
@@ -21,6 +28,7 @@ export interface IField {
   isVisible: boolean;
   lastUpdatedUserId: string;
   associatedFieldId?: string;
+  logic?: ILogic;
 }
 
 export interface ICallout {

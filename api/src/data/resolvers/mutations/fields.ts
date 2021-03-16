@@ -1,5 +1,9 @@
 import { Fields, FieldsGroups } from '../../../db/models';
-import { IField, IFieldGroup } from '../../../db/models/definitions/fields';
+import {
+  IField,
+  IFieldDocument,
+  IFieldGroup
+} from '../../../db/models/definitions/fields';
 import { IOrderInput } from '../../../db/models/Fields';
 import { MODULE_NAMES } from '../../constants';
 import { putCreateLog } from '../../logUtils';
@@ -12,6 +16,13 @@ interface IFieldsEdit extends IField {
 
 interface IFieldsGroupsEdit extends IFieldGroup {
   _id: string;
+}
+
+interface IFieldsBulkAddAndEditParams {
+  contentType: string;
+  contentTypeId: string;
+  addingFields: IField[];
+  editingFields: IFieldsEdit[];
 }
 
 const fieldMutations = {
@@ -34,6 +45,71 @@ const fieldMutations = {
     );
 
     return field;
+  },
+
+  async fieldsBulkAddAndEdit(
+    _root,
+    args: IFieldsBulkAddAndEditParams,
+    { user }: IContext
+  ) {
+    const { contentType, contentTypeId, addingFields, editingFields } = args;
+    const temp: { [key: string]: string } = {};
+    const response: IFieldDocument[] = [];
+    const logicalFields: IField[] = [];
+
+    if (addingFields) {
+      for (const f of addingFields) {
+        if (f.logic && !f.logic.fieldId) {
+          logicalFields.push(f);
+        } else {
+          const tempId = f.tempFieldId || '';
+
+          const field = await Fields.createField({
+            ...f,
+            contentType,
+            contentTypeId,
+            lastUpdatedUserId: user._id
+          });
+
+          temp[tempId] = field._id;
+
+          response.push(field);
+        }
+      }
+
+      for (const f of logicalFields) {
+        const { logic } = f;
+
+        if (logic && logic.tempFieldId) {
+          logic.fieldId = temp[logic.tempFieldId];
+          f.logic = logic;
+        }
+
+        const field = await Fields.createField({
+          ...f,
+          contentType,
+          contentTypeId,
+          lastUpdatedUserId: user._id
+        });
+
+        response.push(field);
+      }
+    }
+
+    if (editingFields) {
+      for (const { _id, ...doc } of editingFields) {
+        if (doc.logic && !doc.logic.fieldId) {
+          doc.logic.fieldId = temp[doc.logic.tempFieldId || ''];
+        }
+        const field = await Fields.updateField(_id, {
+          ...doc,
+          lastUpdatedUserId: user._id
+        });
+        response.push(field);
+      }
+    }
+
+    return response;
   },
 
   /**

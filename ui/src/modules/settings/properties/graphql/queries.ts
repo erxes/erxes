@@ -50,6 +50,12 @@ const fields = `
         _id
         text
       }
+      logic {
+        fieldId
+        willShow
+        logicOperator
+        logicValue
+      }
     }
   }
 `;

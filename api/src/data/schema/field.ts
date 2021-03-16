@@ -1,4 +1,11 @@
 export const fieldsTypes = `
+  type Logic {
+    fieldId: String!
+    willShow: Boolean
+    logicOperator: String
+    logicValue: JSON
+  }
+
   type Field {
     _id: String!
     contentType: String!
@@ -18,11 +25,34 @@ export const fieldsTypes = `
     lastUpdatedUserId: String
     associatedFieldId: String
     associatedField: Field
+    logic: Logic
   }
 
   input OrderItem {
     _id: String!
     order: Int!
+  }
+
+  input LogicInput {
+    fieldId: String
+    tempFieldId: String
+    willShow: Boolean
+    logicOperator: String
+    logicValue: JSON
+  }
+
+  input FieldItem {
+    _id: String
+    tempFieldId: String
+    type: String
+    validation: String
+    text: String
+    description: String
+    options: [String]
+    isRequired: Boolean
+    order: Int
+    associatedFieldId: String
+    logic: LogicInput
   }
 
   type ColumnConfigItem {
@@ -49,10 +79,12 @@ const fieldsCommonFields = `
   groupId: String
   isVisible: Boolean
   associatedFieldId: String
+  logic: LogicInput
 `;
 
 export const fieldsMutations = `
   fieldsAdd(contentType: String!, contentTypeId: String, ${fieldsCommonFields}): Field
+  fieldsBulkAddAndEdit(contentType: String!, contentTypeId: String, addingFields:[FieldItem], editingFields:[FieldItem]): [Field]
   fieldsEdit(_id: String!, ${fieldsCommonFields}): Field
   fieldsRemove(_id: String!): Field
   fieldsUpdateOrder(orders: [OrderItem]): [Field]

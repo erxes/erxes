@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { AppConsumer } from '../../messenger/containers/AppContext';
 import { IEmailParams, IIntegration } from '../../types';
-import { fixErrorMessage, __ } from '../../utils';
+import { __, checkLogicFulfilled, fixErrorMessage, LogicParams } from '../../utils';
 import { connection } from '../connection';
 import {
   FieldValue,
@@ -119,7 +119,7 @@ class Form extends React.Component<Props, State> {
   renderFields() {
     const { form, currentStatus } = this.props;
     const { fields } = form;
-
+    
     const errors = currentStatus.errors || [];
     const nonFieldError = errors.find(error => !error.fieldId);
 
@@ -127,6 +127,16 @@ class Form extends React.Component<Props, State> {
       const fieldError = errors.find(
         (error: IFieldError) => error.fieldId === field._id
       );
+
+      if (field.logic && field.logic.willShow) {
+        const fieldValue = this.state.doc[field.logic.fieldId].value;
+
+        const isLogicFulfilled = checkLogicFulfilled({ operator: field.logic.logicOperator, logicValue: field.logic.logicValue, fieldValue })
+        
+        if (!isLogicFulfilled) {
+          return null;
+        }
+      }
 
       return (
         <Field

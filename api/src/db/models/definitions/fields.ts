@@ -4,9 +4,10 @@ import { field, schemaWrapper } from './utils';
 
 export interface ILogic {
   fieldId: string;
+  tempFieldId?: string;
   willShow: boolean;
   logicOperator?: string;
-  logicValue?: string;
+  logicValue?: string | number | Date | string[];
 }
 
 export const logicSchema = new Schema(
@@ -23,7 +24,7 @@ export const logicSchema = new Schema(
     }),
 
     logicValue: field({
-      type: String,
+      type: Schema.Types.Mixed,
       optional: true
     })
   },
@@ -45,7 +46,9 @@ export interface IField {
   isVisible?: boolean;
   lastUpdatedUserId?: string;
   associatedFieldId?: string;
+
   logic?: ILogic;
+  tempFieldId?: string;
 }
 
 export interface IFieldDocument extends IField, Document {
