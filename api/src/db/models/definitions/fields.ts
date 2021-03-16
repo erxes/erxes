@@ -31,7 +31,12 @@ export const logicSchema = new Schema(
   { _id: false }
 );
 
-export interface IField {
+interface IVisibility {
+  isVisible?: boolean;
+  isVisibleInDetail?: boolean;
+}
+
+export interface IField extends IVisibility {
   contentType?: string;
   contentTypeId?: string;
   type?: string;
@@ -43,7 +48,7 @@ export interface IField {
   isDefinedByErxes?: boolean;
   order?: number;
   groupId?: string;
-  isVisible?: boolean;
+  canHide?: boolean;
   lastUpdatedUserId?: string;
   associatedFieldId?: string;
 
@@ -55,14 +60,13 @@ export interface IFieldDocument extends IField, Document {
   _id: string;
 }
 
-export interface IFieldGroup {
+export interface IFieldGroup extends IVisibility {
   name?: string;
   contentType?: string;
   order?: number;
   isDefinedByErxes?: boolean;
   description?: string;
   lastUpdatedUserId?: string;
-  isVisible?: boolean;
 }
 
 export interface IFieldGroupDocument extends IFieldGroup, Document {
@@ -87,6 +91,7 @@ export const fieldSchema = schemaWrapper(
       label: 'Validation'
     }),
     text: field({ type: String, label: 'Text' }),
+    field: field({ type: String, optional: true, label: 'Field identifier' }),
     description: field({
       type: String,
       optional: true,
@@ -102,13 +107,22 @@ export const fieldSchema = schemaWrapper(
     order: field({ type: Number, label: 'Order' }),
     groupId: field({ type: String, label: 'Field group' }),
     isVisible: field({ type: Boolean, default: true, label: 'Is visible' }),
+    isVisibleInDetail: field({
+      type: Boolean,
+      default: true,
+      label: 'Is group visible in detail'
+    }),
+    canHide: field({
+      type: Boolean,
+      default: true,
+      label: 'Can toggle isVisible'
+    }),
     lastUpdatedUserId: field({ type: String, label: 'Last updated by' }),
     associatedFieldId: field({
       type: String,
       optional: true,
       label: 'Stores custom property fieldId for form field id'
-    }),
-    logic: field({ type: logicSchema })
+    })
   })
 );
 
@@ -131,6 +145,11 @@ export const fieldGroupSchema = schemaWrapper(
     description: field({ type: String, label: 'Description' }),
     // Id of user who updated the group
     lastUpdatedUserId: field({ type: String, label: 'Last updated by' }),
-    isVisible: field({ type: Boolean, default: true, label: 'Is visible' })
+    isVisible: field({ type: Boolean, default: true, label: 'Is visible' }),
+    isVisibleInDetail: field({
+      type: Boolean,
+      default: true,
+      label: 'Is group visible in detail'
+    })
   })
 );

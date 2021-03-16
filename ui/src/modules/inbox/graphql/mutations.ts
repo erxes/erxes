@@ -120,6 +120,14 @@ const resolveAll = `
   }
 `;
 
+const editCustomFields = `
+  mutation conversationEditCustomFields($_id: String!, $customFieldsData: JSON) {
+    conversationEditCustomFields(_id: $_id, customFieldsData: $customFieldsData) {
+      _id
+    }
+  }
+`;
+
 export default {
   conversationsReplyFacebookComment,
   conversationMessageAdd,
@@ -130,5 +138,6 @@ export default {
   markAsRead,
   createProductBoardNote,
   conversationsChangeStatusFacebookComment,
-  resolveAll
+  resolveAll,
+  editCustomFields
 };

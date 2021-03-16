@@ -152,11 +152,15 @@ class RespondBox extends React.Component<Props, State> {
   };
 
   checkIsActive(conversation: IConversation) {
-    return (
-      conversation.integration.kind !== 'messenger' ||
-      (conversation.customer && conversation.customer.isOnline) ||
-      !conversation.isFacebookTaggedMessage
-    );
+    if (conversation.integration.kind === 'messenger') {
+      return conversation.customer && conversation.customer.isOnline;
+    }
+
+    if (conversation.integration.kind === 'facebook-messenger') {
+      return !conversation.isFacebookTaggedMessage;
+    }
+
+    return true;
   }
 
   hideMask = () => {

@@ -215,6 +215,7 @@ class Form extends React.Component<Props, State> {
         </LeftItem>
         {currentField && (
           <FieldForm
+            type="customer"
             mode={currentMode || 'create'}
             field={currentField}
             onSubmit={this.onFieldSubmit}

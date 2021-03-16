@@ -10,6 +10,7 @@ import {
   Integrations,
   Users
 } from '../db/models';
+import { KIND_CHOICES } from '../db/models/definitions/constants';
 import { IMessageDocument } from '../db/models/definitions/conversationMessages';
 import { debugCrons } from '../debuggers';
 
@@ -31,7 +32,7 @@ export const sendMessageEmail = async () => {
       _id: conversation.integrationId
     });
 
-    if (!integration) {
+    if (!integration || integration.kind !== KIND_CHOICES.MESSENGER) {
       continue;
     }
 

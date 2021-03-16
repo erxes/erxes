@@ -39,6 +39,7 @@ export const types = `
     videoCallData: VideoCallData
     productBoardLink: String
     isFacebookTaggedMessage: Boolean
+    customFieldsData: JSON
   }
 
   type EngageData {
@@ -258,4 +259,5 @@ export const mutations = `
   conversationResolveAll(${mutationFilterParams}): Int
   conversationsSaveVideoRecordingInfo(conversationId: String!, recordingId: String): String
   conversationConvertToCard(_id: String!, type: String!, itemId: String, itemName: String, stageId: String): String
+  conversationEditCustomFields(_id: String!, customFieldsData: JSON): Conversation
 `;

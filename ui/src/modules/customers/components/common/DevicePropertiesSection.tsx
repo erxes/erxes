@@ -3,12 +3,15 @@ import EmptyState from 'modules/common/components/EmptyState';
 import { __ } from 'modules/common/utils';
 import { ICustomer } from 'modules/customers/types';
 import { FieldStyle, SidebarCounter, SidebarList } from 'modules/layout/styles';
+import { IField } from 'modules/settings/properties/types';
 import React from 'react';
 import parse from 'ua-parser-js';
 
 type Props = {
   customer: ICustomer;
   collapseCallback?: () => void;
+  fields: IField[];
+  isDetail: boolean;
 };
 
 export const renderFlag = (countryCode?: string) => {
@@ -28,10 +31,20 @@ export const renderFlag = (countryCode?: string) => {
 class DevicePropertiesSection extends React.Component<Props> {
   renderDeviceProperty = (
     text: string,
+    field: string,
     value?: any,
     secondValue?: string,
     nowrap?: boolean
   ) => {
+    const { fields, isDetail } = this.props;
+    const isVisibleKey = isDetail ? 'isVisibleInDetail' : 'isVisible';
+
+    const property = fields.find(e => e.field === field);
+
+    if (property && !property[isVisibleKey]) {
+      return null;
+    }
+
     if (value || secondValue) {
       return (
         <li>
@@ -60,25 +73,46 @@ class DevicePropertiesSection extends React.Component<Props> {
       <SidebarList className="no-link">
         {this.renderDeviceProperty(
           'Location',
+          'location',
           renderFlag(location.countryCode),
           location.country
         )}
         {this.renderDeviceProperty(
           'Browser',
+          'browser',
           ua.browser.name,
           ua.browser.version
         )}
-        {this.renderDeviceProperty('Platform', ua.os.name, ua.os.version)}
-        {this.renderDeviceProperty('IP Address', location.remoteAddress)}
-        {this.renderDeviceProperty('Hostname', location.hostname)}
-        {this.renderDeviceProperty('Language', location.language)}
-        {this.renderDeviceProperty('User Agent', location.userAgent, '', true)}
+        {this.renderDeviceProperty(
+          'Platform',
+          'platform',
+          ua.os.name,
+          ua.os.version
+        )}
+        {this.renderDeviceProperty(
+          'IP Address',
+          'ipAddress',
+          location.remoteAddress
+        )}
+        {this.renderDeviceProperty('Hostname', 'hostName', location.hostname)}
+        {this.renderDeviceProperty('Language', 'language', location.language)}
+        {this.renderDeviceProperty(
+          'User Agent',
+          'agent',
+          location.userAgent,
+          '',
+          true
+        )}
       </SidebarList>
     );
   }
 
   render() {
-    const { collapseCallback } = this.props;
+    const { collapseCallback, fields } = this.props;
+
+    if (!fields || fields.length === 0) {
+      return null;
+    }
 
     return (
       <Box
