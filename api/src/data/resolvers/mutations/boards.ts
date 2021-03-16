@@ -221,7 +221,7 @@ const boardMutations = {
     },
     { user }: IContext
   ) {
-    await checkPermission(type, user, 'Sort');
+    await checkPermission(type, user, 'itemsSort');
 
     const { collection } = getCollection(type);
 
