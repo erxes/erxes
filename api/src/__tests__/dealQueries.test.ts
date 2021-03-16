@@ -452,6 +452,28 @@ describe('dealQueries', () => {
     expect(response.length).toBe(1);
   });
 
+  test('Deals total count', async () => {
+    const stage = await stageFactory({});
+    const currentUser = await userFactory({});
+
+    const args = { stageId: stage._id };
+
+    await dealFactory(args);
+    await dealFactory(args);
+
+    const qry = `
+      query dealsTotalCount($stageId: String!) {
+        dealsTotalCount(stageId: $stageId)
+      }
+    `;
+
+    const response = await graphqlRequest(qry, 'dealsTotalCount', args, {
+      user: currentUser
+    });
+
+    expect(response).toBe(2);
+  });
+
   test('Deal detail', async () => {
     const currentUser = await userFactory({});
     const board = await boardFactory();
@@ -567,14 +589,10 @@ describe('dealQueries', () => {
       query dealsTotalAmounts($pipelineId: String) {
         dealsTotalAmounts(pipelineId: $pipelineId) {
           _id
-          dealCount
-          totalForType {
-            _id
+          name
+          currencies {
             name
-            currencies {
-              name
-              amount
-            }
+            amount
           }
         }
       }
@@ -582,9 +600,8 @@ describe('dealQueries', () => {
 
     const response = await graphqlRequest(qry, 'dealsTotalAmounts', filter);
 
-    expect(response.dealCount).toBe(3);
-    expect(response.totalForType[0].currencies[0].name).toBe('USD');
-    expect(response.totalForType[0].currencies[0].amount).toBe(600);
+    expect(response[0].currencies[0].name).toBe('USD');
+    expect(response[0].currencies[0].amount).toBe(600);
   });
 
   test('Deal (=ticket, task) filter by conformity saved and related', async () => {

@@ -61,6 +61,26 @@ const tickets = `
   }
 `;
 
+const ticketsTotalCount = `
+  query ticketsTotalCount(
+    $pipelineId: String,
+    $stageId: String,
+    $date: ItemDate,
+    $skip: Int,
+    $search: String,
+    ${commonParams}
+  ) {
+    ticketsTotalCount(
+      pipelineId: $pipelineId,
+      stageId: $stageId,
+      date: $date,
+      skip: $skip,
+      search: $search,
+      ${commonParamDefs}
+    )
+  }
+`;
+
 const ticketDetail = `
   query ticketDetail($_id: String!) {
     ticketDetail(_id: $_id) {
@@ -103,6 +123,7 @@ const archivedTicketsCount = `
 
 export default {
   tickets,
+  ticketsTotalCount,
   ticketDetail,
   archivedTickets,
   archivedTicketsCount

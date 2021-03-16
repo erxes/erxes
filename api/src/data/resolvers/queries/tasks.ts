@@ -31,6 +31,19 @@ const taskQueries = {
     return await getItemList(filter, args, user, 'task');
   },
 
+  async tasksTotalCount(
+    _root,
+    args: IListParams,
+    { user, commonQuerySelector }: IContext
+  ) {
+    const filter = {
+      ...commonQuerySelector,
+      ...(await generateTaskCommonFilters(user._id, args))
+    };
+
+    return Tasks.find(filter).countDocuments();
+  },
+
   /**
    * Archived list
    */
