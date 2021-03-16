@@ -99,7 +99,7 @@ class GenerateGroup extends React.Component<Props, State> {
     const isVisibleKey = isDetail ? 'isVisibleInDetail' : 'isVisible';
 
     if (fields.length === 0) {
-      return <EmptyState icon="folder-2" text="Empty" size="small" />;
+      return null;
     }
 
     if (
