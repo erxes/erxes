@@ -54,6 +54,7 @@ export interface IField extends IVisibility {
 
   logic?: ILogic;
   tempFieldId?: string;
+  column?: number;
 }
 
 export interface IFieldDocument extends IField, Document {
@@ -123,7 +124,8 @@ export const fieldSchema = schemaWrapper(
       optional: true,
       label: 'Stores custom property fieldId for form field id'
     }),
-    logic: field({ type: logicSchema })
+    logic: field({ type: logicSchema }),
+    column: field({ type: Number, optional: true })
   })
 );
 

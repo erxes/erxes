@@ -29,6 +29,7 @@ export const fieldsTypes = `
     associatedFieldId: String
     associatedField: Field
     logic: Logic
+    column: Int
   }
 
   input OrderItem {
