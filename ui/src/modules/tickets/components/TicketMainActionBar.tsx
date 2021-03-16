@@ -120,7 +120,7 @@ const TicketMainActionBar = (props: Props) => {
     ...props,
     options,
     extraFilter,
-    link: '/inbox/ticket/board',
+    link: `/inbox/ticket/${viewType}`,
     rightContent: viewChooser
   };
 
