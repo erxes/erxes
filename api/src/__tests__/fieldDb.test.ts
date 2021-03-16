@@ -313,7 +313,7 @@ describe('Fields', () => {
 
     const field = await fieldFactory({ isVisible: true });
     const user = await userFactory({});
-    const testField = await fieldFactory({ isDefinedByErxes: true });
+    const testField = await fieldFactory({ canHide: false });
 
     const isVisible = false;
 
@@ -322,18 +322,28 @@ describe('Fields', () => {
     }
 
     try {
-      await Fields.updateFieldsVisible(testField._id, false, '123321');
+      await Fields.updateFieldsVisible(testField._id, '123321', false);
     } catch (e) {
       expect(e.message).toBe('Cant update this field');
     }
 
     const fieldObj = await Fields.updateFieldsVisible(
       field._id,
-      isVisible,
-      user._id
+      user._id,
+      isVisible
     );
 
     expect(fieldObj.isVisible).toBe(isVisible);
+  });
+
+  test('Update field visible: checkCanToggleVisible', async () => {
+    const field = await fieldFactory({ isVisible: true, canHide: false });
+
+    try {
+      await Fields.updateFieldsVisible(field._id, '123321', false);
+    } catch (e) {
+      expect(e.message).toBe('Cant update this field');
+    }
   });
 });
 
@@ -459,7 +469,7 @@ describe('Fields groups', () => {
     }
 
     try {
-      await FieldsGroups.updateGroupVisible(_fieldGroup._id, true, user._id);
+      await FieldsGroups.updateGroupVisible(_fieldGroup._id, user._id, true);
     } catch (e) {
       expect(e.message).toBe('Cant update this group');
     }
@@ -467,10 +477,14 @@ describe('Fields groups', () => {
     const isVisible = false;
     const groupObj = await FieldsGroups.updateGroupVisible(
       fieldGroup._id,
-      isVisible,
-      user._id
+      user._id,
+      isVisible
     );
 
     expect(groupObj.isVisible).toBe(isVisible);
+  });
+
+  test('create system groups and fields', async () => {
+    await FieldsGroups.createSystemGroupsFields();
   });
 });

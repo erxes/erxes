@@ -1,6 +1,5 @@
 import { IUser } from 'modules/auth/types';
 import Button from 'modules/common/components/Button';
-import { SmallLoader } from 'modules/common/components/ButtonMutate';
 import FormControl from 'modules/common/components/form/Control';
 import ConditionsRule from 'modules/common/components/rule/ConditionsRule';
 import { Step, Steps } from 'modules/common/components/step';
@@ -17,7 +16,7 @@ import { IConfig } from 'modules/settings/general/types';
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { IBreadCrumbItem, IConditionsRule } from '../../common/types';
-import { MESSAGE_KINDS, METHODS } from '../constants';
+import { METHODS } from '../constants';
 import {
   IEngageEmail,
   IEngageMessage,
@@ -181,7 +180,7 @@ class AutoAndManualForm extends React.Component<Props, State> {
   };
 
   renderSaveButton = () => {
-    const { isActionLoading, kind, message } = this.props;
+    const { isActionLoading } = this.props;
 
     const cancelButton = (
       <Link
@@ -196,54 +195,29 @@ class AutoAndManualForm extends React.Component<Props, State> {
       </Link>
     );
 
-    const saveButton = () => {
-      if (kind === MESSAGE_KINDS.AUTO) {
-        return (
-          <>
-            <Button
-              disabled={isActionLoading}
-              btnStyle="warning"
-              uppercase={false}
-              icon={isActionLoading ? undefined : 'file-alt'}
-              onClick={this.handleSubmit.bind(this, 'draft')}
-            >
-              Save & Draft
-            </Button>
-            <Button
-              disabled={isActionLoading}
-              btnStyle="success"
-              uppercase={false}
-              icon={isActionLoading ? undefined : 'check-circle'}
-              onClick={this.handleSubmit.bind(this, 'live')}
-            >
-              Send & Live
-            </Button>
-          </>
-        );
-      }
-
-      return (
-        <Button
-          disabled={isActionLoading}
-          btnStyle="success"
-          icon={isActionLoading ? undefined : 'check-circle'}
-          // set live only in create mode
-          onClick={this.handleSubmit.bind(
-            this,
-            message && message._id ? 'draft' : 'live'
-          )}
-          uppercase={false}
-        >
-          {isActionLoading && <SmallLoader />}
-          Save
-        </Button>
-      );
-    };
-
     return (
       <Button.Group>
         {cancelButton}
-        {saveButton()}
+        <>
+          <Button
+            disabled={isActionLoading}
+            btnStyle="warning"
+            uppercase={false}
+            icon={isActionLoading ? undefined : 'file-alt'}
+            onClick={this.handleSubmit.bind(this, 'draft')}
+          >
+            Save & Draft
+          </Button>
+          <Button
+            disabled={isActionLoading}
+            btnStyle="success"
+            uppercase={false}
+            icon={isActionLoading ? undefined : 'check-circle'}
+            onClick={this.handleSubmit.bind(this, 'live')}
+          >
+            Send & Live
+          </Button>
+        </>
       </Button.Group>
     );
   };

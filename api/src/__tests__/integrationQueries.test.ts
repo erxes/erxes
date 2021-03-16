@@ -463,7 +463,7 @@ describe('integrationQueries', () => {
       }
     );
 
-    expect(activeResponse.total).toBe(2);
+    expect(activeResponse.total).toBe(1);
     expect(activeResponse.byStatus.active).toBe(1);
     expect(activeResponse.byStatus.archived).toBe(0);
     expect(archivedResponse.byStatus.active).toBe(0);

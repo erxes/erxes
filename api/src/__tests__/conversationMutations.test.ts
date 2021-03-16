@@ -9,6 +9,7 @@ import {
   conversationFactory,
   customerFactory,
   dealFactory,
+  fieldFactory,
   integrationFactory,
   stageFactory,
   userFactory
@@ -402,6 +403,17 @@ describe('Conversation message mutations', () => {
     args.conversationId = telnyxConversation._id;
 
     try {
+      await graphqlRequest(addMutation, 'conversationMessageAdd', args, {
+        dataSources
+      });
+    } catch (e) {
+      expect(e).toBeDefined();
+    }
+
+    // long sms content that is split
+    try {
+      args.content = faker.lorem.paragraph();
+
       await graphqlRequest(addMutation, 'conversationMessageAdd', args, {
         dataSources
       });
@@ -1001,5 +1013,45 @@ describe('Conversation message mutations', () => {
 
     expect(updatedDeal).toBeDefined();
     expect(sourcesIds.length).toEqual(2);
+  });
+
+  test('Conversation conversationEditCustomFields', async () => {
+    const conversation = await conversationFactory();
+    const field = await fieldFactory({ type: 'input', validation: 'number' });
+
+    const mutation = `
+    mutation conversationEditCustomFields($_id: String!, $customFieldsData: JSON) {
+      conversationEditCustomFields(_id: $_id, customFieldsData: $customFieldsData) {
+        _id
+      }
+    }
+  `;
+
+    await graphqlRequest(
+      mutation,
+      'conversationEditCustomFields',
+      {
+        _id: conversation._id,
+        customFieldsData: [
+          {
+            field: field._id,
+            value: 123
+          }
+        ]
+      },
+      { dataSources }
+    );
+
+    const response = await Conversations.getConversation(conversation._id);
+
+    const { customFieldsData } = response;
+
+    if (!customFieldsData) {
+      fail('customFieldsData not saved');
+    }
+
+    expect(response).toBeDefined();
+    expect(customFieldsData.length).toEqual(1);
+    expect(customFieldsData[0].value).toBe(123);
   });
 });
