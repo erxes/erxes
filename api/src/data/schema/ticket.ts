@@ -21,27 +21,30 @@ export const types = `
   }
 `;
 
+const listQueryParams = `
+  pipelineId: String
+  stageId: String
+  customerIds: [String]
+  companyIds: [String]
+  date: ItemDate
+  skip: Int
+  limit: Int
+  search: String
+  assignedUserIds: [String]
+  closeDateType: String
+  priority: [String]
+  source: [String]
+  labelIds: [String]
+  sortField: String
+  sortDirection: Int
+  userIds: [String]
+  ${conformityQueryFields}
+`;
+
 export const queries = `
   ticketDetail(_id: String!): Ticket
-  tickets(
-    pipelineId: String
-    stageId: String
-    customerIds: [String]
-    companyIds: [String]
-    date: ItemDate
-    skip: Int
-    limit: Int
-    search: String
-    assignedUserIds: [String]
-    closeDateType: String
-    priority: [String]
-    source: [String]
-    labelIds: [String]
-    sortField: String
-    sortDirection: Int
-    userIds: [String]
-    ${conformityQueryFields}
-  ): [TicketListItem]
+  tickets(${listQueryParams}): [TicketListItem]
+  ticketsTotalCount(${listQueryParams}): Int
   archivedTickets(pipelineId: String!, search: String, page: Int, perPage: Int): [Ticket]
   archivedTicketsCount(pipelineId: String!, search: String): Int
 `;

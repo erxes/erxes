@@ -55,6 +55,26 @@ const tasks = `
   }
 `;
 
+const tasksTotalCount = `
+  query tasks(
+    $pipelineId: String,
+    $stageId: String,
+    $date: ItemDate,
+    $skip: Int,
+    $search: String,
+    ${commonParams}
+  ) {
+    tasksTotalCount(
+      pipelineId: $pipelineId,
+      stageId: $stageId,
+      date: $date,
+      skip: $skip,
+      search: $search,
+      ${commonParamDefs}
+    )
+  }
+`;
+
 const taskDetail = `
   query taskDetail($_id: String!) {
     taskDetail(_id: $_id) {
@@ -94,6 +114,7 @@ const archivedTasksCount = `
 
 export default {
   tasks,
+  tasksTotalCount,
   taskDetail,
   archivedTasks,
   archivedTasksCount

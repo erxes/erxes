@@ -203,10 +203,23 @@ export const generateCommonFilters = async (
   return filter;
 };
 
+export const calendarFilters = async (filter, args) => {
+  const { date, pipelineId } = args;
+
+  if (date) {
+    const stageIds = await Stages.find({ pipelineId }).distinct('_id');
+
+    filter.closeDate = dateSelector(date);
+    filter.stageId = { $in: stageIds };
+  }
+
+  return filter;
+};
+
 export const generateDealCommonFilters = async (
   currentUserId: string,
-  args: any,
-  extraParams?: any
+  args,
+  extraParams?
 ) => {
   args.type = 'deal';
 
@@ -218,14 +231,7 @@ export const generateDealCommonFilters = async (
   }
 
   // Calendar monthly date
-  const { date, pipelineId } = args;
-
-  if (date) {
-    const stageIds = await Stages.find({ pipelineId }).distinct('_id');
-
-    filter.closeDate = dateSelector(date);
-    filter.stageId = { $in: stageIds };
-  }
+  await calendarFilters(filter, args);
 
   return filter;
 };
@@ -244,6 +250,9 @@ export const generateTicketCommonFilters = async (
     filter.source = contains(source);
   }
 
+  // Calendar monthly date
+  await calendarFilters(filter, args);
+
   return filter;
 };
 
@@ -253,7 +262,12 @@ export const generateTaskCommonFilters = async (
 ) => {
   args.type = 'task';
 
-  return generateCommonFilters(currentUserId, args);
+  const filter = await generateCommonFilters(currentUserId, args);
+
+  // Calendar monthly date
+  await calendarFilters(filter, args);
+
+  return filter;
 };
 
 export const generateSort = (args: IListParams) => {

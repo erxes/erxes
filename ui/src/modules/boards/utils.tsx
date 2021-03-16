@@ -1,9 +1,13 @@
+import gql from 'graphql-tag';
 import {
   STORAGE_BOARD_KEY,
   STORAGE_PIPELINE_KEY
 } from 'modules/boards/constants';
 import { Amount } from 'modules/boards/styles/stage';
+import { IDateColumn } from 'modules/common/types';
 import React from 'react';
+import { graphql } from 'react-apollo';
+import { ColumnProps, getCommonParams } from './components/Calendar';
 import PriorityIndicator from './components/editForm/PriorityIndicator';
 import { IDraggableLocation, IItem, IItemMap } from './types';
 
@@ -181,3 +185,34 @@ export const generateButtonClass = (closeDate: Date, isComplete?: boolean) => {
 
   return colorName;
 };
+
+export const onCalendarLoadMore = (fetchMore, queryName, skip: number) => {
+  fetchMore({
+    variables: { skip },
+    updateQuery: (prevResult, { fetchMoreResult }) => {
+      if (!fetchMoreResult || fetchMoreResult[queryName].length === 0) {
+        return prevResult;
+      }
+
+      return {
+        [queryName]: prevResult[queryName].concat(fetchMoreResult[queryName])
+      };
+    }
+  });
+};
+
+export const calendarColumnQuery = (query, name) =>
+  graphql<ColumnProps, { skip: number; date: IDateColumn }>(gql(query), {
+    name,
+    options: ({ date, pipelineId, queryParams }: ColumnProps) => {
+      return {
+        notifyOnNetworkStatusChange: true,
+        variables: {
+          skip: 0,
+          date,
+          pipelineId,
+          ...getCommonParams(queryParams)
+        }
+      };
+    }
+  });
