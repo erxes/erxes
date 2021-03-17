@@ -11,6 +11,7 @@ import {
   PermissionActionsQueryResponse,
   PermissionModulesQueryResponse,
   PermissionRemoveMutationResponse,
+  PermissionsFixMutationResponse,
   PermissionsQueryResponse,
   PermissionTotalCountQueryResponse,
   UsersGroupsQueryResponse
@@ -22,6 +23,7 @@ type FinalProps = {
 
 const List = (props: FinalProps) => {
   const {
+    fixPermissionsMutation,
     history,
     queryParams,
     permissionsQuery,
@@ -71,7 +73,8 @@ const List = (props: FinalProps) => {
     groups,
     isLoading,
     currentGroupName: currentGroup.name,
-    refetchQueries: commonOptions(queryParams)
+    refetchQueries: commonOptions(queryParams),
+    fixPermissions: fixPermissionsMutation
   };
 
   return <PermissionList {...updatedProps} />;
@@ -86,6 +89,7 @@ type Props = {
   usersGroupsQuery: UsersGroupsQueryResponse;
   totalCountQuery: PermissionTotalCountQueryResponse;
   removeMutation: (params: { variables: { ids: string[] } }) => Promise<any>;
+  fixPermissionsMutation: PermissionsFixMutationResponse;
 };
 
 const commonOptions = queryParams => {
@@ -151,5 +155,11 @@ export default compose(
         refetchQueries: commonOptions(queryParams)
       })
     }
-  )
+  ),
+  graphql<Props>(gql(mutations.permissionsFix), {
+    name: 'fixPermissionsMutation',
+    options: ({ queryParams }) => ({
+      refetchQueries: commonOptions(queryParams)
+    })
+  })
 )(List);
