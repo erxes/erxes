@@ -60,7 +60,7 @@ describe('taskQueries', () => {
         priority: $priority
         closeDateType: $closeDateType
       ) {
-        ${commonTaskTypes}
+        _id
       }
     }
   `;
@@ -158,7 +158,7 @@ describe('taskQueries', () => {
     const qryList = `
       query tasks($stageId: String!) {
         tasks(stageId: $stageId) {
-          ${commonTaskTypes}
+          _id
         }
       }
     `;
@@ -166,6 +166,28 @@ describe('taskQueries', () => {
     const response = await graphqlRequest(qryList, 'tasks', args);
 
     expect(response.length).toBe(3);
+  });
+
+  test('Tasks total count', async () => {
+    const stage = await stageFactory({});
+    const currentUser = await userFactory({});
+
+    const args = { stageId: stage._id };
+
+    await taskFactory(args);
+    await taskFactory(args);
+
+    const qry = `
+      query tasksTotalCount($stageId: String!) {
+        tasksTotalCount(stageId: $stageId)
+      }
+    `;
+
+    const response = await graphqlRequest(qry, 'tasksTotalCount', args, {
+      user: currentUser
+    });
+
+    expect(response).toBe(2);
   });
 
   test('Task detail', async () => {

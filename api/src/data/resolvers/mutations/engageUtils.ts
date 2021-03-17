@@ -295,12 +295,12 @@ const sendEmailOrSms = async (
 // check & validate campaign doc
 export const checkCampaignDoc = (doc: IEngageMessage) => {
   const {
-    brandIds,
+    brandIds = [],
     kind,
     method,
     scheduleDate,
-    segmentIds,
-    customerTagIds
+    segmentIds = [],
+    customerTagIds = []
   } = doc;
   const noDate =
     !scheduleDate ||
@@ -311,7 +311,7 @@ export const checkCampaignDoc = (doc: IEngageMessage) => {
   }
   if (
     kind !== MESSAGE_KINDS.VISITOR_AUTO &&
-    !(brandIds || segmentIds || customerTagIds)
+    !(brandIds.length > 0 || segmentIds.length > 0 || customerTagIds.length > 0)
   ) {
     throw new Error('One of brand or segment or tag must be chosen');
   }

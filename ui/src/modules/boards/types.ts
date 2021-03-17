@@ -151,6 +151,9 @@ export interface IItem {
     timeSpent: number;
     startDate?: string;
   };
+  customFieldsData?: {
+    [key: string]: any;
+  };
 }
 
 export interface IDraggableLocation {
@@ -344,3 +347,14 @@ export type ConvertToMutationResponse = {
     variables: ConvertToMutationVariables;
   }) => Promise<any>;
 };
+
+export type StagesSortItemsMutationResponse = ({
+  variables
+}: {
+  variables: {
+    stageId: string;
+    type: string;
+    proccessId: string;
+    sortType: string;
+  };
+}) => Promise<any>;

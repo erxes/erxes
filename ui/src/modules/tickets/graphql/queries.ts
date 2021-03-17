@@ -1,4 +1,7 @@
-import { commonFields } from 'modules/boards/graphql/mutations';
+import {
+  commonFields,
+  commonListFields
+} from 'modules/boards/graphql/mutations';
 import {
   conformityQueryFieldDefs,
   conformityQueryFields
@@ -53,9 +56,28 @@ const tickets = `
       search: $search,
       ${commonParamDefs}
     ) {
-      source
-      ${commonFields}
+      ${commonListFields}
     }
+  }
+`;
+
+const ticketsTotalCount = `
+  query ticketsTotalCount(
+    $pipelineId: String,
+    $stageId: String,
+    $date: ItemDate,
+    $skip: Int,
+    $search: String,
+    ${commonParams}
+  ) {
+    ticketsTotalCount(
+      pipelineId: $pipelineId,
+      stageId: $stageId,
+      date: $date,
+      skip: $skip,
+      search: $search,
+      ${commonParamDefs}
+    )
   }
 `;
 
@@ -101,6 +123,7 @@ const archivedTicketsCount = `
 
 export default {
   tickets,
+  ticketsTotalCount,
   ticketDetail,
   archivedTickets,
   archivedTicketsCount

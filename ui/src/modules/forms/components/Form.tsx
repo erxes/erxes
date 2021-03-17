@@ -194,6 +194,7 @@ class Form extends React.Component<Props, State> {
     if (currentField) {
       return (
         <FieldForm
+          type="customer"
           mode={currentMode || 'create'}
           field={currentField}
           onSubmit={this.onFieldSubmit}

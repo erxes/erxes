@@ -1,4 +1,7 @@
-import { commonFields } from 'modules/boards/graphql/mutations';
+import {
+  commonFields,
+  commonListFields
+} from 'modules/boards/graphql/mutations';
 import {
   conformityQueryFieldDefs,
   conformityQueryFields
@@ -52,9 +55,6 @@ const dealsTotalAmounts = `
     dealsTotalAmounts(
       ${commonParamDefs}
     ) {
-      _id
-      dealCount
-      totalForType {
         _id
         name
         currencies {
@@ -63,7 +63,6 @@ const dealsTotalAmounts = `
         }
       }
     }
-  }
 `;
 
 const deals = `
@@ -79,9 +78,26 @@ const deals = `
       skip: $skip,
       ${commonParamDefs}
     ) {
-      ${dealFields}
-      ${commonFields}
+      products
+      amount
+      ${commonListFields}
     }
+  }
+`;
+
+const dealsTotalCount = `
+  query dealsTotalCount(
+    $initialStageId: String,
+    $stageId: String,
+    $skip: Int,
+    ${commonParams}
+  ) {
+    dealsTotalCount(
+      initialStageId: $initialStageId,
+      stageId: $stageId,
+      skip: $skip,
+      ${commonParamDefs}
+    )
   }
 `;
 
@@ -136,6 +152,7 @@ const productDetail = `
 
 export default {
   deals,
+  dealsTotalCount,
   dealDetail,
   productDetail,
   dealsTotalAmounts,

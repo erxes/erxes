@@ -1,7 +1,16 @@
 import * as moment from 'moment';
-import { Conformities, Pipelines, Stages } from '../../../db/models';
+import {
+  Companies,
+  Conformities,
+  Customers,
+  Notifications,
+  Pipelines,
+  Stages
+} from '../../../db/models';
+import { getCollection } from '../../../db/models/boardUtils';
 import { IItemCommonFields } from '../../../db/models/definitions/boards';
 import { BOARD_STATUSES } from '../../../db/models/definitions/constants';
+import { IUserDocument } from '../../../db/models/definitions/users';
 import { getNextMonth, getToday, regexSearchText } from '../../utils';
 import { IListParams } from './boards';
 
@@ -194,10 +203,23 @@ export const generateCommonFilters = async (
   return filter;
 };
 
+export const calendarFilters = async (filter, args) => {
+  const { date, pipelineId } = args;
+
+  if (date) {
+    const stageIds = await Stages.find({ pipelineId }).distinct('_id');
+
+    filter.closeDate = dateSelector(date);
+    filter.stageId = { $in: stageIds };
+  }
+
+  return filter;
+};
+
 export const generateDealCommonFilters = async (
   currentUserId: string,
-  args: any,
-  extraParams?: any
+  args,
+  extraParams?
 ) => {
   args.type = 'deal';
 
@@ -209,14 +231,7 @@ export const generateDealCommonFilters = async (
   }
 
   // Calendar monthly date
-  const { date, pipelineId } = args;
-
-  if (date) {
-    const stageIds = await Stages.find({ pipelineId }).distinct('_id');
-
-    filter.closeDate = dateSelector(date);
-    filter.stageId = { $in: stageIds };
-  }
+  await calendarFilters(filter, args);
 
   return filter;
 };
@@ -235,6 +250,9 @@ export const generateTicketCommonFilters = async (
     filter.source = contains(source);
   }
 
+  // Calendar monthly date
+  await calendarFilters(filter, args);
+
   return filter;
 };
 
@@ -244,7 +262,12 @@ export const generateTaskCommonFilters = async (
 ) => {
   args.type = 'task';
 
-  return generateCommonFilters(currentUserId, args);
+  const filter = await generateCommonFilters(currentUserId, args);
+
+  // Calendar monthly date
+  await calendarFilters(filter, args);
+
+  return filter;
 };
 
 export const generateSort = (args: IListParams) => {
@@ -380,4 +403,162 @@ export const archivedItemsCount = async (
   }
 
   return 0;
+};
+
+export const getItemList = async (
+  filter: any,
+  args: IListParams,
+  user: IUserDocument,
+  type: string,
+  extraFields?: { [key: string]: number },
+  getExtraFields?: (item: any) => { [key: string]: any }
+) => {
+  const { collection } = getCollection(type);
+  const sort = generateSort(args);
+  const limit = args.limit !== undefined ? args.limit : 10;
+
+  const list = await collection.aggregate([
+    {
+      $match: filter
+    },
+    {
+      $sort: sort
+    },
+    {
+      $skip: args.skip || 0
+    },
+    {
+      $limit: limit
+    },
+    {
+      $lookup: {
+        from: 'users',
+        localField: 'assignedUserIds',
+        foreignField: '_id',
+        as: 'users_doc'
+      }
+    },
+    {
+      $lookup: {
+        from: 'stages',
+        localField: 'stageId',
+        foreignField: '_id',
+        as: 'stages_doc'
+      }
+    },
+    {
+      $lookup: {
+        from: 'pipeline_labels',
+        localField: 'labelIds',
+        foreignField: '_id',
+        as: 'labels_doc'
+      }
+    },
+    {
+      $project: {
+        assignedUsers: '$users_doc',
+        labels: '$labels_doc',
+        stage: { $arrayElemAt: ['$stages_doc', 0] },
+        name: 1,
+        isComplete: 1,
+        closeDate: 1,
+        modifiedAt: 1,
+        priority: 1,
+        watchedUserIds: 1,
+        ...(extraFields || {})
+      }
+    }
+  ]);
+
+  const ids = list.map(item => item._id);
+
+  const getCoc = async (cocType: string, cocCollection: any, fields: any) => {
+    const conformities = await Conformities.getConformities({
+      mainType: type,
+      mainTypeIds: ids,
+      relType: cocType
+    });
+
+    const cocIds: string[] = [];
+    const cocIdsByItemId = {};
+
+    for (const conf of conformities) {
+      if (conf.mainType === cocType) {
+        cocIds.push(conf.mainTypeId);
+
+        if (!cocIdsByItemId[conf.relTypeId]) {
+          cocIdsByItemId[conf.relTypeId] = [];
+        }
+
+        cocIdsByItemId[conf.relTypeId].push(conf.mainTypeId);
+      } else {
+        cocIds.push(conf.relTypeId);
+
+        if (!cocIdsByItemId[conf.mainTypeId]) {
+          cocIdsByItemId[conf.mainTypeId] = [];
+        }
+
+        cocIdsByItemId[conf.mainTypeId].push(conf.relTypeId);
+      }
+    }
+
+    const cocs = await cocCollection.find(
+      {
+        _id: { $in: [...new Set(cocIds)] }
+      },
+      { ...fields, primaryEmail: 1, primaryPhone: 1, emails: 1, phones: 1 }
+    );
+
+    return { cocs, cocIdsByItemId };
+  };
+
+  const customer = await getCoc('customer', Customers, {
+    firstName: 1,
+    lastName: 1,
+    visitorContactInfo: 1
+  });
+
+  const getCustomersByItemId = (itemId: string) => {
+    const customerIds = customer.cocIdsByItemId[itemId] || [];
+
+    return customerIds.flatMap((customerId: string) => {
+      const found = customer.cocs.find(cus => customerId === cus._id);
+
+      return found || [];
+    });
+  };
+
+  const company = await getCoc('company', Companies, { primaryName: 1 });
+
+  const getCompaniesByItemId = (itemId: string) => {
+    const companyIds = company.cocIdsByItemId[itemId] || [];
+
+    return companyIds.flatMap((companyId: string) => {
+      const found = company.cocs.find(com => companyId === com._id);
+
+      return found || [];
+    });
+  };
+
+  const updatedList: any[] = [];
+
+  const notifications = await Notifications.find(
+    { contentTypeId: { $in: ids }, isRead: false, receiver: user._id },
+    { contentTypeId: 1 }
+  );
+
+  for (const item of list) {
+    const notification = notifications.find(n => n.contentTypeId === item._id);
+
+    updatedList.push({
+      ...item,
+      isWatched: (item.watchedUserIds || []).includes(user._id),
+      hasNotified: notification ? false : true,
+      customers: getCustomersByItemId(item._id),
+      companies: getCompaniesByItemId(item._id),
+      ...(getExtraFields ? await getExtraFields(item) : {})
+    });
+  }
+
+  return updatedList;
 };

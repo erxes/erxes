@@ -281,8 +281,26 @@ export const HACK_SCORING_TYPES = {
 export const FIELDS_GROUPS_CONTENT_TYPES = {
   CUSTOMER: 'customer',
   COMPANY: 'company',
+  CONVERSATION: 'conversation',
+  DEVICE: 'device',
   PRODUCT: 'product',
-  ALL: ['customer', 'company', 'product']
+  TICKET: 'ticket',
+  TASK: 'task',
+  DEAL: 'deal',
+  VISITOR: 'visitor',
+  LEAD: 'lead',
+  ALL: [
+    'customer',
+    'company',
+    'conversation',
+    'device',
+    'product',
+    'ticket',
+    'task',
+    'deal',
+    'visitor',
+    'lead'
+  ]
 };
 
 export const CUSTOMER_LIFECYCLE_STATE_TYPES = [

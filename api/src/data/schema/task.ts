@@ -1,5 +1,6 @@
 import {
   commonDragParams,
+  commonListTypes,
   commonMutationParams,
   commonTypes,
   conformityQueryFields,
@@ -7,6 +8,10 @@ import {
 } from './common';
 
 export const types = `
+  type TaskListItem {
+    ${commonListTypes}
+  }
+    
   type Task {
     _id: String!
     companies: [Company]
@@ -22,9 +27,7 @@ export const types = `
   }
 `;
 
-export const queries = `
-  taskDetail(_id: String!): Task
-  tasks(
+const listQueryParams = `
     pipelineId: String
     stageId: String
     customerIds: [String]
@@ -41,7 +44,12 @@ export const queries = `
     sortDirection: Int
     userIds: [String]
     ${conformityQueryFields}
-  ): [Task]
+`;
+
+export const queries = `
+  taskDetail(_id: String!): Task
+  tasks(${listQueryParams}): [TaskListItem]
+  tasksTotalCount(${listQueryParams}): Int
   archivedTasks(pipelineId: String!, search: String, page: Int, perPage: Int): [Task]
   archivedTasksCount(pipelineId: String!, search: String): Int
 `;
