@@ -82,7 +82,7 @@ class Form extends React.Component<Props, State> {
     if(associatedFieldId) {
       doc[fieldId].associatedFieldId = associatedFieldId;
     }
-
+    
     this.setState({ doc });
   };
 
@@ -130,17 +130,13 @@ class Form extends React.Component<Props, State> {
 
       if (field.logicAction && field.logicAction === 'show' && field.logics && field.logics.length > 0) {
         const logics: LogicParams[] = field.logics.map(logic => {
-          const fieldValue = this.state.doc[logic.fieldId].value;
-          const validation = this.state.doc[logic.fieldId].validation;
-          return {operator: logic.logicOperator, logicValue: logic.logicValue, fieldValue, validation }
-        })
+          const {validation, value, type } = this.state.doc[logic.fieldId]
 
-        
+          return {fieldId: logic.fieldId, operator: logic.logicOperator, logicValue: logic.logicValue, fieldValue: value, validation, type }
+        })
 
         const isLogicFulfilled = checkLogicFulfilled(logics)
         
-        console.log('isLogicFulfilled: ',isLogicFulfilled)
-
         if (!isLogicFulfilled) {
           return null;
         }

@@ -29,10 +29,12 @@ type RequestBrowserInfoParams = {
 };
 
 export type LogicParams = {
+  fieldId: string;
   operator: string;
   validation?: string;
   logicValue: FieldValue;
   fieldValue?: FieldValue;
+  type?: string;
 };
 
 export const requestBrowserInfo = ({
@@ -275,62 +277,65 @@ export const urlify = (text: string) => {
 };
 
 export const checkLogicFulfilled = (logics: LogicParams[]) => {
-  const values = [];
+  const values: { [key: string]: boolean } = {};
+  
   for (const logic of logics) {
-    const { operator, logicValue, fieldValue, validation } = logic;
+    const { fieldId, operator, logicValue, fieldValue, validation, type } = logic;
+    const key = `${fieldId}_${logicValue}`;
+    values[key] = false;
+
     // if fieldValue is set
     if (operator === 'is') {
       if (fieldValue) {
-        values.push(true);
-      }else {
-        values.push(false);
+        values[key] = true;
+      } else {
+        values[key] = false;
       }
     }
 
     // if fieldValue is not set
     if (operator === 'ins') {
-      if(!fieldValue){
-        values.push(true);
-      }else{
-        values.push(false);
+      if (!fieldValue) {
+        values[key] = true;
+      } else {
+        values[key] = false;
       }
-      
     }
 
     // if fieldValue equals logic value
     if (operator === 'numbere' || operator === 'e') {
       if (logicValue === fieldValue) {
-        values.push(true);
-      }else {
-        values.push(false);
+        values[key] = true;
+      } else {
+        values[key] = false;
       }
     }
 
     // if fieldValue not equal to logic value
     if (operator === 'numberdne' || operator === 'dne') {
       if (logicValue !== fieldValue) {
-        values.push(true);
-      }else {
-        values.push(false);
+        values[key] = true;
+      } else {
+        values[key] = false;
       }
     }
 
     if (typeof logicValue === 'number') {
       // if number value: is greater than
       if (operator === 'numberigt' && fieldValue) {
-        if(fieldValue > logicValue) {
-          values.push(true);
-        }else {
-          values.push(false);
+        if (fieldValue > logicValue) {
+          values[key] = true;
+        } else {
+          values[key] = false;
         }
-      } 
+      }
 
       // if number value: is less than
       if (operator === 'numberilt' && fieldValue) {
-        if(fieldValue < logicValue) {
-          values.push(true);
-        }else {
-          values.push(false)
+        if (fieldValue < logicValue) {
+          values[key] = true;
+        } else {
+          values[key] = false;
         }
       }
     }
@@ -338,56 +343,80 @@ export const checkLogicFulfilled = (logics: LogicParams[]) => {
     if (typeof logicValue === 'string') {
       // if string value contains logicValue
       if (operator === 'c') {
-        if(String(fieldValue).includes(logicValue)) {
-          values.push(true);
-        }else {
-          values.push(false);
+        if (String(fieldValue).includes(logicValue)) {
+          values[key] = true;
+        } else {
+          values[key] = false;
         }
       }
 
       // if string value does not contain logicValue
       if (operator === 'dnc') {
-        if(!String(fieldValue).includes(logicValue)) {
-          values.push(true);
-        }else {
-          values.push(false);
+        if (!String(fieldValue).includes(logicValue)) {
+          values[key] = true;
+        } else {
+          values[key] = false;
         }
       }
     }
 
     if (validation && validation.includes('date')) {
-      const dateValueToCheck = new Date(String(fieldValue))
-      const logicDateValue = new Date(String(logicValue))
-      
+      const dateValueToCheck = new Date(String(fieldValue));
+      const logicDateValue = new Date(String(logicValue));
+
       // date is greather than
       if (operator === 'dateigt') {
-        if(dateValueToCheck > logicDateValue) {
-          values.push(true);
-        }else {
-          values.push(false);
+        if (dateValueToCheck > logicDateValue) {
+          values[key] = true;
+        } else {
+          values[key] = false;
         }
       }
 
       // date is less than
       if (operator === 'dateilt') {
-        if(logicDateValue > dateValueToCheck) {
-          values.push(true);
-        }else {
-          values.push(false);
+        if (logicDateValue > dateValueToCheck) {
+          values[key] = true;
+        } else {
+          values[key] = false;
+        }
+      }
+    }
+
+    if (type === 'check') {
+      if (
+        fieldValue &&
+        typeof fieldValue === 'string' &&
+        typeof logicValue === 'string'
+      ) {
+        if (operator === 'dne') {
+          if (!fieldValue.includes(logicValue)) {
+            values[key] = true;
+          } else {
+            values[key] = false;
+          }
+        }
+
+        if (operator === 'e') {
+          if (fieldValue.includes(logicValue)) {
+            values[key] = true;
+          } else {
+            values[key] = false;
+          }
         }
       }
     }
   }
 
-  if (values.length !== logics.length) {
-    return false
+  const result = [];
+
+  for (const key of Object.keys(values)) {
+    result.push(values[key]);
   }
 
-  const result = values.filter(value => value === false)
-  
-  if(result.length === 0) {
+  if (result.filter(val => !val).length === 0) {
     return true;
-  }else {
-    return false;
-  }
-};
+  } 
+
+  return false;
+}
