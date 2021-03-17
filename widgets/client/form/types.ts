@@ -7,7 +7,6 @@ export interface IConnectResponse {
 
 export interface ILogic {
   fieldId: string;
-  willShow: boolean;
   logicOperator: string;
   logicValue: FieldValue;
 }
@@ -28,7 +27,9 @@ export interface IField {
   isVisible: boolean;
   lastUpdatedUserId: string;
   associatedFieldId?: string;
-  logic?: ILogic;
+
+  logicAction?: string;
+  logics?: ILogic[];
 }
 
 export interface ICallout {

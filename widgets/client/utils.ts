@@ -1,4 +1,5 @@
 import * as dayjs from 'dayjs';
+import e = require('express');
 import T from 'i18n-react';
 import { FieldValue } from './form/types';
 import { ENV, IBrowserInfo, IRule } from './types';
@@ -29,9 +30,10 @@ type RequestBrowserInfoParams = {
 
 export type LogicParams = {
   operator: string;
+  validation?: string;
   logicValue: FieldValue;
-  fieldValue?: FieldValue
-}
+  fieldValue?: FieldValue;
+};
 
 export const requestBrowserInfo = ({
   source,
@@ -62,11 +64,11 @@ const setDayjsLocale = (code: string) => {
 
 export const setLocale = (code?: string) => {
   import(`../locales/${code}.json`)
-    .then(translations => {
+    .then((translations) => {
       T.setTexts(translations);
       setDayjsLocale(code || 'en');
     })
-    .catch(e => console.log(e)); // tslint:disable-line
+    .catch((e) => console.log(e)); // tslint:disable-line
 };
 
 export const __ = (msg: string) => {
@@ -106,7 +108,7 @@ export const scrollTo = (element: any, to: number, duration: number) => {
 export const makeClickableLink = (selector: string) => {
   const nodes = Array.from(document.querySelectorAll(selector));
 
-  nodes.forEach(node => {
+  nodes.forEach((node) => {
     node.setAttribute('target', '__blank');
   });
 };
@@ -263,7 +265,7 @@ export const urlify = (text: string) => {
     return text;
   }
 
-  return text.replace(urlRegex, url => {
+  return text.replace(urlRegex, (url) => {
     if (url.startsWith('http')) {
       return `<a href="${url}" target="_blank">${url}</a>`;
     }
@@ -272,57 +274,97 @@ export const urlify = (text: string) => {
   });
 };
 
-export const checkLogicFulfilled = (logic: LogicParams) => {
-  const { operator, logicValue, fieldValue } = logic;
-  // if fieldValue is set
-  if (operator === 'is' && fieldValue) {
+export const checkLogicFulfilled = (logics: LogicParams[]) => {
+  const values = [];
+  for (const logic of logics) {
+    const { operator, logicValue, fieldValue } = logic;
+    // if fieldValue is set
+    if (operator === 'is') {
+      if (fieldValue) {
+        values.push(true);
+      }else {
+        values.push(false);
+      }
+    }
+
+    // if fieldValue is not set
+    if (operator === 'ins') {
+      if(!fieldValue){
+        values.push(true);
+      }else{
+        values.push(false);
+      }
+      
+    }
+
+    // if fieldValue equals logic value
+    if (operator === 'numbere' || operator === 'e') {
+      if (logicValue === fieldValue) {
+        values.push(true);
+      }else {
+        values.push(false);
+      }
+    }
+
+    // if fieldValue not equal to logic value
+    if (operator === 'numberdne' || operator === 'dne') {
+      if (logicValue !== fieldValue) {
+        values.push(true);
+      }else {
+        values.push(false);
+      }
+    }
+
+    if (typeof logicValue === 'number') {
+      // if number value: is greater than
+      if (operator === 'numberigt' && fieldValue) {
+        if(fieldValue > logicValue) {
+          values.push(true);
+        }else {
+          values.push(false);
+        }
+      } 
+
+      // if number value: is less than
+      if (operator === 'numberilt' && fieldValue) {
+        if(fieldValue < logicValue) {
+          values.push(true);
+        }else {
+          values.push(false)
+        }
+      }
+    }
+
+    if (typeof logicValue === 'string') {
+      // if string value contains logicValue
+      if (operator === 'c') {
+        if(String(fieldValue).includes(logicValue)) {
+          values.push(true);
+        }else {
+          values.push(false);
+        }
+      }
+
+      // if string value does not contain logicValue
+      if (operator === 'dnc') {
+        if(!String(fieldValue).includes(logicValue)) {
+          values.push(true);
+        }else {
+          values.push(false);
+        }
+      }
+    }
+  }
+
+  if (values.length !== logics.length) {
+    return false
+  }
+
+  const result = values.filter(value => value === false)
+  
+  if(result.length === 0) {
     return true;
+  }else {
+    return false;
   }
-
-  // if fieldValue is not set
-  if (operator === 'ins' && !fieldValue) {
-    return true;
-  }
-
-  // if fieldValue equals logic value
-  if (operator === 'numbere' || operator === 'e') {
-    if (logicValue === fieldValue) {
-      return true;
-    }
-  }
-
-  // if fieldValue not equal to logic value
-  if (operator === 'numberdne' || operator === 'dne') {
-    if (logicValue !== fieldValue) {
-      return true;
-    }
-  }
-
-  if (typeof logicValue === 'number') {
-    // if number value: is greater than
-    if (operator === 'numberigt' && fieldValue && fieldValue > logicValue) {
-      return true;
-    }
-
-    // if number value: is less than
-    if (operator === 'numberilt' && fieldValue && fieldValue < logicValue) {
-      return true;
-    }
-  }
-
-  if (typeof logicValue === 'string') {
-    // if string value contains logicValue
-    if (operator === 'c' && String(fieldValue).includes(logicValue)) {
-      return true;
-    }
-
-    // if string value does not contain logicValue
-    if (operator === 'dnc' && !String(fieldValue).includes(logicValue)) {
-      return true;
-    }
-  }
-
-
-
-  return false;
 };

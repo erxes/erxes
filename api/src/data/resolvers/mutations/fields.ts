@@ -65,7 +65,7 @@ const fieldMutations = {
 
     if (addingFields) {
       for (const f of addingFields) {
-        if (f.logic && !f.logic.fieldId) {
+        if (f.logics && f.logics.length > 0) {
           logicalFields.push(f);
         } else {
           const tempId = f.tempFieldId || '';
@@ -84,11 +84,14 @@ const fieldMutations = {
       }
 
       for (const f of logicalFields) {
-        const { logic } = f;
+        const { logics } = f;
 
-        if (logic && logic.tempFieldId) {
-          logic.fieldId = temp[logic.tempFieldId];
-          f.logic = logic;
+        if (logics && logics.length > 0) {
+          for (const logic of logics) {
+            if (f.logics && !logic.fieldId && logic.tempFieldId) {
+              f.logics[logics.indexOf(logic)].fieldId = temp[logic.tempFieldId];
+            }
+          }
         }
 
         const field = await Fields.createField({
@@ -104,8 +107,13 @@ const fieldMutations = {
 
     if (editingFields) {
       for (const { _id, ...doc } of editingFields) {
-        if (doc.logic && !doc.logic.fieldId) {
-          doc.logic.fieldId = temp[doc.logic.tempFieldId || ''];
+        if (doc.logics && doc.logics.length > 0) {
+          for (const logic of doc.logics) {
+            if (doc.logics && !logic.fieldId && logic.tempFieldId) {
+              doc.logics[doc.logics.indexOf(logic)].fieldId =
+                temp[logic.tempFieldId];
+            }
+          }
         }
         const field = await Fields.updateField(_id, {
           ...doc,
