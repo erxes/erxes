@@ -173,7 +173,7 @@ export const userActionsMap = async (
   ];
   const allowedActions: IActionMap = {};
 
-  const check = (name: string, allowed: boolean, _id: string) => {
+  const check = (name: string, allowed: boolean) => {
     if (typeof allowedActions[name] === 'undefined') {
       allowedActions[name] = allowed;
     }
@@ -184,13 +184,13 @@ export const userActionsMap = async (
     }
   };
 
-  for (const { _id, requiredActions, allowed, action } of totalPermissions) {
+  for (const { requiredActions, allowed, action } of totalPermissions) {
     if (requiredActions.length > 0) {
       for (const actionName of requiredActions) {
-        check(actionName, allowed, _id);
+        check(actionName, allowed);
       }
     } else {
-      check(action, allowed, _id);
+      check(action, allowed);
     }
   }
 
