@@ -64,6 +64,10 @@ export type PermissionRemoveMutationResponse = {
   removeMutation: (params: { variables: { ids: string[] } }) => void;
 };
 
+export type PermissionsFixMutationResponse = {
+  fixPermissionsMutation: () => Promise<any>;
+};
+
 export interface IUserGroup {
   _id: string;
   name?: string;

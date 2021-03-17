@@ -61,6 +61,7 @@ export const mutations = `
     allowed: Boolean
   ): [Permission]
   permissionsRemove(ids: [String]!): JSON
+  permissionsFix: [String]
   usersGroupsAdd(${commonUserGroupParams}): UsersGroup
   usersGroupsEdit(_id: String!, ${commonUserGroupParams}): UsersGroup
   usersGroupsRemove(_id: String!): JSON

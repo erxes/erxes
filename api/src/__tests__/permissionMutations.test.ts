@@ -251,4 +251,28 @@ describe('Test permissions mutations', () => {
 
     expect(clone._id).toBeDefined();
   });
+
+  test('Test fixMissingPermissions()', async () => {
+    await permissionFactory({
+      module: 'brands',
+      action: 'brandsAll',
+      userId: _user._id,
+      requiredActions: ['showBrands', 'manageBrands']
+    });
+
+    const mutation = `
+      mutation permissionsFix {
+        permissionsFix
+      }
+    `;
+
+    const response = await graphqlRequest(
+      mutation,
+      'permissionsFix',
+      null,
+      context
+    );
+
+    expect(response.length).toBe(1);
+  });
 });
