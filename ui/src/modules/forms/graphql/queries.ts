@@ -163,9 +163,10 @@ const fields = `
       options
       isRequired
       order
-      logic {
+      column
+      logicAction
+      logics {
         fieldId
-        willShow
         logicOperator
         logicValue
       }

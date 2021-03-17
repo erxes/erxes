@@ -136,7 +136,7 @@ class Form extends React.Component<Props, State> {
     this.setState({
       currentMode: 'create',
       currentField: {
-        _id: Math.random().toString(),
+        _id: `tempId${Math.random().toString()}`,
         contentType: 'form',
         type: choice
       }
@@ -192,7 +192,6 @@ class Form extends React.Component<Props, State> {
     const { renderPreviewWrapper } = this.props;
     const { currentMode, currentField, fields, desc } = this.state;
 
-    console.log(fields);
     const renderer = () => {
       return (
         <FieldsPreview
@@ -219,6 +218,7 @@ class Form extends React.Component<Props, State> {
             type="customer"
             mode={currentMode || 'create'}
             field={currentField}
+            fields={fields}
             onSubmit={this.onFieldSubmit}
             onDelete={this.onFieldDelete}
             onCancel={this.onFieldFormCancel}

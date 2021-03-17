@@ -68,14 +68,14 @@ const fields = `
       isRequired
       order
       associatedFieldId
-
+      logicAction
+      column
       associatedField {
         _id
         text
       }
-      logic {
+      logics {
         fieldId
-        willShow
         logicOperator
         logicValue
       }

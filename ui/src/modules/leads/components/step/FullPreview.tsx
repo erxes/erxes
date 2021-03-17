@@ -167,6 +167,7 @@ class FullPreviewStep extends React.Component<Props, State> {
             <FieldForm
               type="customer"
               mode={currentMode || 'create'}
+              fields={fields}
               field={currentField}
               onSubmit={this.onFieldSubmit}
               onDelete={this.onFieldDelete}

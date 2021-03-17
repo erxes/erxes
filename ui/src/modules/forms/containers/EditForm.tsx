@@ -12,10 +12,12 @@ import { mutations, queries } from '../graphql';
 import {
   AddFieldMutationResponse,
   AddFieldMutationVariables,
+  BulkEditAndAddMutationVariables,
   EditFieldMutationResponse,
   EditFieldMutationVariables,
   EditFormMutationResponse,
   EditFormMutationVariables,
+  FieldsBulkAddAndEditMutationResponse,
   FormDetailQueryResponse,
   IFormData,
   RemoveFieldMutationResponse,
@@ -42,6 +44,7 @@ type FinalProps = {
   AddFieldMutationResponse &
   EditFieldMutationResponse &
   RemoveFieldMutationResponse &
+  FieldsBulkAddAndEditMutationResponse &
   IRouterProps;
 
 class EditFormContainer extends React.Component<FinalProps> {
@@ -61,10 +64,9 @@ class EditFormContainer extends React.Component<FinalProps> {
     const {
       formId,
       afterDbSave,
-      addFieldMutation,
-      editFieldMutation,
-      editFormMutation,
       removeFieldMutation,
+      editFormMutation,
+      fieldsBulkAddAndEditMutation,
       fieldsQuery,
       formDetailQuery,
       showMessage
@@ -92,28 +94,52 @@ class EditFormContainer extends React.Component<FinalProps> {
         .then(() => {
           const dbFieldIds = dbFields.map(field => field._id);
           const existingIds: string[] = [];
-          const createFieldsData: IField[] = [];
-          const updateFieldsData: IField[] = [];
+          // const createFieldsData: IField[] = [];
+          // const updateFieldsData: IField[] = [];
           const removeFieldsData: Array<{ _id: string }> = [];
+
+          // remove unnecessary fields
+          fields.forEach(f => {
+            delete f.column;
+            delete f.field;
+            delete f.__typename;
+            delete f.contentType;
+          });
+
+          fieldsBulkAddAndEditMutation({
+            variables: {
+              contentType: 'form',
+              contentTypeId: formId,
+              addingFields: fields
+                .filter(field => field._id.startsWith('tempId'))
+                .map(({ _id, ...fields }) => ({
+                  tempFieldId: _id,
+                  ...fields
+                })),
+              editingFields: fields.filter(
+                field => !field._id.startsWith('tempId')
+              )
+            }
+          });
 
           // collect fields ================
           for (const field of fields) {
             // collect fields to update
             if (dbFieldIds.includes(field._id)) {
               existingIds.push(field._id);
-              updateFieldsData.push(field);
+              // updateFieldsData.push(field);
               continue;
             }
-
-            // collect fields to create
-            const { _id, ...fieldToCreate } = field;
-
-            createFieldsData.push({
-              ...fieldToCreate,
-              contentType: 'form',
-              contentTypeId: formId
-            });
           }
+          //   // collect fields to create
+          //   const { _id, ...fieldToCreate } = field;
+
+          //   createFieldsData.push({
+          //     ...fieldToCreate,
+          //     contentType: 'form',
+          //     contentTypeId: formId
+          //   });
+          // }
 
           // collect fields to remove
           for (const dbFieldId of dbFieldIds) {
@@ -122,18 +148,17 @@ class EditFormContainer extends React.Component<FinalProps> {
             }
           }
 
-          // save fields ===================
+          // // save fields ===================
           const promises: any[] = [];
 
           const doMutation = ({ datas, mutation }) => {
             for (const data of datas) {
-              console.log('updateField', updateFieldsData);
               promises.push(mutation({ variables: data }));
             }
           };
 
-          doMutation({ datas: createFieldsData, mutation: addFieldMutation });
-          doMutation({ datas: updateFieldsData, mutation: editFieldMutation });
+          // doMutation({ datas: createFieldsData, mutation: addFieldMutation });
+          // doMutation({ datas: updateFieldsData, mutation: editFieldMutation });
           doMutation({
             datas: removeFieldsData,
             mutation: removeFieldMutation
@@ -203,6 +228,13 @@ export default withProps<Props>(
         name: 'addFieldMutation'
       }
     ),
+    graphql<
+      Props,
+      FieldsBulkAddAndEditMutationResponse,
+      BulkEditAndAddMutationVariables
+    >(gql(mutations.fieldsBulkAddAndEdit), {
+      name: 'fieldsBulkAddAndEditMutation'
+    }),
     graphql<Props, EditFormMutationResponse, EditFormMutationVariables>(
       gql(mutations.editForm),
       {

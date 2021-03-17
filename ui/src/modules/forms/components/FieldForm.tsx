@@ -10,7 +10,7 @@ import Toggle from 'modules/common/components/Toggle';
 import { __ } from 'modules/common/utils';
 import { Divider } from 'modules/settings/permissions/styles';
 import SelectProperty from 'modules/settings/properties/containers/SelectProperty';
-import { IField } from 'modules/settings/properties/types';
+import { IField, IFieldLogic } from 'modules/settings/properties/types';
 import React from 'react';
 import Modal from 'react-bootstrap/Modal';
 import {
@@ -20,6 +20,7 @@ import {
   PreviewSection,
   ShowPreview
 } from '../styles';
+import FieldLogic from './FieldLogic';
 import FieldPreview from './FieldPreview';
 
 type Props = {
@@ -28,6 +29,7 @@ type Props = {
   onCancel: () => void;
   mode: 'create' | 'update';
   field: IField;
+  fields: IField[];
   type: string;
 };
 
@@ -52,7 +54,10 @@ class FieldForm extends React.Component<Props, State> {
     };
   }
 
-  onFieldChange = (name: string, value: string | boolean | string[]) => {
+  onFieldChange = (
+    name: string,
+    value: string | boolean | string[] | IFieldLogic[]
+  ) => {
     this.setFieldAttrChanges(name, value);
   };
 
@@ -87,7 +92,7 @@ class FieldForm extends React.Component<Props, State> {
 
   setFieldAttrChanges(
     attributeName: string,
-    value: string | boolean | string[]
+    value: string | boolean | string[] | IFieldLogic[]
   ) {
     const { field } = this.state;
 
@@ -184,7 +189,7 @@ class FieldForm extends React.Component<Props, State> {
   }
 
   renderLeftContent() {
-    const { mode, onCancel } = this.props;
+    const { fields, mode, onCancel } = this.props;
     const { field } = this.state;
 
     const text = e =>
@@ -256,7 +261,11 @@ class FieldForm extends React.Component<Props, State> {
           {this.renderCustomProperty()}
         </CollapseContent>
         <CollapseContent title={__('Logic')} compact={true}>
-          Logic
+          <FieldLogic
+            fields={fields}
+            currentField={field}
+            onFieldChange={this.onFieldChange}
+          />
         </CollapseContent>
 
         <Modal.Footer>
