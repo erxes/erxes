@@ -10,11 +10,11 @@ import {
 
 export const getUsers = async () => {
   return Users.aggregate([
-    { $match: { username: { $exists: true } } },
+    { $match: { username: { $exists: true }, isActive: true } },
     {
       $project: {
         _id: 0,
-        label: '$username',
+        label: '$details.fullName',
         value: '$_id'
       }
     }
@@ -48,6 +48,7 @@ export const getIntegrations = async () => {
 };
 
 export const getTags = async type => {
+  console.log(type);
   return Tags.aggregate([
     { $match: { type } },
     {
@@ -60,10 +61,10 @@ export const getTags = async type => {
   ]);
 };
 
-export const getPipelines = async () => {
+export const getPipelines = async (stageType: string) => {
   const filters = [] as any;
 
-  const pipelineIds = await Stages.find({ type: 'deal' }).distinct(
+  const pipelineIds = await Stages.find({ type: stageType }).distinct(
     'pipelineId'
   );
 
@@ -95,15 +96,13 @@ export const getPipelines = async () => {
     filters.push({ label: pipeline.name, value: stageIds });
   });
 
-  await getBoards();
-
   return filters;
 };
 
-export const getBoards = async () => {
+export const getBoards = async (stageType: string) => {
   const filters = [] as any;
 
-  const pipelineIds = await Stages.find({ type: 'deal' }).distinct(
+  const pipelineIds = await Stages.find({ type: stageType }).distinct(
     'pipelineId'
   );
 

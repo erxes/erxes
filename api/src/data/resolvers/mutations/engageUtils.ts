@@ -8,12 +8,17 @@ import {
 } from '../../../db/models';
 import { METHODS } from '../../../db/models/definitions/constants';
 import { ICustomerDocument } from '../../../db/models/definitions/customers';
-import { IEngageMessageDocument } from '../../../db/models/definitions/engages';
+import {
+  IEngageMessage,
+  IEngageMessageDocument
+} from '../../../db/models/definitions/engages';
+import { CONTENT_TYPES } from '../../../db/models/definitions/segments';
 import { IUserDocument } from '../../../db/models/definitions/users';
+import { fetchElk } from '../../../elasticsearch';
 import messageBroker from '../../../messageBroker';
 import { MESSAGE_KINDS } from '../../constants';
 import { fetchBySegments } from '../../modules/segments/queryBuilder';
-import { chunkArray, replaceEditorAttributes } from '../../utils';
+import { chunkArray, isUsingElk, replaceEditorAttributes } from '../../utils';
 
 interface IEngageParams {
   engageMessage: IEngageMessageDocument;
@@ -83,14 +88,14 @@ export const send = async (engageMessage: IEngageMessageDocument) => {
   const {
     customerIds,
     segmentIds,
-    tagIds,
+    customerTagIds,
     brandIds,
     fromUserId,
     scheduleDate
   } = engageMessage;
 
   // Check for pre scheduled engages
-  if (scheduleDate && scheduleDate?.type === 'pre' && scheduleDate.dateTime) {
+  if (scheduleDate && scheduleDate.type === 'pre' && scheduleDate.dateTime) {
     const scheduledDate = new Date(scheduleDate.dateTime);
     const now = new Date();
 
@@ -112,7 +117,7 @@ export const send = async (engageMessage: IEngageMessageDocument) => {
   const customersSelector = await generateCustomerSelector({
     customerIds,
     segmentIds,
-    tagIds,
+    tagIds: customerTagIds,
     brandIds
   });
 
@@ -285,4 +290,184 @@ const sendEmailOrSms = async (
       resolve('done');
     });
   });
+};
+
+// check & validate campaign doc
+export const checkCampaignDoc = (doc: IEngageMessage) => {
+  const {
+    brandIds = [],
+    kind,
+    method,
+    scheduleDate,
+    segmentIds = [],
+    customerTagIds = []
+  } = doc;
+  const noDate =
+    !scheduleDate ||
+    (scheduleDate && scheduleDate.type === 'pre' && !scheduleDate.dateTime);
+
+  if (kind === MESSAGE_KINDS.AUTO && method === METHODS.EMAIL && noDate) {
+    throw new Error('Schedule date & type must be chosen in auto campaign');
+  }
+  if (
+    kind !== MESSAGE_KINDS.VISITOR_AUTO &&
+    !(brandIds.length > 0 || segmentIds.length > 0 || customerTagIds.length > 0)
+  ) {
+    throw new Error('One of brand or segment or tag must be chosen');
+  }
+};
+
+export const findElk = async (index, query) => {
+  const response = await fetchElk(
+    'search',
+    index,
+    {
+      query
+    },
+    '',
+    { hits: { hits: [] } }
+  );
+
+  return response.hits.hits.map(hit => {
+    return {
+      _id: hit._id,
+      ...hit._source
+    };
+  });
+};
+
+// find user from elastic or mongo
+export const findUser = async (userId: string) => {
+  if (!isUsingElk()) {
+    return await Users.findOne({ _id: userId });
+  }
+
+  const users = await findElk('users', {
+    match: {
+      _id: userId
+    }
+  });
+
+  if (users.length > 0) {
+    return users[0];
+  }
+};
+
+// check customer exists from elastic or mongo
+export const checkCustomerExists = async (
+  id?: string,
+  customerIds?: string[],
+  segmentIds?: string[],
+  tagIds?: string[],
+  brandIds?: string[]
+) => {
+  if (!isUsingElk()) {
+    const customersSelector = {
+      _id: id,
+      state: { $ne: CONTENT_TYPES.VISITOR },
+      ...(await generateCustomerSelector({
+        customerIds,
+        segmentIds,
+        tagIds,
+        brandIds
+      }))
+    };
+
+    return await Customers.findOne(customersSelector);
+  }
+
+  if (!id) {
+    return false;
+  }
+
+  const must: any[] = [
+    { terms: { state: [CONTENT_TYPES.CUSTOMER, CONTENT_TYPES.LEAD] } }
+  ];
+
+  must.push({
+    term: {
+      _id: id
+    }
+  });
+
+  if (customerIds && customerIds.length > 0) {
+    must.push({
+      terms: {
+        _id: customerIds
+      }
+    });
+  }
+
+  if (tagIds && tagIds.length > 0) {
+    must.push({
+      terms: {
+        tagIds
+      }
+    });
+  }
+
+  if (brandIds && brandIds.length > 0) {
+    const integraiontIds = await findElk('integrations', {
+      bool: {
+        must: [{ terms: { 'brandId.keyword': brandIds } }]
+      }
+    });
+
+    must.push({
+      terms: {
+        integrationId: integraiontIds.map(e => e._id)
+      }
+    });
+  }
+
+  if (segmentIds && segmentIds.length > 0) {
+    const segments = await findElk('segments', {
+      bool: {
+        must: [{ terms: { _id: segmentIds } }]
+      }
+    });
+
+    let customerIdsBySegments: string[] = [];
+
+    for (const segment of segments) {
+      const cIds = await fetchBySegments(segment);
+
+      customerIdsBySegments = [...customerIdsBySegments, ...cIds];
+    }
+
+    must.push({
+      terms: {
+        _id: customerIdsBySegments
+      }
+    });
+  }
+
+  must.push({
+    bool: {
+      should: [
+        { term: { doNotDisturb: 'no' } },
+        {
+          bool: {
+            must_not: {
+              exists: {
+                field: 'doNotDisturb'
+              }
+            }
+          }
+        }
+      ]
+    }
+  });
+
+  const customers = await findElk('customers', {
+    bool: {
+      filter: {
+        bool: {
+          must
+        }
+      }
+    }
+  });
+
+  return customers.length > 0;
 };

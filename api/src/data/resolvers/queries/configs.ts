@@ -13,18 +13,41 @@ const doSearch = async (index, value, fields) => {
     highlightFields[field] = {};
   });
 
-  const fetchResults = await fetchElk('search', index, {
-    query: {
-      multi_match: {
-        query: value,
-        fields
+  const match = {
+    multi_match: {
+      query: value,
+      fields
+    }
+  };
+
+  let query: any = match;
+
+  if (index === 'customers') {
+    query = {
+      bool: {
+        must: [match],
+        must_not: [
+          {
+            term: { status: 'deleted' }
+          }
+        ]
+      }
+    };
+  }
+
+  const fetchResults = await fetchElk(
+    'search',
+    index,
+    {
+      query,
+      size: 10,
+      highlight: {
+        fields: highlightFields
       }
     },
-    size: 10,
-    highlight: {
-      fields: highlightFields
-    }
-  });
+    '',
+    { hits: { hits: [] } }
+  );
 
   const results = fetchResults.hits.hits.map(result => {
     return {

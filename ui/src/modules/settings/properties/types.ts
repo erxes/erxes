@@ -9,16 +9,23 @@ export interface IField {
   type: string;
   validation?: string;
   text?: string;
+  field?: string;
   description?: string;
   options?: string[];
   isRequired?: boolean;
   order?: React.ReactNode;
+  canHide?: boolean;
   isVisible?: boolean;
+  isVisibleInDetail?: boolean;
   isDefinedByErxes?: boolean;
   groupId?: string;
   lastUpdatedUser?: IUser;
   lastUpdatedUserId?: string;
   associatedFieldId?: string;
+  associatedField?: {
+    _id: string;
+    text: string;
+  };
 }
 
 export interface IFieldGroup {
@@ -28,6 +35,7 @@ export interface IFieldGroup {
   order: React.ReactNode;
   description: string;
   isVisible: boolean;
+  isVisibleInDetail: boolean;
   isDefinedByErxes: boolean;
   fields: IField[];
   lastUpdatedUserId: string;
@@ -64,6 +72,21 @@ export type FieldsGroupsQueryResponse = {
   fieldsGroups: IFieldGroup[];
   loading: boolean;
   refetch: ({ contentType }: { contentType?: string }) => Promise<any>;
+};
+
+export type SystemFieldsGroupsQueryResponse = {
+  getSystemFieldsGroup: IFieldGroup;
+  loading: boolean;
+  refetch: ({ contentType }: { contentType?: string }) => Promise<any>;
+};
+
+export type InboxFieldsQueryResponse = {
+  fieldsInbox: {
+    customer: IField[];
+    device: IField[];
+    conversation: IField[];
+  };
+  loading: boolean;
 };
 
 export type FieldsCombinedByType = {
@@ -104,6 +127,7 @@ export type FieldsGroupsMutationVariables = {
   name: string;
   description: string;
   isVisible: boolean;
+  isVisibleInDetail: boolean;
 };
 
 export type FieldsGroupsRemoveMutationResponse = {
@@ -122,7 +146,11 @@ export type FieldsGroupsUpdateVisibleMutationResponse = {
 
 export type FieldsUpdateVisibleMutationResponse = {
   fieldsUpdateVisible: (params: {
-    variables: { _id: string; isVisible: boolean };
+    variables: {
+      _id: string;
+      isVisible?: boolean;
+      isVisibleInDetail?: boolean;
+    };
   }) => Promise<any>;
 };
 

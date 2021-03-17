@@ -37,7 +37,6 @@ import './setup.ts';
 const checkEngageMessage = (src, result) => {
   expect(result.kind).toBe(src.kind);
   expect(new Date(result.stopDate)).toEqual(src.stopDate);
-  expect(result.tagIds).toEqual(src.tagIds);
   expect(result.brandIds).toEqual(src.brandIds);
   expect(result.customerIds).toEqual(src.customerIds);
   expect(result.title).toBe(src.title);
@@ -67,7 +66,7 @@ describe('engage message mutation tests', () => {
     $stopDate: Date,
     $segmentIds: [String],
     $brandIds: [String],
-    $tagIds: [String],
+    $customerTagIds: [String],
     $customerIds: [String],
     $email: EngageMessageEmail,
     $scheduleDate: EngageScheduleDateInput,
@@ -85,7 +84,7 @@ describe('engage message mutation tests', () => {
     stopDate: $stopDate,
     segmentIds: $segmentIds,
     brandIds: $brandIds,
-    tagIds: $tagIds,
+    customerTagIds: $customerTagIds,
     customerIds: $customerIds,
     email: $email,
     scheduleDate: $scheduleDate,
@@ -159,7 +158,7 @@ describe('engage message mutation tests', () => {
       },
       customerIds: [_customer._id],
       brandIds: [_brand._id],
-      tagIds: [_tag._id]
+      customerTagIds: [_tag._id]
     });
 
     _doc = {
@@ -171,7 +170,7 @@ describe('engage message mutation tests', () => {
       isLive: true,
       stopDate: new Date(),
       brandIds: [_brand._id],
-      tagIds: [_tag._id],
+      customerTagIds: [_tag._id],
       customerIds: [_customer._id],
       email: {
         subject: faker.random.word(),
@@ -515,10 +514,7 @@ describe('engage message mutation tests', () => {
       _doc
     );
 
-    const tags = engageMessage.getTags.map(tag => tag._id);
-
     expect(engageMessage.messengerReceivedCustomerIds).toEqual([]);
-    expect(tags).toEqual(_doc.tagIds);
     expect(engageMessage.scheduleDate.type).toEqual('year');
     expect(engageMessage.scheduleDate.month).toEqual('2');
     expect(engageMessage.scheduleDate.day).toEqual('14');
@@ -547,8 +543,6 @@ describe('engage message mutation tests', () => {
       args
     );
 
-    const tags = engageMessage.getTags.map(tag => tag._id);
-
     expect(engageMessage.messenger.brandId).toBe(_doc.messenger.brandId);
     expect(engageMessage.messenger.kind).toBe(_doc.messenger.kind);
     expect(engageMessage.messenger.sentAs).toBe(_doc.messenger.sentAs);
@@ -562,7 +556,6 @@ describe('engage message mutation tests', () => {
       _doc.messenger.rules.value
     );
     expect(engageMessage.messengerReceivedCustomerIds).toEqual([]);
-    expect(tags).toEqual(_doc.tagIds);
 
     checkEngageMessage(engageMessage, args);
   });
@@ -601,7 +594,8 @@ describe('engage message mutation tests', () => {
     expect(response.isLive).toBe(true);
 
     const manualMessage = await engageMessageFactory({
-      kind: MESSAGE_KINDS.MANUAL
+      kind: MESSAGE_KINDS.MANUAL,
+      customerTagIds: [_tag._id]
     });
 
     response = await graphqlRequest(mutation, 'engageMessageSetLive', {
@@ -610,9 +604,13 @@ describe('engage message mutation tests', () => {
 
     expect(response.isLive).toBe(true);
 
-    await graphqlRequest(mutation, 'engageMessageSetLive', {
-      _id: _message._id
-    });
+    try {
+      await graphqlRequest(mutation, 'engageMessageSetLive', {
+        _id: _message._id
+      });
+    } catch (e) {
+      expect(e[0].message).toBe('Campaign is already live');
+    }
   });
 
   test('Set pause engage message', async () => {
@@ -870,8 +868,14 @@ describe('engage message mutation tests', () => {
     mock.restore();
   });
 
-  test('test engageMessageCopy()', async () => {
-    const campaign = await engageMessageFactory();
+  test('Test engageMessageCopy()', async () => {
+    const monthFromNow = new Date();
+    monthFromNow.setMonth(monthFromNow.getMonth() + 1);
+
+    const campaign = await engageMessageFactory({
+      scheduleDate: { type: 'pre', dateTime: monthFromNow },
+      kind: MESSAGE_KINDS.AUTO
+    });
 
     const mutation = `
       mutation engageMessageCopy($_id: String!) {
@@ -899,13 +903,43 @@ describe('engage message mutation tests', () => {
     expect(response.title).toBe(`${campaign.title}-copied`);
     expect(response.isDraft).toBe(true);
     expect(response.isLive).toBe(false);
-    expect(response.scheduleDate).toBeFalsy();
+    expect(response.scheduleDate).toBeDefined();
+    expect(response.scheduleDate.dateTime).toBeFalsy();
 
     // test non existing campaign
     try {
       await graphqlRequest(mutation, 'engageMessageCopy', { _id: 'fakeId' });
     } catch (e) {
       expect(e[0].message).toBe('Campaign not found');
+    }
+  });
+
+  test('Test engageUtils.checkCampaignDoc()', async () => {
+    const doc = {
+      ..._doc,
+      kind: MESSAGE_KINDS.AUTO,
+      method: METHODS.EMAIL,
+      scheduleDate: { type: 'pre' }
+    };
+
+    try {
+      engageUtils.checkCampaignDoc(doc);
+    } catch (e) {
+      expect(e.message).toBe(
+        'Schedule date & type must be chosen in auto campaign'
+      );
+    }
+
+    try {
+      engageUtils.checkCampaignDoc({
+        ...doc,
+        scheduleDate: { type: 'month' },
+        brandIds: [],
+        segmentIds: [],
+        customerTagIds: []
+      });
+    } catch (e) {
+      expect(e.message).toBe('One of brand or segment or tag must be chosen');
     }
   });
 });

@@ -24,6 +24,7 @@ import {
 } from '../db/factories';
 import {
   Brands,
+  Companies,
   ConversationMessages,
   Conversations,
   Customers,
@@ -87,7 +88,7 @@ describe('messenger connect', () => {
     }
   });
 
-  test('brand not found', async () => {
+  test('integration not found', async () => {
     const brand = await brandFactory({});
 
     try {
@@ -98,6 +99,24 @@ describe('messenger connect', () => {
     } catch (e) {
       expect(e.message).toBe('Integration not found');
     }
+  });
+
+  test('Company data (Not a valid enum value for path `industry`)', async () => {
+    const brand = await brandFactory();
+    await integrationFactory({ brandId: brand._id });
+
+    const companyName = faker.name.findName();
+
+    await widgetMutations.widgetsMessengerConnect(
+      {},
+      {
+        brandCode: brand.code || '',
+        companyData: { name: companyName, industry: 'үйлчилгээ' }
+      }
+    );
+
+    // company isn't created because industry is not a valid
+    expect(await Companies.findOne({ name: companyName })).toBeNull();
   });
 
   test('returns proper integrationId', async () => {
@@ -673,7 +692,7 @@ describe('insertMessage()', () => {
     sendRequestMock.restore();
   });
 
-  test('Video cal request', async () => {
+  test('Video call request', async () => {
     const conversation = await conversationFactory();
 
     // When first video call request
@@ -734,6 +753,31 @@ describe('insertMessage()', () => {
     } catch (e) {
       expect(e.message).toBe('Video call request has already sent');
     }
+  });
+
+  test('Failed to send notification to mobile', async () => {
+    const spy = jest.spyOn(utils, 'sendMobileNotification');
+    spy.mockImplementation(() => {
+      throw new Error('error');
+    });
+
+    const conversation = await conversationFactory();
+
+    const message = await widgetMutations.widgetsInsertMessage(
+      {},
+      {
+        contentType: MESSAGE_TYPES.TEXT,
+        integrationId: _integration._id,
+        customerId: _customer._id,
+        conversationId: conversation._id,
+        message: 'message'
+      },
+      context
+    );
+
+    expect(message.content).toBe('message');
+
+    spy.mockRestore();
   });
 });
 
@@ -815,7 +859,7 @@ describe('saveBrowserInfo()', () => {
       }
     );
 
-    expect(response && response.content).toBe('engageMessage');
+    expect(response).toBe(null);
   });
 
   test('with visitorId', async () => {
@@ -868,7 +912,7 @@ describe('saveBrowserInfo()', () => {
       }
     );
 
-    expect(response && response.content).toBe('engageMessage');
+    expect(response).toBe(null);
     getVisitorLogMock.restore();
     sendToVisitorLogMock.restore();
   });

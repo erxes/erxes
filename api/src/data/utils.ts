@@ -15,7 +15,7 @@ import { IBrandDocument } from '../db/models/definitions/brands';
 import { WEBHOOK_STATUS } from '../db/models/definitions/constants';
 import { ICustomer } from '../db/models/definitions/customers';
 import { IUser, IUserDocument } from '../db/models/definitions/users';
-import { debugBase } from '../debuggers';
+import { debugBase, debugError } from '../debuggers';
 import memoryStorage from '../inmemoryStorage';
 import { graphqlPubsub } from '../pubsub';
 import { fieldsCombinedByContentType } from './modules/fields/utils';
@@ -888,7 +888,7 @@ export const routeErrorHandling = (fn, callback?: any) => {
     try {
       await fn(req, res, next);
     } catch (e) {
-      debugBase(e.message);
+      debugError(e.message);
 
       if (callback) {
         return callback(res, e);
@@ -897,4 +897,28 @@ export const routeErrorHandling = (fn, callback?: any) => {
       return next(e);
     }
   };
+};
+
+export const isUsingElk = () => {
+  const ELK_SYNCER = getEnv({ name: 'ELK_SYNCER', defaultValue: 'true' });
+
+  return ELK_SYNCER === 'false' ? false : true;
+};
+
+/**
+ * Splits text into chunks of strings limited by given character count
+ * .{1,100}(\s|$)
+ * . - matches any character (except for line terminators)
+ * {1,100} - matches the previous token between 1 and 100 times, as many times as possible, giving back as needed (greedy)
+ * (\s|$) - capturing group
+ * \s - matches any whitespace character
+ * $ - asserts position at the end of the string
+ *
+ * @param str text to be split
+ * @param size character length of each chunk
+ */
+export const splitStr = (str: string, size: number): string[] => {
+  const cleanStr = strip(str);
+
+  return cleanStr.match(new RegExp(new RegExp(`.{1,${size}}(\s|$)`, 'g')));
 };

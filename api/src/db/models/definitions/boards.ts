@@ -1,4 +1,5 @@
 import { Document, Schema } from 'mongoose';
+import { customFieldSchema, ICustomField } from './common';
 import {
   BOARD_STATUSES,
   BOARD_TYPES,
@@ -44,6 +45,7 @@ export interface IItemCommonFields {
     timeSpent: number;
     startDate?: string;
   };
+  customFieldsData?: ICustomField[];
 }
 
 export interface IItemCommonFieldsDocument extends IItemCommonFields, Document {
@@ -186,6 +188,11 @@ export const commonItemFieldsSchema = {
     enum: BOARD_STATUSES.ALL,
     default: BOARD_STATUSES.ACTIVE,
     index: true
+  }),
+  customFieldsData: field({
+    type: [customFieldSchema],
+    optional: true,
+    label: 'Custom fields data'
   })
 };
 

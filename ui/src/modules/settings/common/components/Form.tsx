@@ -12,9 +12,17 @@ type Props = {
   object?: any;
   name?: string;
   renderContent(formProps: IFormProps): any;
-};
+} & ICommonFormProps;
 
-class Form extends React.Component<Props & ICommonFormProps> {
+class Form extends React.Component<Props, { isCanceled: boolean }> {
+  constructor(props: Props) {
+    super(props);
+
+    this.state = {
+      isCanceled: false
+    };
+  }
+
   renderFormContent = (formProps: IFormProps) => {
     const {
       renderContent,
@@ -25,17 +33,24 @@ class Form extends React.Component<Props & ICommonFormProps> {
       name
     } = this.props;
     const { values, isSubmitted } = formProps;
+    const { isCanceled } = this.state;
+
+    const cancel = () => {
+      this.setState({ isCanceled: true }, () => {
+        closeModal();
+      });
+    };
 
     return (
       <>
-        {renderContent({ ...formProps })}
+        {renderContent({ ...formProps, isSaved: isSubmitted || isCanceled })}
 
         <ModalFooter>
           <Button
             btnStyle="simple"
             type="button"
             uppercase={false}
-            onClick={closeModal}
+            onClick={cancel}
             icon="times-circle"
           >
             Cancel

@@ -2,10 +2,7 @@ const listParamsDef = `
   $kind: String
   $status: String
   $tag: String
-  $ids: [String]
-  $tagIds: [String]
-  $brandIds: [String]
-  $segmentIds: [String]
+  $ids: String
   $page: Int
   $perPage: Int
 `;
@@ -15,11 +12,14 @@ const listParamsValue = `
   status: $status
   tag: $tag
   ids: $ids
-  tagIds: $tagIds
-  brandIds: $brandIds
-  segmentIds: $segmentIds
   page: $page
   perPage: $perPage
+`;
+
+const tagFields = `
+  _id
+  name
+  colorCode
 `;
 
 const commonFields = `
@@ -31,6 +31,7 @@ const commonFields = `
   createdAt
   method
   tagIds
+  customerTagIds
   brandIds
   segmentIds
   stats
@@ -38,6 +39,7 @@ const commonFields = `
   email
   smsStats
   createdUser
+
   brand {
     _id
     name
@@ -81,9 +83,10 @@ const engageMessages = `
         name
       }
       getTags {
-        _id
-        name
-        colorCode
+        ${tagFields}
+      }
+      customerTags {
+        ${tagFields}
       }
     }
   }
@@ -104,6 +107,9 @@ export const engageDetailFields = `
   }
   brand {
     name
+  }
+  customerTags {
+    ${tagFields}
   }
 `;
 

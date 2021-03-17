@@ -31,7 +31,12 @@ import {
 import { connect, mongoStatus } from './db/connection';
 import { Users } from './db/models';
 import initWatchers from './db/watchers';
-import { debugBase, debugExternalApi, debugInit } from './debuggers';
+import {
+  debugBase,
+  debugError,
+  debugExternalApi,
+  debugInit
+} from './debuggers';
 import {
   identifyCustomer,
   trackCustomEvent,
@@ -426,7 +431,7 @@ httpServer.listen(PORT, () => {
   // connect to mongo database
   connect(mongoUrl).then(async () => {
     initBroker(app).catch(e => {
-      debugBase(`Error ocurred during message broker init ${e.message}`);
+      debugError(`Error ocurred during message broker init ${e.message}`);
     });
 
     initMemoryStorage();
@@ -441,7 +446,7 @@ httpServer.listen(PORT, () => {
         debugBase('Startup successfully started');
       })
       .catch(e => {
-        debugBase(`Error occured while starting init: ${e.message}`);
+        debugError(`Error occured while starting init: ${e.message}`);
       });
   });
 

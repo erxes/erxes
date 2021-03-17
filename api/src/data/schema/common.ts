@@ -49,6 +49,7 @@ export const commonTypes = `
   labels: [PipelineLabel]
   pipeline: Pipeline
   createdUser: User
+  customFieldsData: JSON
 `;
 
 export const commonMutationParams = `
@@ -65,6 +66,7 @@ export const commonMutationParams = `
   priority: String,
   status: String,
   sourceConversationIds: [String],
+  customFieldsData: JSON
 `;
 
 export const commonDragParams = `
@@ -76,3 +78,19 @@ export const commonDragParams = `
 `;
 
 export const copyParams = `companyIds: [String], customerIds: [String], labelIds: [String]`;
+
+export const commonListTypes = `
+  _id: String!
+  name: String
+  companies: JSON
+  customers: JSON
+  assignedUsers: JSON
+  stage: JSON
+  labels: JSON
+  isComplete: Boolean
+  isWatched: Boolean
+  closeDate: Date
+  modifiedAt: Date
+  priority: String
+  hasNotified: Boolean
+`;

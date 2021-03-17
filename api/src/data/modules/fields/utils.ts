@@ -214,6 +214,7 @@ const generateFieldsFromSchema = async (queSchema: any, namePrefix: string) => {
 
     const label = path.options.label;
     const type = path.instance;
+
     const selectOptions =
       name === 'integrationId'
         ? integrations || []
@@ -255,6 +256,7 @@ export const fieldsCombinedByContentType = async ({
     type?: string;
     validation?: string;
     options?: string[];
+    selectOptions?: Array<{ label: string; value: string }>;
   }> = [];
 
   switch (contentType) {
@@ -315,6 +317,17 @@ export const fieldsCombinedByContentType = async ({
   if (contentType === 'customer' || contentType === 'company') {
     const tags = await getTags(contentType);
     fields = [...fields, ...[tags]];
+
+    if (contentType === 'customer') {
+      const integrations = await getIntegrations();
+
+      fields.push({
+        _id: Math.random(),
+        name: 'relatedIntegrationIds',
+        label: 'Related integration',
+        selectOptions: integrations
+      });
+    }
   }
 
   for (const extendField of extendFields) {

@@ -12,6 +12,7 @@ export const commonMutationVariables = `
   $status: String,
   $priority: String,
   $sourceConversationIds: [String],
+  $customFieldsData: JSON
 `;
 
 export const commonMutationParams = `
@@ -28,6 +29,7 @@ export const commonMutationParams = `
   status: $status,
   priority: $priority,
   sourceConversationIds: $sourceConversationIds,
+  customFieldsData: $customFieldsData,
 `;
 
 export const commonDragVariables = `
@@ -44,6 +46,22 @@ export const commonDragParams = `
   destinationStageId: $destinationStageId,
   sourceStageId: $sourceStageId,
   proccessId: $proccessId
+`;
+
+export const commonListFields = `
+  _id
+  name
+  companies
+  customers
+  assignedUsers
+  labels
+  stage
+  isComplete
+  isWatched
+  closeDate
+  modifiedAt
+  priority
+  hasNotified
 `;
 
 export const commonFields = `
@@ -109,6 +127,7 @@ export const commonFields = `
     }
   }
   order
+  customFieldsData
 `;
 
 const stagesUpdateOrder = `

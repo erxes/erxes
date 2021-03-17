@@ -2,11 +2,18 @@
     "compilerOptions": {
         "sourceMap": true,
         "module": "commonjs",
-         "lib": ["es5", "es6" ],
-        "target": "es5",
+        "lib": [
+            "es2015",
+            "es6",
+            "es7",
+            "esnext.asynciterable"
+        ],
+        "target": "es6",
         "skipLibCheck": true,
         "outDir": "dist",
         "strict": true
     },
-    "include": ["server/*.ts"],
+    "include": [
+        "server/*.ts"
+    ],
 }

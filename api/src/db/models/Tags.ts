@@ -74,6 +74,30 @@ const removeRelatedIds = async (tag: ITagDocument) => {
   await Tags.bulkWrite(doc);
 };
 
+export const getCollection = type => {
+  let collection: any = Conversations;
+
+  switch (type) {
+    case 'customer':
+      collection = Customers;
+      break;
+    case 'engageMessage':
+      collection = EngageMessages;
+      break;
+    case 'company':
+      collection = Companies;
+      break;
+    case 'integration':
+      collection = Integrations;
+      break;
+    case 'product':
+      collection = Products;
+      break;
+  }
+
+  return collection;
+};
+
 export interface ITagModel extends Model<ITagDocument> {
   getTag(_id: string): Promise<ITagDocument>;
   createTag(doc: ITag): Promise<ITagDocument>;
@@ -157,34 +181,9 @@ export const loadClass = () => {
         throw new Error('Tag not found.');
       }
 
-      const objects = await collection.find(
-        { _id: { $in: objectIds } },
-        { tagIds: 1 }
-      );
-
-      let removeIds: string[] = [];
-
-      objects.forEach(obj => {
-        removeIds.push(obj.tagIds);
-      });
-
-      removeIds = _.uniq(_.flatten(removeIds));
-
-      await Tags.updateMany(
-        { _id: { $in: removeIds } },
-        { $inc: { objectCount: -1 } },
-        { multi: true }
-      );
-
       await collection.updateMany(
         { _id: { $in: objectIds } },
         { $set: { tagIds } },
-        { multi: true }
-      );
-
-      await Tags.updateMany(
-        { _id: { $in: tagIds } },
-        { $inc: { objectCount: 1 } },
         { multi: true }
       );
     }
@@ -343,25 +342,7 @@ export const loadClass = () => {
       targetIds: string[],
       tagIds: string[]
     ) {
-      let collection: any = Conversations;
-
-      switch (type) {
-        case 'customer':
-          collection = Customers;
-          break;
-        case 'engageMessage':
-          collection = EngageMessages;
-          break;
-        case 'company':
-          collection = Companies;
-          break;
-        case 'integration':
-          collection = Integrations;
-          break;
-        case 'product':
-          collection = Products;
-          break;
-      }
+      const collection = getCollection(type);
 
       await Tags.tagObject({
         tagIds,

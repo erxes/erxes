@@ -1,4 +1,7 @@
-import { commonFields } from 'modules/boards/graphql/mutations';
+import {
+  commonFields,
+  commonListFields
+} from 'modules/boards/graphql/mutations';
 import {
   conformityQueryFieldDefs,
   conformityQueryFields
@@ -47,7 +50,7 @@ const tasks = `
       search: $search,
       ${commonParamDefs}
     ) {
-      ${commonFields}
+      ${commonListFields}
     }
   }
 `;

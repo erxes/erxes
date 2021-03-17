@@ -205,7 +205,7 @@ const tasks = `
 `;
 
 const tickets = `
-  query tickets(${boardItemQueryParamsDef}}) {
+  query tickets(${boardItemQueryParamsDef}) {
     tickets(${boardItemQueryParams}) {
       ${cardFields}
     }

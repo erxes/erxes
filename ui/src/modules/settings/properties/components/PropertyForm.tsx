@@ -171,13 +171,15 @@ class PropertyForm extends React.Component<Props, State> {
               defaultValue={object.groupId || ''}
               required={true}
             >
-              {groups.map(group => {
-                return (
-                  <option key={group._id} value={group._id}>
-                    {group.name}
-                  </option>
-                );
-              })}
+              {groups
+                .filter(e => !e.isDefinedByErxes)
+                .map(group => {
+                  return (
+                    <option key={group._id} value={group._id}>
+                      {group.name}
+                    </option>
+                  );
+                })}
             </FormControl>
             {this.renderAddGroup()}
           </Row>

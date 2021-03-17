@@ -4,7 +4,7 @@ import { companySchema } from '../../../db/models/definitions/companies';
 import { KIND_CHOICES } from '../../../db/models/definitions/constants';
 import { customerSchema } from '../../../db/models/definitions/customers';
 import { ISegmentDocument } from '../../../db/models/definitions/segments';
-import { debugBase } from '../../../debuggers';
+import { debugError } from '../../../debuggers';
 import { fetchElk } from '../../../elasticsearch';
 import { COC_LEAD_STATUS_TYPES } from '../../constants';
 import { fetchBySegments } from '../segments/queryBuilder';
@@ -54,7 +54,7 @@ export const countBySegment = async (
       await qb.segmentFilter(s._id);
       counts[s._id] = await qb.runQueries('count');
     } catch (e) {
-      debugBase(`Error during segment count ${e.message}`);
+      debugError(`Error during segment count ${e.message}`);
       counts[s._id] = 0;
     }
   }
@@ -191,34 +191,52 @@ export class CommonBuilder<IListArgs extends ICommonListArgs> {
   }
 
   // filter by tagId
-  public tagFilter(tagId: string) {
+  public async tagFilter(tagId: string, withRelated?: boolean) {
+    let tagIds: string[] = [tagId];
+
+    if (withRelated) {
+      const tag = await Tags.findOne({ _id: tagId });
+
+      tagIds = [tagId, ...(tag?.relatedIds || [])];
+    }
+
     this.positiveList.push({
       terms: {
-        tagIds: [tagId]
+        tagIds
       }
     });
   }
 
   // filter by search value
   public searchFilter(value: string): void {
-    this.positiveList.push({
-      bool: {
-        should: [
-          {
-            match: {
-              searchText: {
-                query: value
+    if (value.includes('@')) {
+      this.positiveList.push({
+        match_phrase: {
+          searchText: {
+            query: value
+          }
+        }
+      });
+    } else {
+      this.positiveList.push({
+        bool: {
+          should: [
+            {
+              match: {
+                searchText: {
+                  query: value
+                }
+              }
+            },
+            {
+              wildcard: {
+                searchText: `*${value.toLowerCase()}*`
               }
             }
-          },
-          {
-            wildcard: {
-              searchText: `*${value.toLowerCase()}*`
-            }
-          }
-        ]
-      }
-    });
+          ]
+        }
+      });
+    }
   }
 
   // filter by auto-completion type
@@ -305,7 +323,7 @@ export class CommonBuilder<IListArgs extends ICommonListArgs> {
 
     // filter by tag
     if (this.params.tag) {
-      this.tagFilter(this.params.tag);
+      await this.tagFilter(this.params.tag, true);
     }
 
     // filter by leadStatus
@@ -341,7 +359,10 @@ export class CommonBuilder<IListArgs extends ICommonListArgs> {
   /*
    * Run queries
    */
-  public async runQueries(action = 'search', isExport?: boolean): Promise<any> {
+  public async runQueries(
+    action = 'search',
+    unlimited?: boolean
+  ): Promise<any> {
     const {
       page = 0,
       perPage = 0,
@@ -354,12 +375,12 @@ export class CommonBuilder<IListArgs extends ICommonListArgs> {
     const _page = Number(page || 1);
     let _limit = Number(perPage || 20);
 
-    if (isExport) {
+    if (unlimited) {
       _limit = 10000;
     }
 
     if (
-      !isExport &&
+      !unlimited &&
       page === 1 &&
       perPage === 20 &&
       (paramKeys === 'page,perPage' || paramKeys === 'page,perPage,type')
