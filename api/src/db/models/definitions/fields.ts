@@ -5,7 +5,6 @@ import { field, schemaWrapper } from './utils';
 export interface ILogic {
   fieldId: string;
   tempFieldId?: string;
-  willShow: boolean;
   logicOperator?: string;
   logicValue?: string | number | Date | string[];
 }
@@ -13,16 +12,10 @@ export interface ILogic {
 export const logicSchema = new Schema(
   {
     fieldId: field({ type: String }),
-
-    willShow: field({
-      type: Boolean
-    }),
-
     logicOperator: field({
       type: String,
       optional: true
     }),
-
     logicValue: field({
       type: Schema.Types.Mixed,
       optional: true
@@ -52,8 +45,10 @@ export interface IField extends IVisibility {
   lastUpdatedUserId?: string;
   associatedFieldId?: string;
 
-  logic?: ILogic;
+  logics?: ILogic[];
+  logicAction?: string;
   tempFieldId?: string;
+  column?: number;
 }
 
 export interface IFieldDocument extends IField, Document {
@@ -123,7 +118,13 @@ export const fieldSchema = schemaWrapper(
       optional: true,
       label: 'Stores custom property fieldId for form field id'
     }),
-    logic: field({ type: logicSchema })
+    logics: field({ type: [logicSchema] }),
+    column: field({ type: Number, optional: true }),
+    logicAction: field({
+      type: String,
+      label:
+        'If action is show field will appear when logics fulfilled, if action is hide it will disappear when logic fulfilled'
+    })
   })
 );
 

@@ -1,7 +1,6 @@
 export const fieldsTypes = `
   type Logic {
     fieldId: String!
-    willShow: Boolean
     logicOperator: String
     logicValue: JSON
   }
@@ -28,7 +27,9 @@ export const fieldsTypes = `
     lastUpdatedUserId: String
     associatedFieldId: String
     associatedField: Field
-    logic: Logic
+    logics: [Logic]
+    logicAction: String
+    column: Int
   }
 
   input OrderItem {
@@ -39,7 +40,6 @@ export const fieldsTypes = `
   input LogicInput {
     fieldId: String
     tempFieldId: String
-    willShow: Boolean
     logicOperator: String
     logicValue: JSON
   }
@@ -55,7 +55,8 @@ export const fieldsTypes = `
     isRequired: Boolean
     order: Int
     associatedFieldId: String
-    logic: LogicInput
+    logicAction: String
+    logics: [LogicInput]
   }
 
   type ColumnConfigItem {

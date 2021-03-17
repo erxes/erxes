@@ -16,10 +16,10 @@ export const formDetailQuery = `
         order
         validation
         associatedFieldId
-
-        logic {
+        
+        logicAction
+        logics {
           fieldId
-          willShow
           logicOperator
           logicValue
         }

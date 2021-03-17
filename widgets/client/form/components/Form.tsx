@@ -128,11 +128,19 @@ class Form extends React.Component<Props, State> {
         (error: IFieldError) => error.fieldId === field._id
       );
 
-      if (field.logic && field.logic.willShow) {
-        const fieldValue = this.state.doc[field.logic.fieldId].value;
+      if (field.logicAction && field.logicAction === 'show' && field.logics && field.logics.length > 0) {
+        const logics: LogicParams[] = field.logics.map(logic => {
+          const fieldValue = this.state.doc[logic.fieldId].value;
+          const validation = this.state.doc[logic.fieldId].validation;
+          return {operator: logic.logicOperator, logicValue: logic.logicValue, fieldValue, validation }
+        })
 
-        const isLogicFulfilled = checkLogicFulfilled({ operator: field.logic.logicOperator, logicValue: field.logic.logicValue, fieldValue })
         
+
+        const isLogicFulfilled = checkLogicFulfilled(logics)
+        
+        console.log('isLogicFulfilled: ',isLogicFulfilled)
+
         if (!isLogicFulfilled) {
           return null;
         }
