@@ -141,16 +141,21 @@ class PermissionForm extends React.Component<Props, State> {
         <Info>
           <strong>User vs. Group Permissions</strong>
           <br />
-          When a team member is part of two or more User Groups with different
-          levels of permissions,
+          <span>
+            When a team member is part of two or more User Groups with different
+            levels of permissions,
+          </span>
           <TextInfo textStyle="danger">
             {' '}
-            the negative permission will overrule.{' '}
+            the negative permission will overrule.
           </TextInfo>
-          For example, if you're part of the "Admin Group" with all permissions
-          allowed, but you've included yourself in the "Support Group" with
-          fewer permissions,
-          <TextInfo textStyle="primary">
+          <br />
+          <span>
+            For example, if you're part of the "Admin Group" with all
+            permissions allowed, but you've included yourself in the "Support
+            Group" with fewer permissions,
+          </span>
+          <TextInfo textStyle="danger">
             {' '}
             you might not be able to do certain actions.
           </TextInfo>

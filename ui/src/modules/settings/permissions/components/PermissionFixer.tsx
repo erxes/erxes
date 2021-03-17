@@ -55,7 +55,7 @@ export default class PermissionFixer extends React.Component<Props, State> {
       <>
         <Info>
           When a team member has all permissions of a specific module &
-          <TextInfo> can't perform some action</TextInfo>, then this command
+          <TextInfo> can't perform some actions</TextInfo>, then this command
           comes to the rescue.
         </Info>
         {this.renderMessages()}
