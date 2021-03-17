@@ -277,7 +277,7 @@ export const urlify = (text: string) => {
 export const checkLogicFulfilled = (logics: LogicParams[]) => {
   const values = [];
   for (const logic of logics) {
-    const { operator, logicValue, fieldValue } = logic;
+    const { operator, logicValue, fieldValue, validation } = logic;
     // if fieldValue is set
     if (operator === 'is') {
       if (fieldValue) {
@@ -348,6 +348,29 @@ export const checkLogicFulfilled = (logics: LogicParams[]) => {
       // if string value does not contain logicValue
       if (operator === 'dnc') {
         if(!String(fieldValue).includes(logicValue)) {
+          values.push(true);
+        }else {
+          values.push(false);
+        }
+      }
+    }
+
+    if (validation && validation.includes('date')) {
+      const dateValueToCheck = new Date(String(fieldValue))
+      const logicDateValue = new Date(String(logicValue))
+      
+      // date is greather than
+      if (operator === 'dateigt') {
+        if(dateValueToCheck > logicDateValue) {
+          values.push(true);
+        }else {
+          values.push(false);
+        }
+      }
+
+      // date is less than
+      if (operator === 'dateilt') {
+        if(logicDateValue > dateValueToCheck) {
           values.push(true);
         }else {
           values.push(false);
