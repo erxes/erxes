@@ -134,29 +134,37 @@ export class CommonBuilder<IArgs extends IListArgs> {
   }
 
   public resetPositiveList() {
-    const defaultUserQuery = [
-      {
-        exists: {
-          field: 'userId'
-        }
-      },
-      {
-        range: {
-          messageCount: { gt: 1 }
-        }
-      },
-      {
-        bool: {
-          must_not: [
-            {
-              exists: {
-                field: 'userId'
+    const defaultUserQuery = {
+      must: [
+        {
+          bool: {
+            should: [
+              {
+                exists: {
+                  field: 'userId'
+                }
+              },
+              {
+                range: {
+                  messageCount: { gt: 1 }
+                }
               }
-            }
-          ]
+            ]
+          }
+        },
+        {
+          bool: {
+            must_not: [
+              {
+                exists: {
+                  field: 'userId'
+                }
+              }
+            ]
+          }
         }
-      }
-    ];
+      ]
+    };
 
     const userRelevanceQuery = [
       {
@@ -178,8 +186,8 @@ export class CommonBuilder<IArgs extends IListArgs> {
     ];
 
     this.positiveList = [
-      { bool: { should: userRelevanceQuery } },
-      { bool: { should: defaultUserQuery } }
+      { bool: defaultUserQuery },
+      { bool: { should: userRelevanceQuery } }
     ];
   }
 
