@@ -472,69 +472,107 @@ export const getItemList = async (
 
   const ids = list.map(item => item._id);
 
-  const getCoc = async (cocType: string, cocCollection: any, fields: any) => {
-    const conformities = await Conformities.getConformities({
-      mainType: type,
-      mainTypeIds: ids,
-      relType: cocType
-    });
-
-    const cocIds: string[] = [];
-    const cocIdsByItemId = {};
-
-    for (const conf of conformities) {
-      if (conf.mainType === cocType) {
-        cocIds.push(conf.mainTypeId);
-
-        if (!cocIdsByItemId[conf.relTypeId]) {
-          cocIdsByItemId[conf.relTypeId] = [];
-        }
-
-        cocIdsByItemId[conf.relTypeId].push(conf.mainTypeId);
-      } else {
-        cocIds.push(conf.relTypeId);
-
-        if (!cocIdsByItemId[conf.mainTypeId]) {
-          cocIdsByItemId[conf.mainTypeId] = [];
-        }
-
-        cocIdsByItemId[conf.mainTypeId].push(conf.relTypeId);
-      }
-    }
-
-    const cocs = await cocCollection.find(
-      {
-        _id: { $in: [...new Set(cocIds)] }
-      },
-      { ...fields, primaryEmail: 1, primaryPhone: 1, emails: 1, phones: 1 }
-    );
-
-    return { cocs, cocIdsByItemId };
-  };
-
-  const customer = await getCoc('customer', Customers, {
-    firstName: 1,
-    lastName: 1,
-    visitorContactInfo: 1
+  const conformities = await Conformities.getConformities({
+    mainType: type,
+    mainTypeIds: ids,
+    relTypes: ['company', 'customer']
   });
 
-  const getCustomersByItemId = (itemId: string) => {
-    const customerIds = customer.cocIdsByItemId[itemId] || [];
+  const companyIds: string[] = [];
+  const customerIds: string[] = [];
+  const companyIdsByItemId = {};
+  const customerIdsByItemId = {};
 
-    return customerIds.flatMap((customerId: string) => {
-      const found = customer.cocs.find(cus => customerId === cus._id);
+  const perConformity = (
+    conformity,
+    cocIdsByItemId,
+    cocIds,
+    typeId1,
+    typeId2
+  ) => {
+    cocIds.push(conformity[typeId1]);
 
-      return found || [];
-    });
+    if (!cocIdsByItemId[conformity[typeId2]]) {
+      cocIdsByItemId[conformity[typeId2]] = [];
+    }
+
+    cocIdsByItemId[conformity[typeId2]].push(conformity[typeId1]);
   };
 
-  const company = await getCoc('company', Companies, { primaryName: 1 });
+  for (const conf of conformities) {
+    if (conf.mainType === 'company') {
+      perConformity(
+        conf,
+        companyIdsByItemId,
+        companyIds,
+        'mainTypeId',
+        'relTypeId'
+      );
+      continue;
+    }
+    if (conf.relType === 'company') {
+      perConformity(
+        conf,
+        companyIdsByItemId,
+        companyIds,
+        'relTypeId',
+        'mainTypeId'
+      );
+      continue;
+    }
+    if (conf.mainType === 'customer') {
+      perConformity(
+        conf,
+        customerIdsByItemId,
+        customerIds,
+        'mainTypeId',
+        'relTypeId'
+      );
+      continue;
+    }
+    if (conf.relType === 'customer') {
+      perConformity(
+        conf,
+        customerIdsByItemId,
+        customerIds,
+        'relTypeId',
+        'mainTypeId'
+      );
+      continue;
+    }
+  }
 
-  const getCompaniesByItemId = (itemId: string) => {
-    const companyIds = company.cocIdsByItemId[itemId] || [];
+  const companies = await Companies.find(
+    {
+      _id: { $in: [...new Set(companyIds)] }
+    },
+    { primaryName: 1, primaryEmail: 1, primaryPhone: 1, emails: 1, phones: 1 }
+  );
 
-    return companyIds.flatMap((companyId: string) => {
-      const found = company.cocs.find(com => companyId === com._id);
+  const customers = await Customers.find(
+    {
+      _id: { $in: [...new Set(customerIds)] }
+    },
+    {
+      firstName: 1,
+      lastName: 1,
+      visitorContactInfo: 1,
+      primaryEmail: 1,
+      primaryPhone: 1,
+      emails: 1,
+      phones: 1
+    }
+  );
+
+  const getCocsByItemId = (
+    itemId: string,
+    cocIdsByItemId: any,
+    cocs: any[]
+  ) => {
+    const cocIds = cocIdsByItemId[itemId] || [];
+
+    return cocIds.flatMap((cocId: string) => {
+      const found = cocs.find(coc => cocId === coc._id);
 
       return found || [];
     });
@@ -554,8 +592,8 @@ export const getItemList = async (
       ...item,
       isWatched: (item.watchedUserIds || []).includes(user._id),
       hasNotified: notification ? false : true,
-      customers: getCustomersByItemId(item._id),
-      companies: getCompaniesByItemId(item._id),
+      customers: getCocsByItemId(item._id, customerIdsByItemId, customers),
+      companies: getCocsByItemId(item._id, companyIdsByItemId, companies),
       ...(getExtraFields ? await getExtraFields(item) : {})
     });
   }

@@ -324,6 +324,14 @@ describe('dealQueries', () => {
       relTypeId: deal._id
     });
 
+    // another company choosed
+    await conformityFactory({
+      mainType: 'deal',
+      mainTypeId: deal._id,
+      relType: 'company',
+      relTypeId: (await companyFactory())._id
+    });
+
     let response = await graphqlRequest(qryDealFilter, 'deals', {
       companyIds: [_id]
     });
