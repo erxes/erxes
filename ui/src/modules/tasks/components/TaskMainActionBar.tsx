@@ -89,7 +89,7 @@ const TaskMainActionBar = (props: Props) => {
     ...props,
     options,
     extraFilter,
-    link: '/task/board',
+    link: `/task/${viewType}`,
     rightContent: viewChooser
   };
 

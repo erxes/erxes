@@ -97,6 +97,7 @@ class WithStages extends Component<WithStagesQueryProps> {
             onDragEnd,
             stageIds,
             scheduleStage,
+            refetchStage,
             onLoadStage,
             onAddItem,
             onRemoveItem
@@ -132,6 +133,7 @@ class WithStages extends Component<WithStagesQueryProps> {
                           loadingState={stageLoadMap[stageId]}
                           refetchStages={stagesQuery.refetch}
                           scheduleStage={scheduleStage}
+                          refetchStage={refetchStage}
                           onLoad={onLoadStage}
                           onAddItem={onAddItem}
                           onRemoveItem={onRemoveItem}
