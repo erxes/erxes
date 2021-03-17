@@ -146,7 +146,6 @@ class PermissionForm extends React.Component<Props, State> {
             levels of permissions,
           </span>
           <TextInfo textStyle="danger">
-            {' '}
             the negative permission will overrule.
           </TextInfo>
           <br />
@@ -156,7 +155,6 @@ class PermissionForm extends React.Component<Props, State> {
             Group" with fewer permissions,
           </span>
           <TextInfo textStyle="danger">
-            {' '}
             you might not be able to do certain actions.
           </TextInfo>
         </Info>
