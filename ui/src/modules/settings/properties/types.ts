@@ -26,6 +26,12 @@ export interface IField {
     _id: string;
     text: string;
   };
+  logic?: {
+    fieldId: string;
+    willShow: boolean;
+    logicOperator: string;
+    logicValue: string;
+  };
 }
 
 export interface IFieldGroup {

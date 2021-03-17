@@ -192,6 +192,7 @@ class Form extends React.Component<Props, State> {
     const { renderPreviewWrapper } = this.props;
     const { currentMode, currentField, fields, desc } = this.state;
 
+    console.log(fields);
     const renderer = () => {
       return (
         <FieldsPreview

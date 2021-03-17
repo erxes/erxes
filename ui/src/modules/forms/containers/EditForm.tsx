@@ -127,6 +127,7 @@ class EditFormContainer extends React.Component<FinalProps> {
 
           const doMutation = ({ datas, mutation }) => {
             for (const data of datas) {
+              console.log('updateField', updateFieldsData);
               promises.push(mutation({ variables: data }));
             }
           };

@@ -163,6 +163,12 @@ const fields = `
       options
       isRequired
       order
+      logic {
+        fieldId
+        willShow
+        logicOperator
+        logicValue
+      }
     }
   }
 `;
