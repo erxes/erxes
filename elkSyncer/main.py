@@ -129,6 +129,26 @@ company_mapping = {
     'customFieldsData' : nestedType
 }
 
+item_mapping = {
+    'userId': {
+        'type': 'keyword',
+    },
+    'assignedUserIds': {
+        'type': 'keyword',
+    },
+    'watchedUserIds': {
+        'type': 'keyword',
+    },
+    'labelIds': {
+        'type': 'keyword',
+    },
+    'customFieldsData' : nestedType
+}
+
+deal_mapping = item_mapping
+task_mapping = item_mapping
+ticket_mapping = item_mapping
+
 event_mapping = {
     'type': {
         'type': 'keyword',
