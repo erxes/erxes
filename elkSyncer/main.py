@@ -205,6 +205,9 @@ db_name = pymongo.uri_parser.parse_uri(MONGO_URL)['database']
 put_mappings('%s__customers' % db_name, customer_mapping)
 put_mappings('%s__companies' % db_name, company_mapping)
 put_mappings('%s__events' % db_name, event_mapping)
+put_mappings('%s__deals' % db_name, deal_mapping)
+put_mappings('%s__tasks' % db_name, task_mapping)
+put_mappings('%s__tickets' % db_name, ticket_mapping)
 
 command = 'mongo-connector -m "%s"  -c mongo-connector-config.json --target-url %s' % (MONGO_URL, ELASTICSEARCH_URL)
 
