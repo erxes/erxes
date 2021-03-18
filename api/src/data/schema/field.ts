@@ -54,6 +54,7 @@ export const fieldsTypes = `
     options: [String]
     isRequired: Boolean
     order: Int
+    column: Int
     associatedFieldId: String
     logicAction: String
     logics: [LogicInput]
