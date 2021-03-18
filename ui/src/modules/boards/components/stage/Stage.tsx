@@ -233,6 +233,24 @@ export default class Stage extends React.Component<Props, State> {
           Date modified (Oldest first)
         </li>
         <li
+          onClick={sortItems.bind(
+            this,
+            'close-asc',
+            'date assigned (Earliest first)'
+          )}
+        >
+          Date assigned (Earliest first)
+        </li>
+        <li
+          onClick={sortItems.bind(
+            this,
+            'close-desc',
+            'date assigned (Latest first)'
+          )}
+        >
+          Date assigned (Latest first)
+        </li>
+        <li
           onClick={sortItems.bind(this, 'alphabetically-asc', 'alphabetically')}
         >
           Alphabetically

@@ -25,11 +25,15 @@ interface ISetOrderParam {
 export const bulkUpdateOrders = async ({
   collection,
   stageId,
-  sort = { order: 1 }
+  sort = { order: 1 },
+  additionFilter = {},
+  startOrder = 100
 }: {
   collection: any;
   stageId: string;
   sort?: { [key: string]: any };
+  additionFilter?: any;
+  startOrder?: number;
 }) => {
   const bulkOps: Array<{
     updateOne: {
@@ -38,13 +42,14 @@ export const bulkUpdateOrders = async ({
     };
   }> = [];
 
-  let ord = 100;
+  let ord = startOrder;
 
   const allItems = await collection
     .find(
       {
         stageId,
-        status: { $ne: BOARD_STATUSES.ARCHIVED }
+        status: { $ne: BOARD_STATUSES.ARCHIVED },
+        ...additionFilter
       },
       { _id: 1, order: 1 }
     )

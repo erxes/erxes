@@ -405,19 +405,24 @@ describe('Test boards mutations', () => {
 
     expect(response).toEqual(null);
 
-    // 2 items in stage
-    const deal1 = await dealFactory({
+    // 3 items in stage
+    const deal = await dealFactory({
       stageId: stage._id
     });
+    const deal1 = await dealFactory({
+      stageId: stage._id,
+      closeDate: new Date('2021-03-01')
+    });
     const deal2 = await dealFactory({
-      stageId: stage._id
+      stageId: stage._id,
+      closeDate: new Date('2021-02-01')
     });
 
     response = await graphqlRequest(mutation, 'stagesSortItems', {
       stageId: stage._id,
       type: 'deal',
       processId: Math.random().toString(),
-      sortType: 'created-desc'
+      sortType: 'close-asc'
     });
 
     expect(response).toEqual('ok');
@@ -429,5 +434,6 @@ describe('Test boards mutations', () => {
 
     expect(deals[0]._id).toEqual(deal2._id);
     expect(deals[1]._id).toEqual(deal1._id);
+    expect(deals[2]._id).toEqual(deal._id);
   });
 });

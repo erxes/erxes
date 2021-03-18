@@ -230,14 +230,32 @@ const boardMutations = {
       'created-desc': { createdAt: -1 },
       'modified-asc': { modifiedAt: 1 },
       'modified-desc': { modifiedAt: -1 },
+      'close-asc': { closeDate: 1, order: 1 },
+      'close-desc': { closeDate: -1, order: 1 },
       'alphabetically-asc': { name: 1 }
     };
     const sort: { [key: string]: any } = sortTypes[sortType];
 
-    const response = await bulkUpdateOrders({ collection, stageId, sort });
+    if (sortType === 'close-asc') {
+      await bulkUpdateOrders({
+        collection,
+        stageId,
+        sort,
+        additionFilter: { closeDate: { $ne: null } }
+      });
+      await bulkUpdateOrders({
+        collection,
+        stageId,
+        sort: { order: 1 },
+        additionFilter: { closeDate: null },
+        startOrder: 100001
+      });
+    } else {
+      const response = await bulkUpdateOrders({ collection, stageId, sort });
 
-    if (!response) {
-      return;
+      if (!response) {
+        return;
+      }
     }
 
     const stage = await Stages.getStage(stageId);
