@@ -18,6 +18,10 @@ const commonParams = `
   $sortField: String,
   $sortDirection: Int,
   $userIds: [String],
+  $segment: String,
+  $assignedToMe: String,
+  $startDate: String,
+  $endDate: String,
   ${conformityQueryFields}
 `;
 
@@ -32,6 +36,10 @@ const commonParamDefs = `
   sortField: $sortField,
   sortDirection: $sortDirection,
   userIds: $userIds,
+  segment: $segment,
+  assignedToMe: $assignedToMe,
+  startDate: $startDate,
+  endDate: $endDate,
   ${conformityQueryFieldDefs}
 `;
 
