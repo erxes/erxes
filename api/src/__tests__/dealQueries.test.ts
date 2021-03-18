@@ -1,4 +1,5 @@
 import * as moment from 'moment';
+import * as sinon from 'sinon';
 import { graphqlRequest } from '../db/connection';
 import {
   boardFactory,
@@ -11,13 +12,15 @@ import {
   pipelineFactory,
   pipelineLabelFactory,
   productFactory,
+  segmentFactory,
   stageFactory,
   userFactory
 } from '../db/factories';
 import { Boards, Deals, Pipelines, Stages } from '../db/models';
+import * as elk from '../elasticsearch';
+import './setup.ts';
 
 import { BOARD_STATUSES } from '../db/models/definitions/constants';
-import './setup.ts';
 
 const generateProductsData = async () => {
   const field1 = await fieldFactory({ contentType: 'product' });
@@ -99,6 +102,10 @@ describe('dealQueries', () => {
       $labelIds: [String]
       $initialStageId: String
       $userIds: [String]
+      $assignedToMe: String
+      $segment: String
+      $startDate: String
+      $endDate: String
     ) {
       deals(
         search: $search
@@ -117,6 +124,10 @@ describe('dealQueries', () => {
         labelIds: $labelIds
         initialStageId: $initialStageId
         userIds: $userIds
+        assignedToMe: $assignedToMe
+        segment: $segment
+        startDate: $startDate
+        endDate: $endDate
       ) {
         _id
       }
@@ -364,6 +375,59 @@ describe('dealQueries', () => {
     response = await graphqlRequest(qryDealFilter, 'deals', { labelIds: [''] });
 
     expect(response.length).toBe(1);
+  });
+
+  test('Deal filter by assignedToMe', async () => {
+    const user = await userFactory({});
+
+    await dealFactory({ assignedUserIds: [user._id] });
+    await dealFactory({});
+
+    const response = await graphqlRequest(
+      qryDealFilter,
+      'deals',
+      { assignedToMe: 'true' },
+      { user }
+    );
+
+    expect(response.length).toBe(1);
+  });
+
+  test('Deal filter by segment', async () => {
+    const segment = await segmentFactory({
+      contentType: 'deal'
+    });
+
+    const deal = await dealFactory({});
+    await dealFactory({});
+
+    const mock = sinon.stub(elk, 'fetchElk').callsFake(() => {
+      return Promise.resolve({ hits: { hits: [{ _id: deal._id }] } });
+    });
+
+    const response = await graphqlRequest(qryDealFilter, 'deals', {
+      segment: segment._id
+    });
+
+    expect(response.length).toBe(1);
+
+    mock.restore();
+  });
+
+  test('Deal filter by date range', async () => {
+    await dealFactory({ closeDate: new Date('2020-01-06') });
+    await dealFactory({ closeDate: new Date('2020-01-10') });
+
+    let response = await graphqlRequest(qryDealFilter, 'deals', {
+      startDate: '2020-01-09',
+      endDate: '2020-01-11'
+    });
+    expect(response.length).toBe(1);
+
+    response = await graphqlRequest(qryDealFilter, 'deals', {
+      endDate: '2020-01-11'
+    });
+    expect(response.length).toBe(2);
   });
 
   test('Deal filter by date', async () => {

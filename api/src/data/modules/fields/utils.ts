@@ -1,11 +1,18 @@
 import {
   Companies,
   Customers,
+  Deals,
   Fields,
   FieldsGroups,
   Integrations,
+  PipelineLabels,
+  Pipelines,
   Products,
-  Tags
+  Stages,
+  Tags,
+  Tasks,
+  Tickets,
+  Users
 } from '../../../db/models';
 import { fetchElk } from '../../../elasticsearch';
 import { EXTEND_FIELDS, FIELD_CONTENT_TYPES } from '../../constants';
@@ -177,6 +184,71 @@ const getIntegrations = async () => {
   ]);
 };
 
+const generateUsersOptions = async (
+  name: string,
+  label: string,
+  type: string
+) => {
+  const users = await Users.find();
+
+  const options: Array<{ label: string; value: any }> = users.map(user => ({
+    value: user._id,
+    label: user.username || user.email || ''
+  }));
+
+  return {
+    _id: Math.random(),
+    name,
+    label,
+    type,
+    selectOptions: options
+  };
+};
+
+const getStageOptions = async () => {
+  const stages = await Stages.find();
+  const options: Array<{ label: string; value: any }> = [];
+
+  for (const stage of stages) {
+    const pipeline = await Pipelines.findOne({ _id: stage.pipelineId });
+
+    options.push({
+      value: stage._id,
+      label: `${pipeline?.name}: ${stage.name}`
+    });
+  }
+
+  return {
+    _id: Math.random(),
+    name: 'stageId',
+    label: 'Stage',
+    type: 'stage',
+    selectOptions: options
+  };
+};
+
+const getPipelineLabelOptions = async () => {
+  const labels = await PipelineLabels.find();
+  const options: Array<{ label: string; value: any }> = [];
+
+  for (const label of labels) {
+    const pipeline = await Pipelines.findOne({ _id: label.pipelineId });
+
+    options.push({
+      value: label._id,
+      label: `${pipeline?.name}: ${label.name}`
+    });
+  }
+
+  return {
+    _id: Math.random(),
+    name: 'labelIds',
+    label: 'Labels',
+    type: 'label',
+    selectOptions: options
+  };
+};
+
 const getTags = async (type: string) => {
   const tags = await Tags.aggregate([
     { $match: { type } },
@@ -267,11 +339,22 @@ export const fieldsCombinedByContentType = async ({
     case FIELD_CONTENT_TYPES.PRODUCT:
       schema = Products.schema;
       extendFields = EXTEND_FIELDS.PRODUCT;
-
       break;
 
     case FIELD_CONTENT_TYPES.CUSTOMER:
       schema = Customers.schema;
+      break;
+
+    case 'deal':
+      schema = Deals.schema;
+      break;
+
+    case 'task':
+      schema = Tasks.schema;
+      break;
+
+    case 'ticket':
+      schema = Tickets.schema;
       break;
   }
 
@@ -328,6 +411,48 @@ export const fieldsCombinedByContentType = async ({
         selectOptions: integrations
       });
     }
+  }
+
+  if (['deal', 'task', 'ticket'].includes(contentType)) {
+    const createdByOptions = await generateUsersOptions(
+      'userId',
+      'Created by',
+      'user'
+    );
+
+    const modifiedByOptions = await generateUsersOptions(
+      'modifiedBy',
+      'Modified by',
+      'user'
+    );
+
+    const assignedUserOptions = await generateUsersOptions(
+      'assignedUserIds',
+      'Assigned users',
+      'user'
+    );
+
+    const watchedUserOptions = await generateUsersOptions(
+      'watchedUserIds',
+      'Watched users',
+      'user'
+    );
+
+    const labelOptions = await getPipelineLabelOptions();
+
+    const stageOptions = await getStageOptions();
+
+    fields = [
+      ...fields,
+      ...[
+        createdByOptions,
+        modifiedByOptions,
+        assignedUserOptions,
+        watchedUserOptions,
+        stageOptions,
+        labelOptions
+      ]
+    ];
   }
 
   for (const extendField of extendFields) {
