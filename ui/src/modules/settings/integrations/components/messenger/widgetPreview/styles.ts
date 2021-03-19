@@ -53,8 +53,12 @@ const ErxesMiddleTitle = styled.div`
 `;
 
 const ErxesStaffProfile = styled.div`
-  position: relative;
   width: 33%;
+
+  > .avatar {
+    position: relative;
+    display: inline-block;
+  }
 `;
 
 const StateSpan = styledTS<{ state: boolean }>(styled.span)`
@@ -63,7 +67,7 @@ const StateSpan = styledTS<{ state: boolean }>(styled.span)`
   width: 8px;
   bottom: 2px;
   position: absolute;
-  right: 56%;
+  right: 2px;
   background-color: ${props =>
     props.state ? colors.colorCoreGreen : colors.colorLightGray};
 `;
@@ -71,6 +75,7 @@ const StateSpan = styledTS<{ state: boolean }>(styled.span)`
 const ErxesSupporters = styled.div`
   padding-top: ${unitSpace};
   display: flex;
+  flex-wrap: wrap;
 
   img {
     border-radius: 22px;
@@ -83,10 +88,6 @@ const Supporters = styled(ErxesSupporters)`
   ${ErxesStaffProfile} {
     margin-right: ${dimensions.unitSpacing}px;
     width: auto;
-  }
-
-  ${StateSpan} {
-    display: none;
   }
 `;
 
@@ -187,6 +188,10 @@ const ErxesGreeting = styled.div`
 
 const ErxesFromCustomer = styled.li`
   text-align: right;
+`;
+
+const ToggleWrapper = styled.div`
+  margin-top: ${dimensions.unitSpacing}px;
 `;
 
 const FromCustomer = styled(ErxesMessage)`
@@ -347,9 +352,16 @@ const ContentBox = styled.div`
   }
 `;
 
+const ServerInfo = styled.div`
+  padding: ${unitSpace} 0;
+  font-size: 12px;
+  opacity: 0.9;
+`;
+
 export {
   ErxesTopbar,
   ErxesState,
+  ServerInfo,
   ErxesSupporters,
   ErxesMessage,
   ErxesMiddleTitle,
@@ -367,6 +379,7 @@ export {
   ErxesContent,
   WidgetPreviewStyled,
   GreetingInfo,
+  ToggleWrapper,
   LeftSide,
   RightSide,
   ContentBox,

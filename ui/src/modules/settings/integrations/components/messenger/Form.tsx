@@ -266,11 +266,9 @@ class CreateMessenger extends React.Component<Props, State> {
   };
 
   onStepClick = name => {
-    if (name !== 'greeting') {
-      return this.setState({ isStepActive: false });
-    }
-
-    return this.setState({ isStepActive: true });
+    this.setState({
+      isStepActive: name === 'greeting' || name === 'hours' ? true : false
+    });
   };
 
   renderButtons() {
@@ -476,6 +474,7 @@ class CreateMessenger extends React.Component<Props, State> {
                 textColor={textColor}
                 brands={this.props.brands}
                 brandId={brandId}
+                timezone={timezone}
                 logoPreviewStyle={logoPreviewStyle}
                 logoPreviewUrl={logoPreviewUrl}
                 isGreeting={isStepActive}

@@ -28,8 +28,10 @@ class Supporters extends React.Component<Props> {
 
       return (
         <ErxesStaffProfile key={u._id}>
-          <img src={getUserAvatar(u)} alt={details.fullName} />
-          <StateSpan state={isOnline || false} />
+          <div className="avatar">
+            <img src={getUserAvatar(u)} alt={details.fullName} />
+            <StateSpan state={isOnline || false} />
+          </div>
         </ErxesStaffProfile>
       );
     });

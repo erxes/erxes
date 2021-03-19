@@ -20,6 +20,7 @@ type Props = {
   logoPreviewUrl?: string;
   brandId?: string;
   brands?: IBrand[];
+  timezone?: string;
   isGreeting?: boolean;
   facebook?: string;
   twitter?: string;

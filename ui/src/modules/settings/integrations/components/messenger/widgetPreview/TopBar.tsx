@@ -11,6 +11,7 @@ import {
   ErxesTopbar,
   GreetingInfo,
   Links,
+  ServerInfo,
   Socials,
   TopBarIcon
 } from './styles';
@@ -28,6 +29,7 @@ type Props = {
   brands?: IBrand[];
   teamMembers: IUser[];
   isGreeting?: boolean;
+  timezone?: string;
   facebook?: string;
   twitter?: string;
   youtube?: string;
@@ -51,6 +53,23 @@ class TopBar extends React.Component<Props> {
       <a href="#icon">
         <Icon icon={icon} size={18} />
       </a>
+    );
+  }
+
+  renderServerInfo() {
+    const { isGreeting, timezone } = this.props;
+
+    if (!isGreeting) {
+      return null;
+    }
+
+    return (
+      <ServerInfo>
+        <div>
+          {__('Server time')}: {dayjs(new Date()).format('lll')}
+        </div>
+        {__('Timezone')}: {timezone ? timezone : __('Asia/Ulaanbaatar')}
+      </ServerInfo>
     );
   }
 
@@ -140,6 +159,7 @@ class TopBar extends React.Component<Props> {
 
           {this.renderGreetings()}
           {this.renderSupporters()}
+          {this.renderServerInfo()}
         </ErxesGreeting>
         {this.renderIcons('cancel', false, 11)}
       </>
