@@ -175,13 +175,9 @@ const boardCounts = `
 const cardFields = `
   _id
   name
-  customers {
-    _id
-  }
-  companies {
-    _id
-  }
-  assignedUserIds
+  customers
+  companies
+  assignedUsers
 `;
 
 const boardItemQueryParamsDef = `
