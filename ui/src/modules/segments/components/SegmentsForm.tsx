@@ -1,4 +1,3 @@
-import Icon from 'modules/common/components/Icon';
 import Spinner from 'modules/common/components/Spinner';
 import { Title } from 'modules/common/styles/main';
 import { IButtonMutateProps } from 'modules/common/types';
@@ -24,6 +23,16 @@ type Props = {
 };
 
 const SegmentsForm = (props: Props) => {
+  const renderHelpText = () => {
+    let text = 'User(s) will receive this message';
+
+    if (!['customer', 'lead', 'visitor'].includes(contentType)) {
+      text = `${contentType}(s) found.`;
+    }
+
+    return text;
+  };
+
   const renderSidebar = () => {
     const { count, counterLoading } = props;
 
@@ -32,14 +41,13 @@ const SegmentsForm = (props: Props) => {
         <FlexContent>
           <SegmentResult>
             <ResultCount>
-              <Icon icon="users-alt" />{' '}
               {counterLoading ? (
                 <Spinner objective={true} />
               ) : (
                 <span>{count}</span>
               )}
             </ResultCount>
-            {__('User(s) will receive this message')}
+            {renderHelpText()}
           </SegmentResult>
         </FlexContent>
       </Sidebar>

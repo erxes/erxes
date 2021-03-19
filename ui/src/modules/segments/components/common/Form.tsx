@@ -272,7 +272,10 @@ class Form extends React.Component<Props, State> {
     return (
       <FilterBox>
         {this.renderConditions()}
-        <AddConditionButton addCondition={this.addCondition} />
+        <AddConditionButton
+          contentType={this.props.contentType || ''}
+          addCondition={this.addCondition}
+        />
       </FilterBox>
     );
   };
