@@ -1,5 +1,5 @@
 import * as _ from 'underscore';
-import { Segments } from '../../../db/models';
+import { Segments, Stages } from '../../../db/models';
 import {
   SEGMENT_DATE_OPERATORS,
   SEGMENT_NUMBER_OPERATORS
@@ -10,7 +10,8 @@ import { getEsTypes } from '../coc/utils';
 
 export const fetchBySegments = async (
   segment: ISegment,
-  action: 'search' | 'count' = 'search'
+  action: 'search' | 'count' = 'search',
+  options?
 ): Promise<any> => {
   if (!segment || !segment.conditions) {
     return [];
@@ -28,6 +29,24 @@ export const fetchBySegments = async (
     propertyNegative.push({
       term: {
         status: 'deleted'
+      }
+    });
+  }
+
+  if (
+    options &&
+    options.pipelineId &&
+    ['deal', 'task', 'ticket'].includes(contentType)
+  ) {
+    const stages = await Stages.find(
+      { pipelineId: options.pipelineId },
+      { _id: 1 }
+    );
+    const stageIds = stages.map(s => s._id);
+
+    propertyPositive.push({
+      terms: {
+        stageId: stageIds
       }
     });
   }
@@ -77,6 +96,7 @@ export const fetchBySegments = async (
       negativeList: propertyNegative
     };
   }
+
   const response = await fetchElk('search', index, {
     _source: false,
     size: 10000,
@@ -464,10 +484,10 @@ const getIndexByContentType = (contentType: string) => {
   return index;
 };
 
-export const fetchSegment = async (action, segment: ISegment) => {
+export const fetchSegment = async (action, segment: ISegment, options?) => {
   const { contentType } = segment;
 
-  let response = await fetchBySegments(segment, action);
+  let response = await fetchBySegments(segment, action, options);
 
   if (action === 'search') {
     return response;
