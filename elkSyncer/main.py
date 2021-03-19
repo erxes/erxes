@@ -133,6 +133,15 @@ item_mapping = {
     'userId': {
         'type': 'keyword',
     },
+    'stageId': {
+        'type': 'keyword',
+    },
+    'modifiedBy': {
+        'type': 'keyword',
+    },
+    'status': {
+        'type': 'keyword',
+    },
     'assignedUserIds': {
         'type': 'keyword',
     },

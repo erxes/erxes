@@ -732,6 +732,8 @@ describe('boardQueries', () => {
 
   test('itemsCountBySegments', async () => {
     const segment = await segmentFactory({ contentType: 'deal' });
+    const stage = await stageFactory({});
+    await dealFactory({ stageId: stage._id });
 
     const mock = sinon.stub(elk, 'fetchElk').callsFake(() => {
       return Promise.resolve({ count: 1 });
@@ -744,7 +746,8 @@ describe('boardQueries', () => {
     `;
 
     const response = await graphqlRequest(qry, 'itemsCountBySegments', {
-      type: 'deal'
+      type: 'deal',
+      pipelineId: stage.pipelineId
     });
 
     expect(response[segment._id]).toBe(1);
