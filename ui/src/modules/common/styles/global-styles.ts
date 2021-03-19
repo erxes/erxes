@@ -128,6 +128,10 @@ a:hover {
 
 .modal-body {
   padding: 30px 40px;
+
+  &.md-padding {
+    padding: 20px;
+  }
 }
 
 .modal-body.less-padding {

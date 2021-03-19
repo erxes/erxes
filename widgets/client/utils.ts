@@ -285,7 +285,7 @@ export const checkLogicFulfilled = (logics: LogicParams[]) => {
     values[key] = false;
 
     // if fieldValue is set
-    if (operator === 'is') {
+    if (operator === 'hasAnyValue') {
       if (fieldValue) {
         values[key] = true;
       } else {
@@ -294,7 +294,7 @@ export const checkLogicFulfilled = (logics: LogicParams[]) => {
     }
 
     // if fieldValue is not set
-    if (operator === 'ins') {
+    if (operator === 'isUnknown') {
       if (!fieldValue) {
         values[key] = true;
       } else {
@@ -303,7 +303,7 @@ export const checkLogicFulfilled = (logics: LogicParams[]) => {
     }
 
     // if fieldValue equals logic value
-    if (operator === 'numbere' || operator === 'e') {
+    if (operator === 'is') {
       if (logicValue === fieldValue) {
         values[key] = true;
       } else {
@@ -312,7 +312,7 @@ export const checkLogicFulfilled = (logics: LogicParams[]) => {
     }
 
     // if fieldValue not equal to logic value
-    if (operator === 'numberdne' || operator === 'dne') {
+    if (operator === 'isNot') {
       if (logicValue !== fieldValue) {
         values[key] = true;
       } else {
@@ -322,7 +322,7 @@ export const checkLogicFulfilled = (logics: LogicParams[]) => {
 
     if (typeof logicValue === 'number') {
       // if number value: is greater than
-      if (operator === 'numberigt' && fieldValue) {
+      if (operator === 'greaterThan' && fieldValue) {
         if (fieldValue > logicValue) {
           values[key] = true;
         } else {
@@ -331,7 +331,7 @@ export const checkLogicFulfilled = (logics: LogicParams[]) => {
       }
 
       // if number value: is less than
-      if (operator === 'numberilt' && fieldValue) {
+      if (operator === 'lessThan' && fieldValue) {
         if (fieldValue < logicValue) {
           values[key] = true;
         } else {
@@ -342,7 +342,7 @@ export const checkLogicFulfilled = (logics: LogicParams[]) => {
 
     if (typeof logicValue === 'string') {
       // if string value contains logicValue
-      if (operator === 'c') {
+      if (operator === 'contains') {
         if (String(fieldValue).includes(logicValue)) {
           values[key] = true;
         } else {
@@ -351,13 +351,32 @@ export const checkLogicFulfilled = (logics: LogicParams[]) => {
       }
 
       // if string value does not contain logicValue
-      if (operator === 'dnc') {
+      if (operator === 'doesNotContain') {
         if (!String(fieldValue).includes(logicValue)) {
           values[key] = true;
         } else {
           values[key] = false;
         }
       }
+
+      // if string value startsWith logicValue
+      if (operator === 'startsWith') {
+        if (String(fieldValue).startsWith(logicValue)) {
+          values[key] = true;
+        } else {
+          values[key] = false;
+        }
+      }
+
+      // if string value endsWith logicValue
+      if (operator === 'endsWith') {
+        if (!String(fieldValue).endsWith(logicValue)) {
+          values[key] = true;
+        } else {
+          values[key] = false;
+        }
+      }
+      
     }
 
     if (validation && validation.includes('date')) {
@@ -365,7 +384,7 @@ export const checkLogicFulfilled = (logics: LogicParams[]) => {
       const logicDateValue = new Date(String(logicValue));
 
       // date is greather than
-      if (operator === 'dateigt') {
+      if (operator === 'dateGreaterThan') {
         if (dateValueToCheck > logicDateValue) {
           values[key] = true;
         } else {
@@ -374,7 +393,7 @@ export const checkLogicFulfilled = (logics: LogicParams[]) => {
       }
 
       // date is less than
-      if (operator === 'dateilt') {
+      if (operator === 'dateLessThan') {
         if (logicDateValue > dateValueToCheck) {
           values[key] = true;
         } else {
@@ -389,7 +408,7 @@ export const checkLogicFulfilled = (logics: LogicParams[]) => {
         typeof fieldValue === 'string' &&
         typeof logicValue === 'string'
       ) {
-        if (operator === 'dne') {
+        if (operator === 'isNot') {
           if (!fieldValue.includes(logicValue)) {
             values[key] = true;
           } else {
@@ -397,7 +416,7 @@ export const checkLogicFulfilled = (logics: LogicParams[]) => {
           }
         }
 
-        if (operator === 'e') {
+        if (operator === 'is') {
           if (fieldValue.includes(logicValue)) {
             values[key] = true;
           } else {

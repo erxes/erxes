@@ -11,6 +11,9 @@ type Props = {
 class FieldPreview extends React.Component<Props, {}> {
   render() {
     const { field, onClick } = this.props;
+    const hasLogic = field.logics ? field.logics.length > 0 : false;
+
+    console.log(field);
 
     const onClickItem = () => {
       if (onClick) {
@@ -19,8 +22,12 @@ class FieldPreview extends React.Component<Props, {}> {
     };
 
     return (
-      <FieldItem selectType={field.type === 'select'} onClick={onClickItem}>
-        <GenerateField field={field} />
+      <FieldItem
+        hasLogic={hasLogic}
+        selectType={field.type === 'select'}
+        onClick={onClickItem}
+      >
+        <GenerateField field={field} hasLogic={hasLogic} />
       </FieldItem>
     );
   }

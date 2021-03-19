@@ -6,6 +6,7 @@ export interface IFieldLogic {
   tempFieldId?: string;
   logicOperator: string;
   logicValue: string;
+  __typename?: string;
 }
 export interface IField {
   _id: string;

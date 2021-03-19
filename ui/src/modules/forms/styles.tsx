@@ -1,6 +1,6 @@
 import { colors, dimensions } from 'modules/common/styles';
 import { rgba } from 'modules/common/styles/color';
-import styled from 'styled-components';
+import styled, { css } from 'styled-components';
 import styledTS from 'styled-components-ts';
 import { Formgroup, SelectWrapper } from '../common/components/form/styles';
 
@@ -51,11 +51,29 @@ const FieldsWrapper = styled.div`
   margin: 0 -10px;
 `;
 
-const FieldItem = styledTS<{ selectType?: boolean; noPadding?: boolean }>(
-  styled.div
-)`
+const FormTop = styled.div`
+  background: ${colors.bgLightPurple};
+  margin: -25px -25px 20px -25px;
+  padding: 25px 25px 5px 25px;
+  border-bottom: 1px solid ${colors.borderPrimary};
+`;
+
+const FieldItem = styledTS<{
+  selectType?: boolean;
+  noPadding?: boolean;
+  hasLogic?: boolean;
+}>(styled.div)`
+
   padding: ${props => !props.noPadding && `10px 10px 0 10px`};
   flex: 1;
+  border-radius: 4px;
+
+  ${props =>
+    props.hasLogic &&
+    css`
+      border: 2px solid ${colors.colorCoreTeal};
+      margin-bottom: 10px;
+    `};
 
   input,
   textarea,
@@ -89,6 +107,10 @@ const FieldItem = styledTS<{ selectType?: boolean; noPadding?: boolean }>(
   textarea {
     overflow: auto;
     height: auto;
+  }
+
+  label {
+    margin-right: 0;
   }
 
   .required {
@@ -161,5 +183,6 @@ export {
   FlexRow,
   FlexWrapper,
   Title,
-  FieldsWrapper
+  FieldsWrapper,
+  FormTop
 };

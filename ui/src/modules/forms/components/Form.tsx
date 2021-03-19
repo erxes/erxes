@@ -7,7 +7,7 @@ import { IField } from 'modules/settings/properties/types';
 import { Description } from 'modules/settings/styles';
 import React from 'react';
 import FormGroup from '../../common/components/form/Group';
-import { Title } from '../styles';
+import { FormTop, Title } from '../styles';
 import { IForm, IFormData } from '../types';
 import FieldChoices from './FieldChoices';
 import FieldForm from './FieldForm';
@@ -206,12 +206,12 @@ class Form extends React.Component<Props, State> {
     return (
       <FlexContent>
         <LeftItem>
+          <FormTop>{this.renderOptionalFields()}</FormTop>
           <Title>{__('Add a new field')}</Title>
           <Description>
             {__('Choose a field type from the options below.')}
           </Description>
           <FieldChoices onChoiceClick={this.onChoiceClick} />
-          {this.renderOptionalFields()}
         </LeftItem>
         {currentField && (
           <FieldForm

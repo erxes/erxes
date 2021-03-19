@@ -55,10 +55,6 @@ export type EditFormMutationResponse = {
   }) => Promise<any>;
 };
 
-export type AddFieldMutationVariables = {
-  createFieldsData: IField[];
-};
-
 export type BulkEditAndAddMutationVariables = {
   contentType: string;
   contentTypeId?: string;
@@ -66,25 +62,9 @@ export type BulkEditAndAddMutationVariables = {
   editingFields?: IField[];
 };
 
-export type AddFieldMutationResponse = {
-  addFieldMutation: (params: {
-    variables: AddFieldMutationVariables;
-  }) => Promise<void>;
-};
-
 export type FieldsBulkAddAndEditMutationResponse = {
   fieldsBulkAddAndEditMutation: (params: {
     variables: BulkEditAndAddMutationVariables;
-  }) => Promise<void>;
-};
-
-export type EditFieldMutationVariables = {
-  updateFieldsData: IField[];
-};
-
-export type EditFieldMutationResponse = {
-  editFieldMutation: (params: {
-    variables: EditFieldMutationVariables;
   }) => Promise<void>;
 };
 

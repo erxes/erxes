@@ -5,13 +5,14 @@ import ControlLabel from 'modules/common/components/form/Label';
 import Uploader from 'modules/common/components/Uploader';
 import { IAttachment } from 'modules/common/types';
 import React from 'react';
-import { SelectInput } from '../styles';
+import { LogicIndicator, SelectInput } from '../styles';
 import { IField } from '../types';
 
 type Props = {
   field: IField;
   onValueChange?: (data: { _id: string; value: any }) => void;
   defaultValue?: any;
+  hasLogic?: boolean;
 };
 
 type State = {
@@ -270,14 +271,14 @@ export default class GenerateField extends React.Component<Props, State> {
   }
 
   render() {
-    const { field } = this.props;
+    const { field, hasLogic } = this.props;
 
     return (
       <FormGroup>
         <ControlLabel ignoreTrans={true} required={field.isRequired}>
           {field.text}
         </ControlLabel>
-
+        {hasLogic && <LogicIndicator>Logic</LogicIndicator>}
         {field.description ? <p>{field.description}</p> : null}
 
         {this.renderControl()}

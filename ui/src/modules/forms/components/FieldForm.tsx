@@ -20,7 +20,7 @@ import {
   PreviewSection,
   ShowPreview
 } from '../styles';
-import FieldLogic from './FieldLogic';
+import FieldLogics from './FieldLogics';
 import FieldPreview from './FieldPreview';
 
 type Props = {
@@ -84,10 +84,7 @@ class FieldForm extends React.Component<Props, State> {
   onSubmit = e => {
     e.persist();
 
-    const { field } = this.state;
-    const { onSubmit } = this.props;
-
-    onSubmit(field);
+    this.props.onSubmit(this.state.field);
   };
 
   setFieldAttrChanges(
@@ -260,13 +257,15 @@ class FieldForm extends React.Component<Props, State> {
 
           {this.renderCustomProperty()}
         </CollapseContent>
-        <CollapseContent title={__('Logic')} compact={true}>
-          <FieldLogic
-            fields={fields}
-            currentField={field}
-            onFieldChange={this.onFieldChange}
-          />
-        </CollapseContent>
+        {fields.length > 0 && (
+          <CollapseContent title={__('Logic')} compact={true}>
+            <FieldLogics
+              fields={fields}
+              currentField={field}
+              onFieldChange={this.onFieldChange}
+            />
+          </CollapseContent>
+        )}
 
         <Modal.Footer>
           <Button
@@ -347,7 +346,9 @@ class FieldForm extends React.Component<Props, State> {
             {mode === 'create' ? 'Add' : 'Edit'} {field.type} field
           </Modal.Title>
         </Modal.Header>
-        <Modal.Body id="ModalBody">{this.renderContent()}</Modal.Body>
+        <Modal.Body id="ModalBody" className="md-padding">
+          {this.renderContent()}
+        </Modal.Body>
       </Modal>
     );
   }

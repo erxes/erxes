@@ -1,94 +1,106 @@
 import Button from 'modules/common/components/Button';
 import { FormControl, FormGroup } from 'modules/common/components/form';
 import { IField, IFieldLogic } from 'modules/settings/properties/types';
-import React, { useState } from 'react';
+import React from 'react';
+import {
+  dateTypeChoices,
+  numberTypeChoices,
+  stringTypeChoices
+} from '../constants';
 
 type Props = {
-  onFieldChange: (
-    name: string,
-    value: string | boolean | string[] | IFieldLogic[]
-  ) => void;
+  onChangeLogic: (name: string, value: string | number, index: number) => void;
+  logic: IFieldLogic;
   fields: IField[];
-  currentField: IField;
+  index: number;
+  removeLogic: (index: number) => void;
 };
 
-const showOptions = [
-  { value: 'show', label: 'Show this field' },
-  { value: 'hide', label: 'Hide this field' }
-];
-
 function FieldLogic(props: Props) {
-  const { fields, currentField, onFieldChange } = props;
+  const { fields, logic, onChangeLogic, removeLogic, index } = props;
 
-  const [logics, setLogics] = useState(
-    currentField.logics || [
-      {
-        fieldId: '',
-        tempFieldId: '',
-        logicOperator: 'c',
-        logicValue: 'test'
+  const getSelectedField = () => {
+    return fields.find(
+      field => field._id === logic.fieldId || field._id === logic.tempFieldId
+    );
+  };
+
+  const getOperatorOptions = () => {
+    const selectedField = getSelectedField();
+
+    console.log('selected', selectedField);
+    if (selectedField && selectedField.validation) {
+      if (selectedField.validation === 'number') {
+        return numberTypeChoices;
       }
-    ]
-  );
 
-  const onChangeLogicAction = e =>
-    onFieldChange('logicAction', e.currentTarget.value);
-
-  const onChangeOtherField = (name, value, index) => {
-    // find current editing one
-    const currentLogic = logics.find((l, i) => i === index);
-
-    // set new value
-    if (currentLogic) {
-      currentLogic[name] = value;
+      if (selectedField.validation.includes('date')) {
+        return dateTypeChoices;
+      }
     }
 
-    setLogics(logics);
-    onFieldChange('logics', logics);
+    return stringTypeChoices;
   };
 
-  const addLogic = () => {
-    setLogics([
-      ...logics,
-      {
-        fieldId: '',
-        tempFieldId: '',
-        logicOperator: 'c',
-        logicValue: 'test'
-      }
-    ]);
-  };
-
-  const renderLogic = (logic: IFieldLogic, index: number) => {
-    const onChangeFieldId = e => {
-      onChangeOtherField('fieldId', e.target.value, index);
-    };
-
-    const remove = () => {
-      setLogics(logics.filter((l, i) => i !== index));
-      onFieldChange('logics', logics);
-    };
-
-    return (
-      <FormGroup key={index}>
-        <FormControl
-          componentClass="select"
-          value={logic.fieldId}
-          name="fieldId"
-          onChange={onChangeFieldId}
-        >
-          {fields
-            .filter(field => field._id !== currentField._id)
-            .map(field => (
-              <option key={field._id} value={field._id}>
-                {field.text}
-              </option>
-            ))}
-        </FormControl>
-
-        <Button size="small" onClick={remove} btnStyle="danger" icon="times" />
-      </FormGroup>
+  const onChangeFieldId = e => {
+    const value = e.target.value;
+    onChangeLogic('fieldId', '', index);
+    onChangeLogic(
+      value.startsWith('tempId') ? 'tempFieldId' : 'fieldId',
+      value,
+      index
     );
+  };
+
+  const onChangeLogicOperator = e => {
+    onChangeLogic('logicOperator', e.target.value, index);
+  };
+
+  const onChangeLogicValue = e => {
+    onChangeLogic('logicValue', e.target.value, index);
+  };
+
+  const remove = () => {
+    removeLogic(index);
+  };
+
+  const renderLogicValue = () => {
+    const selectedField = getSelectedField();
+
+    if (selectedField) {
+      if (
+        selectedField.type === 'check' ||
+        selectedField.type === 'select' ||
+        selectedField.type === 'radio'
+      ) {
+        return (
+          <FormControl
+            componentClass="select"
+            defaultValue={logic.logicValue}
+            name="logicValue"
+            onChange={onChangeLogicValue}
+          >
+            <option value="" />
+            {selectedField.options &&
+              selectedField.options.map(option => (
+                <option key={option} value={option}>
+                  {option}
+                </option>
+              ))}
+          </FormControl>
+        );
+      }
+
+      return (
+        <FormControl
+          defaultValue={logic.logicValue}
+          name="logicValue"
+          onChange={onChangeLogicValue}
+        />
+      );
+    }
+
+    return null;
   };
 
   return (
@@ -96,15 +108,30 @@ function FieldLogic(props: Props) {
       <FormGroup>
         <FormControl
           componentClass="select"
-          defaultValue={currentField.logicAction}
-          name="logicAction"
-          options={showOptions}
-          onChange={onChangeLogicAction}
+          value={logic.fieldId || logic.tempFieldId}
+          name="fieldId"
+          onChange={onChangeFieldId}
+        >
+          <option value="" />
+          {fields.map(field => (
+            <option key={field._id} value={field._id}>
+              {field.text}
+            </option>
+          ))}
+        </FormControl>
+      </FormGroup>
+      <FormGroup>
+        <FormControl
+          componentClass="select"
+          defaultValue={logic.logicOperator}
+          name="logicOperator"
+          options={getOperatorOptions()}
+          onChange={onChangeLogicOperator}
         />
       </FormGroup>
-      {logics.map((logic, index) => renderLogic(logic, index))}
 
-      <Button size="small" onClick={addLogic} btnStyle="success" icon="times" />
+      <FormGroup>{renderLogicValue()}</FormGroup>
+      <Button size="small" onClick={remove} btnStyle="danger" icon="times" />
     </>
   );
 }
