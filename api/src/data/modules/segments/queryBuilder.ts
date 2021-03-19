@@ -17,14 +17,14 @@ export const fetchBySegments = async (
   }
 
   const { contentType } = segment;
-  const index = contentType === 'company' ? 'companies' : 'customers';
-  const idField = contentType === 'company' ? 'companyId' : 'customerId';
+
+  const index = getIndexByContentType(contentType);
   const typesMap = getEsTypes(contentType);
 
   const propertyPositive: any[] = [];
   const propertyNegative: any[] = [];
 
-  if (contentType !== 'company') {
+  if (['customer', 'lead', 'visitor'].includes(contentType)) {
     propertyNegative.push({
       term: {
         status: 'deleted'
@@ -47,6 +47,8 @@ export const fetchBySegments = async (
   let idsByEvents = [];
 
   if (eventPositive.length > 0 || eventNegative.length > 0) {
+    const idField = contentType === 'company' ? 'companyId' : 'customerId';
+
     const eventsResponse = await fetchElk('search', 'events', {
       _source: idField,
       size: 10000,
@@ -75,7 +77,6 @@ export const fetchBySegments = async (
       negativeList: propertyNegative
     };
   }
-
   const response = await fetchElk('search', index, {
     _source: false,
     size: 10000,
@@ -440,3 +441,52 @@ function elkConvertConditionToQuery(args: {
     negative.push(negativeQuery);
   }
 }
+
+const getIndexByContentType = (contentType: string) => {
+  let index = 'customers';
+
+  if (contentType === 'company') {
+    index = 'companies';
+  }
+
+  if (contentType === 'deal') {
+    index = 'deals';
+  }
+
+  if (contentType === 'task') {
+    index = 'tasks';
+  }
+
+  if (contentType === 'ticket') {
+    index = 'tickets';
+  }
+
+  return index;
+};
+
+export const fetchSegment = async (action, segment: ISegment) => {
+  const { contentType } = segment;
+
+  let response = await fetchBySegments(segment, action);
+
+  if (action === 'search') {
+    return response;
+  }
+
+  try {
+    const { positiveList, negativeList } = await response;
+
+    response = await fetchElk('count', getIndexByContentType(contentType), {
+      query: {
+        bool: {
+          must: positiveList,
+          must_not: negativeList
+        }
+      }
+    });
+
+    return response.count;
+  } catch (e) {
+    return 0;
+  }
+};

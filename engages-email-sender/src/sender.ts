@@ -202,18 +202,21 @@ export const start = async (data: {
         }
       });
       const msg = `Sent email to: ${customer.primaryEmail}`;
+
       debugEngages(msg);
+
       await Logs.createLog(engageMessageId, 'success', msg);
+
+      await Stats.updateOne({ engageMessageId }, { $inc: { total: 1 } });
     } catch (e) {
       debugError(e.message);
+
       await Logs.createLog(
         engageMessageId,
         'failure',
         `Error occurred while sending email to ${customer.primaryEmail}: ${e.message}`
       );
     }
-
-    await Stats.updateOne({ engageMessageId }, { $inc: { total: 1 } });
   };
 
   const unverifiedEmailsLimit = parseInt(

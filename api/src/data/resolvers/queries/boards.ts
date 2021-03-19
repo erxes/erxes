@@ -2,11 +2,13 @@ import {
   Boards,
   Deals,
   Pipelines,
+  Segments,
   Stages,
   Tasks,
   Tickets
 } from '../../../db/models';
 import { BOARD_STATUSES } from '../../../db/models/definitions/constants';
+import { fetchSegment } from '../../modules/segments/queryBuilder';
 import { moduleRequireLogin } from '../../permissions/wrappers';
 import { IContext } from '../../types';
 import { paginate, regexSearchText } from '../../utils';
@@ -31,6 +33,7 @@ export interface IListParams extends IConformityQueryParams {
   sortDirection?: number;
   labelIds?: string[];
   userIds?: string[];
+  segment?: string;
 }
 
 const boardQueries = {
@@ -309,6 +312,18 @@ const boardQueries = {
       ticketUrl,
       taskUrl
     };
+  },
+
+  async itemsCountBySegments(_root, { type }: { type: string }) {
+    const segments = await Segments.find({ contentType: type });
+
+    const counts = {};
+
+    for (const segment of segments) {
+      counts[segment._id] = await fetchSegment('count', segment);
+    }
+
+    return counts;
   }
 };
 

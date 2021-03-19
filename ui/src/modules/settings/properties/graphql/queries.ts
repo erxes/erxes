@@ -1,36 +1,58 @@
+const genericFields = `
+  _id
+  description
+  order
+  isVisible
+  isVisibleInDetail
+  contentType
+  isDefinedByErxes
+`;
+
+const commonFields = `
+  type
+  text
+  field
+
+  canHide
+  validation
+  options
+  groupId
+
+  ${genericFields}
+
+  lastUpdatedUser {
+    details {
+      fullName
+    }
+  }
+`;
+
+const commonFieldsGroups = `
+  name
+  ${genericFields}
+
+  lastUpdatedUser {
+    details {
+      fullName
+    }
+  }
+  fields  {
+    ${commonFields}
+  }
+}
+`;
+
 const fieldsGroups = `
   query fieldsGroups($contentType: String!) {
     fieldsGroups(contentType: $contentType) {
-      _id
-      name
-      description
-      order
-      isVisible
-      lastUpdatedUser {
-        details {
-          fullName
-        }
-      }
-      isDefinedByErxes
-      fields {
-        _id
-        contentType
-        type
-        text
-        isVisible
-        validation
-        order
-        options
-        groupId
-        description
-        isDefinedByErxes
-        lastUpdatedUser {
-          details {
-            fullName
-          }
-        }
-      }
-    }
+      ${commonFieldsGroups}
+  }
+`;
+
+const getSystemFieldsGroup = `
+  query getSystemFieldsGroup($contentType: String!) {
+    getSystemFieldsGroup(contentType: $contentType) {
+      ${commonFieldsGroups}
   }
 `;
 
@@ -46,6 +68,7 @@ const fields = `
       isRequired
       order
       associatedFieldId
+
       associatedField {
         _id
         text
@@ -54,7 +77,19 @@ const fields = `
   }
 `;
 
+const inboxFields = `
+  query fieldsInbox {
+    fieldsInbox {
+      customer { ${commonFields} }
+      device { ${commonFields} }
+      conversation { ${commonFields} }
+    }
+  }
+`;
+
 export default {
   fieldsGroups,
-  fields
+  fields,
+  getSystemFieldsGroup,
+  inboxFields
 };

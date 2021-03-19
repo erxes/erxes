@@ -9,6 +9,7 @@ export const types = `
     _id: String!
     kind: String
     tagIds: [String]
+    customerTagIds: [String]
     segmentIds: [String]
     brandIds: [String]
     customerIds: [String]
@@ -33,7 +34,7 @@ export const types = `
 
     scheduleDate: EngageScheduleDate
     segments: [Segment]
-    tags: [Tag]
+    customerTags: [Tag]
     brands: [Brand]
     fromUser: User
     getTags: [Tag]
@@ -113,11 +114,8 @@ export const types = `
 const listParams = `
   kind: String
   status: String
-  segmentIds: [String]
-  brandIds: [String]
-  tagIds: [String]
   tag: String
-  ids: [String]
+  ids: String
   page: Int
   perPage: Int
 `;
@@ -144,7 +142,7 @@ const commonParams = `
   scheduleDate: Date,
   type: String
   segmentIds: [String],
-  tagIds: [String],
+  customerTagIds: [String],
   brandIds: [String],
   customerIds: [String],
   email: EngageMessageEmail,

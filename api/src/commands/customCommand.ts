@@ -1,49 +1,63 @@
 import * as dotenv from 'dotenv';
 import { connect } from '../db/connection';
-import { Customers } from '../db/models';
+import { Permissions } from '../db/models';
+import { IPermissionDocument } from '../db/models/definitions/permissions';
 
 dotenv.config();
+
+const fixPermissions = async (
+  permissions: IPermissionDocument[],
+  checkAction: string
+) => {
+  const ids: string[] = [];
+
+  for (const perm of permissions) {
+    if (
+      perm.requiredActions &&
+      perm.requiredActions.length > 0 &&
+      !perm.requiredActions.includes(checkAction)
+    ) {
+      ids.push(perm._id);
+    }
+  }
+
+  if (ids.length > 0) {
+    console.log(`Fixing ${ids.length} permissions for action "${checkAction}"`);
+
+    await Permissions.updateMany(
+      { _id: { $in: ids } },
+      { $push: { requiredActions: checkAction } }
+    );
+  }
+};
 
 const command = async () => {
   await connect();
 
-  const argv = process.argv;
-  const limit = argv.pop();
+  const inboxPermissions = await Permissions.find({
+    module: 'inbox',
+    action: 'inboxAll'
+  });
+  const brandPermissions = await Permissions.find({
+    module: 'brands',
+    action: 'brandsAll'
+  });
+  const channelPermissions = await Permissions.find({
+    module: 'channels',
+    action: 'channelsAll'
+  });
+  const productPermissions = await Permissions.find({
+    module: 'products',
+    action: 'productsAll'
+  });
 
-  const selector = {
-    relatedIntegrationIds: { $exists: false },
-    integrationId: { $exists: true, $ne: null },
-    profileScore: { $gt: 0 }
-  };
+  await fixPermissions(inboxPermissions, 'conversationResolveAll');
 
-  const customers = await Customers.find(selector).limit(
-    limit ? parseInt(limit, 10) : 10000
-  );
+  await fixPermissions(brandPermissions, 'exportBrands');
 
-  console.log(`Limit: ${limit}, length: ${customers.length}`);
+  await fixPermissions(channelPermissions, 'exportChannels');
 
-  const bulkOptions: any[] = [];
-
-  for (const customer of customers) {
-    if (!customer.integrationId) {
-      continue;
-    }
-
-    bulkOptions.push({
-      updateOne: {
-        filter: {
-          _id: customer._id
-        },
-        update: {
-          $set: {
-            relatedIntegrationIds: [customer.integrationId]
-          }
-        }
-      }
-    });
-  }
-
-  await Customers.bulkWrite(bulkOptions);
+  await fixPermissions(productPermissions, 'productsMerge');
 
   process.exit();
 };

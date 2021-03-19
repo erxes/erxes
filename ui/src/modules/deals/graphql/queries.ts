@@ -1,4 +1,7 @@
-import { commonFields } from 'modules/boards/graphql/mutations';
+import {
+  commonFields,
+  commonListFields
+} from 'modules/boards/graphql/mutations';
 import {
   conformityQueryFieldDefs,
   conformityQueryFields
@@ -18,6 +21,10 @@ const commonParams = `
   $sortField: String,
   $sortDirection: Int,
   $userIds: [String],
+  $segment: String,
+  $assignedToMe: String,
+  $startDate: String,
+  $endDate: String,
   ${conformityQueryFields}
 `;
 
@@ -35,6 +42,10 @@ const commonParamDefs = `
   sortField: $sortField,
   sortDirection: $sortDirection,
   userIds: $userIds,
+  segment: $segment,
+  assignedToMe: $assignedToMe,
+  startDate: $startDate,
+  endDate: $endDate,
   ${conformityQueryFieldDefs}
 `;
 
@@ -52,9 +63,6 @@ const dealsTotalAmounts = `
     dealsTotalAmounts(
       ${commonParamDefs}
     ) {
-      _id
-      dealCount
-      totalForType {
         _id
         name
         currencies {
@@ -63,7 +71,6 @@ const dealsTotalAmounts = `
         }
       }
     }
-  }
 `;
 
 const deals = `
@@ -79,9 +86,26 @@ const deals = `
       skip: $skip,
       ${commonParamDefs}
     ) {
-      ${dealFields}
-      ${commonFields}
+      products
+      amount
+      ${commonListFields}
     }
+  }
+`;
+
+const dealsTotalCount = `
+  query dealsTotalCount(
+    $initialStageId: String,
+    $stageId: String,
+    $skip: Int,
+    ${commonParams}
+  ) {
+    dealsTotalCount(
+      initialStageId: $initialStageId,
+      stageId: $stageId,
+      skip: $skip,
+      ${commonParamDefs}
+    )
   }
 `;
 
@@ -136,6 +160,7 @@ const productDetail = `
 
 export default {
   deals,
+  dealsTotalCount,
   dealDetail,
   productDetail,
   dealsTotalAmounts,

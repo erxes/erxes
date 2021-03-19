@@ -8,7 +8,8 @@ import {
   IConformityFilter,
   IConformityRelated,
   IConformityRemove,
-  IConformitySaved
+  IConformitySaved,
+  IGetConformityBulk
 } from './definitions/conformities';
 
 const getSavedAnyConformityMatch = ({
@@ -52,6 +53,7 @@ export interface IConformityModel extends Model<IConformityDocument> {
   savedConformity(doc: IConformitySaved): Promise<string[]>;
   relatedConformity(doc: IConformityRelated): Promise<string[]>;
   filterConformity(doc: IConformityFilter): Promise<string[]>;
+  getConformities(doc: IGetConformityBulk): Promise<IConformityDocument[]>;
 }
 
 export const loadConformityClass = () => {
@@ -203,6 +205,31 @@ export const loadConformityClass = () => {
       ]);
 
       return relTypeIds.map(item => String(item.relTypeId));
+    }
+
+    public static async getConformities(doc: IGetConformityBulk) {
+      return Conformities.aggregate([
+        {
+          $match: {
+            $or: [
+              {
+                $and: [
+                  { mainType: doc.mainType },
+                  { mainTypeId: { $in: doc.mainTypeIds } },
+                  { relType: { $in: doc.relTypes } }
+                ]
+              },
+              {
+                $and: [
+                  { mainType: { $in: doc.relTypes } },
+                  { relType: doc.mainType },
+                  { relTypeId: { $in: doc.mainTypeIds } }
+                ]
+              }
+            ]
+          }
+        }
+      ]);
     }
 
     public static async relatedConformity(doc: IConformityRelated) {

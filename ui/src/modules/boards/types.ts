@@ -151,6 +151,9 @@ export interface IItem {
     timeSpent: number;
     startDate?: string;
   };
+  customFieldsData?: {
+    [key: string]: any;
+  };
 }
 
 export interface IDraggableLocation {
@@ -315,6 +318,10 @@ export interface IFilterParams extends ISavedConformity {
   closeDateType?: string;
   labelIds?: string;
   userIds?: string;
+  segment?: string;
+  assignedToMe?: string;
+  startDate?: string;
+  endDate?: string;
 }
 
 export interface INonFilterParams {
@@ -344,3 +351,14 @@ export type ConvertToMutationResponse = {
     variables: ConvertToMutationVariables;
   }) => Promise<any>;
 };
+
+export type StagesSortItemsMutationResponse = ({
+  variables
+}: {
+  variables: {
+    stageId: string;
+    type: string;
+    proccessId: string;
+    sortType: string;
+  };
+}) => Promise<any>;

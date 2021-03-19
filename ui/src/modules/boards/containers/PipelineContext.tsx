@@ -58,6 +58,7 @@ interface IStore {
   stageIds: string[];
   onLoadStage: (stageId: string, items: IItem[]) => void;
   scheduleStage: (stageId: string) => void;
+  refetchStage: (stageId: string) => void;
   onDragEnd: (result: IDragResult) => void;
   onAddItem: (stageId: string, item: IItem, aboveItemId?: string) => void;
   onRemoveItem: (itemId: string, stageId: string) => void;
@@ -188,26 +189,30 @@ class PipelineProviderInner extends React.Component<Props, State> {
             });
           }
 
-          // refetch stages info ===
-          const changedStageIds: string[] = [item.stageId];
+          if (action === 'reOrdered') {
+            this.refetchStage(destinationStageId);
+          } else {
+            // refetch stages info ===
+            const changedStageIds: string[] = [item.stageId];
 
-          if (
-            destinationStageId &&
-            !changedStageIds.includes(destinationStageId)
-          ) {
-            changedStageIds.push(destinationStageId);
-          }
+            if (
+              destinationStageId &&
+              !changedStageIds.includes(destinationStageId)
+            ) {
+              changedStageIds.push(destinationStageId);
+            }
 
-          if (oldStageId && !changedStageIds.includes(oldStageId)) {
-            changedStageIds.push(oldStageId);
-          }
+            if (oldStageId && !changedStageIds.includes(oldStageId)) {
+              changedStageIds.push(oldStageId);
+            }
 
-          for (const id of changedStageIds) {
-            client.query({
-              query: gql(queries.stageDetail),
-              fetchPolicy: 'network-only',
-              variables: { _id: id }
-            });
+            for (const id of changedStageIds) {
+              client.query({
+                query: gql(queries.stageDetail),
+                fetchPolicy: 'network-only',
+                variables: { _id: id }
+              });
+            }
           }
         }
       }
@@ -318,7 +323,10 @@ class PipelineProviderInner extends React.Component<Props, State> {
       assignedUserIds: queryParams.assignedUserIds,
       extraParams: options.getExtraParams(queryParams),
       closeDateType: queryParams.closeDateType,
-      userIds: queryParams.userIds
+      userIds: queryParams.userIds,
+      segment: queryParams.segment,
+      startDate: queryParams.startDate,
+      endDate: queryParams.endDate
     };
   };
 
@@ -410,10 +418,20 @@ class PipelineProviderInner extends React.Component<Props, State> {
       task.isComplete = true;
     }
 
+    const newItemIds = [...itemIds, ...items.map(item => item._id)];
+
     this.setState({
-      itemIds: [...itemIds, ...items.map(item => item._id)],
+      itemIds: Array.from(new Set(newItemIds)),
       itemMap: { ...itemMap, [stageId]: items },
       stageLoadMap: { ...stageLoadMap, [stageId]: 'loaded' }
+    });
+  };
+
+  refetchStage = (stageId: string) => {
+    const { stageLoadMap } = this.state;
+
+    this.setState({
+      stageLoadMap: { ...stageLoadMap, [stageId]: 'readyToLoad' }
     });
   };
 
@@ -479,16 +497,6 @@ class PipelineProviderInner extends React.Component<Props, State> {
     const { itemMap, itemIds } = this.state;
     const items = itemMap[stageId] || [];
 
-    if (aboveItemId === undefined) {
-      this.setState({
-        itemMap: { ...itemMap, [stageId]: [item, ...items] },
-        itemIds: [...itemIds, item._id]
-      });
-
-      return;
-    }
-
-    // archive recovery to stages begin
     if (!aboveItemId) {
       this.setState({
         itemMap: { ...itemMap, [stageId]: [item, ...items] },
@@ -623,6 +631,7 @@ class PipelineProviderInner extends React.Component<Props, State> {
             onDragEnd: this.onDragEnd,
             onLoadStage: this.onLoadStage,
             scheduleStage: this.scheduleStage,
+            refetchStage: this.refetchStage,
             onAddItem: this.onAddItem,
             onRemoveItem: this.onRemoveItem,
             onUpdateItem: this.onUpdateItem,

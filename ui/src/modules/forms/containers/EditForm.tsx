@@ -2,7 +2,6 @@ import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
 import { Alert, withProps } from 'modules/common/utils';
 import { IIntegration } from 'modules/settings/integrations/types';
-import { queries as fieldQueries } from 'modules/settings/properties/graphql';
 import { FieldsQueryResponse, IField } from 'modules/settings/properties/types';
 import React from 'react';
 import { graphql } from 'react-apollo';
@@ -174,7 +173,7 @@ export default withProps<Props>(
       Props,
       FieldsQueryResponse,
       { contentType: string; contentTypeId: string }
-    >(gql(fieldQueries.fields), {
+    >(gql(queries.fields), {
       name: 'fieldsQuery',
       options: ({ formId }) => {
         return {

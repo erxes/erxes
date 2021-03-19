@@ -253,6 +253,7 @@ interface IEngageMessageFactoryInput {
   scheduleDate?: IScheduleDate;
   createdBy?: string;
   createdAt?: Date;
+  customerTagIds?: string[];
 }
 
 export const engageMessageFactory = (
@@ -268,6 +269,7 @@ export const engageMessageFactory = (
     segmentIds: params.segmentIds || [],
     brandIds: params.brandIds || [],
     tagIds: params.tagIds || [],
+    customerTagIds: params.customerTagIds || [],
     isLive: params.isLive || false,
     isDraft: params.isDraft || false,
     messenger: params.messenger,
@@ -619,6 +621,8 @@ interface IFieldFactoryInput {
   groupId?: string;
   isDefinedByErxes?: boolean;
   isVisible?: boolean;
+  isVisibleInDetail?: boolean;
+  canHide?: boolean;
   options?: string[];
   associatedFieldId?: string;
 }
@@ -643,9 +647,21 @@ export const fieldFactory = async (params: IFieldFactoryInput) => {
       params.visible === undefined || params.visible === null
         ? true
         : params.visible,
+    isVisibleInDetail:
+      params.isVisibleInDetail === undefined ||
+      params.isVisibleInDetail === null
+        ? true
+        : params.isVisibleInDetail,
+    canHide:
+      params.canHide === undefined || params.canHide === null
+        ? true
+        : params.canHide,
     groupId: params.groupId || (groupObj ? groupObj._id : ''),
-    isDefinedByErxes: params.isDefinedByErxes,
-    associatedFieldId: params.associatedFieldId
+    associatedFieldId: params.associatedFieldId,
+    isDefinedByErxes:
+      params.isDefinedByErxes === undefined || params.isDefinedByErxes === null
+        ? false
+        : params.isDefinedByErxes
   });
 };
 
@@ -1316,6 +1332,7 @@ interface IFieldGroupFactoryInput {
   contentType?: string;
   isDefinedByErxes?: boolean;
   isVisible?: boolean;
+  order?: number;
 }
 
 export const fieldGroupFactory = async (params: IFieldGroupFactoryInput) => {
@@ -1324,7 +1341,8 @@ export const fieldGroupFactory = async (params: IFieldGroupFactoryInput) => {
     contentType: params.contentType || FIELDS_GROUPS_CONTENT_TYPES.CUSTOMER,
     description: faker.random.word(),
     isDefinedByErxes: params.isDefinedByErxes || false,
-    isVisible: true
+    isVisible: true,
+    order: params.order || 0
   };
 
   const groupObj = await FieldsGroups.create(doc);

@@ -13,7 +13,7 @@ import { __ } from 'modules/common/utils';
 import React from 'react';
 
 type Props = {
-  stageId: string;
+  stageId?: string;
   item: IItem;
   onClick?: () => void;
   isFormVisible?: boolean;

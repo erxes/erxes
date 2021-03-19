@@ -75,4 +75,5 @@ export default `
   }
   productBoardLink
   isFacebookTaggedMessage
+  customFieldsData
 `;

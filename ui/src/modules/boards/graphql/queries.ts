@@ -220,6 +220,12 @@ const deals = `
   } 
 `;
 
+const itemsCountBySegments = `
+  query itemsCountBySegments($type: String!) {
+    itemsCountBySegments(type: $type)
+  } 
+`;
+
 export default {
   archivedStages,
   archivedStagesCount,
@@ -234,6 +240,7 @@ export default {
   stageDetail,
   pipelineLabels,
   pipelineLabelDetail,
+  itemsCountBySegments,
   tasks,
   deals,
   tickets

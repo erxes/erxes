@@ -6,6 +6,7 @@ import BasicInfo from 'modules/companies/containers/detail/BasicInfo';
 import { ICompany } from 'modules/companies/types';
 import { UserHeader } from 'modules/customers/styles';
 import Wrapper from 'modules/layout/components/Wrapper';
+import { IField } from 'modules/settings/properties/types';
 import React from 'react';
 import InfoSection from '../common/InfoSection';
 import LeftSidebar from './LeftSidebar';
@@ -13,6 +14,7 @@ import RightSidebar from './RightSidebar';
 
 type Props = {
   company: ICompany;
+  fields: IField[];
   currentUser: IUser;
   taggerRefetchQueries?: any[];
 };

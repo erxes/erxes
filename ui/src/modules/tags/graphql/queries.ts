@@ -10,6 +10,7 @@ const tags = `
       totalObjectCount
       parentId
       order
+      relatedIds
     }
   }
 `;
