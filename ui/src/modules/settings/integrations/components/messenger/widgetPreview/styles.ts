@@ -358,6 +358,37 @@ const ServerInfo = styled.div`
   opacity: 0.9;
 `;
 
+const VideoCallRequestWrapper = styledTS<{ color: string }>(styled.div)`
+  background: ${colors.colorWhite};
+  border-radius: ${unitSpace};
+  border-top: 3px solid ${props => props.color};
+  box-shadow: 0 0 10px 2px rgba(0, 0, 0, 0.15);
+  color: ${colors.textPrimary};
+  margin: ${coreSpace} 0;
+  padding: 16px;
+
+  h5 {
+    margin: 0 0 5px;
+    font-size: 15px;
+    font-weight: 700;
+  }
+
+  p {
+    margin: 0 0 15px;
+    font-size: 14px;
+  }
+`;
+
+const CallButtons = styledTS<{ color: string }>(styled.div)`
+  display: flex;
+
+  button {
+    background: ${props => props.color};
+    border-radius: 5px;
+    flex: 1;
+  }
+`;
+
 export {
   ErxesTopbar,
   ErxesState,
@@ -386,5 +417,7 @@ export {
   Launcher,
   Links,
   Socials,
-  TopBarIcon
+  TopBarIcon,
+  VideoCallRequestWrapper,
+  CallButtons
 };

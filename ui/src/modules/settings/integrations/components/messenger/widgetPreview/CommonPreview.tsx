@@ -21,7 +21,8 @@ type Props = {
   brandId?: string;
   brands?: IBrand[];
   timezone?: string;
-  isGreeting?: boolean;
+  showChatPreview?: boolean;
+  showVideoCallRequest?: boolean;
   facebook?: string;
   twitter?: string;
   youtube?: string;
@@ -30,15 +31,16 @@ type Props = {
 class CommonPreview extends React.Component<Props> {
   renderContent() {
     const {
-      isGreeting,
+      showChatPreview,
       isOnline,
       color,
       textColor,
       wallpaper,
-      message
+      message,
+      showVideoCallRequest
     } = this.props;
 
-    if (isGreeting) {
+    if (showChatPreview) {
       return <GreetingContent />;
     }
 
@@ -49,6 +51,7 @@ class CommonPreview extends React.Component<Props> {
         message={message}
         isOnline={isOnline}
         wallpaper={wallpaper}
+        showVideoCallRequest={showVideoCallRequest}
       />
     );
   }

@@ -28,7 +28,7 @@ type Props = {
   brandId?: string;
   brands?: IBrand[];
   teamMembers: IUser[];
-  isGreeting?: boolean;
+  showChatPreview?: boolean;
   timezone?: string;
   facebook?: string;
   twitter?: string;
@@ -57,9 +57,9 @@ class TopBar extends React.Component<Props> {
   }
 
   renderServerInfo() {
-    const { isGreeting, timezone } = this.props;
+    const { showChatPreview, timezone } = this.props;
 
-    if (!isGreeting) {
+    if (!showChatPreview) {
       return null;
     }
 
@@ -74,14 +74,14 @@ class TopBar extends React.Component<Props> {
   }
 
   renderSupporters() {
-    const { supporterIds, isOnline, teamMembers, isGreeting } = this.props;
+    const { supporterIds, isOnline, teamMembers, showChatPreview } = this.props;
 
     return (
       <SupporterComponent
         supporterIds={supporterIds}
         isOnline={isOnline}
         teamMembers={teamMembers}
-        isGreeting={isGreeting}
+        showChatPreview={showChatPreview}
       />
     );
   }
@@ -167,7 +167,7 @@ class TopBar extends React.Component<Props> {
   }
 
   renderContent() {
-    if (this.props.isGreeting) {
+    if (this.props.showChatPreview) {
       return this.renderGreetingTopbar();
     }
 

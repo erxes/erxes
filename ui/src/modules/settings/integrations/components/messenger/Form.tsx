@@ -477,8 +477,9 @@ class CreateMessenger extends React.Component<Props, State> {
                 timezone={timezone}
                 logoPreviewStyle={logoPreviewStyle}
                 logoPreviewUrl={logoPreviewUrl}
-                isGreeting={isStepActive}
+                showChatPreview={isStepActive}
                 facebook={facebook}
+                showVideoCallRequest={showVideoCallRequest}
                 twitter={twitter}
                 youtube={youtube}
               />

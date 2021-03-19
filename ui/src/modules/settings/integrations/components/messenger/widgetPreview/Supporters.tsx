@@ -9,7 +9,7 @@ import {
 } from './styles';
 
 type Props = {
-  isGreeting?: boolean;
+  showChatPreview?: boolean;
   supporterIds?: string[];
   teamMembers: IUser[];
   isOnline: boolean;
@@ -38,13 +38,13 @@ class Supporters extends React.Component<Props> {
   }
 
   render() {
-    const { supporterIds, isGreeting } = this.props;
+    const { supporterIds, showChatPreview } = this.props;
 
     if ((supporterIds || []).length === 0) {
       return null;
     }
 
-    if (isGreeting) {
+    if (showChatPreview) {
       return <SupporterStyled>{this.renderContent()}</SupporterStyled>;
     }
 
