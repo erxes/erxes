@@ -450,8 +450,6 @@ export const getItemList = async (
   const sort = generateSort(args);
   const limit = args.limit !== undefined ? args.limit : 10;
 
-  console.log('limit: ', limit);
-
   const pipelines: any[] = [
     {
       $match: filter
