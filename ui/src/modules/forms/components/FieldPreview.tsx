@@ -13,8 +13,6 @@ class FieldPreview extends React.Component<Props, {}> {
     const { field, onClick } = this.props;
     const hasLogic = field.logics ? field.logics.length > 0 : false;
 
-    console.log(field);
-
     const onClickItem = () => {
       if (onClick) {
         onClick(field);

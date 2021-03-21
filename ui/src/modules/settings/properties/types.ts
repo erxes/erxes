@@ -36,6 +36,7 @@ export interface IField {
   };
   logics?: IFieldLogic[];
   logicAction?: string;
+  groupName?: string;
 }
 
 export interface IFieldGroup {

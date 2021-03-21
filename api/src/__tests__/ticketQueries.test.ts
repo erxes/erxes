@@ -174,6 +174,28 @@ describe('ticketQueries', () => {
     expect(response.length).toBe(3);
   });
 
+  test('Tickets total count', async () => {
+    const stage = await stageFactory({});
+    const currentUser = await userFactory({});
+
+    const args = { stageId: stage._id };
+
+    await ticketFactory(args);
+    await ticketFactory(args);
+
+    const qry = `
+      query ticketsTotalCount($stageId: String!) {
+        ticketsTotalCount(stageId: $stageId)
+      }
+    `;
+
+    const response = await graphqlRequest(qry, 'ticketsTotalCount', args, {
+      user: currentUser
+    });
+
+    expect(response).toBe(2);
+  });
+
   test('Ticket detail', async () => {
     const ticket = await ticketFactory();
 

@@ -5,7 +5,17 @@ import React from 'react';
 import { Redirect, Route } from 'react-router-dom';
 
 const Calendar = asyncComponent(() =>
-  import(/* webpackChunkName: "Calendar" */ './components/calendar/Calendar')
+  import(/* webpackChunkName: "Calendar" */ '../boards/components/Calendar')
+);
+
+const DealColumn = asyncComponent(() =>
+  import(/* webpackChunkName: "DealColumn" */ './containers/CalendarColumn')
+);
+
+const DealMainActionBar = asyncComponent(() =>
+  import(
+    /* webpackChunkName: "DealMainActionBar" */ './components/DealMainActionBar'
+  )
 );
 
 const DealBoard = asyncComponent(() =>
@@ -44,7 +54,15 @@ const boards = ({ location }) => {
 const calendar = ({ location }) => {
   const queryParams = queryString.parse(location.search);
 
-  return <Calendar queryParams={queryParams} />;
+  return (
+    <Calendar
+      type="deal"
+      title="Deals"
+      queryParams={queryParams}
+      ItemColumnComponent={DealColumn}
+      MainActionBarComponent={DealMainActionBar}
+    />
+  );
 };
 
 const conversion = ({ location }) => {

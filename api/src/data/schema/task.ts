@@ -27,9 +27,7 @@ export const types = `
   }
 `;
 
-export const queries = `
-  taskDetail(_id: String!): Task
-  tasks(
+const listQueryParams = `
     pipelineId: String
     stageId: String
     customerIds: [String]
@@ -45,8 +43,17 @@ export const queries = `
     sortField: String
     sortDirection: Int
     userIds: [String]
+    segment: String
+    assignedToMe: String
+    startDate: String
+    endDate: String
     ${conformityQueryFields}
-  ): [TaskListItem]
+`;
+
+export const queries = `
+  taskDetail(_id: String!): Task
+  tasks(${listQueryParams}): [TaskListItem]
+  tasksTotalCount(${listQueryParams}): Int
   archivedTasks(pipelineId: String!, search: String, page: Int, perPage: Int): [Task]
   archivedTasksCount(pipelineId: String!, search: String): Int
 `;

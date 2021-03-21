@@ -8,6 +8,20 @@ const TaskBoard = asyncComponent(() =>
   import(/* webpackChunkName: "TaskBoard" */ './components/TaskBoard')
 );
 
+const Calendar = asyncComponent(() =>
+  import(/* webpackChunkName: "Calendar" */ '../boards/components/Calendar')
+);
+
+const CalendarColumn = asyncComponent(() =>
+  import(/* webpackChunkName: "CalendarColumn" */ './containers/CalendarColumn')
+);
+
+const MainActionBar = asyncComponent(() =>
+  import(
+    /* webpackChunkName: "MainActionBar" */ './components/TaskMainActionBar'
+  )
+);
+
 const tasks = () => {
   let link = '/task/board';
 
@@ -31,6 +45,20 @@ const boards = ({ location }) => {
   return <TaskBoard queryParams={queryParams} />;
 };
 
+const calendar = ({ location }) => {
+  const queryParams = queryString.parse(location.search);
+
+  return (
+    <Calendar
+      type="task"
+      title="Task"
+      queryParams={queryParams}
+      ItemColumnComponent={CalendarColumn}
+      MainActionBarComponent={MainActionBar}
+    />
+  );
+};
+
 const routes = () => {
   return (
     <>
@@ -41,6 +69,13 @@ const routes = () => {
         exact={true}
         path="/task/board"
         component={boards}
+      />
+
+      <Route
+        key="task/calendar"
+        exact={true}
+        path="/task/calendar"
+        component={calendar}
       />
     </>
   );

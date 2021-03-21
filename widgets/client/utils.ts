@@ -320,10 +320,10 @@ export const checkLogicFulfilled = (logics: LogicParams[]) => {
       }
     }
 
-    if (typeof logicValue === 'number') {
+    if (validation === 'number') {
       // if number value: is greater than
       if (operator === 'greaterThan' && fieldValue) {
-        if (fieldValue > logicValue) {
+        if (Number(fieldValue) > Number(logicValue)) {
           values[key] = true;
         } else {
           values[key] = false;
@@ -332,7 +332,7 @@ export const checkLogicFulfilled = (logics: LogicParams[]) => {
 
       // if number value: is less than
       if (operator === 'lessThan' && fieldValue) {
-        if (fieldValue < logicValue) {
+        if (Number(fieldValue) < Number(logicValue)) {
           values[key] = true;
         } else {
           values[key] = false;

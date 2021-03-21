@@ -17,6 +17,7 @@ export const formDetailQuery = `
         validation
         associatedFieldId
         
+        groupId
         logicAction
         logics {
           fieldId

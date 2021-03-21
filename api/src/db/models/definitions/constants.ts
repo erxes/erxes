@@ -289,6 +289,7 @@ export const FIELDS_GROUPS_CONTENT_TYPES = {
   DEAL: 'deal',
   VISITOR: 'visitor',
   LEAD: 'lead',
+  FORM: 'form',
   ALL: [
     'customer',
     'company',
@@ -299,7 +300,8 @@ export const FIELDS_GROUPS_CONTENT_TYPES = {
     'task',
     'deal',
     'visitor',
-    'lead'
+    'lead',
+    'form'
   ]
 };
 

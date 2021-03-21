@@ -49,6 +49,7 @@ export interface IField extends IVisibility {
   logicAction?: string;
   tempFieldId?: string;
   column?: number;
+  groupName?: string;
 }
 
 export interface IFieldDocument extends IField, Document {

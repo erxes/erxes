@@ -212,6 +212,7 @@ export const moduleObjects = {
           'dealsRemove',
           'dealsWatch',
           'dealsArchive',
+          'dealsSort',
           'exportDeals'
         ]
       },
@@ -284,6 +285,10 @@ export const moduleObjects = {
         description: 'Archive all deals in a specific stage'
       },
       {
+        name: 'dealsSort',
+        description: 'Sort all deals in a specific stage'
+      },
+      {
         name: 'exportDeals',
         description: 'Export deals'
       }
@@ -315,6 +320,7 @@ export const moduleObjects = {
           'ticketsRemove',
           'ticketsWatch',
           'ticketsArchive',
+          'ticketsSort',
           'exportTickets'
         ]
       },
@@ -391,6 +397,10 @@ export const moduleObjects = {
         description: 'Archive all tickets in a specific stage'
       },
       {
+        name: 'ticketsSort',
+        description: 'Sort all tickets in a specific stage'
+      },
+      {
         name: 'exportTickets',
         description: 'Export tickets'
       }
@@ -422,6 +432,7 @@ export const moduleObjects = {
           'growthHacksRemove',
           'growthHacksWatch',
           'growthHacksArchive',
+          'growthHacksSort',
           'growthHackTemplatesAdd',
           'growthHackTemplatesEdit',
           'growthHackTemplatesRemove',
@@ -498,6 +509,10 @@ export const moduleObjects = {
         description: 'Archive all growth hacks in a specific stage'
       },
       {
+        name: 'growthHacksSort',
+        description: 'Sort all growth hacks in a specific stage'
+      },
+      {
         name: 'growthHackTemplatesAdd',
         description: 'Add growth hacking template'
       },
@@ -545,6 +560,7 @@ export const moduleObjects = {
           'tasksRemove',
           'tasksWatch',
           'tasksArchive',
+          'tasksSort',
           'taskUpdateTimeTracking',
           'exportTasks'
         ]
@@ -616,6 +632,10 @@ export const moduleObjects = {
       {
         name: 'tasksArchive',
         description: 'Archive all tasks in a specific stage'
+      },
+      {
+        name: 'tasksSort',
+        description: 'Sort all tasks in a specific stage'
       },
       {
         name: 'taskUpdateTimeTracking',

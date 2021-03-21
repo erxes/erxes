@@ -1,6 +1,6 @@
 import { Segments } from '../../../db/models';
 import { fetchElk } from '../../../elasticsearch';
-import { fetchBySegments } from '../../modules/segments/queryBuilder';
+import { fetchSegment } from '../../modules/segments/queryBuilder';
 import { checkPermission, requireLogin } from '../../permissions/wrappers';
 import { IContext } from '../../types';
 
@@ -92,35 +92,13 @@ const segmentQueries = {
       subOf
     }: { contentType: string; conditions; subOf?: string }
   ) {
-    const { positiveList, negativeList } = await fetchBySegments(
-      {
-        name: 'preview',
-        color: '#fff',
-        subOf: subOf || '',
-        contentType,
-        conditions
-      },
-      'count'
-    );
-
-    try {
-      const response = await fetchElk(
-        'count',
-        contentType === 'company' ? 'companies' : 'customers',
-        {
-          query: {
-            bool: {
-              must: positiveList,
-              must_not: negativeList
-            }
-          }
-        }
-      );
-
-      return response.count;
-    } catch (e) {
-      return 0;
-    }
+    return fetchSegment('count', {
+      name: 'preview',
+      color: '#fff',
+      subOf: subOf || '',
+      contentType,
+      conditions
+    });
   }
 };
 

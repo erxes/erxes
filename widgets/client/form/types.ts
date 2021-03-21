@@ -70,6 +70,7 @@ export interface IFormDoc {
     type: string;
     validation: string;
     associatedFieldId: string;
+    groupId: string;
   };
 }
 

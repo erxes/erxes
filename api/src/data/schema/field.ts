@@ -30,6 +30,7 @@ export const fieldsTypes = `
     logics: [Logic]
     logicAction: String
     column: Int
+    groupName: String
   }
 
   input OrderItem {
@@ -58,6 +59,7 @@ export const fieldsTypes = `
     associatedFieldId: String
     logicAction: String
     logics: [LogicInput]
+    groupName: String
   }
 
   type ColumnConfigItem {

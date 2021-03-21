@@ -10,20 +10,13 @@ export interface IQueryParams {
   endDate: string;
   startDate: string;
 }
-
 export interface IDealTotalAmount {
   _id: string;
-  dealCount: number;
-  totalForType: [
+  name: string;
+  currencies: [
     {
-      _id: string;
+      amount: number;
       name: string;
-      currencies: [
-        {
-          amount: number;
-          name: string;
-        }
-      ];
     }
   ];
 }
@@ -53,7 +46,7 @@ export interface IPaymentsData {
 }
 
 export type DealsTotalAmountsQueryResponse = {
-  dealsTotalAmounts: IDealTotalAmount;
+  dealsTotalAmounts: IDealTotalAmount[];
   refetch: () => void;
 };
 
@@ -84,6 +77,13 @@ export interface IDealParams extends IItemParams {
 
 export type DealsQueryResponse = {
   deals: IDeal[];
+  loading: boolean;
+  refetch: () => void;
+  fetchMore: any;
+};
+
+export type DealsTotalCountQueryResponse = {
+  dealsTotalCount: number;
   loading: boolean;
   refetch: () => void;
   fetchMore: any;

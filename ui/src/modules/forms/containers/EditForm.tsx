@@ -96,21 +96,30 @@ class EditFormContainer extends React.Component<FinalProps> {
             delete f.field;
             delete f.contentType;
             delete f.__typename;
+            f.logics = f.logics.map(l => {
+              delete l.__typename;
+              return l;
+            });
           });
+
+          const addingFields = fields
+            .filter(field => field._id.startsWith('tempId'))
+            // tslint:disable-next-line:no-shadowed-variable
+            .map(({ _id, ...fields }) => ({
+              tempFieldId: _id,
+              ...fields
+            }));
+
+          const editingFields = fields.filter(
+            field => !field._id.startsWith('tempId')
+          );
 
           fieldsBulkAddAndEditMutation({
             variables: {
               contentType: 'form',
               contentTypeId: formId,
-              addingFields: fields
-                .filter(field => field._id.startsWith('tempId'))
-                .map(({ _id, ...fields }) => ({
-                  tempFieldId: _id,
-                  ...fields
-                })),
-              editingFields: fields.filter(
-                field => !field._id.startsWith('tempId')
-              )
+              addingFields,
+              editingFields
             }
           });
 
