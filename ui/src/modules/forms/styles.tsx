@@ -172,6 +172,31 @@ const Title = styled.h4`
   font-weight: 500;
 `;
 
+const LogicItem = styled.div`
+  background: ${colors.bgLight};
+  border-radius: 4px;
+  padding: 10px;
+  margin: 0 -10px 10px -10px;
+  border: 1px solid ${colors.borderPrimary};
+`;
+
+const LogicRow = styled.div`
+  display: flex;
+
+  button {
+    margin-left: 20px;
+  }
+`;
+
+const RowLeft = styled.div`
+  flex: 2;
+  margin-right: 20px;
+`;
+
+const RowRight = styled.div`
+  flex: 1;
+`;
+
 export {
   FieldWrapper,
   FieldItem,
@@ -184,5 +209,9 @@ export {
   FlexWrapper,
   Title,
   FieldsWrapper,
-  FormTop
+  FormTop,
+  LogicItem,
+  LogicRow,
+  RowLeft,
+  RowRight
 };

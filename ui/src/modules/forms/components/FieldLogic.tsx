@@ -7,6 +7,7 @@ import {
   numberTypeChoices,
   stringTypeChoices
 } from '../constants';
+import { LogicItem, LogicRow, RowLeft, RowRight } from '../styles';
 
 type Props = {
   onChangeLogic: (name: string, value: string | number, index: number) => void;
@@ -104,35 +105,50 @@ function FieldLogic(props: Props) {
   };
 
   return (
-    <>
+    <LogicItem>
       <FormGroup>
-        <FormControl
-          componentClass="select"
-          value={logic.fieldId || logic.tempFieldId}
-          name="fieldId"
-          onChange={onChangeFieldId}
-        >
-          <option value="" />
-          {fields.map(field => (
-            <option key={field._id} value={field._id}>
-              {field.text}
-            </option>
-          ))}
-        </FormControl>
+        <LogicRow>
+          <RowRight>
+            <FormControl
+              componentClass="select"
+              value={logic.fieldId || logic.tempFieldId}
+              name="fieldId"
+              onChange={onChangeFieldId}
+            >
+              <option value="" />
+              {fields.map(field => (
+                <option key={field._id} value={field._id}>
+                  {field.text}
+                </option>
+              ))}
+            </FormControl>
+          </RowRight>
+          <Button
+            size="small"
+            onClick={remove}
+            btnStyle="simple"
+            icon="times"
+          />
+        </LogicRow>
       </FormGroup>
-      <FormGroup>
-        <FormControl
-          componentClass="select"
-          defaultValue={logic.logicOperator}
-          name="logicOperator"
-          options={getOperatorOptions()}
-          onChange={onChangeLogicOperator}
-        />
-      </FormGroup>
+      <LogicRow>
+        <RowLeft>
+          <FormGroup>
+            <FormControl
+              componentClass="select"
+              defaultValue={logic.logicOperator}
+              name="logicOperator"
+              options={getOperatorOptions()}
+              onChange={onChangeLogicOperator}
+            />
+          </FormGroup>
+        </RowLeft>
 
-      <FormGroup>{renderLogicValue()}</FormGroup>
-      <Button size="small" onClick={remove} btnStyle="danger" icon="times" />
-    </>
+        <RowRight>
+          <FormGroup>{renderLogicValue()}</FormGroup>
+        </RowRight>
+      </LogicRow>
+    </LogicItem>
   );
 }
 
