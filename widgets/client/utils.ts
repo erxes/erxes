@@ -428,7 +428,7 @@ export const checkLogicFulfilled = (logics: LogicParams[]) => {
   }
 
   const result = [];
-  console.log(values)
+
   for (const key of Object.keys(values)) {
     result.push(values[key]);
   }
