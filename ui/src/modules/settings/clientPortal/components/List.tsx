@@ -1,18 +1,18 @@
 import Button from 'modules/common/components/Button';
+import EmptyState from 'modules/common/components/EmptyState';
+import LoadMore from 'modules/common/components/LoadMore';
+import ModalTrigger from 'modules/common/components/ModalTrigger';
+import Spinner from 'modules/common/components/Spinner';
 import { TopHeader } from 'modules/common/styles/main';
 import { IRouterProps } from 'modules/common/types';
-import React from 'react';
-import { ClientPortalConfig } from '../types';
 import LeftSidebar from 'modules/layout/components/Sidebar';
 import { FieldStyle, SidebarList } from 'modules/layout/styles';
-import Spinner from 'modules/common/components/Spinner';
-import { Link } from 'react-router-dom';
 import { SidebarListItem } from 'modules/settings/styles';
-import { StyledUrl } from '../styles';
-import LoadMore from 'modules/common/components/LoadMore';
-import EmptyState from 'modules/common/components/EmptyState';
+import React from 'react';
+import { Link } from 'react-router-dom';
 import ClientPortalDetailContainer from '../containers/ClientPortalDetail';
-import ModalTrigger from 'modules/common/components/ModalTrigger';
+import { StyledUrl } from '../styles';
+import { ClientPortalConfig } from '../types';
 
 type Props = {
   configs: ClientPortalConfig[];
@@ -59,7 +59,7 @@ function ClientPortalList({
       </Button>
     );
 
-    const content = props => (
+    const content = _props => (
       <ClientPortalDetailContainer queryParams="" history={history} />
     );
 
