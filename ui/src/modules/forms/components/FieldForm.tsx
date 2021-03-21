@@ -192,6 +192,12 @@ class FieldForm extends React.Component<Props, State> {
     const text = e =>
       this.onFieldChange('text', (e.currentTarget as HTMLInputElement).value);
 
+    const groupName = e =>
+      this.onFieldChange(
+        'groupName',
+        (e.currentTarget as HTMLInputElement).value
+      );
+
     const desc = e =>
       this.onFieldChange(
         'description',
@@ -211,6 +217,20 @@ class FieldForm extends React.Component<Props, State> {
           compact={true}
           open={true}
         >
+          <FormGroup>
+            <ControlLabel htmlFor="text" required={false}>
+              Group Name
+            </ControlLabel>
+
+            <FormControl
+              id="GroupName"
+              type="text"
+              value={field.groupName || ''}
+              onChange={groupName}
+              autoFocus={false}
+            />
+          </FormGroup>
+
           <FormGroup>
             <ControlLabel htmlFor="text" required={true}>
               Field Label

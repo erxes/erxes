@@ -69,11 +69,13 @@ class Form extends React.Component<Props, State> {
   onFieldValueChange = ({
     fieldId,
     value,
-    associatedFieldId
+    associatedFieldId,
+    groupId
   }: {
     fieldId: string;
     value: FieldValue;
     associatedFieldId?: string;
+    groupId?: string;
   }) => {
     const doc = this.state.doc;
 
@@ -81,6 +83,10 @@ class Form extends React.Component<Props, State> {
 
     if(associatedFieldId) {
       doc[fieldId].associatedFieldId = associatedFieldId;
+    }
+
+    if(groupId) {
+      doc[fieldId].groupId = groupId;
     }
     
     this.setState({ doc });

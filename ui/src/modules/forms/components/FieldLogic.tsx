@@ -1,3 +1,4 @@
+import Datetime from '@nateradebaugh/react-datetime';
 import Button from 'modules/common/components/Button';
 import { FormControl, FormGroup } from 'modules/common/components/form';
 import { IField, IFieldLogic } from 'modules/settings/properties/types';
@@ -9,7 +10,11 @@ import {
 } from '../constants';
 
 type Props = {
-  onChangeLogic: (name: string, value: string | number, index: number) => void;
+  onChangeLogic: (
+    name: string,
+    value: string | number | Date,
+    index: number
+  ) => void;
   logic: IFieldLogic;
   fields: IField[];
   index: number;
@@ -28,7 +33,6 @@ function FieldLogic(props: Props) {
   const getOperatorOptions = () => {
     const selectedField = getSelectedField();
 
-    console.log('selected', selectedField);
     if (selectedField && selectedField.validation) {
       if (selectedField.validation === 'number') {
         return numberTypeChoices;
@@ -60,6 +64,12 @@ function FieldLogic(props: Props) {
     onChangeLogic('logicValue', e.target.value, index);
   };
 
+  const onDateChange = (date?: Date | string) => {
+    if (date) {
+      onChangeLogic('logicValue', date, index);
+    }
+  };
+
   const remove = () => {
     removeLogic(index);
   };
@@ -88,6 +98,47 @@ function FieldLogic(props: Props) {
                 </option>
               ))}
           </FormControl>
+        );
+      }
+
+      if (selectedField.validation === 'date') {
+        const dateValue = new Date(logic.logicValue);
+        return (
+          <Datetime
+            dateFormat="YYYY/MM/DD"
+            timeFormat={false}
+            closeOnSelect={true}
+            utc={true}
+            input={false}
+            value={dateValue}
+            onChange={onDateChange}
+          />
+        );
+      }
+
+      if (selectedField.validation === 'datetime') {
+        const dateValue = new Date(logic.logicValue);
+        return (
+          <Datetime
+            dateFormat="YYYY/MM/DD"
+            timeFormat="HH:mm"
+            closeOnSelect={true}
+            utc={true}
+            input={false}
+            value={dateValue}
+            onChange={onDateChange}
+          />
+        );
+      }
+
+      if (selectedField.validation === 'number') {
+        return (
+          <FormControl
+            defaultValue={logic.logicValue}
+            name="logicValue"
+            onChange={onChangeLogicValue}
+            type={'number'}
+          />
         );
       }
 

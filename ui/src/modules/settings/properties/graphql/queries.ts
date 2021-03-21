@@ -79,6 +79,7 @@ const fields = `
         logicOperator
         logicValue
       }
+      groupName
     }
   }
 `;

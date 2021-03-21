@@ -87,7 +87,7 @@ export const saveLead = (params: {
   const { doc, browserInfo, integrationId, formId, saveCallback } = params;
 
   const submissions = Object.keys(doc).map(fieldId => {
-    const { value, text, type, validation, associatedFieldId} = doc[fieldId];
+    const { value, text, type, validation, associatedFieldId, groupId } = doc[fieldId];
 
     return {
       _id: fieldId,
@@ -95,7 +95,8 @@ export const saveLead = (params: {
       text,
       value,
       validation,
-      associatedFieldId
+      associatedFieldId,
+      groupId
     };
   });
 

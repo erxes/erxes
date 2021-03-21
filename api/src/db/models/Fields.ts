@@ -106,6 +106,7 @@ export const loadFieldClass = () => {
       contentType,
       contentTypeId,
       groupId,
+      groupName,
       ...fields
     }: IField) {
       const query: { [key: string]: any } = { contentType };
@@ -128,6 +129,19 @@ export const loadFieldClass = () => {
 
         if (!form) {
           throw new Error(`Form not found with _id of ${contentTypeId}`);
+        }
+
+        if (groupName) {
+          let group = await FieldsGroups.findOne({ name: groupName });
+
+          if (!group) {
+            group = await FieldsGroups.createGroup({
+              name: groupName,
+              contentType: 'form',
+              isDefinedByErxes: false
+            });
+          }
+          groupId = group._id;
         }
       }
 

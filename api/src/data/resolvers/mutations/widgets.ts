@@ -58,6 +58,7 @@ interface ISubmission {
   validation?: string;
   associatedFieldId?: string;
   stageId?: string;
+  groupId?: string;
 }
 
 interface IWidgetEmailParams {
@@ -287,87 +288,116 @@ const widgetMutations = {
 
     const content = form.title;
 
-    let email;
-    let phone;
-    let firstName = '';
-    let lastName = '';
-    let customFieldsData = new Array<ICustomField>();
+    const temp: { [key: string]: any[] } = {};
 
     submissions.forEach(submission => {
-      if (submission.type === 'email') {
-        email = submission.value;
+      if (submission.groupId) {
+        if (temp[submission.groupId]) {
+          temp[submission.groupId].push(submission);
+        } else {
+          temp[submission.groupId] = [submission];
+        }
+      } else {
+        if (temp.submissions) {
+          temp.submissions.push(submission);
+        } else {
+          temp.submissions = [submission];
+        }
       }
+    });
 
-      if (submission.type === 'phone') {
-        phone = submission.value;
-      }
+    let customerId;
 
-      if (submission.type === 'firstName') {
-        firstName = submission.value;
-      }
+    Object.keys(temp).forEach(async key => {
+      const values = temp[key];
 
-      if (submission.type === 'lastName') {
-        lastName = submission.value;
-      }
+      let email;
+      let phone;
+      let firstName = '';
+      let lastName = '';
+      let customFieldsData = new Array<ICustomField>();
 
-      if (submission.associatedFieldId) {
-        customFieldsData.push({
-          field: submission.associatedFieldId,
-          value: submission.value
+      values.forEach(submission => {
+        if (submission.type === 'email') {
+          email = submission.value;
+        }
+
+        if (submission.type === 'phone') {
+          phone = submission.value;
+        }
+
+        if (submission.type === 'firstName') {
+          firstName = submission.value;
+        }
+
+        if (submission.type === 'lastName') {
+          lastName = submission.value;
+        }
+
+        if (submission.associatedFieldId) {
+          customFieldsData.push({
+            field: submission.associatedFieldId,
+            value: submission.value
+          });
+        }
+      });
+
+      let customer = await Customers.getWidgetCustomer({
+        integrationId,
+        email,
+        phone,
+        cachedCustomerId
+      });
+
+      if (!customer) {
+        customer = await Customers.createCustomer({
+          integrationId,
+          primaryEmail: email,
+          emails: [email],
+          firstName,
+          lastName,
+          primaryPhone: phone,
+          customFieldsData
         });
       }
+
+      if (customer.customFieldsData) {
+        customFieldsData = customFieldsData.concat(customer.customFieldsData);
+      }
+
+      if (!customerId || customerId.length === 0) {
+        customerId = customer._id;
+      }
+
+      const customerDoc = {
+        location: browserInfo,
+        firstName: customer.firstName || firstName,
+        lastName: customer.lastName || lastName,
+        customFieldsData,
+        ...(customer.primaryEmail
+          ? {}
+          : {
+              emails: [email],
+              primaryEmail: email
+            }),
+        ...(customer.primaryPhone
+          ? {}
+          : {
+              phones: [phone],
+              primaryPhone: phone
+            })
+      };
+
+      // update location info and missing fields
+      await Customers.updateCustomer(customer._id, customerDoc);
     });
 
     // get or create customer
-    let customer = await Customers.getWidgetCustomer({
-      integrationId,
-      email,
-      phone,
-      cachedCustomerId
-    });
-
-    if (!customer) {
-      customer = await Customers.createCustomer({
-        integrationId,
-        primaryEmail: email,
-        emails: [email],
-        firstName,
-        lastName,
-        primaryPhone: phone,
-        customFieldsData
-      });
-    }
-
-    if (customer.customFieldsData) {
-      customFieldsData = customFieldsData.concat(customer.customFieldsData);
-    }
-
-    const customerDoc = {
-      location: browserInfo,
-      firstName: customer.firstName || firstName,
-      lastName: customer.lastName || lastName,
-      customFieldsData,
-      ...(customer.primaryEmail
-        ? {}
-        : {
-            emails: [email],
-            primaryEmail: email
-          }),
-      ...(customer.primaryPhone
-        ? {}
-        : {
-            phones: [phone],
-            primaryPhone: phone
-          })
-    };
-
-    // update location info and missing fields
-    await Customers.updateCustomer(customer._id, customerDoc);
 
     // Inserting customer id into submitted customer ids
     const doc = {
       formId,
-      customerId: customer._id,
+      customerId,
       submittedAt: new Date()
     };
 
@@ -376,14 +406,14 @@ const widgetMutations = {
     // create conversation
     const conversation = await Conversations.createConversation({
       integrationId,
-      customerId: customer._id,
+      customerId,
       content
     });
 
     // create message
     const message = await Messages.createMessage({
       conversationId: conversation._id,
-      customerId: customer._id,
+      customerId,
       content,
       formWidgetData: submissions
     });
@@ -399,14 +429,14 @@ const widgetMutations = {
       conversationMessageInserted: message
     });
 
-    await sendToWebhook('create', 'popupSubmitted', {
-      formId: args.formId,
-      submissions: args.submissions,
-      customer: customerDoc,
-      cachedCustomerId: args.cachedCustomerId
-    });
+    // await sendToWebhook('create', 'popupSubmitted', {
+    //   formId: args.formId,
+    //   submissions: args.submissions,
+    //   customer: customerDoc,
+    //   cachedCustomerId: args.cachedCustomerId
+    // });
 
-    return { status: 'ok', messageId: message._id, customerId: customer._id };
+    return { status: 'ok', messageId: message._id, customerId };
   },
 
   widgetsLeadIncreaseViewCount(_root, { formId }: { formId: string }) {

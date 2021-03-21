@@ -127,8 +127,6 @@ function FieldLogics(props: Props) {
     );
   };
 
-  console.log('fields', fields);
-
   return (
     <>
       <Info>
