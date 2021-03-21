@@ -1,99 +1,92 @@
-import HeaderDescription from 'erxes-ui/lib/components/HeaderDescription';
-import Icon from 'erxes-ui/lib/components/Icon';
-import { __ } from 'erxes-ui/lib/utils/core';
-import ActionButtons from 'modules/common/components/ActionButtons';
 import Button from 'modules/common/components/Button';
-import Pagination from 'modules/common/components/pagination/Pagination';
-import Table from 'modules/common/components/table';
-import Tip from 'modules/common/components/Tip';
+import { TopHeader } from 'modules/common/styles/main';
 import { IRouterProps } from 'modules/common/types';
-import Wrapper from 'modules/layout/components/Wrapper';
 import React from 'react';
 import { ClientPortalConfig } from '../types';
+import LeftSidebar from 'modules/layout/components/Sidebar';
+import { FieldStyle, SidebarList } from 'modules/layout/styles';
+import Spinner from 'modules/common/components/Spinner';
+import { Link } from 'react-router-dom';
+import { SidebarListItem } from 'modules/settings/styles';
+import { StyledUrl } from '../styles';
+import LoadMore from 'modules/common/components/LoadMore';
+import EmptyState from 'modules/common/components/EmptyState';
+import ClientPortalDetailContainer from '../containers/ClientPortalDetail';
+import ModalTrigger from 'modules/common/components/ModalTrigger';
 
 type Props = {
   configs: ClientPortalConfig[];
   totalCount: number;
+  queryParams: any;
+  loading: boolean;
 } & IRouterProps;
 
-const leftActionBar = (
-  <HeaderDescription
-    icon="/images/actions/23.svg"
-    title="Client Portals"
-    description="Client portal desc"
-  />
-);
-
-const formUrl = '/settings/client-portal/form';
-
-function ClientPortalList({ configs, history, ...props }: Props) {
-  const handleClick = () => history.push(formUrl);
-
+function ClientPortalList({
+  configs,
+  loading,
+  totalCount,
+  history,
+  queryParams,
+  ...props
+}: Props) {
   const renderRow = () => {
     return configs.map(config => {
       return (
-        <tr key={config._id}>
-          <td>{config.name}</td>
-          <td>{config.url}</td>
-          <td>
-            <ActionButtons>
-              <a href={`${formUrl}?_id=${config._id}`}>
-                <Tip text={__('Edit')} placement="top">
-                  <Icon icon="edit-3" />
-                </Tip>
-              </a>
-            </ActionButtons>
-          </td>
-        </tr>
+        <SidebarListItem
+          key={config._id}
+          isActive={queryParams._id === config._id}
+        >
+          <Link to={`?_id=${config._id}`}>
+            <FieldStyle>
+              {config.name}
+              <StyledUrl>{config.url}</StyledUrl>
+            </FieldStyle>
+          </Link>
+        </SidebarListItem>
       );
     });
   };
 
-  const renderContent = () => {
+  const renderSidebarHeader = () => {
+    const addBrand = (
+      <Button
+        btnStyle="success"
+        block={true}
+        uppercase={false}
+        icon="plus-circle"
+      >
+        New Client Portal
+      </Button>
+    );
+
+    const content = props => (
+      <ClientPortalDetailContainer queryParams="" history={history} />
+    );
+
     return (
-      <Table>
-        <thead>
-          <tr>
-            <th>{__('Name')}</th>
-            <th>{__('Url')}</th>
-            <th style={{ width: 120 }}>{__('Actions')}</th>
-          </tr>
-        </thead>
-        <tbody>{renderRow()}</tbody>
-      </Table>
+      <TopHeader>
+        <ModalTrigger
+          size="lg"
+          title="New Client Portal"
+          trigger={addBrand}
+          enforceFocus={false}
+          content={content}
+        />
+      </TopHeader>
     );
   };
 
   return (
-    <Wrapper
-      header={
-        <Wrapper.Header
-          title="Client portals"
-          breadcrumb={[
-            { title: __('Settings'), link: 'settings' },
-            { title: __('Client Portals') }
-          ]}
-        />
-      }
-      actionBar={
-        <Wrapper.ActionBar
-          left={leftActionBar}
-          right={
-            <Button
-              btnStyle="success"
-              icon="plus-circle"
-              uppercase={false}
-              onClick={handleClick}
-            >
-              New Client Portal
-            </Button>
-          }
-        />
-      }
-      footer={<Pagination count={props.totalCount} />}
-      center={true}
-      content={renderContent()}
-    />
+    <LeftSidebar wide={true} full={true} header={renderSidebarHeader()}>
+      <SidebarList id={'BrandSidebar'}>
+        {renderRow()}
+        <LoadMore all={totalCount} loading={loading} />
+      </SidebarList>
+      {loading && <Spinner />}
+      {!loading && totalCount === 0 && (
+        <EmptyState image="/images/actions/18.svg" text="There is no brand" />
+      )}
+    </LeftSidebar>
   );
 }
 

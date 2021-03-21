@@ -8,7 +8,6 @@ import Popover from 'react-bootstrap/Popover';
 import TwitterPicker from 'react-color/lib/Twitter';
 import Select from 'react-select-plus';
 import { COLORS, FONTS } from '../../constants';
-import { Content } from '../../styles';
 import { Styles } from '../../types';
 
 type Props = {
@@ -112,7 +111,7 @@ function ColorFont({ styles = {}, handleFormChange }: Props) {
   }
 
   return (
-    <Content width={800}>
+    <>
       <FormGroup>
         <ControlLabel>Background color</ControlLabel>
         <FlexContent>
@@ -211,7 +210,7 @@ function ColorFont({ styles = {}, handleFormChange }: Props) {
           })}
         </FlexContent>
       </FormGroup>
-    </Content>
+    </>
   );
 }
 

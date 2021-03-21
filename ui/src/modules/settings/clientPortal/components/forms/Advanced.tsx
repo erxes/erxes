@@ -3,7 +3,7 @@ import FormGroup from 'erxes-ui/lib/components/form/Group';
 import ControlLabel from 'erxes-ui/lib/components/form/Label';
 import { FlexContent } from 'erxes-ui/lib/layout/styles';
 import React, { useState } from 'react';
-import { Circle, Content } from '../../styles';
+import { Circle } from '../../styles';
 import { AdvancedSettings } from '../../types';
 
 type Props = {
@@ -66,7 +66,7 @@ function Advanced({ advanced = {}, handleFormChange }: Props) {
   }
 
   return (
-    <Content>
+    <>
       {renderContent(
         'User Sign Up and Login',
         'Allow users to Sign Up from the customer portal',
@@ -120,7 +120,7 @@ function Advanced({ advanced = {}, handleFormChange }: Props) {
           })}
         </FlexContent>
       )}
-    </Content>
+    </>
   );
 }
 

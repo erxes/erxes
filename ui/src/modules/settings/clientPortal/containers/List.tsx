@@ -1,4 +1,3 @@
-import Spinner from 'erxes-ui/lib/components/Spinner';
 import gql from 'graphql-tag';
 import compose from 'lodash.flowright';
 import { IRouterProps } from 'modules/common/types';
@@ -14,20 +13,18 @@ import {
 type Props = {
   configsQuery: ClientPortalConfigsQueryResponse;
   totalCountQuery: ClientPortalTotalQueryResponse;
+  queryParams: any;
 } & IRouterProps;
 
 function ListContainer({ configsQuery, totalCountQuery, ...props }: Props) {
-  if (configsQuery.loading || totalCountQuery.loading) {
-    return <Spinner />;
-  }
-
   const configs = configsQuery.clientPortalGetConfigs || [];
   const totalCount = totalCountQuery.clientPortalConfigsTotalCount || 0;
 
   const updatedProps = {
     ...props,
     totalCount,
-    configs
+    configs,
+    loading: configsQuery.loading || false
   };
 
   return <List {...updatedProps} />;

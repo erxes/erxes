@@ -1,69 +1,63 @@
+import DataWithLoader from 'modules/common/components/DataWithLoader';
+import HeaderDescription from 'modules/common/components/HeaderDescription';
 import { Title } from 'modules/common/styles/main';
-import { __ } from 'modules/common/utils';
-import Wrapper from 'modules/layout/components/Wrapper';
-import React, { useState } from 'react';
-import { CONFIG_TYPES } from '../constants';
-import { ClientPortalConfig } from '../types';
-import Form from './Form';
-import Sidebar from './Sidebar';
+import { IRouterProps } from 'modules/common/types';
+import { ContentBox } from 'modules/settings/styles';
+import React from 'react';
+import { __ } from '../../../common/utils';
+import Wrapper from '../../../layout/components/Wrapper';
+import ClientPortalDetailContainer from '../containers/ClientPortalDetail';
+import List from '../containers/List';
 
 type Props = {
-  config: ClientPortalConfig;
-  handleUpdate: (doc: ClientPortalConfig) => void;
-};
+  integrationsCount: number;
+  queryParams: any;
+  loading?: boolean;
+} & IRouterProps;
 
-const breadcrumb = [
-  { title: __('Settings'), link: '/settings' },
-  { title: __('Client Portal'), link: '/settings/client-portal' },
-  { title: __('Form') }
-];
+class Brands extends React.Component<Props, {}> {
+  render() {
+    const { loading = false, queryParams, history } = this.props;
 
-const header = (
-  <Wrapper.Header title={__('Client portal')} breadcrumb={breadcrumb} />
-);
+    const breadcrumb = [
+      { title: __('Settings'), link: '/settings' },
+      { title: __('Brands'), link: '/settings/brands' }
+    ];
 
-const getTitle = (value: string) => {
-  for (const type in CONFIG_TYPES) {
-    if (CONFIG_TYPES[type].VALUE === value) {
-      return CONFIG_TYPES[type].LABEL;
-    }
-  }
-};
+    const leftActionBar = <Title>Title</Title>;
 
-function ClientPortal({ config, handleUpdate }: Props) {
-  const [configType, setConfigType] = useState<string>(
-    CONFIG_TYPES.GENERAL.VALUE
-  );
-
-  const handleConfigType = (type: string) => setConfigType(type);
-
-  function renderContent() {
     return (
-      <Form
-        defaultConfigValues={config}
-        handleUpdate={handleUpdate}
-        configType={configType}
+      <Wrapper
+        header={<Wrapper.Header title="Title" breadcrumb={breadcrumb} />}
+        mainHead={
+          <HeaderDescription
+            icon="/images/actions/32.svg"
+            title={'Client Portals'}
+            description={__(
+              'Add unlimited Client Portals with unlimited support to further your growth and accelerate your business'
+            )}
+          />
+        }
+        actionBar={<Wrapper.ActionBar left={leftActionBar} />}
+        leftSidebar={<List history={history} queryParams={queryParams} />}
+        content={
+          <DataWithLoader
+            data={
+              <ContentBox>
+                <ClientPortalDetailContainer
+                  queryParams={queryParams}
+                  history={history}
+                />
+              </ContentBox>
+            }
+            loading={loading}
+            emptyText="Add an integration in this Brand"
+            emptyImage="/images/actions/2.svg"
+          />
+        }
       />
     );
   }
-
-  return (
-    <Wrapper
-      header={header}
-      actionBar={
-        <Wrapper.ActionBar
-          left={<Title capitalize={true}>{getTitle(configType)}</Title>}
-        />
-      }
-      content={renderContent()}
-      leftSidebar={
-        <Sidebar
-          selectedConfig={configType}
-          handleConfigType={handleConfigType}
-        />
-      }
-    />
-  );
 }
 
-export default ClientPortal;
+export default Brands;

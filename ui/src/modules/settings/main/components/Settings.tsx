@@ -235,15 +235,8 @@ class Settings extends React.PureComponent {
             {this.renderBox(
               'Client Portal',
               '/images/icons/deal-insight-volume.svg',
-              '/settings/client-portal/configs',
-              'skillTypesAll',
-              [
-                'getSkillTypes',
-                'getSkill',
-                'getSkills',
-                'manageSkills',
-                'manageSkillTypes'
-              ]
+              '/settings/client-portal',
+              ''
             )}
           </div>
         </Row>
