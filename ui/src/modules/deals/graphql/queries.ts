@@ -21,6 +21,10 @@ const commonParams = `
   $sortField: String,
   $sortDirection: Int,
   $userIds: [String],
+  $segment: String,
+  $assignedToMe: String,
+  $startDate: String,
+  $endDate: String,
   ${conformityQueryFields}
 `;
 
@@ -38,6 +42,10 @@ const commonParamDefs = `
   sortField: $sortField,
   sortDirection: $sortDirection,
   userIds: $userIds,
+  segment: $segment,
+  assignedToMe: $assignedToMe,
+  startDate: $startDate,
+  endDate: $endDate,
   ${conformityQueryFieldDefs}
 `;
 
@@ -55,9 +63,6 @@ const dealsTotalAmounts = `
     dealsTotalAmounts(
       ${commonParamDefs}
     ) {
-      _id
-      dealCount
-      totalForType {
         _id
         name
         currencies {
@@ -66,7 +71,6 @@ const dealsTotalAmounts = `
         }
       }
     }
-  }
 `;
 
 const deals = `
@@ -86,6 +90,22 @@ const deals = `
       amount
       ${commonListFields}
     }
+  }
+`;
+
+const dealsTotalCount = `
+  query dealsTotalCount(
+    $initialStageId: String,
+    $stageId: String,
+    $skip: Int,
+    ${commonParams}
+  ) {
+    dealsTotalCount(
+      initialStageId: $initialStageId,
+      stageId: $stageId,
+      skip: $skip,
+      ${commonParamDefs}
+    )
   }
 `;
 
@@ -140,6 +160,7 @@ const productDetail = `
 
 export default {
   deals,
+  dealsTotalCount,
   dealDetail,
   productDetail,
   dealsTotalAmounts,

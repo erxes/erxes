@@ -1,5 +1,5 @@
 import * as _ from 'underscore';
-import { Segments } from '../../../db/models';
+import { Segments, Stages } from '../../../db/models';
 import {
   SEGMENT_DATE_OPERATORS,
   SEGMENT_NUMBER_OPERATORS
@@ -10,24 +10,43 @@ import { getEsTypes } from '../coc/utils';
 
 export const fetchBySegments = async (
   segment: ISegment,
-  action: 'search' | 'count' = 'search'
+  action: 'search' | 'count' = 'search',
+  options?
 ): Promise<any> => {
   if (!segment || !segment.conditions) {
     return [];
   }
 
   const { contentType } = segment;
-  const index = contentType === 'company' ? 'companies' : 'customers';
-  const idField = contentType === 'company' ? 'companyId' : 'customerId';
+
+  const index = getIndexByContentType(contentType);
   const typesMap = getEsTypes(contentType);
 
   const propertyPositive: any[] = [];
   const propertyNegative: any[] = [];
 
-  if (contentType !== 'company') {
+  if (['customer', 'lead', 'visitor'].includes(contentType)) {
     propertyNegative.push({
       term: {
         status: 'deleted'
+      }
+    });
+  }
+
+  if (
+    options &&
+    options.pipelineId &&
+    ['deal', 'task', 'ticket'].includes(contentType)
+  ) {
+    const stages = await Stages.find(
+      { pipelineId: options.pipelineId },
+      { _id: 1 }
+    );
+    const stageIds = stages.map(s => s._id);
+
+    propertyPositive.push({
+      terms: {
+        stageId: stageIds
       }
     });
   }
@@ -47,6 +66,8 @@ export const fetchBySegments = async (
   let idsByEvents = [];
 
   if (eventPositive.length > 0 || eventNegative.length > 0) {
+    const idField = contentType === 'company' ? 'companyId' : 'customerId';
+
     const eventsResponse = await fetchElk('search', 'events', {
       _source: idField,
       size: 10000,
@@ -440,3 +461,52 @@ function elkConvertConditionToQuery(args: {
     negative.push(negativeQuery);
   }
 }
+
+const getIndexByContentType = (contentType: string) => {
+  let index = 'customers';
+
+  if (contentType === 'company') {
+    index = 'companies';
+  }
+
+  if (contentType === 'deal') {
+    index = 'deals';
+  }
+
+  if (contentType === 'task') {
+    index = 'tasks';
+  }
+
+  if (contentType === 'ticket') {
+    index = 'tickets';
+  }
+
+  return index;
+};
+
+export const fetchSegment = async (action, segment: ISegment, options?) => {
+  const { contentType } = segment;
+
+  let response = await fetchBySegments(segment, action, options);
+
+  if (action === 'search') {
+    return response;
+  }
+
+  try {
+    const { positiveList, negativeList } = await response;
+
+    response = await fetchElk('count', getIndexByContentType(contentType), {
+      query: {
+        bool: {
+          must: positiveList,
+          must_not: negativeList
+        }
+      }
+    });
+
+    return response.count;
+  } catch (e) {
+    return 0;
+  }
+};

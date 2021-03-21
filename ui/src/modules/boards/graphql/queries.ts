@@ -175,13 +175,9 @@ const boardCounts = `
 const cardFields = `
   _id
   name
-  customers {
-    _id
-  }
-  companies {
-    _id
-  }
-  assignedUserIds
+  customers
+  companies
+  assignedUsers
 `;
 
 const boardItemQueryParamsDef = `
@@ -220,6 +216,12 @@ const deals = `
   } 
 `;
 
+const itemsCountBySegments = `
+  query itemsCountBySegments($type: String!, $pipelineId: String) {
+    itemsCountBySegments(type: $type, pipelineId: $pipelineId)
+  } 
+`;
+
 export default {
   archivedStages,
   archivedStagesCount,
@@ -234,6 +236,7 @@ export default {
   stageDetail,
   pipelineLabels,
   pipelineLabelDetail,
+  itemsCountBySegments,
   tasks,
   deals,
   tickets

@@ -1,3 +1,6 @@
+import * as connect_datadog from 'connect-datadog';
+import ddTracer from 'dd-trace';
+
 import * as bodyParser from 'body-parser';
 import * as dotenv from 'dotenv';
 import * as express from 'express';
@@ -14,7 +17,19 @@ import { debugBase, debugError, debugInit } from './debuggers';
 import { initBroker } from './messageBroker';
 import { trackEngages } from './trackers/engageTracker';
 
+ddTracer.init({
+  hostname: process.env.DD_HOST,
+  logInjection: true
+});
+
 export const app = express();
+
+const datadogMiddleware = connect_datadog({
+  response_code: true,
+  tags: ['engages']
+});
+
+app.use(datadogMiddleware);
 
 app.disable('x-powered-by');
 

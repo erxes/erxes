@@ -8,6 +8,20 @@ const TicketBoard = asyncComponent(() =>
   import(/* webpackChunkName: "TicketBoard" */ './components/TicketBoard')
 );
 
+const Calendar = asyncComponent(() =>
+  import(/* webpackChunkName: "Calendar" */ '../boards/components/Calendar')
+);
+
+const CalendarColumn = asyncComponent(() =>
+  import(/* webpackChunkName: "CalendarColumn" */ './containers/CalendarColumn')
+);
+
+const MainActionBar = asyncComponent(() =>
+  import(
+    /* webpackChunkName: "MainActionBar" */ './components/TicketMainActionBar'
+  )
+);
+
 const tickets = () => {
   let link = '/inbox/ticket/board';
 
@@ -31,6 +45,20 @@ const boards = ({ location }) => {
   return <TicketBoard queryParams={queryParams} />;
 };
 
+const calendar = ({ location }) => {
+  const queryParams = queryString.parse(location.search);
+
+  return (
+    <Calendar
+      type="ticket"
+      title="Ticket"
+      queryParams={queryParams}
+      ItemColumnComponent={CalendarColumn}
+      MainActionBarComponent={MainActionBar}
+    />
+  );
+};
+
 const routes = () => {
   return (
     <>
@@ -46,6 +74,13 @@ const routes = () => {
         exact={true}
         path="/inbox/ticket/board"
         component={boards}
+      />
+
+      <Route
+        key="/inbox/ticket/calendar"
+        exact={true}
+        path="/inbox/ticket/calendar"
+        component={calendar}
       />
     </>
   );

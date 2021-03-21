@@ -20,7 +20,7 @@ import RightMenu from './RightMenu';
 
 type Props = {
   onSearch: (search: string) => void;
-  onSelect: (values: string[] | string, name: string) => void;
+  onSelect: (values: string[] | string, key: string) => void;
   isFiltered: () => boolean;
   clearFilter: () => void;
   currentBoard?: IBoard;

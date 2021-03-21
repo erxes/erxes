@@ -5,12 +5,14 @@ import {
   Customers,
   Notifications,
   Pipelines,
+  Segments,
   Stages
 } from '../../../db/models';
 import { getCollection } from '../../../db/models/boardUtils';
 import { IItemCommonFields } from '../../../db/models/definitions/boards';
 import { BOARD_STATUSES } from '../../../db/models/definitions/constants';
 import { IUserDocument } from '../../../db/models/definitions/users';
+import { fetchSegment } from '../../modules/segments/queryBuilder';
 import { getNextMonth, getToday, regexSearchText } from '../../utils';
 import { IListParams } from './boards';
 
@@ -45,7 +47,11 @@ export const generateCommonFilters = async (
     type,
     labelIds,
     priority,
-    userIds
+    userIds,
+    segment,
+    assignedToMe,
+    startDate,
+    endDate
   } = args;
 
   const isListEmpty = value => {
@@ -161,6 +167,22 @@ export const generateCommonFilters = async (
     }
   }
 
+  if (startDate) {
+    filter.closeDate = {
+      $gte: new Date(startDate)
+    };
+  }
+
+  if (endDate) {
+    if (filter.closeDate) {
+      filter.closeDate.$lte = new Date(endDate);
+    } else {
+      filter.closeDate = {
+        $lte: new Date(endDate)
+      };
+    }
+  }
+
   if (search) {
     Object.assign(filter, regexSearchText(search));
   }
@@ -200,13 +222,37 @@ export const generateCommonFilters = async (
     filter.userId = isEmpty ? { $in: [null, []] } : { $in: userIds };
   }
 
+  if (assignedToMe) {
+    filter.assignedUserIds = { $in: [currentUserId] };
+  }
+
+  if (segment) {
+    const segmentObj = await Segments.findOne({ _id: segment }).lean();
+    const itemIds = await fetchSegment('search', segmentObj);
+
+    filter._id = { $in: itemIds };
+  }
+
+  return filter;
+};
+
+export const calendarFilters = async (filter, args) => {
+  const { date, pipelineId } = args;
+
+  if (date) {
+    const stageIds = await Stages.find({ pipelineId }).distinct('_id');
+
+    filter.closeDate = dateSelector(date);
+    filter.stageId = { $in: stageIds };
+  }
+
   return filter;
 };
 
 export const generateDealCommonFilters = async (
   currentUserId: string,
-  args: any,
-  extraParams?: any
+  args,
+  extraParams?
 ) => {
   args.type = 'deal';
 
@@ -218,14 +264,7 @@ export const generateDealCommonFilters = async (
   }
 
   // Calendar monthly date
-  const { date, pipelineId } = args;
-
-  if (date) {
-    const stageIds = await Stages.find({ pipelineId }).distinct('_id');
-
-    filter.closeDate = dateSelector(date);
-    filter.stageId = { $in: stageIds };
-  }
+  await calendarFilters(filter, args);
 
   return filter;
 };
@@ -244,6 +283,9 @@ export const generateTicketCommonFilters = async (
     filter.source = contains(source);
   }
 
+  // Calendar monthly date
+  await calendarFilters(filter, args);
+
   return filter;
 };
 
@@ -253,7 +295,12 @@ export const generateTaskCommonFilters = async (
 ) => {
   args.type = 'task';
 
-  return generateCommonFilters(currentUserId, args);
+  const filter = await generateCommonFilters(currentUserId, args);
+
+  // Calendar monthly date
+  await calendarFilters(filter, args);
+
+  return filter;
 };
 
 export const generateSort = (args: IListParams) => {
@@ -403,7 +450,7 @@ export const getItemList = async (
   const sort = generateSort(args);
   const limit = args.limit !== undefined ? args.limit : 10;
 
-  const list = await collection.aggregate([
+  const pipelines: any[] = [
     {
       $match: filter
     },
@@ -412,9 +459,6 @@ export const getItemList = async (
     },
     {
       $skip: args.skip || 0
-    },
-    {
-      $limit: limit
     },
     {
       $lookup: {
@@ -454,73 +498,117 @@ export const getItemList = async (
         ...(extraFields || {})
       }
     }
-  ]);
+  ];
+
+  if (limit > 0) {
+    pipelines.splice(3, 0, { $limit: limit });
+  }
+
+  const list = await collection.aggregate(pipelines);
 
   const ids = list.map(item => item._id);
 
-  const getCoc = async (cocType: string, cocCollection: any, fields: any) => {
-    const conformities = await Conformities.getConformities({
-      mainType: type,
-      mainTypeIds: ids,
-      relType: cocType
-    });
-
-    const cocIds: string[] = [];
-    const cocIdsByItemId = {};
-
-    for (const conf of conformities) {
-      if (conf.mainType === cocType) {
-        cocIds.push(conf.mainTypeId);
-
-        if (!cocIdsByItemId[conf.relTypeId]) {
-          cocIdsByItemId[conf.relTypeId] = [];
-        }
-
-        cocIdsByItemId[conf.relTypeId].push(conf.mainTypeId);
-      } else {
-        cocIds.push(conf.relTypeId);
-
-        if (!cocIdsByItemId[conf.mainTypeId]) {
-          cocIdsByItemId[conf.mainTypeId] = [];
-        }
-
-        cocIdsByItemId[conf.mainTypeId].push(conf.relTypeId);
-      }
-    }
-
-    const cocs = await cocCollection.find(
-      {
-        _id: { $in: [...new Set(cocIds)] }
-      },
-      { ...fields, primaryEmail: 1, primaryPhone: 1, emails: 1, phones: 1 }
-    );
-
-    return { cocs, cocIdsByItemId };
-  };
-
-  const customer = await getCoc('customer', Customers, {
-    firstName: 1,
-    lastName: 1,
-    visitorContactInfo: 1
+  const conformities = await Conformities.getConformities({
+    mainType: type,
+    mainTypeIds: ids,
+    relTypes: ['company', 'customer']
   });
 
-  const getCustomersByItemId = (itemId: string) => {
-    const customerIds = customer.cocIdsByItemId[itemId] || [];
+  const companyIds: string[] = [];
+  const customerIds: string[] = [];
+  const companyIdsByItemId = {};
+  const customerIdsByItemId = {};
 
-    return customerIds.flatMap((customerId: string) => {
-      const found = customer.cocs.find(cus => customerId === cus._id);
+  const perConformity = (
+    conformity,
+    cocIdsByItemId,
+    cocIds,
+    typeId1,
+    typeId2
+  ) => {
+    cocIds.push(conformity[typeId1]);
 
-      return found || [];
-    });
+    if (!cocIdsByItemId[conformity[typeId2]]) {
+      cocIdsByItemId[conformity[typeId2]] = [];
+    }
+
+    cocIdsByItemId[conformity[typeId2]].push(conformity[typeId1]);
   };
 
-  const company = await getCoc('company', Companies, { primaryName: 1 });
+  for (const conf of conformities) {
+    if (conf.mainType === 'company') {
+      perConformity(
+        conf,
+        companyIdsByItemId,
+        companyIds,
+        'mainTypeId',
+        'relTypeId'
+      );
+      continue;
+    }
+    if (conf.relType === 'company') {
+      perConformity(
+        conf,
+        companyIdsByItemId,
+        companyIds,
+        'relTypeId',
+        'mainTypeId'
+      );
+      continue;
+    }
+    if (conf.mainType === 'customer') {
+      perConformity(
+        conf,
+        customerIdsByItemId,
+        customerIds,
+        'mainTypeId',
+        'relTypeId'
+      );
+      continue;
+    }
+    if (conf.relType === 'customer') {
+      perConformity(
+        conf,
+        customerIdsByItemId,
+        customerIds,
+        'relTypeId',
+        'mainTypeId'
+      );
+      continue;
+    }
+  }
 
-  const getCompaniesByItemId = (itemId: string) => {
-    const companyIds = company.cocIdsByItemId[itemId] || [];
+  const companies = await Companies.find(
+    {
+      _id: { $in: [...new Set(companyIds)] }
+    },
+    { primaryName: 1, primaryEmail: 1, primaryPhone: 1, emails: 1, phones: 1 }
+  );
 
-    return companyIds.flatMap((companyId: string) => {
-      const found = company.cocs.find(com => companyId === com._id);
+  const customers = await Customers.find(
+    {
+      _id: { $in: [...new Set(customerIds)] }
+    },
+    {
+      firstName: 1,
+      lastName: 1,
+      visitorContactInfo: 1,
+      primaryEmail: 1,
+      primaryPhone: 1,
+      emails: 1,
+      phones: 1
+    }
+  );
+
+  const getCocsByItemId = (
+    itemId: string,
+    cocIdsByItemId: any,
+    cocs: any[]
+  ) => {
+    const cocIds = cocIdsByItemId[itemId] || [];
+
+    return cocIds.flatMap((cocId: string) => {
+      const found = cocs.find(coc => cocId === coc._id);
 
       return found || [];
     });
@@ -540,8 +628,8 @@ export const getItemList = async (
       ...item,
       isWatched: (item.watchedUserIds || []).includes(user._id),
       hasNotified: notification ? false : true,
-      customers: getCustomersByItemId(item._id),
-      companies: getCompaniesByItemId(item._id),
+      customers: getCocsByItemId(item._id, customerIdsByItemId, customers),
+      companies: getCocsByItemId(item._id, companyIdsByItemId, companies),
       ...(getExtraFields ? await getExtraFields(item) : {})
     });
   }

@@ -18,6 +18,10 @@ const commonParams = `
   $sortField: String,
   $sortDirection: Int,
   $userIds: [String],
+  $segment: String,
+  $assignedToMe: String,
+  $startDate: String,
+  $endDate: String,
   ${conformityQueryFields}
 `;
 
@@ -32,6 +36,10 @@ const commonParamDefs = `
   sortField: $sortField,
   sortDirection: $sortDirection,
   userIds: $userIds,
+  segment: $segment,
+  assignedToMe: $assignedToMe,
+  startDate: $startDate,
+  endDate: $endDate,
   ${conformityQueryFieldDefs}
 `;
 
@@ -58,6 +66,26 @@ const tickets = `
     ) {
       ${commonListFields}
     }
+  }
+`;
+
+const ticketsTotalCount = `
+  query ticketsTotalCount(
+    $pipelineId: String,
+    $stageId: String,
+    $date: ItemDate,
+    $skip: Int,
+    $search: String,
+    ${commonParams}
+  ) {
+    ticketsTotalCount(
+      pipelineId: $pipelineId,
+      stageId: $stageId,
+      date: $date,
+      skip: $skip,
+      search: $search,
+      ${commonParamDefs}
+    )
   }
 `;
 
@@ -103,6 +131,7 @@ const archivedTicketsCount = `
 
 export default {
   tickets,
+  ticketsTotalCount,
   ticketDetail,
   archivedTickets,
   archivedTicketsCount

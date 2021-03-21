@@ -189,6 +189,12 @@ const stagesRemove = `
   }
 `;
 
+const stagesSortItems = `
+  mutation stagesSortItems($stageId: String!, $type: String, $proccessId: String, $sortType: String) {
+    stagesSortItems(stageId: $stageId, type: $type, proccessId: $proccessId, sortType: $sortType)
+  }
+`;
+
 const conversationConvertToCard = `
   mutation conversationConvertToCard($_id: String!, $type:String!, $stageId: String, $itemName:String, $itemId:String){
     conversationConvertToCard(_id:$_id,type:$type,itemId:$itemId,stageId:$stageId,itemName:$itemName )
@@ -204,5 +210,6 @@ export default {
   pipelineLabelsRemove,
   stagesEdit,
   stagesRemove,
+  stagesSortItems,
   conversationConvertToCard
 };

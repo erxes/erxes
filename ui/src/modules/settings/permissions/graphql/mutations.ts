@@ -70,7 +70,14 @@ const usersGroupsCopy = `
   }
 `;
 
+const permissionsFix = `
+  mutation permissionsFix {
+    permissionsFix
+  }
+`;
+
 export default {
+  permissionsFix,
   permissionAdd,
   permissionRemove,
   usersGroupsAdd,
