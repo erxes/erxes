@@ -73,9 +73,9 @@ class CreateFormContainer extends React.Component<FinalProps, {}> {
             variables: {
               contentType: 'form',
               contentTypeId: formId,
-              addingFields: fields.map(({ _id, ...fields }) => ({
+              addingFields: fields.map(({ _id, ...rest }) => ({
                 tempFieldId: _id,
-                ...fields
+                ...rest
               }))
             }
           });

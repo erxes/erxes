@@ -2,6 +2,7 @@ import Button from 'modules/common/components/Button';
 import { FormControl, FormGroup } from 'modules/common/components/form';
 import Icon from 'modules/common/components/Icon';
 import Info from 'modules/common/components/Info';
+import { __ } from 'modules/common/utils';
 import { IField, IFieldLogic } from 'modules/settings/properties/types';
 import { LinkButton } from 'modules/settings/team/styles';
 import React, { useEffect, useState } from 'react';
@@ -39,7 +40,7 @@ function FieldLogics(props: Props) {
 
   useEffect(() => {
     onFieldChange('logics', logics);
-  }, [logics]);
+  }, [logics, onFieldChange]);
 
   const [isEnabled, toggleState] = useState(
     currentField.logics ? currentField.logics.length > 0 : false
@@ -130,8 +131,9 @@ function FieldLogics(props: Props) {
   return (
     <>
       <Info>
-        Create rules to show or hide this element depending on the values of
-        other fields.
+        {__(
+          'Create rules to show or hide this element depending on the values of other fields'
+        )}
       </Info>
       {renderContent()}
     </>

@@ -92,10 +92,10 @@ class EditFormContainer extends React.Component<FinalProps> {
 
           // remove unnecessary fields
           fields.forEach(f => {
-            delete f.column;
             delete f.field;
             delete f.contentType;
             delete f.__typename;
+
             f.logics = f.logics.map(l => {
               delete l.__typename;
               return l;

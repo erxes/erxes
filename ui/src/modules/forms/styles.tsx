@@ -176,24 +176,26 @@ const LogicItem = styled.div`
   background: ${colors.bgLight};
   border-radius: 4px;
   padding: 10px;
-  margin: 0 -10px 10px -10px;
+  margin-bottom: 10px;
   border: 1px solid ${colors.borderPrimary};
 `;
 
 const LogicRow = styled.div`
   display: flex;
+  align-items: baseline;
 
   button {
-    margin-left: 20px;
+    margin-left: 10px;
+    padding: 3px 6px;
   }
 `;
 
-const RowLeft = styled.div`
+const RowSmall = styled.div`
   flex: 2;
   margin-right: 20px;
 `;
 
-const RowRight = styled.div`
+const RowFill = styled.div`
   flex: 1;
 `;
 
@@ -212,6 +214,6 @@ export {
   FormTop,
   LogicItem,
   LogicRow,
-  RowLeft,
-  RowRight
+  RowSmall,
+  RowFill
 };

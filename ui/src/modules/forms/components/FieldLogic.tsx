@@ -8,7 +8,7 @@ import {
   numberTypeChoices,
   stringTypeChoices
 } from '../constants';
-import { LogicItem, LogicRow, RowLeft, RowRight } from '../styles';
+import { LogicItem, LogicRow, RowFill, RowSmall } from '../styles';
 
 type Props = {
   onChangeLogic: (
@@ -157,9 +157,9 @@ function FieldLogic(props: Props) {
 
   return (
     <LogicItem>
-      <FormGroup>
-        <LogicRow>
-          <RowRight>
+      <LogicRow>
+        <RowFill>
+          <FormGroup>
             <FormControl
               componentClass="select"
               value={logic.fieldId || logic.tempFieldId}
@@ -173,31 +173,21 @@ function FieldLogic(props: Props) {
                 </option>
               ))}
             </FormControl>
-          </RowRight>
-          <Button
-            size="small"
-            onClick={remove}
-            btnStyle="simple"
-            icon="times"
-          />
-        </LogicRow>
-      </FormGroup>
-      <LogicRow>
-        <RowLeft>
-          <FormGroup>
-            <FormControl
-              componentClass="select"
-              defaultValue={logic.logicOperator}
-              name="logicOperator"
-              options={getOperatorOptions()}
-              onChange={onChangeLogicOperator}
-            />
           </FormGroup>
-        </RowLeft>
-
-        <RowRight>
-          <FormGroup>{renderLogicValue()}</FormGroup>
-        </RowRight>
+          <LogicRow>
+            <RowSmall>
+              <FormControl
+                componentClass="select"
+                defaultValue={logic.logicOperator}
+                name="logicOperator"
+                options={getOperatorOptions()}
+                onChange={onChangeLogicOperator}
+              />
+            </RowSmall>
+            <RowFill>{renderLogicValue()}</RowFill>
+          </LogicRow>
+        </RowFill>
+        <Button onClick={remove} btnStyle="danger" icon="times" />
       </LogicRow>
     </LogicItem>
   );
