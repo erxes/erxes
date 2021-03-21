@@ -129,6 +129,35 @@ company_mapping = {
     'customFieldsData' : nestedType
 }
 
+item_mapping = {
+    'userId': {
+        'type': 'keyword',
+    },
+    'stageId': {
+        'type': 'keyword',
+    },
+    'modifiedBy': {
+        'type': 'keyword',
+    },
+    'status': {
+        'type': 'keyword',
+    },
+    'assignedUserIds': {
+        'type': 'keyword',
+    },
+    'watchedUserIds': {
+        'type': 'keyword',
+    },
+    'labelIds': {
+        'type': 'keyword',
+    },
+    'customFieldsData' : nestedType
+}
+
+deal_mapping = item_mapping
+task_mapping = item_mapping
+ticket_mapping = item_mapping
+
 event_mapping = {
     'type': {
         'type': 'keyword',
@@ -185,6 +214,9 @@ db_name = pymongo.uri_parser.parse_uri(MONGO_URL)['database']
 put_mappings('%s__customers' % db_name, customer_mapping)
 put_mappings('%s__companies' % db_name, company_mapping)
 put_mappings('%s__events' % db_name, event_mapping)
+put_mappings('%s__deals' % db_name, deal_mapping)
+put_mappings('%s__tasks' % db_name, task_mapping)
+put_mappings('%s__tickets' % db_name, ticket_mapping)
 
 command = 'mongo-connector -m "%s"  -c mongo-connector-config.json --target-url %s' % (MONGO_URL, ELASTICSEARCH_URL)
 

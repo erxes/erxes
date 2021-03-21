@@ -14,7 +14,7 @@ import React from 'react';
 import { ITicket } from '../types';
 
 type Props = {
-  stageId: string;
+  stageId?: string;
   item: ITicket;
   onClick?: () => void;
   isFormVisible?: boolean;
@@ -36,7 +36,7 @@ class TicketItem extends React.PureComponent<Props> {
   }
 
   renderForm = () => {
-    const { item, isFormVisible } = this.props;
+    const { item, isFormVisible, stageId } = this.props;
 
     if (!isFormVisible) {
       return null;
@@ -45,6 +45,7 @@ class TicketItem extends React.PureComponent<Props> {
     return (
       <EditForm
         {...this.props}
+        stageId={stageId || item.stageId}
         itemId={item._id}
         hideHeader={true}
         isPopupVisible={isFormVisible}

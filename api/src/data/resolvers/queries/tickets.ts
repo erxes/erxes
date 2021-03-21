@@ -31,6 +31,19 @@ const ticketQueries = {
     return await getItemList(filter, args, user, 'ticket');
   },
 
+  async ticketsTotalCount(
+    _root,
+    args: IListParams,
+    { user, commonQuerySelector }: IContext
+  ) {
+    const filter = {
+      ...commonQuerySelector,
+      ...(await generateTicketCommonFilters(user._id, args))
+    };
+
+    return Tickets.find(filter).countDocuments();
+  },
+
   /**
    * Archived list
    */

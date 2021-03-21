@@ -44,10 +44,7 @@ context('Segments', () => {
         cy.get('#segment-select-operator').select('is set')
         cy.get('button[icon=times]').click({multiple: true})
 
-        cy.get('button[icon=computer-mouse]').click()
         cy.get('button[icon=check-circle]').click()
-
-        waitTilDisappear('button[icon=check-circle]')
     }
   });
 });

@@ -35,12 +35,6 @@ export const types = `
     name: String
     currencies: [DealTotalCurrency]
   }
-
-  type DealTotalAmounts {
-    _id: String
-    dealCount: Int
-    totalForType: [TotalForType]
-  }
 `;
 
 const dealMutationParams = `
@@ -62,24 +56,31 @@ const commonQueryParams = `
   sortField: String
   sortDirection: Int
   userIds: [String]
+  segment: String
+  assignedToMe: String
+  startDate: String
+  endDate: String
   `;
 
-export const queries = `
-  dealDetail(_id: String!): Deal
-  deals(
+const listQueryParams = `
     initialStageId: String
     stageId: String
     skip: Int
     limit: Int
     ${commonQueryParams}
     ${conformityQueryFields}
-    ): [DealListItem]
+ `;
+
+export const queries = `
+  dealDetail(_id: String!): Deal
+  deals(${listQueryParams}): [DealListItem]
+  dealsTotalCount(${listQueryParams}): Int
   archivedDeals(pipelineId: String!, search: String, page: Int, perPage: Int): [Deal]
   archivedDealsCount(pipelineId: String!, search: String): Int
   dealsTotalAmounts(
     ${commonQueryParams}
     ${conformityQueryFields}
-  ): DealTotalAmounts
+  ): [TotalForType]
 `;
 
 export const mutations = `

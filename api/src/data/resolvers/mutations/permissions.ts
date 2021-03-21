@@ -8,7 +8,7 @@ import {
 import { IUserDocument } from '../../../db/models/definitions/users';
 import { MODULE_NAMES } from '../../constants';
 import { putCreateLog, putDeleteLog, putUpdateLog } from '../../logUtils';
-import { resetPermissionsCache } from '../../permissions/utils';
+import { fixPermissions, resetPermissionsCache } from '../../permissions/utils';
 import { moduleCheckPermission } from '../../permissions/wrappers';
 import { IContext } from '../../types';
 
@@ -277,6 +277,10 @@ const usersGroupMutations = {
     );
 
     return clone;
+  },
+
+  async permissionsFix(_root, _params) {
+    return fixPermissions();
   }
 };
 

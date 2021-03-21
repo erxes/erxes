@@ -83,6 +83,12 @@ const dealQueries = {
     return deals;
   },
 
+  async dealsTotalCount(_root, args: IDealListParams, { user }: IContext) {
+    const filter = await generateDealCommonFilters(user._id, args);
+
+    return Deals.find(filter).countDocuments();
+  },
+
   /**
    * Archived list
    */
@@ -100,7 +106,6 @@ const dealQueries = {
   async dealsTotalAmounts(_root, args: IDealListParams, { user }: IContext) {
     const filter = await generateDealCommonFilters(user._id, args);
 
-    const dealCount = await Deals.find(filter).countDocuments();
     const amountList = await Deals.aggregate([
       {
         $match: filter
@@ -174,15 +179,13 @@ const dealQueries = {
       }
     ]);
 
-    const totalForType = amountList.map(type => {
+    return amountList.map(type => {
       return {
         _id: Math.random(),
         name: type._id,
         currencies: type.currencies
       };
     });
-
-    return { _id: Math.random(), dealCount, totalForType };
   },
 
   /**

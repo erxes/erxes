@@ -3,6 +3,8 @@ import ButtonMutate from 'modules/common/components/ButtonMutate';
 import FormControl from 'modules/common/components/form/Control';
 import FormGroup from 'modules/common/components/form/Group';
 import ControlLabel from 'modules/common/components/form/Label';
+import Info from 'modules/common/components/Info';
+import TextInfo from 'modules/common/components/TextInfo';
 import { ModalFooter } from 'modules/common/styles/main';
 import { __, Alert } from 'modules/common/utils';
 import SelectTeamMembers from 'modules/settings/team/containers/SelectTeamMembers';
@@ -136,6 +138,26 @@ class PermissionForm extends React.Component<Props, State> {
 
     return (
       <>
+        <Info>
+          <strong>User vs. Group Permissions</strong>
+          <br />
+          <span>
+            When a team member is part of two or more User Groups with different
+            levels of permissions,
+          </span>
+          <TextInfo textStyle="danger">
+            the negative permission will overrule.
+          </TextInfo>
+          <br />
+          <span>
+            For example, if you're part of the "Admin Group" with all
+            permissions allowed, but you've included yourself in the "Support
+            Group" with fewer permissions,
+          </span>
+          <TextInfo textStyle="danger">
+            you might not be able to do certain actions.
+          </TextInfo>
+        </Info>
         <StepItem>
           <StepHeader
             number="1"
