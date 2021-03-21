@@ -104,10 +104,9 @@ class EditFormContainer extends React.Component<FinalProps> {
 
           const addingFields = fields
             .filter(field => field._id.startsWith('tempId'))
-            // tslint:disable-next-line:no-shadowed-variable
-            .map(({ _id, ...fields }) => ({
+            .map(({ _id, ...rest }) => ({
               tempFieldId: _id,
-              ...fields
+              ...rest
             }));
 
           const editingFields = fields.filter(
