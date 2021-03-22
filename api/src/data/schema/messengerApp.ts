@@ -8,6 +8,18 @@ export const types = `
     accountId: String
   }
 
+  type WebSiteApp {
+    description: String
+    buttonText: String
+    url: String
+  }
+
+  type MessengerAppsResponse {
+    websites: [WebSiteApp]
+    knowledgebases: [KnowledgeBaseTopic]
+    leads: [Form]
+  }
+
   input WebSiteMessengerAppInput {
     description: String
     buttonText: String
@@ -31,4 +43,8 @@ export const types = `
 
 export const mutations = `
   messengerAppSave(integrationId: String!, messengerApps: MessengerAppsInput): String
+`;
+
+export const queries = `
+  messengerApps(integrationId: String!): MessengerAppsResponse
 `;
