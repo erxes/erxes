@@ -56,7 +56,7 @@ class FieldForm extends React.Component<Props, State> {
 
   onFieldChange = (
     name: string,
-    value: string | boolean | string[] | IFieldLogic[]
+    value: string | boolean | number | string[] | IFieldLogic[]
   ) => {
     this.setFieldAttrChanges(name, value);
   };
@@ -89,7 +89,7 @@ class FieldForm extends React.Component<Props, State> {
 
   setFieldAttrChanges(
     attributeName: string,
-    value: string | boolean | string[] | IFieldLogic[]
+    value: string | boolean | number | string[] | IFieldLogic[]
   ) {
     const { field } = this.state;
 
@@ -210,6 +210,12 @@ class FieldForm extends React.Component<Props, State> {
         (e.currentTarget as HTMLInputElement).checked
       );
 
+    const onChangeColumn = e =>
+      this.onFieldChange(
+        'column',
+        parseInt((e.currentTarget as HTMLInputElement).value, 10)
+      );
+
     return (
       <>
         <CollapseContent
@@ -217,20 +223,6 @@ class FieldForm extends React.Component<Props, State> {
           compact={true}
           open={true}
         >
-          <FormGroup>
-            <ControlLabel htmlFor="text" required={false}>
-              Group Name
-            </ControlLabel>
-
-            <FormControl
-              id="GroupName"
-              type="text"
-              value={field.groupName || ''}
-              onChange={groupName}
-              autoFocus={false}
-            />
-          </FormGroup>
-
           <FormGroup>
             <ControlLabel htmlFor="text" required={true}>
               Field Label
@@ -249,7 +241,6 @@ class FieldForm extends React.Component<Props, State> {
             <ControlLabel htmlFor="description">Field description</ControlLabel>
             <FormControl
               id="FieldDescription"
-              componentClass="textarea"
               value={field.description || ''}
               onChange={desc}
             />
@@ -273,6 +264,35 @@ class FieldForm extends React.Component<Props, State> {
                 onChange={toggle}
               />
             </FlexRow>
+          </FormGroup>
+          <FormGroup>
+            <ControlLabel htmlFor="text" required={false}>
+              Group Name
+            </ControlLabel>
+            <p>Use with logic and group multiple fields</p>
+            <FormControl
+              id="GroupName"
+              type="text"
+              value={field.groupName || ''}
+              onChange={groupName}
+              autoFocus={false}
+            />
+          </FormGroup>
+
+          <FormGroup>
+            <ControlLabel htmlFor="validation">Field width:</ControlLabel>
+
+            <FormControl
+              id="validation"
+              componentClass="select"
+              value={field.column || ''}
+              onChange={onChangeColumn}
+            >
+              <option value={1}>Full width</option>
+              <option value={2}>Half width</option>
+              <option value={3}>1/3 width</option>
+              <option value={4}>1/4 width</option>
+            </FormControl>
           </FormGroup>
 
           {this.renderCustomProperty()}

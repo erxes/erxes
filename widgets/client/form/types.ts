@@ -27,6 +27,7 @@ export interface IField {
   isVisible: boolean;
   lastUpdatedUserId: string;
   associatedFieldId?: string;
+  column?: number;
 
   logicAction?: string;
   logics?: ILogic[];

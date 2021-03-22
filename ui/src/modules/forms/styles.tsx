@@ -150,7 +150,7 @@ const PreviewSection = styled.div`
 `;
 
 const Preview = styled.div`
-  width: 80%;
+  width: 85%;
 `;
 
 const ShowPreview = styled.div`

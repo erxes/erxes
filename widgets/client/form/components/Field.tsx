@@ -248,13 +248,27 @@ export default class Field extends React.Component<Props, State> {
         });
     }
   }
+  
 
   render() {
     const { field, error } = this.props;
     const { isAttachingFile } = this.state;
 
+    console.log(field);
+    const fieldStyle = () => {
+      if(field.column) {
+        return {
+          width: `${100/field.column}%`,
+          display: 'inline-block'
+        }
+      }
+    }
+
     return (
-      <div className="form-group">
+      <div 
+        className="form-group" 
+        style={fieldStyle()}
+      >
         <label className="control-label" htmlFor={`field-${field._id}`}>
           {field.text}
           {field.isRequired ? <span className="required">*</span> : null}:

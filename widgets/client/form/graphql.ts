@@ -16,6 +16,7 @@ export const formDetailQuery = `
         order
         validation
         associatedFieldId
+        column
         
         groupId
         logicAction

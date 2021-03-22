@@ -180,8 +180,11 @@ class Form extends React.Component<Props, State> {
           {extraContent ? (
             <div dangerouslySetInnerHTML={{ __html: extraContent }} />
           ) : null}
-          {this.renderFields()}
 
+          <div className="erxes-form-fields">
+            {this.renderFields()}
+          </div>
+          
           <button
             style={{ background: color }}
             type="button"
