@@ -26,12 +26,14 @@ app.use('/build', express.static(path.join(__dirname, '../static')));
 app.use('/static', express.static('public'));
 
 const getEnv = () => {
-  const { ROOT_URL, API_URL, API_SUBSCRIPTIONS_URL } = process.env;
+  const { ROOT_URL, API_URL, API_SUBSCRIPTIONS_URL, DD_APPLICATION_ID, DD_CLIENT_TOKEN } = process.env;
 
   return JSON.stringify({
     ROOT_URL,
     API_URL,
-    API_SUBSCRIPTIONS_URL
+    API_SUBSCRIPTIONS_URL,
+    DD_APPLICATION_ID,
+    DD_CLIENT_TOKEN
   });
 };
 

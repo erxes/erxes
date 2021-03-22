@@ -3,8 +3,7 @@ name: Logger CI
 on:
   push:
     branches:
-      - master
-      - develop
+      - "**"
     paths:
       - "logger/**"
       - ".github/workflows/logger.yaml"
@@ -59,7 +58,7 @@ jobs:
           yarn build
 
       - name: Build docker image
-        if: github.event_name == 'push' && ( github.ref == 'refs/heads/master' || github.ref == 'refs/heads/develop' )
+        if: github.event_name == 'push' && ( github.ref == 'refs/heads/master' || github.ref == 'refs/heads/develop'  || github.ref == 'refs/heads/apm')
         run: |
           cd logger
           echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin
