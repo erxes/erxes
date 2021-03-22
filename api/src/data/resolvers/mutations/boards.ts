@@ -193,7 +193,20 @@ const boardMutations = {
   async stagesEdit(_root, { _id, ...doc }: IStageEdit, { user }: IContext) {
     await checkPermission(doc.type, user, 'stagesEdit');
 
-    return Stages.updateStage(_id, doc);
+    const stage = await Stages.getStage(_id);
+    const updated = await Stages.updateStage(_id, doc);
+
+    await putUpdateLog(
+      {
+        type: `${doc.type}Stages`,
+        newData: doc,
+        object: stage,
+        updatedDocument: updated
+      },
+      user
+    );
+
+    return updated;
   },
 
   /**
@@ -201,9 +214,14 @@ const boardMutations = {
    */
   async stagesRemove(_root, { _id }: { _id: string }, { user }: IContext) {
     const stage = await Stages.getStage(_id);
+
     await checkPermission(stage.type, user, 'stagesRemove');
 
-    return Stages.removeStage(_id);
+    const removed = await Stages.removeStage(_id);
+
+    await putDeleteLog({ type: `${stage.type}Stages`, object: stage }, user);
+
+    return removed;
   },
 
   async stagesSortItems(
