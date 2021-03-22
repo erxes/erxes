@@ -3,8 +3,8 @@ import { WebPreview } from 'modules/engage/styles';
 import { IBrand } from 'modules/settings/brands/types';
 import {
   IMessagesItem,
-  ISkillData,
-  IMessengerApps
+  IMessengerApps,
+  ISkillData
 } from 'modules/settings/integrations/types';
 import React from 'react';
 import GreetingContent from './GreetingContent';

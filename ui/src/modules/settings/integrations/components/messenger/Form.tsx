@@ -35,6 +35,7 @@ import CommonPreview from './widgetPreview/CommonPreview';
 type Props = {
   teamMembers: IUser[];
   integration?: IIntegration;
+  messengerApps?: IMessengerApps;
   brands: IBrand[];
   save: (params: {
     name: string;
@@ -102,7 +103,7 @@ class CreateMessenger extends React.Component<Props, State> {
     const messages = configData.messages || {};
     const uiOptions = integration.uiOptions || {};
     const channels = integration.channels || [];
-    const messengerApps = {};
+    const messengerApps = props.messengerApps || {};
 
     this.state = {
       title: integration.name,
@@ -334,7 +335,6 @@ class CreateMessenger extends React.Component<Props, State> {
       messengerApps
     } = this.state;
 
-    console.log(messengerApps);
     const { integration } = this.props;
     const message = messages[languageCode];
 
