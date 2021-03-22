@@ -1,6 +1,4 @@
-import { Forms, KnowledgeBaseTopics, MessengerApps } from '../../../db/models';
-import { IFormDocument } from '../../../db/models/definitions/forms';
-import { ITopicDocument } from '../../../db/models/definitions/knowledgebase';
+import { MessengerApps } from '../../../db/models';
 
 interface IWebsite {
   description?: string;
@@ -18,8 +16,8 @@ const messengerAppsQueries = {
     });
 
     const websites: IWebsite[] = [];
-    const knowledgebases: ITopicDocument[] = [];
-    const leads: IFormDocument[] = [];
+    const knowledgebases: string[] = [];
+    const leads: string[] = [];
 
     for (const app of apps) {
       const credentials: any = app.credentials;
@@ -36,18 +34,11 @@ const messengerAppsQueries = {
       }
 
       if (app.kind === 'knowledgebase') {
-        const knowledgeBaseTopic = await KnowledgeBaseTopics.getTopic(
-          credentials.topicId
-        );
-        knowledgebases.push(knowledgeBaseTopic);
+        knowledgebases.push(credentials.topicId);
       }
 
       if (app.kind === 'lead') {
-        const form = await Forms.findOne({ code: credentials.formCode });
-
-        if (form) {
-          leads.push(form);
-        }
+        leads.push(credentials.formCode);
       }
     }
 

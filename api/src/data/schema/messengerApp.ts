@@ -16,8 +16,8 @@ export const types = `
 
   type MessengerAppsResponse {
     websites: [WebSiteApp]
-    knowledgebases: [KnowledgeBaseTopic]
-    leads: [Form]
+    knowledgebases: [String]
+    leads: [String]
   }
 
   input WebSiteMessengerAppInput {
