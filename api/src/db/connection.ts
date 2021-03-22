@@ -14,10 +14,11 @@ dotenv.config();
 const NODE_ENV = getEnv({ name: 'NODE_ENV' });
 const MONGO_URL = getEnv({ name: 'MONGO_URL', defaultValue: '' });
 
-export const connectionOptions = {
+export const connectionOptions: mongoose.ConnectionOptions = {
   useNewUrlParser: true,
   useCreateIndex: true,
   autoReconnect: true,
+  family: 4,
   useFindAndModify: false
 };
 
