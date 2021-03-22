@@ -184,6 +184,7 @@ const ErxesGreeting = styled.div`
   padding: 25px 40px 45px;
   text-align: left;
   min-height: 174px;
+  position: relative;
 `;
 
 const ErxesFromCustomer = styled.li`
@@ -274,11 +275,12 @@ const GreetingInfo = styled.div`
   }
 `;
 
-const ErxesContent = styled.div`
+const ErxesContent = styledTS<{ isTabbed: boolean }>(styled.div)`
   height: 100%;
-  margin-top: -40px;
+  margin-top: ${props => (props.isTabbed ? '0px' : '-40px')};
   flex: 1;
   overflow: auto;
+  z-index: 5;
 `;
 
 const LeftSide = styled.div`
@@ -410,10 +412,58 @@ const SkillWrapper = styledTS<{ color?: string }>(styled.div)`
   }
 `;
 
+const TopBarTab = styled.div`
+  border-bottom: 1px solid ${colors.borderPrimary};
+  color: ${colors.textPrimary};
+  cursor: pointer;
+  display: flex;
+  height: 36px;
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  z-index: 1;
+
+  > span {
+    align-items: center;
+    background: ${colors.colorWhite};
+    display: flex;
+    flex: 1;
+    font-size: 11px;
+    justify-content: center;
+    text-align: center;
+    text-transform: uppercase;
+    transition: all 0.3s ease;
+
+    &:last-of-type {
+      border-left: 1px solid ${colors.borderPrimary};
+    }
+  }
+`;
+
+const Website = styledTS<{ color?: string }>(styled.div)`
+  padding: 5px ${coreSpace} ${coreSpace};
+
+  > p {
+    margin-bottom: 15px;
+  }
+
+  > button {
+    width: 100%;
+    background: ${props => props.color && props.color};
+    border-radius: 5px;
+
+    &:hover {
+      background: ${props => props.color && props.color};
+    }
+  }
+`;
+
 export {
   ErxesTopbar,
   ErxesState,
   ServerInfo,
+  TopBarTab,
   ErxesSupporters,
   ErxesMessage,
   ErxesMiddleTitle,
@@ -441,5 +491,6 @@ export {
   TopBarIcon,
   VideoCallRequestWrapper,
   CallButtons,
-  SkillWrapper
+  SkillWrapper,
+  Website
 };

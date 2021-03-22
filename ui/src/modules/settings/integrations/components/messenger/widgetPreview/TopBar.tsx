@@ -3,7 +3,10 @@ import { IUser } from 'modules/auth/types';
 import Icon from 'modules/common/components/Icon';
 import { __ } from 'modules/common/utils';
 import { IBrand } from 'modules/settings/brands/types';
-import { IMessagesItem } from 'modules/settings/integrations/types';
+import {
+  IMessagesItem,
+  IMessengerApps
+} from 'modules/settings/integrations/types';
 import React from 'react';
 import {
   ErxesGreeting,
@@ -13,7 +16,8 @@ import {
   Links,
   ServerInfo,
   Socials,
-  TopBarIcon
+  TopBarIcon,
+  TopBarTab
 } from './styles';
 import SupporterComponent from './Supporters';
 
@@ -29,6 +33,8 @@ type Props = {
   brands?: IBrand[];
   teamMembers: IUser[];
   showChatPreview?: boolean;
+  activeStep?: string;
+  messengerApps?: IMessengerApps;
   timezone?: string;
   facebook?: string;
   twitter?: string;
@@ -142,6 +148,26 @@ class TopBar extends React.Component<Props> {
     );
   }
 
+  renderTab() {
+    const { messengerApps, activeStep } = this.props;
+
+    if (
+      !messengerApps ||
+      (messengerApps.knowledgebases || []).length === 0 ||
+      activeStep !== 'addon'
+    ) {
+      return null;
+    }
+
+    return (
+      <TopBarTab>
+        <div style={{ backgroundColor: this.props.color }} />
+        <span>{__('Support')}</span>
+        <span>{__('Faq')}</span>
+      </TopBarTab>
+    );
+  }
+
   renderGreetingTopbar() {
     const { facebook, twitter, youtube } = this.props;
 
@@ -160,6 +186,7 @@ class TopBar extends React.Component<Props> {
           {this.renderGreetings()}
           {this.renderSupporters()}
           {this.renderServerInfo()}
+          {this.renderTab()}
         </ErxesGreeting>
         {this.renderIcons('cancel', false, 11)}
       </>

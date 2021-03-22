@@ -82,7 +82,7 @@ const EditMessenger = (props: FinalProps) => {
       uiOptions,
       messengerApps
     } = doc;
-    console.log(messengerApps);
+
     editMessengerMutation({
       variables: {
         _id: integrationId,

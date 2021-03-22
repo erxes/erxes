@@ -488,8 +488,8 @@ class CreateMessenger extends React.Component<Props, State> {
                 logoPreviewUrl={logoPreviewUrl}
                 showChatPreview={isStepActive}
                 activeStep={activeStep}
-                messengerApps={messengerApps}
                 showVideoCallRequest={showVideoCallRequest}
+                messengerApps={messengerApps}
                 facebook={facebook}
                 twitter={twitter}
                 youtube={youtube}

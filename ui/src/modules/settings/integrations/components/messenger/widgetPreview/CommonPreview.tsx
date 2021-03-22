@@ -22,13 +22,13 @@ type Props = {
   supporterIds?: string[];
   isOnline: boolean;
   logoPreviewUrl?: string;
-  messengerApps?: IMessengerApps;
   brandId?: string;
   brands?: IBrand[];
   timezone?: string;
   skillData?: ISkillData;
   showChatPreview?: boolean;
   showVideoCallRequest?: boolean;
+  messengerApps?: IMessengerApps;
   activeStep?: string;
   facebook?: string;
   twitter?: string;
@@ -46,11 +46,18 @@ class CommonPreview extends React.Component<Props> {
       message,
       skillData,
       activeStep,
+      messengerApps,
       showVideoCallRequest
     } = this.props;
 
     if (showChatPreview) {
-      return <GreetingContent />;
+      return (
+        <GreetingContent
+          activeStep={activeStep}
+          messengerApps={messengerApps}
+          color={color}
+        />
+      );
     }
 
     return (

@@ -131,25 +131,16 @@ const integrationGetLineWebhookUrl = `
 const messengerApps = `
   query messengerApps($integrationId: String!) {
     messengerApps(integrationId: $integrationId) {
-      websites {
+      websites{
+        description
         buttonText
         url
-        description
       }
-      leads {
-        _id
-        fields{
-          text
-        }
+      knowledgebases{
+        topicId
       }
-      knowledgebases {
-        _id
-        categories{
-          title
-          articles {
-            summary
-          }
-        }
+      leads{
+        formCode
       }
     }
   }
