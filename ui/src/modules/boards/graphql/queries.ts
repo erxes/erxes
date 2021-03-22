@@ -201,15 +201,15 @@ const tasks = `
     tasks(${boardItemQueryParams}) {
       ${cardFields}
     }
-  } 
+  }
 `;
 
 const tickets = `
-  query tickets(${boardItemQueryParamsDef}}) {
+  query tickets(${boardItemQueryParamsDef}) {
     tickets(${boardItemQueryParams}) {
       ${cardFields}
     }
-  } 
+  }
 `;
 
 const deals = `
@@ -217,7 +217,7 @@ const deals = `
     deals(${boardItemQueryParams}) {
       ${cardFields}
     }
-  } 
+  }
 `;
 
 export default {
