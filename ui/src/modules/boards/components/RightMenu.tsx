@@ -220,7 +220,10 @@ export default class RightMenu extends React.Component<Props, State> {
 
         {this.renderDates()}
 
-        <SegmentFilter type={options.type} />
+        <SegmentFilter
+          type={options.type}
+          pipelineId={queryParams.pipelineId || ''}
+        />
       </FilterBox>
     );
   }

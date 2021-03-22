@@ -314,13 +314,18 @@ const boardQueries = {
     };
   },
 
-  async itemsCountBySegments(_root, { type }: { type: string }) {
+  async itemsCountBySegments(
+    _root,
+    { type, pipelineId }: { type: string; pipelineId: string }
+  ) {
     const segments = await Segments.find({ contentType: type });
 
     const counts = {};
 
     for (const segment of segments) {
-      counts[segment._id] = await fetchSegment('count', segment);
+      counts[segment._id] = await fetchSegment('count', segment, {
+        pipelineId
+      });
     }
 
     return counts;

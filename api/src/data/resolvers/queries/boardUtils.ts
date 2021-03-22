@@ -450,7 +450,7 @@ export const getItemList = async (
   const sort = generateSort(args);
   const limit = args.limit !== undefined ? args.limit : 10;
 
-  const list = await collection.aggregate([
+  const pipelines: any[] = [
     {
       $match: filter
     },
@@ -459,9 +459,6 @@ export const getItemList = async (
     },
     {
       $skip: args.skip || 0
-    },
-    {
-      $limit: limit
     },
     {
       $lookup: {
@@ -501,7 +498,13 @@ export const getItemList = async (
         ...(extraFields || {})
       }
     }
-  ]);
+  ];
+
+  if (limit > 0) {
+    pipelines.splice(3, 0, { $limit: limit });
+  }
+
+  const list = await collection.aggregate(pipelines);
 
   const ids = list.map(item => item._id);
 
