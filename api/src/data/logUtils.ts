@@ -6,7 +6,10 @@ import {
 import * as _ from 'underscore';
 import { IBrowserInfo } from '../db/models/Customers';
 
-import { IPipelineDocument } from '../db/models/definitions/boards';
+import {
+  IPipelineDocument,
+  IStageDocument
+} from '../db/models/definitions/boards';
 import { IChannelDocument } from '../db/models/definitions/channels';
 import { ICompanyDocument } from '../db/models/definitions/companies';
 import { ACTIVITY_CONTENT_TYPES } from '../db/models/definitions/constants';
@@ -945,6 +948,45 @@ const gatherUserFieldNames = async (
   return options;
 };
 
+const gatherStageFieldNames = async (
+  doc: IStageDocument,
+  prevList?: LogDesc[]
+): Promise<LogDesc[]> => {
+  let options: LogDesc[] = [];
+
+  if (prevList) {
+    options = prevList;
+  }
+
+  if (doc.userId) {
+    options = await gatherUsernames({
+      idFields: [doc.userId],
+      foreignKey: 'userId',
+      prevList: options
+    });
+  }
+  if (doc.pipelineId) {
+    options = await gatherNames({
+      collection: Pipelines,
+      idFields: [doc.pipelineId],
+      foreignKey: 'pipelineId',
+      prevList: options,
+      nameFields: ['name']
+    });
+  }
+  if (doc.formId) {
+    options = await gatherNames({
+      collection: Forms,
+      idFields: [doc.formId],
+      foreignKey: 'formId',
+      prevList: options,
+      nameFields: ['title']
+    });
+  }
+
+  return options;
+};
+
 const gatherDescriptions = async (
   params: IDescriptionParams
 ): Promise<IDescriptions> => {
@@ -1370,7 +1412,7 @@ const gatherDescriptions = async (
 
       break;
     case MODULE_NAMES.TICKET:
-      description = `"${obj.name}" has been ${action}`;
+      description = `"${obj.name}" has been ${action}d`;
 
       extraDesc = await gatherBoardItemFieldNames(obj);
 
@@ -1380,7 +1422,7 @@ const gatherDescriptions = async (
 
       break;
     case MODULE_NAMES.USER:
-      description = `"${obj.username || obj.email}" has been ${action}`;
+      description = `"${obj.username || obj.email}" has been ${action}d`;
 
       extraDesc = await gatherUserFieldNames(obj);
 
@@ -1389,6 +1431,20 @@ const gatherDescriptions = async (
       }
 
       break;
+    case MODULE_NAMES.STAGE_DEAL:
+    case MODULE_NAMES.STAGE_TASK:
+    case MODULE_NAMES.STAGE_TICKET:
+    case MODULE_NAMES.STAGE_GH:
+      description = `"${obj.name}" has been ${action}d`;
+
+      extraDesc = await gatherStageFieldNames(obj, extraDesc);
+
+      if (updatedDocument) {
+        extraDesc = await gatherStageFieldNames(updatedDocument, extraDesc);
+      }
+
+      break;
+
     default:
       break;
   }
