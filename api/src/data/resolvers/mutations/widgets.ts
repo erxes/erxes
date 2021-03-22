@@ -41,6 +41,7 @@ import { AUTO_BOT_MESSAGES, BOT_MESSAGE_TYPES } from '../../constants';
 import { sendToVisitorLog } from '../../logUtils';
 import { IContext } from '../../types';
 import {
+  findCustomer,
   registerOnboardHistory,
   replaceEditorAttributes,
   sendEmail,
@@ -48,7 +49,10 @@ import {
   sendRequest,
   sendToWebhook
 } from '../../utils';
-import { convertVisitorToCustomer } from '../../widgetUtils';
+import {
+  convertVisitorToCustomer,
+  createCustomerFromForm
+} from '../../widgetUtils';
 import { conversationNotifReceivers } from './conversations';
 
 interface ISubmission {
@@ -289,6 +293,8 @@ const widgetMutations = {
     const content = form.title;
 
     const temp: { [key: string]: any[] } = {};
+    const emails: string[] = [];
+    const phones: string[] = [];
 
     submissions.forEach(submission => {
       if (submission.groupId) {
@@ -304,9 +310,24 @@ const widgetMutations = {
           temp.submissions = [submission];
         }
       }
+
+      if (submission.type === 'email') {
+        emails.push(submission.value);
+      }
+
+      if (submission.type === 'phone') {
+        phones.push(submission.value);
+      }
     });
 
-    let customerId;
+    let cachedCustomer = await Customers.getWidgetCustomer({
+      integrationId,
+      emails,
+      phones,
+      cachedCustomerId
+    });
+
+    let customerId = (cachedCustomer && cachedCustomer._id) || '';
 
     Object.keys(temp).forEach(async key => {
       const values = temp[key];
@@ -315,7 +336,7 @@ const widgetMutations = {
       let phone;
       let firstName = '';
       let lastName = '';
-      let customFieldsData = new Array<ICustomField>();
+      const customFieldsData = new Array<ICustomField>();
 
       values.forEach(submission => {
         if (submission.type === 'email') {
@@ -342,15 +363,24 @@ const widgetMutations = {
         }
       });
 
-      let customer = await Customers.getWidgetCustomer({
-        integrationId,
-        email,
-        phone,
-        cachedCustomerId
-      });
+      if (!cachedCustomer) {
+        cachedCustomer = await createCustomerFromForm(
+          {
+            integrationId,
+            primaryEmail: email,
+            emails: [email],
+            firstName,
+            lastName,
+            primaryPhone: phone,
+            customFieldsData
+          },
+          browserInfo,
+          customFieldsData
+        );
 
-      if (!customer) {
-        customer = await Customers.createCustomer({
+        customerId = cachedCustomer._id;
+      } else {
+        const customerDoc = {
           integrationId,
           primaryEmail: email,
           emails: [email],
@@ -358,38 +388,16 @@ const widgetMutations = {
           lastName,
           primaryPhone: phone,
           customFieldsData
-        });
+        };
+        const customer = await findCustomer(customerDoc);
+        if (!customer) {
+          await createCustomerFromForm(
+            customerDoc,
+            browserInfo,
+            customFieldsData
+          );
+        }
       }
-
-      if (customer.customFieldsData) {
-        customFieldsData = customFieldsData.concat(customer.customFieldsData);
-      }
-
-      if (!customerId || customerId.length === 0) {
-        customerId = customer._id;
-      }
-
-      const customerDoc = {
-        location: browserInfo,
-        firstName: customer.firstName || firstName,
-        lastName: customer.lastName || lastName,
-        customFieldsData,
-        ...(customer.primaryEmail
-          ? {}
-          : {
-              emails: [email],
-              primaryEmail: email
-            }),
-        ...(customer.primaryPhone
-          ? {}
-          : {
-              phones: [phone],
-              primaryPhone: phone
-            })
-      };
-
-      // update location info and missing fields
-      await Customers.updateCustomer(customer._id, customerDoc);
     });
 
     // get or create customer
@@ -435,6 +443,8 @@ const widgetMutations = {
     //   customer: customerDoc,
     //   cachedCustomerId: args.cachedCustomerId
     // });
+
+    console.log('customerId: ', customerId);
 
     return { status: 'ok', messageId: message._id, customerId };
   },

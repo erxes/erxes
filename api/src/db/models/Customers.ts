@@ -20,6 +20,8 @@ import { IUserDocument } from './definitions/users';
 interface IGetCustomerParams {
   email?: string;
   phone?: string;
+  emails?: string[];
+  phones?: string[];
   code?: string;
   integrationId?: string;
   cachedCustomerId?: string;
@@ -594,6 +596,8 @@ export const loadClass = () => {
       integrationId,
       email,
       phone,
+      emails,
+      phones,
       code,
       cachedCustomerId
     }: IGetCustomerParams) {
@@ -608,6 +612,18 @@ export const loadClass = () => {
       if (!customer && phone) {
         customer = await Customers.findOne({
           $or: [{ phones: { $in: [phone] } }, { primaryPhone: phone }]
+        });
+      }
+
+      if (!customer && emails) {
+        customer = await Customers.findOne({
+          $or: [{ emails: { $in: emails } }, { primaryEmail: { $in: emails } }]
+        });
+      }
+
+      if (!customer && phones) {
+        customer = await Customers.findOne({
+          $or: [{ phones: { $in: phones } }, { primaryPhone: { $in: phones } }]
         });
       }
 

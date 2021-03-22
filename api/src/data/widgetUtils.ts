@@ -7,7 +7,9 @@ import {
 } from '../db/models';
 import Messages from '../db/models/ConversationMessages';
 import { IBrowserInfo } from '../db/models/Customers';
+import { ICustomField } from '../db/models/definitions/common';
 import { KIND_CHOICES } from '../db/models/definitions/constants';
+import { ICustomer } from '../db/models/definitions/customers';
 import { debugBase, debugError } from '../debuggers';
 import { client, fetchElk, getIndexPrefix } from '../elasticsearch';
 import { getVisitorLog, sendToVisitorLog } from './logUtils';
@@ -238,4 +240,38 @@ export const getOrCreateEngageMessageElk = async (
   const convs = await Conversations.find(query);
 
   return Messages.findOne(Conversations.widgetsUnreadMessagesQuery(convs));
+};
+
+export const createCustomerFromForm = async (
+  doc: ICustomer,
+  browserInfo: any,
+  customFieldsData?: ICustomField[]
+) => {
+  const customer = await Customers.createCustomer(doc);
+
+  if (customer.customFieldsData && customFieldsData) {
+    customFieldsData = customFieldsData.concat(customer.customFieldsData);
+  }
+
+  const customerDoc = {
+    location: browserInfo,
+    firstName: customer.firstName || doc.firstName,
+    lastName: customer.lastName || doc.lastName,
+    customFieldsData,
+    ...(customer.primaryEmail
+      ? {}
+      : {
+          emails: doc.emails,
+          primaryEmail: doc.primaryEmail
+        }),
+    ...(customer.primaryPhone
+      ? {}
+      : {
+          phones: doc.phones,
+          primaryPhone: doc.primaryPhone
+        })
+  };
+
+  await Customers.updateCustomer(customer._id, customerDoc);
+  return customer;
 };
