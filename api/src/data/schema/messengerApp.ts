@@ -14,10 +14,18 @@ export const types = `
     url: String
   }
 
+  type KnowledgebaseApp {
+    topicId: String
+  }
+
+  type LeadApp {
+    formCode: String
+  }
+
   type MessengerAppsResponse {
     websites: [WebSiteApp]
-    knowledgebases: [KnowledgeBaseTopic]
-    leads: [Form]
+    knowledgebases: [KnowledgebaseApp]
+    leads: [LeadApp]
   }
 
   input WebSiteMessengerAppInput {
