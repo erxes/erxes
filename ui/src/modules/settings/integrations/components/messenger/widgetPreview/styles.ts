@@ -196,7 +196,7 @@ const ToggleWrapper = styled.div`
 
 const FromCustomer = styled(ErxesMessage)`
   border-bottom-left-radius: ${coreSpace};
-  border-top-right-radius: 2px;
+  border-bottom-right-radius: 2px;
   color: ${colors.colorWhite};
   margin: 0 0 5px ${coreSpace};
   text-align: right;
@@ -389,6 +389,27 @@ const CallButtons = styledTS<{ color: string }>(styled.div)`
   }
 `;
 
+const SkillWrapper = styledTS<{ color?: string }>(styled.div)`
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+
+  ${FromCustomer} {
+    color: #686868;
+  }
+
+  button {
+    background: ${props => props.color && props.color};
+    margin-bottom: ${unitSpace};
+
+    &:hover {
+      box-shadow: 0 1px 10px 2px rgba(0,0,0,.15);
+      opacity: .9;
+      background: ${props => props.color && props.color};
+    }
+  }
+`;
+
 export {
   ErxesTopbar,
   ErxesState,
@@ -419,5 +440,6 @@ export {
   Socials,
   TopBarIcon,
   VideoCallRequestWrapper,
-  CallButtons
+  CallButtons,
+  SkillWrapper
 };

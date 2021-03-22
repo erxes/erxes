@@ -1,6 +1,6 @@
 import Button from 'erxes-ui/lib/components/Button';
 import { __ } from 'modules/common/utils';
-import { IMessagesItem } from 'modules/settings/integrations/types';
+import { IMessagesItem, ISkillData } from 'modules/settings/integrations/types';
 import React from 'react';
 import {
   CallButtons,
@@ -12,6 +12,7 @@ import {
   ErxesMessagesList,
   ErxesSpacialMessage,
   FromCustomer,
+  SkillWrapper,
   VideoCallRequestWrapper
 } from './styles';
 
@@ -20,11 +21,24 @@ type Props = {
   textColor: string;
   wallpaper: string;
   isOnline?: boolean;
+  skillData?: ISkillData;
+  activeStep?: string;
   showVideoCallRequest?: boolean;
   message?: IMessagesItem;
 };
 
-class WidgetContent extends React.Component<Props> {
+class WidgetContent extends React.Component<Props, { skillResponse?: string }> {
+  constructor(props) {
+    super(props);
+
+    this.state = {
+      skillResponse: ''
+    };
+  }
+  onSkillClick = skill => {
+    this.setState({ skillResponse: skill.response && skill.response });
+  };
+
   renderMessage = msg => {
     if (!msg) {
       return null;
@@ -34,9 +48,9 @@ class WidgetContent extends React.Component<Props> {
   };
 
   renderVideoCall() {
-    const { showVideoCallRequest, color } = this.props;
+    const { showVideoCallRequest, color, activeStep } = this.props;
 
-    if (!showVideoCallRequest) {
+    if (!showVideoCallRequest || activeStep !== 'default') {
       return null;
     }
 
@@ -56,6 +70,43 @@ class WidgetContent extends React.Component<Props> {
     );
   }
 
+  renderSkills() {
+    const { activeStep, color, skillData } = this.props;
+
+    if (
+      !skillData ||
+      (Object.keys(skillData) || []).length === 0 ||
+      !skillData.options ||
+      activeStep !== 'intro'
+    ) {
+      return null;
+    }
+
+    if (this.state.skillResponse) {
+      return (
+        <SkillWrapper>
+          <FromCustomer>{this.state.skillResponse}</FromCustomer>
+        </SkillWrapper>
+      );
+    }
+
+    return (
+      <SkillWrapper color={color}>
+        {(skillData.options || []).map((skill, index) => {
+          if (!skill.label) {
+            return null;
+          }
+
+          return (
+            <Button onClick={this.onSkillClick.bind(this, skill)} key={index}>
+              {skill.label}
+            </Button>
+          );
+        })}
+      </SkillWrapper>
+    );
+  }
+
   render() {
     const { color, wallpaper, message, isOnline, textColor } = this.props;
 
@@ -65,6 +116,7 @@ class WidgetContent extends React.Component<Props> {
       <>
         <ErxesMessagesList className={backgroundClasses}>
           {isOnline && this.renderMessage(message && message.welcome)}
+          {this.renderSkills()}
           {this.renderVideoCall()}
           <li>
             <ErxesAvatar>

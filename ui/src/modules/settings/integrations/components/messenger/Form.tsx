@@ -72,6 +72,7 @@ type State = {
   youtube: string;
   messages: IMessages;
   isStepActive?: boolean;
+  activeStep?: string;
   requireAuth?: boolean;
   showChat?: boolean;
   showLauncher?: boolean;
@@ -267,7 +268,11 @@ class CreateMessenger extends React.Component<Props, State> {
 
   onStepClick = name => {
     this.setState({
-      isStepActive: name === 'greeting' || name === 'hours' ? true : false
+      isStepActive:
+        name === 'greeting' || name === 'hours' || name === 'addon'
+          ? true
+          : false,
+      activeStep: name
     });
   };
 
@@ -318,6 +323,7 @@ class CreateMessenger extends React.Component<Props, State> {
       youtube,
       messages,
       isStepActive,
+      activeStep,
       requireAuth,
       showChat,
       showLauncher,
@@ -472,12 +478,14 @@ class CreateMessenger extends React.Component<Props, State> {
                 wallpaper={wallpaper}
                 color={color}
                 textColor={textColor}
+                skillData={skillData}
                 brands={this.props.brands}
                 brandId={brandId}
                 timezone={timezone}
                 logoPreviewStyle={logoPreviewStyle}
                 logoPreviewUrl={logoPreviewUrl}
                 showChatPreview={isStepActive}
+                activeStep={activeStep}
                 facebook={facebook}
                 showVideoCallRequest={showVideoCallRequest}
                 twitter={twitter}

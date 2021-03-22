@@ -1,7 +1,7 @@
 import { IUser } from 'modules/auth/types';
 import { WebPreview } from 'modules/engage/styles';
 import { IBrand } from 'modules/settings/brands/types';
-import { IMessagesItem } from 'modules/settings/integrations/types';
+import { IMessagesItem, ISkillData } from 'modules/settings/integrations/types';
 import React from 'react';
 import GreetingContent from './GreetingContent';
 import { Launcher, WidgetPreviewStyled } from './styles';
@@ -21,8 +21,10 @@ type Props = {
   brandId?: string;
   brands?: IBrand[];
   timezone?: string;
+  skillData?: ISkillData;
   showChatPreview?: boolean;
   showVideoCallRequest?: boolean;
+  activeStep?: string;
   facebook?: string;
   twitter?: string;
   youtube?: string;
@@ -37,6 +39,8 @@ class CommonPreview extends React.Component<Props> {
       textColor,
       wallpaper,
       message,
+      skillData,
+      activeStep,
       showVideoCallRequest
     } = this.props;
 
@@ -46,11 +50,13 @@ class CommonPreview extends React.Component<Props> {
 
     return (
       <WidgetContent
+        skillData={skillData}
         textColor={textColor}
         color={color}
         message={message}
         isOnline={isOnline}
         wallpaper={wallpaper}
+        activeStep={activeStep}
         showVideoCallRequest={showVideoCallRequest}
       />
     );

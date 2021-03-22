@@ -134,7 +134,7 @@ function BuildSkill({
       return (
         <Item key={index}>
           <FormGroup>
-            <ControlLabel>Select a skill</ControlLabel>
+            <ControlLabel required={true}>Select a skill</ControlLabel>
             <Select
               placeholder="Choose a select"
               value={option.skillId}
@@ -145,7 +145,7 @@ function BuildSkill({
           </FormGroup>
 
           <FormGroup>
-            <ControlLabel>Write a label</ControlLabel>
+            <ControlLabel required={true}>Write a label</ControlLabel>
             <FormControl value={option.label} onChange={handleLabelChange} />
           </FormGroup>
 
