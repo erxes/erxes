@@ -28,15 +28,12 @@ const messengerAppsQueries = {
 
     for (const app of apps) {
       const credentials: any = app.credentials;
-      if (!credentials) {
-        continue;
-      }
 
       if (app.kind === 'website') {
         websites.push({
-          description: credentials.description,
-          buttonText: credentials.buttonText,
-          url: credentials.url
+          description: credentials.description || '',
+          buttonText: credentials.buttonText || '',
+          url: credentials.url || ''
         });
       }
 
