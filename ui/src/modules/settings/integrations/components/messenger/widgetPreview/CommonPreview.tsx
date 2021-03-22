@@ -1,7 +1,11 @@
 import { IUser } from 'modules/auth/types';
 import { WebPreview } from 'modules/engage/styles';
 import { IBrand } from 'modules/settings/brands/types';
-import { IMessagesItem, ISkillData } from 'modules/settings/integrations/types';
+import {
+  IMessagesItem,
+  ISkillData,
+  IMessengerApps
+} from 'modules/settings/integrations/types';
 import React from 'react';
 import GreetingContent from './GreetingContent';
 import { Launcher, WidgetPreviewStyled } from './styles';
@@ -18,6 +22,7 @@ type Props = {
   supporterIds?: string[];
   isOnline: boolean;
   logoPreviewUrl?: string;
+  messengerApps?: IMessengerApps;
   brandId?: string;
   brands?: IBrand[];
   timezone?: string;

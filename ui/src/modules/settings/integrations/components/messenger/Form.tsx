@@ -192,7 +192,7 @@ class CreateMessenger extends React.Component<Props, State> {
       messengerApps,
       skillData
     } = this.state;
-
+    console.log(messengerApps);
     if (!languageCode) {
       return Alert.error('Set language');
     }
@@ -330,9 +330,11 @@ class CreateMessenger extends React.Component<Props, State> {
       forceLogoutWhenResolve,
       showVideoCallRequest,
       channelIds,
-      skillData
+      skillData,
+      messengerApps
     } = this.state;
 
+    console.log(messengerApps);
     const { integration } = this.props;
     const message = messages[languageCode];
 
@@ -486,8 +488,9 @@ class CreateMessenger extends React.Component<Props, State> {
                 logoPreviewUrl={logoPreviewUrl}
                 showChatPreview={isStepActive}
                 activeStep={activeStep}
-                facebook={facebook}
+                messengerApps={messengerApps}
                 showVideoCallRequest={showVideoCallRequest}
+                facebook={facebook}
                 twitter={twitter}
                 youtube={youtube}
               />
