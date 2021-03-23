@@ -113,6 +113,12 @@ const resolvers = [
     name: 'Companies.tag',
     indexname: `${tableSchema()}__tags`,
     fieldname: 'name'
+  },
+
+  {
+    name: 'Company.tag',
+    indexname: `${tableSchema()}__tags`,
+    fieldname: 'name'
   }
 ];
 
