@@ -72,6 +72,10 @@ const EditMessenger = (props: FinalProps) => {
   const topics = knowledgeBaseTopicsQuery.knowledgeBaseTopics || [];
   const apps = messengerAppsQuery.messengerApps || {};
 
+  const deleteTypeName = datas => {
+    return (datas || []).filter(item => delete item.__typename);
+  };
+
   const save = doc => {
     const {
       name,
@@ -107,8 +111,17 @@ const EditMessenger = (props: FinalProps) => {
         });
       })
       .then(() => {
+        const messengerAppsWithoutTypename = {
+          websites: deleteTypeName(messengerApps.websites),
+          knowledgebases: deleteTypeName(messengerApps.knowledgebases),
+          leads: deleteTypeName(messengerApps.leads)
+        };
+
         return messengerAppSaveMutation({
-          variables: { integrationId, messengerApps }
+          variables: {
+            integrationId,
+            messengerApps: messengerAppsWithoutTypename
+          }
         });
       })
       .then(() => {

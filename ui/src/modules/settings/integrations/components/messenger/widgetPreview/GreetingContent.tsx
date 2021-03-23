@@ -19,7 +19,7 @@ type Props = {
 };
 
 function renderWebsiteApps(websites, color) {
-  if (websites.length === 0) {
+  if (!websites || websites.length === 0) {
     return null;
   }
 
