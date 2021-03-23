@@ -148,12 +148,13 @@ class TopBar extends React.Component<Props> {
     );
   }
 
-  renderTab() {
+  renderTabs() {
     const { messengerApps, activeStep } = this.props;
 
     if (
       !messengerApps ||
       (messengerApps.knowledgebases || []).length === 0 ||
+      !(messengerApps.knowledgebases || [])[0].topicId ||
       activeStep !== 'addon'
     ) {
       return null;
@@ -186,7 +187,7 @@ class TopBar extends React.Component<Props> {
           {this.renderGreetings()}
           {this.renderSupporters()}
           {this.renderServerInfo()}
-          {this.renderTab()}
+          {this.renderTabs()}
         </ErxesGreeting>
         {this.renderIcons('cancel', false, 11)}
       </>

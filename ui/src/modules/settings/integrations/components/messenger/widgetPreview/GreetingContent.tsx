@@ -36,8 +36,11 @@ function renderWebsiteApps(websites, color) {
 function GreetingContent(props: Props) {
   const { knowledgebases, websites } =
     props.messengerApps || ({} as IMessengerApps);
+
   const isTabbed =
-    (knowledgebases || []).length !== 0 && props.activeStep === 'addon'
+    (knowledgebases || []).length !== 0 &&
+    (knowledgebases || [])[0].topicId &&
+    props.activeStep === 'addon'
       ? true
       : false;
 
