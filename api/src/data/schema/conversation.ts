@@ -37,7 +37,6 @@ export const types = `
     participatedUsers: [User]
     participatorCount: Int
     videoCallData: VideoCallData
-    productBoardLink: String
     isFacebookTaggedMessage: Boolean
     customFieldsData: JSON
   }
@@ -254,7 +253,6 @@ export const mutations = `
   conversationMarkAsRead(_id: String): Conversation
   conversationDeleteVideoChatRoom(name: String!): Boolean
   conversationCreateVideoChatRoom(_id: String!): VideoCallData
-  conversationCreateProductBoardNote(_id: String!): String
   changeConversationOperator(_id: String! operatorStatus: String!): JSON
   conversationResolveAll(${mutationFilterParams}): Int
   conversationsSaveVideoRecordingInfo(conversationId: String!, recordingId: String): String
