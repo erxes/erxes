@@ -2,7 +2,7 @@ import * as crypto from 'crypto';
 import * as dotenv from 'dotenv';
 import * as formidable from 'formidable';
 import * as Nylas from 'nylas';
-import { debugNylas, debugRequest } from '../debuggers';
+import { debugError, debugNylas, debugRequest } from '../debuggers';
 import {
   createNylasIntegration,
   getMessage,
@@ -124,7 +124,7 @@ export const initNylas = async app => {
     }
   });
 
-  app.post('/nylas/upload', async (req, res) => {
+  app.post('/nylas/upload', async (req, res, next) => {
     debugNylas('Uploading a file...');
 
     const form = new formidable.IncomingForm();
@@ -136,7 +136,9 @@ export const initNylas = async app => {
         const result = await nylasFileUpload(erxesApiId, response);
         return res.send(result);
       } catch (e) {
-        return res.status(500).send(e.message);
+        debugError(`Error occured while file uploading to nylas: ${e.message}`);
+
+        return next(e);
       }
     });
   });
