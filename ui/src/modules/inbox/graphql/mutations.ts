@@ -108,12 +108,6 @@ const conversationsUnassign = `
   }
 `;
 
-const createProductBoardNote = `
-  mutation conversationCreateProductBoardNote($_id: String!) {
-    conversationCreateProductBoardNote(_id: $_id)
-  }
-`;
-
 const resolveAll = `
   mutation conversationResolveAll(${paramsDef}) {
     conversationResolveAll(${paramsValue})
@@ -136,7 +130,6 @@ export default {
   conversationsUnassign,
   saveResponseTemplate,
   markAsRead,
-  createProductBoardNote,
   conversationsChangeStatusFacebookComment,
   resolveAll,
   editCustomFields
