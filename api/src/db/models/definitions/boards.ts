@@ -62,6 +62,7 @@ export interface IItemDragCommonFields {
 
 export interface IBoard extends ICommonFields {
   name?: string;
+  pipelines?: IPipeline[];
 }
 
 export interface IBoardDocument extends IBoard, Document {

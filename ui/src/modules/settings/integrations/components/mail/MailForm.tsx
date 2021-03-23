@@ -525,7 +525,7 @@ class MailForm extends React.Component<Props, State> {
 
   onAttachment = (e: React.FormEvent<HTMLInputElement>) => {
     const files = e.currentTarget.files;
-    const { attachments, from } = this.state;
+    const { from } = this.state;
 
     uploadHandler({
       kind: 'nylas',
@@ -541,9 +541,12 @@ class MailForm extends React.Component<Props, State> {
         const resObj = JSON.parse(response);
 
         this.setState({
-          isUploading: false,
-          attachments: [...attachments, { ...resObj }]
+          isUploading: false
         });
+
+        this.setState(prevState => ({
+          attachments: [...prevState.attachments, resObj]
+        }));
       }
     });
   };

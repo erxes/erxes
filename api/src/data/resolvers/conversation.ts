@@ -147,25 +147,6 @@ export default {
     }
   },
 
-  async productBoardLink(
-    conversation: IConversationDocument,
-    _args,
-    { dataSources }: IContext
-  ) {
-    try {
-      const response = await dataSources.IntegrationsAPI.fetchApi(
-        '/productBoard/note',
-        {
-          erxesApiId: conversation._id
-        }
-      );
-      return response;
-    } catch (e) {
-      debugError(e);
-      return null;
-    }
-  },
-
   async isFacebookTaggedMessage(conversation: IConversationDocument) {
     const integration = await Integrations.findOne({
       _id: conversation.integrationId
