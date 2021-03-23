@@ -69,6 +69,7 @@ const commonParamsDef = `
   $perPage: Int,
   $page: Int,
   $searchValue: String
+  $status: String
 `;
 
 const commonParams = `
@@ -78,6 +79,7 @@ const commonParams = `
   perPage: $perPage,
   page: $page,
   searchValue: $searchValue
+  status: $status
 `;
 
 const integrations = `
