@@ -37,7 +37,6 @@ export const debugWhatsapp = ddInfo;
 export const debugExternalRequests = ddInfo;
 export const debugDaily = ddInfo;
 export const debugSmooch = ddInfo;
-export const debugProductBoard = ddInfo;
 export const debugTelnyx = ddInfo;
 export const debugError = ddError;
 
