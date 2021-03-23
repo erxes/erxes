@@ -1,9 +1,16 @@
 import { MessengerApps } from '../../../db/models';
-
 interface IWebsite {
   description?: string;
   buttonText?: string;
   url?: string;
+}
+
+interface ILead {
+  formCode: string;
+}
+
+interface IKnowledgebase {
+  topicId: string;
 }
 
 const messengerAppsQueries = {
@@ -16,29 +23,26 @@ const messengerAppsQueries = {
     });
 
     const websites: IWebsite[] = [];
-    const knowledgebases: string[] = [];
-    const leads: string[] = [];
+    const knowledgebases: IKnowledgebase[] = [];
+    const leads: ILead[] = [];
 
     for (const app of apps) {
       const credentials: any = app.credentials;
-      if (!credentials) {
-        continue;
-      }
 
       if (app.kind === 'website') {
         websites.push({
-          description: credentials.description,
-          buttonText: credentials.buttonText,
-          url: credentials.url
+          description: credentials.description || '',
+          buttonText: credentials.buttonText || '',
+          url: credentials.url || ''
         });
       }
 
       if (app.kind === 'knowledgebase') {
-        knowledgebases.push(credentials.topicId);
+        knowledgebases.push({ topicId: credentials.topicId });
       }
 
       if (app.kind === 'lead') {
-        leads.push(credentials.formCode);
+        leads.push({ formCode: credentials.formCode });
       }
     }
 
