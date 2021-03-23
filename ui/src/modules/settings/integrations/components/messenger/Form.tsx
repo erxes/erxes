@@ -193,7 +193,7 @@ class CreateMessenger extends React.Component<Props, State> {
       messengerApps,
       skillData
     } = this.state;
-    console.log(messengerApps);
+
     if (!languageCode) {
       return Alert.error('Set language');
     }

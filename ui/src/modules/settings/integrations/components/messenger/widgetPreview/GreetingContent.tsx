@@ -69,7 +69,7 @@ function GreetingContent(props: Props) {
           </li>
         </ul>
       </ContentBox>
-      {renderWebsiteApps(websites, props.color)}
+      {props.activeStep === 'addon' && renderWebsiteApps(websites, props.color)}
     </ErxesContent>
   );
 }
