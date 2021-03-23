@@ -255,8 +255,8 @@ export const createCustomerFromForm = async (
 
   const customerDoc = {
     location: browserInfo,
-    firstName: customer.firstName || doc.firstName,
-    lastName: customer.lastName || doc.lastName,
+    firstName: doc.firstName || customer.firstName,
+    lastName: doc.lastName || customer.lastName,
     customFieldsData,
     ...(customer.primaryEmail
       ? {}

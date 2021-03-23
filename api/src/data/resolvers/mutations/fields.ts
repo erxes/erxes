@@ -58,7 +58,6 @@ const fieldMutations = {
     args: IFieldsBulkAddAndEditParams,
     { user }: IContext
   ) {
-    console.log('ARGS: ', args);
     const { contentType, contentTypeId, addingFields, editingFields } = args;
     const temp: { [key: string]: string } = {};
     const response: IFieldDocument[] = [];

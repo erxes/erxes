@@ -41,6 +41,7 @@ import { AUTO_BOT_MESSAGES, BOT_MESSAGE_TYPES } from '../../constants';
 import { sendToVisitorLog } from '../../logUtils';
 import { IContext } from '../../types';
 import {
+  findCompany,
   findCustomer,
   registerOnboardHistory,
   replaceEditorAttributes,
@@ -293,6 +294,9 @@ const widgetMutations = {
     const content = form.title;
 
     const temp: { [key: string]: any[] } = {};
+    const results: {
+      [key: string]: { customerIds: string[]; companyIds: string[] };
+    } = {};
     const emails: string[] = [];
     const phones: string[] = [];
 
@@ -304,10 +308,10 @@ const widgetMutations = {
           temp[submission.groupId] = [submission];
         }
       } else {
-        if (temp.submissions) {
-          temp.submissions.push(submission);
+        if (temp.default) {
+          temp.default.push(submission);
         } else {
-          temp.submissions = [submission];
+          temp.default = [submission];
         }
       }
 
@@ -320,22 +324,27 @@ const widgetMutations = {
       }
     });
 
-    let cachedCustomer = await Customers.getWidgetCustomer({
-      integrationId,
-      emails,
-      phones,
-      cachedCustomerId
-    });
+    let cachedCustomer;
+    if (!('default' in temp)) {
+      cachedCustomer = await Customers.getWidgetCustomer({
+        integrationId,
+        cachedCustomerId
+      });
+    }
 
     let customerId = (cachedCustomer && cachedCustomer._id) || '';
 
-    Object.keys(temp).forEach(async key => {
+    for (const key of Object.keys(temp)) {
       const values = temp[key];
 
       let email;
       let phone;
       let firstName = '';
       let lastName = '';
+      let companyName = '';
+      let companyEmail = '';
+      let companyPhone = '';
+
       const customFieldsData = new Array<ICustomField>();
 
       values.forEach(submission => {
@@ -355,6 +364,18 @@ const widgetMutations = {
           lastName = submission.value;
         }
 
+        if (submission.type === 'companyName') {
+          companyName = submission.value;
+        }
+
+        if (submission.type === 'companyPhone') {
+          companyPhone = submission.value;
+        }
+
+        if (submission.type === 'companyEmail') {
+          companyEmail = submission.value;
+        }
+
         if (submission.associatedFieldId) {
           customFieldsData.push({
             field: submission.associatedFieldId,
@@ -363,24 +384,15 @@ const widgetMutations = {
         }
       });
 
-      if (!cachedCustomer) {
-        cachedCustomer = await createCustomerFromForm(
-          {
-            integrationId,
-            primaryEmail: email,
-            emails: [email],
-            firstName,
-            lastName,
-            primaryPhone: phone,
-            customFieldsData
-          },
-          browserInfo,
-          customFieldsData
-        );
+      if (key === 'default') {
+        cachedCustomer = await Customers.getWidgetCustomer({
+          integrationId,
+          cachedCustomerId,
+          email,
+          phone
+        });
 
-        customerId = cachedCustomer._id;
-      } else {
-        const customerDoc = {
+        const cachedCustomerDoc = {
           integrationId,
           primaryEmail: email,
           emails: [email],
@@ -389,18 +401,119 @@ const widgetMutations = {
           primaryPhone: phone,
           customFieldsData
         };
-        const customer = await findCustomer(customerDoc);
-        if (!customer) {
-          await createCustomerFromForm(
-            customerDoc,
+
+        if (!cachedCustomer) {
+          cachedCustomer = await createCustomerFromForm(
+            cachedCustomerDoc,
             browserInfo,
             customFieldsData
           );
         }
+
+        await Customers.updateCustomer(cachedCustomer._id, cachedCustomerDoc);
+
+        customerId = cachedCustomer._id;
+
+        if (results[key]) {
+          results[key].customerIds.push(cachedCustomer._id);
+        } else {
+          results[key] = { customerIds: [cachedCustomer._id], companyIds: [] };
+        }
+      } else {
+        let customer = await findCustomer({
+          customerPrimaryEmail: email,
+          customerPrimaryPhone: phone
+        });
+
+        if (!customer) {
+          customer = await createCustomerFromForm(
+            {
+              integrationId,
+              primaryEmail: email,
+              emails: [email],
+              firstName,
+              lastName,
+              primaryPhone: phone,
+              customFieldsData
+            },
+            browserInfo,
+            customFieldsData
+          );
+        }
+
+        if (results[key]) {
+          results[key].customerIds.push(customer._id);
+        } else {
+          results[key] = { customerIds: [customer._id], companyIds: [] };
+        }
+      }
+
+      if (!(companyEmail || companyPhone || companyName)) {
+        continue;
+      }
+
+      let company = await findCompany({
+        companyPrimaryName: companyName,
+        companyPrimaryEmail: companyEmail,
+        companyPrimaryPhone: companyPhone
+      });
+
+      const companyDoc = {
+        primaryName: companyName,
+        primaryEmail: companyEmail,
+        primaryPhone: companyPhone,
+        emails: [companyEmail],
+        phones: [companyPhone]
+      };
+
+      if (!company) {
+        company = await Companies.createCompany(companyDoc);
+      }
+
+      company = await Companies.updateCompany(company._id, companyDoc);
+
+      if (results[key]) {
+        results[key].companyIds.push(company._id);
+      } else {
+        results[key] = { companyIds: [company._id], customerIds: [] };
+      }
+    }
+
+    let mainCompanyId = '';
+    let relTypeIds: string[] = [];
+
+    Object.keys(results).forEach(async key => {
+      const { companyIds, customerIds } = results[key];
+
+      if (key === 'default' && companyIds.length > 0) {
+        mainCompanyId = companyIds[0];
+        relTypeIds = relTypeIds.concat(customerIds);
+        customerId = customerIds[0];
+      }
+
+      if (key !== 'default' && companyIds.length === 0) {
+        relTypeIds = relTypeIds.concat(customerIds);
+      }
+
+      if (key !== 'default' && companyIds.length > 0) {
+        const companyId = companyIds[0];
+        await Conformities.editConformity({
+          mainType: 'company',
+          mainTypeId: companyId,
+          relType: 'customer',
+          relTypeIds: customerIds
+        });
       }
     });
 
-    // get or create customer
+    if (mainCompanyId !== '' && relTypeIds.length > 0) {
+      await Conformities.editConformity({
+        mainType: 'company',
+        mainTypeId: mainCompanyId,
+        relType: 'customer',
+        relTypeIds
+      });
+    }
 
     // Inserting customer id into submitted customer ids
     const doc = {
@@ -443,8 +556,6 @@ const widgetMutations = {
     //   customer: customerDoc,
     //   cachedCustomerId: args.cachedCustomerId
     // });
-
-    console.log('customerId: ', customerId);
 
     return { status: 'ok', messageId: message._id, customerId };
   },

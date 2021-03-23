@@ -934,13 +934,19 @@ export const findCustomer = async doc => {
 
   if (doc.customerPrimaryEmail) {
     customer = await Customers.findOne({
-      primaryEmail: doc.customerPrimaryEmail
+      $or: [
+        { emails: { $in: [doc.customerPrimaryEmail] } },
+        { primaryEmail: doc.customerPrimaryEmail }
+      ]
     });
   }
 
   if (!customer && doc.customerPrimaryPhone) {
     customer = await Customers.findOne({
-      primaryPhone: doc.customerPrimaryPhone
+      $or: [
+        { phones: { $in: [doc.customerPrimaryPhone] } },
+        { primaryPhone: doc.customerPrimaryPhone }
+      ]
     });
   }
 
@@ -956,13 +962,19 @@ export const findCompany = async doc => {
 
   if (doc.companyPrimaryEmail) {
     company = await Companies.findOne({
-      primaryEmail: doc.companyPrimaryEmail
+      $or: [
+        { emails: { $in: [doc.companyPrimaryEmail] } },
+        { primaryEmail: doc.companyPrimaryEmail }
+      ]
     });
   }
 
   if (!company && doc.companyPrimaryPhone) {
     company = await Companies.findOne({
-      primaryPhone: doc.companyPrimaryPhone
+      $or: [
+        { phones: { $in: [doc.companyPrimaryPhone] } },
+        { primaryPhone: doc.companyPrimaryPhone }
+      ]
     });
   }
 
