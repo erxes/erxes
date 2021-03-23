@@ -6,8 +6,7 @@ import {
   ConversationMessages,
   Conversations,
   Customers,
-  Integrations,
-  Tags
+  Integrations
 } from '../../../db/models';
 import { getCollection } from '../../../db/models/boardUtils';
 import Messages from '../../../db/models/ConversationMessages';
@@ -617,45 +616,6 @@ const conversationMutations = {
       debugError(e.message);
 
       await ConversationMessages.deleteOne({ _id: message._id });
-
-      throw new Error(e.message);
-    }
-  },
-
-  async conversationCreateProductBoardNote(
-    _root,
-    { _id },
-    { dataSources, user }: IContext
-  ) {
-    const conversation = await Conversations.findOne({ _id })
-      .select('customerId userId tagIds, integrationId')
-      .lean();
-    const tags = await Tags.find({ _id: { $in: conversation.tagIds } }).select(
-      'name'
-    );
-    const customer = await Customers.findOne({ _id: conversation.customerId });
-    const messages = await ConversationMessages.find({
-      conversationId: _id
-    }).sort({
-      createdAt: 1
-    });
-    const integrationId = conversation.integrationId;
-
-    try {
-      const productBoardLink = await dataSources.IntegrationsAPI.createProductBoardNote(
-        {
-          erxesApiConversationId: _id,
-          tags,
-          customer,
-          messages,
-          user,
-          integrationId
-        }
-      );
-
-      return productBoardLink;
-    } catch (e) {
-      debugError(e.message);
 
       throw new Error(e.message);
     }

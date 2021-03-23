@@ -149,7 +149,6 @@ export const KEY_LABELS = {
   company_industry_types: 'Company industry types',
   social_links: 'Social links',
 
-  PRODUCT_BOARD_TOKEN: 'Product Board Access token',
   NOTIFICATION_DATA_RETENTION: 'Notification data retention'
 };
 
