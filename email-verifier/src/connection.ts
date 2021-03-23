@@ -6,10 +6,11 @@ dotenv.config();
 
 mongoose.Promise = global.Promise;
 
-export const connectionOptions = {
+export const connectionOptions: mongoose.ConnectionOptions = {
   useNewUrlParser: true,
   useCreateIndex: true,
   autoReconnect: true,
+  family: 4,
   useFindAndModify: false
 };
 
