@@ -10,6 +10,7 @@ export const formDetailQuery = `
         name
         type
         text
+        content
         description
         options
         isRequired

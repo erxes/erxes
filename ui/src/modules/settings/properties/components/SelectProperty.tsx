@@ -66,7 +66,7 @@ class SelectProperty extends React.Component<Props, {}> {
 
     return (
       <FormGroup>
-        <ControlLabel>Custom property</ControlLabel>
+        <ControlLabel>Property</ControlLabel>
         <p>{description}</p>
         <Row>
           <LeftContent>

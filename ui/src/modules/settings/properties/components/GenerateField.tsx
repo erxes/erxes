@@ -4,7 +4,12 @@ import FormGroup from 'modules/common/components/form/Group';
 import ControlLabel from 'modules/common/components/form/Label';
 import Uploader from 'modules/common/components/Uploader';
 import { IAttachment } from 'modules/common/types';
+import {
+  COMPANY_BUSINESS_TYPES,
+  COMPANY_INDUSTRY_TYPES
+} from 'modules/companies/constants';
 import React from 'react';
+import xss from 'xss';
 import { LogicIndicator, SelectInput } from '../styles';
 import { IField } from '../types';
 
@@ -47,6 +52,7 @@ export default class GenerateField extends React.Component<Props, State> {
   }
 
   renderSelect(options: string[] = [], attrs = {}) {
+    console.log('asd: ', attrs);
     return (
       <FormControl componentClass="select" {...attrs}>
         {options.map((option, index) => (
@@ -61,7 +67,8 @@ export default class GenerateField extends React.Component<Props, State> {
   renderInput(attrs, hasError?: boolean) {
     let { value, errorCounter } = this.state;
     let checkBoxValues = this.state.checkBoxValues || [];
-    const { validation, type } = this.props.field;
+    const { type } = this.props.field;
+    let { validation } = this.props.field;
 
     if (hasError) {
       value = '';
@@ -82,10 +89,26 @@ export default class GenerateField extends React.Component<Props, State> {
       attrs.checked = String(value) === attrs.option;
     }
 
+    if (type === 'hasAuthority') {
+      attrs.type = 'radio';
+      attrs.componentClass = 'radio';
+      attrs.checked = String(value) === attrs.option;
+    }
+
+    if (type.includes('doNotDisturb')) {
+      attrs.type = 'radio';
+      attrs.componentClass = 'radio';
+      attrs.checked = String(value) === attrs.option;
+    }
+
     if (type === 'check') {
       attrs.type = 'checkbox';
       attrs.componentClass = 'checkbox';
       attrs.checked = checkBoxValues.includes(attrs.option);
+    }
+
+    if (type === 'birthDate') {
+      validation = 'date';
     }
 
     if (validation === 'datetime') {
@@ -179,6 +202,17 @@ export default class GenerateField extends React.Component<Props, State> {
     );
   }
 
+  renderHtml() {
+    const { content } = this.props.field;
+    return (
+      <p
+        dangerouslySetInnerHTML={{
+          __html: xss(content || '')
+        }}
+      />
+    );
+  }
+
   /**
    * Handle all types of fields changes
    * @param {Object} e - Event object
@@ -235,9 +269,14 @@ export default class GenerateField extends React.Component<Props, State> {
       name: ''
     };
 
+    const boolOptions = ['Yes', 'No'];
+
     switch (type) {
       case 'select':
         return this.renderSelect(options, attrs);
+
+      case 'pronoun':
+        return this.renderSelect(['Male', 'Female', 'Not applicable'], attrs);
 
       case 'check':
         try {
@@ -254,11 +293,61 @@ export default class GenerateField extends React.Component<Props, State> {
           return this.renderRadioOrCheckInputs(options, attrs, true);
         }
 
+      case 'hasAuthority':
+        attrs.name = Math.random().toString();
+        try {
+          return this.renderRadioOrCheckInputs(boolOptions, attrs);
+        } catch {
+          return this.renderRadioOrCheckInputs(boolOptions, attrs, true);
+        }
+
+      case 'doNotDisturb':
+        attrs.name = Math.random().toString();
+        try {
+          return this.renderRadioOrCheckInputs(boolOptions, attrs);
+        } catch {
+          return this.renderRadioOrCheckInputs(boolOptions, attrs, true);
+        }
+
+      case 'companyDoNotDisturb':
+        attrs.name = Math.random().toString();
+        try {
+          return this.renderRadioOrCheckInputs(boolOptions, attrs);
+        } catch {
+          return this.renderRadioOrCheckInputs(boolOptions, attrs, true);
+        }
+
       case 'textarea':
+        return this.renderTextarea(attrs);
+
+      case 'description':
+        return this.renderTextarea(attrs);
+
+      case 'companyDescription':
         return this.renderTextarea(attrs);
 
       case 'file': {
         return this.renderFile(attrs);
+      }
+
+      case 'avatar': {
+        return this.renderFile(attrs);
+      }
+
+      case 'companyAvatar': {
+        return this.renderFile(attrs);
+      }
+
+      case 'industry': {
+        return this.renderSelect(COMPANY_INDUSTRY_TYPES(), attrs);
+      }
+
+      case 'businessType': {
+        return this.renderSelect(COMPANY_BUSINESS_TYPES, attrs);
+      }
+
+      case 'html': {
+        return this.renderHtml();
       }
 
       default:

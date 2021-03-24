@@ -165,7 +165,6 @@ class FullPreviewStep extends React.Component<Props, State> {
           />
           {currentField && (
             <FieldForm
-              type="customer"
               mode={currentMode || 'create'}
               fields={fields}
               field={currentField}

@@ -18,6 +18,7 @@ export interface IField {
   type: string;
   validation?: string;
   text: string;
+  content?: string;
   description?: string;
   options?: string[];
   isRequired: boolean;

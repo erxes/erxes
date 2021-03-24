@@ -158,7 +158,7 @@ const fields = `
       type
       validation
       text
-      field
+      content
       description
       options
       isRequired
@@ -171,6 +171,7 @@ const fields = `
         logicValue
       }
       groupName
+      isMultipleSelect
     }
   }
 `;

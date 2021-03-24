@@ -79,16 +79,20 @@ class Form extends React.Component<Props, State> {
   }) => {
     const doc = this.state.doc;
 
+    if (typeof value === 'object') {
+      value = value.toString();
+    }
+
     doc[fieldId].value = value;
 
-    if(associatedFieldId) {
+    if (associatedFieldId) {
       doc[fieldId].associatedFieldId = associatedFieldId;
     }
 
-    if(groupId) {
+    if (groupId) {
       doc[fieldId].groupId = groupId;
     }
-    
+
     this.setState({ doc });
   };
 
@@ -125,7 +129,7 @@ class Form extends React.Component<Props, State> {
   renderFields() {
     const { form, currentStatus } = this.props;
     const { fields } = form;
-    
+
     const errors = currentStatus.errors || [];
     const nonFieldError = errors.find(error => !error.fieldId);
 
@@ -136,14 +140,21 @@ class Form extends React.Component<Props, State> {
 
       if (field.logicAction && field.logicAction === 'show' && field.logics && field.logics.length > 0) {
         const logics: LogicParams[] = field.logics.map(logic => {
-          const {validation, value, type } = this.state.doc[logic.fieldId]
+          const { validation, value, type } = this.state.doc[logic.fieldId]
 
-          return {fieldId: logic.fieldId, operator: logic.logicOperator, logicValue: logic.logicValue, fieldValue: value, validation, type }
+          return { fieldId: logic.fieldId, operator: logic.logicOperator, logicValue: logic.logicValue, fieldValue: value, validation, type }
         })
 
         const isLogicFulfilled = checkLogicFulfilled(logics)
-        
+
         if (!isLogicFulfilled) {
+          const doc = this.state.doc;
+          
+          if (doc[field._id].value !== '') {
+            doc[field._id].value = '';
+            this.setState({ doc });
+          }
+
           return null;
         }
       }
@@ -184,14 +195,13 @@ class Form extends React.Component<Props, State> {
           <div className="erxes-form-fields">
             {this.renderFields()}
           </div>
-          
+
           <button
             style={{ background: color }}
             type="button"
             onClick={this.onSubmit}
-            className={`erxes-button btn-block ${
-              isSubmitting ? 'disabled' : ''
-            }`}
+            className={`erxes-button btn-block ${isSubmitting ? 'disabled' : ''
+              }`}
             disabled={isSubmitting}
           >
             {isSubmitting ? __('Loading ...') : form.buttonText || __('Send')}

@@ -66,6 +66,7 @@ const fields = `
       description
       options
       isRequired
+      isDefinedByErxes
       order
       associatedFieldId
       logicAction

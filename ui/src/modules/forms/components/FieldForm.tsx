@@ -1,6 +1,7 @@
 import { IOption } from 'erxes-ui/lib/types';
 import Button from 'modules/common/components/Button';
 import CollapseContent from 'modules/common/components/CollapseContent';
+import EditorCK from 'modules/common/components/EditorCK';
 import FormControl from 'modules/common/components/form/Control';
 import FormGroup from 'modules/common/components/form/Group';
 import ControlLabel from 'modules/common/components/form/Label';
@@ -30,12 +31,14 @@ type Props = {
   mode: 'create' | 'update';
   field: IField;
   fields: IField[];
-  type: string;
 };
 
 type State = {
   field: IField;
   selectedOption?: IOption;
+  group?: string;
+  isMultipleSelect?: boolean;
+  isHtmlSaved: boolean;
 };
 
 class FieldForm extends React.Component<Props, State> {
@@ -50,7 +53,9 @@ class FieldForm extends React.Component<Props, State> {
 
     this.state = {
       field,
-      selectedOption
+      selectedOption,
+      group: '',
+      isHtmlSaved: false
     };
   }
 
@@ -61,8 +66,23 @@ class FieldForm extends React.Component<Props, State> {
     this.setFieldAttrChanges(name, value);
   };
 
-  onPropertyChange = (selectedField: IField) => {
+  onEditorChange = e => {
     const { field } = this.state;
+    const content = e.editor.getData();
+
+    field.content = content;
+
+    this.setState({ field });
+  };
+
+  onPropertyGroupChange = e => {
+    this.setState({
+      group: (e.currentTarget as HTMLInputElement).value
+    });
+  };
+
+  onPropertyChange = (selectedField: IField) => {
+    const { field, group } = this.state;
 
     field.associatedFieldId = selectedField._id;
     field.validation = selectedField.validation;
@@ -71,6 +91,20 @@ class FieldForm extends React.Component<Props, State> {
     field.isRequired = selectedField.isRequired;
     field.text = selectedField.text;
     field.description = selectedField.description;
+
+    if (group === 'company') {
+      switch (field.type) {
+        case 'avatar':
+          field.type = 'companyAvatar';
+          break;
+        case 'size':
+          field.validation = 'number';
+          break;
+
+        default:
+          break;
+      }
+    }
 
     this.setState({
       field,
@@ -84,7 +118,9 @@ class FieldForm extends React.Component<Props, State> {
   onSubmit = e => {
     e.persist();
 
-    this.props.onSubmit(this.state.field);
+    const { field } = this.state;
+
+    this.props.onSubmit(field);
   };
 
   setFieldAttrChanges(
@@ -185,6 +221,36 @@ class FieldForm extends React.Component<Props, State> {
     );
   }
 
+  renderMultipleSelectCheckBox() {
+    const { isMultipleSelect, field } = this.state;
+
+    if (field.type !== 'select') {
+      return;
+    }
+
+    const onChange = e => {
+      this.setState({ isMultipleSelect: e.target.checked });
+    };
+
+    return (
+      <FormGroup>
+        <FlexRow>
+          <ControlLabel htmlFor="description">
+            {__('Select multiple values')}
+          </ControlLabel>
+          <Toggle
+            defaultChecked={isMultipleSelect || false}
+            icons={{
+              checked: <span>Yes</span>,
+              unchecked: <span>No</span>
+            }}
+            onChange={onChange}
+          />
+        </FlexRow>
+      </FormGroup>
+    );
+  }
+
   renderLeftContent() {
     const { fields, mode, onCancel } = this.props;
     const { field } = this.state;
@@ -208,12 +274,6 @@ class FieldForm extends React.Component<Props, State> {
       this.onFieldChange(
         'isRequired',
         (e.currentTarget as HTMLInputElement).checked
-      );
-
-    const onChangeColumn = e =>
-      this.onFieldChange(
-        'column',
-        parseInt((e.currentTarget as HTMLInputElement).value, 10)
       );
 
     return (
@@ -250,6 +310,8 @@ class FieldForm extends React.Component<Props, State> {
 
           {this.renderOptions()}
 
+          {this.renderMultipleSelectCheckBox()}
+
           <FormGroup>
             <FlexRow>
               <ControlLabel htmlFor="description">
@@ -279,22 +341,9 @@ class FieldForm extends React.Component<Props, State> {
             />
           </FormGroup>
 
-          <FormGroup>
-            <ControlLabel htmlFor="validation">Field width:</ControlLabel>
-
-            <FormControl
-              id="validation"
-              componentClass="select"
-              value={field.column || ''}
-              onChange={onChangeColumn}
-            >
-              <option value={1}>Full width</option>
-              <option value={2}>Half width</option>
-              <option value={3}>1/3 width</option>
-              <option value={4}>1/4 width</option>
-            </FormControl>
-          </FormGroup>
-
+          {this.renderColumn()}
+          {this.renderHtml()}
+          {this.renderCustomPropertyGroup()}
           {this.renderCustomProperty()}
         </CollapseContent>
         {fields.length > 0 && (
@@ -353,9 +402,8 @@ class FieldForm extends React.Component<Props, State> {
     );
   }
 
-  renderCustomProperty() {
-    const { type } = this.props;
-    const { field, selectedOption } = this.state;
+  renderCustomPropertyGroup() {
+    const { field, group } = this.state;
 
     if (
       [
@@ -365,7 +413,8 @@ class FieldForm extends React.Component<Props, State> {
         'lastName',
         'companyName',
         'companyEmail',
-        'companyPhone'
+        'companyPhone',
+        'html'
       ].includes(field.type)
     ) {
       return null;
@@ -375,8 +424,104 @@ class FieldForm extends React.Component<Props, State> {
       <>
         <Divider>{__('Or')}</Divider>
         <FormGroup>
+          <ControlLabel>Property type:</ControlLabel>
+          <FormControl
+            id="propertyGroup"
+            componentClass="select"
+            value={group}
+            onChange={this.onPropertyGroupChange}
+          >
+            <option value={''} />
+            <option value={'customer'}>Customer</option>
+            <option value={'company'}>Company</option>
+          </FormControl>
+        </FormGroup>
+      </>
+    );
+  }
+
+  renderColumn() {
+    const { field } = this.state;
+
+    if (field.type === 'html') {
+      return;
+    }
+
+    const onChangeColumn = e =>
+      this.onFieldChange(
+        'column',
+        parseInt((e.currentTarget as HTMLInputElement).value, 10)
+      );
+
+    return (
+      <FormGroup>
+        <ControlLabel htmlFor="validation">Field width:</ControlLabel>
+
+        <FormControl
+          id="validation"
+          componentClass="select"
+          value={field.column || ''}
+          onChange={onChangeColumn}
+        >
+          <option value={1}>Full width</option>
+          <option value={2}>Half width</option>
+          <option value={3}>1/3 width</option>
+          <option value={4}>1/4 width</option>
+        </FormControl>
+      </FormGroup>
+    );
+  }
+
+  renderHtml() {
+    const { field } = this.state;
+
+    if (field.type !== 'html') {
+      return;
+    }
+
+    return (
+      <FormGroup>
+        <ControlLabel htmlFor="html">HTML:</ControlLabel>
+        <EditorCK
+          content={field.content || ''}
+          toolbar={[
+            {
+              name: 'basicstyles',
+              items: [
+                'Bold',
+                'Italic',
+                'NumberedList',
+                'BulletedList',
+                'Link',
+                'Unlink',
+                '-',
+                'Image',
+                'EmojiPanel'
+              ]
+            }
+          ]}
+          autoFocus={true}
+          autoGrow={true}
+          autoGrowMinHeight={160}
+          onChange={this.onEditorChange}
+          name={`html_${field._id}`}
+        />
+      </FormGroup>
+    );
+  }
+
+  renderCustomProperty() {
+    const { selectedOption, group } = this.state;
+
+    if (group === '') {
+      return;
+    }
+
+    return (
+      <>
+        <FormGroup>
           <SelectProperty
-            queryParams={{ type }}
+            queryParams={{ type: group }}
             defaultValue={selectedOption && selectedOption.value}
             description="Any data collected through this field will copy to:"
             onChange={this.onPropertyChange}
@@ -390,7 +535,13 @@ class FieldForm extends React.Component<Props, State> {
     const { mode, field, onCancel } = this.props;
 
     return (
-      <Modal show={true} size="lg" onHide={onCancel} animation={false}>
+      <Modal
+        show={true}
+        size="lg"
+        onHide={onCancel}
+        animation={false}
+        enforceFocus={false}
+      >
         <Modal.Header closeButton={true}>
           <Modal.Title>
             {mode === 'create' ? 'Add' : 'Edit'} {field.type} field

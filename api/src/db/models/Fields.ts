@@ -377,7 +377,7 @@ export const loadFieldClass = () => {
         case FIELDS_GROUPS_CONTENT_TYPES.CUSTOMER:
           const customerFields = CUSTOMER_BASIC_INFO.ALL.map(e => ({
             text: e.label,
-            field: e.field,
+            type: e.field,
             canHide: e.canHide,
             validation: e.validation,
             groupId,
@@ -389,7 +389,7 @@ export const loadFieldClass = () => {
         case FIELDS_GROUPS_CONTENT_TYPES.COMPANY:
           const companyFields = COMPANY_INFO.ALL.map(e => ({
             text: e.label,
-            field: e.field,
+            type: e.field,
             canHide: e.canHide,
             validation: e.validation,
             groupId,
@@ -401,7 +401,7 @@ export const loadFieldClass = () => {
         case FIELDS_GROUPS_CONTENT_TYPES.PRODUCT:
           const productFields = PRODUCT_INFO.ALL.map(e => ({
             text: e.label,
-            field: e.field,
+            type: e.field,
             groupId,
             contentType,
             canHide: false,
@@ -412,7 +412,7 @@ export const loadFieldClass = () => {
         case FIELDS_GROUPS_CONTENT_TYPES.CONVERSATION:
           const conversationFields = CONVERSATION_INFO.ALL.map(e => ({
             text: e.label,
-            field: e.field,
+            type: e.field,
             groupId,
             contentType,
             isDefinedByErxes: true
@@ -422,7 +422,7 @@ export const loadFieldClass = () => {
         case FIELDS_GROUPS_CONTENT_TYPES.DEVICE:
           const deviceFields = DEVICE_PROPERTIES_INFO.ALL.map(e => ({
             text: e.label,
-            field: e.field,
+            type: e.field,
             groupId,
             contentType,
             isDefinedByErxes: true

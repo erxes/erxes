@@ -12,6 +12,7 @@ export const fieldsTypes = `
     type: String
     validation: String
     text: String
+    content: String
     field: String
     name: String
     description: String
@@ -31,6 +32,7 @@ export const fieldsTypes = `
     logicAction: String
     column: Int
     groupName: String
+    isMultipleSelect: Boolean
   }
 
   input OrderItem {
@@ -51,6 +53,7 @@ export const fieldsTypes = `
     type: String
     validation: String
     text: String
+    content: String
     description: String
     options: [String]
     isRequired: Boolean
@@ -59,6 +62,7 @@ export const fieldsTypes = `
     associatedFieldId: String
     logicAction: String
     logics: [LogicInput]
+    isMultipleSelect: Boolean
     groupName: String
   }
 

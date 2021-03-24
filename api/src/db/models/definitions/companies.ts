@@ -83,7 +83,7 @@ export const companySchema = schemaWrapper(
     industry: field({
       type: String,
       enum: COMPANY_INDUSTRY_TYPES,
-      label: 'Industry',
+      label: 'Industries',
       optional: true,
       esType: 'keyword'
     }),

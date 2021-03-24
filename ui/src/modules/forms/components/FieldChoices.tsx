@@ -99,6 +99,7 @@ function FieldChoices(props: Props) {
         text={__('Company Phone')}
         icon="phone"
       />
+      <FieldChoice {...props} type="html" text={__('HTML')} icon="code" />
     </Options>
   );
 }

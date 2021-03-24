@@ -16,7 +16,7 @@ export interface IField {
   type: string;
   validation?: string;
   text?: string;
-  field?: string;
+  content?: string;
   description?: string;
   options?: string[];
   isRequired?: boolean;
@@ -37,6 +37,7 @@ export interface IField {
   logics?: IFieldLogic[];
   logicAction?: string;
   groupName?: string;
+  isMultipleSelect?: boolean;
 }
 
 export interface IFieldGroup {

@@ -35,6 +35,7 @@ export interface IField extends IVisibility {
   type?: string;
   validation?: string;
   text: string;
+  content?: string;
   description?: string;
   options?: string[];
   isRequired?: boolean;
@@ -50,6 +51,7 @@ export interface IField extends IVisibility {
   tempFieldId?: string;
   column?: number;
   groupName?: string;
+  isMultipleSelect?: boolean;
 }
 
 export interface IFieldDocument extends IField, Document {
@@ -125,6 +127,16 @@ export const fieldSchema = schemaWrapper(
       type: String,
       label:
         'If action is show field will appear when logics fulfilled, if action is hide it will disappear when logic fulfilled'
+    }),
+    isMultipleSelect: field({
+      type: Boolean,
+      optional: true,
+      label: 'is multiple select'
+    }),
+    content: field({
+      type: String,
+      optional: true,
+      label: 'Stores html content form of field type with html'
     })
   })
 );

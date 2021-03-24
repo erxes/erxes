@@ -50,10 +50,7 @@ import {
   sendRequest,
   sendToWebhook
 } from '../../utils';
-import {
-  convertVisitorToCustomer,
-  createCustomerFromForm
-} from '../../widgetUtils';
+import { convertVisitorToCustomer } from '../../widgetUtils';
 import { conversationNotifReceivers } from './conversations';
 
 interface ISubmission {
@@ -341,39 +338,104 @@ const widgetMutations = {
       let phone;
       let firstName = '';
       let lastName = '';
+      let pronoun = 0;
+      let avatar = '';
+      let birthDate;
+      let hasAuthority = '';
+      let doNotDisturb = '';
+      let description = '';
+      let department = '';
+      let position = '';
+
       let companyName = '';
       let companyEmail = '';
       let companyPhone = '';
+      let companyDescription = '';
+      let companyDoNotDisturb = '';
+      let logo = '';
+      let size = 0;
+      let industries = '';
+      let businessType = '';
 
       const customFieldsData = new Array<ICustomField>();
 
       values.forEach(submission => {
-        if (submission.type === 'email') {
-          email = submission.value;
-        }
+        switch (submission.type) {
+          case 'email':
+            email = submission.value;
+            break;
+          case 'phone':
+            phone = submission.value;
+            break;
+          case 'firstName':
+            firstName = submission.value;
+            break;
+          case 'lastName':
+            lastName = submission.value;
+            break;
+          case 'companyName':
+            companyName = submission.value;
+            break;
+          case 'companyEmail':
+            companyEmail = submission.value;
+            break;
+          case 'companyPhone':
+            companyPhone = submission.value;
+            break;
+          case 'avatar':
+            avatar = submission.value;
+            break;
+          case 'companyAvatar':
+            logo = submission.value;
+            break;
+          case 'industry':
+            industries = submission.value;
+            break;
+          case 'size':
+            size = submission.value;
+          case 'businessType':
+            businessType = submission.value;
+          case 'pronoun':
+            switch (submission.value) {
+              case 'Male':
+                pronoun = 1;
+                break;
+              case 'Female':
+                pronoun = 2;
+                break;
+              case 'Not applicable':
+                pronoun = 9;
+                break;
+              default:
+                pronoun = 0;
+                break;
+            }
+            break;
+          case 'doNotDisturb':
+            doNotDisturb = submission.value;
+            break;
+          case 'hasAuthority':
+            hasAuthority = submission.value;
+            break;
+          case 'birthDate':
+            birthDate = new Date(submission.value);
+            break;
+          case 'description':
+            description = submission.value;
+            break;
+          case 'department':
+            department = submission.value;
+            break;
+          case 'position':
+            position = submission.value;
+            break;
+          case 'companyDescription':
+            companyDescription = submission.value;
+          case 'companyDoNotDisturb':
+            companyDoNotDisturb = submission.value;
 
-        if (submission.type === 'phone') {
-          phone = submission.value;
-        }
-
-        if (submission.type === 'firstName') {
-          firstName = submission.value;
-        }
-
-        if (submission.type === 'lastName') {
-          lastName = submission.value;
-        }
-
-        if (submission.type === 'companyName') {
-          companyName = submission.value;
-        }
-
-        if (submission.type === 'companyPhone') {
-          companyPhone = submission.value;
-        }
-
-        if (submission.type === 'companyEmail') {
-          companyEmail = submission.value;
+          default:
+            break;
         }
 
         if (submission.associatedFieldId) {
@@ -392,22 +454,61 @@ const widgetMutations = {
           phone
         });
 
-        const cachedCustomerDoc = {
-          integrationId,
-          primaryEmail: email,
-          emails: [email],
-          firstName,
-          lastName,
-          primaryPhone: phone,
-          customFieldsData
+        if (!cachedCustomer) {
+          cachedCustomer = await Customers.createCustomer({
+            integrationId,
+            primaryEmail: email,
+            emails: [email],
+            firstName,
+            lastName,
+            primaryPhone: phone,
+            customFieldsData
+          });
+        }
+
+        const cachedCustomerDoc: any = {
+          location: browserInfo,
+          firstName: firstName || cachedCustomer.firstName,
+          lastName: lastName || cachedCustomer.lastName,
+          sex: pronoun,
+          birthDate,
+          customFieldsData,
+          ...(cachedCustomer.primaryEmail
+            ? {}
+            : {
+                emails: [email],
+                primaryEmail: email
+              }),
+          ...(cachedCustomer.primaryPhone
+            ? {}
+            : {
+                phones: [phone],
+                primaryPhone: phone
+              })
         };
 
-        if (!cachedCustomer) {
-          cachedCustomer = await createCustomerFromForm(
-            cachedCustomerDoc,
-            browserInfo,
-            customFieldsData
-          );
+        if (avatar.length > 0) {
+          cachedCustomerDoc.avatar = avatar;
+        }
+
+        if (department.length > 0) {
+          cachedCustomerDoc.department = department;
+        }
+
+        if (position.length > 0) {
+          cachedCustomerDoc.position = position;
+        }
+
+        if (description.length > 0) {
+          cachedCustomerDoc.description = description;
+        }
+
+        if (hasAuthority.length > 0) {
+          cachedCustomerDoc.hasAuthority = hasAuthority;
+        }
+
+        if (doNotDisturb.length > 0) {
+          cachedCustomerDoc.doNotDisturb = doNotDisturb;
         }
 
         await Customers.updateCustomer(cachedCustomer._id, cachedCustomerDoc);
@@ -426,20 +527,63 @@ const widgetMutations = {
         });
 
         if (!customer) {
-          customer = await createCustomerFromForm(
-            {
-              integrationId,
-              primaryEmail: email,
-              emails: [email],
-              firstName,
-              lastName,
-              primaryPhone: phone,
-              customFieldsData
-            },
-            browserInfo,
+          customer = await Customers.createCustomer({
+            integrationId,
+            primaryEmail: email,
+            emails: [email],
+            firstName,
+            lastName,
+            primaryPhone: phone,
             customFieldsData
-          );
+          });
         }
+
+        const customerDoc: any = {
+          location: browserInfo,
+          firstName: firstName || customer.firstName,
+          lastName: lastName || customer.lastName,
+          customFieldsData,
+          birthDate,
+          sex: pronoun,
+          ...(customer.primaryEmail
+            ? {}
+            : {
+                emails: [email],
+                primaryEmail: email
+              }),
+          ...(customer.primaryPhone
+            ? {}
+            : {
+                phones: [phone],
+                primaryPhone: phone
+              })
+        };
+
+        if (avatar.length > 0) {
+          customerDoc.avatar = avatar;
+        }
+
+        if (department.length > 0) {
+          customerDoc.department = department;
+        }
+
+        if (position.length > 0) {
+          customerDoc.position = position;
+        }
+
+        if (description.length > 0) {
+          customerDoc.description = description;
+        }
+
+        if (hasAuthority.length > 0) {
+          customerDoc.hasAuthority = hasAuthority;
+        }
+
+        if (doNotDisturb.length > 0) {
+          customerDoc.doNotDisturb = doNotDisturb;
+        }
+
+        await Customers.updateCustomer(customer._id, customerDoc);
 
         if (results[key]) {
           results[key].customerIds.push(customer._id);
@@ -458,13 +602,25 @@ const widgetMutations = {
         companyPrimaryPhone: companyPhone
       });
 
-      const companyDoc = {
+      const companyDoc: any = {
         primaryName: companyName,
         primaryEmail: companyEmail,
         primaryPhone: companyPhone,
         emails: [companyEmail],
-        phones: [companyPhone]
+        phones: [companyPhone],
+        size,
+        doNotDisturb: companyDoNotDisturb,
+        description: companyDescription,
+        businessType
       };
+
+      if (logo.length > 0) {
+        companyDoc.avatar = logo;
+      }
+
+      if (industries.length > 0) {
+        companyDoc.industry = industries;
+      }
 
       if (!company) {
         company = await Companies.createCompany(companyDoc);

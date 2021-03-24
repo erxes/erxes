@@ -241,37 +241,3 @@ export const getOrCreateEngageMessageElk = async (
 
   return Messages.findOne(Conversations.widgetsUnreadMessagesQuery(convs));
 };
-
-export const createCustomerFromForm = async (
-  doc: ICustomer,
-  browserInfo: any,
-  customFieldsData?: ICustomField[]
-) => {
-  const customer = await Customers.createCustomer(doc);
-
-  if (customer.customFieldsData && customFieldsData) {
-    customFieldsData = customFieldsData.concat(customer.customFieldsData);
-  }
-
-  const customerDoc = {
-    location: browserInfo,
-    firstName: doc.firstName || customer.firstName,
-    lastName: doc.lastName || customer.lastName,
-    customFieldsData,
-    ...(customer.primaryEmail
-      ? {}
-      : {
-          emails: doc.emails,
-          primaryEmail: doc.primaryEmail
-        }),
-    ...(customer.primaryPhone
-      ? {}
-      : {
-          phones: doc.phones,
-          primaryPhone: doc.primaryPhone
-        })
-  };
-
-  await Customers.updateCustomer(customer._id, customerDoc);
-  return customer;
-};
