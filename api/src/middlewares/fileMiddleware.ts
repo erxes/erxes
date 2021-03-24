@@ -9,6 +9,7 @@ import {
   frontendEnv,
   getConfig,
   getSubServiceDomain,
+  routeErrorHandling,
   uploadFile,
   uploadFileAWS,
   uploadFileLocal
@@ -75,7 +76,7 @@ export const importer = async (req: any, res, next) => {
   }
 };
 
-export const uploader = async (req: any, res, next) => {
+export const uploader = routeErrorHandling(async (req: any, res, next) => {
   const INTEGRATIONS_API_DOMAIN = getSubServiceDomain({
     name: 'INTEGRATIONS_API_DOMAIN'
   });
@@ -131,4 +132,4 @@ export const uploader = async (req: any, res, next) => {
 
     return res.status(500).send(status);
   });
-};
+});
