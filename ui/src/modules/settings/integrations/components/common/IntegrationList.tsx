@@ -24,7 +24,17 @@ type Props = {
   integrationsCount: number;
 };
 
-class IntegrationList extends React.Component<Props> {
+type State = {
+  showExternalInfo: boolean;
+};
+
+class IntegrationList extends React.Component<Props, State> {
+  constructor(props: Props) {
+    super(props);
+
+    this.state = { showExternalInfo: false };
+  }
+
   renderRows() {
     const {
       integrations,
@@ -36,6 +46,10 @@ class IntegrationList extends React.Component<Props> {
       repair
     } = this.props;
 
+    const showExternalInfoColumn = () => {
+      this.setState({ showExternalInfo: true });
+    };
+
     return integrations.map(i => (
       <IntegrationListItem
         key={i._id}
@@ -46,6 +60,8 @@ class IntegrationList extends React.Component<Props> {
         repair={repair}
         disableAction={disableAction}
         editIntegration={editIntegration}
+        showExternalInfoColumn={showExternalInfoColumn}
+        showExternalInfo={this.state.showExternalInfo}
       />
     ));
   }
@@ -79,7 +95,9 @@ class IntegrationList extends React.Component<Props> {
               <th>{__('Brand')}</th>
               <th>{__('Status')}</th>
               <th>{__('Health status')}</th>
-              <th>{__('External info')}</th>
+              {this.state.showExternalInfo ? (
+                <th>{__('External info')}</th>
+              ) : null}
               <th style={{ width: 130 }}>{__('Actions')}</th>
             </tr>
           </thead>
