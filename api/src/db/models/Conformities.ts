@@ -1,6 +1,7 @@
 import { Model, model } from 'mongoose';
 import {
   conformitySchema,
+  IConformitiesRemove,
   IConformityAdd,
   IConformityChange,
   IConformityDocument,
@@ -50,6 +51,7 @@ export interface IConformityModel extends Model<IConformityDocument> {
   editConformity(doc: IConformityEdit): void;
   changeConformity(doc: IConformityChange): void;
   removeConformity(doc: IConformityRemove): void;
+  removeConformities(doc: IConformitiesRemove): void;
   savedConformity(doc: IConformitySaved): Promise<string[]>;
   relatedConformity(doc: IConformityRelated): Promise<string[]>;
   filterConformity(doc: IConformityFilter): Promise<string[]>;
@@ -313,6 +315,28 @@ export const loadConformityClass = () => {
       });
 
       await Conformities.deleteMany(match);
+    }
+
+    /**
+     * Remove conformities
+     */
+    public static async removeConformities(doc: IConformitiesRemove) {
+      await Conformities.deleteMany({
+        $or: [
+          {
+            $and: [
+              { mainType: doc.mainType },
+              { mainTypeId: { $in: doc.mainTypeIds } }
+            ]
+          },
+          {
+            $and: [
+              { relType: doc.mainType },
+              { relTypeId: { $in: doc.mainTypeIds } }
+            ]
+          }
+        ]
+      });
     }
   }
 

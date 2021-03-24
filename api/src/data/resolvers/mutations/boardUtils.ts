@@ -2,13 +2,12 @@ import resolvers from '..';
 import {
   ActivityLogs,
   Boards,
-  Checklists,
-  Conformities,
   Notifications,
   Pipelines,
   Stages
 } from '../../../db/models';
 import {
+  destroyBoardItemRelations,
   getCollection,
   getCompanies,
   getCustomers,
@@ -487,9 +486,7 @@ export const itemsRemove = async (
     contentType: type
   });
 
-  await Conformities.removeConformity({ mainType: type, mainTypeId: item._id });
-  await Checklists.removeChecklists(type, item._id);
-  await ActivityLogs.removeActivityLog(item._id);
+  await destroyBoardItemRelations(item._id, type);
 
   const removed = await item.remove();
 

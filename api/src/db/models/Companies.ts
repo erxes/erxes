@@ -7,6 +7,7 @@ import {
   ICompany,
   ICompanyDocument
 } from './definitions/companies';
+import { ACTIVITY_CONTENT_TYPES } from './definitions/constants';
 import { IUserDocument } from './definitions/users';
 
 export interface ICompanyModel extends Model<ICompanyDocument> {
@@ -193,14 +194,18 @@ export const loadClass = () => {
      */
     public static async removeCompanies(companyIds: string[]) {
       // Removing modules associated with company
-      await InternalNotes.removeCompaniesInternalNotes(companyIds);
-
-      for (const companyId of companyIds) {
-        await Conformities.removeConformity({
-          mainType: 'company',
-          mainTypeId: companyId
-        });
-      }
+      await ActivityLogs.removeActivityLogs(
+        ACTIVITY_CONTENT_TYPES.COMPANY,
+        companyIds
+      );
+      await InternalNotes.removeInternalNotes(
+        ACTIVITY_CONTENT_TYPES.COMPANY,
+        companyIds
+      );
+      await Conformities.removeConformities({
+        mainType: 'company',
+        mainTypeIds: companyIds
+      });
 
       return Companies.deleteMany({ _id: { $in: companyIds } });
     }
