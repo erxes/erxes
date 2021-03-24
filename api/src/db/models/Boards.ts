@@ -1,5 +1,12 @@
 import { Model, model } from 'mongoose';
-import { Forms } from './';
+import {
+  ActivityLogs,
+  ChecklistItems,
+  Checklists,
+  Conformities,
+  Forms,
+  InternalNotes
+} from './';
 import { getCollection, updateOrder, watchItem } from './boardUtils';
 import {
   boardSchema,
@@ -38,23 +45,58 @@ const removeStageWithItems = async (
   return Stages.deleteMany(selector);
 };
 
+const removeItems = async (type: string, stageIds: string[]) => {
+  const { collection } = getCollection(type);
+
+  const items = await collection.find(
+    { stageId: { $in: stageIds } },
+    { _id: 1 }
+  );
+  const itemIds = items.map(i => i._id);
+
+  await ActivityLogs.deleteMany({
+    contentType: type,
+    contentId: { $in: itemIds }
+  });
+
+  const checklist = await Checklists.find(
+    { contentType: type, contentTypeId: { $in: itemIds } },
+    { _id: 1 }
+  );
+  const checklistIds = checklist.map(ch => ch._id);
+  await ChecklistItems.deleteMany({ checklistId: { $in: checklistIds } });
+  await Checklists.deleteMany({
+    contentType: type,
+    contentTypeId: { $in: itemIds }
+  });
+
+  await Conformities.deleteMany({
+    $or: [
+      { mainType: type, mainTypeId: { $in: itemIds } },
+      { relType: type, relTypeId: { $in: itemIds } }
+    ]
+  });
+
+  await InternalNotes.deleteMany({
+    contentType: type,
+    contentTypeId: { $in: itemIds }
+  });
+  await collection.deleteMany({ stageId: { $in: stageIds } });
+};
+
 const removePipelineStagesWithItems = async (
   type: string,
   pipelineId: string
 ) => {
   const stageIds = await Stages.find({ pipelineId }).distinct('_id');
 
-  const { collection } = getCollection(type);
-
-  await collection.deleteMany({ stageId: { $in: stageIds } });
+  await removeItems(type, stageIds);
 
   return Stages.deleteMany({ pipelineId });
 };
 
 const removeStageItems = async (type: string, stageId: string) => {
-  const { collection } = getCollection(type);
-
-  return collection.deleteMany({ stageId });
+  await removeItems(type, [stageId]);
 };
 
 const createOrUpdatePipelineStages = async (
