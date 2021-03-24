@@ -13,7 +13,7 @@ import { IUserDocument } from './definitions/users';
 
 export interface IChecklistModel extends Model<IChecklistDocument> {
   getChecklist(_id: string): Promise<IChecklistDocument>;
-  removeChecklists(contentType: string, contentTypeId: string): void;
+  removeChecklists(contentType: string, contentTypeIds: string[]): void;
   createChecklist(
     { contentType, contentTypeId, ...fields }: IChecklist,
     user: IUserDocument
@@ -56,9 +56,12 @@ export const loadClass = () => {
 
     public static async removeChecklists(
       contentType: string,
-      contentTypeId: string
+      contentTypeIds: string[]
     ) {
-      const checklists = await Checklists.find({ contentType, contentTypeId });
+      const checklists = await Checklists.find({
+        contentType,
+        contentTypeId: { $in: contentTypeIds }
+      });
 
       if (checklists && checklists.length === 0) {
         return;

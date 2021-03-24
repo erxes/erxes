@@ -1,7 +1,6 @@
 import * as dotenv from 'dotenv';
 
 import { connect } from '../db/connection';
-// import {  Deals, InternalNotes, Tasks, Tickets } from '../db/models';
 import {
   ActivityLogs,
   ChecklistItems,
@@ -58,7 +57,7 @@ const conformityHelper = async (conformity, type, toDelConformityIds) => {
   }
 };
 
-const otherHelper = async (obj, toDelIds, idField = 'contentTypeId') => {
+const contentHelper = async (obj, toDelIds, idField = 'contentTypeId') => {
   switch (obj.contentType) {
     case 'deal':
       if ((await Deals.find({ _id: obj[idField] }).count()) === 0) {
@@ -77,6 +76,18 @@ const otherHelper = async (obj, toDelIds, idField = 'contentTypeId') => {
         toDelIds.push(obj._id);
       }
       break;
+
+    case 'company':
+      if ((await Companies.find({ _id: obj[idField] }).count()) === 0) {
+        toDelIds.push(obj._id);
+      }
+      break;
+
+    case 'customer':
+      if ((await Customers.find({ _id: obj[idField] }).count()) === 0) {
+        toDelIds.push(obj._id);
+      }
+      break;
   }
 };
 
@@ -88,6 +99,7 @@ const command = async () => {
   // ============= Conformities check
   let sumCo = 0;
   let sco = 0;
+  let skip = 0;
 
   console.log('-------------- start conformities');
 
@@ -97,7 +109,7 @@ const command = async () => {
     console.log('step By conformities', j);
     const toDelConformityIds: string[] = [];
     const all_conf = await Conformities.find({})
-      .skip(j)
+      .skip(skip)
       .limit(step);
 
     for (const c of all_conf) {
@@ -106,8 +118,11 @@ const command = async () => {
       await conformityHelper(c, 'relType', toDelConformityIds);
     }
 
-    sco = sco + toDelConformityIds.length;
-    console.log('per step delete conformities: ', toDelConformityIds.length);
+    const delCount = toDelConformityIds.length;
+    sco = sco + delCount;
+    skip = skip + step - delCount;
+    console.log('delCount', delCount);
+
     await Conformities.deleteMany({ _id: { $in: toDelConformityIds } });
   }
   console.log(sco, ' summary recycle conformities');
@@ -116,58 +131,71 @@ const command = async () => {
   // ================= internalNotes check
   sumCo = 0;
   sco = 0;
+  skip = 0;
 
   console.log('-------------- start internalNotes');
 
   const allNoteCount = await InternalNotes.find({
-    contentType: { $in: ['task', 'deal', 'ticket'] }
+    contentType: { $in: ['task', 'deal', 'ticket', 'customer', 'company'] }
   }).count();
 
   for (let j = 0; j <= allNoteCount; j = j + step) {
     console.log('step By InternalNotes', j);
     const toDelNoteIds: string[] = [];
     const allNotes = await InternalNotes.find({
-      contentType: { $in: ['task', 'deal', 'ticket'] }
+      contentType: { $in: ['task', 'deal', 'ticket', 'customer', 'company'] }
     })
-      .skip(j)
+      .skip(skip)
       .limit(step);
 
     for (const note of allNotes) {
       sumCo = sumCo + 1;
-      await otherHelper(note, toDelNoteIds);
+      await contentHelper(note, toDelNoteIds);
     }
 
-    sco = sco + toDelNoteIds.length;
+    const delCount = toDelNoteIds.length;
+    sco = sco + delCount;
+    skip = skip + step - delCount;
+    console.log('delCount', delCount);
+
     await InternalNotes.deleteMany({ _id: { $in: toDelNoteIds } });
   }
   console.log(sco, ' summary recycle internalNotes');
   console.log(sumCo, ' summary internalNotes');
 
   // ========== activityLogs check
+  console.log('delete activityLog where contentId is null');
+  await ActivityLogs.deleteMany({ contentId: null });
+
   sumCo = 0;
   sco = 0;
+  skip = 0;
 
   console.log('-------------- start activityLogs');
 
   const allLogCount = await ActivityLogs.find({
-    contentType: { $in: ['task', 'deal', 'ticket'] }
+    contentType: { $in: ['task', 'deal', 'ticket', 'company', 'customer'] }
   }).count();
 
   for (let j = 0; j <= allLogCount; j = j + step) {
     console.log('step By AcitivityCount', j);
     const toDelLogIds: string[] = [];
     const allActivityLogs = await ActivityLogs.find({
-      contentType: { $in: ['task', 'deal', 'ticket'] }
+      contentType: { $in: ['task', 'deal', 'ticket', 'company', 'customer'] }
     })
-      .skip(j)
+      .skip(skip)
       .limit(step);
 
     for (const log of allActivityLogs) {
       sumCo = sumCo + 1;
-      await otherHelper(log, toDelLogIds, 'contentId');
+      await contentHelper(log, toDelLogIds, 'contentId');
     }
 
-    sco = sco + toDelLogIds.length;
+    const delCount = toDelLogIds.length;
+    sco = sco + delCount;
+    skip = skip + step - delCount;
+    console.log('delCount', delCount);
+
     await ActivityLogs.deleteMany({ _id: { $in: toDelLogIds } });
   }
   console.log(sco, ' summary recycle ActivityLogs');
@@ -176,6 +204,7 @@ const command = async () => {
   // =========== checklist check
   sumCo = 0;
   sco = 0;
+  skip = 0;
 
   console.log('-------------- start checklists and checlistItems');
 
@@ -189,15 +218,19 @@ const command = async () => {
     const allChecklists = await Checklists.find({
       contentType: { $in: ['task', 'deal', 'ticket'] }
     })
-      .skip(j)
+      .skip(skip)
       .limit(step);
 
     for (const checklist of allChecklists) {
       sumCo = sumCo + 1;
-      await otherHelper(checklist, toDelChecklistIds);
+      await contentHelper(checklist, toDelChecklistIds);
     }
 
-    sco = sco + toDelChecklistIds.length;
+    const delCount = toDelChecklistIds.length;
+    sco = sco + delCount;
+    skip = skip + step - delCount;
+    console.log('delCount', delCount);
+
     await ChecklistItems.deleteMany({
       checklistId: { $in: toDelChecklistIds }
     });

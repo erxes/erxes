@@ -10,6 +10,7 @@ import {
   InternalNotes
 } from './';
 import { ICustomField } from './definitions/common';
+import { ACTIVITY_CONTENT_TYPES } from './definitions/constants';
 import {
   customerSchema,
   ICustomer,
@@ -473,16 +474,20 @@ export const loadClass = () => {
      */
     public static async removeCustomers(customerIds: string[]) {
       // Removing every modules that associated with customer
+      await ActivityLogs.removeActivityLogs(
+        ACTIVITY_CONTENT_TYPES.CUSTOMER,
+        customerIds
+      );
       await Conversations.removeCustomersConversations(customerIds);
       await EngageMessages.removeCustomersEngages(customerIds);
-      await InternalNotes.removeCustomersInternalNotes(customerIds);
-
-      for (const customerId of customerIds) {
-        await Conformities.removeConformity({
-          mainType: 'customer',
-          mainTypeId: customerId
-        });
-      }
+      await InternalNotes.removeInternalNotes(
+        ACTIVITY_CONTENT_TYPES.CUSTOMER,
+        customerIds
+      );
+      await Conformities.removeConformities({
+        mainType: 'customer',
+        mainTypeIds: customerIds
+      });
 
       return Customers.deleteMany({ _id: { $in: customerIds } });
     }
