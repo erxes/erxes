@@ -1,7 +1,6 @@
 import { Model, model } from 'mongoose';
 import {
   ActivityLogs,
-  ChecklistItems,
   Checklists,
   Conformities,
   Forms,
@@ -54,33 +53,14 @@ const removeItems = async (type: string, stageIds: string[]) => {
   );
   const itemIds = items.map(i => i._id);
 
-  await ActivityLogs.deleteMany({
-    contentType: type,
-    contentId: { $in: itemIds }
+  await ActivityLogs.removeActivityLogs(type, itemIds);
+  await Checklists.removeChecklists(type, itemIds);
+  await Conformities.removeConformities({
+    mainType: type,
+    mainTypeIds: itemIds
   });
+  await InternalNotes.removeInternalNotes(type, itemIds);
 
-  const checklist = await Checklists.find(
-    { contentType: type, contentTypeId: { $in: itemIds } },
-    { _id: 1 }
-  );
-  const checklistIds = checklist.map(ch => ch._id);
-  await ChecklistItems.deleteMany({ checklistId: { $in: checklistIds } });
-  await Checklists.deleteMany({
-    contentType: type,
-    contentTypeId: { $in: itemIds }
-  });
-
-  await Conformities.deleteMany({
-    $or: [
-      { mainType: type, mainTypeId: { $in: itemIds } },
-      { relType: type, relTypeId: { $in: itemIds } }
-    ]
-  });
-
-  await InternalNotes.deleteMany({
-    contentType: type,
-    contentTypeId: { $in: itemIds }
-  });
   await collection.deleteMany({ stageId: { $in: stageIds } });
 };
 
