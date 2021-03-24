@@ -236,7 +236,7 @@ export default withProps<Props>(
       name: 'integrationsQuery',
       options: () => {
         return {
-          variables: { kind: 'mail' },
+          variables: { kind: 'mail', status: 'active' },
           fetchPolicy: 'network-only'
         };
       }
