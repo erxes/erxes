@@ -537,7 +537,11 @@ class MailForm extends React.Component<Props, State> {
       beforeUpload: () => {
         this.setState({ isUploading: true });
       },
-      afterUpload: ({ response }) => {
+      afterUpload: ({ status, response, fileInfo }) => {
+        if (status === 'error') {
+          return Alert.error(`Error occured while uploading: ${fileInfo.name}`);
+        }
+
         const resObj = JSON.parse(response);
 
         this.setState({
