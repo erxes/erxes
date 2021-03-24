@@ -7,9 +7,7 @@ import {
 } from '../db/models';
 import Messages from '../db/models/ConversationMessages';
 import { IBrowserInfo } from '../db/models/Customers';
-import { ICustomField } from '../db/models/definitions/common';
 import { KIND_CHOICES } from '../db/models/definitions/constants';
-import { ICustomer } from '../db/models/definitions/customers';
 import { debugBase, debugError } from '../debuggers';
 import { client, fetchElk, getIndexPrefix } from '../elasticsearch';
 import { getVisitorLog, sendToVisitorLog } from './logUtils';
