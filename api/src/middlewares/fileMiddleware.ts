@@ -76,7 +76,7 @@ export const importer = async (req: any, res, next) => {
   }
 };
 
-export const uploader = routeErrorHandling(async (req: any, res, next) => {
+export const uploader = routeErrorHandling(async (req: any, res) => {
   const INTEGRATIONS_API_DOMAIN = getSubServiceDomain({
     name: 'INTEGRATIONS_API_DOMAIN'
   });
@@ -89,14 +89,15 @@ export const uploader = routeErrorHandling(async (req: any, res, next) => {
         .post(`${INTEGRATIONS_API_DOMAIN}/nylas/upload`)
         .on('response', response => {
           if (response.statusCode !== 200) {
-            return next(new Error(response.statusMessage));
+            throw new Error(response.statusMessage);
           }
 
           return response.pipe(res);
         })
         .on('error', e => {
           debugExternalApi(`Error from pipe ${e.message}`);
-          next(e);
+
+          throw e;
         })
     );
   }
