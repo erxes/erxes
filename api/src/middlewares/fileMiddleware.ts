@@ -9,7 +9,6 @@ import {
   frontendEnv,
   getConfig,
   getSubServiceDomain,
-  routeErrorHandling,
   uploadFile,
   uploadFileAWS,
   uploadFileLocal
@@ -76,7 +75,7 @@ export const importer = async (req: any, res, next) => {
   }
 };
 
-export const uploader = routeErrorHandling(async (req: any, res) => {
+export const uploader = async (req: any, res, next) => {
   const INTEGRATIONS_API_DOMAIN = getSubServiceDomain({
     name: 'INTEGRATIONS_API_DOMAIN'
   });
@@ -89,7 +88,7 @@ export const uploader = routeErrorHandling(async (req: any, res) => {
         .post(`${INTEGRATIONS_API_DOMAIN}/nylas/upload`)
         .on('response', response => {
           if (response.statusCode !== 200) {
-            throw new Error(response.statusMessage);
+            return next(new Error(response.statusMessage));
           }
 
           return response.pipe(res);
@@ -97,7 +96,7 @@ export const uploader = routeErrorHandling(async (req: any, res) => {
         .on('error', e => {
           debugExternalApi(`Error from pipe ${e.message}`);
 
-          throw e;
+          return next(e);
         })
     );
   }
@@ -133,4 +132,4 @@ export const uploader = routeErrorHandling(async (req: any, res) => {
 
     return res.status(500).send(status);
   });
-});
+};
