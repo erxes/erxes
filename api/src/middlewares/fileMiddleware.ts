@@ -88,7 +88,7 @@ export const uploader = async (req: any, res, next) => {
         .post(`${INTEGRATIONS_API_DOMAIN}/nylas/upload`)
         .on('response', response => {
           if (response.statusCode !== 200) {
-            return next(response.statusMessage);
+            return next(new Error(response.statusMessage));
           }
 
           return response.pipe(res);
