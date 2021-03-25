@@ -17,7 +17,6 @@ type Props = {
 class DetailInfo extends React.Component<Props> {
   renderRow = (field, value) => {
     const { fields } = this.props;
-
     const property = fields.find(e => e.field === field);
 
     if (property && !property.isVisible) {
@@ -25,9 +24,10 @@ class DetailInfo extends React.Component<Props> {
     }
 
     const label = property && property.text;
+    const className = field === 'industry' ? 'multiple-choice' : '';
 
     return (
-      <li>
+      <li className={className}>
         <FieldStyle>{__(`${label}`)}</FieldStyle>
         <SidebarCounter>{value || '-'}</SidebarCounter>
       </li>
