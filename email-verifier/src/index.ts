@@ -37,7 +37,7 @@ app.post('/verify-single', async (req, res, next) => {
 
     return res.json(result);
   } catch (e) {
-    return next(new Error(e));
+    return next(e);
   }
 });
 
