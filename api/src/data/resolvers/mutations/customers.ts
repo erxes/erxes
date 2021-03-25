@@ -1,4 +1,4 @@
-import { ActivityLogs, Customers } from '../../../db/models';
+import { Customers } from '../../../db/models';
 import { ICustomer } from '../../../db/models/definitions/customers';
 import messageBroker from '../../../messageBroker';
 import { MODULE_NAMES } from '../../constants';
@@ -100,8 +100,6 @@ const customerMutations = {
     });
 
     for (const customer of customers) {
-      await ActivityLogs.removeActivityLog(customer._id);
-
       await putDeleteLog(
         { type: MODULE_NAMES.CUSTOMER, object: customer },
         user
