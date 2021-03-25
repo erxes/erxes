@@ -52,7 +52,6 @@ export default class GenerateField extends React.Component<Props, State> {
   }
 
   renderSelect(options: string[] = [], attrs = {}) {
-    console.log('asd: ', attrs);
     return (
       <FormControl componentClass="select" {...attrs}>
         {options.map((option, index) => (
@@ -274,6 +273,13 @@ export default class GenerateField extends React.Component<Props, State> {
     switch (type) {
       case 'select':
         return this.renderSelect(options, attrs);
+
+      case 'multiSelect':
+        return this.renderSelect(options, {
+          ...attrs,
+          multiple: true,
+          maxHeight: 100
+        });
 
       case 'pronoun':
         return this.renderSelect(['Male', 'Female', 'Not applicable'], attrs);

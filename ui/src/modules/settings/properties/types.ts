@@ -37,7 +37,6 @@ export interface IField {
   logics?: IFieldLogic[];
   logicAction?: string;
   groupName?: string;
-  isMultipleSelect?: boolean;
 }
 
 export interface IFieldGroup {

@@ -22,7 +22,7 @@ class FieldPreview extends React.Component<Props, {}> {
     return (
       <FieldItem
         hasLogic={hasLogic}
-        selectType={field.type === 'select'}
+        selectType={field.type === 'select' || field.type === 'multiSelect'}
         onClick={onClickItem}
       >
         <GenerateField field={field} hasLogic={hasLogic} />

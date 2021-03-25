@@ -32,7 +32,6 @@ export const fieldsTypes = `
     logicAction: String
     column: Int
     groupName: String
-    isMultipleSelect: Boolean
   }
 
   input OrderItem {
@@ -62,7 +61,6 @@ export const fieldsTypes = `
     associatedFieldId: String
     logicAction: String
     logics: [LogicInput]
-    isMultipleSelect: Boolean
     groupName: String
   }
 

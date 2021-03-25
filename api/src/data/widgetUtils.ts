@@ -8,6 +8,7 @@ import {
 import Messages from '../db/models/ConversationMessages';
 import { IBrowserInfo } from '../db/models/Customers';
 import { KIND_CHOICES } from '../db/models/definitions/constants';
+import { ICustomerDocument } from '../db/models/definitions/customers';
 import { debugBase, debugError } from '../debuggers';
 import { client, fetchElk, getIndexPrefix } from '../elasticsearch';
 import { getVisitorLog, sendToVisitorLog } from './logUtils';
@@ -238,4 +239,57 @@ export const getOrCreateEngageMessageElk = async (
   const convs = await Conversations.find(query);
 
   return Messages.findOne(Conversations.widgetsUnreadMessagesQuery(convs));
+};
+
+export const updateCustomerFromFrom = async (
+  browserInfo: any,
+  doc: any,
+  customer: ICustomerDocument
+) => {
+  const customerDoc: any = {
+    location: browserInfo,
+    firstName: doc.firstName || customer.firstName,
+    lastName: doc.lastName || customer.lastName,
+    sex: doc.pronoun,
+    birthDate: doc.birthDate,
+    customFieldsData: doc.customFieldsData,
+    ...(customer.primaryEmail
+      ? {}
+      : {
+          emails: [doc.email],
+          primaryEmail: doc.email
+        }),
+    ...(customer.primaryPhone
+      ? {}
+      : {
+          phones: [doc.phone],
+          primaryPhone: doc.phone
+        })
+  };
+
+  if (doc.avatar.length > 0) {
+    customerDoc.avatar = doc.avatar;
+  }
+
+  if (doc.department.length > 0) {
+    customerDoc.department = doc.department;
+  }
+
+  if (doc.position.length > 0) {
+    customerDoc.position = doc.position;
+  }
+
+  if (doc.description.length > 0) {
+    customerDoc.description = doc.description;
+  }
+
+  if (doc.hasAuthority.length > 0) {
+    customerDoc.hasAuthority = doc.hasAuthority;
+  }
+
+  if (doc.doNotDisturb.length > 0) {
+    customerDoc.doNotDisturb = doc.doNotDisturb;
+  }
+
+  await Customers.updateCustomer(customer._id, customerDoc);
 };

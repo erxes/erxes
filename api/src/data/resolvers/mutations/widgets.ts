@@ -50,7 +50,10 @@ import {
   sendRequest,
   sendToWebhook
 } from '../../utils';
-import { convertVisitorToCustomer } from '../../widgetUtils';
+import {
+  convertVisitorToCustomer,
+  updateCustomerFromFrom
+} from '../../widgetUtils';
 import { conversationNotifReceivers } from './conversations';
 
 interface ISubmission {
@@ -466,52 +469,23 @@ const widgetMutations = {
           });
         }
 
-        const cachedCustomerDoc: any = {
-          location: browserInfo,
-          firstName: firstName || cachedCustomer.firstName,
-          lastName: lastName || cachedCustomer.lastName,
-          sex: pronoun,
-          birthDate,
-          customFieldsData,
-          ...(cachedCustomer.primaryEmail
-            ? {}
-            : {
-                emails: [email],
-                primaryEmail: email
-              }),
-          ...(cachedCustomer.primaryPhone
-            ? {}
-            : {
-                phones: [phone],
-                primaryPhone: phone
-              })
-        };
-
-        if (avatar.length > 0) {
-          cachedCustomerDoc.avatar = avatar;
-        }
-
-        if (department.length > 0) {
-          cachedCustomerDoc.department = department;
-        }
-
-        if (position.length > 0) {
-          cachedCustomerDoc.position = position;
-        }
-
-        if (description.length > 0) {
-          cachedCustomerDoc.description = description;
-        }
-
-        if (hasAuthority.length > 0) {
-          cachedCustomerDoc.hasAuthority = hasAuthority;
-        }
-
-        if (doNotDisturb.length > 0) {
-          cachedCustomerDoc.doNotDisturb = doNotDisturb;
-        }
-
-        await Customers.updateCustomer(cachedCustomer._id, cachedCustomerDoc);
+        await updateCustomerFromFrom(
+          browserInfo,
+          {
+            firstName,
+            lastName,
+            pronoun,
+            birthDate,
+            customFieldsData,
+            avatar,
+            department,
+            position,
+            description,
+            hasAuthority,
+            doNotDisturb
+          },
+          cachedCustomer
+        );
 
         customerId = cachedCustomer._id;
 
@@ -538,52 +512,23 @@ const widgetMutations = {
           });
         }
 
-        const customerDoc: any = {
-          location: browserInfo,
-          firstName: firstName || customer.firstName,
-          lastName: lastName || customer.lastName,
-          customFieldsData,
-          birthDate,
-          sex: pronoun,
-          ...(customer.primaryEmail
-            ? {}
-            : {
-                emails: [email],
-                primaryEmail: email
-              }),
-          ...(customer.primaryPhone
-            ? {}
-            : {
-                phones: [phone],
-                primaryPhone: phone
-              })
-        };
-
-        if (avatar.length > 0) {
-          customerDoc.avatar = avatar;
-        }
-
-        if (department.length > 0) {
-          customerDoc.department = department;
-        }
-
-        if (position.length > 0) {
-          customerDoc.position = position;
-        }
-
-        if (description.length > 0) {
-          customerDoc.description = description;
-        }
-
-        if (hasAuthority.length > 0) {
-          customerDoc.hasAuthority = hasAuthority;
-        }
-
-        if (doNotDisturb.length > 0) {
-          customerDoc.doNotDisturb = doNotDisturb;
-        }
-
-        await Customers.updateCustomer(customer._id, customerDoc);
+        await updateCustomerFromFrom(
+          browserInfo,
+          {
+            firstName,
+            lastName,
+            pronoun,
+            birthDate,
+            customFieldsData,
+            avatar,
+            department,
+            position,
+            description,
+            hasAuthority,
+            doNotDisturb
+          },
+          cachedCustomer
+        );
 
         if (results[key]) {
           results[key].customerIds.push(customer._id);

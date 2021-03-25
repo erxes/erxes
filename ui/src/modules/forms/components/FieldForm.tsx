@@ -37,7 +37,6 @@ type State = {
   field: IField;
   selectedOption?: IOption;
   group?: string;
-  isMultipleSelect?: boolean;
   isHtmlSaved: boolean;
 };
 
@@ -178,7 +177,7 @@ class FieldForm extends React.Component<Props, State> {
         (e.currentTarget as HTMLInputElement).value.split('\n')
       );
 
-    if (!['select', 'check', 'radio'].includes(field.type)) {
+    if (!['select', 'check', 'radio', 'multiSelect'].includes(field.type)) {
       return null;
     }
 
@@ -205,7 +204,7 @@ class FieldForm extends React.Component<Props, State> {
 
     const onDelete = e => {
       e.preventDefault();
-
+      console.log('onDelete');
       this.props.onDelete(field);
     };
 
@@ -222,14 +221,17 @@ class FieldForm extends React.Component<Props, State> {
   }
 
   renderMultipleSelectCheckBox() {
-    const { isMultipleSelect, field } = this.state;
+    const { field } = this.state;
 
-    if (field.type !== 'select') {
+    const isSelect = ['select', 'multiSelect'].includes(field.type);
+
+    if (!isSelect) {
       return;
     }
 
     const onChange = e => {
-      this.setState({ isMultipleSelect: e.target.checked });
+      field.type = e.target.checked ? 'multiSelect' : 'select';
+      this.setState({ field });
     };
 
     return (
@@ -239,7 +241,7 @@ class FieldForm extends React.Component<Props, State> {
             {__('Select multiple values')}
           </ControlLabel>
           <Toggle
-            defaultChecked={isMultipleSelect || false}
+            defaultChecked={field.type === 'multiSelect'}
             icons={{
               checked: <span>Yes</span>,
               unchecked: <span>No</span>
@@ -254,6 +256,8 @@ class FieldForm extends React.Component<Props, State> {
   renderLeftContent() {
     const { fields, mode, onCancel } = this.props;
     const { field } = this.state;
+
+    console.log('fields: ', fields);
 
     const text = e =>
       this.onFieldChange('text', (e.currentTarget as HTMLInputElement).value);
