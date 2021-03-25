@@ -171,7 +171,6 @@ const fields = `
         logicValue
       }
       groupName
-      isMultipleSelect
     }
   }
 `;

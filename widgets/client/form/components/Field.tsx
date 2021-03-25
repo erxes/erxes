@@ -192,9 +192,9 @@ export default class Field extends React.Component<Props, State> {
       }
       this.onChange(multipleSelectValues)
     }
-    
+
     this.setState({ multipleSelectValues })
-    
+
   };
 
   renderDatepicker(id: string) {
@@ -251,6 +251,9 @@ export default class Field extends React.Component<Props, State> {
     switch (field.type) {
       case 'select':
         return Field.renderSelect(options, { onChange: this.onSelectChange, id: field._id });
+
+      case 'multiSelect':
+        return Field.renderSelect(options, { value: this.state.multipleSelectValues, onChange: this.onMultpleSelectChange, id: field._id, multiple: true });
 
       case 'pronoun':
         return Field.renderSelect(['Male', 'Female', 'Not applicable'], { onChange: this.onSelectChange, id: field._id });
@@ -364,7 +367,7 @@ export default class Field extends React.Component<Props, State> {
           {field.text}
           {field.isRequired ? <span className="required">*</span> : null}
         </label>
-      
+
         <span className="error">{error && error.text}</span>
 
         {field.description ? (
