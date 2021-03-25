@@ -275,7 +275,7 @@ export const destroyBoardItemRelations = async (
   contentType: string
 ) => {
   await ActivityLogs.removeActivityLog(contentTypeId);
-  await Checklists.removeChecklists(contentType, contentTypeId);
+  await Checklists.removeChecklists(contentType, [contentTypeId]);
   await Conformities.removeConformity({
     mainType: contentType,
     mainTypeId: contentTypeId

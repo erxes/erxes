@@ -32,6 +32,10 @@ export interface IActivityLogModel extends Model<IActivityLogDocument> {
   addActivityLog(doc: IActivityLogInput): Promise<IActivityLogDocument>;
   addActivityLogs(docs: IActivityLogInput[]): Promise<IActivityLogDocument[]>;
   removeActivityLog(contentId: string): void;
+  removeActivityLogs(
+    contentType: string,
+    contentIds: string[]
+  ): Promise<{ n: number; ok: number }>;
 
   createSegmentLog(
     segment: ISegmentDocument,
@@ -80,6 +84,20 @@ export const loadClass = () => {
 
     public static async removeActivityLog(contentId: IActivityLogInput) {
       await ActivityLogs.deleteMany({ contentId });
+    }
+
+    /**
+     * Remove internal notes
+     */
+    public static async removeActivityLogs(
+      contentType: string,
+      contentIds: string[]
+    ) {
+      // Removing every activity logs of contentType
+      return ActivityLogs.deleteMany({
+        contentType,
+        contentId: { $in: contentIds }
+      });
     }
 
     public static async createAssigneLog({
