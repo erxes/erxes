@@ -24,6 +24,7 @@ import integrations from './integrations';
 import internalNotes from './internalNotes';
 import knowledgeBase from './knowledgeBase';
 import logs from './logs';
+import messengerAppsQueries from './messengerApps';
 import notifications from './notifications';
 import {
   permissionQueries as permissions,
@@ -86,5 +87,6 @@ export default {
   ...calendars,
   ...dashboards,
   ...skillTypesQueries,
-  ...skillQueries
+  ...skillQueries,
+  ...messengerAppsQueries
 };

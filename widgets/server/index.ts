@@ -56,7 +56,9 @@ app.get('/knowledgebase', (req, res) => {
 });
 
 app.get('/test', (req, res) => {
-  res.render('widget-test');
+  const { form_id, brand_id, topic_id } = req.query;
+
+  res.render(`widget-${req.query.type}-test`, { topic_id, brand_id, form_id, env: getEnv() });
 });
 
 const port = process.env.PORT || 3200;

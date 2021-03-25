@@ -118,6 +118,7 @@ import {
 import { queries as LogQueries, types as LogTypes } from './log';
 import {
   mutations as MessengerAppMutations,
+  queries as MessengerAppQueries,
   types as MessengerAppTypes
 } from './messengerApp';
 import {
@@ -290,6 +291,7 @@ export let queries = `
   ${WidgetQueries}
   ${WebhookQueries}
   ${CalendarQueries}
+  ${MessengerAppQueries}
 `;
 
 export let mutations = `

@@ -18,10 +18,18 @@ export interface ILeadCredentials {
   formCode: string;
 }
 
+export interface IWebsiteCredentials {
+  integrationId: string;
+  description?: string;
+  buttonText: string;
+  url: string;
+}
+
 export type IMessengerAppCrendentials =
   | IGoogleCredentials
   | IKnowledgebaseCredentials
-  | ILeadCredentials;
+  | ILeadCredentials
+  | IWebsiteCredentials;
 
 export interface IMessengerApp {
   kind: 'googleMeet' | 'knowledgebase' | 'lead' | 'website';
