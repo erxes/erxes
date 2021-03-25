@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+
+<html lang="en">
+
+<body>
+
+    <div data-erxes-kbase style="width:900px;height:1000px"></div>
+
+    <script>
+        window.erxesSettings = {
+            knowledgeBase: {
+                topic_id: '<%= topic_id %>'
+            },
+        };
+
+        (function () {
+            var script = document.createElement('script');
+            script.src = '<%= JSON.parse(env).ROOT_URL %>/build/knowledgebaseWidget.bundle.js';
+            script.async = true;
+            var entry = document.getElementsByTagName('script')[0];
+            entry.parentNode.insertBefore(script, entry);
+        })();
+    </script>
+</body>
+
+</html>
