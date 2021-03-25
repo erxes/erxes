@@ -275,4 +275,33 @@ describe('Test tags model', () => {
       );
     }
   });
+
+  test('Merge', async () => {
+    expect.assertions(2);
+
+    const t1 = await tagsFactory({ type: 'conversation' });
+    const t2 = await tagsFactory({ type: 'conversation' });
+    const t3 = await tagsFactory({ type: 'conversation' });
+
+    let conv: IConversationDocument | null = await conversationFactory({});
+
+    await Tags.tagObject({
+      type: 'conversation',
+      targetIds: [conv._id],
+      tagIds: [t1._id, t3._id]
+    });
+
+    await Tags.merge(t1._id, t2._id);
+
+    const removedTag = await Tags.findOne({ _id: t1._id });
+    expect(removedTag).toBeNull();
+
+    conv = await Conversations.findOne({ _id: conv._id });
+
+    if (conv) {
+      expect(JSON.stringify(conv.tagIds)).toEqual(
+        JSON.stringify([t3._id, t2._id])
+      );
+    }
+  });
 });

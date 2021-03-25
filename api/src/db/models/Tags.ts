@@ -100,6 +100,7 @@ export const getCollection = type => {
 
 export interface ITagModel extends Model<ITagDocument> {
   getTag(_id: string): Promise<ITagDocument>;
+  merge(sourceId: string, destId: string): Promise<ITagDocument>;
   createTag(doc: ITag): Promise<ITagDocument>;
   updateTag(_id: string, doc: ITag): Promise<ITagDocument>;
   removeTag(_id: string): void;
@@ -303,27 +304,18 @@ export const loadClass = () => {
      * Remove Tag
      */
     public static async removeTag(_id: string) {
-      const tag = await Tags.findOne({ _id });
-
-      if (!tag) {
-        throw new Error('Tag not found');
-      }
-
+      const tag = await Tags.getTag(_id);
+      const collection = getCollection(tag.type);
       const childCount = await Tags.countDocuments({ parentId: _id });
 
       if (childCount > 0) {
         throw new Error('Please remove child tags first');
       }
 
-      const selector = { tagIds: { $in: [_id] } };
-      const modifier = { $pull: { tagIds: { $in: [_id] } } };
-
-      await Customers.updateMany(selector, modifier);
-      await Conversations.updateMany(selector, modifier);
-      await EngageMessages.updateMany(selector, modifier);
-      await Companies.updateMany(selector, modifier);
-      await Integrations.updateMany(selector, modifier);
-      await Products.updateMany(selector, modifier);
+      await collection.updateMany(
+        { tagIds: { $in: [_id] } },
+        { $pull: { tagIds: { $in: [_id] } } }
+      );
 
       await removeRelatedIds(tag);
 
@@ -357,6 +349,32 @@ export const loadClass = () => {
       }
 
       return `${parentOrder}/${order}`;
+    }
+
+    public static async merge(
+      sourceId: string,
+      destId: string
+    ): Promise<ITagDocument> {
+      const source = await Tags.getTag(sourceId);
+
+      const collection = await getCollection(source.type);
+
+      const items = await collection.find(
+        { tagIds: { $in: [sourceId] } },
+        { _id: 1 }
+      );
+      const itemIds = items.map(i => i._id);
+
+      // add to new destination
+      await collection.updateMany(
+        { _id: { $in: itemIds } },
+        { $push: { tagIds: [destId] } }
+      );
+
+      // remove old tag
+      await Tags.removeTag(sourceId);
+
+      return Tags.getTag(destId);
     }
   }
 

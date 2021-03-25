@@ -17,10 +17,11 @@ type Props = {
   type: string;
   renderButton: (props: IButtonMutateProps) => JSX.Element;
   remove: (tag: ITag) => void;
+  merge: (sourceId: string, destId: string, callback) => void;
   loading: boolean;
 };
 
-function List({ tags, type, remove, loading, renderButton }: Props) {
+function List({ tags, type, remove, merge, loading, renderButton }: Props) {
   const trigger = (
     <Button
       id={'AddTagButton'}
@@ -81,6 +82,7 @@ function List({ tags, type, remove, loading, renderButton }: Props) {
               type={type}
               space={foundedString ? foundedString.length : 0}
               remove={remove}
+              merge={merge}
               renderButton={renderButton}
               tags={tags}
             />
