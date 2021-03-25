@@ -51,6 +51,7 @@ const removeRelatedIds = async (tag: ITagDocument) => {
   }
 
   const relatedIds: string[] = tag.relatedIds || [];
+
   relatedIds.push(tag._id);
 
   const doc: Array<{
@@ -312,22 +313,18 @@ export const loadClass = () => {
       const childCount = await Tags.countDocuments({ parentId: _id });
 
       if (childCount > 0) {
-        throw new Error("Can't remove a tag");
+        throw new Error('Please remove child tags first');
       }
 
       const selector = { tagIds: { $in: [_id] } };
+      const modifier = { $pull: { tagIds: { $in: [_id] } } };
 
-      let count = 0;
-      count += await Customers.countDocuments(selector);
-      count += await Conversations.countDocuments(selector);
-      count += await EngageMessages.countDocuments(selector);
-      count += await Companies.countDocuments(selector);
-      count += await Integrations.findIntegrations(selector).countDocuments();
-      count += await Products.countDocuments(selector);
-
-      if (count > 0) {
-        throw new Error("Can't remove a tag with tagged object(s)");
-      }
+      await Customers.updateMany(selector, modifier);
+      await Conversations.updateMany(selector, modifier);
+      await EngageMessages.updateMany(selector, modifier);
+      await Companies.updateMany(selector, modifier);
+      await Integrations.updateMany(selector, modifier);
+      await Products.updateMany(selector, modifier);
 
       await removeRelatedIds(tag);
 

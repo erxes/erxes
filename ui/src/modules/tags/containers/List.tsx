@@ -22,7 +22,9 @@ const ListContainer = (props: FinalProps) => {
   const { tagsQuery, removeMutation, type } = props;
 
   const remove = tag => {
-    confirm()
+    confirm(
+      `All associated ${type}(s) with the tag will be permanently deleted (no undo). Are you sure ?`
+    )
       .then(() => {
         removeMutation({ variables: { _id: tag._id } })
           .then(() => {

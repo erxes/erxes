@@ -1,5 +1,10 @@
-import { engageMessageFactory, tagsFactory } from '../db/factories';
-import { EngageMessages, Tags } from '../db/models';
+import {
+  conversationFactory,
+  engageMessageFactory,
+  tagsFactory
+} from '../db/factories';
+import { Conversations, EngageMessages, Tags } from '../db/models';
+import { IConversationDocument } from '../db/models/definitions/conversations';
 
 import './setup.ts';
 
@@ -229,18 +234,8 @@ describe('Test tags model', () => {
     }
   });
 
-  test("Can't remove a tag", async () => {
-    expect.assertions(2);
-    try {
-      await EngageMessages.updateMany(
-        { _id: _message._id },
-        { $set: { tagIds: [_tag._id] } }
-      );
-
-      await Tags.removeTag(_tag._id);
-    } catch (e) {
-      expect(e.message).toEqual("Can't remove a tag with tagged object(s)");
-    }
+  test('Remove tag with child', async () => {
+    expect.assertions(1);
 
     try {
       await Tags.createTag({
@@ -251,7 +246,29 @@ describe('Test tags model', () => {
 
       await Tags.removeTag(_tag._id);
     } catch (e) {
-      expect(e.message).toEqual("Can't remove a tag");
+      expect(e.message).toEqual('Please remove child tags first');
+    }
+  });
+
+  test('Remove tag success', async () => {
+    expect.assertions(1);
+
+    const t1 = await tagsFactory({ type: 'conversation' });
+    const t2 = await tagsFactory({ type: 'conversation' });
+    const t3 = await tagsFactory({ type: 'conversation' });
+
+    let conv: IConversationDocument | null = await conversationFactory({});
+
+    await Tags.tagsTag('conversation', [conv._id], [t1._id, t2._id, t3._id]);
+
+    await Tags.removeTag(t2._id);
+
+    conv = await Conversations.findOne({ _id: conv._id });
+
+    if (conv) {
+      expect(JSON.stringify(conv.tagIds)).toEqual(
+        JSON.stringify([t1._id, t3._id])
+      );
     }
   });
 });
