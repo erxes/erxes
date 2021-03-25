@@ -56,12 +56,12 @@ describe('Test tags model', () => {
 
   test('Tag not found', async () => {
     expect.assertions(1);
+
     try {
       await Tags.tagObject({
         tagIds: [_tag._id],
-        objectIds: [],
-        collection: EngageMessages,
-        tagType: 'customer'
+        targetIds: [],
+        type: 'customer'
       });
     } catch (e) {
       expect(e.message).toEqual('Tag not found.');
@@ -69,15 +69,15 @@ describe('Test tags model', () => {
   });
 
   test('Attach customer tag', async () => {
-    Tags.tagsTag('customer', [], []);
+    Tags.tagObject({ type: 'customer', targetIds: [], tagIds: [] });
   });
 
   test('Attach integration tag', async () => {
-    Tags.tagsTag('integration', [], []);
+    Tags.tagObject({ type: 'integration', tagIds: [], targetIds: [] });
   });
 
   test('Attach product tag', async () => {
-    Tags.tagsTag('product', [], []);
+    Tags.tagObject({ type: 'product', targetIds: [], tagIds: [] });
   });
 
   test('Create tag check duplicated', async () => {
@@ -205,7 +205,7 @@ describe('Test tags model', () => {
     const targetIds = [_message._id];
     const tagIds = [_tag._id];
 
-    await Tags.tagsTag(type, targetIds, tagIds);
+    await Tags.tagObject({ type, targetIds, tagIds });
 
     const messageObj = await EngageMessages.findOne({ _id: _message._id });
     const tagObj = await Tags.findOne({ _id: _tag._id });
@@ -222,7 +222,7 @@ describe('Test tags model', () => {
   });
 
   test('Attach company tag', async () => {
-    Tags.tagsTag('company', [], []);
+    Tags.tagObject({ type: 'company', tagIds: [], targetIds: [] });
   });
 
   test('Remove tag not found', async () => {
@@ -259,7 +259,11 @@ describe('Test tags model', () => {
 
     let conv: IConversationDocument | null = await conversationFactory({});
 
-    await Tags.tagsTag('conversation', [conv._id], [t1._id, t2._id, t3._id]);
+    await Tags.tagObject({
+      type: 'conversation',
+      targetIds: [conv._id],
+      tagIds: [t1._id, t2._id, t3._id]
+    });
 
     await Tags.removeTag(t2._id);
 

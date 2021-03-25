@@ -84,7 +84,7 @@ const tagMutations = {
       publishConversationsChanged(targetIds, MODULE_NAMES.TAG);
     }
 
-    return Tags.tagsTag(type, targetIds, tagIds);
+    return Tags.tagObject({ type, targetIds, tagIds });
   }
 };
 

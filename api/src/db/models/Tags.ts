@@ -12,10 +12,9 @@ import { escapeRegExp } from '../../data/utils';
 import { ITag, ITagDocument, tagSchema } from './definitions/tags';
 
 interface ITagObjectParams {
+  type: string;
   tagIds: string[];
-  objectIds: string[];
-  collection: any;
-  tagType: string;
+  targetIds: string[];
 }
 
 // set related tags
@@ -104,7 +103,6 @@ export interface ITagModel extends Model<ITagDocument> {
   createTag(doc: ITag): Promise<ITagDocument>;
   updateTag(_id: string, doc: ITag): Promise<ITagDocument>;
   removeTag(_id: string): void;
-  tagsTag(type: string, targetIds: string[], tagIds: string[]): void;
   tagObject(params: ITagObjectParams): void;
   validateUniqueness(
     selector: any,
@@ -168,14 +166,15 @@ export const loadClass = () => {
      * Common helper for taggable objects like conversation, engage, customer etc ...
      */
     public static async tagObject({
+      type,
       tagIds,
-      objectIds,
-      collection,
-      tagType
+      targetIds
     }: ITagObjectParams) {
+      const collection = getCollection(type);
+
       const prevTagsCount = await Tags.find({
         _id: { $in: tagIds },
-        type: tagType
+        type
       }).countDocuments();
 
       if (prevTagsCount !== tagIds.length) {
@@ -183,7 +182,7 @@ export const loadClass = () => {
       }
 
       await collection.updateMany(
-        { _id: { $in: objectIds } },
+        { _id: { $in: targetIds } },
         { $set: { tagIds } },
         { multi: true }
       );
@@ -329,24 +328,6 @@ export const loadClass = () => {
       await removeRelatedIds(tag);
 
       return Tags.deleteOne({ _id });
-    }
-
-    /**
-     * Attach a tag
-     */
-    public static async tagsTag(
-      type: string,
-      targetIds: string[],
-      tagIds: string[]
-    ) {
-      const collection = getCollection(type);
-
-      await Tags.tagObject({
-        tagIds,
-        objectIds: targetIds,
-        collection,
-        tagType: type
-      });
     }
 
     /**
