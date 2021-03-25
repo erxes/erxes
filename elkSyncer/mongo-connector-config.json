@@ -56,6 +56,9 @@
     },
     "erxes*.segments": {
       "rename": "erxes*__segments._doc"
+    },
+    "erxes*.fields": {
+      "rename": "erxes*__fields._doc"
     }
   },
   "docManagers": [

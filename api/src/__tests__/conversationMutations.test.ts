@@ -849,44 +849,6 @@ describe('Conversation message mutations', () => {
     mock.restore();
   });
 
-  test('Create product board note', async () => {
-    const mutation = `
-      mutation conversationCreateProductBoardNote($_id: String!) {
-        conversationCreateProductBoardNote(_id: $_id) 
-      }
-    `;
-
-    const conversation = await conversationFactory();
-
-    try {
-      await graphqlRequest(
-        mutation,
-        'conversationCreateProductBoardNote',
-        { _id: conversation._id },
-        { dataSources }
-      );
-    } catch (e) {
-      expect(e[0].message).toBe('Integrations api is not running');
-    }
-
-    const mock = sinon
-      .stub(dataSources.IntegrationsAPI, 'createProductBoardNote')
-      .callsFake(() => {
-        return Promise.resolve('productBoardLink');
-      });
-
-    const response = await graphqlRequest(
-      mutation,
-      'conversationCreateProductBoardNote',
-      { _id: conversation._id },
-      { dataSources }
-    );
-
-    expect(response).toBe('productBoardLink');
-
-    mock.restore();
-  });
-
   test('Change conversation operator status', async () => {
     const conversation = await conversationFactory({
       operatorStatus: CONVERSATION_OPERATOR_STATUS.BOT

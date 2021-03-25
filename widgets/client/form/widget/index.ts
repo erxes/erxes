@@ -168,7 +168,11 @@ formSettings.forEach((formSetting: Setting) => {
 window.addEventListener('message', async (event: MessageEvent) => {
   const data = event.data || {};
   const { fromErxes, source, message, setting } = data;
-  
+
+  if (!setting) {
+    return null;
+  }
+
   const { container, iframe } = iframesMapping[getMappingKey(setting)];
 
   listenForCommonRequests(event, iframe);
