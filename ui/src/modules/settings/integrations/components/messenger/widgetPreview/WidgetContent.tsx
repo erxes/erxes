@@ -1,4 +1,4 @@
-import Button from 'erxes-ui/lib/components/Button';
+import Button from 'modules/common/components/Button';
 import { __ } from 'modules/common/utils';
 import { IMessagesItem, ISkillData } from 'modules/settings/integrations/types';
 import React from 'react';

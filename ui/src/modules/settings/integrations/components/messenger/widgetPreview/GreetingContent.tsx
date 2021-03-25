@@ -1,5 +1,5 @@
 import dayjs from 'dayjs';
-import Button from 'erxes-ui/lib/components/Button';
+import Button from 'modules/common/components/Button';
 import Icon from 'modules/common/components/Icon';
 import { __ } from 'modules/common/utils';
 import { IMessengerApps } from 'modules/settings/integrations/types';
