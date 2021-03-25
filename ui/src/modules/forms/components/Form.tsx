@@ -55,10 +55,10 @@ class Form extends React.Component<Props, State> {
   }
 
   componentWillReceiveProps(nextProps: Props) {
-    const { saveForm, type, isReadyToSave } = this.props;
-    const { title, btnText, desc, fields, currentMode } = this.state;
+    const { saveForm, type, isReadyToSave, formData } = this.props;
+    const { title, btnText, desc, fields } = this.state;
 
-    if (nextProps.formData && currentMode !== 'create') {
+    if (nextProps.formData && nextProps.formData !== formData) {
       this.setState({
         fields: nextProps.formData.fields || []
       });
