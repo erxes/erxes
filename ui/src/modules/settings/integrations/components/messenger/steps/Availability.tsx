@@ -9,6 +9,7 @@ import React from 'react';
 import Select from 'react-select-plus';
 import { IOnlineHour } from '../../../types';
 import OnlineHours from './OnlineHours';
+import { ToggleWrapper } from '../widgetPreview/styles';
 
 type Props = {
   onChange: (
@@ -66,7 +67,7 @@ class Availability extends React.Component<Props> {
     return (
       <FormGroup>
         <ControlLabel>Visible online to visitor or customer</ControlLabel>
-        <div>
+        <ToggleWrapper>
           <Toggle
             checked={this.props.isOnline}
             onChange={onChange}
@@ -75,7 +76,7 @@ class Availability extends React.Component<Props> {
               unchecked: <span>No</span>
             }}
           />
-        </div>
+        </ToggleWrapper>
       </FormGroup>
     );
   }

@@ -1,5 +1,6 @@
 import Button from 'modules/common/components/Button';
 import DataWithLoader from 'modules/common/components/DataWithLoader';
+import HeaderDescription from 'modules/common/components/HeaderDescription';
 import ModalTrigger from 'modules/common/components/ModalTrigger';
 import Pagination from 'modules/common/components/pagination/Pagination';
 import Table from 'modules/common/components/table';
@@ -120,7 +121,7 @@ function Skills(props: Props) {
         data={renderData()}
         loading={isLoading}
         count={totalCount}
-        emptyText={__('There are no skills in this type')}
+        emptyText={__('Add individual skills into your Skill Types')}
         emptyImage="/images/actions/11.svg"
       />
     );
@@ -130,6 +131,15 @@ function Skills(props: Props) {
     <Wrapper
       header={
         <Wrapper.Header title={__('Skill types')} breadcrumb={breadcrumb} />
+      }
+      mainHead={
+        <HeaderDescription
+          icon="/images/actions/32.svg"
+          title={'All Skills'}
+          description={__(
+            'The skills feature works with the erxes Messenger and the Team Inbox. By creating and assigning certain skills to your team members, they will only see conversations that they have the skills for. As for the customers, they will see the option to choose from when interacting with you through the erxes Messenger. This way conversations are directed to the right person'
+          )}
+        />
       }
       actionBar={renderActionBar()}
       leftSidebar={<SkillTypes queryParams={queryParams} />}

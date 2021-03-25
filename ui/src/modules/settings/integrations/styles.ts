@@ -54,7 +54,11 @@ const Content = styled.div`
 const Row = styled.div`
   display: flex;
 
-  > button {
+  .Select {
+    flex: 1;
+  }
+
+  button {
     flex-shrink: 0;
     margin-left: 10px;
     align-self: baseline;
