@@ -73,6 +73,7 @@ export interface IFormDoc {
     validation: string;
     associatedFieldId: string;
     groupId: string;
+    isHidden?: boolean;
   };
 }
 

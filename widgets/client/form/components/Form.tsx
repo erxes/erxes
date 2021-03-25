@@ -105,15 +105,31 @@ class Form extends React.Component<Props, State> {
     const doc: any = {};
 
     form.fields.forEach(field => {
+
+      let isHidden = false;
+      if (field.logicAction && field.logicAction === 'show' && field.logics && field.logics.length > 0) {
+        isHidden = true;
+      }
+
       doc[field._id] = {
         text: field.text,
         type: field.type,
         validation: field.validation,
-        value: ''
+        value: '',
+        isHidden
       };
     });
 
     return doc;
+  }
+
+  hideField(id: string) {
+    const { doc } = this.state;
+    if (doc[id].value !== '') {
+      doc[id].value = '';
+      doc[id].isHidden = true;
+      this.setState({ doc });
+    }
   }
 
   renderHead(title: string) {
@@ -138,24 +154,27 @@ class Form extends React.Component<Props, State> {
         (error: IFieldError) => error.fieldId === field._id
       );
 
-      if (field.logicAction && field.logicAction === 'show' && field.logics && field.logics.length > 0) {
+      if (field.logics && field.logics.length > 0) {
         const logics: LogicParams[] = field.logics.map(logic => {
           const { validation, value, type } = this.state.doc[logic.fieldId]
 
           return { fieldId: logic.fieldId, operator: logic.logicOperator, logicValue: logic.logicValue, fieldValue: value, validation, type }
         })
 
-        const isLogicFulfilled = checkLogicFulfilled(logics)
+        const isLogicsFulfilled = checkLogicFulfilled(logics)
 
-        if (!isLogicFulfilled) {
-          const doc = this.state.doc;
-          
-          if (doc[field._id].value !== '') {
-            doc[field._id].value = '';
-            this.setState({ doc });
+        if (field.logicAction && field.logicAction === 'show') {
+          if (!isLogicsFulfilled) {
+            this.hideField(field._id)
+            return null;
           }
+        }
 
-          return null;
+        if (field.logicAction && field.logicAction === 'hide') {
+          if (isLogicsFulfilled) {
+            this.hideField(field._id)
+            return null;
+          }
         }
       }
 
