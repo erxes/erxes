@@ -410,7 +410,7 @@ app.post(
 
 // Error handling middleware
 app.use((error, _req, res, _next) => {
-  console.error(error.stack);
+  debugError(error.message);
   res.status(500).send(error.message);
 });
 
