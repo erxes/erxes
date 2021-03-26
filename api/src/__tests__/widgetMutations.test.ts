@@ -1287,6 +1287,14 @@ describe('lead', () => {
       groupId: (group && group._id) || ''
     });
 
+    const companyEmailField = await fieldFactory({
+      type: 'companyEmail',
+      contentTypeId: form._id,
+      validation: 'text',
+      isRequired: true,
+      groupId: (group && group._id) || ''
+    });
+
     const firstNameField = await fieldFactory({
       type: 'firstName',
       contentTypeId: form._id,
@@ -1303,6 +1311,12 @@ describe('lead', () => {
 
     const phoneField = await fieldFactory({
       type: 'phone',
+      contentTypeId: form._id,
+      isRequired: true
+    });
+
+    const companyPhoneField = await fieldFactory({
+      type: 'companyPhone',
       contentTypeId: form._id,
       isRequired: true
     });
@@ -1336,6 +1350,124 @@ describe('lead', () => {
       associatedFieldId: customProperty._id
     });
 
+    const companyNameField = await fieldFactory({
+      type: 'companyName',
+      contentTypeId: form._id,
+      validation: 'text',
+      isRequired: true
+    });
+
+    const avatarField = await fieldFactory({
+      type: 'avatar',
+      contentTypeId: form._id,
+      validation: 'text',
+      isRequired: true
+    });
+
+    const companyAvatarField = await fieldFactory({
+      type: 'companyAvatar',
+      contentTypeId: form._id,
+      validation: 'text',
+      isRequired: true
+    });
+
+    const industryField = await fieldFactory({
+      type: 'industry',
+      contentTypeId: form._id,
+      validation: 'text',
+      isRequired: true
+    });
+
+    const sizeField = await fieldFactory({
+      type: 'size',
+      contentTypeId: form._id,
+      isRequired: true
+    });
+
+    const businessTypeField = await fieldFactory({
+      type: 'businessType',
+      contentTypeId: form._id,
+      validation: 'text',
+      isRequired: true
+    });
+
+    const pronounField = await fieldFactory({
+      type: 'pronoun',
+      contentTypeId: form._id,
+      validation: 'text',
+      isRequired: true
+    });
+
+    const pronounField1 = await fieldFactory({
+      type: 'pronoun',
+      contentTypeId: form._id,
+      validation: 'text',
+      isRequired: true
+    });
+
+    const pronounField2 = await fieldFactory({
+      type: 'pronoun',
+      contentTypeId: form._id,
+      validation: 'text',
+      isRequired: true
+    });
+
+    const doNotDisturbField = await fieldFactory({
+      type: 'doNotDisturb',
+      contentTypeId: form._id,
+      validation: 'text',
+      isRequired: true
+    });
+
+    const hasAuthorityField = await fieldFactory({
+      type: 'hasAuthority',
+      contentTypeId: form._id,
+      validation: 'text',
+      isRequired: true
+    });
+
+    const birthDateField = await fieldFactory({
+      type: 'birthDate',
+      contentTypeId: form._id,
+      isRequired: true,
+      validation: 'text'
+    });
+
+    const descriptionField = await fieldFactory({
+      type: 'description',
+      contentTypeId: form._id,
+      validation: 'text',
+      isRequired: true
+    });
+
+    const departmentField = await fieldFactory({
+      type: 'department',
+      contentTypeId: form._id,
+      validation: 'text',
+      isRequired: true
+    });
+
+    const positionField = await fieldFactory({
+      type: 'position',
+      contentTypeId: form._id,
+      validation: 'text',
+      isRequired: true
+    });
+
+    const companyDescriptionField = await fieldFactory({
+      type: 'companyDescription',
+      contentTypeId: form._id,
+      validation: 'text',
+      isRequired: true
+    });
+
+    const companyDoNotDisturbField = await fieldFactory({
+      type: 'companyDoNotDisturb',
+      contentTypeId: form._id,
+      validation: 'text',
+      isRequired: true
+    });
+
     const integration = await integrationFactory({ formId: form._id });
 
     const response = await widgetMutations.widgetsSaveLead(
@@ -1365,6 +1497,61 @@ describe('lead', () => {
             type: 'input',
             value: 1,
             associatedFieldId: inputField.associatedFieldId
+          },
+          { _id: companyNameField._id, type: 'companyName', value: 'company' },
+          {
+            _id: companyEmailField._id,
+            type: 'companyEmail',
+            value: 'info@company.com'
+          },
+          {
+            _id: companyPhoneField._id,
+            type: 'companyPhone',
+            value: '+99112233'
+          },
+          {
+            _id: avatarField._id,
+            type: 'avatar',
+            value: 'https://i.pravatar.cc/150?u=a042581f4e29026704d'
+          },
+          {
+            _id: companyAvatarField._id,
+            type: 'companyAvatar',
+            value: 'https://i.pravatar.cc/150?img=63'
+          },
+          { _id: industryField._id, type: 'industry', value: 'industry' },
+          { _id: sizeField._id, type: 'size', value: '10' },
+          {
+            _id: businessTypeField._id,
+            type: 'businessType',
+            value: 'businessType'
+          },
+          { _id: pronounField._id, type: 'pronoun', value: 'Male' },
+          { _id: pronounField1._id, type: 'pronoun', value: 'Female' },
+          { _id: pronounField2._id, type: 'pronoun', value: 'Not applicable' },
+          { _id: doNotDisturbField._id, type: 'doNotDisturb', value: 'yes' },
+          { _id: hasAuthorityField._id, type: 'hasAuthority', value: 'yes' },
+          {
+            _id: birthDateField._id,
+            type: 'birthDate',
+            value: 'Fri Mar 26 2021 18:01:50 GMT+0800'
+          },
+          {
+            _id: descriptionField._id,
+            type: 'description',
+            value: 'description'
+          },
+          { _id: departmentField._id, type: 'department', value: 'department' },
+          { _id: positionField._id, type: 'position', value: 'position' },
+          {
+            _id: companyDescriptionField._id,
+            type: 'companyDescription',
+            value: 'companyDescription'
+          },
+          {
+            _id: companyDoNotDisturbField._id,
+            type: 'companyDoNotDisturb',
+            value: 'companyDoNotDisturb'
           }
         ],
         browserInfo: {
