@@ -157,70 +157,6 @@
     prepend-file "^1.3.1"
     release-it "^12.2.1"
 
-"@sentry/browser@5.29.2":
-  version "5.29.2"
-  resolved "https://registry.yarnpkg.com/@sentry/browser/-/browser-5.29.2.tgz#51adb4005511b1a4a70e4571880fc6653d651f91"
-  integrity sha512-uxZ7y7rp85tJll+RZtXRhXPbnFnOaxZqJEv05vJlXBtBNLQtlczV5iCtU9mZRLVHDtmZ5VVKUV8IKXntEqqDpQ==
-  dependencies:
-    "@sentry/core" "5.29.2"
-    "@sentry/types" "5.29.2"
-    "@sentry/utils" "5.29.2"
-    tslib "^1.9.3"
-
-"@sentry/core@5.29.2":
-  version "5.29.2"
-  resolved "https://registry.yarnpkg.com/@sentry/core/-/core-5.29.2.tgz#9e05fe197234161d57aabaf52fab336a7c520d81"
-  integrity sha512-7WYkoxB5IdlNEbwOwqSU64erUKH4laavPsM0/yQ+jojM76ErxlgEF0u//p5WaLPRzh3iDSt6BH+9TL45oNZeZw==
-  dependencies:
-    "@sentry/hub" "5.29.2"
-    "@sentry/minimal" "5.29.2"
-    "@sentry/types" "5.29.2"
-    "@sentry/utils" "5.29.2"
-    tslib "^1.9.3"
-
-"@sentry/hub@5.29.2":
-  version "5.29.2"
-  resolved "https://registry.yarnpkg.com/@sentry/hub/-/hub-5.29.2.tgz#208f10fe6674695575ad74182a1151f71d6df00a"
-  integrity sha512-LaAIo2hwUk9ykeh9RF0cwLy6IRw+DjEee8l1HfEaDFUM6TPGlNNGObMJNXb9/95jzWp7jWwOpQjoIE3jepdQJQ==
-  dependencies:
-    "@sentry/types" "5.29.2"
-    "@sentry/utils" "5.29.2"
-    tslib "^1.9.3"
-
-"@sentry/minimal@5.29.2":
-  version "5.29.2"
-  resolved "https://registry.yarnpkg.com/@sentry/minimal/-/minimal-5.29.2.tgz#420bebac8d03d30980fdb05c72d7b253d8aa541b"
-  integrity sha512-0aINSm8fGA1KyM7PavOBe1GDZDxrvnKt+oFnU0L+bTcw8Lr+of+v6Kwd97rkLRNOLw621xP076dL/7LSIzMuhw==
-  dependencies:
-    "@sentry/hub" "5.29.2"
-    "@sentry/types" "5.29.2"
-    tslib "^1.9.3"
-
-"@sentry/react@^5.29.2":
-  version "5.29.2"
-  resolved "https://registry.yarnpkg.com/@sentry/react/-/react-5.29.2.tgz#e0e2055db6f9c7a3957630e726b23d6a0f2d12f2"
-  integrity sha512-Fvh4l6/wrnO3FWqte7lPUsuWE5o6t3FHwZqVINgCIabpwPMorvOVzm/gwG7uzhuCoyNTP28svR670sl4BnRuTg==
-  dependencies:
-    "@sentry/browser" "5.29.2"
-    "@sentry/minimal" "5.29.2"
-    "@sentry/types" "5.29.2"
-    "@sentry/utils" "5.29.2"
-    hoist-non-react-statics "^3.3.2"
-    tslib "^1.9.3"
-
-"@sentry/types@5.29.2":
-  version "5.29.2"
-  resolved "https://registry.yarnpkg.com/@sentry/types/-/types-5.29.2.tgz#ac87383df1222c2d9b9f8f9ed7a6b86ea41a098a"
-  integrity sha512-dM9wgt8wy4WRty75QkqQgrw9FV9F+BOMfmc0iaX13Qos7i6Qs2Q0dxtJ83SoR4YGtW8URaHzlDtWlGs5egBiMA==
-
-"@sentry/utils@5.29.2":
-  version "5.29.2"
-  resolved "https://registry.yarnpkg.com/@sentry/utils/-/utils-5.29.2.tgz#99a5cdda2ea19d34a41932f138d470adcb3ee673"
-  integrity sha512-nEwQIDjtFkeE4k6yIk4Ka5XjGRklNLThWLs2xfXlL7uwrYOH2B9UBBOOIRUraBm/g/Xrra3xsam/kRxuiwtXZQ==
-  dependencies:
-    "@sentry/types" "5.29.2"
-    tslib "^1.9.3"
-
 "@sindresorhus/is@^0.14.0":
   version "0.14.0"
   resolved "https://registry.yarnpkg.com/@sindresorhus/is/-/is-0.14.0.tgz#9fb3a3cf3132328151f353de4632e01e52102bea"
@@ -1420,13 +1356,6 @@ has@^1.0.3:
   dependencies:
     function-bind "^1.1.1"
 
-hoist-non-react-statics@^3.3.2:
-  version "3.3.2"
-  resolved "https://registry.yarnpkg.com/hoist-non-react-statics/-/hoist-non-react-statics-3.3.2.tgz#ece0acaf71d62c2969c2ec59feff42a4b1a85b45"
-  integrity sha512-/gGivxi8JPKWNm/W0jSmzcMPpfpPLc3dY/6GxhX2hQ9iGj3aDfklV4ET7NjKpSinLpJ5vafa9iiGIEZg10SfBw==
-  dependencies:
-    react-is "^16.7.0"
-
 hosted-git-info@^2.1.4:
   version "2.8.8"
   resolved "https://registry.yarnpkg.com/hosted-git-info/-/hosted-git-info-2.8.8.tgz#7539bd4bc1e0e0a895815a2e0262420b12858488"
@@ -2585,11 +2514,6 @@ rc@^1.2.8:
     minimist "^1.2.0"
     strip-json-comments "~2.0.1"
 
-react-is@^16.7.0:
-  version "16.13.1"
-  resolved "https://registry.yarnpkg.com/react-is/-/react-is-16.13.1.tgz#789729a4dc36de2999dc156dd6c1d9c18cea56a4"
-  integrity sha512-24e6ynE2H+OKt4kqsOvNd8kBpV65zoxbA4BVsEOB3ARVWQki/DHzaUoC5KuON/BiccDaCCTZBuOcfZs70kR8bQ==
-
 read-pkg-up@^1.0.1:
   version "1.0.1"
   resolved "https://registry.yarnpkg.com/read-pkg-up/-/read-pkg-up-1.0.1.tgz#9d63c13276c065918d57f002a57f40a1b643fb02"
@@ -3138,7 +3062,7 @@ trim-off-newlines@^1.0.0:
   resolved "https://registry.yarnpkg.com/trim-off-newlines/-/trim-off-newlines-1.0.1.tgz#9f9ba9d9efa8764c387698bcbfeb2c848f11adb3"
   integrity sha1-n5up2e+odkw4dpi8v+sshI8RrbM=
 
-tslib@^1.8.0, tslib@^1.8.1, tslib@^1.9.3:
+tslib@^1.8.0, tslib@^1.8.1:
   version "1.14.1"
   resolved "https://registry.yarnpkg.com/tslib/-/tslib-1.14.1.tgz#cf2d38bdc34a134bcaf1091c41f6619e2f672d00"
   integrity sha512-Xni35NKzjgMrwevysHTCArtLDpPvye8zV/0E4EyYn43P7/7qvQwPh9BGkHewbMulVntbigmcT7rdX3BNo9wRJg==
