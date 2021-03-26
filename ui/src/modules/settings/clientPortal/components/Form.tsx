@@ -70,7 +70,6 @@ function Form({ defaultConfigValues = {}, handleUpdate, configType }: Props) {
     css: defaultConfigValues.css || '',
     mobileResponsive: defaultConfigValues.mobileResponsive || false
   });
-  console.log(formValues);
 
   const handleFormChange = (name: string, value: string | object) => {
     setFormValues({

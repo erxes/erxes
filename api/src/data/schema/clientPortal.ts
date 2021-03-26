@@ -83,6 +83,8 @@ export const queries = `
   clientPortalGetTaskStages(taskPublicPipelineId: String!): [Stage]
   clientPortalGetTasks(stageId: String!): [Task]
   clientPortalTickets(email: String!): [Ticket]
+  clientPortalTask(_id: String!): Task
+  clientPortalTicket(_id: String!): Ticket
 `;
 
 export const mutations = `

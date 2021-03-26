@@ -51,6 +51,14 @@ const configClientPortalQueries = {
     }
 
     return Tickets.find({ userId: customer._id });
+  },
+
+  async clientPortalTask(_root, { _id }: { _id: string }) {
+    return Tasks.findOne({ _id });
+  },
+
+  async clientPortalTicket(_root, { _id }: { _id: string }) {
+    return Tickets.findOne({ _id });
   }
 };
 
