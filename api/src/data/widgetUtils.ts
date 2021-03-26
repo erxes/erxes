@@ -241,7 +241,7 @@ export const getOrCreateEngageMessageElk = async (
   return Messages.findOne(Conversations.widgetsUnreadMessagesQuery(convs));
 };
 
-export const updateCustomerFromFrom = async (
+export const updateCustomerFromForm = async (
   browserInfo: any,
   doc: any,
   customer: ICustomerDocument
