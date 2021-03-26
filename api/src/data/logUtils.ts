@@ -1539,7 +1539,7 @@ export const sendToVisitorLog = async (params: IVisitorLogParams, action) => {
 
     throw new Error('Logger api is not running');
   } catch (e) {
-    debugError(`Logger is not running. Error: ${e.message}`);
+    debugError('Logger is not running. Error: ', e.message);
     throw new Error(e.message);
   }
 };
@@ -1567,7 +1567,7 @@ export const getVisitorLog = async visitorId => {
 
     throw new Error('Logger api is not running');
   } catch (e) {
-    debugError(`Logger is not running. Error: ${e.message}`);
+    debugError('Logger is not running. Error: ', e.message);
     throw new Error(e.message);
   }
 };
