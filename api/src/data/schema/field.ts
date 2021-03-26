@@ -1,3 +1,18 @@
+const fieldCommonFields = `
+  description: String
+  options: [String]
+  type: String
+  validation: String
+  text: String
+  content: String
+  isRequired: Boolean
+  order: Int
+  associatedFieldId: String
+  logicAction: String
+  column: Int
+  groupName: String
+`;
+
 export const fieldsTypes = `
   type Logic {
     fieldId: String!
@@ -9,16 +24,7 @@ export const fieldsTypes = `
     _id: String!
     contentType: String!
     contentTypeId: String
-    type: String
-    validation: String
-    text: String
-    content: String
-    field: String
     name: String
-    description: String
-    options: [String]
-    isRequired: Boolean
-    order: Int
     isVisible: Boolean
     isVisibleInDetail: Boolean
     canHide: Boolean
@@ -26,12 +32,10 @@ export const fieldsTypes = `
     groupId: String
     lastUpdatedUser: User
     lastUpdatedUserId: String
-    associatedFieldId: String
     associatedField: Field
     logics: [Logic]
-    logicAction: String
-    column: Int
-    groupName: String
+
+    ${fieldCommonFields}
   }
 
   input OrderItem {
@@ -49,19 +53,9 @@ export const fieldsTypes = `
   input FieldItem {
     _id: String
     tempFieldId: String
-    type: String
-    validation: String
-    text: String
-    content: String
-    description: String
-    options: [String]
-    isRequired: Boolean
-    order: Int
-    column: Int
-    associatedFieldId: String
-    logicAction: String
     logics: [LogicInput]
-    groupName: String
+
+    ${fieldCommonFields}
   }
 
   type ColumnConfigItem {

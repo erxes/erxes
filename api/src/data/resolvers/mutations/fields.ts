@@ -68,7 +68,7 @@ const fieldMutations = {
         if (f.logics && f.logics.length > 0) {
           logicalFields.push(f);
         } else {
-          const tempId = f.tempFieldId || '';
+          const tempId = f.tempFieldId;
 
           const field = await Fields.createField({
             ...f,
@@ -77,8 +77,9 @@ const fieldMutations = {
             lastUpdatedUserId: user._id
           });
 
-          temp[tempId] = field._id;
-
+          if (tempId) {
+            temp[tempId] = field._id;
+          }
           response.push(field);
         }
       }

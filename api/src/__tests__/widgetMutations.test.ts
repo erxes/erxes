@@ -1306,35 +1306,33 @@ describe('lead', () => {
 
     const group = await fieldGroupFactory({ contentType: 'form' });
 
-    const emailField = await fieldFactory({
-      type: 'email',
-      contentTypeId: form._id,
+    const params = {
       validation: 'text',
       isRequired: true,
+      contentTypeId: form._id
+    };
+
+    const emailField = await fieldFactory({
+      ...params,
+      type: 'email',
       groupId: (group && group._id) || ''
     });
 
     const companyEmailField = await fieldFactory({
+      ...params,
       type: 'companyEmail',
-      contentTypeId: form._id,
-      validation: 'text',
-      isRequired: true,
       groupId: (group && group._id) || ''
     });
 
     const firstNameField = await fieldFactory({
+      ...params,
       type: 'firstName',
-      contentTypeId: form._id,
-      validation: 'text',
-      isRequired: true,
       groupId: (group && group._id) || ''
     });
 
     const lastNameField = await fieldFactory({
-      type: 'lastName',
-      contentTypeId: form._id,
-      validation: 'text',
-      isRequired: true
+      ...params,
+      type: 'lastName'
     });
 
     const phoneField = await fieldFactory({
@@ -1379,39 +1377,29 @@ describe('lead', () => {
     });
 
     const companyNameField = await fieldFactory({
-      type: 'companyName',
-      contentTypeId: form._id,
-      validation: 'text',
-      isRequired: true
+      ...params,
+      type: 'companyName'
     });
 
     const companyNameField2 = await fieldFactory({
+      ...params,
       type: 'companyName',
-      contentTypeId: form._id,
-      validation: 'text',
-      isRequired: true,
       groupId: (group && group._id) || ''
     });
 
     const avatarField = await fieldFactory({
-      type: 'avatar',
-      contentTypeId: form._id,
-      validation: 'text',
-      isRequired: true
+      ...params,
+      type: 'avatar'
     });
 
     const companyAvatarField = await fieldFactory({
-      type: 'companyAvatar',
-      contentTypeId: form._id,
-      validation: 'text',
-      isRequired: true
+      ...params,
+      type: 'companyAvatar'
     });
 
     const industryField = await fieldFactory({
-      type: 'industry',
-      contentTypeId: form._id,
-      validation: 'text',
-      isRequired: true
+      ...params,
+      type: 'industry'
     });
 
     const sizeField = await fieldFactory({
@@ -1421,87 +1409,63 @@ describe('lead', () => {
     });
 
     const businessTypeField = await fieldFactory({
-      type: 'businessType',
-      contentTypeId: form._id,
-      validation: 'text',
-      isRequired: true
+      ...params,
+      type: 'businessType'
     });
 
     const pronounField = await fieldFactory({
-      type: 'pronoun',
-      contentTypeId: form._id,
-      validation: 'text',
-      isRequired: true
+      ...params,
+      type: 'pronoun'
     });
 
     const pronounField1 = await fieldFactory({
-      type: 'pronoun',
-      contentTypeId: form._id,
-      validation: 'text',
-      isRequired: true
+      ...params,
+      type: 'pronoun'
     });
 
     const pronounField2 = await fieldFactory({
-      type: 'pronoun',
-      contentTypeId: form._id,
-      validation: 'text',
-      isRequired: true
+      ...params,
+      type: 'pronoun'
     });
 
     const doNotDisturbField = await fieldFactory({
-      type: 'doNotDisturb',
-      contentTypeId: form._id,
-      validation: 'text',
-      isRequired: true
+      ...params,
+      type: 'doNotDisturb'
     });
 
     const hasAuthorityField = await fieldFactory({
-      type: 'hasAuthority',
-      contentTypeId: form._id,
-      validation: 'text',
-      isRequired: true
+      ...params,
+      type: 'hasAuthority'
     });
 
     const birthDateField = await fieldFactory({
-      type: 'birthDate',
-      contentTypeId: form._id,
-      isRequired: true,
-      validation: 'text'
+      ...params,
+      type: 'birthDate'
     });
 
     const descriptionField = await fieldFactory({
-      type: 'description',
-      contentTypeId: form._id,
-      validation: 'text',
-      isRequired: true
+      ...params,
+      type: 'description'
     });
 
     const departmentField = await fieldFactory({
-      type: 'department',
-      contentTypeId: form._id,
-      validation: 'text',
-      isRequired: true
+      ...params,
+      type: 'department'
     });
 
     const positionField = await fieldFactory({
-      type: 'position',
-      contentTypeId: form._id,
-      validation: 'text',
-      isRequired: true
+      ...params,
+      type: 'position'
     });
 
     const companyDescriptionField = await fieldFactory({
-      type: 'companyDescription',
-      contentTypeId: form._id,
-      validation: 'text',
-      isRequired: true
+      ...params,
+      type: 'companyDescription'
     });
 
     const companyDoNotDisturbField = await fieldFactory({
-      type: 'companyDoNotDisturb',
-      contentTypeId: form._id,
-      validation: 'text',
-      isRequired: true
+      ...params,
+      type: 'companyDoNotDisturb'
     });
 
     const integration = await integrationFactory({ formId: form._id });
