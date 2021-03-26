@@ -1270,6 +1270,33 @@ describe('lead', () => {
     expect(response && response.status).toBe('error');
   });
 
+  test('saveLead: without company', async () => {
+    const form = await formFactory({});
+
+    const firstNameField = await fieldFactory({
+      type: 'firstName',
+      contentTypeId: form._id,
+      validation: 'text',
+      isRequired: true
+    });
+
+    const integration = await integrationFactory({ formId: form._id });
+
+    const response = await widgetMutations.widgetsSaveLead(
+      {},
+      {
+        integrationId: integration._id,
+        formId: form._id,
+        submissions: [{ _id: firstNameField._id, value: 'name' }],
+        browserInfo: {
+          currentPageUrl: '/page'
+        }
+      }
+    );
+
+    expect(response && response.status).toBe('ok');
+  });
+
   test('saveLead: success', async () => {
     const mock = sinon.stub(utils, 'sendRequest').callsFake(() => {
       return Promise.resolve('success');
@@ -1299,7 +1326,8 @@ describe('lead', () => {
       type: 'firstName',
       contentTypeId: form._id,
       validation: 'text',
-      isRequired: true
+      isRequired: true,
+      groupId: (group && group._id) || ''
     });
 
     const lastNameField = await fieldFactory({
@@ -1355,6 +1383,14 @@ describe('lead', () => {
       contentTypeId: form._id,
       validation: 'text',
       isRequired: true
+    });
+
+    const companyNameField2 = await fieldFactory({
+      type: 'companyName',
+      contentTypeId: form._id,
+      validation: 'text',
+      isRequired: true,
+      groupId: (group && group._id) || ''
     });
 
     const avatarField = await fieldFactory({
@@ -1500,6 +1536,12 @@ describe('lead', () => {
           },
           { _id: companyNameField._id, type: 'companyName', value: 'company' },
           {
+            _id: companyNameField2._id,
+            type: 'companyName',
+            value: 'com',
+            groupId: (group && group._id) || ''
+          },
+          {
             _id: companyEmailField._id,
             type: 'companyEmail',
             value: 'info@company.com'
@@ -1519,18 +1561,18 @@ describe('lead', () => {
             type: 'companyAvatar',
             value: 'https://i.pravatar.cc/150?img=63'
           },
-          { _id: industryField._id, type: 'industry', value: 'industry' },
+          { _id: industryField._id, type: 'industry', value: 'Banks' },
           { _id: sizeField._id, type: 'size', value: '10' },
           {
             _id: businessTypeField._id,
             type: 'businessType',
-            value: 'businessType'
+            value: 'Investor'
           },
           { _id: pronounField._id, type: 'pronoun', value: 'Male' },
           { _id: pronounField1._id, type: 'pronoun', value: 'Female' },
           { _id: pronounField2._id, type: 'pronoun', value: 'Not applicable' },
-          { _id: doNotDisturbField._id, type: 'doNotDisturb', value: 'yes' },
-          { _id: hasAuthorityField._id, type: 'hasAuthority', value: 'yes' },
+          { _id: doNotDisturbField._id, type: 'doNotDisturb', value: 'No' },
+          { _id: hasAuthorityField._id, type: 'hasAuthority', value: 'No' },
           {
             _id: birthDateField._id,
             type: 'birthDate',
@@ -1551,7 +1593,7 @@ describe('lead', () => {
           {
             _id: companyDoNotDisturbField._id,
             type: 'companyDoNotDisturb',
-            value: 'companyDoNotDisturb'
+            value: 'Yes'
           }
         ],
         browserInfo: {
@@ -1564,7 +1606,7 @@ describe('lead', () => {
 
     expect(await Conversations.find().countDocuments()).toBe(1);
     expect(await ConversationMessages.find().countDocuments()).toBe(1);
-    expect(await Customers.find().countDocuments()).toBe(1);
+    expect(await Customers.find().countDocuments()).toBe(2);
     expect(await FormSubmissions.find().countDocuments()).toBe(1);
 
     const message = await ConversationMessages.findOne();
