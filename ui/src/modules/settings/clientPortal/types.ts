@@ -58,6 +58,11 @@ export type ClientPortalTotalQueryResponse = {
   loading?: boolean;
 };
 
+export type ClientPortalGetLastQueryResponse = {
+  clientPortalGetLast: ClientPortalConfig;
+  loading?: boolean;
+};
+
 export type AdvancedSettings = {
   authAllow?: string;
   permission?: string;

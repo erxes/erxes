@@ -19,6 +19,15 @@ const configClientPortalQueries = {
     return ClientPortals.countDocuments();
   },
 
+  /**
+   * Get last config
+   */
+  clientPortalGetLast(_root) {
+    return ClientPortals.findOne({}).sort({
+      createdAt: -1
+    });
+  },
+
   async clientPortalGetConfig(_root, { _id }: { _id: string }) {
     return ClientPortals.getConfig(_id);
   },

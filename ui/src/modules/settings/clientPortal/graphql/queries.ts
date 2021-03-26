@@ -67,4 +67,12 @@ const getConfig = `
   }
 `;
 
-export default { getConfig, getConfigs, getTotalCount };
+const getConfigLast = `
+  query clientPortalGetLast {
+    clientPortalGetLast {
+      ${commonFields}
+    }
+  }
+`;
+
+export default { getConfig, getConfigs, getTotalCount, getConfigLast };

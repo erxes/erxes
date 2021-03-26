@@ -78,7 +78,7 @@ function ClientPortalList({
 
   return (
     <LeftSidebar wide={true} full={true} header={renderSidebarHeader()}>
-      <SidebarList id={'BrandSidebar'}>
+      <SidebarList id={'ClientPortalSidebar'}>
         {renderRow()}
         <LoadMore all={totalCount} loading={loading} />
       </SidebarList>

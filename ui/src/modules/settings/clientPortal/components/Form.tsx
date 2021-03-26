@@ -63,13 +63,14 @@ function Form({ defaultConfigValues = {}, handleUpdate, configType }: Props) {
       dividerColor: styles.dividerColor || ''
     },
     advanced: {
-      authAllow: advanced.authAllow || '',
-      viewTicket: advanced.viewTicket || '',
-      permission: advanced.permission || ''
+      authAllow: advanced.authAllow || 'yes',
+      viewTicket: advanced.viewTicket || 'loggedInUsers',
+      permission: advanced.permission || 'loggedInUsers'
     },
     css: defaultConfigValues.css || '',
     mobileResponsive: defaultConfigValues.mobileResponsive || false
   });
+  console.log(formValues);
 
   const handleFormChange = (name: string, value: string | object) => {
     setFormValues({

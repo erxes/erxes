@@ -15,20 +15,22 @@ type Props = {
   loading?: boolean;
 } & IRouterProps;
 
-class Brands extends React.Component<Props, {}> {
+class ClientPortal extends React.Component<Props, {}> {
   render() {
     const { loading = false, queryParams, history } = this.props;
 
     const breadcrumb = [
       { title: __('Settings'), link: '/settings' },
-      { title: __('Brands'), link: '/settings/brands' }
+      { title: __('Client Portal'), link: '/settings/client-portal' }
     ];
 
-    const leftActionBar = <Title>Title</Title>;
+    const leftActionBar = <Title>Client portal</Title>;
 
     return (
       <Wrapper
-        header={<Wrapper.Header title="Title" breadcrumb={breadcrumb} />}
+        header={
+          <Wrapper.Header title="Client portal" breadcrumb={breadcrumb} />
+        }
         mainHead={
           <HeaderDescription
             icon="/images/actions/32.svg"
@@ -60,4 +62,4 @@ class Brands extends React.Component<Props, {}> {
   }
 }
 
-export default Brands;
+export default ClientPortal;

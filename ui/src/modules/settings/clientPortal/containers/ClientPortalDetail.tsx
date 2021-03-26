@@ -27,13 +27,13 @@ function ClientPortalDetailContainer({
     }
   );
 
-  const [mutate] = useMutation(gql(mutations.createOrUpdateConfig));
+  const [mutate] = useMutation(gql(mutations.createOrUpdateConfig), {
+    refetchQueries: [{ query: gql(queries.getConfigs) }]
+  });
 
   if (loading) {
     return <Spinner />;
   }
-
-  console.log('container', queryParams);
 
   const handleUpdate = (doc: ClientPortalConfig) => {
     mutate({ variables: { _id: queryParams._id, ...doc } })

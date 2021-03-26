@@ -78,6 +78,7 @@ export const types = `
 export const queries = `
   clientPortalGetConfigs(page: Int, perPage: Int): [ClientPortal]
   clientPortalGetConfig(_id: String!): ClientPortal
+  clientPortalGetLast: ClientPortal
   clientPortalConfigsTotalCount: Int
   clientPortalGetTaskStages(taskPublicPipelineId: String!): [Stage]
   clientPortalGetTasks(stageId: String!): [Task]

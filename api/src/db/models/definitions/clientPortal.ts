@@ -114,5 +114,6 @@ export const clientPortalSchema = new Schema({
   styles: field({ type: stylesSchema, optional: true }),
   advanced: field({ type: advancedSettingsSchema, optional: true }),
   css: field({ type: String, optional: true }),
-  mobileResponsive: field({ type: Boolean, optional: true })
+  mobileResponsive: field({ type: Boolean, optional: true }),
+  createdAt: field({ type: Date, default: new Date(), label: 'Created at' })
 });
