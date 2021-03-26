@@ -15,6 +15,7 @@ import {
   customerFactory,
   engageMessageFactory,
   fieldFactory,
+  fieldGroupFactory,
   formFactory,
   integrationFactory,
   knowledgeBaseArticleFactory,
@@ -1276,11 +1277,14 @@ describe('lead', () => {
 
     const form = await formFactory({});
 
+    const group = await fieldGroupFactory({ contentType: 'form' });
+
     const emailField = await fieldFactory({
       type: 'email',
       contentTypeId: form._id,
       validation: 'text',
-      isRequired: true
+      isRequired: true,
+      groupId: (group && group._id) || ''
     });
 
     const firstNameField = await fieldFactory({
@@ -1340,8 +1344,18 @@ describe('lead', () => {
         integrationId: integration._id,
         formId: form._id,
         submissions: [
-          { _id: emailField._id, type: 'email', value: 'email@yahoo.com' },
-          { _id: firstNameField._id, type: 'firstName', value: 'firstName' },
+          {
+            _id: emailField._id,
+            type: 'email',
+            value: 'email@yahoo.com',
+            groupId: (group && group._id) || ''
+          },
+          {
+            _id: firstNameField._id,
+            type: 'firstName',
+            value: 'firstName',
+            groupId: (group && group._id) || ''
+          },
           { _id: lastNameField._id, type: 'lastName', value: 'lastName' },
           { _id: phoneField._id, type: 'phone', value: '+88998833' },
           { _id: radioField._id, type: 'radio', value: 'radio2' },

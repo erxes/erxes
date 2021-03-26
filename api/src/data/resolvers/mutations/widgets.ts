@@ -327,13 +327,10 @@ const widgetMutations = {
       }
     });
 
-    let cachedCustomer;
-    if (!('default' in temp)) {
-      cachedCustomer = await Customers.getWidgetCustomer({
-        integrationId,
-        cachedCustomerId
-      });
-    }
+    let cachedCustomer = await Customers.getWidgetCustomer({
+      integrationId,
+      cachedCustomerId
+    });
 
     let customerId = (cachedCustomer && cachedCustomer._id) || '';
 
@@ -530,7 +527,7 @@ const widgetMutations = {
             hasAuthority,
             doNotDisturb
           },
-          cachedCustomer
+          customer
         );
 
         if (results[key]) {
