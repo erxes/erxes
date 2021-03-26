@@ -128,8 +128,6 @@ class GeneralSettings extends React.Component<Props, State> {
       value = defaultValues[kind] || '';
     }
 
-    // const isMultiple = kind === 'company_industry_types' ? true : false
-    console.log('kind: ', kind);
     return (
       <FormGroup>
         <ControlLabel>{KEY_LABELS[kind]}</ControlLabel>
