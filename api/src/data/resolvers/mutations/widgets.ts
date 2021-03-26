@@ -52,7 +52,7 @@ import {
 } from '../../utils';
 import {
   convertVisitorToCustomer,
-  updateCustomerFromFrom
+  updateCustomerFromForm
 } from '../../widgetUtils';
 import { conversationNotifReceivers } from './conversations';
 
@@ -472,7 +472,7 @@ const widgetMutations = {
           });
         }
 
-        await updateCustomerFromFrom(
+        await updateCustomerFromForm(
           browserInfo,
           {
             firstName,
@@ -511,7 +511,7 @@ const widgetMutations = {
           });
         }
 
-        await updateCustomerFromFrom(
+        await updateCustomerFromForm(
           browserInfo,
           {
             firstName,
