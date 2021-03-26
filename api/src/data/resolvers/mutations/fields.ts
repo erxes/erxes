@@ -110,7 +110,7 @@ const fieldMutations = {
       for (const { _id, ...doc } of editingFields) {
         if (doc.logics && doc.logics.length > 0) {
           for (const logic of doc.logics) {
-            if (doc.logics && !logic.fieldId && logic.tempFieldId) {
+            if (!logic.fieldId && logic.tempFieldId) {
               doc.logics[doc.logics.indexOf(logic)].fieldId =
                 temp[logic.tempFieldId];
             }
