@@ -368,28 +368,34 @@ describe('fieldQueries', () => {
     // Creating test data
     const group = await fieldGroupFactory({ contentType: 'form' });
 
-    const a = await fieldFactory({
+    await fieldFactory({
       text: 'text1',
       contentType: 'form',
       visible: true,
       groupId: (group && group._id) || ''
     });
 
-    console.log('a: ', a);
-
     const qry = `
-   query fields($contentType: String! $contentTypeId: String, $isVisible: Boolean) {
-     fields(contentType: $contentType contentTypeId: $contentTypeId, isVisible: $isVisible) {
-       text
-       groupName
-       _id
-       isVisible
-       associatedField {
-         _id
-         text
-       }
-     }
-   }
+    query fields(
+      $contentType: String!
+      $contentTypeId: String
+      $isVisible: Boolean
+    ) {
+      fields(
+        contentType: $contentType
+        contentTypeId: $contentTypeId
+        isVisible: $isVisible
+      ) {
+        text
+        groupName
+        _id
+        isVisible
+        associatedField {
+          _id
+          text
+        }
+      }
+    }    
  `;
 
     const responses = await graphqlRequest(qry, 'fields', {
@@ -398,7 +404,6 @@ describe('fieldQueries', () => {
     });
 
     expect(responses.length).toBe(1);
-    console.log('responses: ', responses);
     const field = responses[0];
     expect(field.groupName).toBe(group && group.name);
   });
