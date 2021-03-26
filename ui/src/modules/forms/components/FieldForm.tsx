@@ -204,7 +204,6 @@ class FieldForm extends React.Component<Props, State> {
 
     const onDelete = e => {
       e.preventDefault();
-      console.log('onDelete');
       this.props.onDelete(field);
     };
 
@@ -256,8 +255,6 @@ class FieldForm extends React.Component<Props, State> {
   renderLeftContent() {
     const { fields, mode, onCancel } = this.props;
     const { field } = this.state;
-
-    console.log('fields: ', fields);
 
     const text = e =>
       this.onFieldChange('text', (e.currentTarget as HTMLInputElement).value);
