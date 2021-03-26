@@ -211,9 +211,9 @@ export default class Field extends React.Component<Props, State> {
     );
   }
 
-  renderHtml(content: string) {
+  renderHtml(content: string, id: string) {
     return (
-      <p
+      <div id={id} 
         dangerouslySetInnerHTML={{
           __html: xss(content)
         }}
@@ -333,7 +333,7 @@ export default class Field extends React.Component<Props, State> {
         return this.renderDatepicker(field._id);
 
       case 'html':
-        return this.renderHtml(field.content || '')
+        return this.renderHtml(field.content || '', field._id)
 
       default:
         return Field.renderInput({

@@ -41,8 +41,6 @@ const fieldQueries = {
       query.isVisible = isVisible;
     }
 
-    // query.isDefinedByErxes = false;
-
     return Fields.find(query).sort({ order: 1 });
   },
 
