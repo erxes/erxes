@@ -194,8 +194,11 @@ const getIntegration = async ({
         }
   });
 
-  if (!integration || !integration.isActive) {
+  if (!integration) {
     throw new Error('Integration not found');
+  }
+  if (integration && !integration.isActive) {
+    throw new Error(`Integration "${integration.name}" is not active`);
   }
 
   return integration;
