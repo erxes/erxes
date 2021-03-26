@@ -396,8 +396,10 @@ const widgetMutations = {
             break;
           case 'size':
             size = submission.value;
+            break;
           case 'businessType':
             businessType = submission.value;
+            break;
           case 'pronoun':
             switch (submission.value) {
               case 'Male':
@@ -434,9 +436,10 @@ const widgetMutations = {
             break;
           case 'companyDescription':
             companyDescription = submission.value;
+            break;
           case 'companyDoNotDisturb':
             companyDoNotDisturb = submission.value;
-
+            break;
           default:
             break;
         }
