@@ -92,6 +92,19 @@ class Manage extends React.Component<Props, State> {
     };
   }
 
+  onSimulate = () => {
+    const { REACT_APP_CDN_HOST } = getEnv();
+    const integration = this.props.integration;
+    const brand = integration.brand || {};
+    const form = integration.form || {};
+
+    window.open(
+      `${REACT_APP_CDN_HOST}/test?type=form&brand_id=${brand.code}&form_id=${form.code}`,
+      'formrWindow',
+      'width=800,height=800'
+    );
+  };
+
   renderContent = () => {
     const onCopy = () => this.setState({ copied: true });
 
@@ -149,6 +162,15 @@ class Manage extends React.Component<Props, State> {
         {this.renderContent()}
 
         <ModalFooter>
+          <Button
+            uppercase={false}
+            btnStyle="primary"
+            icon="plus-circle"
+            onClick={this.onSimulate}
+          >
+            Simulate
+          </Button>
+
           <Button
             btnStyle="simple"
             icon="times-circle"

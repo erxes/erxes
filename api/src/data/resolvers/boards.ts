@@ -4,6 +4,10 @@ import { IContext } from '../types';
 
 export default {
   pipelines(board: IBoardDocument, {}, { user }: IContext) {
+    if (board.pipelines) {
+      return board.pipelines;
+    }
+
     if (user.isOwner) {
       return Pipelines.find({ boardId: board._id });
     }
