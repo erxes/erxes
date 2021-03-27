@@ -411,7 +411,7 @@ export const itemsChange = async (
 
   const item = await getItem(type, itemId);
 
-  const extendedDoc = {
+  const extendedDoc: IItemCommonFields = {
     modifiedAt: new Date(),
     modifiedBy: user._id,
     stageId: destinationStageId,
@@ -421,6 +421,10 @@ export const itemsChange = async (
       aboveItemId
     })
   };
+
+  if (item.stageId !== destinationStageId) {
+    extendedDoc.stageChangedDate = new Date();
+  }
 
   const updatedItem = await modelUpdate(itemId, extendedDoc);
 

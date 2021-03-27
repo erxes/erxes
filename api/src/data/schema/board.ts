@@ -103,7 +103,7 @@ export const queries = `
   pipelineStateCount(boardId: String, type: String): JSON
   archivedStages(pipelineId: String!, search: String, page: Int, perPage: Int): [Stage]
   archivedStagesCount(pipelineId: String!, search: String): Int
-  itemsCountBySegments(type: String!, pipelineId: String): JSON
+  itemsCountBySegments(type: String!, boardId: String, pipelineId: String): JSON
 `;
 
 const commonParams = `

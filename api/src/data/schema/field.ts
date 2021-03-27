@@ -43,7 +43,7 @@ export const fieldsTypes = `
 
 export const fieldsQueries = `
   fields(contentType: String!, contentTypeId: String, isVisible: Boolean): [Field]
-  fieldsCombinedByContentType(contentType: String!, usageType: String, excludedNames: [String]): JSON
+  fieldsCombinedByContentType(contentType: String!, usageType: String, excludedNames: [String], segmentId: String, pipelineId: String): JSON
   fieldsDefaultColumnsConfig(contentType: String!): [ColumnConfigItem]
   fieldsInbox: FieldsInbox
 `;
