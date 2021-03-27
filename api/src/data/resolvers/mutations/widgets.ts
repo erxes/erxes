@@ -608,7 +608,7 @@ const widgetMutations = {
     let mainCompanyId = '';
     const relTypeIds: string[] = [];
 
-    Object.keys(results).forEach(async key => {
+    for (const key of Object.keys(results)) {
       const { companyId, customerId } = results[key];
 
       if (key === 'default' && companyId && customerId) {
@@ -624,7 +624,7 @@ const widgetMutations = {
           relTypeIds: [customerId]
         });
       }
-    });
+    }
 
     if (mainCompanyId !== '' && relTypeIds.length > 0) {
       await Conformities.editConformity({
