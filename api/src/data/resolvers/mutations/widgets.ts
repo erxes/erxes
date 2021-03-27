@@ -6,6 +6,8 @@ import {
   ConversationMessages,
   Conversations,
   Customers,
+  Fields,
+  FieldsGroups,
   Forms,
   FormSubmissions,
   Integrations,
@@ -298,7 +300,7 @@ const widgetMutations = {
 
     const temp: { [key: string]: any[] } = {};
     const results: {
-      [key: string]: { customerId: string; companyId: string };
+      [key: string]: { customerIds: string[]; companyIds: string[] };
     } = {};
     const emails: string[] = [];
     const phones: string[] = [];
@@ -360,9 +362,10 @@ const widgetMutations = {
       let industries = '';
       let businessType = '';
 
-      const customFieldsData = new Array<ICustomField>();
+      let customFieldsData = new Array<ICustomField>();
+      let companyCustomData = new Array<ICustomField>();
 
-      values.forEach(submission => {
+      for (const submission of values) {
         switch (submission.type) {
           case 'email':
             email = submission.value;
@@ -445,12 +448,28 @@ const widgetMutations = {
         }
 
         if (submission.associatedFieldId) {
-          customFieldsData.push({
-            field: submission.associatedFieldId,
-            value: submission.value
-          });
+          const field = await Fields.findById(submission.associatedFieldId);
+          if (!field) {
+            continue;
+          }
+
+          const group = await FieldsGroups.findById(field.groupId);
+
+          if (group && group.contentType === 'company') {
+            companyCustomData.push({
+              field: submission.associatedFieldId,
+              value: submission.value
+            });
+          }
+
+          if (group && group.contentType === 'customer') {
+            customFieldsData.push({
+              field: submission.associatedFieldId,
+              value: submission.value
+            });
+          }
         }
-      });
+      }
 
       if (key === 'default') {
         cachedCustomer = await Customers.getWidgetCustomer({
@@ -470,6 +489,12 @@ const widgetMutations = {
             primaryPhone: phone,
             customFieldsData
           });
+        }
+
+        if (cachedCustomer.customFieldsData) {
+          customFieldsData = customFieldsData.concat(
+            cachedCustomer.customFieldsData
+          );
         }
 
         await updateCustomerFromForm(
@@ -492,7 +517,11 @@ const widgetMutations = {
 
         customerId = cachedCustomer._id;
 
-        results[key] = { customerId: cachedCustomer._id, companyId: '' };
+        if (results[key]) {
+          results[key].customerIds.push(cachedCustomer._id);
+        } else {
+          results[key] = { customerIds: [cachedCustomer._id], companyIds: [] };
+        }
       } else {
         let customer = await findCustomer({
           customerPrimaryEmail: email,
@@ -509,6 +538,10 @@ const widgetMutations = {
             primaryPhone: phone,
             customFieldsData
           });
+        }
+
+        if (customer.customFieldsData) {
+          customFieldsData = customFieldsData.concat(customer.customFieldsData);
         }
 
         await updateCustomerFromForm(
@@ -529,7 +562,11 @@ const widgetMutations = {
           customer
         );
 
-        results[key] = { customerId: customer._id, companyId: '' };
+        if (results[key]) {
+          results[key].customerIds.push(customer._id);
+        } else {
+          results[key] = { customerIds: [customer._id], companyIds: [] };
+        }
       }
 
       if (!(companyEmail || companyPhone || companyName)) {
@@ -566,32 +603,44 @@ const widgetMutations = {
         company = await Companies.createCompany(companyDoc);
       }
 
+      if (company.customFieldsData) {
+        companyCustomData = companyCustomData.concat(company.customFieldsData);
+      }
+
+      companyDoc.customFieldsData = companyCustomData;
+
       company = await Companies.updateCompany(company._id, companyDoc);
 
-      results[key] = {
-        companyId: company._id,
-        customerId: results[key].customerId
-      };
+      if (results[key]) {
+        results[key].companyIds.push(company._id);
+      } else {
+        results[key] = { companyIds: [company._id], customerIds: [] };
+      }
     }
 
     let mainCompanyId = '';
     let relTypeIds: string[] = [];
 
     Object.keys(results).forEach(async key => {
-      const { companyId } = results[key];
-      const cusId = results[key].customerId;
+      const { companyIds, customerIds } = results[key];
 
-      if (key === 'default' && companyId.length > 0) {
-        mainCompanyId = companyId;
-        relTypeIds = relTypeIds.concat([customerId]);
+      if (key === 'default' && companyIds.length > 0) {
+        mainCompanyId = companyIds[0];
+        relTypeIds = relTypeIds.concat(customerIds);
+        customerId = customerIds[0];
       }
 
-      if (key !== 'default' && companyId.length > 0) {
+      if (key !== 'default' && companyIds.length === 0) {
+        relTypeIds = relTypeIds.concat(customerIds);
+      }
+
+      if (key !== 'default' && companyIds.length > 0) {
+        const companyId = companyIds[0];
         await Conformities.editConformity({
           mainType: 'company',
           mainTypeId: companyId,
           relType: 'customer',
-          relTypeIds: [cusId]
+          relTypeIds: customerIds
         });
       }
     });
