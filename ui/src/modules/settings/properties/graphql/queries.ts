@@ -11,8 +11,7 @@ const genericFields = `
 const commonFields = `
   type
   text
-  field
-
+  
   canHide
   validation
   options
