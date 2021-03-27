@@ -276,13 +276,9 @@ const widgetMutations = {
       cachedCustomerId?: string;
     }
   ) {
-    const {
-      integrationId,
-      formId,
-      submissions,
-      browserInfo,
-      cachedCustomerId
-    } = args;
+    const { integrationId, formId, submissions, browserInfo } = args;
+
+    let { cachedCustomerId } = args;
 
     const form = await Forms.findOne({ _id: formId });
 
@@ -298,25 +294,25 @@ const widgetMutations = {
 
     const content = form.title;
 
-    const temp: { [key: string]: any[] } = {};
+    const submissionsGrouped: { [key: string]: any[] } = {};
     const results: {
-      [key: string]: { customerIds: string[]; companyIds: string[] };
+      [key: string]: { customerId: string; companyId: string };
     } = {};
     const emails: string[] = [];
     const phones: string[] = [];
 
     submissions.forEach(submission => {
       if (submission.groupId) {
-        if (temp[submission.groupId]) {
-          temp[submission.groupId].push(submission);
+        if (submissionsGrouped[submission.groupId]) {
+          submissionsGrouped[submission.groupId].push(submission);
         } else {
-          temp[submission.groupId] = [submission];
+          submissionsGrouped[submission.groupId] = [submission];
         }
       } else {
-        if (temp.default) {
-          temp.default.push(submission);
+        if (submissionsGrouped.default) {
+          submissionsGrouped.default.push(submission);
         } else {
-          temp.default = [submission];
+          submissionsGrouped.default = [submission];
         }
       }
 
@@ -334,11 +330,9 @@ const widgetMutations = {
       cachedCustomerId
     });
 
-    let customerId = (cachedCustomer && cachedCustomer._id) || '';
+    cachedCustomerId = (cachedCustomer && cachedCustomer._id) || '';
 
-    for (const key of Object.keys(temp)) {
-      const values = temp[key];
-
+    for (const groupId of Object.keys(submissionsGrouped)) {
       let email;
       let phone;
       let firstName = '';
@@ -365,7 +359,9 @@ const widgetMutations = {
       let customFieldsData = new Array<ICustomField>();
       let companyCustomData = new Array<ICustomField>();
 
-      for (const submission of values) {
+      console.log('submissionsGrouped: ', submissionsGrouped);
+
+      for (const submission of submissionsGrouped[groupId]) {
         switch (submission.type) {
           case 'email':
             email = submission.value;
@@ -453,16 +449,16 @@ const widgetMutations = {
             continue;
           }
 
-          const group = await FieldsGroups.findById(field.groupId);
+          const fieldGroup = await FieldsGroups.findById(field.groupId);
 
-          if (group && group.contentType === 'company') {
+          if (fieldGroup && fieldGroup.contentType === 'company') {
             companyCustomData.push({
               field: submission.associatedFieldId,
               value: submission.value
             });
           }
 
-          if (group && group.contentType === 'customer') {
+          if (fieldGroup && fieldGroup.contentType === 'customer') {
             customFieldsData.push({
               field: submission.associatedFieldId,
               value: submission.value
@@ -471,7 +467,7 @@ const widgetMutations = {
         }
       }
 
-      if (key === 'default') {
+      if (groupId === 'default') {
         cachedCustomer = await Customers.getWidgetCustomer({
           integrationId,
           cachedCustomerId,
@@ -515,13 +511,9 @@ const widgetMutations = {
           cachedCustomer
         );
 
-        customerId = cachedCustomer._id;
+        cachedCustomerId = cachedCustomer._id;
 
-        if (results[key]) {
-          results[key].customerIds.push(cachedCustomer._id);
-        } else {
-          results[key] = { customerIds: [cachedCustomer._id], companyIds: [] };
-        }
+        results[groupId] = { customerId: cachedCustomer._id, companyId: '' };
       } else {
         let customer = await findCustomer({
           customerPrimaryEmail: email,
@@ -562,11 +554,7 @@ const widgetMutations = {
           customer
         );
 
-        if (results[key]) {
-          results[key].customerIds.push(customer._id);
-        } else {
-          results[key] = { customerIds: [customer._id], companyIds: [] };
-        }
+        results[groupId] = { customerId: customer._id, companyId: '' };
       }
 
       if (!(companyEmail || companyPhone || companyName)) {
@@ -611,36 +599,29 @@ const widgetMutations = {
 
       company = await Companies.updateCompany(company._id, companyDoc);
 
-      if (results[key]) {
-        results[key].companyIds.push(company._id);
-      } else {
-        results[key] = { companyIds: [company._id], customerIds: [] };
-      }
+      results[groupId] = {
+        companyId: company._id,
+        customerId: results[groupId].customerId
+      };
     }
 
     let mainCompanyId = '';
-    let relTypeIds: string[] = [];
+    const relTypeIds: string[] = [];
 
     Object.keys(results).forEach(async key => {
-      const { companyIds, customerIds } = results[key];
+      const { companyId, customerId } = results[key];
 
-      if (key === 'default' && companyIds.length > 0) {
-        mainCompanyId = companyIds[0];
-        relTypeIds = relTypeIds.concat(customerIds);
-        customerId = customerIds[0];
+      if (key === 'default' && companyId && customerId) {
+        mainCompanyId = companyId;
+        relTypeIds.push(customerId);
       }
 
-      if (key !== 'default' && companyIds.length === 0) {
-        relTypeIds = relTypeIds.concat(customerIds);
-      }
-
-      if (key !== 'default' && companyIds.length > 0) {
-        const companyId = companyIds[0];
+      if (key !== 'default' && companyId && customerId) {
         await Conformities.editConformity({
           mainType: 'company',
           mainTypeId: companyId,
           relType: 'customer',
-          relTypeIds: customerIds
+          relTypeIds: [customerId]
         });
       }
     });
@@ -657,7 +638,7 @@ const widgetMutations = {
     // Inserting customer id into submitted customer ids
     const doc = {
       formId,
-      customerId,
+      customerId: cachedCustomerId,
       submittedAt: new Date()
     };
 
@@ -666,14 +647,14 @@ const widgetMutations = {
     // create conversation
     const conversation = await Conversations.createConversation({
       integrationId,
-      customerId,
+      customerId: cachedCustomerId,
       content
     });
 
     // create message
     const message = await Messages.createMessage({
       conversationId: conversation._id,
-      customerId,
+      customerId: cachedCustomerId,
       content,
       formWidgetData: submissions
     });
@@ -696,7 +677,11 @@ const widgetMutations = {
       cachedCustomerId: args.cachedCustomerId
     });
 
-    return { status: 'ok', messageId: message._id, customerId };
+    return {
+      status: 'ok',
+      messageId: message._id,
+      customerId: cachedCustomerId
+    };
   },
 
   widgetsLeadIncreaseViewCount(_root, { formId }: { formId: string }) {
