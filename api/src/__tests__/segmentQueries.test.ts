@@ -1,7 +1,7 @@
 import * as faker from 'faker';
 import * as sinon from 'sinon';
 import { graphqlRequest } from '../db/connection';
-import { segmentFactory } from '../db/factories';
+import { boardFactory, pipelineFactory, segmentFactory } from '../db/factories';
 import { Segments } from '../db/models';
 import * as elk from '../elasticsearch';
 
@@ -15,12 +15,20 @@ describe('segmentQueries', () => {
 
   test('Segments', async () => {
     // Creating test data
+    const board = await boardFactory({});
+    const pipeline = await pipelineFactory({ boardId: board._id });
+
     await segmentFactory({ contentType: 'customer' });
     await segmentFactory({ contentType: 'company' });
+    await segmentFactory({
+      contentType: 'deal',
+      boardId: board._id,
+      pipelineId: pipeline._id
+    });
 
     const qry = `
-      query segments($contentTypes: [String]!) {
-        segments(contentTypes: $contentTypes) {
+      query segments($contentTypes: [String]!, $boardId: String, $pipelineId: String) {
+        segments(contentTypes: $contentTypes, boardId: $boardId, pipelineId: $pipelineId) {
           _id
         }
       }
@@ -36,6 +44,15 @@ describe('segmentQueries', () => {
     // company segment ==================
     response = await graphqlRequest(qry, 'segments', {
       contentTypes: ['company']
+    });
+
+    expect(response.length).toBe(1);
+
+    // deal segment ==================
+    response = await graphqlRequest(qry, 'segments', {
+      contentTypes: ['deal'],
+      boardId: board._id,
+      pipelineId: pipeline._id
     });
 
     expect(response.length).toBe(1);

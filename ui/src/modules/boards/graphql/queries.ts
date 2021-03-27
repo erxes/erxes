@@ -217,8 +217,8 @@ const deals = `
 `;
 
 const itemsCountBySegments = `
-  query itemsCountBySegments($type: String!, $pipelineId: String) {
-    itemsCountBySegments(type: $type, pipelineId: $pipelineId)
+  query itemsCountBySegments($type: String!, $boardId: String, $pipelineId: String) {
+    itemsCountBySegments(type: $type, boardId: $boardId, pipelineId: $pipelineId)
   } 
 `;
 

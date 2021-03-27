@@ -358,9 +358,17 @@ const boardQueries = {
 
   async itemsCountBySegments(
     _root,
-    { type, pipelineId }: { type: string; pipelineId: string }
+    {
+      type,
+      boardId,
+      pipelineId
+    }: { type: string; boardId: string; pipelineId: string }
   ) {
-    const segments = await Segments.find({ contentType: type });
+    const segments = await Segments.find({
+      contentType: type,
+      boardId,
+      pipelineId
+    });
 
     const counts = {};
 

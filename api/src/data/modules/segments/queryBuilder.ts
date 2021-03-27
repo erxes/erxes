@@ -1,5 +1,5 @@
 import * as _ from 'underscore';
-import { Segments, Stages } from '../../../db/models';
+import { Boards, Pipelines, Segments, Stages } from '../../../db/models';
 import {
   SEGMENT_DATE_OPERATORS,
   SEGMENT_NUMBER_OPERATORS
@@ -33,22 +33,39 @@ export const fetchBySegments = async (
     });
   }
 
-  if (
-    options &&
-    options.pipelineId &&
-    ['deal', 'task', 'ticket'].includes(contentType)
-  ) {
-    const stages = await Stages.find(
-      { pipelineId: options.pipelineId },
-      { _id: 1 }
-    );
-    const stageIds = stages.map(s => s._id);
+  if (['deal', 'task', 'ticket'].includes(contentType)) {
+    let pipelineIds: string[] = [];
 
-    propertyPositive.push({
-      terms: {
-        stageId: stageIds
-      }
-    });
+    if (options && options.pipelineId) {
+      pipelineIds = [options.pipelineId];
+    }
+
+    if (segment.boardId) {
+      const board = await Boards.getBoard(segment.boardId);
+
+      const pipelines = await Pipelines.find(
+        {
+          _id: {
+            $in: segment.pipelineId
+              ? [segment.pipelineId]
+              : board.pipelines || []
+          }
+        },
+        { _id: 1 }
+      );
+
+      pipelineIds = pipelines.map(p => p._id);
+    }
+
+    const stages = await Stages.find({ pipelineId: pipelineIds }, { _id: 1 });
+
+    if (stages.length > 0) {
+      propertyPositive.push({
+        terms: {
+          stageId: stages.map(s => s._id)
+        }
+      });
+    }
   }
 
   const eventPositive = [];

@@ -222,6 +222,7 @@ export default class RightMenu extends React.Component<Props, State> {
 
         <SegmentFilter
           type={options.type}
+          boardId={queryParams.id || ''}
           pipelineId={queryParams.pipelineId || ''}
         />
       </FilterBox>
