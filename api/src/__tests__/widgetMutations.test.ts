@@ -1272,12 +1272,36 @@ describe('lead', () => {
 
   test('saveLead: without company', async () => {
     const form = await formFactory({});
+    const fieldsGroup = await fieldGroupFactory({ contentType: 'company' });
+    if (!fieldsGroup) {
+      fail('fieldsGroup not found');
+    }
 
     const firstNameField = await fieldFactory({
       type: 'firstName',
       contentTypeId: form._id,
       validation: 'text',
       isRequired: true
+    });
+
+    const customProperty = await fieldFactory({
+      type: 'input',
+      validation: 'number',
+      isVisible: true,
+      contentType: 'company',
+      groupId: fieldsGroup._id
+    });
+
+    const inputField = await fieldFactory({
+      type: customProperty.type,
+      validation: customProperty.validation,
+      contentTypeId: form._id,
+      contentType: 'form',
+      associatedFieldId: customProperty._id
+    });
+
+    const pronounField = await fieldFactory({
+      type: 'pronoun'
     });
 
     const integration = await integrationFactory({ formId: form._id });
@@ -1287,7 +1311,22 @@ describe('lead', () => {
       {
         integrationId: integration._id,
         formId: form._id,
-        submissions: [{ _id: firstNameField._id, value: 'name' }],
+        submissions: [
+          { _id: firstNameField._id, value: 'name' },
+          {
+            _id: inputField._id,
+            type: 'input',
+            value: 1,
+            associatedFieldId: inputField.associatedFieldId
+          },
+          {
+            _id: inputField._id,
+            type: 'input',
+            value: 1,
+            associatedFieldId: 'fake'
+          },
+          { _id: pronounField._id, type: 'pronoun', value: '' }
+        ],
         browserInfo: {
           currentPageUrl: '/page'
         }
