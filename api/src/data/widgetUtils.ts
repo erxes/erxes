@@ -341,8 +341,6 @@ export const solveSubmissions = async (args: {
 
   const submissionsGrouped = groupSubmissions(args.submissions);
 
-  console.log('submissionsGrouped: ', submissionsGrouped);
-
   const conformityIds: {
     [key: string]: { customerId: string; companyId: string };
   } = {};
