@@ -279,7 +279,7 @@ const widgetMutations = {
     // create conversation
     const conversation = await Conversations.createConversation({
       integrationId,
-      customerId: cachedCustomer?._id,
+      customerId: cachedCustomer._id,
       content
     });
 
