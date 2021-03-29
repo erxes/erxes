@@ -2,6 +2,15 @@ import { Document, Schema } from 'mongoose';
 import { FIELDS_GROUPS_CONTENT_TYPES } from './constants';
 import { field, schemaWrapper } from './utils';
 
+export interface ISubmission {
+  _id: string;
+  value: any;
+  type?: string;
+  validation?: string;
+  associatedFieldId?: string;
+  stageId?: string;
+  groupId?: string;
+}
 export interface ILogic {
   fieldId: string;
   tempFieldId?: string;
