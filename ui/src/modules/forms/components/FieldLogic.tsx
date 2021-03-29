@@ -70,7 +70,6 @@ function FieldLogic(props: Props) {
   };
 
   const onDateChange = value => {
-    console.log(value);
     onChangeLogic('logicValue', value, index);
   };
 
@@ -105,25 +104,12 @@ function FieldLogic(props: Props) {
         );
       }
 
-      if (selectedField.validation === 'date') {
-        const dateValue = new Date(logic.logicValue);
+      if (['date', 'datetime'].includes(selectedField.validation || '')) {
         return (
           <DateControl
             placeholder={__('pick a date')}
-            value={dateValue}
-            timeFormat={false}
-            onChange={onDateChange}
-          />
-        );
-      }
-
-      if (selectedField.validation === 'datetime') {
-        const dateValue = new Date(logic.logicValue);
-        return (
-          <DateControl
-            placeholder={__('pick a date')}
-            value={dateValue}
-            timeFormat={true}
+            value={logic.logicValue}
+            timeFormat={selectedField.validation === 'datetime' ? true : false}
             onChange={onDateChange}
           />
         );
