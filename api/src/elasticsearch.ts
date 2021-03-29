@@ -68,3 +68,23 @@ export const fetchElk = async (
     throw new Error(e);
   }
 };
+
+export const putData = async (index: string, body: any) => {
+  await client
+    .deleteByQuery({
+      index,
+      body: {
+        query: {
+          match: { contentId: body.contentId }
+        }
+      }
+    })
+    .catch(e => {
+      console.log(e);
+    });
+
+  await client.index({
+    index,
+    body
+  });
+};

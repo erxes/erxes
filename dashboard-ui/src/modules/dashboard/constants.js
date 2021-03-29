@@ -1,5 +1,6 @@
 export const schemaTypes = [
   'Customers',
+  'CustomerFields',
   'Leads',
   'Visitors',
   'Companies',

@@ -77,6 +77,7 @@ export interface IValidationResponse {
 
 export interface ICustomerDocument extends ICustomer, Document {
   _id: string;
+  ownId: string;
   location?: ILocationDocument;
   visitorContactInfo?: IVisitorContactDocument;
   profileScore?: number;

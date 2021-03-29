@@ -1,6 +1,7 @@
 import { Model, model } from 'mongoose';
 import { validSearchText } from '../../data/utils';
 import { validateSingle } from '../../data/verifierUtils';
+import { putData } from '../../elasticsearch';
 import {
   ActivityLogs,
   Conformities,
@@ -325,6 +326,13 @@ export const loadClass = () => {
         contentType: 'customer'
       });
 
+      await putData('erxes__field__values', {
+        contentId: customer._id,
+        contentType: 'customer',
+        data: customer.customFieldsData,
+        createdDate: customer?.createdAt
+      });
+
       return Customers.getCustomer(customer._id);
     }
 
@@ -374,7 +382,16 @@ export const loadClass = () => {
         { $set: { ...doc, ...pssDoc, modifiedAt: new Date() } }
       );
 
-      return Customers.findOne({ _id });
+      const customer = await Customers.findOne({ _id });
+
+      await putData('erxes__field__values', {
+        contentId: customer?._id,
+        contentType: 'customer',
+        data: doc.customFieldsData,
+        createdDate: customer?.createdAt
+      });
+
+      return customer;
     }
 
     /**
