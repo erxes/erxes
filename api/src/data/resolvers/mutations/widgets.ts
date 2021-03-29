@@ -6,10 +6,7 @@ import {
   ConversationMessages,
   Conversations,
   Customers,
-  Fields,
-  FieldsGroups,
   Forms,
-  FormSubmissions,
   Integrations,
   KnowledgeBaseArticles,
   MessengerApps,
@@ -20,7 +17,6 @@ import {
   IBrowserInfo,
   IVisitorContactInfoParams
 } from '../../../db/models/Customers';
-import { ICustomField } from '../../../db/models/definitions/common';
 import {
   CONVERSATION_OPERATOR_STATUS,
   CONVERSATION_STATUSES,
@@ -44,8 +40,6 @@ import { AUTO_BOT_MESSAGES, BOT_MESSAGE_TYPES } from '../../constants';
 import { sendToVisitorLog } from '../../logUtils';
 import { IContext } from '../../types';
 import {
-  findCompany,
-  findCustomer,
   registerOnboardHistory,
   replaceEditorAttributes,
   sendEmail,
@@ -53,11 +47,7 @@ import {
   sendRequest,
   sendToWebhook
 } from '../../utils';
-import {
-  convertVisitorToCustomer,
-  solveSubmissions,
-  updateCustomerFromForm
-} from '../../widgetUtils';
+import { convertVisitorToCustomer, solveSubmissions } from '../../widgetUtils';
 import { conversationNotifReceivers } from './conversations';
 
 interface IWidgetEmailParams {
