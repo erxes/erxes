@@ -380,8 +380,8 @@ export const solveSubmissions = async (args: {
     let industries = '';
     let businessType = '';
 
-    const customFieldsData = new Array<ICustomField>();
-    let companyCustomData = new Array<ICustomField>();
+    const customFieldsData: ICustomField[] = [];
+    let companyCustomData: ICustomField[] = [];
 
     for (const submission of submissionsGrouped[groupId]) {
       switch (submission.type) {
@@ -636,13 +636,11 @@ export const solveSubmissions = async (args: {
   }
 
   // Inserting customer id into submitted customer ids
-  const doc = {
+  await FormSubmissions.createFormSubmission({
     formId,
     customerId: cachedCustomerId,
     submittedAt: new Date()
-  };
-
-  await FormSubmissions.createFormSubmission(doc);
+  });
 
   return cachedCustomer;
 };
