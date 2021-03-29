@@ -67,6 +67,7 @@ export interface ICustomer {
   isOnline?: boolean;
   lastSeenAt?: Date;
   sessionCount?: number;
+  ownId?: string;
 }
 
 export interface IValidationResponse {
@@ -77,7 +78,6 @@ export interface IValidationResponse {
 
 export interface ICustomerDocument extends ICustomer, Document {
   _id: string;
-  ownId: string;
   location?: ILocationDocument;
   visitorContactInfo?: IVisitorContactDocument;
   profileScore?: number;
@@ -308,6 +308,7 @@ export const customerSchema = schemaWrapper(
       label: 'Session count',
       optional: true,
       esType: 'number'
-    })
+    }),
+    ownId: field({ type: String, optional: true, label: 'Avatar' })
   })
 );

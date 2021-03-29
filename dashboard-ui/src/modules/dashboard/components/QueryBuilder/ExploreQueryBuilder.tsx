@@ -90,6 +90,43 @@ class ExploreQueryBuilder extends React.Component<Props> {
           filters,
           updateFilters
         }) => {
+          const renderMeasere = () => {
+            if (type !== 'CustomerFields') {
+              return (
+                <>
+                  <FilterItem>
+                    <Label>Measure</Label>
+                    <MemberGroup
+                      type={type || ''}
+                      memberGroupType="measure"
+                      members={measures}
+                      availableMembers={availableMeasures}
+                      addMemberName="Measure"
+                      updateMethods={updateMeasures}
+                    />
+                  </FilterItem>
+                  <StyledDivider type="vertical" />
+                </>
+              );
+            }
+            return;
+          };
+
+          const renderChartTypeChooser = () => {
+            if (type !== 'CustomerFields') {
+              return (
+                <SelectType>
+                  <SelectChartType
+                    chartType={chartType}
+                    updateChartType={updateChartType}
+                    query={validatedQuery}
+                  />
+                </SelectType>
+              );
+            }
+            return;
+          };
+
           return (
             <>
               <ShadowedHeader>
@@ -106,18 +143,8 @@ class ExploreQueryBuilder extends React.Component<Props> {
                       <StyledDivider type="vertical" />
                       {type ? (
                         <>
-                          <FilterItem>
-                            <Label>Measure</Label>
-                            <MemberGroup
-                              type={type}
-                              memberGroupType="measure"
-                              members={measures}
-                              availableMembers={availableMeasures}
-                              addMemberName="Measure"
-                              updateMethods={updateMeasures}
-                            />
-                          </FilterItem>
-                          <StyledDivider type="vertical" />
+                          {renderMeasere()}
+
                           <FilterItem>
                             <Label>Dimension</Label>
                             <MemberGroup
@@ -173,13 +200,8 @@ class ExploreQueryBuilder extends React.Component<Props> {
 
               {isQueryPresent ? (
                 <ChartWraper>
-                  <SelectType>
-                    <SelectChartType
-                      chartType={chartType}
-                      updateChartType={updateChartType}
-                      query={validatedQuery}
-                    />
-                  </SelectType>
+                  {renderChartTypeChooser()}
+
                   <ChartCard>
                     <ChartRenderer
                       query={validatedQuery}

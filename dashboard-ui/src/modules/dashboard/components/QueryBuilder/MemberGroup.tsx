@@ -23,7 +23,9 @@ class MemberGroup extends React.Component<Props> {
     } = this.props;
 
     if (members.length > 0) {
-      return null;
+      if (!type.includes('CustomerFields')) {
+        return null;
+      }
     }
 
     return (
@@ -39,6 +41,7 @@ class MemberGroup extends React.Component<Props> {
       </MemberDropdown>
     );
   };
+
   render() {
     const {
       members,

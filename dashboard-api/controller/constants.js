@@ -147,6 +147,11 @@ const filterResolvers = {
     field: 'brandId'
   },
 
+  'CustomerFields.brand': {
+    index: `${tableSchema()}__integrations`,
+    field: 'brandId'
+  },
+
   'Leads.brand': {
     index: `${tableSchema()}__integrations`,
     field: 'brandId'
