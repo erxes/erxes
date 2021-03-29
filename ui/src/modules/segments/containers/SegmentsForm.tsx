@@ -1,12 +1,14 @@
 import client from 'apolloClient';
 import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
+import { queries as boardQueries } from 'modules/boards/graphql';
+import { BoardsQueryResponse } from 'modules/boards/types';
 import ButtonMutate from 'modules/common/components/ButtonMutate';
 import { IButtonMutateProps } from 'modules/common/types';
 import { withProps } from 'modules/common/utils';
+import { queries as formQueries } from 'modules/forms/graphql';
 import React from 'react';
 import { graphql } from 'react-apollo';
-import { FieldsCombinedByTypeQueryResponse } from '../../settings/properties/types';
 import SegmentsForm from '../components/SegmentsForm';
 import { mutations, queries } from '../graphql';
 import {
@@ -17,6 +19,7 @@ import {
   ISegmentCondition,
   SegmentDetailQueryResponse
 } from '../types';
+import { isBoardKind } from '../utils';
 
 type Props = {
   contentType: string;
@@ -28,21 +31,22 @@ type FinalProps = {
   segmentDetailQuery: SegmentDetailQueryResponse;
   headSegmentsQuery: HeadSegmentsQueryResponse;
   eventsQuery: EventsQueryResponse;
-  combinedFieldsQuery: FieldsCombinedByTypeQueryResponse;
+  boardsQuery?: BoardsQueryResponse;
 } & Props &
   AddMutationResponse &
   EditMutationResponse;
 
 class SegmentsFormContainer extends React.Component<
   FinalProps,
-  { loading: boolean; count: number }
+  { loading: boolean; count: number; fields: any[] }
 > {
   constructor(props) {
     super(props);
 
     this.state = {
       loading: false,
-      count: 0
+      count: 0,
+      fields: []
     };
   }
 
@@ -50,6 +54,8 @@ class SegmentsFormContainer extends React.Component<
     const { headSegmentsQuery } = this.props;
 
     headSegmentsQuery.refetch();
+
+    this.fetchFields();
   }
 
   renderButton = ({
@@ -85,7 +91,38 @@ class SegmentsFormContainer extends React.Component<
     );
   };
 
-  previewCount = (conditions: ISegmentCondition[], subOf?: string) => {
+  fetchFields = (pipelineId?: string) => {
+    const { id, contentType } = this.props;
+
+    client
+      .query({
+        query: gql(formQueries.fieldsCombinedByContentType),
+        variables: {
+          segmentId: id,
+          pipelineId,
+          contentType: ['visitor', 'lead', 'customer'].includes(contentType)
+            ? 'customer'
+            : contentType
+        }
+      })
+      .then(({ data }) => {
+        this.setState({
+          fields: data.fieldsCombinedByContentType
+        });
+      });
+  };
+
+  previewCount = ({
+    conditions,
+    subOf,
+    boardId,
+    pipelineId
+  }: {
+    conditions: ISegmentCondition[];
+    subOf?: string;
+    boardId?: string;
+    pipelineId?: string;
+  }) => {
     const { contentType } = this.props;
 
     this.setState({ loading: true });
@@ -96,7 +133,9 @@ class SegmentsFormContainer extends React.Component<
         variables: {
           contentType,
           conditions,
-          subOf
+          subOf,
+          boardId,
+          pipelineId
         }
       })
       .then(({ data }) => {
@@ -112,28 +151,30 @@ class SegmentsFormContainer extends React.Component<
       contentType,
       segmentDetailQuery,
       headSegmentsQuery,
-      eventsQuery,
-      combinedFieldsQuery
+      boardsQuery,
+      eventsQuery
     } = this.props;
 
-    if (segmentDetailQuery.loading || combinedFieldsQuery.loading) {
+    if (segmentDetailQuery.loading) {
       return null;
     }
 
     const events = eventsQuery.segmentsEvents || [];
-    const fields = combinedFieldsQuery.fieldsCombinedByContentType || [];
+    const boards = boardsQuery ? boardsQuery.boards || [] : [];
 
     const segment = segmentDetailQuery.segmentDetail;
     const headSegments = headSegmentsQuery.segmentsGetHeads || [];
 
     const updatedProps = {
       ...this.props,
-      fields,
       segment,
+      boards,
       headSegments: headSegments.filter(s => s.contentType === contentType),
       events,
       renderButton: this.renderButton,
       previewCount: this.previewCount,
+      fetchFields: this.fetchFields,
+      fields: this.state.fields,
       count: this.state.count,
       counterLoading: this.state.loading
     };
@@ -165,15 +206,12 @@ export default withProps<Props>(
         variables: { contentType }
       })
     }),
-    graphql<Props>(gql(queries.combinedFields), {
-      name: 'combinedFieldsQuery',
+    graphql<Props>(gql(boardQueries.boards), {
+      name: 'boardsQuery',
       options: ({ contentType }) => ({
-        variables: {
-          contentType: ['visitor', 'lead', 'customer'].includes(contentType)
-            ? 'customer'
-            : contentType
-        }
-      })
+        variables: { type: contentType }
+      }),
+      skip: ({ contentType }) => !isBoardKind(contentType)
     })
   )(SegmentsFormContainer)
 );

@@ -10,13 +10,27 @@ const segmentQueries = {
    */
   segments(
     _root,
-    { contentTypes }: { contentTypes: string[] },
+    {
+      contentTypes,
+      boardId,
+      pipelineId
+    }: { contentTypes: string[]; boardId?: string; pipelineId?: string },
     { commonQuerySelector }: IContext
   ) {
-    return Segments.find({
+    const selector: any = {
       ...commonQuerySelector,
       contentType: { $in: contentTypes }
-    }).sort({ name: 1 });
+    };
+
+    if (boardId) {
+      selector.boardId = boardId;
+    }
+
+    if (pipelineId) {
+      selector.pipelineId = pipelineId;
+    }
+
+    return Segments.find(selector).sort({ name: 1 });
   },
 
   /**
@@ -89,13 +103,23 @@ const segmentQueries = {
     {
       contentType,
       conditions,
-      subOf
-    }: { contentType: string; conditions; subOf?: string }
+      subOf,
+      boardId,
+      pipelineId
+    }: {
+      contentType: string;
+      conditions;
+      subOf?: string;
+      boardId?: string;
+      pipelineId?: string;
+    }
   ) {
     return fetchSegment('count', {
       name: 'preview',
       color: '#fff',
       subOf: subOf || '',
+      boardId,
+      pipelineId,
       contentType,
       conditions
     });
