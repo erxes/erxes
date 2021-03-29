@@ -1,6 +1,8 @@
-import Datetime from '@nateradebaugh/react-datetime';
+// import Datetime from '@nateradebaugh/react-datetime';
 import Button from 'modules/common/components/Button';
 import { FormControl, FormGroup } from 'modules/common/components/form';
+import DateControl from 'modules/common/components/form/DateControl';
+import { __ } from 'modules/common/utils';
 import { IField, IFieldLogic } from 'modules/settings/properties/types';
 import React from 'react';
 import {
@@ -55,6 +57,9 @@ function FieldLogic(props: Props) {
       value,
       index
     );
+
+    const operators = getOperatorOptions();
+    onChangeLogic('logicOperator', operators[0].value, index);
   };
 
   const onChangeLogicOperator = e => {
@@ -65,10 +70,8 @@ function FieldLogic(props: Props) {
     onChangeLogic('logicValue', e.target.value, index);
   };
 
-  const onDateChange = (date?: Date | string) => {
-    if (date) {
-      onChangeLogic('logicValue', date, index);
-    }
+  const onDateChange = value => {
+    onChangeLogic('logicValue', value, index);
   };
 
   const remove = () => {
@@ -102,31 +105,13 @@ function FieldLogic(props: Props) {
         );
       }
 
-      if (selectedField.validation === 'date') {
+      if (['date', 'datetime'].includes(selectedField.validation || '')) {
         const dateValue = new Date(logic.logicValue);
         return (
-          <Datetime
-            dateFormat="YYYY/MM/DD"
-            timeFormat={false}
-            closeOnSelect={true}
-            utc={true}
-            input={false}
+          <DateControl
+            placeholder={__('pick a date')}
             value={dateValue}
-            onChange={onDateChange}
-          />
-        );
-      }
-
-      if (selectedField.validation === 'datetime') {
-        const dateValue = new Date(logic.logicValue);
-        return (
-          <Datetime
-            dateFormat="YYYY/MM/DD"
-            timeFormat="HH:mm"
-            closeOnSelect={true}
-            utc={true}
-            input={false}
-            value={dateValue}
+            timeFormat={selectedField.validation === 'datetime' ? true : false}
             onChange={onDateChange}
           />
         );
