@@ -1,4 +1,3 @@
-// import Datetime from '@nateradebaugh/react-datetime';
 import Button from 'modules/common/components/Button';
 import { FormControl, FormGroup } from 'modules/common/components/form';
 import DateControl from 'modules/common/components/form/DateControl';
@@ -71,6 +70,7 @@ function FieldLogic(props: Props) {
   };
 
   const onDateChange = value => {
+    console.log(value);
     onChangeLogic('logicValue', value, index);
   };
 
@@ -105,13 +105,25 @@ function FieldLogic(props: Props) {
         );
       }
 
-      if (['date', 'datetime'].includes(selectedField.validation || '')) {
+      if (selectedField.validation === 'date') {
         const dateValue = new Date(logic.logicValue);
         return (
           <DateControl
             placeholder={__('pick a date')}
             value={dateValue}
-            timeFormat={selectedField.validation === 'datetime' ? true : false}
+            timeFormat={false}
+            onChange={onDateChange}
+          />
+        );
+      }
+
+      if (selectedField.validation === 'datetime') {
+        const dateValue = new Date(logic.logicValue);
+        return (
+          <DateControl
+            placeholder={__('pick a date')}
+            value={dateValue}
+            timeFormat={true}
             onChange={onDateChange}
           />
         );
