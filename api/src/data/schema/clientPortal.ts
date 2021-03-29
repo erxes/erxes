@@ -73,6 +73,17 @@ export const types = `
     baseFont: String
     headingFont: String
   }
+
+  type TicketComment {
+    _id: String!
+    ticketId: String!
+    title: String!
+    content: String!
+    userId: String
+    customerId: String
+    parentId: String
+    createdAt: Date
+  }
 `;
 
 export const queries = `
@@ -85,6 +96,15 @@ export const queries = `
   clientPortalTickets(email: String!): [Ticket]
   clientPortalTask(_id: String!): Task
   clientPortalTicket(_id: String!): Ticket
+`;
+
+const commentParams = `
+  ticketId: String!
+  title: String!
+  content: String!
+  userId: String
+  customerId: String
+  parentId: String
 `;
 
 export const mutations = `
@@ -126,4 +146,8 @@ export const mutations = `
     css: String
     mobileResponsive: Boolean
   ): ClientPortal
+  
+  createTicketComment(${commentParams}): TicketComment
+  updateTicketComment(_id: String! ${commentParams}): TicketComment
+  removeTicketComment(_id: String!): JSON
 `;
