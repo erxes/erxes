@@ -2,13 +2,12 @@ import resolvers from '..';
 import {
   ActivityLogs,
   Boards,
-  Checklists,
-  Conformities,
   Notifications,
   Pipelines,
   Stages
 } from '../../../db/models';
 import {
+  destroyBoardItemRelations,
   getCollection,
   getCompanies,
   getCustomers,
@@ -412,7 +411,7 @@ export const itemsChange = async (
 
   const item = await getItem(type, itemId);
 
-  const extendedDoc = {
+  const extendedDoc: IItemCommonFields = {
     modifiedAt: new Date(),
     modifiedBy: user._id,
     stageId: destinationStageId,
@@ -422,6 +421,10 @@ export const itemsChange = async (
       aboveItemId
     })
   };
+
+  if (item.stageId !== destinationStageId) {
+    extendedDoc.stageChangedDate = new Date();
+  }
 
   const updatedItem = await modelUpdate(itemId, extendedDoc);
 
@@ -487,9 +490,7 @@ export const itemsRemove = async (
     contentType: type
   });
 
-  await Conformities.removeConformity({ mainType: type, mainTypeId: item._id });
-  await Checklists.removeChecklists(type, item._id);
-  await ActivityLogs.removeActivityLog(item._id);
+  await destroyBoardItemRelations(item._id, type);
 
   const removed = await item.remove();
 

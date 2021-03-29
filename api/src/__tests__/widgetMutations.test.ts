@@ -74,7 +74,7 @@ describe('messenger connect', () => {
     await MessengerApps.deleteMany({});
 
     memoryStorage().removeKey(`erxes_integration_messenger_${_brand.id}`);
-    memoryStorage().removeKey(`erxes_brand_{_brand.code}`);
+    memoryStorage().removeKey(`erxes_brand_${_brand.code}`);
   });
 
   test('brand not found', async () => {
@@ -98,6 +98,23 @@ describe('messenger connect', () => {
       );
     } catch (e) {
       expect(e.message).toBe('Integration not found');
+    }
+  });
+
+  test('Test inactive integration', async () => {
+    const brand = await brandFactory({});
+    const integration = await integrationFactory({
+      isActive: false,
+      brandId: brand._id
+    });
+
+    try {
+      await widgetMutations.widgetsMessengerConnect(
+        {},
+        { brandCode: brand.code || '' }
+      );
+    } catch (e) {
+      expect(e.message).toBe(`Integration "${integration.name}" is not active`);
     }
   });
 

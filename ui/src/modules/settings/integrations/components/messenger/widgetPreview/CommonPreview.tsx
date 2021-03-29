@@ -1,7 +1,11 @@
 import { IUser } from 'modules/auth/types';
 import { WebPreview } from 'modules/engage/styles';
 import { IBrand } from 'modules/settings/brands/types';
-import { IMessagesItem } from 'modules/settings/integrations/types';
+import {
+  IMessagesItem,
+  IMessengerApps,
+  ISkillData
+} from 'modules/settings/integrations/types';
 import React from 'react';
 import GreetingContent from './GreetingContent';
 import { Launcher, WidgetPreviewStyled } from './styles';
@@ -20,7 +24,12 @@ type Props = {
   logoPreviewUrl?: string;
   brandId?: string;
   brands?: IBrand[];
-  isGreeting?: boolean;
+  timezone?: string;
+  skillData?: ISkillData;
+  showChatPreview?: boolean;
+  showVideoCallRequest?: boolean;
+  messengerApps?: IMessengerApps;
+  activeStep?: string;
   facebook?: string;
   twitter?: string;
   youtube?: string;
@@ -29,25 +38,38 @@ type Props = {
 class CommonPreview extends React.Component<Props> {
   renderContent() {
     const {
-      isGreeting,
+      showChatPreview,
       isOnline,
       color,
       textColor,
       wallpaper,
-      message
+      message,
+      skillData,
+      activeStep,
+      messengerApps,
+      showVideoCallRequest
     } = this.props;
 
-    if (isGreeting) {
-      return <GreetingContent />;
+    if (showChatPreview) {
+      return (
+        <GreetingContent
+          activeStep={activeStep}
+          messengerApps={messengerApps}
+          color={color}
+        />
+      );
     }
 
     return (
       <WidgetContent
+        skillData={skillData}
         textColor={textColor}
         color={color}
         message={message}
         isOnline={isOnline}
         wallpaper={wallpaper}
+        activeStep={activeStep}
+        showVideoCallRequest={showVideoCallRequest}
       />
     );
   }

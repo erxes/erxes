@@ -11,15 +11,23 @@ type Props = {
 };
 
 const SegmentFilterContainer = (props: Props & WrapperProps) => {
-  const { itemsCountBySegmentsQuery, type } = props;
+  const { itemsCountBySegmentsQuery, type, boardId, pipelineId } = props;
 
   const counts = itemsCountBySegmentsQuery.itemsCountBySegments || [];
 
-  return <Segments contentType={type} counts={counts} />;
+  return (
+    <Segments
+      contentType={type}
+      boardId={boardId}
+      pipelineId={pipelineId}
+      counts={counts}
+    />
+  );
 };
 
 type WrapperProps = {
   type: string;
+  boardId: string;
   pipelineId: string;
 };
 
@@ -27,8 +35,8 @@ export default withProps<WrapperProps>(
   compose(
     graphql<WrapperProps>(gql(queries.itemsCountBySegments), {
       name: 'itemsCountBySegmentsQuery',
-      options: ({ type, pipelineId }) => ({
-        variables: { type, pipelineId }
+      options: ({ type, pipelineId, boardId }) => ({
+        variables: { type, pipelineId, boardId }
       })
     })
   )(SegmentFilterContainer)

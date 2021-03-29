@@ -84,7 +84,11 @@ const tagMutations = {
       publishConversationsChanged(targetIds, MODULE_NAMES.TAG);
     }
 
-    return Tags.tagsTag(type, targetIds, tagIds);
+    return Tags.tagObject({ type, targetIds, tagIds });
+  },
+
+  tagsMerge(_root, { sourceId, destId }: { sourceId: string; destId: string }) {
+    return Tags.merge(sourceId, destId);
   }
 };
 
@@ -93,5 +97,6 @@ requireLogin(tagMutations, 'tagsTag');
 checkPermission(tagMutations, 'tagsAdd', 'manageTags');
 checkPermission(tagMutations, 'tagsEdit', 'manageTags');
 checkPermission(tagMutations, 'tagsRemove', 'manageTags');
+checkPermission(tagMutations, 'tagsMerge', 'manageTags');
 
 export default tagMutations;

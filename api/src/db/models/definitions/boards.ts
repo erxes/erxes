@@ -23,6 +23,7 @@ export interface IItemCommonFields {
   companyIds?: string[];
   customerIds?: string[];
   closeDate?: Date;
+  stageChangedDate?: Date;
   description?: string;
   assignedUserIds?: string[];
   watchedUserIds?: string[];
@@ -157,6 +158,11 @@ export const commonItemFieldsSchema = {
   order: field({ type: Number }),
   name: field({ type: String, label: 'Name' }),
   closeDate: field({ type: Date, label: 'Close date', esType: 'date' }),
+  stageChangedDate: field({
+    type: Date,
+    label: 'Stage changed date',
+    esType: 'date'
+  }),
   reminderMinute: field({ type: Number, label: 'Reminder minute' }),
   isComplete: field({
     type: Boolean,
