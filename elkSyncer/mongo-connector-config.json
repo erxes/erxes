@@ -59,6 +59,9 @@
     },
     "erxes*.fields": {
       "rename": "erxes*__fields._doc"
+    },
+    "erxes*.conformities": {
+      "rename": "erxes*__conformities._doc"
     }
   },
   "docManagers": [
