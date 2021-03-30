@@ -1,5 +1,9 @@
 import { Menu } from 'antd';
-import { ignoredFilters, ignoredMeasures } from 'modules/dashboard/constants';
+import {
+  ignoredFilters,
+  ignoredMeasures,
+  propertyTypes
+} from 'modules/dashboard/constants';
 import React from 'react';
 import ButtonDropdown from './ButtonDropdown';
 
@@ -16,7 +20,11 @@ const generateMember = (availableMembers, schemaType, addMemberName) => {
     availableMembers.forEach(members => {
       const name = members.name;
 
-      if (
+      if (propertyTypes.includes(name.split('.')[0])) {
+        if (name.startsWith(schemaType) && !hideFields.includes(name)) {
+          generatedMembers.push(members);
+        }
+      } else if (
         !hideFields.includes(name.split('.')[1]) &&
         name.startsWith(schemaType)
       ) {

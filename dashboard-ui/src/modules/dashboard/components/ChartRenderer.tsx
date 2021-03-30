@@ -3,6 +3,7 @@ import { getDashboardToken, getEnv } from 'apolloClient';
 import axios from 'axios';
 import dayjs from 'dayjs';
 import Spinner from 'modules/common/components/Spinner';
+import moment from 'moment';
 import numeral from 'numeral';
 
 import React, { useEffect, useRef, useState } from 'react';
@@ -207,7 +208,13 @@ const TypeToChartComponent = {
   },
 
   table: ({ resultSet }) => {
-    const columns = resultSet.tableColumns;
+    const columns = resultSet.tableColumns.map(column => {
+      return {
+        key: column.key,
+        title: column.shortTitle
+      };
+    });
+
     const renderResult = result => {
       for (const [key, value] of Object.entries(result)) {
         if (typeof value === 'number') {
@@ -216,8 +223,16 @@ const TypeToChartComponent = {
             .replace(/\B(?=(\d{3})+(?!\d))/g, ',');
         }
 
+        const dateValue = value as string;
+
+        const isDate = moment(dateValue, 'YYYY-MM-DD').isValid();
+
         if (typeof value === 'string') {
           result[key] = decamelize(result[key], ' ');
+        }
+
+        if (isDate) {
+          result[key] = moment(dateValue).format('YYYY-MM-DD');
         }
       }
 
