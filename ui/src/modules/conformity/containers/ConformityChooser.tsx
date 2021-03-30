@@ -77,6 +77,7 @@ const ConformityChooser = (props: FinalProps) => {
       // Read the data from our cache for this query.
       let result;
       const qryName = gql(refetchQuery).definitions[0].name.value;
+      console.log('dddddddddddddddd', qryName);
 
       // try {
       result = proxy.readQuery(selector);

@@ -1,80 +1,76 @@
 import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
+// import { renderFullName, withProps } from '../utils';
 import ConformityChooser from '../../conformity/containers/ConformityChooser';
 import React from 'react';
 import { graphql } from 'react-apollo';
+import CustomerForm from './CustomerForm';
 import { mutations, queries } from '../graphql';
 import {
   AddMutationResponse,
-  CompaniesQueryResponse,
-  ICompany,
-  ICompanyDoc
+  CustomersQueryResponse,
+  ICustomer,
+  ICustomerDoc
 } from '../types';
-import CompanyForm from './CompanyForm';
-import { withProps } from 'modules/common/utils';
+import { renderFullName, withProps } from 'modules/common/utils';
 
 type Props = {
   search: (value: string, loadMore?: boolean) => void;
-  perPage: number;
   searchValue: string;
+  perPage: number;
 };
 
 type FinalProps = {
-  companiesQuery: CompaniesQueryResponse;
+  customersQuery: CustomersQueryResponse;
 } & Props &
   AddMutationResponse;
-
-class CompanyChooser extends React.Component<
+class CustomerChooser extends React.Component<
   WrapperProps & FinalProps,
-  { newCompany?: ICompany }
+  { newCustomer?: ICustomer }
 > {
   constructor(props) {
     super(props);
 
     this.state = {
-      newCompany: undefined
+      newCustomer: undefined
     };
   }
 
   resetAssociatedItem = () => {
-    return this.setState({ newCompany: undefined });
+    return this.setState({ newCustomer: undefined });
   };
 
   render() {
-    const { data, companiesQuery, search } = this.props;
+    const { data, customersQuery, search } = this.props;
 
-    const renderName = company => {
-      return company.primaryName || company.website || 'Unknown';
-    };
-
-    const getAssociatedCompany = (newCompany: ICompany) => {
-      this.setState({ newCompany });
+    const getAssociatedCustomer = (newCustomer: ICustomer) => {
+      this.setState({ newCustomer });
     };
 
     const updatedProps = {
       ...this.props,
       data: {
         _id: data._id,
-        name: renderName(data),
-        datas: data.companies,
+        name: data.name,
+        datas: data.customers,
         mainTypeId: data.mainTypeId,
         mainType: data.mainType,
-        relType: 'company'
+        relType: 'customer'
       },
       search,
       clearState: () => search(''),
-      title: 'Company',
+      title: 'Customer',
+      renderName: renderFullName,
       renderForm: formProps => (
-        <CompanyForm
+        <CustomerForm
           {...formProps}
-          getAssociatedCompany={getAssociatedCompany}
+          getAssociatedCustomer={getAssociatedCustomer}
         />
       ),
-      renderName,
-      newItem: this.state.newCompany,
+      newItem: this.state.newCustomer,
       resetAssociatedItem: this.resetAssociatedItem,
-      datas: companiesQuery.companies || [],
-      refetchQuery: queries.companies
+      datas: customersQuery.customers || [],
+      refetchQuery: queries.customers
     };
 
     return <ConformityChooser {...updatedProps} />;
@@ -85,10 +81,10 @@ const WithQuery = withProps<Props>(
   compose(
     graphql<
       Props & WrapperProps,
-      CompaniesQueryResponse,
+      CustomersQueryResponse,
       { searchValue: string; perPage: number }
-    >(gql(queries.companies), {
-      name: 'companiesQuery',
+    >(gql(queries.customers), {
+      name: 'customersQuery',
       options: ({ searchValue, perPage, data }) => {
         return {
           variables: {
@@ -105,22 +101,30 @@ const WithQuery = withProps<Props>(
       }
     }),
     // mutations
-    graphql<{}, AddMutationResponse, ICompanyDoc>(gql(mutations.companiesAdd), {
-      name: 'companiesAdd'
-    })
-  )(CompanyChooser)
+    graphql<Props, AddMutationResponse, ICustomerDoc>(
+      gql(mutations.customersAdd),
+      {
+        name: 'customersAdd',
+        options: () => {
+          return {
+            refetchQueries: ['customersMain', 'customers', 'customerCounts']
+          };
+        }
+      }
+    )
+  )(CustomerChooser)
 );
 
 type WrapperProps = {
   data: {
     _id?: string;
     name: string;
-    companies: ICompany[];
+    customers: ICustomer[];
     mainTypeId?: string;
     mainType?: string;
     isRelated?: boolean;
   };
-  onSelect: (datas: ICompany[]) => void;
+  onSelect: (datas: ICustomer[]) => void;
   closeModal: () => void;
 };
 
@@ -149,7 +153,6 @@ export default class Wrapper extends React.Component<
 
   render() {
     const { searchValue, perPage } = this.state;
-
     return (
       <WithQuery
         {...this.props}
