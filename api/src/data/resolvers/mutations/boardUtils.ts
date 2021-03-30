@@ -46,7 +46,11 @@ import {
   sendNotifications
 } from '../boardUtils';
 
-const itemResolver = async (type: string, item: IItemCommonFields) => {
+export const itemResolver = async (
+  type: string,
+  item: IItemCommonFields,
+  mustDb?: boolean
+) => {
   let resolverType = '';
 
   switch (type) {
@@ -72,7 +76,11 @@ const itemResolver = async (type: string, item: IItemCommonFields) => {
 
   for (const subResolver of Object.keys(resolver)) {
     try {
-      additionInfo[subResolver] = await resolver[subResolver](item);
+      if (mustDb && ['companies', 'customers'].includes(subResolver)) {
+        additionInfo[subResolver] = await resolver[subResolver](item, true);
+      } else {
+        additionInfo[subResolver] = await resolver[subResolver](item);
+      }
     } catch (unused) {
       continue;
     }

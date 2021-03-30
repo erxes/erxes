@@ -16,14 +16,16 @@ const commonParams = `
   mainType: String
   mainTypeId: String
   relType: String
-  relTypeId: String
+  relTypeId: String,
+  proccessId: String
 `;
 
 const commonParamsCreate = `
   mainType: String
   mainTypeId: String
   relType: String
-  relTypeIds: [String]
+  relTypeIds: [String],
+  proccessId: String
 `;
 
 export const mutations = `

@@ -15,22 +15,28 @@ import { IContext } from '../types';
 import { boardId } from './boardUtils';
 
 export default {
-  async companies(deal: IDealDocument) {
-    const companyIds = await Conformities.savedConformity({
-      mainType: 'deal',
-      mainTypeId: deal._id,
-      relTypes: ['company']
-    });
+  async companies(deal: IDealDocument, mustDb?: boolean) {
+    const companyIds = await Conformities.savedConformity(
+      {
+        mainType: 'deal',
+        mainTypeId: deal._id,
+        relTypes: ['company']
+      },
+      mustDb
+    );
 
     return Companies.find({ _id: { $in: companyIds } });
   },
 
-  async customers(deal: IDealDocument) {
-    const customerIds = await Conformities.savedConformity({
-      mainType: 'deal',
-      mainTypeId: deal._id,
-      relTypes: ['customer']
-    });
+  async customers(deal: IDealDocument, mustDb?: boolean) {
+    const customerIds = await Conformities.savedConformity(
+      {
+        mainType: 'deal',
+        mainTypeId: deal._id,
+        relTypes: ['customer']
+      },
+      mustDb
+    );
 
     return Customers.find({ _id: { $in: customerIds } });
   },

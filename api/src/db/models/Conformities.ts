@@ -127,7 +127,9 @@ const getSavedAnyConformityMatch = ({
 
 export interface IConformityModel extends Model<IConformityDocument> {
   addConformity(doc: IConformityAdd): Promise<IConformityDocument>;
-  editConformity(doc: IConformityEdit): void;
+  editConformity(
+    doc: IConformityEdit
+  ): Promise<{ addedTypeIds: string[]; removedTypeIds: string[] }>;
   changeConformity(doc: IConformityChange): void;
   removeConformity(doc: IConformityRemove): void;
   removeConformities(doc: IConformitiesRemove): void;
@@ -195,7 +197,7 @@ export const loadConformityClass = () => {
         ]
       });
 
-      return;
+      return { addedTypeIds, removedTypeIds };
     }
 
     public static async savedConformity(doc: IConformitySaved, mustDb = false) {

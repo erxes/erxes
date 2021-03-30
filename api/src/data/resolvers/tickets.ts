@@ -13,22 +13,28 @@ import { IContext } from '../types';
 import { boardId } from './boardUtils';
 
 export default {
-  async companies(ticket: ITicketDocument) {
-    const companyIds = await Conformities.savedConformity({
-      mainType: 'ticket',
-      mainTypeId: ticket._id,
-      relTypes: ['company']
-    });
+  async companies(ticket: ITicketDocument, mustDb?: boolean) {
+    const companyIds = await Conformities.savedConformity(
+      {
+        mainType: 'ticket',
+        mainTypeId: ticket._id,
+        relTypes: ['company']
+      },
+      mustDb
+    );
 
     return Companies.find({ _id: { $in: companyIds || [] } });
   },
 
-  async customers(ticket: ITicketDocument) {
-    const customerIds = await Conformities.savedConformity({
-      mainType: 'ticket',
-      mainTypeId: ticket._id,
-      relTypes: ['customer']
-    });
+  async customers(ticket: ITicketDocument, mustDb?: boolean) {
+    const customerIds = await Conformities.savedConformity(
+      {
+        mainType: 'ticket',
+        mainTypeId: ticket._id,
+        relTypes: ['customer']
+      },
+      mustDb
+    );
 
     return Customers.find({ _id: { $in: customerIds || [] } });
   },
