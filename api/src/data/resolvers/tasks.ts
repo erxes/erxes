@@ -13,7 +13,7 @@ import { IContext } from '../types';
 import { boardId } from './boardUtils';
 
 export default {
-  async companies(task: ITaskDocument, mustDb?: boolean) {
+  async companies(task: ITaskDocument, { mustDb }: { mustDb?: boolean }) {
     const companyIds = await Conformities.savedConformity(
       {
         mainType: 'task',
@@ -30,7 +30,7 @@ export default {
     return Users.findOne({ _id: task.userId });
   },
 
-  async customers(task: ITaskDocument, mustDb?: boolean) {
+  async customers(task: ITaskDocument, { mustDb }: { mustDb?: boolean }) {
     const customerIds = await Conformities.savedConformity(
       {
         mainType: 'task',

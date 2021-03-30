@@ -13,7 +13,7 @@ import { IContext } from '../types';
 import { boardId } from './boardUtils';
 
 export default {
-  async companies(ticket: ITicketDocument, mustDb?: boolean) {
+  async companies(ticket: ITicketDocument, { mustDb }: { mustDb?: boolean }) {
     const companyIds = await Conformities.savedConformity(
       {
         mainType: 'ticket',
@@ -26,7 +26,7 @@ export default {
     return Companies.find({ _id: { $in: companyIds || [] } });
   },
 
-  async customers(ticket: ITicketDocument, mustDb?: boolean) {
+  async customers(ticket: ITicketDocument, { mustDb }: { mustDb?: boolean }) {
     const customerIds = await Conformities.savedConformity(
       {
         mainType: 'ticket',

@@ -15,7 +15,7 @@ import { IContext } from '../types';
 import { boardId } from './boardUtils';
 
 export default {
-  async companies(deal: IDealDocument, mustDb?: boolean) {
+  async companies(deal: IDealDocument, { mustDb }: { mustDb?: boolean }) {
     const companyIds = await Conformities.savedConformity(
       {
         mainType: 'deal',
@@ -28,7 +28,7 @@ export default {
     return Companies.find({ _id: { $in: companyIds } });
   },
 
-  async customers(deal: IDealDocument, mustDb?: boolean) {
+  async customers(deal: IDealDocument, { mustDb }: { mustDb?: boolean }) {
     const customerIds = await Conformities.savedConformity(
       {
         mainType: 'deal',

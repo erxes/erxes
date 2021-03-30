@@ -77,7 +77,9 @@ export const itemResolver = async (
   for (const subResolver of Object.keys(resolver)) {
     try {
       if (mustDb && ['companies', 'customers'].includes(subResolver)) {
-        additionInfo[subResolver] = await resolver[subResolver](item, true);
+        additionInfo[subResolver] = await resolver[subResolver](item, {
+          mustDb: true
+        });
       } else {
         additionInfo[subResolver] = await resolver[subResolver](item);
       }
