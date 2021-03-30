@@ -60,7 +60,7 @@ class ExploreQueryBuilder extends React.Component<Props> {
       <Menu>
         {schemaTypes.map(schemaType => (
           <Menu.Item key={schemaType} onClick={() => setType(schemaType)}>
-            {schemaType}
+            {schemaType.replace(/([A-Z])/g, ' $1').trim()}
           </Menu.Item>
         ))}
       </Menu>
