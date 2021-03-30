@@ -213,7 +213,21 @@ class Lead extends React.Component<Props, State> {
     this.setState({ currentMode: 'update', currentField: field });
   };
 
-  onStepClick = carousel => {
+  onStepClick = currentStepNumber => {
+    const { isSkip } = this.state;
+
+    let carousel = 'form';
+    switch (currentStepNumber) {
+      case 1:
+        carousel = isSkip ? 'form' : 'callout';
+        break;
+      case 2:
+        carousel = isSkip ? 'form' : 'callout';
+        break;
+      case 6:
+        carousel = 'success';
+        break;
+    }
     return this.setState({ carousel });
   };
 
@@ -282,10 +296,7 @@ class Lead extends React.Component<Props, State> {
               <Step
                 img="/images/icons/erxes-04.svg"
                 title="Style"
-                onClick={this.onStepClick.bind(
-                  null,
-                  isSkip ? 'form' : 'callout'
-                )}
+                onClick={this.onStepClick}
               >
                 <ChooseType
                   onChange={this.onChange}
@@ -299,10 +310,7 @@ class Lead extends React.Component<Props, State> {
               <Step
                 img="/images/icons/erxes-03.svg"
                 title="CallOut"
-                onClick={this.onStepClick.bind(
-                  null,
-                  isSkip ? 'form' : 'callout'
-                )}
+                onClick={this.onStepClick}
               >
                 <CallOut
                   onChange={this.onChange}
@@ -319,7 +327,7 @@ class Lead extends React.Component<Props, State> {
               <Step
                 img="/images/icons/erxes-12.svg"
                 title={'Content'}
-                onClick={this.onStepClick.bind(null, 'form')}
+                onClick={this.onStepClick}
               >
                 <FormStep
                   type={type}
@@ -338,14 +346,14 @@ class Lead extends React.Component<Props, State> {
               <Step
                 img="/images/icons/erxes-02.svg"
                 title="Rule"
-                onClick={this.onStepClick.bind(null, 'form')}
+                onClick={this.onStepClick}
               >
                 <ConditionsRule rules={rules || []} onChange={this.onChange} />
               </Step>
               <Step
                 img="/images/icons/erxes-06.svg"
                 title="Options"
-                onClick={this.onStepClick.bind(null, 'form')}
+                onClick={this.onStepClick}
               >
                 <OptionStep
                   title={title}
@@ -363,7 +371,7 @@ class Lead extends React.Component<Props, State> {
               <Step
                 img="/images/icons/erxes-13.svg"
                 title="Confirmation"
-                onClick={this.onStepClick.bind(null, 'sucess')}
+                onClick={this.onStepClick}
                 noButton={true}
               >
                 <SuccessStep
