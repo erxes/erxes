@@ -70,9 +70,13 @@ asyncModule(async () => {
     body: {
       query: {
         bool: {
-          should: [
-            { match: { contentType: 'conversation' } },
-            { match: { isDefinedByErxes: false } }
+          must: [
+            {
+              term: { contentType: 'conversation' }
+            },
+            {
+              term: { isDefinedByErxes: false }
+            }
           ]
         }
       }

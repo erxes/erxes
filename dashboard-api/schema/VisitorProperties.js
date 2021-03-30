@@ -65,9 +65,13 @@ asyncModule(async () => {
     body: {
       query: {
         bool: {
-          should: [
-            { match: { contentType: 'customer' } },
-            { match: { isDefinedByErxes: false } }
+          must: [
+            {
+              term: { contentType: 'customer' }
+            },
+            {
+              term: { isDefinedByErxes: false }
+            }
           ]
         }
       }
