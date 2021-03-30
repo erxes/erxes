@@ -374,9 +374,7 @@ export const loadClass = () => {
         { $set: { ...doc, ...pssDoc, modifiedAt: new Date() } }
       );
 
-      const customer = await Customers.findOne({ _id });
-
-      return customer;
+      return Customers.findOne({ _id });
     }
 
     /**
