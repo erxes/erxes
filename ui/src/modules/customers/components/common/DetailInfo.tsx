@@ -24,7 +24,7 @@ class DetailInfo extends React.PureComponent<Props> {
   renderRow(field, value) {
     const { fields, isDetail } = this.props;
 
-    const property = fields.find(e => e.field === field);
+    const property = fields.find(e => e.type === field);
 
     const isVisibleKey = isDetail ? 'isVisibleInDetail' : 'isVisible';
 
@@ -69,7 +69,7 @@ class DetailInfo extends React.PureComponent<Props> {
   renderDescription(description?: string) {
     const { fields, isDetail } = this.props;
 
-    const descriptionField = fields.find(e => e.field === 'description');
+    const descriptionField = fields.find(e => e.type === 'description');
 
     const isVisibleKey = isDetail ? 'isVisibleInDetail' : 'isVisible';
 
@@ -121,7 +121,7 @@ class DetailInfo extends React.PureComponent<Props> {
         {this.renderRow('department', customer.department)}
         {this.renderRow('pronoun', GENDER_TYPES()[customer.sex || 0])}
         {this.renderRow(
-          'birthDay',
+          'birthDate',
           customer.birthDate && dayjs(customer.birthDate).format('MMM,DD YYYY')
         )}
         {this.renderRow('doNotDisturb', customer.doNotDisturb)}

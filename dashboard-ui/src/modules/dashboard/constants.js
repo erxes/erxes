@@ -1,12 +1,23 @@
 export const schemaTypes = [
   'Customers',
+  'CustomerProperties',
   'Leads',
+  'LeadProperties',
   'Visitors',
+  'VisitorProperties',
   'Companies',
   'Conversations',
+  'ConversationProperties',
   'Deals',
   'Tasks',
   'Tickets'
+];
+
+export const propertyTypes = [
+  'ConversationProperties',
+  'CustomerProperties',
+  'LeadProperties',
+  'VisitorProperties'
 ];
 
 export const chartTypeWithoutDeminsions = [
@@ -166,7 +177,9 @@ export const ignoredFilters = [
   'firstrespondeddate',
   'messagecount',
   'integrationKind',
-  'firstRespondedDate'
+  'firstRespondedDate',
+  'firstName',
+  'lastName'
 ];
 
 export const ignoredMeasures = [
@@ -179,7 +192,11 @@ export const ignoredMeasures = [
   'closedDate',
   'updatedDate',
   'firstRespondedDate',
-  'board'
+  'board',
+  'integrationType',
+  'ConversationProperties.integrationName',
+  'ConversationProperties.tag',
+  'ConversationProperties.integrationType'
 ];
 
 export const complexFilters = [

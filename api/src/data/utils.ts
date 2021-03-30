@@ -10,7 +10,13 @@ import * as puppeteer from 'puppeteer';
 import * as strip from 'strip';
 import * as xlsxPopulate from 'xlsx-populate';
 import * as models from '../db/models';
-import { Customers, OnboardingHistories, Users, Webhooks } from '../db/models';
+import {
+  Companies,
+  Customers,
+  OnboardingHistories,
+  Users,
+  Webhooks
+} from '../db/models';
 import { IBrandDocument } from '../db/models/definitions/brands';
 import { WEBHOOK_STATUS } from '../db/models/definitions/constants';
 import { ICustomer } from '../db/models/definitions/customers';
@@ -921,4 +927,59 @@ export const splitStr = (str: string, size: number): string[] => {
   const cleanStr = strip(str);
 
   return cleanStr.match(new RegExp(new RegExp(`.{1,${size}}(\s|$)`, 'g')));
+};
+
+export const findCustomer = async doc => {
+  let customer;
+
+  if (doc.customerPrimaryEmail) {
+    customer = await Customers.findOne({
+      $or: [
+        { emails: { $in: [doc.customerPrimaryEmail] } },
+        { primaryEmail: doc.customerPrimaryEmail }
+      ]
+    });
+  }
+
+  if (!customer && doc.customerPrimaryPhone) {
+    customer = await Customers.findOne({
+      $or: [
+        { phones: { $in: [doc.customerPrimaryPhone] } },
+        { primaryPhone: doc.customerPrimaryPhone }
+      ]
+    });
+  }
+
+  if (!customer && doc.customerPrimaryPhone) {
+    customer = await Customers.findOne({ code: doc.customerPrimaryPhone });
+  }
+
+  return customer;
+};
+
+export const findCompany = async doc => {
+  let company;
+
+  if (doc.companyPrimaryEmail) {
+    company = await Companies.findOne({
+      $or: [
+        { emails: { $in: [doc.companyPrimaryEmail] } },
+        { primaryEmail: doc.companyPrimaryEmail }
+      ]
+    });
+  }
+
+  if (!company && doc.companyPrimaryPhone) {
+    company = await Companies.findOne({
+      $or: [
+        { phones: { $in: [doc.companyPrimaryPhone] } },
+        { primaryPhone: doc.companyPrimaryPhone }
+      ]
+    });
+  }
+
+  if (!company && doc.companyPrimaryName) {
+    company = await Companies.findOne({ primaryName: doc.companyPrimaryName });
+  }
+  return company;
 };

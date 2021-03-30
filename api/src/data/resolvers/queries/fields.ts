@@ -41,8 +41,6 @@ const fieldQueries = {
       query.isVisible = isVisible;
     }
 
-    query.isDefinedByErxes = false;
-
     return Fields.find(query).sort({ order: 1 });
   },
 
@@ -65,7 +63,7 @@ const fieldQueries = {
         { name: 'primaryName', label: 'Primary Name', order: 1 },
         { name: 'size', label: 'Size', order: 2 },
         { name: 'links.website', label: 'Website', order: 3 },
-        { name: 'industry', label: 'Industry', order: 4 },
+        { name: 'industry', label: 'Industries', order: 4 },
         { name: 'plan', label: 'Plan', order: 5 },
         { name: 'lastSeenAt', label: 'Last seen at', order: 6 },
         { name: 'sessionCount', label: 'Session count', order: 7 }

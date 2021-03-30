@@ -170,7 +170,8 @@ describe('dashboardQueries', () => {
       'Companies.tag',
       'Tasks.board',
       'Tickets.board',
-      'board'
+      'board',
+      'ConversationProperties.customerFirstName'
     ];
 
     types.map(async type => {
