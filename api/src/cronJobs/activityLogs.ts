@@ -23,18 +23,14 @@ export const createActivityLogsFromSegments = async () => {
     const companies = await Companies.find({ _id: { $in: ids } }, { _id: 1 });
     const companyIds = companies.map(c => c._id);
 
-    const customerData = { segment, customerIds, type: 'customer' };
-
     await putActivityLog({
       action: ACTIVITY_LOG_ACTIONS.CREATE_SEGMENT_LOG,
-      data: customerData
+      data: { segment, customerIds, type: 'customer' }
     });
 
-    const companyData = { segment, companyIds, type: 'company' };
-
     await putActivityLog({
       action: ACTIVITY_LOG_ACTIONS.CREATE_SEGMENT_LOG,
-      data: companyData
+      data: { segment, companyIds, type: 'company' }
     });
   }
 };
