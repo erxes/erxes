@@ -39,8 +39,8 @@ const generateReport = async (req, res) => {
 
           const index =
             shemaName === 'ConversationProperties'
-              ? 'erxes__conversations'
-              : 'erxes__customers';
+              ? `${tableSchema()}__conversations`
+              : `${tableSchema()}__customers`;
 
           const customFieldId = dimension
             .slice(dimension.length - 23)
