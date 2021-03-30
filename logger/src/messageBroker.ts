@@ -1,5 +1,6 @@
 import * as dotenv from 'dotenv';
 import messageBroker from 'erxes-message-broker';
+import ActivityLogs from './models/ActivityLogs';
 import Visitors from './models/Visitors';
 import { receivePutLogCommand } from './utils';
 
@@ -30,6 +31,17 @@ export const initBroker = async server => {
         return Visitors.createOrUpdateVisitorLog(data);
       case 'remove':
         return Visitors.removeVisitorLog(data.visitorId);
+      default:
+        break;
+    }
+  });
+
+  consumeQueue('putActivityLog', async parsedObject => {
+    const { data, action } = parsedObject;
+
+    switch (action) {
+      case 'add':
+        return ActivityLogs.addActivityLog(data);
       default:
         break;
     }

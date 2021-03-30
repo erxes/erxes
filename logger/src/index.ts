@@ -8,6 +8,7 @@ dotenv.config();
 import { connect } from './connection';
 import { debugError, debugInit } from './debuggers';
 import { initBroker } from './messageBroker';
+import ActivityLogs from './models/ActivityLogs';
 import Logs from './models/Logs';
 import { routeErrorHandling } from './utils';
 
@@ -27,6 +28,27 @@ app.use((req: any, _res, next) => {
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
+
+app.get(
+  '/activityLogs',
+  routeErrorHandling(async (req, res) => {
+    const params = JSON.parse(req.body.params || '{}');
+    const { contentType, contentTypeId } = params;
+
+    const filter: { contentType: string; contentTypeId: string } = {
+      contentType,
+      contentTypeId
+    };
+
+    const activityLogs = await ActivityLogs.find(filter).sort({
+      createdAt: -1
+    });
+
+    const activityLogsCount = await ActivityLogs.countDocuments(filter);
+
+    return res.json({ activityLogs, totalCount: activityLogsCount });
+  })
+);
 
 // sends logs according to specified filter
 app.get(

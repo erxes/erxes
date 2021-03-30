@@ -9,8 +9,8 @@ import {
   Integrations
 } from '../../../db/models';
 import {
-  // ACTIVITY_ACTIONS,
-  // ACTIVITY_CONTENT_TYPES,
+  ACTIVITY_ACTIONS,
+  ACTIVITY_CONTENT_TYPES,
   KIND_CHOICES
 } from '../../../db/models/definitions/constants';
 import {
@@ -22,7 +22,13 @@ import { IExternalIntegrationParams } from '../../../db/models/Integrations';
 import { debugError } from '../../../debuggers';
 import messageBroker from '../../../messageBroker';
 import { MODULE_NAMES, RABBITMQ_QUEUES } from '../../constants';
-import { putCreateLog, putDeleteLog, putUpdateLog } from '../../logUtils';
+import {
+  ACTIVITY_LOG_ACTIONS,
+  putActivityLog,
+  putCreateLog,
+  putDeleteLog,
+  putUpdateLog
+} from '../../logUtils';
 import { checkPermission } from '../../permissions/wrappers';
 import { IContext } from '../../types';
 import { registerOnboardHistory, replaceEditorAttributes } from '../../utils';
@@ -559,7 +565,7 @@ const integrationMutations = {
   async integrationsSendSms(
     _root,
     args: ISmsParams,
-    { dataSources }: IContext
+    { dataSources, user }: IContext
   ) {
     const customer = await Customers.findOne({ primaryPhone: args.to });
 
@@ -572,13 +578,15 @@ const integrationMutations = {
 
     const response = await dataSources.IntegrationsAPI.sendSms(args);
 
-    // await ActivityLogs.addActivityLog({
-    //   action: ACTIVITY_ACTIONS.SEND,
-    //   contentType: ACTIVITY_CONTENT_TYPES.SMS,
-    //   createdBy: user._id,
-    //   contentId: customer._id,
-    //   content: { to: args.to, text: args.content }
-    // });
+    const data = {
+      action: ACTIVITY_ACTIONS.SEND,
+      contentType: ACTIVITY_CONTENT_TYPES.SMS,
+      createdBy: user._id,
+      contentId: customer._id,
+      content: { to: args.to, text: args.content }
+    };
+
+    await putActivityLog({ action: ACTIVITY_LOG_ACTIONS.ADD, data });
 
     return response;
   },

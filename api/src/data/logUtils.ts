@@ -148,6 +148,10 @@ const LOG_ACTIONS = {
   DELETE: 'delete'
 };
 
+export const ACTIVITY_LOG_ACTIONS = {
+  ADD: 'add'
+};
+
 // used in internalNotes mutations
 const findContentItemName = async (
   contentType: string,

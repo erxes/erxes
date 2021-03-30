@@ -1,6 +1,4 @@
 import { Document, Model, model, Schema } from 'mongoose';
-import { IItemCommonFieldsDocument } from '../../../api/src/db/models/definitions/boards';
-import { ISegmentDocument } from '../../../api/src/db/models/definitions/segments';
 import { field } from './Logs';
 
 const ACTIVITY_ACTIONS = {
@@ -47,7 +45,6 @@ export interface IActivityLogDocument extends IActivityLog, Document {
 }
 
 export const activityLogSchema = new Schema({
-  _id: field({ pkey: true }),
   contentId: field({ type: String, index: true }),
   contentType: field({ type: String, index: true }),
   action: field({ type: String, index: true }),
@@ -90,7 +87,7 @@ export interface IActivityLogModel extends Model<IActivityLogDocument> {
   ): Promise<{ n: number; ok: number }>;
 
   createSegmentLog(
-    segment: ISegmentDocument,
+    segment: any,
     customer: string[],
     type: string,
     maxBulk?: number
@@ -105,15 +102,15 @@ export interface IActivityLogModel extends Model<IActivityLogDocument> {
     contentType: string;
   }): Promise<IActivityLogDocument[]>;
   createBoardItemsLog(params: {
-    items: IItemCommonFieldsDocument[];
+    items: any[];
     contentType: string;
   }): Promise<IActivityLogDocument[]>;
   createBoardItemLog(params: {
-    item: IItemCommonFieldsDocument;
+    item: any;
     contentType: string;
   }): Promise<IActivityLogDocument>;
   createBoardItemMovementLog(
-    item: IItemCommonFieldsDocument,
+    item: any,
     type: string,
     userId: string,
     content: object
@@ -171,7 +168,7 @@ export const loadClass = () => {
       items,
       contentType
     }: {
-      items: IItemCommonFieldsDocument[];
+      items: any[];
       contentType: string;
     }) {
       const docs: IActivityLogInput[] = [];
@@ -203,7 +200,7 @@ export const loadClass = () => {
       item,
       contentType
     }: {
-      item: IItemCommonFieldsDocument;
+      item: any;
       contentType: string;
     }) {
       let action = ACTIVITY_ACTIONS.CREATE;
@@ -226,7 +223,7 @@ export const loadClass = () => {
     }
 
     public static createBoardItemMovementLog(
-      item: IItemCommonFieldsDocument,
+      item: any,
       contentType: string,
       userId: string,
       content: object
@@ -313,7 +310,7 @@ export const loadClass = () => {
      * Create a customer or company segment logs
      */
     public static async createSegmentLog(
-      segment: ISegmentDocument,
+      segment: any,
       contentIds: string[],
       type: string,
       maxBulk: number = 10000
