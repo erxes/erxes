@@ -66,6 +66,7 @@ asyncModule(async () => {
 
   const fieldGroups = await client.search({
     index: `${tableSchema()}__fields_groups`,
+    size: 1000,
     body: {
       query: {
         bool: {
@@ -86,6 +87,7 @@ asyncModule(async () => {
 
   const result = await client.search({
     index: `${tableSchema()}__fields`,
+    size: 1000,
     body: {
       query: {
         bool: {
