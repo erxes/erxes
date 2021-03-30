@@ -89,34 +89,31 @@ asyncModule(async () => {
     should.push({ match: { groupId: groupId } });
   });
 
-  const result = await client.search({
-    index: `${tableSchema()}__fields`,
-    size: 1000,
-    body: {
-      query: {
-        bool: {
-          should
+  let result = {};
+
+  if (should.length > 0) {
+    result = await client.search({
+      index: `${tableSchema()}__fields`,
+      size: 1000,
+      body: {
+        query: {
+          bool: {
+            should
+          }
         }
       }
-    }
-  });
-
-  const camelize = str => {
-    return str
-      .replace(/(?:^\w|[A-Z]|\b\w)/g, function(word, index) {
-        return index === 0 ? word.toLowerCase() : word.toUpperCase();
-      })
-      .replace(/\s+/g, '');
-  };
-
-  result.hits.hits.map(async hit => {
-    dimensions.push({
-      _id: hit._id,
-      text: camelize(hit._source.field || hit._source.text),
-      customField: true,
-      title: hit._source.field || hit._source.text
     });
-  });
+  }
+
+  if (result.hits) {
+    result.hits.hits.map(async hit => {
+      dimensions.push({
+        _id: hit._id,
+        customField: true,
+        title: hit._source.field || hit._source.text
+      });
+    });
+  }
 
   cube('ConversationProperties', {
     sql: `SELECT * FROM ${tableSchema()}__conversations`,
