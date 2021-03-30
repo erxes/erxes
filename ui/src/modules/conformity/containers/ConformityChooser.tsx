@@ -69,24 +69,17 @@ const ConformityChooser = (props: FinalProps) => {
         }
       };
 
-      // if (data.relType === 'company') {
-      //   console.log('ccccccccccccccccccccc')
-      //   selector = { query: companies };
-      // }
-
       // Read the data from our cache for this query.
       let result;
       const qryName = gql(refetchQuery).definitions[0].name.value;
-      console.log('dddddddddddddddd', qryName);
 
-      // try {
-      result = proxy.readQuery(selector);
-      console.log(result);
-      // Do not do anything while reading query somewhere else
-      // } catch (e) {
-      //   alert(e)
-      //   return;
-      // }
+      try {
+        result = proxy.readQuery(selector);
+
+        // Do not do anything while reading query somewhere else
+      } catch (e) {
+        return;
+      }
 
       result[qryName] = relTypes;
 

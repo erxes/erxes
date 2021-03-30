@@ -37,13 +37,6 @@ class PortableItemsContainer extends React.Component<FinalProps> {
     const { itemsQuery, component, queryName, alreadyItems } = this.props;
 
     let items = alreadyItems;
-    console.log(
-      'mmmmmmmmmmmmmmmm',
-      this.props.mainType,
-      this.props.relType,
-      alreadyItems,
-      Boolean(itemsQuery)
-    );
 
     if (!alreadyItems) {
       if (!itemsQuery) {
@@ -53,7 +46,6 @@ class PortableItemsContainer extends React.Component<FinalProps> {
       items = itemsQuery[queryName] || [];
     }
 
-    console.log('zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz', items);
     const extendedProps = {
       ...this.props,
       items,
