@@ -1,6 +1,7 @@
 const cubejs = require('@cubejs-client/core');
 const elasticsearch = require('elasticsearch');
 const { resolvers } = require('./constants.js');
+const { tableSchema } = require('../tablePrefix');
 
 const { CUBEJS_URL, CUBEJS_DB_URL } = process.env;
 
@@ -34,7 +35,7 @@ const generateReport = async (req, res) => {
   if (queryDimensions[0]) {
     await Promise.all(
       queryDimensions.map(async dimension => {
-        if (dimension.slice(dimension.length - 6) === 'CUSTOM') {
+        if (dimension.split('.')[1].slice(0, 6) === 'CUSTOM') {
           const shemaName = queryDimensions[0].split('.')[0];
 
           const index =
@@ -42,9 +43,7 @@ const generateReport = async (req, res) => {
               ? `${tableSchema()}__conversations`
               : `${tableSchema()}__customers`;
 
-          const customFieldId = dimension
-            .slice(dimension.length - 23)
-            .slice(0, 17);
+          const customFieldId = dimension.split('.')[1].slice(6);
 
           await Promise.all(
             resultSet.loadResponse.data.map(async data => {
