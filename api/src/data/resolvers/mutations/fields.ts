@@ -63,65 +63,70 @@ const fieldMutations = {
     const response: IFieldDocument[] = [];
     const logicalFields: IField[] = [];
 
-    if (addingFields) {
-      for (const f of addingFields) {
-        if (f.logics && f.logics.length > 0) {
-          logicalFields.push(f);
-          continue;
-        }
+    if (!addingFields && !editingFields) {
+      return;
+    }
 
-        const tempId = f.tempFieldId;
-
-        const field = await Fields.createField({
-          ...f,
-          contentType,
-          contentTypeId,
-          lastUpdatedUserId: user._id
-        });
-
-        if (tempId) {
-          temp[tempId] = field._id;
-        }
+    for (const f of addingFields) {
+      if (f.logics && f.logics.length > 0) {
+        logicalFields.push(f);
+        continue;
       }
 
-      for (const f of logicalFields) {
-        const { logics } = f;
+      const tempId = f.tempFieldId;
 
-        if (logics && logics.length > 0) {
-          for (const logic of logics) {
-            if (f.logics && !logic.fieldId && logic.tempFieldId) {
-              f.logics[logics.indexOf(logic)].fieldId = temp[logic.tempFieldId];
-            }
-          }
-        }
+      const field = await Fields.createField({
+        ...f,
+        contentType,
+        contentTypeId,
+        lastUpdatedUserId: user._id
+      });
 
-        const field = await Fields.createField({
-          ...f,
-          contentType,
-          contentTypeId,
-          lastUpdatedUserId: user._id
-        });
-
-        response.push(field);
+      if (tempId) {
+        temp[tempId] = field._id;
       }
     }
 
-    if (editingFields) {
-      for (const { _id, ...doc } of editingFields) {
-        if (doc.logics && doc.logics.length > 0) {
-          for (const logic of doc.logics) {
-            if (!logic.fieldId && logic.tempFieldId) {
-              doc.logics[doc.logics.indexOf(logic)].fieldId =
-                temp[logic.tempFieldId];
-            }
-          }
-        }
-        const field = await Fields.updateField(_id, {
-          ...doc,
-          lastUpdatedUserId: user._id
-        });
-        response.push(field);
+    for (const f of logicalFields) {
+      const { logics } = f;
+
+      if (!logics || logics.length === 0) {
+        continue;
       }
+
+      for (const logic of logics) {
+        if (f.logics && !logic.fieldId && logic.tempFieldId) {
+          f.logics[logics.indexOf(logic)].fieldId = temp[logic.tempFieldId];
+        }
+      }
+
+      const field = await Fields.createField({
+        ...f,
+        contentType,
+        contentTypeId,
+        lastUpdatedUserId: user._id
+      });
+
+      response.push(field);
+    }
+
+    for (const { _id, ...doc } of editingFields) {
+      if (!doc.logics || doc.logics.length === 0) {
+        continue;
+      }
+
+      for (const logic of doc.logics) {
+        if (!logic.fieldId && logic.tempFieldId) {
+          doc.logics[doc.logics.indexOf(logic)].fieldId =
+            temp[logic.tempFieldId];
+        }
+      }
+
+      const field = await Fields.updateField(_id, {
+        ...doc,
+        lastUpdatedUserId: user._id
+      });
+      response.push(field);
     }
 
     return response;

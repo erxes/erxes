@@ -132,6 +132,16 @@ class Form extends React.Component<Props, State> {
     }
   }
 
+  showField(id: string) {
+    const { doc } = this.state;
+
+    if (doc[id].isHidden) {
+      doc[id].value = '';
+      doc[id].isHidden = false;
+      this.setState({ doc });
+    }
+  }
+
   renderHead(title: string) {
     const { hasTopBar, color = '' } = this.props;
 
@@ -177,6 +187,8 @@ class Form extends React.Component<Props, State> {
           }
         }
       }
+
+      this.showField(field._id)
 
       return (
         <Field

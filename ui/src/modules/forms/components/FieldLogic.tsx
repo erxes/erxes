@@ -58,7 +58,7 @@ function FieldLogic(props: Props) {
     );
 
     const operators = getOperatorOptions();
-    onChangeLogic('logicOperator', operators[0].value, index);
+    onChangeLogic('logicOperator', operators[1].value, index);
   };
 
   const onChangeLogicOperator = e => {
