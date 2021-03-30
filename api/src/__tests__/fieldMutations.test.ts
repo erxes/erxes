@@ -1,6 +1,11 @@
 import * as faker from 'faker';
 import { graphqlRequest } from '../db/connection';
-import { fieldFactory, fieldGroupFactory, userFactory } from '../db/factories';
+import {
+  fieldFactory,
+  fieldGroupFactory,
+  formFactory,
+  userFactory
+} from '../db/factories';
 import { Fields, FieldsGroups, Users } from '../db/models';
 
 import './setup.ts';
@@ -251,6 +256,111 @@ describe('Fields mutations', () => {
 
     expect(field._id).toBe(args._id);
     expect(field.isVisible).toBe(args.isVisible);
+  });
+
+  test('fieldsBulkAddAndEdit', async () => {
+    const form = await formFactory();
+    const field1 = await fieldFactory({
+      contentType: 'form',
+      contentTypeId: form._id
+    });
+    const field2 = await fieldFactory({
+      contentType: 'form',
+      contentTypeId: form._id
+    });
+    const field3 = await fieldFactory({
+      contentType: 'form',
+      contentTypeId: form._id
+    });
+
+    const addingFields = [
+      {
+        text: '1',
+        type: 'input',
+        tempFieldId: '123'
+      },
+      {
+        text: '2',
+        type: 'input',
+        logicAction: 'show',
+        tempFieldId: '001',
+        logics: [
+          {
+            tempFieldId: '123',
+            logicOperator: 'numberigt',
+            logicValue: 10
+          },
+          {
+            fieldId: field1._id,
+            logicOperator: 'c',
+            logicValue: 'hi'
+          }
+        ]
+      }
+    ];
+
+    const editingFields = [
+      {
+        text: '3',
+        type: 'input',
+        _id: field2._id
+      },
+      {
+        text: '4',
+        type: 'input',
+        logicAction: 'show',
+        _id: field3._id,
+        logics: [
+          {
+            tempFieldId: '123',
+            logicOperator: 'numberigt',
+            logicValue: 10
+          },
+          {
+            fieldId: field2._id,
+            logicOperator: 'c',
+            logicValue: 'hi'
+          }
+        ]
+      }
+    ];
+
+    const args = {
+      contentType: 'form',
+      contentTypeId: form._id,
+      addingFields,
+      editingFields
+    };
+
+    const mutation = `
+      mutation fieldsBulkAddAndEdit($contentType: String!, $contentTypeId: String, $addingFields: [FieldItem], $editingFields: [FieldItem]) {
+        fieldsBulkAddAndEdit(contentType: $contentType
+          contentTypeId: $contentTypeId
+          addingFields: $addingFields
+          editingFields: $editingFields) {
+          _id
+          text
+        }
+      }
+    `;
+
+    await graphqlRequest(mutation, 'fieldsBulkAddAndEdit', args, context);
+
+    const fields = await Fields.find({ contentTypeId: form._id });
+
+    expect(fields.length).toBe(5);
+
+    const mutationResult = await graphqlRequest(
+      mutation,
+      'fieldsBulkAddAndEdit',
+      {
+        contentType: 'form',
+        contentTypeId: form._id
+      },
+      context
+    );
+
+    console.log(mutationResult);
   });
 
   test('Add group field', async () => {

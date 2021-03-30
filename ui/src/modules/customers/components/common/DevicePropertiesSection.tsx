@@ -39,7 +39,7 @@ class DevicePropertiesSection extends React.Component<Props> {
     const { fields, isDetail } = this.props;
     const isVisibleKey = isDetail ? 'isVisibleInDetail' : 'isVisible';
 
-    const property = fields.find(e => e.field === field);
+    const property = fields.find(e => e.type === field);
 
     if (property && !property[isVisibleKey]) {
       return null;

@@ -106,6 +106,7 @@ export const loadFieldClass = () => {
       contentType,
       contentTypeId,
       groupId,
+      groupName,
       ...fields
     }: IField) {
       const query: { [key: string]: any } = { contentType };
@@ -128,6 +129,19 @@ export const loadFieldClass = () => {
 
         if (!form) {
           throw new Error(`Form not found with _id of ${contentTypeId}`);
+        }
+
+        if (groupName) {
+          let group = await FieldsGroups.findOne({ name: groupName });
+
+          if (!group) {
+            group = await FieldsGroups.createGroup({
+              name: groupName,
+              contentType: 'form',
+              isDefinedByErxes: false
+            });
+          }
+          groupId = group._id;
         }
       }
 
@@ -363,7 +377,7 @@ export const loadFieldClass = () => {
         case FIELDS_GROUPS_CONTENT_TYPES.CUSTOMER:
           const customerFields = CUSTOMER_BASIC_INFO.ALL.map(e => ({
             text: e.label,
-            field: e.field,
+            type: e.field,
             canHide: e.canHide,
             validation: e.validation,
             groupId,
@@ -375,7 +389,7 @@ export const loadFieldClass = () => {
         case FIELDS_GROUPS_CONTENT_TYPES.COMPANY:
           const companyFields = COMPANY_INFO.ALL.map(e => ({
             text: e.label,
-            field: e.field,
+            type: e.field,
             canHide: e.canHide,
             validation: e.validation,
             groupId,
@@ -387,7 +401,7 @@ export const loadFieldClass = () => {
         case FIELDS_GROUPS_CONTENT_TYPES.PRODUCT:
           const productFields = PRODUCT_INFO.ALL.map(e => ({
             text: e.label,
-            field: e.field,
+            type: e.field,
             groupId,
             contentType,
             canHide: false,
@@ -398,7 +412,7 @@ export const loadFieldClass = () => {
         case FIELDS_GROUPS_CONTENT_TYPES.CONVERSATION:
           const conversationFields = CONVERSATION_INFO.ALL.map(e => ({
             text: e.label,
-            field: e.field,
+            type: e.field,
             groupId,
             contentType,
             isDefinedByErxes: true
@@ -408,7 +422,7 @@ export const loadFieldClass = () => {
         case FIELDS_GROUPS_CONTENT_TYPES.DEVICE:
           const deviceFields = DEVICE_PROPERTIES_INFO.ALL.map(e => ({
             text: e.label,
-            field: e.field,
+            type: e.field,
             groupId,
             contentType,
             isDefinedByErxes: true

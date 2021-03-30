@@ -1,8 +1,8 @@
 import { colors, dimensions } from 'modules/common/styles';
 import { rgba } from 'modules/common/styles/color';
-import styled from 'styled-components';
+import styled, { css } from 'styled-components';
 import styledTS from 'styled-components-ts';
-import { SelectWrapper } from '../common/components/form/styles';
+import { Formgroup, SelectWrapper } from '../common/components/form/styles';
 
 const FlexRow = styled.div`
   display: flex;
@@ -27,7 +27,7 @@ const FieldWrapper = styled.div`
   float: left;
   min-height: 110px;
   border: 1px solid ${colors.borderPrimary};
-  border-radius: 2px;
+  border-radius: 4px;
   margin-bottom: 4%;
   padding: 20px;
   transition: all ease 0.3s;
@@ -47,11 +47,33 @@ const FieldWrapper = styled.div`
   }
 `;
 
-const FieldItem = styledTS<{ selectType?: boolean; noPadding?: boolean }>(
-  styled.div
-)`
-  padding: ${props => !props.noPadding && `0 ${dimensions.unitSpacing}px`};
+const FieldsWrapper = styled.div`
+  margin: 0 -10px;
+`;
+
+const FormTop = styled.div`
+  background: ${colors.bgLightPurple};
+  margin: -25px -25px 20px -25px;
+  padding: 25px 25px 5px 25px;
+  border-bottom: 1px solid ${colors.borderPrimary};
+`;
+
+const FieldItem = styledTS<{
+  selectType?: boolean;
+  noPadding?: boolean;
+  hasLogic?: boolean;
+}>(styled.div)`
+
+  padding: ${props => !props.noPadding && `10px 10px 0 10px`};
   flex: 1;
+  border-radius: 4px;
+
+  ${props =>
+    props.hasLogic &&
+    css`
+      border: 2px solid ${colors.colorCoreTeal};
+      margin-bottom: 10px;
+    `};
 
   input,
   textarea,
@@ -72,7 +94,6 @@ const FieldItem = styledTS<{ selectType?: boolean; noPadding?: boolean }>(
     padding: 6px 15px;
     width: 100%;
 
-
     &:focus {
       border-color: ${colors.colorShadowGray};
       background: ${colors.colorWhite};
@@ -88,12 +109,22 @@ const FieldItem = styledTS<{ selectType?: boolean; noPadding?: boolean }>(
     height: auto;
   }
 
+  label {
+    margin-right: 0;
+  }
+
   .required {
     color: ${colors.colorCoreRed};
   }
 
   ${SelectWrapper} {
     margin-top: ${dimensions.unitSpacing}px;
+    height: auto;
+    border: none;
+  }
+
+  ${Formgroup} {
+    margin-bottom: 10px;
   }
 `;
 
@@ -104,7 +135,6 @@ const Options = styled.div`
 `;
 
 const LeftSection = styled.div`
-  border-right: 1px solid ${colors.borderDarker};
   padding-right: ${dimensions.coreSpacing}px;
   width: 100%;
 `;
@@ -115,11 +145,12 @@ const PreviewSection = styled.div`
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: ${dimensions.coreSpacing}px;
+  padding: ${dimensions.coreSpacing}px 0 ${dimensions.coreSpacing}px
+    ${dimensions.coreSpacing}px;
 `;
 
 const Preview = styled.div`
-  width: 80%;
+  width: 85%;
 `;
 
 const ShowPreview = styled.div`
@@ -137,8 +168,45 @@ const ShowPreview = styled.div`
 
 const Title = styled.h4`
   font-size: 16px;
-  margin-top: 10px;
+  margin: 0 0 5px;
   font-weight: 500;
+`;
+
+const LogicItem = styled.div`
+  background: ${colors.bgLight};
+  border-radius: 4px;
+  padding: 10px;
+  margin-bottom: 10px;
+  border: 1px solid ${colors.borderPrimary};
+`;
+
+const LogicRow = styled.div`
+  display: flex;
+  align-items: baseline;
+
+  button {
+    margin-left: ${dimensions.unitSpacing}px;
+    padding: 3px 6px;
+  }
+`;
+
+const RowSmall = styled.div`
+  flex: 1;
+  margin-right: ${dimensions.coreSpacing}px;
+`;
+
+const RowFill = styled.div`
+  flex: 1;
+`;
+
+const DateWrapper = styled.div`
+  input {
+    border-radius: 0;
+    border: 0;
+    border-bottom: 1px solid ${colors.borderDarker};
+    background: transparent;
+    box-shadow: none !important;
+  }
 `;
 
 export {
@@ -151,5 +219,12 @@ export {
   PreviewSection,
   FlexRow,
   FlexWrapper,
-  Title
+  Title,
+  FieldsWrapper,
+  FormTop,
+  LogicItem,
+  LogicRow,
+  RowSmall,
+  RowFill,
+  DateWrapper
 };

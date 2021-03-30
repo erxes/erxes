@@ -370,7 +370,7 @@ export const CUSTOMER_BASIC_INFO = {
   department: 'Department',
   owner: 'Owner',
   pronoun: 'Pronoun',
-  birthDay: 'Birthday',
+  birthDate: 'Birthday',
   hasAuthority: 'Has Authority',
   description: 'Description',
   doNotDisturb: 'Do not disturb',
@@ -399,7 +399,7 @@ export const CUSTOMER_BASIC_INFO = {
     { field: 'doNotDisturb', label: 'Do not disturb', canHide: true },
     { field: 'owner', label: 'Owner', canHide: true },
     { field: 'pronoun', label: 'Pronoun', canHide: true },
-    { field: 'birthDay', label: 'Birthday', canHide: true },
+    { field: 'birthDate', label: 'Birthday', canHide: true },
     { field: 'code', label: 'Code', canHide: true }
   ]
 };
@@ -409,7 +409,7 @@ export const COMPANY_INFO = {
   code: 'Code',
   primaryName: 'Primary Name',
   size: 'Size',
-  industry: 'Industry',
+  industry: 'Industries',
   plan: 'Plan',
   primaryEmail: 'Primary Email',
   primaryPhone: 'Primary Phone',
@@ -433,7 +433,7 @@ export const COMPANY_INFO = {
       canHide: false
     },
     { field: 'size', label: 'Size' },
-    { field: 'industry', label: 'Industry' },
+    { field: 'industry', label: 'Industries' },
     { field: 'plan', label: 'Plan' },
     { field: 'owner', label: 'Owner', canHide: true },
     { field: 'businessType', label: 'Business Type', canHide: true },
