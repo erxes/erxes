@@ -1,6 +1,6 @@
 import { QueryBuilder } from '@cubejs-client/react';
 import { Card, Col, Divider, Empty, Menu, Row } from 'antd';
-import { schemaTypes } from 'modules/dashboard/constants';
+import { propertyTypes, schemaTypes } from 'modules/dashboard/constants';
 import React from 'react';
 import styled from 'styled-components';
 import ChartRenderer from '../ChartRenderer';
@@ -91,7 +91,7 @@ class ExploreQueryBuilder extends React.Component<Props> {
           updateFilters
         }) => {
           const renderMeasere = () => {
-            if (type !== 'CustomerFields') {
+            if (!propertyTypes.includes(type || '')) {
               return (
                 <>
                   <FilterItem>
@@ -113,7 +113,7 @@ class ExploreQueryBuilder extends React.Component<Props> {
           };
 
           const renderChartTypeChooser = () => {
-            if (type !== 'CustomerFields') {
+            if (!propertyTypes.includes(type || '')) {
               return (
                 <SelectType>
                   <SelectChartType

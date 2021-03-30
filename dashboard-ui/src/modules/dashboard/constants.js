@@ -1,14 +1,17 @@
 export const schemaTypes = [
   'Customers',
-  'CustomerFields',
+  'CustomerProperties',
   'Leads',
   'Visitors',
   'Companies',
   'Conversations',
+  'ConversationProperties',
   'Deals',
   'Tasks',
   'Tickets'
 ];
+
+export const propertyTypes = ['ConversationProperties', 'CustomerProperties'];
 
 export const chartTypeWithoutDeminsions = [
   {

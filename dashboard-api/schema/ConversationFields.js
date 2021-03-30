@@ -11,53 +11,36 @@ const client = new elasticsearch.Client({
 asyncModule(async () => {
   const dimensions = [
     {
-      field: `brand`,
-      sql: 'integrationId',
+      field: `customerFirstName`,
+      sql: 'customerId',
       type: `string`
     },
     {
-      field: `status`,
-      sql: 'status',
+      field: `customerLastName`,
+      sql: 'customerId',
       type: `string`
     },
     {
-      field: `tag`,
-      sql: `tagIds`,
-      type: `string`
-    },
-    {
-      field: `firstName`,
-      sql: 'firstName',
-      type: `string`
-    },
-    {
-      field: `lastName`,
-      sql: 'lastName',
-      type: `string`
-    },
-    {
-      field: `email`,
-      sql: 'primaryEmail',
-      type: `string`
-    },
-    {
-      field: `country`,
-      sql: 'location.country',
-      type: `string`
-    },
-    {
-      field: `city`,
-      sql: 'location.city',
+      field: `firstRespondedUser`,
+      sql: 'firstRespondedUserId',
       type: `string`
     },
     {
       field: 'createdDate',
       sql: 'createdAt',
       type: `time`
+    },
+    {
+      field: 'closedDate',
+      sql: 'closedAt',
+      type: `time`
+    },
+    {
+      field: 'firstRespondedDate',
+      sql: 'firstRespondedDate',
+      type: `time`
     }
   ];
-
-  const should = [];
 
   const fieldGroups = await client.search({
     index: 'erxes__fields_groups',
@@ -65,7 +48,7 @@ asyncModule(async () => {
       query: {
         bool: {
           should: [
-            { match: { contentType: 'customer' } },
+            { match: { contentType: 'conversation' } },
             { match: { isDefinedByErxes: false } }
           ]
         }
@@ -75,17 +58,11 @@ asyncModule(async () => {
 
   const fieldGroupIds = fieldGroups.hits.hits.map(hit => hit._id);
 
-  fieldGroupIds.map(groupId => {
-    should.push({ match: { groupId: groupId } });
-  });
-
   const result = await client.search({
     index: 'erxes__fields',
     body: {
       query: {
-        bool: {
-          should
-        }
+        terms: { groupId: fieldGroupIds }
       }
     }
   });
@@ -107,8 +84,8 @@ asyncModule(async () => {
     });
   });
 
-  cube('CustomerProperties', {
-    sql: `SELECT * FROM ${tableSchema()}__customers WHERE state='customer'`,
+  cube('ConversationProperties', {
+    sql: `SELECT * FROM ${tableSchema()}__conversations`,
 
     dimensions: Object.assign(
       dimensions

@@ -1,4 +1,5 @@
 import Icon from 'modules/common/components/Icon';
+import { propertyTypes } from 'modules/dashboard/constants';
 import React from 'react';
 import MemberDropdown from './MemberDropdown';
 import RemoveButtonGroup from './RemoveButtonGroup';
@@ -23,7 +24,7 @@ class MemberGroup extends React.Component<Props> {
     } = this.props;
 
     if (members.length > 0) {
-      if (!type.includes('CustomerFields')) {
+      if (!propertyTypes.includes(type || '')) {
         return null;
       }
     }
