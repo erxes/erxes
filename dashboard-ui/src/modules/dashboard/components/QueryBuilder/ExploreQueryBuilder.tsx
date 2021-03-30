@@ -1,6 +1,6 @@
 import { QueryBuilder } from '@cubejs-client/react';
 import { Card, Col, Divider, Empty, Menu, Row } from 'antd';
-import { schemaTypes } from 'modules/dashboard/constants';
+import { propertyTypes, schemaTypes } from 'modules/dashboard/constants';
 import React from 'react';
 import styled from 'styled-components';
 import ChartRenderer from '../ChartRenderer';
@@ -60,7 +60,7 @@ class ExploreQueryBuilder extends React.Component<Props> {
       <Menu>
         {schemaTypes.map(schemaType => (
           <Menu.Item key={schemaType} onClick={() => setType(schemaType)}>
-            {schemaType}
+            {schemaType.replace(/([A-Z])/g, ' $1').trim()}
           </Menu.Item>
         ))}
       </Menu>
@@ -90,6 +90,43 @@ class ExploreQueryBuilder extends React.Component<Props> {
           filters,
           updateFilters
         }) => {
+          const renderMeasere = () => {
+            if (!propertyTypes.includes(type || '')) {
+              return (
+                <>
+                  <FilterItem>
+                    <Label>Measure</Label>
+                    <MemberGroup
+                      type={type || ''}
+                      memberGroupType="measure"
+                      members={measures}
+                      availableMembers={availableMeasures}
+                      addMemberName="Measure"
+                      updateMethods={updateMeasures}
+                    />
+                  </FilterItem>
+                  <StyledDivider type="vertical" />
+                </>
+              );
+            }
+            return;
+          };
+
+          const renderChartTypeChooser = () => {
+            if (!propertyTypes.includes(type || '')) {
+              return (
+                <SelectType>
+                  <SelectChartType
+                    chartType={chartType}
+                    updateChartType={updateChartType}
+                    query={validatedQuery}
+                  />
+                </SelectType>
+              );
+            }
+            return;
+          };
+
           return (
             <>
               <ShadowedHeader>
@@ -106,18 +143,8 @@ class ExploreQueryBuilder extends React.Component<Props> {
                       <StyledDivider type="vertical" />
                       {type ? (
                         <>
-                          <FilterItem>
-                            <Label>Measure</Label>
-                            <MemberGroup
-                              type={type}
-                              memberGroupType="measure"
-                              members={measures}
-                              availableMembers={availableMeasures}
-                              addMemberName="Measure"
-                              updateMethods={updateMeasures}
-                            />
-                          </FilterItem>
-                          <StyledDivider type="vertical" />
+                          {renderMeasere()}
+
                           <FilterItem>
                             <Label>Dimension</Label>
                             <MemberGroup
@@ -173,13 +200,8 @@ class ExploreQueryBuilder extends React.Component<Props> {
 
               {isQueryPresent ? (
                 <ChartWraper>
-                  <SelectType>
-                    <SelectChartType
-                      chartType={chartType}
-                      updateChartType={updateChartType}
-                      query={validatedQuery}
-                    />
-                  </SelectType>
+                  {renderChartTypeChooser()}
+
                   <ChartCard>
                     <ChartRenderer
                       query={validatedQuery}

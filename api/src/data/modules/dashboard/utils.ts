@@ -48,7 +48,6 @@ export const getIntegrations = async () => {
 };
 
 export const getTags = async type => {
-  console.log(type);
   return Tags.aggregate([
     { $match: { type } },
     {
