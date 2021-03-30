@@ -246,6 +246,9 @@ func main() {
 	putTemplate("deals", itemTemplate)
 	putTemplate("tasks", itemTemplate)
 	putTemplate("tickets", itemTemplate)
+	putTemplate("conversations", fmt.Sprintf(`{
+    	"customFieldsData" : %s
+	}`, nested_type))
 
 
 
