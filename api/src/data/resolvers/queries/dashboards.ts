@@ -50,7 +50,6 @@ const dashBoardQueries = {
   },
 
   async dashboardFilters(_root, { type }: { type: string }) {
-    console.log(type);
     const filters = DashboardFilters[type];
 
     const shemaType = type.split('.')[0];
