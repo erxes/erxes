@@ -115,7 +115,7 @@ asyncModule(async () => {
         .map(e => {
           if (e.customField === true) {
             return {
-              [`${e.text}${e._id}CUSTOM`]: {
+              [`CUSTOM${e._id}`]: {
                 sql: `${CUBE}."ownId"`,
                 type: `string`,
                 title: e.title
