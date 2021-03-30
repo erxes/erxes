@@ -1,7 +1,6 @@
 import * as strip from 'strip';
 import * as _ from 'underscore';
 import {
-  ActivityLogs,
   Conformities,
   ConversationMessages,
   Conversations,
@@ -700,7 +699,7 @@ const conversationMutations = {
 
       item.userId = user._id;
 
-      await ActivityLogs.createBoardItemLog({ item, contentType: type });
+      // await ActivityLogs.createBoardItemLog({ item, contentType: type });
 
       const relTypeIds: string[] = [];
 

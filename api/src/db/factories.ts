@@ -4,7 +4,6 @@ import * as Random from 'meteor-random';
 import * as momentTz from 'moment-timezone';
 import { FIELDS_GROUPS_CONTENT_TYPES } from '../data/constants';
 import {
-  ActivityLogs,
   Boards,
   Brands,
   CalendarBoards,
@@ -112,17 +111,13 @@ interface IActivityLogFactoryInput {
 
 export const activityLogFactory = async (
   params: IActivityLogFactoryInput = {}
-) => {
-  const activity = new ActivityLogs({
-    contentType: params.contentType || 'customer',
-    action: params.action || 'create',
-    contentId: params.contentId || faker.random.uuid(),
-    content: params.content || 'content',
-    createdBy: params.createdBy || faker.random.uuid()
-  });
-
-  return activity.save();
-};
+) => ({
+  contentType: params.contentType || 'customer',
+  action: params.action || 'create',
+  contentId: params.contentId || faker.random.uuid(),
+  content: params.content || 'content',
+  createdBy: params.createdBy || faker.random.uuid()
+});
 
 interface IDashboardFactoryInput {
   name?: string;

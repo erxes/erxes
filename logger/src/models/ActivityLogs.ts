@@ -1,12 +1,64 @@
-import { Model, model } from 'mongoose';
-import {
-  activityLogSchema,
-  IActivityLogDocument,
-  IActivityLogInput
-} from './definitions/activityLogs';
-import { IItemCommonFieldsDocument } from './definitions/boards';
-import { ACTIVITY_ACTIONS } from './definitions/constants';
-import { ISegmentDocument } from './definitions/segments';
+import { Document, Model, model, Schema } from 'mongoose';
+import { IItemCommonFieldsDocument } from '../../../api/src/db/models/definitions/boards';
+import { ISegmentDocument } from '../../../api/src/db/models/definitions/segments';
+import { field } from './Logs';
+
+const ACTIVITY_ACTIONS = {
+  CREATE: 'create',
+  UPDATE: 'update',
+  DELETE: 'delete',
+  MERGE: 'merge',
+  SEND: 'send',
+  MOVED: 'moved',
+  CONVERT: 'convert',
+  ASSIGNEE: 'assignee',
+
+  ALL: [
+    'create',
+    'update',
+    'delete',
+    'merge',
+    'send',
+    'moved',
+    'convert',
+    'assignee'
+  ]
+};
+
+export interface IActivityLogInput {
+  action: string;
+  content?: any;
+  contentType: string;
+  contentId: string;
+  createdBy: string;
+}
+
+export interface IActivityLog {
+  action: string;
+  content?: any;
+  contentType: string;
+  contentId: string;
+  createdBy: string;
+}
+
+export interface IActivityLogDocument extends IActivityLog, Document {
+  _id: string;
+  createdAt: Date;
+}
+
+export const activityLogSchema = new Schema({
+  _id: field({ pkey: true }),
+  contentId: field({ type: String, index: true }),
+  contentType: field({ type: String, index: true }),
+  action: field({ type: String, index: true }),
+  content: Schema.Types.Mixed,
+  createdBy: field({ type: String }),
+  createdAt: field({
+    type: Date,
+    required: true,
+    default: Date.now
+  })
+});
 
 interface IAssigneeParams {
   contentId: string;

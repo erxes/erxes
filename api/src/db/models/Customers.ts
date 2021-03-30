@@ -2,7 +2,6 @@ import { Model, model } from 'mongoose';
 import { validSearchText } from '../../data/utils';
 import { validateSingle } from '../../data/verifierUtils';
 import {
-  ActivityLogs,
   Conformities,
   Conversations,
   EngageMessages,
@@ -254,10 +253,10 @@ export const loadClass = () => {
         modifiedAt: new Date()
       });
 
-      await ActivityLogs.createCocLog({
-        coc: customer,
-        contentType: 'customer'
-      });
+      // await ActivityLogs.createCocLog({
+      //   coc: customer,
+      //   contentType: 'customer'
+      // });
 
       return customer._id;
     }
@@ -320,10 +319,10 @@ export const loadClass = () => {
         validateSingle({ phone: doc.primaryPhone });
       }
 
-      await ActivityLogs.createCocLog({
-        coc: customer,
-        contentType: 'customer'
-      });
+      // await ActivityLogs.createCocLog({
+      //   coc: customer,
+      //   contentType: 'customer'
+      // });
 
       return Customers.getCustomer(customer._id);
     }
@@ -474,10 +473,10 @@ export const loadClass = () => {
      */
     public static async removeCustomers(customerIds: string[]) {
       // Removing every modules that associated with customer
-      await ActivityLogs.removeActivityLogs(
-        ACTIVITY_CONTENT_TYPES.CUSTOMER,
-        customerIds
-      );
+      // await ActivityLogs.removeActivityLogs(
+      //   ACTIVITY_CONTENT_TYPES.CUSTOMER,
+      //   customerIds
+      // );
       await Conversations.removeCustomersConversations(customerIds);
       await EngageMessages.removeCustomersEngages(customerIds);
       await InternalNotes.removeInternalNotes(

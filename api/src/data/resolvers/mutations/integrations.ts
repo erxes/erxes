@@ -1,7 +1,6 @@
 import * as telemetry from 'erxes-telemetry';
 import { getUniqueValue } from '../../../db/factories';
 import {
-  ActivityLogs,
   Channels,
   Customers,
   EmailDeliveries,
@@ -10,8 +9,8 @@ import {
   Integrations
 } from '../../../db/models';
 import {
-  ACTIVITY_ACTIONS,
-  ACTIVITY_CONTENT_TYPES,
+  // ACTIVITY_ACTIONS,
+  // ACTIVITY_CONTENT_TYPES,
   KIND_CHOICES
 } from '../../../db/models/definitions/constants';
 import {
@@ -560,7 +559,7 @@ const integrationMutations = {
   async integrationsSendSms(
     _root,
     args: ISmsParams,
-    { dataSources, user }: IContext
+    { dataSources }: IContext
   ) {
     const customer = await Customers.findOne({ primaryPhone: args.to });
 
@@ -573,13 +572,13 @@ const integrationMutations = {
 
     const response = await dataSources.IntegrationsAPI.sendSms(args);
 
-    await ActivityLogs.addActivityLog({
-      action: ACTIVITY_ACTIONS.SEND,
-      contentType: ACTIVITY_CONTENT_TYPES.SMS,
-      createdBy: user._id,
-      contentId: customer._id,
-      content: { to: args.to, text: args.content }
-    });
+    // await ActivityLogs.addActivityLog({
+    //   action: ACTIVITY_ACTIONS.SEND,
+    //   contentType: ACTIVITY_CONTENT_TYPES.SMS,
+    //   createdBy: user._id,
+    //   contentId: customer._id,
+    //   content: { to: args.to, text: args.content }
+    // });
 
     return response;
   },

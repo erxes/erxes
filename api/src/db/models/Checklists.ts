@@ -1,6 +1,5 @@
 import { Model, model } from 'mongoose';
 
-import ActivityLogs from './ActivityLogs';
 import {
   checklistItemSchema,
   checklistSchema,
@@ -89,11 +88,11 @@ export const loadClass = () => {
         ...fields
       });
 
-      ActivityLogs.createChecklistLog({
-        item: checklist,
-        contentType: 'checklist',
-        action: 'create'
-      });
+      // ActivityLogs.createChecklistLog({
+      //   item: checklist,
+      //   contentType: 'checklist',
+      //   action: 'create'
+      // });
 
       return checklist;
     }
@@ -121,11 +120,11 @@ export const loadClass = () => {
         checklistId: checklistObj._id
       });
 
-      ActivityLogs.createChecklistLog({
-        item: checklistObj,
-        contentType: 'checklist',
-        action: 'delete'
-      });
+      // ActivityLogs.createChecklistLog({
+      //   item: checklistObj,
+      //   contentType: 'checklist',
+      //   action: 'delete'
+      // });
 
       return checklistObj.remove();
     }
@@ -165,11 +164,11 @@ export const loadItemClass = () => {
         ...fields
       });
 
-      await ActivityLogs.createChecklistLog({
-        item: checklistItem,
-        contentType: 'checklistItem',
-        action: 'create'
-      });
+      // await ActivityLogs.createChecklistLog({
+      //   item: checklistItem,
+      //   contentType: 'checklistItem',
+      //   action: 'create'
+      // });
 
       return checklistItem;
     }
@@ -181,13 +180,13 @@ export const loadItemClass = () => {
       await ChecklistItems.updateOne({ _id }, { $set: doc });
 
       const checklistItem = await ChecklistItems.findOne({ _id });
-      const activityAction = doc.isChecked ? 'checked' : 'unChecked';
+      // const activityAction = doc.isChecked ? 'checked' : 'unChecked';
 
-      await ActivityLogs.createChecklistLog({
-        item: checklistItem,
-        contentType: 'checklistItem',
-        action: activityAction
-      });
+      // await ActivityLogs.createChecklistLog({
+      //   item: checklistItem,
+      //   contentType: 'checklistItem',
+      //   action: activityAction
+      // });
 
       return checklistItem;
     }
@@ -202,11 +201,11 @@ export const loadItemClass = () => {
         throw new Error(`Checklist's item not found with id ${_id}`);
       }
 
-      await ActivityLogs.createChecklistLog({
-        item: checklistItem,
-        contentType: 'checklistItem',
-        action: 'delete'
-      });
+      // await ActivityLogs.createChecklistLog({
+      //   item: checklistItem,
+      //   contentType: 'checklistItem',
+      //   action: 'delete'
+      // });
 
       return checklistItem.remove();
     }

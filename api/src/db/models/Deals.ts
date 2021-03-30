@@ -1,5 +1,4 @@
 import { Model, model } from 'mongoose';
-import { ActivityLogs } from '.';
 import {
   destroyBoardItemRelations,
   fillSearchTextItem,
@@ -50,10 +49,10 @@ export const loadDealClass = () => {
       });
 
       // create log
-      await ActivityLogs.createBoardItemLog({
-        item: deal,
-        contentType: 'deal'
-      });
+      // await ActivityLogs.createBoardItemLog({
+      //   item: deal,
+      //   contentType: 'deal'
+      // });
 
       return deal;
     }

@@ -1,5 +1,4 @@
 import { Model, model } from 'mongoose';
-import { ActivityLogs } from '.';
 import {
   destroyBoardItemRelations,
   fillSearchTextItem,
@@ -53,10 +52,10 @@ export const loadTicketClass = () => {
       });
 
       // create log
-      await ActivityLogs.createBoardItemLog({
-        item: ticket,
-        contentType: 'ticket'
-      });
+      // await ActivityLogs.createBoardItemLog({
+      //   item: ticket,
+      //   contentType: 'ticket'
+      // });
 
       return ticket;
     }

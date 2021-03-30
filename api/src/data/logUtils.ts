@@ -119,6 +119,11 @@ export interface ILogQueryParams {
   type?: string;
 }
 
+export interface IActivityLogQueryParams {
+  contentId?: any;
+  contentType?: string;
+}
+
 interface IDescriptions {
   description?: string;
   extraDesc?: LogDesc[];
@@ -1519,6 +1524,23 @@ export const fetchLogs = (params: ILogQueryParams) => {
   );
 };
 
+/**
+ * Sends a request to logs api
+ * @param {Object} param0 Request
+ */
+export const fetchActivityLogs = (params: IActivityLogQueryParams) => {
+  const LOGS_DOMAIN = getSubServiceDomain({ name: 'LOGS_API_DOMAIN' });
+
+  return sendRequest(
+    {
+      url: `${LOGS_DOMAIN}/activityLogs`,
+      method: 'get',
+      body: { params: JSON.stringify(params) }
+    },
+    'Failed to connect to logs api. Check whether LOGS_API_DOMAIN env is missing or logs api is not running'
+  );
+};
+
 export const sendToVisitorLog = async (params: IVisitorLogParams, action) => {
   const LOGS_DOMAIN = getSubServiceDomain({ name: 'LOGS_API_DOMAIN' });
   try {
@@ -1569,5 +1591,13 @@ export const getVisitorLog = async visitorId => {
   } catch (e) {
     debugError('Logger is not running. Error: ', e.message);
     throw new Error(e.message);
+  }
+};
+
+export const putActivityLog = async (params: any) => {
+  try {
+    return messageBroker().sendMessage('putActivityLog', params);
+  } catch (e) {
+    return e.message;
   }
 };

@@ -1,11 +1,5 @@
 import { Model, model } from 'mongoose';
-import {
-  ActivityLogs,
-  Checklists,
-  Conformities,
-  Forms,
-  InternalNotes
-} from './';
+import { Checklists, Conformities, Forms, InternalNotes } from './';
 import { getCollection, updateOrder, watchItem } from './boardUtils';
 import {
   boardSchema,
@@ -53,7 +47,7 @@ const removeItems = async (type: string, stageIds: string[]) => {
   );
   const itemIds = items.map(i => i._id);
 
-  await ActivityLogs.removeActivityLogs(type, itemIds);
+  // await ActivityLogs.removeActivityLogs(type, itemIds);
   await Checklists.removeChecklists(type, itemIds);
   await Conformities.removeConformities({
     mainType: type,

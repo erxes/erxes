@@ -1,11 +1,5 @@
 import resolvers from '..';
-import {
-  ActivityLogs,
-  Boards,
-  Notifications,
-  Pipelines,
-  Stages
-} from '../../../db/models';
+import { Boards, Notifications, Pipelines, Stages } from '../../../db/models';
 import {
   destroyBoardItemRelations,
   getCollection,
@@ -255,12 +249,12 @@ export const itemsEdit = async (
   if (doc.status && oldItem.status && oldItem.status !== doc.status) {
     const activityAction = doc.status === 'active' ? 'activated' : 'archived';
 
-    await ActivityLogs.createArchiveLog({
-      item: updatedItem,
-      contentType: type,
-      action: activityAction,
-      userId: user._id
-    });
+    // await ActivityLogs.createArchiveLog({
+    //   item: updatedItem,
+    //   contentType: type,
+    //   action: activityAction,
+    //   userId: user._id
+    // });
 
     // order notification
     await changeItemStatus({
@@ -278,14 +272,14 @@ export const itemsEdit = async (
       doc.assignedUserIds
     );
 
-    const activityContent = { addedUserIds, removedUserIds };
+    // const activityContent = { addedUserIds, removedUserIds };
 
-    await ActivityLogs.createAssigneLog({
-      contentId: _id,
-      userId: user._id,
-      contentType: type,
-      content: activityContent
-    });
+    // await ActivityLogs.createAssigneLog({
+    //   contentId: _id,
+    //   userId: user._id,
+    //   contentType: type,
+    //   content: activityContent
+    // });
 
     notificationDoc.invitedUsers = addedUserIds;
     notificationDoc.removedUsers = removedUserIds;
@@ -346,7 +340,7 @@ export const itemsEdit = async (
 };
 
 export const itemMover = async (
-  userId: string,
+  _userId: string,
   item: IDealDocument | ITaskDocument | ITicketDocument | IGrowthHackDocument,
   contentType: string,
   destinationStageId: string
@@ -370,18 +364,18 @@ export const itemMover = async (
 
     content = `${board.name}-${pipeline.name}-${stage.name}`;
 
-    const activityLogContent = {
-      oldStageId,
-      destinationStageId,
-      text: `${oldStage.name} to ${stage.name}`
-    };
+    // const activityLogContent = {
+    //   oldStageId,
+    //   destinationStageId,
+    //   text: `${oldStage.name} to ${stage.name}`
+    // };
 
-    ActivityLogs.createBoardItemMovementLog(
-      item,
-      contentType,
-      userId,
-      activityLogContent
-    );
+    // ActivityLogs.createBoardItemMovementLog(
+    //   item,
+    //   contentType,
+    //   userId,
+    //   activityLogContent
+    // );
 
     const link = `/${contentType}/board?id=${board._id}&pipelineId=${pipeline._id}&itemId=${item._id}`;
 
@@ -557,7 +551,7 @@ export const itemsArchive = async (
   stageId: string,
   type: string,
   proccessId: string,
-  user: IUserDocument
+  _user: IUserDocument
 ) => {
   const { collection } = getCollection(type);
 
@@ -575,12 +569,12 @@ export const itemsArchive = async (
   const stage = await Stages.getStage(stageId);
 
   for (const item of items) {
-    await ActivityLogs.createArchiveLog({
-      item,
-      contentType: type,
-      action: 'archived',
-      userId: user._id
-    });
+    // await ActivityLogs.createArchiveLog({
+    //   item,
+    //   contentType: type,
+    //   action: 'archived',
+    //   userId: user._id
+    // });
 
     graphqlPubsub.publish('pipelinesChanged', {
       pipelinesChanged: {

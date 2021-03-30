@@ -2,7 +2,7 @@ import * as dotenv from 'dotenv';
 import * as schedule from 'node-schedule';
 import { fetchBySegments } from '../data/modules/segments/queryBuilder';
 import { connect } from '../db/connection';
-import { ActivityLogs, Companies, Customers, Segments } from '../db/models';
+import { Companies, Customers, Segments } from '../db/models';
 
 /**
  * Send conversation messages to customer
@@ -18,13 +18,16 @@ export const createActivityLogsFromSegments = async () => {
 
     const customers = await Customers.find({ _id: { $in: ids } }, { _id: 1 });
     const customerIds = customers.map(c => c._id);
+    console.log('customerIds: ', customerIds);
 
     const companies = await Companies.find({ _id: { $in: ids } }, { _id: 1 });
     const companyIds = companies.map(c => c._id);
 
-    await ActivityLogs.createSegmentLog(segment, customerIds, 'customer');
+    console.log('companyIds: ', companyIds);
 
-    await ActivityLogs.createSegmentLog(segment, companyIds, 'company');
+    // await ActivityLogs.createSegmentLog(segment, customerIds, 'customer');
+
+    // await ActivityLogs.createSegmentLog(segment, companyIds, 'company');
   }
 };
 

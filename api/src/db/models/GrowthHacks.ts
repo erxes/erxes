@@ -1,5 +1,4 @@
 import { Model, model } from 'mongoose';
-import { ActivityLogs } from '.';
 import { fillSearchTextItem, watchItem } from './boardUtils';
 import {
   growthHackSchema,
@@ -43,10 +42,10 @@ export const loadGrowthHackClass = () => {
       });
 
       // create log
-      await ActivityLogs.createBoardItemLog({
-        item: growthHack,
-        contentType: 'growtHack'
-      });
+      // await ActivityLogs.createBoardItemLog({
+      //   item: growthHack,
+      //   contentType: 'growtHack'
+      // });
 
       return growthHack;
     }

@@ -1,5 +1,4 @@
 import {
-  ActivityLogs,
   Checklists,
   Companies,
   Conformities,
@@ -274,7 +273,7 @@ export const destroyBoardItemRelations = async (
   contentTypeId: string,
   contentType: string
 ) => {
-  await ActivityLogs.removeActivityLog(contentTypeId);
+  // await ActivityLogs.removeActivityLog(contentTypeId);
   await Checklists.removeChecklists(contentType, [contentTypeId]);
   await Conformities.removeConformity({
     mainType: contentType,
