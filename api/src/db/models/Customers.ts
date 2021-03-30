@@ -325,15 +325,6 @@ export const loadClass = () => {
         contentType: 'customer'
       });
 
-      await Customers.update(
-        { _id: customer._id },
-        { $set: { ownId: customer._id } }
-      );
-
-      const xxa = await Customers.getCustomer(customer._id);
-
-      console.log(xxa);
-
       return Customers.getCustomer(customer._id);
     }
 

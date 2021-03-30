@@ -11,53 +11,48 @@ const client = new elasticsearch.Client({
 asyncModule(async () => {
   const dimensions = [
     {
-      field: `customerFirstName`,
-      sql: 'customerId',
-      type: `string`
-    },
-    {
-      field: `customerLastName`,
-      sql: 'customerId',
-      type: `string`
-    },
-    {
-      field: `customerEmail`,
-      sql: 'customerId',
-      type: `string`
-    },
-    {
-      field: `firstRespondedUser`,
-      sql: 'firstRespondedUserId',
-      type: `string`
-    },
-    {
-      field: 'integrationName',
+      field: `brand`,
       sql: 'integrationId',
       type: `string`
     },
     {
-      field: 'integrationType',
-      sql: 'integrationId',
+      field: `status`,
+      sql: 'status',
       type: `string`
     },
     {
-      field: 'tag',
-      sql: 'tagIds',
+      field: `tag`,
+      sql: `tagIds`,
+      type: `string`
+    },
+    {
+      field: `firstName`,
+      sql: 'firstName',
+      type: `string`
+    },
+    {
+      field: `lastName`,
+      sql: 'lastName',
+      type: `string`
+    },
+    {
+      field: `email`,
+      sql: 'primaryEmail',
+      type: `string`
+    },
+    {
+      field: `country`,
+      sql: 'location.country',
+      type: `string`
+    },
+    {
+      field: `city`,
+      sql: 'location.city',
       type: `string`
     },
     {
       field: 'createdDate',
       sql: 'createdAt',
-      type: `time`
-    },
-    {
-      field: 'closedDate',
-      sql: 'closedAt',
-      type: `time`
-    },
-    {
-      field: 'firstRespondedDate',
-      sql: 'firstRespondedDate',
       type: `time`
     }
   ];
@@ -70,7 +65,7 @@ asyncModule(async () => {
       query: {
         bool: {
           should: [
-            { match: { contentType: 'conversation' } },
+            { match: { contentType: 'customer' } },
             { match: { isDefinedByErxes: false } }
           ]
         }
@@ -112,8 +107,8 @@ asyncModule(async () => {
     });
   });
 
-  cube('ConversationProperties', {
-    sql: `SELECT * FROM ${tableSchema()}__conversations`,
+  cube('LeadsProperties', {
+    sql: `SELECT * FROM ${tableSchema()}__customers WHERE state='lead'`,
 
     dimensions: Object.assign(
       dimensions

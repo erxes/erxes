@@ -9,15 +9,11 @@ import (
 	"strings"
 
 	"github.com/olivere/elastic"
-
-	"go.mongodb.org/mongo-driver/bson"
-	"go.mongodb.org/mongo-driver/bson/primitive"
-	"go.mongodb.org/mongo-driver/mongo"
-	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
 func putTemplate(indexSuffix string, mapping string) {
 	elasticsearchURL := os.Getenv("ELASTICSEARCH_URL")
+	dbName := os.Getenv("DB_NAME")
 
 	client, err := elastic.NewSimpleClient(elastic.SetURL(elasticsearchURL))
 
@@ -40,7 +36,7 @@ func putTemplate(indexSuffix string, mapping string) {
 
 	var bodyString = fmt.Sprintf(`
 	{
-			"index_patterns": ["erxes__%s"],
+			"index_patterns": ["%s__%s"],
 			"settings": {
 				"analysis": %s,
 				"number_of_shards": 1,
@@ -50,7 +46,7 @@ func putTemplate(indexSuffix string, mapping string) {
 				"properties": %s
 			}
 		}
-	`, indexSuffix, analysis, mapping)
+	`,dbName, indexSuffix, analysis, mapping)
 
 	putResponse, err := client.IndexPutTemplate(indexSuffix).BodyString(bodyString).Do(context.Background())
 
@@ -64,13 +60,12 @@ func putTemplate(indexSuffix string, mapping string) {
 func main() {
 	mongoURL := os.Getenv("MONGO_URL")
 	elasticsearchURL := os.Getenv("ELASTICSEARCH_URL")
+	dbName := os.Getenv("DB_NAME")
 
-	log.Println("sjdklajdklsjkl")
 
 	fmt.Println("Mongo url ", mongoURL)
 	fmt.Println("Elasticsearch url ", elasticsearchURL)
-
-	var ctx = context.TODO()
+	fmt.Println("Db name ", dbName)
 
 	var nested_type = `{
 		"type" : "nested",
@@ -252,31 +247,7 @@ func main() {
 	putTemplate("tasks", itemTemplate)
 	putTemplate("tickets", itemTemplate)
 
-	// // Set client options
-	// clientOptions := options.Client().ApplyURI(coreMongoURL)
 
-	// // Connect to MongoDB
-	// client, err := mongo.Connect(ctx, clientOptions)
-
-	// if err != nil {
-	// 	log.Fatal(err)
-	// }
-
-	// defer client.Disconnect(ctx)
-
-	// organizationsCollection := client.Database("erxes_core").Collection("organizations")
-
-	// findOptions := options.Find()
-
-	// cursor, err := organizationsCollection.Find(ctx, bson.M{}, findOptions)
-
-	// type Organization struct {
-	// 	ID primitive.ObjectID `bson:"_id"`
-	// }
-
-	// var organizations []Organization
-
-	// cursor.All(ctx, &organizations)
 
 	f, _ := os.Create("mongo-elastic.toml")
 
@@ -291,22 +262,24 @@ func main() {
 	var namespaces []string
 
 
-		namespaces = append(namespaces, fmt.Sprintf(`"erxes_%s.customers"`))
-		namespaces = append(namespaces, fmt.Sprintf(`"erxes_%s.companies"`))
-		namespaces = append(namespaces, fmt.Sprintf(`"erxes_%s.conversations"`))
-		namespaces = append(namespaces, fmt.Sprintf(`"erxes_%s.integrations"`))
-		namespaces = append(namespaces, fmt.Sprintf(`"erxes_%s.deals"`))
-		namespaces = append(namespaces, fmt.Sprintf(`"erxes_%s.tickets"`))
-		namespaces = append(namespaces, fmt.Sprintf(`"erxes_%s.tasks"`))
-		namespaces = append(namespaces, fmt.Sprintf(`"erxes_%s.channels"`))
-		namespaces = append(namespaces, fmt.Sprintf(`"erxes_%s.users"`))
-		namespaces = append(namespaces, fmt.Sprintf(`"erxes_%s.stages"`))
-		namespaces = append(namespaces, fmt.Sprintf(`"erxes_%s.pipelines"`))
-		namespaces = append(namespaces, fmt.Sprintf(`"erxes_%s.brands"`))
-		namespaces = append(namespaces, fmt.Sprintf(`"erxes_%s.segments"`))
-		namespaces = append(namespaces, fmt.Sprintf(`"erxes_%s.conversation_messages"`))
-		namespaces = append(namespaces, fmt.Sprintf(`"erxes_%s.engage_messages"`))
-		namespaces = append(namespaces, fmt.Sprintf(`"erxes_%s.tags"`))
+		namespaces = append(namespaces, fmt.Sprintf(`"%s.customers"`, dbName))
+		namespaces = append(namespaces, fmt.Sprintf(`"%s.companies"`, dbName))
+		namespaces = append(namespaces, fmt.Sprintf(`"%s.conversations"`, dbName))
+		namespaces = append(namespaces, fmt.Sprintf(`"%s.integrations"`, dbName))
+		namespaces = append(namespaces, fmt.Sprintf(`"%s.deals"`, dbName))
+		namespaces = append(namespaces, fmt.Sprintf(`"%s.tickets"`, dbName))
+		namespaces = append(namespaces, fmt.Sprintf(`"%s.tasks"`, dbName))
+		namespaces = append(namespaces, fmt.Sprintf(`"%s.channels"`, dbName))
+		namespaces = append(namespaces, fmt.Sprintf(`"%s.users"`, dbName))
+		namespaces = append(namespaces, fmt.Sprintf(`"%s.stages"`, dbName))
+		namespaces = append(namespaces, fmt.Sprintf(`"%s.pipelines"`, dbName))
+		namespaces = append(namespaces, fmt.Sprintf(`"%s.brands"`, dbName))
+		namespaces = append(namespaces, fmt.Sprintf(`"%s.segments"`, dbName))
+		namespaces = append(namespaces, fmt.Sprintf(`"%s.conversation_messages"`, dbName))
+		namespaces = append(namespaces, fmt.Sprintf(`"%s.engage_messages"`, dbName))
+		namespaces = append(namespaces, fmt.Sprintf(`"%s.tags"`, dbName))
+		namespaces = append(namespaces, fmt.Sprintf(`"%s.fields"`, dbName))
+		namespaces = append(namespaces, fmt.Sprintf(`"%s.fields_groups"`, dbName))
 
 
 	f.WriteString(`
@@ -319,18 +292,16 @@ func main() {
 
 	f.WriteString(fmt.Sprintf("direct-read-namespaces=[%s]", strings.Join(namespaces, ",")))
 
-	f.WriteString(`
-		namespace-regex = "^erxes_.+.(customers|companies|conversations|conversation_messages|integrations|deals|tasks|tickets|brands|users|channels|stages|pipelines|segments|engage_messages|tags)$"
+	f.WriteString(fmt.Sprintf(`
+		namespace-regex = "^%s.(customers|companies|conversations|conversation_messages|integrations|deals|tasks|tickets|brands|users|channels|stages|pipelines|segments|engage_messages|tags|fields|fields_groups)$"
 		routing-namespaces = [ "" ]
-		delete-index-pattern = "erxes_*"
+		delete-index-pattern = "%s*"
 
 		[[script]]
 		script = """
 		module.exports = function(doc, ns) {
-			var organizationId = ns.replace("erxes_","").split(".")[0]
+			var index = ns.replace(".", "__");
 
-			var index = ns.replace(organizationId, "").replace("_.", "__");
-			
 			if (ns.indexOf("customers") > -1) {
 				if (doc.urlVisits) {
 					delete doc.urlVisits
@@ -354,11 +325,12 @@ func main() {
 				index: index
 			};
 
+			doc.ownId = doc._id
 
 			return doc;
 		}
 		"""
-	`)
+	`, dbName, dbName))
 
 	f.Close()
 

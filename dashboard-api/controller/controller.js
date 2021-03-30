@@ -60,9 +60,9 @@ const generateReport = async (req, res) => {
                   return customFieldData.field === customFieldId;
                 });
 
-                data[dimension] = customField.value || 'unknown';
+                data[dimension] = customField.value || ' ';
               } catch (e) {
-                data[dimension] = 'unknown';
+                data[dimension] = ' ';
               }
             })
           );

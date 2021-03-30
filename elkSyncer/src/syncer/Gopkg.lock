@@ -66,42 +66,6 @@
   pruneopts = "UT"
   revision = "73f8eece6fdcd902c185bf651de50f3828bed5ed"
 
-[[projects]]
-  digest = "1:0a12bf3f7574a10e1eb72c4f33beb3041d8beec4d33f82b9378ecfed2dfd8809"
-  name = "go.mongodb.org/mongo-driver"
-  packages = [
-    "bson",
-    "bson/bsoncodec",
-    "bson/bsonrw",
-    "bson/bsontype",
-    "bson/primitive",
-    "event",
-    "internal",
-    "mongo",
-    "mongo/options",
-    "mongo/readconcern",
-    "mongo/readpref",
-    "mongo/writeconcern",
-    "tag",
-    "version",
-    "x/bsonx",
-    "x/bsonx/bsoncore",
-    "x/mongo/driver",
-    "x/mongo/driver/address",
-    "x/mongo/driver/auth",
-    "x/mongo/driver/auth/internal/gssapi",
-    "x/mongo/driver/connstring",
-    "x/mongo/driver/description",
-    "x/mongo/driver/dns",
-    "x/mongo/driver/operation",
-    "x/mongo/driver/session",
-    "x/mongo/driver/topology",
-    "x/mongo/driver/uuid",
-    "x/mongo/driver/wiremessage",
-  ]
-  pruneopts = "UT"
-  revision = "c5d1ddd8cbe3680a846c26e13f1117ca00e83e75"
-  version = "v1.1.4"
 
 [[projects]]
   branch = "master"

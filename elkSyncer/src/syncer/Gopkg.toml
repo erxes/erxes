@@ -28,7 +28,3 @@
 [prune]
   go-tests = true
   unused-packages = true
-
-[[constraint]]
-  name = "go.mongodb.org/mongo-driver"
-  version = "~1.1.3"
