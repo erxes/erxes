@@ -65,7 +65,7 @@ asyncModule(async () => {
   const should = [];
 
   const fieldGroups = await client.search({
-    index: 'erxes__fields_groups',
+    index: `${tableSchema()}__fields_groups`,
     body: {
       query: {
         bool: {
@@ -85,7 +85,7 @@ asyncModule(async () => {
   });
 
   const result = await client.search({
-    index: 'erxes__fields',
+    index: `${tableSchema()}__fields`,
     body: {
       query: {
         bool: {
