@@ -1,4 +1,5 @@
 import * as mongoose from 'mongoose';
+import { ACTIVITY_LOG_ACTIONS, putActivityLog } from '../data/logUtils';
 import {
   Boards,
   Companies,
@@ -408,10 +409,10 @@ const create = async ({
 
     objects = await model.insertMany(docs);
 
-    // await ActivityLogs.createBoardItemsLog({
-    //   items: docs,
-    //   contentType
-    // });
+    await putActivityLog({
+      action: ACTIVITY_LOG_ACTIONS.CREATE_BOARD_ITEMS,
+      data: { items: docs, contentType }
+    });
   }
 
   // create conformity
@@ -445,10 +446,10 @@ const create = async ({
   }
 
   if ([CUSTOMER, COMPANY, LEAD].includes(contentType)) {
-    // await ActivityLogs.createCocLogs({
-    //   cocs: objects,
-    //   contentType
-    // });
+    await putActivityLog({
+      action: ACTIVITY_LOG_ACTIONS.CREATE_COC_LOGS,
+      data: { cocs: objects, contentType }
+    });
   }
 
   return objects;

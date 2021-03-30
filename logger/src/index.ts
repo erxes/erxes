@@ -33,20 +33,23 @@ app.get(
   '/activityLogs',
   routeErrorHandling(async (req, res) => {
     const params = JSON.parse(req.body.params || '{}');
-    const { contentType, contentTypeId } = params;
+    const { contentType, contentId } = params;
 
-    const filter: { contentType: string; contentTypeId: string } = {
-      contentType,
-      contentTypeId
-    };
+    const filter: { contentType?: string; contentId?: string } = {};
+
+    if (contentType) {
+      filter.contentType = contentType;
+    }
+
+    if (contentId) {
+      filter.contentId = contentId;
+    }
 
     const activityLogs = await ActivityLogs.find(filter).sort({
       createdAt: -1
     });
 
-    const activityLogsCount = await ActivityLogs.countDocuments(filter);
-
-    return res.json({ activityLogs, totalCount: activityLogsCount });
+    return res.json(activityLogs);
   })
 );
 

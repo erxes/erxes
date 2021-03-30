@@ -46,8 +46,6 @@ const activityLogQueries = {
         items.map(item => {
           let result: IActivityLogDocument = {} as any;
 
-          // item = item.toJSON();
-
           if (!type) {
             result = item;
           }

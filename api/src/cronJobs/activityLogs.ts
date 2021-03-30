@@ -1,5 +1,6 @@
 import * as dotenv from 'dotenv';
 import * as schedule from 'node-schedule';
+import { ACTIVITY_LOG_ACTIONS, putActivityLog } from '../data/logUtils';
 import { fetchBySegments } from '../data/modules/segments/queryBuilder';
 import { connect } from '../db/connection';
 import { Companies, Customers, Segments } from '../db/models';
@@ -18,16 +19,23 @@ export const createActivityLogsFromSegments = async () => {
 
     const customers = await Customers.find({ _id: { $in: ids } }, { _id: 1 });
     const customerIds = customers.map(c => c._id);
-    console.log('customerIds: ', customerIds);
 
     const companies = await Companies.find({ _id: { $in: ids } }, { _id: 1 });
     const companyIds = companies.map(c => c._id);
 
-    console.log('companyIds: ', companyIds);
+    const customerData = { segment, customerIds, type: 'customer' };
 
-    // await ActivityLogs.createSegmentLog(segment, customerIds, 'customer');
+    await putActivityLog({
+      action: ACTIVITY_LOG_ACTIONS.CREATE_SEGMENT_LOG,
+      data: customerData
+    });
 
-    // await ActivityLogs.createSegmentLog(segment, companyIds, 'company');
+    const companyData = { segment, companyIds, type: 'company' };
+
+    await putActivityLog({
+      action: ACTIVITY_LOG_ACTIONS.CREATE_SEGMENT_LOG,
+      data: companyData
+    });
   }
 };
 

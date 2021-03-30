@@ -149,7 +149,18 @@ const LOG_ACTIONS = {
 };
 
 export const ACTIVITY_LOG_ACTIONS = {
-  ADD: 'add'
+  ADD: 'add',
+  CREATE_BOARD_ITEM: 'createBoardItem',
+  CREATE_BOARD_ITEM_MOVEMENT_LOG: 'createBoardItemMovementLog',
+  CREATE_BOARD_ITEMS: 'createBoardItems',
+  CREATE_ARCHIVE_LOG: 'createArchiveLog',
+  CREATE_ASSIGNE_LOG: 'createAssigneLog',
+  CREATE_COC_LOG: 'createCocLog',
+  CREATE_COC_LOGS: 'createCocLogs',
+  CREATE_SEGMENT_LOG: 'createSegmentLog',
+  CREATE_CHECKLIST_LOG: 'createChecklistLog',
+  REMOVE_ACTIVITY_LOG: 'removeActivityLog',
+  REMOVE_ACTIVITY_LOGS: 'removeActivityLogs'
 };
 
 // used in internalNotes mutations
@@ -1598,7 +1609,12 @@ export const getVisitorLog = async visitorId => {
   }
 };
 
-export const putActivityLog = async (params: any) => {
+interface IActivityLogParams {
+  action: string;
+  data: any;
+}
+
+export const putActivityLog = async (params: IActivityLogParams) => {
   try {
     return messageBroker().sendMessage('putActivityLog', params);
   } catch (e) {
