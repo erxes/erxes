@@ -37,7 +37,6 @@ type State = {
   field: IField;
   selectedOption?: IOption;
   group?: string;
-  isHtmlSaved: boolean;
 };
 
 class FieldForm extends React.Component<Props, State> {
@@ -53,8 +52,7 @@ class FieldForm extends React.Component<Props, State> {
     this.state = {
       field,
       selectedOption,
-      group: '',
-      isHtmlSaved: false
+      group: ''
     };
   }
 
