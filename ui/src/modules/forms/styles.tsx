@@ -185,18 +185,28 @@ const LogicRow = styled.div`
   align-items: baseline;
 
   button {
-    margin-left: 10px;
+    margin-left: ${dimensions.unitSpacing}px;
     padding: 3px 6px;
   }
 `;
 
 const RowSmall = styled.div`
-  flex: 2;
-  margin-right: 20px;
+  flex: 1;
+  margin-right: ${dimensions.coreSpacing}px;
 `;
 
 const RowFill = styled.div`
   flex: 1;
+`;
+
+const DateWrapper = styled.div`
+  input {
+    border-radius: 0;
+    border: 0;
+    border-bottom: 1px solid ${colors.borderDarker};
+    background: transparent;
+    box-shadow: none !important;
+  }
 `;
 
 export {
@@ -215,5 +225,6 @@ export {
   LogicItem,
   LogicRow,
   RowSmall,
-  RowFill
+  RowFill,
+  DateWrapper
 };

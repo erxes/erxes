@@ -9,7 +9,7 @@ import {
   numberTypeChoices,
   stringTypeChoices
 } from '../constants';
-import { LogicItem, LogicRow, RowFill, RowSmall } from '../styles';
+import { DateWrapper, LogicItem, LogicRow, RowFill, RowSmall } from '../styles';
 
 type Props = {
   onChangeLogic: (
@@ -106,12 +106,16 @@ function FieldLogic(props: Props) {
 
       if (['date', 'datetime'].includes(selectedField.validation || '')) {
         return (
-          <DateControl
-            placeholder={__('pick a date')}
-            value={logic.logicValue}
-            timeFormat={selectedField.validation === 'datetime' ? true : false}
-            onChange={onDateChange}
-          />
+          <DateWrapper>
+            <DateControl
+              placeholder={__('pick a date')}
+              value={logic.logicValue}
+              timeFormat={
+                selectedField.validation === 'datetime' ? true : false
+              }
+              onChange={onDateChange}
+            />
+          </DateWrapper>
         );
       }
 
