@@ -344,14 +344,23 @@ describe('Fields mutations', () => {
       }
     `;
 
-    const response = await graphqlRequest(
+    await graphqlRequest(mutation, 'fieldsBulkAddAndEdit', args, context);
+
+    const fields = await Fields.find({ contentTypeId: form._id });
+
+    expect(fields.length).toBe(5);
+
+    const mutationResult = await graphqlRequest(
       mutation,
       'fieldsBulkAddAndEdit',
-      args,
+      {
+        contentType: 'form',
+        contentTypeId: form._id
+      },
       context
     );
 
-    expect(response.length).toBe(4);
+    console.log(mutationResult);
   });
 
   test('Add group field', async () => {

@@ -88,11 +88,7 @@ const fieldMutations = {
     }
 
     for (const f of logicalFields) {
-      const { logics } = f;
-
-      if (!logics || logics.length === 0) {
-        continue;
-      }
+      const logics = f.logics || [];
 
       for (const logic of logics) {
         if (f.logics && !logic.fieldId && logic.tempFieldId) {

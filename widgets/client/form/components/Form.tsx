@@ -79,7 +79,7 @@ class Form extends React.Component<Props, State> {
   }) => {
     const doc = this.state.doc;
 
-    if (typeof value === 'object') {
+    if (doc[fieldId].validation === 'multiSelect') {
       value = value.toString();
     }
 

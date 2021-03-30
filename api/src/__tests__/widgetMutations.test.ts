@@ -137,6 +137,29 @@ describe('messenger connect', () => {
     expect(await Companies.findOne({ name: companyName })).toBeNull();
   });
 
+  test('with company error`)', async () => {
+    const mock = sinon.stub(Companies, 'createCompany').callsFake(() => {
+      throw new Error('fake error');
+    });
+
+    const brand = await brandFactory();
+    await integrationFactory({ brandId: brand._id });
+
+    const companyName = faker.name.findName();
+
+    await widgetMutations.widgetsMessengerConnect(
+      {},
+      {
+        brandCode: brand.code || '',
+        companyData: { name: companyName, industry: 'үйлчилгээ' }
+      }
+    );
+
+    // company isn't created because industry is not a valid
+    expect(await Companies.findOne({ name: companyName })).toBeNull();
+    mock.restore();
+  });
+
   test('returns proper integrationId', async () => {
     const mock = sinon.stub(utils, 'sendRequest').callsFake(() => {
       return Promise.resolve('success');
