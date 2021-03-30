@@ -67,7 +67,8 @@ describe('Fields', () => {
     let field = await Fields.createField({
       contentType,
       text: 'text',
-      contentTypeId: form1._id
+      contentTypeId: form1._id,
+      groupName: 'testGroup'
     });
     expect(field.order).toBe(0);
 

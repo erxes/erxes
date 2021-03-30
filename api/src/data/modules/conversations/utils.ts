@@ -135,7 +135,7 @@ export class CommonBuilder<IArgs extends IListArgs> {
 
   public resetPositiveList() {
     const defaultUserQuery = {
-      must: [
+      should: [
         {
           bool: {
             should: [

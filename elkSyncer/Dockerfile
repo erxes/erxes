@@ -1,14 +1,26 @@
-FROM python:3.7.9-alpine
+FROM golang:1.14.2
 
 WORKDIR /elkSyncer/
 
-RUN pip install mongo-connector==3.1.1 \
-    && pip install elasticsearch==7.5.1 \
-    && pip install elastic2-doc-manager==1.0.0 \
-    && pip install python-dotenv==0.11.0 \
-    && pip install certifi==0.0.8 \
-    && apk add --no-cache tzdata
+ENV GOPATH=/elkSyncer
+ENV PATH="/elkSyncer/build/linux-amd64:$PATH"
 
-COPY mongo-connector-config.json main.py ./
+# Update
+RUN apt-get update \
+ && apt-get install -y vim \
+ && apt-get install -y go-dep unzip \
+ # monstache
+ && wget -q --show-progress https://github.com/rwynn/monstache/releases/download/v6.7.0/monstache-dfba1c2.zip \
+ && unzip monstache-dfba1c2.zip \
+ && rm monstache-dfba1c2.zip \
+ && mkdir bin && mkdir src \
+ && rm -rf /var/lib/apt/lists/*
 
-ENTRYPOINT ["python3", "main.py"]
+COPY . .
+
+RUN cd src/syncer \
+ && go get gopkg.in/olivere/elastic.v7 \
+ && go get github.com/joho/godotenv \
+ && dep ensure
+
+CMD ["go", "run", "src/syncer/main.go"]

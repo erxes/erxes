@@ -26,7 +26,7 @@ class SelectProperty extends React.Component<Props, {}> {
 
     const trigger = (
       <Button btnStyle="primary" uppercase={false} icon="plus-circle">
-        Add property
+        Create
       </Button>
     );
 
@@ -66,7 +66,7 @@ class SelectProperty extends React.Component<Props, {}> {
 
     return (
       <FormGroup>
-        <ControlLabel>Custom property</ControlLabel>
+        <ControlLabel>Property</ControlLabel>
         <p>{description}</p>
         <Row>
           <LeftContent>
