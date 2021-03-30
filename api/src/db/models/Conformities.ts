@@ -64,7 +64,7 @@ const getElasticQuery = ({
             must: [
               {
                 match: {
-                  mainType: mainType
+                  mainType
                 }
               },
               {
