@@ -364,6 +364,50 @@ describe('fieldQueries', () => {
     expect(field.associatedField._id).toBe(customField._id);
   });
 
+  test('Fields query with groupName', async () => {
+    // Creating test data
+    const group = await fieldGroupFactory({ contentType: 'form' });
+
+    await fieldFactory({
+      text: 'text1',
+      contentType: 'form',
+      visible: true,
+      groupId: (group && group._id) || ''
+    });
+
+    const qry = `
+    query fields(
+      $contentType: String!
+      $contentTypeId: String
+      $isVisible: Boolean
+    ) {
+      fields(
+        contentType: $contentType
+        contentTypeId: $contentTypeId
+        isVisible: $isVisible
+      ) {
+        text
+        groupName
+        _id
+        isVisible
+        associatedField {
+          _id
+          text
+        }
+      }
+    }    
+ `;
+
+    const responses = await graphqlRequest(qry, 'fields', {
+      contentType: 'form',
+      isVisible: true
+    });
+
+    expect(responses.length).toBe(1);
+    const field = responses[0];
+    expect(field.groupName).toBe(group && group.name);
+  });
+
   test('get inbox system fields', async () => {
     // Creating test data
     const customerGroup = await fieldGroupFactory({

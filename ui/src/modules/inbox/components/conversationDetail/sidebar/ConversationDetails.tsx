@@ -41,7 +41,7 @@ class ConversationDetails extends React.Component<Props> {
   renderRow(field, value) {
     const { fields } = this.props;
 
-    const property = fields.find(e => e.field === field);
+    const property = fields.find(e => e.type === field);
 
     if (property && !property.isVisible) {
       return null;
@@ -61,7 +61,7 @@ class ConversationDetails extends React.Component<Props> {
     const { conversation, fields } = this.props;
     const { integration = {} as IIntegration } = conversation;
 
-    const property = fields.find(e => e.field === 'integration');
+    const property = fields.find(e => e.type === 'integration');
 
     if (property && !property.isVisible) {
       return null;

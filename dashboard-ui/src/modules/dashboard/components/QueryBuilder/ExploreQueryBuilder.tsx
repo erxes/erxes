@@ -136,7 +136,9 @@ class ExploreQueryBuilder extends React.Component<Props> {
                       <FilterItem>
                         <Label>Type</Label>
                         <ButtonDropdown overlay={menu} type="dashed">
-                          {type || 'Type'}
+                          {type
+                            ? type.replace(/([A-Z])/g, ' $1').trim()
+                            : 'Type'}
                         </ButtonDropdown>
                       </FilterItem>
 

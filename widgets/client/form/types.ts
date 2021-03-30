@@ -5,6 +5,12 @@ export interface IConnectResponse {
   integration: IIntegration;
 }
 
+export interface ILogic {
+  fieldId: string;
+  logicOperator: string;
+  logicValue: FieldValue;
+}
+
 export interface IField {
   _id: string;
   contentType: string;
@@ -12,6 +18,7 @@ export interface IField {
   type: string;
   validation?: string;
   text: string;
+  content?: string;
   description?: string;
   options?: string[];
   isRequired: boolean;
@@ -21,6 +28,10 @@ export interface IField {
   isVisible: boolean;
   lastUpdatedUserId: string;
   associatedFieldId?: string;
+  column?: number;
+
+  logicAction?: string;
+  logics?: ILogic[];
 }
 
 export interface ICallout {
@@ -61,6 +72,8 @@ export interface IFormDoc {
     type: string;
     validation: string;
     associatedFieldId: string;
+    groupId: string;
+    isHidden?: boolean;
   };
 }
 
