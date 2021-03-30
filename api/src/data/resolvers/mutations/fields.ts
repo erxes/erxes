@@ -67,20 +67,20 @@ const fieldMutations = {
       for (const f of addingFields) {
         if (f.logics && f.logics.length > 0) {
           logicalFields.push(f);
-        } else {
-          const tempId = f.tempFieldId;
+          continue;
+        }
 
-          const field = await Fields.createField({
-            ...f,
-            contentType,
-            contentTypeId,
-            lastUpdatedUserId: user._id
-          });
+        const tempId = f.tempFieldId;
 
-          if (tempId) {
-            temp[tempId] = field._id;
-          }
-          response.push(field);
+        const field = await Fields.createField({
+          ...f,
+          contentType,
+          contentTypeId,
+          lastUpdatedUserId: user._id
+        });
+
+        if (tempId) {
+          temp[tempId] = field._id;
         }
       }
 
