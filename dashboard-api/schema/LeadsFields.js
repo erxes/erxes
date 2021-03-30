@@ -104,7 +104,8 @@ asyncModule(async () => {
       });
     });
   }
-  cube('LeadsProperties', {
+
+  cube('LeadProperties', {
     sql: `SELECT * FROM ${tableSchema()}__customers WHERE state='lead'`,
 
     dimensions: Object.assign(
