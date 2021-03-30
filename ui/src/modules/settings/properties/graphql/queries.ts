@@ -11,8 +11,7 @@ const genericFields = `
 const commonFields = `
   type
   text
-  field
-
+  
   canHide
   validation
   options
@@ -66,13 +65,21 @@ const fields = `
       description
       options
       isRequired
+      isDefinedByErxes
       order
       associatedFieldId
-
+      logicAction
+      column
       associatedField {
         _id
         text
       }
+      logics {
+        fieldId
+        logicOperator
+        logicValue
+      }
+      groupName
     }
   }
 `;

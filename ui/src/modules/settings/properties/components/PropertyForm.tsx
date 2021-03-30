@@ -46,7 +46,12 @@ class PropertyForm extends React.Component<Props, State> {
         type
       };
 
-      if (type === 'select' || type === 'radio' || type === 'check') {
+      if (
+        type === 'select' ||
+        type === 'multiSelect' ||
+        type === 'radio' ||
+        type === 'check'
+      ) {
         doc = {
           type,
           hasOptions: true,
@@ -97,7 +102,12 @@ class PropertyForm extends React.Component<Props, State> {
 
     let doc = { hasOptions: false, options: [] };
 
-    if (value === 'select' || value === 'check' || value === 'radio') {
+    if (
+      value === 'select' ||
+      value === 'multiSelect' ||
+      value === 'check' ||
+      value === 'radio'
+    ) {
       doc = { hasOptions: true, options: [] };
     }
 
@@ -200,6 +210,7 @@ class PropertyForm extends React.Component<Props, State> {
             <option value="input">Input</option>
             <option value="textarea">Text area</option>
             <option value="select">Select</option>
+            <option value="multiSelect">Multiple select</option>
             <option value="check">Checkbox</option>
             <option value="radio">Radio button</option>
             <option value="file">File</option>

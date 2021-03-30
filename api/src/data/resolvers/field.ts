@@ -1,4 +1,4 @@
-import { Fields, Users } from '../../db/models';
+import { Fields, FieldsGroups, Users } from '../../db/models';
 import {
   IFieldDocument,
   IFieldGroupDocument
@@ -21,6 +21,13 @@ export const field = {
 
     // Returning field that associated with form field
     return Fields.findOne({ _id: associatedFieldId });
+  },
+
+  async groupName(root: IFieldDocument) {
+    const { groupId } = root;
+
+    const group = await FieldsGroups.findOne({ _id: groupId });
+    return group && group.name;
   }
 };
 

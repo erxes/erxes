@@ -7,7 +7,6 @@ import {
   Conversations,
   Customers,
   Forms,
-  FormSubmissions,
   Integrations,
   KnowledgeBaseArticles,
   MessengerApps,
@@ -18,13 +17,13 @@ import {
   IBrowserInfo,
   IVisitorContactInfoParams
 } from '../../../db/models/Customers';
-import { ICustomField } from '../../../db/models/definitions/common';
 import {
   CONVERSATION_OPERATOR_STATUS,
   CONVERSATION_STATUSES,
   KIND_CHOICES,
   MESSAGE_TYPES
 } from '../../../db/models/definitions/constants';
+import { ISubmission } from '../../../db/models/definitions/fields';
 import {
   IIntegrationDocument,
   IMessengerDataMessagesItem
@@ -48,17 +47,8 @@ import {
   sendRequest,
   sendToWebhook
 } from '../../utils';
-import { convertVisitorToCustomer } from '../../widgetUtils';
+import { convertVisitorToCustomer, solveSubmissions } from '../../widgetUtils';
 import { conversationNotifReceivers } from './conversations';
-
-interface ISubmission {
-  _id: string;
-  value: any;
-  type?: string;
-  validation?: string;
-  associatedFieldId?: string;
-  stageId?: string;
-}
 
 interface IWidgetEmailParams {
   toEmails: string[];
@@ -268,13 +258,7 @@ const widgetMutations = {
       cachedCustomerId?: string;
     }
   ) {
-    const {
-      integrationId,
-      formId,
-      submissions,
-      browserInfo,
-      cachedCustomerId
-    } = args;
+    const { integrationId, formId, submissions } = args;
 
     const form = await Forms.findOne({ _id: formId });
 
@@ -290,103 +274,19 @@ const widgetMutations = {
 
     const content = form.title;
 
-    let email;
-    let phone;
-    let firstName = '';
-    let lastName = '';
-    let customFieldsData = new Array<ICustomField>();
-
-    submissions.forEach(submission => {
-      if (submission.type === 'email') {
-        email = submission.value;
-      }
-
-      if (submission.type === 'phone') {
-        phone = submission.value;
-      }
-
-      if (submission.type === 'firstName') {
-        firstName = submission.value;
-      }
-
-      if (submission.type === 'lastName') {
-        lastName = submission.value;
-      }
-
-      if (submission.associatedFieldId) {
-        customFieldsData.push({
-          field: submission.associatedFieldId,
-          value: submission.value
-        });
-      }
-    });
-
-    // get or create customer
-    let customer = await Customers.getWidgetCustomer({
-      integrationId,
-      email,
-      phone,
-      cachedCustomerId
-    });
-
-    if (!customer) {
-      customer = await Customers.createCustomer({
-        integrationId,
-        primaryEmail: email,
-        emails: [email],
-        firstName,
-        lastName,
-        primaryPhone: phone,
-        customFieldsData
-      });
-    }
-
-    if (customer.customFieldsData) {
-      customFieldsData = customFieldsData.concat(customer.customFieldsData);
-    }
-
-    const customerDoc = {
-      location: browserInfo,
-      firstName: customer.firstName || firstName,
-      lastName: customer.lastName || lastName,
-      customFieldsData,
-      ...(customer.primaryEmail
-        ? {}
-        : {
-            emails: [email],
-            primaryEmail: email
-          }),
-      ...(customer.primaryPhone
-        ? {}
-        : {
-            phones: [phone],
-            primaryPhone: phone
-          })
-    };
-
-    // update location info and missing fields
-    await Customers.updateCustomer(customer._id, customerDoc);
-
-    // Inserting customer id into submitted customer ids
-    const doc = {
-      formId,
-      customerId: customer._id,
-      submittedAt: new Date()
-    };
-
-    await FormSubmissions.createFormSubmission(doc);
+    const cachedCustomer = await solveSubmissions(args);
 
     // create conversation
     const conversation = await Conversations.createConversation({
       integrationId,
-      customerId: customer._id,
+      customerId: cachedCustomer._id,
       content
     });
 
     // create message
     const message = await Messages.createMessage({
       conversationId: conversation._id,
-      customerId: customer._id,
+      customerId: cachedCustomer._id,
       content,
       formWidgetData: submissions
     });
@@ -405,11 +305,15 @@ const widgetMutations = {
     await sendToWebhook('create', 'popupSubmitted', {
       formId: args.formId,
       submissions: args.submissions,
-      customer: customerDoc,
-      cachedCustomerId: args.cachedCustomerId
+      customer: cachedCustomer,
+      cachedCustomerId: cachedCustomer._id
     });
 
-    return { status: 'ok', messageId: message._id, customerId: customer._id };
+    return {
+      status: 'ok',
+      messageId: message._id,
+      customerId: cachedCustomer._id
+    };
   },
 
   widgetsLeadIncreaseViewCount(_root, { formId }: { formId: string }) {

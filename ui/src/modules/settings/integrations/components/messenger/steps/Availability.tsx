@@ -8,8 +8,8 @@ import { __ } from 'modules/common/utils';
 import React from 'react';
 import Select from 'react-select-plus';
 import { IOnlineHour } from '../../../types';
-import OnlineHours from './OnlineHours';
 import { ToggleWrapper } from '../widgetPreview/styles';
+import OnlineHours from './OnlineHours';
 
 type Props = {
   onChange: (

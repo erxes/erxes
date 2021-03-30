@@ -4694,10 +4694,10 @@ erxes-icon@^1.2.1:
   resolved "https://registry.yarnpkg.com/erxes-icon/-/erxes-icon-1.2.1.tgz#1df585ff385146dfffd0261398de474eed39c2c6"
   integrity sha512-qk1yavXsBCub9/XBaiTgg9OCouRfZnDxWIqtfi/tVr51zFYgZuGm5GkswglIhF5FCayJ+XtOFqf/Z/9UUc676g==
 
-erxes-ui@0.0.35:
-  version "0.0.35"
-  resolved "https://registry.yarnpkg.com/erxes-ui/-/erxes-ui-0.0.35.tgz#fc2c0eca491e0557005b4199808934e0367578dd"
-  integrity sha512-kGMFOjdyJOrat5H9WvHOCtozO6k29gZ1QBzwwDhbUDj39q5hTK0UjWczMkJOhyHTHdfd6sGy1s4fLS3JB969WQ==
+erxes-ui@0.0.36:
+  version "0.0.36"
+  resolved "https://registry.yarnpkg.com/erxes-ui/-/erxes-ui-0.0.36.tgz#524df0519d3693904520aed34cbe11822cc3e9e7"
+  integrity sha512-XyCqS45ByziWsVlWDFDUEFK2UYkcj3n3sIPssvTEsXsQ/CxIvlTWLhGlvpn/J9VIpaRMBWESk9OKxdFIZc2oXw==
 
 es-abstract@^1.10.0, es-abstract@^1.13.0:
   version "1.14.1"
