@@ -195,7 +195,10 @@ export const loadFormClass = () => {
           }
 
           // date
-          if (validation === 'date' && !validator.isISO8601(value)) {
+          if (
+            validation === 'date' &&
+            !validator.isISO8601(new Date(value).toISOString())
+          ) {
             errors.push({
               fieldId: field._id,
               code: 'invalidDate',
