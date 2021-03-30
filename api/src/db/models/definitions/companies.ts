@@ -1,7 +1,7 @@
 import { Document, Schema } from 'mongoose';
 
 import { customFieldSchema, ICustomField, ILink } from './common';
-import { COMPANY_INDUSTRY_TYPES, COMPANY_SELECT_OPTIONS } from './constants';
+import { COMPANY_SELECT_OPTIONS } from './constants';
 
 import { field, schemaWrapper } from './utils';
 
@@ -82,8 +82,7 @@ export const companySchema = schemaWrapper(
 
     industry: field({
       type: String,
-      enum: COMPANY_INDUSTRY_TYPES,
-      label: 'Industry',
+      label: 'Industries',
       optional: true,
       esType: 'keyword'
     }),

@@ -114,6 +114,7 @@ company_mapping = {
     'ownerId': {
         'type': 'keyword',
     },
+    
     'tagIds': {
         'type': 'keyword',
     },

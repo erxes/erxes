@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { AppConsumer } from '../../messenger/containers/AppContext';
 import { IEmailParams, IIntegration } from '../../types';
-import { fixErrorMessage, __ } from '../../utils';
+import { __, checkLogicFulfilled, fixErrorMessage, LogicParams } from '../../utils';
 import { connection } from '../connection';
 import {
   FieldValue,
@@ -69,18 +69,28 @@ class Form extends React.Component<Props, State> {
   onFieldValueChange = ({
     fieldId,
     value,
-    associatedFieldId
+    associatedFieldId,
+    groupId
   }: {
     fieldId: string;
     value: FieldValue;
     associatedFieldId?: string;
+    groupId?: string;
   }) => {
     const doc = this.state.doc;
 
+    if (doc[fieldId].validation === 'multiSelect') {
+      value = value.toString();
+    }
+
     doc[fieldId].value = value;
 
-    if(associatedFieldId) {
+    if (associatedFieldId) {
       doc[fieldId].associatedFieldId = associatedFieldId;
+    }
+
+    if (groupId) {
+      doc[fieldId].groupId = groupId;
     }
 
     this.setState({ doc });
@@ -95,15 +105,41 @@ class Form extends React.Component<Props, State> {
     const doc: any = {};
 
     form.fields.forEach(field => {
+
+      let isHidden = false;
+      if (field.logicAction && field.logicAction === 'show' && field.logics && field.logics.length > 0) {
+        isHidden = true;
+      }
+
       doc[field._id] = {
         text: field.text,
         type: field.type,
         validation: field.validation,
-        value: ''
+        value: '',
+        isHidden
       };
     });
 
     return doc;
+  }
+
+  hideField(id: string) {
+    const { doc } = this.state;
+    if (doc[id].value !== '') {
+      doc[id].value = '';
+      doc[id].isHidden = true;
+      this.setState({ doc });
+    }
+  }
+
+  showField(id: string) {
+    const { doc } = this.state;
+
+    if (doc[id].isHidden) {
+      doc[id].value = '';
+      doc[id].isHidden = false;
+      this.setState({ doc });
+    }
   }
 
   renderHead(title: string) {
@@ -127,6 +163,32 @@ class Form extends React.Component<Props, State> {
       const fieldError = errors.find(
         (error: IFieldError) => error.fieldId === field._id
       );
+
+      if (field.logics && field.logics.length > 0) {
+        const logics: LogicParams[] = field.logics.map(logic => {
+          const { validation, value, type } = this.state.doc[logic.fieldId]
+
+          return { fieldId: logic.fieldId, operator: logic.logicOperator, logicValue: logic.logicValue, fieldValue: value, validation, type }
+        })
+
+        const isLogicsFulfilled = checkLogicFulfilled(logics)
+
+        if (field.logicAction && field.logicAction === 'show') {
+          if (!isLogicsFulfilled) {
+            this.hideField(field._id)
+            return null;
+          }
+        }
+
+        if (field.logicAction && field.logicAction === 'hide') {
+          if (isLogicsFulfilled) {
+            this.hideField(field._id)
+            return null;
+          }
+        }
+      }
+
+      this.showField(field._id)
 
       return (
         <Field
@@ -160,15 +222,17 @@ class Form extends React.Component<Props, State> {
           {extraContent ? (
             <div dangerouslySetInnerHTML={{ __html: extraContent }} />
           ) : null}
-          {this.renderFields()}
+
+          <div className="erxes-form-fields">
+            {this.renderFields()}
+          </div>
 
           <button
             style={{ background: color }}
             type="button"
             onClick={this.onSubmit}
-            className={`erxes-button btn-block ${
-              isSubmitting ? 'disabled' : ''
-            }`}
+            className={`erxes-button btn-block ${isSubmitting ? 'disabled' : ''
+              }`}
             disabled={isSubmitting}
           >
             {isSubmitting ? __('Loading ...') : form.buttonText || __('Send')}
