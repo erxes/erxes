@@ -1,17 +1,30 @@
+const fieldCommonFields = `
+  description: String
+  options: [String]
+  type: String
+  validation: String
+  text: String
+  content: String
+  isRequired: Boolean
+  order: Int
+  associatedFieldId: String
+  logicAction: String
+  column: Int
+  groupName: String
+`;
+
 export const fieldsTypes = `
+  type Logic {
+    fieldId: String!
+    logicOperator: String
+    logicValue: JSON
+  }
+
   type Field {
     _id: String!
     contentType: String!
     contentTypeId: String
-    type: String
-    validation: String
-    text: String
-    field: String
     name: String
-    description: String
-    options: [String]
-    isRequired: Boolean
-    order: Int
     isVisible: Boolean
     isVisibleInDetail: Boolean
     canHide: Boolean
@@ -19,13 +32,30 @@ export const fieldsTypes = `
     groupId: String
     lastUpdatedUser: User
     lastUpdatedUserId: String
-    associatedFieldId: String
     associatedField: Field
+    logics: [Logic]
+
+    ${fieldCommonFields}
   }
 
   input OrderItem {
     _id: String!
     order: Int!
+  }
+
+  input LogicInput {
+    fieldId: String
+    tempFieldId: String
+    logicOperator: String
+    logicValue: JSON
+  }
+
+  input FieldItem {
+    _id: String
+    tempFieldId: String
+    logics: [LogicInput]
+
+    ${fieldCommonFields}
   }
 
   type ColumnConfigItem {
@@ -60,10 +90,12 @@ const fieldsCommonFields = `
   isVisible: Boolean
   canHide: Boolean
   associatedFieldId: String
+  logic: LogicInput
 `;
 
 export const fieldsMutations = `
   fieldsAdd(contentType: String!, contentTypeId: String, ${fieldsCommonFields}): Field
+  fieldsBulkAddAndEdit(contentType: String!, contentTypeId: String, addingFields:[FieldItem], editingFields:[FieldItem]): [Field]
   fieldsEdit(_id: String!, ${fieldsCommonFields}): Field
   fieldsRemove(_id: String!): Field
   fieldsUpdateOrder(orders: [OrderItem]): [Field]

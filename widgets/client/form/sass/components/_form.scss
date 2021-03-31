@@ -111,10 +111,21 @@
     flex: 1;
     list-style: none;
     position: relative;
+    
 
     .erxes-description {
       color: lighten($black, 36%);
       margin-bottom: 5px;
+    }
+
+    .erxes-form-fields {
+      margin-right: -20px;
+      
+    }
+
+    .form-group {
+      padding-right: 20px;
+      box-sizing: border-box;
     }
   }
 
