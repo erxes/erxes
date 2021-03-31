@@ -89,12 +89,11 @@ const configQueries = {
 
     result.version = erxesVersion.packageVersion || '-';
 
-    // const response = await sendRequest({
-    //   url: `${process.env.CORE_URL || 'https://erxes.io'}/git-release-info`,
-    //   method: 'GET'
-    // });
+    const response = await sendRequest({
+      url: `${process.env.CORE_URL || 'https://erxes.io'}/git-release-info`,
+      method: 'GET'
+    });
 
-    const response = { tag_name: '' };
     result.isLatest = result.version === response.tag_name;
 
     if (releaseNotes) {
