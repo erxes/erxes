@@ -19,11 +19,11 @@ const publishHelper = async (
     pipelinesChanged: {
       _id: stage.pipelineId,
       proccessId: proccessId || Math.random().toString(),
-      action: 'itemUpdate',
+      action: 'itemOfConformitiesUpdate',
       data: {
         item: {
           ...item._doc,
-          ...(await itemResolver(type, item, true))
+          ...(await itemResolver(type, item))
         }
       }
     }

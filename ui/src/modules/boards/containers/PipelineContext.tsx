@@ -6,6 +6,7 @@ import { UserDetailQueryResponse } from 'modules/settings/team/types';
 import React from 'react';
 import { graphql } from 'react-apollo';
 import { requestIdleCallback } from 'request-idle-callback';
+import { setTimeout } from 'timers';
 import { mutations, queries, subscriptions } from '../graphql';
 import { DragDisabler } from '../styles/common';
 import {
@@ -18,7 +19,7 @@ import {
   IPipeline,
   PipelineDetailQueryResponse
 } from '../types';
-import { invalidateCache } from '../utils';
+import { invalidateCache, updateItemInfo } from '../utils';
 import { reorder, reorderItemMap } from '../utils';
 import InvisibleItemInUrl from './InvisibleItemInUrl';
 
@@ -178,15 +179,17 @@ class PipelineProviderInner extends React.Component<Props, State> {
           }
 
           if (action === 'itemUpdate') {
-            const { itemMap } = this.state;
-            const items = [...itemMap[item.stageId]];
-            const index = items.findIndex(d => d._id === item._id);
-
-            items[index] = item;
-
             this.setState({
-              itemMap: { ...itemMap, [item.stageId]: items }
+              itemMap: updateItemInfo(this.state, item)
             });
+          }
+
+          if (action === 'itemOfConformitiesUpdate') {
+            setTimeout(() => {
+              this.setState({
+                itemMap: updateItemInfo(this.state, item)
+              });
+            }, 5000);
           }
 
           if (action === 'reOrdered') {

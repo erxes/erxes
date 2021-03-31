@@ -31,7 +31,7 @@ export interface IConformityModel extends Model<IConformityDocument> {
   changeConformity(doc: IConformityChange): void;
   removeConformity(doc: IConformityRemove): void;
   removeConformities(doc: IConformitiesRemove): void;
-  savedConformity(doc: IConformitySaved, mustDB?: boolean): Promise<string[]>;
+  savedConformity(doc: IConformitySaved): Promise<string[]>;
   relatedConformity(doc: IConformityRelated): Promise<string[]>;
   filterConformity(doc: IConformityFilter): Promise<string[]>;
   getConformities(doc: IGetConformityBulk): Promise<IConformityDocument[]>;
@@ -48,14 +48,11 @@ export const loadConformityClass = () => {
 
     public static async editConformity(doc: IConformityEdit) {
       const newRelTypeIds = doc.relTypeIds || [];
-      const oldRelTypeIds = await this.savedConformity(
-        {
-          mainType: doc.mainType,
-          mainTypeId: doc.mainTypeId,
-          relTypes: [doc.relType]
-        },
-        true
-      );
+      const oldRelTypeIds = await this.savedConformity({
+        mainType: doc.mainType,
+        mainTypeId: doc.mainTypeId,
+        relTypes: [doc.relType]
+      });
 
       const removedTypeIds = oldRelTypeIds.filter(
         e => !newRelTypeIds.includes(e)
@@ -98,8 +95,8 @@ export const loadConformityClass = () => {
       return { addedTypeIds, removedTypeIds };
     }
 
-    public static async savedConformity(doc: IConformitySaved, mustDb = false) {
-      if (mustDb || !isUsingElk()) {
+    public static async savedConformity(doc: IConformitySaved) {
+      if (!isUsingElk()) {
         return conformityHelper({
           doc,
           getConformities: async () => {

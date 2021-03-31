@@ -13,15 +13,12 @@ import { IContext } from '../types';
 import { boardId } from './boardUtils';
 
 export default {
-  async companies(task: ITaskDocument, { mustDb }: { mustDb?: boolean }) {
-    const companyIds = await Conformities.savedConformity(
-      {
-        mainType: 'task',
-        mainTypeId: task._id,
-        relTypes: ['company']
-      },
-      mustDb
-    );
+  async companies(task: ITaskDocument) {
+    const companyIds = await Conformities.savedConformity({
+      mainType: 'task',
+      mainTypeId: task._id,
+      relTypes: ['company']
+    });
 
     return Companies.find({ _id: { $in: companyIds || [] } });
   },
@@ -30,15 +27,12 @@ export default {
     return Users.findOne({ _id: task.userId });
   },
 
-  async customers(task: ITaskDocument, { mustDb }: { mustDb?: boolean }) {
-    const customerIds = await Conformities.savedConformity(
-      {
-        mainType: 'task',
-        mainTypeId: task._id,
-        relTypes: ['customer']
-      },
-      mustDb
-    );
+  async customers(task: ITaskDocument) {
+    const customerIds = await Conformities.savedConformity({
+      mainType: 'task',
+      mainTypeId: task._id,
+      relTypes: ['customer']
+    });
 
     return Customers.find({ _id: { $in: customerIds || [] } });
   },
