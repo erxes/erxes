@@ -18,7 +18,7 @@ class DetailInfo extends React.Component<Props> {
   renderRow = (field, value) => {
     const { fields } = this.props;
 
-    const property = fields.find(e => e.field === field);
+    const property = fields.find(e => e.type === field);
 
     if (property && !property.isVisible) {
       return null;
@@ -46,7 +46,7 @@ class DetailInfo extends React.Component<Props> {
   renderDescription(description?: string) {
     const { fields } = this.props;
 
-    const descriptionField = fields.find(e => e.field === 'description');
+    const descriptionField = fields.find(e => e.type === 'description');
 
     if (descriptionField && !descriptionField.isVisible) {
       return null;

@@ -1,26 +1,34 @@
 import Datetime from '@nateradebaugh/react-datetime';
 import * as React from 'react';
+import xss = require('xss');
 import uploadHandler from '../../uploadHandler';
+import { COMPANY_BUSINESS_TYPES, DEFAULT_COMPANY_INDUSTRY_TYPES } from '../constants';
 import { FieldValue, IField, IFieldError } from '../types';
 
 type Props = {
   field: IField;
   error?: IFieldError;
-  onChange: (params: { fieldId: string; value: FieldValue; associatedFieldId?: string }) => void;
+  onChange: (params: { fieldId: string; value: FieldValue; associatedFieldId?: string; groupId?: string; }) => void;
 };
 
 type State = {
   dateValue?: Date | string;
   dateTimeValue: Date | string;
   isAttachingFile?: boolean;
+  multipleSelectValues?: string[];
 };
 
 export default class Field extends React.Component<Props, State> {
   static renderSelect(options: string[] = [], attrs: any = {}) {
-    return (
-      <select {...attrs} className="form-control">
-        <option />
+    let style = {};
 
+    if (attrs.multiple) {
+      style = { minHeight: '100px' }
+    }
+
+    return (
+      <select {...attrs} className="form-control" style={style}>
+        <option />
         {options.map((option, index) => (
           <option key={index} value={option}>
             {option}
@@ -93,14 +101,15 @@ export default class Field extends React.Component<Props, State> {
 
     this.state = {
       dateValue: '',
-      dateTimeValue: ''
+      dateTimeValue: '',
+      multipleSelectValues: []
     };
   }
 
   onChange = (value: FieldValue) => {
     const { onChange, field } = this.props;
 
-    onChange({ fieldId: field._id, value, associatedFieldId: field.associatedFieldId });
+    onChange({ fieldId: field._id, value, associatedFieldId: field.associatedFieldId, groupId: field.groupId });
   };
 
   onInputChange = (e: React.FormEvent<HTMLInputElement>) => {
@@ -174,10 +183,24 @@ export default class Field extends React.Component<Props, State> {
     this.onChange(e.currentTarget.value);
   };
 
-  renderDatepicker(id:string) {
+  onMultpleSelectChange = (e: React.FormEvent<HTMLSelectElement>) => {
+    const selectedValue = e.currentTarget.value;
+    const { multipleSelectValues } = this.state;
+    if (multipleSelectValues) {
+      if (multipleSelectValues.filter(value => value === selectedValue).length === 0) {
+        multipleSelectValues.push(selectedValue)
+      }
+      this.onChange(multipleSelectValues)
+    }
+
+    this.setState({ multipleSelectValues })
+
+  };
+
+  renderDatepicker(id: string) {
     return (
       <Datetime
-        inputProps={{id}}
+        inputProps={{ id }}
         value={this.state.dateValue}
         viewDate={new Date()}
         defaultValue={new Date()}
@@ -188,10 +211,20 @@ export default class Field extends React.Component<Props, State> {
     );
   }
 
-  renderDateTimepicker(id:string) {
+  renderHtml(content: string, id: string) {
+    return (
+      <div id={id} 
+        dangerouslySetInnerHTML={{
+          __html: xss(content)
+        }}
+      />
+    );
+  }
+
+  renderDateTimepicker(id: string) {
     return (
       <Datetime
-        inputProps={{id}}
+        inputProps={{ id }}
         value={this.state.dateTimeValue}
         viewDate={new Date()}
         defaultValue={new Date()}
@@ -219,6 +252,18 @@ export default class Field extends React.Component<Props, State> {
       case 'select':
         return Field.renderSelect(options, { onChange: this.onSelectChange, id: field._id });
 
+      case 'multiSelect':
+        return Field.renderSelect(options, { value: this.state.multipleSelectValues, onChange: this.onMultpleSelectChange, id: field._id, multiple: true });
+
+      case 'pronoun':
+        return Field.renderSelect(['Male', 'Female', 'Not applicable'], { onChange: this.onSelectChange, id: field._id });
+
+      case 'businessType':
+        return Field.renderSelect(COMPANY_BUSINESS_TYPES, { onChange: this.onSelectChange, id: field._id })
+
+      case 'industry':
+        return Field.renderSelect(DEFAULT_COMPANY_INDUSTRY_TYPES, { value: this.state.multipleSelectValues, onChange: this.onMultpleSelectChange, id: field._id, multiple: true })
+
       case 'check':
         return Field.renderCheckboxes(name, options, field._id, this.onCheckboxesChange);
 
@@ -230,6 +275,30 @@ export default class Field extends React.Component<Props, State> {
           this.onRadioButtonsChange
         );
 
+      case 'doNotDisturb':
+        return Field.renderRadioButtons(
+          name,
+          ['Yes', 'No'],
+          field._id,
+          this.onRadioButtonsChange
+        );
+
+      case 'companyDoNotDisturb':
+        return Field.renderRadioButtons(
+          name,
+          ['Yes', 'No'],
+          field._id,
+          this.onRadioButtonsChange
+        );
+
+      case 'hasAuthority':
+        return Field.renderRadioButtons(
+          name,
+          ['Yes', 'No'],
+          field._id,
+          this.onRadioButtonsChange
+        );
+
       case 'file':
         return Field.renderInput({
           onChange: this.handleFileInput,
@@ -237,8 +306,34 @@ export default class Field extends React.Component<Props, State> {
           id: field._id
         });
 
+      case 'avatar':
+        return Field.renderInput({
+          onChange: this.handleFileInput,
+          type: 'file',
+          id: field._id
+        });
+
+      case 'companyAvatar':
+        return Field.renderInput({
+          onChange: this.handleFileInput,
+          type: 'file',
+          id: field._id
+        });
+
       case 'textarea':
-        return Field.renderTextarea({ onChange: this.onTextAreaChange, id:field._id });
+        return Field.renderTextarea({ onChange: this.onTextAreaChange, id: field._id });
+
+      case 'description':
+        return Field.renderTextarea({ onChange: this.onTextAreaChange, id: field._id });
+
+      case 'companyDescription':
+        return Field.renderTextarea({ onChange: this.onTextAreaChange, id: field._id });
+
+      case 'birthDate':
+        return this.renderDatepicker(field._id);
+
+      case 'html':
+        return this.renderHtml(field.content || '', field._id)
 
       default:
         return Field.renderInput({
@@ -249,15 +344,28 @@ export default class Field extends React.Component<Props, State> {
     }
   }
 
+
   render() {
     const { field, error } = this.props;
     const { isAttachingFile } = this.state;
 
+    const fieldStyle = () => {
+      if (field.column) {
+        return {
+          width: `${100 / field.column}%`,
+          display: 'inline-block'
+        }
+      }
+    }
+
     return (
-      <div className="form-group">
+      <div
+        className="form-group"
+        style={fieldStyle()}
+      >
         <label className="control-label" htmlFor={`field-${field._id}`}>
           {field.text}
-          {field.isRequired ? <span className="required">*</span> : null}:
+          {field.isRequired ? <span className="required">*</span> : null}
         </label>
 
         <span className="error">{error && error.text}</span>

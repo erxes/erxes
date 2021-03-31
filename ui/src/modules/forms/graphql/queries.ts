@@ -158,11 +158,19 @@ const fields = `
       type
       validation
       text
-      field
+      content
       description
       options
       isRequired
       order
+      column
+      logicAction
+      logics {
+        fieldId
+        logicOperator
+        logicValue
+      }
+      groupName
     }
   }
 `;
