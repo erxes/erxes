@@ -1,10 +1,17 @@
 import { Model, model } from 'mongoose';
 import { isUsingElk } from '../../data/utils';
-import { fetchElk } from '../../elasticsearch';
+import {
+  conformityHelper,
+  findElk,
+  getMatchConformities,
+  getQueryConformities,
+  getSavedAnyConformityMatch,
+  getSavedAnyConformityQuery,
+  relatedConformityHelper
+} from './conformitiesUtils';
 import {
   conformitySchema,
   IConformitiesRemove,
-  IConformity,
   IConformityAdd,
   IConformityChange,
   IConformityDocument,
@@ -15,115 +22,6 @@ import {
   IConformitySaved,
   IGetConformityBulk
 } from './definitions/conformities';
-
-const getMatch = ({
-  mainType,
-  mainTypeIds,
-  relTypes
-}: {
-  mainType: string;
-  mainTypeIds: string[];
-  relTypes: string[];
-}) => {
-  return {
-    $match: {
-      $or: [
-        {
-          $and: [
-            { mainType },
-            { mainTypeId: { $in: mainTypeIds } },
-            { relType: { $in: relTypes } }
-          ]
-        },
-        {
-          $and: [
-            { mainType: { $in: relTypes } },
-            { relType: mainType },
-            { relTypeId: { $in: mainTypeIds } }
-          ]
-        }
-      ]
-    }
-  };
-};
-
-const getElasticQuery = ({
-  mainType,
-  mainTypeIds,
-  relTypes
-}: {
-  mainType: string;
-  mainTypeIds: string[];
-  relTypes: string[];
-}) => {
-  return {
-    bool: {
-      should: [
-        {
-          bool: {
-            must: [
-              {
-                match: {
-                  mainType
-                }
-              },
-              {
-                terms: {
-                  mainTypeId: mainTypeIds
-                }
-              },
-              {
-                terms: {
-                  relType: relTypes
-                }
-              }
-            ]
-          }
-        },
-        {
-          bool: {
-            must: [
-              {
-                terms: {
-                  mainType: relTypes
-                }
-              },
-              {
-                match: {
-                  relType: mainType
-                }
-              },
-              {
-                terms: {
-                  relTypeId: mainTypeIds
-                }
-              }
-            ]
-          }
-        }
-      ]
-    }
-  };
-};
-
-const getSavedAnyConformityMatch = ({
-  mainType,
-  mainTypeId
-}: {
-  mainType: string;
-  mainTypeId: string;
-}) => {
-  return {
-    $or: [
-      {
-        $and: [{ mainType }, { mainTypeId }]
-      },
-      {
-        $and: [{ relType: mainType }, { relTypeId: mainTypeId }]
-      }
-    ]
-  };
-};
 
 export interface IConformityModel extends Model<IConformityDocument> {
   addConformity(doc: IConformityAdd): Promise<IConformityDocument>;
@@ -201,47 +99,34 @@ export const loadConformityClass = () => {
     }
 
     public static async savedConformity(doc: IConformitySaved, mustDb = false) {
-      let conformities: IConformity[] = [];
-
       if (mustDb || !isUsingElk()) {
-        conformities = await Conformities.aggregate([
-          {
-            ...getMatch({
+        return conformityHelper({
+          doc,
+          getConformities: async () => {
+            return Conformities.aggregate([
+              {
+                ...getMatchConformities({
+                  mainType: doc.mainType,
+                  relTypes: doc.relTypes,
+                  mainTypeIds: [doc.mainTypeId]
+                })
+              }
+            ]);
+          }
+        });
+      }
+
+      return conformityHelper({
+        doc,
+        getConformities: async () => {
+          return findElk({
+            ...getQueryConformities({
               mainType: doc.mainType,
               relTypes: doc.relTypes,
               mainTypeIds: [doc.mainTypeId]
             })
-          }
-        ]);
-      } else {
-        const response = await fetchElk(
-          'search',
-          'conformities',
-          {
-            query: {
-              ...getElasticQuery({
-                mainType: doc.mainType,
-                relTypes: doc.relTypes,
-                mainTypeIds: [doc.mainTypeId]
-              })
-            }
-          },
-          '',
-          { hits: { hits: [] } }
-        );
-
-        conformities = response.hits.hits.map(hit => {
-          return {
-            _id: hit._id,
-            ...hit._source
-          };
-        });
-      }
-
-      return conformities.map(item => {
-        return item.mainType === doc.mainType
-          ? String(item.relTypeId)
-          : String(item.mainTypeId);
+          });
+        }
       });
     }
 
@@ -265,47 +150,34 @@ export const loadConformityClass = () => {
     }
 
     public static async filterConformity(doc: IConformityFilter) {
-      let conformities: IConformity[] = [];
-
       if (!isUsingElk()) {
-        conformities = await Conformities.aggregate([
-          {
-            ...getMatch({
-              mainType: doc.mainType,
-              relTypes: [doc.relType],
-              mainTypeIds: doc.mainTypeIds
-            })
+        return conformityHelper({
+          doc,
+          getConformities: async data => {
+            return Conformities.aggregate([
+              {
+                ...getMatchConformities({
+                  mainType: data.mainType,
+                  relTypes: [data.relType],
+                  mainTypeIds: data.mainTypeIds
+                })
+              }
+            ]);
           }
-        ]);
-      } else {
-        const response = await fetchElk(
-          'search',
-          'conformities',
-          {
-            query: {
-              ...getElasticQuery({
-                mainType: doc.mainType,
-                relTypes: [doc.relType],
-                mainTypeIds: doc.mainTypeIds
-              })
-            }
-          },
-          '',
-          { hits: { hits: [] } }
-        );
-
-        conformities = response.hits.hits.map(hit => {
-          return {
-            _id: hit._id,
-            ...hit._source
-          };
         });
       }
 
-      return conformities.map(item => {
-        return item.mainType === doc.mainType
-          ? String(item.relTypeId)
-          : String(item.mainTypeId);
+      conformityHelper({
+        doc,
+        getConformities: async data => {
+          return findElk({
+            ...getQueryConformities({
+              mainType: data.mainType,
+              relTypes: [data.relType],
+              mainTypeIds: data.mainTypeIds
+            })
+          });
+        }
       });
     }
 
@@ -313,182 +185,103 @@ export const loadConformityClass = () => {
       if (!isUsingElk()) {
         return Conformities.aggregate([
           {
-            ...getMatch({ ...doc })
+            ...getMatchConformities({ ...doc })
           }
         ]);
       }
 
-      const response = await fetchElk(
-        'search',
-        'conformities',
-        {
-          query: {
-            ...getElasticQuery({ ...doc })
-          }
-        },
-        '',
-        { hits: { hits: [] } }
-      );
-
-      return response.hits.hits.map(hit => {
-        return {
-          _id: hit._id,
-          ...hit._source
-        };
-      });
+      return findElk({ ...getQueryConformities({ ...doc }) });
     }
 
     public static async relatedConformity(doc: IConformityRelated) {
-      const match = getSavedAnyConformityMatch({
-        mainType: doc.mainType,
-        mainTypeId: doc.mainTypeId
-      });
-
-      let savedRelatedObjects: IConformity[] = [];
       if (!isUsingElk()) {
-        savedRelatedObjects = await Conformities.aggregate([{ $match: match }]);
-      } else {
-        const response = await fetchElk(
-          'search',
-          'conformities',
-          {
-            query: {
-              bool: {
-                should: [
-                  {
-                    bool: {
-                      must: [
-                        {
-                          match: {
-                            mainType: doc.mainType
-                          }
-                        },
-                        {
-                          match: {
-                            mainTypeId: doc.mainTypeId
-                          }
-                        }
-                      ]
-                    }
-                  },
-                  {
-                    bool: {
-                      must: [
-                        {
-                          match: {
-                            relType: doc.mainType
-                          }
-                        },
-                        {
-                          match: {
-                            relTypeId: doc.mainTypeId
-                          }
-                        }
-                      ]
-                    }
-                  }
-                ]
+        return relatedConformityHelper({
+          doc,
+          getSaved: async data => {
+            return Conformities.aggregate([
+              {
+                $match: getSavedAnyConformityMatch({
+                  mainType: data.mainType,
+                  mainTypeId: data.mainTypeId
+                })
               }
-            }
+            ]);
           },
-          '',
-          { hits: { hits: [] } }
-        );
-
-        savedRelatedObjects = response.hits.hits.map(hit => {
-          return {
-            _id: hit._id,
-            ...hit._source
-          };
+          getRelated: async (data, savedList) => {
+            return Conformities.aggregate([
+              {
+                $match: {
+                  $or: [
+                    {
+                      $and: [
+                        { mainType: data.relType },
+                        { relTypeId: { $in: savedList } }
+                      ]
+                    },
+                    {
+                      $and: [
+                        { relType: data.relType },
+                        { mainTypeId: { $in: savedList } }
+                      ]
+                    }
+                  ]
+                }
+              }
+            ]);
+          }
         });
       }
 
-      const savedList = savedRelatedObjects.map(item => {
-        return item.mainType === doc.mainType
-          ? String(item.relTypeId)
-          : String(item.mainTypeId);
-      });
-
-      let conformities: IConformity[] = [];
-      if (!isUsingElk()) {
-        conformities = await Conformities.aggregate([
-          {
-            $match: {
-              $or: [
+      return relatedConformityHelper({
+        doc,
+        getSaved: async data => {
+          return findElk({
+            ...getSavedAnyConformityQuery({
+              mainType: data.mainType,
+              mainTypeId: data.mainTypeId
+            })
+          });
+        },
+        getRelated: async (data, savedList) => {
+          return findElk({
+            bool: {
+              should: [
                 {
-                  $and: [
-                    { mainType: doc.relType },
-                    { relTypeId: { $in: savedList } }
-                  ]
+                  bool: {
+                    must: [
+                      {
+                        match: {
+                          mainType: data.relType
+                        }
+                      },
+                      {
+                        terms: {
+                          relTypeId: savedList
+                        }
+                      }
+                    ]
+                  }
                 },
                 {
-                  $and: [
-                    { relType: doc.relType },
-                    { mainTypeId: { $in: savedList } }
-                  ]
+                  bool: {
+                    must: [
+                      {
+                        match: {
+                          relType: data.relType
+                        }
+                      },
+                      {
+                        terms: {
+                          mainTypeId: savedList
+                        }
+                      }
+                    ]
+                  }
                 }
               ]
             }
-          }
-        ]);
-      } else {
-        const response = await fetchElk(
-          'search',
-          'conformities',
-          {
-            query: {
-              bool: {
-                should: [
-                  {
-                    bool: {
-                      must: [
-                        {
-                          match: {
-                            mainType: doc.relType
-                          }
-                        },
-                        {
-                          terms: {
-                            relTypeId: savedList
-                          }
-                        }
-                      ]
-                    }
-                  },
-                  {
-                    bool: {
-                      must: [
-                        {
-                          match: {
-                            relType: doc.relType
-                          }
-                        },
-                        {
-                          terms: {
-                            mainTypeId: savedList
-                          }
-                        }
-                      ]
-                    }
-                  }
-                ]
-              }
-            }
-          },
-          '',
-          { hits: { hits: [] } }
-        );
-
-        conformities = response.hits.hits.map(hit => {
-          return {
-            _id: hit._id,
-            ...hit._source
-          };
-        });
-      }
-
-      return conformities.map(item => {
-        return item.mainType === doc.relType ? item.mainTypeId : item.relTypeId;
+          });
+        }
       });
     }
 
