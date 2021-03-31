@@ -11,7 +11,7 @@ Heroku is a container-based cloud Platform as a Service (PaaS).
 
 In order to deploy erxes and other related apps, you will need `mLab MongoDB` (MongoDB), `Heroku Redis` (Redis), and `CloudAMQP` (RabbitMQ) addons.
 
-To add any addon to an app, you will need to register your credit card. So please add your creadit card and verify your account prior to proceeding further.
+To add any addon to an app, you will need to register your credit card. So please add your credit card and verify your account prior to proceeding further.
 
 ## One Click deployment
 
@@ -65,7 +65,7 @@ Now go to Heroku dashboard and select the **erxes-api app** from the Apps tab.
 
 Go to Settings tab where you can manage your Config Vars as you need to update config vars of **erxes-api** app.
 
-In the Config Vars section, click a button 'Reveal Config Vars' so that you will be able to see all the config vars.
+In the Config Vars section, click the button 'Reveal Config Vars' so that you will be able to see all the config vars.
 
 Copy MONGO_URI's value and paste it into MONGO_URL.
 
@@ -84,7 +84,7 @@ Clone the `erxes-api` and run the following commands in the terminal.
 
 `cd erxes-api/src`
 
-The below command will create initial permission groups, permissions, growth hack templates, email templates and some sample data.
+The below command will create initial permission groups, permissions, growth hack templates, email templates, and some sample data.
 
 `mongorestore --host=<host> --port=<port> -u <user> -d <db> initialData`
 
@@ -120,7 +120,7 @@ Now it's time to grab yourself a cup of coffee and enjoy using **erxes**.
 
 ## Extra features
 
-There is a several apps available for you to install and make erxes even more powerful.  
+There are several apps available for you to install and make erxes even more powerful.  
 The steps of installing them are same as above.
 
 ### 4. Install Logger
