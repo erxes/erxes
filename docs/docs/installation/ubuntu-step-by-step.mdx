@@ -15,7 +15,7 @@ You must have an account with your hosting provider prior to doing these steps.
   - **Ubuntu 18.04** installed and running
   - **1 CPU**
   - **minimum 1GB RAM**
-  - ability to to SSH into the server
+  - ability to SSH into the server
   - If you're using a **subdomain**, then the **subdomain** must be created with your hosting provider hosting your main domain's website or app. The DNS needs to be pointed to your server. (See below)
 
 ### Configure your DNS Records to point at your server
@@ -40,7 +40,7 @@ If your domain name is **example.com**, and the **ip address** assigned to your 
 
 You first need to create a subdomain. For example, "erxes.example.com". Then you need to edit the **DNS**.
 
-If your domain name is **erxes.example.com**, and the **ip address** assigned to your server is **44.123.32.12**, then you will have a two `A records` that look like this:
+If your domain name is **erxes.example.com**, and the **ip address** assigned to your server is **44.123.32.12**, then you will have two `A records` that look like this:
 
 | Type | Name                  | Value                  |
 | ---- | --------------------- | ---------------------- |
@@ -71,7 +71,7 @@ adduser erxes
 
 (Finish adding the user simply by pressing the `enter` or `return` key through the questions.)
 
-Grant the **erxes** user adminstrative rights.
+Grant the **erxes** user administrative rights.
 
 ```bash
 usermod -aG sudo erxes
@@ -201,7 +201,7 @@ In the following sections, you will install software dependencies that are neede
 
 ## Nvm install
 
-**Node Version Manage (nvm)** is a tool that allows you to download and install [Node.js](https://nodejs.org/). You can read more about the installation process here: [How to install NVM](https://gist.github.com/d2s/372b5943bce17b964a79)
+**Node Version Manager (nvm)** is a tool that allows you to download and install [Node.js](https://nodejs.org/). You can read more about the installation process here: [How to install NVM](https://gist.github.com/d2s/372b5943bce17b964a79)
 
 Install **nvm** and initialize by reloading the shell configuration. (Run the following commands separately.)
 
@@ -539,7 +539,7 @@ server {
 ```
 
 - After replacing `YOUR_DOMAIN_COM` with your actual domain name. Save with `ctrl + x` and then `y` to accept the changes.
-- Enable the file by creating a link form it to **sites-enabled**. Make sure to **use your domain name** exactly as you created the file above. **Replace** `YOUR_DOMAIN_COM` **with your actual domain name.**
+- Enable the file by creating a link from it to **sites-enabled**. Make sure to **use your domain name** exactly as you created the file above. **Replace** `YOUR_DOMAIN_COM` **with your actual domain name.**
 
 ```bash
 sudo ln -s /etc/nginx/sites-available/YOUR_DOMAIN_COM /etc/nginx/sites-enabled/
@@ -616,7 +616,7 @@ Execute Certbot.
 sudo certbot --nginx
 ```
 
-You will asked several questions, you can answer as follows:
+You will be asked several questions, you can answer as follows:
 
 - Enter your email address
 - Agree with the **Terms of Service**
