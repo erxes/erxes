@@ -503,7 +503,9 @@ export const solveSubmissions = async (args: {
           position,
           description,
           hasAuthority,
-          doNotDisturb
+          doNotDisturb,
+          email,
+          phone
         },
         cachedCustomer
       );
@@ -545,7 +547,9 @@ export const solveSubmissions = async (args: {
           position,
           description,
           hasAuthority,
-          doNotDisturb
+          doNotDisturb,
+          email,
+          phone
         },
         customer
       );
