@@ -613,7 +613,7 @@ export const solveSubmissions = async (args: {
     if (key !== 'default' && companyId && customerId) {
       await Conformities.addConformity({
         mainType: 'company',
-        mainTypeId: mainCompanyId,
+        mainTypeId: companyId,
         relType: 'customer',
         relTypeId: customerId
       });
