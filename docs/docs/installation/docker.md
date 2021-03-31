@@ -3,7 +3,7 @@ id: docker
 title: Docker
 ---
 
-This steps explain how to install Erxes on Docker Hub, to do it, follow the instructions.
+These steps explain how to install Erxes on Docker Hub, to do it, follow the instructions.
 
 [erxes on docker hub](https://hub.docker.com/u/erxes/)
 
@@ -123,7 +123,7 @@ Official Docker compose documentation: https://docs.docker.com/compose/install/
 mkdir elasticsearch-data && chown 1000:1000 elasticsearch-data
 ```
 
-- elasticsearch container migth fail to start due to permission
+- elasticsearch container might fail to start due to permission
 
 4. Run the following to start containers
 
