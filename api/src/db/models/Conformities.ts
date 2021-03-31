@@ -2,6 +2,7 @@ import { Model, model } from 'mongoose';
 import {
   conformitySchema,
   IConformitiesRemove,
+  IConformity,
   IConformityAdd,
   IConformityChange,
   IConformityDocument,
@@ -63,8 +64,14 @@ export const loadConformityClass = () => {
     /**
      * Create a conformity
      */
-    public static addConformity(doc: IConformityAdd) {
-      return Conformities.create(doc);
+    public static async addConformity(doc: IConformityAdd) {
+      let conformity = await Conformities.findOne(doc);
+
+      if (!conformity) {
+        conformity = await Conformities.create(doc);
+      }
+
+      return conformity;
     }
 
     public static async editConformity(doc: IConformityEdit) {
