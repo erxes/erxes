@@ -13,7 +13,7 @@ Erxes at its core is a repository that collects all customer requests from vario
 - **Erxes** [apollo, react, graphql](https://www.apollographql.com/docs/react)
   responsible for writing widgets data to database, sending a notification to erxes-api.
 
-* **Erxes-api** [nodejs, graphql, apollo](https://www.apollographql.com/docs/apollo-server) responsible for writing erxes fontend project's data to the database, receiving notifications from widgets, talking to external APIs
+* **Erxes-api** [nodejs, graphql, apollo](https://www.apollographql.com/docs/apollo-server) responsible for writing erxes frontend project's data to the database, receiving notifications from widgets, talking to external APIs
 
 - **Erxes-integrations** [nodejs](https://www.apollographql.com/docs/apollo-server) responsible for receiving all external api webhook updates including Facebook, Twitter, Gmail, Nylas etc ...
 
