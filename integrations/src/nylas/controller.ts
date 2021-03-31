@@ -45,77 +45,86 @@ export const initNylas = async app => {
     return res.status(200).send(req.query.challenge);
   });
 
-  app.post('/nylas/webhook', routeErrorHandling(async (req, res) => {
-    // Verify the request to make sure it's from Nylas
-    if (!verifyNylasSignature(req)) {
-      debugNylas('Failed to verify nylas');
-      return res.status(401).send('X-Nylas-Signature failed verification');
-    }
-
-    debugNylas('Received new email in nylas...');
-
-    const { page, booking, deltas } = req.body;
-
-    if (page && booking) {
-      return res.status(200).send('success');
-    }
-
-    for (const delta of deltas) {
-      const data = delta.object_data || {};
-      const { id, account_id } = data;
-
-      switch (delta.type) {
-        case 'message.created':
-        case 'thread.replied':
-          await syncMessages(account_id, id);
-          break;
-        case 'event.created':
-        case 'event.updated':
-        case 'event.deleted':
-          await syncEvents(delta.type, account_id, id);
-          break;
-        case 'calendar.created':
-        case 'calendar.updated':
-        case 'calendar.deleted':
-          await syncCalendars(delta.type, account_id, id);
-          break;
+  app.post(
+    '/nylas/webhook',
+    routeErrorHandling(async (req, res) => {
+      // Verify the request to make sure it's from Nylas
+      if (!verifyNylasSignature(req)) {
+        debugNylas('Failed to verify nylas');
+        return res.status(401).send('X-Nylas-Signature failed verification');
       }
-    }
 
-    return res.status(200).send('success');
-  }));
+      debugNylas('Received new email in nylas...');
 
-  app.post('/nylas/create-integration', routeErrorHandling(async (req, res) => {
-    debugRequest(debugNylas, req);
+      const { page, booking, deltas } = req.body;
 
-    const { integrationId, data } = req.body;
+      if (page && booking) {
+        return res.status(200).send('success');
+      }
 
-    const args = JSON.parse(data);
+      for (const delta of deltas) {
+        const data = delta.object_data || {};
+        const { id, account_id } = data;
 
-    let { kind } = req.body;
+        switch (delta.type) {
+          case 'message.created':
+          case 'thread.replied':
+            await syncMessages(account_id, id);
+            break;
+          case 'event.created':
+          case 'event.updated':
+          case 'event.deleted':
+            await syncEvents(delta.type, account_id, id);
+            break;
+          case 'calendar.created':
+          case 'calendar.updated':
+          case 'calendar.deleted':
+            await syncCalendars(delta.type, account_id, id);
+            break;
+        }
+      }
 
-    kind = kind.split('-')[1];
+      return res.status(200).send('success');
+    })
+  );
 
-    await createNylasIntegration(kind, integrationId, args);
+  app.post(
+    '/nylas/create-integration',
+    routeErrorHandling(async (req, res) => {
+      debugRequest(debugNylas, req);
 
-    debugNylas(`Successfully created the integration and connected to nylas`);
+      const { integrationId, data } = req.body;
 
-    return res.json({ status: 'ok' });
-  }));
+      const args = JSON.parse(data);
 
-  app.get('/nylas/get-message', routeErrorHandling(async (req, res) => {
-    const { erxesApiMessageId, integrationId } = req.query;
+      let { kind } = req.body;
 
-    debugNylas(`Get message with erxesApiId: ${erxesApiMessageId}`);
+      kind = kind.split('-')[1];
 
-    if (!erxesApiMessageId) {
-      throw new Error('erxesApiMessageId is not provided!');
-    }
+      await createNylasIntegration(kind, integrationId, args);
 
-    const message = await getMessage(erxesApiMessageId, integrationId);
+      debugNylas(`Successfully created the integration and connected to nylas`);
 
-    return res.json(message);
-  }));
+      return res.json({ status: 'ok' });
+    })
+  );
+
+  app.get(
+    '/nylas/get-message',
+    routeErrorHandling(async (req, res) => {
+      const { erxesApiMessageId, integrationId } = req.query;
+
+      debugNylas(`Get message with erxesApiId: ${erxesApiMessageId}`);
+
+      if (!erxesApiMessageId) {
+        throw new Error('erxesApiMessageId is not provided!');
+      }
+
+      const message = await getMessage(erxesApiMessageId, integrationId);
+
+      return res.json(message);
+    })
+  );
 
   app.post('/nylas/upload', async (req, res, next) => {
     debugNylas('Uploading a file...');
@@ -136,186 +145,237 @@ export const initNylas = async app => {
     });
   });
 
-  app.get('/nylas/get-attachment', routeErrorHandling(async (req, res) => {
-    const { attachmentId, integrationId, filename, contentType } = req.query;
+  app.get(
+    '/nylas/get-attachment',
+    routeErrorHandling(async (req, res) => {
+      const { attachmentId, integrationId, filename, contentType } = req.query;
 
-    const response = await nylasGetAttachment(attachmentId, integrationId);
+      const response = await nylasGetAttachment(attachmentId, integrationId);
 
-    const headerOptions = { 'Content-Type': contentType };
+      const headerOptions = { 'Content-Type': contentType };
 
-    if (
-      !['image/png', 'image/jpeg', 'image/jpg', 'application/pdf'].includes(
-        contentType
-      )
-    ) {
-      headerOptions[
-        'Content-Disposition'
-      ] = `attachment;filename=${filename}`;
-    }
+      if (
+        !['image/png', 'image/jpeg', 'image/jpg', 'application/pdf'].includes(
+          contentType
+        )
+      ) {
+        headerOptions[
+          'Content-Disposition'
+        ] = `attachment;filename=${filename}`;
+      }
 
-    res.writeHead(200, headerOptions);
+      res.writeHead(200, headerOptions);
 
-    return res.end(response.body, 'base64');
-  }));
+      return res.end(response.body, 'base64');
+    })
+  );
 
-  app.post('/nylas/send', routeErrorHandling(async (req, res) => {
-    debugRequest(debugNylas, req);
-    debugNylas('Sending message...');
+  app.post(
+    '/nylas/send',
+    routeErrorHandling(async (req, res) => {
+      debugRequest(debugNylas, req);
+      debugNylas('Sending message...');
 
-    const { data, erxesApiId } = req.body;
-    const params = JSON.parse(data);
+      const { data, erxesApiId } = req.body;
+      const params = JSON.parse(data);
 
-    await nylasSendEmail(erxesApiId, params);
+      await nylasSendEmail(erxesApiId, params);
 
-    return res.json({ status: 'ok' });
-  }));
+      return res.json({ status: 'ok' });
+    })
+  );
 
-  app.post('/nylas/connect-calendars', routeErrorHandling(async (req, res) => {
-    debugRequest(debugNylas, req);
+  app.post(
+    '/nylas/connect-calendars',
+    routeErrorHandling(async (req, res) => {
+      debugRequest(debugNylas, req);
 
-    const { uid } = req.body;
+      const { uid } = req.body;
 
-    const response = await nylasConnectCalendars(uid);
+      const response = await nylasConnectCalendars(uid);
 
-    return res.json({
-      status: 'ok',
-      ...response
-    });
-  }));
+      return res.json({
+        status: 'ok',
+        ...response
+      });
+    })
+  );
 
-  app.post('/nylas/remove-calendars', routeErrorHandling(async (req, res) => {
-    const { accountId } = req.body;
+  app.post(
+    '/nylas/remove-calendars',
+    routeErrorHandling(async (req, res) => {
+      const { accountId } = req.body;
 
-    await nylasRemoveCalendars(accountId);
+      await nylasRemoveCalendars(accountId);
 
-    return res.json({ status: 'ok' });
-  }));
+      return res.json({ status: 'ok' });
+    })
+  );
 
-  app.get('/nylas/get-calendars', routeErrorHandling(async (req, res) => {
-    const { accountId, show } = req.query;
+  app.get(
+    '/nylas/get-calendars',
+    routeErrorHandling(async (req, res) => {
+      const { accountId, show } = req.query;
 
-    const calendars = await nylasGetAccountCalendars(accountId, show);
+      const calendars = await nylasGetAccountCalendars(accountId, show);
 
-    return res.json(calendars);
-  }));
+      return res.json(calendars);
+    })
+  );
 
-  app.get('/nylas/get-events', routeErrorHandling(async (req, res) => {
-    const { calendarIds, startTime, endTime } = req.query;
+  app.get(
+    '/nylas/get-events',
+    routeErrorHandling(async (req, res) => {
+      const { calendarIds, startTime, endTime } = req.query;
 
-    const events = await nylasGetEvents({ calendarIds, startTime, endTime });
+      const events = await nylasGetEvents({ calendarIds, startTime, endTime });
 
-    return res.json(events);
-  }));
+      return res.json(events);
+    })
+  );
 
-  app.get('/nylas/get-calendar-event', routeErrorHandling(async (req, res) => {
-    const { id, type, erxesApiId } = req.query;
+  app.get(
+    '/nylas/get-calendar-event',
+    routeErrorHandling(async (req, res) => {
+      const { id, type, erxesApiId } = req.query;
 
-    const response = await nylasGetCalendarOrEvent(id, type, erxesApiId);
+      const response = await nylasGetCalendarOrEvent(id, type, erxesApiId);
 
-    return res.json(response);
-  }));
+      return res.json(response);
+    })
+  );
 
-  app.get('/nylas/check-calendar-availability', routeErrorHandling(async (req, res) => {
-    const { erxesApiId, dates } = req.query;
+  app.get(
+    '/nylas/check-calendar-availability',
+    routeErrorHandling(async (req, res) => {
+      const { erxesApiId, dates } = req.query;
 
-    const response = await nylasCheckCalendarAvailability(erxesApiId, dates);
+      const response = await nylasCheckCalendarAvailability(erxesApiId, dates);
 
-    return res.json(response);
-  }));
+      return res.json(response);
+    })
+  );
 
-  app.post('/nylas/create-calendar-event', routeErrorHandling(async (req, res) => {
-    debugRequest(debugNylas, req);
+  app.post(
+    '/nylas/create-calendar-event',
+    routeErrorHandling(async (req, res) => {
+      debugRequest(debugNylas, req);
 
-    const { accountId, ...doc } = req.body;
+      const { accountId, ...doc } = req.body;
 
-    const response = await nylasCreateCalenderEvent({ accountId, doc });
+      const response = await nylasCreateCalenderEvent({ accountId, doc });
 
-    return res.json(response);
-  }));
+      return res.json(response);
+    })
+  );
 
-  app.post('/nylas/edit-calendar-event', routeErrorHandling(async (req, res) => {
-    debugRequest(debugNylas, req);
+  app.post(
+    '/nylas/edit-calendar-event',
+    routeErrorHandling(async (req, res) => {
+      debugRequest(debugNylas, req);
 
-    const { accountId, _id, ...doc } = req.body;
+      const { accountId, _id, ...doc } = req.body;
 
-    const response = await nylasUpdateEvent({
-      accountId,
-      eventId: _id,
-      doc
-    });
+      const response = await nylasUpdateEvent({
+        accountId,
+        eventId: _id,
+        doc
+      });
 
-    return res.json(response);
-  }));
+      return res.json(response);
+    })
+  );
 
-  app.post('/nylas/edit-calendar', routeErrorHandling(async (req, res) => {
-    debugRequest(debugNylas, req);
+  app.post(
+    '/nylas/edit-calendar',
+    routeErrorHandling(async (req, res) => {
+      debugRequest(debugNylas, req);
 
-    const response = await updateCalendar(req.body);
+      const response = await updateCalendar(req.body);
 
-    return res.json(response);
-  }));
+      return res.json(response);
+    })
+  );
 
-  app.post('/nylas/delete-calendar-event', routeErrorHandling(async (req, res) => {
-    debugRequest(debugNylas, req);
+  app.post(
+    '/nylas/delete-calendar-event',
+    routeErrorHandling(async (req, res) => {
+      debugRequest(debugNylas, req);
 
-    const { accountId, _id } = req.body;
+      const { accountId, _id } = req.body;
 
-    const response = await nylasDeleteCalendarEvent({
-      accountId,
-      eventId: _id
-    });
+      const response = await nylasDeleteCalendarEvent({
+        accountId,
+        eventId: _id
+      });
 
-    return res.json(response);
-  }));
+      return res.json(response);
+    })
+  );
 
-  app.get('/nylas/get-schedule-pages', routeErrorHandling(async (req, res) => {
-    debugRequest(debugNylas, req);
+  app.get(
+    '/nylas/get-schedule-pages',
+    routeErrorHandling(async (req, res) => {
+      debugRequest(debugNylas, req);
 
-    const { accountId } = req.query;
+      const { accountId } = req.query;
 
-    const response = await nylasGetSchedulePages(accountId);
+      const response = await nylasGetSchedulePages(accountId);
 
-    return res.json(response);
-  }));
+      return res.json(response);
+    })
+  );
 
-  app.get('/nylas/get-schedule-page', routeErrorHandling(async (req, res) => {
-    debugRequest(debugNylas, req);
+  app.get(
+    '/nylas/get-schedule-page',
+    routeErrorHandling(async (req, res) => {
+      debugRequest(debugNylas, req);
 
-    const { pageId } = req.query;
+      const { pageId } = req.query;
 
-    const response = await nylasGetSchedulePage(pageId);
+      const response = await nylasGetSchedulePage(pageId);
 
-    return res.json(response);
-  }));
+      return res.json(response);
+    })
+  );
 
-  app.post('/nylas/create-schedule-page', routeErrorHandling(async (req, res) => {
-    debugRequest(debugNylas, req);
+  app.post(
+    '/nylas/create-schedule-page',
+    routeErrorHandling(async (req, res) => {
+      debugRequest(debugNylas, req);
 
-    const { accountId, ...doc } = req.body;
+      const { accountId, ...doc } = req.body;
 
-    const response = await nylasCreateSchedulePage(accountId, doc);
+      const response = await nylasCreateSchedulePage(accountId, doc);
 
-    return res.json(response);
-  }));
+      return res.json(response);
+    })
+  );
 
-  app.post('/nylas/edit-schedule-page', routeErrorHandling(async (req, res) => {
-    debugRequest(debugNylas, req);
+  app.post(
+    '/nylas/edit-schedule-page',
+    routeErrorHandling(async (req, res) => {
+      debugRequest(debugNylas, req);
 
-    const { _id, ...doc } = req.body;
+      const { _id, ...doc } = req.body;
 
-    const response = await nylasUpdateSchedulePage(_id, doc);
+      const response = await nylasUpdateSchedulePage(_id, doc);
 
-    return res.json(response);
-  }));
+      return res.json(response);
+    })
+  );
 
-  app.post('/nylas/delete-page', routeErrorHandling(async (req, res) => {
-    const { pageId } = req.body;
+  app.post(
+    '/nylas/delete-page',
+    routeErrorHandling(async (req, res) => {
+      const { pageId } = req.body;
 
-    await nylasDeleteSchedulePage(pageId);
+      await nylasDeleteSchedulePage(pageId);
 
-    return res.json({ status: 'ok' });
-  }));
-}
+      return res.json({ status: 'ok' });
+    })
+  );
+};
 /**
  * Verify request by nylas signature
  * @param {Request} req

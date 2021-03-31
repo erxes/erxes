@@ -85,6 +85,17 @@ const SelectInput = styled.div`
   }
 `;
 
+const LogicIndicator = styled.span`
+  background: ${colors.colorCoreOrange};
+  padding: 2px 8px;
+  font-weight: 500;
+  border-radius: 16px;
+  text-transform: uppercase;
+  font-size: 10px;
+  margin-left: 4px;
+  color: #fff;
+`;
+
 export {
   PropertyList,
   DropIcon,
@@ -93,5 +104,6 @@ export {
   CollapseRow,
   SidebarContent,
   SelectInput,
-  PropertyTable
+  PropertyTable,
+  LogicIndicator
 };

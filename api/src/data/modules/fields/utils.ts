@@ -6,8 +6,8 @@ import {
   FieldsGroups,
   Integrations,
   PipelineLabels,
-  Pipelines,
   Products,
+  Segments,
   Stages,
   Tags,
   Tasks,
@@ -205,16 +205,14 @@ const generateUsersOptions = async (
   };
 };
 
-const getStageOptions = async () => {
-  const stages = await Stages.find();
+const getStageOptions = async pipelineId => {
+  const stages = await Stages.find({ pipelineId });
   const options: Array<{ label: string; value: any }> = [];
 
   for (const stage of stages) {
-    const pipeline = await Pipelines.findOne({ _id: stage.pipelineId });
-
     options.push({
       value: stage._id,
-      label: `${pipeline?.name}: ${stage.name}`
+      label: stage.name || ''
     });
   }
 
@@ -227,16 +225,14 @@ const getStageOptions = async () => {
   };
 };
 
-const getPipelineLabelOptions = async () => {
-  const labels = await PipelineLabels.find();
+const getPipelineLabelOptions = async pipelineId => {
+  const labels = await PipelineLabels.find({ pipelineId });
   const options: Array<{ label: string; value: any }> = [];
 
   for (const label of labels) {
-    const pipeline = await Pipelines.findOne({ _id: label.pipelineId });
-
     options.push({
       value: label._id,
-      label: `${pipeline?.name}: ${label.name}`
+      label: label.name
     });
   }
 
@@ -313,11 +309,16 @@ const generateFieldsFromSchema = async (queSchema: any, namePrefix: string) => {
 export const fieldsCombinedByContentType = async ({
   contentType,
   usageType,
-  excludedNames
+  excludedNames,
+  pipelineId,
+  segmentId
 }: {
   contentType: string;
   usageType?: string;
   excludedNames?: string[];
+  boardId?: string;
+  segmentId?: string;
+  pipelineId?: string;
 }) => {
   let schema: any;
   let extendFields: Array<{ name: string; label?: string }> = [];
@@ -438,9 +439,17 @@ export const fieldsCombinedByContentType = async ({
       'user'
     );
 
-    const labelOptions = await getPipelineLabelOptions();
+    if (segmentId || pipelineId) {
+      const segment = await Segments.findOne({ _id: segmentId });
+      const labelOptions = await getPipelineLabelOptions(
+        pipelineId || (segment ? segment.pipelineId : null)
+      );
+      const stageOptions = await getStageOptions(
+        pipelineId || (segment ? segment.pipelineId : null)
+      );
 
-    const stageOptions = await getStageOptions();
+      fields = [...fields, stageOptions, labelOptions];
+    }
 
     fields = [
       ...fields,
@@ -448,9 +457,7 @@ export const fieldsCombinedByContentType = async ({
         createdByOptions,
         modifiedByOptions,
         assignedUserOptions,
-        watchedUserOptions,
-        stageOptions,
-        labelOptions
+        watchedUserOptions
       ]
     ];
   }

@@ -1,4 +1,5 @@
 import { NodeVM } from 'vm2';
+import { findCompany, findCustomer } from '../data/utils';
 import {
   Companies,
   Conformities,
@@ -18,49 +19,6 @@ const checkCompanyFieldsExists = async doc => {
     }
   }
   return false;
-};
-
-const findCustomer = async doc => {
-  let customer;
-
-  if (doc.customerPrimaryEmail) {
-    customer = await Customers.findOne({
-      primaryEmail: doc.customerPrimaryEmail
-    });
-  }
-
-  if (!customer && doc.customerPrimaryPhone) {
-    customer = await Customers.findOne({
-      primaryPhone: doc.customerPrimaryPhone
-    });
-  }
-
-  if (!customer && doc.customerPrimaryPhone) {
-    customer = await Customers.findOne({ code: doc.customerPrimaryPhone });
-  }
-
-  return customer;
-};
-
-const findCompany = async doc => {
-  let company;
-
-  if (doc.companyPrimaryEmail) {
-    company = await Companies.findOne({
-      primaryEmail: doc.companyPrimaryEmail
-    });
-  }
-
-  if (!company && doc.companyPrimaryPhone) {
-    company = await Companies.findOne({
-      primaryPhone: doc.companyPrimaryPhone
-    });
-  }
-
-  if (!company && doc.companyPrimaryName) {
-    company = await Companies.findOne({ primaryName: doc.companyPrimaryName });
-  }
-  return company;
 };
 
 const webhookMiddleware = async (req, res, next) => {

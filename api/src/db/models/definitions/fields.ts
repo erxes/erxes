@@ -2,6 +2,37 @@ import { Document, Schema } from 'mongoose';
 import { FIELDS_GROUPS_CONTENT_TYPES } from './constants';
 import { field, schemaWrapper } from './utils';
 
+export interface ISubmission {
+  _id: string;
+  value: any;
+  type?: string;
+  validation?: string;
+  associatedFieldId?: string;
+  stageId?: string;
+  groupId?: string;
+}
+export interface ILogic {
+  fieldId: string;
+  tempFieldId?: string;
+  logicOperator?: string;
+  logicValue?: string | number | Date | string[];
+}
+
+export const logicSchema = new Schema(
+  {
+    fieldId: field({ type: String }),
+    logicOperator: field({
+      type: String,
+      optional: true
+    }),
+    logicValue: field({
+      type: Schema.Types.Mixed,
+      optional: true
+    })
+  },
+  { _id: false }
+);
+
 interface IVisibility {
   isVisible?: boolean;
   isVisibleInDetail?: boolean;
@@ -13,6 +44,7 @@ export interface IField extends IVisibility {
   type?: string;
   validation?: string;
   text: string;
+  content?: string;
   description?: string;
   options?: string[];
   isRequired?: boolean;
@@ -22,6 +54,12 @@ export interface IField extends IVisibility {
   canHide?: boolean;
   lastUpdatedUserId?: string;
   associatedFieldId?: string;
+
+  logics?: ILogic[];
+  logicAction?: string;
+  tempFieldId?: string;
+  column?: number;
+  groupName?: string;
 }
 
 export interface IFieldDocument extends IField, Document {
@@ -42,55 +80,69 @@ export interface IFieldGroupDocument extends IFieldGroup, Document {
 }
 
 // Mongoose schemas =============
-export const fieldSchema = new Schema({
-  _id: field({ pkey: true }),
+export const fieldSchema = schemaWrapper(
+  new Schema({
+    _id: field({ pkey: true }),
 
-  // form, customer, company
-  contentType: field({ type: String, label: 'Content type' }),
+    // form, customer, company
+    contentType: field({ type: String, label: 'Content type' }),
 
-  // formId when contentType is form
-  contentTypeId: field({ type: String, label: 'Content type item' }),
+    // formId when contentType is form
+    contentTypeId: field({ type: String, label: 'Content type item' }),
 
-  type: field({ type: String, label: 'Type' }),
-  validation: field({
-    type: String,
-    optional: true,
-    label: 'Validation'
-  }),
-  text: field({ type: String, label: 'Text' }),
-  field: field({ type: String, optional: true, label: 'Field identifier' }),
-  description: field({
-    type: String,
-    optional: true,
-    label: 'Description'
-  }),
-  options: field({
-    type: [String],
-    optional: true,
-    label: 'Options'
-  }),
-  isRequired: field({ type: Boolean, label: 'Is required' }),
-  isDefinedByErxes: field({ type: Boolean, label: 'Is defined by erxes' }),
-  order: field({ type: Number, label: 'Order' }),
-  groupId: field({ type: String, label: 'Field group' }),
-  isVisible: field({ type: Boolean, default: true, label: 'Is visible' }),
-  isVisibleInDetail: field({
-    type: Boolean,
-    default: true,
-    label: 'Is group visible in detail'
-  }),
-  canHide: field({
-    type: Boolean,
-    default: true,
-    label: 'Can toggle isVisible'
-  }),
-  lastUpdatedUserId: field({ type: String, label: 'Last updated by' }),
-  associatedFieldId: field({
-    type: String,
-    optional: true,
-    label: 'Stores custom property fieldId for form field id'
+    type: field({ type: String, label: 'Type' }),
+    validation: field({
+      type: String,
+      optional: true,
+      label: 'Validation'
+    }),
+    text: field({ type: String, label: 'Text' }),
+    field: field({ type: String, optional: true, label: 'Field identifier' }),
+    description: field({
+      type: String,
+      optional: true,
+      label: 'Description'
+    }),
+    options: field({
+      type: [String],
+      optional: true,
+      label: 'Options'
+    }),
+    isRequired: field({ type: Boolean, label: 'Is required' }),
+    isDefinedByErxes: field({ type: Boolean, label: 'Is defined by erxes' }),
+    order: field({ type: Number, label: 'Order' }),
+    groupId: field({ type: String, label: 'Field group' }),
+    isVisible: field({ type: Boolean, default: true, label: 'Is visible' }),
+    isVisibleInDetail: field({
+      type: Boolean,
+      default: true,
+      label: 'Is group visible in detail'
+    }),
+    canHide: field({
+      type: Boolean,
+      default: true,
+      label: 'Can toggle isVisible'
+    }),
+    lastUpdatedUserId: field({ type: String, label: 'Last updated by' }),
+    associatedFieldId: field({
+      type: String,
+      optional: true,
+      label: 'Stores custom property fieldId for form field id'
+    }),
+    logics: field({ type: [logicSchema] }),
+    column: field({ type: Number, optional: true }),
+    logicAction: field({
+      type: String,
+      label:
+        'If action is show field will appear when logics fulfilled, if action is hide it will disappear when logic fulfilled'
+    }),
+    content: field({
+      type: String,
+      optional: true,
+      label: 'Stores html content form of field type with html'
+    })
   })
-});
+);
 
 export const fieldGroupSchema = schemaWrapper(
   new Schema({

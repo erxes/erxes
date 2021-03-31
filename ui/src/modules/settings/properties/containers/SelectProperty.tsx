@@ -27,9 +27,46 @@ type FinalProps = {
 } & Props;
 
 const SelectPropertyContainer = (props: ChildProps<FinalProps>) => {
-  const { propertiesQuery, fieldsGroupsQuery } = props;
+  const { propertiesQuery, fieldsGroupsQuery, queryParams } = props;
 
-  const properties = propertiesQuery.fields || [];
+  let properties = propertiesQuery.fields || [];
+
+  if (queryParams.type === 'customer') {
+    properties = properties.filter(e => {
+      if (
+        [
+          'firstName',
+          'lastName',
+          'primaryEmail',
+          'primaryPhone',
+          'owner'
+        ].includes(e.type) &&
+        e.isDefinedByErxes
+      ) {
+        return null;
+      }
+      return e;
+    });
+  }
+
+  if (queryParams.type === 'company') {
+    properties = properties.filter(e => {
+      if (
+        [
+          'primaryName',
+          'primaryEmail',
+          'primaryPhone',
+          'owner',
+          'plan',
+          'code'
+        ].includes(e.type) &&
+        e.isDefinedByErxes
+      ) {
+        return null;
+      }
+      return e;
+    });
+  }
 
   const groups = fieldsGroupsQuery.fieldsGroups || [];
 

@@ -81,6 +81,25 @@ function FieldChoices(props: Props) {
         text={__('Last name')}
         icon="user-6"
       />
+      <FieldChoice
+        {...props}
+        type="companyName"
+        text={__('Company name')}
+        icon="building"
+      />
+      <FieldChoice
+        {...props}
+        type="companyEmail"
+        text={__('Company Email')}
+        icon="envelope-alt"
+      />
+      <FieldChoice
+        {...props}
+        type="companyPhone"
+        text={__('Company Phone')}
+        icon="phone"
+      />
+      <FieldChoice {...props} type="html" text={__('HTML')} icon="code" />
     </Options>
   );
 }

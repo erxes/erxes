@@ -290,8 +290,6 @@ class Search extends React.Component<
       return null;
     }
 
-    console.log(loading);
-
     if (loading) {
       return (
         <Results>

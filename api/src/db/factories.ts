@@ -396,6 +396,8 @@ interface ISegmentFactoryInput {
   subOf?: string;
   color?: string;
   conditions?: IConditionsInput[];
+  boardId?: string;
+  pipelineId?: string;
 }
 
 export const segmentFactory = (params: ISegmentFactoryInput = {}) => {
@@ -414,7 +416,9 @@ export const segmentFactory = (params: ISegmentFactoryInput = {}) => {
     description: params.description || faker.random.word(),
     subOf: params.subOf,
     color: params.color || '#809b87',
-    conditions: params.conditions || defaultConditions
+    conditions: params.conditions || defaultConditions,
+    boardId: params.boardId,
+    pipelineId: params.pipelineId
   });
 
   return segment.save();
