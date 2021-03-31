@@ -611,11 +611,11 @@ export const solveSubmissions = async (args: {
     }
 
     if (key !== 'default' && companyId && customerId) {
-      await Conformities.editConformity({
+      await Conformities.addConformity({
         mainType: 'company',
-        mainTypeId: companyId,
+        mainTypeId: mainCompanyId,
         relType: 'customer',
-        relTypeIds: [customerId]
+        relTypeId: customerId
       });
     }
 
@@ -625,12 +625,14 @@ export const solveSubmissions = async (args: {
   }
 
   if (mainCompanyId !== '' && relTypeIds.length > 0) {
-    await Conformities.editConformity({
-      mainType: 'company',
-      mainTypeId: mainCompanyId,
-      relType: 'customer',
-      relTypeIds
-    });
+    for (const relTypeId of relTypeIds) {
+      await Conformities.addConformity({
+        mainType: 'company',
+        mainTypeId: mainCompanyId,
+        relType: 'customer',
+        relTypeId
+      });
+    }
   }
 
   // Inserting customer id into submitted customer ids
