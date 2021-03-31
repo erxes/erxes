@@ -2,7 +2,6 @@ import { Model, model } from 'mongoose';
 import {
   conformitySchema,
   IConformitiesRemove,
-  IConformity,
   IConformityAdd,
   IConformityChange,
   IConformityDocument,
