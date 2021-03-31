@@ -3,7 +3,7 @@ id: contacts
 title: Contacts
 ---
 
-Coordinate and manage your companies and customers in one go from company database. It enables you to filter companies and customers by websites, size, plan industry, session count in an more realistic way.
+Coordinate and manage your companies and customers in one go from company database. It enables you to filter companies and customers by websites, size, plan industry, session count in a more realistic way.
 
 ---
 
