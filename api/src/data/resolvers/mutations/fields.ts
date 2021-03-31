@@ -107,14 +107,12 @@ const fieldMutations = {
     }
 
     for (const { _id, ...doc } of editingFields) {
-      if (!doc.logics || doc.logics.length === 0) {
-        continue;
-      }
-
-      for (const logic of doc.logics) {
-        if (!logic.fieldId && logic.tempFieldId) {
-          doc.logics[doc.logics.indexOf(logic)].fieldId =
-            temp[logic.tempFieldId];
+      if (doc.logics) {
+        for (const logic of doc.logics) {
+          if (!logic.fieldId && logic.tempFieldId) {
+            doc.logics[doc.logics.indexOf(logic)].fieldId =
+              temp[logic.tempFieldId];
+          }
         }
       }
 
@@ -122,6 +120,7 @@ const fieldMutations = {
         ...doc,
         lastUpdatedUserId: user._id
       });
+
       response.push(field);
     }
 
