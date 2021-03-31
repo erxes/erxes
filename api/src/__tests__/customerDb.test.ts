@@ -456,7 +456,7 @@ describe('Customers model tests', () => {
       });
     });
 
-    let processState = process.env.ELK_SYNCER;
+    const processState = process.env.ELK_SYNCER;
     process.env.ELK_SYNCER = 'false';
 
     // Merging both customers companyIds and tagIds
