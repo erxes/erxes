@@ -1,16 +1,25 @@
 import {
   Brands,
+  Companies,
+  Conformities,
   Conversations,
   Customers,
   EngageMessages,
+  Fields,
+  FieldsGroups,
+  FormSubmissions,
   Integrations
 } from '../db/models';
 import Messages from '../db/models/ConversationMessages';
 import { IBrowserInfo } from '../db/models/Customers';
+import { ICustomField } from '../db/models/definitions/common';
 import { KIND_CHOICES } from '../db/models/definitions/constants';
+import { ICustomerDocument } from '../db/models/definitions/customers';
+import { ISubmission } from '../db/models/definitions/fields';
 import { debugBase, debugError } from '../debuggers';
 import { client, fetchElk, getIndexPrefix } from '../elasticsearch';
 import { getVisitorLog, sendToVisitorLog } from './logUtils';
+import { findCompany, findCustomer } from './utils';
 
 export const getOrCreateEngageMessage = async (
   browserInfo: IBrowserInfo,
@@ -238,4 +247,404 @@ export const getOrCreateEngageMessageElk = async (
   const convs = await Conversations.find(query);
 
   return Messages.findOne(Conversations.widgetsUnreadMessagesQuery(convs));
+};
+
+export const updateCustomerFromForm = async (
+  browserInfo: any,
+  doc: any,
+  customer: ICustomerDocument
+) => {
+  if (customer.customFieldsData) {
+    doc.customFieldsData = doc.customFieldsData.concat(
+      customer.customFieldsData
+    );
+  }
+
+  const customerDoc: any = {
+    location: browserInfo,
+    firstName: doc.firstName || customer.firstName,
+    lastName: doc.lastName || customer.lastName,
+    sex: doc.pronoun,
+    birthDate: doc.birthDate,
+    customFieldsData: doc.customFieldsData,
+    ...(customer.primaryEmail
+      ? {}
+      : {
+          emails: [doc.email],
+          primaryEmail: doc.email
+        }),
+    ...(customer.primaryPhone
+      ? {}
+      : {
+          phones: [doc.phone],
+          primaryPhone: doc.phone
+        })
+  };
+
+  if (doc.avatar.length > 0) {
+    customerDoc.avatar = doc.avatar;
+  }
+
+  if (doc.department.length > 0) {
+    customerDoc.department = doc.department;
+  }
+
+  if (doc.position.length > 0) {
+    customerDoc.position = doc.position;
+  }
+
+  if (doc.description.length > 0) {
+    customerDoc.description = doc.description;
+  }
+
+  if (doc.hasAuthority.length > 0) {
+    customerDoc.hasAuthority = doc.hasAuthority;
+  }
+
+  if (doc.doNotDisturb.length > 0) {
+    customerDoc.doNotDisturb = doc.doNotDisturb;
+  }
+
+  await Customers.updateCustomer(customer._id, customerDoc);
+};
+
+const groupSubmissions = (submissions: ISubmission[]) => {
+  const submissionsGrouped: { [key: string]: any[] } = {};
+
+  submissions.forEach(submission => {
+    if (submission.groupId) {
+      if (submissionsGrouped[submission.groupId]) {
+        submissionsGrouped[submission.groupId].push(submission);
+      } else {
+        submissionsGrouped[submission.groupId] = [submission];
+      }
+    } else {
+      if (submissionsGrouped.default) {
+        submissionsGrouped.default.push(submission);
+      } else {
+        submissionsGrouped.default = [submission];
+      }
+    }
+  });
+  return submissionsGrouped;
+};
+
+export const solveSubmissions = async (args: {
+  integrationId: string;
+  formId: string;
+  submissions: ISubmission[];
+  browserInfo: any;
+  cachedCustomerId?: string;
+}) => {
+  let { cachedCustomerId } = args;
+  const { integrationId, browserInfo, formId } = args;
+
+  const submissionsGrouped = groupSubmissions(args.submissions);
+
+  const conformityIds: {
+    [key: string]: { customerId: string; companyId: string };
+  } = {};
+
+  let cachedCustomer = await Customers.getWidgetCustomer({
+    integrationId,
+    cachedCustomerId
+  });
+
+  cachedCustomer = await Customers.createCustomer({
+    integrationId
+  });
+
+  cachedCustomerId = (cachedCustomer && cachedCustomer._id) || '';
+
+  for (const groupId of Object.keys(submissionsGrouped)) {
+    let email;
+    let phone;
+    let firstName = '';
+    let lastName = '';
+    let pronoun = 0;
+    let avatar = '';
+    let birthDate;
+    let hasAuthority = '';
+    let doNotDisturb = '';
+    let description = '';
+    let department = '';
+    let position = '';
+
+    let companyName = '';
+    let companyEmail = '';
+    let companyPhone = '';
+    let companyDescription = '';
+    let companyDoNotDisturb = '';
+    let logo = '';
+    let size = 0;
+    let industries = '';
+    let businessType = '';
+
+    const customFieldsData: ICustomField[] = [];
+    let companyCustomData: ICustomField[] = [];
+
+    for (const submission of submissionsGrouped[groupId]) {
+      switch (submission.type) {
+        case 'email':
+          email = submission.value;
+          break;
+        case 'phone':
+          phone = submission.value;
+          break;
+        case 'firstName':
+          firstName = submission.value;
+          break;
+        case 'lastName':
+          lastName = submission.value;
+          break;
+        case 'companyName':
+          companyName = submission.value;
+          break;
+        case 'companyEmail':
+          companyEmail = submission.value;
+          break;
+        case 'companyPhone':
+          companyPhone = submission.value;
+          break;
+        case 'avatar':
+          avatar = submission.value;
+          break;
+        case 'companyAvatar':
+          logo = submission.value;
+          break;
+        case 'industry':
+          industries = submission.value;
+          break;
+        case 'size':
+          size = submission.value;
+          break;
+        case 'businessType':
+          businessType = submission.value;
+          break;
+        case 'pronoun':
+          switch (submission.value) {
+            case 'Male':
+              pronoun = 1;
+              break;
+            case 'Female':
+              pronoun = 2;
+              break;
+            case 'Not applicable':
+              pronoun = 9;
+              break;
+            default:
+              pronoun = 0;
+              break;
+          }
+          break;
+        case 'doNotDisturb':
+          doNotDisturb = submission.value;
+          break;
+        case 'hasAuthority':
+          hasAuthority = submission.value;
+          break;
+        case 'birthDate':
+          birthDate = new Date(submission.value);
+          break;
+        case 'description':
+          description = submission.value;
+          break;
+        case 'department':
+          department = submission.value;
+          break;
+        case 'position':
+          position = submission.value;
+          break;
+        case 'companyDescription':
+          companyDescription = submission.value;
+          break;
+        case 'companyDoNotDisturb':
+          companyDoNotDisturb = submission.value;
+          break;
+        default:
+          break;
+      }
+
+      if (submission.associatedFieldId) {
+        const field = await Fields.findById(submission.associatedFieldId);
+        if (!field) {
+          continue;
+        }
+
+        const fieldGroup = await FieldsGroups.findById(field.groupId);
+
+        if (fieldGroup && fieldGroup.contentType === 'company') {
+          companyCustomData.push({
+            field: submission.associatedFieldId,
+            value: submission.value
+          });
+        }
+
+        if (fieldGroup && fieldGroup.contentType === 'customer') {
+          customFieldsData.push({
+            field: submission.associatedFieldId,
+            value: submission.value
+          });
+        }
+      }
+    }
+
+    if (groupId === 'default') {
+      await updateCustomerFromForm(
+        browserInfo,
+        {
+          firstName,
+          lastName,
+          pronoun,
+          birthDate,
+          customFieldsData,
+          avatar,
+          department,
+          position,
+          description,
+          hasAuthority,
+          doNotDisturb,
+          email,
+          phone
+        },
+        cachedCustomer
+      );
+
+      cachedCustomerId = cachedCustomer._id;
+
+      conformityIds[groupId] = {
+        customerId: cachedCustomer._id,
+        companyId: ''
+      };
+    } else {
+      let customer = await findCustomer({
+        customerPrimaryEmail: email,
+        customerPrimaryPhone: phone
+      });
+
+      if (!customer) {
+        customer = await Customers.createCustomer({
+          integrationId,
+          primaryEmail: email,
+          emails: [email],
+          firstName,
+          lastName,
+          primaryPhone: phone,
+          customFieldsData
+        });
+      }
+
+      await updateCustomerFromForm(
+        browserInfo,
+        {
+          firstName,
+          lastName,
+          pronoun,
+          birthDate,
+          customFieldsData,
+          avatar,
+          department,
+          position,
+          description,
+          hasAuthority,
+          doNotDisturb,
+          email,
+          phone
+        },
+        customer
+      );
+
+      conformityIds[groupId] = { customerId: customer._id, companyId: '' };
+    }
+
+    if (!(companyEmail || companyPhone || companyName)) {
+      continue;
+    }
+
+    let company = await findCompany({
+      companyPrimaryName: companyName,
+      companyPrimaryEmail: companyEmail,
+      companyPrimaryPhone: companyPhone
+    });
+
+    const companyDoc: any = {
+      primaryName: companyName,
+      primaryEmail: companyEmail,
+      primaryPhone: companyPhone,
+      emails: [companyEmail],
+      phones: [companyPhone],
+      size,
+      doNotDisturb: companyDoNotDisturb,
+      description: companyDescription,
+      businessType
+    };
+
+    if (logo.length > 0) {
+      companyDoc.avatar = logo;
+    }
+
+    if (industries.length > 0) {
+      companyDoc.industry = industries;
+    }
+
+    if (!company) {
+      company = await Companies.createCompany(companyDoc);
+    }
+
+    if (company.customFieldsData) {
+      companyCustomData = companyCustomData.concat(company.customFieldsData);
+    }
+
+    companyDoc.customFieldsData = companyCustomData;
+
+    company = await Companies.updateCompany(company._id, companyDoc);
+
+    conformityIds[groupId] = {
+      companyId: company._id,
+      customerId: conformityIds[groupId].customerId
+    };
+  }
+
+  let mainCompanyId = '';
+  const relTypeIds: string[] = [];
+
+  for (const key of Object.keys(conformityIds)) {
+    const { companyId, customerId } = conformityIds[key];
+
+    if (key === 'default' && companyId && customerId) {
+      mainCompanyId = companyId;
+      relTypeIds.push(customerId);
+    }
+
+    if (key !== 'default' && companyId && customerId) {
+      await Conformities.editConformity({
+        mainType: 'company',
+        mainTypeId: companyId,
+        relType: 'customer',
+        relTypeIds: [customerId]
+      });
+    }
+
+    if (key !== 'default' && !companyId && customerId) {
+      relTypeIds.push(customerId);
+    }
+  }
+
+  if (mainCompanyId !== '' && relTypeIds.length > 0) {
+    await Conformities.editConformity({
+      mainType: 'company',
+      mainTypeId: mainCompanyId,
+      relType: 'customer',
+      relTypeIds
+    });
+  }
+
+  // Inserting customer id into submitted customer ids
+  await FormSubmissions.createFormSubmission({
+    formId,
+    customerId: cachedCustomerId,
+    submittedAt: new Date()
+  });
+
+  return cachedCustomer;
 };

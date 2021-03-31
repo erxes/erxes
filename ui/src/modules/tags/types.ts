@@ -47,6 +47,12 @@ export type RemoveMutationResponse = {
   removeMutation: (params: { variables: { _id: string } }) => Promise<any>;
 };
 
+export type MergeMutationResponse = {
+  mergeMutation: (params: {
+    variables: { sourceId: string; destId: string };
+  }) => Promise<any>;
+};
+
 export type TagMutationVariables = {
   type: string;
   targetIds: string[];

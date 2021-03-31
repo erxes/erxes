@@ -1,6 +1,13 @@
 import { IUser } from 'modules/auth/types';
 import { QueryResponse } from 'modules/common/types';
 
+export interface IFieldLogic {
+  fieldId?: string;
+  tempFieldId?: string;
+  logicOperator: string;
+  logicValue: string;
+  __typename?: string;
+}
 export interface IField {
   _id: string;
   key?: string;
@@ -9,7 +16,7 @@ export interface IField {
   type: string;
   validation?: string;
   text?: string;
-  field?: string;
+  content?: string;
   description?: string;
   options?: string[];
   isRequired?: boolean;
@@ -22,10 +29,14 @@ export interface IField {
   lastUpdatedUser?: IUser;
   lastUpdatedUserId?: string;
   associatedFieldId?: string;
+  column?: number;
   associatedField?: {
     _id: string;
     text: string;
   };
+  logics?: IFieldLogic[];
+  logicAction?: string;
+  groupName?: string;
 }
 
 export interface IFieldGroup {

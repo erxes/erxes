@@ -50,6 +50,7 @@ export const types = `
     value: String
     associatedFieldId: String
     stageId: String
+    groupId: String
   }
 `;
 

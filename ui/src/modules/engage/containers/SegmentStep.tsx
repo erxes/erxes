@@ -4,6 +4,7 @@ import ButtonMutate from 'modules/common/components/ButtonMutate';
 import { IButtonMutateProps } from 'modules/common/types';
 import { withProps } from 'modules/common/utils';
 import { CountQueryResponse } from 'modules/customers/types';
+import { queries as formQueries } from 'modules/forms/graphql';
 import {
   AddMutationResponse,
   AddMutationVariables,
@@ -141,8 +142,15 @@ export default withProps<Props>(
       { name: 'segmentsAdd' }
     ),
     graphql<Props, FieldsCombinedByTypeQueryResponse>(
-      gql(queries.combinedFields),
-      { name: 'combinedFieldsQuery' }
+      gql(formQueries.fieldsCombinedByContentType),
+      {
+        name: 'combinedFieldsQuery',
+        options: {
+          variables: {
+            contentType: 'customer'
+          }
+        }
+      }
     )
   )(SegmentStepContainer)
 );

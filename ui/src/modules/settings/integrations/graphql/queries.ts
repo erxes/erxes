@@ -130,10 +130,29 @@ const integrationGetLineWebhookUrl = `
   }
 `;
 
+const messengerApps = `
+  query messengerApps($integrationId: String!) {
+    messengerApps(integrationId: $integrationId) {
+      websites{
+        description
+        buttonText
+        url
+      }
+      knowledgebases{
+        topicId
+      }
+      leads{
+        formCode
+      }
+    }
+  }
+`;
+
 export default {
   fetchApi,
   users,
   brands,
+  messengerApps,
   integrationDetail,
   integrationTotalCount,
   integrations,

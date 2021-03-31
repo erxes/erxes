@@ -303,12 +303,40 @@ export const itemsEdit = async (
     user
   );
 
-  const pipelinesChangedIds = [updatedItem._id, stage.pipelineId];
+  const oldStage = await Stages.getStage(oldItem.stageId);
 
-  for (const pipelinesChangedId of pipelinesChangedIds) {
+  if (oldStage.pipelineId !== stage.pipelineId) {
     graphqlPubsub.publish('pipelinesChanged', {
       pipelinesChanged: {
-        _id: pipelinesChangedId,
+        _id: oldStage.pipelineId,
+        proccessId,
+        action: 'itemRemove',
+        data: {
+          item: oldItem,
+          oldStageId: oldStage._id
+        }
+      }
+    });
+
+    graphqlPubsub.publish('pipelinesChanged', {
+      pipelinesChanged: {
+        _id: stage.pipelineId,
+        proccessId,
+        action: 'itemAdd',
+        data: {
+          item: {
+            ...updatedItem._doc,
+            ...(await itemResolver(type, updatedItem))
+          },
+          aboveItemId: '',
+          destinationStageId: stage._id
+        }
+      }
+    });
+  } else {
+    graphqlPubsub.publish('pipelinesChanged', {
+      pipelinesChanged: {
+        _id: stage.pipelineId,
         proccessId,
         action: 'itemUpdate',
         data: {
@@ -411,7 +439,7 @@ export const itemsChange = async (
 
   const item = await getItem(type, itemId);
 
-  const extendedDoc = {
+  const extendedDoc: IItemCommonFields = {
     modifiedAt: new Date(),
     modifiedBy: user._id,
     stageId: destinationStageId,
@@ -421,6 +449,10 @@ export const itemsChange = async (
       aboveItemId
     })
   };
+
+  if (item.stageId !== destinationStageId) {
+    extendedDoc.stageChangedDate = new Date();
+  }
 
   const updatedItem = await modelUpdate(itemId, extendedDoc);
 

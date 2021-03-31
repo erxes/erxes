@@ -1,6 +1,6 @@
 import { Menu } from 'antd';
 import Icon from 'modules/common/components/Icon';
-import { dateRanges } from 'modules/dashboard/constants';
+import { dateRanges, propertyTypes } from 'modules/dashboard/constants';
 import React from 'react';
 import { TimesWrapper } from '../styles';
 import ButtonDropdown from './ButtonDropdown';
@@ -38,6 +38,27 @@ const TimeGroup = ({
     </Menu>
   );
 
+  const renderDateRange = m => {
+    if (!propertyTypes.includes(type || '')) {
+      return (
+        <>
+          <strong key={`${m.dimension.name}-by`}>BY</strong>,
+          <ButtonDropdown
+            overlay={granularityMenu(m.dimension, granularity =>
+              updateMethods.update(m, { ...m, granularity: granularity.name })
+            )}
+            key={`${m.dimension.name}-granularity`}
+          >
+            {m.dimension.granularities.find(g => g.name === m.granularity) &&
+              m.dimension.granularities.find(g => g.name === m.granularity)
+                .title}
+          </ButtonDropdown>
+        </>
+      );
+    }
+    return;
+  };
+
   return (
     <TimesWrapper>
       {members.map(m => [
@@ -65,16 +86,7 @@ const TimeGroup = ({
         >
           {m.dateRange || 'All time'}
         </ButtonDropdown>,
-        <strong key={`${m.dimension.name}-by`}>BY</strong>,
-        <ButtonDropdown
-          overlay={granularityMenu(m.dimension, granularity =>
-            updateMethods.update(m, { ...m, granularity: granularity.name })
-          )}
-          key={`${m.dimension.name}-granularity`}
-        >
-          {m.dimension.granularities.find(g => g.name === m.granularity) &&
-            m.dimension.granularities.find(g => g.name === m.granularity).title}
-        </ButtonDropdown>
+        renderDateRange(m)
       ])}
       {!members.length && (
         <MemberDropdown

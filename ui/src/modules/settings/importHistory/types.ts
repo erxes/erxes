@@ -28,6 +28,7 @@ export type ImportHistoryDetailQueryResponse = {
   importHistoryDetail: IImportHistory;
   subscribeToMore: any;
   error: any;
+  stopPolling: () => any;
 } & QueryResponse;
 
 // mutation types
