@@ -170,6 +170,22 @@ export const loadFieldClass = () => {
      */
     public static async updateField(_id: string, doc: IField) {
       await this.checkIsDefinedByErxes(_id);
+      const { groupName } = doc;
+
+      if (groupName) {
+        let group = await FieldsGroups.findOne({ name: groupName });
+
+        if (!group) {
+          group = await FieldsGroups.createGroup({
+            name: groupName,
+            contentType: 'form',
+            isDefinedByErxes: false
+          });
+        }
+
+        console.log('group: ', group);
+        doc.groupId = group._id;
+      }
 
       await Fields.updateOne({ _id }, { $set: doc });
 

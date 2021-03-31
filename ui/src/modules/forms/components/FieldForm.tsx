@@ -9,7 +9,6 @@ import Icon from 'modules/common/components/Icon';
 import { FlexItem } from 'modules/common/components/step/styles';
 import Toggle from 'modules/common/components/Toggle';
 import { __ } from 'modules/common/utils';
-import { Divider } from 'modules/settings/permissions/styles';
 import SelectProperty from 'modules/settings/properties/containers/SelectProperty';
 import { IField, IFieldLogic } from 'modules/settings/properties/types';
 import React from 'react';
@@ -421,7 +420,6 @@ class FieldForm extends React.Component<Props, State> {
 
     return (
       <>
-        <Divider>{__('Or')}</Divider>
         <FormGroup>
           <ControlLabel>Property type:</ControlLabel>
           <FormControl
@@ -537,7 +535,7 @@ class FieldForm extends React.Component<Props, State> {
     return (
       <Modal
         show={true}
-        size="lg"
+        size="xl"
         onHide={onCancel}
         animation={false}
         enforceFocus={false}
