@@ -487,6 +487,7 @@ class FieldForm extends React.Component<Props, State> {
             {
               name: 'basicstyles',
               items: [
+                'Source',
                 'Bold',
                 'Italic',
                 'NumberedList',
