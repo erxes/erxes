@@ -264,6 +264,7 @@ describe('dealQueries', () => {
   });
 
   test('Deal filter by customers', async () => {
+    process.env.ELK_SYNCER = 'false';
     const customer1 = await customerFactory();
     const customer2 = await customerFactory();
     const user = await userFactory();

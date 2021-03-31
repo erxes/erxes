@@ -54,10 +54,19 @@ export const loadConformityClass = () => {
 
     public static async editConformity(doc: IConformityEdit) {
       const newRelTypeIds = doc.relTypeIds || [];
-      const oldRelTypeIds = await this.savedConformity({
-        mainType: doc.mainType,
-        mainTypeId: doc.mainTypeId,
-        relTypes: [doc.relType]
+      const oldRelTypeIds = await conformityHelper({
+        doc,
+        getConformities: async () => {
+          return Conformities.aggregate([
+            {
+              ...getMatchConformities({
+                mainType: doc.mainType,
+                relTypes: [doc.relType],
+                mainTypeIds: [doc.mainTypeId]
+              })
+            }
+          ]);
+        }
       });
 
       const removedTypeIds = oldRelTypeIds.filter(
