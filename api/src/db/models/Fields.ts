@@ -183,7 +183,6 @@ export const loadFieldClass = () => {
           });
         }
 
-        console.log('group: ', group);
         doc.groupId = group._id;
       }
 
