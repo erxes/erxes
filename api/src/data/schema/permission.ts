@@ -23,7 +23,7 @@ export const types = `
   type UsersGroup {
     _id: String!
     name: String!
-    description: String!
+    description: String
     memberIds: [String]
     members: [User]
   }
