@@ -414,6 +414,8 @@ export const solveSubmissions = async (args: {
     let size = 0;
     let industries = '';
     let businessType = '';
+    let location = '';
+
     const companyLinks: ILink = {};
 
     const customFieldsData: ICustomField[] = [];
@@ -455,10 +457,14 @@ export const solveSubmissions = async (args: {
           companyPhone = submission.value;
           break;
         case 'avatar':
-          avatar = submission.value[0].url;
+          if (submission.value && submission.value.length > 0) {
+            avatar = submission.value[0].url;
+          }
           break;
         case 'companyAvatar':
-          logo = submission.value[0].url;
+          if (submission.value && submission.value.length > 0) {
+            logo = submission.value[0].url;
+          }
           break;
         case 'industry':
           industries = submission.value;
@@ -509,11 +515,25 @@ export const solveSubmissions = async (args: {
         case 'companyDoNotDisturb':
           companyDoNotDisturb = submission.value;
           break;
-        default:
+        case 'location':
+          location = submission.value;
           break;
+        default:
+          submission.associatedFieldId = undefined;
       }
 
-      if (submission.associatedFieldId) {
+      if (
+        submission.associatedFieldId &&
+        [
+          'input',
+          'select',
+          'multiSelect',
+          'file',
+          'textarea',
+          'radio',
+          'check'
+        ].includes(submissionType)
+      ) {
         const field = await Fields.findById(submission.associatedFieldId);
         if (!field) {
           continue;
@@ -652,6 +672,10 @@ export const solveSubmissions = async (args: {
 
     if (industries.length > 0) {
       companyDoc.industry = industries;
+    }
+
+    if (location.length > 0) {
+      companyDoc.location = location;
     }
 
     if (!company) {
