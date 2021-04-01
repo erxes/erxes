@@ -357,16 +357,7 @@ export const solveSubmissions = async (args: {
     [key: string]: { customerId: string; companyId: string };
   } = {};
 
-  let cachedCustomer = await Customers.getWidgetCustomer({
-    integrationId,
-    cachedCustomerId
-  });
-
-  cachedCustomer = await Customers.createCustomer({
-    integrationId
-  });
-
-  cachedCustomerId = (cachedCustomer && cachedCustomer._id) || '';
+  let cachedCustomer;
 
   for (const groupId of Object.keys(submissionsGrouped)) {
     let email;
@@ -516,6 +507,25 @@ export const solveSubmissions = async (args: {
     }
 
     if (groupId === 'default') {
+      cachedCustomer = await Customers.getWidgetCustomer({
+        integrationId,
+        cachedCustomerId,
+        email,
+        phone
+      });
+
+      if (!cachedCustomer) {
+        cachedCustomer = await Customers.createCustomer({
+          integrationId,
+          primaryEmail: email,
+          emails: [email],
+          firstName,
+          lastName,
+          primaryPhone: phone,
+          customFieldsData
+        });
+      }
+
       await updateCustomerFromForm(
         browserInfo,
         {
