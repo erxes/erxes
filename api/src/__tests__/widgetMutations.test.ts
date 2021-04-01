@@ -1580,12 +1580,12 @@ describe('lead', () => {
           {
             _id: avatarField._id,
             type: 'avatar',
-            value: 'https://i.pravatar.cc/150?u=a042581f4e29026704d'
+            value: [{ url: 'https://i.pravatar.cc/150?u=a042581f4e29026704d' }]
           },
           {
             _id: companyAvatarField._id,
             type: 'companyAvatar',
-            value: 'https://i.pravatar.cc/150?img=63'
+            value: [{ url: 'https://i.pravatar.cc/150?img=63' }]
           },
           { _id: industryField._id, type: 'industry', value: 'Banks' },
           { _id: sizeField._id, type: 'size', value: '10' },

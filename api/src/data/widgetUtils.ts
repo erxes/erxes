@@ -455,10 +455,10 @@ export const solveSubmissions = async (args: {
           companyPhone = submission.value;
           break;
         case 'avatar':
-          avatar = submission.value;
+          avatar = submission.value[0].url;
           break;
         case 'companyAvatar':
-          logo = submission.value;
+          logo = submission.value[0].url;
           break;
         case 'industry':
           industries = submission.value;
