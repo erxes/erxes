@@ -12,7 +12,7 @@ import {
 } from '../db/models';
 import Messages from '../db/models/ConversationMessages';
 import { IBrowserInfo } from '../db/models/Customers';
-import { ICustomField } from '../db/models/definitions/common';
+import { ICustomField, ILink } from '../db/models/definitions/common';
 import { KIND_CHOICES } from '../db/models/definitions/constants';
 import { ICustomerDocument } from '../db/models/definitions/customers';
 import { ISubmission } from '../db/models/definitions/fields';
@@ -243,6 +243,10 @@ export const getOrCreateEngageMessageElk = async (
   return messages.pop();
 };
 
+const getSocialLinkKey = (type: string) => {
+  return type.substring(type.indexOf('_') + 1);
+};
+
 export const updateCustomerFromForm = async (
   browserInfo: any,
   doc: any,
@@ -299,11 +303,25 @@ export const updateCustomerFromForm = async (
     customerDoc.doNotDisturb = doc.doNotDisturb;
   }
 
+  if (Object.keys(doc.links).length > 0) {
+    const links = customer.links || {};
+
+    for (const key of Object.keys(doc.links)) {
+      const value = doc.links[key];
+      if (!value || value.length === 0) {
+        continue;
+      }
+
+      links[key] = value;
+    }
+    customerDoc.links = links;
+  }
+
   await Customers.updateCustomer(customer._id, customerDoc);
 };
 
 const groupSubmissions = (submissions: ISubmission[]) => {
-  const submissionsGrouped: { [key: string]: any[] } = {};
+  const submissionsGrouped: { [key: string]: ISubmission[] } = {};
 
   submissions.forEach(submission => {
     if (submission.groupId) {
@@ -363,6 +381,7 @@ export const solveSubmissions = async (args: {
     let description = '';
     let department = '';
     let position = '';
+    const customerLinks: ILink = {};
 
     let companyName = '';
     let companyEmail = '';
@@ -373,12 +392,25 @@ export const solveSubmissions = async (args: {
     let size = 0;
     let industries = '';
     let businessType = '';
+    const companyLinks: ILink = {};
 
     const customFieldsData: ICustomField[] = [];
     let companyCustomData: ICustomField[] = [];
 
     for (const submission of submissionsGrouped[groupId]) {
-      switch (submission.type) {
+      const submissionType = submission.type || '';
+
+      if (submissionType.includes('customerLinks')) {
+        customerLinks[getSocialLinkKey(submissionType)] = submission.value;
+        continue;
+      }
+
+      if (submissionType.includes('companyLinks')) {
+        companyLinks[getSocialLinkKey(submissionType)] = submission.value;
+        continue;
+      }
+
+      switch (submissionType) {
         case 'email':
           email = submission.value;
           break;
@@ -499,7 +531,8 @@ export const solveSubmissions = async (args: {
           hasAuthority,
           doNotDisturb,
           email,
-          phone
+          phone,
+          links: customerLinks
         },
         cachedCustomer
       );
@@ -543,7 +576,8 @@ export const solveSubmissions = async (args: {
           hasAuthority,
           doNotDisturb,
           email,
-          phone
+          phone,
+          links: customerLinks
         },
         customer
       );
@@ -583,6 +617,20 @@ export const solveSubmissions = async (args: {
 
     if (!company) {
       company = await Companies.createCompany(companyDoc);
+    }
+
+    if (Object.keys(companyLinks).length > 0) {
+      const links = company.links || {};
+
+      for (const key of Object.keys(companyLinks)) {
+        const value = companyLinks[key];
+        if (!value || value.length === 0) {
+          continue;
+        }
+
+        links[key] = value;
+      }
+      companyDoc.links = links;
     }
 
     if (company.customFieldsData) {
