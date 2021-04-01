@@ -19,7 +19,7 @@ export default class FormMessage extends React.Component<Props, {}> {
       return dayjs(data.value).format('YYYY/MM/DD HH:mm');
     }
 
-    if (data.type === 'file') {
+    if (['file', 'avatar', 'companyAvatar'].includes(data.type)) {
       let fileUrl = data.value || '';
 
       if (Array.isArray(data.value) && data.value.length > 0) {
