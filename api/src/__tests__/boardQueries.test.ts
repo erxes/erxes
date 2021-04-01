@@ -703,10 +703,11 @@ describe('boardQueries', () => {
 
     const params = {
       pipelineId: pipeline._id,
-      status: BOARD_STATUSES.ARCHIVED
+      status: BOARD_STATUSES.ARCHIVED,
+      name: 'other'
     };
 
-    const stage1 = await stageFactory(params);
+    const stage1 = await stageFactory({ ...params, name: 'stage1' });
     await stageFactory(params);
     await stageFactory(params);
 

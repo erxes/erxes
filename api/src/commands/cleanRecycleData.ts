@@ -2,7 +2,6 @@ import * as dotenv from 'dotenv';
 
 import { connect } from '../db/connection';
 import {
-  ActivityLogs,
   ChecklistItems,
   Checklists,
   Companies,
@@ -162,44 +161,6 @@ const command = async () => {
   }
   console.log(sco, ' summary recycle internalNotes');
   console.log(sumCo, ' summary internalNotes');
-
-  // ========== activityLogs check
-  console.log('delete activityLog where contentId is null');
-  await ActivityLogs.deleteMany({ contentId: null });
-
-  sumCo = 0;
-  sco = 0;
-  skip = 0;
-
-  console.log('-------------- start activityLogs');
-
-  const allLogCount = await ActivityLogs.find({
-    contentType: { $in: ['task', 'deal', 'ticket', 'company', 'customer'] }
-  }).count();
-
-  for (let j = 0; j <= allLogCount; j = j + step) {
-    console.log('step By AcitivityCount', j);
-    const toDelLogIds: string[] = [];
-    const allActivityLogs = await ActivityLogs.find({
-      contentType: { $in: ['task', 'deal', 'ticket', 'company', 'customer'] }
-    })
-      .skip(skip)
-      .limit(step);
-
-    for (const log of allActivityLogs) {
-      sumCo = sumCo + 1;
-      await contentHelper(log, toDelLogIds, 'contentId');
-    }
-
-    const delCount = toDelLogIds.length;
-    sco = sco + delCount;
-    skip = skip + step - delCount;
-    console.log('delCount', delCount);
-
-    await ActivityLogs.deleteMany({ _id: { $in: toDelLogIds } });
-  }
-  console.log(sco, ' summary recycle ActivityLogs');
-  console.log(sumCo, ' summary ActivityLogs');
 
   // =========== checklist check
   sumCo = 0;

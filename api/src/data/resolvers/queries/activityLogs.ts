@@ -1,5 +1,4 @@
 import {
-  ActivityLogs,
   Conformities,
   Conversations,
   EmailDeliveries,
@@ -10,6 +9,7 @@ import {
 import { IActivityLogDocument } from '../../../db/models/definitions/activityLogs';
 import { ACTIVITY_CONTENT_TYPES } from '../../../db/models/definitions/constants';
 import { debugExternalApi } from '../../../debuggers';
+import { fetchLogs } from '../../logUtils';
 import { moduleRequireLogin } from '../../permissions/wrappers';
 import { IContext } from '../../types';
 
@@ -45,8 +45,6 @@ const activityLogQueries = {
       if (items) {
         items.map(item => {
           let result: IActivityLogDocument = {} as any;
-
-          item = item.toJSON();
 
           if (!type) {
             result = item;
@@ -100,9 +98,12 @@ const activityLogQueries = {
 
     const collectActivityLogs = async () => {
       collectItems(
-        await ActivityLogs.find({
-          contentId: { $in: [...relatedItemIds, contentId] }
-        })
+        await fetchLogs(
+          {
+            contentId: { $in: [...relatedItemIds, contentId] }
+          },
+          'activityLogs'
+        )
       );
     };
 
@@ -131,10 +132,13 @@ const activityLogQueries = {
 
     const collectSms = async () => {
       collectItems(
-        await ActivityLogs.find({
-          contentId,
-          contentType: ACTIVITY_CONTENT_TYPES.SMS
-        })
+        await fetchLogs(
+          {
+            contentId,
+            contentType: ACTIVITY_CONTENT_TYPES.SMS
+          },
+          'activityLogs'
+        )
       );
     };
 
