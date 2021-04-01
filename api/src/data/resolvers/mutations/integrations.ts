@@ -578,15 +578,16 @@ const integrationMutations = {
 
     const response = await dataSources.IntegrationsAPI.sendSms(args);
 
-    const data = {
-      action: ACTIVITY_ACTIONS.SEND,
-      contentType: ACTIVITY_CONTENT_TYPES.SMS,
-      createdBy: user._id,
-      contentId: customer._id,
-      content: { to: args.to, text: args.content }
-    };
-
-    await putActivityLog({ action: ACTIVITY_LOG_ACTIONS.ADD, data });
+    await putActivityLog({
+      action: ACTIVITY_LOG_ACTIONS.ADD,
+      data: {
+        action: ACTIVITY_ACTIONS.SEND,
+        contentType: ACTIVITY_CONTENT_TYPES.SMS,
+        createdBy: user._id,
+        contentId: customer._id,
+        content: { to: args.to, text: args.content }
+      }
+    });
 
     return response;
   },

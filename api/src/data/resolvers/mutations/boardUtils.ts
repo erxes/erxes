@@ -255,16 +255,14 @@ export const itemsEdit = async (
   if (doc.status && oldItem.status && oldItem.status !== doc.status) {
     const activityAction = doc.status === 'active' ? 'activated' : 'archived';
 
-    const data = {
-      item: updatedItem,
-      contentType: type,
-      action: activityAction,
-      userId: user._id
-    };
-
     await putActivityLog({
       action: ACTIVITY_LOG_ACTIONS.CREATE_ARCHIVE_LOG,
-      data
+      data: {
+        item: updatedItem,
+        contentType: type,
+        action: activityAction,
+        userId: user._id
+      }
     });
 
     // order notification
@@ -285,16 +283,14 @@ export const itemsEdit = async (
 
     const activityContent = { addedUserIds, removedUserIds };
 
-    const data = {
-      contentId: _id,
-      userId: user._id,
-      contentType: type,
-      content: activityContent
-    };
-
     await putActivityLog({
       action: ACTIVITY_LOG_ACTIONS.CREATE_ASSIGNE_LOG,
-      data
+      data: {
+        contentId: _id,
+        userId: user._id,
+        contentType: type,
+        content: activityContent
+      }
     });
 
     notificationDoc.invitedUsers = addedUserIds;
@@ -414,16 +410,14 @@ const itemMover = async (
       text: `${oldStage.name} to ${stage.name}`
     };
 
-    const data = {
-      item,
-      contentType,
-      userId,
-      activityLogContent
-    };
-
     await putActivityLog({
       action: ACTIVITY_LOG_ACTIONS.CREATE_BOARD_ITEM_MOVEMENT_LOG,
-      data
+      data: {
+        item,
+        contentType,
+        userId,
+        activityLogContent
+      }
     });
 
     const link = `/${contentType}/board?id=${board._id}&pipelineId=${pipeline._id}&itemId=${item._id}`;
@@ -618,16 +612,14 @@ export const itemsArchive = async (
   const stage = await Stages.getStage(stageId);
 
   for (const item of items) {
-    const data = {
-      item,
-      contentType: type,
-      action: 'archived',
-      userId: user._id
-    };
-
     await putActivityLog({
       action: ACTIVITY_LOG_ACTIONS.CREATE_ARCHIVE_LOG,
-      data
+      data: {
+        item,
+        contentType: type,
+        action: 'archived',
+        userId: user._id
+      }
     });
 
     graphqlPubsub.publish('pipelinesChanged', {
