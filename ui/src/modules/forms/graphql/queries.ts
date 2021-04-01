@@ -171,7 +171,8 @@ const fields = `
         logicValue
       }
       groupName
-      associatedField{
+      associatedFieldId
+      associatedField {
         _id
         text
         contentType
