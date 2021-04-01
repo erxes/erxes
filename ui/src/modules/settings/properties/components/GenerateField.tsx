@@ -6,7 +6,8 @@ import Uploader from 'modules/common/components/Uploader';
 import { IAttachment } from 'modules/common/types';
 import {
   COMPANY_BUSINESS_TYPES,
-  COMPANY_INDUSTRY_TYPES
+  COMPANY_INDUSTRY_TYPES,
+  COUNTRIES
 } from 'modules/companies/constants';
 import React from 'react';
 import { LogicIndicator, SelectInput } from '../styles';
@@ -345,6 +346,10 @@ export default class GenerateField extends React.Component<Props, State> {
 
       case 'industry': {
         return this.renderSelect(COMPANY_INDUSTRY_TYPES(), attrs);
+      }
+
+      case 'location': {
+        return this.renderSelect(COUNTRIES, attrs);
       }
 
       case 'businessType': {
