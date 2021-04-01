@@ -14,7 +14,6 @@ import {
   userFactory
 } from '../db/factories';
 import {
-  ActivityLogs,
   Boards,
   ChecklistItems,
   Checklists,
@@ -346,9 +345,6 @@ describe('Test board model', () => {
 
     const checkHelper = async (deal, checklist, eqCount) => {
       expect(await Deals.find({ _id: deal._id }).count()).toEqual(eqCount);
-      expect(await ActivityLogs.find({ contentId: deal._id }).count()).toEqual(
-        eqCount
-      );
       expect(
         await Checklists.find({
           contentType: 'deal',

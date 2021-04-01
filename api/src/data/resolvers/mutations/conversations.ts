@@ -1,7 +1,6 @@
 import * as strip from 'strip';
 import * as _ from 'underscore';
 import {
-  ActivityLogs,
   Conformities,
   ConversationMessages,
   Conversations,
@@ -23,6 +22,7 @@ import { debugError } from '../../../debuggers';
 import messageBroker from '../../../messageBroker';
 import { graphqlPubsub } from '../../../pubsub';
 import { AUTO_BOT_MESSAGES, RABBITMQ_QUEUES } from '../../constants';
+import { ACTIVITY_LOG_ACTIONS, putActivityLog } from '../../logUtils';
 import { checkPermission, requireLogin } from '../../permissions/wrappers';
 import { IContext } from '../../types';
 import utils, { splitStr } from '../../utils';
@@ -700,7 +700,10 @@ const conversationMutations = {
 
       item.userId = user._id;
 
-      await ActivityLogs.createBoardItemLog({ item, contentType: type });
+      await putActivityLog({
+        action: ACTIVITY_LOG_ACTIONS.CREATE_BOARD_ITEM,
+        data: { item, contentType: type }
+      });
 
       const relTypeIds: string[] = [];
 
