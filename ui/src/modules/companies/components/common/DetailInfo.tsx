@@ -80,6 +80,7 @@ class DetailInfo extends React.Component<Props> {
             : '-'
         )}
         {this.renderRow('primaryPhone', company.primaryPhone)}
+        {this.renderRow('location', company.location)}
         {this.renderRow('businessType', company.businessType)}
         {this.renderRow('doNotDisturb', company.doNotDisturb)}
         {this.renderDescription(company.description)}
