@@ -1050,6 +1050,7 @@ interface IStageFactoryInput {
   formId?: string;
   status?: string;
   order?: number;
+  name?: string;
 }
 
 export const stageFactory = async (params: IStageFactoryInput = {}) => {
@@ -1059,7 +1060,7 @@ export const stageFactory = async (params: IStageFactoryInput = {}) => {
   const pipeline = await pipelineFactory({ type, boardId: board._id });
 
   const stage = new Stages({
-    name: faker.random.word(),
+    name: params.name || faker.random.word(),
     pipelineId: params.pipelineId || pipeline._id,
     type: params.type || BOARD_TYPES.DEAL,
     probability: params.probability || PROBABILITY.TEN,
