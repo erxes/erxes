@@ -47,7 +47,7 @@ export const types = `
     type: String
     validation: String
     text: String
-    value: String
+    value: JSON
     associatedFieldId: String
     stageId: String
     groupId: String
