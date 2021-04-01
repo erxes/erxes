@@ -171,6 +171,12 @@ const fields = `
         logicValue
       }
       groupName
+      associatedFieldId
+      associatedField {
+        _id
+        text
+        contentType
+      }
     }
   }
 `;

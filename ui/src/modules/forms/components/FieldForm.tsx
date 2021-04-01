@@ -43,6 +43,7 @@ class FieldForm extends React.Component<Props, State> {
     super(props);
 
     const { field } = props;
+
     const selectedOption = field.associatedField && {
       value: field.associatedField._id,
       label: field.associatedField.text
@@ -51,7 +52,7 @@ class FieldForm extends React.Component<Props, State> {
     this.state = {
       field,
       selectedOption,
-      group: ''
+      group: (field.associatedField && field.associatedField.contentType) || ''
     };
   }
 
@@ -425,7 +426,7 @@ class FieldForm extends React.Component<Props, State> {
           <FormControl
             id="propertyGroup"
             componentClass="select"
-            value={group}
+            defaultValue={group}
             onChange={this.onPropertyGroupChange}
           >
             <option value={''} />
