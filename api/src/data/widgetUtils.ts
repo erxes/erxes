@@ -12,7 +12,7 @@ import {
 } from '../db/models';
 import Messages from '../db/models/ConversationMessages';
 import { IBrowserInfo } from '../db/models/Customers';
-import { ICustomField } from '../db/models/definitions/common';
+import { ICustomField, ILink } from '../db/models/definitions/common';
 import { KIND_CHOICES } from '../db/models/definitions/constants';
 import { ICustomerDocument } from '../db/models/definitions/customers';
 import { ISubmission } from '../db/models/definitions/fields';
@@ -127,6 +127,29 @@ export const convertVisitorToCustomer = async (visitorId: string) => {
   return customer;
 };
 
+const fetchHelper = async (index: string, query, errorMessage?: string) => {
+  const response = await fetchElk('search', index, { query }, '', {
+    hits: { hits: [] }
+  });
+
+  const hits = response.hits.hits.map(hit => {
+    return {
+      _id: hit._id,
+      ...hit._source
+    };
+  });
+
+  if (errorMessage) {
+    if (hits.length === 0) {
+      throw new Error(errorMessage);
+    }
+
+    return hits[0];
+  }
+
+  return hits;
+};
+
 export const getOrCreateEngageMessageElk = async (
   browserInfo: IBrowserInfo,
   visitorId?: string,
@@ -137,25 +160,10 @@ export const getOrCreateEngageMessageElk = async (
   let customer;
 
   if (customerId) {
-    const response = await fetchElk(
-      'search',
-      'customers',
-      {
-        query: {
-          match: {
-            _id: customerId
-          }
-        }
-      },
-      '',
-      { hits: { hits: [] } }
-    );
-
-    const customers = response.hits.hits.map(hit => {
-      return {
-        _id: hit._id,
-        ...hit._source
-      };
+    const customers = await fetchHelper('customers', {
+      match: {
+        _id: customerId
+      }
     });
 
     if (customers.length > 0) {
@@ -171,68 +179,32 @@ export const getOrCreateEngageMessageElk = async (
     integrationId = visitor.integrationId;
   }
 
-  const integrationsResponse = await fetchElk(
-    'search',
+  const integration = await fetchHelper(
     'integrations',
     {
-      query: {
-        bool: {
-          must: [
-            { match: { _id: integrationId } },
-            { match: { kind: KIND_CHOICES.MESSENGER } }
-          ]
-        }
+      bool: {
+        must: [
+          { match: { _id: integrationId } },
+          { match: { kind: KIND_CHOICES.MESSENGER } }
+        ]
       }
     },
-    '',
-    { hits: { hits: [] } }
+    'Integration not found'
   );
 
-  let integration;
-
-  const integrations = integrationsResponse.hits.hits.map(hit => {
-    return {
-      _id: hit._id,
-      ...hit._source
-    };
-  });
-
-  if (integrations.length === 0) {
-    throw new Error('Integration not found');
-  }
-
-  integration = integrations[0];
-
-  const brandsResponse = await fetchElk(
-    'search',
+  const brand = await fetchHelper(
     'brands',
     {
-      query: {
-        match: {
-          _id: integration.brandId
-        }
+      match: {
+        _id: integration.brandId
       }
     },
-    '',
-    { hits: { hits: [] } }
+    'Brand not found'
   );
-
-  const brands = brandsResponse.hits.hits.map(hit => {
-    return {
-      _id: hit._id,
-      ...hit._source
-    };
-  });
-
-  if (brands.length === 0) {
-    throw new Error('Brand not found');
-  }
-
-  const brandId = brands[0]._id;
 
   // try to create engage chat auto messages
   await EngageMessages.createVisitorOrCustomerMessages({
-    brandId,
+    brandId: brand._id,
     integrationId: integration._id,
     customer,
     visitor,
@@ -240,13 +212,66 @@ export const getOrCreateEngageMessageElk = async (
   });
 
   // find conversations
-  const query = customerId
-    ? { integrationId, customerId }
-    : { integrationId, visitorId };
+  const customerSelector = {
+    term: customer
+      ? { 'customerId.keyword': customerId }
+      : { 'visitorId.keyword': visitorId }
+  };
 
-  const convs = await Conversations.find(query);
+  const convs = await fetchHelper('conversations', {
+    bool: {
+      must: [
+        { term: { 'integrationId.keyword': integrationId } },
+        customerSelector
+      ]
+    }
+  });
 
-  return Messages.findOne(Conversations.widgetsUnreadMessagesQuery(convs));
+  const conversationIds = convs.map(c => c._id);
+
+  const messages = await fetchHelper('conversation_messages', {
+    bool: {
+      must: [
+        { exists: { field: 'userId' } },
+        { term: { internal: false } },
+        { terms: { 'conversationId.keyword': conversationIds } }
+      ],
+      must_not: [{ term: { isCustomerRead: true } }]
+    }
+  });
+
+  return messages.pop();
+};
+
+const getSocialLinkKey = (type: string) => {
+  return type.substring(type.indexOf('_') + 1);
+};
+
+const prepareCustomFieldsData = (
+  customerDatas: ICustomField[],
+  submissionDatas: ICustomField[]
+) => {
+  const customFieldsData: ICustomField[] = [];
+
+  if (customerDatas.length === 0) {
+    return submissionDatas;
+  }
+
+  for (const customerData of customerDatas) {
+    for (const data of submissionDatas) {
+      if (customerData.field !== data.field) {
+        customFieldsData.push(customerData);
+      } else {
+        if (Array.isArray(customerData.value)) {
+          data.value = customerData.value.concat(data.value);
+        }
+
+        customFieldsData.push(data);
+      }
+    }
+  }
+
+  return customFieldsData;
 };
 
 export const updateCustomerFromForm = async (
@@ -254,19 +279,12 @@ export const updateCustomerFromForm = async (
   doc: any,
   customer: ICustomerDocument
 ) => {
-  if (customer.customFieldsData) {
-    doc.customFieldsData = doc.customFieldsData.concat(
-      customer.customFieldsData
-    );
-  }
-
   const customerDoc: any = {
     location: browserInfo,
     firstName: doc.firstName || customer.firstName,
     lastName: doc.lastName || customer.lastName,
     sex: doc.pronoun,
     birthDate: doc.birthDate,
-    customFieldsData: doc.customFieldsData,
     ...(customer.primaryEmail
       ? {}
       : {
@@ -305,11 +323,36 @@ export const updateCustomerFromForm = async (
     customerDoc.doNotDisturb = doc.doNotDisturb;
   }
 
+  if (!customer.customFieldsData) {
+    customerDoc.customFieldsData = doc.customFieldsData;
+  }
+
+  if (customer.customFieldsData && doc.customFieldsData.length > 0) {
+    customerDoc.customFieldsData = prepareCustomFieldsData(
+      customer.customFieldsData,
+      doc.customFieldsData
+    );
+  }
+
+  if (Object.keys(doc.links).length > 0) {
+    const links = customer.links || {};
+
+    for (const key of Object.keys(doc.links)) {
+      const value = doc.links[key];
+      if (!value || value.length === 0) {
+        continue;
+      }
+
+      links[key] = value;
+    }
+    customerDoc.links = links;
+  }
+
   await Customers.updateCustomer(customer._id, customerDoc);
 };
 
 const groupSubmissions = (submissions: ISubmission[]) => {
-  const submissionsGrouped: { [key: string]: any[] } = {};
+  const submissionsGrouped: { [key: string]: ISubmission[] } = {};
 
   submissions.forEach(submission => {
     if (submission.groupId) {
@@ -345,16 +388,7 @@ export const solveSubmissions = async (args: {
     [key: string]: { customerId: string; companyId: string };
   } = {};
 
-  let cachedCustomer = await Customers.getWidgetCustomer({
-    integrationId,
-    cachedCustomerId
-  });
-
-  cachedCustomer = await Customers.createCustomer({
-    integrationId
-  });
-
-  cachedCustomerId = (cachedCustomer && cachedCustomer._id) || '';
+  let cachedCustomer;
 
   for (const groupId of Object.keys(submissionsGrouped)) {
     let email;
@@ -369,6 +403,7 @@ export const solveSubmissions = async (args: {
     let description = '';
     let department = '';
     let position = '';
+    const customerLinks: ILink = {};
 
     let companyName = '';
     let companyEmail = '';
@@ -379,12 +414,25 @@ export const solveSubmissions = async (args: {
     let size = 0;
     let industries = '';
     let businessType = '';
+    const companyLinks: ILink = {};
 
     const customFieldsData: ICustomField[] = [];
-    let companyCustomData: ICustomField[] = [];
+    const companyCustomData: ICustomField[] = [];
 
     for (const submission of submissionsGrouped[groupId]) {
-      switch (submission.type) {
+      const submissionType = submission.type || '';
+
+      if (submissionType.includes('customerLinks')) {
+        customerLinks[getSocialLinkKey(submissionType)] = submission.value;
+        continue;
+      }
+
+      if (submissionType.includes('companyLinks')) {
+        companyLinks[getSocialLinkKey(submissionType)] = submission.value;
+        continue;
+      }
+
+      switch (submissionType) {
         case 'email':
           email = submission.value;
           break;
@@ -490,6 +538,24 @@ export const solveSubmissions = async (args: {
     }
 
     if (groupId === 'default') {
+      cachedCustomer = await Customers.getWidgetCustomer({
+        integrationId,
+        cachedCustomerId,
+        email,
+        phone
+      });
+
+      if (!cachedCustomer) {
+        cachedCustomer = await Customers.createCustomer({
+          integrationId,
+          primaryEmail: email,
+          emails: [email],
+          firstName,
+          lastName,
+          primaryPhone: phone
+        });
+      }
+
       await updateCustomerFromForm(
         browserInfo,
         {
@@ -503,7 +569,10 @@ export const solveSubmissions = async (args: {
           position,
           description,
           hasAuthority,
-          doNotDisturb
+          doNotDisturb,
+          email,
+          phone,
+          links: customerLinks
         },
         cachedCustomer
       );
@@ -527,8 +596,7 @@ export const solveSubmissions = async (args: {
           emails: [email],
           firstName,
           lastName,
-          primaryPhone: phone,
-          customFieldsData
+          primaryPhone: phone
         });
       }
 
@@ -545,7 +613,10 @@ export const solveSubmissions = async (args: {
           position,
           description,
           hasAuthority,
-          doNotDisturb
+          doNotDisturb,
+          email,
+          phone,
+          links: customerLinks
         },
         customer
       );
@@ -587,11 +658,30 @@ export const solveSubmissions = async (args: {
       company = await Companies.createCompany(companyDoc);
     }
 
-    if (company.customFieldsData) {
-      companyCustomData = companyCustomData.concat(company.customFieldsData);
+    if (Object.keys(companyLinks).length > 0) {
+      const links = company.links || {};
+
+      for (const key of Object.keys(companyLinks)) {
+        const value = companyLinks[key];
+        if (!value || value.length === 0) {
+          continue;
+        }
+
+        links[key] = value;
+      }
+      companyDoc.links = links;
     }
 
-    companyDoc.customFieldsData = companyCustomData;
+    if (!company.customFieldsData) {
+      companyDoc.customFieldsData = companyCustomData;
+    }
+
+    if (company.customFieldsData && companyCustomData.length > 0) {
+      companyDoc.customFieldsData = prepareCustomFieldsData(
+        company.customFieldsData,
+        companyCustomData
+      );
+    }
 
     company = await Companies.updateCompany(company._id, companyDoc);
 
@@ -613,11 +703,11 @@ export const solveSubmissions = async (args: {
     }
 
     if (key !== 'default' && companyId && customerId) {
-      await Conformities.editConformity({
+      await Conformities.addConformity({
         mainType: 'company',
         mainTypeId: companyId,
         relType: 'customer',
-        relTypeIds: [customerId]
+        relTypeId: customerId
       });
     }
 
@@ -627,12 +717,14 @@ export const solveSubmissions = async (args: {
   }
 
   if (mainCompanyId !== '' && relTypeIds.length > 0) {
-    await Conformities.editConformity({
-      mainType: 'company',
-      mainTypeId: mainCompanyId,
-      relType: 'customer',
-      relTypeIds
-    });
+    for (const relTypeId of relTypeIds) {
+      await Conformities.addConformity({
+        mainType: 'company',
+        mainTypeId: mainCompanyId,
+        relType: 'customer',
+        relTypeId
+      });
+    }
   }
 
   // Inserting customer id into submitted customer ids

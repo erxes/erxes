@@ -1,6 +1,5 @@
 import Datetime from '@nateradebaugh/react-datetime';
 import * as React from 'react';
-import xss = require('xss');
 import uploadHandler from '../../uploadHandler';
 import { COMPANY_BUSINESS_TYPES, DEFAULT_COMPANY_INDUSTRY_TYPES } from '../constants';
 import { FieldValue, IField, IFieldError } from '../types';
@@ -129,10 +128,13 @@ export default class Field extends React.Component<Props, State> {
         },
 
         // upload to server
-        afterUpload({ response }: any) {
+        afterUpload({ response, fileInfo }: any) {
+
+          const attachment = { url: response, ...fileInfo };
+
           self.setState({ isAttachingFile: false });
 
-          self.onChange(response);
+          self.onChange([attachment]);
         },
 
         onError: message => {
@@ -215,7 +217,7 @@ export default class Field extends React.Component<Props, State> {
     return (
       <div id={id} 
         dangerouslySetInnerHTML={{
-          __html: xss(content)
+          __html: content
         }}
       />
     );
