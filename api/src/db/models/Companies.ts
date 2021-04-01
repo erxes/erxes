@@ -1,6 +1,7 @@
 import { Model, model } from 'mongoose';
+import { ACTIVITY_LOG_ACTIONS, putActivityLog } from '../../data/logUtils';
 import { validSearchText } from '../../data/utils';
-import { ActivityLogs, Conformities, Fields, InternalNotes } from './';
+import { Conformities, Fields, InternalNotes } from './';
 import { ICustomField } from './definitions/common';
 import {
   companySchema,
@@ -158,7 +159,10 @@ export const loadClass = () => {
       });
 
       // create log
-      await ActivityLogs.createCocLog({ coc: company, contentType: 'company' });
+      await putActivityLog({
+        action: ACTIVITY_LOG_ACTIONS.CREATE_COC_LOG,
+        data: { coc: company, contentType: 'company' }
+      });
 
       return company;
     }
@@ -194,14 +198,16 @@ export const loadClass = () => {
      */
     public static async removeCompanies(companyIds: string[]) {
       // Removing modules associated with company
-      await ActivityLogs.removeActivityLogs(
-        ACTIVITY_CONTENT_TYPES.COMPANY,
-        companyIds
-      );
+      await putActivityLog({
+        action: ACTIVITY_LOG_ACTIONS.REMOVE_ACTIVITY_LOGS,
+        data: { type: ACTIVITY_CONTENT_TYPES.COMPANY, itemIds: companyIds }
+      });
+
       await InternalNotes.removeInternalNotes(
         ACTIVITY_CONTENT_TYPES.COMPANY,
         companyIds
       );
+
       await Conformities.removeConformities({
         mainType: 'company',
         mainTypeIds: companyIds

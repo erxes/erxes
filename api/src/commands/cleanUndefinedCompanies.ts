@@ -1,11 +1,6 @@
 import * as dotenv from 'dotenv';
 import { connect } from '../db/connection';
-import {
-  ActivityLogs,
-  Companies,
-  Conformities,
-  InternalNotes
-} from '../db/models';
+import { Companies, Conformities, InternalNotes } from '../db/models';
 
 dotenv.config();
 
@@ -18,11 +13,6 @@ const command = async () => {
   );
   const companyIds = companies.map(c => c._id);
   console.log(companyIds.length);
-
-  await ActivityLogs.deleteMany({
-    contentType: 'company',
-    contentTypeId: { $in: companyIds }
-  });
 
   await InternalNotes.deleteMany({
     contentType: 'company',

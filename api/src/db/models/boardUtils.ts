@@ -1,5 +1,4 @@
 import {
-  ActivityLogs,
   Checklists,
   Companies,
   Conformities,
@@ -10,6 +9,7 @@ import {
   Tasks,
   Tickets
 } from '.';
+import { ACTIVITY_LOG_ACTIONS, putActivityLog } from '../../data/logUtils';
 import { validSearchText } from '../../data/utils';
 import { IItemCommonFields, IOrderInput } from './definitions/boards';
 import { ICompanyDocument } from './definitions/companies';
@@ -274,7 +274,11 @@ export const destroyBoardItemRelations = async (
   contentTypeId: string,
   contentType: string
 ) => {
-  await ActivityLogs.removeActivityLog(contentTypeId);
+  await putActivityLog({
+    action: ACTIVITY_LOG_ACTIONS.REMOVE_ACTIVITY_LOG,
+    data: { contentTypeId }
+  });
+
   await Checklists.removeChecklists(contentType, [contentTypeId]);
   await Conformities.removeConformity({
     mainType: contentType,
