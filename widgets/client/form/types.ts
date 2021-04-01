@@ -1,4 +1,4 @@
-import { IIntegration, IRule } from "../types";
+import { IIntegration } from "../types";
 
 export interface IConnectResponse {
   form: IForm;
@@ -52,7 +52,14 @@ export interface IForm {
   fields: IField[];
 }
 
-export type FieldValue = string | number | Date | string[];
+interface IAttachment {
+  name: string;
+  url: string;
+  size: number;
+  type: string;
+}
+
+export type FieldValue = string | number | Date | string[]| IAttachment[];
 
 export interface IFieldError {
   fieldId?: string;
