@@ -9,7 +9,6 @@ import {
   COMPANY_INDUSTRY_TYPES
 } from 'modules/companies/constants';
 import React from 'react';
-import xss from 'xss';
 import { LogicIndicator, SelectInput } from '../styles';
 import { IField } from '../types';
 
@@ -204,9 +203,9 @@ export default class GenerateField extends React.Component<Props, State> {
   renderHtml() {
     const { content } = this.props.field;
     return (
-      <p
+      <div
         dangerouslySetInnerHTML={{
-          __html: xss(content || '')
+          __html: content || ''
         }}
       />
     );
