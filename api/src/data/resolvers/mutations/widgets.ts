@@ -457,12 +457,6 @@ const widgetMutations = {
       }
     }
 
-    if (integration.createdUserId) {
-      const user = await Users.getUser(integration.createdUserId);
-
-      registerOnboardHistory({ type: 'messengerIntegrationInstalled', user });
-    }
-
     return {
       integrationId: integration._id,
       uiOptions: integration.uiOptions,
