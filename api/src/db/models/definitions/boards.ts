@@ -2,6 +2,7 @@ import { Document, Schema } from 'mongoose';
 import { customFieldSchema, ICustomField } from './common';
 import {
   BOARD_STATUSES,
+  BOARD_STATUSES_OPTIONS,
   BOARD_TYPES,
   HACK_SCORING_TYPES,
   PIPELINE_VISIBLITIES,
@@ -199,6 +200,8 @@ export const commonItemFieldsSchema = {
     type: String,
     enum: BOARD_STATUSES.ALL,
     default: BOARD_STATUSES.ACTIVE,
+    label: 'Status',
+    selectOptions: BOARD_STATUSES_OPTIONS,
     index: true
   }),
   customFieldsData: field({
