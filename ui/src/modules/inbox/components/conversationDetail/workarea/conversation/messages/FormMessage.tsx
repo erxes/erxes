@@ -20,9 +20,15 @@ export default class FormMessage extends React.Component<Props, {}> {
     }
 
     if (data.type === 'file') {
+      let fileUrl = data.value || '';
+
+      if (Array.isArray(data.value) && data.value.length > 0) {
+        fileUrl = data.value[0].url;
+      }
+
       return (
         <CellWrapper>
-          <FilePreview fileUrl={data.value} />
+          <FilePreview fileUrl={fileUrl} />
         </CellWrapper>
       );
     }

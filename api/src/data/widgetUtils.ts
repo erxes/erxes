@@ -252,10 +252,22 @@ export const updateCustomerFromForm = async (
   doc: any,
   customer: ICustomerDocument
 ) => {
+  const customFieldsData: ICustomField[] = [];
+
   if (customer.customFieldsData) {
-    doc.customFieldsData = doc.customFieldsData.concat(
-      customer.customFieldsData
-    );
+    for (const customerData of customer.customFieldsData) {
+      for (const data of doc.customFieldsData) {
+        if (customerData.field !== data.field) {
+          customFieldsData.push(customerData);
+        } else {
+          if (Array.isArray(customerData.value)) {
+            data.value = customerData.value.concat(data.value);
+          }
+
+          customFieldsData.push(data);
+        }
+      }
+    }
   }
 
   const customerDoc: any = {
@@ -521,8 +533,7 @@ export const solveSubmissions = async (args: {
           emails: [email],
           firstName,
           lastName,
-          primaryPhone: phone,
-          customFieldsData
+          primaryPhone: phone
         });
       }
 
@@ -566,8 +577,7 @@ export const solveSubmissions = async (args: {
           emails: [email],
           firstName,
           lastName,
-          primaryPhone: phone,
-          customFieldsData
+          primaryPhone: phone
         });
       }
 
