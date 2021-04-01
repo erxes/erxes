@@ -10,12 +10,12 @@ const main = async () => {
   await shelljs.exec('mkdir dump');
 
   await shelljs.exec(
-    `mongodump --uri ${MONGO_URL} --collection activity_logs --out dump`
+    `mongodump --uri "${MONGO_URL}" --collection activity_logs --out dump`
   );
 
   await shelljs.exec(`mv dump/${erxesDb} dump/${erxesLogDb}`);
 
-  await shelljs.exec(`mongorestore --uri ${MONGO_URL} dump`);
+  await shelljs.exec(`mongorestore --uri "${MONGO_URL}" dump`);
 
   await shelljs.exec('rm -rf dump');
 
