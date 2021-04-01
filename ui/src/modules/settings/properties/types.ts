@@ -33,6 +33,7 @@ export interface IField {
   associatedField?: {
     _id: string;
     text: string;
+    contentType: string;
   };
   logics?: IFieldLogic[];
   logicAction?: string;
