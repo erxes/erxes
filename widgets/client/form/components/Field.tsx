@@ -128,10 +128,13 @@ export default class Field extends React.Component<Props, State> {
         },
 
         // upload to server
-        afterUpload({ response }: any) {
+        afterUpload({ response, fileInfo }: any) {
+
+          const attachment = { url: response, ...fileInfo };
+
           self.setState({ isAttachingFile: false });
 
-          self.onChange(response);
+          self.onChange([attachment]);
         },
 
         onError: message => {
