@@ -3,6 +3,7 @@ import * as compose from 'lodash.flowright';
 import ButtonMutate from 'modules/common/components/ButtonMutate';
 import Spinner from 'modules/common/components/Spinner';
 import { IButtonMutateProps, IFormProps } from 'modules/common/types';
+import { getConstantFromStore } from 'modules/common/utils';
 import React from 'react';
 import { ChildProps, graphql } from 'react-apollo';
 import SelectProperty from '../components/SelectProperty';
@@ -47,6 +48,16 @@ const SelectPropertyContainer = (props: ChildProps<FinalProps>) => {
       }
       return e;
     });
+
+    const links: IField[] = getConstantFromStore('social_links').map(link => {
+      return {
+        _id: `customerLinks_${link.value}`,
+        type: `customerLinks_${link.value}`,
+        text: link.label
+      };
+    });
+
+    properties = properties.concat(links);
   }
 
   if (queryParams.type === 'company') {
@@ -66,6 +77,16 @@ const SelectPropertyContainer = (props: ChildProps<FinalProps>) => {
       }
       return e;
     });
+
+    const links: IField[] = getConstantFromStore('social_links').map(link => {
+      return {
+        _id: `companyLinks_${link.value}`,
+        type: `companyLinks_${link.value}`,
+        text: link.label
+      };
+    });
+
+    properties = properties.concat(links);
   }
 
   const groups = fieldsGroupsQuery.fieldsGroups || [];
