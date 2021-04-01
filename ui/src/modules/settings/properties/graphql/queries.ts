@@ -73,6 +73,7 @@ const fields = `
       associatedField {
         _id
         text
+        contentType
       }
       logics {
         fieldId

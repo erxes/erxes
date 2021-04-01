@@ -179,7 +179,11 @@ export const ignoredFilters = [
   'integrationKind',
   'firstRespondedDate',
   'firstName',
-  'lastName'
+  'lastName',
+  'customerFirstName',
+  'customerLastName',
+  'customerEmail',
+  'CUSTOM'
 ];
 
 export const ignoredMeasures = [

@@ -60,7 +60,11 @@ class ImportIndicatorContainer extends React.Component<
     const percentage =
       Math.trunc(importHistory.percentage) || this.state.percentage;
 
-    if (importHistory.status === 'Done' || percentage === 100) {
+    if (
+      importHistoryDetailQuery.error ||
+      importHistory.status === 'Done' ||
+      percentage === 100
+    ) {
       importHistoryDetailQuery.stopPolling();
     }
 

@@ -125,7 +125,8 @@ class Form extends React.Component<Props, State> {
 
   hideField(id: string) {
     const { doc } = this.state;
-    if (doc[id].value !== '') {
+
+    if (doc[id].value !== '' || !doc[id].isHidden) {
       doc[id].value = '';
       doc[id].isHidden = true;
       this.setState({ doc });
@@ -189,7 +190,6 @@ class Form extends React.Component<Props, State> {
       }
 
       this.showField(field._id)
-
       return (
         <Field
           key={field._id}
