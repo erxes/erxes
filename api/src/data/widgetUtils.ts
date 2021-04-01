@@ -127,6 +127,29 @@ export const convertVisitorToCustomer = async (visitorId: string) => {
   return customer;
 };
 
+const fetchHelper = async (index: string, query, errorMessage?: string) => {
+  const response = await fetchElk('search', index, { query }, '', {
+    hits: { hits: [] }
+  });
+
+  const hits = response.hits.hits.map(hit => {
+    return {
+      _id: hit._id,
+      ...hit._source
+    };
+  });
+
+  if (errorMessage) {
+    if (hits.length === 0) {
+      throw new Error(errorMessage);
+    }
+
+    return hits[0];
+  }
+
+  return hits;
+};
+
 export const getOrCreateEngageMessageElk = async (
   browserInfo: IBrowserInfo,
   visitorId?: string,
@@ -137,25 +160,10 @@ export const getOrCreateEngageMessageElk = async (
   let customer;
 
   if (customerId) {
-    const response = await fetchElk(
-      'search',
-      'customers',
-      {
-        query: {
-          match: {
-            _id: customerId
-          }
-        }
-      },
-      '',
-      { hits: { hits: [] } }
-    );
-
-    const customers = response.hits.hits.map(hit => {
-      return {
-        _id: hit._id,
-        ...hit._source
-      };
+    const customers = await fetchHelper('customers', {
+      match: {
+        _id: customerId
+      }
     });
 
     if (customers.length > 0) {
@@ -171,68 +179,32 @@ export const getOrCreateEngageMessageElk = async (
     integrationId = visitor.integrationId;
   }
 
-  const integrationsResponse = await fetchElk(
-    'search',
+  const integration = await fetchHelper(
     'integrations',
     {
-      query: {
-        bool: {
-          must: [
-            { match: { _id: integrationId } },
-            { match: { kind: KIND_CHOICES.MESSENGER } }
-          ]
-        }
+      bool: {
+        must: [
+          { match: { _id: integrationId } },
+          { match: { kind: KIND_CHOICES.MESSENGER } }
+        ]
       }
     },
-    '',
-    { hits: { hits: [] } }
+    'Integration not found'
   );
 
-  let integration;
-
-  const integrations = integrationsResponse.hits.hits.map(hit => {
-    return {
-      _id: hit._id,
-      ...hit._source
-    };
-  });
-
-  if (integrations.length === 0) {
-    throw new Error('Integration not found');
-  }
-
-  integration = integrations[0];
-
-  const brandsResponse = await fetchElk(
-    'search',
+  const brand = await fetchHelper(
     'brands',
     {
-      query: {
-        match: {
-          _id: integration.brandId
-        }
+      match: {
+        _id: integration.brandId
       }
     },
-    '',
-    { hits: { hits: [] } }
+    'Brand not found'
   );
-
-  const brands = brandsResponse.hits.hits.map(hit => {
-    return {
-      _id: hit._id,
-      ...hit._source
-    };
-  });
-
-  if (brands.length === 0) {
-    throw new Error('Brand not found');
-  }
-
-  const brandId = brands[0]._id;
 
   // try to create engage chat auto messages
   await EngageMessages.createVisitorOrCustomerMessages({
-    brandId,
+    brandId: brand._id,
     integrationId: integration._id,
     customer,
     visitor,
@@ -240,13 +212,35 @@ export const getOrCreateEngageMessageElk = async (
   });
 
   // find conversations
-  const query = customerId
-    ? { integrationId, customerId }
-    : { integrationId, visitorId };
+  const customerSelector = {
+    term: customer
+      ? { 'customerId.keyword': customerId }
+      : { 'visitorId.keyword': visitorId }
+  };
 
-  const convs = await Conversations.find(query);
+  const convs = await fetchHelper('conversations', {
+    bool: {
+      must: [
+        { term: { 'integrationId.keyword': integrationId } },
+        customerSelector
+      ]
+    }
+  });
 
-  return Messages.findOne(Conversations.widgetsUnreadMessagesQuery(convs));
+  const conversationIds = convs.map(c => c._id);
+
+  const messages = await fetchHelper('conversation_messages', {
+    bool: {
+      must: [
+        { exists: { field: 'userId' } },
+        { term: { internal: false } },
+        { terms: { 'conversationId.keyword': conversationIds } }
+      ],
+      must_not: [{ term: { isCustomerRead: true } }]
+    }
+  });
+
+  return messages.pop();
 };
 
 export const updateCustomerFromForm = async (
@@ -617,11 +611,11 @@ export const solveSubmissions = async (args: {
     }
 
     if (key !== 'default' && companyId && customerId) {
-      await Conformities.editConformity({
+      await Conformities.addConformity({
         mainType: 'company',
         mainTypeId: companyId,
         relType: 'customer',
-        relTypeIds: [customerId]
+        relTypeId: customerId
       });
     }
 
@@ -631,12 +625,14 @@ export const solveSubmissions = async (args: {
   }
 
   if (mainCompanyId !== '' && relTypeIds.length > 0) {
-    await Conformities.editConformity({
-      mainType: 'company',
-      mainTypeId: mainCompanyId,
-      relType: 'customer',
-      relTypeIds
-    });
+    for (const relTypeId of relTypeIds) {
+      await Conformities.addConformity({
+        mainType: 'company',
+        mainTypeId: mainCompanyId,
+        relType: 'customer',
+        relTypeId
+      });
+    }
   }
 
   // Inserting customer id into submitted customer ids

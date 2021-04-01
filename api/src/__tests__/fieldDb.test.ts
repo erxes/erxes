@@ -131,7 +131,9 @@ describe('Fields', () => {
   });
 
   test('Update field valid', async () => {
-    const doc = await fieldFactory({});
+    const doc = await fieldFactory({ contentType: 'form' });
+    const doc2 = await fieldFactory({ contentType: 'form' });
+    const group = await fieldGroupFactory({ contentType: 'form' });
     const testField = await fieldFactory({ isDefinedByErxes: true });
 
     if (!doc || !testField) {
@@ -139,12 +141,17 @@ describe('Fields', () => {
     }
 
     const fieldDoc = {
-      ...doc.toJSON()
+      ...doc.toJSON(),
+      groupName: group && group.name
     };
 
     delete fieldDoc._id;
 
     const fieldObj = await Fields.updateField(_field._id, fieldDoc);
+    const fieldObj2 = await Fields.updateField(doc2._id, {
+      ...doc2.toJSON(),
+      groupName: 'test group'
+    });
 
     try {
       await Fields.updateField(testField._id, { text: 'text' });
@@ -166,6 +173,8 @@ describe('Fields', () => {
     expect(fieldObj.options[0]).toEqual(doc.options[0]);
     expect(fieldObj.isRequired).toBe(doc.isRequired);
     expect(fieldObj.order).toBe(doc.order);
+    expect(fieldObj.groupId).toBe(group && group._id);
+    expect(fieldObj2.groupId).toBeDefined();
   });
 
   test('Remove field valid', async () => {
