@@ -518,8 +518,6 @@ export const solveSubmissions = async (args: {
         case 'location':
           location = submission.value;
           break;
-        default:
-          submission.associatedFieldId = undefined;
       }
 
       if (
