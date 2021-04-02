@@ -1,3 +1,4 @@
+import * as Random from 'meteor-random';
 import { Document, Model, model, Schema } from 'mongoose';
 import { field } from './Logs';
 
@@ -45,6 +46,7 @@ export interface IActivityLogDocument extends IActivityLog, Document {
 }
 
 export const activityLogSchema = new Schema({
+  _id: { type: String, default: () => Random.id() },
   contentId: field({ type: String, index: true }),
   contentType: field({ type: String, index: true }),
   action: field({ type: String, index: true }),

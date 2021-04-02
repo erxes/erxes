@@ -96,7 +96,6 @@ class FieldForm extends React.Component<Props, State> {
     field.validation = selectedField.validation;
     field.options = selectedField.options;
     field.type = selectedField.type;
-    field.isRequired = selectedField.isRequired;
     field.text = selectedField.text;
     field.description = selectedField.description;
 

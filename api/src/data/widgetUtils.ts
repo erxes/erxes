@@ -247,24 +247,44 @@ const getSocialLinkKey = (type: string) => {
   return type.substring(type.indexOf('_') + 1);
 };
 
+const prepareCustomFieldsData = (
+  customerDatas: ICustomField[],
+  submissionDatas: ICustomField[]
+) => {
+  const customFieldsData: ICustomField[] = [];
+
+  if (customerDatas.length === 0) {
+    return submissionDatas;
+  }
+
+  for (const customerData of customerDatas) {
+    for (const data of submissionDatas) {
+      if (customerData.field !== data.field) {
+        customFieldsData.push(customerData);
+      } else {
+        if (Array.isArray(customerData.value)) {
+          data.value = customerData.value.concat(data.value);
+        }
+
+        customFieldsData.push(data);
+      }
+    }
+  }
+
+  return customFieldsData;
+};
+
 export const updateCustomerFromForm = async (
   browserInfo: any,
   doc: any,
   customer: ICustomerDocument
 ) => {
-  if (customer.customFieldsData) {
-    doc.customFieldsData = doc.customFieldsData.concat(
-      customer.customFieldsData
-    );
-  }
-
   const customerDoc: any = {
     location: browserInfo,
     firstName: doc.firstName || customer.firstName,
     lastName: doc.lastName || customer.lastName,
     sex: doc.pronoun,
     birthDate: doc.birthDate,
-    customFieldsData: doc.customFieldsData,
     ...(customer.primaryEmail
       ? {}
       : {
@@ -301,6 +321,17 @@ export const updateCustomerFromForm = async (
 
   if (doc.doNotDisturb.length > 0) {
     customerDoc.doNotDisturb = doc.doNotDisturb;
+  }
+
+  if (!customer.customFieldsData) {
+    customerDoc.customFieldsData = doc.customFieldsData;
+  }
+
+  if (customer.customFieldsData && doc.customFieldsData.length > 0) {
+    customerDoc.customFieldsData = prepareCustomFieldsData(
+      customer.customFieldsData,
+      doc.customFieldsData
+    );
   }
 
   if (Object.keys(doc.links).length > 0) {
@@ -383,10 +414,12 @@ export const solveSubmissions = async (args: {
     let size = 0;
     let industries = '';
     let businessType = '';
+    let location = '';
+
     const companyLinks: ILink = {};
 
     const customFieldsData: ICustomField[] = [];
-    let companyCustomData: ICustomField[] = [];
+    const companyCustomData: ICustomField[] = [];
 
     for (const submission of submissionsGrouped[groupId]) {
       const submissionType = submission.type || '';
@@ -424,10 +457,14 @@ export const solveSubmissions = async (args: {
           companyPhone = submission.value;
           break;
         case 'avatar':
-          avatar = submission.value;
+          if (submission.value && submission.value.length > 0) {
+            avatar = submission.value[0].url;
+          }
           break;
         case 'companyAvatar':
-          logo = submission.value;
+          if (submission.value && submission.value.length > 0) {
+            logo = submission.value[0].url;
+          }
           break;
         case 'industry':
           industries = submission.value;
@@ -478,11 +515,23 @@ export const solveSubmissions = async (args: {
         case 'companyDoNotDisturb':
           companyDoNotDisturb = submission.value;
           break;
-        default:
+        case 'location':
+          location = submission.value;
           break;
       }
 
-      if (submission.associatedFieldId) {
+      if (
+        submission.associatedFieldId &&
+        [
+          'input',
+          'select',
+          'multiSelect',
+          'file',
+          'textarea',
+          'radio',
+          'check'
+        ].includes(submissionType)
+      ) {
         const field = await Fields.findById(submission.associatedFieldId);
         if (!field) {
           continue;
@@ -521,8 +570,7 @@ export const solveSubmissions = async (args: {
           emails: [email],
           firstName,
           lastName,
-          primaryPhone: phone,
-          customFieldsData
+          primaryPhone: phone
         });
       }
 
@@ -566,8 +614,7 @@ export const solveSubmissions = async (args: {
           emails: [email],
           firstName,
           lastName,
-          primaryPhone: phone,
-          customFieldsData
+          primaryPhone: phone
         });
       }
 
@@ -625,6 +672,10 @@ export const solveSubmissions = async (args: {
       companyDoc.industry = industries;
     }
 
+    if (location.length > 0) {
+      companyDoc.location = location;
+    }
+
     if (!company) {
       company = await Companies.createCompany(companyDoc);
     }
@@ -643,11 +694,16 @@ export const solveSubmissions = async (args: {
       companyDoc.links = links;
     }
 
-    if (company.customFieldsData) {
-      companyCustomData = companyCustomData.concat(company.customFieldsData);
+    if (!company.customFieldsData) {
+      companyDoc.customFieldsData = companyCustomData;
     }
 
-    companyDoc.customFieldsData = companyCustomData;
+    if (company.customFieldsData && companyCustomData.length > 0) {
+      companyDoc.customFieldsData = prepareCustomFieldsData(
+        company.customFieldsData,
+        companyCustomData
+      );
+    }
 
     company = await Companies.updateCompany(company._id, companyDoc);
 
