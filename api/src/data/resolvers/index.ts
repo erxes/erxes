@@ -8,6 +8,7 @@ import {
 } from './calendar';
 import Channel from './channel';
 import Checklist from './checklists';
+import CPTicket from './clientPortals';
 import Company from './company';
 import Conversation from './conversation';
 import ConversationMessage from './conversationMessage';
@@ -96,7 +97,8 @@ const resolvers: any = {
   GrowthHack,
   CalendarGroup,
   CalendarBoard,
-  Tag
+  Tag,
+  CPTicket
 };
 
 export default resolvers;
