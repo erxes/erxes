@@ -3,6 +3,7 @@ import { debugBase } from '../debuggers';
 import messageBroker from '../messageBroker';
 import { Configs, DeliveryReports, Stats } from '../models';
 import { ISESConfig } from '../models/Configs';
+import { SES_DELIVERY_STATUSES } from '../constants';
 
 export const getApi = async (type: string): Promise<any> => {
   const config: ISESConfig = await Configs.getSESConfigs();
@@ -66,14 +67,27 @@ const handleMessage = async message => {
     email: to && to.value
   };
 
-  await Stats.updateStats(mailHeaders.engageMessageId, type);
+  const exists = await DeliveryReports.findOne({
+    ...mailHeaders,
+    status: type
+  });
 
-  const rejected = await DeliveryReports.updateOrCreateReport(
-    mailHeaders,
-    type
-  );
+  // to prevent duplicate event counting
+  if (!exists) {
+    await Stats.updateStats(mailHeaders.engageMessageId, type);
 
-  if (rejected === 'reject') {
+    await DeliveryReports.create({
+      ...mailHeaders,
+      status: type
+    });
+  }
+
+  const rejected =
+    type === SES_DELIVERY_STATUSES.BOUNCE ||
+    type === SES_DELIVERY_STATUSES.COMPLAINT ||
+    type === SES_DELIVERY_STATUSES.REJECT;
+
+  if (rejected) {
     await messageBroker().sendMessage('engagesNotification', {
       action: 'setDoNotDisturb',
       data: { customerId: mailHeaders.customerId, status: type }
