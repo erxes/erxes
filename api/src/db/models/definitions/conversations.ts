@@ -66,7 +66,7 @@ export const conversationSchema = new Schema({
   participatedUserIds: field({ type: [String] }),
   userRelevance: field({ type: String, index: true }),
   readUserIds: field({ type: [String] }),
-  createdAt: field({ type: Date, index: true }),
+  createdAt: field({ type: Date }),
   updatedAt: field({ type: Date, index: true }),
 
   closedAt: field({

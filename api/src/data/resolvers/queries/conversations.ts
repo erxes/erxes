@@ -32,7 +32,7 @@ const conversationQueries = {
     // filter by ids of conversations
     if (params && params.ids) {
       return Conversations.find({ _id: { $in: params.ids } }).sort({
-        createdAt: -1
+        updatedAt: -1
       });
     }
 
