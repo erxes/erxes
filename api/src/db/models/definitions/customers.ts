@@ -132,7 +132,12 @@ export const customerSchema = schemaWrapper(
       selectOptions: CUSTOMER_SELECT_OPTIONS.STATE
     }),
 
-    createdAt: field({ type: Date, label: 'Created at', esType: 'date' }),
+    createdAt: field({
+      type: Date,
+      label: 'Created at',
+      esType: 'date',
+      index: true
+    }),
     modifiedAt: field({ type: Date, label: 'Modified at', esType: 'date' }),
     avatar: field({ type: String, optional: true, label: 'Avatar' }),
 
