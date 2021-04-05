@@ -55,7 +55,7 @@ export const conversationSchema = new Schema({
   }),
   content: field({ type: String, optional: true }),
   integrationId: field({ type: String, index: true }),
-  customerId: field({ type: String }),
+  customerId: field({ type: String, index: true }),
   visitorId: field({
     type: String,
     index: true,

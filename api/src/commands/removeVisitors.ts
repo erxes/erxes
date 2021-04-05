@@ -17,15 +17,20 @@ const command = async () => {
 
   const customerIds = customers.map(c => c._id);
 
+  console.log('visitors', customerIds.length);
+
   const conversations = await Conversations.find().distinct('customerId');
 
   const idsToRemove = customerIds.filter(e => !conversations.includes(e));
+
+  console.log('idsToRemove', idsToRemove.length);
 
   let deletedCount = 0;
 
   await stream(
     async chunk => {
       deletedCount = deletedCount + chunk.length;
+      console.log('deletedCount', deletedCount);
       await Customers.deleteMany({ _id: { $in: chunk } });
     },
     (variables, root) => {

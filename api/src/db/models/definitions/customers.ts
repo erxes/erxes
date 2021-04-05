@@ -128,6 +128,7 @@ export const customerSchema = schemaWrapper(
       label: 'State',
       default: 'visitor',
       enum: getEnum('STATE'),
+      index: true,
       selectOptions: CUSTOMER_SELECT_OPTIONS.STATE
     }),
 
@@ -250,6 +251,7 @@ export const customerSchema = schemaWrapper(
       type: String,
       optional: true,
       label: 'Integration',
+      index: true,
       esType: 'keyword'
     }),
     tagIds: field({
