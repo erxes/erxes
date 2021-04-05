@@ -61,13 +61,13 @@ export const conversationSchema = new Schema({
     index: true,
     label: 'unique visitor id on logger database'
   }),
-  userId: field({ type: String }),
+  userId: field({ type: String, index: true }),
   assignedUserId: field({ type: String }),
   participatedUserIds: field({ type: [String] }),
   userRelevance: field({ type: String, index: true }),
   readUserIds: field({ type: [String] }),
   createdAt: field({ type: Date, index: true }),
-  updatedAt: field({ type: Date }),
+  updatedAt: field({ type: Date, index: true }),
 
   closedAt: field({
     type: Date,
@@ -84,7 +84,7 @@ export const conversationSchema = new Schema({
     enum: CONVERSATION_STATUSES.ALL,
     index: true
   }),
-  messageCount: field({ type: Number }),
+  messageCount: field({ type: Number, index: true }),
   tagIds: field({ type: [String] }),
 
   // number of total conversations
