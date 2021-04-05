@@ -72,7 +72,7 @@ const activityLogQueries = {
       collectItems(
         await Conversations.find({
           $or: [{ customerId: contentId }, { participatedUserIds: contentId }]
-        }).limit(25),
+        }),
         'conversation'
       );
 
@@ -163,7 +163,7 @@ const activityLogQueries = {
 
       if (Array.isArray(contentIds)) {
         collectItems(
-          await Conversations.find({ _id: { $in: contentIds } }).limit(25),
+          await Conversations.find({ _id: { $in: contentIds } }),
           'conversation'
         );
       }
