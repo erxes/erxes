@@ -58,13 +58,12 @@ export const conversationSchema = new Schema({
   customerId: field({ type: String, index: true }),
   visitorId: field({
     type: String,
-    index: true,
     label: 'unique visitor id on logger database'
   }),
-  userId: field({ type: String, index: true }),
+  userId: field({ type: String }),
   assignedUserId: field({ type: String }),
   participatedUserIds: field({ type: [String] }),
-  userRelevance: field({ type: String, index: true }),
+  userRelevance: field({ type: String }),
   readUserIds: field({ type: [String] }),
   createdAt: field({ type: Date }),
   updatedAt: field({ type: Date, index: true }),
@@ -101,3 +100,16 @@ export const conversationSchema = new Schema({
     label: 'Custom fields data'
   })
 });
+
+conversationSchema.index(
+  { visitorId: 1 },
+  { partialFilterExpression: { visitorId: { $exists: true } } }
+);
+conversationSchema.index(
+  { userId: 1 },
+  { partialFilterExpression: { userId: { $exists: true } } }
+);
+conversationSchema.index(
+  { userRelevance: 1 },
+  { partialFilterExpression: { userRelevance: { $exists: true } } }
+);
