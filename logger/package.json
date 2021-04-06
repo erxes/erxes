@@ -29,6 +29,7 @@
     "dotenv": "^4.0.0",
     "erxes-message-broker": "^1.0.26",
     "express": "^4.16.4",
+    "meteor-random": "^0.0.3",
     "migrate": "^1.6.2",
     "mongoose": "5.7.10",
     "ts-node": "8.0.3",

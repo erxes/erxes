@@ -4,7 +4,6 @@ import * as Random from 'meteor-random';
 import * as momentTz from 'moment-timezone';
 import { FIELDS_GROUPS_CONTENT_TYPES } from '../data/constants';
 import {
-  ActivityLogs,
   Boards,
   Brands,
   CalendarBoards,
@@ -112,17 +111,13 @@ interface IActivityLogFactoryInput {
 
 export const activityLogFactory = async (
   params: IActivityLogFactoryInput = {}
-) => {
-  const activity = new ActivityLogs({
-    contentType: params.contentType || 'customer',
-    action: params.action || 'create',
-    contentId: params.contentId || faker.random.uuid(),
-    content: params.content || 'content',
-    createdBy: params.createdBy || faker.random.uuid()
-  });
-
-  return activity.save();
-};
+) => ({
+  contentType: params.contentType || 'customer',
+  action: params.action || 'create',
+  contentId: params.contentId || faker.random.uuid(),
+  content: params.content || 'content',
+  createdBy: params.createdBy || faker.random.uuid()
+});
 
 interface IDashboardFactoryInput {
   name?: string;
@@ -396,6 +391,8 @@ interface ISegmentFactoryInput {
   subOf?: string;
   color?: string;
   conditions?: IConditionsInput[];
+  boardId?: string;
+  pipelineId?: string;
 }
 
 export const segmentFactory = (params: ISegmentFactoryInput = {}) => {
@@ -414,7 +411,9 @@ export const segmentFactory = (params: ISegmentFactoryInput = {}) => {
     description: params.description || faker.random.word(),
     subOf: params.subOf,
     color: params.color || '#809b87',
-    conditions: params.conditions || defaultConditions
+    conditions: params.conditions || defaultConditions,
+    boardId: params.boardId,
+    pipelineId: params.pipelineId
   });
 
   return segment.save();
@@ -1051,6 +1050,7 @@ interface IStageFactoryInput {
   formId?: string;
   status?: string;
   order?: number;
+  name?: string;
 }
 
 export const stageFactory = async (params: IStageFactoryInput = {}) => {
@@ -1060,7 +1060,7 @@ export const stageFactory = async (params: IStageFactoryInput = {}) => {
   const pipeline = await pipelineFactory({ type, boardId: board._id });
 
   const stage = new Stages({
-    name: faker.random.word(),
+    name: params.name || faker.random.word(),
     pipelineId: params.pipelineId || pipeline._id,
     type: params.type || BOARD_TYPES.DEAL,
     probability: params.probability || PROBABILITY.TEN,

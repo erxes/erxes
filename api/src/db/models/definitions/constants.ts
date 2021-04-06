@@ -289,6 +289,7 @@ export const FIELDS_GROUPS_CONTENT_TYPES = {
   DEAL: 'deal',
   VISITOR: 'visitor',
   LEAD: 'lead',
+  FORM: 'form',
   ALL: [
     'customer',
     'company',
@@ -299,7 +300,8 @@ export const FIELDS_GROUPS_CONTENT_TYPES = {
     'task',
     'deal',
     'visitor',
-    'lead'
+    'lead',
+    'form'
   ]
 };
 
@@ -465,6 +467,11 @@ export const BOARD_STATUSES = {
   ARCHIVED: 'archived',
   ALL: ['active', 'archived']
 };
+
+export const BOARD_STATUSES_OPTIONS = [
+  { label: 'Active', value: 'active' },
+  { label: 'Archived', value: 'archived' }
+];
 
 export const TIME_TRACK_TYPES = {
   STARTED: 'started',

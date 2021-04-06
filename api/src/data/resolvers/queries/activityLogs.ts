@@ -1,5 +1,4 @@
 import {
-  ActivityLogs,
   Conformities,
   Conversations,
   EmailDeliveries,
@@ -10,6 +9,7 @@ import {
 import { IActivityLogDocument } from '../../../db/models/definitions/activityLogs';
 import { ACTIVITY_CONTENT_TYPES } from '../../../db/models/definitions/constants';
 import { debugExternalApi } from '../../../debuggers';
+import { fetchLogs } from '../../logUtils';
 import { moduleRequireLogin } from '../../permissions/wrappers';
 import { IContext } from '../../types';
 
@@ -46,8 +46,6 @@ const activityLogQueries = {
         items.map(item => {
           let result: IActivityLogDocument = {} as any;
 
-          item = item.toJSON();
-
           if (!type) {
             result = item;
           }
@@ -74,7 +72,7 @@ const activityLogQueries = {
       collectItems(
         await Conversations.find({
           $or: [{ customerId: contentId }, { participatedUserIds: contentId }]
-        }).limit(25),
+        }),
         'conversation'
       );
 
@@ -100,9 +98,12 @@ const activityLogQueries = {
 
     const collectActivityLogs = async () => {
       collectItems(
-        await ActivityLogs.find({
-          contentId: { $in: [...relatedItemIds, contentId] }
-        })
+        await fetchLogs(
+          {
+            contentId: { $in: [...relatedItemIds, contentId] }
+          },
+          'activityLogs'
+        )
       );
     };
 
@@ -131,10 +132,13 @@ const activityLogQueries = {
 
     const collectSms = async () => {
       collectItems(
-        await ActivityLogs.find({
-          contentId,
-          contentType: ACTIVITY_CONTENT_TYPES.SMS
-        })
+        await fetchLogs(
+          {
+            contentId,
+            contentType: ACTIVITY_CONTENT_TYPES.SMS
+          },
+          'activityLogs'
+        )
       );
     };
 
@@ -159,7 +163,7 @@ const activityLogQueries = {
 
       if (Array.isArray(contentIds)) {
         collectItems(
-          await Conversations.find({ _id: { $in: contentIds } }).limit(25),
+          await Conversations.find({ _id: { $in: contentIds } }),
           'conversation'
         );
       }

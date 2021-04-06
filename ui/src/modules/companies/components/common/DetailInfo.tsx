@@ -18,16 +18,17 @@ class DetailInfo extends React.Component<Props> {
   renderRow = (field, value) => {
     const { fields } = this.props;
 
-    const property = fields.find(e => e.field === field);
+    const property = fields.find(e => e.type === field);
 
     if (property && !property.isVisible) {
       return null;
     }
 
     const label = property && property.text;
+    const className = field === 'industry' ? 'multiple-choice' : '';
 
     return (
-      <li>
+      <li className={className}>
         <FieldStyle>{__(`${label}`)}</FieldStyle>
         <SidebarCounter>{value || '-'}</SidebarCounter>
       </li>
@@ -46,7 +47,7 @@ class DetailInfo extends React.Component<Props> {
   renderDescription(description?: string) {
     const { fields } = this.props;
 
-    const descriptionField = fields.find(e => e.field === 'description');
+    const descriptionField = fields.find(e => e.type === 'description');
 
     if (descriptionField && !descriptionField.isVisible) {
       return null;
@@ -79,6 +80,7 @@ class DetailInfo extends React.Component<Props> {
             : '-'
         )}
         {this.renderRow('primaryPhone', company.primaryPhone)}
+        {this.renderRow('location', company.location)}
         {this.renderRow('businessType', company.businessType)}
         {this.renderRow('doNotDisturb', company.doNotDisturb)}
         {this.renderDescription(company.description)}

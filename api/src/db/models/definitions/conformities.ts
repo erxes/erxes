@@ -57,6 +57,11 @@ export interface IConformityRemove {
   mainTypeId: string;
 }
 
+export interface IConformitiesRemove {
+  mainType: string;
+  mainTypeIds: string[];
+}
+
 export interface IConformityDocument extends IConformity, Document {
   _id: string;
 }

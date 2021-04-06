@@ -1,3 +1,4 @@
+import { IBoard } from 'modules/boards/types';
 import Spinner from 'modules/common/components/Spinner';
 import { Title } from 'modules/common/styles/main';
 import { IButtonMutateProps } from 'modules/common/types';
@@ -14,11 +15,18 @@ type Props = {
   contentType: string;
   fields: any[];
   events: IEvent[];
+  boards: IBoard[];
   renderButton: (props: IButtonMutateProps) => JSX.Element;
   segment: ISegment;
   headSegments: ISegment[];
   count: number;
-  previewCount: (conditions: ISegmentCondition[]) => void;
+  fetchFields: (pipelineId?: string) => void;
+  previewCount: (args: {
+    conditions: ISegmentCondition[];
+    subOf?: string;
+    boardId?: string;
+    pipelineId?: string;
+  }) => void;
   counterLoading: boolean;
 };
 
@@ -61,6 +69,8 @@ const SegmentsForm = (props: Props) => {
     segment,
     events,
     headSegments,
+    boards,
+    fetchFields,
     previewCount
   } = props;
 
@@ -83,9 +93,11 @@ const SegmentsForm = (props: Props) => {
           contentType={contentType}
           fields={fields}
           events={events}
+          boards={boards}
           renderButton={renderButton}
           segment={segment}
           headSegments={headSegments}
+          fetchFields={fetchFields}
           previewCount={previewCount}
           isForm={true}
         />

@@ -113,6 +113,25 @@ describe('Test products model', () => {
     }
   });
 
+  test('Update product (Error: Code must be unique)', async () => {
+    const temp = await productFactory();
+
+    const args: any = {
+      name: `${product.name}-update`,
+      type: `${product.type}-update`,
+      description: `${product.description}-update`,
+      sku: `${product.sku}-update`,
+      categoryId: productCategory._id,
+      code: temp.code
+    };
+
+    try {
+      await Products.updateProduct(product._id, args);
+    } catch (e) {
+      expect(e.message).toBe('Code must be unique');
+    }
+  });
+
   test('Remove products and update status', async () => {
     expect.assertions(1);
 
@@ -233,6 +252,21 @@ describe('Test products model', () => {
       await ProductCategories.updateProductCategory(productCategory._id, doc);
     } catch (e) {
       expect(e.message).toBe('Cannot change category');
+    }
+  });
+
+  test('Update product category (Error: Code must be unique)', async () => {
+    const temp = await productCategoryFactory();
+
+    const doc: any = {
+      name: 'Updated product name',
+      code: temp.code
+    };
+
+    try {
+      await ProductCategories.updateProductCategory(productCategory._id, doc);
+    } catch (e) {
+      expect(e.message).toBe('Code must be unique');
     }
   });
 

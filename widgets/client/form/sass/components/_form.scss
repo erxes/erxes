@@ -14,16 +14,22 @@
     right: 5px;
     top: 15px;
 
-    @include prefix((
-      transition: background .3s ease-in-out
-    ), webkit moz ms o);
+    @include prefix(
+      (
+        transition: background 0.3s ease-in-out,
+      ),
+      webkit moz ms o
+    );
 
-    @include prefix((
-      transform: translate(0, -25%)
-    ), webkit moz ms o);
+    @include prefix(
+      (
+        transform: translate(0, -25%),
+      ),
+      webkit moz ms o
+    );
 
     &:hover {
-      background-color: rgba($black, .2);
+      background-color: rgba($black, 0.2);
       cursor: pointer;
     }
   }
@@ -38,19 +44,28 @@
   width: 100%;
   min-height: 100%;
   position: absolute;
-  background-color: rgba($black, .6);
-  @include prefix((
-    transition: opacity .15s linear
-  ), webkit moz ms o);
+  background-color: rgba($black, 0.6);
+  @include prefix(
+    (
+      transition: opacity 0.15s linear,
+    ),
+    webkit moz ms o
+  );
 
   .erxes-form {
-    @include prefix((
-      transition: transform .3s ease
-    ), webkit moz ms o);
+    @include prefix(
+      (
+        transition: transform 0.3s ease,
+      ),
+      webkit moz ms o
+    );
 
-    @include prefix((
-      transform: translate(0, -25%)
-    ), webkit moz ms o);
+    @include prefix(
+      (
+        transform: translate(0, -25%),
+      ),
+      webkit moz ms o
+    );
 
     margin: 50px auto;
     width: 500px;
@@ -62,19 +77,25 @@
   }
 
   &.open {
-    background-color: rgba($black, .6);
+    background-color: rgba($black, 0.6);
     opacity: 1;
 
     .erxes-form {
-      @include prefix((
-        transform: translate(0, 0)
-      ), webkit moz ms o);
+      @include prefix(
+        (
+          transform: translate(0, 0),
+        ),
+        webkit moz ms o
+      );
     }
 
     .close {
-      @include prefix((
-        transform: translate(0, 0)
-      ), webkit moz ms o);
+      @include prefix(
+        (
+          transform: translate(0, 0),
+        ),
+        webkit moz ms o
+      );
     }
   }
 
@@ -82,7 +103,7 @@
     right: 50%;
     top: 56px;
     margin-right: -243px;
-  
+
     @media screen and (max-width: $break-medium) {
       margin-right: auto;
       right: 10px;
@@ -140,23 +161,32 @@
 }
 
 .container-popup {
-  @include prefix((
-    transition: opacity .15s linear
-  ), webkit moz ms o);
+  @include prefix(
+    (
+      transition: opacity 0.15s linear,
+    ),
+    webkit moz ms o
+  );
 
-  background-color: rgba($black, .6);
+  background-color: rgba($black, 0.6);
   min-height: 100%;
   position: absolute;
   width: 100%;
 
   .erxes-form {
-    @include prefix((
-      transition: transform .3s ease
-    ), webkit moz ms o);
+    @include prefix(
+      (
+        transition: transform 0.3s ease,
+      ),
+      webkit moz ms o
+    );
 
-    @include prefix((
-      transform: translate(0, -25%)
-    ), webkit moz ms o);
+    @include prefix(
+      (
+        transform: translate(0, -25%),
+      ),
+      webkit moz ms o
+    );
 
     margin: 50px auto;
     width: 500px;
@@ -208,13 +238,13 @@
 
   .erxes-form {
     user-select: none;
-    box-shadow: 0 5px 13px -2px rgba($black, .25);
+    box-shadow: 0 5px 13px -2px rgba($black, 0.25);
     margin-left: 10px;
     margin-right: 20px;
     animation: fadeInUp;
     -webkit-animation: fadeInUp;
-    -webkit-animation-duration: .3s;
-    animation-duration: .3s;
+    -webkit-animation-duration: 0.3s;
+    animation-duration: 0.3s;
     -webkit-animation-fill-mode: both;
     animation-fill-mode: both;
   }

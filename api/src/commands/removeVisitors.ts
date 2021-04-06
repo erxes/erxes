@@ -1,5 +1,4 @@
 import * as dotenv from 'dotenv';
-import * as ora from 'ora';
 import { stream } from '../data/bulkUtils';
 import { connect } from '../db/connection';
 import { Conversations, Customers } from '../db/models';
@@ -18,21 +17,21 @@ const command = async () => {
 
   const customerIds = customers.map(c => c._id);
 
+  console.log('visitors', customerIds.length);
+
   const conversations = await Conversations.find().distinct('customerId');
 
   const idsToRemove = customerIds.filter(e => !conversations.includes(e));
 
-  const spinnerOptions = {
-    prefixText: `Collected visitors count: ${idsToRemove.length}`
-  };
-  const spinner = ora(spinnerOptions);
-  spinner.start();
+  console.log('idsToRemove', idsToRemove.length);
+
   let deletedCount = 0;
+
   await stream(
     async chunk => {
       deletedCount = deletedCount + chunk.length;
+      console.log('deletedCount', deletedCount);
       await Customers.deleteMany({ _id: { $in: chunk } });
-      spinner.succeed(`Successfully deleted ${deletedCount}`);
     },
     (variables, root) => {
       const parentIds = variables.parentIds || [];

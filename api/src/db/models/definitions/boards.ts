@@ -2,6 +2,7 @@ import { Document, Schema } from 'mongoose';
 import { customFieldSchema, ICustomField } from './common';
 import {
   BOARD_STATUSES,
+  BOARD_STATUSES_OPTIONS,
   BOARD_TYPES,
   HACK_SCORING_TYPES,
   PIPELINE_VISIBLITIES,
@@ -23,6 +24,7 @@ export interface IItemCommonFields {
   companyIds?: string[];
   customerIds?: string[];
   closeDate?: Date;
+  stageChangedDate?: Date;
   description?: string;
   assignedUserIds?: string[];
   watchedUserIds?: string[];
@@ -62,6 +64,7 @@ export interface IItemDragCommonFields {
 
 export interface IBoard extends ICommonFields {
   name?: string;
+  pipelines?: IPipeline[];
 }
 
 export interface IBoardDocument extends IBoard, Document {
@@ -156,6 +159,11 @@ export const commonItemFieldsSchema = {
   order: field({ type: Number }),
   name: field({ type: String, label: 'Name' }),
   closeDate: field({ type: Date, label: 'Close date', esType: 'date' }),
+  stageChangedDate: field({
+    type: Date,
+    label: 'Stage changed date',
+    esType: 'date'
+  }),
   reminderMinute: field({ type: Number, label: 'Reminder minute' }),
   isComplete: field({
     type: Boolean,
@@ -192,6 +200,8 @@ export const commonItemFieldsSchema = {
     type: String,
     enum: BOARD_STATUSES.ALL,
     default: BOARD_STATUSES.ACTIVE,
+    label: 'Status',
+    selectOptions: BOARD_STATUSES_OPTIONS,
     index: true
   }),
   customFieldsData: field({

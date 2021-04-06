@@ -40,11 +40,53 @@ const boardQueries = {
   /**
    *  Boards list
    */
-  boards(_root, { type }: { type: string }, { commonQuerySelector }: IContext) {
-    return Boards.find({ ...commonQuerySelector, type }).sort({
-      order: 1,
-      createdAt: -1
-    });
+  boards(
+    _root,
+    { type }: { type: string },
+    { user, commonQuerySelector }: IContext
+  ) {
+    const pipelineFilter = user.isOwner
+      ? {}
+      : {
+          $or: [
+            { $eq: ['$visibility', 'public'] },
+            {
+              $and: [
+                { $eq: ['$visibility', 'private'] },
+                {
+                  $or: [
+                    { $in: [user._id, '$memberIds'] },
+                    { $eq: ['$userId', user._id] }
+                  ]
+                }
+              ]
+            }
+          ]
+        };
+
+    return Boards.aggregate([
+      { $match: { ...commonQuerySelector, type } },
+      {
+        $lookup: {
+          from: 'pipelines',
+          let: { boardId: '$_id' },
+          pipeline: [
+            {
+              $match: {
+                $expr: {
+                  $and: [
+                    { $eq: ['$boardId', '$$boardId'] },
+                    { ...pipelineFilter }
+                  ]
+                }
+              }
+            },
+            { $project: { name: 1 } }
+          ],
+          as: 'pipelines'
+        }
+      }
+    ]);
   },
 
   /**
@@ -316,9 +358,17 @@ const boardQueries = {
 
   async itemsCountBySegments(
     _root,
-    { type, pipelineId }: { type: string; pipelineId: string }
+    {
+      type,
+      boardId,
+      pipelineId
+    }: { type: string; boardId: string; pipelineId: string }
   ) {
-    const segments = await Segments.find({ contentType: type });
+    const segments = await Segments.find({
+      contentType: type,
+      boardId,
+      pipelineId
+    });
 
     const counts = {};
 

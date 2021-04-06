@@ -108,7 +108,7 @@ export default {
       ? { integrationId, customerId }
       : { integrationId, visitorId };
 
-    return Conversations.find(query).sort({ createdAt: -1 });
+    return Conversations.find(query).sort({ updatedAt: -1 });
   },
 
   async widgetsConversationDetail(
