@@ -114,9 +114,15 @@ export default class Field extends React.Component<Props, State> {
 
   componentDidMount() {
     if (this.props.field.type === "multiSelect") {
-      const multiSelects = Array.from(
-        document.querySelectorAll(`#${this.props.field._id}`)
-      );
+      let multiSelects: any[] = [];
+
+      try {
+        multiSelects = Array.from(
+          document.querySelectorAll(`#${this.props.field._id}`)
+        );
+      } catch (_e) {
+        multiSelects = [];
+      }
 
       multiSelects.map(
         (query) =>
