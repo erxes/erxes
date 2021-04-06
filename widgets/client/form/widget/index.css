@@ -1,9 +1,9 @@
-[id^=erxes-container] {
+[id^="erxes-container"] {
   z-index: 1000000000;
   border: none;
 }
 
-[id^=erxes-container] > iframe {
+[id^="erxes-container"] > iframe {
   border: none;
 }
 
@@ -16,17 +16,17 @@
 }
 
 [data-erxes-embed]:before {
-  content: ' ';
+  content: " ";
   position: absolute;
   right: 50%;
   top: 85px;
   margin-left: -10px;
-  border: 2px solid #ddd;
+  border: 3px solid #ddd;
   animation: spin 1s linear infinite;
-  border-top: 2px solid #aaa;
+  border-top: 3px solid #aaa;
   border-radius: 50%;
-  width: 20px;
-  height: 20px;
+  width: 30px;
+  height: 30px;
   z-index: -1;
 }
 
@@ -35,12 +35,12 @@
 }
 
 @media only screen and (max-width: 420px) {
-  [id^=erxes-container] {
+  [id^="erxes-container"] {
     width: 100%;
     max-height: none;
   }
 
-  [id^=erxes-iframe] {
+  [id^="erxes-iframe"] {
     bottom: 0;
     right: 0;
   }
@@ -75,7 +75,7 @@
   overflow: hidden;
 }
 
- /* slide in left */
+/* slide in left */
 .erxes-slide-left-iframe {
   left: 5px;
   animation: fadeInLeft 0.3s;

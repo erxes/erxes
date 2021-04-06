@@ -280,36 +280,39 @@ select.form-control:focus,
   cursor: pointer;
   display: flex;
   align-items: center;
+  margin: 0 10px 3px 10px;
+  border-radius: 4px;
 
   &:hover,
   &:focus,
-  .active {
-    background-color: #f2f2f2;
+  &.active {
+    background-color: #ebedef;
   }
 }
 
 .msf_multiselect_container .msf_multiselect {
   max-height: 300px;
   overflow: auto;
-  background-color: white;
+  background-color: #fff;
   right: 20px;
   left: 20px;
 }
 
 .msf_multiselect_container .form-control .selectedLabels {
   padding: 1px 6px;
-  background: #f2f2f2;
-  color: #888;
-  border: 1px solid #e6e3e3;
+  background: #ebedef;
+  color: #768192;
+  border: 1px solid #d8dbe0;
   border-radius: 25px;
   display: inline-block;
   font-size: 12px;
-  margin: 0 6px 6px 0;
+  margin: 3px 6px 3px 0;
 }
 .msf_multiselect_container .closeBtn {
   padding-left: 4px;
   cursor: pointer;
-  color: #333;
+  color: rgba(0, 0, 0, 0.5);
+  font-weight: bold;
 }
 .msf_multiselect_container .closeBtn.readOnly {
   cursor: unset;
