@@ -1,13 +1,23 @@
-import Datetime from '@nateradebaugh/react-datetime';
-import * as React from 'react';
-import uploadHandler from '../../uploadHandler';
-import { COMPANY_BUSINESS_TYPES, DEFAULT_COMPANY_INDUSTRY_TYPES, COUNTRIES } from '../constants';
-import { FieldValue, IField, IFieldError } from '../types';
+import Datetime from "@nateradebaugh/react-datetime";
+import * as React from "react";
+import uploadHandler from "../../uploadHandler";
+import {
+  COMPANY_BUSINESS_TYPES,
+  DEFAULT_COMPANY_INDUSTRY_TYPES,
+  COUNTRIES,
+} from "../constants";
+import { FieldValue, IField, IFieldError } from "../types";
+import MSFmultiSelect from "../multipleSelectScript";
 
 type Props = {
   field: IField;
   error?: IFieldError;
-  onChange: (params: { fieldId: string; value: FieldValue; associatedFieldId?: string; groupId?: string; }) => void;
+  onChange: (params: {
+    fieldId: string;
+    value: FieldValue;
+    associatedFieldId?: string;
+    groupId?: string;
+  }) => void;
 };
 
 type State = {
@@ -19,15 +29,12 @@ type State = {
 
 export default class Field extends React.Component<Props, State> {
   static renderSelect(options: string[] = [], attrs: any = {}) {
-    let style = {};
-
-    if (attrs.multiple) {
-      style = { minHeight: '100px' }
-    }
-
     return (
-      <select {...attrs} className="form-control" style={style}>
-        <option />
+      <select
+        {...attrs}
+        className="form-control"
+        id={attrs.multiple ? attrs.id : ""}
+      >
         {options.map((option, index) => (
           <option key={index} value={option}>
             {option}
@@ -57,11 +64,11 @@ export default class Field extends React.Component<Props, State> {
           <div key={index}>
             <label>
               {Field.renderInput({
-                type: 'checkbox',
-                'data-option': option,
+                type: "checkbox",
+                "data-option": option,
                 name,
                 id,
-                onChange
+                onChange,
               })}
               {option}
             </label>
@@ -82,11 +89,11 @@ export default class Field extends React.Component<Props, State> {
         {options.map((option, index) => (
           <div key={index}>
             {Field.renderInput({
-              type: 'radio',
-              'data-option': option,
+              type: "radio",
+              "data-option": option,
               name,
               id,
-              onChange
+              onChange,
             })}
             <span>{option}</span>
           </div>
@@ -99,16 +106,38 @@ export default class Field extends React.Component<Props, State> {
     super(props);
 
     this.state = {
-      dateValue: '',
-      dateTimeValue: '',
-      multipleSelectValues: []
+      dateValue: "",
+      dateTimeValue: "",
+      multipleSelectValues: [],
     };
+  }
+
+  componentDidMount() {
+    if (this.props.field.type === "multiSelect") {
+      const multiSelects = Array.from(
+        document.querySelectorAll(`#${this.props.field._id}`)
+      );
+
+      multiSelects.map(
+        (query) =>
+          new MSFmultiSelect(query, {
+            theme: "theme2",
+            selectAll: true,
+            searchBox: true,
+          })
+      );
+    }
   }
 
   onChange = (value: FieldValue) => {
     const { onChange, field } = this.props;
 
-    onChange({ fieldId: field._id, value, associatedFieldId: field.associatedFieldId, groupId: field.groupId });
+    onChange({
+      fieldId: field._id,
+      value,
+      associatedFieldId: field.associatedFieldId,
+      groupId: field.groupId,
+    });
   };
 
   onInputChange = (e: React.FormEvent<HTMLInputElement>) => {
@@ -129,7 +158,6 @@ export default class Field extends React.Component<Props, State> {
 
         // upload to server
         afterUpload({ response, fileInfo }: any) {
-
           const attachment = { url: response, ...fileInfo };
 
           self.setState({ isAttachingFile: false });
@@ -137,26 +165,26 @@ export default class Field extends React.Component<Props, State> {
           self.onChange([attachment]);
         },
 
-        onError: message => {
+        onError: (message) => {
           alert(message);
           self.setState({ isAttachingFile: false });
-        }
+        },
       });
     }
   };
 
   onDateChange = (date?: Date | string) => {
-    this.setState({ dateValue: date || '' });
-    this.onChange(date || '');
+    this.setState({ dateValue: date || "" });
+    this.onChange(date || "");
   };
 
   onDateTimeChange = (date?: Date | string) => {
-    this.setState({ dateTimeValue: date || '' });
-    this.onChange(date || '');
+    this.setState({ dateTimeValue: date || "" });
+    this.onChange(date || "");
   };
 
   onRadioButtonsChange = (e: React.FormEvent<HTMLInputElement>) => {
-    this.onChange(e.currentTarget.getAttribute('data-option') || '');
+    this.onChange(e.currentTarget.getAttribute("data-option") || "");
   };
 
   onCheckboxesChange = () => {
@@ -174,7 +202,7 @@ export default class Field extends React.Component<Props, State> {
       }
     }
 
-    this.onChange(values.join(','));
+    this.onChange(values.join(","));
   };
 
   onTextAreaChange = (e: React.FormEvent<HTMLTextAreaElement>) => {
@@ -189,14 +217,16 @@ export default class Field extends React.Component<Props, State> {
     const selectedValue = e.currentTarget.value;
     const { multipleSelectValues } = this.state;
     if (multipleSelectValues) {
-      if (multipleSelectValues.filter(value => value === selectedValue).length === 0) {
-        multipleSelectValues.push(selectedValue)
+      if (
+        multipleSelectValues.filter((value) => value === selectedValue)
+          .length === 0
+      ) {
+        multipleSelectValues.push(selectedValue);
       }
-      this.onChange(multipleSelectValues)
+      this.onChange(multipleSelectValues);
     }
 
-    this.setState({ multipleSelectValues })
-
+    this.setState({ multipleSelectValues });
   };
 
   renderDatepicker(id: string) {
@@ -215,9 +245,10 @@ export default class Field extends React.Component<Props, State> {
 
   renderHtml(content: string, id: string) {
     return (
-      <div id={id}
+      <div
+        id={id}
         dangerouslySetInnerHTML={{
-          __html: content
+          __html: content,
         }}
       />
     );
@@ -239,40 +270,67 @@ export default class Field extends React.Component<Props, State> {
 
   renderControl() {
     const { field } = this.props;
-    const { options = [], validation = 'text' } = field;
+    const { options = [], validation = "text" } = field;
     const name = field._id;
 
-    if (validation === 'date') {
+    if (validation === "date") {
       return this.renderDatepicker(field._id);
     }
 
-    if (validation === 'datetime') {
+    if (validation === "datetime") {
       return this.renderDateTimepicker(field._id);
     }
 
     switch (field.type) {
-      case 'select':
-        return Field.renderSelect(options, { onChange: this.onSelectChange, id: field._id });
+      case "select":
+        return Field.renderSelect(options, {
+          onChange: this.onSelectChange,
+          id: field._id,
+        });
 
-      case 'multiSelect':
-        return Field.renderSelect(options, { value: this.state.multipleSelectValues, onChange: this.onMultpleSelectChange, id: field._id, multiple: true });
+      case "multiSelect":
+        return Field.renderSelect(options, {
+          value: this.state.multipleSelectValues,
+          onChange: this.onMultpleSelectChange,
+          id: field._id,
+          multiple: true,
+        });
 
-      case 'pronoun':
-        return Field.renderSelect(['Male', 'Female', 'Not applicable'], { onChange: this.onSelectChange, id: field._id });
+      case "pronoun":
+        return Field.renderSelect(["Male", "Female", "Not applicable"], {
+          onChange: this.onSelectChange,
+          id: field._id,
+        });
 
-      case 'businessType':
-        return Field.renderSelect(COMPANY_BUSINESS_TYPES, { onChange: this.onSelectChange, id: field._id })
+      case "businessType":
+        return Field.renderSelect(COMPANY_BUSINESS_TYPES, {
+          onChange: this.onSelectChange,
+          id: field._id,
+        });
 
-      case 'location':
-        return Field.renderSelect(COUNTRIES, { onChange: this.onSelectChange, id: field._id })
+      case "location":
+        return Field.renderSelect(COUNTRIES, {
+          onChange: this.onSelectChange,
+          id: field._id,
+        });
 
-      case 'industry':
-        return Field.renderSelect(DEFAULT_COMPANY_INDUSTRY_TYPES, { value: this.state.multipleSelectValues, onChange: this.onMultpleSelectChange, id: field._id, multiple: true })
+      case "industry":
+        return Field.renderSelect(DEFAULT_COMPANY_INDUSTRY_TYPES, {
+          value: this.state.multipleSelectValues,
+          onChange: this.onMultpleSelectChange,
+          id: field._id,
+          multiple: true,
+        });
 
-      case 'check':
-        return Field.renderCheckboxes(name, options, field._id, this.onCheckboxesChange);
+      case "check":
+        return Field.renderCheckboxes(
+          name,
+          options,
+          field._id,
+          this.onCheckboxesChange
+        );
 
-      case 'radio':
+      case "radio":
         return Field.renderRadioButtons(
           name,
           options,
@@ -280,75 +338,83 @@ export default class Field extends React.Component<Props, State> {
           this.onRadioButtonsChange
         );
 
-      case 'doNotDisturb':
+      case "doNotDisturb":
         return Field.renderRadioButtons(
           name,
-          ['Yes', 'No'],
+          ["Yes", "No"],
           field._id,
           this.onRadioButtonsChange
         );
 
-      case 'companyDoNotDisturb':
+      case "companyDoNotDisturb":
         return Field.renderRadioButtons(
           name,
-          ['Yes', 'No'],
+          ["Yes", "No"],
           field._id,
           this.onRadioButtonsChange
         );
 
-      case 'hasAuthority':
+      case "hasAuthority":
         return Field.renderRadioButtons(
           name,
-          ['Yes', 'No'],
+          ["Yes", "No"],
           field._id,
           this.onRadioButtonsChange
         );
 
-      case 'file':
+      case "file":
         return Field.renderInput({
           onChange: this.handleFileInput,
-          type: 'file',
-          id: field._id
+          type: "file",
+          id: field._id,
         });
 
-      case 'avatar':
+      case "avatar":
         return Field.renderInput({
           onChange: this.handleFileInput,
-          type: 'file',
-          id: field._id
+          type: "file",
+          id: field._id,
         });
 
-      case 'companyAvatar':
+      case "companyAvatar":
         return Field.renderInput({
           onChange: this.handleFileInput,
-          type: 'file',
-          id: field._id
+          type: "file",
+          id: field._id,
         });
 
-      case 'textarea':
-        return Field.renderTextarea({ onChange: this.onTextAreaChange, id: field._id });
+      case "textarea":
+        return Field.renderTextarea({
+          onChange: this.onTextAreaChange,
+          id: field._id,
+        });
 
-      case 'description':
-        return Field.renderTextarea({ onChange: this.onTextAreaChange, id: field._id });
+      case "description":
+        return Field.renderTextarea({
+          onChange: this.onTextAreaChange,
+          id: field._id,
+        });
 
-      case 'companyDescription':
-        return Field.renderTextarea({ onChange: this.onTextAreaChange, id: field._id });
+      case "companyDescription":
+        return Field.renderTextarea({
+          onChange: this.onTextAreaChange,
+          id: field._id,
+        });
 
-      case 'birthDate':
+      case "birthDate":
         return this.renderDatepicker(field._id);
 
-      case 'html':
-        return this.renderHtml(field.content || '', field._id)
+      case "html":
+        return this.renderHtml(field.content || "", field._id);
 
       default:
         return Field.renderInput({
           onChange: this.onInputChange,
           type: validation,
-          id: field._id
+          id: field._id,
         });
     }
   }
-
 
   render() {
     const { field, error } = this.props;
@@ -358,16 +424,13 @@ export default class Field extends React.Component<Props, State> {
       if (field.column) {
         return {
           width: `${100 / field.column}%`,
-          display: 'inline-block'
-        }
+          display: "inline-block",
+        };
       }
-    }
+    };
 
     return (
-      <div
-        className="form-group"
-        style={fieldStyle()}
-      >
+      <div className="form-group" style={fieldStyle()}>
         <label className="control-label" htmlFor={`field-${field._id}`}>
           {field.text}
           {field.isRequired ? <span className="required">*</span> : null}
