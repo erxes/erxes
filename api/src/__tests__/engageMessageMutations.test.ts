@@ -499,11 +499,16 @@ describe('engage message mutation tests', () => {
     }
 
     try {
-      await graphqlRequest(engageMessageAddMutation, 'engageMessageAdd', {
-        ..._doc,
-        kind: MESSAGE_KINDS.MANUAL,
-        brandIds: ['_id']
-      });
+      await graphqlRequest(
+        engageMessageAddMutation,
+        'engageMessageAdd',
+        {
+          ..._doc,
+          kind: MESSAGE_KINDS.MANUAL,
+          brandIds: ['_id']
+        },
+        { dataSources }
+      );
     } catch (e) {
       expect(e[0].message).toBe('No customers found');
     }
@@ -511,7 +516,8 @@ describe('engage message mutation tests', () => {
     const engageMessage = await graphqlRequest(
       engageMessageAddMutation,
       'engageMessageAdd',
-      _doc
+      _doc,
+      { dataSources }
     );
 
     expect(engageMessage.messengerReceivedCustomerIds).toEqual([]);
@@ -804,21 +810,6 @@ describe('engage message mutation tests', () => {
     mock.restore();
   });
 
-  test('Test auto engage with type SMS', async () => {
-    try {
-      await graphqlRequest(engageMessageAddMutation, 'engageMessageAdd', {
-        ..._doc,
-        kind: MESSAGE_KINDS.AUTO,
-        method: METHODS.SMS,
-        brandIds: ['_id']
-      });
-    } catch (e) {
-      expect(e[0].message).toBe(
-        `SMS engage message of kind ${MESSAGE_KINDS.AUTO} is not supported`
-      );
-    }
-  });
-
   test('Test sms engage message with integration chosen', async () => {
     const integration = await integrationFactory({ kind: 'telnyx' });
 
@@ -835,7 +826,8 @@ describe('engage message mutation tests', () => {
           fromIntegrationId: integration._id
         },
         title: 'Message test'
-      }
+      },
+      { dataSources }
     );
 
     expect(response.fromIntegration._id).toBe(integration._id);
@@ -969,6 +961,32 @@ describe('engage message mutation tests', () => {
       });
     } catch (e) {
       expect(e.message).toBe('One of brand or segment or tag must be chosen');
+    }
+  });
+
+  test('Test auto SMS campaign', async () => {
+    const doc = { tagIds: [_tag._id], phoneValidationStatus: 'valid' };
+
+    await customerFactory(doc);
+    await customerFactory(doc);
+
+    const campaign = await engageMessageFactory({
+      method: METHODS.SMS,
+      kind: MESSAGE_KINDS.AUTO,
+      customerTagIds: [_tag._id],
+      userId: _user._id,
+      isLive: true
+    });
+
+    try {
+      // no sms limit saved
+      await engageUtils.send(campaign, 0);
+
+      // making customers.length > sms limit
+      await engageUtils.send(campaign, 1);
+    } catch (e) {
+      // tslint:disable-next-line
+      console.log(e);
     }
   });
 });
