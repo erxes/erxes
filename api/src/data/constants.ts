@@ -416,6 +416,7 @@ export const COMPANY_INFO = {
   businessType: 'Business Type',
   description: 'Description',
   doNotDisturb: 'Do not disturb',
+  location: 'Headquarters Country',
 
   ALL: [
     { field: 'avatar', label: 'Logo', canHide: false },
@@ -439,7 +440,8 @@ export const COMPANY_INFO = {
     { field: 'businessType', label: 'Business Type', canHide: true },
     { field: 'code', label: 'Code', canHide: true },
     { field: 'description', label: 'Description', canHide: true },
-    { field: 'doNotDisturb', label: 'Do not disturb', canHide: true }
+    { field: 'doNotDisturb', label: 'Do not disturb', canHide: true },
+    { field: 'location', label: 'Headquarters Country', canHide: true }
   ]
 };
 

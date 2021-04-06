@@ -558,6 +558,35 @@ describe('engage message mutation tests', () => {
     expect(engageMessage.messengerReceivedCustomerIds).toEqual([]);
 
     checkEngageMessage(engageMessage, args);
+
+    // Test engageMessageEdit() & run manual campaign
+    const campaign = await engageMessageFactory({
+      kind: MESSAGE_KINDS.MANUAL,
+      isDraft: true,
+      isLive: false,
+      method: METHODS.EMAIL,
+      customerTagIds: [_tag._id],
+      userId: _user._id
+    });
+
+    const doc = {
+      _id: campaign._id,
+      isDraft: false,
+      isLive: true,
+      title: campaign.title,
+      fromUserId: campaign.fromUserId,
+      kind: campaign.kind,
+      method: campaign.method,
+      customerTagIds: campaign.customerTagIds
+    };
+
+    const mock = sinon.stub(engageUtils, 'send').callsFake(() => {
+      return Promise.resolve();
+    });
+
+    await graphqlRequest(mutation, 'engageMessageEdit', doc);
+
+    mock.restore();
   });
 
   test('Remove engage message', async () => {
