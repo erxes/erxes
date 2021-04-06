@@ -9,7 +9,6 @@ import Icon from 'modules/common/components/Icon';
 import { FlexItem } from 'modules/common/components/step/styles';
 import Toggle from 'modules/common/components/Toggle';
 import { __ } from 'modules/common/utils';
-import { Divider } from 'modules/settings/permissions/styles';
 import SelectProperty from 'modules/settings/properties/containers/SelectProperty';
 import { IField, IFieldLogic } from 'modules/settings/properties/types';
 import React from 'react';
@@ -44,15 +43,27 @@ class FieldForm extends React.Component<Props, State> {
     super(props);
 
     const { field } = props;
+
     const selectedOption = field.associatedField && {
       value: field.associatedField._id,
       label: field.associatedField.text
     };
 
+    let group =
+      (field.associatedField && field.associatedField.contentType) || '';
+
+    if (field.type.includes('customerLinks')) {
+      group = 'customer';
+    }
+
+    if (field.type.includes('companyLinks')) {
+      group = 'company';
+    }
+
     this.state = {
       field,
       selectedOption,
-      group: ''
+      group
     };
   }
 
@@ -85,7 +96,6 @@ class FieldForm extends React.Component<Props, State> {
     field.validation = selectedField.validation;
     field.options = selectedField.options;
     field.type = selectedField.type;
-    field.isRequired = selectedField.isRequired;
     field.text = selectedField.text;
     field.description = selectedField.description;
 
@@ -421,13 +431,12 @@ class FieldForm extends React.Component<Props, State> {
 
     return (
       <>
-        <Divider>{__('Or')}</Divider>
         <FormGroup>
           <ControlLabel>Property type:</ControlLabel>
           <FormControl
             id="propertyGroup"
             componentClass="select"
-            value={group}
+            defaultValue={group}
             onChange={this.onPropertyGroupChange}
           >
             <option value={''} />
@@ -487,6 +496,7 @@ class FieldForm extends React.Component<Props, State> {
             {
               name: 'basicstyles',
               items: [
+                'Source',
                 'Bold',
                 'Italic',
                 'NumberedList',
@@ -516,12 +526,16 @@ class FieldForm extends React.Component<Props, State> {
       return;
     }
 
+    const defaultValue =
+      (selectedOption && selectedOption.value) ||
+      this.props.field.associatedFieldId;
+
     return (
       <>
         <FormGroup>
           <SelectProperty
             queryParams={{ type: group }}
-            defaultValue={selectedOption && selectedOption.value}
+            defaultValue={defaultValue}
             description="Any data collected through this field will copy to:"
             onChange={this.onPropertyChange}
           />
@@ -536,7 +550,7 @@ class FieldForm extends React.Component<Props, State> {
     return (
       <Modal
         show={true}
-        size="lg"
+        size="xl"
         onHide={onCancel}
         animation={false}
         enforceFocus={false}

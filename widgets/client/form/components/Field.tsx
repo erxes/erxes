@@ -1,8 +1,7 @@
 import Datetime from '@nateradebaugh/react-datetime';
 import * as React from 'react';
-import xss = require('xss');
 import uploadHandler from '../../uploadHandler';
-import { COMPANY_BUSINESS_TYPES, DEFAULT_COMPANY_INDUSTRY_TYPES } from '../constants';
+import { COMPANY_BUSINESS_TYPES, DEFAULT_COMPANY_INDUSTRY_TYPES, COUNTRIES } from '../constants';
 import { FieldValue, IField, IFieldError } from '../types';
 
 type Props = {
@@ -129,10 +128,13 @@ export default class Field extends React.Component<Props, State> {
         },
 
         // upload to server
-        afterUpload({ response }: any) {
+        afterUpload({ response, fileInfo }: any) {
+
+          const attachment = { url: response, ...fileInfo };
+
           self.setState({ isAttachingFile: false });
 
-          self.onChange(response);
+          self.onChange([attachment]);
         },
 
         onError: message => {
@@ -213,9 +215,9 @@ export default class Field extends React.Component<Props, State> {
 
   renderHtml(content: string, id: string) {
     return (
-      <div id={id} 
+      <div id={id}
         dangerouslySetInnerHTML={{
-          __html: xss(content)
+          __html: content
         }}
       />
     );
@@ -260,6 +262,9 @@ export default class Field extends React.Component<Props, State> {
 
       case 'businessType':
         return Field.renderSelect(COMPANY_BUSINESS_TYPES, { onChange: this.onSelectChange, id: field._id })
+
+      case 'location':
+        return Field.renderSelect(COUNTRIES, { onChange: this.onSelectChange, id: field._id })
 
       case 'industry':
         return Field.renderSelect(DEFAULT_COMPANY_INDUSTRY_TYPES, { value: this.state.multipleSelectValues, onChange: this.onMultpleSelectChange, id: field._id, multiple: true })

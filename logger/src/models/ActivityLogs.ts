@@ -1,12 +1,63 @@
-import { Model, model } from 'mongoose';
-import {
-  activityLogSchema,
-  IActivityLogDocument,
-  IActivityLogInput
-} from './definitions/activityLogs';
-import { IItemCommonFieldsDocument } from './definitions/boards';
-import { ACTIVITY_ACTIONS } from './definitions/constants';
-import { ISegmentDocument } from './definitions/segments';
+import * as Random from 'meteor-random';
+import { Document, Model, model, Schema } from 'mongoose';
+import { field } from './Logs';
+
+const ACTIVITY_ACTIONS = {
+  CREATE: 'create',
+  UPDATE: 'update',
+  DELETE: 'delete',
+  MERGE: 'merge',
+  SEND: 'send',
+  MOVED: 'moved',
+  CONVERT: 'convert',
+  ASSIGNEE: 'assignee',
+
+  ALL: [
+    'create',
+    'update',
+    'delete',
+    'merge',
+    'send',
+    'moved',
+    'convert',
+    'assignee'
+  ]
+};
+
+export interface IActivityLogInput {
+  action: string;
+  content?: any;
+  contentType: string;
+  contentId: string;
+  createdBy: string;
+}
+
+export interface IActivityLog {
+  action: string;
+  content?: any;
+  contentType: string;
+  contentId: string;
+  createdBy: string;
+}
+
+export interface IActivityLogDocument extends IActivityLog, Document {
+  _id: string;
+  createdAt: Date;
+}
+
+export const activityLogSchema = new Schema({
+  _id: { type: String, default: () => Random.id() },
+  contentId: field({ type: String, index: true }),
+  contentType: field({ type: String, index: true }),
+  action: field({ type: String, index: true }),
+  content: Schema.Types.Mixed,
+  createdBy: field({ type: String }),
+  createdAt: field({
+    type: Date,
+    required: true,
+    default: Date.now
+  })
+});
 
 interface IAssigneeParams {
   contentId: string;
@@ -38,7 +89,7 @@ export interface IActivityLogModel extends Model<IActivityLogDocument> {
   ): Promise<{ n: number; ok: number }>;
 
   createSegmentLog(
-    segment: ISegmentDocument,
+    segment: any,
     customer: string[],
     type: string,
     maxBulk?: number
@@ -53,15 +104,15 @@ export interface IActivityLogModel extends Model<IActivityLogDocument> {
     contentType: string;
   }): Promise<IActivityLogDocument[]>;
   createBoardItemsLog(params: {
-    items: IItemCommonFieldsDocument[];
+    items: any[];
     contentType: string;
   }): Promise<IActivityLogDocument[]>;
   createBoardItemLog(params: {
-    item: IItemCommonFieldsDocument;
+    item: any;
     contentType: string;
   }): Promise<IActivityLogDocument>;
   createBoardItemMovementLog(
-    item: IItemCommonFieldsDocument,
+    item: any,
     type: string,
     userId: string,
     content: object
@@ -119,7 +170,7 @@ export const loadClass = () => {
       items,
       contentType
     }: {
-      items: IItemCommonFieldsDocument[];
+      items: any[];
       contentType: string;
     }) {
       const docs: IActivityLogInput[] = [];
@@ -151,7 +202,7 @@ export const loadClass = () => {
       item,
       contentType
     }: {
-      item: IItemCommonFieldsDocument;
+      item: any;
       contentType: string;
     }) {
       let action = ACTIVITY_ACTIONS.CREATE;
@@ -174,7 +225,7 @@ export const loadClass = () => {
     }
 
     public static createBoardItemMovementLog(
-      item: IItemCommonFieldsDocument,
+      item: any,
       contentType: string,
       userId: string,
       content: object
@@ -261,7 +312,7 @@ export const loadClass = () => {
      * Create a customer or company segment logs
      */
     public static async createSegmentLog(
-      segment: ISegmentDocument,
+      segment: any,
       contentIds: string[],
       type: string,
       maxBulk: number = 10000

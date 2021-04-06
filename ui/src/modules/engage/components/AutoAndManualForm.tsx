@@ -138,6 +138,13 @@ class AutoAndManualForm extends React.Component<Props, State> {
         attachments: email.attachments,
         templateId: email.templateId || ''
       };
+
+      if (doc.messenger) {
+        delete doc.messenger;
+      }
+      if (doc.shortMessage) {
+        delete doc.shortMessage;
+      }
     }
     if (this.state.method === METHODS.MESSENGER) {
       const messenger = this.state.messenger || ({} as IEngageMessenger);
@@ -149,6 +156,13 @@ class AutoAndManualForm extends React.Component<Props, State> {
         content: this.state.content,
         rules: this.state.rules
       };
+
+      if (doc.email) {
+        delete doc.email;
+      }
+      if (doc.shortMessage) {
+        delete doc.shortMessage;
+      }
     }
     if (this.state.method === METHODS.SMS) {
       const shortMessage = this.state.shortMessage || {
@@ -162,6 +176,13 @@ class AutoAndManualForm extends React.Component<Props, State> {
         content: shortMessage.content,
         fromIntegrationId: shortMessage.fromIntegrationId
       };
+
+      if (doc.email) {
+        delete doc.email;
+      }
+      if (doc.messenger) {
+        delete doc.messenger;
+      }
     }
 
     const response = this.props.validateDoc(type, doc);

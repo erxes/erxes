@@ -313,6 +313,7 @@ export const loadClass = () => {
         if (!user) {
           continue;
         }
+
         // check for rules ===
         const numberOfVisits = await getNumberOfVisits({
           url: browserInfo.url,

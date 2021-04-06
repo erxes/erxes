@@ -300,7 +300,9 @@ function elkConvertConditionToQuery(args: {
 }) {
   const { field, type, operator, value, positive, negative } = args;
 
-  const fixedValue = value.toLocaleLowerCase();
+  const fixedValue = (value || '').includes('now')
+    ? value
+    : value.toLocaleLowerCase();
 
   let positiveQuery;
   let negativeQuery;

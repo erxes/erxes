@@ -468,6 +468,11 @@ export const BOARD_STATUSES = {
   ALL: ['active', 'archived']
 };
 
+export const BOARD_STATUSES_OPTIONS = [
+  { label: 'Active', value: 'active' },
+  { label: 'Archived', value: 'archived' }
+];
+
 export const TIME_TRACK_TYPES = {
   STARTED: 'started',
   STOPPED: 'stopped',

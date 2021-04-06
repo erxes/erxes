@@ -1,11 +1,5 @@
 import resolvers from '..';
-import {
-  ActivityLogs,
-  Boards,
-  Notifications,
-  Pipelines,
-  Stages
-} from '../../../db/models';
+import { Boards, Notifications, Pipelines, Stages } from '../../../db/models';
 import {
   destroyBoardItemRelations,
   getCollection,
@@ -35,7 +29,13 @@ import {
 } from '../../../db/models/definitions/tickets';
 import { IUserDocument } from '../../../db/models/definitions/users';
 import { graphqlPubsub } from '../../../pubsub';
-import { putCreateLog, putDeleteLog, putUpdateLog } from '../../logUtils';
+import {
+  ACTIVITY_LOG_ACTIONS,
+  putActivityLog,
+  putCreateLog,
+  putDeleteLog,
+  putUpdateLog
+} from '../../logUtils';
 import { checkUserIds } from '../../utils';
 import {
   copyChecklists,
@@ -255,11 +255,14 @@ export const itemsEdit = async (
   if (doc.status && oldItem.status && oldItem.status !== doc.status) {
     const activityAction = doc.status === 'active' ? 'activated' : 'archived';
 
-    await ActivityLogs.createArchiveLog({
-      item: updatedItem,
-      contentType: type,
-      action: activityAction,
-      userId: user._id
+    await putActivityLog({
+      action: ACTIVITY_LOG_ACTIONS.CREATE_ARCHIVE_LOG,
+      data: {
+        item: updatedItem,
+        contentType: type,
+        action: activityAction,
+        userId: user._id
+      }
     });
 
     // order notification
@@ -280,11 +283,14 @@ export const itemsEdit = async (
 
     const activityContent = { addedUserIds, removedUserIds };
 
-    await ActivityLogs.createAssigneLog({
-      contentId: _id,
-      userId: user._id,
-      contentType: type,
-      content: activityContent
+    await putActivityLog({
+      action: ACTIVITY_LOG_ACTIONS.CREATE_ASSIGNE_LOG,
+      data: {
+        contentId: _id,
+        userId: user._id,
+        contentType: type,
+        content: activityContent
+      }
     });
 
     notificationDoc.invitedUsers = addedUserIds;
@@ -303,12 +309,40 @@ export const itemsEdit = async (
     user
   );
 
-  const pipelinesChangedIds = [updatedItem._id, stage.pipelineId];
+  const oldStage = await Stages.getStage(oldItem.stageId);
 
-  for (const pipelinesChangedId of pipelinesChangedIds) {
+  if (oldStage.pipelineId !== stage.pipelineId) {
     graphqlPubsub.publish('pipelinesChanged', {
       pipelinesChanged: {
-        _id: pipelinesChangedId,
+        _id: oldStage.pipelineId,
+        proccessId,
+        action: 'itemRemove',
+        data: {
+          item: oldItem,
+          oldStageId: oldStage._id
+        }
+      }
+    });
+
+    graphqlPubsub.publish('pipelinesChanged', {
+      pipelinesChanged: {
+        _id: stage.pipelineId,
+        proccessId,
+        action: 'itemAdd',
+        data: {
+          item: {
+            ...updatedItem._doc,
+            ...(await itemResolver(type, updatedItem))
+          },
+          aboveItemId: '',
+          destinationStageId: stage._id
+        }
+      }
+    });
+  } else {
+    graphqlPubsub.publish('pipelinesChanged', {
+      pipelinesChanged: {
+        _id: stage.pipelineId,
         proccessId,
         action: 'itemUpdate',
         data: {
@@ -345,7 +379,7 @@ export const itemsEdit = async (
   return updatedItem;
 };
 
-export const itemMover = async (
+const itemMover = async (
   userId: string,
   item: IDealDocument | ITaskDocument | ITicketDocument | IGrowthHackDocument,
   contentType: string,
@@ -376,12 +410,15 @@ export const itemMover = async (
       text: `${oldStage.name} to ${stage.name}`
     };
 
-    ActivityLogs.createBoardItemMovementLog(
-      item,
-      contentType,
-      userId,
-      activityLogContent
-    );
+    await putActivityLog({
+      action: ACTIVITY_LOG_ACTIONS.CREATE_BOARD_ITEM_MOVEMENT_LOG,
+      data: {
+        item,
+        contentType,
+        userId,
+        activityLogContent
+      }
+    });
 
     const link = `/${contentType}/board?id=${board._id}&pipelineId=${pipeline._id}&itemId=${item._id}`;
 
@@ -575,11 +612,14 @@ export const itemsArchive = async (
   const stage = await Stages.getStage(stageId);
 
   for (const item of items) {
-    await ActivityLogs.createArchiveLog({
-      item,
-      contentType: type,
-      action: 'archived',
-      userId: user._id
+    await putActivityLog({
+      action: ACTIVITY_LOG_ACTIONS.CREATE_ARCHIVE_LOG,
+      data: {
+        item,
+        contentType: type,
+        action: 'archived',
+        userId: user._id
+      }
     });
 
     graphqlPubsub.publish('pipelinesChanged', {

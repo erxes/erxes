@@ -128,10 +128,16 @@ export const customerSchema = schemaWrapper(
       label: 'State',
       default: 'visitor',
       enum: getEnum('STATE'),
+      index: true,
       selectOptions: CUSTOMER_SELECT_OPTIONS.STATE
     }),
 
-    createdAt: field({ type: Date, label: 'Created at', esType: 'date' }),
+    createdAt: field({
+      type: Date,
+      label: 'Created at',
+      esType: 'date',
+      index: true
+    }),
     modifiedAt: field({ type: Date, label: 'Modified at', esType: 'date' }),
     avatar: field({ type: String, optional: true, label: 'Avatar' }),
 
@@ -250,6 +256,7 @@ export const customerSchema = schemaWrapper(
       type: String,
       optional: true,
       label: 'Integration',
+      index: true,
       esType: 'keyword'
     }),
     tagIds: field({

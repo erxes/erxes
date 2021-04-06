@@ -94,6 +94,15 @@ const engageMutations = {
     const engageMessage = await EngageMessages.getEngageMessage(_id);
     const updated = await EngageMessages.updateEngageMessage(_id, doc);
 
+    // run manually when it was draft & live afterwards
+    if (
+      !engageMessage.isLive &&
+      doc.isLive &&
+      doc.kind === MESSAGE_KINDS.MANUAL
+    ) {
+      await send(updated);
+    }
+
     await putUpdateLog(
       {
         type: MODULE_NAMES.ENGAGE,

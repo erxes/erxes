@@ -1,7 +1,6 @@
 import * as telemetry from 'erxes-telemetry';
 import { getUniqueValue } from '../../../db/factories';
 import {
-  ActivityLogs,
   Channels,
   Customers,
   EmailDeliveries,
@@ -23,7 +22,13 @@ import { IExternalIntegrationParams } from '../../../db/models/Integrations';
 import { debugError } from '../../../debuggers';
 import messageBroker from '../../../messageBroker';
 import { MODULE_NAMES, RABBITMQ_QUEUES } from '../../constants';
-import { putCreateLog, putDeleteLog, putUpdateLog } from '../../logUtils';
+import {
+  ACTIVITY_LOG_ACTIONS,
+  putActivityLog,
+  putCreateLog,
+  putDeleteLog,
+  putUpdateLog
+} from '../../logUtils';
 import { checkPermission } from '../../permissions/wrappers';
 import { IContext } from '../../types';
 import { registerOnboardHistory, replaceEditorAttributes } from '../../utils';
@@ -573,12 +578,15 @@ const integrationMutations = {
 
     const response = await dataSources.IntegrationsAPI.sendSms(args);
 
-    await ActivityLogs.addActivityLog({
-      action: ACTIVITY_ACTIONS.SEND,
-      contentType: ACTIVITY_CONTENT_TYPES.SMS,
-      createdBy: user._id,
-      contentId: customer._id,
-      content: { to: args.to, text: args.content }
+    await putActivityLog({
+      action: ACTIVITY_LOG_ACTIONS.ADD,
+      data: {
+        action: ACTIVITY_ACTIONS.SEND,
+        contentType: ACTIVITY_CONTENT_TYPES.SMS,
+        createdBy: user._id,
+        contentId: customer._id,
+        content: { to: args.to, text: args.content }
+      }
     });
 
     return response;

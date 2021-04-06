@@ -36,7 +36,7 @@ class Tagger extends React.Component<Props, { tagsForList: any[] }> {
    * Returns array of tags object
    */
   generateTagsParams(tags: ITag[] = [], targets: any[] = []) {
-    return tags.map(({ _id, name, colorCode }) => {
+    return tags.map(({ _id, name, colorCode, parentId }) => {
       // Current tag's selection state (all, some or none)
       const count = targets.reduce(
         (memo, target) => memo + ((target.tagIds || []).includes(_id) ? 1 : 0),
@@ -58,6 +58,7 @@ class Tagger extends React.Component<Props, { tagsForList: any[] }> {
         title: name,
         iconClass: 'icon-tag-alt',
         iconColor: colorCode,
+        parentId,
         selectedBy: state
       };
     });
@@ -100,6 +101,7 @@ class Tagger extends React.Component<Props, { tagsForList: any[] }> {
       className,
       links,
       selectable: true,
+      treeView: true,
       items: JSON.parse(JSON.stringify(this.state.tagsForList))
     };
 

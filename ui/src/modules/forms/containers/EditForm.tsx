@@ -104,14 +104,20 @@ class EditFormContainer extends React.Component<FinalProps> {
 
           const addingFields = fields
             .filter(field => field._id.startsWith('tempId'))
-            .map(({ _id, ...rest }) => ({
-              tempFieldId: _id,
-              ...rest
-            }));
+            .map(({ _id, ...rest }) => {
+              delete rest.associatedField;
+              return {
+                tempFieldId: _id,
+                ...rest
+              };
+            });
 
-          const editingFields = fields.filter(
-            field => !field._id.startsWith('tempId')
-          );
+          const editingFields = fields
+            .filter(field => !field._id.startsWith('tempId'))
+            .map(e => {
+              delete e.associatedField;
+              return e;
+            });
 
           fieldsBulkAddAndEditMutation({
             variables: {

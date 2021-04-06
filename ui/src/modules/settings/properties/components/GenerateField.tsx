@@ -6,10 +6,10 @@ import Uploader from 'modules/common/components/Uploader';
 import { IAttachment } from 'modules/common/types';
 import {
   COMPANY_BUSINESS_TYPES,
-  COMPANY_INDUSTRY_TYPES
+  COMPANY_INDUSTRY_TYPES,
+  COUNTRIES
 } from 'modules/companies/constants';
 import React from 'react';
-import xss from 'xss';
 import { LogicIndicator, SelectInput } from '../styles';
 import { IField } from '../types';
 
@@ -204,9 +204,9 @@ export default class GenerateField extends React.Component<Props, State> {
   renderHtml() {
     const { content } = this.props.field;
     return (
-      <p
+      <div
         dangerouslySetInnerHTML={{
-          __html: xss(content || '')
+          __html: content || ''
         }}
       />
     );
@@ -346,6 +346,10 @@ export default class GenerateField extends React.Component<Props, State> {
 
       case 'industry': {
         return this.renderSelect(COMPANY_INDUSTRY_TYPES(), attrs);
+      }
+
+      case 'location': {
+        return this.renderSelect(COUNTRIES, attrs);
       }
 
       case 'businessType': {

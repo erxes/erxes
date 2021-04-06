@@ -25,9 +25,10 @@ class DetailInfo extends React.Component<Props> {
     }
 
     const label = property && property.text;
+    const className = field === 'industry' ? 'multiple-choice' : '';
 
     return (
-      <li>
+      <li className={className}>
         <FieldStyle>{__(`${label}`)}</FieldStyle>
         <SidebarCounter>{value || '-'}</SidebarCounter>
       </li>
@@ -79,6 +80,7 @@ class DetailInfo extends React.Component<Props> {
             : '-'
         )}
         {this.renderRow('primaryPhone', company.primaryPhone)}
+        {this.renderRow('location', company.location)}
         {this.renderRow('businessType', company.businessType)}
         {this.renderRow('doNotDisturb', company.doNotDisturb)}
         {this.renderDescription(company.description)}
