@@ -33,7 +33,7 @@ export default class Field extends React.Component<Props, State> {
       <select
         {...attrs}
         className="form-control"
-        id={attrs.multiple ? attrs.id : ""}
+        id={attrs.multiple ? `_id${attrs.id}` : ""}
       >
         {options.map((option, index) => (
           <option key={index} value={option}>
@@ -114,15 +114,9 @@ export default class Field extends React.Component<Props, State> {
 
   componentDidMount() {
     if (this.props.field.type === "multiSelect") {
-      let multiSelects: any[] = [];
-
-      try {
-        multiSelects = Array.from(
-          document.querySelectorAll(`#${this.props.field._id}`)
-        );
-      } catch (_e) {
-        multiSelects = [];
-      }
+      const multiSelects = Array.from(
+        document.querySelectorAll(`#_id${this.props.field._id}`)
+      );
 
       multiSelects.map(
         (query) =>
