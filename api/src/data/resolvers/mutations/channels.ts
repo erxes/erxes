@@ -14,6 +14,7 @@ import { putCreateLog, putDeleteLog, putUpdateLog } from '../../logUtils';
 import { moduleCheckPermission } from '../../permissions/wrappers';
 import { IContext } from '../../types';
 import utils, { checkUserIds, registerOnboardHistory } from '../../utils';
+import { caches } from './cacheUtils';
 
 interface IChannelsEdit extends IChannel {
   _id: string;
@@ -88,6 +89,8 @@ const channelMutations = {
 
     const updated = await Channels.updateChannel(_id, doc);
 
+    await caches.update(`channel_${updated._id}`, updated);
+
     await sendChannelNotifications(channel, 'invited', user, addedUserIds);
     await sendChannelNotifications(channel, 'removed', user, removedUserIds);
 
@@ -118,6 +121,8 @@ const channelMutations = {
     const channel = await Channels.getChannel(_id);
 
     await Channels.removeChannel(_id);
+
+    caches.remove(`channel_${_id}`);
 
     await sendChannelNotifications(channel, 'removed', user);
 

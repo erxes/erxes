@@ -1,11 +1,12 @@
-import { Brands, Channels, Forms, MessengerApps, Tags } from '../../db/models';
+import { Channels, Forms, MessengerApps, Tags } from '../../db/models';
 import { KIND_CHOICES } from '../../db/models/definitions/constants';
 import { IIntegrationDocument } from '../../db/models/definitions/integrations';
 import { IContext } from '../types';
+import { getDocument } from './mutations/cacheUtils';
 
 export default {
   brand(integration: IIntegrationDocument) {
-    return Brands.findOne({ _id: integration.brandId });
+    return getDocument('brands', { _id: integration.brandId });
   },
 
   form(integration: IIntegrationDocument) {

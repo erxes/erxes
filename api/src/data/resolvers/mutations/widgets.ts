@@ -47,7 +47,7 @@ import {
   sendToWebhook
 } from '../../utils';
 import { convertVisitorToCustomer, solveSubmissions } from '../../widgetUtils';
-import { getBrand, getIntegration } from './cacheUtils';
+import { getDocument, getIntegrationByBrand } from './cacheUtils';
 import { conversationNotifReceivers } from './conversations';
 
 interface IWidgetEmailParams {
@@ -119,7 +119,7 @@ const widgetMutations = {
     _root,
     args: { brandCode: string; formCode: string; cachedCustomerId?: string }
   ) {
-    const brand = await getBrand(args.brandCode);
+    const brand = await getDocument('brands', { code: args.brandCode });
 
     const form = await Forms.findOne({ code: args.formCode });
 
@@ -128,7 +128,7 @@ const widgetMutations = {
     }
 
     // find integration by brandId & formId
-    const integ = await getIntegration({
+    const integ = await getIntegrationByBrand({
       brandId: brand._id,
       formId: form._id,
       type: 'lead',
@@ -281,14 +281,14 @@ const widgetMutations = {
     const customData = data;
 
     // find brand
-    const brand = await getBrand(brandCode);
+    const brand = await getDocument('brands', { code: brandCode });
 
     if (!brand) {
       throw new Error('Invalid configuration');
     }
 
     // find integration
-    const integration = await getIntegration({
+    const integration = await getIntegrationByBrand({
       brandId: brand._id,
       type: KIND_CHOICES.MESSENGER,
       callback: async () => {
@@ -468,9 +468,9 @@ const widgetMutations = {
     // to the closed conversation even if it's closed
     let conversation;
 
-    const integration = await Integrations.findOne({
+    const integration = await getDocument('integrations', {
       _id: integrationId
-    }).lean();
+    });
 
     const messengerData = integration.messengerData || {};
 
@@ -782,9 +782,9 @@ const widgetMutations = {
       type: string;
     }
   ) {
-    const integration = await Integrations.findOne({
+    const integration = await getDocument('integrations', {
       _id: integrationId
-    }).lean();
+    });
 
     const { botEndpointUrl } = integration.messengerData;
 
@@ -887,9 +887,9 @@ const widgetMutations = {
 
     await set(`bot_initial_message_session_id_${integrationId}`, sessionId);
 
-    const integration = await Integrations.findOne({
+    const integration = await getDocument('integrations', {
       _id: integrationId
-    }).lean();
+    });
 
     const { botEndpointUrl } = integration.messengerData;
 

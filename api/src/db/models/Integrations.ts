@@ -8,6 +8,7 @@ import {
   Customers,
   Forms
 } from '.';
+import { getDocument } from '../../data/resolvers/mutations/cacheUtils';
 import { KIND_CHOICES } from './definitions/constants';
 import {
   IIntegration,
@@ -144,7 +145,7 @@ export const loadClass = () => {
      * Retreives integration
      */
     public static async getIntegration(_id: string) {
-      const integration = await Integrations.findOne({ _id });
+      const integration = await getDocument('integrations', { _id });
 
       if (!integration) {
         throw new Error('Integration not found');
@@ -309,7 +310,7 @@ export const loadClass = () => {
      * Remove integration in addition with its messages, conversations, customers
      */
     public static async removeIntegration(_id: string) {
-      const integration = await Integrations.findOne({ _id });
+      const integration = await Integrations.getIntegration(_id);
 
       if (!integration) {
         throw new Error('Integration not found');
@@ -346,7 +347,7 @@ export const loadClass = () => {
       _id: string,
       doc: IIntegrationBasicInfo
     ) {
-      const integration = await Integrations.findOne({ _id });
+      const integration = await Integrations.getIntegration(_id);
 
       if (!integration) {
         throw new Error('Integration not found');

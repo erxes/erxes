@@ -8,6 +8,7 @@ import {
 } from '../../db/models';
 import { IEngageMessageDocument } from '../../db/models/definitions/engages';
 import { IContext } from '../types';
+import { getDocument } from './mutations/cacheUtils';
 
 export const deliveryReport = {
   engage(root) {
@@ -44,7 +45,7 @@ export const message = {
     const { messenger } = engageMessage;
 
     if (messenger && messenger.brandId) {
-      return Brands.findOne({ _id: messenger.brandId });
+      return getDocument('brands', { _id: messenger.brandId });
     }
   },
 

@@ -3,12 +3,15 @@ import {
   Conversations,
   Customers,
   EmailDeliveries,
-  Integrations,
   Users
 } from '../../../db/models';
 import { CONVERSATION_STATUSES } from '../../../db/models/definitions/constants';
 import { graphqlPubsub } from '../../../pubsub';
 import { AWS_EMAIL_STATUSES, EMAIL_VALIDATION_STATUSES } from '../../constants';
+import {
+  getDocument,
+  getDocumentList
+} from '../../resolvers/mutations/cacheUtils';
 import { getConfigs } from '../../utils';
 
 const sendError = message => ({
@@ -29,7 +32,9 @@ export const receiveRpcMessage = async msg => {
   const doc = JSON.parse(payload || '{}');
 
   if (action === 'get-create-update-customer') {
-    const integration = await Integrations.findOne({ _id: doc.integrationId });
+    const integration = await getDocument('integrations', {
+      _id: doc.integrationId
+    });
 
     if (!integration) {
       return sendError(`Integration not found: ${doc.integrationId}`);
@@ -142,7 +147,7 @@ export const receiveRpcMessage = async msg => {
   }
 
   if (action === 'getUserIds') {
-    const users = await Users.find({}, { _id: 1 });
+    const users = await getDocumentList('users', {});
     return sendSuccess({ userIds: users.map(user => user._id) });
   }
 };

@@ -42,6 +42,7 @@ import {
 } from '../../../db/models/index';
 
 import { MODULE_NAMES } from '../../constants';
+import { getDocument } from '../../resolvers/mutations/cacheUtils';
 import {
   BOARD_BASIC_INFOS,
   BRAND_BASIC_INFOS,
@@ -184,7 +185,7 @@ export const fillCellValue = async (
 
       break;
     case 'userId':
-      const createdUser: IUserDocument | null = await Users.findOne({
+      const createdUser: IUserDocument | null = await getDocument('users', {
         _id: item.userId
       });
 

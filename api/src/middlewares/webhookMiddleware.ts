@@ -1,4 +1,5 @@
 import { NodeVM } from 'vm2';
+import { getDocument } from '../data/resolvers/mutations/cacheUtils';
 import { findCompany, findCustomer } from '../data/utils';
 import {
   Companies,
@@ -6,8 +7,7 @@ import {
   ConversationMessages,
   Conversations,
   Customers,
-  Fields,
-  Integrations
+  Fields
 } from '../db/models';
 import { ICustomField } from '../db/models/definitions/common';
 import { graphqlPubsub } from '../pubsub';
@@ -23,7 +23,15 @@ const checkCompanyFieldsExists = async doc => {
 
 const webhookMiddleware = async (req, res, next) => {
   try {
-    const integration = await Integrations.findOne({ _id: req.params.id });
+    const { id } = req.params;
+
+    if (!id) {
+      return next(new Error('Invalid request'));
+    }
+
+    const integration = await getDocument('integrations', {
+      _id: id
+    });
 
     if (!integration) {
       return next(new Error('Invalid request'));

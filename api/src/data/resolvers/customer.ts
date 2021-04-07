@@ -2,16 +2,22 @@ import {
   Companies,
   Conformities,
   Conversations,
-  Integrations,
   Tags,
   Users
 } from '../../db/models';
 import { ICustomerDocument } from '../../db/models/definitions/customers';
 import { fetchElk } from '../../elasticsearch';
+import { getDocument } from './mutations/cacheUtils';
 
 export default {
   integration(customer: ICustomerDocument) {
-    return Integrations.findOne({ _id: customer.integrationId });
+    if (customer.integrationId) {
+      return getDocument('integrations', {
+        _id: customer.integrationId
+      });
+    }
+
+    return null;
   },
 
   getTags(customer: ICustomerDocument) {

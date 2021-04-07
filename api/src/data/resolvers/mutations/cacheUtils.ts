@@ -1,4 +1,5 @@
-import { Brands, Integrations } from '../../../db/models';
+import sift from 'sift';
+import { Brands, Channels, Integrations, Users } from '../../../db/models';
 import { get, removeKey, set } from '../../../inmemoryStorage';
 
 export const caches = {
@@ -39,18 +40,63 @@ export const caches = {
   }
 };
 
-export const getBrand = async (code: string) => {
-  const brand = await caches.get({
-    key: `brand_${code}`,
-    callback: async () => {
-      return Brands.findOne({ code });
-    }
-  });
+export const getDocument = async (
+  type: 'users' | 'integrations' | 'brands' | 'channels',
+  selector: { [key: string]: any }
+) => {
+  const list = await getDocumentList(type, selector);
 
-  return brand;
+  if (list.length > 0) {
+    return list[0];
+  }
+
+  return null;
 };
 
-export const getIntegration = async ({
+export const getDocumentList = async (
+  type: 'users' | 'integrations' | 'brands' | 'channels',
+  selector: { [key: string]: any }
+) => {
+  const listCache = await get(`erxes_${type}`);
+
+  let list;
+
+  if (listCache) {
+    list = JSON.parse(listCache);
+  } else {
+    switch (type) {
+      case 'users': {
+        list = await Users.find();
+
+        break;
+      }
+
+      case 'channels': {
+        list = await Channels.find();
+
+        break;
+      }
+
+      case 'integrations': {
+        list = await Integrations.find();
+
+        break;
+      }
+
+      case 'brands': {
+        list = await Brands.find();
+
+        break;
+      }
+    }
+
+    set(`erxes_${type}`, JSON.stringify(list));
+  }
+
+  return list.filter(sift(selector));
+};
+
+export const getIntegrationByBrand = async ({
   brandId,
   type,
   selector,

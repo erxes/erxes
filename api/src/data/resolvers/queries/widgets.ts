@@ -17,6 +17,7 @@ import {
   getOrCreateEngageMessage,
   getOrCreateEngageMessageElk
 } from '../../widgetUtils';
+import { getDocument, getDocumentList } from '../mutations/cacheUtils';
 
 export const isMessengerOnline = async (integration: IIntegrationDocument) => {
   if (!integration.messengerData) {
@@ -46,7 +47,7 @@ export const isMessengerOnline = async (integration: IIntegrationDocument) => {
 const messengerSupporters = async (integration: IIntegrationDocument) => {
   const messengerData = integration.messengerData || { supporterIds: [] };
 
-  return Users.find({ _id: { $in: messengerData.supporterIds } });
+  return getDocumentList('users', { _id: { $in: messengerData.supporterIds } });
 };
 
 const getWidgetMessages = (conversationId: string) => {
@@ -137,7 +138,7 @@ export default {
       messages: await getWidgetMessages(conversation._id),
       isOnline: await isMessengerOnline(integration),
       operatorStatus: conversation.operatorStatus,
-      participatedUsers: await Users.find({
+      participatedUsers: await getDocumentList('users', {
         _id: { $in: conversation.participatedUserIds }
       }),
       supporters: await messengerSupporters(integration)
@@ -178,7 +179,9 @@ export default {
     _root,
     { integrationId }: { integrationId: string }
   ) {
-    const integration = await Integrations.findOne({ _id: integrationId });
+    const integration = await getDocument('integrations', {
+      _id: integrationId
+    });
     let timezone = '';
 
     if (!integration) {
@@ -196,7 +199,7 @@ export default {
     }
 
     return {
-      supporters: await Users.find({
+      supporters: await getDocumentList('users', {
         _id: { $in: messengerData.supporterIds || [] }
       }),
       isOnline: await isMessengerOnline(integration),

@@ -7,6 +7,7 @@ import {
   IEmailSignature,
   IUser
 } from '../../../db/models/definitions/users';
+import { removeKey } from '../../../inmemoryStorage';
 import messageBroker from '../../../messageBroker';
 import { resetPermissionsCache } from '../../permissions/utils';
 import { checkPermission, requireLogin } from '../../permissions/wrappers';
@@ -82,6 +83,8 @@ const userMutations = {
       throw new Error('Access denied');
     }
 
+    removeKey('erxes_users');
+
     const doc: IUser = {
       isOwner: true,
       email: (email || '').toLowerCase().trim(),
@@ -139,6 +142,8 @@ const userMutations = {
   async forgotPassword(_root, { email }: { email: string }) {
     const token = await Users.forgotPassword(email);
 
+    removeKey('erxes_users');
+
     // send email ==============
     const MAIN_APP_DOMAIN = getEnv({ name: 'MAIN_APP_DOMAIN' });
 
@@ -161,25 +166,34 @@ const userMutations = {
   /*
    * Reset password
    */
-  resetPassword(_root, args: { token: string; newPassword: string }) {
+  async resetPassword(_root, args: { token: string; newPassword: string }) {
+    removeKey('erxes_users');
+
     return Users.resetPassword(args);
   },
 
   /*
    * Reset member's password
    */
-  usersResetMemberPassword(_root, args: { _id: string; newPassword: string }) {
+  async usersResetMemberPassword(
+    _root,
+    args: { _id: string; newPassword: string }
+  ) {
+    removeKey('erxes_users');
+
     return Users.resetMemberPassword(args);
   },
 
   /*
    * Change user password
    */
-  usersChangePassword(
+  async usersChangePassword(
     _root,
     args: { currentPassword: string; newPassword: string },
     { user }: IContext
   ) {
+    removeKey('erxes_users');
+
     return Users.changePassword({ _id: user._id, ...args });
   },
 
@@ -198,7 +212,7 @@ const userMutations = {
       links
     } = args;
 
-    const updatedUser = await Users.updateUser(_id, {
+    const updated = await Users.updateUser(_id, {
       username,
       email,
       details,
@@ -207,12 +221,14 @@ const userMutations = {
       brandIds
     });
 
+    removeKey('erxes_users');
+
     // add new user to channels
     await Channels.updateUserChannels(channelIds || [], _id);
 
     await resetPermissionsCache();
 
-    return updatedUser;
+    return updated;
   },
 
   /*
@@ -244,7 +260,14 @@ const userMutations = {
       throw new Error('Invalid password. Try again');
     }
 
-    return Users.editProfile(user._id, { username, email, details, links });
+    removeKey('erxes_users');
+
+    return Users.editProfile(user._id, {
+      username,
+      email,
+      details,
+      links
+    });
   },
 
   /*
@@ -258,6 +281,8 @@ const userMutations = {
     if (user._id === _id) {
       throw new Error('You can not delete yourself');
     }
+
+    removeKey('erxes_users');
 
     return Users.setUserActiveOrInactive(_id);
   },
@@ -278,6 +303,8 @@ const userMutations = {
 
       sendInvitationEmail({ email: entry.email, token });
     }
+
+    removeKey('erxes_users');
   },
 
   /*
@@ -285,6 +312,8 @@ const userMutations = {
    */
   async usersResendInvitation(_root, { email }: { email: string }) {
     const token = await Users.resendInvitation({ email });
+
+    removeKey('erxes_users');
 
     sendInvitationEmail({ email, token });
 
@@ -307,7 +336,7 @@ const userMutations = {
       username?: string;
     }
   ) {
-    const user = await Users.confirmInvitation({
+    const updated = await Users.confirmInvitation({
       token,
       password,
       passwordConfirmation,
@@ -315,29 +344,35 @@ const userMutations = {
       username
     });
 
+    removeKey('erxes_users');
+
     await messageBroker().sendMessage('erxes-api:integrations-notification', {
       type: 'addUserId',
       payload: {
-        _id: user._id
+        _id: updated._id
       }
     });
 
-    return user;
+    return updated;
   },
 
-  usersConfigEmailSignatures(
+  async usersConfigEmailSignatures(
     _root,
     { signatures }: { signatures: IEmailSignature[] },
     { user }: IContext
   ) {
+    removeKey('erxes_users');
+
     return Users.configEmailSignatures(user._id, signatures);
   },
 
-  usersConfigGetNotificationByEmail(
+  async usersConfigGetNotificationByEmail(
     _root,
     { isAllowed }: { isAllowed: boolean },
     { user }: IContext
   ) {
+    removeKey('erxes_users');
+
     return Users.configGetNotificationByEmail(user._id, isAllowed);
   }
 };

@@ -13,6 +13,7 @@ import messageBroker from '../../../messageBroker';
 import { RABBITMQ_QUEUES } from '../../constants';
 import { IContext } from '../../types';
 import { paginate } from '../../utils';
+import { getDocument } from '../mutations/cacheUtils';
 /**
  * Common helper for integrations & integrationsTotalCount
  */
@@ -132,7 +133,7 @@ const integrationQueries = {
    * Get one integration
    */
   integrationDetail(_root, { _id }: { _id: string }) {
-    return Integrations.findOne({ _id });
+    return getDocument('integrations', { _id });
   },
 
   /**

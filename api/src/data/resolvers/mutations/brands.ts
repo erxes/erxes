@@ -37,6 +37,7 @@ const brandMutations = {
     const updated = await Brands.updateBrand(_id, fields);
 
     await caches.update(`brand_${brand.code}`, updated);
+    await caches.update(`brand_${brand._id}`, updated);
 
     await putUpdateLog(
       {
@@ -59,6 +60,7 @@ const brandMutations = {
 
     if (brand.code) {
       caches.remove(`brand_${brand.code}`);
+      caches.remove(`brand_${brand._id}`);
     }
 
     caches.remove(`integration_messenger_${brand._id}`);

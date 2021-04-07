@@ -4,6 +4,7 @@ import * as jwt from 'jsonwebtoken';
 import { Model, model } from 'mongoose';
 import * as sha256 from 'sha256';
 import { UsersGroups } from '.';
+import { getDocument } from '../../data/resolvers/mutations/cacheUtils';
 import { ILink } from './definitions/common';
 import {
   IDetail,
@@ -102,7 +103,7 @@ export interface IUserModel extends Model<IUserDocument> {
 export const loadClass = () => {
   class User {
     public static async getUser(_id: string) {
-      const user = await Users.findOne({ _id });
+      const user = await getDocument('users', { _id });
 
       if (!user) {
         throw new Error('User not found');

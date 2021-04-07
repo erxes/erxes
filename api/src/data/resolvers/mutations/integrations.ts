@@ -123,6 +123,8 @@ const integrationMutations = {
 
     await caches.update(`integration_messenger_${updated.brandId}`, updated);
 
+    await caches.update(`integration_${updated._id}`, updated);
+
     return updated;
   },
 
@@ -140,6 +142,8 @@ const integrationMutations = {
 
     await caches.update(`integration_messenger_${updated.brandId}`, updated);
 
+    await caches.update(`integration_${updated._id}`, updated);
+
     return updated;
   },
 
@@ -153,6 +157,8 @@ const integrationMutations = {
     const updated = await Integrations.saveMessengerConfigs(_id, messengerData);
 
     await caches.update(`integration_messenger_${updated.brandId}`, updated);
+
+    await caches.update(`integration_${updated._id}`, updated);
 
     return updated;
   },
@@ -217,6 +223,8 @@ const integrationMutations = {
       `integration_lead_${updated.brandId}_${updated.formId}`,
       updated
     );
+
+    await caches.update(`integration_${updated._id}`, updated);
 
     return updated;
   },
@@ -410,6 +418,8 @@ const integrationMutations = {
       ) {
         caches.remove(`integration_${integration.kind}_${integration.brandId}`);
       }
+
+      await caches.remove(`integration_${integration._id}`);
 
       return Integrations.removeIntegration(_id);
     } catch (e) {

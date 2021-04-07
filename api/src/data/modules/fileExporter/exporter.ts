@@ -8,13 +8,13 @@ import {
   FormSubmissions,
   Permissions,
   Tasks,
-  Tickets,
-  Users
+  Tickets
 } from '../../../db/models';
 import { IUserDocument } from '../../../db/models/definitions/users';
 import { debugBase } from '../../../debuggers';
 import { MODULE_NAMES } from '../../constants';
 import { can } from '../../permissions/utils';
+import { getDocumentList } from '../../resolvers/mutations/cacheUtils';
 import { createXlsFile, generateXlsx } from '../../utils';
 import {
   Builder as CompanyBuildQuery,
@@ -185,7 +185,7 @@ const prepareData = async (query: any, user: IUserDocument): Promise<any[]> => {
         throw new Error('Permission denied');
       }
 
-      data = await Users.find({ isActive: true });
+      data = await getDocumentList('users', { isActive: true });
 
       break;
     case MODULE_NAMES.PERMISSION:

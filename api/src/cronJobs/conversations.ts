@@ -40,7 +40,7 @@ export const sendMessageEmail = async () => {
       continue;
     }
 
-    const brand = await Brands.findOne({ _id: integration.brandId }).lean();
+    const brand = await Brands.findOne({ _id: integration.brandId });
 
     if (!brand) {
       continue;

@@ -11,11 +11,11 @@ import {
   Stages,
   Tags,
   Tasks,
-  Tickets,
-  Users
+  Tickets
 } from '../../../db/models';
 import { fetchElk } from '../../../elasticsearch';
 import { EXTEND_FIELDS, FIELD_CONTENT_TYPES } from '../../constants';
+import { getDocumentList } from '../../resolvers/mutations/cacheUtils';
 import { BOARD_BASIC_INFOS } from '../fileExporter/constants';
 
 const generateBasicInfosFromSchema = async (
@@ -189,7 +189,7 @@ const generateUsersOptions = async (
   label: string,
   type: string
 ) => {
-  const users = await Users.find();
+  const users = await getDocumentList('users', {});
 
   const options: Array<{ label: string; value: any }> = users.map(user => ({
     value: user._id,

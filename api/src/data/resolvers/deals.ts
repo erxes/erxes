@@ -7,12 +7,12 @@ import {
   PipelineLabels,
   Pipelines,
   Products,
-  Stages,
-  Users
+  Stages
 } from '../../db/models';
 import { IDealDocument } from '../../db/models/definitions/deals';
 import { IContext } from '../types';
 import { boardId } from './boardUtils';
+import { getDocument, getDocumentList } from './mutations/cacheUtils';
 
 export default {
   async companies(deal: IDealDocument) {
@@ -95,8 +95,10 @@ export default {
     return amountsMap;
   },
 
-  assignedUsers(deal: IDealDocument) {
-    return Users.find({ _id: { $in: deal.assignedUserIds || [] } });
+  async assignedUsers(deal: IDealDocument) {
+    return getDocumentList('users', {
+      _id: { $in: deal.assignedUserIds || [] }
+    });
   },
 
   async pipeline(deal: IDealDocument) {
@@ -131,7 +133,7 @@ export default {
     return PipelineLabels.find({ _id: { $in: deal.labelIds || [] } });
   },
 
-  createdUser(deal: IDealDocument) {
-    return Users.findOne({ _id: deal.userId });
+  async createdUser(deal: IDealDocument) {
+    return getDocument('users', { _id: deal.userId });
   }
 };
