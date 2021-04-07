@@ -1,19 +1,34 @@
 import * as schedule from 'node-schedule';
 import { send } from '../data/resolvers/mutations/engageUtils';
+import { MESSAGE_KINDS } from '../data/constants';
 import { EngageMessages } from '../db/models';
+import { METHODS } from '../db/models/definitions/constants';
+import { IEngageMessageDocument } from '../db/models/definitions/engages';
 import { debugCrons } from '../debuggers';
+import { EngagesAPI } from '../data/dataSources';
 
 const findMessages = (selector = {}) => {
   return EngageMessages.find({
-    kind: { $in: ['auto', 'visitorAuto'] },
+    kind: { $in: [MESSAGE_KINDS.AUTO, MESSAGE_KINDS.VISITOR_AUTO] },
     isLive: true,
     ...selector
   });
 };
 
-const runJobs = async messages => {
+const runJobs = async (messages: IEngageMessageDocument[]) => {
+  const dataSources = { EngagesAPI: new EngagesAPI() };
+  const configs = (await dataSources.EngagesAPI.engagesConfigDetail()) || [];
+
   for (const message of messages) {
-    await send(message);
+    if (message.kind === MESSAGE_KINDS.AUTO && message.method === METHODS.SMS) {
+      const smsConfig = configs.find(c => c.code === 'smsLimit');
+      const limit =
+        smsConfig && smsConfig.value ? parseInt(smsConfig.value, 10) : 0;
+
+      await send(message, limit);
+    } else {
+      await send(message);
+    }
   }
 };
 
