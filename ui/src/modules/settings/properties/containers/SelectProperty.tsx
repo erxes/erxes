@@ -38,6 +38,7 @@ const SelectPropertyContainer = (props: ChildProps<FinalProps>) => {
         [
           'firstName',
           'lastName',
+          'middleName',
           'primaryEmail',
           'primaryPhone',
           'owner'

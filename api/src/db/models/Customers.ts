@@ -43,6 +43,7 @@ interface ICreateMessengerCustomerParams {
     isUser?: boolean;
     firstName?: string;
     lastName?: string;
+    middleName?: string;
     description?: string;
     deviceToken?: string;
   };

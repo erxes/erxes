@@ -31,6 +31,7 @@ export interface ICustomer {
   scopeBrandIds?: string[];
   firstName?: string;
   lastName?: string;
+  middleName?: string;
   birthDate?: Date;
   sex?: number;
   primaryEmail?: string;
@@ -132,17 +133,14 @@ export const customerSchema = schemaWrapper(
       selectOptions: CUSTOMER_SELECT_OPTIONS.STATE
     }),
 
-    createdAt: field({
-      type: Date,
-      label: 'Created at',
-      esType: 'date',
-      index: true
-    }),
+    createdAt: field({ type: Date, label: 'Created at', esType: 'date' }),
     modifiedAt: field({ type: Date, label: 'Modified at', esType: 'date' }),
     avatar: field({ type: String, optional: true, label: 'Avatar' }),
 
     firstName: field({ type: String, label: 'First name', optional: true }),
     lastName: field({ type: String, label: 'Last name', optional: true }),
+    middleName: field({ type: String, label: 'Middle name', optional: true }),
+
     birthDate: field({
       type: Date,
       label: 'Date of birth',

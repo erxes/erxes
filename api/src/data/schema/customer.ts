@@ -17,6 +17,8 @@ export const types = `
     integrationId: String
     firstName: String
     lastName: String
+    middleName: String
+
     birthDate: Date
     sex: Int
 
@@ -99,6 +101,7 @@ const fields = `
   avatar: String
   firstName: String
   lastName: String
+  middleName: String
   primaryEmail: String
   emails: [String]
   primaryPhone: String
