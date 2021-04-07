@@ -26,6 +26,10 @@ export default class EngagesAPI extends RESTDataSource {
     throw new Error(body);
   }
 
+  /**
+   * Fetches all saved configs from engages-email-sender
+   * @returns Configs documents
+   */
   public async engagesConfigDetail() {
     return this.get(`/configs/detail`);
   }

@@ -84,22 +84,39 @@ const sendQueueMessage = (args: any) => {
   return messageBroker().sendMessage('erxes-api:engages-notification', args);
 };
 
-export const send = async (engageMessage: IEngageMessageDocument) => {
+/**
+ * Sends campaign
+ * @param engageMessage Campaign
+ * @param smsLimit Configured number per SMS campaign
+ */
+export const send = async (
+  engageMessage: IEngageMessageDocument,
+  smsLimit?: number
+) => {
   const {
     customerIds,
     segmentIds,
     customerTagIds,
     brandIds,
     fromUserId,
-    scheduleDate
+    scheduleDate,
+    _id
   } = engageMessage;
 
   // Check for pre scheduled engages
   if (scheduleDate && scheduleDate.type === 'pre' && scheduleDate.dateTime) {
-    const scheduledDate = new Date(scheduleDate.dateTime);
+    const dateTime = new Date(scheduleDate.dateTime);
     const now = new Date();
 
-    if (scheduledDate.getTime() > now.getTime()) {
+    if (dateTime.getTime() > now.getTime()) {
+      await sendQueueMessage({
+        action: 'writeLog',
+        data: {
+          engageMessageId: _id,
+          msg: `Campaign will run at "${dateTime.toLocaleString()}"`
+        }
+      });
+
       return;
     }
   }
@@ -131,7 +148,8 @@ export const send = async (engageMessage: IEngageMessageDocument) => {
   if (engageMessage.method === METHODS.SMS) {
     return sendEmailOrSms(
       { engageMessage, customersSelector, user },
-      'sendEngageSms'
+      'sendEngageSms',
+      smsLimit
     );
   }
 };
@@ -139,7 +157,8 @@ export const send = async (engageMessage: IEngageMessageDocument) => {
 // Prepares queue data to engages-email-sender
 const sendEmailOrSms = async (
   { engageMessage, customersSelector, user }: IEngageParams,
-  action: 'sendEngage' | 'sendEngageSms'
+  action: 'sendEngage' | 'sendEngageSms',
+  smsLimit?: number
 ) => {
   const engageMessageId = engageMessage._id;
 
@@ -224,6 +243,40 @@ const sendEmailOrSms = async (
         engageMessage.email.content = replacedContent;
 
         data.email = engageMessage.email;
+      }
+
+      if (
+        engageMessage.method === METHODS.SMS &&
+        engageMessage.kind === MESSAGE_KINDS.AUTO
+      ) {
+        if (!smsLimit) {
+          await sendQueueMessage({
+            action: 'writeLog',
+            data: {
+              engageMessageId,
+              msg: `Auto campaign SMS limit is not set: "${smsLimit}"`
+            }
+          });
+
+          return;
+        }
+
+        if (smsLimit && customerInfos.length > smsLimit) {
+          await sendQueueMessage({
+            action: 'writeLog',
+            data: {
+              engageMessageId,
+              msg: `Chosen "${customerInfos.length}" customers exceeded sms limit "${smsLimit}". Campaign will not run.`
+            }
+          });
+
+          return;
+        }
+
+        await sendQueueMessage({
+          action: 'writeLog',
+          data: { engageMessageId, msg: `Preparing to send SMS campaign` }
+        });
       }
 
       const chunks = chunkArray(customerInfos, 3000);

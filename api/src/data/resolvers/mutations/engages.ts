@@ -1,6 +1,5 @@
 import * as _ from 'underscore';
 import { Customers, EngageMessages, Users } from '../../../db/models';
-import { METHODS } from '../../../db/models/definitions/constants';
 import { IEngageMessage } from '../../../db/models/definitions/engages';
 import { MESSAGE_KINDS, MODULE_NAMES } from '../../constants';
 import { putCreateLog, putDeleteLog, putUpdateLog } from '../../logUtils';
@@ -40,14 +39,8 @@ const engageMutations = {
   async engageMessageAdd(
     _root,
     doc: IEngageMessage,
-    { user, docModifier }: IContext
+    { user, docModifier, dataSources }: IContext
   ) {
-    if (doc.kind !== MESSAGE_KINDS.MANUAL && doc.method === METHODS.SMS) {
-      throw new Error(
-        `SMS engage message of kind ${doc.kind} is not supported`
-      );
-    }
-
     checkCampaignDoc(doc);
 
     // fromUserId is not required in sms engage, so set it here
@@ -61,7 +54,11 @@ const engageMutations = {
 
     await sendToWebhook('create', 'engageMessages', engageMessage);
 
-    await send(engageMessage);
+    const configs = (await dataSources.EngagesAPI.engagesConfigDetail()) || [];
+    const config = configs.find(c => c.code === 'smsLimit');
+    const smsLimit = config && config.value ? parseInt(config.value, 10) : 0;
+
+    await send(engageMessage, smsLimit);
 
     await putCreateLog(
       {
