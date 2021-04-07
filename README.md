@@ -63,26 +63,7 @@ Follow these deployment instructions.
 
 [![debian](https://erxes-os.s3-us-west-2.amazonaws.com/github/docker-logo.png)](https://www.erxes.org/installation/docker)
 
-### Heroku
-
-Host your own erxes server with One-Click Deploy.
-
-[![heroku](https://erxes-os.s3-us-west-2.amazonaws.com/github/heroku.png)](https://www.erxes.org/installation/heroku)
-
-### AWS Marketplace
-
-Launch an EC2 instance using erxes in the AWS Marketplace.
-
-[![debian](https://erxes-os.s3-us-west-2.amazonaws.com/github/aws-logo.png)](https://www.erxes.org/installation/aws)
-
-### DigitalOcean Droplet
-
-Deploy to a DigitalOcean droplet with our one-click install listing from the DigitalOcean Marketplace.
-
-[![debian](https://erxes-os.s3-us-west-2.amazonaws.com/github/droplet.png)](https://www.erxes.org/installation/digitalocean)
-
 ## Contributors
-
 
 ## Backers
 
