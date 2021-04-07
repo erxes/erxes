@@ -383,7 +383,7 @@ export const CUSTOMER_BASIC_INFO = {
     { field: 'avatar', label: 'Avatar', canHide: false },
     { field: 'firstName', label: 'First Name', canHide: false },
     { field: 'lastName', label: 'Last Name', canHide: false },
-    { field: 'middleName', label: 'Middle Name', canHide: true },
+    { field: 'middleName', label: 'Middle Name', canHide: false },
     {
       field: 'primaryEmail',
       label: 'Primary E-mail',
