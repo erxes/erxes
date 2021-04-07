@@ -59,6 +59,10 @@ export const inArray = async (setKey: string, setMember: any) => {
 
 export const set = async (key: string, value: any) => {
   try {
+    if (process.env.NODE_ENV === 'test') {
+      return;
+    }
+
     client.set(key, value);
   } catch (e) {
     debugError(
@@ -69,6 +73,10 @@ export const set = async (key: string, value: any) => {
 
 export const get = async (key: string, defaultValue?: any) => {
   try {
+    if (process.env.NODE_ENV === 'test') {
+      return null;
+    }
+
     return await client.get(key, defaultValue);
   } catch (e) {
     debugError(

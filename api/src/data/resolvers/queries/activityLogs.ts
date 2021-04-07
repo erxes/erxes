@@ -97,14 +97,14 @@ const activityLogQueries = {
     };
 
     const collectActivityLogs = async () => {
-      collectItems(
-        await fetchLogs(
-          {
-            contentId: { $in: [...relatedItemIds, contentId] }
-          },
-          'activityLogs'
-        )
+      const aa = await fetchLogs(
+        {
+          contentId: { $in: [...relatedItemIds, contentId] }
+        },
+        'activityLogs'
       );
+
+      collectItems(aa);
     };
 
     const collectInternalNotes = async () => {

@@ -1,5 +1,6 @@
 import { brandFactory, integrationFactory, userFactory } from '../db/factories';
 import { Brands, Integrations, Users } from '../db/models';
+import { removeKey } from '../inmemoryStorage';
 
 import './setup.ts';
 
@@ -8,6 +9,8 @@ describe('Brands db', () => {
   let _user;
 
   beforeEach(async () => {
+    removeKey('erxes_brands');
+
     // Creating test data
     _brand = await brandFactory({});
     _user = await userFactory({});

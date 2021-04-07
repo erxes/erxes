@@ -28,7 +28,7 @@ export const loadClass = () => {
      * Get a Brand
      */
     public static async getBrand(doc: any) {
-      const brand = await Brands.findOne(doc);
+      const brand = await getDocument('brands', doc);
 
       if (!brand) {
         throw new Error('Brand not found');
@@ -78,7 +78,7 @@ export const loadClass = () => {
         throw new Error(`Brand not found with id ${_id}`);
       }
 
-      return brandObj.remove();
+      return Brands.deleteOne({ _id });
     }
 
     public static async manageIntegrations({

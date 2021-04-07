@@ -4,11 +4,7 @@ import { getDocument } from './mutations/cacheUtils';
 
 export default {
   messenger(script: IScriptDocument) {
-    if (script.messengerId) {
-      return getDocument('integrations', { _id: script.messengerId });
-    }
-
-    return null;
+    return getDocument('integrations', { _id: script.messengerId });
   },
 
   kbTopic(script: IScriptDocument) {

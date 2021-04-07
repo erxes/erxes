@@ -312,10 +312,6 @@ export const loadClass = () => {
     public static async removeIntegration(_id: string) {
       const integration = await Integrations.getIntegration(_id);
 
-      if (!integration) {
-        throw new Error('Integration not found');
-      }
-
       // remove conversations =================
       const conversations = await Conversations.find(
         { integrationId: _id },
@@ -347,12 +343,6 @@ export const loadClass = () => {
       _id: string,
       doc: IIntegrationBasicInfo
     ) {
-      const integration = await Integrations.getIntegration(_id);
-
-      if (!integration) {
-        throw new Error('Integration not found');
-      }
-
       await Integrations.updateOne({ _id }, { $set: doc });
 
       return Integrations.findOne({ _id });

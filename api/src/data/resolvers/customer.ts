@@ -11,13 +11,9 @@ import { getDocument } from './mutations/cacheUtils';
 
 export default {
   integration(customer: ICustomerDocument) {
-    if (customer.integrationId) {
-      return getDocument('integrations', {
-        _id: customer.integrationId
-      });
-    }
-
-    return null;
+    return getDocument('integrations', {
+      _id: customer.integrationId
+    });
   },
 
   getTags(customer: ICustomerDocument) {

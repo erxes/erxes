@@ -1,10 +1,15 @@
 import { graphqlRequest } from '../db/connection';
 import { brandFactory } from '../db/factories';
 import { Brands } from '../db/models';
+import { removeKey } from '../inmemoryStorage';
 
 import './setup.ts';
 
 describe('brandQueries', () => {
+  beforeEach(async () => {
+    removeKey('erxes_brands');
+  });
+
   afterEach(async () => {
     // Clearing test data
     await Brands.deleteMany({});

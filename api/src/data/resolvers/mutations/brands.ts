@@ -60,7 +60,6 @@ const brandMutations = {
 
     if (brand.code) {
       caches.remove(`brand_${brand.code}`);
-      caches.remove(`brand_${brand._id}`);
     }
 
     caches.remove(`integration_messenger_${brand._id}`);

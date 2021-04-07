@@ -50,7 +50,7 @@ export const getDocument = async (
     return list[0];
   }
 
-  return null;
+  return {};
 };
 
 export const getDocumentList = async (
