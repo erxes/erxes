@@ -465,7 +465,7 @@ const integrationMutations = {
     if (!customer) {
       const [primaryEmail] = doc.to;
 
-      customer = await Customers.create({
+      customer = await Customers.createCustomer({
         state: 'lead',
         primaryEmail
       });
