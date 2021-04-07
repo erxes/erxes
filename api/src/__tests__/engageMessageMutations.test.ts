@@ -487,6 +487,12 @@ describe('engage message mutation tests', () => {
       return Promise.resolve('success');
     });
 
+    const mockEngages = sinon
+      .stub(dataSources.EngagesAPI, 'engagesConfigDetail')
+      .callsFake(() => {
+        return Promise.resolve([]);
+      });
+
     process.env.AWS_SES_ACCESS_KEY_ID = '123';
     process.env.AWS_SES_SECRET_ACCESS_KEY = '123';
     process.env.AWS_SES_CONFIG_SET = 'aws-ses';
@@ -522,6 +528,7 @@ describe('engage message mutation tests', () => {
     }
 
     mock.restore();
+    mockEngages.restore();
   });
 
   test('Edit engage message', async () => {
