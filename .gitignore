@@ -24,4 +24,5 @@ nginx.conf
 private
 /plugins
 engages-email-sender/src/__tests__/coverage/
+widgets/static
 *.js.map
