@@ -4,8 +4,6 @@
 
 <p align="center">erxes is an open fair-code licensed all-in-one growth marketing & management software. We offer an all-in-one solution for sales, marketing, and customer service teams, with a focus on the entire customer experience.</p
 
-<p align="center"><a href="https://demo.erxes.io/">Live demo</a> <b>| </b> <a href="https://community.erxes.io/register/Gw4WRJnk9fSbyAXTq">Join our community</a></p>
-
 <p align="center">
   <a href="https://app.codacy.com/gh/erxes/erxes?utm_source=github.com&utm_medium=referral&utm_content=erxes">
     <img alt="Codacy Badge" src="https://api.codacy.com/project/badge/Grade/afdc2d36ea294a01a036a4eeae4346b8">
@@ -17,14 +15,15 @@
   <a href="#">
       <img alt="Docker Pulls" src="https://img.shields.io/docker/pulls/erxes/erxes">
   </a>
-  <a href="https://opencollective.com/erxes/">
-      <img alt="All financial contributors badge" src="https://bit.ly/3bCSG6i">
-  </a>
 </p>
 
 <p align="center">
  <a href="https://erxes.org" target="_blank"><img src="https://erxes-os.s3-us-west-2.amazonaws.com/github/git-erxes.gif" alt="Open Source Growth Marketing Platform "></a>
 </p>
+
+## Demo
+
+Live demo is deployed at <a href="https://demo.erxes.io/" target="_blank">https://demo.erxes.io/</a>
 
 ## Features
 
@@ -62,14 +61,6 @@ Follow these deployment instructions.
 Follow these deployment instructions.
 
 [![debian](https://erxes-os.s3-us-west-2.amazonaws.com/github/docker-logo.png)](https://www.erxes.org/installation/docker)
-
-## Contributors
-
-## Backers
-
-Thank you to all our backers! 🙏 [[Become a backer](https://opencollective.com/erxes#backer)]
-
-<a href="https://opencollective.com/erxes#backers" target="_blank"><img src="https://opencollective.com/erxes/backers.svg?width=890"></a>
 
 ## In-kind sponsors
 
