@@ -82,10 +82,11 @@ const fieldQueries = {
       { name: 'location.country', label: 'Country', order: 0 },
       { name: 'firstName', label: 'First name', order: 1 },
       { name: 'lastName', label: 'Last name', order: 2 },
-      { name: 'primaryEmail', label: 'Primary email', order: 3 },
-      { name: 'lastSeenAt', label: 'Last seen at', order: 4 },
-      { name: 'sessionCount', label: 'Session count', order: 5 },
-      { name: 'profileScore', label: 'Profile score', order: 6 }
+      { name: 'middleName', label: 'Middle name', order: 3 },
+      { name: 'primaryEmail', label: 'Primary email', order: 4 },
+      { name: 'lastSeenAt', label: 'Last seen at', order: 5 },
+      { name: 'sessionCount', label: 'Session count', order: 6 },
+      { name: 'profileScore', label: 'Profile score', order: 7 }
     ];
   },
 

@@ -43,6 +43,7 @@ interface ICreateMessengerCustomerParams {
     isUser?: boolean;
     firstName?: string;
     lastName?: string;
+    middleName?: string;
     description?: string;
     deviceToken?: string;
   };
@@ -429,6 +430,12 @@ export const loadClass = () => {
         score += 5;
         possibleLead = true;
         searchText = searchText.concat(' ', customer.lastName || '');
+      }
+
+      if (!nullValues.includes(customer.middleName || '')) {
+        score += 5;
+        possibleLead = true;
+        searchText = searchText.concat(' ', customer.middleName || '');
       }
 
       if (!nullValues.includes(customer.code || '')) {
