@@ -595,7 +595,7 @@ describe('mutations', () => {
       from: 'from',
       kind: 'nylas-gmail',
       body: 'body',
-      customerId: '123'
+      customerId: customer._id
     };
 
     const spy = jest.spyOn(dataSources.IntegrationsAPI, 'sendEmail');
@@ -613,17 +613,33 @@ describe('mutations', () => {
 
     spy.mockImplementation(() => Promise.resolve());
 
-    await graphqlRequest(mutation, 'integrationSendMail', args, {
-      dataSources
-    });
+    try {
+      await graphqlRequest(mutation, 'integrationSendMail', args, {
+        dataSources
+      });
 
-    const emailDelivery = await EmailDeliveries.findOne({
-      customerId: customer._id
-    });
+      // try with fake customer to improve coverage
+      await graphqlRequest(
+        mutation,
+        'integrationSendMail',
+        { ...args, customerId: 'fakeId' },
+        {
+          dataSources
+        }
+      );
 
-    if (emailDelivery) {
-      expect(JSON.stringify(emailDelivery.to)).toEqual(JSON.stringify(args.to));
-      expect(customer._id).toEqual(emailDelivery.customerId);
+      const emailDelivery = await EmailDeliveries.findOne({
+        customerId: customer._id
+      });
+
+      if (emailDelivery) {
+        expect(JSON.stringify(emailDelivery.to)).toEqual(
+          JSON.stringify(args.to)
+        );
+        expect(customer._id).toEqual(emailDelivery.customerId);
+      }
+    } catch (e) {
+      expect(e[0].message).toBe('Duplicated email');
     }
 
     spy.mockRestore();

@@ -487,41 +487,48 @@ describe('engage message mutation tests', () => {
       return Promise.resolve('success');
     });
 
+    const mockEngages = sinon
+      .stub(dataSources.EngagesAPI, 'engagesConfigDetail')
+      .callsFake(() => {
+        return Promise.resolve([]);
+      });
+
     process.env.AWS_SES_ACCESS_KEY_ID = '123';
     process.env.AWS_SES_SECRET_ACCESS_KEY = '123';
     process.env.AWS_SES_CONFIG_SET = 'aws-ses';
     process.env.AWS_ENDPOINT = '123';
 
-    const user = await Users.findOne({ _id: _doc.fromUserId });
-
-    if (!user) {
-      throw new Error('User not found');
-    }
-
     try {
-      await graphqlRequest(engageMessageAddMutation, 'engageMessageAdd', {
-        ..._doc,
-        kind: MESSAGE_KINDS.MANUAL,
-        brandIds: ['_id']
-      });
+      await graphqlRequest(
+        engageMessageAddMutation,
+        'engageMessageAdd',
+        {
+          ..._doc,
+          kind: MESSAGE_KINDS.MANUAL,
+          brandIds: ['_id']
+        },
+        { dataSources }
+      );
+
+      const engageMessage = await graphqlRequest(
+        engageMessageAddMutation,
+        'engageMessageAdd',
+        _doc,
+        { dataSources }
+      );
+
+      expect(engageMessage.messengerReceivedCustomerIds).toEqual([]);
+      expect(engageMessage.scheduleDate.type).toEqual('year');
+      expect(engageMessage.scheduleDate.month).toEqual('2');
+      expect(engageMessage.scheduleDate.day).toEqual('14');
+
+      checkEngageMessage(engageMessage, _doc);
     } catch (e) {
       expect(e[0].message).toBe('No customers found');
     }
 
-    const engageMessage = await graphqlRequest(
-      engageMessageAddMutation,
-      'engageMessageAdd',
-      _doc
-    );
-
-    expect(engageMessage.messengerReceivedCustomerIds).toEqual([]);
-    expect(engageMessage.scheduleDate.type).toEqual('year');
-    expect(engageMessage.scheduleDate.month).toEqual('2');
-    expect(engageMessage.scheduleDate.day).toEqual('14');
-
-    checkEngageMessage(engageMessage, _doc);
-
     mock.restore();
+    mockEngages.restore();
   });
 
   test('Edit engage message', async () => {
@@ -804,41 +811,40 @@ describe('engage message mutation tests', () => {
     mock.restore();
   });
 
-  test('Test auto engage with type SMS', async () => {
-    try {
-      await graphqlRequest(engageMessageAddMutation, 'engageMessageAdd', {
-        ..._doc,
-        kind: MESSAGE_KINDS.AUTO,
-        method: METHODS.SMS,
-        brandIds: ['_id']
-      });
-    } catch (e) {
-      expect(e[0].message).toBe(
-        `SMS engage message of kind ${MESSAGE_KINDS.AUTO} is not supported`
-      );
-    }
-  });
-
   test('Test sms engage message with integration chosen', async () => {
     const integration = await integrationFactory({ kind: 'telnyx' });
 
-    const response = await graphqlRequest(
-      engageMessageAddMutation,
-      'engageMessageAdd',
-      {
-        ..._doc,
-        fromUserId: '',
-        kind: MESSAGE_KINDS.MANUAL,
-        method: METHODS.SMS,
-        shortMessage: {
-          content: 'sms test',
-          fromIntegrationId: integration._id
-        },
-        title: 'Message test'
-      }
-    );
+    const mock = sinon
+      .stub(dataSources.EngagesAPI, 'engagesConfigDetail')
+      .callsFake(() => {
+        return Promise.resolve([{ code: 'smsLimit', value: '20' }]);
+      });
 
-    expect(response.fromIntegration._id).toBe(integration._id);
+    try {
+      const response = await graphqlRequest(
+        engageMessageAddMutation,
+        'engageMessageAdd',
+        {
+          ..._doc,
+          fromUserId: '',
+          kind: MESSAGE_KINDS.MANUAL,
+          method: METHODS.SMS,
+          shortMessage: {
+            content: 'sms test',
+            fromIntegrationId: integration._id
+          },
+          title: 'Message test'
+        },
+        { dataSources }
+      );
+
+      expect(response.fromIntegration._id).toBe(integration._id);
+
+      mock.restore();
+    } catch (e) {
+      // tslint:disable-next-line
+      console.log(e);
+    }
   });
 
   test('Test engageMessageSendTestEmail()', async () => {
@@ -969,6 +975,35 @@ describe('engage message mutation tests', () => {
       });
     } catch (e) {
       expect(e.message).toBe('One of brand or segment or tag must be chosen');
+    }
+  });
+
+  test('Test auto SMS campaign', async () => {
+    const doc = { tagIds: [_tag._id], phoneValidationStatus: 'valid' };
+
+    await customerFactory(doc);
+    await customerFactory(doc);
+
+    const campaign = await engageMessageFactory({
+      method: METHODS.SMS,
+      kind: MESSAGE_KINDS.AUTO,
+      customerTagIds: [_tag._id],
+      userId: _user._id,
+      isLive: true
+    });
+
+    try {
+      // no sms limit saved
+      await engageUtils.send(campaign, 0);
+
+      // making customers.length > sms limit
+      await engageUtils.send(campaign, 1);
+
+      // successful condition
+      await engageUtils.send(campaign, 10);
+    } catch (e) {
+      // tslint:disable-next-line
+      console.log(e);
     }
   });
 });
