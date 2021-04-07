@@ -55,9 +55,10 @@ const engageMutations = {
     await sendToWebhook('create', 'engageMessages', engageMessage);
 
     const configs = (await dataSources.EngagesAPI.engagesConfigDetail()) || [];
-    const smsLimit = configs.find(c => c.code === 'smsLimit');
+    const config = configs.find(c => c.code === 'smsLimit');
+    const smsLimit = config && config.value ? parseInt(config.value, 10) : 0;
 
-    await send(engageMessage, parseInt(smsLimit.value || '0', 10));
+    await send(engageMessage, smsLimit);
 
     await putCreateLog(
       {
