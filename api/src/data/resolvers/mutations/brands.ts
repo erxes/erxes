@@ -4,7 +4,7 @@ import { MODULE_NAMES } from '../../constants';
 import { putCreateLog, putDeleteLog, putUpdateLog } from '../../logUtils';
 import { moduleCheckPermission } from '../../permissions/wrappers';
 import { IContext } from '../../types';
-import { caches } from './widgets';
+import { caches } from './cacheUtils';
 
 interface IBrandsEdit extends IBrand {
   _id: string;

@@ -32,7 +32,7 @@ import {
 import { checkPermission } from '../../permissions/wrappers';
 import { IContext } from '../../types';
 import { registerOnboardHistory, replaceEditorAttributes } from '../../utils';
-import { caches } from './widgets';
+import { caches } from './cacheUtils';
 
 interface IEditIntegration extends IIntegration {
   _id: string;
