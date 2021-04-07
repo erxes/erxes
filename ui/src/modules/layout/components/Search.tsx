@@ -213,6 +213,10 @@ class Search extends React.Component<
         keyText = 'Last name';
       }
 
+      if (keyText === 'middleName') {
+        keyText = 'Middle name';
+      }
+
       if (keyText === 'primaryPhone') {
         keyText = 'Primary phone';
       }

@@ -82,6 +82,7 @@ export const commonFields = `
   customers {
     _id
     firstName
+    middleName
     lastName
     primaryEmail
     primaryPhone

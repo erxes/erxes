@@ -20,7 +20,8 @@
     "test": "node --expose-gc --max_old_space_size=4000 ./node_modules/.bin/jest --forceExit --silent --logHeapUsage --w=4",
     "customCommand": "node_modules/.bin/ts-node src/commands/customCommand.ts",
     "migrateBoardItems": "node_modules/.bin/ts-node src/commands/migrateBoardItems.ts",
-    "createSystemFieldsGroups": "node_modules/.bin/ts-node src/commands/createSystemFieldsGroups.ts"
+    "createSystemFieldsGroups": "node_modules/.bin/ts-node src/commands/createSystemFieldsGroups.ts",
+    "addMiddleName": "node_modules/.bin/ts-node src/commands/addMiddleName.ts"
   },
   "dependencies": {
     "@google-cloud/pubsub": "^1.1.5",

@@ -534,6 +534,7 @@ interface ICustomerFactoryInput {
   integrationId?: string;
   firstName?: string;
   lastName?: string;
+  middleName?: string;
   sex?: number;
   birthDate?: Date;
   primaryEmail?: string;
@@ -572,6 +573,7 @@ export const customerFactory = async (
     integrationId: params.integrationId,
     firstName: params.firstName,
     lastName: params.lastName,
+    middleName: params.middleName,
     sex: params.sex,
     birthDate: params.birthDate,
     primaryEmail: params.primaryEmail,
