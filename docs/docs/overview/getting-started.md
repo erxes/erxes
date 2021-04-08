@@ -32,10 +32,7 @@ title: Getting  Started
 ### Installation Guide
 
 - [Ubuntu 18.04](/installation/ubuntu)
-- [AWS Marketplace](/installation/aws)
-- [DigitalOcean Marketplace](/installation/digitalocean)
 - [Docker](/installation/docker)
-- [Heroku](/installation/heroku)
 - [Upgrade](/installation/upgrade)
 
 ### Administrator's guide
