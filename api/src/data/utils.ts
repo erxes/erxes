@@ -515,7 +515,7 @@ export const replaceEditorAttributes = async (args: {
       contentType: 'customer'
     });
 
-    customerFields = ['firstName', 'lastName'];
+    customerFields = ['firstName', 'lastName', 'middleName'];
 
     for (const field of possibleCustomerFields) {
       if (content.includes(`{{ customer.${field.name} }}`)) {
