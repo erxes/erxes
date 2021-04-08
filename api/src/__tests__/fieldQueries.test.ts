@@ -210,7 +210,7 @@ describe('fieldQueries', () => {
       contentType: 'customer'
     });
 
-    expect(responses.length).toBe(7);
+    expect(responses.length).toBe(8);
     expect(responses[0].name).toBe('location.country');
     expect(responses[1].name).toBe('firstName');
     expect(responses[2].name).toBe('lastName');

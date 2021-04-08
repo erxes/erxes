@@ -224,9 +224,14 @@ export const updateCustomerProperty = async ({
   let modifier: any = { [name]: value };
 
   if (
-    !['firstName', 'lastName', 'primaryPhone', 'primaryEmail', 'code'].includes(
-      name
-    )
+    ![
+      'firstName',
+      'lastName',
+      'middleName',
+      'primaryPhone',
+      'primaryEmail',
+      'code'
+    ].includes(name)
   ) {
     const customer = await Customers.findOne({ _id: customerId });
 

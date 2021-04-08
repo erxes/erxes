@@ -84,6 +84,7 @@ const webhookMiddleware = async (req, res, next) => {
       code: params.customerCode,
       firstName: params.customerFirstName,
       lastName: params.customerLastName,
+      middleName: params.customerMiddleName,
       avatar: params.customerAvatar,
       customFieldsData
     };
