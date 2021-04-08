@@ -96,10 +96,12 @@ class EditFormContainer extends React.Component<FinalProps> {
             delete f.contentType;
             delete f.__typename;
 
-            f.logics = f.logics.map(l => {
-              delete l.__typename;
-              return l;
-            });
+            if (f.logics && f.logics.lenth > 0) {
+              f.logics = f.logics.map(l => {
+                delete l.__typename;
+                return l;
+              });
+            }
           });
 
           const addingFields = fields

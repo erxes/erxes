@@ -77,6 +77,12 @@ function FieldChoices(props: Props) {
       />
       <FieldChoice
         {...props}
+        type="middleName"
+        text={__('Middle name')}
+        icon="user-6"
+      />
+      <FieldChoice
+        {...props}
         type="lastName"
         text={__('Last name')}
         icon="user-6"
