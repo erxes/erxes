@@ -81,6 +81,7 @@ const sidebarConversations = `
       customer {
         _id
         firstName
+        middleName
         lastName
         primaryEmail
         primaryPhone
@@ -146,6 +147,7 @@ const converstationFacebookComments = `
         avatar
         firstName
         lastName
+        middleName
       }
     }
   }
@@ -315,6 +317,7 @@ const generateCustomerDetailQuery = params => {
           _id
           avatar
           firstName
+          middleName
           lastName
           primaryEmail
         }

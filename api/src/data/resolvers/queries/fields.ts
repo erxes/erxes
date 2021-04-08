@@ -85,7 +85,8 @@ const fieldQueries = {
       { name: 'primaryEmail', label: 'Primary email', order: 3 },
       { name: 'lastSeenAt', label: 'Last seen at', order: 4 },
       { name: 'sessionCount', label: 'Session count', order: 5 },
-      { name: 'profileScore', label: 'Profile score', order: 6 }
+      { name: 'profileScore', label: 'Profile score', order: 6 },
+      { name: 'middleName', label: 'Middle name', order: 7 }
     ];
   },
 

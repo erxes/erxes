@@ -36,6 +36,7 @@ export default `
     isOnline
     avatar
     firstName
+    middleName
     lastName
     emails
   }

@@ -202,6 +202,7 @@ const configQueries = {
           'code',
           'firstName',
           'lastName',
+          'middleName',
           'primaryPhone',
           'primaryEmail'
         ])
