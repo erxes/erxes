@@ -78,9 +78,9 @@ export const message = {
       engageMessage.shortMessage &&
       engageMessage.shortMessage.fromIntegrationId
     ) {
-      return Integrations.getIntegration(
-        engageMessage.shortMessage.fromIntegrationId
-      );
+      return Integrations.getIntegration({
+        _id: engageMessage.shortMessage.fromIntegrationId
+      });
     }
 
     return null;

@@ -18,6 +18,10 @@ export const initMemoryStorage = () => {
 };
 
 export const removeKey = async (key: string) => {
+  if (process.env.NODE_ENV === 'test') {
+    return;
+  }
+
   try {
     return await client.removeKey(key);
   } catch (e) {
@@ -58,11 +62,11 @@ export const inArray = async (setKey: string, setMember: any) => {
 };
 
 export const set = async (key: string, value: any) => {
-  try {
-    if (process.env.NODE_ENV === 'test') {
-      return;
-    }
+  if (process.env.NODE_ENV === 'test') {
+    return;
+  }
 
+  try {
     client.set(key, value);
   } catch (e) {
     debugError(
@@ -72,11 +76,11 @@ export const set = async (key: string, value: any) => {
 };
 
 export const get = async (key: string, defaultValue?: any) => {
-  try {
-    if (process.env.NODE_ENV === 'test') {
-      return null;
-    }
+  if (process.env.NODE_ENV === 'test') {
+    return defaultValue;
+  }
 
+  try {
     return await client.get(key, defaultValue);
   } catch (e) {
     debugError(

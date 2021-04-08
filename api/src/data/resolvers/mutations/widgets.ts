@@ -47,7 +47,7 @@ import {
   sendToWebhook
 } from '../../utils';
 import { convertVisitorToCustomer, solveSubmissions } from '../../widgetUtils';
-import { getDocument, getIntegrationByBrand } from './cacheUtils';
+import { getDocument } from './cacheUtils';
 import { conversationNotifReceivers } from './conversations';
 
 interface IWidgetEmailParams {
@@ -128,15 +128,10 @@ const widgetMutations = {
     }
 
     // find integration by brandId & formId
-    const integ = await getIntegrationByBrand({
+    const integ = await Integrations.getIntegration({
       brandId: brand._id,
       formId: form._id,
-      type: 'lead',
-      selector: {
-        brandId: brand._id,
-        formId: form._id,
-        isActive: true
-      }
+      isActive: true
     });
 
     if (integ.leadData && integ.leadData.loadType === 'embedded') {
@@ -288,15 +283,9 @@ const widgetMutations = {
     }
 
     // find integration
-    const integration = await getIntegrationByBrand({
+    const integration = await Integrations.getIntegration({
       brandId: brand._id,
-      type: KIND_CHOICES.MESSENGER,
-      callback: async () => {
-        return Integrations.getWidgetIntegration(
-          brandCode,
-          KIND_CHOICES.MESSENGER
-        );
-      }
+      kind: KIND_CHOICES.MESSENGER
     });
 
     let customer;

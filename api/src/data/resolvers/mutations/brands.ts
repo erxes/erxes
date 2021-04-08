@@ -1,10 +1,10 @@
 import { Brands } from '../../../db/models';
 import { IBrand } from '../../../db/models/definitions/brands';
+// import { removeKey } from '../../../inmemoryStorage';
 import { MODULE_NAMES } from '../../constants';
 import { putCreateLog, putDeleteLog, putUpdateLog } from '../../logUtils';
 import { moduleCheckPermission } from '../../permissions/wrappers';
 import { IContext } from '../../types';
-import { caches } from './cacheUtils';
 
 interface IBrandsEdit extends IBrand {
   _id: string;
@@ -16,6 +16,8 @@ const brandMutations = {
    */
   async brandsAdd(_root, doc: IBrand, { user }: IContext) {
     const brand = await Brands.createBrand({ userId: user._id, ...doc });
+
+    // removeKey('erxes_brands');
 
     await putCreateLog(
       {
@@ -36,8 +38,7 @@ const brandMutations = {
     const brand = await Brands.getBrand({ _id });
     const updated = await Brands.updateBrand(_id, fields);
 
-    await caches.update(`brand_${brand.code}`, updated);
-    await caches.update(`brand_${brand._id}`, updated);
+    // removeKey('erxes_brands');
 
     await putUpdateLog(
       {
@@ -58,12 +59,7 @@ const brandMutations = {
     const brand = await Brands.getBrand({ _id });
     const removed = await Brands.removeBrand(_id);
 
-    if (brand.code) {
-      caches.remove(`brand_${brand.code}`);
-    }
-
-    caches.remove(`integration_messenger_${brand._id}`);
-    caches.remove(`integration_lead_${brand._id}`);
+    // removeKey('erxes_brands');
 
     await putDeleteLog({ type: MODULE_NAMES.BRAND, object: brand }, user);
 
@@ -77,6 +73,8 @@ const brandMutations = {
     _root,
     { _id, integrationIds }: { _id: string; integrationIds: string[] }
   ) {
+    // removeKey('erxes_brands');
+
     return Brands.manageIntegrations({ _id, integrationIds });
   }
 };

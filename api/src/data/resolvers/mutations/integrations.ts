@@ -32,7 +32,6 @@ import {
 import { checkPermission } from '../../permissions/wrappers';
 import { IContext } from '../../types';
 import { registerOnboardHistory, replaceEditorAttributes } from '../../utils';
-import { caches } from './cacheUtils';
 
 interface IEditIntegration extends IIntegration {
   _id: string;
@@ -94,7 +93,7 @@ const integrationMutations = {
     { _id, ...fields }: IEditIntegration,
     { user }: IContext
   ) {
-    const integration = await Integrations.getIntegration(_id);
+    const integration = await Integrations.getIntegration({ _id });
     const updated = await Integrations.updateMessengerIntegration(_id, fields);
 
     await Channels.updateMany(
@@ -119,12 +118,6 @@ const integrationMutations = {
       user
     );
 
-    caches.remove(`integration_messenger_${integration.brandId}`);
-
-    await caches.update(`integration_messenger_${updated.brandId}`, updated);
-
-    await caches.update(`integration_${updated._id}`, updated);
-
     return updated;
   },
 
@@ -135,16 +128,7 @@ const integrationMutations = {
     _root,
     { _id, uiOptions }: { _id: string; uiOptions: IUiOptions }
   ) {
-    const updated = await Integrations.saveMessengerAppearanceData(
-      _id,
-      uiOptions
-    );
-
-    await caches.update(`integration_messenger_${updated.brandId}`, updated);
-
-    await caches.update(`integration_${updated._id}`, updated);
-
-    return updated;
+    return Integrations.saveMessengerAppearanceData(_id, uiOptions);
   },
 
   /**
@@ -154,13 +138,7 @@ const integrationMutations = {
     _root,
     { _id, messengerData }: { _id: string; messengerData: IMessengerData }
   ) {
-    const updated = await Integrations.saveMessengerConfigs(_id, messengerData);
-
-    await caches.update(`integration_messenger_${updated.brandId}`, updated);
-
-    await caches.update(`integration_${updated._id}`, updated);
-
-    return updated;
+    return Integrations.saveMessengerConfigs(_id, messengerData);
   },
 
   /**
@@ -203,7 +181,7 @@ const integrationMutations = {
     _root,
     { _id, ...doc }: IEditIntegration
   ) {
-    const integration = await Integrations.getIntegration(_id);
+    const integration = await Integrations.getIntegration({ _id });
 
     const updated = await Integrations.updateLeadIntegration(_id, doc);
 
@@ -218,13 +196,6 @@ const integrationMutations = {
         { $push: { integrationIds: integration._id } }
       );
     }
-
-    await caches.update(
-      `integration_lead_${updated.brandId}_${updated.formId}`,
-      updated
-    );
-
-    await caches.update(`integration_${updated._id}`, updated);
 
     return updated;
   },
@@ -316,7 +287,7 @@ const integrationMutations = {
     { _id, name, brandId, channelIds, data },
     { user }
   ) {
-    const integration = await Integrations.getIntegration(_id);
+    const integration = await Integrations.getIntegration({ _id });
 
     const doc: any = { name, brandId, data };
 
@@ -330,19 +301,7 @@ const integrationMutations = {
 
     await Integrations.update({ _id }, { $set: doc });
 
-    const updated = await Integrations.getIntegration(_id);
-
-    if (
-      [KIND_CHOICES.LEAD, KIND_CHOICES.MESSENGER].includes(integration.kind)
-    ) {
-      let key = `integration_${integration.kind}_${integration.brandId}`;
-
-      if (integration.kind === KIND_CHOICES.LEAD) {
-        key += `_${updated.formId}`;
-      }
-
-      caches.remove(key);
-    }
+    const updated = await Integrations.getIntegration({ _id });
 
     await Channels.updateMany(
       { integrationIds: integration._id },
@@ -377,7 +336,7 @@ const integrationMutations = {
     { _id }: { _id: string },
     { user, dataSources }: IContext
   ) {
-    const integration = await Integrations.getIntegration(_id);
+    const integration = await Integrations.getIntegration({ _id });
 
     try {
       if (
@@ -412,14 +371,6 @@ const integrationMutations = {
         { type: MODULE_NAMES.INTEGRATION, object: integration },
         user
       );
-
-      if (
-        [KIND_CHOICES.LEAD, KIND_CHOICES.MESSENGER].includes(integration.kind)
-      ) {
-        caches.remove(`integration_${integration.kind}_${integration.brandId}`);
-      }
-
-      await caches.remove(`integration_${integration._id}`);
 
       return Integrations.removeIntegration(_id);
     } catch (e) {
@@ -517,24 +468,11 @@ const integrationMutations = {
     { _id, status }: IArchiveParams,
     { user }: IContext
   ) {
-    const integration = await Integrations.getIntegration(_id);
+    const integration = await Integrations.getIntegration({ _id });
 
     await Integrations.updateOne({ _id }, { $set: { isActive: !status } });
 
     const updated = await Integrations.findOne({ _id });
-
-    if (
-      [KIND_CHOICES.LEAD, KIND_CHOICES.MESSENGER].includes(integration.kind) &&
-      updated
-    ) {
-      let key = `integration_${integration.kind}_${updated.brandId}`;
-
-      if (integration.kind === KIND_CHOICES.LEAD) {
-        key += `_${updated.formId}`;
-      }
-
-      caches.remove(key);
-    }
 
     await putUpdateLog(
       {
@@ -607,7 +545,7 @@ const integrationMutations = {
     { _id }: { _id },
     { docModifier, user }: IContext
   ) {
-    const sourceIntegration = await Integrations.getIntegration(_id);
+    const sourceIntegration = await Integrations.getIntegration({ _id });
 
     if (!sourceIntegration.formId) {
       throw new Error('Integration kind is not form');

@@ -52,9 +52,12 @@ export default {
     _args,
     { dataSources }: IContext
   ) {
-    const integration = await getDocument('integrations', {
-      _id: conv.integrationId
-    });
+    const integration =
+      (await getDocument('integrations', {
+        _id: conv.integrationId
+      })) || {};
+
+    console.log('integration: ', integration);
 
     if (integration && integration.kind !== 'facebook-post') {
       return null;
@@ -81,9 +84,10 @@ export default {
     _args,
     { dataSources, user }: IContext
   ) {
-    const integration = await getDocument('integrations', {
-      _id: conv.integrationId
-    });
+    const integration =
+      (await getDocument('integrations', {
+        _id: conv.integrationId
+      })) || {};
 
     if (integration && integration.kind !== 'callpro') {
       return null;
@@ -143,9 +147,10 @@ export default {
   },
 
   async isFacebookTaggedMessage(conversation: IConversationDocument) {
-    const integration = await getDocument('integrations', {
-      _id: conversation.integrationId
-    });
+    const integration =
+      (await getDocument('integrations', {
+        _id: conversation.integrationId
+      })) || {};
 
     if (integration && integration.kind !== 'facebook-messenger') {
       return false;
