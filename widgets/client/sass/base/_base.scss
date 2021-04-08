@@ -286,7 +286,7 @@ select.form-control:focus,
   &:hover,
   &:focus,
   &.active {
-    background-color: #ebedef;
+    background-color: #f0f0f0;
   }
 }
 
@@ -300,7 +300,7 @@ select.form-control:focus,
 
 .msf_multiselect_container .form-control .selectedLabels {
   padding: 1px 6px;
-  background: #ebedef;
+  background: #f0f0f0;
   color: #768192;
   border: 1px solid #d8dbe0;
   border-radius: 25px;
