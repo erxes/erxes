@@ -8,7 +8,7 @@ dist
 *.swo
 *.log
 build
-# static
+static
 .env.local
 .env.development.local
 .env.development
