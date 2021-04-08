@@ -1,4 +1,5 @@
 import { Document, model, Model, Schema } from 'mongoose';
+import { debugError } from '../debuggers';
 import { field } from './Logs';
 
 export interface ILocation {
@@ -139,8 +140,9 @@ export const loadVisitorClass = () => {
       const visitor = await Visitors.findOne({ visitorId });
 
       if (!visitor) {
-        throw new Error('Visitor not found');
+        debugError(`Visitor not found with id: ${visitorId}`);
       }
+
       return visitor;
     }
 
