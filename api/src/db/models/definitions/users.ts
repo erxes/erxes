@@ -1,4 +1,5 @@
 import { Document, Schema } from 'mongoose';
+import { removeKey } from '../../../inmemoryStorage';
 import { ILink } from './common';
 import { IPermissionDocument } from './permissions';
 import { field } from './utils';
@@ -128,4 +129,28 @@ export const userSchema = new Schema({
     default: 'No',
     label: 'Do not disturb'
   })
+});
+
+userSchema.post('save', () => {
+  removeKey('erxes_users');
+});
+
+userSchema.post('updateOne', () => {
+  removeKey('erxes_users');
+});
+
+userSchema.post('updateMany', () => {
+  removeKey('erxes_users');
+});
+
+userSchema.post('deleteOne', () => {
+  removeKey('erxes_users');
+});
+
+userSchema.post('deleteMany', () => {
+  removeKey('erxes_users');
+});
+
+userSchema.post('findByIdAndUpdate', () => {
+  removeKey('erxes_users');
 });

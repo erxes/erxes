@@ -3,7 +3,7 @@ import { IScriptDocument } from '../../db/models/definitions/scripts';
 
 export default {
   messenger(script: IScriptDocument) {
-    return Integrations.getIntegration({ _id: script.messengerId });
+    return Integrations.findOne({ _id: script.messengerId });
   },
 
   kbTopic(script: IScriptDocument) {

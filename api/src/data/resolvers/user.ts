@@ -1,4 +1,4 @@
-import { Brands, Configs, OnboardingHistories } from '../../db/models';
+import { Configs, OnboardingHistories } from '../../db/models';
 import { DEFAULT_CONSTANT_VALUES } from '../../db/models/definitions/constants';
 import { IUserDocument } from '../../db/models/definitions/users';
 import { getUserActionsMap } from '../permissions/utils';

@@ -1,4 +1,5 @@
 import { Document, Schema } from 'mongoose';
+import { removeKey } from '../../../inmemoryStorage';
 import { field } from './utils';
 
 export interface IBrandEmailConfig {
@@ -46,4 +47,24 @@ export const brandSchema = new Schema({
   userId: field({ type: String, label: 'Created by' }),
   createdAt: field({ type: Date, label: 'Created at' }),
   emailConfig: field({ type: brandEmailConfigSchema, label: 'Email config' })
+});
+
+brandSchema.post('save', () => {
+  removeKey('erxes_brands');
+});
+
+brandSchema.post('updateOne', () => {
+  removeKey('erxes_brands');
+});
+
+brandSchema.post('updateMany', () => {
+  removeKey('erxes_brands');
+});
+
+brandSchema.post('deleteOne', () => {
+  removeKey('erxes_brands');
+});
+
+brandSchema.post('deleteMany', () => {
+  removeKey('erxes_brands');
 });

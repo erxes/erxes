@@ -1,6 +1,5 @@
 import { Brands } from '../../../db/models';
 import { IBrand } from '../../../db/models/definitions/brands';
-// import { removeKey } from '../../../inmemoryStorage';
 import { MODULE_NAMES } from '../../constants';
 import { putCreateLog, putDeleteLog, putUpdateLog } from '../../logUtils';
 import { moduleCheckPermission } from '../../permissions/wrappers';
@@ -16,8 +15,6 @@ const brandMutations = {
    */
   async brandsAdd(_root, doc: IBrand, { user }: IContext) {
     const brand = await Brands.createBrand({ userId: user._id, ...doc });
-
-    // removeKey('erxes_brands');
 
     await putCreateLog(
       {
@@ -38,8 +35,6 @@ const brandMutations = {
     const brand = await Brands.getBrand({ _id });
     const updated = await Brands.updateBrand(_id, fields);
 
-    // removeKey('erxes_brands');
-
     await putUpdateLog(
       {
         type: MODULE_NAMES.BRAND,
@@ -59,8 +54,6 @@ const brandMutations = {
     const brand = await Brands.getBrand({ _id });
     const removed = await Brands.removeBrand(_id);
 
-    // removeKey('erxes_brands');
-
     await putDeleteLog({ type: MODULE_NAMES.BRAND, object: brand }, user);
 
     return removed;
@@ -73,8 +66,6 @@ const brandMutations = {
     _root,
     { _id, integrationIds }: { _id: string; integrationIds: string[] }
   ) {
-    // removeKey('erxes_brands');
-
     return Brands.manageIntegrations({ _id, integrationIds });
   }
 };

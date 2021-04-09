@@ -29,7 +29,6 @@ import {
   userSchema
 } from '../../../db/models/definitions/users';
 import {
-  Brands,
   Companies,
   Conformities,
   Customers,
@@ -37,7 +36,6 @@ import {
   PipelineLabels,
   Stages,
   Tags,
-  Users,
   UsersGroups
 } from '../../../db/models/index';
 
@@ -197,7 +195,7 @@ export const fillCellValue = async (
       break;
     // deal, task, ticket fields
     case 'assignedUserIds':
-      const assignedUsers: IUserDocument[] = await Users.find({
+      const assignedUsers: IUserDocument[] = await getDocumentList('users', {
         _id: { $in: item.assignedUserIds }
       });
 
@@ -207,7 +205,7 @@ export const fillCellValue = async (
 
       break;
     case 'watchedUserIds':
-      const watchedUsers: IUserDocument[] = await Users.find({
+      const watchedUsers: IUserDocument[] = await getDocumentList('users', {
         _id: { $in: item.watchedUserIds }
       });
 
@@ -241,7 +239,7 @@ export const fillCellValue = async (
 
       break;
     case 'modifiedBy':
-      const modifiedBy: IUserDocument | null = await Users.findOne({
+      const modifiedBy: IUserDocument | null = await getDocument('users', {
         _id: item.modifiedBy
       });
 
@@ -280,7 +278,7 @@ export const fillCellValue = async (
 
       break;
     case 'memberIds':
-      const members: IUserDocument[] = await Users.find({
+      const members: IUserDocument[] = await getDocumentList('users', {
         _id: { $in: item.memberIds }
       });
 
@@ -355,7 +353,7 @@ export const fillCellValue = async (
       break;
 
     case 'ownerEmail':
-      const owner: IUserDocument | null = await Users.findOne({
+      const owner: IUserDocument | null = await getDocument('users', {
         _id: item.ownerId
       });
 

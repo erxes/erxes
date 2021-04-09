@@ -1,4 +1,5 @@
 import { Document, Schema } from 'mongoose';
+import { removeKey } from '../../../inmemoryStorage';
 import { field } from './utils';
 
 export interface IChannel {
@@ -38,4 +39,24 @@ export const channelSchema = new Schema({
     default: 0,
     label: 'Open conversation count'
   })
+});
+
+channelSchema.post('save', () => {
+  removeKey('erxes_channels');
+});
+
+channelSchema.post('updateOne', () => {
+  removeKey('erxes_channels');
+});
+
+channelSchema.post('updateMany', () => {
+  removeKey('erxes_channels');
+});
+
+channelSchema.post('deleteOne', () => {
+  removeKey('erxes_channels');
+});
+
+channelSchema.post('deleteMany', () => {
+  removeKey('erxes_channels');
 });

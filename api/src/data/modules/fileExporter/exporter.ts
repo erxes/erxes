@@ -1,7 +1,5 @@
 import * as moment from 'moment';
 import {
-  Brands,
-  Channels,
   ConversationMessages,
   Deals,
   Fields,
@@ -209,7 +207,7 @@ const prepareData = async (query: any, user: IUserDocument): Promise<any[]> => {
         throw new Error('Permission denied');
       }
 
-      data = await Channels.find();
+      data = await getDocumentList('channels', {});
 
       break;
     default:

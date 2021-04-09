@@ -27,7 +27,7 @@ const countByChannels = async (
   qb: any,
   counts: ICountBy
 ): Promise<ICountBy> => {
-  const channels = await Channels.find();
+  const channels = await getDocumentList('channels', {});
 
   for (const channel of channels) {
     await qb.buildAllQueries();

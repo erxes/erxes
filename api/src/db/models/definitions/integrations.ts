@@ -1,4 +1,5 @@
 import { Document, Schema } from 'mongoose';
+import { removeKey } from '../../../inmemoryStorage';
 import { IRule, ruleSchema } from './common';
 import {
   KIND_CHOICES,
@@ -359,4 +360,24 @@ export const integrationSchema = new Schema({
   formData: field({ type: leadDataSchema }),
   messengerData: field({ type: messengerDataSchema }),
   uiOptions: field({ type: uiOptionsSchema })
+});
+
+integrationSchema.post('save', () => {
+  removeKey('erxes_integrations');
+});
+
+integrationSchema.post('updateOne', () => {
+  removeKey('erxes_integrations');
+});
+
+integrationSchema.post('updateMany', () => {
+  removeKey('erxes_integrations');
+});
+
+integrationSchema.post('deleteOne', () => {
+  removeKey('erxes_integrations');
+});
+
+integrationSchema.post('deleteMany', () => {
+  removeKey('erxes_integrations');
 });

@@ -1,4 +1,4 @@
-import { Brands, Channels, Integrations, Tags } from '../../../db/models';
+import { Channels, Integrations, Tags } from '../../../db/models';
 import {
   INTEGRATION_NAMES_MAP,
   KIND_CHOICES,
@@ -192,7 +192,7 @@ const integrationQueries = {
     }
 
     // Counting integrations by channel
-    const channels = await Channels.find({});
+    const channels = await getDocumentList('channels', {});
 
     for (const channel of channels) {
       const countQueryResult = await count({
