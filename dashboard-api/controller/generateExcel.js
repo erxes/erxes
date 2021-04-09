@@ -23,20 +23,21 @@ const generateExcel = async result => {
   for (const data of datas) {
     rowIndex++;
     for (const column of columns) {
+      const cellValue = data[column.key] || '-';
+
       if (columnNames.includes(column.shortTitle)) {
         // If column already exists adding cell
 
         sheet
           .cell(rowIndex, columnNames.indexOf(column.shortTitle) + 1)
-          .value(data[column.key]);
+          .value(cellValue);
       } else {
         // Creating column
+        sheet.column(columnNames.length + 1).width(25);
         sheet.cell(1, columnNames.length + 1).value(column.shortTitle);
         // Creating cell
 
-        sheet
-          .cell(rowIndex, columnNames.indexOf(column.shortTitle) + 1)
-          .value(data[column.key]);
+        sheet.cell(rowIndex, columnNames.length + 1).value(cellValue);
 
         columnNames.push(column.shortTitle);
       }
