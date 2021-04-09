@@ -375,7 +375,8 @@ export const fieldsCombinedByContentType = async ({
   }
 
   const customFields = await Fields.find({
-    contentType
+    contentType,
+    isDefinedByErxes: false
   });
 
   // extend fields list using custom fields data

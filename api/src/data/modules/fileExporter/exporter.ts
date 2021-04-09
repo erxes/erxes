@@ -277,6 +277,10 @@ const buildLeadFile = async (
       return moment(item.value).format('YYYY/MM/DD HH:mm');
     }
 
+    if (item.type === 'file' && Array.isArray(item.value)) {
+      return item.value[0].url;
+    }
+
     return item.value;
   };
 

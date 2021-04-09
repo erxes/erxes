@@ -23,8 +23,9 @@ const examplePayload = `{
   "customerPrimaryEmail": "example@gmail.com",
   "customerPrimaryPhone": 99999999,
   "customerCode": 99999,
-  "customerFirstName": "David",
-  "customerLastName": "Anna",
+  "customerFirstName": "John",
+  "customerLastName": "Michael",
+  "customerMiddleName": "Doe",
   "content": "Content"
   "attachments": [{
       "url": "/images/example.png",
