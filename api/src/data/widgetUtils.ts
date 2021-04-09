@@ -176,11 +176,7 @@ export const getOrCreateEngageMessageElk = async (
 
   if (visitorId) {
     visitor = await getVisitorLog(visitorId);
-    integrationId = visitor ? visitor.integrationId : null;
-  }
-
-  if (!integrationId) {
-    return null;
+    integrationId = visitor.integrationId;
   }
 
   const integration = await fetchHelper(
