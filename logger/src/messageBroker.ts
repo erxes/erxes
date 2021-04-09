@@ -87,7 +87,17 @@ export const initBroker = async server => {
 
         return ActivityLogs.createSegmentLog(segment, customerIds, type);
       }
+      case 'sendEmailCampaign':
+      case 'sendSmsCampaign':
+        const { contentId, createdBy, content } = data;
 
+        return ActivityLogs.addActivityLog({
+          action: 'send',
+          contentType: data.contentType,
+          contentId,
+          createdBy,
+          content
+        });
       default:
         break;
     }
