@@ -15,7 +15,6 @@ import { templateExport } from './data/modules/fileExporter/templateExport';
 import {
   authCookieOptions,
   deleteFile,
-  frontendEnv,
   getEnv,
   getSubServiceDomain,
   handleUnsubscription,
