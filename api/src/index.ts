@@ -232,7 +232,7 @@ app.get(
     registerOnboardHistory({ type: `${name}Download`, user: req.user });
 
     return res.redirect(
-      `${frontendEnv({ name: 'API_URL', req })}/static/importTemplates/${name}`
+      `https://erxes-docs.s3-us-west-2.amazonaws.com/templates/${name}`
     );
   })
 );
