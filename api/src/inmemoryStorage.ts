@@ -18,10 +18,6 @@ export const initMemoryStorage = () => {
 };
 
 export const removeKey = async (key: string) => {
-  if (process.env.NODE_ENV === 'test') {
-    return;
-  }
-
   try {
     return await client.removeKey(key);
   } catch (e) {

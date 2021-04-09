@@ -178,9 +178,9 @@ class LeftSidebar extends React.Component<Props, State> {
             >
               <FilterList
                 query={{
-                  queryName: 'channelList',
+                  queryName: 'channelsByMembers',
                   variables: { memberIds: [currentUser._id] },
-                  dataName: 'channels'
+                  dataName: 'channelsByMembers'
                 }}
                 counts="byChannels"
                 paramKey="channelId"
@@ -195,7 +195,7 @@ class LeftSidebar extends React.Component<Props, State> {
               manageUrl="/settings/brands"
             >
               <FilterList
-                query={{ queryName: 'brandList', dataName: 'brands' }}
+                query={{ queryName: 'allBrands', dataName: 'allBrands' }}
                 counts="byBrands"
                 queryParams={queryParams}
                 paramKey="brandId"

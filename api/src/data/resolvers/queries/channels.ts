@@ -1,6 +1,6 @@
 import { Channels } from '../../../db/models';
 import { checkPermission, requireLogin } from '../../permissions/wrappers';
-import { getDocument } from '../mutations/cacheUtils';
+import { getDocumentList } from '../mutations/cacheUtils';
 
 interface IIn {
   $in: string[];
@@ -11,6 +11,13 @@ interface IChannelQuery {
 }
 
 const channelQueries = {
+  /**
+   * Channels list
+   */
+  channelsByMembers(_root, { memberIds }: { memberIds: string[] }) {
+    return getDocumentList('channels', { memberIds: { $in: memberIds } });
+  },
+
   /**
    * Channels list
    */
@@ -29,7 +36,7 @@ const channelQueries = {
    * Get one channel
    */
   channelDetail(_root, { _id }: { _id: string }) {
-    return getDocument('channels', { _id });
+    return Channels.getChannel(_id);
   },
 
   /**

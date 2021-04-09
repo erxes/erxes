@@ -11,6 +11,30 @@ describe('channelQueries', () => {
     await Users.deleteMany({});
   });
 
+  test('Channels by members', async () => {
+    const user = await userFactory({});
+
+    await channelFactory({ userId: user._id });
+    await channelFactory({ userId: user._id });
+
+    const qry = `
+      query channelsByMembers($memberIds: [String]) {
+        channelsByMembers(memberIds: $memberIds) {
+          _id
+        }
+      }
+    `;
+
+    // channels response by memberIds =====
+    const memberIds = [user._id];
+
+    const responses = await graphqlRequest(qry, 'channelsByMembers', {
+      memberIds
+    });
+
+    expect(responses.length).toBe(2);
+  });
+
   test('Channels', async () => {
     const user = await userFactory({});
 

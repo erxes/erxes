@@ -10,6 +10,24 @@ describe('brandQueries', () => {
     await Brands.deleteMany({});
   });
 
+  test('All brands', async () => {
+    await brandFactory({ name: 'name 1' });
+    await brandFactory({ name: 'name 2' });
+    await brandFactory({ name: 'name 3' });
+
+    const qry = `
+      query allBrands {
+        allBrands {
+          _id
+        }
+      }
+    `;
+
+    const response = await graphqlRequest(qry, 'allBrands');
+
+    expect(response.length).toBe(3);
+  });
+
   test('Brands', async () => {
     await brandFactory({ name: 'name 1' });
     await brandFactory({ name: 'name 2' });
