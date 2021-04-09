@@ -287,20 +287,28 @@ export const start = async (data: IEmailParams) => {
 
     await sendEmail(customer);
 
-    await messageBroker().sendMessage('putActivityLog', {
-      action: ACTIVITY_LOG_ACTIONS.SEND_EMAIL_CAMPAIGN,
-      data: {
-        action: 'send',
-        contentType: ACTIVITY_CONTENT_TYPES.EMAIL,
-        contentId: customer._id,
-        content: {
-          campaignId: engageMessageId,
-          title,
-          to: customer.primaryEmail
-        },
-        createdBy
-      }
-    });
+    try {
+      await messageBroker().sendMessage('putActivityLog', {
+        action: ACTIVITY_LOG_ACTIONS.SEND_EMAIL_CAMPAIGN,
+        data: {
+          action: 'send',
+          contentType: ACTIVITY_CONTENT_TYPES.EMAIL,
+          contentId: customer._id,
+          content: {
+            campaignId: engageMessageId,
+            title,
+            to: customer.primaryEmail
+          },
+          createdBy
+        }
+      });
+    } catch (e) {
+      await Logs.createLog(
+        engageMessageId,
+        'regular',
+        `Error occured while creating activity log "${customer.primaryEmail}"`
+      );
+    }
   }
 
   return true;
