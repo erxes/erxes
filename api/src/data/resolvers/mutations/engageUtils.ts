@@ -230,7 +230,9 @@ const sendEmailOrSms = async (
         customers: [],
         fromEmail: user.email,
         engageMessageId,
-        shortMessage: engageMessage.shortMessage || {}
+        shortMessage: engageMessage.shortMessage || {},
+        createdBy: engageMessage.createdBy,
+        title: engageMessage.title
       };
 
       if (engageMessage.method === METHODS.EMAIL && engageMessage.email) {
