@@ -26,21 +26,17 @@ const generateExcel = async result => {
       if (columnNames.includes(column.shortTitle)) {
         // If column already exists adding cell
 
-        if (data[column.key].length > 1) {
-          sheet
-            .cell(rowIndex, columnNames.indexOf(column.shortTitle) + 1)
-            .value(data[column.key]);
-        }
+        sheet
+          .cell(rowIndex, columnNames.indexOf(column.shortTitle) + 1)
+          .value(data[column.key]);
       } else {
         // Creating column
         sheet.cell(1, columnNames.length + 1).value(column.shortTitle);
         // Creating cell
 
-        if (data[column.key].length > 1) {
-          sheet
-            .cell(rowIndex, columnNames.indexOf(column.shortTitle) + 1)
-            .value(data[column.key]);
-        }
+        sheet
+          .cell(rowIndex, columnNames.indexOf(column.shortTitle) + 1)
+          .value(data[column.key]);
 
         columnNames.push(column.shortTitle);
       }
