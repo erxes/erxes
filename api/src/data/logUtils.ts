@@ -119,6 +119,11 @@ export interface ILogQueryParams {
   type?: string;
 }
 
+export interface IActivityLogQueryParams {
+  contentId?: any;
+  contentType?: string;
+}
+
 interface IDescriptions {
   description?: string;
   extraDesc?: LogDesc[];
@@ -141,6 +146,21 @@ const LOG_ACTIONS = {
   CREATE: 'create',
   UPDATE: 'update',
   DELETE: 'delete'
+};
+
+export const ACTIVITY_LOG_ACTIONS = {
+  ADD: 'add',
+  CREATE_BOARD_ITEM: 'createBoardItem',
+  CREATE_BOARD_ITEM_MOVEMENT_LOG: 'createBoardItemMovementLog',
+  CREATE_BOARD_ITEMS: 'createBoardItems',
+  CREATE_ARCHIVE_LOG: 'createArchiveLog',
+  CREATE_ASSIGNE_LOG: 'createAssigneLog',
+  CREATE_COC_LOG: 'createCocLog',
+  CREATE_COC_LOGS: 'createCocLogs',
+  CREATE_SEGMENT_LOG: 'createSegmentLog',
+  CREATE_CHECKLIST_LOG: 'createChecklistLog',
+  REMOVE_ACTIVITY_LOG: 'removeActivityLog',
+  REMOVE_ACTIVITY_LOGS: 'removeActivityLogs'
 };
 
 // used in internalNotes mutations
@@ -1506,12 +1526,15 @@ export const putDeleteLog = async (
  * Sends a request to logs api
  * @param {Object} param0 Request
  */
-export const fetchLogs = (params: ILogQueryParams) => {
+export const fetchLogs = (
+  params: ILogQueryParams | IActivityLogQueryParams,
+  type = 'logs'
+) => {
   const LOGS_DOMAIN = getSubServiceDomain({ name: 'LOGS_API_DOMAIN' });
 
   return sendRequest(
     {
-      url: `${LOGS_DOMAIN}/logs`,
+      url: `${LOGS_DOMAIN}/${type}`,
       method: 'get',
       body: { params: JSON.stringify(params) }
     },
@@ -1569,5 +1592,18 @@ export const getVisitorLog = async visitorId => {
   } catch (e) {
     debugError('Logger is not running. Error: ', e.message);
     throw new Error(e.message);
+  }
+};
+
+interface IActivityLogParams {
+  action: string;
+  data: any;
+}
+
+export const putActivityLog = async (params: IActivityLogParams) => {
+  try {
+    return messageBroker().sendMessage('putActivityLog', params);
+  } catch (e) {
+    return e.message;
   }
 };

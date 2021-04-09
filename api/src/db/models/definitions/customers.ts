@@ -31,6 +31,7 @@ export interface ICustomer {
   scopeBrandIds?: string[];
   firstName?: string;
   lastName?: string;
+  middleName?: string;
   birthDate?: Date;
   sex?: number;
   primaryEmail?: string;
@@ -128,6 +129,7 @@ export const customerSchema = schemaWrapper(
       label: 'State',
       default: 'visitor',
       enum: getEnum('STATE'),
+      index: true,
       selectOptions: CUSTOMER_SELECT_OPTIONS.STATE
     }),
 
@@ -137,6 +139,8 @@ export const customerSchema = schemaWrapper(
 
     firstName: field({ type: String, label: 'First name', optional: true }),
     lastName: field({ type: String, label: 'Last name', optional: true }),
+    middleName: field({ type: String, label: 'Middle name', optional: true }),
+
     birthDate: field({
       type: Date,
       label: 'Date of birth',
@@ -250,6 +254,7 @@ export const customerSchema = schemaWrapper(
       type: String,
       optional: true,
       label: 'Integration',
+      index: true,
       esType: 'keyword'
     }),
     tagIds: field({

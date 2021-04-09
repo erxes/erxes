@@ -19,6 +19,7 @@ export const FORM_FIELDS = {
     EMAIL: 'email',
     FIRST_NAME: 'firstName',
     LAST_NAME: 'lastName',
+    MIDDLE_NAME: 'middleName',
     ALL: [
       'input',
       'textarea',
@@ -28,7 +29,8 @@ export const FORM_FIELDS = {
       'divider',
       'email',
       'firstName',
-      'lastName'
+      'lastName',
+      'middleName'
     ]
   },
   VALIDATION: {
@@ -364,6 +366,7 @@ export const CUSTOMER_BASIC_INFO = {
   avatar: 'Avatar',
   firstName: 'First Name',
   lastName: 'Last Name',
+  middleName: 'Middle Name',
   primaryEmail: 'Primary E-mail',
   primaryPhone: 'Primary Phone',
   position: 'Position',
@@ -380,6 +383,7 @@ export const CUSTOMER_BASIC_INFO = {
     { field: 'avatar', label: 'Avatar', canHide: false },
     { field: 'firstName', label: 'First Name', canHide: false },
     { field: 'lastName', label: 'Last Name', canHide: false },
+    { field: 'middleName', label: 'Middle Name', canHide: false },
     {
       field: 'primaryEmail',
       label: 'Primary E-mail',
@@ -416,6 +420,7 @@ export const COMPANY_INFO = {
   businessType: 'Business Type',
   description: 'Description',
   doNotDisturb: 'Do not disturb',
+  location: 'Headquarters Country',
 
   ALL: [
     { field: 'avatar', label: 'Logo', canHide: false },
@@ -439,7 +444,8 @@ export const COMPANY_INFO = {
     { field: 'businessType', label: 'Business Type', canHide: true },
     { field: 'code', label: 'Code', canHide: true },
     { field: 'description', label: 'Description', canHide: true },
-    { field: 'doNotDisturb', label: 'Do not disturb', canHide: true }
+    { field: 'doNotDisturb', label: 'Do not disturb', canHide: true },
+    { field: 'location', label: 'Headquarters Country', canHide: true }
   ]
 };
 

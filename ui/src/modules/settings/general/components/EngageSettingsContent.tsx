@@ -195,7 +195,7 @@ class EngageSettingsContent extends React.Component<Props, State> {
           <ControlLabel>Allowed email skip limit</ControlLabel>
           <p>
             The number of times that each customer can skip to open or click
-            engage emails. If this limit is exceeded, then the customer will
+            campaign emails. If this limit is exceeded, then the customer will
             automatically set to
             <strong> do not disturb </strong>mode.
           </p>
@@ -203,6 +203,21 @@ class EngageSettingsContent extends React.Component<Props, State> {
             {...formProps}
             name="allowedEmailSkipLimit"
             defaultValue={configsMap.allowedEmailSkipLimit || 10}
+          />
+        </FormGroup>
+
+        <FormGroup>
+          <ControlLabel>Customer limit per auto SMS campaign</ControlLabel>
+          <p>
+            The maximum number of customers that can receive auto SMS campaign
+            per each runtime.
+          </p>
+          <FormControl
+            {...formProps}
+            name="smsLimit"
+            defaultValue={configsMap.smsLimit || 50}
+            min={50}
+            max={100}
           />
         </FormGroup>
 

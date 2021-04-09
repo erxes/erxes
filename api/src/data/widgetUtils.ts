@@ -12,7 +12,7 @@ import {
 } from '../db/models';
 import Messages from '../db/models/ConversationMessages';
 import { IBrowserInfo } from '../db/models/Customers';
-import { ICustomField } from '../db/models/definitions/common';
+import { ICustomField, ILink } from '../db/models/definitions/common';
 import { KIND_CHOICES } from '../db/models/definitions/constants';
 import { ICustomerDocument } from '../db/models/definitions/customers';
 import { ISubmission } from '../db/models/definitions/fields';
@@ -243,24 +243,49 @@ export const getOrCreateEngageMessageElk = async (
   return messages.pop();
 };
 
+const getSocialLinkKey = (type: string) => {
+  return type.substring(type.indexOf('_') + 1);
+};
+
+const prepareCustomFieldsData = (
+  customerDatas: ICustomField[],
+  submissionDatas: ICustomField[]
+) => {
+  const customFieldsData: ICustomField[] = [];
+
+  if (customerDatas.length === 0) {
+    return submissionDatas;
+  }
+
+  for (const customerData of customerDatas) {
+    for (const data of submissionDatas) {
+      if (customerData.field !== data.field) {
+        customFieldsData.push(customerData);
+      } else {
+        if (Array.isArray(customerData.value)) {
+          data.value = customerData.value.concat(data.value);
+        }
+
+        customFieldsData.push(data);
+      }
+    }
+  }
+
+  return customFieldsData;
+};
+
 export const updateCustomerFromForm = async (
   browserInfo: any,
   doc: any,
   customer: ICustomerDocument
 ) => {
-  if (customer.customFieldsData) {
-    doc.customFieldsData = doc.customFieldsData.concat(
-      customer.customFieldsData
-    );
-  }
-
   const customerDoc: any = {
     location: browserInfo,
-    firstName: doc.firstName || customer.firstName,
-    lastName: doc.lastName || customer.lastName,
+    firstName: customer.firstName || doc.firstName,
+    lastName: customer.lastName || doc.lastName,
+    middleName: customer.middleName || doc.middleName,
     sex: doc.pronoun,
     birthDate: doc.birthDate,
-    customFieldsData: doc.customFieldsData,
     ...(customer.primaryEmail
       ? {}
       : {
@@ -299,11 +324,36 @@ export const updateCustomerFromForm = async (
     customerDoc.doNotDisturb = doc.doNotDisturb;
   }
 
+  if (!customer.customFieldsData) {
+    customerDoc.customFieldsData = doc.customFieldsData;
+  }
+
+  if (customer.customFieldsData && doc.customFieldsData.length > 0) {
+    customerDoc.customFieldsData = prepareCustomFieldsData(
+      customer.customFieldsData,
+      doc.customFieldsData
+    );
+  }
+
+  if (Object.keys(doc.links).length > 0) {
+    const links = customer.links || {};
+
+    for (const key of Object.keys(doc.links)) {
+      const value = doc.links[key];
+      if (!value || value.length === 0) {
+        continue;
+      }
+
+      links[key] = value;
+    }
+    customerDoc.links = links;
+  }
+
   await Customers.updateCustomer(customer._id, customerDoc);
 };
 
 const groupSubmissions = (submissions: ISubmission[]) => {
-  const submissionsGrouped: { [key: string]: any[] } = {};
+  const submissionsGrouped: { [key: string]: ISubmission[] } = {};
 
   submissions.forEach(submission => {
     if (submission.groupId) {
@@ -339,22 +389,14 @@ export const solveSubmissions = async (args: {
     [key: string]: { customerId: string; companyId: string };
   } = {};
 
-  let cachedCustomer = await Customers.getWidgetCustomer({
-    integrationId,
-    cachedCustomerId
-  });
-
-  cachedCustomer = await Customers.createCustomer({
-    integrationId
-  });
-
-  cachedCustomerId = (cachedCustomer && cachedCustomer._id) || '';
+  let cachedCustomer;
 
   for (const groupId of Object.keys(submissionsGrouped)) {
     let email;
     let phone;
     let firstName = '';
     let lastName = '';
+    let middleName = '';
     let pronoun = 0;
     let avatar = '';
     let birthDate;
@@ -363,6 +405,7 @@ export const solveSubmissions = async (args: {
     let description = '';
     let department = '';
     let position = '';
+    const customerLinks: ILink = {};
 
     let companyName = '';
     let companyEmail = '';
@@ -373,12 +416,27 @@ export const solveSubmissions = async (args: {
     let size = 0;
     let industries = '';
     let businessType = '';
+    let location = '';
+
+    const companyLinks: ILink = {};
 
     const customFieldsData: ICustomField[] = [];
-    let companyCustomData: ICustomField[] = [];
+    const companyCustomData: ICustomField[] = [];
 
     for (const submission of submissionsGrouped[groupId]) {
-      switch (submission.type) {
+      const submissionType = submission.type || '';
+
+      if (submissionType.includes('customerLinks')) {
+        customerLinks[getSocialLinkKey(submissionType)] = submission.value;
+        continue;
+      }
+
+      if (submissionType.includes('companyLinks')) {
+        companyLinks[getSocialLinkKey(submissionType)] = submission.value;
+        continue;
+      }
+
+      switch (submissionType) {
         case 'email':
           email = submission.value;
           break;
@@ -391,6 +449,9 @@ export const solveSubmissions = async (args: {
         case 'lastName':
           lastName = submission.value;
           break;
+        case 'middleName':
+          middleName = submission.value;
+          break;
         case 'companyName':
           companyName = submission.value;
           break;
@@ -401,10 +462,14 @@ export const solveSubmissions = async (args: {
           companyPhone = submission.value;
           break;
         case 'avatar':
-          avatar = submission.value;
+          if (submission.value && submission.value.length > 0) {
+            avatar = submission.value[0].url;
+          }
           break;
         case 'companyAvatar':
-          logo = submission.value;
+          if (submission.value && submission.value.length > 0) {
+            logo = submission.value[0].url;
+          }
           break;
         case 'industry':
           industries = submission.value;
@@ -455,11 +520,23 @@ export const solveSubmissions = async (args: {
         case 'companyDoNotDisturb':
           companyDoNotDisturb = submission.value;
           break;
-        default:
+        case 'location':
+          location = submission.value;
           break;
       }
 
-      if (submission.associatedFieldId) {
+      if (
+        submission.associatedFieldId &&
+        [
+          'input',
+          'select',
+          'multiSelect',
+          'file',
+          'textarea',
+          'radio',
+          'check'
+        ].includes(submissionType)
+      ) {
         const field = await Fields.findById(submission.associatedFieldId);
         if (!field) {
           continue;
@@ -484,11 +561,31 @@ export const solveSubmissions = async (args: {
     }
 
     if (groupId === 'default') {
+      cachedCustomer = await Customers.getWidgetCustomer({
+        integrationId,
+        cachedCustomerId,
+        email,
+        phone
+      });
+
+      if (!cachedCustomer) {
+        cachedCustomer = await Customers.createCustomer({
+          integrationId,
+          primaryEmail: email,
+          emails: [email],
+          firstName,
+          lastName,
+          middleName,
+          primaryPhone: phone
+        });
+      }
+
       await updateCustomerFromForm(
         browserInfo,
         {
           firstName,
           lastName,
+          middleName,
           pronoun,
           birthDate,
           customFieldsData,
@@ -499,7 +596,8 @@ export const solveSubmissions = async (args: {
           hasAuthority,
           doNotDisturb,
           email,
-          phone
+          phone,
+          links: customerLinks
         },
         cachedCustomer
       );
@@ -523,8 +621,8 @@ export const solveSubmissions = async (args: {
           emails: [email],
           firstName,
           lastName,
-          primaryPhone: phone,
-          customFieldsData
+          middleName,
+          primaryPhone: phone
         });
       }
 
@@ -533,6 +631,7 @@ export const solveSubmissions = async (args: {
         {
           firstName,
           lastName,
+          middleName,
           pronoun,
           birthDate,
           customFieldsData,
@@ -543,7 +642,8 @@ export const solveSubmissions = async (args: {
           hasAuthority,
           doNotDisturb,
           email,
-          phone
+          phone,
+          links: customerLinks
         },
         customer
       );
@@ -581,15 +681,38 @@ export const solveSubmissions = async (args: {
       companyDoc.industry = industries;
     }
 
+    if (location.length > 0) {
+      companyDoc.location = location;
+    }
+
     if (!company) {
       company = await Companies.createCompany(companyDoc);
     }
 
-    if (company.customFieldsData) {
-      companyCustomData = companyCustomData.concat(company.customFieldsData);
+    if (Object.keys(companyLinks).length > 0) {
+      const links = company.links || {};
+
+      for (const key of Object.keys(companyLinks)) {
+        const value = companyLinks[key];
+        if (!value || value.length === 0) {
+          continue;
+        }
+
+        links[key] = value;
+      }
+      companyDoc.links = links;
     }
 
-    companyDoc.customFieldsData = companyCustomData;
+    if (!company.customFieldsData) {
+      companyDoc.customFieldsData = companyCustomData;
+    }
+
+    if (company.customFieldsData && companyCustomData.length > 0) {
+      companyDoc.customFieldsData = prepareCustomFieldsData(
+        company.customFieldsData,
+        companyCustomData
+      );
+    }
 
     company = await Companies.updateCompany(company._id, companyDoc);
 

@@ -4,7 +4,6 @@ import * as Random from 'meteor-random';
 import * as momentTz from 'moment-timezone';
 import { FIELDS_GROUPS_CONTENT_TYPES } from '../data/constants';
 import {
-  ActivityLogs,
   Boards,
   Brands,
   CalendarBoards,
@@ -112,17 +111,13 @@ interface IActivityLogFactoryInput {
 
 export const activityLogFactory = async (
   params: IActivityLogFactoryInput = {}
-) => {
-  const activity = new ActivityLogs({
-    contentType: params.contentType || 'customer',
-    action: params.action || 'create',
-    contentId: params.contentId || faker.random.uuid(),
-    content: params.content || 'content',
-    createdBy: params.createdBy || faker.random.uuid()
-  });
-
-  return activity.save();
-};
+) => ({
+  contentType: params.contentType || 'customer',
+  action: params.action || 'create',
+  contentId: params.contentId || faker.random.uuid(),
+  content: params.content || 'content',
+  createdBy: params.createdBy || faker.random.uuid()
+});
 
 interface IDashboardFactoryInput {
   name?: string;
@@ -539,6 +534,7 @@ interface ICustomerFactoryInput {
   integrationId?: string;
   firstName?: string;
   lastName?: string;
+  middleName?: string;
   sex?: number;
   birthDate?: Date;
   primaryEmail?: string;
@@ -577,6 +573,7 @@ export const customerFactory = async (
     integrationId: params.integrationId,
     firstName: params.firstName,
     lastName: params.lastName,
+    middleName: params.middleName,
     sex: params.sex,
     birthDate: params.birthDate,
     primaryEmail: params.primaryEmail,
@@ -1055,6 +1052,7 @@ interface IStageFactoryInput {
   formId?: string;
   status?: string;
   order?: number;
+  name?: string;
 }
 
 export const stageFactory = async (params: IStageFactoryInput = {}) => {
@@ -1064,7 +1062,7 @@ export const stageFactory = async (params: IStageFactoryInput = {}) => {
   const pipeline = await pipelineFactory({ type, boardId: board._id });
 
   const stage = new Stages({
-    name: faker.random.word(),
+    name: params.name || faker.random.word(),
     pipelineId: params.pipelineId || pipeline._id,
     type: params.type || BOARD_TYPES.DEAL,
     probability: params.probability || PROBABILITY.TEN,

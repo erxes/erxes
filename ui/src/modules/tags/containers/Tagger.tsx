@@ -71,6 +71,7 @@ const query = gql`
       _id
       name
       colorCode
+      parentId
     }
   }
 `;
