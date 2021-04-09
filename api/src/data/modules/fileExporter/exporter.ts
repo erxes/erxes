@@ -201,7 +201,7 @@ const prepareData = async (query: any, user: IUserDocument): Promise<any[]> => {
         throw new Error('Permission denied');
       }
 
-      data = await Brands.find();
+      data = await getDocumentList('brands', {});
 
       break;
     case MODULE_NAMES.CHANNEL:

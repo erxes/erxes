@@ -1,7 +1,6 @@
 import { Brands } from '../../../db/models';
 import { checkPermission, requireLogin } from '../../permissions/wrappers';
 import { IContext } from '../../types';
-import { getDocument } from '../mutations/cacheUtils';
 
 interface IListArgs {
   page?: number;
@@ -35,7 +34,7 @@ const brandQueries = {
    * Get one brand
    */
   brandDetail(_root, { _id }: { _id: string }) {
-    return getDocument('brands', { _id });
+    return Brands.findOne({ _id });
   },
 
   /**

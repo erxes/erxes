@@ -13,7 +13,7 @@ import messageBroker from '../../../messageBroker';
 import { RABBITMQ_QUEUES } from '../../constants';
 import { IContext } from '../../types';
 import { paginate } from '../../utils';
-import { getDocument } from '../mutations/cacheUtils';
+import { getDocument, getDocumentList } from '../mutations/cacheUtils';
 /**
  * Common helper for integrations & integrationsTotalCount
  */
@@ -208,7 +208,7 @@ const integrationQueries = {
     }
 
     // Counting integrations by brand
-    const brands = await Brands.find({});
+    const brands = await getDocumentList('brands', {});
 
     for (const brand of brands) {
       const countQueryResult = await count({ brandId: brand._id, ...qry });

@@ -42,7 +42,10 @@ import {
 } from '../../../db/models/index';
 
 import { MODULE_NAMES } from '../../constants';
-import { getDocument } from '../../resolvers/mutations/cacheUtils';
+import {
+  getDocument,
+  getDocumentList
+} from '../../resolvers/mutations/cacheUtils';
 import {
   BOARD_BASIC_INFOS,
   BRAND_BASIC_INFOS,
@@ -248,7 +251,7 @@ export const fillCellValue = async (
 
     // user fields
     case 'brandIds':
-      const brands: IBrandDocument[] = await Brands.find({
+      const brands: IBrandDocument[] = await getDocumentList('brands', {
         _id: item.brandIds
       });
 
@@ -266,9 +269,12 @@ export const fillCellValue = async (
 
     // channel fields
     case 'integrationIds':
-      const integrations: IIntegrationDocument[] = await Integrations.find({
-        _id: { $in: item.integrationIds }
-      });
+      const integrations: IIntegrationDocument[] = await getDocumentList(
+        'integrations',
+        {
+          _id: { $in: item.integrationIds }
+        }
+      );
 
       cellValue = integrations.map(i => i.name).join(', ');
 

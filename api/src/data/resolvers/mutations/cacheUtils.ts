@@ -23,6 +23,8 @@ export const getDocumentList = async (
 
   let list = listCache ? JSON.parse(listCache) : null;
 
+  console.log(`${type} list length: `, list.length);
+
   if (!list) {
     switch (type) {
       case 'users': {

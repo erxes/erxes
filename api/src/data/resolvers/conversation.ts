@@ -57,8 +57,6 @@ export default {
         _id: conv.integrationId
       })) || {};
 
-    console.log('integration: ', integration);
-
     if (integration && integration.kind !== 'facebook-post') {
       return null;
     }

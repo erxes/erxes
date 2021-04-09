@@ -20,6 +20,7 @@ import {
 } from '../../../db/models/definitions/integrations';
 import { IExternalIntegrationParams } from '../../../db/models/Integrations';
 import { debugError } from '../../../debuggers';
+import { removeKey } from '../../../inmemoryStorage';
 import messageBroker from '../../../messageBroker';
 import { MODULE_NAMES, RABBITMQ_QUEUES } from '../../constants';
 import {
@@ -57,6 +58,8 @@ const integrationMutations = {
     doc: IIntegration,
     { user }: IContext
   ) {
+    removeKey('erxes_integrations');
+
     const integration = await Integrations.createMessengerIntegration(
       doc,
       user._id
@@ -93,6 +96,9 @@ const integrationMutations = {
     { _id, ...fields }: IEditIntegration,
     { user }: IContext
   ) {
+    removeKey('erxes_integrations');
+    removeKey('erxes_channels');
+
     const integration = await Integrations.getIntegration({ _id });
     const updated = await Integrations.updateMessengerIntegration(_id, fields);
 
@@ -128,6 +134,8 @@ const integrationMutations = {
     _root,
     { _id, uiOptions }: { _id: string; uiOptions: IUiOptions }
   ) {
+    removeKey('erxes_integrations');
+
     return Integrations.saveMessengerAppearanceData(_id, uiOptions);
   },
 
@@ -138,6 +146,8 @@ const integrationMutations = {
     _root,
     { _id, messengerData }: { _id: string; messengerData: IMessengerData }
   ) {
+    removeKey('erxes_integrations');
+
     return Integrations.saveMessengerConfigs(_id, messengerData);
   },
 
@@ -149,6 +159,9 @@ const integrationMutations = {
     doc: IIntegration,
     { user }: IContext
   ) {
+    removeKey('erxes_integrations');
+    removeKey('erxes_channels');
+
     const integration = await Integrations.createLeadIntegration(doc, user._id);
 
     if (doc.channelIds) {
@@ -181,6 +194,9 @@ const integrationMutations = {
     _root,
     { _id, ...doc }: IEditIntegration
   ) {
+    removeKey('erxes_integrations');
+    removeKey('erxes_channels');
+
     const integration = await Integrations.getIntegration({ _id });
 
     const updated = await Integrations.updateLeadIntegration(_id, doc);
@@ -208,6 +224,9 @@ const integrationMutations = {
     { data, ...doc }: IExternalIntegrationParams & { data: object },
     { user, dataSources }: IContext
   ) {
+    removeKey('erxes_integrations');
+    removeKey('erxes_channels');
+
     const modifiedDoc: any = { ...doc };
 
     if (modifiedDoc.kind === KIND_CHOICES.WEBHOOK) {
@@ -287,6 +306,9 @@ const integrationMutations = {
     { _id, name, brandId, channelIds, data },
     { user }
   ) {
+    removeKey('erxes_integrations');
+    removeKey('erxes_channels');
+
     const integration = await Integrations.getIntegration({ _id });
 
     const doc: any = { name, brandId, data };
@@ -338,6 +360,8 @@ const integrationMutations = {
   ) {
     const integration = await Integrations.getIntegration({ _id });
 
+    removeKey('erxes_integrations');
+
     try {
       if (
         [
@@ -384,6 +408,8 @@ const integrationMutations = {
    */
   async integrationsRemoveAccount(_root, { _id }: { _id: string }) {
     try {
+      removeKey('erxes_integrations');
+
       const { erxesApiIds } = await messageBroker().sendRPCMessage(
         RABBITMQ_QUEUES.RPC_API_TO_INTEGRATIONS,
         {
@@ -468,6 +494,8 @@ const integrationMutations = {
     { _id, status }: IArchiveParams,
     { user }: IContext
   ) {
+    removeKey('erxes_integrations');
+
     const integration = await Integrations.getIntegration({ _id });
 
     await Integrations.updateOne({ _id }, { $set: { isActive: !status } });
@@ -545,6 +573,8 @@ const integrationMutations = {
     { _id }: { _id },
     { docModifier, user }: IContext
   ) {
+    removeKey('erxes_integrations');
+
     const sourceIntegration = await Integrations.getIntegration({ _id });
 
     if (!sourceIntegration.formId) {

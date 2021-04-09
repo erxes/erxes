@@ -95,7 +95,7 @@ export default {
     return amountsMap;
   },
 
-  async assignedUsers(deal: IDealDocument) {
+  assignedUsers(deal: IDealDocument) {
     return getDocumentList('users', {
       _id: { $in: deal.assignedUserIds || [] }
     });
@@ -133,7 +133,7 @@ export default {
     return PipelineLabels.find({ _id: { $in: deal.labelIds || [] } });
   },
 
-  async createdUser(deal: IDealDocument) {
+  createdUser(deal: IDealDocument) {
     return getDocument('users', { _id: deal.userId });
   }
 };
