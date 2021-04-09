@@ -42,16 +42,3 @@ export const sendRPCMessage = async (message): Promise<any> => {
 export default function() {
   return client;
 }
-
-interface IActivityLogParams {
-  action: string;
-  data: any;
-}
-
-export const putActivityLog = async (params: IActivityLogParams) => {
-  try {
-    return client.sendMessage('putActivityLog', params);
-  } catch (e) {
-    return e.message;
-  }
-};

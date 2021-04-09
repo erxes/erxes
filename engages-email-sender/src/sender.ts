@@ -2,7 +2,7 @@ import * as dotenv from 'dotenv';
 import * as Random from 'meteor-random';
 import { ACTIVITY_CONTENT_TYPES, ACTIVITY_LOG_ACTIONS } from './constants';
 import { debugEngages, debugError } from './debuggers';
-import { putActivityLog } from './messageBroker';
+import messageBroker from './messageBroker';
 import { Logs, SmsRequests, Stats } from './models';
 import { getTelnyxInfo } from './telnyxUtils';
 import {
@@ -287,7 +287,7 @@ export const start = async (data: IEmailParams) => {
 
     await sendEmail(customer);
 
-    await putActivityLog({
+    await messageBroker().sendMessage('putActivityLog', {
       action: ACTIVITY_LOG_ACTIONS.SEND_EMAIL_CAMPAIGN,
       data: {
         action: 'send',
@@ -349,7 +349,7 @@ export const sendBulkSms = async (data: ISmsParams) => {
     }
 
     try {
-      await putActivityLog({
+      await messageBroker().sendMessage('putActivityLog', {
         action: ACTIVITY_LOG_ACTIONS.SEND_SMS_CAMPAIGN,
         data: {
           action: 'send',
