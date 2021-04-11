@@ -5,25 +5,19 @@ import {
   IConformityEdit
 } from '../../../db/models/definitions/conformities';
 import { graphqlPubsub } from '../../../pubsub';
-import { itemResolver } from './boardUtils';
 
-const publishHelper = async (
-  type: string,
-  itemId: string,
-  proccessId?: string
-) => {
+const publishHelper = async (type: string, itemId: string) => {
   const item = await getItem(type, itemId);
   const stage = await Stages.getStage(item.stageId);
 
   graphqlPubsub.publish('pipelinesChanged', {
     pipelinesChanged: {
       _id: stage.pipelineId,
-      proccessId: proccessId || Math.random().toString(),
+      proccessId: Math.random().toString(),
       action: 'itemOfConformitiesUpdate',
       data: {
         item: {
-          ...item._doc,
-          ...(await itemResolver(type, item))
+          ...item._doc
         }
       }
     }
@@ -52,7 +46,7 @@ const conformityMutations = {
       targetTypes.includes(doc.mainType) &&
       targetRelTypes.includes(doc.relType)
     ) {
-      await publishHelper(doc.mainType, doc.mainTypeId, doc.proccessId);
+      await publishHelper(doc.mainType, doc.mainTypeId);
     }
 
     if (
@@ -60,7 +54,7 @@ const conformityMutations = {
       targetRelTypes.includes(doc.mainType)
     ) {
       for (const typeId of addedTypeIds.concat(removedTypeIds)) {
-        await publishHelper(doc.relType, typeId, doc.proccessId);
+        await publishHelper(doc.relType, typeId);
       }
     }
   }

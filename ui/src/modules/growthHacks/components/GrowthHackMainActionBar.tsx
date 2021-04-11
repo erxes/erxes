@@ -37,7 +37,8 @@ const FILTER_PARAMS = [
   'closeDateType',
   'hackStage',
   'priority',
-  'userIds'
+  'userIds',
+  'assignedToMe'
 ];
 
 const GrowthHackMainActionBar = (props: IProps) => {

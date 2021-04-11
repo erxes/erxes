@@ -186,9 +186,21 @@ class PipelineProviderInner extends React.Component<Props, State> {
 
           if (action === 'itemOfConformitiesUpdate') {
             setTimeout(() => {
-              this.setState({
-                itemMap: updateItemInfo(this.state, item)
-              });
+              client
+                .query({
+                  query: gql(this.props.options.queries.detailQuery),
+                  fetchPolicy: 'network-only',
+                  variables: {
+                    _id: item._id
+                  }
+                })
+                .then(({ data }) => {
+                  const refetchedItem =
+                    data[this.props.options.queriesName.detailQuery];
+                  this.setState({
+                    itemMap: updateItemInfo(this.state, refetchedItem)
+                  });
+                });
             }, 5000);
           }
 
@@ -329,7 +341,8 @@ class PipelineProviderInner extends React.Component<Props, State> {
       userIds: queryParams.userIds,
       segment: queryParams.segment,
       startDate: queryParams.startDate,
-      endDate: queryParams.endDate
+      endDate: queryParams.endDate,
+      assignedToMe: queryParams.assignedToMe
     };
   };
 
