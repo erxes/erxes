@@ -250,6 +250,20 @@ func main() {
     	"customFieldsData" : %s
 	}`, nested_type))
 
+	putTemplate("conformities", fmt.Sprintf(`{
+		"mainType": {
+			"type": "keyword"
+		},
+		"mainTypeId": {
+			"type": "keyword"
+		},
+		"relType": {
+			"type": "keyword"
+		},
+		"relTypeId": {
+			"type": "keyword"
+		}
+	}`))
 
 
 	f, _ := os.Create("mongo-elastic.toml")
