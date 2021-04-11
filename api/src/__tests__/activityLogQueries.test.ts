@@ -54,7 +54,7 @@ describe('activityLogQueries', () => {
         content
         createdAt
         createdBy
-    
+
         createdByDetail
         contentDetail
         contentTypeDetail
@@ -175,6 +175,8 @@ describe('activityLogQueries', () => {
         activityType: t.type
       };
 
+      const processState = process.env.ELK_SYNCER;
+      process.env.ELK_SYNCER = 'false';
       const response = await graphqlRequest(
         qryActivityLogs,
         'activityLogs',
@@ -182,6 +184,7 @@ describe('activityLogQueries', () => {
         { dataSources }
       );
       expect(response.length).toBe(1);
+      process.env.ELK_SYNCER = processState;
     }
 
     spy.mockRestore();

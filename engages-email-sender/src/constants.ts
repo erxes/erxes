@@ -69,3 +69,15 @@ export const SES_DELIVERY_STATUSES = {
     'send'
   ]
 };
+
+// used for activity logging
+export const ACTIVITY_LOG_ACTIONS = {
+  SEND_EMAIL_CAMPAIGN: 'sendEmailCampaign',
+  SEND_SMS_CAMPAIGN: 'sendSmsCampaign'
+};
+
+export const ACTIVITY_CONTENT_TYPES = {
+  SMS: 'engage-sms',
+  EMAIL: 'engage-email',
+  ALL: ['engage-sms', 'engage-email']
+};

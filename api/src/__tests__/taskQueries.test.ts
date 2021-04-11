@@ -102,6 +102,7 @@ describe('taskQueries', () => {
       relTypeId: _id
     });
 
+    process.env.ELK_SYNCER = 'false';
     const response = await graphqlRequest(qryTaskFilter, 'tasks', {
       customerIds: [_id]
     });
