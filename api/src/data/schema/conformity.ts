@@ -16,8 +16,7 @@ const commonParams = `
   mainType: String
   mainTypeId: String
   relType: String
-  relTypeId: String,
-  proccessId: String
+  relTypeId: String
 `;
 
 const commonParamsCreate = `
