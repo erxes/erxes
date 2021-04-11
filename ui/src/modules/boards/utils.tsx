@@ -51,6 +51,16 @@ type ReorderItemMap = {
   destination: IDraggableLocation;
 };
 
+export const updateItemInfo = (state, item) => {
+  const { itemMap } = state;
+  const items = [...itemMap[item.stageId]];
+  const index = items.findIndex(d => d._id === item._id);
+
+  items[index] = item;
+
+  return { ...itemMap, [item.stageId]: items };
+};
+
 export const reorderItemMap = ({
   itemMap,
   source,
