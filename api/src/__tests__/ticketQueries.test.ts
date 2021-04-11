@@ -87,6 +87,7 @@ describe('ticketQueries', () => {
   });
 
   test('Ticket filter by customers', async () => {
+    process.env.ELK_SYNCER = 'false';
     const { _id } = await customerFactory();
 
     const ticket = await ticketFactory({});
