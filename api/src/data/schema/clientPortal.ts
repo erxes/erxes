@@ -117,6 +117,7 @@ const commentParams = `
   userId: String
   customerId: String
   parentId: String
+  email: String
 `;
 
 export const mutations = `
