@@ -46,7 +46,7 @@ import {
   sendNotifications
 } from '../boardUtils';
 
-const itemResolver = async (type: string, item: IItemCommonFields) => {
+export const itemResolver = async (type: string, item: IItemCommonFields) => {
   let resolverType = '';
 
   switch (type) {

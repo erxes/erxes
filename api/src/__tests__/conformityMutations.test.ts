@@ -4,7 +4,8 @@ import {
   conformityFactory,
   customerFactory,
   dealFactory,
-  taskFactory
+  taskFactory,
+  ticketFactory
 } from '../db/factories';
 import { Companies, Conformities, Customers, Deals } from '../db/models';
 
@@ -29,6 +30,7 @@ describe('mutations', () => {
   });
 
   test('Edit conformity mutations', async () => {
+    process.env.ELK_SYNCER = 'false';
     conformityFactory({
       mainType: 'company',
       mainTypeId: _company._id,
@@ -180,9 +182,18 @@ describe('mutations', () => {
     });
 
     expect(relTypeIds.length).toEqual(2);
+
+    args = {
+      mainType: 'ticket',
+      mainTypeId: (await ticketFactory())._id,
+      relType: 'company',
+      relTypeIds: [(await companyFactory())._id]
+    };
+    await graphqlRequest(mutation, 'conformityEdit', args);
   });
 
   test('Add conformity mutations', async () => {
+    process.env.ELK_SYNCER = 'false';
     const company = await companyFactory({});
     const customer = await customerFactory({});
 

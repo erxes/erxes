@@ -20,26 +20,13 @@ class SidebarConformity extends React.Component<Props> {
   }
 
   render() {
-    const { item, saveItem, options, renderItems } = this.props;
-
-    const cmpsChange = cmps => saveItem({ companies: cmps });
-    const cmrsChange = cmrs => saveItem({ customers: cmrs });
+    const { item, options, renderItems } = this.props;
 
     return (
       <RightContent>
-        <CompanySection
-          mainType={options.type}
-          mainTypeId={item._id}
-          companies={item.companies}
-          onSelect={cmpsChange}
-        />
+        <CompanySection mainType={options.type} mainTypeId={item._id} />
 
-        <CustomerSection
-          mainType={options.type}
-          mainTypeId={item._id}
-          customers={item.customers}
-          onSelect={cmrsChange}
-        />
+        <CustomerSection mainType={options.type} mainTypeId={item._id} />
 
         {renderItems()}
       </RightContent>
