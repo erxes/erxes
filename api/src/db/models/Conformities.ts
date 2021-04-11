@@ -162,47 +162,47 @@ export const loadConformityClass = () => {
     }
 
     public static async filterConformity(doc: IConformityFilter) {
-      if (!isUsingElk()) {
+      if (isUsingElk()) {
         return conformityHelper({
           doc,
           getConformities: async data => {
-            return Conformities.aggregate([
-              {
-                ...getMatchConformities({
-                  mainType: data.mainType,
-                  relTypes: [data.relType],
-                  mainTypeIds: data.mainTypeIds
-                })
-              }
-            ]);
+            return findElk({
+              ...getQueryConformities({
+                mainType: data.mainType,
+                relTypes: [data.relType],
+                mainTypeIds: data.mainTypeIds
+              })
+            });
           }
         });
       }
 
-      conformityHelper({
+      return conformityHelper({
         doc,
         getConformities: async data => {
-          return findElk({
-            ...getQueryConformities({
-              mainType: data.mainType,
-              relTypes: [data.relType],
-              mainTypeIds: data.mainTypeIds
-            })
-          });
+          return Conformities.aggregate([
+            {
+              ...getMatchConformities({
+                mainType: data.mainType,
+                relTypes: [data.relType],
+                mainTypeIds: data.mainTypeIds
+              })
+            }
+          ]);
         }
       });
     }
 
     public static async getConformities(doc: IGetConformityBulk) {
-      if (!isUsingElk()) {
-        return Conformities.aggregate([
-          {
-            ...getMatchConformities({ ...doc })
-          }
-        ]);
+      if (isUsingElk()) {
+        return findElk({ ...getQueryConformities({ ...doc }) });
       }
 
-      return findElk({ ...getQueryConformities({ ...doc }) });
+      return Conformities.aggregate([
+        {
+          ...getMatchConformities({ ...doc })
+        }
+      ]);
     }
 
     public static async relatedConformity(doc: IConformityRelated) {
