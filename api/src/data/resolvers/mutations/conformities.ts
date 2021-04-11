@@ -35,7 +35,7 @@ const conformityMutations = {
   /**
    * Edit conformity
    */
-  async conformityEdit(_root, doc: IConformityEdit & { proccessId?: string }) {
+  async conformityEdit(_root, doc: IConformityEdit) {
     const { addedTypeIds, removedTypeIds } = await Conformities.editConformity({
       ...doc
     });
