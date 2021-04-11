@@ -24,8 +24,7 @@ const commonParamsCreate = `
   mainType: String
   mainTypeId: String
   relType: String
-  relTypeIds: [String],
-  proccessId: String
+  relTypeIds: [String]
 `;
 
 export const mutations = `
