@@ -329,7 +329,8 @@ class PipelineProviderInner extends React.Component<Props, State> {
       userIds: queryParams.userIds,
       segment: queryParams.segment,
       startDate: queryParams.startDate,
-      endDate: queryParams.endDate
+      endDate: queryParams.endDate,
+      assignedToMe: queryParams.assignedToMe
     };
   };
 
