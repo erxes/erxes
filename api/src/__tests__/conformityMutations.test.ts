@@ -31,7 +31,7 @@ describe('mutations', () => {
 
   test('Edit conformity mutations', async () => {
     process.env.ELK_SYNCER = 'false';
-    conformityFactory({
+    await conformityFactory({
       mainType: 'company',
       mainTypeId: _company._id,
       relType: 'customer',
