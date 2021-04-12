@@ -2,7 +2,7 @@
  <img src="docs/static/img/logo_dark.svg" alt="erxes logo" width="20%" />
 </p>
 
-<p align="center">erxes is an open fair-code licensed all-in-one growth marketing & management software. We offer an all-in-one solution for sales, marketing, and customer service teams, with a focus on the entire customer experience.</p
+<p align="center">erxes is an open fair-code licensed all-in-one growth marketing & management software. We offer an all-in-one solution for sales, marketing, and customer service teams, with a focus on the entire customer experience.</p>
 
 <p align="center">
   <a href="https://app.codacy.com/gh/erxes/erxes?utm_source=github.com&utm_medium=referral&utm_content=erxes">

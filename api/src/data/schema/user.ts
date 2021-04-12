@@ -18,6 +18,7 @@ export const types = `
     email: String
     password: String
     groupId: String
+    channelIds: [String]
   }
 
   type UserDetailsType {

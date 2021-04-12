@@ -9,7 +9,7 @@ const client = new elasticsearch.Client({
   hosts: [CUBEJS_DB_URL]
 });
 
-const generateReport = async (req, res) => {
+const generateReport = async (req, res, isExport) => {
   const { query } = req;
 
   const { dashboardToken } = query;
@@ -59,9 +59,9 @@ const generateReport = async (req, res) => {
                   return customFieldData.field === customFieldId;
                 });
 
-                data[dimension] = customField.value || ' ';
+                data[dimension] = customField.value || '';
               } catch (e) {
-                data[dimension] = ' ';
+                data[dimension] = '';
               }
             })
           );
@@ -103,6 +103,10 @@ const generateReport = async (req, res) => {
     tablePivot: resultSet.tablePivot(),
     totalRow: resultSet.totalRow()
   };
+
+  if (isExport) {
+    return result;
+  }
 
   res.send(result);
 };

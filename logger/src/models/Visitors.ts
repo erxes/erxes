@@ -139,8 +139,9 @@ export const loadVisitorClass = () => {
       const visitor = await Visitors.findOne({ visitorId });
 
       if (!visitor) {
-        throw new Error('Visitor not found');
+        throw new Error(`Visitor not found with id: ${visitorId}`);
       }
+
       return visitor;
     }
 
