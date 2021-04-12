@@ -342,6 +342,10 @@ func main() {
 				if (doc.customerIds) {
 					delete doc.customerIds
 				}
+
+				if (doc.deliveryReports) {
+					delete doc.deliveryReports
+				}
 			}
 
 			doc._meta_monstache = {
