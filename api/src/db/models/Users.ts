@@ -247,15 +247,7 @@ export const loadClass = () => {
     /**
      * Create new user with invitation token
      */
-    public static async invite({
-      email,
-      password,
-      groupId
-    }: {
-      email: string;
-      password: string;
-      groupId: string;
-    }) {
+    public static async invite({ email, password, groupId }: IInviteParams) {
       email = (email || '').toLowerCase().trim();
       password = (password || '').trim();
 
