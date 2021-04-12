@@ -5,12 +5,14 @@ const commonParams = `
   $search: String,
   $labelIds: [String],
   $userIds: [String],
+  $assignedToMe: String
 `;
 
 const commonParamDefs = `
   pipelineId: $pipelineId,
   assignedUserIds: $assignedUserIds,
   closeDateType: $closeDateType,
+  assignedToMe: $assignedToMe,
   search: $search,
   labelIds: $labelIds,
   userIds: $userIds,
@@ -149,12 +151,14 @@ const growthHacksPriorityMatrix = `
     $pipelineId: String,
     $search: String,
     $assignedUserIds: [String],
+    $assignedToMe: String,
     $closeDateType: String) {
     growthHacksPriorityMatrix(
       pipelineId: $pipelineId,
       search: $search,
       assignedUserIds: $assignedUserIds,
       closeDateType: $closeDateType
+      assignedToMe: $assignedToMe
     )
   }
 `;

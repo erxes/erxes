@@ -1,6 +1,8 @@
 import * as dotenv from 'dotenv';
 import * as Random from 'meteor-random';
+import { ACTIVITY_CONTENT_TYPES, ACTIVITY_LOG_ACTIONS } from './constants';
 import { debugEngages, debugError } from './debuggers';
+import messageBroker from './messageBroker';
 import { Logs, SmsRequests, Stats } from './models';
 import { getTelnyxInfo } from './telnyxUtils';
 import {
@@ -45,6 +47,22 @@ interface ITelnyxMessageParams {
 interface ICallbackParams {
   engageMessageId?: string;
   msg: ITelnyxMessageParams;
+}
+
+interface ISenderParams {
+  engageMessageId: string;
+  customers: ICustomer[];
+  createdBy: string;
+  title: string;
+}
+
+interface IEmailParams extends ISenderParams {
+  fromEmail: string;
+  email: any;
+}
+
+interface ISmsParams extends ISenderParams {
+  shortMessage: IShortMessage;
 }
 
 // alphanumeric sender id only works for countries outside north america
@@ -136,13 +154,15 @@ const handleMessageCallback = async (
   }
 };
 
-export const start = async (data: {
-  fromEmail: string;
-  email: any;
-  engageMessageId: string;
-  customers: ICustomer[];
-}) => {
-  const { fromEmail, email, engageMessageId, customers } = data;
+export const start = async (data: IEmailParams) => {
+  const {
+    fromEmail,
+    email,
+    engageMessageId,
+    customers,
+    createdBy,
+    title
+  } = data;
   const { content, subject, attachments, sender, replyTo } = email;
   const configs = await getConfigs();
 
@@ -231,7 +251,7 @@ export const start = async (data: {
     await Logs.createLog(
       engageMessageId,
       'regular',
-      `Unverified emails limit exceeced ${unverifiedEmailsLimit}. Customers who have unverified emails will be eliminated.`
+      `Unverified emails limit exceeded ${unverifiedEmailsLimit}. Customers who have unverified emails will be eliminated.`
     );
 
     for (const customer of customers) {
@@ -266,18 +286,37 @@ export const start = async (data: {
     });
 
     await sendEmail(customer);
+
+    try {
+      await messageBroker().sendMessage('putActivityLog', {
+        action: ACTIVITY_LOG_ACTIONS.SEND_EMAIL_CAMPAIGN,
+        data: {
+          action: 'send',
+          contentType: ACTIVITY_CONTENT_TYPES.EMAIL,
+          contentId: customer._id,
+          content: {
+            campaignId: engageMessageId,
+            title,
+            to: customer.primaryEmail
+          },
+          createdBy
+        }
+      });
+    } catch (e) {
+      await Logs.createLog(
+        engageMessageId,
+        'regular',
+        `Error occured while creating activity log "${customer.primaryEmail}"`
+      );
+    }
   }
 
   return true;
 };
 
 // sends bulk sms via engage message
-export const sendBulkSms = async (data: {
-  engageMessageId: string;
-  shortMessage: IShortMessage;
-  customers: ICustomer[];
-}) => {
-  const { customers, engageMessageId, shortMessage } = data;
+export const sendBulkSms = async (data: ISmsParams) => {
+  const { customers, engageMessageId, shortMessage, createdBy, title } = data;
 
   const telnyxInfo = await getTelnyxInfo();
 
@@ -314,6 +353,29 @@ export const sendBulkSms = async (data: {
         engageMessageId,
         'failure',
         `${e.message} while sending to "${msg.to}"`
+      );
+    }
+
+    try {
+      await messageBroker().sendMessage('putActivityLog', {
+        action: ACTIVITY_LOG_ACTIONS.SEND_SMS_CAMPAIGN,
+        data: {
+          action: 'send',
+          contentType: ACTIVITY_CONTENT_TYPES.SMS,
+          contentId: customer._id,
+          content: {
+            campaignId: engageMessageId,
+            title,
+            to: customer.primaryPhone
+          },
+          createdBy
+        }
+      });
+    } catch (e) {
+      await Logs.createLog(
+        engageMessageId,
+        'regular',
+        `Error occured while creating activity log "${customer.primaryPhone}"`
       );
     }
   } // end customers loop

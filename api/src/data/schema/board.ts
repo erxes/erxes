@@ -82,7 +82,8 @@ const stageParams = `
   assignedUserIds: [String]
   labelIds: [String]
   extraParams: JSON,
-  closeDateType: String
+  closeDateType: String,
+  assignedToMe: String,
 `;
 
 export const queries = `
