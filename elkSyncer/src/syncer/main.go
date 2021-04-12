@@ -338,6 +338,16 @@ func main() {
 				}	
 			}
 
+			if (ns.indexOf("engage_messages") > -1) {
+				if (doc.customerIds) {
+					delete doc.customerIds
+				}
+
+				if (doc.deliveryReports) {
+					delete doc.deliveryReports
+				}
+			}
+
 			doc._meta_monstache = {
 				id: doc._id.toString(),
 				index: index
