@@ -6,18 +6,21 @@ import ControlLabel from 'modules/common/components/form/Label';
 import Icon from 'modules/common/components/Icon';
 import Info from 'modules/common/components/Info';
 import { ModalFooter } from 'modules/common/styles/main';
-import { IButtonMutateProps, IFormProps } from 'modules/common/types';
+import { IButtonMutateProps, IFormProps, IOption } from 'modules/common/types';
 import { __, Alert } from 'modules/common/utils';
+import { IChannel } from 'modules/settings/channels/types';
 import { ICommonFormProps } from 'modules/settings/common/types';
 import { IUserGroup } from 'modules/settings/permissions/types';
 import React from 'react';
+import Select from 'react-select-plus';
 import { Description } from '../../styles';
-import { InviteOption, LinkButton, RemoveRow } from '../styles';
+import { FormTable, InviteOption, LinkButton, RemoveRow } from '../styles';
 import { IInvitationEntry } from '../types';
 
 type Props = {
   renderButton: (props: IButtonMutateProps) => JSX.Element;
   usersGroups: IUserGroup[];
+  channels: IChannel[];
   refetchQueries: any;
 } & ICommonFormProps;
 
@@ -33,9 +36,9 @@ class UserInvitationForm extends React.Component<Props, State> {
 
     this.state = {
       entries: [
-        { email: '', password: '', groupId: '' },
-        { email: '', password: '', groupId: '' },
-        { email: '', password: '', groupId: '' }
+        { email: '', password: '', groupId: '', channelIds: [] },
+        { email: '', password: '', groupId: '', channelIds: [] },
+        { email: '', password: '', groupId: '', channelIds: [] }
       ],
       addMany: false,
       isSubmitted: false
@@ -58,10 +61,22 @@ class UserInvitationForm extends React.Component<Props, State> {
 
   onChange = (
     i: number,
-    type: 'email' | 'password' | 'groupId',
-    e: React.FormEvent
+    type: 'email' | 'password' | 'groupId' | 'channelIds',
+    e
   ) => {
-    const { value } = e.target as HTMLInputElement;
+    const elm = e.target as HTMLInputElement;
+
+    let value: string | string[] = elm && elm.value;
+
+    if (type === 'channelIds') {
+      const selectedValues: string[] = [];
+
+      for (const option of e) {
+        selectedValues.push(option.value);
+      }
+
+      value = selectedValues;
+    }
 
     const entries = [...this.state.entries];
 
@@ -72,7 +87,10 @@ class UserInvitationForm extends React.Component<Props, State> {
 
   onAddMoreInput = () => {
     this.setState({
-      entries: [...this.state.entries, { email: '', password: '', groupId: '' }]
+      entries: [
+        ...this.state.entries,
+        { email: '', password: '', groupId: '', channelIds: [] }
+      ]
     });
   };
 
@@ -94,7 +112,12 @@ class UserInvitationForm extends React.Component<Props, State> {
     const emails = values.split(',');
 
     emails.map(e =>
-      entries.splice(0, 0, { email: e, password: '', groupId: '' })
+      entries.splice(0, 0, {
+        email: e,
+        password: '',
+        groupId: '',
+        channelIds: []
+      })
     );
 
     this.setState({ addMany: false });
@@ -162,6 +185,17 @@ class UserInvitationForm extends React.Component<Props, State> {
     );
   }
 
+  generateChannelOptions(array: IChannel[] = []): IOption[] {
+    return array.map(item => {
+      const channel = item || ({} as IChannel);
+
+      return {
+        value: channel._id,
+        label: channel.name
+      };
+    });
+  }
+
   generateGroupsChoices = () => {
     return this.props.usersGroups.map(group => ({
       value: group._id,
@@ -180,7 +214,7 @@ class UserInvitationForm extends React.Component<Props, State> {
 
     return (
       <>
-        <table style={{ width: '100%' }}>
+        <FormTable>
           <thead>
             <tr>
               <th>
@@ -191,6 +225,9 @@ class UserInvitationForm extends React.Component<Props, State> {
               </th>
               <th>
                 <ControlLabel required={true}>Permission</ControlLabel>
+              </th>
+              <th>
+                <ControlLabel>Channels</ControlLabel>
               </th>
               <th />
             </tr>
@@ -240,11 +277,21 @@ class UserInvitationForm extends React.Component<Props, State> {
                   />
                 </td>
 
+                <td className="">
+                  <Select
+                    value={entries[i].channelIds}
+                    options={this.generateChannelOptions(this.props.channels)}
+                    onChange={this.onChange.bind(this, i, 'channelIds')}
+                    placeholder={__('Choose channels ...')}
+                    multi={true}
+                  />
+                </td>
+
                 <td>{this.renderRemoveInput(i)}</td>
               </tr>
             ))}
           </tbody>
-        </table>
+        </FormTable>
 
         <InviteOption>
           <LinkButton onClick={this.onAddMoreInput}>
