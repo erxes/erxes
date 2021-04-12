@@ -76,6 +76,7 @@ type State = {
   thankTitle?: string;
   thankContent?: string;
   redirectUrl?: string;
+  templateId?: string;
   carousel: string;
 
   currentMode: 'create' | 'update' | undefined;
@@ -179,6 +180,7 @@ class Lead extends React.Component<Props, State> {
         thankContent: this.state.thankContent,
         redirectUrl: this.state.redirectUrl,
         themeColor: this.state.theme || this.state.color,
+        templateId: this.state.templateId,
         callout: {
           title: calloutTitle,
           body: this.state.bodyValue,

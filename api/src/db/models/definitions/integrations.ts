@@ -94,6 +94,7 @@ export interface ILeadData {
   viewCount?: number;
   contactsGathered?: number;
   isRequireOnce?: boolean;
+  templateId?: string;
 }
 
 export interface IWebhookData {
@@ -301,6 +302,11 @@ export const leadDataSchema = new Schema(
       type: Boolean,
       optional: true,
       label: 'Do now show again if already filled out'
+    }),
+    templateId: field({
+      type: String,
+      optional: true,
+      label: 'Template'
     })
   },
   { _id: false }

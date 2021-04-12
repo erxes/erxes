@@ -37,6 +37,7 @@ export interface ILeadData {
   getTags?: ITag[];
   form?: IForm;
   isRequireOnce?: boolean;
+  templateId?: string;
 }
 
 export interface IWebhookData {
