@@ -136,5 +136,3 @@ export const userSchema = schemaHooksWrapper(
   }),
   'erxes_users'
 );
-
-// schemaHooks(userSchema, 'erxes_users');
