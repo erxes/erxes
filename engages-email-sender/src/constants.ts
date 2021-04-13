@@ -77,7 +77,7 @@ export const ACTIVITY_LOG_ACTIONS = {
 };
 
 export const ACTIVITY_CONTENT_TYPES = {
-  SMS: 'engage-sms',
-  EMAIL: 'engage-email',
-  ALL: ['engage-sms', 'engage-email']
+  SMS: 'campaign-sms',
+  EMAIL: 'campaign-email',
+  ALL: ['campaign-sms', 'campaign-email']
 };

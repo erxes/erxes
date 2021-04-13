@@ -2,7 +2,6 @@ import {
   Conformities,
   Conversations,
   EmailDeliveries,
-  EngageMessages,
   InternalNotes,
   Tasks
 } from '../../../db/models';
@@ -96,6 +95,7 @@ const activityLogQueries = {
       }
     };
 
+    // this also fetches campaign & sms logs, don't fetch them in default switch case
     const collectActivityLogs = async () => {
       collectItems(
         await fetchLogs(
@@ -116,17 +116,15 @@ const activityLogQueries = {
       );
     };
 
-    const collectEngageMessages = async () => {
+    const collectCampaigns = async () => {
       collectItems(
-        await EngageMessages.find({
-          customerIds: { $in: [contentId] },
-          method: 'email'
-        }),
-        'engage-email'
-      );
-      collectItems(
-        await EmailDeliveries.find({ customerId: contentId }),
-        'email'
+        await fetchLogs(
+          {
+            contentId,
+            contentType: ACTIVITY_CONTENT_TYPES.CAMPAIGN
+          },
+          'activityLogs'
+        )
       );
     };
 
@@ -169,33 +167,44 @@ const activityLogQueries = {
       }
     };
 
+    const collectEmailDeliveries = async () => {
+      await collectItems(
+        await EmailDeliveries.find({ customerId: contentId }),
+        'email'
+      );
+    };
+
     switch (activityType) {
-      case 'conversation':
+      case ACTIVITY_CONTENT_TYPES.CONVERSATION:
         await collectConversations();
         break;
 
-      case 'internal_note':
+      case ACTIVITY_CONTENT_TYPES.INTERNAL_NOTE:
         await collectInternalNotes();
         break;
 
-      case 'task':
+      case ACTIVITY_CONTENT_TYPES.TASK:
         await collectTasks();
         break;
 
-      case 'email':
-        await collectEngageMessages();
+      case ACTIVITY_CONTENT_TYPES.EMAIL:
+        await collectEmailDeliveries();
         break;
 
       case ACTIVITY_CONTENT_TYPES.SMS:
         await collectSms();
         break;
 
+      case ACTIVITY_CONTENT_TYPES.CAMPAIGN:
+        await collectCampaigns();
+        break;
+
       default:
         await collectConversations();
         await collectActivityLogs();
         await collectInternalNotes();
-        await collectEngageMessages();
         await collectTasks();
+        await collectEmailDeliveries();
 
         break;
     }
