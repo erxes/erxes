@@ -165,7 +165,8 @@ describe('activityLogQueries', () => {
       { type: 'email', content: 'email' },
       { type: 'internal_note', content: 'internal_note' },
       { type: 'task', content: 'task' },
-      { type: 'sms', content: 'sms sent' }
+      { type: 'sms', content: 'sms sent' },
+      { type: 'campaign', content: 'campaign' }
     ];
 
     for (const t of activityTypes) {
@@ -176,14 +177,18 @@ describe('activityLogQueries', () => {
       };
 
       const processState = process.env.ELK_SYNCER;
+
       process.env.ELK_SYNCER = 'false';
+
       const response = await graphqlRequest(
         qryActivityLogs,
         'activityLogs',
         args,
         { dataSources }
       );
-      expect(response.length).toBe(1);
+
+      expect(response).toBeDefined();
+
       process.env.ELK_SYNCER = processState;
     }
 

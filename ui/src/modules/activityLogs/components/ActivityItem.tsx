@@ -49,11 +49,6 @@ const activityItem = (activity: IActivityLog) => {
       );
     case 'taskDetail':
       return renderDetail('task', <Task taskId={_id} />);
-    case 'engage-email':
-      return renderDetail(
-        'email',
-        <Email emailType="engage" emailId={_id} activity={activity} />
-      );
     case 'email':
       return renderDetail(
         'email',
@@ -96,7 +91,7 @@ const activityItem = (activity: IActivityLog) => {
     case 'archive':
       return renderDetail('archive', <ArchiveLog activity={activity} />);
     case 'send':
-      if (contentType === 'engage-email' || contentType === 'engage-sms') {
+      if (contentType === 'campaign') {
         return renderDetail(
           activity.contentType,
           <CampaignLog activity={activity} />
