@@ -40,10 +40,7 @@ export class Builder extends CommonBuilder<IListArgs> {
 
   // filter by brand
   public async brandFilter(brandId: string): Promise<void> {
-    const integrations = await Integrations.findIntegrations(
-      { brandId },
-      { _id: 1 }
-    );
+    const integrations = await Integrations.findIntegrations({ brandId });
     const integrationIds = integrations.map(i => i._id);
 
     const customers = await Customers.find(

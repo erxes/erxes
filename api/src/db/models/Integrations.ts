@@ -8,6 +8,7 @@ import {
   Customers,
   Forms
 } from '.';
+import { getDocumentList } from '../../data/resolvers/mutations/cacheUtils';
 import { KIND_CHOICES } from './definitions/constants';
 import {
   IIntegration,
@@ -82,7 +83,7 @@ export const isTimeInBetween = (
 
 export interface IIntegrationModel extends Model<IIntegrationDocument> {
   getIntegration(doc: { [key: string]: any }): IIntegrationDocument;
-  findIntegrations(query: any, options?: any): Query<IIntegrationDocument[]>;
+  findIntegrations(query: any): Query<IIntegrationDocument[]>;
   findAllIntegrations(query: any, options?: any): Query<IIntegrationDocument[]>;
   createIntegration(
     doc: IIntegration,
@@ -156,8 +157,11 @@ export const loadClass = () => {
     /**
      * Find integrations
      */
-    public static findIntegrations(query, options) {
-      return Integrations.find({ ...query, isActive: { $ne: false } }, options);
+    public static findIntegrations(query) {
+      return getDocumentList('integrations', {
+        ...query,
+        isActive: { $ne: false }
+      });
     }
 
     public static findAllIntegrations(query: any, options: any) {

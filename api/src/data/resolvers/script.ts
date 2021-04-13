@@ -1,6 +1,6 @@
-import { KnowledgeBaseTopics } from '../../db/models';
+import { Integrations, KnowledgeBaseTopics } from '../../db/models';
 import { IScriptDocument } from '../../db/models/definitions/scripts';
-import { getDocument, getDocumentList } from './mutations/cacheUtils';
+import { getDocument } from './mutations/cacheUtils';
 
 export default {
   messenger(script: IScriptDocument) {
@@ -12,7 +12,7 @@ export default {
   },
 
   leads(script: IScriptDocument) {
-    return getDocumentList('integrations', {
+    return Integrations.findIntegrations({
       _id: { $in: script.leadIds || [] },
       isActive: { $ne: false }
     });

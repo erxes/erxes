@@ -40,13 +40,13 @@ export const loadClass = () => {
     public static async generateCode(code?: string) {
       let generatedCode = code || Random.id().substr(0, 6);
 
-      let prevBrand = await getDocument('brands', { code: generatedCode });
+      let prevBrand = await Brands.findOne({ code: generatedCode });
 
       // search until not existing one found
       while (prevBrand) {
         generatedCode = Random.id().substr(0, 6);
 
-        prevBrand = await getDocument('brands', { code: generatedCode });
+        prevBrand = await Brands.findOne({ code: generatedCode });
       }
 
       return generatedCode;
@@ -72,13 +72,13 @@ export const loadClass = () => {
     }
 
     public static async removeBrand(_id) {
-      const brandObj = await getDocument('brands', { _id });
+      const brandObj = await Brands.findOne({ _id });
 
       if (!brandObj) {
         throw new Error(`Brand not found with id ${_id}`);
       }
 
-      return Brands.deleteOne({ _id });
+      return brandObj.remove();
     }
 
     public static async manageIntegrations({

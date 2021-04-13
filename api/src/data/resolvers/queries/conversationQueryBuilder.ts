@@ -83,10 +83,7 @@ export default class Builder {
   }
 
   public async defaultFilters(): Promise<any> {
-    const activeIntegrations = await Integrations.findIntegrations(
-      {},
-      { _id: 1 }
-    );
+    const activeIntegrations = await Integrations.findIntegrations({});
     this.activeIntegrationIds = activeIntegrations.map(integ => integ._id);
 
     let statusFilter = this.statusFilter([
