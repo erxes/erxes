@@ -1,10 +1,4 @@
-import {
-  Companies,
-  Conformities,
-  Conversations,
-  Tags,
-  Users
-} from '../../db/models';
+import { Companies, Conformities, Conversations, Tags } from '../../db/models';
 import { ICustomerDocument } from '../../db/models/definitions/customers';
 import { fetchElk } from '../../elasticsearch';
 import { getDocument } from './mutations/cacheUtils';
@@ -70,6 +64,6 @@ export default {
   },
 
   owner(customer: ICustomerDocument) {
-    return Users.findOne({ _id: customer.ownerId });
+    return getDocument('users', { _id: customer.ownerId });
   }
 };

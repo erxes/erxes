@@ -1,6 +1,6 @@
 import { Channels } from '../../../db/models';
 import { checkPermission, requireLogin } from '../../permissions/wrappers';
-import { getDocumentList } from '../mutations/cacheUtils';
+import { getDocument, getDocumentList } from '../mutations/cacheUtils';
 
 interface IIn {
   $in: string[];
@@ -35,8 +35,13 @@ const channelQueries = {
   /**
    * Get one channel
    */
-  channelDetail(_root, { _id }: { _id: string }) {
-    return Channels.getChannel(_id);
+  async channelDetail(_root, { _id }: { _id: string }) {
+    // return Channels.getChannel(_id);
+    const c = await getDocument('channels', { _id });
+
+    console.log('c: ', c);
+
+    return c;
   },
 
   /**

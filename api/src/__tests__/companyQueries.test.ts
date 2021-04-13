@@ -7,6 +7,7 @@ import {
   tagsFactory
 } from '../db/factories';
 import { Companies, Segments, Tags } from '../db/models';
+import { set } from '../inmemoryStorage';
 
 import './setup.ts';
 
@@ -110,9 +111,19 @@ describe('companyQueries', () => {
     const brand = await brandFactory({});
     await integrationFactory({ brandId: brand._id });
 
-    await graphqlRequest(qryCount, 'companyCounts', {
+    set('erxes_brands', null);
+
+    const response = await graphqlRequest(qryCount, 'companyCounts', {
       only: 'byBrand'
     });
+
+    expect(Object.keys(response.byBrand)).toHaveLength(1);
+
+    const responseFromCache = await graphqlRequest(qryCount, 'companyCounts', {
+      only: 'byBrand'
+    });
+
+    expect(Object.keys(responseFromCache.byBrand)).toHaveLength(1);
   });
 
   test('Company detail', async () => {

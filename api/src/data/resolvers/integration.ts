@@ -14,7 +14,7 @@ export default {
   },
 
   channels(integration: IIntegrationDocument) {
-    return getDocumentList('integrations', {
+    return getDocumentList('channels', {
       integrationIds: { $in: [integration._id] }
     });
   },

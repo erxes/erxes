@@ -15,6 +15,7 @@ import { Brands, Channels, Integrations, Tags } from '../db/models';
 import { IntegrationsAPI } from '../data/dataSources';
 import { graphqlRequest } from '../db/connection';
 import { TAG_TYPES } from '../db/models/definitions/constants';
+import { get, set } from '../inmemoryStorage';
 
 describe('integrationQueries', () => {
   const qryIntegrations = `
@@ -222,6 +223,14 @@ describe('integrationQueries', () => {
       brandId: 'fakeId'
     });
 
+    const channel = await channelFactory({
+      integrationIds: [messengerIntegration._id]
+    });
+
+    // from db
+    let listCache = await get('erxes_channels');
+    expect(listCache).toBeUndefined();
+
     let response = await graphqlRequest(
       qry,
       'integrationDetail',
@@ -230,12 +239,28 @@ describe('integrationQueries', () => {
       },
       { dataSources }
     );
-
     expect(response._id).toBe(messengerIntegration._id);
     expect(response.tags.length).toBe(1);
     expect(response.websiteMessengerApps.length).toBe(0);
     expect(response.knowledgeBaseMessengerApps.length).toBe(0);
     expect(response.leadMessengerApps.length).toBe(0);
+
+    expect(response.channels[0]._id).toBe(channel._id);
+
+    // from cache
+    listCache = await get('erxes_channels');
+    expect(listCache).toBeDefined();
+
+    const responseFromCache = await graphqlRequest(
+      qry,
+      'integrationDetail',
+      {
+        _id: messengerIntegration._id
+      },
+      { dataSources }
+    );
+
+    expect(responseFromCache.channels[0]._id).toBe(channel._id);
 
     const leadIntegration = await integrationFactory({ kind: 'lead' });
 
@@ -295,6 +320,8 @@ describe('integrationQueries', () => {
 
     const integrationIds = [integration1._id, integration2._id];
 
+    set('erxes_channels', null);
+
     const channel = await channelFactory({ integrationIds });
 
     const response = await graphqlRequest(
@@ -304,6 +331,14 @@ describe('integrationQueries', () => {
     );
 
     expect(response.byChannel[channel._id]).toBe(2);
+
+    const responseFromCache = await graphqlRequest(
+      qryCount,
+      'integrationsTotalCount',
+      {}
+    );
+
+    expect(responseFromCache.byChannel[channel._id]).toBe(2);
   });
 
   test('Get total count of integrations by brand', async () => {

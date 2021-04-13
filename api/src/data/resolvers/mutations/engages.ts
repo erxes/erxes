@@ -1,5 +1,5 @@
 import * as _ from 'underscore';
-import { Customers, EngageMessages, Users } from '../../../db/models';
+import { Customers, EngageMessages } from '../../../db/models';
 import { IEngageMessage } from '../../../db/models/definitions/engages';
 import { MESSAGE_KINDS, MODULE_NAMES } from '../../constants';
 import { putCreateLog, putDeleteLog, putUpdateLog } from '../../logUtils';
@@ -10,6 +10,7 @@ import {
   replaceEditorAttributes,
   sendToWebhook
 } from '../../utils';
+import { getDocument } from './cacheUtils';
 import { checkCampaignDoc, send } from './engageUtils';
 
 interface IEngageMessageEdit extends IEngageMessage {
@@ -235,7 +236,7 @@ const engageMutations = {
     }
 
     const customer = await Customers.findOne({ primaryEmail: to });
-    const targetUser = await Users.findOne({ email: to });
+    const targetUser = await getDocument('users', { email: to });
 
     const { replacedContent } = await replaceEditorAttributes({
       content,

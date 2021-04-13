@@ -32,7 +32,7 @@ export const isMessengerOnline = async (integration: IIntegrationDocument) => {
   } = integration.messengerData;
 
   const modifiedIntegration = {
-    ...integration.toJSON(),
+    ...(integration.toJSON ? integration.toJSON() : integration),
     messengerData: {
       availabilityMethod,
       isOnline,
@@ -119,7 +119,9 @@ export default {
     const { _id, integrationId } = args;
 
     const conversation = await Conversations.findOne({ _id, integrationId });
-    const integration = await Integrations.findOne({ _id: integrationId });
+    const integration = await Integrations.findOne({
+      _id: integrationId
+    });
 
     // When no one writes a message
     if (!conversation && integration) {

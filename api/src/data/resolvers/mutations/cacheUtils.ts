@@ -21,9 +21,11 @@ export const getDocumentList = async (
 ) => {
   const listCache = await get(`erxes_${type}`);
 
-  let list = listCache ? JSON.parse(listCache) : null;
+  let list;
 
-  if (!list) {
+  if (listCache) {
+    list = JSON.parse(listCache);
+  } else {
     switch (type) {
       case 'users': {
         list = await Users.find();

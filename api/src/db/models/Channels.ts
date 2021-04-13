@@ -1,5 +1,4 @@
 import { Model, model } from 'mongoose';
-import { getDocument } from '../../data/resolvers/mutations/cacheUtils';
 import {
   channelSchema,
   IChannel,
@@ -20,7 +19,7 @@ export const loadClass = () => {
      * Get a Channel
      */
     public static async getChannel(_id: string) {
-      const channel = await getDocument('channels', { _id });
+      const channel = await Channels.findOne({ _id });
 
       if (!channel) {
         throw new Error('Channel not found');

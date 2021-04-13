@@ -29,6 +29,7 @@ import {
   userSchema
 } from '../../../db/models/definitions/users';
 import {
+  Brands,
   Companies,
   Conformities,
   Customers,
@@ -36,14 +37,11 @@ import {
   PipelineLabels,
   Stages,
   Tags,
+  Users,
   UsersGroups
 } from '../../../db/models/index';
 
 import { MODULE_NAMES } from '../../constants';
-import {
-  getDocument,
-  getDocumentList
-} from '../../resolvers/mutations/cacheUtils';
 import {
   BOARD_BASIC_INFOS,
   BRAND_BASIC_INFOS,
@@ -186,7 +184,7 @@ export const fillCellValue = async (
 
       break;
     case 'userId':
-      const createdUser: IUserDocument | null = await getDocument('users', {
+      const createdUser: IUserDocument | null = await Users.findOne({
         _id: item.userId
       });
 
@@ -195,7 +193,7 @@ export const fillCellValue = async (
       break;
     // deal, task, ticket fields
     case 'assignedUserIds':
-      const assignedUsers: IUserDocument[] = await getDocumentList('users', {
+      const assignedUsers: IUserDocument[] = await Users.find({
         _id: { $in: item.assignedUserIds }
       });
 
@@ -205,7 +203,7 @@ export const fillCellValue = async (
 
       break;
     case 'watchedUserIds':
-      const watchedUsers: IUserDocument[] = await getDocumentList('users', {
+      const watchedUsers: IUserDocument[] = await Users.find({
         _id: { $in: item.watchedUserIds }
       });
 
@@ -239,7 +237,7 @@ export const fillCellValue = async (
 
       break;
     case 'modifiedBy':
-      const modifiedBy: IUserDocument | null = await getDocument('users', {
+      const modifiedBy: IUserDocument | null = await Users.findOne({
         _id: item.modifiedBy
       });
 
@@ -249,7 +247,7 @@ export const fillCellValue = async (
 
     // user fields
     case 'brandIds':
-      const brands: IBrandDocument[] = await getDocumentList('brands', {
+      const brands: IBrandDocument[] = await Brands.find({
         _id: item.brandIds
       });
 
@@ -267,18 +265,15 @@ export const fillCellValue = async (
 
     // channel fields
     case 'integrationIds':
-      const integrations: IIntegrationDocument[] = await getDocumentList(
-        'integrations',
-        {
-          _id: { $in: item.integrationIds }
-        }
-      );
+      const integrations: IIntegrationDocument[] = await Integrations.find({
+        _id: { $in: item.integrationIds }
+      });
 
       cellValue = integrations.map(i => i.name).join(', ');
 
       break;
     case 'memberIds':
-      const members: IUserDocument[] = await getDocumentList('users', {
+      const members: IUserDocument[] = await Users.find({
         _id: { $in: item.memberIds }
       });
 
@@ -353,7 +348,7 @@ export const fillCellValue = async (
       break;
 
     case 'ownerEmail':
-      const owner: IUserDocument | null = await getDocument('users', {
+      const owner: IUserDocument | null = await Users.findOne({
         _id: item.ownerId
       });
 

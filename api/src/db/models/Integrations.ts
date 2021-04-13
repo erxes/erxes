@@ -8,7 +8,6 @@ import {
   Customers,
   Forms
 } from '.';
-import { getDocument } from '../../data/resolvers/mutations/cacheUtils';
 import { KIND_CHOICES } from './definitions/constants';
 import {
   IIntegration,
@@ -145,7 +144,7 @@ export const loadClass = () => {
      * Retreives integration
      */
     public static async getIntegration(doc: any) {
-      const integration = await getDocument('integrations', doc);
+      const integration = await Integrations.findOne(doc);
 
       if (!integration) {
         throw new Error('Integration not found');

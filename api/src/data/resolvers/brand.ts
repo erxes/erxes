@@ -1,8 +1,11 @@
-import { Integrations } from '../../db/models';
 import { IBrandDocument } from '../../db/models/definitions/brands';
+import { getDocumentList } from './mutations/cacheUtils';
 
 export default {
   integrations(brand: IBrandDocument) {
-    return Integrations.findIntegrations({ brandId: brand._id });
+    return getDocumentList('integrations', {
+      brandId: brand._id,
+      isActive: { $ne: false }
+    });
   }
 };

@@ -43,6 +43,7 @@ import {
 } from '../db/models/definitions/constants';
 import { ICustomerDocument } from '../db/models/definitions/customers';
 import { IIntegrationDocument } from '../db/models/definitions/integrations';
+
 import './setup.ts';
 
 describe('messenger connect', () => {

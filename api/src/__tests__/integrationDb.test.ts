@@ -24,6 +24,7 @@ import {
 } from '../db/models/definitions/constants';
 
 import { isTimeInBetween } from '../db/models/Integrations';
+
 import './setup.ts';
 
 describe('messenger integration model add method', () => {

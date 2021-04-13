@@ -28,7 +28,7 @@ export const loadClass = () => {
      * Get a Brand
      */
     public static async getBrand(doc: any) {
-      const brand = await getDocument('brands', doc);
+      const brand = await Brands.findOne(doc);
 
       if (!brand) {
         throw new Error('Brand not found');

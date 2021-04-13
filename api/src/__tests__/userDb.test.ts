@@ -3,6 +3,7 @@ import * as jwt from 'jsonwebtoken';
 import * as moment from 'moment';
 import { userFactory, usersGroupFactory } from '../db/factories';
 import { Users } from '../db/models';
+
 import './setup.ts';
 
 beforeAll(() => {

@@ -1,9 +1,10 @@
-import { Integrations, KnowledgeBaseTopics } from '../../db/models';
+import { KnowledgeBaseTopics } from '../../db/models';
 import { IScriptDocument } from '../../db/models/definitions/scripts';
+import { getDocument, getDocumentList } from './mutations/cacheUtils';
 
 export default {
   messenger(script: IScriptDocument) {
-    return Integrations.findOne({ _id: script.messengerId });
+    return getDocument('integrations', { _id: script.messengerId });
   },
 
   kbTopic(script: IScriptDocument) {
@@ -11,8 +12,9 @@ export default {
   },
 
   leads(script: IScriptDocument) {
-    return Integrations.findIntegrations({
-      _id: { $in: script.leadIds || [] }
+    return getDocumentList('integrations', {
+      _id: { $in: script.leadIds || [] },
+      isActive: { $ne: false }
     });
   }
 };

@@ -1,18 +1,20 @@
 import * as moment from 'moment';
 import {
+  Brands,
+  Channels,
   ConversationMessages,
   Deals,
   Fields,
   FormSubmissions,
   Permissions,
   Tasks,
-  Tickets
+  Tickets,
+  Users
 } from '../../../db/models';
 import { IUserDocument } from '../../../db/models/definitions/users';
 import { debugBase } from '../../../debuggers';
 import { MODULE_NAMES } from '../../constants';
 import { can } from '../../permissions/utils';
-import { getDocumentList } from '../../resolvers/mutations/cacheUtils';
 import { createXlsFile, generateXlsx } from '../../utils';
 import {
   Builder as CompanyBuildQuery,
@@ -183,7 +185,7 @@ const prepareData = async (query: any, user: IUserDocument): Promise<any[]> => {
         throw new Error('Permission denied');
       }
 
-      data = await getDocumentList('users', { isActive: true });
+      data = await Users.find({ isActive: true });
 
       break;
     case MODULE_NAMES.PERMISSION:
@@ -199,7 +201,7 @@ const prepareData = async (query: any, user: IUserDocument): Promise<any[]> => {
         throw new Error('Permission denied');
       }
 
-      data = await getDocumentList('brands', {});
+      data = await Brands.find();
 
       break;
     case MODULE_NAMES.CHANNEL:
@@ -207,7 +209,7 @@ const prepareData = async (query: any, user: IUserDocument): Promise<any[]> => {
         throw new Error('Permission denied');
       }
 
-      data = await getDocumentList('channels', {});
+      data = await Channels.find();
 
       break;
     default:
