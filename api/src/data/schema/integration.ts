@@ -55,6 +55,7 @@ export const types = `
     callout: JSON,
     rules: [InputRule]
     isRequireOnce: Boolean
+    templateId: String
   }
 
   input MessengerOnlineHoursSchema {

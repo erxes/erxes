@@ -43,7 +43,7 @@ import {
 } from '../db/models/definitions/constants';
 import { ICustomerDocument } from '../db/models/definitions/customers';
 import { IIntegrationDocument } from '../db/models/definitions/integrations';
-import memoryStorage from '../inmemoryStorage';
+
 import './setup.ts';
 
 describe('messenger connect', () => {
@@ -73,9 +73,6 @@ describe('messenger connect', () => {
     await Integrations.deleteMany({});
     await Customers.deleteMany({});
     await MessengerApps.deleteMany({});
-
-    memoryStorage().removeKey(`erxes_integration_messenger_${_brand.id}`);
-    memoryStorage().removeKey(`erxes_brand_${_brand.code}`);
   });
 
   test('brand not found', async () => {
@@ -684,11 +681,6 @@ describe('insertMessage()', () => {
       }
     ]);
 
-    await memoryStorage().set(
-      `bot_initial_message_${_integrationBot._id}`,
-      JSON.stringify({ text: 'Hi there' })
-    );
-
     const sendToVisitorLogMock = sinon
       .stub(logUtils, 'sendToVisitorLog')
       .callsFake(() => {
@@ -722,10 +714,6 @@ describe('insertMessage()', () => {
         text: 'Response of quick reply'
       }
     ]);
-
-    await memoryStorage().removeKey(
-      `bot_initial_message_${_integrationBot._id}`
-    );
 
     visitorMock.restore();
     sendToVisitorLogMock.restore();
@@ -1150,12 +1138,6 @@ describe('lead', () => {
     } catch (e) {
       expect(e.message).toBe('Integration not found');
     }
-
-    memoryStorage().removeKey(`erxes_brand_${brand.code}`);
-    memoryStorage().removeKey(`erxes_brand_code`);
-    memoryStorage().removeKey(
-      `erxes_integration_lead_${brand._id}_${form._id}`
-    );
   });
 
   test('leadConnect: success', async () => {
@@ -1185,12 +1167,6 @@ describe('lead', () => {
     expect(response1 && response1.integration._id).toBe(integration._id);
     expect(response1 && response1.form._id).toBe(form._id);
 
-    // Get integration from cache ===========================
-    memoryStorage().set(
-      `erxes_integration_lead_${brand._id}_${form._id}`,
-      JSON.stringify(integration)
-    );
-
     const response = await widgetMutations.widgetsLeadConnect(
       {},
       {
@@ -1201,11 +1177,6 @@ describe('lead', () => {
 
     expect(response && response.integration._id).toBe(integration._id);
     expect(response && response.form._id).toBe(form._id);
-
-    memoryStorage().removeKey(`erxes_brand_${brand.code}`);
-    memoryStorage().removeKey(
-      `erxes_integration_lead_${brand._id}_${form._id}`
-    );
 
     mock.restore();
   });
@@ -1245,11 +1216,6 @@ describe('lead', () => {
     expect(response).toBeNull();
 
     mock.restore();
-
-    memoryStorage().removeKey(`erxes_brand_${brand.code}`);
-    memoryStorage().removeKey(
-      `erxes_integration_lead_${brand._id}_${form._id}`
-    );
   });
 
   test('saveLead: form not found', async () => {

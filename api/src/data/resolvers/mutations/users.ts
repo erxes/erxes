@@ -161,7 +161,7 @@ const userMutations = {
   /*
    * Reset password
    */
-  resetPassword(_root, args: { token: string; newPassword: string }) {
+  async resetPassword(_root, args: { token: string; newPassword: string }) {
     return Users.resetPassword(args);
   },
 
@@ -244,7 +244,12 @@ const userMutations = {
       throw new Error('Invalid password. Try again');
     }
 
-    return Users.editProfile(user._id, { username, email, details, links });
+    return Users.editProfile(user._id, {
+      username,
+      email,
+      details,
+      links
+    });
   },
 
   /*

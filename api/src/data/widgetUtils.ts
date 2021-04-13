@@ -42,14 +42,10 @@ export const getOrCreateEngageMessage = async (
     integrationId = visitor.integrationId;
   }
 
-  const integration = await Integrations.findOne({
+  const integration = await Integrations.getIntegration({
     _id: integrationId,
     kind: KIND_CHOICES.MESSENGER
   });
-
-  if (!integration) {
-    throw new Error('Integration not found');
-  }
 
   const brand = await Brands.getBrand({ _id: integration.brandId || '' });
 

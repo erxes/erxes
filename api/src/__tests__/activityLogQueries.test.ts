@@ -410,7 +410,10 @@ describe('activityLogQueries', () => {
       contentId: deal1._id,
       contentType: 'deal',
       action: 'assignee',
-      content: []
+      content: {
+        addedUserIds: [],
+        removedUserIds: []
+      }
     };
 
     const spy = jest.spyOn(logUtils, 'fetchLogs');
