@@ -52,6 +52,7 @@ export interface IFieldGroup {
   fields: IField[];
   lastUpdatedUserId: string;
   lastUpdatedUser: IUser;
+  boardIds: string[];
 }
 
 export interface IContentTypeFields {

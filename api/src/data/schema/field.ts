@@ -115,6 +115,7 @@ export const fieldsGroupsTypes = `
     fields: [Field]
     lastUpdatedUserId: String
     lastUpdatedUser: User
+    boardIds: [String]
   }
 `;
 
@@ -125,10 +126,11 @@ const fieldsGroupsCommonFields = `
   description: String
   isVisible: Boolean
   isVisibleInDetail: Boolean
+  boardIds: [String]
 `;
 
 export const fieldsGroupsQueries = `
-  fieldsGroups(contentType: String): [FieldsGroup]
+  fieldsGroups(contentType: String, boardId: String): [FieldsGroup]
   getSystemFieldsGroup(contentType: String): FieldsGroup
 `;
 

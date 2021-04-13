@@ -4,7 +4,8 @@ const commonFields = `
   $order: Int,
   $description: String,
   $isVisible: Boolean,
-  $isVisibleInDetail: Boolean
+  $isVisibleInDetail: Boolean,
+  $boardIds: [String]
 `;
 
 const commonTypes = `
@@ -13,7 +14,8 @@ const commonTypes = `
   order: $order,
   description: $description,
   isVisible: $isVisible,
-  isVisibleInDetail: $isVisibleInDetail
+  isVisibleInDetail: $isVisibleInDetail,
+  boardIds: $boardIds
 `;
 
 const updateVisibleFields = `

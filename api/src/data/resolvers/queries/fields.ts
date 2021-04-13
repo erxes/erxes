@@ -141,13 +141,17 @@ const fieldsGroupQueries = {
    */
   async fieldsGroups(
     _root,
-    { contentType }: { contentType: string },
+    { contentType, boardId }: { contentType: string; boardId: string },
     { commonQuerySelector }: IContext
   ) {
     const query: any = commonQuerySelector;
 
     // querying by content type
     query.contentType = contentType || FIELDS_GROUPS_CONTENT_TYPES.CUSTOMER;
+
+    if (boardId) {
+      query.boardIds = boardId;
+    }
 
     const groups = await FieldsGroups.find(query);
 

@@ -28,6 +28,7 @@ const commonFields = `
 
 const commonFieldsGroups = `
   name
+  boardIds
   ${genericFields}
 
   lastUpdatedUser {
@@ -42,8 +43,8 @@ const commonFieldsGroups = `
 `;
 
 const fieldsGroups = `
-  query fieldsGroups($contentType: String!) {
-    fieldsGroups(contentType: $contentType) {
+  query fieldsGroups($contentType: String!, $boardId: String) {
+    fieldsGroups(contentType: $contentType, boardId: $boardId) {
       ${commonFieldsGroups}
   }
 `;

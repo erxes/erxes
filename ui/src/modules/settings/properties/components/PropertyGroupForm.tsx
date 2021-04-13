@@ -7,6 +7,7 @@ import Toggle from 'modules/common/components/Toggle';
 import { ModalFooter } from 'modules/common/styles/main';
 import { IButtonMutateProps, IFormProps } from 'modules/common/types';
 import React from 'react';
+import SelectBoards from '../containers/SelectBoards';
 import { IFieldGroup } from '../types';
 
 type Props = {
@@ -19,6 +20,7 @@ type Props = {
 type State = {
   isVisible: boolean;
   isVisibleInDetail: boolean;
+  boardIds?: string[];
 };
 
 class PropertyGroupForm extends React.Component<Props, State> {
@@ -71,6 +73,10 @@ class PropertyGroupForm extends React.Component<Props, State> {
     return this.setState({ isVisibleInDetail });
   };
 
+  boardsOnChange = (values: string[]) => {
+    this.setState({ boardIds: values });
+  };
+
   renderFieldVisible() {
     if (!this.props.group) {
       return null;
@@ -117,6 +123,20 @@ class PropertyGroupForm extends React.Component<Props, State> {
     );
   }
 
+  renderBoardSelect() {
+    if (!['task', 'deal', 'ticket'].includes(this.props.type)) {
+      return null;
+    }
+
+    return (
+      <SelectBoards
+        isRequired={false}
+        onChange={this.boardsOnChange}
+        type={this.props.type}
+      />
+    );
+  }
+
   renderContent = (formProps: IFormProps) => {
     const { group, closeModal, renderButton } = this.props;
     const { values, isSubmitted } = formProps;
@@ -153,6 +173,8 @@ class PropertyGroupForm extends React.Component<Props, State> {
         ) : (
           <></>
         )}
+
+        {this.renderBoardSelect()}
 
         <ModalFooter>
           <Button
