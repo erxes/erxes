@@ -55,7 +55,8 @@ import {
   Tickets,
   Users,
   UsersGroups,
-  Webhooks
+  Webhooks,
+  TicketComments
 } from './models';
 import { ICustomField } from './models/definitions/common';
 import {
@@ -1628,4 +1629,18 @@ export const skillFactor = async (params: {
   });
 
   return skill.save();
+};
+
+export const ticketCommentFactory = async (params: {
+  ticketId?: string;
+  content?: string;
+  customerId?: string;
+}) => {
+  const comment = new TicketComments({
+    ticketId: params.ticketId || faker.random.word(),
+    content: params.content || faker.random.word(),
+    customerId: params.customerId || faker.random.word()
+  });
+
+  return comment.save();
 };

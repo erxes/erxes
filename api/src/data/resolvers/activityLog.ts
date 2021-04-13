@@ -31,6 +31,13 @@ export default {
       return { type: 'brand', content: brand };
     }
 
+    // user ticket reply
+    const customer = await Customers.findOne({ _id: activityLog.createdBy });
+
+    if (customer) {
+      return { type: 'customer', content: customer };
+    }
+
     return;
   },
 
