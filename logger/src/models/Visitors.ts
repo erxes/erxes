@@ -108,6 +108,12 @@ export const loadVisitorClass = () => {
 
       const visitor = await Visitors.getVisitorLog(doc.visitorId);
 
+      if (!visitor) {
+        throw new Error(
+          `Visitor with Id ${doc.visitorId} not found while trying to update visitor.`
+        );
+      }
+
       delete doc.integrationId;
 
       const query: any = {
@@ -135,14 +141,8 @@ export const loadVisitorClass = () => {
       return Visitors.findOne({ visitorId: doc.visitorId });
     }
 
-    public static async getVisitorLog(visitorId: string) {
-      const visitor = await Visitors.findOne({ visitorId });
-
-      if (!visitor) {
-        throw new Error(`Visitor not found with id: ${visitorId}`);
-      }
-
-      return visitor;
+    public static getVisitorLog(visitorId: string) {
+      return Visitors.findOne({ visitorId });
     }
 
     public static removeVisitorLog(visitorId: string) {

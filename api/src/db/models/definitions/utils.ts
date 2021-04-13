@@ -28,6 +28,7 @@ export const schemaWrapper = schema => {
 
 const hookList = [
   'save',
+  'remove',
   'update',
   'updateOne',
   'updateMany',
