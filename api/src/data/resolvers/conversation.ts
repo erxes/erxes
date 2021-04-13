@@ -1,14 +1,9 @@
-import {
-  ConversationMessages,
-  Customers,
-  Integrations,
-  Tags,
-  Users
-} from '../../db/models';
+import { ConversationMessages, Customers, Tags } from '../../db/models';
 import { MESSAGE_TYPES } from '../../db/models/definitions/constants';
 import { IConversationDocument } from '../../db/models/definitions/conversations';
 import { debugError } from '../../debuggers';
 import { IContext } from '../types';
+import { getDocument, getDocumentList } from './mutations/cacheUtils';
 
 export default {
   /**
@@ -25,19 +20,19 @@ export default {
   },
 
   integration(conversation: IConversationDocument) {
-    return Integrations.findOne({ _id: conversation.integrationId });
+    return getDocument('integrations', { _id: conversation.integrationId });
   },
 
   user(conversation: IConversationDocument) {
-    return Users.findOne({ _id: conversation.userId });
+    return getDocument('users', { _id: conversation.userId });
   },
 
   assignedUser(conversation: IConversationDocument) {
-    return Users.findOne({ _id: conversation.assignedUserId });
+    return getDocument('users', { _id: conversation.assignedUserId });
   },
 
   participatedUsers(conv: IConversationDocument) {
-    return Users.find({
+    return getDocumentList('users', {
       _id: { $in: conv.participatedUserIds || [] }
     });
   },
@@ -57,9 +52,10 @@ export default {
     _args,
     { dataSources }: IContext
   ) {
-    const integration = await Integrations.findOne({
-      _id: conv.integrationId
-    }).lean();
+    const integration =
+      (await getDocument('integrations', {
+        _id: conv.integrationId
+      })) || {};
 
     if (integration && integration.kind !== 'facebook-post') {
       return null;
@@ -86,9 +82,10 @@ export default {
     _args,
     { dataSources, user }: IContext
   ) {
-    const integration = await Integrations.findOne({
-      _id: conv.integrationId
-    }).lean();
+    const integration =
+      (await getDocument('integrations', {
+        _id: conv.integrationId
+      })) || {};
 
     if (integration && integration.kind !== 'callpro') {
       return null;
@@ -148,9 +145,10 @@ export default {
   },
 
   async isFacebookTaggedMessage(conversation: IConversationDocument) {
-    const integration = await Integrations.findOne({
-      _id: conversation.integrationId
-    }).lean();
+    const integration =
+      (await getDocument('integrations', {
+        _id: conversation.integrationId
+      })) || {};
 
     if (integration && integration.kind !== 'facebook-messenger') {
       return false;

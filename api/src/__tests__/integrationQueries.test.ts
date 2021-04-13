@@ -202,12 +202,10 @@ describe('integrationQueries', () => {
           leadData
           messengerData
           uiOptions
-
           brand { _id }
           form { _id }
           channels { _id }
           tags { _id }
-
           websiteMessengerApps { _id }
           knowledgeBaseMessengerApps { _id }
           leadMessengerApps { _id }

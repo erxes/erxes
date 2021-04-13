@@ -5,12 +5,12 @@ import {
   Notifications,
   PipelineLabels,
   Pipelines,
-  Stages,
-  Users
+  Stages
 } from '../../db/models';
 import { ITicketDocument } from '../../db/models/definitions/tickets';
 import { IContext } from '../types';
 import { boardId } from './boardUtils';
+import { getDocument, getDocumentList } from './mutations/cacheUtils';
 
 export default {
   async companies(ticket: ITicketDocument) {
@@ -34,7 +34,9 @@ export default {
   },
 
   assignedUsers(ticket: ITicketDocument) {
-    return Users.find({ _id: { $in: ticket.assignedUserIds || [] } });
+    return getDocumentList('users', {
+      _id: { $in: ticket.assignedUserIds || [] }
+    });
   },
 
   async pipeline(ticket: ITicketDocument) {
@@ -70,6 +72,6 @@ export default {
   },
 
   createdUser(ticket: ITicketDocument) {
-    return Users.findOne({ _id: ticket.userId });
+    return getDocument('users', { _id: ticket.userId });
   }
 };

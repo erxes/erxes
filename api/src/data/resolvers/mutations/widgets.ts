@@ -1,6 +1,5 @@
 import * as strip from 'strip';
 import {
-  Brands,
   Companies,
   Conformities,
   ConversationMessages,
@@ -34,7 +33,7 @@ import {
 } from '../../../db/models/definitions/messengerApps';
 import { debugError } from '../../../debuggers';
 import { trackViewPageEvent } from '../../../events';
-import { get, removeKey, set } from '../../../inmemoryStorage';
+import { get, set } from '../../../inmemoryStorage';
 import { graphqlPubsub } from '../../../pubsub';
 import { AUTO_BOT_MESSAGES, BOT_MESSAGE_TYPES } from '../../constants';
 import { sendToVisitorLog } from '../../logUtils';
@@ -48,6 +47,7 @@ import {
   sendToWebhook
 } from '../../utils';
 import { convertVisitorToCustomer, solveSubmissions } from '../../widgetUtils';
+import { getDocument } from './cacheUtils';
 import { conversationNotifReceivers } from './conversations';
 
 interface IWidgetEmailParams {
@@ -113,94 +113,13 @@ export const getMessengerData = async (integration: IIntegrationDocument) => {
   };
 };
 
-export const caches = {
-  generateKey(key: string) {
-    return `erxes_${key}`;
-  },
-
-  async get({ key, callback }: { key: string; callback?: any }) {
-    key = this.generateKey(key);
-
-    let object = JSON.parse((await get(key)) || '{}') || {};
-
-    if (Object.keys(object).length === 0) {
-      object = await callback();
-
-      set(key, JSON.stringify(object));
-
-      return object;
-    }
-
-    return object;
-  },
-
-  async update(key: string, data: object) {
-    const storageKey = this.generateKey(key);
-
-    const value = await get(storageKey);
-
-    if (!value) {
-      return;
-    }
-
-    set(this.generateKey(key), JSON.stringify(data));
-  },
-
-  remove(key: string) {
-    removeKey(this.generateKey(key));
-  }
-};
-
-const getBrand = async (code: string) => {
-  const brand = await caches.get({
-    key: `brand_${code}`,
-    callback: async () => {
-      return Brands.findOne({ code });
-    }
-  });
-
-  return brand;
-};
-
-const getIntegration = async ({
-  brandId,
-  type,
-  selector,
-  formId,
-  callback
-}: {
-  brandId: string;
-  formId?: string;
-  type: string;
-  selector?: { [key: string]: string | number | boolean };
-  callback?: () => Promise<void>;
-}) => {
-  const integration = await caches.get({
-    key: 'integration_' + type + '_' + brandId + (formId ? `_${formId}` : ''),
-    callback: callback
-      ? callback
-      : async () => {
-          return Integrations.findOne(selector);
-        }
-  });
-
-  if (!integration) {
-    throw new Error('Integration not found');
-  }
-  if (integration && !integration.isActive) {
-    throw new Error(`Integration "${integration.name}" is not active`);
-  }
-
-  return integration;
-};
-
 const widgetMutations = {
   // Find integrationId by brandCode
   async widgetsLeadConnect(
     _root,
     args: { brandCode: string; formCode: string; cachedCustomerId?: string }
   ) {
-    const brand = await getBrand(args.brandCode);
+    const brand = await getDocument('brands', { code: args.brandCode });
 
     const form = await Forms.findOne({ code: args.formCode });
 
@@ -209,15 +128,10 @@ const widgetMutations = {
     }
 
     // find integration by brandId & formId
-    const integ = await getIntegration({
+    const integ = await Integrations.getIntegration({
       brandId: brand._id,
       formId: form._id,
-      type: 'lead',
-      selector: {
-        brandId: brand._id,
-        formId: form._id,
-        isActive: true
-      }
+      isActive: true
     });
 
     if (integ.leadData && integ.leadData.loadType === 'embedded') {
@@ -362,22 +276,16 @@ const widgetMutations = {
     const customData = data;
 
     // find brand
-    const brand = await getBrand(brandCode);
+    const brand = await getDocument('brands', { code: brandCode });
 
     if (!brand) {
       throw new Error('Invalid configuration');
     }
 
     // find integration
-    const integration = await getIntegration({
+    const integration = await Integrations.getIntegration({
       brandId: brand._id,
-      type: KIND_CHOICES.MESSENGER,
-      callback: async () => {
-        return Integrations.getWidgetIntegration(
-          brandCode,
-          KIND_CHOICES.MESSENGER
-        );
-      }
+      kind: KIND_CHOICES.MESSENGER
     });
 
     let customer;
@@ -549,9 +457,10 @@ const widgetMutations = {
     // to the closed conversation even if it's closed
     let conversation;
 
-    const integration = await Integrations.findOne({
-      _id: integrationId
-    }).lean();
+    const integration =
+      (await getDocument('integrations', {
+        _id: integrationId
+      })) || {};
 
     const messengerData = integration.messengerData || {};
 
@@ -863,9 +772,10 @@ const widgetMutations = {
       type: string;
     }
   ) {
-    const integration = await Integrations.findOne({
-      _id: integrationId
-    }).lean();
+    const integration =
+      (await getDocument('integrations', {
+        _id: integrationId
+      })) || {};
 
     const { botEndpointUrl } = integration.messengerData;
 
@@ -968,9 +878,10 @@ const widgetMutations = {
 
     await set(`bot_initial_message_session_id_${integrationId}`, sessionId);
 
-    const integration = await Integrations.findOne({
-      _id: integrationId
-    }).lean();
+    const integration =
+      (await getDocument('integrations', {
+        _id: integrationId
+      })) || {};
 
     const { botEndpointUrl } = integration.messengerData;
 

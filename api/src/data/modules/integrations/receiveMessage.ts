@@ -29,7 +29,9 @@ export const receiveRpcMessage = async msg => {
   const doc = JSON.parse(payload || '{}');
 
   if (action === 'get-create-update-customer') {
-    const integration = await Integrations.findOne({ _id: doc.integrationId });
+    const integration = await Integrations.findOne({
+      _id: doc.integrationId
+    });
 
     if (!integration) {
       return sendError(`Integration not found: ${doc.integrationId}`);
