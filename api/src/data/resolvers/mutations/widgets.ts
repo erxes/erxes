@@ -457,9 +457,10 @@ const widgetMutations = {
     // to the closed conversation even if it's closed
     let conversation;
 
-    const integration = await getDocument('integrations', {
-      _id: integrationId
-    });
+    const integration =
+      (await getDocument('integrations', {
+        _id: integrationId
+      })) || {};
 
     const messengerData = integration.messengerData || {};
 
@@ -771,9 +772,10 @@ const widgetMutations = {
       type: string;
     }
   ) {
-    const integration = await getDocument('integrations', {
-      _id: integrationId
-    });
+    const integration =
+      (await getDocument('integrations', {
+        _id: integrationId
+      })) || {};
 
     const { botEndpointUrl } = integration.messengerData;
 
@@ -876,9 +878,10 @@ const widgetMutations = {
 
     await set(`bot_initial_message_session_id_${integrationId}`, sessionId);
 
-    const integration = await getDocument('integrations', {
-      _id: integrationId
-    });
+    const integration =
+      (await getDocument('integrations', {
+        _id: integrationId
+      })) || {};
 
     const { botEndpointUrl } = integration.messengerData;
 

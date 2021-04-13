@@ -13,8 +13,7 @@ export default {
 
   leads(script: IScriptDocument) {
     return Integrations.findIntegrations({
-      _id: { $in: script.leadIds || [] },
-      isActive: { $ne: false }
+      _id: { $in: script.leadIds || [] }
     });
   }
 };

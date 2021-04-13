@@ -214,7 +214,10 @@ export class CommonBuilder<IArgs extends IListArgs> {
       await this.integrationTypeFilter(this.params.integrationType);
     }
 
-    const activeIntegrations = await Integrations.findIntegrations({});
+    const activeIntegrations = await Integrations.findIntegrations(
+      {},
+      { _id: 1 }
+    );
 
     this.activeIntegrationIds = activeIntegrations.map(integ => integ._id);
   }
@@ -249,7 +252,7 @@ export class CommonBuilder<IArgs extends IListArgs> {
   public async brandFilter(brandId: string) {
     const integrations = await Integrations.findIntegrations({
       brandId
-    });
+    }).select('_id');
 
     if (integrations.length === 0) {
       this.integrationNotFound();
