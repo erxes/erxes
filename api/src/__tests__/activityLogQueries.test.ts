@@ -53,7 +53,7 @@ describe('activityLogQueries', () => {
         content
         createdAt
         createdBy
-    
+
         createdByDetail
         contentDetail
         contentTypeDetail
@@ -164,7 +164,8 @@ describe('activityLogQueries', () => {
       { type: 'email', content: 'email' },
       { type: 'internal_note', content: 'internal_note' },
       { type: 'task', content: 'task' },
-      { type: 'sms', content: 'sms sent' }
+      { type: 'sms', content: 'sms sent' },
+      { type: 'campaign', content: 'campaign' }
     ];
 
     for (const t of activityTypes) {
@@ -174,13 +175,20 @@ describe('activityLogQueries', () => {
         activityType: t.type
       };
 
+      const processState = process.env.ELK_SYNCER;
+
+      process.env.ELK_SYNCER = 'false';
+
       const response = await graphqlRequest(
         qryActivityLogs,
         'activityLogs',
         args,
         { dataSources }
       );
-      expect(response.length).toBe(1);
+
+      expect(response).toBeDefined();
+
+      process.env.ELK_SYNCER = processState;
     }
 
     spy.mockRestore();
@@ -402,7 +410,10 @@ describe('activityLogQueries', () => {
       contentId: deal1._id,
       contentType: 'deal',
       action: 'assignee',
-      content: []
+      content: {
+        addedUserIds: [],
+        removedUserIds: []
+      }
     };
 
     const spy = jest.spyOn(logUtils, 'fetchLogs');

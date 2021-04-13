@@ -42,14 +42,10 @@ export const getOrCreateEngageMessage = async (
     integrationId = visitor.integrationId;
   }
 
-  const integration = await Integrations.findOne({
+  const integration = await Integrations.getIntegration({
     _id: integrationId,
     kind: KIND_CHOICES.MESSENGER
   });
-
-  if (!integration) {
-    throw new Error('Integration not found');
-  }
 
   const brand = await Brands.getBrand({ _id: integration.brandId || '' });
 
@@ -281,8 +277,9 @@ export const updateCustomerFromForm = async (
 ) => {
   const customerDoc: any = {
     location: browserInfo,
-    firstName: doc.firstName || customer.firstName,
-    lastName: doc.lastName || customer.lastName,
+    firstName: customer.firstName || doc.firstName,
+    lastName: customer.lastName || doc.lastName,
+    middleName: customer.middleName || doc.middleName,
     sex: doc.pronoun,
     birthDate: doc.birthDate,
     ...(customer.primaryEmail
@@ -395,6 +392,7 @@ export const solveSubmissions = async (args: {
     let phone;
     let firstName = '';
     let lastName = '';
+    let middleName = '';
     let pronoun = 0;
     let avatar = '';
     let birthDate;
@@ -446,6 +444,9 @@ export const solveSubmissions = async (args: {
           break;
         case 'lastName':
           lastName = submission.value;
+          break;
+        case 'middleName':
+          middleName = submission.value;
           break;
         case 'companyName':
           companyName = submission.value;
@@ -570,6 +571,7 @@ export const solveSubmissions = async (args: {
           emails: [email],
           firstName,
           lastName,
+          middleName,
           primaryPhone: phone
         });
       }
@@ -579,6 +581,7 @@ export const solveSubmissions = async (args: {
         {
           firstName,
           lastName,
+          middleName,
           pronoun,
           birthDate,
           customFieldsData,
@@ -614,6 +617,7 @@ export const solveSubmissions = async (args: {
           emails: [email],
           firstName,
           lastName,
+          middleName,
           primaryPhone: phone
         });
       }
@@ -623,6 +627,7 @@ export const solveSubmissions = async (args: {
         {
           firstName,
           lastName,
+          middleName,
           pronoun,
           birthDate,
           customFieldsData,

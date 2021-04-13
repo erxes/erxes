@@ -81,6 +81,7 @@ const sidebarConversations = `
       customer {
         _id
         firstName
+        middleName
         lastName
         primaryEmail
         primaryPhone
@@ -146,6 +147,7 @@ const converstationFacebookComments = `
         avatar
         firstName
         lastName
+        middleName
       }
     }
   }
@@ -187,6 +189,15 @@ const channelList = `
   }
 `;
 
+const channelsByMembers = `
+  query channelsByMembers($memberIds: [String]) {
+    channelsByMembers(memberIds: $memberIds) {
+      _id
+      name
+    }
+  }
+`;
+
 const integrationsGetUsedTypes = `
   query integrationsGetUsedTypes {
     integrationsGetUsedTypes {
@@ -199,6 +210,15 @@ const integrationsGetUsedTypes = `
 const brandList = `
   query brands {
     brands {
+      _id
+      name
+    }
+  }
+`;
+
+const allBrands = `
+  query allBrands {
+    allBrands {
       _id
       name
     }
@@ -315,6 +335,7 @@ const generateCustomerDetailQuery = params => {
           _id
           avatar
           firstName
+          middleName
           lastName
           primaryEmail
         }
@@ -356,12 +377,14 @@ export default {
   channelList,
   integrationsGetUsedTypes,
   brandList,
+  allBrands,
   tagList,
   responseTemplateList,
   conversationCounts,
   totalConversationsCount,
   unreadConversationsCount,
   lastConversation,
+  channelsByMembers,
   generateCustomerDetailQuery,
   convertToInfo
 };

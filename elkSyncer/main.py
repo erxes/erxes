@@ -155,6 +155,21 @@ item_mapping = {
     'customFieldsData' : nestedType
 }
 
+conformity_mapping = {
+    'mainType': {
+        'type': 'keyword'
+    },
+    'mainTypeId': {
+        'type': 'keyword'
+    },
+    'relType': {
+        'type': 'keyword'
+    },
+    'relTypeId': {
+        'type': 'keyword'
+    }
+}
+
 deal_mapping = item_mapping
 task_mapping = item_mapping
 ticket_mapping = item_mapping
@@ -218,6 +233,7 @@ put_mappings('%s__events' % db_name, event_mapping)
 put_mappings('%s__deals' % db_name, deal_mapping)
 put_mappings('%s__tasks' % db_name, task_mapping)
 put_mappings('%s__tickets' % db_name, ticket_mapping)
+put_mappings('%s__conformities' % db_name, conformity_mapping)
 
 command = 'mongo-connector -m "%s"  -c mongo-connector-config.json --target-url %s' % (MONGO_URL, ELASTICSEARCH_URL)
 

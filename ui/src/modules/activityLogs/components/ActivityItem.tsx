@@ -10,6 +10,7 @@ import { formatText, getIconAndColor } from '../utils';
 import ArchiveLog from './items/archive/ArchiveLog';
 import AssigneeLog from './items/boardItems/AssigneeLog';
 import MovementLog from './items/boardItems/MovementLog';
+import CampaignLog from './items/CampaignLog';
 import ConvertLog from './items/ConvertLog';
 import CreatedLog from './items/create/CreatedLog';
 import DeletedLog from './items/delete/DeletedLog';
@@ -47,11 +48,6 @@ const activityItem = (activity: IActivityLog) => {
       );
     case 'taskDetail':
       return renderDetail('task', <Task taskId={_id} />);
-    case 'engage-email':
-      return renderDetail(
-        'email',
-        <Email emailType="engage" emailId={_id} activity={activity} />
-      );
     case 'email':
       return renderDetail(
         'email',
@@ -94,6 +90,13 @@ const activityItem = (activity: IActivityLog) => {
     case 'archive':
       return renderDetail('archive', <ArchiveLog activity={activity} />);
     case 'send':
+      if (contentType === 'campaign') {
+        return renderDetail(
+          activity.contentType,
+          <CampaignLog activity={activity} />
+        );
+      }
+
       return renderDetail(activity.contentType, <SmsLog activity={activity} />);
     default:
       return <div />;

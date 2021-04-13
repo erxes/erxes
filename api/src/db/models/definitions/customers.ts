@@ -31,6 +31,7 @@ export interface ICustomer {
   scopeBrandIds?: string[];
   firstName?: string;
   lastName?: string;
+  middleName?: string;
   birthDate?: Date;
   sex?: number;
   primaryEmail?: string;
@@ -138,6 +139,8 @@ export const customerSchema = schemaWrapper(
 
     firstName: field({ type: String, label: 'First name', optional: true }),
     lastName: field({ type: String, label: 'Last name', optional: true }),
+    middleName: field({ type: String, label: 'Middle name', optional: true }),
+
     birthDate: field({
       type: Date,
       label: 'Date of birth',

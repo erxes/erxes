@@ -264,9 +264,9 @@ const conversationMutations = {
     const conversation = await Conversations.getConversation(
       doc.conversationId
     );
-    const integration = await Integrations.getIntegration(
-      conversation.integrationId
-    );
+    const integration = await Integrations.getIntegration({
+      _id: conversation.integrationId
+    });
 
     await sendNotifications({
       user,
@@ -413,9 +413,9 @@ const conversationMutations = {
     const conversation = await Conversations.getConversation(
       doc.conversationId
     );
-    const integration = await Integrations.getIntegration(
-      conversation.integrationId
-    );
+    const integration = await Integrations.getIntegration({
+      _id: conversation.integrationId
+    });
 
     await sendNotifications({
       user,
