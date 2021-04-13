@@ -168,17 +168,14 @@ const userMutations = {
   /*
    * Reset member's password
    */
-  async usersResetMemberPassword(
-    _root,
-    args: { _id: string; newPassword: string }
-  ) {
+  usersResetMemberPassword(_root, args: { _id: string; newPassword: string }) {
     return Users.resetMemberPassword(args);
   },
 
   /*
    * Change user password
    */
-  async usersChangePassword(
+  usersChangePassword(
     _root,
     args: { currentPassword: string; newPassword: string },
     { user }: IContext
@@ -201,7 +198,7 @@ const userMutations = {
       links
     } = args;
 
-    const updated = await Users.updateUser(_id, {
+    const updatedUser = await Users.updateUser(_id, {
       username,
       email,
       details,
@@ -215,7 +212,7 @@ const userMutations = {
 
     await resetPermissionsCache();
 
-    return updated;
+    return updatedUser;
   },
 
   /*
@@ -315,7 +312,7 @@ const userMutations = {
       username?: string;
     }
   ) {
-    const updated = await Users.confirmInvitation({
+    const user = await Users.confirmInvitation({
       token,
       password,
       passwordConfirmation,
@@ -326,14 +323,14 @@ const userMutations = {
     await messageBroker().sendMessage('erxes-api:integrations-notification', {
       type: 'addUserId',
       payload: {
-        _id: updated._id
+        _id: user._id
       }
     });
 
-    return updated;
+    return user;
   },
 
-  async usersConfigEmailSignatures(
+  usersConfigEmailSignatures(
     _root,
     { signatures }: { signatures: IEmailSignature[] },
     { user }: IContext
@@ -341,7 +338,7 @@ const userMutations = {
     return Users.configEmailSignatures(user._id, signatures);
   },
 
-  async usersConfigGetNotificationByEmail(
+  usersConfigGetNotificationByEmail(
     _root,
     { isAllowed }: { isAllowed: boolean },
     { user }: IContext

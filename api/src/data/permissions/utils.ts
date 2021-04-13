@@ -1,11 +1,7 @@
-import { Permissions, UsersGroups } from '../../db/models';
+import { Permissions, Users, UsersGroups } from '../../db/models';
 import { IPermissionDocument } from '../../db/models/definitions/permissions';
 import { IUserDocument } from '../../db/models/definitions/users';
 import { get, set } from '../../inmemoryStorage';
-import {
-  getDocument,
-  getDocumentList
-} from '../resolvers/mutations/cacheUtils';
 import { moduleObjects } from './actions/permission';
 
 export interface IModuleMap {
@@ -153,7 +149,7 @@ export const getUserAllowedActions = async (
  * Reset permissions map for all users
  */
 export const resetPermissionsCache = async () => {
-  const users = await getDocumentList('users', {});
+  const users = await Users.find({});
 
   for (const user of users) {
     const key = getKey(user);
@@ -250,7 +246,7 @@ export const fixPermissions = async (): Promise<string[]> => {
           let message = '';
 
           if (perm.userId) {
-            const user = await getDocument('users', { _id: perm.userId });
+            const user = await Users.findOne({ _id: perm.userId });
 
             message = user
               ? `user "${user.email || user.username}"`

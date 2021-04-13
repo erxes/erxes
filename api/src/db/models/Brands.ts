@@ -1,6 +1,5 @@
 import * as Random from 'meteor-random';
 import { Model, model } from 'mongoose';
-import { getDocument } from '../../data/resolvers/mutations/cacheUtils';
 import { Integrations } from './';
 import { brandSchema, IBrand, IBrandDocument } from './definitions/brands';
 import { IIntegrationDocument } from './definitions/integrations';

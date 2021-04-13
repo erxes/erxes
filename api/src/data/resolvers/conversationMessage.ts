@@ -7,7 +7,7 @@ import { getDocument } from './mutations/cacheUtils';
 
 export default {
   user(message: IMessageDocument) {
-    return getDocument('integrations', { _id: message.userId });
+    return getDocument('users', { _id: message.userId });
   },
 
   customer(message: IMessageDocument) {

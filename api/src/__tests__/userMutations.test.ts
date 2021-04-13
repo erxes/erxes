@@ -11,7 +11,6 @@ import {
   usersGroupFactory
 } from '../db/factories';
 import { Brands, Channels, Users } from '../db/models';
-
 import './setup.ts';
 
 /*
