@@ -20,7 +20,7 @@ import {
   Users
 } from '../db/models';
 import { KIND_CHOICES } from '../db/models/definitions/constants';
-import memoryStorage from '../inmemoryStorage';
+
 import messageBroker from '../messageBroker';
 import './setup.ts';
 
@@ -81,10 +81,6 @@ describe('mutations', () => {
     await Customers.deleteMany({});
     await EmailDeliveries.deleteMany({});
     await Integrations.deleteMany({});
-
-    memoryStorage().removeKey(`erxes_brand_${_brand.code}`);
-    memoryStorage().removeKey(`erxes_integration_messenger_${_brand._id}`);
-    memoryStorage().removeKey(`erxes_integration_lead_${_brand._id}`);
   });
 
   test('Create messenger integration', async () => {
@@ -158,25 +154,6 @@ describe('mutations', () => {
     expect(integration.name).toBe(args.name);
     expect(integration.brandId).toBe(args.brandId);
     expect(integration.languageCode).toBe(args.languageCode);
-
-    // update messenger integration cache
-    const storageKey = `erxes_integration_messenger_${_brand._id}`;
-
-    let cached = await memoryStorage().get(storageKey);
-
-    expect(cached).toBeUndefined();
-
-    memoryStorage().set(storageKey, JSON.stringify(_integration));
-
-    await graphqlRequest(mutation, 'integrationsEditMessengerIntegration', {
-      _id: _integration._id,
-      brandId: _brand._id,
-      name: 'updated integration name'
-    });
-
-    cached = JSON.parse((await memoryStorage().get(storageKey)) || '{}') || {};
-
-    expect(cached.name).toBe('updated integration name');
   });
 
   test('Save messenger integration appearance data', async () => {

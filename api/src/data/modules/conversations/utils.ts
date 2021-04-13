@@ -1,6 +1,5 @@
 import * as _ from 'underscore';
 import {
-  Brands,
   Channels,
   Conversations,
   Integrations,
@@ -9,6 +8,7 @@ import {
 import { CONVERSATION_STATUSES } from '../../../db/models/definitions/constants';
 import { KIND_CHOICES } from '../../../db/models/definitions/constants';
 import { fetchElk } from '../../../elasticsearch';
+import { getDocumentList } from '../../resolvers/mutations/cacheUtils';
 import { IListArgs } from '../../resolvers/queries/conversationQueryBuilder';
 import { fixDate } from '../../utils';
 
@@ -27,7 +27,7 @@ const countByChannels = async (
   qb: any,
   counts: ICountBy
 ): Promise<ICountBy> => {
-  const channels = await Channels.find();
+  const channels = await getDocumentList('channels', {});
 
   for (const channel of channels) {
     await qb.buildAllQueries();
@@ -41,7 +41,7 @@ const countByChannels = async (
 
 // Count conversation by brand
 const countByBrands = async (qb: any, counts: ICountBy): Promise<ICountBy> => {
-  const brands = await Brands.find({});
+  const brands = await getDocumentList('brands', {});
 
   for (const brand of brands) {
     await qb.buildAllQueries();
