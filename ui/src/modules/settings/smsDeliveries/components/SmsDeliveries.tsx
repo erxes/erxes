@@ -130,6 +130,7 @@ class SmsDeliveries extends React.Component<Props, State> {
             value={SOURCE_TYPES.OPTIONS.find(item => item.value === type)}
             options={SOURCE_TYPES.OPTIONS}
             onChange={onTypeChange}
+            clearable={false}
           />
         </FilterItem>
         <Button
