@@ -362,7 +362,7 @@ In the token section, the facebook token you’ve generated has to be added whic
 ![](https://erxes-docs.s3-us-west-2.amazonaws.com/facebook/facebook-10.png)
 
 ```
-Callback Url="https://yourintegrationdomain/facebook/recieve"
+Callback Url="https://yourintegrationdomain/facebook/receive"
 Verify Token="your generated token (FACEBOOK APP TOKEN)"
 
 ```
@@ -376,7 +376,7 @@ The role of the Webhook is to receive posts and comments. In order to adjust the
 In order to fill the edit subscription form there are few steps that need to be made. First of all, in the CallBack Url Box please write /facebook/receive. In the token box, the token should be copied that you’ve added in the system configuration on your erxes.
 
 ```
-Callback Url="https://yourintegrationdomain/facebook/recieve"
+Callback Url="https://yourintegrationdomain/facebook/receive"
 Verify Token="your generated token (FACEBOOK APP TOKEN)"
 ```
 

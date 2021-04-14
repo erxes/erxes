@@ -133,7 +133,7 @@ class LeftSidebar extends React.Component<Props, State> {
               btnStyle="simple"
               onClick={this.props.resolveAll}
             >
-              Resolve all
+              {__('Resolve all')}
             </Button>
           )}
         </FlexRoot>
