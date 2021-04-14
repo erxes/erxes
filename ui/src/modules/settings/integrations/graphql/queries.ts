@@ -69,6 +69,7 @@ const commonParamsDef = `
   $perPage: Int,
   $page: Int,
   $searchValue: String
+  $status: String
 `;
 
 const commonParams = `
@@ -78,6 +79,7 @@ const commonParams = `
   perPage: $perPage,
   page: $page,
   searchValue: $searchValue
+  status: $status
 `;
 
 const integrations = `
@@ -128,10 +130,29 @@ const integrationGetLineWebhookUrl = `
   }
 `;
 
+const messengerApps = `
+  query messengerApps($integrationId: String!) {
+    messengerApps(integrationId: $integrationId) {
+      websites{
+        description
+        buttonText
+        url
+      }
+      knowledgebases{
+        topicId
+      }
+      leads{
+        formCode
+      }
+    }
+  }
+`;
+
 export default {
   fetchApi,
   users,
   brands,
+  messengerApps,
   integrationDetail,
   integrationTotalCount,
   integrations,

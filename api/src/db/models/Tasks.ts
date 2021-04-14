@@ -1,5 +1,5 @@
 import { Model, model } from 'mongoose';
-import { ActivityLogs } from '.';
+import { ACTIVITY_LOG_ACTIONS, putActivityLog } from '../../data/logUtils';
 import {
   destroyBoardItemRelations,
   fillSearchTextItem,
@@ -42,9 +42,9 @@ export const loadTaskClass = () => {
      * Create a Task
      */
     public static async createTask(doc: ITask) {
-      if (doc.sourceConversationId) {
+      if (doc.sourceConversationIds) {
         const convertedTask = await Tasks.findOne({
-          sourceConversationId: doc.sourceConversationId
+          sourceConversationIds: { $in: doc.sourceConversationIds }
         });
 
         if (convertedTask) {
@@ -59,10 +59,9 @@ export const loadTaskClass = () => {
         searchText: fillSearchTextItem(doc)
       });
 
-      // create log
-      await ActivityLogs.createBoardItemLog({
-        item: task,
-        contentType: 'task'
+      await putActivityLog({
+        action: ACTIVITY_LOG_ACTIONS.CREATE_BOARD_ITEM,
+        data: { item: task, contentType: 'task' }
       });
 
       return task;

@@ -65,7 +65,7 @@ class ProductFormContainer extends React.Component<FinalProps> {
 }
 
 const getRefetchQueries = () => {
-  return ['productDetail', 'products', 'productsTotalCount'];
+  return ['productDetail', 'products', 'productsTotalCount', 'productCategories'];
 };
 
 export default withProps<Props>(

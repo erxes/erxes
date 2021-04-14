@@ -133,7 +133,12 @@ class Conversation extends React.Component<Props, { toggleMessage: boolean }> {
   renderAction() {
     const { activity, conversation, comments } = this.props;
     const { _id, integration } = conversation;
+
     let { customer } = conversation;
+
+    if (!customer) {
+      return null;
+    }
 
     let kind = integration ? integration.kind : 'conversation';
 
@@ -167,8 +172,8 @@ class Conversation extends React.Component<Props, { toggleMessage: boolean }> {
         item = 'by Facebook Messenger';
         break;
       case 'lead':
-        action = 'filled in';
-        kind = 'Pop ups';
+        action = 'submitted a';
+        kind = 'Form';
         item = '';
         break;
       case 'nylas-gmail':

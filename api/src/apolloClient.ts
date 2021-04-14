@@ -6,7 +6,13 @@ import { EngagesAPI, HelpersApi, IntegrationsAPI } from './data/dataSources';
 import resolvers from './data/resolvers';
 import * as typeDefDetails from './data/schema';
 import { Conversations, Customers, Users } from './db/models';
-import memoryStorage from './inmemoryStorage';
+import {
+  addToArray,
+  get,
+  inArray,
+  removeFromArray,
+  set
+} from './inmemoryStorage';
 import { extendViaPlugins } from './pluginUtils';
 import { graphqlPubsub } from './pubsub';
 
@@ -41,8 +47,12 @@ const generateDataSources = () => {
 
 let apolloServer;
 
-export const initApolloServer = async (app) => {
-  const { types, queries, mutations, subscriptions } = await extendViaPlugins(app, resolvers, typeDefDetails);
+export const initApolloServer = async app => {
+  const { types, queries, mutations, subscriptions } = await extendViaPlugins(
+    app,
+    resolvers,
+    typeDefDetails
+  );
 
   const typeDefs = gql(`
     ${types}
@@ -142,31 +152,35 @@ export const initApolloServer = async (app) => {
           if (parsedMessage.type === 'messengerConnected') {
             webSocket.messengerData = parsedMessage.value;
 
-            const customerId = webSocket.messengerData.customerId;
+            const customerId =
+              webSocket.messengerData && webSocket.messengerData.customerId;
+            const visitorId =
+              webSocket.messengerData && webSocket.messengerData.visitorId;
+
+            const memoryStorageValue = customerId || visitorId;
 
             // get status from inmemory storage
-            const inConnectedClients = await memoryStorage().inArray(
+            const inConnectedClients = await inArray(
               'connectedClients',
-              customerId
-            );
-            const inClients = await memoryStorage().inArray(
-              'clients',
-              customerId
+              memoryStorageValue
             );
 
+            const inClients = await inArray('clients', memoryStorageValue);
+
             if (!inConnectedClients) {
-              await memoryStorage().addToArray('connectedClients', customerId);
+              await addToArray('connectedClients', memoryStorageValue);
             }
 
             // Waited for 1 minute to reconnect in disconnect hook and disconnect hook
             // removed this customer from connected clients list. So it means this customer
             // is back online
             if (!inClients) {
-              await memoryStorage().addToArray('clients', customerId);
+              await addToArray('clients', memoryStorageValue);
 
-              // mark as online
-              await Customers.markCustomerAsActive(customerId);
-
+              if (customerId) {
+                // mark as online
+                await Customers.markCustomerAsActive(customerId);
+              }
               // notify as connected
               graphqlPubsub.publish('customerConnectionChanged', {
                 customerConnectionChanged: {
@@ -181,9 +195,14 @@ export const initApolloServer = async (app) => {
         let user;
 
         try {
-          const cookies = cookie.parse(connectionContext.request.headers.cookie);
+          const cookies = cookie.parse(
+            connectionContext.request.headers.cookie
+          );
 
-          const jwtContext = jwt.verify(cookies['auth-token'], Users.getSecret());
+          const jwtContext = jwt.verify(
+            cookies['auth-token'],
+            Users.getSecret()
+          );
 
           user = jwtContext.user;
         } catch (e) {
@@ -200,21 +219,25 @@ export const initApolloServer = async (app) => {
 
         if (messengerData) {
           const customerId = messengerData.customerId;
+          const memoryStorageValue = customerId
+            ? customerId
+            : messengerData.visitorId;
           const integrationId = messengerData.integrationId;
 
           // Temporarily marking as disconnected
           // If client refreshes his browser, It will trigger disconnect, connect hooks.
           // So to determine this issue. We are marking as disconnected here and waiting
           // for 1 minute to reconnect.
-          await memoryStorage().removeFromArray('connectedClients', customerId);
+
+          await removeFromArray('connectedClients', memoryStorageValue);
 
           setTimeout(async () => {
             // get status from inmemory storage
-            const inNewConnectedClients = await memoryStorage().inArray(
+            const inNewConnectedClients = await inArray(
               'connectedClients',
-              customerId
+              memoryStorageValue
             );
-            const customerLastStatus = await memoryStorage().get(
+            const customerLastStatus = await get(
               `customer_last_status_${customerId}`
             );
 
@@ -222,13 +245,14 @@ export const initApolloServer = async (app) => {
               return;
             }
 
-            await memoryStorage().removeFromArray('clients', customerId);
+            await removeFromArray('clients', memoryStorageValue);
 
-            // mark as offline
-            await Customers.markCustomerAsNotActive(customerId);
-
+            if (customerId) {
+              // mark as offline
+              await Customers.markCustomerAsNotActive(customerId);
+            }
             if (customerLastStatus !== 'left') {
-              memoryStorage().set(`customer_last_status_${customerId}`, 'left');
+              set(`customer_last_status_${customerId}`, 'left');
 
               // customer has left + time
               const conversationMessages = await Conversations.changeCustomerStatus(
@@ -265,6 +289,6 @@ export const initApolloServer = async (app) => {
   });
 
   return apolloServer;
-}
+};
 
 export default apolloServer;

@@ -35,6 +35,7 @@ import CommonPreview from './widgetPreview/CommonPreview';
 type Props = {
   teamMembers: IUser[];
   integration?: IIntegration;
+  messengerApps?: IMessengerApps;
   brands: IBrand[];
   save: (params: {
     name: string;
@@ -72,6 +73,7 @@ type State = {
   youtube: string;
   messages: IMessages;
   isStepActive?: boolean;
+  activeStep?: string;
   requireAuth?: boolean;
   showChat?: boolean;
   showLauncher?: boolean;
@@ -101,7 +103,7 @@ class CreateMessenger extends React.Component<Props, State> {
     const messages = configData.messages || {};
     const uiOptions = integration.uiOptions || {};
     const channels = integration.channels || [];
-    const messengerApps = {};
+    const messengerApps = props.messengerApps || {};
 
     this.state = {
       title: integration.name,
@@ -197,14 +199,14 @@ class CreateMessenger extends React.Component<Props, State> {
     }
 
     if (!title) {
-      return Alert.error('Write title');
+      return Alert.error('Insert integration name');
     }
 
     if (!brandId) {
       return Alert.error('Choose a brand');
     }
 
-    if (skillData) {
+    if (skillData && Object.keys(skillData).length !== 0) {
       const skillOptions = (skillData as ISkillData).options || [];
 
       if (skillOptions.length === 0) {
@@ -266,11 +268,13 @@ class CreateMessenger extends React.Component<Props, State> {
   };
 
   onStepClick = name => {
-    if (name !== 'greeting') {
-      return this.setState({ isStepActive: false });
-    }
-
-    return this.setState({ isStepActive: true });
+    this.setState({
+      isStepActive:
+        name === 'greeting' || name === 'hours' || name === 'addon'
+          ? true
+          : false,
+      activeStep: name
+    });
   };
 
   renderButtons() {
@@ -320,13 +324,15 @@ class CreateMessenger extends React.Component<Props, State> {
       youtube,
       messages,
       isStepActive,
+      activeStep,
       requireAuth,
       showChat,
       showLauncher,
       forceLogoutWhenResolve,
       showVideoCallRequest,
       channelIds,
-      skillData
+      skillData,
+      messengerApps
     } = this.state;
 
     const { integration } = this.props;
@@ -474,11 +480,16 @@ class CreateMessenger extends React.Component<Props, State> {
                 wallpaper={wallpaper}
                 color={color}
                 textColor={textColor}
+                skillData={skillData}
                 brands={this.props.brands}
                 brandId={brandId}
+                timezone={timezone}
                 logoPreviewStyle={logoPreviewStyle}
                 logoPreviewUrl={logoPreviewUrl}
-                isGreeting={isStepActive}
+                showChatPreview={isStepActive}
+                activeStep={activeStep}
+                showVideoCallRequest={showVideoCallRequest}
+                messengerApps={messengerApps}
                 facebook={facebook}
                 twitter={twitter}
                 youtube={youtube}

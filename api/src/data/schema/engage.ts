@@ -9,6 +9,7 @@ export const types = `
     _id: String!
     kind: String
     tagIds: [String]
+    customerTagIds: [String]
     segmentIds: [String]
     brandIds: [String]
     customerIds: [String]
@@ -29,14 +30,16 @@ export const types = `
     email: JSON
     messenger: JSON
     shortMessage: EngageMessageSms
+    createdBy: String
 
     scheduleDate: EngageScheduleDate
     segments: [Segment]
-    tags: [Tag]
+    customerTags: [Tag]
     brands: [Brand]
     fromUser: User
     getTags: [Tag]
     fromIntegration: Integration
+    createdUser: String
 
     stats: JSON
     logs: JSON
@@ -111,11 +114,8 @@ export const types = `
 const listParams = `
   kind: String
   status: String
-  segmentIds: [String]
-  brandIds: [String]
-  tagIds: [String]
   tag: String
-  ids: [String]
+  ids: String
   page: Int
   perPage: Int
 `;
@@ -142,7 +142,7 @@ const commonParams = `
   scheduleDate: Date,
   type: String
   segmentIds: [String],
-  tagIds: [String],
+  customerTagIds: [String],
   brandIds: [String],
   customerIds: [String],
   email: EngageMessageEmail,
@@ -162,4 +162,5 @@ export const mutations = `
   engageMessageVerifyEmail(email: String!): String
   engageMessageRemoveVerifiedEmail(email: String!): String
   engageMessageSendTestEmail(from: String!, to: String!, content: String!, title: String!): String
+  engageMessageCopy(_id: String!): EngageMessage
 `;

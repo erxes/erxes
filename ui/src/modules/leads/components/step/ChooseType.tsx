@@ -1,15 +1,19 @@
+import { COLORS } from 'modules/boards/constants';
 import FormGroup from 'modules/common/components/form/Group';
 import ControlLabel from 'modules/common/components/form/Label';
 import Icon from 'modules/common/components/Icon';
-import { LeftItem, Preview } from 'modules/common/components/step/styles';
+import { LeftItem } from 'modules/common/components/step/styles';
 import { __ } from 'modules/common/utils';
+import { ColorPick, ColorPicker } from 'modules/settings/styles';
 import React from 'react';
-import { CalloutPreview } from './preview';
-import { Box, BoxRow, FlexItem } from './style';
+import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
+import Popover from 'react-bootstrap/Popover';
+import TwitterPicker from 'react-color/lib/Twitter';
+import { Box, BoxRow, FlexItem, LabelWrapper } from './style';
 
 type Props = {
   type: string;
-  onChange: (name: 'type', value: string) => void;
+  onChange: (name: 'type' | 'color' | 'theme', value: string) => void;
   calloutTitle?: string;
   calloutBtnText?: string;
   color: string;
@@ -32,13 +36,52 @@ class ChooseType extends React.Component<Props, {}> {
     return this.props.onChange('type', value);
   }
 
+  onColorChange = e => {
+    this.setState({ color: e.hex, theme: '#000' }, () => {
+      this.props.onChange('color', e.hex);
+      this.props.onChange('theme', e.hex);
+    });
+  };
+
   render() {
+    const { color, theme } = this.props;
+
+    const popoverTop = (
+      <Popover id="color-picker">
+        <TwitterPicker
+          width="240px"
+          triangle="hide"
+          colors={COLORS}
+          color={color}
+          onChange={this.onColorChange}
+        />
+      </Popover>
+    );
+
     return (
       <FlexItem>
         <LeftItem>
           <FormGroup>
-            <ControlLabel>Choose a flow type</ControlLabel>
+            <LabelWrapper>
+              <ControlLabel>Theme color</ControlLabel>
+            </LabelWrapper>
+            <div>
+              <OverlayTrigger
+                trigger="click"
+                rootClose={true}
+                placement="bottom-start"
+                overlay={popoverTop}
+              >
+                <ColorPick>
+                  <ColorPicker style={{ backgroundColor: theme }} />
+                </ColorPick>
+              </OverlayTrigger>
+            </div>
           </FormGroup>
+
+          <LabelWrapper>
+            <ControlLabel>Choose a flow type</ControlLabel>
+          </LabelWrapper>
           <BoxRow>
             {this.renderBox('ShoutBox', 'comment-1', 'shoutbox')}
             {this.renderBox('Popup', 'window', 'popup')}
@@ -58,9 +101,6 @@ class ChooseType extends React.Component<Props, {}> {
             )}
           </BoxRow>
         </LeftItem>
-        <Preview>
-          <CalloutPreview {...this.props} />
-        </Preview>
       </FlexItem>
     );
   }

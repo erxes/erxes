@@ -1,4 +1,7 @@
+import * as faker from 'faker';
 import * as sinon from 'sinon';
+import { MESSAGE_KINDS } from '../data/constants';
+import * as utils from '../data/utils';
 import {
   brandFactory,
   conversationMessageFactory,
@@ -20,14 +23,21 @@ import {
   Tags,
   Users
 } from '../db/models';
-
 import Messages from '../db/models/ConversationMessages';
 import { IBrandDocument } from '../db/models/definitions/brands';
+import { MESSENGER_KINDS, METHODS } from '../db/models/definitions/constants';
 import { ICustomerDocument } from '../db/models/definitions/customers';
 import { IIntegrationDocument } from '../db/models/definitions/integrations';
 import { IUserDocument } from '../db/models/definitions/users';
+import * as elk from '../elasticsearch';
 import * as events from '../events';
 import './setup.ts';
+
+const getEnvMock = value => {
+  return sinon.stub(utils, 'getEnv').callsFake(() => {
+    return value;
+  });
+};
 
 describe('engage messages model tests', () => {
   let _user;
@@ -41,7 +51,7 @@ describe('engage messages model tests', () => {
     _segment = await segmentFactory({});
     _brand = await brandFactory({});
     _tag = await tagsFactory({});
-    _message = await engageMessageFactory({ kind: 'auto' });
+    _message = await engageMessageFactory({ kind: MESSAGE_KINDS.AUTO });
   });
 
   afterEach(async () => {
@@ -57,7 +67,7 @@ describe('engage messages model tests', () => {
     try {
       await EngageMessages.getEngageMessage('fakeId');
     } catch (e) {
-      expect(e.message).toBe('Engage message not found');
+      expect(e.message).toBe('Campaign not found');
     }
 
     const response = await EngageMessages.getEngageMessage(_message._id);
@@ -67,17 +77,22 @@ describe('engage messages model tests', () => {
 
   test('create messages', async () => {
     const doc = {
-      kind: 'manual',
+      kind: MESSAGE_KINDS.MANUAL,
       title: 'Message test',
       fromUserId: _user._id,
       segmentIds: [_segment._id],
       brandIds: [_brand._id],
       tagIds: [_tag._id],
       isLive: true,
-      isDraft: false
+      isDraft: false,
+      createdBy: _user._id
     };
 
-    const message = await EngageMessages.createEngageMessage(doc);
+    const message = await EngageMessages.createEngageMessage({
+      ...doc,
+      method: METHODS.EMAIL
+    });
+
     expect(message.kind).toEqual(doc.kind);
     expect(message.title).toEqual(doc.title);
     expect(message.fromUserId).toEqual(_user._id);
@@ -86,6 +101,7 @@ describe('engage messages model tests', () => {
     expect(message.tagIds).toEqual(expect.arrayContaining(doc.tagIds));
     expect(message.isLive).toEqual(doc.isLive);
     expect(message.isDraft).toEqual(doc.isDraft);
+    expect(message.createdBy).toBe(doc.createdBy);
   });
 
   test('update messages', async () => {
@@ -94,7 +110,9 @@ describe('engage messages model tests', () => {
       fromUserId: _user._id,
       segmentIds: [_segment._id],
       brandIds: [_brand._id],
-      tagIds: [_tag._id]
+      tagIds: [_tag._id],
+      method: _message.method,
+      kind: _message.kind
     });
 
     expect(message.title).toEqual('Message test updated');
@@ -104,19 +122,22 @@ describe('engage messages model tests', () => {
     expect(message.tagIds).toEqual(expect.arrayContaining([_tag._id]));
   });
 
-  test('update messages: can not update manual message', async () => {
+  test('update messages: can not update manual live campaign', async () => {
     expect.assertions(1);
 
     const manualMessage = await engageMessageFactory({
-      kind: 'manual'
+      kind: MESSAGE_KINDS.MANUAL,
+      isLive: true
     });
 
     try {
       await EngageMessages.updateEngageMessage(manualMessage._id, {
-        title: 'Message test updated'
+        title: 'Message test updated',
+        method: manualMessage.method,
+        kind: manualMessage.kind
       });
     } catch (e) {
-      expect(e.message).toBe('Can not update manual message');
+      expect(e.message).toBe('Can not update manual live campaign');
     }
   });
 
@@ -133,7 +154,7 @@ describe('engage messages model tests', () => {
     const message = await EngageMessages.findOne({ _id: _message._id });
 
     if (!message) {
-      throw new Error('Engage message not found');
+      throw new Error('Campaign not found');
     }
 
     expect(message.isLive).toEqual(true);
@@ -145,21 +166,19 @@ describe('engage messages model tests', () => {
     const message = await EngageMessages.findOne({ _id: _message._id });
 
     if (!message) {
-      throw new Error('Engage message not found');
+      throw new Error('Campaign not found');
     }
 
     expect(message.isLive).toEqual(false);
   });
 
-  test('Engage message remove not found', async () => {
+  test('Campaign remove that throws not found exception', async () => {
     expect.assertions(1);
 
     try {
       await EngageMessages.removeEngageMessage(_segment._id);
     } catch (e) {
-      expect(e.message).toEqual(
-        `Engage message not found with id ${_segment._id}`
-      );
+      expect(e.message).toEqual(`Campaign not found with id ${_segment._id}`);
     }
   });
 
@@ -237,13 +256,14 @@ describe('createConversation', () => {
   });
 
   test('createOrUpdateConversationAndMessages', async () => {
+    const elkSyncerEnvMock = getEnvMock('false');
     const user = await userFactory({ fullName: 'Full name' });
 
     const replacedContent = 'hi Full name';
 
     const kwargs = {
-      customer: _customer,
-      integration: _integration,
+      customerId: _customer._id,
+      integrationId: _integration._id,
       user,
       replacedContent,
       engageData: engageDataFactory({
@@ -340,6 +360,8 @@ describe('createConversation', () => {
     expect(message1.isCustomerRead).toBe(true);
     expect(message2.isCustomerRead).toBe(true);
 
+    elkSyncerEnvMock.restore();
+
     // message is equal with previous one =====================
     const engageMessage = await engageMessageFactory({
       messenger: {
@@ -366,9 +388,41 @@ describe('createConversation', () => {
       customerId: _customer._id
     });
 
+    const envMock = getEnvMock('true');
+
+    const elkMock = sinon.stub(elk, 'fetchElk').callsFake(() => {
+      return Promise.resolve({
+        hits: {
+          hits: [
+            {
+              _id: 'conversationMessageId',
+              _source: {
+                mentionedUserIds: [],
+                contentType: 'text',
+                internal: false,
+                engageData: {
+                  rules: [],
+                  messageId: engageMessage._id,
+                  brandId: 'brandId',
+                  content: 'content',
+                  fromUserId: user._id,
+                  kind: MESSENGER_KINDS.CHAT,
+                  sentAs: 'snippet'
+                },
+                conversationId: 'conversationId',
+                userId: user._id,
+                visitorId: 'visitorId',
+                content: 'content'
+              }
+            }
+          ]
+        }
+      });
+    });
+
     response = await EngageMessages.createOrUpdateConversationAndMessages({
-      customer: _customer,
-      integration: _integration,
+      customerId: _customer._id,
+      integrationId: _integration._id,
       user,
       replacedContent,
       engageData: {
@@ -383,6 +437,9 @@ describe('createConversation', () => {
     });
 
     expect(response).toBe(null);
+
+    elkMock.restore();
+    envMock.restore();
   });
 });
 
@@ -393,6 +450,7 @@ describe('createVisitorOrCustomerMessages', () => {
   let _integration: IIntegrationDocument;
   let _visitor: ICustomerDocument;
   let mock;
+  let envMock;
 
   beforeEach(async () => {
     // Creating test data
@@ -405,6 +463,8 @@ describe('createVisitorOrCustomerMessages', () => {
     _visitor = await customerFactory({
       state: 'visitor'
     });
+
+    envMock = getEnvMock('false');
 
     mock = sinon.stub(events, 'getNumberOfVisits').callsFake(() => {
       return Promise.resolve(11);
@@ -484,6 +544,7 @@ describe('createVisitorOrCustomerMessages', () => {
     await Brands.deleteMany({});
 
     mock.restore();
+    envMock.restore();
   });
 
   test('must create conversation & message object', async () => {
@@ -538,9 +599,9 @@ describe('createVisitorOrCustomerMessages', () => {
     });
     // main call
     const msgs = await EngageMessages.createVisitorOrCustomerMessages({
-      brand: _brand,
+      brandId: _brand._id,
       customer: _customer,
-      integration: _integration,
+      integrationId: _integration._id,
       browserInfo: {
         url: '/index'
       }
@@ -594,18 +655,18 @@ describe('createVisitorOrCustomerMessages', () => {
     });
 
     await EngageMessages.createVisitorOrCustomerMessages({
-      brand: _brand,
+      brandId: _brand._id,
       customer: customer2,
-      integration: _integration,
+      integrationId: _integration._id,
       browserInfo: {
         url: '/index'
       }
     });
 
     await EngageMessages.createVisitorOrCustomerMessages({
-      brand: _brand,
+      brandId: _brand._id,
       customer: customer1,
-      integration: _integration,
+      integrationId: _integration._id,
       browserInfo: {
         url: '/index'
       }
@@ -650,10 +711,10 @@ describe('createVisitorOrCustomerMessages', () => {
     const customer = await customerFactory({ state: 'customer' });
 
     await engageMessageFactory({
-      kind: 'manual',
+      kind: MESSAGE_KINDS.MANUAL,
       userId: _user._id,
       isLive: true,
-      tagIds: [(await tagsFactory({}))._id],
+      customerTagIds: [(await tagsFactory({}))._id],
       messenger: {
         brandId: _brand._id,
         content: 'hi,{{ customer.firstName }} {{ customer.lastName }}'
@@ -661,9 +722,9 @@ describe('createVisitorOrCustomerMessages', () => {
     });
 
     await EngageMessages.createVisitorOrCustomerMessages({
-      brand: _brand,
+      brandId: _brand._id,
       customer,
-      integration: _integration,
+      integrationId: _integration._id,
       browserInfo: {
         url: '/index'
       }
@@ -965,5 +1026,222 @@ describe('createVisitorOrCustomerMessages', () => {
 
       expect(response).toBe(true);
     });
+  });
+});
+
+describe('createVisitorOrCustomerMessages with elk', () => {
+  let _user: IUserDocument;
+  let _brand: IBrandDocument;
+  let _customer: ICustomerDocument;
+  let _integration: IIntegrationDocument;
+  let _visitor: ICustomerDocument;
+  let envMock;
+  let elkMock;
+  let _segment;
+
+  beforeEach(async () => {
+    // Creating test data
+    _customer = await customerFactory({
+      firstName: 'firstName',
+      lastName: 'lastName',
+      state: 'customer'
+    });
+
+    _segment = await segmentFactory({});
+
+    _visitor = await customerFactory({
+      state: 'visitor'
+    });
+
+    envMock = getEnvMock('true');
+
+    elkMock = sinon.stub(elk, 'fetchElk').callsFake(() => {
+      return Promise.resolve({
+        hits: {
+          hits: [
+            {
+              _id: faker.random.uuid(),
+              _source: {
+                kind: MESSAGE_KINDS.VISITOR_AUTO,
+                method: METHODS.MESSENGER,
+                fromUserId: _user._id,
+                isDraft: false,
+                isLive: true,
+                messenger: {
+                  brandId: _brand._id,
+                  sentAs: 'snippet',
+                  content: '',
+                  rules: []
+                },
+                createdBy: _user._id
+              }
+            },
+            {
+              _id: faker.random.uuid(),
+              _source: {
+                kind: MESSAGE_KINDS.AUTO,
+                method: METHODS.MESSENGER,
+                fromUserId: _user._id,
+                isDraft: false,
+                isLive: true,
+                customerIds: [_customer._id],
+                customerTagIds: ['tagid'],
+                segmentIds: [_segment._id],
+                brandIds: [_brand._id],
+                messenger: {
+                  brandId: _brand._id,
+                  sentAs: 'snippet',
+                  content: '',
+                  rules: []
+                },
+                createdBy: _user._id
+              }
+            },
+            {
+              _id: faker.random.uuid(),
+              _source: {
+                kind: MESSAGE_KINDS.AUTO,
+                method: METHODS.MESSENGER,
+                fromUserId: _user._id,
+                isDraft: false,
+                isLive: true,
+                brandIds: [_brand._id],
+                messenger: {
+                  brandId: _brand._id,
+                  sentAs: 'snippet',
+                  content: '',
+                  rules: []
+                },
+                createdBy: _user._id
+              }
+            }
+          ]
+        }
+      });
+    });
+
+    _brand = await brandFactory({});
+    _integration = await integrationFactory({ brandId: _brand._id });
+    _user = await userFactory({});
+
+    const message = new EngageMessages({
+      title: 'Visitor',
+      fromUserId: _user._id,
+      kind: MESSAGE_KINDS.VISITOR_AUTO,
+      method: METHODS.MESSENGER,
+      isLive: true,
+      messenger: {
+        brandId: _brand._id,
+        rules: [
+          {
+            kind: 'currentPageUrl',
+            condition: 'is',
+            value: '/page'
+          },
+          {
+            kind: 'numberOfVisits',
+            condition: 'greaterThan',
+            value: 10
+          }
+        ],
+        content: 'hi,{{ customer.name }}'
+      }
+    });
+
+    // invalid from user id
+    await engageMessageFactory({
+      kind: MESSAGE_KINDS.AUTO,
+      userId: 'invalid',
+      isLive: true,
+      messenger: {
+        brandId: _brand._id,
+        content: 'hi,{{ customer.firstName }} {{ customer.lastName }}'
+      }
+    });
+
+    await engageMessageFactory({
+      kind: MESSAGE_KINDS.VISITOR_AUTO,
+      userId: _user._id,
+      isLive: true,
+      customerIds: [_visitor.id],
+      messenger: {
+        brandId: _brand._id,
+        content: 'hi,{{ customer.firstName }} {{ customer.lastName }}'
+      }
+    });
+
+    await engageMessageFactory({
+      kind: MESSAGE_KINDS.MANUAL,
+      userId: _user._id,
+      isLive: true,
+      customerIds: [_customer.id],
+      messenger: {
+        brandId: _brand._id,
+        content: 'hi,{{ customer.firstName }} {{ customer.lastName }}'
+      }
+    });
+
+    return message.save();
+  });
+
+  afterEach(async () => {
+    // Clearing test data
+    await Customers.deleteMany({});
+    await Integrations.deleteMany({});
+    await Conversations.deleteMany({});
+    await EngageMessages.deleteMany({});
+    await Messages.deleteMany({});
+    await Brands.deleteMany({});
+    await Segments.deleteMany({});
+
+    elkMock.restore();
+    envMock.restore();
+  });
+
+  test('visitorAuto with visitor', async () => {
+    const visitor = {
+      _id: '123456',
+      integrationId: _integration._id,
+      visitorId: faker.random.uuid()
+    };
+
+    await EngageMessages.createVisitorOrCustomerMessages({
+      brandId: _brand._id,
+      visitor,
+      integrationId: _integration._id,
+      browserInfo: {
+        url: '/index'
+      }
+    });
+
+    const conv = await Conversations.findOne({
+      visitorId: visitor.visitorId,
+      integrationId: _integration._id
+    });
+
+    expect(conv).toBeNull();
+  });
+
+  test('engageMessage with elkSyncer', async () => {
+    const customer = await customerFactory({
+      state: 'visitor',
+      firstName: 'john',
+      lastName: 'doe'
+    });
+
+    await EngageMessages.createVisitorOrCustomerMessages({
+      brandId: _brand._id,
+      customer,
+      integrationId: _integration._id,
+      browserInfo: {
+        url: '/index'
+      }
+    });
+
+    const conversation = await Conversations.findOne({
+      customerId: customer._id
+    });
+
+    expect(conversation).toBeNull();
   });
 });

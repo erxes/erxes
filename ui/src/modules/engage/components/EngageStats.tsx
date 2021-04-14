@@ -242,6 +242,7 @@ class EmailStatistics extends React.Component<Props> {
 
   render() {
     const { message } = this.props;
+
     const logs = message.logs || [];
 
     const actionBar = (
@@ -276,7 +277,7 @@ class EmailStatistics extends React.Component<Props> {
           <Wrapper.Header
             title={__('Show statistics')}
             breadcrumb={[
-              { title: __('Engage'), link: '/engage' },
+              { title: __('Campaigns'), link: '/campaigns' },
               { title: __('Show statistics') }
             ]}
           />

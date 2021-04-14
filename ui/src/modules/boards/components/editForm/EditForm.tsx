@@ -38,13 +38,17 @@ class EditForm extends React.Component<Props, State> {
 
   onChangeStage = (stageId: string) => {
     this.setState({ stageId }, () => {
-      if (this.props.item.stageId !== this.state.stageId) {
+      const { item, saveItem, onUpdate } = this.props;
+
+      if (item.stageId !== this.state.stageId) {
         this.setState({
-          prevStageId: this.props.item.stageId
+          prevStageId: item.stageId
         });
 
-        this.props.saveItem({ stageId }, updatedItem => {
-          this.props.onUpdate(updatedItem, this.state.prevStageId);
+        saveItem({ stageId }, updatedItem => {
+          if (onUpdate) {
+            onUpdate(updatedItem, this.state.prevStageId);
+          }
         });
       }
     });

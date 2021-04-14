@@ -1,13 +1,29 @@
 import {
+  activityLogFactory,
   boardFactory,
+  checklistFactory,
+  checklistItemFactory,
+  conformityFactory,
+  customerFactory,
   dealFactory,
   formFactory,
+  internalNoteFactory,
   pipelineFactory,
   pipelineTemplateFactory,
   stageFactory,
   userFactory
 } from '../db/factories';
-import { Boards, Deals, Forms, Pipelines, Stages } from '../db/models';
+import {
+  Boards,
+  ChecklistItems,
+  Checklists,
+  Conformities,
+  Deals,
+  Forms,
+  InternalNotes,
+  Pipelines,
+  Stages
+} from '../db/models';
 import { getNewOrder } from '../db/models/boardUtils';
 import {
   IBoardDocument,
@@ -282,12 +298,77 @@ describe('Test board model', () => {
 
   test('Remove pipeline with stage items', async () => {
     const removePipeline = await pipelineFactory();
-    const removedStage = await stageFactory({ pipelineId: removePipeline._id });
+    const removedStage = await stageFactory({
+      pipelineId: removePipeline._id,
+      type: 'deal'
+    });
+    const stayStage = await stageFactory({
+      pipelineId: (await pipelineFactory())._id,
+      type: 'deal'
+    });
+
+    const helper = async pStage => {
+      await dealFactory({ stageId: pStage._id });
+      const deal = await dealFactory({ stageId: pStage._id });
+      const checklist = await checklistFactory({
+        contentType: 'deal',
+        contentTypeId: deal._id
+      });
+      await checklistItemFactory({ checklistId: checklist._id });
+      await internalNoteFactory({
+        contentType: 'deal',
+        contentTypeId: deal._id
+      });
+      await activityLogFactory({ contentType: 'deal', contentId: deal._id });
+      const customer = await customerFactory({});
+      await conformityFactory({
+        mainType: 'customer',
+        mainTypeId: customer._id,
+        relType: 'deal',
+        relTypeId: deal._id
+      });
+      return { deal, checklist };
+    };
+
+    let result = await helper(removedStage);
+    const removedDeal = result.deal;
+    const removedChecklist = result.checklist;
+
+    result = await helper(stayStage);
+    const stayDeal = result.deal;
+    const stayChecklist = result.checklist;
 
     const isDeleted = await Pipelines.removePipeline(removePipeline.id, false);
 
     expect(isDeleted).toBeTruthy();
     expect(await Stages.findOne({ _id: removedStage._id })).toBeNull();
+
+    const checkHelper = async (deal, checklist, eqCount) => {
+      expect(await Deals.find({ _id: deal._id }).count()).toEqual(eqCount);
+      expect(
+        await Checklists.find({
+          contentType: 'deal',
+          contentTypeId: deal._id
+        }).count()
+      ).toEqual(eqCount);
+      expect(
+        await ChecklistItems.find({ checklistId: checklist._id }).count()
+      ).toEqual(eqCount);
+      expect(
+        await Conformities.find({
+          relType: 'deal',
+          relTypeId: deal._id
+        }).count()
+      ).toEqual(eqCount);
+      expect(
+        await InternalNotes.find({
+          contentType: 'deal',
+          contentTypeId: deal._id
+        }).count()
+      ).toEqual(eqCount);
+    };
+    await checkHelper(removedDeal, removedChecklist, 0);
+    await checkHelper(stayDeal, stayChecklist, 1);
   });
 
   test('Remove pipeline not found', async () => {

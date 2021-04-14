@@ -19,6 +19,7 @@ describe('Row component', () => {
       name: string;
       colorCode: string;
     }) => null,
+    merge: (sourceId: string, destId: string, callback) => null,
     save: (params: {
       doc: {
         _id?: string;
@@ -32,7 +33,7 @@ describe('Row component', () => {
   };
 
   test('renders WithPermission successfully', () => {
-    const wrapper = shallow(<Row {...defaultProps} />);
+    const wrapper = shallow(<Row tags={[]} space={0} {...defaultProps} />);
     expect(wrapper).not.toBe('');
   });
 });

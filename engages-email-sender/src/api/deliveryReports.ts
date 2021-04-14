@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import { prepareSmsStats } from '../telnyxUtils';
-import { prepareAvgStats } from '../utils';
+import { prepareAvgStats, routeErrorHandling } from '../utils';
 
 const router = Router();
 
@@ -21,78 +21,95 @@ router.get('/statsList/:engageMessageId', async (req, res) => {
   return res.json(stats);
 });
 
-router.get('/smsStats/:engageMessageId', async (req, res) => {
-  debugRequest(debugEngages, req);
+router.get(
+  '/smsStats/:engageMessageId',
+  routeErrorHandling(async (req, res) => {
+    debugRequest(debugEngages, req);
 
-  const { engageMessageId } = req.params;
+    const { engageMessageId } = req.params;
 
-  const smsStats = await prepareSmsStats(engageMessageId);
+    const smsStats = await prepareSmsStats(engageMessageId);
 
-  return res.json(smsStats);
-});
+    return res.json(smsStats);
+  })
+);
 
-router.get('/reportsList', async (req, res) => {
-  debugRequest(debugEngages, req);
+router.get(
+  '/reportsList',
+  routeErrorHandling(async (req, res) => {
+    debugRequest(debugEngages, req);
 
-  const { page, perPage, customerId, status } = req.query;
+    const { page, perPage, customerId, status } = req.query;
 
-  const _page = Number(page || '1');
-  const _limit = Number(perPage || '20');
+    const _page = Number(page || '1');
+    const _limit = Number(perPage || '20');
 
-  const filter: any = {};
+    const filter: any = {};
 
-  if (customerId) {
-    filter.customerId = customerId;
-  }
-  if (status) {
-    filter.status = status;
-  }
+    if (customerId) {
+      filter.customerId = customerId;
+    }
+    if (status) {
+      filter.status = status;
+    }
 
-  const deliveryReports = await DeliveryReports.find(filter)
-    .limit(_limit)
-    .skip((_page - 1) * _limit)
-    .sort({ createdAt: -1 });
+    const deliveryReports = await DeliveryReports.find(filter)
+      .limit(_limit)
+      .skip((_page - 1) * _limit)
+      .sort({ createdAt: -1 });
 
-  if (!deliveryReports) {
-    return res.json({ list: [], totalCount: 0 });
-  }
+    if (!deliveryReports) {
+      return res.json({ list: [], totalCount: 0 });
+    }
 
-  const totalCount = await DeliveryReports.countDocuments();
+    const totalCount = await DeliveryReports.countDocuments();
 
-  return res.json({
-    list: deliveryReports,
-    totalCount
-  });
-});
+    return res.json({
+      list: deliveryReports,
+      totalCount
+    });
+  })
+);
 
-router.get(`/reportsList/:engageMessageId`, async (req, res) => {
-  debugRequest(debugEngages, req);
+router.get(
+  `/reportsList/:engageMessageId`,
+  routeErrorHandling(async (req, res) => {
+    debugRequest(debugEngages, req);
 
-  const deliveryReports = await DeliveryReports.findOne({
-    engageMessageId: req.params.engageMessageId
-  });
+    const deliveryReports = await DeliveryReports.findOne({
+      engageMessageId: req.params.engageMessageId
+    });
 
-  if (!deliveryReports) {
-    return res.json({});
-  }
+    if (!deliveryReports) {
+      return res.json({});
+    }
 
-  return res.json(deliveryReports);
-});
+    return res.json(deliveryReports);
+  })
+);
 
-router.get(`/logs/:engageMessageId`, async (req, res) => {
-  debugRequest(debugEngages, req);
+router.get(
+  `/logs/:engageMessageId`,
+  routeErrorHandling(async (req, res) => {
+    debugRequest(debugEngages, req);
 
-  const logs = await Logs.find({ engageMessageId: req.params.engageMessageId });
+    const logs = await Logs.find({
+      engageMessageId: req.params.engageMessageId
+    });
 
-  return res.json(logs);
-});
+    return res.json(logs);
+  })
+);
 
-router.get('/avgStatPercentages', async (req: any, res) => {
-  debugRequest(debugEngages, req);
+router.get(
+  '/avgStatPercentages',
+  routeErrorHandling(async (req: any, res) => {
+    debugRequest(debugEngages, req);
 
-  const stats = await prepareAvgStats();
+    const stats = await prepareAvgStats();
 
-  return res.json({ data: stats[0] });
-});
+    return res.json({ data: stats[0] });
+  })
+);
 
 export default router;

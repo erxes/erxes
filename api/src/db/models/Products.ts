@@ -1,5 +1,7 @@
 import { Model, model } from 'mongoose';
 import { Deals, Fields } from '.';
+import { ICustomField } from './definitions/common';
+import { PRODUCT_STATUSES } from './definitions/constants';
 import {
   IProduct,
   IProductCategory,
@@ -8,12 +10,22 @@ import {
   productCategorySchema,
   productSchema
 } from './definitions/deals';
+import { IUserDocument } from './definitions/users';
 
 export interface IProductModel extends Model<IProductDocument> {
+  updateProductCategory(
+    productIds: any,
+    productFields: any,
+    user: IUserDocument
+  );
   getProduct(selector: any): Promise<IProductDocument>;
   createProduct(doc: IProduct): Promise<IProductDocument>;
   updateProduct(_id: string, doc: IProduct): Promise<IProductDocument>;
   removeProducts(_ids: string[]): Promise<{ n: number; ok: number }>;
+  mergeProducts(
+    productIds: string[],
+    productFields: IProduct
+  ): Promise<IProductDocument>;
 }
 
 export const loadProductClass = () => {
@@ -33,10 +45,23 @@ export const loadProductClass = () => {
       return product;
     }
 
+    static async checkCodeDuplication(code: string) {
+      const product = await Products.findOne({
+        code,
+        status: { $ne: PRODUCT_STATUSES.DELETED }
+      });
+
+      if (product) {
+        throw new Error('Code must be unique');
+      }
+    }
+
     /**
      * Create a product
      */
     public static async createProduct(doc: IProduct) {
+      await this.checkCodeDuplication(doc.code);
+
       if (doc.categoryCode) {
         const category = await ProductCategories.getProductCatogery({
           code: doc.categoryCode
@@ -55,6 +80,12 @@ export const loadProductClass = () => {
      * Update Product
      */
     public static async updateProduct(_id: string, doc: IProduct) {
+      const product = await Products.getProduct({ _id });
+
+      if (product.code !== doc.code) {
+        await this.checkCodeDuplication(doc.code);
+      }
+
       if (doc.customFieldsData) {
         // clean custom field values
         doc.customFieldsData = await Fields.prepareCustomFieldsData(
@@ -71,22 +102,115 @@ export const loadProductClass = () => {
      * Remove products
      */
     public static async removeProducts(_ids: string[]) {
-      const deals = await Deals.find(
-        {
-          'productsData.productId': { $in: _ids }
-        },
-        { name: 1 }
-      ).lean();
+      const dealProductIds = await Deals.find({
+        'productsData.productId': { $in: _ids }
+      }).distinct('productsData.productId');
 
-      if (deals.length > 0) {
-        const names = deals.map(deal => deal.name);
+      const usedIds: string[] = [];
+      const unUsedIds: string[] = [];
+      let response = 'deleted';
 
-        throw new Error(
-          `Can not remove products. Following deals are used ${names.join(',')}`
-        );
+      for (const id of _ids) {
+        if (!dealProductIds.includes(id)) {
+          unUsedIds.push(id);
+        } else {
+          usedIds.push(id);
+        }
       }
 
-      return Products.deleteMany({ _id: { $in: _ids } });
+      if (usedIds.length > 0) {
+        await Products.findByIdAndUpdate(usedIds, {
+          $set: { status: PRODUCT_STATUSES.DELETED }
+        });
+        response = 'updated';
+      }
+
+      await Products.deleteMany({ _id: { $in: unUsedIds } });
+
+      return response;
+    }
+
+    /**
+     * Merge products
+     */
+
+    public static async mergeProducts(
+      productIds: string[],
+      productFields: IProduct
+    ) {
+      const fields = ['name', 'code', 'unitPrice', 'categoryId', 'type'];
+
+      for (const field of fields) {
+        if (!productFields[field]) {
+          throw new Error(
+            `Can not merge products. Must choose ${field} field.`
+          );
+        }
+      }
+
+      let customFieldsData: ICustomField[] = [];
+      let tagIds: string[] = [];
+      const name: string = productFields.name || '';
+      const type: string = productFields.type || '';
+      const description: string = productFields.description || '';
+      const categoryId: string = productFields.categoryId || '';
+      const usedIds: string[] = [];
+
+      for (const productId of productIds) {
+        const productObj = await Products.getProduct({ _id: productId });
+
+        const productTags = productObj.tagIds || [];
+
+        // merge custom fields data
+        customFieldsData = [
+          ...customFieldsData,
+          ...(productObj.customFieldsData || [])
+        ];
+
+        // Merging products tagIds
+        tagIds = tagIds.concat(productTags);
+
+        await Products.findByIdAndUpdate(productId, {
+          $set: {
+            status: PRODUCT_STATUSES.DELETED,
+            code: Math.random()
+              .toString()
+              .concat('^', productObj.code)
+          }
+        });
+      }
+
+      // Removing Duplicates
+      tagIds = Array.from(new Set(tagIds));
+
+      // Creating product with properties
+      const product = await Products.createProduct({
+        ...productFields,
+        customFieldsData,
+        tagIds,
+        mergedIds: productIds,
+        name,
+        type,
+        description,
+        categoryId
+      });
+
+      const dealProductIds = await Deals.find({
+        'productsData.productId': { $in: productIds }
+      }).distinct('productsData.productId');
+
+      for (const deal of dealProductIds) {
+        if (productIds.includes(deal)) {
+          usedIds.push(deal);
+        }
+      }
+
+      await Deals.updateMany(
+        { 'productsData.productId': { $in: usedIds } },
+        { $set: { 'productsData.$.productId': product._id } }
+      );
+
+      return product;
     }
   }
 
@@ -124,10 +248,22 @@ export const loadProductCategoryClass = () => {
       return productCategory;
     }
 
+    static async checkCodeDuplication(code: string) {
+      const category = await ProductCategories.findOne({
+        code
+      });
+
+      if (category) {
+        throw new Error('Code must be unique');
+      }
+    }
+
     /**
      * Create a product categorys
      */
     public static async createProductCategory(doc: IProductCategory) {
+      await this.checkCodeDuplication(doc.code);
+
       const parentCategory = await ProductCategories.findOne({
         _id: doc.parentId
       }).lean();
@@ -145,6 +281,12 @@ export const loadProductCategoryClass = () => {
       _id: string,
       doc: IProductCategory
     ) {
+      const category = await ProductCategories.getProductCatogery({ _id });
+
+      if (category.code !== doc.code) {
+        await this.checkCodeDuplication(doc.code);
+      }
+
       const parentCategory = await ProductCategories.findOne({
         _id: doc.parentId
       }).lean();
@@ -170,13 +312,13 @@ export const loadProductCategoryClass = () => {
       await ProductCategories.updateOne({ _id }, { $set: doc });
 
       // updating child categories order
-      childCategories.forEach(async category => {
-        let order = category.order;
+      childCategories.forEach(async childCategory => {
+        let order = childCategory.order;
 
         order = order.replace(productCategory.order, doc.order);
 
         await ProductCategories.updateOne(
-          { _id: category._id },
+          { _id: childCategory._id },
           { $set: { order } }
         );
       });
@@ -190,7 +332,10 @@ export const loadProductCategoryClass = () => {
     public static async removeProductCategory(_id: string) {
       await ProductCategories.getProductCatogery({ _id });
 
-      let count = await Products.countDocuments({ categoryId: _id });
+      let count = await Products.countDocuments({
+        categoryId: _id,
+        status: { $ne: PRODUCT_STATUSES.DELETED }
+      });
       count += await ProductCategories.countDocuments({ parentId: _id });
 
       if (count > 0) {

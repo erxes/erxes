@@ -10,11 +10,22 @@ export const formDetailQuery = `
         name
         type
         text
+        content
         description
         options
         isRequired
         order
         validation
+        associatedFieldId
+        column
+        
+        groupId
+        logicAction
+        logics {
+          fieldId
+          logicOperator
+          logicValue
+        }
       }
     }
   }
@@ -42,6 +53,7 @@ export const saveFormMutation = `
     widgetsSaveLead(integrationId: $integrationId, formId: $formId, submissions: $submissions, browserInfo: $browserInfo, cachedCustomerId: $cachedCustomerId) {
       status
       messageId
+      customerId
       errors {
         fieldId
         code

@@ -1,8 +1,14 @@
-import { IIntegration, IRule } from "../types";
+import { IIntegration } from "../types";
 
 export interface IConnectResponse {
   form: IForm;
   integration: IIntegration;
+}
+
+export interface ILogic {
+  fieldId: string;
+  logicOperator: string;
+  logicValue: FieldValue;
 }
 
 export interface IField {
@@ -12,6 +18,7 @@ export interface IField {
   type: string;
   validation?: string;
   text: string;
+  content?: string;
   description?: string;
   options?: string[];
   isRequired: boolean;
@@ -20,6 +27,11 @@ export interface IField {
   groupId: string;
   isVisible: boolean;
   lastUpdatedUserId: string;
+  associatedFieldId?: string;
+  column?: number;
+
+  logicAction?: string;
+  logics?: ILogic[];
 }
 
 export interface ICallout {
@@ -40,7 +52,14 @@ export interface IForm {
   fields: IField[];
 }
 
-export type FieldValue = string | number | Date | string[];
+interface IAttachment {
+  name: string;
+  url: string;
+  size: number;
+  type: string;
+}
+
+export type FieldValue = string | number | Date | string[]| IAttachment[];
 
 export interface IFieldError {
   fieldId?: string;
@@ -59,6 +78,9 @@ export interface IFormDoc {
     text: string;
     type: string;
     validation: string;
+    associatedFieldId: string;
+    groupId: string;
+    isHidden?: boolean;
   };
 }
 

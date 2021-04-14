@@ -86,7 +86,8 @@ class MessageListContainer extends React.Component<FinalProps, State> {
       isAllSelected: this.state.isAllSelected,
       queryParams,
       loading: engageMessagesQuery.loading || engageStatsQuery.loading,
-      emailPercentages: engageStatsQuery.engageEmailPercentages || {}
+      emailPercentages: engageStatsQuery.engageEmailPercentages || {},
+      refetch: this.refetch
     };
 
     const content = props => {

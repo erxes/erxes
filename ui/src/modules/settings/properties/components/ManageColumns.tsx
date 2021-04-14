@@ -39,6 +39,7 @@ type Props = {
   columns: IConfigColumn[];
   save: (columnsConfig: IConfigColumn[], importType?: string) => void;
   closeModal: () => void;
+  contentType: string;
   type: string;
 };
 
@@ -80,7 +81,7 @@ class ManageColumns extends React.Component<Props, State> {
   };
 
   render() {
-    const { type } = this.props;
+    const { type, contentType } = this.props;
 
     const child = col => {
       return (
@@ -128,6 +129,12 @@ class ManageColumns extends React.Component<Props, State> {
           {type && type === 'import' ? (
             <Button uppercase={false} type="submit" onClick={onclickCsv}>
               Download csv
+            </Button>
+          ) : null}
+
+          {type && type === 'export' ? (
+            <Button uppercase={false} type="submit" onClick={this.onSubmit}>
+              Export {contentType}
             </Button>
           ) : null}
 

@@ -176,8 +176,8 @@ class EmailForm extends React.Component<Props, State> {
   }
 
   renderTestEmailSection() {
-    const { email, sendTestEmail, users } = this.props;
-    const { fromUserId, testEmail, content } = this.state;
+    const { content: propContent, email, sendTestEmail, users } = this.props;
+    const { content, fromUserId, testEmail } = this.state;
 
     const onChange = e => {
       const value = (e.target as HTMLInputElement).value;
@@ -189,7 +189,7 @@ class EmailForm extends React.Component<Props, State> {
       sendTestEmail({
         from: getEmail(users, fromUserId),
         to: testEmail || '',
-        content,
+        content: propContent || content,
         title: email && email.subject ? email.subject : ''
       });
     };
@@ -319,6 +319,7 @@ class EmailForm extends React.Component<Props, State> {
             <ControlLabel>Content:</ControlLabel>
             <EditorCK
               content={this.state.content}
+              isSubmitted={this.props.isSaved}
               onChange={this.onEditorChange}
               height={500}
               name={`engage_email_${this.props.kind}_${this.props.fromUserId}`}

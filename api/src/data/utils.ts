@@ -10,12 +10,18 @@ import * as puppeteer from 'puppeteer';
 import * as strip from 'strip';
 import * as xlsxPopulate from 'xlsx-populate';
 import * as models from '../db/models';
-import { Customers, OnboardingHistories, Users, Webhooks } from '../db/models';
+import {
+  Companies,
+  Customers,
+  OnboardingHistories,
+  Users,
+  Webhooks
+} from '../db/models';
 import { IBrandDocument } from '../db/models/definitions/brands';
 import { WEBHOOK_STATUS } from '../db/models/definitions/constants';
 import { ICustomer } from '../db/models/definitions/customers';
 import { IUser, IUserDocument } from '../db/models/definitions/users';
-import { debugBase } from '../debuggers';
+import { debugBase, debugError } from '../debuggers';
 import memoryStorage from '../inmemoryStorage';
 import { graphqlPubsub } from '../pubsub';
 import { fieldsCombinedByContentType } from './modules/fields/utils';
@@ -509,7 +515,7 @@ export const replaceEditorAttributes = async (args: {
       contentType: 'customer'
     });
 
-    customerFields = ['firstName', 'lastName'];
+    customerFields = ['firstName', 'lastName', 'middleName'];
 
     for (const field of possibleCustomerFields) {
       if (content.includes(`{{ customer.${field.name} }}`)) {
@@ -874,4 +880,106 @@ export const getErxesSaasDomain = () => {
   return NODE_ENV === 'production'
     ? 'https://erxes.io'
     : 'http://localhost:3500';
+};
+
+/**
+ * Escaping, special characters
+ */
+export const escapeRegExp = (str: string) => {
+  return str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+};
+
+export const routeErrorHandling = (fn, callback?: any) => {
+  return async (req, res, next) => {
+    try {
+      await fn(req, res, next);
+    } catch (e) {
+      debugError(e.message);
+
+      if (callback) {
+        return callback(res, e);
+      }
+
+      return next(e);
+    }
+  };
+};
+
+export const isUsingElk = () => {
+  const ELK_SYNCER = getEnv({ name: 'ELK_SYNCER', defaultValue: 'true' });
+
+  return ELK_SYNCER === 'false' ? false : true;
+};
+
+/**
+ * Splits text into chunks of strings limited by given character count
+ * .{1,100}(\s|$)
+ * . - matches any character (except for line terminators)
+ * {1,100} - matches the previous token between 1 and 100 times, as many times as possible, giving back as needed (greedy)
+ * (\s|$) - capturing group
+ * \s - matches any whitespace character
+ * $ - asserts position at the end of the string
+ *
+ * @param str text to be split
+ * @param size character length of each chunk
+ */
+export const splitStr = (str: string, size: number): string[] => {
+  const cleanStr = strip(str);
+
+  return cleanStr.match(new RegExp(new RegExp(`.{1,${size}}(\s|$)`, 'g')));
+};
+
+export const findCustomer = async doc => {
+  let customer;
+
+  if (doc.customerPrimaryEmail) {
+    customer = await Customers.findOne({
+      $or: [
+        { emails: { $in: [doc.customerPrimaryEmail] } },
+        { primaryEmail: doc.customerPrimaryEmail }
+      ]
+    });
+  }
+
+  if (!customer && doc.customerPrimaryPhone) {
+    customer = await Customers.findOne({
+      $or: [
+        { phones: { $in: [doc.customerPrimaryPhone] } },
+        { primaryPhone: doc.customerPrimaryPhone }
+      ]
+    });
+  }
+
+  if (!customer && doc.customerPrimaryPhone) {
+    customer = await Customers.findOne({ code: doc.customerPrimaryPhone });
+  }
+
+  return customer;
+};
+
+export const findCompany = async doc => {
+  let company;
+
+  if (doc.companyPrimaryEmail) {
+    company = await Companies.findOne({
+      $or: [
+        { emails: { $in: [doc.companyPrimaryEmail] } },
+        { primaryEmail: doc.companyPrimaryEmail }
+      ]
+    });
+  }
+
+  if (!company && doc.companyPrimaryPhone) {
+    company = await Companies.findOne({
+      $or: [
+        { phones: { $in: [doc.companyPrimaryPhone] } },
+        { primaryPhone: doc.companyPrimaryPhone }
+      ]
+    });
+  }
+
+  if (!company && doc.companyPrimaryName) {
+    company = await Companies.findOne({ primaryName: doc.companyPrimaryName });
+  }
+  return company;
 };

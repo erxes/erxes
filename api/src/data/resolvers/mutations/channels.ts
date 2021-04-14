@@ -86,10 +86,10 @@ const channelMutations = {
       doc.memberIds || []
     );
 
+    const updated = await Channels.updateChannel(_id, doc);
+
     await sendChannelNotifications(channel, 'invited', user, addedUserIds);
     await sendChannelNotifications(channel, 'removed', user, removedUserIds);
-
-    const updated = await Channels.updateChannel(_id, doc);
 
     await putUpdateLog(
       {
@@ -117,9 +117,9 @@ const channelMutations = {
   async channelsRemove(_root, { _id }: { _id: string }, { user }: IContext) {
     const channel = await Channels.getChannel(_id);
 
-    await sendChannelNotifications(channel, 'removed', user);
-
     await Channels.removeChannel(_id);
+
+    await sendChannelNotifications(channel, 'removed', user);
 
     await putDeleteLog({ type: MODULE_NAMES.CHANNEL, object: channel }, user);
 

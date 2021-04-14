@@ -31,6 +31,8 @@ type Props = {
     id: string,
     { name, brandId, channelIds }: IntegrationMutationVariables
   ) => void;
+  showExternalInfoColumn: () => void;
+  showExternalInfo: boolean;
 };
 
 type State = {
@@ -235,7 +237,7 @@ class IntegrationListItem extends React.Component<Props, State> {
 
     if (
       integration.healthStatus &&
-      integration.healthStatus === 'acount-token'
+      integration.healthStatus.status === 'account-token'
     ) {
       const editTrigger = (
         <Button btnStyle="link">
@@ -270,8 +272,12 @@ class IntegrationListItem extends React.Component<Props, State> {
     const { kind } = integration;
     let value = '';
 
+    if (!this.props.showExternalInfo) {
+      return null;
+    }
+
     if (!externalData) {
-      return <td />;
+      return <td>No data</td>;
     }
 
     switch (kind) {
@@ -322,6 +328,7 @@ class IntegrationListItem extends React.Component<Props, State> {
         })
         .then(({ data }) => {
           this.setState({ externalData: data.integrationsFetchApi });
+          this.props.showExternalInfoColumn();
         })
         .catch(e => {
           Alert.error(e.message);
@@ -338,12 +345,20 @@ class IntegrationListItem extends React.Component<Props, State> {
   render() {
     const { integration } = this.props;
     const integrationKind = cleanIntegrationKind(integration.kind);
-    const labelStyle = integration.isActive ? 'success' : 'error';
+
+    const healthStatus = integration.healthStatus
+      ? integration.healthStatus.status
+      : '';
+
+    const error = integration.healthStatus
+      ? integration.healthStatus.error
+      : '';
+
+    const labelStyle = integration.isActive ? 'success' : 'danger';
     const status = integration.isActive ? __('Active') : __('Archived');
-    const labelStyleHealthy =
-      integration.healthStatus === 'healthy' ? 'success' : 'danger';
-    const healthStatus =
-      integration.healthStatus === 'healthy' ? __('Healthy') : __('Unhealthy');
+    const labelStyleHealthy = healthStatus === 'healthy' ? 'success' : 'danger';
+    const healthStatusText =
+      healthStatus === 'healthy' ? __('Healthy') : __('Unhealthy');
 
     return (
       <tr key={integration._id}>
@@ -358,7 +373,9 @@ class IntegrationListItem extends React.Component<Props, State> {
           <Label lblStyle={labelStyle}>{status}</Label>
         </td>
         <td>
-          <Label lblStyle={labelStyleHealthy}>{healthStatus}</Label>
+          <Tip text={error}>
+            <Label lblStyle={labelStyleHealthy}>{healthStatusText}</Label>
+          </Tip>
         </td>
         {this.renderExternalData(integration)}
         <td>

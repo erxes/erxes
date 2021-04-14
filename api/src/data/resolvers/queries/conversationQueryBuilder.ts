@@ -1,7 +1,8 @@
 import * as _ from 'underscore';
-import { Channels, Integrations } from '../../../db/models';
+import { Channels, Integrations, Tags } from '../../../db/models';
 import { CONVERSATION_STATUSES } from '../../../db/models/definitions/constants';
 import { fixDate } from '../../utils';
+import { getDocumentList } from '../mutations/cacheUtils';
 
 interface IIn {
   $in: string[];
@@ -130,7 +131,15 @@ export default class Builder {
     // find all posssible integrations
     let availIntegrationIds: string[] = [];
 
-    const channels = await Channels.find({ memberIds: this.user._id });
+    const channels = await getDocumentList('channels', {
+      memberIds: this.user._id
+    });
+
+    if (channels.length === 0) {
+      return {
+        integrationId: { $in: [] }
+      };
+    }
 
     channels.forEach(channel => {
       availIntegrationIds = _.union(
@@ -263,9 +272,18 @@ export default class Builder {
   }
 
   // filter by tag
-  public tagFilter(tagId: string): { tagIds: IIn } {
+  public async tagFilter(tagIds: string[]): Promise<{ tagIds: IIn }> {
+    let ids: string[] = [];
+
+    const tags = await Tags.find({ _id: { $in: tagIds } });
+
+    for (const tag of tags) {
+      ids.push(tag._id);
+      ids = ids.concat(tag.relatedIds || []);
+    }
+
     return {
-      tagIds: { $in: [tagId] }
+      tagIds: { $in: ids }
     };
   }
 
@@ -345,7 +363,7 @@ export default class Builder {
 
     // filter by tag
     if (this.params.tag) {
-      this.queries.tag = this.tagFilter(this.params.tag);
+      this.queries.tag = await this.tagFilter(this.params.tag.split(','));
     }
 
     if (this.params.startDate && this.params.endDate) {

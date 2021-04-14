@@ -1,12 +1,13 @@
 import * as strip from 'strip';
 import * as _ from 'underscore';
 import {
+  Conformities,
   ConversationMessages,
   Conversations,
   Customers,
-  Integrations,
-  Tags
+  Integrations
 } from '../../../db/models';
+import { getCollection } from '../../../db/models/boardUtils';
 import Messages from '../../../db/models/ConversationMessages';
 import {
   KIND_CHOICES,
@@ -17,14 +18,16 @@ import {
 import { IMessageDocument } from '../../../db/models/definitions/conversationMessages';
 import { IConversationDocument } from '../../../db/models/definitions/conversations';
 import { IUserDocument } from '../../../db/models/definitions/users';
-import { debugExternalApi } from '../../../debuggers';
+import { debugError } from '../../../debuggers';
 import messageBroker from '../../../messageBroker';
 import { graphqlPubsub } from '../../../pubsub';
 import { AUTO_BOT_MESSAGES, RABBITMQ_QUEUES } from '../../constants';
+import { ACTIVITY_LOG_ACTIONS, putActivityLog } from '../../logUtils';
 import { checkPermission, requireLogin } from '../../permissions/wrappers';
 import { IContext } from '../../types';
-import utils from '../../utils';
+import utils, { splitStr } from '../../utils';
 import QueryBuilder, { IListArgs } from '../queries/conversationQueryBuilder';
+import { itemsAdd } from './boardUtils';
 
 export interface IConversationMessageAdd {
   conversationId: string;
@@ -32,12 +35,21 @@ export interface IConversationMessageAdd {
   mentionedUserIds?: string[];
   internal?: boolean;
   attachments?: any;
+  facebookMessageTag?: string;
 }
 
 interface IReplyFacebookComment {
   conversationId: string;
   commentId: string;
   content: string;
+}
+
+interface IConversationConvert {
+  _id: string;
+  type: string;
+  itemId: string;
+  stageId: string;
+  itemName: string;
 }
 
 /**
@@ -52,7 +64,7 @@ const sendConversationToIntegrations = async (
   doc: IConversationMessageAdd,
   dataSources: any,
   action?: string,
-  messageId?: string
+  facebookMessageTag?: string
 ) => {
   if (type === 'facebook') {
     const regex = new RegExp('<img[^>]* src="([^"]*)"', 'g');
@@ -77,12 +89,12 @@ const sendConversationToIntegrations = async (
             integrationId,
             conversationId,
             content: strip(doc.content),
-            attachments: doc.attachments || []
+            attachments: doc.attachments || [],
+            tag: facebookMessageTag
           })
         }
       );
     } catch (e) {
-      await ConversationMessages.deleteOne({ _id: messageId });
       throw new Error(
         `Your message not sent Error: ${e.message}. Go to integrations list and fix it`
       );
@@ -225,13 +237,17 @@ const sendNotifications = async ({
 
     if (mobile) {
       // send mobile notification ======
-      await utils.sendMobileNotification({
-        title: doc.title,
-        body: strip(doc.content),
-        receivers: conversationNotifReceivers(conversation, user._id, false),
-        customerId: conversation.customerId,
-        conversationId: conversation._id
-      });
+      try {
+        await utils.sendMobileNotification({
+          title: doc.title,
+          body: strip(doc.content),
+          receivers: conversationNotifReceivers(conversation, user._id, false),
+          customerId: conversation.customerId,
+          conversationId: conversation._id
+        });
+      } catch (e) {
+        debugError(`Failed to send mobile notification: ${e.message}`);
+      }
     }
   }
 };
@@ -248,9 +264,9 @@ const conversationMutations = {
     const conversation = await Conversations.getConversation(
       doc.conversationId
     );
-    const integration = await Integrations.getIntegration(
-      conversation.integrationId
-    );
+    const integration = await Integrations.getIntegration({
+      _id: conversation.integrationId
+    });
 
     await sendNotifications({
       user,
@@ -273,6 +289,7 @@ const conversationMutations = {
     const kind = integration.kind;
     const integrationId = integration.id;
     const conversationId = conversation.id;
+    const facebookMessageTag = doc.facebookMessageTag;
 
     const customer = await Customers.findOne({ _id: conversation.customerId });
 
@@ -316,25 +333,32 @@ const conversationMutations = {
      * - integration is of kind telnyx
      * - customer has primary phone filled
      * - customer's primary phone is valid
-     * - content length within 160 characters
      */
     if (
       kind === KIND_CHOICES.TELNYX &&
       customer &&
       customer.primaryPhone &&
-      customer.phoneValidationStatus === 'valid' &&
-      doc.content.length <= 160
+      customer.phoneValidationStatus === 'valid'
     ) {
-      await messageBroker().sendMessage('erxes-api:integrations-notification', {
-        action: 'sendConversationSms',
-        payload: JSON.stringify({
-          conversationMessageId: message._id,
-          conversationId,
-          integrationId,
-          toPhone: customer.primaryPhone,
-          content: strip(doc.content)
-        })
-      });
+      const chunks =
+        doc.content.length > 160 ? splitStr(doc.content, 160) : [doc.content];
+
+      // tslint:disable-next-line:prefer-for-of
+      for (let i = 0; i < chunks.length; i++) {
+        await messageBroker().sendMessage(
+          'erxes-api:integrations-notification',
+          {
+            action: 'sendConversationSms',
+            payload: JSON.stringify({
+              conversationMessageId: `${message._id}-part${i + 1}`,
+              conversationId,
+              integrationId,
+              toPhone: customer.primaryPhone,
+              content: strip(chunks[i])
+            })
+          }
+        );
+      }
     }
 
     // send reply to facebook
@@ -369,7 +393,7 @@ const conversationMutations = {
       doc,
       dataSources,
       action,
-      message._id
+      facebookMessageTag
     );
 
     const dbMessage = await ConversationMessages.getMessage(message._id);
@@ -389,9 +413,9 @@ const conversationMutations = {
     const conversation = await Conversations.getConversation(
       doc.conversationId
     );
-    const integration = await Integrations.getIntegration(
-      conversation.integrationId
-    );
+    const integration = await Integrations.getIntegration({
+      _id: conversation.integrationId
+    });
 
     await sendNotifications({
       user,
@@ -553,7 +577,7 @@ const conversationMutations = {
     try {
       return await dataSources.IntegrationsAPI.deleteDailyVideoChatRoom(name);
     } catch (e) {
-      debugExternalApi(e.message);
+      debugError(e.message);
 
       throw new Error(e.message);
     }
@@ -589,48 +613,9 @@ const conversationMutations = {
 
       return videoCallData;
     } catch (e) {
-      debugExternalApi(e.message);
+      debugError(e.message);
 
       await ConversationMessages.deleteOne({ _id: message._id });
-
-      throw new Error(e.message);
-    }
-  },
-
-  async conversationCreateProductBoardNote(
-    _root,
-    { _id },
-    { dataSources, user }: IContext
-  ) {
-    const conversation = await Conversations.findOne({ _id })
-      .select('customerId userId tagIds, integrationId')
-      .lean();
-    const tags = await Tags.find({ _id: { $in: conversation.tagIds } }).select(
-      'name'
-    );
-    const customer = await Customers.findOne({ _id: conversation.customerId });
-    const messages = await ConversationMessages.find({
-      conversationId: _id
-    }).sort({
-      createdAt: 1
-    });
-    const integrationId = conversation.integrationId;
-
-    try {
-      const productBoardLink = await dataSources.IntegrationsAPI.createProductBoardNote(
-        {
-          erxesApiConversationId: _id,
-          tags,
-          customer,
-          messages,
-          user,
-          integrationId
-        }
-      );
-
-      return productBoardLink;
-    } catch (e) {
-      debugExternalApi(e.message);
 
       throw new Error(e.message);
     }
@@ -675,10 +660,92 @@ const conversationMutations = {
 
       return response.status;
     } catch (e) {
-      debugExternalApi(e);
+      debugError(e);
 
       throw new Error(e.message);
     }
+  },
+
+  async conversationConvertToCard(
+    _root,
+    params: IConversationConvert,
+    { user, docModifier }: IContext
+  ) {
+    const { _id, type, itemId, itemName, stageId } = params;
+
+    const conversation = await Conversations.getConversation(_id);
+
+    const { collection, update, create } = getCollection(type);
+
+    if (itemId) {
+      const oldItem = await collection.findOne({ _id: itemId }).lean();
+
+      const doc = oldItem;
+
+      if (conversation.assignedUserId) {
+        const assignedUserIds = oldItem.assignedUserIds || [];
+        assignedUserIds.push(conversation.assignedUserId);
+
+        doc.assignedUserIds = assignedUserIds;
+      }
+
+      const sourceConversationIds: string[] =
+        oldItem.sourceConversationIds || [];
+
+      sourceConversationIds.push(conversation._id);
+
+      doc.sourceConversationIds = sourceConversationIds;
+
+      const item = await update(oldItem._id, doc);
+
+      item.userId = user._id;
+
+      await putActivityLog({
+        action: ACTIVITY_LOG_ACTIONS.CREATE_BOARD_ITEM,
+        data: { item, contentType: type }
+      });
+
+      const relTypeIds: string[] = [];
+
+      sourceConversationIds.forEach(async conversationId => {
+        const con = await Conversations.getConversation(conversationId);
+
+        if (con.customerId) {
+          relTypeIds.push(con.customerId);
+        }
+      });
+
+      if (conversation.customerId) {
+        await Conformities.addConformity({
+          mainType: type,
+          mainTypeId: item._id,
+          relType: 'customer',
+          relTypeId: conversation.customerId
+        });
+      }
+
+      return item._id;
+    } else {
+      const doc: any = {};
+
+      doc.name = itemName;
+      doc.stageId = stageId;
+      doc.sourceConversationIds = [_id];
+      doc.customerIds = [conversation.customerId];
+      doc.assignedUserIds = [conversation.assignedUserId];
+
+      const item = await itemsAdd(doc, type, user, docModifier, create);
+
+      return item._id;
+    }
+  },
+
+  async conversationEditCustomFields(
+    _root,
+    { _id, customFieldsData }: { _id: string; customFieldsData: any }
+  ) {
+    await Conversations.updateConversation(_id, { customFieldsData });
+    return Conversations.getConversation(_id);
   }
 };
 
@@ -686,6 +753,7 @@ requireLogin(conversationMutations, 'conversationMarkAsRead');
 requireLogin(conversationMutations, 'conversationDeleteVideoChatRoom');
 requireLogin(conversationMutations, 'conversationCreateVideoChatRoom');
 requireLogin(conversationMutations, 'conversationsSaveVideoRecordingInfo');
+requireLogin(conversationMutations, 'conversationConvertToCard');
 
 checkPermission(
   conversationMutations,

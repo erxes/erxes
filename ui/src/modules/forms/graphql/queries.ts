@@ -16,6 +16,10 @@ const integrationFields = `
     name
     colorCode
   }
+  channels {
+    _id
+    name
+  }
 `;
 
 const integrations = `
@@ -154,17 +158,32 @@ const fields = `
       type
       validation
       text
+      content
       description
       options
       isRequired
       order
+      column
+      logicAction
+      logics {
+        fieldId
+        logicOperator
+        logicValue
+      }
+      groupName
+      associatedFieldId
+      associatedField {
+        _id
+        text
+        contentType
+      }
     }
   }
 `;
 
 const fieldsCombinedByContentType = `
-  query fieldsCombinedByContentType($contentType: String!,$usageType: String, $excludedNames: [String]) {
-    fieldsCombinedByContentType(contentType: $contentType,usageType: $usageType, excludedNames: $excludedNames)
+  query fieldsCombinedByContentType($contentType: String!,$usageType: String, $excludedNames: [String], $segmentId: String, $pipelineId: String) {
+    fieldsCombinedByContentType(contentType: $contentType,usageType: $usageType, excludedNames: $excludedNames, segmentId: $segmentId, pipelineId: $pipelineId)
   }
 `;
 
@@ -202,10 +221,10 @@ export default {
   integrations,
   integrationDetail,
   integrationsTotalCount,
-  fields,
   formDetail,
   tags,
   forms,
   fieldsCombinedByContentType,
-  fieldsDefaultColumnsConfig
+  fieldsDefaultColumnsConfig,
+  fields
 };

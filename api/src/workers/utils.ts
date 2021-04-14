@@ -17,7 +17,7 @@ import {
   default as ImportHistories,
   default as ImportHistory
 } from '../db/models/ImportHistory';
-import { debugWorkers } from '../debuggers';
+import { debugError, debugWorkers } from '../debuggers';
 import CustomWorker from './workerUtil';
 
 const { MONGO_URL = '', ELK_SYNCER } = process.env;
@@ -68,7 +68,8 @@ const getS3FileInfo = async ({ s3, query, params }): Promise<string> => {
           CSV: {
             FileHeaderInfo: 'NONE',
             RecordDelimiter: '\n',
-            FieldDelimiter: ','
+            FieldDelimiter: ',',
+            AllowQuotedRecordDelimiter: true
           }
         },
         OutputSerialization: {
@@ -287,6 +288,11 @@ export const receiveImportRemove = async (content: any) => {
 
     const ids = importHistory.ids || [];
 
+    if (ids.length === 0) {
+      await ImportHistory.deleteOne({ _id: importHistoryId });
+      return { status: 'ok' };
+    }
+
     const workerPath = path.resolve(getWorkerFile('importHistoryRemove'));
 
     const calc = Math.ceil(ids.length / WORKER_BULK_LIMIT);
@@ -310,7 +316,7 @@ export const receiveImportRemove = async (content: any) => {
 
     return { status: 'ok' };
   } catch (e) {
-    debugWorkers('Failed to remove import: ', e.message);
+    debugError(`Failed to remove import: ${e.message}`);
     throw e;
   }
 };
@@ -328,7 +334,7 @@ export const receiveImportCreate = async (content: any) => {
 
   let importHistory;
 
-  const useElkSyncer = ELK_SYNCER === 'true';
+  const useElkSyncer = ELK_SYNCER === 'false' ? false : true;
 
   if (fileType !== 'csv') {
     throw new Error('Invalid file type');

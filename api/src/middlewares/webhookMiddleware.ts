@@ -1,6 +1,8 @@
 import { NodeVM } from 'vm2';
-
+import { findCompany, findCustomer } from '../data/utils';
 import {
+  Companies,
+  Conformities,
   ConversationMessages,
   Conversations,
   Customers,
@@ -10,26 +12,13 @@ import {
 import { ICustomField } from '../db/models/definitions/common';
 import { graphqlPubsub } from '../pubsub';
 
-const findCustomer = async doc => {
-  let customer;
-
-  if (doc.customerPrimaryEmail) {
-    customer = await Customers.findOne({
-      primaryEmail: doc.customerPrimaryEmail
-    });
+const checkCompanyFieldsExists = async doc => {
+  for (const key in doc) {
+    if (key.includes('company')) {
+      return true;
+    }
   }
-
-  if (!customer && doc.customerPrimaryPhone) {
-    customer = await Customers.findOne({
-      primaryPhone: doc.customerPrimaryPhone
-    });
-  }
-
-  if (!customer && doc.customerPrimaryPhone) {
-    customer = await Customers.findOne({ code: doc.customerPrimaryPhone });
-  }
-
-  return customer;
+  return false;
 };
 
 const webhookMiddleware = async (req, res, next) => {
@@ -95,15 +84,16 @@ const webhookMiddleware = async (req, res, next) => {
       code: params.customerCode,
       firstName: params.customerFirstName,
       lastName: params.customerLastName,
+      middleName: params.customerMiddleName,
       avatar: params.customerAvatar,
       customFieldsData
     };
 
     if (!customer) {
       customer = await Customers.createCustomer(doc);
+    } else {
+      customer = await Customers.updateCustomer(customer._id, doc);
     }
-
-    customer = await Customers.updateCustomer(customer._id, doc);
 
     // get or create conversation
     let conversation = await Conversations.findOne({
@@ -142,6 +132,40 @@ const webhookMiddleware = async (req, res, next) => {
       conversationMessageInserted: message
     });
 
+    // company
+    let company = await findCompany(params);
+
+    const hasCompanyFields = await checkCompanyFieldsExists(params);
+
+    if (hasCompanyFields) {
+      const companyDoc = {
+        primaryEmail: params.companyPrimaryEmail,
+        primaryPhone: params.companyPrimaryPhone,
+        primaryName: params.companyPrimaryName,
+        website: params.companyWebsite,
+        industry: params.companyIndustry,
+        businessType: params.companyBusinessType,
+        avatar: params.companyAvatar
+      };
+
+      if (!company) {
+        company = await Companies.createCompany(companyDoc);
+      } else {
+        company = await Companies.updateCompany(company._id, companyDoc);
+      }
+    }
+
+    // comformity
+    if (company && customer) {
+      await Conformities.editConformity({
+        ...{
+          mainType: 'customer',
+          mainTypeId: customer._id,
+          relType: 'company',
+          relTypeIds: [company._id]
+        }
+      });
+    }
     return res.send('ok');
   } catch (e) {
     return next(e);

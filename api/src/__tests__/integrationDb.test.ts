@@ -24,6 +24,7 @@ import {
 } from '../db/models/definitions/constants';
 
 import { isTimeInBetween } from '../db/models/Integrations';
+
 import './setup.ts';
 
 describe('messenger integration model add method', () => {
@@ -44,12 +45,14 @@ describe('messenger integration model add method', () => {
     const integration = await integrationFactory({});
 
     try {
-      await Integrations.getIntegration('fakeId');
+      await Integrations.getIntegration({ _id: 'fakeId' });
     } catch (e) {
       expect(e.message).toBe('Integration not found');
     }
 
-    const response = await Integrations.getIntegration(integration._id);
+    const response = await Integrations.getIntegration({
+      _id: integration._id
+    });
 
     expect(response).toBeDefined();
   });

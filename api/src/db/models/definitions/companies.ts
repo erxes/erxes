@@ -1,7 +1,7 @@
 import { Document, Schema } from 'mongoose';
 
 import { customFieldSchema, ICustomField, ILink } from './common';
-import { COMPANY_INDUSTRY_TYPES, COMPANY_SELECT_OPTIONS } from './constants';
+import { COMPANY_SELECT_OPTIONS } from './constants';
 
 import { field, schemaWrapper } from './utils';
 
@@ -34,6 +34,7 @@ export interface ICompany {
   customFieldsData?: ICustomField[];
   website?: string;
   code?: string;
+  location?: string;
 }
 
 export interface ICompanyDocument extends ICompany, Document {
@@ -82,8 +83,7 @@ export const companySchema = schemaWrapper(
 
     industry: field({
       type: String,
-      enum: COMPANY_INDUSTRY_TYPES,
-      label: 'Industry',
+      label: 'Industries',
       optional: true,
       esType: 'keyword'
     }),
@@ -173,6 +173,7 @@ export const companySchema = schemaWrapper(
       label: 'Custom fields data'
     }),
     searchText: field({ type: String, optional: true, index: true }),
-    code: field({ type: String, label: 'Code', optional: true })
+    code: field({ type: String, label: 'Code', optional: true }),
+    location: field({ type: String, optional: true, label: 'Location' })
   })
 );

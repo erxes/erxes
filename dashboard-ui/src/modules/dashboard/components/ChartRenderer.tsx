@@ -1,4 +1,4 @@
-import { Col, Row, Statistic, Table } from 'antd';
+import { Col, Empty, Row, Statistic, Table } from 'antd';
 import { getDashboardToken, getEnv } from 'apolloClient';
 import axios from 'axios';
 import dayjs from 'dayjs';
@@ -24,6 +24,7 @@ import {
   YAxis
 } from 'recharts';
 import { chartColors, replaceTexts } from '../constants';
+import { EmptyWrapper } from './styles';
 
 const { REACT_APP_DASHBOARD_API_URL } = getEnv();
 const dashboardToken = getDashboardToken();
@@ -206,7 +207,13 @@ const TypeToChartComponent = {
   },
 
   table: ({ resultSet }) => {
-    const columns = resultSet.tableColumns;
+    const columns = resultSet.tableColumns.map(column => {
+      return {
+        key: column.key,
+        title: column.shortTitle
+      };
+    });
+
     const renderResult = result => {
       for (const [key, value] of Object.entries(result)) {
         if (typeof value === 'number') {
@@ -319,6 +326,19 @@ export default function ChartRenderer(props: Props) {
       result,
       dateType
     });
+  }
+
+  if (result === 'No data') {
+    return (
+      <EmptyWrapper>
+        <Empty
+          imageStyle={{
+            height: 200
+          }}
+          description={<>No data</>}
+        />
+      </EmptyWrapper>
+    );
   }
 
   return <Spinner objective={true} />;

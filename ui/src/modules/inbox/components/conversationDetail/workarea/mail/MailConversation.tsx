@@ -22,6 +22,8 @@ class MailConversation extends React.Component<Props, {}> {
 
     const length = messages.length;
 
+    const mails = messages.filter(msg => !msg.internal).filter(msg => msg);
+
     return messages.map((message, index) => {
       if (message.internal) {
         return (
@@ -43,6 +45,7 @@ class MailConversation extends React.Component<Props, {}> {
           message={message}
           integrationId={_id}
           brandId={brandId}
+          mails={mails}
         />
       );
     });

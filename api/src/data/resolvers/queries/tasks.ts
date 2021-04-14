@@ -9,8 +9,8 @@ import {
   archivedItems,
   archivedItemsCount,
   checkItemPermByUser,
-  generateSort,
   generateTaskCommonFilters,
+  getItemList,
   IArchiveArgs
 } from './boardUtils';
 
@@ -27,12 +27,21 @@ const taskQueries = {
       ...commonQuerySelector,
       ...(await generateTaskCommonFilters(user._id, args))
     };
-    const sort = generateSort(args);
 
-    return Tasks.find(filter)
-      .sort(sort)
-      .skip(args.skip || 0)
-      .limit(10);
+    return await getItemList(filter, args, user, 'task');
+  },
+
+  async tasksTotalCount(
+    _root,
+    args: IListParams,
+    { user, commonQuerySelector }: IContext
+  ) {
+    const filter = {
+      ...commonQuerySelector,
+      ...(await generateTaskCommonFilters(user._id, args))
+    };
+
+    return Tasks.find(filter).countDocuments();
   },
 
   /**

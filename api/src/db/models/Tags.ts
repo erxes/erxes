@@ -8,21 +8,102 @@ import {
   Integrations,
   Products
 } from '.';
+import { escapeRegExp } from '../../data/utils';
 import { ITag, ITagDocument, tagSchema } from './definitions/tags';
 
 interface ITagObjectParams {
+  type: string;
   tagIds: string[];
-  objectIds: string[];
-  collection: any;
-  tagType: string;
+  targetIds: string[];
 }
+
+// set related tags
+const setRelatedIds = async (tag: ITagDocument) => {
+  if (tag.parentId) {
+    const parentTag = await Tags.findOne({ _id: tag.parentId });
+
+    if (parentTag) {
+      let relatedIds: string[];
+
+      relatedIds = tag.relatedIds || [];
+      relatedIds.push(tag._id);
+
+      relatedIds = _.union(relatedIds, parentTag.relatedIds || []);
+
+      await Tags.updateOne({ _id: parentTag._id }, { $set: { relatedIds } });
+
+      const updated = await Tags.findOne({ _id: tag.parentId });
+
+      if (updated) {
+        await setRelatedIds(updated);
+      }
+    }
+  }
+};
+
+// remove related tags
+const removeRelatedIds = async (tag: ITagDocument) => {
+  const tags = await Tags.find({ relatedIds: { $in: tag._id } });
+
+  if (tags.length === 0) {
+    return;
+  }
+
+  const relatedIds: string[] = tag.relatedIds || [];
+
+  relatedIds.push(tag._id);
+
+  const doc: Array<{
+    updateOne: {
+      filter: { _id: string };
+      update: { $set: { relatedIds: string[] } };
+    };
+  }> = [];
+
+  tags.forEach(async t => {
+    const ids = (t.relatedIds || []).filter(id => !relatedIds.includes(id));
+
+    doc.push({
+      updateOne: {
+        filter: { _id: t._id },
+        update: { $set: { relatedIds: ids } }
+      }
+    });
+  });
+
+  await Tags.bulkWrite(doc);
+};
+
+export const getCollection = type => {
+  let collection: any = Conversations;
+
+  switch (type) {
+    case 'customer':
+      collection = Customers;
+      break;
+    case 'engageMessage':
+      collection = EngageMessages;
+      break;
+    case 'company':
+      collection = Companies;
+      break;
+    case 'integration':
+      collection = Integrations;
+      break;
+    case 'product':
+      collection = Products;
+      break;
+  }
+
+  return collection;
+};
 
 export interface ITagModel extends Model<ITagDocument> {
   getTag(_id: string): Promise<ITagDocument>;
+  merge(sourceId: string, destId: string): Promise<ITagDocument>;
   createTag(doc: ITag): Promise<ITagDocument>;
   updateTag(_id: string, doc: ITag): Promise<ITagDocument>;
-  removeTag(ids: string[]): void;
-  tagsTag(type: string, targetIds: string[], tagIds: string[]): void;
+  removeTag(_id: string): void;
   tagObject(params: ITagObjectParams): void;
   validateUniqueness(
     selector: any,
@@ -86,50 +167,35 @@ export const loadClass = () => {
      * Common helper for taggable objects like conversation, engage, customer etc ...
      */
     public static async tagObject({
+      type,
       tagIds,
-      objectIds,
-      collection,
-      tagType
+      targetIds
     }: ITagObjectParams) {
+      const collection = getCollection(type);
+
       const prevTagsCount = await Tags.find({
         _id: { $in: tagIds },
-        type: tagType
+        type
       }).countDocuments();
 
       if (prevTagsCount !== tagIds.length) {
         throw new Error('Tag not found.');
       }
 
-      const objects = await collection.find(
-        { _id: { $in: objectIds } },
-        { tagIds: 1 }
-      );
-
-      let removeIds: string[] = [];
-
-      objects.forEach(obj => {
-        removeIds.push(obj.tagIds);
-      });
-
-      removeIds = _.uniq(_.flatten(removeIds));
-
-      await Tags.updateMany(
-        { _id: { $in: removeIds } },
-        { $inc: { objectCount: -1 } },
-        { multi: true }
-      );
-
       await collection.updateMany(
-        { _id: { $in: objectIds } },
+        { _id: { $in: targetIds } },
         { $set: { tagIds } },
         { multi: true }
       );
+    }
 
-      await Tags.updateMany(
-        { _id: { $in: tagIds } },
-        { $inc: { objectCount: 1 } },
-        { multi: true }
-      );
+    /*
+     * Get a parent tag
+     */
+    static async getParentTag(doc: ITag) {
+      return Tags.findOne({
+        _id: doc.parentId
+      }).lean();
     }
 
     /**
@@ -142,10 +208,20 @@ export const loadClass = () => {
         throw new Error('Tag duplicated');
       }
 
-      return Tags.create({
+      const parentTag = await this.getParentTag(doc);
+
+      // Generatingg order
+      const order = await this.generateOrder(parentTag, doc);
+
+      const tag = await Tags.create({
         ...doc,
+        order,
         createdAt: new Date()
       });
+
+      await setRelatedIds(tag);
+
+      return tag;
     }
 
     /**
@@ -162,77 +238,143 @@ export const loadClass = () => {
         throw new Error('Tag duplicated');
       }
 
-      await Tags.updateOne({ _id }, { $set: doc });
+      const parentTag = await this.getParentTag(doc);
 
-      return Tags.findOne({ _id });
+      if (parentTag && parentTag.parentId === _id) {
+        throw new Error('Cannot change tag');
+      }
+
+      // Generatingg  order
+      const order = await this.generateOrder(parentTag, doc);
+
+      const tag = await Tags.findOne({
+        _id
+      });
+
+      if (tag && tag.order) {
+        const childTags = await Tags.find({
+          $and: [
+            { order: { $regex: new RegExp(escapeRegExp(tag.order), 'i') } },
+            { _id: { $ne: _id } }
+          ]
+        });
+
+        if (childTags.length > 0) {
+          const bulkDoc: Array<{
+            updateOne: {
+              filter: { _id: string };
+              update: { $set: { order: string } };
+            };
+          }> = [];
+
+          // updating child categories order
+          childTags.forEach(async childTag => {
+            let childOrder = childTag.order;
+
+            if (tag.order && childOrder) {
+              childOrder = childOrder.replace(tag.order, order);
+
+              bulkDoc.push({
+                updateOne: {
+                  filter: { _id: childTag._id },
+                  update: { $set: { order: childOrder } }
+                }
+              });
+            }
+          });
+
+          await Tags.bulkWrite(bulkDoc);
+
+          await removeRelatedIds(tag);
+        }
+      }
+
+      await Tags.updateOne({ _id }, { $set: { ...doc, order } });
+
+      const updated = await Tags.findOne({ _id });
+
+      if (updated) {
+        await setRelatedIds(updated);
+      }
+
+      return updated;
     }
 
     /**
      * Remove Tag
      */
-    public static async removeTag(ids: string[]) {
-      const tagCount = await Tags.find({ _id: { $in: ids } }).countDocuments();
+    public static async removeTag(_id: string) {
+      const tag = await Tags.getTag(_id);
+      const collection = getCollection(tag.type);
+      const childCount = await Tags.countDocuments({ parentId: _id });
 
-      if (tagCount !== ids.length) {
-        throw new Error('Tag not found');
+      if (childCount > 0) {
+        throw new Error('Please remove child tags first');
       }
 
-      let count = 0;
+      await collection.updateMany(
+        { tagIds: { $in: [_id] } },
+        { $pull: { tagIds: { $in: [_id] } } }
+      );
 
-      count += await Customers.find({ tagIds: { $in: ids } }).countDocuments();
-      count += await Conversations.find({
-        tagIds: { $in: ids }
-      }).countDocuments();
-      count += await EngageMessages.find({
-        tagIds: { $in: ids }
-      }).countDocuments();
-      count += await Companies.find({ tagIds: { $in: ids } }).countDocuments();
-      count += await Integrations.findIntegrations({
-        tagIds: { $in: ids }
-      }).countDocuments();
-      count += await Products.find({ tagIds: { $in: ids } }).countDocuments();
+      await removeRelatedIds(tag);
 
-      if (count > 0) {
-        throw new Error("Can't remove a tag with tagged object(s)");
-      }
-
-      return Tags.deleteMany({ _id: { $in: ids } });
+      return Tags.deleteOne({ _id });
     }
 
     /**
-     * Attach a tag
+     * Generating order
      */
-    public static async tagsTag(
-      type: string,
-      targetIds: string[],
-      tagIds: string[]
+    public static async generateOrder(
+      parentTag: ITagDocument,
+      { name, type }: { name: string; type: string }
     ) {
-      let collection: any = Conversations;
+      const order = `${name}${type}`;
 
-      switch (type) {
-        case 'customer':
-          collection = Customers;
-          break;
-        case 'engageMessage':
-          collection = EngageMessages;
-          break;
-        case 'company':
-          collection = Companies;
-          break;
-        case 'integration':
-          collection = Integrations;
-          break;
-        case 'product':
-          collection = Products;
-          break;
+      if (!parentTag) {
+        return order;
       }
 
-      await Tags.tagObject({
-        tagIds,
-        objectIds: targetIds,
-        collection,
-        tagType: type
-      });
+      let parentOrder = parentTag.order;
+
+      if (!parentOrder) {
+        parentOrder = `${parentTag.name}${parentTag.type}`;
+
+        await Tags.updateOne(
+          {
+            _id: parentTag._id
+          },
+          { $set: { order: parentOrder } }
+        );
+      }
+
+      return `${parentOrder}/${order}`;
+    }
+
+    public static async merge(
+      sourceId: string,
+      destId: string
+    ): Promise<ITagDocument> {
+      const source = await Tags.getTag(sourceId);
+
+      const collection = await getCollection(source.type);
+
+      const items = await collection.find(
+        { tagIds: { $in: [sourceId] } },
+        { _id: 1 }
+      );
+      const itemIds = items.map(i => i._id);
+
+      // add to new destination
+      await collection.updateMany(
+        { _id: { $in: itemIds } },
+        { $push: { tagIds: [destId] } }
+      );
+
+      // remove old tag
+      await Tags.removeTag(sourceId);
+
+      return Tags.getTag(destId);
     }
   }
 

@@ -3,7 +3,7 @@ import * as dotenv from 'dotenv';
 import * as express from 'express';
 import { filterXSS } from 'xss';
 import { connect } from '../db/connection';
-import { debugWorkers } from '../debuggers';
+import { debugError, debugWorkers } from '../debuggers';
 import { initMemoryStorage } from '../inmemoryStorage';
 import userMiddleware from '../middlewares/userMiddleware';
 import { initBroker } from './messageBroker';
@@ -41,7 +41,7 @@ app.listen(PORT_WORKERS, () => {
   initMemoryStorage();
 
   initBroker(app).catch(e => {
-    debugWorkers(`Error ocurred during message broker init ${e.message}`);
+    debugError(`Error ocurred during message broker init ${e.message}`);
   });
 
   debugWorkers(`Workers server is now running on ${PORT_WORKERS}`);

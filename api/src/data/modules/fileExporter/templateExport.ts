@@ -2,7 +2,13 @@ import * as json2csv from 'json2csv';
 import { createXlsFile, generateXlsx } from '../../utils';
 
 export const templateExport = async (args: any) => {
-  const { configs, type, importType } = args;
+  const { type, importType } = args;
+
+  let configs = args.configs;
+
+  if (typeof configs === 'string') {
+    configs = [configs];
+  }
 
   if (importType === 'csv') {
     const { Parser } = json2csv;

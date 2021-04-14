@@ -26,6 +26,7 @@ type Props = {
   fromUserId: string;
   content: string;
   scheduleDate: IEngageScheduleDate;
+  isSaved?: boolean;
 };
 
 class MessageStep extends React.Component<Props> {
@@ -41,7 +42,8 @@ class MessageStep extends React.Component<Props> {
       email,
       fromUserId,
       content,
-      scheduleDate
+      scheduleDate,
+      isSaved
     } = this.props;
 
     if (method === METHODS.EMAIL) {
@@ -55,6 +57,7 @@ class MessageStep extends React.Component<Props> {
           fromUserId={fromUserId}
           content={content}
           scheduleDate={scheduleDate}
+          isSaved={isSaved}
         />
       );
     }
@@ -70,6 +73,7 @@ class MessageStep extends React.Component<Props> {
         fromUserId={fromUserId}
         content={content}
         scheduleDate={scheduleDate}
+        isSaved={isSaved}
       />
     );
   }

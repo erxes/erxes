@@ -172,6 +172,56 @@ const boardCounts = `
   }
 `;
 
+const cardFields = `
+  _id
+  name
+  customers
+  companies
+  assignedUsers
+`;
+
+const boardItemQueryParamsDef = `
+  $pipelineId: String,
+  $stageId: String,
+  $limit: Int
+`;
+
+const boardItemQueryParams = `
+  pipelineId: $pipelineId,
+  stageId: $stageId,
+  limit: $limit
+`;
+
+const tasks = `
+  query tasks(${boardItemQueryParamsDef}) {
+    tasks(${boardItemQueryParams}) {
+      ${cardFields}
+    }
+  } 
+`;
+
+const tickets = `
+  query tickets(${boardItemQueryParamsDef}) {
+    tickets(${boardItemQueryParams}) {
+      ${cardFields}
+    }
+  } 
+`;
+
+const deals = `
+  query deals(${boardItemQueryParamsDef}) {
+    deals(${boardItemQueryParams}) {
+      ${cardFields}
+    }
+  } 
+`;
+
+const itemsCountBySegments = `
+  query itemsCountBySegments($type: String!, $boardId: String, $pipelineId: String) {
+    itemsCountBySegments(type: $type, boardId: $boardId, pipelineId: $pipelineId)
+  } 
+`;
+
 export default {
   archivedStages,
   archivedStagesCount,
@@ -185,5 +235,9 @@ export default {
   conversionStages,
   stageDetail,
   pipelineLabels,
-  pipelineLabelDetail
+  pipelineLabelDetail,
+  itemsCountBySegments,
+  tasks,
+  deals,
+  tickets
 };

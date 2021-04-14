@@ -6,10 +6,11 @@ dotenv.config();
 
 mongoose.Promise = global.Promise;
 
-export const connectionOptions = {
+export const connectionOptions: mongoose.ConnectionOptions = {
   useNewUrlParser: true,
   useCreateIndex: true,
   autoReconnect: true,
+  family: 4,
   useFindAndModify: false
 };
 
@@ -25,6 +26,6 @@ export const connect = () => {
       debugDb(`Disconnected from the database: ${URI}`);
     })
     .on('error', error => {
-      debugDb(`Database connection error: ${URI}`, error);
+      debugDb(`Database connection error: ${URI} ${error}`);
     });
 };

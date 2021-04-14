@@ -82,7 +82,8 @@ const stageParams = `
   assignedUserIds: [String]
   labelIds: [String]
   extraParams: JSON,
-  closeDateType: String
+  closeDateType: String,
+  assignedToMe: String,
 `;
 
 export const queries = `
@@ -103,6 +104,7 @@ export const queries = `
   pipelineStateCount(boardId: String, type: String): JSON
   archivedStages(pipelineId: String!, search: String, page: Int, perPage: Int): [Stage]
   archivedStagesCount(pipelineId: String!, search: String): Int
+  itemsCountBySegments(type: String!, boardId: String, pipelineId: String): JSON
 `;
 
 const commonParams = `
@@ -141,4 +143,5 @@ export const mutations = `
   stagesUpdateOrder(orders: [OrderItem]): [Stage]
   stagesRemove(_id: String!): JSON
   stagesEdit(_id: String!, type: String, name: String, status: String): Stage
+  stagesSortItems(stageId: String!, type: String, proccessId: String, sortType: String): String
 `;

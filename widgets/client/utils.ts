@@ -1,5 +1,7 @@
 import * as dayjs from 'dayjs';
+import e = require('express');
 import T from 'i18n-react';
+import { FieldValue } from './form/types';
 import { ENV, IBrowserInfo, IRule } from './types';
 
 export const getEnv = (): ENV => {
@@ -24,6 +26,15 @@ type RequestBrowserInfoParams = {
   source: string;
   postData?: {};
   callback: (browserInfo: IBrowserInfo) => void;
+};
+
+export type LogicParams = {
+  fieldId: string;
+  operator: string;
+  validation?: string;
+  logicValue: FieldValue;
+  fieldValue?: FieldValue;
+  type?: string;
 };
 
 export const requestBrowserInfo = ({
@@ -55,11 +66,11 @@ const setDayjsLocale = (code: string) => {
 
 export const setLocale = (code?: string) => {
   import(`../locales/${code}.json`)
-    .then(translations => {
+    .then((translations) => {
       T.setTexts(translations);
       setDayjsLocale(code || 'en');
     })
-    .catch(e => console.log(e)); // tslint:disable-line
+    .catch((e) => console.log(e)); // tslint:disable-line
 };
 
 export const __ = (msg: string) => {
@@ -99,13 +110,13 @@ export const scrollTo = (element: any, to: number, duration: number) => {
 export const makeClickableLink = (selector: string) => {
   const nodes = Array.from(document.querySelectorAll(selector));
 
-  nodes.forEach(node => {
+  nodes.forEach((node) => {
     node.setAttribute('target', '__blank');
   });
 };
 
 // check if valid url
-const isValidURL = (url: string) => {
+export const isValidURL = (url: string) => {
   try {
     return Boolean(new URL(url));
   } catch (e) {
@@ -256,7 +267,7 @@ export const urlify = (text: string) => {
     return text;
   }
 
-  return text.replace(urlRegex, url => {
+  return text.replace(urlRegex, (url) => {
     if (url.startsWith('http')) {
       return `<a href="${url}" target="_blank">${url}</a>`;
     }
@@ -264,3 +275,167 @@ export const urlify = (text: string) => {
     return `<a href="http://${url}" target="_blank">${url}</a>`;
   });
 };
+
+export const checkLogicFulfilled = (logics: LogicParams[]) => {
+  const values: { [key: string]: boolean } = {};
+  
+  for (const logic of logics) {
+    const { fieldId, operator, logicValue, fieldValue, validation, type } = logic;
+    const key = `${fieldId}_${logicValue}`;
+    values[key] = false;
+
+    // if fieldValue is set
+    if (operator === 'hasAnyValue') {
+      if (fieldValue) {
+        values[key] = true;
+      } else {
+        values[key] = false;
+      }
+    }
+
+    // if fieldValue is not set
+    if (operator === 'isUnknown') {
+      if (!fieldValue) {
+        values[key] = true;
+      } else {
+        values[key] = false;
+      }
+    }
+
+    // if fieldValue equals logic value
+    if (operator === 'is') {
+      if (logicValue === fieldValue) {
+        values[key] = true;
+      } else {
+        values[key] = false;
+      }
+    }
+
+    // if fieldValue not equal to logic value
+    if (operator === 'isNot') {
+      if (logicValue !== fieldValue) {
+        values[key] = true;
+      } else {
+        values[key] = false;
+      }
+    }
+
+    if (validation === 'number') {
+      // if number value: is greater than
+      if (operator === 'greaterThan' && fieldValue) {
+        if (Number(fieldValue) > Number(logicValue)) {
+          values[key] = true;
+        } else {
+          values[key] = false;
+        }
+      }
+
+      // if number value: is less than
+      if (operator === 'lessThan' && fieldValue) {
+        if (Number(fieldValue) < Number(logicValue)) {
+          values[key] = true;
+        } else {
+          values[key] = false;
+        }
+      }
+    }
+
+    if (typeof logicValue === 'string') {
+      // if string value contains logicValue
+      if (operator === 'contains') {
+        if (String(fieldValue).includes(logicValue)) {
+          values[key] = true;
+        } else {
+          values[key] = false;
+        }
+      }
+
+      // if string value does not contain logicValue
+      if (operator === 'doesNotContain') {
+        if (!String(fieldValue).includes(logicValue)) {
+          values[key] = true;
+        } else {
+          values[key] = false;
+        }
+      }
+
+      // if string value startsWith logicValue
+      if (operator === 'startsWith') {
+        if (String(fieldValue).startsWith(logicValue)) {
+          values[key] = true;
+        } else {
+          values[key] = false;
+        }
+      }
+
+      // if string value endsWith logicValue
+      if (operator === 'endsWith') {
+        if (!String(fieldValue).endsWith(logicValue)) {
+          values[key] = true;
+        } else {
+          values[key] = false;
+        }
+      }
+      
+    }
+
+    if (validation && validation.includes('date')) {
+      const dateValueToCheck = new Date(String(fieldValue));
+      const logicDateValue = new Date(String(logicValue));
+
+      // date is greather than
+      if (operator === 'dateGreaterThan') {
+        if (dateValueToCheck > logicDateValue) {
+          values[key] = true;
+        } else {
+          values[key] = false;
+        }
+      }
+
+      // date is less than
+      if (operator === 'dateLessThan') {
+        if (logicDateValue > dateValueToCheck) {
+          values[key] = true;
+        } else {
+          values[key] = false;
+        }
+      }
+    }
+
+    if (type === 'check') {
+      if (
+        fieldValue &&
+        typeof fieldValue === 'string' &&
+        typeof logicValue === 'string'
+      ) {
+        if (operator === 'isNot') {
+          if (!fieldValue.includes(logicValue)) {
+            values[key] = true;
+          } else {
+            values[key] = false;
+          }
+        }
+
+        if (operator === 'is') {
+          if (fieldValue.includes(logicValue)) {
+            values[key] = true;
+          } else {
+            values[key] = false;
+          }
+        }
+      }
+    }
+  }
+
+  const result = [];
+
+  for (const key of Object.keys(values)) {
+    result.push(values[key]);
+  }
+
+  if (result.filter(val => !val).length === 0) {
+    return true;
+  } 
+
+  return false;
+}

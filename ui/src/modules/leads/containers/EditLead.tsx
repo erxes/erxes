@@ -2,6 +2,11 @@ import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
 import { Alert, withProps } from 'modules/common/utils';
 import {
+  EmailTemplatesQueryResponse,
+  EmailTemplatesTotalCountQueryResponse
+} from 'modules/settings/emailTemplates/containers/List';
+import { queries as templatesQuery } from 'modules/settings/emailTemplates/graphql';
+import {
   EditIntegrationMutationResponse,
   EditIntegrationMutationVariables,
   LeadIntegrationDetailQueryResponse
@@ -25,6 +30,7 @@ type State = {
   isReadyToSaveForm: boolean;
   doc?: {
     brandId: string;
+    channelIds?: string[];
     name: string;
     languageCode: string;
     lead: any;
@@ -34,6 +40,8 @@ type State = {
 
 type FinalProps = {
   integrationDetailQuery: LeadIntegrationDetailQueryResponse;
+  emailTemplatesQuery: EmailTemplatesQueryResponse;
+  emailTemplatesTotalCountQuery: EmailTemplatesTotalCountQueryResponse;
 } & Props &
   EditIntegrationMutationResponse &
   IRouterProps;
@@ -50,7 +58,8 @@ class EditLeadContainer extends React.Component<FinalProps, State> {
       formId,
       integrationDetailQuery,
       editIntegrationMutation,
-      history
+      history,
+      emailTemplatesQuery
     } = this.props;
 
     if (integrationDetailQuery.loading) {
@@ -61,7 +70,13 @@ class EditLeadContainer extends React.Component<FinalProps, State> {
 
     const afterFormDbSave = () => {
       if (this.state.doc) {
-        const { leadData, brandId, name, languageCode } = this.state.doc;
+        const {
+          leadData,
+          brandId,
+          name,
+          languageCode,
+          channelIds
+        } = this.state.doc;
 
         editIntegrationMutation({
           variables: {
@@ -70,14 +85,15 @@ class EditLeadContainer extends React.Component<FinalProps, State> {
             leadData,
             brandId,
             name,
-            languageCode
+            languageCode,
+            channelIds
           }
         })
           .then(() => {
-            Alert.success('You successfully updated a lead');
+            Alert.success('You successfully updated a form');
 
             history.push({
-              pathname: '/leads',
+              pathname: '/forms',
               search: '?popUpRefetchList=true'
             });
           })
@@ -100,15 +116,35 @@ class EditLeadContainer extends React.Component<FinalProps, State> {
       save,
       afterFormDbSave,
       isActionLoading: this.state.isLoading,
-      isReadyToSaveForm: this.state.isReadyToSaveForm
+      isReadyToSaveForm: this.state.isReadyToSaveForm,
+      emailTemplates: emailTemplatesQuery.emailTemplates || []
     };
 
     return <Lead {...updatedProps} />;
   }
 }
 
-export default withProps<Props>(
+const withTemplatesQuery = withProps<FinalProps>(
   compose(
+    graphql<FinalProps, EmailTemplatesQueryResponse>(
+      gql(templatesQuery.emailTemplates),
+      {
+        name: 'emailTemplatesQuery',
+        options: ({ emailTemplatesTotalCountQuery }) => ({
+          variables: {
+            perPage: emailTemplatesTotalCountQuery.emailTemplatesTotalCount
+          }
+        })
+      }
+    )
+  )(EditLeadContainer)
+);
+
+export default withProps<FinalProps>(
+  compose(
+    graphql(gql(templatesQuery.totalCount), {
+      name: 'emailTemplatesTotalCountQuery'
+    }),
     graphql<Props, LeadIntegrationDetailQueryResponse, { _id: string }>(
       gql(queries.integrationDetail),
       {
@@ -134,5 +170,5 @@ export default withProps<Props>(
         ]
       }
     })
-  )(withRouter<FinalProps>(EditLeadContainer))
+  )(withRouter<FinalProps>(withTemplatesQuery))
 );

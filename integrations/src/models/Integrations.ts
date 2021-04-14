@@ -32,6 +32,7 @@ export interface IIntegration {
   telnyxPhoneNumber?: string;
   telnyxProfileId?: string;
   healthStatus?: string;
+  error?: string;
 }
 
 export interface IIntegrationDocument extends IIntegration, Document {}
@@ -92,7 +93,8 @@ export const integrationSchema = new Schema({
     type: String,
     label: 'Telnyx messaging profile id'
   }),
-  healthStatus: String
+  healthStatus: String,
+  error: String
 });
 
 export interface IIntegrationModel extends Model<IIntegrationDocument> {

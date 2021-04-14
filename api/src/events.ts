@@ -1,12 +1,13 @@
 import * as getUuid from 'uuid-by-string';
 import { Customers, Fields } from './db/models';
-import { debugBase } from './debuggers';
+import { debugBase, debugError } from './debuggers';
 import { client, fetchElk, getIndexPrefix } from './elasticsearch';
 
 interface ISaveEventArgs {
   type?: string;
   name?: string;
   customerId?: string;
+  visitorId?: string;
   attributes?: any;
   additionalQuery?: any;
 }
@@ -29,17 +30,15 @@ export const saveEvent = async (args: ISaveEventArgs) => {
     throw new Error('Name is required');
   }
 
+  let visitorId = args.visitorId;
   let customerId = args.customerId;
-  let newlyCreatedId;
-
-  if (!customerId) {
-    customerId = await Customers.createVisitor();
-    newlyCreatedId = customerId;
-  }
 
   const searchQuery = {
     bool: {
-      must: [{ term: { name } }, { term: { customerId } }]
+      must: [
+        { term: { name } },
+        { term: customerId ? { customerId } : { visitorId } }
+      ]
     }
   };
 
@@ -59,6 +58,7 @@ export const saveEvent = async (args: ISaveEventArgs) => {
         upsert: {
           type,
           name,
+          visitorId,
           customerId,
           createdAt: new Date(),
           count: 1,
@@ -69,30 +69,52 @@ export const saveEvent = async (args: ISaveEventArgs) => {
 
     debugBase(`Response ${JSON.stringify(response)}`);
   } catch (e) {
-    debugBase(`Save event error ${e.message}`);
-
-    if (newlyCreatedId) {
-      await Customers.remove({ _id: newlyCreatedId });
-    }
+    debugError(`Save event error ${e.message}`);
 
     customerId = undefined;
+    visitorId = undefined;
   }
 
   return { customerId };
 };
 
-export const getNumberOfVisits = async (
-  customerId: string,
-  url: string
-): Promise<number> => {
+export const getNumberOfVisits = async (params: {
+  url: string;
+  visitorId?: string;
+  customerId?: string;
+}): Promise<number> => {
+  const searchId = params.customerId
+    ? { customerId: params.customerId }
+    : { visitorId: params.visitorId };
+
   try {
     const response = await fetchElk('search', 'events', {
       query: {
         bool: {
           must: [
             { term: { name: 'viewPage' } },
-            { term: { customerId } },
-            { term: { 'attributes.url.keyword': url } }
+            { term: searchId },
+            {
+              nested: {
+                path: 'attributes',
+                query: {
+                  bool: {
+                    must: [
+                      {
+                        term: {
+                          'attributes.field': 'url'
+                        }
+                      },
+                      {
+                        match: {
+                          'attributes.value': params.url
+                        }
+                      }
+                    ]
+                  }
+                }
+              }
+            }
           ]
         }
       }
@@ -108,33 +130,46 @@ export const getNumberOfVisits = async (
 
     return firstHit._source.count;
   } catch (e) {
-    debugBase(`Error occured during getNumberOfVisits ${e.message}`);
+    debugError(`Error occured during getNumberOfVisits ${e.message}`);
     return 0;
   }
 };
 
 export const trackViewPageEvent = (args: {
-  customerId: string;
+  customerId?: string;
+  visitorId?: string;
   attributes: any;
 }) => {
-  const { attributes, customerId } = args;
+  const { attributes, customerId, visitorId } = args;
 
   return saveEvent({
     type: 'lifeCycle',
     name: 'viewPage',
     customerId,
+    visitorId,
     attributes,
     additionalQuery: {
       bool: {
         must: [
           {
-            term: {
-              'attributes.field': 'url'
-            }
-          },
-          {
-            term: {
-              'attributes.value': attributes.url
+            nested: {
+              path: 'attributes',
+              query: {
+                bool: {
+                  must: [
+                    {
+                      term: {
+                        'attributes.field': 'url'
+                      }
+                    },
+                    {
+                      match: {
+                        'attributes.value': attributes.url
+                      }
+                    }
+                  ]
+                }
+              }
             }
           }
         ]
@@ -145,18 +180,20 @@ export const trackViewPageEvent = (args: {
 
 export const trackCustomEvent = (args: {
   name: string;
-  customerId: string;
+  customerId?: string;
+  visitorId?: string;
   attributes: any;
 }) => {
   return saveEvent({
     type: 'custom',
     name: args.name,
     customerId: args.customerId,
+    visitorId: args.visitorId,
     attributes: args.attributes
   });
 };
 
-export const identifyCustomer = async (args: ICustomerIdentifyParams) => {
+export const identifyCustomer = async (args: ICustomerIdentifyParams = {}) => {
   // get or create customer
   let customer = await Customers.getWidgetCustomer(args);
 
@@ -187,9 +224,14 @@ export const updateCustomerProperty = async ({
   let modifier: any = { [name]: value };
 
   if (
-    !['firstName', 'lastName', 'primaryPhone', 'primaryEmail', 'code'].includes(
-      name
-    )
+    ![
+      'firstName',
+      'lastName',
+      'middleName',
+      'primaryPhone',
+      'primaryEmail',
+      'code'
+    ].includes(name)
   ) {
     const customer = await Customers.findOne({ _id: customerId });
 

@@ -52,7 +52,12 @@ class IntegrationConfigs extends React.Component<Props, State> {
     this.onChangeConfig(code, e.target.value);
   };
 
-  renderItem(key: string, description?: string, defaultValue?: string) {
+  renderItem(
+    key: string,
+    type?: string,
+    description?: string,
+    defaultValue?: string
+  ) {
     const { configsMap } = this.state;
 
     return (
@@ -60,6 +65,7 @@ class IntegrationConfigs extends React.Component<Props, State> {
         <ControlLabel>{KEY_LABELS[key]}</ControlLabel>
         {description && <p>{__(description)}</p>}
         <FormControl
+          type={type || 'text'}
           defaultValue={configsMap[key] || defaultValue}
           onChange={this.onChangeInput.bind(this, key)}
         />
@@ -87,6 +93,7 @@ class IntegrationConfigs extends React.Component<Props, State> {
           {this.renderItem('FACEBOOK_VERIFY_TOKEN')}
           {this.renderItem(
             'FACEBOOK_PERMISSIONS',
+            '',
             '',
             'pages_messaging,pages_manage_ads,pages_manage_engagement,pages_manage_metadata,pages_read_user_content'
           )}
@@ -155,6 +162,8 @@ class IntegrationConfigs extends React.Component<Props, State> {
           </FormGroup>
           {this.renderItem('DAILY_API_KEY')}
           {this.renderItem('DAILY_END_POINT')}
+          {this.renderItem('VIDEO_CALL_TIME_DELAY_BETWEEN_REQUESTS', 'number')}
+          {this.renderItem('VIDEO_CALL_MESSAGE_FOR_TIME_DELAY')}
         </CollapseContent>
 
         <CollapseContent title="Sunshine Conversations API">
@@ -172,6 +181,7 @@ class IntegrationConfigs extends React.Component<Props, State> {
           {this.renderItem('SMOOCH_APP_KEY_SECRET')}
           {this.renderItem(
             'SMOOCH_WEBHOOK_CALLBACK_URL',
+            '',
             'https://yourdomain/smooch/webhook'
           )}
         </CollapseContent>
@@ -188,19 +198,6 @@ class IntegrationConfigs extends React.Component<Props, State> {
           </Info>
           {this.renderItem('CHAT_API_UID')}
           {this.renderItem('CHAT_API_WEBHOOK_CALLBACK_URL')}
-        </CollapseContent>
-
-        <CollapseContent title="Product Board">
-          <Info>
-            <a
-              target="_blank"
-              href="https://erxes.org/administrator/system-config#productBoard"
-              rel="noopener noreferrer"
-            >
-              {__('Learn how to set Product Board Integration Variables')}
-            </a>
-          </Info>
-          {this.renderItem('PRODUCT_BOARD_TOKEN')}
         </CollapseContent>
 
         <CollapseContent title="Telnyx SMS">

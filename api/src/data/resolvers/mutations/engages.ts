@@ -1,6 +1,5 @@
 import * as _ from 'underscore';
-import { Customers, EngageMessages, Users } from '../../../db/models';
-import { METHODS } from '../../../db/models/definitions/constants';
+import { Customers, EngageMessages } from '../../../db/models';
 import { IEngageMessage } from '../../../db/models/definitions/engages';
 import { MESSAGE_KINDS, MODULE_NAMES } from '../../constants';
 import { putCreateLog, putDeleteLog, putUpdateLog } from '../../logUtils';
@@ -11,7 +10,8 @@ import {
   replaceEditorAttributes,
   sendToWebhook
 } from '../../utils';
-import { send } from './engageUtils';
+import { getDocument } from './cacheUtils';
+import { checkCampaignDoc, send } from './engageUtils';
 
 interface IEngageMessageEdit extends IEngageMessage {
   _id: string;
@@ -40,13 +40,9 @@ const engageMutations = {
   async engageMessageAdd(
     _root,
     doc: IEngageMessage,
-    { user, docModifier }: IContext
+    { user, docModifier, dataSources }: IContext
   ) {
-    if (doc.kind !== MESSAGE_KINDS.MANUAL && doc.method === METHODS.SMS) {
-      throw new Error(
-        `SMS engage message of kind ${doc.kind} is not supported`
-      );
-    }
+    checkCampaignDoc(doc);
 
     // fromUserId is not required in sms engage, so set it here
     if (!doc.fromUserId) {
@@ -54,12 +50,16 @@ const engageMutations = {
     }
 
     const engageMessage = await EngageMessages.createEngageMessage(
-      docModifier(doc)
+      docModifier({ ...doc, createdBy: user._id })
     );
 
     await sendToWebhook('create', 'engageMessages', engageMessage);
 
-    await send(engageMessage);
+    const configs = (await dataSources.EngagesAPI.engagesConfigDetail()) || [];
+    const config = configs.find(c => c.code === 'smsLimit');
+    const smsLimit = config && config.value ? parseInt(config.value, 10) : 0;
+
+    await send(engageMessage, smsLimit);
 
     await putCreateLog(
       {
@@ -87,8 +87,19 @@ const engageMutations = {
     { _id, ...doc }: IEngageMessageEdit,
     { user }: IContext
   ) {
+    checkCampaignDoc(doc);
+
     const engageMessage = await EngageMessages.getEngageMessage(_id);
     const updated = await EngageMessages.updateEngageMessage(_id, doc);
+
+    // run manually when it was draft & live afterwards
+    if (
+      !engageMessage.isLive &&
+      doc.isLive &&
+      doc.kind === MESSAGE_KINDS.MANUAL
+    ) {
+      await send(updated);
+    }
 
     await putUpdateLog(
       {
@@ -129,7 +140,15 @@ const engageMutations = {
   /**
    * Engage message set live
    */
-  engageMessageSetLive(_root, { _id }: { _id: string }) {
+  async engageMessageSetLive(_root, { _id }: { _id: string }) {
+    const campaign = await EngageMessages.getEngageMessage(_id);
+
+    if (campaign.isLive) {
+      throw new Error('Campaign is already live');
+    }
+
+    checkCampaignDoc(campaign);
+
     return EngageMessages.engageMessageSetLive(_id);
   },
 
@@ -143,8 +162,34 @@ const engageMutations = {
   /**
    * Engage message set live manual
    */
-  engageMessageSetLiveManual(_root, { _id }: { _id: string }) {
-    return EngageMessages.engageMessageSetLive(_id);
+  async engageMessageSetLiveManual(
+    _root,
+    { _id }: { _id: string },
+    { user }: IContext
+  ) {
+    const draftCampaign = await EngageMessages.getEngageMessage(_id);
+    const live = await EngageMessages.engageMessageSetLive(_id);
+
+    await send(live);
+
+    await putUpdateLog(
+      {
+        type: MODULE_NAMES.ENGAGE,
+        newData: {
+          isLive: true,
+          isDraft: false
+        },
+        object: {
+          _id,
+          isLive: draftCampaign.isLive,
+          isDraft: draftCampaign.isDraft
+        },
+        description: `Campaign "${draftCampaign.title}" has been set live`
+      },
+      user
+    );
+
+    return live;
   },
 
   engagesUpdateConfigs(_root, configsMap, { dataSources }: IContext) {
@@ -191,7 +236,7 @@ const engageMutations = {
     }
 
     const customer = await Customers.findOne({ primaryEmail: to });
-    const targetUser = await Users.findOne({ email: to });
+    const targetUser = await getDocument('users', { email: to });
 
     const { replacedContent } = await replaceEditorAttributes({
       content,
@@ -203,6 +248,51 @@ const engageMutations = {
       ...args,
       content: replacedContent
     });
+  },
+
+  // Helps users fill less form fields to create a campaign
+  async engageMessageCopy(
+    _root,
+    { _id }: { _id },
+    { docModifier, user }: IContext
+  ) {
+    const sourceCampaign = await EngageMessages.getEngageMessage(_id);
+
+    const doc = docModifier({
+      ...sourceCampaign.toObject(),
+      createdAt: new Date(),
+      createdBy: user._id,
+      title: `${sourceCampaign.title}-copied`,
+      isDraft: true,
+      isLive: false
+    });
+
+    delete doc._id;
+
+    if (doc.scheduleDate && doc.scheduleDate.dateTime) {
+      // schedule date should be manually set
+      doc.scheduleDate.dateTime = null;
+    }
+
+    const copy = await EngageMessages.createEngageMessage(doc);
+
+    await putCreateLog(
+      {
+        type: MODULE_NAMES.ENGAGE,
+        newData: {
+          ...doc,
+          ...emptyCustomers
+        },
+        object: {
+          ...copy.toObject(),
+          ...emptyCustomers
+        },
+        description: `Campaign "${sourceCampaign.title}" has been copied`
+      },
+      user
+    );
+
+    return copy;
   }
 };
 
@@ -239,5 +329,6 @@ checkPermission(
   'engageMessageSendTestEmail',
   'engageMessageRemove'
 );
+checkPermission(engageMutations, 'engageMessageCopy', 'engageMessageAdd');
 
 export default engageMutations;

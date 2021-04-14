@@ -6,6 +6,7 @@ import queryString from 'query-string';
 import React from 'react';
 import { graphql } from 'react-apollo';
 import ManageColumns from '../components/ManageColumns';
+import { COLUMN_CHOOSER_EXCLUDED_FIELD_NAMES } from '../constants';
 
 import {
   DefaultColumnsConfigQueryResponse,
@@ -15,6 +16,7 @@ import {
 
 type Props = {
   contentType: string;
+  isImport?: boolean;
   type: string;
   location?: any;
   history?: any;
@@ -35,14 +37,17 @@ const ManageColumnsContainer = (props: FinalProps) => {
     contentType,
     location,
     history,
-    type
+    type,
+    isImport
   } = props;
 
   if (fieldsQuery.loading || fieldsDefaultColumnsConfigQuery.loading) {
     return false;
   }
 
-  const storageKey = `erxes_${contentType}_columns_config`;
+  const storageKey = isImport
+    ? `erxes_${contentType}_columns_config_import`
+    : `erxes_${contentType}_columns_config`;
   const storageItem = localStorage.getItem(storageKey);
 
   let save = (config: any, importType?: string) => {
@@ -85,7 +90,7 @@ const ManageColumnsContainer = (props: FinalProps) => {
             : checkedConfigsForImport,
         type: contentType,
         importType,
-        fromHistory: true
+        unlimited: true
       });
 
       window.open(`${REACT_APP_API_URL}${reqUrl}?${stringified}`, '_blank');
@@ -123,39 +128,41 @@ const ManageColumnsContainer = (props: FinalProps) => {
   const updatedProps = {
     ...props,
     save,
+    contentType,
     columns
   };
 
   return <ManageColumns {...updatedProps} />;
 };
 
+const renderExcludedNames = (isImport?: boolean) => {
+  if (isImport) {
+    return COLUMN_CHOOSER_EXCLUDED_FIELD_NAMES.IMPORT;
+  }
+
+  return COLUMN_CHOOSER_EXCLUDED_FIELD_NAMES.LIST;
+};
+
 export default withProps<Props>(
   compose(
-    graphql<Props, FieldsCombinedByTypeQueryResponse, { contentType: string }>(
-      gql(queries.fieldsCombinedByContentType),
-      {
-        name: 'fieldsQuery',
-        options: ({ contentType, type }) => {
-          return {
-            variables: {
-              contentType: contentType === 'lead' ? 'customer' : contentType,
-              usageType: type,
-              excludedNames: [
-                'state',
-                'avatar',
-                'ownerId',
-                'status',
-                'integrationId',
-                'categoryId',
-                'emailValidationStatus',
-                'phoneValidationStatus',
-                'location.countryCode'
-              ]
-            }
-          };
-        }
+    graphql<
+      Props,
+      FieldsCombinedByTypeQueryResponse,
+      { contentType: string; isImport?: boolean }
+    >(gql(queries.fieldsCombinedByContentType), {
+      name: 'fieldsQuery',
+      options: ({ contentType, type, isImport }) => {
+        return {
+          variables: {
+            contentType: ['lead', 'visitor'].includes(contentType)
+              ? 'customer'
+              : contentType,
+            usageType: type,
+            excludedNames: renderExcludedNames(isImport)
+          }
+        };
       }
-    ),
+    }),
     graphql<Props, DefaultColumnsConfigQueryResponse, { contentType: string }>(
       gql(queries.fieldsDefaultColumnsConfig),
       {
@@ -163,7 +170,7 @@ export default withProps<Props>(
         options: ({ contentType }) => {
           return {
             variables: {
-              contentType: contentType === 'lead' ? 'customer' : contentType
+              contentType: ['lead', 'visitor'] ? 'customer' : contentType
             }
           };
         }

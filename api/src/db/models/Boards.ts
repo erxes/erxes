@@ -1,5 +1,6 @@
 import { Model, model } from 'mongoose';
-import { Forms } from './';
+import { ACTIVITY_LOG_ACTIONS, putActivityLog } from '../../data/logUtils';
+import { Checklists, Conformities, Forms, InternalNotes } from './';
 import { getCollection, updateOrder, watchItem } from './boardUtils';
 import {
   boardSchema,
@@ -31,11 +32,34 @@ const removeStageWithItems = async (
 
   const stageIds = await Stages.find(selector).distinct('_id');
 
-  const collection = getCollection(type);
+  const { collection } = getCollection(type);
 
   await collection.deleteMany({ stageId: { $in: stageIds } });
 
   return Stages.deleteMany(selector);
+};
+
+const removeItems = async (type: string, stageIds: string[]) => {
+  const { collection } = getCollection(type);
+
+  const items = await collection.find(
+    { stageId: { $in: stageIds } },
+    { _id: 1 }
+  );
+  const itemIds = items.map(i => i._id);
+
+  await putActivityLog({
+    action: ACTIVITY_LOG_ACTIONS.REMOVE_ACTIVITY_LOGS,
+    data: { type, itemIds }
+  });
+  await Checklists.removeChecklists(type, itemIds);
+  await Conformities.removeConformities({
+    mainType: type,
+    mainTypeIds: itemIds
+  });
+  await InternalNotes.removeInternalNotes(type, itemIds);
+
+  await collection.deleteMany({ stageId: { $in: stageIds } });
 };
 
 const removePipelineStagesWithItems = async (
@@ -44,17 +68,13 @@ const removePipelineStagesWithItems = async (
 ) => {
   const stageIds = await Stages.find({ pipelineId }).distinct('_id');
 
-  const collection = getCollection(type);
-
-  await collection.deleteMany({ stageId: { $in: stageIds } });
+  await removeItems(type, stageIds);
 
   return Stages.deleteMany({ pipelineId });
 };
 
 const removeStageItems = async (type: string, stageId: string) => {
-  const collection = getCollection(type);
-
-  return collection.deleteMany({ stageId });
+  await removeItems(type, [stageId]);
 };
 
 const createOrUpdatePipelineStages = async (
@@ -81,7 +101,7 @@ const createOrUpdatePipelineStages = async (
   for (const stage of stages) {
     order++;
 
-    const doc = { ...stage, order, pipelineId };
+    const doc: any = { ...stage, order, pipelineId };
 
     const _id = doc._id;
 

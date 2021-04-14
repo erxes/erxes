@@ -1,6 +1,7 @@
 import { FacebookAdapter } from 'botbuilder-adapter-facebook-erxes';
 import {
   debugBase,
+  debugError,
   debugFacebook,
   debugRequest,
   debugResponse
@@ -76,13 +77,13 @@ const init = async app => {
           await subscribePage(pageId, pageAccessToken);
           debugFacebook(`Successfully subscribed page ${pageId}`);
         } catch (e) {
-          debugFacebook(
+          debugError(
             `Error ocurred while trying to subscribe page ${e.message || e}`
           );
           return next(e);
         }
       } catch (e) {
-        debugFacebook(
+        debugError(
           `Error ocurred while trying to get page access token with ${e.message ||
             e}`
         );
@@ -115,11 +116,11 @@ const init = async app => {
       if (!e.message.includes('Application request limit reached')) {
         await Integrations.updateOne(
           { accountId },
-          { $set: { healthStatus: 'account-token' } }
+          { $set: { healthStatus: 'account-token', error: `${e.message}` } }
         );
       }
 
-      debugFacebook(`Error occured while connecting to facebook ${e.message}`);
+      debugError(`Error occured while connecting to facebook ${e.message}`);
       return next(e);
     }
 
@@ -149,9 +150,16 @@ const init = async app => {
       erxesApiId: integrationId
     });
 
-    const result = integration
-      ? integration.healthStatus || 'healthy'
-      : 'healthy';
+    let result = {
+      status: 'healthy'
+    } as any;
+
+    if (integration) {
+      result = {
+        status: integration.healthStatus || 'healthy',
+        error: integration.error
+      };
+    }
 
     return res.send(result);
   });
@@ -424,7 +432,7 @@ const init = async app => {
               );
               res.end('success');
             } catch (e) {
-              debugFacebook(`Error processing comment: ${e.message}`);
+              debugError(`Error processing comment: ${e.message}`);
               res.end('success');
             }
           }
@@ -440,7 +448,7 @@ const init = async app => {
               );
               res.end('success');
             } catch (e) {
-              debugFacebook(`Error processing comment: ${e.message}`);
+              debugError(`Error processing comment: ${e.message}`);
               res.end('success');
             }
           } else {

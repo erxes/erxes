@@ -22,6 +22,8 @@ gitinfo.json
 ecosystem.config.js
 nginx.conf
 private
+!private/emailTemplates
 /plugins
 engages-email-sender/src/__tests__/coverage/
+widgets/static
 *.js.map

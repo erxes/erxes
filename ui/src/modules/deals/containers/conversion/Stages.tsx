@@ -69,7 +69,8 @@ export default withProps<Props>(
             assignedUserIds: queryParams.assignedUserIds,
             productIds: queryParams.productIds,
             closeDateType: queryParams.closeDateType,
-            userIds: queryParams.userIds
+            userIds: queryParams.userIds,
+            assignedToMe: queryParams.assignedToMe
           }
         })
       }

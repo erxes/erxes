@@ -22,7 +22,7 @@ export const types = `
     websiteMessengerApps: [MessengerApp]
     knowledgeBaseMessengerApps: [MessengerApp]
     leadMessengerApps: [MessengerApp]
-    healthStatus: String
+    healthStatus: JSON
   }
 
   type integrationsTotalCount {
@@ -31,6 +31,7 @@ export const types = `
     byChannel: JSON
     byBrand: JSON
     byKind: JSON
+    byStatus: JSON
   }
 
   type integrationsGetUsedTypes {
@@ -47,12 +48,14 @@ export const types = `
     adminEmails: [String]
     adminEmailTitle: String
     adminEmailContent: String
+    thankTitle: String
     thankContent: String
     redirectUrl: String
     themeColor: String
     callout: JSON,
     rules: [InputRule]
     isRequireOnce: Boolean
+    templateId: String
   }
 
   input MessengerOnlineHoursSchema {
@@ -106,12 +109,14 @@ export const queries = `
     channelId: String,
     brandId: String,
     tag: String,
+    status: String,
+    formLoadType: String
   ): [Integration]
 
   integrationsGetUsedTypes: [integrationsGetUsedTypes]
   integrationGetLineWebhookUrl(_id: String!): String
   integrationDetail(_id: String!): Integration
-  integrationsTotalCount: integrationsTotalCount
+  integrationsTotalCount(kind: String, brandId: String, tag: String, channelId: String, status: String, formLoadType: String): integrationsTotalCount
   integrationsFetchApi(path: String!, params: JSON!): JSON
 `;
 
@@ -142,6 +147,7 @@ export const mutations = `
   integrationsCreateLeadIntegration(
     name: String!,
     brandId: String!,
+    channelIds: [String]
     languageCode: String,
     formId: String!,
     leadData: IntegrationLeadData!): Integration
@@ -150,6 +156,7 @@ export const mutations = `
     _id: String!
     name: String!,
     brandId: String!,
+    channelIds: [String]
     languageCode: String,
     formId: String!,
     leadData: IntegrationLeadData!): Integration
@@ -194,4 +201,6 @@ export const mutations = `
   integrationsUpdateConfigs(configsMap: JSON!): JSON
 
   integrationsSendSms(integrationId: String!, content: String!, to: String!): JSON
+
+  integrationsCopyLeadIntegration(_id: String!): Integration
 `;

@@ -1,14 +1,14 @@
 import {
-  ActivityLogs,
   Conformities,
   Conversations,
   EmailDeliveries,
-  EngageMessages,
   InternalNotes,
   Tasks
 } from '../../../db/models';
 import { IActivityLogDocument } from '../../../db/models/definitions/activityLogs';
+import { ACTIVITY_CONTENT_TYPES } from '../../../db/models/definitions/constants';
 import { debugExternalApi } from '../../../debuggers';
+import { fetchLogs } from '../../logUtils';
 import { moduleRequireLogin } from '../../permissions/wrappers';
 import { IContext } from '../../types';
 
@@ -45,8 +45,6 @@ const activityLogQueries = {
         items.map(item => {
           let result: IActivityLogDocument = {} as any;
 
-          item = item.toJSON();
-
           if (!type) {
             result = item;
           }
@@ -63,6 +61,7 @@ const activityLogQueries = {
             result.contentType = type;
             result.createdAt = item.closeDate || item.createdAt;
           }
+
           activities.push(result);
         });
       }
@@ -72,7 +71,7 @@ const activityLogQueries = {
       collectItems(
         await Conversations.find({
           $or: [{ customerId: contentId }, { participatedUserIds: contentId }]
-        }).limit(25),
+        }),
         'conversation'
       );
 
@@ -96,11 +95,15 @@ const activityLogQueries = {
       }
     };
 
+    // this also fetches campaign & sms logs, don't fetch them in default switch case
     const collectActivityLogs = async () => {
       collectItems(
-        await ActivityLogs.find({
-          contentId: { $in: [...relatedItemIds, contentId] }
-        })
+        await fetchLogs(
+          {
+            contentId: { $in: [...relatedItemIds, contentId] }
+          },
+          'activityLogs'
+        )
       );
     };
 
@@ -113,14 +116,27 @@ const activityLogQueries = {
       );
     };
 
-    const collectEngageMessages = async () => {
+    const collectCampaigns = async () => {
       collectItems(
-        await EngageMessages.find({ customerIds: contentId, method: 'email' }),
-        'engage-email'
+        await fetchLogs(
+          {
+            contentId,
+            contentType: ACTIVITY_CONTENT_TYPES.CAMPAIGN
+          },
+          'activityLogs'
+        )
       );
+    };
+
+    const collectSms = async () => {
       collectItems(
-        await EmailDeliveries.find({ customerId: contentId }),
-        'email'
+        await fetchLogs(
+          {
+            contentId,
+            contentType: ACTIVITY_CONTENT_TYPES.SMS
+          },
+          'activityLogs'
+        )
       );
     };
 
@@ -145,35 +161,50 @@ const activityLogQueries = {
 
       if (Array.isArray(contentIds)) {
         collectItems(
-          await Conversations.find({ _id: { $in: contentIds } }).limit(25),
+          await Conversations.find({ _id: { $in: contentIds } }),
           'conversation'
         );
       }
     };
 
+    const collectEmailDeliveries = async () => {
+      await collectItems(
+        await EmailDeliveries.find({ customerId: contentId }),
+        'email'
+      );
+    };
+
     switch (activityType) {
-      case 'conversation':
+      case ACTIVITY_CONTENT_TYPES.CONVERSATION:
         await collectConversations();
         break;
 
-      case 'internal_note':
+      case ACTIVITY_CONTENT_TYPES.INTERNAL_NOTE:
         await collectInternalNotes();
         break;
 
-      case 'task':
+      case ACTIVITY_CONTENT_TYPES.TASK:
         await collectTasks();
         break;
 
-      case 'email':
-        await collectEngageMessages();
+      case ACTIVITY_CONTENT_TYPES.EMAIL:
+        await collectEmailDeliveries();
+        break;
+
+      case ACTIVITY_CONTENT_TYPES.SMS:
+        await collectSms();
+        break;
+
+      case ACTIVITY_CONTENT_TYPES.CAMPAIGN:
+        await collectCampaigns();
         break;
 
       default:
         await collectConversations();
         await collectActivityLogs();
         await collectInternalNotes();
-        await collectEngageMessages();
         await collectTasks();
+        await collectEmailDeliveries();
 
         break;
     }

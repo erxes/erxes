@@ -11,7 +11,8 @@ export const commonMutationVariables = `
   $isComplete: Boolean,
   $status: String,
   $priority: String,
-  $sourceConversationId: String,
+  $sourceConversationIds: [String],
+  $customFieldsData: JSON
 `;
 
 export const commonMutationParams = `
@@ -27,7 +28,8 @@ export const commonMutationParams = `
   isComplete: $isComplete,
   status: $status,
   priority: $priority,
-  sourceConversationId: $sourceConversationId,
+  sourceConversationIds: $sourceConversationIds,
+  customFieldsData: $customFieldsData,
 `;
 
 export const commonDragVariables = `
@@ -44,6 +46,22 @@ export const commonDragParams = `
   destinationStageId: $destinationStageId,
   sourceStageId: $sourceStageId,
   proccessId: $proccessId
+`;
+
+export const commonListFields = `
+  _id
+  name
+  companies
+  customers
+  assignedUsers
+  labels
+  stage
+  isComplete
+  isWatched
+  closeDate
+  modifiedAt
+  priority
+  hasNotified
 `;
 
 export const commonFields = `
@@ -64,6 +82,7 @@ export const commonFields = `
   customers {
     _id
     firstName
+    middleName
     lastName
     primaryEmail
     primaryPhone
@@ -109,6 +128,7 @@ export const commonFields = `
     }
   }
   order
+  customFieldsData
 `;
 
 const stagesUpdateOrder = `
@@ -170,6 +190,18 @@ const stagesRemove = `
   }
 `;
 
+const stagesSortItems = `
+  mutation stagesSortItems($stageId: String!, $type: String, $proccessId: String, $sortType: String) {
+    stagesSortItems(stageId: $stageId, type: $type, proccessId: $proccessId, sortType: $sortType)
+  }
+`;
+
+const conversationConvertToCard = `
+  mutation conversationConvertToCard($_id: String!, $type:String!, $stageId: String, $itemName:String, $itemId:String){
+    conversationConvertToCard(_id:$_id,type:$type,itemId:$itemId,stageId:$stageId,itemName:$itemName )
+  }
+`;
+
 export default {
   stagesUpdateOrder,
   pipelinesWatch,
@@ -178,5 +210,7 @@ export default {
   pipelineLabelsEdit,
   pipelineLabelsRemove,
   stagesEdit,
-  stagesRemove
+  stagesRemove,
+  stagesSortItems,
+  conversationConvertToCard
 };

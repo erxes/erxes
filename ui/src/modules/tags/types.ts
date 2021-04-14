@@ -1,6 +1,5 @@
 import { ITag as ITagC } from 'erxes-ui/lib/tags/types';
 export type ITag = ITagC;
-
 export interface ITagSaveParams {
   tag?: ITag;
   doc: {
@@ -45,7 +44,13 @@ export type EditMutationResponse = {
 };
 
 export type RemoveMutationResponse = {
-  removeMutation: (params: { variables: { ids: string[] } }) => Promise<any>;
+  removeMutation: (params: { variables: { _id: string } }) => Promise<any>;
+};
+
+export type MergeMutationResponse = {
+  mergeMutation: (params: {
+    variables: { sourceId: string; destId: string };
+  }) => Promise<any>;
 };
 
 export type TagMutationVariables = {

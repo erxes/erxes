@@ -1,11 +1,6 @@
-import {
-  Companies,
-  Conformities,
-  Customers,
-  Tags,
-  Users
-} from '../../db/models';
+import { Companies, Conformities, Customers, Tags } from '../../db/models';
 import { ICompanyDocument } from '../../db/models/definitions/companies';
+import { getDocument } from './mutations/cacheUtils';
 
 export default {
   async customers(company: ICompanyDocument) {
@@ -23,7 +18,7 @@ export default {
   },
 
   owner(company: ICompanyDocument) {
-    return Users.findOne({ _id: company.ownerId });
+    return getDocument('users', { _id: company.ownerId });
   },
 
   parentCompany(company: ICompanyDocument) {
