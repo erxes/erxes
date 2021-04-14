@@ -67,9 +67,13 @@ class SmsDeliveries extends React.Component<Props, State> {
 
     const heads: JSX.Element[] = [
       <th key="date">{__('Date')}</th>,
-      <th key="destination">{__('Destination')}</th>,
+      <th key="to">{__('To')}</th>,
       <th key="status">{__('Status')}</th>
     ];
+
+    if (type === SOURCE_TYPES.INTEGRATION) {
+      heads.push(<th key="direction">{__('Direction')}</th>);
+    }
 
     if (type === SOURCE_TYPES.CAMPAIGN) {
       heads.push(<th key="campaign">{__('Campaign')}</th>);

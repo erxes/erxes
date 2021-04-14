@@ -11,7 +11,6 @@ export interface ISmsDelivery {
   to: string;
 
   // telnyx data
-  direction: string;
   status: string;
   responseData?: string;
   telnyxId?: string;
@@ -22,6 +21,7 @@ export interface ISmsDelivery {
   engageMessageId?: string;
 
   // integrations only
+  direction?: string;
   from?: string;
   content?: string;
   requestData?: string;

@@ -12,9 +12,11 @@ interface ISmsDeliveryParams {
 const smsDeliveryQueries = {
   async smsDeliveries(
     _root,
-    { type, to }: ISmsDeliveryParams,
+    params: ISmsDeliveryParams,
     { dataSources }: IContext
   ) {
+    const { type } = params;
+
     if (!type) {
       throw new Error('SMS delivery type must be chosen');
     }
@@ -23,13 +25,10 @@ const smsDeliveryQueries = {
       let response: any = {};
 
       if (type === 'campaign') {
-        response = await dataSources.EngagesAPI.getSmsDeliveries({ type, to });
+        response = await dataSources.EngagesAPI.getSmsDeliveries(params);
       }
       if (type === 'integration') {
-        response = await dataSources.IntegrationsAPI.getSmsDeliveries({
-          type,
-          to
-        });
+        response = await dataSources.IntegrationsAPI.getSmsDeliveries(params);
       }
       if (response.status !== 'ok' && response.error) {
         throw new Error(response.error);

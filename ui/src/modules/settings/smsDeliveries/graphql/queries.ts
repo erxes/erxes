@@ -13,6 +13,7 @@ const smsDeliveries = `
   
         from
         content
+        direction
       }
 
       totalCount

@@ -1,6 +1,7 @@
 import dayjs from 'dayjs';
 import { SMS_DELIVERY_STATUSES } from 'modules/engage/constants';
 import Label from 'modules/common/components/Label';
+import TextInfo from 'modules/common/components/TextInfo';
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { ISmsDelivery } from '../types';
@@ -9,6 +10,11 @@ import { SOURCE_TYPES } from './SmsDeliveries';
 type Props = {
   log: ISmsDelivery;
   type: string;
+};
+
+const DIRECTIONS = {
+  INBOUND: 'inbound',
+  OUTBOUND: 'outbound'
 };
 
 export default class Row extends React.PureComponent<Props> {
@@ -35,6 +41,22 @@ export default class Row extends React.PureComponent<Props> {
     return null;
   }
 
+  renderDirection(type: string, direction?: string) {
+    if (type === SOURCE_TYPES.INTEGRATION && direction) {
+      return (
+        <td>
+          <TextInfo
+            textStyle={direction === DIRECTIONS.INBOUND ? 'primary' : 'simple'}
+          >
+            {direction}
+          </TextInfo>
+        </td>
+      );
+    }
+
+    return null;
+  }
+
   render() {
     const { log, type } = this.props;
 
@@ -47,6 +69,7 @@ export default class Row extends React.PureComponent<Props> {
         <td>{dayjs(log.createdAt).format('YYYY-MM-DD HH:mm:ss')}</td>
         <td>{log.to}</td>
         <td>{this.renderStatus()}</td>
+        {this.renderDirection(type, log.direction)}
         {this.renderCampaignLink(type, log.engageMessageId)}
         {type === SOURCE_TYPES.INTEGRATION ? (
           <React.Fragment>
