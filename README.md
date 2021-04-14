@@ -18,7 +18,7 @@
 </p>
 
 <p align="center">
- <a href="https://erxes.org" target="_blank"><img src="https://erxes-os.s3-us-west-2.amazonaws.com/github/git-erxes.gif" alt="Open Source Growth Marketing Platform "></a>
+ <a href="https://erxes.org" target="_blank"><img src="https://erxes-os.s3-us-west-2.amazonaws.com/github/git-erxes.gif" alt="erxes Growth Marketing Platform "></a>
 </p>
 
 ## Demo
@@ -27,20 +27,23 @@ Live demo is deployed at <a href="https://demo.erxes.io/" target="_blank">https:
 
 ## Features
 
+With erxes, achieving growth and unity within your company is possible. We designed erxes to help you eliminate fragmented business processes by bringing all of your messaging and collaboration into one tool. As a result, you will be able to double your output and treat all of your customers as close friends. Optimize your growth operation and scale-up better and faster, but most importantly, correctly.
+
 <img src="https://s3.amazonaws.com/erxes/github/features-transparent.png" width="400" align="right" style="max-width: 50%">
 
-erxes helps you attract and engage more customers while helping you achieve high lead conversion. With erxes, all your marketing, sales, and customer service tools are merged into one platform for greater output.
-
-- **Growth Hacking:** Manage your entire growth operation easily. Erxes makes growing a pleasure by consolidating ideas and making actual performance a reality. Erxes makes sure everything is recorded, prioritized, and centralized in a single platform.
-- **Email & SMS Marketing:** Reach your customers with personalized messaging. Keeping your customers hooked is a challenge. Start converting your prospects into potential customers through email, SMS, Live chat, Botpress and In-app-messaging and more interactions to drive them to a successful close. You can connect to your customers in a whole new complete way with erxes!
-- **Pop-ups & Forms:** Create Stylish Pop-ups and Forms that bring you leads. Turn regular visitors into qualified leads by capturing them with customizable pop-ups, forms, and embedded placements. Erxes helps you to create stylish and contextual pop-ups, banners and announcement bars to fit all your marketing needs.
-- **Sales Pipeline:** Track your entire sales pipeline from one dashboard. All your customer information and sales process is there in one board to follow up flawlessly. Have your sales managers know everything needed to deliver increased levels of personalization when they contact customers.
-- **Contact Management:** Manage Visitors, Customers, and Companies. Access our all-in-one CRM system so it’s easier to coordinate and manage your contacts and interactions with your customers. Erxes Contacts provides segmentation tools for you to work with more efficiently.
-- **Lead Scoring:** Identify and Target Sales-Ready Leads.
-- **Shared Team Inbox:** Communicate faster and easier with your customers via one truly omnichannel platform. Combine real-time client and team communication with in-app messaging, live chat, email and forms. Your customers can reach you however and wherever they want.
-- **Messenger:** Talk to Your Customers in Continuous Omnichannel Conversations. Enable businesses to capture customer feedback and communicate in real-time. You can educate your customers through the knowledge-base directly in the erxes Messenger.
-- **Knowledge base:** Create Help Articles for Customer Self-service. Educate both your customers, and staff by creating a help center related to your brand, products and services and reach a higher level of satisfaction.
-- **Task Management:** Work More Collaboratively and Get More Done. Save time, manage your projects, monitor your team and increase your productivity in just a few clicks. Erxes helps to turn chaos into clarity.
+- Leverage growth marketing and scale your business with **Growth Hacking** ready-made templates and prioritize with different metrics and scoring systems
+- Convert more prospects with email, SMS, and in-app chat **Campaigns**
+- Never miss a potential lead by capturing them with a customizable **Forms**
+- Track your entire sales and drive leads to a successful close with our Kansan-style boards in the **Sales Pipeline**
+- Coordinate and manage all your customer interactions in the **Contact Management**
+- Stay in sync with your customers and staff with **Team Inbox**
+- Connect with your customers in continuous real-time omnichannel with **Messenger**
+- Educate both your customers and staff with **Knowledge Base**
+- Create a more collaborative, self-reliant, and cross-linked team with **Task Management**
+- Manage different **Brands** using one account with no branding
+- Analyze different areas of your business with **Reports (a.k.a Dashboard)** through any properties and events tracked with erxes script
+- Access some of your most important CRM and web chat tools on the go with iOS and Android **Mobile Apps**
+- Access everything from anywhere with our **cloud version** <a href="https://erxes.io/" target="_blank">here</a>.
 
 ## Documentation
 
@@ -70,16 +73,28 @@ Follow these deployment instructions.
 <a href="https://www.transifex.com/" target="_blank"><img src="https://s3.amazonaws.com/erxes/github/transifex.png" width="100px;" /></a>
 <a href="https://www.browserstack.com/" target="_blank"><img src="https://s3.amazonaws.com/erxes/github/browserstack.png" width="130px;" /></a>
 
+## What does erxes mean? How do you pronounce it?
+
+erxes (pronounced 'erk-sis') means "heavenly bodies" in Mongolian. It is branded as “erxes” with all lowercase letters. 
+
 ## Which license does erxes use?
 
 erxes is a free and open <a href="https://faircode.io/">fair-code</a> licensed under GNU General Public License v3.0 with Commons Clause.
 
 ## Is erxes open-source?
 
-No. The <a href="https://commonsclause.com/">Commons Clause</a> that is attached to the GNU General Public License v3.0 license takes away some rights. Hence, according to the definition of the <a href="https://bit.ly/2WJ5uTh">Open Source Initiative (OSI)</a>, erxes is not open-source. Nonetheless, the source code is open and everyone (individuals and companies) can use it for free. However, it is not allowed to make money directly with erxes.
+Technically, no. The <a href="https://commonsclause.com/">Commons Clause</a> that is attached to the GNU General Public License v3.0 license takes away some rights. Hence, according to the definition of the <a href="https://bit.ly/2WJ5uTh">Open Source Initiative (OSI)</a>, erxes is not open-source. Instead we are fair-code. 
 
-Furthermore, one cannot charge others to host or support erxes. To make things simpler, we grant everyone (individuals and companies) the right to offer consulting or support without prior permission as long as it is less than 30,000 USD ($30k) per annum. If your revenue from services based on erxes is greater than $30k per annum, we'd invite you to become a partner agency and apply for a license. If you have any questions about this, feel free to reach out to us at info@erxes.io.
+## What does fair-code mean for erxes?
+erxes' source code is open, and everyone (individuals and companies) can **use it for free privately**. But if you want to commercialize it, restrictions may apply in the form of prior permissions and official agreements.
+
+## Can I use erxes to manage my clients and make revenue?
+Yes, you can offer consulting and support services without prior permission as long as it is less than 30,000 USD ($30k) per year. If your revenue from services based on erxes is more than this threshold, we invite you to become a partner agency and apply for a license. If you have any questions about this, feel free to reach out to us at info@erxes.io.
+
+## Can hosting companies use erxes?
+
+You need to request permission to host erxes under the <a href="https://commonsclause.com/">Commons Clause</a>. Please reach out to us at info@erxes.io.
 
 ## Why is erxes not open-source but fair-code licensed instead?
 
-We love open-source and the idea everybody can freely use and extend what we wrote. Our community is at the heart of everything we do and we understand that people who contribute to a project are the main drivers who push a project forward. So to make sure that the project continues to evolve and stay alive in the longer run, we decided to attach the Commons Clause. This ensures that no other person or company can make money directly with erxes **without fairly compensating the project**. Especially if it competes with how we plan to finance our further development. For the greater majority of the people, it will not make any difference at all. At the same time, it protects the project. As erxes itself depends on and uses a lot of other open-source projects, it is only fair that we support them back. That is why we have planned to contribute a certain percentage of revenue/profit every month to these projects.
+We love open-source and the idea everybody can freely use and extend what we wrote. Our community is at the heart of everything we do. We understand that people who contribute to a project are the main drivers who push a project forward. To ensure that the project continues to evolve in the longer run, we decided to attach the Commons Clause. Any entities can not make money directly with erxes **without fairly compensating the project**.  Especially, if it competes with how we plan to finance our further developments. It does not affect the majority of the people who use erxes. At the same time, it protects the project. As erxes itself depends on and uses many other open-source projects, it is only fair that we support them back. That is why we have planned to contribute a certain percentage of our revenue every month to these projects.
