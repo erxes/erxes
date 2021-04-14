@@ -132,6 +132,60 @@ class WorkArea extends React.Component<FinalProps, State> {
         }
       });
 
+      // Start update subscriptions =============
+      this.prevMessageInsertedSubscription = messagesQuery.subscribeToMore({
+        document: gql(subscriptions.conversationMessageUpdated),
+        variables: { _id: currentId },
+        updateQuery: (prev, { subscriptionData }) => {
+          const message = subscriptionData.data.conversationMessageUpdated;
+          const kind = currentConversation.integration.kind;
+
+          if (!prev) {
+            return;
+          }
+
+          // Whenever mail thread receives a new message refetch for optimistic ui
+          if (kind === 'gmail' || kind.includes('nylas')) {
+            return messagesQuery.refetch();
+          }
+
+          // current user's message is being showed after insert message
+          // mutation. So to prevent from duplication we are ignoring current
+          // user's messages from subscription
+          const isMessenger = kind === 'messenger';
+
+          if (isMessenger && message.userId === currentUser._id) {
+            return;
+          }
+
+          if (currentId !== this.props.currentId) {
+            return;
+          }
+
+          const messages = prev.conversationMessages;
+
+          // Sometimes it is becoming undefined because of left sidebar query
+          if (!messages) {
+            return;
+          }
+
+          // check whether or not already inserted
+          const prevEntry = messages.find(m => m._id === message._id);
+
+          if (prevEntry) {
+            return;
+          }
+
+          // add new message to messages list
+          const next = {
+            ...prev,
+            conversationMessages: [...messages, message]
+          };
+
+          return next;
+        }
+      });
+
       this.prevTypingInfoSubscription = messagesQuery.subscribeToMore({
         document: gql(subscriptions.conversationClientTypingStatusChanged),
         variables: { _id: currentId },

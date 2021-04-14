@@ -31,6 +31,7 @@ class MailConversation extends React.Component<Props, {}> {
             key={message._id}
             message={message}
             isStaff={!message.customerId}
+            kind={kind}
           />
         );
       }

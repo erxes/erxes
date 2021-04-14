@@ -83,6 +83,7 @@ export const INTEGRATION_KINDS = {
   SMOOCH_LINE: 'smooch-line',
   SMOOCH_TWILIO: 'smooch-twilio',
   WHATSAPP: 'whatsapp',
+  WHATSPRO: 'whatspro',
   TELNYX: 'telnyx',
   WEBHOOK: 'webhook',
   ALL: [
@@ -103,6 +104,8 @@ export const INTEGRATION_KINDS = {
     { text: 'Viber by Smooch', value: 'smooch-viber' },
     { text: 'Line by Smooch', value: 'smooch-line' },
     { text: 'SMS Twilio by Smooch', value: 'smooch-twilio' },
+
+    { text: 'WhatsApp By WhatsPro ', value: 'whatspro' },
 
     { text: 'IMAP by Nylas', value: 'nylas-imap' },
     { text: 'Gmail by Nylas', value: 'nylas-gmail' },
@@ -344,6 +347,16 @@ export const INTEGRATIONS = [
     createModal: 'smooch-line',
     category:
       'All integrations, For support teams, For sales teams, For marketing teams, Marketing automation, Messaging, Phone and video, Conversation'
+  },
+  {
+    name: 'WhatsApp by WhatsPro',
+    description: 'Get a hold of your Whatsapp messages through your Team Inbox',
+    inMessenger: false,
+    isAvailable: true,
+    kind: 'whatspro',
+    logo: '/images/integrations/whatsapp.png',
+    createModal: 'whatspro',
+    category: 'All integrations, For support teams, Messaging, Conversation'
   },
   {
     name: 'SMS by Telnyx',

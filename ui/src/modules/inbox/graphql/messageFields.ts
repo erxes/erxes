@@ -1,6 +1,7 @@
 export default `
   _id
   content
+  status
   attachments {
     url
     name

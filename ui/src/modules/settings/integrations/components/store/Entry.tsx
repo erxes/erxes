@@ -28,6 +28,7 @@ type TotalCount = {
   viber: number;
   twilio: number;
   whatsapp: number;
+  whatspro: number;
   exchange: number;
   telnyx: number;
 };

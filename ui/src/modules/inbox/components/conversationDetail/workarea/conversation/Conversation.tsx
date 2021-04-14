@@ -35,7 +35,7 @@ class Conversation extends React.Component<Props, { isResolved: boolean }> {
     };
   }
 
-  renderMessages(messages: IMessage[], conversationFirstMessage: IMessage) {
+  renderMessages(messages: IMessage[], conversationFirstMessage: IMessage, kind: string) {
     const rows: React.ReactNode[] = [];
 
     let tempId;
@@ -51,6 +51,7 @@ class Conversation extends React.Component<Props, { isResolved: boolean }> {
           conversationFirstMessage={conversationFirstMessage}
           message={message}
           key={message._id}
+          kind={kind}
         />
       );
 
@@ -101,12 +102,12 @@ class Conversation extends React.Component<Props, { isResolved: boolean }> {
       return (
         <>
           <CallPro conversation={conversation} />
-          {this.renderMessages(messages, firstMessage)}
+          {this.renderMessages(messages, firstMessage, kind)}
         </>
       );
     }
 
-    return this.renderMessages(messages, firstMessage);
+    return this.renderMessages(messages, firstMessage, kind);
   }
 
   render() {

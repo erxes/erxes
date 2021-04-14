@@ -15,7 +15,7 @@ import {
   MessageBody,
   MessageContent,
   MessageItem,
-  UserInfo
+  UserInfo,
 } from '../styles';
 import VideoCallMessage from './VideoCallMessage';
 
@@ -25,6 +25,7 @@ type Props = {
   isStaff: boolean;
   isSameUser?: boolean;
   renderContent?: () => React.ReactNode;
+  kind: string;
 };
 
 export default class SimpleMessage extends React.Component<Props, {}> {
@@ -68,6 +69,50 @@ export default class SimpleMessage extends React.Component<Props, {}> {
     );
   }
 
+  renderStatus(status: string, showStatus: boolean | undefined, kind: string) {
+    if (!showStatus || kind !== 'whatspro') return null;
+
+    const containerStyles = {
+      display: 'flex',
+    };
+
+    const styles = {
+      marginRight: -10,
+    };
+
+    switch (status) {
+      case '1':
+        return <Icon icon="check-1" />;
+      case '2':
+        return (
+          <div style={containerStyles}>
+            <Icon icon="check-1" style={styles} />
+            <Icon icon="check-1" />
+          </div>
+        );
+      case '3':
+        return (
+          <div style={containerStyles}>
+            <Icon icon="check-1" style={styles} color="#4fc3f7" />
+            <Icon icon="check-1" color="#4fc3f7" />
+          </div>
+        );
+      case '4':
+        return (
+          <div style={containerStyles}>
+            <Icon icon="check-1" style={styles} />
+            <Icon icon="check-1" />
+          </div>
+        );
+      case '98':
+        return <div style={containerStyles}>{__('Error')} </div>;
+      case '99':
+        return <div style={containerStyles}>{__('Invalid number')}</div>;
+      default:
+        return <Icon icon="clock" size={10} style={{ marginRight: 4 }} />;
+    }
+  }
+
   renderContent(hasAttachment: boolean) {
     const { message, renderContent, isStaff } = this.props;
 
@@ -104,14 +149,14 @@ export default class SimpleMessage extends React.Component<Props, {}> {
   }
 
   render() {
-    const { message, isStaff, isSameUser } = this.props;
+    const { message, isStaff, isSameUser, kind } = this.props;
     const messageDate = message.createdAt;
     const hasAttachment = message.attachments && message.attachments.length > 0;
 
     const classes = classNames({
       ...(this.props.classes || []),
       attachment: hasAttachment,
-      same: isSameUser
+      same: isSameUser,
     });
 
     if (message.fromBot) {
@@ -124,6 +169,8 @@ export default class SimpleMessage extends React.Component<Props, {}> {
 
         <MessageBody staff={isStaff}>
           {this.renderContent(hasAttachment)}
+          {!message.internal &&
+            this.renderStatus(message.status, Boolean(message.userId), kind)}
           <Tip text={dayjs(messageDate).format('lll')}>
             <footer>{dayjs(messageDate).format('LT')}</footer>
           </Tip>

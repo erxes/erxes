@@ -106,7 +106,8 @@ class Conversation extends React.Component<Props, { toggleMessage: boolean }> {
       tempId = message.userId ? message.userId : message.customerId;
 
       rows.push(
-        <Message
+        <Message          
+          kind={kind}
           isSameUser={
             message.userId
               ? message.userId === tempId

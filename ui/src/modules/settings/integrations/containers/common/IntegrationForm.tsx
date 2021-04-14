@@ -10,6 +10,7 @@ import TelnyxForm from '../../components/telnyx/TelnyxForm';
 import Viber from '../../components/viber/Viber';
 import WebHookForm from '../../components/webhook/Form';
 import Whatsapp from '../../components/whatsapp/Whatsapp';
+import WhatsPro from '../../components/whatspro/WhatsPro';
 import { getRefetchQueries } from '../utils';
 
 type Props = {
@@ -29,6 +30,7 @@ const INTEGRATION_FORM = {
   'smooch-viber': Viber,
   'smooch-telegram': Telegram,
   whatsapp: Whatsapp,
+  whatspro: WhatsPro,
   telnyx: TelnyxForm,
   webhook: WebHookForm
 };
