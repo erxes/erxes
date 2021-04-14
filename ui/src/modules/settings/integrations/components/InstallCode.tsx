@@ -217,17 +217,20 @@ class InstallCode extends React.PureComponent<Props, State> {
     if (currentTab === 'googletag') {
       return (
         <div>
-          <b>{__('gtm_b')}</b>
+          <div dangerouslySetInnerHTML={{__html: `<b>${__('gtm_b')}</b>`}}/>
+          <div dangerouslySetInnerHTML={{__html: `
           <ol>
-            <li>{__('gtm_li_1')}</li>
-            <li>{__('gtm_li_2')}</li>
-            <li>{__('gtm_li_3')}</li>
-            <li>{__('gtm_li_4')}</li>
-            <li>{__('gtm_li_5')}</li>
-            <li>{__('gtm_li_6')}</li>
-            <li>{__('gtm_li_7')}</li>
-            <li>{__('gtm_li_8')}</li>
-          </ol>
+            <li>${__('gtm_li_1')}</li>
+            <li>${__('gtm_li_2')}</li>
+            <li>${__('gtm_li_3')}</li>
+            <li>${__('gtm_li_4')}</li>
+            <li>${__('gtm_li_5')}</li>
+            <li>${__('gtm_li_6')}</li>
+            <li>${__('gtm_li_7')}</li>
+            <li>${__('gtm_li_8')}</li>
+          </ol>`}}/>
+          
+          
         </div>
       );
     }
@@ -431,7 +434,19 @@ class InstallCode extends React.PureComponent<Props, State> {
   ) {
     return (
       <Script>
-        <Info>
+        <Info type={'info'}>
+          {__(description)}
+          {extraContent && this.renderDescription(currentTab)}
+        </Info>
+        <Info type={'danger'}>
+          {__(description)}
+          {extraContent && this.renderDescription(currentTab)}
+        </Info>
+        <Info type={'warning'}>
+          {__(description)}
+          {extraContent && this.renderDescription(currentTab)}
+        </Info>
+        <Info type={'info'} iconShow={true}>
           {__(description)}
           {extraContent && this.renderDescription(currentTab)}
         </Info>
@@ -472,7 +487,7 @@ class InstallCode extends React.PureComponent<Props, State> {
       case 'googletag':
         description = __(
           'To connect Google Tag Manager to erxes, you must have an active Google Tag Manager account with a published container'
-        );
+        ); 
         extraContent = true;
         script = basicCode;
         action = contentCopied;

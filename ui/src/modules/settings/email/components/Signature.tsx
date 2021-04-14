@@ -121,7 +121,7 @@ class Signature extends React.Component<Props, State> {
   render() {
     return (
       <div>
-        <Info>{__('You can use Markdown to format your signature.')}</Info>
+        <Info iconShow={true} type={'info'}>{__('You can use Markdown to format your signature.')}</Info>
 
         <form id="signature-form" onSubmit={this.handleSubmit}>
           <FormGroup>

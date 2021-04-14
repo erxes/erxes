@@ -127,7 +127,7 @@ class EngageSettingsContent extends React.Component<Props, State> {
 
     return (
       <>
-        <Info>
+        <Info type={'info'}>
           <p>
             {__(
               'Amazon Simple Email Service enables you to send and receive email using a reliable and scalable email platform. Set up your custom amazon simple email service account'

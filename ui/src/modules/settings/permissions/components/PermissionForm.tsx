@@ -138,7 +138,7 @@ class PermissionForm extends React.Component<Props, State> {
 
     return (
       <>
-        <Info>
+        <Info type={'info'}>
           <strong>User vs. Group Permissions</strong>
           <br />
           <span>

@@ -77,7 +77,7 @@ class Gmail extends React.Component<Props, State> {
             <FlexItem>
               <LeftItem>
                 <FormGroup>
-                  <Info>
+                  <Info type={'warning'}>
                     <strong>
                       {__('Email add account description question')}
                     </strong>

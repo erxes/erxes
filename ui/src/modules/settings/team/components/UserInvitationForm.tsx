@@ -316,7 +316,7 @@ class UserInvitationForm extends React.Component<Props, State> {
   render() {
     return (
       <>
-        <Info>
+        <Info iconShow={true} type={'warning'}>
           {__("Send an email and notify members that they've been invited!")}
         </Info>
 

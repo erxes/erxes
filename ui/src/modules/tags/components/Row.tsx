@@ -92,7 +92,7 @@ class Row extends React.Component<Props, State> {
       }
 
       return (
-        <Info>
+        <Info type={'info'}>
           <p>
             All associated {tag.type}(s) with the tag <b>{tag.name}</b> will be
             permanently merged into tag <b>{mergeDestination.label}</b>

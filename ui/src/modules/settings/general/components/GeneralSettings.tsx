@@ -206,7 +206,7 @@ class GeneralSettings extends React.Component<Props, State> {
         </CollapseContent>
 
         <CollapseContent title={__('File upload')}>
-          <Info>
+          <Info type={'info'}>
             <a
               target="_blank"
               href="https://erxes.org/administrator/system-config#file-upload"
@@ -289,7 +289,7 @@ class GeneralSettings extends React.Component<Props, State> {
         </CollapseContent>
 
         <CollapseContent title="AWS S3">
-          <Info>
+          <Info type={'info'}>
             <a
               target="_blank"
               href="https://erxes.org/administrator/system-config#aws-s3"
@@ -310,7 +310,7 @@ class GeneralSettings extends React.Component<Props, State> {
         </CollapseContent>
 
         <CollapseContent title="AWS SES">
-          <Info>
+          <Info type={'info'}>
             <p>
               {__(
                 'In this field, the AWS SES configuration is dedicated to providing transaction emails'
@@ -331,7 +331,7 @@ class GeneralSettings extends React.Component<Props, State> {
         </CollapseContent>
 
         <CollapseContent title="Google">
-          <Info>
+          <Info type={'info'}>
             <a
               target="_blank"
               href="https://erxes.org/administrator/system-config#google"
@@ -355,7 +355,7 @@ class GeneralSettings extends React.Component<Props, State> {
         </CollapseContent>
 
         <CollapseContent title={__('Common mail config')}>
-          <Info>
+          <Info type={'info'}>
             <a
               target="_blank"
               href="https://erxes.org/administrator/system-config#common-mail-config"
@@ -399,7 +399,7 @@ class GeneralSettings extends React.Component<Props, State> {
         </CollapseContent>
 
         <CollapseContent title={__('Custom mail service')}>
-          <Info>
+          <Info type={'info'}>
             <a
               target="_blank"
               href="https://erxes.org/administrator/system-config#custom-mail-service"

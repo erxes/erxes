@@ -33,7 +33,7 @@ class EventContainer extends React.Component<FinalProps, {}> {
     }
 
     if (fetchApiQuery.error) {
-      return <Info bordered={false}>{fetchApiQuery.error.message}</Info>;
+      return <Info iconShow={true} type={'danger'}>{fetchApiQuery.error.message}</Info>;
     }
 
     // edit action

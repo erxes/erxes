@@ -78,7 +78,7 @@ const EmailConfigForm = (props: Props) => {
 
     return (
       <ContentWrapper>
-        <Info>
+        <Info iconShow={true} type={'info'}>
           {__('Your email will be sent with Erxes email template') + '.'}
         </Info>
       </ContentWrapper>

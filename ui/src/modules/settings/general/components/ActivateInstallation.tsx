@@ -59,7 +59,7 @@ const ActivateInstallation = () => {
   };
 
   if (activated) {
-    return <Info>Already activated</Info>;
+    return <Info iconShow={true} type={'success'}>Already activated</Info>;
   }
 
   return (

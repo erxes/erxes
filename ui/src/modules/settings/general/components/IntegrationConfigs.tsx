@@ -79,7 +79,7 @@ class IntegrationConfigs extends React.Component<Props, State> {
     return (
       <ContentBox id={'IntegrationSettingsMenu'}>
         <CollapseContent title="Facebook">
-          <Info>
+          <Info type={'info'}>
             <a
               target="_blank"
               href="https://erxes.org/administrator/system-config#facebook"
@@ -100,7 +100,7 @@ class IntegrationConfigs extends React.Component<Props, State> {
         </CollapseContent>
 
         <CollapseContent title="Twitter">
-          <Info>
+          <Info type={'info'}>
             <a
               target="_blank"
               href="https://erxes.org/administrator/system-config#twitter"
@@ -117,7 +117,7 @@ class IntegrationConfigs extends React.Component<Props, State> {
         </CollapseContent>
 
         <CollapseContent title="Nylas">
-          <Info>
+          <Info type={'info'}>
             <a
               target="_blank"
               href="https://erxes.org/administrator/system-config#nylas-integrations"
@@ -138,7 +138,7 @@ class IntegrationConfigs extends React.Component<Props, State> {
         </CollapseContent>
 
         <CollapseContent title="Video call">
-          <Info>
+          <Info type={'info'}>
             <a
               target="_blank"
               href="https://erxes.org/administrator/system-config#video-calls"
@@ -167,7 +167,7 @@ class IntegrationConfigs extends React.Component<Props, State> {
         </CollapseContent>
 
         <CollapseContent title="Sunshine Conversations API">
-          <Info>
+          <Info type={'info'}>
             <a
               target="_blank"
               href="https://erxes.org/administrator/system-config#sunshine-conversations-api-integration"
@@ -187,7 +187,7 @@ class IntegrationConfigs extends React.Component<Props, State> {
         </CollapseContent>
 
         <CollapseContent title="WhatsApp Chat-API">
-          <Info>
+          <Info type={'info'}>
             <a
               target="_blank"
               href="https://erxes.org/administrator/system-config#whatsapp-integration"

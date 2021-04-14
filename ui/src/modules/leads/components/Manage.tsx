@@ -129,7 +129,7 @@ class Manage extends React.Component<Props, State> {
           )}
         </MarkdownWrapper>
         <br />
-        <Info>
+        <Info iconShow={true} type={'info'}>
           {__(
             'If your form style is embedded, additionally paste this code after the main code. '
           )}
@@ -138,7 +138,7 @@ class Manage extends React.Component<Props, State> {
           <ReactMarkdown source={embedCode || ''} />
         </MarkdownWrapper>
         <br />
-        <Info>
+        <Info iconShow={true} type={'info'}>
           {__(
             'If your form style is a popup, additionally paste this code after the main code.'
           )}
@@ -153,7 +153,7 @@ class Manage extends React.Component<Props, State> {
   render() {
     return (
       <>
-        <Info>
+        <Info iconShow={true} type={'info'}>
           {__(
             ' Paste this main code before the body tag on every page you want this form to appear.'
           )}

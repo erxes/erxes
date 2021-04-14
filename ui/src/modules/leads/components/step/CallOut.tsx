@@ -206,7 +206,7 @@ class CallOut extends React.Component<Props, State> {
       <FlexItem>
         <FlexColumn>
           <LeftItem deactive={skip}>
-            <Info>
+            <Info iconShow={true} type={'info'}>
               {__(
                 'Call Out is a brief message you wish to display before showing the full form.'
               )}

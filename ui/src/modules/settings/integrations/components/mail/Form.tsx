@@ -90,7 +90,7 @@ class Form extends React.Component<Props, State> {
     return (
       <>
         <FormGroup>
-          <Info>
+          <Info type={'warning'}>
             <strong>{__('Email add account description question')}</strong>
             <br />
             <p>{__('Email add account description')}</p>

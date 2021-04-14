@@ -129,7 +129,7 @@ function FieldLogics(props: Props) {
 
   return (
     <>
-      <Info>
+      <Info iconShow={true} type={'info'}>
         {__(
           'Create rules to show or hide this element depending on the values of other fields'
         )}

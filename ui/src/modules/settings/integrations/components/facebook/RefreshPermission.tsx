@@ -63,7 +63,7 @@ class RefreshPermissionForm extends React.PureComponent<Props, CommonTypes> {
 
     return (
       <>
-        <Info>
+        <Info type={'info'}>
           {__(
             'Page permissions can be dropped by Messenger platform if the admin of the page changes their account password or due to some other unexpected reason. In case of any trouble with message sending, or in using some other service, please refresh your permissions using the below button.'
           )}
