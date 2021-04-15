@@ -90,24 +90,11 @@ class EditFormContainer extends React.Component<FinalProps> {
           const existingIds: string[] = [];
           const removeFieldsData: Array<{ _id: string }> = [];
 
-          // remove unnecessary fields
-          fields.forEach(f => {
-            delete f.field;
-            delete f.contentType;
-            delete f.__typename;
-
-            if (f.logics && f.logics.lenth > 0) {
-              f.logics = f.logics.map(l => {
-                delete l.__typename;
-                return l;
-              });
-            }
-          });
-
           const addingFields = fields
             .filter(field => field._id.startsWith('tempId'))
             .map(({ _id, ...rest }) => {
               delete rest.associatedField;
+              delete rest.__typename;
               return {
                 tempFieldId: _id,
                 ...rest
@@ -118,6 +105,7 @@ class EditFormContainer extends React.Component<FinalProps> {
             .filter(field => !field._id.startsWith('tempId'))
             .map(e => {
               delete e.associatedField;
+              delete e.__typename;
               return e;
             });
 
