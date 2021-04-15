@@ -119,4 +119,5 @@ export type IEditorProps = {
 export type QueryResponse = {
   loading: boolean;
   refetch: () => void;
+  error?: string;
 };

@@ -214,6 +214,12 @@ class Settings extends React.PureComponent {
               ''
             )}
             {this.renderBox(
+              'SMS Deliveries',
+              '/images/icons/erxes-08.svg',
+              '/settings/sms-deliveries',
+              ''
+            )}
+            {this.renderBox(
               'Outgoing webhooks',
               '/images/icons/erxes-11.svg',
               '/settings/webhooks',
