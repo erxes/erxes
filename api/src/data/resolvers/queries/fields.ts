@@ -144,14 +144,28 @@ const fieldsGroupQueries = {
     { contentType, boardId }: { contentType: string; boardId: string },
     { commonQuerySelector }: IContext
   ) {
-    const query: any = commonQuerySelector;
+    let query: any = commonQuerySelector;
 
     // querying by content type
     query.contentType = contentType || FIELDS_GROUPS_CONTENT_TYPES.CUSTOMER;
 
     if (boardId) {
-      query.boardIds = boardId;
+      query = {
+        contentType,
+        $or: [
+          {
+            boardIds: boardId
+          },
+          {
+            boardIds: {
+              $size: 0
+            }
+          }
+        ]
+      };
     }
+
+    console.log('query: ', query);
 
     const groups = await FieldsGroups.find(query);
 

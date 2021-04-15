@@ -59,6 +59,8 @@ const CustomFieldsSection = (props: FinalProps) => {
     fieldsGroups: fieldsGroupsQuery.fieldsGroups || []
   };
 
+  console.log('groups: ', fieldsGroupsQuery.fieldsGroups);
+
   return <GenerateCustomFields {...updatedProps} />;
 };
 
