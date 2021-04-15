@@ -74,7 +74,8 @@ class EditFormContainer extends React.Component<FinalProps> {
     const form = formDetailQuery.formDetail || {};
 
     const saveForm = doc => {
-      const { title, desc, btnText, fields, type } = doc;
+      const { title, desc, btnText, type } = doc;
+      let { fields } = doc;
 
       editFormMutation({
         variables: {
@@ -90,24 +91,34 @@ class EditFormContainer extends React.Component<FinalProps> {
           const existingIds: string[] = [];
           const removeFieldsData: Array<{ _id: string }> = [];
 
+          // remove unnecessary fields
+          fields = fields.map(f => {
+            delete f.contentType;
+            delete f.__typename;
+            delete f.associatedField;
+
+            if (f.logics && f.logics.lenth > 0) {
+              f.logics = f.logics.map(l => {
+                delete l.__typename;
+                return l;
+              });
+            }
+
+            return f;
+          });
+
           const addingFields = fields
             .filter(field => field._id.startsWith('tempId'))
             .map(({ _id, ...rest }) => {
-              delete rest.associatedField;
-              delete rest.__typename;
               return {
                 tempFieldId: _id,
                 ...rest
               };
             });
 
-          const editingFields = fields
-            .filter(field => !field._id.startsWith('tempId'))
-            .map(e => {
-              delete e.associatedField;
-              delete e.__typename;
-              return e;
-            });
+          const editingFields = fields.filter(
+            field => !field._id.startsWith('tempId')
+          );
 
           fieldsBulkAddAndEditMutation({
             variables: {
