@@ -91,6 +91,15 @@ export const initApolloServer = async app => {
         secure: req.secure,
         cookies: req.cookies
       };
+      
+      if (user) {
+        Users.update(
+          { _id: user._id },
+          {
+            lastSeenAt: new Date(),
+          },
+        ).exec();
+      }
 
       if (USE_BRAND_RESTRICTIONS !== 'true') {
         return {
@@ -120,10 +129,33 @@ export const initApolloServer = async app => {
           scopeBrandIds = brandIds;
         }
 
-        if (!user.isOwner) {
+        if (!user.isOwner && scopeBrandIds.length) {
+          // Select non-existent or empty arrays too
+          scopeBrandIds.push(null);
+          scopeBrandIds.push([]);
+          
           brandIdSelector = { _id: { $in: scopeBrandIds } };
           commonQuerySelector = { scopeBrandIds: { $in: scopeBrandIds } };
-          commonQuerySelectorElk = { terms: { scopeBrandIds } };
+          commonQuerySelectorElk = {
+            bool: {
+              should: [
+                {
+                  terms: {
+                    scopeBrandIds: scopeBrandIds.filter(c => typeof c === 'string'),
+                  },
+                },
+                {
+                  bool: {
+                    must_not: {
+                      exists: {
+                        field: 'scopeBrandIds',
+                      },
+                    },
+                  },
+                },
+              ],
+            },
+          };
           userBrandIdsSelector = { brandIds: { $in: scopeBrandIds } };
           singleBrandIdSelector = { brandId: { $in: scopeBrandIds } };
         }
@@ -132,7 +164,10 @@ export const initApolloServer = async app => {
       return {
         brandIdSelector,
         singleBrandIdSelector,
-        docModifier: doc => ({ ...doc, scopeBrandIds }),
+        docModifier: doc => ({
+          ...doc,
+          scopeBrandIds: scopeBrandIds.filter((c: any) => c?.length),
+        }),
         commonQuerySelector,
         commonQuerySelectorElk,
         userBrandIdsSelector,

@@ -71,7 +71,9 @@ const activityLogQueries = {
       collectItems(
         await Conversations.find({
           $or: [{ customerId: contentId }, { participatedUserIds: contentId }]
-        }),
+        })
+        .sort({ createdAt: -1 })
+        .limit(25),
         'conversation'
       );
 

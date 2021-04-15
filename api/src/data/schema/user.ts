@@ -51,6 +51,7 @@ export const types = `
     permissionActions: JSON
     configs: JSON
     configsConstants: [JSON]
+    lastSeenAt: Date
     onboardingHistory: OnboardingHistory
   }
 

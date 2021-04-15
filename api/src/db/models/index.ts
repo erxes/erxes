@@ -41,6 +41,9 @@ import Tasks from './Tasks';
 import Tickets from './Tickets';
 import Users from './Users';
 import Webhooks from './Webhook';
+import FlowActionTypes from './FlowActionTypes';
+import FlowActions from './FlowActions';
+import Flows from './Flows';
 
 export {
   EmailDeliveries,
@@ -96,5 +99,8 @@ export {
   Webhooks,
   Calendars,
   CalendarGroups,
-  CalendarBoards
+  CalendarBoards,
+  FlowActionTypes,
+  FlowActions,
+  Flows
 };

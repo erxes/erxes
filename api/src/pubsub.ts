@@ -7,13 +7,14 @@ import * as Redis from 'ioredis';
 // load environment variables
 dotenv.config();
 
-const { REDIS_HOST, REDIS_PORT, REDIS_PASSWORD } = process.env;
+const { REDIS_HOST, REDIS_PORT, REDIS_PASSWORD, REDIS_DB  } = process.env;
 
 const createPubsubInstance = () => {
   if (REDIS_HOST) {
     redisOptions.host = REDIS_HOST;
     redisOptions.port = REDIS_PORT;
     redisOptions.password = REDIS_PASSWORD;
+    redisOptions.db = REDIS_DB;
 
     return new RedisPubSub({
       connectionListener: error => {

@@ -68,6 +68,9 @@ import { userSchema } from '../../../db/models/definitions/users';
 import { MODULE_NAMES } from '../../constants';
 import { fetchLogs, ILogQueryParams } from '../../logUtils';
 import { checkPermission } from '../../permissions/wrappers';
+import { flowActionTypeSchema } from '../../../db/models/definitions/flowActionTypes';
+import { flowActionSchema } from '../../../db/models/definitions/flowActions';
+import { flowSchema } from '../../../db/models/definitions/flows';
 
 interface INameLabel {
   name: string;
@@ -240,6 +243,18 @@ const LOG_MAPPINGS: ISchemaMap[] = [
   {
     name: MODULE_NAMES.STAGE_GH,
     schemas: [boardStageSchema]
+  },
+  {
+    name: MODULE_NAMES.FLOW,
+    schemas: [flowSchema],
+  },
+  {
+    name: MODULE_NAMES.FLOW_ACTION_TYPE,
+    schemas: [flowActionTypeSchema],
+  },
+  {
+    name: MODULE_NAMES.FLOW_ACTION,
+    schemas: [flowActionSchema],
   }
 ];
 

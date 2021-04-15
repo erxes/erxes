@@ -42,6 +42,9 @@ import tickets from './tickets';
 import users from './users';
 import webhooks from './webhooks';
 import widgets from './widgets';
+import flowActionTypes from './flowActionTypes';
+import flowActions from './flowActions';
+import flows from './flows';
 
 export default {
   ...users,
@@ -84,5 +87,8 @@ export default {
   ...calendars,
   ...dashboards,
   ...skillTypesMutations,
-  ...skillsMutations
+  ...skillsMutations,
+  ...flowActionTypes,
+  ...flowActions,
+  ...flows
 };

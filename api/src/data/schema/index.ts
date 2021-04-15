@@ -201,6 +201,13 @@ import {
   queries as WidgetQueries,
   types as WidgetTypes
 } from './widget';
+import {
+  mutations as FlowActionTypeMutations,
+  queries as FlowActionTypeQueries,
+  types as FlowActionTypeTypes,
+} from './flowActionType';
+import { mutations as FlowActionMutations, queries as FlowActionQueries, types as FlowActionTypes } from './flowAction';
+import { mutations as FlowMutations, queries as FlowQueries, types as FlowTypes } from './flow';
 
 export let types = `
   scalar JSON
@@ -248,6 +255,9 @@ export let types = `
   ${WidgetTypes}
   ${WebhookTypes}
   ${CalendarTypes}
+  ${FlowActionTypeTypes}
+  ${FlowActionTypes}
+  ${FlowTypes}
 `;
 
 export let queries = `
@@ -292,6 +302,9 @@ export let queries = `
   ${WebhookQueries}
   ${CalendarQueries}
   ${MessengerAppQueries}
+  ${FlowActionTypeQueries}
+  ${FlowActionQueries}
+  ${FlowQueries}
 `;
 
 export let mutations = `
@@ -334,11 +347,15 @@ export let mutations = `
   ${WidgetMutations}
   ${WebhookMutations}
   ${CalendarMutations}
+  ${FlowActionTypeMutations}
+  ${FlowActionMutations}
+  ${FlowMutations}
 `;
 
 export let subscriptions = `
   conversationChanged(_id: String!): ConversationChangedResponse
   conversationMessageInserted(_id: String!): ConversationMessage
+  conversationMessageUpdated(_id: String!): ConversationMessage
   conversationClientMessageInserted(userId: String!): ConversationMessage
   conversationClientTypingStatusChanged(_id: String!): ConversationClientTypingStatusChangedResponse
   conversationAdminMessageInserted(customerId: String): ConversationAdminMessageInsertedResponse

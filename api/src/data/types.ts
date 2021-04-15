@@ -7,6 +7,9 @@ export interface IContext {
   user: IUserDocument;
   docModifier: <T>(doc: T) => any;
   brandIdSelector: {};
+  flowActionTypeIdSelector: {};
+  flowActionIdSelector: {};
+  flowIdSelector: {};
   userBrandIdsSelector: {};
   commonQuerySelector: {};
   commonQuerySelectorElk: {};

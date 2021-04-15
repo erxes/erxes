@@ -1,6 +1,7 @@
 import { Channels } from '../../../db/models';
 import { checkPermission, requireLogin } from '../../permissions/wrappers';
 import { getDocumentList } from '../mutations/cacheUtils';
+import { IContext } from '../../types';
 
 interface IIn {
   $in: string[];
@@ -21,11 +22,11 @@ const channelQueries = {
   /**
    * Channels list
    */
-  channels(_root, { memberIds }: { memberIds: string[] }) {
+  channels(_root, { memberIds }: { memberIds: string[] }, { user }: IContext) {
     const query: IChannelQuery = {};
     const sort = { createdAt: -1 };
 
-    if (memberIds) {
+    if (!user.isOwner && memberIds?.length) {
       query.memberIds = { $in: memberIds };
     }
 

@@ -5,7 +5,8 @@ import {
   ConversationMessages,
   Conversations,
   Customers,
-  Integrations
+  Integrations,
+  Users
 } from '../../../db/models';
 import { getCollection } from '../../../db/models/boardUtils';
 import Messages from '../../../db/models/ConversationMessages';
@@ -36,6 +37,7 @@ export interface IConversationMessageAdd {
   internal?: boolean;
   attachments?: any;
   facebookMessageTag?: string;
+  flowActionId?: string;
 }
 
 interface IReplyFacebookComment {
@@ -56,7 +58,7 @@ interface IConversationConvert {
  *  Send conversation to integrations
  */
 
-const sendConversationToIntegrations = async (
+export const sendConversationToIntegrations = async (
   type: string,
   integrationId: string,
   conversationId: string,
@@ -64,7 +66,8 @@ const sendConversationToIntegrations = async (
   doc: IConversationMessageAdd,
   dataSources: any,
   action?: string,
-  facebookMessageTag?: string
+  facebookMessageTag?: string,
+  messageId?: string
 ) => {
   if (type === 'facebook') {
     const regex = new RegExp('<img[^>]* src="([^"]*)"', 'g');
@@ -101,10 +104,18 @@ const sendConversationToIntegrations = async (
     }
   }
 
+  if (type === 'whatspro') {
+    doc.content = doc.content.replace(/<\/?(b|strong)>/g, '*');
+    doc.content = doc.content.replace(/<br ?\/?>/g, '\n');
+    doc.content = doc.content.replace(/<\/?i>/g, '_');
+    doc.content = doc.content.replace(/<\/?s>/g, '~');
+  }
+
   if (dataSources && dataSources.IntegrationsAPI && requestName) {
     return dataSources.IntegrationsAPI[requestName]({
       conversationId,
       integrationId,
+      messageId,
       content: strip(doc.content),
       attachments: doc.attachments || []
     });
@@ -385,6 +396,10 @@ const conversationMutations = {
       requestName = 'replyWhatsApp';
     }
 
+    if (kind === KIND_CHOICES.WHATSPRO) {
+      requestName = 'replyWhatsPro';
+    }
+
     await sendConversationToIntegrations(
       type,
       integrationId,
@@ -393,7 +408,8 @@ const conversationMutations = {
       doc,
       dataSources,
       action,
-      facebookMessageTag
+      facebookMessageTag,
+      message._id
     );
 
     const dbMessage = await ConversationMessages.getMessage(message._id);
@@ -489,6 +505,21 @@ const conversationMutations = {
       type: NOTIFICATION_TYPES.CONVERSATION_ASSIGNEE_CHANGE
     });
 
+    // Add bot message and update conversation
+    let assignedUser = await Users.getUser(assignedUserId);
+
+    for (const conversation of conversations) {
+      let message = await ConversationMessages.addMessage({
+        conversationId: conversation._id,
+        content: `${assignedUser.details?.shortName || assignedUser.email} has been assigned to this conversation`,
+        fromBot: true,
+      });
+
+      graphqlPubsub.publish('conversationClientMessageInserted', {
+        conversationClientMessageInserted: message,
+      });
+    }
+
     return conversations;
   },
 
@@ -513,6 +544,23 @@ const conversationMutations = {
 
     // notify graphl subscription
     publishConversationsChanged(_ids, 'assigneeChanged');
+
+    // Add bot message and update conversation
+    for (const conversation of oldConversations) {
+      if (!conversation.assignedUserId) continue;
+
+      let unAssignedUser = await Users.getUser(conversation.assignedUserId);
+      let message = await ConversationMessages.addMessage({
+        conversationId: conversation._id,
+        content: `${unAssignedUser.details?.shortName ||
+          unAssignedUser.email} has been unassigned from this conversation`,
+        fromBot: true,
+      });
+
+      graphqlPubsub.publish('conversationClientMessageInserted', {
+        conversationClientMessageInserted: message,
+      });
+    }
 
     return updatedConversations;
   },

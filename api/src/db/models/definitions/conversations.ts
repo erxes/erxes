@@ -34,6 +34,9 @@ export interface IConversation {
   firstRespondedUserId?: string;
   firstRespondedDate?: Date;
 
+  currentFlowActionId?: string;
+  channelId?: string;
+
   isCustomerRespondedLast?: boolean;
   customFieldsData?: ICustomField[];
 }
@@ -92,6 +95,10 @@ export const conversationSchema = new Schema({
   firstRespondedUserId: field({ type: String }),
   firstRespondedDate: field({ type: Date }),
 
+  currentFlowActionId: field({ type: String }),
+
+  channelId: field({ type: String }),
+  
   isCustomerRespondedLast: field({ type: Boolean }),
 
   customFieldsData: field({

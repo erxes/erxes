@@ -10,6 +10,7 @@ import { CONVERSATION_STATUSES } from '../../../db/models/definitions/constants'
 import { graphqlPubsub } from '../../../pubsub';
 import { AWS_EMAIL_STATUSES, EMAIL_VALIDATION_STATUSES } from '../../constants';
 import { getConfigs } from '../../utils';
+import flow from '../flow';
 
 const sendError = message => ({
   status: 'error',
@@ -57,6 +58,7 @@ export const receiveRpcMessage = async msg => {
     }
 
     if (customer) {
+      await Customers.updateCustomer(customer._id, doc);
       return sendSuccess({ _id: customer._id });
     } else {
       customer = await Customers.createCustomer({
@@ -79,10 +81,12 @@ export const receiveRpcMessage = async msg => {
 
     const assignedUserId = user ? user._id : null;
 
-    if (conversationId) {
+    let conversation = await Conversations.findById(conversationId);
+
+     if (conversation && conversation.status !== 'closed') {
       await Conversations.updateConversation(conversationId, {
         content,
-        assignedUserId
+        assignedUserId: conversation.assignedUserId || assignedUserId,
       });
 
       return sendSuccess({ _id: conversationId });
@@ -90,12 +94,32 @@ export const receiveRpcMessage = async msg => {
 
     doc.assignedUserId = assignedUserId;
 
-    const conversation = await Conversations.createConversation(doc);
+    conversation = await Conversations.createConversation(doc);
 
     return sendSuccess({ _id: conversation._id });
   }
 
   if (action === 'create-conversation-message') {
+    if (doc.isMe) {
+      let conversation = await Conversations.findById(doc.conversationId);
+
+      let userId = conversation?.assignedUserId;
+
+      if (!userId) {
+        const integration = await Integrations.findOne({ _id: doc.integrationId });
+
+        userId = integration?.defaultSenderId || integration?.createdUserId;
+
+        if (!userId) {
+          const user = await Users.findOne({ isOwner: true });
+
+          userId = user?._id;
+        }
+      }
+
+      doc.userId = userId;
+    }
+
     const message = await ConversationMessages.createMessage(doc);
 
     const conversationDoc: {
@@ -135,7 +159,39 @@ export const receiveRpcMessage = async msg => {
       conversationMessageInserted: message
     });
 
+    flow.handleMessage(message);
+
     return sendSuccess({ _id: message._id });
+  }
+
+  if (action === 'update-conversation-message') {
+    const message = await ConversationMessages.findById(doc.id);
+
+    if (!message) return sendSuccess({ _id: doc.id });
+
+    if (!message.status || message.status < doc.status) message.status = doc.status;
+
+    const update: any = { status: message.status };
+
+    if (doc.createdAt) update.createdAt = doc.createdAt;
+
+    await ConversationMessages.updateOne({ _id: message._id }, update);
+
+    const conversationDoc: {
+      updatedAt?: Date;
+    } = {};
+
+    if (doc.createdAt) {
+      conversationDoc.updatedAt = doc.createdAt;
+    }
+
+    await Conversations.updateConversation(message.conversationId, conversationDoc);
+
+    graphqlPubsub.publish('conversationMessageUpdated', {
+      conversationMessageUpdated: message,
+    });
+
+    return sendSuccess({ _id: doc.id });
   }
 
   if (action === 'get-configs') {

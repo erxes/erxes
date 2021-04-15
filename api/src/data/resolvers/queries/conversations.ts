@@ -40,6 +40,7 @@ const conversationQueries = {
     const qb = new QueryBuilder(params, {
       _id: user._id,
       code: user.code,
+      isOwner: user.isOwner,
       starredConversationIds: user.starredConversationIds
     });
 
@@ -148,6 +149,7 @@ const conversationQueries = {
     const _user = {
       _id: user._id,
       code: user.code,
+      isOwner: user.isOwner,
       starredConversationIds: user.starredConversationIds
     };
 
@@ -221,6 +223,7 @@ const conversationQueries = {
     const qb = new QueryBuilder(params, {
       _id: user._id,
       code: user.code,
+      isOwner: user.isOwner,
       starredConversationIds: user.starredConversationIds
     });
 
@@ -237,6 +240,7 @@ const conversationQueries = {
     const qb = new QueryBuilder(params, {
       _id: user._id,
       code: user.code,
+      isOwner: user.isOwner,
       starredConversationIds: user.starredConversationIds
     });
 
@@ -250,7 +254,7 @@ const conversationQueries = {
    */
   async conversationsTotalUnreadCount(_root, _args, { user }: IContext) {
     // initiate query builder
-    const qb = new QueryBuilder({}, { _id: user._id, code: user.code });
+    const qb = new QueryBuilder({}, { _id: user._id, code: user.code, isOwner: user.isOwner });
 
     await qb.buildAllQueries();
 

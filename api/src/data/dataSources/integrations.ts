@@ -80,6 +80,10 @@ export default class IntegrationsAPI extends RESTDataSource {
   public async replyWhatsApp(params) {
     return this.post('/whatsapp/reply', params);
   }
+  
+  public async replyWhatsPro(params) {
+    return this.post('/whatsPro/reply', params);
+  }
 
   public async updateConfigs(configsMap) {
     return this.post('/update-configs', { configsMap });

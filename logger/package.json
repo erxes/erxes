@@ -11,7 +11,8 @@
     "dev": "DEBUG=erxes-logger:*,erxes-message-broker:* node_modules/.bin/ts-node-dev --respawn src",
     "test": "NODE_ENV=test jest --runInBand --forceExit",
     "build": "tsc -p tsconfig.prod.json",
-    "migrate": "NODE_ENV=command migrate --migrations-dir='./dist/migrations' --store='./db-migrate-store.js' up"
+    "migrate": "NODE_ENV=command migrate --migrations-dir='./dist/migrations' --store='./db-migrate-store.js' up",
+    "migrate-win": "set NODE_ENV=command migrate --migrations-dir='./dist/migrations' --store='./db-migrate-store.js' up"
   },
   "dependencies": {
     "@types/body-parser": "^1.17.0",

@@ -33,6 +33,19 @@ export default {
   },
 
   /*
+  * Listen for message update
+  */
+  conversationMessageUpdated: {
+    subscribe: withFilter(
+      () => graphqlPubsub.asyncIterator('conversationMessageUpdated'),
+      // filter by conversationId
+      (payload, variables) => {
+        return payload.conversationMessageUpdated.conversationId === variables._id;
+      },
+    ),
+  },
+  
+  /*
    * Show typing while waiting Bot response
    */
   conversationBotTypingStatus: {

@@ -96,26 +96,11 @@ export const checkFile = async (file, source?: string) => {
     return 'ok';
   }
 
-  const defaultMimeTypes = [
-    'image/png',
-    'image/jpeg',
-    'image/jpg',
-    'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-    'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-    'application/pdf',
-    'image/gif'
-  ];
-
   const UPLOAD_FILE_TYPES = await getConfig(
     source === 'widgets' ? 'WIDGETS_UPLOAD_FILE_TYPES' : 'UPLOAD_FILE_TYPES'
   );
 
-  if (
-    !(
-      (UPLOAD_FILE_TYPES && UPLOAD_FILE_TYPES.split(',')) ||
-      defaultMimeTypes
-    ).includes(mime)
-  ) {
+  if (UPLOAD_FILE_TYPES && !UPLOAD_FILE_TYPES.split(',').includes(mime)) {
     return 'Invalid configured file type';
   }
 

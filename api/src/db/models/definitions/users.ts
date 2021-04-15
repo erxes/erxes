@@ -38,6 +38,7 @@ export interface IUser {
   details?: IDetail;
   links?: ILink;
   isActive?: boolean;
+  lastSeenAt?: number;
   brandIds?: string[];
   groupIds?: string[];
   deviceTokens?: string[];
@@ -132,7 +133,8 @@ export const userSchema = schemaHooksWrapper(
       optional: true,
       default: 'No',
       label: 'Do not disturb'
-    })
+    }),
+    lastSeenAt: field({ type: Date, label: 'Last seen at', optional: true }),
   }),
   'erxes_users'
 );

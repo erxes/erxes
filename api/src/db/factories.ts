@@ -55,7 +55,10 @@ import {
   Tickets,
   Users,
   UsersGroups,
-  Webhooks
+  Webhooks,
+  FlowActionTypes,
+  FlowActions,
+  Flows
 } from './models';
 import { ICustomField } from './models/definitions/common';
 import {
@@ -1628,4 +1631,52 @@ export const skillFactor = async (params: {
   });
 
   return skill.save();
+};
+
+interface IFlowActionTypeFactoryInput {
+  type?: string;
+  name?: string;
+  description?: string;
+}
+
+export const flowActionTypeFactory = async (params: IFlowActionTypeFactoryInput = {}) => {
+  const flowActionType = new FlowActionTypes({
+    name: params.name || faker.random.word(),
+    type: params.type,
+    description: params.description || faker.random.word(),
+    createdAt: new Date(),
+  });
+  return flowActionType.save();
+};
+
+interface IFlowActionFactoryInput {
+  type?: string;
+  name?: string;
+  description?: string;
+}
+
+export const flowActionFactory = async (params: IFlowActionFactoryInput = {}) => {
+  const flowAction = new FlowActions({
+    name: params.name || faker.random.word(),
+    type: params.type,
+    description: params.description || faker.random.word(),
+    createdAt: new Date(),
+  });
+  return flowAction.save();
+};
+
+interface IFlowFactoryInput {
+  type?: string;
+  name?: string;
+  description?: string;
+}
+
+export const flowFactory = async (params: IFlowFactoryInput = {}) => {
+  const flow = new Flows({
+    name: params.name || faker.random.word(),
+    type: params.type,
+    description: params.description || faker.random.word(),
+    createdAt: new Date(),
+  });
+  return flow.save();
 };

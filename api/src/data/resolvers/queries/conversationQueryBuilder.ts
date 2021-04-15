@@ -4,6 +4,8 @@ import { CONVERSATION_STATUSES } from '../../../db/models/definitions/constants'
 import { fixDate } from '../../utils';
 import { getDocumentList } from '../mutations/cacheUtils';
 
+const { USE_CHAT_RESTRICTIONS } = process.env;
+
 interface IIn {
   $in: string[];
 }
@@ -32,6 +34,7 @@ export interface IListArgs {
 interface IUserArgs {
   _id: string;
   code?: string;
+  isOwner?: boolean;
   starredConversationIds?: string[];
 }
 
@@ -62,15 +65,23 @@ export default class Builder {
     this.user = user;
   }
 
-  public defaultUserQuery() {
+  public defaultUserQuery() {    
+    let assignedUserQuery: any = {};
+
+    if (USE_CHAT_RESTRICTIONS === 'true' && !this.user.isOwner) {
+      assignedUserQuery.assignedUserId = { $in: [this.user._id, null] };
+    }
+
     return [
       // exclude engage messages if customer did not reply
       {
         userId: { $exists: true },
-        messageCount: { $gt: 1 }
+        messageCount: { $gt: 1 },
+        ...assignedUserQuery
       },
       {
-        userId: { $exists: false }
+        userId: { $exists: false },
+        ...assignedUserQuery
       }
     ];
   }
@@ -336,6 +347,10 @@ export default class Builder {
     // filter by channelId & brandId
     this.queries.integrations = await this.integrationsFilter();
 
+    if (!this.queries.integrations.integrationId.$in.length) {
+      this.queries.integrations = {};
+    }
+    
     // unassigned
     if (this.params.unassigned) {
       this.queries.unassigned = this.unassignedFilter();

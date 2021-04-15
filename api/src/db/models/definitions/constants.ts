@@ -101,6 +101,7 @@ export const KIND_CHOICES = {
   SMOOCH_TELEGRAM: 'smooch-telegram',
   SMOOCH_TWILIO: 'smooch-twilio',
   WHATSAPP: 'whatsapp',
+  WHATSPRO: 'whatspro',
   TELNYX: 'telnyx',
   WEBHOOK: 'webhook',
   ALL: [
@@ -123,6 +124,7 @@ export const KIND_CHOICES = {
     'smooch-telegram',
     'smooch-twilio',
     'whatsapp',
+    'whatspro',
     'telnyx',
     'webhook'
   ]
@@ -143,6 +145,7 @@ export const INTEGRATION_NAMES_MAP = {
   'smooch-viber': 'Viber by Smooch',
   'smooch-line': 'Line by Smooch',
   'smooch-twilio': 'SMS Twilio by Smooch',
+  whatspro: 'WhatsApp bt WhatsPro',
 
   'nylas-imap': 'IMAP by Nylas',
   'nylas-gmail': 'Gmail by Nylas',
@@ -477,6 +480,7 @@ export const MESSAGE_TYPES = {
   VIDEO_CALL: 'videoCall',
   VIDEO_CALL_REQUEST: 'videoCallRequest',
   TEXT: 'text',
+  VCARD: 'vcard',
   ALL: ['videoCall', 'videoCallRequest', 'text']
 };
 

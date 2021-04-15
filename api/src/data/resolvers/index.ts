@@ -45,6 +45,9 @@ import Task from './tasks';
 import Ticket from './tickets';
 import User from './user';
 import UsersGroup from './usersGroup';
+import FlowActionType from './flowActionTypes';
+import FlowAction from './flowActions';
+import Flow from './flows';
 
 const resolvers: any = {
   ...customScalars,
@@ -96,7 +99,11 @@ const resolvers: any = {
   GrowthHack,
   CalendarGroup,
   CalendarBoard,
-  Tag
+  Tag,
+
+  FlowActionType,
+  FlowAction,
+  Flow
 };
 
 export default resolvers;

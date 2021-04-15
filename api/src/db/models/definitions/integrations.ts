@@ -129,12 +129,14 @@ export interface IIntegration {
   messengerData?: IMessengerData;
   uiOptions?: IUiOptions;
   isActive?: boolean;
+  flowId?: string;
   channelIds?: string[];
 }
 
 export interface IIntegrationDocument extends IIntegration, Document {
   _id: string;
   createdUserId: string;
+  defaultSenderId: string;
   // TODO remove
   formData?: ILeadData;
   leadData?: ILeadDataDocument;
@@ -338,6 +340,8 @@ export const integrationSchema = schemaHooksWrapper(
     _id: field({ pkey: true }),
     createdUserId: field({ type: String, label: 'Created by' }),
 
+    defaultSenderId: field({ type: String, label: 'Default sender' }),
+
     kind: field({
       type: String,
       enum: KIND_CHOICES.ALL,
@@ -361,6 +365,9 @@ export const integrationSchema = schemaHooksWrapper(
       default: true,
       label: 'Is active'
     }),
+
+    flowId: field({ type: String, label: 'Flow' }),
+    
     webhookData: field({ type: webhookDataSchema }),
     // TODO: remove
     formData: field({ type: leadDataSchema }),
