@@ -24,7 +24,11 @@ export default class Row extends React.PureComponent<Props> {
       opt => opt.value === log.status
     );
 
-    return <Label lblColor={status ? status.color : ''}>{log.status}</Label>;
+    return (
+      <td>
+        <Label lblColor={status ? status.color : ''}>{log.status}</Label>
+      </td>
+    );
   }
 
   renderCampaignLink(type: string, campaignId?: string) {
@@ -38,10 +42,12 @@ export default class Row extends React.PureComponent<Props> {
       );
     }
 
-    return null;
+    return <td>-</td>;
   }
 
-  renderDirection(type: string, direction?: string) {
+  renderDirection(type: string, delivery: ISmsDelivery) {
+    const { direction, engageMessageId } = delivery;
+
     if (type === SOURCE_TYPES.INTEGRATION && direction) {
       return (
         <td>
@@ -54,7 +60,15 @@ export default class Row extends React.PureComponent<Props> {
       );
     }
 
-    return null;
+    if (type === SOURCE_TYPES.CAMPAIGN && engageMessageId) {
+      return (
+        <td>
+          <TextInfo textStyle="simple">{DIRECTIONS.OUTBOUND}</TextInfo>
+        </td>
+      );
+    }
+
+    return <td>-</td>;
   }
 
   render() {
@@ -67,16 +81,12 @@ export default class Row extends React.PureComponent<Props> {
     return (
       <tr key={log._id}>
         <td>{dayjs(log.createdAt).format('YYYY-MM-DD HH:mm:ss')}</td>
+        {this.renderDirection(type, log)}
         <td>{log.to}</td>
-        <td>{this.renderStatus()}</td>
-        {this.renderDirection(type, log.direction)}
+        {this.renderStatus()}
         {this.renderCampaignLink(type, log.engageMessageId)}
-        {type === SOURCE_TYPES.INTEGRATION ? (
-          <React.Fragment>
-            <td>{log.from}</td>
-            <td>{log.content}</td>
-          </React.Fragment>
-        ) : null}
+        <td>{log.from}</td>
+        <td>{log.content}</td>
       </tr>
     );
   }

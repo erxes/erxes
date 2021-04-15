@@ -38,7 +38,7 @@ export const SOURCE_TYPES = {
   ALL: ['campaign', 'integration'],
   OPTIONS: [
     { value: 'campaign', label: 'Campaign' },
-    { value: 'integration', label: 'Integration' }
+    { value: 'integration', label: 'Conversation' }
   ]
 };
 
@@ -62,30 +62,6 @@ class SmsDeliveries extends React.Component<Props, State> {
     router.setParams(history, { type });
   };
 
-  renderHeader() {
-    const { type } = this.state;
-
-    const heads: JSX.Element[] = [
-      <th key="date">{__('Date')}</th>,
-      <th key="to">{__('To')}</th>,
-      <th key="status">{__('Status')}</th>
-    ];
-
-    if (type === SOURCE_TYPES.INTEGRATION) {
-      heads.push(<th key="direction">{__('Direction')}</th>);
-    }
-
-    if (type === SOURCE_TYPES.CAMPAIGN) {
-      heads.push(<th key="campaign">{__('Campaign')}</th>);
-    }
-    if (type === SOURCE_TYPES.INTEGRATION) {
-      heads.push(<th key="from">{__('From')}</th>);
-      heads.push(<th key="content">{__('Content')}</th>);
-    }
-
-    return <tr>{heads}</tr>;
-  }
-
   renderRows() {
     const { smsDeliveries } = this.props;
     const rows: JSX.Element[] = [];
@@ -104,7 +80,17 @@ class SmsDeliveries extends React.Component<Props, State> {
   renderContent() {
     return (
       <Table whiteSpace="wrap" hover={true} bordered={true} condensed={true}>
-        <thead>{this.renderHeader()}</thead>
+        <thead>
+          <tr>
+            <th key="date">{__('Date')}</th>
+            <th key="direction">{__('Direction')}</th>
+            <th key="to">{__('To')}</th>
+            <th key="status">{__('Status')}</th>
+            <th key="campaign">{__('Campaign')}</th>
+            <th key="from">{__('From')}</th>
+            <th key="content">{__('Content')}</th>
+          </tr>
+        </thead>
         <tbody>{this.renderRows()}</tbody>
       </Table>
     );
