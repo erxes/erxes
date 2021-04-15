@@ -46,12 +46,10 @@ class SmsDeliveries extends React.Component<Props, State> {
   constructor(props) {
     super(props);
 
-    const qp = props.queryParams || {
-      type: SOURCE_TYPES.CAMPAIGN
-    };
+    const qp = props.queryParams || { type: '' };
 
     this.state = {
-      type: qp.type
+      type: qp.type || SOURCE_TYPES.CAMPAIGN
     };
   }
 

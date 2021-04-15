@@ -5,7 +5,6 @@ import TextInfo from 'modules/common/components/TextInfo';
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { ISmsDelivery } from '../types';
-import { SOURCE_TYPES } from './SmsDeliveries';
 
 type Props = {
   log: ISmsDelivery;
@@ -31,24 +30,24 @@ export default class Row extends React.PureComponent<Props> {
     );
   }
 
-  renderCampaignLink(type: string, campaignId?: string) {
-    if (type === SOURCE_TYPES.CAMPAIGN && campaignId) {
-      return (
-        <td>
-          <Link to={`/campaigns/show/${campaignId}`} target="_blank">
-            Go to campaign
-          </Link>
-        </td>
-      );
+  renderCampaignLink(campaignId?: string) {
+    if (!campaignId) {
+      return <td>-</td>;
     }
 
-    return <td>-</td>;
+    return (
+      <td>
+        <Link to={`/campaigns/show/${campaignId}`} target="_blank">
+          Go to campaign
+        </Link>
+      </td>
+    );
   }
 
-  renderDirection(type: string, delivery: ISmsDelivery) {
+  renderDirection(delivery: ISmsDelivery) {
     const { direction, engageMessageId } = delivery;
 
-    if (type === SOURCE_TYPES.INTEGRATION && direction) {
+    if (direction && !engageMessageId) {
       return (
         <td>
           <TextInfo
@@ -60,7 +59,7 @@ export default class Row extends React.PureComponent<Props> {
       );
     }
 
-    if (type === SOURCE_TYPES.CAMPAIGN && engageMessageId) {
+    if (engageMessageId) {
       return (
         <td>
           <TextInfo textStyle="simple">{DIRECTIONS.OUTBOUND}</TextInfo>
@@ -72,7 +71,7 @@ export default class Row extends React.PureComponent<Props> {
   }
 
   render() {
-    const { log, type } = this.props;
+    const { log } = this.props;
 
     if (!log) {
       return null;
@@ -81,10 +80,10 @@ export default class Row extends React.PureComponent<Props> {
     return (
       <tr key={log._id}>
         <td>{dayjs(log.createdAt).format('YYYY-MM-DD HH:mm:ss')}</td>
-        {this.renderDirection(type, log)}
+        {this.renderDirection(log)}
         <td>{log.to}</td>
         {this.renderStatus()}
-        {this.renderCampaignLink(type, log.engageMessageId)}
+        {this.renderCampaignLink(log.engageMessageId)}
         <td>{log.from}</td>
         <td>{log.content}</td>
       </tr>
