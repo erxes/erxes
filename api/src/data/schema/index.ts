@@ -205,6 +205,10 @@ import {
   queries as WidgetQueries,
   types as WidgetTypes
 } from './widget';
+import {
+  queries as SmsDeliveryQueries,
+  types as SmsDeliveryTypes
+} from './smsDelivery';
 
 export let types = `
   scalar JSON
@@ -253,6 +257,7 @@ export let types = `
   ${WidgetTypes}
   ${WebhookTypes}
   ${CalendarTypes}
+  ${SmsDeliveryTypes}
 `;
 
 export let queries = `
@@ -298,6 +303,7 @@ export let queries = `
   ${WebhookQueries}
   ${CalendarQueries}
   ${MessengerAppQueries}
+  ${SmsDeliveryQueries}
 `;
 
 export let mutations = `
