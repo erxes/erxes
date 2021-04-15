@@ -97,7 +97,7 @@ class EditFormContainer extends React.Component<FinalProps> {
             delete f.__typename;
             delete f.associatedField;
 
-            if (f.logics && f.logics.lenth > 0) {
+            if (f.logics && f.logics.length > 0) {
               f.logics = f.logics.map(l => {
                 delete l.__typename;
                 return l;
