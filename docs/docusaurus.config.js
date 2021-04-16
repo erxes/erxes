@@ -116,21 +116,7 @@ module.exports = {
           items: [
             {
               label: "Community Chat",
-              href: "https://community.erxes.io/register/Gw4WRJnk9fSbyAXTq",
-            },
-            {
-              label: "Facebook Group",
-              href: "https://www.facebook.com/groups/erxescommunity",
-            },
-          ],
-        },
-
-        {
-          title: "Support Us",
-          items: [
-            {
-              label: "Back us on Github",
-              href: "https://github.com/sponsors/erxes",
+              href: "https://github.com/erxes/erxes/discussions ",
             },
           ],
         },
