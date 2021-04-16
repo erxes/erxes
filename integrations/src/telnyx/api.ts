@@ -80,7 +80,8 @@ const handleMessageCallback = async (
 
   if (err) {
     await ConversationMessages.updateRequest(request._id, {
-      errorMessages: [err.message]
+      errorMessages: [err.message],
+      status: 'error'
     });
   }
 
