@@ -7,7 +7,7 @@ import Toggle from 'modules/common/components/Toggle';
 import { ModalFooter } from 'modules/common/styles/main';
 import { IButtonMutateProps, IFormProps } from 'modules/common/types';
 import React from 'react';
-import SelectBoards from '../containers/SelectBoards';
+import SelectBoards from '../containers/SelectBoardPipeline';
 import { IFieldGroup } from '../types';
 
 type Props = {
@@ -20,7 +20,8 @@ type Props = {
 type State = {
   isVisible: boolean;
   isVisibleInDetail: boolean;
-  boardIds?: string[];
+  boardId?: string;
+  pipeLineIds?: string[];
 };
 
 class PropertyGroupForm extends React.Component<Props, State> {
@@ -73,8 +74,12 @@ class PropertyGroupForm extends React.Component<Props, State> {
     return this.setState({ isVisibleInDetail });
   };
 
-  boardsOnChange = (values: string[]) => {
-    this.setState({ boardIds: values });
+  boardOnChange = (boardId: string) => {
+    this.setState({ boardId });
+  };
+
+  pipeLinesOnChange = (pipeLineIds: string[]) => {
+    this.setState({ pipeLineIds });
   };
 
   renderFieldVisible() {
@@ -131,8 +136,11 @@ class PropertyGroupForm extends React.Component<Props, State> {
     return (
       <SelectBoards
         isRequired={false}
-        onChange={this.boardsOnChange}
+        onChangeBoard={this.boardOnChange}
+        onChangePipelines={this.pipeLinesOnChange}
         type={this.props.type}
+        selectedBoardId={this.state.boardId || ''}
+        selectedPipelineIds={this.state.pipeLineIds}
       />
     );
   }

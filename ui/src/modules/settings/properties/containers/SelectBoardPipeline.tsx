@@ -9,10 +9,13 @@ import { mutations } from 'modules/settings/boards/graphql';
 import { withProps } from 'modules/common/utils';
 import React from 'react';
 import { ChildProps, graphql } from 'react-apollo';
-import SelectBoards from '../components/SelectBoards';
+import SelectBoards from '../components/SelectBoardPipeline';
 
 type Props = {
-  onChange: (values: string[]) => void;
+  onChangeBoard: (value: string) => void;
+  onChangePipelines: (values: string[]) => any;
+  selectedBoardId?: string;
+  selectedPipelineIds?: string[];
   isRequired?: boolean;
   description?: string;
   type: string;
@@ -22,7 +25,7 @@ type FinalProps = {
   boardsQuery: BoardsQueryResponse;
 } & Props;
 
-const SelectBoardContainer = (props: ChildProps<FinalProps>) => {
+const SelectContainer = (props: ChildProps<FinalProps>) => {
   const { boardsQuery } = props;
 
   const boards = boardsQuery.boards || [];
@@ -57,9 +60,12 @@ const SelectBoardContainer = (props: ChildProps<FinalProps>) => {
     );
   };
 
+  const board = boards.find(e => e._id === props.selectedBoardId);
+
   const updatedProps = {
     ...props,
     boards,
+    pipelines: (board && board.pipelines) || [],
     renderButton
   };
 
@@ -86,5 +92,5 @@ export default withProps<Props>(
         refetchQueries: getRefetchQueries
       })
     })
-  )(SelectBoardContainer)
+  )(SelectContainer)
 );
