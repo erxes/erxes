@@ -111,11 +111,17 @@ class Form extends React.Component<Props, State> {
         isHidden = true;
       }
 
+      let value = '';
+
+      if (field.type === 'html'){
+        value = field.content || '';
+      }
+
       doc[field._id] = {
         text: field.text,
         type: field.type,
         validation: field.validation,
-        value: '',
+        value,
         isHidden
       };
     });
