@@ -11,6 +11,7 @@ import PropertyForm from '../containers/PropertyForm';
 import PropertyGroupForm from '../containers/PropertyGroupForm';
 import { CollapseRow, DropIcon, FieldType, PropertyTable } from '../styles';
 import { IField, IFieldGroup } from '../types';
+import SortableList from 'modules/common/components/SortableList';
 
 type Props = {
   group: IFieldGroup;
@@ -26,19 +27,27 @@ type Props = {
 
 type State = {
   collapse: boolean;
+  fields: IField[];
 };
 
 class PropertyRow extends React.Component<Props, State> {
   constructor(props: Props) {
     super(props);
 
+    const { fields = [] } = props.group;
+
     this.state = {
-      collapse: true
+      collapse: true,
+      fields
     };
   }
 
   handleCollapse = () => {
     this.setState({ collapse: !this.state.collapse });
+  };
+
+  onChangeFields = fields => {
+    this.setState({ fields });
   };
 
   visibleHandler = (e, property) => {
@@ -152,6 +161,19 @@ class PropertyRow extends React.Component<Props, State> {
       );
     }
 
+    const child = field => this.renderTableRow(field);
+
+    const renderListRow = (
+      <SortableList
+        fields={this.state.fields}
+        child={child}
+        onChangeFields={this.onChangeFields}
+        isModal={true}
+        // isDragDisabled={isDragDisabled}
+        droppableId="property fields"
+      />
+    );
+
     if (['visitor', 'lead', 'customer', 'device'].includes(contentType)) {
       return (
         <Table hover={true}>
@@ -164,7 +186,7 @@ class PropertyRow extends React.Component<Props, State> {
               <th />
             </tr>
           </thead>
-          <tbody>{fields.map(field => this.renderTableRow(field))}</tbody>
+          <tbody>{renderListRow}</tbody>
         </Table>
       );
     }
@@ -179,7 +201,7 @@ class PropertyRow extends React.Component<Props, State> {
             <th />
           </tr>
         </thead>
-        <tbody>{fields.map(field => this.renderTableRow(field))}</tbody>
+        <tbody>{renderListRow}</tbody>
       </Table>
     );
   };
