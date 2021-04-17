@@ -1,9 +1,15 @@
 import sift from 'sift';
-import { Brands, Channels, Integrations, Users } from '../../../db/models';
+import {
+  Brands,
+  Channels,
+  Integrations,
+  MessengerApps,
+  Users
+} from '../../../db/models';
 import { get, set } from '../../../inmemoryStorage';
 
 export const getDocument = async (
-  type: 'users' | 'integrations' | 'brands' | 'channels',
+  type: 'users' | 'integrations' | 'brands' | 'channels' | 'messenger_apps',
   selector: { [key: string]: any }
 ) => {
   const list = await getDocumentList(type, selector);
@@ -16,7 +22,7 @@ export const getDocument = async (
 };
 
 export const getDocumentList = async (
-  type: 'users' | 'integrations' | 'brands' | 'channels',
+  type: 'users' | 'integrations' | 'brands' | 'channels' | 'messenger_apps',
   selector: { [key: string]: any }
 ) => {
   const listCache = await get(`erxes_${type}`);
@@ -28,25 +34,25 @@ export const getDocumentList = async (
   } else {
     switch (type) {
       case 'users': {
-        list = await Users.find();
+        list = await Users.find().lean();
 
         break;
       }
 
       case 'channels': {
-        list = await Channels.find();
+        list = await Channels.find().lean();
 
         break;
       }
 
       case 'integrations': {
-        list = await Integrations.find();
+        list = await Integrations.find().lean();
 
         break;
       }
 
       case 'brands': {
-        list = await Brands.find();
+        list = await Brands.find().lean();
 
         break;
       }
@@ -56,4 +62,34 @@ export const getDocumentList = async (
   }
 
   return list.filter(sift(selector));
+};
+
+// doing this until sift dot path support
+export const getMessengerApps = async (
+  kind: string,
+  integrationId: string,
+  findOne = true
+) => {
+  const key = 'erxes_messenger_apps';
+  const cacheValue = await get(key);
+
+  let parsedValue;
+
+  if (cacheValue) {
+    parsedValue = JSON.parse(cacheValue);
+  } else {
+    parsedValue = await MessengerApps.find().lean();
+    set(key, JSON.stringify(parsedValue));
+  }
+
+  const callback = v => {
+    const credentials = v.credentials || {};
+    return v.kind === kind && credentials.integrationId === integrationId;
+  };
+
+  if (findOne) {
+    return parsedValue.find(callback);
+  }
+
+  return parsedValue.filter(callback);
 };
