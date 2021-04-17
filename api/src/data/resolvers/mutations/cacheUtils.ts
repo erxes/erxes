@@ -9,7 +9,7 @@ import {
 import { get, set } from '../../../inmemoryStorage';
 
 export const getDocument = async (
-  type: 'users' | 'integrations' | 'brands' | 'channels' | 'messenger_apps',
+  type: 'users' | 'integrations' | 'brands' | 'channels',
   selector: { [key: string]: any }
 ) => {
   const list = await getDocumentList(type, selector);
@@ -22,7 +22,7 @@ export const getDocument = async (
 };
 
 export const getDocumentList = async (
-  type: 'users' | 'integrations' | 'brands' | 'channels' | 'messenger_apps',
+  type: 'users' | 'integrations' | 'brands' | 'channels',
   selector: { [key: string]: any }
 ) => {
   const listCache = await get(`erxes_${type}`);
