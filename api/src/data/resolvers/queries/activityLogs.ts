@@ -175,7 +175,7 @@ const activityLogQueries = {
       );
     };
 
-    if (activityType.startsWith('plugin')) {
+    if (activityType && activityType.startsWith('plugin')) {
       const pluginResponse = await collectPluginContent(
         doc,
         user,
