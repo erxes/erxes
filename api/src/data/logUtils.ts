@@ -58,7 +58,7 @@ import {
   Users,
   UsersGroups
 } from '../db/models/index';
-import { debugBase, debugError } from '../debuggers';
+import { debugError } from '../debuggers';
 import messageBroker from '../messageBroker';
 import { callAfterMutation } from '../pluginUtils';
 import { MODULE_NAMES, RABBITMQ_QUEUES } from './constants';
