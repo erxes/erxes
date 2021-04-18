@@ -13,6 +13,7 @@ import {
   IFormProps
 } from 'modules/common/types';
 import { extractAttachment } from 'modules/common/utils';
+import SelectCompanies from 'modules/companies/containers/SelectCompanies';
 import { Row } from 'modules/settings/integrations/styles';
 import React from 'react';
 import { TYPES } from '../../constants';
@@ -51,6 +52,7 @@ class Form extends React.Component<Props> {
         ? { ...product.attachment, __typename: undefined }
         : null;
       values.description = product.description;
+      values.vendorId = product.vendorId;
     }
 
     const trigger = (
@@ -67,6 +69,11 @@ class Form extends React.Component<Props> {
     const onChangeDescription = e => {
       values.description = e.editor.getData();
       object.description = values.description;
+    };
+
+    const onSelectCompany = vendorId => {
+      object.vendorId = vendorId;
+      values.vendorId = vendorId;
     };
 
     const attachments =
@@ -158,6 +165,17 @@ class Form extends React.Component<Props> {
                 ]
               }
             ]}
+          />
+        </FormGroup>
+
+        <FormGroup>
+          <ControlLabel>Vendor</ControlLabel>
+          <SelectCompanies
+            label="Choose an vendor"
+            name="vendorId"
+            initialValue={object.vendorId}
+            onSelect={onSelectCompany}
+            multi={false}
           />
         </FormGroup>
 

@@ -534,6 +534,7 @@ interface ICustomerFactoryInput {
   integrationId?: string;
   firstName?: string;
   lastName?: string;
+  middleName?: string;
   sex?: number;
   birthDate?: Date;
   primaryEmail?: string;
@@ -572,6 +573,7 @@ export const customerFactory = async (
     integrationId: params.integrationId,
     firstName: params.firstName,
     lastName: params.lastName,
+    middleName: params.middleName,
     sex: params.sex,
     birthDate: params.birthDate,
     primaryEmail: params.primaryEmail,
@@ -1271,6 +1273,7 @@ interface IProductFactoryInput {
   description?: string;
   tagIds?: string[];
   categoryId?: string;
+  vendorId?: string;
   customFieldsData?: ICustomField[];
 }
 
@@ -1283,6 +1286,7 @@ export const productFactory = async (params: IProductFactoryInput = {}) => {
     description: params.description || faker.random.word(),
     sku: faker.random.word(),
     code: await getUniqueValue(Products, 'code'),
+    vendorId: params.vendorId,
     createdAt: new Date(),
     tagIds: params.tagIds || []
   });

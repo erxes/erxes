@@ -15,7 +15,6 @@ import { templateExport } from './data/modules/fileExporter/templateExport';
 import {
   authCookieOptions,
   deleteFile,
-  frontendEnv,
   getEnv,
   getSubServiceDomain,
   handleUnsubscription,
@@ -232,7 +231,7 @@ app.get(
     registerOnboardHistory({ type: `${name}Download`, user: req.user });
 
     return res.redirect(
-      `${frontendEnv({ name: 'API_URL', req })}/static/importTemplates/${name}`
+      `https://erxes-docs.s3-us-west-2.amazonaws.com/templates/${name}`
     );
   })
 );
@@ -273,19 +272,28 @@ app.get(
 // read file
 app.get(
   '/read-file',
-  routeErrorHandling(async (req: any, res) => {
-    const key = req.query.key;
+  routeErrorHandling(
+    async (req: any, res) => {
+      const key = req.query.key;
 
-    if (!key) {
-      return res.send('Invalid key');
+      if (!key) {
+        return res.send('Invalid key');
+      }
+
+      const response = await readFileRequest(key);
+
+      res.attachment(key);
+
+      return res.send(response);
+    },
+    (res, e, next) => {
+      if (e.message.includes('key does not exist')) {
+        return res.status(404).send('Not found');
+      }
+
+      return next(e);
     }
-
-    const response = await readFileRequest(key);
-
-    res.attachment(key);
-
-    return res.send(response);
-  })
+  )
 );
 
 // get mail attachment file

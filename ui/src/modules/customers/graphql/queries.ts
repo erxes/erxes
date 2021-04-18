@@ -75,6 +75,7 @@ const customerDetail = `
         customer {
           _id
           firstName
+          middleName
           lastName
           primaryEmail
           primaryPhone

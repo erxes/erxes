@@ -1,8 +1,9 @@
-import { Fields, FieldsGroups, Users } from '../../db/models';
+import { Fields, FieldsGroups } from '../../db/models';
 import {
   IFieldDocument,
   IFieldGroupDocument
 } from '../../db/models/definitions/fields';
+import { getDocument } from './mutations/cacheUtils';
 
 export const field = {
   name(root: IFieldDocument) {
@@ -13,7 +14,7 @@ export const field = {
     const { lastUpdatedUserId } = root;
 
     // Returning user who updated the field last
-    return Users.findOne({ _id: lastUpdatedUserId });
+    return getDocument('users', { _id: lastUpdatedUserId });
   },
 
   associatedField(root: IFieldDocument) {
@@ -41,6 +42,6 @@ export const fieldsGroup = {
     const { lastUpdatedUserId } = fieldGroup;
 
     // Returning user who updated the group last
-    return Users.findOne({ _id: lastUpdatedUserId });
+    return getDocument('users', { _id: lastUpdatedUserId });
   }
 };

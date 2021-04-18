@@ -1,8 +1,8 @@
-import { Users } from '../../db/models';
 import { IInternalNoteDocument } from '../../db/models/definitions/internalNotes';
+import { getDocument } from './mutations/cacheUtils';
 
 export default {
   createdUser(note: IInternalNoteDocument) {
-    return Users.findOne({ _id: note.createdUserId });
+    return getDocument('users', { _id: note.createdUserId });
   }
 };

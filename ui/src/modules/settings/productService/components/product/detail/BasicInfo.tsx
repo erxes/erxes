@@ -11,6 +11,7 @@ import { __, Alert, confirm } from 'modules/common/utils';
 import { Action, Name } from 'modules/customers/styles';
 import Sidebar from 'modules/layout/components/Sidebar';
 import {
+  FieldStyle,
   SidebarCounter,
   SidebarFlexRow,
   SidebarList
@@ -19,6 +20,7 @@ import ProductForm from 'modules/settings/productService/containers/product/Prod
 import { IProduct } from 'modules/settings/productService/types';
 import React from 'react';
 import Dropdown from 'react-bootstrap/Dropdown';
+import { Link } from 'react-router-dom';
 import xss from 'xss';
 
 type Props = {
@@ -27,10 +29,32 @@ type Props = {
 };
 
 class BasicInfo extends React.Component<Props> {
+  renderVendor = vendor => {
+    if (!vendor) {
+      return (
+        <li>
+          <FieldStyle>{__(`Vendor`)}</FieldStyle>
+          <SidebarCounter>-</SidebarCounter>
+        </li>
+      );
+    }
+
+    return (
+      <li>
+        <FieldStyle>{__(`Vendor`)}</FieldStyle>
+
+        <Link to={`/companies/details/${vendor._id}`}>
+          <SidebarCounter>{vendor.primaryName || ''}</SidebarCounter>
+        </Link>
+      </li>
+    );
+  };
+
   renderRow = (label, value) => {
     return (
       <li>
-        {__(`${label}`)}:<SidebarCounter>{value || '-'}</SidebarCounter>
+        <FieldStyle>{__(`${label}`)}</FieldStyle>
+        <SidebarCounter>{value || '-'}</SidebarCounter>
       </li>
     );
   };
@@ -107,6 +131,7 @@ class BasicInfo extends React.Component<Props> {
             (product.unitPrice || 0).toLocaleString()
           )}
           {this.renderRow('Sku', product.sku)}
+          {this.renderVendor(product.vendor)}
           <SidebarFlexRow>{__(`Description`)}</SidebarFlexRow>
         </SidebarList>
         <Content

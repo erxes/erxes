@@ -420,6 +420,7 @@ class FieldForm extends React.Component<Props, State> {
         'phone',
         'firstName',
         'lastName',
+        'middleName',
         'companyName',
         'companyEmail',
         'companyPhone',

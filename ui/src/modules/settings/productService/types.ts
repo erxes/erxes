@@ -1,4 +1,5 @@
 import { QueryResponse } from 'modules/common/types';
+import { ICompany } from 'modules/companies/types';
 import { ITag } from 'modules/tags/types';
 
 export interface IProductDoc {
@@ -30,9 +31,11 @@ export interface IProduct {
   unitPrice: number;
   customFieldsData?: any;
   createdAt: Date;
+  vendorId?: string;
 
   attachment?: any;
   category: IProductCategory;
+  vendor?: ICompany;
 }
 
 export interface IProductCategory {

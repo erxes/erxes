@@ -592,6 +592,7 @@ export const getItemList = async (
     {
       firstName: 1,
       lastName: 1,
+      middleName: 1,
       visitorContactInfo: 1,
       primaryEmail: 1,
       primaryPhone: 1,

@@ -1526,20 +1526,24 @@ export const putDeleteLog = async (
  * Sends a request to logs api
  * @param {Object} param0 Request
  */
-export const fetchLogs = (
+export const fetchLogs = async (
   params: ILogQueryParams | IActivityLogQueryParams,
   type = 'logs'
 ) => {
   const LOGS_DOMAIN = getSubServiceDomain({ name: 'LOGS_API_DOMAIN' });
 
-  return sendRequest(
-    {
+  try {
+    const response = await sendRequest({
       url: `${LOGS_DOMAIN}/${type}`,
       method: 'get',
       body: { params: JSON.stringify(params) }
-    },
-    'Failed to connect to logs api. Check whether LOGS_API_DOMAIN env is missing or logs api is not running'
-  );
+    });
+    return response;
+  } catch (e) {
+    debugError(
+      `Failed to connect to logs api. Check whether LOGS_API_DOMAIN env is missing or logs api is not running: ${e.message}`
+    );
+  }
 };
 
 export const sendToVisitorLog = async (params: IVisitorLogParams, action) => {

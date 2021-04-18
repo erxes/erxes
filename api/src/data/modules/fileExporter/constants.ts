@@ -60,6 +60,7 @@ export const CUSTOMER_BASIC_INFOS = [
   'state',
   'firstName',
   'lastName',
+  'middleName',
   'primaryEmail',
   'emails',
   'primaryPhone',

@@ -515,7 +515,7 @@ export const replaceEditorAttributes = async (args: {
       contentType: 'customer'
     });
 
-    customerFields = ['firstName', 'lastName'];
+    customerFields = ['firstName', 'lastName', 'middleName'];
 
     for (const field of possibleCustomerFields) {
       if (content.includes(`{{ customer.${field.name} }}`)) {
@@ -897,7 +897,7 @@ export const routeErrorHandling = (fn, callback?: any) => {
       debugError(e.message);
 
       if (callback) {
-        return callback(res, e);
+        return callback(res, e, next);
       }
 
       return next(e);
