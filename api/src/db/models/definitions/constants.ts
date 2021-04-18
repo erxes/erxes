@@ -172,6 +172,13 @@ export const ACTIVITY_CONTENT_TYPES = {
   PRODUCT: 'product',
   GROWTH_HACK: 'growthHack',
   SMS: 'sms',
+  CAMPAIGN: 'campaign',
+  INTERNAL_NOTE: 'internal_note',
+  CHECKLIST: 'checklist',
+  CONVERSATION: 'conversation',
+  SEGMENT: 'segment',
+  EMAIL: 'email',
+  BRAND: 'brand',
 
   ALL: [
     'customer',
@@ -182,7 +189,14 @@ export const ACTIVITY_CONTENT_TYPES = {
     'task',
     'product',
     'growthHack',
-    'sms'
+    'sms',
+    'campaign',
+    'internal_note',
+    'checklist',
+    'conversation',
+    'segment',
+    'email',
+    'brand'
   ]
 };
 
@@ -190,36 +204,6 @@ export const PUBLISH_STATUSES = {
   DRAFT: 'draft',
   PUBLISH: 'publish',
   ALL: ['draft', 'publish']
-};
-
-export const ACTIVITY_TYPES = {
-  CUSTOMER: 'customer',
-  COMPANY: 'company',
-  INTERNAL_NOTE: 'internal_note',
-  CHECKLIST: 'checklist',
-  CONVERSATION: 'conversation',
-  SEGMENT: 'segment',
-  DEAL: 'deal',
-  EMAIL: 'email',
-  TICKET: 'ticket',
-  TASK: 'task',
-  BRAND: 'brand',
-  GROWTH_HACK: 'growthHack',
-
-  ALL: [
-    'customer',
-    'company',
-    'internal_note',
-    'checklist',
-    'conversation',
-    'segment',
-    'deal',
-    'email',
-    'ticket',
-    'task',
-    'brand',
-    'growthHack'
-  ]
 };
 
 export const ACTIVITY_ACTIONS = {

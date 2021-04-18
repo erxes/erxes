@@ -32,24 +32,24 @@ export const getOrCreateEngageMessage = async (
 
   if (customerId) {
     customer = await Customers.getCustomer(customerId);
-    integrationId = customer.integrationId;
   }
 
   let visitor;
 
   if (visitorId) {
     visitor = await getVisitorLog(visitorId);
-    integrationId = visitor.integrationId;
   }
 
-  const integration = await Integrations.findOne({
+  if (!customer && !visitor) {
+    return null;
+  }
+
+  integrationId = customer ? customer.integrationId : visitor.integrationId;
+
+  const integration = await Integrations.getIntegration({
     _id: integrationId,
     kind: KIND_CHOICES.MESSENGER
   });
-
-  if (!integration) {
-    throw new Error('Integration not found');
-  }
 
   const brand = await Brands.getBrand({ _id: integration.brandId || '' });
 
@@ -168,7 +168,6 @@ export const getOrCreateEngageMessageElk = async (
 
     if (customers.length > 0) {
       customer = customers[0];
-      integrationId = customer.integrationId;
     }
   }
 
@@ -176,8 +175,13 @@ export const getOrCreateEngageMessageElk = async (
 
   if (visitorId) {
     visitor = await getVisitorLog(visitorId);
-    integrationId = visitor.integrationId;
   }
+
+  if (!customer && !visitor) {
+    return null;
+  }
+
+  integrationId = customer ? customer.integrationId : visitor.integrationId;
 
   const integration = await fetchHelper(
     'integrations',

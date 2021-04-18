@@ -1,9 +1,10 @@
-import { Users, UsersGroups } from '../../db/models';
+import { UsersGroups } from '../../db/models';
 import { IPermissionDocument } from '../../db/models/definitions/permissions';
+import { getDocument } from './mutations/cacheUtils';
 
 export default {
   user(entry: IPermissionDocument) {
-    return Users.findOne({ _id: entry.userId });
+    return getDocument('users', { _id: entry.userId });
   },
 
   group(entry: IPermissionDocument) {

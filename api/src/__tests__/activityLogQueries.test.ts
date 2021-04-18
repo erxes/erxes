@@ -20,6 +20,7 @@ import {
 import { IntegrationsAPI } from '../data/dataSources';
 import * as logUtils from '../data/logUtils';
 import './setup.ts';
+import * as pluginUtils from '../pluginUtils';
 
 describe('activityLogQueries', () => {
   let brand;
@@ -131,6 +132,41 @@ describe('activityLogQueries', () => {
     spy.mockRestore();
   });
 
+  test('Activity log with plugin type', async () => {
+    const customer = await customerFactory({});
+
+    const spy = jest.spyOn(pluginUtils, 'collectPluginContent');
+
+    spy.mockImplementation(async () => []);
+
+    const activityTypes = [{ type: 'plugin_test' }];
+
+    for (const t of activityTypes) {
+      const args = {
+        contentId: customer._id,
+        contentType: t.type === 'sms' ? 'sms' : 'customer',
+        activityType: t.type
+      };
+
+      const processState = process.env.ELK_SYNCER;
+
+      process.env.ELK_SYNCER = 'false';
+
+      const response = await graphqlRequest(
+        qryActivityLogs,
+        'activityLogs',
+        args,
+        {}
+      );
+
+      expect(response).toBeDefined();
+
+      process.env.ELK_SYNCER = processState;
+    }
+
+    spy.mockRestore();
+  });
+
   test('Activity log with all activity types', async () => {
     const customer = await customerFactory({});
 
@@ -164,7 +200,8 @@ describe('activityLogQueries', () => {
       { type: 'email', content: 'email' },
       { type: 'internal_note', content: 'internal_note' },
       { type: 'task', content: 'task' },
-      { type: 'sms', content: 'sms sent' }
+      { type: 'sms', content: 'sms sent' },
+      { type: 'campaign', content: 'campaign' }
     ];
 
     for (const t of activityTypes) {
@@ -175,14 +212,18 @@ describe('activityLogQueries', () => {
       };
 
       const processState = process.env.ELK_SYNCER;
+
       process.env.ELK_SYNCER = 'false';
+
       const response = await graphqlRequest(
         qryActivityLogs,
         'activityLogs',
         args,
         { dataSources }
       );
-      expect(response.length).toBe(1);
+
+      expect(response).toBeDefined();
+
       process.env.ELK_SYNCER = processState;
     }
 
@@ -405,7 +446,10 @@ describe('activityLogQueries', () => {
       contentId: deal1._id,
       contentType: 'deal',
       action: 'assignee',
-      content: []
+      content: {
+        addedUserIds: [],
+        removedUserIds: []
+      }
     };
 
     const spy = jest.spyOn(logUtils, 'fetchLogs');

@@ -133,6 +133,7 @@ const usersGroupQueries = {
    */
   usersGroups(_root, args: IListArgs) {
     const users = paginate(UsersGroups.find({}), args);
+
     return users.sort({ name: 1 });
   },
 

@@ -1,3 +1,5 @@
+import colors from 'modules/common/styles/colors';
+
 export const EMAIL_CONTENT_CLASS = 'erxes-email-content';
 export const EMAIL_CONTENT_PLACEHOLDER = `<div class="${EMAIL_CONTENT_CLASS}"></div>`;
 
@@ -90,46 +92,55 @@ export const SMS_DELIVERY_STATUSES = {
       value: 'queued',
       label: 'Queued',
       icon: 'list-ul',
-      description: `The message is queued up on Telnyx's side`
+      description: `The message is queued up on Telnyx's side`,
+      color: colors.colorCoreGray
     },
     {
       value: 'sending',
       label: 'Sending',
       icon: 'comment-alt-message',
-      description: 'The message is currently being sent to an upstream provider'
+      description:
+        'The message is currently being sent to an upstream provider',
+      color: colors.colorCoreTeal
     },
     {
       value: 'sent',
       label: 'Sent',
       icon: 'send',
-      description: 'The message has been sent to the upstream provider'
+      description: 'The message has been sent to the upstream provider',
+      color: colors.colorCoreBlue
     },
     {
       value: 'delivered',
       label: 'Delivered',
       icon: 'checked',
-      description: 'The upstream provider has confirmed delivery of the message'
+      description:
+        'The upstream provider has confirmed delivery of the message',
+      color: colors.colorCoreGreen
     },
     {
       value: 'sending_failed',
       label: 'Sending failed',
       icon: 'comment-alt-block',
       description:
-        'Telnyx has failed to send the message to the upstream provider'
+        'Telnyx has failed to send the message to the upstream provider',
+      color: colors.colorCoreRed
     },
     {
       value: 'delivery_failed',
       label: 'Delivery failed',
       icon: 'multiply',
       description:
-        'The upstream provider has failed to send the message to the receiver'
+        'The upstream provider has failed to send the message to the receiver',
+      color: colors.colorCoreYellow
     },
     {
       value: 'delivery_unconfirmed',
       label: 'Delivery unconfirmed',
       icon: 'comment-alt-question',
       description:
-        'There is no indication whether or not the message has reached the receiver'
+        'There is no indication whether or not the message has reached the receiver',
+      color: colors.colorCoreYellow
     }
   ]
 };

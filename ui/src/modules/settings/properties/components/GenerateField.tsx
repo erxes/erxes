@@ -94,7 +94,7 @@ export default class GenerateField extends React.Component<Props, State> {
       attrs.checked = String(value) === attrs.option;
     }
 
-    if (type.includes('doNotDisturb')) {
+    if (type && type.includes('doNotDisturb')) {
       attrs.type = 'radio';
       attrs.componentClass = 'radio';
       attrs.checked = String(value) === attrs.option;
