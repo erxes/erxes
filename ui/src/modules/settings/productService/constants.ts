@@ -1,9 +1,3 @@
-export const TYPES = {
-  PRODUCT: 'product',
-  SERVICE: 'service',
-  ALL: ['product', 'service']
-};
-
 export const PRODUCT_INFO = {
   name: 'Name',
   type: 'Type',
@@ -20,7 +14,7 @@ export const PRODUCT_INFO = {
     { field: 'code', label: 'Code' },
     { field: 'description', label: 'Description' },
     { field: 'sku', label: 'Sku' },
-    { field: 'unitPrice', label: 'UnitPrice' },
+    { field: 'unitPrice', label: 'UnitPrice' }
   ]
 };
 
