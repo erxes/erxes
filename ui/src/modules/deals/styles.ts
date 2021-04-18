@@ -113,11 +113,6 @@ const ProductButton = styled.div`
   }
 `;
 
-const CategoryContainer = styled.div`
-  flex: 1;
-  flex-shrink: 0;
-`;
-
 const CustomField = styled.div`
   text-align: left;
   padding: ${dimensions.unitSpacing}px;
@@ -243,7 +238,6 @@ const ProductSettings = styled.div`
 export {
   ProductName,
   FormContainer,
-  CategoryContainer,
   FooterInfo,
   CustomField,
   Measure,
