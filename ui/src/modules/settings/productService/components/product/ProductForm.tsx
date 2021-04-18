@@ -173,6 +173,7 @@ class Form extends React.Component<Props> {
           <SelectCompanies
             label="Choose an vendor"
             name="vendorId"
+            customOption={{ value: '', label: 'No vendor chosen' }}
             initialValue={object.vendorId}
             onSelect={onSelectCompany}
             multi={false}
