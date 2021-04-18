@@ -2831,7 +2831,7 @@ dateformat@~1.0.4-1.2.3:
     get-stdin "^4.0.1"
     meow "^3.3.0"
 
-dd-trace@^0.30.5:
+dd-trace@0.30.5, dd-trace@^0.30.5:
   version "0.30.5"
   resolved "https://registry.yarnpkg.com/dd-trace/-/dd-trace-0.30.5.tgz#d4c7505f96e2dfdeb30738a37d3bb6d05e5aa36e"
   integrity sha512-hm6cPlXundAdXYfGrAU1wk3oJ0m5i2oyLY5ZKo/7ZTUTZuuv0gnp3puEAAO8DV09WWMVf1joFmgYNS/2vQ32TQ==
