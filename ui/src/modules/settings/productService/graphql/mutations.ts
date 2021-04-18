@@ -8,6 +8,7 @@ const productParamsDef = `
   $code: String
   $customFieldsData: JSON,
   $attachment: AttachmentInput,
+  $vendorId: String,
 `;
 
 const productCategoryParamsDef = `
@@ -26,6 +27,7 @@ const productParams = `
   unitPrice: $unitPrice,
   code: $code,
   customFieldsData: $customFieldsData,
+  vendorId: $vendorId,
   attachment: $attachment
 `;
 

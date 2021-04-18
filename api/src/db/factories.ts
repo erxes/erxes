@@ -1274,6 +1274,7 @@ interface IProductFactoryInput {
   description?: string;
   tagIds?: string[];
   categoryId?: string;
+  vendorId?: string;
   customFieldsData?: ICustomField[];
 }
 
@@ -1286,6 +1287,7 @@ export const productFactory = async (params: IProductFactoryInput = {}) => {
     description: params.description || faker.random.word(),
     sku: faker.random.word(),
     code: await getUniqueValue(Products, 'code'),
+    vendorId: params.vendorId,
     createdAt: new Date(),
     tagIds: params.tagIds || []
   });
