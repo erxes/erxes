@@ -9,7 +9,6 @@ import { IAttachmentPreview } from 'modules/common/types';
 import { __, Alert, readFile, uploadHandler } from 'modules/common/utils';
 import { deleteHandler } from 'modules/common/utils/uploadHandler';
 import ResponseTemplate from 'modules/inbox/containers/conversationDetail/responseTemplate/ResponseTemplate';
-import ProductBoard from 'modules/inbox/containers/ProductBoard';
 import {
   Attachment,
   AttachmentIndicator,
@@ -152,11 +151,15 @@ class RespondBox extends React.Component<Props, State> {
   };
 
   checkIsActive(conversation: IConversation) {
-    return (
-      conversation.integration.kind !== 'messenger' ||
-      (conversation.customer && conversation.customer.isOnline) ||
-      !conversation.isFacebookTaggedMessage
-    );
+    if (conversation.integration.kind === 'messenger') {
+      return conversation.customer && conversation.customer.isOnline;
+    }
+
+    if (conversation.integration.kind === 'facebook-messenger') {
+      return !conversation.isFacebookTaggedMessage;
+    }
+
+    return true;
   }
 
   hideMask = () => {
@@ -472,8 +475,6 @@ class RespondBox extends React.Component<Props, State> {
     return (
       <EditorActions>
         {this.renderCheckbox(integration.kind)}
-
-        <ProductBoard conversation={conversation} />
 
         {this.renderVideoRoom()}
 

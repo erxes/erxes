@@ -1,7 +1,7 @@
 import * as AWS from 'aws-sdk';
 import * as nodemailer from 'nodemailer';
 import { SES_DELIVERY_STATUSES } from './constants';
-import { debugBase } from './debuggers';
+import { debugBase, debugError } from './debuggers';
 import messageBroker from './messageBroker';
 import Configs, { ISESConfig } from './models/Configs';
 import { DeliveryReports, Stats } from './models/index';
@@ -191,14 +191,23 @@ export const cleanIgnoredCustomers = async ({
 
   const allowedEmailSkipLimit = await getConfig('allowedEmailSkipLimit', '5');
 
-  // gather customers who did not open or click previously
+  /**
+   * gather customers who did not complain, open or click previously &
+   * no errors occurred
+   */
   const deliveries = await DeliveryReports.aggregate([
     {
       $match: {
         engageMessageId: { $ne: engageMessageId },
         customerId: { $in: customerIds },
         status: {
-          $nin: [SES_DELIVERY_STATUSES.OPEN, SES_DELIVERY_STATUSES.CLICK]
+          $nin: [
+            SES_DELIVERY_STATUSES.OPEN,
+            SES_DELIVERY_STATUSES.CLICK,
+            SES_DELIVERY_STATUSES.RENDERING_FAILURE,
+            SES_DELIVERY_STATUSES.REJECT,
+            SES_DELIVERY_STATUSES.COMPLAINT
+          ]
         }
       }
     },
@@ -267,4 +276,20 @@ export const prepareAvgStats = () => {
       }
     }
   ]);
+};
+
+export const routeErrorHandling = (fn, callback?: any) => {
+  return async (req, res, next) => {
+    try {
+      await fn(req, res, next);
+    } catch (e) {
+      debugError(e.message);
+
+      if (callback) {
+        return callback(res, e);
+      }
+
+      return next(e);
+    }
+  };
 };

@@ -124,6 +124,10 @@ export type CountQueryResponse = {
   customerCounts: CustomerCounts;
 } & QueryResponse;
 
+export type IntegrationGetUsedQueryResponse = {
+  integrationsGetUsedTypes: Array<{ _id: string; name: string }>;
+} & QueryResponse;
+
 export type CustomerDetailQueryResponse = {
   customerDetail: ICustomer;
   loading: boolean;

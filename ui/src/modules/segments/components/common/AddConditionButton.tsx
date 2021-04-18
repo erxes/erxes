@@ -5,6 +5,7 @@ import React from 'react';
 import { ISegmentCondition } from '../../types';
 
 type Props = {
+  contentType: string;
   addCondition: (condition: ISegmentCondition) => void;
 };
 
@@ -27,6 +28,24 @@ function AddConditionButton(props: Props) {
     });
   };
 
+  const renderAddEvents = () => {
+    if (!['customer', 'lead', 'visitor'].includes(props.contentType)) {
+      return null;
+    }
+
+    return (
+      <Button
+        id="segment-add-events"
+        btnStyle="primary"
+        icon="computer-mouse"
+        uppercase={false}
+        onClick={addEventCondition}
+      >
+        {__('Add Events')}
+      </Button>
+    );
+  };
+
   return (
     <CenterContent>
       <Button.Group hasGap={false}>
@@ -40,15 +59,7 @@ function AddConditionButton(props: Props) {
           {__('Add Properties')}
         </Button>
 
-        <Button
-          id="segment-add-events"
-          btnStyle="primary"
-          icon="computer-mouse"
-          uppercase={false}
-          onClick={addEventCondition}
-        >
-          {__('Add Events')}
-        </Button>
+        {renderAddEvents()}
       </Button.Group>
     </CenterContent>
   );

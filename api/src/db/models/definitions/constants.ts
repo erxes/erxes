@@ -129,27 +129,30 @@ export const KIND_CHOICES = {
 };
 
 export const INTEGRATION_NAMES_MAP = {
-  messenger: 'Web messenger',
-  lead: 'Form',
-  'facebook-messenger': 'Facebook messenger',
-  'facebook-post': 'Facebook post',
+  messenger: 'Messenger',
+  lead: 'Forms',
+  'facebook-messenger': 'Facebook Messenger',
+  'facebook-post': 'Facebook Post',
   gmail: 'Gmail',
+  webhook: 'Webhook',
   callpro: 'Call pro',
   chatfuel: 'Chatfuel',
-  'nylas-gmail': 'Gmail',
-  'nylas-imap': 'Imap',
-  'nylas-exchange': 'exchange',
-  'nylas-office365': 'Office 365',
-  'nylas-outlook': 'Outook',
-  'nylas-yahoo': 'Yahoo',
+
+  whatsapp: 'WhatsApp by Smooch',
+  'smooch-telegram': 'Telegram by Smooch',
+  'smooch-viber': 'Viber by Smooch',
+  'smooch-line': 'Line by Smooch',
+  'smooch-twilio': 'SMS Twilio by Smooch',
+
+  'nylas-imap': 'IMAP by Nylas',
+  'nylas-gmail': 'Gmail by Nylas',
+  'nylas-office365': 'Office 365 by Nylas',
+  'nylas-exchange': 'Microsoft Exchange by Nylas',
+  'nylas-outlook': 'Outlook by Nylas',
+  'nylas-yahoo': 'Yahoo by Nylas',
   'twitter-dm': 'Twitter dm',
-  'smooch-viber': 'Viber',
-  'smooch-line': 'Line',
-  'smooch-telegram': 'Telegram',
-  'smooch-twilio': 'Twilio SMS',
-  whatsapp: 'WhatsApp',
-  webhook: 'Webhook',
-  telnyx: 'Telnyx SMS'
+
+  telnyx: 'SMS by Telnyx'
 };
 
 // messenger data availability constants
@@ -168,6 +171,14 @@ export const ACTIVITY_CONTENT_TYPES = {
   TASK: 'task',
   PRODUCT: 'product',
   GROWTH_HACK: 'growthHack',
+  SMS: 'sms',
+  CAMPAIGN: 'campaign',
+  INTERNAL_NOTE: 'internal_note',
+  CHECKLIST: 'checklist',
+  CONVERSATION: 'conversation',
+  SEGMENT: 'segment',
+  EMAIL: 'email',
+  BRAND: 'brand',
 
   ALL: [
     'customer',
@@ -177,7 +188,15 @@ export const ACTIVITY_CONTENT_TYPES = {
     'ticket',
     'task',
     'product',
-    'growthHack'
+    'growthHack',
+    'sms',
+    'campaign',
+    'internal_note',
+    'checklist',
+    'conversation',
+    'segment',
+    'email',
+    'brand'
   ]
 };
 
@@ -185,36 +204,6 @@ export const PUBLISH_STATUSES = {
   DRAFT: 'draft',
   PUBLISH: 'publish',
   ALL: ['draft', 'publish']
-};
-
-export const ACTIVITY_TYPES = {
-  CUSTOMER: 'customer',
-  COMPANY: 'company',
-  INTERNAL_NOTE: 'internal_note',
-  CHECKLIST: 'checklist',
-  CONVERSATION: 'conversation',
-  SEGMENT: 'segment',
-  DEAL: 'deal',
-  EMAIL: 'email',
-  TICKET: 'ticket',
-  TASK: 'task',
-  BRAND: 'brand',
-  GROWTH_HACK: 'growthHack',
-
-  ALL: [
-    'customer',
-    'company',
-    'internal_note',
-    'checklist',
-    'conversation',
-    'segment',
-    'deal',
-    'email',
-    'ticket',
-    'task',
-    'brand',
-    'growthHack'
-  ]
 };
 
 export const ACTIVITY_ACTIONS = {
@@ -276,8 +265,28 @@ export const HACK_SCORING_TYPES = {
 export const FIELDS_GROUPS_CONTENT_TYPES = {
   CUSTOMER: 'customer',
   COMPANY: 'company',
+  CONVERSATION: 'conversation',
+  DEVICE: 'device',
   PRODUCT: 'product',
-  ALL: ['customer', 'company', 'product']
+  TICKET: 'ticket',
+  TASK: 'task',
+  DEAL: 'deal',
+  VISITOR: 'visitor',
+  LEAD: 'lead',
+  FORM: 'form',
+  ALL: [
+    'customer',
+    'company',
+    'conversation',
+    'device',
+    'product',
+    'ticket',
+    'task',
+    'deal',
+    'visitor',
+    'lead',
+    'form'
+  ]
 };
 
 export const CUSTOMER_LIFECYCLE_STATE_TYPES = [
@@ -442,6 +451,11 @@ export const BOARD_STATUSES = {
   ARCHIVED: 'archived',
   ALL: ['active', 'archived']
 };
+
+export const BOARD_STATUSES_OPTIONS = [
+  { label: 'Active', value: 'active' },
+  { label: 'Archived', value: 'archived' }
+];
 
 export const TIME_TRACK_TYPES = {
   STARTED: 'started',

@@ -1,5 +1,6 @@
 import {
   commonDragParams,
+  commonListTypes,
   commonMutationParams,
   commonTypes,
   conformityQueryFields,
@@ -7,6 +8,10 @@ import {
 } from './common';
 
 export const types = `
+  type TicketListItem {
+    ${commonListTypes}
+  }
+    
   type Ticket {
     _id: String!
     source: String
@@ -16,27 +21,34 @@ export const types = `
   }
 `;
 
+const listQueryParams = `
+  pipelineId: String
+  stageId: String
+  customerIds: [String]
+  companyIds: [String]
+  date: ItemDate
+  skip: Int
+  limit: Int
+  search: String
+  assignedUserIds: [String]
+  closeDateType: String
+  priority: [String]
+  source: [String]
+  labelIds: [String]
+  sortField: String
+  sortDirection: Int
+  userIds: [String]
+  segment: String
+  assignedToMe: String
+  startDate: String
+  endDate: String
+  ${conformityQueryFields}
+`;
+
 export const queries = `
   ticketDetail(_id: String!): Ticket
-  tickets(
-    pipelineId: String
-    stageId: String
-    customerIds: [String]
-    companyIds: [String]
-    date: ItemDate
-    skip: Int
-    limit: Int
-    search: String
-    assignedUserIds: [String]
-    closeDateType: String
-    priority: [String]
-    source: [String]
-    labelIds: [String]
-    sortField: String
-    sortDirection: Int
-    userIds: [String]
-    ${conformityQueryFields}
-  ): [Ticket]
+  tickets(${listQueryParams}): [TicketListItem]
+  ticketsTotalCount(${listQueryParams}): Int
   archivedTickets(pipelineId: String!, search: String, page: Int, perPage: Int): [Ticket]
   archivedTicketsCount(pipelineId: String!, search: String): Int
 `;

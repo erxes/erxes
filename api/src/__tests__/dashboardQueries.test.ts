@@ -163,13 +163,15 @@ describe('dashboardQueries', () => {
       'pipeline',
       'modifiedBy',
       'integrationName',
-      'Contacts.state',
       'brand',
       'test',
       'tag',
-      'Contacts.tag',
+      'Conversations.tag',
       'Companies.tag',
-      'board'
+      'Tasks.board',
+      'Tickets.board',
+      'board',
+      'ConversationProperties.customerFirstName'
     ];
 
     types.map(async type => {

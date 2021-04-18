@@ -67,6 +67,7 @@ export interface IFormProps {
   runValidations?: (callback: any) => void;
   resetSubmit?: () => void;
   isSubmitted: boolean;
+  isSaved?: boolean;
 }
 
 export type IOption = {
@@ -118,4 +119,5 @@ export type IEditorProps = {
 export type QueryResponse = {
   loading: boolean;
   refetch: () => void;
+  error?: string;
 };

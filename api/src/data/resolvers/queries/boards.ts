@@ -2,11 +2,13 @@ import {
   Boards,
   Deals,
   Pipelines,
+  Segments,
   Stages,
   Tasks,
   Tickets
 } from '../../../db/models';
 import { BOARD_STATUSES } from '../../../db/models/definitions/constants';
+import { fetchSegment } from '../../modules/segments/queryBuilder';
 import { moduleRequireLogin } from '../../permissions/wrappers';
 import { IContext } from '../../types';
 import { paginate, regexSearchText } from '../../utils';
@@ -31,17 +33,60 @@ export interface IListParams extends IConformityQueryParams {
   sortDirection?: number;
   labelIds?: string[];
   userIds?: string[];
+  segment?: string;
 }
 
 const boardQueries = {
   /**
    *  Boards list
    */
-  boards(_root, { type }: { type: string }, { commonQuerySelector }: IContext) {
-    return Boards.find({ ...commonQuerySelector, type }).sort({
-      order: 1,
-      createdAt: -1
-    });
+  boards(
+    _root,
+    { type }: { type: string },
+    { user, commonQuerySelector }: IContext
+  ) {
+    const pipelineFilter = user.isOwner
+      ? {}
+      : {
+          $or: [
+            { $eq: ['$visibility', 'public'] },
+            {
+              $and: [
+                { $eq: ['$visibility', 'private'] },
+                {
+                  $or: [
+                    { $in: [user._id, '$memberIds'] },
+                    { $eq: ['$userId', user._id] }
+                  ]
+                }
+              ]
+            }
+          ]
+        };
+
+    return Boards.aggregate([
+      { $match: { ...commonQuerySelector, type } },
+      {
+        $lookup: {
+          from: 'pipelines',
+          let: { boardId: '$_id' },
+          pipeline: [
+            {
+              $match: {
+                $expr: {
+                  $and: [
+                    { $eq: ['$boardId', '$$boardId'] },
+                    { ...pipelineFilter }
+                  ]
+                }
+              }
+            },
+            { $project: { name: 1 } }
+          ],
+          as: 'pipelines'
+        }
+      }
+    ]);
   },
 
   /**
@@ -309,6 +354,31 @@ const boardQueries = {
       ticketUrl,
       taskUrl
     };
+  },
+
+  async itemsCountBySegments(
+    _root,
+    {
+      type,
+      boardId,
+      pipelineId
+    }: { type: string; boardId: string; pipelineId: string }
+  ) {
+    const segments = await Segments.find({
+      contentType: type,
+      boardId,
+      pipelineId
+    });
+
+    const counts = {};
+
+    for (const segment of segments) {
+      counts[segment._id] = await fetchSegment('count', segment, {
+        pipelineId
+      });
+    }
+
+    return counts;
   }
 };
 

@@ -5,7 +5,9 @@ import * as path from 'path';
 import { ILogDataParams } from './data/logUtils';
 import { can, registerModule } from './data/permissions/utils';
 import { checkLogin } from './data/permissions/wrappers';
+import { IListArgs } from './data/resolvers/queries/activityLogs';
 import * as allModels from './db/models';
+import { IActivityLogDocument } from './db/models/definitions/activityLogs';
 import { IUserDocument } from './db/models/definitions/users';
 import { field } from './db/models/definitions/utils';
 import { debugError } from './debuggers';
@@ -22,13 +24,25 @@ interface IAfterMutations {
   [type: string]: ISubAfterMutations[];
 }
 
+interface ISubActivityContents {
+  [activityType: string]: {
+    handler: any[];
+    collectItems?: IActivityLogDocument[];
+  };
+}
+interface IActivityContents {
+  [contentType: string]: ISubActivityContents[];
+}
+
 const callAfterMutations: IAfterMutations[] | {} = {};
+const callActivityContents: IActivityContents | {} = {};
 const pluginsConsumers = {};
 
 const tryRequire = requirPath => {
   try {
     return require(`${requirPath}`);
   } catch (err) {
+    debugError(requirPath);
     debugError(err.message);
     return {};
   }
@@ -53,6 +67,7 @@ export const execInEveryPlugin = callback => {
         let graphqlMutations = [];
         let graphqlSubscriptions = [];
         let afterMutations = [];
+        let activityContents = [];
         let constants = {};
 
         const graphqlSchema = {
@@ -73,6 +88,7 @@ export const execInEveryPlugin = callback => {
         const graphqlMutationsPath = `${pluginsPath}/${plugin}/api/graphql/mutations.${ext}`;
         const graphqlSubscriptionsPath = `${pluginsPath}/${plugin}/api/graphql/subscriptions.${ext}`;
         const afterMutationsPath = `${pluginsPath}/${plugin}/api/graphql/afterMutations.${ext}`;
+        const activityContentsPath = `${pluginsPath}/${plugin}/api/graphql/activityContents.${ext}`;
         const modelsPath = `${pluginsPath}/${plugin}/api/models.${ext}`;
         const constantsPath = `${pluginsPath}/${plugin}/api/constants.${ext}`;
 
@@ -122,6 +138,10 @@ export const execInEveryPlugin = callback => {
           afterMutations = tryRequire(afterMutationsPath).default;
         }
 
+        if (fs.existsSync(activityContentsPath)) {
+          activityContents = tryRequire(activityContentsPath).default;
+        }
+
         if (fs.existsSync(graphqlSchemaPath)) {
           const { types, queries, mutations, subscriptions } = tryRequire(
             graphqlSchemaPath
@@ -154,6 +174,7 @@ export const execInEveryPlugin = callback => {
           graphqlMutations,
           graphqlSubscriptions,
           afterMutations,
+          activityContents,
           models,
           constants
         });
@@ -169,6 +190,7 @@ export const execInEveryPlugin = callback => {
       graphqlMutations: [],
       graphqlSubscriptions: [],
       afterMutations: {},
+      activityContents: {},
       routes: [],
       models: [],
       msgBrokers: []
@@ -203,6 +225,7 @@ export const extendViaPlugins = (
         graphqlMutations,
         graphqlSubscriptions,
         afterMutations,
+        activityContents,
         routes,
         models,
         msgBrokers
@@ -234,30 +257,30 @@ export const extendViaPlugins = (
 
         if (graphqlSchema.types) {
           types = `
-        ${types}
-        ${graphqlSchema.types}
-      `;
+            ${types}
+            ${graphqlSchema.types}
+          `;
         }
 
         if (graphqlSchema.queries) {
           queries = `
-        ${queries}
-        ${graphqlSchema.queries}
-      `;
+            ${queries}
+            ${graphqlSchema.queries}
+          `;
         }
 
         if (graphqlSchema.mutations) {
           mutations = `
-        ${mutations}
-        ${graphqlSchema.mutations}
-      `;
+            ${mutations}
+            ${graphqlSchema.mutations}
+          `;
         }
 
         if (graphqlSchema.subscriptions) {
           subscriptions = `
-        ${subscriptions}
-        ${graphqlSchema.subscriptions}
-      `;
+            ${subscriptions}
+            ${graphqlSchema.subscriptions}
+          `;
         }
 
         const generateCtx = context => {
@@ -341,6 +364,26 @@ export const extendViaPlugins = (
           });
         }
 
+        if (activityContents && activityContents.length) {
+          activityContents.forEach(async activityContent => {
+            const { contentType, activityType } = activityContent;
+
+            if (!Object.keys(callActivityContents).includes(contentType)) {
+              callActivityContents[contentType] = {};
+            }
+
+            if (
+              !Object.keys(callActivityContents[contentType]).includes(
+                activityType
+              )
+            ) {
+              callActivityContents[contentType][activityType] = [];
+            }
+
+            callActivityContents[contentType][activityType] = activityContent;
+          });
+        }
+
         if (isLastIteration) {
           return resolve({ types, queries, mutations, subscriptions });
         }
@@ -401,6 +444,46 @@ export const callAfterMutation = async (
         messageBroker
       });
     }
+  } catch (e) {
+    throw new Error(e.message);
+  }
+};
+
+export const collectPluginContent = async (
+  doc: IListArgs,
+  user: IUserDocument,
+  activities: IActivityLogDocument[],
+  collectItemsDefault: (items: any, type?: string) => void
+) => {
+  if (!callActivityContents) {
+    return;
+  }
+
+  const { contentType, activityType } = doc;
+
+  // not used type in plugins
+  if (!callActivityContents[contentType]) {
+    return;
+  }
+
+  // not used this type's action in plugins
+  if (!callActivityContents[contentType][activityType]) {
+    return;
+  }
+
+  try {
+    const activityContent = callActivityContents[contentType][activityType];
+    const { handler, collectItems } = activityContent;
+    const items = await handler({}, doc, {
+      user,
+      models: allModels
+    });
+
+    if (collectItems) {
+      return collectItems(activities, items);
+    }
+
+    return collectItemsDefault(items);
   } catch (e) {
     throw new Error(e.message);
   }

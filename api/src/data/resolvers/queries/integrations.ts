@@ -1,4 +1,4 @@
-import { Brands, Channels, Integrations, Tags } from '../../../db/models';
+import { Channels, Integrations, Tags } from '../../../db/models';
 import {
   INTEGRATION_NAMES_MAP,
   KIND_CHOICES,
@@ -13,6 +13,7 @@ import messageBroker from '../../../messageBroker';
 import { RABBITMQ_QUEUES } from '../../constants';
 import { IContext } from '../../types';
 import { paginate } from '../../utils';
+import { getDocumentList } from '../mutations/cacheUtils';
 /**
  * Common helper for integrations & integrationsTotalCount
  */
@@ -22,7 +23,8 @@ const generateFilterQuery = async ({
   brandId,
   searchValue,
   tag,
-  status
+  status,
+  formLoadType
 }) => {
   const query: any = {};
 
@@ -61,11 +63,17 @@ const generateFilterQuery = async ({
 
   // filtering integrations by tag
   if (tag) {
-    query.tagIds = tag;
+    const object = await Tags.findOne({ _id: tag });
+
+    query.tagIds = { $in: [tag, ...(object?.relatedIds || [])] };
   }
 
   if (status) {
     query.isActive = status === 'active' ? true : false;
+  }
+
+  if (formLoadType) {
+    query['leadData.loadType'] = formLoadType;
   }
 
   return query;
@@ -87,6 +95,7 @@ const integrationQueries = {
       brandId: string;
       tag: string;
       status: string;
+      formLoadType: string;
     },
     { singleBrandIdSelector }: IContext
   ) {
@@ -94,6 +103,7 @@ const integrationQueries = {
       ...singleBrandIdSelector,
       ...(await generateFilterQuery(args))
     };
+
     const integrations = paginate(
       Integrations.findAllIntegrations(query),
       args
@@ -138,6 +148,7 @@ const integrationQueries = {
       tag: string;
       searchValue: string;
       status: string;
+      formLoadType: string;
     }
   ) {
     const counts = {
@@ -181,7 +192,7 @@ const integrationQueries = {
     }
 
     // Counting integrations by channel
-    const channels = await Channels.find({});
+    const channels = await getDocumentList('channels', {});
 
     for (const channel of channels) {
       const countQueryResult = await count({
@@ -197,7 +208,7 @@ const integrationQueries = {
     }
 
     // Counting integrations by brand
-    const brands = await Brands.find({});
+    const brands = await getDocumentList('brands', {});
 
     for (const brand of brands) {
       const countQueryResult = await count({ brandId: brand._id, ...qry });
@@ -220,7 +231,7 @@ const integrationQueries = {
     }
 
     // Counting all integrations without any filter
-    counts.total = await count({});
+    counts.total = await count(qry);
 
     return counts;
   },

@@ -15,6 +15,7 @@ import {
   customerFactory,
   engageMessageFactory,
   fieldFactory,
+  fieldGroupFactory,
   formFactory,
   integrationFactory,
   knowledgeBaseArticleFactory,
@@ -24,6 +25,7 @@ import {
 } from '../db/factories';
 import {
   Brands,
+  Companies,
   ConversationMessages,
   Conversations,
   Customers,
@@ -41,7 +43,7 @@ import {
 } from '../db/models/definitions/constants';
 import { ICustomerDocument } from '../db/models/definitions/customers';
 import { IIntegrationDocument } from '../db/models/definitions/integrations';
-import memoryStorage from '../inmemoryStorage';
+
 import './setup.ts';
 
 describe('messenger connect', () => {
@@ -71,9 +73,6 @@ describe('messenger connect', () => {
     await Integrations.deleteMany({});
     await Customers.deleteMany({});
     await MessengerApps.deleteMany({});
-
-    memoryStorage().removeKey(`erxes_integration_messenger_${_brand.id}`);
-    memoryStorage().removeKey(`erxes_brand_{_brand.code}`);
   });
 
   test('brand not found', async () => {
@@ -87,7 +86,7 @@ describe('messenger connect', () => {
     }
   });
 
-  test('brand not found', async () => {
+  test('integration not found', async () => {
     const brand = await brandFactory({});
 
     try {
@@ -98,6 +97,64 @@ describe('messenger connect', () => {
     } catch (e) {
       expect(e.message).toBe('Integration not found');
     }
+  });
+
+  test('Test inactive integration', async () => {
+    const brand = await brandFactory({});
+    const integration = await integrationFactory({
+      isActive: false,
+      brandId: brand._id
+    });
+
+    try {
+      await widgetMutations.widgetsMessengerConnect(
+        {},
+        { brandCode: brand.code || '' }
+      );
+    } catch (e) {
+      expect(e.message).toBe(`Integration "${integration.name}" is not active`);
+    }
+  });
+
+  test('Company data (Not a valid enum value for path `industry`)', async () => {
+    const brand = await brandFactory();
+    await integrationFactory({ brandId: brand._id });
+
+    const companyName = faker.name.findName();
+
+    await widgetMutations.widgetsMessengerConnect(
+      {},
+      {
+        brandCode: brand.code || '',
+        companyData: { name: companyName, industry: 'үйлчилгээ' }
+      }
+    );
+
+    // company isn't created because industry is not a valid
+    expect(await Companies.findOne({ name: companyName })).toBeNull();
+  });
+
+  test('with company error`)', async () => {
+    const mock = sinon.stub(Companies, 'createCompany').callsFake(() => {
+      throw new Error('fake error');
+    });
+
+    const brand = await brandFactory();
+    await integrationFactory({ brandId: brand._id });
+
+    const companyName = faker.name.findName();
+
+    await widgetMutations.widgetsMessengerConnect(
+      {},
+      {
+        brandCode: brand.code || '',
+        companyData: { name: companyName, industry: 'үйлчилгээ' }
+      }
+    );
+
+    // company isn't created because industry is not a valid
+    expect(await Companies.findOne({ name: companyName })).toBeNull();
+    mock.restore();
   });
 
   test('returns proper integrationId', async () => {
@@ -624,11 +681,6 @@ describe('insertMessage()', () => {
       }
     ]);
 
-    await memoryStorage().set(
-      `bot_initial_message_${_integrationBot._id}`,
-      JSON.stringify({ text: 'Hi there' })
-    );
-
     const sendToVisitorLogMock = sinon
       .stub(logUtils, 'sendToVisitorLog')
       .callsFake(() => {
@@ -663,17 +715,13 @@ describe('insertMessage()', () => {
       }
     ]);
 
-    await memoryStorage().removeKey(
-      `bot_initial_message_${_integrationBot._id}`
-    );
-
     visitorMock.restore();
     sendToVisitorLogMock.restore();
 
     sendRequestMock.restore();
   });
 
-  test('Video cal request', async () => {
+  test('Video call request', async () => {
     const conversation = await conversationFactory();
 
     // When first video call request
@@ -734,6 +782,31 @@ describe('insertMessage()', () => {
     } catch (e) {
       expect(e.message).toBe('Video call request has already sent');
     }
+  });
+
+  test('Failed to send notification to mobile', async () => {
+    const spy = jest.spyOn(utils, 'sendMobileNotification');
+    spy.mockImplementation(() => {
+      throw new Error('error');
+    });
+
+    const conversation = await conversationFactory();
+
+    const message = await widgetMutations.widgetsInsertMessage(
+      {},
+      {
+        contentType: MESSAGE_TYPES.TEXT,
+        integrationId: _integration._id,
+        customerId: _customer._id,
+        conversationId: conversation._id,
+        message: 'message'
+      },
+      context
+    );
+
+    expect(message.content).toBe('message');
+
+    spy.mockRestore();
   });
 });
 
@@ -815,7 +888,7 @@ describe('saveBrowserInfo()', () => {
       }
     );
 
-    expect(response && response.content).toBe('engageMessage');
+    expect(response).toBe(null);
   });
 
   test('with visitorId', async () => {
@@ -868,7 +941,7 @@ describe('saveBrowserInfo()', () => {
       }
     );
 
-    expect(response && response.content).toBe('engageMessage');
+    expect(response).toBe(null);
     getVisitorLogMock.restore();
     sendToVisitorLogMock.restore();
   });
@@ -1065,12 +1138,6 @@ describe('lead', () => {
     } catch (e) {
       expect(e.message).toBe('Integration not found');
     }
-
-    memoryStorage().removeKey(`erxes_brand_${brand.code}`);
-    memoryStorage().removeKey(`erxes_brand_code`);
-    memoryStorage().removeKey(
-      `erxes_integration_lead_${brand._id}_${form._id}`
-    );
   });
 
   test('leadConnect: success', async () => {
@@ -1100,12 +1167,6 @@ describe('lead', () => {
     expect(response1 && response1.integration._id).toBe(integration._id);
     expect(response1 && response1.form._id).toBe(form._id);
 
-    // Get integration from cache ===========================
-    memoryStorage().set(
-      `erxes_integration_lead_${brand._id}_${form._id}`,
-      JSON.stringify(integration)
-    );
-
     const response = await widgetMutations.widgetsLeadConnect(
       {},
       {
@@ -1116,11 +1177,6 @@ describe('lead', () => {
 
     expect(response && response.integration._id).toBe(integration._id);
     expect(response && response.form._id).toBe(form._id);
-
-    memoryStorage().removeKey(`erxes_brand_${brand.code}`);
-    memoryStorage().removeKey(
-      `erxes_integration_lead_${brand._id}_${form._id}`
-    );
 
     mock.restore();
   });
@@ -1160,11 +1216,6 @@ describe('lead', () => {
     expect(response).toBeNull();
 
     mock.restore();
-
-    memoryStorage().removeKey(`erxes_brand_${brand.code}`);
-    memoryStorage().removeKey(
-      `erxes_integration_lead_${brand._id}_${form._id}`
-    );
   });
 
   test('saveLead: form not found', async () => {
@@ -1208,19 +1259,12 @@ describe('lead', () => {
     expect(response && response.status).toBe('error');
   });
 
-  test('saveLead: success', async () => {
-    const mock = sinon.stub(utils, 'sendRequest').callsFake(() => {
-      return Promise.resolve('success');
-    });
-
+  test('saveLead: without company', async () => {
     const form = await formFactory({});
-
-    const emailField = await fieldFactory({
-      type: 'email',
-      contentTypeId: form._id,
-      validation: 'text',
-      isRequired: true
-    });
+    const fieldsGroup = await fieldGroupFactory({ contentType: 'company' });
+    if (!fieldsGroup) {
+      fail('fieldsGroup not found');
+    }
 
     const firstNameField = await fieldFactory({
       type: 'firstName',
@@ -1229,15 +1273,104 @@ describe('lead', () => {
       isRequired: true
     });
 
-    const lastNameField = await fieldFactory({
-      type: 'lastName',
+    const customProperty = await fieldFactory({
+      type: 'input',
+      validation: 'number',
+      isVisible: true,
+      contentType: 'company',
+      groupId: fieldsGroup._id
+    });
+
+    const inputField = await fieldFactory({
+      type: customProperty.type,
+      validation: customProperty.validation,
       contentTypeId: form._id,
+      contentType: 'form',
+      associatedFieldId: customProperty._id
+    });
+
+    const pronounField = await fieldFactory({
+      type: 'pronoun'
+    });
+
+    const integration = await integrationFactory({ formId: form._id });
+
+    const response = await widgetMutations.widgetsSaveLead(
+      {},
+      {
+        integrationId: integration._id,
+        formId: form._id,
+        submissions: [
+          { _id: firstNameField._id, value: 'name' },
+          {
+            _id: inputField._id,
+            type: 'input',
+            value: 1,
+            associatedFieldId: inputField.associatedFieldId
+          },
+          {
+            _id: inputField._id,
+            type: 'input',
+            value: 1,
+            associatedFieldId: 'fake'
+          },
+          { _id: pronounField._id, type: 'pronoun', value: '' }
+        ],
+        browserInfo: {
+          currentPageUrl: '/page'
+        }
+      }
+    );
+
+    expect(response && response.status).toBe('ok');
+  });
+
+  test('saveLead: success', async () => {
+    const mock = sinon.stub(utils, 'sendRequest').callsFake(() => {
+      return Promise.resolve('success');
+    });
+
+    const form = await formFactory({});
+
+    const group = await fieldGroupFactory({ contentType: 'form' });
+
+    const params = {
       validation: 'text',
-      isRequired: true
+      isRequired: true,
+      contentTypeId: form._id
+    };
+
+    const emailField = await fieldFactory({
+      ...params,
+      type: 'email',
+      groupId: (group && group._id) || ''
+    });
+
+    const companyEmailField = await fieldFactory({
+      ...params,
+      type: 'companyEmail',
+      groupId: (group && group._id) || ''
+    });
+
+    const firstNameField = await fieldFactory({
+      ...params,
+      type: 'firstName',
+      groupId: (group && group._id) || ''
+    });
+
+    const lastNameField = await fieldFactory({
+      ...params,
+      type: 'lastName'
     });
 
     const phoneField = await fieldFactory({
       type: 'phone',
+      contentTypeId: form._id,
+      isRequired: true
+    });
+
+    const companyPhoneField = await fieldFactory({
+      type: 'companyPhone',
       contentTypeId: form._id,
       isRequired: true
     });
@@ -1271,6 +1404,98 @@ describe('lead', () => {
       associatedFieldId: customProperty._id
     });
 
+    const companyNameField = await fieldFactory({
+      ...params,
+      type: 'companyName'
+    });
+
+    const companyNameField2 = await fieldFactory({
+      ...params,
+      type: 'companyName',
+      groupId: (group && group._id) || ''
+    });
+
+    const avatarField = await fieldFactory({
+      ...params,
+      type: 'avatar'
+    });
+
+    const companyAvatarField = await fieldFactory({
+      ...params,
+      type: 'companyAvatar'
+    });
+
+    const industryField = await fieldFactory({
+      ...params,
+      type: 'industry'
+    });
+
+    const sizeField = await fieldFactory({
+      type: 'size',
+      contentTypeId: form._id,
+      isRequired: true
+    });
+
+    const businessTypeField = await fieldFactory({
+      ...params,
+      type: 'businessType'
+    });
+
+    const pronounField = await fieldFactory({
+      ...params,
+      type: 'pronoun'
+    });
+
+    const pronounField1 = await fieldFactory({
+      ...params,
+      type: 'pronoun'
+    });
+
+    const pronounField2 = await fieldFactory({
+      ...params,
+      type: 'pronoun'
+    });
+
+    const doNotDisturbField = await fieldFactory({
+      ...params,
+      type: 'doNotDisturb'
+    });
+
+    const hasAuthorityField = await fieldFactory({
+      ...params,
+      type: 'hasAuthority'
+    });
+
+    const birthDateField = await fieldFactory({
+      ...params,
+      type: 'birthDate'
+    });
+
+    const descriptionField = await fieldFactory({
+      ...params,
+      type: 'description'
+    });
+
+    const departmentField = await fieldFactory({
+      ...params,
+      type: 'department'
+    });
+
+    const positionField = await fieldFactory({
+      ...params,
+      type: 'position'
+    });
+
+    const companyDescriptionField = await fieldFactory({
+      ...params,
+      type: 'companyDescription'
+    });
+
+    const companyDoNotDisturbField = await fieldFactory({
+      ...params,
+      type: 'companyDoNotDisturb'
+    });
+
     const integration = await integrationFactory({ formId: form._id });
 
     const response = await widgetMutations.widgetsSaveLead(
@@ -1279,8 +1504,18 @@ describe('lead', () => {
         integrationId: integration._id,
         formId: form._id,
         submissions: [
-          { _id: emailField._id, type: 'email', value: 'email@yahoo.com' },
-          { _id: firstNameField._id, type: 'firstName', value: 'firstName' },
+          {
+            _id: emailField._id,
+            type: 'email',
+            value: 'email@yahoo.com',
+            groupId: (group && group._id) || ''
+          },
+          {
+            _id: firstNameField._id,
+            type: 'firstName',
+            value: 'firstName',
+            groupId: (group && group._id) || ''
+          },
           { _id: lastNameField._id, type: 'lastName', value: 'lastName' },
           { _id: phoneField._id, type: 'phone', value: '+88998833' },
           { _id: radioField._id, type: 'radio', value: 'radio2' },
@@ -1290,6 +1525,67 @@ describe('lead', () => {
             type: 'input',
             value: 1,
             associatedFieldId: inputField.associatedFieldId
+          },
+          { _id: companyNameField._id, type: 'companyName', value: 'company' },
+          {
+            _id: companyNameField2._id,
+            type: 'companyName',
+            value: 'com',
+            groupId: (group && group._id) || ''
+          },
+          {
+            _id: companyEmailField._id,
+            type: 'companyEmail',
+            value: 'info@company.com'
+          },
+          {
+            _id: companyPhoneField._id,
+            type: 'companyPhone',
+            value: '+99112233'
+          },
+          {
+            _id: avatarField._id,
+            type: 'avatar',
+            value: [{ url: 'https://i.pravatar.cc/150?u=a042581f4e29026704d' }]
+          },
+          {
+            _id: companyAvatarField._id,
+            type: 'companyAvatar',
+            value: [{ url: 'https://i.pravatar.cc/150?img=63' }]
+          },
+          { _id: industryField._id, type: 'industry', value: 'Banks' },
+          { _id: sizeField._id, type: 'size', value: '10' },
+          {
+            _id: businessTypeField._id,
+            type: 'businessType',
+            value: 'Investor'
+          },
+          { _id: pronounField._id, type: 'pronoun', value: 'Male' },
+          { _id: pronounField1._id, type: 'pronoun', value: 'Female' },
+          { _id: pronounField2._id, type: 'pronoun', value: 'Not applicable' },
+          { _id: doNotDisturbField._id, type: 'doNotDisturb', value: 'No' },
+          { _id: hasAuthorityField._id, type: 'hasAuthority', value: 'No' },
+          {
+            _id: birthDateField._id,
+            type: 'birthDate',
+            value: 'Fri Mar 26 2021 18:01:50 GMT+0800'
+          },
+          {
+            _id: descriptionField._id,
+            type: 'description',
+            value: 'description'
+          },
+          { _id: departmentField._id, type: 'department', value: 'department' },
+          { _id: positionField._id, type: 'position', value: 'position' },
+          {
+            _id: companyDescriptionField._id,
+            type: 'companyDescription',
+            value: 'companyDescription'
+          },
+          {
+            _id: companyDoNotDisturbField._id,
+            type: 'companyDoNotDisturb',
+            value: 'Yes'
           }
         ],
         browserInfo: {
@@ -1302,7 +1598,7 @@ describe('lead', () => {
 
     expect(await Conversations.find().countDocuments()).toBe(1);
     expect(await ConversationMessages.find().countDocuments()).toBe(1);
-    expect(await Customers.find().countDocuments()).toBe(1);
+    expect(await Customers.find().countDocuments()).toBe(2);
     expect(await FormSubmissions.find().countDocuments()).toBe(1);
 
     const message = await ConversationMessages.findOne();

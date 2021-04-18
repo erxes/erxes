@@ -5,7 +5,16 @@
 import { Model, model } from 'mongoose';
 import * as validator from 'validator';
 import { Customers, Forms } from '.';
-import { FIELD_CONTENT_TYPES } from '../../data/constants';
+import {
+  COMPANY_INFO,
+  CONVERSATION_INFO,
+  CUSTOMER_BASIC_INFO,
+  DEVICE_PROPERTIES_INFO,
+  FIELD_CONTENT_TYPES,
+  PRODUCT_INFO,
+  PROPERTY_GROUPS
+} from '../../data/constants';
+import { FIELDS_GROUPS_CONTENT_TYPES } from './definitions/constants';
 import {
   fieldGroupSchema,
   fieldSchema,
@@ -51,15 +60,20 @@ export interface IFieldModel extends Model<IFieldDocument> {
   clean(_id: string, _value: string | Date | number): string | Date | number;
   cleanMulti(data: { [key: string]: any }): any;
   generateTypedListFromMap(data: { [key: string]: any }): ITypedListItem[];
-  generateTypedItem(field: string, value: string): ITypedListItem;
+  generateTypedItem(field: string, value: string, type: string): ITypedListItem;
   prepareCustomFieldsData(
     customFieldsData?: Array<{ field: string; value: any }>
   ): Promise<ITypedListItem[]>;
   updateFieldsVisible(
     _id: string,
-    isVisible: boolean,
-    lastUpdatedUserId: string
+    lastUpdatedUserId: string,
+    isVisible?: boolean,
+    isVisibleInDetail?: boolean
   ): Promise<IFieldDocument>;
+  createSystemFields(
+    groupId: string,
+    contentType: string
+  ): Promise<IFieldDocument[]>;
 }
 
 export const loadFieldClass = () => {
@@ -76,6 +90,15 @@ export const loadFieldClass = () => {
       }
     }
 
+    public static async checkCanToggleVisible(_id: string) {
+      const fieldObj = await Fields.findOne({ _id });
+
+      // Checking if the field is defined by the erxes
+      if (fieldObj && !fieldObj.canHide) {
+        throw new Error('Cant update this field');
+      }
+    }
+
     /*
      * Create new field
      */
@@ -83,6 +106,7 @@ export const loadFieldClass = () => {
       contentType,
       contentTypeId,
       groupId,
+      groupName,
       ...fields
     }: IField) {
       const query: { [key: string]: any } = { contentType };
@@ -105,6 +129,19 @@ export const loadFieldClass = () => {
 
         if (!form) {
           throw new Error(`Form not found with _id of ${contentTypeId}`);
+        }
+
+        if (groupName) {
+          let group = await FieldsGroups.findOne({ name: groupName });
+
+          if (!group) {
+            group = await FieldsGroups.createGroup({
+              name: groupName,
+              contentType: 'form',
+              isDefinedByErxes: false
+            });
+          }
+          groupId = group._id;
         }
       }
 
@@ -133,6 +170,21 @@ export const loadFieldClass = () => {
      */
     public static async updateField(_id: string, doc: IField) {
       await this.checkIsDefinedByErxes(_id);
+      const { groupName } = doc;
+
+      if (groupName) {
+        let group = await FieldsGroups.findOne({ name: groupName });
+
+        if (!group) {
+          group = await FieldsGroups.createGroup({
+            name: groupName,
+            contentType: 'form',
+            isDefinedByErxes: false
+          });
+        }
+
+        doc.groupId = group._id;
+      }
 
       await Fields.updateOne({ _id }, { $set: doc });
 
@@ -152,12 +204,13 @@ export const loadFieldClass = () => {
       await this.checkIsDefinedByErxes(_id);
 
       // Removing field value from customer
+      const index = `customFieldsData.${_id}`;
       await Customers.updateMany(
-        { customFieldsData: { $elemMatch: { field: _id } } },
-        { $pull: { customFieldsData: { field: _id } } }
+        { [index]: { $exists: true } },
+        { $unset: { [index]: 1 } }
       );
 
-      // Removing form assiocated field
+      // Removing form associated field
       await Fields.updateMany(
         { associatedFieldId: _id },
         { $unset: { associatedFieldId: '' } }
@@ -217,7 +270,11 @@ export const loadFieldClass = () => {
         }
 
         // number
-        if (validation === 'number' && !validator.isFloat(value.toString())) {
+        if (
+          !['check', 'radio', 'select'].includes(type || '') &&
+          validation === 'number' &&
+          !validator.isFloat(value.toString())
+        ) {
           throwError('Invalid number');
         }
 
@@ -251,7 +308,8 @@ export const loadFieldClass = () => {
 
     public static generateTypedItem(
       field: string,
-      value: string | number
+      value: string | number | string[],
+      type: string
     ): ITypedListItem {
       let stringValue;
       let numberValue;
@@ -261,7 +319,7 @@ export const loadFieldClass = () => {
         stringValue = value.toString();
 
         // number
-        if (validator.isFloat(value.toString())) {
+        if (type !== 'check' && validator.isFloat(value.toString())) {
           numberValue = value;
           stringValue = null;
           value = Number(value);
@@ -272,7 +330,6 @@ export const loadFieldClass = () => {
           stringValue = null;
         }
       }
-
       return { field, value, stringValue, numberValue, dateValue };
     }
 
@@ -280,7 +337,7 @@ export const loadFieldClass = () => {
       [key: string]: any;
     }): ITypedListItem[] {
       const ids = Object.keys(data || {});
-      return ids.map(_id => this.generateTypedItem(_id, data[_id]));
+      return ids.map(_id => this.generateTypedItem(_id, data[_id], ''));
     }
 
     public static async prepareCustomFieldsData(
@@ -289,10 +346,16 @@ export const loadFieldClass = () => {
       const result: ITypedListItem[] = [];
 
       for (const customFieldData of customFieldsData || []) {
+        const field = await Fields.findById(customFieldData.field);
+
         await Fields.clean(customFieldData.field, customFieldData.value);
 
         result.push(
-          Fields.generateTypedItem(customFieldData.field, customFieldData.value)
+          Fields.generateTypedItem(
+            customFieldData.field,
+            customFieldData.value,
+            field ? field.type || '' : ''
+          )
         );
       }
 
@@ -304,18 +367,84 @@ export const loadFieldClass = () => {
      */
     public static async updateFieldsVisible(
       _id: string,
-      isVisible: boolean,
-      lastUpdatedUserId: string
+      lastUpdatedUserId: string,
+      isVisible?: boolean,
+      isVisibleInDetail?: boolean
     ) {
-      await this.checkIsDefinedByErxes(_id);
+      await this.checkCanToggleVisible(_id);
 
       // Updating visible
-      await Fields.updateOne(
-        { _id },
-        { $set: { isVisible, lastUpdatedUserId } }
-      );
+      const set =
+        isVisible !== undefined
+          ? { isVisible, lastUpdatedUserId }
+          : { isVisibleInDetail, lastUpdatedUserId };
+
+      await Fields.updateOne({ _id }, { $set: set });
 
       return Fields.findOne({ _id });
+    }
+
+    public static async createSystemFields(
+      groupId: string,
+      contentType: string
+    ) {
+      switch (contentType) {
+        case FIELDS_GROUPS_CONTENT_TYPES.CUSTOMER:
+          const customerFields = CUSTOMER_BASIC_INFO.ALL.map(e => ({
+            text: e.label,
+            type: e.field,
+            canHide: e.canHide,
+            validation: e.validation,
+            groupId,
+            contentType,
+            isDefinedByErxes: true
+          }));
+          await Fields.insertMany(customerFields);
+          break;
+        case FIELDS_GROUPS_CONTENT_TYPES.COMPANY:
+          const companyFields = COMPANY_INFO.ALL.map(e => ({
+            text: e.label,
+            type: e.field,
+            canHide: e.canHide,
+            validation: e.validation,
+            groupId,
+            contentType,
+            isDefinedByErxes: true
+          }));
+          await Fields.insertMany(companyFields);
+          break;
+        case FIELDS_GROUPS_CONTENT_TYPES.PRODUCT:
+          const productFields = PRODUCT_INFO.ALL.map(e => ({
+            text: e.label,
+            type: e.field,
+            groupId,
+            contentType,
+            canHide: false,
+            isDefinedByErxes: true
+          }));
+          await Fields.insertMany(productFields);
+          break;
+        case FIELDS_GROUPS_CONTENT_TYPES.CONVERSATION:
+          const conversationFields = CONVERSATION_INFO.ALL.map(e => ({
+            text: e.label,
+            type: e.field,
+            groupId,
+            contentType,
+            isDefinedByErxes: true
+          }));
+          await Fields.insertMany(conversationFields);
+          break;
+        case FIELDS_GROUPS_CONTENT_TYPES.DEVICE:
+          const deviceFields = DEVICE_PROPERTIES_INFO.ALL.map(e => ({
+            text: e.label,
+            type: e.field,
+            groupId,
+            contentType,
+            isDefinedByErxes: true
+          }));
+          await Fields.insertMany(deviceFields);
+          break;
+      }
     }
   }
 
@@ -332,9 +461,11 @@ export interface IFieldGroupModel extends Model<IFieldGroupDocument> {
 
   updateGroupVisible(
     _id: string,
-    isVisible: boolean,
-    lastUpdatedUserId: string
+    lastUpdatedUserId: string,
+    isVisible?: boolean,
+    isVisibleInDetail?: boolean
   ): Promise<IFieldGroupDocument>;
+  createSystemGroupsFields(): Promise<IFieldGroupDocument[]>;
 }
 
 export const loadGroupClass = () => {
@@ -361,7 +492,7 @@ export const loadGroupClass = () => {
       const { contentType } = doc;
 
       // Automatically setting order of group to the bottom
-      let order = 0;
+      let order = 1;
 
       const lastGroup = await FieldsGroups.findOne({ contentType }).sort({
         order: -1
@@ -421,19 +552,65 @@ export const loadGroupClass = () => {
      */
     public static async updateGroupVisible(
       _id: string,
-      isVisible: boolean,
-      lastUpdatedUserId: string
+      lastUpdatedUserId: string,
+      isVisible?: boolean,
+      isVisibleInDetail?: boolean
     ) {
       // Can not update group that is defined by erxes
       await this.checkIsDefinedByErxes(_id);
 
       // Updating visible
-      await FieldsGroups.updateOne(
-        { _id },
-        { $set: { isVisible, lastUpdatedUserId } }
-      );
+      const set =
+        isVisible !== undefined
+          ? { isVisible, lastUpdatedUserId }
+          : { isVisibleInDetail, lastUpdatedUserId };
+
+      await FieldsGroups.updateOne({ _id }, { $set: set });
 
       return FieldsGroups.findOne({ _id });
+    }
+
+    /**
+     * Create system fields & groups
+     */
+    public static async createSystemGroupsFields() {
+      for (const group of PROPERTY_GROUPS) {
+        if (['ticket', 'task', 'lead', 'visitor'].includes(group.value)) {
+          continue;
+        }
+
+        for (const subType of group.types) {
+          if (subType.value === 'deal') {
+            continue;
+          }
+
+          const doc = {
+            name: 'Basic information',
+            contentType: subType.value,
+            order: 0,
+            isDefinedByErxes: true,
+            description: `Basic information of a ${subType.value}`,
+            isVisible: true
+          };
+
+          const existingGroup = await FieldsGroups.findOne({
+            contentType: doc.contentType,
+            isDefinedByErxes: true
+          });
+
+          if (existingGroup) {
+            continue;
+          }
+
+          if (['ticket', 'task', 'lead', 'visitor'].includes(doc.contentType)) {
+            continue;
+          }
+
+          const fieldGroup = await FieldsGroups.create(doc);
+
+          await Fields.createSystemFields(fieldGroup._id, subType.value);
+        }
+      }
     }
   }
 

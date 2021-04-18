@@ -108,15 +108,17 @@ const conversationsUnassign = `
   }
 `;
 
-const createProductBoardNote = `
-  mutation conversationCreateProductBoardNote($_id: String!) {
-    conversationCreateProductBoardNote(_id: $_id)
-  }
-`;
-
 const resolveAll = `
   mutation conversationResolveAll(${paramsDef}) {
     conversationResolveAll(${paramsValue})
+  }
+`;
+
+const editCustomFields = `
+  mutation conversationEditCustomFields($_id: String!, $customFieldsData: JSON) {
+    conversationEditCustomFields(_id: $_id, customFieldsData: $customFieldsData) {
+      _id
+    }
   }
 `;
 
@@ -128,7 +130,7 @@ export default {
   conversationsUnassign,
   saveResponseTemplate,
   markAsRead,
-  createProductBoardNote,
   conversationsChangeStatusFacebookComment,
-  resolveAll
+  resolveAll,
+  editCustomFields
 };

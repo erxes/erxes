@@ -3,6 +3,7 @@ import FormControl from 'modules/common/components/form/Control';
 import FormGroup from 'modules/common/components/form/Group';
 import ControlLabel from 'modules/common/components/form/Label';
 import Icon from 'modules/common/components/Icon';
+import Info from 'modules/common/components/Info';
 import { LeftItem } from 'modules/common/components/step/styles';
 import { __ } from 'modules/common/utils';
 import { uploadHandler } from 'modules/common/utils';
@@ -18,6 +19,7 @@ type Props = {
   type: string;
   onChange: (
     name:
+      | 'carousel'
       | 'calloutBtnText'
       | 'bodyValue'
       | 'calloutTitle'
@@ -71,7 +73,12 @@ class CallOut extends React.Component<Props, State> {
         [name]: value
       }
     }));
+
     this.props.onChange(name, value);
+
+    if (name === 'isSkip') {
+      this.props.onChange('carousel', value ? 'form' : 'callout');
+    }
   };
 
   removeImage = (value: string) => {
@@ -199,13 +206,13 @@ class CallOut extends React.Component<Props, State> {
       <FlexItem>
         <FlexColumn>
           <LeftItem deactive={skip}>
+            <Info>
+              {__(
+                'Call Out is a brief message you wish to display before showing the full form.'
+              )}
+            </Info>
             <FormGroup>
               <ControlLabel>Callout title</ControlLabel>
-              <p>
-                {__(
-                  'Call Out is a brief message you wish to display before showing the full form.'
-                )}
-              </p>
               <FormControl
                 id="callout-title"
                 type="text"

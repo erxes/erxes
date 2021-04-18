@@ -1,4 +1,5 @@
 import { HTTPCache, RESTDataSource } from 'apollo-datasource-rest';
+import { debugError } from '../../debuggers';
 import { getSubServiceDomain } from '../utils';
 
 export default class IntegrationsAPI extends RESTDataSource {
@@ -85,10 +86,6 @@ export default class IntegrationsAPI extends RESTDataSource {
     return this.post('/update-configs', { configsMap });
   }
 
-  public async createProductBoardNote(params) {
-    return this.post('/productBoard/create-note', params);
-  }
-
   public async sendSms(params) {
     return this.post('/telnyx/send-sms', params);
   }
@@ -128,4 +125,17 @@ export default class IntegrationsAPI extends RESTDataSource {
   public async deleteSchedulePage(params) {
     return this.post('/nylas/delete-page', params);
   }
-}
+
+  // fetches all sms deliveries
+  public async getSmsDeliveries(params) {
+    try {
+      const response = await this.get('/telnyx/sms-deliveries', params);
+
+      return response;
+    } catch (e) {
+      debugError(e);
+
+      return { error: e.message };
+    }
+  }
+} // end class

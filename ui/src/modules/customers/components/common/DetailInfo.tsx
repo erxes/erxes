@@ -8,6 +8,7 @@ import {
   SidebarFlexRow,
   SidebarList
 } from 'modules/layout/styles';
+import { IField } from 'modules/settings/properties/types';
 import React from 'react';
 import PrimaryEmail from './PrimaryEmail';
 import PrimaryPhone from './PrimaryPhone';
@@ -15,10 +16,24 @@ import PrimaryPhone from './PrimaryPhone';
 type Props = {
   customer: ICustomer;
   hasPosition?: boolean;
+  fields: IField[];
+  isDetail: boolean;
 };
 
 class DetailInfo extends React.PureComponent<Props> {
-  renderRow(label, value) {
+  renderRow(field, value) {
+    const { fields, isDetail } = this.props;
+
+    const property = fields.find(e => e.type === field);
+
+    const isVisibleKey = isDetail ? 'isVisibleInDetail' : 'isVisible';
+
+    if (property && !property[isVisibleKey]) {
+      return null;
+    }
+
+    const label = property && property.text;
+
     return (
       <li>
         <FieldStyle>{__(`${label}`)}:</FieldStyle>
@@ -51,20 +66,43 @@ class DetailInfo extends React.PureComponent<Props> {
     );
   }
 
+  renderDescription(description?: string) {
+    const { fields, isDetail } = this.props;
+
+    const descriptionField = fields.find(e => e.type === 'description');
+
+    const isVisibleKey = isDetail ? 'isVisibleInDetail' : 'isVisible';
+
+    if (descriptionField && !descriptionField[isVisibleKey]) {
+      return null;
+    }
+
+    return (
+      <SidebarFlexRow>
+        {descriptionField && descriptionField[isVisibleKey]}
+        {__(`Description`)}:<span>{description || '-'}</span>
+      </SidebarFlexRow>
+    );
+  }
+
   renderPosition(customer) {
     if (!this.props.hasPosition) {
       return null;
     }
 
-    return this.renderRow('Position', customer.position);
+    return this.renderRow('position', customer.position);
   }
 
   render() {
-    const { customer } = this.props;
+    const { customer, fields } = this.props;
+
+    if (!fields || fields.length === 0) {
+      return null;
+    }
 
     return (
       <SidebarList className="no-link">
-        {this.renderRow('Code', customer.code)}
+        {this.renderRow('code', customer.code)}
         {this.renderEmail(
           customer.emailValidationStatus,
           customer.primaryEmail
@@ -75,21 +113,19 @@ class DetailInfo extends React.PureComponent<Props> {
         )}
         {this.renderPosition(customer)}
         {this.renderRow(
-          'Owner',
+          'owner',
           customer.owner && customer.owner.details
             ? customer.owner.details.fullName
             : ''
         )}
-        {this.renderRow('Department', customer.department)}
-        {this.renderRow('Pronoun', GENDER_TYPES()[customer.sex || 0])}
+        {this.renderRow('department', customer.department)}
+        {this.renderRow('pronoun', GENDER_TYPES()[customer.sex || 0])}
         {this.renderRow(
-          'Birthday',
+          'birthDate',
           customer.birthDate && dayjs(customer.birthDate).format('MMM,DD YYYY')
         )}
-        {this.renderRow('Do not disturb', customer.doNotDisturb)}
-        <SidebarFlexRow>
-          {__(`Description`)}:<span>{customer.description || '-'}</span>
-        </SidebarFlexRow>
+        {this.renderRow('doNotDisturb', customer.doNotDisturb)}
+        {this.renderDescription(customer.description)}
       </SidebarList>
     );
   }

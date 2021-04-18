@@ -6,6 +6,7 @@ export const types = `
     colorCode: String
     createdAt: Date
     objectCount: Int
+    totalObjectCount: Int
     parentId: String
     order: String
     relatedIds: [String]
@@ -29,4 +30,5 @@ export const mutations = `
 	tagsEdit(_id: String!, ${params}): Tag
   tagsRemove(_id: String!): JSON
 	tagsTag(type: String!, targetIds: [String!]!, tagIds: [String!]!): String
+	tagsMerge(sourceId: String!, destId: String!): Tag
 `;

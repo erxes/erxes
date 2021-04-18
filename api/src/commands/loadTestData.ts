@@ -6,6 +6,7 @@ import * as shelljs from 'shelljs';
 import * as XlsxStreamReader from 'xlsx-stream-reader';
 import { EngagesAPI, HelpersApi, IntegrationsAPI } from '../data/dataSources';
 
+import { MESSAGE_KINDS } from '../data/constants';
 import { checkFieldNames } from '../data/modules/fields/utils';
 import widgetMutations from '../data/resolvers/mutations/widgets';
 import { getEnv } from '../data/utils';
@@ -23,6 +24,7 @@ import {
   EmailTemplates,
   EngageMessages,
   Fields,
+  FieldsGroups,
   Forms,
   ImportHistory,
   Integrations,
@@ -42,13 +44,14 @@ import {
   UsersGroups
 } from '../db/models';
 import { IPipelineStage } from '../db/models/definitions/boards';
+import { METHODS } from '../db/models/definitions/constants';
 import {
   LEAD_LOAD_TYPES,
   MESSAGE_TYPES,
   TAG_TYPES
 } from '../db/models/definitions/constants';
 import { debugWorkers } from '../debuggers';
-import memoryStorage, { initMemoryStorage } from '../inmemoryStorage';
+import { initMemoryStorage, set } from '../inmemoryStorage';
 import {
   clearEmptyValues,
   generatePronoun,
@@ -132,6 +135,23 @@ const main = async () => {
     uppercase: true,
     strict: true
   });
+
+  const path = require('path');
+  const jsonPath = '../../../ui/cypress.json';
+  const cypressSettings = require(jsonPath);
+
+  cypressSettings.env.userPassword = newPwd;
+  const newJson = JSON.stringify(cypressSettings, null, 2);
+
+  fs.writeFile(path.resolve(__dirname, jsonPath), newJson, err => {
+    if (err) {
+      return console.log(err);
+    }
+    console.log(JSON.stringify(cypressSettings, null, 2));
+    console.log('writing to ' + jsonPath);
+  });
+
+  await FieldsGroups.createSystemGroupsFields();
 
   const userDoc = {
     createdAt: faker.date.recent(),
@@ -265,6 +285,16 @@ const main = async () => {
     name: 'other',
     type: TAG_TYPES.CONVERSATION,
     colorCode: '#F7CE53'
+  });
+  await Tags.createTag({
+    name: 'happy',
+    type: TAG_TYPES.COMPANY,
+    colorCode: '#4BBF6B'
+  });
+  await Tags.createTag({
+    name: 'angry',
+    type: TAG_TYPES.COMPANY,
+    colorCode: '#CD5A91'
   });
 
   await Configs.createOrUpdateConfig({
@@ -436,10 +466,7 @@ const main = async () => {
     ]);
 
     if (randomCustomer[0]) {
-      memoryStorage().set(
-        `customer_last_status_${randomCustomer[0]._id}`,
-        'left'
-      );
+      set(`customer_last_status_${randomCustomer[0]._id}`, 'left');
       await widgetMutations.widgetsInsertMessage(
         {},
         {
@@ -544,14 +571,15 @@ const main = async () => {
   });
 
   const docAutoMessage = {
-    kind: 'visitorAuto',
+    kind: MESSAGE_KINDS.VISITOR_AUTO,
     title: 'Visitor auto message',
     fromUserId: randomUser[0]._id,
     segmentIds: [segment._id],
     brandIds: [brand._id],
     tagIds: [],
     isLive: false,
-    isDraft: true
+    isDraft: true,
+    method: METHODS.EMAIL
   };
 
   const docAutoEmail = {

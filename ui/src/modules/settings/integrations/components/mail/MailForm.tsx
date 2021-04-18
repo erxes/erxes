@@ -58,6 +58,7 @@ type Props = {
   brandId?: string;
   mails?: IMessage[];
   messageId?: string;
+  totalCount?: number;
   closeModal?: () => void;
   toggleReply?: () => void;
   emailSignatures: IEmailSignature[];
@@ -525,7 +526,7 @@ class MailForm extends React.Component<Props, State> {
 
   onAttachment = (e: React.FormEvent<HTMLInputElement>) => {
     const files = e.currentTarget.files;
-    const { attachments, from } = this.state;
+    const { from } = this.state;
 
     uploadHandler({
       kind: 'nylas',
@@ -537,13 +538,22 @@ class MailForm extends React.Component<Props, State> {
       beforeUpload: () => {
         this.setState({ isUploading: true });
       },
-      afterUpload: ({ response }) => {
+      afterUpload: ({ status, response, fileInfo }) => {
+        if (status === 'error') {
+          return Alert.error(
+            response.statusText || `Error occured for ${fileInfo.name}`
+          );
+        }
+
         const resObj = JSON.parse(response);
 
         this.setState({
-          isUploading: false,
-          attachments: [...attachments, { ...resObj }]
+          isUploading: false
         });
+
+        this.setState(prevState => ({
+          attachments: [...prevState.attachments, resObj]
+        }));
       }
     });
   };
@@ -799,6 +809,7 @@ class MailForm extends React.Component<Props, State> {
       isReply,
       emailTemplates,
       toggleReply,
+      totalCount,
       fetchMoreEmailTemplates
     } = this.props;
 
@@ -829,6 +840,7 @@ class MailForm extends React.Component<Props, State> {
 
             <EmailTemplate
               onSelect={this.templateChange}
+              totalCount={totalCount}
               fetchMoreEmailTemplates={fetchMoreEmailTemplates}
               targets={generateEmailTemplateParams(emailTemplates || [])}
             />

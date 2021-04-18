@@ -1,6 +1,7 @@
 import { FacebookAdapter } from 'botbuilder-adapter-facebook-erxes';
 import {
   debugBase,
+  debugError,
   debugFacebook,
   debugRequest,
   debugResponse
@@ -76,13 +77,13 @@ const init = async app => {
           await subscribePage(pageId, pageAccessToken);
           debugFacebook(`Successfully subscribed page ${pageId}`);
         } catch (e) {
-          debugFacebook(
+          debugError(
             `Error ocurred while trying to subscribe page ${e.message || e}`
           );
           return next(e);
         }
       } catch (e) {
-        debugFacebook(
+        debugError(
           `Error ocurred while trying to get page access token with ${e.message ||
             e}`
         );
@@ -119,7 +120,7 @@ const init = async app => {
         );
       }
 
-      debugFacebook(`Error occured while connecting to facebook ${e.message}`);
+      debugError(`Error occured while connecting to facebook ${e.message}`);
       return next(e);
     }
 
@@ -431,7 +432,7 @@ const init = async app => {
               );
               res.end('success');
             } catch (e) {
-              debugFacebook(`Error processing comment: ${e.message}`);
+              debugError(`Error processing comment: ${e.message}`);
               res.end('success');
             }
           }
@@ -447,7 +448,7 @@ const init = async app => {
               );
               res.end('success');
             } catch (e) {
-              debugFacebook(`Error processing comment: ${e.message}`);
+              debugError(`Error processing comment: ${e.message}`);
               res.end('success');
             }
           } else {

@@ -48,6 +48,7 @@ type State = {
   rules: IConditionsRule[];
   messenger?: IEngageMessenger;
   scheduleDate?: IEngageScheduleDate;
+  isSaved: boolean;
 };
 
 class VisitorForm extends React.Component<Props, State> {
@@ -69,7 +70,8 @@ class VisitorForm extends React.Component<Props, State> {
       fromUserId: message.fromUserId || '',
       rules,
       messenger: message.messenger,
-      scheduleDate: message.scheduleDate
+      scheduleDate: message.scheduleDate,
+      isSaved: false
     };
   }
 
@@ -97,6 +99,8 @@ class VisitorForm extends React.Component<Props, State> {
     const response = this.props.validateDoc(type, doc);
 
     if (response.status === 'ok' && response.doc) {
+      this.setState({ isSaved: true });
+
       return this.props.save(response.doc);
     }
   };
@@ -155,7 +159,8 @@ class VisitorForm extends React.Component<Props, State> {
       messenger,
       fromUserId,
       content,
-      scheduleDate
+      scheduleDate,
+      isSaved
     } = this.state;
 
     const { renderTitle, breadcrumbs, kind, users, brands } = this.props;
@@ -204,6 +209,7 @@ class VisitorForm extends React.Component<Props, State> {
               fromUserId={fromUserId}
               content={content}
               scheduleDate={scheduleDate || ({} as IEngageScheduleDate)}
+              isSaved={isSaved}
             />
           </Step>
         </Steps>

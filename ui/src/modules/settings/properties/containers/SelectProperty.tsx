@@ -3,6 +3,7 @@ import * as compose from 'lodash.flowright';
 import ButtonMutate from 'modules/common/components/ButtonMutate';
 import Spinner from 'modules/common/components/Spinner';
 import { IButtonMutateProps, IFormProps } from 'modules/common/types';
+import { getConstantFromStore } from 'modules/common/utils';
 import React from 'react';
 import { ChildProps, graphql } from 'react-apollo';
 import SelectProperty from '../components/SelectProperty';
@@ -27,9 +28,67 @@ type FinalProps = {
 } & Props;
 
 const SelectPropertyContainer = (props: ChildProps<FinalProps>) => {
-  const { propertiesQuery, fieldsGroupsQuery } = props;
+  const { propertiesQuery, fieldsGroupsQuery, queryParams } = props;
 
-  const properties = propertiesQuery.fields || [];
+  let properties = propertiesQuery.fields || [];
+
+  if (queryParams.type === 'customer') {
+    properties = properties.filter(e => {
+      if (
+        [
+          'firstName',
+          'lastName',
+          'middleName',
+          'primaryEmail',
+          'primaryPhone',
+          'owner'
+        ].includes(e.type) &&
+        e.isDefinedByErxes
+      ) {
+        return null;
+      }
+      return e;
+    });
+
+    const links: IField[] = getConstantFromStore('social_links').map(link => {
+      return {
+        _id: `customerLinks_${link.value}`,
+        type: `customerLinks_${link.value}`,
+        text: link.label
+      };
+    });
+
+    properties = properties.concat(links);
+  }
+
+  if (queryParams.type === 'company') {
+    properties = properties.filter(e => {
+      if (
+        [
+          'primaryName',
+          'primaryEmail',
+          'primaryPhone',
+          'owner',
+          'plan',
+          'code'
+        ].includes(e.type) &&
+        e.isDefinedByErxes
+      ) {
+        return null;
+      }
+      return e;
+    });
+
+    const links: IField[] = getConstantFromStore('social_links').map(link => {
+      return {
+        _id: `companyLinks_${link.value}`,
+        type: `companyLinks_${link.value}`,
+        text: link.label
+      };
+    });
+
+    properties = properties.concat(links);
+  }
 
   const groups = fieldsGroupsQuery.fieldsGroups || [];
 

@@ -16,12 +16,7 @@ import {
   FieldsRemoveMutationResponse,
   FieldsUpdateVisibleMutationResponse
 } from '../types';
-import {
-  companyBasicInfos,
-  customerBasicInfos,
-  productBasicInfos,
-  updateCustomFieldsCache
-} from '../utils';
+import { updateCustomFieldsCache } from '../utils';
 
 type Props = {
   queryParams: any;
@@ -93,6 +88,18 @@ const PropertiesContainer = (props: FinalProps) => {
       });
   };
 
+  const updatePropertyDetailVisible = ({ _id, isVisibleInDetail }) => {
+    fieldsUpdateVisible({
+      variables: { _id, isVisibleInDetail }
+    })
+      .then(() => {
+        Alert.success('You changed a property field visibility');
+      })
+      .catch(e => {
+        Alert.error(e.message);
+      });
+  };
+
   const updatePropertyGroupVisible = ({ _id, isVisible }) => {
     fieldsGroupsUpdateVisible({
       variables: { _id, isVisible }
@@ -108,19 +115,6 @@ const PropertiesContainer = (props: FinalProps) => {
   const currentType = router.getParam(history, 'type');
   const fieldsGroups = [...(fieldsGroupsQuery.fieldsGroups || [])];
 
-  // Initializing default properties for customer and company
-  let defaultGroup = companyBasicInfos;
-
-  if (queryParams.type === FIELDS_GROUPS_CONTENT_TYPES.CUSTOMER) {
-    defaultGroup = customerBasicInfos;
-  }
-
-  if (queryParams.type === FIELDS_GROUPS_CONTENT_TYPES.PRODUCT) {
-    defaultGroup = productBasicInfos;
-  }
-
-  fieldsGroups.unshift(defaultGroup);
-
   const updatedProps = {
     ...props,
     fieldsGroups,
@@ -128,6 +122,7 @@ const PropertiesContainer = (props: FinalProps) => {
     removePropertyGroup,
     removeProperty,
     updatePropertyVisible,
+    updatePropertyDetailVisible,
     updatePropertyGroupVisible
   };
 
@@ -140,7 +135,9 @@ const options = ({ queryParams }) => ({
       query: gql`
         ${queries.fieldsGroups}
       `,
-      variables: { contentType: queryParams.type }
+      variables: {
+        contentType: queryParams.type
+      }
     }
   ]
 });
@@ -172,7 +169,7 @@ export default withProps<Props>(
     graphql<
       Props,
       FieldsUpdateVisibleMutationResponse,
-      { _id: string; isVisible: boolean }
+      { _id: string; isVisible: boolean; isVisibleInDetail: boolean }
     >(gql(mutations.fieldsUpdateVisible), {
       name: 'fieldsUpdateVisible',
       options

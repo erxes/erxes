@@ -4,9 +4,10 @@ import { LeftItem } from 'modules/common/components/step/styles';
 import { __ } from 'modules/common/utils';
 import { FlexContent } from 'modules/layout/styles';
 import { IField } from 'modules/settings/properties/types';
+import { Description } from 'modules/settings/styles';
 import React from 'react';
 import FormGroup from '../../common/components/form/Group';
-import { Title } from '../styles';
+import { FormTop, Title } from '../styles';
 import { IForm, IFormData } from '../types';
 import FieldChoices from './FieldChoices';
 import FieldForm from './FieldForm';
@@ -54,10 +55,10 @@ class Form extends React.Component<Props, State> {
   }
 
   componentWillReceiveProps(nextProps: Props) {
-    const { saveForm, type, isReadyToSave } = this.props;
-    const { title, btnText, desc, fields, currentMode } = this.state;
+    const { saveForm, type, isReadyToSave, formData } = this.props;
+    const { title, btnText, desc, fields } = this.state;
 
-    if (nextProps.formData && currentMode !== 'create') {
+    if (nextProps.formData && nextProps.formData !== formData) {
       this.setState({
         fields: nextProps.formData.fields || []
       });
@@ -135,7 +136,7 @@ class Form extends React.Component<Props, State> {
     this.setState({
       currentMode: 'create',
       currentField: {
-        _id: Math.random().toString(),
+        _id: `tempId${Math.random().toString()}`,
         contentType: 'form',
         type: choice
       }
@@ -191,18 +192,6 @@ class Form extends React.Component<Props, State> {
     const { renderPreviewWrapper } = this.props;
     const { currentMode, currentField, fields, desc } = this.state;
 
-    if (currentField) {
-      return (
-        <FieldForm
-          mode={currentMode || 'create'}
-          field={currentField}
-          onSubmit={this.onFieldSubmit}
-          onDelete={this.onFieldDelete}
-          onCancel={this.onFieldFormCancel}
-        />
-      );
-    }
-
     const renderer = () => {
       return (
         <FieldsPreview
@@ -217,12 +206,23 @@ class Form extends React.Component<Props, State> {
     return (
       <FlexContent>
         <LeftItem>
-          {this.renderOptionalFields()}
-
+          <FormTop>{this.renderOptionalFields()}</FormTop>
           <Title>{__('Add a new field')}</Title>
-          <p>{__('Choose a field type from the options below.')}</p>
+          <Description>
+            {__('Choose a field type from the options below.')}
+          </Description>
           <FieldChoices onChoiceClick={this.onChoiceClick} />
         </LeftItem>
+        {currentField && (
+          <FieldForm
+            mode={currentMode || 'create'}
+            field={currentField}
+            fields={fields}
+            onSubmit={this.onFieldSubmit}
+            onDelete={this.onFieldDelete}
+            onCancel={this.onFieldFormCancel}
+          />
+        )}
         {renderPreviewWrapper && renderPreviewWrapper(renderer, fields)}
       </FlexContent>
     );

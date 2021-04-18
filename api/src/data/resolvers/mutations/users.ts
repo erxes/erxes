@@ -1,6 +1,6 @@
 import * as telemetry from 'erxes-telemetry';
 import * as express from 'express';
-import { Channels, Configs, Users } from '../../../db/models';
+import { Channels, Configs, FieldsGroups, Users } from '../../../db/models';
 import { ILink } from '../../../db/models/definitions/common';
 import {
   IDetail,
@@ -110,6 +110,8 @@ const userMutations = {
       value: 'local'
     });
 
+    await FieldsGroups.createSystemGroupsFields();
+
     await messageBroker().sendMessage('erxes-api:integrations-notification', {
       type: 'addUserId',
       payload: {
@@ -159,7 +161,7 @@ const userMutations = {
   /*
    * Reset password
    */
-  resetPassword(_root, args: { token: string; newPassword: string }) {
+  async resetPassword(_root, args: { token: string; newPassword: string }) {
     return Users.resetPassword(args);
   },
 
@@ -242,7 +244,12 @@ const userMutations = {
       throw new Error('Invalid password. Try again');
     }
 
-    return Users.editProfile(user._id, { username, email, details, links });
+    return Users.editProfile(user._id, {
+      username,
+      email,
+      details,
+      links
+    });
   },
 
   /*
@@ -267,15 +274,31 @@ const userMutations = {
     _root,
     {
       entries
-    }: { entries: Array<{ email: string; password: string; groupId: string }> }
+    }: {
+      entries: Array<{
+        email: string;
+        password: string;
+        groupId: string;
+        channelIds?: string[];
+      }>;
+    }
   ) {
     for (const entry of entries) {
       await Users.checkDuplication({ email: entry.email });
 
       const token = await Users.invite(entry);
+      const createdUser = await Users.findOne({ email: entry.email });
+
+      // add new user to channels
+      await Channels.updateUserChannels(
+        entry.channelIds || [],
+        createdUser ? createdUser._id : ''
+      );
 
       sendInvitationEmail({ email: entry.email, token });
     }
+
+    await resetPermissionsCache();
   },
 
   /*

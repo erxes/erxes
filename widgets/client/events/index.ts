@@ -1,4 +1,4 @@
-import { getLocalStorageItem, setLocalStorageItem } from "../common";
+import { getLocalStorageItem, initStorage, setLocalStorageItem } from "../common";
 import { getEnv } from "../utils";
 
 const Events: any = {
@@ -10,13 +10,13 @@ const Events: any = {
   },
 
   identifyCustomer(args: { email?: string; phone?: string; code?: string }) {
-    this.sendRequest("events-identify-customer", { args });
+    return this.sendRequest("events-identify-customer", { args });
   },
 
   updateCustomerProperty({ name, value }: { name: string; value: any }) {
     const customerId = getLocalStorageItem("customerId");
 
-    this.sendRequest("events-update-customer-property", {
+    return this.sendRequest("events-update-customer-property", {
       customerId,
       name,
       value
@@ -26,7 +26,7 @@ const Events: any = {
   sendRequest(path: string, data: any) {
     const { API_URL } = getEnv();
 
-    fetch(`${API_URL}/${path}`, {
+    return fetch(`${API_URL}/${path}`, {
       method: "post",
       headers: {
         Accept: "application/json",
@@ -45,8 +45,13 @@ const Events: any = {
       });
   },
 
-  sendEvent(data: any) {
-    const customerId = getLocalStorageItem("customerId");
+  async sendEvent(data: any) {
+    let customerId = getLocalStorageItem("customerId");
+
+    if (!customerId && data && data.name !== 'pageView') {
+      await this.identifyCustomer();
+      customerId = getLocalStorageItem("customerId");
+    }
 
     this.sendRequest("events-receive", {
       customerId,
@@ -62,7 +67,9 @@ window.addEventListener("message", event => {
     return;
   }
 
-  const { action, args } = data;
+  const { action, args, storage } = data;
+
+  initStorage(storage);
 
   Events[action](args);
 });

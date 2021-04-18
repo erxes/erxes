@@ -26,6 +26,13 @@ interface ICallbackParams {
   msg: ITelnyxMessageParams;
 }
 
+interface ISmsDeliveryParams {
+  type: string;
+  to?: string;
+  page?: number;
+  perPage?: number;
+}
+
 // prepares sms object matching telnyx requirements
 const prepareMessage = async ({
   content,
@@ -207,4 +214,33 @@ export const sendSms = async (data: any) => {
   } catch (e) {
     throw new Error(e);
   }
+};
+
+export const getSmsDeliveries = async ({
+  type,
+  to,
+  page,
+  perPage
+}: ISmsDeliveryParams) => {
+  if (type !== 'integration') {
+    return { status: 'error', message: `Invalid parameter type: "${type}"` };
+  }
+
+  const filter: any = {};
+
+  if (to && !(to === 'undefined' || to === 'null')) {
+    filter.to = { $regex: to, $options: '$i' };
+  }
+
+  const _page = Number(page || '1');
+  const _limit = Number(perPage || '20');
+
+  const data = await ConversationMessages.find(filter)
+    .sort({ createdAt: -1 })
+    .limit(_limit)
+    .skip((_page - 1) * _limit);
+
+  const totalCount = await ConversationMessages.countDocuments(filter);
+
+  return { status: 'ok', data, totalCount };
 };

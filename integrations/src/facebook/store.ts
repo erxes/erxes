@@ -1,7 +1,7 @@
 import { Comments, Customers, Posts } from './models';
 import { ICommentParams, IPostParams } from './types';
 
-import { debugFacebook } from '../debuggers';
+import { debugError } from '../debuggers';
 import { sendMessage, sendRPCMessage } from '../messageBroker';
 import { Accounts, Integrations } from '../models';
 import {
@@ -214,7 +214,7 @@ export const getOrCreateCustomer = async (
     fbUser =
       (await getFacebookUser(pageId, facebookPageTokensMap, userId)) || {};
   } catch (e) {
-    debugFacebook(`Error during get customer info: ${e.message}`);
+    debugError(`Error during get customer info: ${e.message}`);
   }
 
   const fbUserProfilePic =

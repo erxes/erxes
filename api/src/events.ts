@@ -1,6 +1,6 @@
 import * as getUuid from 'uuid-by-string';
 import { Customers, Fields } from './db/models';
-import { debugBase } from './debuggers';
+import { debugBase, debugError } from './debuggers';
 import { client, fetchElk, getIndexPrefix } from './elasticsearch';
 
 interface ISaveEventArgs {
@@ -69,7 +69,7 @@ export const saveEvent = async (args: ISaveEventArgs) => {
 
     debugBase(`Response ${JSON.stringify(response)}`);
   } catch (e) {
-    debugBase(`Save event error ${e.message}`);
+    debugError(`Save event error ${e.message}`);
 
     customerId = undefined;
     visitorId = undefined;
@@ -86,6 +86,7 @@ export const getNumberOfVisits = async (params: {
   const searchId = params.customerId
     ? { customerId: params.customerId }
     : { visitorId: params.visitorId };
+
   try {
     const response = await fetchElk('search', 'events', {
       query: {
@@ -129,7 +130,7 @@ export const getNumberOfVisits = async (params: {
 
     return firstHit._source.count;
   } catch (e) {
-    debugBase(`Error occured during getNumberOfVisits ${e.message}`);
+    debugError(`Error occured during getNumberOfVisits ${e.message}`);
     return 0;
   }
 };
@@ -192,7 +193,7 @@ export const trackCustomEvent = (args: {
   });
 };
 
-export const identifyCustomer = async (args: ICustomerIdentifyParams) => {
+export const identifyCustomer = async (args: ICustomerIdentifyParams = {}) => {
   // get or create customer
   let customer = await Customers.getWidgetCustomer(args);
 
@@ -223,9 +224,14 @@ export const updateCustomerProperty = async ({
   let modifier: any = { [name]: value };
 
   if (
-    !['firstName', 'lastName', 'primaryPhone', 'primaryEmail', 'code'].includes(
-      name
-    )
+    ![
+      'firstName',
+      'lastName',
+      'middleName',
+      'primaryPhone',
+      'primaryEmail',
+      'code'
+    ].includes(name)
   ) {
     const customer = await Customers.findOne({ _id: customerId });
 

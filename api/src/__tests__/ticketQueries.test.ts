@@ -56,7 +56,7 @@ describe('ticketQueries', () => {
         source: $source
         closeDateType: $closeDateType
       ) {
-        ${commonTicketTypes}
+        _id
       }
     }
   `;
@@ -87,6 +87,7 @@ describe('ticketQueries', () => {
   });
 
   test('Ticket filter by customers', async () => {
+    process.env.ELK_SYNCER = 'false';
     const { _id } = await customerFactory();
 
     const ticket = await ticketFactory({});
@@ -164,7 +165,7 @@ describe('ticketQueries', () => {
     const qryList = `
       query tickets($stageId: String!) {
         tickets(stageId: $stageId) {
-          ${commonTicketTypes}
+          _id
         }
       }
     `;
@@ -172,6 +173,28 @@ describe('ticketQueries', () => {
     const response = await graphqlRequest(qryList, 'tickets', args);
 
     expect(response.length).toBe(3);
+  });
+
+  test('Tickets total count', async () => {
+    const stage = await stageFactory({});
+    const currentUser = await userFactory({});
+
+    const args = { stageId: stage._id };
+
+    await ticketFactory(args);
+    await ticketFactory(args);
+
+    const qry = `
+      query ticketsTotalCount($stageId: String!) {
+        ticketsTotalCount(stageId: $stageId)
+      }
+    `;
+
+    const response = await graphqlRequest(qry, 'ticketsTotalCount', args, {
+      user: currentUser
+    });
+
+    expect(response).toBe(2);
   });
 
   test('Ticket detail', async () => {

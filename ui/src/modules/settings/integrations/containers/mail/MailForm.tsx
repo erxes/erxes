@@ -73,9 +73,10 @@ const MailFormContainer = (props: FinalProps) => {
     return <Spinner objective={true} />;
   }
 
+  const { emailTemplatesTotalCount } = emailTemplatesTotalCountQuery;
+
   const fetchMoreEmailTemplates = (page: number) => {
     const { fetchMore, emailTemplates } = emailTemplatesQuery;
-    const { emailTemplatesTotalCount } = emailTemplatesTotalCountQuery;
 
     if (emailTemplatesTotalCount === emailTemplates.length) {
       return;
@@ -223,6 +224,7 @@ const MailFormContainer = (props: FinalProps) => {
     fetchMoreEmailTemplates,
     emailTemplates: emailTemplatesQuery.emailTemplates,
     emailSignatures: currentUser.emailSignatures || [],
+    totalCount: emailTemplatesTotalCount,
     mails,
     messageId
   };
@@ -236,7 +238,7 @@ export default withProps<Props>(
       name: 'integrationsQuery',
       options: () => {
         return {
-          variables: { kind: 'mail' },
+          variables: { kind: 'mail', status: 'active' },
           fetchPolicy: 'network-only'
         };
       }

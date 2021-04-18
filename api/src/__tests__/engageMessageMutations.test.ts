@@ -37,7 +37,6 @@ import './setup.ts';
 const checkEngageMessage = (src, result) => {
   expect(result.kind).toBe(src.kind);
   expect(new Date(result.stopDate)).toEqual(src.stopDate);
-  expect(result.tagIds).toEqual(src.tagIds);
   expect(result.brandIds).toEqual(src.brandIds);
   expect(result.customerIds).toEqual(src.customerIds);
   expect(result.title).toBe(src.title);
@@ -67,7 +66,7 @@ describe('engage message mutation tests', () => {
     $stopDate: Date,
     $segmentIds: [String],
     $brandIds: [String],
-    $tagIds: [String],
+    $customerTagIds: [String],
     $customerIds: [String],
     $email: EngageMessageEmail,
     $scheduleDate: EngageScheduleDateInput,
@@ -85,7 +84,7 @@ describe('engage message mutation tests', () => {
     stopDate: $stopDate,
     segmentIds: $segmentIds,
     brandIds: $brandIds,
-    tagIds: $tagIds,
+    customerTagIds: $customerTagIds,
     customerIds: $customerIds,
     email: $email,
     scheduleDate: $scheduleDate,
@@ -159,7 +158,7 @@ describe('engage message mutation tests', () => {
       },
       customerIds: [_customer._id],
       brandIds: [_brand._id],
-      tagIds: [_tag._id]
+      customerTagIds: [_tag._id]
     });
 
     _doc = {
@@ -171,7 +170,7 @@ describe('engage message mutation tests', () => {
       isLive: true,
       stopDate: new Date(),
       brandIds: [_brand._id],
-      tagIds: [_tag._id],
+      customerTagIds: [_tag._id],
       customerIds: [_customer._id],
       email: {
         subject: faker.random.word(),
@@ -488,44 +487,48 @@ describe('engage message mutation tests', () => {
       return Promise.resolve('success');
     });
 
+    const mockEngages = sinon
+      .stub(dataSources.EngagesAPI, 'engagesConfigDetail')
+      .callsFake(() => {
+        return Promise.resolve([]);
+      });
+
     process.env.AWS_SES_ACCESS_KEY_ID = '123';
     process.env.AWS_SES_SECRET_ACCESS_KEY = '123';
     process.env.AWS_SES_CONFIG_SET = 'aws-ses';
     process.env.AWS_ENDPOINT = '123';
 
-    const user = await Users.findOne({ _id: _doc.fromUserId });
-
-    if (!user) {
-      throw new Error('User not found');
-    }
-
     try {
-      await graphqlRequest(engageMessageAddMutation, 'engageMessageAdd', {
-        ..._doc,
-        kind: MESSAGE_KINDS.MANUAL,
-        brandIds: ['_id']
-      });
+      await graphqlRequest(
+        engageMessageAddMutation,
+        'engageMessageAdd',
+        {
+          ..._doc,
+          kind: MESSAGE_KINDS.MANUAL,
+          brandIds: ['_id']
+        },
+        { dataSources }
+      );
+
+      const engageMessage = await graphqlRequest(
+        engageMessageAddMutation,
+        'engageMessageAdd',
+        _doc,
+        { dataSources }
+      );
+
+      expect(engageMessage.messengerReceivedCustomerIds).toEqual([]);
+      expect(engageMessage.scheduleDate.type).toEqual('year');
+      expect(engageMessage.scheduleDate.month).toEqual('2');
+      expect(engageMessage.scheduleDate.day).toEqual('14');
+
+      checkEngageMessage(engageMessage, _doc);
     } catch (e) {
       expect(e[0].message).toBe('No customers found');
     }
 
-    const engageMessage = await graphqlRequest(
-      engageMessageAddMutation,
-      'engageMessageAdd',
-      _doc
-    );
-
-    const tags = engageMessage.getTags.map(tag => tag._id);
-
-    expect(engageMessage.messengerReceivedCustomerIds).toEqual([]);
-    expect(tags).toEqual(_doc.tagIds);
-    expect(engageMessage.scheduleDate.type).toEqual('year');
-    expect(engageMessage.scheduleDate.month).toEqual('2');
-    expect(engageMessage.scheduleDate.day).toEqual('14');
-
-    checkEngageMessage(engageMessage, _doc);
-
     mock.restore();
+    mockEngages.restore();
   });
 
   test('Edit engage message', async () => {
@@ -547,8 +550,6 @@ describe('engage message mutation tests', () => {
       args
     );
 
-    const tags = engageMessage.getTags.map(tag => tag._id);
-
     expect(engageMessage.messenger.brandId).toBe(_doc.messenger.brandId);
     expect(engageMessage.messenger.kind).toBe(_doc.messenger.kind);
     expect(engageMessage.messenger.sentAs).toBe(_doc.messenger.sentAs);
@@ -562,9 +563,37 @@ describe('engage message mutation tests', () => {
       _doc.messenger.rules.value
     );
     expect(engageMessage.messengerReceivedCustomerIds).toEqual([]);
-    expect(tags).toEqual(_doc.tagIds);
 
     checkEngageMessage(engageMessage, args);
+
+    // Test engageMessageEdit() & run manual campaign
+    const campaign = await engageMessageFactory({
+      kind: MESSAGE_KINDS.MANUAL,
+      isDraft: true,
+      isLive: false,
+      method: METHODS.EMAIL,
+      customerTagIds: [_tag._id],
+      userId: _user._id
+    });
+
+    const doc = {
+      _id: campaign._id,
+      isDraft: false,
+      isLive: true,
+      title: campaign.title,
+      fromUserId: campaign.fromUserId,
+      kind: campaign.kind,
+      method: campaign.method,
+      customerTagIds: campaign.customerTagIds
+    };
+
+    const mock = sinon.stub(engageUtils, 'send').callsFake(() => {
+      return Promise.resolve();
+    });
+
+    await graphqlRequest(mutation, 'engageMessageEdit', doc);
+
+    mock.restore();
   });
 
   test('Remove engage message', async () => {
@@ -601,7 +630,8 @@ describe('engage message mutation tests', () => {
     expect(response.isLive).toBe(true);
 
     const manualMessage = await engageMessageFactory({
-      kind: MESSAGE_KINDS.MANUAL
+      kind: MESSAGE_KINDS.MANUAL,
+      customerTagIds: [_tag._id]
     });
 
     response = await graphqlRequest(mutation, 'engageMessageSetLive', {
@@ -610,9 +640,13 @@ describe('engage message mutation tests', () => {
 
     expect(response.isLive).toBe(true);
 
-    await graphqlRequest(mutation, 'engageMessageSetLive', {
-      _id: _message._id
-    });
+    try {
+      await graphqlRequest(mutation, 'engageMessageSetLive', {
+        _id: _message._id
+      });
+    } catch (e) {
+      expect(e[0].message).toBe('Campaign is already live');
+    }
   });
 
   test('Set pause engage message', async () => {
@@ -777,41 +811,40 @@ describe('engage message mutation tests', () => {
     mock.restore();
   });
 
-  test('Test auto engage with type SMS', async () => {
-    try {
-      await graphqlRequest(engageMessageAddMutation, 'engageMessageAdd', {
-        ..._doc,
-        kind: MESSAGE_KINDS.AUTO,
-        method: METHODS.SMS,
-        brandIds: ['_id']
-      });
-    } catch (e) {
-      expect(e[0].message).toBe(
-        `SMS engage message of kind ${MESSAGE_KINDS.AUTO} is not supported`
-      );
-    }
-  });
-
   test('Test sms engage message with integration chosen', async () => {
     const integration = await integrationFactory({ kind: 'telnyx' });
 
-    const response = await graphqlRequest(
-      engageMessageAddMutation,
-      'engageMessageAdd',
-      {
-        ..._doc,
-        fromUserId: '',
-        kind: MESSAGE_KINDS.MANUAL,
-        method: METHODS.SMS,
-        shortMessage: {
-          content: 'sms test',
-          fromIntegrationId: integration._id
-        },
-        title: 'Message test'
-      }
-    );
+    const mock = sinon
+      .stub(dataSources.EngagesAPI, 'engagesConfigDetail')
+      .callsFake(() => {
+        return Promise.resolve([{ code: 'smsLimit', value: '20' }]);
+      });
 
-    expect(response.fromIntegration._id).toBe(integration._id);
+    try {
+      const response = await graphqlRequest(
+        engageMessageAddMutation,
+        'engageMessageAdd',
+        {
+          ..._doc,
+          fromUserId: '',
+          kind: MESSAGE_KINDS.MANUAL,
+          method: METHODS.SMS,
+          shortMessage: {
+            content: 'sms test',
+            fromIntegrationId: integration._id
+          },
+          title: 'Message test'
+        },
+        { dataSources }
+      );
+
+      expect(response.fromIntegration._id).toBe(integration._id);
+
+      mock.restore();
+    } catch (e) {
+      // tslint:disable-next-line
+      console.log(e);
+    }
   });
 
   test('Test engageMessageSendTestEmail()', async () => {
@@ -870,8 +903,14 @@ describe('engage message mutation tests', () => {
     mock.restore();
   });
 
-  test('test engageMessageCopy()', async () => {
-    const campaign = await engageMessageFactory();
+  test('Test engageMessageCopy()', async () => {
+    const monthFromNow = new Date();
+    monthFromNow.setMonth(monthFromNow.getMonth() + 1);
+
+    const campaign = await engageMessageFactory({
+      scheduleDate: { type: 'pre', dateTime: monthFromNow },
+      kind: MESSAGE_KINDS.AUTO
+    });
 
     const mutation = `
       mutation engageMessageCopy($_id: String!) {
@@ -899,13 +938,73 @@ describe('engage message mutation tests', () => {
     expect(response.title).toBe(`${campaign.title}-copied`);
     expect(response.isDraft).toBe(true);
     expect(response.isLive).toBe(false);
-    expect(response.scheduleDate).toBeFalsy();
+    expect(response.scheduleDate).toBeDefined();
+    expect(response.scheduleDate.dateTime).toBeFalsy();
 
     // test non existing campaign
     try {
       await graphqlRequest(mutation, 'engageMessageCopy', { _id: 'fakeId' });
     } catch (e) {
       expect(e[0].message).toBe('Campaign not found');
+    }
+  });
+
+  test('Test engageUtils.checkCampaignDoc()', async () => {
+    const doc = {
+      ..._doc,
+      kind: MESSAGE_KINDS.AUTO,
+      method: METHODS.EMAIL,
+      scheduleDate: { type: 'pre' }
+    };
+
+    try {
+      engageUtils.checkCampaignDoc(doc);
+    } catch (e) {
+      expect(e.message).toBe(
+        'Schedule date & type must be chosen in auto campaign'
+      );
+    }
+
+    try {
+      engageUtils.checkCampaignDoc({
+        ...doc,
+        scheduleDate: { type: 'month' },
+        brandIds: [],
+        segmentIds: [],
+        customerTagIds: [],
+        customerIds: []
+      });
+    } catch (e) {
+      expect(e.message).toBe('One of brand or segment or tag must be chosen');
+    }
+  });
+
+  test('Test auto SMS campaign', async () => {
+    const doc = { tagIds: [_tag._id], phoneValidationStatus: 'valid' };
+
+    await customerFactory(doc);
+    await customerFactory(doc);
+
+    const campaign = await engageMessageFactory({
+      method: METHODS.SMS,
+      kind: MESSAGE_KINDS.AUTO,
+      customerTagIds: [_tag._id],
+      userId: _user._id,
+      isLive: true
+    });
+
+    try {
+      // no sms limit saved
+      await engageUtils.send(campaign, 0);
+
+      // making customers.length > sms limit
+      await engageUtils.send(campaign, 1);
+
+      // successful condition
+      await engageUtils.send(campaign, 10);
+    } catch (e) {
+      // tslint:disable-next-line
+      console.log(e);
     }
   });
 });

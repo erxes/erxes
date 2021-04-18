@@ -2,10 +2,7 @@ const listParamsDef = `
   $kind: String
   $status: String
   $tag: String
-  $ids: [String]
-  $tagIds: [String]
-  $brandIds: [String]
-  $segmentIds: [String]
+  $ids: String
   $page: Int
   $perPage: Int
 `;
@@ -15,11 +12,14 @@ const listParamsValue = `
   status: $status
   tag: $tag
   ids: $ids
-  tagIds: $tagIds
-  brandIds: $brandIds
-  segmentIds: $segmentIds
   page: $page
   perPage: $perPage
+`;
+
+const tagFields = `
+  _id
+  name
+  colorCode
 `;
 
 const commonFields = `
@@ -31,6 +31,7 @@ const commonFields = `
   createdAt
   method
   tagIds
+  customerTagIds
   brandIds
   segmentIds
   stats
@@ -38,6 +39,11 @@ const commonFields = `
   email
   smsStats
   createdUser
+
+  brand {
+    _id
+    name
+  }
 
   totalCustomersCount
   validCustomersCount
@@ -69,6 +75,7 @@ const engageMessages = `
       ${commonFields}
 
       brands {
+        _id
         name
       }
       segments {
@@ -76,9 +83,10 @@ const engageMessages = `
         name
       }
       getTags {
-        _id
-        name
-        colorCode
+        ${tagFields}
+      }
+      customerTags {
+        ${tagFields}
       }
     }
   }
@@ -99,6 +107,9 @@ export const engageDetailFields = `
   }
   brand {
     name
+  }
+  customerTags {
+    ${tagFields}
   }
 `;
 
@@ -237,12 +248,6 @@ const headSegments = `
   }
 `;
 
-const combinedFields = `
-  query fieldsCombinedByContentType {
-    fieldsCombinedByContentType(contentType: "customer")
-  }
-`;
-
 const kindCounts = `
   query kindCounts {
     engageMessageCounts(name: "kind")
@@ -294,7 +299,6 @@ export default {
   customerCounts,
   segmentDetail,
   headSegments,
-  combinedFields,
   kindCounts,
   statusCounts,
   tagCounts,

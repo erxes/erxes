@@ -14,6 +14,26 @@ const FilterBox = styled.div`
   input {
     margin-bottom: 20px;
   }
+
+  .input-container {
+    width: 50%;
+  }
+`;
+
+const CustomRangeContainer = styled.div`
+  display: flex;
+
+  > div {
+    flex: 1;
+
+    &:last-child {
+      margin-left: 5px;
+    }
+  }
+
+  input[type='date'] {
+    width: 100%;
+  }
 `;
 
 const FilterButton = styledTS<{ selected?: boolean }>(styled.div)`
@@ -142,6 +162,7 @@ export {
   TopBar,
   ItemContainer,
   LoadMore,
+  CustomRangeContainer,
   BoardItem,
   ArchiveWrapper
 };

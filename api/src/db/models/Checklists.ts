@@ -1,6 +1,6 @@
 import { Model, model } from 'mongoose';
+import { ACTIVITY_LOG_ACTIONS, putActivityLog } from '../../data/logUtils';
 
-import ActivityLogs from './ActivityLogs';
 import {
   checklistItemSchema,
   checklistSchema,
@@ -13,7 +13,7 @@ import { IUserDocument } from './definitions/users';
 
 export interface IChecklistModel extends Model<IChecklistDocument> {
   getChecklist(_id: string): Promise<IChecklistDocument>;
-  removeChecklists(contentType: string, contentTypeId: string): void;
+  removeChecklists(contentType: string, contentTypeIds: string[]): void;
   createChecklist(
     { contentType, contentTypeId, ...fields }: IChecklist,
     user: IUserDocument
@@ -56,9 +56,12 @@ export const loadClass = () => {
 
     public static async removeChecklists(
       contentType: string,
-      contentTypeId: string
+      contentTypeIds: string[]
     ) {
-      const checklists = await Checklists.find({ contentType, contentTypeId });
+      const checklists = await Checklists.find({
+        contentType,
+        contentTypeId: { $in: contentTypeIds }
+      });
 
       if (checklists && checklists.length === 0) {
         return;
@@ -86,10 +89,13 @@ export const loadClass = () => {
         ...fields
       });
 
-      ActivityLogs.createChecklistLog({
-        item: checklist,
-        contentType: 'checklist',
-        action: 'create'
+      await putActivityLog({
+        action: ACTIVITY_LOG_ACTIONS.CREATE_CHECKLIST_LOG,
+        data: {
+          item: checklist,
+          contentType: 'checklist',
+          action: 'create'
+        }
       });
 
       return checklist;
@@ -118,10 +124,13 @@ export const loadClass = () => {
         checklistId: checklistObj._id
       });
 
-      ActivityLogs.createChecklistLog({
-        item: checklistObj,
-        contentType: 'checklist',
-        action: 'delete'
+      await putActivityLog({
+        action: ACTIVITY_LOG_ACTIONS.CREATE_CHECKLIST_LOG,
+        data: {
+          item: checklistObj,
+          contentType: 'checklist',
+          action: 'delete'
+        }
       });
 
       return checklistObj.remove();
@@ -162,10 +171,13 @@ export const loadItemClass = () => {
         ...fields
       });
 
-      await ActivityLogs.createChecklistLog({
-        item: checklistItem,
-        contentType: 'checklistItem',
-        action: 'create'
+      await putActivityLog({
+        action: ACTIVITY_LOG_ACTIONS.CREATE_CHECKLIST_LOG,
+        data: {
+          item: checklistItem,
+          contentType: 'checklistItem',
+          action: 'delete'
+        }
       });
 
       return checklistItem;
@@ -180,10 +192,13 @@ export const loadItemClass = () => {
       const checklistItem = await ChecklistItems.findOne({ _id });
       const activityAction = doc.isChecked ? 'checked' : 'unChecked';
 
-      await ActivityLogs.createChecklistLog({
-        item: checklistItem,
-        contentType: 'checklistItem',
-        action: activityAction
+      await putActivityLog({
+        action: ACTIVITY_LOG_ACTIONS.CREATE_CHECKLIST_LOG,
+        data: {
+          item: checklistItem,
+          contentType: 'checklistItem',
+          action: activityAction
+        }
       });
 
       return checklistItem;
@@ -199,10 +214,13 @@ export const loadItemClass = () => {
         throw new Error(`Checklist's item not found with id ${_id}`);
       }
 
-      await ActivityLogs.createChecklistLog({
-        item: checklistItem,
-        contentType: 'checklistItem',
-        action: 'delete'
+      await putActivityLog({
+        action: ACTIVITY_LOG_ACTIONS.CREATE_CHECKLIST_LOG,
+        data: {
+          item: checklistItem,
+          contentType: 'checklistItem',
+          action: 'delete'
+        }
       });
 
       return checklistItem.remove();

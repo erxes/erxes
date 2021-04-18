@@ -1,6 +1,7 @@
 import { withFilter } from 'apollo-server-express';
-import { Channels, Conversations, Integrations } from '../../../db/models';
+import { Channels, Conversations } from '../../../db/models';
 import { graphqlPubsub } from '../../../pubsub';
+import { getDocument } from '../mutations/cacheUtils';
 
 export default {
   /*
@@ -79,10 +80,9 @@ export default {
           return false;
         }
 
-        const integration = await Integrations.findOne(
-          { _id: conversation.integrationId },
-          { _id: 1 }
-        );
+        const integration = await getDocument('integrations', {
+          _id: conversation.integrationId
+        });
 
         if (!integration) {
           return false;

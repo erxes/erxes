@@ -1,6 +1,5 @@
 import * as _ from 'underscore';
 import {
-  Brands,
   Channels,
   Conversations,
   Integrations,
@@ -9,6 +8,7 @@ import {
 import { CONVERSATION_STATUSES } from '../../../db/models/definitions/constants';
 import { KIND_CHOICES } from '../../../db/models/definitions/constants';
 import { fetchElk } from '../../../elasticsearch';
+import { getDocumentList } from '../../resolvers/mutations/cacheUtils';
 import { IListArgs } from '../../resolvers/queries/conversationQueryBuilder';
 import { fixDate } from '../../utils';
 
@@ -27,7 +27,7 @@ const countByChannels = async (
   qb: any,
   counts: ICountBy
 ): Promise<ICountBy> => {
-  const channels = await Channels.find();
+  const channels = await getDocumentList('channels', {});
 
   for (const channel of channels) {
     await qb.buildAllQueries();
@@ -41,7 +41,7 @@ const countByChannels = async (
 
 // Count conversation by brand
 const countByBrands = async (qb: any, counts: ICountBy): Promise<ICountBy> => {
-  const brands = await Brands.find({});
+  const brands = await getDocumentList('brands', {});
 
   for (const brand of brands) {
     await qb.buildAllQueries();
@@ -134,29 +134,37 @@ export class CommonBuilder<IArgs extends IListArgs> {
   }
 
   public resetPositiveList() {
-    const defaultUserQuery = [
-      {
-        exists: {
-          field: 'userId'
-        }
-      },
-      {
-        range: {
-          messageCount: { gt: 1 }
-        }
-      },
-      {
-        bool: {
-          must_not: [
-            {
-              exists: {
-                field: 'userId'
+    const defaultUserQuery = {
+      should: [
+        {
+          bool: {
+            should: [
+              {
+                exists: {
+                  field: 'userId'
+                }
+              },
+              {
+                range: {
+                  messageCount: { gt: 1 }
+                }
               }
-            }
-          ]
+            ]
+          }
+        },
+        {
+          bool: {
+            must_not: [
+              {
+                exists: {
+                  field: 'userId'
+                }
+              }
+            ]
+          }
         }
-      }
-    ];
+      ]
+    };
 
     const userRelevanceQuery = [
       {
@@ -178,8 +186,8 @@ export class CommonBuilder<IArgs extends IListArgs> {
     ];
 
     this.positiveList = [
-      { bool: { should: userRelevanceQuery } },
-      { bool: { should: defaultUserQuery } }
+      { bool: defaultUserQuery },
+      { bool: { should: userRelevanceQuery } }
     ];
   }
 
@@ -431,7 +439,13 @@ export class CommonBuilder<IArgs extends IListArgs> {
       }
     };
 
-    const response = await fetchElk('count', 'conversations', queryOptions);
+    const response = await fetchElk(
+      'count',
+      'conversations',
+      queryOptions,
+      '',
+      0
+    );
 
     return response.count;
   }

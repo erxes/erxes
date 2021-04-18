@@ -124,14 +124,14 @@ class List extends React.Component<Props, {}> {
               />
             </th>
             <th>{__('Name')}</th>
-            <th>{__('Brand')}</th>
+            <th>{__('Status')}</th>
             <th>{__('Views')}</th>
             <th>{__('Conversion rate')}</th>
             <th>{__('Contacts gathered')}</th>
-            <th>{__('Created at')}</th>
+            <th>{__('Brand')}</th>
             <th>{__('Created by')}</th>
+            <th>{__('Created at')}</th>
             <th>{__('Tags')}</th>
-            <th>{__('Status')}</th>
             <th>{__('Actions')}</th>
           </tr>
         </thead>
@@ -145,6 +145,7 @@ class List extends React.Component<Props, {}> {
           <Wrapper.Header
             title={__('Forms')}
             breadcrumb={[{ title: __('Forms') }]}
+            queryParams={queryParams}
           />
         }
         leftSidebar={<Sidebar counts={counts || {}} />}

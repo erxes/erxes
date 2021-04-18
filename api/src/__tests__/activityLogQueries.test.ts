@@ -17,20 +17,10 @@ import {
   ticketFactory,
   userFactory
 } from '../db/factories';
-import {
-  ActivityLogs,
-  Brands,
-  Companies,
-  Conformities,
-  Customers,
-  GrowthHacks,
-  Tasks,
-  Tickets,
-  Users
-} from '../db/models';
-
 import { IntegrationsAPI } from '../data/dataSources';
+import * as logUtils from '../data/logUtils';
 import './setup.ts';
+import * as pluginUtils from '../pluginUtils';
 
 describe('activityLogQueries', () => {
   let brand;
@@ -64,7 +54,7 @@ describe('activityLogQueries', () => {
         content
         createdAt
         createdBy
-    
+
         createdByDetail
         contentDetail
         contentTypeDetail
@@ -83,26 +73,21 @@ describe('activityLogQueries', () => {
     task = await taskFactory();
   });
 
-  afterEach(async () => {
-    // Clearing test data
-    await ActivityLogs.deleteMany({});
-    await Users.deleteMany({});
-    await GrowthHacks.deleteMany({});
-    await Tasks.deleteMany({});
-    await Companies.deleteMany({});
-    await Customers.deleteMany({});
-    await Tickets.deleteMany({});
-    await Brands.deleteMany({});
-    await Conformities.deleteMany({});
-  });
-
   test('Activity log', async () => {
     const contentId = faker.random.uuid();
     const contentType = 'customer';
 
-    await activityLogFactory({ contentId, contentType });
-    await activityLogFactory({ contentId, contentType });
-    await activityLogFactory({ contentId, contentType });
+    const spy = jest.spyOn(logUtils, 'fetchLogs');
+
+    spy.mockImplementation(async () => {
+      const activityLogs: any[] = [];
+
+      for (let i = 0; i < 3; i++) {
+        activityLogs.push(await activityLogFactory({ contentId, contentType }));
+      }
+
+      return activityLogs;
+    });
 
     const args = { contentId, contentType };
 
@@ -113,13 +98,19 @@ describe('activityLogQueries', () => {
     );
 
     expect(response.length).toBe(3);
+
+    spy.mockRestore();
   });
 
   test('Activity log content type checklist & checklist', async () => {
     const contentId = faker.random.uuid();
 
-    await activityLogFactory({ contentId, contentType: 'checklist' });
-    await activityLogFactory({ contentId, contentType: 'checklistitem' });
+    const spy = jest.spyOn(logUtils, 'fetchLogs');
+
+    spy.mockImplementation(async () => [
+      await activityLogFactory({ contentId, contentType: 'checklist' }),
+      await activityLogFactory({ contentId, contentType: 'checklistitem' })
+    ]);
 
     const args1 = { contentId, contentType: 'checklist' };
     const args2 = { contentId, contentType: 'checklistitem' };
@@ -137,10 +128,48 @@ describe('activityLogQueries', () => {
 
     expect(response1.length).toBe(2);
     expect(response2.length).toBe(2);
+
+    spy.mockRestore();
+  });
+
+  test('Activity log with plugin type', async () => {
+    const customer = await customerFactory({});
+
+    const spy = jest.spyOn(pluginUtils, 'collectPluginContent');
+
+    spy.mockImplementation(async () => []);
+
+    const activityTypes = [{ type: 'plugin_test' }];
+
+    for (const t of activityTypes) {
+      const args = {
+        contentId: customer._id,
+        contentType: t.type === 'sms' ? 'sms' : 'customer',
+        activityType: t.type
+      };
+
+      const processState = process.env.ELK_SYNCER;
+
+      process.env.ELK_SYNCER = 'false';
+
+      const response = await graphqlRequest(
+        qryActivityLogs,
+        'activityLogs',
+        args,
+        {}
+      );
+
+      expect(response).toBeDefined();
+
+      process.env.ELK_SYNCER = processState;
+    }
+
+    spy.mockRestore();
   });
 
   test('Activity log with all activity types', async () => {
     const customer = await customerFactory({});
+
     await conformityFactory({
       mainType: 'customer',
       mainTypeId: customer._id,
@@ -155,32 +184,51 @@ describe('activityLogQueries', () => {
       method: 'email'
     });
 
-    const dataSources = { IntegrationsAPI: new IntegrationsAPI() };
-    const spy = jest.spyOn(dataSources.IntegrationsAPI, 'fetchApi');
+    const spy = jest.spyOn(logUtils, 'fetchLogs');
 
-    spy.mockImplementation(() => Promise.resolve());
+    spy.mockImplementation(async () => [
+      await activityLogFactory({ contentId: customer._id, contentType: 'sms' })
+    ]);
+
+    const dataSources = { IntegrationsAPI: new IntegrationsAPI() };
+    const spy1 = jest.spyOn(dataSources.IntegrationsAPI, 'fetchApi');
+
+    spy1.mockImplementation(() => Promise.resolve());
 
     const activityTypes = [
       { type: 'conversation', content: 'company' },
       { type: 'email', content: 'email' },
       { type: 'internal_note', content: 'internal_note' },
-      { type: 'task', content: 'task' }
+      { type: 'task', content: 'task' },
+      { type: 'sms', content: 'sms sent' },
+      { type: 'campaign', content: 'campaign' }
     ];
 
-    for (const activityType of activityTypes) {
+    for (const t of activityTypes) {
       const args = {
         contentId: customer._id,
-        contentType: 'customer',
-        activityType: activityType.type
+        contentType: t.type === 'sms' ? 'sms' : 'customer',
+        activityType: t.type
       };
+
+      const processState = process.env.ELK_SYNCER;
+
+      process.env.ELK_SYNCER = 'false';
+
       const response = await graphqlRequest(
         qryActivityLogs,
         'activityLogs',
         args,
         { dataSources }
       );
-      expect(response.length).toBe(1);
+
+      expect(response).toBeDefined();
+
+      process.env.ELK_SYNCER = processState;
     }
+
+    spy.mockRestore();
+    spy1.mockRestore();
   });
 
   test('Activity log with created by user', async () => {
@@ -195,7 +243,9 @@ describe('activityLogQueries', () => {
       createdBy
     };
 
-    await activityLogFactory(doc);
+    const spy = jest.spyOn(logUtils, 'fetchLogs');
+
+    spy.mockImplementation(async () => [await activityLogFactory(doc)]);
 
     const args = { contentId, contentType };
 
@@ -206,6 +256,8 @@ describe('activityLogQueries', () => {
     );
 
     expect(response.length).toBe(1);
+
+    spy.mockRestore();
   });
 
   test('Activity log with created by integration', async () => {
@@ -219,7 +271,9 @@ describe('activityLogQueries', () => {
       createdBy
     };
 
-    await activityLogFactory(doc);
+    const spy = jest.spyOn(logUtils, 'fetchLogs');
+
+    spy.mockImplementation(async () => [await activityLogFactory(doc)]);
 
     const args = { contentId, contentType };
 
@@ -230,6 +284,8 @@ describe('activityLogQueries', () => {
     );
 
     expect(response.length).toBe(1);
+
+    spy.mockRestore();
   });
 
   test('Activity log content type detail', async () => {
@@ -243,13 +299,15 @@ describe('activityLogQueries', () => {
     ];
 
     for (const type of types) {
+      const spy = jest.spyOn(logUtils, 'fetchLogs');
+
       const doc = {
         contentId: type.content._id,
         contentType: type.type,
         createdBy
       };
 
-      await activityLogFactory(doc);
+      spy.mockImplementation(async () => [await activityLogFactory(doc)]);
 
       const args = { contentId: type.content._id, contentType: type.type };
 
@@ -260,6 +318,8 @@ describe('activityLogQueries', () => {
       );
 
       expect(response.length).toBe(1);
+
+      spy.mockRestore();
     }
   });
 
@@ -273,6 +333,8 @@ describe('activityLogQueries', () => {
     ];
 
     for (const type of types) {
+      const spy = jest.spyOn(logUtils, 'fetchLogs');
+
       const doc = {
         contentId: type.content._id,
         contentType: type.type,
@@ -280,7 +342,7 @@ describe('activityLogQueries', () => {
         content: []
       };
 
-      await activityLogFactory(doc);
+      spy.mockImplementation(async () => [await activityLogFactory(doc)]);
 
       const args = { contentId: type.content._id, contentType: type.type };
 
@@ -291,6 +353,8 @@ describe('activityLogQueries', () => {
       );
 
       expect(response.length).toBe(1);
+
+      spy.mockRestore();
     }
   });
 
@@ -306,6 +370,8 @@ describe('activityLogQueries', () => {
     ];
 
     for (const type of types) {
+      const spy = jest.spyOn(logUtils, 'fetchLogs');
+
       const doc1 = {
         contentId: type.content._id,
         contentType: type.type,
@@ -326,8 +392,10 @@ describe('activityLogQueries', () => {
         }
       };
 
-      await activityLogFactory(doc1);
-      await activityLogFactory(doc2);
+      spy.mockImplementation(async () => [
+        await activityLogFactory(doc1),
+        await activityLogFactory(doc2)
+      ]);
 
       const args = { contentId: type.content._id, contentType: type.type };
 
@@ -338,6 +406,8 @@ describe('activityLogQueries', () => {
       );
 
       expect(response.length).toBe(2);
+
+      spy.mockRestore();
     }
   });
 
@@ -345,13 +415,15 @@ describe('activityLogQueries', () => {
     const types = [{ type: 'task', content: task }];
 
     for (const type of types) {
+      const spy = jest.spyOn(logUtils, 'fetchLogs');
+
       const doc = {
         contentId: type.content._id,
         contentType: type.type,
         action: 'convert'
       };
 
-      await activityLogFactory(doc);
+      spy.mockImplementation(async () => [await activityLogFactory(doc)]);
 
       const args = { contentId: type.content._id, contentType: type.type };
 
@@ -362,6 +434,8 @@ describe('activityLogQueries', () => {
       );
 
       expect(response.length).toBe(1);
+
+      spy.mockRestore();
     }
   });
 
@@ -372,10 +446,14 @@ describe('activityLogQueries', () => {
       contentId: deal1._id,
       contentType: 'deal',
       action: 'assignee',
-      content: []
+      content: {
+        addedUserIds: [],
+        removedUserIds: []
+      }
     };
 
-    await activityLogFactory(doc);
+    const spy = jest.spyOn(logUtils, 'fetchLogs');
+    spy.mockImplementation(async () => [await activityLogFactory(doc)]);
 
     const args = { contentId: deal1._id, contentType: 'deal' };
 
@@ -386,5 +464,7 @@ describe('activityLogQueries', () => {
     );
 
     expect(response.length).toBe(1);
+
+    spy.mockRestore();
   });
 });
