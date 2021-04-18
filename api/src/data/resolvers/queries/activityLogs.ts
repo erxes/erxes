@@ -8,11 +8,12 @@ import {
 import { IActivityLogDocument } from '../../../db/models/definitions/activityLogs';
 import { ACTIVITY_CONTENT_TYPES } from '../../../db/models/definitions/constants';
 import { debugExternalApi } from '../../../debuggers';
+import { collectPluginContent } from '../../../pluginUtils';
 import { fetchLogs } from '../../logUtils';
 import { moduleRequireLogin } from '../../permissions/wrappers';
 import { IContext } from '../../types';
 
-interface IListArgs {
+export interface IListArgs {
   contentType: string;
   contentId: string;
   activityType: string;
@@ -22,10 +23,10 @@ const activityLogQueries = {
   /**
    * Get activity log list
    */
-  async activityLogs(_root, doc: IListArgs, { dataSources }: IContext) {
+  async activityLogs(_root, doc: IListArgs, { dataSources, user }: IContext) {
     const { contentType, contentId, activityType } = doc;
 
-    const activities: IActivityLogDocument[] = [];
+    let activities: IActivityLogDocument[] = [];
 
     const relatedItemIds = await Conformities.savedConformity({
       mainType: contentType,
@@ -174,39 +175,51 @@ const activityLogQueries = {
       );
     };
 
-    switch (activityType) {
-      case ACTIVITY_CONTENT_TYPES.CONVERSATION:
-        await collectConversations();
-        break;
+    if (activityType.startsWith('plugin')) {
+      const pluginResponse = await collectPluginContent(
+        doc,
+        user,
+        activities,
+        collectItems
+      );
+      if (pluginResponse) {
+        activities = activities.concat(pluginResponse);
+      }
+    } else {
+      switch (activityType) {
+        case ACTIVITY_CONTENT_TYPES.CONVERSATION:
+          await collectConversations();
+          break;
 
-      case ACTIVITY_CONTENT_TYPES.INTERNAL_NOTE:
-        await collectInternalNotes();
-        break;
+        case ACTIVITY_CONTENT_TYPES.INTERNAL_NOTE:
+          await collectInternalNotes();
+          break;
 
-      case ACTIVITY_CONTENT_TYPES.TASK:
-        await collectTasks();
-        break;
+        case ACTIVITY_CONTENT_TYPES.TASK:
+          await collectTasks();
+          break;
 
-      case ACTIVITY_CONTENT_TYPES.EMAIL:
-        await collectEmailDeliveries();
-        break;
+        case ACTIVITY_CONTENT_TYPES.EMAIL:
+          await collectEmailDeliveries();
+          break;
 
-      case ACTIVITY_CONTENT_TYPES.SMS:
-        await collectSms();
-        break;
+        case ACTIVITY_CONTENT_TYPES.SMS:
+          await collectSms();
+          break;
 
-      case ACTIVITY_CONTENT_TYPES.CAMPAIGN:
-        await collectCampaigns();
-        break;
+        case ACTIVITY_CONTENT_TYPES.CAMPAIGN:
+          await collectCampaigns();
+          break;
 
-      default:
-        await collectConversations();
-        await collectActivityLogs();
-        await collectInternalNotes();
-        await collectTasks();
-        await collectEmailDeliveries();
+        default:
+          await collectConversations();
+          await collectActivityLogs();
+          await collectInternalNotes();
+          await collectTasks();
+          await collectEmailDeliveries();
 
-        break;
+          break;
+      }
     }
 
     activities.sort((a, b) => {
