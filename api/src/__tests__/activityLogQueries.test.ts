@@ -20,6 +20,7 @@ import {
 import { IntegrationsAPI } from '../data/dataSources';
 import * as logUtils from '../data/logUtils';
 import './setup.ts';
+import * as pluginUtils from '../pluginUtils';
 
 describe('activityLogQueries', () => {
   let brand;
@@ -127,6 +128,41 @@ describe('activityLogQueries', () => {
 
     expect(response1.length).toBe(2);
     expect(response2.length).toBe(2);
+
+    spy.mockRestore();
+  });
+
+  test('Activity log with plugin type', async () => {
+    const customer = await customerFactory({});
+
+    const spy = jest.spyOn(pluginUtils, 'collectPluginContent');
+
+    spy.mockImplementation(async () => []);
+
+    const activityTypes = [{ type: 'plugin_test' }];
+
+    for (const t of activityTypes) {
+      const args = {
+        contentId: customer._id,
+        contentType: t.type === 'sms' ? 'sms' : 'customer',
+        activityType: t.type
+      };
+
+      const processState = process.env.ELK_SYNCER;
+
+      process.env.ELK_SYNCER = 'false';
+
+      const response = await graphqlRequest(
+        qryActivityLogs,
+        'activityLogs',
+        args,
+        {}
+      );
+
+      expect(response).toBeDefined();
+
+      process.env.ELK_SYNCER = processState;
+    }
 
     spy.mockRestore();
   });

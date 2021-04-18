@@ -454,6 +454,7 @@ export const PRODUCT_INFO = {
   name: 'Name',
   type: 'Type',
   category: 'Category',
+  vendor: 'Vendor',
   description: 'Description',
   sku: 'Sku',
 
@@ -462,6 +463,7 @@ export const PRODUCT_INFO = {
     { field: 'name', label: 'Name' },
     { field: 'type', label: 'Type' },
     { field: 'category', label: 'Category' },
+    { field: 'vendor', label: 'Vendor' },
     { field: 'description', label: 'Description' },
     { field: 'sku', label: 'Sku' }
   ]
