@@ -1,5 +1,6 @@
 import { graphqlRequest } from '../db/connection';
 import {
+  companyFactory,
   productCategoryFactory,
   productFactory,
   tagsFactory
@@ -163,11 +164,14 @@ describe('productQueries', () => {
           _id
           category { _id }
           getTags { _id }
+          vendor { _id }
         }
       }
     `;
 
-    const product = await productFactory();
+    const product = await productFactory({
+      vendorId: (await companyFactory())._id
+    });
 
     const response = await graphqlRequest(qry, 'productDetail', {
       _id: product._id
