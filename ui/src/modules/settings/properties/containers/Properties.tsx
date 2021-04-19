@@ -17,6 +17,7 @@ import {
   FieldsUpdateVisibleMutationResponse
 } from '../types';
 import { updateCustomFieldsCache } from '../utils';
+import Spinner from 'modules/common/components/Spinner';
 
 type Props = {
   queryParams: any;
@@ -41,6 +42,10 @@ const PropertiesContainer = (props: FinalProps) => {
     fieldsUpdateVisible,
     queryParams
   } = props;
+
+  if (fieldsGroupsQuery.loading) {
+    return <Spinner objective={true} />;
+  }
 
   if (!router.getParam(history, 'type')) {
     router.setParams(

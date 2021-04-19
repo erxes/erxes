@@ -11,8 +11,15 @@ const PropertyList = styled.ul`
   margin: 0;
   margin-top: -1px;
 
+  .faAjSp > ${SortItem} {
+    border: 0;
+    margin: 0;
+    padding: 0;
+  }
+
   li {
     position: relative;
+    width: 100%;
 
     &:hover {
       cursor: pointer;

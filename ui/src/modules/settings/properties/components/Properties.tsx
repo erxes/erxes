@@ -15,6 +15,7 @@ import { PropertyList } from '../styles';
 import { IFieldGroup } from '../types';
 import PropertyRow from './PropertyRow';
 import Sidebar from './Sidebar';
+import SortableList from 'modules/common/components/SortableList';
 
 type Props = {
   queryParams: any;
@@ -34,7 +35,24 @@ type Props = {
   }) => void;
 };
 
-class Properties extends React.Component<Props> {
+class Properties extends React.Component<
+  Props,
+  { fieldsGroups: IFieldGroup[] }
+> {
+  constructor(props: Props) {
+    super(props);
+
+    const { fieldsGroups = [] } = props;
+
+    this.state = {
+      fieldsGroups
+    };
+  }
+
+  onChangeFieldGroups = fieldsGroups => {
+    this.setState({ fieldsGroups });
+  };
+
   renderProperties = () => {
     const {
       fieldsGroups,
@@ -54,21 +72,28 @@ class Properties extends React.Component<Props> {
       );
     }
 
+    const child = group => (
+      <PropertyRow
+        key={group._id}
+        group={group}
+        queryParams={queryParams}
+        removePropertyGroup={removePropertyGroup}
+        removeProperty={removeProperty}
+        updatePropertyVisible={updatePropertyVisible}
+        updatePropertyDetailVisible={updatePropertyDetailVisible}
+      />
+    );
+
     return (
       <PropertyList>
-        {fieldsGroups.map(group => {
-          return (
-            <PropertyRow
-              key={group._id}
-              group={group}
-              queryParams={queryParams}
-              removePropertyGroup={removePropertyGroup}
-              removeProperty={removeProperty}
-              updatePropertyVisible={updatePropertyVisible}
-              updatePropertyDetailVisible={updatePropertyDetailVisible}
-            />
-          );
-        })}
+        <SortableList
+          fields={this.state.fieldsGroups}
+          child={child}
+          onChangeFields={this.onChangeFieldGroups}
+          isModal={true}
+          showDragHandler={false}
+          droppableId="property-group"
+        />
       </PropertyList>
     );
   };
