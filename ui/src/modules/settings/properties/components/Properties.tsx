@@ -82,6 +82,25 @@ class Properties extends React.Component<
     );
   };
 
+  renderSortableList = () => {
+    const { fieldsGroups } = this.state;
+
+    if (fieldsGroups.length === 0) {
+      return null;
+    }
+
+    return (
+      <SortableList
+        fields={fieldsGroups}
+        child={group => this.renderRow(group)}
+        onChangeFields={this.onChangeFieldGroups}
+        isModal={true}
+        showDragHandler={false}
+        droppableId="property-group"
+      />
+    );
+  };
+
   renderProperties = () => {
     const { fieldsGroups } = this.props;
 
@@ -99,14 +118,7 @@ class Properties extends React.Component<
     return (
       <PropertyList>
         {defaultGroups.map(group => this.renderRow(group))}
-        <SortableList
-          fields={this.state.fieldsGroups}
-          child={group => this.renderRow(group)}
-          onChangeFields={this.onChangeFieldGroups}
-          isModal={true}
-          showDragHandler={false}
-          droppableId="property-group"
-        />
+        {this.renderSortableList()}
       </PropertyList>
     );
   };

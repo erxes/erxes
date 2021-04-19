@@ -113,12 +113,17 @@ const PropertyTableHeader = styled.div`
     position: sticky;
     z-index: 1;
     top: 0;
-    width: 24%;
+    width: 33%;
+
+    &:last-child {
+      width: 5%;
+      padding: 8px 0;
+    }
   }
 `;
 
 const RowField = styled.div`
-  width: 24%;
+  width: 33%;
   border-top: 1px solid ${colors.borderPrimary};
   padding: 8px ${dimensions.coreSpacing}px;
   display: flex;

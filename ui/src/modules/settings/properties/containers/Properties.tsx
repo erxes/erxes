@@ -139,7 +139,6 @@ const PropertiesContainer = (props: FinalProps) => {
   };
 
   const updateGroupOrder = groupOrders => {
-    console.log(groupOrders);
     groupsUpdateOrder({
       variables: {
         orders: groupOrders.map((group, index) => ({

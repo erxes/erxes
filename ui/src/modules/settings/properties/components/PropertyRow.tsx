@@ -204,6 +204,7 @@ class PropertyRow extends React.Component<Props, State> {
           {showVisibleDetail && (
             <ControlLabel>{__('Visible in detail')}</ControlLabel>
           )}
+          <label />
         </PropertyTableHeader>
         <div>
           {this.props.group.isDefinedByErxes
