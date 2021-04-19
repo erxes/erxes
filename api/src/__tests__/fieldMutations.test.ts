@@ -459,4 +459,35 @@ describe('Fields mutations', () => {
     expect(fieldGroup._id).toBe(args._id);
     expect(fieldGroup.isVisible).toBe(args.isVisible);
   });
+
+  test('Update order fieldGroup', async () => {
+    const orders = [
+      {
+        _id: _fieldGroup._id,
+        order: 1
+      }
+    ];
+
+    const mutation = `
+      mutation fieldsGroupsUpdateOrder($orders: [OrderItem]) {
+        fieldsGroupsUpdateOrder(orders: $orders) {
+          _id
+          order
+        }
+      }
+    `;
+
+    const [fields] = await graphqlRequest(
+      mutation,
+      'fieldsGroupsUpdateOrder',
+      { orders },
+      context
+    );
+
+    const orderIds = orders.map(order => order._id);
+    const orderItems = orders.map(item => item.order);
+
+    expect(orderIds).toContain(fields._id);
+    expect(orderItems).toContain(fields.order);
+  });
 });

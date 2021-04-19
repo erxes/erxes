@@ -14,6 +14,7 @@ import {
   PRODUCT_INFO,
   PROPERTY_GROUPS
 } from '../../data/constants';
+import { updateOrder } from './boardUtils';
 import { FIELDS_GROUPS_CONTENT_TYPES } from './definitions/constants';
 import {
   fieldGroupSchema,
@@ -223,16 +224,7 @@ export const loadFieldClass = () => {
      * Update given fields orders
      */
     public static async updateOrder(orders: IOrderInput[]) {
-      const ids: string[] = [];
-
-      for (const { _id, order } of orders) {
-        ids.push(_id);
-
-        // update each fields order
-        await Fields.updateOne({ _id }, { order });
-      }
-
-      return Fields.find({ _id: { $in: ids } }).sort({ order: 1 });
+      return updateOrder(Fields, orders);
     }
 
     /*
@@ -458,7 +450,7 @@ export interface IFieldGroupModel extends Model<IFieldGroupDocument> {
   createGroup(doc: IFieldGroup): Promise<IFieldGroupDocument>;
   updateGroup(_id: string, doc: IFieldGroup): Promise<IFieldGroupDocument>;
   removeGroup(_id: string): Promise<string>;
-
+  updateOrder(orders: IOrderInput[]): Promise<IFieldGroupDocument[]>;
   updateGroupVisible(
     _id: string,
     lastUpdatedUserId: string,
@@ -611,6 +603,13 @@ export const loadGroupClass = () => {
           await Fields.createSystemFields(fieldGroup._id, subType.value);
         }
       }
+    }
+
+    /*
+     * Update given fieldsGroups orders
+     */
+    public static async updateOrder(orders: IOrderInput[]) {
+      return updateOrder(FieldsGroups, orders);
     }
   }
 
