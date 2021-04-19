@@ -44,6 +44,7 @@ import tickets from './tickets';
 import users from './users';
 import webhooks from './webhooks';
 import widgets from './widgets';
+import smsDeliveries from './smsDeliveries';
 
 export default {
   ...users,
@@ -88,5 +89,6 @@ export default {
   ...dashboards,
   ...skillTypesQueries,
   ...skillQueries,
-  ...messengerAppsQueries
+  ...messengerAppsQueries,
+  ...smsDeliveries
 };
