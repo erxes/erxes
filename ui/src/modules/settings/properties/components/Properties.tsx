@@ -45,7 +45,7 @@ class Properties extends React.Component<
     const { fieldsGroups = [] } = props;
 
     this.state = {
-      fieldsGroups
+      fieldsGroups: fieldsGroups.filter(gro => !gro.isDefinedByErxes)
     };
   }
 
@@ -53,9 +53,8 @@ class Properties extends React.Component<
     this.setState({ fieldsGroups });
   };
 
-  renderProperties = () => {
+  renderRow = group => {
     const {
-      fieldsGroups,
       queryParams,
       removePropertyGroup,
       removeProperty,
@@ -63,16 +62,7 @@ class Properties extends React.Component<
       updatePropertyDetailVisible
     } = this.props;
 
-    if (fieldsGroups.length === 0) {
-      return (
-        <EmptyState
-          icon="paragraph"
-          text="There aren't any groups and fields"
-        />
-      );
-    }
-
-    const child = group => (
+    return (
       <PropertyRow
         key={group._id}
         group={group}
@@ -83,12 +73,28 @@ class Properties extends React.Component<
         updatePropertyDetailVisible={updatePropertyDetailVisible}
       />
     );
+  };
+
+  renderProperties = () => {
+    const { fieldsGroups } = this.props;
+
+    if (fieldsGroups.length === 0) {
+      return (
+        <EmptyState
+          icon="paragraph"
+          text="There aren't any groups and fields"
+        />
+      );
+    }
+
+    const defaultGroups = fieldsGroups.filter(group => group.isDefinedByErxes);
 
     return (
       <PropertyList>
+        {defaultGroups.map(group => this.renderRow(group))}
         <SortableList
           fields={this.state.fieldsGroups}
-          child={child}
+          child={group => this.renderRow(group)}
           onChangeFields={this.onChangeFieldGroups}
           isModal={true}
           showDragHandler={false}
