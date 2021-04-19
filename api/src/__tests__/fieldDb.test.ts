@@ -497,4 +497,21 @@ describe('Fields groups', () => {
   test('create system groups and fields', async () => {
     await FieldsGroups.createSystemGroupsFields();
   });
+
+  test('updateOrder()', async () => {
+    const group1 = await fieldGroupFactory({});
+    const group2 = await fieldGroupFactory({});
+
+    if (!group1 || !group2) {
+      fail('Could not create group');
+    }
+
+    const [updatedGroup1, updatedGroup2] = await FieldsGroups.updateOrder([
+      { _id: group1._id, order: 3 },
+      { _id: group2._id, order: 4 }
+    ]);
+
+    expect(updatedGroup1.order).toBe(3);
+    expect(updatedGroup2.order).toBe(4);
+  });
 });
