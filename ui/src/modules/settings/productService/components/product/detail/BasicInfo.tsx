@@ -49,7 +49,7 @@ class BasicInfo extends React.Component<Props> {
       <Action>
         <Dropdown>
           <Dropdown.Toggle as={DropdownToggle} id="dropdown-info">
-            <Button btnStyle="simple" size="medium">
+            <Button btnStyle="simple" size="medium" uppercase={false}>
               {__('Action')}
               <Icon icon="angle-down" />
             </Button>

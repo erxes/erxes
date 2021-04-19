@@ -179,6 +179,7 @@ class ManageIntegrations extends React.Component<Props, State> {
                     btnStyle="primary"
                     onClick={this.loadMore}
                     icon="angle-double-down"
+                    uppercase={false}
                   >
                     Load More
                   </Button>

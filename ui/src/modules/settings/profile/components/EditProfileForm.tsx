@@ -126,7 +126,12 @@ class EditProfile extends React.Component<Props, State> {
             Cancel
           </Button>
 
-          <Button type="submit" btnStyle="success" icon="plus-circle">
+          <Button
+            type="submit"
+            btnStyle="success"
+            icon="plus-circle"
+            uppercase={false}
+          >
             Save
           </Button>
         </ModalFooter>

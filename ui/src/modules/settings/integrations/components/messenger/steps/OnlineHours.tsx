@@ -135,6 +135,7 @@ class OnlineHours extends React.Component<Props, State> {
           size="small"
           onClick={this.addTime}
           icon="add"
+          uppercase={false}
         >
           Add another time
         </Button>

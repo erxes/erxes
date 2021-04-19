@@ -101,6 +101,7 @@ class GroupForm extends React.Component<Props, State> {
             type="button"
             onClick={this.props.closeModal}
             icon="cancel-1"
+            uppercase={false}
           >
             Cancel
           </Button>

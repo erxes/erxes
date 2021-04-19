@@ -45,6 +45,7 @@ class FormBuilder extends React.Component<
             type="button"
             icon="cancel-1"
             onClick={this.closeModal}
+            uppercase={false}
           >
             Cancel
           </Button>
