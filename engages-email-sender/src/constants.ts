@@ -1,4 +1,5 @@
 export const SMS_DELIVERY_STATUSES = {
+  // default telnyx values
   QUEUED: 'queued',
   SENDING: 'sending',
   SENT: 'sent',
@@ -6,6 +7,9 @@ export const SMS_DELIVERY_STATUSES = {
   SENDING_FAILED: 'sending_failed',
   DELIVERY_FAILED: 'delivery_failed',
   DELIVERY_UNCONFIRMED: 'delivery_unconfirmed',
+  WEBHOOK_DELIVERED: 'webhook_delivered',
+  // custom value
+  ERROR: 'error',
   ALL: [
     'queued',
     'sending',
@@ -13,7 +17,9 @@ export const SMS_DELIVERY_STATUSES = {
     'delivered',
     'sending_failed',
     'delivery_failed',
-    'delivery_unconfirmed'
+    'delivery_unconfirmed',
+    'webhook_delivered',
+    'error'
   ],
   OPTIONS: [
     {
@@ -45,6 +51,14 @@ export const SMS_DELIVERY_STATUSES = {
       value: 'delivery_unconfirmed',
       label:
         'There is no indication whether or not the message has reached the receiver'
+    },
+    {
+      value: 'webhook_delivered',
+      label: 'Incoming sms delivered through webhook'
+    },
+    {
+      value: 'error',
+      label: 'error'
     }
   ]
 };
