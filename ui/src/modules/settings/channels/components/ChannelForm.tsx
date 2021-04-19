@@ -100,6 +100,7 @@ class ChannelForm extends React.Component<Props, State> {
             type="button"
             icon="cancel-1"
             onClick={closeModal}
+            // uppercase={false}
           >
             Cancel
           </Button>
