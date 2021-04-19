@@ -134,6 +134,12 @@ const RowField = styled.div`
 const PropertyTableRow = styled.div`
   display: flex;
   flex 1;
+
+  &:hover {
+    ${RowField} {
+      background-color: rgb(245, 245, 245);
+    }
+  }
 `;
 
 export {

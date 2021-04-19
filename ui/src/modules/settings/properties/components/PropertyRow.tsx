@@ -202,7 +202,11 @@ class PropertyRow extends React.Component<Props, State> {
             <ControlLabel>{__('Visible in detail')}</ControlLabel>
           )}
         </PropertyTableHeader>
-        <div>{renderListRow}</div>
+        <div>
+          {this.props.group.isDefinedByErxes
+            ? fields.map(field => this.renderTableRow(field))
+            : renderListRow}
+        </div>
       </PropertyListTable>
     );
   };
