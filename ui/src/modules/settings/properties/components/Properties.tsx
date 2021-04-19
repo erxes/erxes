@@ -12,10 +12,11 @@ import Dropdown from 'react-bootstrap/Dropdown';
 import PropertyForm from '../containers/PropertyForm';
 import PropertyGroupForm from '../containers/PropertyGroupForm';
 import { PropertyList } from '../styles';
-import { IFieldGroup } from '../types';
+import { IFieldGroup, IField } from '../types';
 import PropertyRow from './PropertyRow';
 import Sidebar from './Sidebar';
 import SortableList from 'modules/common/components/SortableList';
+// import { collectOrders } from "modules/boards/utils";
 
 type Props = {
   queryParams: any;
@@ -33,6 +34,8 @@ type Props = {
     _id: string;
     isVisible: boolean;
   }) => void;
+  updateFieldOrder: (fields: IField[]) => any;
+  updateGroupOrder: (groups: IFieldGroup[]) => void;
 };
 
 class Properties extends React.Component<
@@ -50,7 +53,9 @@ class Properties extends React.Component<
   }
 
   onChangeFieldGroups = fieldsGroups => {
-    this.setState({ fieldsGroups });
+    this.setState({ fieldsGroups }, () => {
+      this.props.updateGroupOrder(this.state.fieldsGroups);
+    });
   };
 
   renderRow = group => {
@@ -59,7 +64,8 @@ class Properties extends React.Component<
       removePropertyGroup,
       removeProperty,
       updatePropertyVisible,
-      updatePropertyDetailVisible
+      updatePropertyDetailVisible,
+      updateFieldOrder
     } = this.props;
 
     return (
@@ -70,6 +76,7 @@ class Properties extends React.Component<
         removePropertyGroup={removePropertyGroup}
         removeProperty={removeProperty}
         updatePropertyVisible={updatePropertyVisible}
+        updateFieldOrder={updateFieldOrder}
         updatePropertyDetailVisible={updatePropertyDetailVisible}
       />
     );

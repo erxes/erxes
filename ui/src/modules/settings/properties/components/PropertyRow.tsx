@@ -31,6 +31,7 @@ type Props = {
     _id: string;
     isVisibleInDetail: boolean;
   }) => void;
+  updateFieldOrder: (fields: IField[]) => any;
 };
 
 type State = {
@@ -55,7 +56,9 @@ class PropertyRow extends React.Component<Props, State> {
   };
 
   onChangeFields = fields => {
-    this.setState({ fields });
+    this.setState({ fields }, () => {
+      this.props.updateFieldOrder(this.state.fields);
+    });
   };
 
   visibleHandler = (e, property) => {
