@@ -6,6 +6,15 @@ const LabelWrapper = styled.div`
   padding: ${dimensions.coreSpacing}px;
 `;
 
+const LabelWrapper1 = styled.div`
+  .twitter-picker {
+    box-shadow: none !important;
+  }
+  div:nth-child(3) {
+    padding: 15px 9px 9px 0px !important;
+  }
+`;
+
 const Title = styled.h3`
   margin: 0;
   display: flex;
@@ -133,5 +142,6 @@ export {
   ButtonContainer,
   ChooseColor,
   ChooseLabelWrapper,
-  PipelineLabelList
+  PipelineLabelList,
+  LabelWrapper1
 };

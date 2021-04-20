@@ -1,4 +1,3 @@
-import { COLORS } from 'modules/boards/constants';
 import Button from 'modules/common/components/Button';
 import {
   ControlLabel,
@@ -6,12 +5,11 @@ import {
   FormGroup
 } from 'modules/common/components/form';
 import Form from 'modules/common/components/form/Form';
-import Icon from 'modules/common/components/Icon';
 import { IButtonMutateProps, IFormProps } from 'modules/common/types';
-import { BackgroundSelector } from 'modules/leads/components/step/style';
 import * as React from 'react';
-import { ChooseColor } from '../../styles/label';
 import { IPipelineLabel } from '../../types';
+import TwitterPicker from 'react-color/lib/Twitter';
+import { LabelWrapper1 } from 'modules/boards/styles/label';
 
 type IProps = {
   renderButton: (props: IButtonMutateProps) => JSX.Element;
@@ -23,6 +21,7 @@ type IProps = {
 
 type State = {
   label: IPipelineLabel;
+  color?: string;
 };
 
 class FormComponent extends React.Component<IProps, State> {
@@ -30,7 +29,7 @@ class FormComponent extends React.Component<IProps, State> {
     const { label } = nextProps;
     const prevLabel = prevState.label;
 
-    const defaultLabel = { colorCode: COLORS[0], name: '' };
+    const defaultLabel = { colorCode: '#ff6900', name: '' };
 
     if (
       (label && label._id !== prevLabel._id) ||
@@ -38,7 +37,7 @@ class FormComponent extends React.Component<IProps, State> {
     ) {
       return {
         label: nextProps.label || {
-          colorCode: COLORS[0],
+          colorCode: '#ff6900',
           name: ''
         }
       };
@@ -58,7 +57,7 @@ class FormComponent extends React.Component<IProps, State> {
   }
 
   getDefaultLabel() {
-    return { colorCode: COLORS[0], name: '' };
+    return { colorCode: '#ff6900', name: '' };
   }
 
   componentDidUpdate(prevProps) {
@@ -73,14 +72,6 @@ class FormComponent extends React.Component<IProps, State> {
       this.setState({ label: this.getDefaultLabel() });
     }
   }
-
-  onChangeColorCode = (colorCode: string) => {
-    const { label } = this.state;
-
-    label.colorCode = colorCode;
-
-    this.setState({ label });
-  };
 
   onNameChange = (e: React.FormEvent<HTMLElement>) => {
     const label = { ...this.state.label };
@@ -98,28 +89,17 @@ class FormComponent extends React.Component<IProps, State> {
     }
   };
 
-  renderColors(colorCode: string) {
-    const onClick = () => this.onChangeColorCode(colorCode);
+  onChangeColor = (e: any) => {
     const { label } = this.state;
-
-    return (
-      <BackgroundSelector
-        key={colorCode}
-        selected={label.colorCode === colorCode}
-        onClick={onClick}
-      >
-        <div style={{ backgroundColor: colorCode }}>
-          <Icon icon="check-1" />
-        </div>
-      </BackgroundSelector>
-    );
-  }
+    label.colorCode = e.hex;
+    this.setState({ label });
+  };
 
   renderContent = (formProps: IFormProps) => {
     const { renderButton, afterSave } = this.props;
     const { label } = this.state;
     const { isSubmitted } = formProps;
-
+    const { color } = this.state;
     return (
       <>
         <FormGroup>
@@ -133,12 +113,18 @@ class FormComponent extends React.Component<IProps, State> {
             autoFocus={true}
           />
         </FormGroup>
+
         <FormGroup>
           <ControlLabel required={true}>Select a color</ControlLabel>
-          <ChooseColor>
-            {COLORS.map(colorCode => this.renderColors(colorCode))}
-          </ChooseColor>
+          <LabelWrapper1>
+            <TwitterPicker
+              color={color}
+              onChange={this.onChangeColor.bind(this)}
+              triangle="hide"
+            />
+          </LabelWrapper1>
         </FormGroup>
+
         {label._id && (
           <Button
             btnStyle="danger"
