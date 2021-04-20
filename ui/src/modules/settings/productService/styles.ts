@@ -1,7 +1,6 @@
 import { colors } from 'modules/common/styles';
 import styled from 'styled-components';
 
-
 const Info = styled.div`
   margin-top: 5px;
   white-space: normal;
@@ -26,9 +25,4 @@ const InfoDetail = styled.p`
   word-break: break-all;
 `;
 
-
-export {
-  InfoTitle,
-  InfoDetail,
-  Info
-}
+export { InfoTitle, InfoDetail, Info };
