@@ -398,7 +398,17 @@ export class CommonBuilder<IListArgs extends ICommonListArgs> {
       }
     };
 
+    let totalCount = 0;
+
     if (action === 'search') {
+      const totalCountResponse = await fetchElk(
+        'count',
+        this.contentType,
+        queryOptions
+      );
+
+      totalCount = totalCountResponse.count;
+
       queryOptions.from = (_page - 1) * _limit;
       queryOptions.size = _limit;
 
@@ -438,7 +448,7 @@ export class CommonBuilder<IListArgs extends ICommonListArgs> {
 
     return {
       list,
-      totalCount: response.hits.total.value
+      totalCount
     };
   }
 }
