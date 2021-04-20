@@ -51,6 +51,16 @@ class PropertyRow extends React.Component<Props, State> {
     };
   }
 
+  componentWillReceiveProps(nextProps) {
+    const { fields = [] } = this.props.group;
+
+    if (fields !== nextProps.group.fields) {
+      this.setState({
+        fields: nextProps.group.fields
+      });
+    }
+  }
+
   handleCollapse = () => {
     this.setState({ collapse: !this.state.collapse });
   };

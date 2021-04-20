@@ -130,7 +130,7 @@ const PropertiesContainer = (props: FinalProps) => {
       variables: {
         orders: fieldOrders.map((field, index) => ({
           _id: field._id,
-          order: index
+          order: index + 1
         }))
       }
     }).catch(error => {
@@ -143,7 +143,7 @@ const PropertiesContainer = (props: FinalProps) => {
       variables: {
         orders: groupOrders.map((group, index) => ({
           _id: group._id,
-          order: index
+          order: index + 1
         }))
       }
     }).catch(error => {

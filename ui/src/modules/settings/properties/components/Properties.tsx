@@ -52,6 +52,16 @@ class Properties extends React.Component<
     };
   }
 
+  componentWillReceiveProps(nextProps) {
+    if (this.props.fieldsGroups !== nextProps.fieldsGroups) {
+      this.setState({
+        fieldsGroups: nextProps.fieldsGroups.filter(
+          gro => !gro.isDefinedByErxes
+        )
+      });
+    }
+  }
+
   onChangeFieldGroups = fieldsGroups => {
     this.setState({ fieldsGroups }, () => {
       this.props.updateGroupOrder(this.state.fieldsGroups);
