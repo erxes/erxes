@@ -78,6 +78,8 @@ export const SMS_DELIVERY_STATUSES = {
   SENDING_FAILED: 'sending_failed',
   DELIVERY_FAILED: 'delivery_failed',
   DELIVERY_UNCONFIRMED: 'delivery_unconfirmed',
+  WEBHOOK_DELIVERED: 'webhook_delivered',
+  ERROR: 'error',
   ALL: [
     'queued',
     'sending',
@@ -85,7 +87,9 @@ export const SMS_DELIVERY_STATUSES = {
     'delivered',
     'sending_failed',
     'delivery_failed',
-    'delivery_unconfirmed'
+    'delivery_unconfirmed',
+    'webhook_delivered',
+    'error'
   ],
   OPTIONS: [
     {
@@ -141,6 +145,20 @@ export const SMS_DELIVERY_STATUSES = {
       description:
         'There is no indication whether or not the message has reached the receiver',
       color: colors.colorCoreYellow
+    },
+    {
+      value: 'webhook_delivered',
+      label: 'Delivered through webhook',
+      icon: 'checked',
+      description: 'Delivered through configured webhook',
+      color: colors.colorCoreGreen
+    },
+    {
+      value: 'error',
+      label: 'Error occurred',
+      icon: 'times-circle',
+      description: 'Error occurred',
+      color: colors.colorCoreRed
     }
   ]
 };
