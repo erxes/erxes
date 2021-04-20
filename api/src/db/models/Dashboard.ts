@@ -37,7 +37,7 @@ export const loadDashBoardClass = () => {
     }
 
     public static async removeDashboard(_id: string) {
-      return Dashboards.remove({ _id });
+      return Dashboards.deleteOne({ _id });
     }
   }
 
@@ -59,7 +59,7 @@ export const loadDashboardItemClass = () => {
     }
 
     public static async removeDashboardItem(_id: string) {
-      await DashboardItems.remove({ _id });
+      await DashboardItems.deleteOne({ _id });
     }
   }
 

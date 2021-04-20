@@ -11,7 +11,7 @@ describe('skillTypeQueries', () => {
   });
 
   afterEach(async () => {
-    await SkillTypes.remove({});
+    await SkillTypes.deleteMany({});
   });
 
   test('skillTypes', async () => {
@@ -43,7 +43,7 @@ describe('skillTypeQueries', () => {
 
 describe('skillsQueries', () => {
   afterEach(async () => {
-    await Skills.remove({});
+    await Skills.deleteMany({});
   });
 
   test('skill', async () => {

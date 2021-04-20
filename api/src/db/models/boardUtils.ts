@@ -284,5 +284,5 @@ export const destroyBoardItemRelations = async (
     mainType: contentType,
     mainTypeId: contentTypeId
   });
-  await InternalNotes.remove({ contentType, contentTypeId });
+  await InternalNotes.deleteMany({ contentType, contentTypeId });
 };

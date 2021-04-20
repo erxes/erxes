@@ -85,7 +85,7 @@ describe('User db utils', () => {
       fail('User not found');
     }
 
-    await Users.remove({});
+    await Users.deleteMany({});
 
     const response = await Users.generateUserCodeField();
 
@@ -638,7 +638,7 @@ describe('User db utils', () => {
     expect(response.refreshToken).toBeDefined();
 
     // generate code field
-    await Users.remove({});
+    await Users.deleteMany({});
 
     const user1 = await userFactory({});
 

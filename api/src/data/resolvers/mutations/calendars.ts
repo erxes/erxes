@@ -119,7 +119,7 @@ const calendarMutations = {
         uid
       });
 
-      await Calendars.update(
+      await Calendars.updateOne(
         { _id: calendar._id },
         { $set: { accountId, name: email } }
       );
