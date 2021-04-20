@@ -56,9 +56,11 @@ const init = async app => {
 
       const { integrationId, content, to } = req.body;
 
-      await sendSms(JSON.stringify({ integrationId, content, toPhone: to }));
+      const result = await sendSms(
+        JSON.stringify({ integrationId, content, toPhone: to })
+      );
 
-      return res.json({ status: 'ok' });
+      return res.json(result);
     })
   );
 

@@ -75,13 +75,19 @@ const handleMessageCallback = async (
     to: msg.to,
     requestData: JSON.stringify(msg),
     direction: SMS_DIRECTIONS.OUTBOUND,
-    from: msg.from
+    from: msg.from,
+    content: msg.text
   });
 
   if (err) {
+    const errorMessage = `${err.message}: "${msg.to}"`;
+
     await ConversationMessages.updateRequest(request._id, {
-      errorMessages: [err.message]
+      errorMessages: [errorMessage],
+      status: 'error'
     });
+
+    return { status: 'error', message: errorMessage };
   }
 
   if (res && res.data && res.data.to) {
@@ -92,7 +98,11 @@ const handleMessageCallback = async (
       responseData: JSON.stringify(res.data),
       telnyxId: res.data.id
     });
+
+    return { status: 'ok' };
   }
+
+  return { status: 'unknown' };
 };
 
 export const createIntegration = async (req: any) => {
@@ -203,14 +213,24 @@ export const sendSms = async (data: any) => {
 
     const msg = await prepareMessage({ content, integrationId, to: toPhone });
 
-    await telnyx.messages.create(msg, async (err: any, res: any) => {
-      await handleMessageCallback(err, res, {
-        conversationId,
-        conversationMessageId,
-        integrationId,
-        msg
+    const response = await new Promise((resolve, reject) => {
+      telnyx.messages.create(msg, async (err: any, res: any) => {
+        const result = await handleMessageCallback(err, res, {
+          conversationId,
+          conversationMessageId,
+          integrationId,
+          msg
+        });
+
+        if (err) {
+          return reject(err);
+        }
+
+        return resolve(result);
       });
     });
+
+    return response;
   } catch (e) {
     throw new Error(e);
   }
