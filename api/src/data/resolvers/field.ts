@@ -35,7 +35,7 @@ export const field = {
 export const fieldsGroup = {
   fields(root: IFieldGroupDocument) {
     // Returning all fields that are related to the group
-    return Fields.find({ groupId: root._id });
+    return Fields.find({ groupId: root._id }).sort({ order: 1 });
   },
 
   lastUpdatedUser(fieldGroup: IFieldGroupDocument) {
