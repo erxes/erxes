@@ -8,6 +8,7 @@ const smsDeliveries = `
   
         direction
         status
+        errorMessages
 
         engageMessageId
   

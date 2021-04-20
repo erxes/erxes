@@ -907,6 +907,17 @@ describe('mutations', () => {
 
     expect(response.status).toBe('ok');
 
+    // intentionally throw error
+    spy.mockImplementation(() => Promise.reject({ status: 'error' }));
+
+    try {
+      await graphqlRequest(mutation, 'integrationsSendSms', args, {
+        dataSources
+      });
+    } catch (e) {
+      expect(e).toBeDefined();
+    }
+
     spy.mockRestore();
   });
 });
