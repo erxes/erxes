@@ -12,7 +12,7 @@ const command = async () => {
   const convos = await Conversations.find({
     status: { $ne: 'engageVisitorAuto' },
     userId: { $exists: true },
-    messageCount: 0
+    messageCount: 1
   });
 
   console.log('Found', convos.length);
