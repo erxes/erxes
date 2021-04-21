@@ -14,7 +14,9 @@ export const COLORS = [
   '#cd5a91',
   '#d29034',
   '#63D2D6',
-  '#F7CE53'
+  '#F7CE53',
+  '#FF6900',
+  '#EB144C'
 ];
 
 export const TEXT_COLORS = [

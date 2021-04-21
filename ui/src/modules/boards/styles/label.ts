@@ -12,6 +12,10 @@ const ColorChooserWrapper = styled.div`
 
     > div:nth-child(3) {
       padding: 15px 0px 0px 0px !important;
+
+      input {
+        width: 75% !important;
+      }
     }
   }
 `;
