@@ -9,9 +9,10 @@ const LabelWrapper = styled.div`
 const LabelWrapper1 = styled.div`
   .twitter-picker {
     box-shadow: none !important;
-  }
-  div:nth-child(3) {
-    padding: 15px 9px 9px 0px !important;
+
+    &:nth-child(3) {
+      padding: 15px 0px 0px 0px !important;
+    }
   }
 `;
 
