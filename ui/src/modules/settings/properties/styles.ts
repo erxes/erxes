@@ -1,7 +1,7 @@
-import { ActionButton } from 'modules/common/components/ActionButtons';
 import { colors, dimensions } from 'modules/common/styles';
 import styled from 'styled-components';
 import styledTS from 'styled-components-ts';
+import { SortItem } from 'modules/common/styles/sort';
 
 const coreSpace = `${dimensions.coreSpacing}px`;
 
@@ -11,8 +11,15 @@ const PropertyList = styled.ul`
   margin: 0;
   margin-top: -1px;
 
+  .faAjSp > ${SortItem} {
+    border: 0;
+    margin: 0;
+    padding: 0;
+  }
+
   li {
     position: relative;
+    width: 100%;
 
     &:hover {
       cursor: pointer;
@@ -30,12 +37,6 @@ const FieldType = styled.span`
   font-size: 11px;
   color: ${colors.colorCoreGray};
   display: flex;
-`;
-
-const PropertyTable = styled.div`
-  ${ActionButton} {
-    margin-right: 50px;
-  }
 `;
 
 const CollapseRow = styled.div`
@@ -96,6 +97,56 @@ const LogicIndicator = styled.span`
   color: #fff;
 `;
 
+const PropertyListTable = styled.div`
+  ${SortItem} {
+    margin: 0;
+    padding: 0;
+  }
+`;
+
+const PropertyTableHeader = styled.div`
+  display: flex;
+  background: ${colors.bgLight};
+
+  > label {
+    padding: 8px ${dimensions.coreSpacing}px;
+    position: sticky;
+    z-index: 1;
+    top: 0;
+    width: 33%;
+
+    &:last-child {
+      width: 5%;
+      padding: 8px 0;
+    }
+  }
+`;
+
+const RowField = styled.div`
+  width: 33%;
+  border-top: 1px solid ${colors.borderPrimary};
+  padding: 8px ${dimensions.coreSpacing}px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+
+  &:last-child {
+    width: 5%;
+    padding: 8px 0;
+  }
+`;
+
+const PropertyTableRow = styled.div`
+  display: flex;
+  flex 1;
+
+  &:hover {
+    ${RowField} {
+      background-color: rgb(245, 245, 245);
+    }
+  }
+`;
+
 export {
   PropertyList,
   DropIcon,
@@ -104,6 +155,9 @@ export {
   CollapseRow,
   SidebarContent,
   SelectInput,
-  PropertyTable,
-  LogicIndicator
+  PropertyListTable,
+  LogicIndicator,
+  PropertyTableHeader,
+  PropertyTableRow,
+  RowField
 };

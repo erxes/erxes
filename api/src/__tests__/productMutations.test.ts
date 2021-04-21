@@ -235,7 +235,7 @@ describe('Test products mutations', () => {
     `;
 
     // remove product before the category
-    await Products.remove({ categoryId: productCategory._id });
+    await Products.deleteMany({ categoryId: productCategory._id });
 
     await graphqlRequest(mutation, 'productCategoriesRemove', {
       _id: productCategory._id
