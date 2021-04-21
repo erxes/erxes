@@ -453,6 +453,7 @@ export const loadClass = () => {
       // create conversation
       const conversation = await Conversations.createConversation({
         userId: user._id,
+        status: 'engageVisitorAuto',
         customerId,
         visitorId,
         integrationId,
