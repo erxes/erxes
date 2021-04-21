@@ -1,8 +1,12 @@
-export const consumeInventory = async (models, doc, old_code, action) => {
+import { getConfig } from 'erxes-api-utils'
+
+export const consumeInventory = async (models, memoryStorage, doc, old_code, action) => {
   const product = await models.Products.findOne({ code: old_code });
 
   if ((action === 'update' && old_code) || action === 'create') {
     const productCategory = await models.ProductCategories.findOne({ code: doc.category_code });
+
+    const config = await getConfig(models, memoryStorage, 'ERKHET', {});
 
     const document = {
       name: doc.nickname || doc.name,
@@ -13,6 +17,7 @@ export const consumeInventory = async (models, doc, old_code, action) => {
       sku: doc.measure_unit_code,
       categoryId: productCategory ? productCategory._id : product.categoryId,
       categoryCode: productCategory ? productCategory.code : product.categoryCode,
+      description: eval("`" + config.consumeDescription + "`"),
     };
 
     if (product) {

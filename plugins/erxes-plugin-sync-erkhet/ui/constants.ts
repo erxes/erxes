@@ -7,6 +7,7 @@ export const KEY_LABELS = {
   saleAccount: 'sale account',
   categoryCode: 'category Code',
   productCategoryCode: 'product Category Code',
+  consumeDescription: 'consume products Description',
   customerDefaultName: 'customer Default Name',
   customerCategoryCode: 'customer Category Code',
   companyCategoryCode: 'company Category Code',

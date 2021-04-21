@@ -14,7 +14,7 @@ export default [
 
       switch (kind) {
         case 'inventories.inventory':
-          await consumeInventory(models, doc, old_code, action);
+          await consumeInventory(models, memoryStorage, doc, old_code, action);
           break;
         case 'inventories.category':
           await consumeInventoryCategory(models, doc, old_code, action);

@@ -91,6 +91,7 @@ class GeneralSettings extends React.Component<Props, State> {
           {this.renderItem('costAccount', 'Cost Account fullCode on erkhet')}
           {this.renderItem('saleAccount', 'Sale Account fullCode on erkhet')}
           {this.renderItem('productCategoryCode', 'Default Category Code on erkhet inventory')}
+          {this.renderItem('consumeDescription', 'Set description when incoming erkhet inventory')}
         </CollapseContent>
         <CollapseContent title="Customer to erkhet">
           {this.renderItem('checkCompanyUrl')}
