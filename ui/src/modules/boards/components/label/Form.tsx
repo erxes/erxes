@@ -9,7 +9,7 @@ import { IButtonMutateProps, IFormProps } from 'modules/common/types';
 import * as React from 'react';
 import { IPipelineLabel } from '../../types';
 import TwitterPicker from 'react-color/lib/Twitter';
-import { LabelWrapper1 } from 'modules/boards/styles/label';
+import { ColorChooserWrapper } from 'modules/boards/styles/label';
 
 type IProps = {
   renderButton: (props: IButtonMutateProps) => JSX.Element;
@@ -116,13 +116,13 @@ class FormComponent extends React.Component<IProps, State> {
 
         <FormGroup>
           <ControlLabel required={true}>Select a color</ControlLabel>
-          <LabelWrapper1>
+          <ColorChooserWrapper>
             <TwitterPicker
               color={color}
               onChange={this.onChangeColor.bind(this)}
               triangle="hide"
             />
-          </LabelWrapper1>
+          </ColorChooserWrapper>
         </FormGroup>
 
         {label._id && (

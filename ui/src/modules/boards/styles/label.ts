@@ -6,11 +6,11 @@ const LabelWrapper = styled.div`
   padding: ${dimensions.coreSpacing}px;
 `;
 
-const LabelWrapper1 = styled.div`
+const ColorChooserWrapper = styled.div`
   .twitter-picker {
     box-shadow: none !important;
 
-    &:nth-child(3) {
+    > div:nth-child(3) {
       padding: 15px 0px 0px 0px !important;
     }
   }
@@ -144,5 +144,5 @@ export {
   ChooseColor,
   ChooseLabelWrapper,
   PipelineLabelList,
-  LabelWrapper1
+  ColorChooserWrapper
 };
