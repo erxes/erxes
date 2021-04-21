@@ -70,10 +70,9 @@ export default class Builder {
   }
 
   public async defaultFilters(): Promise<any> {
-    const activeIntegrations = await Integrations.findIntegrations(
-      {},
-      { _id: 1 }
-    );
+    const activeIntegrations = await getDocumentList('integrations', {
+      isActive: { $ne: false }
+    });
 
     this.activeIntegrationIds = activeIntegrations.map(integ => integ._id);
 
