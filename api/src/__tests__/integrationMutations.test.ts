@@ -84,7 +84,7 @@ describe('mutations', () => {
   });
 
   test('Create messenger integration', async () => {
-    await Integrations.remove({});
+    await Integrations.deleteMany({});
 
     const args = {
       name: 'Integration Name',
