@@ -1,7 +1,10 @@
 import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
 import { Alert, withProps } from 'modules/common/utils';
-import { EmailTemplatesQueryResponse } from 'modules/settings/emailTemplates/containers/List';
+import {
+  EmailTemplatesQueryResponse,
+  EmailTemplatesTotalCountQueryResponse
+} from 'modules/settings/emailTemplates/containers/List';
 import { queries as templatesQuery } from 'modules/settings/emailTemplates/graphql';
 import {
   EditIntegrationMutationResponse,
@@ -38,6 +41,7 @@ type State = {
 type FinalProps = {
   integrationDetailQuery: LeadIntegrationDetailQueryResponse;
   emailTemplatesQuery: EmailTemplatesQueryResponse;
+  emailTemplatesTotalCountQuery: EmailTemplatesTotalCountQueryResponse;
 } & Props &
   EditIntegrationMutationResponse &
   IRouterProps;
@@ -120,8 +124,27 @@ class EditLeadContainer extends React.Component<FinalProps, State> {
   }
 }
 
-export default withProps<Props>(
+const withTemplatesQuery = withProps<FinalProps>(
   compose(
+    graphql<FinalProps, EmailTemplatesQueryResponse>(
+      gql(templatesQuery.emailTemplates),
+      {
+        name: 'emailTemplatesQuery',
+        options: ({ emailTemplatesTotalCountQuery }) => ({
+          variables: {
+            perPage: emailTemplatesTotalCountQuery.emailTemplatesTotalCount
+          }
+        })
+      }
+    )
+  )(EditLeadContainer)
+);
+
+export default withProps<FinalProps>(
+  compose(
+    graphql(gql(templatesQuery.totalCount), {
+      name: 'emailTemplatesTotalCountQuery'
+    }),
     graphql<Props, LeadIntegrationDetailQueryResponse, { _id: string }>(
       gql(queries.integrationDetail),
       {
@@ -146,15 +169,6 @@ export default withProps<Props>(
           'formDetail'
         ]
       }
-    }),
-    graphql<Props, EmailTemplatesQueryResponse>(
-      gql(templatesQuery.emailTemplates),
-      {
-        name: 'emailTemplatesQuery',
-        options: () => ({
-          variables: { page: 1 }
-        })
-      }
-    )
-  )(withRouter<FinalProps>(EditLeadContainer))
+    })
+  )(withRouter<FinalProps>(withTemplatesQuery))
 );

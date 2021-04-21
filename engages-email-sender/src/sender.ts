@@ -131,7 +131,8 @@ const handleMessageCallback = async (
     }
 
     await SmsRequests.updateRequest(request._id, {
-      errorMessages: [err.message]
+      errorMessages: [err.message],
+      status: 'error'
     });
   }
 
@@ -292,12 +293,13 @@ export const start = async (data: IEmailParams) => {
         action: ACTIVITY_LOG_ACTIONS.SEND_EMAIL_CAMPAIGN,
         data: {
           action: 'send',
-          contentType: ACTIVITY_CONTENT_TYPES.EMAIL,
+          contentType: 'campaign',
           contentId: customer._id,
           content: {
             campaignId: engageMessageId,
             title,
-            to: customer.primaryEmail
+            to: customer.primaryEmail,
+            type: ACTIVITY_CONTENT_TYPES.EMAIL
           },
           createdBy
         }
@@ -361,12 +363,13 @@ export const sendBulkSms = async (data: ISmsParams) => {
         action: ACTIVITY_LOG_ACTIONS.SEND_SMS_CAMPAIGN,
         data: {
           action: 'send',
-          contentType: ACTIVITY_CONTENT_TYPES.SMS,
+          contentType: 'campaign',
           contentId: customer._id,
           content: {
             campaignId: engageMessageId,
             title,
-            to: customer.primaryPhone
+            to: customer.primaryPhone,
+            type: ACTIVITY_CONTENT_TYPES.SMS
           },
           createdBy
         }

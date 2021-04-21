@@ -242,6 +242,7 @@ class EmailStatistics extends React.Component<Props> {
 
   render() {
     const { message } = this.props;
+
     const logs = message.logs || [];
 
     const actionBar = (

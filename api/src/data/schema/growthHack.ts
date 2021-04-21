@@ -32,6 +32,7 @@ const commonQueryFields = `
   priority: [String]
   labelIds: [String]
   userIds: [String]
+  assignedToMe: String
 `;
 
 export const queries = `

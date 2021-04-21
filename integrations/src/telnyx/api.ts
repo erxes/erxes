@@ -26,6 +26,13 @@ interface ICallbackParams {
   msg: ITelnyxMessageParams;
 }
 
+interface ISmsDeliveryParams {
+  type: string;
+  to?: string;
+  page?: number;
+  perPage?: number;
+}
+
 // prepares sms object matching telnyx requirements
 const prepareMessage = async ({
   content,
@@ -68,13 +75,19 @@ const handleMessageCallback = async (
     to: msg.to,
     requestData: JSON.stringify(msg),
     direction: SMS_DIRECTIONS.OUTBOUND,
-    from: msg.from
+    from: msg.from,
+    content: msg.text
   });
 
   if (err) {
+    const errorMessage = `${err.message}: "${msg.to}"`;
+
     await ConversationMessages.updateRequest(request._id, {
-      errorMessages: [err.message]
+      errorMessages: [errorMessage],
+      status: 'error'
     });
+
+    return { status: 'error', message: errorMessage };
   }
 
   if (res && res.data && res.data.to) {
@@ -85,7 +98,11 @@ const handleMessageCallback = async (
       responseData: JSON.stringify(res.data),
       telnyxId: res.data.id
     });
+
+    return { status: 'ok' };
   }
+
+  return { status: 'unknown' };
 };
 
 export const createIntegration = async (req: any) => {
@@ -196,15 +213,54 @@ export const sendSms = async (data: any) => {
 
     const msg = await prepareMessage({ content, integrationId, to: toPhone });
 
-    await telnyx.messages.create(msg, async (err: any, res: any) => {
-      await handleMessageCallback(err, res, {
-        conversationId,
-        conversationMessageId,
-        integrationId,
-        msg
+    const response = await new Promise((resolve, reject) => {
+      telnyx.messages.create(msg, async (err: any, res: any) => {
+        const result = await handleMessageCallback(err, res, {
+          conversationId,
+          conversationMessageId,
+          integrationId,
+          msg
+        });
+
+        if (err) {
+          return reject(err);
+        }
+
+        return resolve(result);
       });
     });
+
+    return response;
   } catch (e) {
     throw new Error(e);
   }
+};
+
+export const getSmsDeliveries = async ({
+  type,
+  to,
+  page,
+  perPage
+}: ISmsDeliveryParams) => {
+  if (type !== 'integration') {
+    return { status: 'error', message: `Invalid parameter type: "${type}"` };
+  }
+
+  const filter: any = {};
+
+  if (to && !(to === 'undefined' || to === 'null')) {
+    filter.to = { $regex: to, $options: '$i' };
+  }
+
+  const _page = Number(page || '1');
+  const _limit = Number(perPage || '20');
+
+  const data = await ConversationMessages.find(filter)
+    .sort({ createdAt: -1 })
+    .limit(_limit)
+    .skip((_page - 1) * _limit);
+
+  const totalCount = await ConversationMessages.countDocuments(filter);
+
+  return { status: 'ok', data, totalCount };
 };

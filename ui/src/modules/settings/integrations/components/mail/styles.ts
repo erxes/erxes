@@ -211,6 +211,20 @@ const ShowReplies = styled.div`
   }
 `;
 
+const PopoverLinkWrapper = styled.div`
+  padding: ${dimensions.unitSpacing - 5}px ${dimensions.coreSpacing}px;
+
+  a > i {
+    padding-right: ${dimensions.unitSpacing - 5}px;
+  }
+
+  &:hover {
+    a {
+      color: #666;
+    }
+  }
+`;
+
 export {
   Attachments,
   FlexRow,
@@ -227,5 +241,6 @@ export {
   EditorFooter,
   FileSize,
   ShowReplyButtonWrapper,
-  ShowReplies
+  ShowReplies,
+  PopoverLinkWrapper
 };
