@@ -111,8 +111,8 @@ export default {
     return null;
   },
 
-  tags(conv: IConversationDocument) {
-    return Tags.find({ _id: { $in: conv.tagIds || [] } });
+  async tags(conv: IConversationDocument) {
+    return getDocumentList('tags', { _id: { $in: conv.tagIds || [] } });
   },
 
   async videoCallData(
