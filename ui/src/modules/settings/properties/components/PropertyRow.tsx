@@ -2,15 +2,24 @@ import ActionButtons from 'modules/common/components/ActionButtons';
 import Button from 'modules/common/components/Button';
 import EmptyState from 'modules/common/components/EmptyState';
 import ModalTrigger from 'modules/common/components/ModalTrigger';
-import Table from 'modules/common/components/table';
 import Toggle from 'modules/common/components/Toggle';
 import { __, Alert, confirm } from 'modules/common/utils';
 import React from 'react';
 import Collapse from 'react-bootstrap/Collapse';
 import PropertyForm from '../containers/PropertyForm';
 import PropertyGroupForm from '../containers/PropertyGroupForm';
-import { CollapseRow, DropIcon, FieldType, PropertyTable } from '../styles';
+import ControlLabel from 'modules/common/components/form/Label';
+import {
+  CollapseRow,
+  DropIcon,
+  FieldType,
+  PropertyListTable,
+  PropertyTableHeader,
+  RowField,
+  PropertyTableRow
+} from '../styles';
 import { IField, IFieldGroup } from '../types';
+import SortableList from 'modules/common/components/SortableList';
 
 type Props = {
   group: IFieldGroup;
@@ -22,23 +31,44 @@ type Props = {
     _id: string;
     isVisibleInDetail: boolean;
   }) => void;
+  updateFieldOrder: (fields: IField[]) => any;
 };
 
 type State = {
   collapse: boolean;
+  fields: IField[];
 };
 
 class PropertyRow extends React.Component<Props, State> {
   constructor(props: Props) {
     super(props);
 
+    const { fields = [] } = props.group;
+
     this.state = {
-      collapse: true
+      collapse: true,
+      fields
     };
+  }
+
+  componentWillReceiveProps(nextProps) {
+    const { fields = [] } = this.props.group;
+
+    if (fields !== nextProps.group.fields) {
+      this.setState({
+        fields: nextProps.group.fields
+      });
+    }
   }
 
   handleCollapse = () => {
     this.setState({ collapse: !this.state.collapse });
+  };
+
+  onChangeFields = fields => {
+    this.setState({ fields }, () => {
+      this.props.updateFieldOrder(this.state.fields);
+    });
   };
 
   visibleHandler = (e, property) => {
@@ -93,17 +123,17 @@ class PropertyRow extends React.Component<Props, State> {
     const onChange = e => this.visibleHandler(e, field);
 
     return (
-      <tr key={field._id}>
-        <td>
+      <PropertyTableRow key={field._id}>
+        <RowField>
           {field.text}
           <FieldType>{field.type}</FieldType>
-        </td>
-        <td>
+        </RowField>
+        <RowField>
           {lastUpdatedUser && lastUpdatedUser.details
             ? lastUpdatedUser.details.fullName
             : 'Erxes'}
-        </td>
-        <td>
+        </RowField>
+        <RowField>
           <Toggle
             id="visibleToggle"
             defaultChecked={field.isVisible}
@@ -114,11 +144,11 @@ class PropertyRow extends React.Component<Props, State> {
             }}
             onChange={onChange}
           />
-        </td>
+        </RowField>
         {['visitor', 'lead', 'customer', 'device'].includes(
           field.contentType
         ) ? (
-          <td>
+          <RowField>
             <Toggle
               id="visibleDetailToggle"
               defaultChecked={field.isVisibleInDetail}
@@ -129,16 +159,16 @@ class PropertyRow extends React.Component<Props, State> {
               }}
               onChange={onChange}
             />
-          </td>
+          </RowField>
         ) : (
           <></>
         )}
-        <td>
+        <RowField>
           {this.renderActionButtons(field, removeProperty, props => (
             <PropertyForm {...props} field={field} queryParams={queryParams} />
           ))}
-        </td>
-      </tr>
+        </RowField>
+      </PropertyTableRow>
     );
   };
 
@@ -152,35 +182,46 @@ class PropertyRow extends React.Component<Props, State> {
       );
     }
 
-    if (['visitor', 'lead', 'customer', 'device'].includes(contentType)) {
-      return (
-        <Table hover={true}>
-          <thead>
-            <tr>
-              <th>{__('Name')}</th>
-              <th>{__('Last Updated By')}</th>
-              <th>{__('Visible in Team Inbox')}</th>
-              <th>{__('Visible in detail')}</th>
-              <th />
-            </tr>
-          </thead>
-          <tbody>{fields.map(field => this.renderTableRow(field))}</tbody>
-        </Table>
-      );
-    }
+    const child = field => this.renderTableRow(field);
+    const showVisibleDetail = [
+      'visitor',
+      'lead',
+      'customer',
+      'device'
+    ].includes(contentType);
+
+    const renderListRow = (
+      <SortableList
+        fields={this.state.fields}
+        child={child}
+        onChangeFields={this.onChangeFields}
+        isModal={true}
+        showDragHandler={false}
+        droppableId="property fields"
+      />
+    );
 
     return (
-      <Table hover={true}>
-        <thead>
-          <tr>
-            <th>{__('Name')}</th>
-            <th>{__('Last Updated By')}</th>
-            <th>{__('Visible')}</th>
-            <th />
-          </tr>
-        </thead>
-        <tbody>{fields.map(field => this.renderTableRow(field))}</tbody>
-      </Table>
+      <PropertyListTable>
+        <PropertyTableHeader>
+          <ControlLabel>{__('Name')}</ControlLabel>
+          <ControlLabel>{__('Last Updated By')}</ControlLabel>
+          {showVisibleDetail ? (
+            <ControlLabel>{__('Visible in Team Inbox')}</ControlLabel>
+          ) : (
+            <ControlLabel>{__('Visible')}</ControlLabel>
+          )}
+          {showVisibleDetail && (
+            <ControlLabel>{__('Visible in detail')}</ControlLabel>
+          )}
+          <label />
+        </PropertyTableHeader>
+        <div>
+          {this.props.group.isDefinedByErxes
+            ? fields.map(field => this.renderTableRow(field))
+            : renderListRow}
+        </div>
+      </PropertyListTable>
     );
   };
 
@@ -190,24 +231,22 @@ class PropertyRow extends React.Component<Props, State> {
 
     return (
       <li key={group._id}>
-        <PropertyTable>
-          <CollapseRow>
-            <div style={{ flex: 1 }} onClick={this.handleCollapse}>
-              <DropIcon isOpen={this.state.collapse} />
-              {group.name} <span>{group.description}</span>
-            </div>
-            {this.renderActionButtons(group, removePropertyGroup, props => (
-              <PropertyGroupForm
-                {...props}
-                group={group}
-                queryParams={queryParams}
-              />
-            ))}
-          </CollapseRow>
-          <Collapse in={this.state.collapse}>
-            <div>{this.renderTable(fields, group.contentType)}</div>
-          </Collapse>
-        </PropertyTable>
+        <CollapseRow>
+          <div style={{ flex: 1 }} onClick={this.handleCollapse}>
+            <DropIcon isOpen={this.state.collapse} />
+            {group.name} <span>{group.description}</span>
+          </div>
+          {this.renderActionButtons(group, removePropertyGroup, props => (
+            <PropertyGroupForm
+              {...props}
+              group={group}
+              queryParams={queryParams}
+            />
+          ))}
+        </CollapseRow>
+        <Collapse in={this.state.collapse}>
+          <div>{this.renderTable(fields, group.contentType)}</div>
+        </Collapse>
       </li>
     );
   }
