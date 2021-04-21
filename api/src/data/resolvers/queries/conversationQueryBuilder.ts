@@ -62,19 +62,6 @@ export default class Builder {
     this.user = user;
   }
 
-  public defaultUserQuery() {
-    return [
-      // exclude engage messages if customer did not reply
-      {
-        userId: { $exists: true },
-        messageCount: { $gt: 1 }
-      },
-      {
-        userId: { $exists: false }
-      }
-    ];
-  }
-
   public userRelevanceQuery() {
     return [
       { userRelevance: { $exists: false } },
@@ -87,6 +74,7 @@ export default class Builder {
       {},
       { _id: 1 }
     );
+
     this.activeIntegrationIds = activeIntegrations.map(integ => integ._id);
 
     let statusFilter = this.statusFilter([
@@ -299,7 +287,6 @@ export default class Builder {
   public async extendedQueryFilter({ integrationType }: IListArgs) {
     return {
       $and: [
-        { $or: this.defaultUserQuery() },
         { $or: this.userRelevanceQuery() },
         ...(integrationType
           ? await this.integrationTypeFilter(integrationType)

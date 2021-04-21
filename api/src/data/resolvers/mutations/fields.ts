@@ -214,6 +214,13 @@ const fieldsGroupsMutations = {
       isVisible,
       isVisibleInDetail
     );
+  },
+
+  /**
+   * Update field group's visible
+   */
+  fieldsGroupsUpdateOrder(_root, { orders }: { orders: IOrderInput[] }) {
+    return FieldsGroups.updateOrder(orders);
   }
 };
 
