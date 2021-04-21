@@ -4,6 +4,7 @@ import {
   Channels,
   Integrations,
   MessengerApps,
+  Tags,
   Users
 } from '../../../db/models';
 import { get, set } from '../../../inmemoryStorage';
@@ -22,7 +23,7 @@ export const getDocument = async (
 };
 
 export const getDocumentList = async (
-  type: 'users' | 'integrations' | 'brands' | 'channels',
+  type: 'users' | 'integrations' | 'brands' | 'channels' | 'tags',
   selector: { [key: string]: any }
 ) => {
   const listCache = await get(`erxes_${type}`);
@@ -35,25 +36,26 @@ export const getDocumentList = async (
     switch (type) {
       case 'users': {
         list = await Users.find().lean();
-
         break;
       }
 
       case 'channels': {
         list = await Channels.find().lean();
-
         break;
       }
 
       case 'integrations': {
         list = await Integrations.find().lean();
-
         break;
       }
 
       case 'brands': {
         list = await Brands.find().lean();
+        break;
+      }
 
+      case 'tags': {
+        list = await Tags.find().lean();
         break;
       }
     }

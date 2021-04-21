@@ -1,4 +1,4 @@
-import { ConversationMessages, Customers, Tags } from '../../db/models';
+import { ConversationMessages, Customers } from '../../db/models';
 import { MESSAGE_TYPES } from '../../db/models/definitions/constants';
 import { IConversationDocument } from '../../db/models/definitions/conversations';
 import { debugError } from '../../debuggers';
@@ -111,8 +111,8 @@ export default {
     return null;
   },
 
-  tags(conv: IConversationDocument) {
-    return Tags.find({ _id: { $in: conv.tagIds || [] } });
+  async tags(conv: IConversationDocument) {
+    return getDocumentList('tags', { _id: { $in: conv.tagIds || [] } });
   },
 
   async videoCallData(
