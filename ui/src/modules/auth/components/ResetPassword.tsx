@@ -41,7 +41,12 @@ class ResetPassword extends React.Component<Props, { newPassword: string }> {
               onChange={this.handlePasswordChange}
             />
           </FormGroup>
-          <Button btnStyle="success" type="submit" block={true}>
+          <Button
+            btnStyle="success"
+            type="submit"
+            block={true}
+            uppercase={false}
+          >
             Change password
           </Button>
         </form>

@@ -169,7 +169,7 @@ const OwnerSetup = (props: Props) => {
             {__('Yes, I want in. I know I can unsubscribe easily at any time')}.
           </FormControl>
         </FormGroup>
-        <Button btnStyle="success" type="submit" block={true}>
+        <Button btnStyle="success" type="submit" block={true} uppercase={false}>
           Save and continue to login
         </Button>
       </form>
