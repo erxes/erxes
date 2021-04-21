@@ -1,4 +1,4 @@
-import { ConversationMessages, Customers, Tags } from '../../db/models';
+import { ConversationMessages, Customers } from '../../db/models';
 import { MESSAGE_TYPES } from '../../db/models/definitions/constants';
 import { IConversationDocument } from '../../db/models/definitions/conversations';
 import { debugError } from '../../debuggers';
