@@ -1,40 +1,10 @@
-const productFields = `
-  _id
-  name
-  type
-  code
-  categoryId
-  vendorId
-  description
-  unitPrice
-  sku
-  getTags {
-    _id
-    name
-    colorCode
-  }
-  tagIds
-  createdAt
-  category {
-    _id
-    code
-    name
-  }
-  attachment {
-    name
-    url
-    type
-    size
-  }
-`;
+import { queries as productQueries } from 'erxes-ui/lib/products/graphql';
 
-const products = `
-  query products($type: String, $categoryId: String, $tag: String, $searchValue: String, $perPage: Int, $page: Int $ids: [String], $excludeIds: Boolean) {
-    products(type: $type, categoryId: $categoryId, tag: $tag, searchValue: $searchValue, perPage: $perPage, page: $page ids: $ids, excludeIds: $excludeIds) {
-      ${productFields}
-    }
-  }
-`;
+const productFields = productQueries.productFields;
+
+const productCategories = productQueries.productCategories;
+
+const products = productQueries.products;
 
 const productsCount = `
   query productsTotalCount($type: String) {
@@ -45,22 +15,6 @@ const productsCount = `
 const productCountByTags = `
   query productCountByTags {
     productCountByTags
-  }
-`;
-
-const productCategories = `
-  query productCategories {
-    productCategories {
-      _id
-      name
-      order
-      code
-      parentId
-      description
-
-      isRoot
-      productCount
-    }
   }
 `;
 

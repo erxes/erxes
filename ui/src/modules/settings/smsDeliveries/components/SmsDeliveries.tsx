@@ -87,6 +87,7 @@ class SmsDeliveries extends React.Component<Props, State> {
             <th key="campaign">{__('Campaign')}</th>
             <th key="from">{__('From')}</th>
             <th key="content">{__('Content')}</th>
+            <th key="errors">{__('Error')}</th>
           </tr>
         </thead>
         <tbody>{this.renderRows()}</tbody>

@@ -131,7 +131,8 @@ const handleMessageCallback = async (
     }
 
     await SmsRequests.updateRequest(request._id, {
-      errorMessages: [err.message]
+      errorMessages: [err.message],
+      status: 'error'
     });
   }
 

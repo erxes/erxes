@@ -1,54 +1,15 @@
+import {
+  IProduct as IProductC,
+  IProductCategory as IProductCategoryC,
+  IProductDoc as IProductDocC
+} from 'erxes-ui/lib/products/types';
 import { QueryResponse } from 'modules/common/types';
-import { ICompany } from 'modules/companies/types';
-import { ITag } from 'modules/tags/types';
 
-export interface IProductDoc {
-  _id?: string;
-  type: string;
-  name?: string;
-  description?: string;
-  sku?: string;
-  createdAt?: Date;
-  customFieldsData?: any;
-}
+export type IProductDoc = IProductDocC & {};
 
-export interface IProductCategoryDoc {
-  _id?: string;
-  name: string;
-  description?: string;
-  parentId?: string;
-}
+export type IProduct = IProductC & {};
 
-export interface IProduct {
-  _id: string;
-  name: string;
-  type: string;
-  categoryId: string;
-  description: string;
-  getTags?: ITag[];
-  sku: string;
-  code: string;
-  unitPrice: number;
-  customFieldsData?: any;
-  createdAt: Date;
-  vendorId?: string;
-
-  attachment?: any;
-  category: IProductCategory;
-  vendor?: ICompany;
-}
-
-export interface IProductCategory {
-  _id: string;
-  name: string;
-  order: string;
-  code: string;
-  description?: string;
-  parentId?: string;
-  createdAt: Date;
-  productCount: number;
-  isRoot: boolean;
-}
+export type IProductCategory = IProductCategoryC & {};
 
 // query types
 

@@ -25,7 +25,9 @@ export default class Row extends React.PureComponent<Props> {
 
     return (
       <td>
-        <Label lblColor={status ? status.color : ''}>{log.status}</Label>
+        <Label lblColor={status ? status.color : ''}>
+          {this.getValue(log.status)}
+        </Label>
       </td>
     );
   }
@@ -70,6 +72,10 @@ export default class Row extends React.PureComponent<Props> {
     return <td>-</td>;
   }
 
+  getValue(val?: string) {
+    return val || '-';
+  }
+
   render() {
     const { log } = this.props;
 
@@ -81,11 +87,16 @@ export default class Row extends React.PureComponent<Props> {
       <tr key={log._id}>
         <td>{dayjs(log.createdAt).format('YYYY-MM-DD HH:mm:ss')}</td>
         {this.renderDirection(log)}
-        <td>{log.to}</td>
+        <td>{this.getValue(log.to)}</td>
         {this.renderStatus()}
         {this.renderCampaignLink(log.engageMessageId)}
-        <td>{log.from}</td>
-        <td>{log.content}</td>
+        <td>{this.getValue(log.from)}</td>
+        <td>{this.getValue(log.content)}</td>
+        <td>
+          {log.errorMessages && log.errorMessages.length > 0
+            ? log.errorMessages
+            : '-'}
+        </td>
       </tr>
     );
   }

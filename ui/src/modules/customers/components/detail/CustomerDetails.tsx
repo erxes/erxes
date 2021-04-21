@@ -105,7 +105,7 @@ class CustomerDetails extends React.Component<Props> {
             { name: 'conversation', label: 'Conversation' },
             { name: 'email', label: 'Email' },
             { name: 'task', label: 'Task' },
-            { name: 'sms', label: 'Sms' },
+            { name: 'sms', label: 'SMS' },
             { name: 'campaign', label: 'Campaign' }
           ]}
         />

@@ -1,58 +1,8 @@
-const productParamsDef = `
-  $name: String,
-  $type: String,
-  $categoryId: String,
-  $description: String,
-  $sku: String,
-  $unitPrice: Float,
-  $code: String
-  $customFieldsData: JSON,
-  $attachment: AttachmentInput,
-  $vendorId: String,
-`;
+import { mutations as productMutations } from 'erxes-ui/lib/products/graphql';
 
-const productCategoryParamsDef = `
-  $name: String!,
-  $code: String!,
-  $parentId: String,
-  $description: String,
-`;
+const productAdd = productMutations.productAdd;
 
-const productParams = `
-  name: $name,
-  type: $type,
-  categoryId: $categoryId,
-  description: $description,
-  sku: $sku,
-  unitPrice: $unitPrice,
-  code: $code,
-  customFieldsData: $customFieldsData,
-  vendorId: $vendorId,
-  attachment: $attachment
-`;
-
-const productCategoryParams = `
-  name: $name,
-  code: $code,
-  parentId: $parentId,
-  description: $description,
-`;
-
-const productAdd = `
-  mutation productsAdd(${productParamsDef}) {
-    productsAdd(${productParams}) {
-      _id
-    }
-  }
-`;
-
-const productEdit = `
-  mutation productsEdit($_id: String!, ${productParamsDef}) {
-    productsEdit(_id: $_id, ${productParams}) {
-      _id
-    }
-  }
-`;
+const productEdit = productMutations.productEdit;
 
 const productsRemove = `
   mutation productsRemove($productIds: [String!]) {
@@ -60,21 +10,8 @@ const productsRemove = `
   }
 `;
 
-const productCategoryAdd = `
-  mutation productCategoriesAdd(${productCategoryParamsDef}) {
-    productCategoriesAdd(${productCategoryParams}) {
-      _id
-    }
-  }
-`;
-
-const productCategoryEdit = `
-  mutation productCategoriesEdit($_id: String!, ${productCategoryParamsDef}) {
-    productCategoriesEdit(_id: $_id, ${productCategoryParams}) {
-      _id
-    }
-  }
-`;
+const productCategoryAdd = productMutations.productCategoryAdd;
+const productCategoryEdit = productMutations.productCategoryEdit;
 
 const productCategoryRemove = `
   mutation productCategoriesRemove($_id: String!) {

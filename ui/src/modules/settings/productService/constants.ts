@@ -1,9 +1,3 @@
-export const TYPES = {
-  PRODUCT: 'product',
-  SERVICE: 'service',
-  ALL: ['product', 'service']
-};
-
 export const PRODUCT_INFO = {
   name: 'Name',
   type: 'Type',

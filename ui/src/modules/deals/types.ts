@@ -1,6 +1,6 @@
 import { IItem, IItemParams } from 'modules/boards/types';
 import { IActivityLogForMonth } from '../activityLogs/types';
-import { IProduct, IProductDoc } from '../settings/productService/types';
+import { IProduct } from '../settings/productService/types';
 
 export interface IQueryParams {
   brandIds: string;
@@ -59,10 +59,6 @@ export type ProductsQueryResponse = {
   loading: boolean;
   refetch: (variables?: { searchValue?: string; perPage?: number }) => void;
   products: IProduct[];
-};
-
-export type ProductAddMutationResponse = {
-  productAdd: (params: { variables: IProductDoc }) => Promise<void>;
 };
 
 export interface IDeal extends IItem {
