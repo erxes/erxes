@@ -33,8 +33,8 @@ export const loadSkillTypeClass = () => {
         { $unset: { 'messengerData.skillData': '' } }
       );
 
-      await Skills.remove({ typeId: _id });
-      return SkillTypes.remove({ _id });
+      await Skills.deleteMany({ typeId: _id });
+      return SkillTypes.deleteOne({ _id });
     }
   }
 
@@ -94,13 +94,12 @@ export const loadSkillClass = () => {
         }
       }).distinct('_id');
 
-      await Integrations.update(
+      await Integrations.updateMany(
         { _id: { $in: integrationIds } },
-        { $pull: { 'messengerData.skillData.options': { skillId: _id } } },
-        { multi: true }
+        { $pull: { 'messengerData.skillData.options': { skillId: _id } } }
       );
 
-      await Skills.remove({ _id });
+      await Skills.deleteOne({ _id });
 
       return _id;
     }
