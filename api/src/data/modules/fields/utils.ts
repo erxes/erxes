@@ -13,7 +13,7 @@ import {
   Tasks,
   Tickets
 } from '../../../db/models';
-import { fetchElk, fetchElkById, findAllElk } from '../../../elasticsearch';
+import { fetchElk } from '../../../elasticsearch';
 import { EXTEND_FIELDS, FIELD_CONTENT_TYPES } from '../../constants';
 import { getDocumentList } from '../../resolvers/mutations/cacheUtils';
 import { findElk } from '../../resolvers/mutations/engageUtils';
@@ -75,15 +75,18 @@ const getSegment = async (_id: string) => {
     return Segments.findOne({ _id });
   }
 
-  return fetchElkById(_id, 'segments');
+  const response = await fetchElk('get', 'segments', null, _id);
+
+  return { _id: response._id, ...response._source };
 };
 
 const getFieldGroup = async (_id: string) => {
   if (!isUsingElk()) {
     return FieldsGroups.findOne({ _id });
   }
+  const response = await fetchElk('get', 'fields_groups', null, _id);
 
-  return fetchElkById(_id, 'fields_groups');
+  return { _id: response._id, ...response._source };
 };
 
 // Checking field names, all field names must be configured correctly
@@ -229,9 +232,14 @@ const getIntegrations = async () => {
     ]);
   }
 
-  const integrations = (await findAllElk('integrations')) || [];
+  const response = await fetchElk('search', 'integrations', {});
 
-  return integrations.map(e => ({ label: e.name, value: e._id }));
+  return response.hits.hits.map(hit => {
+    return {
+      value: hit._id,
+      label: hit._source.name
+    };
+  });
 };
 
 const generateUsersOptions = async (
