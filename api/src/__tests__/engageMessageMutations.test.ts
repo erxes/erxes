@@ -201,7 +201,7 @@ describe('engage message mutation tests', () => {
     };
     spy = jest.spyOn(engageUtils, 'send');
 
-    elkMock = sinon.stub(elk, 'findAllElk').callsFake(() => {
+    elkMock = sinon.stub(elk, 'fetchElk').callsFake(() => {
       return Promise.resolve([
         {
           _id: _integration._id,
