@@ -202,12 +202,13 @@ describe('engage message mutation tests', () => {
     spy = jest.spyOn(engageUtils, 'send');
 
     elkMock = sinon.stub(elk, 'fetchElk').callsFake(() => {
-      return Promise.resolve([
-        {
-          _id: _integration._id,
-          name: _integration.name
+      return Promise.resolve({
+        hits: {
+          hits: [
+            { _id: _integration._id, _source: { name: _integration.name } }
+          ]
         }
-      ]);
+      });
     });
   });
 

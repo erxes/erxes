@@ -1205,15 +1205,6 @@ describe('createVisitorOrCustomerMessages with elk', () => {
       visitorId: faker.random.uuid()
     };
 
-    const mock = sinon.stub(elk, 'fetchElk').callsFake(() => {
-      return Promise.resolve([
-        {
-          _id: _integration._id,
-          name: _integration.name
-        }
-      ]);
-    });
-
     await EngageMessages.createVisitorOrCustomerMessages({
       brandId: _brand._id,
       visitor,
@@ -1229,7 +1220,6 @@ describe('createVisitorOrCustomerMessages with elk', () => {
     });
 
     expect(conv).toBeNull();
-    mock.restore();
   });
 
   test('engageMessage with elkSyncer', async () => {
@@ -1237,15 +1227,6 @@ describe('createVisitorOrCustomerMessages with elk', () => {
       state: 'visitor',
       firstName: 'john',
       lastName: 'doe'
-    });
-
-    const mock = sinon.stub(elk, 'fetchElk').callsFake(() => {
-      return Promise.resolve([
-        {
-          _id: _integration._id,
-          name: _integration.name
-        }
-      ]);
     });
 
     await EngageMessages.createVisitorOrCustomerMessages({
@@ -1262,6 +1243,5 @@ describe('createVisitorOrCustomerMessages with elk', () => {
     });
 
     expect(conversation).toBeNull();
-    mock.restore();
   });
 });

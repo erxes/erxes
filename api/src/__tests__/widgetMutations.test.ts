@@ -1598,12 +1598,11 @@ describe('lead', () => {
     const integration = await integrationFactory({});
 
     const mock = sinon.stub(elk, 'fetchElk').callsFake(() => {
-      return Promise.resolve([
-        {
-          _id: integration._id,
-          name: integration.name
+      return Promise.resolve({
+        hits: {
+          hits: [{ _id: integration._id, _source: { name: integration.name } }]
         }
-      ]);
+      });
     });
 
     const emailParams = {
