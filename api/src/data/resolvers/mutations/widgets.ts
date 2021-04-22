@@ -312,17 +312,10 @@ const widgetMutations = {
     }
 
     if (visitorId) {
-      try {
-        await sendToVisitorLog(
-          { visitorId, integrationId: integration._id },
-          'createOrUpdate'
-        );
-      } catch (_e) {
-        customer = await Customers.createMessengerCustomer({
-          doc: { integrationId: integration._id },
-          customData
-        });
-      }
+      await sendToVisitorLog(
+        { visitorId, integrationId: integration._id },
+        'createOrUpdate'
+      );
     }
 
     // get or create company
