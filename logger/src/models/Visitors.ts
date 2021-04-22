@@ -108,10 +108,14 @@ export const loadVisitorClass = () => {
 
       const visitor = await Visitors.getVisitorLog(doc.visitorId);
 
+      // log & quietly return instead of throwing an error
       if (!visitor) {
-        throw new Error(
+        // tslint:disable-next-line
+        console.log(
           `Visitor with Id ${doc.visitorId} not found while trying to update visitor.`
         );
+
+        return;
       }
 
       delete doc.integrationId;
