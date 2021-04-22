@@ -75,37 +75,26 @@ describe('fieldQueries', () => {
   });
 
   test('Fields combined by content type', async () => {
-    const mock = sinon.stub(elk, 'fetchElk').callsFake(() => {
-      return Promise.resolve({
-        aggregations: {
-          trackedDataKeys: {
-            fieldKeys: {
-              buckets: [
-                {
-                  key: 'pageView',
-                  hits: {
-                    hits: {
-                      hits: [
-                        {
-                          _source: {
-                            name: 'pageView',
-                            attributes: [
-                              {
-                                field: 'url',
-                                value: '/test'
-                              }
-                            ]
-                          }
-                        }
-                      ]
-                    }
-                  }
-                }
-              ]
-            }
-          }
+    const integ = await integrationFactory({});
+
+    const mock = sinon.stub(elk, 'findAllElk');
+
+    mock.onCall(0).callsFake(() => {
+      return Promise.resolve([
+        {
+          _id: integ._id,
+          name: integ.name
         }
-      });
+      ]);
+    });
+
+    mock.onCall(1).callsFake(() => {
+      return Promise.resolve([
+        {
+          _id: integ._id,
+          name: integ.name
+        }
+      ]);
     });
 
     // Creating test data

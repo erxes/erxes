@@ -35,6 +35,20 @@ export const getIndexPrefix = () => {
   return `${dbName}__`;
 };
 
+export const fetchElkById = async (id: string, indx: string) => {
+  try {
+    const doc = await client.get({
+      index: `${getIndexPrefix()}${indx}`,
+      id
+    });
+
+    return { _id: id, ...(doc._source || {}) };
+  } catch (e) {
+    debugError(`Error during elk query ${e.message}`);
+    return null;
+  }
+};
+
 export const fetchElk = async (
   action,
   index: string,
@@ -67,6 +81,29 @@ export const fetchElk = async (
     if (typeof defaultValue !== undefined) {
       return defaultValue;
     }
+
+    throw new Error(e);
+  }
+};
+
+export const findAllElk = async (index: string) => {
+  if (NODE_ENV === 'test') {
+    return { hits: { total: { value: 0 }, hits: [] } };
+  }
+
+  try {
+    const response = await client.search({
+      index: `${getIndexPrefix()}${index}`
+    });
+
+    return response.hits.hits.map(hit => {
+      return {
+        _id: hit._id,
+        ...hit._source
+      };
+    });
+  } catch (e) {
+    debugError(`Error during elk query ${e.message}`);
 
     throw new Error(e);
   }

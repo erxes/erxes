@@ -32,6 +32,7 @@ import { EngagesAPI } from '../data/dataSources';
 import { handleUnsubscription } from '../data/utils';
 import { KIND_CHOICES, METHODS } from '../db/models/definitions/constants';
 import './setup.ts';
+import * as elk from '../elasticsearch';
 
 // to prevent duplicate expect checks
 const checkEngageMessage = (src, result) => {
@@ -55,6 +56,7 @@ describe('engage message mutation tests', () => {
   let _integration;
   let _doc;
   let spy;
+  let elkMock;
 
   const commonParamDefs = `
     $title: String!,
@@ -198,10 +200,20 @@ describe('engage message mutation tests', () => {
       }
     };
     spy = jest.spyOn(engageUtils, 'send');
+
+    elkMock = sinon.stub(elk, 'findAllElk').callsFake(() => {
+      return Promise.resolve([
+        {
+          _id: _integration._id,
+          name: _integration.name
+        }
+      ]);
+    });
   });
 
   afterEach(async () => {
     spy.mockRestore();
+    elkMock.restore();
 
     // Clearing test data
     _doc = null;

@@ -43,7 +43,7 @@ import {
 } from '../db/models/definitions/constants';
 import { ICustomerDocument } from '../db/models/definitions/customers';
 import { IIntegrationDocument } from '../db/models/definitions/integrations';
-
+import * as elk from '../elasticsearch';
 import './setup.ts';
 
 describe('messenger connect', () => {
@@ -1620,6 +1620,16 @@ describe('lead', () => {
   test('widgetsSendEmail', async () => {
     const customer = await customerFactory({});
     const form = await formFactory({});
+    const integration = await integrationFactory({});
+
+    const mock = sinon.stub(elk, 'findAllElk').callsFake(() => {
+      return Promise.resolve([
+        {
+          _id: integration._id,
+          name: integration.name
+        }
+      ]);
+    });
 
     const emailParams = {
       toEmails: ['test-mail@gmail.com'],
@@ -1636,5 +1646,6 @@ describe('lead', () => {
     );
 
     expect(response).toBe(undefined);
+    mock.restore();
   });
 });
