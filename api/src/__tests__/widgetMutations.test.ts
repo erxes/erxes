@@ -259,31 +259,6 @@ describe('messenger connect', () => {
     mock.restore();
   });
 
-  test('creates new customer when logger is not running', async () => {
-    const mock = sinon.stub(utils, 'sendRequest').callsFake(() => {
-      return Promise.resolve('success');
-    });
-
-    const logUtilsMock = sinon
-      .stub(logUtils, 'sendToVisitorLog')
-      .callsFake(() => {
-        throw new Error('fake error');
-      });
-
-    const response = await widgetMutations.widgetsMessengerConnect(
-      {},
-      {
-        brandCode: _brand.code || '',
-        visitorId: '123'
-      }
-    );
-
-    expect(response.customerId).toBeDefined();
-
-    logUtilsMock.restore();
-    mock.restore();
-  });
-
   test('updates existing customer', async () => {
     const mock = sinon.stub(utils, 'sendRequest').callsFake(() => {
       return Promise.resolve('success');
