@@ -1205,7 +1205,7 @@ describe('createVisitorOrCustomerMessages with elk', () => {
       visitorId: faker.random.uuid()
     };
 
-    const mock = sinon.stub(elk, 'findAllElk').callsFake(() => {
+    const mock = sinon.stub(elk, 'fetchElk').callsFake(() => {
       return Promise.resolve([
         {
           _id: _integration._id,
@@ -1239,7 +1239,7 @@ describe('createVisitorOrCustomerMessages with elk', () => {
       lastName: 'doe'
     });
 
-    const mock = sinon.stub(elk, 'findAllElk').callsFake(() => {
+    const mock = sinon.stub(elk, 'fetchElk').callsFake(() => {
       return Promise.resolve([
         {
           _id: _integration._id,
