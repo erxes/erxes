@@ -524,26 +524,27 @@ export const replaceEditorAttributes = async (args: {
       if (content.includes(`{{ customer.${field.name} }}`)) {
         if (field.name.includes('trackedData')) {
           customerFields.push('trackedData');
+
           continue;
         }
 
-        if (
-          field.name.includes('customFieldsData') &&
-          customFieldsData.length > 0
-        ) {
+        if (field.name.includes('customFieldsData')) {
           const fieldId = field.name.split('.').pop();
+
           if (!customFieldsData.find(e => e.field === fieldId)) {
             customFieldsData.push({ field: fieldId || '', value: '' });
-            customer.customFieldsData = customFieldsData;
           }
 
           customerFields.push('customFieldsData');
+
           continue;
         }
 
         customerFields.push(field.name);
       }
     }
+
+    customer.customFieldsData = customFieldsData;
   }
 
   // replace customer fields
