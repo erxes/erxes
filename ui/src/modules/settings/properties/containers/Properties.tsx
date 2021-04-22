@@ -14,9 +14,14 @@ import {
   FieldsGroupsRemoveMutationResponse,
   FieldsGroupsUpdateVisibleMutationResponse,
   FieldsRemoveMutationResponse,
-  FieldsUpdateVisibleMutationResponse
+  FieldsUpdateVisibleMutationResponse,
+  FieldsUpdateOrderMutationResponse,
+  FieldsUpdateOrderMutationVariables,
+  GroupsUpdateOrderMutationResponse,
+  GroupsUpdateOrderMutationVariables
 } from '../types';
 import { updateCustomFieldsCache } from '../utils';
+import Spinner from 'modules/common/components/Spinner';
 
 type Props = {
   queryParams: any;
@@ -29,6 +34,8 @@ type FinalProps = {
   FieldsRemoveMutationResponse &
   FieldsGroupsUpdateVisibleMutationResponse &
   FieldsUpdateVisibleMutationResponse &
+  FieldsUpdateOrderMutationResponse &
+  GroupsUpdateOrderMutationResponse &
   IRouterProps;
 
 const PropertiesContainer = (props: FinalProps) => {
@@ -39,8 +46,14 @@ const PropertiesContainer = (props: FinalProps) => {
     fieldsRemove,
     fieldsGroupsUpdateVisible,
     fieldsUpdateVisible,
+    fieldsUpdateOrder,
+    groupsUpdateOrder,
     queryParams
   } = props;
+
+  if (fieldsGroupsQuery.loading) {
+    return <Spinner objective={true} />;
+  }
 
   if (!router.getParam(history, 'type')) {
     router.setParams(
@@ -112,6 +125,32 @@ const PropertiesContainer = (props: FinalProps) => {
       });
   };
 
+  const updateFieldOrder = fieldOrders => {
+    fieldsUpdateOrder({
+      variables: {
+        orders: fieldOrders.map((field, index) => ({
+          _id: field._id,
+          order: index + 1
+        }))
+      }
+    }).catch(error => {
+      Alert.error(error.message);
+    });
+  };
+
+  const updateGroupOrder = groupOrders => {
+    groupsUpdateOrder({
+      variables: {
+        orders: groupOrders.map((group, index) => ({
+          _id: group._id,
+          order: index + 1
+        }))
+      }
+    }).catch(error => {
+      Alert.error(error.message);
+    });
+  };
+
   const currentType = router.getParam(history, 'type');
   const fieldsGroups = [...(fieldsGroupsQuery.fieldsGroups || [])];
 
@@ -123,7 +162,9 @@ const PropertiesContainer = (props: FinalProps) => {
     removeProperty,
     updatePropertyVisible,
     updatePropertyDetailVisible,
-    updatePropertyGroupVisible
+    updatePropertyGroupVisible,
+    updateFieldOrder,
+    updateGroupOrder
   };
 
   return <Properties {...updatedProps} />;
@@ -180,6 +221,22 @@ export default withProps<Props>(
       { _id: string; isVisible: boolean }
     >(gql(mutations.fieldsGroupsUpdateVisible), {
       name: 'fieldsGroupsUpdateVisible',
+      options
+    }),
+    graphql<
+      Props,
+      FieldsUpdateOrderMutationResponse,
+      FieldsUpdateOrderMutationVariables
+    >(gql(mutations.fieldsUpdateOrder), {
+      name: 'fieldsUpdateOrder',
+      options
+    }),
+    graphql<
+      Props,
+      GroupsUpdateOrderMutationResponse,
+      GroupsUpdateOrderMutationVariables
+    >(gql(mutations.groupsUpdateOrder), {
+      name: 'groupsUpdateOrder',
       options
     })
   )(withRouter<FinalProps>(PropertiesContainer))

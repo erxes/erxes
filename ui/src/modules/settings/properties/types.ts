@@ -166,6 +166,32 @@ export type FieldsUpdateVisibleMutationResponse = {
   }) => Promise<any>;
 };
 
+export type FieldsUpdateOrderMutationVariables = {
+  orders: {
+    _id: string;
+    order: number;
+  };
+};
+
+export type FieldsUpdateOrderMutationResponse = {
+  fieldsUpdateOrder: (params: {
+    variables: FieldsUpdateOrderMutationVariables;
+  }) => Promise<any>;
+};
+
+export type GroupsUpdateOrderMutationVariables = {
+  orders: {
+    _id: string;
+    order: number;
+  };
+};
+
+export type GroupsUpdateOrderMutationResponse = {
+  groupsUpdateOrder: (params: {
+    variables: GroupsUpdateOrderMutationVariables;
+  }) => Promise<any>;
+};
+
 export type FieldsAddMutationResponse = {
   fieldsAdd: (fieldsAdd: {
     variables: FieldsMutationVariables;
