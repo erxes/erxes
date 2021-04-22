@@ -1597,7 +1597,7 @@ describe('lead', () => {
     const form = await formFactory({});
     const integration = await integrationFactory({});
 
-    const mock = sinon.stub(elk, 'findAllElk').callsFake(() => {
+    const mock = sinon.stub(elk, 'fetchElk').callsFake(() => {
       return Promise.resolve([
         {
           _id: integration._id,
