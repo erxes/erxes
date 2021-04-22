@@ -1,5 +1,6 @@
 import { Document, model, Model, Schema } from 'mongoose';
 import { field } from './Logs';
+import { debugError } from '../debuggers';
 
 export interface ILocation {
   remoteAddress: string;
@@ -110,8 +111,7 @@ export const loadVisitorClass = () => {
 
       // log & quietly return instead of throwing an error
       if (!visitor) {
-        // tslint:disable-next-line
-        console.log(
+        debugError(
           `Visitor with Id ${doc.visitorId} not found while trying to update visitor.`
         );
 
