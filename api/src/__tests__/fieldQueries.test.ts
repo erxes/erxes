@@ -77,7 +77,7 @@ describe('fieldQueries', () => {
   test('Fields combined by content type', async () => {
     const integ = await integrationFactory({});
 
-    const mock = sinon.stub(elk, 'findAllElk');
+    const mock = sinon.stub(elk, 'fetchElk');
 
     mock.onCall(0).callsFake(() => {
       return Promise.resolve([
