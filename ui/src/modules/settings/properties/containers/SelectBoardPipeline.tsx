@@ -63,8 +63,7 @@ const SelectContainer = (props: ChildProps<FinalProps>) => {
     ...props,
     boards,
     items: [],
-    renderButton,
-    selectedItems: []
+    renderButton
   };
 
   return <SelectBoards {...updatedProps} />;

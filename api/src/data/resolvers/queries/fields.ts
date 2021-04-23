@@ -141,7 +141,11 @@ const fieldsGroupQueries = {
    */
   async fieldsGroups(
     _root,
-    { contentType, boardId }: { contentType: string; boardId: string },
+    {
+      contentType,
+      boardId,
+      pipelineId
+    }: { contentType: string; boardId: string; pipelineId: string },
     { commonQuerySelector }: IContext
   ) {
     let query: any = commonQuerySelector;
@@ -149,7 +153,7 @@ const fieldsGroupQueries = {
     // querying by content type
     query.contentType = contentType || FIELDS_GROUPS_CONTENT_TYPES.CUSTOMER;
 
-    if (boardId) {
+    if (boardId && pipelineId) {
       query = {
         contentType,
         $or: [
@@ -160,12 +164,20 @@ const fieldsGroupQueries = {
             boardIds: {
               $size: 0
             }
+          },
+          {
+            pipelineIds: pipelineId
+          },
+          {
+            pipelineIds: {
+              $size: 0
+            }
           }
         ]
       };
     }
-
-    console.log('query: ', query);
+    console.log('b: ', boardId, ' p: ', pipelineId);
+    console.log('query: ', JSON.stringify(query));
 
     const groups = await FieldsGroups.find(query);
 

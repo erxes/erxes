@@ -43,8 +43,8 @@ const commonFieldsGroups = `
 `;
 
 const fieldsGroups = `
-  query fieldsGroups($contentType: String!, $boardId: String) {
-    fieldsGroups(contentType: $contentType, boardId: $boardId) {
+  query fieldsGroups($contentType: String!, $boardId: String, $pipelineId: String) {
+    fieldsGroups(contentType: $contentType, boardId: $boardId, pipelineId: $pipelineId) {
       ${commonFieldsGroups}
   }
 `;

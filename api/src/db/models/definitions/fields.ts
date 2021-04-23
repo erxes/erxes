@@ -74,6 +74,8 @@ export interface IFieldGroup extends IVisibility {
   description?: string;
   lastUpdatedUserId?: string;
   boardsPipelines?: any;
+  boardIds?: string[];
+  pipelineIds?: string[];
 }
 
 export interface IFieldGroupDocument extends IFieldGroup, Document {
@@ -172,6 +174,12 @@ export const fieldGroupSchema = schemaWrapper(
     }),
     boardsPipelines: field({
       type: Schema.Types.Mixed,
+      optional: true
+    }),
+    boardIds: field({ type: [String], label: 'board ids', optional: true }),
+    pipelineIds: field({
+      type: [String],
+      label: 'pipeline ids',
       optional: true
     })
   })

@@ -9,6 +9,7 @@ import { FlexRow } from 'modules/settings/integrations/styles';
 import Button from 'modules/common/components/Button';
 import Icon from 'modules/common/components/Icon';
 import { IBoardSelectItem } from '../types';
+import { LinkButton } from 'modules/settings/team/styles';
 
 type Props = {
   boards: IBoard[];
@@ -17,9 +18,7 @@ type Props = {
 };
 
 type State = {
-  boards: IBoard[];
   selectItems: IBoardSelectItem[];
-  pipelines?: IPipeline[];
 };
 
 class SelectBoards extends React.Component<Props, State> {
@@ -38,14 +37,14 @@ class SelectBoards extends React.Component<Props, State> {
     }
 
     this.state = {
-      selectItems,
-      boards: this.props.boards
+      selectItems
     };
   }
 
-  filterBoards() {
-    const idsToFilter = this.state.selectItems.map(e => e.boardId);
-    return this.props.boards.filter(board => !idsToFilter.includes(board._id));
+  getPipeLines(boardId) {
+    const board = this.props.boards.find(e => e._id === boardId);
+
+    return (board && board.pipelines) || [];
   }
 
   generateBoardOptions(array: IBoard[] = []): IOption[] {
@@ -91,15 +90,7 @@ class SelectBoards extends React.Component<Props, State> {
     // set new value
     item.boardId = boardId;
 
-    const board = this.props.boards.find(e => e._id === boardId);
-
-    const boards = this.props.boards.filter(b => {
-      return this.state.selectItems.some(e => b._id !== e.boardId);
-    });
-
-    item.pipelineOptions = (board && board.pipelines) || [];
-
-    this.setState({ selectItems, boards });
+    this.setState({ selectItems });
 
     this.props.onChangeItems(selectItems);
   };
@@ -128,26 +119,26 @@ class SelectBoards extends React.Component<Props, State> {
     selectItems.push({
       _id: Math.random().toString(),
       boardId: '',
-      pipelineIds: [],
-      pipelineOptions: []
+      pipelineIds: []
     });
 
     this.setState({ selectItems });
-
-    // notify as change to main component
-    // this.props.onChange(onlineHours);
   };
 
-  removeTime = itemId => {
+  removeItem = itemId => {
     let { selectItems } = this.state;
 
     selectItems = selectItems.filter(e => e._id !== itemId);
 
     this.setState({ selectItems });
+
+    this.props.onChangeItems(selectItems);
   };
 
   renderSelect(selectItem: IBoardSelectItem) {
-    const { _id, boardId, pipelineIds, pipelineOptions } = selectItem;
+    const { _id, boardId, pipelineIds } = selectItem;
+
+    const pipelineOptions = this.getPipeLines(boardId);
 
     const onBoardChange = e => {
       this.onChangeBoard(_id, e.value);
@@ -158,7 +149,7 @@ class SelectBoards extends React.Component<Props, State> {
     };
 
     const remove = () => {
-      this.removeTime(_id);
+      this.removeItem(_id);
     };
 
     return (
@@ -180,9 +171,7 @@ class SelectBoards extends React.Component<Props, State> {
           multi={true}
         />
 
-        <Button size="small" btnStyle="danger" onClick={remove}>
-          <Icon icon="cancel-1" />
-        </Button>
+        <Button btnStyle="link" size="small" onClick={remove} icon="times" />
       </FlexRow>
     );
   }
@@ -195,14 +184,10 @@ class SelectBoards extends React.Component<Props, State> {
 
         {this.state.selectItems.map(item => this.renderSelect(item))}
         <br />
-        <Button
-          btnStyle="success"
-          size="small"
-          onClick={this.addNew}
-          icon="add"
-        >
-          Add
-        </Button>
+
+        <LinkButton onClick={this.addNew}>
+          <Icon icon="plus-1" /> {__('Add another board')}
+        </LinkButton>
       </FormGroup>
     );
   }

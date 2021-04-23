@@ -15,7 +15,6 @@ type Props = {
   type: string;
   renderButton: (props: IButtonMutateProps) => JSX.Element;
   closeModal: () => void;
-  selectedItems: IBoardSelectItem[];
 };
 
 type State = {
@@ -30,16 +29,18 @@ class PropertyGroupForm extends React.Component<Props, State> {
 
     let isVisible = true;
     let isVisibleInDetail = true;
+    let selectedItems = [];
 
     if (props.group) {
       isVisible = props.group.isVisible;
       isVisibleInDetail = props.group.isVisibleInDetail;
+      selectedItems = props.group.boardsPipelines;
     }
 
     this.state = {
       isVisible,
       isVisibleInDetail,
-      selectedItems: this.props.selectedItems
+      selectedItems
     };
   }
 
@@ -56,12 +57,16 @@ class PropertyGroupForm extends React.Component<Props, State> {
       finalValues._id = group._id;
     }
 
-    const boardsPipelines: any = selectedItems.map(e => {
-      const pipeline: any = {};
-      pipeline[e.boardId] = e.pipelineIds;
+    const boardsPipelines =
+      selectedItems &&
+      selectedItems.map(e => {
+        const boardsPipeline = {
+          boardId: e.boardId,
+          pipelineIds: e.pipelineIds
+        };
 
-      return pipeline;
-    });
+        return boardsPipeline;
+      });
 
     return {
       ...finalValues,
@@ -85,7 +90,6 @@ class PropertyGroupForm extends React.Component<Props, State> {
   };
 
   itemsChange = (items: IBoardSelectItem[]) => {
-    console.log('items: ', items);
     this.setState({ selectedItems: items });
   };
 
@@ -145,7 +149,7 @@ class PropertyGroupForm extends React.Component<Props, State> {
         isRequired={false}
         onChangeItems={this.itemsChange}
         type={this.props.type}
-        selectedItems={this.props.selectedItems}
+        selectedItems={this.state.selectedItems}
       />
     );
   }

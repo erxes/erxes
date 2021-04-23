@@ -130,7 +130,7 @@ const fieldsGroupsCommonFields = `
 `;
 
 export const fieldsGroupsQueries = `
-  fieldsGroups(contentType: String, boardId: String): [FieldsGroup]
+  fieldsGroups(contentType: String, boardId: String, pipelineId: String): [FieldsGroup]
   getSystemFieldsGroup(contentType: String): FieldsGroup
 `;
 

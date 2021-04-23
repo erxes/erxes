@@ -5,7 +5,7 @@ const commonFields = `
   $description: String,
   $isVisible: Boolean,
   $isVisibleInDetail: Boolean,
-  $boardsPipelines: JSON
+  $boardsPipelines: JSON,
 `;
 
 const commonTypes = `

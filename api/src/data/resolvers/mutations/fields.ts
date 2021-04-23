@@ -174,6 +174,21 @@ const fieldsGroupsMutations = {
    * Create a new group for fields
    */
   fieldsGroupsAdd(_root, doc: IFieldGroup, { user, docModifier }: IContext) {
+    if (doc.boardsPipelines) {
+      const boardIds: string[] = [];
+      const pipelineIds: string[] = [];
+
+      for (const item of doc.boardsPipelines) {
+        boardIds.push(item.boardId);
+
+        for (const pipelineId of item.pipelineIds) {
+          pipelineIds.push(pipelineId);
+        }
+      }
+      doc.boardIds = boardIds;
+      doc.pipelineIds = pipelineIds;
+    }
+
     return FieldsGroups.createGroup(
       docModifier({ ...doc, lastUpdatedUserId: user._id })
     );
@@ -187,6 +202,21 @@ const fieldsGroupsMutations = {
     { _id, ...doc }: IFieldsGroupsEdit,
     { user }: IContext
   ) {
+    if (doc.boardsPipelines) {
+      const boardIds: string[] = [];
+      const pipelineIds: string[] = [];
+
+      for (const item of doc.boardsPipelines) {
+        boardIds.push(item.boardId);
+
+        for (const pipelineId of item.pipelineIds) {
+          pipelineIds.push(pipelineId);
+        }
+      }
+      doc.boardIds = boardIds;
+      doc.pipelineIds = pipelineIds;
+    }
+
     return FieldsGroups.updateGroup(_id, {
       ...doc,
       lastUpdatedUserId: user._id

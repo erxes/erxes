@@ -59,8 +59,6 @@ const CustomFieldsSection = (props: FinalProps) => {
     fieldsGroups: fieldsGroupsQuery.fieldsGroups || []
   };
 
-  console.log('groups: ', fieldsGroupsQuery.fieldsGroups);
-
   return <GenerateCustomFields {...updatedProps} />;
 };
 
@@ -79,7 +77,8 @@ export default (props: Props) => {
         options: () => ({
           variables: {
             contentType: options.type,
-            boardId: item.boardId || ''
+            boardId: item.boardId || '',
+            pipelineId: item.pipeline._id || ''
           }
         })
       }),

@@ -1,5 +1,4 @@
 import { IUser } from 'modules/auth/types';
-import { IPipeline } from 'modules/boards/types';
 import { QueryResponse } from 'modules/common/types';
 
 export interface IFieldLogic {
@@ -45,7 +44,6 @@ export interface IBoardSelectItem {
   _id?: string;
   boardId: string;
   pipelineIds: string[];
-  pipelineOptions?: IPipeline[];
 }
 
 export interface IFieldGroup {
@@ -60,7 +58,7 @@ export interface IFieldGroup {
   fields: IField[];
   lastUpdatedUserId: string;
   lastUpdatedUser: IUser;
-  boardsPipelines?: IBoardSelectItem[];
+  boardsPipelines: IBoardSelectItem[];
 }
 
 export interface IContentTypeFields {
