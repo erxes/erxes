@@ -2,6 +2,7 @@ import * as _ from 'underscore';
 import { Channels, Integrations, Tags } from '../../../db/models';
 import { CONVERSATION_STATUSES } from '../../../db/models/definitions/constants';
 import { fixDate } from '../../utils';
+import { getDocumentList } from '../mutations/cacheUtils';
 
 interface IIn {
   $in: string[];
@@ -61,19 +62,6 @@ export default class Builder {
     this.user = user;
   }
 
-  public defaultUserQuery() {
-    return [
-      // exclude engage messages if customer did not reply
-      {
-        userId: { $exists: true },
-        messageCount: { $gt: 1 }
-      },
-      {
-        userId: { $exists: false }
-      }
-    ];
-  }
-
   public userRelevanceQuery() {
     return [
       { userRelevance: { $exists: false } },
@@ -82,10 +70,10 @@ export default class Builder {
   }
 
   public async defaultFilters(): Promise<any> {
-    const activeIntegrations = await Integrations.findIntegrations(
-      {},
-      { _id: 1 }
-    );
+    const activeIntegrations = await getDocumentList('integrations', {
+      isActive: { $ne: false }
+    });
+
     this.activeIntegrationIds = activeIntegrations.map(integ => integ._id);
 
     let statusFilter = this.statusFilter([
@@ -130,7 +118,15 @@ export default class Builder {
     // find all posssible integrations
     let availIntegrationIds: string[] = [];
 
-    const channels = await Channels.find({ memberIds: this.user._id });
+    const channels = await getDocumentList('channels', {
+      memberIds: this.user._id
+    });
+
+    if (channels.length === 0) {
+      return {
+        integrationId: { $in: [] }
+      };
+    }
 
     channels.forEach(channel => {
       availIntegrationIds = _.union(
@@ -290,7 +286,6 @@ export default class Builder {
   public async extendedQueryFilter({ integrationType }: IListArgs) {
     return {
       $and: [
-        { $or: this.defaultUserQuery() },
         { $or: this.userRelevanceQuery() },
         ...(integrationType
           ? await this.integrationTypeFilter(integrationType)

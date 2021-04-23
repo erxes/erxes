@@ -26,6 +26,7 @@ describe('integrationQueries', () => {
       $channelId: String
       $brandId: String
       $tag: String
+      $formLoadType: String
     ) {
       integrations(
         page: $page
@@ -35,6 +36,7 @@ describe('integrationQueries', () => {
         channelId: $channelId
         brandId: $brandId
         tag: $tag
+        formLoadType: $formLoadType
       ) {
         _id
       }
@@ -161,6 +163,19 @@ describe('integrationQueries', () => {
     expect(responses.length).toBe(2);
   });
 
+  test('Integrations filtered by formLoadType', async () => {
+    await integrationFactory({
+      kind: 'lead',
+      leadData: { loadType: 'popup' }
+    });
+
+    const responses = await graphqlRequest(qryIntegrations, 'integrations', {
+      formLoadType: 'popup'
+    });
+
+    expect(responses.length).toBe(1);
+  });
+
   test('Integrations filtered by search value', async () => {
     // default value of kind is 'messenger' in factory
     await integrationFactory({ name });
@@ -187,12 +202,10 @@ describe('integrationQueries', () => {
           leadData
           messengerData
           uiOptions
-
           brand { _id }
           form { _id }
           channels { _id }
           tags { _id }
-
           websiteMessengerApps { _id }
           knowledgeBaseMessengerApps { _id }
           leadMessengerApps { _id }
@@ -448,7 +461,7 @@ describe('integrationQueries', () => {
       }
     );
 
-    expect(activeResponse.total).toBe(2);
+    expect(activeResponse.total).toBe(1);
     expect(activeResponse.byStatus.active).toBe(1);
     expect(activeResponse.byStatus.archived).toBe(0);
     expect(archivedResponse.byStatus.active).toBe(0);

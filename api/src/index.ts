@@ -9,14 +9,12 @@ import { createServer } from 'http';
 import * as mongoose from 'mongoose';
 import * as path from 'path';
 import * as request from 'request';
-import { filterXSS } from 'xss';
 import { initApolloServer } from './apolloClient';
 import { buildFile } from './data/modules/fileExporter/exporter';
 import { templateExport } from './data/modules/fileExporter/templateExport';
 import {
   authCookieOptions,
   deleteFile,
-  frontendEnv,
   getEnv,
   getSubServiceDomain,
   handleUnsubscription,
@@ -233,7 +231,7 @@ app.get(
     registerOnboardHistory({ type: `${name}Download`, user: req.user });
 
     return res.redirect(
-      `${frontendEnv({ name: 'API_URL', req })}/static/importTemplates/${name}`
+      `https://erxes-docs.s3-us-west-2.amazonaws.com/templates/${name}`
     );
   })
 );
@@ -248,33 +246,27 @@ app.get('/health', async (_req, res) => {
 // export board
 app.get(
   '/file-export',
-  routeErrorHandling(
-    async (req: any, res) => {
-      const { query, user } = req;
+  routeErrorHandling(async (req: any, res) => {
+    const { query, user } = req;
 
-      const result = await buildFile(query, user);
+    const result = await buildFile(query, user);
 
-      res.attachment(`${result.name}.xlsx`);
+    res.attachment(`${result.name}.xlsx`);
 
-      return res.send(result.response);
-    },
-    (res, e) => res.end(filterXSS(e.message))
-  )
+    return res.send(result.response);
+  })
 );
 
 app.get(
   '/template-export',
-  routeErrorHandling(
-    async (req: any, res) => {
-      const { importType } = req.query;
+  routeErrorHandling(async (req: any, res) => {
+    const { importType } = req.query;
 
-      const { name, response } = await templateExport(req.query);
+    const { name, response } = await templateExport(req.query);
 
-      res.attachment(`${name}.${importType}`);
-      return res.send(response);
-    },
-    (res, e) => res.end(filterXSS(e.message))
-  )
+    res.attachment(`${name}.${importType}`);
+    return res.send(response);
+  })
 );
 
 // read file
@@ -294,7 +286,13 @@ app.get(
 
       return res.send(response);
     },
-    (res, e) => res.end(filterXSS(e.message))
+    (res, e, next) => {
+      if (e.message.includes('key does not exist')) {
+        return res.status(404).send('Not found');
+      }
+
+      return next(e);
+    }
   )
 );
 
@@ -403,7 +401,7 @@ app.post(
 
 // Error handling middleware
 app.use((error, _req, res, _next) => {
-  console.error(error.stack);
+  debugError(error.message);
   res.status(500).send(error.message);
 });
 

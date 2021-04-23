@@ -1,8 +1,8 @@
-import { Users } from '../../db/models';
 import { IArticleDocument } from '../../db/models/definitions/knowledgebase';
+import { getDocument } from './mutations/cacheUtils';
 
 export default {
   createdUser(article: IArticleDocument) {
-    return Users.findOne({ _id: article.createdBy });
+    return getDocument('users', { _id: article.createdBy });
   }
 };

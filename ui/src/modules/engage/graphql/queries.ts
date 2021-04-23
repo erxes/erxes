@@ -248,12 +248,6 @@ const headSegments = `
   }
 `;
 
-const combinedFields = `
-  query fieldsCombinedByContentType {
-    fieldsCombinedByContentType(contentType: "customer")
-  }
-`;
-
 const kindCounts = `
   query kindCounts {
     engageMessageCounts(name: "kind")
@@ -305,7 +299,6 @@ export default {
   customerCounts,
   segmentDetail,
   headSegments,
-  combinedFields,
   kindCounts,
   statusCounts,
   tagCounts,

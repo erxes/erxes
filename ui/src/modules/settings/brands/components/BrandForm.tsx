@@ -59,7 +59,7 @@ const BrandForm = (props: Props) => {
     );
   };
 
-  const renderExtraContent = () => {
+  const renderExtraContent = (isSaved?: boolean) => {
     const { extended } = props;
 
     if (!extended) {
@@ -72,6 +72,7 @@ const BrandForm = (props: Props) => {
         emailConfig={emailConfig}
         setEmailConfig={setEmailConfig}
         templateName="conversationCron"
+        isSaved={isSaved}
       />
     );
   };
@@ -103,7 +104,7 @@ const BrandForm = (props: Props) => {
           />
         </FormGroup>
 
-        {renderExtraContent()}
+        {renderExtraContent(formProps.isSaved)}
 
         {renderFooter({ ...formProps })}
       </>

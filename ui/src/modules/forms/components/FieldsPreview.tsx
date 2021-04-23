@@ -2,6 +2,7 @@ import SortableList from 'modules/common/components/SortableList';
 import { IField } from 'modules/settings/properties/types';
 import React from 'react';
 import xss from 'xss';
+import { FieldsWrapper } from '../styles';
 import FieldPreview from './FieldPreview';
 
 type Props = {
@@ -78,12 +79,14 @@ class FieldsPreview extends React.Component<Props, State> {
       <>
         {this.renderFormDesc()}
 
-        <SortableList
-          child={child}
-          fields={this.state.fields || []}
-          onChangeFields={this.onChangeFields}
-          droppableId="form"
-        />
+        <FieldsWrapper>
+          <SortableList
+            child={child}
+            fields={this.state.fields || []}
+            onChangeFields={this.onChangeFields}
+            droppableId="form"
+          />
+        </FieldsWrapper>
       </>
     );
   }

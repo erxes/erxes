@@ -58,6 +58,8 @@ export interface IEngageSmsStats {
   sending_failed: number;
   delivery_failed: number;
   delivery_unconfirmed: number;
+  webhook_delivered: number;
+  error?: number;
 }
 
 export interface IDeliveryReport {
@@ -248,6 +250,7 @@ export type IEmailFormProps = {
   fromUserId: string;
   content: string;
   scheduleDate: IEngageScheduleDate;
+  isSaved?: boolean;
 };
 
 export type EngageConfigQueryResponse = {

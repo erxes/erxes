@@ -4,12 +4,12 @@ import ControlLabel from 'modules/common/components/form/Label';
 import Icon from 'modules/common/components/Icon';
 import { LeftItem } from 'modules/common/components/step/styles';
 import { __ } from 'modules/common/utils';
-import { ColorPick, ColorPicker, Description } from 'modules/settings/styles';
+import { ColorPick, ColorPicker } from 'modules/settings/styles';
 import React from 'react';
 import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
 import Popover from 'react-bootstrap/Popover';
 import TwitterPicker from 'react-color/lib/Twitter';
-import { BackgroundSelector, Box, BoxRow, FlexItem } from './style';
+import { Box, BoxRow, FlexItem, LabelWrapper } from './style';
 
 type Props = {
   type: string;
@@ -43,27 +43,13 @@ class ChooseType extends React.Component<Props, {}> {
     });
   };
 
-  renderThemeColor(value: string) {
-    const onClick = () => this.props.onChange('theme', value);
-
-    return (
-      <BackgroundSelector
-        key={value}
-        selected={this.props.theme === value}
-        onClick={onClick}
-      >
-        <div style={{ backgroundColor: value }} />
-      </BackgroundSelector>
-    );
-  }
-
   render() {
     const { color, theme } = this.props;
 
     const popoverTop = (
       <Popover id="color-picker">
         <TwitterPicker
-          width="266px"
+          width="240px"
           triangle="hide"
           colors={COLORS}
           color={color}
@@ -76,9 +62,9 @@ class ChooseType extends React.Component<Props, {}> {
       <FlexItem>
         <LeftItem>
           <FormGroup>
-            <ControlLabel>Theme color</ControlLabel>
-            <Description>Try some of these colors</Description>
-            <br />
+            <LabelWrapper>
+              <ControlLabel>Theme color</ControlLabel>
+            </LabelWrapper>
             <div>
               <OverlayTrigger
                 trigger="click"
@@ -93,9 +79,9 @@ class ChooseType extends React.Component<Props, {}> {
             </div>
           </FormGroup>
 
-          <FormGroup>
+          <LabelWrapper>
             <ControlLabel>Choose a flow type</ControlLabel>
-          </FormGroup>
+          </LabelWrapper>
           <BoxRow>
             {this.renderBox('ShoutBox', 'comment-1', 'shoutbox')}
             {this.renderBox('Popup', 'window', 'popup')}

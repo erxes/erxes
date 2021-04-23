@@ -55,7 +55,6 @@ class AddFormContainer extends React.Component<FinalProps> {
       options,
       assignedUserIds,
       sourceConversationId,
-      aboveItemId,
       description,
       attachments,
       relType,
@@ -70,7 +69,6 @@ class AddFormContainer extends React.Component<FinalProps> {
     localStorage.setItem('proccessId', proccessId);
 
     doc.proccessId = proccessId;
-    doc.aboveItemId = aboveItemId;
     doc.description = description;
     doc.attachments = attachments;
 

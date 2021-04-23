@@ -1,6 +1,6 @@
 import { IItem, IItemParams } from 'modules/boards/types';
 import { IActivityLogForMonth } from '../activityLogs/types';
-import { IProduct, IProductDoc } from '../settings/productService/types';
+import { IProduct } from '../settings/productService/types';
 
 export interface IQueryParams {
   brandIds: string;
@@ -10,20 +10,13 @@ export interface IQueryParams {
   endDate: string;
   startDate: string;
 }
-
 export interface IDealTotalAmount {
   _id: string;
-  dealCount: number;
-  totalForType: [
+  name: string;
+  currencies: [
     {
-      _id: string;
+      amount: number;
       name: string;
-      currencies: [
-        {
-          amount: number;
-          name: string;
-        }
-      ];
     }
   ];
 }
@@ -53,7 +46,7 @@ export interface IPaymentsData {
 }
 
 export type DealsTotalAmountsQueryResponse = {
-  dealsTotalAmounts: IDealTotalAmount;
+  dealsTotalAmounts: IDealTotalAmount[];
   refetch: () => void;
 };
 
@@ -68,10 +61,6 @@ export type ProductsQueryResponse = {
   products: IProduct[];
 };
 
-export type ProductAddMutationResponse = {
-  productAdd: (params: { variables: IProductDoc }) => Promise<void>;
-};
-
 export interface IDeal extends IItem {
   products?: any;
   paymentsData?: IPaymentsData;
@@ -84,6 +73,13 @@ export interface IDealParams extends IItemParams {
 
 export type DealsQueryResponse = {
   deals: IDeal[];
+  loading: boolean;
+  refetch: () => void;
+  fetchMore: any;
+};
+
+export type DealsTotalCountQueryResponse = {
+  dealsTotalCount: number;
   loading: boolean;
   refetch: () => void;
   fetchMore: any;

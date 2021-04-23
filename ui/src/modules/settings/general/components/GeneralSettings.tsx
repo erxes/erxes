@@ -37,6 +37,7 @@ type Props = {
 type State = {
   configsMap: IConfigsMap;
   language: string;
+  isSaved: boolean;
 };
 
 class GeneralSettings extends React.Component<Props, State> {
@@ -45,7 +46,8 @@ class GeneralSettings extends React.Component<Props, State> {
 
     this.state = {
       configsMap: props.configsMap,
-      language: props.currentLanguage
+      language: props.currentLanguage,
+      isSaved: false
     };
   }
 
@@ -53,6 +55,8 @@ class GeneralSettings extends React.Component<Props, State> {
     e.preventDefault();
 
     const { configsMap, language } = this.state;
+
+    this.setState({ isSaved: true });
 
     this.props.save(configsMap);
 
@@ -370,6 +374,7 @@ class GeneralSettings extends React.Component<Props, State> {
             }}
             emailText="Set an email address you wish to send your internal transactional emails from. For example, task notifications, team member mentions, etc."
             setEmailConfig={this.onChangeEmailConfig}
+            isSaved={this.state.isSaved}
           />
           <FormGroup>
             <ControlLabel>DEFAULT EMAIL SERVICE</ControlLabel>

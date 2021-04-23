@@ -182,6 +182,7 @@ class Dashboard extends React.Component<Props, State> {
               itemId={item._id}
               dashboardId={dashboardId}
               title={item.name}
+              query={item.vizState.query}
               removeDashboardItem={removeDashboardItem}
             >
               <ChartRenderer

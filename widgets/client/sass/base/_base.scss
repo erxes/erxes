@@ -1,4 +1,4 @@
-@import '../animations';
+@import "../animations";
 
 html,
 body,
@@ -8,13 +8,25 @@ body,
 }
 
 body {
-  @include prefix((box-sizing: border-box), webkit moz ms o);
-  font-family: system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Oxygen,Ubuntu,Cantarell,"Fira Sans","Droid Sans","Helvetica Neue",sans-serif;
+  @include prefix(
+    (
+      box-sizing: border-box,
+    ),
+    webkit moz ms o
+  );
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+    Oxygen, Ubuntu, Cantarell, "Fira Sans", "Droid Sans", "Helvetica Neue",
+    sans-serif;
   margin: 0;
 }
 
 .erxes-widget {
-  @include prefix((box-sizing: border-box), webkit moz ms o);
+  @include prefix(
+    (
+      box-sizing: border-box,
+    ),
+    webkit moz ms o
+  );
   font-size: $font-size;
   -moz-osx-font-smoothing: grayscale;
   -webkit-font-smoothing: antialiased;
@@ -24,7 +36,9 @@ body {
   button,
   input,
   textarea {
-    font-family: system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Oxygen,Ubuntu,Cantarell,"Fira Sans","Droid Sans","Helvetica Neue",sans-serif;
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
+      Roboto, Oxygen, Ubuntu, Cantarell, "Fira Sans", "Droid Sans",
+      "Helvetica Neue", sans-serif;
   }
 }
 
@@ -48,9 +62,9 @@ a {
 
 .loader {
   @include animation(0, 1s, animationSpin, linear, infinite);
-  border: 2px solid rgba($black, .3);
+  border: 2px solid rgba($black, 0.3);
   border-radius: 50%;
-  border-top: 2px solid rgba($black, .2);
+  border-top: 2px solid rgba($black, 0.2);
   height: 20px;
   margin-right: -10px;
   margin-top: -10px;
@@ -65,8 +79,8 @@ a {
     margin-top: 0;
     width: 28px;
   }
-  &.top-space{
-    margin-top:100px;
+  &.top-space {
+    margin-top: 100px;
   }
 }
 
@@ -83,7 +97,12 @@ a {
   }
 
   &::before {
-    @include prefix((box-shadow: $base-shadow), webkit moz);
+    @include prefix(
+      (
+        box-shadow: $base-shadow,
+      ),
+      webkit moz
+    );
     background: $white;
     border-radius: $border-radius / 2;
     color: lighten($black, 20%);
@@ -101,7 +120,8 @@ a {
     text-overflow: ellipsis;
     top: 100%;
     transform: translateY(0%);
-    transition: transform .3s cubic-bezier(.2, 1, .2, 1), opacity .2s cubic-bezier(.2, 1, .2, 1);
+    transition: transform 0.3s cubic-bezier(0.2, 1, 0.2, 1),
+      opacity 0.2s cubic-bezier(0.2, 1, 0.2, 1);
     white-space: nowrap;
     will-change: transform, opacity;
     z-index: 1;
@@ -114,9 +134,12 @@ a {
 
 // button
 .erxes-button {
-  @include prefix((
-    transition: all .3s ease-in-out
-  ), webkit moz ms o);
+  @include prefix(
+    (
+      transition: all 0.3s ease-in-out,
+    ),
+    webkit moz ms o
+  );
   background: $green;
   border: 0;
   border-radius: $border-radius / 2;
@@ -169,19 +192,34 @@ a {
   }
 }
 
+.erxes-form-fields {
+  margin-right: -20px;
+
+  .form-group {
+    padding-right: 20px;
+    box-sizing: border-box;
+  }
+}
+
 // form control
 .form-control {
-  @include prefix((
-    box-sizing: border-box
-  ), webkit moz ms o);
-  @include prefix((
-    transition: all .3s ease-in-out
-  ), webkit moz ms o);
+  @include prefix(
+    (
+      box-sizing: border-box,
+    ),
+    webkit moz ms o
+  );
+  @include prefix(
+    (
+      transition: all 0.3s ease-in-out,
+    ),
+    webkit moz ms o
+  );
   -webkit-appearance: none;
   background: $bg-color;
   border: 1px solid $border-color;
   border-radius: $border-radius / 2;
-  box-shadow: inset 0 1px 3px 0 rgba($black, .07);
+  box-shadow: inset 0 1px 3px 0 rgba($black, 0.07);
   color: lighten($black, 10%);
   display: block;
   font-size: $font-size;
@@ -207,10 +245,96 @@ a {
     -webkit-appearance: radio;
   }
 
-
   &:focus {
     background: $white;
   }
+}
+
+select.form-control,
+select.form-control:focus,
+.select.form-control,
+.select.form-control:focus {
+  background: url(http://cdn1.iconfinder.com/data/icons/cc_mono_icon_set/blacks/16x16/br_down.png)
+    no-repeat right;
+  background-size: 8px;
+  background-position-x: calc(100% - 10px);
+}
+
+.select.form-control {
+  height: auto;
+  min-height: 36px;
+}
+
+//multi-select-css
+.msf_multiselect_container .msf_multiselect {
+  border: 1px solid #e4e4e4;
+  list-style-type: none;
+  margin: 0;
+  padding: 0;
+  position: absolute;
+  z-index: 240;
+}
+
+.msf_multiselect li {
+  padding: 5px 10px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  margin: 0 10px 3px 10px;
+  border-radius: 4px;
+
+  &:hover,
+  &:focus,
+  &.active {
+    background-color: #f0f0f0;
+  }
+}
+
+.msf_multiselect_container .msf_multiselect {
+  max-height: 300px;
+  overflow: auto;
+  background-color: #fff;
+  right: 20px;
+  left: 20px;
+}
+
+.msf_multiselect_container .form-control .selectedLabels {
+  padding: 1px 6px;
+  background: #f0f0f0;
+  color: #768192;
+  border: 1px solid #d8dbe0;
+  border-radius: 25px;
+  display: inline-block;
+  font-size: 12px;
+  margin: 3px 6px 3px 0;
+}
+.msf_multiselect_container .closeBtn {
+  padding-left: 4px;
+  cursor: pointer;
+  color: rgba(0, 0, 0, 0.5);
+  font-weight: bold;
+}
+.msf_multiselect_container .closeBtn.readOnly {
+  cursor: unset;
+}
+.msf_multiselect_container .hidden {
+  display: none !important;
+}
+.msf_multiselect .searchbox {
+  width: -moz-available;
+  width: -webkit-fill-available;
+  padding: 8px;
+  margin: 0;
+  border: 0;
+  border-bottom: 1px solid #ddd;
+
+  &:focus {
+    outline: 0;
+    border-color: #2196f3;
+  }
+}
+.msf_multiselect_container .msf_multiselect.offdropdown {
+  position: unset;
 }
 
 .form-group {
@@ -275,5 +399,5 @@ a {
 }
 
 ::-webkit-scrollbar-track {
-  background: rgba(0,0,0, 0.05);
+  background: rgba(0, 0, 0, 0.05);
 }

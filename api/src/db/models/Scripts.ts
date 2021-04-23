@@ -34,9 +34,9 @@ export const loadClass = () => {
 
       // generate brandCode
       if (fields.messengerId) {
-        const messengerIntegration = await Integrations.getIntegration(
-          fields.messengerId
-        );
+        const messengerIntegration = await Integrations.getIntegration({
+          _id: fields.messengerId
+        });
 
         const brand = await Brands.getBrand({
           _id: messengerIntegration.brandId || ''

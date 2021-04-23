@@ -1,6 +1,6 @@
 import { Document, Schema } from 'mongoose';
 import { TAG_TYPES } from './constants';
-import { field, schemaWrapper } from './utils';
+import { field, schemaHooksWrapper } from './utils';
 
 export interface ITag {
   name: string;
@@ -17,7 +17,7 @@ export interface ITagDocument extends ITag, Document {
   relatedIds?: string[];
 }
 
-export const tagSchema = schemaWrapper(
+export const tagSchema = schemaHooksWrapper(
   new Schema({
     _id: field({ pkey: true }),
     name: field({ type: String, label: 'Name' }),
@@ -32,5 +32,6 @@ export const tagSchema = schemaWrapper(
     order: field({ type: String, label: 'Order' }),
     parentId: field({ type: String, optional: true, label: 'Parent' }),
     relatedIds: field({ type: [String], optional: true, label: 'Childrens' })
-  })
+  }),
+  'erxes_tags'
 );

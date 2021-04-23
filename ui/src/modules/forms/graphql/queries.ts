@@ -151,9 +151,39 @@ const integrationsTotalCount = `
   }
 `;
 
+const fields = `
+  query fields($contentType: String!, $contentTypeId: String) {
+    fields(contentType: $contentType, contentTypeId: $contentTypeId) {
+      _id
+      type
+      validation
+      text
+      content
+      description
+      options
+      isRequired
+      order
+      column
+      logicAction
+      logics {
+        fieldId
+        logicOperator
+        logicValue
+      }
+      groupName
+      associatedFieldId
+      associatedField {
+        _id
+        text
+        contentType
+      }
+    }
+  }
+`;
+
 const fieldsCombinedByContentType = `
-  query fieldsCombinedByContentType($contentType: String!,$usageType: String, $excludedNames: [String]) {
-    fieldsCombinedByContentType(contentType: $contentType,usageType: $usageType, excludedNames: $excludedNames)
+  query fieldsCombinedByContentType($contentType: String!,$usageType: String, $excludedNames: [String], $segmentId: String, $pipelineId: String) {
+    fieldsCombinedByContentType(contentType: $contentType,usageType: $usageType, excludedNames: $excludedNames, segmentId: $segmentId, pipelineId: $pipelineId)
   }
 `;
 
@@ -195,5 +225,6 @@ export default {
   tags,
   forms,
   fieldsCombinedByContentType,
-  fieldsDefaultColumnsConfig
+  fieldsDefaultColumnsConfig,
+  fields
 };

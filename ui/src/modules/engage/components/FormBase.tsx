@@ -24,6 +24,22 @@ class FormBase extends React.Component<Props> {
   }
 
   validateDoc = (docType, doc): { status: string; doc?: IEngageMessageDoc } => {
+    if (this.props.kind !== MESSAGE_KINDS.VISITOR_AUTO) {
+      const { brandIds = [], customerTagIds = [], segmentIds = [] } = doc;
+
+      if (
+        !(
+          brandIds.length > 0 ||
+          customerTagIds.length > 0 ||
+          segmentIds.length > 0
+        )
+      ) {
+        return this.sendError(
+          __('At least one brand or tag or segment must be chosen')
+        );
+      }
+    }
+
     if (!doc.title) {
       return this.sendError(__('Write a title'));
     }

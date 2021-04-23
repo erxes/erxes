@@ -146,18 +146,6 @@ class FullPreviewStep extends React.Component<Props, State> {
     if (carousel === 'form') {
       const { desc } = formData;
 
-      if (currentField) {
-        return (
-          <FieldForm
-            mode={currentMode || 'create'}
-            field={currentField}
-            onSubmit={this.onFieldSubmit}
-            onDelete={this.onFieldDelete}
-            onCancel={this.onFieldFormCancel}
-          />
-        );
-      }
-
       const previewRenderer = () => (
         <FieldsPreview
           fields={fields || []}
@@ -168,12 +156,24 @@ class FullPreviewStep extends React.Component<Props, State> {
       );
 
       return (
-        <FormPreview
-          {...this.props}
-          title={formData.title}
-          btnText={formData.btnText}
-          previewRenderer={previewRenderer}
-        />
+        <>
+          <FormPreview
+            {...this.props}
+            title={formData.title}
+            btnText={formData.btnText}
+            previewRenderer={previewRenderer}
+          />
+          {currentField && (
+            <FieldForm
+              mode={currentMode || 'create'}
+              fields={fields}
+              field={currentField}
+              onSubmit={this.onFieldSubmit}
+              onDelete={this.onFieldDelete}
+              onCancel={this.onFieldFormCancel}
+            />
+          )}
+        </>
       );
     }
 

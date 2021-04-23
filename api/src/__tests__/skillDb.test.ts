@@ -4,8 +4,8 @@ import './setup.ts';
 
 describe('Test SkillType model', () => {
   afterEach(async () => {
-    await SkillTypes.remove({});
-    await Skills.remove({});
+    await SkillTypes.deleteMany({});
+    await Skills.deleteMany({});
   });
 
   test('Create skill type', async () => {
@@ -40,9 +40,9 @@ describe('Test SkillType model', () => {
 
 describe('Test Skill model', () => {
   afterEach(async () => {
-    await Skills.remove({});
-    await SkillTypes.remove({});
-    await Users.remove({});
+    await Skills.deleteMany({});
+    await SkillTypes.deleteMany({});
+    await Users.deleteMany({});
   });
 
   test('Create a skill', async () => {

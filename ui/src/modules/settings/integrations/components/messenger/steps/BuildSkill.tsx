@@ -8,12 +8,14 @@ import Icon from 'modules/common/components/Icon';
 import Tip from 'modules/common/components/Tip';
 import Toggle from 'modules/common/components/Toggle';
 import { __ } from 'modules/common/utils';
+import { Description, Row } from 'modules/settings/integrations/styles';
 import { ISkillData } from 'modules/settings/integrations/types';
 import {
   ISkillDocument,
   ISkillTypesDocument
 } from 'modules/settings/skills/types';
 import React, { useState } from 'react';
+import { Link } from 'react-router-dom';
 import Select from 'react-select-plus';
 import styled from 'styled-components';
 
@@ -134,7 +136,7 @@ function BuildSkill({
       return (
         <Item key={index}>
           <FormGroup>
-            <ControlLabel>Select a skill</ControlLabel>
+            <ControlLabel required={true}>Select a skill</ControlLabel>
             <Select
               placeholder="Choose a select"
               value={option.skillId}
@@ -145,7 +147,10 @@ function BuildSkill({
           </FormGroup>
 
           <FormGroup>
-            <ControlLabel>Write a label</ControlLabel>
+            <ControlLabel required={true}>Write a label</ControlLabel>
+            <Description>
+              {__('Display this text for visitors as an option')}
+            </Description>
             <FormControl value={option.label} onChange={handleLabelChange} />
           </FormGroup>
 
@@ -164,6 +169,16 @@ function BuildSkill({
         </Item>
       );
     });
+  }
+
+  function renderAddSkill() {
+    return (
+      <Link to={'/settings/skills'} target="_blank">
+        <Button btnStyle="primary" uppercase={false} icon="plus-circle">
+          Create skill
+        </Button>
+      </Link>
+    );
   }
 
   function renderContent() {
@@ -200,17 +215,20 @@ function BuildSkill({
       <>
         <FormGroup>
           <ControlLabel>Choose a skill type</ControlLabel>
-          <Select
-            placeholder="Please select a skill type"
-            value={skillType}
-            options={generateOptions(skillTypes)}
-            onChange={handleSelectChange}
-          />
+          <Row>
+            <Select
+              placeholder="Please select a skill type"
+              value={skillType}
+              options={generateOptions(skillTypes)}
+              onChange={handleSelectChange}
+            />
+            {renderAddSkill()}
+          </Row>
         </FormGroup>
         {skillType ? (
           <FormGroup>
             <Button
-              btnStyle="primary"
+              btnStyle="simple"
               uppercase={false}
               icon="plus-circle"
               onClick={handleAdd}
@@ -228,7 +246,9 @@ function BuildSkill({
     <>
       <FormGroup>
         <ControlLabel>Show skill in messenger</ControlLabel>
-        <p>{__('First please create skills in settings')}</p>
+        <Description>
+          {__('Direct conversations by skills to team members')}
+        </Description>
 
         <Toggle
           checked={show}

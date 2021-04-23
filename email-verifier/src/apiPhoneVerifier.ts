@@ -159,7 +159,7 @@ export const validateSinglePhone = async (phone: string, hostname: string) => {
 
   if (!phone.includes('+')) {
     debugBase('Phone number must include country code for verification!');
-    throw new Error('Phone number must include country code for verification!');
+    return { phone, status: PHONE_VALIDATION_STATUSES.UNKNOWN };
   }
 
   let response: { status?: string; data?: any } = {};

@@ -15,6 +15,7 @@ type Props = {
   setEmailConfig: (emailConfig: any) => void;
   emailText: string;
   templateName?: string;
+  isSaved?: boolean;
 };
 
 const ContentWrapper = styled.div`
@@ -69,6 +70,7 @@ const EmailConfigForm = (props: Props) => {
             onChange={onEditorChange}
             autoGrow={true}
             name="email_config"
+            isSubmitted={props.isSaved}
           />
         </ContentWrapper>
       );

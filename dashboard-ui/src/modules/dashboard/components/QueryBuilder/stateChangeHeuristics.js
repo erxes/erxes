@@ -1,11 +1,20 @@
 export default (oldState, newState) => {
   const { query, sessionGranularity } = oldState;
   const defaultGranularity = sessionGranularity || 'day';
+
   if (newState.query) {
     const oldQuery = query;
     let newQuery = newState.query;
 
     const { meta } = oldState;
+
+    let schemaName = '';
+
+    if (newQuery.dimensions) {
+      if (newQuery.dimensions[0]) {
+        schemaName = newQuery.dimensions[0].split('.')[0];
+      }
+    }
 
     if (
       (oldQuery.timeDimensions || []).length === 1 &&
@@ -20,6 +29,32 @@ export default (oldState, newState) => {
       };
     }
 
+    if (schemaName.includes('Properties')) {
+      const dateRange = newQuery.timeDimensions[0]
+        ? newQuery.timeDimensions[0].dateRange
+        : 'Last 30 days';
+
+      const dimension = newQuery.timeDimensions[0]
+        ? newQuery.timeDimensions[0].dimension
+        : `${schemaName}.createdDate`;
+
+      newQuery = {
+        ...newQuery,
+        timeDimensions: [
+          {
+            dimension,
+            dateRange
+          }
+        ]
+      };
+
+      return {
+        ...newState,
+        query: newQuery,
+        chartType: 'table'
+      };
+    }
+
     if (
       ((oldQuery.measures || []).length === 0 &&
         (newQuery.measures || []).length > 0) ||
@@ -30,6 +65,7 @@ export default (oldState, newState) => {
       const defaultTimeDimension = meta.defaultTimeDimensionNameFor(
         newQuery.measures[0]
       );
+
       newQuery = {
         ...newQuery,
         timeDimensions: defaultTimeDimension
@@ -102,6 +138,7 @@ export default (oldState, newState) => {
         sessionGranularity: null
       };
     }
+
     return newState;
   }
 

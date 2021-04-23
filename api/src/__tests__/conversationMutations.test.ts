@@ -9,6 +9,7 @@ import {
   conversationFactory,
   customerFactory,
   dealFactory,
+  fieldFactory,
   integrationFactory,
   stageFactory,
   userFactory
@@ -31,6 +32,7 @@ import { IConversationDocument } from '../db/models/definitions/conversations';
 import { ICustomerDocument } from '../db/models/definitions/customers';
 import { IIntegrationDocument } from '../db/models/definitions/integrations';
 import { IUserDocument } from '../db/models/definitions/users';
+
 import messageBroker from '../messageBroker';
 import './setup.ts';
 
@@ -402,6 +404,17 @@ describe('Conversation message mutations', () => {
     args.conversationId = telnyxConversation._id;
 
     try {
+      await graphqlRequest(addMutation, 'conversationMessageAdd', args, {
+        dataSources
+      });
+    } catch (e) {
+      expect(e).toBeDefined();
+    }
+
+    // long sms content that is split
+    try {
+      args.content = faker.lorem.paragraph();
+
       await graphqlRequest(addMutation, 'conversationMessageAdd', args, {
         dataSources
       });
@@ -837,44 +850,6 @@ describe('Conversation message mutations', () => {
     mock.restore();
   });
 
-  test('Create product board note', async () => {
-    const mutation = `
-      mutation conversationCreateProductBoardNote($_id: String!) {
-        conversationCreateProductBoardNote(_id: $_id) 
-      }
-    `;
-
-    const conversation = await conversationFactory();
-
-    try {
-      await graphqlRequest(
-        mutation,
-        'conversationCreateProductBoardNote',
-        { _id: conversation._id },
-        { dataSources }
-      );
-    } catch (e) {
-      expect(e[0].message).toBe('Integrations api is not running');
-    }
-
-    const mock = sinon
-      .stub(dataSources.IntegrationsAPI, 'createProductBoardNote')
-      .callsFake(() => {
-        return Promise.resolve('productBoardLink');
-      });
-
-    const response = await graphqlRequest(
-      mutation,
-      'conversationCreateProductBoardNote',
-      { _id: conversation._id },
-      { dataSources }
-    );
-
-    expect(response).toBe('productBoardLink');
-
-    mock.restore();
-  });
-
   test('Change conversation operator status', async () => {
     const conversation = await conversationFactory({
       operatorStatus: CONVERSATION_OPERATOR_STATUS.BOT
@@ -1001,5 +976,45 @@ describe('Conversation message mutations', () => {
 
     expect(updatedDeal).toBeDefined();
     expect(sourcesIds.length).toEqual(2);
+  });
+
+  test('Conversation conversationEditCustomFields', async () => {
+    const conversation = await conversationFactory();
+    const field = await fieldFactory({ type: 'input', validation: 'number' });
+
+    const mutation = `
+    mutation conversationEditCustomFields($_id: String!, $customFieldsData: JSON) {
+      conversationEditCustomFields(_id: $_id, customFieldsData: $customFieldsData) {
+        _id
+      }
+    }
+  `;
+
+    await graphqlRequest(
+      mutation,
+      'conversationEditCustomFields',
+      {
+        _id: conversation._id,
+        customFieldsData: [
+          {
+            field: field._id,
+            value: 123
+          }
+        ]
+      },
+      { dataSources }
+    );
+
+    const response = await Conversations.getConversation(conversation._id);
+
+    const { customFieldsData } = response;
+
+    if (!customFieldsData) {
+      fail('customFieldsData not saved');
+    }
+
+    expect(response).toBeDefined();
+    expect(customFieldsData.length).toEqual(1);
+    expect(customFieldsData[0].value).toBe(123);
   });
 });

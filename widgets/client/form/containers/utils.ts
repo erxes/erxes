@@ -87,7 +87,11 @@ export const saveLead = (params: {
   const { doc, browserInfo, integrationId, formId, saveCallback } = params;
 
   const submissions = Object.keys(doc).map(fieldId => {
-    const { value, text, type, validation, associatedFieldId} = doc[fieldId];
+    const { value, text, type, validation, associatedFieldId, groupId, isHidden } = doc[fieldId];
+
+    if (isHidden) {
+      return;
+    }
 
     return {
       _id: fieldId,
@@ -95,15 +99,16 @@ export const saveLead = (params: {
       text,
       value,
       validation,
-      associatedFieldId
+      associatedFieldId,
+      groupId
     };
   });
-
+  
   const variables = {
     integrationId,
     formId,
     browserInfo,
-    submissions,
+    submissions: submissions.filter(e => e),
     cachedCustomerId: getLocalStorageItem("customerId")
   };
 

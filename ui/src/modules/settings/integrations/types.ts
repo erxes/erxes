@@ -198,6 +198,10 @@ export type IntegrationDetailQueryResponse = {
   integrationDetail: IIntegration;
 } & QueryResponse;
 
+export type MessengerAppsQueryResponse = {
+  messengerApps: IMessengerApps;
+} & QueryResponse;
+
 type By = { [key: string]: number };
 
 export type ByKindTotalCount = {

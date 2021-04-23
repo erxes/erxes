@@ -3,12 +3,12 @@ import {
   FormSubmissions,
   PipelineLabels,
   Pipelines,
-  Stages,
-  Users
+  Stages
 } from '../../db/models';
 import { IGrowthHackDocument } from '../../db/models/definitions/growthHacks';
 import { IUserDocument } from '../../db/models/definitions/users';
 import { boardId } from './boardUtils';
+import { getDocument, getDocumentList } from './mutations/cacheUtils';
 import { IFieldsQuery } from './queries/fields';
 
 export default {
@@ -47,11 +47,15 @@ export default {
   },
 
   assignedUsers(growthHack: IGrowthHackDocument) {
-    return Users.find({ _id: { $in: growthHack.assignedUserIds || [] } });
+    return getDocumentList('users', {
+      _id: { $in: growthHack.assignedUserIds || [] }
+    });
   },
 
   votedUsers(growthHack: IGrowthHackDocument) {
-    return Users.find({ _id: { $in: growthHack.votedUserIds || [] } });
+    return getDocumentList('users', {
+      _id: { $in: growthHack.votedUserIds || [] }
+    });
   },
 
   isVoted(
@@ -110,6 +114,6 @@ export default {
   },
 
   createdUser(growthHack: IGrowthHackDocument) {
-    return Users.findOne({ _id: growthHack.userId });
+    return getDocument('users', { _id: growthHack.userId });
   }
 };

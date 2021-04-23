@@ -34,13 +34,13 @@ const AvatarSection = styled.div`
   position: relative;
 `;
 
-const Content = styled.div`
+const Content = styledTS<{ isList?: boolean }>(styled.div)`
   background: ${colors.bgMain};
   padding: ${dimensions.unitSpacing - 5}px ${dimensions.unitSpacing}px;
   border-radius: 3px;
   margin: ${dimensions.unitSpacing - 5}px 0;
-  display: inline-block;
-  max-width: 270px;
+  word-break: break-word;
+  max-width: ${props => (props.isList ? '100%' : '270px')};
 
   > p {
     margin: 0;

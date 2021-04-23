@@ -16,9 +16,21 @@ const generateMember = (availableMembers, schemaType, addMemberName) => {
     availableMembers.forEach(members => {
       const name = members.name;
 
+      let isCustom = false;
+
+      if (name.split('.')[1]) {
+        if (
+          name.split('.')[1].slice(0, 6) === 'CUSTOM' &&
+          addMemberName === 'Filter'
+        ) {
+          isCustom = true;
+        }
+      }
+
       if (
         !hideFields.includes(name.split('.')[1]) &&
-        name.startsWith(schemaType)
+        name.startsWith(schemaType) &&
+        isCustom === false
       ) {
         generatedMembers.push(members);
       }

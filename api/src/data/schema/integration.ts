@@ -55,6 +55,7 @@ export const types = `
     callout: JSON,
     rules: [InputRule]
     isRequireOnce: Boolean
+    templateId: String
   }
 
   input MessengerOnlineHoursSchema {
@@ -108,13 +109,14 @@ export const queries = `
     channelId: String,
     brandId: String,
     tag: String,
-    status: String
+    status: String,
+    formLoadType: String
   ): [Integration]
 
   integrationsGetUsedTypes: [integrationsGetUsedTypes]
   integrationGetLineWebhookUrl(_id: String!): String
   integrationDetail(_id: String!): Integration
-  integrationsTotalCount(kind: String, brandId: String, tag: String, channelId: String, status: String): integrationsTotalCount
+  integrationsTotalCount(kind: String, brandId: String, tag: String, channelId: String, status: String, formLoadType: String): integrationsTotalCount
   integrationsFetchApi(path: String!, params: JSON!): JSON
 `;
 

@@ -120,52 +120,6 @@ export interface IDeliveryReportModel extends Model<IDeliveryReportsDocument> {
   updateOrCreateReport(headers: any, status: string): Promise<boolean | string>;
 }
 
-export const loadDeliveryReportsClass = () => {
-  class DeliveryReport {
-    /**
-     * Change delivery report status
-     */
-    public static async updateOrCreateReport(headers: any, status: string) {
-      const { engageMessageId, mailId, customerId, email } = headers;
-
-      const deliveryReports = await DeliveryReports.findOne({
-        engageMessageId
-      });
-
-      if (deliveryReports) {
-        await DeliveryReports.updateOne(
-          { engageMessageId },
-          { $set: { mailId, status } }
-        );
-      } else {
-        await DeliveryReports.create({
-          customerId,
-          mailId,
-          engageMessageId,
-          status,
-          email
-        });
-      }
-
-      if (
-        status === 'complaint' ||
-        status === 'bounce' ||
-        status === 'reject'
-      ) {
-        return 'reject';
-      }
-
-      return true;
-    }
-  }
-
-  deliveryReportsSchema.loadClass(DeliveryReport);
-
-  return deliveryReportsSchema;
-};
-
-loadDeliveryReportsClass();
-
 // tslint:disable-next-line
 const DeliveryReports = model<IDeliveryReportsDocument, IDeliveryReportModel>(
   'delivery_reports',

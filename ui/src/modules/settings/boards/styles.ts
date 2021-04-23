@@ -50,6 +50,7 @@ const StageItemContainer = styled.div`
   button {
     padding: 3px;
     font-size: 16px;
+    margin: 0;
   }
 
   button:hover {

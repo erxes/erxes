@@ -132,7 +132,7 @@ function SkillTypes({
         data={renderContent()}
         loading={loading}
         count={totalCount}
-        emptyText="There is no skill type"
+        emptyText="Get started by grouping the skills into types. For example, language skills"
         emptyImage="/images/actions/26.svg"
       />
       <LoadMore all={totalCount} loading={loading} />

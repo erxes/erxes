@@ -29,6 +29,7 @@
     "graphql-tag": "^2.10.3",
     "i18n-react": "^0.7.0",
     "lodash.flowright": "^3.5.0",
+    "moment": "^2.29.1",
     "numeral": "^2.0.6",
     "query-string": "^6.13.2",
     "react": "^16.13.1",

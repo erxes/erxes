@@ -165,7 +165,7 @@ describe('Checklists model test', () => {
 
     await checklistItemFactory({ checklistId: checklist._id });
 
-    await Checklists.removeChecklists(ACTIVITY_CONTENT_TYPES.DEAL, deal._id);
+    await Checklists.removeChecklists(ACTIVITY_CONTENT_TYPES.DEAL, [deal._id]);
 
     const checklists = await Checklists.find({
       contentType: ACTIVITY_CONTENT_TYPES.DEAL,
@@ -181,7 +181,7 @@ describe('Checklists model test', () => {
 
     const response = await Checklists.removeChecklists(
       ACTIVITY_CONTENT_TYPES.COMPANY,
-      deal._id
+      [deal._id]
     );
 
     expect(response).toBeUndefined();

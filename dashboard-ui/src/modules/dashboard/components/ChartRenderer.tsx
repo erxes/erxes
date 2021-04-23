@@ -207,7 +207,13 @@ const TypeToChartComponent = {
   },
 
   table: ({ resultSet }) => {
-    const columns = resultSet.tableColumns;
+    const columns = resultSet.tableColumns.map(column => {
+      return {
+        key: column.key,
+        title: column.shortTitle
+      };
+    });
+
     const renderResult = result => {
       for (const [key, value] of Object.entries(result)) {
         if (typeof value === 'number') {

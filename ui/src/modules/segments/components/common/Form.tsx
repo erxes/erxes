@@ -1,3 +1,4 @@
+import { IBoard } from 'modules/boards/types';
 import Button from 'modules/common/components/Button';
 import EmptyContent from 'modules/common/components/empty/EmptyContent';
 import FormControl from 'modules/common/components/form/Control';
@@ -17,6 +18,7 @@ import {
   ISegmentCondition,
   ISegmentWithConditionDoc
 } from 'modules/segments/types';
+import { isBoardKind } from 'modules/segments/utils';
 import { EMPTY_NEW_SEGMENT_CONTENT } from 'modules/settings/constants';
 import { ColorPick, ColorPicker, ExpandWrapper } from 'modules/settings/styles';
 import React from 'react';
@@ -24,6 +26,7 @@ import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
 import Popover from 'react-bootstrap/Popover';
 import TwitterPicker from 'react-color/lib/Twitter';
 import { Link } from 'react-router-dom';
+import Select from 'react-select-plus';
 import { FilterBox, SegmentTitle, SegmentWrapper } from '../styles';
 import AddConditionButton from './AddConditionButton';
 import EventCondition from './EventCondition';
@@ -33,13 +36,20 @@ type Props = {
   contentType?: string;
   fields: IField[];
   events: IEvent[];
+  boards?: IBoard[];
   renderButton: (props: IButtonMutateProps) => JSX.Element;
   edit?: (params: { _id: string; doc: ISegmentWithConditionDoc }) => void;
   segment?: ISegment;
   headSegments: ISegment[];
   isForm?: boolean;
   afterSave?: () => void;
-  previewCount?: (conditions: ISegmentCondition[], subOf?: string) => void;
+  fetchFields?: (pipelineId?: string) => void;
+  previewCount?: (args: {
+    conditions: ISegmentCondition[];
+    subOf?: string;
+    boardId?: string;
+    pipelineId?: string;
+  }) => void;
 };
 
 type State = {
@@ -48,6 +58,8 @@ type State = {
   subOf: string;
   color: string;
   conditions: ISegmentCondition[];
+  boardId?: string;
+  pipelineId?: string;
 };
 
 class Form extends React.Component<Props, State> {
@@ -72,10 +84,10 @@ class Form extends React.Component<Props, State> {
 
   componentDidMount() {
     const { previewCount } = this.props;
-    const { conditions, subOf } = this.state;
+    const { conditions, subOf, boardId, pipelineId } = this.state;
 
     if (previewCount) {
-      previewCount(conditions, subOf);
+      previewCount({ conditions, subOf, boardId, pipelineId });
     }
   }
 
@@ -143,6 +155,17 @@ class Form extends React.Component<Props, State> {
     this.setState(({ [name]: value } as unknown) as Pick<State, keyof State>);
   };
 
+  onChangeBoardItem = (key, e) => {
+    const { fetchFields } = this.props;
+    const value = e ? e.value : '';
+
+    this.setState({ [key]: value } as any, () => {
+      if (fetchFields && key === 'pipelineId') {
+        fetchFields(value);
+      }
+    });
+  };
+
   generateDoc = (values: {
     _id?: string;
     name: string;
@@ -150,7 +173,7 @@ class Form extends React.Component<Props, State> {
     color: string;
   }) => {
     const { segment, contentType } = this.props;
-    const { color, conditions } = this.state;
+    const { color, conditions, boardId, pipelineId } = this.state;
     const finalValues = values;
 
     const updatedConditions: ISegmentCondition[] = [];
@@ -167,9 +190,26 @@ class Form extends React.Component<Props, State> {
     return {
       ...finalValues,
       color,
+      boardId,
+      pipelineId,
       contentType,
       conditions: updatedConditions
     };
+  };
+
+  generatePipelineOptions = () => {
+    const { boardId } = this.state;
+
+    const board = (this.props.boards || []).find(b => b._id === boardId);
+
+    if (!board) {
+      return [];
+    }
+
+    return (board.pipelines || []).map(p => ({
+      value: p._id,
+      label: p.name
+    }));
   };
 
   renderParent() {
@@ -272,8 +312,48 @@ class Form extends React.Component<Props, State> {
     return (
       <FilterBox>
         {this.renderConditions()}
-        <AddConditionButton addCondition={this.addCondition} />
+        <AddConditionButton
+          contentType={this.props.contentType || ''}
+          addCondition={this.addCondition}
+        />
       </FilterBox>
+    );
+  };
+
+  renderBoardFields = () => {
+    const { contentType, boards = [] } = this.props;
+    const { boardId, pipelineId } = this.state;
+
+    if (!isBoardKind(contentType)) {
+      return null;
+    }
+
+    return (
+      <FlexContent>
+        <FlexItem>
+          <FormGroup>
+            <ControlLabel>Board</ControlLabel>
+
+            <Select
+              value={boardId}
+              options={boards.map(b => ({ value: b._id, label: b.name }))}
+              onChange={this.onChangeBoardItem.bind(this, 'boardId')}
+            />
+          </FormGroup>
+        </FlexItem>
+
+        <FlexItem>
+          <FormGroup>
+            <ControlLabel>Pipelines</ControlLabel>
+
+            <Select
+              value={pipelineId}
+              onChange={this.onChangeBoardItem.bind(this, 'pipelineId')}
+              options={this.generatePipelineOptions()}
+            />
+          </FormGroup>
+        </FlexItem>
+      </FlexContent>
     );
   };
 
@@ -288,7 +368,15 @@ class Form extends React.Component<Props, State> {
     } = this.props;
 
     const { values, isSubmitted } = formProps;
-    const { name, description, color, conditions, subOf } = this.state;
+    const {
+      name,
+      description,
+      color,
+      conditions,
+      subOf,
+      boardId,
+      pipelineId
+    } = this.state;
 
     const nameOnChange = (e: React.FormEvent) =>
       this.handleChange('name', (e.currentTarget as HTMLInputElement).value);
@@ -303,7 +391,7 @@ class Form extends React.Component<Props, State> {
 
     const onPreviewCount = () => {
       if (previewCount) {
-        previewCount(conditions, subOf);
+        previewCount({ conditions, subOf, boardId, pipelineId });
       }
     };
 
@@ -364,6 +452,7 @@ class Form extends React.Component<Props, State> {
           </FormGroup>
         </FlexContent>
 
+        {this.renderBoardFields()}
         {this.renderFilters()}
 
         <ModalFooter id="button-group">

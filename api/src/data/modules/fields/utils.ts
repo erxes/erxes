@@ -1,14 +1,23 @@
 import {
   Companies,
   Customers,
+  Deals,
   Fields,
   FieldsGroups,
   Integrations,
+  PipelineLabels,
   Products,
-  Tags
+  Segments,
+  Stages,
+  Tags,
+  Tasks,
+  Tickets
 } from '../../../db/models';
 import { fetchElk } from '../../../elasticsearch';
 import { EXTEND_FIELDS, FIELD_CONTENT_TYPES } from '../../constants';
+import { getDocumentList } from '../../resolvers/mutations/cacheUtils';
+import { findElk } from '../../resolvers/mutations/engageUtils';
+import { isUsingElk } from '../../utils';
 import { BOARD_BASIC_INFOS } from '../fileExporter/constants';
 
 const generateBasicInfosFromSchema = async (
@@ -33,6 +42,51 @@ const generateBasicInfosFromSchema = async (
   }
 
   return queFields;
+};
+
+const getCustomFields = async (contentType: string) => {
+  if (!isUsingElk()) {
+    return Fields.find({
+      contentType,
+      isDefinedByErxes: false
+    });
+  }
+
+  return findElk('fields', {
+    bool: {
+      must: [
+        {
+          match: {
+            contentType
+          }
+        },
+        {
+          match: {
+            isDefinedByErxes: false
+          }
+        }
+      ]
+    }
+  });
+};
+
+const getSegment = async (_id: string) => {
+  if (!isUsingElk()) {
+    return Segments.findOne({ _id });
+  }
+
+  const response = await fetchElk('get', 'segments', null, _id);
+
+  return { _id: response._id, ...response._source };
+};
+
+const getFieldGroup = async (_id: string) => {
+  if (!isUsingElk()) {
+    return FieldsGroups.findOne({ _id });
+  }
+  const response = await fetchElk('get', 'fields_groups', null, _id);
+
+  return { _id: response._id, ...response._source };
 };
 
 // Checking field names, all field names must be configured correctly
@@ -166,15 +220,91 @@ export const checkFieldNames = async (type: string, fields: string[]) => {
 };
 
 const getIntegrations = async () => {
-  return Integrations.aggregate([
-    {
-      $project: {
-        _id: 0,
-        label: '$name',
-        value: '$_id'
+  if (!isUsingElk()) {
+    return Integrations.aggregate([
+      {
+        $project: {
+          _id: 0,
+          label: '$name',
+          value: '$_id'
+        }
       }
-    }
-  ]);
+    ]);
+  }
+
+  const response = await fetchElk('search', 'integrations', {});
+
+  if (!response) {
+    return [];
+  }
+
+  return response.hits.hits.map(hit => {
+    return {
+      value: hit._id,
+      label: hit._source.name
+    };
+  });
+};
+
+const generateUsersOptions = async (
+  name: string,
+  label: string,
+  type: string
+) => {
+  const users = await getDocumentList('users', {});
+
+  const options: Array<{ label: string; value: any }> = users.map(user => ({
+    value: user._id,
+    label: user.username || user.email || ''
+  }));
+
+  return {
+    _id: Math.random(),
+    name,
+    label,
+    type,
+    selectOptions: options
+  };
+};
+
+const getStageOptions = async pipelineId => {
+  const stages = await Stages.find({ pipelineId });
+  const options: Array<{ label: string; value: any }> = [];
+
+  for (const stage of stages) {
+    options.push({
+      value: stage._id,
+      label: stage.name || ''
+    });
+  }
+
+  return {
+    _id: Math.random(),
+    name: 'stageId',
+    label: 'Stage',
+    type: 'stage',
+    selectOptions: options
+  };
+};
+
+const getPipelineLabelOptions = async pipelineId => {
+  const labels = await PipelineLabels.find({ pipelineId });
+  const options: Array<{ label: string; value: any }> = [];
+
+  for (const label of labels) {
+    options.push({
+      value: label._id,
+      label: label.name
+    });
+  }
+
+  return {
+    _id: Math.random(),
+    name: 'labelIds',
+    label: 'Labels',
+    type: 'label',
+    selectOptions: options
+  };
 };
 
 const getTags = async (type: string) => {
@@ -211,7 +341,6 @@ const generateFieldsFromSchema = async (queSchema: any, namePrefix: string) => {
 
   for (const name of Object.keys(paths)) {
     const path = paths[name];
-
     const label = path.options.label;
     const type = path.instance;
 
@@ -241,11 +370,16 @@ const generateFieldsFromSchema = async (queSchema: any, namePrefix: string) => {
 export const fieldsCombinedByContentType = async ({
   contentType,
   usageType,
-  excludedNames
+  excludedNames,
+  pipelineId,
+  segmentId
 }: {
   contentType: string;
   usageType?: string;
   excludedNames?: string[];
+  boardId?: string;
+  segmentId?: string;
+  pipelineId?: string;
 }) => {
   let schema: any;
   let extendFields: Array<{ name: string; label?: string }> = [];
@@ -267,11 +401,22 @@ export const fieldsCombinedByContentType = async ({
     case FIELD_CONTENT_TYPES.PRODUCT:
       schema = Products.schema;
       extendFields = EXTEND_FIELDS.PRODUCT;
-
       break;
 
     case FIELD_CONTENT_TYPES.CUSTOMER:
       schema = Customers.schema;
+      break;
+
+    case 'deal':
+      schema = Deals.schema;
+      break;
+
+    case 'task':
+      schema = Tasks.schema;
+      break;
+
+    case 'ticket':
+      schema = Tickets.schema;
       break;
   }
 
@@ -290,13 +435,11 @@ export const fieldsCombinedByContentType = async ({
     }
   }
 
-  const customFields = await Fields.find({
-    contentType
-  });
+  const customFields = await getCustomFields(contentType);
 
   // extend fields list using custom fields data
   for (const customField of customFields) {
-    const group = await FieldsGroups.findOne({ _id: customField.groupId });
+    const group = await getFieldGroup(customField.groupId);
 
     if (group && group.isVisible && customField.isVisible) {
       fields.push({
@@ -328,6 +471,54 @@ export const fieldsCombinedByContentType = async ({
         selectOptions: integrations
       });
     }
+  }
+
+  if (['deal', 'task', 'ticket'].includes(contentType)) {
+    const createdByOptions = await generateUsersOptions(
+      'userId',
+      'Created by',
+      'user'
+    );
+
+    const modifiedByOptions = await generateUsersOptions(
+      'modifiedBy',
+      'Modified by',
+      'user'
+    );
+
+    const assignedUserOptions = await generateUsersOptions(
+      'assignedUserIds',
+      'Assigned users',
+      'user'
+    );
+
+    const watchedUserOptions = await generateUsersOptions(
+      'watchedUserIds',
+      'Watched users',
+      'user'
+    );
+
+    if (segmentId || pipelineId) {
+      const segment = await getSegment(segmentId || '');
+      const labelOptions = await getPipelineLabelOptions(
+        pipelineId || (segment ? segment.pipelineId : null)
+      );
+      const stageOptions = await getStageOptions(
+        pipelineId || (segment ? segment.pipelineId : null)
+      );
+
+      fields = [...fields, stageOptions, labelOptions];
+    }
+
+    fields = [
+      ...fields,
+      ...[
+        createdByOptions,
+        modifiedByOptions,
+        assignedUserOptions,
+        watchedUserOptions
+      ]
+    ];
   }
 
   for (const extendField of extendFields) {

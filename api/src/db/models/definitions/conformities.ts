@@ -46,9 +46,20 @@ export interface IConformityFilter {
   relType: string;
 }
 
+export interface IGetConformityBulk {
+  mainType: string;
+  mainTypeIds: string[];
+  relTypes: string[];
+}
+
 export interface IConformityRemove {
   mainType: string;
   mainTypeId: string;
+}
+
+export interface IConformitiesRemove {
+  mainType: string;
+  mainTypeIds: string[];
 }
 
 export interface IConformityDocument extends IConformity, Document {

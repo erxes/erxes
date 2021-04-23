@@ -1,3 +1,4 @@
+import * as sinon from 'sinon';
 import { graphqlRequest } from '../db/connection';
 import {
   boardFactory,
@@ -5,12 +6,14 @@ import {
   dealFactory,
   pipelineFactory,
   productFactory,
+  segmentFactory,
   stageFactory,
   taskFactory,
   ticketFactory,
   userFactory
 } from '../db/factories';
 import { Boards, Pipelines, Stages } from '../db/models';
+import * as elk from '../elasticsearch';
 
 import moment = require('moment');
 import {
@@ -700,10 +703,11 @@ describe('boardQueries', () => {
 
     const params = {
       pipelineId: pipeline._id,
-      status: BOARD_STATUSES.ARCHIVED
+      status: BOARD_STATUSES.ARCHIVED,
+      name: 'other'
     };
 
-    const stage1 = await stageFactory(params);
+    const stage1 = await stageFactory({ ...params, name: 'stage1' });
     await stageFactory(params);
     await stageFactory(params);
 
@@ -725,5 +729,30 @@ describe('boardQueries', () => {
     });
 
     expect(response).toBe(1);
+  });
+
+  test('itemsCountBySegments', async () => {
+    const segment = await segmentFactory({ contentType: 'deal' });
+    const stage = await stageFactory({});
+    await dealFactory({ stageId: stage._id });
+
+    const mock = sinon.stub(elk, 'fetchElk').callsFake(() => {
+      return Promise.resolve({ count: 1 });
+    });
+
+    const qry = `
+      query itemsCountBySegments($type: String!) {
+        itemsCountBySegments(type: $type)
+      }
+    `;
+
+    const response = await graphqlRequest(qry, 'itemsCountBySegments', {
+      type: 'deal',
+      pipelineId: stage.pipelineId
+    });
+
+    expect(response[segment._id]).toBe(1);
+
+    mock.restore();
   });
 });

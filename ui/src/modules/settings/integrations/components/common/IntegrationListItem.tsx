@@ -31,6 +31,8 @@ type Props = {
     id: string,
     { name, brandId, channelIds }: IntegrationMutationVariables
   ) => void;
+  showExternalInfoColumn: () => void;
+  showExternalInfo: boolean;
 };
 
 type State = {
@@ -270,8 +272,12 @@ class IntegrationListItem extends React.Component<Props, State> {
     const { kind } = integration;
     let value = '';
 
+    if (!this.props.showExternalInfo) {
+      return null;
+    }
+
     if (!externalData) {
-      return <td />;
+      return <td>No data</td>;
     }
 
     switch (kind) {
@@ -322,6 +328,7 @@ class IntegrationListItem extends React.Component<Props, State> {
         })
         .then(({ data }) => {
           this.setState({ externalData: data.integrationsFetchApi });
+          this.props.showExternalInfoColumn();
         })
         .catch(e => {
           Alert.error(e.message);

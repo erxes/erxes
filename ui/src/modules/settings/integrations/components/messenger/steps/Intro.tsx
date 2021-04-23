@@ -99,6 +99,8 @@ class Intro extends React.Component<Props, State> {
             />
           </FormGroup>
 
+          <SubHeading>{__('Skills')}</SubHeading>
+
           <FormGroup>
             <BuildSkill skillData={skillData} onChange={this.props.onChange} />
           </FormGroup>

@@ -1,4 +1,3 @@
-import ActivityLogs from './ActivityLogs';
 import { Boards, Pipelines, Stages } from './Boards';
 import Brands from './Brands';
 import { CalendarBoards, CalendarGroups, Calendars } from './Calendars';
@@ -71,7 +70,6 @@ export {
   KnowledgeBaseTopics,
   Notifications,
   NotificationConfigurations,
-  ActivityLogs,
   Boards,
   Pipelines,
   Stages,

@@ -1,7 +1,7 @@
 import { graphqlRequest } from '../db/connection';
 import { brandFactory, integrationFactory } from '../db/factories';
 import { Brands, Integrations, Users } from '../db/models';
-import memoryStorage from '../inmemoryStorage';
+
 import './setup.ts';
 
 describe('Brands mutations', () => {
@@ -29,8 +29,6 @@ describe('Brands mutations', () => {
     await Brands.deleteMany({});
     await Users.deleteMany({});
     await Integrations.deleteMany({});
-
-    memoryStorage().removeKey(`erxes_brand_${_brand.code}`);
   });
 
   test('Create brand', async () => {
@@ -76,22 +74,6 @@ describe('Brands mutations', () => {
 
     expect(brand.name).toBe(args.name);
     expect(brand.description).toBe(args.description);
-
-    const storageKey = `erxes_brand_${_brand.code}`;
-
-    let cachedBrand = await memoryStorage().get(storageKey);
-
-    expect(cachedBrand).toBeUndefined();
-
-    // create brand cache =====================
-    memoryStorage().set(storageKey, JSON.stringify(_brand));
-
-    await graphqlRequest(mutation, 'brandsEdit', args);
-
-    cachedBrand =
-      JSON.parse((await memoryStorage().get(storageKey)) || '{}') || {};
-
-    expect(Object.keys(cachedBrand).length > 0).toBe(true);
   });
 
   test('Remove brand', async () => {
@@ -107,33 +89,10 @@ describe('Brands mutations', () => {
 
     // Remove brand, lead, messenger cache ==============
     const brand = await brandFactory({ code: '233la' });
-    const messenger = await integrationFactory({
-      brandId: brand._id,
-      kind: 'messenger'
-    });
-    const lead = await integrationFactory({ brandId: brand._id, kind: 'lead' });
-
-    const storageBrandKey = `erxes_brand_${brand.code}`;
-    const storageMessengerKey = `erxes_integration_messenger_${brand._id}`;
-    const storageLeadKey = `erxes_integration_lead_${brand._id}`;
-
-    memoryStorage().set(storageBrandKey, JSON.stringify(brand));
-    memoryStorage().set(storageMessengerKey, JSON.stringify(messenger));
-    memoryStorage().set(storageLeadKey, JSON.stringify(lead));
 
     await graphqlRequest(mutation, 'brandsRemove', { _id: brand._id });
 
     expect(await Brands.findOne({ _id: brand._id })).toBe(null);
-
-    const hasCache = async key => {
-      const result = JSON.parse((await memoryStorage().get(key)) || '{}') || {};
-
-      return Object.keys(result).length > 0;
-    };
-
-    expect(await hasCache(storageBrandKey)).toBe(false);
-    expect(await hasCache(storageMessengerKey)).toBe(false);
-    expect(await hasCache(storageLeadKey)).toBe(false);
   });
 
   test('Manage brand integrations', async () => {

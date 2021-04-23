@@ -45,10 +45,23 @@ export const loadProductClass = () => {
       return product;
     }
 
+    static async checkCodeDuplication(code: string) {
+      const product = await Products.findOne({
+        code,
+        status: { $ne: PRODUCT_STATUSES.DELETED }
+      });
+
+      if (product) {
+        throw new Error('Code must be unique');
+      }
+    }
+
     /**
      * Create a product
      */
     public static async createProduct(doc: IProduct) {
+      await this.checkCodeDuplication(doc.code);
+
       if (doc.categoryCode) {
         const category = await ProductCategories.getProductCatogery({
           code: doc.categoryCode
@@ -67,6 +80,12 @@ export const loadProductClass = () => {
      * Update Product
      */
     public static async updateProduct(_id: string, doc: IProduct) {
+      const product = await Products.getProduct({ _id });
+
+      if (product.code !== doc.code) {
+        await this.checkCodeDuplication(doc.code);
+      }
+
       if (doc.customFieldsData) {
         // clean custom field values
         doc.customFieldsData = await Fields.prepareCustomFieldsData(
@@ -229,10 +248,22 @@ export const loadProductCategoryClass = () => {
       return productCategory;
     }
 
+    static async checkCodeDuplication(code: string) {
+      const category = await ProductCategories.findOne({
+        code
+      });
+
+      if (category) {
+        throw new Error('Code must be unique');
+      }
+    }
+
     /**
      * Create a product categorys
      */
     public static async createProductCategory(doc: IProductCategory) {
+      await this.checkCodeDuplication(doc.code);
+
       const parentCategory = await ProductCategories.findOne({
         _id: doc.parentId
       }).lean();
@@ -250,6 +281,12 @@ export const loadProductCategoryClass = () => {
       _id: string,
       doc: IProductCategory
     ) {
+      const category = await ProductCategories.getProductCatogery({ _id });
+
+      if (category.code !== doc.code) {
+        await this.checkCodeDuplication(doc.code);
+      }
+
       const parentCategory = await ProductCategories.findOne({
         _id: doc.parentId
       }).lean();
@@ -275,13 +312,13 @@ export const loadProductCategoryClass = () => {
       await ProductCategories.updateOne({ _id }, { $set: doc });
 
       // updating child categories order
-      childCategories.forEach(async category => {
-        let order = category.order;
+      childCategories.forEach(async childCategory => {
+        let order = childCategory.order;
 
         order = order.replace(productCategory.order, doc.order);
 
         await ProductCategories.updateOne(
-          { _id: category._id },
+          { _id: childCategory._id },
           { $set: { order } }
         );
       });

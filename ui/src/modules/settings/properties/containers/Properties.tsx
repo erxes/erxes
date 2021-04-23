@@ -14,14 +14,14 @@ import {
   FieldsGroupsRemoveMutationResponse,
   FieldsGroupsUpdateVisibleMutationResponse,
   FieldsRemoveMutationResponse,
-  FieldsUpdateVisibleMutationResponse
+  FieldsUpdateVisibleMutationResponse,
+  FieldsUpdateOrderMutationResponse,
+  FieldsUpdateOrderMutationVariables,
+  GroupsUpdateOrderMutationResponse,
+  GroupsUpdateOrderMutationVariables
 } from '../types';
-import {
-  companyBasicInfos,
-  customerBasicInfos,
-  productBasicInfos,
-  updateCustomFieldsCache
-} from '../utils';
+import { updateCustomFieldsCache } from '../utils';
+import Spinner from 'modules/common/components/Spinner';
 
 type Props = {
   queryParams: any;
@@ -34,6 +34,8 @@ type FinalProps = {
   FieldsRemoveMutationResponse &
   FieldsGroupsUpdateVisibleMutationResponse &
   FieldsUpdateVisibleMutationResponse &
+  FieldsUpdateOrderMutationResponse &
+  GroupsUpdateOrderMutationResponse &
   IRouterProps;
 
 const PropertiesContainer = (props: FinalProps) => {
@@ -44,8 +46,14 @@ const PropertiesContainer = (props: FinalProps) => {
     fieldsRemove,
     fieldsGroupsUpdateVisible,
     fieldsUpdateVisible,
+    fieldsUpdateOrder,
+    groupsUpdateOrder,
     queryParams
   } = props;
+
+  if (fieldsGroupsQuery.loading) {
+    return <Spinner objective={true} />;
+  }
 
   if (!router.getParam(history, 'type')) {
     router.setParams(
@@ -93,6 +101,18 @@ const PropertiesContainer = (props: FinalProps) => {
       });
   };
 
+  const updatePropertyDetailVisible = ({ _id, isVisibleInDetail }) => {
+    fieldsUpdateVisible({
+      variables: { _id, isVisibleInDetail }
+    })
+      .then(() => {
+        Alert.success('You changed a property field visibility');
+      })
+      .catch(e => {
+        Alert.error(e.message);
+      });
+  };
+
   const updatePropertyGroupVisible = ({ _id, isVisible }) => {
     fieldsGroupsUpdateVisible({
       variables: { _id, isVisible }
@@ -105,21 +125,34 @@ const PropertiesContainer = (props: FinalProps) => {
       });
   };
 
+  const updateFieldOrder = fieldOrders => {
+    fieldsUpdateOrder({
+      variables: {
+        orders: fieldOrders.map((field, index) => ({
+          _id: field._id,
+          order: index + 1
+        }))
+      }
+    }).catch(error => {
+      Alert.error(error.message);
+    });
+  };
+
+  const updateGroupOrder = groupOrders => {
+    groupsUpdateOrder({
+      variables: {
+        orders: groupOrders.map((group, index) => ({
+          _id: group._id,
+          order: index + 1
+        }))
+      }
+    }).catch(error => {
+      Alert.error(error.message);
+    });
+  };
+
   const currentType = router.getParam(history, 'type');
   const fieldsGroups = [...(fieldsGroupsQuery.fieldsGroups || [])];
-
-  // Initializing default properties for customer and company
-  let defaultGroup = companyBasicInfos;
-
-  if (queryParams.type === FIELDS_GROUPS_CONTENT_TYPES.CUSTOMER) {
-    defaultGroup = customerBasicInfos;
-  }
-
-  if (queryParams.type === FIELDS_GROUPS_CONTENT_TYPES.PRODUCT) {
-    defaultGroup = productBasicInfos;
-  }
-
-  fieldsGroups.unshift(defaultGroup);
 
   const updatedProps = {
     ...props,
@@ -128,7 +161,10 @@ const PropertiesContainer = (props: FinalProps) => {
     removePropertyGroup,
     removeProperty,
     updatePropertyVisible,
-    updatePropertyGroupVisible
+    updatePropertyDetailVisible,
+    updatePropertyGroupVisible,
+    updateFieldOrder,
+    updateGroupOrder
   };
 
   return <Properties {...updatedProps} />;
@@ -140,7 +176,9 @@ const options = ({ queryParams }) => ({
       query: gql`
         ${queries.fieldsGroups}
       `,
-      variables: { contentType: queryParams.type }
+      variables: {
+        contentType: queryParams.type
+      }
     }
   ]
 });
@@ -172,7 +210,7 @@ export default withProps<Props>(
     graphql<
       Props,
       FieldsUpdateVisibleMutationResponse,
-      { _id: string; isVisible: boolean }
+      { _id: string; isVisible: boolean; isVisibleInDetail: boolean }
     >(gql(mutations.fieldsUpdateVisible), {
       name: 'fieldsUpdateVisible',
       options
@@ -183,6 +221,22 @@ export default withProps<Props>(
       { _id: string; isVisible: boolean }
     >(gql(mutations.fieldsGroupsUpdateVisible), {
       name: 'fieldsGroupsUpdateVisible',
+      options
+    }),
+    graphql<
+      Props,
+      FieldsUpdateOrderMutationResponse,
+      FieldsUpdateOrderMutationVariables
+    >(gql(mutations.fieldsUpdateOrder), {
+      name: 'fieldsUpdateOrder',
+      options
+    }),
+    graphql<
+      Props,
+      GroupsUpdateOrderMutationResponse,
+      GroupsUpdateOrderMutationVariables
+    >(gql(mutations.groupsUpdateOrder), {
+      name: 'groupsUpdateOrder',
       options
     })
   )(withRouter<FinalProps>(PropertiesContainer))
