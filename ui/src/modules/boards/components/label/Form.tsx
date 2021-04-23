@@ -10,6 +10,7 @@ import * as React from 'react';
 import { IPipelineLabel } from '../../types';
 import TwitterPicker from 'react-color/lib/Twitter';
 import { ColorChooserWrapper } from 'modules/boards/styles/label';
+import { COLORS } from 'modules/boards/constants';
 
 type IProps = {
   renderButton: (props: IButtonMutateProps) => JSX.Element;
@@ -21,7 +22,6 @@ type IProps = {
 
 type State = {
   label: IPipelineLabel;
-  color?: string;
 };
 
 class FormComponent extends React.Component<IProps, State> {
@@ -29,7 +29,7 @@ class FormComponent extends React.Component<IProps, State> {
     const { label } = nextProps;
     const prevLabel = prevState.label;
 
-    const defaultLabel = { colorCode: '#ff6900', name: '' };
+    const defaultLabel = { colorCode: COLORS[0], name: '' };
 
     if (
       (label && label._id !== prevLabel._id) ||
@@ -37,7 +37,7 @@ class FormComponent extends React.Component<IProps, State> {
     ) {
       return {
         label: nextProps.label || {
-          colorCode: '#ff6900',
+          colorCode: COLORS[0],
           name: ''
         }
       };
@@ -57,7 +57,7 @@ class FormComponent extends React.Component<IProps, State> {
   }
 
   getDefaultLabel() {
-    return { colorCode: '#ff6900', name: '' };
+    return { colorCode: COLORS[0], name: '' };
   }
 
   componentDidUpdate(prevProps) {
@@ -91,7 +91,9 @@ class FormComponent extends React.Component<IProps, State> {
 
   onChangeColor = (e: any) => {
     const { label } = this.state;
+
     label.colorCode = e.hex;
+
     this.setState({ label });
   };
 
@@ -99,7 +101,7 @@ class FormComponent extends React.Component<IProps, State> {
     const { renderButton, afterSave } = this.props;
     const { label } = this.state;
     const { isSubmitted } = formProps;
-    const { color } = this.state;
+
     return (
       <>
         <FormGroup>
@@ -118,7 +120,7 @@ class FormComponent extends React.Component<IProps, State> {
           <ControlLabel required={true}>Select a color</ControlLabel>
           <ColorChooserWrapper>
             <TwitterPicker
-              color={color}
+              colors={COLORS}
               onChange={this.onChangeColor.bind(this)}
               triangle="hide"
             />
