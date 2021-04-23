@@ -3,6 +3,13 @@ import { SMS_DELIVERY_STATUSES } from './constants';
 import { sendRPCMessage } from './messageBroker';
 import SmsRequests from './models/SmsRequests';
 
+interface ISmsDeliveryParams {
+  type: string;
+  to?: string;
+  page?: number;
+  perPage?: number;
+}
+
 // fetches telnyx config & integrations from erxes-integrations
 export const getTelnyxInfo = async () => {
   const response = await sendRPCMessage({ action: 'getTelnyxInfo' });
@@ -63,4 +70,33 @@ export const prepareSmsStats = async (engageMessageId: string) => {
   }
 
   return result;
+};
+
+export const getSmsDeliveries = async ({
+  type,
+  to,
+  page,
+  perPage
+}: ISmsDeliveryParams) => {
+  if (type !== 'campaign') {
+    return { status: 'error', message: `Invalid parameter type: "${type}"` };
+  }
+
+  const filter: any = {};
+
+  if (to && !(to === 'undefined' || to === 'null')) {
+    filter.to = { $regex: to, $options: '$i' };
+  }
+
+  const _page = Number(page || '1');
+  const _limit = Number(perPage || '20');
+
+  const data = await SmsRequests.find(filter)
+    .sort({ createdAt: -1 })
+    .limit(_limit)
+    .skip((_page - 1) * _limit);
+
+  const totalCount = await SmsRequests.countDocuments(filter);
+
+  return { status: 'ok', data, totalCount };
 };

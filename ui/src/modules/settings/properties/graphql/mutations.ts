@@ -124,6 +124,22 @@ const fieldsUpdateVisible = `
   }
 `;
 
+const fieldsUpdateOrder = `
+  mutation fieldsUpdateOrder($orders: [OrderItem]) {
+    fieldsUpdateOrder(orders: $orders) {
+      _id
+    }
+  }
+`;
+
+const groupsUpdateOrder = `
+  mutation fieldsGroupsUpdateOrder($orders: [OrderItem]) {
+    fieldsGroupsUpdateOrder(orders: $orders) {
+      _id
+    }
+  }
+`;
+
 export default {
   fieldsGroupsAdd,
   fieldsGroupsEdit,
@@ -132,5 +148,7 @@ export default {
   fieldsAdd,
   fieldsEdit,
   fieldsRemove,
-  fieldsUpdateVisible
+  fieldsUpdateVisible,
+  fieldsUpdateOrder,
+  groupsUpdateOrder
 };

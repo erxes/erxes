@@ -289,10 +289,10 @@ export const loadClass = () => {
       return Conversations.find({
         status: {
           $in: [CONVERSATION_STATUSES.NEW, CONVERSATION_STATUSES.OPEN]
-        },
-        messageCount: { $gt: 1 }
+        }
       });
     }
+
     /**
      * Add participated users
      */

@@ -9,8 +9,8 @@ const command = async () => {
 
   await connect();
 
-  await Fields.remove({ isDefinedByErxes: true });
-  await FieldsGroups.remove({ isDefinedByErxes: true });
+  await Fields.deleteMany({ isDefinedByErxes: true });
+  await FieldsGroups.deleteMany({ isDefinedByErxes: true });
 
   await FieldsGroups.createSystemGroupsFields();
 };

@@ -355,8 +355,10 @@ export const checkCampaignDoc = (doc: IEngageMessage) => {
     method,
     scheduleDate,
     segmentIds = [],
-    customerTagIds = []
+    customerTagIds = [],
+    customerIds = []
   } = doc;
+
   const noDate =
     !scheduleDate ||
     (scheduleDate && scheduleDate.type === 'pre' && !scheduleDate.dateTime);
@@ -364,9 +366,15 @@ export const checkCampaignDoc = (doc: IEngageMessage) => {
   if (kind === MESSAGE_KINDS.AUTO && method === METHODS.EMAIL && noDate) {
     throw new Error('Schedule date & type must be chosen in auto campaign');
   }
+
   if (
     kind !== MESSAGE_KINDS.VISITOR_AUTO &&
-    !(brandIds.length > 0 || segmentIds.length > 0 || customerTagIds.length > 0)
+    !(
+      brandIds.length > 0 ||
+      segmentIds.length > 0 ||
+      customerTagIds.length > 0 ||
+      customerIds.length > 0
+    )
   ) {
     throw new Error('One of brand or segment or tag must be chosen');
   }

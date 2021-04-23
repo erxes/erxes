@@ -58,6 +58,8 @@ export interface IEngageSmsStats {
   sending_failed: number;
   delivery_failed: number;
   delivery_unconfirmed: number;
+  webhook_delivered: number;
+  error?: number;
 }
 
 export interface IDeliveryReport {

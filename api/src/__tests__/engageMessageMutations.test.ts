@@ -971,7 +971,8 @@ describe('engage message mutation tests', () => {
         scheduleDate: { type: 'month' },
         brandIds: [],
         segmentIds: [],
-        customerTagIds: []
+        customerTagIds: [],
+        customerIds: []
       });
     } catch (e) {
       expect(e.message).toBe('One of brand or segment or tag must be chosen');

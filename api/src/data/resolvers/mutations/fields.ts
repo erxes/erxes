@@ -103,6 +103,10 @@ const fieldMutations = {
         lastUpdatedUserId: user._id
       });
 
+      if (f.tempFieldId) {
+        temp[f.tempFieldId] = field._id;
+      }
+
       response.push(field);
     }
 
@@ -210,6 +214,13 @@ const fieldsGroupsMutations = {
       isVisible,
       isVisibleInDetail
     );
+  },
+
+  /**
+   * Update field group's visible
+   */
+  fieldsGroupsUpdateOrder(_root, { orders }: { orders: IOrderInput[] }) {
+    return FieldsGroups.updateOrder(orders);
   }
 };
 
