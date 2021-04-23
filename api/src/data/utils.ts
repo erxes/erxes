@@ -503,12 +503,15 @@ export const replaceEditorAttributes = async (args: {
   replacedContent?: string;
   customerFields?: string[];
 }> => {
-  const { content, customer, user, brand } = args;
+  const { content, user, brand } = args;
+  const customer = args.customer || {};
 
   const replacers: IReplacer[] = [];
 
   let replacedContent = content || '';
   let customerFields = args.customerFields;
+
+  const customFieldsData = customer.customFieldsData || [];
 
   if (!customerFields || customerFields.length === 0) {
     const possibleCustomerFields = await fieldsCombinedByContentType({
@@ -521,17 +524,27 @@ export const replaceEditorAttributes = async (args: {
       if (content.includes(`{{ customer.${field.name} }}`)) {
         if (field.name.includes('trackedData')) {
           customerFields.push('trackedData');
+
           continue;
         }
 
         if (field.name.includes('customFieldsData')) {
+          const fieldId = field.name.split('.').pop();
+
+          if (!customFieldsData.find(e => e.field === fieldId)) {
+            customFieldsData.push({ field: fieldId || '', value: '' });
+          }
+
           customerFields.push('customFieldsData');
+
           continue;
         }
 
         customerFields.push(field.name);
       }
     }
+
+    customer.customFieldsData = customFieldsData;
   }
 
   // replace customer fields
