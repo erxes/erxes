@@ -131,7 +131,8 @@ const handleMessageCallback = async (
     }
 
     await SmsRequests.updateRequest(request._id, {
-      errorMessages: [err.message]
+      errorMessages: [err.message],
+      status: 'error'
     });
   }
 
@@ -310,9 +311,7 @@ export const start = async (data: IEmailParams) => {
         `Error occured while creating activity log "${customer.primaryEmail}"`
       );
     }
-  }
-
-  return true;
+  } // end for loop
 };
 
 // sends bulk sms via engage message

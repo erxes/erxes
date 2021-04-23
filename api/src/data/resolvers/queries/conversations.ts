@@ -261,7 +261,7 @@ const conversationQueries = {
       ...integrationsFilter,
       status: { $in: [CONVERSATION_STATUSES.NEW, CONVERSATION_STATUSES.OPEN] },
       readUserIds: { $ne: user._id },
-      $and: [{ $or: qb.defaultUserQuery() }, { $or: qb.userRelevanceQuery() }]
+      $and: [{ $or: qb.userRelevanceQuery() }]
     }).countDocuments();
   }
 };

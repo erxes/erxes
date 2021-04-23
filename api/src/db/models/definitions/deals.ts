@@ -5,6 +5,7 @@ import {
   IItemCommonFields
 } from './boards';
 import { customFieldSchema, ICustomField } from './common';
+import { ICompany } from './companies';
 import { PRODUCT_STATUSES, PRODUCT_TYPES } from './constants';
 import { field, schemaWrapper } from './utils';
 
@@ -22,6 +23,7 @@ export interface IProduct {
   tagIds?: string[];
   attachment?: any;
   status?: string;
+  vendorId?: string;
 
   mergedIds?: string[];
 }
@@ -29,6 +31,7 @@ export interface IProduct {
 export interface IProductDocument extends IProduct, Document {
   _id: string;
   createdAt: Date;
+  vendor?: ICompany;
 }
 
 export interface IProductCategory {
@@ -113,6 +116,7 @@ export const productSchema = schemaWrapper(
       esType: 'keyword',
       index: true
     }),
+    vendorId: field({ type: String, optional: true, label: 'Vendor' }),
     mergedIds: field({ type: [String], optional: true })
   })
 );

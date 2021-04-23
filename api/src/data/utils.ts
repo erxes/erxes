@@ -897,7 +897,7 @@ export const routeErrorHandling = (fn, callback?: any) => {
       debugError(e.message);
 
       if (callback) {
-        return callback(res, e);
+        return callback(res, e, next);
       }
 
       return next(e);
