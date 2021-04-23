@@ -10,12 +10,11 @@ import { withProps } from 'modules/common/utils';
 import React from 'react';
 import { ChildProps, graphql } from 'react-apollo';
 import SelectBoards from '../components/SelectBoardPipeline';
+import { IBoardSelectItem } from '../types';
 
 type Props = {
-  onChangeBoard: (value: string) => void;
-  onChangePipelines: (values: string[]) => any;
-  selectedBoardId?: string;
-  selectedPipelineIds?: string[];
+  onChangeItems: (items: any) => any;
+  selectedItems: IBoardSelectItem[];
   isRequired?: boolean;
   description?: string;
   type: string;
@@ -60,13 +59,12 @@ const SelectContainer = (props: ChildProps<FinalProps>) => {
     );
   };
 
-  const board = boards.find(e => e._id === props.selectedBoardId);
-
   const updatedProps = {
     ...props,
     boards,
-    pipelines: (board && board.pipelines) || [],
-    renderButton
+    items: [],
+    renderButton,
+    selectedItems: []
   };
 
   return <SelectBoards {...updatedProps} />;

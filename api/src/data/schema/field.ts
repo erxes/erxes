@@ -115,7 +115,7 @@ export const fieldsGroupsTypes = `
     fields: [Field]
     lastUpdatedUserId: String
     lastUpdatedUser: User
-    boardIds: [String]
+    boardsPipelines: JSON
   }
 `;
 
@@ -126,7 +126,7 @@ const fieldsGroupsCommonFields = `
   description: String
   isVisible: Boolean
   isVisibleInDetail: Boolean
-  boardIds: [String]
+  boardsPipelines: JSON
 `;
 
 export const fieldsGroupsQueries = `

@@ -73,7 +73,7 @@ export interface IFieldGroup extends IVisibility {
   isDefinedByErxes?: boolean;
   description?: string;
   lastUpdatedUserId?: string;
-  boardIds?: string[];
+  boardsPipelines?: any;
 }
 
 export interface IFieldGroupDocument extends IFieldGroup, Document {
@@ -170,6 +170,9 @@ export const fieldGroupSchema = schemaWrapper(
       default: true,
       label: 'Is group visible in detail'
     }),
-    boardIds: field({ type: [String], optional: true })
+    boardsPipelines: field({
+      type: Schema.Types.Mixed,
+      optional: true
+    })
   })
 );

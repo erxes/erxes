@@ -8,20 +8,20 @@ import { ModalFooter } from 'modules/common/styles/main';
 import { IButtonMutateProps, IFormProps } from 'modules/common/types';
 import React from 'react';
 import SelectBoards from '../containers/SelectBoardPipeline';
-import { IFieldGroup } from '../types';
+import { IBoardSelectItem, IFieldGroup } from '../types';
 
 type Props = {
   group?: IFieldGroup;
   type: string;
   renderButton: (props: IButtonMutateProps) => JSX.Element;
   closeModal: () => void;
+  selectedItems: IBoardSelectItem[];
 };
 
 type State = {
   isVisible: boolean;
   isVisibleInDetail: boolean;
-  boardId?: string;
-  pipeLineIds?: string[];
+  selectedItems: IBoardSelectItem[];
 };
 
 class PropertyGroupForm extends React.Component<Props, State> {
@@ -38,7 +38,8 @@ class PropertyGroupForm extends React.Component<Props, State> {
 
     this.state = {
       isVisible,
-      isVisibleInDetail
+      isVisibleInDetail,
+      selectedItems: this.props.selectedItems
     };
   }
 
@@ -49,16 +50,25 @@ class PropertyGroupForm extends React.Component<Props, State> {
   }) => {
     const { group, type } = this.props;
     const finalValues = values;
+    const selectedItems = this.state.selectedItems;
 
     if (group) {
       finalValues._id = group._id;
     }
 
+    const boardsPipelines: any = selectedItems.map(e => {
+      const pipeline: any = {};
+      pipeline[e.boardId] = e.pipelineIds;
+
+      return pipeline;
+    });
+
     return {
       ...finalValues,
       contentType: type,
       isVisible: this.state.isVisible,
-      isVisibleInDetail: this.state.isVisibleInDetail
+      isVisibleInDetail: this.state.isVisibleInDetail,
+      boardsPipelines
     };
   };
 
@@ -74,12 +84,9 @@ class PropertyGroupForm extends React.Component<Props, State> {
     return this.setState({ isVisibleInDetail });
   };
 
-  boardOnChange = (boardId: string) => {
-    this.setState({ boardId });
-  };
-
-  pipeLinesOnChange = (pipeLineIds: string[]) => {
-    this.setState({ pipeLineIds });
+  itemsChange = (items: IBoardSelectItem[]) => {
+    console.log('items: ', items);
+    this.setState({ selectedItems: items });
   };
 
   renderFieldVisible() {
@@ -136,11 +143,9 @@ class PropertyGroupForm extends React.Component<Props, State> {
     return (
       <SelectBoards
         isRequired={false}
-        onChangeBoard={this.boardOnChange}
-        onChangePipelines={this.pipeLinesOnChange}
+        onChangeItems={this.itemsChange}
         type={this.props.type}
-        selectedBoardId={this.state.boardId || ''}
-        selectedPipelineIds={this.state.pipeLineIds}
+        selectedItems={this.props.selectedItems}
       />
     );
   }
