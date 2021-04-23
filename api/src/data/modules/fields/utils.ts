@@ -233,7 +233,7 @@ const getIntegrations = async () => {
   }
 
   const response = await fetchElk('search', 'integrations', {});
-  console.log('resp: ', response);
+
   if (!response) {
     return [];
   }

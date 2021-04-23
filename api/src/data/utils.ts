@@ -760,7 +760,14 @@ export const sendToWebhook = async (
         'Erxes-token': webhook.token || ''
       },
       method: 'post',
-      body: { data: JSON.stringify(data), action, type }
+      body: {
+        data: JSON.stringify(data),
+        text: `${type}:${action} action has triggered. \ data: ${JSON.stringify(
+          data
+        )}`,
+        action,
+        type
+      }
     })
       .then(async () => {
         await Webhooks.updateStatus(webhook._id, WEBHOOK_STATUS.AVAILABLE);
