@@ -313,7 +313,7 @@ export const loadClass = () => {
      */
     public static async createSegmentLog(
       segment: any,
-      contentIds: string[],
+      contentIds: string[] = [],
       type: string,
       maxBulk: number = 10000
     ) {
