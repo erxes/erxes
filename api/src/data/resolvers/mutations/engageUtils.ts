@@ -508,7 +508,7 @@ export const checkCustomerExists = async (
   must.push({
     bool: {
       should: [
-        { term: { doNotDisturb: 'No' } },
+        { term: { doNotDisturb: 'no' } },
         {
           bool: {
             must_not: {
