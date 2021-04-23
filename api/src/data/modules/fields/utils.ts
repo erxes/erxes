@@ -16,6 +16,8 @@ import {
 import { fetchElk } from '../../../elasticsearch';
 import { EXTEND_FIELDS, FIELD_CONTENT_TYPES } from '../../constants';
 import { getDocumentList } from '../../resolvers/mutations/cacheUtils';
+import { findElk } from '../../resolvers/mutations/engageUtils';
+import { isUsingElk } from '../../utils';
 import { BOARD_BASIC_INFOS } from '../fileExporter/constants';
 
 const generateBasicInfosFromSchema = async (
@@ -40,6 +42,51 @@ const generateBasicInfosFromSchema = async (
   }
 
   return queFields;
+};
+
+const getCustomFields = async (contentType: string) => {
+  if (!isUsingElk()) {
+    return Fields.find({
+      contentType,
+      isDefinedByErxes: false
+    });
+  }
+
+  return findElk('fields', {
+    bool: {
+      must: [
+        {
+          match: {
+            contentType
+          }
+        },
+        {
+          match: {
+            isDefinedByErxes: false
+          }
+        }
+      ]
+    }
+  });
+};
+
+const getSegment = async (_id: string) => {
+  if (!isUsingElk()) {
+    return Segments.findOne({ _id });
+  }
+
+  const response = await fetchElk('get', 'segments', null, _id);
+
+  return { _id: response._id, ...response._source };
+};
+
+const getFieldGroup = async (_id: string) => {
+  if (!isUsingElk()) {
+    return FieldsGroups.findOne({ _id });
+  }
+  const response = await fetchElk('get', 'fields_groups', null, _id);
+
+  return { _id: response._id, ...response._source };
 };
 
 // Checking field names, all field names must be configured correctly
@@ -173,15 +220,30 @@ export const checkFieldNames = async (type: string, fields: string[]) => {
 };
 
 const getIntegrations = async () => {
-  return Integrations.aggregate([
-    {
-      $project: {
-        _id: 0,
-        label: '$name',
-        value: '$_id'
+  if (!isUsingElk()) {
+    return Integrations.aggregate([
+      {
+        $project: {
+          _id: 0,
+          label: '$name',
+          value: '$_id'
+        }
       }
-    }
-  ]);
+    ]);
+  }
+
+  const response = await fetchElk('search', 'integrations', {});
+  console.log('resp: ', response);
+  if (!response) {
+    return [];
+  }
+
+  return response.hits.hits.map(hit => {
+    return {
+      value: hit._id,
+      label: hit._source.name
+    };
+  });
 };
 
 const generateUsersOptions = async (
@@ -279,7 +341,6 @@ const generateFieldsFromSchema = async (queSchema: any, namePrefix: string) => {
 
   for (const name of Object.keys(paths)) {
     const path = paths[name];
-
     const label = path.options.label;
     const type = path.instance;
 
@@ -374,14 +435,11 @@ export const fieldsCombinedByContentType = async ({
     }
   }
 
-  const customFields = await Fields.find({
-    contentType,
-    isDefinedByErxes: false
-  });
+  const customFields = await getCustomFields(contentType);
 
   // extend fields list using custom fields data
   for (const customField of customFields) {
-    const group = await FieldsGroups.findOne({ _id: customField.groupId });
+    const group = await getFieldGroup(customField.groupId);
 
     if (group && group.isVisible && customField.isVisible) {
       fields.push({
@@ -441,7 +499,7 @@ export const fieldsCombinedByContentType = async ({
     );
 
     if (segmentId || pipelineId) {
-      const segment = await Segments.findOne({ _id: segmentId });
+      const segment = await getSegment(segmentId || '');
       const labelOptions = await getPipelineLabelOptions(
         pipelineId || (segment ? segment.pipelineId : null)
       );
