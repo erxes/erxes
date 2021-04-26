@@ -119,6 +119,7 @@ class CategoryForm extends React.Component<Props, State> {
             type="button"
             onClick={closeModal}
             icon="cancel-1"
+            uppercase={false}
           >
             Cancel
           </Button>

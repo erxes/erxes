@@ -113,7 +113,7 @@ class ActionSection extends React.Component<Props, { customerState: string }> {
     const { isSmall } = this.props;
 
     return (
-      <Button size="small" btnStyle="default">
+      <Button size="small" btnStyle="default" uppercase={false}>
         {isSmall ? (
           <Icon icon="ellipsis-h" />
         ) : (

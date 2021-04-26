@@ -146,6 +146,7 @@ class FormComponent extends React.Component<IProps, State> {
             size="small"
             icon="cancel-1"
             onClick={this.onRemove}
+            uppercase={false}
           >
             Delete
           </Button>
