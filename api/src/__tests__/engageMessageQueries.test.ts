@@ -2,8 +2,8 @@ import * as sinon from 'sinon';
 import { graphqlRequest } from '../db/connection';
 import {
   brandFactory,
+  customerFactory,
   engageMessageFactory,
-  segmentFactory,
   tagsFactory,
   userFactory
 } from '../db/factories';
@@ -11,6 +11,7 @@ import { Brands, EngageMessages, Segments, Tags, Users } from '../db/models';
 
 import { EngagesAPI } from '../data/dataSources';
 import './setup.ts';
+import { set } from '../inmemoryStorage';
 
 describe('engageQueries', () => {
   const qryEngageMessages = `
@@ -18,18 +19,12 @@ describe('engageQueries', () => {
       $kind: String
       $status: String
       $tag: String
-      $tagIds: [String]
-      $segmentIds: [String]
-      $brandIds: [String]
-      $ids: [String]
+      $ids: String
     ) {
       engageMessages(
         kind: $kind
         status: $status
         tag: $tag
-        tagIds: $tagIds
-        segmentIds: $segmentIds
-        brandIds: $brandIds
         ids: $ids
       ) {
         _id
@@ -59,9 +54,11 @@ describe('engageQueries', () => {
   });
 
   test('Engage messages', async () => {
+    const user = await userFactory();
+
     await engageMessageFactory({});
     await engageMessageFactory({});
-    await engageMessageFactory({});
+    await engageMessageFactory({ createdBy: user._id });
 
     const responses = await graphqlRequest(qryEngageMessages, 'engageMessages');
 
@@ -75,7 +72,7 @@ describe('engageQueries', () => {
 
     await engageMessageFactory({});
 
-    const ids = [engageMessage1._id, engageMessage2._id, engageMessage3._id];
+    const ids = `${engageMessage1._id},${engageMessage2._id},${engageMessage3._id}`;
 
     const responses = await graphqlRequest(
       qryEngageMessages,
@@ -84,48 +81,6 @@ describe('engageQueries', () => {
     );
 
     expect(responses.length).toBe(3);
-  });
-
-  test('Engage messages filtered by tagIds', async () => {
-    const tag = await tagsFactory();
-
-    await engageMessageFactory({ tagIds: [tag._id] });
-
-    const responses = await graphqlRequest(
-      qryEngageMessages,
-      'engageMessages',
-      { tagIds: [tag._id] }
-    );
-
-    expect(responses.length).toBe(1);
-  });
-
-  test('Engage messages filtered by brandIds', async () => {
-    const brand = await brandFactory();
-
-    await engageMessageFactory({ brandIds: [brand._id] });
-
-    const responses = await graphqlRequest(
-      qryEngageMessages,
-      'engageMessages',
-      { brandIds: [brand._id] }
-    );
-
-    expect(responses.length).toBe(1);
-  });
-
-  test('Engage messages filtered by segmentIds', async () => {
-    const segment = await segmentFactory();
-
-    await engageMessageFactory({ segmentIds: [segment._id] });
-
-    const responses = await graphqlRequest(
-      qryEngageMessages,
-      'engageMessages',
-      { segmentIds: [segment._id] }
-    );
-
-    expect(responses.length).toBe(1);
   });
 
   test('Engage messages filtered by kind', async () => {
@@ -204,7 +159,8 @@ describe('engageQueries', () => {
     expect(response.length).toBe(2);
   });
 
-  test('Enage email delivery report list', async () => {
+  test('Engage email delivery report list', async () => {
+    const customer = await customerFactory();
     const dataSourceMock = sinon
       .stub(dataSources.EngagesAPI, 'engageReportsList')
       .callsFake(() => {
@@ -213,9 +169,13 @@ describe('engageQueries', () => {
             {
               _id: '123',
               status: 'pending'
+            },
+            {
+              _id: '234',
+              customerId: customer._id
             }
           ],
-          totalCount: 1
+          totalCount: 2
         });
       });
 
@@ -243,13 +203,14 @@ describe('engageQueries', () => {
       { dataSources }
     );
 
-    expect(response.list.length).toBe(1);
+    expect(response.list.length).toBe(2);
 
     dataSourceMock.restore();
   });
 
   test('Engage message detail', async () => {
-    const engageMessage = await engageMessageFactory();
+    const user = await userFactory();
+    const engageMessage = await engageMessageFactory({ createdBy: user._id });
 
     const qry = `
       query engageMessageDetail($_id: String) {
@@ -271,11 +232,13 @@ describe('engageQueries', () => {
 
           email
           messenger
+          createdBy
+          createdUser
 
           brands { _id }
           segments { _id }
           brand { _id }
-          tags { _id }
+          customerTags { _id }
           fromUser { _id }
           getTags { _id }
 
@@ -286,7 +249,7 @@ describe('engageQueries', () => {
       }
     `;
 
-    let response = await graphqlRequest(
+    const response = await graphqlRequest(
       qry,
       'engageMessageDetail',
       { _id: engageMessage._id },
@@ -294,20 +257,32 @@ describe('engageQueries', () => {
     );
 
     expect(response._id).toBe(engageMessage._id);
+    expect(response.createdBy).toBe(user._id);
 
     const brand = await brandFactory();
     const messenger = { brandId: brand._id, content: 'Content' };
-    const engageMessageWithBrand = await engageMessageFactory({ messenger });
+    const engageMessageWithBrand = await engageMessageFactory({
+      messenger,
+      brandIds: [brand._id],
+      userId: user._id
+    });
 
-    response = await graphqlRequest(
+    set('erxes_brands', JSON.stringify(await Brands.find()));
+    set('erxes_users', JSON.stringify(await Users.find()));
+
+    const responseFromCache = await graphqlRequest(
       qry,
       'engageMessageDetail',
       { _id: engageMessageWithBrand._id },
       { dataSources }
     );
 
-    expect(response._id).toBe(engageMessageWithBrand._id);
-    expect(response.brand._id).toBe(brand._id);
+    console.log('responseFromCache: ', responseFromCache);
+
+    expect(responseFromCache._id).toBe(engageMessageWithBrand._id);
+    expect(responseFromCache.brand._id).toBe(brand._id);
+    expect(responseFromCache.brands[0]._id).toBe(brand._id);
+    expect(responseFromCache.fromUser._id).toBe(user._id);
   });
 
   test('Count engage messsage by kind', async () => {
@@ -458,5 +433,25 @@ describe('engageQueries', () => {
     } catch (e) {
       expect(e[0].message).toBe('Engages api is not running');
     }
+  });
+
+  test('Test getAverageStats()', async () => {
+    const qry = `
+      query engageEmailPercentages {
+        engageEmailPercentages {
+          avgBouncePercent
+        }
+      }
+    `;
+
+    const mock = sinon
+      .stub(dataSources.EngagesAPI, 'getAverageStats')
+      .callsFake(() => {
+        return Promise.resolve({ data: { avgBouncePercent: 0 } });
+      });
+
+    await graphqlRequest(qry, 'engageEmailPercentages', {}, { dataSources });
+
+    mock.restore();
   });
 });

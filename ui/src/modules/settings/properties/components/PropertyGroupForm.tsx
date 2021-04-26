@@ -18,6 +18,7 @@ type Props = {
 
 type State = {
   isVisible: boolean;
+  isVisibleInDetail: boolean;
 };
 
 class PropertyGroupForm extends React.Component<Props, State> {
@@ -25,13 +26,16 @@ class PropertyGroupForm extends React.Component<Props, State> {
     super(props);
 
     let isVisible = true;
+    let isVisibleInDetail = true;
 
     if (props.group) {
       isVisible = props.group.isVisible;
+      isVisibleInDetail = props.group.isVisibleInDetail;
     }
 
     this.state = {
-      isVisible
+      isVisible,
+      isVisibleInDetail
     };
   }
 
@@ -50,19 +54,26 @@ class PropertyGroupForm extends React.Component<Props, State> {
     return {
       ...finalValues,
       contentType: type,
-      isVisible: this.state.isVisible
+      isVisible: this.state.isVisible,
+      isVisibleInDetail: this.state.isVisibleInDetail
     };
   };
 
   visibleHandler = e => {
-    const isVisible = e.target.checked;
+    if (e.target.id === 'visible') {
+      const isVisible = e.target.checked;
 
-    this.setState({ isVisible });
+      return this.setState({ isVisible });
+    }
+
+    const isVisibleInDetail = e.target.checked;
+
+    return this.setState({ isVisibleInDetail });
   };
 
   renderFieldVisible() {
     if (!this.props.group) {
-      return;
+      return null;
     }
 
     return (
@@ -70,7 +81,31 @@ class PropertyGroupForm extends React.Component<Props, State> {
         <ControlLabel>Visible</ControlLabel>
         <div>
           <Toggle
+            id="visible"
             checked={this.state.isVisible}
+            onChange={this.visibleHandler}
+            icons={{
+              checked: <span>Yes</span>,
+              unchecked: <span>No</span>
+            }}
+          />
+        </div>
+      </FormGroup>
+    );
+  }
+
+  renderFieldVisibleInDetail() {
+    if (!this.props.group) {
+      return null;
+    }
+
+    return (
+      <FormGroup>
+        <ControlLabel>Visible in detail</ControlLabel>
+        <div>
+          <Toggle
+            id="visibleDetail"
+            checked={this.state.isVisibleInDetail}
             onChange={this.visibleHandler}
             icons={{
               checked: <span>Yes</span>,
@@ -112,6 +147,12 @@ class PropertyGroupForm extends React.Component<Props, State> {
         </FormGroup>
 
         {this.renderFieldVisible()}
+
+        {['visitor', 'lead', 'customer'].includes(object.contentType) ? (
+          this.renderFieldVisibleInDetail()
+        ) : (
+          <></>
+        )}
 
         <ModalFooter>
           <Button

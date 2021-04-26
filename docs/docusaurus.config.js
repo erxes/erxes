@@ -1,5 +1,5 @@
 module.exports = {
-  title: "erxes",
+  title: "erxes Inc",
   tagline:
     "erxes is a free and open fair-code licensed all-in-one growth marketing and management tool for a smoother customer journey",
   url: "https://www.erxes.org",
@@ -90,16 +90,20 @@ module.exports = {
           title: "Company",
           items: [
             {
-              label: "About us",
+              label: "About Us",
               href: "https://erxes.io/team",
             },
             {
               label: "Blog",
-              href: "https://erxes.io/blog",
+              href: "/blog",
             },
             {
               label: "Roadmap",
-              href: "https://trello.com/b/jTjXaI28/erxes-inc-roadmap",
+              href: "https://erxes.io/roadmap",
+            },
+            {
+              label: "Install server",
+              href: "http://localhost:3500/install",
             },
           ],
         },
@@ -107,23 +111,19 @@ module.exports = {
           title: "Community",
           items: [
             {
-              label: "Join our community chat",
+              label: "Community Chat",
               href: "https://community.erxes.io/register/Gw4WRJnk9fSbyAXTq",
             },
             {
-              label: "Join our facebook group",
+              label: "Facebook Group",
               href: "https://www.facebook.com/groups/erxescommunity",
             },
           ],
         },
 
         {
-          title: "Support The erxes",
+          title: "Support Us",
           items: [
-            {
-              label: "Back us on Open Collective",
-              href: "https://opencollective.com/erxes",
-            },
             {
               label: "Back us on Github",
               href: "https://github.com/sponsors/erxes",

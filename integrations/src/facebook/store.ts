@@ -1,14 +1,13 @@
 import { Comments, Customers, Posts } from './models';
 import { ICommentParams, IPostParams } from './types';
 
-import { debugFacebook } from '../debuggers';
+import { debugError } from '../debuggers';
 import { sendMessage, sendRPCMessage } from '../messageBroker';
 import { Accounts, Integrations } from '../models';
 import {
   getFacebookUser,
   getFacebookUserProfilePic,
-  getPostLink,
-  refreshPageAccesToken
+  getPostLink
 } from './utils';
 
 export const generatePostDoc = (
@@ -200,7 +199,7 @@ export const getOrCreateCustomer = async (
     $and: [{ facebookPageIds: { $in: pageId } }, { kind }]
   });
 
-  let { facebookPageTokensMap } = integration;
+  const { facebookPageTokensMap } = integration;
 
   let customer = await Customers.findOne({ userId });
 
@@ -215,11 +214,8 @@ export const getOrCreateCustomer = async (
     fbUser =
       (await getFacebookUser(pageId, facebookPageTokensMap, userId)) || {};
   } catch (e) {
-    debugFacebook(`Error during get customer info: ${e.message}`);
-    facebookPageTokensMap = await refreshPageAccesToken(pageId, integration);
+    debugError(`Error during get customer info: ${e.message}`);
   }
-
-  fbUser = (await getFacebookUser(pageId, facebookPageTokensMap, userId)) || {};
 
   const fbUserProfilePic =
     fbUser.profile_pic ||

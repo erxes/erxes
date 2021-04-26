@@ -1,14 +1,7 @@
 import resolvers from '..';
+import { Boards, Notifications, Pipelines, Stages } from '../../../db/models';
 import {
-  ActivityLogs,
-  Boards,
-  Checklists,
-  Conformities,
-  Notifications,
-  Pipelines,
-  Stages
-} from '../../../db/models';
-import {
+  destroyBoardItemRelations,
   getCollection,
   getCompanies,
   getCustomers,
@@ -36,7 +29,13 @@ import {
 } from '../../../db/models/definitions/tickets';
 import { IUserDocument } from '../../../db/models/definitions/users';
 import { graphqlPubsub } from '../../../pubsub';
-import { putCreateLog, putDeleteLog, putUpdateLog } from '../../logUtils';
+import {
+  ACTIVITY_LOG_ACTIONS,
+  putActivityLog,
+  putCreateLog,
+  putDeleteLog,
+  putUpdateLog
+} from '../../logUtils';
 import { checkUserIds } from '../../utils';
 import {
   copyChecklists,
@@ -47,7 +46,7 @@ import {
   sendNotifications
 } from '../boardUtils';
 
-const itemResolver = async (type: string, item: IItemCommonFields) => {
+export const itemResolver = async (type: string, item: IItemCommonFields) => {
   let resolverType = '';
 
   switch (type) {
@@ -92,7 +91,7 @@ export const itemsAdd = async (
   docModifier: any,
   createModel: any
 ) => {
-  const collection = getCollection(type);
+  const { collection } = getCollection(type);
 
   doc.initialStageId = doc.stageId;
   doc.watchedUserIds = [user._id];
@@ -182,7 +181,7 @@ export const changeItemStatus = async ({
     return;
   }
 
-  const collection = getCollection(type);
+  const { collection } = getCollection(type);
 
   const aboveItems = await collection
     .find({
@@ -256,11 +255,14 @@ export const itemsEdit = async (
   if (doc.status && oldItem.status && oldItem.status !== doc.status) {
     const activityAction = doc.status === 'active' ? 'activated' : 'archived';
 
-    await ActivityLogs.createArchiveLog({
-      item: updatedItem,
-      contentType: type,
-      action: activityAction,
-      userId: user._id
+    await putActivityLog({
+      action: ACTIVITY_LOG_ACTIONS.CREATE_ARCHIVE_LOG,
+      data: {
+        item: updatedItem,
+        contentType: type,
+        action: activityAction,
+        userId: user._id
+      }
     });
 
     // order notification
@@ -281,11 +283,14 @@ export const itemsEdit = async (
 
     const activityContent = { addedUserIds, removedUserIds };
 
-    await ActivityLogs.createAssigneLog({
-      contentId: _id,
-      userId: user._id,
-      contentType: type,
-      content: activityContent
+    await putActivityLog({
+      action: ACTIVITY_LOG_ACTIONS.CREATE_ASSIGNE_LOG,
+      data: {
+        contentId: _id,
+        userId: user._id,
+        contentType: type,
+        content: activityContent
+      }
     });
 
     notificationDoc.invitedUsers = addedUserIds;
@@ -304,12 +309,40 @@ export const itemsEdit = async (
     user
   );
 
-  const pipelinesChangedIds = [updatedItem._id, stage.pipelineId];
+  const oldStage = await Stages.getStage(oldItem.stageId);
 
-  for (const pipelinesChangedId of pipelinesChangedIds) {
+  if (oldStage.pipelineId !== stage.pipelineId) {
     graphqlPubsub.publish('pipelinesChanged', {
       pipelinesChanged: {
-        _id: pipelinesChangedId,
+        _id: oldStage.pipelineId,
+        proccessId,
+        action: 'itemRemove',
+        data: {
+          item: oldItem,
+          oldStageId: oldStage._id
+        }
+      }
+    });
+
+    graphqlPubsub.publish('pipelinesChanged', {
+      pipelinesChanged: {
+        _id: stage.pipelineId,
+        proccessId,
+        action: 'itemAdd',
+        data: {
+          item: {
+            ...updatedItem._doc,
+            ...(await itemResolver(type, updatedItem))
+          },
+          aboveItemId: '',
+          destinationStageId: stage._id
+        }
+      }
+    });
+  } else {
+    graphqlPubsub.publish('pipelinesChanged', {
+      pipelinesChanged: {
+        _id: stage.pipelineId,
         proccessId,
         action: 'itemUpdate',
         data: {
@@ -346,7 +379,7 @@ export const itemsEdit = async (
   return updatedItem;
 };
 
-export const itemMover = async (
+const itemMover = async (
   userId: string,
   item: IDealDocument | ITaskDocument | ITicketDocument | IGrowthHackDocument,
   contentType: string,
@@ -377,12 +410,15 @@ export const itemMover = async (
       text: `${oldStage.name} to ${stage.name}`
     };
 
-    ActivityLogs.createBoardItemMovementLog(
-      item,
-      contentType,
-      userId,
-      activityLogContent
-    );
+    await putActivityLog({
+      action: ACTIVITY_LOG_ACTIONS.CREATE_BOARD_ITEM_MOVEMENT_LOG,
+      data: {
+        item,
+        contentType,
+        userId,
+        activityLogContent
+      }
+    });
 
     const link = `/${contentType}/board?id=${board._id}&pipelineId=${pipeline._id}&itemId=${item._id}`;
 
@@ -401,7 +437,7 @@ export const itemsChange = async (
   user: IUserDocument,
   modelUpdate: any
 ) => {
-  const collection = getCollection(type);
+  const { collection } = getCollection(type);
   const {
     proccessId,
     itemId,
@@ -412,7 +448,7 @@ export const itemsChange = async (
 
   const item = await getItem(type, itemId);
 
-  const extendedDoc = {
+  const extendedDoc: IItemCommonFields = {
     modifiedAt: new Date(),
     modifiedBy: user._id,
     stageId: destinationStageId,
@@ -422,6 +458,10 @@ export const itemsChange = async (
       aboveItemId
     })
   };
+
+  if (item.stageId !== destinationStageId) {
+    extendedDoc.stageChangedDate = new Date();
+  }
 
   const updatedItem = await modelUpdate(itemId, extendedDoc);
 
@@ -487,9 +527,7 @@ export const itemsRemove = async (
     contentType: type
   });
 
-  await Conformities.removeConformity({ mainType: type, mainTypeId: item._id });
-  await Checklists.removeChecklists(type, item._id);
-  await ActivityLogs.removeActivityLog(item._id);
+  await destroyBoardItemRelations(item._id, type);
 
   const removed = await item.remove();
 
@@ -558,7 +596,7 @@ export const itemsArchive = async (
   proccessId: string,
   user: IUserDocument
 ) => {
-  const collection = getCollection(type);
+  const { collection } = getCollection(type);
 
   const items = await collection.find({
     stageId,
@@ -570,28 +608,32 @@ export const itemsArchive = async (
     { $set: { status: BOARD_STATUSES.ARCHIVED } }
   );
 
-  for (const item of items) {
-    await ActivityLogs.createArchiveLog({
-      item,
-      contentType: type,
-      action: 'archived',
-      userId: user._id
-    });
-  }
-
   // order notification
   const stage = await Stages.getStage(stageId);
 
-  graphqlPubsub.publish('pipelinesChanged', {
-    pipelinesChanged: {
-      _id: stage.pipelineId,
-      proccessId,
-      action: 'itemsRemove',
+  for (const item of items) {
+    await putActivityLog({
+      action: ACTIVITY_LOG_ACTIONS.CREATE_ARCHIVE_LOG,
       data: {
-        destinationStageId: stage._id
+        item,
+        contentType: type,
+        action: 'archived',
+        userId: user._id
       }
-    }
-  });
+    });
+
+    graphqlPubsub.publish('pipelinesChanged', {
+      pipelinesChanged: {
+        _id: stage.pipelineId,
+        proccessId,
+        action: 'itemsRemove',
+        data: {
+          item,
+          destinationStageId: stage._id
+        }
+      }
+    });
+  }
 
   return 'ok';
 };

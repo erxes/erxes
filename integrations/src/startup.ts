@@ -1,11 +1,6 @@
 import * as twitterApi from './twitter/api';
 
-import {
-  debugNylas,
-  debugSmooch,
-  debugTwitter,
-  debugWhatsapp
-} from './debuggers';
+import { debugError } from './debuggers';
 import { setupSmooch, setupSmoochWebhook } from './smooch/api';
 
 import { setupNylas } from './nylas/controller';
@@ -20,7 +15,7 @@ export const init = async () => {
     try {
       await twitterApi.registerWebhook();
     } catch (e) {
-      debugTwitter(e.message);
+      debugError(`failed to setup twitter: ${e.message}`);
     }
   }
 
@@ -28,19 +23,19 @@ export const init = async () => {
     await setupNylas();
     await createNylasWebhook();
   } catch (e) {
-    debugNylas(e.message);
+    debugError(`failed to setup nylas: ${e.message}`);
   }
 
   try {
     await setupWhatsapp();
   } catch (e) {
-    debugWhatsapp(e.message);
+    debugError(`failed to setup whatsapp: ${e.message}`);
   }
 
   try {
     await setupSmooch();
     await setupSmoochWebhook();
   } catch (e) {
-    debugSmooch(`failed to setup smooch: ${e.message}`);
+    debugError(`failed to setup smooch: ${e.message}`);
   }
 };

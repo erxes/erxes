@@ -111,6 +111,7 @@ class Facebook extends React.Component<Props, State> {
                 {page.name}
 
                 <Button
+                  disabled={page.isUsed}
                   uppercase={false}
                   btnStyle={
                     this.state.selectedPages.includes(page.id)

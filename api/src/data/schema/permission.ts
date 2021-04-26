@@ -23,7 +23,7 @@ export const types = `
   type UsersGroup {
     _id: String!
     name: String!
-    description: String!
+    description: String
     memberIds: [String]
     members: [User]
   }
@@ -61,6 +61,7 @@ export const mutations = `
     allowed: Boolean
   ): [Permission]
   permissionsRemove(ids: [String]!): JSON
+  permissionsFix: [String]
   usersGroupsAdd(${commonUserGroupParams}): UsersGroup
   usersGroupsEdit(_id: String!, ${commonUserGroupParams}): UsersGroup
   usersGroupsRemove(_id: String!): JSON

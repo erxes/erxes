@@ -6,11 +6,13 @@ import Icon from 'modules/common/components/Icon';
 import Label from 'modules/common/components/Label';
 import ModalTrigger from 'modules/common/components/ModalTrigger';
 import Tags from 'modules/common/components/Tags';
+import TextInfo from 'modules/common/components/TextInfo';
 import Tip from 'modules/common/components/Tip';
 import WithPermission from 'modules/common/components/WithPermission';
 import { DateWrapper } from 'modules/common/styles/main';
-import { __ } from 'modules/common/utils';
+import { __, getEnv } from 'modules/common/utils';
 import { RowTitle } from 'modules/engage/styles';
+import { Capitalize } from 'modules/settings/permissions/styles';
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { ILeadIntegration } from '../types';
@@ -22,6 +24,7 @@ type Props = {
   toggleBulk: (integration: ILeadIntegration, checked: boolean) => void;
   remove: (integrationId: string) => void;
   archive: (integrationId: string, status: boolean) => void;
+  copy: (integrationId: string) => void;
   showCode?: boolean;
 };
 
@@ -30,7 +33,7 @@ class Row extends React.Component<Props> {
     const { formId } = integration;
 
     return (
-      <Link to={`/leads/edit/${integration._id}/${formId}`}>
+      <Link to={`/forms/edit/${integration._id}/${formId}`}>
         <Button btnStyle="link">
           <Tip text={__('Manage')} placement="top">
             <Icon icon="edit-3" />
@@ -81,6 +84,24 @@ class Row extends React.Component<Props> {
     );
   }
 
+  renderExportAction() {
+    const { integration } = this.props;
+    const { REACT_APP_API_URL } = getEnv();
+
+    const onClick = () => {
+      window.open(
+        `${REACT_APP_API_URL}/file-export?type=customer&popupData=true&form=${integration.formId}`,
+        '_blank'
+      );
+    };
+
+    return (
+      <Tip text={__('Download responses')} placement="top">
+        <Button btnStyle="link" onClick={onClick} icon="down-arrow" />
+      </Tip>
+    );
+  }
+
   renderUnarchiveAction() {
     const { integration, archive } = this.props;
 
@@ -115,6 +136,18 @@ class Row extends React.Component<Props> {
           />
         </Tip>
       </WithPermission>
+    );
+  }
+
+  renderCopyAction() {
+    const { integration, copy } = this.props;
+
+    const onClick = () => copy(integration._id);
+
+    return (
+      <Tip text={__('Duplicate')} placement="top">
+        <Button btnStyle="link" onClick={onClick} icon="copy-1" />
+      </Tip>
     );
   }
 
@@ -156,28 +189,44 @@ class Row extends React.Component<Props> {
         </td>
         <td>
           <RowTitle>
-            <Link to={`/leads/edit/${integration._id}/${integration.formId}`}>
+            <Link to={`/forms/edit/${integration._id}/${integration.formId}`}>
               {integration.name}
             </Link>
           </RowTitle>
         </td>
-        <td>{integration.brand ? integration.brand.name : ''}</td>
-        <td>{lead.viewCount || 0}</td>
-        <td>{percentage.substring(0, 4)} %</td>
-        <td>{lead.contactsGathered || 0}</td>
         <td>
-          <DateWrapper>{dayjs(form.createdDate).format('ll')}</DateWrapper>
+          <Label lblStyle={labelStyle}>{status}</Label>
+        </td>
+        <td>
+          <TextInfo ignoreTrans={true}>{lead.viewCount || 0}</TextInfo>
+        </td>
+        <td>
+          <TextInfo textStyle="primary" ignoreTrans={true}>
+            {percentage.substring(0, 4)} %
+          </TextInfo>
+        </td>
+        <td>
+          <TextInfo textStyle="danger" ignoreTrans={true}>
+            {lead.contactsGathered || 0}
+          </TextInfo>
+        </td>
+        <td>
+          <strong>{integration.brand ? integration.brand.name : ''}</strong>
         </td>
         <td>
           <div key={createdUser._id}>
-            {createdUser.details && createdUser.details.fullName}
+            <Capitalize>
+              {createdUser.details && createdUser.details.fullName}
+            </Capitalize>
           </div>
         </td>
         <td>
-          <Tags tags={tags} limit={2} />
+          <Icon icon="calender" />{' '}
+          <DateWrapper>{dayjs(form.createdDate).format('ll')}</DateWrapper>
         </td>
+
         <td>
-          <Label lblStyle={labelStyle}>{status}</Label>
+          <Tags tags={tags} limit={2} />
         </td>
         <td>
           <ActionButtons>
@@ -185,6 +234,8 @@ class Row extends React.Component<Props> {
             {this.renderEditAction(integration)}
             {this.renderArchiveAction()}
             {this.renderUnarchiveAction()}
+            {this.renderExportAction()}
+            {this.renderCopyAction()}
             {this.renderRemoveAction()}
           </ActionButtons>
         </td>

@@ -13,6 +13,7 @@ import {
   IMessengerData,
   IntegrationDetailQueryResponse,
   IUiOptions,
+  MessengerAppsQueryResponse,
   SaveMessengerAppearanceMutationResponse,
   SaveMessengerAppsMutationResponse,
   SaveMessengerConfigsMutationResponse
@@ -33,6 +34,7 @@ type FinalProps = {
   brandsQuery: BrandsQueryResponse;
   integrationDetailQuery: IntegrationDetailQueryResponse;
   knowledgeBaseTopicsQuery: TopicsQueryResponse;
+  messengerAppsQuery: MessengerAppsQueryResponse;
 } & Props &
   SaveMessengerConfigsMutationResponse &
   SaveMessengerAppearanceMutationResponse &
@@ -51,13 +53,15 @@ const EditMessenger = (props: FinalProps) => {
     saveConfigsMutation,
     saveAppearanceMutation,
     messengerAppSaveMutation,
-    knowledgeBaseTopicsQuery
+    knowledgeBaseTopicsQuery,
+    messengerAppsQuery
   } = props;
 
   if (
     integrationDetailQuery.loading ||
     usersQuery.loading ||
-    brandsQuery.loading
+    brandsQuery.loading ||
+    messengerAppsQuery.loading
   ) {
     return <Spinner />;
   }
@@ -66,6 +70,11 @@ const EditMessenger = (props: FinalProps) => {
   const brands = brandsQuery.brands || [];
   const integration = integrationDetailQuery.integrationDetail || {};
   const topics = knowledgeBaseTopicsQuery.knowledgeBaseTopics || [];
+  const apps = messengerAppsQuery.messengerApps || {};
+
+  const deleteTypeName = datas => {
+    return (datas || []).filter(item => delete item.__typename);
+  };
 
   const save = doc => {
     const {
@@ -79,7 +88,13 @@ const EditMessenger = (props: FinalProps) => {
     } = doc;
 
     editMessengerMutation({
-      variables: { _id: integrationId, name, brandId, languageCode, channelIds }
+      variables: {
+        _id: integrationId,
+        name,
+        brandId,
+        languageCode,
+        channelIds
+      }
     })
       .then(({ data }) => {
         const id = data.integrationsEditMessengerIntegration._id;
@@ -96,8 +111,17 @@ const EditMessenger = (props: FinalProps) => {
         });
       })
       .then(() => {
+        const messengerAppsWithoutTypename = {
+          websites: deleteTypeName(messengerApps.websites),
+          knowledgebases: deleteTypeName(messengerApps.knowledgebases),
+          leads: deleteTypeName(messengerApps.leads)
+        };
+
         return messengerAppSaveMutation({
-          variables: { integrationId, messengerApps }
+          variables: {
+            integrationId,
+            messengerApps: messengerAppsWithoutTypename
+          }
         });
       })
       .then(() => {
@@ -125,7 +149,8 @@ const EditMessenger = (props: FinalProps) => {
     brands,
     save,
     topics,
-    integration
+    integration,
+    messengerApps: apps
   };
 
   return <Form {...updatedProps} />;
@@ -157,6 +182,18 @@ export default withProps<Props>(
     graphql<Props, TopicsQueryResponse>(gql(kbQueries.knowledgeBaseTopics), {
       name: 'knowledgeBaseTopicsQuery'
     }),
+    graphql<Props, MessengerAppsQueryResponse, { integrationId: string }>(
+      gql(queries.messengerApps),
+      {
+        name: 'messengerAppsQuery',
+        options: ({ integrationId }: { integrationId: string }) => ({
+          variables: {
+            integrationId
+          },
+          fetchPolicy: 'network-only'
+        })
+      }
+    ),
     graphql<Props, IntegrationDetailQueryResponse, { _id: string }>(
       gql(queries.integrationDetail),
       {

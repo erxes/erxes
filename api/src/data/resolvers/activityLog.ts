@@ -1,35 +1,33 @@
 import {
-  Brands,
   ChecklistItems,
   Checklists,
   Companies,
   Customers,
   Deals,
   GrowthHacks,
-  Integrations,
   Stages,
   Tasks,
-  Tickets,
-  Users
+  Tickets
 } from '../../db/models';
 import { IActivityLog } from '../../db/models/definitions/activityLogs';
 import { ACTIVITY_ACTIONS } from '../../db/models/definitions/constants';
 import { IUserDocument } from '../../db/models/definitions/users';
+import { getDocument, getDocumentList } from './mutations/cacheUtils';
 
 export default {
   async createdByDetail(activityLog: IActivityLog) {
-    const user = await Users.findOne({ _id: activityLog.createdBy });
+    const user = await getDocument('users', { _id: activityLog.createdBy });
 
     if (user) {
       return { type: 'user', content: user };
     }
 
-    const integration = await Integrations.findOne({
+    const integration = await getDocument('integrations', {
       _id: activityLog.createdBy
     });
 
     if (integration) {
-      const brand = await Brands.findOne({ _id: integration.brandId });
+      const brand = await getDocument('brands', { _id: integration.brandId });
       return { type: 'brand', content: brand };
     }
 
@@ -126,8 +124,10 @@ export default {
       let removedUsers: IUserDocument[] = [];
 
       if (content) {
-        addedUsers = await Users.find({ _id: { $in: content.addedUserIds } });
-        removedUsers = await Users.find({
+        addedUsers = await getDocumentList('users', {
+          _id: { $in: content.addedUserIds }
+        });
+        removedUsers = await getDocumentList('users', {
           _id: { $in: content.removedUserIds }
         });
       }

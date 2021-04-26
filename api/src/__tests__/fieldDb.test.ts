@@ -67,7 +67,8 @@ describe('Fields', () => {
     let field = await Fields.createField({
       contentType,
       text: 'text',
-      contentTypeId: form1._id
+      contentTypeId: form1._id,
+      groupName: 'testGroup'
     });
     expect(field.order).toBe(0);
 
@@ -130,7 +131,9 @@ describe('Fields', () => {
   });
 
   test('Update field valid', async () => {
-    const doc = await fieldFactory({});
+    const doc = await fieldFactory({ contentType: 'form' });
+    const doc2 = await fieldFactory({ contentType: 'form' });
+    const group = await fieldGroupFactory({ contentType: 'form' });
     const testField = await fieldFactory({ isDefinedByErxes: true });
 
     if (!doc || !testField) {
@@ -138,12 +141,17 @@ describe('Fields', () => {
     }
 
     const fieldDoc = {
-      ...doc.toJSON()
+      ...doc.toJSON(),
+      groupName: group && group.name
     };
 
     delete fieldDoc._id;
 
     const fieldObj = await Fields.updateField(_field._id, fieldDoc);
+    const fieldObj2 = await Fields.updateField(doc2._id, {
+      ...doc2.toJSON(),
+      groupName: 'test group'
+    });
 
     try {
       await Fields.updateField(testField._id, { text: 'text' });
@@ -165,6 +173,8 @@ describe('Fields', () => {
     expect(fieldObj.options[0]).toEqual(doc.options[0]);
     expect(fieldObj.isRequired).toBe(doc.isRequired);
     expect(fieldObj.order).toBe(doc.order);
+    expect(fieldObj.groupId).toBe(group && group._id);
+    expect(fieldObj2.groupId).toBeDefined();
   });
 
   test('Remove field valid', async () => {
@@ -313,7 +323,7 @@ describe('Fields', () => {
 
     const field = await fieldFactory({ isVisible: true });
     const user = await userFactory({});
-    const testField = await fieldFactory({ isDefinedByErxes: true });
+    const testField = await fieldFactory({ canHide: false });
 
     const isVisible = false;
 
@@ -322,18 +332,28 @@ describe('Fields', () => {
     }
 
     try {
-      await Fields.updateFieldsVisible(testField._id, false, '123321');
+      await Fields.updateFieldsVisible(testField._id, '123321', false);
     } catch (e) {
       expect(e.message).toBe('Cant update this field');
     }
 
     const fieldObj = await Fields.updateFieldsVisible(
       field._id,
-      isVisible,
-      user._id
+      user._id,
+      isVisible
     );
 
     expect(fieldObj.isVisible).toBe(isVisible);
+  });
+
+  test('Update field visible: checkCanToggleVisible', async () => {
+    const field = await fieldFactory({ isVisible: true, canHide: false });
+
+    try {
+      await Fields.updateFieldsVisible(field._id, '123321', false);
+    } catch (e) {
+      expect(e.message).toBe('Cant update this field');
+    }
   });
 });
 
@@ -459,7 +479,7 @@ describe('Fields groups', () => {
     }
 
     try {
-      await FieldsGroups.updateGroupVisible(_fieldGroup._id, true, user._id);
+      await FieldsGroups.updateGroupVisible(_fieldGroup._id, user._id, true);
     } catch (e) {
       expect(e.message).toBe('Cant update this group');
     }
@@ -467,10 +487,31 @@ describe('Fields groups', () => {
     const isVisible = false;
     const groupObj = await FieldsGroups.updateGroupVisible(
       fieldGroup._id,
-      isVisible,
-      user._id
+      user._id,
+      isVisible
     );
 
     expect(groupObj.isVisible).toBe(isVisible);
+  });
+
+  test('create system groups and fields', async () => {
+    await FieldsGroups.createSystemGroupsFields();
+  });
+
+  test('updateOrder()', async () => {
+    const group1 = await fieldGroupFactory({});
+    const group2 = await fieldGroupFactory({});
+
+    if (!group1 || !group2) {
+      fail('Could not create group');
+    }
+
+    const [updatedGroup1, updatedGroup2] = await FieldsGroups.updateOrder([
+      { _id: group1._id, order: 3 },
+      { _id: group2._id, order: 4 }
+    ]);
+
+    expect(updatedGroup1.order).toBe(3);
+    expect(updatedGroup2.order).toBe(4);
   });
 });

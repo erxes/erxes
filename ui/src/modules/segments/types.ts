@@ -84,6 +84,9 @@ export type IField = {
   type?: string;
   value: string;
   label: string;
+  options?: string[];
+  validation?: string;
+  choiceOptions?: string[];
 };
 
 export type AddMutationResponse = {

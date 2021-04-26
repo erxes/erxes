@@ -1,4 +1,24 @@
-export const schemaTypes = ['Customers', 'Deals', 'Conversations'];
+export const schemaTypes = [
+  'Customers',
+  'CustomerProperties',
+  'Leads',
+  'LeadProperties',
+  'Visitors',
+  'VisitorProperties',
+  'Companies',
+  'Conversations',
+  'ConversationProperties',
+  'Deals',
+  'Tasks',
+  'Tickets'
+];
+
+export const propertyTypes = [
+  'ConversationProperties',
+  'CustomerProperties',
+  'LeadProperties',
+  'VisitorProperties'
+];
 
 export const chartTypeWithoutDeminsions = [
   {
@@ -152,12 +172,42 @@ export const ignoredFilters = [
   'birthDate',
   'iscomplete',
   'stageName',
-  'closeDate',
   'closedDate',
   'updatedDate',
   'firstrespondeddate',
   'messagecount',
-  'integrationKind'
+  'integrationKind',
+  'firstRespondedDate',
+  'firstName',
+  'lastName',
+  'customerFirstName',
+  'customerLastName',
+  'customerEmail',
+  'CUSTOM'
 ];
 
-export const ignoredMeasures = ['pipelineName', 'brand', 'stageProbability'];
+export const ignoredMeasures = [
+  'pipeline',
+  'brand',
+  'stageProbability',
+  'createdDate',
+  'modifiedDate',
+  'birthDate',
+  'closedDate',
+  'updatedDate',
+  'firstRespondedDate',
+  'board',
+  'integrationType',
+  'ConversationProperties.integrationName',
+  'ConversationProperties.tag',
+  'ConversationProperties.integrationType'
+];
+
+export const complexFilters = [
+  'Deals.board',
+  'Deals.pipeline',
+  'Tasks.board',
+  'Tasks.pipeline',
+  'Tickets.board',
+  'Tickets.pipeline'
+];

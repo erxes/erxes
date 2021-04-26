@@ -47,9 +47,9 @@ export default (props: IProps) => {
 
   const trigger = (
     <Button icon="export" btnStyle="primary" size="small">
-      {__(`Export Pop-ups data`)}
+      {__(`Export Forms data`)}
     </Button>
   );
 
-  return <ModalTrigger title="Pop-ups" trigger={trigger} content={content} />;
+  return <ModalTrigger title="Forms" trigger={trigger} content={content} />;
 };

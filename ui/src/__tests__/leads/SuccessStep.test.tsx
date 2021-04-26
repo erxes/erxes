@@ -7,6 +7,7 @@ describe('SuccessStep component', () => {
     type: 'string',
     color: 'string',
     theme: 'string',
+    emailTemplates: [],
     onChange: (
       name:
         | 'successAction'
@@ -17,7 +18,9 @@ describe('SuccessStep component', () => {
         | 'adminEmailTitle'
         | 'adminEmailContent'
         | 'redirectUrl'
-        | 'thankContent',
+        | 'thankTitle'
+        | 'thankContent'
+        | 'templateId',
       value: string
     ) => null
   };

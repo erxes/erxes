@@ -19,7 +19,7 @@ export const initBroker = async server => {
 
   // listen for rpc queue =========
   consumeQueue('erxes-api:engages-notification', async ({ action, data }) => {
-    debugBase(`Receiving queue data from erxes-api`, JSON.stringify(data));
+    debugBase(`Receiving queue data from erxes-api ${JSON.stringify(data)}`);
 
     if (action === 'sendEngage') {
       await start(data);

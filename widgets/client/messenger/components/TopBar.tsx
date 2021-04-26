@@ -1,5 +1,6 @@
 import * as classNames from "classnames";
 import * as React from "react";
+import * as ReactModal from "react-modal";
 import { iconClose, iconLeft, iconMore } from "../../icons/Icons";
 import { __ } from "../../utils";
 
@@ -20,14 +21,18 @@ type Props = {
 type State = {
   headHeight: any;
   isVisibleDropdown: boolean;
+  isModalOpen: boolean;
 };
-
 class TopBar extends React.Component<Props, State> {
   private node: HTMLDivElement | null = null;
   constructor(props: Props) {
     super(props);
 
-    this.state = { headHeight: props.prevHeight, isVisibleDropdown: false };
+    this.state = { 
+      headHeight: props.prevHeight, 
+      isVisibleDropdown: false,
+      isModalOpen: false
+    };
     this.endConversation = this.endConversation.bind(this);
   }
 
@@ -47,19 +52,23 @@ class TopBar extends React.Component<Props, State> {
     this.updateHeight();
   }
 
+  toggleModal = () => {
+    this.setState({ isModalOpen: !this.state.isModalOpen });
+  };
+
   toggleDropdown = () => {
     this.setState({ isVisibleDropdown: !this.state.isVisibleDropdown });
   };
 
-  endConversation() {
+  endConversation = (_e: any, confirmed?: boolean) => {
     const { endConversation } = this.props;
 
-    if (
-      confirm((__("Do you want to end this conversation?") || {}).toString())
-    ) {
-      endConversation();
+    if (!confirmed) {
+      return this.toggleModal();
     }
-  }
+
+    return endConversation();
+  };
 
   toggleLauncher = () => {
     this.props.toggleLauncher(true);
@@ -87,7 +96,7 @@ class TopBar extends React.Component<Props, State> {
         {iconMore(this.props.textColor)}
         <ul>
           <li>
-            <a href="#" onClick={this.endConversation}>
+            <a href="#" onClick={this.toggleModal}>
               {__("End conversation")}
             </a>
           </li>
@@ -118,6 +127,28 @@ class TopBar extends React.Component<Props, State> {
     );
   }
 
+  renderModal() {
+    const { isModalOpen } = this.state;
+
+    const handleConfirm = (e: any) => this.endConversation(e, true);
+
+    return (
+      <ReactModal
+        isOpen={isModalOpen}
+        onRequestClose={this.toggleModal}
+        ariaHideApp={false}
+        className="erxes-modal fade-in"
+        overlayClassName="erxes-overlay"
+      >
+        <h5>{__("Do you want to end this conversation ?")}</h5>
+        <div className="modal-footer">
+          <button className="erxes-button btn-outline" onClick={this.endConversation}>{__("No")}</button>
+          <button className="erxes-button btn-primary" onClick={handleConfirm}>{__("Yes")}</button>
+        </div>
+      </ReactModal>
+    );
+  }
+
   render() {
     const { color, isExpanded, middle, toggleHead, textColor } = this.props;
 
@@ -130,24 +161,27 @@ class TopBar extends React.Component<Props, State> {
     });
 
     return (
-      <div
-        className="head-wrapper"
-        style={{ height: this.state.headHeight, backgroundColor: color }}
-      >
+      <>
+        {this.renderModal()}
         <div
-          className={topBarClassNames}
-          style={{ color: textColor }}
-          ref={node => {
-            this.node = node;
-          }}
+          className="head-wrapper"
+          style={{ height: this.state.headHeight, backgroundColor: color }}
         >
-          {this.renderLeftButton()}
-          <div onClick={toggleHead} className={middleClass}>
-            {middle}
+          <div
+            className={topBarClassNames}
+            style={{ color: textColor }}
+            ref={node => {
+              this.node = node;
+            }}
+          >
+            {this.renderLeftButton()}
+            <div onClick={toggleHead} className={middleClass}>
+              {middle}
+            </div>
+            {this.renderRightButton()}
           </div>
-          {this.renderRightButton()}
         </div>
-      </div>
+      </>
     );
   }
 }

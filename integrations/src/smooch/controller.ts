@@ -1,44 +1,42 @@
 import { debugRequest, debugResponse, debugSmooch } from '../debuggers';
+import { routeErrorHandling } from '../helpers';
 import { createIntegration, reply } from './api';
 
 import receiveMessage from './receiveMessage';
 
 const init = async app => {
-  app.post('/smooch/webhook', async (req, res, next) => {
-    debugSmooch('Received new message in smooch...');
+  app.post(
+    '/smooch/webhook',
+    routeErrorHandling(async (req, res) => {
+      debugSmooch('Received new message in smooch...');
 
-    try {
       await receiveMessage(req.body);
-    } catch (e) {
-      return next(e);
-    }
 
-    return res.status(200).send('success');
-  });
+      return res.status(200).send('success');
+    })
+  );
 
-  app.post('/smooch/create-integration', async (req, res, next) => {
-    debugRequest(debugSmooch, req);
+  app.post(
+    '/smooch/create-integration',
+    routeErrorHandling(async (req, res) => {
+      debugRequest(debugSmooch, req);
 
-    try {
       await createIntegration(req.body);
-    } catch (e) {
-      return next(e);
-    }
 
-    return res.json({ status: 'ok' });
-  });
+      return res.json({ status: 'ok' });
+    })
+  );
 
-  app.post('/smooch/reply', async (req, res, next) => {
-    try {
+  app.post(
+    '/smooch/reply',
+    routeErrorHandling(async (req, res) => {
       await reply(req.body);
-    } catch (e) {
-      next(e);
-    }
 
-    debugResponse(debugSmooch, req);
+      debugResponse(debugSmooch, req);
 
-    res.sendStatus(200);
-  });
+      res.sendStatus(200);
+    })
+  );
 };
 
 export default init;

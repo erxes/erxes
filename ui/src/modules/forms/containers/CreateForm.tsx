@@ -1,11 +1,7 @@
 import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
 import { Alert, withProps } from 'modules/common/utils';
-import {
-  AddFieldsMutationResponse,
-  AddFieldsMutationVariables,
-  IField
-} from 'modules/settings/properties/types';
+import { IField } from 'modules/settings/properties/types';
 import React from 'react';
 import { graphql } from 'react-apollo';
 import { withRouter } from 'react-router-dom';
@@ -15,22 +11,26 @@ import { mutations } from '../graphql';
 import {
   AddFormMutationResponse,
   AddFormMutationVariables,
+  BulkEditAndAddMutationVariables,
+  FieldsBulkAddAndEditMutationResponse,
   IFormData
 } from '../types';
 
 type Props = {
-  renderPreviewWrapper: (previewRenderer, fields: IField[]) => void;
   afterDbSave: (formId: string) => void;
   onDocChange?: (doc: IFormData) => void;
+  formData?: IFormData;
   type: string;
   isReadyToSave: boolean;
   showMessage?: boolean;
+  currentMode?: 'create' | 'update' | undefined;
+  currentField?: IField;
 };
 
 type FinalProps = {} & Props &
   IRouterProps &
-  AddFieldsMutationResponse &
-  AddFormMutationResponse;
+  AddFormMutationResponse &
+  FieldsBulkAddAndEditMutationResponse;
 
 class CreateFormContainer extends React.Component<FinalProps, {}> {
   static defaultProps = {
@@ -40,8 +40,8 @@ class CreateFormContainer extends React.Component<FinalProps, {}> {
   render() {
     const {
       addFormMutation,
-      addFieldsMutation,
       afterDbSave,
+      fieldsBulkAddAndEditMutation,
       showMessage
     } = this.props;
 
@@ -64,21 +64,21 @@ class CreateFormContainer extends React.Component<FinalProps, {}> {
         })
 
         .then(() => {
-          const promises: any[] = [];
+          fields.forEach(f => {
+            delete f.contentType;
+            delete f.__typename;
+          });
 
-          for (const [i, field] of fields.entries()) {
-            promises.push(
-              addFieldsMutation({
-                variables: {
-                  order: i,
-                  contentTypeId: formId,
-                  ...field
-                }
-              })
-            );
-          }
-
-          return Promise.all(promises);
+          fieldsBulkAddAndEditMutation({
+            variables: {
+              contentType: 'form',
+              contentTypeId: formId,
+              addingFields: fields.map(({ _id, ...rest }) => ({
+                tempFieldId: _id,
+                ...rest
+              }))
+            }
+          });
         })
 
         .then(() => {
@@ -113,11 +113,12 @@ export default withProps<Props>(
         }
       }
     ),
-    graphql<Props, AddFieldsMutationResponse, AddFieldsMutationVariables>(
-      gql(mutations.fieldsAdd),
-      {
-        name: 'addFieldsMutation'
-      }
-    )
+    graphql<
+      Props,
+      FieldsBulkAddAndEditMutationResponse,
+      BulkEditAndAddMutationVariables
+    >(gql(mutations.fieldsBulkAddAndEdit), {
+      name: 'fieldsBulkAddAndEditMutation'
+    })
   )(withRouter<FinalProps>(CreateFormContainer))
 );

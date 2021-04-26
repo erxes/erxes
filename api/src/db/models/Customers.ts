@@ -1,8 +1,8 @@
 import { Model, model } from 'mongoose';
+import { ACTIVITY_LOG_ACTIONS, putActivityLog } from '../../data/logUtils';
 import { validSearchText } from '../../data/utils';
 import { validateSingle } from '../../data/verifierUtils';
 import {
-  ActivityLogs,
   Conformities,
   Conversations,
   EngageMessages,
@@ -10,6 +10,7 @@ import {
   InternalNotes
 } from './';
 import { ICustomField } from './definitions/common';
+import { ACTIVITY_CONTENT_TYPES } from './definitions/constants';
 import {
   customerSchema,
   ICustomer,
@@ -42,6 +43,7 @@ interface ICreateMessengerCustomerParams {
     isUser?: boolean;
     firstName?: string;
     lastName?: string;
+    middleName?: string;
     description?: string;
     deviceToken?: string;
   };
@@ -63,6 +65,7 @@ export interface IUpdateMessengerCustomerParams {
 
 export interface IVisitorContactInfoParams {
   customerId: string;
+  visitorId?: string;
   type: string;
   value: string;
 }
@@ -252,9 +255,9 @@ export const loadClass = () => {
         modifiedAt: new Date()
       });
 
-      await ActivityLogs.createCocLog({
-        coc: customer,
-        contentType: 'customer'
+      await putActivityLog({
+        action: ACTIVITY_LOG_ACTIONS.CREATE_COC_LOG,
+        data: { coc: customer, contentType: 'customer' }
       });
 
       return customer._id;
@@ -268,7 +271,11 @@ export const loadClass = () => {
       user?: IUserDocument
     ): Promise<ICustomerDocument> {
       // Checking duplicated fields of customer
-      await Customers.checkDuplication(doc);
+      try {
+        await Customers.checkDuplication(doc);
+      } catch (e) {
+        throw new Error(e.message);
+      }
 
       if (!doc.ownerId && user) {
         doc.ownerId = user._id;
@@ -314,9 +321,9 @@ export const loadClass = () => {
         validateSingle({ phone: doc.primaryPhone });
       }
 
-      await ActivityLogs.createCocLog({
-        coc: customer,
-        contentType: 'customer'
+      await putActivityLog({
+        action: ACTIVITY_LOG_ACTIONS.CREATE_COC_LOG,
+        data: { coc: customer, contentType: 'customer' }
       });
 
       return Customers.getCustomer(customer._id);
@@ -327,7 +334,11 @@ export const loadClass = () => {
      */
     public static async updateCustomer(_id: string, doc: ICustomer) {
       // Checking duplicated fields of customer
-      await Customers.checkDuplication(doc, _id);
+      try {
+        await Customers.checkDuplication(doc, _id);
+      } catch (e) {
+        throw new Error(e.message);
+      }
 
       const oldCustomer = await Customers.getCustomer(_id);
 
@@ -464,16 +475,20 @@ export const loadClass = () => {
      */
     public static async removeCustomers(customerIds: string[]) {
       // Removing every modules that associated with customer
+      await putActivityLog({
+        action: ACTIVITY_LOG_ACTIONS.REMOVE_ACTIVITY_LOGS,
+        data: { type: ACTIVITY_CONTENT_TYPES.CUSTOMER, itemIds: customerIds }
+      });
       await Conversations.removeCustomersConversations(customerIds);
       await EngageMessages.removeCustomersEngages(customerIds);
-      await InternalNotes.removeCustomersInternalNotes(customerIds);
-
-      for (const customerId of customerIds) {
-        await Conformities.removeConformity({
-          mainType: 'customer',
-          mainTypeId: customerId
-        });
-      }
+      await InternalNotes.removeInternalNotes(
+        ACTIVITY_CONTENT_TYPES.CUSTOMER,
+        customerIds
+      );
+      await Conformities.removeConformities({
+        mainType: 'customer',
+        mainTypeIds: customerIds
+      });
 
       return Customers.deleteMany({ _id: { $in: customerIds } });
     }

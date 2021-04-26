@@ -40,12 +40,13 @@ class Row extends React.Component<Props> {
             onChange={onChange}
           />
         </td>
+        <td>{product.code}</td>
         <td>{product.name}</td>
         <td>
           <TextInfo>{product.type}</TextInfo>
         </td>
         <td>{product.category ? product.category.name : ''}</td>
-        <td>{product.unitPrice}</td>
+        <td>{(product.unitPrice || 0).toLocaleString()}</td>
         <td>{product.sku}</td>
         <td>
           <Tags tags={tags} limit={2} />

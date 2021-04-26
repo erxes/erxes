@@ -45,12 +45,14 @@ export const types = `
 `;
 
 export const queries = `
+  search(value: String!): [JSON]
   configs: [Config]
   configsGetVersion(releaseNotes: Boolean): JSON
   configsStatus: ProjectStatistics
   configsGetEnv: ENV
   configsConstants: JSON
   configsCheckActivateInstallation(hostname: String!): JSON
+  configsGetEmailTemplate(name: String): String
 `;
 
 export const mutations = `

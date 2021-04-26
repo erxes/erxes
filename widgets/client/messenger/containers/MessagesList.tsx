@@ -11,6 +11,7 @@ type Props = {
   toggleVideoCall: () => void;
   refetchConversationDetail?: () => void;
   operatorStatus?: string;
+  errorMessage: string;
 };
 
 export default (props: Props) => {
@@ -27,6 +28,8 @@ export default (props: Props) => {
         sendTypingInfo,
         replyAutoAnswer,
         changeOperatorStatus,
+        onSelectSkill,
+        selectedSkill,
         botTyping,
         activeConversation
       }) => {
@@ -34,11 +37,13 @@ export default (props: Props) => {
           <MessagesList
             {...props}
             botTyping={botTyping}
+            selectedSkill={selectedSkill}
             conversationId={activeConversation}
             uiOptions={getUiOptions()}
             messengerData={getMessengerData()}
             saveGetNotified={saveGetNotified}
             getBotInitialMessage={getBotInitialMessage}
+            onSelectSkill={onSelectSkill}
             getColor={getColor()}
             isLoggedIn={isLoggedIn}
             sendTypingInfo={sendTypingInfo}

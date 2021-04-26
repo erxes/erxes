@@ -4,6 +4,7 @@ import * as compose from 'lodash.flowright';
 import { Alert, withProps } from 'modules/common/utils';
 import ConversationDetail from 'modules/inbox/components/conversationDetail/ConversationDetail';
 import { mutations, queries, subscriptions } from 'modules/inbox/graphql';
+import { IField } from 'modules/settings/properties/types';
 import React from 'react';
 import { graphql } from 'react-apollo';
 import { IUser } from '../../../auth/types';
@@ -14,6 +15,7 @@ import {
 
 type Props = {
   currentId: string;
+  conversationFields: IField[];
 };
 
 type FinalProps = {

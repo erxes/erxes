@@ -1,7 +1,7 @@
 const { tableSchema } = require('../tablePrefix');
 
 cube(`Customers`, {
-  sql: `SELECT * FROM ${tableSchema()}__customers`,
+  sql: `SELECT * FROM ${tableSchema()}__customers WHERE state='customer'`,
 
   joins: {},
 
@@ -12,8 +12,8 @@ cube(`Customers`, {
   },
 
   dimensions: {
-    state: {
-      sql: `state`,
+    brand: {
+      sql: `${CUBE}."integrationId"`,
       type: `string`
     },
 
@@ -22,13 +22,23 @@ cube(`Customers`, {
       type: `string`
     },
 
-    createdDate: {
-      sql: `${CUBE}."createdAt"`,
-      type: `time`
+    tag: {
+      sql: `${CUBE}."tagIds"`,
+      type: `string`
     },
 
-    birthDate: {
-      sql: `${CUBE}."birthDate"`,
+    country: {
+      sql: `${CUBE}."location.country"`,
+      type: `string`
+    },
+
+    city: {
+      sql: `${CUBE}."location.city"`,
+      type: `string`
+    },
+
+    createdDate: {
+      sql: `${CUBE}."createdAt"`,
       type: `time`
     },
 

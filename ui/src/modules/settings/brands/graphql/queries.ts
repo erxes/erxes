@@ -50,17 +50,10 @@ const brandsGetLast = `
   }
 `;
 
-const brandsGetDefaultEmailConfig = `
-  query brandsGetDefaultEmailConfig {
-    brandsGetDefaultEmailConfig
-  }
-`;
-
 export default {
   brandsGetLast,
   brands,
   brandDetail,
   brandsCount,
-  integrationsCount,
-  brandsGetDefaultEmailConfig
+  integrationsCount
 };

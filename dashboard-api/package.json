@@ -13,6 +13,7 @@
     "elasticsearch": "^16.7.1",
     "express": "^4.17.1",
     "jsonwebtoken": "^8.5.1",
-    "sqlstring": "^2.3.2"
+    "sqlstring": "^2.3.2",
+    "xlsx-populate": "^1.21.0"
   }
 }

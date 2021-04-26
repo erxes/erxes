@@ -97,7 +97,7 @@ class Form extends React.Component<Props, State> {
             <p>
               <a
                 target="_blank"
-                href="https://erxes.io/help/knowledge-base/article/detail?_id=B7LseAvFdKsiLa3kG"
+                href="https://erxes.io/help/knowledge-base/article/detail?catId=5o5ZRSi5c8NX3fbTA&_id=B7LseAvFdKsiLa3kG"
                 rel="noopener noreferrer"
               >
                 {__('Learn how to connect a Gmail using IMAP')}

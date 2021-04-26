@@ -15,6 +15,7 @@ export const CUSTOMER_BASIC_INFO = {
   ALL: [
     { field: 'avatar', label: 'Avatar' },
     { field: 'firstName', label: 'First Name' },
+    { field: 'middleName', label: 'Middle Name' },
     { field: 'lastName', label: 'Last Name' },
     { field: 'primaryEmail', label: 'Primary E-mail' },
     { field: 'primaryPhone', label: 'Primary Phone' },

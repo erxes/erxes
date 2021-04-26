@@ -129,6 +129,9 @@ export const KEY_LABELS = {
 
   DAILY_API_KEY: 'Daily api key',
   DAILY_END_POINT: 'Daily end point',
+  VIDEO_CALL_TIME_DELAY_BETWEEN_REQUESTS:
+    'Time delay (seconds) between requests',
+  VIDEO_CALL_MESSAGE_FOR_TIME_DELAY: 'Message for time delay',
 
   SMOOCH_APP_KEY_ID: 'Smooch App Key Id',
   SMOOCH_APP_KEY_SECRET: 'Smooch App Key Secret',
@@ -146,7 +149,6 @@ export const KEY_LABELS = {
   company_industry_types: 'Company industry types',
   social_links: 'Social links',
 
-  PRODUCT_BOARD_TOKEN: 'Product Board Access token',
   NOTIFICATION_DATA_RETENTION: 'Notification data retention'
 };
 

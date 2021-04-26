@@ -1,9 +1,10 @@
-import { Fields, Users } from '../../db/models';
+import { Fields } from '../../db/models';
 import { IFormDocument } from '../../db/models/definitions/forms';
+import { getDocument } from './mutations/cacheUtils';
 
 export default {
   createdUser(form: IFormDocument) {
-    return Users.findOne({ _id: form.createdUserId });
+    return getDocument('users', { _id: form.createdUserId });
   },
 
   fields(form: IFormDocument) {

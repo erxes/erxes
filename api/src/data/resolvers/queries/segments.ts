@@ -1,6 +1,6 @@
 import { Segments } from '../../../db/models';
 import { fetchElk } from '../../../elasticsearch';
-import { fetchBySegments } from '../../modules/segments/queryBuilder';
+import { fetchSegment } from '../../modules/segments/queryBuilder';
 import { checkPermission, requireLogin } from '../../permissions/wrappers';
 import { IContext } from '../../types';
 
@@ -10,13 +10,27 @@ const segmentQueries = {
    */
   segments(
     _root,
-    { contentTypes }: { contentTypes: string[] },
+    {
+      contentTypes,
+      boardId,
+      pipelineId
+    }: { contentTypes: string[]; boardId?: string; pipelineId?: string },
     { commonQuerySelector }: IContext
   ) {
-    return Segments.find({
+    const selector: any = {
       ...commonQuerySelector,
       contentType: { $in: contentTypes }
-    }).sort({ name: 1 });
+    };
+
+    if (boardId) {
+      selector.boardId = boardId;
+    }
+
+    if (pipelineId) {
+      selector.pipelineId = pipelineId;
+    }
+
+    return Segments.find(selector).sort({ name: 1 });
   },
 
   /**
@@ -89,38 +103,26 @@ const segmentQueries = {
     {
       contentType,
       conditions,
-      subOf
-    }: { contentType: string; conditions; subOf?: string }
-  ) {
-    const { positiveList, negativeList } = await fetchBySegments(
-      {
-        name: 'preview',
-        color: '#fff',
-        subOf: subOf || '',
-        contentType,
-        conditions
-      },
-      'count'
-    );
-
-    try {
-      const response = await fetchElk(
-        'count',
-        contentType === 'company' ? 'companies' : 'customers',
-        {
-          query: {
-            bool: {
-              must: positiveList,
-              must_not: negativeList
-            }
-          }
-        }
-      );
-
-      return response.count;
-    } catch (e) {
-      return 0;
+      subOf,
+      boardId,
+      pipelineId
+    }: {
+      contentType: string;
+      conditions;
+      subOf?: string;
+      boardId?: string;
+      pipelineId?: string;
     }
+  ) {
+    return fetchSegment('count', {
+      name: 'preview',
+      color: '#fff',
+      subOf: subOf || '',
+      boardId,
+      pipelineId,
+      contentType,
+      conditions
+    });
   }
 };
 

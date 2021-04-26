@@ -14,7 +14,7 @@ import 'react-resizable/css/styles.css';
 import styled from 'styled-components';
 import styledTS from 'styled-components-ts';
 import { IDashboardItem } from '../types';
-import { ChartRenderer } from './ChartRenderer';
+import ChartRenderer from './ChartRenderer';
 import DashboardItem from './DashboardItem';
 import { Actions, EmptyWrapper, ShadowedHeader } from './styles';
 
@@ -182,6 +182,7 @@ class Dashboard extends React.Component<Props, State> {
               itemId={item._id}
               dashboardId={dashboardId}
               title={item.name}
+              query={item.vizState.query}
               removeDashboardItem={removeDashboardItem}
             >
               <ChartRenderer

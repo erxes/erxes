@@ -1,6 +1,7 @@
-import { graphqlRequest } from '../db/connection';
-
+import * as sinon from 'sinon';
 import { isMessengerOnline } from '../data/resolvers/queries/widgets';
+import * as utils from '../data/utils';
+import { graphqlRequest } from '../db/connection';
 import {
   brandFactory,
   conversationFactory,
@@ -16,6 +17,15 @@ import { Brands, Conversations, Customers, Integrations } from '../db/models';
 import './setup.ts';
 
 describe('widgetQueries', () => {
+  const widgetsGetEngageMessageQuery = `query widgetsGetEngageMessage($customerId: String!, $browserInfo: JSON!) {
+    widgetsGetEngageMessage(customerId: $customerId, browserInfo: $browserInfo) {
+      _id
+      engageData {
+        messageId
+      }
+    }
+  }`;
+
   afterEach(async () => {
     // Clearing test data
     await Conversations.deleteMany({});
@@ -194,7 +204,7 @@ describe('widgetQueries', () => {
     });
 
     const qry = `
-      query widgetsTotalUnreadCount($integrationId: String!, $customerId: String!) {
+      query widgetsTotalUnreadCount($integrationId: String!, $customerId: String) {
         widgetsTotalUnreadCount(integrationId: $integrationId, customerId: $customerId)
       }
     `;
@@ -205,6 +215,23 @@ describe('widgetQueries', () => {
     });
 
     expect(response).toBe(1);
+  });
+
+  test('widgetsTotalUnreadCount without customerId', async () => {
+    // Creating test data
+    const integration = await integrationFactory({ kind: 'messenger' });
+
+    const qry = `
+      query widgetsTotalUnreadCount($integrationId: String!, $customerId: String) {
+        widgetsTotalUnreadCount(integrationId: $integrationId, customerId: $customerId)
+      }
+    `;
+
+    const response = await graphqlRequest(qry, 'widgetsTotalUnreadCount', {
+      integrationId: integration._id
+    });
+
+    expect(response).toBe(0);
   });
 
   test('widgetsUnreadCount', async () => {
@@ -321,78 +348,74 @@ describe('widgetQueries', () => {
 
   test('widgetsGetEngageMessage', async () => {
     // Creating test data
+    const mock = sinon.stub(utils, 'getEnv').callsFake(() => {
+      return 'false';
+    });
+
     const brand = await brandFactory({});
     const integration = await integrationFactory({ brandId: brand._id });
     const customer = await customerFactory({ integrationId: integration._id });
 
-    const qry = `query widgetsGetEngageMessage($customerId: String!, $browserInfo: JSON!) {
-      widgetsGetEngageMessage(customerId: $customerId, browserInfo: $browserInfo) {
-        _id
-        engageData {
-          messageId
-        }
-      }
-    }
-    `;
-
-    const response = await graphqlRequest(qry, 'widgetsGetEngageMessage', {
-      customerId: customer._id,
-      browserInfo: {
-        url: 'url',
-        hostname: 'hostname'
-      }
-    });
-
-    expect(response).toBe(null);
-  });
-
-  test('widgetsGetEngageMessage integarion not found', async () => {
-    const customer = await customerFactory({});
-    const qry = `query widgetsGetEngageMessage($customerId: String!, $browserInfo: JSON!) {
-      widgetsGetEngageMessage(customerId: $customerId, browserInfo: $browserInfo) {
-        _id
-        engageData {
-          messageId
-        }
-      }
-    }`;
-
-    try {
-      await graphqlRequest(qry, 'widgetsGetEngageMessage', {
+    const response = await graphqlRequest(
+      widgetsGetEngageMessageQuery,
+      'widgetsGetEngageMessage',
+      {
         customerId: customer._id,
         browserInfo: {
           url: 'url',
           hostname: 'hostname'
         }
-      });
+      }
+    );
+
+    expect(response).toBe(null);
+
+    mock.restore();
+  });
+
+  test('widgetsGetEngageMessage integarion not found', async () => {
+    const customer = await customerFactory({});
+
+    try {
+      await graphqlRequest(
+        widgetsGetEngageMessageQuery,
+        'widgetsGetEngageMessage',
+        {
+          customerId: customer._id,
+          browserInfo: {
+            url: 'url',
+            hostname: 'hostname'
+          }
+        }
+      );
     } catch (e) {
       expect(e[0].message).toBe('Integration not found');
     }
   });
 
-  test('widgetsGetEngageMessage brand not found', async () => {
-    const integration = await integrationFactory({});
-    const customer = await customerFactory({ integrationId: integration._id });
+  test('widgetsGetEngageMessage with elksyncer', async () => {
+    const customer = await customerFactory({});
 
-    const qry = `query widgetsGetEngageMessage($customerId: String!, $browserInfo: JSON!) {
-      widgetsGetEngageMessage(customerId: $customerId, browserInfo: $browserInfo) {
-        _id
-        engageData {
-          messageId
-        }
-      }
-    }`;
+    const envMock = sinon.stub(utils, 'getEnv').callsFake(() => {
+      return 'true';
+    });
 
     try {
-      await graphqlRequest(qry, 'widgetsGetEngageMessage', {
-        customerId: customer._id,
-        browserInfo: {
-          url: 'url',
-          hostname: 'hostname'
+      await graphqlRequest(
+        widgetsGetEngageMessageQuery,
+        'widgetsGetEngageMessage',
+        {
+          customerId: customer._id,
+          browserInfo: {
+            url: 'url',
+            hostname: 'hostname'
+          }
         }
-      });
+      );
     } catch (e) {
-      expect(e[0].message).toBe('Brand not found');
+      expect(e[0].message).toBe('Integration not found');
     }
+
+    envMock.restore();
   });
 });

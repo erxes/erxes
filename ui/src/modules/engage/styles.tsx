@@ -27,6 +27,7 @@ const RowTitle = styled.div`
 const HelperText = styled.div`
   color: ${colors.colorCoreGray};
   font-size: 12px;
+  line-height: 16px;
 `;
 
 const FlexContainer = styledTS<{ direction?: string }>(styled.div)`
@@ -57,6 +58,7 @@ const PreviewContent = styledTS<{
   color: ${colors.colorCoreGray};
   font-size: 14px;
   word-break: break-word;
+  min-height: 500px;
 
   ${props => {
     if (!props.isFullmessage) {
@@ -216,6 +218,13 @@ const BoxContent = styled.div`
 
   h5 {
     margin-bottom: ${dimensions.coreSpacing}px;
+  }
+
+  span {
+    font-weight: normal;
+    color: ${colors.colorCoreGray};
+    font-size: 80%;
+    display: initial;
   }
 `;
 
@@ -468,6 +477,25 @@ const MobilePreviewContent = styledTS<{ templateId?: string }>(styled.div)`
   overflow-x: hidden;
 `;
 
+const TestEmailWrapper = styled.div`
+  margin: 20px 0;
+  padding: 20px 0;
+  border-top: 1px dashed #ddd;
+
+  button {
+    margin-top: 10px;
+  }
+`;
+
+const Disabled = styled.div`
+  display: inline-block;
+  opacity: 0.7;
+
+  > button:hover {
+    cursor: not-allowed;
+  }
+`;
+
 export {
   RowTitle,
   HelperText,
@@ -504,5 +532,7 @@ export {
   RightSection,
   DesktopPreviewContent,
   MobilePreviewContent,
-  Shell
+  Shell,
+  TestEmailWrapper,
+  Disabled
 };

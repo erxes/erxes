@@ -1,5 +1,5 @@
 import * as dotenv from 'dotenv';
-import { debugNylas } from '../debuggers';
+import { debugError, debugNylas } from '../debuggers';
 import memoryStorage from '../inmemoryStorage';
 import { Accounts, Integrations } from '../models';
 import { getConfig, sendRequest } from '../utils';
@@ -7,7 +7,9 @@ import { checkEmailDuplication, enableOrDisableAccount } from './api';
 import {
   CONNECT_AUTHORIZE_URL,
   CONNECT_TOKEN_URL,
-  NYLAS_API_URL
+  NYLAS_API_URL,
+  NYLAS_CALENDAR_SCOPES,
+  NYLAS_GMAIL_SCOPES
 } from './constants';
 import { IIntegrateProvider, INylasIntegrationData } from './types';
 import { getNylasConfig, getProviderSettings } from './utils';
@@ -20,7 +22,15 @@ dotenv.config();
  * @param {String} kind
  * @param {Object} account
  */
-const connectProviderToNylas = async (uid: string, integrationId?: string) => {
+const connectProviderToNylas = async ({
+  uid,
+  integrationId,
+  isCalendar
+}: {
+  uid: string;
+  integrationId?: string;
+  isCalendar?: boolean;
+}) => {
   const crendentialKey = `${uid}-credential`;
 
   const providerCredential = await memoryStorage().get(crendentialKey, false);
@@ -63,10 +73,7 @@ const connectProviderToNylas = async (uid: string, integrationId?: string) => {
       kind,
       settings,
       ...(kind === 'gmail'
-        ? {
-            scopes:
-              'contacts,calendar,email.read_only,email.drafts,email.send,email.modify'
-          }
+        ? { scopes: isCalendar ? NYLAS_CALENDAR_SCOPES : NYLAS_GMAIL_SCOPES }
         : {})
     });
 
@@ -260,7 +267,7 @@ export const integrateProviderToNylas = async (args: IIntegrateProvider) => {
 
     code = codeResponse.code;
   } catch (e) {
-    debugNylas(`Failed to get token code nylas: ${e}`);
+    debugError(`Failed to get token code nylas: ${e}`);
     throw new Error(
       'Error when connecting to the server. Please check your settings'
     );
@@ -281,7 +288,7 @@ export const integrateProviderToNylas = async (args: IIntegrateProvider) => {
 
     return response;
   } catch (e) {
-    debugNylas(`Failed to get token from nylas: ${e}`);
+    debugError(`Failed to get token from nylas: ${e}`);
     throw new Error(
       'Error when connecting to the server. Please check your settings'
     );
@@ -327,7 +334,7 @@ const removeExistingNylasWebhook = async (): Promise<void> => {
 
     debugNylas(`Successfully removed existing Nylas webhooks`);
   } catch (e) {
-    debugNylas(e.message);
+    debugError(e.message);
   }
 };
 

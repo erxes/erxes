@@ -88,14 +88,15 @@ export const uploader = async (req: any, res, next) => {
         .post(`${INTEGRATIONS_API_DOMAIN}/nylas/upload`)
         .on('response', response => {
           if (response.statusCode !== 200) {
-            return next(response.statusMessage);
+            return next(new Error(response.statusMessage));
           }
 
           return response.pipe(res);
         })
         .on('error', e => {
           debugExternalApi(`Error from pipe ${e.message}`);
-          next(e);
+
+          return next(e);
         })
     );
   }
@@ -109,9 +110,16 @@ export const uploader = async (req: any, res, next) => {
     const status = await checkFile(file, req.headers.source);
 
     if (status === 'ok') {
+      const API_URL = frontendEnv({ name: 'API_URL', req });
+      const API_DOMAIN =
+        API_URL ||
+        getSubServiceDomain({
+          name: 'API_DOMAIN'
+        });
+
       try {
         const result = await uploadFile(
-          frontendEnv({ name: 'API_URL', req }),
+          API_DOMAIN,
           file,
           response.upload ? true : false
         );

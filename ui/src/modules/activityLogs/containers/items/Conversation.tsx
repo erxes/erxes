@@ -37,7 +37,7 @@ class ConversationContainer extends React.Component<FinalProps> {
     }
 
     const conversation = conversationDetailQuery.conversationDetail;
-    const messages = messagesQuery.conversationMessages || {};
+    const messages = messagesQuery.conversationMessages || [];
     const comments =
       (commentsQuery && commentsQuery.converstationFacebookComments) || [];
 

@@ -1,6 +1,13 @@
 import { IUser } from 'modules/auth/types';
 import { QueryResponse } from 'modules/common/types';
 
+export interface IFieldLogic {
+  fieldId?: string;
+  tempFieldId?: string;
+  logicOperator: string;
+  logicValue: string;
+  __typename?: string;
+}
 export interface IField {
   _id: string;
   key?: string;
@@ -9,15 +16,28 @@ export interface IField {
   type: string;
   validation?: string;
   text?: string;
+  content?: string;
   description?: string;
   options?: string[];
   isRequired?: boolean;
   order?: React.ReactNode;
+  canHide?: boolean;
   isVisible?: boolean;
+  isVisibleInDetail?: boolean;
   isDefinedByErxes?: boolean;
   groupId?: string;
   lastUpdatedUser?: IUser;
   lastUpdatedUserId?: string;
+  associatedFieldId?: string;
+  column?: number;
+  associatedField?: {
+    _id: string;
+    text: string;
+    contentType: string;
+  };
+  logics?: IFieldLogic[];
+  logicAction?: string;
+  groupName?: string;
 }
 
 export interface IFieldGroup {
@@ -27,6 +47,7 @@ export interface IFieldGroup {
   order: React.ReactNode;
   description: string;
   isVisible: boolean;
+  isVisibleInDetail: boolean;
   isDefinedByErxes: boolean;
   fields: IField[];
   lastUpdatedUserId: string;
@@ -61,6 +82,22 @@ export type FieldsQueryResponse = {
 
 export type FieldsGroupsQueryResponse = {
   fieldsGroups: IFieldGroup[];
+  loading: boolean;
+  refetch: ({ contentType }: { contentType?: string }) => Promise<any>;
+};
+
+export type SystemFieldsGroupsQueryResponse = {
+  getSystemFieldsGroup: IFieldGroup;
+  loading: boolean;
+  refetch: ({ contentType }: { contentType?: string }) => Promise<any>;
+};
+
+export type InboxFieldsQueryResponse = {
+  fieldsInbox: {
+    customer: IField[];
+    device: IField[];
+    conversation: IField[];
+  };
   loading: boolean;
 };
 
@@ -102,6 +139,7 @@ export type FieldsGroupsMutationVariables = {
   name: string;
   description: string;
   isVisible: boolean;
+  isVisibleInDetail: boolean;
 };
 
 export type FieldsGroupsRemoveMutationResponse = {
@@ -120,7 +158,37 @@ export type FieldsGroupsUpdateVisibleMutationResponse = {
 
 export type FieldsUpdateVisibleMutationResponse = {
   fieldsUpdateVisible: (params: {
-    variables: { _id: string; isVisible: boolean };
+    variables: {
+      _id: string;
+      isVisible?: boolean;
+      isVisibleInDetail?: boolean;
+    };
+  }) => Promise<any>;
+};
+
+export type FieldsUpdateOrderMutationVariables = {
+  orders: {
+    _id: string;
+    order: number;
+  };
+};
+
+export type FieldsUpdateOrderMutationResponse = {
+  fieldsUpdateOrder: (params: {
+    variables: FieldsUpdateOrderMutationVariables;
+  }) => Promise<any>;
+};
+
+export type GroupsUpdateOrderMutationVariables = {
+  orders: {
+    _id: string;
+    order: number;
+  };
+};
+
+export type GroupsUpdateOrderMutationResponse = {
+  groupsUpdateOrder: (params: {
+    variables: GroupsUpdateOrderMutationVariables;
   }) => Promise<any>;
 };
 

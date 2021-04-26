@@ -6,7 +6,7 @@ import {
   LEAD_SUCCESS_ACTIONS,
   MESSENGER_DATA_AVAILABILITY
 } from './constants';
-import { field } from './utils';
+import { field, schemaHooksWrapper } from './utils';
 
 export interface ISubmission extends Document {
   customerId: string;
@@ -43,6 +43,14 @@ export interface IMessageDataMessages {
 export interface IMessengerData {
   botEndpointUrl?: string;
   botShowInitialMessage?: boolean;
+  skillData?: {
+    typeId: string;
+    options: Array<{
+      label: string;
+      response: string;
+      typeId: string;
+    }>;
+  };
   supporterIds?: string[];
   notifyCustomer?: boolean;
   availabilityMethod?: string;
@@ -77,6 +85,7 @@ export interface ILeadData {
   adminEmails?: string;
   adminEmailTitle?: string;
   adminEmailContent?: string;
+  thankTitle?: string;
   thankContent?: string;
   redirectUrl?: string;
   themeColor?: string;
@@ -85,6 +94,7 @@ export interface ILeadData {
   viewCount?: number;
   contactsGathered?: number;
   isRequireOnce?: boolean;
+  templateId?: string;
 }
 
 export interface IWebhookData {
@@ -146,6 +156,7 @@ const messengerOnlineHoursSchema = new Schema(
 // subdocument schema for MessengerData
 const messengerDataSchema = new Schema(
   {
+    skillData: field({ type: Object, optional: true }),
     botEndpointUrl: field({ type: String }),
     botShowInitialMessage: field({ type: Boolean }),
     supporterIds: field({ type: [String] }),
@@ -247,6 +258,11 @@ export const leadDataSchema = new Schema(
       optional: true,
       label: 'Admin email content'
     }),
+    thankTitle: field({
+      type: String,
+      optional: true,
+      label: 'Thank content title'
+    }),
     thankContent: field({
       type: String,
       optional: true,
@@ -286,6 +302,11 @@ export const leadDataSchema = new Schema(
       type: Boolean,
       optional: true,
       label: 'Do now show again if already filled out'
+    }),
+    templateId: field({
+      type: String,
+      optional: true,
+      label: 'Template'
     })
   },
   { _id: false }
@@ -312,36 +333,39 @@ const webhookDataSchema = new Schema(
 );
 
 // schema for integration document
-export const integrationSchema = new Schema({
-  _id: field({ pkey: true }),
-  createdUserId: field({ type: String, label: 'Created by' }),
+export const integrationSchema = schemaHooksWrapper(
+  new Schema({
+    _id: field({ pkey: true }),
+    createdUserId: field({ type: String, label: 'Created by' }),
 
-  kind: field({
-    type: String,
-    enum: KIND_CHOICES.ALL,
-    label: 'Kind'
-  }),
+    kind: field({
+      type: String,
+      enum: KIND_CHOICES.ALL,
+      label: 'Kind'
+    }),
 
-  name: field({ type: String, label: 'Name' }),
-  brandId: field({ type: String, label: 'Brand' }),
+    name: field({ type: String, label: 'Name' }),
+    brandId: field({ type: String, label: 'Brand' }),
 
-  languageCode: field({
-    type: String,
-    optional: true,
-    label: 'Language code'
+    languageCode: field({
+      type: String,
+      optional: true,
+      label: 'Language code'
+    }),
+    tagIds: field({ type: [String], label: 'Tags' }),
+    formId: field({ type: String, label: 'Form' }),
+    leadData: field({ type: leadDataSchema, label: 'Lead data' }),
+    isActive: field({
+      type: Boolean,
+      optional: true,
+      default: true,
+      label: 'Is active'
+    }),
+    webhookData: field({ type: webhookDataSchema }),
+    // TODO: remove
+    formData: field({ type: leadDataSchema }),
+    messengerData: field({ type: messengerDataSchema }),
+    uiOptions: field({ type: uiOptionsSchema })
   }),
-  tagIds: field({ type: [String], label: 'Tags' }),
-  formId: field({ type: String, label: 'Form' }),
-  leadData: field({ type: leadDataSchema, label: 'Lead data' }),
-  isActive: field({
-    type: Boolean,
-    optional: true,
-    default: true,
-    label: 'Is active'
-  }),
-  webhookData: field({ type: webhookDataSchema }),
-  // TODO: remove
-  formData: field({ type: leadDataSchema }),
-  messengerData: field({ type: messengerDataSchema }),
-  uiOptions: field({ type: uiOptionsSchema })
-});
+  'erxes_integrations'
+);

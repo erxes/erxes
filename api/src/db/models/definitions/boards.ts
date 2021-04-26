@@ -1,6 +1,8 @@
 import { Document, Schema } from 'mongoose';
+import { customFieldSchema, ICustomField } from './common';
 import {
   BOARD_STATUSES,
+  BOARD_STATUSES_OPTIONS,
   BOARD_TYPES,
   HACK_SCORING_TYPES,
   PIPELINE_VISIBLITIES,
@@ -22,6 +24,7 @@ export interface IItemCommonFields {
   companyIds?: string[];
   customerIds?: string[];
   closeDate?: Date;
+  stageChangedDate?: Date;
   description?: string;
   assignedUserIds?: string[];
   watchedUserIds?: string[];
@@ -37,13 +40,14 @@ export interface IItemCommonFields {
   order?: number;
   searchText?: string;
   priority?: string;
-  sourceConversationId?: string;
+  sourceConversationIds?: string[];
   status?: string;
   timeTrack?: {
     status: string;
     timeSpent: number;
     startDate?: string;
   };
+  customFieldsData?: ICustomField[];
 }
 
 export interface IItemCommonFieldsDocument extends IItemCommonFields, Document {
@@ -60,6 +64,7 @@ export interface IItemDragCommonFields {
 
 export interface IBoard extends ICommonFields {
   name?: string;
+  pipelines?: IPipeline[];
 }
 
 export interface IBoardDocument extends IBoard, Document {
@@ -109,10 +114,10 @@ export interface IOrderInput {
 
 export const attachmentSchema = new Schema(
   {
-    name: field({ type: String, label: 'Name' }),
-    url: field({ type: String, label: 'Url' }),
-    type: field({ type: String, label: 'Type' }),
-    size: field({ type: Number, optional: true, label: 'Size' })
+    name: field({ type: String }),
+    url: field({ type: String }),
+    type: field({ type: String }),
+    size: field({ type: Number, optional: true })
   },
   { _id: false }
 );
@@ -149,33 +154,45 @@ const timeTrackSchema = new Schema(
 
 export const commonItemFieldsSchema = {
   _id: field({ pkey: true }),
-  userId: field({ type: String, label: 'Created by' }),
-  createdAt: field({ type: Date, label: 'Created at' }),
-  order: field({ type: Number, label: 'Order' }),
+  userId: field({ type: String, esType: 'keyword' }),
+  createdAt: field({ type: Date, label: 'Created at', esType: 'date' }),
+  order: field({ type: Number }),
   name: field({ type: String, label: 'Name' }),
-  closeDate: field({ type: Date, label: 'Close date' }),
+  closeDate: field({ type: Date, label: 'Close date', esType: 'date' }),
+  stageChangedDate: field({
+    type: Date,
+    label: 'Stage changed date',
+    esType: 'date'
+  }),
   reminderMinute: field({ type: Number, label: 'Reminder minute' }),
-  isComplete: field({ type: Boolean, default: false, label: 'Is complete' }),
+  isComplete: field({
+    type: Boolean,
+    default: false,
+    label: 'Is complete',
+    esType: 'boolean'
+  }),
   description: field({ type: String, optional: true, label: 'Description' }),
-  assignedUserIds: field({ type: [String], label: 'Assigned users' }),
-  watchedUserIds: field({ type: [String], label: 'Watched users' }),
-  labelIds: field({ type: [String], label: 'Labels' }),
+  assignedUserIds: field({ type: [String], esType: 'keyword' }),
+  watchedUserIds: field({ type: [String], esType: 'keyword' }),
+  labelIds: field({ type: [String], esType: 'keyword' }),
   attachments: field({ type: [attachmentSchema], label: 'Attachments' }),
-  stageId: field({ type: String, label: 'Stage', index: true }),
+  stageId: field({ type: String, index: true }),
   initialStageId: field({
     type: String,
-    optional: true,
-    label: 'Initial stage'
+    optional: true
   }),
   modifiedAt: field({
     type: Date,
     default: new Date(),
-    label: 'Modified at'
+    label: 'Modified at',
+    esType: 'date'
   }),
-  modifiedBy: field({ type: String, label: 'Modified by' }),
+  modifiedBy: field({ type: String, esType: 'keyword' }),
   searchText: field({ type: String, optional: true, index: true }),
   priority: field({ type: String, optional: true, label: 'Priority' }),
+  // TODO remove after migration
   sourceConversationId: field({ type: String, optional: true }),
+  sourceConversationIds: field({ type: [String], optional: true }),
   timeTrack: field({
     type: timeTrackSchema
   }),
@@ -183,7 +200,14 @@ export const commonItemFieldsSchema = {
     type: String,
     enum: BOARD_STATUSES.ALL,
     default: BOARD_STATUSES.ACTIVE,
+    label: 'Status',
+    selectOptions: BOARD_STATUSES_OPTIONS,
     index: true
+  }),
+  customFieldsData: field({
+    type: [customFieldSchema],
+    optional: true,
+    label: 'Custom fields data'
   })
 };
 

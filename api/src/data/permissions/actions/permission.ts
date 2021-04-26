@@ -6,7 +6,7 @@ export const moduleObjects = {
       {
         name: 'brandsAll',
         description: 'All',
-        use: ['showBrands', 'manageBrands']
+        use: ['showBrands', 'manageBrands', 'exportBrands']
       },
       {
         name: 'manageBrands',
@@ -29,7 +29,7 @@ export const moduleObjects = {
       {
         name: 'channelsAll',
         description: 'All',
-        use: ['showChannels', 'manageChannels']
+        use: ['showChannels', 'manageChannels', 'exportChannels']
       },
       {
         name: 'manageChannels',
@@ -212,6 +212,7 @@ export const moduleObjects = {
           'dealsRemove',
           'dealsWatch',
           'dealsArchive',
+          'dealsSort',
           'exportDeals'
         ]
       },
@@ -284,6 +285,10 @@ export const moduleObjects = {
         description: 'Archive all deals in a specific stage'
       },
       {
+        name: 'dealsSort',
+        description: 'Sort all deals in a specific stage'
+      },
+      {
         name: 'exportDeals',
         description: 'Export deals'
       }
@@ -315,6 +320,7 @@ export const moduleObjects = {
           'ticketsRemove',
           'ticketsWatch',
           'ticketsArchive',
+          'ticketsSort',
           'exportTickets'
         ]
       },
@@ -325,6 +331,10 @@ export const moduleObjects = {
       {
         name: 'ticketBoardsAdd',
         description: 'Add ticket board'
+      },
+      {
+        name: 'ticketBoardsEdit',
+        description: 'Edit ticket board'
       },
       {
         name: 'ticketBoardsRemove',
@@ -387,6 +397,10 @@ export const moduleObjects = {
         description: 'Archive all tickets in a specific stage'
       },
       {
+        name: 'ticketsSort',
+        description: 'Sort all tickets in a specific stage'
+      },
+      {
         name: 'exportTickets',
         description: 'Export tickets'
       }
@@ -418,6 +432,7 @@ export const moduleObjects = {
           'growthHacksRemove',
           'growthHacksWatch',
           'growthHacksArchive',
+          'growthHacksSort',
           'growthHackTemplatesAdd',
           'growthHackTemplatesEdit',
           'growthHackTemplatesRemove',
@@ -494,6 +509,10 @@ export const moduleObjects = {
         description: 'Archive all growth hacks in a specific stage'
       },
       {
+        name: 'growthHacksSort',
+        description: 'Sort all growth hacks in a specific stage'
+      },
+      {
         name: 'growthHackTemplatesAdd',
         description: 'Add growth hacking template'
       },
@@ -541,6 +560,7 @@ export const moduleObjects = {
           'tasksRemove',
           'tasksWatch',
           'tasksArchive',
+          'tasksSort',
           'taskUpdateTimeTracking',
           'exportTasks'
         ]
@@ -614,6 +634,10 @@ export const moduleObjects = {
         description: 'Archive all tasks in a specific stage'
       },
       {
+        name: 'tasksSort',
+        description: 'Sort all tasks in a specific stage'
+      },
+      {
         name: 'taskUpdateTimeTracking',
         description: 'Update time tracking for a task'
       },
@@ -625,7 +649,7 @@ export const moduleObjects = {
   },
   engages: {
     name: 'engages',
-    description: 'Engages',
+    description: 'Campaigns',
     actions: [
       {
         name: 'engagesAll',
@@ -642,31 +666,31 @@ export const moduleObjects = {
       },
       {
         name: 'engageMessageSetLive',
-        description: 'Set live engage message'
+        description: 'Set an auto campaign live'
       },
       {
         name: 'engageMessageSetPause',
-        description: 'Set pause engage message'
+        description: 'Pause a campaign'
       },
       {
         name: 'engageMessageSetLiveManual',
-        description: 'Set live engage message manual'
+        description: 'Set a manual campaign live'
       },
       {
         name: 'engageMessageRemove',
-        description: 'Remove engage message'
+        description: 'Remove a campaign'
       },
       {
         name: 'engageMessageEdit',
-        description: 'Edit engage message'
+        description: 'Edit a campaign'
       },
       {
         name: 'engageMessageAdd',
-        description: 'Add engage message'
+        description: 'Add a campaign'
       },
       {
         name: 'showEngagesMessages',
-        description: 'Show engages messages list'
+        description: 'See campaign list'
       }
     ]
   },
@@ -771,7 +795,7 @@ export const moduleObjects = {
       {
         name: 'productsAll',
         description: 'All',
-        use: ['showProducts', 'manageProducts']
+        use: ['showProducts', 'manageProducts', 'productsMerge']
       },
       {
         name: 'manageProducts',
@@ -781,6 +805,10 @@ export const moduleObjects = {
       {
         name: 'showProducts',
         description: 'Show products'
+      },
+      {
+        name: 'productsMerge',
+        description: 'Merge products'
       }
     ]
   },
@@ -1012,7 +1040,8 @@ export const moduleObjects = {
           'showConversations',
           'changeConversationStatus',
           'assignConversation',
-          'conversationMessageAdd'
+          'conversationMessageAdd',
+          'conversationResolveAll'
         ]
       },
       {
@@ -1082,6 +1111,76 @@ export const moduleObjects = {
       {
         name: 'manageWebhooks',
         description: 'Manage webhooks'
+      }
+    ]
+  },
+  skillTypes: {
+    name: 'skillTypes',
+    description: 'Skill Types',
+    actions: [
+      {
+        name: 'skillTypesAll',
+        description: 'All',
+        use: [
+          'getSkillTypes',
+          'createSkillType',
+          'updateSkillType',
+          'removeSkillType',
+          'manageSkillTypes'
+        ]
+      },
+      {
+        name: 'getSkillTypes',
+        description: 'Get skill types'
+      },
+      {
+        name: 'createSkillType',
+        description: 'Create skill type'
+      },
+      {
+        name: 'updateSkillType',
+        description: 'Update skill type'
+      },
+      {
+        name: 'removeSkillType',
+        description: 'Remove skill type'
+      }
+    ]
+  },
+  skills: {
+    name: 'skills',
+    description: 'Skills',
+    actions: [
+      {
+        name: 'skillsAll',
+        description: 'All',
+        use: [
+          'getSkill',
+          'getSkills',
+          'createSkill',
+          'updateSkill',
+          'removeSkill'
+        ]
+      },
+      {
+        name: 'getSkill',
+        description: 'Get skill'
+      },
+      {
+        name: 'getSkills',
+        description: 'Get skills'
+      },
+      {
+        name: 'createSkill',
+        description: 'Create skill'
+      },
+      {
+        name: 'updateSkill',
+        description: 'Update skill'
+      },
+      {
+        name: 'removeSkill',
+        description: 'Remove skill'
       }
     ]
   },

@@ -79,7 +79,7 @@ function ProductSection({
 
   const renderProductName = (productName: string, productId: string) => {
     return renderProductFormModal(
-      <ProductName href={`#${productId}`}>
+      <ProductName>
         {productName}
         <Icon icon="pen-1" />
       </ProductName>,

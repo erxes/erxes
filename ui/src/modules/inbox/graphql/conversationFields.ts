@@ -36,6 +36,7 @@ export default `
     isOnline
     avatar
     firstName
+    middleName
     lastName
     emails
   }
@@ -73,5 +74,6 @@ export default `
     timestamp
     permalink_url
   }
-  productBoardLink
+  isFacebookTaggedMessage
+  customFieldsData
 `;

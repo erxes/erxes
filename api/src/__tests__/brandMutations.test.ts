@@ -86,6 +86,13 @@ describe('Brands mutations', () => {
     await graphqlRequest(mutation, 'brandsRemove', { _id: _brand._id });
 
     expect(await Brands.findOne({ _id: _brand._id })).toBe(null);
+
+    // Remove brand, lead, messenger cache ==============
+    const brand = await brandFactory({ code: '233la' });
+
+    await graphqlRequest(mutation, 'brandsRemove', { _id: brand._id });
+
+    expect(await Brands.findOne({ _id: brand._id })).toBe(null);
   });
 
   test('Manage brand integrations', async () => {

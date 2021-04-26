@@ -1,6 +1,7 @@
 import { Model, model } from 'mongoose';
-import { ConversationMessages, Users } from '.';
+import { ConversationMessages, Fields, Users } from '.';
 import { stream } from '../../data/bulkUtils';
+import { getDocument } from '../../data/resolvers/mutations/cacheUtils';
 import { cleanHtml, sendToWebhook } from '../../data/utils';
 import { CONVERSATION_STATUSES } from './definitions/constants';
 import { IMessageDocument } from './definitions/conversationMessages';
@@ -9,6 +10,7 @@ import {
   IConversation,
   IConversationDocument
 } from './definitions/conversations';
+import { Skills } from './Skills';
 
 export interface IConversationModel extends Model<IConversationDocument> {
   getConversation(_id: string): IConversationDocument;
@@ -66,6 +68,8 @@ export interface IConversationModel extends Model<IConversationDocument> {
 
   removeEngageConversations(engageMessageId: string): any;
 
+  getUserRelevance(args: { skillId: string }): Promise<string>;
+
   resolveAllConversation(
     query: any,
     userId: string
@@ -106,6 +110,9 @@ export const loadClass = () => {
      */
     public static async createConversation(doc: IConversation) {
       const now = new Date();
+      const userRelevance = await this.getUserRelevance({
+        skillId: doc.skillId
+      });
 
       const result = await Conversations.create({
         status: CONVERSATION_STATUSES.NEW,
@@ -114,7 +121,8 @@ export const loadClass = () => {
         createdAt: doc.createdAt || now,
         updatedAt: doc.createdAt || now,
         number: (await Conversations.find().countDocuments()) + 1,
-        messageCount: 0
+        messageCount: 0,
+        ...(userRelevance ? { userRelevance } : {})
       });
 
       await sendToWebhook('create', 'conversation', result);
@@ -128,6 +136,13 @@ export const loadClass = () => {
     public static async updateConversation(_id, doc) {
       if (doc.content) {
         doc.content = cleanHtml(doc.content);
+      }
+
+      if (doc.customFieldsData) {
+        // clean custom field values
+        doc.customFieldsData = await Fields.prepareCustomFieldsData(
+          doc.customFieldsData
+        );
       }
 
       return Conversations.updateOne({ _id }, { $set: doc });
@@ -160,7 +175,7 @@ export const loadClass = () => {
     ) {
       await this.checkExistanceConversations(conversationIds);
 
-      if (!(await Users.findOne({ _id: assignedUserId }))) {
+      if (!(await getDocument('users', { _id: assignedUserId }))) {
         throw new Error(`User not found with id ${assignedUserId}`);
       }
 
@@ -274,10 +289,10 @@ export const loadClass = () => {
       return Conversations.find({
         status: {
           $in: [CONVERSATION_STATUSES.NEW, CONVERSATION_STATUSES.OPEN]
-        },
-        messageCount: { $gt: 1 }
+        }
       });
     }
+
     /**
      * Add participated users
      */
@@ -406,6 +421,30 @@ export const loadClass = () => {
         { $set: { status, closedAt, closedUserId } },
         { multi: true }
       );
+    }
+
+    public static async getUserRelevance(args: { skillId?: string }) {
+      const skill = await Skills.findOne({ _id: args.skillId }).lean();
+
+      if (!skill) {
+        return;
+      }
+
+      const users =
+        (await Users.find({ _id: { $in: skill.memberIds || [] } }).sort({
+          createdAt: 1
+        })) || [];
+
+      if (users.length === 0) {
+        return;
+      }
+
+      const type = args.skillId ? 'SS' : '';
+
+      return users
+        .map(user => user.code + type)
+        .filter(code => code !== '' && code !== undefined)
+        .join('|');
     }
   }
 

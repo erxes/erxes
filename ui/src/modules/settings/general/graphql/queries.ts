@@ -28,9 +28,23 @@ const checkActivateInstallation = `
   }
 `;
 
+const configsGetEmailTemplate = `
+  query configsGetEmailTemplate($name: String) {
+    configsGetEmailTemplate(name: $name)
+  }
+`;
+
+const search = `
+  query search($value: String!) {
+    search(value: $value)
+  }
+`;
+
 export default {
   configs,
   configsConstants,
   configsGetEnv,
-  checkActivateInstallation
+  checkActivateInstallation,
+  configsGetEmailTemplate,
+  search
 };

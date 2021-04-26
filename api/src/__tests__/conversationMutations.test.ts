@@ -1,20 +1,25 @@
-import './setup.ts';
-
 import * as faker from 'faker';
 import * as sinon from 'sinon';
-import messageBroker from '../messageBroker';
-
+import { AUTO_BOT_MESSAGES } from '../data/constants';
+import { IntegrationsAPI } from '../data/dataSources';
+import utils from '../data/utils';
+import { graphqlRequest } from '../db/connection';
 import {
   channelFactory,
   conversationFactory,
   customerFactory,
+  dealFactory,
+  fieldFactory,
   integrationFactory,
+  stageFactory,
   userFactory
 } from '../db/factories';
 import {
+  Conformities,
   ConversationMessages,
   Conversations,
   Customers,
+  Deals,
   Integrations,
   Users
 } from '../db/models';
@@ -23,15 +28,13 @@ import {
   CONVERSATION_STATUSES,
   KIND_CHOICES
 } from '../db/models/definitions/constants';
-
-import { AUTO_BOT_MESSAGES } from '../data/constants';
-import { IntegrationsAPI } from '../data/dataSources';
-import utils from '../data/utils';
-import { graphqlRequest } from '../db/connection';
 import { IConversationDocument } from '../db/models/definitions/conversations';
 import { ICustomerDocument } from '../db/models/definitions/customers';
 import { IIntegrationDocument } from '../db/models/definitions/integrations';
 import { IUserDocument } from '../db/models/definitions/users';
+
+import messageBroker from '../messageBroker';
+import './setup.ts';
 
 const toJSON = value => {
   // sometimes object key order is different even though it has same value.
@@ -86,6 +89,12 @@ describe('Conversation message mutations', () => {
       }
     }
   `;
+
+  const conversationConvertToCardMutation = `
+    mutation conversationConvertToCard($_id: String!, $type: String!, $itemId: String, $itemName: String, $stageId: String) {
+    conversationConvertToCard(_id: $_id, type: $type, itemId: $itemId, itemName: $itemName, stageId: $stageId)
+  }
+`;
 
   let dataSources;
 
@@ -221,6 +230,19 @@ describe('Conversation message mutations', () => {
     expect(response.conversationId).toBe(args.conversationId);
     expect(response.content).toBe(args.content);
     expect(response.internal).toBeTruthy();
+
+    // Mobile notification fail
+    const mock = sinon
+      .stub(utils, 'sendMobileNotification')
+      .throws(new Error('Firebase is not configured'));
+
+    try {
+      await graphqlRequest(addMutation, 'conversationMessageAdd', args);
+    } catch (e) {
+      expect(e.message).toBe('Firebase is not configured');
+    }
+
+    mock.restore();
   });
 
   test('Add lead conversation message', async () => {
@@ -380,6 +402,54 @@ describe('Conversation message mutations', () => {
 
     // telnyx
     args.conversationId = telnyxConversation._id;
+
+    try {
+      await graphqlRequest(addMutation, 'conversationMessageAdd', args, {
+        dataSources
+      });
+    } catch (e) {
+      expect(e).toBeDefined();
+    }
+
+    // long sms content that is split
+    try {
+      args.content = faker.lorem.paragraph();
+
+      await graphqlRequest(addMutation, 'conversationMessageAdd', args, {
+        dataSources
+      });
+    } catch (e) {
+      expect(e).toBeDefined();
+    }
+
+    mock.restore();
+
+    const mock2 = sinon
+      .stub(messageBroker(), 'sendRPCMessage')
+      .callsFake(() => {
+        throw new Error();
+      });
+
+    try {
+      await graphqlRequest(addMutation, 'conversationMessageAdd', args, {
+        dataSources
+      });
+    } catch (e) {
+      expect(e).toBeDefined();
+    }
+
+    mock2.restore();
+  });
+
+  test('Add conversation message using third party integration with error', async () => {
+    const mock = sinon.stub(messageBroker(), 'sendRPCMessage').callsFake(() => {
+      throw new Error();
+    });
+
+    const args = {
+      conversationId: facebookConversation._id,
+      content: 'content'
+    };
 
     try {
       await graphqlRequest(addMutation, 'conversationMessageAdd', args, {
@@ -780,44 +850,6 @@ describe('Conversation message mutations', () => {
     mock.restore();
   });
 
-  test('Create product board note', async () => {
-    const mutation = `
-      mutation conversationCreateProductBoardNote($_id: String!) {
-        conversationCreateProductBoardNote(_id: $_id) 
-      }
-    `;
-
-    const conversation = await conversationFactory();
-
-    try {
-      await graphqlRequest(
-        mutation,
-        'conversationCreateProductBoardNote',
-        { _id: conversation._id },
-        { dataSources }
-      );
-    } catch (e) {
-      expect(e[0].message).toBe('Integrations api is not running');
-    }
-
-    const mock = sinon
-      .stub(dataSources.IntegrationsAPI, 'createProductBoardNote')
-      .callsFake(() => {
-        return Promise.resolve('productBoardLink');
-      });
-
-    const response = await graphqlRequest(
-      mutation,
-      'conversationCreateProductBoardNote',
-      { _id: conversation._id },
-      { dataSources }
-    );
-
-    expect(response).toBe('productBoardLink');
-
-    mock.restore();
-  });
-
   test('Change conversation operator status', async () => {
     const conversation = await conversationFactory({
       operatorStatus: CONVERSATION_OPERATOR_STATUS.BOT
@@ -865,5 +897,124 @@ describe('Conversation message mutations', () => {
     } else {
       fail('Conversation not found to update operator status');
     }
+  });
+
+  test('Convert conversation to card', async () => {
+    const conversation = await conversationFactory({
+      assignedUserId: user._id
+    });
+    const stage = await stageFactory({ type: 'deal' });
+
+    await graphqlRequest(
+      conversationConvertToCardMutation,
+      'conversationConvertToCard',
+      {
+        _id: conversation._id,
+        type: 'deal',
+        itemName: 'test deal',
+        stageId: stage._id
+      },
+      { dataSources }
+    );
+
+    const deal = await Deals.findOne({
+      sourceConversationIds: { $in: [conversation._id] }
+    });
+
+    if (!deal) {
+      fail('deal not found');
+    }
+
+    const conformity = await Conformities.findOne({
+      mainType: 'deal',
+      mainTypeId: deal && deal._id,
+      relType: 'customer'
+    });
+
+    if (!conformity) {
+      fail('conformity not found');
+    }
+
+    expect(deal).toBeDefined();
+    expect(deal.assignedUserIds).toContain(user._id);
+    expect(conformity).toBeDefined();
+    expect(conformity.relTypeId).toBe(conversation.customerId);
+    expect(deal.sourceConversationIds).toContain(conversation._id);
+  });
+
+  test('Convert conversation to existing card', async () => {
+    const assignedUser = await userFactory({});
+
+    const stage = await stageFactory({ type: 'deal' });
+
+    const oldConversation = await conversationFactory({});
+    const newConversation = await conversationFactory({
+      assignedUserId: assignedUser._id
+    });
+
+    const deal = await dealFactory({
+      sourceConversationIds: [oldConversation._id],
+      stageId: stage._id,
+      assignedUserIds: [user._id]
+    });
+
+    await graphqlRequest(
+      conversationConvertToCardMutation,
+      'conversationConvertToCard',
+      {
+        _id: newConversation._id,
+        type: 'deal',
+        itemId: deal._id,
+        stageId: stage._id
+      },
+      { dataSources }
+    );
+
+    const updatedDeal = await Deals.getDeal(deal._id);
+
+    const sourcesIds = updatedDeal.sourceConversationIds || [];
+
+    expect(updatedDeal).toBeDefined();
+    expect(sourcesIds.length).toEqual(2);
+  });
+
+  test('Conversation conversationEditCustomFields', async () => {
+    const conversation = await conversationFactory();
+    const field = await fieldFactory({ type: 'input', validation: 'number' });
+
+    const mutation = `
+    mutation conversationEditCustomFields($_id: String!, $customFieldsData: JSON) {
+      conversationEditCustomFields(_id: $_id, customFieldsData: $customFieldsData) {
+        _id
+      }
+    }
+  `;
+
+    await graphqlRequest(
+      mutation,
+      'conversationEditCustomFields',
+      {
+        _id: conversation._id,
+        customFieldsData: [
+          {
+            field: field._id,
+            value: 123
+          }
+        ]
+      },
+      { dataSources }
+    );
+
+    const response = await Conversations.getConversation(conversation._id);
+
+    const { customFieldsData } = response;
+
+    if (!customFieldsData) {
+      fail('customFieldsData not saved');
+    }
+
+    expect(response).toBeDefined();
+    expect(customFieldsData.length).toEqual(1);
+    expect(customFieldsData[0].value).toBe(123);
   });
 });

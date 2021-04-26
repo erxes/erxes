@@ -4,15 +4,16 @@ import Bulk from 'modules/common/components/Bulk';
 import { IRouterProps } from 'modules/common/types';
 import { Alert, confirm, withProps } from 'modules/common/utils';
 import { generatePaginationParams } from 'modules/common/utils/router';
+import { INTEGRATION_KINDS } from 'modules/settings/integrations/constants';
 import { mutations as integrationMutations } from 'modules/settings/integrations/graphql/index';
 import { ArchiveIntegrationResponse } from 'modules/settings/integrations/types';
 import React from 'react';
 import { graphql } from 'react-apollo';
 import routerUtils from '../../common/utils/router';
-import { TagsQueryResponse } from '../../tags/types';
 import List from '../components/List';
 import { mutations, queries } from '../graphql';
 import {
+  CopyMutationResponse,
   CountQueryResponse,
   LeadIntegrationsQueryResponse,
   RemoveMutationResponse,
@@ -24,12 +25,12 @@ type Props = {
 };
 
 type FinalProps = {
-  integrationsTotalCountQuery: CountQueryResponse;
   integrationsQuery: LeadIntegrationsQueryResponse;
-  tagsQuery: TagsQueryResponse;
+  integrationsTotalCountQuery: CountQueryResponse;
 } & RemoveMutationResponse &
   ArchiveIntegrationResponse &
   IRouterProps &
+  CopyMutationResponse &
   Props;
 
 class ListContainer extends React.Component<FinalProps> {
@@ -44,32 +45,31 @@ class ListContainer extends React.Component<FinalProps> {
   }
 
   refetch = () => {
-    const { integrationsQuery, integrationsTotalCountQuery } = this.props;
+    const { integrationsQuery } = this.props;
 
     integrationsQuery.refetch();
-    integrationsTotalCountQuery.refetch();
   };
 
   render() {
     const {
       integrationsQuery,
       integrationsTotalCountQuery,
-      tagsQuery,
       removeMutation,
+      copyMutation,
       archiveIntegration
     } = this.props;
 
-    const counts = integrationsTotalCountQuery.integrationsTotalCount || {
-      byKind: {}
-    };
-    const totalCount = counts.byKind.lead || 0;
-    const tagsCount = counts.byTag || {};
-
     const integrations = integrationsQuery.integrations || [];
+
+    const counts = integrationsTotalCountQuery
+      ? integrationsTotalCountQuery.integrationsTotalCount
+      : null;
+
+    const totalCount = (counts && counts.total) || 0;
 
     const remove = (integrationId: string) => {
       const message =
-        'If you remove a pop ups, then all related conversations, customers will also be removed. Are you sure?';
+        'If you delete a form, all previous submissions and contacts gathered through this form will also be deleted. Are you sure?';
 
       confirm(message).then(() => {
         removeMutation({
@@ -79,7 +79,7 @@ class ListContainer extends React.Component<FinalProps> {
             // refresh queries
             this.refetch();
 
-            Alert.success('You successfully deleted a pop ups.');
+            Alert.success('You successfully deleted a form.');
           })
           .catch(e => {
             Alert.error(e.message);
@@ -88,11 +88,11 @@ class ListContainer extends React.Component<FinalProps> {
     };
 
     const archive = (integrationId: string, status: boolean) => {
-      let message = `If you archive a pop ups, then you won't be able to see customers & conversations related to this pop ups anymore. Are you sure?`;
+      let message = `If you archive this form, the live form on your website or erxes messenger will no longer be visible. But you can still see the contacts and submissions you've received.`;
       let action = 'archived';
 
       if (!status) {
-        message = 'You are going to unarchive this pop ups. Are you sure?';
+        message = 'You are going to unarchive this form. Are you sure?';
         action = 'unarchived';
       }
 
@@ -102,7 +102,7 @@ class ListContainer extends React.Component<FinalProps> {
             const integration = data.integrationsArchive;
 
             if (integration) {
-              Alert.success(`Pop ups has been ${action}.`);
+              Alert.success(`Form has been ${action}.`);
             }
 
             this.refetch();
@@ -113,15 +113,31 @@ class ListContainer extends React.Component<FinalProps> {
       });
     };
 
+    const copy = (integrationId: string) => {
+      copyMutation({
+        variables: { _id: integrationId }
+      })
+        .then(() => {
+          // refresh queries
+          this.refetch();
+
+          Alert.success('You successfully copied a form.');
+        })
+        .catch(e => {
+          Alert.error(e.message);
+        });
+    };
+
     const updatedProps = {
       ...this.props,
       integrations,
+      counts,
+      totalCount,
       remove,
       loading: integrationsQuery.loading,
-      totalCount,
-      tagsCount,
-      tags: tagsQuery.tags || [],
-      archive
+      archive,
+      copy,
+      refetch: this.refetch
     };
 
     const content = props => {
@@ -137,7 +153,14 @@ export default withProps<Props>(
     graphql<
       Props,
       LeadIntegrationsQueryResponse,
-      { page?: number; perPage?: number; tag?: string; kind?: string }
+      {
+        page?: number;
+        perPage?: number;
+        tag?: string;
+        kind?: string;
+        brand?: string;
+        status?: string;
+      }
     >(gql(queries.integrations), {
       name: 'integrationsQuery',
       options: ({ queryParams }) => {
@@ -145,21 +168,12 @@ export default withProps<Props>(
           variables: {
             ...generatePaginationParams(queryParams),
             tag: queryParams.tag,
-            kind: 'lead'
+            brandId: queryParams.brand,
+            kind: INTEGRATION_KINDS.FORMS,
+            status: queryParams.status
           }
         };
       }
-    }),
-    graphql<Props, CountQueryResponse>(gql(queries.integrationsTotalCount), {
-      name: 'integrationsTotalCountQuery'
-    }),
-    graphql<Props, TagsQueryResponse, { type: string }>(gql(queries.tags), {
-      name: 'tagsQuery',
-      options: () => ({
-        variables: {
-          type: 'integration'
-        }
-      })
     }),
     graphql<Props, RemoveMutationResponse, RemoveMutationVariables>(
       gql(mutations.integrationRemove),
@@ -172,6 +186,20 @@ export default withProps<Props>(
       {
         name: 'archiveIntegration'
       }
-    )
+    ),
+    graphql(gql(mutations.formCopy), {
+      name: 'copyMutation'
+    }),
+    graphql<Props, CountQueryResponse>(gql(queries.integrationsTotalCount), {
+      name: 'integrationsTotalCountQuery',
+      options: ({ queryParams }) => ({
+        variables: {
+          kind: INTEGRATION_KINDS.FORMS,
+          tag: queryParams.tag,
+          brandId: queryParams.brand,
+          status: queryParams.status
+        }
+      })
+    })
   )(ListContainer)
 );

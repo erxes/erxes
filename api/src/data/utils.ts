@@ -9,8 +9,9 @@ import * as path from 'path';
 import * as puppeteer from 'puppeteer';
 import * as strip from 'strip';
 import * as xlsxPopulate from 'xlsx-populate';
-import * as models from '../db/models'
+import * as models from '../db/models';
 import {
+  Companies,
   Customers,
   OnboardingHistories,
   Users,
@@ -20,7 +21,7 @@ import { IBrandDocument } from '../db/models/definitions/brands';
 import { WEBHOOK_STATUS } from '../db/models/definitions/constants';
 import { ICustomer } from '../db/models/definitions/customers';
 import { IUser, IUserDocument } from '../db/models/definitions/users';
-import { debugBase } from '../debuggers';
+import { debugBase, debugError } from '../debuggers';
 import memoryStorage from '../inmemoryStorage';
 import { graphqlPubsub } from '../pubsub';
 import { fieldsCombinedByContentType } from './modules/fields/utils';
@@ -124,7 +125,7 @@ export const checkFile = async (file, source?: string) => {
 /**
  * Create AWS instance
  */
-const createAWS = async () => {
+export const createAWS = async () => {
   const AWS_ACCESS_KEY_ID = await getConfig('AWS_ACCESS_KEY_ID');
   const AWS_SECRET_ACCESS_KEY = await getConfig('AWS_SECRET_ACCESS_KEY');
   const AWS_BUCKET = await getConfig('AWS_BUCKET');
@@ -479,7 +480,7 @@ export const readFile = utils.readFile;
  * Create default or ses transporter
  */
 export const createTransporter = async ({ ses }) => {
-  return utils.createTransporter(models, memoryStorage, { ses })
+  return utils.createTransporter(models, memoryStorage, { ses });
 };
 
 export type IEmailParams = IEmailParamsC;
@@ -493,8 +494,8 @@ interface IReplacer {
  */
 export const replaceEditorAttributes = async (args: {
   content: string;
-  customer?: ICustomer;
-  user?: IUser;
+  customer?: ICustomer | null;
+  user?: IUser | null;
   customerFields?: string[];
   brand?: IBrandDocument;
 }): Promise<{
@@ -502,35 +503,48 @@ export const replaceEditorAttributes = async (args: {
   replacedContent?: string;
   customerFields?: string[];
 }> => {
-  const { content, customer, user, brand } = args;
+  const { content, user, brand } = args;
+  const customer = args.customer || {};
 
   const replacers: IReplacer[] = [];
 
   let replacedContent = content || '';
   let customerFields = args.customerFields;
 
+  const customFieldsData = customer.customFieldsData || [];
+
   if (!customerFields || customerFields.length === 0) {
     const possibleCustomerFields = await fieldsCombinedByContentType({
       contentType: 'customer'
     });
 
-    customerFields = ['firstName', 'lastName'];
+    customerFields = ['firstName', 'lastName', 'middleName'];
 
     for (const field of possibleCustomerFields) {
       if (content.includes(`{{ customer.${field.name} }}`)) {
         if (field.name.includes('trackedData')) {
           customerFields.push('trackedData');
+
           continue;
         }
 
         if (field.name.includes('customFieldsData')) {
+          const fieldId = field.name.split('.').pop();
+
+          if (!customFieldsData.find(e => e.field === fieldId)) {
+            customFieldsData.push({ field: fieldId || '', value: '' });
+          }
+
           customerFields.push('customFieldsData');
+
           continue;
         }
 
         customerFields.push(field.name);
       }
     }
+
+    customer.customFieldsData = customFieldsData;
   }
 
   // replace customer fields
@@ -695,8 +709,7 @@ export const sendMobileNotification = async ({
     body,
     customerId,
     conversationId
-
-  })
+  });
 };
 
 export const paginate = utils.paginate;
@@ -747,7 +760,14 @@ export const sendToWebhook = async (
         'Erxes-token': webhook.token || ''
       },
       method: 'post',
-      body: { data: JSON.stringify(data), action, type }
+      body: {
+        data: JSON.stringify(data),
+        text: `${type}:${action} action has triggered. \ data: ${JSON.stringify(
+          data
+        )}`,
+        action,
+        type
+      }
     })
       .then(async () => {
         await Webhooks.updateStatus(webhook._id, WEBHOOK_STATUS.AVAILABLE);
@@ -880,4 +900,106 @@ export const getErxesSaasDomain = () => {
   return NODE_ENV === 'production'
     ? 'https://erxes.io'
     : 'http://localhost:3500';
+};
+
+/**
+ * Escaping, special characters
+ */
+export const escapeRegExp = (str: string) => {
+  return str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+};
+
+export const routeErrorHandling = (fn, callback?: any) => {
+  return async (req, res, next) => {
+    try {
+      await fn(req, res, next);
+    } catch (e) {
+      debugError(e.message);
+
+      if (callback) {
+        return callback(res, e, next);
+      }
+
+      return next(e);
+    }
+  };
+};
+
+export const isUsingElk = () => {
+  const ELK_SYNCER = getEnv({ name: 'ELK_SYNCER', defaultValue: 'true' });
+
+  return ELK_SYNCER === 'false' ? false : true;
+};
+
+/**
+ * Splits text into chunks of strings limited by given character count
+ * .{1,100}(\s|$)
+ * . - matches any character (except for line terminators)
+ * {1,100} - matches the previous token between 1 and 100 times, as many times as possible, giving back as needed (greedy)
+ * (\s|$) - capturing group
+ * \s - matches any whitespace character
+ * $ - asserts position at the end of the string
+ *
+ * @param str text to be split
+ * @param size character length of each chunk
+ */
+export const splitStr = (str: string, size: number): string[] => {
+  const cleanStr = strip(str);
+
+  return cleanStr.match(new RegExp(new RegExp(`.{1,${size}}(\s|$)`, 'g')));
+};
+
+export const findCustomer = async doc => {
+  let customer;
+
+  if (doc.customerPrimaryEmail) {
+    customer = await Customers.findOne({
+      $or: [
+        { emails: { $in: [doc.customerPrimaryEmail] } },
+        { primaryEmail: doc.customerPrimaryEmail }
+      ]
+    });
+  }
+
+  if (!customer && doc.customerPrimaryPhone) {
+    customer = await Customers.findOne({
+      $or: [
+        { phones: { $in: [doc.customerPrimaryPhone] } },
+        { primaryPhone: doc.customerPrimaryPhone }
+      ]
+    });
+  }
+
+  if (!customer && doc.customerPrimaryPhone) {
+    customer = await Customers.findOne({ code: doc.customerPrimaryPhone });
+  }
+
+  return customer;
+};
+
+export const findCompany = async doc => {
+  let company;
+
+  if (doc.companyPrimaryEmail) {
+    company = await Companies.findOne({
+      $or: [
+        { emails: { $in: [doc.companyPrimaryEmail] } },
+        { primaryEmail: doc.companyPrimaryEmail }
+      ]
+    });
+  }
+
+  if (!company && doc.companyPrimaryPhone) {
+    company = await Companies.findOne({
+      $or: [
+        { phones: { $in: [doc.companyPrimaryPhone] } },
+        { primaryPhone: doc.companyPrimaryPhone }
+      ]
+    });
+  }
+
+  if (!company && doc.companyPrimaryName) {
+    company = await Companies.findOne({ primaryName: doc.companyPrimaryName });
+  }
+  return company;
 };

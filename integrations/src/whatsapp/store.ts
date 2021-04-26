@@ -1,6 +1,6 @@
 import { ConversationMessages, Conversations, Customers } from './models';
 
-import { debugWhatsapp } from '../debuggers';
+import { debugError } from '../debuggers';
 import { sendRPCMessage } from '../messageBroker';
 import { Integrations } from '../models';
 
@@ -102,7 +102,7 @@ export const createOrUpdateConversation = async (
   } catch (e) {
     await Conversations.deleteOne({ _id: conversation._id });
 
-    debugWhatsapp(
+    debugError(
       `Error ocurred while trying to create or update conversation ${e.message}`
     );
 

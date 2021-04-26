@@ -3,6 +3,7 @@ import Tip from 'modules/common/components/Tip';
 import WithPermission from 'modules/common/components/WithPermission';
 import { colors, dimensions } from 'modules/common/styles';
 import { __, getEnv, setBadge } from 'modules/common/utils';
+import { pluginsOfNavigations } from 'pluginUtils';
 import React from 'react';
 import { NavLink } from 'react-router-dom';
 import styled from 'styled-components';
@@ -143,7 +144,7 @@ class Navigation extends React.Component<{
     label?: React.ReactNode
   ) => {
     return (
-      <WithPermission action={permission}>
+      <WithPermission key={url} action={permission}>
         <Tip placement="right" text={text}>
           <NavLink to={url}>
             <NavIcon className={icon} />
@@ -170,11 +171,11 @@ class Navigation extends React.Component<{
         </NavLink>
         {REACT_APP_DASHBOARD_URL !== 'undefined'
           ? this.renderNavItem(
-            'showDashboards',
-            __('Dashboard'),
-            '/dashboard',
-            'icon-dashboard'
-          )
+              'showDashboards',
+              __('Dashboard'),
+              '/dashboard',
+              'icon-dashboard'
+            )
           : null}
         <Nav id="navigation">
           {this.renderNavItem(
@@ -204,14 +205,14 @@ class Navigation extends React.Component<{
           )}
           {this.renderNavItem(
             'showForms',
-            __('Pop ups'),
-            '/leads',
+            __('Forms'),
+            '/forms',
             'icon-laptop'
           )}
           {this.renderNavItem(
             'showEngagesMessages',
-            __('Engage'),
-            '/engage',
+            __('Campaigns'),
+            '/campaigns',
             'icon-megaphone'
           )}
           {this.renderNavItem(
@@ -221,6 +222,7 @@ class Navigation extends React.Component<{
             'icon-book'
           )}
 
+          {pluginsOfNavigations(this.renderNavItem)}
         </Nav>
       </LeftNavigation>
     );

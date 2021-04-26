@@ -40,7 +40,9 @@ class Condition extends React.Component<Props, {}> {
       value: item.name || item._id,
       label: item.label || item.title,
       type: (item.type || '').toLowerCase(),
-      selectOptions: item.selectOptions || []
+      selectOptions: item.selectOptions || [],
+      // radio button options
+      choiceOptions: item.options || []
     }));
 
     const filter = {

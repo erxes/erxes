@@ -5,8 +5,12 @@ export type generatedList = {
   label?: string;
 };
 
-export const generateModuleParams = (lists: IModule[]): generatedList[] => {
-  return lists.map(item => ({
+export const generateModuleParams = (list: IModule[]): generatedList[] => {
+  const sortedList = list.sort((a, b) => {
+    return (a.description || '').localeCompare(b.description || '');
+  });
+
+  return sortedList.map(item => ({
     value: item.name,
     label: item.description
   }));

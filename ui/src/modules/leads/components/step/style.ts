@@ -9,13 +9,13 @@ import { Embedded, PreviewContainer, SlideLeftContent } from './preview/styles';
 const Space = `${dimensions.unitSpacing + dimensions.coreSpacing}px`;
 
 const Box = styledTS<{ selected?: boolean }>(styled(BoxRoot))`
-  padding: ${dimensions.coreSpacing * 2}px;
+  padding: ${dimensions.coreSpacing * 1.5}px;
   width: 50%;
-  background: ${colors.bgLight};
+  background: ${colors.colorWhite};
   min-width: 160px;
 
   i {
-    font-size: 36px;
+    font-size: 34px;
     color: ${colors.colorSecondary};
   }
 
@@ -43,6 +43,7 @@ const FullPreview = styled.div`
   flex: 1;
   display: flex;
   flex-direction: column;
+  justify-content: space-between;
   padding: ${dimensions.coreSpacing}px;
   overflow: auto;
 `;
@@ -83,7 +84,7 @@ const ImageUpload = styled.div`
   display: flex;
   justify-content: center;
   align-items: center;
-  min-height: 200px;
+  min-height: 120px;
   position: relative;
   padding: 10px;
   transition: border ease 0.3s;
@@ -99,7 +100,7 @@ const ImageUpload = styled.div`
     cursor: pointer;
 
     i {
-      font-size: 26px;
+      font-size: 22px;
       display: block;
       color: ${colors.colorCoreGray};
       margin-bottom: 5px;
@@ -254,7 +255,7 @@ const Tabs = styledTS<{ selected?: boolean }>(styled.div)`
 
 const FlexColumn = styled.div`
   display: flex;
-  min-width: 43.33333%;
+  flex: 1;
   flex-direction: column;
 
   ${ContentHeader} {
@@ -263,9 +264,28 @@ const FlexColumn = styled.div`
   }
 `;
 
-const ColorList = styled.ul`
-  list-style: none;
-  padding: 0;
+const PreviewWrapper = styled.div`
+  width: 40%;
+  background: ${colors.colorWhite};
+  margin-left: 5px;
+
+  ${TabletPreview} {
+    background-size: contain;
+    width: 85%;
+    height: 100%;
+
+    ${PreviewContainer} {
+      max-height: 600px;
+    }
+
+    @media (max-width: 1400px) {
+      padding: 40px 10px;
+    }
+  }
+`;
+
+const LabelWrapper = styled.div`
+  margin-bottom: 10px;
 `;
 
 export {
@@ -282,7 +302,8 @@ export {
   Tabs,
   CarouselInner,
   FullPreview,
+  PreviewWrapper,
   ImageUpload,
   ImagePreview,
-  ColorList
+  LabelWrapper
 };

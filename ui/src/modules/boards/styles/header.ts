@@ -1,4 +1,5 @@
 import { colors, dimensions } from 'modules/common/styles';
+import { BarItems as BarItemsCommon } from 'modules/layout/styles';
 import styled, { css } from 'styled-components';
 import styledTS from 'styled-components-ts';
 
@@ -114,5 +115,14 @@ export const HeaderLink = styled(HeaderButton)`
     &:hover {
       color: ${colors.colorCoreDarkGray};
     }
+  }
+`;
+
+export const BarItems = styled(BarItemsCommon)`
+  .dropdown-menu {
+    max-height: 360px;
+    max-height: calc(100vh - 120px);
+    overflow: auto;
+    background: ${colors.colorWhite};
   }
 `;

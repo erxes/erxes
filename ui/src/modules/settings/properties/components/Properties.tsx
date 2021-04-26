@@ -12,9 +12,11 @@ import Dropdown from 'react-bootstrap/Dropdown';
 import PropertyForm from '../containers/PropertyForm';
 import PropertyGroupForm from '../containers/PropertyGroupForm';
 import { PropertyList } from '../styles';
-import { IFieldGroup } from '../types';
+import { IFieldGroup, IField } from '../types';
 import PropertyRow from './PropertyRow';
 import Sidebar from './Sidebar';
+import SortableList from 'modules/common/components/SortableList';
+// import { collectOrders } from "modules/boards/utils";
 
 type Props = {
   queryParams: any;
@@ -24,51 +26,119 @@ type Props = {
   removePropertyGroup: (data: { _id: string }) => any;
   removeProperty: (data: { _id: string }) => void;
   updatePropertyVisible: (data: { _id: string; isVisible: boolean }) => void;
+  updatePropertyDetailVisible: (data: {
+    _id: string;
+    isVisibleInDetail: boolean;
+  }) => void;
   updatePropertyGroupVisible: (data: {
     _id: string;
     isVisible: boolean;
   }) => void;
+  updateFieldOrder: (fields: IField[]) => any;
+  updateGroupOrder: (groups: IFieldGroup[]) => void;
 };
 
-class Properties extends React.Component<Props> {
-  renderProperties = () => {
+class Properties extends React.Component<
+  Props,
+  { fieldsGroups: IFieldGroup[] }
+> {
+  constructor(props: Props) {
+    super(props);
+
+    const { fieldsGroups = [] } = props;
+
+    this.state = {
+      fieldsGroups: fieldsGroups.filter(gro => !gro.isDefinedByErxes)
+    };
+  }
+
+  componentWillReceiveProps(nextProps) {
+    if (this.props.fieldsGroups !== nextProps.fieldsGroups) {
+      this.setState({
+        fieldsGroups: nextProps.fieldsGroups.filter(
+          gro => !gro.isDefinedByErxes
+        )
+      });
+    }
+  }
+
+  onChangeFieldGroups = fieldsGroups => {
+    this.setState({ fieldsGroups }, () => {
+      this.props.updateGroupOrder(this.state.fieldsGroups);
+    });
+  };
+
+  renderRow = group => {
     const {
-      fieldsGroups,
       queryParams,
       removePropertyGroup,
       removeProperty,
-      updatePropertyVisible
+      updatePropertyVisible,
+      updatePropertyDetailVisible,
+      updateFieldOrder
     } = this.props;
+
+    return (
+      <PropertyRow
+        key={group._id}
+        group={group}
+        queryParams={queryParams}
+        removePropertyGroup={removePropertyGroup}
+        removeProperty={removeProperty}
+        updatePropertyVisible={updatePropertyVisible}
+        updateFieldOrder={updateFieldOrder}
+        updatePropertyDetailVisible={updatePropertyDetailVisible}
+      />
+    );
+  };
+
+  renderSortableList = () => {
+    const { fieldsGroups } = this.state;
+
+    if (fieldsGroups.length === 0) {
+      return null;
+    }
+
+    return (
+      <SortableList
+        fields={fieldsGroups}
+        child={group => this.renderRow(group)}
+        onChangeFields={this.onChangeFieldGroups}
+        isModal={true}
+        showDragHandler={false}
+        droppableId="property-group"
+      />
+    );
+  };
+
+  renderProperties = () => {
+    const { fieldsGroups } = this.props;
 
     if (fieldsGroups.length === 0) {
       return (
         <EmptyState
           icon="paragraph"
-          text="There arent't any groups and fields"
+          text="There aren't any groups and fields"
         />
       );
     }
 
+    const defaultGroups = fieldsGroups.filter(group => group.isDefinedByErxes);
+
     return (
       <PropertyList>
-        {fieldsGroups.map(group => {
-          return (
-            <PropertyRow
-              key={group._id}
-              group={group}
-              queryParams={queryParams}
-              removePropertyGroup={removePropertyGroup}
-              removeProperty={removeProperty}
-              updatePropertyVisible={updatePropertyVisible}
-            />
-          );
-        })}
+        {defaultGroups.map(group => this.renderRow(group))}
+        {this.renderSortableList()}
       </PropertyList>
     );
   };
 
   renderActionBar = () => {
     const { queryParams, fieldsGroups, currentType } = this.props;
+
+    if (currentType === 'device') {
+      return null;
+    }
 
     const addGroup = <Dropdown.Item>{__('Add group')}</Dropdown.Item>;
     const addField = <Dropdown.Item>{__('Add Property')}</Dropdown.Item>;
@@ -78,7 +148,7 @@ class Properties extends React.Component<Props> {
     );
 
     const propertyContent = modalProps => {
-      if (fieldsGroups.length === 0) {
+      if (fieldsGroups.filter(e => !e.isDefinedByErxes).length === 0) {
         return <div>{__('Please add property Group first')}!</div>;
       }
 

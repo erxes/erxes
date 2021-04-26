@@ -37,7 +37,8 @@ export const types = `
     participatedUsers: [User]
     participatorCount: Int
     videoCallData: VideoCallData
-    productBoardLink: String
+    isFacebookTaggedMessage: Boolean
+    customFieldsData: JSON
   }
 
   type EngageData {
@@ -152,7 +153,7 @@ export const types = `
   }
 
   type ConversationAdminMessageInsertedResponse {
-    customerId: String!
+    customerId: String
     unreadCount: Int
   }
 
@@ -242,6 +243,7 @@ export const mutations = `
     internal: Boolean,
     attachments: [AttachmentInput],
     contentType: String
+    facebookMessageTag: String
   ): ConversationMessage
   conversationsReplyFacebookComment(conversationId: String, commentId: String, content: String): FacebookComment
   conversationsChangeStatusFacebookComment(commentId: String): FacebookComment
@@ -251,8 +253,9 @@ export const mutations = `
   conversationMarkAsRead(_id: String): Conversation
   conversationDeleteVideoChatRoom(name: String!): Boolean
   conversationCreateVideoChatRoom(_id: String!): VideoCallData
-  conversationCreateProductBoardNote(_id: String!): String
   changeConversationOperator(_id: String! operatorStatus: String!): JSON
   conversationResolveAll(${mutationFilterParams}): Int
   conversationsSaveVideoRecordingInfo(conversationId: String!, recordingId: String): String
+  conversationConvertToCard(_id: String!, type: String!, itemId: String, itemName: String, stageId: String): String
+  conversationEditCustomFields(_id: String!, customFieldsData: JSON): Conversation
 `;

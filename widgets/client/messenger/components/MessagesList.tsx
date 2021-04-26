@@ -30,6 +30,7 @@ type Props = {
   ) => void;
   isLoggedIn: () => boolean;
   getColor?: string;
+  onSelectSkill: (skillId: string) => void;
   toggleVideoCall: () => void;
   replyAutoAnswer: (message: string, payload: string, type: string) => void;
   sendTypingInfo: (conversationId: string, text: string) => void;
@@ -40,11 +41,14 @@ type Props = {
   sendMessage: (contentType: string, message: string) => void;
   showVideoCallRequest: boolean;
   botTyping?: boolean;
+  selectedSkill?: string | null;
+  errorMessage: string;
 };
 
 type State = {
   hideNotifyInput: boolean;
-  initialMessage: { bodData: IBotData } | null;
+  initialMessage: { botData: IBotData } | null;
+  skillResponse: string | null;
 };
 
 class MessagesList extends React.Component<Props, State> {
@@ -54,20 +58,29 @@ class MessagesList extends React.Component<Props, State> {
   constructor(props: Props) {
     super(props);
 
-    this.state = { hideNotifyInput: false, initialMessage: null };
+    this.state = {
+      hideNotifyInput: false,
+      initialMessage: null,
+      skillResponse: null
+    };
+
     this.onNotify = this.onNotify.bind(this);
   }
 
   componentDidMount() {
-    const { messengerData, messages, getBotInitialMessage, conversationId = "" } = this.props;
+    const {
+      messengerData,
+      messages,
+      conversationId = '',
+      getBotInitialMessage
+    } = this.props;
 
-    if (
-      messengerData.botShowInitialMessage &&
+    const newConversation =
       messages.length === 0 &&
-      (!conversationId ||
-      (conversationId || "").length === 0)
-    ) {
-      getBotInitialMessage((initialMessage) => {
+      (!conversationId || (conversationId || '').length === 0);
+
+    if (messengerData.botShowInitialMessage && newConversation) {
+      getBotInitialMessage(initialMessage => {
         this.setState({ initialMessage });
       });
     }
@@ -110,6 +123,12 @@ class MessagesList extends React.Component<Props, State> {
     });
   };
 
+  handleSkillSelect(skillId: string, response: string) {
+    this.setState({ skillResponse: response });
+    this.props.onSelectSkill(skillId);
+    this.props.inputFocus();
+  }
+
   renderBotGreetingMessage(messengerData: IIntegrationMessengerData) {
     const { initialMessage } = this.state;
 
@@ -129,7 +148,9 @@ class MessagesList extends React.Component<Props, State> {
       return null;
     }
 
-    return <li className="erxes-spacial-message away">{messages.away}</li>;
+    return (
+      <li className="erxes-spacial-message right away">{messages.away}</li>
+    );
   }
 
   renderNotifyInput(messengerData: IIntegrationMessengerData) {
@@ -144,14 +165,14 @@ class MessagesList extends React.Component<Props, State> {
         messengerData.messages || ({} as IIntegrationMessengerDataMessagesItem);
 
       return (
-        <li className="erxes-spacial-message">
+        <li className="erxes-spacial-message with-background">
           <span> {messages.thank || __('Thank you') + '.'}</span>
         </li>
       );
     }
 
     return (
-      <li className="erxes-spacial-message auth">
+      <li className="erxes-spacial-message with-background auth">
         <AccquireInformation
           save={this.onNotify}
           color={getColor}
@@ -171,8 +192,67 @@ class MessagesList extends React.Component<Props, State> {
       return null;
     }
 
-    return <li className="erxes-spacial-message">{messages.welcome}</li>;
+    return <li className="erxes-spacial-message right">{messages.welcome}</li>;
   }
+
+  renderSkillOptionsMessage(messengerData: IIntegrationMessengerData) {
+    const { conversationId, messages } = this.props;
+
+    const newConversation =
+      messages.length === 0 &&
+      (!conversationId || (conversationId || '').length === 0);
+
+    if (
+      !messengerData.skillData ||
+      !newConversation ||
+      this.props.selectedSkill
+    ) {
+      return null;
+    }
+
+    const { options = [] } = messengerData.skillData;
+    const { uiOptions } = this.props;
+    const { color, textColor = '#fff' } = uiOptions;
+
+    if (options.length === 0) {
+      return null;
+    }
+
+    return (
+      <div className="skill-content">
+        {options.map((option, index) => {
+          const handleClick = () =>
+            this.handleSkillSelect(option.skillId, option.response);
+
+          return (
+            <div key={index}>
+              <div
+                className="skill-card erxes-button"
+                onClick={handleClick}
+                style={{ background: color, color: textColor }}
+              >
+                {option.label}
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    );
+  }
+
+  renderSkillResponse = () => {
+    if (!this.props.selectedSkill || !this.state.skillResponse) {
+      return null;
+    }
+
+    return (
+      <li className="from-customer">
+        <div className="erxes-message from-customer gray">
+          {this.state.skillResponse}
+        </div>
+      </li>
+    );
+  };
 
   renderCallRequest() {
     if (!this.props.showVideoCallRequest) {
@@ -321,6 +401,25 @@ class MessagesList extends React.Component<Props, State> {
     );
   }
 
+  renderErrorMessage() {
+    const { errorMessage } = this.props;
+
+    if (!errorMessage) {
+      return null;
+    }
+
+    return (
+      <li className="from-customer">
+        <div
+          className="app-message-box spaced flexible"
+          style={{ borderColor: 'red' }}
+        >
+          <div className="user-info horizontal">{errorMessage}</div>
+        </div>
+      </li>
+    );
+  }
+
   handleOperatorStatus = () => {
     const { conversationId, changeOperatorStatus } = this.props;
 
@@ -342,12 +441,15 @@ class MessagesList extends React.Component<Props, State> {
         <ul id="erxes-messages" className="erxes-messages-list slide-in">
           {this.renderBotGreetingMessage(messengerData)}
           {this.renderWelcomeMessage(messengerData)}
+          {this.renderSkillOptionsMessage(messengerData)}
+          {this.renderSkillResponse()}
           {this.renderCallRequest()}
           {this.renderMessages()}
           {this.renderBotOperator()}
           {this.renderAwayMessage(messengerData)}
           {this.renderNotifyInput(messengerData)}
           {this.renderTyping()}
+          {this.renderErrorMessage()}
         </ul>
       </div>
     );

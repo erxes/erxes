@@ -3,6 +3,8 @@
   "private": true,
   "license": "SEE LICENSE IN LICENSE",
   "dependencies": {
+    "@apollo/react-hooks": "^3.1.3",
+    "@babel/plugin-proposal-class-properties": "^7.12.1",
     "@daily-co/daily-js": "^0.9.995",
     "@nateradebaugh/react-datetime": "^4.0.0-rc.10",
     "@types/bunyan": "^1.8.6",
@@ -28,7 +30,7 @@
     "ckeditor4-react": "^1.0.0",
     "classnames": "^2.2.5",
     "color": "^3.1.2",
-    "cypress-file-upload": "^4.0.7",
+    "customize-cra": "^1.0.0",
     "date-fns": "1.29.0",
     "dayjs": "^1.8.15",
     "draft-js": "^0.10.5",
@@ -39,7 +41,7 @@
     "draft-js-plugins-editor": "^2.0.3",
     "draft-js-static-toolbar-plugin": "^3.0.0",
     "erxes-icon": "^1.2.1",
-    "erxes-ui": "^0.0.16",
+    "erxes-ui": "^0.0.48",
     "fuzzysearch-highlight": "^1.0.3",
     "graphql": "^0.12.3",
     "graphql-tag": "^2.6.1",
@@ -50,6 +52,7 @@
     "query-string": "^5.0.0",
     "react": "^16.11.0",
     "react-apollo": "^3.1.3",
+    "react-app-rewired": "^2.1.6",
     "react-beautiful-dnd": "^13.0.0",
     "react-bootstrap": "^1.0.0-beta.14",
     "react-color": "^2.17.3",
@@ -73,22 +76,23 @@
     "xss": "^1.0.3"
   },
   "scripts": {
-    "start": "react-scripts start",
-    "build": "yarn generateVersion && GENERATE_SOURCEMAP=false react-scripts build",
+    "start": "react-app-rewired start",
+    "build": "yarn generateVersion && react-app-rewired build",
     "generateVersion": "node commands/generateVersion.js",
     "compress": "gzip -5 --keep -r build/static/js",
     "test": "react-scripts test --env=jsdom",
     "eject": "react-scripts eject",
     "componentTest": "jest --runInBand --forceExit --detectOpenHandles --coverage",
     "open-cypress": "yarn run cypress open",
-    "record-cypress": "cypress run --record --key fd048d49-6b4c-4e6b-885f-819a533c2fc4"
+    "record-cypress": "cypress run --record=false --headless --browser chrome"
   },
   "devDependencies": {
     "cypress": "^4.9.0",
+    "cypress-file-upload": "^4.0.7",
     "enzyme": "^3.3.0",
     "enzyme-adapter-react-16": "^1.1.1",
     "ts-jest": "^23.0.1",
-    "typescript": "^3.0.3"
+    "typescript": "3.4.1"
   },
   "browserslist": [
     ">0.2%",

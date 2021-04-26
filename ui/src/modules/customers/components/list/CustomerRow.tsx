@@ -155,7 +155,7 @@ function CustomerRow({
   };
 
   return (
-    <tr>
+    <tr className="crow">
       <td id="customersCheckBox" style={{ width: '50px' }} onClick={onClick}>
         <FormControl
           checked={isChecked}

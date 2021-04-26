@@ -72,6 +72,8 @@ const SmsFormContainer = (props: FinalProps) => {
 
         if (status === 'ok') {
           Alert.success('SMS successfully sent');
+        } else {
+          Alert.info(status);
         }
 
         closeModal();

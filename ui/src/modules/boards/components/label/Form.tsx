@@ -1,4 +1,3 @@
-import { COLORS } from 'modules/boards/constants';
 import Button from 'modules/common/components/Button';
 import {
   ControlLabel,
@@ -6,12 +5,12 @@ import {
   FormGroup
 } from 'modules/common/components/form';
 import Form from 'modules/common/components/form/Form';
-import Icon from 'modules/common/components/Icon';
 import { IButtonMutateProps, IFormProps } from 'modules/common/types';
-import { BackgroundSelector } from 'modules/leads/components/step/style';
 import * as React from 'react';
-import { ChooseColor } from '../../styles/label';
 import { IPipelineLabel } from '../../types';
+import TwitterPicker from 'react-color/lib/Twitter';
+import { ColorChooserWrapper } from 'modules/boards/styles/label';
+import { COLORS } from 'modules/boards/constants';
 
 type IProps = {
   renderButton: (props: IButtonMutateProps) => JSX.Element;
@@ -74,14 +73,6 @@ class FormComponent extends React.Component<IProps, State> {
     }
   }
 
-  onChangeColorCode = (colorCode: string) => {
-    const { label } = this.state;
-
-    label.colorCode = colorCode;
-
-    this.setState({ label });
-  };
-
   onNameChange = (e: React.FormEvent<HTMLElement>) => {
     const label = { ...this.state.label };
 
@@ -98,22 +89,13 @@ class FormComponent extends React.Component<IProps, State> {
     }
   };
 
-  renderColors(colorCode: string) {
-    const onClick = () => this.onChangeColorCode(colorCode);
+  onChangeColorCode = (e: any) => {
     const { label } = this.state;
 
-    return (
-      <BackgroundSelector
-        key={colorCode}
-        selected={label.colorCode === colorCode}
-        onClick={onClick}
-      >
-        <div style={{ backgroundColor: colorCode }}>
-          <Icon icon="check-1" />
-        </div>
-      </BackgroundSelector>
-    );
-  }
+    label.colorCode = e.hex;
+
+    this.setState({ label });
+  };
 
   renderContent = (formProps: IFormProps) => {
     const { renderButton, afterSave } = this.props;
@@ -133,12 +115,18 @@ class FormComponent extends React.Component<IProps, State> {
             autoFocus={true}
           />
         </FormGroup>
+
         <FormGroup>
           <ControlLabel required={true}>Select a color</ControlLabel>
-          <ChooseColor>
-            {COLORS.map(colorCode => this.renderColors(colorCode))}
-          </ChooseColor>
+          <ColorChooserWrapper>
+            <TwitterPicker
+              colors={COLORS}
+              onChange={this.onChangeColorCode}
+              triangle="hide"
+            />
+          </ColorChooserWrapper>
         </FormGroup>
+
         {label._id && (
           <Button
             btnStyle="danger"

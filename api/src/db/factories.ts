@@ -4,7 +4,6 @@ import * as Random from 'meteor-random';
 import * as momentTz from 'moment-timezone';
 import { FIELDS_GROUPS_CONTENT_TYPES } from '../data/constants';
 import {
-  ActivityLogs,
   Boards,
   Brands,
   CalendarBoards,
@@ -48,6 +47,8 @@ import {
   ResponseTemplates,
   Scripts,
   Segments,
+  Skills,
+  SkillTypes,
   Stages,
   Tags,
   Tasks,
@@ -110,17 +111,13 @@ interface IActivityLogFactoryInput {
 
 export const activityLogFactory = async (
   params: IActivityLogFactoryInput = {}
-) => {
-  const activity = new ActivityLogs({
-    contentType: params.contentType || 'customer',
-    action: params.action || 'create',
-    contentId: params.contentId || faker.random.uuid(),
-    content: params.content || 'content',
-    createdBy: params.createdBy || faker.random.uuid()
-  });
-
-  return activity.save();
-};
+) => ({
+  contentType: params.contentType || 'customer',
+  action: params.action || 'create',
+  contentId: params.contentId || faker.random.uuid(),
+  content: params.content || 'content',
+  createdBy: params.createdBy || faker.random.uuid()
+});
 
 interface IDashboardFactoryInput {
   name?: string;
@@ -155,6 +152,7 @@ export const dashboardItemsFactory = async (params: IDashboardFactoryInput) => {
 };
 
 interface IUserFactoryInput {
+  code?: string;
   username?: string;
   fullName?: string;
   avatar?: string;
@@ -204,7 +202,8 @@ export const userFactory = async (params: IUserFactoryInput = {}) => {
     groupIds: params.groupIds || [],
     brandIds: params.brandIds,
     deviceTokens: params.deviceTokens,
-    doNotDisturb: params.doNotDisturb
+    doNotDisturb: params.doNotDisturb,
+    ...(params.code ? { code: params.code } : {})
   });
 
   return user.save();
@@ -213,6 +212,8 @@ export const userFactory = async (params: IUserFactoryInput = {}) => {
 interface ITagFactoryInput {
   colorCode?: string;
   type?: string;
+  parentId?: string;
+  relatedIds?: string[];
 }
 
 export const tagsFactory = (params: ITagFactoryInput = {}) => {
@@ -220,7 +221,9 @@ export const tagsFactory = (params: ITagFactoryInput = {}) => {
     name: faker.random.word(),
     type: params.type || 'engageMessage',
     colorCode: params.colorCode || Random.id(),
-    userId: Random.id()
+    userId: Random.id(),
+    parentId: params.parentId,
+    relatedIds: params.relatedIds || []
   });
 
   return tag.save();
@@ -243,6 +246,9 @@ interface IEngageMessageFactoryInput {
   fromUserId?: string;
   fromIntegrationId?: string;
   scheduleDate?: IScheduleDate;
+  createdBy?: string;
+  createdAt?: Date;
+  customerTagIds?: string[];
 }
 
 export const engageMessageFactory = (
@@ -254,9 +260,11 @@ export const engageMessageFactory = (
     method: params.method || 'messenger',
     title: params.title || faker.random.word(),
     fromUserId: params.userId || faker.random.uuid(),
+    createdBy: params.createdBy || faker.random.uuid(),
     segmentIds: params.segmentIds || [],
     brandIds: params.brandIds || [],
     tagIds: params.tagIds || [],
+    customerTagIds: params.customerTagIds || [],
     isLive: params.isLive || false,
     isDraft: params.isDraft || false,
     messenger: params.messenger,
@@ -267,7 +275,8 @@ export const engageMessageFactory = (
     },
     scheduleDate: params.scheduleDate || {
       type: 'day'
-    }
+    },
+    createdAt: params.createdAt || new Date()
   });
 
   return engageMessage.save();
@@ -382,6 +391,8 @@ interface ISegmentFactoryInput {
   subOf?: string;
   color?: string;
   conditions?: IConditionsInput[];
+  boardId?: string;
+  pipelineId?: string;
 }
 
 export const segmentFactory = (params: ISegmentFactoryInput = {}) => {
@@ -400,7 +411,9 @@ export const segmentFactory = (params: ISegmentFactoryInput = {}) => {
     description: params.description || faker.random.word(),
     subOf: params.subOf,
     color: params.color || '#809b87',
-    conditions: params.conditions || defaultConditions
+    conditions: params.conditions || defaultConditions,
+    boardId: params.boardId,
+    pipelineId: params.pipelineId
   });
 
   return segment.save();
@@ -521,6 +534,7 @@ interface ICustomerFactoryInput {
   integrationId?: string;
   firstName?: string;
   lastName?: string;
+  middleName?: string;
   sex?: number;
   birthDate?: Date;
   primaryEmail?: string;
@@ -559,6 +573,7 @@ export const customerFactory = async (
     integrationId: params.integrationId,
     firstName: params.firstName,
     lastName: params.lastName,
+    middleName: params.middleName,
     sex: params.sex,
     birthDate: params.birthDate,
     primaryEmail: params.primaryEmail,
@@ -607,7 +622,10 @@ interface IFieldFactoryInput {
   groupId?: string;
   isDefinedByErxes?: boolean;
   isVisible?: boolean;
+  isVisibleInDetail?: boolean;
+  canHide?: boolean;
   options?: string[];
+  associatedFieldId?: string;
 }
 
 export const fieldFactory = async (params: IFieldFactoryInput) => {
@@ -626,9 +644,25 @@ export const fieldFactory = async (params: IFieldFactoryInput) => {
     description: params.description || faker.random.word(),
     isRequired: params.isRequired || false,
     order: params.order || 0,
-    isVisible: params.visible || true,
+    isVisible:
+      params.visible === undefined || params.visible === null
+        ? true
+        : params.visible,
+    isVisibleInDetail:
+      params.isVisibleInDetail === undefined ||
+      params.isVisibleInDetail === null
+        ? true
+        : params.isVisibleInDetail,
+    canHide:
+      params.canHide === undefined || params.canHide === null
+        ? true
+        : params.canHide,
     groupId: params.groupId || (groupObj ? groupObj._id : ''),
-    isDefinedByErxes: params.isDefinedByErxes
+    associatedFieldId: params.associatedFieldId,
+    isDefinedByErxes:
+      params.isDefinedByErxes === undefined || params.isDefinedByErxes === null
+        ? false
+        : params.isDefinedByErxes
   });
 };
 
@@ -646,6 +680,7 @@ interface IConversationFactoryInput {
   readUserIds?: string[];
   tagIds?: string[];
   messageCount?: number;
+  userRelevance?: string;
   number?: number;
   firstRespondedUserId?: string;
   firstRespondedDate?: dateType;
@@ -659,7 +694,8 @@ export const conversationFactory = (params: IConversationFactoryInput = {}) => {
     integrationId: params.integrationId || Random.id(),
     status: params.status || CONVERSATION_STATUSES.NEW,
     operatorStatus:
-      params.operatorStatus || CONVERSATION_OPERATOR_STATUS.OPERATOR
+      params.operatorStatus || CONVERSATION_OPERATOR_STATUS.OPERATOR,
+    ...(params.userRelevance ? { userRelevance: params.userRelevance } : {})
   };
 
   return Conversations.createConversation({
@@ -741,7 +777,7 @@ export const integrationFactory = async (
     messengerData: params.messengerData,
     leadData: params.leadData
       ? params.leadData
-      : { thankContent: 'thankContent' },
+      : { thankTitle: 'thankTitle', thankContent: 'thankContent' },
     tagIds: params.tagIds,
     isActive:
       params.isActive === undefined || params.isActive === null
@@ -755,7 +791,7 @@ export const integrationFactory = async (
 
   const user = await userFactory({});
 
-  return Integrations.createIntegration(doc, user._id);
+  return Integrations.create({ createdUserId: user._id, ...doc });
 };
 
 interface IFormFactoryInput {
@@ -1016,6 +1052,7 @@ interface IStageFactoryInput {
   formId?: string;
   status?: string;
   order?: number;
+  name?: string;
 }
 
 export const stageFactory = async (params: IStageFactoryInput = {}) => {
@@ -1025,7 +1062,7 @@ export const stageFactory = async (params: IStageFactoryInput = {}) => {
   const pipeline = await pipelineFactory({ type, boardId: board._id });
 
   const stage = new Stages({
-    name: faker.random.word(),
+    name: params.name || faker.random.word(),
     pipelineId: params.pipelineId || pipeline._id,
     type: params.type || BOARD_TYPES.DEAL,
     probability: params.probability || PROBABILITY.TEN,
@@ -1052,7 +1089,7 @@ interface IDealFactoryInput {
   searchText?: string;
   userId?: string;
   initialStageId?: string;
-  sourceConversationId?: string;
+  sourceConversationIds?: string[];
 }
 
 export const dealFactory = async (params: IDealFactoryInput = {}) => {
@@ -1080,7 +1117,7 @@ export const dealFactory = async (params: IDealFactoryInput = {}) => {
     order: params.order,
     probability: params.probability,
     searchText: params.searchText,
-    sourceConversationId: params.sourceConversationId,
+    sourceConversationIds: params.sourceConversationIds,
     createdAt: new Date()
   });
 
@@ -1096,7 +1133,7 @@ interface ITaskFactoryInput {
   priority?: string;
   watchedUserIds?: string[];
   labelIds?: string[];
-  sourceConversationId?: string;
+  sourceConversationIds?: string[];
   initialStageId?: string;
 }
 
@@ -1130,7 +1167,7 @@ export const taskFactory = async (params: ITaskFactoryInput = {}) => {
     priority: params.priority,
     watchedUserIds: params.watchedUserIds,
     labelIds: params.labelIds || [],
-    sourceConversationId: params.sourceConversationId,
+    sourceConversationIds: params.sourceConversationIds,
     attachments: [attachmentFactory(), attachmentFactory()]
   });
 
@@ -1147,7 +1184,7 @@ interface ITicketFactoryInput {
   source?: string;
   watchedUserIds?: string[];
   labelIds?: string[];
-  sourceConversationId?: string;
+  sourceConversationIds?: string[];
 }
 
 export const ticketFactory = async (params: ITicketFactoryInput = {}) => {
@@ -1174,7 +1211,7 @@ export const ticketFactory = async (params: ITicketFactoryInput = {}) => {
     source: params.source,
     watchedUserIds: params.watchedUserIds,
     labelIds: params.labelIds || [],
-    sourceConversationId: params.sourceConversationId
+    sourceConversationIds: params.sourceConversationIds
   });
 
   return ticket.save();
@@ -1236,6 +1273,7 @@ interface IProductFactoryInput {
   description?: string;
   tagIds?: string[];
   categoryId?: string;
+  vendorId?: string;
   customFieldsData?: ICustomField[];
 }
 
@@ -1248,6 +1286,7 @@ export const productFactory = async (params: IProductFactoryInput = {}) => {
     description: params.description || faker.random.word(),
     sku: faker.random.word(),
     code: await getUniqueValue(Products, 'code'),
+    vendorId: params.vendorId,
     createdAt: new Date(),
     tagIds: params.tagIds || []
   });
@@ -1297,6 +1336,7 @@ interface IFieldGroupFactoryInput {
   contentType?: string;
   isDefinedByErxes?: boolean;
   isVisible?: boolean;
+  order?: number;
 }
 
 export const fieldGroupFactory = async (params: IFieldGroupFactoryInput) => {
@@ -1305,7 +1345,8 @@ export const fieldGroupFactory = async (params: IFieldGroupFactoryInput) => {
     contentType: params.contentType || FIELDS_GROUPS_CONTENT_TYPES.CUSTOMER,
     description: faker.random.word(),
     isDefinedByErxes: params.isDefinedByErxes || false,
-    isVisible: true
+    isVisible: true,
+    order: params.order || 0
   };
 
   const groupObj = await FieldsGroups.create(doc);
@@ -1567,4 +1608,26 @@ export const calendarGroupFactory = async (
   });
 
   return calendarGroup.save();
+};
+
+export const skillTypeFactor = async (params: { name?: string }) => {
+  const skillType = new SkillTypes({
+    name: params.name || faker.random.word()
+  });
+
+  return skillType.save();
+};
+
+export const skillFactor = async (params: {
+  name?: string;
+  typeId?: string;
+  memberIds?: string[];
+}) => {
+  const skill = new Skills({
+    name: params.name || faker.random.word(),
+    typeId: params.typeId || faker.random.word(),
+    memberIds: params.memberIds || [faker.random.word()]
+  });
+
+  return skill.save();
 };

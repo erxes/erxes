@@ -1,6 +1,7 @@
 import WithPermission from 'modules/common/components/WithPermission';
 import { __ } from 'modules/common/utils';
 import Wrapper from 'modules/layout/components/Wrapper';
+import { pluginsOfSettings } from 'pluginUtils';
 import React from 'react';
 import { Link } from 'react-router-dom';
 import {
@@ -202,7 +203,7 @@ class Settings extends React.PureComponent {
             )}
             {this.renderBox(
               'Logs',
-              '/images/icons/erxes-07.svg',
+              '/images/icons/erxes-14.svg',
               '/settings/logs',
               'viewLogs'
             )}
@@ -213,10 +214,29 @@ class Settings extends React.PureComponent {
               ''
             )}
             {this.renderBox(
+              'SMS Deliveries',
+              '/images/icons/erxes-08.svg',
+              '/settings/sms-deliveries',
+              ''
+            )}
+            {this.renderBox(
               'Outgoing webhooks',
               '/images/icons/erxes-11.svg',
               '/settings/webhooks',
               ''
+            )}
+            {this.renderBox(
+              'Skills',
+              '/images/icons/erxes-07.svg',
+              '/settings/skills',
+              'skillTypesAll',
+              [
+                'getSkillTypes',
+                'getSkill',
+                'getSkills',
+                'manageSkills',
+                'manageSkillTypes'
+              ]
             )}
           </div>
         </Row>
@@ -354,6 +374,7 @@ class Settings extends React.PureComponent {
             )}
           </div>
         </Row>
+        {pluginsOfSettings(this.renderBox)}
       </MenusContainer>
     );
 
