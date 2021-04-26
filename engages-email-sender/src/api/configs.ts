@@ -19,13 +19,16 @@ router.post(
   })
 );
 
-router.get('/detail', async (req, res) => {
-  debugRequest(debugEngages, req);
+router.get(
+  '/detail',
+  routeErrorHandling(async (req, res) => {
+    debugRequest(debugEngages, req);
 
-  const configs = await Configs.find({});
+    const configs = await Configs.find({});
 
-  return res.json(configs);
-});
+    return res.json(configs);
+  })
+);
 
 router.get(
   '/get-verified-emails',
@@ -33,6 +36,7 @@ router.get(
     debugRequest(debugEngages, req);
 
     const emails = await awsRequests.getVerifiedEmails();
+
     return res.json(emails);
   })
 );
@@ -43,6 +47,7 @@ router.post(
     debugRequest(debugEngages, req);
 
     const response = await awsRequests.verifyEmail(req.body.email);
+
     return res.json(JSON.stringify(response));
   })
 );
