@@ -156,28 +156,34 @@ const fieldsGroupQueries = {
     if (boardId && pipelineId) {
       query = {
         contentType,
-        $or: [
+        $and: [
           {
-            boardIds: boardId
+            $or: [
+              {
+                boardIds: boardId
+              },
+              {
+                boardIds: {
+                  $size: 0
+                }
+              }
+            ]
           },
           {
-            boardIds: {
-              $size: 0
-            }
-          },
-          {
-            pipelineIds: pipelineId
-          },
-          {
-            pipelineIds: {
-              $size: 0
-            }
+            $or: [
+              {
+                pipelineIds: pipelineId
+              },
+              {
+                pipelineIds: {
+                  $size: 0
+                }
+              }
+            ]
           }
         ]
       };
     }
-    console.log('b: ', boardId, ' p: ', pipelineId);
-    console.log('query: ', JSON.stringify(query));
 
     const groups = await FieldsGroups.find(query);
 

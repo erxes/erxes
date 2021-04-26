@@ -70,6 +70,7 @@ describe('Fields mutations', () => {
     $order: Int
     $description: String
     $isVisible: Boolean
+    $boardsPipelines: JSON
   `;
 
   const fieldsGroupsCommonParams = `
@@ -78,6 +79,7 @@ describe('Fields mutations', () => {
     order: $order
     description: $description
     isVisible: $isVisible
+    boardsPipelines: $boardsPipelines
   `;
 
   beforeEach(async () => {

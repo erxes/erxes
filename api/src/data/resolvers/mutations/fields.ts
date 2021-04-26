@@ -7,6 +7,7 @@ import {
 import { IOrderInput } from '../../../db/models/Fields';
 import { MODULE_NAMES } from '../../constants';
 import { putCreateLog } from '../../logUtils';
+import { getBoardsAndPipelines } from '../../modules/fields/utils';
 import { moduleCheckPermission } from '../../permissions/wrappers';
 import { IContext } from '../../types';
 
@@ -175,18 +176,7 @@ const fieldsGroupsMutations = {
    */
   fieldsGroupsAdd(_root, doc: IFieldGroup, { user, docModifier }: IContext) {
     if (doc.boardsPipelines) {
-      const boardIds: string[] = [];
-      const pipelineIds: string[] = [];
-
-      for (const item of doc.boardsPipelines) {
-        boardIds.push(item.boardId);
-
-        for (const pipelineId of item.pipelineIds) {
-          pipelineIds.push(pipelineId);
-        }
-      }
-      doc.boardIds = boardIds;
-      doc.pipelineIds = pipelineIds;
+      doc = getBoardsAndPipelines(doc);
     }
 
     return FieldsGroups.createGroup(
@@ -203,18 +193,7 @@ const fieldsGroupsMutations = {
     { user }: IContext
   ) {
     if (doc.boardsPipelines) {
-      const boardIds: string[] = [];
-      const pipelineIds: string[] = [];
-
-      for (const item of doc.boardsPipelines) {
-        boardIds.push(item.boardId);
-
-        for (const pipelineId of item.pipelineIds) {
-          pipelineIds.push(pipelineId);
-        }
-      }
-      doc.boardIds = boardIds;
-      doc.pipelineIds = pipelineIds;
+      doc = getBoardsAndPipelines(doc);
     }
 
     return FieldsGroups.updateGroup(_id, {
