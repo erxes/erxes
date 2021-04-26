@@ -210,7 +210,8 @@ const widgetMutations = {
       formId: args.formId,
       submissions: args.submissions,
       customer: cachedCustomer,
-      cachedCustomerId: cachedCustomer._id
+      cachedCustomerId: cachedCustomer._id,
+      conversationId: conversation._id
     });
 
     return {
