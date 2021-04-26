@@ -35,6 +35,15 @@ class Targets<
     }
   }
 
+  componentWillReceiveProps(nextProps) {
+    if (
+      JSON.stringify(this.props.defaultValues) !==
+      JSON.stringify(nextProps.defaultValues)
+    ) {
+      this.setState({ selectedIds: nextProps.defaultValues });
+    }
+  }
+
   onClick = (name: string, targetId: string) => {
     const { selectedIds } = this.state;
 
