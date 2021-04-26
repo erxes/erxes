@@ -75,8 +75,13 @@ describe('fieldQueries', () => {
   });
 
   test('Fields combined by content type', async () => {
+    const integ = await integrationFactory({});
+
     const mock = sinon.stub(elk, 'fetchElk').callsFake(() => {
       return Promise.resolve({
+        hits: {
+          hits: [{ _id: integ._id, _source: { name: integ.name } }]
+        },
         aggregations: {
           trackedDataKeys: {
             fieldKeys: {

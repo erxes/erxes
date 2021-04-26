@@ -23,7 +23,7 @@ export const renderFlag = (countryCode?: string) => {
     <img
       alt="Flag"
       style={{ marginBottom: '2px', width: '17px' }}
-      src={`https://www.countryflags.io/${countryCode}/shiny/24.png`}
+      src={`https://flagcdn.com/24x18/${countryCode.toLowerCase()}.png`}
     />
   );
 };
