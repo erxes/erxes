@@ -2,23 +2,22 @@ import { Router } from 'express';
 import { debugEngages, debugRequest } from '../debuggers';
 import { Configs } from '../models';
 import { awsRequests } from '../trackers/engageTracker';
-import { createTransporter, updateConfigs } from '../utils';
+import { createTransporter, routeErrorHandling, updateConfigs } from '../utils';
 
 const router = Router();
 
-router.post('/save', async (req, res, next) => {
-  debugRequest(debugEngages, req);
+router.post(
+  '/save',
+  routeErrorHandling(async (req, res) => {
+    debugRequest(debugEngages, req);
 
-  const { configsMap } = req.body;
+    const { configsMap } = req.body;
 
-  try {
     await updateConfigs(configsMap);
-  } catch (e) {
-    return next(new Error(e));
-  }
 
-  return res.json({ status: 'ok' });
-});
+    return res.json({ status: 'ok' });
+  })
+);
 
 router.get('/detail', async (req, res) => {
   debugRequest(debugEngages, req);
@@ -28,58 +27,54 @@ router.get('/detail', async (req, res) => {
   return res.json(configs);
 });
 
-router.get('/get-verified-emails', async (req, res, next) => {
-  debugRequest(debugEngages, req);
+router.get(
+  '/get-verified-emails',
+  routeErrorHandling(async (req, res) => {
+    debugRequest(debugEngages, req);
 
-  try {
     const emails = await awsRequests.getVerifiedEmails();
     return res.json(emails);
-  } catch (e) {
-    return next(new Error(e));
-  }
-});
+  })
+);
 
-router.post('/verify-email', async (req, res, next) => {
-  debugRequest(debugEngages, req);
+router.post(
+  '/verify-email',
+  routeErrorHandling(async (req, res) => {
+    debugRequest(debugEngages, req);
 
-  try {
     const response = await awsRequests.verifyEmail(req.body.email);
     return res.json(JSON.stringify(response));
-  } catch (e) {
-    return next(new Error(e));
-  }
-});
+  })
+);
 
-router.post('/remove-verified-email', async (req, res, next) => {
-  debugRequest(debugEngages, req);
+router.post(
+  '/remove-verified-email',
+  routeErrorHandling(async (req, res) => {
+    debugRequest(debugEngages, req);
 
-  try {
     const response = await awsRequests.removeVerifiedEmail(req.body.email);
     return res.json(JSON.stringify(response));
-  } catch (e) {
-    return next(new Error(e));
-  }
-});
+  })
+);
 
-router.post('/send-test-email', async (req, res, next) => {
-  debugRequest(debugEngages, req);
+router.post(
+  '/send-test-email',
+  routeErrorHandling(async (req, res) => {
+    debugRequest(debugEngages, req);
 
-  const { from, to, content } = req.body;
+    const { from, to, content, title } = req.body;
 
-  const transporter = await createTransporter();
+    const transporter = await createTransporter();
 
-  try {
     const response = await transporter.sendMail({
       from,
       to,
-      subject: content,
+      subject: title,
       html: content
     });
 
     return res.json(JSON.stringify(response));
-  } catch (e) {
-    return next(new Error(e));
-  }
-});
+  })
+);
 
 export default router;

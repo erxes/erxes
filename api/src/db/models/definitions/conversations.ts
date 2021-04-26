@@ -1,4 +1,5 @@
 import { Document, Schema } from 'mongoose';
+import { customFieldSchema, ICustomField } from './common';
 import {
   CONVERSATION_OPERATOR_STATUS,
   CONVERSATION_STATUSES
@@ -6,13 +7,16 @@ import {
 import { field } from './utils';
 
 export interface IConversation {
+  skillId?: string;
   operatorStatus?: string;
   content?: string;
   integrationId: string;
   customerId?: string;
+  visitorId?: string;
   userId?: string;
   assignedUserId?: string;
   participatedUserIds?: string[];
+  userRelevance?: string;
   readUserIds?: string[];
 
   createdAt?: Date;
@@ -31,6 +35,7 @@ export interface IConversation {
   firstRespondedDate?: Date;
 
   isCustomerRespondedLast?: boolean;
+  customFieldsData?: ICustomField[];
 }
 
 // Conversation schema
@@ -50,13 +55,18 @@ export const conversationSchema = new Schema({
   }),
   content: field({ type: String, optional: true }),
   integrationId: field({ type: String, index: true }),
-  customerId: field({ type: String }),
+  customerId: field({ type: String, index: true }),
+  visitorId: field({
+    type: String,
+    label: 'unique visitor id on logger database'
+  }),
   userId: field({ type: String }),
   assignedUserId: field({ type: String }),
   participatedUserIds: field({ type: [String] }),
+  userRelevance: field({ type: String }),
   readUserIds: field({ type: [String] }),
-  createdAt: field({ type: Date, index: true }),
-  updatedAt: field({ type: Date }),
+  createdAt: field({ type: Date }),
+  updatedAt: field({ type: Date, index: true }),
 
   closedAt: field({
     type: Date,
@@ -82,5 +92,24 @@ export const conversationSchema = new Schema({
   firstRespondedUserId: field({ type: String }),
   firstRespondedDate: field({ type: Date }),
 
-  isCustomerRespondedLast: field({ type: Boolean })
+  isCustomerRespondedLast: field({ type: Boolean }),
+
+  customFieldsData: field({
+    type: [customFieldSchema],
+    optional: true,
+    label: 'Custom fields data'
+  })
 });
+
+conversationSchema.index(
+  { visitorId: 1 },
+  { partialFilterExpression: { visitorId: { $exists: true } } }
+);
+conversationSchema.index(
+  { userId: 1 },
+  { partialFilterExpression: { userId: { $exists: true } } }
+);
+conversationSchema.index(
+  { userRelevance: 1 },
+  { partialFilterExpression: { userRelevance: { $exists: true } } }
+);

@@ -33,10 +33,10 @@ const operators = {
   date: [
     { name: 'date: is greater than', value: 'dateigt' },
     { name: 'date: is less than', value: 'dateilt' },
-    { name: 'will occur before on following n-th minute', value: 'wobm' },
-    { name: 'will occur after on following n-th minute', value: 'woam' },
-    { name: 'will occur before on following n-th day', value: 'wobd' },
-    { name: 'will occur after on following n-th day', value: 'woad' },
+    { name: '* minute(s) before', value: 'wobm' },
+    { name: '* minute(s) later', value: 'woam' },
+    { name: '* day(s) before', value: 'wobd' },
+    { name: '* day(s) later', value: 'woad' },
     { name: 'date relative less than', value: 'drlt' },
     { name: 'date relative greater than', value: 'drgt' },
     { name: 'is set', value: 'is', noInput: true },
@@ -261,10 +261,17 @@ class Filter extends React.Component<Props, State> {
 
     const field = this.getSelectedField(currentName);
 
-    const { selectOptions = [] } = field;
+    const { selectOptions = [], choiceOptions = [], type } = field;
 
     if (selectOptions.length > 0) {
       return this.renderSelect(currentValue, selectOptions);
+    }
+
+    // if custom field is of type radio, then show options as select
+    if (type === 'radio' && choiceOptions.length > 0) {
+      const options = choiceOptions.map(opt => ({ value: opt, label: opt }));
+
+      return this.renderSelect(currentValue, options);
     }
 
     return <FormControl value={currentValue} onChange={this.onChangeValue} />;

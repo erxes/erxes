@@ -28,15 +28,18 @@ export const types = `
     conditions: JSON
 
     getSubSegments: [Segment]
+
+    boardId: String
+    pipelineId: String
   }
 `;
 
 export const queries = `
-  segments(contentTypes: [String]!): [Segment]
+  segments(contentTypes: [String]!, boardId: String, pipelineId: String): [Segment]
   segmentDetail(_id: String): Segment
   segmentsGetHeads: [Segment]
   segmentsEvents(contentType: String!): [JSON]
-  segmentsPreviewCount(contentType: String!, conditions: JSON, subOf: String): Int
+  segmentsPreviewCount(contentType: String!, conditions: JSON, subOf: String, boardId: String, pipelineId: String): Int
 `;
 
 const commonFields = `
@@ -44,7 +47,9 @@ const commonFields = `
   description: String,
   subOf: String,
   color: String,
-  conditions: [SegmentCondition]
+  conditions: [SegmentCondition],
+  boardId: String,
+  pipelineId: String,
 `;
 
 export const mutations = `

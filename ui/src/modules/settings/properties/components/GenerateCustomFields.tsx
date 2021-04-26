@@ -9,6 +9,7 @@ import { IFieldGroup } from '../types';
 import GenerateField from './GenerateField';
 
 type Props = {
+  isDetail: boolean;
   fieldGroup: IFieldGroup;
   loading?: boolean;
   data: any;
@@ -91,17 +92,33 @@ class GenerateGroup extends React.Component<Props, State> {
   }
 
   renderContent() {
-    const { fieldGroup } = this.props;
+    const { fieldGroup, isDetail } = this.props;
     const { data } = this.state;
+    const { fields } = fieldGroup;
 
-    if (fieldGroup.fields.length === 0) {
-      return <EmptyState icon="folder-2" text="Empty" size="small" />;
+    const isVisibleKey = isDetail ? 'isVisibleInDetail' : 'isVisible';
+
+    if (fields.length === 0) {
+      return null;
+    }
+
+    if (
+      fields.length !== 0 &&
+      fields.filter(e => e[isVisibleKey]).length === 0
+    ) {
+      return (
+        <EmptyState
+          icon="folder-2"
+          text={`${fields.length} property(s) hidden.`}
+          size="small"
+        />
+      );
     }
 
     return (
       <SidebarContent>
-        {fieldGroup.fields.map((field, index) => {
-          if (!field.isVisible) {
+        {fields.map((field, index) => {
+          if (!field[isVisibleKey]) {
             return null;
           }
 
@@ -119,9 +136,10 @@ class GenerateGroup extends React.Component<Props, State> {
   }
 
   render() {
-    const { fieldGroup } = this.props;
+    const { fieldGroup, isDetail } = this.props;
+    const isVisibleKey = isDetail ? 'isVisibleInDetail' : 'isVisible';
 
-    if (!fieldGroup.isVisible) {
+    if (!fieldGroup[isVisibleKey]) {
       return null;
     }
 
@@ -135,6 +153,7 @@ class GenerateGroup extends React.Component<Props, State> {
 }
 
 type GroupsProps = {
+  isDetail: boolean;
   fieldsGroups: IFieldGroup[];
   customFieldsData: any;
   loading?: boolean;
@@ -165,7 +184,7 @@ class GenerateGroups extends React.Component<GroupsProps> {
   };
 
   render() {
-    const { loading, fieldsGroups, customFieldsData } = this.props;
+    const { loading, fieldsGroups, customFieldsData, isDetail } = this.props;
     const { Section } = Sidebar;
 
     if (fieldsGroups.length === 0) {
@@ -185,6 +204,7 @@ class GenerateGroups extends React.Component<GroupsProps> {
 
       return (
         <GenerateGroup
+          isDetail={isDetail}
           key={fieldGroup._id}
           loading={loading}
           data={data}

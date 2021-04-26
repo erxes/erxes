@@ -1,9 +1,10 @@
-import { Brands, KnowledgeBaseCategories } from '../../db/models';
+import { KnowledgeBaseCategories } from '../../db/models';
 import { ITopicDocument } from '../../db/models/definitions/knowledgebase';
+import { getDocument } from './mutations/cacheUtils';
 
 export default {
   brand(topic: ITopicDocument) {
-    return Brands.findOne({ _id: topic.brandId });
+    return getDocument('brands', { _id: topic.brandId });
   },
 
   categories(topic: ITopicDocument) {

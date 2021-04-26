@@ -235,7 +235,7 @@ describe('Test products mutations', () => {
     `;
 
     // remove product before the category
-    await Products.remove({ categoryId: productCategory._id });
+    await Products.deleteMany({ categoryId: productCategory._id });
 
     await graphqlRequest(mutation, 'productCategoriesRemove', {
       _id: productCategory._id
@@ -244,5 +244,35 @@ describe('Test products mutations', () => {
     expect(await ProductCategories.findOne({ _id: productCategory._id })).toBe(
       null
     );
+  });
+
+  test('Merge product', async () => {
+    const args = {
+      productIds: [product._id],
+      productFields: {
+        name: product.name,
+        unitPrice: '123',
+        categoryId: productCategory._id,
+        type: product.type,
+        code: product.code
+      }
+    };
+
+    const mutation = `
+      mutation productsMerge($productIds: [String], $productFields: JSON) {
+        productsMerge(productIds: $productIds, productFields: $productFields) {
+          _id
+          name
+          code
+          unitPrice
+          categoryId
+          type
+        }
+      }   
+    `;
+
+    const product1 = await graphqlRequest(mutation, 'productsMerge', args);
+
+    expect(product1.code).toBe(args.productFields.code);
   });
 });

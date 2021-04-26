@@ -1,6 +1,7 @@
 import { graphqlRequest } from '../db/connection';
 import { brandFactory } from '../db/factories';
 import { Brands } from '../db/models';
+import { set } from '../inmemoryStorage';
 
 import './setup.ts';
 
@@ -8,6 +9,30 @@ describe('brandQueries', () => {
   afterEach(async () => {
     // Clearing test data
     await Brands.deleteMany({});
+  });
+
+  test('All brands', async () => {
+    await brandFactory({ name: 'name 1' });
+    await brandFactory({ name: 'name 2' });
+    await brandFactory({ name: 'name 3' });
+
+    const qry = `
+      query allBrands {
+        allBrands {
+          _id
+        }
+      }
+    `;
+
+    set('erxes_brands', null);
+
+    const response = await graphqlRequest(qry, 'allBrands');
+
+    expect(response.length).toBe(3);
+
+    const responseFromCache = await graphqlRequest(qry, 'allBrands');
+
+    expect(responseFromCache.length).toBe(3);
   });
 
   test('Brands', async () => {
@@ -90,17 +115,5 @@ describe('brandQueries', () => {
     const lastBrand = await graphqlRequest(qry, 'brandsGetLast');
 
     expect(lastBrand._id).toBe(brand._id);
-  });
-
-  test('Default email template', async () => {
-    const qry = `
-      query brandsGetDefaultEmailConfig {
-        brandsGetDefaultEmailConfig
-      }
-    `;
-
-    const template = await graphqlRequest(qry, 'brandsGetDefaultEmailConfig');
-
-    expect(template).toBeDefined();
   });
 });

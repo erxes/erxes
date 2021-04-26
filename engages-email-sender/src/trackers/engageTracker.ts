@@ -3,6 +3,7 @@ import { debugBase } from '../debuggers';
 import messageBroker from '../messageBroker';
 import { Configs, DeliveryReports, Stats } from '../models';
 import { ISESConfig } from '../models/Configs';
+import { SES_DELIVERY_STATUSES } from '../constants';
 
 export const getApi = async (type: string): Promise<any> => {
   const config: ISESConfig = await Configs.getSESConfigs();
@@ -20,7 +21,7 @@ export const getApi = async (type: string): Promise<any> => {
   return new AWS.SNS();
 };
 
-/*
+/**
  * Receives notification from amazon simple notification service
  * And updates engage message status and stats
  */
@@ -48,6 +49,8 @@ const handleMessage = async message => {
     header => header.name === 'Emaildeliveryid'
   );
 
+  const to = headers.find(header => header.name === 'To');
+
   const type = eventType.toLowerCase();
 
   if (emailDeliveryId) {
@@ -60,20 +63,34 @@ const handleMessage = async message => {
   const mailHeaders = {
     engageMessageId: engageMessageId && engageMessageId.value,
     mailId: mailId && mailId.value,
-    customerId: customerId && customerId.value
+    customerId: customerId && customerId.value,
+    email: to && to.value
   };
 
-  await Stats.updateStats(mailHeaders.engageMessageId, type);
+  const exists = await DeliveryReports.findOne({
+    ...mailHeaders,
+    status: type
+  });
 
-  const rejected = await DeliveryReports.updateOrCreateReport(
-    mailHeaders,
-    type
-  );
+  // to prevent duplicate event counting
+  if (!exists) {
+    await Stats.updateStats(mailHeaders.engageMessageId, type);
 
-  if (rejected === 'reject') {
+    await DeliveryReports.create({
+      ...mailHeaders,
+      status: type
+    });
+  }
+
+  const rejected =
+    type === SES_DELIVERY_STATUSES.BOUNCE ||
+    type === SES_DELIVERY_STATUSES.COMPLAINT ||
+    type === SES_DELIVERY_STATUSES.REJECT;
+
+  if (rejected) {
     await messageBroker().sendMessage('engagesNotification', {
       action: 'setDoNotDisturb',
-      data: { customerId: mailHeaders.customerId }
+      data: { customerId: mailHeaders.customerId, status: type }
     });
   }
 
@@ -93,7 +110,7 @@ export const trackEngages = expressApp => {
     req.on('end', async () => {
       const message = JSON.parse(chunks.join(''));
 
-      debugBase('receiving on tracker:', message);
+      debugBase(`receiving on tracker: ${message}`);
 
       const { Type = '', Message = {}, Token = '', TopicArn = '' } = message;
 

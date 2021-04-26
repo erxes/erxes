@@ -1,5 +1,4 @@
 import Attachment from 'modules/common/components/Attachment';
-import Icon from 'modules/common/components/Icon';
 import { __ } from 'modules/common/utils';
 import Wrapper from 'modules/layout/components/Wrapper';
 import {
@@ -7,40 +6,44 @@ import {
   Subject
 } from 'modules/settings/integrations/components/mail/styles';
 import React from 'react';
-import { METHODS, SMS_DELIVERY_STATUSES } from '../constants';
 import {
-  Box,
-  BoxContent,
-  BoxHeader,
+  AWS_EMAIL_DELIVERY_STATUSES,
+  METHODS,
+  SMS_DELIVERY_STATUSES
+} from '../constants';
+import {
   FlexContainer,
   Half,
-  IconContainer,
   PreviewContent,
   RightSection,
   Shell,
   Title
 } from '../styles';
 import { IEngageMessage, IEngageSmsStats, IEngageStats } from '../types';
+import StatItem from './EngageStatItem';
 
 type Props = {
   message: IEngageMessage;
 };
 
 class EmailStatistics extends React.Component<Props> {
-  renderBox(icon, name, type) {
+  renderBox(method: string, count: number, totalCount?: number, kind?: string) {
     return (
-      <Box>
-        <BoxHeader>
-          <IconContainer>
-            <Icon icon={icon} />
-          </IconContainer>
-        </BoxHeader>
-        <BoxContent>
-          <h5>{name}</h5>
-          {type || 0}
-        </BoxContent>
-      </Box>
+      <StatItem
+        count={count}
+        totalCount={totalCount}
+        method={method}
+        kind={kind}
+      />
     );
+  }
+
+  renderEmailBox(count: number, totalCount?: number, kind?: string) {
+    return this.renderBox(METHODS.EMAIL, count, totalCount, kind);
+  }
+
+  renderSmsBox(count: number, totalCount?: number, kind?: string) {
+    return this.renderBox(METHODS.SMS, count, totalCount, kind);
   }
 
   renderAttachments() {
@@ -146,19 +149,47 @@ class EmailStatistics extends React.Component<Props> {
 
     return (
       <React.Fragment>
-        {this.renderBox('cube-2', 'Total', emailStats.total)}
-        {this.renderBox('telegram-alt', 'Sent', emailStats.send)}
-        {this.renderBox('comment-check', 'Delivered', emailStats.delivery)}
-        {this.renderBox('envelope-open', 'Opened', emailStats.open)}
-        {this.renderBox('mouse-alt', 'Clicked', emailStats.click)}
-        {this.renderBox('frown', 'Complaint', emailStats.complaint)}
-        {this.renderBox('arrows-up-right', 'Bounce', emailStats.bounce)}
-        {this.renderBox(
-          'ban',
-          'Rendering failure',
-          emailStats.renderingfailure
+        {this.renderEmailBox(emailStats.total)}
+        {this.renderEmailBox(
+          emailStats.send,
+          emailStats.total,
+          AWS_EMAIL_DELIVERY_STATUSES.SEND
         )}
-        {this.renderBox('times-circle', 'Rejected', emailStats.reject)}
+        {this.renderEmailBox(
+          emailStats.delivery,
+          emailStats.total,
+          AWS_EMAIL_DELIVERY_STATUSES.DELIVERY
+        )}
+        {this.renderEmailBox(
+          emailStats.open,
+          emailStats.total,
+          AWS_EMAIL_DELIVERY_STATUSES.OPEN
+        )}
+        {this.renderEmailBox(
+          emailStats.click,
+          emailStats.total,
+          AWS_EMAIL_DELIVERY_STATUSES.CLICK
+        )}
+        {this.renderEmailBox(
+          emailStats.complaint,
+          emailStats.total,
+          AWS_EMAIL_DELIVERY_STATUSES.COMPLAINT
+        )}
+        {this.renderEmailBox(
+          emailStats.bounce,
+          emailStats.total,
+          AWS_EMAIL_DELIVERY_STATUSES.BOUNCE
+        )}
+        {this.renderEmailBox(
+          emailStats.renderingfailure,
+          emailStats.total,
+          AWS_EMAIL_DELIVERY_STATUSES.RENDERING_FAILURE
+        )}
+        {this.renderEmailBox(
+          emailStats.reject,
+          emailStats.total,
+          AWS_EMAIL_DELIVERY_STATUSES.REJECT
+        )}
       </React.Fragment>
     );
   }
@@ -173,33 +204,37 @@ class EmailStatistics extends React.Component<Props> {
 
     return (
       <React.Fragment>
-        {this.renderBox('cube-2', 'Total', stats.total)}
-        {this.renderBox('list-ul', SMS_DELIVERY_STATUSES.QUEUED, stats.queued)}
-        {this.renderBox(
-          'comment-alt-message',
-          SMS_DELIVERY_STATUSES.SENDING,
-          stats.sending
+        {this.renderSmsBox(stats.total)}
+        {this.renderSmsBox(
+          stats.queued,
+          stats.total,
+          SMS_DELIVERY_STATUSES.QUEUED
         )}
-        {this.renderBox('send', SMS_DELIVERY_STATUSES.SENT, stats.sent)}
-        {this.renderBox(
-          'checked',
-          SMS_DELIVERY_STATUSES.DELIVERED,
-          stats.delivered
+        {this.renderSmsBox(
+          stats.sending,
+          stats.total,
+          SMS_DELIVERY_STATUSES.SENDING
         )}
-        {this.renderBox(
-          'comment-alt-block',
-          SMS_DELIVERY_STATUSES.SENDING_FAILED,
-          stats.sending_failed
+        {this.renderSmsBox(stats.sent, stats.total, SMS_DELIVERY_STATUSES.SENT)}
+        {this.renderSmsBox(
+          stats.delivered,
+          stats.total,
+          SMS_DELIVERY_STATUSES.DELIVERED
         )}
-        {this.renderBox(
-          'multiply',
-          SMS_DELIVERY_STATUSES.DELIVERY_FAILED,
-          stats.delivery_failed
+        {this.renderSmsBox(
+          stats.sending_failed,
+          stats.total,
+          SMS_DELIVERY_STATUSES.SENDING_FAILED
         )}
-        {this.renderBox(
-          'comment-alt-question',
-          SMS_DELIVERY_STATUSES.DELIVERY_UNCONFIRMED,
-          stats.delivery_unconfirmed
+        {this.renderSmsBox(
+          stats.delivery_failed,
+          stats.total,
+          SMS_DELIVERY_STATUSES.DELIVERY_FAILED
+        )}
+        {this.renderSmsBox(
+          stats.delivery_unconfirmed,
+          stats.total,
+          SMS_DELIVERY_STATUSES.DELIVERY_UNCONFIRMED
         )}
       </React.Fragment>
     );
@@ -207,6 +242,7 @@ class EmailStatistics extends React.Component<Props> {
 
   render() {
     const { message } = this.props;
+
     const logs = message.logs || [];
 
     const actionBar = (
@@ -241,7 +277,7 @@ class EmailStatistics extends React.Component<Props> {
           <Wrapper.Header
             title={__('Show statistics')}
             breadcrumb={[
-              { title: __('Engage'), link: '/engage' },
+              { title: __('Campaigns'), link: '/campaigns' },
               { title: __('Show statistics') }
             ]}
           />

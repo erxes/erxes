@@ -2,7 +2,7 @@
  * Event's embeddable script
  */
 
-import { generateIntegrationUrl, setErxesProperty } from "../../widgetUtils";
+import { generateIntegrationUrl, getStorage, setErxesProperty } from "../../widgetUtils";
 
 // add iframe
 const iframe = document.createElement("iframe");
@@ -25,6 +25,7 @@ iframe.onload = async () => {
       {
         fromPublisher: true,
         action,
+        storage: getStorage(),
         args
       },
       "*"

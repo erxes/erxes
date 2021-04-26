@@ -50,7 +50,7 @@ const queryBuilder = async (params: IListArgs) => {
   }
 
   if (ids && ids.length > 0) {
-    return { _id: { [excludeIds ? '$nin' : '$in']: ids } };
+    return { _id: { [excludeIds ? '$nin' : '$in']: ids }, isActive: true };
   }
 
   if (status) {

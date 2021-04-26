@@ -13,6 +13,7 @@ type Props = {
   integrations: IIntegration[];
   removeIntegration: (integration: IIntegration, callback?: any) => void;
   archive: (id: string, status: boolean) => void;
+  repair: (id: string) => void;
   kind?: string | null;
   editIntegration: (
     id: string,
@@ -23,7 +24,17 @@ type Props = {
   integrationsCount: number;
 };
 
-class IntegrationList extends React.Component<Props> {
+type State = {
+  showExternalInfo: boolean;
+};
+
+class IntegrationList extends React.Component<Props, State> {
+  constructor(props: Props) {
+    super(props);
+
+    this.state = { showExternalInfo: false };
+  }
+
   renderRows() {
     const {
       integrations,
@@ -31,8 +42,13 @@ class IntegrationList extends React.Component<Props> {
       archive,
       editIntegration,
       queryParams: { _id },
-      disableAction
+      disableAction,
+      repair
     } = this.props;
+
+    const showExternalInfoColumn = () => {
+      this.setState({ showExternalInfo: true });
+    };
 
     return integrations.map(i => (
       <IntegrationListItem
@@ -41,8 +57,11 @@ class IntegrationList extends React.Component<Props> {
         integration={i}
         removeIntegration={removeIntegration}
         archive={archive}
+        repair={repair}
         disableAction={disableAction}
         editIntegration={editIntegration}
+        showExternalInfoColumn={showExternalInfoColumn}
+        showExternalInfo={this.state.showExternalInfo}
       />
     ));
   }
@@ -75,7 +94,10 @@ class IntegrationList extends React.Component<Props> {
               <th>{__('Kind')}</th>
               <th>{__('Brand')}</th>
               <th>{__('Status')}</th>
-              <th>{__('External info')}</th>
+              <th>{__('Health status')}</th>
+              {this.state.showExternalInfo ? (
+                <th>{__('External info')}</th>
+              ) : null}
               <th style={{ width: 130 }}>{__('Actions')}</th>
             </tr>
           </thead>

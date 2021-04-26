@@ -6,7 +6,7 @@ import {
   IUserLinks as IUserLinksC
 } from 'erxes-ui/lib/auth/types';
 
-export type IUser = IUserC;
+export type IUser = IUserC & { doNotDisturb?: boolean };
 export type IUserDetails = IUserDetailsC;
 export type IUserLinks = IUserLinksC;
 export type IUserConversation = IUserConversationC;

@@ -136,7 +136,7 @@ export default {
     const filter = {
       pipelineId: stage.pipelineId,
       probability: { $ne: 'Lost' },
-      id: { $ne: stage._id }
+      _id: { $ne: stage._id }
     };
 
     const deals = await Stages.aggregate([

@@ -290,7 +290,6 @@ class ProductForm extends React.Component<Props, State> {
             btnStyle="primary"
             onClick={this.addProductItem}
             icon="plus-circle"
-            href={`#${this.state.tempId}`}
           >
             Add Product / Service
           </Button>

@@ -4,6 +4,8 @@ import {
   customerFactory,
   engageDataFactory,
   engageMessageFactory,
+  fieldFactory,
+  skillFactor,
   userFactory
 } from '../db/factories';
 import { ConversationMessages, Conversations, Users } from '../db/models';
@@ -526,9 +528,16 @@ describe('Conversation db', () => {
 
   test('updateConversation', async () => {
     const conversation = await conversationFactory({});
+    const field = await fieldFactory({ contentType: 'conversation' });
 
     await Conversations.updateConversation(conversation._id, {
-      content: 'updated'
+      content: 'updated',
+      customFieldsData: [
+        {
+          field: field._id,
+          value: 123
+        }
+      ]
     });
 
     const updated = await Conversations.findOne({ _id: conversation._id });
@@ -555,8 +564,36 @@ describe('Conversation db', () => {
         expect(
           await ConversationMessages.find({ conversationId: conversation._id })
         ).toHaveLength(0);
-        resolve();
+        resolve(true);
       }, 1000)
     );
+  });
+
+  test('Conversation getUserRelevanceId', async () => {
+    const user1 = await userFactory({ code: '123' });
+    const user2 = await userFactory({ code: '321' });
+
+    const skill = await skillFactor({ memberIds: [user1._id, user2._id] });
+    const skill2 = await skillFactor({});
+
+    const response1 = await Conversations.getUserRelevance({
+      skillId: skill._id
+    });
+
+    expect(response1).toEqual('123SS|321SS');
+
+    // without skill
+    const response2 = await Conversations.getUserRelevance({
+      skillId: '123123'
+    });
+
+    expect(response2).toBeUndefined();
+
+    // without team member
+    const response3 = await Conversations.getUserRelevance({
+      skillId: skill2._id
+    });
+
+    expect(response3).toBeUndefined();
   });
 });

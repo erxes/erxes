@@ -22,6 +22,7 @@ export interface ILeadData {
   adminEmails?: string[];
   adminEmailTitle?: string;
   adminEmailContent?: string;
+  thankTitle?: string;
   thankContent?: string;
   redirectUrl?: string;
   themeColor?: string;
@@ -36,6 +37,7 @@ export interface ILeadData {
   getTags?: ITag[];
   form?: IForm;
   isRequireOnce?: boolean;
+  templateId?: string;
 }
 
 export interface IWebhookData {
@@ -60,6 +62,10 @@ export type RemoveMutationResponse = {
   }) => Promise<any>;
 };
 
+export type CopyMutationResponse = {
+  copyMutation: (params: { variables: { _id: string } }) => Promise<void>;
+};
+
 // query types
 export type LeadIntegrationsQueryResponse = {
   integrations: ILeadIntegration[];
@@ -75,6 +81,7 @@ export type IntegrationsCount = {
   byChannel: Counts;
   byBrand: Counts;
   byKind: Counts;
+  byStatus: Counts;
 };
 
 export type CountQueryResponse = {

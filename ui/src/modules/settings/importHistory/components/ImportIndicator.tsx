@@ -17,6 +17,7 @@ const Text = styled.div`
 
 type Props = {
   percentage: number;
+  isImportRemoved: boolean;
   id: string;
   importHistory: IImportHistory;
   close: () => void;
@@ -27,10 +28,10 @@ type Props = {
 
 class ImportIndicator extends React.Component<Props> {
   isDone = () => {
-    const { importHistory, isRemovingImport } = this.props;
+    const { importHistory, isRemovingImport, isImportRemoved } = this.props;
     const { status } = importHistory;
 
-    if ((!isRemovingImport && status === 'Done') || status === 'Removed') {
+    if ((!isRemovingImport && status === 'Done') || isImportRemoved) {
       return true;
     }
 
@@ -75,12 +76,7 @@ class ImportIndicator extends React.Component<Props> {
     const { errorMsgs = [], contentType } = importHistory;
 
     if (isRemovingImport) {
-      return (
-        <div>
-          {this.renderType(contentType, true)} {__('data successfully removed')}
-          .
-        </div>
-      );
+      return <div>{__('Data successfully removed')}.</div>;
     }
 
     return (

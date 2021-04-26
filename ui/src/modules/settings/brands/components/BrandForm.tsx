@@ -5,9 +5,9 @@ import FormGroup from 'modules/common/components/form/Group';
 import ControlLabel from 'modules/common/components/form/Label';
 import { ModalFooter } from 'modules/common/styles/main';
 import { IButtonMutateProps, IFormProps } from 'modules/common/types';
+import EmailConfigForm from 'modules/settings/general/components/EmailConfigForm';
 import React, { useState } from 'react';
 import { IBrand } from '../types';
-import BrandExtendedForm from './BrandExtendedForm';
 
 type Props = {
   brand?: IBrand;
@@ -59,7 +59,7 @@ const BrandForm = (props: Props) => {
     );
   };
 
-  const renderExtraContent = () => {
+  const renderExtraContent = (isSaved?: boolean) => {
     const { extended } = props;
 
     if (!extended) {
@@ -67,9 +67,12 @@ const BrandForm = (props: Props) => {
     }
 
     return (
-      <BrandExtendedForm
+      <EmailConfigForm
+        emailText="Set an email address you wish to send your transactional emails to your customers. For example, chat reply notification to offline customers."
         emailConfig={emailConfig}
         setEmailConfig={setEmailConfig}
+        templateName="conversationCron"
+        isSaved={isSaved}
       />
     );
   };
@@ -101,7 +104,7 @@ const BrandForm = (props: Props) => {
           />
         </FormGroup>
 
-        {renderExtraContent()}
+        {renderExtraContent(formProps.isSaved)}
 
         {renderFooter({ ...formProps })}
       </>

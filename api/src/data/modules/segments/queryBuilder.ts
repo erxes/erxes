@@ -1,5 +1,5 @@
 import * as _ from 'underscore';
-import { Segments } from '../../../db/models';
+import { Boards, Pipelines, Segments, Stages } from '../../../db/models';
 import {
   SEGMENT_DATE_OPERATORS,
   SEGMENT_NUMBER_OPERATORS
@@ -10,26 +10,62 @@ import { getEsTypes } from '../coc/utils';
 
 export const fetchBySegments = async (
   segment: ISegment,
-  action: 'search' | 'count' = 'search'
+  action: 'search' | 'count' = 'search',
+  options?
 ): Promise<any> => {
   if (!segment || !segment.conditions) {
     return [];
   }
 
   const { contentType } = segment;
-  const index = contentType === 'company' ? 'companies' : 'customers';
-  const idField = contentType === 'company' ? 'companyId' : 'customerId';
+
+  const index = getIndexByContentType(contentType);
   const typesMap = getEsTypes(contentType);
 
   const propertyPositive: any[] = [];
   const propertyNegative: any[] = [];
 
-  if (contentType !== 'company') {
+  if (['customer', 'lead', 'visitor'].includes(contentType)) {
     propertyNegative.push({
       term: {
-        status: 'Deleted'
+        status: 'deleted'
       }
     });
+  }
+
+  if (['deal', 'task', 'ticket'].includes(contentType)) {
+    let pipelineIds: string[] = [];
+
+    if (options && options.pipelineId) {
+      pipelineIds = [options.pipelineId];
+    }
+
+    if (segment.boardId) {
+      const board = await Boards.getBoard(segment.boardId);
+
+      const pipelines = await Pipelines.find(
+        {
+          _id: {
+            $in: segment.pipelineId
+              ? [segment.pipelineId]
+              : board.pipelines || []
+          }
+        },
+        { _id: 1 }
+      );
+
+      pipelineIds = pipelines.map(p => p._id);
+    }
+
+    const stages = await Stages.find({ pipelineId: pipelineIds }, { _id: 1 });
+
+    if (stages.length > 0) {
+      propertyPositive.push({
+        terms: {
+          stageId: stages.map(s => s._id)
+        }
+      });
+    }
   }
 
   const eventPositive = [];
@@ -47,6 +83,8 @@ export const fetchBySegments = async (
   let idsByEvents = [];
 
   if (eventPositive.length > 0 || eventNegative.length > 0) {
+    const idField = contentType === 'company' ? 'companyId' : 'customerId';
+
     const eventsResponse = await fetchElk('search', 'events', {
       _source: idField,
       size: 10000,
@@ -58,7 +96,9 @@ export const fetchBySegments = async (
       }
     });
 
-    idsByEvents = eventsResponse.hits.hits.map(hit => hit._source[idField]);
+    idsByEvents = eventsResponse.hits.hits
+      .map(hit => hit._source[idField])
+      .filter(_id => _id);
 
     propertyPositive.push({
       terms: {
@@ -117,7 +157,7 @@ const generateQueryBySegment = async (args: {
   const embeddedParentSegment = await Segments.findOne({ _id: segment.subOf });
   const parentSegment = embeddedParentSegment;
 
-  if (parentSegment) {
+  if (parentSegment && segment.subOf !== parentSegment._id) {
     await generateQueryBySegment({ ...args, segment: parentSegment });
   }
 
@@ -260,7 +300,9 @@ function elkConvertConditionToQuery(args: {
 }) {
   const { field, type, operator, value, positive, negative } = args;
 
-  const fixedValue = value.toLocaleLowerCase();
+  const fixedValue = (value || '').includes('now')
+    ? value
+    : value.toLocaleLowerCase();
 
   let positiveQuery;
   let negativeQuery;
@@ -438,3 +480,52 @@ function elkConvertConditionToQuery(args: {
     negative.push(negativeQuery);
   }
 }
+
+const getIndexByContentType = (contentType: string) => {
+  let index = 'customers';
+
+  if (contentType === 'company') {
+    index = 'companies';
+  }
+
+  if (contentType === 'deal') {
+    index = 'deals';
+  }
+
+  if (contentType === 'task') {
+    index = 'tasks';
+  }
+
+  if (contentType === 'ticket') {
+    index = 'tickets';
+  }
+
+  return index;
+};
+
+export const fetchSegment = async (action, segment: ISegment, options?) => {
+  const { contentType } = segment;
+
+  let response = await fetchBySegments(segment, action, options);
+
+  if (action === 'search') {
+    return response;
+  }
+
+  try {
+    const { positiveList, negativeList } = await response;
+
+    response = await fetchElk('count', getIndexByContentType(contentType), {
+      query: {
+        bool: {
+          must: positiveList,
+          must_not: negativeList
+        }
+      }
+    });
+
+    return response.count;
+  } catch (e) {
+    return 0;
+  }
+};

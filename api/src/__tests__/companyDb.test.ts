@@ -202,11 +202,14 @@ describe('Companies model tests', () => {
       _id: { $in: [customer._id] }
     });
 
+    const processState = process.env.ELK_SYNCER;
+    process.env.ELK_SYNCER = 'false';
     const conformities = await Conformities.savedConformity({
       mainType: 'company',
       mainTypeId: company._id,
       relTypes: ['customer']
     });
+    process.env.ELK_SYNCER = processState;
 
     expect(customers).toHaveLength(1);
     expect(internalNotes).toHaveLength(0);
@@ -329,6 +332,8 @@ describe('Companies model tests', () => {
 
     expect(internalNote).not.toHaveLength(0);
 
+    const processState = process.env.ELK_SYNCER;
+    process.env.ELK_SYNCER = 'false';
     const cusRelTypeIds = await Conformities.filterConformity({
       mainType: 'company',
       mainTypeIds: companyIds,
@@ -360,6 +365,7 @@ describe('Companies model tests', () => {
       mainTypeId: updatedCompany._id,
       relTypes: ['deal']
     });
+    process.env.ELK_SYNCER = processState;
 
     const deals = await Deals.find({
       _id: { $in: newRelTypeIds }

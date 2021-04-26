@@ -3,6 +3,7 @@ import * as requestify from 'requestify';
 
 export const debugBase = debug('erxes-email-verifier:base');
 export const debugCrons = debug('erxes-email-verifier:crons');
+export const debugError = debug('erxes-email-verifier:error');
 
 export const debugRequest = (debugInstance, req) =>
   debugInstance(`

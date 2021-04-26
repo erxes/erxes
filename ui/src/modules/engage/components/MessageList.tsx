@@ -5,6 +5,7 @@ import FormControl from 'modules/common/components/form/Control';
 import ModalTrigger from 'modules/common/components/ModalTrigger';
 import Pagination from 'modules/common/components/pagination/Pagination';
 import Table from 'modules/common/components/table';
+import colors from 'modules/common/styles/colors';
 import { __ } from 'modules/common/utils';
 import Wrapper from 'modules/layout/components/Wrapper';
 import { EMPTY_CONTENT_ENGAGE } from 'modules/settings/constants';
@@ -15,6 +16,7 @@ import MessageListRow from '../containers/MessageListRow';
 import Sidebar from '../containers/Sidebar';
 import { ChooseBox, FlexContainer } from '../styles';
 import { IEngageMessage } from '../types';
+import PercentItem, { ItemWrapper } from './PercentItem';
 
 type Props = {
   messages: IEngageMessage[];
@@ -26,6 +28,8 @@ type Props = {
   toggleAll: (targets: IEngageMessage[], name: string) => void;
   loading: boolean;
   queryParams: any;
+  emailPercentages: any;
+  refetch: () => void;
 };
 
 class List extends React.Component<Props> {
@@ -69,31 +73,84 @@ class List extends React.Component<Props> {
     );
   }
 
-  renderRightActionBar = () => {
+  renderPercentage() {
+    const { emailPercentages } = this.props;
+
+    if (!emailPercentages) {
+      return <>You haven't sent email campaigns yet.</>;
+    }
+
     const trigger = (
-      <Button btnStyle="success" size="small" icon="plus-circle">
-        {__('New message')}
+      <Button btnStyle="warning" size="small" icon="analysis">
+        {__('Email statistics')}
       </Button>
     );
 
-    const content = props => (
-      <FlexContainer direction="column">
-        {this.renderBox(
-          'Auto message',
-          'Auto message description',
-          '/engage/messages/create?kind=auto'
-        )}
-        {this.renderBox(
-          'Manual message',
-          'Manual message description',
-          '/engage/messages/create?kind=manual'
-        )}
-        {this.renderBox(
-          'Visitor auto message',
-          'Visitor auto message description',
-          '/engage/messages/create?kind=visitorAuto'
-        )}
-      </FlexContainer>
+    const {
+      avgBouncePercent,
+      avgComplaintPercent,
+      avgDeliveryPercent,
+      avgOpenPercent,
+      avgClickPercent,
+      avgRenderingFailurePercent,
+      avgRejectPercent,
+      avgSendPercent
+    } = emailPercentages;
+
+    const content = () => (
+      <React.Fragment>
+        <h5>Average email statistics:</h5>
+        <ItemWrapper>
+          <PercentItem
+            color={colors.colorCoreBlue}
+            icon="telegram-alt"
+            name="Sent"
+            percent={avgSendPercent}
+          />
+          <PercentItem
+            color={colors.colorCoreGreen}
+            icon="comment-check"
+            name="Delivered"
+            percent={avgDeliveryPercent}
+          />
+          <PercentItem
+            color={colors.colorCoreOrange}
+            icon="envelope-open"
+            name="Opened"
+            percent={avgOpenPercent}
+          />
+          <PercentItem
+            color={colors.colorCoreDarkBlue}
+            icon="mouse-alt"
+            name="Clicked"
+            percent={avgClickPercent}
+          />
+          <PercentItem
+            color={colors.colorCoreTeal}
+            icon="frown"
+            name="Complaint"
+            percent={avgComplaintPercent}
+          />
+          <PercentItem
+            color={colors.colorCoreYellow}
+            icon="arrows-up-right"
+            name="Bounce"
+            percent={avgBouncePercent}
+          />
+          <PercentItem
+            color={colors.colorCoreRed}
+            icon="ban"
+            name="Rejected"
+            percent={avgRejectPercent}
+          />
+          <PercentItem
+            color={colors.colorCoreDarkGray}
+            icon="times-circle"
+            name="Rendering failure"
+            percent={avgRenderingFailurePercent}
+          />
+        </ItemWrapper>
+      </React.Fragment>
     );
 
     return (
@@ -106,6 +163,48 @@ class List extends React.Component<Props> {
         centered={true}
       />
     );
+  }
+
+  renderRightActionBar = () => {
+    const trigger = (
+      <Button btnStyle="success" size="small" icon="plus-circle">
+        {__('New campaign')}
+      </Button>
+    );
+
+    const content = () => (
+      <FlexContainer direction="column">
+        {this.renderBox(
+          'Auto campaign',
+          'Auto message description',
+          '/campaigns/create?kind=auto'
+        )}
+        {this.renderBox(
+          'Manual campaign',
+          'Manual message description',
+          '/campaigns/create?kind=manual'
+        )}
+        {this.renderBox(
+          'Visitor auto campaign',
+          'Visitor auto message description',
+          '/campaigns/create?kind=visitorAuto'
+        )}
+      </FlexContainer>
+    );
+
+    return (
+      <>
+        {this.renderPercentage()}
+        <ModalTrigger
+          title="New campaign"
+          trigger={trigger}
+          content={content}
+          hideHeader={true}
+          enforceFocus={false}
+          centered={true}
+        />
+      </>
+    );
   };
 
   render() {
@@ -116,7 +215,8 @@ class List extends React.Component<Props> {
       toggleBulk,
       loading,
       queryParams,
-      isAllSelected
+      isAllSelected,
+      refetch
     } = this.props;
 
     const actionBar = (
@@ -138,11 +238,12 @@ class List extends React.Component<Props> {
               />
             </th>
             <th>{__('Title')}</th>
-            <th>{__('From')}</th>
             <th>{__('Status')}</th>
             <th>{__('Total')}</th>
             <th>{__('Type')}</th>
             <th>{__('Brand')}</th>
+            <th>{__('From')}</th>
+            <th>{__('Created by')}</th>
             <th>{__('Created date')}</th>
             <th>{__('Scheduled date')}</th>
             <th>{__('Tags')}</th>
@@ -157,6 +258,7 @@ class List extends React.Component<Props> {
               key={message._id}
               message={message}
               queryParams={queryParams}
+              refetch={refetch}
             />
           ))}
         </tbody>
@@ -167,8 +269,8 @@ class List extends React.Component<Props> {
       <Wrapper
         header={
           <Wrapper.Header
-            title={__('Engage')}
-            breadcrumb={[{ title: __('Engage') }]}
+            title={__('Campaigns')}
+            breadcrumb={[{ title: __('Campaigns') }]}
             queryParams={queryParams}
           />
         }

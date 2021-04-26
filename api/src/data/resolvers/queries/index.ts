@@ -24,6 +24,7 @@ import integrations from './integrations';
 import internalNotes from './internalNotes';
 import knowledgeBase from './knowledgeBase';
 import logs from './logs';
+import messengerAppsQueries from './messengerApps';
 import notifications from './notifications';
 import {
   permissionQueries as permissions,
@@ -36,12 +37,14 @@ import responseTemplates from './responseTemplates';
 import robot from './robot';
 import scripts from './scripts';
 import segments from './segments';
+import { skillQueries, skillTypesQueries } from './skills';
 import tags from './tags';
 import tasks from './tasks';
 import tickets from './tickets';
 import users from './users';
 import webhooks from './webhooks';
 import widgets from './widgets';
+import smsDeliveries from './smsDeliveries';
 
 export default {
   ...users,
@@ -83,5 +86,9 @@ export default {
   ...widgets,
   ...webhooks,
   ...calendars,
-  ...dashboards
+  ...dashboards,
+  ...skillTypesQueries,
+  ...skillQueries,
+  ...messengerAppsQueries,
+  ...smsDeliveries
 };

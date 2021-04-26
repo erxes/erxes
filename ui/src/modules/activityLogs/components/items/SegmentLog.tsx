@@ -4,15 +4,11 @@ import {
   FlexBody,
   FlexCenterContent
 } from 'modules/activityLogs/styles';
-import { IActivityLog } from 'modules/activityLogs/types';
+import { IActivityLogItemProps } from 'modules/activityLogs/types';
 import Tip from 'modules/common/components/Tip';
 import React from 'react';
 
-type Props = {
-  activity: IActivityLog;
-};
-
-class SegmentLog extends React.Component<Props> {
+class SegmentLog extends React.Component<IActivityLogItemProps> {
   renderContent = () => {
     const { activity } = this.props;
     const { contentType, content } = activity;

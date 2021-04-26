@@ -1,4 +1,5 @@
 import * as React from "react";
+import { isValidURL } from "../../../utils";
 
 type Props = {
   url?: string;
@@ -8,7 +9,7 @@ type Props = {
 function SocialLink(props: Props) {
   const { url, icon } = props;
 
-  if (!url) {
+  if (!url || !isValidURL(url)) {
     return null;
   }
 

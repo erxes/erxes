@@ -53,20 +53,18 @@ const tagMutations = {
   /**
    * Removes a tag
    */
-  async tagsRemove(_root, { ids }: { ids: string[] }, { user }: IContext) {
-    const tags = await Tags.find({ _id: { $in: ids } });
-    const removed = await Tags.removeTag(ids);
+  async tagsRemove(_root, { _id }: { _id: string }, { user }: IContext) {
+    const removed = await Tags.removeTag(_id);
+    const tag = await Tags.findOne({ _id });
 
-    for (const tag of tags) {
-      await putDeleteLog(
-        {
-          type: MODULE_NAMES.TAG,
-          object: tag,
-          description: `"${tag.name}" has been removed`
-        },
-        user
-      );
-    }
+    await putDeleteLog(
+      {
+        type: MODULE_NAMES.TAG,
+        object: tag,
+        description: `"${tag && tag.name}" has been removed`
+      },
+      user
+    );
 
     return removed;
   },
@@ -86,7 +84,11 @@ const tagMutations = {
       publishConversationsChanged(targetIds, MODULE_NAMES.TAG);
     }
 
-    return Tags.tagsTag(type, targetIds, tagIds);
+    return Tags.tagObject({ type, targetIds, tagIds });
+  },
+
+  tagsMerge(_root, { sourceId, destId }: { sourceId: string; destId: string }) {
+    return Tags.merge(sourceId, destId);
   }
 };
 
@@ -95,5 +97,6 @@ requireLogin(tagMutations, 'tagsTag');
 checkPermission(tagMutations, 'tagsAdd', 'manageTags');
 checkPermission(tagMutations, 'tagsEdit', 'manageTags');
 checkPermission(tagMutations, 'tagsRemove', 'manageTags');
+checkPermission(tagMutations, 'tagsMerge', 'manageTags');
 
 export default tagMutations;

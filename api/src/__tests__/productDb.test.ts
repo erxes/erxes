@@ -5,7 +5,7 @@ import {
   productFactory
 } from '../db/factories';
 import { Deals, ProductCategories, Products } from '../db/models';
-
+import { PRODUCT_STATUSES } from '../db/models/definitions/constants';
 import {
   IDealDocument,
   IProductCategoryDocument,
@@ -113,16 +113,38 @@ describe('Test products model', () => {
     }
   });
 
-  test('Can not remove products', async () => {
-    expect.assertions(1);
+  test('Update product (Error: Code must be unique)', async () => {
+    const temp = await productFactory();
+
+    const args: any = {
+      name: `${product.name}-update`,
+      type: `${product.type}-update`,
+      description: `${product.description}-update`,
+      sku: `${product.sku}-update`,
+      categoryId: productCategory._id,
+      code: temp.code
+    };
 
     try {
-      await Products.removeProducts([product._id]);
+      await Products.updateProduct(product._id, args);
     } catch (e) {
-      expect(e.message).toEqual(
-        `Can not remove products. Following deals are used ${deal.name},${deal2.name}`
-      );
+      expect(e.message).toBe('Code must be unique');
     }
+  });
+
+  test('Remove products and update status', async () => {
+    expect.assertions(1);
+
+    await Deals.updateOne(
+      { _id: deal._id },
+      { $set: { productsData: [{ productId: product._id }] } }
+    );
+
+    await Products.removeProducts([product._id]);
+
+    const removedProduct = await Products.getProduct({ _id: product._id });
+
+    expect(removedProduct.status).toEqual(PRODUCT_STATUSES.DELETED);
   });
 
   test('Remove product', async () => {
@@ -132,6 +154,53 @@ describe('Test products model', () => {
     const isDeleted = await Products.removeProducts([product._id]);
 
     expect(isDeleted).toBeTruthy();
+  });
+
+  test('Merge products', async () => {
+    const args: any = {
+      name: product.name,
+      type: product.type,
+      description: product.description,
+      sku: product.sku,
+      categoryId: productCategory._id,
+      unitPrice: 12345
+    };
+
+    try {
+      await Products.mergeProducts([product._id], args);
+    } catch (e) {
+      expect(e.message).toBe(`Can not merge products. Must choose code field.`);
+    }
+
+    const product1 = await productFactory({ categoryId: productCategory._id });
+    const product2 = await productFactory({ categoryId: productCategory._id });
+
+    const productIds = [product1._id, product2._id];
+
+    const deal1 = await dealFactory({
+      productsData: [{ productId: product1._id }]
+    });
+
+    const deal3 = await dealFactory({
+      productsData: [{ productId: product2._id }]
+    });
+
+    args.code = 'test code';
+
+    const updatedProduct = await Products.mergeProducts(productIds, args);
+
+    const updatedDeal = await Deals.findOne({
+      _id: deal1._id
+    }).distinct('productsData.productId');
+
+    const updatedDeal2 = await Deals.findOne({
+      _id: deal3._id
+    }).distinct('productsData.productId');
+
+    expect(updatedProduct.name).toBe(args.name);
+
+    expect(updatedProduct._id).toBe(updatedDeal[0]);
+    expect(updatedProduct._id).toBe(updatedDeal2[0]);
   });
 
   test('Get product category', async () => {
@@ -183,6 +252,21 @@ describe('Test products model', () => {
       await ProductCategories.updateProductCategory(productCategory._id, doc);
     } catch (e) {
       expect(e.message).toBe('Cannot change category');
+    }
+  });
+
+  test('Update product category (Error: Code must be unique)', async () => {
+    const temp = await productCategoryFactory();
+
+    const doc: any = {
+      name: 'Updated product name',
+      code: temp.code
+    };
+
+    try {
+      await ProductCategories.updateProductCategory(productCategory._id, doc);
+    } catch (e) {
+      expect(e.message).toBe('Code must be unique');
     }
   });
 

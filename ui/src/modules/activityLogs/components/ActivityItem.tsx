@@ -10,11 +10,13 @@ import { formatText, getIconAndColor } from '../utils';
 import ArchiveLog from './items/archive/ArchiveLog';
 import AssigneeLog from './items/boardItems/AssigneeLog';
 import MovementLog from './items/boardItems/MovementLog';
+import CampaignLog from './items/CampaignLog';
 import ConvertLog from './items/ConvertLog';
 import CreatedLog from './items/create/CreatedLog';
 import DeletedLog from './items/delete/DeletedLog';
 import MergedLog from './items/MergedLog';
 import SegmentLog from './items/SegmentLog';
+import SmsLog from './items/SmsLog';
 
 const renderDetail = (type: string, children: React.ReactNode) => {
   const iconAndColor = getIconAndColor(type) || {};
@@ -33,7 +35,7 @@ const renderDetail = (type: string, children: React.ReactNode) => {
       {children}
     </ActivityRow>
   );
-}
+};
 
 const activityItem = (activity: IActivityLog) => {
   const { _id, contentType, action } = activity;
@@ -46,11 +48,6 @@ const activityItem = (activity: IActivityLog) => {
       );
     case 'taskDetail':
       return renderDetail('task', <Task taskId={_id} />);
-    case 'engage-email':
-      return renderDetail(
-        'email',
-        <Email emailType="engage" emailId={_id} activity={activity} />
-      );
     case 'email':
       return renderDetail(
         'email',
@@ -87,20 +84,23 @@ const activityItem = (activity: IActivityLog) => {
         <ConvertLog activity={activity} />
       );
     case 'segment':
-      return renderDetail(
-        activity.action,
-        <SegmentLog activity={activity} />
-      );
+      return renderDetail(activity.action, <SegmentLog activity={activity} />);
     case 'assignee':
-      return renderDetail(
-        'assignee',
-        <AssigneeLog activity={activity} />
-      );
+      return renderDetail('assignee', <AssigneeLog activity={activity} />);
     case 'archive':
       return renderDetail('archive', <ArchiveLog activity={activity} />);
+    case 'send':
+      if (contentType === 'campaign') {
+        return renderDetail(
+          activity.contentType,
+          <CampaignLog activity={activity} />
+        );
+      }
+
+      return renderDetail(activity.contentType, <SmsLog activity={activity} />);
     default:
       return <div />;
   }
-}
+};
 
 export default activityItem;

@@ -13,3 +13,17 @@ export interface ITicket extends IItem {
 export interface ITicketParams extends IItemParams {
   source?: string;
 }
+
+export type TicketsQueryResponse = {
+  tickets: ITicket[];
+  loading: boolean;
+  refetch: () => void;
+  fetchMore: any;
+};
+
+export type TicketsTotalCountQueryResponse = {
+  ticketsTotalCount: number;
+  loading: boolean;
+  refetch: () => void;
+  fetchMore: any;
+};

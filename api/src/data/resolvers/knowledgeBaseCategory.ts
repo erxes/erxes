@@ -1,10 +1,7 @@
-import {
-  KnowledgeBaseArticles,
-  KnowledgeBaseTopics,
-  Users
-} from '../../db/models';
+import { KnowledgeBaseArticles, KnowledgeBaseTopics } from '../../db/models';
 import { PUBLISH_STATUSES } from '../../db/models/definitions/constants';
 import { ICategoryDocument } from '../../db/models/definitions/knowledgebase';
+import { getDocumentList } from './mutations/cacheUtils';
 
 export default {
   articles(category: ICategoryDocument) {
@@ -25,7 +22,7 @@ export default {
 
     const authorIds = articles.map(article => article.createdBy);
 
-    return Users.find({
+    return getDocumentList('users', {
       _id: { $in: authorIds }
     });
   },

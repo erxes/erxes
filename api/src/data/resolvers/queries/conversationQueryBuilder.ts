@@ -1,7 +1,8 @@
 import * as _ from 'underscore';
-import { Channels, Integrations } from '../../../db/models';
+import { Channels, Integrations, Tags } from '../../../db/models';
 import { CONVERSATION_STATUSES } from '../../../db/models/definitions/constants';
 import { fixDate } from '../../utils';
+import { getDocumentList } from '../mutations/cacheUtils';
 
 interface IIn {
   $in: string[];
@@ -30,6 +31,7 @@ export interface IListArgs {
 
 interface IUserArgs {
   _id: string;
+  code?: string;
   starredConversationIds?: string[];
 }
 
@@ -60,11 +62,18 @@ export default class Builder {
     this.user = user;
   }
 
+  public userRelevanceQuery() {
+    return [
+      { userRelevance: { $exists: false } },
+      { userRelevance: new RegExp(this.user.code || '') }
+    ];
+  }
+
   public async defaultFilters(): Promise<any> {
-    const activeIntegrations = await Integrations.findIntegrations(
-      {},
-      { _id: 1 }
-    );
+    const activeIntegrations = await getDocumentList('integrations', {
+      isActive: { $ne: false }
+    });
+
     this.activeIntegrationIds = activeIntegrations.map(integ => integ._id);
 
     let statusFilter = this.statusFilter([
@@ -76,19 +85,7 @@ export default class Builder {
       statusFilter = this.statusFilter([CONVERSATION_STATUSES.CLOSED]);
     }
 
-    return {
-      ...statusFilter,
-      // exclude engage messages if customer did not reply
-      $or: [
-        {
-          userId: { $exists: true },
-          messageCount: { $gt: 1 }
-        },
-        {
-          userId: { $exists: false }
-        }
-      ]
-    };
+    return statusFilter;
   }
 
   public async intersectIntegrationIds(
@@ -121,7 +118,15 @@ export default class Builder {
     // find all posssible integrations
     let availIntegrationIds: string[] = [];
 
-    const channels = await Channels.find({ memberIds: this.user._id });
+    const channels = await getDocumentList('channels', {
+      memberIds: this.user._id
+    });
+
+    if (channels.length === 0) {
+      return {
+        integrationId: { $in: [] }
+      };
+    }
 
     channels.forEach(channel => {
       availIntegrationIds = _.union(
@@ -145,7 +150,10 @@ export default class Builder {
     // filter by brand
     if (this.params.brandId) {
       const brandQuery = await this.brandFilter(this.params.brandId);
-      nestedIntegrationIds.push(brandQuery);
+
+      if (brandQuery) {
+        nestedIntegrationIds.push(brandQuery);
+      }
     }
 
     return this.intersectIntegrationIds(...nestedIntegrationIds);
@@ -156,6 +164,15 @@ export default class Builder {
     channelId: string
   ): Promise<{ integrationId: IIn }> {
     const channel = await Channels.getChannel(channelId);
+    const memberIds = channel.memberIds || [];
+
+    if (!memberIds.includes(this.user._id)) {
+      return {
+        integrationId: {
+          $in: []
+        }
+      };
+    }
 
     return {
       integrationId: {
@@ -167,8 +184,15 @@ export default class Builder {
   }
 
   // filter by brand
-  public async brandFilter(brandId: string): Promise<{ integrationId: IIn }> {
+  public async brandFilter(
+    brandId: string
+  ): Promise<{ integrationId: IIn } | undefined> {
     const integrations = await Integrations.findIntegrations({ brandId });
+
+    if (integrations.length === 0) {
+      return;
+    }
+
     const integrationIds = _.pluck(integrations, '_id');
 
     return {
@@ -220,26 +244,33 @@ export default class Builder {
   // filter by integration type
   public async integrationTypeFilter(
     integrationType: string
-  ): Promise<{ $and: IIntersectIntegrationIds[] }> {
+  ): Promise<IIntersectIntegrationIds[]> {
     const integrations = await Integrations.findIntegrations({
       kind: integrationType
     });
 
-    return {
-      $and: [
-        // add channel && brand filter
-        this.queries.integrations,
+    return [
+      // add channel && brand filter
+      this.queries.integrations,
 
-        // filter by integration type
-        { integrationId: { $in: _.pluck(integrations, '_id') } }
-      ]
-    };
+      // filter by integration type
+      { integrationId: { $in: _.pluck(integrations, '_id') } }
+    ];
   }
 
   // filter by tag
-  public tagFilter(tagId: string): { tagIds: IIn } {
+  public async tagFilter(tagIds: string[]): Promise<{ tagIds: IIn }> {
+    let ids: string[] = [];
+
+    const tags = await Tags.find({ _id: { $in: tagIds } });
+
+    for (const tag of tags) {
+      ids.push(tag._id);
+      ids = ids.concat(tag.relatedIds || []);
+    }
+
     return {
-      tagIds: { $in: [tagId] }
+      tagIds: { $in: ids }
     };
   }
 
@@ -249,6 +280,17 @@ export default class Builder {
         $gte: fixDate(startDate),
         $lte: fixDate(endDate)
       }
+    };
+  }
+
+  public async extendedQueryFilter({ integrationType }: IListArgs) {
+    return {
+      $and: [
+        { $or: this.userRelevanceQuery() },
+        ...(integrationType
+          ? await this.integrationTypeFilter(integrationType)
+          : [])
+      ]
     };
   }
 
@@ -307,14 +349,7 @@ export default class Builder {
 
     // filter by tag
     if (this.params.tag) {
-      this.queries.tag = this.tagFilter(this.params.tag);
-    }
-
-    // filter by integration type
-    if (this.params.integrationType) {
-      this.queries.integrationType = await this.integrationTypeFilter(
-        this.params.integrationType
-      );
+      this.queries.tag = await this.tagFilter(this.params.tag.split(','));
     }
 
     if (this.params.startDate && this.params.endDate) {
@@ -323,13 +358,15 @@ export default class Builder {
         this.params.endDate
       );
     }
+
+    this.queries.extended = await this.extendedQueryFilter(this.params);
   }
 
   public mainQuery(): any {
     return {
       ...this.queries.default,
       ...this.queries.integrations,
-      ...this.queries.integrationType,
+      ...this.queries.extended,
       ...this.queries.unassigned,
       ...this.queries.participating,
       ...this.queries.status,

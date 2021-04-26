@@ -1,39 +1,103 @@
+const genericFields = `
+  _id
+  description
+  order
+  isVisible
+  isVisibleInDetail
+  contentType
+  isDefinedByErxes
+`;
+
+const commonFields = `
+  type
+  text
+  
+  canHide
+  validation
+  options
+  groupId
+
+  ${genericFields}
+
+  lastUpdatedUser {
+    details {
+      fullName
+    }
+  }
+`;
+
+const commonFieldsGroups = `
+  name
+  ${genericFields}
+
+  lastUpdatedUser {
+    details {
+      fullName
+    }
+  }
+  fields  {
+    ${commonFields}
+  }
+}
+`;
+
 const fieldsGroups = `
   query fieldsGroups($contentType: String!) {
     fieldsGroups(contentType: $contentType) {
+      ${commonFieldsGroups}
+  }
+`;
+
+const getSystemFieldsGroup = `
+  query getSystemFieldsGroup($contentType: String!) {
+    getSystemFieldsGroup(contentType: $contentType) {
+      ${commonFieldsGroups}
+  }
+`;
+
+const fields = `
+  query fields($contentType: String!, $contentTypeId: String, $isVisible: Boolean) {
+    fields(contentType: $contentType, contentTypeId: $contentTypeId, isVisible: $isVisible) {
       _id
-      name
+      type
+      validation
+      text
       description
-      order
-      isVisible
-      lastUpdatedUser {
-        details {
-          fullName
-        }
-      }
+      options
+      isRequired
       isDefinedByErxes
-      fields {
+      order
+      associatedFieldId
+      logicAction
+      column
+      associatedField {
         _id
-        contentType
-        type
         text
-        isVisible
-        validation
-        order
-        options
-        groupId
-        description
-        isDefinedByErxes
-        lastUpdatedUser {
-          details {
-            fullName
-          }
-        }
+        contentType
       }
+      logics {
+        fieldId
+        logicOperator
+        logicValue
+      }
+      groupName
+    }
+  }
+`;
+
+const inboxFields = `
+  query fieldsInbox {
+    fieldsInbox {
+      customer { ${commonFields} }
+      device { ${commonFields} }
+      conversation { ${commonFields} }
     }
   }
 `;
 
 export default {
-  fieldsGroups
+  fieldsGroups,
+  fields,
+  getSystemFieldsGroup,
+  inboxFields
 };

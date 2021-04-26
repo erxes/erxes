@@ -17,7 +17,7 @@ const setLive = `
 `;
 
 const setLiveManual = `
-  mutation setLiveManual($_id: String!) {
+  mutation engageMessageSetLiveManual($_id: String!) {
     engageMessageSetLiveManual(_id: $_id) {
       _id
     }
@@ -31,8 +31,8 @@ const engagesUpdateConfigs = `
 `;
 
 const sendTestEmail = `
-  mutation engageMessageSendTestEmail($from: String!, $to: String!, $content: String!) {
-    engageMessageSendTestEmail(from: $from, to: $to, content: $content)
+  mutation engageMessageSendTestEmail($from: String!, $to: String!, $content: String!, $title: String!) {
+    engageMessageSendTestEmail(from: $from, to: $to, content: $content, title: $title)
   }
 `;
 
@@ -47,7 +47,7 @@ const commonVariables = `
   $segmentIds: [String],
   $brandIds: [String],
   $customerIds: [String],
-  $tagIds: [String],
+  $customerTagIds: [String],
   $email: EngageMessageEmail,
   $scheduleDate: EngageScheduleDateInput,
   $messenger: EngageMessageMessenger,
@@ -63,7 +63,7 @@ const commonParams = `
   isLive: $isLive,
   stopDate: $stopDate,
   segmentIds: $segmentIds,
-  tagIds: $tagIds,
+  customerTagIds: $customerTagIds,
   brandIds: $brandIds,
   customerIds: $customerIds,
   email: $email,
@@ -132,6 +132,14 @@ const segmentsAdd = `
   }
 `;
 
+const engageMessageCopy = `
+  mutation engageMessageCopy($_id: String!) {
+    engageMessageCopy(_id: $_id) {
+      _id
+    }
+  }
+`;
+
 export default {
   setPause,
   setLive,
@@ -143,5 +151,6 @@ export default {
   segmentsAdd,
   removeVerifiedEmail,
   verifyEmail,
-  sendTestEmail
+  sendTestEmail,
+  engageMessageCopy
 };

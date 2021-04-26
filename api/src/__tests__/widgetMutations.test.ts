@@ -1,11 +1,13 @@
 import * as faker from 'faker';
 import * as Random from 'meteor-random';
 import * as sinon from 'sinon';
+import { MESSAGE_KINDS } from '../data/constants';
+import { IntegrationsAPI } from '../data/dataSources';
+import * as logUtils from '../data/logUtils';
 import widgetMutations, {
   getMessengerData
 } from '../data/resolvers/mutations/widgets';
 import * as utils from '../data/utils';
-import { graphqlRequest } from '../db/connection';
 import {
   brandFactory,
   conversationFactory,
@@ -13,14 +15,17 @@ import {
   customerFactory,
   engageMessageFactory,
   fieldFactory,
+  fieldGroupFactory,
   formFactory,
   integrationFactory,
   knowledgeBaseArticleFactory,
   messengerAppFactory,
+  skillFactor,
   userFactory
 } from '../db/factories';
 import {
   Brands,
+  Companies,
   ConversationMessages,
   Conversations,
   Customers,
@@ -33,11 +38,12 @@ import { IBrandDocument } from '../db/models/definitions/brands';
 import {
   CONVERSATION_OPERATOR_STATUS,
   CONVERSATION_STATUSES,
-  MESSAGE_TYPES
+  MESSAGE_TYPES,
+  METHODS
 } from '../db/models/definitions/constants';
 import { ICustomerDocument } from '../db/models/definitions/customers';
 import { IIntegrationDocument } from '../db/models/definitions/integrations';
-import memoryStorage from '../inmemoryStorage';
+import * as elk from '../elasticsearch';
 import './setup.ts';
 
 describe('messenger connect', () => {
@@ -76,11 +82,11 @@ describe('messenger connect', () => {
         { brandCode: 'invalidCode' }
       );
     } catch (e) {
-      expect(e.message).toBe('Brand not found');
+      expect(e.message).toBe('Invalid configuration');
     }
   });
 
-  test('brand not found', async () => {
+  test('integration not found', async () => {
     const brand = await brandFactory({});
 
     try {
@@ -91,6 +97,64 @@ describe('messenger connect', () => {
     } catch (e) {
       expect(e.message).toBe('Integration not found');
     }
+  });
+
+  test('Test inactive integration', async () => {
+    const brand = await brandFactory({});
+    const integration = await integrationFactory({
+      isActive: false,
+      brandId: brand._id
+    });
+
+    try {
+      await widgetMutations.widgetsMessengerConnect(
+        {},
+        { brandCode: brand.code || '' }
+      );
+    } catch (e) {
+      expect(e.message).toBe(`Integration "${integration.name}" is not active`);
+    }
+  });
+
+  test('Company data (Not a valid enum value for path `industry`)', async () => {
+    const brand = await brandFactory();
+    await integrationFactory({ brandId: brand._id });
+
+    const companyName = faker.name.findName();
+
+    await widgetMutations.widgetsMessengerConnect(
+      {},
+      {
+        brandCode: brand.code || '',
+        companyData: { name: companyName, industry: 'үйлчилгээ' }
+      }
+    );
+
+    // company isn't created because industry is not a valid
+    expect(await Companies.findOne({ name: companyName })).toBeNull();
+  });
+
+  test('with company error`)', async () => {
+    const mock = sinon.stub(Companies, 'createCompany').callsFake(() => {
+      throw new Error('fake error');
+    });
+
+    const brand = await brandFactory();
+    await integrationFactory({ brandId: brand._id });
+
+    const companyName = faker.name.findName();
+
+    await widgetMutations.widgetsMessengerConnect(
+      {},
+      {
+        brandCode: brand.code || '',
+        companyData: { name: companyName, industry: 'үйлчилгээ' }
+      }
+    );
+
+    // company isn't created because industry is not a valid
+    expect(await Companies.findOne({ name: companyName })).toBeNull();
+    mock.restore();
   });
 
   test('returns proper integrationId', async () => {
@@ -129,6 +193,7 @@ describe('messenger connect', () => {
     expect(brand.code).toBe(_brand.code);
     expect(messengerData.formCode).toBe('formCode');
     expect(messengerData.knowledgeBaseTopicId).toBe('topicId');
+
     mock.restore();
   });
 
@@ -165,6 +230,32 @@ describe('messenger connect', () => {
     expect(customer.deviceTokens).toContain('111');
     expect(customer.createdAt >= now).toBeTruthy();
     expect(customer.sessionCount).toBe(1);
+    mock.restore();
+  });
+
+  test('creates new visitor log', async () => {
+    const mock = sinon.stub(utils, 'sendRequest').callsFake(() => {
+      return Promise.resolve('success');
+    });
+
+    const logUtilsMock = sinon
+      .stub(logUtils, 'sendToVisitorLog')
+      .callsFake(() => {
+        return Promise.resolve('ok');
+      });
+
+    const response = await widgetMutations.widgetsMessengerConnect(
+      {},
+      {
+        brandCode: _brand.code || '',
+        visitorId: '123'
+      }
+    );
+
+    expect(response.customerId).toBeUndefined();
+    expect(response.visitorId).toBe('123');
+
+    logUtilsMock.restore();
     mock.restore();
   });
 
@@ -209,6 +300,7 @@ describe('insertMessage()', () => {
   let _integration: IIntegrationDocument;
   let _customer: ICustomerDocument;
   let _integrationBot: IIntegrationDocument;
+  let context;
 
   beforeEach(async () => {
     // Creating test data
@@ -224,6 +316,12 @@ describe('insertMessage()', () => {
       }
     });
     _customer = await customerFactory({ integrationId: _integration._id });
+
+    context = {
+      dataSources: {
+        IntegrationsAPI: new IntegrationsAPI()
+      }
+    };
   });
 
   afterEach(async () => {
@@ -242,7 +340,8 @@ describe('insertMessage()', () => {
         integrationId: _integration._id,
         customerId: _customer._id,
         message: faker.lorem.sentence()
-      }
+      },
+      context
     );
 
     // check message ==========
@@ -267,6 +366,29 @@ describe('insertMessage()', () => {
     }
 
     expect(customer.isOnline).toBeTruthy();
+
+    const user = await userFactory({ code: '123 ' });
+    const skill = await skillFactor({ memberIds: [user._id] });
+
+    const message2 = await widgetMutations.widgetsInsertMessage(
+      {},
+      {
+        contentType: MESSAGE_TYPES.TEXT,
+        integrationId: _integration._id,
+        customerId: _customer._id,
+        message: faker.lorem.sentence(),
+        skillId: skill._id
+      },
+      context
+    );
+
+    const conversation2 = await Conversations.findById(
+      message2.conversationId
+    ).lean();
+
+    if (conversation2) {
+      expect(conversation2.userRelevance).toBe(`${user.code}SS`);
+    }
   });
 
   test('with conversationId', async () => {
@@ -280,10 +402,44 @@ describe('insertMessage()', () => {
         customerId: _customer._id,
         message: 'withConversationId',
         conversationId: conversation._id
-      }
+      },
+      context
     );
 
     expect(message.content).toBe('withConversationId');
+  });
+
+  test('with visitorId', async () => {
+    const logUtilsMock = sinon
+      .stub(logUtils, 'sendToVisitorLog')
+      .callsFake(() => {
+        return Promise.resolve('ok');
+      });
+
+    const mock = sinon.stub(logUtils, 'getVisitorLog').callsFake(() => {
+      return Promise.resolve({
+        visitorId: '123',
+        _id: '1245'
+      });
+    });
+    const conversation = await conversationFactory({});
+
+    const message = await widgetMutations.widgetsInsertMessage(
+      {},
+      {
+        contentType: MESSAGE_TYPES.TEXT,
+        integrationId: _integration._id,
+        visitorId: '123',
+        message: 'withConversationId',
+        conversationId: conversation._id
+      },
+      context
+    );
+
+    expect(message.content).toBe('withConversationId');
+
+    mock.restore();
+    logUtilsMock.restore();
   });
 
   test('Widget bot message with conversationId', async () => {
@@ -314,7 +470,8 @@ describe('insertMessage()', () => {
         message: 'User message',
         customerId: _customer._id,
         conversationId: conversation._id
-      }
+      },
+      context
     );
 
     expect(message.content).toBe('User message');
@@ -343,7 +500,8 @@ describe('insertMessage()', () => {
         message: 'User message 2',
         customerId: _customer._id,
         conversationId: conversation2._id
-      }
+      },
+      context
     );
 
     expect(message2.content).toBe('User message 2');
@@ -370,7 +528,8 @@ describe('insertMessage()', () => {
         integrationId: _integrationBot._id,
         message: 'User message',
         customerId: _customer._id
-      }
+      },
+      context
     );
 
     expect(message.content).toBe('User message');
@@ -497,16 +656,27 @@ describe('insertMessage()', () => {
       }
     ]);
 
-    await memoryStorage().set(
-      `bot_initial_message_${_integrationBot._id}`,
-      JSON.stringify({ text: 'Hi there' })
-    );
+    const sendToVisitorLogMock = sinon
+      .stub(logUtils, 'sendToVisitorLog')
+      .callsFake(() => {
+        return Promise.resolve({
+          visitorId: '123',
+          integrationId: _integration._id
+        });
+      });
+
+    const visitorMock = sinon.stub(logUtils, 'getVisitorLog').callsFake(() => {
+      return Promise.resolve({
+        visitorId: '123',
+        integrationId: _integration._id
+      });
+    });
 
     const botMessage3 = await widgetMutations.widgetBotRequest(
       {},
       {
         integrationId: _integrationBot._id,
-        customerId: _customer._id,
+        visitorId: '123',
         message: 'Reply message',
         payload: 'Response of reply',
         type: 'postback'
@@ -520,11 +690,98 @@ describe('insertMessage()', () => {
       }
     ]);
 
-    await memoryStorage().removeKey(
-      `bot_initial_message_${_integrationBot._id}`
-    );
+    visitorMock.restore();
+    sendToVisitorLogMock.restore();
 
     sendRequestMock.restore();
+  });
+
+  test('Video call request', async () => {
+    const conversation = await conversationFactory();
+
+    // When first video call request
+    const vcrMessage = await widgetMutations.widgetsInsertMessage(
+      {},
+      {
+        contentType: MESSAGE_TYPES.VIDEO_CALL_REQUEST,
+        integrationId: _integration._id,
+        customerId: _customer._id,
+        conversationId: conversation._id,
+        message: ''
+      },
+      context
+    );
+
+    expect(vcrMessage).toBeDefined();
+
+    // When not connected with Integration API
+    const vcrMessage2 = await widgetMutations.widgetsInsertMessage(
+      {},
+      {
+        contentType: MESSAGE_TYPES.VIDEO_CALL_REQUEST,
+        integrationId: _integration._id,
+        customerId: _customer._id,
+        conversationId: conversation._id,
+        message: ''
+      },
+      context
+    );
+
+    expect(vcrMessage2).toBeDefined();
+
+    // When occured error
+    const spy = jest.spyOn(context.dataSources.IntegrationsAPI, 'fetchApi');
+
+    spy.mockImplementation(() =>
+      Promise.resolve([
+        { code: 'VIDEO_CALL_TIME_DELAY_BETWEEN_REQUESTS', value: 10 },
+        {
+          code: 'VIDEO_CALL_MESSAGE_FOR_TIME_DELAY',
+          value: 'Video call request has already sent'
+        }
+      ])
+    );
+
+    try {
+      await widgetMutations.widgetsInsertMessage(
+        {},
+        {
+          contentType: MESSAGE_TYPES.VIDEO_CALL_REQUEST,
+          integrationId: _integration._id,
+          customerId: _customer._id,
+          conversationId: conversation._id,
+          message: ''
+        },
+        context
+      );
+    } catch (e) {
+      expect(e.message).toBe('Video call request has already sent');
+    }
+  });
+
+  test('Failed to send notification to mobile', async () => {
+    const spy = jest.spyOn(utils, 'sendMobileNotification');
+    spy.mockImplementation(() => {
+      throw new Error('error');
+    });
+
+    const conversation = await conversationFactory();
+
+    const message = await widgetMutations.widgetsInsertMessage(
+      {},
+      {
+        contentType: MESSAGE_TYPES.TEXT,
+        integrationId: _integration._id,
+        customerId: _customer._id,
+        conversationId: conversation._id,
+        message: 'message'
+      },
+      context
+    );
+
+    expect(message.content).toBe('message');
+
+    spy.mockRestore();
   });
 });
 
@@ -593,7 +850,7 @@ describe('saveBrowserInfo()', () => {
           }
         ]
       },
-      kind: 'visitorAuto',
+      kind: MESSAGE_KINDS.VISITOR_AUTO,
       method: 'messenger',
       isLive: true
     });
@@ -606,7 +863,62 @@ describe('saveBrowserInfo()', () => {
       }
     );
 
-    expect(response && response.content).toBe('engageMessage');
+    expect(response).toBe(null);
+  });
+
+  test('with visitorId', async () => {
+    const user = await userFactory({});
+    const brand = await brandFactory({});
+    const integration = await integrationFactory({ brandId: brand._id });
+
+    const sendToVisitorLogMock = sinon
+      .stub(logUtils, 'sendToVisitorLog')
+      .callsFake(() => {
+        return Promise.resolve({
+          visitorId: '1234',
+          integrationId: integration._id
+        });
+      });
+
+    const getVisitorLogMock = sinon
+      .stub(logUtils, 'getVisitorLog')
+      .callsFake(() => {
+        return Promise.resolve({
+          visitorId: '1234',
+          integrationId: integration._id
+        });
+      });
+
+    await engageMessageFactory({
+      userId: user._id,
+      messenger: {
+        brandId: brand._id,
+        content: 'engageMessage',
+        rules: [
+          {
+            text: 'text',
+            kind: 'currentPageUrl',
+            condition: 'is',
+            value: '/page'
+          }
+        ]
+      },
+      kind: MESSAGE_KINDS.VISITOR_AUTO,
+      method: METHODS.MESSENGER,
+      isLive: true
+    });
+
+    const response = await widgetMutations.widgetsSaveBrowserInfo(
+      {},
+      {
+        visitorId: '1234',
+        browserInfo: { url: '/page' }
+      }
+    );
+
+    expect(response).toBe(null);
+    getVisitorLogMock.restore();
+    sendToVisitorLogMock.restore();
   });
 
   mock.restore();
@@ -628,6 +940,38 @@ describe('rest', () => {
     expect(
       customer.visitorContactInfo && customer.visitorContactInfo.email
     ).toBe('email');
+  });
+
+  test('widgetsSaveCustomerGetNotified without customerId', async () => {
+    const mock = sinon.stub(logUtils, 'getVisitorLog').callsFake(() => {
+      return Promise.resolve({
+        visitorId: '123',
+        _id: '1245'
+      });
+    });
+
+    const logUtilsMock = sinon
+      .stub(logUtils, 'sendToVisitorLog')
+      .callsFake(() => {
+        return Promise.resolve('ok');
+      });
+
+    const customer = await widgetMutations.widgetsSaveCustomerGetNotified(
+      {},
+      {
+        visitorId: '123',
+        customerId: '',
+        type: 'email',
+        value: 'email'
+      }
+    );
+
+    expect(
+      customer.visitorContactInfo && customer.visitorContactInfo.email
+    ).toBe('email');
+
+    logUtilsMock.restore();
+    mock.restore();
   });
 
   test('widgetsSendTypingInfo', async () => {
@@ -787,6 +1131,17 @@ describe('lead', () => {
       }
     });
 
+    const response1 = await widgetMutations.widgetsLeadConnect(
+      {},
+      {
+        brandCode: brand.code || '',
+        formCode: form.code || ''
+      }
+    );
+
+    expect(response1 && response1.integration._id).toBe(integration._id);
+    expect(response1 && response1.form._id).toBe(form._id);
+
     const response = await widgetMutations.widgetsLeadConnect(
       {},
       {
@@ -831,8 +1186,10 @@ describe('lead', () => {
         cachedCustomerId: '123123'
       }
     );
+
     expect(conversation).toBeDefined();
     expect(response).toBeNull();
+
     mock.restore();
   });
 
@@ -877,19 +1234,12 @@ describe('lead', () => {
     expect(response && response.status).toBe('error');
   });
 
-  test('saveLead: success', async () => {
-    const mock = sinon.stub(utils, 'sendRequest').callsFake(() => {
-      return Promise.resolve('success');
-    });
-
+  test('saveLead: without company', async () => {
     const form = await formFactory({});
-
-    const emailField = await fieldFactory({
-      type: 'email',
-      contentTypeId: form._id,
-      validation: 'text',
-      isRequired: true
-    });
+    const fieldsGroup = await fieldGroupFactory({ contentType: 'company' });
+    if (!fieldsGroup) {
+      fail('fieldsGroup not found');
+    }
 
     const firstNameField = await fieldFactory({
       type: 'firstName',
@@ -898,15 +1248,104 @@ describe('lead', () => {
       isRequired: true
     });
 
-    const lastNameField = await fieldFactory({
-      type: 'lastName',
+    const customProperty = await fieldFactory({
+      type: 'input',
+      validation: 'number',
+      isVisible: true,
+      contentType: 'company',
+      groupId: fieldsGroup._id
+    });
+
+    const inputField = await fieldFactory({
+      type: customProperty.type,
+      validation: customProperty.validation,
       contentTypeId: form._id,
+      contentType: 'form',
+      associatedFieldId: customProperty._id
+    });
+
+    const pronounField = await fieldFactory({
+      type: 'pronoun'
+    });
+
+    const integration = await integrationFactory({ formId: form._id });
+
+    const response = await widgetMutations.widgetsSaveLead(
+      {},
+      {
+        integrationId: integration._id,
+        formId: form._id,
+        submissions: [
+          { _id: firstNameField._id, value: 'name' },
+          {
+            _id: inputField._id,
+            type: 'input',
+            value: 1,
+            associatedFieldId: inputField.associatedFieldId
+          },
+          {
+            _id: inputField._id,
+            type: 'input',
+            value: 1,
+            associatedFieldId: 'fake'
+          },
+          { _id: pronounField._id, type: 'pronoun', value: '' }
+        ],
+        browserInfo: {
+          currentPageUrl: '/page'
+        }
+      }
+    );
+
+    expect(response && response.status).toBe('ok');
+  });
+
+  test('saveLead: success', async () => {
+    const mock = sinon.stub(utils, 'sendRequest').callsFake(() => {
+      return Promise.resolve('success');
+    });
+
+    const form = await formFactory({});
+
+    const group = await fieldGroupFactory({ contentType: 'form' });
+
+    const params = {
       validation: 'text',
-      isRequired: true
+      isRequired: true,
+      contentTypeId: form._id
+    };
+
+    const emailField = await fieldFactory({
+      ...params,
+      type: 'email',
+      groupId: (group && group._id) || ''
+    });
+
+    const companyEmailField = await fieldFactory({
+      ...params,
+      type: 'companyEmail',
+      groupId: (group && group._id) || ''
+    });
+
+    const firstNameField = await fieldFactory({
+      ...params,
+      type: 'firstName',
+      groupId: (group && group._id) || ''
+    });
+
+    const lastNameField = await fieldFactory({
+      ...params,
+      type: 'lastName'
     });
 
     const phoneField = await fieldFactory({
       type: 'phone',
+      contentTypeId: form._id,
+      isRequired: true
+    });
+
+    const companyPhoneField = await fieldFactory({
+      type: 'companyPhone',
       contentTypeId: form._id,
       isRequired: true
     });
@@ -925,6 +1364,113 @@ describe('lead', () => {
       options: ['radio1', 'radio2']
     });
 
+    const customProperty = await fieldFactory({
+      type: 'input',
+      validation: 'number',
+      isVisible: true,
+      contentType: 'customer'
+    });
+
+    const inputField = await fieldFactory({
+      type: customProperty.type,
+      validation: customProperty.validation,
+      contentTypeId: form._id,
+      contentType: 'form',
+      associatedFieldId: customProperty._id
+    });
+
+    const companyNameField = await fieldFactory({
+      ...params,
+      type: 'companyName'
+    });
+
+    const companyNameField2 = await fieldFactory({
+      ...params,
+      type: 'companyName',
+      groupId: (group && group._id) || ''
+    });
+
+    const avatarField = await fieldFactory({
+      ...params,
+      type: 'avatar'
+    });
+
+    const companyAvatarField = await fieldFactory({
+      ...params,
+      type: 'companyAvatar'
+    });
+
+    const industryField = await fieldFactory({
+      ...params,
+      type: 'industry'
+    });
+
+    const sizeField = await fieldFactory({
+      type: 'size',
+      contentTypeId: form._id,
+      isRequired: true
+    });
+
+    const businessTypeField = await fieldFactory({
+      ...params,
+      type: 'businessType'
+    });
+
+    const pronounField = await fieldFactory({
+      ...params,
+      type: 'pronoun'
+    });
+
+    const pronounField1 = await fieldFactory({
+      ...params,
+      type: 'pronoun'
+    });
+
+    const pronounField2 = await fieldFactory({
+      ...params,
+      type: 'pronoun'
+    });
+
+    const doNotDisturbField = await fieldFactory({
+      ...params,
+      type: 'doNotDisturb'
+    });
+
+    const hasAuthorityField = await fieldFactory({
+      ...params,
+      type: 'hasAuthority'
+    });
+
+    const birthDateField = await fieldFactory({
+      ...params,
+      type: 'birthDate'
+    });
+
+    const descriptionField = await fieldFactory({
+      ...params,
+      type: 'description'
+    });
+
+    const departmentField = await fieldFactory({
+      ...params,
+      type: 'department'
+    });
+
+    const positionField = await fieldFactory({
+      ...params,
+      type: 'position'
+    });
+
+    const companyDescriptionField = await fieldFactory({
+      ...params,
+      type: 'companyDescription'
+    });
+
+    const companyDoNotDisturbField = await fieldFactory({
+      ...params,
+      type: 'companyDoNotDisturb'
+    });
+
     const integration = await integrationFactory({ formId: form._id });
 
     const response = await widgetMutations.widgetsSaveLead(
@@ -933,12 +1479,89 @@ describe('lead', () => {
         integrationId: integration._id,
         formId: form._id,
         submissions: [
-          { _id: emailField._id, type: 'email', value: 'email@yahoo.com' },
-          { _id: firstNameField._id, type: 'firstName', value: 'firstName' },
+          {
+            _id: emailField._id,
+            type: 'email',
+            value: 'email@yahoo.com',
+            groupId: (group && group._id) || ''
+          },
+          {
+            _id: firstNameField._id,
+            type: 'firstName',
+            value: 'firstName',
+            groupId: (group && group._id) || ''
+          },
           { _id: lastNameField._id, type: 'lastName', value: 'lastName' },
           { _id: phoneField._id, type: 'phone', value: '+88998833' },
           { _id: radioField._id, type: 'radio', value: 'radio2' },
-          { _id: checkField._id, type: 'check', value: 'check1, check2' }
+          { _id: checkField._id, type: 'check', value: 'check1, check2' },
+          {
+            _id: inputField._id,
+            type: 'input',
+            value: 1,
+            associatedFieldId: inputField.associatedFieldId
+          },
+          { _id: companyNameField._id, type: 'companyName', value: 'company' },
+          {
+            _id: companyNameField2._id,
+            type: 'companyName',
+            value: 'com',
+            groupId: (group && group._id) || ''
+          },
+          {
+            _id: companyEmailField._id,
+            type: 'companyEmail',
+            value: 'info@company.com'
+          },
+          {
+            _id: companyPhoneField._id,
+            type: 'companyPhone',
+            value: '+99112233'
+          },
+          {
+            _id: avatarField._id,
+            type: 'avatar',
+            value: [{ url: 'https://i.pravatar.cc/150?u=a042581f4e29026704d' }]
+          },
+          {
+            _id: companyAvatarField._id,
+            type: 'companyAvatar',
+            value: [{ url: 'https://i.pravatar.cc/150?img=63' }]
+          },
+          { _id: industryField._id, type: 'industry', value: 'Banks' },
+          { _id: sizeField._id, type: 'size', value: '10' },
+          {
+            _id: businessTypeField._id,
+            type: 'businessType',
+            value: 'Investor'
+          },
+          { _id: pronounField._id, type: 'pronoun', value: 'Male' },
+          { _id: pronounField1._id, type: 'pronoun', value: 'Female' },
+          { _id: pronounField2._id, type: 'pronoun', value: 'Not applicable' },
+          { _id: doNotDisturbField._id, type: 'doNotDisturb', value: 'No' },
+          { _id: hasAuthorityField._id, type: 'hasAuthority', value: 'No' },
+          {
+            _id: birthDateField._id,
+            type: 'birthDate',
+            value: 'Fri Mar 26 2021 18:01:50 GMT+0800'
+          },
+          {
+            _id: descriptionField._id,
+            type: 'description',
+            value: 'description'
+          },
+          { _id: departmentField._id, type: 'department', value: 'department' },
+          { _id: positionField._id, type: 'position', value: 'position' },
+          {
+            _id: companyDescriptionField._id,
+            type: 'companyDescription',
+            value: 'companyDescription'
+          },
+          {
+            _id: companyDoNotDisturbField._id,
+            type: 'companyDoNotDisturb',
+            value: 'Yes'
+          }
         ],
         browserInfo: {
           currentPageUrl: '/page'
@@ -950,7 +1573,7 @@ describe('lead', () => {
 
     expect(await Conversations.find().countDocuments()).toBe(1);
     expect(await ConversationMessages.find().countDocuments()).toBe(1);
-    expect(await Customers.find().countDocuments()).toBe(1);
+    expect(await Customers.find().countDocuments()).toBe(2);
     expect(await FormSubmissions.find().countDocuments()).toBe(1);
 
     const message = await ConversationMessages.findOne();
@@ -972,6 +1595,15 @@ describe('lead', () => {
   test('widgetsSendEmail', async () => {
     const customer = await customerFactory({});
     const form = await formFactory({});
+    const integration = await integrationFactory({});
+
+    const mock = sinon.stub(elk, 'fetchElk').callsFake(() => {
+      return Promise.resolve({
+        hits: {
+          hits: [{ _id: integration._id, _source: { name: integration.name } }]
+        }
+      });
+    });
 
     const emailParams = {
       toEmails: ['test-mail@gmail.com'],
@@ -982,24 +1614,12 @@ describe('lead', () => {
       formId: form._id
     };
 
-    const spyEmail = jest.spyOn(widgetMutations, 'widgetsSendEmail');
-
-    const mutation = `
-      mutation widgetsSendEmail($toEmails: [String], $fromEmail: String, $title: String, $content: String, $formId: String, $customerId: String) {
-        widgetsSendEmail(toEmails: $toEmails, fromEmail: $fromEmail, title: $title, content: $content, formId: $formId, customerId: $customerId)
-      }
-    `;
-
-    spyEmail.mockImplementation(() => Promise.resolve());
-
-    const response = await graphqlRequest(
-      mutation,
-      'widgetsSendEmail',
-      emailParams
+    const response = await widgetMutations.widgetsSendEmail(
+      {},
+      { ...emailParams }
     );
 
-    expect(response).toBe(null);
-
-    spyEmail.mockRestore();
+    expect(response).toBe(undefined);
+    mock.restore();
   });
 });

@@ -68,6 +68,22 @@ const LinkButton = styled.a`
   }
 `;
 
+const FormTable = styled.table`
+  width: 100%;
+
+  td {
+    padding-right: ${dimensions.coreSpacing}px;
+    width: 25%;
+  }
+
+  tr {
+    td:last-child,
+    td:nth-child(4) {
+      padding: 0;
+    }
+  }
+`;
+
 export {
   FilterContainer,
   FlexRow,
@@ -75,5 +91,6 @@ export {
   UserAvatar,
   LinkButton,
   RemoveRow,
-  InviteOption
+  InviteOption,
+  FormTable
 };

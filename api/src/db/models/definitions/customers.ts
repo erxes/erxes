@@ -31,6 +31,7 @@ export interface ICustomer {
   scopeBrandIds?: string[];
   firstName?: string;
   lastName?: string;
+  middleName?: string;
   birthDate?: Date;
   sex?: number;
   primaryEmail?: string;
@@ -108,8 +109,8 @@ export const locationSchema = new Schema(
 
 export const visitorContactSchema = new Schema(
   {
-    email: field({ type: String, label: 'Email' }),
-    phone: field({ type: String, label: 'Phone' })
+    email: field({ type: String, label: 'Email', optional: true }),
+    phone: field({ type: String, label: 'Phone', optional: true })
   },
   { _id: false }
 );
@@ -128,6 +129,7 @@ export const customerSchema = schemaWrapper(
       label: 'State',
       default: 'visitor',
       enum: getEnum('STATE'),
+      index: true,
       selectOptions: CUSTOMER_SELECT_OPTIONS.STATE
     }),
 
@@ -137,6 +139,8 @@ export const customerSchema = schemaWrapper(
 
     firstName: field({ type: String, label: 'First name', optional: true }),
     lastName: field({ type: String, label: 'Last name', optional: true }),
+    middleName: field({ type: String, label: 'Middle name', optional: true }),
+
     birthDate: field({
       type: Date,
       label: 'Date of birth',
@@ -240,11 +244,17 @@ export const customerSchema = schemaWrapper(
     }),
     links: field({ type: Object, default: {}, label: 'Links' }),
 
-    relatedIntegrationIds: field({ type: [String], optional: true }),
+    relatedIntegrationIds: field({
+      type: [String],
+      label: 'Related integrations',
+      esType: 'keyword',
+      optional: true
+    }),
     integrationId: field({
       type: String,
       optional: true,
       label: 'Integration',
+      index: true,
       esType: 'keyword'
     }),
     tagIds: field({

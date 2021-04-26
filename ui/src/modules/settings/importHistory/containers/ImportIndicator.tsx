@@ -52,9 +52,21 @@ class ImportIndicatorContainer extends React.Component<
     } = this.props;
 
     const importHistory = importHistoryDetailQuery.importHistoryDetail || {};
+    const importHistoryError = importHistoryDetailQuery.error || {};
+    const isImportRemoved = (importHistoryError.message || '').includes(
+      'Import history not found'
+    );
     const errors = this.state.errors;
     const percentage =
       Math.trunc(importHistory.percentage) || this.state.percentage;
+
+    if (
+      importHistoryDetailQuery.error ||
+      importHistory.status === 'Done' ||
+      percentage === 100
+    ) {
+      importHistoryDetailQuery.stopPolling();
+    }
 
     const cancelImport = id => {
       confirm().then(() => {
@@ -78,6 +90,7 @@ class ImportIndicatorContainer extends React.Component<
         percentage={percentage}
         importHistory={importHistory}
         cancel={cancelImport}
+        isImportRemoved={isImportRemoved}
         isRemovingImport={isRemovingImport}
         errors={errors}
       />

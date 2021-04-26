@@ -37,6 +37,7 @@ export default `
     _id
     avatar
     firstName
+    middleName
     lastName
     primaryEmail
     primaryPhone

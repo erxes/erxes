@@ -33,6 +33,7 @@ export const companyDetail = `
       customers {
         _id
         firstName
+        middleName
         lastName
         primaryEmail
         primaryPhone

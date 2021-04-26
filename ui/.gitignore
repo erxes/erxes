@@ -1,3 +1,4 @@
 public/version.json
 /cypress/videos
 /cypress/screenshots
+plugins.ts

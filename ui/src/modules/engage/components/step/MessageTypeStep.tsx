@@ -2,7 +2,7 @@ import FormControl from 'modules/common/components/form/Control';
 import FormGroup from 'modules/common/components/form/Group';
 import ControlLabel from 'modules/common/components/form/Label';
 import { FlexItem } from 'modules/common/components/step/styles';
-import { MESSAGE_TYPES } from 'modules/engage/constants';
+import { CAMPAIGN_TARGET_TYPES } from 'modules/engage/constants';
 import { SelectMessageType } from 'modules/engage/styles';
 import React from 'react';
 import BrandStep from '../../containers/BrandStep';
@@ -28,7 +28,18 @@ class MessageTypeStep extends React.Component<Props, State> {
   constructor(props) {
     super(props);
 
-    this.state = { messageType: 'segment' };
+    const { brandIds = [], tagIds = [] } = props;
+
+    let messageType: string = CAMPAIGN_TARGET_TYPES.SEGMENT;
+
+    if (brandIds.length > 0) {
+      messageType = CAMPAIGN_TARGET_TYPES.BRAND;
+    }
+    if (tagIds.length > 0) {
+      messageType = CAMPAIGN_TARGET_TYPES.TAG;
+    }
+
+    this.state = { messageType };
   }
 
   onChange = (e: React.FormEvent<HTMLElement>) => {
@@ -37,6 +48,11 @@ class MessageTypeStep extends React.Component<Props, State> {
   };
 
   renderSelector() {
+    const options = CAMPAIGN_TARGET_TYPES.ALL.map(opt => ({
+      value: opt,
+      label: opt.charAt(0).toUpperCase() + opt.slice(1)
+    }));
+
     return (
       <SelectMessageType>
         <FormGroup>
@@ -45,7 +61,7 @@ class MessageTypeStep extends React.Component<Props, State> {
             id="messageType"
             value={this.state.messageType}
             componentClass="select"
-            options={MESSAGE_TYPES}
+            options={options}
             onChange={this.onChange}
           />
         </FormGroup>
@@ -72,10 +88,10 @@ class MessageTypeStep extends React.Component<Props, State> {
     let Component;
 
     switch (this.state.messageType) {
-      case 'brand':
+      case CAMPAIGN_TARGET_TYPES.BRAND:
         Component = BrandStep;
         break;
-      case 'tag':
+      case CAMPAIGN_TARGET_TYPES.TAG:
         Component = TagStep;
         break;
       default:

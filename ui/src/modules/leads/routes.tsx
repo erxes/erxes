@@ -43,19 +43,19 @@ const editLead = ({ match, location }) => {
 const routes = () => {
   return (
     <React.Fragment>
-      <Route exact={true} key="/leads" path="/leads" component={forms} />
+      <Route exact={true} key="/forms" path="/forms" component={forms} />
 
       <Route
-        key="/leads/create"
+        key="/forms/create"
         exact={true}
-        path="/leads/create"
+        path="/forms/create"
         component={createLead}
       />
 
       <Route
-        key="/leads/edit/:contentTypeId?/:formId?"
+        key="/forms/edit/:contentTypeId?/:formId?"
         exact={true}
-        path="/leads/edit/:contentTypeId/:formId?"
+        path="/forms/edit/:contentTypeId/:formId?"
         component={editLead}
       />
     </React.Fragment>

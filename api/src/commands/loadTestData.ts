@@ -4,7 +4,9 @@ import * as fs from 'fs';
 import { disconnect } from 'mongoose';
 import * as shelljs from 'shelljs';
 import * as XlsxStreamReader from 'xlsx-stream-reader';
+import { EngagesAPI, HelpersApi, IntegrationsAPI } from '../data/dataSources';
 
+import { MESSAGE_KINDS } from '../data/constants';
 import { checkFieldNames } from '../data/modules/fields/utils';
 import widgetMutations from '../data/resolvers/mutations/widgets';
 import { getEnv } from '../data/utils';
@@ -22,6 +24,7 @@ import {
   EmailTemplates,
   EngageMessages,
   Fields,
+  FieldsGroups,
   Forms,
   ImportHistory,
   Integrations,
@@ -41,13 +44,14 @@ import {
   UsersGroups
 } from '../db/models';
 import { IPipelineStage } from '../db/models/definitions/boards';
+import { METHODS } from '../db/models/definitions/constants';
 import {
   LEAD_LOAD_TYPES,
   MESSAGE_TYPES,
   TAG_TYPES
 } from '../db/models/definitions/constants';
 import { debugWorkers } from '../debuggers';
-import memoryStorage, { initMemoryStorage } from '../inmemoryStorage';
+import { initMemoryStorage, set } from '../inmemoryStorage';
 import {
   clearEmptyValues,
   generatePronoun,
@@ -131,6 +135,23 @@ const main = async () => {
     uppercase: true,
     strict: true
   });
+
+  const path = require('path');
+  const jsonPath = '../../../ui/cypress.json';
+  const cypressSettings = require(jsonPath);
+
+  cypressSettings.env.userPassword = newPwd;
+  const newJson = JSON.stringify(cypressSettings, null, 2);
+
+  fs.writeFile(path.resolve(__dirname, jsonPath), newJson, err => {
+    if (err) {
+      return console.log(err);
+    }
+    console.log(JSON.stringify(cypressSettings, null, 2));
+    console.log('writing to ' + jsonPath);
+  });
+
+  await FieldsGroups.createSystemGroupsFields();
 
   const userDoc = {
     createdAt: faker.date.recent(),
@@ -265,6 +286,16 @@ const main = async () => {
     type: TAG_TYPES.CONVERSATION,
     colorCode: '#F7CE53'
   });
+  await Tags.createTag({
+    name: 'happy',
+    type: TAG_TYPES.COMPANY,
+    colorCode: '#4BBF6B'
+  });
+  await Tags.createTag({
+    name: 'angry',
+    type: TAG_TYPES.COMPANY,
+    colorCode: '#CD5A91'
+  });
 
   await Configs.createOrUpdateConfig({
     code: 'UPLOAD_SERVICE_TYPE',
@@ -282,6 +313,7 @@ const main = async () => {
         loadType,
         successAction: 'redirect',
         redirectUrl: faker.internet.url(),
+        thankTitle: faker.random.word(),
         thankContent: faker.lorem.sentence()
       }
     },
@@ -420,16 +452,21 @@ const main = async () => {
 
   console.log('Creating: Conversations');
 
+  const context: any = {
+    dataSources: {
+      IntegrationsAPI: new IntegrationsAPI(),
+      EngagesAPI: new EngagesAPI(),
+      HelpersApi: new HelpersApi()
+    }
+  };
+
   for (let i = 0; i < 5; i++) {
     const randomCustomer = await Customers.aggregate([
       { $sample: { size: 1 } }
     ]);
 
     if (randomCustomer[0]) {
-      memoryStorage().set(
-        `customer_last_status_${randomCustomer[0]._id}`,
-        'left'
-      );
+      set(`customer_last_status_${randomCustomer[0]._id}`, 'left');
       await widgetMutations.widgetsInsertMessage(
         {},
         {
@@ -437,7 +474,8 @@ const main = async () => {
           integrationId: integration._id,
           customerId: randomCustomer[0]._id || '',
           message: faker.lorem.sentence()
-        }
+        },
+        context
       );
     }
   }
@@ -448,12 +486,21 @@ const main = async () => {
 
   console.log('Creating: Tickets');
 
-  const randomConversation = await Conversations.findOne();
+  const customerId = await Customers.createVisitor();
+
+  const randomConversation =
+    (await Conversations.findOne()) ||
+    (await Conversations.createConversation({
+      customerId,
+      integrationId: integration._id
+    }));
+
   const ticketBoard = await Boards.createBoard({
     name: faker.random.word(),
     type: 'ticket',
     userId: admin._id
   });
+
   const ticketStages = await populateStages('ticket');
 
   for (let j = 0; j < 2; j++) {
@@ -468,9 +515,9 @@ const main = async () => {
   await Tickets.createTicket({
     name: faker.random.word(),
     userId: admin._id,
-    initialStageId: selectedTicketStage?._id,
-    sourceConversationId: randomConversation?._id,
-    stageId: selectedTicketStage?._id || ''
+    initialStageId: (selectedTicketStage && selectedTicketStage._id) || '',
+    sourceConversationIds: [randomConversation._id || ''],
+    stageId: (selectedTicketStage && selectedTicketStage._id) || ''
   });
 
   console.log('Finished: Tickets');
@@ -524,14 +571,15 @@ const main = async () => {
   });
 
   const docAutoMessage = {
-    kind: 'visitorAuto',
+    kind: MESSAGE_KINDS.VISITOR_AUTO,
     title: 'Visitor auto message',
     fromUserId: randomUser[0]._id,
     segmentIds: [segment._id],
     brandIds: [brand._id],
     tagIds: [],
     isLive: false,
-    isDraft: true
+    isDraft: true,
+    method: METHODS.EMAIL
   };
 
   const docAutoEmail = {

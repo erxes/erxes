@@ -10,7 +10,7 @@ import telnyx from './api/telnyx';
 dotenv.config();
 
 import { connect } from './connection';
-import { debugBase, debugInit } from './debuggers';
+import { debugBase, debugError, debugInit } from './debuggers';
 import { initBroker } from './messageBroker';
 import { trackEngages } from './trackers/engageTracker';
 
@@ -47,7 +47,7 @@ app.use('/telnyx', telnyx);
 app.use((error, _req, res, _next) => {
   const msg = filterXSS(error.message);
 
-  debugBase(`Error: `, msg);
+  debugBase(`Error: ${msg}`);
   res.status(500).send(msg);
 });
 
@@ -63,7 +63,7 @@ app.listen(PORT, () => {
   // connect to mongo database
   connect(mongoUrl).then(async () => {
     initBroker(app).catch(e => {
-      debugBase(`Error ocurred during message broker init ${e.message}`);
+      debugError(`Error ocurred during message broker init ${e.message}`);
     });
   });
 

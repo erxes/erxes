@@ -1,4 +1,5 @@
 import { colors, dimensions } from 'modules/common/styles';
+import { SortItem } from 'modules/common/styles/sort';
 import styled from 'styled-components';
 import styledTS from 'styled-components-ts';
 
@@ -52,10 +53,27 @@ const Progress = styled.div`
 `;
 
 const ChecklistWrapper = styled.div`
-  margin-bottom: ${dimensions.coreSpacing}px;
+  margin: 0 0 ${dimensions.coreSpacing}px -8px;
 
   > button {
-    margin: ${dimensions.unitSpacing}px 0 0 28px;
+    margin: ${dimensions.unitSpacing}px 0 0 36px;
+  }
+
+  ${SortItem} {
+    background: transparent;
+    border: 0;
+    margin-bottom: 0;
+    padding: 6px ${dimensions.unitSpacing - 2}px;
+
+    &:hover {
+      background: rgba(10, 30, 65, 0.05);
+      box-shadow: none;
+      border-radius: 4px;
+    }
+
+    &:empty {
+      display: none;
+    }
   }
 `;
 
@@ -65,7 +83,7 @@ const ChecklistText = styledTS<{ isChecked?: boolean }>(styled.div)`
   justify-content: space-between;
   margin-left: ${dimensions.unitSpacing}px;
   text-decoration: ${props => props.isChecked && 'line-through'};
-  color: ${props => props.isChecked && '#666'};
+  color: ${props => props.isChecked && colors.colorCoreGray};
 
   i {
     cursor: pointer;
@@ -88,13 +106,12 @@ const ChecklistText = styledTS<{ isChecked?: boolean }>(styled.div)`
 const ChecklistItem = styled.div`
   display: flex;
   flex: 1;
-  padding: ${dimensions.unitSpacing / 2}px;
+  padding-left: ${dimensions.unitSpacing / 2}px;
   border-radius: 2px;
   margin-left: -5px;
   transition: all ease 0.3s;
 
   &:hover {
-    background: ${colors.bgActive};
     button {
       opacity: 1;
     }

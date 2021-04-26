@@ -25,8 +25,10 @@ export const types = `
     getTags: [Tag]
     tagIds: [String]
     attachment: Attachment
+    vendorId: String
 
     category: ProductCategory
+    vendor: Company
   }
 `;
 
@@ -39,7 +41,8 @@ const productParams = `
   unitPrice: Float,
   code: String,
   customFieldsData: JSON,
-  attachment: AttachmentInput
+  attachment: AttachmentInput,
+  vendorId: String,
 `;
 
 const productCategoryParams = `
@@ -63,8 +66,8 @@ export const queries = `
 export const mutations = `
   productsAdd(${productParams}): Product
   productsEdit(_id: String!, ${productParams}): Product
-  productsRemove(productIds: [String!]): JSON
-
+  productsRemove(productIds: [String!]): String
+  productsMerge(productIds: [String], productFields: JSON): Product
   productCategoriesAdd(${productCategoryParams}): ProductCategory
   productCategoriesEdit(_id: String!, ${productCategoryParams}): ProductCategory
   productCategoriesRemove(_id: String!): JSON

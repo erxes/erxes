@@ -21,6 +21,7 @@ type State = {
   signatures: IEmailSignatureWithBrand[];
   currentId?: string;
   content: string;
+  isSaved: boolean;
 };
 
 class Signature extends React.Component<Props, State> {
@@ -30,8 +31,11 @@ class Signature extends React.Component<Props, State> {
     this.state = {
       signatures: props.signatures,
       currentId: undefined,
-      content: ''
+      content: '',
+      isSaved: false
     };
+
+    this.close = this.close.bind(this);
   }
 
   onChangeContent = e => {
@@ -69,14 +73,20 @@ class Signature extends React.Component<Props, State> {
 
   handleSubmit = e => {
     e.preventDefault();
-    const { save, closeModal } = this.props;
+    const { save } = this.props;
 
     if (!this.state.currentId) {
       return Alert.error('Select a brand');
     }
 
-    save(this.state.signatures, closeModal);
+    save(this.state.signatures, this.close);
   };
+
+  close() {
+    this.setState({ isSaved: true }, () => {
+      this.props.closeModal();
+    });
+  }
 
   renderSignatureEditor() {
     if (!this.state.currentId) {
@@ -102,6 +112,7 @@ class Signature extends React.Component<Props, State> {
           autoGrowMinHeight={160}
           onChange={this.onChangeContent}
           name={`signature_${this.state.currentId}`}
+          isSubmitted={this.state.isSaved}
         />
       </FormGroup>
     );
@@ -131,7 +142,7 @@ class Signature extends React.Component<Props, State> {
           <ModalFooter>
             <Button
               btnStyle="simple"
-              onClick={this.props.closeModal}
+              onClick={this.close}
               icon="times-circle"
               uppercase={false}
             >

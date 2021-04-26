@@ -1,6 +1,7 @@
 import { FacebookAdapter } from 'botbuilder-adapter-facebook-erxes';
 import {
   debugBase,
+  debugError,
   debugFacebook,
   debugRequest,
   debugResponse
@@ -76,13 +77,13 @@ const init = async app => {
           await subscribePage(pageId, pageAccessToken);
           debugFacebook(`Successfully subscribed page ${pageId}`);
         } catch (e) {
-          debugFacebook(
+          debugError(
             `Error ocurred while trying to subscribe page ${e.message || e}`
           );
           return next(e);
         }
       } catch (e) {
-        debugFacebook(
+        debugError(
           `Error ocurred while trying to get page access token with ${e.message ||
             e}`
         );
@@ -101,6 +102,7 @@ const init = async app => {
 
   app.get('/facebook/get-pages', async (req, res, next) => {
     debugRequest(debugFacebook, req);
+    const accountId = req.query.accountId;
 
     const account = await Accounts.getAccount({ _id: req.query.accountId });
 
@@ -111,7 +113,14 @@ const init = async app => {
     try {
       pages = await getPageList(accessToken);
     } catch (e) {
-      debugFacebook(`Error occured while connecting to facebook ${e.message}`);
+      if (!e.message.includes('Application request limit reached')) {
+        await Integrations.updateOne(
+          { accountId },
+          { $set: { healthStatus: 'account-token', error: `${e.message}` } }
+        );
+      }
+
+      debugError(`Error occured while connecting to facebook ${e.message}`);
       return next(e);
     }
 
@@ -132,6 +141,27 @@ const init = async app => {
     return res.json({
       ...post
     });
+  });
+
+  app.get('/facebook/get-status', async (req, res) => {
+    const { integrationId } = req.query;
+
+    const integration = await Integrations.findOne({
+      erxesApiId: integrationId
+    });
+
+    let result = {
+      status: 'healthy'
+    } as any;
+
+    if (integration) {
+      result = {
+        status: integration.healthStatus || 'healthy',
+        error: integration.error
+      };
+    }
+
+    return res.send(result);
   });
 
   app.get('/facebook/get-comments-count', async (req, res) => {
@@ -402,7 +432,7 @@ const init = async app => {
               );
               res.end('success');
             } catch (e) {
-              debugFacebook(`Error processing comment: ${e.message}`);
+              debugError(`Error processing comment: ${e.message}`);
               res.end('success');
             }
           }
@@ -418,7 +448,7 @@ const init = async app => {
               );
               res.end('success');
             } catch (e) {
-              debugFacebook(`Error processing comment: ${e.message}`);
+              debugError(`Error processing comment: ${e.message}`);
               res.end('success');
             }
           } else {

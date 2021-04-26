@@ -12,7 +12,7 @@ type Props = {
 };
 
 type State = {
-  uploadingXls: boolean;
+  uploadingCsv: boolean;
 };
 
 class DataImporterContainer extends React.Component<Props, State> {
@@ -20,24 +20,24 @@ class DataImporterContainer extends React.Component<Props, State> {
     super(props);
 
     this.state = {
-      uploadingXls: false
+      uploadingCsv: false
     };
   }
 
   render() {
     const { showLoadingBar, type, closeLoadingBar } = this.props;
 
-    const uploadXls = e => {
+    const uploadCsv = e => {
       closeLoadingBar();
 
       handleXlsUpload({
         e,
         type,
         beforeUploadCallback: () => {
-          this.setState({ uploadingXls: true });
+          this.setState({ uploadingCsv: true });
         },
         afterUploadCallback: response => {
-          this.setState({ uploadingXls: false });
+          this.setState({ uploadingCsv: false });
 
           if (response.status === 'error') {
             return Alert.error(response.message);
@@ -54,8 +54,8 @@ class DataImporterContainer extends React.Component<Props, State> {
     return (
       <DataImporter
         {...this.props}
-        uploadXls={uploadXls}
-        uploading={this.state.uploadingXls}
+        uploadCsv={uploadCsv}
+        uploading={this.state.uploadingCsv}
       />
     );
   }

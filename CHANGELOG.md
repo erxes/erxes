@@ -1,3 +1,140 @@
+## [0.20.16](https://github.com/erxes/erxes/compare/0.20.15...0.20.16) (2021-03-05)
+
+
+### Bug Fixes
+
+* **elasticsearch:** checked some index not found cases in inbox, search ([9f54797](https://github.com/erxes/erxes/commit/9f547974ed3f56715232b6a81130ca1398094178))
+* **tags:** sub tag and tag count related bug fixes ([2bafe0f](https://github.com/erxes/erxes/commit/2bafe0ff2bd7548e0c1b88d007654199121f5219))
+
+## [0.20.15](https://github.com/erxes/erxes/compare/0.20.14...0.20.15) (2021-03-03)
+
+
+### Bug Fixes
+
+* **contacts:** fixed little null check in customer detail ([9f264d3](https://github.com/erxes/erxes/commit/9f264d32437726c6d563d1930653b0fa4823f35b))
+
+## [0.20.14](https://github.com/erxes/erxes/compare/0.20.13...0.20.14) (2021-03-03)
+
+
+### Bug Fixes
+
+* **migrations:** readded db-migrate-store ([747c6f4](https://github.com/erxes/erxes/commit/747c6f48eda9f9a8bc511412d4be66645007013b))
+
+## [0.20.13](https://github.com/erxes/erxes/compare/0.20.12...0.20.13) (2021-03-03)
+
+
+### Bug Fixes
+
+* **migrations:** fixed migrations ([b37bb7a](https://github.com/erxes/erxes/commit/b37bb7a5938e554bf0016ca78056d17cd19cc71f))
+
+## [0.20.12](https://github.com/erxes/erxes/compare/0.20.11...0.20.12) (2021-03-02)
+
+
+### Bug Fixes
+
+* **campaign:** Fix campaign preview height without an email template ([d887c1e](https://github.com/erxes/erxes/commit/d887c1e65146fa77543742187fa23a7784384850))
+* **deal/task/ticket:** fix real-time issue while clicks "Archive all carts in this list" ([332804e](https://github.com/erxes/erxes/commit/332804e0fcb64e78822060b37e44a970390f3827)), closes [#2629](https://github.com/erxes/erxes/issues/2629)
+* **deal/tast/ticket:** fix pipeline, board chooser dropdown scrolling issue ([34e190e](https://github.com/erxes/erxes/commit/34e190e1e7ae5127422075b0194a6bb16aec0209))
+* **skills:** fix can not disable skills on messenger ([fb79088](https://github.com/erxes/erxes/commit/fb7908819563413c814b9a5469d89f493c130382))
+* **widget:** fix confirmation dialog, description text placement ([bec10a1](https://github.com/erxes/erxes/commit/bec10a1868fa251b404f5471c257a19c3b3f40c4))
+* **widget:** fix displaying wrong social link ([df84f64](https://github.com/erxes/erxes/commit/df84f64a888ee623f32fecb59902fdfff74e4088))
+* **workers:** fixed check duplication issue ([7607f43](https://github.com/erxes/erxes/commit/7607f432daff417b3733e2c0a11ebc89569cfd91))
+* **workers:** not removing import history when there is no customer ids ([bdccfa6](https://github.com/erxes/erxes/commit/bdccfa651018254158fcb09afaeaa70101ba1e67))
+* **workers:** not removing import history when there is no customer ids ([2db3580](https://github.com/erxes/erxes/commit/2db35800367a21559f6f15df46e0e3b8aeb8f65d))
+
+
+### Features
+
+* **search:** added global search feature ([9709185](https://github.com/erxes/erxes/commit/97091852822d38e1dbf98c1649b8fe1b40ac9370)), closes [#2655](https://github.com/erxes/erxes/issues/2655)
+* **segments:** added related integrations filter ([8db1316](https://github.com/erxes/erxes/commit/8db13169ba276d3450cfbdb9f4932891598f18f0))
+
+
+### Performance Improvements
+
+* **tag:** add ability to create subtag ([607e92d](https://github.com/erxes/erxes/commit/607e92d11aee5a7a11f667c4ca43a934110b447b)), closes [#2612](https://github.com/erxes/erxes/issues/2612)
+
+## [0.20.11](https://github.com/erxes/erxes/compare/0.20.10...0.20.11) (2021-01-29)
+
+
+### Bug Fixes
+
+* **api-utils:** fixed notification template not found error ([344e4c4](https://github.com/erxes/erxes/commit/344e4c41a6330dddfa47ec15a54067ebf1bb7b94))
+
+## [0.20.10](https://github.com/erxes/erxes/compare/0.20.9...0.20.10) (2021-01-19)
+
+## [0.20.9](https://github.com/erxes/erxes/compare/0.20.8...0.20.9) (2021-01-19)
+
+
+### Bug Fixes
+
+* incoming webhook customFieldsData ([45da6be](https://github.com/erxes/erxes/commit/45da6bef2b36af97edb7e3f9d4d490edb1638b33))
+* **board:** fix drag drop preblems when loading ([18aaa6a](https://github.com/erxes/erxes/commit/18aaa6a48cf63213024b8d55d2511ad2f3bfdf0c))
+* **board:** fix overlapping description in board detail ([15df78a](https://github.com/erxes/erxes/commit/15df78a863a72c2d5dcd0a26e1d8c924bc3a26ee))
+* **common:** fix not showing editor attribute ([0850b3a](https://github.com/erxes/erxes/commit/0850b3a80ca814b4d5f3d245953808c3e01aa48d))
+* **customers:** exclude deleted customers from list ([3ea5eb8](https://github.com/erxes/erxes/commit/3ea5eb84e6d409188c3a2eef6680e8256b20e4ed))
+* **engage:** fix next button not workin properly, fix console error ([47a82d8](https://github.com/erxes/erxes/commit/47a82d82616c5abdc4bd76285aa79cd4bce10650))
+* **engages:** fixed lead segments count in engages ([f051e41](https://github.com/erxes/erxes/commit/f051e416a57b62bb2d03cfe468a33d4046e437f6))
+* **popups:** fixed thank content email attributes ([a4ae030](https://github.com/erxes/erxes/commit/a4ae03016e6326e73448b6761ee127e907062c45))
+* **popups:** hide archived popups from widgets ([0a724aa](https://github.com/erxes/erxes/commit/0a724aa1a97cbcdd1e10d51de7d1ac7f496a1457))
+
+
+### Features
+
+* **brand:** add email config settings for each brand ([cec2b09](https://github.com/erxes/erxes/commit/cec2b09756796d8d4ba7c19b792db3e8817933cf))
+* **common:** separate common components as node modules to npm ([a24baa1](https://github.com/erxes/erxes/commit/a24baa1406d409dc5ce35ff268a480528f7b5b04))
+* **dashboard:** add filter on conversations report ([fdb6775](https://github.com/erxes/erxes/commit/fdb6775d4dce166a2e3efe23ac0581f728d385cc))
+* **dashboard:** add filter on dashboard report ([9519479](https://github.com/erxes/erxes/commit/9519479670f702c41398d377a342604644e0d83c)), closes [close#2551](https://github.com/close/issues/2551)
+* **engage:** added pre schedule option ([4073a07](https://github.com/erxes/erxes/commit/4073a070d6b0eee3ecdb93733b9f428236d4e47b))
+* **inbox:** skills-based route in messenger ([c6aaa14](https://github.com/erxes/erxes/commit/c6aaa142a64d7133c72218502248e832889a6220)), closes [#2540](https://github.com/erxes/erxes/issues/2540)
+* **plugins:** added plugin base ([0932b03](https://github.com/erxes/erxes/commit/0932b03838494a4b4950a6d2736ec7746d12dcce))
+* **release:** add new release notifier in robot ([c6d1ddd](https://github.com/erxes/erxes/commit/c6d1dddb1c3e79943884cd429cdb8a53787c6746))
+* **schedule:** added schedule feature on calendar using nylas ([465ff77](https://github.com/erxes/erxes/commit/465ff771717522b83f58e1901a939d00dac8045a))
+
+
+### Performance Improvements
+
+* **cron:** added notification delete cron ([c9c2391](https://github.com/erxes/erxes/commit/c9c23912b92136d3d0006e73aabe8d674e0bf452))
+* **import:** improve performance of import ([6df39ba](https://github.com/erxes/erxes/commit/6df39baf0239e677302821eef0942175b432d0b9)), closes [#2557](https://github.com/erxes/erxes/issues/2557)
+* **inbox:** add subject when convert to pipeline in inbox ([8356ecc](https://github.com/erxes/erxes/commit/8356ecc83469dc74b1f6141cdd7bdecc6ea52bf9))
+* **webhook:** added origin verification method ([d99ed28](https://github.com/erxes/erxes/commit/d99ed28b30e5fb02681519ec81d4f72023ff2b43))
+
+## [0.20.8](https://github.com/erxes/erxes/compare/0.20.7...0.20.8) (2020-12-07)
+
+
+### Bug Fixes
+
+* **inbox:** fix email send button, email subject can editable  ([2b501ca](https://github.com/erxes/erxes/commit/2b501cae5b4c7b22beae92be0e3296cc720e6b6f))
+* **messenger:** fix  integration social url close [#2501](https://github.com/erxes/erxes/issues/2501) ([2c67034](https://github.com/erxes/erxes/commit/2c670346f6da2ec4f5705e30e1ae080da150b523))
+* **nylas:** enable account ([b75701e](https://github.com/erxes/erxes/commit/b75701e94a474502d2982085c9013b42f21b6c83))
+* **search:** fixed multiple word search with space in customers, companies list ([0acf074](https://github.com/erxes/erxes/commit/0acf074be31afde93dffaee608cc641c9b0086cd))
+* **select-multi:** added fetchExtra option to solve reopen autocompletion issue ([2c07ac1](https://github.com/erxes/erxes/commit/2c07ac1f7533ece45044ae316ae22c1e2a15a5e6))
+* **select-multi:** applied SelectWithSearch fixes in SelectCompanies, SelectCustomers, ([abd1b31](https://github.com/erxes/erxes/commit/abd1b3196d6d7ca2b9844cf21f600db080d82e96))
+
+
+### Features
+
+* **segments:** added tags on contact segment ([17b748e](https://github.com/erxes/erxes/commit/17b748e5a7b526842fe50a7d358bc9b63b3cae67)), closes [#2518](https://github.com/erxes/erxes/issues/2518)
+
+
+### Performance Improvements
+
+* **calendar:** move calendar header to sidebar ([d522efb](https://github.com/erxes/erxes/commit/d522efb940651a65ff39412782800b90dd559e4c))
+* **contacts:** make table shrinkable and expandable ([0a491f9](https://github.com/erxes/erxes/commit/0a491f9cc5942f036cb9ab5d4fc89e056e4edebc))
+
+## [0.20.7](https://github.com/erxes/erxes/compare/0.20.6...0.20.7) (2020-11-26)
+
+
+### Bug Fixes
+
+* **botpress:** create conversation when user respond ([3ee59e9](https://github.com/erxes/erxes/commit/3ee59e9655f78d9de1911d7d5f1c57ab846f43f8)), closes [#2492](https://github.com/erxes/erxes/issues/2492)
+* **chunks:** implemented retry machanism to prevent from loading chunk failed error ([8886593](https://github.com/erxes/erxes/commit/888659347eb9a1f7beac8e0fed8db031dbd47882))
+* **nylas:** revoke google account ([69480dc](https://github.com/erxes/erxes/commit/69480dc14b29902421472dbf9c8fa3c55158f268)), closes [#2494](https://github.com/erxes/erxes/issues/2494)
+
+
+### Reverts
+
+* Revert "update" ([1b7a23f](https://github.com/erxes/erxes/commit/1b7a23f55d5d909f5fbaee4d495b0a6534230bfb))
+
 ## [0.20.6](https://github.com/erxes/erxes/compare/0.20.5...0.20.6) (2020-11-18)
 
 

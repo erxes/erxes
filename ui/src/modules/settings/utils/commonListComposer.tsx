@@ -26,7 +26,8 @@ function commonListComposer<ComponentProps>(options) {
     gqlRemoveMutation,
     gqlCopyMutation,
     ListComponent,
-    gqlConfigsQuery
+    gqlConfigsQuery,
+    confirmProps
   } = options;
 
   type Props = {
@@ -63,7 +64,15 @@ function commonListComposer<ComponentProps>(options) {
 
     // remove action
     const remove = id => {
-      confirm().then(() => {
+      let message;
+      let confirmOptions = {};
+
+      if (confirmProps) {
+        message = confirmProps.message;
+        confirmOptions = confirmProps.options;
+      }
+
+      confirm(message, confirmOptions).then(() => {
         removeMutation({
           variables: { _id: id }
         })

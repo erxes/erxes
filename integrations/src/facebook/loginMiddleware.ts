@@ -1,5 +1,7 @@
 import * as graph from 'fbgraph';
 import { debugFacebook, debugRequest, debugResponse } from '../debuggers';
+import { repairIntegrations } from '../helpers';
+import { Integrations } from '../models';
 import Accounts from '../models/Accounts';
 import { getConfig, getEnv } from '../utils';
 import { graphRequest } from './utils';
@@ -56,6 +58,7 @@ const loginMiddleware = async (req, res) => {
   // code (whatever that is)
   // code is set
   // we'll send that and get the access token
+
   return graph.authorize(config, async (_err, facebookRes) => {
     const { access_token } = facebookRes;
 
@@ -77,6 +80,14 @@ const loginMiddleware = async (req, res) => {
         { _id: account._id },
         { $set: { token: access_token } }
       );
+
+      const integrations = await Integrations.find({
+        accountId: account._id
+      });
+
+      for (const integration of integrations) {
+        await repairIntegrations(integration.erxesApiId);
+      }
     } else {
       await Accounts.create({
         token: access_token,

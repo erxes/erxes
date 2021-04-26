@@ -226,6 +226,7 @@ class ActionSection extends React.Component<Props, { customerState: string }> {
         label:
           cus.firstName ||
           cus.lastName ||
+          cus.middleName ||
           cus.primaryEmail ||
           cus.primaryPhone ||
           'Unknown'

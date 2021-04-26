@@ -1,4 +1,5 @@
 import Icon from 'modules/common/components/Icon';
+import { propertyTypes } from 'modules/dashboard/constants';
 import React from 'react';
 import MemberDropdown from './MemberDropdown';
 import RemoveButtonGroup from './RemoveButtonGroup';
@@ -23,7 +24,9 @@ class MemberGroup extends React.Component<Props> {
     } = this.props;
 
     if (members.length > 0) {
-      return null;
+      if (!propertyTypes.includes(type || '')) {
+        return null;
+      }
     }
 
     return (
@@ -32,14 +35,22 @@ class MemberGroup extends React.Component<Props> {
         availableMembers={availableMembers}
         type="dashed"
         schemaType={type}
+        addMemberName={addMemberName}
         icon={<Icon icon="plus-1" />}
       >
         {addMemberName}
       </MemberDropdown>
     );
   };
+
   render() {
-    const { members, availableMembers, updateMethods, type } = this.props;
+    const {
+      members,
+      availableMembers,
+      updateMethods,
+      type,
+      addMemberName
+    } = this.props;
 
     return (
       <>
@@ -52,6 +63,7 @@ class MemberGroup extends React.Component<Props> {
               availableMembers={availableMembers}
               onClick={updateWith => updateMethods.update(m, updateWith)}
               schemaType={type}
+              addMemberName={addMemberName}
             >
               {m.shortTitle}
             </MemberDropdown>

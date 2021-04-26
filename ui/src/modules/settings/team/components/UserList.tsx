@@ -24,9 +24,9 @@ import Select from 'react-select-plus';
 import List from '../../common/components/List';
 import { ICommonFormProps, ICommonListProps } from '../../common/types';
 import UserForm from '../containers/UserForm';
+import UserInvitationForm from '../containers/UserInvitationForm';
 import UserResetPasswordForm from '../containers/UserResetPasswordForm';
 import { FilterContainer, UserAvatar } from '../styles';
-import UserInvitationForm from './UserInvitationForm';
 
 type IProps = {
   changeStatus: (id: string) => void;
@@ -320,7 +320,7 @@ class UserList extends React.Component<FinalProps, States> {
     return (
       <List
         formTitle={__('Invite team members')}
-        size="lg"
+        size="xl"
         breadcrumb={[
           { title: __('Settings'), link: '/settings' },
           { title: __('Team members') }

@@ -1,4 +1,4 @@
-import { debugNylas } from '../debuggers';
+import { debugError, debugNylas } from '../debuggers';
 import memoryStorage from '../inmemoryStorage';
 import { sendRPCMessage } from '../messageBroker';
 import { cleanHtml } from '../utils';
@@ -254,7 +254,7 @@ const createOrGetNylasCustomer = async ({
       fields: { doc, api }
     });
   } catch (e) {
-    debugNylas(`Failed to getOrCreate customer: ${e.message}`);
+    debugError(`Failed to getOrCreate customer: ${e.message}`);
     throw new Error(e);
   }
 
@@ -322,7 +322,7 @@ const createOrGetNylasConversation = async ({
       selector: { threadId: message.thread_id }
     });
   } catch (e) {
-    debugNylas(`Failed to getOrCreate conversation: ${e.message}`);
+    debugError(`Failed to getOrCreate conversation: ${e.message}`);
     throw new Error(e);
   }
 
@@ -404,7 +404,7 @@ const createOrGetNylasConversationMessage = async ({
       fields: { doc, api }
     });
   } catch (e) {
-    debugNylas(`Failed to getOrCreate conversationMessage: ${e.message}`);
+    debugError(`Failed to getOrCreate conversationMessage: ${e.message}`);
     throw new Error(e);
   }
 

@@ -27,7 +27,17 @@ cube(`Deals`, {
       type: `string`
     },
 
-    pipelineName: {
+    pipeline: {
+      sql: `${CUBE}."stageId"`,
+      type: `string`
+    },
+
+    assignedUser: {
+      sql: `${CUBE}."assignedUserIds"`,
+      type: `string`
+    },
+
+    board: {
       sql: `${CUBE}."stageId"`,
       type: `string`
     },
@@ -47,8 +57,8 @@ cube(`Deals`, {
       type: `time`
     },
 
-    closeDate: {
-      sql: `${CUBE}."closeDate"`,
+    closedDate: {
+      sql: `${CUBE}."closedDate"`,
       type: `time`
     },
 

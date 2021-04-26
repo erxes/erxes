@@ -6,6 +6,7 @@ import { UserDetailQueryResponse } from 'modules/settings/team/types';
 import React from 'react';
 import { graphql } from 'react-apollo';
 import { requestIdleCallback } from 'request-idle-callback';
+import { setTimeout } from 'timers';
 import { mutations, queries, subscriptions } from '../graphql';
 import { DragDisabler } from '../styles/common';
 import {
@@ -18,7 +19,7 @@ import {
   IPipeline,
   PipelineDetailQueryResponse
 } from '../types';
-import { invalidateCache } from '../utils';
+import { invalidateCache, updateItemInfo } from '../utils';
 import { reorder, reorderItemMap } from '../utils';
 import InvisibleItemInUrl from './InvisibleItemInUrl';
 
@@ -58,6 +59,7 @@ interface IStore {
   stageIds: string[];
   onLoadStage: (stageId: string, items: IItem[]) => void;
   scheduleStage: (stageId: string) => void;
+  refetchStage: (stageId: string) => void;
   onDragEnd: (result: IDragResult) => void;
   onAddItem: (stageId: string, item: IItem, aboveItemId?: string) => void;
   onRemoveItem: (itemId: string, stageId: string) => void;
@@ -92,7 +94,7 @@ class PipelineProviderInner extends React.Component<Props, State> {
       itemMap: initialItemMap || {},
       stageLoadMap: {},
       stageIds,
-      isShowLabel: false
+      isShowLabel: false || localStorage.getItem(pipeline._id) === 'true'
     };
 
     PipelineProviderInner.tasks = [];
@@ -177,37 +179,55 @@ class PipelineProviderInner extends React.Component<Props, State> {
           }
 
           if (action === 'itemUpdate') {
-            const { itemMap } = this.state;
-            const items = [...itemMap[item.stageId]];
-            const index = items.findIndex(d => d._id === item._id);
-
-            items[index] = item;
-
             this.setState({
-              itemMap: { ...itemMap, [item.stageId]: items }
+              itemMap: updateItemInfo(this.state, item)
             });
           }
 
-          // refetch stages info ===
-          const changedStageIds: string[] = [item.stageId];
-
-          if (
-            destinationStageId &&
-            !changedStageIds.includes(destinationStageId)
-          ) {
-            changedStageIds.push(destinationStageId);
+          if (action === 'itemOfConformitiesUpdate') {
+            setTimeout(() => {
+              client
+                .query({
+                  query: gql(this.props.options.queries.detailQuery),
+                  fetchPolicy: 'network-only',
+                  variables: {
+                    _id: item._id
+                  }
+                })
+                .then(({ data }) => {
+                  const refetchedItem =
+                    data[this.props.options.queriesName.detailQuery];
+                  this.setState({
+                    itemMap: updateItemInfo(this.state, refetchedItem)
+                  });
+                });
+            }, 5000);
           }
 
-          if (oldStageId && !changedStageIds.includes(oldStageId)) {
-            changedStageIds.push(oldStageId);
-          }
+          if (action === 'reOrdered') {
+            this.refetchStage(destinationStageId);
+          } else {
+            // refetch stages info ===
+            const changedStageIds: string[] = [item.stageId];
 
-          for (const id of changedStageIds) {
-            client.query({
-              query: gql(queries.stageDetail),
-              fetchPolicy: 'network-only',
-              variables: { _id: id }
-            });
+            if (
+              destinationStageId &&
+              !changedStageIds.includes(destinationStageId)
+            ) {
+              changedStageIds.push(destinationStageId);
+            }
+
+            if (oldStageId && !changedStageIds.includes(oldStageId)) {
+              changedStageIds.push(oldStageId);
+            }
+
+            for (const id of changedStageIds) {
+              client.query({
+                query: gql(queries.stageDetail),
+                fetchPolicy: 'network-only',
+                variables: { _id: id }
+              });
+            }
           }
         }
       }
@@ -318,7 +338,11 @@ class PipelineProviderInner extends React.Component<Props, State> {
       assignedUserIds: queryParams.assignedUserIds,
       extraParams: options.getExtraParams(queryParams),
       closeDateType: queryParams.closeDateType,
-      userIds: queryParams.userIds
+      userIds: queryParams.userIds,
+      segment: queryParams.segment,
+      startDate: queryParams.startDate,
+      endDate: queryParams.endDate,
+      assignedToMe: queryParams.assignedToMe
     };
   };
 
@@ -410,10 +434,20 @@ class PipelineProviderInner extends React.Component<Props, State> {
       task.isComplete = true;
     }
 
+    const newItemIds = [...itemIds, ...items.map(item => item._id)];
+
     this.setState({
-      itemIds: [...itemIds, ...items.map(item => item._id)],
+      itemIds: Array.from(new Set(newItemIds)),
       itemMap: { ...itemMap, [stageId]: items },
       stageLoadMap: { ...stageLoadMap, [stageId]: 'loaded' }
+    });
+  };
+
+  refetchStage = (stageId: string) => {
+    const { stageLoadMap } = this.state;
+
+    this.setState({
+      stageLoadMap: { ...stageLoadMap, [stageId]: 'readyToLoad' }
     });
   };
 
@@ -479,16 +513,6 @@ class PipelineProviderInner extends React.Component<Props, State> {
     const { itemMap, itemIds } = this.state;
     const items = itemMap[stageId] || [];
 
-    if (aboveItemId === undefined) {
-      this.setState({
-        itemMap: { ...itemMap, [stageId]: [item, ...items] },
-        itemIds: [...itemIds, item._id]
-      });
-
-      return;
-    }
-
-    // archive recovery to stages begin
     if (!aboveItemId) {
       this.setState({
         itemMap: { ...itemMap, [stageId]: [item, ...items] },
@@ -573,6 +597,12 @@ class PipelineProviderInner extends React.Component<Props, State> {
   };
 
   toggleLabels = () => {
+    if (!this.state.isShowLabel) {
+      localStorage.setItem(this.props.pipeline._id, 'true');
+    } else {
+      localStorage.removeItem(this.props.pipeline._id);
+    }
+
     this.setState({ isShowLabel: !this.state.isShowLabel });
   };
 
@@ -617,6 +647,7 @@ class PipelineProviderInner extends React.Component<Props, State> {
             onDragEnd: this.onDragEnd,
             onLoadStage: this.onLoadStage,
             scheduleStage: this.scheduleStage,
+            refetchStage: this.refetchStage,
             onAddItem: this.onAddItem,
             onRemoveItem: this.onRemoveItem,
             onUpdateItem: this.onUpdateItem,

@@ -1,9 +1,66 @@
 import * as mongoose from 'mongoose';
 import * as os from 'os';
-import { Configs } from '../../../db/models';
+import { Configs, Pipelines, Stages } from '../../../db/models';
 import { DEFAULT_CONSTANT_VALUES } from '../../../db/models/definitions/constants';
+import { fetchElk } from '../../../elasticsearch';
 import { moduleRequireLogin } from '../../permissions/wrappers';
-import { getEnv, getErxesSaasDomain, sendRequest } from '../../utils';
+import { getEnv, getErxesSaasDomain, readFile, sendRequest } from '../../utils';
+
+const doSearch = async (index, value, fields) => {
+  const highlightFields = {};
+
+  fields.forEach(field => {
+    highlightFields[field] = {};
+  });
+
+  const match = {
+    multi_match: {
+      query: value,
+      fields
+    }
+  };
+
+  let query: any = match;
+
+  if (index === 'customers') {
+    query = {
+      bool: {
+        must: [match],
+        must_not: [
+          {
+            term: { status: 'deleted' }
+          }
+        ]
+      }
+    };
+  }
+
+  const fetchResults = await fetchElk(
+    'search',
+    index,
+    {
+      query,
+      size: 10,
+      highlight: {
+        fields: highlightFields
+      }
+    },
+    '',
+    { hits: { hits: [] } }
+  );
+
+  const results = fetchResults.hits.hits.map(result => {
+    return {
+      source: {
+        _id: result._id,
+        ...result._source
+      },
+      highlight: result.highlight
+    };
+  });
+
+  return results;
+};
 
 const configQueries = {
   /**
@@ -105,6 +162,92 @@ const configQueries = {
     } catch (e) {
       throw new Error(e.message);
     }
+  },
+
+  configsGetEmailTemplate(_root, { name }: { name?: string }) {
+    return readFile(name || 'base');
+  },
+
+  async search(_root, { value }: { value: string }) {
+    const searchBoardItems = async index => {
+      const items = await doSearch(index, value, ['name', 'description']);
+
+      const updatedItems: any = [];
+
+      for (const item of items) {
+        const stage = (await Stages.findOne({ _id: item.source.stageId })) || {
+          pipelineId: ''
+        };
+        const pipeline = (await Pipelines.findOne({
+          _id: stage.pipelineId
+        })) || { boardId: '' };
+
+        item.source.pipelineId = stage.pipelineId;
+        item.source.boardId = pipeline.boardId;
+
+        updatedItems.push(item);
+      }
+
+      return updatedItems;
+    };
+
+    const results = [
+      {
+        module: 'conversationMessages',
+        items: await doSearch('conversation_messages', value, ['content'])
+      },
+      {
+        module: 'contacts',
+        items: await doSearch('customers', value, [
+          'code',
+          'firstName',
+          'lastName',
+          'middleName',
+          'primaryPhone',
+          'primaryEmail'
+        ])
+      },
+      {
+        module: 'companies',
+        items: await doSearch('companies', value, [
+          'primaryName',
+          'industry',
+          'plan',
+          'primaryEmail',
+          'primaryPhone',
+          'businessType',
+          'description',
+          'website',
+          'code'
+        ])
+      },
+      {
+        module: 'tasks',
+        items: await searchBoardItems('tasks')
+      },
+      {
+        module: 'tickets',
+        items: await searchBoardItems('tickets')
+      },
+      {
+        module: 'deals',
+        items: await searchBoardItems('deals')
+      },
+      {
+        module: 'stages',
+        items: await doSearch('stages', value, ['name'])
+      },
+      {
+        module: 'pipelines',
+        items: await doSearch('pipelines', value, ['name'])
+      },
+      {
+        module: 'engageMessages',
+        items: await doSearch('engage_messages', value, ['title'])
+      }
+    ];
+
+    return results;
   }
 };
 

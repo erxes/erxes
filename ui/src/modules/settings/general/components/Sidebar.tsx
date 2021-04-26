@@ -46,7 +46,7 @@ class Sidebar extends React.Component {
             '/settings/integration-configs',
             'Integrations config'
           )}
-          {this.renderListItem('/settings/engage-configs', 'Engage config')}
+          {this.renderListItem('/settings/campaign-configs', 'Campaign config')}
         </List>
       </LeftSidebar>
     );

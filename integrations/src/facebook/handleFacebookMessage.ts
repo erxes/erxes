@@ -1,16 +1,5 @@
-import { debugFacebook } from '../debuggers';
 import { Comments, Conversations, Posts } from './models';
 import { generateAttachmentMessages, sendReply } from './utils';
-
-const sendError = message => ({
-  status: 'error',
-  errorMessage: message
-});
-
-const sendSuccess = data => ({
-  status: 'success',
-  data
-});
 
 /*
  * Handle requests from erxes api
@@ -74,20 +63,16 @@ export const handleFacebookMessage = async msg => {
     }
 
     try {
-      const response = await sendReply(
-        `${id}/comments`,
-        data,
-        recipientId,
-        integrationId
-      );
-      return sendSuccess({ response });
+      await sendReply(`${id}/comments`, data, recipientId, integrationId);
+
+      return { status: 'success' };
     } catch (e) {
-      return sendError(e);
+      throw new Error(e.message);
     }
   }
 
   if (action === 'reply-messenger') {
-    const { integrationId, conversationId, content, attachments } = doc;
+    const { integrationId, conversationId, content, attachments, tag } = doc;
 
     const conversation = await Conversations.getConversation({
       erxesApiId: conversationId
@@ -97,30 +82,76 @@ export const handleFacebookMessage = async msg => {
 
     try {
       if (content) {
-        await sendReply(
-          'me/messages',
-          { recipient: { id: senderId }, message: { text: content } },
-          recipientId,
-          integrationId
-        );
+        try {
+          await sendReply(
+            'me/messages',
+            {
+              recipient: { id: senderId },
+              message: { text: content },
+              tag
+            },
+            recipientId,
+            integrationId
+          );
+
+          return { status: 'success' };
+        } catch (e) {
+          if (e.code === '10') {
+            try {
+              await sendReply(
+                'me/messages',
+                {
+                  recipient: { id: senderId },
+                  message: { text: content },
+                  tag: 'CONFIRMED_EVENT_UPDATE'
+                },
+                recipientId,
+                integrationId
+              );
+
+              return { status: 'success' };
+            } catch (e) {
+              throw new Error(e.message);
+            }
+          }
+          throw new Error(e.message);
+        }
       }
 
       for (const message of generateAttachmentMessages(attachments)) {
         try {
           await sendReply(
             'me/messages',
-            { recipient: { id: senderId }, message },
+            { recipient: { id: senderId }, message, tag },
             recipientId,
             integrationId
           );
         } catch (e) {
-          debugFacebook(`Error while sending attachments: ${e.message}`);
+          if (e.code === '10') {
+            try {
+              await sendReply(
+                'me/messages',
+                {
+                  recipient: { id: senderId },
+                  message: { text: content },
+                  tag: 'CONFIRMED_EVENT_UPDATE'
+                },
+                recipientId,
+                integrationId
+              );
+
+              return { status: 'success' };
+            } catch (e) {
+              throw new Error(e.message);
+            }
+          }
+          throw new Error(e.message);
         }
       }
 
-      return sendSuccess({});
+      return { status: 'success' };
     } catch (e) {
-      return sendError(e);
+      throw new Error(e.message);
     }
   }
 };

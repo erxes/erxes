@@ -1,9 +1,17 @@
 import * as dotenv from 'dotenv';
 import * as Random from 'meteor-random';
-import { debugEngages } from './debuggers';
+import { ACTIVITY_CONTENT_TYPES, ACTIVITY_LOG_ACTIONS } from './constants';
+import { debugEngages, debugError } from './debuggers';
+import messageBroker from './messageBroker';
 import { Logs, SmsRequests, Stats } from './models';
 import { getTelnyxInfo } from './telnyxUtils';
-import { createTransporter, getConfigs, getEnv, ICustomer } from './utils';
+import {
+  cleanIgnoredCustomers,
+  createTransporter,
+  getConfigs,
+  getEnv,
+  ICustomer
+} from './utils';
 
 dotenv.config();
 
@@ -39,6 +47,22 @@ interface ITelnyxMessageParams {
 interface ICallbackParams {
   engageMessageId?: string;
   msg: ITelnyxMessageParams;
+}
+
+interface ISenderParams {
+  engageMessageId: string;
+  customers: ICustomer[];
+  createdBy: string;
+  title: string;
+}
+
+interface IEmailParams extends ISenderParams {
+  fromEmail: string;
+  email: any;
+}
+
+interface ISmsParams extends ISenderParams {
+  shortMessage: IShortMessage;
 }
 
 // alphanumeric sender id only works for countries outside north america
@@ -107,7 +131,8 @@ const handleMessageCallback = async (
     }
 
     await SmsRequests.updateRequest(request._id, {
-      errorMessages: [err.message]
+      errorMessages: [err.message],
+      status: 'error'
     });
   }
 
@@ -130,14 +155,17 @@ const handleMessageCallback = async (
   }
 };
 
-export const start = async (data: {
-  fromEmail: string;
-  email: any;
-  engageMessageId: string;
-  customers: ICustomer[];
-}) => {
-  const { fromEmail, email, engageMessageId, customers } = data;
+export const start = async (data: IEmailParams) => {
+  const {
+    fromEmail,
+    email,
+    engageMessageId,
+    customers,
+    createdBy,
+    title
+  } = data;
   const { content, subject, attachments, sender, replyTo } = email;
+  const configs = await getConfigs();
 
   await Stats.findOneAndUpdate(
     { engageMessageId },
@@ -163,51 +191,55 @@ export const start = async (data: {
 
     const MAIN_API_DOMAIN = getEnv({ name: 'MAIN_API_DOMAIN' });
 
-    const unSubscribeUrl = `${MAIN_API_DOMAIN}/unsubscribe/?cid=${customer._id}`;
+    const unsubscribeUrl = `${MAIN_API_DOMAIN}/unsubscribe/?cid=${customer._id}`;
 
     // replace customer attributes =====
     let replacedContent = content;
+    let replacedSubject = subject;
 
     if (customer.replacers) {
       for (const replacer of customer.replacers) {
         const regex = new RegExp(replacer.key, 'gi');
         replacedContent = replacedContent.replace(regex, replacer.value);
+        replacedSubject = replacedSubject.replace(regex, replacer.value);
       }
     }
 
-    replacedContent += `<div style="padding: 10px; color: #ccc; text-align: center; font-size:12px;">If you want to use service like this click <a style="text-decoration: underline; color: #ccc;" href="https://erxes.io" target="_blank">here</a> to read more. Also you can opt out from our email subscription <a style="text-decoration: underline;color: #ccc;" rel="noopener" target="_blank" href="${unSubscribeUrl}">here</a>.  <br>© 2020 erxes inc Growth Marketing Platform </div>`;
+    replacedContent += `<div style="padding: 10px; color: #ccc; text-align: center; font-size:12px;">If you want to use service like this click <a style="text-decoration: underline; color: #ccc;" href="https://erxes.io" target="_blank">here</a> to read more. Also you can opt out from our email subscription <a style="text-decoration: underline;color: #ccc;" rel="noopener" target="_blank" href="${unsubscribeUrl}">here</a>.  <br>© 2021 erxes inc Growth Marketing Platform </div>`;
 
     try {
       await transporter.sendMail({
         from: `${sender || ''} <${fromEmail}>`,
         to: customer.primaryEmail,
         replyTo,
-        subject,
+        subject: replacedSubject,
         attachments: mailAttachment,
         html: replacedContent,
         headers: {
-          'X-SES-CONFIGURATION-SET': 'erxes',
+          'X-SES-CONFIGURATION-SET': configs.configSet || 'erxes',
           EngageMessageId: engageMessageId,
           CustomerId: customer._id,
           MailMessageId: mailMessageId
         }
       });
       const msg = `Sent email to: ${customer.primaryEmail}`;
+
       debugEngages(msg);
+
       await Logs.createLog(engageMessageId, 'success', msg);
+
+      await Stats.updateOne({ engageMessageId }, { $inc: { total: 1 } });
     } catch (e) {
-      debugEngages(e.message);
+      debugError(e.message);
+
       await Logs.createLog(
         engageMessageId,
         'failure',
         `Error occurred while sending email to ${customer.primaryEmail}: ${e.message}`
       );
     }
-
-    await Stats.updateOne({ engageMessageId }, { $inc: { total: 1 } });
   };
 
-  const configs = await getConfigs();
   const unverifiedEmailsLimit = parseInt(
     configs.unverifiedEmailsLimit || '100',
     10
@@ -220,7 +252,7 @@ export const start = async (data: {
     await Logs.createLog(
       engageMessageId,
       'regular',
-      `Unverified emails limit exceeced ${unverifiedEmailsLimit}. Customers who have unverified emails will be eliminated.`
+      `Unverified emails limit exceeded ${unverifiedEmailsLimit}. Customers who have unverified emails will be eliminated.`
     );
 
     for (const customer of customers) {
@@ -243,24 +275,48 @@ export const start = async (data: {
     );
   }
 
-  for (const customer of filteredCustomers) {
+  // cleans customers who do not open or click emails often
+  const cleanCustomers = await cleanIgnoredCustomers({
+    customers: filteredCustomers,
+    engageMessageId
+  });
+
+  for (const customer of cleanCustomers) {
     await new Promise(resolve => {
       setTimeout(resolve, 1000);
     });
 
     await sendEmail(customer);
-  }
 
-  return true;
+    try {
+      await messageBroker().sendMessage('putActivityLog', {
+        action: ACTIVITY_LOG_ACTIONS.SEND_EMAIL_CAMPAIGN,
+        data: {
+          action: 'send',
+          contentType: 'campaign',
+          contentId: customer._id,
+          content: {
+            campaignId: engageMessageId,
+            title,
+            to: customer.primaryEmail,
+            type: ACTIVITY_CONTENT_TYPES.EMAIL
+          },
+          createdBy
+        }
+      });
+    } catch (e) {
+      await Logs.createLog(
+        engageMessageId,
+        'regular',
+        `Error occured while creating activity log "${customer.primaryEmail}"`
+      );
+    }
+  } // end for loop
 };
 
 // sends bulk sms via engage message
-export const sendBulkSms = async (data: {
-  engageMessageId: string;
-  shortMessage: IShortMessage;
-  customers: ICustomer[];
-}) => {
-  const { customers, engageMessageId, shortMessage } = data;
+export const sendBulkSms = async (data: ISmsParams) => {
+  const { customers, engageMessageId, shortMessage, createdBy, title } = data;
 
   const telnyxInfo = await getTelnyxInfo();
 
@@ -297,6 +353,30 @@ export const sendBulkSms = async (data: {
         engageMessageId,
         'failure',
         `${e.message} while sending to "${msg.to}"`
+      );
+    }
+
+    try {
+      await messageBroker().sendMessage('putActivityLog', {
+        action: ACTIVITY_LOG_ACTIONS.SEND_SMS_CAMPAIGN,
+        data: {
+          action: 'send',
+          contentType: 'campaign',
+          contentId: customer._id,
+          content: {
+            campaignId: engageMessageId,
+            title,
+            to: customer.primaryPhone,
+            type: ACTIVITY_CONTENT_TYPES.SMS
+          },
+          createdBy
+        }
+      });
+    } catch (e) {
+      await Logs.createLog(
+        engageMessageId,
+        'regular',
+        `Error occured while creating activity log "${customer.primaryPhone}"`
       );
     }
   } // end customers loop
