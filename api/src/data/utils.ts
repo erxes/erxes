@@ -754,6 +754,8 @@ export const sendToWebhook = async (
       data = { type, object: { _id: params.object._id } };
     }
 
+    prepareWebhookContent(type, action, data);
+
     sendRequest({
       url: webhook.url,
       headers: {
@@ -785,6 +787,56 @@ export default {
   readFile,
   createTransporter,
   sendToWebhook
+};
+
+export const prepareWebhookContent = (type, action, data) => {
+  console.log(type);
+  console.log(action);
+  console.log(data);
+  let actionText = 'created';
+  let url;
+
+  switch (type) {
+    case 'customer':
+      url = `contacts/details/${data.object._id}`;
+      break;
+
+    case 'company':
+      url = `companies/details/${data.object._id}`;
+      break;
+
+    case 'knowledgeBaseArticle':
+      url = `knowledgeBase?id=${data.newData.categoryIds[0]}`;
+      break;
+
+    case 'userMessages':
+      url = `inbox/index?_id=${data.conversationId}`;
+      break;
+
+    case 'customerMessages':
+      url = `inbox/index?_id=${data.conversationId}`;
+      break;
+
+    case 'conversation':
+      url = `inbox/index?_id=${data._id}`;
+      break;
+
+    case 'popupSubmitted':
+      url = `inbox/index?_id=${data.conversationId}`;
+      break;
+  }
+
+  switch (action) {
+    case 'update':
+      actionText = 'updated';
+      break;
+    case 'delete':
+      actionText = 'deleted';
+      break;
+    default:
+      actionText = 'created';
+      break;
+  }
 };
 
 export const cleanHtml = (content?: string) =>
