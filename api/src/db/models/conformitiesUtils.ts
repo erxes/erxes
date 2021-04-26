@@ -162,7 +162,8 @@ export const findElk = async query => {
     'search',
     'conformities',
     {
-      query
+      query,
+      size: 10000
     },
     '',
     { hits: { hits: [] } }
