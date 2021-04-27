@@ -96,7 +96,6 @@ export const fetchBySegments = async (
       'events',
       {
         _source: idField,
-        size: 10000,
         query: {
           bool: {
             must: eventPositive,
@@ -136,7 +135,6 @@ export const fetchBySegments = async (
             must_not: propertyNegative
           }
         },
-        size: 10000,
         _source: '_id'
       },
       '',
@@ -173,7 +171,6 @@ export const fetchBySegments = async (
 
   const response = await fetchElk('search', index, {
     _source: false,
-    size: 10000,
     query: {
       bool: {
         must: propertyPositive,
