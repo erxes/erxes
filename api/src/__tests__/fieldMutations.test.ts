@@ -1,9 +1,11 @@
 import * as faker from 'faker';
 import { graphqlRequest } from '../db/connection';
 import {
+  boardFactory,
   fieldFactory,
   fieldGroupFactory,
   formFactory,
+  pipelineFactory,
   userFactory
 } from '../db/factories';
 import { Fields, FieldsGroups, Users } from '../db/models';
@@ -366,6 +368,9 @@ describe('Fields mutations', () => {
   });
 
   test('Add group field', async () => {
+    const board = await boardFactory({ type: 'task' });
+    const pipeline = await pipelineFactory({ boardId: board._id });
+
     const mutation = `
       mutation fieldsGroupsAdd(${fieldsGroupsCommonParamDefs}) {
         fieldsGroupsAdd(${fieldsGroupsCommonParams}) {
@@ -374,24 +379,28 @@ describe('Fields mutations', () => {
           order
           description
           isVisible
+          boardsPipelines
         }
       }
     `;
 
-    const fieldGroup = await graphqlRequest(
-      mutation,
-      'fieldsGroupsAdd',
-      fieldGroupArgs
-    );
+    const fieldGroup = await graphqlRequest(mutation, 'fieldsGroupsAdd', {
+      ...fieldGroupArgs,
+      boardsPipelines: [{ boardId: board._id, pipelineIds: [pipeline._id] }]
+    });
 
     expect(fieldGroup.contentType).toBe(fieldGroupArgs.contentType);
     expect(fieldGroup.name).toBe(fieldGroupArgs.name);
     expect(fieldGroup.description).toBe(fieldGroupArgs.description);
     expect(fieldGroup.order).toBe(1);
     expect(fieldGroup.isVisible).toBe(fieldGroupArgs.isVisible);
+    expect(fieldGroup.boardsPipelines.length).toBe(1);
   });
 
   test('Edit group field', async () => {
+    const board = await boardFactory({ type: 'task' });
+    const pipeline = await pipelineFactory({ boardId: board._id });
+
     const mutation = `
       mutation fieldsGroupsEdit($_id: String! ${fieldsGroupsCommonParamDefs}) {
         fieldsGroupsEdit(_id: $_id ${fieldsGroupsCommonParams}) {
@@ -401,6 +410,7 @@ describe('Fields mutations', () => {
           order
           description
           isVisible
+          boardsPipelines
         }
       }
     `;
@@ -408,7 +418,11 @@ describe('Fields mutations', () => {
     const fieldGroup = await graphqlRequest(
       mutation,
       'fieldsGroupsEdit',
-      { _id: _fieldGroup._id, ...fieldGroupArgs },
+      {
+        _id: _fieldGroup._id,
+        ...fieldGroupArgs,
+        boardsPipelines: [{ boardId: board._id, pipelineIds: [pipeline._id] }]
+      },
       context
     );
 
@@ -418,6 +432,7 @@ describe('Fields mutations', () => {
     expect(fieldGroup.description).toBe(fieldGroupArgs.description);
     expect(fieldGroup.order).toBe(fieldGroupArgs.order);
     expect(fieldGroup.isVisible).toBe(fieldGroupArgs.isVisible);
+    expect(fieldGroup.boardsPipelines.length).toBe(1);
   });
 
   test('Remove group field', async () => {
