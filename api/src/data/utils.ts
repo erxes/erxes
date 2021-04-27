@@ -754,8 +754,6 @@ export const sendToWebhook = async (
       data = { type, object: { _id: params.object._id } };
     }
 
-    prepareWebhookContent(type, action, data);
-
     sendRequest({
       url: webhook.url,
       headers: {
@@ -764,9 +762,7 @@ export const sendToWebhook = async (
       method: 'post',
       body: {
         data: JSON.stringify(data),
-        text: `${type}:${action} action has triggered. \ data: ${JSON.stringify(
-          data
-        )}`,
+        text: prepareWebhookContent(type, action, data),
         action,
         type
       }
@@ -790,41 +786,9 @@ export default {
 };
 
 export const prepareWebhookContent = (type, action, data) => {
-  console.log(type);
-  console.log(action);
-  console.log(data);
   let actionText = 'created';
   let url;
-
-  switch (type) {
-    case 'customer':
-      url = `contacts/details/${data.object._id}`;
-      break;
-
-    case 'company':
-      url = `companies/details/${data.object._id}`;
-      break;
-
-    case 'knowledgeBaseArticle':
-      url = `knowledgeBase?id=${data.newData.categoryIds[0]}`;
-      break;
-
-    case 'userMessages':
-      url = `inbox/index?_id=${data.conversationId}`;
-      break;
-
-    case 'customerMessages':
-      url = `inbox/index?_id=${data.conversationId}`;
-      break;
-
-    case 'conversation':
-      url = `inbox/index?_id=${data._id}`;
-      break;
-
-    case 'popupSubmitted':
-      url = `inbox/index?_id=${data.conversationId}`;
-      break;
-  }
+  let content = '';
 
   switch (action) {
     case 'update':
@@ -837,6 +801,61 @@ export const prepareWebhookContent = (type, action, data) => {
       actionText = 'created';
       break;
   }
+
+  switch (type) {
+    case 'customer':
+      url = `/contacts/details/${data.object._id}`;
+      content = `Customer has ${actionText}`;
+      break;
+
+    case 'company':
+      url = `/companies/details/${data.object._id}`;
+      content = `Company has ${actionText}`;
+      break;
+
+    case 'knowledgeBaseArticle':
+      url = `/knowledgeBase?id=${data.newData.categoryIds[0]}`;
+      content = `Knowledge base article has ${actionText}`;
+      break;
+
+    case 'userMessages':
+      url = `/inbox/index?_id=${data.conversationId}`;
+      content = 'User has replied to a conversation';
+      break;
+
+    case 'customerMessages':
+      url = `/inbox/index?_id=${data.conversationId}`;
+      content = 'Customer has send a conversation message';
+      break;
+
+    case 'conversation':
+      url = `/inbox/index?_id=${data._id}`;
+      content = 'Customer has started new conversation';
+      break;
+
+    case 'popupSubmitted':
+      url = `/inbox/index?_id=${data.conversationId}`;
+      content = 'Customer has submitted a form';
+      break;
+
+    case 'engageMessages':
+      url = `/campaigns/show/${data._id}`;
+
+      if (data.method === 'messenger') {
+        url = `/campaigns/edit/${data.$_id}`;
+      }
+
+      content = 'Campaign has created';
+      break;
+  }
+
+  url = `${getEnv({ name: 'MAIN_APP_DOMAIN' })}${url}`;
+
+  if (action !== 'delete') {
+    content = `<${url}|${content}>`;
+  }
+
+  return content;
 };
 
 export const cleanHtml = (content?: string) =>
