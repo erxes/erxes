@@ -9,6 +9,7 @@ type Props = {
   kind?: string;
   brands: IBrand[];
   scheduleDate?: IEngageScheduleDate;
+  segmentType?: string;
 };
 
 class MessageForm extends React.Component<Props> {
