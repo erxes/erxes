@@ -106,6 +106,20 @@ const userMutations = {
           lastName
         }
       });
+
+      await sendRequest({
+        url: 'https://api.office.erxes.io/webhooks/TfLkv6SxzkHMFT3cj',
+        method: 'POST',
+        headers: {
+          auth: '3QuWREv4A2nzmrCJe'
+        },
+        body: {
+          customerPrimaryEmail: email,
+          customerFirstName: firstName,
+          customerLastName: lastName,
+          customFields: [{ name: 'Customer Type', value: 'Open Source' }]
+        }
+      });
     }
 
     await Configs.createOrUpdateConfig({
