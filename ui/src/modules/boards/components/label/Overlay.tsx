@@ -136,7 +136,7 @@ export default class Overlay extends React.Component<
           <Button
             onClick={this.onCreate}
             block={true}
-            icon="check-1"
+            icon="plus-circle"
             size="small"
             btnStyle="success"
           >

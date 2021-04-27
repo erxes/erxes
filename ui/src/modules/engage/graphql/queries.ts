@@ -111,6 +111,9 @@ export const engageDetailFields = `
   customerTags {
     ${tagFields}
   }
+  segments {
+    contentType
+  }
 `;
 
 const engageMessageStats = `
