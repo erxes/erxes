@@ -499,10 +499,12 @@ export const fieldsCombinedByContentType = async ({
     );
 
     if (segmentId || pipelineId) {
-      const segment = await getSegment(segmentId || '');
+      const segment = segmentId ? await getSegment(segmentId) : null;
+
       const labelOptions = await getPipelineLabelOptions(
         pipelineId || (segment ? segment.pipelineId : null)
       );
+
       const stageOptions = await getStageOptions(
         pipelineId || (segment ? segment.pipelineId : null)
       );
