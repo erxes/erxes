@@ -850,6 +850,7 @@ export const prepareWebhookContent = (type, action, data) => {
   }
 
   url = `${getEnv({ name: 'MAIN_APP_DOMAIN' })}${url}`;
+  content = `erxes: ${content}`;
 
   if (action !== 'delete') {
     content = `<${url}|${content}>`;
