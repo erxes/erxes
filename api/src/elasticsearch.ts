@@ -54,6 +54,10 @@ export const fetchElk = async (
       body
     };
 
+    if (action === 'search' && body && !body.size) {
+      body.size = 10000;
+    }
+
     if (id) {
       params.id = id;
     }
