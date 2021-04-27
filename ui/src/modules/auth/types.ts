@@ -17,6 +17,7 @@ export interface IOwner {
   password: string;
   firstName: string;
   lastName?: string;
+  purpose: string;
   subscribeEmail?: boolean;
 }
 
