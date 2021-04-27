@@ -55,12 +55,6 @@ export type ActivityLogQueryResponse = {
   loading: boolean;
 };
 
-export type ProductsQueryResponse = {
-  loading: boolean;
-  refetch: (variables?: { searchValue?: string; perPage?: number }) => void;
-  products: IProduct[];
-};
-
 export interface IDeal extends IItem {
   products?: any;
   paymentsData?: IPaymentsData;
