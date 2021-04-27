@@ -18,7 +18,10 @@ import {
   Webhooks
 } from '../db/models';
 import { IBrandDocument } from '../db/models/definitions/brands';
-import { WEBHOOK_STATUS } from '../db/models/definitions/constants';
+import {
+  WEBHOOK_STATUS,
+  WEBHOOK_TYPES
+} from '../db/models/definitions/constants';
 import { ICustomer } from '../db/models/definitions/customers';
 import { IUser, IUserDocument } from '../db/models/definitions/users';
 import { debugBase, debugError } from '../debuggers';
@@ -792,60 +795,63 @@ export const prepareWebhookContent = (type, action, data) => {
 
   switch (action) {
     case 'update':
-      actionText = 'updated';
+      actionText = 'has been updated';
       break;
     case 'delete':
-      actionText = 'deleted';
+      actionText = 'has been deleted';
       break;
     default:
-      actionText = 'created';
+      actionText = 'has been created';
       break;
   }
 
   switch (type) {
-    case 'customer':
+    case WEBHOOK_TYPES.CUSTOMER:
       url = `/contacts/details/${data.object._id}`;
-      content = `Customer has ${actionText}`;
+      content = `Customer ${actionText}`;
       break;
 
-    case 'company':
+    case WEBHOOK_TYPES.COMPANY:
       url = `/companies/details/${data.object._id}`;
-      content = `Company has ${actionText}`;
+      content = `Company ${actionText}`;
       break;
 
-    case 'knowledgeBaseArticle':
+    case WEBHOOK_TYPES.KNOWLEDGEBASE:
       url = `/knowledgeBase?id=${data.newData.categoryIds[0]}`;
-      content = `Knowledge base article has ${actionText}`;
+      content = `Knowledge base article ${actionText}`;
       break;
 
-    case 'userMessages':
+    case WEBHOOK_TYPES.USER_MESSAGES:
       url = `/inbox/index?_id=${data.conversationId}`;
-      content = 'User has replied to a conversation';
+      content = 'Admin has replied to a conversation';
       break;
 
-    case 'customerMessages':
+    case WEBHOOK_TYPES.CUSTOMER_MESSAGES:
       url = `/inbox/index?_id=${data.conversationId}`;
       content = 'Customer has send a conversation message';
       break;
 
-    case 'conversation':
+    case WEBHOOK_TYPES.CONVERSATION:
       url = `/inbox/index?_id=${data._id}`;
       content = 'Customer has started new conversation';
       break;
 
-    case 'popupSubmitted':
+    case WEBHOOK_TYPES.FORM_SUBMITTED:
       url = `/inbox/index?_id=${data.conversationId}`;
       content = 'Customer has submitted a form';
       break;
 
-    case 'engageMessages':
+    case WEBHOOK_TYPES.CAMPAIGN:
       url = `/campaigns/show/${data._id}`;
 
       if (data.method === 'messenger') {
         url = `/campaigns/edit/${data.$_id}`;
       }
 
-      content = 'Campaign has created';
+      content = 'Campaign has been created';
+      break;
+
+    default:
       break;
   }
 

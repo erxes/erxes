@@ -764,7 +764,12 @@ export const WEBHOOK_ACTIONS = [
   { label: 'User messages', action: 'create', type: 'userMessages' },
   { label: 'Customer messages', action: 'create', type: 'customerMessages' },
   {
-    label: 'Campaign message created',
+    label: 'Customer create conversation',
+    action: 'create',
+    type: 'conversation'
+  },
+  {
+    label: 'Campaign created',
     action: 'create',
     type: 'engageMessages'
   },
@@ -774,6 +779,27 @@ export const WEBHOOK_ACTIONS = [
     type: 'popupSubmitted'
   }
 ];
+
+export const WEBHOOK_TYPES = {
+  CUSTOMER: 'customer',
+  COMPANY: 'company',
+  CONVERSATION: 'conversation',
+  USER_MESSAGES: 'userMessages',
+  CUSTOMER_MESSAGES: 'customerMessages',
+  FORM_SUBMITTED: 'popupSubmitted',
+  KNOWLEDGEBASE: 'knowledgeBaseArticle',
+  CAMPAIGN: 'engageMessages',
+  ALL: [
+    'customer',
+    'company',
+    'conversation',
+    'userMessages',
+    'customerMessages',
+    'popupSubmitted',
+    'knowledgeBaseArticle',
+    'engageMessages'
+  ]
+};
 
 export const WEBHOOK_STATUS = {
   AVAILABLE: 'available',
