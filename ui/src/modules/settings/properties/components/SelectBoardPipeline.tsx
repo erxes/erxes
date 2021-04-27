@@ -5,11 +5,11 @@ import { IOption } from 'modules/common/types';
 import React from 'react';
 import Select from 'react-select-plus';
 import { __ } from '../../../common/utils';
-import { FlexRow } from 'modules/settings/integrations/styles';
 import Button from 'modules/common/components/Button';
 import Icon from 'modules/common/components/Icon';
 import { IBoardSelectItem } from '../types';
 import { LinkButton } from 'modules/settings/team/styles';
+import { FlexRow } from '../styles';
 
 type Props = {
   boards: IBoard[];
