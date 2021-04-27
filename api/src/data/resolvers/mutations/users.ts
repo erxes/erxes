@@ -67,11 +67,13 @@ const userMutations = {
       password,
       firstName,
       lastName,
+      purpose,
       subscribeEmail
     }: {
       email: string;
       password: string;
       firstName: string;
+      purpose: string;
       lastName?: string;
       subscribeEmail?: boolean;
     }
@@ -99,6 +101,7 @@ const userMutations = {
         method: 'POST',
         body: {
           email,
+          purpose,
           firstName,
           lastName
         }
