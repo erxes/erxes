@@ -7,19 +7,21 @@ const router = Router();
 import { debugEngages, debugRequest } from '../debuggers';
 import { DeliveryReports, Logs, Stats } from '../models';
 
-router.get('/statsList/:engageMessageId', async (req, res) => {
-  debugRequest(debugEngages, req);
+router.get(
+  '/statsList/:engageMessageId',
+  routeErrorHandling(async (req, res) => {
+    debugRequest(debugEngages, req);
 
-  const { engageMessageId } = req.params;
+    const { engageMessageId } = req.params;
+    const stats = await Stats.findOne({ engageMessageId });
 
-  const stats = await Stats.findOne({ engageMessageId });
+    if (!stats) {
+      return res.json({});
+    }
 
-  if (!stats) {
-    return res.json({});
-  }
-
-  return res.json(stats);
-});
+    return res.json(stats);
+  })
+);
 
 router.get(
   '/smsStats/:engageMessageId',

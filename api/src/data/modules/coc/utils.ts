@@ -41,9 +41,7 @@ export const countBySegment = async (
 
   // show all contact related engages when engage
   if (source === 'engages') {
-    segments = await Segments.find({
-      contentType: ['customer', 'lead', 'visitor']
-    });
+    segments = await Segments.find({});
   } else {
     segments = await Segments.find({ contentType });
   }
@@ -184,7 +182,8 @@ export class CommonBuilder<IListArgs extends ICommonListArgs> {
 
     const { positiveList, negativeList } = await fetchBySegments(
       segment,
-      'count'
+      'count',
+      { associatedCustomers: true }
     );
 
     this.positiveList = [...this.positiveList, ...positiveList];

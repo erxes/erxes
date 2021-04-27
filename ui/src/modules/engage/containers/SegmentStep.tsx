@@ -21,6 +21,7 @@ import { sumCounts } from '../utils';
 type Props = {
   segmentIds: string[];
   messageType: string;
+  segmentType: string;
   onChange: (name: string, value: string[]) => void;
   renderContent: ({
     actionSelector,
@@ -115,11 +116,11 @@ export default withProps<Props>(
   compose(
     graphql<Props, SegmentsQueryResponse>(gql(queries.segments), {
       name: 'segmentsQuery',
-      options: {
+      options: (props: Props) => ({
         variables: {
-          contentTypes: ['lead', 'customer', 'visitor']
+          contentTypes: [props.segmentType]
         }
-      }
+      })
     }),
     graphql<Props, CountQueryResponse, { only: string; source: string }>(
       gql(queries.customerCounts),

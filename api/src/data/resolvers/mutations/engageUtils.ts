@@ -66,7 +66,9 @@ export const generateCustomerSelector = async ({
     let customerIdsBySegments: string[] = [];
 
     for (const segment of segments) {
-      const cIds = await fetchBySegments(segment);
+      const cIds = await fetchBySegments(segment, 'search', {
+        associatedCustomers: true
+      });
 
       customerIdsBySegments = [...customerIdsBySegments, ...cIds];
     }
