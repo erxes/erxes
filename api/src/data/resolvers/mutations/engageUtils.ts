@@ -203,13 +203,19 @@ const sendEmailOrSms = async (
       customerInfos.length
     );
 
-    await sendQueueMessage({
-      action: 'writeLog',
-      data: {
-        engageMessageId,
-        msg: `Matched ${customerInfos.length} customers`
-      }
-    });
+    const MINUTELY =
+      engageMessage.scheduleDate &&
+      engageMessage.scheduleDate.type === 'minute';
+
+    if (!(engageMessage.kind === MESSAGE_KINDS.AUTO && MINUTELY)) {
+      await sendQueueMessage({
+        action: 'writeLog',
+        data: {
+          engageMessageId,
+          msg: `Matched ${customerInfos.length} customers`
+        }
+      });
+    }
 
     await EngageMessages.setCustomersCount(
       engageMessage._id,
