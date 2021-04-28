@@ -203,13 +203,15 @@ const sendEmailOrSms = async (
       customerInfos.length
     );
 
-    await sendQueueMessage({
-      action: 'writeLog',
-      data: {
-        engageMessageId,
-        msg: `Matched ${customerInfos.length} customers`
-      }
-    });
+    if (customerInfos.length > 0) {
+      await sendQueueMessage({
+        action: 'writeLog',
+        data: {
+          engageMessageId,
+          msg: `Matched ${customerInfos.length} customers`
+        }
+      });
+    }
 
     await EngageMessages.setCustomersCount(
       engageMessage._id,
