@@ -95,3 +95,10 @@ export const ACTIVITY_CONTENT_TYPES = {
   EMAIL: 'campaign-email',
   ALL: ['campaign-sms', 'campaign-email']
 };
+
+export const CAMPAIGN_KINDS = {
+  AUTO: 'auto',
+  VISITOR_AUTO: 'visitorAuto',
+  MANUAL: 'manual',
+  ALL: ['auto', 'visitorAuto', 'manual']
+};

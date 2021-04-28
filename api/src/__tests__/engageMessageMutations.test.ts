@@ -991,33 +991,4 @@ describe('engage message mutation tests', () => {
       expect(e.message).toBe('One of brand or segment or tag must be chosen');
     }
   });
-
-  test('Test auto SMS campaign', async () => {
-    const doc = { tagIds: [_tag._id], phoneValidationStatus: 'valid' };
-
-    await customerFactory(doc);
-    await customerFactory(doc);
-
-    const campaign = await engageMessageFactory({
-      method: METHODS.SMS,
-      kind: MESSAGE_KINDS.AUTO,
-      customerTagIds: [_tag._id],
-      userId: _user._id,
-      isLive: true
-    });
-
-    try {
-      // no sms limit saved
-      await engageUtils.send(campaign, 0);
-
-      // making customers.length > sms limit
-      await engageUtils.send(campaign, 1);
-
-      // successful condition
-      await engageUtils.send(campaign, 10);
-    } catch (e) {
-      // tslint:disable-next-line
-      console.log(e);
-    }
-  });
 });
