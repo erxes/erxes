@@ -1,6 +1,10 @@
 import * as dotenv from 'dotenv';
 import * as Random from 'meteor-random';
-import { ACTIVITY_CONTENT_TYPES, ACTIVITY_LOG_ACTIONS } from './constants';
+import {
+  ACTIVITY_CONTENT_TYPES,
+  ACTIVITY_LOG_ACTIONS,
+  CAMPAIGN_KINDS
+} from './constants';
 import { debugEngages, debugError } from './debuggers';
 import messageBroker from './messageBroker';
 import { Logs, SmsRequests, Stats } from './models';
@@ -8,6 +12,7 @@ import { getTelnyxInfo } from './telnyxUtils';
 import {
   cleanIgnoredCustomers,
   createTransporter,
+  getConfig,
   getConfigs,
   getEnv,
   ICustomer
@@ -54,6 +59,7 @@ interface ISenderParams {
   customers: ICustomer[];
   createdBy: string;
   title: string;
+  kind: string;
 }
 
 interface IEmailParams extends ISenderParams {
@@ -316,21 +322,51 @@ export const start = async (data: IEmailParams) => {
 
 // sends bulk sms via engage message
 export const sendBulkSms = async (data: ISmsParams) => {
-  const { customers, engageMessageId, shortMessage, createdBy, title } = data;
+  const {
+    customers,
+    engageMessageId,
+    shortMessage,
+    createdBy,
+    title,
+    kind
+  } = data;
 
   const telnyxInfo = await getTelnyxInfo();
+  const smsLimit = await getConfig('smsLimit', 0);
 
-  const filteredCustomers = customers.filter(
+  const validCustomers = customers.filter(
     c => c.primaryPhone && c.phoneValidationStatus === 'valid'
   );
+
+  if (kind === CAMPAIGN_KINDS.AUTO) {
+    if (!smsLimit) {
+      await Logs.createLog(
+        engageMessageId,
+        'regular',
+        `Auto campaign SMS limit is not set: "${smsLimit}"`
+      );
+
+      return;
+    }
+
+    if (smsLimit && validCustomers.length > smsLimit) {
+      await Logs.createLog(
+        engageMessageId,
+        'regular',
+        `Chosen "${validCustomers.length}" customers exceeded sms limit "${smsLimit}". Campaign will not run.`
+      );
+
+      return;
+    }
+  }
 
   await Logs.createLog(
     engageMessageId,
     'regular',
-    `Preparing to send SMS to "${filteredCustomers.length}" customers`
+    `Preparing to send SMS to "${validCustomers.length}" customers`
   );
 
-  for (const customer of filteredCustomers) {
+  for (const customer of validCustomers) {
     await new Promise(resolve => {
       setTimeout(resolve, 1000);
     });
