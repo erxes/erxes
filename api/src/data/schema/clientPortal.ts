@@ -134,6 +134,11 @@ export const mutations = `
     lastName: String
     email: String!
   ): Customer
+  clientPortalCreateCompany(
+    configId: String!
+    companyName: String!
+    email: String!
+  ): Company
   clientPortalConfigUpdate(
     _id: String
     name: String

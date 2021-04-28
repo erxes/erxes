@@ -1,5 +1,6 @@
 import {
   ClientPortals,
+  Companies,
   Customers,
   TicketComments,
   Tickets
@@ -47,6 +48,28 @@ const configClientPortalMutations = {
       lastName: args.lastName,
       primaryEmail: args.email,
       state: 'customer'
+    });
+  },
+
+  async clientPortalCreateCompany(
+    _root,
+    args: {
+      configId: string;
+      companyName: string;
+      email: string;
+    }
+  ) {
+    const config = await ClientPortals.findOne({ _id: args.configId }).lean();
+
+    if (!config) {
+      throw new Error('Config not found');
+    }
+
+    return Companies.createCompany({
+      primaryName: args.companyName,
+      primaryEmail: args.email,
+      names: [args.companyName],
+      emails: [args.email]
     });
   },
 
