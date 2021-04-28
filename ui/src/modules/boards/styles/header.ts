@@ -124,5 +124,12 @@ export const BarItems = styled(BarItemsCommon)`
     max-height: calc(100vh - 120px);
     overflow: auto;
     background: ${colors.colorWhite};
+
+    li {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding-right: 10px;
+    }
   }
 `;

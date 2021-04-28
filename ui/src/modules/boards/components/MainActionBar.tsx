@@ -46,7 +46,7 @@ class MainActionBar extends React.Component<Props> {
 
   renderBoards() {
     const { currentBoard, boards } = this.props;
-
+    console.log(currentBoard, boards);
     if ((currentBoard && boards.length === 1) || boards.length === 0) {
       return (
         <EmptyState icon="web-grid-alt" text="No other boards" size="small" />
@@ -54,10 +54,6 @@ class MainActionBar extends React.Component<Props> {
     }
 
     return boards.map(board => {
-      if (currentBoard && board._id === currentBoard._id) {
-        return null;
-      }
-
       let link = `${this.props.link}?id=${board._id}`;
 
       const { pipelines = [] } = board;
@@ -69,6 +65,9 @@ class MainActionBar extends React.Component<Props> {
       return (
         <li key={board._id}>
           <Link to={link}>{board.name}</Link>
+          {currentBoard && board._id === currentBoard._id && (
+            <Icon icon="check-1" size={20} />
+          )}
         </li>
       );
     });

@@ -7,7 +7,7 @@ import Select from 'react-select-plus';
 
 type Props = {
   categories: IProductCategory[];
-  onChangeCategory: (catgeoryId: string) => void;
+  onChangeCategory: (categoryId: string) => void;
 };
 
 type State = {
