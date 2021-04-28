@@ -40,7 +40,7 @@ const engageMutations = {
   async engageMessageAdd(
     _root,
     doc: IEngageMessage,
-    { user, docModifier, dataSources }: IContext
+    { user, docModifier }: IContext
   ) {
     checkCampaignDoc(doc);
 
@@ -55,11 +55,7 @@ const engageMutations = {
 
     await sendToWebhook('create', 'engageMessages', engageMessage);
 
-    const configs = (await dataSources.EngagesAPI.engagesConfigDetail()) || [];
-    const config = configs.find(c => c.code === 'smsLimit');
-    const smsLimit = config && config.value ? parseInt(config.value, 10) : 0;
-
-    await send(engageMessage, smsLimit);
+    await send(engageMessage);
 
     await putCreateLog(
       {
