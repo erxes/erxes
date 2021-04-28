@@ -46,7 +46,6 @@ class MainActionBar extends React.Component<Props> {
 
   renderBoards() {
     const { currentBoard, boards } = this.props;
-    console.log(currentBoard, boards);
     if ((currentBoard && boards.length === 1) || boards.length === 0) {
       return (
         <EmptyState icon="web-grid-alt" text="No other boards" size="small" />
@@ -75,7 +74,7 @@ class MainActionBar extends React.Component<Props> {
 
   renderPipelines() {
     const { currentBoard, currentPipeline, link } = this.props;
-
+    console.log(currentBoard, currentPipeline, link);
     const pipelines = currentBoard ? currentBoard.pipelines || [] : [];
 
     if ((currentPipeline && pipelines.length === 1) || pipelines.length === 0) {
@@ -93,9 +92,9 @@ class MainActionBar extends React.Component<Props> {
     }
 
     return pipelines.map(pipeline => {
-      if (currentPipeline && pipeline._id === currentPipeline._id) {
-        return null;
-      }
+      // if (currentPipeline && pipeline._id === currentPipeline._id) {
+      //   return null;
+      // }
 
       return (
         <li key={pipeline._id}>
@@ -104,6 +103,9 @@ class MainActionBar extends React.Component<Props> {
           >
             {pipeline.name}
           </Link>
+          {currentPipeline && pipeline._id === currentPipeline._id && (
+            <Icon icon="check-1" size={20} />
+          )}
         </li>
       );
     });
