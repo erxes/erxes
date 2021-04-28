@@ -74,7 +74,6 @@ class MainActionBar extends React.Component<Props> {
 
   renderPipelines() {
     const { currentBoard, currentPipeline, link } = this.props;
-    console.log(currentBoard, currentPipeline, link);
     const pipelines = currentBoard ? currentBoard.pipelines || [] : [];
 
     if ((currentPipeline && pipelines.length === 1) || pipelines.length === 0) {
@@ -92,10 +91,6 @@ class MainActionBar extends React.Component<Props> {
     }
 
     return pipelines.map(pipeline => {
-      // if (currentPipeline && pipeline._id === currentPipeline._id) {
-      //   return null;
-      // }
-
       return (
         <li key={pipeline._id}>
           <Link
