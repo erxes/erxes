@@ -11,7 +11,7 @@ const sendElkRequest = (data, index: string) => {
         doc: data.updateDescription.updatedFields || {}
       };
 
-      return fetchElk('update', index, body, documentKey._id);
+      return fetchElk({ action: 'update', index, body, _id: documentKey._id });
     }
 
     case 'insert': {
@@ -19,11 +19,11 @@ const sendElkRequest = (data, index: string) => {
 
       delete body._id;
 
-      return fetchElk('create', index, body, documentKey._id);
+      return fetchElk({ action: 'create', index, body, _id: documentKey._id });
     }
   }
 
-  return fetchElk('delete', index, {}, documentKey._id);
+  return fetchElk({ action: 'delete', index, body: {}, _id: documentKey._id });
 };
 
 const init = () => {

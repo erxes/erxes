@@ -158,15 +158,14 @@ export const getSavedAnyConformityQuery = ({
 };
 
 export const findElk = async query => {
-  const response = await fetchElk(
-    'search',
-    'conformities',
-    {
+  const response = await fetchElk({
+    action: 'search',
+    index: 'conformities',
+    body: {
       query
     },
-    '',
-    { hits: { hits: [] } }
-  );
+    defaultValue: { hits: { hits: [] } }
+  });
 
   return response.hits.hits.map(hit => {
     return {
