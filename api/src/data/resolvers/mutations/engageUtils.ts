@@ -346,15 +346,14 @@ export const checkCampaignDoc = (doc: IEngageMessage) => {
 };
 
 export const findElk = async (index, query) => {
-  const response = await fetchElk(
-    'search',
+  const response = await fetchElk({
+    action: 'search',
     index,
-    {
+    body: {
       query
     },
-    '',
-    { hits: { hits: [] } }
-  );
+    defaultValue: { hits: { hits: [] } }
+  });
 
   return response.hits.hits.map(hit => {
     return {

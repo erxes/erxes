@@ -75,7 +75,12 @@ const getSegment = async (_id: string) => {
     return Segments.findOne({ _id });
   }
 
-  const response = await fetchElk('get', 'segments', null, _id);
+  const response = await fetchElk({
+    action: 'get',
+    index: 'segments',
+    body: null,
+    _id
+  });
 
   return { _id: response._id, ...response._source };
 };
@@ -84,7 +89,12 @@ const getFieldGroup = async (_id: string) => {
   if (!isUsingElk()) {
     return FieldsGroups.findOne({ _id });
   }
-  const response = await fetchElk('get', 'fields_groups', null, _id);
+  const response = await fetchElk({
+    action: 'get',
+    index: 'fields_groups',
+    body: null,
+    _id
+  });
 
   return { _id: response._id, ...response._source };
 };
@@ -232,7 +242,11 @@ const getIntegrations = async () => {
     ]);
   }
 
-  const response = await fetchElk('search', 'integrations', {});
+  const response = await fetchElk({
+    action: 'search',
+    index: 'integrations',
+    body: {}
+  });
 
   if (!response) {
     return [];
@@ -534,10 +548,10 @@ export const fieldsCombinedByContentType = async ({
     (contentType === 'company' || contentType === 'customer') &&
     (!usageType || usageType === 'export')
   ) {
-    const aggre = await fetchElk(
-      'search',
-      contentType === 'company' ? 'companies' : 'customers',
-      {
+    const aggre = await fetchElk({
+      action: 'search',
+      index: contentType === 'company' ? 'companies' : 'customers',
+      body: {
         size: 0,
         _source: false,
         aggs: {
@@ -556,9 +570,8 @@ export const fieldsCombinedByContentType = async ({
           }
         }
       },
-      '',
-      { aggregations: { trackedDataKeys: {} } }
-    );
+      defaultValue: { aggregations: { trackedDataKeys: {} } }
+    });
 
     const aggregations = aggre.aggregations || { trackedDataKeys: {} };
     const buckets = (aggregations.trackedDataKeys.fieldKeys || { buckets: [] })

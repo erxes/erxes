@@ -91,10 +91,10 @@ export const fetchBySegments = async (
   if (eventPositive.length > 0 || eventNegative.length > 0) {
     const idField = contentType === 'company' ? 'companyId' : 'customerId';
 
-    const eventsResponse = await fetchElk(
-      'search',
-      'events',
-      {
+    const eventsResponse = await fetchElk({
+      action: 'search',
+      index: 'events',
+      body: {
         _source: idField,
         query: {
           bool: {
@@ -103,9 +103,8 @@ export const fetchBySegments = async (
           }
         }
       },
-      '',
-      { hits: { hits: [] } }
-    );
+      defaultValue: { hits: { hits: [] } }
+    });
 
     idsByEvents = eventsResponse.hits.hits
       .map(hit => hit._source[idField])
@@ -125,10 +124,10 @@ export const fetchBySegments = async (
   ) {
     index = 'customers';
 
-    const itemsResponse = await fetchElk(
-      'search',
-      getIndexByContentType(segment.contentType),
-      {
+    const itemsResponse = await fetchElk({
+      action: 'search',
+      index: getIndexByContentType(segment.contentType),
+      body: {
         query: {
           bool: {
             must: propertyPositive,
@@ -137,9 +136,8 @@ export const fetchBySegments = async (
         },
         _source: '_id'
       },
-      '',
-      { hits: { hits: [] } }
-    );
+      defaultValue: { hits: { hits: [] } }
+    });
 
     const items = itemsResponse.hits.hits;
 
@@ -169,12 +167,16 @@ export const fetchBySegments = async (
     };
   }
 
-  const response = await fetchElk('search', index, {
-    _source: false,
-    query: {
-      bool: {
-        must: propertyPositive,
-        must_not: propertyNegative
+  const response = await fetchElk({
+    action: 'search',
+    index,
+    body: {
+      _source: false,
+      query: {
+        bool: {
+          must: propertyPositive,
+          must_not: propertyNegative
+        }
       }
     }
   });
@@ -569,11 +571,15 @@ export const fetchSegment = async (action, segment: ISegment, options?) => {
   try {
     const { positiveList, negativeList } = await response;
 
-    response = await fetchElk('count', getIndexByContentType(contentType), {
-      query: {
-        bool: {
-          must: positiveList,
-          must_not: negativeList
+    response = await fetchElk({
+      action: 'count',
+      index: getIndexByContentType(contentType),
+      body: {
+        query: {
+          bool: {
+            must: positiveList,
+            must_not: negativeList
+          }
         }
       }
     });
