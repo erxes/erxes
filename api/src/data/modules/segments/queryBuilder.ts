@@ -213,7 +213,7 @@ const generateQueryBySegment = async (args: {
   const embeddedParentSegment = await Segments.findOne({ _id: segment.subOf });
   const parentSegment = embeddedParentSegment;
 
-  if (parentSegment && segment.subOf !== parentSegment._id) {
+  if (parentSegment && (!segment._id || segment._id !== parentSegment._id)) {
     await generateQueryBySegment({ ...args, segment: parentSegment });
   }
 

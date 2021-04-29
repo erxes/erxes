@@ -455,7 +455,11 @@ export const fieldsCombinedByContentType = async ({
   for (const customField of customFields) {
     const group = await getFieldGroup(customField.groupId);
 
-    if (group && group.isVisible && customField.isVisible) {
+    if (
+      group &&
+      group.isVisible &&
+      (customField.isVisibleDetail || customField.isVisibleDetail === undefined)
+    ) {
       fields.push({
         _id: Math.random(),
         name: `customFieldsData.${customField._id}`,
