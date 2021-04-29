@@ -68,6 +68,7 @@ export interface IEngageMessage {
 
   totalCustomersCount?: number;
   validCustomersCount?: number;
+  runCount?: number;
 }
 
 export interface IEngageMessageDocument extends IEngageMessage, Document {
