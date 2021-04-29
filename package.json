@@ -47,6 +47,7 @@
     "typescript": "^3.0.3"
   },
   "dependencies": {
+    "@sentry/react": "^5.29.2",
     "fs-extra": "^9.0.1"
   }
 }
