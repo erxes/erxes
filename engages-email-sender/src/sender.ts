@@ -7,159 +7,23 @@ import {
 } from './constants';
 import { debugEngages, debugError } from './debuggers';
 import messageBroker from './messageBroker';
-import { Logs, SmsRequests, Stats } from './models';
-import { getTelnyxInfo } from './telnyxUtils';
+import { Logs, Stats } from './models';
+import {
+  getTelnyxInfo,
+  handleMessageCallback,
+  prepareMessage
+} from './telnyxUtils';
+import { ICustomer, IEmailParams, ISmsParams } from './types';
 import {
   cleanIgnoredCustomers,
   createTransporter,
   getConfig,
   getConfigs,
   getEnv,
-  ICustomer
+  setCampaignCount
 } from './utils';
 
 dotenv.config();
-
-interface IShortMessage {
-  content: string;
-  from?: string;
-  fromIntegrationId: string;
-}
-
-interface IIntegration {
-  _id: string;
-  kind: string;
-  erxesApiId: string;
-  telnyxProfileId?: string;
-  telnyxPhoneNumber: string;
-}
-
-interface IMessageParams {
-  shortMessage: IShortMessage;
-  to: string;
-  integrations: IIntegration[];
-}
-
-interface ITelnyxMessageParams {
-  from: string;
-  to: string;
-  text: string;
-  messaging_profile_id?: string;
-  webhook_url?: string;
-  webhook_failover_url?: string;
-}
-
-interface ICallbackParams {
-  engageMessageId?: string;
-  msg: ITelnyxMessageParams;
-}
-
-interface ISenderParams {
-  engageMessageId: string;
-  customers: ICustomer[];
-  createdBy: string;
-  title: string;
-  kind: string;
-}
-
-interface IEmailParams extends ISenderParams {
-  fromEmail: string;
-  email: any;
-}
-
-interface ISmsParams extends ISenderParams {
-  shortMessage: IShortMessage;
-}
-
-// alphanumeric sender id only works for countries outside north america
-const isNumberNorthAmerican = (phoneNumber: string) => {
-  return phoneNumber.substring(0, 2) === '+1';
-};
-
-// prepares sms object matching telnyx requirements
-const prepareMessage = async ({
-  shortMessage,
-  to,
-  integrations
-}: IMessageParams): Promise<ITelnyxMessageParams> => {
-  const MAIN_API_DOMAIN = getEnv({ name: 'MAIN_API_DOMAIN' });
-  const { content, from, fromIntegrationId } = shortMessage;
-
-  const integration = integrations.find(
-    i => i.erxesApiId === fromIntegrationId
-  );
-
-  if (!integration.telnyxPhoneNumber) {
-    throw new Error('Telnyx phone is not configured');
-  }
-
-  const msg = {
-    from: integration.telnyxPhoneNumber,
-    to,
-    text: content,
-    messaging_profile_id: integration.telnyxProfileId || '',
-    webhook_url: `${MAIN_API_DOMAIN}/telnyx/webhook`,
-    webhook_failover_url: `${MAIN_API_DOMAIN}/telnyx/webhook-failover`
-  };
-
-  // to use alphanumeric sender id, messaging profile id must be set
-  if (msg.messaging_profile_id && from) {
-    msg.from = from;
-  }
-
-  if (isNumberNorthAmerican(msg.to)) {
-    msg.from = integration.telnyxPhoneNumber;
-  }
-
-  return msg;
-};
-
-const handleMessageCallback = async (
-  err: any,
-  res: any,
-  data: ICallbackParams
-) => {
-  const { engageMessageId, msg } = data;
-
-  const request = await SmsRequests.createRequest({
-    engageMessageId,
-    to: msg.to,
-    requestData: JSON.stringify(msg)
-  });
-
-  if (err) {
-    if (engageMessageId) {
-      await Logs.createLog(
-        engageMessageId,
-        'failure',
-        `${err.message} "${msg.to}"`
-      );
-    }
-
-    await SmsRequests.updateRequest(request._id, {
-      errorMessages: [err.message],
-      status: 'error'
-    });
-  }
-
-  if (res && res.data && res.data.to) {
-    const receiver = res.data.to.find(item => item.phone_number === msg.to);
-
-    if (engageMessageId) {
-      await Logs.createLog(
-        engageMessageId,
-        'success',
-        `Message successfully sent to "${msg.to}"`
-      );
-    }
-
-    await SmsRequests.updateRequest(request._id, {
-      status: receiver && receiver.status,
-      responseData: JSON.stringify(res.data),
-      telnyxId: res.data.id
-    });
-  }
-};
 
 export const start = async (data: IEmailParams) => {
   const {
@@ -261,17 +125,19 @@ export const start = async (data: IEmailParams) => {
       `Unverified emails limit exceeded ${unverifiedEmailsLimit}. Customers who have unverified emails will be eliminated.`
     );
 
-    for (const customer of customers) {
-      if (customer.emailValidationStatus === 'valid') {
-        filteredCustomers.push(customer);
-
-        emails.push(customer.primaryEmail);
-      }
-    }
+    filteredCustomers = customers.map(c => c.emailValidationStatus === 'valid');
   } else {
     filteredCustomers = customers;
-    emails = customers.map(customer => customer.primaryEmail);
   }
+
+  // cleans customers who do not open or click emails often
+  const cleanCustomers = await cleanIgnoredCustomers({
+    customers: filteredCustomers,
+    engageMessageId
+  });
+
+  // finalized email list
+  emails = cleanCustomers.map(customer => customer.primaryEmail);
 
   if (emails.length > 0) {
     await Logs.createLog(
@@ -281,10 +147,11 @@ export const start = async (data: IEmailParams) => {
     );
   }
 
-  // cleans customers who do not open or click emails often
-  const cleanCustomers = await cleanIgnoredCustomers({
-    customers: filteredCustomers,
-    engageMessageId
+  // set finalized count of the campaign
+  await setCampaignCount({
+    _id: engageMessageId,
+    totalCustomersCount: filteredCustomers.length,
+    validCustomersCount: cleanCustomers.length
   });
 
   for (const customer of cleanCustomers) {
@@ -359,6 +226,12 @@ export const sendBulkSms = async (data: ISmsParams) => {
       return;
     }
   }
+
+  await setCampaignCount({
+    _id: engageMessageId,
+    totalCustomersCount: customers.length,
+    validCustomersCount: validCustomers.length
+  });
 
   await Logs.createLog(
     engageMessageId,

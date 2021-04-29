@@ -6,6 +6,7 @@ import messageBroker from './messageBroker';
 import Configs, { ISESConfig } from './models/Configs';
 import { DeliveryReports, Stats } from './models/index';
 import { getApi } from './trackers/engageTracker';
+import { ICampaign, ICustomer } from './types';
 
 export const createTransporter = async () => {
   const config: ISESConfig = await Configs.getSESConfigs();
@@ -16,15 +17,6 @@ export const createTransporter = async () => {
     SES: new AWS.SES({ apiVersion: '2010-12-01' })
   });
 };
-
-export interface ICustomer {
-  _id: string;
-  primaryEmail: string;
-  emailValidationStatus: string;
-  primaryPhone: string;
-  phoneValidationStatus: string;
-  replacers: Array<{ key: string; value: string }>;
-}
 
 export interface IUser {
   name: string;
@@ -292,4 +284,15 @@ export const routeErrorHandling = (fn, callback?: any) => {
       return next(e);
     }
   };
+};
+
+export const setCampaignCount = async (campaign: ICampaign) => {
+  await messageBroker().sendMessage('engagesNotification', {
+    action: 'setCampaignCount',
+    data: {
+      campaignId: campaign._id,
+      totalCustomersCount: campaign.totalCustomersCount,
+      validCustomersCount: campaign.validCustomersCount
+    }
+  });
 };
