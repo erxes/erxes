@@ -82,7 +82,7 @@ const getSegment = async (_id: string) => {
     _id
   });
 
-  return { _id: response._id, ...response._source };
+  return response && { _id: response._id, ...response._source };
 };
 
 const getFieldGroup = async (_id: string) => {
@@ -96,7 +96,7 @@ const getFieldGroup = async (_id: string) => {
     _id
   });
 
-  return { _id: response._id, ...response._source };
+  return response && { _id: response._id, ...response._source };
 };
 
 // Checking field names, all field names must be configured correctly
