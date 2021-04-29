@@ -130,16 +130,20 @@ const create = async ({
   const prepareDocs = async (body, type, collectionDocs) => {
     debugWorkers(`prepareDocs called`);
 
-    const response = await fetchElk('search', type, {
-      query: { bool: { should: body } },
-      _source: [
-        '_id',
-        'primaryEmail',
-        'primaryPhone',
-        'primaryName',
-        'code',
-        'customFieldsData'
-      ]
+    const response = await fetchElk({
+      action: 'search',
+      index: type,
+      body: {
+        query: { bool: { should: body } },
+        _source: [
+          '_id',
+          'primaryEmail',
+          'primaryPhone',
+          'primaryName',
+          'code',
+          'customFieldsData'
+        ]
+      }
     });
 
     const collections = response.hits.hits || [];
