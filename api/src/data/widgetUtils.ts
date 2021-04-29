@@ -128,8 +128,13 @@ export const convertVisitorToCustomer = async (visitorId: string) => {
 };
 
 const fetchHelper = async (index: string, query, errorMessage?: string) => {
-  const response = await fetchElk('search', index, { query }, '', {
-    hits: { hits: [] }
+  const response = await fetchElk({
+    action: 'search',
+    index,
+    body: { query },
+    defaultValue: {
+      hits: { hits: [] }
+    }
   });
 
   const hits = response.hits.hits.map(hit => {
