@@ -15,10 +15,10 @@ export default {
   },
 
   async urlVisits(customer: ICustomerDocument) {
-    const response = await fetchElk(
-      'search',
-      'events',
-      {
+    const response = await fetchElk({
+      action: 'search',
+      index: 'events',
+      body: {
         _source: ['createdAt', 'count', 'attributes'],
         query: {
           bool: {
@@ -33,9 +33,8 @@ export default {
           }
         }
       },
-      '',
-      { hits: { hits: [] } }
-    );
+      defaultValue: { hits: { hits: [] } }
+    });
 
     return response.hits.hits.map(hit => {
       const source = hit._source;

@@ -400,11 +400,11 @@ export class CommonBuilder<IListArgs extends ICommonListArgs> {
     let totalCount = 0;
 
     if (action === 'search') {
-      const totalCountResponse = await fetchElk(
-        'count',
-        this.contentType,
-        queryOptions
-      );
+      const totalCountResponse = await fetchElk({
+        action: 'count',
+        index: this.contentType,
+        body: queryOptions
+      });
 
       totalCount = totalCountResponse.count;
 
@@ -432,7 +432,11 @@ export class CommonBuilder<IListArgs extends ICommonListArgs> {
       }
     }
 
-    const response = await fetchElk(action, this.contentType, queryOptions);
+    const response = await fetchElk({
+      action,
+      index: this.contentType,
+      body: queryOptions
+    });
 
     if (action === 'count') {
       return response.count;
