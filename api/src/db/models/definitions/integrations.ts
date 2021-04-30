@@ -307,7 +307,8 @@ export const leadDataSchema = new Schema(
       type: String,
       optional: true,
       label: 'Template'
-    })
+    }),
+    attachments: field({ type: Object, optional: true, label: 'Attachments' })
   },
   { _id: false }
 );

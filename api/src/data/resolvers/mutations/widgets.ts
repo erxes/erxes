@@ -49,6 +49,12 @@ import { convertVisitorToCustomer, solveSubmissions } from '../../widgetUtils';
 import { getDocument, getMessengerApps } from './cacheUtils';
 import { conversationNotifReceivers } from './conversations';
 
+interface IAttachment {
+  name: string;
+  url: string;
+  size: number;
+  type: string;
+}
 interface IWidgetEmailParams {
   toEmails: string[];
   fromEmail: string;
@@ -56,6 +62,7 @@ interface IWidgetEmailParams {
   content: string;
   customerId?: string;
   formId?: string;
+  attachments?: IAttachment[];
 }
 
 export const getMessengerData = async (integration: IIntegrationDocument) => {
@@ -711,6 +718,8 @@ const widgetMutations = {
   async widgetsSendEmail(_root, args: IWidgetEmailParams) {
     const { toEmails, fromEmail, title, content, customerId, formId } = args;
 
+    const attachments = args.attachments || [];
+
     // do not use Customers.getCustomer() because it throws error if not found
     const customer = await Customers.findOne({ _id: customerId });
     const form = await Forms.getForm(formId || '');
@@ -732,11 +741,23 @@ const widgetMutations = {
       finalContent = replacedContent || '';
     }
 
+    let mailAttachment: any = [];
+
+    if (attachments.length > 0) {
+      mailAttachment = attachments.map(file => {
+        return {
+          filename: file.name || '',
+          path: file.url || ''
+        };
+      });
+    }
+
     await sendEmail({
       toEmails,
       fromEmail,
       title,
-      template: { data: { content: finalContent } }
+      template: { data: { content: finalContent } },
+      attachments: mailAttachment
     });
   },
 
