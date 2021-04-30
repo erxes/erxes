@@ -227,17 +227,19 @@ export const sendBulkSms = async (data: ISmsParams) => {
     }
   }
 
+  if (validCustomers.length > 0) {
+    await Logs.createLog(
+      engageMessageId,
+      'regular',
+      `Preparing to send SMS to "${validCustomers.length}" customers`
+    );
+  }
+
   await setCampaignCount({
     _id: engageMessageId,
     totalCustomersCount: customers.length,
     validCustomersCount: validCustomers.length
   });
-
-  await Logs.createLog(
-    engageMessageId,
-    'regular',
-    `Preparing to send SMS to "${validCustomers.length}" customers`
-  );
 
   for (const customer of validCustomers) {
     await new Promise(resolve => {
