@@ -50,11 +50,21 @@ type Props = {
   cubejsApi?: any;
   type?: string;
   setType: any;
+  setIsDateRange: any;
+  isDateRange?: boolean;
 };
 
 class ExploreQueryBuilder extends React.Component<Props> {
   render() {
-    const { vizState, setVizState, cubejsApi, setType, type } = this.props;
+    const {
+      vizState,
+      setVizState,
+      cubejsApi,
+      setType,
+      type,
+      isDateRange,
+      setIsDateRange
+    } = this.props;
 
     const menu = (
       <Menu>
@@ -135,7 +145,7 @@ class ExploreQueryBuilder extends React.Component<Props> {
                     <Row align="top">
                       <FilterItem>
                         <Label>Type</Label>
-                        <ButtonDropdown overlay={menu} type="dashed">
+                        <ButtonDropdown overlay={menu}>
                           {type
                             ? type.replace(/([A-Z])/g, ' $1').trim()
                             : 'Type'}
@@ -167,6 +177,8 @@ class ExploreQueryBuilder extends React.Component<Props> {
                               availableMembers={availableTimeDimensions}
                               addMemberName="Time"
                               updateMethods={updateTimeDimensions}
+                              setIsDateRange={setIsDateRange}
+                              isDateRange={isDateRange}
                             />
                           </FilterItem>
                         </>

@@ -33,8 +33,8 @@ const numberFormatter = item => numeral(item).format('0,0');
 
 const dateFormatter = (item, dateType) => {
   switch (dateType) {
-    case 'hours':
-      return dayjs(item).format('HH');
+    case 'hour':
+      return dayjs(item).format('HH:mm');
     case 'day':
       return dayjs(item).format('MMM/DD');
     case 'month':
