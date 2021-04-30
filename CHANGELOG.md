@@ -1,3 +1,44 @@
+# [0.21.0](https://github.com/erxes/erxes/compare/0.20.16...0.21.0) (2021-04-30)
+
+
+### Bug Fixes
+
+* widgetsGetEngageMessage ([c732c78](https://github.com/erxes/erxes/commit/c732c78e3999de35ee75d57bc397ee6a6f0461cb))
+* **conversation:** ignored non messenger conversation from notification ([4f6471a](https://github.com/erxes/erxes/commit/4f6471a9b514b568054d20bb08bbc51621341863))
+* **deal:** fix bug to close popup when click add product/service button ([134925f](https://github.com/erxes/erxes/commit/134925f9881847b8af8b9ddd5a5a4f9c07e9dfb8))
+* **deal/task/ticket:** the order of the added items is at the beginning of the list ([779cfcb](https://github.com/erxes/erxes/commit/779cfcb6c98baa8deae1ed4e7a4641ef8c701317))
+* **engage:** change email template content ([fe20114](https://github.com/erxes/erxes/commit/fe20114cb82ee95bf8879ecac1c1a76a898bf3c7))
+* **export-template:** downloading template with single column issue ([4e27622](https://github.com/erxes/erxes/commit/4e27622de10f0b93e4a0ea517a57e3f7f9cdd550))
+* **forms:** fix pagination ([24154f5](https://github.com/erxes/erxes/commit/24154f5f08e35e726b833787f969df894de77d70))
+* **growthHack:** fix dissappearing edit template button ([0f5d670](https://github.com/erxes/erxes/commit/0f5d670273c1e534880a71ad1f14ee805770e391))
+* **inbox:** fixed offline customer mask issue ([0b9c97d](https://github.com/erxes/erxes/commit/0b9c97d375918f3cd0c43682f457b5b04a5bdd8b))
+* **segments:** fixed month relative filter issue ([c5c1d0a](https://github.com/erxes/erxes/commit/c5c1d0abc17279075db2de97f6a859c09b6a55ed))
+* **version:** fixed current version change log link ([e3adc09](https://github.com/erxes/erxes/commit/e3adc097fa4415ffa09e81b84b21d27e5295627b))
+
+
+### Features
+
+* **deal/task/ticket:** add sort options ([e47f1f3](https://github.com/erxes/erxes/commit/e47f1f3777ee346f4d46f472bfda722d95fbd882))
+* **editor:** auto save ([f2fd625](https://github.com/erxes/erxes/commit/f2fd6252634c198814de806d4f631211e6cfdce8))
+* **engages:** added board item segments in engage ([089efbc](https://github.com/erxes/erxes/commit/089efbcb88b66b70765dc44549a6522d05c3d155))
+* **invite:** added channel options in invite form ([85ed407](https://github.com/erxes/erxes/commit/85ed40704c764a974110a7af952693149879890b))
+* **product and service:** add field vendor ([7a8acb8](https://github.com/erxes/erxes/commit/7a8acb823742a1631631db9cef7e8b5fc59a99fb))
+* **segments:** added ability to distinguish segments via board, pipeline ([f5ef4d2](https://github.com/erxes/erxes/commit/f5ef4d26775f27e952d6cb65cb7679b4b45ed410))
+* **segments:** added segment feature in deals, tickets, tasks ([f4771b4](https://github.com/erxes/erxes/commit/f4771b4569e171ca841272fbd0d29fda27ac8463))
+* **simulate:** added simulate feature in messenger, form, knowledgebase ([b930ead](https://github.com/erxes/erxes/commit/b930eadaa4c6890cec42c3cb500fca30290d2ba6))
+* **tags:** added merge feature in tags ([1fc7a33](https://github.com/erxes/erxes/commit/1fc7a339763b55978505cd45d2c70dce8af0906c))
+* **task,ticket:** added calendar view ([caa0fca](https://github.com/erxes/erxes/commit/caa0fcadd66b1ab2d2e7384a85d0d37941372dcc))
+
+
+### Performance Improvements
+
+* **board:** no longer using custom resolvers in board item list queries ([cf11027](https://github.com/erxes/erxes/commit/cf11027a19868b4cd3888b4ed46c70776b60f62a))
+* **boards:** boards query get pipelines exclude resolver ([918c5b2](https://github.com/erxes/erxes/commit/918c5b25b7d0952859f15825992f02b2786684a1))
+* **conformities:** using es for conformities when es available ([466eff5](https://github.com/erxes/erxes/commit/466eff508d260499924ed545d891dd0c5b470540))
+* **engages:** added option elksyncer in engage visitor message ([490d752](https://github.com/erxes/erxes/commit/490d7528dbe9433f2aa3da49f9ba144516e23b75))
+* **tags:** dettaching connected items when tag remove ([db6b309](https://github.com/erxes/erxes/commit/db6b309f15fd2063f6cb7bb5c68d32f0c610aed6))
+* **users/integrations/brands/channels:** read from cache ([8b2d61d](https://github.com/erxes/erxes/commit/8b2d61d09cdf5eddc1fec1f9f6ad8fe80cadf654)), closes [#2715](https://github.com/erxes/erxes/issues/2715)
+
 ## [0.20.16](https://github.com/erxes/erxes/compare/0.20.15...0.20.16) (2021-03-05)
 
 
