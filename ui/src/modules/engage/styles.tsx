@@ -496,6 +496,10 @@ const Disabled = styled.div`
   }
 `;
 
+const InfoWrapper = styled.div`
+  padding: 15px 20px;
+`;
+
 export {
   RowTitle,
   HelperText,
@@ -534,5 +538,6 @@ export {
   MobilePreviewContent,
   Shell,
   TestEmailWrapper,
-  Disabled
+  Disabled,
+  InfoWrapper
 };

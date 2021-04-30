@@ -122,6 +122,7 @@ export interface IEngageMessage extends IEngageMessageDoc {
   getTags: ITag[];
   totalCustomersCount?: number;
   validCustomersCount?: number;
+  runCount?: number;
 
   stats?: IEngageStats;
   logs?: Array<{ message: string }>;
