@@ -114,6 +114,7 @@ const userMutations = {
           auth: '3QuWREv4A2nzmrCJe'
         },
         body: {
+          customerState: 'customer',
           customerPrimaryEmail: email,
           customerFirstName: firstName,
           customerLastName: lastName,

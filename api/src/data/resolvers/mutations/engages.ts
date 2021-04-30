@@ -260,7 +260,10 @@ const engageMutations = {
       createdBy: user._id,
       title: `${sourceCampaign.title}-copied`,
       isDraft: true,
-      isLive: false
+      isLive: false,
+      runCount: 0,
+      totalCustomersCount: 0,
+      validCustomersCount: 0
     });
 
     delete doc._id;
