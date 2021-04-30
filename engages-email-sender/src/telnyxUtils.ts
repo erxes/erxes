@@ -1,7 +1,12 @@
+import * as dotenv from 'dotenv';
 import * as Telnyx from 'telnyx';
 import { SMS_DELIVERY_STATUSES } from './constants';
 import { sendRPCMessage } from './messageBroker';
-import SmsRequests from './models/SmsRequests';
+import { Logs, SmsRequests } from './models/index';
+import { ICallbackParams, IMessageParams, ITelnyxMessageParams } from './types';
+import { getEnv } from './utils';
+
+dotenv.config();
 
 interface ISmsDeliveryParams {
   type: string;
@@ -99,4 +104,94 @@ export const getSmsDeliveries = async ({
   const totalCount = await SmsRequests.countDocuments(filter);
 
   return { status: 'ok', data, totalCount };
+};
+
+// alphanumeric sender id only works for countries outside north america
+const isNumberNorthAmerican = (phoneNumber: string) => {
+  return phoneNumber.substring(0, 2) === '+1';
+};
+
+// prepares sms object matching telnyx requirements
+export const prepareMessage = async ({
+  shortMessage,
+  to,
+  integrations
+}: IMessageParams): Promise<ITelnyxMessageParams> => {
+  const MAIN_API_DOMAIN = getEnv({ name: 'MAIN_API_DOMAIN' });
+  const { content, from, fromIntegrationId } = shortMessage;
+
+  const integration = integrations.find(
+    i => i.erxesApiId === fromIntegrationId
+  );
+
+  if (!integration.telnyxPhoneNumber) {
+    throw new Error('Telnyx phone is not configured');
+  }
+
+  const msg = {
+    from: integration.telnyxPhoneNumber,
+    to,
+    text: content,
+    messaging_profile_id: integration.telnyxProfileId || '',
+    webhook_url: `${MAIN_API_DOMAIN}/telnyx/webhook`,
+    webhook_failover_url: `${MAIN_API_DOMAIN}/telnyx/webhook-failover`
+  };
+
+  // to use alphanumeric sender id, messaging profile id must be set
+  if (msg.messaging_profile_id && from) {
+    msg.from = from;
+  }
+
+  if (isNumberNorthAmerican(msg.to)) {
+    msg.from = integration.telnyxPhoneNumber;
+  }
+
+  return msg;
+};
+
+export const handleMessageCallback = async (
+  err: any,
+  res: any,
+  data: ICallbackParams
+) => {
+  const { engageMessageId, msg } = data;
+
+  const request = await SmsRequests.createRequest({
+    engageMessageId,
+    to: msg.to,
+    requestData: JSON.stringify(msg)
+  });
+
+  if (err) {
+    if (engageMessageId) {
+      await Logs.createLog(
+        engageMessageId,
+        'failure',
+        `${err.message} "${msg.to}"`
+      );
+    }
+
+    await SmsRequests.updateRequest(request._id, {
+      errorMessages: [err.message],
+      status: 'error'
+    });
+  }
+
+  if (res && res.data && res.data.to) {
+    const receiver = res.data.to.find(item => item.phone_number === msg.to);
+
+    if (engageMessageId) {
+      await Logs.createLog(
+        engageMessageId,
+        'success',
+        `Message successfully sent to "${msg.to}"`
+      );
+    }
+
+    await SmsRequests.updateRequest(request._id, {
+      status: receiver && receiver.status,
+      responseData: JSON.stringify(res.data),
+      telnyxId: res.data.id
+    });
+  }
 };
