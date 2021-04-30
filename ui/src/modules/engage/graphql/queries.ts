@@ -47,6 +47,7 @@ const commonFields = `
 
   totalCustomersCount
   validCustomersCount
+  runCount
 
   fromUser {
     _id
