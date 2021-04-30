@@ -1,4 +1,5 @@
 import { NodeVM } from 'vm2';
+import { findCompany, findCustomer } from '../data/utils';
 import {
   Companies,
   Conformities,
@@ -8,7 +9,6 @@ import {
   Fields,
   Integrations
 } from '../db/models';
-import { ICustomField } from '../db/models/definitions/common';
 import { graphqlPubsub } from '../pubsub';
 
 const checkCompanyFieldsExists = async doc => {
@@ -17,50 +17,8 @@ const checkCompanyFieldsExists = async doc => {
       return true;
     }
   }
+
   return false;
-};
-
-const findCustomer = async doc => {
-  let customer;
-
-  if (doc.customerPrimaryEmail) {
-    customer = await Customers.findOne({
-      primaryEmail: doc.customerPrimaryEmail
-    });
-  }
-
-  if (!customer && doc.customerPrimaryPhone) {
-    customer = await Customers.findOne({
-      primaryPhone: doc.customerPrimaryPhone
-    });
-  }
-
-  if (!customer && doc.customerPrimaryPhone) {
-    customer = await Customers.findOne({ code: doc.customerPrimaryPhone });
-  }
-
-  return customer;
-};
-
-const findCompany = async doc => {
-  let company;
-
-  if (doc.companyPrimaryEmail) {
-    company = await Companies.findOne({
-      primaryEmail: doc.companyPrimaryEmail
-    });
-  }
-
-  if (!company && doc.companyPrimaryPhone) {
-    company = await Companies.findOne({
-      primaryPhone: doc.companyPrimaryPhone
-    });
-  }
-
-  if (!company && doc.companyPrimaryName) {
-    company = await Companies.findOne({ primaryName: doc.companyPrimaryName });
-  }
-  return company;
 };
 
 const webhookMiddleware = async (req, res, next) => {
@@ -91,7 +49,7 @@ const webhookMiddleware = async (req, res, next) => {
       vm.run(webhookData.script);
     }
 
-    let customFieldsData: ICustomField[] = [];
+    let customFieldsData: any[] = [];
 
     if (params.customFields) {
       customFieldsData = await Promise.all(
@@ -103,18 +61,24 @@ const webhookMiddleware = async (req, res, next) => {
 
           if (customField) {
             let value = element.value;
+
             if (customField.validation === 'date') {
               value = new Date(element.value);
             }
 
             const customFieldData = {
               field: customField._id,
+              hasMultipleChoice: (customField.options || []).length > 0,
               value
             };
+
             return customFieldData;
           }
         })
       );
+
+      // collect non empty values
+      customFieldsData = customFieldsData.filter(cf => cf);
     }
 
     // get or create customer
@@ -126,6 +90,7 @@ const webhookMiddleware = async (req, res, next) => {
       code: params.customerCode,
       firstName: params.customerFirstName,
       lastName: params.customerLastName,
+      middleName: params.customerMiddleName,
       avatar: params.customerAvatar,
       customFieldsData
     };
@@ -133,45 +98,74 @@ const webhookMiddleware = async (req, res, next) => {
     if (!customer) {
       customer = await Customers.createCustomer(doc);
     } else {
+      // remove empty values to avoid replacing existing values
+      for (const key of Object.keys(doc)) {
+        if (!doc[key]) {
+          delete doc[key];
+        }
+      }
+
+      const prevCustomFieldsData = customer.customFieldsData || [];
+
+      for (const data of customFieldsData) {
+        const prevData = prevCustomFieldsData.find(d => d.field === data.field);
+
+        if (prevData) {
+          if (data.hasMultipleChoice) {
+            if (!prevData.value.includes(data.value)) {
+              prevData.value = `${prevData.value},${data.value}`;
+            }
+          } else {
+            prevData.value = data.value;
+          }
+        } else {
+          prevCustomFieldsData.push(data);
+        }
+      }
+
+      doc.customFieldsData = prevCustomFieldsData;
+
       customer = await Customers.updateCustomer(customer._id, doc);
     }
 
     // get or create conversation
-    let conversation = await Conversations.findOne({
-      customerId: customer._id,
-      integrationId: integration._id
-    });
-
-    if (!conversation) {
-      conversation = await Conversations.createConversation({
+    if (params.content) {
+      let conversation = await Conversations.findOne({
         customerId: customer._id,
-        integrationId: integration._id,
-        content: params.content
+        integrationId: integration._id
       });
-    } else {
-      if (conversation.status === 'closed') {
-        await Conversations.updateOne(
-          { _id: conversation._id },
-          { status: 'open' }
-        );
+
+      if (!conversation) {
+        conversation = await Conversations.createConversation({
+          customerId: customer._id,
+          integrationId: integration._id,
+          content: params.content
+        });
+      } else {
+        if (conversation.status === 'closed') {
+          await Conversations.updateOne(
+            { _id: conversation._id },
+            { status: 'open' }
+          );
+        }
       }
+
+      // create conversation message
+      const message = await ConversationMessages.createMessage({
+        conversationId: conversation._id,
+        customerId: customer._id,
+        content: params.content,
+        attachments: params.attachments
+      });
+
+      graphqlPubsub.publish('conversationClientMessageInserted', {
+        conversationClientMessageInserted: message
+      });
+
+      graphqlPubsub.publish('conversationMessageInserted', {
+        conversationMessageInserted: message
+      });
     }
-
-    // create conversation message
-    const message = await ConversationMessages.createMessage({
-      conversationId: conversation._id,
-      customerId: customer._id,
-      content: params.content,
-      attachments: params.attachments
-    });
-
-    graphqlPubsub.publish('conversationClientMessageInserted', {
-      conversationClientMessageInserted: message
-    });
-
-    graphqlPubsub.publish('conversationMessageInserted', {
-      conversationMessageInserted: message
-    });
 
     // company
     let company = await findCompany(params);

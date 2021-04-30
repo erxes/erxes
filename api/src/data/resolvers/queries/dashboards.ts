@@ -61,6 +61,10 @@ const dashBoardQueries = {
         tagType = 'conversation';
         break;
 
+      case 'ConversationProperties':
+        tagType = 'conversation';
+        break;
+
       case 'Companies':
         tagType = 'company';
         break;

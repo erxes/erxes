@@ -4,6 +4,8 @@ const paramDefs = `
   $subOf: String,
   $color: String,
   $conditions: [SegmentCondition],
+  $boardId: String,
+  $pipelineId: String,
 `;
 
 const params = `
@@ -12,6 +14,8 @@ const params = `
   subOf: $subOf,
   color: $color,
   conditions: $conditions,
+  boardId: $boardId,
+  pipelineId: $pipelineId,
 `;
 
 const segmentsAdd = `

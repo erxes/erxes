@@ -1,6 +1,7 @@
 import { Model, model } from 'mongoose';
-import { ConversationMessages, Users } from '.';
+import { ConversationMessages, Fields, Users } from '.';
 import { stream } from '../../data/bulkUtils';
+import { getDocument } from '../../data/resolvers/mutations/cacheUtils';
 import { cleanHtml, sendToWebhook } from '../../data/utils';
 import { CONVERSATION_STATUSES } from './definitions/constants';
 import { IMessageDocument } from './definitions/conversationMessages';
@@ -137,6 +138,13 @@ export const loadClass = () => {
         doc.content = cleanHtml(doc.content);
       }
 
+      if (doc.customFieldsData) {
+        // clean custom field values
+        doc.customFieldsData = await Fields.prepareCustomFieldsData(
+          doc.customFieldsData
+        );
+      }
+
       return Conversations.updateOne({ _id }, { $set: doc });
     }
 
@@ -167,7 +175,7 @@ export const loadClass = () => {
     ) {
       await this.checkExistanceConversations(conversationIds);
 
-      if (!(await Users.findOne({ _id: assignedUserId }))) {
+      if (!(await getDocument('users', { _id: assignedUserId }))) {
         throw new Error(`User not found with id ${assignedUserId}`);
       }
 
@@ -281,10 +289,10 @@ export const loadClass = () => {
       return Conversations.find({
         status: {
           $in: [CONVERSATION_STATUSES.NEW, CONVERSATION_STATUSES.OPEN]
-        },
-        messageCount: { $gt: 1 }
+        }
       });
     }
+
     /**
      * Add participated users
      */

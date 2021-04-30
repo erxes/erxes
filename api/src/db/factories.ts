@@ -4,7 +4,6 @@ import * as Random from 'meteor-random';
 import * as momentTz from 'moment-timezone';
 import { FIELDS_GROUPS_CONTENT_TYPES } from '../data/constants';
 import {
-  ActivityLogs,
   Boards,
   Brands,
   CalendarBoards,
@@ -112,17 +111,13 @@ interface IActivityLogFactoryInput {
 
 export const activityLogFactory = async (
   params: IActivityLogFactoryInput = {}
-) => {
-  const activity = new ActivityLogs({
-    contentType: params.contentType || 'customer',
-    action: params.action || 'create',
-    contentId: params.contentId || faker.random.uuid(),
-    content: params.content || 'content',
-    createdBy: params.createdBy || faker.random.uuid()
-  });
-
-  return activity.save();
-};
+) => ({
+  contentType: params.contentType || 'customer',
+  action: params.action || 'create',
+  contentId: params.contentId || faker.random.uuid(),
+  content: params.content || 'content',
+  createdBy: params.createdBy || faker.random.uuid()
+});
 
 interface IDashboardFactoryInput {
   name?: string;
@@ -396,6 +391,8 @@ interface ISegmentFactoryInput {
   subOf?: string;
   color?: string;
   conditions?: IConditionsInput[];
+  boardId?: string;
+  pipelineId?: string;
 }
 
 export const segmentFactory = (params: ISegmentFactoryInput = {}) => {
@@ -414,7 +411,9 @@ export const segmentFactory = (params: ISegmentFactoryInput = {}) => {
     description: params.description || faker.random.word(),
     subOf: params.subOf,
     color: params.color || '#809b87',
-    conditions: params.conditions || defaultConditions
+    conditions: params.conditions || defaultConditions,
+    boardId: params.boardId,
+    pipelineId: params.pipelineId
   });
 
   return segment.save();
@@ -535,6 +534,7 @@ interface ICustomerFactoryInput {
   integrationId?: string;
   firstName?: string;
   lastName?: string;
+  middleName?: string;
   sex?: number;
   birthDate?: Date;
   primaryEmail?: string;
@@ -573,6 +573,7 @@ export const customerFactory = async (
     integrationId: params.integrationId,
     firstName: params.firstName,
     lastName: params.lastName,
+    middleName: params.middleName,
     sex: params.sex,
     birthDate: params.birthDate,
     primaryEmail: params.primaryEmail,
@@ -621,6 +622,8 @@ interface IFieldFactoryInput {
   groupId?: string;
   isDefinedByErxes?: boolean;
   isVisible?: boolean;
+  isVisibleInDetail?: boolean;
+  canHide?: boolean;
   options?: string[];
   associatedFieldId?: string;
 }
@@ -645,9 +648,21 @@ export const fieldFactory = async (params: IFieldFactoryInput) => {
       params.visible === undefined || params.visible === null
         ? true
         : params.visible,
+    isVisibleInDetail:
+      params.isVisibleInDetail === undefined ||
+      params.isVisibleInDetail === null
+        ? true
+        : params.isVisibleInDetail,
+    canHide:
+      params.canHide === undefined || params.canHide === null
+        ? true
+        : params.canHide,
     groupId: params.groupId || (groupObj ? groupObj._id : ''),
-    isDefinedByErxes: params.isDefinedByErxes,
-    associatedFieldId: params.associatedFieldId
+    associatedFieldId: params.associatedFieldId,
+    isDefinedByErxes:
+      params.isDefinedByErxes === undefined || params.isDefinedByErxes === null
+        ? false
+        : params.isDefinedByErxes
   });
 };
 
@@ -1037,6 +1052,7 @@ interface IStageFactoryInput {
   formId?: string;
   status?: string;
   order?: number;
+  name?: string;
 }
 
 export const stageFactory = async (params: IStageFactoryInput = {}) => {
@@ -1046,7 +1062,7 @@ export const stageFactory = async (params: IStageFactoryInput = {}) => {
   const pipeline = await pipelineFactory({ type, boardId: board._id });
 
   const stage = new Stages({
-    name: faker.random.word(),
+    name: params.name || faker.random.word(),
     pipelineId: params.pipelineId || pipeline._id,
     type: params.type || BOARD_TYPES.DEAL,
     probability: params.probability || PROBABILITY.TEN,
@@ -1257,6 +1273,7 @@ interface IProductFactoryInput {
   description?: string;
   tagIds?: string[];
   categoryId?: string;
+  vendorId?: string;
   customFieldsData?: ICustomField[];
 }
 
@@ -1269,6 +1286,7 @@ export const productFactory = async (params: IProductFactoryInput = {}) => {
     description: params.description || faker.random.word(),
     sku: faker.random.word(),
     code: await getUniqueValue(Products, 'code'),
+    vendorId: params.vendorId,
     createdAt: new Date(),
     tagIds: params.tagIds || []
   });
@@ -1318,6 +1336,7 @@ interface IFieldGroupFactoryInput {
   contentType?: string;
   isDefinedByErxes?: boolean;
   isVisible?: boolean;
+  order?: number;
 }
 
 export const fieldGroupFactory = async (params: IFieldGroupFactoryInput) => {
@@ -1326,7 +1345,8 @@ export const fieldGroupFactory = async (params: IFieldGroupFactoryInput) => {
     contentType: params.contentType || FIELDS_GROUPS_CONTENT_TYPES.CUSTOMER,
     description: faker.random.word(),
     isDefinedByErxes: params.isDefinedByErxes || false,
-    isVisible: true
+    isVisible: true,
+    order: params.order || 0
   };
 
   const groupObj = await FieldsGroups.create(doc);

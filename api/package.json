@@ -19,7 +19,9 @@
     "build": "tsc -p tsconfig.prod.json && cp -rf src/private dist/ && cp -rf src/initialData dist/ && if [ -d dist/api/src ]; then mv dist/api/src/* dist; fi && rm -rf ./dist/api",
     "test": "node --expose-gc --max_old_space_size=4000 ./node_modules/.bin/jest --forceExit --silent --logHeapUsage --w=4",
     "customCommand": "node_modules/.bin/ts-node src/commands/customCommand.ts",
-    "migrateBoardItems": "node_modules/.bin/ts-node src/commands/migrateBoardItems.ts"
+    "migrateBoardItems": "node_modules/.bin/ts-node src/commands/migrateBoardItems.ts",
+    "createSystemFieldsGroups": "node_modules/.bin/ts-node src/commands/createSystemFieldsGroups.ts",
+    "addMiddleName": "node_modules/.bin/ts-node src/commands/addMiddleName.ts"
   },
   "dependencies": {
     "@google-cloud/pubsub": "^1.1.5",
@@ -49,9 +51,9 @@
     "debug": "^4.1.1",
     "dotenv": "^4.0.0",
     "elasticsearch": "^16.6.0",
-    "erxes-api-utils": "^0.0.26",
+    "erxes-api-utils": "^0.0.27",
     "erxes-inmemory-storage": "^1.0.20",
-    "erxes-message-broker": "^1.0.25",
+    "erxes-message-broker": "^1.0.27",
     "erxes-telemetry": "^1.0.4",
     "express": "^4.17.1",
     "faker": "^4.1.0",
@@ -84,6 +86,7 @@
     "requestify": "^0.2.5",
     "sha256": "^0.2.0",
     "shelljs": "^0.8.3",
+    "sift": "^13.5.0",
     "strip": "^3.0.0",
     "ts-node": "8.0.3",
     "underscore": "^1.8.3",

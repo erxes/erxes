@@ -10,6 +10,7 @@ import { MailBox, UserHeader } from 'modules/customers/styles';
 import Widget from 'modules/engage/containers/Widget';
 import Wrapper from 'modules/layout/components/Wrapper';
 import MailForm from 'modules/settings/integrations/containers/mail/MailForm';
+import { IField } from 'modules/settings/properties/types';
 import React from 'react';
 import { ICustomer } from '../../types';
 import InfoSection from '../common/InfoSection';
@@ -18,6 +19,8 @@ import RightSidebar from './RightSidebar';
 
 type Props = {
   customer: ICustomer;
+  fields: IField[];
+  deviceFields: IField[];
   taggerRefetchQueries?: any[];
 };
 
@@ -78,7 +81,7 @@ class CustomerDetails extends React.Component<Props> {
   };
 
   render() {
-    const { customer, taggerRefetchQueries } = this.props;
+    const { customer, fields, deviceFields, taggerRefetchQueries } = this.props;
 
     const breadcrumb = [
       { title: __('Contacts'), link: '/contacts' },
@@ -102,7 +105,8 @@ class CustomerDetails extends React.Component<Props> {
             { name: 'conversation', label: 'Conversation' },
             { name: 'email', label: 'Email' },
             { name: 'task', label: 'Task' },
-            { name: 'sms', label: 'Sms' }
+            { name: 'sms', label: 'SMS' },
+            { name: 'campaign', label: 'Campaign' }
           ]}
         />
       </>
@@ -128,6 +132,8 @@ class CustomerDetails extends React.Component<Props> {
           <LeftSidebar
             wide={true}
             customer={customer}
+            fields={fields}
+            deviceFields={deviceFields}
             taggerRefetchQueries={taggerRefetchQueries}
           />
         }

@@ -134,6 +134,16 @@ class KnowledgeForm extends React.Component<Props, State> {
     }
   };
 
+  onSimulate = () => {
+    const { REACT_APP_CDN_HOST } = getEnv();
+
+    window.open(
+      `${REACT_APP_CDN_HOST}/test?type=kb&topic_id=${this.props.topic._id}`,
+      'kbWindow',
+      'width=800,height=800'
+    );
+  };
+
   renderScript(code: string, copied: boolean, name: string) {
     return (
       <MarkdownWrapper>
@@ -348,14 +358,25 @@ class KnowledgeForm extends React.Component<Props, State> {
             Cancel
           </Button>
           {topic && (
-            <Button
-              btnStyle="danger"
-              type="button"
-              onClick={this.remove}
-              icon="cancel-1"
-            >
-              Delete
-            </Button>
+            <>
+              <Button
+                btnStyle="danger"
+                type="button"
+                onClick={this.remove}
+                icon="cancel-1"
+              >
+                Delete
+              </Button>
+
+              <Button
+                uppercase={false}
+                btnStyle="primary"
+                icon="plus-circle"
+                onClick={this.onSimulate}
+              >
+                Simulate
+              </Button>
+            </>
           )}
           {renderButton({
             name: 'Knowledge Base',

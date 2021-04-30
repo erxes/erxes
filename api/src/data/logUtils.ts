@@ -6,7 +6,10 @@ import {
 import * as _ from 'underscore';
 import { IBrowserInfo } from '../db/models/Customers';
 
-import { IPipelineDocument } from '../db/models/definitions/boards';
+import {
+  IPipelineDocument,
+  IStageDocument
+} from '../db/models/definitions/boards';
 import { IChannelDocument } from '../db/models/definitions/channels';
 import { ICompanyDocument } from '../db/models/definitions/companies';
 import { ACTIVITY_CONTENT_TYPES } from '../db/models/definitions/constants';
@@ -116,6 +119,11 @@ export interface ILogQueryParams {
   type?: string;
 }
 
+export interface IActivityLogQueryParams {
+  contentId?: any;
+  contentType?: string;
+}
+
 interface IDescriptions {
   description?: string;
   extraDesc?: LogDesc[];
@@ -138,6 +146,21 @@ const LOG_ACTIONS = {
   CREATE: 'create',
   UPDATE: 'update',
   DELETE: 'delete'
+};
+
+export const ACTIVITY_LOG_ACTIONS = {
+  ADD: 'add',
+  CREATE_BOARD_ITEM: 'createBoardItem',
+  CREATE_BOARD_ITEM_MOVEMENT_LOG: 'createBoardItemMovementLog',
+  CREATE_BOARD_ITEMS: 'createBoardItems',
+  CREATE_ARCHIVE_LOG: 'createArchiveLog',
+  CREATE_ASSIGNE_LOG: 'createAssigneLog',
+  CREATE_COC_LOG: 'createCocLog',
+  CREATE_COC_LOGS: 'createCocLogs',
+  CREATE_SEGMENT_LOG: 'createSegmentLog',
+  CREATE_CHECKLIST_LOG: 'createChecklistLog',
+  REMOVE_ACTIVITY_LOG: 'removeActivityLog',
+  REMOVE_ACTIVITY_LOGS: 'removeActivityLogs'
 };
 
 // used in internalNotes mutations
@@ -945,6 +968,45 @@ const gatherUserFieldNames = async (
   return options;
 };
 
+const gatherStageFieldNames = async (
+  doc: IStageDocument,
+  prevList?: LogDesc[]
+): Promise<LogDesc[]> => {
+  let options: LogDesc[] = [];
+
+  if (prevList) {
+    options = prevList;
+  }
+
+  if (doc.userId) {
+    options = await gatherUsernames({
+      idFields: [doc.userId],
+      foreignKey: 'userId',
+      prevList: options
+    });
+  }
+  if (doc.pipelineId) {
+    options = await gatherNames({
+      collection: Pipelines,
+      idFields: [doc.pipelineId],
+      foreignKey: 'pipelineId',
+      prevList: options,
+      nameFields: ['name']
+    });
+  }
+  if (doc.formId) {
+    options = await gatherNames({
+      collection: Forms,
+      idFields: [doc.formId],
+      foreignKey: 'formId',
+      prevList: options,
+      nameFields: ['title']
+    });
+  }
+
+  return options;
+};
+
 const gatherDescriptions = async (
   params: IDescriptionParams
 ): Promise<IDescriptions> => {
@@ -1370,7 +1432,7 @@ const gatherDescriptions = async (
 
       break;
     case MODULE_NAMES.TICKET:
-      description = `"${obj.name}" has been ${action}`;
+      description = `"${obj.name}" has been ${action}d`;
 
       extraDesc = await gatherBoardItemFieldNames(obj);
 
@@ -1380,7 +1442,7 @@ const gatherDescriptions = async (
 
       break;
     case MODULE_NAMES.USER:
-      description = `"${obj.username || obj.email}" has been ${action}`;
+      description = `"${obj.username || obj.email}" has been ${action}d`;
 
       extraDesc = await gatherUserFieldNames(obj);
 
@@ -1389,6 +1451,20 @@ const gatherDescriptions = async (
       }
 
       break;
+    case MODULE_NAMES.STAGE_DEAL:
+    case MODULE_NAMES.STAGE_TASK:
+    case MODULE_NAMES.STAGE_TICKET:
+    case MODULE_NAMES.STAGE_GH:
+      description = `"${obj.name}" has been ${action}d`;
+
+      extraDesc = await gatherStageFieldNames(obj, extraDesc);
+
+      if (updatedDocument) {
+        extraDesc = await gatherStageFieldNames(updatedDocument, extraDesc);
+      }
+
+      break;
+
     default:
       break;
   }
@@ -1450,68 +1526,53 @@ export const putDeleteLog = async (
  * Sends a request to logs api
  * @param {Object} param0 Request
  */
-export const fetchLogs = (params: ILogQueryParams) => {
+export const fetchLogs = async (
+  params: ILogQueryParams | IActivityLogQueryParams,
+  type = 'logs'
+) => {
   const LOGS_DOMAIN = getSubServiceDomain({ name: 'LOGS_API_DOMAIN' });
 
-  return sendRequest(
-    {
-      url: `${LOGS_DOMAIN}/logs`,
+  try {
+    const response = await sendRequest({
+      url: `${LOGS_DOMAIN}/${type}`,
       method: 'get',
       body: { params: JSON.stringify(params) }
-    },
-    'Failed to connect to logs api. Check whether LOGS_API_DOMAIN env is missing or logs api is not running'
-  );
-};
-
-export const sendToVisitorLog = async (params: IVisitorLogParams, action) => {
-  const LOGS_DOMAIN = getSubServiceDomain({ name: 'LOGS_API_DOMAIN' });
-  try {
-    const response = await sendRequest(
-      {
-        url: `${LOGS_DOMAIN}/health`,
-        method: 'get'
-      },
-      'Failed to connect to logs api. Check whether LOGS_API_DOMAIN env is missing or logs api is not running'
-    );
-
-    if (response === 'ok') {
-      return messageBroker().sendMessage(RABBITMQ_QUEUES.VISITOR_LOG, {
-        action,
-        data: params
-      });
-    }
-
-    throw new Error('Logger api is not running');
+    });
+    return response;
   } catch (e) {
-    debugError('Logger is not running. Error: ', e.message);
-    throw new Error(e.message);
+    debugError(
+      `Failed to connect to logs api. Check whether LOGS_API_DOMAIN env is missing or logs api is not running: ${e.message}`
+    );
   }
 };
 
+export const sendToVisitorLog = async (params: IVisitorLogParams, action) =>
+  messageBroker().sendMessage(RABBITMQ_QUEUES.VISITOR_LOG, {
+    action,
+    data: params
+  });
+
 export const getVisitorLog = async visitorId => {
-  const LOGS_DOMAIN = getSubServiceDomain({ name: 'LOGS_API_DOMAIN' });
   try {
-    const response = await sendRequest(
-      {
-        url: `${LOGS_DOMAIN}/health`,
-        method: 'get'
-      },
-      'Failed to connect to logs api. Check whether LOGS_API_DOMAIN env is missing or logs api is not running'
-    );
-
-    if (response === 'ok') {
-      return await messageBroker().sendRPCMessage(
-        RABBITMQ_QUEUES.RPC_VISITOR_LOG,
-        {
-          action: 'get',
-          data: { visitorId }
-        }
-      );
-    }
-
-    throw new Error('Logger api is not running');
+    return messageBroker().sendRPCMessage(RABBITMQ_QUEUES.RPC_VISITOR_LOG, {
+      action: 'get',
+      data: { visitorId }
+    });
   } catch (e) {
-    debugError('Logger is not running. Error: ', e.message);
-    throw new Error(e.message);
+    debugError(
+      `Error during getVisitorLog: ${e.message} visitorId: ${visitorId}`
+    );
+  }
+};
+interface IActivityLogParams {
+  action: string;
+  data: any;
+}
+
+export const putActivityLog = async (params: IActivityLogParams) => {
+  try {
+    return messageBroker().sendMessage('putActivityLog', params);
+  } catch (e) {
+    return e.message;
   }
 };

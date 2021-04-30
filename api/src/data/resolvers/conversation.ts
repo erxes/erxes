@@ -1,14 +1,9 @@
-import {
-  ConversationMessages,
-  Customers,
-  Integrations,
-  Tags,
-  Users
-} from '../../db/models';
+import { ConversationMessages, Customers } from '../../db/models';
 import { MESSAGE_TYPES } from '../../db/models/definitions/constants';
 import { IConversationDocument } from '../../db/models/definitions/conversations';
 import { debugError } from '../../debuggers';
 import { IContext } from '../types';
+import { getDocument, getDocumentList } from './mutations/cacheUtils';
 
 export default {
   /**
@@ -25,19 +20,19 @@ export default {
   },
 
   integration(conversation: IConversationDocument) {
-    return Integrations.findOne({ _id: conversation.integrationId });
+    return getDocument('integrations', { _id: conversation.integrationId });
   },
 
   user(conversation: IConversationDocument) {
-    return Users.findOne({ _id: conversation.userId });
+    return getDocument('users', { _id: conversation.userId });
   },
 
   assignedUser(conversation: IConversationDocument) {
-    return Users.findOne({ _id: conversation.assignedUserId });
+    return getDocument('users', { _id: conversation.assignedUserId });
   },
 
   participatedUsers(conv: IConversationDocument) {
-    return Users.find({
+    return getDocumentList('users', {
       _id: { $in: conv.participatedUserIds || [] }
     });
   },
@@ -57,9 +52,10 @@ export default {
     _args,
     { dataSources }: IContext
   ) {
-    const integration = await Integrations.findOne({
-      _id: conv.integrationId
-    }).lean();
+    const integration =
+      (await getDocument('integrations', {
+        _id: conv.integrationId
+      })) || {};
 
     if (integration && integration.kind !== 'facebook-post') {
       return null;
@@ -86,9 +82,10 @@ export default {
     _args,
     { dataSources, user }: IContext
   ) {
-    const integration = await Integrations.findOne({
-      _id: conv.integrationId
-    }).lean();
+    const integration =
+      (await getDocument('integrations', {
+        _id: conv.integrationId
+      })) || {};
 
     if (integration && integration.kind !== 'callpro') {
       return null;
@@ -114,8 +111,8 @@ export default {
     return null;
   },
 
-  tags(conv: IConversationDocument) {
-    return Tags.find({ _id: { $in: conv.tagIds || [] } });
+  async tags(conv: IConversationDocument) {
+    return getDocumentList('tags', { _id: { $in: conv.tagIds || [] } });
   },
 
   async videoCallData(
@@ -147,29 +144,11 @@ export default {
     }
   },
 
-  async productBoardLink(
-    conversation: IConversationDocument,
-    _args,
-    { dataSources }: IContext
-  ) {
-    try {
-      const response = await dataSources.IntegrationsAPI.fetchApi(
-        '/productBoard/note',
-        {
-          erxesApiId: conversation._id
-        }
-      );
-      return response;
-    } catch (e) {
-      debugError(e);
-      return null;
-    }
-  },
-
   async isFacebookTaggedMessage(conversation: IConversationDocument) {
-    const integration = await Integrations.findOne({
-      _id: conversation.integrationId
-    }).lean();
+    const integration =
+      (await getDocument('integrations', {
+        _id: conversation.integrationId
+      })) || {};
 
     if (integration && integration.kind !== 'facebook-messenger') {
       return false;

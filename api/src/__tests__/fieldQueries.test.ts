@@ -75,8 +75,13 @@ describe('fieldQueries', () => {
   });
 
   test('Fields combined by content type', async () => {
+    const integ = await integrationFactory({});
+
     const mock = sinon.stub(elk, 'fetchElk').callsFake(() => {
       return Promise.resolve({
+        hits: {
+          hits: [{ _id: integ._id, _source: { name: integ.name } }]
+        },
         aggregations: {
           trackedDataKeys: {
             fieldKeys: {
@@ -210,7 +215,7 @@ describe('fieldQueries', () => {
       contentType: 'customer'
     });
 
-    expect(responses.length).toBe(7);
+    expect(responses.length).toBe(8);
     expect(responses[0].name).toBe('location.country');
     expect(responses[1].name).toBe('firstName');
     expect(responses[2].name).toBe('lastName');
@@ -241,7 +246,25 @@ describe('fieldQueries', () => {
 
   test('Field groups', async () => {
     // Creating test data
-    await fieldGroupFactory({ contentType: 'customer' });
+    await fieldGroupFactory({
+      contentType: 'customer',
+      isDefinedByErxes: true,
+      order: 2
+    });
+    await fieldGroupFactory({
+      contentType: 'customer',
+      isDefinedByErxes: false,
+      order: 1
+    });
+    await fieldGroupFactory({
+      contentType: 'customer',
+      isDefinedByErxes: false,
+      order: 3
+    });
+    await fieldGroupFactory({
+      contentType: 'customer',
+      isDefinedByErxes: false
+    });
     await fieldGroupFactory({ contentType: 'company' });
 
     const qry = `
@@ -251,6 +274,7 @@ describe('fieldQueries', () => {
           lastUpdatedUser {
             _id
           }
+          order
           fields {
             _id
           }
@@ -261,7 +285,7 @@ describe('fieldQueries', () => {
     // customer content type ============
     let responses = await graphqlRequest(qry, 'fieldsGroups');
 
-    expect(responses.length).toBe(1);
+    expect(responses.length).toBe(4);
 
     // company content type =============
     responses = await graphqlRequest(qry, 'fieldsGroups', {
@@ -276,12 +300,14 @@ describe('fieldQueries', () => {
     await fieldFactory({
       text: 'text1',
       contentType: 'customer',
-      visible: true
+      visible: true,
+      isDefinedByErxes: false
     });
     await fieldFactory({
       text: 'text2',
       contentType: 'customer',
-      visible: false
+      visible: false,
+      isDefinedByErxes: false
     });
 
     const qry = `
@@ -341,5 +367,142 @@ describe('fieldQueries', () => {
     const field = responses[0];
 
     expect(field.associatedField._id).toBe(customField._id);
+  });
+
+  test('Fields query with groupName', async () => {
+    // Creating test data
+    const group = await fieldGroupFactory({ contentType: 'form' });
+
+    await fieldFactory({
+      text: 'text1',
+      contentType: 'form',
+      visible: true,
+      groupId: (group && group._id) || ''
+    });
+
+    const qry = `
+    query fields(
+      $contentType: String!
+      $contentTypeId: String
+      $isVisible: Boolean
+    ) {
+      fields(
+        contentType: $contentType
+        contentTypeId: $contentTypeId
+        isVisible: $isVisible
+      ) {
+        text
+        groupName
+        _id
+        isVisible
+        associatedField {
+          _id
+          text
+        }
+      }
+    }    
+ `;
+
+    const responses = await graphqlRequest(qry, 'fields', {
+      contentType: 'form',
+      isVisible: true
+    });
+
+    expect(responses.length).toBe(1);
+    const field = responses[0];
+    expect(field.groupName).toBe(group && group.name);
+  });
+
+  test('get inbox system fields', async () => {
+    // Creating test data
+    const customerGroup = await fieldGroupFactory({
+      contentType: 'customer',
+      isDefinedByErxes: true
+    });
+    const conversationGroup = await fieldGroupFactory({
+      contentType: 'conversation',
+      isDefinedByErxes: true
+    });
+    const deviceGroup = await fieldGroupFactory({
+      contentType: 'device',
+      isDefinedByErxes: true
+    });
+
+    const customerField = await fieldFactory({
+      text: 'customer',
+      contentType: 'customer',
+      visible: true,
+      groupId: customerGroup ? customerGroup._id : ''
+    });
+
+    const deviceField = await fieldFactory({
+      text: 'device',
+      contentType: 'device',
+      visible: true,
+      groupId: deviceGroup ? deviceGroup._id : ''
+    });
+
+    const conversationField = await fieldFactory({
+      text: 'conversation',
+      contentType: 'conversation',
+      visible: true,
+      groupId: conversationGroup ? conversationGroup._id : ''
+    });
+
+    const qry = `
+        query fieldsInbox {
+          fieldsInbox {
+            customer {
+              _id
+            }
+            device {
+              _id
+            }
+            conversation {
+              _id
+            }
+          }
+        }
+    `;
+
+    const response = await graphqlRequest(qry, 'fieldsInbox', {});
+
+    expect(response).toBeDefined();
+    expect(response.customer[0]._id).toEqual(customerField._id);
+    expect(response.device[0]._id).toEqual(deviceField._id);
+    expect(response.conversation[0]._id).toEqual(conversationField._id);
+  });
+
+  test('getSystemFieldsGroup', async () => {
+    const customerGroup = await fieldGroupFactory({
+      contentType: 'customer',
+      isDefinedByErxes: true
+    });
+
+    const customerField = await fieldFactory({
+      text: 'customer',
+      contentType: 'customer',
+      visible: true,
+      groupId: customerGroup ? customerGroup._id : ''
+    });
+
+    const qry = `
+    query getSystemFieldsGroup($contentType: String!) {
+      getSystemFieldsGroup(contentType: $contentType) {
+        _id
+        fields {
+          _id
+        }
+      }
+    }
+    `;
+
+    const response = await graphqlRequest(qry, 'getSystemFieldsGroup', {
+      contentType: 'customer'
+    });
+
+    expect(response).toBeDefined();
+    expect(response._id).toEqual(customerGroup && customerGroup._id);
+    expect(response.fields[0]._id).toEqual(customerField._id);
   });
 });

@@ -1,5 +1,11 @@
 import * as _ from 'underscore';
-import { Segments } from '../../../db/models';
+import {
+  Boards,
+  Conformities,
+  Pipelines,
+  Segments,
+  Stages
+} from '../../../db/models';
 import {
   SEGMENT_DATE_OPERATORS,
   SEGMENT_NUMBER_OPERATORS
@@ -10,26 +16,62 @@ import { getEsTypes } from '../coc/utils';
 
 export const fetchBySegments = async (
   segment: ISegment,
-  action: 'search' | 'count' = 'search'
+  action: 'search' | 'count' = 'search',
+  options?
 ): Promise<any> => {
   if (!segment || !segment.conditions) {
     return [];
   }
 
   const { contentType } = segment;
-  const index = contentType === 'company' ? 'companies' : 'customers';
-  const idField = contentType === 'company' ? 'companyId' : 'customerId';
+
+  let index = getIndexByContentType(contentType);
   const typesMap = getEsTypes(contentType);
 
-  const propertyPositive: any[] = [];
-  const propertyNegative: any[] = [];
+  let propertyPositive: any[] = [];
+  let propertyNegative: any[] = [];
 
-  if (contentType !== 'company') {
+  if (['customer', 'lead', 'visitor'].includes(contentType)) {
     propertyNegative.push({
       term: {
         status: 'deleted'
       }
     });
+  }
+
+  if (['deal', 'task', 'ticket'].includes(contentType)) {
+    let pipelineIds: string[] = [];
+
+    if (options && options.pipelineId) {
+      pipelineIds = [options.pipelineId];
+    }
+
+    if (segment.boardId) {
+      const board = await Boards.getBoard(segment.boardId);
+
+      const pipelines = await Pipelines.find(
+        {
+          _id: {
+            $in: segment.pipelineId
+              ? [segment.pipelineId]
+              : board.pipelines || []
+          }
+        },
+        { _id: 1 }
+      );
+
+      pipelineIds = pipelines.map(p => p._id);
+    }
+
+    const stages = await Stages.find({ pipelineId: pipelineIds }, { _id: 1 });
+
+    if (stages.length > 0) {
+      propertyPositive.push({
+        terms: {
+          stageId: stages.map(s => s._id)
+        }
+      });
+    }
   }
 
   const eventPositive = [];
@@ -47,15 +89,21 @@ export const fetchBySegments = async (
   let idsByEvents = [];
 
   if (eventPositive.length > 0 || eventNegative.length > 0) {
-    const eventsResponse = await fetchElk('search', 'events', {
-      _source: idField,
-      size: 10000,
-      query: {
-        bool: {
-          must: eventPositive,
-          must_not: eventNegative
+    const idField = contentType === 'company' ? 'companyId' : 'customerId';
+
+    const eventsResponse = await fetchElk({
+      action: 'search',
+      index: 'events',
+      body: {
+        _source: idField,
+        query: {
+          bool: {
+            must: eventPositive,
+            must_not: eventNegative
+          }
         }
-      }
+      },
+      defaultValue: { hits: { hits: [] } }
     });
 
     idsByEvents = eventsResponse.hits.hits
@@ -69,6 +117,49 @@ export const fetchBySegments = async (
     });
   }
 
+  if (
+    ['company', 'deal', 'task', 'ticket'].includes(contentType) &&
+    options &&
+    options.associatedCustomers
+  ) {
+    index = 'customers';
+
+    const itemsResponse = await fetchElk({
+      action: 'search',
+      index: getIndexByContentType(segment.contentType),
+      body: {
+        query: {
+          bool: {
+            must: propertyPositive,
+            must_not: propertyNegative
+          }
+        },
+        _source: '_id'
+      },
+      defaultValue: { hits: { hits: [] } }
+    });
+
+    const items = itemsResponse.hits.hits;
+
+    const itemIds = items.map(i => i._id);
+
+    const customerIds = await Conformities.filterConformity({
+      mainType: segment.contentType,
+      mainTypeIds: itemIds,
+      relType: 'customer'
+    });
+
+    propertyPositive = [
+      {
+        terms: {
+          _id: customerIds
+        }
+      }
+    ];
+
+    propertyNegative = [];
+  }
+
   if (action === 'count') {
     return {
       positiveList: propertyPositive,
@@ -76,13 +167,16 @@ export const fetchBySegments = async (
     };
   }
 
-  const response = await fetchElk('search', index, {
-    _source: false,
-    size: 10000,
-    query: {
-      bool: {
-        must: propertyPositive,
-        must_not: propertyNegative
+  const response = await fetchElk({
+    action: 'search',
+    index,
+    body: {
+      _source: false,
+      query: {
+        bool: {
+          must: propertyPositive,
+          must_not: propertyNegative
+        }
       }
     }
   });
@@ -119,7 +213,7 @@ const generateQueryBySegment = async (args: {
   const embeddedParentSegment = await Segments.findOne({ _id: segment.subOf });
   const parentSegment = embeddedParentSegment;
 
-  if (parentSegment) {
+  if (parentSegment && (!segment._id || segment._id !== parentSegment._id)) {
     await generateQueryBySegment({ ...args, segment: parentSegment });
   }
 
@@ -262,7 +356,9 @@ function elkConvertConditionToQuery(args: {
 }) {
   const { field, type, operator, value, positive, negative } = args;
 
-  const fixedValue = value.toLocaleLowerCase();
+  const fixedValue = (value || '').includes('now')
+    ? value
+    : value.toLocaleLowerCase();
 
   let positiveQuery;
   let negativeQuery;
@@ -440,3 +536,56 @@ function elkConvertConditionToQuery(args: {
     negative.push(negativeQuery);
   }
 }
+
+const getIndexByContentType = (contentType: string) => {
+  let index = 'customers';
+
+  if (contentType === 'company') {
+    index = 'companies';
+  }
+
+  if (contentType === 'deal') {
+    index = 'deals';
+  }
+
+  if (contentType === 'task') {
+    index = 'tasks';
+  }
+
+  if (contentType === 'ticket') {
+    index = 'tickets';
+  }
+
+  return index;
+};
+
+export const fetchSegment = async (action, segment: ISegment, options?) => {
+  const { contentType } = segment;
+
+  let response = await fetchBySegments(segment, action, options);
+
+  if (action === 'search') {
+    return response;
+  }
+
+  try {
+    const { positiveList, negativeList } = await response;
+
+    response = await fetchElk({
+      action: 'count',
+      index: getIndexByContentType(contentType),
+      body: {
+        query: {
+          bool: {
+            must: positiveList,
+            must_not: negativeList
+          }
+        }
+      }
+    });
+
+    return response.count;
+  } catch (e) {
+    return 0;
+  }
+};

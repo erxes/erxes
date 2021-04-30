@@ -26,6 +26,10 @@ export default class EngagesAPI extends RESTDataSource {
     throw new Error(body);
   }
 
+  /**
+   * Fetches all saved configs from engages-email-sender
+   * @returns Configs documents
+   */
   public async engagesConfigDetail() {
     return this.get(`/configs/detail`);
   }
@@ -96,6 +100,19 @@ export default class EngagesAPI extends RESTDataSource {
   public async getAverageStats() {
     try {
       const response = await this.get(`/deliveryReports/avgStatPercentages`);
+
+      return response;
+    } catch (e) {
+      debugError(e);
+
+      return { error: e.message };
+    }
+  }
+
+  // fetches all sms deliveries
+  public async getSmsDeliveries(params) {
+    try {
+      const response = await this.get('/telnyx/sms-deliveries', params);
 
       return response;
     } catch (e) {

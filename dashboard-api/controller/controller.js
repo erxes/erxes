@@ -1,6 +1,7 @@
 const cubejs = require('@cubejs-client/core');
 const elasticsearch = require('elasticsearch');
 const { resolvers } = require('./constants.js');
+const { tableSchema } = require('../tablePrefix');
 
 const { CUBEJS_URL, CUBEJS_DB_URL } = process.env;
 
@@ -8,7 +9,7 @@ const client = new elasticsearch.Client({
   hosts: [CUBEJS_DB_URL]
 });
 
-const generateReport = async (req, res) => {
+const generateReport = async (req, res, isExport) => {
   const { query } = req;
 
   const { dashboardToken } = query;
@@ -29,33 +30,70 @@ const generateReport = async (req, res) => {
     }
   }
 
-  if (resultSet.loadResponse.query.dimensions[0]) {
-    const dimensions = resultSet.loadResponse.query.dimensions[0];
-    const resolver = resolvers.find(res => res.name === dimensions);
+  const queryDimensions = resultSet.loadResponse.query.dimensions;
 
-    if (resolver) {
-      await Promise.all(
-        resultSet.loadResponse.data.map(async data => {
-          try {
-            const response = await client.get({
-              index: resolver.indexname,
-              id: data[dimensions]
-            });
+  if (queryDimensions[0]) {
+    await Promise.all(
+      queryDimensions.map(async dimension => {
+        if (dimension.split('.')[1].slice(0, 6) === 'CUSTOM') {
+          const shemaName = queryDimensions[0].split('.')[0];
 
-            const fieldName = resolver.fieldname.split('.');
+          const index =
+            shemaName === 'ConversationProperties'
+              ? `${tableSchema()}__conversations`
+              : `${tableSchema()}__customers`;
 
-            if (fieldName.length == 2) {
-              data[dimensions] =
-                response._source[fieldName[0]][fieldName[1]] || 'unknown';
-            } else {
-              data[dimensions] = response._source[fieldName] || 'unknown';
-            }
-          } catch (e) {
-            data[dimensions] = 'unknown';
+          const customFieldId = dimension.split('.')[1].slice(6);
+
+          await Promise.all(
+            resultSet.loadResponse.data.map(async data => {
+              try {
+                const response = await client.get({
+                  index,
+                  id: data[dimension]
+                });
+
+                const customFieldDatas = response._source.customFieldsData;
+
+                const customField = customFieldDatas.find(customFieldData => {
+                  return customFieldData.field === customFieldId;
+                });
+
+                data[dimension] = customField.value || '';
+              } catch (e) {
+                data[dimension] = '';
+              }
+            })
+          );
+        } else {
+          const resolver = resolvers.find(res => res.name === dimension);
+
+          if (resolver) {
+            await Promise.all(
+              resultSet.loadResponse.data.map(async data => {
+                try {
+                  const response = await client.get({
+                    index: resolver.indexname,
+                    id: data[dimension]
+                  });
+
+                  const fieldName = resolver.fieldname.split('.');
+
+                  if (fieldName.length == 2) {
+                    data[dimension] =
+                      response._source[fieldName[0]][fieldName[1]] || 'unknown';
+                  } else {
+                    data[dimension] = response._source[fieldName] || 'unknown';
+                  }
+                } catch (e) {
+                  data[dimension] = 'unknown';
+                }
+              })
+            );
           }
-        })
-      );
-    }
+        }
+      })
+    );
   }
 
   const result = {
@@ -65,6 +103,10 @@ const generateReport = async (req, res) => {
     tablePivot: resultSet.tablePivot(),
     totalRow: resultSet.totalRow()
   };
+
+  if (isExport) {
+    return result;
+  }
 
   res.send(result);
 };

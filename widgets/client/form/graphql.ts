@@ -10,12 +10,22 @@ export const formDetailQuery = `
         name
         type
         text
+        content
         description
         options
         isRequired
         order
         validation
         associatedFieldId
+        column
+        
+        groupId
+        logicAction
+        logics {
+          fieldId
+          logicOperator
+          logicValue
+        }
       }
     }
   }

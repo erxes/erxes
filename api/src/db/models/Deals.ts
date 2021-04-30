@@ -1,5 +1,5 @@
 import { Model, model } from 'mongoose';
-import { ActivityLogs } from '.';
+import { ACTIVITY_LOG_ACTIONS, putActivityLog } from '../../data/logUtils';
 import {
   destroyBoardItemRelations,
   fillSearchTextItem,
@@ -46,13 +46,17 @@ export const loadDealClass = () => {
         ...doc,
         createdAt: new Date(),
         modifiedAt: new Date(),
+        stageChangedDate: new Date(),
         searchText: fillSearchTextItem(doc)
       });
 
       // create log
-      await ActivityLogs.createBoardItemLog({
-        item: deal,
-        contentType: 'deal'
+      await putActivityLog({
+        action: ACTIVITY_LOG_ACTIONS.CREATE_BOARD_ITEM,
+        data: {
+          item: deal,
+          contentType: 'deal'
+        }
       });
 
       return deal;

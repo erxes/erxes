@@ -1,19 +1,27 @@
 import * as schedule from 'node-schedule';
 import { send } from '../data/resolvers/mutations/engageUtils';
+import { MESSAGE_KINDS } from '../data/constants';
 import { EngageMessages } from '../db/models';
-import { debugCrons } from '../debuggers';
+import { IEngageMessageDocument } from '../db/models/definitions/engages';
+import { debugCrons, debugError } from '../debuggers';
 
 const findMessages = (selector = {}) => {
   return EngageMessages.find({
-    kind: { $in: ['auto', 'visitorAuto'] },
+    kind: { $in: [MESSAGE_KINDS.AUTO, MESSAGE_KINDS.VISITOR_AUTO] },
     isLive: true,
     ...selector
   });
 };
 
-const runJobs = async messages => {
+const runJobs = async (messages: IEngageMessageDocument[]) => {
   for (const message of messages) {
-    await send(message);
+    try {
+      await send(message);
+    } catch (e) {
+      debugError(
+        `Error occurred when sending campaign "${message.title}" with id ${message._id}`
+      );
+    }
   }
 };
 

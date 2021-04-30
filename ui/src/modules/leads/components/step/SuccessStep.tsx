@@ -35,13 +35,11 @@ type Props = {
   onChange: (name: Name, value: string) => void;
   leadData?: ILeadData;
   formId?: string;
-  templateId?: string;
   emailTemplates: IEmailTemplate[];
 };
 
 type State = {
   successAction?: string;
-  templateId?: string;
   leadData?: ILeadData;
 };
 
@@ -53,7 +51,6 @@ class SuccessStep extends React.Component<Props, State> {
 
     this.state = {
       successAction: leadData.successAction || FORM_SUCCESS_ACTIONS.ONPAGE,
-      templateId: this.props.templateId,
       leadData
     };
   }
@@ -74,7 +71,8 @@ class SuccessStep extends React.Component<Props, State> {
   };
 
   onEditorChange = e => {
-    const editorNumber: number = e.editor.name.replace(/[^\d.]/g, '');
+    const editorNumber: number =
+      e.editor.name && e.editor.name.replace(/[^\d.]/g, '');
 
     let propName: Name = 'adminEmailContent';
 
@@ -97,9 +95,10 @@ class SuccessStep extends React.Component<Props, State> {
   templateChange = e => {
     const userEmailContent = this.findTemplate(e.value);
 
-    this.setState({ templateId: e.value, leadData: { userEmailContent } });
+    this.setState({ leadData: { userEmailContent, templateId: e.value } });
 
     this.props.onChange('userEmailContent', this.findTemplate(e.value));
+    this.props.onChange('templateId', e.value);
   };
 
   renderEmailFields(leadData: ILeadData) {
@@ -166,7 +165,7 @@ class SuccessStep extends React.Component<Props, State> {
           <p>{__('Insert email template to content')}</p>
 
           <Select
-            value={this.state.templateId}
+            value={leadData.templateId}
             onChange={this.templateChange}
             options={generateEmailTemplateParams(this.props.emailTemplates)}
             clearable={false}

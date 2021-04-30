@@ -10,9 +10,18 @@ import * as puppeteer from 'puppeteer';
 import * as strip from 'strip';
 import * as xlsxPopulate from 'xlsx-populate';
 import * as models from '../db/models';
-import { Customers, OnboardingHistories, Users, Webhooks } from '../db/models';
+import {
+  Companies,
+  Customers,
+  OnboardingHistories,
+  Users,
+  Webhooks
+} from '../db/models';
 import { IBrandDocument } from '../db/models/definitions/brands';
-import { WEBHOOK_STATUS } from '../db/models/definitions/constants';
+import {
+  WEBHOOK_STATUS,
+  WEBHOOK_TYPES
+} from '../db/models/definitions/constants';
 import { ICustomer } from '../db/models/definitions/customers';
 import { IUser, IUserDocument } from '../db/models/definitions/users';
 import { debugBase, debugError } from '../debuggers';
@@ -497,35 +506,48 @@ export const replaceEditorAttributes = async (args: {
   replacedContent?: string;
   customerFields?: string[];
 }> => {
-  const { content, customer, user, brand } = args;
+  const { content, user, brand } = args;
+  const customer = args.customer || {};
 
   const replacers: IReplacer[] = [];
 
   let replacedContent = content || '';
   let customerFields = args.customerFields;
 
+  const customFieldsData = customer.customFieldsData || [];
+
   if (!customerFields || customerFields.length === 0) {
     const possibleCustomerFields = await fieldsCombinedByContentType({
       contentType: 'customer'
     });
 
-    customerFields = ['firstName', 'lastName'];
+    customerFields = ['firstName', 'lastName', 'middleName'];
 
     for (const field of possibleCustomerFields) {
       if (content.includes(`{{ customer.${field.name} }}`)) {
         if (field.name.includes('trackedData')) {
           customerFields.push('trackedData');
+
           continue;
         }
 
         if (field.name.includes('customFieldsData')) {
+          const fieldId = field.name.split('.').pop();
+
+          if (!customFieldsData.find(e => e.field === fieldId)) {
+            customFieldsData.push({ field: fieldId || '', value: '' });
+          }
+
           customerFields.push('customFieldsData');
+
           continue;
         }
 
         customerFields.push(field.name);
       }
     }
+
+    customer.customFieldsData = customFieldsData;
   }
 
   // replace customer fields
@@ -741,7 +763,12 @@ export const sendToWebhook = async (
         'Erxes-token': webhook.token || ''
       },
       method: 'post',
-      body: { data: JSON.stringify(data), action, type }
+      body: {
+        data: JSON.stringify(data),
+        text: prepareWebhookContent(type, action, data),
+        action,
+        type
+      }
     })
       .then(async () => {
         await Webhooks.updateStatus(webhook._id, WEBHOOK_STATUS.AVAILABLE);
@@ -759,6 +786,83 @@ export default {
   readFile,
   createTransporter,
   sendToWebhook
+};
+
+export const prepareWebhookContent = (type, action, data) => {
+  let actionText = 'created';
+  let url;
+  let content = '';
+
+  switch (action) {
+    case 'update':
+      actionText = 'has been updated';
+      break;
+    case 'delete':
+      actionText = 'has been deleted';
+      break;
+    default:
+      actionText = 'has been created';
+      break;
+  }
+
+  switch (type) {
+    case WEBHOOK_TYPES.CUSTOMER:
+      url = `/contacts/details/${data.object._id}`;
+      content = `Customer ${actionText}`;
+      break;
+
+    case WEBHOOK_TYPES.COMPANY:
+      url = `/companies/details/${data.object._id}`;
+      content = `Company ${actionText}`;
+      break;
+
+    case WEBHOOK_TYPES.KNOWLEDGEBASE:
+      url = `/knowledgeBase?id=${data.newData.categoryIds[0]}`;
+      content = `Knowledge base article ${actionText}`;
+      break;
+
+    case WEBHOOK_TYPES.USER_MESSAGES:
+      url = `/inbox/index?_id=${data.conversationId}`;
+      content = 'Admin has replied to a conversation';
+      break;
+
+    case WEBHOOK_TYPES.CUSTOMER_MESSAGES:
+      url = `/inbox/index?_id=${data.conversationId}`;
+      content = 'Customer has send a conversation message';
+      break;
+
+    case WEBHOOK_TYPES.CONVERSATION:
+      url = `/inbox/index?_id=${data._id}`;
+      content = 'Customer has started new conversation';
+      break;
+
+    case WEBHOOK_TYPES.FORM_SUBMITTED:
+      url = `/inbox/index?_id=${data.conversationId}`;
+      content = 'Customer has submitted a form';
+      break;
+
+    case WEBHOOK_TYPES.CAMPAIGN:
+      url = `/campaigns/show/${data._id}`;
+
+      if (data.method === 'messenger') {
+        url = `/campaigns/edit/${data.$_id}`;
+      }
+
+      content = 'Campaign has been created';
+      break;
+
+    default:
+      break;
+  }
+
+  url = `${getEnv({ name: 'MAIN_APP_DOMAIN' })}${url}`;
+  content = `erxes: ${content}`;
+
+  if (action !== 'delete') {
+    content = `<${url}|${content}>`;
+  }
+
+  return content;
 };
 
 export const cleanHtml = (content?: string) =>
@@ -891,10 +995,89 @@ export const routeErrorHandling = (fn, callback?: any) => {
       debugError(e.message);
 
       if (callback) {
-        return callback(res, e);
+        return callback(res, e, next);
       }
 
       return next(e);
     }
   };
+};
+
+export const isUsingElk = () => {
+  const ELK_SYNCER = getEnv({ name: 'ELK_SYNCER', defaultValue: 'true' });
+
+  return ELK_SYNCER === 'false' ? false : true;
+};
+
+/**
+ * Splits text into chunks of strings limited by given character count
+ * .{1,100}(\s|$)
+ * . - matches any character (except for line terminators)
+ * {1,100} - matches the previous token between 1 and 100 times, as many times as possible, giving back as needed (greedy)
+ * (\s|$) - capturing group
+ * \s - matches any whitespace character
+ * $ - asserts position at the end of the string
+ *
+ * @param str text to be split
+ * @param size character length of each chunk
+ */
+export const splitStr = (str: string, size: number): string[] => {
+  const cleanStr = strip(str);
+
+  return cleanStr.match(new RegExp(new RegExp(`.{1,${size}}(\s|$)`, 'g')));
+};
+
+export const findCustomer = async doc => {
+  let customer;
+
+  if (doc.customerPrimaryEmail) {
+    customer = await Customers.findOne({
+      $or: [
+        { emails: { $in: [doc.customerPrimaryEmail] } },
+        { primaryEmail: doc.customerPrimaryEmail }
+      ]
+    });
+  }
+
+  if (!customer && doc.customerPrimaryPhone) {
+    customer = await Customers.findOne({
+      $or: [
+        { phones: { $in: [doc.customerPrimaryPhone] } },
+        { primaryPhone: doc.customerPrimaryPhone }
+      ]
+    });
+  }
+
+  if (!customer && doc.customerPrimaryPhone) {
+    customer = await Customers.findOne({ code: doc.customerPrimaryPhone });
+  }
+
+  return customer;
+};
+
+export const findCompany = async doc => {
+  let company;
+
+  if (doc.companyPrimaryEmail) {
+    company = await Companies.findOne({
+      $or: [
+        { emails: { $in: [doc.companyPrimaryEmail] } },
+        { primaryEmail: doc.companyPrimaryEmail }
+      ]
+    });
+  }
+
+  if (!company && doc.companyPrimaryPhone) {
+    company = await Companies.findOne({
+      $or: [
+        { phones: { $in: [doc.companyPrimaryPhone] } },
+        { primaryPhone: doc.companyPrimaryPhone }
+      ]
+    });
+  }
+
+  if (!company && doc.companyPrimaryName) {
+    company = await Companies.findOne({ primaryName: doc.companyPrimaryName });
+  }
+  return company;
 };

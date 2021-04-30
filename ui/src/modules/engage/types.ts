@@ -58,6 +58,8 @@ export interface IEngageSmsStats {
   sending_failed: number;
   delivery_failed: number;
   delivery_unconfirmed: number;
+  webhook_delivered: number;
+  error?: number;
 }
 
 export interface IDeliveryReport {
@@ -113,13 +115,14 @@ export interface IEngageMessage extends IEngageMessageDoc {
   createdDate: Date;
   messengerReceivedCustomerIds?: string[];
   brand: IBrand;
-  segment: ISegment;
+  segments: ISegment[];
   fromUser: IUser;
   tagIds: string[];
   customerTags: ITag[];
   getTags: ITag[];
   totalCustomersCount?: number;
   validCustomersCount?: number;
+  runCount?: number;
 
   stats?: IEngageStats;
   logs?: Array<{ message: string }>;
@@ -248,6 +251,7 @@ export type IEmailFormProps = {
   fromUserId: string;
   content: string;
   scheduleDate: IEngageScheduleDate;
+  isSaved?: boolean;
 };
 
 export type EngageConfigQueryResponse = {

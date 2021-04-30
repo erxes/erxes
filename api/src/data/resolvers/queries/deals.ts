@@ -1,16 +1,17 @@
-import { Deals } from '../../../db/models';
+import { Deals, Products } from '../../../db/models';
 import {
   checkPermission,
   moduleRequireLogin
 } from '../../permissions/wrappers';
 import { IContext } from '../../types';
+import dealResolvers from '../deals';
 import { IListParams } from './boards';
 import {
   archivedItems,
   archivedItemsCount,
   checkItemPermByUser,
   generateDealCommonFilters,
-  generateSort,
+  getItemList,
   IArchiveArgs
 } from './boardUtils';
 
@@ -31,14 +32,61 @@ const dealQueries = {
       ...commonQuerySelector,
       ...(await generateDealCommonFilters(user._id, args))
     };
-    const sort = generateSort(args);
 
-    const limit = args.limit !== undefined ? args.limit : 10;
+    const getExtraFields = async (item: any) => ({
+      amount: await dealResolvers.amount(item)
+    });
 
-    return Deals.find(filter)
-      .sort(sort)
-      .skip(args.skip || 0)
-      .limit(limit);
+    const deals = await getItemList(
+      filter,
+      args,
+      user,
+      'deal',
+      { productsData: 1 },
+      getExtraFields
+    );
+
+    const dealProductIds = deals.flatMap(deal => {
+      if (deal.productsData && deal.productsData.length > 0) {
+        return deal.productsData.flatMap(pData => pData.productId || []);
+      }
+
+      return [];
+    });
+
+    const products = await Products.find({
+      _id: { $in: [...new Set(dealProductIds)] }
+    });
+
+    for (const deal of deals) {
+      if (
+        !deal.productsData ||
+        (deal.productsData && deal.productsData.length === 0)
+      ) {
+        continue;
+      }
+
+      deal.products = [];
+
+      for (const pData of deal.productsData) {
+        if (!pData.productId) {
+          continue;
+        }
+
+        deal.products.push({
+          ...(typeof pData.toJSON === 'function' ? pData.toJSON() : pData),
+          product: products.find(p => p._id === pData.productId) || {}
+        });
+      }
+    }
+
+    return deals;
+  },
+
+  async dealsTotalCount(_root, args: IDealListParams, { user }: IContext) {
+    const filter = await generateDealCommonFilters(user._id, args);
+
+    return Deals.find(filter).countDocuments();
   },
 
   /**
@@ -58,7 +106,6 @@ const dealQueries = {
   async dealsTotalAmounts(_root, args: IDealListParams, { user }: IContext) {
     const filter = await generateDealCommonFilters(user._id, args);
 
-    const dealCount = await Deals.find(filter).countDocuments();
     const amountList = await Deals.aggregate([
       {
         $match: filter
@@ -132,15 +179,13 @@ const dealQueries = {
       }
     ]);
 
-    const totalForType = amountList.map(type => {
+    return amountList.map(type => {
       return {
         _id: Math.random(),
         name: type._id,
         currencies: type.currencies
       };
     });
-
-    return { _id: Math.random(), dealCount, totalForType };
   },
 
   /**

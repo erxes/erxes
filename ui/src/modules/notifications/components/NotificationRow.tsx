@@ -58,9 +58,10 @@ class NotificationRow extends React.Component<IProps> {
     }
 
     return (
-      <div>
-        <Content dangerouslySetInnerHTML={{ __html: xss(content) }} />
-      </div>
+      <Content
+        dangerouslySetInnerHTML={{ __html: xss(content) }}
+        isList={this.props.isList}
+      />
     );
   }
 

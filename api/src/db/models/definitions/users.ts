@@ -1,7 +1,7 @@
 import { Document, Schema } from 'mongoose';
 import { ILink } from './common';
 import { IPermissionDocument } from './permissions';
-import { field } from './utils';
+import { field, schemaHooksWrapper } from './utils';
 
 export interface IEmailSignature {
   brandId?: string;
@@ -81,51 +81,58 @@ const detailSchema = new Schema(
 );
 
 // User schema
-export const userSchema = new Schema({
-  _id: field({ pkey: true }),
-  createdAt: field({
-    type: Date,
-    default: Date.now
+export const userSchema = schemaHooksWrapper(
+  new Schema({
+    _id: field({ pkey: true }),
+    createdAt: field({
+      type: Date,
+      default: Date.now
+    }),
+    username: field({ type: String, label: 'Username' }),
+    password: field({ type: String }),
+    resetPasswordToken: field({ type: String }),
+    registrationToken: field({ type: String }),
+    registrationTokenExpires: field({ type: Date }),
+    resetPasswordExpires: field({ type: Date }),
+    isOwner: field({ type: Boolean, label: 'Is owner' }),
+    email: field({
+      type: String,
+      unique: true,
+      match: [
+        /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,10})+$/,
+        'Please fill a valid email address'
+      ],
+      label: 'Email'
+    }),
+    getNotificationByEmail: field({
+      type: Boolean,
+      label: 'Get notification by email'
+    }),
+    emailSignatures: field({
+      type: [emailSignatureSchema],
+      label: 'Email signatures'
+    }),
+    starredConversationIds: field({
+      type: [String],
+      label: 'Starred conversations'
+    }),
+    details: field({ type: detailSchema, default: {}, label: 'Details' }),
+    links: field({ type: Object, default: {}, label: 'Links' }),
+    isActive: field({ type: Boolean, default: true, label: 'Is active' }),
+    brandIds: field({ type: [String], label: 'Brands' }),
+    groupIds: field({ type: [String], label: 'Groups' }),
+    deviceTokens: field({
+      type: [String],
+      default: [],
+      label: 'Device tokens'
+    }),
+    code: field({ type: String }),
+    doNotDisturb: field({
+      type: String,
+      optional: true,
+      default: 'No',
+      label: 'Do not disturb'
+    })
   }),
-  username: field({ type: String, label: 'Username' }),
-  password: field({ type: String }),
-  resetPasswordToken: field({ type: String }),
-  registrationToken: field({ type: String }),
-  registrationTokenExpires: field({ type: Date }),
-  resetPasswordExpires: field({ type: Date }),
-  isOwner: field({ type: Boolean, label: 'Is owner' }),
-  email: field({
-    type: String,
-    unique: true,
-    match: [
-      /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,10})+$/,
-      'Please fill a valid email address'
-    ],
-    label: 'Email'
-  }),
-  getNotificationByEmail: field({
-    type: Boolean,
-    label: 'Get notification by email'
-  }),
-  emailSignatures: field({
-    type: [emailSignatureSchema],
-    label: 'Email signatures'
-  }),
-  starredConversationIds: field({
-    type: [String],
-    label: 'Starred conversations'
-  }),
-  details: field({ type: detailSchema, default: {}, label: 'Details' }),
-  links: field({ type: Object, default: {}, label: 'Links' }),
-  isActive: field({ type: Boolean, default: true, label: 'Is active' }),
-  brandIds: field({ type: [String], label: 'Brands' }),
-  groupIds: field({ type: [String], label: 'Groups' }),
-  deviceTokens: field({ type: [String], default: [], label: 'Device tokens' }),
-  code: field({ type: String }),
-  doNotDisturb: field({
-    type: String,
-    optional: true,
-    default: 'No',
-    label: 'Do not disturb'
-  })
-});
+  'erxes_users'
+);

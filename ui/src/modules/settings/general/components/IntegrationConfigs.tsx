@@ -200,19 +200,6 @@ class IntegrationConfigs extends React.Component<Props, State> {
           {this.renderItem('CHAT_API_WEBHOOK_CALLBACK_URL')}
         </CollapseContent>
 
-        <CollapseContent title="Product Board">
-          <Info>
-            <a
-              target="_blank"
-              href="https://erxes.org/administrator/system-config#productBoard"
-              rel="noopener noreferrer"
-            >
-              {__('Learn how to set Product Board Integration Variables')}
-            </a>
-          </Info>
-          {this.renderItem('PRODUCT_BOARD_TOKEN')}
-        </CollapseContent>
-
         <CollapseContent title="Telnyx SMS">
           {this.renderItem('TELNYX_API_KEY')}
         </CollapseContent>

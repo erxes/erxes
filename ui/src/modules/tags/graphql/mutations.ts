@@ -23,8 +23,17 @@ const remove = `
   }
 `;
 
+const merge = `
+  mutation tagsMerge($sourceId: String!, $destId: String!) {
+    tagsMerge(sourceId: $sourceId, destId: $destId) {
+      _id
+    }
+  }
+`;
+
 export default {
   add,
   edit,
-  remove
+  remove,
+  merge
 };

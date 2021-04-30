@@ -1,5 +1,5 @@
 import { Document, Schema } from 'mongoose';
-import { field, schemaWrapper } from './utils';
+import { field, schemaHooksWrapper } from './utils';
 
 export interface IGoogleCredentials {
   access_token: string;
@@ -18,10 +18,18 @@ export interface ILeadCredentials {
   formCode: string;
 }
 
+export interface IWebsiteCredentials {
+  integrationId: string;
+  description?: string;
+  buttonText: string;
+  url: string;
+}
+
 export type IMessengerAppCrendentials =
   | IGoogleCredentials
   | IKnowledgebaseCredentials
-  | ILeadCredentials;
+  | ILeadCredentials
+  | IWebsiteCredentials;
 
 export interface IMessengerApp {
   kind: 'googleMeet' | 'knowledgebase' | 'lead' | 'website';
@@ -36,7 +44,7 @@ export interface IMessengerAppDocument extends IMessengerApp, Document {
 }
 
 // Messenger apps ===============
-export const messengerAppSchema = schemaWrapper(
+export const messengerAppSchema = schemaHooksWrapper(
   new Schema({
     _id: field({ pkey: true }),
 
@@ -49,5 +57,6 @@ export const messengerAppSchema = schemaWrapper(
     accountId: field({ type: String, optional: true }),
     showInInbox: field({ type: Boolean, default: false }),
     credentials: field({ type: Object })
-  })
+  }),
+  'erxes_messenger_apps'
 );

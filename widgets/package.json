@@ -12,7 +12,7 @@
   "private": true,
   "scripts": {
     "dev": "yarn dev-server & yarn dev-webpack",
-    "dev-server": "NODE_ENV=development nodemon -e ts server --exec ts-node",
+    "dev-server": "NODE_ENV=development nodemon -e ts --project tsconfig.server.json server --exec ts-node",
     "dev-webpack": "webpack --mode development --watch --progress",
     "build": "yarn build-webpack && yarn build-server",
     "build-server": "tsc --project tsconfig.server.json && cp -r ./server/views/ ./dist/",

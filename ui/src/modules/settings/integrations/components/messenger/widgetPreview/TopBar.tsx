@@ -3,7 +3,10 @@ import { IUser } from 'modules/auth/types';
 import Icon from 'modules/common/components/Icon';
 import { __ } from 'modules/common/utils';
 import { IBrand } from 'modules/settings/brands/types';
-import { IMessagesItem } from 'modules/settings/integrations/types';
+import {
+  IMessagesItem,
+  IMessengerApps
+} from 'modules/settings/integrations/types';
 import React from 'react';
 import {
   ErxesGreeting,
@@ -11,8 +14,10 @@ import {
   ErxesTopbar,
   GreetingInfo,
   Links,
+  ServerInfo,
   Socials,
-  TopBarIcon
+  TopBarIcon,
+  TopBarTab
 } from './styles';
 import SupporterComponent from './Supporters';
 
@@ -27,7 +32,10 @@ type Props = {
   brandId?: string;
   brands?: IBrand[];
   teamMembers: IUser[];
-  isGreeting?: boolean;
+  showChatPreview?: boolean;
+  activeStep?: string;
+  messengerApps?: IMessengerApps;
+  timezone?: string;
   facebook?: string;
   twitter?: string;
   youtube?: string;
@@ -54,15 +62,32 @@ class TopBar extends React.Component<Props> {
     );
   }
 
+  renderServerInfo() {
+    const { showChatPreview, timezone } = this.props;
+
+    if (!showChatPreview) {
+      return null;
+    }
+
+    return (
+      <ServerInfo>
+        <div>
+          {__('Server time')}: {dayjs(new Date()).format('lll')}
+        </div>
+        {__('Timezone')}: {timezone ? timezone : __('Asia/Ulaanbaatar')}
+      </ServerInfo>
+    );
+  }
+
   renderSupporters() {
-    const { supporterIds, isOnline, teamMembers, isGreeting } = this.props;
+    const { supporterIds, isOnline, teamMembers, showChatPreview } = this.props;
 
     return (
       <SupporterComponent
         supporterIds={supporterIds}
         isOnline={isOnline}
         teamMembers={teamMembers}
-        isGreeting={isGreeting}
+        showChatPreview={showChatPreview}
       />
     );
   }
@@ -123,6 +148,27 @@ class TopBar extends React.Component<Props> {
     );
   }
 
+  renderTabs() {
+    const { messengerApps, activeStep } = this.props;
+
+    if (
+      !messengerApps ||
+      (messengerApps.knowledgebases || []).length === 0 ||
+      !(messengerApps.knowledgebases || [])[0].topicId ||
+      activeStep !== 'addon'
+    ) {
+      return null;
+    }
+
+    return (
+      <TopBarTab>
+        <div style={{ backgroundColor: this.props.color }} />
+        <span>{__('Support')}</span>
+        <span>{__('Faq')}</span>
+      </TopBarTab>
+    );
+  }
+
   renderGreetingTopbar() {
     const { facebook, twitter, youtube } = this.props;
 
@@ -140,6 +186,8 @@ class TopBar extends React.Component<Props> {
 
           {this.renderGreetings()}
           {this.renderSupporters()}
+          {this.renderServerInfo()}
+          {this.renderTabs()}
         </ErxesGreeting>
         {this.renderIcons('cancel', false, 11)}
       </>
@@ -147,7 +195,7 @@ class TopBar extends React.Component<Props> {
   }
 
   renderContent() {
-    if (this.props.isGreeting) {
+    if (this.props.showChatPreview) {
       return this.renderGreetingTopbar();
     }
 

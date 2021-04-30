@@ -118,6 +118,7 @@ import {
 import { queries as LogQueries, types as LogTypes } from './log';
 import {
   mutations as MessengerAppMutations,
+  queries as MessengerAppQueries,
   types as MessengerAppTypes
 } from './messengerApp';
 import {
@@ -200,6 +201,10 @@ import {
   queries as WidgetQueries,
   types as WidgetTypes
 } from './widget';
+import {
+  queries as SmsDeliveryQueries,
+  types as SmsDeliveryTypes
+} from './smsDelivery';
 
 export let types = `
   scalar JSON
@@ -247,6 +252,7 @@ export let types = `
   ${WidgetTypes}
   ${WebhookTypes}
   ${CalendarTypes}
+  ${SmsDeliveryTypes}
 `;
 
 export let queries = `
@@ -290,6 +296,8 @@ export let queries = `
   ${WidgetQueries}
   ${WebhookQueries}
   ${CalendarQueries}
+  ${MessengerAppQueries}
+  ${SmsDeliveryQueries}
 `;
 
 export let mutations = `

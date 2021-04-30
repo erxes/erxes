@@ -1,3 +1,4 @@
+import { IFormProps as IFormPropsC } from 'erxes-ui/lib/types';
 export interface IRouterProps {
   history: any;
   location: any;
@@ -60,14 +61,7 @@ export type IDateColumn = {
   year: number;
 };
 
-export interface IFormProps {
-  errors: any;
-  values: any;
-  registerChild: (child: React.ReactNode) => void;
-  runValidations?: (callback: any) => void;
-  resetSubmit?: () => void;
-  isSubmitted: boolean;
-}
+export type IFormProps = IFormPropsC;
 
 export type IOption = {
   label: string;
@@ -118,4 +112,5 @@ export type IEditorProps = {
 export type QueryResponse = {
   loading: boolean;
   refetch: () => void;
+  error?: string;
 };

@@ -1,4 +1,4 @@
-import Icon from 'modules/common/components/Icon';
+import { IBoard } from 'modules/boards/types';
 import Spinner from 'modules/common/components/Spinner';
 import { Title } from 'modules/common/styles/main';
 import { IButtonMutateProps } from 'modules/common/types';
@@ -15,15 +15,32 @@ type Props = {
   contentType: string;
   fields: any[];
   events: IEvent[];
+  boards: IBoard[];
   renderButton: (props: IButtonMutateProps) => JSX.Element;
   segment: ISegment;
   headSegments: ISegment[];
   count: number;
-  previewCount: (conditions: ISegmentCondition[]) => void;
+  fetchFields: (pipelineId?: string) => void;
+  previewCount: (args: {
+    conditions: ISegmentCondition[];
+    subOf?: string;
+    boardId?: string;
+    pipelineId?: string;
+  }) => void;
   counterLoading: boolean;
 };
 
 const SegmentsForm = (props: Props) => {
+  const renderHelpText = () => {
+    let text = 'User(s) will receive this message';
+
+    if (!['customer', 'lead', 'visitor'].includes(contentType)) {
+      text = `${contentType}(s) found.`;
+    }
+
+    return text;
+  };
+
   const renderSidebar = () => {
     const { count, counterLoading } = props;
 
@@ -32,14 +49,13 @@ const SegmentsForm = (props: Props) => {
         <FlexContent>
           <SegmentResult>
             <ResultCount>
-              <Icon icon="users-alt" />{' '}
               {counterLoading ? (
                 <Spinner objective={true} />
               ) : (
                 <span>{count}</span>
               )}
             </ResultCount>
-            {__('User(s) will receive this message')}
+            {renderHelpText()}
           </SegmentResult>
         </FlexContent>
       </Sidebar>
@@ -53,6 +69,8 @@ const SegmentsForm = (props: Props) => {
     segment,
     events,
     headSegments,
+    boards,
+    fetchFields,
     previewCount
   } = props;
 
@@ -75,9 +93,11 @@ const SegmentsForm = (props: Props) => {
           contentType={contentType}
           fields={fields}
           events={events}
+          boards={boards}
           renderButton={renderButton}
           segment={segment}
           headSegments={headSegments}
+          fetchFields={fetchFields}
           previewCount={previewCount}
           isForm={true}
         />

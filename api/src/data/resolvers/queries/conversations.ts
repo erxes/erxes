@@ -32,7 +32,7 @@ const conversationQueries = {
     // filter by ids of conversations
     if (params && params.ids) {
       return Conversations.find({ _id: { $in: params.ids } }).sort({
-        createdAt: -1
+        updatedAt: -1
       });
     }
 
@@ -261,7 +261,7 @@ const conversationQueries = {
       ...integrationsFilter,
       status: { $in: [CONVERSATION_STATUSES.NEW, CONVERSATION_STATUSES.OPEN] },
       readUserIds: { $ne: user._id },
-      $and: [{ $or: qb.defaultUserQuery() }, { $or: qb.userRelevanceQuery() }]
+      $and: [{ $or: qb.userRelevanceQuery() }]
     }).countDocuments();
   }
 };

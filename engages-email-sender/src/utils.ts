@@ -6,6 +6,7 @@ import messageBroker from './messageBroker';
 import Configs, { ISESConfig } from './models/Configs';
 import { DeliveryReports, Stats } from './models/index';
 import { getApi } from './trackers/engageTracker';
+import { ICampaign, ICustomer } from './types';
 
 export const createTransporter = async () => {
   const config: ISESConfig = await Configs.getSESConfigs();
@@ -16,15 +17,6 @@ export const createTransporter = async () => {
     SES: new AWS.SES({ apiVersion: '2010-12-01' })
   });
 };
-
-export interface ICustomer {
-  _id: string;
-  primaryEmail: string;
-  emailValidationStatus: string;
-  primaryPhone: string;
-  phoneValidationStatus: string;
-  replacers: Array<{ key: string; value: string }>;
-}
 
 export interface IUser {
   name: string;
@@ -191,14 +183,23 @@ export const cleanIgnoredCustomers = async ({
 
   const allowedEmailSkipLimit = await getConfig('allowedEmailSkipLimit', '5');
 
-  // gather customers who did not open or click previously
+  /**
+   * gather customers who did not complain, open or click previously &
+   * no errors occurred
+   */
   const deliveries = await DeliveryReports.aggregate([
     {
       $match: {
         engageMessageId: { $ne: engageMessageId },
         customerId: { $in: customerIds },
         status: {
-          $nin: [SES_DELIVERY_STATUSES.OPEN, SES_DELIVERY_STATUSES.CLICK]
+          $nin: [
+            SES_DELIVERY_STATUSES.OPEN,
+            SES_DELIVERY_STATUSES.CLICK,
+            SES_DELIVERY_STATUSES.RENDERING_FAILURE,
+            SES_DELIVERY_STATUSES.REJECT,
+            SES_DELIVERY_STATUSES.COMPLAINT
+          ]
         }
       }
     },
@@ -283,4 +284,15 @@ export const routeErrorHandling = (fn, callback?: any) => {
       return next(e);
     }
   };
+};
+
+export const setCampaignCount = async (campaign: ICampaign) => {
+  await messageBroker().sendMessage('engagesNotification', {
+    action: 'setCampaignCount',
+    data: {
+      campaignId: campaign._id,
+      totalCustomersCount: campaign.totalCustomersCount,
+      validCustomersCount: campaign.validCustomersCount
+    }
+  });
 };

@@ -1,5 +1,4 @@
 import {
-  ActivityLogs,
   Checklists,
   Companies,
   Conformities,
@@ -10,6 +9,7 @@ import {
   Tasks,
   Tickets
 } from '.';
+import { ACTIVITY_LOG_ACTIONS, putActivityLog } from '../../data/logUtils';
 import { validSearchText } from '../../data/utils';
 import { IItemCommonFields, IOrderInput } from './definitions/boards';
 import { ICompanyDocument } from './definitions/companies';
@@ -21,6 +21,58 @@ interface ISetOrderParam {
   stageId: string;
   aboveItemId?: string;
 }
+
+export const bulkUpdateOrders = async ({
+  collection,
+  stageId,
+  sort = { order: 1 },
+  additionFilter = {},
+  startOrder = 100
+}: {
+  collection: any;
+  stageId: string;
+  sort?: { [key: string]: any };
+  additionFilter?: any;
+  startOrder?: number;
+}) => {
+  const bulkOps: Array<{
+    updateOne: {
+      filter: { _id: string };
+      update: { order: number };
+    };
+  }> = [];
+
+  let ord = startOrder;
+
+  const allItems = await collection
+    .find(
+      {
+        stageId,
+        status: { $ne: BOARD_STATUSES.ARCHIVED },
+        ...additionFilter
+      },
+      { _id: 1, order: 1 }
+    )
+    .sort(sort);
+
+  for (const item of allItems) {
+    bulkOps.push({
+      updateOne: {
+        filter: { _id: item._id },
+        update: { order: ord }
+      }
+    });
+
+    ord = ord + 10;
+  }
+
+  if (!bulkOps.length) {
+    return '';
+  }
+
+  await collection.bulkWrite(bulkOps);
+  return 'ok';
+};
 
 const randomBetween = (min: number, max: number) => {
   return Math.random() * (max - min) + min;
@@ -70,37 +122,8 @@ export const getNewOrder = async ({
 
   // if duplicated order, then in stages items bulkUpdate 100, 110, 120, 130
   if ([aboveOrder, belowOrder].includes(order)) {
-    const bulkOps: Array<{
-      updateOne: {
-        filter: { _id: string };
-        update: { order: number };
-      };
-    }> = [];
+    await bulkUpdateOrders({ collection, stageId });
 
-    let ord = 100;
-
-    const allItems = await collection
-      .find(
-        {
-          stageId,
-          status: { $ne: BOARD_STATUSES.ARCHIVED }
-        },
-        { _id: 1, order: 1 }
-      )
-      .sort({ order: 1 });
-
-    for (const item of allItems) {
-      bulkOps.push({
-        updateOne: {
-          filter: { _id: item._id },
-          update: { order: ord }
-        }
-      });
-
-      ord = ord + 10;
-    }
-
-    await collection.bulkWrite(bulkOps);
     return getNewOrder({ collection, stageId, aboveItemId });
   }
 
@@ -251,11 +274,15 @@ export const destroyBoardItemRelations = async (
   contentTypeId: string,
   contentType: string
 ) => {
-  await ActivityLogs.removeActivityLog(contentTypeId);
-  await Checklists.removeChecklists(contentType, contentTypeId);
+  await putActivityLog({
+    action: ACTIVITY_LOG_ACTIONS.REMOVE_ACTIVITY_LOG,
+    data: { contentTypeId }
+  });
+
+  await Checklists.removeChecklists(contentType, [contentTypeId]);
   await Conformities.removeConformity({
     mainType: contentType,
     mainTypeId: contentTypeId
   });
-  await InternalNotes.remove({ contentType, contentTypeId });
+  await InternalNotes.deleteMany({ contentType, contentTypeId });
 };

@@ -1,6 +1,5 @@
 import * as _ from 'underscore';
-import { Customers, EngageMessages, Users } from '../../../db/models';
-import { METHODS } from '../../../db/models/definitions/constants';
+import { Customers, EngageMessages } from '../../../db/models';
 import { IEngageMessage } from '../../../db/models/definitions/engages';
 import { MESSAGE_KINDS, MODULE_NAMES } from '../../constants';
 import { putCreateLog, putDeleteLog, putUpdateLog } from '../../logUtils';
@@ -11,6 +10,7 @@ import {
   replaceEditorAttributes,
   sendToWebhook
 } from '../../utils';
+import { getDocument } from './cacheUtils';
 import { checkCampaignDoc, send } from './engageUtils';
 
 interface IEngageMessageEdit extends IEngageMessage {
@@ -42,12 +42,6 @@ const engageMutations = {
     doc: IEngageMessage,
     { user, docModifier }: IContext
   ) {
-    if (doc.kind !== MESSAGE_KINDS.MANUAL && doc.method === METHODS.SMS) {
-      throw new Error(
-        `SMS engage message of kind ${doc.kind} is not supported`
-      );
-    }
-
     checkCampaignDoc(doc);
 
     // fromUserId is not required in sms engage, so set it here
@@ -93,6 +87,15 @@ const engageMutations = {
 
     const engageMessage = await EngageMessages.getEngageMessage(_id);
     const updated = await EngageMessages.updateEngageMessage(_id, doc);
+
+    // run manually when it was draft & live afterwards
+    if (
+      !engageMessage.isLive &&
+      doc.isLive &&
+      doc.kind === MESSAGE_KINDS.MANUAL
+    ) {
+      await send(updated);
+    }
 
     await putUpdateLog(
       {
@@ -229,7 +232,7 @@ const engageMutations = {
     }
 
     const customer = await Customers.findOne({ primaryEmail: to });
-    const targetUser = await Users.findOne({ email: to });
+    const targetUser = await getDocument('users', { email: to });
 
     const { replacedContent } = await replaceEditorAttributes({
       content,

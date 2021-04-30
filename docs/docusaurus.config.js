@@ -125,10 +125,6 @@ module.exports = {
           title: "Support Us",
           items: [
             {
-              label: "Back us on Open Collective",
-              href: "https://opencollective.com/erxes",
-            },
-            {
               label: "Back us on Github",
               href: "https://github.com/sponsors/erxes",
             },

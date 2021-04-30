@@ -1,6 +1,11 @@
 import { debugRequest, debugTelnyx } from '../debuggers';
 import { routeErrorHandling } from '../helpers';
-import { createIntegration, sendSms, updateMessageDelivery } from './api';
+import {
+  createIntegration,
+  getSmsDeliveries,
+  sendSms,
+  updateMessageDelivery
+} from './api';
 import { relayIncomingMessage } from './store';
 
 const processHookData = async req => {
@@ -51,9 +56,29 @@ const init = async app => {
 
       const { integrationId, content, to } = req.body;
 
-      await sendSms(JSON.stringify({ integrationId, content, toPhone: to }));
+      const result = await sendSms(
+        JSON.stringify({ integrationId, content, toPhone: to })
+      );
 
-      return res.json({ status: 'ok' });
+      return res.json(result);
+    })
+  );
+
+  // sms delivery reports
+  app.get(
+    '/telnyx/sms-deliveries',
+    routeErrorHandling(async (req, res) => {
+      debugRequest(debugTelnyx, req);
+
+      const { type, to, page = 1, perPage = 20 } = req.query;
+
+      try {
+        const result = await getSmsDeliveries({ type, to, page, perPage });
+
+        return res.json(result);
+      } catch (e) {
+        return res.json({ status: 'error', message: e.message });
+      }
     })
   );
 };

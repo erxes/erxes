@@ -1,6 +1,5 @@
 import { IUser } from 'modules/auth/types';
 import Button from 'modules/common/components/Button';
-import { SmallLoader } from 'modules/common/components/ButtonMutate';
 import FormControl from 'modules/common/components/form/Control';
 import ConditionsRule from 'modules/common/components/rule/ConditionsRule';
 import { Step, Steps } from 'modules/common/components/step';
@@ -17,7 +16,7 @@ import { IConfig } from 'modules/settings/general/types';
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { IBreadCrumbItem, IConditionsRule } from '../../common/types';
-import { MESSAGE_KINDS, METHODS } from '../constants';
+import { METHODS } from '../constants';
 import {
   IEngageEmail,
   IEngageMessage,
@@ -39,6 +38,7 @@ type Props = {
   users: IUser[];
   templates: IEmailTemplate[];
   kind: string;
+  segmentType?: string;
   isActionLoading: boolean;
   handleSubmit?: (name: string, e: React.MouseEvent) => void;
   save: (doc: IEngageMessageDoc) => Promise<any>;
@@ -65,6 +65,7 @@ type State = {
   scheduleDate: IEngageScheduleDate;
   shortMessage?: IEngageSms;
   rules: IConditionsRule[];
+  isSaved: boolean;
 };
 
 class AutoAndManualForm extends React.Component<Props, State> {
@@ -97,7 +98,8 @@ class AutoAndManualForm extends React.Component<Props, State> {
       email: message.email,
       scheduleDate: message.scheduleDate,
       shortMessage: message.shortMessage,
-      rules
+      rules,
+      isSaved: false
     };
   }
 
@@ -137,6 +139,13 @@ class AutoAndManualForm extends React.Component<Props, State> {
         attachments: email.attachments,
         templateId: email.templateId || ''
       };
+
+      if (doc.messenger) {
+        delete doc.messenger;
+      }
+      if (doc.shortMessage) {
+        delete doc.shortMessage;
+      }
     }
     if (this.state.method === METHODS.MESSENGER) {
       const messenger = this.state.messenger || ({} as IEngageMessenger);
@@ -148,6 +157,13 @@ class AutoAndManualForm extends React.Component<Props, State> {
         content: this.state.content,
         rules: this.state.rules
       };
+
+      if (doc.email) {
+        delete doc.email;
+      }
+      if (doc.shortMessage) {
+        delete doc.shortMessage;
+      }
     }
     if (this.state.method === METHODS.SMS) {
       const shortMessage = this.state.shortMessage || {
@@ -161,6 +177,13 @@ class AutoAndManualForm extends React.Component<Props, State> {
         content: shortMessage.content,
         fromIntegrationId: shortMessage.fromIntegrationId
       };
+
+      if (doc.email) {
+        delete doc.email;
+      }
+      if (doc.messenger) {
+        delete doc.messenger;
+      }
     }
 
     const response = this.props.validateDoc(type, doc);
@@ -172,69 +195,51 @@ class AutoAndManualForm extends React.Component<Props, State> {
     }
 
     if (response.status === 'ok' && response.doc) {
+      this.setState({ isSaved: true });
+
       return this.props.save(response.doc);
     }
   };
 
   renderSaveButton = () => {
-    const { isActionLoading, kind, message } = this.props;
+    const { isActionLoading } = this.props;
 
     const cancelButton = (
-      <Link to="/campaigns">
+      <Link
+        to="/campaigns"
+        onClick={() => {
+          this.setState({ isSaved: true });
+        }}
+      >
         <Button btnStyle="simple" uppercase={false} icon="times-circle">
           Cancel
         </Button>
       </Link>
     );
 
-    const saveButton = () => {
-      if (kind === MESSAGE_KINDS.AUTO) {
-        return (
-          <>
-            <Button
-              disabled={isActionLoading}
-              btnStyle="warning"
-              uppercase={false}
-              icon={isActionLoading ? undefined : 'file-alt'}
-              onClick={this.handleSubmit.bind(this, 'draft')}
-            >
-              Save & Draft
-            </Button>
-            <Button
-              disabled={isActionLoading}
-              btnStyle="success"
-              uppercase={false}
-              icon={isActionLoading ? undefined : 'check-circle'}
-              onClick={this.handleSubmit.bind(this, 'live')}
-            >
-              Send & Live
-            </Button>
-          </>
-        );
-      }
-
-      return (
-        <Button
-          disabled={isActionLoading}
-          btnStyle="success"
-          icon={isActionLoading ? undefined : 'check-circle'}
-          // set live only in create mode
-          onClick={this.handleSubmit.bind(
-            this,
-            message && message._id ? 'draft' : 'live'
-          )}
-          uppercase={false}
-        >
-          {isActionLoading && <SmallLoader />}
-          Save
-        </Button>
-      );
-    };
-
     return (
       <Button.Group>
         {cancelButton}
-        {saveButton()}
+        <>
+          <Button
+            disabled={isActionLoading}
+            btnStyle="warning"
+            uppercase={false}
+            icon={isActionLoading ? undefined : 'file-alt'}
+            onClick={this.handleSubmit.bind(this, 'draft')}
+          >
+            Save & Draft
+          </Button>
+          <Button
+            disabled={isActionLoading}
+            btnStyle="success"
+            uppercase={false}
+            icon={isActionLoading ? undefined : 'check-circle'}
+            onClick={this.handleSubmit.bind(this, 'live')}
+          >
+            Send & Live
+          </Button>
+        </>
       </Button.Group>
     );
   };
@@ -257,7 +262,8 @@ class AutoAndManualForm extends React.Component<Props, State> {
       content,
       scheduleDate,
       method,
-      shortMessage
+      shortMessage,
+      isSaved
     } = this.state;
 
     const imagePath = '/images/icons/erxes-08.svg';
@@ -297,6 +303,7 @@ class AutoAndManualForm extends React.Component<Props, State> {
           fromUserId={fromUserId}
           content={content}
           scheduleDate={scheduleDate}
+          isSaved={isSaved}
         />
       </Step>
     );
@@ -341,7 +348,7 @@ class AutoAndManualForm extends React.Component<Props, State> {
   }
 
   render() {
-    const { renderTitle, breadcrumbs } = this.props;
+    const { renderTitle, breadcrumbs, segmentType } = this.props;
 
     const { segmentIds, brandIds, title, tagIds } = this.state;
 
@@ -376,6 +383,7 @@ class AutoAndManualForm extends React.Component<Props, State> {
             <MessageTypeStep
               onChange={this.changeState}
               clearState={this.clearState}
+              segmentType={segmentType}
               segmentIds={segmentIds}
               brandIds={brandIds}
               tagIds={tagIds}

@@ -7,7 +7,11 @@ import React from 'react';
 import { graphql } from 'react-apollo';
 import List from '../components/List';
 import { mutations, queries } from '../graphql';
-import { RemoveMutationResponse, TagsQueryResponse } from '../types';
+import {
+  MergeMutationResponse,
+  RemoveMutationResponse,
+  TagsQueryResponse
+} from '../types';
 
 type Props = {
   type: string;
@@ -16,13 +20,16 @@ type Props = {
 type FinalProps = {
   tagsQuery: TagsQueryResponse;
 } & Props &
-  RemoveMutationResponse;
+  RemoveMutationResponse &
+  MergeMutationResponse;
 
 const ListContainer = (props: FinalProps) => {
-  const { tagsQuery, removeMutation, type } = props;
+  const { tagsQuery, removeMutation, type, mergeMutation } = props;
 
   const remove = tag => {
-    confirm()
+    confirm(
+      `All associated ${type}(s) with the tag will be permanently deleted (no undo). Are you sure ?`
+    )
       .then(() => {
         removeMutation({ variables: { _id: tag._id } })
           .then(() => {
@@ -32,6 +39,18 @@ const ListContainer = (props: FinalProps) => {
           .catch(e => {
             Alert.error(e.message);
           });
+      })
+      .catch(e => {
+        Alert.error(e.message);
+      });
+  };
+
+  const merge = (sourceId: string, destId: string, callback) => {
+    mergeMutation({ variables: { sourceId, destId } })
+      .then(() => {
+        callback();
+        Alert.success('You successfully merged tags');
+        tagsQuery.refetch();
       })
       .catch(e => {
         Alert.error(e.message);
@@ -67,6 +86,7 @@ const ListContainer = (props: FinalProps) => {
     loading: tagsQuery.loading,
     type,
     remove,
+    merge,
     renderButton
   };
 
@@ -99,6 +119,12 @@ export default withProps<Props>(
           refetchQueries: getRefetchQueries(type)
         })
       }
-    )
+    ),
+    graphql<Props, MergeMutationResponse>(gql(mutations.merge), {
+      name: 'mergeMutation',
+      options: ({ type }: Props) => ({
+        refetchQueries: getRefetchQueries(type)
+      })
+    })
   )(ListContainer)
 );

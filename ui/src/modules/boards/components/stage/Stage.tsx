@@ -19,7 +19,7 @@ import ModalTrigger from 'modules/common/components/ModalTrigger';
 import { __ } from 'modules/common/utils';
 import React from 'react';
 import { Draggable } from 'react-beautiful-dnd';
-import { OverlayTrigger, Popover } from 'react-bootstrap';
+import { Dropdown, OverlayTrigger, Popover } from 'react-bootstrap';
 import { AddForm } from '../../containers/portable';
 import { IItem, IOptions, IStage } from '../../types';
 import { renderAmount } from '../../utils';
@@ -38,8 +38,13 @@ type Props = {
   options: IOptions;
   archiveItems: () => void;
   archiveList: () => void;
+  sortItems: (type: string, description: string) => void;
 };
-export default class Stage extends React.Component<Props, {}> {
+
+type State = {
+  showSortOptions: boolean;
+};
+export default class Stage extends React.Component<Props, State> {
   private bodyRef;
   private overlayTrigger;
 
@@ -47,6 +52,8 @@ export default class Stage extends React.Component<Props, {}> {
     super(props);
 
     this.bodyRef = React.createRef();
+
+    this.state = { showSortOptions: false };
   }
 
   componentDidMount() {
@@ -78,10 +85,12 @@ export default class Stage extends React.Component<Props, {}> {
     }, 1000);
   }
 
-  shouldComponentUpdate(nextProps: Props) {
+  shouldComponentUpdate(nextProps: Props, nextState: State) {
     const { stage, index, length, items, loadingItems } = this.props;
+    const { showSortOptions } = this.state;
 
     if (
+      showSortOptions !== nextState.showSortOptions ||
       index !== nextProps.index ||
       loadingItems() !== nextProps.loadingItems() ||
       length !== nextProps.length ||
@@ -105,7 +114,7 @@ export default class Stage extends React.Component<Props, {}> {
   };
 
   renderAddItemTrigger() {
-    const { options, stage, onAddItem, items } = this.props;
+    const { options, stage, onAddItem } = this.props;
     const addText = options.texts.addText;
 
     const trigger = (
@@ -122,7 +131,7 @@ export default class Stage extends React.Component<Props, {}> {
       showSelect: false,
       callback: (item: IItem) => onAddItem(stage._id, item),
       stageId: stage._id,
-      aboveItemId: items.length > 0 ? items[items.length - 1]._id : ''
+      aboveItemId: ''
     };
 
     const content = props => <AddForm {...props} {...formProps} />;
@@ -169,8 +178,96 @@ export default class Stage extends React.Component<Props, {}> {
     );
   }
 
+  renderSortOptions() {
+    const { showSortOptions } = this.state;
+
+    if (!showSortOptions) {
+      return null;
+    }
+
+    const sortItems = (type: string, description: string) => {
+      this.props.sortItems(type, description);
+      this.onClosePopover();
+    };
+
+    return (
+      <>
+        <li onClick={this.toggleSortOptions}>Back</li>
+
+        <Dropdown.Divider />
+
+        <li
+          onClick={sortItems.bind(
+            this,
+            'created-desc',
+            'date created (newest first)'
+          )}
+        >
+          Date created (Newest first)
+        </li>
+        <li
+          onClick={sortItems.bind(
+            this,
+            'created-asc',
+            'date created (oldest first)'
+          )}
+        >
+          Date created (Oldest first)
+        </li>
+        <li
+          onClick={sortItems.bind(
+            this,
+            'modified-desc',
+            'date modified (newest first)'
+          )}
+        >
+          Date modified (Newest first)
+        </li>
+        <li
+          onClick={sortItems.bind(
+            this,
+            'modified-asc',
+            'date modified (oldest first)'
+          )}
+        >
+          Date modified (Oldest first)
+        </li>
+        <li
+          onClick={sortItems.bind(
+            this,
+            'close-asc',
+            'date assigned (Earliest first)'
+          )}
+        >
+          Date assigned (Earliest first)
+        </li>
+        <li
+          onClick={sortItems.bind(
+            this,
+            'close-desc',
+            'date assigned (Latest first)'
+          )}
+        >
+          Date assigned (Latest first)
+        </li>
+        <li
+          onClick={sortItems.bind(this, 'alphabetically-asc', 'alphabetically')}
+        >
+          Alphabetically
+        </li>
+      </>
+    );
+  }
+
+  toggleSortOptions = () => {
+    const { showSortOptions } = this.state;
+
+    this.setState({ showSortOptions: !showSortOptions });
+  };
+
   renderPopover() {
     const { stage } = this.props;
+    const { showSortOptions } = this.state;
 
     const archiveList = () => {
       this.props.archiveList();
@@ -190,15 +287,25 @@ export default class Stage extends React.Component<Props, {}> {
     return (
       <Popover id="stage-popover">
         <ActionList>
-          <li onClick={archiveItems} key="archive-items">
-            {__('Archive All Cards in This List')}
-          </li>
-          <li onClick={archiveList} key="archive-list">
-            {__('Archive This List')}
-          </li>
-          <li onClick={removeStage} key="remove-stage">
-            {__('Remove stage')}
-          </li>
+          {showSortOptions ? (
+            this.renderSortOptions()
+          ) : (
+            <>
+              <li onClick={archiveItems} key="archive-items">
+                {__('Archive All Cards in This List')}
+              </li>
+              <li onClick={archiveList} key="archive-list">
+                {__('Archive This List')}
+              </li>
+              <li onClick={removeStage} key="remove-stage">
+                {__('Remove stage')}
+              </li>
+
+              <Dropdown.Divider />
+
+              <li onClick={this.toggleSortOptions}>{__('Sort By')}</li>
+            </>
+          )}
         </ActionList>
       </Popover>
     );

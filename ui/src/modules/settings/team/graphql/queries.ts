@@ -31,6 +31,7 @@ const userConversations = `
         _id
         firstName
         lastName
+        middleName
         primaryEmail
         primaryPhone
         }

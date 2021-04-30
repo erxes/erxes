@@ -20,7 +20,7 @@ import {
   Users
 } from '../db/models';
 import { KIND_CHOICES } from '../db/models/definitions/constants';
-import memoryStorage from '../inmemoryStorage';
+
 import messageBroker from '../messageBroker';
 import './setup.ts';
 
@@ -81,14 +81,10 @@ describe('mutations', () => {
     await Customers.deleteMany({});
     await EmailDeliveries.deleteMany({});
     await Integrations.deleteMany({});
-
-    memoryStorage().removeKey(`erxes_brand_${_brand.code}`);
-    memoryStorage().removeKey(`erxes_integration_messenger_${_brand._id}`);
-    memoryStorage().removeKey(`erxes_integration_lead_${_brand._id}`);
   });
 
   test('Create messenger integration', async () => {
-    await Integrations.remove({});
+    await Integrations.deleteMany({});
 
     const args = {
       name: 'Integration Name',
@@ -158,25 +154,6 @@ describe('mutations', () => {
     expect(integration.name).toBe(args.name);
     expect(integration.brandId).toBe(args.brandId);
     expect(integration.languageCode).toBe(args.languageCode);
-
-    // update messenger integration cache
-    const storageKey = `erxes_integration_messenger_${_brand._id}`;
-
-    let cached = await memoryStorage().get(storageKey);
-
-    expect(cached).toBeUndefined();
-
-    memoryStorage().set(storageKey, JSON.stringify(_integration));
-
-    await graphqlRequest(mutation, 'integrationsEditMessengerIntegration', {
-      _id: _integration._id,
-      brandId: _brand._id,
-      name: 'updated integration name'
-    });
-
-    cached = JSON.parse((await memoryStorage().get(storageKey)) || '{}') || {};
-
-    expect(cached.name).toBe('updated integration name');
   });
 
   test('Save messenger integration appearance data', async () => {
@@ -595,7 +572,7 @@ describe('mutations', () => {
       from: 'from',
       kind: 'nylas-gmail',
       body: 'body',
-      customerId: '123'
+      customerId: customer._id
     };
 
     const spy = jest.spyOn(dataSources.IntegrationsAPI, 'sendEmail');
@@ -613,17 +590,33 @@ describe('mutations', () => {
 
     spy.mockImplementation(() => Promise.resolve());
 
-    await graphqlRequest(mutation, 'integrationSendMail', args, {
-      dataSources
-    });
+    try {
+      await graphqlRequest(mutation, 'integrationSendMail', args, {
+        dataSources
+      });
 
-    const emailDelivery = await EmailDeliveries.findOne({
-      customerId: customer._id
-    });
+      // try with fake customer to improve coverage
+      await graphqlRequest(
+        mutation,
+        'integrationSendMail',
+        { ...args, customerId: 'fakeId' },
+        {
+          dataSources
+        }
+      );
 
-    if (emailDelivery) {
-      expect(JSON.stringify(emailDelivery.to)).toEqual(JSON.stringify(args.to));
-      expect(customer._id).toEqual(emailDelivery.customerId);
+      const emailDelivery = await EmailDeliveries.findOne({
+        customerId: customer._id
+      });
+
+      if (emailDelivery) {
+        expect(JSON.stringify(emailDelivery.to)).toEqual(
+          JSON.stringify(args.to)
+        );
+        expect(customer._id).toEqual(emailDelivery.customerId);
+      }
+    } catch (e) {
+      expect(e[0].message).toBe('Duplicated email');
     }
 
     spy.mockRestore();
@@ -913,6 +906,17 @@ describe('mutations', () => {
     );
 
     expect(response.status).toBe('ok');
+
+    // intentionally throw error
+    spy.mockImplementation(() => Promise.reject({ status: 'error' }));
+
+    try {
+      await graphqlRequest(mutation, 'integrationsSendSms', args, {
+        dataSources
+      });
+    } catch (e) {
+      expect(e).toBeDefined();
+    }
 
     spy.mockRestore();
   });

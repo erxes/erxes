@@ -1,148 +1,39 @@
 import * as dotenv from 'dotenv';
 import * as Random from 'meteor-random';
+import {
+  ACTIVITY_CONTENT_TYPES,
+  ACTIVITY_LOG_ACTIONS,
+  CAMPAIGN_KINDS
+} from './constants';
 import { debugEngages, debugError } from './debuggers';
-import { Logs, SmsRequests, Stats } from './models';
-import { getTelnyxInfo } from './telnyxUtils';
+import messageBroker from './messageBroker';
+import { Logs, Stats } from './models';
+import {
+  getTelnyxInfo,
+  handleMessageCallback,
+  prepareMessage
+} from './telnyxUtils';
+import { ICustomer, IEmailParams, ISmsParams } from './types';
 import {
   cleanIgnoredCustomers,
   createTransporter,
+  getConfig,
   getConfigs,
   getEnv,
-  ICustomer
+  setCampaignCount
 } from './utils';
 
 dotenv.config();
 
-interface IShortMessage {
-  content: string;
-  from?: string;
-  fromIntegrationId: string;
-}
-
-interface IIntegration {
-  _id: string;
-  kind: string;
-  erxesApiId: string;
-  telnyxProfileId?: string;
-  telnyxPhoneNumber: string;
-}
-
-interface IMessageParams {
-  shortMessage: IShortMessage;
-  to: string;
-  integrations: IIntegration[];
-}
-
-interface ITelnyxMessageParams {
-  from: string;
-  to: string;
-  text: string;
-  messaging_profile_id?: string;
-  webhook_url?: string;
-  webhook_failover_url?: string;
-}
-
-interface ICallbackParams {
-  engageMessageId?: string;
-  msg: ITelnyxMessageParams;
-}
-
-// alphanumeric sender id only works for countries outside north america
-const isNumberNorthAmerican = (phoneNumber: string) => {
-  return phoneNumber.substring(0, 2) === '+1';
-};
-
-// prepares sms object matching telnyx requirements
-const prepareMessage = async ({
-  shortMessage,
-  to,
-  integrations
-}: IMessageParams): Promise<ITelnyxMessageParams> => {
-  const MAIN_API_DOMAIN = getEnv({ name: 'MAIN_API_DOMAIN' });
-  const { content, from, fromIntegrationId } = shortMessage;
-
-  const integration = integrations.find(
-    i => i.erxesApiId === fromIntegrationId
-  );
-
-  if (!integration.telnyxPhoneNumber) {
-    throw new Error('Telnyx phone is not configured');
-  }
-
-  const msg = {
-    from: integration.telnyxPhoneNumber,
-    to,
-    text: content,
-    messaging_profile_id: integration.telnyxProfileId || '',
-    webhook_url: `${MAIN_API_DOMAIN}/telnyx/webhook`,
-    webhook_failover_url: `${MAIN_API_DOMAIN}/telnyx/webhook-failover`
-  };
-
-  // to use alphanumeric sender id, messaging profile id must be set
-  if (msg.messaging_profile_id && from) {
-    msg.from = from;
-  }
-
-  if (isNumberNorthAmerican(msg.to)) {
-    msg.from = integration.telnyxPhoneNumber;
-  }
-
-  return msg;
-};
-
-const handleMessageCallback = async (
-  err: any,
-  res: any,
-  data: ICallbackParams
-) => {
-  const { engageMessageId, msg } = data;
-
-  const request = await SmsRequests.createRequest({
+export const start = async (data: IEmailParams) => {
+  const {
+    fromEmail,
+    email,
     engageMessageId,
-    to: msg.to,
-    requestData: JSON.stringify(msg)
-  });
-
-  if (err) {
-    if (engageMessageId) {
-      await Logs.createLog(
-        engageMessageId,
-        'failure',
-        `${err.message} "${msg.to}"`
-      );
-    }
-
-    await SmsRequests.updateRequest(request._id, {
-      errorMessages: [err.message]
-    });
-  }
-
-  if (res && res.data && res.data.to) {
-    const receiver = res.data.to.find(item => item.phone_number === msg.to);
-
-    if (engageMessageId) {
-      await Logs.createLog(
-        engageMessageId,
-        'success',
-        `Message successfully sent to "${msg.to}"`
-      );
-    }
-
-    await SmsRequests.updateRequest(request._id, {
-      status: receiver && receiver.status,
-      responseData: JSON.stringify(res.data),
-      telnyxId: res.data.id
-    });
-  }
-};
-
-export const start = async (data: {
-  fromEmail: string;
-  email: any;
-  engageMessageId: string;
-  customers: ICustomer[];
-}) => {
-  const { fromEmail, email, engageMessageId, customers } = data;
+    customers,
+    createdBy,
+    title
+  } = data;
   const { content, subject, attachments, sender, replyTo } = email;
   const configs = await getConfigs();
 
@@ -202,18 +93,21 @@ export const start = async (data: {
         }
       });
       const msg = `Sent email to: ${customer.primaryEmail}`;
+
       debugEngages(msg);
+
       await Logs.createLog(engageMessageId, 'success', msg);
+
+      await Stats.updateOne({ engageMessageId }, { $inc: { total: 1 } });
     } catch (e) {
       debugError(e.message);
+
       await Logs.createLog(
         engageMessageId,
         'failure',
         `Error occurred while sending email to ${customer.primaryEmail}: ${e.message}`
       );
     }
-
-    await Stats.updateOne({ engageMessageId }, { $inc: { total: 1 } });
   };
 
   const unverifiedEmailsLimit = parseInt(
@@ -228,20 +122,22 @@ export const start = async (data: {
     await Logs.createLog(
       engageMessageId,
       'regular',
-      `Unverified emails limit exceeced ${unverifiedEmailsLimit}. Customers who have unverified emails will be eliminated.`
+      `Unverified emails limit exceeded ${unverifiedEmailsLimit}. Customers who have unverified emails will be eliminated.`
     );
 
-    for (const customer of customers) {
-      if (customer.emailValidationStatus === 'valid') {
-        filteredCustomers.push(customer);
-
-        emails.push(customer.primaryEmail);
-      }
-    }
+    filteredCustomers = customers.map(c => c.emailValidationStatus === 'valid');
   } else {
     filteredCustomers = customers;
-    emails = customers.map(customer => customer.primaryEmail);
   }
+
+  // cleans customers who do not open or click emails often
+  const cleanCustomers = await cleanIgnoredCustomers({
+    customers: filteredCustomers,
+    engageMessageId
+  });
+
+  // finalized email list
+  emails = cleanCustomers.map(customer => customer.primaryEmail);
 
   if (emails.length > 0) {
     await Logs.createLog(
@@ -251,10 +147,11 @@ export const start = async (data: {
     );
   }
 
-  // cleans customers who do not open or click emails often
-  const cleanCustomers = await cleanIgnoredCustomers({
-    customers: filteredCustomers,
-    engageMessageId
+  // set finalized count of the campaign
+  await setCampaignCount({
+    _id: engageMessageId,
+    totalCustomersCount: filteredCustomers.length,
+    validCustomersCount: cleanCustomers.length
   });
 
   for (const customer of cleanCustomers) {
@@ -263,32 +160,86 @@ export const start = async (data: {
     });
 
     await sendEmail(customer);
-  }
 
-  return true;
+    try {
+      await messageBroker().sendMessage('putActivityLog', {
+        action: ACTIVITY_LOG_ACTIONS.SEND_EMAIL_CAMPAIGN,
+        data: {
+          action: 'send',
+          contentType: 'campaign',
+          contentId: customer._id,
+          content: {
+            campaignId: engageMessageId,
+            title,
+            to: customer.primaryEmail,
+            type: ACTIVITY_CONTENT_TYPES.EMAIL
+          },
+          createdBy
+        }
+      });
+    } catch (e) {
+      await Logs.createLog(
+        engageMessageId,
+        'regular',
+        `Error occured while creating activity log "${customer.primaryEmail}"`
+      );
+    }
+  } // end for loop
 };
 
 // sends bulk sms via engage message
-export const sendBulkSms = async (data: {
-  engageMessageId: string;
-  shortMessage: IShortMessage;
-  customers: ICustomer[];
-}) => {
-  const { customers, engageMessageId, shortMessage } = data;
+export const sendBulkSms = async (data: ISmsParams) => {
+  const {
+    customers,
+    engageMessageId,
+    shortMessage,
+    createdBy,
+    title,
+    kind
+  } = data;
 
   const telnyxInfo = await getTelnyxInfo();
+  const smsLimit = await getConfig('smsLimit', 0);
 
-  const filteredCustomers = customers.filter(
+  const validCustomers = customers.filter(
     c => c.primaryPhone && c.phoneValidationStatus === 'valid'
   );
+
+  if (kind === CAMPAIGN_KINDS.AUTO) {
+    if (!smsLimit) {
+      await Logs.createLog(
+        engageMessageId,
+        'regular',
+        `Auto campaign SMS limit is not set: "${smsLimit}"`
+      );
+
+      return;
+    }
+
+    if (smsLimit && validCustomers.length > smsLimit) {
+      await Logs.createLog(
+        engageMessageId,
+        'regular',
+        `Chosen "${validCustomers.length}" customers exceeded sms limit "${smsLimit}". Campaign will not run.`
+      );
+
+      return;
+    }
+  }
+
+  await setCampaignCount({
+    _id: engageMessageId,
+    totalCustomersCount: customers.length,
+    validCustomersCount: validCustomers.length
+  });
 
   await Logs.createLog(
     engageMessageId,
     'regular',
-    `Preparing to send SMS to "${filteredCustomers.length}" customers`
+    `Preparing to send SMS to "${validCustomers.length}" customers`
   );
 
-  for (const customer of filteredCustomers) {
+  for (const customer of validCustomers) {
     await new Promise(resolve => {
       setTimeout(resolve, 1000);
     });
@@ -311,6 +262,30 @@ export const sendBulkSms = async (data: {
         engageMessageId,
         'failure',
         `${e.message} while sending to "${msg.to}"`
+      );
+    }
+
+    try {
+      await messageBroker().sendMessage('putActivityLog', {
+        action: ACTIVITY_LOG_ACTIONS.SEND_SMS_CAMPAIGN,
+        data: {
+          action: 'send',
+          contentType: 'campaign',
+          contentId: customer._id,
+          content: {
+            campaignId: engageMessageId,
+            title,
+            to: customer.primaryPhone,
+            type: ACTIVITY_CONTENT_TYPES.SMS
+          },
+          createdBy
+        }
+      });
+    } catch (e) {
+      await Logs.createLog(
+        engageMessageId,
+        'regular',
+        `Error occured while creating activity log "${customer.primaryPhone}"`
       );
     }
   } // end customers loop

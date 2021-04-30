@@ -3,6 +3,7 @@ import {
   Conversations,
   Customers,
   EmailDeliveries,
+  EngageMessages,
   Integrations,
   Users
 } from '../../../db/models';
@@ -29,7 +30,9 @@ export const receiveRpcMessage = async msg => {
   const doc = JSON.parse(payload || '{}');
 
   if (action === 'get-create-update-customer') {
-    const integration = await Integrations.findOne({ _id: doc.integrationId });
+    const integration = await Integrations.findOne({
+      _id: doc.integrationId
+    });
 
     if (!integration) {
       return sendError(`Integration not found: ${doc.integrationId}`);
@@ -196,5 +199,21 @@ export const receiveEngagesNotification = async msg => {
       data.emailDeliveryId,
       data.status
     );
+  }
+
+  if (action === 'setCampaignCount') {
+    const { campaignId, totalCustomersCount, validCustomersCount } = data;
+
+    const campaign = await EngageMessages.findOne({ _id: campaignId });
+
+    if (campaign) {
+      await EngageMessages.updateOne(
+        { _id: campaignId },
+        {
+          $set: { totalCustomersCount, validCustomersCount },
+          $inc: { runCount: 1 }
+        }
+      );
+    }
   }
 };

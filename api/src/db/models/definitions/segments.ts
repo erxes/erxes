@@ -6,8 +6,11 @@ export const CONTENT_TYPES = {
   LEAD: 'lead',
   VISITOR: 'visitor',
   COMPANY: 'company',
+  DEAL: 'deal',
+  TASK: 'task',
+  TICKET: 'ticket',
 
-  ALL: ['customer', 'lead', 'visitor', 'company']
+  ALL: ['customer', 'lead', 'visitor', 'company', 'deal', 'task', 'ticket']
 };
 
 export interface IAttributeFilter {
@@ -32,6 +35,7 @@ export interface ICondition {
 export interface IConditionDocument extends ICondition, Document {}
 
 export interface ISegment {
+  _id?: string;
   contentType: string;
   name: string;
   description?: string;
@@ -39,6 +43,9 @@ export interface ISegment {
   color: string;
   conditions: ICondition[];
   scopeBrandIds?: string[];
+
+  boardId?: string;
+  pipelineId?: string;
 }
 
 export interface ISegmentDocument extends ISegment, Document {
@@ -106,6 +113,9 @@ export const segmentSchema = schemaWrapper(
     description: field({ type: String, optional: true }),
     subOf: field({ type: String, optional: true }),
     color: field({ type: String }),
-    conditions: field({ type: [conditionSchema] })
+    conditions: field({ type: [conditionSchema] }),
+
+    boardId: field({ type: String }),
+    pipelineId: field({ type: String })
   })
 );

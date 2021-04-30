@@ -24,6 +24,7 @@ import {
   EmailTemplates,
   EngageMessages,
   Fields,
+  FieldsGroups,
   Forms,
   ImportHistory,
   Integrations,
@@ -149,6 +150,8 @@ const main = async () => {
     console.log(JSON.stringify(cypressSettings, null, 2));
     console.log('writing to ' + jsonPath);
   });
+
+  await FieldsGroups.createSystemGroupsFields();
 
   const userDoc = {
     createdAt: faker.date.recent(),

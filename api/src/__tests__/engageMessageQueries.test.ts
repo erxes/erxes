@@ -11,6 +11,7 @@ import { Brands, EngageMessages, Segments, Tags, Users } from '../db/models';
 
 import { EngagesAPI } from '../data/dataSources';
 import './setup.ts';
+import { set } from '../inmemoryStorage';
 
 describe('engageQueries', () => {
   const qryEngageMessages = `
@@ -248,7 +249,7 @@ describe('engageQueries', () => {
       }
     `;
 
-    let response = await graphqlRequest(
+    const response = await graphqlRequest(
       qry,
       'engageMessageDetail',
       { _id: engageMessage._id },
@@ -260,17 +261,28 @@ describe('engageQueries', () => {
 
     const brand = await brandFactory();
     const messenger = { brandId: brand._id, content: 'Content' };
-    const engageMessageWithBrand = await engageMessageFactory({ messenger });
+    const engageMessageWithBrand = await engageMessageFactory({
+      messenger,
+      brandIds: [brand._id],
+      userId: user._id
+    });
 
-    response = await graphqlRequest(
+    set('erxes_brands', JSON.stringify(await Brands.find()));
+    set('erxes_users', JSON.stringify(await Users.find()));
+
+    const responseFromCache = await graphqlRequest(
       qry,
       'engageMessageDetail',
       { _id: engageMessageWithBrand._id },
       { dataSources }
     );
 
-    expect(response._id).toBe(engageMessageWithBrand._id);
-    expect(response.brand._id).toBe(brand._id);
+    console.log('responseFromCache: ', responseFromCache);
+
+    expect(responseFromCache._id).toBe(engageMessageWithBrand._id);
+    expect(responseFromCache.brand._id).toBe(brand._id);
+    expect(responseFromCache.brands[0]._id).toBe(brand._id);
+    expect(responseFromCache.fromUser._id).toBe(user._id);
   });
 
   test('Count engage messsage by kind', async () => {

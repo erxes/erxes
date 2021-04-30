@@ -6,6 +6,7 @@ import {
   userFactory
 } from '../db/factories';
 import { Conversations, EngageMessages, Tags, Users } from '../db/models';
+import { IConversationDocument } from '../db/models/definitions/conversations';
 
 import './setup.ts';
 
@@ -150,5 +151,44 @@ describe('Test tags mutations', () => {
     expect(
       (await Conversations.getConversation(conversation._id)).tagIds
     ).toContain(args.tagIds[0]);
+  });
+
+  test('Tag merge', async () => {
+    const t1 = await tagsFactory({ type: 'conversation' });
+    const t2 = await tagsFactory({ type: 'conversation' });
+    const t3 = await tagsFactory({ type: 'conversation' });
+
+    let conv: IConversationDocument | null = await conversationFactory({});
+
+    await Tags.tagObject({
+      type: 'conversation',
+      targetIds: [conv._id],
+      tagIds: [t1._id, t3._id]
+    });
+
+    const mutation = `
+      mutation tagsMerge(
+        $sourceId: String!
+        $destId: String!
+      ) {
+         tagsMerge(
+         sourceId: $sourceId
+         destId: $destId
+        ) {
+          _id
+        }
+      }
+    `;
+
+    await graphqlRequest(
+      mutation,
+      'tagsMerge',
+      { sourceId: t1._id, destId: t2._id },
+      context
+    );
+
+    conv = await Conversations.getConversation(conv._id);
+
+    expect(conv.tagIds).toContain(t2._id);
   });
 });

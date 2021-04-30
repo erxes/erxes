@@ -1,13 +1,7 @@
-import {
-  Brands,
-  EngageMessages,
-  Integrations,
-  Segments,
-  Tags,
-  Users
-} from '../../db/models';
+import { EngageMessages, Integrations, Segments, Tags } from '../../db/models';
 import { IEngageMessageDocument } from '../../db/models/definitions/engages';
 import { IContext } from '../types';
+import { getDocument, getDocumentList } from './mutations/cacheUtils';
 
 export const deliveryReport = {
   engage(root) {
@@ -24,7 +18,7 @@ export const message = {
   },
 
   brands(engageMessage: IEngageMessageDocument) {
-    return Brands.find({ _id: { $in: engageMessage.brandIds } });
+    return getDocumentList('brands', { _id: { $in: engageMessage.brandIds } });
   },
 
   customerTags(engageMessage: IEngageMessageDocument) {
@@ -32,7 +26,7 @@ export const message = {
   },
 
   fromUser(engageMessage: IEngageMessageDocument) {
-    return Users.findOne({ _id: engageMessage.fromUserId });
+    return getDocument('users', { _id: engageMessage.fromUserId });
   },
 
   // common tags
@@ -44,7 +38,7 @@ export const message = {
     const { messenger } = engageMessage;
 
     if (messenger && messenger.brandId) {
-      return Brands.findOne({ _id: messenger.brandId });
+      return getDocument('brands', { _id: messenger.brandId });
     }
   },
 
@@ -77,16 +71,16 @@ export const message = {
       engageMessage.shortMessage &&
       engageMessage.shortMessage.fromIntegrationId
     ) {
-      return Integrations.getIntegration(
-        engageMessage.shortMessage.fromIntegrationId
-      );
+      return Integrations.getIntegration({
+        _id: engageMessage.shortMessage.fromIntegrationId
+      });
     }
 
     return null;
   },
 
   async createdUser(engageMessage: IEngageMessageDocument): Promise<string> {
-    const user = await Users.findOne({ _id: engageMessage.createdBy });
+    const user = await getDocument('users', { _id: engageMessage.createdBy });
 
     if (!user) {
       return '';

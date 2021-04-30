@@ -43,8 +43,11 @@ export interface IConversation {
   callProAudio?: string;
   videoCallData?: IVideoCallData;
 
-  productBoardLink?: string;
   isFacebookTaggedMessage?: boolean;
+
+  customFieldsData?: {
+    [key: string]: any;
+  };
 }
 
 interface IEngageDataRules {
@@ -243,16 +246,6 @@ export type ChangeStatusMutationResponse = {
   }) => Promise<any>;
 };
 
-export type CreateProductBoardMutationVariables = {
-  _id: string;
-};
-
-export type CreateProductBoardMutationResponse = {
-  createProductBoardMutation: (doc: {
-    variables: CreateProductBoardMutationVariables;
-  }) => Promise<any>;
-};
-
 export type ResolveAllMutationVariables = {
   channelId: string;
   status: string;
@@ -339,5 +332,16 @@ export type ResolveFacebookCommentMutationVariables = {
 export type ResolveFacebookCommentResponse = {
   resolveMutation: (doc: {
     variables: ResolveFacebookCommentMutationVariables;
+  }) => Promise<any>;
+};
+
+export type EditCustomFieldsMutationVariables = {
+  _id: string;
+  customFieldsData: any;
+};
+
+export type EditMutationResponse = {
+  editCustomFields: (params: {
+    variables: EditCustomFieldsMutationVariables;
   }) => Promise<any>;
 };

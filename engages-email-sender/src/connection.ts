@@ -9,10 +9,11 @@ mongoose.Promise = global.Promise;
 
 const MONGO_URL = getEnv({ name: 'MONGO_URL' });
 
-export const connectionOptions = {
+export const connectionOptions: mongoose.ConnectionOptions = {
   useNewUrlParser: true,
   useCreateIndex: true,
   autoReconnect: true,
+  family: 4,
   useFindAndModify: false
 };
 

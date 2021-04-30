@@ -2,7 +2,8 @@ export const CONVERSATION_STATUSES = {
   NEW: 'new',
   OPEN: 'open',
   CLOSED: 'closed',
-  ALL: ['new', 'open', 'closed']
+  ENGAGE_VISITOR_AUTO: 'engageVisitorAuto',
+  ALL: ['new', 'open', 'closed', 'engageVisitorAuto']
 };
 
 export const CONVERSATION_OPERATOR_STATUS = {
@@ -172,6 +173,13 @@ export const ACTIVITY_CONTENT_TYPES = {
   PRODUCT: 'product',
   GROWTH_HACK: 'growthHack',
   SMS: 'sms',
+  CAMPAIGN: 'campaign',
+  INTERNAL_NOTE: 'internal_note',
+  CHECKLIST: 'checklist',
+  CONVERSATION: 'conversation',
+  SEGMENT: 'segment',
+  EMAIL: 'email',
+  BRAND: 'brand',
 
   ALL: [
     'customer',
@@ -182,7 +190,14 @@ export const ACTIVITY_CONTENT_TYPES = {
     'task',
     'product',
     'growthHack',
-    'sms'
+    'sms',
+    'campaign',
+    'internal_note',
+    'checklist',
+    'conversation',
+    'segment',
+    'email',
+    'brand'
   ]
 };
 
@@ -190,36 +205,6 @@ export const PUBLISH_STATUSES = {
   DRAFT: 'draft',
   PUBLISH: 'publish',
   ALL: ['draft', 'publish']
-};
-
-export const ACTIVITY_TYPES = {
-  CUSTOMER: 'customer',
-  COMPANY: 'company',
-  INTERNAL_NOTE: 'internal_note',
-  CHECKLIST: 'checklist',
-  CONVERSATION: 'conversation',
-  SEGMENT: 'segment',
-  DEAL: 'deal',
-  EMAIL: 'email',
-  TICKET: 'ticket',
-  TASK: 'task',
-  BRAND: 'brand',
-  GROWTH_HACK: 'growthHack',
-
-  ALL: [
-    'customer',
-    'company',
-    'internal_note',
-    'checklist',
-    'conversation',
-    'segment',
-    'deal',
-    'email',
-    'ticket',
-    'task',
-    'brand',
-    'growthHack'
-  ]
 };
 
 export const ACTIVITY_ACTIONS = {
@@ -281,8 +266,28 @@ export const HACK_SCORING_TYPES = {
 export const FIELDS_GROUPS_CONTENT_TYPES = {
   CUSTOMER: 'customer',
   COMPANY: 'company',
+  CONVERSATION: 'conversation',
+  DEVICE: 'device',
   PRODUCT: 'product',
-  ALL: ['customer', 'company', 'product']
+  TICKET: 'ticket',
+  TASK: 'task',
+  DEAL: 'deal',
+  VISITOR: 'visitor',
+  LEAD: 'lead',
+  FORM: 'form',
+  ALL: [
+    'customer',
+    'company',
+    'conversation',
+    'device',
+    'product',
+    'ticket',
+    'task',
+    'deal',
+    'visitor',
+    'lead',
+    'form'
+  ]
 };
 
 export const CUSTOMER_LIFECYCLE_STATE_TYPES = [
@@ -447,6 +452,11 @@ export const BOARD_STATUSES = {
   ARCHIVED: 'archived',
   ALL: ['active', 'archived']
 };
+
+export const BOARD_STATUSES_OPTIONS = [
+  { label: 'Active', value: 'active' },
+  { label: 'Archived', value: 'archived' }
+];
 
 export const TIME_TRACK_TYPES = {
   STARTED: 'started',
@@ -753,13 +763,43 @@ export const WEBHOOK_ACTIONS = [
   },
   { label: 'User messages', action: 'create', type: 'userMessages' },
   { label: 'Customer messages', action: 'create', type: 'customerMessages' },
-  { label: 'Engage messages', action: 'create', type: 'engageMessages' },
+  {
+    label: 'Customer create conversation',
+    action: 'create',
+    type: 'conversation'
+  },
+  {
+    label: 'Campaign created',
+    action: 'create',
+    type: 'engageMessages'
+  },
   {
     label: 'Form submission received',
     action: 'create',
     type: 'popupSubmitted'
   }
 ];
+
+export const WEBHOOK_TYPES = {
+  CUSTOMER: 'customer',
+  COMPANY: 'company',
+  CONVERSATION: 'conversation',
+  USER_MESSAGES: 'userMessages',
+  CUSTOMER_MESSAGES: 'customerMessages',
+  FORM_SUBMITTED: 'popupSubmitted',
+  KNOWLEDGEBASE: 'knowledgeBaseArticle',
+  CAMPAIGN: 'engageMessages',
+  ALL: [
+    'customer',
+    'company',
+    'conversation',
+    'userMessages',
+    'customerMessages',
+    'popupSubmitted',
+    'knowledgeBaseArticle',
+    'engageMessages'
+  ]
+};
 
 export const WEBHOOK_STATUS = {
   AVAILABLE: 'available',

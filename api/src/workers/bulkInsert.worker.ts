@@ -1,6 +1,5 @@
 import * as mongoose from 'mongoose';
 import {
-  ActivityLogs,
   Boards,
   Companies,
   Conformities,
@@ -28,6 +27,7 @@ import {
   generatePronoun,
   IMPORT_CONTENT_TYPE
 } from './utils';
+import * as _ from 'underscore';
 
 // tslint:disable-next-line
 const { parentPort, workerData } = require('worker_threads');
@@ -86,9 +86,37 @@ const create = async ({
 
   const docIdsByPrimaryEmail = {};
   const docIdsByPrimaryPhone = {};
+  const docIdsByPrimaryName = {};
   const docIdsByCode = {};
 
-  const generateUpdateDocs = (_id, doc) => {
+  const customFieldsByPrimaryEmail = {};
+  const customFieldsByPrimaryPhone = {};
+  const customFieldsByPrimaryName = {};
+  const customFieldsByCode = {};
+
+  const generateUpdateDocs = async (_id, doc, prevCustomFieldsData) => {
+    let customFieldsData: Array<{ field: string; value: string }> = [];
+
+    if (
+      doc.customFieldsData &&
+      doc.customFieldsData.length > 0 &&
+      prevCustomFieldsData.length > 0
+    ) {
+      doc.customFieldsData.map(data => {
+        customFieldsData.push({ field: data.field, value: data.value });
+      });
+
+      prevCustomFieldsData.map(data => {
+        customFieldsData.push({ field: data.field, value: data.value });
+      });
+
+      customFieldsData = _.uniq(customFieldsData, 'field');
+
+      doc.customFieldsData = await Fields.prepareCustomFieldsData(
+        customFieldsData
+      );
+    }
+
     updateDocs.push({
       updateOne: {
         filter: { _id },
@@ -102,10 +130,20 @@ const create = async ({
   const prepareDocs = async (body, type, collectionDocs) => {
     debugWorkers(`prepareDocs called`);
 
-    const response = await fetchElk('search', type, {
-      query: { bool: { should: body } },
-      size: 10000,
-      _source: ['_id', 'primaryEmail', 'primaryPhone', 'primaryName', 'code']
+    const response = await fetchElk({
+      action: 'search',
+      index: type,
+      body: {
+        query: { bool: { should: body } },
+        _source: [
+          '_id',
+          'primaryEmail',
+          'primaryPhone',
+          'primaryName',
+          'code',
+          'customFieldsData'
+        ]
+      }
     });
 
     const collections = response.hits.hits || [];
@@ -115,43 +153,66 @@ const create = async ({
 
       if (doc.primaryEmail) {
         docIdsByPrimaryEmail[doc.primaryEmail] = collection._id;
+        customFieldsByPrimaryEmail[doc.primaryEmail] =
+          doc.customFieldsData || [];
+
         continue;
       }
 
       if (doc.primaryPhone) {
         docIdsByPrimaryPhone[doc.primaryPhone] = collection._id;
+        customFieldsByPrimaryPhone[doc.docIdsByPrimaryPhone] =
+          doc.customFieldsData || [];
         continue;
       }
 
       if (doc.primaryName) {
-        docIdsByCode[doc.primaryName] = collection._id;
+        docIdsByPrimaryName[doc.primaryName] = collection._id;
+        customFieldsByPrimaryName[doc.primaryName] = doc.customFieldsData || [];
         continue;
       }
 
       if (doc.code) {
         docIdsByCode[doc.code] = collection._id;
+        customFieldsByCode[doc.code] = doc.customFieldsData || [];
         continue;
       }
     }
 
     for (const doc of collectionDocs) {
       if (doc.primaryEmail && docIdsByPrimaryEmail[doc.primaryEmail]) {
-        generateUpdateDocs(docIdsByPrimaryEmail[doc.primaryEmail], doc);
+        await generateUpdateDocs(
+          docIdsByPrimaryEmail[doc.primaryEmail],
+          doc,
+          customFieldsByPrimaryEmail[doc.primaryEmail]
+        );
         continue;
       }
 
       if (doc.primaryPhone && docIdsByPrimaryPhone[doc.primaryPhone]) {
-        generateUpdateDocs(docIdsByPrimaryPhone[doc.primaryPhone], doc);
+        await generateUpdateDocs(
+          docIdsByPrimaryPhone[doc.primaryPhone],
+          doc,
+          customFieldsByPrimaryPhone[doc.primaryPhone]
+        );
         continue;
       }
 
-      if (doc.primaryName && docIdsByCode[doc.primaryName]) {
-        generateUpdateDocs(docIdsByCode[doc.primaryName], doc);
+      if (doc.primaryName && docIdsByPrimaryName[doc.primaryName]) {
+        await generateUpdateDocs(
+          docIdsByPrimaryName[doc.primaryName],
+          doc,
+          customFieldsByPrimaryName[doc.customFieldsByPrimaryName]
+        );
         continue;
       }
 
       if (doc.code && docIdsByCode[doc.code]) {
-        generateUpdateDocs(docIdsByCode[doc.code], doc);
+        await generateUpdateDocs(
+          docIdsByCode[doc.code],
+          doc,
+          customFieldsByCode[doc.code]
+        );
         continue;
       }
 
@@ -408,11 +469,6 @@ const create = async ({
     });
 
     objects = await model.insertMany(docs);
-
-    await ActivityLogs.createBoardItemsLog({
-      items: docs,
-      contentType
-    });
   }
 
   // create conformity
@@ -443,13 +499,6 @@ const create = async ({
 
     await createConformity(conformityCompanyMapping);
     await createConformity(conformityCustomerMapping);
-  }
-
-  if ([CUSTOMER, COMPANY, LEAD].includes(contentType)) {
-    await ActivityLogs.createCocLogs({
-      cocs: objects,
-      contentType
-    });
   }
 
   return objects;

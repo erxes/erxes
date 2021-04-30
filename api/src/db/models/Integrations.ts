@@ -81,7 +81,7 @@ export const isTimeInBetween = (
 };
 
 export interface IIntegrationModel extends Model<IIntegrationDocument> {
-  getIntegration(_id: string): IIntegrationDocument;
+  getIntegration(doc: { [key: string]: any }): IIntegrationDocument;
   findIntegrations(query: any, options?: any): Query<IIntegrationDocument[]>;
   findAllIntegrations(query: any, options?: any): Query<IIntegrationDocument[]>;
   createIntegration(
@@ -143,8 +143,8 @@ export const loadClass = () => {
     /**
      * Retreives integration
      */
-    public static async getIntegration(_id: string) {
-      const integration = await Integrations.findOne({ _id });
+    public static async getIntegration(doc: any) {
+      const integration = await Integrations.findOne(doc);
 
       if (!integration) {
         throw new Error('Integration not found');
@@ -283,7 +283,7 @@ export const loadClass = () => {
       _id: string,
       { leadData = {}, ...mainDoc }: IIntegration
     ) {
-      const prevEntry = await Integrations.getIntegration(_id);
+      const prevEntry = await Integrations.getIntegration({ _id });
       const prevLeadData: ILeadData = prevEntry.leadData || {};
 
       const doc = {
@@ -309,11 +309,7 @@ export const loadClass = () => {
      * Remove integration in addition with its messages, conversations, customers
      */
     public static async removeIntegration(_id: string) {
-      const integration = await Integrations.findOne({ _id });
-
-      if (!integration) {
-        throw new Error('Integration not found');
-      }
+      const integration = await Integrations.getIntegration({ _id });
 
       // remove conversations =================
       const conversations = await Conversations.find(
@@ -346,12 +342,6 @@ export const loadClass = () => {
       _id: string,
       doc: IIntegrationBasicInfo
     ) {
-      const integration = await Integrations.findOne({ _id });
-
-      if (!integration) {
-        throw new Error('Integration not found');
-      }
-
       await Integrations.updateOne({ _id }, { $set: doc });
 
       return Integrations.findOne({ _id });
@@ -364,14 +354,10 @@ export const loadClass = () => {
     ) {
       const brand = await Brands.getBrand({ code: brandCode });
 
-      const integration = await Integrations.findOne({
+      const integration = await Integrations.getIntegration({
         brandId: brand._id,
         kind
       });
-
-      if (!integration) {
-        throw new Error('Integration not found');
-      }
 
       if (brandObject) {
         return { integration, brand };

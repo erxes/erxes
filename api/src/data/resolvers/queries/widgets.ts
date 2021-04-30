@@ -12,8 +12,12 @@ import {
 import Messages from '../../../db/models/ConversationMessages';
 import { IBrowserInfo } from '../../../db/models/Customers';
 import { IIntegrationDocument } from '../../../db/models/definitions/integrations';
-import { registerOnboardHistory } from '../../utils';
-import { getOrCreateEngageMessage } from '../../widgetUtils';
+import { isUsingElk, registerOnboardHistory } from '../../utils';
+import {
+  getOrCreateEngageMessage,
+  getOrCreateEngageMessageElk
+} from '../../widgetUtils';
+import { getDocument, getDocumentList } from '../mutations/cacheUtils';
 
 export const isMessengerOnline = async (integration: IIntegrationDocument) => {
   if (!integration.messengerData) {
@@ -28,7 +32,7 @@ export const isMessengerOnline = async (integration: IIntegrationDocument) => {
   } = integration.messengerData;
 
   const modifiedIntegration = {
-    ...integration.toJSON(),
+    ...(integration.toJSON ? integration.toJSON() : integration),
     messengerData: {
       availabilityMethod,
       isOnline,
@@ -43,7 +47,7 @@ export const isMessengerOnline = async (integration: IIntegrationDocument) => {
 const messengerSupporters = async (integration: IIntegrationDocument) => {
   const messengerData = integration.messengerData || { supporterIds: [] };
 
-  return Users.find({ _id: { $in: messengerData.supporterIds } });
+  return getDocumentList('users', { _id: { $in: messengerData.supporterIds } });
 };
 
 const getWidgetMessages = (conversationId: string) => {
@@ -105,7 +109,7 @@ export default {
       ? { integrationId, customerId }
       : { integrationId, visitorId };
 
-    return Conversations.find(query).sort({ createdAt: -1 });
+    return Conversations.find(query).sort({ updatedAt: -1 });
   },
 
   async widgetsConversationDetail(
@@ -115,7 +119,9 @@ export default {
     const { _id, integrationId } = args;
 
     const conversation = await Conversations.findOne({ _id, integrationId });
-    const integration = await Integrations.findOne({ _id: integrationId });
+    const integration = await Integrations.findOne({
+      _id: integrationId
+    });
 
     // When no one writes a message
     if (!conversation && integration) {
@@ -134,7 +140,7 @@ export default {
       messages: await getWidgetMessages(conversation._id),
       isOnline: await isMessengerOnline(integration),
       operatorStatus: conversation.operatorStatus,
-      participatedUsers: await Users.find({
+      participatedUsers: await getDocumentList('users', {
         _id: { $in: conversation.participatedUserIds }
       }),
       supporters: await messengerSupporters(integration)
@@ -175,7 +181,9 @@ export default {
     _root,
     { integrationId }: { integrationId: string }
   ) {
-    const integration = await Integrations.findOne({ _id: integrationId });
+    const integration = await getDocument('integrations', {
+      _id: integrationId
+    });
     let timezone = '';
 
     if (!integration) {
@@ -193,7 +201,7 @@ export default {
     }
 
     return {
-      supporters: await Users.find({
+      supporters: await getDocumentList('users', {
         _id: { $in: messengerData.supporterIds || [] }
       }),
       isOnline: await isMessengerOnline(integration),
@@ -224,6 +232,10 @@ export default {
       browserInfo
     }: { customerId?: string; visitorId?: string; browserInfo: IBrowserInfo }
   ) {
-    return await getOrCreateEngageMessage(browserInfo, visitorId, customerId);
+    if (isUsingElk()) {
+      return getOrCreateEngageMessageElk(browserInfo, visitorId, customerId);
+    }
+
+    return getOrCreateEngageMessage(browserInfo, visitorId, customerId);
   }
 };

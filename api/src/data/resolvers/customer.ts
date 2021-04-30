@@ -1,17 +1,13 @@
-import {
-  Companies,
-  Conformities,
-  Conversations,
-  Integrations,
-  Tags,
-  Users
-} from '../../db/models';
+import { Companies, Conformities, Conversations, Tags } from '../../db/models';
 import { ICustomerDocument } from '../../db/models/definitions/customers';
 import { fetchElk } from '../../elasticsearch';
+import { getDocument } from './mutations/cacheUtils';
 
 export default {
   integration(customer: ICustomerDocument) {
-    return Integrations.findOne({ _id: customer.integrationId });
+    return getDocument('integrations', {
+      _id: customer.integrationId
+    });
   },
 
   getTags(customer: ICustomerDocument) {
@@ -19,10 +15,10 @@ export default {
   },
 
   async urlVisits(customer: ICustomerDocument) {
-    const response = await fetchElk(
-      'search',
-      'events',
-      {
+    const response = await fetchElk({
+      action: 'search',
+      index: 'events',
+      body: {
         _source: ['createdAt', 'count', 'attributes'],
         query: {
           bool: {
@@ -37,9 +33,8 @@ export default {
           }
         }
       },
-      '',
-      { hits: { hits: [] } }
-    );
+      defaultValue: { hits: { hits: [] } }
+    });
 
     return response.hits.hits.map(hit => {
       const source = hit._source;
@@ -68,6 +63,6 @@ export default {
   },
 
   owner(customer: ICustomerDocument) {
-    return Users.findOne({ _id: customer.ownerId });
+    return getDocument('users', { _id: customer.ownerId });
   }
 };

@@ -53,6 +53,18 @@
     },
     "erxes*.engage_messages": {
       "rename": "erxes*__engage_messages._doc"
+    },
+    "erxes*.segments": {
+      "rename": "erxes*__segments._doc"
+    },
+    "erxes*.fields": {
+      "rename": "erxes*__fields._doc"
+    },
+    "erxes*.conformities": {
+      "rename": "erxes*__conformities._doc"
+    },
+    "erxes*.fields_groups": {
+      "rename": "erxes*__fields_groups._doc"
     }
   },
   "docManagers": [

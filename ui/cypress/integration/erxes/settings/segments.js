@@ -1,5 +1,5 @@
 import 'cypress-file-upload';
-import { SignIn, waitTilDisappear } from "../utils";
+import { SignIn } from "../utils";
 
 SignIn;
 
@@ -17,7 +17,7 @@ context('Segments', () => {
     cy.url().should('include', '/settings');
 
     // General Settings Main
-    cy.get('#SettingsGeneralSettings').children().should('have.length', 12);
+    cy.get('#SettingsGeneralSettings').children().should('have.length', 13);
 
     //Segment
     cy.get('#SettingsGeneralSettings').children().eq(5).click();
@@ -42,12 +42,9 @@ context('Segments', () => {
         cy.get('.Select-option:contains(Created)').click()
 
         cy.get('#segment-select-operator').select('is set')
-        cy.get('button[icon=times]').click({multiple: true})
+        cy.get('button[icon=times]').click({ multiple: true })
 
-        cy.get('button[icon=computer-mouse]').click()
         cy.get('button[icon=check-circle]').click()
-
-        waitTilDisappear('button[icon=check-circle]')
     }
   });
 });

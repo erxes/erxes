@@ -5,6 +5,7 @@ import {
   IItemCommonFields
 } from './boards';
 import { customFieldSchema, ICustomField } from './common';
+import { ICompany } from './companies';
 import { PRODUCT_STATUSES, PRODUCT_TYPES } from './constants';
 import { field, schemaWrapper } from './utils';
 
@@ -22,6 +23,7 @@ export interface IProduct {
   tagIds?: string[];
   attachment?: any;
   status?: string;
+  vendorId?: string;
 
   mergedIds?: string[];
 }
@@ -29,6 +31,7 @@ export interface IProduct {
 export interface IProductDocument extends IProduct, Document {
   _id: string;
   createdAt: Date;
+  vendor?: ICompany;
 }
 
 export interface IProductCategory {
@@ -103,7 +106,7 @@ export const productSchema = schemaWrapper(
       default: new Date(),
       label: 'Created at'
     }),
-    attachment: field({ type: attachmentSchema, label: 'Attachments' }),
+    attachment: field({ type: attachmentSchema }),
     status: field({
       type: String,
       enum: PRODUCT_STATUSES.ALL,
@@ -111,10 +114,10 @@ export const productSchema = schemaWrapper(
       label: 'Status',
       default: 'active',
       esType: 'keyword',
-      index: true,
+      index: true
     }),
-    mergedIds: field({ type: [String], optional: true }),
-
+    vendorId: field({ type: String, optional: true, label: 'Vendor' }),
+    mergedIds: field({ type: [String], optional: true })
   })
 );
 
@@ -137,18 +140,18 @@ export const productCategorySchema = schemaWrapper(
 export const productDataSchema = new Schema(
   {
     _id: field({ type: String }),
-    productId: field({ type: String, label: 'Product' }),
-    uom: field({ type: String, label: 'Units of measurement' }),
-    currency: field({ type: String, label: 'Currency' }),
-    quantity: field({ type: Number, label: 'Quantity' }),
-    unitPrice: field({ type: Number, label: 'Unit price' }),
-    taxPercent: field({ type: Number, label: 'Tax percent' }),
-    tax: field({ type: Number, label: 'Tax' }),
-    discountPercent: field({ type: Number, label: 'Discount percent' }),
-    discount: field({ type: Number, label: 'Discount' }),
-    amount: field({ type: Number, label: 'Amount' }),
-    tickUsed: field({ type: Boolean, label: 'TickUsed' }),
-    assignUserId: field({ type: String, label: 'AssignUserId' })
+    productId: field({ type: String }), // Product
+    uom: field({ type: String }), // Units of measurement
+    currency: field({ type: String }), // Currency
+    quantity: field({ type: Number }), // Quantity
+    unitPrice: field({ type: Number }), // Unit price
+    taxPercent: field({ type: Number }), // Tax percent
+    tax: field({ type: Number }), // Tax
+    discountPercent: field({ type: Number }), // Discount percent
+    discount: field({ type: Number }), // Discount
+    amount: field({ type: Number }), // Amount
+    tickUsed: field({ type: Boolean }), // TickUsed
+    assignUserId: field({ type: String }) // AssignUserId
   },
   { _id: false }
 );

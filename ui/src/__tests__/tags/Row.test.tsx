@@ -19,6 +19,7 @@ describe('Row component', () => {
       name: string;
       colorCode: string;
     }) => null,
+    merge: (sourceId: string, destId: string, callback) => null,
     save: (params: {
       doc: {
         _id?: string;

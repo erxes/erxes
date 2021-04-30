@@ -1,5 +1,5 @@
-import { ENV } from './types';
 import FingerprintJS from '@fingerprintjs/fingerprintjs';
+import { ENV } from './types';
 
 export const getEnv = (): ENV => {
   return (window as any).erxesEnv;
@@ -63,7 +63,7 @@ export const getBrowserInfo = async () => {
   if (window.location.hostname === 'localhost') {
     return {
       url: window.location.pathname,
-      hostname: window.location.origin,
+      hostname: window.location.href,
       language: navigator.language,
       userAgent: navigator.userAgent
     };

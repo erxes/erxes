@@ -93,8 +93,15 @@ context("Popups", () => {
 const randomm = fakeName(5);
 
 function addField() {
-  cy.get("#validation").select("Email");
-  cy.get("#FieldLabel").type(randomm);
-  cy.get("#FieldDescription").type(randomm);
-  cy.get('.modal-footer > button[icon="plus-circle"]').click();
+  if (cy.get('i[icon="paragraph"]')) {
+    cy.get("#FieldLabel").type(randomm);
+    cy.get("#FieldDescription").type(randomm);
+    cy.get('.modal-footer > button[icon="plus-circle"]').click();
+  } else {
+    cy.get("#validation").select("Email");
+    cy.get("#FieldLabel").type(randomm);
+    cy.get("#FieldDescription").type(randomm);
+    cy.get('.modal-footer > button[icon="plus-circle"]').click();
+  }
+
 }

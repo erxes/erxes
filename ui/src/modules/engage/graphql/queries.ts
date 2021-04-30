@@ -47,6 +47,7 @@ const commonFields = `
 
   totalCustomersCount
   validCustomersCount
+  runCount
 
   fromUser {
     _id
@@ -110,6 +111,9 @@ export const engageDetailFields = `
   }
   customerTags {
     ${tagFields}
+  }
+  segments {
+    contentType
   }
 `;
 
@@ -248,12 +252,6 @@ const headSegments = `
   }
 `;
 
-const combinedFields = `
-  query fieldsCombinedByContentType {
-    fieldsCombinedByContentType(contentType: "customer")
-  }
-`;
-
 const kindCounts = `
   query kindCounts {
     engageMessageCounts(name: "kind")
@@ -305,7 +303,6 @@ export default {
   customerCounts,
   segmentDetail,
   headSegments,
-  combinedFields,
   kindCounts,
   statusCounts,
   tagCounts,
