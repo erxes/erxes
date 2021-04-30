@@ -28,7 +28,7 @@
     "meteor-random": "^0.0.3",
     "mongoose": "5.7.5",
     "nodemailer": "^6.2.1",
-    "redis": "^2.8.0",
+    "redis": "^3.1.1",
     "requestify": "^0.2.5",
     "telnyx": "^1.7.2",
     "ts-node": "8.0.3",
