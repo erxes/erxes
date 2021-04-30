@@ -88,34 +88,38 @@ export const getNumberOfVisits = async (params: {
     : { visitorId: params.visitorId };
 
   try {
-    const response = await fetchElk('search', 'events', {
-      query: {
-        bool: {
-          must: [
-            { term: { name: 'viewPage' } },
-            { term: searchId },
-            {
-              nested: {
-                path: 'attributes',
-                query: {
-                  bool: {
-                    must: [
-                      {
-                        term: {
-                          'attributes.field': 'url'
+    const response = await fetchElk({
+      action: 'search',
+      index: 'events',
+      body: {
+        query: {
+          bool: {
+            must: [
+              { term: { name: 'viewPage' } },
+              { term: searchId },
+              {
+                nested: {
+                  path: 'attributes',
+                  query: {
+                    bool: {
+                      must: [
+                        {
+                          term: {
+                            'attributes.field': 'url'
+                          }
+                        },
+                        {
+                          match: {
+                            'attributes.value': params.url
+                          }
                         }
-                      },
-                      {
-                        match: {
-                          'attributes.value': params.url
-                        }
-                      }
-                    ]
+                      ]
+                    }
                   }
                 }
               }
-            }
-          ]
+            ]
+          }
         }
       }
     });

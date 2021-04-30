@@ -35,6 +35,7 @@ export interface ICondition {
 export interface IConditionDocument extends ICondition, Document {}
 
 export interface ISegment {
+  _id?: string;
   contentType: string;
   name: string;
   description?: string;

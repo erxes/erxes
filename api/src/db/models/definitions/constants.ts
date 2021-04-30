@@ -2,7 +2,8 @@ export const CONVERSATION_STATUSES = {
   NEW: 'new',
   OPEN: 'open',
   CLOSED: 'closed',
-  ALL: ['new', 'open', 'closed']
+  ENGAGE_VISITOR_AUTO: 'engageVisitorAuto',
+  ALL: ['new', 'open', 'closed', 'engageVisitorAuto']
 };
 
 export const CONVERSATION_OPERATOR_STATUS = {
@@ -762,13 +763,43 @@ export const WEBHOOK_ACTIONS = [
   },
   { label: 'User messages', action: 'create', type: 'userMessages' },
   { label: 'Customer messages', action: 'create', type: 'customerMessages' },
-  { label: 'Engage messages', action: 'create', type: 'engageMessages' },
+  {
+    label: 'Customer create conversation',
+    action: 'create',
+    type: 'conversation'
+  },
+  {
+    label: 'Campaign created',
+    action: 'create',
+    type: 'engageMessages'
+  },
   {
     label: 'Form submission received',
     action: 'create',
     type: 'popupSubmitted'
   }
 ];
+
+export const WEBHOOK_TYPES = {
+  CUSTOMER: 'customer',
+  COMPANY: 'company',
+  CONVERSATION: 'conversation',
+  USER_MESSAGES: 'userMessages',
+  CUSTOMER_MESSAGES: 'customerMessages',
+  FORM_SUBMITTED: 'popupSubmitted',
+  KNOWLEDGEBASE: 'knowledgeBaseArticle',
+  CAMPAIGN: 'engageMessages',
+  ALL: [
+    'customer',
+    'company',
+    'conversation',
+    'userMessages',
+    'customerMessages',
+    'popupSubmitted',
+    'knowledgeBaseArticle',
+    'engageMessages'
+  ]
+};
 
 export const WEBHOOK_STATUS = {
   AVAILABLE: 'available',

@@ -134,38 +134,6 @@ export class CommonBuilder<IArgs extends IListArgs> {
   }
 
   public resetPositiveList() {
-    const defaultUserQuery = {
-      should: [
-        {
-          bool: {
-            should: [
-              {
-                exists: {
-                  field: 'userId'
-                }
-              },
-              {
-                range: {
-                  messageCount: { gt: 1 }
-                }
-              }
-            ]
-          }
-        },
-        {
-          bool: {
-            must_not: [
-              {
-                exists: {
-                  field: 'userId'
-                }
-              }
-            ]
-          }
-        }
-      ]
-    };
-
     const userRelevanceQuery = [
       {
         regexp: {
@@ -185,10 +153,7 @@ export class CommonBuilder<IArgs extends IListArgs> {
       }
     ];
 
-    this.positiveList = [
-      { bool: defaultUserQuery },
-      { bool: { should: userRelevanceQuery } }
-    ];
+    this.positiveList = [{ bool: { should: userRelevanceQuery } }];
   }
 
   public async defaultFilters(): Promise<any> {
@@ -439,13 +404,12 @@ export class CommonBuilder<IArgs extends IListArgs> {
       }
     };
 
-    const response = await fetchElk(
-      'count',
-      'conversations',
-      queryOptions,
-      '',
-      0
-    );
+    const response = await fetchElk({
+      action: 'count',
+      index: 'conversations',
+      body: queryOptions,
+      defaultValue: 0
+    });
 
     return response.count;
   }

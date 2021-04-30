@@ -66,7 +66,9 @@ export const generateCustomerSelector = async ({
     let customerIdsBySegments: string[] = [];
 
     for (const segment of segments) {
-      const cIds = await fetchBySegments(segment);
+      const cIds = await fetchBySegments(segment, 'search', {
+        associatedCustomers: true
+      });
 
       customerIdsBySegments = [...customerIdsBySegments, ...cIds];
     }
@@ -84,15 +86,7 @@ const sendQueueMessage = (args: any) => {
   return messageBroker().sendMessage('erxes-api:engages-notification', args);
 };
 
-/**
- * Sends campaign
- * @param engageMessage Campaign
- * @param smsLimit Configured number per SMS campaign
- */
-export const send = async (
-  engageMessage: IEngageMessageDocument,
-  smsLimit?: number
-) => {
+export const send = async (engageMessage: IEngageMessageDocument) => {
   const {
     customerIds,
     segmentIds,
@@ -148,8 +142,7 @@ export const send = async (
   if (engageMessage.method === METHODS.SMS) {
     return sendEmailOrSms(
       { engageMessage, customersSelector, user },
-      'sendEngageSms',
-      smsLimit
+      'sendEngageSms'
     );
   }
 };
@@ -157,8 +150,7 @@ export const send = async (
 // Prepares queue data to engages-email-sender
 const sendEmailOrSms = async (
   { engageMessage, customersSelector, user }: IEngageParams,
-  action: 'sendEngage' | 'sendEngageSms',
-  smsLimit?: number
+  action: 'sendEngage' | 'sendEngageSms'
 ) => {
   const engageMessageId = engageMessage._id;
 
@@ -194,26 +186,19 @@ const sendEmailOrSms = async (
       throw new Error('No customers found');
     }
 
-    // save matched customers count
-    await EngageMessages.setCustomersCount(
-      engageMessage._id,
-      'totalCustomersCount',
-      customerInfos.length
-    );
+    const MINUTELY =
+      engageMessage.scheduleDate &&
+      engageMessage.scheduleDate.type === 'minute';
 
-    await sendQueueMessage({
-      action: 'writeLog',
-      data: {
-        engageMessageId,
-        msg: `Matched ${customerInfos.length} customers`
-      }
-    });
-
-    await EngageMessages.setCustomersCount(
-      engageMessage._id,
-      'validCustomersCount',
-      customerInfos.length
-    );
+    if (!(engageMessage.kind === MESSAGE_KINDS.AUTO && MINUTELY)) {
+      await sendQueueMessage({
+        action: 'writeLog',
+        data: {
+          engageMessageId,
+          msg: `Matched ${customerInfos.length} customers`
+        }
+      });
+    }
 
     if (
       engageMessage.scheduleDate &&
@@ -232,7 +217,8 @@ const sendEmailOrSms = async (
         engageMessageId,
         shortMessage: engageMessage.shortMessage || {},
         createdBy: engageMessage.createdBy,
-        title: engageMessage.title
+        title: engageMessage.title,
+        kind: engageMessage.kind
       };
 
       if (engageMessage.method === METHODS.EMAIL && engageMessage.email) {
@@ -245,40 +231,6 @@ const sendEmailOrSms = async (
         engageMessage.email.content = replacedContent;
 
         data.email = engageMessage.email;
-      }
-
-      if (
-        engageMessage.method === METHODS.SMS &&
-        engageMessage.kind === MESSAGE_KINDS.AUTO
-      ) {
-        if (!smsLimit) {
-          await sendQueueMessage({
-            action: 'writeLog',
-            data: {
-              engageMessageId,
-              msg: `Auto campaign SMS limit is not set: "${smsLimit}"`
-            }
-          });
-
-          return;
-        }
-
-        if (smsLimit && customerInfos.length > smsLimit) {
-          await sendQueueMessage({
-            action: 'writeLog',
-            data: {
-              engageMessageId,
-              msg: `Chosen "${customerInfos.length}" customers exceeded sms limit "${smsLimit}". Campaign will not run.`
-            }
-          });
-
-          return;
-        }
-
-        await sendQueueMessage({
-          action: 'writeLog',
-          data: { engageMessageId, msg: `Preparing to send SMS campaign` }
-        });
       }
 
       const chunks = chunkArray(customerInfos, 3000);
@@ -381,15 +333,14 @@ export const checkCampaignDoc = (doc: IEngageMessage) => {
 };
 
 export const findElk = async (index, query) => {
-  const response = await fetchElk(
-    'search',
+  const response = await fetchElk({
+    action: 'search',
     index,
-    {
+    body: {
       query
     },
-    '',
-    { hits: { hits: [] } }
-  );
+    defaultValue: { hits: { hits: [] } }
+  });
 
   return response.hits.hits.map(hit => {
     return {
@@ -508,7 +459,7 @@ export const checkCustomerExists = async (
   must.push({
     bool: {
       should: [
-        { term: { doNotDisturb: 'No' } },
+        { term: { doNotDisturb: 'no' } },
         {
           bool: {
             must_not: {

@@ -32,6 +32,7 @@ const OwnerSetup = (props: Props) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [firstName, setFirstName] = useState('');
+  const [purpose, setPurpose] = useState('manage a personal project');
   const [lastName, setLastName] = useState('');
   const [subscribeEmail, setSubscribeEmail] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
@@ -60,6 +61,7 @@ const OwnerSetup = (props: Props) => {
       password,
       firstName,
       lastName,
+      purpose,
       subscribeEmail
     });
   };
@@ -74,6 +76,12 @@ const OwnerSetup = (props: Props) => {
     e.preventDefault();
 
     setLastName(e.target.value);
+  };
+
+  const handlePurpose = e => {
+    e.preventDefault();
+
+    setPurpose(e.target.value);
   };
 
   const handleEmail = e => {
@@ -127,6 +135,7 @@ const OwnerSetup = (props: Props) => {
           )}
           .
         </p>
+
         <FormGroup>
           <FormControl
             placeholder="Email"
@@ -135,6 +144,7 @@ const OwnerSetup = (props: Props) => {
             onChange={handleEmail}
           />
         </FormGroup>
+
         <FormGroup>
           <PasswordWithEye>
             <FormControl
@@ -151,6 +161,31 @@ const OwnerSetup = (props: Props) => {
             />
           </PasswordWithEye>
         </FormGroup>
+
+        <FormGroup>
+          <p>{__('I am planning to use erxes to')}</p>
+
+          <FormControl
+            componentClass="select"
+            value={purpose}
+            options={[
+              {
+                value: 'manage a personal project',
+                label: 'Manage a personal project'
+              },
+              {
+                value: 'manage an internal company use case',
+                label: 'Manage an internal company use case'
+              },
+              {
+                value: 'attract new businesses',
+                label: 'Attract new businesses'
+              }
+            ]}
+            onChange={handlePurpose}
+          />
+        </FormGroup>
+
         <br />
         <p>
           {__(
@@ -169,7 +204,12 @@ const OwnerSetup = (props: Props) => {
             {__('Yes, I want in. I know I can unsubscribe easily at any time')}.
           </FormControl>
         </FormGroup>
-        <Button btnStyle="success" type="submit" block={true}>
+        <Button
+          btnStyle="success"
+          type="submit"
+          block={true}
+          disabled={!subscribeEmail}
+        >
           Save and continue to login
         </Button>
       </form>

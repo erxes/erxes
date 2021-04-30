@@ -32,6 +32,7 @@ import { EngagesAPI } from '../data/dataSources';
 import { handleUnsubscription } from '../data/utils';
 import { KIND_CHOICES, METHODS } from '../db/models/definitions/constants';
 import './setup.ts';
+import * as elk from '../elasticsearch';
 
 // to prevent duplicate expect checks
 const checkEngageMessage = (src, result) => {
@@ -55,6 +56,7 @@ describe('engage message mutation tests', () => {
   let _integration;
   let _doc;
   let spy;
+  let elkMock;
 
   const commonParamDefs = `
     $title: String!,
@@ -198,10 +200,21 @@ describe('engage message mutation tests', () => {
       }
     };
     spy = jest.spyOn(engageUtils, 'send');
+
+    elkMock = sinon.stub(elk, 'fetchElk').callsFake(() => {
+      return Promise.resolve({
+        hits: {
+          hits: [
+            { _id: _integration._id, _source: { name: _integration.name } }
+          ]
+        }
+      });
+    });
   });
 
   afterEach(async () => {
     spy.mockRestore();
+    elkMock.restore();
 
     // Clearing test data
     _doc = null;
@@ -976,35 +989,6 @@ describe('engage message mutation tests', () => {
       });
     } catch (e) {
       expect(e.message).toBe('One of brand or segment or tag must be chosen');
-    }
-  });
-
-  test('Test auto SMS campaign', async () => {
-    const doc = { tagIds: [_tag._id], phoneValidationStatus: 'valid' };
-
-    await customerFactory(doc);
-    await customerFactory(doc);
-
-    const campaign = await engageMessageFactory({
-      method: METHODS.SMS,
-      kind: MESSAGE_KINDS.AUTO,
-      customerTagIds: [_tag._id],
-      userId: _user._id,
-      isLive: true
-    });
-
-    try {
-      // no sms limit saved
-      await engageUtils.send(campaign, 0);
-
-      // making customers.length > sms limit
-      await engageUtils.send(campaign, 1);
-
-      // successful condition
-      await engageUtils.send(campaign, 10);
-    } catch (e) {
-      // tslint:disable-next-line
-      console.log(e);
     }
   });
 });

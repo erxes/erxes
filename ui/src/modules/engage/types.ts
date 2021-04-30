@@ -115,13 +115,14 @@ export interface IEngageMessage extends IEngageMessageDoc {
   createdDate: Date;
   messengerReceivedCustomerIds?: string[];
   brand: IBrand;
-  segment: ISegment;
+  segments: ISegment[];
   fromUser: IUser;
   tagIds: string[];
   customerTags: ITag[];
   getTags: ITag[];
   totalCustomersCount?: number;
   validCustomersCount?: number;
+  runCount?: number;
 
   stats?: IEngageStats;
   logs?: Array<{ message: string }>;

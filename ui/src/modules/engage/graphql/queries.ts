@@ -47,6 +47,7 @@ const commonFields = `
 
   totalCustomersCount
   validCustomersCount
+  runCount
 
   fromUser {
     _id
@@ -110,6 +111,9 @@ export const engageDetailFields = `
   }
   customerTags {
     ${tagFields}
+  }
+  segments {
+    contentType
   }
 `;
 

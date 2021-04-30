@@ -41,9 +41,7 @@ export const countBySegment = async (
 
   // show all contact related engages when engage
   if (source === 'engages') {
-    segments = await Segments.find({
-      contentType: ['customer', 'lead', 'visitor']
-    });
+    segments = await Segments.find({});
   } else {
     segments = await Segments.find({ contentType });
   }
@@ -52,7 +50,7 @@ export const countBySegment = async (
   for (const s of segments) {
     try {
       await qb.buildAllQueries();
-      await qb.segmentFilter(s._id);
+      await qb.segmentFilter(s._id, source);
       counts[s._id] = await qb.runQueries('count');
     } catch (e) {
       debugError(`Error during segment count ${e.message}`);
@@ -179,12 +177,13 @@ export class CommonBuilder<IListArgs extends ICommonListArgs> {
   }
 
   // filter by segment
-  public async segmentFilter(segmentId: string) {
+  public async segmentFilter(segmentId: string, source?: string) {
     const segment = await Segments.getSegment(segmentId);
 
     const { positiveList, negativeList } = await fetchBySegments(
       segment,
-      'count'
+      'count',
+      source === 'engages' ? { associatedCustomers: true } : null
     );
 
     this.positiveList = [...this.positiveList, ...positiveList];
@@ -401,11 +400,11 @@ export class CommonBuilder<IListArgs extends ICommonListArgs> {
     let totalCount = 0;
 
     if (action === 'search') {
-      const totalCountResponse = await fetchElk(
-        'count',
-        this.contentType,
-        queryOptions
-      );
+      const totalCountResponse = await fetchElk({
+        action: 'count',
+        index: this.contentType,
+        body: queryOptions
+      });
 
       totalCount = totalCountResponse.count;
 
@@ -433,7 +432,11 @@ export class CommonBuilder<IListArgs extends ICommonListArgs> {
       }
     }
 
-    const response = await fetchElk(action, this.contentType, queryOptions);
+    const response = await fetchElk({
+      action,
+      index: this.contentType,
+      body: queryOptions
+    });
 
     if (action === 'count') {
       return response.count;

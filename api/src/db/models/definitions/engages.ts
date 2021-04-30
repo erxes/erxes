@@ -68,6 +68,7 @@ export interface IEngageMessage {
 
   totalCustomersCount?: number;
   validCustomersCount?: number;
+  runCount?: number;
 }
 
 export interface IEngageMessageDocument extends IEngageMessage, Document {
@@ -184,6 +185,12 @@ export const engageMessageSchema = schemaWrapper(
     validCustomersCount: field({ type: Number, optional: true }),
 
     shortMessage: field({ type: smsSchema, label: 'Short message' }),
-    createdBy: field({ type: String, label: 'Created user id' })
+    createdBy: field({ type: String, label: 'Created user id' }),
+    runCount: field({
+      type: Number,
+      label: 'Run count',
+      optional: true,
+      default: 0
+    })
   })
 );

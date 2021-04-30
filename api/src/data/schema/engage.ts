@@ -24,6 +24,7 @@ export const types = `
     messengerReceivedCustomerIds: [String]
     totalCustomersCount: Int
     validCustomersCount: Int
+    runCount: Int
 
     brand: Brand
 

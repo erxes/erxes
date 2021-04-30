@@ -9,7 +9,6 @@ const command = async () => {
 
   await connect();
 
-  //   await Fields.remove({ isDefinedByErxes: true });
   const fieldGroup = await FieldsGroups.findOne({
     isDefinedByErxes: true,
     contentType: 'customer'

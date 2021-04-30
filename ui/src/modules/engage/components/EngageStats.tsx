@@ -13,6 +13,7 @@ import {
 } from '../constants';
 import {
   FlexContainer,
+  InfoWrapper,
   Half,
   PreviewContent,
   RightSection,
@@ -253,6 +254,11 @@ class EmailStatistics extends React.Component<Props> {
       <FlexContainer>
         {this.renderLeft()}
         <Half>
+          <InfoWrapper>
+            <p>
+              Campaign has run: <strong>{message.runCount || 0} times</strong>
+            </p>
+          </InfoWrapper>
           <RightSection>
             {this.renderEmailStats()}
             {this.renderSmsStats()}
