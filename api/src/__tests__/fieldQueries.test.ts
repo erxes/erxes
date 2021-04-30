@@ -302,30 +302,31 @@ describe('fieldQueries', () => {
     const board2 = await boardFactory({ type: 'task' });
     const pipeline = await pipelineFactory({ boardId: board._id });
 
-    await fieldGroupFactory({
+    const fieldGroupCommonFields = {
       contentType: 'task',
-      isDefinedByErxes: false,
+      isDefinedByErxes: false
+    };
+
+    await fieldGroupFactory({
+      ...fieldGroupCommonFields,
       order: 1,
       boardIds: [board._id],
       pipelineIds: [pipeline._id]
     });
     await fieldGroupFactory({
-      contentType: 'task',
-      isDefinedByErxes: false,
+      ...fieldGroupCommonFields,
       order: 2,
       boardIds: [board._id]
     });
 
     await fieldGroupFactory({
-      contentType: 'task',
-      isDefinedByErxes: false,
+      ...fieldGroupCommonFields,
       order: 3
     });
 
     await fieldGroupFactory({
-      contentType: 'task',
-      isDefinedByErxes: false,
-      order: 3,
+      ...fieldGroupCommonFields,
+      order: 4,
       boardIds: [board2._id]
     });
 

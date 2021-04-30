@@ -58,7 +58,7 @@ export interface IFieldGroup {
   fields: IField[];
   lastUpdatedUserId: string;
   lastUpdatedUser: IUser;
-  boardsPipelines: IBoardSelectItem[];
+  boardsPipelines?: IBoardSelectItem[];
 }
 
 export interface IContentTypeFields {

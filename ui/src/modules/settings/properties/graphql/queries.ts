@@ -28,7 +28,10 @@ const commonFields = `
 
 const commonFieldsGroups = `
   name
-  boardsPipelines
+  boardsPipelines {
+    boardId
+    pipelineIds
+  }
   ${genericFields}
 
   lastUpdatedUser {

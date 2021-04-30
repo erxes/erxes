@@ -33,6 +33,17 @@ export const logicSchema = new Schema(
   { _id: false }
 );
 
+export const boardsPipelinesSchema = new Schema(
+  {
+    boardId: field({ type: String, optional: true }),
+    pipelineIds: field({
+      type: [String],
+      optional: true
+    })
+  },
+  { _id: false }
+);
+
 interface IVisibility {
   isVisible?: boolean;
   isVisibleInDetail?: boolean;
@@ -66,6 +77,11 @@ export interface IFieldDocument extends IField, Document {
   _id: string;
 }
 
+interface IBoardsPipelines {
+  boardId?: string;
+  pipelineIds?: string[];
+}
+
 export interface IFieldGroup extends IVisibility {
   name?: string;
   contentType?: string;
@@ -73,7 +89,7 @@ export interface IFieldGroup extends IVisibility {
   isDefinedByErxes?: boolean;
   description?: string;
   lastUpdatedUserId?: string;
-  boardsPipelines?: any;
+  boardsPipelines?: IBoardsPipelines[];
   boardIds?: string[];
   pipelineIds?: string[];
 }
@@ -173,7 +189,7 @@ export const fieldGroupSchema = schemaWrapper(
       label: 'Is group visible in detail'
     }),
     boardsPipelines: field({
-      type: Schema.Types.Mixed,
+      type: [boardsPipelinesSchema],
       optional: true
     }),
     boardIds: field({ type: [String], label: 'board ids', optional: true }),

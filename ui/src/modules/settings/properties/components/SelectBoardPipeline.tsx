@@ -29,7 +29,7 @@ class SelectBoards extends React.Component<Props, State> {
       { _id: Math.random().toString(), boardId: '', pipelineIds: [] }
     ];
 
-    if (this.props.selectedItems && this.props.selectedItems.length > 0) {
+    if (props.selectedItems && this.props.selectedItems.length > 0) {
       selectItems = this.props.selectedItems.map(e => ({
         _id: Math.random().toString(),
         ...e

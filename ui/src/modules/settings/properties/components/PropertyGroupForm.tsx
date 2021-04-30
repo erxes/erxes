@@ -34,7 +34,7 @@ class PropertyGroupForm extends React.Component<Props, State> {
     if (props.group) {
       isVisible = props.group.isVisible;
       isVisibleInDetail = props.group.isVisibleInDetail;
-      selectedItems = props.group.boardsPipelines;
+      selectedItems = props.group.boardsPipelines || [];
     }
 
     this.state = {

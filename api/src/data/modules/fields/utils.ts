@@ -598,10 +598,14 @@ export const getBoardsAndPipelines = (doc: IFieldGroup) => {
   const boardIds: string[] = [];
   const pipelineIds: string[] = [];
 
-  for (const item of doc.boardsPipelines) {
-    boardIds.push(item.boardId);
+  const boardsPipelines = doc.boardsPipelines || [];
 
-    for (const pipelineId of item.pipelineIds) {
+  for (const item of boardsPipelines) {
+    boardIds.push(item.boardId || '');
+
+    const pipelines = item.pipelineIds || [];
+
+    for (const pipelineId of pipelines) {
       pipelineIds.push(pipelineId);
     }
   }

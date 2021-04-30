@@ -72,7 +72,7 @@ describe('Fields mutations', () => {
     $order: Int
     $description: String
     $isVisible: Boolean
-    $boardsPipelines: JSON
+    $boardsPipelines: [BoardsPipelinesInput]
   `;
 
   const fieldsGroupsCommonParams = `
@@ -364,7 +364,7 @@ describe('Fields mutations', () => {
       context
     );
 
-    console.log(mutationResult);
+    console.log('mutationResult:', mutationResult);
   });
 
   test('Add group field', async () => {
@@ -379,7 +379,10 @@ describe('Fields mutations', () => {
           order
           description
           isVisible
-          boardsPipelines
+          boardsPipelines {
+            boardId
+            pipelineIds
+          }
         }
       }
     `;
@@ -410,7 +413,10 @@ describe('Fields mutations', () => {
           order
           description
           isVisible
-          boardsPipelines
+          boardsPipelines {
+            boardId
+            pipelineIds
+          }
         }
       }
     `;
