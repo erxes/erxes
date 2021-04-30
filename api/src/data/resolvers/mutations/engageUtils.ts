@@ -186,13 +186,6 @@ const sendEmailOrSms = async (
       throw new Error('No customers found');
     }
 
-    // save matched customers count
-    await EngageMessages.setCustomersCount(
-      engageMessage._id,
-      'totalCustomersCount',
-      customerInfos.length
-    );
-
     const MINUTELY =
       engageMessage.scheduleDate &&
       engageMessage.scheduleDate.type === 'minute';
@@ -206,12 +199,6 @@ const sendEmailOrSms = async (
         }
       });
     }
-
-    await EngageMessages.setCustomersCount(
-      engageMessage._id,
-      'validCustomersCount',
-      customerInfos.length
-    );
 
     if (
       engageMessage.scheduleDate &&
