@@ -79,7 +79,8 @@ const getSegment = async (_id: string) => {
     action: 'get',
     index: 'segments',
     body: null,
-    _id
+    _id,
+    defaultValue: null
   });
 
   return response && { _id: response._id, ...response._source };
@@ -93,7 +94,8 @@ const getFieldGroup = async (_id: string) => {
     action: 'get',
     index: 'fields_groups',
     body: null,
-    _id
+    _id,
+    defaultValue: null
   });
 
   return response && { _id: response._id, ...response._source };
