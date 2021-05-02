@@ -6,7 +6,7 @@ import {
   Indicator,
   StepWrapper
 } from 'modules/common/components/step/styles';
-import { IConditionsRule } from 'modules/common/types';
+import { IAttachment, IConditionsRule } from 'modules/common/types';
 import { Alert } from 'modules/common/utils';
 import { __ } from 'modules/common/utils';
 import Wrapper from 'modules/layout/components/Wrapper';
@@ -78,6 +78,7 @@ type State = {
   redirectUrl?: string;
   templateId?: string;
   carousel: string;
+  attachments?: IAttachment[];
 
   currentMode: 'create' | 'update' | undefined;
   currentField?: IField;

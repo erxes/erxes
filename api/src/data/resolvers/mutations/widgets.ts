@@ -23,6 +23,7 @@ import {
 } from '../../../db/models/definitions/constants';
 import { ISubmission } from '../../../db/models/definitions/fields';
 import {
+  IAttachment,
   IIntegrationDocument,
   IMessengerDataMessagesItem
 } from '../../../db/models/definitions/integrations';
@@ -49,12 +50,6 @@ import { convertVisitorToCustomer, solveSubmissions } from '../../widgetUtils';
 import { getDocument, getMessengerApps } from './cacheUtils';
 import { conversationNotifReceivers } from './conversations';
 
-interface IAttachment {
-  name: string;
-  url: string;
-  size: number;
-  type: string;
-}
 interface IWidgetEmailParams {
   toEmails: string[];
   fromEmail: string;

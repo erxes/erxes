@@ -76,6 +76,13 @@ export interface ICallout extends Document {
   skip?: boolean;
 }
 
+export interface IAttachment {
+  name: string;
+  url: string;
+  size: number;
+  type: string;
+}
+
 export interface ILeadData {
   loadType?: string;
   successAction?: string;
@@ -95,6 +102,7 @@ export interface ILeadData {
   contactsGathered?: number;
   isRequireOnce?: boolean;
   templateId?: string;
+  attachments?: IAttachment[];
 }
 
 export interface IWebhookData {
