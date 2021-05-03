@@ -283,7 +283,8 @@ class Form extends React.Component<Props, State> {
         adminEmailTitle,
         adminEmailContent,
         thankTitle,
-        thankContent
+        thankContent,
+        attachments
       } = integration.leadData;
 
       // redirect to some url
@@ -308,6 +309,7 @@ class Form extends React.Component<Props, State> {
               title: userEmailTitle,
               content: userEmailContent,
               formId: connection.data.form._id,
+              attachments
             });
           }
         }
@@ -320,6 +322,7 @@ class Form extends React.Component<Props, State> {
             title: adminEmailTitle,
             content: adminEmailContent,
             formId: connection.data.form._id,
+            attachments
           });
         }
       } // end successAction = "email"
