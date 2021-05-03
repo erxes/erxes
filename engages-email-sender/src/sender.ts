@@ -139,7 +139,7 @@ export const start = async (data: IEmailParams) => {
   });
 
   // finalized email list
-  emails = cleanCustomers.filter(customer => customer.primaryEmail);
+  emails = cleanCustomers.map(customer => customer.primaryEmail);
 
   if (emails.length > 0) {
     await Logs.createLog(
