@@ -85,6 +85,7 @@ const webhookMiddleware = async (req, res, next) => {
     let customer = await findCustomer(params);
 
     const doc = {
+      state: params.customerState,
       primaryEmail: params.customerPrimaryEmail,
       primaryPhone: params.customerPrimaryPhone,
       code: params.customerCode,

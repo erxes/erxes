@@ -1,7 +1,7 @@
-import { Companies, Conformities, Conversations, Tags } from '../../db/models';
+import { Companies, Conformities, Conversations } from '../../db/models';
 import { ICustomerDocument } from '../../db/models/definitions/customers';
 import { fetchElk } from '../../elasticsearch';
-import { getDocument } from './mutations/cacheUtils';
+import { getDocument, getDocumentList } from './mutations/cacheUtils';
 
 export default {
   integration(customer: ICustomerDocument) {
@@ -11,7 +11,7 @@ export default {
   },
 
   getTags(customer: ICustomerDocument) {
-    return Tags.find({ _id: { $in: customer.tagIds || [] } });
+    return getDocumentList('tags', { _id: { $in: customer.tagIds || [] } });
   },
 
   async urlVisits(customer: ICustomerDocument) {
