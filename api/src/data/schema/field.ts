@@ -102,7 +102,20 @@ export const fieldsMutations = `
   fieldsUpdateVisible(_id: String!, isVisible: Boolean, isVisibleInDetail: Boolean) : Field
 `;
 
+const BoardsPipelinesFields = `
+  boardId: String
+  pipelineIds : [String]
+`;
+
 export const fieldsGroupsTypes = `
+  type BoardsPipelines {
+    ${BoardsPipelinesFields}
+  }
+
+  input BoardsPipelinesInput {
+    ${BoardsPipelinesFields}
+  }
+
   type FieldsGroup {
     _id: String!
     name: String
@@ -115,6 +128,7 @@ export const fieldsGroupsTypes = `
     fields: [Field]
     lastUpdatedUserId: String
     lastUpdatedUser: User
+    boardsPipelines: [BoardsPipelines]
   }
 `;
 
@@ -125,10 +139,11 @@ const fieldsGroupsCommonFields = `
   description: String
   isVisible: Boolean
   isVisibleInDetail: Boolean
+  boardsPipelines: [BoardsPipelinesInput]
 `;
 
 export const fieldsGroupsQueries = `
-  fieldsGroups(contentType: String): [FieldsGroup]
+  fieldsGroups(contentType: String, boardId: String, pipelineId: String): [FieldsGroup]
   getSystemFieldsGroup(contentType: String): FieldsGroup
 `;
 
