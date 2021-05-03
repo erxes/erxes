@@ -36,6 +36,14 @@ const fieldGroupArgs = {
   isVisible: true
 };
 
+const checkFieldGroupMutationResults = (result, args) => {
+  expect(result.contentType).toBe(args.contentType);
+  expect(result.name).toBe(args.name);
+  expect(result.description).toBe(args.description);
+  expect(result.isVisible).toBe(args.isVisible);
+  expect(result.boardsPipelines.length).toBe(1);
+};
+
 describe('Fields mutations', () => {
   let _user;
   let _field;
@@ -391,12 +399,8 @@ describe('Fields mutations', () => {
         boardsPipelines: [{ boardId: board._id, pipelineIds: [pipeline._id] }]
       });
 
-      expect(fieldGroup.contentType).toBe(fieldGroupArgs.contentType);
-      expect(fieldGroup.name).toBe(fieldGroupArgs.name);
-      expect(fieldGroup.description).toBe(fieldGroupArgs.description);
       expect(fieldGroup.order).toBe(1);
-      expect(fieldGroup.isVisible).toBe(fieldGroupArgs.isVisible);
-      expect(fieldGroup.boardsPipelines.length).toBe(1);
+      checkFieldGroupMutationResults(fieldGroup, fieldGroupArgs);
     });
 
   test('Edit group field', async () => {
@@ -432,12 +436,8 @@ describe('Fields mutations', () => {
     );
 
     expect(fieldGroup._id).toBe(_fieldGroup._id);
-    expect(fieldGroup.contentType).toBe(fieldGroupArgs.contentType);
-    expect(fieldGroup.name).toBe(fieldGroupArgs.name);
-    expect(fieldGroup.description).toBe(fieldGroupArgs.description);
     expect(fieldGroup.order).toBe(fieldGroupArgs.order);
-    expect(fieldGroup.isVisible).toBe(fieldGroupArgs.isVisible);
-    expect(fieldGroup.boardsPipelines.length).toBe(1);
+    checkFieldGroupMutationResults(fieldGroup, fieldGroupArgs);
   });
 
   test('Remove group field', async () => {
