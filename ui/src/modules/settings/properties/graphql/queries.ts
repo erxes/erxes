@@ -28,6 +28,10 @@ const commonFields = `
 
 const commonFieldsGroups = `
   name
+  boardsPipelines {
+    boardId
+    pipelineIds
+  }
   ${genericFields}
 
   lastUpdatedUser {
@@ -42,8 +46,8 @@ const commonFieldsGroups = `
 `;
 
 const fieldsGroups = `
-  query fieldsGroups($contentType: String!) {
-    fieldsGroups(contentType: $contentType) {
+  query fieldsGroups($contentType: String!, $boardId: String, $pipelineId: String) {
+    fieldsGroups(contentType: $contentType, boardId: $boardId, pipelineId: $pipelineId) {
       ${commonFieldsGroups}
   }
 `;
