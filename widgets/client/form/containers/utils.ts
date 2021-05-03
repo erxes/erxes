@@ -47,7 +47,8 @@ export const sendEmail = ({
   fromEmail,
   title,
   content,
-  formId
+  formId,
+  attachments,
 }: IEmailParams) => {
   client.mutate({
     mutation: gql(sendEmailMutation),
@@ -57,7 +58,8 @@ export const sendEmail = ({
       title,
       content,
       customerId: getLocalStorageItem("customerId"),
-      formId
+      formId,
+      attachments
     }
   });
 };
