@@ -210,7 +210,11 @@ export const receiveEngagesNotification = async msg => {
       await EngageMessages.updateOne(
         { _id: campaignId },
         {
-          $set: { totalCustomersCount, validCustomersCount },
+          $set: {
+            totalCustomersCount,
+            validCustomersCount,
+            lastRunAt: new Date()
+          },
           $inc: { runCount: 1 }
         }
       );

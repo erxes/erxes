@@ -123,6 +123,7 @@ export interface IEngageMessage extends IEngageMessageDoc {
   totalCustomersCount?: number;
   validCustomersCount?: number;
   runCount?: number;
+  lastRunAt?: Date;
 
   stats?: IEngageStats;
   logs?: Array<{ message: string }>;

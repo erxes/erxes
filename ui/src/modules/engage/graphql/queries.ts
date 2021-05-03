@@ -99,6 +99,7 @@ export const engageDetailFields = `
   customerIds
   fromUserId
   stopDate
+  lastRunAt
 
   scheduleDate {
     type
