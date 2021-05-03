@@ -103,12 +103,10 @@ class SuccessStep extends React.Component<Props, State> {
     this.props.onChange('templateId', e.value);
   };
 
-  onChangeAttachment = attachment => {
+  onChangeAttachment = attachments => {
     const leadData = this.state.leadData || {};
-    const attachments = leadData.attachments || [];
-    attachments.push(attachment);
-
     leadData.attachments = attachments;
+
     this.setState({ leadData });
 
     this.props.onChange('attachments', attachments);

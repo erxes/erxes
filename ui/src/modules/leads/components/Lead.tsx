@@ -106,6 +106,7 @@ class Lead extends React.Component<Props, State> {
       adminEmailContent: leadData.adminEmailContent || '',
       thankTitle: leadData.thankTitle || 'Title',
       thankContent: leadData.thankContent || 'Thank you.',
+      attachments: leadData.attachments || [],
       redirectUrl: leadData.redirectUrl || '',
       rules: leadData.rules || [],
       isStepActive: false,
@@ -177,6 +178,7 @@ class Lead extends React.Component<Props, State> {
         adminEmails: this.state.adminEmails,
         adminEmailTitle: this.state.adminEmailTitle,
         adminEmailContent: this.state.adminEmailContent,
+        attachments: this.state.attachments,
         thankTitle: this.state.thankTitle,
         thankContent: this.state.thankContent,
         redirectUrl: this.state.redirectUrl,
@@ -198,7 +200,9 @@ class Lead extends React.Component<Props, State> {
   };
 
   onChange = (key: string, value: any) => {
+    console.log(value);
     this.setState({ [key]: value } as any);
+    console.log('state: ', this.state);
   };
 
   onFormDocChange = formData => {
