@@ -1611,7 +1611,15 @@ describe('lead', () => {
       title: 'Thank you for submitting.',
       content: 'We have received your request',
       customerId: customer._id,
-      formId: form._id
+      formId: form._id,
+      attachments: [
+        {
+          name: 'name',
+          url: 'url',
+          type: 'type',
+          size: 100
+        }
+      ]
     };
 
     const response = await widgetMutations.widgetsSendEmail(
