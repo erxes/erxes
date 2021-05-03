@@ -13,6 +13,7 @@ import {
   Tasks,
   Tickets
 } from '../../../db/models';
+import { IFieldGroup } from '../../../db/models/definitions/fields';
 import { fetchElk } from '../../../elasticsearch';
 import { EXTEND_FIELDS, FIELD_CONTENT_TYPES } from '../../constants';
 import { getDocumentList } from '../../resolvers/mutations/cacheUtils';
@@ -593,4 +594,25 @@ export const fieldsCombinedByContentType = async ({
   }
 
   return fields.filter(field => !(excludedNames || []).includes(field.name));
+};
+
+export const getBoardsAndPipelines = (doc: IFieldGroup) => {
+  const boardIds: string[] = [];
+  const pipelineIds: string[] = [];
+
+  const boardsPipelines = doc.boardsPipelines || [];
+
+  for (const item of boardsPipelines) {
+    boardIds.push(item.boardId || '');
+
+    const pipelines = item.pipelineIds || [];
+
+    for (const pipelineId of pipelines) {
+      pipelineIds.push(pipelineId);
+    }
+  }
+  doc.boardIds = boardIds;
+  doc.pipelineIds = pipelineIds;
+
+  return doc;
 };
