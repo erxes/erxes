@@ -46,7 +46,8 @@ const fieldMutations = {
       {
         type: MODULE_NAMES.FIELD,
         newData: args,
-        object: field
+        object: field,
+        description: `Field "${args.text}" has been created`
       },
       user
     );
