@@ -1,3 +1,4 @@
+import dayjs from 'dayjs';
 import Attachment from 'modules/common/components/Attachment';
 import { __ } from 'modules/common/utils';
 import Wrapper from 'modules/layout/components/Wrapper';
@@ -258,6 +259,12 @@ class EmailStatistics extends React.Component<Props> {
             <p>
               Campaign has run: <strong>{message.runCount || 0} times</strong>
             </p>
+            {message.lastRunAt ? (
+              <p>
+                Last run at:{' '}
+                <strong>{dayjs(message.lastRunAt).format('lll')}</strong>
+              </p>
+            ) : null}
           </InfoWrapper>
           <RightSection>
             {this.renderEmailStats()}
