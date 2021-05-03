@@ -54,8 +54,8 @@ const tagMutations = {
    * Removes a tag
    */
   async tagsRemove(_root, { _id }: { _id: string }, { user }: IContext) {
-    const removed = await Tags.removeTag(_id);
     const tag = await Tags.findOne({ _id });
+    const removed = await Tags.removeTag(_id);
 
     await putDeleteLog(
       {
