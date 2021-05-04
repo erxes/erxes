@@ -1,7 +1,12 @@
 import * as React from 'react';
 import { AppConsumer } from '../../messenger/containers/AppContext';
 import { IEmailParams, IIntegration } from '../../types';
-import { __, checkLogicFulfilled, fixErrorMessage, LogicParams } from '../../utils';
+import {
+  __,
+  checkLogicFulfilled,
+  fixErrorMessage,
+  LogicParams
+} from '../../utils';
 import { connection } from '../connection';
 import {
   FieldValue,
@@ -42,6 +47,18 @@ class Form extends React.Component<Props, State> {
   componentDidMount() {
     if (this.props.setHeight) {
       this.props.setHeight();
+    }
+
+    if (this.props.integration.leadData.css) {
+      const head = document.getElementsByTagName('head')[0];
+      const style = document.createElement('style');
+      style.setAttribute('type', 'text/css');
+
+      style.appendChild(
+        document.createTextNode(this.props.integration.leadData.css)
+      );
+
+      head.appendChild(style);
     }
   }
 
@@ -105,15 +122,19 @@ class Form extends React.Component<Props, State> {
     const doc: any = {};
 
     form.fields.forEach(field => {
-
       let isHidden = false;
-      if (field.logicAction && field.logicAction === 'show' && field.logics && field.logics.length > 0) {
+      if (
+        field.logicAction &&
+        field.logicAction === 'show' &&
+        field.logics &&
+        field.logics.length > 0
+      ) {
         isHidden = true;
       }
 
       let value = '';
 
-      if (field.type === 'html'){
+      if (field.type === 'html') {
         value = field.content || '';
       }
 
@@ -173,29 +194,36 @@ class Form extends React.Component<Props, State> {
 
       if (field.logics && field.logics.length > 0) {
         const logics: LogicParams[] = field.logics.map(logic => {
-          const { validation, value, type } = this.state.doc[logic.fieldId]
+          const { validation, value, type } = this.state.doc[logic.fieldId];
 
-          return { fieldId: logic.fieldId, operator: logic.logicOperator, logicValue: logic.logicValue, fieldValue: value, validation, type }
-        })
+          return {
+            fieldId: logic.fieldId,
+            operator: logic.logicOperator,
+            logicValue: logic.logicValue,
+            fieldValue: value,
+            validation,
+            type
+          };
+        });
 
-        const isLogicsFulfilled = checkLogicFulfilled(logics)
+        const isLogicsFulfilled = checkLogicFulfilled(logics);
 
         if (field.logicAction && field.logicAction === 'show') {
           if (!isLogicsFulfilled) {
-            this.hideField(field._id)
+            this.hideField(field._id);
             return null;
           }
         }
 
         if (field.logicAction && field.logicAction === 'hide') {
           if (isLogicsFulfilled) {
-            this.hideField(field._id)
+            this.hideField(field._id);
             return null;
           }
         }
       }
 
-      this.showField(field._id)
+      this.showField(field._id);
       return (
         <Field
           key={field._id}
@@ -229,16 +257,15 @@ class Form extends React.Component<Props, State> {
             <div dangerouslySetInnerHTML={{ __html: extraContent }} />
           ) : null}
 
-          <div className="erxes-form-fields">
-            {this.renderFields()}
-          </div>
+          <div className="erxes-form-fields">{this.renderFields()}</div>
 
           <button
             style={{ background: color }}
             type="button"
             onClick={this.onSubmit}
-            className={`erxes-button btn-block ${isSubmitting ? 'disabled' : ''
-              }`}
+            className={`erxes-button btn-block ${
+              isSubmitting ? 'disabled' : ''
+            }`}
             disabled={isSubmitting}
           >
             {isSubmitting ? __('Loading ...') : form.buttonText || __('Send')}

@@ -82,6 +82,7 @@ type State = {
 
   currentMode: 'create' | 'update' | undefined;
   currentField?: IField;
+  css?: string;
 };
 
 class Lead extends React.Component<Props, State> {
@@ -136,7 +137,8 @@ class Lead extends React.Component<Props, State> {
       carousel: callout.skip ? 'form' : 'callout',
 
       currentMode: undefined,
-      currentField: undefined
+      currentField: undefined,
+      css: leadData.css || ''
     };
   }
 
@@ -192,7 +194,8 @@ class Lead extends React.Component<Props, State> {
           skip: this.state.isSkip
         },
         rules: (rules || []).filter(rule => rule.condition && rule.value),
-        isRequireOnce: this.state.isRequireOnce
+        isRequireOnce: this.state.isRequireOnce,
+        css: this.state.css
       }
     };
 
@@ -284,7 +287,8 @@ class Lead extends React.Component<Props, State> {
       rules,
       formData,
       isRequireOnce,
-      channelIds
+      channelIds,
+      css
     } = this.state;
 
     const { integration, emailTemplates } = this.props;
@@ -310,6 +314,7 @@ class Lead extends React.Component<Props, State> {
                   calloutBtnText={calloutBtnText}
                   color={color}
                   theme={theme}
+                  css={css}
                 />
               </Step>
               <Step

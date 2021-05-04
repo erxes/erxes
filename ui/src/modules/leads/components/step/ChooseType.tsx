@@ -1,4 +1,5 @@
 import { COLORS } from 'modules/boards/constants';
+import FormControl from 'modules/common/components/form/Control';
 import FormGroup from 'modules/common/components/form/Group';
 import ControlLabel from 'modules/common/components/form/Label';
 import Icon from 'modules/common/components/Icon';
@@ -13,11 +14,12 @@ import { Box, BoxRow, FlexItem, LabelWrapper } from './style';
 
 type Props = {
   type: string;
-  onChange: (name: 'type' | 'color' | 'theme', value: string) => void;
+  onChange: (name: 'type' | 'color' | 'theme' | 'css', value: string) => void;
   calloutTitle?: string;
   calloutBtnText?: string;
   color: string;
   theme: string;
+  css?: string;
 };
 
 class ChooseType extends React.Component<Props, {}> {
@@ -36,6 +38,11 @@ class ChooseType extends React.Component<Props, {}> {
     return this.props.onChange('type', value);
   }
 
+  onChangeCss = e => {
+    console.log(e.currentTarget);
+    this.props.onChange('css', (e.currentTarget as HTMLInputElement).value);
+  };
+
   onColorChange = e => {
     this.setState({ color: e.hex, theme: '#000' }, () => {
       this.props.onChange('color', e.hex);
@@ -44,7 +51,7 @@ class ChooseType extends React.Component<Props, {}> {
   };
 
   render() {
-    const { color, theme } = this.props;
+    const { color, theme, css } = this.props;
 
     const popoverTop = (
       <Popover id="color-picker">
@@ -100,6 +107,16 @@ class ChooseType extends React.Component<Props, {}> {
               'slideInRight'
             )}
           </BoxRow>
+
+          <FormGroup>
+            <ControlLabel>Custom CSS</ControlLabel>
+            <FormControl
+              id="css"
+              componentClass="textarea"
+              value={css}
+              onChange={this.onChangeCss}
+            />
+          </FormGroup>
         </LeftItem>
       </FlexItem>
     );

@@ -144,6 +144,7 @@ export interface IIntegrationLeadData {
   rules?: IRule;
   isRequireOnce?: boolean;
   attachments?: IAttachment[];
+  css?: string;
 }
 
 export interface IIntegrationUiOptions {
