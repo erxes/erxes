@@ -109,6 +109,10 @@ const knowledgeBaseQueries = {
       modifiedDate: -1
     });
 
+    if (!args.page && !args.perPage) {
+      return categories;
+    }
+
     return paginate(categories, args);
   },
 
