@@ -129,7 +129,20 @@ export const BarItems = styled(BarItemsCommon)`
       display: flex;
       align-items: center;
       justify-content: space-between;
-      padding-right: 10px;
+      transition: all ease 0.3s;
+
+      > i {
+        padding: 0 ${dimensions.unitSpacing + 5}px;
+      }
+
+      > a:hover,
+      > a:focus {
+        background: transparent;
+      }
+
+      &:hover {
+        background: ${colors.bgActive};
+      }
     }
   }
 `;

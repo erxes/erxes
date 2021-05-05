@@ -65,7 +65,7 @@ class MainActionBar extends React.Component<Props> {
         <li key={board._id}>
           <Link to={link}>{board.name}</Link>
           {currentBoard && board._id === currentBoard._id && (
-            <Icon icon="check-1" size={20} />
+            <Icon icon="check-1" size={15} />
           )}
         </li>
       );
@@ -99,7 +99,7 @@ class MainActionBar extends React.Component<Props> {
             {pipeline.name}
           </Link>
           {currentPipeline && pipeline._id === currentPipeline._id && (
-            <Icon icon="check-1" size={20} />
+            <Icon icon="check-1" size={15} />
           )}
         </li>
       );
