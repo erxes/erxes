@@ -36,20 +36,13 @@ const installCodeIncludeScript = (type: string) => {
   `;
 };
 
-const getInstallCode = (brandCode: string, formCode: string, css?: string) => {
-  let style = '';
-
-  if (css && css.length > 0) {
-    style = 'css:' + '`' + css + '`';
-  }
-
+const getInstallCode = (brandCode: string, formCode: string) => {
   return `
     <script>
       window.erxesSettings = {
         forms: [{
           brand_id: "${brandCode}",
-          form_id: "${formCode}",
-          ${style}
+          form_id: "${formCode}"
         }],
       };
       ${installCodeIncludeScript('form')}
@@ -84,11 +77,7 @@ class Manage extends React.Component<Props, State> {
       const form = integration.form || {};
 
       if (brand) {
-        code = getInstallCode(
-          brand.code,
-          form.code || '',
-          integration.leadData.css
-        );
+        code = getInstallCode(brand.code, form.code || '');
       }
 
       embedCode = getEmbedCode(form.code || '');

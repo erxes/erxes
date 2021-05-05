@@ -28,6 +28,7 @@ import {
   SuccessStep
 } from './step';
 import { PreviewWrapper } from './step/style';
+import StyleSheetStep from './step/StyleSheetStep';
 
 type Props = {
   integration?: ILeadIntegration;
@@ -314,7 +315,6 @@ class Lead extends React.Component<Props, State> {
                   calloutBtnText={calloutBtnText}
                   color={color}
                   theme={theme}
-                  css={css}
                 />
               </Step>
               <Step
@@ -378,6 +378,15 @@ class Lead extends React.Component<Props, State> {
                   onChange={this.onChange}
                 />
               </Step>
+
+              <Step
+                img="/images/icons/erxes-05.svg"
+                title="Advanced styling"
+                onClick={this.onStepClick}
+              >
+                <StyleSheetStep css={css} onChange={this.onChange} />
+              </Step>
+
               <Step
                 img="/images/icons/erxes-13.svg"
                 title="Confirmation"
