@@ -6,12 +6,23 @@ import { IOption } from 'modules/common/types';
 import * as React from 'react';
 import Dropdown from 'react-bootstrap/Dropdown';
 import styled from 'styled-components';
+import { __ } from 'erxes-ui/lib/utils/core';
 
 const Wrapper = styled.div`
   padding-right: ${dimensions.coreSpacing}px;
 
   .dropdown-menu {
-    max-height: 300px;
+    padding: 0;
+
+    .dropdown-list {
+      max-height: 300px;
+      overflow: auto;
+    }
+
+    > h3 {
+      padding: ${dimensions.unitSpacing}px
+        ${dimensions.coreSpacing + dimensions.unitSpacing}px;
+    }
   }
 `;
 
@@ -106,14 +117,17 @@ class BrandChooser extends React.Component<IProps> {
             {this.renderTrigger()}
           </Dropdown.Toggle>
           <Dropdown.Menu>
-            {items.map((item: IOption) => (
-              <li key={item.value}>
-                <ActionItem onClick={onChangeItem.bind(this, item.value)}>
-                  {item.label}
-                  {this.isChecked(item) && <Icon icon="check-1" />}
-                </ActionItem>
-              </li>
-            ))}
+            <h3 className="popover-header">{__('Choose a brand')}</h3>
+            <div className="dropdown-list">
+              {items.map((item: IOption) => (
+                <li key={item.value}>
+                  <ActionItem onClick={onChangeItem.bind(this, item.value)}>
+                    {item.label}
+                    {this.isChecked(item) && <Icon icon="check-1" />}
+                  </ActionItem>
+                </li>
+              ))}
+            </div>
           </Dropdown.Menu>
         </Dropdown>
       </Wrapper>
