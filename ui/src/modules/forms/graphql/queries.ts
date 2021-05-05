@@ -97,6 +97,7 @@ const integrationDetail = `
         createdDate
         createdUserId
         buttonText
+        numberOfPages
         themeColor
         contactsGathered
         viewCount
@@ -128,6 +129,7 @@ const formDetail = `
       type
       description
       buttonText
+      numberOfPages
       createdDate
       createdUserId
       createdUser {
@@ -177,6 +179,7 @@ const fields = `
         text
         contentType
       }
+      pageNumber
     }
   }
 `;

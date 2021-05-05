@@ -262,23 +262,24 @@ const prepareCustomFieldsData = (
 ) => {
   const customFieldsData: ICustomField[] = [];
 
+  console.log('submissionDatas: ', submissionDatas);
+
   if (customerDatas.length === 0) {
     return submissionDatas;
   }
 
-  for (const customerData of customerDatas) {
-    for (const data of submissionDatas) {
-      if (customerData.field !== data.field) {
-        customFieldsData.push(customerData);
-      } else {
-        if (Array.isArray(customerData.value)) {
-          data.value = customerData.value.concat(data.value);
-        }
+  for (const data of submissionDatas) {
+    const existingData = customerDatas.find(e => e.field === data.field);
 
-        customFieldsData.push(data);
+    if (existingData) {
+      if (Array.isArray(existingData.value)) {
+        data.value = existingData.value.concat(data.value);
       }
     }
+    customFieldsData.push(data);
   }
+
+  console.log('customFieldsData: ', customFieldsData);
 
   return customFieldsData;
 };

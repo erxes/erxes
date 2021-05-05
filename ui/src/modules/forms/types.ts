@@ -8,6 +8,7 @@ export interface IForm {
   type?: string;
   description?: string;
   buttonText?: string;
+  numberOfPages?: number;
   createdUserId?: string;
   createdUser?: IUser;
   createdDate?: Date;
@@ -25,6 +26,7 @@ export interface IFormData {
   btnText?: string;
   fields?: IField[];
   type?: string;
+  numberOfPages?: number;
 }
 
 // mutation types
@@ -33,6 +35,7 @@ export type AddFormMutationVariables = {
   description?: string;
   buttonText?: string;
   type: string;
+  numberOfPages?: number;
 };
 
 export type AddFormMutationResponse = {
@@ -47,6 +50,7 @@ export type EditFormMutationVariables = {
   description?: string;
   buttonText?: string;
   type: string;
+  numberOfPages?: number;
 };
 
 export type EditFormMutationResponse = {

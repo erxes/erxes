@@ -127,7 +127,8 @@ class Lead extends React.Component<Props, State> {
         desc: form.description || '',
         btnText: form.buttonText || 'Send',
         fields: [],
-        type: form.type || ''
+        type: form.type || '',
+        numberOfPages: form.numberOfPages || 1
       },
       theme: leadData.themeColor || '#6569DF',
       isRequireOnce: leadData.isRequireOnce,

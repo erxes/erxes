@@ -35,6 +35,7 @@ type State = {
   desc: string;
   type?: string;
   btnText: string;
+  numberOfPages?: number;
 };
 
 class Form extends React.Component<Props, State> {
@@ -50,7 +51,8 @@ class Form extends React.Component<Props, State> {
       btnText: form.buttonText || 'Send',
       currentMode: undefined,
       currentField: undefined,
-      type: props.type || ''
+      type: props.type || '',
+      numberOfPages: form.numberOfPages || 1
     };
   }
 
@@ -85,7 +87,7 @@ class Form extends React.Component<Props, State> {
     }
 
     const { onDocChange } = this.props;
-    const { title, btnText, desc } = this.state;
+    const { title, btnText, desc, numberOfPages } = this.state;
 
     const onChangeField = e => {
       const name: keyof State = e.target.name;
@@ -117,6 +119,16 @@ class Form extends React.Component<Props, State> {
             name="desc"
             value={desc}
             onChange={onChangeField}
+          />
+        </FormGroup>
+
+        <FormGroup>
+          <ControlLabel>{__('Number of pages')}</ControlLabel>
+          <FormControl
+            name="numberOfPages"
+            value={numberOfPages}
+            onChange={onChangeField}
+            type={'number'}
           />
         </FormGroup>
 
@@ -190,7 +202,13 @@ class Form extends React.Component<Props, State> {
 
   render() {
     const { renderPreviewWrapper } = this.props;
-    const { currentMode, currentField, fields, desc } = this.state;
+    const {
+      currentMode,
+      currentField,
+      fields,
+      desc,
+      numberOfPages
+    } = this.state;
 
     const renderer = () => {
       return (
@@ -218,6 +236,7 @@ class Form extends React.Component<Props, State> {
             mode={currentMode || 'create'}
             field={currentField}
             fields={fields}
+            numberOfPages={numberOfPages || 1}
             onSubmit={this.onFieldSubmit}
             onDelete={this.onFieldDelete}
             onCancel={this.onFieldFormCancel}

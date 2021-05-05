@@ -4,6 +4,7 @@ export const formDetailQuery = `
       title
       description
       buttonText
+      numberOfPages
 
       fields {
         _id
@@ -21,6 +22,7 @@ export const formDetailQuery = `
         
         groupId
         logicAction
+        pageNumber
         logics {
           fieldId
           logicOperator

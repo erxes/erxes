@@ -130,7 +130,8 @@ class FullPreviewStep extends React.Component<Props, State> {
         title: formData.title,
         desc: formData.desc,
         btnText: formData.btnText,
-        type: formData.type
+        type: formData.type,
+        numberOfPages: formData.numberOfPages
       });
     }
   }
@@ -168,6 +169,7 @@ class FullPreviewStep extends React.Component<Props, State> {
               mode={currentMode || 'create'}
               fields={fields}
               field={currentField}
+              numberOfPages={formData.numberOfPages || 1}
               onSubmit={this.onFieldSubmit}
               onDelete={this.onFieldDelete}
               onCancel={this.onFieldFormCancel}
