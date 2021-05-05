@@ -125,7 +125,9 @@ export const start = async (data: IEmailParams) => {
       `Unverified emails limit exceeded ${unverifiedEmailsLimit}. Customers who have unverified emails will be eliminated.`
     );
 
-    filteredCustomers = customers.map(c => c.emailValidationStatus === 'valid');
+    filteredCustomers = customers.filter(
+      c => c.primaryEmail && c.emailValidationStatus === 'valid'
+    );
   } else {
     filteredCustomers = customers;
   }

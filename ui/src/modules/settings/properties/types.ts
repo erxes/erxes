@@ -40,6 +40,12 @@ export interface IField {
   groupName?: string;
 }
 
+export interface IBoardSelectItem {
+  _id?: string;
+  boardId: string;
+  pipelineIds: string[];
+}
+
 export interface IFieldGroup {
   _id: string;
   name: string;
@@ -52,6 +58,7 @@ export interface IFieldGroup {
   fields: IField[];
   lastUpdatedUserId: string;
   lastUpdatedUser: IUser;
+  boardsPipelines?: IBoardSelectItem[];
 }
 
 export interface IContentTypeFields {

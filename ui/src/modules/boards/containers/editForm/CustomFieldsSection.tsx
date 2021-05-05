@@ -63,22 +63,25 @@ const CustomFieldsSection = (props: FinalProps) => {
 };
 
 export default (props: Props) => {
-  const { options } = props;
+  const { options, item } = props;
 
   return renderWithProps<Props>(
     props,
     compose(
-      graphql<Props, FieldsGroupsQueryResponse, { contentType: string }>(
-        gql(fieldQueries.fieldsGroups),
-        {
-          name: 'fieldsGroupsQuery',
-          options: () => ({
-            variables: {
-              contentType: options.type
-            }
-          })
-        }
-      ),
+      graphql<
+        Props,
+        FieldsGroupsQueryResponse,
+        { contentType: string; boardId: string }
+      >(gql(fieldQueries.fieldsGroups), {
+        name: 'fieldsGroupsQuery',
+        options: () => ({
+          variables: {
+            contentType: options.type,
+            boardId: item.boardId || '',
+            pipelineId: item.pipeline._id || ''
+          }
+        })
+      }),
       graphql<Props, SaveMutation, IItemParams>(
         gql(options.mutations.editMutation),
         {
