@@ -99,7 +99,7 @@ class BrandChooser extends React.Component<IProps> {
 
     return (
       <Trigger>
-        <Icon icon="postcard" /> Brands
+        <Icon icon="postcard" /> {__('Brands')}
         <span>{this.props.selectedItems.length}</span>
       </Trigger>
     );
