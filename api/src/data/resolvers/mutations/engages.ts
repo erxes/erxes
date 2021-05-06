@@ -1,5 +1,5 @@
 import * as _ from 'underscore';
-import { Customers, EngageMessages, Users } from '../../../db/models';
+import { Customers, EngageMessages } from '../../../db/models';
 import { IEngageMessage } from '../../../db/models/definitions/engages';
 import { MESSAGE_KINDS, MODULE_NAMES } from '../../constants';
 import { putCreateLog, putDeleteLog, putUpdateLog } from '../../logUtils';
@@ -10,6 +10,7 @@ import {
   replaceEditorAttributes,
   sendToWebhook
 } from '../../utils';
+import { getDocument } from './cacheUtils';
 import { checkCampaignDoc, send } from './engageUtils';
 
 interface IEngageMessageEdit extends IEngageMessage {
@@ -39,7 +40,7 @@ const engageMutations = {
   async engageMessageAdd(
     _root,
     doc: IEngageMessage,
-    { user, docModifier, dataSources }: IContext
+    { user, docModifier }: IContext
   ) {
     checkCampaignDoc(doc);
 
@@ -54,11 +55,7 @@ const engageMutations = {
 
     await sendToWebhook('create', 'engageMessages', engageMessage);
 
-    const configs = (await dataSources.EngagesAPI.engagesConfigDetail()) || [];
-    const config = configs.find(c => c.code === 'smsLimit');
-    const smsLimit = config && config.value ? parseInt(config.value, 10) : 0;
-
-    await send(engageMessage, smsLimit);
+    await send(engageMessage);
 
     await putCreateLog(
       {
@@ -235,7 +232,7 @@ const engageMutations = {
     }
 
     const customer = await Customers.findOne({ primaryEmail: to });
-    const targetUser = await Users.findOne({ email: to });
+    const targetUser = await getDocument('users', { email: to });
 
     const { replacedContent } = await replaceEditorAttributes({
       content,
@@ -263,7 +260,10 @@ const engageMutations = {
       createdBy: user._id,
       title: `${sourceCampaign.title}-copied`,
       isDraft: true,
-      isLive: false
+      isLive: false,
+      runCount: 0,
+      totalCustomersCount: 0,
+      validCustomersCount: 0
     });
 
     delete doc._id;

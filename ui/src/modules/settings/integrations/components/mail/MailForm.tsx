@@ -58,6 +58,7 @@ type Props = {
   brandId?: string;
   mails?: IMessage[];
   messageId?: string;
+  totalCount?: number;
   closeModal?: () => void;
   toggleReply?: () => void;
   emailSignatures: IEmailSignature[];
@@ -808,6 +809,7 @@ class MailForm extends React.Component<Props, State> {
       isReply,
       emailTemplates,
       toggleReply,
+      totalCount,
       fetchMoreEmailTemplates
     } = this.props;
 
@@ -838,6 +840,7 @@ class MailForm extends React.Component<Props, State> {
 
             <EmailTemplate
               onSelect={this.templateChange}
+              totalCount={totalCount}
               fetchMoreEmailTemplates={fetchMoreEmailTemplates}
               targets={generateEmailTemplateParams(emailTemplates || [])}
             />

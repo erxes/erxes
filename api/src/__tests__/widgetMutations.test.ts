@@ -43,7 +43,7 @@ import {
 } from '../db/models/definitions/constants';
 import { ICustomerDocument } from '../db/models/definitions/customers';
 import { IIntegrationDocument } from '../db/models/definitions/integrations';
-import memoryStorage from '../inmemoryStorage';
+import * as elk from '../elasticsearch';
 import './setup.ts';
 
 describe('messenger connect', () => {
@@ -73,9 +73,6 @@ describe('messenger connect', () => {
     await Integrations.deleteMany({});
     await Customers.deleteMany({});
     await MessengerApps.deleteMany({});
-
-    memoryStorage().removeKey(`erxes_integration_messenger_${_brand.id}`);
-    memoryStorage().removeKey(`erxes_brand_${_brand.code}`);
   });
 
   test('brand not found', async () => {
@@ -257,31 +254,6 @@ describe('messenger connect', () => {
 
     expect(response.customerId).toBeUndefined();
     expect(response.visitorId).toBe('123');
-
-    logUtilsMock.restore();
-    mock.restore();
-  });
-
-  test('creates new customer when logger is not running', async () => {
-    const mock = sinon.stub(utils, 'sendRequest').callsFake(() => {
-      return Promise.resolve('success');
-    });
-
-    const logUtilsMock = sinon
-      .stub(logUtils, 'sendToVisitorLog')
-      .callsFake(() => {
-        throw new Error('fake error');
-      });
-
-    const response = await widgetMutations.widgetsMessengerConnect(
-      {},
-      {
-        brandCode: _brand.code || '',
-        visitorId: '123'
-      }
-    );
-
-    expect(response.customerId).toBeDefined();
 
     logUtilsMock.restore();
     mock.restore();
@@ -684,11 +656,6 @@ describe('insertMessage()', () => {
       }
     ]);
 
-    await memoryStorage().set(
-      `bot_initial_message_${_integrationBot._id}`,
-      JSON.stringify({ text: 'Hi there' })
-    );
-
     const sendToVisitorLogMock = sinon
       .stub(logUtils, 'sendToVisitorLog')
       .callsFake(() => {
@@ -722,10 +689,6 @@ describe('insertMessage()', () => {
         text: 'Response of quick reply'
       }
     ]);
-
-    await memoryStorage().removeKey(
-      `bot_initial_message_${_integrationBot._id}`
-    );
 
     visitorMock.restore();
     sendToVisitorLogMock.restore();
@@ -1150,12 +1113,6 @@ describe('lead', () => {
     } catch (e) {
       expect(e.message).toBe('Integration not found');
     }
-
-    memoryStorage().removeKey(`erxes_brand_${brand.code}`);
-    memoryStorage().removeKey(`erxes_brand_code`);
-    memoryStorage().removeKey(
-      `erxes_integration_lead_${brand._id}_${form._id}`
-    );
   });
 
   test('leadConnect: success', async () => {
@@ -1185,12 +1142,6 @@ describe('lead', () => {
     expect(response1 && response1.integration._id).toBe(integration._id);
     expect(response1 && response1.form._id).toBe(form._id);
 
-    // Get integration from cache ===========================
-    memoryStorage().set(
-      `erxes_integration_lead_${brand._id}_${form._id}`,
-      JSON.stringify(integration)
-    );
-
     const response = await widgetMutations.widgetsLeadConnect(
       {},
       {
@@ -1201,11 +1152,6 @@ describe('lead', () => {
 
     expect(response && response.integration._id).toBe(integration._id);
     expect(response && response.form._id).toBe(form._id);
-
-    memoryStorage().removeKey(`erxes_brand_${brand.code}`);
-    memoryStorage().removeKey(
-      `erxes_integration_lead_${brand._id}_${form._id}`
-    );
 
     mock.restore();
   });
@@ -1245,11 +1191,6 @@ describe('lead', () => {
     expect(response).toBeNull();
 
     mock.restore();
-
-    memoryStorage().removeKey(`erxes_brand_${brand.code}`);
-    memoryStorage().removeKey(
-      `erxes_integration_lead_${brand._id}_${form._id}`
-    );
   });
 
   test('saveLead: form not found', async () => {
@@ -1654,6 +1595,15 @@ describe('lead', () => {
   test('widgetsSendEmail', async () => {
     const customer = await customerFactory({});
     const form = await formFactory({});
+    const integration = await integrationFactory({});
+
+    const mock = sinon.stub(elk, 'fetchElk').callsFake(() => {
+      return Promise.resolve({
+        hits: {
+          hits: [{ _id: integration._id, _source: { name: integration.name } }]
+        }
+      });
+    });
 
     const emailParams = {
       toEmails: ['test-mail@gmail.com'],
@@ -1661,7 +1611,15 @@ describe('lead', () => {
       title: 'Thank you for submitting.',
       content: 'We have received your request',
       customerId: customer._id,
-      formId: form._id
+      formId: form._id,
+      attachments: [
+        {
+          name: 'name',
+          url: 'url',
+          type: 'type',
+          size: 100
+        }
+      ]
     };
 
     const response = await widgetMutations.widgetsSendEmail(
@@ -1670,5 +1628,6 @@ describe('lead', () => {
     );
 
     expect(response).toBe(undefined);
+    mock.restore();
   });
 });

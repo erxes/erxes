@@ -15,6 +15,7 @@ type Props = {
     name: 'brandIds' | 'tagIds' | 'segmentIds',
     value: string[]
   ) => void;
+  segmentType?: string;
   segmentIds: string[];
   brandIds: string[];
   tagIds: string[];
@@ -22,13 +23,14 @@ type Props = {
 
 type State = {
   messageType: string;
+  segmentType: string;
 };
 
 class MessageTypeStep extends React.Component<Props, State> {
   constructor(props) {
     super(props);
 
-    const { brandIds = [], tagIds = [] } = props;
+    const { brandIds = [], tagIds = [], segmentType } = props;
 
     let messageType: string = CAMPAIGN_TARGET_TYPES.SEGMENT;
 
@@ -39,13 +41,44 @@ class MessageTypeStep extends React.Component<Props, State> {
       messageType = CAMPAIGN_TARGET_TYPES.TAG;
     }
 
-    this.state = { messageType };
+    this.state = { messageType, segmentType };
   }
 
-  onChange = (e: React.FormEvent<HTMLElement>) => {
-    this.setState({ messageType: (e.target as HTMLInputElement).value });
+  onChange = (key, e: React.FormEvent<HTMLElement>) => {
+    this.setState({ [key]: (e.target as HTMLInputElement).value } as any);
     this.props.clearState();
   };
+
+  renderSegmentType() {
+    const { messageType } = this.state;
+
+    if (messageType !== 'segment') {
+      return null;
+    }
+
+    return (
+      <SelectMessageType>
+        <FormGroup>
+          <ControlLabel>Segment type:</ControlLabel>
+          <FormControl
+            id="segmentType"
+            value={this.state.segmentType}
+            componentClass="select"
+            options={[
+              { value: 'visitor', label: 'Visitors' },
+              { value: 'lead', label: 'Leads' },
+              { value: 'customer', label: 'Customers' },
+              { value: 'company', label: 'Company contacts' },
+              { value: 'deal', label: 'Deal contacts' },
+              { value: 'task', label: 'Task contacts' },
+              { value: 'ticket', label: 'Ticket contacts' }
+            ]}
+            onChange={this.onChange.bind(this, 'segmentType')}
+          />
+        </FormGroup>
+      </SelectMessageType>
+    );
+  }
 
   renderSelector() {
     const options = CAMPAIGN_TARGET_TYPES.ALL.map(opt => ({
@@ -62,7 +95,7 @@ class MessageTypeStep extends React.Component<Props, State> {
             value={this.state.messageType}
             componentClass="select"
             options={options}
-            onChange={this.onChange}
+            onChange={this.onChange.bind(this, 'messageType')}
           />
         </FormGroup>
       </SelectMessageType>
@@ -74,6 +107,7 @@ class MessageTypeStep extends React.Component<Props, State> {
       <FlexItem>
         <FlexItem direction="column" overflow="auto">
           {this.renderSelector()}
+          {this.renderSegmentType()}
           {actionSelector}
           {selectedComponent}
         </FlexItem>
@@ -106,6 +140,7 @@ class MessageTypeStep extends React.Component<Props, State> {
     const commonProps = {
       ...this.props,
       messageType: this.state.messageType,
+      segmentType: this.state.segmentType,
       renderContent: args => this.renderContent(args)
     };
 

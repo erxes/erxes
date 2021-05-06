@@ -38,6 +38,7 @@ type Props = {
   users: IUser[];
   templates: IEmailTemplate[];
   kind: string;
+  segmentType?: string;
   isActionLoading: boolean;
   handleSubmit?: (name: string, e: React.MouseEvent) => void;
   save: (doc: IEngageMessageDoc) => Promise<any>;
@@ -347,7 +348,7 @@ class AutoAndManualForm extends React.Component<Props, State> {
   }
 
   render() {
-    const { renderTitle, breadcrumbs } = this.props;
+    const { renderTitle, breadcrumbs, segmentType } = this.props;
 
     const { segmentIds, brandIds, title, tagIds } = this.state;
 
@@ -382,6 +383,7 @@ class AutoAndManualForm extends React.Component<Props, State> {
             <MessageTypeStep
               onChange={this.changeState}
               clearState={this.clearState}
+              segmentType={segmentType}
               segmentIds={segmentIds}
               brandIds={brandIds}
               tagIds={tagIds}

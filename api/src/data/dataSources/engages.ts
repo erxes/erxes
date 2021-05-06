@@ -108,4 +108,17 @@ export default class EngagesAPI extends RESTDataSource {
       return { error: e.message };
     }
   }
+
+  // fetches all sms deliveries
+  public async getSmsDeliveries(params) {
+    try {
+      const response = await this.get('/telnyx/sms-deliveries', params);
+
+      return response;
+    } catch (e) {
+      debugError(e);
+
+      return { error: e.message };
+    }
+  }
 } // end class

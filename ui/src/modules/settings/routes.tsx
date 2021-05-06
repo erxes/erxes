@@ -22,6 +22,7 @@ import SkillsRoutes from './skills/routes';
 import StatusRoutes from './status/routes';
 import TeamRoutes from './team/routes';
 import WebhookRoutes from './webhook/routes';
+import SmsDeliveryRoutes from './smsDeliveries/routes';
 
 const routes = () => (
   <React.Fragment>
@@ -47,6 +48,7 @@ const routes = () => (
     <WebhookRoutes key="WebhookRoutes" />
     <CalendarRoutes key="CalendarRoutes" />
     <SkillsRoutes key="SkillsRoutes" />
+    <SmsDeliveryRoutes key="SmsDeliveryRoutes" />
   </React.Fragment>
 );
 

@@ -1,7 +1,10 @@
 import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
 import { Alert, withProps } from 'modules/common/utils';
-import { EmailTemplatesQueryResponse } from 'modules/settings/emailTemplates/containers/List';
+import {
+  EmailTemplatesQueryResponse,
+  EmailTemplatesTotalCountQueryResponse
+} from 'modules/settings/emailTemplates/containers/List';
 import { queries as templatesQuery } from 'modules/settings/emailTemplates/graphql';
 import {
   AddIntegrationMutationResponse,
@@ -18,6 +21,7 @@ import { ILeadData } from '../types';
 
 type Props = {
   emailTemplatesQuery: EmailTemplatesQueryResponse;
+  emailTemplatesTotalCountQuery: EmailTemplatesTotalCountQueryResponse;
 } & IRouterProps &
   AddIntegrationMutationResponse &
   AddFieldsMutationResponse;
@@ -107,23 +111,33 @@ class CreateLeadContainer extends React.Component<Props, State> {
   }
 }
 
-export default withProps<{}>(
+const withTemplatesQuery = withProps<Props>(
   compose(
+    graphql<Props, EmailTemplatesQueryResponse>(
+      gql(templatesQuery.emailTemplates),
+      {
+        name: 'emailTemplatesQuery',
+        options: ({ emailTemplatesTotalCountQuery }) => ({
+          variables: {
+            perPage: emailTemplatesTotalCountQuery.emailTemplatesTotalCount
+          }
+        })
+      }
+    )
+  )(CreateLeadContainer)
+);
+
+export default withProps<Props>(
+  compose(
+    graphql(gql(templatesQuery.totalCount), {
+      name: 'emailTemplatesTotalCountQuery'
+    }),
     graphql<
       {},
       AddIntegrationMutationResponse,
       AddIntegrationMutationVariables
     >(gql(mutations.integrationsCreateLeadIntegration), {
       name: 'addIntegrationMutation'
-    }),
-    graphql<Props, EmailTemplatesQueryResponse>(
-      gql(templatesQuery.emailTemplates),
-      {
-        name: 'emailTemplatesQuery',
-        options: () => ({
-          variables: { page: 1 }
-        })
-      }
-    )
-  )(withRouter<Props>(CreateLeadContainer))
+    })
+  )(withRouter<Props>(withTemplatesQuery))
 );

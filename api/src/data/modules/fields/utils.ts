@@ -11,11 +11,14 @@ import {
   Stages,
   Tags,
   Tasks,
-  Tickets,
-  Users
+  Tickets
 } from '../../../db/models';
+import { IFieldGroup } from '../../../db/models/definitions/fields';
 import { fetchElk } from '../../../elasticsearch';
 import { EXTEND_FIELDS, FIELD_CONTENT_TYPES } from '../../constants';
+import { getDocumentList } from '../../resolvers/mutations/cacheUtils';
+import { findElk } from '../../resolvers/mutations/engageUtils';
+import { isUsingElk } from '../../utils';
 import { BOARD_BASIC_INFOS } from '../fileExporter/constants';
 
 const generateBasicInfosFromSchema = async (
@@ -40,6 +43,63 @@ const generateBasicInfosFromSchema = async (
   }
 
   return queFields;
+};
+
+const getCustomFields = async (contentType: string) => {
+  if (!isUsingElk()) {
+    return Fields.find({
+      contentType,
+      isDefinedByErxes: false
+    });
+  }
+
+  return findElk('fields', {
+    bool: {
+      must: [
+        {
+          match: {
+            contentType
+          }
+        },
+        {
+          match: {
+            isDefinedByErxes: false
+          }
+        }
+      ]
+    }
+  });
+};
+
+const getSegment = async (_id: string) => {
+  if (!isUsingElk()) {
+    return Segments.findOne({ _id });
+  }
+
+  const response = await fetchElk({
+    action: 'get',
+    index: 'segments',
+    body: null,
+    _id,
+    defaultValue: null
+  });
+
+  return response && { _id: response._id, ...response._source };
+};
+
+const getFieldGroup = async (_id: string) => {
+  if (!isUsingElk()) {
+    return FieldsGroups.findOne({ _id });
+  }
+  const response = await fetchElk({
+    action: 'get',
+    index: 'fields_groups',
+    body: null,
+    _id,
+    defaultValue: null
+  });
+
+  return response && { _id: response._id, ...response._source };
 };
 
 // Checking field names, all field names must be configured correctly
@@ -173,15 +233,34 @@ export const checkFieldNames = async (type: string, fields: string[]) => {
 };
 
 const getIntegrations = async () => {
-  return Integrations.aggregate([
-    {
-      $project: {
-        _id: 0,
-        label: '$name',
-        value: '$_id'
+  if (!isUsingElk()) {
+    return Integrations.aggregate([
+      {
+        $project: {
+          _id: 0,
+          label: '$name',
+          value: '$_id'
+        }
       }
-    }
-  ]);
+    ]);
+  }
+
+  const response = await fetchElk({
+    action: 'search',
+    index: 'integrations',
+    body: {}
+  });
+
+  if (!response) {
+    return [];
+  }
+
+  return response.hits.hits.map(hit => {
+    return {
+      value: hit._id,
+      label: hit._source.name
+    };
+  });
 };
 
 const generateUsersOptions = async (
@@ -189,7 +268,7 @@ const generateUsersOptions = async (
   label: string,
   type: string
 ) => {
-  const users = await Users.find();
+  const users = await getDocumentList('users', {});
 
   const options: Array<{ label: string; value: any }> = users.map(user => ({
     value: user._id,
@@ -279,7 +358,6 @@ const generateFieldsFromSchema = async (queSchema: any, namePrefix: string) => {
 
   for (const name of Object.keys(paths)) {
     const path = paths[name];
-
     const label = path.options.label;
     const type = path.instance;
 
@@ -374,16 +452,17 @@ export const fieldsCombinedByContentType = async ({
     }
   }
 
-  const customFields = await Fields.find({
-    contentType,
-    isDefinedByErxes: false
-  });
+  const customFields = await getCustomFields(contentType);
 
   // extend fields list using custom fields data
   for (const customField of customFields) {
-    const group = await FieldsGroups.findOne({ _id: customField.groupId });
+    const group = await getFieldGroup(customField.groupId);
 
-    if (group && group.isVisible && customField.isVisible) {
+    if (
+      group &&
+      group.isVisible &&
+      (customField.isVisibleDetail || customField.isVisibleDetail === undefined)
+    ) {
       fields.push({
         _id: Math.random(),
         name: `customFieldsData.${customField._id}`,
@@ -441,10 +520,12 @@ export const fieldsCombinedByContentType = async ({
     );
 
     if (segmentId || pipelineId) {
-      const segment = await Segments.findOne({ _id: segmentId });
+      const segment = segmentId ? await getSegment(segmentId) : null;
+
       const labelOptions = await getPipelineLabelOptions(
         pipelineId || (segment ? segment.pipelineId : null)
       );
+
       const stageOptions = await getStageOptions(
         pipelineId || (segment ? segment.pipelineId : null)
       );
@@ -474,10 +555,10 @@ export const fieldsCombinedByContentType = async ({
     (contentType === 'company' || contentType === 'customer') &&
     (!usageType || usageType === 'export')
   ) {
-    const aggre = await fetchElk(
-      'search',
-      contentType === 'company' ? 'companies' : 'customers',
-      {
+    const aggre = await fetchElk({
+      action: 'search',
+      index: contentType === 'company' ? 'companies' : 'customers',
+      body: {
         size: 0,
         _source: false,
         aggs: {
@@ -496,9 +577,8 @@ export const fieldsCombinedByContentType = async ({
           }
         }
       },
-      '',
-      { aggregations: { trackedDataKeys: {} } }
-    );
+      defaultValue: { aggregations: { trackedDataKeys: {} } }
+    });
 
     const aggregations = aggre.aggregations || { trackedDataKeys: {} };
     const buckets = (aggregations.trackedDataKeys.fieldKeys || { buckets: [] })
@@ -514,4 +594,25 @@ export const fieldsCombinedByContentType = async ({
   }
 
   return fields.filter(field => !(excludedNames || []).includes(field.name));
+};
+
+export const getBoardsAndPipelines = (doc: IFieldGroup) => {
+  const boardIds: string[] = [];
+  const pipelineIds: string[] = [];
+
+  const boardsPipelines = doc.boardsPipelines || [];
+
+  for (const item of boardsPipelines) {
+    boardIds.push(item.boardId || '');
+
+    const pipelines = item.pipelineIds || [];
+
+    for (const pipelineId of pipelines) {
+      pipelineIds.push(pipelineId);
+    }
+  }
+  doc.boardIds = boardIds;
+  doc.pipelineIds = pipelineIds;
+
+  return doc;
 };

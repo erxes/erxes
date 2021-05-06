@@ -1,6 +1,5 @@
 import * as strip from 'strip';
 import {
-  Brands,
   Companies,
   Conformities,
   ConversationMessages,
@@ -9,7 +8,6 @@ import {
   Forms,
   Integrations,
   KnowledgeBaseArticles,
-  MessengerApps,
   Users
 } from '../../../db/models';
 import Messages from '../../../db/models/ConversationMessages';
@@ -25,6 +23,7 @@ import {
 } from '../../../db/models/definitions/constants';
 import { ISubmission } from '../../../db/models/definitions/fields';
 import {
+  IAttachment,
   IIntegrationDocument,
   IMessengerDataMessagesItem
 } from '../../../db/models/definitions/integrations';
@@ -34,7 +33,7 @@ import {
 } from '../../../db/models/definitions/messengerApps';
 import { debugError } from '../../../debuggers';
 import { trackViewPageEvent } from '../../../events';
-import { get, removeKey, set } from '../../../inmemoryStorage';
+import { get, set } from '../../../inmemoryStorage';
 import { graphqlPubsub } from '../../../pubsub';
 import { AUTO_BOT_MESSAGES, BOT_MESSAGE_TYPES } from '../../constants';
 import { sendToVisitorLog } from '../../logUtils';
@@ -48,6 +47,7 @@ import {
   sendToWebhook
 } from '../../utils';
 import { convertVisitorToCustomer, solveSubmissions } from '../../widgetUtils';
+import { getDocument, getMessengerApps } from './cacheUtils';
 import { conversationNotifReceivers } from './conversations';
 
 interface IWidgetEmailParams {
@@ -57,6 +57,7 @@ interface IWidgetEmailParams {
   content: string;
   customerId?: string;
   formId?: string;
+  attachments?: IAttachment[];
 }
 
 export const getMessengerData = async (integration: IIntegrationDocument) => {
@@ -77,10 +78,7 @@ export const getMessengerData = async (integration: IIntegrationDocument) => {
   }
 
   // knowledgebase app =======
-  const kbApp = await MessengerApps.findOne({
-    kind: 'knowledgebase',
-    'credentials.integrationId': integration._id
-  });
+  const kbApp = await getMessengerApps('knowledgebase', integration._id);
 
   const topicId =
     kbApp && kbApp.credentials
@@ -88,10 +86,7 @@ export const getMessengerData = async (integration: IIntegrationDocument) => {
       : null;
 
   // lead app ==========
-  const leadApp = await MessengerApps.findOne({
-    kind: 'lead',
-    'credentials.integrationId': integration._id
-  });
+  const leadApp = await getMessengerApps('lead', integration._id);
 
   const formCode =
     leadApp && leadApp.credentials
@@ -99,10 +94,7 @@ export const getMessengerData = async (integration: IIntegrationDocument) => {
       : null;
 
   // website app ============
-  const websiteApps = await MessengerApps.find({
-    kind: 'website',
-    'credentials.integrationId': integration._id
-  });
+  const websiteApps = await getMessengerApps('website', integration._id, false);
 
   return {
     ...(messengerData || {}),
@@ -113,94 +105,13 @@ export const getMessengerData = async (integration: IIntegrationDocument) => {
   };
 };
 
-export const caches = {
-  generateKey(key: string) {
-    return `erxes_${key}`;
-  },
-
-  async get({ key, callback }: { key: string; callback?: any }) {
-    key = this.generateKey(key);
-
-    let object = JSON.parse((await get(key)) || '{}') || {};
-
-    if (Object.keys(object).length === 0) {
-      object = await callback();
-
-      set(key, JSON.stringify(object));
-
-      return object;
-    }
-
-    return object;
-  },
-
-  async update(key: string, data: object) {
-    const storageKey = this.generateKey(key);
-
-    const value = await get(storageKey);
-
-    if (!value) {
-      return;
-    }
-
-    set(this.generateKey(key), JSON.stringify(data));
-  },
-
-  remove(key: string) {
-    removeKey(this.generateKey(key));
-  }
-};
-
-const getBrand = async (code: string) => {
-  const brand = await caches.get({
-    key: `brand_${code}`,
-    callback: async () => {
-      return Brands.findOne({ code });
-    }
-  });
-
-  return brand;
-};
-
-const getIntegration = async ({
-  brandId,
-  type,
-  selector,
-  formId,
-  callback
-}: {
-  brandId: string;
-  formId?: string;
-  type: string;
-  selector?: { [key: string]: string | number | boolean };
-  callback?: () => Promise<void>;
-}) => {
-  const integration = await caches.get({
-    key: 'integration_' + type + '_' + brandId + (formId ? `_${formId}` : ''),
-    callback: callback
-      ? callback
-      : async () => {
-          return Integrations.findOne(selector);
-        }
-  });
-
-  if (!integration) {
-    throw new Error('Integration not found');
-  }
-  if (integration && !integration.isActive) {
-    throw new Error(`Integration "${integration.name}" is not active`);
-  }
-
-  return integration;
-};
-
 const widgetMutations = {
   // Find integrationId by brandCode
   async widgetsLeadConnect(
     _root,
     args: { brandCode: string; formCode: string; cachedCustomerId?: string }
   ) {
-    const brand = await getBrand(args.brandCode);
+    const brand = await getDocument('brands', { code: args.brandCode });
 
     const form = await Forms.findOne({ code: args.formCode });
 
@@ -209,15 +120,10 @@ const widgetMutations = {
     }
 
     // find integration by brandId & formId
-    const integ = await getIntegration({
+    const integ = await Integrations.getIntegration({
       brandId: brand._id,
       formId: form._id,
-      type: 'lead',
-      selector: {
-        brandId: brand._id,
-        formId: form._id,
-        isActive: true
-      }
+      isActive: true
     });
 
     if (integ.leadData && integ.leadData.loadType === 'embedded') {
@@ -306,7 +212,8 @@ const widgetMutations = {
       formId: args.formId,
       submissions: args.submissions,
       customer: cachedCustomer,
-      cachedCustomerId: cachedCustomer._id
+      cachedCustomerId: cachedCustomer._id,
+      conversationId: conversation._id
     });
 
     return {
@@ -362,23 +269,21 @@ const widgetMutations = {
     const customData = data;
 
     // find brand
-    const brand = await getBrand(brandCode);
+    const brand = await getDocument('brands', { code: brandCode });
 
     if (!brand) {
       throw new Error('Invalid configuration');
     }
 
     // find integration
-    const integration = await getIntegration({
+    const integration = await getDocument('integrations', {
       brandId: brand._id,
-      type: KIND_CHOICES.MESSENGER,
-      callback: async () => {
-        return Integrations.getWidgetIntegration(
-          brandCode,
-          KIND_CHOICES.MESSENGER
-        );
-      }
+      kind: KIND_CHOICES.MESSENGER
     });
+
+    if (!integration) {
+      throw new Error('Integration not found');
+    }
 
     let customer;
 
@@ -410,17 +315,10 @@ const widgetMutations = {
     }
 
     if (visitorId) {
-      try {
-        await sendToVisitorLog(
-          { visitorId, integrationId: integration._id },
-          'createOrUpdate'
-        );
-      } catch (_e) {
-        customer = await Customers.createMessengerCustomer({
-          doc: { integrationId: integration._id },
-          customData
-        });
-      }
+      await sendToVisitorLog(
+        { visitorId, integrationId: integration._id },
+        'createOrUpdate'
+      );
     }
 
     // get or create company
@@ -549,9 +447,10 @@ const widgetMutations = {
     // to the closed conversation even if it's closed
     let conversation;
 
-    const integration = await Integrations.findOne({
-      _id: integrationId
-    }).lean();
+    const integration =
+      (await getDocument('integrations', {
+        _id: integrationId
+      })) || {};
 
     const messengerData = integration.messengerData || {};
 
@@ -814,6 +713,8 @@ const widgetMutations = {
   async widgetsSendEmail(_root, args: IWidgetEmailParams) {
     const { toEmails, fromEmail, title, content, customerId, formId } = args;
 
+    const attachments = args.attachments || [];
+
     // do not use Customers.getCustomer() because it throws error if not found
     const customer = await Customers.findOne({ _id: customerId });
     const form = await Forms.getForm(formId || '');
@@ -835,11 +736,23 @@ const widgetMutations = {
       finalContent = replacedContent || '';
     }
 
+    let mailAttachment: any = [];
+
+    if (attachments.length > 0) {
+      mailAttachment = attachments.map(file => {
+        return {
+          filename: file.name || '',
+          path: file.url || ''
+        };
+      });
+    }
+
     await sendEmail({
       toEmails,
       fromEmail,
       title,
-      template: { data: { content: finalContent } }
+      template: { data: { content: finalContent } },
+      attachments: mailAttachment
     });
   },
 
@@ -863,9 +776,10 @@ const widgetMutations = {
       type: string;
     }
   ) {
-    const integration = await Integrations.findOne({
-      _id: integrationId
-    }).lean();
+    const integration =
+      (await getDocument('integrations', {
+        _id: integrationId
+      })) || {};
 
     const { botEndpointUrl } = integration.messengerData;
 
@@ -968,9 +882,10 @@ const widgetMutations = {
 
     await set(`bot_initial_message_session_id_${integrationId}`, sessionId);
 
-    const integration = await Integrations.findOne({
-      _id: integrationId
-    }).lean();
+    const integration =
+      (await getDocument('integrations', {
+        _id: integrationId
+      })) || {};
 
     const { botEndpointUrl } = integration.messengerData;
 

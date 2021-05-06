@@ -2,18 +2,18 @@ import {
   Conformities,
   Conversations,
   EmailDeliveries,
-  EngageMessages,
   InternalNotes,
   Tasks
 } from '../../../db/models';
 import { IActivityLogDocument } from '../../../db/models/definitions/activityLogs';
 import { ACTIVITY_CONTENT_TYPES } from '../../../db/models/definitions/constants';
 import { debugExternalApi } from '../../../debuggers';
+import { collectPluginContent } from '../../../pluginUtils';
 import { fetchLogs } from '../../logUtils';
 import { moduleRequireLogin } from '../../permissions/wrappers';
 import { IContext } from '../../types';
 
-interface IListArgs {
+export interface IListArgs {
   contentType: string;
   contentId: string;
   activityType: string;
@@ -23,10 +23,10 @@ const activityLogQueries = {
   /**
    * Get activity log list
    */
-  async activityLogs(_root, doc: IListArgs, { dataSources }: IContext) {
+  async activityLogs(_root, doc: IListArgs, { dataSources, user }: IContext) {
     const { contentType, contentId, activityType } = doc;
 
-    const activities: IActivityLogDocument[] = [];
+    let activities: IActivityLogDocument[] = [];
 
     const relatedItemIds = await Conformities.savedConformity({
       mainType: contentType,
@@ -96,6 +96,7 @@ const activityLogQueries = {
       }
     };
 
+    // this also fetches campaign & sms logs, don't fetch them in default switch case
     const collectActivityLogs = async () => {
       collectItems(
         await fetchLogs(
@@ -116,17 +117,15 @@ const activityLogQueries = {
       );
     };
 
-    const collectEngageMessages = async () => {
+    const collectCampaigns = async () => {
       collectItems(
-        await EngageMessages.find({
-          customerIds: { $in: [contentId] },
-          method: 'email'
-        }),
-        'engage-email'
-      );
-      collectItems(
-        await EmailDeliveries.find({ customerId: contentId }),
-        'email'
+        await fetchLogs(
+          {
+            contentId,
+            contentType: ACTIVITY_CONTENT_TYPES.CAMPAIGN
+          },
+          'activityLogs'
+        )
       );
     };
 
@@ -169,35 +168,58 @@ const activityLogQueries = {
       }
     };
 
-    switch (activityType) {
-      case 'conversation':
-        await collectConversations();
-        break;
+    const collectEmailDeliveries = async () => {
+      await collectItems(
+        await EmailDeliveries.find({ customerId: contentId }),
+        'email'
+      );
+    };
 
-      case 'internal_note':
-        await collectInternalNotes();
-        break;
+    if (activityType && activityType.startsWith('plugin')) {
+      const pluginResponse = await collectPluginContent(
+        doc,
+        user,
+        activities,
+        collectItems
+      );
+      if (pluginResponse) {
+        activities = activities.concat(pluginResponse);
+      }
+    } else {
+      switch (activityType) {
+        case ACTIVITY_CONTENT_TYPES.CONVERSATION:
+          await collectConversations();
+          break;
 
-      case 'task':
-        await collectTasks();
-        break;
+        case ACTIVITY_CONTENT_TYPES.INTERNAL_NOTE:
+          await collectInternalNotes();
+          break;
 
-      case 'email':
-        await collectEngageMessages();
-        break;
+        case ACTIVITY_CONTENT_TYPES.TASK:
+          await collectTasks();
+          break;
 
-      case ACTIVITY_CONTENT_TYPES.SMS:
-        await collectSms();
-        break;
+        case ACTIVITY_CONTENT_TYPES.EMAIL:
+          await collectEmailDeliveries();
+          break;
 
-      default:
-        await collectConversations();
-        await collectActivityLogs();
-        await collectInternalNotes();
-        await collectEngageMessages();
-        await collectTasks();
+        case ACTIVITY_CONTENT_TYPES.SMS:
+          await collectSms();
+          break;
 
-        break;
+        case ACTIVITY_CONTENT_TYPES.CAMPAIGN:
+          await collectCampaigns();
+          break;
+
+        default:
+          await collectConversations();
+          await collectActivityLogs();
+          await collectInternalNotes();
+          await collectTasks();
+          await collectEmailDeliveries();
+
+          break;
+      }
     }
 
     activities.sort((a, b) => {

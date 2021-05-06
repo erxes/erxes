@@ -32,6 +32,7 @@ import { IConversationDocument } from '../db/models/definitions/conversations';
 import { ICustomerDocument } from '../db/models/definitions/customers';
 import { IIntegrationDocument } from '../db/models/definitions/integrations';
 import { IUserDocument } from '../db/models/definitions/users';
+
 import messageBroker from '../messageBroker';
 import './setup.ts';
 

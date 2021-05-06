@@ -1,12 +1,13 @@
-import { Conversations, Customers, Integrations, Users } from '../../db/models';
+import { Conversations, Customers } from '../../db/models';
 import { MESSAGE_TYPES } from '../../db/models/definitions/constants';
 import { IMessageDocument } from '../../db/models/definitions/conversationMessages';
 import { debugError } from '../../debuggers';
 import { IContext } from '../types';
+import { getDocument } from './mutations/cacheUtils';
 
 export default {
   user(message: IMessageDocument) {
-    return Users.findOne({ _id: message.userId });
+    return getDocument('users', { _id: message.userId });
   },
 
   customer(message: IMessageDocument) {
@@ -22,9 +23,9 @@ export default {
       return null;
     }
 
-    const integration = await Integrations.findOne({
+    const integration = await getDocument('integrations', {
       _id: conversation.integrationId
-    }).lean();
+    });
 
     if (!integration) {
       return null;

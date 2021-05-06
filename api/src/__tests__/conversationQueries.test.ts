@@ -488,7 +488,7 @@ describe('conversationQueries', () => {
     await conversationFactory({ integrationId: integration._id });
     await conversationFactory({ integrationId: integration._id });
 
-    await Channels.update(
+    await Channels.updateOne(
       { _id: channel._id },
       { $push: { memberIds: [userInChannel._id] } }
     );
@@ -517,7 +517,7 @@ describe('conversationQueries', () => {
     await conversationFactory({ integrationId: integration._id });
     await conversationFactory({ integrationId: integration._id });
 
-    await Channels.update(
+    await Channels.updateOne(
       { _id: channel._id },
       { $push: { memberIds: [userWithCodeChannel._id] } }
     );
@@ -551,7 +551,7 @@ describe('conversationQueries', () => {
     // User with skill, code and in channel =================
     const userWithCodeSkillChannel = await userFactory({ code: '003' });
 
-    await Channels.update(
+    await Channels.updateOne(
       { _id: channel._id },
       { $push: { memberIds: [userWithCodeSkillChannel._id] } }
     );
@@ -574,7 +574,7 @@ describe('conversationQueries', () => {
     // User with skill, code and no conv
     const userWithNoCov = await userFactory({ code: '004' });
 
-    await Channels.update(
+    await Channels.updateOne(
       { _id: channel._id },
       { $push: { memberIds: [userWithNoCov._id] } }
     );
@@ -2123,7 +2123,7 @@ describe('conversationQueries', () => {
     const user1 = await userFactory({ code: '001' });
     const user2 = await userFactory({ code: '003' });
 
-    await Channels.update(
+    await Channels.updateOne(
       { _id: channel._id },
       { $push: { memberIds: [user1._id, user2._id] } }
     );
@@ -2308,7 +2308,7 @@ describe('conversationQueries', () => {
     }
   });
 
-  test('Conversation detail facebook tagged mesage', async () => {
+  test('Conversation detail facebook tagged mesage (Integrations api is not running)', async () => {
     const facebookIntegration = await integrationFactory({
       kind: 'facebook-messenger'
     });
@@ -2326,6 +2326,46 @@ describe('conversationQueries', () => {
     } catch (e) {
       expect(e[0].message).toBe('Integrations api is not running');
     }
+  });
+
+  test('Conversation detail facebook tagged mesage', async () => {
+    const facebookIntegration = await integrationFactory({
+      kind: 'facebook-messenger'
+    });
+    const facebookConversation = await conversationFactory({
+      integrationId: facebookIntegration._id
+    });
+    await conversationMessageFactory({
+      conversationId: facebookConversation._id,
+      customerId: 'customerId'
+    });
+
+    const response = await graphqlRequest(
+      qryConversationDetail,
+      'conversationDetail',
+      { _id: facebookConversation._id },
+      { user, dataSources }
+    );
+
+    expect(response.isFacebookTaggedMessage).toBeFalsy();
+  });
+
+  test('Conversation detail facebook post (Integrations api is not running)', async () => {
+    const facebookIntegration = await integrationFactory({
+      kind: 'facebook-post'
+    });
+    const facebookConversation = await conversationFactory({
+      integrationId: facebookIntegration._id
+    });
+
+    const response = await graphqlRequest(
+      qryConversationDetail,
+      'conversationDetail',
+      { _id: facebookConversation._id },
+      { user, dataSources }
+    );
+
+    expect(response.facebookPost).toBe(null);
   });
 
   test('Get last conversation by channel', async () => {

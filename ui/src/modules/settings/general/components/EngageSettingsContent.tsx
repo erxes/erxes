@@ -215,7 +215,7 @@ class EngageSettingsContent extends React.Component<Props, State> {
           <FormControl
             {...formProps}
             name="smsLimit"
-            defaultValue={configsMap.smsLimit || 50}
+            defaultValue={configsMap.smsLimit || 0}
             min={50}
             max={100}
           />

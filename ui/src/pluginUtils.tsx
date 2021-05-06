@@ -7,18 +7,9 @@ import { ICustomer } from 'modules/customers/types';
 import { Divider, Row, RowTitle } from 'modules/settings/main/styles';
 import React from 'react';
 import { Route } from 'react-router-dom';
-
-const tryRequire = requirPath => {
-  try {
-    return require(`${requirPath}`);
-  } catch (err) {
-    return {};
-  }
-};
+import pluginModules from './plugins';
 
 export const pluginsOfRoutes = (currentUser: IUser) => {
-  const pluginModules = tryRequire('./plugins').default || {};
-
   const plugins: any = [];
   const pluginRoutes: any = [];
   const specialPluginRoutes: any = [];

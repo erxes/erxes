@@ -1,8 +1,8 @@
-import { Users } from '../../db/models';
 import { INotificationDocument } from '../../db/models/definitions/notifications';
+import { getDocument } from './mutations/cacheUtils';
 
 export default {
   createdUser(notif: INotificationDocument) {
-    return Users.findOne({ _id: notif.createdUser });
+    return getDocument('users', { _id: notif.createdUser });
   }
 };

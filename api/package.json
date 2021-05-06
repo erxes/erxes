@@ -21,7 +21,8 @@
     "customCommand": "node_modules/.bin/ts-node src/commands/customCommand.ts",
     "migrateBoardItems": "node_modules/.bin/ts-node src/commands/migrateBoardItems.ts",
     "createSystemFieldsGroups": "node_modules/.bin/ts-node src/commands/createSystemFieldsGroups.ts",
-    "addMiddleName": "node_modules/.bin/ts-node src/commands/addMiddleName.ts"
+    "addMiddleName": "node_modules/.bin/ts-node src/commands/addMiddleName.ts",
+    "removeUnusedFields": "node_modules/.bin/ts-node src/commands/removeUnusedFields.ts"
   },
   "dependencies": {
     "@google-cloud/pubsub": "^1.1.5",
@@ -86,6 +87,7 @@
     "requestify": "^0.2.5",
     "sha256": "^0.2.0",
     "shelljs": "^0.8.3",
+    "sift": "^13.5.0",
     "strip": "^3.0.0",
     "ts-node": "8.0.3",
     "underscore": "^1.8.3",
