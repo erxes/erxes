@@ -166,7 +166,10 @@ const syncMessages = async (accountId: string, messageId: string) => {
     const [from] = message.from;
 
     // Prevent to send email to itself
-    if (from.email === integration.email && !message.subject.includes('Re:')) {
+    if (
+      !from ||
+      (from.email === integration.email && !message.subject.includes('Re:'))
+    ) {
       return;
     }
 
