@@ -135,9 +135,13 @@ export const BarItems = styled(BarItemsCommon)`
         padding: 0 ${dimensions.unitSpacing + 5}px;
       }
 
-      > a:hover,
-      > a:focus {
-        background: transparent;
+      > a {
+        flex: 1;
+
+        &:hover,
+        &:focus {
+          background: transparent;
+        }
       }
 
       &:hover {
