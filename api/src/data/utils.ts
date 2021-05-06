@@ -1048,8 +1048,8 @@ export const findCustomer = async doc => {
     });
   }
 
-  if (!customer && doc.customerPrimaryPhone) {
-    customer = await Customers.findOne({ code: doc.customerPrimaryPhone });
+  if (!customer && doc.customerCode) {
+    customer = await Customers.findOne({ code: doc.customerCode });
   }
 
   return customer;
