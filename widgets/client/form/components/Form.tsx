@@ -214,7 +214,7 @@ class Form extends React.Component<Props, State> {
       return null;
     }
 
-    const percentage = (currentPage / numberOfPages) * 100;
+    const percentage = ((currentPage / numberOfPages) * 100).toFixed(1);
 
     return (
       <div
