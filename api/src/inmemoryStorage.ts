@@ -29,7 +29,9 @@ export const removeKey = async (key: string) => {
 
 export const removeFromArray = async (setKey: string, setMember: any) => {
   try {
-    await client.removeFromArray(setKey, setMember);
+    if (setKey && setMember) {
+      await client.removeFromArray(setKey, setMember);
+    }
   } catch (e) {
     debugError(
       `For removeFromArray of inmemoryStorage, ${setKey}: ${setMember}. Error: ${e.message}`
@@ -39,7 +41,9 @@ export const removeFromArray = async (setKey: string, setMember: any) => {
 
 export const addToArray = async (setKey: string, setMember: any) => {
   try {
-    await client.addToArray(setKey, setMember);
+    if (setKey && setMember) {
+      await client.addToArray(setKey, setMember);
+    }
   } catch (e) {
     debugError(
       `For addToArray of inmemoryStorage, ${setKey}: ${setMember}. Error: ${e.message}`

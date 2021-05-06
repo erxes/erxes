@@ -140,6 +140,12 @@ class Properties extends React.Component<
       return null;
     }
 
+    let size;
+
+    if (['task', 'deal', 'ticket'].includes(currentType)) {
+      size = 'lg';
+    }
+
     const addGroup = <Dropdown.Item>{__('Add group')}</Dropdown.Item>;
     const addField = <Dropdown.Item>{__('Add Property')}</Dropdown.Item>;
 
@@ -172,6 +178,7 @@ class Properties extends React.Component<
         <Dropdown.Menu>
           <ModalTrigger
             title="Add Group"
+            size={size}
             trigger={addGroup}
             autoOpenKey={`showProperty${currentType}Modal`}
             content={groupContent}

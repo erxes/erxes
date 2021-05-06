@@ -13,6 +13,7 @@ import { IIntegration } from '../../types';
 const Wrapper = styled.div`
   .dropdown-menu {
     max-height: 280px;
+    overflow: auto;
   }
 `;
 

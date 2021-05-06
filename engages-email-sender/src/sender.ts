@@ -125,7 +125,9 @@ export const start = async (data: IEmailParams) => {
       `Unverified emails limit exceeded ${unverifiedEmailsLimit}. Customers who have unverified emails will be eliminated.`
     );
 
-    filteredCustomers = customers.map(c => c.emailValidationStatus === 'valid');
+    filteredCustomers = customers.filter(
+      c => c.primaryEmail && c.emailValidationStatus === 'valid'
+    );
   } else {
     filteredCustomers = customers;
   }
@@ -227,17 +229,19 @@ export const sendBulkSms = async (data: ISmsParams) => {
     }
   }
 
+  if (validCustomers.length > 0) {
+    await Logs.createLog(
+      engageMessageId,
+      'regular',
+      `Preparing to send SMS to "${validCustomers.length}" customers`
+    );
+  }
+
   await setCampaignCount({
     _id: engageMessageId,
     totalCustomersCount: customers.length,
     validCustomersCount: validCustomers.length
   });
-
-  await Logs.createLog(
-    engageMessageId,
-    'regular',
-    `Preparing to send SMS to "${validCustomers.length}" customers`
-  );
 
   for (const customer of validCustomers) {
     await new Promise(resolve => {

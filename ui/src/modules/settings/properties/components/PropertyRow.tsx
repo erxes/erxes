@@ -90,9 +90,18 @@ class PropertyRow extends React.Component<Props, State> {
     return this.props.updatePropertyVisible({ _id: property._id, isVisible });
   };
 
-  renderActionButtons = (data, remove, content) => {
+  renderActionButtons = (data, remove, content, isGroup) => {
     if (data.isDefinedByErxes) {
       return null;
+    }
+
+    let size;
+
+    if (isGroup) {
+      const group: IFieldGroup = data;
+      if (['task', 'ticket', 'deal'].includes(group.contentType)) {
+        size = 'lg';
+      }
     }
 
     const onClick = () =>
@@ -107,9 +116,10 @@ class PropertyRow extends React.Component<Props, State> {
     return (
       <ActionButtons>
         <ModalTrigger
-          title="Edit Property"
+          title={isGroup ? 'Edit group' : 'Edit field'}
           trigger={<Button btnStyle="link" icon="edit-3" />}
           content={content}
+          size={size}
         />
         <Button btnStyle="link" icon="times-circle" onClick={onClick} />
       </ActionButtons>
@@ -164,9 +174,18 @@ class PropertyRow extends React.Component<Props, State> {
           <></>
         )}
         <RowField>
-          {this.renderActionButtons(field, removeProperty, props => (
-            <PropertyForm {...props} field={field} queryParams={queryParams} />
-          ))}
+          {this.renderActionButtons(
+            field,
+            removeProperty,
+            props => (
+              <PropertyForm
+                {...props}
+                field={field}
+                queryParams={queryParams}
+              />
+            ),
+            false
+          )}
         </RowField>
       </PropertyTableRow>
     );
@@ -236,13 +255,18 @@ class PropertyRow extends React.Component<Props, State> {
             <DropIcon isOpen={this.state.collapse} />
             {group.name} <span>{group.description}</span>
           </div>
-          {this.renderActionButtons(group, removePropertyGroup, props => (
-            <PropertyGroupForm
-              {...props}
-              group={group}
-              queryParams={queryParams}
-            />
-          ))}
+          {this.renderActionButtons(
+            group,
+            removePropertyGroup,
+            props => (
+              <PropertyGroupForm
+                {...props}
+                group={group}
+                queryParams={queryParams}
+              />
+            ),
+            true
+          )}
         </CollapseRow>
         <Collapse in={this.state.collapse}>
           <div>{this.renderTable(fields, group.contentType)}</div>
