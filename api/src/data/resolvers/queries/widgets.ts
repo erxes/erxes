@@ -4,9 +4,7 @@ import {
   Conversations,
   Integrations,
   KnowledgeBaseArticles as KnowledgeBaseArticlesModel,
-  KnowledgeBaseCategories as KnowledgeBaseCategoriesModel,
   KnowledgeBaseTopics,
-  KnowledgeBaseTopics as KnowledgeBaseTopicsModel,
   Users
 } from '../../../db/models';
 import Messages from '../../../db/models/ConversationMessages';
