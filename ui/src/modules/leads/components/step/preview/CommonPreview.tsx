@@ -96,23 +96,23 @@ class CommonPreview extends React.Component<Props, {}> {
       return button(btnText);
     }
 
-    if (currentPage === numberOfPages) {
+    if (currentPage === 1 && numberOfPages > 1) {
+      return button('Next', onNextClick);
+    }
+
+    if (numberOfPages > currentPage) {
       return (
         <>
           {button('Back', onbackClick)}
-          {button(btnText)}
+          {button('Next', onNextClick)}
         </>
       );
-    }
-
-    if (currentPage === 1 && numberOfPages > 1) {
-      return button('Next', onNextClick);
     }
 
     return (
       <>
         {button('Back', onbackClick)}
-        {button('Next', onNextClick)}
+        {button(btnText)}
       </>
     );
   }
