@@ -314,14 +314,16 @@ class Form extends React.Component<Props, State> {
 
     if (currentPage === numberOfPages) {
       return (
-        <>
-          {button(__('Back'), this.onbackClick, isSubmitting)}
-          {button(
-            isSubmitting ? __('Loading ...') : form.buttonText || __('Send'),
-            this.onSubmit,
-            isSubmitting
-          )}
-        </>
+        <div style={{ width: '100%' }}>
+          <div style={{ display: 'flex' }}>
+            {button(__('Back'), this.onbackClick, isSubmitting)}
+            {button(
+              isSubmitting ? __('Loading ...') : form.buttonText || __('Send'),
+              this.onSubmit,
+              isSubmitting
+            )}
+          </div>
+        </div>
       );
     }
 
@@ -330,10 +332,12 @@ class Form extends React.Component<Props, State> {
     }
 
     return (
-      <>
-        {button(__('Back'), this.onbackClick, isSubmitting)}
-        {button(__('Next'), this.onNextClick, isSubmitting)}
-      </>
+      <div style={{ width: '100%' }}>
+        <div style={{ display: 'flex' }}>
+          {button(__('Back'), this.onbackClick, isSubmitting)}
+          {button(__('Next'), this.onNextClick, isSubmitting)}
+        </div>
+      </div>
     );
   }
 

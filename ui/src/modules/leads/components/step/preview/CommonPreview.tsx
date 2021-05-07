@@ -4,6 +4,7 @@ import {
   WebPreview,
   WidgetPreview
 } from 'modules/engage/styles';
+import { FlexRow } from 'modules/settings/styles';
 import React from 'react';
 import styled from 'styled-components';
 import {
@@ -102,18 +103,18 @@ class CommonPreview extends React.Component<Props, {}> {
 
     if (numberOfPages > currentPage) {
       return (
-        <>
+        <FlexRow>
           {button('Back', onbackClick)}
           {button('Next', onNextClick)}
-        </>
+        </FlexRow>
       );
     }
 
     return (
-      <>
+      <FlexRow>
         {button('Back', onbackClick)}
         {button(btnText)}
-      </>
+      </FlexRow>
     );
   }
 
