@@ -36,6 +36,11 @@ const handleMessage = async message => {
   }
 
   const { eventType, mail } = parsedMessage;
+
+  if (!mail) {
+    return;
+  }
+
   const { headers } = mail;
 
   const engageMessageId = headers.find(
