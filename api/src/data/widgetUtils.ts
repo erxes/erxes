@@ -257,19 +257,17 @@ const getSocialLinkKey = (type: string) => {
 };
 
 const prepareCustomFieldsData = (
-  customerDatas: ICustomField[],
-  submissionDatas: ICustomField[]
+  customerData: ICustomField[],
+  submissionData: ICustomField[]
 ) => {
   const customFieldsData: ICustomField[] = [];
 
-  console.log('submissionDatas: ', submissionDatas);
-
-  if (customerDatas.length === 0) {
-    return submissionDatas;
+  if (customerData.length === 0) {
+    return submissionData;
   }
 
-  for (const data of submissionDatas) {
-    const existingData = customerDatas.find(e => e.field === data.field);
+  for (const data of submissionData) {
+    const existingData = customerData.find(e => e.field === data.field);
 
     if (existingData) {
       if (Array.isArray(existingData.value)) {
@@ -278,8 +276,6 @@ const prepareCustomFieldsData = (
     }
     customFieldsData.push(data);
   }
-
-  console.log('customFieldsData: ', customFieldsData);
 
   return customFieldsData;
 };
