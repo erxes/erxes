@@ -175,7 +175,7 @@ export const receiveIntegrationsNotification = async msg => {
 export const receiveEngagesNotification = async msg => {
   const { action, data } = msg;
 
-  if (action === 'setDoNotDisturb') {
+  if (action === 'setSubscribed') {
     const { customerId, status, customerIds = [] } = data;
     const update: any = { isSubscribed: 'No' };
 
