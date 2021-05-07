@@ -161,7 +161,12 @@ export const fieldSchema = schemaWrapper(
       optional: true,
       label: 'Stores html content form of field type with html'
     }),
-    pageNumber: field({ type: Number, optional: true })
+    pageNumber: field({
+      type: Number,
+      optional: true,
+      label: 'Number of page',
+      min: 1
+    })
   })
 );
 

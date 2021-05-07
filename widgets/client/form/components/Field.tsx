@@ -129,7 +129,7 @@ export default class Field extends React.Component<Props, State> {
   }
 
   componentDidMount() {
-    const field = this.props.field;
+    const { field } = this.props;
 
     if (field.type === 'multiSelect' || field.type === 'industry') {
       const multiSelects = Array.from(

@@ -87,7 +87,8 @@ export const formSchema = schemaWrapper(
 
     numberOfPages: field({
       type: Number,
-      optional: true
+      optional: true,
+      min: 1
     })
   })
 );

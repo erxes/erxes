@@ -131,6 +131,7 @@ class Form extends React.Component<Props, State> {
             value={numberOfPages}
             onChange={onChangeField}
             type={'number'}
+            min={1}
           />
         </FormGroup>
 
