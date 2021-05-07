@@ -39,27 +39,31 @@ const prepareMessage = async ({
   integrationId,
   to
 }: IMessageParams): Promise<ITelnyxMessageParams> => {
-  const DOMAIN = getEnv({ name: 'DOMAIN' });
-  const integration = await Integrations.getIntegration({
-    erxesApiId: integrationId
-  });
-  const { telnyxPhoneNumber, telnyxProfileId } = integration;
+  try {
+    const DOMAIN = getEnv({ name: 'DOMAIN' });
+    const integration = await Integrations.getIntegration({
+      erxesApiId: integrationId
+    });
+    const { telnyxPhoneNumber, telnyxProfileId } = integration;
 
-  const msg = {
-    from: telnyxPhoneNumber,
-    to,
-    text: content,
-    messaging_profile_id: '',
-    webhook_url: `${DOMAIN}/telnyx/webhook`,
-    webhook_failover_url: `${DOMAIN}/telnyx/webhook-failover`
-  };
+    const msg = {
+      from: telnyxPhoneNumber,
+      to,
+      text: content,
+      messaging_profile_id: '',
+      webhook_url: `${DOMAIN}/telnyx/webhook`,
+      webhook_failover_url: `${DOMAIN}/telnyx/webhook-failover`
+    };
 
-  // telnyx sets from text properly when making international sms
-  if (telnyxProfileId) {
-    msg.messaging_profile_id = telnyxProfileId;
+    // telnyx sets from text properly when making international sms
+    if (telnyxProfileId) {
+      msg.messaging_profile_id = telnyxProfileId;
+    }
+
+    return msg;
+  } catch (e) {
+    throw new Error(e);
   }
-
-  return msg;
 };
 
 const handleMessageCallback = async (
