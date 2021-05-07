@@ -97,7 +97,7 @@ export default class Field extends React.Component<Props, State> {
     onChange: (e: React.FormEvent<HTMLInputElement>) => void,
     value?: string
   ) {
-    const checked = options.indexOf(value || '') > -1 ? true : false;
+    const selectedIndex = options.indexOf(value || '');
 
     return (
       <div>
@@ -109,7 +109,7 @@ export default class Field extends React.Component<Props, State> {
               name,
               id,
               onChange,
-              checked
+              checked: index === selectedIndex
             })}
             <span>{option}</span>
           </div>
@@ -181,15 +181,9 @@ export default class Field extends React.Component<Props, State> {
           })
         );
 
-        select.reload();
-
         return select;
       });
     }
-
-    // if (field.type === 'date') {
-    //   this.setState({dateValue: new Date()})
-    // }
   }
 
   onChange = (value: FieldValue) => {
