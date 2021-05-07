@@ -25,7 +25,7 @@ export const USER_BASIC_INFOS = [
   'isActive',
   'brandIds',
   'groupIds',
-  'doNotDisturb'
+  'isSubscribed'
 ];
 
 export const BRAND_BASIC_INFOS = [
@@ -72,7 +72,7 @@ export const CUSTOMER_BASIC_INFOS = [
   'status',
   'hasAuthority',
   'description',
-  'doNotDisturb',
+  'isSubscribed',
   'integrationId',
   'code',
   'mergedIds'
@@ -89,7 +89,7 @@ export const COMPANY_BASIC_INFOS = [
   'primaryPhone',
   'businessType',
   'description',
-  'doNotDisturb',
+  'isSubscribed',
   'parentCompanyId'
 ];
 

@@ -329,8 +329,8 @@ export const updateCustomerFromForm = async (
     customerDoc.hasAuthority = doc.hasAuthority;
   }
 
-  if (doc.doNotDisturb.length > 0) {
-    customerDoc.doNotDisturb = doc.doNotDisturb;
+  if (doc.isSubscribed.length > 0) {
+    customerDoc.isSubscribed = doc.isSubscribed;
   }
 
   if (!customer.customFieldsData) {
@@ -410,7 +410,7 @@ export const solveSubmissions = async (args: {
     let avatar = '';
     let birthDate;
     let hasAuthority = '';
-    let doNotDisturb = '';
+    let isSubscribed = '';
     let description = '';
     let department = '';
     let position = '';
@@ -420,7 +420,7 @@ export const solveSubmissions = async (args: {
     let companyEmail = '';
     let companyPhone = '';
     let companyDescription = '';
-    let companyDoNotDisturb = '';
+    let companyIsSubscribed = '';
     let logo = '';
     let size = 0;
     let industries = '';
@@ -505,8 +505,8 @@ export const solveSubmissions = async (args: {
               break;
           }
           break;
-        case 'doNotDisturb':
-          doNotDisturb = submission.value;
+        case 'isSubscribed':
+          isSubscribed = submission.value;
           break;
         case 'hasAuthority':
           hasAuthority = submission.value;
@@ -526,8 +526,8 @@ export const solveSubmissions = async (args: {
         case 'companyDescription':
           companyDescription = submission.value;
           break;
-        case 'companyDoNotDisturb':
-          companyDoNotDisturb = submission.value;
+        case 'companyIsSubscribed':
+          companyIsSubscribed = submission.value;
           break;
         case 'location':
           location = submission.value;
@@ -603,7 +603,7 @@ export const solveSubmissions = async (args: {
           position,
           description,
           hasAuthority,
-          doNotDisturb,
+          isSubscribed,
           email,
           phone,
           links: customerLinks
@@ -649,7 +649,7 @@ export const solveSubmissions = async (args: {
           position,
           description,
           hasAuthority,
-          doNotDisturb,
+          isSubscribed,
           email,
           phone,
           links: customerLinks
@@ -677,7 +677,7 @@ export const solveSubmissions = async (args: {
       emails: [companyEmail],
       phones: [companyPhone],
       size,
-      doNotDisturb: companyDoNotDisturb,
+      isSubscribed: companyIsSubscribed,
       description: companyDescription,
       businessType
     };

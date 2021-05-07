@@ -25,7 +25,7 @@ export const types = `
 
     businessType: String
     description: String
-    doNotDisturb: String
+    isSubscribed: String
     links: JSON
     owner: User
     parentCompany: Company
@@ -90,7 +90,7 @@ const commonFields = `
   ownerId: String,
   businessType: String,
   description: String,
-  doNotDisturb: String,
+  isSubscribed: String,
   links: JSON,
 
   tagIds: [String]

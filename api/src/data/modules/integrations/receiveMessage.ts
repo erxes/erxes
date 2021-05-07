@@ -177,7 +177,7 @@ export const receiveEngagesNotification = async msg => {
 
   if (action === 'setDoNotDisturb') {
     const { customerId, status, customerIds = [] } = data;
-    const update: any = { doNotDisturb: 'Yes' };
+    const update: any = { isSubscribed: 'No' };
 
     if (status === AWS_EMAIL_STATUSES.BOUNCE) {
       update.emailValidationStatus = EMAIL_VALIDATION_STATUSES.INVALID;
