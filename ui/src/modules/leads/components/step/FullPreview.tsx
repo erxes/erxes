@@ -42,6 +42,7 @@ type State = {
   currentMode: 'create' | 'update' | undefined;
   currentField?: IField;
   fields: IField[];
+  currentPage: number;
 };
 
 class FullPreviewStep extends React.Component<Props, State> {
@@ -52,7 +53,8 @@ class FullPreviewStep extends React.Component<Props, State> {
       currentTab: 'desktop',
       currentMode: undefined,
       currentField: undefined,
-      fields: (props.formData && props.formData.fields) || []
+      fields: (props.formData && props.formData.fields) || [],
+      currentPage: 1
     };
   }
 
@@ -71,6 +73,10 @@ class FullPreviewStep extends React.Component<Props, State> {
         <span>{__(name)}</span>
       </CarouselInner>
     );
+  };
+
+  onPageChange = (page: number) => {
+    this.setState({ currentPage: page });
   };
 
   onChangeTab = (currentTab: string) => {
@@ -112,8 +118,18 @@ class FullPreviewStep extends React.Component<Props, State> {
   };
 
   onChangeFieldsOrder = fields => {
-    this.setState({ fields }, () => {
-      this.renderReturnValues(fields);
+    const allFields = this.state.fields;
+
+    for (const field of fields) {
+      const index = allFields.map(e => e._id).indexOf(field._id);
+
+      if (index !== -1) {
+        allFields[index] = field;
+      }
+    }
+
+    this.setState({ fields: allFields }, () => {
+      this.renderReturnValues(allFields);
     });
   };
 
@@ -148,12 +164,15 @@ class FullPreviewStep extends React.Component<Props, State> {
       const { desc } = formData;
 
       const previewRenderer = () => (
-        <FieldsPreview
-          fields={fields || []}
-          formDesc={desc}
-          onFieldClick={this.onFieldClick}
-          onChangeFieldsOrder={this.onChangeFieldsOrder}
-        />
+        <>
+          <FieldsPreview
+            fields={fields || []}
+            formDesc={desc}
+            onFieldClick={this.onFieldClick}
+            onChangeFieldsOrder={this.onChangeFieldsOrder}
+            currentPage={this.state.currentPage}
+          />
+        </>
       );
 
       return (
@@ -163,6 +182,8 @@ class FullPreviewStep extends React.Component<Props, State> {
             title={formData.title}
             btnText={formData.btnText}
             previewRenderer={previewRenderer}
+            currentPage={this.state.currentPage}
+            onPageChange={this.onPageChange}
           />
           {currentField && (
             <FieldForm

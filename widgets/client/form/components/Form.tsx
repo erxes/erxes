@@ -303,86 +303,54 @@ class Form extends React.Component<Props, State> {
     const { currentPage } = this.state;
     const { form, isSubmitting, color } = this.props;
     const numberOfPages = form.numberOfPages || 1;
-    
-    if (numberOfPages === 1) {
+
+    const button = (
+      title: any,
+      action: React.MouseEventHandler<HTMLButtonElement>,
+      disabled?: boolean
+    ) => {
       return (
         <button
-          style={{ background: color }}
+          style={{ background: color, margin: '5px' }}
           type="button"
-          onClick={this.onSubmit}
+          onClick={action}
           className={`erxes-button btn-block ${isSubmitting ? 'disabled' : ''}`}
-          disabled={isSubmitting}
+          disabled={disabled}
         >
-          {isSubmitting ? __('Loading ...') : form.buttonText || __('Send')}
+          {title}
         </button>
+      );
+    };
+
+    if (numberOfPages === 1) {
+      return button(
+        isSubmitting ? __('Loading ...') : form.buttonText || __('Send'),
+        this.onSubmit,
+        isSubmitting
       );
     }
 
     if (currentPage === numberOfPages) {
       return (
         <>
-          <button
-            style={{ background: color, bottom: 5 }}
-            type="button"
-            onClick={this.onbackClick}
-            className={`erxes-button btn-block ${
-              isSubmitting ? 'disabled' : ''
-            }`}
-            disabled={isSubmitting}
-          >
-            Back
-          </button>
-          <button
-            style={{ background: color }}
-            type="button"
-            onClick={this.onSubmit}
-            className={`erxes-button btn-block ${
-              isSubmitting ? 'disabled' : ''
-            }`}
-            disabled={isSubmitting}
-          >
-            {isSubmitting ? __('Loading ...') : form.buttonText || __('Send')}
-          </button>
+          {button(__('Back'), this.onbackClick, isSubmitting)}
+          {button(
+            isSubmitting ? __('Loading ...') : form.buttonText || __('Send'),
+            this.onSubmit,
+            isSubmitting
+          )}
         </>
       );
     }
 
-    if (currentPage === 1) {
-      return (
-        <button
-          style={{ background: color }}
-          type="button"
-          onClick={this.onNextClick}
-          className={`erxes-button btn-block ${isSubmitting ? 'disabled' : ''}`}
-          disabled={isSubmitting}
-        >
-          Next
-        </button>
-      );
+    if (currentPage === 1 && numberOfPages > 1) {
+      return button(__('Next'), this.onNextClick, isSubmitting);
     }
 
     return (
       <>
-        <button
-          style={{ background: color, bottom: 5 }}
-          type="button"
-          onClick={this.onbackClick}
-          className={`erxes-button btn-block ${isSubmitting ? 'disabled' : ''}`}
-          disabled={isSubmitting}
-        >
-          Back
-        </button>
-        <br />
-        <br />
-        <button
-          style={{ background: color }}
-          type="button"
-          onClick={this.onNextClick}
-          className={`erxes-button btn-block ${isSubmitting ? 'disabled' : ''}`}
-          disabled={isSubmitting}
-        >
-          Next
-        </button>
+        {button(__('Back'), this.onbackClick, isSubmitting)}
+        {button(__('Next'), this.onNextClick, isSubmitting)}
       </>
     );
   }

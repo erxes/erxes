@@ -36,6 +36,7 @@ type State = {
   type?: string;
   btnText: string;
   numberOfPages?: number;
+  currentPage: number;
 };
 
 class Form extends React.Component<Props, State> {
@@ -52,7 +53,8 @@ class Form extends React.Component<Props, State> {
       currentMode: undefined,
       currentField: undefined,
       type: props.type || '',
-      numberOfPages: form.numberOfPages || 1
+      numberOfPages: form.numberOfPages || 1,
+      currentPage: 1
     };
   }
 
@@ -193,7 +195,17 @@ class Form extends React.Component<Props, State> {
   onChangeFieldsOrder = fields => {
     const { onDocChange } = this.props;
 
-    this.setState({ fields }, () => {
+    const allFields = this.state.fields;
+
+    for (const field of fields) {
+      const index = allFields.map(e => e._id).indexOf(field._id);
+
+      if (index !== -1) {
+        allFields[index] = field;
+      }
+    }
+
+    this.setState({ fields: allFields }, () => {
       if (onDocChange) {
         onDocChange(this.state);
       }
@@ -217,6 +229,7 @@ class Form extends React.Component<Props, State> {
           fields={fields}
           onFieldClick={this.onFieldClick}
           onChangeFieldsOrder={this.onChangeFieldsOrder}
+          currentPage={this.state.currentPage}
         />
       );
     };
