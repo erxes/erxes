@@ -85,6 +85,15 @@ const TimeGroup = ({
     return value || 'All time';
   };
 
+  const renderDateRangeValue = (dateRange, index) => {
+    if (Array.isArray(dateRange)) {
+      return moment(dateRange[index] || "2017/05/13", 'YYYY/MM/DD');
+    }
+
+    return moment().add(index, 'days')
+  }
+
+
   const renderDatePicker = m => {
     if (isDateRange) {
       return (
@@ -93,8 +102,8 @@ const TimeGroup = ({
           style={{ borderRadius: '16px', marginLeft: '10px' }}
           onChange={(date, dateString) => onDateRangeChange(dateString, m)}
           defaultValue={[
-            moment(m.dateRange[0], 'YYYY/MM/DD'),
-            moment(m.dateRange[1], 'YYYY/MM/DD')
+            renderDateRangeValue(m.dateRange, 0),
+            renderDateRangeValue(m.dateRange, 1)
           ]}
         />
       );
