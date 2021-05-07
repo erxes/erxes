@@ -106,8 +106,28 @@ class Form extends React.Component<Props, State> {
     this.props.onSubmit(this.state.doc);
   };
 
+  canChangePage = () => {
+    const fields = this.getCurrentFields();
+
+    const requiredFields = fields.filter(f => f.isRequired);
+
+    for (const field of requiredFields) {
+      const value = this.state.doc[field._id].value;
+
+      if (!value) {
+        return false;
+      }
+    }
+
+    return true;
+  };
+
   onNextClick = () => {
-    this.setState({ currentPage: this.state.currentPage + 1 });
+    if (this.canChangePage()) {
+      this.setState({ currentPage: this.state.currentPage + 1 });
+    } else {
+      alert(__('Please fill out required fields');
+    }
   };
 
   onbackClick = () => {
