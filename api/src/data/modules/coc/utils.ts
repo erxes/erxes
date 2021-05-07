@@ -439,7 +439,7 @@ export class CommonBuilder<IListArgs extends ICommonListArgs> {
     });
 
     if (action === 'count') {
-      return response.count;
+      return response && response.count ? response.count : 0;
     }
 
     const list = response.hits.hits.map(hit => {
