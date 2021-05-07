@@ -126,7 +126,7 @@ class Form extends React.Component<Props, State> {
     if (this.canChangePage()) {
       this.setState({ currentPage: this.state.currentPage + 1 });
     } else {
-      alert(__('Please fill out required fields');
+      alert(__('Please fill out required fields'));
     }
   };
 
