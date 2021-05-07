@@ -8,7 +8,17 @@ export default {
   },
 
   categories(topic: ITopicDocument) {
-    return KnowledgeBaseCategories.find({ _id: { $in: topic.categoryIds } });
+    return KnowledgeBaseCategories.find({ topicId: topic._id });
+  },
+
+  async parentCategories(topic: ITopicDocument) {
+    return KnowledgeBaseCategories.find({
+      topicId: topic._id,
+      $or: [
+        { parentCategoryId: null },
+        { parentCategoryId: { $exists: false } }
+      ]
+    });
   },
 
   color(topic: ITopicDocument) {

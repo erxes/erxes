@@ -93,7 +93,7 @@ class KnowledgeRow extends React.Component<Props, State> {
     const categoryContent = props => (
       <CategoryForm
         {...props}
-        topicIds={topic._id}
+        topicId={topic._id}
         refetchTopics={refetchTopics}
       />
     );
@@ -141,7 +141,7 @@ class KnowledgeRow extends React.Component<Props, State> {
           <CategoryList
             currentCategoryId={currentCategoryId}
             articlesCount={articlesCount}
-            topicIds={topic._id}
+            topicId={topic._id}
             queryParams={queryParams}
           />
         )}

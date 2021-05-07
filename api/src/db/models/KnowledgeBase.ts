@@ -248,6 +248,10 @@ export const loadCategoryClass = () => {
         throw new Error('userId must be supplied');
       }
 
+      if (_id === docFields.parentCategoryId) {
+        throw new Error('Cannot change category');
+      }
+
       await KnowledgeBaseCategories.updateOne(
         { _id },
         {

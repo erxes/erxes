@@ -1,3 +1,10 @@
+const categoryFields = `
+  _id
+  title
+  description
+  icon
+`;
+
 const knowledgeBaseTopics = `
   query knowledgeBaseTopics($page: Int, $perPage: Int) {
     knowledgeBaseTopics(page: $page, perPage: $perPage) {
@@ -9,10 +16,7 @@ const knowledgeBaseTopics = `
         name
       }
       categories {
-        _id
-        title
-        description
-        icon
+        ${categoryFields}
       }
       color
       backgroundImage
@@ -43,14 +47,12 @@ const getBrandList = `
 const knowledgeBaseCategories = `
   query objects($page: Int, $perPage: Int, $topicIds: [String]) {
     knowledgeBaseCategories(page: $page, perPage: $perPage, topicIds: $topicIds ) {
-      _id
-      title
-      description
-      icon
+      ${categoryFields}
       createdBy
       createdDate
       modifiedBy
       modifiedDate
+      parentCategoryId
       articles {
         _id
         title
@@ -62,9 +64,7 @@ const knowledgeBaseCategories = `
 const knowledgeBaseCategoryDetail = `
   query knowledgeBaseCategoryDetail($_id: String!) {
     knowledgeBaseCategoryDetail(_id: $_id) {
-      _id
-      title
-      description
+      ${categoryFields}
       articles {
         _id
         title
@@ -76,7 +76,6 @@ const knowledgeBaseCategoryDetail = `
         _id
         title
       }
-      icon
     }
   }
 `;
@@ -110,6 +109,8 @@ const knowledgeBaseArticles = `
       reactionChoices
       reactionCounts
       createdBy
+      topicId
+      categoryId
       createdUser {
         _id
         username

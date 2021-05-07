@@ -11,7 +11,7 @@ type Props = {
   articles: IArticle[];
   queryParams: any;
   currentCategoryId: string;
-  topicIds: string;
+  topicId: string;
   remove: (articleId: string) => void;
   loading: boolean;
 };
@@ -30,7 +30,7 @@ class ArticleList extends React.Component<Props> {
       articles,
       queryParams,
       currentCategoryId,
-      topicIds,
+      topicId,
       remove
     } = this.props;
 
@@ -39,7 +39,7 @@ class ArticleList extends React.Component<Props> {
         key={article._id}
         queryParams={queryParams}
         currentCategoryId={currentCategoryId}
-        topicIds={topicIds}
+        topicId={topicId}
         article={article}
         remove={remove}
       />

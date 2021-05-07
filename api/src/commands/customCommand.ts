@@ -1,29 +1,50 @@
 import * as dotenv from 'dotenv';
 import { connect } from '../db/connection';
-import { Deals, GrowthHacks, Tasks, Tickets } from '../db/models';
+import {
+  KnowledgeBaseTopics,
+  KnowledgeBaseCategories,
+  KnowledgeBaseArticles
+} from '../db/models';
 
 dotenv.config();
 
-const fixStageChangedDates = async collection => {
-  const items = await collection.find({ stageChangedDate: { $exists: false } });
+const setTopicId = async () => {
+  const topics = await KnowledgeBaseTopics.find({});
 
-  console.log('found: ', items.length);
+  console.log('topic counts: ', topics.length);
 
-  for (const item of items) {
-    await collection.update(
-      { _id: item._id },
-      { $set: { stageChangedDate: item.createdAt } }
-    );
+  for (const topic of topics) {
+    if (topic.categoryIds) {
+      await KnowledgeBaseCategories.updateMany(
+        { _id: { $in: topic.categoryIds } },
+        { $set: { topicId: topic._id } }
+      );
+    }
+  }
+};
+
+const setCategoryId = async () => {
+  const categories = await KnowledgeBaseCategories.find({});
+
+  console.log('category counts: ', categories.length);
+
+  for (const category of categories) {
+    if (category.articleIds) {
+      await KnowledgeBaseArticles.updateMany(
+        { _id: { $in: category.articleIds } },
+        { $set: { categoryId: category._id, topicId: category.topicId } }
+      );
+    }
   }
 };
 
 const command = async () => {
   await connect();
 
-  await fixStageChangedDates(Deals);
-  await fixStageChangedDates(Tickets);
-  await fixStageChangedDates(Tasks);
-  await fixStageChangedDates(GrowthHacks);
+  await setTopicId();
+  await setCategoryId();
+
+  console.log(`Process finished at: ${new Date()}`);
 
   process.exit();
 };

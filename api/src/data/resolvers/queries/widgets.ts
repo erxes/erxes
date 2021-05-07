@@ -72,24 +72,8 @@ export default {
   ) {
     const { topicId, searchString = '' } = args;
 
-    let articleIds: string[] = [];
-
-    const topic = await KnowledgeBaseTopicsModel.findOne({ _id: topicId });
-
-    if (!topic) {
-      return [];
-    }
-
-    const categories = await KnowledgeBaseCategoriesModel.find({
-      _id: topic.categoryIds
-    });
-
-    categories.forEach(category => {
-      articleIds = [...articleIds, ...(category.articleIds || [])];
-    });
-
     return KnowledgeBaseArticlesModel.find({
-      _id: { $in: articleIds },
+      topicId,
       content: { $regex: `.*${searchString.trim()}.*`, $options: 'i' },
       status: 'publish'
     });
