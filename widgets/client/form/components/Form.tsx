@@ -173,6 +173,7 @@ class Form extends React.Component<Props, State> {
       if (pageNumber === this.state.currentPage) {
         return f;
       }
+      return null;
     });
   }
 

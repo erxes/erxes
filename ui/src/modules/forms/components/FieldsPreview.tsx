@@ -82,7 +82,7 @@ class FieldsPreview extends React.Component<Props, State> {
       if (pageNumber === this.props.currentPage) {
         return f;
       }
-      return;
+      return null;
     });
 
     return (
