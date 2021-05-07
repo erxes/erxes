@@ -89,7 +89,7 @@
     "sift": "^13.5.0",
     "strip": "^3.0.0",
     "ts-node": "8.0.3",
-    "underscore": "^1.8.3",
+    "underscore": "^1.12.1",
     "uuid": "^3.3.3",
     "uuid-by-string": "^3.0.2",
     "validator": "^9.0.0",
