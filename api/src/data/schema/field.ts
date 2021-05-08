@@ -11,6 +11,7 @@ const fieldCommonFields = `
   logicAction: String
   column: Int
   groupName: String
+  pageNumber: Int
 `;
 
 export const fieldsTypes = `
