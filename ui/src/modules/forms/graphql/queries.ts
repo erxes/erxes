@@ -82,6 +82,17 @@ const integrations = `
   }
 `;
 
+const formFields = `
+    _id
+    title
+    code
+    description
+    buttonText
+    numberOfPages
+    createdDate
+    createdUserId
+`;
+
 const integrationDetail = `
   query integrationDetail($_id: String!) {
     integrationDetail(_id: $_id) {
@@ -90,14 +101,7 @@ const integrationDetail = `
       formId
 
       form {
-        _id
-        title
-        code
-        description
-        createdDate
-        createdUserId
-        buttonText
-        numberOfPages
+        ${formFields}
         themeColor
         contactsGathered
         viewCount
@@ -123,15 +127,8 @@ const integrationDetail = `
 const formDetail = `
   query formDetail($_id: String!) {
     formDetail(_id: $_id) {
-      _id
-      title
-      code
+      ${formFields}
       type
-      description
-      buttonText
-      numberOfPages
-      createdDate
-      createdUserId
       createdUser {
         _id
         details {

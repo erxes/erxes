@@ -1,14 +1,16 @@
 import { IUser } from '../auth/types';
 import { IField } from '../settings/properties/types';
 
-export interface IForm {
-  _id: string;
+interface IFormCommonFIelds {
   title?: string;
-  code?: string;
-  type?: string;
   description?: string;
   buttonText?: string;
+  type?: string;
   numberOfPages?: number;
+}
+export interface IForm extends IFormCommonFIelds {
+  _id: string;
+  code?: string;
   createdUserId?: string;
   createdUser?: IUser;
   createdDate?: Date;
@@ -20,13 +22,8 @@ export interface IFormSubmission {
   contentTypeId: string;
 }
 
-export interface IFormData {
-  title?: string;
-  desc?: string;
-  btnText?: string;
+export interface IFormData extends IFormCommonFIelds {
   fields?: IField[];
-  type?: string;
-  numberOfPages?: number;
 }
 
 // mutation types

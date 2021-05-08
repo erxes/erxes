@@ -60,10 +60,14 @@ class CommonPreview extends React.Component<Props, {}> {
   }
 
   renderButton() {
-    const { btnStyle, theme, color } = this.props;
-    const btnText = this.props.btnText || 'Send';
-    const numberOfPages = this.props.numberOfPages || 1;
-    const currentPage = this.props.currentPage || 1;
+    const {
+      btnStyle,
+      theme,
+      color,
+      btnText = 'Send',
+      numberOfPages = 1,
+      currentPage = 1
+    } = this.props;
 
     const button = (
       title: string,
@@ -119,9 +123,7 @@ class CommonPreview extends React.Component<Props, {}> {
   }
 
   renderProgress() {
-    const { theme, color } = this.props;
-    const numberOfPages = this.props.numberOfPages || 1;
-    const currentPage = this.props.currentPage || 1;
+    const { theme, color, numberOfPages = 1, currentPage = 1 } = this.props;
 
     if (numberOfPages === 1) {
       return null;

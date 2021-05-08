@@ -124,8 +124,8 @@ class Lead extends React.Component<Props, State> {
       logo: '',
       formData: {
         title: form.title || '',
-        desc: form.description || '',
-        btnText: form.buttonText || 'Send',
+        description: form.description || '',
+        buttonText: form.buttonText || 'Send',
         fields: [],
         type: form.type || '',
         numberOfPages: form.numberOfPages || 1

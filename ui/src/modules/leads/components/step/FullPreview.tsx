@@ -144,8 +144,8 @@ class FullPreviewStep extends React.Component<Props, State> {
       onDocChange({
         fields,
         title: formData.title,
-        desc: formData.desc,
-        btnText: formData.btnText,
+        description: formData.description,
+        buttonText: formData.buttonText,
         type: formData.type,
         numberOfPages: formData.numberOfPages
       });
@@ -161,13 +161,11 @@ class FullPreviewStep extends React.Component<Props, State> {
     }
 
     if (carousel === 'form') {
-      const { desc } = formData;
-
       const previewRenderer = () => (
         <>
           <FieldsPreview
             fields={fields || []}
-            formDesc={desc}
+            formDesc={formData.description}
             onFieldClick={this.onFieldClick}
             onChangeFieldsOrder={this.onChangeFieldsOrder}
             currentPage={this.state.currentPage}
@@ -180,7 +178,7 @@ class FullPreviewStep extends React.Component<Props, State> {
           <FormPreview
             {...this.props}
             title={formData.title}
-            btnText={formData.btnText}
+            btnText={formData.buttonText}
             previewRenderer={previewRenderer}
             currentPage={this.state.currentPage}
             onPageChange={this.onPageChange}
