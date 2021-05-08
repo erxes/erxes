@@ -10,6 +10,7 @@ type Props = {
   formDesc?: string;
   onFieldClick?: (field: IField) => void;
   onChangeFieldsOrder?: (fields: IField[]) => void;
+  currentPage: number;
 };
 
 type State = {
@@ -75,6 +76,15 @@ class FieldsPreview extends React.Component<Props, State> {
       );
     };
 
+    let fields = this.props.fields || [];
+    fields = fields.filter(f => {
+      const pageNumber = f.pageNumber || 1;
+      if (pageNumber === this.props.currentPage) {
+        return f;
+      }
+      return null;
+    });
+
     return (
       <>
         {this.renderFormDesc()}
@@ -82,7 +92,7 @@ class FieldsPreview extends React.Component<Props, State> {
         <FieldsWrapper>
           <SortableList
             child={child}
-            fields={this.state.fields || []}
+            fields={fields}
             onChangeFields={this.onChangeFields}
             droppableId="form"
           />
