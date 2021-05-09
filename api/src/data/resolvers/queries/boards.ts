@@ -156,10 +156,37 @@ const boardQueries = {
     {
       boardId,
       type,
+      isAll,
       ...queryParams
-    }: { boardId: string; type: string; page: number; perPage: number }
+    }: {
+      boardId: string;
+      type: string;
+      isAll: boolean;
+      page: number;
+      perPage: number;
+    },
+    { user }
   ) {
-    const query: any = {};
+    const query: any =
+      user.isOwner || isAll
+        ? {}
+        : {
+            $or: [
+              { visibility: 'public' },
+              {
+                $and: [
+                  { visibility: 'private' },
+                  {
+                    $or: [
+                      { memberIds: { $in: [user._id] } },
+                      { userId: user._id }
+                    ]
+                  }
+                ]
+              }
+            ]
+          };
+
     const { page, perPage } = queryParams;
 
     if (boardId) {

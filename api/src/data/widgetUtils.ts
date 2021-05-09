@@ -128,8 +128,13 @@ export const convertVisitorToCustomer = async (visitorId: string) => {
 };
 
 const fetchHelper = async (index: string, query, errorMessage?: string) => {
-  const response = await fetchElk('search', index, { query }, '', {
-    hits: { hits: [] }
+  const response = await fetchElk({
+    action: 'search',
+    index,
+    body: { query },
+    defaultValue: {
+      hits: { hits: [] }
+    }
   });
 
   const hits = response.hits.hits.map(hit => {
@@ -252,27 +257,23 @@ const getSocialLinkKey = (type: string) => {
 };
 
 const prepareCustomFieldsData = (
-  customerDatas: ICustomField[],
-  submissionDatas: ICustomField[]
+  customerData: ICustomField[],
+  submissionData: ICustomField[]
 ) => {
   const customFieldsData: ICustomField[] = [];
 
-  if (customerDatas.length === 0) {
-    return submissionDatas;
+  if (customerData.length === 0) {
+    return submissionData;
   }
 
-  for (const customerData of customerDatas) {
-    for (const data of submissionDatas) {
-      if (customerData.field !== data.field) {
-        customFieldsData.push(customerData);
-      } else {
-        if (Array.isArray(customerData.value)) {
-          data.value = customerData.value.concat(data.value);
-        }
+  for (const data of submissionData) {
+    const existingData = customerData.find(e => e.field === data.field);
 
-        customFieldsData.push(data);
-      }
+    if (existingData && Array.isArray(existingData.value)) {
+      data.value = existingData.value.concat(data.value);
     }
+
+    customFieldsData.push(data);
   }
 
   return customFieldsData;

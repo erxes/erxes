@@ -20,7 +20,8 @@ describe('SuccessStep component', () => {
         | 'redirectUrl'
         | 'thankTitle'
         | 'thankContent'
-        | 'templateId',
+        | 'templateId'
+        | 'attachments',
       value: string
     ) => null
   };

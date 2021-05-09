@@ -76,9 +76,13 @@ const segmentQueries = {
       }
     };
 
-    const aggreEvents = await fetchElk('search', 'events', {
-      aggs,
-      query
+    const aggreEvents = await fetchElk({
+      action: 'search',
+      index: 'events',
+      body: {
+        aggs,
+        query
+      }
     });
 
     const buckets = aggreEvents.aggregations.names.buckets || [];

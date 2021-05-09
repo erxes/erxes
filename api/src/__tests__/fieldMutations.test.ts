@@ -1,9 +1,11 @@
 import * as faker from 'faker';
 import { graphqlRequest } from '../db/connection';
 import {
+  boardFactory,
   fieldFactory,
   fieldGroupFactory,
   formFactory,
+  pipelineFactory,
   userFactory
 } from '../db/factories';
 import { Fields, FieldsGroups, Users } from '../db/models';
@@ -32,6 +34,14 @@ const fieldGroupArgs = {
   order: 2,
   description: faker.random.word(),
   isVisible: true
+};
+
+const checkFieldGroupMutationResults = (result, args) => {
+  expect(result.contentType).toBe(args.contentType);
+  expect(result.name).toBe(args.name);
+  expect(result.description).toBe(args.description);
+  expect(result.isVisible).toBe(args.isVisible);
+  expect(result.boardsPipelines.length).toBe(1);
 };
 
 describe('Fields mutations', () => {
@@ -70,6 +80,7 @@ describe('Fields mutations', () => {
     $order: Int
     $description: String
     $isVisible: Boolean
+    $boardsPipelines: [BoardsPipelinesInput]
   `;
 
   const fieldsGroupsCommonParams = `
@@ -78,6 +89,7 @@ describe('Fields mutations', () => {
     order: $order
     description: $description
     isVisible: $isVisible
+    boardsPipelines: $boardsPipelines
   `;
 
   beforeEach(async () => {
@@ -360,11 +372,13 @@ describe('Fields mutations', () => {
       context
     );
 
-    console.log(mutationResult);
-  });
+    expect(mutationResult).toBeNull();
+  }),
+    test('Add group field', async () => {
+      const board = await boardFactory({ type: 'task' });
+      const pipeline = await pipelineFactory({ boardId: board._id });
 
-  test('Add group field', async () => {
-    const mutation = `
+      const mutation = `
       mutation fieldsGroupsAdd(${fieldsGroupsCommonParamDefs}) {
         fieldsGroupsAdd(${fieldsGroupsCommonParams}) {
           name
@@ -372,24 +386,27 @@ describe('Fields mutations', () => {
           order
           description
           isVisible
+          boardsPipelines {
+            boardId
+            pipelineIds
+          }
         }
       }
     `;
 
-    const fieldGroup = await graphqlRequest(
-      mutation,
-      'fieldsGroupsAdd',
-      fieldGroupArgs
-    );
+      const fieldGroup = await graphqlRequest(mutation, 'fieldsGroupsAdd', {
+        ...fieldGroupArgs,
+        boardsPipelines: [{ boardId: board._id, pipelineIds: [pipeline._id] }]
+      });
 
-    expect(fieldGroup.contentType).toBe(fieldGroupArgs.contentType);
-    expect(fieldGroup.name).toBe(fieldGroupArgs.name);
-    expect(fieldGroup.description).toBe(fieldGroupArgs.description);
-    expect(fieldGroup.order).toBe(1);
-    expect(fieldGroup.isVisible).toBe(fieldGroupArgs.isVisible);
-  });
+      expect(fieldGroup.order).toBe(1);
+      checkFieldGroupMutationResults(fieldGroup, fieldGroupArgs);
+    });
 
   test('Edit group field', async () => {
+    const board = await boardFactory({ type: 'task' });
+    const pipeline = await pipelineFactory({ boardId: board._id });
+
     const mutation = `
       mutation fieldsGroupsEdit($_id: String! ${fieldsGroupsCommonParamDefs}) {
         fieldsGroupsEdit(_id: $_id ${fieldsGroupsCommonParams}) {
@@ -399,6 +416,10 @@ describe('Fields mutations', () => {
           order
           description
           isVisible
+          boardsPipelines {
+            boardId
+            pipelineIds
+          }
         }
       }
     `;
@@ -406,16 +427,17 @@ describe('Fields mutations', () => {
     const fieldGroup = await graphqlRequest(
       mutation,
       'fieldsGroupsEdit',
-      { _id: _fieldGroup._id, ...fieldGroupArgs },
+      {
+        _id: _fieldGroup._id,
+        ...fieldGroupArgs,
+        boardsPipelines: [{ boardId: board._id, pipelineIds: [pipeline._id] }]
+      },
       context
     );
 
     expect(fieldGroup._id).toBe(_fieldGroup._id);
-    expect(fieldGroup.contentType).toBe(fieldGroupArgs.contentType);
-    expect(fieldGroup.name).toBe(fieldGroupArgs.name);
-    expect(fieldGroup.description).toBe(fieldGroupArgs.description);
     expect(fieldGroup.order).toBe(fieldGroupArgs.order);
-    expect(fieldGroup.isVisible).toBe(fieldGroupArgs.isVisible);
+    checkFieldGroupMutationResults(fieldGroup, fieldGroupArgs);
   });
 
   test('Remove group field', async () => {

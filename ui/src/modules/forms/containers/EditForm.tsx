@@ -74,7 +74,7 @@ class EditFormContainer extends React.Component<FinalProps> {
     const form = formDetailQuery.formDetail || {};
 
     const saveForm = doc => {
-      const { title, desc, btnText, type } = doc;
+      const { title, desc, btnText, type, numberOfPages } = doc;
       let { fields } = doc;
 
       editFormMutation({
@@ -83,6 +83,7 @@ class EditFormContainer extends React.Component<FinalProps> {
           title,
           description: desc,
           buttonText: btnText,
+          numberOfPages: Number(numberOfPages),
           type
         }
       })

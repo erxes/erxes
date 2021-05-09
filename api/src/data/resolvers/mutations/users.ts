@@ -67,11 +67,13 @@ const userMutations = {
       password,
       firstName,
       lastName,
+      purpose,
       subscribeEmail
     }: {
       email: string;
       password: string;
       firstName: string;
+      purpose: string;
       lastName?: string;
       subscribeEmail?: boolean;
     }
@@ -99,8 +101,24 @@ const userMutations = {
         method: 'POST',
         body: {
           email,
+          purpose,
           firstName,
           lastName
+        }
+      });
+
+      await sendRequest({
+        url: 'https://api.office.erxes.io/webhooks/TfLkv6SxzkHMFT3cj',
+        method: 'POST',
+        headers: {
+          auth: '3QuWREv4A2nzmrCJe'
+        },
+        body: {
+          customerState: 'customer',
+          customerPrimaryEmail: email,
+          customerFirstName: firstName,
+          customerLastName: lastName,
+          customFields: [{ name: 'Customer Type', value: 'Open Source' }]
         }
       });
     }

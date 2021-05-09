@@ -1,4 +1,8 @@
-import { IConditionsRule, QueryResponse } from 'modules/common/types';
+import {
+  IAttachment,
+  IConditionsRule,
+  QueryResponse
+} from 'modules/common/types';
 import { IUser } from '../auth/types';
 import { IForm } from '../forms/types';
 import { IBrand } from '../settings/brands/types';
@@ -38,6 +42,7 @@ export interface ILeadData {
   form?: IForm;
   isRequireOnce?: boolean;
   templateId?: string;
+  attachments?: IAttachment[];
 }
 
 export interface IWebhookData {

@@ -12,6 +12,8 @@ import {
 import React from 'react';
 import { LogicIndicator, SelectInput } from '../styles';
 import { IField } from '../types';
+import Select from 'react-select-plus';
+import { IOption } from 'erxes-ui/lib/types';
 
 type Props = {
   field: IField;
@@ -60,6 +62,27 @@ export default class GenerateField extends React.Component<Props, State> {
           </option>
         ))}
       </FormControl>
+    );
+  }
+
+  renderMultiSelect(options: string[] = [], attrs) {
+    const onChange = (ops: IOption[]) => {
+      const { field, onValueChange } = this.props;
+
+      if (onValueChange) {
+        const value = ops.map(e => e.value).toString();
+        this.setState({ value });
+
+        onValueChange({ _id: field._id, value });
+      }
+    };
+    return (
+      <Select
+        value={attrs.value}
+        options={options.map(e => ({ value: e, label: e }))}
+        onChange={onChange}
+        multi={true}
+      />
     );
   }
 
@@ -275,11 +298,7 @@ export default class GenerateField extends React.Component<Props, State> {
         return this.renderSelect(options, attrs);
 
       case 'multiSelect':
-        return this.renderSelect(options, {
-          ...attrs,
-          multiple: true,
-          maxHeight: 100
-        });
+        return this.renderMultiSelect(options, attrs);
 
       case 'pronoun':
         return this.renderSelect(['Male', 'Female', 'Not applicable'], attrs);

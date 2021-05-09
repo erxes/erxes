@@ -169,7 +169,9 @@ class SegmentsFormContainer extends React.Component<
       ...this.props,
       segment,
       boards,
-      headSegments: headSegments.filter(s => s.contentType === contentType),
+      headSegments: headSegments.filter(s =>
+        s.contentType === contentType && segment ? s._id !== segment._id : true
+      ),
       events,
       renderButton: this.renderButton,
       previewCount: this.previewCount,
