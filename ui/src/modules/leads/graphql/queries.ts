@@ -28,6 +28,7 @@ export const commonFields = `
     description
     type
     buttonText
+    numberOfPages
     createdDate
     createdUserId
     createdUser {

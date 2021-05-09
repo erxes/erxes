@@ -71,6 +71,7 @@ export interface IField extends IVisibility {
   tempFieldId?: string;
   column?: number;
   groupName?: string;
+  pageNumber?: number;
 }
 
 export interface IFieldDocument extends IField, Document {
@@ -159,6 +160,12 @@ export const fieldSchema = schemaWrapper(
       type: String,
       optional: true,
       label: 'Stores html content form of field type with html'
+    }),
+    pageNumber: field({
+      type: Number,
+      optional: true,
+      label: 'Number of page',
+      min: 1
     })
   })
 );
