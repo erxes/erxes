@@ -3,6 +3,7 @@ import {
   Conversations,
   Customers,
   EmailDeliveries,
+  EngageMessages,
   Integrations,
   Users
 } from '../../../db/models';
@@ -198,5 +199,25 @@ export const receiveEngagesNotification = async msg => {
       data.emailDeliveryId,
       data.status
     );
+  }
+
+  if (action === 'setCampaignCount') {
+    const { campaignId, totalCustomersCount, validCustomersCount } = data;
+
+    const campaign = await EngageMessages.findOne({ _id: campaignId });
+
+    if (campaign) {
+      await EngageMessages.updateOne(
+        { _id: campaignId },
+        {
+          $set: {
+            totalCustomersCount,
+            validCustomersCount,
+            lastRunAt: new Date()
+          },
+          $inc: { runCount: 1 }
+        }
+      );
+    }
   }
 };

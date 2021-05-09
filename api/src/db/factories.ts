@@ -1337,6 +1337,8 @@ interface IFieldGroupFactoryInput {
   isDefinedByErxes?: boolean;
   isVisible?: boolean;
   order?: number;
+  boardIds?: [string];
+  pipelineIds?: [string];
 }
 
 export const fieldGroupFactory = async (params: IFieldGroupFactoryInput) => {
@@ -1346,7 +1348,9 @@ export const fieldGroupFactory = async (params: IFieldGroupFactoryInput) => {
     description: faker.random.word(),
     isDefinedByErxes: params.isDefinedByErxes || false,
     isVisible: true,
-    order: params.order || 0
+    order: params.order || 0,
+    boardIds: params.boardIds || [],
+    pipelineIds: params.pipelineIds || []
   };
 
   const groupObj = await FieldsGroups.create(doc);

@@ -49,6 +49,7 @@ export const loadTicketClass = () => {
         ...doc,
         createdAt: new Date(),
         modifiedAt: new Date(),
+        stageChangedDate: new Date(),
         searchText: fillSearchTextItem(doc)
       });
 

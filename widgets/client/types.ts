@@ -1,5 +1,5 @@
 import { ICallout } from './form/types';
-import { IWebsiteApp } from './messenger/types';
+import { IAttachment, IWebsiteApp } from './messenger/types';
 
 export type ENV = {
   API_URL: string;
@@ -61,6 +61,7 @@ export interface IEmailParams {
   title: string;
   content: string;
   formId: string;
+  attachments?: IAttachment[];
 }
 
 export interface IIntegrationTwitterData {
@@ -142,6 +143,7 @@ export interface IIntegrationLeadData {
   callout?: ICallout;
   rules?: IRule;
   isRequireOnce?: boolean;
+  attachments?: IAttachment[];
 }
 
 export interface IIntegrationUiOptions {

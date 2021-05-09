@@ -347,7 +347,7 @@ export const WEBHOOK_ACTIONS = [
     type: 'conversation'
   },
   { label: 'Customer messages', action: 'create', type: 'customerMessages' },
-  { label: 'Engage messages', action: 'create', type: 'engageMessages' },
+  { label: 'Campaign', action: 'create', type: 'engageMessages' },
   {
     label: 'Form submission received',
     action: 'create',

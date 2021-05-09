@@ -7,6 +7,7 @@ import {
 import { IOrderInput } from '../../../db/models/Fields';
 import { MODULE_NAMES } from '../../constants';
 import { putCreateLog } from '../../logUtils';
+import { getBoardsAndPipelines } from '../../modules/fields/utils';
 import { moduleCheckPermission } from '../../permissions/wrappers';
 import { IContext } from '../../types';
 
@@ -45,7 +46,8 @@ const fieldMutations = {
       {
         type: MODULE_NAMES.FIELD,
         newData: args,
-        object: field
+        object: field,
+        description: `Field "${args.text}" has been created`
       },
       user
     );
@@ -174,6 +176,10 @@ const fieldsGroupsMutations = {
    * Create a new group for fields
    */
   fieldsGroupsAdd(_root, doc: IFieldGroup, { user, docModifier }: IContext) {
+    if (doc.boardsPipelines) {
+      doc = getBoardsAndPipelines(doc);
+    }
+
     return FieldsGroups.createGroup(
       docModifier({ ...doc, lastUpdatedUserId: user._id })
     );
@@ -187,6 +193,10 @@ const fieldsGroupsMutations = {
     { _id, ...doc }: IFieldsGroupsEdit,
     { user }: IContext
   ) {
+    if (doc.boardsPipelines) {
+      doc = getBoardsAndPipelines(doc);
+    }
+
     return FieldsGroups.updateGroup(_id, {
       ...doc,
       lastUpdatedUserId: user._id

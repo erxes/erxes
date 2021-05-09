@@ -1,3 +1,4 @@
+import { IFormData } from 'modules/forms/types';
 import { IField } from 'modules/settings/properties/types';
 import React from 'react';
 import CommonPreview from './CommonPreview';
@@ -14,11 +15,24 @@ type Props = {
   onChange?: (name: any, fields: string) => void;
   onFieldChange?: (name: string, value: IField[]) => void;
   type: string;
+  currentPage: number;
+  formData: IFormData;
+  onPageChange?: (page: number) => void;
 };
 
 class FormPreview extends React.Component<Props, {}> {
   render() {
-    const { title, btnText, color, theme, type, previewRenderer } = this.props;
+    const {
+      title,
+      btnText,
+      color,
+      theme,
+      type,
+      previewRenderer,
+      currentPage,
+      formData,
+      onPageChange
+    } = this.props;
 
     if (!previewRenderer) {
       return null;
@@ -32,6 +46,9 @@ class FormPreview extends React.Component<Props, {}> {
         btnText={btnText}
         btnStyle="primary"
         type={type}
+        currentPage={currentPage}
+        numberOfPages={formData.numberOfPages || 1}
+        onPageChange={onPageChange}
       >
         {previewRenderer()}
       </CommonPreview>

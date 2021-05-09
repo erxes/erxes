@@ -47,6 +47,7 @@ const commonFields = `
 
   totalCustomersCount
   validCustomersCount
+  runCount
 
   fromUser {
     _id
@@ -98,6 +99,7 @@ export const engageDetailFields = `
   customerIds
   fromUserId
   stopDate
+  lastRunAt
 
   scheduleDate {
     type

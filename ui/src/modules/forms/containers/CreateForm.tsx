@@ -47,14 +47,15 @@ class CreateFormContainer extends React.Component<FinalProps, {}> {
 
     const saveForm = doc => {
       let formId;
-      const { title, desc, btnText, fields, type } = doc;
+      const { title, desc, btnText, fields, type, numberOfPages } = doc;
 
       addFormMutation({
         variables: {
           title,
           description: desc,
           buttonText: btnText,
-          type
+          type,
+          numberOfPages: Number(numberOfPages)
         }
       })
         .then(({ data }) => {

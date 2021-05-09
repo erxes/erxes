@@ -6,7 +6,7 @@ import {
   Indicator,
   StepWrapper
 } from 'modules/common/components/step/styles';
-import { IConditionsRule } from 'modules/common/types';
+import { IAttachment, IConditionsRule } from 'modules/common/types';
 import { Alert } from 'modules/common/utils';
 import { __ } from 'modules/common/utils';
 import Wrapper from 'modules/layout/components/Wrapper';
@@ -78,6 +78,7 @@ type State = {
   redirectUrl?: string;
   templateId?: string;
   carousel: string;
+  attachments?: IAttachment[];
 
   currentMode: 'create' | 'update' | undefined;
   currentField?: IField;
@@ -105,6 +106,7 @@ class Lead extends React.Component<Props, State> {
       adminEmailContent: leadData.adminEmailContent || '',
       thankTitle: leadData.thankTitle || 'Title',
       thankContent: leadData.thankContent || 'Thank you.',
+      attachments: leadData.attachments || [],
       redirectUrl: leadData.redirectUrl || '',
       rules: leadData.rules || [],
       isStepActive: false,
@@ -122,10 +124,11 @@ class Lead extends React.Component<Props, State> {
       logo: '',
       formData: {
         title: form.title || '',
-        desc: form.description || '',
-        btnText: form.buttonText || 'Send',
+        description: form.description || '',
+        buttonText: form.buttonText || 'Send',
         fields: [],
-        type: form.type || ''
+        type: form.type || '',
+        numberOfPages: form.numberOfPages || 1
       },
       theme: leadData.themeColor || '#6569DF',
       isRequireOnce: leadData.isRequireOnce,
@@ -176,6 +179,7 @@ class Lead extends React.Component<Props, State> {
         adminEmails: this.state.adminEmails,
         adminEmailTitle: this.state.adminEmailTitle,
         adminEmailContent: this.state.adminEmailContent,
+        attachments: this.state.attachments,
         thankTitle: this.state.thankTitle,
         thankContent: this.state.thankContent,
         redirectUrl: this.state.redirectUrl,
