@@ -12,7 +12,7 @@ cube(`Deals`, {
 
     totalAmount: {
       sql: `${amount}`,
-      type: `avg`,
+      type: `sum`,
       title: `Total amount`
     },
 
