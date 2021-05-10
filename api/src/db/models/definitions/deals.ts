@@ -70,7 +70,6 @@ interface IPaymentsData {
 }
 
 export interface IDeal extends IItemCommonFields {
-  amount?: number;
   productsData?: IProductData[];
   paymentsData?: IPaymentsData[];
 }
@@ -161,7 +160,6 @@ export const dealSchema = schemaWrapper(
   new Schema({
     ...commonItemFieldsSchema,
 
-    amount: field({ type: Number }),
     productsData: field({ type: [productDataSchema], label: 'Products' }),
     paymentsData: field({ type: Object, optional: true, label: 'Payments' })
   })

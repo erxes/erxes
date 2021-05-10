@@ -372,6 +372,21 @@ func main() {
 				}			
 			}
 
+
+			if(ns.indexOf("deals") > -1) {
+				var productsDataString = JSON.stringify(doc.productsData);
+				var amount = 0;
+
+				var productsData = JSON.parse(productsDataString);
+
+				for (var i = 0; i < productsData.length; i++){
+					amount = amount + productsData[i].amount;
+				}
+
+				doc.amount = amount;
+			}
+
+
 			doc._meta_monstache = {
 				id: doc._id.toString(),
 				index: index

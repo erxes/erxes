@@ -42,16 +42,6 @@ export const loadDealClass = () => {
         }
       }
 
-      let amount = 0
-
-      const productsData = doc.productsData || [];
-
-      productsData.map(data => {
-        amount = amount + (data ? data.amount || 0 : 0)
-      })
-
-      doc.amount = amount;
-
       const deal = await Deals.create({
         ...doc,
         createdAt: new Date(),
@@ -77,16 +67,6 @@ export const loadDealClass = () => {
      */
     public static async updateDeal(_id: string, doc: IDeal) {
       const searchText = fillSearchTextItem(doc, await Deals.getDeal(_id));
-
-      let amount = 0
-
-      const productsData = doc.productsData || [];
-
-      productsData.map(data => {
-        amount = amount + (data ? data.amount || 0 : 0)
-      })
-
-      doc.amount = amount;
 
       await Deals.updateOne({ _id }, { $set: doc, searchText });
 
