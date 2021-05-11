@@ -231,16 +231,18 @@ const generateQueryBySegment = async (args: {
   }
 
   for (const condition of propertyConditions) {
-    const field = condition.propertyName || '';
+    const field = condition.propertyName;
 
-    elkConvertConditionToQuery({
-      field,
-      type: typesMap[field],
-      operator: condition.propertyOperator || '',
-      value: condition.propertyValue || '',
-      positive: propertyPositive,
-      negative: propertyNegative
-    });
+    if (field) {
+      elkConvertConditionToQuery({
+        field,
+        type: typesMap[field],
+        operator: condition.propertyOperator || '',
+        value: condition.propertyValue || '',
+        positive: propertyPositive,
+        negative: propertyNegative
+      });
+    }
   }
 
   for (const condition of eventConditions) {
