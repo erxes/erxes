@@ -27,6 +27,7 @@ export interface IArticleDocument extends ICommonFields, IArticle, Document {
 export interface ICategory {
   title?: string;
   description?: string;
+  articleIds?: string[];
   icon?: string;
   parentCategoryId?: string;
   topicId?: string;
@@ -40,6 +41,7 @@ export interface ITopic {
   title?: string;
   description?: string;
   brandId?: string;
+  categoryIds?: string[];
   color?: string;
   backgroundImage?: string;
   languageCode?: string;
@@ -84,6 +86,7 @@ export const articleSchema = new Schema({
 export const categorySchema = new Schema({
   _id: field({ pkey: true }),
   description: field({ type: String, optional: true, label: 'Description' }),
+  articleIds: field({ type: [String], label: 'Articles' }),
   icon: field({ type: String, optional: true, label: 'Icon' }),
   parentCategoryId: field({
     type: String,
@@ -99,6 +102,12 @@ export const topicSchema = schemaWrapper(
     _id: field({ pkey: true }),
     description: field({ type: String, optional: true, label: 'Description' }),
     brandId: field({ type: String, optional: true, label: 'Brand' }),
+
+    categoryIds: field({
+      type: [String],
+      required: false,
+      label: 'Categories'
+    }),
 
     color: field({ type: String, optional: true, label: 'Color' }),
     backgroundImage: field({
