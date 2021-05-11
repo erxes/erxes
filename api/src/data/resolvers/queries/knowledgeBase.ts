@@ -55,7 +55,7 @@ const knowledgeBaseQueries = {
       topicIds
     }: { page: number; perPage: number; topicIds: string[] }
   ) {
-    const categories = await KnowledgeBaseCategories.find({
+    const categories = KnowledgeBaseCategories.find({
       topicId: { $in: topicIds }
     }).sort({
       modifiedDate: -1
