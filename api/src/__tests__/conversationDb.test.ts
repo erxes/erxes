@@ -305,7 +305,7 @@ describe('Conversation db', () => {
       throw new Error('Conversation not found');
     }
 
-    const conversationCount = await Conversations.find().count();
+    const conversationCount = await Conversations.countDocuments();
 
     expect(conversationObj.closedAt).toEqual(expect.any(Date));
     expect(conversationObj.status).toBe('closed');

@@ -118,7 +118,7 @@ class FullPreviewStep extends React.Component<Props, State> {
   };
 
   onChangeFieldsOrder = fields => {
-    const allFields = this.state.fields;
+    let allFields = this.state.fields;
 
     for (const field of fields) {
       const index = allFields.map(e => e._id).indexOf(field._id);
@@ -127,6 +127,8 @@ class FullPreviewStep extends React.Component<Props, State> {
         allFields[index] = field;
       }
     }
+
+    allFields = allFields.sort((a, b) => Number(a.order) - Number(b.order));
 
     this.setState({ fields: allFields }, () => {
       this.renderReturnValues(allFields);
