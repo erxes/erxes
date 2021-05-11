@@ -17,29 +17,30 @@ dotenv.config();
 
 const conformityHelper = async (conformity, type, toDelConformityIds) => {
   const typeId = `${type}Id`;
+
   switch (conformity[type]) {
     case 'company':
-      if ((await Companies.find({ _id: conformity[typeId] }).count()) === 0) {
+      if ((await Companies.countDocuments({ _id: conformity[typeId] })) === 0) {
         toDelConformityIds.push(conformity._id);
       }
       break;
     case 'customer':
-      if ((await Customers.find({ _id: conformity[typeId] }).count()) === 0) {
+      if ((await Customers.countDocuments({ _id: conformity[typeId] })) === 0) {
         toDelConformityIds.push(conformity._id);
       }
       break;
     case 'deal':
-      if ((await Deals.find({ _id: conformity[typeId] }).count()) === 0) {
+      if ((await Deals.countDocuments({ _id: conformity[typeId] })) === 0) {
         toDelConformityIds.push(conformity._id);
       }
       break;
     case 'task':
-      if ((await Tasks.find({ _id: conformity[typeId] }).count()) === 0) {
+      if ((await Tasks.countDocuments({ _id: conformity[typeId] })) === 0) {
         toDelConformityIds.push(conformity._id);
       }
       break;
     case 'ticket':
-      if ((await Tickets.find({ _id: conformity[typeId] }).count()) === 0) {
+      if ((await Tickets.countDocuments({ _id: conformity[typeId] })) === 0) {
         toDelConformityIds.push(conformity._id);
       }
       break;
@@ -59,31 +60,31 @@ const conformityHelper = async (conformity, type, toDelConformityIds) => {
 const contentHelper = async (obj, toDelIds, idField = 'contentTypeId') => {
   switch (obj.contentType) {
     case 'deal':
-      if ((await Deals.find({ _id: obj[idField] }).count()) === 0) {
+      if ((await Deals.countDocuments({ _id: obj[idField] })) === 0) {
         toDelIds.push(obj._id);
       }
       break;
 
     case 'ticket':
-      if ((await Tickets.find({ _id: obj[idField] }).count()) === 0) {
+      if ((await Tickets.countDocuments({ _id: obj[idField] })) === 0) {
         toDelIds.push(obj._id);
       }
       break;
 
     case 'task':
-      if ((await Tasks.find({ _id: obj[idField] }).count()) === 0) {
+      if ((await Tasks.countDocuments({ _id: obj[idField] })) === 0) {
         toDelIds.push(obj._id);
       }
       break;
 
     case 'company':
-      if ((await Companies.find({ _id: obj[idField] }).count()) === 0) {
+      if ((await Companies.countDocuments({ _id: obj[idField] })) === 0) {
         toDelIds.push(obj._id);
       }
       break;
 
     case 'customer':
-      if ((await Customers.find({ _id: obj[idField] }).count()) === 0) {
+      if ((await Customers.countDocuments({ _id: obj[idField] })) === 0) {
         toDelIds.push(obj._id);
       }
       break;
@@ -102,7 +103,7 @@ const command = async () => {
 
   console.log('-------------- start conformities');
 
-  const allConfCount = await Conformities.find().count();
+  const allConfCount = await Conformities.find().countDocuments();
 
   for (let j = 0; j <= allConfCount; j = j + step) {
     console.log('step By conformities', j);
@@ -134,9 +135,9 @@ const command = async () => {
 
   console.log('-------------- start internalNotes');
 
-  const allNoteCount = await InternalNotes.find({
+  const allNoteCount = await InternalNotes.countDocuments({
     contentType: { $in: ['task', 'deal', 'ticket', 'customer', 'company'] }
-  }).count();
+  });
 
   for (let j = 0; j <= allNoteCount; j = j + step) {
     console.log('step By InternalNotes', j);
@@ -169,9 +170,9 @@ const command = async () => {
 
   console.log('-------------- start checklists and checlistItems');
 
-  const allChecklistCount = await Checklists.find({
+  const allChecklistCount = await Checklists.countDocuments({
     contentType: { $in: ['task', 'deal', 'ticket'] }
-  }).count();
+  });
 
   for (let j = 0; j <= allChecklistCount; j = j + step) {
     console.log('step By Checklists', j);
