@@ -43,10 +43,10 @@ const msConversion = (millis) => {
   if (hrs > 0) {
     min = '' + min;
     min = ('00' + min).substring(min.length);
-    return `${hrs}h : ${min}m : ${sec}s`;
+    return `${hrs}h:${min}m:${sec}s`;
   }
   else {
-    return `${min}m : ${sec}s`;
+    return `${min}m:${sec}s`;
   }
 }
 
