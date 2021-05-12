@@ -1040,6 +1040,18 @@ describe('Nylas gmail test', () => {
       );
     }
 
+    try {
+      await nylasUtils.syncMessages(integration.nylasAccountId, '');
+
+      const noMessage = sinon.stub(api, 'getMessageById');
+
+      noMessage.onCall(0).callsFake(() => {
+        return Promise.resolve(null);
+      });
+    } catch (e) {
+      expect(e.message).toBe(`Nylas message not found, messageId: `);
+    }
+
     // Skip syncing draft message
     const draftMessage = sinon.stub(api, 'getMessageById');
 
