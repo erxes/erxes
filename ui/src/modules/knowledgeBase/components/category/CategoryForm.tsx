@@ -85,11 +85,24 @@ class CategoryForm extends React.Component<Props, State> {
     };
   };
 
-  generateOptions = options => {
-    return options.map(option => ({
-      value: option._id,
-      label: option.title
-    }));
+  generateOptions = (values: any, selectable?: boolean) => {
+    const options = selectable
+      ? [
+          {
+            value: '',
+            label: 'Select category'
+          }
+        ]
+      : [];
+
+    values.forEach(option =>
+      options.push({
+        value: option._id,
+        label: option.title
+      })
+    );
+
+    return options;
   };
 
   renderTopics() {
@@ -118,10 +131,8 @@ class CategoryForm extends React.Component<Props, State> {
   renderParentCategories() {
     const self = this;
     const topic = this.props.topics.find(t => t._id === self.state.topicId);
-    let categories = topic ? topic.categories : [];
+    let categories = topic ? topic.parentCategories : [];
     const { category, currentTopicId } = self.props;
-
-    categories = categories.filter(cat => !cat.parentCategoryId);
 
     if (category && currentTopicId === this.state.topicId) {
       categories = categories.filter(cat => cat._id !== category._id);
@@ -139,7 +150,7 @@ class CategoryForm extends React.Component<Props, State> {
         <Select
           placeholder={__('Choose category')}
           value={self.state.parentCategoryId}
-          options={self.generateOptions(categories)}
+          options={self.generateOptions(categories, true)}
           onChange={onChange}
         />
       </FormGroup>

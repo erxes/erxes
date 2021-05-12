@@ -183,8 +183,20 @@ export const loadCategoryClass = () => {
         throw new Error('userId must be supplied');
       }
 
-      if (_id === docFields.parentCategoryId) {
-        throw new Error('Cannot change category');
+      const parentId = docFields.parentCategoryId;
+
+      if (parentId) {
+        if (_id === parentId) {
+          throw new Error('Cannot change category');
+        }
+
+        const childrenCounts = await KnowledgeBaseCategories.countDocuments({
+          parentCategoryId: _id
+        });
+
+        if (childrenCounts > 0) {
+          throw new Error('Cannot change category. this is parent tag');
+        }
       }
 
       await KnowledgeBaseCategories.updateOne(

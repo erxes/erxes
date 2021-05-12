@@ -32,6 +32,7 @@ export interface ITopic {
   createdDate: Date;
   modifiedBy: string;
   modifiedDate: Date;
+  parentCategories: ICategory[];
 }
 
 export interface ICategory {

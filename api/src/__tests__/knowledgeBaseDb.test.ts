@@ -253,6 +253,29 @@ describe('test knowledge base models', () => {
       } catch (e) {
         expect(e.message).toBe('Cannot change category');
       }
+
+      await KnowledgeBaseCategories.createDoc(
+        { ...doc, parentCategoryId: category._id },
+        _user._id
+      );
+
+      const newCategory = await KnowledgeBaseCategories.createDoc(
+        doc,
+        _user._id
+      );
+
+      try {
+        await KnowledgeBaseCategories.updateDoc(
+          category._id,
+          {
+            title: 'New title',
+            parentCategoryId: newCategory._id
+          },
+          _user._id
+        );
+      } catch (e) {
+        expect(e.message).toBe('Cannot change category. this is parent tag');
+      }
     });
 
     test('update', async () => {

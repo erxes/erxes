@@ -39,7 +39,7 @@ class CategoryList extends React.Component<Props> {
     return (
       <Categories>
         {parents.map(category => {
-          const childrens = groupByParent[category._id];
+          const childrens = groupByParent[category._id] || [];
 
           return (
             <>
@@ -49,6 +49,7 @@ class CategoryList extends React.Component<Props> {
                 topicId={topicId}
                 category={category}
                 remove={remove}
+                isParent={childrens.length > 0}
               />
               {childrens &&
                 childrens.map(child => (

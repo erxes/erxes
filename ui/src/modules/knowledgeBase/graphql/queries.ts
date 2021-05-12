@@ -25,6 +25,10 @@ const knowledgeBaseTopics = `
       createdDate
       modifiedBy
       modifiedDate
+
+      parentCategories {
+        ${categoryFields}
+      }
     }
   }
 `;

@@ -8,7 +8,9 @@ export default {
   },
 
   categories(topic: ITopicDocument) {
-    return KnowledgeBaseCategories.find({ topicId: topic._id });
+    return KnowledgeBaseCategories.find({ topicId: topic._id }).sort({
+      modifiedDate: -1
+    });
   },
 
   async parentCategories(topic: ITopicDocument) {
@@ -16,8 +18,11 @@ export default {
       topicId: topic._id,
       $or: [
         { parentCategoryId: null },
-        { parentCategoryId: { $exists: false } }
+        { parentCategoryId: { $exists: false } },
+        { parentCategoryId: '' }
       ]
+    }).sort({
+      modifiedDate: -1
     });
   },
 
