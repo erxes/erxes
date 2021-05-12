@@ -41,8 +41,8 @@ const dashboardItemEdit = `
 `;
 
 const dashboardItemAdd = `
-  mutation dashboardItemAdd($dashboardId: String, $layout: String, $vizState: String, $name: String, $type: String) {
-    dashboardItemAdd(dashboardId: $dashboardId, layout: $layout, vizState: $vizState, name: $name, type: $type) {
+  mutation dashboardItemAdd($dashboardId: String, $layout: String, $vizState: String, $name: String, $type: String, $isDateRange: Boolean) {
+    dashboardItemAdd(dashboardId: $dashboardId, layout: $layout, vizState: $vizState, name: $name, type: $type, isDateRange: $isDateRange) {
       _id
       layout
       vizState
@@ -71,5 +71,5 @@ export default {
   dashboardItemEdit,
   dashboardItemAdd,
   dashboardItemRemove,
-  dashboardSendEmail,
+  dashboardSendEmail
 };

@@ -164,7 +164,12 @@ export const engageMessageSchema = schemaWrapper(
     isDraft: field({ type: Boolean, label: 'Is draft' }),
     isLive: field({ type: Boolean, label: 'Is live' }),
     stopDate: field({ type: Date, label: 'Stop date' }),
-    createdAt: field({ type: Date, default: Date.now, label: 'Created at' }),
+    createdAt: field({
+      type: Date,
+      default: Date.now,
+      label: 'Created at',
+      index: true
+    }),
     tagIds: field({ type: [String], optional: true, label: 'Tags' }),
     customerTagIds: field({
       type: [String],

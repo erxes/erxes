@@ -344,27 +344,27 @@ describe('Test board model', () => {
     expect(await Stages.findOne({ _id: removedStage._id })).toBeNull();
 
     const checkHelper = async (deal, checklist, eqCount) => {
-      expect(await Deals.find({ _id: deal._id }).count()).toEqual(eqCount);
+      expect(await Deals.countDocuments({ _id: deal._id })).toEqual(eqCount);
       expect(
-        await Checklists.find({
+        await Checklists.countDocuments({
           contentType: 'deal',
           contentTypeId: deal._id
-        }).count()
+        })
       ).toEqual(eqCount);
       expect(
-        await ChecklistItems.find({ checklistId: checklist._id }).count()
+        await ChecklistItems.countDocuments({ checklistId: checklist._id })
       ).toEqual(eqCount);
       expect(
-        await Conformities.find({
+        await Conformities.countDocuments({
           relType: 'deal',
           relTypeId: deal._id
-        }).count()
+        })
       ).toEqual(eqCount);
       expect(
-        await InternalNotes.find({
+        await InternalNotes.countDocuments({
           contentType: 'deal',
           contentTypeId: deal._id
-        }).count()
+        })
       ).toEqual(eqCount);
     };
     await checkHelper(removedDeal, removedChecklist, 0);

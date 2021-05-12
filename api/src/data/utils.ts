@@ -398,6 +398,10 @@ export const readFileRequest = async (key: string): Promise<any> => {
         },
         (error, response) => {
           if (error) {
+            debugError(
+              `Error occurred when fetching s3 file with key: "${key}"`
+            );
+
             return reject(error);
           }
 
@@ -1048,8 +1052,8 @@ export const findCustomer = async doc => {
     });
   }
 
-  if (!customer && doc.customerPrimaryPhone) {
-    customer = await Customers.findOne({ code: doc.customerPrimaryPhone });
+  if (!customer && doc.customerCode) {
+    customer = await Customers.findOne({ code: doc.customerCode });
   }
 
   return customer;

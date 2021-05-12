@@ -113,10 +113,10 @@ describe('knowledgeBaseQueries', () => {
       userId: user._id
     });
 
-    const args = {
+    const args: any = {
       page: 1,
       perPage: 5,
-      topicIds: topic._id
+      topicIds: [topic._id]
     };
 
     const qry = `
@@ -177,6 +177,17 @@ describe('knowledgeBaseQueries', () => {
     let responses = await graphqlRequest(qry, 'knowledgeBaseCategories', args, {
       user
     });
+
+    expect(responses.length).toBe(2);
+
+    responses = await graphqlRequest(
+      qry,
+      'knowledgeBaseCategories',
+      { topicIds: [topic._id] },
+      {
+        user
+      }
+    );
 
     expect(responses.length).toBe(2);
 
@@ -268,7 +279,7 @@ describe('knowledgeBaseQueries', () => {
     await knowledgeBaseArticleFactory({ categoryIds: [category._id] });
     await knowledgeBaseArticleFactory({});
 
-    const args = {
+    const args: any = {
       page: 1,
       perPage: 5,
       categoryIds: [category._id]
