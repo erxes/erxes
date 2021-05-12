@@ -32,7 +32,7 @@ const dashboardToken = getDashboardToken();
 
 const msConversion = (millis) => {
   let sec = Math.floor(millis / 1000) as any;
-  let hrs = Math.floor(sec / 3600) as any;
+  const hrs = Math.floor(sec / 3600) as any;
   sec -= hrs * 3600;
   let min = Math.floor(sec / 60) as any;
   sec -= min * 60;
@@ -43,10 +43,10 @@ const msConversion = (millis) => {
   if (hrs > 0) {
     min = '' + min;
     min = ('00' + min).substring(min.length);
-    return hrs + 'h' + ":" + min + 'm' + ":" + sec + 's';
+    return `${hrs}h : ${min}m : ${sec}s`;
   }
   else {
-    return min + 'm' + ":" + sec + 's';
+    return `${min}m : ${sec}s`;
   }
 }
 
@@ -369,7 +369,7 @@ export default function ChartRenderer(props: Props) {
   if (result.seriesNames) {
     const { timeDimensions, measures } = query;
 
-    let measureType = measures[0];
+    const measureType = measures[0];
 
     if (timeDimensions[0]) {
       dateType = timeDimensions[0].granularity;
