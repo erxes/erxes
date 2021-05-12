@@ -173,7 +173,7 @@ interface IUserFactoryInput {
   deviceTokens?: string[];
   registrationToken?: string;
   registrationTokenExpires?: Date;
-  doNotDisturb?: string;
+  isSubscribed?: string;
 }
 
 export const userFactory = async (params: IUserFactoryInput = {}) => {
@@ -203,7 +203,7 @@ export const userFactory = async (params: IUserFactoryInput = {}) => {
     groupIds: params.groupIds || [],
     brandIds: params.brandIds,
     deviceTokens: params.deviceTokens,
-    doNotDisturb: params.doNotDisturb,
+    isSubscribed: params.isSubscribed,
     ...(params.code ? { code: params.code } : {})
   });
 
@@ -542,7 +542,7 @@ interface ICustomerFactoryInput {
   primaryPhone?: string;
   emails?: string[];
   phones?: string[];
-  doNotDisturb?: string;
+  isSubscribed?: string;
   leadStatus?: string;
   status?: string;
   customFieldsData?: any;

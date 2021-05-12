@@ -117,7 +117,7 @@ export default class GenerateField extends React.Component<Props, State> {
       attrs.checked = String(value) === attrs.option;
     }
 
-    if (type && type.includes('doNotDisturb')) {
+    if (type && type.includes('isSubscribed')) {
       attrs.type = 'radio';
       attrs.componentClass = 'radio';
       attrs.checked = String(value) === attrs.option;
@@ -326,7 +326,7 @@ export default class GenerateField extends React.Component<Props, State> {
           return this.renderRadioOrCheckInputs(boolOptions, attrs, true);
         }
 
-      case 'doNotDisturb':
+      case 'isSubscribed':
         attrs.name = Math.random().toString();
         try {
           return this.renderRadioOrCheckInputs(boolOptions, attrs);
@@ -334,7 +334,7 @@ export default class GenerateField extends React.Component<Props, State> {
           return this.renderRadioOrCheckInputs(boolOptions, attrs, true);
         }
 
-      case 'companyDoNotDisturb':
+      case 'companyIsSubscribed':
         attrs.name = Math.random().toString();
         try {
           return this.renderRadioOrCheckInputs(boolOptions, attrs);
