@@ -26,6 +26,7 @@ export interface IDashboardItemEdit {
   vizState?: string;
   name?: string;
   type?: string;
+  isDateRange?: boolean;
 }
 
 export interface IDashboardDocument extends IDashboard, Document {
@@ -48,5 +49,6 @@ export const dashboardItemSchema = new Schema({
   layout: field({ type: String }),
   vizState: field({ type: String }),
   name: field({ type: String }),
-  type: field({ type: String })
+  type: field({ type: String }),
+  isDateRange: field({ type: Boolean })
 });

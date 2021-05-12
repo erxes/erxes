@@ -76,6 +76,7 @@ describe('dashboardQueries', () => {
           vizState
           name
           type
+          isDateRange
         }
       }
     `;

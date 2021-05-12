@@ -32,7 +32,7 @@ export default (oldState, newState) => {
     if (schemaName.includes('Properties')) {
       const dateRange = newQuery.timeDimensions[0]
         ? newQuery.timeDimensions[0].dateRange
-        : 'Last 30 days';
+        : 'This month';
 
       const dimension = newQuery.timeDimensions[0]
         ? newQuery.timeDimensions[0].dimension
@@ -73,7 +73,7 @@ export default (oldState, newState) => {
               {
                 dimension: defaultTimeDimension,
                 granularity: defaultGranularity,
-                dateRange: 'Last 30 days'
+              dateRange: 'This month'
               }
             ]
           : []
