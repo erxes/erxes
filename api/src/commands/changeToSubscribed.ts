@@ -1,4 +1,5 @@
 import * as dotenv from 'dotenv';
+import { stream } from '../data/bulkUtils';
 import { connect } from '../db/connection';
 import { Customers, Companies, Fields } from '../db/models';
 
@@ -9,40 +10,68 @@ const command = async () => {
 
   await connect();
 
+  const update = async (models, ids, isSubscribed) => {
+    await stream(
+      async chunk => {
+        await models.update(
+          { _id: { $in: chunk } },
+          { $set: { isSubscribed } },
+          { multi: true }
+        );
+      },
+      (variables, root) => {
+        const parentIds = variables.parentIds || [];
+
+        parentIds.push(root._id);
+
+        variables.parentIds = parentIds;
+      },
+      () => {
+        return models.find(
+          {
+            _id: { $in: ids }
+          },
+          { _id: 1 }
+        ) as any;
+      },
+      1000
+    );
+  };
+
   const subscribedCustomers = await Customers.find({
     $or: [{ doNotDisturb: 'No' }, { isSubscribed: { $exists: false } }]
   });
 
-  await Customers.update(
-    { _id: { $in: subscribedCustomers.map(e => e._id) } },
-    { $set: { isSubscribed: 'Yes' } },
-    { multi: true }
+  await update(
+    Customers,
+    subscribedCustomers.map(e => e._id),
+    'Yes'
   );
 
   const notSubscribedCustomers = await Customers.find({ doNotDisturb: 'Yes' });
 
-  await Customers.update(
-    { _id: { $in: notSubscribedCustomers.map(e => e._id) } },
-    { $set: { isSubscribed: 'No' } },
-    { multi: true }
+  await update(
+    Customers,
+    notSubscribedCustomers.map(e => e._id),
+    'No'
   );
 
   const subscribedCompanies = await Companies.find({
     $or: [{ doNotDisturb: 'No' }, { isSubscribed: { $exists: false } }]
   });
 
-  await Companies.update(
-    { _id: { $in: subscribedCompanies.map(e => e._id) } },
-    { $set: { isSubscribed: 'Yes' } },
-    { multi: true }
+  await update(
+    Companies,
+    subscribedCompanies.map(e => e._id),
+    'Yes'
   );
 
   const notSubscribedCompanies = await Companies.find({ doNotDisturb: 'Yes' });
 
-  await Companies.update(
-    { _id: { $in: notSubscribedCompanies.map(e => e._id) } },
-    { $set: { isSubscribed: 'No' } },
-    { multi: true }
+  await update(
+    Companies,
+    notSubscribedCompanies.map(e => e._id),
+    'No'
   );
 
   await Fields.update(
