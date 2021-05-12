@@ -78,7 +78,7 @@ export const generateCustomerSelector = async ({
 
   return {
     ...customerQuery,
-    $or: [{ doNotDisturb: 'No' }, { doNotDisturb: { $exists: false } }]
+    $or: [{ isSubscribed: 'Yes' }, { isSubscribed: { $exists: false } }]
   };
 };
 
@@ -459,12 +459,12 @@ export const checkCustomerExists = async (
   must.push({
     bool: {
       should: [
-        { term: { doNotDisturb: 'no' } },
+        { term: { isSubscribed: 'yes' } },
         {
           bool: {
             must_not: {
               exists: {
-                field: 'doNotDisturb'
+                field: 'isSubscribed'
               }
             }
           }

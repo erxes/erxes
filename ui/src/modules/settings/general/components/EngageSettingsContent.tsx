@@ -197,7 +197,7 @@ class EngageSettingsContent extends React.Component<Props, State> {
             The number of times that each customer can skip to open or click
             campaign emails. If this limit is exceeded, then the customer will
             automatically set to
-            <strong> do not disturb </strong>mode.
+            <strong> unsubscribed </strong>mode.
           </p>
           <FormControl
             {...formProps}

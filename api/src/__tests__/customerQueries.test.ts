@@ -261,7 +261,7 @@ describe('customerQueries', () => {
           leadStatus
           hasAuthority
           description
-          doNotDisturb
+          isSubscribed
           links
           urlVisits
           conversations { _id }
