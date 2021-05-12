@@ -28,7 +28,7 @@ export interface ICompany {
   businessType?: string;
   description?: string;
   employees?: number;
-  doNotDisturb?: string;
+  isSubscribed?: string;
   links?: ILink;
   tagIds?: string[];
   customFieldsData?: ICustomField[];
@@ -150,6 +150,14 @@ export const companySchema = schemaWrapper(
       default: 'No',
       enum: getEnum('DO_NOT_DISTURB'),
       label: 'Do not disturb',
+      selectOptions: COMPANY_SELECT_OPTIONS.DO_NOT_DISTURB
+    }),
+    isSubscribed: field({
+      type: String,
+      optional: true,
+      default: 'Yes',
+      enum: getEnum('DO_NOT_DISTURB'),
+      label: 'Subscribed',
       selectOptions: COMPANY_SELECT_OPTIONS.DO_NOT_DISTURB
     }),
     links: field({ type: Object, default: {}, label: 'Links' }),
