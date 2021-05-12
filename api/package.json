@@ -79,7 +79,7 @@
     "mongoose": "5.7.5",
     "mongoose-type-email": "^1.0.5",
     "node-schedule": "^1.2.5",
-    "nodemailer": "^4.1.3",
+    "nodemailer": "^6.4.16",
     "puppeteer": "^5.4.1",
     "redis": "^2.8.0",
     "request": "^2.88.0",
