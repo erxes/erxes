@@ -161,7 +161,7 @@ export const loadItemClass = () => {
       { checklistId, ...fields }: IChecklistItem,
       user: IUserDocument
     ) {
-      const itemsCount = await ChecklistItems.count({ checklistId });
+      const itemsCount = await ChecklistItems.countDocuments({ checklistId });
 
       const checklistItem = await ChecklistItems.create({
         checklistId,

@@ -24,6 +24,7 @@ type State = {
   name: string;
   type: string;
   visible: boolean;
+  isDateRange: boolean;
 };
 
 class Chart extends React.Component<Props, State> {
@@ -38,12 +39,17 @@ class Chart extends React.Component<Props, State> {
         : {},
       type: dashboardItem.type,
       name: dashboardItem.name,
+      isDateRange: dashboardItem.isDateRange || false,
       visible: false
     };
   }
 
   setVizState = vizState => {
     this.setState({ vizState });
+  };
+
+  setIsDateRange = value => {
+    this.setState({ isDateRange: value });
   };
 
   setType = type => {
@@ -54,7 +60,7 @@ class Chart extends React.Component<Props, State> {
   };
 
   handleSubmit = () => {
-    const { name, vizState, type } = this.state;
+    const { name, vizState, type, isDateRange } = this.state;
     const { dashboardId, dashboardItem } = this.props;
 
     if (!name) {
@@ -69,7 +75,8 @@ class Chart extends React.Component<Props, State> {
       name,
       vizState,
       dashboardId,
-      type
+      type,
+      isDateRange
     };
 
     this.props.save(doc);
@@ -86,7 +93,7 @@ class Chart extends React.Component<Props, State> {
   };
 
   render() {
-    const { vizState, type, visible, name } = this.state;
+    const { vizState, type, visible, name, isDateRange } = this.state;
 
     const onChange = e =>
       this.onChange('name', (e.currentTarget as HTMLInputElement).value);
@@ -140,6 +147,8 @@ class Chart extends React.Component<Props, State> {
           setVizState={this.setVizState}
           type={type}
           setType={this.setType}
+          isDateRange={isDateRange}
+          setIsDateRange={this.setIsDateRange}
         />
       </>
     );

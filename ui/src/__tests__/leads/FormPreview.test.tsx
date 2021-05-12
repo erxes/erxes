@@ -9,7 +9,15 @@ describe('FormPreview component', () => {
     theme: 'default',
     onChange: (name: any, fields: string) => null,
     type: 'string',
-    previewRenderer: () => <div />
+    previewRenderer: () => <div />,
+    currentPage: 1,
+    formData: {
+      title: 'title',
+      description: 'desc',
+      buttonText: 'button text',
+      type: '',
+      numberOfPages: 1
+    }
   };
 
   test('renders shallow successfully', () => {
