@@ -104,7 +104,37 @@ const integrationQueries = {
       ...(await generateFilterQuery(args))
     };
 
-    const integrations = paginate(
+    if (args.kind === 'lead') {
+      const leadIntegrations = paginate(
+        Integrations.aggregate([
+          {
+            $lookup: {
+              from: 'forms',
+              localField: 'formId',
+              foreignField: '_id',
+              as: 'form'
+            }
+          },
+          { $unwind: '$form' },
+          {
+            $project: {
+              isActive: 1,
+              name: 1,
+              brandId: 1,
+              tagIds: 1,
+              formId: 1,
+              kind: 1,
+              leadData: 1,
+              createdUserId: 1,
+              createdDate: '$form.createdDate'
+            }
+          }
+        ])
+      );
+      return leadIntegrations.sort({ createdDate: -1 });
+    }
+
+    const integrations = await paginate(
       Integrations.findAllIntegrations(query),
       args
     );

@@ -44,6 +44,13 @@ class ListContainer extends React.Component<FinalProps> {
     }
   }
 
+  componentDidUpdate(prevProps) {
+    console.log(this.props.queryParams);
+    if (this.props.queryParams.page !== prevProps.queryParams.page) {
+      this.props.integrationsQuery.refetch();
+    }
+  }
+
   refetch = () => {
     const { integrationsQuery } = this.props;
 
