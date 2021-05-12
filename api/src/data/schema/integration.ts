@@ -57,6 +57,7 @@ export const types = `
     isRequireOnce: Boolean
     templateId: String
     attachments: [AttachmentInput]
+    css: String
   }
 
   input MessengerOnlineHoursSchema {

@@ -49,6 +49,18 @@ class Form extends React.Component<Props, State> {
     if (this.props.setHeight) {
       this.props.setHeight();
     }
+
+    if (this.props.integration.leadData.css) {
+      const head = document.getElementsByTagName('head')[0];
+      const style = document.createElement('style');
+      style.setAttribute('type', 'text/css');
+
+      style.appendChild(
+        document.createTextNode(this.props.integration.leadData.css)
+      );
+
+      head.appendChild(style);
+    }
   }
 
   componentDidUpdate() {
@@ -279,7 +291,7 @@ class Form extends React.Component<Props, State> {
       }
 
       this.showField(field._id);
-
+      
       return (
         <Field
           key={field._id}
