@@ -17,6 +17,7 @@ const dashboardItemDetail = `
       vizState
       name
       type
+      isDateRange
     }
   }
 `;
