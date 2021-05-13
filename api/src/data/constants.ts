@@ -54,7 +54,7 @@ export const FIELD_CONTENT_TYPES = {
 export const EXTEND_FIELDS = {
   CUSTOMER: [
     { name: 'tag', label: 'Tag' },
-    { name: 'ownerEmail', label: 'Owner' },
+    { name: 'ownerEmail', label: 'Owner email' },
     { name: 'companiesPrimaryNames', label: 'Companies' }
   ],
   PRODUCT: [{ name: 'categoryCode', label: 'Category Code' }]

@@ -121,7 +121,7 @@ export const companySchema = schemaWrapper(
     }),
     phones: field({ type: [String], optional: true, label: 'Phones' }),
 
-    ownerId: field({ type: String, optional: true, label: 'Owner' }),
+    ownerId: field({ type: String, optional: true }),
 
     status: field({
       type: String,
