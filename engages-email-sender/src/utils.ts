@@ -216,7 +216,7 @@ export const cleanIgnoredCustomers = async ({
 
   if (ignoredCustomerIds.length > 0) {
     await messageBroker().sendMessage('engagesNotification', {
-      action: 'setDoNotDisturb',
+      action: 'setSubscribed',
       data: { customerIds: ignoredCustomerIds }
     });
 

@@ -415,7 +415,7 @@ export default class Field extends React.Component<Props, State> {
           String(value)
         );
 
-      case 'doNotDisturb':
+      case 'isSubscribed':
         return Field.renderRadioButtons(
           name,
           ['Yes', 'No'],
@@ -424,7 +424,7 @@ export default class Field extends React.Component<Props, State> {
           String(value)
         );
 
-      case 'companyDoNotDisturb':
+      case 'companyIsSubscribed':
         return Field.renderRadioButtons(
           name,
           ['Yes', 'No'],

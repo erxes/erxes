@@ -124,7 +124,7 @@ describe('companyQueries', () => {
           phones
           businessType
           description
-          doNotDisturb
+          isSubscribed
           links
           customers { _id }
           owner { _id }

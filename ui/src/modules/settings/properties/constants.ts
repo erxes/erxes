@@ -68,6 +68,6 @@ export const COLUMN_CHOOSER_EXCLUDED_FIELD_NAMES = {
     'leadStatus',
     'relatedIntegrationIds',
     'hasAuthority',
-    'doNotDisturb'
+    'isSubscribed'
   ]
 };

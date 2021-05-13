@@ -891,11 +891,11 @@ export const handleUnsubscription = async (query: {
   const { cid, uid } = query;
 
   if (cid) {
-    await Customers.updateOne({ _id: cid }, { $set: { doNotDisturb: 'Yes' } });
+    await Customers.updateOne({ _id: cid }, { $set: { isSubscribed: 'No' } });
   }
 
   if (uid) {
-    await Users.updateOne({ _id: uid }, { $set: { doNotDisturb: 'Yes' } });
+    await Users.updateOne({ _id: uid }, { $set: { isSubscribed: 'No' } });
   }
 };
 

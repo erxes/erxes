@@ -42,7 +42,7 @@ const getInstallCode = (brandCode: string, formCode: string) => {
       window.erxesSettings = {
         forms: [{
           brand_id: "${brandCode}",
-          form_id: "${formCode}",
+          form_id: "${formCode}"
         }],
       };
       ${installCodeIncludeScript('form')}
