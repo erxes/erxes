@@ -197,7 +197,7 @@ export const customerSchema = schemaWrapper(
       esType: 'number'
     }),
 
-    ownerId: field({ type: String, optional: true, label: 'Owner' }),
+    ownerId: field({ type: String, optional: true }),
     position: field({
       type: String,
       optional: true,
