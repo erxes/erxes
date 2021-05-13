@@ -551,6 +551,12 @@ export const fieldsCombinedByContentType = async ({
     });
   }
 
+  if (['visitor', 'lead', 'customer', 'company'].includes(contentType)) {
+    const ownerOptions = await generateUsersOptions('ownerId', 'Owner', 'user');
+
+    fields = [...fields, ownerOptions];
+  }
+
   if (
     (contentType === 'company' || contentType === 'customer') &&
     (!usageType || usageType === 'export')

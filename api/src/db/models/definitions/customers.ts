@@ -47,6 +47,7 @@ export interface ICustomer {
   hasAuthority?: string;
   description?: string;
   doNotDisturb?: string;
+  isSubscribed?: string;
   emailValidationStatus?: string;
   phoneValidationStatus?: string;
   links?: ILink;
@@ -196,7 +197,7 @@ export const customerSchema = schemaWrapper(
       esType: 'number'
     }),
 
-    ownerId: field({ type: String, optional: true, label: 'Owner' }),
+    ownerId: field({ type: String, optional: true }),
     position: field({
       type: String,
       optional: true,
@@ -240,6 +241,14 @@ export const customerSchema = schemaWrapper(
       default: 'No',
       enum: getEnum('DO_NOT_DISTURB'),
       label: 'Do not disturb',
+      selectOptions: CUSTOMER_SELECT_OPTIONS.DO_NOT_DISTURB
+    }),
+    isSubscribed: field({
+      type: String,
+      optional: true,
+      default: 'Yes',
+      enum: getEnum('DO_NOT_DISTURB'),
+      label: 'Subscribed',
       selectOptions: CUSTOMER_SELECT_OPTIONS.DO_NOT_DISTURB
     }),
     links: field({ type: Object, default: {}, label: 'Links' }),

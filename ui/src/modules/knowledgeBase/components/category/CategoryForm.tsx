@@ -30,10 +30,12 @@ class CategoryForm extends React.Component<Props, State> {
   constructor(props: Props) {
     super(props);
 
+    const { category, currentTopicId } = props;
+
     this.state = {
       selectedIcon: this.getSelectedIcon(),
-      topicId: props.currentTopicId,
-      parentCategoryId: props.category.parentCategoryId
+      topicId: currentTopicId,
+      parentCategoryId: category && category.parentCategoryId
     };
   }
 

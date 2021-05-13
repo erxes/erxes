@@ -95,7 +95,7 @@ const handleMessage = async message => {
 
   if (rejected) {
     await messageBroker().sendMessage('engagesNotification', {
-      action: 'setDoNotDisturb',
+      action: 'setSubscribed',
       data: { customerId: mailHeaders.customerId, status: type }
     });
   }
