@@ -19,7 +19,7 @@ const knowledgeBaseQueries = {
     const articles = KnowledgeBaseArticles.find({
       categoryId: { $in: args.categoryIds }
     }).sort({
-      createdData: -1
+      createdDate: -1
     });
 
     return paginate(articles, args);
@@ -58,7 +58,7 @@ const knowledgeBaseQueries = {
     const categories = KnowledgeBaseCategories.find({
       topicId: { $in: topicIds }
     }).sort({
-      modifiedDate: -1
+      title: 1
     });
 
     if (!page && !perPage) {
