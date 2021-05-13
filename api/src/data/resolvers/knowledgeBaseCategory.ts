@@ -49,8 +49,6 @@ export const KnowledgeBaseParentCategory = {
   childrens(category: ICategoryDocument) {
     return KnowledgeBaseCategories.find({
       parentCategoryId: category._id
-    }).sort({
-      modifiedDate: -1
-    });
+    }).sort({ title: 1 });
   }
 };
