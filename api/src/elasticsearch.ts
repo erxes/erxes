@@ -72,6 +72,11 @@ export const fetchElk = async ({
 
     return response;
   } catch (e) {
+    // stay quiet if nothing is found
+    if (e.message === 'Not Found') {
+      return defaultValue;
+    }
+
     debugError(`Error during elk query ${e.message}`);
 
     if (typeof defaultValue !== undefined) {
