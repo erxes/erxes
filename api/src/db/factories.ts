@@ -921,7 +921,6 @@ export const channelFactory = async (params: IChannelFactoryInput = {}) => {
 interface IKnowledgeBaseTopicFactoryInput {
   userId?: string;
   color?: string;
-  categoryIds?: string[];
   brandId?: string;
 }
 
@@ -945,9 +944,9 @@ export const knowledgeBaseTopicFactory = async (
 };
 
 interface IKnowledgeBaseCategoryFactoryInput {
-  articleIds?: string[];
   userId?: string;
-  topicIds?: string[];
+  topicId?: string;
+  parentCategoryId?: string;
 }
 
 export const knowledgeBaseCategoryFactory = async (
@@ -956,8 +955,9 @@ export const knowledgeBaseCategoryFactory = async (
   const doc = {
     title: faker.random.word(),
     description: faker.lorem.sentence,
-    articleIds: params.articleIds,
-    icon: faker.random.word()
+    icon: faker.random.word(),
+    topicId: params.topicId,
+    parentCategoryId: params.parentCategoryId
   };
 
   return KnowledgeBaseCategories.createDoc(
@@ -967,11 +967,12 @@ export const knowledgeBaseCategoryFactory = async (
 };
 
 interface IKnowledgeBaseArticleCategoryInput {
-  categoryIds?: string[];
   userId?: string;
   reactionChoices?: string[];
   status?: string;
   modifiedBy?: string;
+  topicId?: string;
+  categoryId?: string;
 }
 
 export const knowledgeBaseArticleFactory = async (
@@ -984,7 +985,9 @@ export const knowledgeBaseArticleFactory = async (
     icon: faker.random.word(),
     reactionChoices: params.reactionChoices || ['wow'],
     status: params.status || 'draft',
-    modifiedBy: params.modifiedBy
+    modifiedBy: params.modifiedBy,
+    topicId: params.topicId,
+    categoryId: params.categoryId
   };
 
   return KnowledgeBaseArticles.createDoc(

@@ -16,6 +16,8 @@ export interface IArticle {
   status?: string;
   reactionChoices?: string[];
   reactionCounts?: { [key: string]: number };
+  categoryId?: string;
+  topicId?: string;
 }
 
 export interface IArticleDocument extends ICommonFields, IArticle, Document {
@@ -27,6 +29,8 @@ export interface ICategory {
   description?: string;
   articleIds?: string[];
   icon?: string;
+  parentCategoryId?: string;
+  topicId?: string;
 }
 
 export interface ICategoryDocument extends ICommonFields, ICategory, Document {
@@ -74,6 +78,8 @@ export const articleSchema = new Schema({
     label: 'Reaction choices'
   }),
   reactionCounts: field({ type: Object, label: 'Reaction counts' }),
+  topicId: field({ type: String, optional: true, label: 'Topic' }),
+  categoryId: field({ type: String, optional: true, label: 'Category' }),
   ...commonFields
 });
 
@@ -82,6 +88,12 @@ export const categorySchema = new Schema({
   description: field({ type: String, optional: true, label: 'Description' }),
   articleIds: field({ type: [String], label: 'Articles' }),
   icon: field({ type: String, optional: true, label: 'Icon' }),
+  parentCategoryId: field({
+    type: String,
+    optional: true,
+    label: 'Parent category'
+  }),
+  topicId: field({ type: String, optional: true, label: 'Topic' }),
   ...commonFields
 });
 
