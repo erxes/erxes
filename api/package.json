@@ -23,6 +23,7 @@
     "createSystemFieldsGroups": "node_modules/.bin/ts-node src/commands/createSystemFieldsGroups.ts",
     "addMiddleName": "node_modules/.bin/ts-node src/commands/addMiddleName.ts",
     "removeUnusedFields": "node_modules/.bin/ts-node src/commands/removeUnusedFields.ts",
+    "migrateKnowledgeBase": "node_modules/.bin/ts-node src/commands/migrateKnowledgeBase.ts",
     "changeToSubscribed": "node_modules/.bin/ts-node src/commands/changeToSubscribed.ts"
   },
   "dependencies": {

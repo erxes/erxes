@@ -14,7 +14,7 @@ import {
 type Props = {
   queryParams: any;
   currentCategoryId: string;
-  topicIds: string;
+  topicId: string;
 };
 
 type FinalProps = { articlesQuery: ArticlesQueryResponse } & Props &
@@ -26,7 +26,7 @@ const ArticleContainer = (props: FinalProps) => {
     removeArticlesMutation,
     queryParams,
     currentCategoryId,
-    topicIds
+    topicId
   } = props;
 
   // remove action
@@ -50,7 +50,7 @@ const ArticleContainer = (props: FinalProps) => {
     ...props,
     remove,
     currentCategoryId,
-    topicIds,
+    topicId,
     queryParams,
     articles: articlesQuery.knowledgeBaseArticles || [],
     loading: articlesQuery.loading
@@ -79,7 +79,7 @@ export default withProps<Props>(
       gql(mutations.knowledgeBaseArticlesRemove),
       {
         name: 'removeArticlesMutation',
-        options: ({ currentCategoryId, topicIds }) => {
+        options: ({ currentCategoryId, topicId }) => {
           return {
             refetchQueries: [
               {
@@ -88,7 +88,7 @@ export default withProps<Props>(
               },
               {
                 query: gql(queries.knowledgeBaseCategories),
-                variables: { topicIds: [topicIds] }
+                variables: { topicIds: [topicId] }
               },
               {
                 query: gql(queries.knowledgeBaseCategoryDetail),
