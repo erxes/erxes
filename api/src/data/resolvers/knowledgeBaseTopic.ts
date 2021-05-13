@@ -9,7 +9,7 @@ export default {
 
   categories(topic: ITopicDocument) {
     return KnowledgeBaseCategories.find({ topicId: topic._id }).sort({
-      modifiedDate: -1
+      title: 1
     });
   },
 
@@ -22,7 +22,7 @@ export default {
         { parentCategoryId: '' }
       ]
     }).sort({
-      modifiedDate: -1
+      title: 1
     });
   },
 
