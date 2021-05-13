@@ -398,9 +398,14 @@ export const readFileRequest = async (key: string): Promise<any> => {
         },
         (error, response) => {
           if (error) {
-            debugError(
-              `Error occurred when fetching s3 file with key: "${key}"`
-            );
+            if (
+              error.code === 'NoSuchKey' &&
+              error.message.includes('key does not exist')
+            ) {
+              debugBase(
+                `Error occurred when fetching s3 file with key: "${key}"`
+              );
+            }
 
             return reject(error);
           }
