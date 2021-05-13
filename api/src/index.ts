@@ -103,6 +103,9 @@ const ENGAGES_API_DOMAIN = getSubServiceDomain({
 const CP_DOMAIN = getSubServiceDomain({
   name: 'CP_DOMAIN'
 });
+const CLIENT_PORTAL_MN_DOMAIN = getSubServiceDomain({
+  name: 'CLIENT_PORTAL_MN_DOMAIN'
+});
 
 const handleTelnyxWebhook = (req, res, next, hookName: string) => {
   if (NODE_ENV === 'test') {
@@ -168,7 +171,8 @@ const corsOptions = {
     WIDGETS_DOMAIN,
     CLIENT_PORTAL_DOMAIN,
     CP_DOMAIN,
-    DASHBOARD_DOMAIN
+    DASHBOARD_DOMAIN,
+    CLIENT_PORTAL_MN_DOMAIN
   ]
 };
 
