@@ -23,7 +23,10 @@ const webhookMutations = {
       headers: {
         'Erxes-token': webhook.token || ''
       },
-      method: 'post'
+      method: 'post',
+      body: {
+        text: 'You have successfully connected erxes webhook'
+      }
     })
       .then(async () => {
         await Webhooks.updateStatus(webhook._id, WEBHOOK_STATUS.AVAILABLE);
