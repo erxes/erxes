@@ -96,6 +96,8 @@ const integrationQueries = {
       tag: string;
       status: string;
       formLoadType: string;
+      sortField: string;
+      sortDirection: number;
     },
     { singleBrandIdSelector }: IContext
   ) {
@@ -105,36 +107,10 @@ const integrationQueries = {
     };
 
     if (args.kind === 'lead') {
-      const leadIntegrations = paginate(
-        Integrations.aggregate([
-          {
-            $lookup: {
-              from: 'forms',
-              localField: 'formId',
-              foreignField: '_id',
-              as: 'form'
-            }
-          },
-          { $unwind: '$form' },
-          {
-            $project: {
-              isActive: 1,
-              name: 1,
-              brandId: 1,
-              tagIds: 1,
-              formId: 1,
-              kind: 1,
-              leadData: 1,
-              createdUserId: 1,
-              createdDate: '$form.createdDate'
-            }
-          }
-        ])
-      );
-      return leadIntegrations.sort({ createdDate: -1 });
+      return Integrations.findLeadIntegrations(query, args);
     }
 
-    const integrations = await paginate(
+    const integrations = paginate(
       Integrations.findAllIntegrations(query),
       args
     );

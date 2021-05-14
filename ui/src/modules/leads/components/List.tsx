@@ -128,12 +128,24 @@ class List extends React.Component<Props, {}> {
               <SortHandler sortField={'name'} label={__('Name')} />
             </th>
             <th>{__('Status')}</th>
-            <th>{__('Views')}</th>
+            <th>
+              <SortHandler
+                sortField={'leadData.viewCount'}
+                label={__('Views')}
+              />
+            </th>
             <th>{__('Conversion rate')}</th>
-            <th>{__('Contacts gathered')}</th>
+            <th>
+              <SortHandler
+                sortField={'leadData.contactsGathered'}
+                label={__('Contacts gathered')}
+              />
+            </th>
             <th>{__('Brand')}</th>
             <th>{__('Created by')}</th>
-            <th>{__('Created at')}</th>
+            <th>
+              <SortHandler sortField={'createdDate'} label={__('Created at')} />
+            </th>
             <th>{__('Tags')}</th>
             <th>{__('Actions')}</th>
           </tr>
