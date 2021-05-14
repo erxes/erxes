@@ -134,7 +134,12 @@ class List extends React.Component<Props, {}> {
                 label={__('Views')}
               />
             </th>
-            <th>{__('Conversion rate')}</th>
+            <th>
+              <SortHandler
+                sortField={'leadData.conversionRate'}
+                label={__('Conversion rate')}
+              />
+            </th>
             <th>
               <SortHandler
                 sortField={'leadData.contactsGathered'}
