@@ -200,6 +200,18 @@ export const loadClass = () => {
             createdDate: '$form.createdDate'
           }
         },
+        {
+          $addFields: {
+            'leadData.conversionRate': {
+              $multiply: [
+                {
+                  $divide: ['$leadData.contactsGathered', '$leadData.viewCount']
+                },
+                100
+              ]
+            }
+          }
+        },
         { $sort: { [sortField]: sortDirection } },
         { $skip: perPage * (page - 1) },
         { $limit: perPage }
