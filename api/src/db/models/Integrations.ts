@@ -84,6 +84,7 @@ export interface IIntegrationModel extends Model<IIntegrationDocument> {
   getIntegration(doc: { [key: string]: any }): IIntegrationDocument;
   findIntegrations(query: any, options?: any): Query<IIntegrationDocument[]>;
   findAllIntegrations(query: any, options?: any): Query<IIntegrationDocument[]>;
+  findLeadIntegrations(query: any, args: any): Query<IIntegrationDocument[]>;
   createIntegration(
     doc: IIntegration,
     userId: string
@@ -162,6 +163,47 @@ export const loadClass = () => {
 
     public static findAllIntegrations(query: any, options: any) {
       return Integrations.find({ ...query }, options);
+    }
+
+    /**
+     * Find form integrations
+     */
+    public static findLeadIntegrations(query: any, args: any) {
+      const {
+        sortField = 'createdDate',
+        sortDirection = -1,
+        page = 1,
+        perPage = 20
+      } = args;
+
+      return Integrations.aggregate([
+        { $match: query },
+        {
+          $lookup: {
+            from: 'forms',
+            localField: 'formId',
+            foreignField: '_id',
+            as: 'form'
+          }
+        },
+        { $unwind: '$form' },
+        {
+          $project: {
+            isActive: 1,
+            name: 1,
+            brandId: 1,
+            tagIds: 1,
+            formId: 1,
+            kind: 1,
+            leadData: 1,
+            createdUserId: 1,
+            createdDate: '$form.createdDate'
+          }
+        },
+        { $sort: { [sortField]: sortDirection } },
+        { $skip: perPage * (page - 1) },
+        { $limit: perPage }
+      ]);
     }
 
     /**

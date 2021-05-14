@@ -11,7 +11,7 @@ import { articleReactions } from 'modules/knowledgeBase/icons.constant';
 import { FlexContent, FlexItem } from 'modules/layout/styles';
 import React from 'react';
 import Select from 'react-select-plus';
-import { IArticle } from '../../types';
+import { IArticle, ITopic } from '../../types';
 import { ReactionItem } from './styles';
 
 type Props = {
@@ -19,11 +19,14 @@ type Props = {
   currentCategoryId: string;
   renderButton: (props: IButtonMutateProps) => JSX.Element;
   closeModal: () => void;
+  topics: ITopic[];
 };
 
 type State = {
   content: string;
   reactionChoices: string[];
+  topicId?: string;
+  categoryId: string;
 };
 
 class ArticleForm extends React.Component<Props, State> {
@@ -34,7 +37,9 @@ class ArticleForm extends React.Component<Props, State> {
 
     this.state = {
       content: article.content,
-      reactionChoices: article.reactionChoices || []
+      reactionChoices: article.reactionChoices || [],
+      topicId: article.topicId,
+      categoryId: article.categoryId
     };
   }
 
@@ -45,7 +50,7 @@ class ArticleForm extends React.Component<Props, State> {
     status: string;
   }) => {
     const { article, currentCategoryId } = this.props;
-    const { content, reactionChoices } = this.state;
+    const { content, reactionChoices, topicId, categoryId } = this.state;
 
     const finalValues = values;
 
@@ -61,7 +66,9 @@ class ArticleForm extends React.Component<Props, State> {
         content,
         reactionChoices,
         status: finalValues.status,
-        categoryIds: [currentCategoryId]
+        categoryIds: [currentCategoryId],
+        topicId,
+        categoryId
       }
     };
   };
@@ -82,6 +89,60 @@ class ArticleForm extends React.Component<Props, State> {
       </ReactionItem>
     );
   };
+
+  generateOptions = options => {
+    return options.map(option => ({
+      value: option._id,
+      label: option.title
+    }));
+  };
+
+  renderTopics() {
+    const self = this;
+    const { topics } = this.props;
+
+    const onChange = selectedTopic => {
+      self.setState({ topicId: selectedTopic.value, categoryId: '' });
+    };
+
+    return (
+      <FormGroup>
+        <ControlLabel>Choose the knowledgebase</ControlLabel>
+        <br />
+
+        <Select
+          placeholder={__('Choose knowledgebase')}
+          value={self.state.topicId}
+          options={self.generateOptions(topics)}
+          onChange={onChange}
+        />
+      </FormGroup>
+    );
+  }
+
+  renderCategories() {
+    const self = this;
+    const topic = this.props.topics.find(t => t._id === self.state.topicId);
+    const categories = topic ? topic.categories : [];
+
+    const onChange = selectedCategory => {
+      self.setState({ categoryId: selectedCategory.value });
+    };
+
+    return (
+      <FormGroup>
+        <ControlLabel>Choose the category</ControlLabel>
+        <br />
+
+        <Select
+          placeholder={__('Choose category')}
+          value={self.state.categoryId}
+          options={self.generateOptions(categories)}
+          onChange={onChange}
+        />
+      </FormGroup>
+    );
+  }
 
   renderContent = (formProps: IFormProps) => {
     const { article, renderButton, closeModal } = this.props;
@@ -148,6 +209,14 @@ class ArticleForm extends React.Component<Props, State> {
             </FormGroup>
           </FlexItem>
         </FlexContent>
+
+        <FlexContent>
+          <FlexItem count={3}>{this.renderTopics()}</FlexItem>
+          <FlexItem count={3} hasSpace={true}>
+            {this.renderCategories()}
+          </FlexItem>
+        </FlexContent>
+
         <FormGroup>
           <ControlLabel required={true}>{__('Content')}</ControlLabel>
           <EditorCK

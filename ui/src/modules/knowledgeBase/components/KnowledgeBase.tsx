@@ -57,7 +57,7 @@ class KnowledgeBase extends React.Component<Props> {
         {...props}
         queryParams={queryParams}
         currentCategoryId={currentCategory._id}
-        topicIds={currentCategory.firstTopic && currentCategory.firstTopic._id}
+        topicId={currentCategory.firstTopic && currentCategory.firstTopic._id}
       />
     );
 
@@ -105,7 +105,7 @@ class KnowledgeBase extends React.Component<Props> {
           <ArticleList
             queryParams={queryParams}
             currentCategoryId={currentCategory._id}
-            topicIds={
+            topicId={
               currentCategory.firstTopic && currentCategory.firstTopic._id
             }
           />
