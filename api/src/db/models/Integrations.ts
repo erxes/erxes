@@ -205,7 +205,16 @@ export const loadClass = () => {
             'leadData.conversionRate': {
               $multiply: [
                 {
-                  $divide: ['$leadData.contactsGathered', '$leadData.viewCount']
+                  $cond: [
+                    { $eq: ['$leadData.viewCount', 0] },
+                    0,
+                    {
+                      $divide: [
+                        '$leadData.contactsGathered',
+                        '$leadData.viewCount'
+                      ]
+                    }
+                  ]
                 },
                 100
               ]
