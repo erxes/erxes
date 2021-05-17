@@ -49,6 +49,18 @@ class Form extends React.Component<Props, State> {
     if (this.props.setHeight) {
       this.props.setHeight();
     }
+
+    if (this.props.integration.leadData.css) {
+      const head = document.getElementsByTagName('head')[0];
+      const style = document.createElement('style');
+      style.setAttribute('type', 'text/css');
+
+      style.appendChild(
+        document.createTextNode(this.props.integration.leadData.css)
+      );
+
+      head.appendChild(style);
+    }
   }
 
   componentDidUpdate() {
@@ -103,7 +115,22 @@ class Form extends React.Component<Props, State> {
   };
 
   onSubmit = () => {
-    this.props.onSubmit(this.state.doc);
+    const doc: any = {};
+
+    for (const key of Object.keys(this.state.doc)) {
+      const field = this.state.doc[key];
+
+      doc[key] = field;
+
+      if (field.type === 'multiSelect' || field.type === 'check') {
+        doc[key] = {
+          ...field,
+          value: String(field.value).replace(new RegExp(',,', 'g'), ', ')
+        };
+      }
+    }
+
+    this.props.onSubmit(doc);
   };
 
   canChangePage = () => {

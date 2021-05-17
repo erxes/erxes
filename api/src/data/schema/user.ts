@@ -44,7 +44,7 @@ export const types = `
     getNotificationByEmail: Boolean
     groupIds: [String]
     brandIds: [String]
-    doNotDisturb: String
+    isSubscribed: String
 
     brands: [Brand]
     isOwner: Boolean

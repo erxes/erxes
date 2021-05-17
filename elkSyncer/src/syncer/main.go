@@ -348,6 +348,45 @@ func main() {
 				}
 			}
 
+			if(ns.indexOf("conversations") > -1) {
+				var createdAt = JSON.stringify(doc.createdAt);
+				var closedAt = JSON.stringify(doc.closedAt);
+				var updatedAt = JSON.stringify(doc.updatedAt);
+				var firstRespondedDate = JSON.stringify(doc.firstRespondedDate);
+
+				if(createdAt){
+					doc.numberCreatedAt = Number(new Date(createdAt.replace(/\"/g,"")));
+				}
+
+				if(closedAt){
+					doc.numberClosedAt = Number(new Date(closedAt.replace(/\"/g,"")));
+				}
+
+				if(updatedAt){
+					doc.numberUpdatedAt= Number(new Date(updatedAt.replace(/\"/g,"")));
+				}
+
+
+				if(firstRespondedDate){
+					doc.numberFirstRespondedDate= Number(new Date(firstRespondedDate.replace(/\"/g,"")));
+				}			
+			}
+
+
+			if(ns.indexOf("deals") > -1) {
+				var productsDataString = JSON.stringify(doc.productsData);
+				var amount = 0;
+
+				var productsData = JSON.parse(productsDataString);
+
+				for (var i = 0; i < productsData.length; i++){
+					amount = amount + productsData[i].amount;
+				}
+
+				doc.amount = amount;
+			}
+
+
 			doc._meta_monstache = {
 				id: doc._id.toString(),
 				index: index

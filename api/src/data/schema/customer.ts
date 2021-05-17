@@ -42,7 +42,7 @@ export const types = `
     leadStatus: String
     hasAuthority: String
     description: String
-    doNotDisturb: String
+    isSubscribed: String
     code: String
     emailValidationStatus: String
     phoneValidationStatus: String
@@ -112,7 +112,7 @@ const fields = `
   leadStatus: String
   hasAuthority: String
   description: String
-  doNotDisturb: String
+  isSubscribed: String
   links: JSON
   customFieldsData: JSON
   code: String

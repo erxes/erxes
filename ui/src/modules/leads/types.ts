@@ -43,6 +43,8 @@ export interface ILeadData {
   isRequireOnce?: boolean;
   templateId?: string;
   attachments?: IAttachment[];
+  css?: string;
+  conversionRate?: number;
 }
 
 export interface IWebhookData {

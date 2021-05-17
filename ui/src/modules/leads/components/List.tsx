@@ -3,6 +3,7 @@ import DataWithLoader from 'modules/common/components/DataWithLoader';
 import EmptyContent from 'modules/common/components/empty/EmptyContent';
 import FormControl from 'modules/common/components/form/Control';
 import Pagination from 'modules/common/components/pagination/Pagination';
+import SortHandler from 'modules/common/components/SortHandler';
 import Table from 'modules/common/components/table';
 import { __ } from 'modules/common/utils';
 import Wrapper from 'modules/layout/components/Wrapper';
@@ -123,14 +124,33 @@ class List extends React.Component<Props, {}> {
                 onChange={this.onChange}
               />
             </th>
-            <th>{__('Name')}</th>
+            <th>
+              <SortHandler sortField={'name'} label={__('Name')} />
+            </th>
             <th>{__('Status')}</th>
-            <th>{__('Views')}</th>
-            <th>{__('Conversion rate')}</th>
-            <th>{__('Contacts gathered')}</th>
+            <th>
+              <SortHandler
+                sortField={'leadData.viewCount'}
+                label={__('Views')}
+              />
+            </th>
+            <th>
+              <SortHandler
+                sortField={'leadData.conversionRate'}
+                label={__('Conversion rate')}
+              />
+            </th>
+            <th>
+              <SortHandler
+                sortField={'leadData.contactsGathered'}
+                label={__('Contacts gathered')}
+              />
+            </th>
             <th>{__('Brand')}</th>
             <th>{__('Created by')}</th>
-            <th>{__('Created at')}</th>
+            <th>
+              <SortHandler sortField={'createdDate'} label={__('Created at')} />
+            </th>
             <th>{__('Tags')}</th>
             <th>{__('Actions')}</th>
           </tr>

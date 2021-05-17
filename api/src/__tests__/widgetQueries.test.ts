@@ -311,11 +311,11 @@ describe('widgetQueries', () => {
   test('widgetsKnowledgeBaseArticles', async () => {
     // Creating test data
     const topic = await knowledgeBaseTopicFactory({});
-    const category = await knowledgeBaseCategoryFactory({
-      topicIds: [topic._id]
-    });
+    const category = await knowledgeBaseCategoryFactory({});
+
     await knowledgeBaseArticleFactory({
-      categoryIds: [category._id],
+      categoryId: category._id,
+      topicId: topic._id,
       status: 'publish'
     });
 
@@ -335,6 +335,7 @@ describe('widgetQueries', () => {
     response = await graphqlRequest(qry, 'widgetsKnowledgeBaseArticles', {
       topicId: topic._id
     });
+
     expect(response.length).toBe(1);
   });
 
