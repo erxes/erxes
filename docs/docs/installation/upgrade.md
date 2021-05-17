@@ -8,7 +8,7 @@ Following the steps in this document you can upgrade the system version.
 
 ## Upgrade erxes 0.13.0 to 0.14.1
 
-Since the current [Debian installation script](https://github.com/erxes/erxes/blob/develop/scripts/install/debian10.sh) and [CentOS installation script](https://github.com/erxes/erxes/blob/develop/scripts/install/centos8.sh) aret updated to 0.14.1, they can be used to upgrade erxes v0.13.0 to v 0.14.1 if you are hosting erxes on Centos, Ubuntu or Debian.
+They can be used to upgrade erxes v0.13.0 to v 0.14.1 if you are hosting erxes on Ubuntu.
 
 1. SSH into your server as `erxes`.
 
@@ -24,13 +24,8 @@ pm2 delete ecosystem.json
 4. Then run the installation script as `root`
 
 ```
-# If erxes hosted on Debian or Ubuntu
-bash -c "$(wget -O - https://raw.githubusercontent.com/erxes/erxes/develop/scripts/install/debian10.sh)"
-
-# If erxes hosted on CentOS
-bash -c "$(curl https://raw.githubusercontent.com/erxes/erxes/develop/scripts/install/centos8.sh)"
-```
-
+# If erxes hosted on Ubuntu
+bash -c "$(wget -O - https://github.com/erxes/erxes/blob/develop/scripts/install/ubuntu18.sh)"
 5. Afther the installation complete, run the following commands as `erxes` user
 
 ```
