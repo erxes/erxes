@@ -162,12 +162,9 @@ class Row extends React.Component<Props> {
     };
     const tags = integration.tags;
 
-    let percentage: string | number = '0.00';
-
-    if (lead.contactsGathered && lead.viewCount) {
-      percentage = (lead.contactsGathered / lead.viewCount) * 100;
-      percentage = percentage.toString();
-    }
+    const percentage: string | number = lead.conversionRate
+      ? lead.conversionRate.toString()
+      : '0.00';
 
     const onChange = e => {
       if (toggleBulk) {

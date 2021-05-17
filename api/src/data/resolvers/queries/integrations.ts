@@ -96,6 +96,8 @@ const integrationQueries = {
       tag: string;
       status: string;
       formLoadType: string;
+      sortField: string;
+      sortDirection: number;
     },
     { singleBrandIdSelector }: IContext
   ) {
@@ -103,6 +105,10 @@ const integrationQueries = {
       ...singleBrandIdSelector,
       ...(await generateFilterQuery(args))
     };
+
+    if (args.kind === 'lead') {
+      return Integrations.findLeadIntegrations(query, args);
+    }
 
     const integrations = paginate(
       Integrations.findAllIntegrations(query),

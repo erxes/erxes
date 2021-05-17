@@ -103,6 +103,7 @@ export interface ILeadData {
   isRequireOnce?: boolean;
   templateId?: string;
   attachments?: IAttachment[];
+  css?: string;
 }
 
 export interface IWebhookData {
@@ -316,7 +317,12 @@ export const leadDataSchema = new Schema(
       optional: true,
       label: 'Template'
     }),
-    attachments: field({ type: Object, optional: true, label: 'Attachments' })
+    attachments: field({ type: Object, optional: true, label: 'Attachments' }),
+    css: field({
+      type: String,
+      optional: true,
+      label: 'Custom CSS'
+    })
   },
   { _id: false }
 );

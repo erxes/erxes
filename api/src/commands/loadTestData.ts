@@ -349,7 +349,7 @@ const main = async () => {
               max: 29
             })
           ].value,
-        topicIds: [kbTopic._id]
+        topicId: kbTopic._id
       },
       admin._id
     );
@@ -368,7 +368,8 @@ const main = async () => {
             'https://erxes.s3.amazonaws.com/icons/dislike.svg'
           ],
           status: 'publish',
-          categoryIds: [kbCategory._id]
+          categoryId: kbCategory._id,
+          topicId: kbTopic._id
         },
         admin._id
       );

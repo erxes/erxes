@@ -57,6 +57,7 @@ export const types = `
     isRequireOnce: Boolean
     templateId: String
     attachments: [AttachmentInput]
+    css: String
   }
 
   input MessengerOnlineHoursSchema {
@@ -111,7 +112,9 @@ export const queries = `
     brandId: String,
     tag: String,
     status: String,
-    formLoadType: String
+    formLoadType: String,
+    sortField: String
+    sortDirection: Int
   ): [Integration]
 
   integrationsGetUsedTypes: [integrationsGetUsedTypes]

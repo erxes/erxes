@@ -63,13 +63,15 @@ export default class Field extends React.Component<Props, State> {
   ) {
     let values: string[] = [];
     if (value) {
-      values = value.split(',');
+      values = value.split(',,');
     }
-
+    
     return (
       <div className="check-control">
         {options.map((option, index) => {
+       
           const checked = values.indexOf(option) > -1 ? true : false;
+          
           return (
             <div key={index}>
               <label>
@@ -259,7 +261,7 @@ export default class Field extends React.Component<Props, State> {
       }
     }
 
-    this.onChange(values.join(','));
+    this.onChange(values.join(',,'));
   };
 
   onTextAreaChange = (e: React.FormEvent<HTMLTextAreaElement>) => {
@@ -415,7 +417,7 @@ export default class Field extends React.Component<Props, State> {
           String(value)
         );
 
-      case 'doNotDisturb':
+      case 'isSubscribed':
         return Field.renderRadioButtons(
           name,
           ['Yes', 'No'],
@@ -424,7 +426,7 @@ export default class Field extends React.Component<Props, State> {
           String(value)
         );
 
-      case 'companyDoNotDisturb':
+      case 'companyIsSubscribed':
         return Field.renderRadioButtons(
           name,
           ['Yes', 'No'],
