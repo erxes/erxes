@@ -3,6 +3,7 @@ import {
   Conversations,
   Customers,
   EmailDeliveries,
+  EngageMessages,
   Integrations,
   Users
 } from '../../../db/models';
@@ -174,9 +175,9 @@ export const receiveIntegrationsNotification = async msg => {
 export const receiveEngagesNotification = async msg => {
   const { action, data } = msg;
 
-  if (action === 'setDoNotDisturb') {
+  if (action === 'setSubscribed') {
     const { customerId, status, customerIds = [] } = data;
-    const update: any = { doNotDisturb: 'Yes' };
+    const update: any = { isSubscribed: 'No' };
 
     if (status === AWS_EMAIL_STATUSES.BOUNCE) {
       update.emailValidationStatus = EMAIL_VALIDATION_STATUSES.INVALID;
@@ -198,5 +199,25 @@ export const receiveEngagesNotification = async msg => {
       data.emailDeliveryId,
       data.status
     );
+  }
+
+  if (action === 'setCampaignCount') {
+    const { campaignId, totalCustomersCount, validCustomersCount } = data;
+
+    const campaign = await EngageMessages.findOne({ _id: campaignId });
+
+    if (campaign) {
+      await EngageMessages.updateOne(
+        { _id: campaignId },
+        {
+          $set: {
+            totalCustomersCount,
+            validCustomersCount,
+            lastRunAt: new Date()
+          },
+          $inc: { runCount: 1 }
+        }
+      );
+    }
   }
 };

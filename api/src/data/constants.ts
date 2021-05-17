@@ -54,7 +54,7 @@ export const FIELD_CONTENT_TYPES = {
 export const EXTEND_FIELDS = {
   CUSTOMER: [
     { name: 'tag', label: 'Tag' },
-    { name: 'ownerEmail', label: 'Owner' },
+    { name: 'ownerEmail', label: 'Owner email' },
     { name: 'companiesPrimaryNames', label: 'Companies' }
   ],
   PRODUCT: [{ name: 'categoryCode', label: 'Category Code' }]
@@ -376,7 +376,7 @@ export const CUSTOMER_BASIC_INFO = {
   birthDate: 'Birthday',
   hasAuthority: 'Has Authority',
   description: 'Description',
-  doNotDisturb: 'Do not disturb',
+  isSubscribed: 'Subscribed',
   code: 'Code',
 
   ALL: [
@@ -400,7 +400,7 @@ export const CUSTOMER_BASIC_INFO = {
     { field: 'department', label: 'Department', canHide: true },
     { field: 'hasAuthority', label: 'Has Authority', canHide: true },
     { field: 'description', label: 'Description', canHide: true },
-    { field: 'doNotDisturb', label: 'Do not disturb', canHide: true },
+    { field: 'isSubscribed', label: 'Subscribed', canHide: true },
     { field: 'owner', label: 'Owner', canHide: true },
     { field: 'pronoun', label: 'Pronoun', canHide: true },
     { field: 'birthDate', label: 'Birthday', canHide: true },
@@ -419,7 +419,7 @@ export const COMPANY_INFO = {
   primaryPhone: 'Primary Phone',
   businessType: 'Business Type',
   description: 'Description',
-  doNotDisturb: 'Do not disturb',
+  isSubscribed: 'Subscribed',
   location: 'Headquarters Country',
 
   ALL: [
@@ -444,7 +444,7 @@ export const COMPANY_INFO = {
     { field: 'businessType', label: 'Business Type', canHide: true },
     { field: 'code', label: 'Code', canHide: true },
     { field: 'description', label: 'Description', canHide: true },
-    { field: 'doNotDisturb', label: 'Do not disturb', canHide: true },
+    { field: 'isSubscribed', label: 'Subscribed', canHide: true },
     { field: 'location', label: 'Headquarters Country', canHide: true }
   ]
 };
@@ -454,6 +454,7 @@ export const PRODUCT_INFO = {
   name: 'Name',
   type: 'Type',
   category: 'Category',
+  vendor: 'Vendor',
   description: 'Description',
   sku: 'Sku',
 
@@ -462,6 +463,7 @@ export const PRODUCT_INFO = {
     { field: 'name', label: 'Name' },
     { field: 'type', label: 'Type' },
     { field: 'category', label: 'Category' },
+    { field: 'vendor', label: 'Vendor' },
     { field: 'description', label: 'Description' },
     { field: 'sku', label: 'Sku' }
   ]

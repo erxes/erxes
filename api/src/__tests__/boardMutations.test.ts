@@ -2,11 +2,19 @@ import { graphqlRequest } from '../db/connection';
 import {
   boardFactory,
   dealFactory,
+  fieldGroupFactory,
   pipelineFactory,
   stageFactory,
   userFactory
 } from '../db/factories';
-import { Boards, Deals, Pipelines, Stages, Users } from '../db/models';
+import {
+  Boards,
+  Deals,
+  FieldsGroups,
+  Pipelines,
+  Stages,
+  Users
+} from '../db/models';
 import {
   IBoardDocument,
   IPipelineDocument,
@@ -133,6 +141,7 @@ describe('Test boards mutations', () => {
   test('Remove board', async () => {
     // disconnect pipeline connected to board
     await Pipelines.updateMany({}, { $set: { boardId: 'fakeBoardId' } });
+    await fieldGroupFactory({ boardIds: [board._id] });
 
     const mutation = `
       mutation boardsRemove($_id: String!) {
@@ -143,6 +152,7 @@ describe('Test boards mutations', () => {
     await graphqlRequest(mutation, 'boardsRemove', { _id: board._id }, context);
 
     expect(await Boards.findOne({ _id: board._id })).toBe(null);
+    expect((await FieldsGroups.find({ boardIds: [board._id] })).length).toBe(0);
   });
 
   test('Create pipeline', async () => {
@@ -316,6 +326,7 @@ describe('Test boards mutations', () => {
 
     const user = await userFactory();
     const pipe = await pipelineFactory({ watchedUserIds: [user._id] });
+    await fieldGroupFactory({ pipelineIds: [pipe._id] });
 
     await graphqlRequest(
       mutation,
@@ -325,6 +336,7 @@ describe('Test boards mutations', () => {
     );
 
     expect(await Pipelines.findOne({ _id: pipe._id })).toBe(null);
+    expect((await FieldsGroups.find({ pipelineIds: pipe._id })).length).toBe(0);
   });
 
   test('Stage update orders', async () => {

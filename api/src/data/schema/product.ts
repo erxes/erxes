@@ -25,8 +25,10 @@ export const types = `
     getTags: [Tag]
     tagIds: [String]
     attachment: Attachment
+    vendorId: String
 
     category: ProductCategory
+    vendor: Company
   }
 `;
 
@@ -39,7 +41,8 @@ const productParams = `
   unitPrice: Float,
   code: String,
   customFieldsData: JSON,
-  attachment: AttachmentInput
+  attachment: AttachmentInput,
+  vendorId: String,
 `;
 
 const productCategoryParams = `

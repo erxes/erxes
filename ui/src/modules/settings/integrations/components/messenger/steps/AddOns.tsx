@@ -132,7 +132,7 @@ class AddOns extends React.Component<Props, State> {
   };
 
   onChangeKb = obj => {
-    this.setState({ knowledgeBase: obj.value }, () =>
+    this.setState({ knowledgeBase: obj ? obj.value : '' }, () =>
       this.updateMessengerValues()
     );
   };

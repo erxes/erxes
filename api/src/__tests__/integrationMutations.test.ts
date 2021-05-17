@@ -84,7 +84,7 @@ describe('mutations', () => {
   });
 
   test('Create messenger integration', async () => {
-    await Integrations.remove({});
+    await Integrations.deleteMany({});
 
     const args = {
       name: 'Integration Name',
@@ -906,6 +906,17 @@ describe('mutations', () => {
     );
 
     expect(response.status).toBe('ok');
+
+    // intentionally throw error
+    spy.mockImplementation(() => Promise.reject({ status: 'error' }));
+
+    try {
+      await graphqlRequest(mutation, 'integrationsSendSms', args, {
+        dataSources
+      });
+    } catch (e) {
+      expect(e).toBeDefined();
+    }
 
     spy.mockRestore();
   });

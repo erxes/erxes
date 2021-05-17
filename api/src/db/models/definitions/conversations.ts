@@ -83,7 +83,7 @@ export const conversationSchema = new Schema({
     enum: CONVERSATION_STATUSES.ALL,
     index: true
   }),
-  messageCount: field({ type: Number, index: true }),
+  messageCount: field({ type: Number }),
   tagIds: field({ type: [String] }),
 
   // number of total conversations

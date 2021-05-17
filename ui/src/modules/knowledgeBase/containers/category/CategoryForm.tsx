@@ -1,20 +1,26 @@
 import gql from 'graphql-tag';
+import * as compose from 'lodash.flowright';
 import ButtonMutate from 'modules/common/components/ButtonMutate';
 import { IButtonMutateProps } from 'modules/common/types';
 import React from 'react';
+import { graphql } from 'react-apollo';
 import CategoryForm from '../../components/category/CategoryForm';
 import { mutations, queries } from '../../graphql';
-import { ICategory } from '../../types';
+import { ICategory, TopicsQueryResponse } from '../../types';
 
 type Props = {
   category: ICategory;
-  topicIds: string;
+  topicId: string;
   closeModal: () => void;
   refetchTopics: () => void;
 };
 
-const KnowledgeBaseContainer = (props: Props) => {
-  const { category, topicIds } = props;
+type FinalProps = {
+  topicsQuery: TopicsQueryResponse;
+} & Props;
+
+const KnowledgeBaseContainer = (props: FinalProps) => {
+  const { category, topicId, topicsQuery, closeModal } = props;
 
   const renderButton = ({
     name,
@@ -32,7 +38,7 @@ const KnowledgeBaseContainer = (props: Props) => {
         }
         variables={values}
         callback={callback}
-        refetchQueries={getRefetchQueries(topicIds)}
+        refetchQueries={getRefetchQueries([topicId, values.doc.topicId])}
         isSubmitted={isSubmitted}
         type="submit"
         successMessage={`You successfully ${
@@ -43,29 +49,37 @@ const KnowledgeBaseContainer = (props: Props) => {
   };
 
   const extendedProps = {
-    ...props,
+    closeModal,
     renderButton,
-    currentTopicId: topicIds,
-    category
+    currentTopicId: topicId,
+    category,
+    topics: topicsQuery.knowledgeBaseTopics || []
   };
 
   return <CategoryForm {...extendedProps} />;
 };
 
-const getRefetchQueries = (topicIds: string) => {
+const getRefetchQueries = (topicIds: string[]) => {
   return [
     {
       query: gql(queries.knowledgeBaseCategories),
       variables: {
-        topicIds: [topicIds]
+        topicIds
       }
     },
     {
       query: gql(queries.knowledgeBaseCategoriesTotalCount),
-      variables: { topicIds: [topicIds] }
+      variables: { topicIds }
     },
     { query: gql(queries.knowledgeBaseTopics) }
   ];
 };
 
-export default KnowledgeBaseContainer;
+export default compose(
+  graphql<Props, TopicsQueryResponse>(gql(queries.knowledgeBaseTopics), {
+    name: 'topicsQuery',
+    options: () => ({
+      fetchPolicy: 'network-only'
+    })
+  })
+)(KnowledgeBaseContainer);

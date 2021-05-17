@@ -116,7 +116,7 @@ function displayValue(customer, name) {
     );
   }
 
-  if (name === 'doNotDisturb' || name === 'code' || name === 'hasAuthority') {
+  if (name === 'isSubscribed' || name === 'code' || name === 'hasAuthority') {
     return <TextInfo>{value}</TextInfo>;
   }
 

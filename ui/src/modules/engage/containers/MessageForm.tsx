@@ -28,9 +28,17 @@ const MessageFormContainer = (props: FinalProps) => {
   const message = engageMessageDetailQuery.engageMessageDetail;
   const brands = brandsQuery.brands || [];
 
+  let segmentType = 'visitor';
+
+  if (message && message.segments && message.segments.length > 0) {
+    const segment = message.segments.pop();
+    segmentType = segment ? segment.contentType : '';
+  }
+
   const updatedProps = {
     ...props,
     kind: message ? message.kind : kind,
+    segmentType,
     brands,
     scheduleDate: message && message.scheduleDate
   };

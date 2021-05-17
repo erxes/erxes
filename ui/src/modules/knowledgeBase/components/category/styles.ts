@@ -52,4 +52,8 @@ const CategoryItem = styledTS<{ isActive: boolean }>(styled.li)`
   }
 `;
 
-export { Categories, CategoryItem, ActionButtons };
+const CategoryTitle = styledTS<{ isChild?: boolean }>(styled.span)`
+  ${props => props.isChild && `padding-left: 20px;`}
+`;
+
+export { Categories, CategoryItem, ActionButtons, CategoryTitle };

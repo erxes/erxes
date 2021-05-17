@@ -1546,59 +1546,24 @@ export const fetchLogs = async (
   }
 };
 
-export const sendToVisitorLog = async (params: IVisitorLogParams, action) => {
-  const LOGS_DOMAIN = getSubServiceDomain({ name: 'LOGS_API_DOMAIN' });
-  try {
-    const response = await sendRequest(
-      {
-        url: `${LOGS_DOMAIN}/health`,
-        method: 'get'
-      },
-      'Failed to connect to logs api. Check whether LOGS_API_DOMAIN env is missing or logs api is not running'
-    );
-
-    if (response === 'ok') {
-      return messageBroker().sendMessage(RABBITMQ_QUEUES.VISITOR_LOG, {
-        action,
-        data: params
-      });
-    }
-
-    throw new Error('Logger api is not running');
-  } catch (e) {
-    debugError('Logger is not running. Error: ', e.message);
-    throw new Error(e.message);
-  }
-};
+export const sendToVisitorLog = async (params: IVisitorLogParams, action) =>
+  messageBroker().sendMessage(RABBITMQ_QUEUES.VISITOR_LOG, {
+    action,
+    data: params
+  });
 
 export const getVisitorLog = async visitorId => {
-  const LOGS_DOMAIN = getSubServiceDomain({ name: 'LOGS_API_DOMAIN' });
   try {
-    const response = await sendRequest(
-      {
-        url: `${LOGS_DOMAIN}/health`,
-        method: 'get'
-      },
-      'Failed to connect to logs api. Check whether LOGS_API_DOMAIN env is missing or logs api is not running'
-    );
-
-    if (response === 'ok') {
-      return await messageBroker().sendRPCMessage(
-        RABBITMQ_QUEUES.RPC_VISITOR_LOG,
-        {
-          action: 'get',
-          data: { visitorId }
-        }
-      );
-    }
-
-    throw new Error('Logger api is not running');
+    return messageBroker().sendRPCMessage(RABBITMQ_QUEUES.RPC_VISITOR_LOG, {
+      action: 'get',
+      data: { visitorId }
+    });
   } catch (e) {
-    debugError('Logger is not running. Error: ', e.message);
-    throw new Error(e.message);
+    debugError(
+      `Error during getVisitorLog: ${e.message} visitorId: ${visitorId}`
+    );
   }
 };
-
 interface IActivityLogParams {
   action: string;
   data: any;

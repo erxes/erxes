@@ -46,6 +46,7 @@ export const loadDealClass = () => {
         ...doc,
         createdAt: new Date(),
         modifiedAt: new Date(),
+        stageChangedDate: new Date(),
         searchText: fillSearchTextItem(doc)
       });
 

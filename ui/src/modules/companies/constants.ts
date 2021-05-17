@@ -10,7 +10,7 @@ export const COMPANY_INFO = {
   primaryPhone: 'Primary Phone',
   businessType: 'Business Type',
   description: 'Description',
-  doNotDisturb: 'Do not disturb',
+  isSubscribed: 'Subscribed',
   location: 'Headquarters Country',
 
   ALL: [
@@ -23,7 +23,7 @@ export const COMPANY_INFO = {
     { field: 'primaryPhone', label: 'Primary Phone' },
     { field: 'businessType', label: 'Business Type' },
     { field: 'description', label: 'Description' },
-    { field: 'doNotDisturb', label: 'Do not disturb' },
+    { field: 'isSubscribed', label: 'Subscribed' },
     { field: 'location', label: 'Headquarters Country' }
   ]
 };

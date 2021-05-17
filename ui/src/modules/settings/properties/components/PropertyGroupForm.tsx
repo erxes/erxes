@@ -7,7 +7,8 @@ import Toggle from 'modules/common/components/Toggle';
 import { ModalFooter } from 'modules/common/styles/main';
 import { IButtonMutateProps, IFormProps } from 'modules/common/types';
 import React from 'react';
-import { IFieldGroup } from '../types';
+import SelectBoards from '../containers/SelectBoardPipeline';
+import { IBoardSelectItem, IFieldGroup } from '../types';
 
 type Props = {
   group?: IFieldGroup;
@@ -19,6 +20,7 @@ type Props = {
 type State = {
   isVisible: boolean;
   isVisibleInDetail: boolean;
+  selectedItems: IBoardSelectItem[];
 };
 
 class PropertyGroupForm extends React.Component<Props, State> {
@@ -27,15 +29,18 @@ class PropertyGroupForm extends React.Component<Props, State> {
 
     let isVisible = true;
     let isVisibleInDetail = true;
+    let selectedItems = [];
 
     if (props.group) {
       isVisible = props.group.isVisible;
       isVisibleInDetail = props.group.isVisibleInDetail;
+      selectedItems = props.group.boardsPipelines || [];
     }
 
     this.state = {
       isVisible,
-      isVisibleInDetail
+      isVisibleInDetail,
+      selectedItems
     };
   }
 
@@ -46,16 +51,29 @@ class PropertyGroupForm extends React.Component<Props, State> {
   }) => {
     const { group, type } = this.props;
     const finalValues = values;
+    const selectedItems = this.state.selectedItems;
 
     if (group) {
       finalValues._id = group._id;
     }
 
+    const boardsPipelines =
+      selectedItems &&
+      selectedItems.map(e => {
+        const boardsPipeline = {
+          boardId: e.boardId,
+          pipelineIds: e.pipelineIds
+        };
+
+        return boardsPipeline;
+      });
+
     return {
       ...finalValues,
       contentType: type,
       isVisible: this.state.isVisible,
-      isVisibleInDetail: this.state.isVisibleInDetail
+      isVisibleInDetail: this.state.isVisibleInDetail,
+      boardsPipelines
     };
   };
 
@@ -69,6 +87,10 @@ class PropertyGroupForm extends React.Component<Props, State> {
     const isVisibleInDetail = e.target.checked;
 
     return this.setState({ isVisibleInDetail });
+  };
+
+  itemsChange = (items: IBoardSelectItem[]) => {
+    this.setState({ selectedItems: items });
   };
 
   renderFieldVisible() {
@@ -117,6 +139,21 @@ class PropertyGroupForm extends React.Component<Props, State> {
     );
   }
 
+  renderBoardSelect() {
+    if (!['task', 'deal', 'ticket'].includes(this.props.type)) {
+      return null;
+    }
+
+    return (
+      <SelectBoards
+        isRequired={false}
+        onChangeItems={this.itemsChange}
+        type={this.props.type}
+        selectedItems={this.state.selectedItems}
+      />
+    );
+  }
+
   renderContent = (formProps: IFormProps) => {
     const { group, closeModal, renderButton } = this.props;
     const { values, isSubmitted } = formProps;
@@ -153,6 +190,8 @@ class PropertyGroupForm extends React.Component<Props, State> {
         ) : (
           <></>
         )}
+
+        {this.renderBoardSelect()}
 
         <ModalFooter>
           <Button

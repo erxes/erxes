@@ -89,7 +89,7 @@ class FormComponent extends React.Component<IProps, State> {
     }
   };
 
-  onChangeColor = (e: any) => {
+  onChangeColorCode = (e: any) => {
     const { label } = this.state;
 
     label.colorCode = e.hex;
@@ -121,7 +121,7 @@ class FormComponent extends React.Component<IProps, State> {
           <ColorChooserWrapper>
             <TwitterPicker
               colors={COLORS}
-              onChange={this.onChangeColor.bind(this)}
+              onChange={this.onChangeColorCode}
               triangle="hide"
             />
           </ColorChooserWrapper>

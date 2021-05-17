@@ -8,7 +8,6 @@ import {
   Forms,
   Integrations,
   KnowledgeBaseArticles,
-  MessengerApps,
   Users
 } from '../../../db/models';
 import Messages from '../../../db/models/ConversationMessages';
@@ -24,6 +23,7 @@ import {
 } from '../../../db/models/definitions/constants';
 import { ISubmission } from '../../../db/models/definitions/fields';
 import {
+  IAttachment,
   IIntegrationDocument,
   IMessengerDataMessagesItem
 } from '../../../db/models/definitions/integrations';
@@ -47,7 +47,7 @@ import {
   sendToWebhook
 } from '../../utils';
 import { convertVisitorToCustomer, solveSubmissions } from '../../widgetUtils';
-import { getDocument } from './cacheUtils';
+import { getDocument, getMessengerApps } from './cacheUtils';
 import { conversationNotifReceivers } from './conversations';
 
 interface IWidgetEmailParams {
@@ -57,6 +57,7 @@ interface IWidgetEmailParams {
   content: string;
   customerId?: string;
   formId?: string;
+  attachments?: IAttachment[];
 }
 
 export const getMessengerData = async (integration: IIntegrationDocument) => {
@@ -77,10 +78,7 @@ export const getMessengerData = async (integration: IIntegrationDocument) => {
   }
 
   // knowledgebase app =======
-  const kbApp = await MessengerApps.findOne({
-    kind: 'knowledgebase',
-    'credentials.integrationId': integration._id
-  });
+  const kbApp = await getMessengerApps('knowledgebase', integration._id);
 
   const topicId =
     kbApp && kbApp.credentials
@@ -88,10 +86,7 @@ export const getMessengerData = async (integration: IIntegrationDocument) => {
       : null;
 
   // lead app ==========
-  const leadApp = await MessengerApps.findOne({
-    kind: 'lead',
-    'credentials.integrationId': integration._id
-  });
+  const leadApp = await getMessengerApps('lead', integration._id);
 
   const formCode =
     leadApp && leadApp.credentials
@@ -99,10 +94,7 @@ export const getMessengerData = async (integration: IIntegrationDocument) => {
       : null;
 
   // website app ============
-  const websiteApps = await MessengerApps.find({
-    kind: 'website',
-    'credentials.integrationId': integration._id
-  });
+  const websiteApps = await getMessengerApps('website', integration._id, false);
 
   return {
     ...(messengerData || {}),
@@ -220,7 +212,8 @@ const widgetMutations = {
       formId: args.formId,
       submissions: args.submissions,
       customer: cachedCustomer,
-      cachedCustomerId: cachedCustomer._id
+      cachedCustomerId: cachedCustomer._id,
+      conversationId: conversation._id
     });
 
     return {
@@ -283,10 +276,14 @@ const widgetMutations = {
     }
 
     // find integration
-    const integration = await Integrations.getIntegration({
+    const integration = await getDocument('integrations', {
       brandId: brand._id,
       kind: KIND_CHOICES.MESSENGER
     });
+
+    if (!integration) {
+      throw new Error('Integration not found');
+    }
 
     let customer;
 
@@ -318,17 +315,10 @@ const widgetMutations = {
     }
 
     if (visitorId) {
-      try {
-        await sendToVisitorLog(
-          { visitorId, integrationId: integration._id },
-          'createOrUpdate'
-        );
-      } catch (_e) {
-        customer = await Customers.createMessengerCustomer({
-          doc: { integrationId: integration._id },
-          customData
-        });
-      }
+      await sendToVisitorLog(
+        { visitorId, integrationId: integration._id },
+        'createOrUpdate'
+      );
     }
 
     // get or create company
@@ -723,6 +713,8 @@ const widgetMutations = {
   async widgetsSendEmail(_root, args: IWidgetEmailParams) {
     const { toEmails, fromEmail, title, content, customerId, formId } = args;
 
+    const attachments = args.attachments || [];
+
     // do not use Customers.getCustomer() because it throws error if not found
     const customer = await Customers.findOne({ _id: customerId });
     const form = await Forms.getForm(formId || '');
@@ -744,11 +736,23 @@ const widgetMutations = {
       finalContent = replacedContent || '';
     }
 
+    let mailAttachment: any = [];
+
+    if (attachments.length > 0) {
+      mailAttachment = attachments.map(file => {
+        return {
+          filename: file.name || '',
+          path: file.url || ''
+        };
+      });
+    }
+
     await sendEmail({
       toEmails,
       fromEmail,
       title,
-      template: { data: { content: finalContent } }
+      template: { data: { content: finalContent } },
+      attachments: mailAttachment
     });
   },
 

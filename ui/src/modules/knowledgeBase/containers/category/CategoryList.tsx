@@ -14,7 +14,7 @@ import {
 
 type Props = {
   currentCategoryId: string;
-  topicIds: string;
+  topicId: string;
 };
 
 type FinalProps = {
@@ -31,7 +31,7 @@ const KnowledgeBaseContainer = (props: FinalProps) => {
     categoriesCountQuery,
     articlesCountQuery,
     removeCategoriesMutation,
-    topicIds
+    topicId
   } = props;
 
   // remove action
@@ -55,7 +55,7 @@ const KnowledgeBaseContainer = (props: FinalProps) => {
     ...props,
     remove,
     currentCategoryId,
-    topicIds,
+    topicId,
     categoriesQuery,
     categories: categoriesQuery.knowledgeBaseCategories || [],
     loading: categoriesQuery.loading,
@@ -71,10 +71,10 @@ export default compose(
     gql(queries.knowledgeBaseCategories),
     {
       name: 'categoriesQuery',
-      options: ({ topicIds }) => {
+      options: ({ topicId }) => {
         return {
           variables: {
-            topicIds: [topicIds]
+            topicIds: [topicId]
           }
         };
       }

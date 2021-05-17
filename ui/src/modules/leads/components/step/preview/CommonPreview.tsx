@@ -4,6 +4,7 @@ import {
   WebPreview,
   WidgetPreview
 } from 'modules/engage/styles';
+import { FlexRow } from 'modules/settings/styles';
 import React from 'react';
 import styled from 'styled-components';
 import {
@@ -37,6 +38,9 @@ type Props = {
   type?: string;
   btnStyle?: string;
   children?: React.ReactNode;
+  currentPage?: number;
+  numberOfPages?: number;
+  onPageChange?: (page: number) => void;
 };
 
 class CommonPreview extends React.Component<Props, {}> {
@@ -56,20 +60,91 @@ class CommonPreview extends React.Component<Props, {}> {
   }
 
   renderButton() {
-    const { btnStyle, btnText, theme, color } = this.props;
+    const {
+      btnStyle,
+      theme,
+      color,
+      btnText = 'Send',
+      numberOfPages = 1,
+      currentPage = 1
+    } = this.props;
 
-    if (!btnText) {
-      return null;
+    const button = (
+      title: string,
+      action?: React.MouseEventHandler<HTMLButtonElement>
+    ) => {
+      return (
+        <Button
+          ignoreTrans={true}
+          btnStyle={btnStyle}
+          style={{ backgroundColor: theme ? theme : color, margin: '5px' }}
+          onClick={action}
+        >
+          {title}
+        </Button>
+      );
+    };
+
+    const onbackClick = () => {
+      if (this.props.onPageChange) {
+        this.props.onPageChange(currentPage - 1);
+      }
+    };
+
+    const onNextClick = () => {
+      if (this.props.onPageChange) {
+        this.props.onPageChange(currentPage + 1);
+      }
+    };
+
+    if (numberOfPages === 1) {
+      return button(btnText);
+    }
+
+    if (currentPage === 1 && numberOfPages > 1) {
+      return button('Next', onNextClick);
+    }
+
+    if (numberOfPages > currentPage) {
+      return (
+        <FlexRow>
+          {button('Back', onbackClick)}
+          {button('Next', onNextClick)}
+        </FlexRow>
+      );
     }
 
     return (
-      <Button
-        ignoreTrans={true}
-        btnStyle={btnStyle}
-        style={{ backgroundColor: theme ? theme : color }}
+      <FlexRow>
+        {button('Back', onbackClick)}
+        {button(btnText)}
+      </FlexRow>
+    );
+  }
+
+  renderProgress() {
+    const { theme, color, numberOfPages = 1, currentPage = 1 } = this.props;
+
+    if (numberOfPages === 1) {
+      return null;
+    }
+
+    const percentage = ((currentPage / numberOfPages) * 100).toFixed(1);
+
+    return (
+      <div
+        id="progress"
+        style={{
+          background: theme ? theme : color,
+          opacity: 0.7,
+          height: '13px',
+          width: `${percentage}%`
+        }}
       >
-        {btnText}
-      </Button>
+        <div
+          style={{ textAlign: 'center', color: 'white', fontSize: 10 }}
+        >{`${percentage}%`}</div>
+      </div>
     );
   }
 
@@ -81,6 +156,7 @@ class CommonPreview extends React.Component<Props, {}> {
         <PreviewTitle style={{ backgroundColor: theme ? theme : color }}>
           <div>{title}</div>
         </PreviewTitle>
+        {this.renderProgress()}
 
         <PreviewBody embedded="embedded">
           {this.renderCallOutBody()}

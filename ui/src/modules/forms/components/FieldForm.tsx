@@ -22,6 +22,7 @@ import {
 } from '../styles';
 import FieldLogics from './FieldLogics';
 import FieldPreview from './FieldPreview';
+import Select from 'react-select-plus';
 
 type Props = {
   onSubmit: (field: IField) => void;
@@ -30,6 +31,7 @@ type Props = {
   mode: 'create' | 'update';
   field: IField;
   fields: IField[];
+  numberOfPages: number;
 };
 
 type State = {
@@ -260,6 +262,38 @@ class FieldForm extends React.Component<Props, State> {
     );
   }
 
+  renderPageSelect() {
+    const { numberOfPages } = this.props;
+    const { field } = this.state;
+
+    if (numberOfPages === 1) {
+      return null;
+    }
+
+    const options: Array<{ label: number; value: number }> = [];
+
+    for (let i = 0; i < numberOfPages; i++) {
+      options.push({ label: i + 1, value: i + 1 });
+    }
+
+    const onChange = option => {
+      this.onFieldChange('pageNumber', option.value);
+    };
+
+    return (
+      <FormGroup>
+        <ControlLabel htmlFor="pageNumber">Page number</ControlLabel>
+        <Select
+          isRequired={true}
+          value={field.pageNumber || 1}
+          onChange={onChange}
+          options={options}
+          clearable={false}
+        />
+      </FormGroup>
+    );
+  }
+
   renderLeftContent() {
     const { fields, mode, onCancel } = this.props;
     const { field } = this.state;
@@ -314,6 +348,8 @@ class FieldForm extends React.Component<Props, State> {
               onChange={desc}
             />
           </FormGroup>
+
+          {this.renderPageSelect()}
 
           {this.renderValidation()}
 

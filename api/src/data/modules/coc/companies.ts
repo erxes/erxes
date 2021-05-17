@@ -1,10 +1,6 @@
 import * as _ from 'underscore';
-import {
-  Companies,
-  Conformities,
-  Customers,
-  Integrations
-} from '../../../db/models';
+
+import { Companies } from '../../../db/models';
 import { IConformityQueryParams } from '../../resolvers/queries/types';
 import { CommonBuilder } from './utils';
 
@@ -38,33 +34,6 @@ export class Builder extends CommonBuilder<IListArgs> {
     super('companies', params, context);
   }
 
-  // filter by brand
-  public async brandFilter(brandId: string): Promise<void> {
-    const integrations = await Integrations.findIntegrations(
-      { brandId },
-      { _id: 1 }
-    );
-    const integrationIds = integrations.map(i => i._id);
-
-    const customers = await Customers.find(
-      { integrationId: { $in: integrationIds } },
-      { companyIds: 1 }
-    );
-
-    const customerIds = await customers.map(customer => customer._id);
-    const companyIds = await Conformities.filterConformity({
-      mainType: 'customer',
-      mainTypeIds: customerIds,
-      relType: 'company'
-    });
-
-    this.positiveList.push({
-      terms: {
-        _id: companyIds || []
-      }
-    });
-  }
-
   public async findAllMongo(limit: number) {
     const selector = {
       ...this.context.commonQuerySelector,
@@ -88,10 +57,5 @@ export class Builder extends CommonBuilder<IListArgs> {
    */
   public async buildAllQueries(): Promise<void> {
     await super.buildAllQueries();
-
-    // filter by brand
-    if (this.params.brand) {
-      await this.brandFilter(this.params.brand);
-    }
   }
 }
