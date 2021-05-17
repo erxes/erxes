@@ -282,7 +282,7 @@ class KnowledgeForm extends React.Component<Props, State> {
           </ExpandWrapper>
 
           <FormGroup>
-            <ControlLabel>Custom color</ControlLabel>
+            <ControlLabel>{__('Custom color')}</ControlLabel>
             <div>
               <OverlayTrigger
                 trigger="click"
@@ -299,7 +299,7 @@ class KnowledgeForm extends React.Component<Props, State> {
         </FlexContent>
 
         <FormGroup>
-          <ControlLabel>Background image: </ControlLabel>
+          <ControlLabel>{__('Background image:')} </ControlLabel>
           <Uploader
             multiple={false}
             single={true}

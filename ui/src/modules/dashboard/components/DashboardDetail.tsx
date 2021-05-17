@@ -85,13 +85,13 @@ class DashboardDetail extends React.Component<Props, State> {
       <RightActions>
         <Link to={`/dashboard/reports/${id}`}>
           <Button uppercase={false} btnStyle="simple" icon="plus-circle">
-            Add chart from Library
+            {__('Add chart from Library')}
           </Button>
         </Link>
         {!isExplore && (
           <Link to={`/dashboard/explore/${id}`}>
             <Button uppercase={false} btnStyle="success" icon="plus-circle">
-              Create a new chart
+              {__('Create a new chart')}
             </Button>
           </Link>
         )}

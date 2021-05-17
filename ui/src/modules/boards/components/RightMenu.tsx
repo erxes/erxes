@@ -146,13 +146,13 @@ export default class RightMenu extends React.Component<Props, State> {
           autoFocus={true}
         />
         <SelectTeamMembers
-          label="Filter by created members"
+          label={__('Filter by created members')}
           name="userIds"
           queryParams={queryParams}
           onSelect={onSelect}
         />
         <Select
-          placeholder="Filter by priority"
+          placeholder={__('Filter by priority')}
           value={priorities}
           options={priorityValues}
           name="priority"
@@ -161,7 +161,7 @@ export default class RightMenu extends React.Component<Props, State> {
           loadingPlaceholder={__('Loading...')}
         />
         <SelectTeamMembers
-          label="Filter by team members"
+          label={__('Filter by team members')}
           name="assignedUserIds"
           queryParams={queryParams}
           onSelect={onSelect}

@@ -92,7 +92,7 @@ function List({ tags, type, remove, loading, renderButton }: Props) {
           data={content}
           loading={loading}
           count={tags.length}
-          emptyText="There is no tag."
+          emptyText={__('There is no tag.')}
           emptyImage="/images/actions/8.svg"
         />
       }

@@ -48,7 +48,7 @@ class Boards extends React.Component<Props, {}> {
         uppercase={false}
         block={true}
       >
-        Add New Board
+        {__('Add New Board')}
       </Button>
     );
 

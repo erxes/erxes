@@ -189,7 +189,7 @@ class Groups extends React.Component<Props, State> {
           icon="plus-circle"
           onClick={this.addGroup}
         >
-          Add group
+          {__('Add group')}
         </Button>
       </>
     );

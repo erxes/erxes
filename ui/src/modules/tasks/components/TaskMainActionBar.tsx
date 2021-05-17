@@ -4,6 +4,7 @@ import SelectCompanies from 'modules/companies/containers/SelectCompanies';
 import SelectCustomers from 'modules/customers/containers/common/SelectCustomers';
 import React from 'react';
 import options from '../options';
+import { __ } from 'modules/common/utils';
 
 type Props = {
   onSearch: (search: string) => void;
@@ -28,13 +29,13 @@ const TaskMainActionBar = (props: Props) => {
   const extraFilter = (
     <>
       <SelectCompanies
-        label="Filter by companies"
+        label={__('Filter by companies')}
         name="companyIds"
         queryParams={queryParams}
         onSelect={onSelect}
       />
       <SelectCustomers
-        label="Filter by customers"
+        label="w"
         name="customerIds"
         queryParams={queryParams}
         onSelect={onSelect}

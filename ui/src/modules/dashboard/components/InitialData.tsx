@@ -41,7 +41,7 @@ class InitialData extends React.Component<Props> {
       <RightActions>
         <Link to={`/dashboard/explore/${dashboardId}`}>
           <Button uppercase={false} btnStyle="success" icon="plus-circle">
-            Create custom charts
+            {__('Create custom charts')}
           </Button>
         </Link>
       </RightActions>

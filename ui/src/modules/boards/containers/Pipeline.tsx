@@ -19,6 +19,7 @@ import {
 } from '../types';
 import { PipelineConsumer, PipelineProvider } from './PipelineContext';
 import Stage from './Stage';
+import { __ } from 'modules/common/utils';
 
 const Container = styled.div`
   height: 100%;
@@ -75,7 +76,7 @@ class WithStages extends Component<WithStagesQueryProps> {
       return (
         <EmptyState
           image="/images/actions/8.svg"
-          text="No stage in this pipeline"
+          text={__('No stage in this pipeline')}
           size="small"
           light={true}
         />

@@ -8,7 +8,7 @@ import React from 'react';
 import KnowledgeForm from '../../containers/knowledge/KnowledgeForm';
 import { ITopic } from '../../types';
 import KnowledgeRow from './KnowledgeRow';
-
+import { __ } from 'modules/common/utils';
 type Props = {
   queryParams: any;
   currentCategoryId: string;
@@ -59,7 +59,7 @@ class KnowledgeList extends React.Component<Props> {
         uppercase={false}
         icon="plus-circle"
       >
-        Add Knowledge Base
+        {__('Add Knowledge Base')}
       </Button>
     );
 
@@ -70,7 +70,7 @@ class KnowledgeList extends React.Component<Props> {
     return (
       <TopHeader>
         <ModalTrigger
-          title="Add Knowledge Base"
+          title={__('Add Knowledge Base')}
           autoOpenKey="showKBAddModal"
           trigger={trigger}
           content={content}
@@ -89,7 +89,7 @@ class KnowledgeList extends React.Component<Props> {
           data={this.renderTopics()}
           loading={loading}
           count={topics.length}
-          emptyText="There is no knowledge base"
+          emptyText={__('There is no knowledge base')}
           emptyImage="/images/actions/18.svg"
         />
       </Sidebar>

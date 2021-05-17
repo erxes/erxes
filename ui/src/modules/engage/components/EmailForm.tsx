@@ -228,7 +228,7 @@ class EmailForm extends React.Component<Props, State> {
           </FormGroup>
 
           <FormGroup>
-            <ControlLabel>Email template:</ControlLabel>
+            <ControlLabel>{__('Email template')}:</ControlLabel>
             <p>{__('Insert email template to content')}</p>
 
             <Select

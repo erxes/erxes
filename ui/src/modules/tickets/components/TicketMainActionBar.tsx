@@ -49,7 +49,7 @@ const TicketMainActionBar = (props: Props) => {
   const extraFilter = (
     <>
       <Select
-        placeholder="Choose a source"
+        placeholder={__('Choose a source')}
         value={sources}
         options={sourceValues}
         name="source"

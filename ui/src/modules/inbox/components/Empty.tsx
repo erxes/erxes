@@ -35,7 +35,7 @@ function Empty({ queryParams, currentUser }: Props) {
 
   const content = (
     <EmptyState
-      text="Whoops! No messages here but you can always start"
+      text={__('Whoops! No messages here but you can always start')}
       size="full"
       image="/images/actions/12.svg"
       extra={suggestContent}

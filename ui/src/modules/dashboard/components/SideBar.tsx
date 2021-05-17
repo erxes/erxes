@@ -4,6 +4,7 @@ import LeftSidebar from 'modules/layout/components/Sidebar';
 import { SidebarList as List } from 'modules/layout/styles';
 import React from 'react';
 import { Link } from 'react-router-dom';
+import { __ } from 'modules/common/utils';
 
 type Props = {
   dashboardId: string;
@@ -46,7 +47,7 @@ class Sidebar extends React.Component<Props> {
             block={true}
             uppercase={false}
           >
-            Back to Dashboard
+            {__('Back to Dashboard')}
           </Button>
         </Link>
       </TopHeader>

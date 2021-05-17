@@ -259,7 +259,7 @@ class LeftSidebar extends React.Component<Props, State> {
             extra={
               <Link to="/settings/calendars">
                 <Button uppercase={false} btnStyle="success" icon="cog">
-                  Create Board & Group
+                  {__('Create Board & Group')}
                 </Button>
               </Link>
             }

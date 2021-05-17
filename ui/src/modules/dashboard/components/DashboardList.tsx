@@ -4,6 +4,7 @@ import DashbaordForm from '../containers/DashboardForm';
 import { Create, Dashboards } from '../styles';
 import { IDashboard } from '../types';
 import DashboardRow from './DashboardRow';
+import { __ } from 'modules/common/utils';
 
 type Props = {
   dashboards: IDashboard[];
@@ -30,7 +31,7 @@ function DashboardList(props: Props) {
     ));
   };
 
-  const triggerCreate = <Create>Create a Dashboard</Create>;
+  const triggerCreate = <Create>{__('Create a Dashboard')}</Create>;
 
   return (
     <>
