@@ -13,6 +13,8 @@ export const types = `
 
 export const queries = `
     forums: [Forum]
+    forumDetail(_id: String!): Forum
+    forumsTotalCount: Int
 `;
 
 export const mutations = `

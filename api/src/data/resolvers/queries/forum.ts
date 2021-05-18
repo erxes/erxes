@@ -15,6 +15,20 @@ const forumQueries = {
   ) {
     const forums = paginate(Forums.find(commonQuerySelector), args);
     return forums.sort({ modifiedData: -1 });
+  },
+
+  /**
+   * Forum detail
+   */
+  forumDetail(_root, { _id }: { _id: string }) {
+    return Forums.findOne({ _id });
+  },
+
+  /**
+   * Forums total count
+   */
+  forumsTotalCount(_root, _args, { commonQuerySelector }: IContext) {
+    return Forums.find(commonQuerySelector).countDocuments();
   }
 };
 
