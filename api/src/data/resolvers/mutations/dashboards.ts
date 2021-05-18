@@ -4,6 +4,7 @@ import {
   IDashboardItemInput
 } from '../../../db/models/definitions/dashboard';
 import { checkPermission } from '../../permissions/wrappers';
+import { IContext } from '../../types';
 import { getDashboardFile, getSubServiceDomain, sendEmail } from '../../utils';
 
 interface IDashboardEdit extends IDashboard {
@@ -23,8 +24,8 @@ interface IDashboardEmailParams {
 }
 
 const dashboardsMutations = {
-  async dashboardAdd(_root, doc: IDashboard) {
-    return Dashboards.create({ ...doc });
+  async dashboardAdd(_root, doc: IDashboard, { docModifier }: IContext) {
+    return Dashboards.create(docModifier(doc));
   },
 
   async dashboardEdit(_root, { _id, ...fields }: IDashboardEdit) {
