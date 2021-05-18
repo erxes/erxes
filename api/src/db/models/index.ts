@@ -42,7 +42,7 @@ import Tickets from './Tickets';
 import Users from './Users';
 import Webhooks from './Webhook';
 
-import { Forums } from './Forum';
+import { Forums, ForumTopics } from './Forum';
 
 export {
   EmailDeliveries,
@@ -99,5 +99,6 @@ export {
   Calendars,
   CalendarGroups,
   CalendarBoards,
-  Forums
+  Forums,
+  ForumTopics
 };

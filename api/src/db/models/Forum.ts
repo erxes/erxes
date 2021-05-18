@@ -139,5 +139,5 @@ export const Forums = model<IForumDocument, IForumModel>('forums', forumSchema);
 
 export const ForumTopics = model<ITopicDocument, ITopicModel>(
   'forum_topics',
-  forumSchema
+  topicSchema
 );
