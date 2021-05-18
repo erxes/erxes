@@ -1,5 +1,5 @@
 import { Document, Schema } from 'mongoose';
-import { field } from './utils';
+import { field, schemaWrapper } from './utils';
 
 export interface IDashboard {
   name: string;
@@ -38,10 +38,12 @@ export interface IDashboardItemDocument extends IDashboardItem, Document {
   createdAt: Date;
 }
 
-export const dashboardSchema = new Schema({
-  _id: field({ pkey: true }),
-  name: field({ type: String })
-});
+export const dashboardSchema = schemaWrapper(
+  new Schema({
+    _id: field({ pkey: true }),
+    name: field({ type: String })
+  })
+);
 
 export const dashboardItemSchema = new Schema({
   _id: field({ pkey: true }),

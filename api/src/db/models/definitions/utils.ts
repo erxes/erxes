@@ -44,5 +44,5 @@ export const schemaHooksWrapper = (schema, cacheKey: string) => {
     });
   }
 
-  return schema;
+  return schemaWrapper(schema);
 };
