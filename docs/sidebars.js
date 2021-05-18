@@ -2,45 +2,46 @@ module.exports = {
   docs: [
     {
       type: "category",
+      label: "Getting Started",
+      items:[
+        {
+          "Deploying on server": [
+              "overview/deployment-overview",
+            {
+              "Installation Guide": [
+                {
+                  "Ubuntu": [
+                              "installation/ubuntu",
+                              {
+                                Installation: [
+                                  "installation/ubuntu-quickstart",
+                                  "installation/ubuntu-step-by-step",
+                                  "installation/ubuntu-troubleshooting",
+                                ],
+                              },
+                            ],
+                  },
+                "installation/docker",
+                "installation/upgrade",
+              ]
+            },
+          ]
+        },
+        {
+          "Contributing on open sourse": [
+            "getting-started/contributing-guide",
+            "getting-started/submitting",
+            "getting-started/commit"
+          ]
+        }
+      ]
+    },
+    {
+      type: "category",
       label: "Overview",
       items: [
-        "overview/getting-started",
         "overview/overview",
         "overview/architecture-overview",
-        "overview/deployment-overview",
-        "overview/integrations-overview",
-      ],
-    },
-    {
-      type: "category",
-      label: "Installation Guide",
-      items: [
-        {
-          // https://v2.docusaurus.io/docs/docs-introduction/#sidebar-object
-          Ubuntu: [
-            "installation/ubuntu",
-            {
-              Installation: [
-                "installation/ubuntu-quickstart",
-                "installation/ubuntu-step-by-step",
-                `installation/ubuntu-troubleshooting`,
-              ],
-            },
-          ],
-        },
-        "installation/docker",
-        "installation/upgrade",
-      ],
-    },
-
-    {
-      type: "category",
-      label: "Administrator's Guide",
-      items: [
-        "administrator/creating-first-user",
-        "administrator/environment-variables",
-        "administrator/system-config",
-        "administrator/migration",
       ],
     },
     {
@@ -48,15 +49,51 @@ module.exports = {
       label: "Developer's Guide",
       items: [
         "developer/developer",
-        "developer/contributing",
-        "developer/graphql-api",
-        "developer/push-notifications",
-        "developer/android-sdk",
-        "developer/ios-sdk",
-        "developer/troubleshooting",
         "developer/documentation_guide",
+        {
+          "Administrator's Guide": [
+              "administrator/creating-first-user",
+              "administrator/environment-variables",
+              "administrator/system-config",
+              "administrator/migration",
+            ] 
+          },
+        {
+          Turorials: [
+           "developer/graphql-api",
+           "developer/android-sdk",
+           "developer/ios-sdk",
+           "developer/push-notifications",
+           "user/script-install",
+          ]
+        },
+        {
+          Integrations: [
+          "developer/integrations-overview/facebook",
+          "developer/integrations-overview/twitter",
+          "developer/integrations-overview/gmail",
+          "developer/integrations-overview/google-cloud-storage",
+          "developer/integrations-overview/aws-s3",
+          "developer/integrations-overview/aws-ses",
+          "developer/integrations-overview/nylas-integrations",
+          "developer/integrations-overview/whatsApp-integration",
+          "developer/integrations-overview/sunshine-conversations"
+          ]
+        },
+        "developer/troubleshooting" 
       ],
     },
+    {
+      type: "category",
+      label: "Changelog",
+      items:[
+        {  
+        type: 'link',
+        label: 'Release Notes', // The link label
+        href: 'https://github.com/erxes/erxes/releases', // The external URL
+        },
+      ],
+    }
   ],
   tutorials: [
     {
