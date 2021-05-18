@@ -24,7 +24,7 @@ export interface ITopic {
   description?: string;
 }
 
-export interface ITopDocument extends ICommonFields, IForum, Document {
+export interface ITopicDocument extends ICommonFields, IForum, Document {
   _id: string;
 }
 
