@@ -1,5 +1,9 @@
-import { Forums, ForumTopics } from '../../../db/models';
-import { IForum, ITopic } from '../../../db/models/definitions/forum';
+import { Forums, ForumTopics, ForumDiscussions } from '../../../db/models';
+import {
+  IForum,
+  ITopic,
+  IDiscussion
+} from '../../../db/models/definitions/forum';
 
 const forumMutations = {
   /**
@@ -52,6 +56,36 @@ const forumMutations = {
    */
   async forumTopicsRemove(_root, { _id }: { _id: string }) {
     const removed = await ForumTopics.removeDoc(_id);
+
+    return removed;
+  },
+
+  /**
+   * create discussion document
+   */
+  async forumDiscussionsAdd(_root, { doc }: { doc: IDiscussion }) {
+    const discussion = await ForumDiscussions.createDoc(doc);
+
+    return discussion;
+  },
+
+  /**
+   * edit discussion document
+   */
+  async forumDiscussionsEdit(
+    _root,
+    { _id, doc }: { _id: string; doc: IDiscussion }
+  ) {
+    const updated = await ForumDiscussions.updateDoc(_id, doc);
+
+    return updated;
+  },
+
+  /**
+   * remove discussion document
+   */
+  async forumDiscussionsRemove(_root, { _id }: { _id: string }) {
+    const removed = await ForumDiscussions.removeDoc(_id);
 
     return removed;
   }

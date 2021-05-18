@@ -20,6 +20,17 @@ export const types = `
         title: String
         description: String
     }
+
+    type ForumDiscussion{
+        _id: String!
+        title: String
+        description: String
+    }
+
+    input ForumDiscussionDoc{
+        title: String
+        description: String
+    }
 `;
 
 export const queries = `
@@ -30,6 +41,10 @@ export const queries = `
     forumTopics: [ForumTopic]
     forumTopicDetail(_id: String!): ForumTopic
     forumTopicsTotalCount:Int
+
+    forumDiscussions: [ForumDiscussion]
+    forumDiscussionDetail(_id: String!): ForumDiscussion
+    forumDiscussionsTotalCount: Int
 `;
 
 export const mutations = `
@@ -40,4 +55,8 @@ export const mutations = `
     forumTopicsAdd(doc: ForumTopicDoc): ForumTopic
     forumTopicsEdit(_id: String! doc: ForumTopicDoc): ForumTopic
     forumTopicsRemove(_id: String!): JSON
+
+    forumDiscussionsAdd(doc: ForumDiscussionDoc): ForumDiscussion
+    forumDiscussionsEdit(_id: String! doc: ForumDiscussionDoc): ForumDiscussion
+    forumDiscussionsRemove(_id: String!): JSON 
 `;

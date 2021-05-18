@@ -1,4 +1,4 @@
-import { Forums, ForumTopics } from '../../../db/models';
+import { ForumDiscussions, Forums, ForumTopics } from '../../../db/models';
 
 import { IContext } from '../../types';
 import { paginate } from '../../utils';
@@ -55,6 +55,36 @@ const forumQueries = {
    */
   forumTopicsTotalCount(_root, _args, { commonQuerySelector }: IContext) {
     return ForumTopics.find(commonQuerySelector).countDocuments();
+  },
+
+  /**
+   * Discussions List
+   */
+
+  forumDiscussions(
+    _root,
+    args: { page: number; perPage: number },
+    { commonQuerySelector }: IContext
+  ) {
+    const discussions = paginate(
+      ForumDiscussions.find(commonQuerySelector),
+      args
+    );
+    return discussions.sort({ modifiedDate: -1 });
+  },
+
+  /**
+   * Discussion detail
+   */
+  forumDiscussionDetail(_root, { _id }: { _id: string }) {
+    return ForumDiscussions.findOne({ _id });
+  },
+
+  /**
+   * Discussions total count
+   */
+  forumDiscussionsTotalCount(_root, args, { commonQuerySelector }: IContext) {
+    return ForumDiscussions.find(commonQuerySelector).countDocuments();
   }
 };
 
