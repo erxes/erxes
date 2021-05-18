@@ -131,13 +131,78 @@ export const loadTopicClass = () => {
   return topicSchema;
 };
 
+export interface IDiscussionModel extends Model<IDiscussionDocument> {
+  getDiscussion(_id: string): Promise<IDiscussionDocument>;
+  createDoc(docFields: IDiscussion): Promise<IDiscussionDocument>;
+  updateDoc(_id: string, docFields: IDiscussion): Promise<IDiscussionDocument>;
+  removeDoc(_id: string): void;
+}
+
+const loadDiscussionClass = () => {
+  class Discussion {
+    /**
+     * get one Forum_discussion
+     */
+    public static async getDiscussion(_id) {
+      const discussion = await ForumDiscussions.findOne({ _id });
+
+      if (!discussion) {
+        throw new Error('Discussion not found');
+      }
+
+      return discussion;
+    }
+    /**
+     * create discussion
+     */
+
+    public static async createDoc(docFields: IDiscussion) {
+      return ForumDiscussions.create({
+        ...docFields,
+        createdDate: new Date(),
+        modifiedDate: new Date()
+      });
+    }
+
+    /**
+     * edit discussion
+     */
+    public static async updateDoc(_id: string, docFields: IDiscussion) {
+      await ForumDiscussions.updateOne({ _id }, { $set: docFields });
+
+      return ForumDiscussions.findOne({ _id });
+    }
+
+    /**
+     * remove discussion
+     */
+    public static async removeDoc(_id: string) {
+      const discussion = await ForumDiscussions.findOne({ _id });
+
+      if (!discussion) {
+        throw new Error('Discussion not found');
+      }
+
+      return ForumDiscussions.deleteOne({ _id });
+    }
+  }
+
+  discussionSchema.loadClass(Discussion);
+  return discussionSchema;
+};
+
 loadForumClass();
 loadTopicClass();
+loadDiscussionClass();
 
-// tslint:disable-next-line
 export const Forums = model<IForumDocument, IForumModel>('forums', forumSchema);
 
 export const ForumTopics = model<ITopicDocument, ITopicModel>(
   'forum_topics',
   topicSchema
+);
+
+export const ForumDiscussions = model<IDiscussionDocument, IDiscussionModel>(
+  'forum_discussion',
+  discussionSchema
 );
