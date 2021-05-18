@@ -6,7 +6,7 @@ import {
   Indicator,
   StepWrapper
 } from 'modules/common/components/step/styles';
-import { IConditionsRule } from 'modules/common/types';
+import { IAttachment, IConditionsRule } from 'modules/common/types';
 import { Alert } from 'modules/common/utils';
 import { __ } from 'modules/common/utils';
 import Wrapper from 'modules/layout/components/Wrapper';
@@ -28,6 +28,7 @@ import {
   SuccessStep
 } from './step';
 import { PreviewWrapper } from './step/style';
+import StyleSheetStep from './step/StyleSheetStep';
 
 type Props = {
   integration?: ILeadIntegration;
@@ -78,9 +79,11 @@ type State = {
   redirectUrl?: string;
   templateId?: string;
   carousel: string;
+  attachments?: IAttachment[];
 
   currentMode: 'create' | 'update' | undefined;
   currentField?: IField;
+  css?: string;
 };
 
 class Lead extends React.Component<Props, State> {
@@ -105,6 +108,7 @@ class Lead extends React.Component<Props, State> {
       adminEmailContent: leadData.adminEmailContent || '',
       thankTitle: leadData.thankTitle || 'Title',
       thankContent: leadData.thankContent || 'Thank you.',
+      attachments: leadData.attachments || [],
       redirectUrl: leadData.redirectUrl || '',
       rules: leadData.rules || [],
       isStepActive: false,
@@ -122,10 +126,11 @@ class Lead extends React.Component<Props, State> {
       logo: '',
       formData: {
         title: form.title || '',
-        desc: form.description || '',
-        btnText: form.buttonText || 'Send',
+        description: form.description || '',
+        buttonText: form.buttonText || 'Send',
         fields: [],
-        type: form.type || ''
+        type: form.type || '',
+        numberOfPages: form.numberOfPages || 1
       },
       theme: leadData.themeColor || '#6569DF',
       isRequireOnce: leadData.isRequireOnce,
@@ -134,7 +139,8 @@ class Lead extends React.Component<Props, State> {
       carousel: callout.skip ? 'form' : 'callout',
 
       currentMode: undefined,
-      currentField: undefined
+      currentField: undefined,
+      css: leadData.css || ''
     };
   }
 
@@ -176,6 +182,7 @@ class Lead extends React.Component<Props, State> {
         adminEmails: this.state.adminEmails,
         adminEmailTitle: this.state.adminEmailTitle,
         adminEmailContent: this.state.adminEmailContent,
+        attachments: this.state.attachments,
         thankTitle: this.state.thankTitle,
         thankContent: this.state.thankContent,
         redirectUrl: this.state.redirectUrl,
@@ -189,7 +196,8 @@ class Lead extends React.Component<Props, State> {
           skip: this.state.isSkip
         },
         rules: (rules || []).filter(rule => rule.condition && rule.value),
-        isRequireOnce: this.state.isRequireOnce
+        isRequireOnce: this.state.isRequireOnce,
+        css: this.state.css
       }
     };
 
@@ -281,7 +289,8 @@ class Lead extends React.Component<Props, State> {
       rules,
       formData,
       isRequireOnce,
-      channelIds
+      channelIds,
+      css
     } = this.state;
 
     const { integration, emailTemplates } = this.props;
@@ -370,6 +379,15 @@ class Lead extends React.Component<Props, State> {
                   onChange={this.onChange}
                 />
               </Step>
+
+              <Step
+                img="/images/icons/erxes-05.svg"
+                title="Advanced styling"
+                onClick={this.onStepClick}
+              >
+                <StyleSheetStep css={css} onChange={this.onChange} />
+              </Step>
+
               <Step
                 img="/images/icons/erxes-13.svg"
                 title="Confirmation"

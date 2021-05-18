@@ -11,6 +11,7 @@ import { FORM_SUCCESS_ACTIONS } from 'modules/settings/integrations/constants';
 import React from 'react';
 import Select from 'react-select-plus';
 import { FlexItem } from './style';
+import Uploader from 'modules/common/components/Uploader';
 
 type Name =
   | 'successAction'
@@ -23,7 +24,8 @@ type Name =
   | 'redirectUrl'
   | 'thankContent'
   | 'thankTitle'
-  | 'templateId';
+  | 'templateId'
+  | 'attachments';
 
 type Props = {
   type: string;
@@ -32,7 +34,7 @@ type Props = {
   thankTitle?: string;
   thankContent?: string;
   successAction?: string;
-  onChange: (name: Name, value: string) => void;
+  onChange: (name: Name, value: any) => void;
   leadData?: ILeadData;
   formId?: string;
   emailTemplates: IEmailTemplate[];
@@ -99,6 +101,15 @@ class SuccessStep extends React.Component<Props, State> {
 
     this.props.onChange('userEmailContent', this.findTemplate(e.value));
     this.props.onChange('templateId', e.value);
+  };
+
+  onChangeAttachment = attachments => {
+    const leadData = this.state.leadData || {};
+    leadData.attachments = attachments;
+
+    this.setState({ leadData });
+
+    this.props.onChange('attachments', attachments);
   };
 
   renderEmailFields(leadData: ILeadData) {
@@ -179,6 +190,14 @@ class SuccessStep extends React.Component<Props, State> {
             onChange={this.onEditorChange}
             height={500}
             name={`lead_user_email_${editorSubName}`}
+          />
+        </FormGroup>
+
+        <FormGroup>
+          <ControlLabel>Attachments: </ControlLabel>
+          <Uploader
+            defaultFileList={leadData.attachments || []}
+            onChange={this.onChangeAttachment}
           />
         </FormGroup>
 

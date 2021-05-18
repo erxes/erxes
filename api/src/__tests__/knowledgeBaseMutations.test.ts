@@ -50,14 +50,14 @@ describe('mutations', () => {
 
   beforeEach(async () => {
     // Creating test data
-    _knowledgeBaseArticle = await knowledgeBaseArticleFactory({
-      status: PUBLISH_STATUSES.PUBLISH
-    });
+    _knowledgeBaseTopic = await knowledgeBaseTopicFactory({});
     _knowledgeBaseCategory = await knowledgeBaseCategoryFactory({
-      articleIds: [_knowledgeBaseArticle._id]
+      topicId: _knowledgeBaseTopic._id
     });
-    _knowledgeBaseTopic = await knowledgeBaseTopicFactory({
-      categoryIds: [_knowledgeBaseCategory._id]
+    _knowledgeBaseArticle = await knowledgeBaseArticleFactory({
+      status: PUBLISH_STATUSES.PUBLISH,
+      topicId: _knowledgeBaseTopic._id,
+      categoryId: _knowledgeBaseCategory._id
     });
     _brand = await brandFactory({});
   });
@@ -73,7 +73,6 @@ describe('mutations', () => {
 
   test('Add knowledge base topic', async () => {
     const doc = {
-      categoryIds: _knowledgeBaseCategory._id,
       brandId: _brand._id,
       ...topicArgs
     };
@@ -106,12 +105,10 @@ describe('mutations', () => {
     expect(knowledgeBaseTopic.color).toBe(doc.color);
     expect(knowledgeBaseTopic.brand._id).toBe(doc.brandId);
     expect(knowledgeBaseTopic.languageCode).toBe(doc.languageCode);
-    expect(knowledgeBaseTopic.categories[0]._id).toEqual(doc.categoryIds);
   });
 
   test('Edit knowledge base topic', async () => {
     const doc = {
-      categoryIds: _knowledgeBaseCategory._id,
       brandId: _brand._id,
       ...topicArgs
     };
@@ -149,7 +146,6 @@ describe('mutations', () => {
     expect(knowledgeBaseTopic.color).toBe(doc.color);
     expect(knowledgeBaseTopic.brand._id).toBe(doc.brandId);
     expect(knowledgeBaseTopic.languageCode).toBe(doc.languageCode);
-    expect(knowledgeBaseTopic.categories[0]._id).toEqual(doc.categoryIds);
   });
 
   test('Remove knowledge base topic', async () => {
@@ -169,7 +165,6 @@ describe('mutations', () => {
   test('Add knowledge base category', async () => {
     const doc = {
       articleIds: [_knowledgeBaseArticle._id],
-      topicIds: _knowledgeBaseTopic._id,
       ...categoryArgs
     };
 
@@ -198,16 +193,10 @@ describe('mutations', () => {
     expect(knowledgeBaseCategory.title).toBe(doc.title);
     expect(knowledgeBaseCategory.description).toBe(doc.description);
     expect(knowledgeBaseCategory.icon).toBe(doc.icon);
-
-    const articleIds = knowledgeBaseCategory.articles.map(a => a._id);
-    expect(doc.articleIds).toEqual(articleIds);
-
-    expect(knowledgeBaseCategory.firstTopic._id).toBe(doc.topicIds);
   });
 
   test('Edit knowledge base category', async () => {
     const doc = {
-      articleIds: [_knowledgeBaseArticle._id],
       topicIds: _knowledgeBaseTopic._id,
       ...categoryArgs
     };
@@ -243,9 +232,6 @@ describe('mutations', () => {
     expect(knowledgeBaseCategory.description).toBe(doc.description);
     expect(knowledgeBaseCategory.icon).toBe(doc.icon);
 
-    const articleIds = knowledgeBaseCategory.articles.map(a => a._id);
-    expect(doc.articleIds).toEqual(articleIds);
-
     expect(knowledgeBaseCategory.firstTopic._id).toBe(doc.topicIds);
   });
 
@@ -264,10 +250,7 @@ describe('mutations', () => {
   });
 
   test('Add knowledge base article', async () => {
-    const doc = {
-      categoryIds: [_knowledgeBaseCategory._id],
-      ...articleArgs
-    };
+    const doc = articleArgs;
 
     const mutation = `
       mutation knowledgeBaseArticlesAdd($doc: KnowledgeBaseArticleDoc!) {
@@ -285,11 +268,6 @@ describe('mutations', () => {
       doc
     });
 
-    const [category] = await KnowledgeBaseCategories.find({
-      _id: { $in: doc.categoryIds }
-    });
-
-    expect(category.articleIds).toContain(article._id);
     expect(article.title).toBe(doc.title);
     expect(article.summary).toBe(doc.summary);
     expect(article.content).toBe(doc.content);
@@ -297,10 +275,7 @@ describe('mutations', () => {
   });
 
   test('Edit knowledge base article', async () => {
-    const doc = {
-      categoryIds: [_knowledgeBaseCategory._id],
-      ...articleArgs
-    };
+    const doc = articleArgs;
 
     const mutation = `
       mutation knowledgeBaseArticlesEdit($_id: String! $doc: KnowledgeBaseArticleDoc!) {
@@ -323,11 +298,6 @@ describe('mutations', () => {
       }
     );
 
-    const [category] = await KnowledgeBaseCategories.find({
-      _id: { $in: doc.categoryIds }
-    });
-
-    expect(category.articleIds).toContain(article._id);
     expect(article._id).toBe(_knowledgeBaseArticle._id);
     expect(article.title).toBe(doc.title);
     expect(article.summary).toBe(doc.summary);

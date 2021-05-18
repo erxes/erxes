@@ -1,5 +1,5 @@
 import { Document, Schema } from 'mongoose';
-import { field } from './utils';
+import { field, schemaWrapper } from './utils';
 
 export interface IDashboard {
   name: string;
@@ -26,6 +26,7 @@ export interface IDashboardItemEdit {
   vizState?: string;
   name?: string;
   type?: string;
+  isDateRange?: boolean;
 }
 
 export interface IDashboardDocument extends IDashboard, Document {
@@ -37,10 +38,12 @@ export interface IDashboardItemDocument extends IDashboardItem, Document {
   createdAt: Date;
 }
 
-export const dashboardSchema = new Schema({
-  _id: field({ pkey: true }),
-  name: field({ type: String })
-});
+export const dashboardSchema = schemaWrapper(
+  new Schema({
+    _id: field({ pkey: true }),
+    name: field({ type: String })
+  })
+);
 
 export const dashboardItemSchema = new Schema({
   _id: field({ pkey: true }),
@@ -48,5 +51,6 @@ export const dashboardItemSchema = new Schema({
   layout: field({ type: String }),
   vizState: field({ type: String }),
   name: field({ type: String }),
-  type: field({ type: String })
+  type: field({ type: String }),
+  isDateRange: field({ type: Boolean })
 });

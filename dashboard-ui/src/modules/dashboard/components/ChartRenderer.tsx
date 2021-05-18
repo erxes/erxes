@@ -29,12 +29,46 @@ import { EmptyWrapper } from './styles';
 const { REACT_APP_DASHBOARD_API_URL } = getEnv();
 const dashboardToken = getDashboardToken();
 
-const numberFormatter = item => numeral(item).format('0,0');
+
+const msConversion = (millis) => {
+  let sec = Math.floor(millis / 1000) as any;
+  const hrs = Math.floor(sec / 3600) as any;
+  sec -= hrs * 3600;
+  let min = Math.floor(sec / 60) as any;
+  sec -= min * 60;
+
+  sec = '' + sec;
+  sec = ('00' + sec).substring(sec.length);
+
+  if (hrs > 0) {
+    min = '' + min;
+    min = ('00' + min).substring(min.length);
+    return `${hrs}h:${min}m:${sec}s`;
+  }
+  else {
+    return `${min}m:${sec}s`;
+  }
+}
+
+const numberFormatter = (item, measureType) => {
+
+
+  if (measureType === 'Conversations.avgResponse') {
+    return msConversion(item);
+  }
+
+  if (measureType === 'Conversations.avgClose') {
+    return msConversion(item);
+  }
+
+  return numeral(item).format('0,0');
+
+};
 
 const dateFormatter = (item, dateType) => {
   switch (dateType) {
-    case 'hours':
-      return dayjs(item).format('HH');
+    case 'hour':
+      return dayjs(item).format('HH:mm');
     case 'day':
       return dayjs(item).format('MMM/DD');
     case 'month':
@@ -70,7 +104,9 @@ const decamelize = (str, separator) => {
 const xAxisFormatter = (item, dateType) => {
   if (dateType) {
     return dateFormatter(item, dateType);
-  } else {
+  }
+
+  else {
     return decamelize(item.toString(), ' ');
   }
 };
@@ -80,7 +116,8 @@ const CartesianChart = ({
   children,
   ChartComponent,
   height,
-  dateType
+  dateType,
+  measureType
 }) => (
   <ResponsiveContainer width="100%" height={height}>
     <ChartComponent margin={{ left: -10 }} data={resultSet.chartPivot}>
@@ -94,27 +131,29 @@ const CartesianChart = ({
       <YAxis
         axisLine={false}
         tickLine={false}
-        tickFormatter={numberFormatter}
+        tickFormatter={item => numberFormatter(item, measureType)}
       />
       <CartesianGrid vertical={false} />
       {children}
       <Legend />
       <Tooltip
         labelFormatter={item => xAxisFormatter(item, dateType)}
-        formatter={numberFormatter}
+        formatter={item => numberFormatter(item, measureType)}
       />
     </ChartComponent>
   </ResponsiveContainer>
 );
 
+
 const TypeToChartComponent = {
-  line: ({ resultSet, height, dateType }) => {
+  line: ({ resultSet, height, dateType, measureType }) => {
     return (
       <CartesianChart
         resultSet={resultSet}
         height={height}
         ChartComponent={LineChart}
         dateType={dateType}
+        measureType={measureType}
       >
         {resultSet.seriesNames.map((series, i) => (
           <Line
@@ -127,13 +166,14 @@ const TypeToChartComponent = {
       </CartesianChart>
     );
   },
-  bar: ({ resultSet, height, dateType }) => {
+  bar: ({ resultSet, height, dateType, measureType }) => {
     return (
       <CartesianChart
         resultSet={resultSet}
         height={height}
         ChartComponent={BarChart}
         dateType={dateType}
+        measureType={measureType}
       >
         {resultSet.seriesNames.map((series, i) => (
           <Bar
@@ -147,13 +187,14 @@ const TypeToChartComponent = {
       </CartesianChart>
     );
   },
-  area: ({ resultSet, height, dateType }) => {
+  area: ({ resultSet, height, dateType, measureType }) => {
     return (
       <CartesianChart
         resultSet={resultSet}
         height={height}
         dateType={dateType}
         ChartComponent={AreaChart}
+        measureType={measureType}
       >
         {resultSet.seriesNames.map((series, i) => (
           <Area
@@ -216,6 +257,15 @@ const TypeToChartComponent = {
 
     const renderResult = result => {
       for (const [key, value] of Object.entries(result)) {
+
+        if (key === 'Conversations.avgResponse') {
+          result[key] = msConversion(result[key])
+        }
+
+        if (key === 'Conversations.avgClose') {
+          result[key] = msConversion(result[key])
+        }
+
         if (typeof value === 'number') {
           result[key] = result[key]
             .toString()
@@ -265,10 +315,10 @@ const TypeToMemoChartComponent = Object.keys(TypeToChartComponent)
   }))
   .reduce((a, b) => ({ ...a, ...b }));
 
-const renderChart = Component => ({ result, dateType, height }) => {
+const renderChart = Component => ({ result, dateType, height, measureType }) => {
   return (
     (result && (
-      <Component height={height} resultSet={result} dateType={dateType} />
+      <Component height={height} resultSet={result} dateType={dateType} measureType={measureType} />
     )) || <Spinner objective={true} />
   );
 };
@@ -315,16 +365,22 @@ export default function ChartRenderer(props: Props) {
 
   let dateType = '';
 
+
   if (result.seriesNames) {
-    const { timeDimensions } = query;
+    const { timeDimensions, measures } = query;
+
+    const measureType = measures[0];
 
     if (timeDimensions[0]) {
       dateType = timeDimensions[0].granularity;
     }
+
+
     return renderChart(component)({
       height: chartHeight,
       result,
-      dateType
+      dateType,
+      measureType
     });
   }
 

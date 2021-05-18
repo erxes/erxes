@@ -23,7 +23,7 @@ type Props = {
   article: IArticle;
   queryParams: any;
   currentCategoryId: string;
-  topicIds: string;
+  topicId: string;
   remove: (articleId: string) => void;
 };
 
@@ -46,7 +46,7 @@ const ArticleRow = (props: Props) => {
   };
 
   const renderEditAction = editTrigger => {
-    const { queryParams, currentCategoryId, topicIds } = props;
+    const { queryParams, currentCategoryId, topicId } = props;
 
     const editButton = (
       <Button btnStyle="link">
@@ -62,7 +62,7 @@ const ArticleRow = (props: Props) => {
         article={props.article}
         queryParams={queryParams}
         currentCategoryId={currentCategoryId}
-        topicIds={topicIds}
+        topicId={topicId}
       />
     );
 

@@ -46,17 +46,7 @@ const schema = new Schema({
 
 export const loadLogClass = () => {
   class SmsRequest {
-    public static async createRequest(doc: ISmsRequest) {
-      const { engageMessageId, to } = doc;
-
-      const exists = await SmsRequests.findOne({ engageMessageId, to });
-
-      if (exists) {
-        throw new Error(
-          `Sms request to "${to}" from engage id "${engageMessageId}" already exists.`
-        );
-      }
-
+    public static createRequest(doc: ISmsRequest) {
       return SmsRequests.create(doc);
     }
 

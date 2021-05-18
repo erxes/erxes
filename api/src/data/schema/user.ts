@@ -44,7 +44,7 @@ export const types = `
     getNotificationByEmail: Boolean
     groupIds: [String]
     brandIds: [String]
-    doNotDisturb: String
+    isSubscribed: String
 
     brands: [Brand]
     isOwner: Boolean
@@ -88,7 +88,7 @@ export const queries = `
 `;
 
 export const mutations = `
-  usersCreateOwner(email: String!, password: String!, firstName: String!, lastName: String, subscribeEmail: Boolean): String 
+  usersCreateOwner(email: String!, password: String!, firstName: String!, lastName: String, purpose: String, subscribeEmail: Boolean): String 
   login(email: String!, password: String! deviceToken: String): String 
   logout: String
   forgotPassword(email: String!): String!

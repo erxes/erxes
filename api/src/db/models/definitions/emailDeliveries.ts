@@ -1,7 +1,7 @@
 import { Document, Schema } from 'mongoose';
 import { field } from './utils';
 
-interface IAttachmentParams {
+export interface IAttachmentParams {
   data: string;
   filename: string;
   size: number;

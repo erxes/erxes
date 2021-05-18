@@ -45,7 +45,8 @@ const PropertyGroupFormContainer = (props: Props) => {
   const updatedProps = {
     ...props,
     type,
-    renderButton
+    renderButton,
+    selectedItems: []
   };
 
   return <PropertyGroupForm {...updatedProps} />;

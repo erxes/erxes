@@ -107,3 +107,7 @@ body {
 .ant-form-item-control-input-content .react-multi-email [data-tag] {
   font-weight: normal;
 }
+
+.recharts-surface {
+  padding: 10px;
+}

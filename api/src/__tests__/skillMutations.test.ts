@@ -11,10 +11,10 @@ import './setup.ts';
 
 describe('skillMutations', () => {
   afterEach(async () => {
-    await SkillTypes.remove({});
-    await Skills.remove({});
-    await Users.remove({});
-    await Integrations.remove({});
+    await SkillTypes.deleteMany({});
+    await Skills.deleteMany({});
+    await Users.deleteMany({});
+    await Integrations.deleteMany({});
   });
 
   test('createSkillType', async () => {

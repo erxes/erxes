@@ -275,7 +275,7 @@ const integrationMutations = {
         user
       );
     } catch (e) {
-      await Integrations.remove({ _id: integration._id });
+      await Integrations.deleteOne({ _id: integration._id });
       throw new Error(e);
     }
 
@@ -299,7 +299,7 @@ const integrationMutations = {
       }
     }
 
-    await Integrations.update({ _id }, { $set: doc });
+    await Integrations.updateOne({ _id }, { $set: doc });
 
     const updated = await Integrations.getIntegration({ _id });
 
@@ -419,7 +419,7 @@ const integrationMutations = {
 
     const selector = customerId
       ? { _id: customerId }
-      : { primaryEmail: { $in: doc.to } };
+      : { status: { $ne: 'deleted' }, emails: { $in: doc.to } };
 
     customer = await Customers.findOne(selector);
 
@@ -524,20 +524,26 @@ const integrationMutations = {
       throw new Error(`Customer's primary phone ${args.to} is not valid`);
     }
 
-    const response = await dataSources.IntegrationsAPI.sendSms(args);
+    try {
+      const response = await dataSources.IntegrationsAPI.sendSms(args);
 
-    await putActivityLog({
-      action: ACTIVITY_LOG_ACTIONS.ADD,
-      data: {
-        action: ACTIVITY_ACTIONS.SEND,
-        contentType: ACTIVITY_CONTENT_TYPES.SMS,
-        createdBy: user._id,
-        contentId: customer._id,
-        content: { to: args.to, text: args.content }
+      if (response && response.status === 'ok') {
+        await putActivityLog({
+          action: ACTIVITY_LOG_ACTIONS.ADD,
+          data: {
+            action: ACTIVITY_ACTIONS.SEND,
+            contentType: ACTIVITY_CONTENT_TYPES.SMS,
+            createdBy: user._id,
+            contentId: customer._id,
+            content: { to: args.to, text: args.content }
+          }
+        });
       }
-    });
 
-    return response;
+      return response;
+    } catch (e) {
+      return e;
+    }
   },
 
   async integrationsCopyLeadIntegration(

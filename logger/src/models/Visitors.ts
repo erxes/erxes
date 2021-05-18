@@ -1,5 +1,6 @@
 import { Document, model, Model, Schema } from 'mongoose';
 import { field } from './Logs';
+import { debugBase } from '../debuggers';
 
 export interface ILocation {
   remoteAddress: string;
@@ -93,7 +94,9 @@ export const loadVisitorClass = () => {
       const visitor = await Visitors.findOne({ visitorId: doc.visitorId });
 
       if (visitor) {
-        return Visitors.findOneAndUpdate({ visitorId: doc.visitorId }, doc);
+        await Visitors.updateOne({ _id: visitor._id }, { $set: doc });
+
+        return Visitors.findOne({ visitorId: doc.visitorId });
       }
 
       return Visitors.create({
@@ -108,10 +111,13 @@ export const loadVisitorClass = () => {
 
       const visitor = await Visitors.getVisitorLog(doc.visitorId);
 
+      // log & quietly return instead of throwing an error
       if (!visitor) {
-        throw new Error(
+        debugBase(
           `Visitor with Id ${doc.visitorId} not found while trying to update visitor.`
         );
+
+        return;
       }
 
       delete doc.integrationId;

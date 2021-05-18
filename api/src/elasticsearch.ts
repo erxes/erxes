@@ -22,7 +22,10 @@ export const getMappings = async (index: string) => {
 };
 
 export const getIndexPrefix = () => {
-  if (ELASTICSEARCH_URL === 'https://elasticsearch.erxes.io') {
+  if (
+    ELASTICSEARCH_URL === 'https://elasticsearch.erxes.io' &&
+    NODE_ENV === 'production'
+  ) {
     return `${telemetry.getMachineId().toString()}__`;
   }
 
@@ -32,13 +35,19 @@ export const getIndexPrefix = () => {
   return `${dbName}__`;
 };
 
-export const fetchElk = async (
+export const fetchElk = async ({
   action,
-  index: string,
-  body: any,
-  id?: string,
-  defaultValue?: any
-) => {
+  index,
+  body,
+  _id,
+  defaultValue
+}: {
+  action: string;
+  index: string;
+  body: any;
+  _id?: string;
+  defaultValue?: any;
+}) => {
   if (NODE_ENV === 'test') {
     return action === 'search'
       ? { hits: { total: { value: 0 }, hits: [] } }
@@ -51,8 +60,12 @@ export const fetchElk = async (
       body
     };
 
-    if (id) {
-      params.id = id;
+    if (action === 'search' && body && !body.size) {
+      body.size = 10000;
+    }
+
+    if (_id) {
+      params.id = _id;
     }
 
     const response = await client[action](params);

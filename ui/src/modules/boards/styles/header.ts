@@ -124,5 +124,29 @@ export const BarItems = styled(BarItemsCommon)`
     max-height: calc(100vh - 120px);
     overflow: auto;
     background: ${colors.colorWhite};
+
+    li {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      transition: all ease 0.3s;
+
+      > i {
+        padding: 0 ${dimensions.unitSpacing + 5}px;
+      }
+
+      > a {
+        flex: 1;
+
+        &:hover,
+        &:focus {
+          background: transparent;
+        }
+      }
+
+      &:hover {
+        background: ${colors.bgActive};
+      }
+    }
   }
 `;

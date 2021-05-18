@@ -8,7 +8,19 @@ cube(`Deals`, {
   measures: {
     count: {
       type: `count`
-    }
+    },
+
+    totalAmount: {
+      sql: `${amount}`,
+      type: `sum`,
+      title: `Total amount`
+    },
+
+    avgAmount: {
+      sql: `${amount}`,
+      type: `avg`,
+      title: `Avarage amount`
+    },
   },
 
   dimensions: {
@@ -45,6 +57,12 @@ cube(`Deals`, {
     status: {
       sql: `status`,
       type: `string`
+    },
+
+    amount: {
+      sql: `${CUBE}."amount"`,
+      type: `number`,
+      shown: false
     },
 
     modifiedBy: {

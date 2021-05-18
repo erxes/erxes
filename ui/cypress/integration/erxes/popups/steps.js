@@ -77,6 +77,10 @@ context("Popups", () => {
       .eq(4)
       .click();
 
+    cy.get("button[icon=arrow-right]")
+      .eq(5)
+      .click();
+
     cy.get('select[id="successAction"]').select("redirect");
     cy.get('input[id="redirectUrl"]').type(randomm);
 

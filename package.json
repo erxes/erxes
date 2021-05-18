@@ -22,7 +22,9 @@
         "prettier --single-quote --write",
         "git add"
       ]
-    }
+    },
+    "concurrent": false,
+    "subTaskConcurrency": 1
   },
   "scripts": {
     "prepare-plugins": "node scripts/prepare-plugins",
