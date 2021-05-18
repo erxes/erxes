@@ -54,6 +54,7 @@ const commonFields = {
 
 export const forumSchema = new Schema({
   _id: field({ pkey: true }),
+  title: field({ type: String, optional: true, label: 'Title' }),
   description: field({ type: String, optional: true, label: 'Description' }),
   brandId: field({ type: String, optional: true, label: 'Brand' }),
   languageCode: field({
