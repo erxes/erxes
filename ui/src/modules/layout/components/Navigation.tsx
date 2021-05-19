@@ -221,6 +221,7 @@ class Navigation extends React.Component<{
             '/knowledgeBase',
             'icon-book'
           )}
+          {this.renderNavItem('showForum', __('Forum'), '/forum', 'icon-star')}
 
           {pluginsOfNavigations(this.renderNavItem)}
         </Nav>
