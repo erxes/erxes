@@ -1,3 +1,20 @@
+# [0.22.0](https://github.com/erxes/erxes/compare/0.21.1...0.22.0) (2021-05-19)
+
+
+### Bug Fixes
+
+* **board:** show active board, pipeline in dropdown list ([6e79ce7](https://github.com/erxes/erxes/commit/6e79ce7edd013085eb0b22ebe1f5a6c28bcd5a1a))
+
+
+### Features
+
+* **knowledgebase:** added parent category ([8c84485](https://github.com/erxes/erxes/commit/8c844852f262c8726648cf3eb299bc0d982b8482))
+
+
+### BREAKING CHANGES
+
+* **knowledgebase:** need to run migrateKnowledgeBase command
+
 ## [0.21.1](https://github.com/erxes/erxes/compare/0.21.0...0.21.1) (2021-04-30)
 
 # [0.21.0](https://github.com/erxes/erxes/compare/0.20.16...0.21.0) (2021-04-30)
