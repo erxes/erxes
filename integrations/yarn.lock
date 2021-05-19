@@ -1749,10 +1749,10 @@ delegates@^1.0.0:
   version "1.0.0"
   resolved "https://registry.yarnpkg.com/delegates/-/delegates-1.0.0.tgz#84c6e159b81904fdca59a0ef44cd870d31250f9a"
 
-denque@^1.4.1:
-  version "1.4.1"
-  resolved "https://registry.yarnpkg.com/denque/-/denque-1.4.1.tgz#6744ff7641c148c3f8a69c307e51235c1f4a37cf"
-  integrity sha512-OfzPuSZKGcgr96rf1oODnfjqBFmr1DVoc/TrItj3Ohe0Ah1C5WX5Baquw/9U9KovnQ88EqmJbD66rKYUQYN1tQ==
+denque@^1.4.1, denque@^1.5.0:
+  version "1.5.0"
+  resolved "https://registry.yarnpkg.com/denque/-/denque-1.5.0.tgz#773de0686ff2d8ec2ff92914316a47b73b1c73de"
+  integrity sha512-CYiCSgIF1p6EUByQPlGkKnP1M9g0ZV3qMIrqMqZqdwazygIA/YP2vrbcyl1h/WppKJTdl1F85cXIle+394iDAQ==
 
 depd@~1.1.2:
   version "1.1.2"
@@ -5031,14 +5031,10 @@ redent@^1.0.0:
     indent-string "^2.1.0"
     strip-indent "^1.0.1"
 
-redis-commands@^1.2.0:
-  version "1.5.0"
-  resolved "https://registry.yarnpkg.com/redis-commands/-/redis-commands-1.5.0.tgz#80d2e20698fe688f227127ff9e5164a7dd17e785"
-
-redis-commands@^1.5.0:
-  version "1.6.0"
-  resolved "https://registry.yarnpkg.com/redis-commands/-/redis-commands-1.6.0.tgz#36d4ca42ae9ed29815cdb30ad9f97982eba1ce23"
-  integrity sha512-2jnZ0IkjZxvguITjFTrGiLyzQZcTvaw8DAaCXxZq/dsHXz7KfMQ3OUJy7Tz9vnRtZRVz6VRCPDvruvU8Ts44wQ==
+redis-commands@^1.2.0, redis-commands@^1.7.0:
+  version "1.7.0"
+  resolved "https://registry.yarnpkg.com/redis-commands/-/redis-commands-1.7.0.tgz#15a6fea2d58281e27b1cd1acfb4b293e278c3a89"
+  integrity sha512-nJWqw3bTFy21hX/CPKHth6sfhZbdiHP6bTawSgQBlKOVRG7EZkfHbbHwQJnrE4vsQf0CMNE+3gJ4Fmm16vdVlQ==
 
 redis-errors@^1.0.0, redis-errors@^1.2.0:
   version "1.2.0"
@@ -5056,7 +5052,7 @@ redis-parser@^3.0.0:
   dependencies:
     redis-errors "^1.0.0"
 
-redis@^2.7.1, redis@^2.8.0:
+redis@^2.7.1:
   version "2.8.0"
   resolved "https://registry.yarnpkg.com/redis/-/redis-2.8.0.tgz#202288e3f58c49f6079d97af7a10e1303ae14b02"
   dependencies:
@@ -5064,13 +5060,13 @@ redis@^2.7.1, redis@^2.8.0:
     redis-commands "^1.2.0"
     redis-parser "^2.6.0"
 
-redis@^3.0.2:
-  version "3.0.2"
-  resolved "https://registry.yarnpkg.com/redis/-/redis-3.0.2.tgz#bd47067b8a4a3e6a2e556e57f71cc82c7360150a"
-  integrity sha512-PNhLCrjU6vKVuMOyFu7oSP296mwBkcE6lrAjruBYG5LgdSqtRBoVQIylrMyVZD/lkF24RSNNatzvYag6HRBHjQ==
+redis@^3.0.2, redis@^3.1.1:
+  version "3.1.1"
+  resolved "https://registry.yarnpkg.com/redis/-/redis-3.1.1.tgz#a44bee7c072dcf685e139048d6a1a4d3b00f5d01"
+  integrity sha512-QhkKhOuzhogR1NDJfBD34TQJz2ZJwDhhIC6ZmvpftlmfYShHHQXjjNspAJ+Z2HH5NwSBVYBVganbiZ8bgFMHjg==
   dependencies:
-    denque "^1.4.1"
-    redis-commands "^1.5.0"
+    denque "^1.5.0"
+    redis-commands "^1.7.0"
     redis-errors "^1.2.0"
     redis-parser "^3.0.0"
 
