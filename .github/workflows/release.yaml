@@ -71,7 +71,7 @@ jobs:
         run: |
           cd api
           echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin
-          DOCKER_BUILDKIT=1 docker build --build-arg BASE_IMAGE=$BASE_IMAGE -t erxes/erxes-api:${GITHUB_REF#refs/tags/} -f api.Dockerfile .
+          DOCKER_BUILDKIT=1 docker build --build-arg BASE_IMAGE=$BASE_IMAGE -t erxes/erxes-api:${GITHUB_REF#refs/tags/} -t latest -f api.Dockerfile .
           docker push erxes/erxes-api:${GITHUB_REF#refs/tags/}
           docker push erxes/erxes-api:latest
 
@@ -79,7 +79,7 @@ jobs:
         run: |
           cd elkSyncer
           echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin
-          docker build -t erxes/erxes-elksyncer:${GITHUB_REF#refs/tags/} -f Dockerfile .
+          docker build -t erxes/erxes-elksyncer:${GITHUB_REF#refs/tags/} -t latest -f Dockerfile .
           docker push erxes/erxes-elksyncer:${GITHUB_REF#refs/tags/}
 
       - name: Email Verifier - Install dependencies
@@ -96,7 +96,7 @@ jobs:
         run: |
           cd email-verifier
           echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin
-          docker build -t erxes/erxes-email-verifier:${GITHUB_REF#refs/tags/} -f Dockerfile .
+          docker build -t erxes/erxes-email-verifier:${GITHUB_REF#refs/tags/} -t latest -f Dockerfile .
           docker push erxes/erxes-email-verifier:${GITHUB_REF#refs/tags/}
           docker push erxes/erxes-email-verifier:latest
 
@@ -114,7 +114,7 @@ jobs:
         run: |
           cd engages-email-sender
           echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin
-          docker build -t erxes/erxes-engages-email-sender:${GITHUB_REF#refs/tags/} -f Dockerfile .
+          docker build -t erxes/erxes-engages-email-sender:${GITHUB_REF#refs/tags/} -t latest -f Dockerfile .
           docker push erxes/erxes-engages-email-sender:${GITHUB_REF#refs/tags/}
           docker push erxes/erxes-engages-email-sender:latest
 
@@ -132,7 +132,7 @@ jobs:
         run: |
           cd logger
           echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin
-          docker build -t erxes/erxes-logger:${GITHUB_REF#refs/tags/} -f Dockerfile .
+          docker build -t erxes/erxes-logger:${GITHUB_REF#refs/tags/} -t latest -f Dockerfile .
           docker push erxes/erxes-logger:${GITHUB_REF#refs/tags/}
           docker push erxes/erxes-logger:latest
 
@@ -168,7 +168,7 @@ jobs:
         run: |
           cd integrations
           echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin
-          docker build -t erxes/erxes-integrations:${GITHUB_REF#refs/tags/} -f Dockerfile .
+          docker build -t erxes/erxes-integrations:${GITHUB_REF#refs/tags/} -t latest -f Dockerfile .
           docker push erxes/erxes-integrations:${GITHUB_REF#refs/tags/}
           docker push erxes/erxes-integrations:latest
 
@@ -201,7 +201,7 @@ jobs:
         run: |
           cd ui
           echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin
-          DOCKER_BUILDKIT=1 docker build --build-arg BASE_IMAGE=$BASE_IMAGE -t erxes/erxes:${GITHUB_REF#refs/tags/} -f ui.Dockerfile .
+          DOCKER_BUILDKIT=1 docker build --build-arg BASE_IMAGE=$BASE_IMAGE -t erxes/erxes:${GITHUB_REF#refs/tags/} -t latest -f ui.Dockerfile .
           docker push erxes/erxes:${GITHUB_REF#refs/tags/}
           docker push erxes/erxes:latest
 
@@ -225,7 +225,7 @@ jobs:
         run: |
           cd widgets
           echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin
-          docker build -t erxes/erxes-widgets:${GITHUB_REF#refs/tags/} -f Dockerfile .
+          docker build -t erxes/erxes-widgets:${GITHUB_REF#refs/tags/} -t latest -f Dockerfile .
           docker push erxes/erxes-widgets:${GITHUB_REF#refs/tags/}
           docker push erxes/erxes-widgets:latest
 
@@ -246,7 +246,7 @@ jobs:
         run: |
           cd dashboard-ui
           echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin
-          docker build -t erxes/erxes-dashboard-front:${GITHUB_REF#refs/tags/} -f Dockerfile .
+          docker build -t erxes/erxes-dashboard-front:${GITHUB_REF#refs/tags/} -t latest -f Dockerfile .
           docker push erxes/erxes-dashboard-front:${GITHUB_REF#refs/tags/}
           docker push erxes/erxes-dashboard-front:latest
 
@@ -259,7 +259,7 @@ jobs:
         run: |
           cd dashboard-api
           echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin
-          docker build -t erxes/erxes-dashboard-api:${GITHUB_REF#refs/tags/} -f Dockerfile .
+          docker build -t erxes/erxes-dashboard-api:${GITHUB_REF#refs/tags/} -t latest -f Dockerfile .
           docker push erxes/erxes-dashboard-api:${GITHUB_REF#refs/tags/}
           docker push erxes/erxes-dashboard-api:latest
 
