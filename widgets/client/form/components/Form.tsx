@@ -1,7 +1,12 @@
 import * as React from 'react';
 import { AppConsumer } from '../../messenger/containers/AppContext';
 import { IEmailParams, IIntegration } from '../../types';
-import { __, checkLogicFulfilled, fixErrorMessage, LogicParams } from '../../utils';
+import {
+  __,
+  checkLogicFulfilled,
+  fixErrorMessage,
+  LogicParams
+} from '../../utils';
 import { connection } from '../connection';
 import {
   FieldValue,
@@ -30,18 +35,31 @@ type Props = {
 
 type State = {
   doc: IFormDoc;
+  currentPage: number;
 };
 
 class Form extends React.Component<Props, State> {
   constructor(props: Props) {
     super(props);
 
-    this.state = { doc: this.resetDocState() };
+    this.state = { doc: this.resetDocState(), currentPage: 1 };
   }
 
   componentDidMount() {
     if (this.props.setHeight) {
       this.props.setHeight();
+    }
+
+    if (this.props.integration.leadData.css) {
+      const head = document.getElementsByTagName('head')[0];
+      const style = document.createElement('style');
+      style.setAttribute('type', 'text/css');
+
+      style.appendChild(
+        document.createTextNode(this.props.integration.leadData.css)
+      );
+
+      head.appendChild(style);
     }
   }
 
@@ -97,7 +115,50 @@ class Form extends React.Component<Props, State> {
   };
 
   onSubmit = () => {
-    this.props.onSubmit(this.state.doc);
+    const doc: any = {};
+
+    for (const key of Object.keys(this.state.doc)) {
+      const field = this.state.doc[key];
+
+      doc[key] = field;
+
+      if (field.type === 'multiSelect' || field.type === 'check') {
+        doc[key] = {
+          ...field,
+          value: String(field.value).replace(new RegExp(',,', 'g'), ', ')
+        };
+      }
+    }
+
+    this.props.onSubmit(doc);
+  };
+
+  canChangePage = () => {
+    const fields = this.getCurrentFields();
+
+    const requiredFields = fields.filter(f => f.isRequired);
+
+    for (const field of requiredFields) {
+      const value = this.state.doc[field._id].value;
+
+      if (!value) {
+        return false;
+      }
+    }
+
+    return true;
+  };
+
+  onNextClick = () => {
+    if (this.canChangePage()) {
+      this.setState({ currentPage: this.state.currentPage + 1 });
+    } else {
+      alert(__('Please fill out required fields'));
+    }
+  };
+
+  onbackClick = () => {
+    this.setState({ currentPage: this.state.currentPage - 1 });
   };
 
   resetDocState() {
@@ -105,15 +166,19 @@ class Form extends React.Component<Props, State> {
     const doc: any = {};
 
     form.fields.forEach(field => {
-
       let isHidden = false;
-      if (field.logicAction && field.logicAction === 'show' && field.logics && field.logics.length > 0) {
+      if (
+        field.logicAction &&
+        field.logicAction === 'show' &&
+        field.logics &&
+        field.logics.length > 0
+      ) {
         isHidden = true;
       }
 
       let value = '';
 
-      if (field.type === 'html'){
+      if (field.type === 'html') {
         value = field.content || '';
       }
 
@@ -127,6 +192,17 @@ class Form extends React.Component<Props, State> {
     });
 
     return doc;
+  }
+
+  getCurrentFields() {
+    return this.props.form.fields.filter(f => {
+      const pageNumber = f.pageNumber || 1;
+      if (pageNumber === this.state.currentPage) {
+        return f;
+      }
+
+      return null;
+    });
   }
 
   hideField(id: string) {
@@ -159,9 +235,36 @@ class Form extends React.Component<Props, State> {
     return <h4>{title}</h4>;
   }
 
+  renderProgress() {
+    const numberOfPages = this.props.form.numberOfPages || 1;
+    const { currentPage } = this.state;
+
+    if (numberOfPages === 1) {
+      return null;
+    }
+
+    const percentage = ((currentPage / numberOfPages) * 100).toFixed(1);
+
+    return (
+      <div
+        style={{
+          background: this.props.color,
+          opacity: 0.7,
+          height: '13px',
+          width: `${percentage}%`
+        }}
+      >
+        <div
+          style={{ textAlign: 'center', color: 'white', fontSize: 10 }}
+        >{`${percentage}%`}</div>
+      </div>
+    );
+  }
+
   renderFields() {
-    const { form, currentStatus } = this.props;
-    const { fields } = form;
+    const { currentStatus } = this.props;
+
+    const fields = this.getCurrentFields();
 
     const errors = currentStatus.errors || [];
     const nonFieldError = errors.find(error => !error.fieldId);
@@ -173,35 +276,44 @@ class Form extends React.Component<Props, State> {
 
       if (field.logics && field.logics.length > 0) {
         const logics: LogicParams[] = field.logics.map(logic => {
-          const { validation, value, type } = this.state.doc[logic.fieldId]
+          const { validation, value, type } = this.state.doc[logic.fieldId];
 
-          return { fieldId: logic.fieldId, operator: logic.logicOperator, logicValue: logic.logicValue, fieldValue: value, validation, type }
-        })
+          return {
+            fieldId: logic.fieldId,
+            operator: logic.logicOperator,
+            logicValue: logic.logicValue,
+            fieldValue: value,
+            validation,
+            type
+          };
+        });
 
-        const isLogicsFulfilled = checkLogicFulfilled(logics)
+        const isLogicsFulfilled = checkLogicFulfilled(logics);
 
         if (field.logicAction && field.logicAction === 'show') {
           if (!isLogicsFulfilled) {
-            this.hideField(field._id)
+            this.hideField(field._id);
             return null;
           }
         }
 
         if (field.logicAction && field.logicAction === 'hide') {
           if (isLogicsFulfilled) {
-            this.hideField(field._id)
+            this.hideField(field._id);
             return null;
           }
         }
       }
 
-      this.showField(field._id)
+      this.showField(field._id);
+
       return (
         <Field
           key={field._id}
           field={field}
           error={fieldError}
           onChange={this.onFieldValueChange}
+          value={this.state.doc[field._id].value || ''}
         />
       );
     });
@@ -216,12 +328,73 @@ class Form extends React.Component<Props, State> {
     );
   }
 
+  renderButtons() {
+    const { currentPage } = this.state;
+    const { form, isSubmitting, color } = this.props;
+    const numberOfPages = form.numberOfPages || 1;
+
+    const button = (
+      title: any,
+      action: React.MouseEventHandler<HTMLButtonElement>,
+      disabled?: boolean
+    ) => {
+      return (
+        <button
+          style={{ background: color, margin: '5px' }}
+          type="button"
+          onClick={action}
+          className={`erxes-button btn-block ${isSubmitting ? 'disabled' : ''}`}
+          disabled={disabled}
+        >
+          {title}
+        </button>
+      );
+    };
+
+    if (numberOfPages === 1) {
+      return button(
+        isSubmitting ? __('Loading ...') : form.buttonText || __('Send'),
+        this.onSubmit,
+        isSubmitting
+      );
+    }
+
+    if (currentPage === numberOfPages) {
+      return (
+        <div style={{ width: '100%' }}>
+          <div style={{ display: 'flex' }}>
+            {button(__('Back'), this.onbackClick, isSubmitting)}
+            {button(
+              isSubmitting ? __('Loading ...') : form.buttonText || __('Send'),
+              this.onSubmit,
+              isSubmitting
+            )}
+          </div>
+        </div>
+      );
+    }
+
+    if (currentPage === 1 && numberOfPages > 1) {
+      return button(__('Next'), this.onNextClick, isSubmitting);
+    }
+
+    return (
+      <div style={{ width: '100%' }}>
+        <div style={{ display: 'flex' }}>
+          {button(__('Back'), this.onbackClick, isSubmitting)}
+          {button(__('Next'), this.onNextClick, isSubmitting)}
+        </div>
+      </div>
+    );
+  }
+
   renderForm() {
     const { form, integration, color, isSubmitting, extraContent } = this.props;
 
     return (
       <div className="erxes-form">
         {this.renderHead(form.title || integration.name)}
+        {this.renderProgress()}
         <div className="erxes-form-content">
           <div className="erxes-description">{form.description}</div>
 
@@ -229,20 +402,9 @@ class Form extends React.Component<Props, State> {
             <div dangerouslySetInnerHTML={{ __html: extraContent }} />
           ) : null}
 
-          <div className="erxes-form-fields">
-            {this.renderFields()}
-          </div>
+          <div className="erxes-form-fields">{this.renderFields()}</div>
 
-          <button
-            style={{ background: color }}
-            type="button"
-            onClick={this.onSubmit}
-            className={`erxes-button btn-block ${isSubmitting ? 'disabled' : ''
-              }`}
-            disabled={isSubmitting}
-          >
-            {isSubmitting ? __('Loading ...') : form.buttonText || __('Send')}
-          </button>
+          {this.renderButtons()}
         </div>
       </div>
     );
@@ -283,7 +445,8 @@ class Form extends React.Component<Props, State> {
         adminEmailTitle,
         adminEmailContent,
         thankTitle,
-        thankContent
+        thankContent,
+        attachments
       } = integration.leadData;
 
       // redirect to some url
@@ -298,7 +461,7 @@ class Form extends React.Component<Props, State> {
         );
 
         if (emailField) {
-          const email = this.state.doc[emailField._id].value as string;
+          const email = doc[emailField._id].value as string;
 
           // send email to user
           if (email && fromEmail && userEmailTitle && userEmailContent) {
@@ -308,6 +471,7 @@ class Form extends React.Component<Props, State> {
               title: userEmailTitle,
               content: userEmailContent,
               formId: connection.data.form._id,
+              attachments
             });
           }
         }
@@ -320,6 +484,7 @@ class Form extends React.Component<Props, State> {
             title: adminEmailTitle,
             content: adminEmailContent,
             formId: connection.data.form._id,
+            attachments
           });
         }
       } // end successAction = "email"

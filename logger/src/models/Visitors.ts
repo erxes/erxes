@@ -94,7 +94,9 @@ export const loadVisitorClass = () => {
       const visitor = await Visitors.findOne({ visitorId: doc.visitorId });
 
       if (visitor) {
-        return Visitors.findOneAndUpdate({ visitorId: doc.visitorId }, doc);
+        await Visitors.updateOne({ _id: visitor._id }, { $set: doc });
+
+        return Visitors.findOne({ visitorId: doc.visitorId });
       }
 
       return Visitors.create({

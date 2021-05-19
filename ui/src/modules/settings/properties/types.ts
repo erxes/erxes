@@ -38,6 +38,13 @@ export interface IField {
   logics?: IFieldLogic[];
   logicAction?: string;
   groupName?: string;
+  pageNumber?: number;
+}
+
+export interface IBoardSelectItem {
+  _id?: string;
+  boardId: string;
+  pipelineIds: string[];
 }
 
 export interface IFieldGroup {
@@ -52,6 +59,7 @@ export interface IFieldGroup {
   fields: IField[];
   lastUpdatedUserId: string;
   lastUpdatedUser: IUser;
+  boardsPipelines?: IBoardSelectItem[];
 }
 
 export interface IContentTypeFields {

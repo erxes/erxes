@@ -433,9 +433,21 @@ export const loadClass = () => {
           return null;
         }
 
-        const messages = await ConversationMessages.find({
-          conversationId: prevMessage.conversationId
-        });
+        let messages: IMessageDocument[] = [];
+
+        const conversationId = prevMessage.conversationId;
+
+        if (isUsingElk()) {
+          messages = await findElk('conversation_messages', {
+            match: {
+              conversationId
+            }
+          });
+        } else {
+          messages = await ConversationMessages.find({
+            conversationId
+          });
+        }
 
         // leave conversations with responses alone
         if (messages.length > 1) {

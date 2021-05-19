@@ -1431,9 +1431,9 @@ describe('lead', () => {
       type: 'pronoun'
     });
 
-    const doNotDisturbField = await fieldFactory({
+    const subscribedField = await fieldFactory({
       ...params,
-      type: 'doNotDisturb'
+      type: 'isSubscribed'
     });
 
     const hasAuthorityField = await fieldFactory({
@@ -1538,7 +1538,7 @@ describe('lead', () => {
           { _id: pronounField._id, type: 'pronoun', value: 'Male' },
           { _id: pronounField1._id, type: 'pronoun', value: 'Female' },
           { _id: pronounField2._id, type: 'pronoun', value: 'Not applicable' },
-          { _id: doNotDisturbField._id, type: 'doNotDisturb', value: 'No' },
+          { _id: subscribedField._id, type: 'isSubscribed', value: 'Yes' },
           { _id: hasAuthorityField._id, type: 'hasAuthority', value: 'No' },
           {
             _id: birthDateField._id,
@@ -1611,7 +1611,15 @@ describe('lead', () => {
       title: 'Thank you for submitting.',
       content: 'We have received your request',
       customerId: customer._id,
-      formId: form._id
+      formId: form._id,
+      attachments: [
+        {
+          name: 'name',
+          url: 'url',
+          type: 'type',
+          size: 100
+        }
+      ]
     };
 
     const response = await widgetMutations.widgetsSendEmail(

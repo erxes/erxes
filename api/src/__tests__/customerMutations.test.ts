@@ -26,7 +26,7 @@ const args = {
   leadStatus: 'new',
   hasAuthority: 'No',
   description: faker.random.word(),
-  doNotDisturb: 'Yes',
+  isSubscribed: 'No',
   links: {
     linkedIn: 'linkedIn',
     twitter: 'twitter',
@@ -50,7 +50,7 @@ const checkCustomer = src => {
   expect(src.leadStatus).toBe(args.leadStatus);
   expect(src.hasAuthority).toBe(args.hasAuthority);
   expect(src.description).toBe(args.description);
-  expect(src.doNotDisturb).toBe(args.doNotDisturb);
+  expect(src.isSubscribed).toBe(args.isSubscribed);
   expect(src.links).toEqual(args.links);
 };
 
@@ -73,7 +73,7 @@ describe('Customers mutations', () => {
     $leadStatus: String
     $hasAuthority: String
     $description: String
-    $doNotDisturb: String
+    $isSubscribed: String
     $links: JSON
     $customFieldsData: JSON
   `;
@@ -91,7 +91,7 @@ describe('Customers mutations', () => {
     leadStatus: $leadStatus
     hasAuthority: $hasAuthority
     description: $description
-    doNotDisturb: $doNotDisturb
+    isSubscribed: $isSubscribed
     links: $links
     customFieldsData: $customFieldsData
   `;
@@ -133,7 +133,7 @@ describe('Customers mutations', () => {
           leadStatus
           hasAuthority
           description
-          doNotDisturb
+          isSubscribed
           links
           customFieldsData
         }
@@ -176,7 +176,7 @@ describe('Customers mutations', () => {
           leadStatus
           hasAuthority
           description
-          doNotDisturb
+          isSubscribed
           links
           customFieldsData
         }

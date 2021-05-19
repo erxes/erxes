@@ -1,4 +1,4 @@
-import { Boards, Pipelines, Stages } from '../../../db/models';
+import { Boards, FieldsGroups, Pipelines, Stages } from '../../../db/models';
 import { bulkUpdateOrders, getCollection } from '../../../db/models/boardUtils';
 import {
   IBoard,
@@ -82,6 +82,17 @@ const boardMutations = {
     await checkPermission(board.type, user, 'boardsRemove');
 
     const removed = await Boards.removeBoard(_id);
+
+    const relatedFieldsGroups = await FieldsGroups.find({
+      boardIds: board._id
+    });
+
+    for (const fieldGroup of relatedFieldsGroups) {
+      const boardIds = fieldGroup.boardIds || [];
+      fieldGroup.boardIds = boardIds.filter(e => e !== board._id);
+
+      await FieldsGroups.updateGroup(fieldGroup._id, fieldGroup);
+    }
 
     await putDeleteLog({ type: `${board.type}Boards`, object: board }, user);
 
@@ -171,6 +182,17 @@ const boardMutations = {
     await checkPermission(pipeline.type, user, 'pipelinesRemove');
 
     const removed = await Pipelines.removePipeline(_id);
+
+    const relatedFieldsGroups = await FieldsGroups.find({
+      pipelineIds: pipeline._id
+    });
+
+    for (const fieldGroup of relatedFieldsGroups) {
+      const pipelineIds = fieldGroup.pipelineIds || [];
+      fieldGroup.pipelineIds = pipelineIds.filter(e => e !== pipeline._id);
+
+      await FieldsGroups.updateGroup(fieldGroup._id, fieldGroup);
+    }
 
     await putDeleteLog(
       { type: `${pipeline.type}Pipelines`, object: pipeline },

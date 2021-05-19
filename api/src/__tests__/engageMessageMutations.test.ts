@@ -749,18 +749,18 @@ describe('engage message mutation tests', () => {
   });
 
   test('Handle engage unsubscribe', async () => {
-    const customer = await customerFactory({ doNotDisturb: 'No' });
-    const user = await userFactory({ doNotDisturb: 'No' });
+    const customer = await customerFactory({ isSubscribed: 'Yes' });
+    const user = await userFactory({ isSubscribed: 'Yes' });
 
     await handleUnsubscription({ cid: customer._id, uid: user._id });
 
     const updatedCustomer = await Customers.getCustomer(customer._id);
 
-    expect(updatedCustomer.doNotDisturb).toBe('Yes');
+    expect(updatedCustomer.isSubscribed).toBe('No');
 
     const updatedUser = await Users.getUser(user._id);
 
-    expect(updatedUser.doNotDisturb).toBe('Yes');
+    expect(updatedUser.isSubscribed).toBe('No');
   });
 
   test('configSave', async () => {

@@ -2,11 +2,13 @@ import * as faker from 'faker';
 import * as sinon from 'sinon';
 import { graphqlRequest } from '../db/connection';
 import {
+  boardFactory,
   brandFactory,
   customerFactory,
   fieldFactory,
   fieldGroupFactory,
   integrationFactory,
+  pipelineFactory,
   usersGroupFactory
 } from '../db/factories';
 import { Companies, Customers, Fields, FieldsGroups } from '../db/models';
@@ -293,6 +295,63 @@ describe('fieldQueries', () => {
     });
 
     expect(responses.length).toBe(1);
+  });
+
+  test('BoardItem Field groups', async () => {
+    const board = await boardFactory({ type: 'task' });
+    const board2 = await boardFactory({ type: 'task' });
+    const pipeline = await pipelineFactory({ boardId: board._id });
+
+    const fieldGroupCommonFields = {
+      contentType: 'task',
+      isDefinedByErxes: false
+    };
+
+    await fieldGroupFactory({
+      ...fieldGroupCommonFields,
+      order: 1,
+      boardIds: [board._id],
+      pipelineIds: [pipeline._id]
+    });
+    await fieldGroupFactory({
+      ...fieldGroupCommonFields,
+      order: 2,
+      boardIds: [board._id]
+    });
+
+    await fieldGroupFactory({
+      ...fieldGroupCommonFields,
+      order: 3
+    });
+
+    await fieldGroupFactory({
+      ...fieldGroupCommonFields,
+      order: 4,
+      boardIds: [board2._id]
+    });
+
+    const qry = `
+      query fieldsGroups($contentType: String, $boardId: String, $pipelineId: String) {
+        fieldsGroups(contentType: $contentType, boardId: $boardId, pipelineId: $pipelineId) {
+          _id
+          lastUpdatedUser {
+            _id
+          }
+          order
+          fields {
+            _id
+          }
+        }
+      }
+    `;
+
+    const responses = await graphqlRequest(qry, 'fieldsGroups', {
+      contentType: 'task',
+      boardId: board._id,
+      pipelineId: pipeline._id
+    });
+
+    expect(responses.length).toBe(3);
   });
 
   test('Fields query with isVisible filter', async () => {

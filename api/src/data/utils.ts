@@ -398,6 +398,15 @@ export const readFileRequest = async (key: string): Promise<any> => {
         },
         (error, response) => {
           if (error) {
+            if (
+              error.code === 'NoSuchKey' &&
+              error.message.includes('key does not exist')
+            ) {
+              debugBase(
+                `Error occurred when fetching s3 file with key: "${key}"`
+              );
+            }
+
             return reject(error);
           }
 
@@ -887,11 +896,11 @@ export const handleUnsubscription = async (query: {
   const { cid, uid } = query;
 
   if (cid) {
-    await Customers.updateOne({ _id: cid }, { $set: { doNotDisturb: 'Yes' } });
+    await Customers.updateOne({ _id: cid }, { $set: { isSubscribed: 'No' } });
   }
 
   if (uid) {
-    await Users.updateOne({ _id: uid }, { $set: { doNotDisturb: 'Yes' } });
+    await Users.updateOne({ _id: uid }, { $set: { isSubscribed: 'No' } });
   }
 };
 
@@ -1048,8 +1057,8 @@ export const findCustomer = async doc => {
     });
   }
 
-  if (!customer && doc.customerPrimaryPhone) {
-    customer = await Customers.findOne({ code: doc.customerPrimaryPhone });
+  if (!customer && doc.customerCode) {
+    customer = await Customers.findOne({ code: doc.customerCode });
   }
 
   return customer;

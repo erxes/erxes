@@ -134,6 +134,7 @@ export const mutations = `
     content: String
     customerId: String
     formId: String
+    attachments: [AttachmentInput]
   ): String
 
   widgetGetBotInitialMessage(integrationId: String): JSON

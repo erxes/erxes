@@ -17,6 +17,7 @@ export const types = `
     createdUserId: String
     createdUser: User
     createdDate: Date
+    numberOfPages: Int
 
     fields: [Field]
   }
@@ -26,7 +27,8 @@ const commonFields = `
   title: String,
   description: String,
   buttonText: String,
-  type: String!
+  type: String!,
+  numberOfPages: Int
 `;
 
 const commonFormSubmissionFields = `

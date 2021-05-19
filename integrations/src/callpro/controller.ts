@@ -97,6 +97,13 @@ const init = async app => {
         throw new Error(message);
       }
 
+      if (!numberTo) {
+        const message = `Sender phone number (numberTo) not found`;
+
+        debugCallPro(message);
+        throw new Error(message);
+      }
+
       const integration = await Integrations.findOne({
         phoneNumber: numberTo
       }).lean();

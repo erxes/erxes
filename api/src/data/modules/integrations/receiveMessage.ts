@@ -175,9 +175,9 @@ export const receiveIntegrationsNotification = async msg => {
 export const receiveEngagesNotification = async msg => {
   const { action, data } = msg;
 
-  if (action === 'setDoNotDisturb') {
+  if (action === 'setSubscribed') {
     const { customerId, status, customerIds = [] } = data;
-    const update: any = { doNotDisturb: 'Yes' };
+    const update: any = { isSubscribed: 'No' };
 
     if (status === AWS_EMAIL_STATUSES.BOUNCE) {
       update.emailValidationStatus = EMAIL_VALIDATION_STATUSES.INVALID;
@@ -210,7 +210,11 @@ export const receiveEngagesNotification = async msg => {
       await EngageMessages.updateOne(
         { _id: campaignId },
         {
-          $set: { totalCustomersCount, validCustomersCount },
+          $set: {
+            totalCustomersCount,
+            validCustomersCount,
+            lastRunAt: new Date()
+          },
           $inc: { runCount: 1 }
         }
       );

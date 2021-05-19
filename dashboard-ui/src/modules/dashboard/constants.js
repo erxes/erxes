@@ -110,6 +110,10 @@ export const dateRanges = [
     value: undefined
   },
   {
+    title: 'Date range',
+    value: undefined
+  },
+  {
     value: 'Today'
   },
   {

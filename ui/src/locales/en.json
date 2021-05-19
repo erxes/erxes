@@ -68,6 +68,7 @@
   "New customer": "New customer",
   "Add company": "Add company",
   "New company": "New company",
+  "Open in new tab": "Open in new tab",
   "Choose which column you see": "Choose which column you see",
   "There is no engage message.": "There is no engage message.",
   "Add Knowledge Base": "Add Knowledge Base",
@@ -869,6 +870,7 @@
   "Choose team members": "Choose team members",
   "erxes Inc": "erxes Inc",
   "Get": "Get",
+  "Download": "Download",
   "Download ios app for free on the App Store": "Download ios app for free on the App Store.",
   "Download android app for free on the Google play": "Download android app for free on the Google play.",
   "Please upgrade your browser to use erxes!": "Please upgrade your browser to use erxes!",
@@ -1546,5 +1548,6 @@
   "There aren’t any integrations at the moment": "There aren’t any integrations at the moment",
   "Submit once": "Submit once",
   "Archive this list?": "This will remove list from the board. To view archived list and bring them back to the board, click 'Menu' > 'Archived Items'. Are you sure",
-  "Archive All Cards in This List?": "This will remove all card list from the board. To view archived list and bring them back to the board, click 'Menu' > 'Archived Items'. Are you sure?"
+  "Archive All Cards in This List?": "This will remove all card list from the board. To view archived list and bring them back to the board, click 'Menu' > 'Archived Items'. Are you sure?",
+  "Add or overwrite default theme styles with your own custom css": "Add or overwrite default theme styles with your own custom css"
 }

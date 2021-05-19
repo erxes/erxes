@@ -27,13 +27,13 @@ module.exports = {
       },
       items: [
         {
-          to: "overview/getting-started/",
+          to: "overview/deployment-overview",
           label: "Documentation",
           position: "left",
         },
         {
           to: "/user/subscription-getting-started",
-          label: "Tutorial",
+          label: "User's guide",
           position: "left",
         },
         {
@@ -70,7 +70,7 @@ module.exports = {
           items: [
             {
               label: "Getting Started",
-              to: "/overview/getting-started/",
+              to: "overview/deployment-overview",
             },
             {
               label: "Installation Guide",

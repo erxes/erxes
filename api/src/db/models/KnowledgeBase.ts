@@ -12,20 +12,16 @@ import {
 } from './definitions/knowledgebase';
 
 export interface IArticleCreate extends IArticle {
-  categoryIds?: string[];
   userId?: string;
   icon?: string;
 }
 
 export interface IArticleModel extends Model<IArticleDocument> {
   getArticle(_id: string): Promise<IArticleDocument>;
-  createDoc(
-    { categoryIds, ...docFields }: IArticleCreate,
-    userId?: string
-  ): Promise<IArticleDocument>;
+  createDoc(fields: IArticleCreate, userId?: string): Promise<IArticleDocument>;
   updateDoc(
     _id: string,
-    { categoryIds, ...docFields }: IArticleCreate,
+    fields: IArticleCreate,
     userId?: string
   ): Promise<IArticleDocument>;
   removeDoc(_id: string): void;
@@ -47,10 +43,7 @@ export const loadArticleClass = () => {
     /**
      * Create KnowledgeBaseArticle document
      */
-    public static async createDoc(
-      { categoryIds, ...docFields }: IArticleCreate,
-      userId?: string
-    ) {
+    public static async createDoc(docFields: IArticleCreate, userId?: string) {
       if (!userId) {
         throw new Error('userId must be supplied');
       }
@@ -62,23 +55,6 @@ export const loadArticleClass = () => {
         modifiedDate: new Date()
       });
 
-      // add new article id to categories's articleIds field
-      if ((categoryIds || []).length > 0) {
-        const categories = await KnowledgeBaseCategories.find({
-          _id: { $in: categoryIds }
-        });
-
-        for (const category of categories) {
-          const articleIds = category.toJSON().articleIds || [];
-
-          articleIds.push(article._id.toString());
-
-          category.articleIds = articleIds;
-
-          await category.save();
-        }
-      }
-
       return article;
     }
 
@@ -87,7 +63,7 @@ export const loadArticleClass = () => {
      */
     public static async updateDoc(
       _id: string,
-      { categoryIds, ...docFields }: IArticleCreate,
+      docFields: IArticleCreate,
       userId?: string
     ) {
       if (!userId) {
@@ -106,26 +82,6 @@ export const loadArticleClass = () => {
       );
 
       const article = await KnowledgeBaseArticles.getArticle(_id);
-
-      // add new article id to categories's articleIds field
-      if ((categoryIds || []).length > 0) {
-        const categories = await KnowledgeBaseCategories.find({
-          _id: { $in: categoryIds }
-        });
-
-        for (const category of categories) {
-          const articleIds = category.toJSON().articleIds || [];
-
-          // check previous entry
-          if (!articleIds.includes(article._id)) {
-            articleIds.push(article._id);
-
-            category.articleIds = articleIds;
-
-            await category.save();
-          }
-        }
-      }
 
       return article;
     }
@@ -168,19 +124,18 @@ export const loadArticleClass = () => {
 };
 
 export interface ICategoryCreate extends ICategory {
-  topicIds?: string[];
   userId?: string;
 }
 
 export interface ICategoryModel extends Model<ICategoryDocument> {
   getCategory(_id: string): Promise<ICategoryDocument>;
   createDoc(
-    { topicIds, ...docFields }: ICategoryCreate,
+    docFields: ICategoryCreate,
     userId?: string
   ): Promise<ICategoryDocument>;
   updateDoc(
     _id: string,
-    { topicIds, ...docFields }: ICategoryCreate,
+    docFields: ICategoryCreate,
     userId?: string
   ): Promise<ICategoryDocument>;
   removeDoc(categoryId: string): void;
@@ -201,10 +156,7 @@ export const loadCategoryClass = () => {
     /**
      * Create KnowledgeBaseCategory document
      */
-    public static async createDoc(
-      { topicIds, ...docFields }: ICategoryCreate,
-      userId?: string
-    ) {
+    public static async createDoc(docFields: ICategoryCreate, userId?: string) {
       if (!userId) {
         throw new Error('userId must be supplied');
       }
@@ -216,23 +168,6 @@ export const loadCategoryClass = () => {
         modifiedDate: new Date()
       });
 
-      if ((topicIds || []).length > 0) {
-        const topics = await KnowledgeBaseTopics.find({
-          _id: { $in: topicIds }
-        });
-
-        // add new category to topics's categoryIds field
-        for (const topic of topics) {
-          const categoryIds = topic.toJSON().categoryIds || [];
-
-          categoryIds.push(category._id.toString());
-
-          topic.categoryIds = categoryIds;
-
-          await topic.save();
-        }
-      }
-
       return category;
     }
 
@@ -241,11 +176,27 @@ export const loadCategoryClass = () => {
      */
     public static async updateDoc(
       _id: string,
-      { topicIds, ...docFields }: ICategoryCreate,
+      docFields: ICategoryCreate,
       userId?: string
     ) {
       if (!userId) {
         throw new Error('userId must be supplied');
+      }
+
+      const parentId = docFields.parentCategoryId;
+
+      if (parentId) {
+        if (_id === parentId) {
+          throw new Error('Cannot change category');
+        }
+
+        const childrenCounts = await KnowledgeBaseCategories.countDocuments({
+          parentCategoryId: _id
+        });
+
+        if (childrenCounts > 0) {
+          throw new Error('Cannot change category. this is parent tag');
+        }
       }
 
       await KnowledgeBaseCategories.updateOne(
@@ -261,25 +212,6 @@ export const loadCategoryClass = () => {
 
       const category = await KnowledgeBaseCategories.getCategory(_id);
 
-      if ((topicIds || []).length > 0) {
-        const topics = await KnowledgeBaseTopics.find({
-          _id: { $in: topicIds }
-        });
-
-        for (const topic of topics) {
-          const categoryIds = topic.categoryIds || [];
-
-          // add categoryId to topics's categoryIds list
-          if (!categoryIds.includes(category._id.toString())) {
-            categoryIds.push(category._id.toString());
-
-            topic.categoryIds = categoryIds;
-
-            await topic.save();
-          }
-        }
-      }
-
       return category;
     }
 
@@ -294,7 +226,7 @@ export const loadCategoryClass = () => {
       }
 
       await KnowledgeBaseArticles.deleteMany({
-        _id: { $in: category.articleIds || [] }
+        categoryId: _id
       });
 
       return KnowledgeBaseCategories.deleteOne({ _id });
@@ -382,8 +314,9 @@ export const loadTopicClass = () => {
 
       // remove child items ===========
       const categories = await KnowledgeBaseCategories.find({
-        _id: { $in: topic.categoryIds }
+        topicId: _id
       });
+
       for (const category of categories) {
         await KnowledgeBaseCategories.removeDoc(category._id);
       }

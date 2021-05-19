@@ -43,6 +43,7 @@ export interface IUser {
   deviceTokens?: string[];
   code?: string;
   doNotDisturb?: string;
+  isSubscribed?: string;
   sessionCode?: string;
 }
 
@@ -132,6 +133,12 @@ export const userSchema = schemaHooksWrapper(
       optional: true,
       default: 'No',
       label: 'Do not disturb'
+    }),
+    isSubscribed: field({
+      type: String,
+      optional: true,
+      default: 'Yes',
+      label: 'Subscribed'
     })
   }),
   'erxes_users'

@@ -172,7 +172,7 @@ interface IUserFactoryInput {
   deviceTokens?: string[];
   registrationToken?: string;
   registrationTokenExpires?: Date;
-  doNotDisturb?: string;
+  isSubscribed?: string;
 }
 
 export const userFactory = async (params: IUserFactoryInput = {}) => {
@@ -202,7 +202,7 @@ export const userFactory = async (params: IUserFactoryInput = {}) => {
     groupIds: params.groupIds || [],
     brandIds: params.brandIds,
     deviceTokens: params.deviceTokens,
-    doNotDisturb: params.doNotDisturb,
+    isSubscribed: params.isSubscribed,
     ...(params.code ? { code: params.code } : {})
   });
 
@@ -541,7 +541,7 @@ interface ICustomerFactoryInput {
   primaryPhone?: string;
   emails?: string[];
   phones?: string[];
-  doNotDisturb?: string;
+  isSubscribed?: string;
   leadStatus?: string;
   status?: string;
   customFieldsData?: any;
@@ -920,7 +920,6 @@ export const channelFactory = async (params: IChannelFactoryInput = {}) => {
 interface IKnowledgeBaseTopicFactoryInput {
   userId?: string;
   color?: string;
-  categoryIds?: string[];
   brandId?: string;
 }
 
@@ -944,9 +943,9 @@ export const knowledgeBaseTopicFactory = async (
 };
 
 interface IKnowledgeBaseCategoryFactoryInput {
-  articleIds?: string[];
   userId?: string;
-  topicIds?: string[];
+  topicId?: string;
+  parentCategoryId?: string;
 }
 
 export const knowledgeBaseCategoryFactory = async (
@@ -955,8 +954,9 @@ export const knowledgeBaseCategoryFactory = async (
   const doc = {
     title: faker.random.word(),
     description: faker.lorem.sentence,
-    articleIds: params.articleIds,
-    icon: faker.random.word()
+    icon: faker.random.word(),
+    topicId: params.topicId,
+    parentCategoryId: params.parentCategoryId
   };
 
   return KnowledgeBaseCategories.createDoc(
@@ -966,11 +966,12 @@ export const knowledgeBaseCategoryFactory = async (
 };
 
 interface IKnowledgeBaseArticleCategoryInput {
-  categoryIds?: string[];
   userId?: string;
   reactionChoices?: string[];
   status?: string;
   modifiedBy?: string;
+  topicId?: string;
+  categoryId?: string;
 }
 
 export const knowledgeBaseArticleFactory = async (
@@ -983,7 +984,9 @@ export const knowledgeBaseArticleFactory = async (
     icon: faker.random.word(),
     reactionChoices: params.reactionChoices || ['wow'],
     status: params.status || 'draft',
-    modifiedBy: params.modifiedBy
+    modifiedBy: params.modifiedBy,
+    topicId: params.topicId,
+    categoryId: params.categoryId
   };
 
   return KnowledgeBaseArticles.createDoc(
@@ -1337,6 +1340,8 @@ interface IFieldGroupFactoryInput {
   isDefinedByErxes?: boolean;
   isVisible?: boolean;
   order?: number;
+  boardIds?: [string];
+  pipelineIds?: [string];
 }
 
 export const fieldGroupFactory = async (params: IFieldGroupFactoryInput) => {
@@ -1346,7 +1351,9 @@ export const fieldGroupFactory = async (params: IFieldGroupFactoryInput) => {
     description: faker.random.word(),
     isDefinedByErxes: params.isDefinedByErxes || false,
     isVisible: true,
-    order: params.order || 0
+    order: params.order || 0,
+    boardIds: params.boardIds || [],
+    pipelineIds: params.pipelineIds || []
   };
 
   const groupObj = await FieldsGroups.create(doc);
