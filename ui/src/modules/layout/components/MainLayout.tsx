@@ -75,7 +75,12 @@ class MainLayout extends React.Component<IProps> {
   };
 
   render() {
-    const { currentUser, children, isShownIndicator, history } = this.props;
+    const {
+      currentUser,
+      children,
+      isShownIndicator,
+      history
+    } = this.props;
 
     if (history.location.pathname.startsWith('/videoCall')) {
       return children;
@@ -86,7 +91,9 @@ class MainLayout extends React.Component<IProps> {
         <div id="anti-clickjack" style={{ display: 'none' }} />
         {this.renderBackgroundProccess()}
         <Layout isSqueezed={isShownIndicator}>
-          {currentUser && <Navigation currentUser={currentUser} />}
+          {currentUser && (
+            <Navigation currentUser={currentUser} />
+          )}
 
           <MainWrapper>
             <NotifProvider currentUser={currentUser}>
