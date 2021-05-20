@@ -24,6 +24,7 @@ export interface ICompanyModel extends Model<ICompanyDocument> {
 
   fillSearchText(doc: ICompany): string;
 
+  findActiveCompanies(selector): Promise<ICompanyDocument[]>;
   getCompany(_id: string): Promise<ICompanyDocument>;
 
   createCompany(doc: ICompany, user?: IUserDocument): Promise<ICompanyDocument>;
@@ -120,6 +121,10 @@ export const loadClass = () => {
         company.primaryPhone ||
         'Unknown'
       );
+    }
+
+    public static async findActiveCompanies(selector) {
+      return Companies.find({ ...selector, status: { $ne: 'deleted' } });
     }
 
     /**
