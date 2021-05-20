@@ -190,7 +190,13 @@ const sendEmailOrSms = async (
       engageMessage.scheduleDate &&
       engageMessage.scheduleDate.type === 'minute';
 
-    if (!(engageMessage.kind === MESSAGE_KINDS.AUTO && MINUTELY)) {
+    if (
+      !(
+        engageMessage.kind === MESSAGE_KINDS.AUTO &&
+        MINUTELY &&
+        customerInfos.length === 0
+      )
+    ) {
       await sendQueueMessage({
         action: 'writeLog',
         data: {
