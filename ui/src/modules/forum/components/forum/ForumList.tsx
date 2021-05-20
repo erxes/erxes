@@ -1,10 +1,41 @@
 import Button from 'modules/common/components/Button';
 import ModalTrigger from 'modules/common/components/ModalTrigger';
+import Sidebar from 'modules/layout/components/Sidebar';
+import DataWithLoader from 'modules/common/components/DataWithLoader';
 
 import { TopHeader } from 'modules/common/styles/main';
 import React from 'react';
 
-class ForumList extends React.Component {
+import { ForumForm } from '../../containers/forum';
+import ForumRow from './ForumRow';
+import { IButtonMutateProps } from 'modules/common/types';
+
+import { IForum } from '../../types';
+
+type Props = {
+  forums: IForum[];
+  renderButton: (props: IButtonMutateProps) => JSX.Element;
+  remove: (forumId: string) => void;
+};
+
+class ForumList extends React.Component<Props> {
+  renderTopics() {
+    const { forums, renderButton, remove } = this.props;
+
+    return (
+      <>
+        {forums.map((forum, index) => (
+          <ForumRow
+            key={index}
+            forum={forum}
+            renderButton={renderButton}
+            remove={remove}
+          />
+        ))}
+      </>
+    );
+  }
+
   renderSidebarHeader() {
     const trigger = (
       <Button
@@ -13,17 +44,19 @@ class ForumList extends React.Component {
         uppercase={false}
         icon="plus-circle"
       >
-        Add Knowledge Base
+        Add Forum
       </Button>
     );
 
-    const content = props => <h1>form baina</h1>;
+    const content = props => (
+      <ForumForm {...props} renderButton={this.props.renderButton} />
+    );
 
     return (
       <TopHeader>
         <ModalTrigger
-          title="Add Knowledge Base"
-          autoOpenKey="showKBAddModal"
+          title="Add Forum"
+          autoOpenKey="showForumAddModal"
           trigger={trigger}
           content={content}
           enforceFocus={false}
@@ -33,17 +66,19 @@ class ForumList extends React.Component {
   }
 
   render() {
-    return {
-      /* <Sidebar full={true} wide={true} header={this.renderSidebarHeader()}>
+    const { forums } = this.props;
+
+    return (
+      <Sidebar full={true} wide={true} header={this.renderSidebarHeader()}>
         <DataWithLoader
           data={this.renderTopics()}
           loading={false}
-          count={1}
-          emptyText="There is no knowledge base"
+          count={forums.length}
+          emptyText="There is no forum"
           emptyImage="/images/actions/18.svg"
         />
-      </Sidebar> */
-    };
+      </Sidebar>
+    );
   }
 }
 
