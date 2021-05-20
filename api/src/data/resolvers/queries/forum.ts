@@ -34,13 +34,12 @@ const forumQueries = {
   /**
    * ForumTopics list
    */
-  forumTopics(
-    _root,
-    args: { page: number; perPage: number },
-    { commonQuerySelector }: IContext
-  ) {
-    const topics = paginate(ForumTopics.find(commonQuerySelector), args);
-    return topics.sort({ modifiedDate: -1 });
+  forumTopics(_root, args: { page: number; perPage: number; forumId: string }) {
+    const topics = ForumTopics.find({ forumId: args.forumId }).sort({
+      title: 1
+    });
+
+    return paginate(topics, args);
   },
 
   /**
@@ -53,8 +52,8 @@ const forumQueries = {
   /**
    *  Topic count total
    */
-  forumTopicsTotalCount(_root, _args, { commonQuerySelector }: IContext) {
-    return ForumTopics.find(commonQuerySelector).countDocuments();
+  forumTopicsTotalCount(_root, args: { forumId: string }) {
+    return ForumTopics.find({ forumId: args.forumId }).countDocuments();
   },
 
   /**
@@ -63,14 +62,13 @@ const forumQueries = {
 
   forumDiscussions(
     _root,
-    args: { page: number; perPage: number },
-    { commonQuerySelector }: IContext
+    args: { page: number; perPage: number; topicId: string }
   ) {
-    const discussions = paginate(
-      ForumDiscussions.find(commonQuerySelector),
-      args
-    );
-    return discussions.sort({ modifiedDate: -1 });
+    const discussions = ForumDiscussions.find({ topicId: args.topicId }).sort({
+      createdDate: -1
+    });
+
+    return paginate(discussions, args);
   },
 
   /**
@@ -83,8 +81,8 @@ const forumQueries = {
   /**
    * Discussions total count
    */
-  forumDiscussionsTotalCount(_root, args, { commonQuerySelector }: IContext) {
-    return ForumDiscussions.find(commonQuerySelector).countDocuments();
+  forumDiscussionsTotalCount(_root, args: { topicId: string }) {
+    return ForumDiscussions.find({ topicId: args.topicId }).countDocuments();
   }
 };
 

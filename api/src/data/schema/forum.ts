@@ -14,37 +14,43 @@ export const types = `
         _id: String!
         title: String
         description: String
+        forumId: String
+        discussionIds: [String]
     }
 
     input ForumTopicDoc{
         title: String
         description: String
+        forumId: String!
+        discussionIds: [String]
     }
 
     type ForumDiscussion{
         _id: String!
         title: String
         description: String
+        topicId: String
     }
 
     input ForumDiscussionDoc{
         title: String
         description: String
+        topicId: String!
     }
 `;
 
 export const queries = `
-    forums: [Forum]
+    forums(page: Int perPage: Int): [Forum]
     forumDetail(_id: String!): Forum
     forumsTotalCount: Int
 
-    forumTopics: [ForumTopic]
+    forumTopics(page: Int perPage: Int forumId: String!): [ForumTopic]
     forumTopicDetail(_id: String!): ForumTopic
-    forumTopicsTotalCount:Int
+    forumTopicsTotalCount(forumId: String!):Int
 
-    forumDiscussions: [ForumDiscussion]
+    forumDiscussions(page: Int perPage: Int topicId: String!): [ForumDiscussion]
     forumDiscussionDetail(_id: String!): ForumDiscussion
-    forumDiscussionsTotalCount: Int
+    forumDiscussionsTotalCount(topicId: String!): Int
 `;
 
 export const mutations = `

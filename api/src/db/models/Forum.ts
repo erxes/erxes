@@ -62,6 +62,9 @@ export const loadForumClass = () => {
         throw new Error('Forum not found');
       }
 
+      // remove child topics
+      await ForumTopics.deleteMany({ forumId: { $in: _id } });
+
       return Forums.deleteOne({ _id });
     }
   }
@@ -122,6 +125,9 @@ export const loadTopicClass = () => {
       if (!topic) {
         throw new Error('Forum Topic not found');
       }
+
+      // remove child discussions
+      await ForumDiscussions.deleteMany({ topicId: { $in: _id } });
 
       return ForumTopics.deleteOne({ _id });
     }

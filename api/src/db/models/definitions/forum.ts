@@ -22,6 +22,7 @@ export interface IForumDocument extends ICommonFields, IForum, Document {
 export interface ITopic {
   title?: string;
   description?: string;
+  forumId: string;
 }
 
 export interface ITopicDocument extends ICommonFields, IForum, Document {
@@ -32,6 +33,7 @@ export interface IDiscussion {
   title?: string;
   description?: string;
   tagId?: string;
+  topicId: string;
 }
 
 export interface IDiscussionDocument
@@ -69,6 +71,7 @@ export const topicSchema = new Schema({
   _id: field({ pkey: true }),
   title: field({ type: String, optional: true, label: 'Title' }),
   description: field({ type: String, optional: true, label: 'Description' }),
+  forumId: field({ type: String, label: 'Forum' }),
   ...commonFields
 });
 
@@ -77,5 +80,6 @@ export const discussionSchema = new Schema({
   title: field({ type: String, optional: true, label: 'Title' }),
   description: field({ type: String, optional: true, label: 'Description' }),
   tagId: field({ type: String, optional: true, label: 'Tag' }),
+  topicId: field({ type: String, label: 'Forum' }),
   ...commonFields
 });
