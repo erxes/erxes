@@ -3,11 +3,15 @@ export const types = `
         _id: String!
         title: String
         description: String
+        languageCode: String
+        brandId: String
     }
 
     input ForumDoc {
         title: String
         description: String
+        languageCode: String
+        brandId: String!
     }
 
     type ForumTopic {
