@@ -141,7 +141,7 @@ export default class RightMenu extends React.Component<Props, State> {
       <FilterBox>
         <FormControl
           defaultValue={queryParams.search}
-          placeholder={__('Search ...')}
+          placeholder={__('Search')}
           onKeyPress={this.onSearch}
           autoFocus={true}
         />
@@ -177,7 +177,7 @@ export default class RightMenu extends React.Component<Props, State> {
           onSelect={onSelect}
           filterParams={{ pipelineId: queryParams.pipelineId || '' }}
           multi={true}
-          customOption={{ value: '', label: 'No label chosen' }}
+          customOption={{ value: '', label: __('No label chosen') }}
         />
 
         {extraFilter}

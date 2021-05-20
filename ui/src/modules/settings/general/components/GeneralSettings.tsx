@@ -259,7 +259,7 @@ class GeneralSettings extends React.Component<Props, State> {
           </FormGroup>
         </CollapseContent>
 
-        <CollapseContent title="Google Cloud Storage">
+        <CollapseContent title={__('Google Cloud Storage')}>
           <Info>
             <a
               target="_blank"

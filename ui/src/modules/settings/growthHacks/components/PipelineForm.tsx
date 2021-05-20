@@ -216,7 +216,7 @@ class PipelineForm extends React.Component<Props, State> {
 
     return (
       <FormGroup>
-        <ControlLabel required={true}>Campaign</ControlLabel>
+        <ControlLabel required={true}>{__('Campaign')}</ControlLabel>
         <Select
           placeholder={__('Choose a campaign')}
           value={this.state.boardId}
@@ -284,7 +284,7 @@ class PipelineForm extends React.Component<Props, State> {
           {this.renderBoards()}
 
           <FormGroup>
-            <ControlLabel>Scoring type</ControlLabel>
+            <ControlLabel>{__('Scoring type')}</ControlLabel>
 
             <FlexContent>
               {this.renderBox(
@@ -335,7 +335,7 @@ class PipelineForm extends React.Component<Props, State> {
           <FlexContent>
             <ExpandWrapper>
               <FormGroup>
-                <ControlLabel>Metric</ControlLabel>
+                <ControlLabel>{__('Metric')}</ControlLabel>
                 <Select
                   placeholder={__('Choose a metric')}
                   value={metric}

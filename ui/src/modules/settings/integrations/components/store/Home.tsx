@@ -97,7 +97,7 @@ class Home extends React.Component<Props, State> {
       <Content>
         <Sidebar currentType={queryParams.type} />
         <IntegrationWrapper>
-          <h3>{queryParams.type || 'All Integrations'}</h3>
+          <h3>{queryParams.type || __('All Integrations')}</h3>
           {this.renderIntegrations()}
         </IntegrationWrapper>
       </Content>

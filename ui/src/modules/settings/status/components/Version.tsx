@@ -44,7 +44,7 @@ const Version = (props: Props) => {
                 <p>
                   {__("Please upgrade your erxes. Find out what's ")}{' '}
                   <Link to="/settings/release-info">
-                    <strong>new in erxes</strong>
+                    <strong>{__('new in erxes')}</strong>
                   </Link>
                 </p>
 

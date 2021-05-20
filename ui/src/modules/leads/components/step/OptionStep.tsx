@@ -128,7 +128,7 @@ class OptionStep extends React.Component<Props, {}> {
           </FormGroup>
 
           <FormGroup>
-            <ControlLabel>Submit once</ControlLabel>
+            <ControlLabel>{__('Submit once')}</ControlLabel>
             <Description>
               Turn on to receive a submission from the visitor only once. Once a
               submission is received, the popup will not show.

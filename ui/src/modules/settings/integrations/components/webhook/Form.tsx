@@ -77,14 +77,14 @@ class Webhook extends React.Component<Props> {
         <FormGroup>
           <ControlLabel required={false}>Token</ControlLabel>
           <Description>
-            {
+            {__(
               'This token will be used to sign the incoming payload, so that erxes can verify that the request came from trusted sources.'
-            }
+            )}
           </Description>
           <FormControl
             {...formProps}
             name="Token (otional)"
-            placeholder="Will be generated automatically when left blank"
+            placeholder={__('Will be generated automatically when left blank')}
             required={false}
             autoFocus={false}
           />
@@ -100,7 +100,7 @@ class Webhook extends React.Component<Props> {
           <FormControl
             {...formProps}
             name="origin"
-            placeholder="0.0.0.0 (optional)"
+            placeholder={__('0.0.0.0 (optional)')}
             required={false}
             autoFocus={false}
           />

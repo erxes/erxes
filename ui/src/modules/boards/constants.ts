@@ -1,3 +1,5 @@
+import { __ } from 'erxes-ui/lib/utils/core';
+
 export const STORAGE_BOARD_KEY = 'erxesCurrentBoardId';
 export const STORAGE_PIPELINE_KEY = 'erxesCurrentPipelineId';
 
@@ -48,19 +50,24 @@ export const PIPELINE_UPDATE_STATUSES = {
 };
 
 export const EMPTY_CONTENT_DEAL = {
-  title: 'Getting Started with Sales Pipeline',
-  description: 'Drive leads to a successful close with our Kanban-style boards',
+  title: __('Getting Started with Sales pipeline'),
+  description: __(
+    'Drive leads to a successful close with our Kanban-style boards'
+  ),
   steps: [
     {
-      title: 'Create Boards and Pipelines',
-      description:
-        'Track your entire sales pipeline from one dashboard. You can also restrict access to your sales pipelines.',
+      title: __('Create Boards and Pipelines'),
+      description: __(
+        'Track your entire sales pipeline from one dashboard. You can also restrict access to your sales pipelines.'
+      ),
       url: '/settings/boards/deal',
       urlText: 'Go to Board & Pipeline'
     },
     {
-      title: 'Tip: Choose different views',
-      description: 'Click on “Boards, Calendar, Conversions” to filter deals',
+      title: __('Tip: Choose different views'),
+      description: __(
+        'Click on “Boards, Calendar, Conversions” to filter deals'
+      ),
       icon: 'lightbulb-alt'
     }
   ]

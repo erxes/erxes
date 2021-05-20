@@ -30,7 +30,9 @@ class Home extends React.Component<Props, {}> {
           <HeaderDescription
             icon="/images/actions/34.svg"
             title={__(`Group & Calendar`)}
-            description="Manage your boards and calendars so that its easy to manage incoming pop ups or requests that is adaptable to your team's needs. Add in or delete boards and calendars to keep business development on track and in check."
+            description={__(
+              "Manage your boards and calendars so that its easy to manage incoming pop ups or requests that is adaptable to your team's needs. Add in or delete boards and calendars to keep business development on track and in check."
+            )}
           />
         }
         leftSidebar={<Boards currentBoardId={boardId} />}
