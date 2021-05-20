@@ -42,7 +42,7 @@ class CategoryList extends React.Component<Props> {
           const childrens = groupByParent[category._id] || [];
 
           return (
-            <>
+            <React.Fragment key={category._id}>
               <CategoryRow
                 isActive={currentCategoryId === category._id}
                 articlesCount={articlesCount}
@@ -50,6 +50,7 @@ class CategoryList extends React.Component<Props> {
                 category={category}
                 remove={remove}
                 isParent={childrens.length > 0}
+                key={category._id}
               />
               {childrens &&
                 childrens.map(child => (
@@ -63,7 +64,7 @@ class CategoryList extends React.Component<Props> {
                     isChild={true}
                   />
                 ))}
-            </>
+            </React.Fragment>
           );
         })}
       </Categories>
