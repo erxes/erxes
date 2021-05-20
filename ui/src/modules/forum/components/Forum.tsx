@@ -1,6 +1,7 @@
 import Wrapper from 'modules/layout/components/Wrapper';
-
 import React from 'react';
+
+import { ForumList } from '../containers/forum';
 
 class Forum extends React.Component {
   breadcrumb() {
@@ -15,9 +16,9 @@ class Forum extends React.Component {
         header={
           <Wrapper.Header title={`${'Forum'}`} breadcrumb={this.breadcrumb()} />
         }
-        leftSidebar={<p>leftsidebar</p>}
+        leftSidebar={<ForumList />}
         transparent={true}
-        content={<h1>hld</h1>}
+        content={''}
         /* content={
           <ArticleList
             queryParams={queryParams}
