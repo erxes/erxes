@@ -1,9 +1,14 @@
 import dayjs from 'dayjs';
 import FilePreview from 'modules/common/components/FilePreview';
-import Table from 'modules/common/components/table';
 import React from 'react';
 import { IMessage } from '../../../../../types';
 import { CellWrapper, FormTable } from '../styles';
+import {
+  PreviewTitle,
+  PreviewBody,
+  BodyContent
+} from 'modules/leads/components/step/preview/styles';
+import FieldsPreview from 'modules/forms/components/FieldsPreview';
 
 type Props = {
   message: IMessage;
@@ -62,18 +67,14 @@ export default class FormMessage extends React.Component<Props, {}> {
     console.log(formWidgetData, content);
     return (
       <FormTable>
-        <Table striped={true}>
-          <thead>
-            <tr>
-              <th className="text-center" colSpan={2}>
-                {content}
-              </th>
-            </tr>
-          </thead>
-          <tbody>
-            {formWidgetData.map((data, index) => this.renderRow(data, index))}
-          </tbody>
-        </Table>
+        <PreviewTitle style={{ backgroundColor: '#6569DF' }}>
+          <div>{content}</div>
+        </PreviewTitle>
+        <PreviewBody embedded="embedded">
+          <BodyContent>
+            <FieldsPreview fields={formWidgetData || []} currentPage={1} />
+          </BodyContent>
+        </PreviewBody>
       </FormTable>
     );
   }
