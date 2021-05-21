@@ -59,7 +59,7 @@ export default class FormMessage extends React.Component<Props, {}> {
 
   render() {
     const { formWidgetData, content } = this.props.message;
-
+    console.log(formWidgetData, content);
     return (
       <FormTable>
         <Table striped={true}>
