@@ -5,6 +5,7 @@ import {
   ConversationMessages,
   Conversations,
   Customers,
+  Fields,
   Forms,
   Integrations,
   KnowledgeBaseArticles,
@@ -188,6 +189,10 @@ const widgetMutations = {
       customerId: cachedCustomer._id,
       content
     });
+
+    // const fields = await Fields.find({
+    //   _id: { $in: submissions.map(e => e._id) }
+    // }).lean();
 
     // create message
     const message = await Messages.createMessage({
