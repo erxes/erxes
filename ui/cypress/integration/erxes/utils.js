@@ -45,6 +45,8 @@ export const SignIn = Cypress.Commands.add('signIn', () => {
 
   cy.get('button[id="robot-get-started"]').click();
   cy.get('div[id="robot-feature-close"]').click();
+  cy.get('a[href="/settings/release-info"]').click();
+  cy.get('i[class="icon-times sc-bdVaJa iTROTt"]').click();
 });
 
 export const IsExistElement = Cypress.Commands.add('isExistElement', selector => {

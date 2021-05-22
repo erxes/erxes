@@ -13,10 +13,11 @@ context('Tags', () => {
 
     cy.get('#Settings').click();
     cy.get('#SettingsGeneralSettings').children().eq(4).click();
+    //cy.get('a[href = "/tags/conversation"]').click();
     cy.url().should('include', '/tags/conversation');
 
     cy.get('#AddTagButton').click()
-    cy.get('input[name=name]').type('name')
+    cy.get('input[name=name]').type('nice')
     cy.get('label').contains('Color').parent().children().eq(1).click();
     cy.get('[style="position: relative;"] > input').clear().type('#000000')
     cy.get('label').contains('Color').parent().children().eq(1).click();
