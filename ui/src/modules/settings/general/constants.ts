@@ -16,7 +16,8 @@ export const LANGUAGES = [
   { label: 'Republic of Serbia', value: 'en_RS' },
   { label: 'Dutch', value: 'nl' },
   { label: 'Turkish', value: 'tr_TR' },
-  { label: 'bengali', value: 'Bg' }
+  { label: 'bengali', value: 'Bg' },
+  { label: 'Urdu', value: 'ur' }
 ];
 
 export const SERVICE_TYPES = [
@@ -25,7 +26,7 @@ export const SERVICE_TYPES = [
   { label: 'Google Cloud Service', value: 'GCS' }
 ];
 
-export const FILE_SYSTEM_TYPES = [
+export const FILE_SYSTEM_TYPES = [ 
   { label: 'Public', value: 'true' },
   { label: 'Private', value: 'false' }
 ];
