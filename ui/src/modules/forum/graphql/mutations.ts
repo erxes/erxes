@@ -1,6 +1,6 @@
 const forumParamsDef = `$doc: ForumDoc!`;
-const forumTopicParamsDef = `$doc: KnowledgeBaseCategoryDoc!`;
-const forumDiscussionParamsDef = `$doc: KnowledgeBaseArticleDoc!`;
+const forumTopicParamsDef = `$doc: ForumTopicDoc!`;
+const forumDiscussionParamsDef = `$doc: ForumDiscussionDoc!`;
 
 const commonParams = `doc: $doc`;
 

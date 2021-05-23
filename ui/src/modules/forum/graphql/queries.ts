@@ -1,9 +1,26 @@
+const topicFields = `
+    _id
+    title
+    description
+    forumId
+`;
+
+const discussionFields = `
+    _id
+    title
+    description
+`;
+
 const forums = `
     query forums{
         forums{
             _id
             title
             description
+            
+            topics{
+                ${topicFields}
+            }
         }
     }
 `;
@@ -14,6 +31,10 @@ const forumDetail = `
             _id
             title
             description
+            
+            topics{
+                ${topicFields}
+            }
         }
     }
 `;
@@ -30,6 +51,11 @@ const forumTopics = `
             _id
             title
             description
+            forumId
+
+            discussions{
+                ${discussionFields}
+            }
         }
     }
 `;
@@ -40,13 +66,18 @@ const forumTopicDetail = `
             _id
             title
             description
+            forumId
+
+            discussions{
+                ${discussionFields}
+            }
         }
     }
 `;
 
 const forumTopicTotalCount = `
-    query forumTopicTotalCount{
-        forumTopicTotalCount
+    query forumTopicTotalCount($forumId: String){
+        forumTopicTotalCount(forumId: $forumId)
     }
 `;
 
