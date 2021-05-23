@@ -207,7 +207,7 @@ class AutoAndManualForm extends React.Component<Props, State> {
               icon={isActionLoading ? undefined : 'check-circle'}
               onClick={this.handleSubmit.bind(this, 'live')}
             >
-              Send & Live
+              {__('Send & Live')}
             </Button>
           </>
         );

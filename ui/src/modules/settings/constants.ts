@@ -2,9 +2,9 @@ import { __ } from 'modules/common/utils';
 export const EMPTY_IMPORT_CONTENT = {
   title: __('Getting Started with Import & Export Feature'),
   description: __(
-    'These steps will help you with importing or exporting your data to and from erxes.'
+    'These steps will help you with importing or exporting your data to and from erxes'
   ),
-  urlText: 'Watch our tutorial',
+  urlText: __('Watch our tutorial'),
   url: '/tutorial',
   steps: [
     {
@@ -26,7 +26,7 @@ export const EMPTY_IMPORT_CONTENT = {
     {
       title: __('Choose the data type'),
       description: __(
-        'Make sure you’re on the right page and you’ve selected the right data type Lead, Customer, etc. on the left'
+        'Make sure you’re on the right page and you’ve selected the right data type Lead, Customer, etc on the left'
       ),
       url: 'http://www.erxes.org/user/import#import',
       target: '_blank',
@@ -35,20 +35,20 @@ export const EMPTY_IMPORT_CONTENT = {
     {
       title: __('Download Template'),
       description: __(
-        'Click on “Download Template” for importing. This is an important step, because your column titles need to match with erxes titles.'
+        'Click on Download Template for importing, This is an important step, because your column titles need to match with erxes titles'
       ),
       isOutside: false
     },
     {
       title: __('Clean and prepare your data sheet'),
       description: __(
-        'Make sure the column titles match with the Template. The order of the columns does not need to match.'
+        'Make sure the column titles match with the Template, The order of the columns does not need to match'
       )
     },
     {
       title: __('Export your data'),
       description: __(
-        'You can export your data from the list on the left. If you wish to export your popup forms, go to Customer and click on “Export Popups Data”'
+        'You can export your data from the list on the left, If you wish to export your popup forms, go to Customer and click on Export Popups Data'
       ),
       url: '/settings/importHistories?type=customer',
       isOutside: false,
@@ -61,7 +61,7 @@ export const EMPTY_IMPORT_CONTENT = {
 export const EMPTY_SEGMENT_CONTENT = {
   title: __('Getting Started with Segments'),
   description: __(
-    'The Segments feature helps you to filter, target, and engage a certain group of contacts. The Segments are used in the Contacts and Engage features.'
+    'The Segments feature helps you to filter, target, and engage a certain group of contacts. The Segments are used in the Contacts and Engage features'
   ),
   urlText: __('Watch our tutorial'),
   url: '/tutorial#settingStage',
@@ -86,7 +86,7 @@ export const EMPTY_SEGMENT_CONTENT = {
 export const EMPTY_NEW_SEGMENT_CONTENT = {
   title: __('Setup a new segment'),
   description: __(
-    'There aren’t any filters at the moment. You can create a segment by Property and/or by Events.'
+    'There aren’t any filters at the moment. You can create a segment by Property and/or by events'
   ),
   steps: [
     {
@@ -115,7 +115,7 @@ export const EMPTY_NEW_SEGMENT_CONTENT = {
 export const EMPTY_CONTENT_SCRIPT = {
   title: __('Getting Started with erxes Scripts'),
   description: __(
-    'Avoid duplication of erxes widget scripts on your website, which might disable some of your erxes widgets messenger, popups, etc.'
+    'Avoid duplication of erxes widget scripts on your website, which might disable some of your erxes widgets messenger, popups, etc'
   ),
   steps: [
     {
@@ -159,8 +159,9 @@ export const EMPTY_CONTENT_POPUPS = {
 
 export const EMPTY_CONTENT_ENGAGE = {
   title: __('Getting Started with Engage'),
-  description:
-    'Learn how to use this feature to engage your contacts and drive conversationS.',
+  description: __(
+    'Learn how to use this feature to engage your contacts and drive conversations'
+  ),
   steps: [
     {
       title: 'Email',
@@ -192,7 +193,7 @@ export const EMPTY_CONTENT_ENGAGE = {
 export const EMPTY_CONTENT_KNOWLEDGEBASE = {
   title: __('Getting Started with erxes Knowledgebase'),
   description: __(
-    'Educate your customers and staff by creating help articles to reach higher levels of Satisfaction.'
+    'Educate your customers and staff by creating help articles to reach higher levels of satisfaction'
   ),
   steps: [
     {
@@ -313,7 +314,7 @@ export const EMPTY_CONTENT_DEAL_PIPELINE = {
     {
       title: __('Create your first Sales Board'),
       description: __(
-        'Tip: This could be equivalent to your brands and/or you can organize by year/project/etc.'
+        'Tip: This could be equivalent to your brands and/or you can organize by year/project/etc'
       ),
       url: '/settings/boards/deal#showBoardModal=true',
       urlText: 'Create a Board'
@@ -321,7 +322,7 @@ export const EMPTY_CONTENT_DEAL_PIPELINE = {
     {
       title: __('Start adding Pipelines to the Board'),
       description: __(
-        'Tip: This could be a bit more granular than the Board and/or you can organize by period/project/etc.'
+        'Tip: This could be a bit more granular than the Board and/or you can organize by period/project/etc'
       ),
       urlText: 'Create a Pipeline',
       url: '/settings/boards/deal#showPipelineModal=true'
@@ -330,7 +331,7 @@ export const EMPTY_CONTENT_DEAL_PIPELINE = {
 };
 
 export const EMPTY_CONTENT_TASK_PIPELINE = {
-  title: __('Getting Started with Sales Pipelin'),
+  title: __('Getting Started with Sales Pipeline'),
   description: __(
     'Drive leads to a successful close with our Kanban-style boards'
   ),

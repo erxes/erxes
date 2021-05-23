@@ -50,7 +50,7 @@ export const PIPELINE_UPDATE_STATUSES = {
 };
 
 export const EMPTY_CONTENT_DEAL = {
-  title: __('Getting Started with sales pipeline'),
+  title: __('Getting Started with Sales Pipeline'),
   description: __(
     'Drive leads to a successful close with our Kanban-style boards'
   ),
@@ -58,7 +58,7 @@ export const EMPTY_CONTENT_DEAL = {
     {
       title: __('Create Boards and Pipelines'),
       description: __(
-        'Track your entire sales pipeline from one dashboard. You can also restrict access to your sales pipelines'
+        'Track your entire sales pipeline from one dashboard, you can also restrict access to your sales pipelines'
       ),
       url: '/settings/boards/deal',
       urlText: __('Go to Board & Pipeline')

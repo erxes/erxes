@@ -8,6 +8,7 @@ import { Link } from 'react-router-dom';
 import { BoardItem } from '../../boards/styles';
 import { ActionButtons } from '../../styles';
 import { IBoard } from '../types';
+import { __ } from 'modules/common/utils';
 import BoardForm from './BoardForm';
 
 type Props = {
@@ -44,7 +45,7 @@ class BoardRow extends React.Component<Props, {}> {
     return (
       <ModalTrigger
         size={this.size}
-        title="Edit"
+        title={__('Edit')}
         trigger={editTrigger}
         content={content}
       />
@@ -59,7 +60,7 @@ class BoardRow extends React.Component<Props, {}> {
         <Link to={`?boardId=${board._id}`}>{board.name}</Link>
         <ActionButtons>
           {this.renderEditAction()}
-          <Tip text="Delete" placement="bottom">
+          <Tip text={__('Delete')} placement="bottom">
             <Button btnStyle="link" onClick={this.remove} icon="cancel-1" />
           </Tip>
         </ActionButtons>

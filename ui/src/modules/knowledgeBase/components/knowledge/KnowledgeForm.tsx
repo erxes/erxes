@@ -345,7 +345,7 @@ class KnowledgeForm extends React.Component<Props, State> {
             onClick={closeModal}
             icon="cancel-1"
           >
-            Cancel
+            {__('Cancel')}
           </Button>
           {topic && (
             <Button
@@ -354,7 +354,7 @@ class KnowledgeForm extends React.Component<Props, State> {
               onClick={this.remove}
               icon="cancel-1"
             >
-              Delete
+              {__('Delete')}
             </Button>
           )}
           {renderButton({

@@ -8,6 +8,7 @@ import React from 'react';
 import BrandStep from '../../containers/BrandStep';
 import SegmentStep from '../../containers/SegmentStep';
 import TagStep from '../../containers/TagStep';
+import { __ } from 'modules/common/utils';
 
 type Props = {
   clearState: () => void;
@@ -40,7 +41,7 @@ class MessageTypeStep extends React.Component<Props, State> {
     return (
       <SelectMessageType>
         <FormGroup>
-          <ControlLabel>Choose a message type:</ControlLabel>
+          <ControlLabel>{__('Choose a message type:')}</ControlLabel>
           <FormControl
             id="messageType"
             value={this.state.messageType}

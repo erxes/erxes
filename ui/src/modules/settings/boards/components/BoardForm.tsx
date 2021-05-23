@@ -7,6 +7,7 @@ import ControlLabel from 'modules/common/components/form/Label';
 import { ModalFooter } from 'modules/common/styles/main';
 import { IButtonMutateProps, IFormProps } from 'modules/common/types';
 import React from 'react';
+import { __ } from 'modules/common/utils';
 
 type Props = {
   board: IBoard;
@@ -57,7 +58,7 @@ class BoardForm extends React.Component<Props, {}> {
             icon="cancel-1"
             onClick={closeModal}
           >
-            Cancel
+            {__('Cancel')}
           </Button>
 
           {renderButton({

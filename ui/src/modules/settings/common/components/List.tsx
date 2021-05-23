@@ -46,7 +46,7 @@ class List extends React.Component<Props & ICommonListProps, {}> {
 
     const trigger = (
       <Button btnStyle="success" icon="plus-circle" uppercase={false}>
-        {formTitle}
+        {__('formTitle')}
       </Button>
     );
 

@@ -1,5 +1,6 @@
 import { COLORS } from 'modules/boards/constants';
 import Button from 'modules/common/components/Button';
+import { __ } from 'modules/common/utils';
 import {
   ControlLabel,
   FormControl,
@@ -147,7 +148,7 @@ class FormComponent extends React.Component<IProps, State> {
             icon="cancel-1"
             onClick={this.onRemove}
           >
-            Delete
+            {__('Delete')}
           </Button>
         )}
 

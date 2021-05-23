@@ -189,7 +189,7 @@ class List extends React.Component<IProps, State> {
       content = (
         <EmptyState
           image="/images/actions/8.svg"
-          text="No Brands"
+          text={__('No Brands')}
           size="small"
         />
       );
@@ -214,7 +214,7 @@ class List extends React.Component<IProps, State> {
       actionBarRight = (
         <BarItems>
           <TaggerPopover
-            type="product"
+            type={__('product')}
             successCallback={emptyBulk}
             targets={bulk}
             trigger={tagButton}
@@ -248,7 +248,9 @@ class List extends React.Component<IProps, State> {
           <HeaderDescription
             icon="/images/actions/30.svg"
             title={'Product & Service'}
-            description={`All information and know-how related to your business's products and services are found here. Create and add in unlimited products and servicess so that you and your team members can edit and share.`}
+            description={__(
+              'All information and know-how related to your business products and services are found here, Create and add in unlimited products and servicess so that you and your team members can edit and share'
+            )}
           />
         }
         actionBar={

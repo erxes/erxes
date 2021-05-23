@@ -142,7 +142,7 @@ class ResponseTemplateList extends React.Component<FinalProps, States> {
             icon="/images/actions/24.svg"
             title="Response templates"
             description={__(
-              'Make things easy for your team members and add in ready made response templates. Manage and edit your response templates according to each situation and respond in a timely manner and without the hassle.'
+              'Make things easy for your team members and add in ready made response templates, Manage and edit your response templates according to each situation and respond in a timely manner and without the hassle'
             )}
           />
         }

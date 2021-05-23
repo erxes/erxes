@@ -1,3 +1,4 @@
+import { __ } from 'erxes-ui/lib/utils/core';
 import asyncComponent from 'modules/common/components/AsyncComponent';
 import queryString from 'query-string';
 import React from 'react';
@@ -14,7 +15,8 @@ const CustomersList = asyncComponent(() =>
 );
 
 const contacts = () => {
-  const lastVisited = localStorage.getItem('erxes_contact_url') || 'visitor';
+  const lastVisited =
+    localStorage.getItem('erxes_contact_url') || __('visitor');
 
   if (lastVisited === 'companies') {
     return <Redirect to={lastVisited} />;

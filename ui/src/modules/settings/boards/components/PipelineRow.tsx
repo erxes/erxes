@@ -6,6 +6,7 @@ import { IButtonMutateProps } from 'modules/common/types';
 import React from 'react';
 import PipelineForm from '../containers/PipelineForm';
 import { IOption } from '../types';
+import { __ } from 'modules/common/utils';
 
 type Props = {
   pipeline: IPipeline;
@@ -42,10 +43,10 @@ class PipelineRow extends React.Component<Props, State> {
 
     return (
       <>
-        <Tip text="Edit" placement="top">
+        <Tip text={__('Edit')} placement="top">
           <Button btnStyle="link" onClick={edit} icon="edit-3" />
         </Tip>
-        <Tip text="Delete">
+        <Tip text={__('Delete')}>
           <Button btnStyle="link" onClick={onClick} icon="times-circle" />
         </Tip>
       </>

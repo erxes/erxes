@@ -35,7 +35,7 @@ class Home extends React.Component<Props, {}> {
             icon="/images/actions/34.svg"
             title={`${boardName} & ${pipelineName}`}
             description={__(
-              "Manage your boards and pipelines so that its easy to manage incoming pop ups or requests that is adaptable to your team's needs. Add in or delete boards and pipelines to keep business development on track and in check."
+              "Manage your boards and pipelines so that its easy to manage incoming pop ups or requests that is adaptable to your team's needs, Add in or delete boards and pipelines to keep business development on track and in check"
             )}
           />
         }

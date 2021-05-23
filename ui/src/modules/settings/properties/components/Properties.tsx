@@ -101,13 +101,13 @@ class Properties extends React.Component<Props> {
         </Dropdown.Toggle>
         <Dropdown.Menu>
           <ModalTrigger
-            title="Add Group"
+            title={__('Add Group')}
             trigger={addGroup}
             autoOpenKey={`showProperty${currentType}Modal`}
             content={groupContent}
           />
           <ModalTrigger
-            title="Add Property"
+            title={__('Add Property')}
             trigger={addField}
             content={propertyContent}
           />
@@ -134,7 +134,7 @@ class Properties extends React.Component<Props> {
     const headerDescription = (
       <HeaderDescription
         icon="/images/actions/26.svg"
-        title="Properties"
+        title={__('Properties')}
         description={
           __(
             'The quick view finder helps you to view basic information on both companies and customers alike. Add groups and fields of the exact information you want to see'

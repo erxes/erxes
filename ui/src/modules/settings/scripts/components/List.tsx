@@ -113,7 +113,7 @@ class ScriptList extends React.Component<Props> {
             icon="/images/actions/23.svg"
             title="Scripts"
             description={__(
-              'Script manager allows erxes users to quickly and easily generate and update related scripts for any of their business websites. Set up once and your team will be able to easily display multiple erxes widgets on any of their businesses websites'
+              'Script manager allows erxes users to quickly and easily generate and update related scripts for any of their business websites, Set up once and your team will be able to easily display multiple erxes widgets on any of their businesses websites'
             )}
           />
         }

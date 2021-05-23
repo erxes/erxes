@@ -331,7 +331,7 @@ class UserList extends React.Component<FinalProps, States> {
             icon="/images/actions/21.svg"
             title="Team members"
             description={__(
-              'Your team members are the bolts and nuts of your business. Make sure all the parts are set and ready to go. Here you can see a list of all your team members, you can categorize them into groups, welcome new members and edit their info.'
+              'Your team members are the bolts and nuts of your business, Make sure all the parts are set and ready to go, Here you can see a list of all your team members, you can categorize them into groups, welcome new members and edit their info'
             )}
           />
         }

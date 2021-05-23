@@ -395,11 +395,11 @@ class PipelineForm extends React.Component<Props, State> {
               icon="cancel-1"
               onClick={closeModal}
             >
-              Cancel
+              {__('Cancel')}
             </Button>
 
             {renderButton({
-              name: 'pipeline',
+              name: __('pipeline'),
               values: this.generateDoc(values),
               isSubmitted,
               callback: closeModal,

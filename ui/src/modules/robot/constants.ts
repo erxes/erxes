@@ -1,3 +1,4 @@
+import { __ } from 'modules/common/utils';
 import colors from 'modules/common/styles/colors';
 
 export const FEATURE_DETAILS = {
@@ -84,7 +85,7 @@ export const FEATURE_DETAILS = {
     }
   },
   contacts: {
-    text: 'Contact Management',
+    text: __('Contact Management'),
     icon: 'users',
     color: colors.colorCoreBlue,
     description:
@@ -168,7 +169,7 @@ export const FEATURE_DETAILS = {
     }
   },
   engages: {
-    text: 'Email & SMS Marketing',
+    text: __('Email & SMS Marketing'),
     color: '#e359ae',
     icon: 'megaphone',
     videoUrl: 'https://www.youtube.com/embed/hd07s0oZ83A?autoplay=1',
