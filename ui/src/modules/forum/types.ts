@@ -6,12 +6,17 @@ export interface IForum {
   description: string;
   languageCode: string;
   brandId: string;
+
+  topics: ITopic[];
 }
 
 export interface ITopic {
   _id: string;
   title: string;
   description: string;
+  forumId: string;
+
+  discussions: IDiscussion[];
 }
 
 export interface IDiscussion {
