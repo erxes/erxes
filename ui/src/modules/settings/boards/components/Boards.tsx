@@ -9,6 +9,7 @@ import { SidebarList as List } from 'modules/layout/styles';
 import React from 'react';
 import { IOption } from '../types';
 import BoardForm from './BoardForm';
+import { __ } from 'modules/common/utils';
 import BoardRow from './BoardRow';
 
 type Props = {
@@ -53,7 +54,7 @@ class Boards extends React.Component<Props, {}> {
         uppercase={false}
         block={true}
       >
-        Add New {boardName}
+        {__('Add New')} {boardName}
       </Button>
     );
 
@@ -77,7 +78,9 @@ class Boards extends React.Component<Props, {}> {
     const { loading, boards, options } = this.props;
 
     const boardName =
-      options && options.boardName ? options.boardName.toLowerCase() : 'board';
+      options && options.boardName
+        ? options.boardName.toLowerCase()
+        : __('board');
 
     return (
       <Sidebar wide={true} header={this.renderSidebarHeader()} full={true}>

@@ -8,6 +8,7 @@ import { IActivityLog } from 'modules/activityLogs/types';
 import Tip from 'modules/common/components/Tip';
 import { renderUserFullName } from 'modules/common/utils';
 import React from 'react';
+import { __ } from 'erxes-ui/lib/utils/core';
 
 type Props = {
   activity: IActivityLog;
@@ -28,13 +29,13 @@ class CustomerCreate extends React.Component<Props> {
       );
     }
 
-    if (createdByDetail && createdByDetail.type === 'brand') {
+    if (createdByDetail && createdByDetail.type === __('brand')) {
       const { content } = createdByDetail;
 
       return (
         <span>
           This customer registered to erxes by
-          {content ? ` ${content.name}{__(''s integrations')}` : ''}
+          {content ? ` ${content.name}{__(''s Integrations')}` : ''}
         </span>
       );
     }

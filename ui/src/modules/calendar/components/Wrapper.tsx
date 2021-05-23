@@ -42,7 +42,7 @@ const CalendarContext = React.createContext({} as IStore);
 
 export const CalendarConsumer = CalendarContext.Consumer;
 
-const breadcrumb = [{ title: __('Calendar'), link: '/calendar' }];
+const breadcrumb = [{ title: __('Calendar'), link: __('/calendar') }];
 class CalendarWrapper extends React.Component<Props, State> {
   constructor(props) {
     super(props);
@@ -176,7 +176,9 @@ class CalendarWrapper extends React.Component<Props, State> {
 
     const mainContent = (
       <Wrapper
-        header={<Wrapper.Header title="Calendar" breadcrumb={breadcrumb} />}
+        header={
+          <Wrapper.Header title={__('Calendar')} breadcrumb={breadcrumb} />
+        }
         leftSidebar={
           <Sidebar
             dateOnChange={this.dateOnChange}

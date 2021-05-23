@@ -191,7 +191,7 @@ class Histories extends React.Component<Props & IRouterProps> {
     const { currentType } = this.props;
     const { REACT_APP_API_URL } = getEnv();
 
-    if (currentType === 'product') {
+    if (currentType === __('product')) {
       return null;
     }
 
@@ -219,7 +219,7 @@ class Histories extends React.Component<Props & IRouterProps> {
   };
 
   renderExportPopupsData() {
-    if (this.props.currentType !== 'customer') {
+    if (this.props.currentType !== __('customer')) {
       return null;
     }
 

@@ -82,7 +82,9 @@ const BrandExtendedForm = (props: Props) => {
       <FormGroup>
         <ControlLabel>Email</ControlLabel>
         <p>
-          Set an email address you wish to send your transactional emails from.
+          {__(
+            'Set an email address you wish to send your transactional emails from.'
+          )}
         </p>
 
         <FormControl

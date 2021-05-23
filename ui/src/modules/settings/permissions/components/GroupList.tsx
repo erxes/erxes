@@ -135,7 +135,7 @@ class GroupList extends React.Component<IProps> {
         icon="plus-circle"
         block={true}
       >
-        Create user group
+        {__('Create user group')}
       </Button>
     );
 

@@ -26,7 +26,7 @@ export const EMPTY_IMPORT_CONTENT = {
     {
       title: __('Choose the data type'),
       description: __(
-        'Make sure you’re on the right page and you’ve selected the right data type (Lead, Customer, etc. on the left)'
+        'Make sure you’re on the right page and you’ve selected the right data type Lead, Customer, etc. on the left'
       ),
       url: 'http://www.erxes.org/user/import#import',
       target: '_blank',
@@ -134,8 +134,9 @@ export const EMPTY_CONTENT_SCRIPT = {
 
 export const EMPTY_CONTENT_POPUPS = {
   title: __('Getting Started with erxes Popups'),
-  description:
-    'Never miss a potential lead by capturing them with a customizable Popups & Forms',
+  description: __(
+    'Never miss a potential lead by capturing them with a customizable Popups & Forms'
+  ),
   steps: [
     {
       title: __('Create Popup'),
@@ -158,9 +159,8 @@ export const EMPTY_CONTENT_POPUPS = {
 
 export const EMPTY_CONTENT_ENGAGE = {
   title: __('Getting Started with Engage'),
-  description: __(
-    'Learn how to use this feature to engage your contacts and drive conversations.'
-  ),
+  description:
+    'Learn how to use this feature to engage your contacts and drive conversationS.',
   steps: [
     {
       title: 'Email',
@@ -171,8 +171,9 @@ export const EMPTY_CONTENT_ENGAGE = {
     },
     {
       title: 'Messenger',
-      description:
-        '<strong>Prepare your contacts by Segment / Tag / Brand</strong><br/> For more targeted marketing, create a Segment',
+      description: __(
+        '<strong>Prepare your contacts by Segment / Tag / Brand</strong><br/> For more targeted marketing, create a Segment'
+      ),
       html: true,
       url: '/segments/new/customer',
       urlText: 'Create a Segment',
@@ -191,7 +192,7 @@ export const EMPTY_CONTENT_ENGAGE = {
 export const EMPTY_CONTENT_KNOWLEDGEBASE = {
   title: __('Getting Started with erxes Knowledgebase'),
   description: __(
-    'Educate your customers and staff by creating help articles to reach higher levels of satisfaction.'
+    'Educate your customers and staff by creating help articles to reach higher levels of Satisfaction.'
   ),
   steps: [
     {

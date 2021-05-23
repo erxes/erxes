@@ -7,6 +7,7 @@ import { IButtonMutateProps } from 'modules/common/types';
 import LeftSidebar from 'modules/layout/components/Sidebar';
 import { SidebarList } from 'modules/layout/styles';
 import React from 'react';
+import { __ } from 'modules/common/utils';
 import ChannelForm from '../containers/ChannelForm';
 import { IChannel } from '../types';
 import ChannelRow from './ChannelRow';
@@ -76,7 +77,7 @@ class Sidebar extends React.Component<Props, {}> {
         {!loading && channelsTotalCount === 0 && (
           <EmptyState
             image="/images/actions/18.svg"
-            text="There is no channel"
+            text={__('There is no channel')}
           />
         )}
       </LeftSidebar>

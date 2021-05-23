@@ -204,7 +204,7 @@ class UserInvitationForm extends React.Component<Props, State> {
                     {...formProps}
                     name="email"
                     type="email"
-                    placeholder="name@example.com"
+                    placeholder={__('name@example.com')}
                     value={input.email}
                     autoFocus={i === 0}
                     onChange={this.onChange.bind(this, i, 'email')}
@@ -232,7 +232,7 @@ class UserInvitationForm extends React.Component<Props, State> {
                     name="groupId"
                     componentClass="select"
                     options={[
-                      { value: '', label: 'Choose group ...' },
+                      { value: '', label: __('Choose group ...') },
                       ...this.generateGroupsChoices()
                     ]}
                     onChange={this.onChange.bind(this, i, 'groupId')}

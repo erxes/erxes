@@ -48,7 +48,7 @@ class KnowledgeBase extends React.Component<Props> {
 
     const trigger = (
       <Button btnStyle="primary" uppercase={false} icon="plus-circle">
-        Add Article
+        {__('Add Article')}
       </Button>
     );
 

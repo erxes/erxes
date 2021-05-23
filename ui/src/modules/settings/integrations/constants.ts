@@ -187,8 +187,9 @@ export const INTEGRATIONS = [
   },
   {
     name: 'Gmail',
-    description:
-      'Connect a company email address such as sales@mycompany.com or info@mycompany.com',
+    description: __(
+      'Connect a company email address such as sales@mycompany.com or info@mycompany.com'
+    ),
     inMessenger: false,
     isAvailable: true,
     kind: 'gmail',

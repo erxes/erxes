@@ -46,7 +46,7 @@ class Home extends React.Component<Props, State> {
           integration =>
             integration.name.toLowerCase().indexOf(searchValue) !== -1 &&
             integration.category.indexOf(
-              queryParams.type || 'All integrations'
+              queryParams.type || __('All integrations')
             ) !== -1
         )
       });
@@ -121,7 +121,7 @@ class Home extends React.Component<Props, State> {
     const breadcrumb = [
       { title: __('Settings'), link: '/settings' },
       { title: __('App store') },
-      { title: `${this.props.queryParams.type || 'All integrations'}` }
+      { title: `${this.props.queryParams.type || __('All integrations')}` }
     ];
 
     return (
@@ -135,7 +135,9 @@ class Home extends React.Component<Props, State> {
               <HeaderDescription
                 icon="/images/actions/33.svg"
                 title="App store"
-                description="Set up your integrations and start connecting with your customers. Now you can reach them on wherever platform they feel most comfortable."
+                description={__(
+                  'Set up your integrations and start connecting with your customers. Now you can reach them on wherever platform they feel most comfortable.'
+                )}
               />
             }
             right={this.renderSearch()}

@@ -78,7 +78,7 @@ class Confirmation extends React.Component<{
   render() {
     if (this.props.currentUser) {
       return (
-        <div style={{ width: '50%', margin: 'auto' }}>
+        <div style={{ width: '50%', margin: __('auto') }}>
           {this.renderContent()}
         </div>
       );

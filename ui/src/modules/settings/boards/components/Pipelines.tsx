@@ -187,7 +187,7 @@ class Pipelines extends React.Component<Props, State> {
           icon="plus-circle"
           onClick={this.addPipeline}
         >
-          Add {pipelineName}
+          {__('Add')} {pipelineName}
         </Button>
       </>
     );

@@ -3,6 +3,7 @@ import Button from 'modules/common/components/Button';
 import FormControl from 'modules/common/components/form/Control';
 import Icon from 'modules/common/components/Icon';
 import Tip from 'modules/common/components/Tip';
+import { __ } from 'modules/common/utils';
 import { colors } from 'modules/common/styles';
 import { StageItemContainer } from 'modules/settings/boards/styles';
 import React from 'react';
@@ -31,7 +32,7 @@ class StageItem extends React.Component<Props, {}> {
         <FormControl
           defaultValue={stage.name}
           type="text"
-          placeholder="Stage name"
+          placeholder={__('Stage name')}
           onKeyPress={onKeyPress}
           autoFocus={true}
           name="name"
@@ -39,7 +40,7 @@ class StageItem extends React.Component<Props, {}> {
         />
 
         <Button btnStyle="link" onClick={onBuildClick}>
-          <Tip text="Build a form">
+          <Tip text={__('Build a form')}>
             <Icon
               icon={stage.formId ? 'file-edit-3' : 'file-plus-alt'}
               color={

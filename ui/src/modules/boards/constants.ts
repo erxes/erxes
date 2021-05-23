@@ -44,13 +44,13 @@ export const REMINDER_MINUTES = [
 ];
 
 export const PIPELINE_UPDATE_STATUSES = {
-  START: 'start',
-  END: 'end',
-  NEW_REQUEST: 'newRequest'
+  START: __('start'),
+  END: __('end'),
+  NEW_REQUEST: __('newRequest')
 };
 
 export const EMPTY_CONTENT_DEAL = {
-  title: __('Getting Started with Sales pipeline'),
+  title: __('Getting Started with sales pipeline'),
   description: __(
     'Drive leads to a successful close with our Kanban-style boards'
   ),
@@ -58,10 +58,10 @@ export const EMPTY_CONTENT_DEAL = {
     {
       title: __('Create Boards and Pipelines'),
       description: __(
-        'Track your entire sales pipeline from one dashboard. You can also restrict access to your sales pipelines.'
+        'Track your entire sales pipeline from one dashboard. You can also restrict access to your sales pipelines'
       ),
       url: '/settings/boards/deal',
-      urlText: 'Go to Board & Pipeline'
+      urlText: __('Go to Board & Pipeline')
     },
     {
       title: __('Tip: Choose different views'),
@@ -74,21 +74,24 @@ export const EMPTY_CONTENT_DEAL = {
 };
 
 export const EMPTY_CONTENT_TASK = {
-  title: 'Getting Started with Tasks',
-  description:
-    'Create a more collaborative, self-reliant and cross-linked team with our Kanban-style boards',
+  title: __('Getting Started with Tasks'),
+  description: __(
+    'Create a more collaborative, self-reliant and cross-linked team with our Kanban-style boards'
+  ),
   steps: [
     {
-      title: 'Create your first Task Board',
-      description:
-        'Tip: This could be equivalent to your brands or you can organize by year/project/etc.',
+      title: __('Create your first Task Board'),
+      description: __(
+        'Tip: This could be equivalent to your brands or you can organize by year/project/etc.'
+      ),
       url: '/settings/boards/task',
-      urlText: 'Go to Board & Pipeline'
+      urlText: __('Go to Board & Pipeline')
     },
     {
-      title: 'Tip: Filter',
-      description:
-        'Click on “Show Menu” to filter tasks by assigned team members, customers, date, etc.',
+      title: __('Tip: Filter'),
+      description: __(
+        'Click on “Show Menu” to filter tasks by assigned team members, customers, date, etc.'
+      ),
       icon: 'lightbulb-alt'
     }
   ]

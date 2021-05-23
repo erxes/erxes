@@ -129,7 +129,7 @@ class List extends React.Component<IProps, State> {
 
     const trigger = (
       <Button btnStyle="primary" uppercase={false} icon="plus-circle">
-        Add Product / Service
+        {__('Add Product / Service')}
       </Button>
     );
 
@@ -198,7 +198,7 @@ class List extends React.Component<IProps, State> {
     if (bulk.length > 0) {
       const tagButton = (
         <Button btnStyle="simple" size="small" icon="tag-alt">
-          Tag
+          {__('Tag')}
         </Button>
       );
 
@@ -226,14 +226,14 @@ class List extends React.Component<IProps, State> {
             icon="cancel-1"
             onClick={onClick}
           >
-            Remove
+            {__('Remove')}
           </Button>
         </BarItems>
       );
     }
 
     const actionBarLeft = (
-      <Title>{currentCategory.name || 'All products'}</Title>
+      <Title>{currentCategory.name || __('All products')}</Title>
     );
 
     return (

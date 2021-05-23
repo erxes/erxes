@@ -75,17 +75,17 @@ class Home extends React.Component<Props> {
             <TabTitle className={!state ? 'active' : ''}>{__('All')}</TabTitle>
           </Link>
           <Link to={`/growthHack/home?id=${id}&state=In progress`}>
-            <TabTitle className={state === 'In progress' ? 'active' : ''}>
+            <TabTitle className={state === __('In progress') ? 'active' : ''}>
               {__('In progress')}
             </TabTitle>
           </Link>
           <Link to={`/growthHack/home?id=${id}&state=Not started`}>
-            <TabTitle className={state === 'Not started' ? 'active' : ''}>
+            <TabTitle className={state === __('Not started') ? 'active' : ''}>
               {__('Not started')}
             </TabTitle>
           </Link>
           <Link to={`/growthHack/home?id=${id}&state=Completed`}>
-            <TabTitle className={state === 'Completed' ? 'active' : ''}>
+            <TabTitle className={state === __('Completed') ? 'active' : ''}>
               {__('Completed')}
             </TabTitle>
           </Link>
@@ -110,15 +110,15 @@ class Home extends React.Component<Props> {
     let iconContent = 'eabd';
 
     switch (state) {
-      case 'In progress':
+      case __('In progress'):
         iconContent = 'ecc5';
         break;
 
-      case 'Not started':
+      case __('Not started'):
         iconContent = 'eb46';
         break;
 
-      case 'Completed':
+      case __('Completed'):
         iconContent = 'ecd7';
         break;
     }
@@ -150,7 +150,7 @@ class Home extends React.Component<Props> {
       <Wrapper
         header={
           <Wrapper.Header
-            title={`${'Growth Hacking' || ''}`}
+            title={`${__('Growth Hacking') || ''}`}
             breadcrumb={[{ title: __('Growth Hacking') }]}
           />
         }
