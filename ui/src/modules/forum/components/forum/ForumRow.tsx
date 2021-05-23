@@ -15,6 +15,7 @@ import { DropIcon } from 'modules/common/styles/main';
 import Icon from 'modules/common/components/Icon';
 
 import { ForumForm } from '../../containers/forum';
+import { TopicList, TopicForm } from '../../containers/topic';
 
 type Props = {
   forum: IForum;
@@ -63,7 +64,7 @@ class ForumRow extends React.Component<Props, State> {
   renderManage() {
     const { forum, renderButton, remove } = this.props;
 
-    //  const addCategory = <Dropdown.Item>{__('Add category')}</Dropdown.Item>;
+    const addTopic = <Dropdown.Item>{'Add Topic'}</Dropdown.Item>;
 
     const manageTopic = <Dropdown.Item>{'Edit Forum'}</Dropdown.Item>;
 
@@ -76,13 +77,7 @@ class ForumRow extends React.Component<Props, State> {
       />
     );
 
-    /* const categoryContent = props => (
-      <CategoryForm
-        {...props}
-        topicId={topic._id}
-        refetchTopics={refetchTopics}
-      />
-    ); */
+    const topicContent = props => <TopicForm {...props} forumId={forum._id} />;
 
     return (
       <RowActions>
@@ -92,18 +87,18 @@ class ForumRow extends React.Component<Props, State> {
           </Dropdown.Toggle>
           <Dropdown.Menu>
             <ModalTrigger
-              title="Manage Knowledge Base"
+              title="Manage Forum"
               trigger={manageTopic}
               content={content}
               enforceFocus={false}
               size="lg"
             />
-            {/* <ModalTrigger
-              title="Add Category"
-              trigger={addCategory}
-              autoOpenKey="showKBAddCategoryModal"
-              content={categoryContent}
-            /> */}
+            <ModalTrigger
+              title="Add Topic"
+              trigger={addTopic}
+              autoOpenKey="showForumAddTopicModal"
+              content={topicContent}
+            />
           </Dropdown.Menu>
         </Dropdown>
         <DropIcon onClick={this.toggle} isOpen={this.state.detailed} />
@@ -118,10 +113,12 @@ class ForumRow extends React.Component<Props, State> {
       <ForumsRow>
         <SectionHead>
           <SectionTitle>
-            {forum.title} ({24})<span>{forum.description}</span>
+            {forum.title} ({forum.topics.length})
+            <span>{forum.description}</span>
           </SectionTitle>
           {this.renderManage()}
         </SectionHead>
+        {this.state.detailed && <TopicList forumId={forum._id} />}
       </ForumsRow>
     );
   }
