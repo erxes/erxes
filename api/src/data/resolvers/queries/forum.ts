@@ -34,8 +34,8 @@ const forumQueries = {
   /**
    * ForumTopics list
    */
-  forumTopics(_root, args: { page: number; perPage: number; forumId: string }) {
-    const topics = ForumTopics.find({ forumId: args.forumId }).sort({
+  forumTopics(_root, args: { page: number; perPage: number }) {
+    const topics = ForumTopics.find().sort({
       title: 1
     });
 
