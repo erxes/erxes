@@ -48,6 +48,8 @@ import Task from './tasks';
 import Ticket from './tickets';
 import User from './user';
 import UsersGroup from './usersGroup';
+import Forum from './forum';
+import ForumTopic from './forumTopic';
 
 const resolvers: any = {
   ...customScalars,
@@ -100,7 +102,10 @@ const resolvers: any = {
   GrowthHack,
   CalendarGroup,
   CalendarBoard,
-  Tag
+  Tag,
+
+  Forum,
+  ForumTopic
 };
 
 export default resolvers;
