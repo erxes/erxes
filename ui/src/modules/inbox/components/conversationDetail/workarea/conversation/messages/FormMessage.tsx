@@ -2,13 +2,21 @@ import dayjs from 'dayjs';
 import FilePreview from 'modules/common/components/FilePreview';
 import React from 'react';
 import { IMessage } from '../../../../../types';
-import { CellWrapper, FormTable } from '../styles';
+import {
+  CellWrapper,
+  FormTable,
+  FieldWrapper,
+  FormMessageInput
+} from '../styles';
 import {
   PreviewTitle,
   PreviewBody,
   BodyContent
 } from 'modules/leads/components/step/preview/styles';
-import FieldsPreview from 'modules/forms/components/FieldsPreview';
+import FormGroup from 'modules/common/components/form/Group';
+import ControlLabel from 'modules/common/components/form/Label';
+import { FieldItem } from 'modules/forms/styles';
+import Select from 'react-select-plus';
 
 type Props = {
   message: IMessage;
@@ -62,9 +70,40 @@ export default class FormMessage extends React.Component<Props, {}> {
     );
   }
 
+  renderMultiSelect(value: string) {
+    const selectValues = value.split(',');
+
+    return (
+      <Select
+        value={value}
+        options={selectValues.map(e => ({ value: e, label: e }))}
+        multi={true}
+      />
+    );
+  }
+
+  renderField(field) {
+    return (
+      <FieldWrapper key={field._id} column={field.column}>
+        <FieldItem>
+          <FormGroup>
+            <ControlLabel ignoreTrans={true} required={field.isRequired}>
+              {field.text}
+            </ControlLabel>
+            {field.type === 'multiSelect' ? (
+              this.renderMultiSelect(field.value)
+            ) : (
+              <FormMessageInput>{field.value}</FormMessageInput>
+            )}
+          </FormGroup>
+        </FieldItem>
+      </FieldWrapper>
+    );
+  }
+
   render() {
     const { formWidgetData, content } = this.props.message;
-    console.log(formWidgetData, content);
+
     return (
       <FormTable>
         <PreviewTitle style={{ backgroundColor: '#6569DF' }}>
@@ -72,7 +111,7 @@ export default class FormMessage extends React.Component<Props, {}> {
         </PreviewTitle>
         <PreviewBody embedded="embedded">
           <BodyContent>
-            <FieldsPreview fields={formWidgetData || []} currentPage={1} />
+            {formWidgetData.map(field => this.renderField(field))}
           </BodyContent>
         </PreviewBody>
       </FormTable>
