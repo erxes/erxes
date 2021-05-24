@@ -56,18 +56,7 @@ export default class FormMessage extends React.Component<Props, {}> {
       );
     }
 
-    return data.value;
-  }
-
-  renderRow(data, index: string) {
-    return (
-      <tr key={index}>
-        <td style={{ width: '40%' }}>
-          <b>{data.text}:</b>
-        </td>
-        <td style={{ width: '60%' }}>{this.displayValue(data)}</td>
-      </tr>
-    );
+    return data.value || '-';
   }
 
   renderMultiSelect(value: string) {
@@ -93,7 +82,7 @@ export default class FormMessage extends React.Component<Props, {}> {
             {field.type === 'multiSelect' ? (
               this.renderMultiSelect(field.value)
             ) : (
-              <FormMessageInput>{field.value}</FormMessageInput>
+              <FormMessageInput>{this.displayValue(field)}</FormMessageInput>
             )}
           </FormGroup>
         </FieldItem>
