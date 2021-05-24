@@ -99,15 +99,17 @@ export const EMPTY_NEW_SEGMENT_CONTENT = {
     },
     {
       title: __('Install the Event Tracking script'),
-      description: __(
-        'If you wish to segment by events, i.e actions that are triggered by something your Customer performs on your website or app.'
-      )
+      description:
+        __(
+          'If you wish to segment by events, i.e actions that are triggered by something your Customer performs on your website or app'
+        ) + '.'
     },
     {
       title: __('Create your Segment'),
-      description: __(
-        'Select the property/event you want to filter by, select one of the operators and type in or select the value from the dropdown menu.'
-      )
+      description:
+        __(
+          'Select the property/event you want to filter by, select one of the operators and type in or select the value from the dropdown menu'
+        ) + '.'
     }
   ]
 };
@@ -134,15 +136,15 @@ export const EMPTY_CONTENT_SCRIPT = {
 
 export const EMPTY_CONTENT_POPUPS = {
   title: __('Getting Started with erxes Popups'),
-  description: __(
-    'Never miss a potential lead by capturing them with a customizable Popups & Forms'
-  ),
+  description:
+    __(
+      'Never miss a potential lead by capturing them with a customizable Popups & Forms'
+    ) + '.',
   steps: [
     {
       title: __('Create Popup'),
-      description: __(
-        'Fill out the details and create your popup message or form'
-      ),
+      description:
+        __('Fill out the details and create your popup message or form') + '.',
       url: '/leads/create',
       urlText: 'Create Popup'
     },
