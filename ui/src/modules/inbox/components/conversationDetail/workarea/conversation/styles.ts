@@ -273,8 +273,13 @@ const FormMessageInput = styled.div`
   background: #faf9fb;
   border-radius: 5px;
   font-size: 14px;
+  min-height: 35px;
   overflow-wrap: break-word;
   box-shadow: inset 0 1px 3px 0 rgba(0, 0, 0, 0.07);
+
+  img {
+    max-height: 150px !important;
+  }
 `;
 
 const FieldWrapper = styledTS<{ column?: number }>(styled.div)`
