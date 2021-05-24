@@ -234,7 +234,7 @@ class Lead extends React.Component<Props, State> {
       case 2:
         carousel = isSkip ? 'form' : 'callout';
         break;
-      case 6:
+      case 7:
         carousel = 'success';
         break;
     }
