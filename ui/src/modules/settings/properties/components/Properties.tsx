@@ -137,7 +137,7 @@ class Properties extends React.Component<Props> {
         title={__('Properties')}
         description={
           __(
-            'The quick view finder helps you to view basic information on both companies and customers alike. Add groups and fields of the exact information you want to see'
+            'The quick view finder helps you to view basic information on both companies and customers alike, Add groups and fields of the exact information you want to see'
           ) + '.'
         }
       />
