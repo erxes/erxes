@@ -190,10 +190,6 @@ const widgetMutations = {
       content
     });
 
-    // const fields = await Fields.find({
-    //   _id: { $in: submissions.map(e => e._id) }
-    // }).lean();
-
     // create message
     const message = await Messages.createMessage({
       conversationId: conversation._id,
