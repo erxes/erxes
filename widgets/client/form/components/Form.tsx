@@ -187,7 +187,8 @@ class Form extends React.Component<Props, State> {
         type: field.type,
         validation: field.validation,
         value,
-        isHidden
+        isHidden,
+        column: field.column
       };
     });
 
