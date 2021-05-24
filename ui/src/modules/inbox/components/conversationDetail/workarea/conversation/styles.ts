@@ -265,6 +265,40 @@ const FlexItem = styled.div`
   justify-content: flex-end;
 `;
 
+const FormMessageInput = styled.div`
+  padding: ${dimensions.unitSpacing - 4}px ${dimensions.coreSpacing - 5}px;
+  color: ${colors.textPrimary};
+  border: 1px solid ${colors.colorShadowGray};
+  margin-top: ${dimensions.unitSpacing - 5}px;
+  background: #faf9fb;
+  border-radius: 5px;
+  font-size: 14px;
+  overflow-wrap: break-word;
+  box-shadow: inset 0 1px 3px 0 rgba(0, 0, 0, 0.07);
+`;
+
+const FieldWrapper = styledTS<{ column?: number }>(styled.div)`
+  input, .Select {
+    pointer-events: none;
+    cursor: default;
+
+    .Select-value {
+      padding: 0;
+    }
+
+    .Select-input, .Select-clear-zone, .Select-arrow-zone, .Select-value-icon {
+      display: none !important;
+    }
+  }
+
+${props =>
+  props.column &&
+  css`
+    width: ${100 / props.column}%;
+    display: inline-block;
+  `}
+`;
+
 export {
   MessageItem,
   MessageBody,
@@ -275,5 +309,7 @@ export {
   UserInfo,
   FlexItem,
   CallBox,
-  CellWrapper
+  CellWrapper,
+  FieldWrapper,
+  FormMessageInput
 };
