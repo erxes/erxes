@@ -5,7 +5,6 @@ import {
   ConversationMessages,
   Conversations,
   Customers,
-  Fields,
   Forms,
   Integrations,
   KnowledgeBaseArticles,
