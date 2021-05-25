@@ -1,7 +1,6 @@
 import { ResponseTemplates } from '../../../db/models';
 import { checkPermission, requireLogin } from '../../permissions/wrappers';
 import { IContext } from '../../types';
-import { paginate } from '../../utils';
 
 interface IListParams {
   page: number;
@@ -40,7 +39,7 @@ const responseTemplateQueries = {
   ) {
     const filter = generateFilter(commonQuerySelector, args);
 
-    return paginate(ResponseTemplates.find(filter), args);
+    return ResponseTemplates.find(filter);
   },
 
   /**
