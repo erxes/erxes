@@ -75,15 +75,21 @@ const forumTopicDetail = `
     }
 `;
 
-const forumTopicTotalCount = `
-    query forumTopicTotalCount($forumId: String){
-        forumTopicTotalCount(forumId: $forumId)
+const forumTopicsTotalCount = `
+    query forumTopicsTotalCount($forumId: String){
+        forumTopicsTotalCount(forumId: $forumId)
+    }
+`;
+
+const forumTopicsGetLast = `
+    query forumTopicsGetLast{
+        forumTopicsGetLast
     }
 `;
 
 const forumDiscussions = `
-    query forumDiscussions{
-        forumDiscussions{
+    query forumDiscussions($page: Int $perPage: Int $topicId: String!){
+        forumDiscussions(page: $page perPage: $perPage topicId: $topicId){
             _id
             title
             description
@@ -102,8 +108,8 @@ const forumDiscussionDetail = `
 `;
 
 const forumDiscussionsTotalCount = `
-    query forumDiscussionsTotalCount{
-        forumDiscussionsTotalCount
+    query forumDiscussionsTotalCount($topicId: String!){
+        forumDiscussionsTotalCount(topicId: $topicId)
     }
 `;
 
@@ -113,7 +119,8 @@ export default {
   forumsTotalCount,
   forumTopics,
   forumTopicDetail,
-  forumTopicTotalCount,
+  forumTopicsTotalCount,
+  forumTopicsGetLast,
   forumDiscussions,
   forumDiscussionDetail,
   forumDiscussionsTotalCount
