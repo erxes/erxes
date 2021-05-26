@@ -55,6 +55,7 @@ export const queries = `
     forumTopics(page: Int perPage: Int): [ForumTopic]
     forumTopicDetail(_id: String!): ForumTopic
     forumTopicsTotalCount(forumId: String!):Int
+    forumTopicsGetLast: ForumTopic
 
     forumDiscussions(page: Int perPage: Int topicId: String!): [ForumDiscussion]
     forumDiscussionDetail(_id: String!): ForumDiscussion

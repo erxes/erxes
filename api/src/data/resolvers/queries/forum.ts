@@ -57,6 +57,15 @@ const forumQueries = {
   },
 
   /**
+   * Get last topic
+   */
+
+  forumTopicsGetLast(_root, _args, { commonQuerySelector }: IContext) {
+    return ForumTopics.findOne(commonQuerySelector).sort({
+      createdDate: -1
+    });
+  },
+  /**
    * Discussions List
    */
 
