@@ -7,6 +7,7 @@ type Props = {
   forumTopics: ITopic[];
   forumId: string;
   currentTopicId: string;
+  remove: (topicId: string) => void;
 };
 
 class TopicList extends React.Component<Props> {
@@ -15,7 +16,7 @@ class TopicList extends React.Component<Props> {
   };
 
   render() {
-    const { forumTopics, forumId, currentTopicId } = this.props;
+    const { forumTopics, forumId, currentTopicId, remove } = this.props;
 
     this.generateTopic(forumTopics, forumId);
 
@@ -28,6 +29,7 @@ class TopicList extends React.Component<Props> {
                 key={index}
                 isActive={topic._id === currentTopicId}
                 topic={topic}
+                remove={remove}
               />
             );
           } else {

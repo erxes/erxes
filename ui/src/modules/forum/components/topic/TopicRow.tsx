@@ -13,21 +13,24 @@ import { ITopic } from '../../types';
 type Props = {
   topic: ITopic;
   isActive: boolean;
+  remove: (topicId: string) => void;
 };
 
 class TopicRow extends React.Component<Props> {
   private size;
 
-  /* remove = () => {
+  remove = () => {
     const { remove, topic } = this.props;
-    remove(category._id);
-  }; */
+    remove(topic._id);
+  };
 
   renderEditForm(props) {
     return <TopicForm {...props} />;
   }
 
   renderEditAction = () => {
+    const { topic } = this.props;
+
     const editTrigger = (
       <Button btnStyle="link">
         <Tip text={__('Edit')} placement="bottom">
@@ -36,7 +39,7 @@ class TopicRow extends React.Component<Props> {
       </Button>
     );
     const content = props => {
-      return this.renderEditForm({ ...props });
+      return this.renderEditForm({ ...props, topic });
     };
 
     return (
@@ -61,10 +64,7 @@ class TopicRow extends React.Component<Props> {
         <ActionButtons>
           {this.renderEditAction()}
           <Tip text={__('Delete')} placement="bottom">
-            <Button
-              btnStyle="link"
-              /* onClick={this.remove} */ icon="cancel-1"
-            />
+            <Button btnStyle="link" onClick={this.remove} icon="cancel-1" />
           </Tip>
         </ActionButtons>
       </TopicItem>
