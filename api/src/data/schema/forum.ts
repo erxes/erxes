@@ -4,8 +4,7 @@ export const types = `
         title: String
         description: String
         languageCode: String
-        brandId: String
-
+        brand: Brand
         topics: [ForumTopic]
     }
 
