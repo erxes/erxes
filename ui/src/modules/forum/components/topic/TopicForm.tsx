@@ -6,12 +6,13 @@ import ControlLabel from 'modules/common/components/form/Label';
 import { ModalFooter } from 'modules/common/styles/main';
 import { IButtonMutateProps, IFormProps } from 'modules/common/types';
 import React from 'react';
-import { __ } from 'modules/common/utils';
+import { ITopic } from '../../types';
 
 type Props = {
   closeModal: () => void;
   renderButton: (props: IButtonMutateProps) => JSX.Element;
   forumId: string;
+  topic: ITopic;
 };
 class TopicForm extends React.Component<Props> {
   generateDoc = (values: {
@@ -19,9 +20,13 @@ class TopicForm extends React.Component<Props> {
     title: string;
     description: string;
   }) => {
-    const { forumId } = this.props;
+    const { forumId, topic } = this.props;
 
     const finalValues = values;
+
+    if (topic) {
+      finalValues._id = topic._id;
+    }
 
     return {
       _id: finalValues._id,
@@ -34,8 +39,10 @@ class TopicForm extends React.Component<Props> {
   };
 
   renderContent = (formProps: IFormProps) => {
-    const { closeModal, renderButton } = this.props;
+    const { closeModal, renderButton, topic } = this.props;
     const { values, isSubmitted } = formProps;
+
+    const object = topic || ({} as ITopic);
 
     return (
       <>
@@ -44,14 +51,18 @@ class TopicForm extends React.Component<Props> {
           <FormControl
             {...formProps}
             name="title"
-            defaultValue={''}
+            defaultValue={object.title}
             required={true}
           />
         </FormGroup>
 
         <FormGroup>
           <ControlLabel>Description</ControlLabel>
-          <FormControl {...formProps} name="description" defaultValue={''} />
+          <FormControl
+            {...formProps}
+            name="description"
+            defaultValue={object.description}
+          />
         </FormGroup>
         <ModalFooter>
           <Button
@@ -67,8 +78,8 @@ class TopicForm extends React.Component<Props> {
             name: 'topic',
             values: this.generateDoc(values),
             isSubmitted,
-            callback: closeModal
-            // object: category
+            callback: closeModal,
+            object: topic
           })}
         </ModalFooter>
       </>
