@@ -1,11 +1,12 @@
 import { QueryResponse } from 'modules/common/types';
+import { IBrand } from 'modules/settings/brands/types';
 
 export interface IForum {
   _id: string;
   title: string;
   description: string;
   languageCode: string;
-  brandId: string;
+  brand: IBrand;
 
   topics: ITopic[];
 }
