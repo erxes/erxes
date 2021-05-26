@@ -21,19 +21,7 @@ type Props = {
   remove: (forumId: string) => void;
 };
 
-type State = {
-  brandId: string;
-};
-
-class ForumForm extends React.Component<Props, State> {
-  constructor(props: Props) {
-    super(props);
-
-    this.state = {
-      brandId: ''
-    };
-  }
-
+class ForumForm extends React.Component<Props> {
   generateDoc = (values: {
     _id?: string;
     title: string;
@@ -72,6 +60,10 @@ class ForumForm extends React.Component<Props, State> {
   };
 
   renderFormContent(forum = {} as IForum, formProps: IFormProps) {
+    const { brand } = forum;
+
+    const brandId = brand !== null ? brand._id : '';
+
     return (
       <React.Fragment>
         <FormGroup>
@@ -97,7 +89,7 @@ class ForumForm extends React.Component<Props, State> {
         <FormGroup>
           <SelectBrand
             isRequired={true}
-            defaultValue={forum.brandId}
+            defaultValue={brandId}
             formProps={formProps}
             onChange={this.handleBrandChange}
           />
@@ -133,7 +125,9 @@ class ForumForm extends React.Component<Props, State> {
         {this.renderFormContent(
           forum || {
             title: '',
-            description: ''
+            description: '',
+            languageCode: '',
+            brand: { _id: '' }
           },
           { ...formProps }
         )}

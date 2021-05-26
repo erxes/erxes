@@ -17,9 +17,13 @@ const forums = `
             _id
             title
             description
-            
+            languageCode            
             topics{
                 ${topicFields}
+            }
+            brand{
+                _id
+                name
             }
         }
     }
