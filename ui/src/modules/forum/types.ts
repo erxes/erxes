@@ -68,6 +68,10 @@ export type TopicDetailQueryResponse = {
   forumTopicDetail: ITopic;
 } & QueryResponse;
 
+export type LastTopicQueryResponse = {
+  forumTopicsGetLast: ITopic;
+} & QueryResponse;
+
 // discussions
 
 export type DiscussionsQueryResponse = {

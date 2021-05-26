@@ -10,7 +10,8 @@ import ForumComponent from '../components/Forum';
 import {
   ITopic,
   TopicDetailQueryResponse,
-  DiscussionsTotalCountQueryResponse
+  DiscussionsTotalCountQueryResponse,
+  LastTopicQueryResponse
 } from '../types';
 import { queries } from '../graphql';
 
@@ -78,7 +79,7 @@ type WithCurrentIdProps = {
 };
 
 type WithCurrentIdFinalProps = {
-  lastTopicQuery: any;
+  lastTopicQuery: LastTopicQueryResponse;
 } & WithCurrentIdProps;
 
 class WithCurrentId extends React.Component<WithCurrentIdFinalProps> {

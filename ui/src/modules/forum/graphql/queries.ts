@@ -83,7 +83,9 @@ const forumTopicsTotalCount = `
 
 const forumTopicsGetLast = `
     query forumTopicsGetLast{
-        forumTopicsGetLast
+        forumTopicsGetLast{
+            _id
+        }
     }
 `;
 
