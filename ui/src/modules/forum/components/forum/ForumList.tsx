@@ -16,11 +16,12 @@ type Props = {
   forums: IForum[];
   renderButton: (props: IButtonMutateProps) => JSX.Element;
   remove: (forumId: string) => void;
+  currentTopicId: string;
 };
 
 class ForumList extends React.Component<Props> {
   renderTopics() {
-    const { forums, renderButton, remove } = this.props;
+    const { forums, renderButton, remove, currentTopicId } = this.props;
 
     return (
       <>
@@ -30,6 +31,7 @@ class ForumList extends React.Component<Props> {
             forum={forum}
             renderButton={renderButton}
             remove={remove}
+            currentTopicId={currentTopicId}
           />
         ))}
       </>

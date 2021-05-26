@@ -21,6 +21,7 @@ type Props = {
   forum: IForum;
   renderButton: (props: IButtonMutateProps) => JSX.Element;
   remove: (forumId: string) => void;
+  currentTopicId: string;
 };
 
 type State = {
@@ -107,7 +108,7 @@ class ForumRow extends React.Component<Props, State> {
   }
 
   render() {
-    const { forum } = this.props;
+    const { forum, currentTopicId } = this.props;
 
     return (
       <ForumsRow>
@@ -118,7 +119,9 @@ class ForumRow extends React.Component<Props, State> {
           </SectionTitle>
           {this.renderManage()}
         </SectionHead>
-        {this.state.detailed && <TopicList forumId={forum._id} />}
+        {this.state.detailed && (
+          <TopicList forumId={forum._id} currentTopicId={currentTopicId} />
+        )}
       </ForumsRow>
     );
   }

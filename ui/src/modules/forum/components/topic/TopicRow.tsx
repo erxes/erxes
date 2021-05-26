@@ -12,6 +12,7 @@ import { ITopic } from '../../types';
 
 type Props = {
   topic: ITopic;
+  isActive: boolean;
 };
 
 class TopicRow extends React.Component<Props> {
@@ -49,21 +50,12 @@ class TopicRow extends React.Component<Props> {
   };
 
   render() {
-    const { topic } = this.props;
-
-    const isParent = false;
-    const isActive = true;
-    const isChild = false;
+    const { topic, isActive } = this.props;
 
     return (
       <TopicItem isActive={isActive}>
         <Link to={`?id=${topic._id}`}>
-          {isParent && (
-            <>
-              <Icon icon="arrow-circle-right" /> &nbsp;
-            </>
-          )}
-          <TopicTitle isChild={isChild}>{topic.title}</TopicTitle>
+          <TopicTitle isChild={true}>{topic.title}</TopicTitle>
           <span>({topic.discussions.length})</span>
         </Link>
         <ActionButtons>

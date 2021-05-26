@@ -16,6 +16,7 @@ import {
 
 type Props = {
   queryParams: any;
+  currentTopicId: string;
 };
 
 type FinalProps = {
@@ -83,8 +84,8 @@ const ForumListContainer = (props: FinalProps) => {
   };
 
   const updatedProps = {
-    forums,
     ...props,
+    forums,
     renderButton,
     remove,
     forumsCount: forumsCountQuery.forumsTotalCount || 0

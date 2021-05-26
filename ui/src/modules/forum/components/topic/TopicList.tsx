@@ -6,6 +6,7 @@ import { ITopic } from '../../types';
 type Props = {
   forumTopics: ITopic[];
   forumId: string;
+  currentTopicId: string;
 };
 
 class TopicList extends React.Component<Props> {
@@ -14,7 +15,7 @@ class TopicList extends React.Component<Props> {
   };
 
   render() {
-    const { forumTopics, forumId } = this.props;
+    const { forumTopics, forumId, currentTopicId } = this.props;
 
     this.generateTopic(forumTopics, forumId);
 
@@ -25,11 +26,8 @@ class TopicList extends React.Component<Props> {
             return (
               <TopicRow
                 key={index}
-                // isActive={true}
-                // articlesCount={2}
-                // topicId={topicId}
+                isActive={topic._id === currentTopicId}
                 topic={topic}
-                // remove={remove}
               />
             );
           } else {
