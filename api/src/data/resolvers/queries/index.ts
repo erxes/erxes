@@ -45,7 +45,7 @@ import users from './users';
 import webhooks from './webhooks';
 import widgets from './widgets';
 import smsDeliveries from './smsDeliveries';
-import forum from './forum';
+import forums from './forums';
 
 export default {
   ...users,
@@ -92,5 +92,5 @@ export default {
   ...skillQueries,
   ...messengerAppsQueries,
   ...smsDeliveries,
-  ...forum
+  ...forums
 };
