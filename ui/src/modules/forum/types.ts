@@ -61,3 +61,19 @@ export type ForumDetailQueryResponse = {
 export type ForumsTotalCountQueryResponse = {
   forumsTotalCount: number;
 } & QueryResponse;
+
+// Topic
+
+export type TopicDetailQueryResponse = {
+  forumTopicDetail: ITopic;
+} & QueryResponse;
+
+// discussions
+
+export type DiscussionsQueryResponse = {
+  forumDiscussions: IDiscussion[];
+} & QueryResponse;
+
+export type DiscussionsTotalCountQueryResponse = {
+  forumDiscussionsTotalCount: number;
+} & QueryResponse;
