@@ -9,7 +9,7 @@ import { graphql } from 'react-apollo';
 import { mutations, queries } from '../../graphql';
 
 const TopicFormContainer = props => {
-  const { forumTopicsQuery, closeModal } = props;
+  const { closeModal } = props;
 
   const renderButton = ({
     name,
@@ -18,19 +18,12 @@ const TopicFormContainer = props => {
     callback,
     object
   }: IButtonMutateProps) => {
-    const callBackResponse = () => {
-      forumTopicsQuery.refetch();
-
-      if (callback) {
-        callback();
-      }
-    };
-
     return (
       <ButtonMutate
         mutation={object ? mutations.forumTopicsEdit : mutations.forumTopicsAdd}
         variables={values}
-        callback={callBackResponse}
+        callback={callback}
+        refetchQueries={getRefetchQueries}
         isSubmitted={isSubmitted}
         type="submit"
         successMessage={` You successfully ${
@@ -47,6 +40,14 @@ const TopicFormContainer = props => {
   };
 
   return <TopicForm {...updatedProps} />;
+};
+
+const getRefetchQueries = () => {
+  return [
+    {
+      query: gql(queries.forumTopics)
+    }
+  ];
 };
 
 export default compose(
