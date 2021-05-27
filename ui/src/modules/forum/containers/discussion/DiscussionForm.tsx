@@ -7,14 +7,17 @@ import { generatePaginationParams } from 'modules/common/utils/router';
 import * as compose from 'lodash.flowright';
 import gql from 'graphql-tag';
 
+import { IDiscussion } from '../../types';
+
 type Props = {
   queryParams: any;
   currentTopicId: string;
   closeModal: () => void;
+  discussion: IDiscussion;
 };
 
 const DiscussionFormContainer = (props: Props) => {
-  const { closeModal, queryParams, currentTopicId } = props;
+  const { closeModal, currentTopicId, discussion, queryParams } = props;
 
   const renderButton = ({
     name,
@@ -45,7 +48,9 @@ const DiscussionFormContainer = (props: Props) => {
   const updatedProps = {
     ...props,
     renderButton,
-    closeModal
+    closeModal,
+    discussion,
+    currentTopicId
   };
 
   return <DiscussionForm {...updatedProps} />;

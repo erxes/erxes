@@ -23,7 +23,7 @@ type Props = {
 };
 
 const DiscussionRow = (props: Props) => {
-  const { discussion } = props;
+  const { discussion, currentTopicId, queryParams } = props;
 
   const remove = () => {
     return props.remove(discussion._id);
@@ -38,7 +38,14 @@ const DiscussionRow = (props: Props) => {
       </Button>
     );
 
-    const content = contentProps => <DiscussionForm />;
+    const content = contentProps => (
+      <DiscussionForm
+        {...contentProps}
+        discussion={discussion}
+        currentTopicId={currentTopicId}
+        queryParams={queryParams}
+      />
+    );
 
     return (
       <ModalTrigger
@@ -54,7 +61,7 @@ const DiscussionRow = (props: Props) => {
   const title = (
     <DiscussionTitle>
       {discussion.title}
-      <Label lblStyle="simple">{'hhh'}</Label>
+      <Label lblStyle="simple">{'tag'}</Label>
     </DiscussionTitle>
   );
 

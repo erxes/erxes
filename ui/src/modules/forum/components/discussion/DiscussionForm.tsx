@@ -10,10 +10,13 @@ import { ModalFooter } from 'modules/common/styles/main';
 
 import { IButtonMutateProps, IFormProps } from 'modules/common/types';
 
+import { IDiscussion } from '../../types';
+
 type Props = {
   renderButton: (props: IButtonMutateProps) => JSX.Element;
   closeModal: () => void;
   currentTopicId: string;
+  discussion: IDiscussion;
 };
 
 class DiscussionForm extends React.Component<Props> {
@@ -22,9 +25,13 @@ class DiscussionForm extends React.Component<Props> {
     title: string;
     description: string;
   }) => {
-    const { currentTopicId } = this.props;
+    const { currentTopicId, discussion } = this.props;
 
     const finalValues = values;
+
+    if (discussion) {
+      finalValues._id = discussion._id;
+    }
 
     return {
       _id: finalValues._id,
@@ -37,8 +44,10 @@ class DiscussionForm extends React.Component<Props> {
   };
 
   renderContent = (formProps: IFormProps) => {
-    const { closeModal, renderButton } = this.props;
+    const { closeModal, renderButton, discussion } = this.props;
     const { values, isSubmitted } = formProps;
+
+    const object = discussion || ({} as IDiscussion);
 
     return (
       <>
@@ -47,14 +56,18 @@ class DiscussionForm extends React.Component<Props> {
           <FormControl
             {...formProps}
             name="title"
-            defaultValue={''}
+            defaultValue={object.title}
             required={true}
           />
         </FormGroup>
 
         <FormGroup>
           <ControlLabel>Description</ControlLabel>
-          <FormControl {...formProps} name="description" defaultValue={''} />
+          <FormControl
+            {...formProps}
+            name="description"
+            defaultValue={object.description}
+          />
         </FormGroup>
 
         <ModalFooter>
@@ -71,8 +84,8 @@ class DiscussionForm extends React.Component<Props> {
             name: 'topic',
             values: this.generateDoc(values),
             isSubmitted,
-            callback: closeModal
-            // object: category
+            callback: closeModal,
+            object: discussion
           })}
         </ModalFooter>
       </>
