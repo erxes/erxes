@@ -17,6 +17,7 @@ type Props = {
   renderButton: (props: IButtonMutateProps) => JSX.Element;
   remove: (forumId: string) => void;
   currentTopicId: string;
+  loading: boolean;
 };
 
 class ForumList extends React.Component<Props> {
@@ -68,13 +69,13 @@ class ForumList extends React.Component<Props> {
   }
 
   render() {
-    const { forums } = this.props;
+    const { forums, loading } = this.props;
 
     return (
       <Sidebar full={true} wide={true} header={this.renderSidebarHeader()}>
         <DataWithLoader
           data={this.renderTopics()}
-          loading={false}
+          loading={loading}
           count={forums.length}
           emptyText="There is no forum"
           emptyImage="/images/actions/18.svg"
