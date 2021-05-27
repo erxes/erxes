@@ -77,7 +77,7 @@ class Forum extends React.Component<Props> {
       <Wrapper
         header={
           <Wrapper.Header
-            title={`${currentTopic.title}`}
+            title={`${currentTopic.title || ''}`}
             breadcrumb={this.breadcrumb()}
           />
         }
