@@ -1,9 +1,20 @@
 import React from 'react';
 import { ForumForm } from '../../components/forum';
+import { IForum } from '../../types';
+import { IButtonMutateProps } from 'modules/common/types';
 
-const ForumFormContainer = props => {
+type Props = {
+  forum: IForum;
+  renderButton: (props: IButtonMutateProps) => JSX.Element;
+  closeModal: () => void;
+  remove: (forumId: string) => void;
+};
+
+const ForumFormContainer = ({ remove, forum, ...props }: Props) => {
   const updatedProps = {
-    ...props
+    ...props,
+    forum,
+    remove
   };
   return <ForumForm {...updatedProps} />;
 };
