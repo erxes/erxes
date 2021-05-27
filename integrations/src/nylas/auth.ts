@@ -12,7 +12,7 @@ import {
   NYLAS_GMAIL_SCOPES
 } from './constants';
 import { IIntegrateProvider, INylasIntegrationData } from './types';
-import { getNylasConfig, getProviderSettings } from './utils';
+import { getNylasConfig, getProviderSettings, encryptToken } from './utils';
 
 // loading config
 dotenv.config();
@@ -102,7 +102,7 @@ const connectProviderToNylas = async ({
         kind,
         email,
         googleAccessToken,
-        nylasToken: access_token,
+        nylasToken: encryptToken(access_token),
         nylasAccountId,
         nylasBillingState: status
       });
@@ -364,7 +364,7 @@ const createIntegration = async ({
     kind,
     erxesApiId: integrationId,
     googleAccessToken,
-    nylasToken,
+    nylasToken: encryptToken(nylasToken),
     nylasAccountId,
     nylasBillingState: 'paid'
   });
