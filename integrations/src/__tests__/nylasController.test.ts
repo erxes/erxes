@@ -57,6 +57,7 @@ describe('Test nylas controller', () => {
   const erxesApiId = null;
 
   beforeEach(async () => {
+    process.env.NYLAS_ENCRYPTION_KEY = 'U66vhgcUKrUxCrRU4H0FYcqEtnGUK5Sz';
     sendRequestMock = sinon.stub(utils, 'sendRequest');
 
     sendRequestMock.onCall(0).returns(Promise.resolve('code'));
@@ -80,6 +81,8 @@ describe('Test nylas controller', () => {
   });
 
   afterEach(async () => {
+    delete process.env.NYLAS_ENCRYPTION_KEY;
+
     sendRequestMock.restore();
     nylasInstanceMock.restore();
 

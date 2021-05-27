@@ -51,6 +51,8 @@ describe('Nylas gmail test', () => {
   };
 
   beforeEach(async () => {
+    process.env.NYLAS_ENCRYPTION_KEY = 'U66vhgcUKrUxCrRU4H0FYcqEtnGUK5Sz';
+
     await configFactory({
       code: 'GOOGLE_CLIENT_ID',
       value: 'GOOGLE_CLIENT_ID'
@@ -76,6 +78,8 @@ describe('Nylas gmail test', () => {
   });
 
   afterEach(async () => {
+    delete process.env.NYLAS_ENCRYPTION_KEY;
+
     await Integrations.remove({});
     await Configs.remove({});
 
