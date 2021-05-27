@@ -28,12 +28,6 @@ type FinalProps = {
 const ForumListContainer = (props: FinalProps) => {
   const { forumsQuery, removeForumsMutation, forumsCountQuery } = props;
 
-  if (forumsQuery.loading) {
-    return null;
-  }
-
-  const forums = forumsQuery.forums || [];
-
   const remove = forumId => {
     confirm().then(() => {
       removeForumsMutation({
@@ -85,7 +79,8 @@ const ForumListContainer = (props: FinalProps) => {
 
   const updatedProps = {
     ...props,
-    forums,
+    forums: forumsQuery.forums || [],
+    loading: forumsQuery.loading,
     renderButton,
     remove,
     forumsCount: forumsCountQuery.forumsTotalCount || 0
