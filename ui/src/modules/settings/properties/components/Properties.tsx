@@ -135,11 +135,11 @@ class Properties extends React.Component<Props> {
       <HeaderDescription
         icon="/images/actions/26.svg"
         title={__('Properties')}
-        description={
-          __(
-            'The quick view finder helps you to view basic information on both companies and customers alike Add groups and fields of the exact information you want to see'
-          ) + '.'
-        }
+        description={`${__(
+          'The quick view finder helps you to view basic information on both companies and customers alike'
+        )}.${__(
+          'Add groups and fields of the exact information you want to see'
+        )}`}
       />
     );
 

@@ -34,22 +34,24 @@ export const EMPTY_IMPORT_CONTENT = {
     },
     {
       title: __('Download Template'),
-      description: __(
-        'Click on Download Template for importing, This is an important step, because your column titles need to match with erxes titles'
-      ),
+      description: `${__('Click on Download Template for importing')}.${__(
+        'This is an important step, because your column titles need to match with erxes titles'
+      )}`,
       isOutside: false
     },
     {
       title: __('Clean and prepare your data sheet'),
-      description: __(
-        'Make sure the column titles match with the Template, The order of the columns does not need to match'
-      )
+      description: `${__(
+        'Make sure the column titles match with the Template'
+      )}.${__('The order of the columns does not need to match')}`
     },
     {
       title: __('Export your data'),
-      description: __(
-        'You can export your data from the list on the left, If you wish to export your popup forms, go to Customer and click on Export Popups Data'
-      ),
+      description: `${__(
+        'You can export your data from the list on the left'
+      )}.${__(
+        'If you wish to export your popup forms, go to Customer and click on Export Popups Data'
+      )}`,
       url: '/settings/importHistories?type=customer',
       isOutside: false,
       urlText: 'Go to Customers',
@@ -60,9 +62,9 @@ export const EMPTY_IMPORT_CONTENT = {
 
 export const EMPTY_SEGMENT_CONTENT = {
   title: __('Getting Started with Segments'),
-  description: __(
-    'The Segments feature helps you to filter, target, and engage a certain group of contacts. The Segments are used in the Contacts and Engage features'
-  ),
+  description: `${__(
+    'The Segments feature helps you to filter, target, and engage a certain group of contacts'
+  )}.${__('The Segments are used in the Contacts and Engage features')}`,
   urlText: __('Watch our tutorial'),
   url: '/tutorial#settingStage',
   steps: [
