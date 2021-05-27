@@ -14,6 +14,7 @@ type Props = {
   loading: boolean;
   queryParams: any;
   currentTopicId: string;
+  remove: (discussionId) => void;
 };
 
 class DiscussionList extends React.Component<Props> {
@@ -26,7 +27,7 @@ class DiscussionList extends React.Component<Props> {
   };
 
   renderDiscussions() {
-    const { discussions, queryParams, currentTopicId } = this.props;
+    const { discussions, queryParams, currentTopicId, remove } = this.props;
 
     return discussions.map(discussion => (
       <DiscussionRow
@@ -34,6 +35,7 @@ class DiscussionList extends React.Component<Props> {
         queryParams={queryParams}
         currentTopicId={currentTopicId}
         discussion={discussion}
+        remove={remove}
       />
     ));
   }

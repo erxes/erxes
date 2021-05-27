@@ -49,6 +49,12 @@ export type RemoveForumsMutationResponse = {
   }) => Promise<any>;
 };
 
+export type RemoveDiscussionsMutationResponse = {
+  removeDiscussionsMutation: (params: {
+    variables: { _id: string };
+  }) => Promise<any>;
+};
+
 // query types
 
 export type ForumsQueryResponse = {

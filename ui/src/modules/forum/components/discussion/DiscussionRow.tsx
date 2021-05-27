@@ -19,10 +19,15 @@ type Props = {
   queryParams: any;
   currentTopicId: string;
   discussion: IDiscussion;
+  remove: (discussionId) => void;
 };
 
 const DiscussionRow = (props: Props) => {
   const { discussion } = props;
+
+  const remove = () => {
+    return props.remove(discussion._id);
+  };
 
   const renderEditAction = editTrigger => {
     const editButton = (
@@ -78,7 +83,7 @@ const DiscussionRow = (props: Props) => {
       <ActionButtons>
         {renderEditAction('')}
         <Tip text={'Delete'}>
-          <Button btnStyle="link" icon="cancel-1" />
+          <Button btnStyle="link" icon="cancel-1" onClick={remove} />
         </Tip>
       </ActionButtons>
     </RowDiscussion>
