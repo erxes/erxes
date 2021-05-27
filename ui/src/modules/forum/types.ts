@@ -49,6 +49,16 @@ export type RemoveForumsMutationResponse = {
   }) => Promise<any>;
 };
 
+// topic
+
+export type RemoveTopicsMutationResponse = {
+  removeTopicsMutation: (params: {
+    variables: { _id: string };
+  }) => Promise<any>;
+};
+
+// discussion
+
 export type RemoveDiscussionsMutationResponse = {
   removeDiscussionsMutation: (params: {
     variables: { _id: string };
@@ -70,6 +80,10 @@ export type ForumsTotalCountQueryResponse = {
 } & QueryResponse;
 
 // Topic
+
+export type TopicsQueryResponse = {
+  forumTopics: ITopic[];
+} & QueryResponse;
 
 export type TopicDetailQueryResponse = {
   forumTopicDetail: ITopic;
