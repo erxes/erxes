@@ -13,8 +13,12 @@ import {
 
 export interface IForumModel extends Model<IForumDocument> {
   getForum(_id: string): Promise<IForumDocument>;
-  createDoc(docFields: IForum): Promise<IForumDocument>;
-  updateDoc(_id: string, docFields: IForum): Promise<IForumDocument>;
+  createDoc(docFields: IForum, userId?: string): Promise<IForumDocument>;
+  updateDoc(
+    _id: string,
+    docFields: IForum,
+    userId: string
+  ): Promise<IForumDocument>;
   removeDoc(_id: string): void;
 }
 
@@ -34,9 +38,14 @@ export const loadForumClass = () => {
      *  Create forum document
      */
 
-    public static async createDoc(docFields: IForum) {
+    public static async createDoc(docFields: IForum, userId?: string) {
+      if (!userId) {
+        throw new Error('userId must be supplied');
+      }
+
       return Forums.create({
         ...docFields,
+        createdBy: userId,
         createdDate: new Date(),
         modifiedDate: new Date()
       });
@@ -46,8 +55,19 @@ export const loadForumClass = () => {
      *  Update forum document
      */
 
-    public static async updateDoc(_id: string, docFields: IForum) {
-      await Forums.updateOne({ _id }, { $set: docFields });
+    public static async updateDoc(
+      _id: string,
+      docFields: IForum,
+      userId?: string
+    ) {
+      if (!userId) {
+        throw new Error('userId must be supplied');
+      }
+
+      await Forums.updateOne(
+        { _id },
+        { $set: { ...docFields, modifiedBy: userId, modifiedDate: new Date() } }
+      );
 
       return Forums.findOne({ _id });
     }
@@ -76,8 +96,12 @@ export const loadForumClass = () => {
 
 export interface ITopicModel extends Model<ITopicDocument> {
   getTopic(_id: string): Promise<ITopicDocument>;
-  createDoc(docFields: ITopic): Promise<ITopicDocument>;
-  updateDoc(_id: string, docFields: ITopic): Promise<ITopicDocument>;
+  createDoc(docFields: ITopic, userId?: string): Promise<ITopicDocument>;
+  updateDoc(
+    _id: string,
+    docFields: ITopic,
+    userId?: string
+  ): Promise<ITopicDocument>;
   removeDoc(_id: string): void;
 }
 
@@ -99,9 +123,14 @@ export const loadTopicClass = () => {
     /**
      * create forum_topic document
      */
-    public static async createDoc(docFields: ITopic) {
+    public static async createDoc(docFields: ITopic, userId?: string) {
+      if (!userId) {
+        throw new Error('userId must be supplied');
+      }
+
       return ForumTopics.create({
         ...docFields,
+        createdBy: userId,
         createdDate: new Date(),
         modifiedDate: new Date()
       });
@@ -110,8 +139,19 @@ export const loadTopicClass = () => {
     /**
      *  update forum_topic document
      */
-    public static async updateDoc(_id: string, docFields: ITopic) {
-      await ForumTopics.updateOne({ _id }, { $set: docFields });
+    public static async updateDoc(
+      _id: string,
+      docFields: ITopic,
+      userId?: string
+    ) {
+      if (!userId) {
+        throw new Error('userId must be supplied');
+      }
+
+      await ForumTopics.updateOne(
+        { _id },
+        { $set: { ...docFields, modifiedBy: userId, modifiedDate: new Date() } }
+      );
 
       return ForumTopics.findOne({ _id });
     }
@@ -139,8 +179,15 @@ export const loadTopicClass = () => {
 
 export interface IDiscussionModel extends Model<IDiscussionDocument> {
   getDiscussion(_id: string): Promise<IDiscussionDocument>;
-  createDoc(docFields: IDiscussion): Promise<IDiscussionDocument>;
-  updateDoc(_id: string, docFields: IDiscussion): Promise<IDiscussionDocument>;
+  createDoc(
+    docFields: IDiscussion,
+    userId?: string
+  ): Promise<IDiscussionDocument>;
+  updateDoc(
+    _id: string,
+    docFields: IDiscussion,
+    userId?: string
+  ): Promise<IDiscussionDocument>;
   removeDoc(_id: string): void;
 }
 
@@ -162,9 +209,14 @@ const loadDiscussionClass = () => {
      * create discussion
      */
 
-    public static async createDoc(docFields: IDiscussion) {
+    public static async createDoc(docFields: IDiscussion, userId?: string) {
+      if (!userId) {
+        throw new Error('userId must be supplied');
+      }
+
       return ForumDiscussions.create({
         ...docFields,
+        createdBy: userId,
         createdDate: new Date(),
         modifiedDate: new Date()
       });
@@ -173,8 +225,19 @@ const loadDiscussionClass = () => {
     /**
      * edit discussion
      */
-    public static async updateDoc(_id: string, docFields: IDiscussion) {
-      await ForumDiscussions.updateOne({ _id }, { $set: docFields });
+    public static async updateDoc(
+      _id: string,
+      docFields: IDiscussion,
+      userId?: string
+    ) {
+      if (!userId) {
+        throw new Error('userId must be supplied');
+      }
+
+      await ForumDiscussions.updateOne(
+        { _id },
+        { $set: { ...docFields, modifiedBy: userId, modifiedDate: new Date() } }
+      );
 
       return ForumDiscussions.findOne({ _id });
     }
