@@ -4,12 +4,18 @@ import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
 import ButtonMutate from 'modules/common/components/ButtonMutate';
 import { IButtonMutateProps } from 'modules/common/types';
-import { graphql } from 'react-apollo';
 
 import { mutations, queries } from '../../graphql';
+import { ITopic } from '../../types';
 
-const TopicFormContainer = props => {
-  const { closeModal } = props;
+type Props = {
+  closeModal: () => void;
+  forumId: string;
+  topic: ITopic;
+};
+
+const TopicFormContainer = (props: Props) => {
+  const { closeModal, topic, forumId } = props;
 
   const renderButton = ({
     name,
@@ -36,7 +42,9 @@ const TopicFormContainer = props => {
   const updatedProps = {
     ...props,
     renderButton,
-    closeModal
+    closeModal,
+    topic,
+    forumId
   };
 
   return <TopicForm {...updatedProps} />;
@@ -50,8 +58,4 @@ const getRefetchQueries = () => {
   ];
 };
 
-export default compose(
-  graphql(gql(queries.forumTopics), {
-    name: 'forumTopicsQuery'
-  })
-)(TopicFormContainer);
+export default compose()(TopicFormContainer);
