@@ -112,9 +112,12 @@ describe('Nylas gmail test', () => {
       .stub(Nylas, 'clientCredentials')
       .callsFake(() => Promise.resolve(true));
 
-    const nylasInstance = await api.setNylasToken('alksjd');
+    const token = 'alksjd';
+    const nylasInstance = await api.setNylasToken(
+      nylasUtils.encryptToken(token)
+    );
 
-    const nylas = Nylas.with('alksjd');
+    const nylas = Nylas.with(token);
 
     expect(nylasInstance).toEqual(nylas);
 
@@ -152,7 +155,9 @@ describe('Nylas gmail test', () => {
 
     const updatedIntegration = await Integrations.findOne({ erxesApiId });
 
-    expect(updatedIntegration.nylasToken).toEqual('access_token');
+    expect(nylasUtils.decryptToken(updatedIntegration.nylasToken)).toEqual(
+      'access_token'
+    );
     expect(updatedIntegration.nylasAccountId).toEqual('account_id');
 
     mock.restore();
@@ -205,7 +210,9 @@ describe('Nylas gmail test', () => {
       erxesApiId
     }).lean();
 
-    expect(updatedIntegration.nylasToken).toEqual('access_token123');
+    expect(nylasUtils.decryptToken(updatedIntegration.nylasToken)).toEqual(
+      'access_token123'
+    );
     expect(updatedIntegration.nylasAccountId).toEqual('account_id');
 
     mock.restore();
@@ -252,7 +259,9 @@ describe('Nylas gmail test', () => {
 
     const updatedIntegration = await Integrations.findOne({ erxesApiId });
 
-    expect(updatedIntegration.nylasToken).toEqual('access_token123');
+    expect(nylasUtils.decryptToken(updatedIntegration.nylasToken)).toEqual(
+      'access_token123'
+    );
     expect(updatedIntegration.nylasAccountId).toEqual('account_id');
 
     try {
@@ -647,7 +656,9 @@ describe('Nylas gmail test', () => {
 
     const updatedIntegration = await Integrations.findOne({ erxesApiId });
 
-    expect(updatedIntegration.nylasToken).toEqual('access_token123');
+    expect(nylasUtils.decryptToken(updatedIntegration.nylasToken)).toEqual(
+      'access_token123'
+    );
     expect(updatedIntegration.nylasAccountId).toEqual('account_id');
     expect(updatedIntegration.nylasBillingState).toEqual('paid');
 
@@ -677,7 +688,9 @@ describe('Nylas gmail test', () => {
       nylasAccountId: 'account_id'
     }).lean();
 
-    expect(createdAccount.nylasToken).toEqual('access_token123');
+    expect(nylasUtils.decryptToken(createdAccount.nylasToken)).toEqual(
+      'access_token123'
+    );
     expect(createdAccount.nylasAccountId).toEqual('account_id');
     expect(createdAccount.nylasBillingState).toEqual('paid');
 

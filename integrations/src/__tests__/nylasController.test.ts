@@ -106,7 +106,9 @@ describe('Test nylas controller', () => {
       erxesApiId
     }).lean();
 
-    expect(updatedIntegration.nylasToken).toBe('access_token');
+    expect(nylasUtils.decryptToken(updatedIntegration.nylasToken)).toBe(
+      'access_token'
+    );
 
     await Integrations.create({ kind: 'exchange', email: 'john@mail.com' });
 
@@ -137,7 +139,9 @@ describe('Test nylas controller', () => {
       erxesApiId
     }).lean();
 
-    expect(updatedIntegration.nylasToken).toBe('access_token');
+    expect(nylasUtils.decryptToken(updatedIntegration.nylasToken)).toBe(
+      'access_token'
+    );
   });
 
   test('Create Nylas outlook integration', async () => {
@@ -169,7 +173,9 @@ describe('Test nylas controller', () => {
       erxesApiId
     }).lean();
 
-    expect(updatedIntegration.nylasToken).toBe('access_token');
+    expect(nylasUtils.decryptToken(updatedIntegration.nylasToken)).toBe(
+      'access_token'
+    );
 
     const mock = sinon
       .stub(auth, 'connectYahooAndOutlookToNylas')
@@ -199,7 +205,9 @@ describe('Test nylas controller', () => {
       erxesApiId
     }).lean();
 
-    expect(updatedIntegration.nylasToken).toBe('access_token');
+    expect(nylasUtils.decryptToken(updatedIntegration.nylasToken)).toBe(
+      'access_token'
+    );
     expect(updatedIntegration.nylasBillingState).toBe('paid');
   });
 
@@ -240,7 +248,9 @@ describe('Test nylas controller', () => {
       erxesApiId: 'erxesApiId'
     }).lean();
 
-    expect(updatedIntegration.nylasToken).toBe('access_token');
+    expect(nylasUtils.decryptToken(updatedIntegration.nylasToken)).toBe(
+      'access_token'
+    );
 
     providerMock.restore();
     configMock.restore();
@@ -348,7 +358,10 @@ describe('Test nylas controller', () => {
       expect(e.message).toBe('Integration not found');
     }
 
-    await Integrations.create({ erxesApiId: 'erxesApiId' });
+    await Integrations.create({
+      erxesApiId: 'erxesApiId',
+      nylasToken: nylasUtils.encryptToken('token')
+    });
 
     const params = {
       to: [{ email: 'to@mail.com' }],
@@ -426,7 +439,9 @@ describe('Test nylas controller', () => {
     });
 
     expect(updatedIntegration.email).toEqual('email321@gmail.com');
-    expect(updatedIntegration.nylasToken).toEqual('access_token');
+    expect(nylasUtils.decryptToken(updatedIntegration.nylasToken)).toEqual(
+      'access_token'
+    );
 
     providerMock.restore();
     redisMock.restore();
