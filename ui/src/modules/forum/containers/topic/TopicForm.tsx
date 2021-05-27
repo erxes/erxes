@@ -54,7 +54,8 @@ const getRefetchQueries = () => {
   return [
     {
       query: gql(queries.forumTopics)
-    }
+    },
+    { query: gql(queries.forums) }
   ];
 };
 
