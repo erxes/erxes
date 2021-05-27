@@ -7,8 +7,19 @@ import { Alert, confirm } from 'modules/common/utils';
 import gql from 'graphql-tag';
 import { graphql } from 'react-apollo';
 import { queries, mutations } from '../../graphql';
+import { TopicsQueryResponse, RemoveTopicsMutationResponse } from '../../types';
 
-const TopicListContainer = props => {
+type Props = {
+  forumId: string;
+  currentTopicId: string;
+};
+
+type FinalProps = {
+  forumTopicsQuery: TopicsQueryResponse;
+} & Props &
+  RemoveTopicsMutationResponse;
+
+const TopicListContainer = (props: FinalProps) => {
   const { forumTopicsQuery, removeTopicsMutation } = props;
 
   if (forumTopicsQuery.loading) {
@@ -45,10 +56,16 @@ const TopicListContainer = props => {
 };
 
 export default compose(
-  graphql(gql(queries.forumTopics), {
-    name: 'forumTopicsQuery'
-  }),
-  graphql(gql(mutations.forumTopicsRemove), {
-    name: 'removeTopicsMutation'
-  })
+  graphql<Props, TopicsQueryResponse, { forumId: string }>(
+    gql(queries.forumTopics),
+    {
+      name: 'forumTopicsQuery'
+    }
+  ),
+  graphql<Props, RemoveTopicsMutationResponse, { _id: string }>(
+    gql(mutations.forumTopicsRemove),
+    {
+      name: 'removeTopicsMutation'
+    }
+  )
 )(TopicListContainer);
