@@ -35,6 +35,8 @@ const DiscussionListContainer = (props: FinalProps) => {
         }
       })
         .then(() => {
+          discussionsQuery.refetch();
+
           Alert.success('You successfully deleted a discussion');
         })
         .catch(error => {
@@ -75,10 +77,6 @@ export default compose(
       options: ({ currentTopicId }) => {
         return {
           refetchQueries: [
-            {
-              query: gql(queries.forumDiscussions),
-              variables: { topicId: currentTopicId }
-            },
             {
               query: gql(queries.forumDiscussionsTotalCount),
               variables: { topicId: currentTopicId }
