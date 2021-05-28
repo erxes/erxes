@@ -59,13 +59,28 @@ export default compose(
   graphql<Props, TopicsQueryResponse, { forumId: string }>(
     gql(queries.forumTopics),
     {
-      name: 'forumTopicsQuery'
+      name: 'forumTopicsQuery',
+      options: ({ forumId }) => ({
+        variables: { forumId }
+      })
     }
   ),
   graphql<Props, RemoveTopicsMutationResponse, { _id: string }>(
     gql(mutations.forumTopicsRemove),
     {
-      name: 'removeTopicsMutation'
+      name: 'removeTopicsMutation',
+      options: ({ currentTopicId, forumId }) => ({
+        refetchQueries: [
+          {
+            query: gql(queries.forumDiscussions),
+            variables: { topicId: currentTopicId }
+          },
+          {
+            query: gql(queries.forumDetail),
+            variables: { _id: forumId }
+          }
+        ]
+      })
     }
   )
 )(TopicListContainer);

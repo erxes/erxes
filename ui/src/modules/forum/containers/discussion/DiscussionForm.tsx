@@ -42,7 +42,7 @@ const DiscussionFormContainer = (props: Props) => {
         }
         variables={values}
         callback={callback}
-        refetchQueries={getRefetchQueries(queryParams, currentTopicId)}
+        refetchQueries={getRefetchQueries(queryParams, currentTopicId, forumId)}
         isSubmitted={isSubmitted}
         type="submit"
         successMessage={` You successfully ${
@@ -64,7 +64,11 @@ const DiscussionFormContainer = (props: Props) => {
   return <DiscussionForm {...updatedProps} />;
 };
 
-const getRefetchQueries = (queryParams, currentTopicId: string) => {
+const getRefetchQueries = (
+  queryParams,
+  currentTopicId: string,
+  forumId: string
+) => {
   return [
     {
       query: gql(queries.forumDiscussions),
@@ -80,7 +84,10 @@ const getRefetchQueries = (queryParams, currentTopicId: string) => {
       }
     },
     {
-      query: gql(queries.forumTopics)
+      query: gql(queries.forumTopics),
+      variables: {
+        forumId
+      }
     }
   ];
 };
