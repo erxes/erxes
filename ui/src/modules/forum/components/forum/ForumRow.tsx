@@ -67,7 +67,7 @@ class ForumRow extends React.Component<Props, State> {
 
     const addTopic = <Dropdown.Item>{'Add Topic'}</Dropdown.Item>;
 
-    const manageTopic = <Dropdown.Item>{'Edit Forum'}</Dropdown.Item>;
+    const manageForum = <Dropdown.Item>{'Edit Forum'}</Dropdown.Item>;
 
     const content = props => (
       <ForumForm
@@ -89,7 +89,7 @@ class ForumRow extends React.Component<Props, State> {
           <Dropdown.Menu>
             <ModalTrigger
               title="Manage Forum"
-              trigger={manageTopic}
+              trigger={manageForum}
               content={content}
               enforceFocus={false}
               size="lg"
