@@ -27,8 +27,11 @@ module.exports.up = async () => {
 
   try {
     const selector = {
-      kind: { $in: nylasKinds },
-      nylasToken: { $exists: true }
+      $and: [
+        { kind: { $in: nylasKinds } },
+        { nylasToken: { $exists: true } },
+        { nylasToken: { $not: { $regex: ':' } } }
+      ]
     };
 
     const accounts = await mongoClient.db
@@ -47,6 +50,8 @@ module.exports.up = async () => {
       );
     }
 
+    console.log('account counts: ', accounts.length);
+
     const integrations = await mongoClient.db
       .collection('integrations')
       .find(selector)
@@ -62,6 +67,8 @@ module.exports.up = async () => {
         }
       );
     }
+
+    console.log('integration counts: ', integrations.length);
   } catch (e) {
     console.log('Integration migration error: ', e.message);
   }
