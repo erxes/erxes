@@ -93,7 +93,23 @@ export default compose(
   graphql<Props, RemoveForumsMutationResponse, { _id: string }>(
     gql(mutations.forumsRemove),
     {
-      name: 'removeForumsMutation'
+      name: 'removeForumsMutation',
+      options: ({ currentTopicId }) => {
+        return {
+          refetchQueries: !currentTopicId
+            ? []
+            : [
+                {
+                  query: gql(queries.forumDiscussions),
+                  variables: { topicId: currentTopicId }
+                },
+                {
+                  query: gql(queries.forumTopicDetail),
+                  variables: { _id: currentTopicId }
+                }
+              ]
+        };
+      }
     }
   ),
   graphql<Props, ForumsQueryResponse>(gql(queries.forums), {

@@ -85,6 +85,9 @@ export const loadForumClass = () => {
       // remove child topics
       await ForumTopics.deleteMany({ forumId: { $in: _id } });
 
+      // remove child discussions
+      await ForumDiscussions.deleteMany({ forumId: { $in: _id } });
+
       return Forums.deleteOne({ _id });
     }
   }
