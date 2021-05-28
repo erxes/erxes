@@ -37,6 +37,12 @@ export const types = `
         title: String
         description: String
         topicId: String
+        
+        createdBy: String
+        createdUser: User
+        createdDate: Date
+        modifiedBy: String
+        modifiedDate: Date
     }
 
     input ForumDiscussionDoc{
