@@ -25,7 +25,9 @@ class TopicRow extends React.Component<Props> {
   };
 
   renderEditForm(props) {
-    return <TopicForm {...props} />;
+    const { topic } = props;
+
+    return <TopicForm {...props} forumId={topic.forumId} />;
   }
 
   renderEditAction = () => {

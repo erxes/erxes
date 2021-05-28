@@ -29,7 +29,7 @@ const TopicFormContainer = (props: Props) => {
         mutation={object ? mutations.forumTopicsEdit : mutations.forumTopicsAdd}
         variables={values}
         callback={callback}
-        refetchQueries={getRefetchQueries}
+        refetchQueries={getRefetchQueries(forumId)}
         isSubmitted={isSubmitted}
         type="submit"
         successMessage={` You successfully ${
@@ -50,10 +50,13 @@ const TopicFormContainer = (props: Props) => {
   return <TopicForm {...updatedProps} />;
 };
 
-const getRefetchQueries = () => {
+const getRefetchQueries = forumId => {
   return [
     {
-      query: gql(queries.forumTopics)
+      query: gql(queries.forumTopics),
+      variables: {
+        forumId
+      }
     },
     { query: gql(queries.forums) }
   ];
