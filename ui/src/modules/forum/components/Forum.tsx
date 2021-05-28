@@ -91,7 +91,7 @@ class Forum extends React.Component<Props> {
         actionBar={
           <Wrapper.ActionBar left={leftActionBar} right={actionBarLeft} />
         }
-        footer={currentTopic._id && <Pagination count={10} />}
+        footer={currentTopic._id && <Pagination count={discussionsCount} />}
         transparent={true}
         content={
           <DiscussionList
