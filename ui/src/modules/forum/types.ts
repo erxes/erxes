@@ -1,4 +1,5 @@
 import { QueryResponse } from 'modules/common/types';
+import { IUser } from 'modules/auth/types';
 import { IBrand } from 'modules/settings/brands/types';
 
 export interface IForum {
@@ -7,6 +8,12 @@ export interface IForum {
   description: string;
   languageCode: string;
   brand: IBrand;
+
+  createdBy: string;
+  createdUser: IUser;
+  createdDate: Date;
+  modifiedBy: string;
+  modifiedDate: Date;
 
   topics: ITopic[];
 }
@@ -17,6 +24,12 @@ export interface ITopic {
   description: string;
   forumId: string;
 
+  createdBy: string;
+  createdUser: IUser;
+  createdDate: Date;
+  modifiedBy: string;
+  modifiedDate: Date;
+
   discussions: IDiscussion[];
 }
 
@@ -24,6 +37,12 @@ export interface IDiscussion {
   _id: string;
   title: string;
   description: string;
+
+  createdBy: string;
+  createdUser: IUser;
+  createdDate: Date;
+  modifiedBy: string;
+  modifiedDate: Date;
 }
 
 // mutation types
