@@ -49,6 +49,7 @@ class Forum extends React.Component<Props> {
         {...props}
         queryParams={queryParams}
         currentTopicId={currentTopic._id}
+        forumId={currentTopic.forumId}
       />
     );
 

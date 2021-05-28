@@ -14,10 +14,17 @@ type Props = {
   currentTopicId: string;
   closeModal: () => void;
   discussion: IDiscussion;
+  forumId: string;
 };
 
 const DiscussionFormContainer = (props: Props) => {
-  const { closeModal, currentTopicId, discussion, queryParams } = props;
+  const {
+    closeModal,
+    currentTopicId,
+    discussion,
+    queryParams,
+    forumId
+  } = props;
 
   const renderButton = ({
     name,
@@ -50,7 +57,8 @@ const DiscussionFormContainer = (props: Props) => {
     renderButton,
     closeModal,
     discussion,
-    currentTopicId
+    currentTopicId,
+    forumId
   };
 
   return <DiscussionForm {...updatedProps} />;

@@ -45,6 +45,7 @@ export const types = `
         title: String
         description: String
         topicId: String
+        forumId: String
         createdBy: String
         createdUser: User
         createdDate: Date
@@ -56,6 +57,7 @@ export const types = `
         title: String
         description: String
         topicId: String!
+        forumId: String!
     }
 `;
 

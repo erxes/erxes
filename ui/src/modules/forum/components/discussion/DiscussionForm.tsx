@@ -17,6 +17,7 @@ type Props = {
   closeModal: () => void;
   currentTopicId: string;
   discussion: IDiscussion;
+  forumId: string;
 };
 
 class DiscussionForm extends React.Component<Props> {
@@ -25,7 +26,7 @@ class DiscussionForm extends React.Component<Props> {
     title: string;
     description: string;
   }) => {
-    const { currentTopicId, discussion } = this.props;
+    const { currentTopicId, discussion, forumId } = this.props;
 
     const finalValues = values;
 
@@ -38,7 +39,8 @@ class DiscussionForm extends React.Component<Props> {
       doc: {
         topicId: currentTopicId,
         title: finalValues.title,
-        description: finalValues.description
+        description: finalValues.description,
+        forumId
       }
     };
   };
