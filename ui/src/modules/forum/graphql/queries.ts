@@ -17,7 +17,13 @@ const forums = `
             _id
             title
             description
-            languageCode            
+            languageCode
+            
+            createdBy
+            createdDate
+            modifiedBy
+            modifiedDate
+
             topics{
                 ${topicFields}
             }
@@ -56,6 +62,11 @@ const forumTopics = `
             title
             description
             forumId
+
+            createdBy
+            createdDate
+            modifiedBy
+            modifiedDate
 
             discussions{
                 ${discussionFields}

@@ -4,6 +4,10 @@ export const types = `
         title: String
         description: String
         languageCode: String
+        createdBy: String
+        createdDate: Date
+        modifiedBy: String
+        modifiedDate: Date
         brand: Brand
         topics: [ForumTopic]
     }
@@ -20,6 +24,10 @@ export const types = `
         title: String
         description: String
         forumId: String
+        createdBy: String
+        createdDate: Date
+        modifiedBy: String
+        modifiedDate: Date
         discussionIds: [String]
 
         discussions: [ForumDiscussion]
@@ -37,7 +45,6 @@ export const types = `
         title: String
         description: String
         topicId: String
-        
         createdBy: String
         createdUser: User
         createdDate: Date
