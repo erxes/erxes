@@ -99,6 +99,19 @@ const forumDiscussions = `
             _id
             title
             description
+            createdBy
+            createdDate
+            modifiedBy
+            modifiedDate
+            createdUser {
+                _id
+                username
+                email
+                details {
+                  avatar
+                  fullName
+                }
+              }
         }
     }
 `;
