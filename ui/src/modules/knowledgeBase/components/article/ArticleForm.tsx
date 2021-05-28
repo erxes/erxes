@@ -43,6 +43,14 @@ class ArticleForm extends React.Component<Props, State> {
     };
   }
 
+  componentDidUpdate(prevProps) {
+    const { topics } = this.props;
+
+    if (!this.state.topicId && topics && topics.length > 0) {
+      this.setState({ topicId: topics[0]._id });
+    }
+  }
+
   generateDoc = (values: {
     _id?: string;
     title: string;
