@@ -14,7 +14,7 @@ import {
   IMessageDraft,
   INylasSchedulePageDoc
 } from './types';
-import { extractDate } from './utils';
+import { extractDate, decryptToken } from './utils';
 
 /**
  * Build message and send API request
@@ -139,7 +139,7 @@ export const setNylasToken = (accessToken: string) => {
     return false;
   }
 
-  const nylas = Nylas.with(accessToken);
+  const nylas = Nylas.with(decryptToken(accessToken));
 
   return nylas;
 };
@@ -386,11 +386,7 @@ const checkCalendarAvailability = async (
   try {
     const responses = await sendRequest({
       method: 'POST',
-      headerParams: {
-        Authorization: `Basic ${Buffer.from(`${accessToken}:`).toString(
-          'base64'
-        )}`
-      },
+      headerParams: generateHeaderParams(accessToken),
       body: {
         start_time: dates.startTime,
         end_time: dates.endTime
@@ -414,11 +410,7 @@ const deleteCalendarEvent = async (eventId: string, accessToken: string) => {
     await sendRequest({
       url: `${NYLAS_API_URL}/events/${eventId}`,
       method: 'DELETE',
-      headerParams: {
-        Authorization: `Basic ${Buffer.from(`${accessToken}:`).toString(
-          'base64'
-        )}`
-      },
+      headerParams: generateHeaderParams(accessToken),
       body: {
         notify_participants: true
       }
@@ -510,11 +502,7 @@ const updateEvent = async (
     const response = await sendRequest({
       url: `${NYLAS_API_URL}/events/${eventId}`,
       method: 'PUT',
-      headerParams: {
-        Authorization: `Basic ${Buffer.from(`${accessToken}:`).toString(
-          'base64'
-        )}`
-      },
+      headerParams: generateHeaderParams(accessToken),
       params: {
         notify_participants: doc.notifyParticipants
       },
@@ -579,7 +567,7 @@ const getSchedulePages = async (accessToken: string) => {
       url: NYLAS_SCHEDULE_MANAGE_PAGES,
       method: 'GET',
       headerParams: {
-        Authorization: `Bearer ${accessToken}`
+        Authorization: `Bearer ${decryptToken(accessToken)}`
       }
     });
 
@@ -607,7 +595,7 @@ const generatePageBody = async (
   const booking = doc.booking;
 
   return {
-    access_tokens: [accessToken],
+    access_tokens: [decryptToken(accessToken)],
     name: doc.name,
     slug: doc.slug,
     config: {
@@ -679,11 +667,7 @@ const updateSchedulePage = async (
     const response = await sendRequest({
       url: `${NYLAS_SCHEDULE_MANAGE_PAGES}/${pageId}`,
       method: 'PUT',
-      headerParams: {
-        Authorization: `Basic ${Buffer.from(`${editToken}:`).toString(
-          'base64'
-        )}`
-      },
+      headerParams: generateHeaderParams(editToken),
       body
     });
 
@@ -702,11 +686,7 @@ const deleteSchedulePage = async (pageId: string, accessToken: string) => {
     await sendRequest({
       url: `${NYLAS_SCHEDULE_MANAGE_PAGES}/${pageId}`,
       method: 'DELETE',
-      headerParams: {
-        Authorization: `Basic ${Buffer.from(`${accessToken}:`).toString(
-          'base64'
-        )}`
-      },
+      headerParams: generateHeaderParams(accessToken),
       body: {
         notify_participants: true
       }
@@ -718,6 +698,14 @@ const deleteSchedulePage = async (pageId: string, accessToken: string) => {
 
     throw e.error;
   }
+};
+
+export const generateHeaderParams = (accessToken: string) => {
+  return {
+    Authorization: `Basic ${Buffer.from(
+      `${decryptToken(accessToken)}:`
+    ).toString('base64')}`
+  };
 };
 
 export {
