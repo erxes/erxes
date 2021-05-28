@@ -56,8 +56,8 @@ const forumsTotalCount = `
 `;
 
 const forumTopics = `
-    query forumTopics{
-        forumTopics{
+    query forumTopics($forumId: String!){
+        forumTopics(forumId: $forumId){
             _id
             title
             description

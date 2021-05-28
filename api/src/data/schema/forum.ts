@@ -66,7 +66,7 @@ export const queries = `
     forumDetail(_id: String!): Forum
     forumsTotalCount: Int
 
-    forumTopics(page: Int perPage: Int): [ForumTopic]
+    forumTopics(page: Int perPage: Int forumId: String!): [ForumTopic]
     forumTopicDetail(_id: String!): ForumTopic
     forumTopicsTotalCount(forumId: String!):Int
     forumTopicsGetLast: ForumTopic
