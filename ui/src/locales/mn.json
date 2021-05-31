@@ -771,7 +771,7 @@
   "Please choose a product": "Бүтээгдэхүүн сонгоно уу.",
   "Please choose a currency": "Валют сонгоно уу.",
   "No board": "Самбар байхгүй байна",
-  "Empty": "хайна",
+  "Empty": "Хоосон байна",
   "There is no account.": "Данс байхгүй байна.",
   "There is no tag": "Таг байхгүй байна",
   "Add Exchange": "Солилцоо нэмэх",
@@ -1225,7 +1225,6 @@
   "Click on “Boards, Calendar, Conversions” to filter deals": "Самбар, хуанли, хөрвүүлэлт дээр дарж хэлэлцээрүүдийг шүүнэ үү",
   "No label chosen": "Шошго сонгоогүй байна",
   "Getting Started with Sales Pipeline": "Борлуулалтын пайплайн эхлүүлэх",
-  "Getting Started with Sales pipeline": "Борлуулалтын пайплайн эхлүүлэх",
   "General system config": "Ерөнхий систем тохиргоо",
   "General settings": "Ерөнхий тохиргоонууд",
   "Integrations config": "Интеграци тохиргоо",
@@ -1267,6 +1266,7 @@
   "Tip: This could be equivalent to your brands and/or you can organize by year/project/etc": "Зөвлөгөө: Энэ нь танай брэндүүдтэй дүйцэхүйц байж болох бөгөөд / эсвэл та жилээр нь / төсөл / гэх мэтээр зохион байгуулж болно.",
   "Google Cloud Storage": "Гүүгл үүлэн багтаамж",
   "Getting Started with Import & Export Feature": "Импорт болон экспортын функцыг эхлүүлэх",
+  "getting Started with Sales Pipeline": "пайплайн",
   "These steps will help you with importing or exporting your data to and from erxes": "Эдгээр алхамууд нь өгөгдлийг эрксис руу импортлох, экспортлоход туслах болно.",
   "Export your data from your previous software or have your data sheet (csv, xls) ready": "Өмнөх програм хангамжийнхаа өгөгдлийг экспортлох эсвэл мэдээллийн хуудсаа (csv, xls) бэлэн байлгах",
   "Download template": "Загвар татаж авах",
@@ -1466,5 +1466,6 @@
   "All information and know-how related to your business products and services are found here": "Танай бизнесийн бүтээгдэхүүн, үйлчилгээтэй холбоотой бүх мэдээлэл, ноу-хауг эндээс олж болно.",
   "Create and add in unlimited products and servicess so that you and your team members can edit and share": " Хязгааргүй бүтээгдэхүүн, үйлчилгээний хэрэгслийг бий болгож нэмж оруулаарай, ингэснээр та болон таны багийн гишүүд засах, хуваалцах боломжтой болно.",
   "Manage your boards and calendars so that its easy to manage incoming pop ups or requests that is adaptable to your team's needs": "Өөрийн самбар, хуанлигаа удирдаж, ирж буй поп цонх эсвэл хүсэлтийг танай багийн хэрэгцээнд нийцүүлэн удирдахад хялбар болгоно уу",
-  "Add in or delete boards and calendars to keep business development on track and in check": "Бизнесийн хөгжлийг хэвийн хэмжээнд байлгахын тулд самбар, хуанли нэмж оруулах эсвэл устгах"
+  "Add in or delete boards and calendars to keep business development on track and in check": "Бизнесийн хөгжлийг хэвийн хэмжээнд байлгахын тулд самбар, хуанли нэмж оруулах эсвэл устгах",
+  "There is no ": "Байхгүй байна"
 }

@@ -177,7 +177,7 @@ class LeftSidebar extends React.Component<Props, State> {
               btnStyle="success"
               icon="cog"
             >
-              Connect account
+              {'Connect account'}
             </Button>
           </Link>
         </CommonWrapper>

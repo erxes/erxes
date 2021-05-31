@@ -32,7 +32,7 @@ class Home extends React.Component<Props> {
     const { id = '', state = '' } = queryParams;
 
     if (boardsWithCount.length === 0) {
-      return <EmptyState text="There is no campaign" icon="folder-2" />;
+      return <EmptyState text={__('There is no campaign')} icon="folder-2" />;
     }
 
     return boardsWithCount.map(board => (

@@ -6,6 +6,7 @@
   "Filter by tags": "Filter by tags",
   "There is no data": "There is no data",
   "There is no data.": "There is no data.",
+  "There is no ": "There is no ",
   "Load more": "Load more",
   "There aren't any activities at the moment.": "There aren't any activities at the moment.",
   "Reset your password": "Reset your password",
@@ -841,7 +842,6 @@
   "You can find stats that defines the average response time by each team member.": "You can find stats that defines the average response time by each team member.",
   "Oh boy, looks like you need to get a head start on your deals": "Oh boy, looks like you need to get a head start on your deals",
   "Open segments and starting add details": "Open segments and starting add details",
-  "getting started with sales pipeline": "getting started with sales pipeline",
   "Now easier to find contacts according to your brand": "Now easier to find contacts according to your brand",
   "Search and filter customers by form": "Search and filter customers by form",
   "There is always a lead!": "There is always a lead!",
@@ -1748,7 +1748,7 @@
   "No label chosen": "No label chosen",
   "Click on “Boards, Calendar, Conversions” to filter deals": "Click on “Boards, Calendar, Conversions” to filter deals",
   "Getting Started with Sales Pipeline": "Getting Started with Sales Pipeline",
-  "Getting Started with Sales pipeline": "Getting Started with Sales pipeline",
+  "getting Started with Sales Pipeline": "getting Started with Sales Pipeline",
   "Get started on your group": "Get started on your group",
   "Add calendar": "Add calendar",
   "Get started on your board": "Get started on your board",
@@ -1910,5 +1910,6 @@
   "Manage your boards and pipelines so that its easy to manage incoming leads or requests that is adaptable to your teams needs": "Manage your boards and pipelines so that its easy to manage incoming leads or requests that is adaptable to your teams needs",
   "All information and know-how related to your business products and services are found here": "All information and know-how related to your business products and services are found here",
   "Manage your boards and calendars so that its easy to manage incoming pop ups or requests that is adaptable to your team's needs": "Manage your boards and calendars so that its easy to manage incoming pop ups or requests that is adaptable to your team's needs",
-  "Add in or delete boards and calendars to keep business development on track and in check": "Add in or delete boards and calendars to keep business development on track and in check"
+  "Add in or delete boards and calendars to keep business development on track and in check": "Add in or delete boards and calendars to keep business development on track and in check",
+  "There is no campaign": "There is no campaign"
 }

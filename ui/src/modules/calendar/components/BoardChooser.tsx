@@ -99,7 +99,7 @@ class BoardChooser extends React.Component<Props> {
                   currentBoard ? currentBoard._id : ''
                 }`}
               >
-                Create Group
+                {__('Create Group')}
               </Link>
             </Button>
           }

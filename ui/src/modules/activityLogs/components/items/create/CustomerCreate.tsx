@@ -35,7 +35,7 @@ class CustomerCreate extends React.Component<Props> {
       return (
         <span>
           This customer registered to erxes by
-          {content ? ` ${content.name}{__(''s Integrations')}` : ''}
+          {content ? ` ${content.name}{__("'s Integrations")}` : ''}
         </span>
       );
     }

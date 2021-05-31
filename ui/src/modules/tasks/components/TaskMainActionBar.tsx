@@ -35,7 +35,7 @@ const TaskMainActionBar = (props: Props) => {
         onSelect={onSelect}
       />
       <SelectCustomers
-        label="w"
+        label="Filter by customers"
         name="customerIds"
         queryParams={queryParams}
         onSelect={onSelect}

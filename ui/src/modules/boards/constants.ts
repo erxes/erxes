@@ -50,7 +50,7 @@ export const PIPELINE_UPDATE_STATUSES = {
 };
 
 export const EMPTY_CONTENT_DEAL = {
-  title: `${__('Getting Started with Sales Pipeline')}`,
+  title: __('getting Started with Sales Pipeline'),
   description: `${__(
     'Drive leads to a successful close with our Kanban-style boards'
   )}`,
