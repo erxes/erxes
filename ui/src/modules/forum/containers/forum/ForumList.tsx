@@ -100,12 +100,12 @@ export default compose(
             ? []
             : [
                 {
-                  query: gql(queries.forumDiscussions),
-                  variables: { topicId: currentTopicId }
-                },
-                {
                   query: gql(queries.forumTopicDetail),
                   variables: { _id: currentTopicId }
+                },
+                {
+                  query: gql(queries.forumDiscussionsTotalCount),
+                  variables: { topicId: currentTopicId }
                 }
               ]
         };

@@ -72,12 +72,16 @@ export default compose(
       options: ({ currentTopicId, forumId }) => ({
         refetchQueries: [
           {
-            query: gql(queries.forumDiscussions),
-            variables: { topicId: currentTopicId }
-          },
-          {
             query: gql(queries.forumDetail),
             variables: { _id: forumId }
+          },
+          {
+            query: gql(queries.forumTopicDetail),
+            variables: { _id: currentTopicId }
+          },
+          {
+            query: gql(queries.forumDiscussionsTotalCount),
+            variables: { topicId: currentTopicId }
           }
         ]
       })
