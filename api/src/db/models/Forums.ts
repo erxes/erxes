@@ -9,7 +9,7 @@ import {
   ITopicDocument,
   IDiscussion,
   IDiscussionDocument
-} from './definitions/forum';
+} from './definitions/forums';
 
 export interface IForumModel extends Model<IForumDocument> {
   getForum(_id: string): Promise<IForumDocument>;

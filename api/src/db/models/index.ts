@@ -42,7 +42,7 @@ import Tickets from './Tickets';
 import Users from './Users';
 import Webhooks from './Webhook';
 
-import { Forums, ForumTopics, ForumDiscussions } from './Forum';
+import { Forums, ForumTopics, ForumDiscussions } from './Forums';
 
 export {
   EmailDeliveries,
