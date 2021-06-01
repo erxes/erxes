@@ -100,5 +100,6 @@ export const commentSchema = new Schema({
   _id: field({ pkey: true }),
   title: field({ type: String, label: 'Title' }),
   content: field({ type: String, label: 'Content' }),
+  discussionId: field({ type: String, label: 'Discussion' }),
   ...commonFields
 });
