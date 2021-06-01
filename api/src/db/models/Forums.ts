@@ -331,13 +331,13 @@ const loadCommentClass = () => {
      * remove comment
      */
     public static async removeDoc(_id: string) {
-      const comment = DiscussionComments.findOne({ _id });
+      const comment = await DiscussionComments.findOne({ _id });
 
       if (!comment) {
         throw new Error('comment not found');
       }
 
-      return ForumDiscussions.deleteOne({ _id });
+      return DiscussionComments.deleteOne({ _id });
     }
   }
 
