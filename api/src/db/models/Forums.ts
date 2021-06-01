@@ -275,6 +275,6 @@ export const ForumTopics = model<ITopicDocument, ITopicModel>(
 );
 
 export const ForumDiscussions = model<IDiscussionDocument, IDiscussionModel>(
-  'forum_discussion',
+  'forum_discussions',
   discussionSchema
 );
