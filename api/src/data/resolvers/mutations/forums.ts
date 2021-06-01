@@ -1,8 +1,14 @@
-import { Forums, ForumTopics, ForumDiscussions } from '../../../db/models';
+import {
+  Forums,
+  ForumTopics,
+  ForumDiscussions,
+  DiscussionComments
+} from '../../../db/models';
 import {
   IForum,
   ITopic,
-  IDiscussion
+  IDiscussion,
+  IComment
 } from '../../../db/models/definitions/forums';
 import { IContext } from '../../types';
 
@@ -100,6 +106,41 @@ const forumMutations = {
    */
   async forumDiscussionsRemove(_root, { _id }: { _id: string }) {
     const removed = await ForumDiscussions.removeDoc(_id);
+
+    return removed;
+  },
+
+  /**
+   * add discussion comments
+   */
+  async discussionCommentsAdd(
+    _root,
+    { doc }: { doc: IComment },
+    { user }: IContext
+  ) {
+    const comment = DiscussionComments.createDoc(doc, user._id);
+
+    return comment;
+  },
+
+  /**
+   * edit discussion comments
+   */
+  async discussionCommentsEdit(
+    _root,
+    { _id, doc }: { _id: string; doc: IComment },
+    { user }: IContext
+  ) {
+    const updated = DiscussionComments.updateDoc(_id, doc, user._id);
+
+    return updated;
+  },
+
+  /**
+   * remove discussion comments
+   */
+  async discussionCommentsRemove(_root, { _id }: { _id: string }) {
+    const removed = await DiscussionComments.removeDoc(_id);
 
     return removed;
   }

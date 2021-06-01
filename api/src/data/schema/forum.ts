@@ -59,6 +59,19 @@ export const types = `
         topicId: String!
         forumId: String!
     }
+
+    type ForumDiscussionComment{
+        title: String
+        content: String
+        discussionId: String
+        createdUser: User
+    }
+
+    input ForumDiscussionCommentDoc{
+        title: String
+        content: String
+        discussionId: String!
+    }
 `;
 
 export const queries = `
@@ -88,4 +101,8 @@ export const mutations = `
     forumDiscussionsAdd(doc: ForumDiscussionDoc): ForumDiscussion
     forumDiscussionsEdit(_id: String! doc: ForumDiscussionDoc): ForumDiscussion
     forumDiscussionsRemove(_id: String!): JSON 
+
+    discussionCommentsAdd(doc: ForumDiscussionCommentDoc): ForumDiscussionComment
+    discussionCommentsEdit(_id: String doc: ForumDiscussionCommentDoc): ForumDiscussionComment
+    discussionCommentsRemove(_id: String): JSON
 `;
