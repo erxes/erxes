@@ -51,6 +51,7 @@ import UsersGroup from './usersGroup';
 import Forum from './forum';
 import ForumTopic from './forumTopic';
 import ForumDiscussion from './forumDiscussion';
+import ForumDiscussionComment from './forumDiscussionComment';
 
 const resolvers: any = {
   ...customScalars,
@@ -107,7 +108,8 @@ const resolvers: any = {
 
   Forum,
   ForumTopic,
-  ForumDiscussion
+  ForumDiscussion,
+  ForumDiscussionComment
 };
 
 export default resolvers;
