@@ -3,7 +3,7 @@ import {
   IForum,
   ITopic,
   IDiscussion
-} from '../../../db/models/definitions/forum';
+} from '../../../db/models/definitions/forums';
 import { IContext } from '../../types';
 
 const forumMutations = {

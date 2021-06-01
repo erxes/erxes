@@ -1,4 +1,4 @@
-import { IDiscussionDocument } from '../../db/models/definitions/forum';
+import { IDiscussionDocument } from '../../db/models/definitions/forums';
 import { getDocument } from './mutations/cacheUtils';
 
 export default {

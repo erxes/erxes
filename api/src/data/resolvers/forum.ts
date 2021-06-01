@@ -1,5 +1,5 @@
 import { ForumTopics } from '../../db/models';
-import { IForumDocument } from '../../db/models/definitions/forum';
+import { IForumDocument } from '../../db/models/definitions/forums';
 import { getDocument } from './mutations/cacheUtils';
 
 export default {
