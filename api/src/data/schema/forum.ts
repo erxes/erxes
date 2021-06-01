@@ -61,6 +61,7 @@ export const types = `
     }
 
     type ForumDiscussionComment{
+        _id: String!
         title: String
         content: String
         discussionId: String
@@ -87,6 +88,9 @@ export const queries = `
     forumDiscussions(page: Int perPage: Int topicId: String!): [ForumDiscussion]
     forumDiscussionDetail(_id: String!): ForumDiscussion
     forumDiscussionsTotalCount(topicId: String!): Int
+
+    discussionComments(discussionId: String!): [ForumDiscussionComment]
+    discussionCommentsTotalCount(discussionId: String!): Int
 `;
 
 export const mutations = `

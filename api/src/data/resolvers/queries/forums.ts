@@ -1,4 +1,9 @@
-import { ForumDiscussions, Forums, ForumTopics } from '../../../db/models';
+import {
+  ForumDiscussions,
+  Forums,
+  ForumTopics,
+  DiscussionComments
+} from '../../../db/models';
 
 import { IContext } from '../../types';
 import { paginate } from '../../utils';
@@ -92,6 +97,22 @@ const forumQueries = {
    */
   forumDiscussionsTotalCount(_root, args: { topicId: string }) {
     return ForumDiscussions.find({ topicId: args.topicId }).countDocuments();
+  },
+
+  /**
+   * discussion comments list
+   */
+  discussionComments(_root, args: { discussionId: string }) {
+    return DiscussionComments.find({ discussionId: args.discussionId });
+  },
+
+  /**
+   * dicsussion comments total count
+   */
+  discussionCommentsTotalCount(_root, args: { discussionId: string }) {
+    return DiscussionComments.find({
+      discussionId: args.discussionId
+    }).countDocuments();
   }
 };
 
