@@ -8,7 +8,10 @@ import {
   ITopic,
   ITopicDocument,
   IDiscussion,
-  IDiscussionDocument
+  IDiscussionDocument,
+  IComment,
+  ICommentDocument,
+  commentSchema
 } from './definitions/forums';
 
 export interface IForumModel extends Model<IForumDocument> {
@@ -263,9 +266,89 @@ const loadDiscussionClass = () => {
   return discussionSchema;
 };
 
+export interface ICommentModel extends Model<ICommentDocument> {
+  getComment(_id: string): Promise<ICommentDocument>;
+  createDoc(docFields: IComment, userId: string): Promise<ICommentDocument>;
+  updateDoc(
+    _id: string,
+    docFields: IComment,
+    userId: string
+  ): Promise<ICommentDocument>;
+  removeDoc(_id: string): void;
+}
+
+const loadCommentClass = () => {
+  class Comment {
+    /**
+     * Get one comment
+     */
+    public static async getComment(_id: string) {
+      const comment = DiscussionComments.findOne({ _id });
+
+      if (!comment) {
+        throw new Error('Comment not found');
+      }
+
+      return comment;
+    }
+
+    /**
+     * Create new comment
+     */
+    public static async createDoc(docFields: IComment, userId: string) {
+      if (!userId) {
+        throw new Error('userId must be supplied');
+      }
+      return DiscussionComments.create({
+        ...docFields,
+        createdBy: userId,
+        createdDate: new Date(),
+        modifiedDate: new Date()
+      });
+    }
+
+    /**
+     * Update comment
+     */
+    public static async updateDoc(
+      _id: string,
+      docFields: IComment,
+      userId: string
+    ) {
+      if (!userId) {
+        throw new Error('userId must be supplied');
+      }
+
+      await DiscussionComments.updateOne(
+        { _id },
+        { $set: { ...docFields, modifiedBy: userId, modifiedDate: new Date() } }
+      );
+
+      return DiscussionComments.findOne({ _id });
+    }
+
+    /**
+     * remove comment
+     */
+    public static async removeDoc(_id: string) {
+      const comment = DiscussionComments.findOne({ _id });
+
+      if (!comment) {
+        throw new Error('comment not found');
+      }
+
+      return ForumDiscussions.deleteOne({ _id });
+    }
+  }
+
+  commentSchema.loadClass(Comment);
+  return commentSchema;
+};
+
 loadForumClass();
 loadTopicClass();
 loadDiscussionClass();
+loadCommentClass();
 
 export const Forums = model<IForumDocument, IForumModel>('forums', forumSchema);
 
@@ -277,4 +360,9 @@ export const ForumTopics = model<ITopicDocument, ITopicModel>(
 export const ForumDiscussions = model<IDiscussionDocument, IDiscussionModel>(
   'forum_discussions',
   discussionSchema
+);
+
+export const DiscussionComments = model<ICommentDocument, ICommentModel>(
+  'forum_discussion_comment',
+  commentSchema
 );
