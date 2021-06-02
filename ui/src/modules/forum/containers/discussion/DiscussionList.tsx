@@ -64,7 +64,7 @@ export default compose(
       options: ({ queryParams, currentTopicId }) => ({
         variables: {
           ...generatePaginationParams(queryParams),
-          topicId: currentTopicId
+          topicId: String(currentTopicId)
         },
         fetchPolicy: 'network-only'
       })
