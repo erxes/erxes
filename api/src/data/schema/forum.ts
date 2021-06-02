@@ -67,6 +67,7 @@ export const types = `
         content: String
         discussionId: String
         createdUser: User
+        createdDate: Date
     }
 
     input ForumDiscussionCommentDoc{
