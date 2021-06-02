@@ -51,6 +51,7 @@ export const types = `
         createdDate: Date
         modifiedBy: String
         modifiedDate: Date
+        comments: [ForumDiscussionComment]
     }
 
     input ForumDiscussionDoc{
