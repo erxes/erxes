@@ -13,7 +13,7 @@ export const templateExport = async (args: any) => {
   if (importType === 'csv') {
     const { Parser } = json2csv;
 
-    const parser = new Parser({ fields: configs });
+    const parser = new Parser({ fields: configs, excelStrings: true });
     const csv = parser.parse('');
 
     return {
