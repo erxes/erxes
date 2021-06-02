@@ -122,7 +122,22 @@ const forumDiscussions = `
                   avatar
                   fullName
                 }
-              }
+            }
+            comments{
+                _id
+                title
+                content
+                createdDate
+                createdUser {
+                    _id
+                    username
+                    email
+                    details {
+                      avatar
+                      fullName
+                    }
+                }
+            }
         }
     }
 `;

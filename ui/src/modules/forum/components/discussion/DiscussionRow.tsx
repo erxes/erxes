@@ -20,6 +20,7 @@ import {
 } from './styles';
 import { DiscussionForm } from '../../containers/discussion';
 import { IDiscussion } from '../../types';
+import DiscussionDetail from './DiscussionDetail';
 
 type Props = {
   queryParams: any;
@@ -35,6 +36,30 @@ const DiscussionRow = (props: Props) => {
 
   const remove = () => {
     return props.remove(discussion._id);
+  };
+
+  const renderDetail = editTrigger => {
+    const detailButton = (
+      <Button btnStyle="link">
+        <Tip text={'Edit'}>
+          <Icon icon="edit" />
+        </Tip>
+      </Button>
+    );
+
+    const content = contentProps => (
+      <DiscussionDetail {...contentProps} discussion={discussion} />
+    );
+
+    return (
+      <ModalTrigger
+        size="lg"
+        title="Comments"
+        trigger={editTrigger ? editTrigger : detailButton}
+        content={content}
+        enforceFocus={false}
+      />
+    );
   };
 
   const renderEditAction = editTrigger => {
@@ -76,7 +101,7 @@ const DiscussionRow = (props: Props) => {
   return (
     <RowDiscussion>
       <DiscussionColumn>
-        {renderEditAction(title)}
+        {renderDetail(title)}
         <p>{discussion.description}</p>
         <DiscussionMeta>
           <img

@@ -43,6 +43,15 @@ export interface IDiscussion {
   createdDate: Date;
   modifiedBy: string;
   modifiedDate: Date;
+  comments: IComment[];
+}
+
+export interface IComment {
+  _id: string;
+  title: string;
+  content: string;
+  createdUser: IUser;
+  createdDate: Date;
 }
 
 // mutation types
