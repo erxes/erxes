@@ -115,6 +115,7 @@ const forumDiscussions = `
             modifiedBy
             modifiedDate
             content
+            status
             createdUser {
                 _id
                 username

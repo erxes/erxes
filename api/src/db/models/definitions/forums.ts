@@ -1,6 +1,6 @@
 import { Document, Schema } from 'mongoose';
 import { field } from './utils';
-
+import { PUBLISH_STATUSES } from './constants';
 interface ICommonFields {
   createdBy: string;
   createdDate: Date;
@@ -95,6 +95,12 @@ export const discussionSchema = new Schema({
   topicId: field({ type: String, label: 'Topic' }),
   forumId: field({ type: String, label: 'Forum' }),
   content: field({ type: String, label: 'Content' }),
+  status: field({
+    type: String,
+    enum: PUBLISH_STATUSES.ALL,
+    default: PUBLISH_STATUSES.DRAFT,
+    label: 'Status'
+  }),
   ...commonFields
 });
 

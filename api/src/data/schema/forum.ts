@@ -53,6 +53,7 @@ export const types = `
         modifiedDate: Date
         comments: [ForumDiscussionComment]
         content: String!
+        status: String
     }
 
     input ForumDiscussionDoc{
@@ -61,6 +62,7 @@ export const types = `
         topicId: String!
         forumId: String!
         content: String!
+        status: String
     }
 
     type ForumDiscussionComment{

@@ -38,6 +38,7 @@ class DiscussionForm extends React.Component<Props, State> {
     _id?: string;
     title: string;
     description: string;
+    status: string;
   }) => {
     const { currentTopicId, discussion, forumId } = this.props;
     const { content } = this.state;
@@ -54,7 +55,8 @@ class DiscussionForm extends React.Component<Props, State> {
         title: finalValues.title,
         description: finalValues.description,
         forumId,
-        content
+        content,
+        status: finalValues.status
       }
     };
   };
@@ -89,6 +91,24 @@ class DiscussionForm extends React.Component<Props, State> {
             defaultValue={object.description}
           />
         </FormGroup>
+        <FormGroup>
+          <ControlLabel required={true}>{'Status'}</ControlLabel>
+          <FormControl
+            {...formProps}
+            name="status"
+            componentClass="select"
+            placeholder={'Select'}
+            defaultValue={object.status || 'draft'}
+            required={true}
+          >
+            {[{ value: 'draft' }, { value: 'publish' }].map(op => (
+              <option key={op.value} value={op.value}>
+                {op.value}
+              </option>
+            ))}
+          </FormControl>
+        </FormGroup>
+
         <FormGroup>
           <ControlLabel required={true}>{'Content'}</ControlLabel>
           <EditorCK
