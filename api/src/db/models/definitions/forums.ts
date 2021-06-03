@@ -35,6 +35,7 @@ export interface IDiscussion {
   tagId?: string;
   topicId: string;
   forumId: string;
+  content: string;
 }
 
 export interface IDiscussionDocument
@@ -93,6 +94,7 @@ export const discussionSchema = new Schema({
   tagId: field({ type: String, optional: true, label: 'Tag' }),
   topicId: field({ type: String, label: 'Topic' }),
   forumId: field({ type: String, label: 'Forum' }),
+  content: field({ type: String, label: 'Content' }),
   ...commonFields
 });
 
