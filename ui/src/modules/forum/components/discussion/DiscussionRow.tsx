@@ -4,7 +4,7 @@ import dayjs from 'dayjs';
 import ModalTrigger from 'modules/common/components/ModalTrigger';
 import Button from 'modules/common/components/Button';
 import Icon from 'modules/common/components/Icon';
-import { __, getUserAvatar } from 'modules/common/utils';
+import { getUserAvatar } from 'modules/common/utils';
 
 import Tip from 'modules/common/components/Tip';
 

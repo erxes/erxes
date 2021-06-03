@@ -1,16 +1,13 @@
 import React from 'react';
 import Button from 'modules/common/components/Button';
-
 import EditorCK from 'modules/common/components/EditorCK';
 import Form from 'modules/common/components/form/Form';
-
 import FormControl from 'modules/common/components/form/Control';
 import FormGroup from 'modules/common/components/form/Group';
 import ControlLabel from 'modules/common/components/form/Label';
 import { ModalFooter } from 'modules/common/styles/main';
-
+import { FlexContent, FlexItem } from 'modules/layout/styles';
 import { IButtonMutateProps, IFormProps } from 'modules/common/types';
-
 import { IDiscussion } from '../../types';
 
 type Props = {
@@ -91,23 +88,42 @@ class DiscussionForm extends React.Component<Props, State> {
             defaultValue={object.description}
           />
         </FormGroup>
-        <FormGroup>
-          <ControlLabel required={true}>{'Status'}</ControlLabel>
-          <FormControl
-            {...formProps}
-            name="status"
-            componentClass="select"
-            placeholder={'Select'}
-            defaultValue={object.status || 'draft'}
-            required={true}
-          >
-            {[{ value: 'draft' }, { value: 'publish' }].map(op => (
-              <option key={op.value} value={op.value}>
-                {op.value}
-              </option>
-            ))}
-          </FormControl>
-        </FormGroup>
+
+        <FlexContent>
+          <FlexItem count={2}>
+            <FormGroup>
+              <ControlLabel required={true}>{'Start date'}</ControlLabel>
+            </FormGroup>
+          </FlexItem>
+
+          <FlexItem count={2} hasSpace={true}>
+            <FormGroup>
+              <ControlLabel required={true}>{'Close date'}</ControlLabel>
+            </FormGroup>
+          </FlexItem>
+        </FlexContent>
+
+        <FlexContent>
+          <FlexItem count={2}>
+            <FormGroup>
+              <ControlLabel required={true}>{'Status'}</ControlLabel>
+              <FormControl
+                {...formProps}
+                name="status"
+                componentClass="select"
+                placeholder={'Select'}
+                defaultValue={object.status || 'draft'}
+                required={true}
+              >
+                {[{ value: 'draft' }, { value: 'publish' }].map(op => (
+                  <option key={op.value} value={op.value}>
+                    {op.value}
+                  </option>
+                ))}
+              </FormControl>
+            </FormGroup>
+          </FlexItem>
+        </FlexContent>
 
         <FormGroup>
           <ControlLabel required={true}>{'Content'}</ControlLabel>
