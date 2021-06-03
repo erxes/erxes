@@ -86,10 +86,10 @@ export const loadForumClass = () => {
       }
 
       // remove child topics
-      await ForumTopics.deleteMany({ forumId: { $in: _id } });
+      await ForumTopics.deleteMany({ forumId: _id });
 
       // remove child discussions
-      await ForumDiscussions.deleteMany({ forumId: { $in: _id } });
+      await ForumDiscussions.deleteMany({ forumId: _id });
 
       return Forums.deleteOne({ _id });
     }
@@ -173,7 +173,7 @@ export const loadTopicClass = () => {
       }
 
       // remove child discussions
-      await ForumDiscussions.deleteMany({ topicId: { $in: _id } });
+      await ForumDiscussions.deleteMany({ topicId: _id });
 
       return ForumTopics.deleteOne({ _id });
     }
@@ -257,6 +257,9 @@ const loadDiscussionClass = () => {
       if (!discussion) {
         throw new Error('Discussion not found');
       }
+
+      // comment delete when remove discussion
+      await DiscussionComments.deleteMany({ discussionId: _id });
 
       return ForumDiscussions.deleteOne({ _id });
     }
