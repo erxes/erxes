@@ -1,6 +1,7 @@
 import React from 'react';
 import Button from 'modules/common/components/Button';
 
+import EditorCK from 'modules/common/components/EditorCK';
 import Form from 'modules/common/components/form/Form';
 
 import FormControl from 'modules/common/components/form/Control';
@@ -20,14 +21,26 @@ type Props = {
   forumId: string;
 };
 
-class DiscussionForm extends React.Component<Props> {
+type State = {
+  content: string;
+};
+class DiscussionForm extends React.Component<Props, State> {
+  constructor(props: Props) {
+    super(props);
+
+    const discussion = this.props.discussion || { content: '' };
+
+    this.state = {
+      content: discussion.content
+    };
+  }
   generateDoc = (values: {
     _id?: string;
     title: string;
     description: string;
   }) => {
     const { currentTopicId, discussion, forumId } = this.props;
-
+    const { content } = this.state;
     const finalValues = values;
 
     if (discussion) {
@@ -40,15 +53,20 @@ class DiscussionForm extends React.Component<Props> {
         topicId: currentTopicId,
         title: finalValues.title,
         description: finalValues.description,
-        forumId
+        forumId,
+        content
       }
     };
   };
 
+  onChange = e => {
+    this.setState({ content: e.editor.getData() });
+  };
+
   renderContent = (formProps: IFormProps) => {
     const { closeModal, renderButton, discussion } = this.props;
+    const { content } = this.state;
     const { values, isSubmitted } = formProps;
-
     const object = discussion || ({} as IDiscussion);
 
     return (
@@ -69,6 +87,16 @@ class DiscussionForm extends React.Component<Props> {
             {...formProps}
             name="description"
             defaultValue={object.description}
+          />
+        </FormGroup>
+        <FormGroup>
+          <ControlLabel required={true}>{'Content'}</ControlLabel>
+          <EditorCK
+            content={content}
+            onChange={this.onChange}
+            isSubmitted={formProps.isSaved}
+            height={300}
+            name={`Discussion content`}
           />
         </FormGroup>
 

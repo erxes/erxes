@@ -44,6 +44,7 @@ export interface IDiscussion {
   modifiedBy: string;
   modifiedDate: Date;
   comments: IComment[];
+  content: string;
 }
 
 export interface IComment {
