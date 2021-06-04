@@ -196,7 +196,7 @@ export const uploadFileAWS = async (
   const IS_PUBLIC = forcePrivate
     ? false
     : await getConfig('FILE_SYSTEM_PUBLIC', 'true');
-  const AWS_PREFIX = await getConfig('AWS_PREFIX');
+  const AWS_PREFIX = await getConfig('AWS_PREFIX', '');
   const AWS_BUCKET = await getConfig('AWS_BUCKET');
 
   // initialize s3
