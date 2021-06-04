@@ -21,6 +21,16 @@ export default class Category extends React.Component<Props> {
     }
   };
 
+  renderCount() {
+    const { childrens, category } = this.props;
+
+    if (!childrens) {
+      return category.numOfArticles;
+    }
+
+    return childrens.length === 0 ? category.numOfArticles : childrens.length;
+  }
+
   render() {
     const { category } = this.props;
 
@@ -31,7 +41,7 @@ export default class Category extends React.Component<Props> {
         </div>
         <div className="erxes-right-side">
           <div className="erxes-name">
-            {category.title} <span>({category.numOfArticles})</span>
+            {category.title} <span>({this.renderCount()})</span>
           </div>
           <div className="description">{category.description}</div>
         </div>

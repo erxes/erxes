@@ -297,7 +297,6 @@ export class AppProvider extends React.Component<{}, IState> {
   };
 
   goToFaqCategory = (category?: IFaqCategory) => {
-    console.log(category);
     const { activeFaqCategory } = this.state;
     if (category) {
       this.setState({ activeFaqCategory: category });
