@@ -188,7 +188,7 @@ class CategoryForm extends React.Component<Props, State> {
         <FormGroup>
           <ControlLabel required={true}>Icon</ControlLabel>
           <Select
-            isRequired={true}
+            required={true}
             value={this.state.selectedIcon}
             options={icons}
             onChange={this.onChangeIcon}
