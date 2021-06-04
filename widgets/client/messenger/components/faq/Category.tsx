@@ -3,6 +3,8 @@ import { IFaqCategory } from "../../types";
 
 type Props = {
   category: IFaqCategory;
+  childrens?: IFaqCategory[];
+  getCurrentItem?: (currentCategory: IFaqCategory) => void;
   onClick: (category?: IFaqCategory) => void;
 };
 
@@ -10,8 +12,13 @@ export default class Category extends React.Component<Props> {
   handleOnClick = (event: React.FormEvent<HTMLDivElement>) => {
     event.preventDefault();
 
-    const { category, onClick } = this.props;
-    onClick(category);
+    const { category, getCurrentItem, childrens, onClick } = this.props;
+
+    if (childrens && getCurrentItem) {
+      childrens.length === 0 ? onClick(category) : getCurrentItem(category);
+    } else {
+      onClick(category);
+    }
   };
 
   render() {

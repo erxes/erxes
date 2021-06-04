@@ -35,7 +35,7 @@ class CategoryList extends React.Component<Props> {
     const parents = categories.filter(f => !f.parentCategoryId);
 
     const groupByParent = this.groupByParent(subFields);
-
+    console.log(groupByParent);
     return (
       <Categories>
         {parents.map(category => {
