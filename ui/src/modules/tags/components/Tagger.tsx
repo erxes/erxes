@@ -39,7 +39,7 @@ class Tagger extends React.Component<Props, { tagsForList: any[] }> {
   /*search from all tags*/
   onSearch = (e?) => {
     const searchValue = e ? e.target.value : '';
-    console.log(searchValue);
+
     debounce(() => {
       client
         .query({
