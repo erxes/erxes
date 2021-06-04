@@ -10,7 +10,10 @@ const Categories = styled.ul`
   border-top: 1px solid ${colors.borderPrimary};
 `;
 
-const CategoryItem = styledTS<{ isActive: boolean }>(styled.li)`
+const CategoryItem = styledTS<{
+  isActive: boolean;
+  isChild: boolean | undefined;
+}>(styled.li)`
   position: relative;
   background: ${props => (props.isActive ? colors.bgActive : colors.bgLight)};
   border-bottom: 1px solid ${colors.borderPrimary};
@@ -19,17 +22,29 @@ const CategoryItem = styledTS<{ isActive: boolean }>(styled.li)`
   overflow: hidden;
 
   a {
-    padding: 10px 0 10px 40px;
+    padding: ${props =>
+      props.isChild ? '10px 0 10px 55px' : '10px 0 10px 40px'};
     white-space: normal;
     display: block;
     color: ${colors.textPrimary};
     position: relative;
     flex: 1;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
     max-width: 100%;
     overflow: hidden;
+    
+    > i {
+      font-size: 18px;
+      color: ${colors.colorCoreGray};
+      transition: all ease 0.3s;
+      line-height: 20px;
+    }
 
     span {
       color: ${colors.colorCoreGray};
+      padding-left: 5px;
     }
 
     &:focus {
@@ -45,6 +60,10 @@ const CategoryItem = styledTS<{ isActive: boolean }>(styled.li)`
   &:hover {
     background: ${props =>
       props.isActive ? colors.bgActive : colors.colorWhite};
+    
+    a > i {
+      display: none;
+    }
 
     ${ActionButtons} {
       width: 35px;
@@ -52,8 +71,4 @@ const CategoryItem = styledTS<{ isActive: boolean }>(styled.li)`
   }
 `;
 
-const CategoryTitle = styledTS<{ isChild?: boolean }>(styled.span)`
-  ${props => props.isChild && `padding-left: 20px;`}
-`;
-
-export { Categories, CategoryItem, ActionButtons, CategoryTitle };
+export { Categories, CategoryItem, ActionButtons };
