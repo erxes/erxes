@@ -38,7 +38,7 @@ const KnowledgeBaseContainer = (props: FinalProps) => {
         }
         variables={values}
         callback={callback}
-        refetchQueries={getRefetchQueries([topicId, values.doc.topicId])}
+        refetchQueries={getRefetchQueries([topicId])}
         isSubmitted={isSubmitted}
         type="submit"
         successMessage={`You successfully ${
