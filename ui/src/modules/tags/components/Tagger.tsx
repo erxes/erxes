@@ -1,8 +1,12 @@
+import client from 'apolloClient';
+import gql from 'graphql-tag';
+import debounce from 'lodash/debounce';
 import FilterableList from 'modules/common/components/filterableList/FilterableList';
 import Spinner from 'modules/common/components/Spinner';
-import { __ } from 'modules/common/utils';
+import { __, Alert } from 'modules/common/utils';
 import { ITag, ITagTypes } from 'modules/tags/types';
 import React from 'react';
+import { queries } from '../graphql';
 
 type Props = {
   type: ITagTypes | string;
@@ -31,6 +35,36 @@ class Tagger extends React.Component<Props, { tagsForList: any[] }> {
       tagsForList: this.generateTagsParams(nextProps.tags, nextProps.targets)
     });
   }
+
+  /*search from all tags*/
+  onSearch = (e?) => {
+    const searchValue = e ? e.target.value : '';
+
+    debounce(() => {
+      client
+        .query({
+          query: gql(queries.tags),
+          variables: {
+            searchValue,
+            type: this.props.type
+          }
+        })
+        .then((response: { loading: boolean; data: { tags?: ITag[] } }) => {
+          const verifiedTags =
+            (response.data.tags || []).filter(tag => tag.name) || [];
+
+          this.setState({
+            tagsForList: this.generateTagsParams(
+              verifiedTags,
+              this.props.targets
+            )
+          });
+        })
+        .catch(error => {
+          Alert.error(error.message);
+        });
+    }, 500)();
+  };
 
   /**
    * Returns array of tags object
@@ -84,11 +118,11 @@ class Tagger extends React.Component<Props, { tagsForList: any[] }> {
   };
 
   render() {
-    if (this.props.loading) {
+    const { className, event, type, loading } = this.props;
+
+    if (loading) {
       return <Spinner objective={true} />;
     }
-
-    const { className, event, type } = this.props;
 
     const links = [
       {

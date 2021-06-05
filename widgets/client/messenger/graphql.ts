@@ -213,6 +213,7 @@ const categoryFields = `
   title
   description
   numOfArticles
+  parentCategoryId
   icon
 `;
 
@@ -220,6 +221,7 @@ const getFaqCategoryQuery = `
   query knowledgeBaseCategoryDetail($_id: String!) {
     knowledgeBaseCategoryDetail(_id: $_id) {
       ${categoryFields}
+      parentCategoryId
       articles {
         ${faqFields}
       }
@@ -233,6 +235,9 @@ const getFaqTopicQuery = `
       title
       description
       categories {
+        ${categoryFields}
+      }
+      parentCategories {
         ${categoryFields}
       }
     }
@@ -272,5 +277,5 @@ export default {
   faqSearchArticlesQuery,
   integrationsFetchApi,
   conversationBotTypingStatus,
-  getEngageMessage
+  getEngageMessage,
 };
