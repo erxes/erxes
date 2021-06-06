@@ -17,6 +17,7 @@ import {
 type Props = {
   queryParams: any;
   currentTopicId: string;
+  forumId: string;
 };
 
 type FinalProps = {

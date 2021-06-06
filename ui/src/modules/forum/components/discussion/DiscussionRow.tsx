@@ -27,10 +27,11 @@ type Props = {
   currentTopicId: string;
   discussion: IDiscussion;
   remove: (discussionId) => void;
+  forumId: string;
 };
 
 const DiscussionRow = (props: Props) => {
-  const { discussion, currentTopicId, queryParams } = props;
+  const { discussion, currentTopicId, queryParams, forumId } = props;
 
   const user = discussion.createdUser;
 
@@ -77,6 +78,7 @@ const DiscussionRow = (props: Props) => {
         discussion={discussion}
         currentTopicId={currentTopicId}
         queryParams={queryParams}
+        forumId={forumId}
       />
     );
 
