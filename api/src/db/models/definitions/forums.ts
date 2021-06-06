@@ -101,6 +101,9 @@ export const discussionSchema = new Schema({
     default: PUBLISH_STATUSES.DRAFT,
     label: 'Status'
   }),
+  startDate: field({ type: Date, label: 'Start Date' }),
+  closeDate: field({ type: Date, label: 'Close Date' }),
+  isComplete: field({ type: Boolean, label: 'Complete' }),
   ...commonFields
 });
 

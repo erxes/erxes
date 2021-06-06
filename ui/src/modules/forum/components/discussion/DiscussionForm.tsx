@@ -10,6 +10,7 @@ import { FlexContent, FlexItem } from 'modules/layout/styles';
 import { IButtonMutateProps, IFormProps } from 'modules/common/types';
 import { IDiscussion } from '../../types';
 import SelectTag from '../../containers/SelectTag';
+import DateSelector from '../../common/DateSelecter';
 
 type Props = {
   renderButton: (props: IButtonMutateProps) => JSX.Element;
@@ -21,6 +22,8 @@ type Props = {
 
 type State = {
   content: string;
+  startDate: Date;
+  closeDate: Date;
 };
 class DiscussionForm extends React.Component<Props, State> {
   constructor(props: Props) {
@@ -29,7 +32,9 @@ class DiscussionForm extends React.Component<Props, State> {
     const discussion = this.props.discussion || { content: '' };
 
     this.state = {
-      content: discussion.content
+      content: discussion.content,
+      startDate: discussion.startDate,
+      closeDate: discussion.closeDate
     };
   }
   generateDoc = (values: {
@@ -39,7 +44,7 @@ class DiscussionForm extends React.Component<Props, State> {
     status: string;
   }) => {
     const { currentTopicId, discussion, forumId } = this.props;
-    const { content } = this.state;
+    const { content, startDate, closeDate } = this.state;
     const finalValues = values;
 
     if (discussion) {
@@ -54,7 +59,9 @@ class DiscussionForm extends React.Component<Props, State> {
         description: finalValues.description,
         forumId,
         content,
-        status: finalValues.status
+        status: finalValues.status,
+        startDate,
+        closeDate
       }
     };
   };
@@ -63,9 +70,17 @@ class DiscussionForm extends React.Component<Props, State> {
     this.setState({ content: e.editor.getData() });
   };
 
+  onStartDateFieldsChange = (value: any) => {
+    this.setState({ startDate: value });
+  };
+
+  onCloseDateFieldChange = (value: any) => {
+    this.setState({ closeDate: value });
+  };
+
   renderContent = (formProps: IFormProps) => {
     const { closeModal, renderButton, discussion } = this.props;
-    const { content } = this.state;
+    const { content, startDate, closeDate } = this.state;
     const { values, isSubmitted } = formProps;
     const object = discussion || ({} as IDiscussion);
 
@@ -94,12 +109,24 @@ class DiscussionForm extends React.Component<Props, State> {
           <FlexItem count={2}>
             <FormGroup>
               <ControlLabel required={true}>{'Start date'}</ControlLabel>
+              <DateSelector
+                name={'Start Date'}
+                isComplete={object.isComplete}
+                date={startDate}
+                onChangeField={this.onStartDateFieldsChange}
+              />
             </FormGroup>
           </FlexItem>
 
           <FlexItem count={2} hasSpace={true}>
             <FormGroup>
               <ControlLabel required={true}>{'Close date'}</ControlLabel>
+              <DateSelector
+                name={'Close Date'}
+                isComplete={object.isComplete}
+                date={closeDate}
+                onChangeField={this.onCloseDateFieldChange}
+              />
             </FormGroup>
           </FlexItem>
         </FlexContent>

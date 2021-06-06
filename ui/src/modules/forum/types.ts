@@ -46,6 +46,9 @@ export interface IDiscussion {
   comments: IComment[];
   content: string;
   status: string;
+  startDate: Date;
+  closeDate: Date;
+  isComplete: boolean;
 }
 
 export interface IComment {

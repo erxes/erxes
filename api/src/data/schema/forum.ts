@@ -54,6 +54,9 @@ export const types = `
         comments: [ForumDiscussionComment]
         content: String!
         status: String
+        startDate: Date
+        closeDate: Date
+        isComplete: Boolean
     }
 
     input ForumDiscussionDoc{
@@ -63,6 +66,9 @@ export const types = `
         forumId: String!
         content: String!
         status: String
+        startDate: Date
+        closeDate: Date
+        isComplete: Boolean
     }
 
     type ForumDiscussionComment{
