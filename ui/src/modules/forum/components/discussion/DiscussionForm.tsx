@@ -9,6 +9,7 @@ import { ModalFooter } from 'modules/common/styles/main';
 import { FlexContent, FlexItem } from 'modules/layout/styles';
 import { IButtonMutateProps, IFormProps } from 'modules/common/types';
 import { IDiscussion } from '../../types';
+import SelectTag from '../../containers/SelectTag';
 
 type Props = {
   renderButton: (props: IButtonMutateProps) => JSX.Element;
@@ -121,6 +122,19 @@ class DiscussionForm extends React.Component<Props, State> {
                   </option>
                 ))}
               </FormControl>
+            </FormGroup>
+          </FlexItem>
+
+          <FlexItem count={2} hasSpace={true}>
+            <FormGroup>
+              <ControlLabel required={true}>{'Tags'}</ControlLabel>
+              <SelectTag
+                label="Choose a tag"
+                name="tag"
+                initialValue={'General'}
+                onSelect={this.onChange}
+                multi={false}
+              />
             </FormGroup>
           </FlexItem>
         </FlexContent>
