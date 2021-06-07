@@ -12,13 +12,6 @@ export const types = `
         topics: [ForumTopic]
     }
 
-    input ForumDoc {
-        title: String
-        description: String
-        languageCode: String
-        brandId: String!
-    }
-
     type ForumTopic {
         _id: String!
         title: String
@@ -31,13 +24,6 @@ export const types = `
         discussionIds: [String]
 
         discussions: [ForumDiscussion]
-    }
-
-    input ForumTopicDoc{
-        title: String
-        description: String
-        forumId: String
-        discussionIds: [String]
     }
 
     type ForumDiscussion{
@@ -59,17 +45,6 @@ export const types = `
         isComplete: Boolean
     }
 
-    input ForumDiscussionDoc{
-        title: String
-        description: String
-        topicId: String!
-        forumId: String!
-        content: String!
-        status: String
-        startDate: Date
-        closeDate: Date
-        isComplete: Boolean
-    }
 
     type ForumDiscussionComment{
         _id: String!
@@ -80,11 +55,6 @@ export const types = `
         createdDate: Date
     }
 
-    input ForumDiscussionCommentDoc{
-        title: String
-        content: String
-        discussionId: String!
-    }
 `;
 
 export const queries = `
@@ -105,20 +75,52 @@ export const queries = `
     discussionCommentsTotalCount(discussionId: String!): Int
 `;
 
+const forumMutationParams = `
+    title: String
+    description: String
+    languageCode: String
+    brandId: String!
+`;
+
+const topicMutationParams = `
+    title: String
+    description: String
+    forumId: String
+    discussionIds: [String]
+`;
+
+const discussionMutationParams = `
+    title: String
+    description: String
+    topicId: String!
+    forumId: String!
+    content: String!
+    status: String
+    startDate: Date
+    closeDate: Date
+    isComplete: Boolean
+`;
+
+const commentMutationParams = `
+    title: String
+    content: String
+    discussionId: String!
+`;
+
 export const mutations = `
-    forumsAdd(doc: ForumDoc!): Forum
-    forumsEdit(_id: String! doc: ForumDoc): Forum
+    forumsAdd(${forumMutationParams}): Forum
+    forumsEdit(_id: String! ${forumMutationParams}): Forum
     forumsRemove(_id: String!): JSON
 
-    forumTopicsAdd(doc: ForumTopicDoc): ForumTopic
-    forumTopicsEdit(_id: String! doc: ForumTopicDoc): ForumTopic
+    forumTopicsAdd(${topicMutationParams}): ForumTopic
+    forumTopicsEdit(_id: String! ${topicMutationParams}): ForumTopic
     forumTopicsRemove(_id: String!): JSON
 
-    forumDiscussionsAdd(doc: ForumDiscussionDoc): ForumDiscussion
-    forumDiscussionsEdit(_id: String! doc: ForumDiscussionDoc): ForumDiscussion
+    forumDiscussionsAdd(${discussionMutationParams}): ForumDiscussion
+    forumDiscussionsEdit(_id: String! ${discussionMutationParams}): ForumDiscussion
     forumDiscussionsRemove(_id: String!): JSON 
 
-    discussionCommentsAdd(doc: ForumDiscussionCommentDoc): ForumDiscussionComment
-    discussionCommentsEdit(_id: String doc: ForumDiscussionCommentDoc): ForumDiscussionComment
+    discussionCommentsAdd(${commentMutationParams}): ForumDiscussionComment
+    discussionCommentsEdit(_id: String ${commentMutationParams}): ForumDiscussionComment
     discussionCommentsRemove(_id: String): JSON
 `;

@@ -30,11 +30,10 @@ class TopicForm extends React.Component<Props> {
 
     return {
       _id: finalValues._id,
-      doc: {
-        title: finalValues.title,
-        description: finalValues.description,
-        forumId
-      }
+
+      title: finalValues.title,
+      description: finalValues.description,
+      forumId
     };
   };
 

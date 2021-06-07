@@ -38,12 +38,11 @@ class ForumForm extends React.Component<Props> {
 
     return {
       _id: finalValues._id,
-      doc: {
-        title: finalValues.title,
-        description: finalValues.description,
-        brandId: finalValues.brandId,
-        languageCode: finalValues.languageCode
-      }
+
+      title: finalValues.title,
+      description: finalValues.description,
+      brandId: finalValues.brandId,
+      languageCode: finalValues.languageCode
     };
   };
 

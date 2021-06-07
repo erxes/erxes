@@ -53,16 +53,15 @@ class DiscussionForm extends React.Component<Props, State> {
 
     return {
       _id: finalValues._id,
-      doc: {
-        topicId: currentTopicId,
-        title: finalValues.title,
-        description: finalValues.description,
-        forumId,
-        content,
-        status: finalValues.status,
-        startDate,
-        closeDate
-      }
+
+      topicId: currentTopicId,
+      title: finalValues.title,
+      description: finalValues.description,
+      forumId,
+      content,
+      status: finalValues.status,
+      startDate,
+      closeDate
     };
   };
 

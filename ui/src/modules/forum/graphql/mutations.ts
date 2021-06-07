@@ -1,12 +1,58 @@
-const forumParamsDef = `$doc: ForumDoc!`;
-const forumTopicParamsDef = `$doc: ForumTopicDoc!`;
-const forumDiscussionParamsDef = `$doc: ForumDiscussionDoc!`;
+const forumParamsDef = `
+    $title: String
+    $description: String
+    $languageCode: String
+    $brandId: String!
+`;
 
-const commonParams = `doc: $doc`;
+const forumParamVal = `
+    title: $title
+    description: $description
+    languageCode: $languageCode
+    brandId: $brandId
+`;
+
+const forumTopicParamsDef = `
+    $title: String
+    $description: String
+    $forumId: String
+    $discussionIds: [String]
+`;
+
+const forumTopicParamVal = `
+    title: $title
+    description: $description
+    forumId: $forumId
+    discussionIds: $discussionIds
+`;
+
+const forumDiscussionParamsDef = `
+    $title: String
+    $description: String
+    $topicId: String!
+    $forumId: String!
+    $content: String!
+    $status: String
+    $startDate: Date
+    $closeDate: Date
+    $isComplete: Boolean
+`;
+
+const forumDiscussionParamsVal = `
+    title: $title
+    description: $description
+    topicId: $topicId
+    forumId: $forumId
+    content: $content
+    status: $status
+    startDate: $startDate
+    closeDate: $closeDate
+    isComplete: $isComplete
+`;
 
 const forumsAdd = `
     mutation forumsAdd(${forumParamsDef}){
-        forumsAdd(${commonParams}){
+        forumsAdd(${forumParamVal}){
             _id
             title
             description
@@ -16,7 +62,7 @@ const forumsAdd = `
 
 const forumsEdit = `
     mutation forumsEdit($_id: String! ${forumParamsDef}){
-        forumsEdit(_id: $_id ${commonParams}){
+        forumsEdit(_id: $_id ${forumParamVal}){
             _id
             title
             description
@@ -32,7 +78,7 @@ const forumsRemove = `
 
 const forumTopicsAdd = `
     mutation forumTopicsAdd(${forumTopicParamsDef}){
-        forumTopicsAdd(${commonParams}){
+        forumTopicsAdd(${forumTopicParamVal}){
             _id
         }
     }
@@ -40,7 +86,7 @@ const forumTopicsAdd = `
 
 const forumTopicsEdit = `
     mutation forumTopicsEdit($_id: String! ${forumTopicParamsDef}){
-        forumTopicsEdit(_id: $_id ${commonParams}){
+        forumTopicsEdit(_id: $_id ${forumTopicParamVal}){
             _id
         }
     }
@@ -54,7 +100,7 @@ const forumTopicsRemove = `
 
 const forumDiscussionsAdd = `
     mutation forumDiscussionsAdd(${forumDiscussionParamsDef}){
-        forumDiscussionsAdd(${commonParams}){
+        forumDiscussionsAdd(${forumDiscussionParamsVal}){
             _id
         }
     }
@@ -62,7 +108,7 @@ const forumDiscussionsAdd = `
 
 const forumDiscussionsEdit = `
     mutation forumDiscussionsEdit($_id: String! ${forumDiscussionParamsDef}){
-        forumDiscussionsEdit(_id: $_id ${commonParams}){
+        forumDiscussionsEdit(_id: $_id ${forumDiscussionParamsVal}){
             _id
         }
     }
