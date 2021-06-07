@@ -6,7 +6,7 @@ import DataWithLoader from 'modules/common/components/DataWithLoader';
 import { TopHeader } from 'modules/common/styles/main';
 import React from 'react';
 
-import { ForumForm } from '../../containers/forum';
+import { ForumForm } from '../../containers/forums';
 import ForumRow from './ForumRow';
 import { IButtonMutateProps } from 'modules/common/types';
 
