@@ -74,7 +74,8 @@ const fieldQueries = {
       return [
         { name: 'categoryCode', label: 'Category Code', order: 0 },
         { name: 'code', label: 'Code', order: 1 },
-        { name: 'name', label: 'Name', order: 1 }
+        { name: 'name', label: 'Name', order: 1 },
+        { name: 'vendorCode', label: 'Vendor Code', order: 2 }
       ];
     }
 
