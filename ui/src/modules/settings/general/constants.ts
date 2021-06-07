@@ -1,4 +1,4 @@
-import { __ } from 'erxes-ui/lib/utils/core';
+import { __ } from 'modules/common/utils';
 
 export const LANGUAGES = [
   { label: 'English', value: 'en' },

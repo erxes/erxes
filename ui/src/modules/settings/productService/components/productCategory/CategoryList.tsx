@@ -130,7 +130,7 @@ class List extends React.Component<IProps> {
         icon="plus-circle"
         block={true}
       >
-        {__('Add category')}
+        Add category
       </Button>
     );
 

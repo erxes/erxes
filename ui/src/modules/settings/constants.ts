@@ -25,9 +25,9 @@ export const EMPTY_IMPORT_CONTENT = {
     },
     {
       title: __('Choose the data type'),
-      description: __(
-        'Make sure you’re on the right page and you’ve selected the right data type Lead, Customer, etc on the left'
-      ),
+      description: `${__(
+        'Make sure you’re on the right page and you’ve selected the right data type Lead, Customer, etc'
+      )}.${__('on the left')}`,
       url: 'http://www.erxes.org/user/import#import',
       target: '_blank',
       isOutside: true
@@ -87,9 +87,9 @@ export const EMPTY_SEGMENT_CONTENT = {
 
 export const EMPTY_NEW_SEGMENT_CONTENT = {
   title: __('Setup a new segment'),
-  description: __(
-    'There aren’t any filters at the moment. You can create a segment by Property and/or by events'
-  ),
+  description: `$__('There aren’t any filters at the moment')}.${__(
+    ' You can create a segment by Property and/or by events'
+  )}`,
   steps: [
     {
       title: __('Create Custom Properties'),
@@ -138,15 +138,15 @@ export const EMPTY_CONTENT_SCRIPT = {
 
 export const EMPTY_CONTENT_POPUPS = {
   title: __('Getting Started with erxes Popups'),
-  description:
-    __(
-      'Never miss a potential lead by capturing them with a customizable Popups & Forms'
-    ) + '.',
+  description: __(
+    'Never miss a potential lead by capturing them with a customizable Popups & Forms'
+  ),
   steps: [
     {
       title: __('Create Popup'),
-      description:
-        __('Fill out the details and create your popup message or form') + '.',
+      description: __(
+        'Fill out the details and create your popup message or form'
+      ),
       url: '/leads/create',
       urlText: 'Create Popup'
     },
@@ -164,7 +164,7 @@ export const EMPTY_CONTENT_POPUPS = {
 export const EMPTY_CONTENT_ENGAGE = {
   title: __('Getting Started with Engage'),
   description: __(
-    'Learn how to use this feature to engage your contacts and drive conversations'
+    'Learn how to use this feature to engage your contacts and drive conversations.'
   ),
   steps: [
     {
@@ -220,9 +220,9 @@ export const EMPTY_CONTENT_KNOWLEDGEBASE = {
 
 export const EMPTY_CONTENT_MESSENGER = {
   title: __('Getting Started with erxes Messenger'),
-  description: __(
-    'Learn how the erxes Messenger works and it is set up. It is used in the Team Inbox and Knowledgebase and Engage features uses Messenger.'
-  ),
+  description: `${__(
+    'Learn how the erxes Messenger works and it is set up'
+  )}.${' It is used in the Team Inbox and Knowledgebase and Engage features uses Messenger'}`,
   steps: [
     {
       title: __('Create a new messenger'),
@@ -317,17 +317,19 @@ export const EMPTY_CONTENT_DEAL_PIPELINE = {
   steps: [
     {
       title: __('Create your first Sales Board'),
-      description: __(
-        'Tip: This could be equivalent to your brands and/or you can organize by year/project/etc'
-      ),
+      description:
+        __(
+          'Tip: This could be equivalent to your brands and/or you can organize by year/project/etc'
+        ) + '.',
       url: '/settings/boards/deal#showBoardModal=true',
       urlText: 'Create a Board'
     },
     {
       title: __('Start adding Pipelines to the Board'),
-      description: __(
-        'Tip: This could be a bit more granular than the Board and/or you can organize by period/project/etc'
-      ),
+      description:
+        __(
+          'Tip: This could be a bit more granular than the Board and/or you can organize by period/project/etc'
+        ) + '.',
       urlText: 'Create a Pipeline',
       url: '/settings/boards/deal#showPipelineModal=true'
     }

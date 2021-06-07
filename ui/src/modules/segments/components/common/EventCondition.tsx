@@ -221,7 +221,7 @@ class Condition extends React.Component<Props, State> {
                   uppercase={false}
                   onClick={this.addAttributeFilter}
                 >
-                  {__('Add event attribute')}
+                  Add event attribute
                 </Button>
               )}
             </FilterProperty>

@@ -39,7 +39,7 @@ class Base extends React.Component<Props> {
         <Link
           to={`/settings/schedule/create/${this.props.queryParams.accountId}`}
         >
-          {__('Add New Page')}
+          Add New Page
         </Link>
       </Button>
     );

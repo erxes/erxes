@@ -10,7 +10,6 @@ import React from 'react';
 import Select from 'react-select-plus';
 import { icons } from '../../icons.constant';
 import { ICategory } from '../../types';
-import { __ } from 'modules/common/utils';
 type Props = {
   currentTopicId: string;
   category: ICategory;
@@ -120,7 +119,7 @@ class CategoryForm extends React.Component<Props, State> {
             onClick={closeModal}
             icon="cancel-1"
           >
-            {__('Cancel')}
+            Cancel
           </Button>
 
           {renderButton({

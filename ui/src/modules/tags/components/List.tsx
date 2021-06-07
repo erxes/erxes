@@ -28,7 +28,7 @@ function List({ tags, type, remove, loading, renderButton }: Props) {
       uppercase={false}
       icon="plus-circle"
     >
-      {__('Add tag')}
+      Add tag
     </Button>
   );
 

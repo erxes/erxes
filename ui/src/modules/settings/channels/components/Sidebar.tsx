@@ -47,7 +47,7 @@ class Sidebar extends React.Component<Props, {}> {
         uppercase={false}
         icon="plus-circle"
       >
-        {__('Add New Channel')}
+        Add New Channel
       </Button>
     );
 

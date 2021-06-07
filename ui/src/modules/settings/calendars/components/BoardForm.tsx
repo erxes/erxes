@@ -7,7 +7,6 @@ import { ModalFooter } from 'modules/common/styles/main';
 import { IButtonMutateProps, IFormProps } from 'modules/common/types';
 import React from 'react';
 import { IBoard } from '../types';
-import { __ } from 'modules/common/utils';
 
 type Props = {
   board?: IBoard;
@@ -55,7 +54,7 @@ class BoardForm extends React.Component<Props> {
             uppercase={false}
             onClick={closeModal}
           >
-            {__('Cancel')}
+            Cancel
           </Button>
 
           {renderButton({

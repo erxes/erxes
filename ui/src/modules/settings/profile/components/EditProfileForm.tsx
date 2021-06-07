@@ -123,11 +123,11 @@ class EditProfile extends React.Component<Props, State> {
             icon="times-circle"
             uppercase={false}
           >
-            {__('Cancel')}
+            Cancel
           </Button>
 
           <Button type="submit" btnStyle="success" icon="plus-circle">
-            {__('Save')}
+            Save
           </Button>
         </ModalFooter>
       </>

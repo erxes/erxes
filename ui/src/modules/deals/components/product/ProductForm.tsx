@@ -292,7 +292,7 @@ class ProductForm extends React.Component<Props, State> {
             icon="plus-circle"
             href={`#${this.state.tempId}`}
           >
-            {__(' Add Product / Service')}
+            Add Product / Service
           </Button>
         </Add>
         <FooterInfo>
@@ -351,7 +351,7 @@ class ProductForm extends React.Component<Props, State> {
             icon="times-circle"
             uppercase={false}
           >
-            {__('Cancel')}
+            Cancel
           </Button>
 
           <Button
@@ -360,7 +360,7 @@ class ProductForm extends React.Component<Props, State> {
             icon="check-circle"
             uppercase={false}
           >
-            {__('Save')}
+            Save
           </Button>
         </ModalFooter>
       </>

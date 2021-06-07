@@ -8,7 +8,7 @@ import { IActivityLog } from 'modules/activityLogs/types';
 import Tip from 'modules/common/components/Tip';
 import { renderUserFullName } from 'modules/common/utils';
 import React from 'react';
-import { __ } from 'erxes-ui/lib/utils/core';
+import { __ } from 'modules/common/utils';
 
 type Props = {
   activity: IActivityLog;

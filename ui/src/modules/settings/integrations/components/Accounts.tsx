@@ -77,7 +77,7 @@ class Accounts extends React.Component<Props, { accountId?: string }> {
         icon="plus-circle"
         onClick={onAdd}
       >
-        {__('Add Account')}
+        Add Account
       </Button>
     );
   }

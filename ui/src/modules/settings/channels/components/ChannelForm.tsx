@@ -8,7 +8,6 @@ import { IButtonMutateProps, IFormProps } from 'modules/common/types';
 import SelectTeamMembers from 'modules/settings/team/containers/SelectTeamMembers';
 import React from 'react';
 import { IChannel } from '../types';
-import { __ } from 'modules/common/utils';
 
 type Props = {
   channel?: IChannel;
@@ -102,7 +101,7 @@ class ChannelForm extends React.Component<Props, State> {
             icon="cancel-1"
             onClick={closeModal}
           >
-            {__('Cancel')}
+            Cancel
           </Button>
 
           {renderButton({

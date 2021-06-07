@@ -139,7 +139,7 @@ class FieldForm extends React.Component<Props, State> {
 
     return (
       <Button size="small" btnStyle="danger" onClick={onDelete} icon="cancel-1">
-        {__('Delete')}
+        Delete
       </Button>
     );
   }

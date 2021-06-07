@@ -172,7 +172,7 @@ class PermissionList extends React.Component<Props> {
         icon="plus-circle"
         uppercase={false}
       >
-        {__('New permission')}
+        New permission
       </Button>
     );
 

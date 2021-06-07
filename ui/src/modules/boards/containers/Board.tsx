@@ -37,7 +37,7 @@ class Board extends React.Component<Props> {
       return (
         <EmptyState
           image="/images/actions/18.svg"
-          text={'Oh boy, looks like you need to get a head start on your board'}
+          text="Oh boy, looks like you need to get a head start on your board"
           size="small"
           light={true}
         />

@@ -3,7 +3,6 @@ import EditorCK from 'modules/common/components/EditorCK';
 import FormControl from 'modules/common/components/form/Control';
 import CommonForm from 'modules/common/components/form/Form';
 import FormGroup from 'modules/common/components/form/Group';
-import { __ } from 'modules/common/utils';
 import ControlLabel from 'modules/common/components/form/Label';
 import ModalTrigger from 'modules/common/components/ModalTrigger';
 import Uploader from 'modules/common/components/Uploader';
@@ -56,7 +55,7 @@ class Form extends React.Component<Props> {
 
     const trigger = (
       <Button btnStyle="primary" uppercase={false} icon="plus-circle">
-        {__('Add category')}
+        Add category
       </Button>
     );
 
@@ -194,7 +193,7 @@ class Form extends React.Component<Props> {
             icon="times-circle"
             uppercase={false}
           >
-            {__(' Close')}
+            Close
           </Button>
 
           {renderButton({

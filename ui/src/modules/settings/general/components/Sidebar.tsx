@@ -30,7 +30,7 @@ class Sidebar extends React.Component {
             block={true}
             uppercase={false}
           >
-            {__('Back to Settings')}
+            Back to Settings
           </Button>
         </Link>
       </TopHeader>

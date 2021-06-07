@@ -1,5 +1,4 @@
-import { __ } from 'erxes-ui/lib/utils/core';
-
+import { __ } from 'modules/common/utils';
 export const STORAGE_BOARD_KEY = 'erxesCurrentBoardId';
 export const STORAGE_PIPELINE_KEY = 'erxesCurrentPipelineId';
 
@@ -58,7 +57,7 @@ export const EMPTY_CONTENT_DEAL = {
     {
       title: __('Create Boards and Pipelines'),
       description: __(
-        'Track your entire sales pipeline from one dashboard, you can also restrict access to your sales pipelines'
+        'Track your entire sales pipeline from one dashboard.You can also restrict access to your sales pipelines'
       ),
       url: '/settings/boards/deal',
       urlText: __('Go to Board & Pipeline')

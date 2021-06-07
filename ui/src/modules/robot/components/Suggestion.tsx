@@ -55,8 +55,9 @@ export default function Suggestion({
             {__('Hello')}, <b>{currentUserName}</b>
           </h3>
           <p>
-            {__('You have not fully configured')}+{'.'}{' '}
-            {__('Would you like to configure')}
+            {`${__('You have not fully configured')}.${__(
+              'Would you like to configure'
+            )}`}
           </p>
 
           <Button btnStyle="success" size="small" onClick={onResumeClick}>

@@ -100,7 +100,7 @@ class Webhook extends React.Component<Props> {
           <FormControl
             {...formProps}
             name="origin"
-            placeholder={__('0.0.0.0 (optional)')}
+            placeholder="0.0.0.0 (optional)"
             required={false}
             autoFocus={false}
           />

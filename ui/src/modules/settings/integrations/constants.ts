@@ -1,4 +1,4 @@
-import { __ } from 'erxes-ui/lib/utils';
+import { __ } from 'modules/common/utils';
 
 export const days = [
   { value: 'everyday', label: __('Everyday') },

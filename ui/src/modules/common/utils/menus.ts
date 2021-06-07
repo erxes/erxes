@@ -1,4 +1,4 @@
-import { __ } from 'erxes-ui/lib/utils/core';
+import { __ } from 'modules/common/utils';
 
 const menuInbox = [
   { title: 'Team Inbox', link: '/inbox/index' },

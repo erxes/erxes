@@ -395,7 +395,7 @@ class PipelineForm extends React.Component<Props, State> {
               icon="cancel-1"
               onClick={closeModal}
             >
-              {__('Cancel')}
+              Cancel
             </Button>
 
             {renderButton({
