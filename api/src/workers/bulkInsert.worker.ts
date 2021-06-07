@@ -436,11 +436,11 @@ const create = async ({
 
       if (doc.vendorCode) {
         const vendor = vendors.find(
-          vendor =>
-            vendor.code === doc.vendorCode ||
-            vendor.primaryName === doc.vendorCode ||
-            vendor.primaryEmail === doc.vendorCode ||
-            vendor.primaryPhone === doc.vendorCode
+          v =>
+            v.code === doc.vendorCode ||
+            v.primaryName === doc.vendorCode ||
+            v.primaryEmail === doc.vendorCode ||
+            v.primaryPhone === doc.vendorCode
         );
 
         if (vendor) {
