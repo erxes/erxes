@@ -459,7 +459,7 @@ describe('fieldQueries', () => {
           text
         }
       }
-    }    
+    }
  `;
 
     const responses = await graphqlRequest(qry, 'fields', {
