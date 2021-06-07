@@ -1,13 +1,18 @@
 import { Tags } from '../../../db/models';
 import { checkPermission, requireLogin } from '../../permissions/wrappers';
-import { IContext } from '../../types';
 
 const tagQueries = {
   /**
    * Tags list
    */
-  tags(_root, { type }: { type: string }, { commonQuerySelector }: IContext) {
-    return Tags.find({ ...commonQuerySelector, type }).sort({
+  tags(_root, { type, searchValue }: { type: string; searchValue?: string }) {
+    const selector: any = { type };
+
+    if (searchValue) {
+      selector.name = new RegExp(`.*${searchValue}.*`, 'i');
+    }
+
+    return Tags.find(selector).sort({
       order: 1,
       name: 1
     });
