@@ -244,7 +244,6 @@ describe('fieldQueries', () => {
     expect(responses[0].name).toBe('categoryCode');
     expect(responses[1].name).toBe('code');
     expect(responses[2].name).toBe('name');
-    expect(responses[4].name).toBe('vendorCode');
   });
 
   test('Field groups', async () => {
