@@ -59,7 +59,7 @@ class KnowledgeList extends React.Component<Props> {
         uppercase={false}
         icon="plus-circle"
       >
-        {__('Add Knowledge Base')}
+        Add Knowledge Base
       </Button>
     );
 

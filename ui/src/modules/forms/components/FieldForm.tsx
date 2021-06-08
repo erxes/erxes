@@ -213,7 +213,7 @@ class FieldForm extends React.Component<Props, State> {
             icon="times-circle"
             onClick={onCancel}
           >
-            {__('Cancel')}
+            Cancel
           </Button>
 
           {this.renderExtraButton()}

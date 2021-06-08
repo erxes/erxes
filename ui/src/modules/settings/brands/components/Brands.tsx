@@ -52,7 +52,7 @@ class Brands extends React.Component<Props, {}> {
         uppercase={false}
         icon="web-grid-alt"
       >
-        {__('Manage integration')}
+        Manage integration
       </Button>
     );
 

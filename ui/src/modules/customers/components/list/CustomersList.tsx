@@ -245,7 +245,7 @@ class CustomersList extends React.Component<IProps, State> {
 
     const addTrigger = (
       <Button btnStyle="success" size="small" icon="plus-circle">
-        {__('Add')} {type || __('customer')}
+        Add {type || 'customer'}
       </Button>
     );
 
@@ -393,7 +393,7 @@ class CustomersList extends React.Component<IProps, State> {
           </Button>
         </Link>
 
-        {type === __('visitor') ? null : (
+        {type === 'visitor' ? null : (
           <ModalTrigger
             title="New customer"
             autoOpenKey="showCustomerModal"
@@ -410,14 +410,14 @@ class CustomersList extends React.Component<IProps, State> {
 
     const mergeButton = (
       <Button btnStyle="primary" size="small" icon="merge">
-        {__('Merge')}
+        Merge
       </Button>
     );
 
     if (bulk.length > 0) {
       const tagButton = (
         <Button btnStyle="simple" size="small" icon="tag-alt">
-          {__('Tag')}
+          Tag
         </Button>
       );
 
@@ -488,7 +488,7 @@ class CustomersList extends React.Component<IProps, State> {
             icon="times-circle"
             onClick={onClick}
           >
-            {__(' Remove')}
+            Remove
           </Button>
         </BarItems>
       );

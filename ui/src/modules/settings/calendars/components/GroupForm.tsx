@@ -82,7 +82,7 @@ class GroupForm extends React.Component<Props, State> {
 
     return (
       <FormGroup>
-        <ControlLabel required={true}>{'Board'}</ControlLabel>
+        <ControlLabel required={true}>Board</ControlLabel>
         <Select
           placeholder={__('Choose a board')}
           value={this.state.boardId}

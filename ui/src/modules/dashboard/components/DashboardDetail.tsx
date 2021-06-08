@@ -85,13 +85,13 @@ class DashboardDetail extends React.Component<Props, State> {
       <RightActions>
         <Link to={`/dashboard/reports/${id}`}>
           <Button uppercase={false} btnStyle="simple" icon="plus-circle">
-            {__('Add chart from Library')}
+            Add chart from Library
           </Button>
         </Link>
         {!isExplore && (
           <Link to={`/dashboard/explore/${id}`}>
             <Button uppercase={false} btnStyle="success" icon="plus-circle">
-              {__('Create a new chart')}
+              Create a new chart
             </Button>
           </Link>
         )}
@@ -103,7 +103,7 @@ class DashboardDetail extends React.Component<Props, State> {
         <Header
           title={`${__('Dashboard') || ''}`}
           breadcrumb={[
-            { title: __('Dashboard'), link: '/dashboard' },
+            { title: 'Dashboard', link: '/dashboard' },
             { title: dashboard.name || '' }
           ]}
         />

@@ -47,7 +47,7 @@ class Sidebar extends React.Component<Props> {
             block={true}
             uppercase={false}
           >
-            {__('Back to Dashboard')}
+            Back to Dashboard
           </Button>
         </Link>
       </TopHeader>
