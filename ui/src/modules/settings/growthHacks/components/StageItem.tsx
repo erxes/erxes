@@ -1,12 +1,12 @@
-import { IStage } from 'modules/boards/types';
 import Button from 'modules/common/components/Button';
 import FormControl from 'modules/common/components/form/Control';
+import { IStage } from 'modules/boards/types';
 import Icon from 'modules/common/components/Icon';
+import React from 'react';
+import { StageItemContainer } from 'modules/settings/boards/styles';
 import Tip from 'modules/common/components/Tip';
 import { __ } from 'modules/common/utils';
 import { colors } from 'modules/common/styles';
-import { StageItemContainer } from 'modules/settings/boards/styles';
-import React from 'react';
 
 type Props = {
   stage: IStage;

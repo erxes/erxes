@@ -1,11 +1,11 @@
-import { IPipeline } from 'modules/boards/types';
 import ActionButtons from 'modules/common/components/ActionButtons';
 import Button from 'modules/common/components/Button';
-import Tip from 'modules/common/components/Tip';
 import { IButtonMutateProps } from 'modules/common/types';
-import React from 'react';
-import PipelineForm from '../containers/PipelineForm';
 import { IOption } from '../types';
+import { IPipeline } from 'modules/boards/types';
+import PipelineForm from '../containers/PipelineForm';
+import React from 'react';
+import Tip from 'modules/common/components/Tip';
 import { __ } from 'modules/common/utils';
 
 type Props = {

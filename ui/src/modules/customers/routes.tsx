@@ -1,8 +1,9 @@
+import { Redirect, Route } from 'react-router-dom';
+
+import React from 'react';
 import { __ } from 'modules/common/utils';
 import asyncComponent from 'modules/common/components/AsyncComponent';
 import queryString from 'query-string';
-import React from 'react';
-import { Redirect, Route } from 'react-router-dom';
 
 const CustomerDetails = asyncComponent(() =>
   import(

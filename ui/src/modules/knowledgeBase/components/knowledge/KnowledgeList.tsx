@@ -1,13 +1,13 @@
 import Button from 'modules/common/components/Button';
 import DataWithLoader from 'modules/common/components/DataWithLoader';
-import ModalTrigger from 'modules/common/components/ModalTrigger';
-import { TopHeader } from 'modules/common/styles/main';
 import { IButtonMutateProps } from 'modules/common/types';
-import Sidebar from 'modules/layout/components/Sidebar';
-import React from 'react';
-import KnowledgeForm from '../../containers/knowledge/KnowledgeForm';
 import { ITopic } from '../../types';
+import KnowledgeForm from '../../containers/knowledge/KnowledgeForm';
 import KnowledgeRow from './KnowledgeRow';
+import ModalTrigger from 'modules/common/components/ModalTrigger';
+import React from 'react';
+import Sidebar from 'modules/layout/components/Sidebar';
+import { TopHeader } from 'modules/common/styles/main';
 import { __ } from 'modules/common/utils';
 type Props = {
   queryParams: any;

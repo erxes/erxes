@@ -1,10 +1,11 @@
-import MainActionBar from 'modules/boards/components/MainActionBar';
 import { IBoard, IPipeline } from 'modules/boards/types';
+
+import MainActionBar from 'modules/boards/components/MainActionBar';
+import React from 'react';
 import SelectCompanies from 'modules/companies/containers/SelectCompanies';
 import SelectCustomers from 'modules/customers/containers/common/SelectCustomers';
-import React from 'react';
-import options from '../options';
 import { __ } from 'modules/common/utils';
+import options from '../options';
 
 type Props = {
   onSearch: (search: string) => void;

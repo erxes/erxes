@@ -1,16 +1,16 @@
 import Button from 'modules/common/components/Button';
+import ChannelForm from '../containers/ChannelForm';
+import ChannelRow from './ChannelRow';
 import EmptyState from 'modules/common/components/EmptyState';
+import { IButtonMutateProps } from 'modules/common/types';
+import { IChannel } from '../types';
+import LeftSidebar from 'modules/layout/components/Sidebar';
 import ModalTrigger from 'modules/common/components/ModalTrigger';
+import React from 'react';
+import { SidebarList } from 'modules/layout/styles';
 import Spinner from 'modules/common/components/Spinner';
 import { TopHeader } from 'modules/common/styles/main';
-import { IButtonMutateProps } from 'modules/common/types';
-import LeftSidebar from 'modules/layout/components/Sidebar';
-import { SidebarList } from 'modules/layout/styles';
-import React from 'react';
 import { __ } from 'modules/common/utils';
-import ChannelForm from '../containers/ChannelForm';
-import { IChannel } from '../types';
-import ChannelRow from './ChannelRow';
 
 type Props = {
   channels: IChannel[];

@@ -1,14 +1,14 @@
-import { IBoard } from 'modules/boards/types';
-import Button from 'modules/common/components/Button';
-import Icon from 'modules/common/components/Icon';
-import ModalTrigger from 'modules/common/components/ModalTrigger';
-import Tip from 'modules/common/components/Tip';
-import { IButtonMutateProps } from 'modules/common/types';
-import React from 'react';
-import { Link } from 'react-router-dom';
 import { ActionButtons } from '../../styles';
-import { BoardItem } from '../styles';
 import BoardForm from './BoardForm';
+import { BoardItem } from '../styles';
+import Button from 'modules/common/components/Button';
+import { IBoard } from 'modules/boards/types';
+import { IButtonMutateProps } from 'modules/common/types';
+import Icon from 'modules/common/components/Icon';
+import { Link } from 'react-router-dom';
+import ModalTrigger from 'modules/common/components/ModalTrigger';
+import React from 'react';
+import Tip from 'modules/common/components/Tip';
 import { __ } from 'modules/common/utils';
 
 type Props = {

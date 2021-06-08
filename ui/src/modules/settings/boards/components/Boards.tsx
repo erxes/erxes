@@ -1,16 +1,16 @@
-import { IBoard } from 'modules/boards/types';
+import BoardForm from './BoardForm';
+import BoardRow from './BoardRow';
 import Button from 'modules/common/components/Button';
 import DataWithLoader from 'modules/common/components/DataWithLoader';
-import ModalTrigger from 'modules/common/components/ModalTrigger';
-import { TopHeader } from 'modules/common/styles/main';
+import { IBoard } from 'modules/boards/types';
 import { IButtonMutateProps } from 'modules/common/types';
-import Sidebar from 'modules/layout/components/Sidebar';
-import { SidebarList as List } from 'modules/layout/styles';
-import React from 'react';
 import { IOption } from '../types';
-import BoardForm from './BoardForm';
+import { SidebarList as List } from 'modules/layout/styles';
+import ModalTrigger from 'modules/common/components/ModalTrigger';
+import React from 'react';
+import Sidebar from 'modules/layout/components/Sidebar';
+import { TopHeader } from 'modules/common/styles/main';
 import { __ } from 'modules/common/utils';
-import BoardRow from './BoardRow';
 
 type Props = {
   currentBoardId?: string;

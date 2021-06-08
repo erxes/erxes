@@ -1,12 +1,12 @@
-import FormControl from 'modules/common/components/form/Control';
-import FormGroup from 'modules/common/components/form/Group';
+import BrandStep from '../../containers/BrandStep';
 import ControlLabel from 'modules/common/components/form/Label';
 import { FlexItem } from 'modules/common/components/step/styles';
+import FormControl from 'modules/common/components/form/Control';
+import FormGroup from 'modules/common/components/form/Group';
 import { MESSAGE_TYPES } from 'modules/engage/constants';
-import { SelectMessageType } from 'modules/engage/styles';
 import React from 'react';
-import BrandStep from '../../containers/BrandStep';
 import SegmentStep from '../../containers/SegmentStep';
+import { SelectMessageType } from 'modules/engage/styles';
 import TagStep from '../../containers/TagStep';
 import { __ } from 'modules/common/utils';
 
