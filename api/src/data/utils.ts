@@ -491,8 +491,8 @@ export const readFile = utils.readFile;
 /**
  * Create default or ses transporter
  */
-export const createTransporter = async ({ ses }) => {
-  return utils.createTransporter(models, memoryStorage, { ses });
+export const createTransporter = async () => {
+  return utils.createTransporter(models, memoryStorage);
 };
 
 export type IEmailParams = IEmailParamsC;
