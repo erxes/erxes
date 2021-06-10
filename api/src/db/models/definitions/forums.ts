@@ -25,7 +25,7 @@ export interface ITopic {
   forumId: string;
 }
 
-export interface ITopicDocument extends ICommonFields, IForum, Document {
+export interface ITopicDocument extends ICommonFields, ITopic, Document {
   _id: string;
 }
 

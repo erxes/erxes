@@ -22,6 +22,7 @@ export const types = `
         modifiedBy: String
         modifiedDate: Date
         discussionIds: [String]
+        forum: Forum
 
         discussions: [ForumDiscussion]
     }
