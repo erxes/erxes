@@ -261,6 +261,7 @@ const widgetMutations = {
       isUser,
       companyData,
       data,
+
       cachedCustomerId,
       deviceToken,
       visitorId
