@@ -1,6 +1,5 @@
 import { Model, model } from 'mongoose';
 import { Deals, Fields } from '.';
-import Companies from './Companies';
 import { ICustomField } from './definitions/common';
 import { PRODUCT_STATUSES } from './definitions/constants';
 import {
@@ -68,19 +67,6 @@ export const loadProductClass = () => {
           code: doc.categoryCode
         });
         doc.categoryId = category._id;
-      }
-
-      if (doc.vendorCode) {
-        const vendor = await Companies.findOne({
-          $or: [
-            { code: doc.vendorCode },
-            { primaryEmail: doc.vendorCode },
-            { primaryPhone: doc.vendorCode },
-            { primaryName: doc.vendorCode }
-          ]
-        });
-
-        doc.vendorId = vendor?._id;
       }
 
       doc.customFieldsData = await Fields.prepareCustomFieldsData(
@@ -168,7 +154,6 @@ export const loadProductClass = () => {
       const type: string = productFields.type || '';
       const description: string = productFields.description || '';
       const categoryId: string = productFields.categoryId || '';
-      const vendorId: string = productFields.vendorId || '';
       const usedIds: string[] = [];
 
       for (const productId of productIds) {
@@ -207,8 +192,7 @@ export const loadProductClass = () => {
         name,
         type,
         description,
-        categoryId,
-        vendorId
+        categoryId
       });
 
       const dealProductIds = await Deals.find({

@@ -24,7 +24,6 @@ export interface IProduct {
   attachment?: any;
   status?: string;
   vendorId?: string;
-  vendorCode?: string;
 
   mergedIds?: string[];
 }

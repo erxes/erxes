@@ -25,9 +25,8 @@ const CategoryDetail = (props: ChildProps<Props, QueryResponse>) => {
     description: "",
     articles: [],
     icon: "",
-    parentCategoryId: "",
     numOfArticles: 0,
-    createdDate: new Date(),
+    createdDate: new Date()
   };
   let loading: boolean = true;
 
@@ -39,7 +38,7 @@ const CategoryDetail = (props: ChildProps<Props, QueryResponse>) => {
   const extendedProps = {
     ...props,
     category,
-    loading,
+    loading
   };
 
   return <DumbCategoryDetail {...extendedProps} />;
@@ -51,9 +50,9 @@ const WithData = graphql<Props, QueryResponse>(
     options: ({ categoryId }) => ({
       fetchPolicy: "network-only",
       variables: {
-        _id: categoryId,
-      },
-    }),
+        _id: categoryId
+      }
+    })
   }
 )(CategoryDetail);
 

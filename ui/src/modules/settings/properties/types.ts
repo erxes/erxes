@@ -6,7 +6,17 @@ export interface IFieldLogic {
   tempFieldId?: string;
   logicOperator: string;
   logicValue: string;
+  logicAction: string;
   __typename?: string;
+}
+
+export interface IFieldAction extends IFieldLogic {
+  tagIds?: string[];
+  boardId?: string;
+  pipelineId?: string;
+  stageId?: string;
+  itemId?: string;
+  itemName?: string;
 }
 export interface IField {
   _id: string;
@@ -19,6 +29,7 @@ export interface IField {
   content?: string;
   description?: string;
   options?: string[];
+  hasCustomOptions?: boolean;
   isRequired?: boolean;
   order?: React.ReactNode;
   canHide?: boolean;
@@ -29,16 +40,17 @@ export interface IField {
   lastUpdatedUser?: IUser;
   lastUpdatedUserId?: string;
   associatedFieldId?: string;
-  column?: number;
+  column?: string;
   associatedField?: {
     _id: string;
     text: string;
     contentType: string;
   };
   logics?: IFieldLogic[];
-  logicAction?: string;
+  actions?: IFieldAction[];
   groupName?: string;
   pageNumber?: number;
+  stageId?: string;
 }
 
 export interface IBoardSelectItem {

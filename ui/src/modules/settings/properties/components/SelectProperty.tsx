@@ -20,7 +20,19 @@ type Props = {
   description?: string;
 };
 
-class SelectProperty extends React.Component<Props, {}> {
+type State = {
+  properties: IField[];
+};
+
+class SelectProperty extends React.Component<Props, State> {
+  constructor(props) {
+    super(props);
+
+    this.state = {
+      properties: props.properties || []
+    };
+  }
+
   renderAddProperty = () => {
     const { renderButton, queryParams } = this.props;
 
@@ -53,7 +65,7 @@ class SelectProperty extends React.Component<Props, {}> {
 
   onChangeProperty = option => {
     if (this.props.onChange) {
-      const { properties } = this.props;
+      const { properties } = this.state;
       const customProperty = properties.find(e => e._id === option.value);
       if (customProperty) {
         this.props.onChange(customProperty);
@@ -62,7 +74,8 @@ class SelectProperty extends React.Component<Props, {}> {
   };
 
   render() {
-    const { properties, defaultValue, description } = this.props;
+    const { defaultValue, description } = this.props;
+    const { properties } = this.state;
 
     return (
       <FormGroup>

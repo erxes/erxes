@@ -10,7 +10,11 @@ import { FlexItem } from 'modules/common/components/step/styles';
 import Toggle from 'modules/common/components/Toggle';
 import { __ } from 'modules/common/utils';
 import SelectProperty from 'modules/settings/properties/containers/SelectProperty';
-import { IField, IFieldLogic } from 'modules/settings/properties/types';
+import {
+  IField,
+  IFieldAction,
+  IFieldLogic
+} from 'modules/settings/properties/types';
 import React from 'react';
 import Modal from 'react-bootstrap/Modal';
 import {
@@ -23,6 +27,8 @@ import {
 import FieldLogics from './FieldLogics';
 import FieldPreview from './FieldPreview';
 import Select from 'react-select-plus';
+import BoardSelect from 'modules/boards/containers/BoardSelect';
+import { ITag } from 'modules/tags/types';
 
 type Props = {
   onSubmit: (field: IField) => void;
@@ -32,12 +38,15 @@ type Props = {
   field: IField;
   fields: IField[];
   numberOfPages: number;
+  tags: ITag[];
 };
 
 type State = {
   field: IField;
   selectedOption?: IOption;
   group?: string;
+  pipelineId?: string;
+  boardId?: string;
 };
 
 class FieldForm extends React.Component<Props, State> {
@@ -71,9 +80,13 @@ class FieldForm extends React.Component<Props, State> {
 
   onFieldChange = (
     name: string,
-    value: string | boolean | number | string[] | IFieldLogic[]
+    value: string | boolean | number | string[] | IFieldLogic[] | IFieldAction[]
   ) => {
     this.setFieldAttrChanges(name, value);
+  };
+
+  onBoardItemChange = <T extends keyof State>(name: T, value: State[T]) => {
+    this.setState(({ [name]: value } as unknown) as Pick<State, keyof State>);
   };
 
   onEditorChange = e => {
@@ -87,12 +100,19 @@ class FieldForm extends React.Component<Props, State> {
 
   onPropertyGroupChange = e => {
     this.setState({
-      group: (e.currentTarget as HTMLInputElement).value
+      group: (e.currentTarget as HTMLInputElement).value,
+      boardId: undefined,
+      pipelineId: undefined
     });
   };
 
-  onPropertyChange = (selectedField: IField) => {
+  onPropertyChange = (selectedField?: IField) => {
     const { field, group } = this.state;
+
+    if (!selectedField) {
+      field.associatedFieldId = '';
+      return;
+    }
 
     field.associatedFieldId = selectedField._id;
     field.validation = selectedField.validation;
@@ -129,12 +149,16 @@ class FieldForm extends React.Component<Props, State> {
 
     const { field } = this.state;
 
+    field.actions =
+      field.actions &&
+      field.actions.filter(f => f.logicAction !== 'propertyMap');
+
     this.props.onSubmit(field);
   };
 
   setFieldAttrChanges(
     attributeName: string,
-    value: string | boolean | number | string[] | IFieldLogic[]
+    value: string | boolean | number | string[] | IFieldLogic[] | IFieldAction[]
   ) {
     const { field } = this.state;
 
@@ -201,6 +225,37 @@ class FieldForm extends React.Component<Props, State> {
           value={(field.options || []).join('\n')}
           onChange={onChange}
         />
+      </FormGroup>
+    );
+  }
+
+  renderCustomOption() {
+    const { field } = this.state;
+
+    if (!['radio', 'check'].includes(field.type)) {
+      return null;
+    }
+
+    const onChange = e => {
+      field.hasCustomOptions = e.target.checked ? true : false;
+      this.setState({ field });
+    };
+
+    return (
+      <FormGroup>
+        <FlexRow>
+          <ControlLabel htmlFor="description">
+            {__('Enable Other option')}
+          </ControlLabel>
+          <Toggle
+            defaultChecked={field.hasCustomOptions || false}
+            icons={{
+              checked: <span>Yes</span>,
+              unchecked: <span>No</span>
+            }}
+            onChange={onChange}
+          />
+        </FlexRow>
       </FormGroup>
     );
   }
@@ -355,6 +410,8 @@ class FieldForm extends React.Component<Props, State> {
 
           {this.renderOptions()}
 
+          {this.renderCustomOption()}
+
           {this.renderMultipleSelectCheckBox()}
 
           <FormGroup>
@@ -372,6 +429,7 @@ class FieldForm extends React.Component<Props, State> {
               />
             </FlexRow>
           </FormGroup>
+
           <FormGroup>
             <ControlLabel htmlFor="text" required={false}>
               Group Name
@@ -389,17 +447,33 @@ class FieldForm extends React.Component<Props, State> {
           {this.renderColumn()}
           {this.renderHtml()}
           {this.renderCustomPropertyGroup()}
+          {/* {this.renderBoardItemSelect()} */}
           {this.renderCustomProperty()}
         </CollapseContent>
+
         {fields.length > 0 && (
           <CollapseContent title={__('Logic')} compact={true}>
             <FieldLogics
               fields={fields}
               currentField={field}
               onFieldChange={this.onFieldChange}
+              onPropertyChange={this.onPropertyChange}
+              tags={this.props.tags}
+              type="logic"
             />
           </CollapseContent>
         )}
+
+        <CollapseContent title={__('Actions')} compact={true}>
+          <FieldLogics
+            fields={fields}
+            currentField={field}
+            onFieldChange={this.onFieldChange}
+            onPropertyChange={this.onPropertyChange}
+            tags={this.props.tags}
+            type="action"
+          />
+        </CollapseContent>
 
         <Modal.Footer>
           <Button
@@ -466,6 +540,12 @@ class FieldForm extends React.Component<Props, State> {
       return null;
     }
 
+    const options = [
+      { value: '', label: '' },
+      { value: 'customer', label: 'Customer' },
+      { value: 'company', label: 'Company' }
+    ];
+
     return (
       <>
         <FormGroup>
@@ -476,9 +556,11 @@ class FieldForm extends React.Component<Props, State> {
             defaultValue={group}
             onChange={this.onPropertyGroupChange}
           >
-            <option value={''} />
-            <option value={'customer'}>Customer</option>
-            <option value={'company'}>Company</option>
+            {options.map(e => (
+              <option key={e.value} value={e.value}>
+                {e.label}
+              </option>
+            ))}
           </FormControl>
         </FormGroup>
       </>
@@ -493,10 +575,7 @@ class FieldForm extends React.Component<Props, State> {
     }
 
     const onChangeColumn = e =>
-      this.onFieldChange(
-        'column',
-        parseInt((e.currentTarget as HTMLInputElement).value, 10)
-      );
+      this.onFieldChange('column', (e.currentTarget as HTMLInputElement).value);
 
     return (
       <FormGroup>
@@ -508,10 +587,12 @@ class FieldForm extends React.Component<Props, State> {
           value={field.column || ''}
           onChange={onChangeColumn}
         >
-          <option value={1}>Full width</option>
-          <option value={2}>Half width</option>
-          <option value={3}>1/3 width</option>
-          <option value={4}>1/4 width</option>
+          <option value={'1'}>Full width</option>
+          <option value={'2'}>Half width</option>
+          <option value={'3'}>1/3 width</option>
+          <option value={'1.5'}>2/3 width</option>
+          <option value={'4'}>1/4 width</option>
+          <option value={'1.33'}>3/4 width</option>
         </FormControl>
       </FormGroup>
     );
@@ -557,11 +638,7 @@ class FieldForm extends React.Component<Props, State> {
   }
 
   renderCustomProperty() {
-    const { selectedOption, group } = this.state;
-
-    if (group === '') {
-      return;
-    }
+    const { selectedOption, group, boardId, pipelineId } = this.state;
 
     const defaultValue =
       (selectedOption && selectedOption.value) ||
@@ -571,13 +648,39 @@ class FieldForm extends React.Component<Props, State> {
       <>
         <FormGroup>
           <SelectProperty
-            queryParams={{ type: group }}
+            queryParams={{ type: group, boardId, pipelineId }}
             defaultValue={defaultValue}
             description="Any data collected through this field will copy to:"
             onChange={this.onPropertyChange}
           />
         </FormGroup>
       </>
+    );
+  }
+
+  renderBoardItemSelect() {
+    const { field, pipelineId = '', boardId = '', group } = this.state;
+
+    if (!group || !['task', 'deal', 'ticket'].includes(group)) {
+      return null;
+    }
+
+    const { stageId = '' } = field;
+
+    const stgIdOnChange = stgId => this.onFieldChange('stageId', stgId);
+    const plIdOnChange = plId => this.onBoardItemChange('pipelineId', plId);
+    const brIdOnChange = brId => this.onBoardItemChange('boardId', brId);
+
+    return (
+      <BoardSelect
+        type={group}
+        stageId={stageId}
+        pipelineId={pipelineId}
+        boardId={boardId}
+        onChangeStage={stgIdOnChange}
+        onChangePipeline={plIdOnChange}
+        onChangeBoard={brIdOnChange}
+      />
     );
   }
 

@@ -29,6 +29,7 @@ import {
 } from './step';
 import { PreviewWrapper } from './step/style';
 import StyleSheetStep from './step/StyleSheetStep';
+import { ITag } from 'modules/tags/types';
 
 type Props = {
   integration?: ILeadIntegration;
@@ -44,6 +45,7 @@ type Props = {
     leadData: ILeadData;
     channelIds?: string[];
   }) => void;
+  tags: ITag[];
 };
 
 type State = {
@@ -433,6 +435,7 @@ class Lead extends React.Component<Props, State> {
               skip={isSkip}
               carousel={carousel}
               formData={formData}
+              tags={this.props.tags}
             />
           </PreviewWrapper>
         </Content>

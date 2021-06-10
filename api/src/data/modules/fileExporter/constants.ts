@@ -96,7 +96,6 @@ export const COMPANY_BASIC_INFOS = [
 export const PRODUCT_BASIC_INFOS = [
   'name',
   'categoryCode',
-  'vendorCode',
   'type',
   'description',
   'sku',

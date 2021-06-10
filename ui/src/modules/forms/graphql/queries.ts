@@ -1,3 +1,5 @@
+import { logicCommonTypes } from 'modules/settings/properties/graphql/queries';
+
 const integrationFields = `
   _id
   name
@@ -160,14 +162,21 @@ const fields = `
       content
       description
       options
+      hasCustomOptions
       isRequired
       order
       column
-      logicAction
       logics {
-        fieldId
-        logicOperator
-        logicValue
+        ${logicCommonTypes}
+      }
+      actions {
+        ${logicCommonTypes}
+        tagIds
+        pipelineId
+        boardId
+        stageId
+        itemId
+        itemName
       }
       groupName
       associatedFieldId

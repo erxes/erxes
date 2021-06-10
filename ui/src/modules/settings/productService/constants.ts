@@ -6,7 +6,6 @@ export const PRODUCT_INFO = {
   description: 'Description',
   sku: 'Sku',
   unitPrice: 'UnitPrice',
-  vendor: 'Vendor',
 
   ALL: [
     { field: 'name', label: 'Name' },
@@ -15,8 +14,7 @@ export const PRODUCT_INFO = {
     { field: 'code', label: 'Code' },
     { field: 'description', label: 'Description' },
     { field: 'sku', label: 'Sku' },
-    { field: 'unitPrice', label: 'UnitPrice' },
-    { field: 'vendor', label: 'Vendor' }
+    { field: 'unitPrice', label: 'UnitPrice' }
   ]
 };
 

@@ -87,19 +87,26 @@ export const itemsAdd = async (
     aboveItemId: string;
   },
   type: string,
-  user: IUserDocument,
-  docModifier: any,
-  createModel: any
+  createModel: any,
+  user?: IUserDocument,
+  docModifier?: any
 ) => {
   const { collection } = getCollection(type);
 
   doc.initialStageId = doc.stageId;
-  doc.watchedUserIds = [user._id];
+
+  if (user) {
+    doc.watchedUserIds = [user._id];
+  }
+
+  if (docModifier) {
+    doc = { ...docModifier(doc) };
+  }
 
   const extendedDoc = {
-    ...docModifier(doc),
-    modifiedBy: user._id,
-    userId: user._id,
+    ...doc,
+    modifiedBy: user && user._id,
+    userId: user && user._id,
     order: await getNewOrder({
       collection,
       stageId: doc.stageId,
@@ -107,6 +114,7 @@ export const itemsAdd = async (
     })
   };
 
+  console.log('createModel: ', createModel);
   const item = await createModel(extendedDoc);
 
   await createConformity({
@@ -116,23 +124,25 @@ export const itemsAdd = async (
     customerIds: doc.customerIds
   });
 
-  await sendNotifications({
-    item,
-    user,
-    type: NOTIFICATION_TYPES.DEAL_ADD,
-    action: `invited you to the ${type}`,
-    content: `'${item.name}'.`,
-    contentType: type
-  });
+  if (user) {
+    await sendNotifications({
+      item,
+      user,
+      type: NOTIFICATION_TYPES.DEAL_ADD,
+      action: `invited you to the ${type}`,
+      content: `'${item.name}'.`,
+      contentType: type
+    });
 
-  await putCreateLog(
-    {
-      type,
-      newData: extendedDoc,
-      object: item
-    },
-    user
-  );
+    await putCreateLog(
+      {
+        type,
+        newData: extendedDoc,
+        object: item
+      },
+      user
+    );
+  }
 
   const stage = await Stages.getStage(item.stageId);
 

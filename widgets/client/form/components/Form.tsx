@@ -283,6 +283,7 @@ class Form extends React.Component<Props, State> {
             fieldId: logic.fieldId,
             operator: logic.logicOperator,
             logicValue: logic.logicValue,
+            logicAction: logic.logicAction,
             fieldValue: value,
             validation,
             type
@@ -291,17 +292,19 @@ class Form extends React.Component<Props, State> {
 
         const isLogicsFulfilled = checkLogicFulfilled(logics);
 
-        if (field.logicAction && field.logicAction === 'show') {
-          if (!isLogicsFulfilled) {
-            this.hideField(field._id);
-            return null;
+        for (const { logicAction } of logics) {
+          if (logicAction === 'show') {
+            if (!isLogicsFulfilled) {
+              this.hideField(field._id);
+              return null;
+            }
           }
-        }
 
-        if (field.logicAction && field.logicAction === 'hide') {
-          if (isLogicsFulfilled) {
-            this.hideField(field._id);
-            return null;
+          if (logicAction === 'hide') {
+            if (isLogicsFulfilled) {
+              this.hideField(field._id);
+              return null;
+            }
           }
         }
       }

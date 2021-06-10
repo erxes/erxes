@@ -38,10 +38,6 @@ class ProductsMerge extends React.Component<Props, State> {
       selectedValues.categoryId = selectedValues.category._id;
     }
 
-    if (selectedValues.vendor) {
-      selectedValues.vendorId = selectedValues.vendor._id;
-    }
-
     this.props.save({
       ids: objects.map(product => product._id),
       data: { ...selectedValues },
@@ -113,9 +109,6 @@ class ProductsMerge extends React.Component<Props, State> {
       case 'category':
         return this.renderCategoryInfo(value);
 
-      case 'vendor':
-        return this.renderVendorInfo(value);
-
       default:
         return <InfoDetail>{value}</InfoDetail>;
     }
@@ -126,20 +119,6 @@ class ProductsMerge extends React.Component<Props, State> {
       <Info>
         <InfoTitle>{__('Name')}: </InfoTitle>
         <InfoDetail>{value.name}</InfoDetail>
-      </Info>
-    );
-  }
-
-  renderVendorInfo(value) {
-    return (
-      <Info>
-        <InfoTitle>{__('Info')}: </InfoTitle>
-        <InfoDetail>
-          {value.primaryName ||
-            value.primaryEmail ||
-            value.primaryPhone ||
-            value.code}
-        </InfoDetail>
       </Info>
     );
   }

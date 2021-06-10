@@ -1,8 +1,12 @@
 import { Model, model } from 'mongoose';
-import { ConversationMessages, Fields, Users } from '.';
+import { Conformities, ConversationMessages, Fields, Users } from '.';
 import { stream } from '../../data/bulkUtils';
+import { ACTIVITY_LOG_ACTIONS, putActivityLog } from '../../data/logUtils';
+import { itemsAdd } from '../../data/resolvers/mutations/boardUtils';
 import { getDocument } from '../../data/resolvers/mutations/cacheUtils';
+import { IConversationConvertParams } from '../../data/resolvers/mutations/conversations';
 import { cleanHtml, sendToWebhook } from '../../data/utils';
+import { getCollection } from './boardUtils';
 import { CONVERSATION_STATUSES } from './definitions/constants';
 import { IMessageDocument } from './definitions/conversationMessages';
 import {
@@ -10,6 +14,7 @@ import {
   IConversation,
   IConversationDocument
 } from './definitions/conversations';
+import { IUserDocument } from './definitions/users';
 import { Skills } from './Skills';
 
 export interface IConversationModel extends Model<IConversationDocument> {
@@ -74,6 +79,12 @@ export interface IConversationModel extends Model<IConversationDocument> {
     query: any,
     userId: string
   ): Promise<{ n: number; nModified: number; ok: number }>;
+
+  convert(
+    args: IConversationConvertParams,
+    user?: IUserDocument,
+    docModifier?: any
+  ): any;
 }
 
 export const loadClass = () => {
@@ -445,6 +456,93 @@ export const loadClass = () => {
         .map(user => user.code + type)
         .filter(code => code !== '' && code !== undefined)
         .join('|');
+    }
+
+    public static async convert(
+      args: IConversationConvertParams,
+      user?: IUserDocument,
+      docModifier?: any
+    ) {
+      const {
+        _id,
+        type,
+        itemId,
+        itemName,
+        stageId,
+        customFieldsData = []
+      } = args;
+
+      const conversation = await Conversations.getConversation(_id);
+
+      const { collection, update, create } = getCollection(type);
+
+      console.log('bla,slag: ', getCollection(type));
+
+      if (itemId) {
+        const oldItem = await collection.findOne({ _id: itemId }).lean();
+
+        const doc = oldItem;
+
+        doc.customFieldsData = [
+          ...new Set([...customFieldsData, ...oldItem.customFieldsData])
+        ];
+
+        if (conversation.assignedUserId) {
+          const assignedUserIds = oldItem.assignedUserIds || [];
+          assignedUserIds.push(conversation.assignedUserId);
+
+          doc.assignedUserIds = assignedUserIds;
+        }
+
+        const sourceConversationIds: string[] =
+          oldItem.sourceConversationIds || [];
+
+        sourceConversationIds.push(conversation._id);
+
+        doc.sourceConversationIds = sourceConversationIds;
+
+        const item = await update(oldItem._id, doc);
+
+        item.userId = user ? user._id : '';
+
+        await putActivityLog({
+          action: ACTIVITY_LOG_ACTIONS.CREATE_BOARD_ITEM,
+          data: { item, contentType: type }
+        });
+
+        const relTypeIds: string[] = [];
+
+        sourceConversationIds.forEach(async conversationId => {
+          const con = await Conversations.getConversation(conversationId);
+
+          if (con.customerId) {
+            relTypeIds.push(con.customerId);
+          }
+        });
+
+        if (conversation.customerId) {
+          await Conformities.addConformity({
+            mainType: type,
+            mainTypeId: item._id,
+            relType: 'customer',
+            relTypeId: conversation.customerId
+          });
+        }
+
+        return item._id;
+      } else {
+        const doc: any = {};
+
+        doc.name = itemName;
+        doc.stageId = stageId;
+        doc.sourceConversationIds = [_id];
+        doc.customerIds = [conversation.customerId];
+        doc.assignedUserIds = [conversation.assignedUserId];
+        doc.customFieldsData = customFieldsData;
+        const item = await itemsAdd(doc, type, create, user, docModifier);
+
+        return item._id;
+      }
     }
   }
 

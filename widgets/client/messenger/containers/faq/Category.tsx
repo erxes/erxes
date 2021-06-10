@@ -5,8 +5,6 @@ import { AppConsumer } from "../AppContext";
 
 type Props = {
   category: IFaqCategory;
-  childrens?: IFaqCategory[];
-  getCurrentItem?: (currentCategory: IFaqCategory) => void;
 };
 
 const container = (props: Props) => {

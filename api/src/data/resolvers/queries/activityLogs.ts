@@ -42,6 +42,7 @@ const activityLogQueries = {
     });
 
     const collectItems = (items: any, type?: string) => {
+      console.log('items: ', items);
       if (items) {
         items.map(item => {
           let result: IActivityLogDocument = {} as any;

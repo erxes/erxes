@@ -43,17 +43,19 @@ class CardSelect extends React.Component<Props, State> {
   handleChange = option => {
     const { onChange } = this.props;
 
-    if (option) {
-      onChange({
-        cardId: option.value,
-        name: option.label
-      });
-
-      this.setState({
-        searchValue: option.value === 'copiedItem' ? option.label : '',
-        selectedValue: option
-      });
+    if (!option) {
+      option = { value: '', label: '' };
     }
+
+    onChange({
+      cardId: option.value,
+      name: option.label
+    });
+
+    this.setState({
+      searchValue: option.value === 'copiedItem' ? option.label : '',
+      selectedValue: option
+    });
   };
 
   handleInput = (searchValue: string) => {
@@ -102,7 +104,7 @@ class CardSelect extends React.Component<Props, State> {
             onChange={this.handleChange}
             onInputChange={this.handleInput}
             onInputKeyDown={this.handleKeyDown}
-            clearable={false}
+            clearable={true}
           />
         </FillContent>
       </Wrapper>

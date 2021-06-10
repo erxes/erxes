@@ -5,9 +5,6 @@ import { debugCrons, debugError } from '../debuggers';
 
 import { initMemoryStorage } from '../inmemoryStorage';
 import { initBroker } from '../messageBroker';
-import { extendViaPlugins, pluginsCronJobRunner } from '../pluginUtils';
-import resolvers from '../data/resolvers';
-import * as typeDefDetails from '../data/schema';
 import './activityLogs';
 import './conversations';
 import './deals';
@@ -32,10 +29,6 @@ app.listen(PORT_CRONS, () => {
   // connect to mongo database
   connect().then(async () => {
     initMemoryStorage();
-
-    await extendViaPlugins(app, resolvers, typeDefDetails);
-
-    pluginsCronJobRunner();
 
     initBroker(app).catch(e => {
       debugError(`Error ocurred during broker init ${e.message}`);

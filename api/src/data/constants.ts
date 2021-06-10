@@ -57,10 +57,7 @@ export const EXTEND_FIELDS = {
     { name: 'ownerEmail', label: 'Owner email' },
     { name: 'companiesPrimaryNames', label: 'Companies' }
   ],
-  PRODUCT: [
-    { name: 'categoryCode', label: 'Category Code' },
-    { name: 'vendorCode', label: 'Vendor Code' }
-  ]
+  PRODUCT: [{ name: 'categoryCode', label: 'Category Code' }]
 };
 
 export const COC_LEAD_STATUS_TYPES = [

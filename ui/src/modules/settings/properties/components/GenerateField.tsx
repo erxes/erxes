@@ -20,6 +20,7 @@ type Props = {
   onValueChange?: (data: { _id: string; value: any }) => void;
   defaultValue?: any;
   hasLogic?: boolean;
+  hasAction?: boolean;
 };
 
 type State = {
@@ -191,6 +192,12 @@ export default class GenerateField extends React.Component<Props, State> {
   }
 
   renderRadioOrCheckInputs(options, attrs, hasError?: boolean) {
+    const { field } = this.props;
+    options = options.filter(e => e !== 'Other: ');
+
+    if (field.hasCustomOptions) {
+      options.push('Other: ');
+    }
     return (
       <div>
         {options.map((option, index) => (
@@ -389,7 +396,7 @@ export default class GenerateField extends React.Component<Props, State> {
   }
 
   render() {
-    const { field, hasLogic } = this.props;
+    const { field, hasLogic, hasAction } = this.props;
 
     return (
       <FormGroup>
@@ -397,6 +404,8 @@ export default class GenerateField extends React.Component<Props, State> {
           {field.text}
         </ControlLabel>
         {hasLogic && <LogicIndicator>Logic</LogicIndicator>}
+        {hasAction && <LogicIndicator>Action</LogicIndicator>}
+        {field.associatedFieldId && <LogicIndicator>Mapped</LogicIndicator>}
         {field.description ? <p>{field.description}</p> : null}
 
         {this.renderControl()}

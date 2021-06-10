@@ -1,6 +1,7 @@
 const fieldCommonFields = `
   description: String
   options: [String]
+  hasCustomOptions: Boolean
   type: String
   validation: String
   text: String
@@ -9,16 +10,32 @@ const fieldCommonFields = `
   order: Int
   associatedFieldId: String
   logicAction: String
-  column: Int
+  column: String
   groupName: String
   pageNumber: Int
+  stageId: String
+`;
+
+const commonLogicTypes = `
+  fieldId: String!
+  logicOperator: String
+  logicValue: JSON
+  logicAction: String
 `;
 
 export const fieldsTypes = `
   type Logic {
-    fieldId: String!
-    logicOperator: String
-    logicValue: JSON
+    ${commonLogicTypes}
+  }
+
+  type Action {
+    ${commonLogicTypes}
+    tagIds: [String]
+    stageId: String
+    pipelineId: String
+    boardId: String
+    itemName: String
+    itemId: String
   }
 
   type Field {
@@ -35,7 +52,7 @@ export const fieldsTypes = `
     lastUpdatedUserId: String
     associatedField: Field
     logics: [Logic]
-
+    actions: [Action]
     ${fieldCommonFields}
   }
 
@@ -49,13 +66,29 @@ export const fieldsTypes = `
     tempFieldId: String
     logicOperator: String
     logicValue: JSON
+    logicAction: String!
   }
+
+  input ActionInput {
+    fieldId: String
+    tempFieldId: String
+    logicOperator: String
+    logicValue: JSON
+    logicAction: String!
+    tagIds: [String]
+    itemId: String
+    itemName: String
+    stageId: String
+    pipelineId: String
+    boardId: String
+  }
+  
 
   input FieldItem {
     _id: String
     tempFieldId: String
     logics: [LogicInput]
-
+    actions: [ActionInput]
     ${fieldCommonFields}
   }
 
@@ -73,7 +106,7 @@ export const fieldsTypes = `
 `;
 
 export const fieldsQueries = `
-  fields(contentType: String!, contentTypeId: String, isVisible: Boolean): [Field]
+  fields(contentType: String!, contentTypeId: String, isVisible: Boolean, boardId: String, pipelineId: String): [Field]
   fieldsCombinedByContentType(contentType: String!, usageType: String, excludedNames: [String], segmentId: String, pipelineId: String): JSON
   fieldsDefaultColumnsConfig(contentType: String!): [ColumnConfigItem]
   fieldsInbox: FieldsInbox

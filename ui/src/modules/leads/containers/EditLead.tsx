@@ -18,6 +18,9 @@ import { IRouterProps } from '../../common/types';
 import Lead from '../components/Lead';
 import { mutations, queries } from '../graphql';
 import { ILeadData } from '../types';
+import { queries as tagQueries } from 'modules/tags/graphql';
+import { TAG_TYPES } from 'modules/tags/constants';
+import { TagsQueryResponse } from 'modules/tags/types';
 
 type Props = {
   contentTypeId: string;
@@ -40,6 +43,7 @@ type State = {
 
 type FinalProps = {
   integrationDetailQuery: LeadIntegrationDetailQueryResponse;
+  tagsQuery?: TagsQueryResponse;
   emailTemplatesQuery: EmailTemplatesQueryResponse;
   emailTemplatesTotalCountQuery: EmailTemplatesTotalCountQueryResponse;
 } & Props &
@@ -59,7 +63,8 @@ class EditLeadContainer extends React.Component<FinalProps, State> {
       integrationDetailQuery,
       editIntegrationMutation,
       history,
-      emailTemplatesQuery
+      emailTemplatesQuery,
+      tagsQuery
     } = this.props;
 
     if (integrationDetailQuery.loading) {
@@ -117,7 +122,8 @@ class EditLeadContainer extends React.Component<FinalProps, State> {
       afterFormDbSave,
       isActionLoading: this.state.isLoading,
       isReadyToSaveForm: this.state.isReadyToSaveForm,
-      emailTemplates: emailTemplatesQuery.emailTemplates || []
+      emailTemplates: emailTemplatesQuery.emailTemplates || [],
+      tags: (tagsQuery ? tagsQuery.tags : null) || []
     };
 
     return <Lead {...updatedProps} />;
@@ -156,6 +162,14 @@ export default withProps<FinalProps>(
         })
       }
     ),
+    graphql<TagsQueryResponse, { type: string }>(gql(tagQueries.tags), {
+      name: 'tagsQuery',
+      options: () => ({
+        variables: {
+          type: TAG_TYPES.CUSTOMER
+        }
+      })
+    }),
     graphql<
       Props,
       EditIntegrationMutationResponse,
