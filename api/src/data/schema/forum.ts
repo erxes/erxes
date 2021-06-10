@@ -54,8 +54,8 @@ export const types = `
         discussionId: String
         createdUser: User
         createdDate: Date
+        createdCustomer: Customer
     }
-
 `;
 
 export const queries = `
