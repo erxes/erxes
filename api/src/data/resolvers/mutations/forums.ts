@@ -11,6 +11,7 @@ import {
   IComment
 } from '../../../db/models/definitions/forums';
 import { IContext } from '../../types';
+import { moduleCheckPermission } from '../../permissions/wrappers';
 
 const forumMutations = {
   /**
@@ -168,5 +169,7 @@ const forumMutations = {
     return removed;
   }
 };
+
+moduleCheckPermission(forumMutations, 'manageForums');
 
 export default forumMutations;

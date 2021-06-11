@@ -7,6 +7,7 @@ import {
 
 import { IContext } from '../../types';
 import { paginate } from '../../utils';
+import { checkPermission, requireLogin } from '../../permissions/wrappers';
 
 const forumQueries = {
   /**
@@ -115,5 +116,16 @@ const forumQueries = {
     }).countDocuments();
   }
 };
+
+requireLogin(forumQueries, 'forumsTotalCount');
+requireLogin(forumQueries, 'forumTopicsTotalCount');
+requireLogin(forumQueries, 'forumTopicsGetLast');
+requireLogin(forumQueries, 'forumDiscussionsTotalCount');
+requireLogin(forumQueries, 'discussionCommentsTotalCount');
+
+checkPermission(forumQueries, 'forums', 'showForums', []);
+checkPermission(forumQueries, 'forumTopics', 'showForums', []);
+checkPermission(forumQueries, 'forumDiscussions', 'showForums', []);
+checkPermission(forumQueries, 'discussionComments', 'showForums', []);
 
 export default forumQueries;
