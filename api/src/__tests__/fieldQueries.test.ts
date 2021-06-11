@@ -41,6 +41,14 @@ describe('fieldQueries', () => {
           lastUpdatedUser {
             _id
           }
+          actions {
+            tagIds
+            pipelineId
+            boardId
+            stageId
+            itemId
+            itemName
+          }
         }
       }
     `;
