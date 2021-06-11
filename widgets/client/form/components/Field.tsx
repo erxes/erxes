@@ -511,7 +511,6 @@ export default class Field extends React.Component<Props, State> {
         );
 
       case 'radio':
-        console.log(field.hasCustomOptions);
         return Field.renderRadioButtons(
           name,
           options,
