@@ -28,6 +28,11 @@
     "noEmit": true,
     "noUnusedLocals": true
   },
+   "rules": {
+    "ordered-imports": [
+      false
+    ]
+  },
   "include": [
     "src"
   ],
