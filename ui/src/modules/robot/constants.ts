@@ -1,5 +1,5 @@
-import { __ } from 'modules/common/utils';
 import colors from 'modules/common/styles/colors';
+import { __ } from 'modules/common/utils';
 
 export const FEATURE_DETAILS = {
   growthHacks: {

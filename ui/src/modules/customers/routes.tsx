@@ -1,9 +1,10 @@
 import { Redirect, Route } from 'react-router-dom';
 
-import React from 'react';
-import { __ } from 'modules/common/utils';
 import asyncComponent from 'modules/common/components/AsyncComponent';
+// tslint:disable-next-line:ordered-imports
+import { __ } from 'modules/common/utils';
 import queryString from 'query-string';
+import React from 'react';
 
 const CustomerDetails = asyncComponent(() =>
   import(

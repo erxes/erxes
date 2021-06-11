@@ -1,10 +1,11 @@
 import { IBoard, IPipeline } from 'modules/boards/types';
 
 import MainActionBar from 'modules/boards/components/MainActionBar';
-import React from 'react';
+import { __ } from 'modules/common/utils';
+// tslint:disable-next-line:ordered-imports
 import SelectCompanies from 'modules/companies/containers/SelectCompanies';
 import SelectCustomers from 'modules/customers/containers/common/SelectCustomers';
-import { __ } from 'modules/common/utils';
+import React from 'react';
 import options from '../options';
 
 type Props = {

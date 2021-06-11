@@ -1,16 +1,21 @@
-import BoardForm from './BoardForm';
-import BoardRow from './BoardRow';
+// tslint:disable-next-line:ordered-imports
+import { IBoard } from 'modules/boards/types';
+// tslint:disable-next-line:ordered-imports
 import Button from 'modules/common/components/Button';
 import DataWithLoader from 'modules/common/components/DataWithLoader';
-import { IBoard } from 'modules/boards/types';
-import { IButtonMutateProps } from 'modules/common/types';
-import { IOption } from '../types';
-import { SidebarList as List } from 'modules/layout/styles';
+// tslint:disable-next-line:ordered-imports
 import ModalTrigger from 'modules/common/components/ModalTrigger';
-import React from 'react';
-import Sidebar from 'modules/layout/components/Sidebar';
 import { TopHeader } from 'modules/common/styles/main';
+import { IButtonMutateProps } from 'modules/common/types';
 import { __ } from 'modules/common/utils';
+// tslint:disable-next-line:ordered-imports
+import Sidebar from 'modules/layout/components/Sidebar';
+// tslint:disable-next-line:ordered-imports
+import { SidebarList as List } from 'modules/layout/styles';
+import React from 'react';
+import { IOption } from '../types';
+import BoardForm from './BoardForm';
+import BoardRow from './BoardRow';
 
 type Props = {
   currentBoardId?: string;

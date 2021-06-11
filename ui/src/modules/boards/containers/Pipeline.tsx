@@ -1,5 +1,6 @@
 import * as compose from 'lodash.flowright';
 
+import React, { Component } from 'react';
 import { DragDropContext, Droppable } from 'react-beautiful-dnd';
 import {
   IItemMap,
@@ -9,19 +10,22 @@ import {
   StagesQueryResponse
 } from '../types';
 import { PipelineConsumer, PipelineProvider } from './PipelineContext';
-import React, { Component } from 'react';
 
-import EmptyState from 'modules/common/components/EmptyState';
-import { IRouterProps } from 'modules/common/types';
-import Spinner from 'modules/common/components/Spinner';
-import Stage from './Stage';
-import { __ } from 'modules/common/utils';
+// tslint:disable-next-line:ordered-imports
 import gql from 'graphql-tag';
-import { graphql } from 'react-apollo';
-import { queries } from '../graphql';
-import styled from 'styled-components';
+import EmptyState from 'modules/common/components/EmptyState';
+// tslint:disable-next-line:ordered-imports
+import Spinner from 'modules/common/components/Spinner';
+import { IRouterProps } from 'modules/common/types';
+// tslint:disable-next-line:ordered-imports
+import { __ } from 'modules/common/utils';
 import { withProps } from 'modules/common/utils';
+import { graphql } from 'react-apollo';
 import { withRouter } from 'react-router-dom';
+// tslint:disable-next-line:ordered-imports
+import styled from 'styled-components';
+import { queries } from '../graphql';
+import Stage from './Stage';
 
 const Container = styled.div`
   height: 100%;

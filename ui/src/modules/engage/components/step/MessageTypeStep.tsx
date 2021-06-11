@@ -1,14 +1,17 @@
-import BrandStep from '../../containers/BrandStep';
-import ControlLabel from 'modules/common/components/form/Label';
-import { FlexItem } from 'modules/common/components/step/styles';
+// tslint:disable-next-line:ordered-imports
 import FormControl from 'modules/common/components/form/Control';
 import FormGroup from 'modules/common/components/form/Group';
-import { MESSAGE_TYPES } from 'modules/engage/constants';
-import React from 'react';
-import SegmentStep from '../../containers/SegmentStep';
-import { SelectMessageType } from 'modules/engage/styles';
-import TagStep from '../../containers/TagStep';
+// tslint:disable-next-line:ordered-imports
+import ControlLabel from 'modules/common/components/form/Label';
+import { FlexItem } from 'modules/common/components/step/styles';
 import { __ } from 'modules/common/utils';
+import { MESSAGE_TYPES } from 'modules/engage/constants';
+// tslint:disable-next-line:ordered-imports
+import { SelectMessageType } from 'modules/engage/styles';
+import React from 'react';
+import BrandStep from '../../containers/BrandStep';
+import SegmentStep from '../../containers/SegmentStep';
+import TagStep from '../../containers/TagStep';
 
 type Props = {
   clearState: () => void;

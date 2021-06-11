@@ -1,14 +1,13 @@
+import dayjs from 'dayjs';
 import {
   ActivityDate,
   FlexBody,
   FlexCenterContent
 } from 'modules/activityLogs/styles';
 import { IActivityLog } from 'modules/activityLogs/types';
-import React from 'react';
 import Tip from 'modules/common/components/Tip';
-
-import dayjs from 'dayjs';
-import { renderUserFullName, __ } from 'modules/common/utils';
+import { __, renderUserFullName } from 'modules/common/utils';
+import React from 'react';
 
 type Props = {
   activity: IActivityLog;

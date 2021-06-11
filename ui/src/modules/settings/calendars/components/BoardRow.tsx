@@ -1,15 +1,20 @@
-import { ActionButtons } from '../../styles';
-import BoardForm from './BoardForm';
-import { BoardItem } from '../../boards/styles';
+// tslint:disable-next-line:ordered-imports
 import Button from 'modules/common/components/Button';
-import { IBoard } from '../types';
-import { IButtonMutateProps } from 'modules/common/types';
+// tslint:disable-next-line:ordered-imports
 import Icon from 'modules/common/components/Icon';
-import { Link } from 'react-router-dom';
+// tslint:disable-next-line:ordered-imports
 import ModalTrigger from 'modules/common/components/ModalTrigger';
-import React from 'react';
 import Tip from 'modules/common/components/Tip';
+// tslint:disable-next-line:ordered-imports
+import { IButtonMutateProps } from 'modules/common/types';
 import { __ } from 'modules/common/utils';
+import React from 'react';
+import { Link } from 'react-router-dom';
+// tslint:disable-next-line:ordered-imports
+import { BoardItem } from '../../boards/styles';
+import { ActionButtons } from '../../styles';
+import { IBoard } from '../types';
+import BoardForm from './BoardForm';
 
 type Props = {
   board: IBoard;

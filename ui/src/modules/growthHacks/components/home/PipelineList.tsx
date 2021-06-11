@@ -1,12 +1,13 @@
-import { BoxContainer, ProjectItem } from './styles';
 import React, { useState } from 'react';
+import { BoxContainer, ProjectItem } from './styles';
 
-import { IButtonMutateProps } from 'modules/common/types';
+// tslint:disable-next-line:ordered-imports
 import { IPipeline } from 'modules/boards/types';
-import PipelineForm from 'modules/settings/boards/containers/PipelineForm';
-import PipelineRow from './PipelineRow';
+import { IButtonMutateProps } from 'modules/common/types';
 import { __ } from 'modules/common/utils';
+import PipelineForm from 'modules/settings/boards/containers/PipelineForm';
 import { options } from 'modules/settings/growthHacks/options';
+import PipelineRow from './PipelineRow';
 
 type Props = {
   pipelines: IPipeline[];
