@@ -6,9 +6,9 @@ import {
 import { IActivityLog } from 'modules/activityLogs/types';
 import React from 'react';
 import Tip from 'modules/common/components/Tip';
-import { __ } from 'modules/common/utils';
+
 import dayjs from 'dayjs';
-import { renderUserFullName } from 'modules/common/utils';
+import { renderUserFullName, __ } from 'modules/common/utils';
 
 type Props = {
   activity: IActivityLog;

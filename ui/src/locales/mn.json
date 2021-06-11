@@ -1266,7 +1266,6 @@
   "Tip: This could be equivalent to your brands and/or you can organize by year/project/etc": "Зөвлөгөө: Энэ нь танай брэндүүдтэй дүйцэхүйц байж болох бөгөөд / эсвэл та жилээр нь / төсөл / гэх мэтээр зохион байгуулж болно.",
   "Google Cloud Storage": "Гүүгл үүлэн багтаамж",
   "Getting Started with Import & Export Feature": "Импорт болон экспортын функцыг эхлүүлэх",
-  "getting Started with Sales Pipeline": "пайплайн",
   "These steps will help you with importing or exporting your data to and from erxes": "Эдгээр алхамууд нь өгөгдлийг эрксис руу импортлох, экспортлоход туслах болно.",
   "Export your data from your previous software or have your data sheet (csv, xls) ready": "Өмнөх програм хангамжийнхаа өгөгдлийг экспортлох эсвэл мэдээллийн хуудсаа (csv, xls) бэлэн байлгах",
   "Download template": "Загвар татаж авах",
@@ -1312,7 +1311,6 @@
   "new in erxes": "Эрксисийн шинэчлэл",
   "Go to Board & Pipeline": "Самбар болон Пайплайн руу шилжих",
   "Create Boards and Pipelines": "Шинэ самбар болон пайплайн үүсгэх",
-  "Track your entire sales pipeline from one dashboard, you can also restrict access to your sales pipelines": "Худалдааны дамжуулах хоолойг бүхэлд нь нэг самбараас хянах. Та борлуулалтын пайплайндаа нэвтрэх эрхийг хязгаарлаж болно.",
   "Create user group": "Хэрэглэгчийн групп үүсгэх",
   "Tip: Choose different views": "Заавар: Өөр үзэмж сонгоно уу",
   "rice": "Будаа",
@@ -1467,5 +1465,7 @@
   "Create and add in unlimited products and servicess so that you and your team members can edit and share": " Хязгааргүй бүтээгдэхүүн, үйлчилгээний хэрэгслийг бий болгож нэмж оруулаарай, ингэснээр та болон таны багийн гишүүд засах, хуваалцах боломжтой болно.",
   "Manage your boards and calendars so that its easy to manage incoming pop ups or requests that is adaptable to your team's needs": "Өөрийн самбар, хуанлигаа удирдаж, ирж буй поп цонх эсвэл хүсэлтийг танай багийн хэрэгцээнд нийцүүлэн удирдахад хялбар болгоно уу",
   "Add in or delete boards and calendars to keep business development on track and in check": "Бизнесийн хөгжлийг хэвийн хэмжээнд байлгахын тулд самбар, хуанли нэмж оруулах эсвэл устгах",
-  "There is no ": "Байхгүй байна"
+  "There is no ": "Байхгүй байна",
+  "Track your entire sales pipeline from one dashboard.": "Худалдааны дамжуулах пайплайныг бүхэлд нь нэг самбараас хянах",
+  "You can also restrict access to your sales pipelines": "Та борлуулалтын шугам хоолойдоо нэвтрэх эрхийг хязгаарлаж болно"
 }

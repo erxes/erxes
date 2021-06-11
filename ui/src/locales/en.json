@@ -1748,7 +1748,6 @@
   "No label chosen": "No label chosen",
   "Click on “Boards, Calendar, Conversions” to filter deals": "Click on “Boards, Calendar, Conversions” to filter deals",
   "Getting Started with Sales Pipeline": "Getting Started with Sales Pipeline",
-  "getting Started with Sales Pipeline": "getting Started with Sales Pipeline",
   "Get started on your group": "Get started on your group",
   "Add calendar": "Add calendar",
   "Get started on your board": "Get started on your board",
@@ -1791,7 +1790,6 @@
   "Please upgrade your erxes": "Please upgrade your erxes",
   "Find out whats": "Find out whats",
   "new in erxes": "new in erxes",
-  "Track your entire sales pipeline from one dashboard, you can also restrict access to your sales pipelines": "Track your entire sales pipeline from one dashboard, you can also restrict access to your sales pipelines",
   "Tip: Choose different views": "Tip: Choose different views",
   "Creating customer segment": "Creating customer segment",
   "Segment Name": "Segment Name",
@@ -1911,5 +1909,7 @@
   "All information and know-how related to your business products and services are found here": "All information and know-how related to your business products and services are found here",
   "Manage your boards and calendars so that its easy to manage incoming pop ups or requests that is adaptable to your team's needs": "Manage your boards and calendars so that its easy to manage incoming pop ups or requests that is adaptable to your team's needs",
   "Add in or delete boards and calendars to keep business development on track and in check": "Add in or delete boards and calendars to keep business development on track and in check",
-  "There is no campaign": "There is no campaign"
+  "There is no campaign": "There is no campaign",
+  "Track your entire sales pipeline from one dashboard.": "Track your entire sales pipeline from one dashboard.",
+  "You can also restrict access to your sales pipelines": "You can also restrict access to your sales pipelines"
 }

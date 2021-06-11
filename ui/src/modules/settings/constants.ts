@@ -164,9 +164,10 @@ export const EMPTY_CONTENT_POPUPS = {
 
 export const EMPTY_CONTENT_ENGAGE = {
   title: __('Getting Started with Engage'),
-  description: __(
-    'Learn how to use this feature to engage your contacts and drive conversations.'
-  ),
+  description:
+    __(
+      'Learn how to use this feature to engage your contacts and drive conversations'
+    ) + '.',
   steps: [
     {
       title: 'Email',
