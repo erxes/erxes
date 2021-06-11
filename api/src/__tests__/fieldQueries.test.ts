@@ -359,7 +359,7 @@ describe('fieldQueries', () => {
       pipelineId: pipeline._id
     });
 
-    expect(responses.length).toBe(3);
+    expect(responses.length).toBe(4);
   });
 
   test('Fields query with isVisible filter', async () => {
