@@ -609,6 +609,21 @@ export const customerFactory = async (
   return customer.save();
 };
 
+interface ILogicInput {
+  fieldId: string;
+  tempFieldId?: string;
+  logicOperator?: string;
+  logicValue?: string | number | Date | string[];
+  logicAction: string;
+}
+
+interface IActionInput extends ILogicInput {
+  tagIds?: string[];
+  stageId?: string;
+  itemId?: string;
+  itemName?: string;
+}
+
 interface IFieldFactoryInput {
   contentType?: string;
   contentTypeId?: string;
@@ -626,6 +641,8 @@ interface IFieldFactoryInput {
   canHide?: boolean;
   options?: string[];
   associatedFieldId?: string;
+  logics?: ILogicInput[];
+  actions?: IActionInput[];
 }
 
 export const fieldFactory = async (params: IFieldFactoryInput) => {
@@ -662,7 +679,9 @@ export const fieldFactory = async (params: IFieldFactoryInput) => {
     isDefinedByErxes:
       params.isDefinedByErxes === undefined || params.isDefinedByErxes === null
         ? false
-        : params.isDefinedByErxes
+        : params.isDefinedByErxes,
+    logics: params.logics,
+    actions: params.actions
   });
 };
 

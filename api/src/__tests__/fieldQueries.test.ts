@@ -9,6 +9,7 @@ import {
   fieldGroupFactory,
   integrationFactory,
   pipelineFactory,
+  stageFactory,
   usersGroupFactory
 } from '../db/factories';
 import { Companies, Customers, Fields, FieldsGroups } from '../db/models';
@@ -403,25 +404,40 @@ describe('fieldQueries', () => {
       visible: true
     });
 
+    const board = await boardFactory({ type: 'task' });
+    const pipeline = await pipelineFactory({ boardId: board._id });
+    const stage = await stageFactory({ pipelineId: pipeline._id });
+
     await fieldFactory({
       text: 'text1',
       contentType: 'form',
       visible: true,
-      associatedFieldId: customField._id
+      associatedFieldId: customField._id,
+      actions: [
+        { logicAction: 'task', stageId: stage._id, fieldId: customField._id }
+      ]
     });
 
     const qry = `
-   query fields($contentType: String! $contentTypeId: String, $isVisible: Boolean) {
-     fields(contentType: $contentType contentTypeId: $contentTypeId, isVisible: $isVisible) {
-       text
-       _id
-       isVisible
-       associatedField {
-         _id
+    query fields($contentType: String! $contentTypeId: String, $isVisible: Boolean) {
+       fields(contentType: $contentType contentTypeId: $contentTypeId, isVisible: $isVisible) {
          text
-       }
-     }
-   }
+        _id
+        isVisible
+        associatedField {
+           _id
+          text
+        }
+        actions {
+          tagIds
+          pipelineId
+          boardId
+          stageId
+          itemId
+          itemName
+        }
+      }
+    }
  `;
 
     const responses = await graphqlRequest(qry, 'fields', {

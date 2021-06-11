@@ -294,15 +294,16 @@ describe('Fields mutations', () => {
       {
         text: '2',
         type: 'input',
-        logicAction: 'show',
         tempFieldId: '001',
         logics: [
           {
+            logicAction: 'show',
             tempFieldId: '123',
             logicOperator: 'numberigt',
             logicValue: 10
           },
           {
+            logicAction: 'show',
             fieldId: field1._id,
             logicOperator: 'c',
             logicValue: 'hi'
