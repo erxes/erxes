@@ -43,7 +43,7 @@ context("Popups", () => {
       .click();
 
     cy.get('input[name="title"]').type(randomm);
-    cy.get('textarea[name="description"]').type(randomm);
+    cy.get('textarea[name="desc"]').type(randomm);
     cy.get('input[name="buttonText"]').type(randomm);
 
     cy.get('i[icon="edit-alt"]').click();
