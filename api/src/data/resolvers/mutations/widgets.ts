@@ -5,11 +5,9 @@ import {
   ConversationMessages,
   Conversations,
   Customers,
-  Fields,
   Forms,
   Integrations,
   KnowledgeBaseArticles,
-  Tags,
   Users
 } from '../../../db/models';
 import Messages from '../../../db/models/ConversationMessages';
@@ -50,7 +48,6 @@ import {
 } from '../../utils';
 import {
   convertVisitorToCustomer,
-  isLogicFulfilled,
   solveActions,
   solveSubmissions
 } from '../../widgetUtils';
