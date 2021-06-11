@@ -14,6 +14,7 @@ type IProps = {
   cardId?: string;
   cardName?: string;
   type: string;
+  propertyId?: string;
   onChangeCard: (name?: string, cardId?: string) => void;
   onChangeStage: (stageId: string) => void;
   onChangeProperty: (selectedField?: IField) => void;

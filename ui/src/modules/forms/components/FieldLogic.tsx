@@ -280,14 +280,17 @@ function FieldLogic(props: Props) {
 
     const onChangeProperty = (field?: IField) => {
       if (!field) {
-        // return setFieldId('');
         return;
       }
-
-      // setFieldId(field._id);
       props.onChangeProperty(field);
-      onChangeLogic('logicAction', 'propertyMap', index, isLogic());
+      onChangeLogic('logicAction', action.logicAction, index, isLogic());
     };
+
+    let propertyId = props.currentField.associatedFieldId;
+
+    if (action.itemId || action.itemName) {
+      propertyId = '';
+    }
 
     return (
       <BoardItemSelectContainer
@@ -300,6 +303,7 @@ function FieldLogic(props: Props) {
         cardId={action.itemId}
         cardName={action.itemName}
         onChangeProperty={onChangeProperty}
+        propertyId={propertyId}
       />
     );
   };
@@ -337,24 +341,9 @@ function FieldLogic(props: Props) {
   }
 
   let options = logicOptions;
-  const actions = props.currentField.actions || [];
 
   if (type === 'action') {
     options = actionOptions;
-
-    if (actions.length > 1) {
-      actions.forEach(a => {
-        if (['deal', 'task', 'ticket'].includes(a.logicAction)) {
-          options = options.map(e => {
-            if (e.value === a.logicAction) {
-              return { ...e, disabled: true };
-            }
-
-            return e;
-          });
-        }
-      });
-    }
   }
 
   return (

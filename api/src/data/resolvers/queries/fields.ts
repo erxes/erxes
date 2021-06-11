@@ -63,7 +63,7 @@ const fieldQueries = {
         {
           $match: {
             contentType,
-            $and: [
+            $or: [
               {
                 $or: [
                   { 'group.boardIds': boardId },
@@ -207,7 +207,7 @@ const fieldsGroupQueries = {
     if (boardId && pipelineId) {
       query = {
         contentType,
-        $and: [
+        $or: [
           {
             $or: [
               {

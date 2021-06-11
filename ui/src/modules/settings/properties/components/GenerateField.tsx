@@ -10,7 +10,12 @@ import {
   COUNTRIES
 } from 'modules/companies/constants';
 import React from 'react';
-import { LogicIndicator, SelectInput } from '../styles';
+import {
+  LogicIndicator,
+  ActionIndicator,
+  MappedIndicator,
+  SelectInput
+} from '../styles';
 import { IField } from '../types';
 import Select from 'react-select-plus';
 import { IOption } from 'erxes-ui/lib/types';
@@ -404,8 +409,8 @@ export default class GenerateField extends React.Component<Props, State> {
           {field.text}
         </ControlLabel>
         {hasLogic && <LogicIndicator>Logic</LogicIndicator>}
-        {hasAction && <LogicIndicator>Action</LogicIndicator>}
-        {field.associatedFieldId && <LogicIndicator>Mapped</LogicIndicator>}
+        {hasAction && <ActionIndicator>Action</ActionIndicator>}
+        {field.associatedFieldId && <MappedIndicator>Mapped</MappedIndicator>}
         {field.description ? <p>{field.description}</p> : null}
 
         {this.renderControl()}

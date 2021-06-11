@@ -51,6 +51,7 @@ import {
 import {
   convertVisitorToCustomer,
   isLogicFulfilled,
+  solveActions,
   solveSubmissions
 } from '../../widgetUtils';
 import { getDocument, getMessengerApps } from './cacheUtils';
@@ -193,8 +194,6 @@ const widgetMutations = {
       dealCustomData
     } = await solveSubmissions(args);
 
-    console.log(taskCustomData);
-
     // create conversation
     const conversation = await Conversations.createConversation({
       integrationId,
@@ -210,62 +209,15 @@ const widgetMutations = {
       formWidgetData: submissions
     });
 
-    // fields with actions
-    const fieldsWithActions = await Fields.find({
-      contentTypeId: formId,
-      'actions.0': { $exists: true }
-    });
-
-    for (const { actions = [], _id } of fieldsWithActions) {
-      for (const action of actions) {
-        const submission = submissions.find(e => e._id === _id);
-        if (!submission) {
-          continue;
-        }
-
-        if (isLogicFulfilled(action, submission.value)) {
-          if (action.logicAction === 'tag') {
-            const tagIds = [
-              ...new Set([
-                ...(action.tagIds || []),
-                ...(cachedCustomer.tagIds || [])
-              ])
-            ];
-            await Tags.tagObject({
-              type: 'customer',
-              targetIds: [cachedCustomer._id],
-              tagIds
-            });
-          }
-
-          if (['task', 'deal', 'ticket'].includes(action.logicAction)) {
-            let customFieldsData;
-
-            switch (action.logicAction) {
-              case 'deal':
-                customFieldsData = dealCustomData;
-                break;
-              case 'ticket':
-                customFieldsData = ticketCustomData;
-                break;
-
-              default:
-                customFieldsData = taskCustomData;
-                break;
-            }
-
-            await Conversations.convert({
-              _id: conversation._id,
-              type: action.logicAction,
-              itemId: action.itemId || '',
-              stageId: action.stageId || '',
-              itemName: action.itemName || '',
-              customFieldsData
-            });
-          }
-        }
-      }
-    }
+    //  actions
+    solveActions(
+      formId,
+      submissions,
+      cachedCustomer,
+      conversation._id,
+      form.title,
+      { taskCustomData, dealCustomData, ticketCustomData }
+    );
 
     // increasing form submitted count
     await Integrations.increaseContactsGathered(formId);

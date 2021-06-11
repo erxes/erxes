@@ -24,6 +24,7 @@ type Props = {
   onChange: (option: { cardId?: string; name?: string }) => void;
   type: string;
   additionalValue?: string;
+  defaultValue?: string;
 };
 
 type State = {
@@ -36,7 +37,10 @@ class CardSelect extends React.Component<Props, State> {
     super(props);
 
     this.state = {
-      searchValue: ''
+      searchValue: '',
+      selectedValue: props.defaultValue
+        ? props.options.find(e => e.value === props.defaultValue)
+        : undefined
     };
   }
 
@@ -84,8 +88,12 @@ class CardSelect extends React.Component<Props, State> {
   };
 
   render() {
-    const { placeholder, options, additionalValue } = this.props;
-    const { selectedValue } = this.state;
+    const { placeholder, options, additionalValue, defaultValue } = this.props;
+    let { selectedValue } = this.state;
+
+    if (defaultValue) {
+      selectedValue = options.find(e => e.value === defaultValue);
+    }
 
     if (additionalValue) {
       options.push({ value: 'copiedItem', label: additionalValue });

@@ -51,15 +51,6 @@ export default class Field extends React.Component<Props, State> {
     return <input {...attrs} className="form-control" />;
   }
 
-  static renderCustomOption(attrs: any) {
-    return (
-      <div>
-        <input type="radio" name="fruit" id="other_fruit" value="other" />
-        <span>{attrs.option}</span>
-      </div>
-    );
-  }
-
   static renderTextarea(attrs: any) {
     return <textarea {...attrs} className="form-control" />;
   }
@@ -101,26 +92,28 @@ export default class Field extends React.Component<Props, State> {
             );
           })}
         </div>
-        <div id={`custom_${id}`}>
-          <input
-            type="checkbox"
-            name={name}
-            id={`custom_option_${id}`}
-            data-option={customValue}
-            className="form-control"
-            checked={customValue ? true : false}
-            onChange={onChange}
-          />
-          <span>Other:</span>
-          <input
-            type="text"
-            name="other"
-            id={`custom_text_${id}`}
-            className="input-other"
-            onChange={onChangeText}
-            value={customValue}
-          />
-        </div>
+        {customValue !== undefined ? (
+          <div id={`custom_${id}`}>
+            <input
+              type="checkbox"
+              name={name}
+              id={`custom_option_${id}`}
+              data-option={customValue}
+              className="form-control"
+              checked={customValue ? true : false}
+              onChange={onChange}
+            />
+            <span>Other:</span>
+            <input
+              type="text"
+              name="other"
+              id={`custom_text_${id}`}
+              className="input-other"
+              onChange={onChangeText}
+              value={customValue}
+            />
+          </div>
+        ) : null}
       </div>
     );
   }
@@ -151,26 +144,28 @@ export default class Field extends React.Component<Props, State> {
             <span>{option}</span>
           </div>
         ))}
-        <div id={`custom_${id}`}>
-          <input
-            type="radio"
-            name={name}
-            id={`custom_option_${id}`}
-            data-option="other-option"
-            className="form-control"
-            checked={customValue ? true : false}
-            onChange={onChange}
-          />
-          <span>Other:</span>
-          <input
-            type="text"
-            name="other"
-            id={`custom_text_${id}`}
-            className="input-other"
-            onChange={onChangeText}
-            value={customValue}
-          />
-        </div>
+        {customValue !== undefined ? (
+          <div id={`custom_${id}`}>
+            <input
+              type="radio"
+              name={name}
+              id={`custom_option_${id}`}
+              data-option="other-option"
+              className="form-control"
+              checked={customValue ? true : false}
+              onChange={onChange}
+            />
+            <span>Other:</span>
+            <input
+              type="text"
+              name="other"
+              id={`custom_text_${id}`}
+              className="input-other"
+              onChange={onChangeText}
+              value={customValue}
+            />
+          </div>
+        ) : null}
       </div>
     );
   }
@@ -512,10 +507,11 @@ export default class Field extends React.Component<Props, State> {
           this.onCheckboxesChange,
           values,
           this.onCheckboxTextChange,
-          this.state.otherValue
+          field.hasCustomOptions ? this.state.otherValue : undefined
         );
 
       case 'radio':
+        console.log(field.hasCustomOptions);
         return Field.renderRadioButtons(
           name,
           options,
@@ -523,7 +519,7 @@ export default class Field extends React.Component<Props, State> {
           this.onRadioButtonsChange,
           String(value),
           this.onRadioButtonTextChange,
-          this.state.otherValue
+          field.hasCustomOptions ? this.state.otherValue : undefined
         );
 
       case 'isSubscribed':

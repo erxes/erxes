@@ -56,6 +56,32 @@ class AddForm extends React.Component<Props, State> {
     };
   }
 
+  componentDidMount() {
+    const { boardId, pipelineId, stageId } = this.state;
+
+    if (stageId) {
+      this.props.fetchCards(stageId, (cards: any) => {
+        if (cards) {
+          this.setState({
+            cards: cards.map(c => ({ value: c._id, label: c.name }))
+          });
+        }
+      });
+    }
+
+    if (boardId && pipelineId) {
+      this.props.fetchProperties(
+        this.state.boardId,
+        this.state.pipelineId,
+        data => {
+          if (data) {
+            this.setState({ properties: data.fields });
+          }
+        }
+      );
+    }
+  }
+
   onChangeField = <T extends keyof State>(name: T, value: State[T]) => {
     if (name === 'stageId') {
       const { fetchCards, fetchProperties, onChangeStage } = this.props;
@@ -174,7 +200,7 @@ class AddForm extends React.Component<Props, State> {
               options={this.state.cards}
               onChange={this.onChangeCardSelect}
               type={type}
-              // value={'copiedItem'}
+              defaultValue={this.props.cardId}
               additionalValue={this.state.cardName}
             />
           </HeaderContent>

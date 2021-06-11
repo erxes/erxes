@@ -8,7 +8,8 @@ import {
   Fields,
   FieldsGroups,
   FormSubmissions,
-  Integrations
+  Integrations,
+  Tags
 } from '../db/models';
 import Messages from '../db/models/ConversationMessages';
 import { IBrowserInfo } from '../db/models/Customers';
@@ -366,6 +367,118 @@ const groupSubmissions = (submissions: ISubmission[]) => {
     }
   });
   return submissionsGrouped;
+};
+
+export const solveActions = async (
+  formId,
+  submissions,
+  customer,
+  conversationId,
+  formTitle,
+  customData
+) => {
+  const { dealCustomData, taskCustomData, ticketCustomData } = customData;
+
+  const fieldsWithActions = await Fields.find({
+    contentTypeId: formId,
+    'actions.0': { $exists: true }
+  });
+
+  const groupByStageId = array => {
+    return array.reduce((r, a) => {
+      r[a.stageId || ''] = [...(r[a.stageId || ''] || []), a];
+      return r;
+    }, {});
+  };
+
+  const actionsGroupedByType = fieldsWithActions.reduce((g: any, field) => {
+    const tasks =
+      (field.actions && field.actions.filter(e => e.logicAction === 'task')) ||
+      [];
+    const deals =
+      (field.actions && field.actions.filter(e => e.logicAction === 'deal')) ||
+      [];
+    const tickets =
+      (field.actions &&
+        field.actions.filter(e => e.logicAction === 'ticket')) ||
+      [];
+
+    const tags =
+      (field.actions && field.actions.filter(e => e.logicAction === 'tag')) ||
+      [];
+
+    g.task = { _id: field._id, actions: groupByStageId(tasks) };
+    g.deal = { _id: field._id, actions: groupByStageId(deals) };
+    g.ticket = { _id: field._id, actions: groupByStageId(tickets) };
+    g.tag = { _id: field._id, actions: tags };
+    return g;
+  }, {});
+
+  const executeActions = async (actionType, data) => {
+    const { _id, actions } = data;
+
+    const submission = submissions.find(e => e._id === _id);
+    if (!submission) {
+      return;
+    }
+
+    for (const key of Object.keys(actions)) {
+      for (const action of actions[key]) {
+        if (isLogicFulfilled(action, submission.value)) {
+          if (actionType === 'tag') {
+            const tagIds = [
+              ...new Set([...(action.tagIds || []), ...(customer.tagIds || [])])
+            ];
+            await Tags.tagObject({
+              type: 'customer',
+              targetIds: [customer._id],
+              tagIds
+            });
+          }
+
+          if (['task', 'deal', 'ticket'].includes(action.logicAction)) {
+            let customFieldsData;
+
+            switch (action.logicAction) {
+              case 'deal':
+                customFieldsData = dealCustomData;
+                break;
+              case 'ticket':
+                customFieldsData = ticketCustomData;
+                break;
+
+              default:
+                customFieldsData = taskCustomData;
+                break;
+            }
+
+            let itemName = action.itemName;
+
+            if (!action.itemId && !action.itemName) {
+              itemName = `${formTitle} - ${Customers.getCustomerName(
+                customer
+              )}`;
+            }
+
+            const doc = {
+              _id: conversationId,
+              type: action.logicAction,
+              itemId: action.itemId || '',
+              stageId: action.stageId || '',
+              itemName,
+              customFieldsData
+            };
+
+            await Conversations.convert(doc);
+          }
+        }
+      }
+    }
+  };
+
+  for (const [key, value] of Object.entries(actionsGroupedByType)) {
+    executeActions(key, value);
+  }
 };
 
 export const solveSubmissions = async (args: {

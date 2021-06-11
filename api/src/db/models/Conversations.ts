@@ -476,8 +476,6 @@ export const loadClass = () => {
 
       const { collection, update, create } = getCollection(type);
 
-      console.log('bla,slag: ', getCollection(type));
-
       if (itemId) {
         const oldItem = await collection.findOne({ _id: itemId }).lean();
 
