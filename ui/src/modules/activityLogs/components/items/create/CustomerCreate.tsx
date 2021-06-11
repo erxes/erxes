@@ -3,7 +3,6 @@ import {
   FlexBody,
   FlexCenterContent
 } from 'modules/activityLogs/styles';
-
 import { IActivityLog } from 'modules/activityLogs/types';
 import React from 'react';
 import Tip from 'modules/common/components/Tip';
