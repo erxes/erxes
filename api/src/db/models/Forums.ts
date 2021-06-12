@@ -366,6 +366,6 @@ export const ForumDiscussions = model<IDiscussionDocument, IDiscussionModel>(
 );
 
 export const DiscussionComments = model<ICommentDocument, ICommentModel>(
-  'forum_discussion_comment',
+  'forum_discussion_comments',
   commentSchema
 );
