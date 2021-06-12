@@ -2,7 +2,8 @@ import {
   ForumDiscussions,
   Forums,
   ForumTopics,
-  DiscussionComments
+  DiscussionComments,
+  DiscussionCommentLikes
 } from '../../../db/models';
 
 import { IContext } from '../../types';
@@ -114,6 +115,26 @@ const forumQueries = {
     return DiscussionComments.find({
       discussionId: args.discussionId
     }).countDocuments();
+  },
+
+  /**
+   * discussion comment like
+   */
+  async isUserLikedComment(
+    _root,
+    args: { commentId: string },
+    { user }: IContext
+  ) {
+    const isLiked = await DiscussionCommentLikes.findOne({
+      commentId: args.commentId,
+      createdBy: user._id
+    });
+
+    if (isLiked) {
+      return true;
+    }
+
+    return false;
   }
 };
 

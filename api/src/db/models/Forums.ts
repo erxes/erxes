@@ -11,7 +11,10 @@ import {
   IDiscussionDocument,
   IComment,
   ICommentDocument,
-  commentSchema
+  commentSchema,
+  ICommentLikeDocument,
+  commentLikeSchema,
+  ICommentLike
 } from './definitions/forums';
 
 export interface IForumModel extends Model<IForumDocument> {
@@ -348,10 +351,35 @@ const loadCommentClass = () => {
   return commentSchema;
 };
 
+export interface ICommentLikeModel extends Model<ICommentLikeDocument> {
+  createDoc(
+    docFields: ICommentLike,
+    userId: string
+  ): Promise<ICommentLikeDocument>;
+}
+
+const loadCommentLikeClass = () => {
+  class CommentLike {
+    public static async createDoc(docFields: ICommentLike, userId: string) {
+      return DiscussionCommentLikes.create({
+        ...docFields,
+        createdBy: userId,
+        createdDate: new Date(),
+        modifiedDate: new Date()
+      });
+    }
+  }
+
+  commentLikeSchema.loadClass(CommentLike);
+
+  return commentLikeSchema;
+};
+
 loadForumClass();
 loadTopicClass();
 loadDiscussionClass();
 loadCommentClass();
+loadCommentLikeClass();
 
 export const Forums = model<IForumDocument, IForumModel>('forums', forumSchema);
 
@@ -369,3 +397,8 @@ export const DiscussionComments = model<ICommentDocument, ICommentModel>(
   'forum_discussion_comments',
   commentSchema
 );
+
+export const DiscussionCommentLikes = model<
+  ICommentLikeDocument,
+  ICommentLikeModel
+>('forum_discussion_comment_likes', commentLikeSchema);

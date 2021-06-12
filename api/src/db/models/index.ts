@@ -46,7 +46,8 @@ import {
   Forums,
   ForumTopics,
   ForumDiscussions,
-  DiscussionComments
+  DiscussionComments,
+  DiscussionCommentLikes
 } from './Forums';
 
 export {
@@ -107,5 +108,6 @@ export {
   Forums,
   ForumTopics,
   ForumDiscussions,
-  DiscussionComments
+  DiscussionComments,
+  DiscussionCommentLikes
 };

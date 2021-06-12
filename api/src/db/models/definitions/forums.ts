@@ -55,6 +55,16 @@ export interface ICommentDocument extends ICommonFields, IComment, Document {
   _id: string;
 }
 
+export interface ICommentLike {
+  commentId: string;
+}
+
+export interface ICommentLikeDocument
+  extends ICommonFields,
+    ICommentLike,
+    Document {
+  _id: string;
+}
 // Mongoose schemas ==================
 
 // Schema for common fields
@@ -111,6 +121,13 @@ export const commentSchema = new Schema({
   _id: field({ pkey: true }),
   title: field({ type: String, label: 'Title' }),
   content: field({ type: String, label: 'Content' }),
+  discussionId: field({ type: String, label: 'Discussion' }),
+  ...commonFields
+});
+
+export const commentLikeSchema = new Schema({
+  _id: field({ pkey: true }),
+  commentId: field({ type: String, label: 'Comment' }),
   discussionId: field({ type: String, label: 'Discussion' }),
   ...commonFields
 });

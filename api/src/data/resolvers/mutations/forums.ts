@@ -2,13 +2,15 @@ import {
   Forums,
   ForumTopics,
   ForumDiscussions,
-  DiscussionComments
+  DiscussionComments,
+  DiscussionCommentLikes
 } from '../../../db/models';
 import {
   IForum,
   ITopic,
   IDiscussion,
-  IComment
+  IComment,
+  ICommentLike
 } from '../../../db/models/definitions/forums';
 import { IContext } from '../../types';
 import { moduleCheckPermission } from '../../permissions/wrappers';
@@ -167,6 +169,32 @@ const forumMutations = {
     const removed = await DiscussionComments.removeDoc(_id);
 
     return removed;
+  },
+
+  /**
+   * Discussion Comment Like mutations
+   */
+
+  async commentLikesToggle(
+    _root,
+    { ...doc }: { doc: ICommentLike; commentId: string },
+    { user, docModifier }: IContext
+  ) {
+    const userLiked = await DiscussionCommentLikes.findOne({
+      commentId: doc.commentId,
+      createdBy: user._id
+    });
+
+    if (userLiked) {
+      return DiscussionCommentLikes.deleteOne({ createdBy: user._id });
+    }
+
+    const like = await DiscussionCommentLikes.createDoc(
+      docModifier(doc),
+      user._id
+    );
+
+    return like;
   }
 };
 

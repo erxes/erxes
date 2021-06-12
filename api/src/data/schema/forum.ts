@@ -74,6 +74,8 @@ export const queries = `
 
     discussionComments(discussionId: String!): [ForumDiscussionComment]
     discussionCommentsTotalCount(discussionId: String!): Int
+
+    isUserLikedComment(commentId: String!): Boolean
 `;
 
 const forumMutationParams = `
@@ -124,4 +126,6 @@ export const mutations = `
     discussionCommentsAdd(${commentMutationParams}): ForumDiscussionComment
     discussionCommentsEdit(_id: String ${commentMutationParams}): ForumDiscussionComment
     discussionCommentsRemove(_id: String): JSON
+
+    commentLikesToggle(commentId: String!): JSON
 `;
