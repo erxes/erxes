@@ -17,7 +17,7 @@ import { getEsTypes } from '../coc/utils';
 export const fetchBySegments = async (
   segment: ISegment,
   action: 'search' | 'count' = 'search',
-  options?
+  options: any = {}
 ): Promise<any> => {
   if (!segment || !segment.conditions) {
     return [];
@@ -119,7 +119,6 @@ export const fetchBySegments = async (
 
   if (
     ['company', 'deal', 'task', 'ticket'].includes(contentType) &&
-    options &&
     options.associatedCustomers
   ) {
     index = 'customers';
@@ -171,7 +170,7 @@ export const fetchBySegments = async (
     action: 'search',
     index,
     body: {
-      _source: false,
+      _source: options.returnFields || false,
       query: {
         bool: {
           must: propertyPositive,
@@ -180,6 +179,10 @@ export const fetchBySegments = async (
       }
     }
   });
+
+  if (options.returnFields) {
+    return response.hits.hits.map(hit => ({ _id: hit._id, ...hit._source }));
+  }
 
   const idsByContentType = response.hits.hits.map(hit => hit._id);
 
