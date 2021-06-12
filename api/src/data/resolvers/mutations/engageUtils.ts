@@ -1,5 +1,6 @@
 import { Transform } from 'stream';
 import {
+  Conformities,
   Customers,
   EngageMessages,
   Integrations,
@@ -15,6 +16,7 @@ import {
 import { CONTENT_TYPES } from '../../../db/models/definitions/segments';
 import { IUserDocument } from '../../../db/models/definitions/users';
 import { fetchElk } from '../../../elasticsearch';
+import { get, removeKey, set } from '../../../inmemoryStorage';
 import messageBroker from '../../../messageBroker';
 import { MESSAGE_KINDS } from '../../constants';
 import { fetchBySegments } from '../../modules/segments/queryBuilder';
@@ -27,11 +29,13 @@ interface IEngageParams {
 }
 
 export const generateCustomerSelector = async ({
+  engageId,
   customerIds,
   segmentIds = [],
   tagIds = [],
   brandIds = []
 }: {
+  engageId?: string;
   customerIds?: string[];
   segmentIds?: string[];
   tagIds?: string[];
@@ -69,6 +73,62 @@ export const generateCustomerSelector = async ({
       const cIds = await fetchBySegments(segment, 'search', {
         associatedCustomers: true
       });
+
+      if (
+        engageId &&
+        ['company', 'deal', 'task', 'ticket'].includes(segment.contentType)
+      ) {
+        let customersItemsMapping: { [key: string]: any } | undefined = {};
+
+        const returnFields = [
+          'name',
+          'description',
+          'closeDate',
+          'createdAt',
+          'modifiedAt',
+          'customFieldsData'
+        ];
+
+        if (segment.contentType === 'deal') {
+          returnFields.push('productsData');
+        }
+
+        const items = await fetchBySegments(segment, 'search', {
+          returnFields
+        });
+
+        for (const item of items) {
+          const cusIds = await Conformities.savedConformity({
+            mainType: segment.contentType,
+            mainTypeId: item._id,
+            relTypes: ['customer']
+          });
+
+          for (const customerId of cusIds) {
+            if (!customersItemsMapping[customerId]) {
+              customersItemsMapping[customerId] = [];
+            }
+
+            customersItemsMapping[customerId].push({
+              contentType: segment.contentType,
+              name: item.name,
+              description: item.description,
+              closeDate: item.closeDate,
+              createdAt: item.createdAt,
+              modifiedAt: item.modifiedAt,
+              customFieldsData: item.customFieldsData,
+              productsData: item.productsData
+            });
+          }
+        }
+
+        await set(
+          `${engageId}_customers_items_mapping`,
+          JSON.stringify(customersItemsMapping)
+        );
+
+        customersItemsMapping = undefined;
+      }
 
       customerIdsBySegments = [...customerIdsBySegments, ...cIds];
     }
@@ -126,6 +186,7 @@ export const send = async (engageMessage: IEngageMessageDocument) => {
   }
 
   const customersSelector = await generateCustomerSelector({
+    engageId: engageMessage._id,
     customerIds,
     segmentIds,
     tagIds: customerTagIds,
@@ -246,27 +307,42 @@ const sendEmailOrSms = async (
 
         await sendQueueMessage({ action, data });
       }
+
+      const key = `${engageMessage._id}_customers_items_mapping`;
+
+      if (await get(key)) {
+        await removeKey(key);
+      }
     }
   };
+
+  const customersItemsMapping = JSON.parse(
+    (await get(`${engageMessage._id}_customers_items_mapping`)) || '{}'
+  );
 
   const customerTransformerStream = new Transform({
     objectMode: true,
 
     async transform(customer: ICustomerDocument, _encoding, callback) {
-      const { replacers } = await replaceEditorAttributes({
-        content: emailContent,
-        customer,
-        customerFields
-      });
+      const itemsMapping = customersItemsMapping[customer._id] || [null];
 
-      customerInfos.push({
-        _id: customer._id,
-        primaryEmail: customer.primaryEmail,
-        emailValidationStatus: customer.emailValidationStatus,
-        phoneValidationStatus: customer.phoneValidationStatus,
-        primaryPhone: customer.primaryPhone,
-        replacers
-      });
+      for (const item of itemsMapping) {
+        const { replacers } = await replaceEditorAttributes({
+          content: emailContent,
+          customer,
+          item,
+          customerFields
+        });
+
+        customerInfos.push({
+          _id: customer._id,
+          primaryEmail: customer.primaryEmail,
+          emailValidationStatus: customer.emailValidationStatus,
+          phoneValidationStatus: customer.phoneValidationStatus,
+          primaryPhone: customer.primaryPhone,
+          replacers
+        });
+      }
 
       // signal upstream that we are ready to take more data
       callback();
