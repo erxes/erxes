@@ -135,6 +135,15 @@ const forumQueries = {
     }
 
     return false;
+  },
+
+  /**
+   * comment likes count
+   */
+  async discussionCommentLikesTotalCount(_root, args: { commentId: string }) {
+    return DiscussionCommentLikes.find({
+      commentId: args.commentId
+    }).countDocuments();
   }
 };
 
@@ -143,10 +152,12 @@ requireLogin(forumQueries, 'forumTopicsTotalCount');
 requireLogin(forumQueries, 'forumTopicsGetLast');
 requireLogin(forumQueries, 'forumDiscussionsTotalCount');
 requireLogin(forumQueries, 'discussionCommentsTotalCount');
+requireLogin(forumQueries, 'discussionCommentLikesTotalCount');
 
 checkPermission(forumQueries, 'forums', 'showForums', []);
 checkPermission(forumQueries, 'forumTopics', 'showForums', []);
 checkPermission(forumQueries, 'forumDiscussions', 'showForums', []);
 checkPermission(forumQueries, 'discussionComments', 'showForums', []);
+checkPermission(forumQueries, 'isUserLikedComment', 'showForums', []);
 
 export default forumQueries;

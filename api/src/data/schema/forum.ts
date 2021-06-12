@@ -76,6 +76,7 @@ export const queries = `
     discussionCommentsTotalCount(discussionId: String!): Int
 
     isUserLikedComment(commentId: String!): Boolean
+    discussionCommentLikesTotalCount(commentId: String!): Int
 `;
 
 const forumMutationParams = `
