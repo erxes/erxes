@@ -59,7 +59,7 @@ class Boards extends React.Component<Props, {}> {
         uppercase={false}
         block={true}
       >
-        Add New {boardName}
+        {`Add New ${boardName}`}
       </Button>
     );
 
@@ -93,7 +93,7 @@ class Boards extends React.Component<Props, {}> {
           data={<List>{this.renderItems()}</List>}
           loading={loading}
           count={boards.length}
-          emptyText={`${__(`There is no `)}${boardName}`}
+          emptyText={`${__(`There is no `)}${' '}${boardName}`}
           emptyImage="/images/actions/18.svg"
           objective={true}
         />

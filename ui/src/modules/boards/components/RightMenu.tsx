@@ -152,7 +152,7 @@ export default class RightMenu extends React.Component<Props, State> {
           onSelect={onSelect}
         />
         <Select
-          placeholder="Filter by priority"
+          placeholder={__('Filter by priority')}
           value={priorities}
           options={priorityValues}
           name="priority"

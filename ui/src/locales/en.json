@@ -1777,6 +1777,8 @@
   "You can export your data from the list on the left. If you wish to export your popup forms, go to Customer and click on “Export Popups Data": "You can export your data from the list on the left. If you wish to export your popup forms, go to Customer and click on “Export Popups Data",
   "Choose the data type": "Choose the data type",
   "Make sure you’re on the right page and you’ve selected the right data type Lead, Customer, etc on the left": "Make sure you’re on the right page and you’ve selected the right data type Lead, Customer, etc on the left",
+  "on the left": "on the left",
+  "Make sure you’re on the right page and you’ve selected the right data type Lead, Customer, etc": "Make sure you’re on the right page and you’ve selected the right data type Lead, Customer, etc",
   "Learn More": "Learn More",
   "Download Template": "Download Template",
   "It's all about thinking ahead for your customers, Team members will be able to choose from email templates and send out one message to multiple recipients, You can use the email templates to send out a Mass email for leads/customers or you can send to other team members": "It's all about thinking ahead for your customers, Team members will be able to choose from email templates and send out one message to multiple recipients, You can use the email templates to send out a Mass email for leads/customers or you can send to other team members",
@@ -1910,6 +1912,9 @@
   "Manage your boards and calendars so that its easy to manage incoming pop ups or requests that is adaptable to your team's needs": "Manage your boards and calendars so that its easy to manage incoming pop ups or requests that is adaptable to your team's needs",
   "Add in or delete boards and calendars to keep business development on track and in check": "Add in or delete boards and calendars to keep business development on track and in check",
   "There is no campaign": "There is no campaign",
-  "Track your entire sales pipeline from one dashboard.": "Track your entire sales pipeline from one dashboard.",
-  "You can also restrict access to your sales pipelines": "You can also restrict access to your sales pipelines"
+  "Track your entire sales pipeline from one dashboard": "Track your entire sales pipeline from one dashboard",
+  "You can also restrict access to your sales pipelines": "You can also restrict access to your sales pipelines",
+  "Drive leads to a successful close with our Kanban-style boards": "Drive leads to a successful close with our Kanban-style boards",
+  "Import": "Import",
+  "Add lead": "Add lead"
 }

@@ -27,8 +27,8 @@ export const EMPTY_IMPORT_CONTENT = {
     {
       title: __('Choose the data type'),
       description: `${__(
-        'Make sure you’re on the right page and you’ve selected the right data type Lead, Customer, etc'
-      )}.${__('on the left')}`,
+        'Make sure you’re on the right page and you’ve selected the right data type Lead, Customer, etc on the left'
+      )}`,
       url: 'http://www.erxes.org/user/import#import',
       target: '_blank',
       isOutside: true

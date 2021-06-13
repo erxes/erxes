@@ -46,7 +46,7 @@ class Sidebar extends React.Component<Props, {}> {
         uppercase={false}
         icon="plus-circle"
       >
-        {__('Add New Brand')}
+        Add New Brand
       </Button>
     );
 

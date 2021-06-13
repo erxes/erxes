@@ -72,7 +72,7 @@ class List extends React.Component<Props> {
   renderRightActionBar = () => {
     const trigger = (
       <Button btnStyle="success" size="small" icon="plus-circle">
-        {__('New message')}
+        New message
       </Button>
     );
 
