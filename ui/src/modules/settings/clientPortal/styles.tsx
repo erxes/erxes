@@ -82,3 +82,25 @@ export const ColorPickerWrap = styled.div`
   grid-template-columns: 30% 30% 30% 30%;
   margin-top: 10px;
 `;
+
+export const Wrap = styled.div`
+  display: flex;
+  align-items: center;
+  margin-bottom: 10px label {
+    margin-right: 10px;
+  }
+
+  div {
+    div {
+      div:first-child {
+        height: 17px;
+        width: 43px;
+      }
+
+      div:nth-child(2) {
+        height: 15px;
+        width: 15px;
+      }
+    }
+  }
+`;
