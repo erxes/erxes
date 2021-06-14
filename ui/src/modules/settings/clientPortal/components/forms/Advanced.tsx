@@ -3,7 +3,7 @@ import FormGroup from 'erxes-ui/lib/components/form/Group';
 import ControlLabel from 'erxes-ui/lib/components/form/Label';
 import { FlexContent } from 'erxes-ui/lib/layout/styles';
 import React, { useState } from 'react';
-import { Circle } from '../../styles';
+import { Circle, CheckCircleWrap, TitleWrap } from '../../styles';
 import { AdvancedSettings } from '../../types';
 
 type Props = {
@@ -58,7 +58,9 @@ function Advanced({ advanced = {}, handleFormChange }: Props) {
   ) {
     return (
       <FormGroup>
-        <h2>{title}</h2>
+        <TitleWrap>
+          <h2>{title}</h2>
+        </TitleWrap>
         <ControlLabel>{desciption}</ControlLabel>
         {content}
       </FormGroup>
@@ -71,53 +73,59 @@ function Advanced({ advanced = {}, handleFormChange }: Props) {
         'User Sign Up and Login',
         'Allow users to Sign Up from the customer portal',
         <FlexContent>
-          {renderControl({
-            name: 'authAllow',
-            label: 'Yes',
-            value: 'yes'
-          })}
-          {renderControl({
-            name: 'authAllow',
-            label: 'No',
-            value: 'no'
-          })}
-          {renderControl({
-            name: 'authAllow',
-            label: 'Connect your databse',
-            value: 'connectDb'
-          })}
+          <CheckCircleWrap>
+            {renderControl({
+              name: 'authAllow',
+              label: 'Yes',
+              value: 'yes'
+            })}
+            {renderControl({
+              name: 'authAllow',
+              label: 'No',
+              value: 'no'
+            })}
+            {renderControl({
+              name: 'authAllow',
+              label: 'Connect your databse',
+              value: 'connectDb'
+            })}
+          </CheckCircleWrap>
         </FlexContent>
       )}
       {renderContent(
         'User Permissions for portal',
         'Who can submit a new ticket on portal',
         <FlexContent>
-          {renderControl({
-            name: 'permission',
-            label: 'Logged in users',
-            value: 'loggedInUsers'
-          })}
-          {renderControl({
-            name: 'permission',
-            label: 'Everyone',
-            value: 'everyone'
-          })}
+          <CheckCircleWrap>
+            {renderControl({
+              name: 'permission',
+              label: 'Logged in users',
+              value: 'loggedInUsers'
+            })}
+            {renderControl({
+              name: 'permission',
+              label: 'Everyone',
+              value: 'everyone'
+            })}
+          </CheckCircleWrap>
         </FlexContent>
       )}
       {renderContent(
         '',
         'Who can view tickets on portal',
         <FlexContent>
-          {renderControl({
-            name: 'viewTicket',
-            label: 'Logged in Users',
-            value: 'loggedInUsers'
-          })}
-          {renderControl({
-            name: 'viewTicket',
-            label: 'Anyone with a public ticket URL',
-            value: 'anyonePublicURL'
-          })}
+          <CheckCircleWrap>
+            {renderControl({
+              name: 'viewTicket',
+              label: 'Logged in Users',
+              value: 'loggedInUsers'
+            })}
+            {renderControl({
+              name: 'viewTicket',
+              label: 'Anyone with a public ticket URL',
+              value: 'anyonePublicURL'
+            })}
+          </CheckCircleWrap>
         </FlexContent>
       )}
     </>

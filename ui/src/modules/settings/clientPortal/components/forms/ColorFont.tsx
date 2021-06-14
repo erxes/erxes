@@ -9,6 +9,7 @@ import TwitterPicker from 'react-color/lib/Twitter';
 import Select from 'react-select-plus';
 import { COLORS, FONTS } from '../../constants';
 import { Styles } from '../../types';
+import { ColorPickerWrap } from '../../styles';
 
 type Props = {
   styles?: Styles;
@@ -115,41 +116,45 @@ function ColorFont({ styles = {}, handleFormChange }: Props) {
       <FormGroup>
         <ControlLabel>Background color</ControlLabel>
         <FlexContent>
-          {renderColor({
-            label: 'Body',
-            name: 'bodyColor',
-            value: bodyColor
-          })}
-          {renderColor({
-            label: 'Header',
-            name: 'headerColor',
-            value: headerColor
-          })}
-          {renderColor({
-            label: 'Footer',
-            name: 'footerColor',
-            value: footerColor
-          })}
-          {renderColor({
-            label: 'Help Center',
-            name: 'helpColor',
-            value: helpColor
-          })}
+          <ColorPickerWrap>
+            {renderColor({
+              label: 'Body',
+              name: 'bodyColor',
+              value: bodyColor
+            })}
+            {renderColor({
+              label: 'Header',
+              name: 'headerColor',
+              value: headerColor
+            })}
+            {renderColor({
+              label: 'Footer',
+              name: 'footerColor',
+              value: footerColor
+            })}
+            {renderColor({
+              label: 'Help Center',
+              name: 'helpColor',
+              value: helpColor
+            })}
+          </ColorPickerWrap>
         </FlexContent>
       </FormGroup>
       <FormGroup>
         <ControlLabel>Tab colors</ControlLabel>
         <FlexContent>
-          {renderColor({
-            label: 'Background',
-            name: 'backgroundColor',
-            value: backgroundColor
-          })}
-          {renderColor({
-            label: 'Active tab',
-            name: 'activeTabColor',
-            value: activeTabColor
-          })}
+          <ColorPickerWrap>
+            {renderColor({
+              label: 'Background',
+              name: 'backgroundColor',
+              value: backgroundColor
+            })}
+            {renderColor({
+              label: 'Active tab',
+              name: 'activeTabColor',
+              value: activeTabColor
+            })}
+          </ColorPickerWrap>
         </FlexContent>
       </FormGroup>
       <FormGroup>
@@ -159,55 +164,63 @@ function ColorFont({ styles = {}, handleFormChange }: Props) {
           name: 'baseFont',
           value: baseFont
         })}
-        {renderColor({
-          label: 'Base Color',
-          name: 'baseColor',
-          value: baseColor
-        })}
+        <ColorPickerWrap>
+          {renderColor({
+            label: 'Base Color',
+            name: 'baseColor',
+            value: baseColor
+          })}
+        </ColorPickerWrap>
         {renderSelect({
           label: 'Heading font',
           name: 'headingFont',
           value: headingFont
         })}
-        {renderColor({
-          label: 'Heading Color',
-          name: 'headingColor',
-          value: headingColor
-        })}
+        <ColorPickerWrap>
+          {renderColor({
+            label: 'Heading Color',
+            name: 'headingColor',
+            value: headingColor
+          })}
+        </ColorPickerWrap>
       </FormGroup>
       <FormGroup>
         <ControlLabel>Link color</ControlLabel>
         <FlexContent>
-          {renderColor({
-            label: 'Link text',
-            name: 'linkColor',
-            value: linkColor
-          })}
-          {renderColor({
-            label: 'Link hover text',
-            name: 'linkHoverColor',
-            value: linkHoverColor
-          })}
+          <ColorPickerWrap>
+            {renderColor({
+              label: 'Link text',
+              name: 'linkColor',
+              value: linkColor
+            })}
+            {renderColor({
+              label: 'Link hover text',
+              name: 'linkHoverColor',
+              value: linkHoverColor
+            })}
+          </ColorPickerWrap>
         </FlexContent>
       </FormGroup>
       <FormGroup>
         <ControlLabel>Form elements</ControlLabel>
         <FlexContent>
-          {renderColor({
-            label: 'Heading divider & Input focus glow',
-            name: 'dividerColor',
-            value: dividerColor
-          })}
-          {renderColor({
-            label: 'Primary action button',
-            name: 'primaryBtnColor',
-            value: primaryBtnColor
-          })}
-          {renderColor({
-            label: 'Secondary action button',
-            name: 'secondaryBtnColor',
-            value: secondaryBtnColor
-          })}
+          <ColorPickerWrap>
+            {renderColor({
+              label: 'Heading divider & Input focus glow',
+              name: 'dividerColor',
+              value: dividerColor
+            })}
+            {renderColor({
+              label: 'Primary action button',
+              name: 'primaryBtnColor',
+              value: primaryBtnColor
+            })}
+            {renderColor({
+              label: 'Secondary action button',
+              name: 'secondaryBtnColor',
+              value: secondaryBtnColor
+            })}
+          </ColorPickerWrap>
         </FlexContent>
       </FormGroup>
     </>

@@ -14,6 +14,7 @@ import React, { useState } from 'react';
 import { OverlayTrigger, Popover } from 'react-bootstrap';
 import Select from 'react-select-plus';
 import { ClientPortalConfig } from '../../types';
+import { Half, Full, SelectsWrap } from '../../styles';
 
 type Props = {
   topics: ITopic[];
@@ -199,7 +200,9 @@ function General({
     return (
       <FormGroup>
         <ControlLabel>Task public pipeline</ControlLabel>
-        {renderSelect(boards, handleSelectBoard, taskPublicBoardId)}
+        <SelectsWrap>
+          {renderSelect(boards, handleSelectBoard, taskPublicBoardId)}
+        </SelectsWrap>
         {renderSelect(pipelines, handleSelecPipeline, taskPublicPipelineId)}
       </FormGroup>
     );
@@ -210,11 +213,13 @@ function General({
       handleFormChange('icon', iconUrl);
 
     return (
-      <FormGroup>
-        <ControlLabel>Favicon</ControlLabel>
-        <p>16x16px transparent PNG.</p>
-        <AvatarUpload avatar={icon} onAvatarUpload={handleAvatarUploader} />
-      </FormGroup>
+      <Half>
+        <FormGroup>
+          <ControlLabel>Favicon</ControlLabel>
+          <p>16x16px transparent PNG.</p>
+          <AvatarUpload avatar={icon} onAvatarUpload={handleAvatarUploader} />
+        </FormGroup>
+      </Half>
     );
   }
 
@@ -223,10 +228,13 @@ function General({
       handleFormChange('logo', logoUrl);
 
     return (
-      <FormGroup>
-        <ControlLabel>Main Logo</ControlLabel>
-        <AvatarUpload avatar={logo} onAvatarUpload={handleAvatarUploader} />
-      </FormGroup>
+      <Half>
+        <FormGroup>
+          <ControlLabel>Main Logo</ControlLabel>
+          <p>16x16px transparent PNG.</p>
+          <AvatarUpload avatar={logo} onAvatarUpload={handleAvatarUploader} />
+        </FormGroup>
+      </Half>
     );
   }
 
@@ -260,24 +268,30 @@ function General({
       </FlexContent>
 
       <FlexContent>
-        {renderControl({
-          label: 'Knowledge Base',
-          subtitle: 'Shown name on menu',
-          formValueName: 'knowledgeBaseLabel',
-          formValue: knowledgeBaseLabel,
-          placeholder: 'Please enter a label for Knowledge base'
-        })}
+        <Full>
+          <Half>
+            {renderControl({
+              label: 'Knowledge Base',
+              subtitle: 'Shown name on menu',
+              formValueName: 'knowledgeBaseLabel',
+              formValue: knowledgeBaseLabel,
+              placeholder: 'Please enter a label for Knowledge base'
+            })}
+          </Half>
 
-        <FormGroup>
-          <ControlLabel required={true}>Knowledge base topic</ControlLabel>
-          <p>Knowledge base topic in Client Portal</p>
-          <Select
-            placeholder="Select a knowledge base topic"
-            value={knowledgeBaseTopicId}
-            options={generateOptions(topics, '_id', 'title')}
-            onChange={handleSelectChange}
-          />
-        </FormGroup>
+          <Half>
+            <FormGroup>
+              <ControlLabel required={true}>Knowledge base topic</ControlLabel>
+              <p>Knowledge base topic in Client Portal</p>
+              <Select
+                placeholder="Select a knowledge base topic"
+                value={knowledgeBaseTopicId}
+                options={generateOptions(topics, '_id', 'title')}
+                onChange={handleSelectChange}
+              />
+            </FormGroup>
+          </Half>
+        </Full>
       </FlexContent>
 
       {renderControl({
