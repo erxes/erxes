@@ -86,7 +86,9 @@ export const ColorPickerWrap = styled.div`
 export const Wrap = styled.div`
   display: flex;
   align-items: center;
-  margin-bottom: 10px label {
+  margin-bottom: 10px;
+
+  label {
     margin-right: 10px;
   }
 
