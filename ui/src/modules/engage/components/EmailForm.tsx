@@ -9,7 +9,6 @@ import Icon from 'modules/common/components/Icon';
 import { FlexItem, FlexPad } from 'modules/common/components/step/styles';
 import Tip from 'modules/common/components/Tip';
 import Uploader from 'modules/common/components/Uploader';
-import EditorCK from 'modules/common/containers/EditorCK';
 import { ISelectedOption } from 'modules/common/types';
 import { __ } from 'modules/common/utils';
 import {
@@ -21,6 +20,7 @@ import {
 } from 'modules/engage/styles';
 import React from 'react';
 import Select from 'react-select-plus';
+import EditorCK from '../containers/EditorCK';
 import { IEmailFormProps, IEngageEmail, IEngageScheduleDate } from '../types';
 import { generateEmailTemplateParams } from '../utils';
 import Scheduler from './Scheduler';
