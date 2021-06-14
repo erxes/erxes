@@ -25,15 +25,26 @@ class DiscussionDetail extends React.Component<Props> {
     return (
       <CommentWrapper>
         {comments.map((comment, index) => {
-          const { createdUser } = comment;
+          const { createdUser, createdCustomer } = comment;
 
           return (
             <DiscussionComment key={index}>
               <CreatedUser>
-                <img src={getUserAvatar(comment.createdUser)} alt="profile" />
+                <img
+                  src={
+                    createdUser
+                      ? getUserAvatar(createdUser)
+                      : createdCustomer.avatar
+                  }
+                  alt="profile"
+                />
                 <div>
                   <CommentContent>
-                    <h5>{createdUser.username}</h5>
+                    <h5>
+                      {createdUser
+                        ? createdUser.username
+                        : createdCustomer.firstName}
+                    </h5>
                     <div
                       className="comment"
                       dangerouslySetInnerHTML={{ __html: comment.content }}

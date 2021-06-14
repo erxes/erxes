@@ -1,6 +1,7 @@
 import { QueryResponse } from 'modules/common/types';
 import { IUser } from 'modules/auth/types';
 import { IBrand } from 'modules/settings/brands/types';
+import { ICustomer } from 'erxes-ui/lib/customers/types';
 
 export interface IForum {
   _id: string;
@@ -57,6 +58,7 @@ export interface IComment {
   content: string;
   createdUser: IUser;
   createdDate: Date;
+  createdCustomer: ICustomer;
 }
 
 // mutation types

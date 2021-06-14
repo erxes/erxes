@@ -142,6 +142,12 @@ const forumDiscussions = `
                       fullName
                     }
                 }
+                createdCustomer {
+                    _id
+                    firstName
+                    lastName
+                    avatar
+                }
             }
         }
     }
