@@ -2,7 +2,6 @@ import { IBoard, IPipeline } from 'modules/boards/types';
 
 import MainActionBar from 'modules/boards/components/MainActionBar';
 import { __ } from 'modules/common/utils';
-// tslint:disable-next-line:ordered-imports
 import SelectCompanies from 'modules/companies/containers/SelectCompanies';
 import SelectCustomers from 'modules/customers/containers/common/SelectCustomers';
 import React from 'react';

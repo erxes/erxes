@@ -1043,6 +1043,7 @@
   "Choose a campaign": "Choose a campaign",
   "Template": "Template",
   "Campaign": "Campaign",
+  "campaign": "campaign",
   "Project": "Project",
   "Weighted scoring": "Weighted scoring",
   "Priority matrix": "Priority matrix",
@@ -1916,5 +1917,6 @@
   "You can also restrict access to your sales pipelines": "You can also restrict access to your sales pipelines",
   "Drive leads to a successful close with our Kanban-style boards": "Drive leads to a successful close with our Kanban-style boards",
   "Import": "Import",
-  "Add lead": "Add lead"
+  "Add lead": "Add lead",
+  "Add New Campaign": "Add New Campaign"
 }

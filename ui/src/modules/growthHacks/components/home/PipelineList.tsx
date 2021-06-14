@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { BoxContainer, ProjectItem } from './styles';
 
-// tslint:disable-next-line:ordered-imports
 import { IPipeline } from 'modules/boards/types';
 import { IButtonMutateProps } from 'modules/common/types';
 import { __ } from 'modules/common/utils';

@@ -1,16 +1,11 @@
-// tslint:disable-next-line:ordered-imports
 import { IBoard } from 'modules/boards/types';
-// tslint:disable-next-line:ordered-imports
 import Button from 'modules/common/components/Button';
 import DataWithLoader from 'modules/common/components/DataWithLoader';
-// tslint:disable-next-line:ordered-imports
 import ModalTrigger from 'modules/common/components/ModalTrigger';
 import { TopHeader } from 'modules/common/styles/main';
 import { IButtonMutateProps } from 'modules/common/types';
 import { __ } from 'modules/common/utils';
-// tslint:disable-next-line:ordered-imports
 import Sidebar from 'modules/layout/components/Sidebar';
-// tslint:disable-next-line:ordered-imports
 import { SidebarList as List } from 'modules/layout/styles';
 import React from 'react';
 import { IOption } from '../types';

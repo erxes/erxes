@@ -2,7 +2,6 @@ import Button from 'modules/common/components/Button';
 import { TopHeader } from 'modules/common/styles/main';
 import { __ } from 'modules/common/utils';
 import LeftSidebar from 'modules/layout/components/Sidebar';
-// tslint:disable-next-line:ordered-imports
 import { SidebarList as List } from 'modules/layout/styles';
 import React from 'react';
 import { Link } from 'react-router-dom';

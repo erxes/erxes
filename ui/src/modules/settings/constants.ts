@@ -88,8 +88,8 @@ export const EMPTY_SEGMENT_CONTENT = {
 
 export const EMPTY_NEW_SEGMENT_CONTENT = {
   title: __('Setup a new segment'),
-  description: `$__('There aren’t any filters at the moment')}.${__(
-    ' You can create a segment by Property and/or by events'
+  description: `${__('There aren’t any filters at the moment')}.${__(
+    'You can create a segment by Property and/or by events'
   )}`,
   steps: [
     {

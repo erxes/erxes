@@ -1,16 +1,11 @@
-// tslint:disable-next-line:ordered-imports
 import Button from 'modules/common/components/Button';
-// tslint:disable-next-line:ordered-imports
 import Icon from 'modules/common/components/Icon';
-// tslint:disable-next-line:ordered-imports
 import ModalTrigger from 'modules/common/components/ModalTrigger';
 import Tip from 'modules/common/components/Tip';
-// tslint:disable-next-line:ordered-imports
 import { IButtonMutateProps } from 'modules/common/types';
 import { __ } from 'modules/common/utils';
 import React from 'react';
 import { Link } from 'react-router-dom';
-// tslint:disable-next-line:ordered-imports
 import { BoardItem } from '../../boards/styles';
 import { ActionButtons } from '../../styles';
 import { IBoard } from '../types';

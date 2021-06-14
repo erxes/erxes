@@ -1,4 +1,3 @@
-// tslint:disable-next-line:ordered-imports
 import { IPipeline } from 'modules/boards/types';
 import ActionButtons from 'modules/common/components/ActionButtons';
 import Button from 'modules/common/components/Button';
