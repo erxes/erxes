@@ -1,4 +1,4 @@
-import { debugGmail } from '../debuggers';
+import { debugError, debugGmail } from '../debuggers';
 import { Accounts } from '../models';
 import { getEnv, sendRequest } from '../utils';
 import {
@@ -43,7 +43,7 @@ export const subscribeUser = async (email: string) => {
 
     return response;
   } catch (e) {
-    debugGmail(`Failed to subscribe user ${email}: ${e.message}`);
+    debugError(`Failed to subscribe user ${email}: ${e.message}`);
 
     if (e.message.includes(ERROR_CODES.ACCESS_TOKEN_EXPIRED)) {
       await refreshAccessToken(email);
@@ -70,7 +70,7 @@ export const unsubscribeUser = async (email: string) => {
 
     return response;
   } catch (e) {
-    debugGmail(`Failed to unsubscribe user ${email}: ${e.message}`);
+    debugError(`Failed to unsubscribe user ${email}: ${e.message}`);
 
     if (e.message.includes(ERROR_CODES.ACCESS_TOKEN_EXPIRED)) {
       await refreshAccessToken(email);
@@ -106,7 +106,7 @@ export const getHistoryChanges = async ({
 
     return { email, historyResponse };
   } catch (e) {
-    debugGmail(`Failed: getHistoryChanges email: ${email} ${e.message}`);
+    debugError(`Failed: getHistoryChanges email: ${email} ${e.message}`);
 
     await checkAccessTokenExpired(e.message, email);
 
@@ -142,7 +142,7 @@ export const collectMessagesIds = async ({
 
     return { email, messageIds };
   } catch (e) {
-    debugGmail(`Failed: collectMessagesIds: ${e.message}`);
+    debugError(`Failed: collectMessagesIds: ${e.message}`);
     throw e;
   }
 };
@@ -177,7 +177,7 @@ export const getMessageById = async (
 
     return parseMail(mails);
   } catch (e) {
-    debugGmail(`Failed: getMessageById ${e.message}`);
+    debugError(`Failed: getMessageById ${e.message}`);
 
     await checkAccessTokenExpired(e.message, email);
 
@@ -198,7 +198,7 @@ export const getUserInfo = async (accessToken: string): Promise<any> => {
 
     return response;
   } catch (e) {
-    debugGmail('Failed to getUserInfo');
+    debugError('Failed to getUserInfo');
     throw e;
   }
 };
@@ -224,7 +224,7 @@ export const getAccessToken = async (code: string): Promise<ICredentials> => {
 
     return response;
   } catch (e) {
-    debugGmail('Failed to get access token');
+    debugError('Failed to get access token');
     throw e;
   }
 };
@@ -259,7 +259,7 @@ export const refreshAccessToken = async (email: string) => {
       { $set: { token: response.access_token } }
     );
   } catch (e) {
-    debugGmail('Failed to refresh access token');
+    debugError('Failed to refresh access token');
     throw e;
   }
 };
@@ -280,7 +280,7 @@ export const send = async (email: string, mailOptions: IMailParams) => {
       }
     });
   } catch (e) {
-    debugGmail('Failed to send email');
+    debugError('Failed to send email');
 
     if (e.message.includes(ERROR_CODES.ACCESS_TOKEN_EXPIRED)) {
       await refreshAccessToken(email);
@@ -308,7 +308,7 @@ export const revokeToken = async (email: string, accessToken?: string) => {
       }
     });
   } catch (e) {
-    debugGmail('Failed to revoke token: ', email);
+    debugError(`Failed to revoke token: ${email}`);
     throw e;
   }
 };
@@ -329,7 +329,7 @@ export const getAttachment = async (
 
     return response;
   } catch (e) {
-    debugGmail(
+    debugError(
       `Failed to get attachment with attachmentId: ${attachmentId} messageId: ${messageId}`
     );
 

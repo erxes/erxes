@@ -12,6 +12,8 @@ export const types = `
     createdDate: Date
     modifiedBy: String
     modifiedDate: Date
+    topicId: String
+    categoryId: String
   }
 
   input KnowledgeBaseArticleDoc {
@@ -21,6 +23,8 @@ export const types = `
     status: String!
     reactionChoices: [String]
     categoryIds: [String]
+    topicId: String
+    categoryId: String
   }
 
   type KnowledgeBaseCategory {
@@ -33,10 +37,30 @@ export const types = `
     createdDate: Date
     modifiedBy: String
     modifiedDate: Date
+    parentCategoryId: String
 
     firstTopic: KnowledgeBaseTopic
     authors: [User]
     numOfArticles: Float
+  }
+
+  type KnowledgeBaseParentCategory {
+    _id: String
+    title: String
+    description: String
+    articles: [KnowledgeBaseArticle]
+    icon: String
+    createdBy: String
+    createdDate: Date
+    modifiedBy: String
+    modifiedDate: Date
+    parentCategoryId: String
+
+    firstTopic: KnowledgeBaseTopic
+    authors: [User]
+    numOfArticles: Float
+
+    childrens: [KnowledgeBaseCategory]
   }
 
   input KnowledgeBaseCategoryDoc {
@@ -44,7 +68,9 @@ export const types = `
     description: String
     articleIds: [String]
     icon: String!
-    topicIds: [String]
+    topicIds: [String],
+    topicId: String,
+    parentCategoryId: String
   }
 
   type KnowledgeBaseTopic {
@@ -60,7 +86,9 @@ export const types = `
     createdDate: Date
     modifiedBy: String
     modifiedDate: Date
+    parentCategories: [KnowledgeBaseParentCategory]
   }
+  
 
   input KnowledgeBaseTopicDoc {
     title: String!

@@ -24,6 +24,7 @@ type State = {
   name: string;
   type: string;
   visible: boolean;
+  isDateRange: boolean;
 };
 
 class Chart extends React.Component<Props, State> {
@@ -38,20 +39,28 @@ class Chart extends React.Component<Props, State> {
         : {},
       type: dashboardItem.type,
       name: dashboardItem.name,
-      visible: false,
+      isDateRange: dashboardItem.isDateRange || false,
+      visible: false
     };
   }
 
-  setVizState = (vizState) => {
+  setVizState = vizState => {
     this.setState({ vizState });
   };
 
-  setType = (type) => {
+  setIsDateRange = value => {
+    this.setState({ isDateRange: value });
+  };
+
+  setType = type => {
+    this.setVizState({
+      query: { dimensions: [], measures: [], timeDimensions: [] }
+    });
     this.setState({ type });
   };
 
   handleSubmit = () => {
-    const { name, vizState, type } = this.state;
+    const { name, vizState, type, isDateRange } = this.state;
     const { dashboardId, dashboardItem } = this.props;
 
     if (!name) {
@@ -67,14 +76,15 @@ class Chart extends React.Component<Props, State> {
       vizState,
       dashboardId,
       type,
+      isDateRange
     };
 
     this.props.save(doc);
   };
 
-  setTitleModalVisible = (value) => {
+  setTitleModalVisible = value => {
     this.setState({
-      visible: value,
+      visible: value
     });
   };
 
@@ -83,9 +93,9 @@ class Chart extends React.Component<Props, State> {
   };
 
   render() {
-    const { vizState, type, visible, name } = this.state;
+    const { vizState, type, visible, name, isDateRange } = this.state;
 
-    const onChange = (e) =>
+    const onChange = e =>
       this.onChange('name', (e.currentTarget as HTMLInputElement).value);
 
     return (
@@ -113,15 +123,21 @@ class Chart extends React.Component<Props, State> {
               this.onChange('visible', false);
               this.handleSubmit();
             }}
-            okButtonProps={{shape: "round", icon: <Icon icon="check-circle" />}}
-            cancelButtonProps={{shape: "round", icon: <Icon icon="times-circle" />}}
+            okButtonProps={{
+              shape: 'round',
+              icon: <Icon icon="check-circle" />
+            }}
+            cancelButtonProps={{
+              shape: 'round',
+              icon: <Icon icon="times-circle" />
+            }}
             onCancel={() => this.setTitleModalVisible(false)}
           >
             <label>Dashboard Item Title</label>
             <Input
               placeholder="Write here..."
               value={name}
-              onChange={(e) => onChange(e)}
+              onChange={e => onChange(e)}
             />
           </Modal>
         </ShadowedHeader>
@@ -131,6 +147,8 @@ class Chart extends React.Component<Props, State> {
           setVizState={this.setVizState}
           type={type}
           setType={this.setType}
+          isDateRange={isDateRange}
+          setIsDateRange={this.setIsDateRange}
         />
       </>
     );

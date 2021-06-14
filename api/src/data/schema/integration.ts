@@ -22,6 +22,7 @@ export const types = `
     websiteMessengerApps: [MessengerApp]
     knowledgeBaseMessengerApps: [MessengerApp]
     leadMessengerApps: [MessengerApp]
+    healthStatus: JSON
   }
 
   type integrationsTotalCount {
@@ -30,6 +31,7 @@ export const types = `
     byChannel: JSON
     byBrand: JSON
     byKind: JSON
+    byStatus: JSON
   }
 
   type integrationsGetUsedTypes {
@@ -46,12 +48,16 @@ export const types = `
     adminEmails: [String]
     adminEmailTitle: String
     adminEmailContent: String
+    thankTitle: String
     thankContent: String
     redirectUrl: String
     themeColor: String
     callout: JSON,
     rules: [InputRule]
     isRequireOnce: Boolean
+    templateId: String
+    attachments: [AttachmentInput]
+    css: String
   }
 
   input MessengerOnlineHoursSchema {
@@ -71,6 +77,7 @@ export const types = `
     _id: String
     notifyCustomer: Boolean
     botEndpointUrl: String
+    skillData: JSON
     botShowInitialMessage: Boolean
     availabilityMethod: String
     isOnline: Boolean,
@@ -104,12 +111,16 @@ export const queries = `
     channelId: String,
     brandId: String,
     tag: String,
+    status: String,
+    formLoadType: String,
+    sortField: String
+    sortDirection: Int
   ): [Integration]
 
   integrationsGetUsedTypes: [integrationsGetUsedTypes]
   integrationGetLineWebhookUrl(_id: String!): String
   integrationDetail(_id: String!): Integration
-  integrationsTotalCount: integrationsTotalCount
+  integrationsTotalCount(kind: String, brandId: String, tag: String, channelId: String, status: String, formLoadType: String): integrationsTotalCount
   integrationsFetchApi(path: String!, params: JSON!): JSON
 `;
 
@@ -140,6 +151,7 @@ export const mutations = `
   integrationsCreateLeadIntegration(
     name: String!,
     brandId: String!,
+    channelIds: [String]
     languageCode: String,
     formId: String!,
     leadData: IntegrationLeadData!): Integration
@@ -148,6 +160,7 @@ export const mutations = `
     _id: String!
     name: String!,
     brandId: String!,
+    channelIds: [String]
     languageCode: String,
     formId: String!,
     leadData: IntegrationLeadData!): Integration
@@ -166,6 +179,7 @@ export const mutations = `
   integrationsRemoveAccount(_id: String!): JSON
 
   integrationsArchive(_id: String!, status: Boolean!): Integration
+  integrationsRepair(_id: String!): JSON
 
   integrationSendMail(
     erxesApiId: String!
@@ -191,4 +205,6 @@ export const mutations = `
   integrationsUpdateConfigs(configsMap: JSON!): JSON
 
   integrationsSendSms(integrationId: String!, content: String!, to: String!): JSON
+
+  integrationsCopyLeadIntegration(_id: String!): Integration
 `;

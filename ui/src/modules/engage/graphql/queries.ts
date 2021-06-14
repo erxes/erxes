@@ -2,10 +2,7 @@ const listParamsDef = `
   $kind: String
   $status: String
   $tag: String
-  $ids: [String]
-  $tagIds: [String]
-  $brandIds: [String]
-  $segmentIds: [String]
+  $ids: String
   $page: Int
   $perPage: Int
 `;
@@ -15,11 +12,14 @@ const listParamsValue = `
   status: $status
   tag: $tag
   ids: $ids
-  tagIds: $tagIds
-  brandIds: $brandIds
-  segmentIds: $segmentIds
   page: $page
   perPage: $perPage
+`;
+
+const tagFields = `
+  _id
+  name
+  colorCode
 `;
 
 const commonFields = `
@@ -31,15 +31,23 @@ const commonFields = `
   createdAt
   method
   tagIds
+  customerTagIds
   brandIds
   segmentIds
   stats
   messenger
   email
   smsStats
+  createdUser
+
+  brand {
+    _id
+    name
+  }
 
   totalCustomersCount
   validCustomersCount
+  runCount
 
   fromUser {
     _id
@@ -68,6 +76,7 @@ const engageMessages = `
       ${commonFields}
 
       brands {
+        _id
         name
       }
       segments {
@@ -75,9 +84,10 @@ const engageMessages = `
         name
       }
       getTags {
-        _id
-        name
-        colorCode
+        ${tagFields}
+      }
+      customerTags {
+        ${tagFields}
       }
     }
   }
@@ -89,6 +99,7 @@ export const engageDetailFields = `
   customerIds
   fromUserId
   stopDate
+  lastRunAt
 
   scheduleDate {
     type
@@ -98,6 +109,12 @@ export const engageDetailFields = `
   }
   brand {
     name
+  }
+  customerTags {
+    ${tagFields}
+  }
+  segments {
+    contentType
   }
 `;
 
@@ -205,19 +222,6 @@ const segments = `
   }
 `;
 
-const tags = `
-  query tagsQuery($type: String) {
-    tags(type: $type) {
-      _id
-      name
-      type
-      colorCode
-      createdAt
-      objectCount
-    }
-  }
-`;
-
 const brands = `
   query brands {
     brands {
@@ -249,12 +253,6 @@ const headSegments = `
   }
 `;
 
-const combinedFields = `
-  query fieldsCombinedByContentType {
-    fieldsCombinedByContentType(contentType: "customer")
-  }
-`;
-
 const kindCounts = `
   query kindCounts {
     engageMessageCounts(name: "kind")
@@ -279,6 +277,21 @@ const verifiedEmails = `
   }
 `;
 
+const engageEmailPercentages = `
+  query engageEmailPercentages {
+    engageEmailPercentages {
+      avgBouncePercent
+      avgClickPercent
+      avgComplaintPercent
+      avgDeliveryPercent
+      avgOpenPercent
+      avgRejectPercent
+      avgRenderingFailurePercent
+      avgSendPercent
+    }
+  }
+`;
+
 export default {
   engageMessages,
   engageMessagesTotalCount,
@@ -291,10 +304,9 @@ export default {
   customerCounts,
   segmentDetail,
   headSegments,
-  combinedFields,
   kindCounts,
   statusCounts,
   tagCounts,
-  tags,
-  verifiedEmails
+  verifiedEmails,
+  engageEmailPercentages
 };

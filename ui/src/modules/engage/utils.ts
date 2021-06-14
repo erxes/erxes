@@ -36,7 +36,7 @@ export const sumCounts = (ids: string[], countValues: TargetCount): number => {
   let sum = 0;
 
   for (const id of ids) {
-    sum += countValues[id];
+    sum += countValues[id] || 0;
   }
 
   return sum;

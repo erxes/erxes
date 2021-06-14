@@ -75,7 +75,7 @@ export interface IItemParams {
   reminderMinute?: number;
   companyIds?: string[];
   customerIds?: string[];
-  sourceConversationId?: string;
+  sourceConversationIds?: string[];
   labelIds?: string[];
   proccessId?: string;
   aboveItemId?: string;
@@ -150,6 +150,9 @@ export interface IItem {
     status: string;
     timeSpent: number;
     startDate?: string;
+  };
+  customFieldsData?: {
+    [key: string]: any;
   };
 }
 
@@ -315,6 +318,10 @@ export interface IFilterParams extends ISavedConformity {
   closeDateType?: string;
   labelIds?: string;
   userIds?: string;
+  segment?: string;
+  assignedToMe?: string;
+  startDate?: string;
+  endDate?: string;
 }
 
 export interface INonFilterParams {
@@ -330,3 +337,28 @@ export interface IEditFormContent {
   copy: () => void;
   remove: (id: string) => void;
 }
+
+export type ConvertToMutationVariables = {
+  type: string;
+  _id: string;
+  itemId?: string;
+  itemName?: string;
+  stageId?: string;
+};
+
+export type ConvertToMutationResponse = {
+  conversationConvertToCard: (doc: {
+    variables: ConvertToMutationVariables;
+  }) => Promise<any>;
+};
+
+export type StagesSortItemsMutationResponse = ({
+  variables
+}: {
+  variables: {
+    stageId: string;
+    type: string;
+    proccessId: string;
+    sortType: string;
+  };
+}) => Promise<any>;

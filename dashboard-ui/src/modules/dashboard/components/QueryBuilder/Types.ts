@@ -1,1 +1,1 @@
-export const schemaTypes = ['Customers', 'Deals', 'Conversations'];
+export const schemaTypes = ['Contacts', 'Deals', 'Conversations'];

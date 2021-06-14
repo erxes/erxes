@@ -8,6 +8,10 @@ export const commonFields = `
     name
     code
   }
+  channels {
+    _id
+    name
+  }
   languageCode
   leadData
   formId
@@ -24,6 +28,7 @@ export const commonFields = `
     description
     type
     buttonText
+    numberOfPages
     createdDate
     createdUserId
     createdUser {
@@ -39,8 +44,8 @@ export const commonFields = `
 `;
 
 const integrations = `
-  query leadIntegrations($perPage: Int, $page: Int, $kind: String, $tag: String) {
-    integrations(perPage: $perPage, page: $page, kind: $kind, tag: $tag) {
+  query leadIntegrations($perPage: Int, $page: Int, $kind: String, $tag: String, $brandId: String, $status: String, $sortField: String, $sortDirection: Int) {
+    integrations(perPage: $perPage, page: $page, kind: $kind, tag: $tag, brandId: $brandId, status: $status, sortField: $sortField, sortDirection: $sortDirection) {
       _id
       ${commonFields}
     }
@@ -57,10 +62,13 @@ const integrationDetail = `
 `;
 
 const integrationsTotalCount = `
-  query integrationsTotalCount {
-    integrationsTotalCount {
+  query integrationsTotalCount($kind: String, $tag: String, $brandId: String, $status: String){
+    integrationsTotalCount(kind:$kind, tag:$tag, brandId: $brandId, status: $status){
       byKind
       byTag
+      byBrand
+      byStatus
+      total
     }
   }
 `;

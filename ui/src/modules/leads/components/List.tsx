@@ -1,9 +1,9 @@
 import Button from 'modules/common/components/Button';
-import CountsByTag from 'modules/common/components/CountsByTag';
 import DataWithLoader from 'modules/common/components/DataWithLoader';
 import EmptyContent from 'modules/common/components/empty/EmptyContent';
 import FormControl from 'modules/common/components/form/Control';
 import Pagination from 'modules/common/components/pagination/Pagination';
+import SortHandler from 'modules/common/components/SortHandler';
 import Table from 'modules/common/components/table';
 import { __ } from 'modules/common/utils';
 import Wrapper from 'modules/layout/components/Wrapper';
@@ -13,8 +13,9 @@ import TaggerPopover from 'modules/tags/components/TaggerPopover';
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { ITag } from '../../tags/types';
-import { ILeadIntegration } from '../types';
+import { ILeadIntegration, IntegrationsCount } from '../types';
 import Row from './Row';
+import Sidebar from './Sidebar';
 
 type Props = {
   integrations: ILeadIntegration[];
@@ -30,6 +31,9 @@ type Props = {
   loading: boolean;
   remove: (integrationId: string) => void;
   archive: (integrationId: string, status: boolean) => void;
+  refetch?: () => void;
+  copy: (integrationId: string) => void;
+  counts: IntegrationsCount;
 };
 
 class List extends React.Component<Props, {}> {
@@ -45,7 +49,8 @@ class List extends React.Component<Props, {}> {
       bulk,
       toggleBulk,
       archive,
-      queryParams
+      queryParams,
+      copy
     } = this.props;
 
     return integrations.map(integration => (
@@ -57,6 +62,7 @@ class List extends React.Component<Props, {}> {
         remove={remove}
         archive={archive}
         showCode={integration._id === queryParams.showInstallCode}
+        copy={copy}
       />
     ));
   }
@@ -64,15 +70,16 @@ class List extends React.Component<Props, {}> {
   render() {
     const {
       totalCount,
-      tagsCount,
+      queryParams,
       loading,
-      tags,
       bulk,
       emptyBulk,
       isAllSelected,
-      integrations
+      integrations,
+      counts
     } = this.props;
 
+    queryParams.loadingMainQuery = loading;
     let actionBarLeft: React.ReactNode;
 
     if (bulk.length > 0) {
@@ -95,7 +102,7 @@ class List extends React.Component<Props, {}> {
     }
 
     const actionBarRight = (
-      <Link to="/leads/create">
+      <Link to="/forms/create">
         <Button btnStyle="success" size="small" icon="plus-circle">
           Create Pop Ups
         </Button>
@@ -104,17 +111,6 @@ class List extends React.Component<Props, {}> {
 
     const actionBar = (
       <Wrapper.ActionBar right={actionBarRight} left={actionBarLeft} />
-    );
-
-    const sidebar = (
-      <Wrapper.Sidebar>
-        <CountsByTag
-          tags={tags}
-          manageUrl={'tags/integration'}
-          counts={tagsCount}
-          loading={false}
-        />
-      </Wrapper.Sidebar>
     );
 
     const content = (
@@ -128,15 +124,34 @@ class List extends React.Component<Props, {}> {
                 onChange={this.onChange}
               />
             </th>
-            <th>{__('Name')}</th>
-            <th>{__('Brand')}</th>
-            <th>{__('Views')}</th>
-            <th>{__('Conversion rate')}</th>
-            <th>{__('Contacts gathered')}</th>
-            <th>{__('Created at')}</th>
-            <th>{__('Created by')}</th>
-            <th>{__('Tags')}</th>
+            <th>
+              <SortHandler sortField={'name'} label={__('Name')} />
+            </th>
             <th>{__('Status')}</th>
+            <th>
+              <SortHandler
+                sortField={'leadData.viewCount'}
+                label={__('Views')}
+              />
+            </th>
+            <th>
+              <SortHandler
+                sortField={'leadData.conversionRate'}
+                label={__('Conversion rate')}
+              />
+            </th>
+            <th>
+              <SortHandler
+                sortField={'leadData.contactsGathered'}
+                label={__('Contacts gathered')}
+              />
+            </th>
+            <th>{__('Brand')}</th>
+            <th>{__('Created by')}</th>
+            <th>
+              <SortHandler sortField={'createdDate'} label={__('Created at')} />
+            </th>
+            <th>{__('Tags')}</th>
             <th>{__('Actions')}</th>
           </tr>
         </thead>
@@ -148,11 +163,12 @@ class List extends React.Component<Props, {}> {
       <Wrapper
         header={
           <Wrapper.Header
-            title={__('Pop Ups')}
-            breadcrumb={[{ title: __('Pop Ups') }]}
+            title={__('Forms')}
+            breadcrumb={[{ title: __('Forms') }]}
+            queryParams={queryParams}
           />
         }
-        leftSidebar={sidebar}
+        leftSidebar={<Sidebar counts={counts || {}} />}
         actionBar={actionBar}
         footer={<Pagination count={totalCount} />}
         content={

@@ -11,9 +11,10 @@ interface IProps extends IRouterProps {
   counts: { [key: string]: number };
   brands: IBrand[];
   loading: boolean;
+  emptyText?: string;
 }
 
-function Brands({ history, counts, brands, loading }: IProps) {
+function Brands({ history, counts, brands, loading, emptyText }: IProps) {
   const data = (
     <SidebarList>
       {brands.map(brand => {

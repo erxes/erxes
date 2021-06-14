@@ -70,6 +70,7 @@ class Sidebar extends React.Component<Props> {
             __('Customer'),
             false
           )}
+
           {this.renderListItem(
             `/dashboard/reports/${dashboardId}?type=conversations`,
             __('Conversation'),

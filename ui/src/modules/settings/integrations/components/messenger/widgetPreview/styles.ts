@@ -53,8 +53,12 @@ const ErxesMiddleTitle = styled.div`
 `;
 
 const ErxesStaffProfile = styled.div`
-  position: relative;
   width: 33%;
+
+  > .avatar {
+    position: relative;
+    display: inline-block;
+  }
 `;
 
 const StateSpan = styledTS<{ state: boolean }>(styled.span)`
@@ -63,7 +67,7 @@ const StateSpan = styledTS<{ state: boolean }>(styled.span)`
   width: 8px;
   bottom: 2px;
   position: absolute;
-  right: 56%;
+  right: 2px;
   background-color: ${props =>
     props.state ? colors.colorCoreGreen : colors.colorLightGray};
 `;
@@ -71,6 +75,7 @@ const StateSpan = styledTS<{ state: boolean }>(styled.span)`
 const ErxesSupporters = styled.div`
   padding-top: ${unitSpace};
   display: flex;
+  flex-wrap: wrap;
 
   img {
     border-radius: 22px;
@@ -84,10 +89,6 @@ const Supporters = styled(ErxesSupporters)`
     margin-right: ${dimensions.unitSpacing}px;
     width: auto;
   }
-
-  ${StateSpan} {
-    display: none;
-  }
 `;
 
 const ErxesState = styled.div`
@@ -97,12 +98,10 @@ const ErxesState = styled.div`
 `;
 
 const ErxesSpacialMessage = styled.li`
-  background-color: ${messageBg};
   border-radius: ${unitSpace};
-  box-shadow: 0 1px 1px 0 ${rgba(colors.colorBlack, 0.2)};
   color: ${colors.textSecondary};
   margin-bottom: ${coreSpace};
-  padding: ${coreSpace};
+  text-align: right;
 `;
 
 const ErxesAvatar = styled.div`
@@ -127,6 +126,9 @@ const ErxesMessagesList = styled.ul`
   margin: 0;
   flex: 1;
   list-style: none;
+  display: flex;
+  justify-content: flex-end;
+  flex-direction: column;
 
   &.background-1 {
     background-image: url('/images/patterns/bg-1.png');
@@ -144,6 +146,10 @@ const ErxesMessagesList = styled.ul`
   li {
     position: relative;
     margin-bottom: ${unitSpace};
+
+    &:last-child {
+      margin-bottom: 0;
+    }
   }
 `;
 
@@ -178,15 +184,20 @@ const ErxesGreeting = styled.div`
   padding: 25px 40px 45px;
   text-align: left;
   min-height: 174px;
+  position: relative;
 `;
 
 const ErxesFromCustomer = styled.li`
   text-align: right;
 `;
 
+const ToggleWrapper = styled.div`
+  margin-top: ${dimensions.unitSpacing}px;
+`;
+
 const FromCustomer = styled(ErxesMessage)`
   border-bottom-left-radius: ${coreSpace};
-  border-top-right-radius: 2px;
+  border-bottom-right-radius: 2px;
   color: ${colors.colorWhite};
   margin: 0 0 5px ${coreSpace};
   text-align: right;
@@ -264,11 +275,12 @@ const GreetingInfo = styled.div`
   }
 `;
 
-const ErxesContent = styled.div`
+const ErxesContent = styledTS<{ isTabbed: boolean }>(styled.div)`
   height: 100%;
-  margin-top: -40px;
+  margin-top: ${props => (props.isTabbed ? '0px' : '-40px')};
   flex: 1;
   overflow: auto;
+  z-index: 5;
 `;
 
 const LeftSide = styled.div`
@@ -342,9 +354,116 @@ const ContentBox = styled.div`
   }
 `;
 
+const ServerInfo = styled.div`
+  padding: ${unitSpace} 0;
+  font-size: 12px;
+  opacity: 0.9;
+`;
+
+const VideoCallRequestWrapper = styledTS<{ color: string }>(styled.div)`
+  background: ${colors.colorWhite};
+  border-radius: ${unitSpace};
+  border-top: 3px solid ${props => props.color};
+  box-shadow: 0 0 10px 2px rgba(0, 0, 0, 0.15);
+  color: ${colors.textPrimary};
+  margin: ${coreSpace} 0;
+  padding: 16px;
+
+  h5 {
+    margin: 0 0 5px;
+    font-size: 15px;
+    font-weight: 700;
+  }
+
+  p {
+    margin: 0 0 15px;
+    font-size: 14px;
+  }
+`;
+
+const CallButtons = styledTS<{ color: string }>(styled.div)`
+  display: flex;
+
+  button {
+    background: ${props => props.color};
+    border-radius: 5px;
+    flex: 1;
+  }
+`;
+
+const SkillWrapper = styledTS<{ color?: string }>(styled.div)`
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+
+  ${FromCustomer} {
+    color: #686868;
+  }
+
+  button {
+    background: ${props => props.color && props.color};
+    margin-bottom: ${unitSpace};
+
+    &:hover {
+      box-shadow: 0 1px 10px 2px rgba(0,0,0,.15);
+      opacity: .9;
+      background: ${props => props.color && props.color};
+    }
+  }
+`;
+
+const TopBarTab = styled.div`
+  border-bottom: 1px solid ${colors.borderPrimary};
+  color: ${colors.textPrimary};
+  cursor: pointer;
+  display: flex;
+  height: 36px;
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  z-index: 1;
+
+  > span {
+    align-items: center;
+    background: ${colors.colorWhite};
+    display: flex;
+    flex: 1;
+    font-size: 11px;
+    justify-content: center;
+    text-align: center;
+    text-transform: uppercase;
+    transition: all 0.3s ease;
+
+    &:last-of-type {
+      border-left: 1px solid ${colors.borderPrimary};
+    }
+  }
+`;
+
+const Website = styledTS<{ color?: string }>(styled.div)`
+  padding: 5px ${coreSpace} ${coreSpace};
+
+  > p {
+    margin-bottom: 15px;
+  }
+
+  > button {
+    width: 100%;
+    background: ${props => props.color && props.color};
+    border-radius: 5px;
+
+    &:hover {
+      background: ${props => props.color && props.color};
+    }
+  }
+`;
+
 export {
   ErxesTopbar,
   ErxesState,
+  ServerInfo,
+  TopBarTab,
   ErxesSupporters,
   ErxesMessage,
   ErxesMiddleTitle,
@@ -362,11 +481,16 @@ export {
   ErxesContent,
   WidgetPreviewStyled,
   GreetingInfo,
+  ToggleWrapper,
   LeftSide,
   RightSide,
   ContentBox,
   Launcher,
   Links,
   Socials,
-  TopBarIcon
+  TopBarIcon,
+  VideoCallRequestWrapper,
+  CallButtons,
+  SkillWrapper,
+  Website
 };

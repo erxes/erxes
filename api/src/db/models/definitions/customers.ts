@@ -31,6 +31,7 @@ export interface ICustomer {
   scopeBrandIds?: string[];
   firstName?: string;
   lastName?: string;
+  middleName?: string;
   birthDate?: Date;
   sex?: number;
   primaryEmail?: string;
@@ -46,6 +47,7 @@ export interface ICustomer {
   hasAuthority?: string;
   description?: string;
   doNotDisturb?: string;
+  isSubscribed?: string;
   emailValidationStatus?: string;
   phoneValidationStatus?: string;
   links?: ILink;
@@ -108,8 +110,8 @@ export const locationSchema = new Schema(
 
 export const visitorContactSchema = new Schema(
   {
-    email: field({ type: String, label: 'Email' }),
-    phone: field({ type: String, label: 'Phone' })
+    email: field({ type: String, label: 'Email', optional: true }),
+    phone: field({ type: String, label: 'Phone', optional: true })
   },
   { _id: false }
 );
@@ -128,6 +130,7 @@ export const customerSchema = schemaWrapper(
       label: 'State',
       default: 'visitor',
       enum: getEnum('STATE'),
+      index: true,
       selectOptions: CUSTOMER_SELECT_OPTIONS.STATE
     }),
 
@@ -137,6 +140,8 @@ export const customerSchema = schemaWrapper(
 
     firstName: field({ type: String, label: 'First name', optional: true }),
     lastName: field({ type: String, label: 'Last name', optional: true }),
+    middleName: field({ type: String, label: 'Middle name', optional: true }),
+
     birthDate: field({
       type: Date,
       label: 'Date of birth',
@@ -192,7 +197,7 @@ export const customerSchema = schemaWrapper(
       esType: 'number'
     }),
 
-    ownerId: field({ type: String, optional: true, label: 'Owner' }),
+    ownerId: field({ type: String, optional: true }),
     position: field({
       type: String,
       optional: true,
@@ -238,13 +243,27 @@ export const customerSchema = schemaWrapper(
       label: 'Do not disturb',
       selectOptions: CUSTOMER_SELECT_OPTIONS.DO_NOT_DISTURB
     }),
+    isSubscribed: field({
+      type: String,
+      optional: true,
+      default: 'Yes',
+      enum: getEnum('DO_NOT_DISTURB'),
+      label: 'Subscribed',
+      selectOptions: CUSTOMER_SELECT_OPTIONS.DO_NOT_DISTURB
+    }),
     links: field({ type: Object, default: {}, label: 'Links' }),
 
-    relatedIntegrationIds: field({ type: [String], optional: true }),
+    relatedIntegrationIds: field({
+      type: [String],
+      label: 'Related integrations',
+      esType: 'keyword',
+      optional: true
+    }),
     integrationId: field({
       type: String,
       optional: true,
       label: 'Integration',
+      index: true,
       esType: 'keyword'
     }),
     tagIds: field({

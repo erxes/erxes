@@ -5,12 +5,12 @@ import {
   Notifications,
   PipelineLabels,
   Pipelines,
-  Stages,
-  Users
+  Stages
 } from '../../db/models';
 import { ITaskDocument } from '../../db/models/definitions/tasks';
 import { IContext } from '../types';
 import { boardId } from './boardUtils';
+import { getDocument, getDocumentList } from './mutations/cacheUtils';
 
 export default {
   async companies(task: ITaskDocument) {
@@ -20,11 +20,11 @@ export default {
       relTypes: ['company']
     });
 
-    return Companies.find({ _id: { $in: companyIds || [] } });
+    return Companies.findActiveCompanies({ _id: { $in: companyIds || [] } });
   },
 
   async createdUser(task: ITaskDocument) {
-    return Users.findOne({ _id: task.userId });
+    return getDocument('users', { _id: task.userId });
   },
 
   async customers(task: ITaskDocument) {
@@ -34,11 +34,13 @@ export default {
       relTypes: ['customer']
     });
 
-    return Customers.find({ _id: { $in: customerIds || [] } });
+    return Customers.findActiveCustomers({ _id: { $in: customerIds || [] } });
   },
 
   assignedUsers(task: ITaskDocument) {
-    return Users.find({ _id: { $in: task.assignedUserIds || [] } });
+    return getDocumentList('users', {
+      _id: { $in: task.assignedUserIds || [] }
+    });
   },
 
   async pipeline(task: ITaskDocument) {

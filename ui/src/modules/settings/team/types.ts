@@ -7,6 +7,7 @@ export type IInvitationEntry = {
   email: string;
   password: string;
   groupId: string;
+  channelIds: string[];
 };
 
 export type UserMutationVariables = {

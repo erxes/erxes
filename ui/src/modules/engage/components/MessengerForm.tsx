@@ -3,12 +3,12 @@ import FormControl from 'modules/common/components/form/Control';
 import FormGroup from 'modules/common/components/form/Group';
 import ControlLabel from 'modules/common/components/form/Label';
 import { FlexItem, FlexPad } from 'modules/common/components/step/styles';
-import EditorCK from 'modules/common/containers/EditorCK';
 import { __, Alert } from 'modules/common/utils';
 import { MESSENGER_KINDS, SENT_AS_CHOICES } from 'modules/engage/constants';
 import { MAIL_TOOLBARS_CONFIG } from 'modules/settings/integrations/constants';
 import React from 'react';
 import { IBrand } from '../../settings/brands/types';
+import EditorCK from '../containers/EditorCK';
 import MessengerPreview from '../containers/MessengerPreview';
 import { IEngageMessenger, IEngageScheduleDate } from '../types';
 import Scheduler from './Scheduler';
@@ -26,6 +26,7 @@ type Props = {
   fromUserId: string;
   content: string;
   scheduleDate: IEngageScheduleDate;
+  isSaved?: boolean;
 };
 
 type State = {
@@ -139,7 +140,8 @@ class MessengerForm extends React.Component<Props, State> {
                 ...MAIL_TOOLBARS_CONFIG
               ]}
               height={300}
-              name={`engage_${messageKind}_${messenger.brandId || 'create'}`}
+              name={`engage_${messageKind}_${messenger.brandId}`}
+              isSubmitted={this.props.isSaved}
             />
           </FormGroup>
 

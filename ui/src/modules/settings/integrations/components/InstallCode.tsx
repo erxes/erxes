@@ -198,6 +198,17 @@ class InstallCode extends React.PureComponent<Props, State> {
     return this.setState({ contentCopied: true });
   };
 
+  onSimulate = () => {
+    const { REACT_APP_CDN_HOST } = getEnv();
+    const brand = this.props.integration.brand || {};
+
+    window.open(
+      `${REACT_APP_CDN_HOST}/test?type=messenger&brand_id=${brand.code}`,
+      'messengerWindow',
+      'width=800,height=800'
+    );
+  };
+
   onTabClick = currentTab => {
     this.setState({ currentTab });
   };
@@ -527,6 +538,15 @@ class InstallCode extends React.PureComponent<Props, State> {
         {this.renderContents()}
 
         <ModalFooter>
+          <Button
+            uppercase={false}
+            btnStyle="primary"
+            icon="plus-circle"
+            onClick={this.onSimulate}
+          >
+            Simulate
+          </Button>
+
           <Button
             btnStyle="simple"
             icon="times-circle"

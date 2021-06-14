@@ -1,11 +1,5 @@
 import { graphqlRequest } from '../db/connection';
-import {
-  brandFactory,
-  companyFactory,
-  integrationFactory,
-  segmentFactory,
-  tagsFactory
-} from '../db/factories';
+import { companyFactory, segmentFactory, tagsFactory } from '../db/factories';
 import { Companies, Segments, Tags } from '../db/models';
 
 import './setup.ts';
@@ -106,15 +100,6 @@ describe('companyQueries', () => {
     });
   });
 
-  test('Company count by brand', async () => {
-    const brand = await brandFactory({});
-    await integrationFactory({ brandId: brand._id });
-
-    await graphqlRequest(qryCount, 'companyCounts', {
-      only: 'byBrand'
-    });
-  });
-
   test('Company detail', async () => {
     const company = await companyFactory();
 
@@ -139,7 +124,7 @@ describe('companyQueries', () => {
           phones
           businessType
           description
-          doNotDisturb
+          isSubscribed
           links
           customers { _id }
           owner { _id }

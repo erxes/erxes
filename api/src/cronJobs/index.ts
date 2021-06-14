@@ -1,10 +1,13 @@
 import * as dotenv from 'dotenv';
 import * as express from 'express';
 import { connect } from '../db/connection';
-import { debugCrons } from '../debuggers';
+import { debugCrons, debugError } from '../debuggers';
 
 import { initMemoryStorage } from '../inmemoryStorage';
 import { initBroker } from '../messageBroker';
+import { extendViaPlugins, pluginsCronJobRunner } from '../pluginUtils';
+import resolvers from '../data/resolvers';
+import * as typeDefDetails from '../data/schema';
 import './activityLogs';
 import './conversations';
 import './deals';
@@ -30,8 +33,12 @@ app.listen(PORT_CRONS, () => {
   connect().then(async () => {
     initMemoryStorage();
 
+    await extendViaPlugins(app, resolvers, typeDefDetails);
+
+    pluginsCronJobRunner();
+
     initBroker(app).catch(e => {
-      debugCrons(`Error ocurred during broker init ${e.message}`);
+      debugError(`Error ocurred during broker init ${e.message}`);
     });
   });
 

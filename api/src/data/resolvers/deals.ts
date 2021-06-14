@@ -7,12 +7,71 @@ import {
   PipelineLabels,
   Pipelines,
   Products,
-  Stages,
-  Users
+  Stages
 } from '../../db/models';
 import { IDealDocument } from '../../db/models/definitions/deals';
 import { IContext } from '../types';
 import { boardId } from './boardUtils';
+import { getDocument, getDocumentList } from './mutations/cacheUtils';
+
+export const generateProducts = async productsData => {
+  const products: any = [];
+
+  for (const data of productsData || []) {
+    if (!data.productId) {
+      continue;
+    }
+
+    const product = await Products.getProduct({ _id: data.productId });
+
+    const { customFieldsData } = product;
+
+    const customFields = [];
+
+    for (const customFieldData of customFieldsData || []) {
+      const field = await Fields.findOne({ _id: customFieldData.field });
+
+      if (field) {
+        customFields[customFieldData.field] = {
+          text: field.text,
+          data: customFieldData.value
+        };
+      }
+    }
+
+    product.customFieldsData = customFields;
+
+    products.push({
+      ...(typeof data.toJSON === 'function' ? data.toJSON() : data),
+      product
+    });
+  }
+
+  return products;
+};
+
+export const generateAmounts = productsData => {
+  const amountsMap = {};
+
+  (productsData || []).forEach(product => {
+    // Tick paid or used is false then exclude
+    if (!product.tickUsed) {
+      return;
+    }
+
+    const type = product.currency;
+
+    if (type) {
+      if (!amountsMap[type]) {
+        amountsMap[type] = 0;
+      }
+
+      amountsMap[type] += product.amount || 0;
+    }
+  });
+
+  return amountsMap;
+};
 
 export default {
   async companies(deal: IDealDocument) {
@@ -22,7 +81,7 @@ export default {
       relTypes: ['company']
     });
 
-    return Companies.find({ _id: { $in: companyIds } });
+    return Companies.findActiveCompanies({ _id: { $in: companyIds } });
   },
 
   async customers(deal: IDealDocument) {
@@ -32,71 +91,21 @@ export default {
       relTypes: ['customer']
     });
 
-    return Customers.find({ _id: { $in: customerIds } });
+    return Customers.findActiveCustomers({ _id: { $in: customerIds } });
   },
 
   async products(deal: IDealDocument) {
-    const products: any = [];
-
-    for (const data of deal.productsData || []) {
-      if (!data.productId) {
-        continue;
-      }
-
-      const product = await Products.getProduct({ _id: data.productId });
-
-      const { customFieldsData } = product;
-
-      const customFields = [];
-
-      for (const customFieldData of customFieldsData || []) {
-        const field = await Fields.findOne({ _id: customFieldData.field });
-
-        if (field) {
-          customFields[customFieldData.field] = {
-            text: field.text,
-            data: customFieldData.value
-          };
-        }
-      }
-
-      product.customFieldsData = customFields;
-
-      products.push({
-        ...(typeof data.toJSON === 'function' ? data.toJSON() : data),
-        product
-      });
-    }
-
-    return products;
+    return generateProducts(deal.productsData);
   },
 
   amount(deal: IDealDocument) {
-    const productsData = deal.productsData || [];
-    const amountsMap = {};
-
-    productsData.forEach(product => {
-      // Tick paid or used is false then exclude
-      if (!product.tickUsed) {
-        return;
-      }
-
-      const type = product.currency;
-
-      if (type) {
-        if (!amountsMap[type]) {
-          amountsMap[type] = 0;
-        }
-
-        amountsMap[type] += product.amount || 0;
-      }
-    });
-
-    return amountsMap;
+    return generateAmounts(deal.productsData || []);
   },
 
   assignedUsers(deal: IDealDocument) {
-    return Users.find({ _id: { $in: deal.assignedUserIds || [] } });
+    return getDocumentList('users', {
+      _id: { $in: deal.assignedUserIds || [] }
+    });
   },
 
   async pipeline(deal: IDealDocument) {
@@ -132,6 +141,6 @@ export default {
   },
 
   createdUser(deal: IDealDocument) {
-    return Users.findOne({ _id: deal.userId });
+    return getDocument('users', { _id: deal.userId });
   }
 };

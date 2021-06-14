@@ -8,6 +8,7 @@ export const debugDb = debug('erxes-api:db');
 export const debugImport = debug('erxes-api:import');
 export const debugBase = debug('erxes-api:base');
 export const debugEmail = debug('erxes-api:email');
+export const debugError = debug('erxes-api:error');
 
 export const debugRequest = (debugInstance, req) =>
   debugInstance(`

@@ -45,14 +45,17 @@ interface IShortMessage {
 }
 
 export interface IEngageMessage {
-  kind?: string;
+  kind: string;
   segmentIds?: string[];
   brandIds?: string[];
+  // normal tagging
   tagIds?: string[];
+  // customer selection tags
+  customerTagIds?: string[];
   customerIds?: string[];
-  title?: string;
+  title: string;
   fromUserId?: string;
-  method?: string;
+  method: string;
   isDraft?: boolean;
   isLive?: boolean;
   stopDate?: Date;
@@ -65,10 +68,13 @@ export interface IEngageMessage {
 
   totalCustomersCount?: number;
   validCustomersCount?: number;
+  runCount?: number;
 }
 
 export interface IEngageMessageDocument extends IEngageMessage, Document {
   scheduleDate?: IScheduleDateDocument;
+  createdBy: string;
+  createdAt: Date;
 
   email?: IEmailDocument;
   messenger?: IMessengerDocument;
@@ -158,8 +164,18 @@ export const engageMessageSchema = schemaWrapper(
     isDraft: field({ type: Boolean, label: 'Is draft' }),
     isLive: field({ type: Boolean, label: 'Is live' }),
     stopDate: field({ type: Date, label: 'Stop date' }),
-    createdAt: field({ type: Date, default: Date.now, label: 'Created at' }),
+    createdAt: field({
+      type: Date,
+      default: Date.now,
+      label: 'Created at',
+      index: true
+    }),
     tagIds: field({ type: [String], optional: true, label: 'Tags' }),
+    customerTagIds: field({
+      type: [String],
+      optional: true,
+      label: 'Chosen customer tag ids'
+    }),
     messengerReceivedCustomerIds: field({
       type: [String],
       label: 'Received customers'
@@ -173,6 +189,13 @@ export const engageMessageSchema = schemaWrapper(
     totalCustomersCount: field({ type: Number, optional: true }),
     validCustomersCount: field({ type: Number, optional: true }),
 
-    shortMessage: field({ type: smsSchema, label: 'Short message' })
+    shortMessage: field({ type: smsSchema, label: 'Short message' }),
+    createdBy: field({ type: String, label: 'Created user id' }),
+    runCount: field({
+      type: Number,
+      label: 'Run count',
+      optional: true,
+      default: 0
+    })
   })
 );

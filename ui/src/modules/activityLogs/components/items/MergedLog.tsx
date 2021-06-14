@@ -4,17 +4,13 @@ import {
   FlexCenterContent,
   MergedContacts
 } from 'modules/activityLogs/styles';
-import { IActivityLog } from 'modules/activityLogs/types';
+import { IActivityLogItemProps } from 'modules/activityLogs/types';
 import Tip from 'modules/common/components/Tip';
 import { __, renderFullName, renderUserFullName } from 'modules/common/utils';
 import React from 'react';
 import { Link } from 'react-router-dom';
 
-type Props = {
-  activity: IActivityLog;
-};
-
-class MergedLog extends React.Component<Props> {
+class MergedLog extends React.Component<IActivityLogItemProps> {
   renderCreatedBy = () => {
     const { createdByDetail } = this.props.activity;
 

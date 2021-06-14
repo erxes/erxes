@@ -48,6 +48,8 @@ const Dashboards = styled.ul`
 
     button {
       font-size: 14px;
+      padding: 0;
+      margin-left: 5px;
 
       i {
         color: ${colors.colorSecondary};

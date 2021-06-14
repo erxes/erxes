@@ -4,6 +4,7 @@ import ButtonMutate from 'modules/common/components/ButtonMutate';
 import { IButtonMutateProps } from 'modules/common/types';
 import { withProps } from 'modules/common/utils';
 import { CountQueryResponse } from 'modules/customers/types';
+import { queries as formQueries } from 'modules/forms/graphql';
 import {
   AddMutationResponse,
   AddMutationVariables,
@@ -20,6 +21,7 @@ import { sumCounts } from '../utils';
 type Props = {
   segmentIds: string[];
   messageType: string;
+  segmentType: string;
   onChange: (name: string, value: string[]) => void;
   renderContent: ({
     actionSelector,
@@ -114,11 +116,11 @@ export default withProps<Props>(
   compose(
     graphql<Props, SegmentsQueryResponse>(gql(queries.segments), {
       name: 'segmentsQuery',
-      options: {
+      options: (props: Props) => ({
         variables: {
-          contentTypes: ['lead', 'customer', 'visitor']
+          contentTypes: [props.segmentType]
         }
-      }
+      })
     }),
     graphql<Props, CountQueryResponse, { only: string; source: string }>(
       gql(queries.customerCounts),
@@ -141,8 +143,15 @@ export default withProps<Props>(
       { name: 'segmentsAdd' }
     ),
     graphql<Props, FieldsCombinedByTypeQueryResponse>(
-      gql(queries.combinedFields),
-      { name: 'combinedFieldsQuery' }
+      gql(formQueries.fieldsCombinedByContentType),
+      {
+        name: 'combinedFieldsQuery',
+        options: {
+          variables: {
+            contentType: 'customer'
+          }
+        }
+      }
     )
   )(SegmentStepContainer)
 );

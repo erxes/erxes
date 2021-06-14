@@ -11,7 +11,7 @@ import { articleReactions } from 'modules/knowledgeBase/icons.constant';
 import { FlexContent, FlexItem } from 'modules/layout/styles';
 import React from 'react';
 import Select from 'react-select-plus';
-import { IArticle } from '../../types';
+import { IArticle, ITopic } from '../../types';
 import { ReactionItem } from './styles';
 
 type Props = {
@@ -19,11 +19,14 @@ type Props = {
   currentCategoryId: string;
   renderButton: (props: IButtonMutateProps) => JSX.Element;
   closeModal: () => void;
+  topics: ITopic[];
 };
 
 type State = {
   content: string;
   reactionChoices: string[];
+  topicId?: string;
+  categoryId: string;
 };
 
 class ArticleForm extends React.Component<Props, State> {
@@ -34,8 +37,18 @@ class ArticleForm extends React.Component<Props, State> {
 
     this.state = {
       content: article.content,
-      reactionChoices: article.reactionChoices || []
+      reactionChoices: article.reactionChoices || [],
+      topicId: article.topicId,
+      categoryId: article.categoryId
     };
+  }
+
+  componentDidUpdate(prevProps) {
+    const { topics, currentCategoryId } = this.props;
+
+    if (!this.state.topicId && topics && topics.length > 0) {
+      this.setState({ topicId: topics[0]._id, categoryId: currentCategoryId });
+    }
   }
 
   generateDoc = (values: {
@@ -45,7 +58,7 @@ class ArticleForm extends React.Component<Props, State> {
     status: string;
   }) => {
     const { article, currentCategoryId } = this.props;
-    const { content, reactionChoices } = this.state;
+    const { content, reactionChoices, topicId, categoryId } = this.state;
 
     const finalValues = values;
 
@@ -61,7 +74,9 @@ class ArticleForm extends React.Component<Props, State> {
         content,
         reactionChoices,
         status: finalValues.status,
-        categoryIds: [currentCategoryId]
+        categoryIds: [currentCategoryId],
+        topicId,
+        categoryId
       }
     };
   };
@@ -82,6 +97,72 @@ class ArticleForm extends React.Component<Props, State> {
       </ReactionItem>
     );
   };
+
+  generateOptions = options => {
+    return options.map(option => ({
+      value: option._id,
+      label: option.title
+    }));
+  };
+
+  renderTopics(formProps: IFormProps) {
+    const self = this;
+    const { topics } = this.props;
+
+    const onChange = e => {
+      e.preventDefault();
+
+      self.setState({ topicId: e.target.value, categoryId: '' });
+    };
+
+    return (
+      <FormGroup>
+        <ControlLabel required={true}>Choose the knowledgebase</ControlLabel>
+        <br />
+
+        <FormControl
+          {...formProps}
+          name="topicId"
+          componentClass="select"
+          required={true}
+          placeholder={__('Choose knowledgebase')}
+          value={self.state.topicId}
+          options={self.generateOptions(topics)}
+          onChange={onChange}
+        />
+      </FormGroup>
+    );
+  }
+
+  renderCategories(formProps: IFormProps) {
+    const self = this;
+    const topic = this.props.topics.find(t => t._id === self.state.topicId);
+    const categories = topic ? topic.categories : [];
+
+    const onChange = e => {
+      e.preventDefault();
+
+      self.setState({ categoryId: e.target.value });
+    };
+
+    return (
+      <FormGroup>
+        <ControlLabel required={true}>Choose the category</ControlLabel>
+        <br />
+
+        <FormControl
+          {...formProps}
+          name="categoryId"
+          componentClass="select"
+          placeholder={__('Choose category')}
+          value={self.state.categoryId}
+          options={self.generateOptions(categories)}
+          onChange={onChange}
+          required={true}
+        />
+      </FormGroup>
+    );
+  }
 
   renderContent = (formProps: IFormProps) => {
     const { article, renderButton, closeModal } = this.props;
@@ -148,11 +229,20 @@ class ArticleForm extends React.Component<Props, State> {
             </FormGroup>
           </FlexItem>
         </FlexContent>
+
+        <FlexContent>
+          <FlexItem count={3}>{this.renderTopics(formProps)}</FlexItem>
+          <FlexItem count={3} hasSpace={true}>
+            {this.renderCategories(formProps)}
+          </FlexItem>
+        </FlexContent>
+
         <FormGroup>
           <ControlLabel required={true}>{__('Content')}</ControlLabel>
           <EditorCK
             content={content}
             onChange={this.onChange}
+            isSubmitted={isSubmitted}
             height={300}
             name={`knowledgeBase_${article ? article._id : 'create'}`}
           />

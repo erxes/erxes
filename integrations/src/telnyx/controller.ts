@@ -1,5 +1,11 @@
 import { debugRequest, debugTelnyx } from '../debuggers';
-import { createIntegration, sendSms, updateMessageDelivery } from './api';
+import { routeErrorHandling } from '../helpers';
+import {
+  createIntegration,
+  getSmsDeliveries,
+  sendSms,
+  updateMessageDelivery
+} from './api';
 import { relayIncomingMessage } from './store';
 
 const processHookData = async req => {
@@ -13,40 +19,68 @@ const processHookData = async req => {
 };
 
 const init = async app => {
-  app.post('/telnyx/create-integration', async (req, res, next) => {
-    debugRequest(debugTelnyx, req);
+  app.post(
+    '/telnyx/create-integration',
+    routeErrorHandling(async (req, res) => {
+      debugRequest(debugTelnyx, req);
 
-    try {
       await createIntegration(req.body);
-    } catch (e) {
-      return next(e);
-    }
 
-    return res.json({ status: 'ok' });
-  });
+      return res.json({ status: 'ok' });
+    })
+  );
 
   // receive sms hook
-  app.post('/telnyx/webhook', async (req, res) => {
-    await processHookData(req);
+  app.post(
+    '/telnyx/webhook',
+    routeErrorHandling(async (req, res) => {
+      await processHookData(req);
 
-    return res.json({ status: 'ok' });
-  });
+      return res.json({ status: 'ok' });
+    })
+  );
 
-  app.post('/telnyx/webhook-failover', async (req, res) => {
-    await processHookData(req);
+  app.post(
+    '/telnyx/webhook-failover',
+    routeErrorHandling(async (req, res) => {
+      await processHookData(req);
 
-    return res.json({ status: 'ok' });
-  });
+      return res.json({ status: 'ok' });
+    })
+  );
 
-  app.post('/telnyx/send-sms', async (req, res) => {
-    debugRequest(debugTelnyx, req);
+  app.post(
+    '/telnyx/send-sms',
+    routeErrorHandling(async (req, res) => {
+      debugRequest(debugTelnyx, req);
 
-    const { integrationId, content, to } = req.body;
+      const { integrationId, content, to } = req.body;
 
-    await sendSms(JSON.stringify({ integrationId, content, toPhone: to }));
+      const result = await sendSms(
+        JSON.stringify({ integrationId, content, toPhone: to })
+      );
 
-    return res.json({ status: 'ok' });
-  });
+      return res.json(result);
+    })
+  );
+
+  // sms delivery reports
+  app.get(
+    '/telnyx/sms-deliveries',
+    routeErrorHandling(async (req, res) => {
+      debugRequest(debugTelnyx, req);
+
+      const { type, to, page = 1, perPage = 20 } = req.query;
+
+      try {
+        const result = await getSmsDeliveries({ type, to, page, perPage });
+
+        return res.json(result);
+      } catch (e) {
+        return res.json({ status: 'error', message: e.message });
+      }
+    })
+  );
 };
 
 export default init;

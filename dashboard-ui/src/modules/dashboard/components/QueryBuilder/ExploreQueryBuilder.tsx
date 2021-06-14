@@ -1,9 +1,9 @@
 import { QueryBuilder } from '@cubejs-client/react';
 import { Card, Col, Divider, Empty, Menu, Row } from 'antd';
-import { schemaTypes } from 'modules/dashboard/constants';
+import { propertyTypes, schemaTypes } from 'modules/dashboard/constants';
 import React from 'react';
 import styled from 'styled-components';
-import { ChartRenderer } from '../ChartRenderer';
+import ChartRenderer from '../ChartRenderer';
 import {
   ChartWraper,
   EmptyWrapper,
@@ -50,17 +50,27 @@ type Props = {
   cubejsApi?: any;
   type?: string;
   setType: any;
+  setIsDateRange: any;
+  isDateRange?: boolean;
 };
 
 class ExploreQueryBuilder extends React.Component<Props> {
   render() {
-    const { vizState, setVizState, cubejsApi, setType, type } = this.props;
+    const {
+      vizState,
+      setVizState,
+      cubejsApi,
+      setType,
+      type,
+      isDateRange,
+      setIsDateRange
+    } = this.props;
 
     const menu = (
       <Menu>
         {schemaTypes.map(schemaType => (
           <Menu.Item key={schemaType} onClick={() => setType(schemaType)}>
-            {schemaType}
+            {schemaType.replace(/([A-Z])/g, ' $1').trim()}
           </Menu.Item>
         ))}
       </Menu>
@@ -90,6 +100,43 @@ class ExploreQueryBuilder extends React.Component<Props> {
           filters,
           updateFilters
         }) => {
+          const renderMeasere = () => {
+            if (!propertyTypes.includes(type || '')) {
+              return (
+                <>
+                  <FilterItem>
+                    <Label>Measure</Label>
+                    <MemberGroup
+                      type={type || ''}
+                      memberGroupType="measure"
+                      members={measures}
+                      availableMembers={availableMeasures}
+                      addMemberName="Measure"
+                      updateMethods={updateMeasures}
+                    />
+                  </FilterItem>
+                  <StyledDivider type="vertical" />
+                </>
+              );
+            }
+            return;
+          };
+
+          const renderChartTypeChooser = () => {
+            if (!propertyTypes.includes(type || '')) {
+              return (
+                <SelectType>
+                  <SelectChartType
+                    chartType={chartType}
+                    updateChartType={updateChartType}
+                    query={validatedQuery}
+                  />
+                </SelectType>
+              );
+            }
+            return;
+          };
+
           return (
             <>
               <ShadowedHeader>
@@ -98,26 +145,18 @@ class ExploreQueryBuilder extends React.Component<Props> {
                     <Row align="top">
                       <FilterItem>
                         <Label>Type</Label>
-                        <ButtonDropdown overlay={menu} type="dashed">
-                          {type || 'Type'}
+                        <ButtonDropdown overlay={menu}>
+                          {type
+                            ? type.replace(/([A-Z])/g, ' $1').trim()
+                            : 'Type'}
                         </ButtonDropdown>
                       </FilterItem>
 
                       <StyledDivider type="vertical" />
                       {type ? (
                         <>
-                          <FilterItem>
-                            <Label>Measure</Label>
-                            <MemberGroup
-                              type={type}
-                              memberGroupType="measure"
-                              members={measures}
-                              availableMembers={availableMeasures}
-                              addMemberName="Measure"
-                              updateMethods={updateMeasures}
-                            />
-                          </FilterItem>
-                          <StyledDivider type="vertical" />
+                          {renderMeasere()}
+
                           <FilterItem>
                             <Label>Dimension</Label>
                             <MemberGroup
@@ -138,6 +177,8 @@ class ExploreQueryBuilder extends React.Component<Props> {
                               availableMembers={availableTimeDimensions}
                               addMemberName="Time"
                               updateMethods={updateTimeDimensions}
+                              setIsDateRange={setIsDateRange}
+                              isDateRange={isDateRange}
                             />
                           </FilterItem>
                         </>
@@ -173,13 +214,8 @@ class ExploreQueryBuilder extends React.Component<Props> {
 
               {isQueryPresent ? (
                 <ChartWraper>
-                  <SelectType>
-                    <SelectChartType
-                      chartType={chartType}
-                      updateChartType={updateChartType}
-                      query={validatedQuery}
-                    />
-                  </SelectType>
+                  {renderChartTypeChooser()}
+
                   <ChartCard>
                     <ChartRenderer
                       query={validatedQuery}
@@ -196,7 +232,7 @@ class ExploreQueryBuilder extends React.Component<Props> {
                     }}
                     description={
                       <>
-                        <strong>Build Your Query</strong>
+                        <strong>Build Your Query </strong>
                         Choose a measure or dimension to get started
                       </>
                     }

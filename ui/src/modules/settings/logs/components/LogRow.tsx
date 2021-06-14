@@ -38,12 +38,18 @@ class LogRow extends React.Component<Props> {
     }
 
     const content = () => <LogModalContainer log={log} />;
+    let logType = log.type ? log.type : '';
+
+    // due to engage -> campaign name change
+    if (logType === 'engage') {
+      logType = 'campaign';
+    }
 
     return (
       <tr key={log._id}>
         <td>{dayjs(log.createdAt).format('YYYY-MM-DD HH:mm:ss')}</td>
         <td>{log.unicode}</td>
-        <td>{log.type ? log.type : ''}</td>
+        <td>{logType}</td>
         <td>
           <TextInfo textStyle={actionClass}>{log.action}</TextInfo>
         </td>

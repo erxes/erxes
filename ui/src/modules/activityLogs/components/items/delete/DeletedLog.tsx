@@ -1,12 +1,8 @@
-import { IActivityLog } from 'modules/activityLogs/types';
+import { IActivityLogItemProps } from 'modules/activityLogs/types';
 import React from 'react';
 import ChecklistLog from '../../../containers/items/ChecklistLog';
 
-type Props = {
-  activity: IActivityLog;
-};
-
-class DeletedLog extends React.Component<Props> {
+class DeletedLog extends React.Component<IActivityLogItemProps> {
   render() {
     const { activity } = this.props;
     const { contentType } = activity;

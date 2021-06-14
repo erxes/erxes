@@ -83,8 +83,12 @@ const moduleOptions = [
   { value: 'growthHack', label: 'Growth hacks' },
   { value: 'integration', label: 'Integrations' },
   { value: 'segment', label: 'Segments' },
-  { value: 'engage', label: 'Engages' },
-  { value: 'script', label: 'Scripts' }
+  { value: 'engage', label: 'Campaigns' },
+  { value: 'script', label: 'Scripts' },
+  { value: 'dealStages', label: 'Deal stages' },
+  { value: 'taskStages', label: 'Task stages' },
+  { value: 'ticketStages', label: 'Ticket stages' },
+  { value: 'growthHackStages', label: 'Growth hack stages' }
 ];
 
 const breadcrumb = [

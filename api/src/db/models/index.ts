@@ -1,4 +1,3 @@
-import ActivityLogs from './ActivityLogs';
 import { Boards, Pipelines, Stages } from './Boards';
 import Brands from './Brands';
 import { CalendarBoards, CalendarGroups, Calendars } from './Calendars';
@@ -36,6 +35,7 @@ import ResponseTemplates from './ResponseTemplates';
 import { OnboardingHistories, RobotEntries } from './Robot';
 import Scripts from './Scripts';
 import Segments from './Segments';
+import { Skills, SkillTypes } from './Skills';
 import Tags from './Tags';
 import Tasks from './Tasks';
 import Tickets from './Tickets';
@@ -46,6 +46,8 @@ export {
   EmailDeliveries,
   Users,
   Channels,
+  SkillTypes,
+  Skills,
   ResponseTemplates,
   Scripts,
   EmailTemplates,
@@ -68,7 +70,6 @@ export {
   KnowledgeBaseTopics,
   Notifications,
   NotificationConfigurations,
-  ActivityLogs,
   Boards,
   Pipelines,
   Stages,

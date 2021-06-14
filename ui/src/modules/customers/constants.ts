@@ -10,11 +10,12 @@ export const CUSTOMER_BASIC_INFO = {
   department: 'Department',
   hasAuthority: 'Has Authority',
   description: 'Description',
-  doNotDisturb: 'Do not disturb',
+  isSubscribed: 'Subscribed',
 
   ALL: [
     { field: 'avatar', label: 'Avatar' },
     { field: 'firstName', label: 'First Name' },
+    { field: 'middleName', label: 'Middle Name' },
     { field: 'lastName', label: 'Last Name' },
     { field: 'primaryEmail', label: 'Primary E-mail' },
     { field: 'primaryPhone', label: 'Primary Phone' },
@@ -22,7 +23,7 @@ export const CUSTOMER_BASIC_INFO = {
     { field: 'department', label: 'Department' },
     { field: 'hasAuthority', label: 'Has Authority' },
     { field: 'description', label: 'Description' },
-    { field: 'doNotDisturb', label: 'Do not disturb' }
+    { field: 'isSubscribed', label: 'Subscribed' }
   ]
 };
 

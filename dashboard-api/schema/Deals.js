@@ -8,7 +8,19 @@ cube(`Deals`, {
   measures: {
     count: {
       type: `count`
-    }
+    },
+
+    totalAmount: {
+      sql: `${amount}`,
+      type: `sum`,
+      title: `Total amount`
+    },
+
+    avgAmount: {
+      sql: `${amount}`,
+      type: `avg`,
+      title: `Avarage amount`
+    },
   },
 
   dimensions: {
@@ -27,7 +39,17 @@ cube(`Deals`, {
       type: `string`
     },
 
-    pipelineName: {
+    pipeline: {
+      sql: `${CUBE}."stageId"`,
+      type: `string`
+    },
+
+    assignedUser: {
+      sql: `${CUBE}."assignedUserIds"`,
+      type: `string`
+    },
+
+    board: {
       sql: `${CUBE}."stageId"`,
       type: `string`
     },
@@ -35,6 +57,12 @@ cube(`Deals`, {
     status: {
       sql: `status`,
       type: `string`
+    },
+
+    amount: {
+      sql: `${CUBE}."amount"`,
+      type: `number`,
+      shown: false
     },
 
     modifiedBy: {
@@ -47,8 +75,8 @@ cube(`Deals`, {
       type: `time`
     },
 
-    closeDate: {
-      sql: `${CUBE}."closeDate"`,
+    closedDate: {
+      sql: `${CUBE}."closedDate"`,
       type: `time`
     },
 

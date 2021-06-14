@@ -1,11 +1,13 @@
 import gql from 'graphql-tag';
+import * as compose from 'lodash.flowright';
 import ButtonMutate from 'modules/common/components/ButtonMutate';
 import { IButtonMutateProps } from 'modules/common/types';
 import { generatePaginationParams } from 'modules/common/utils/router';
 import React from 'react';
+import { graphql } from 'react-apollo';
 import ArticleForm from '../../components/article/ArticleForm';
 import { mutations, queries } from '../../graphql';
-import { IArticle } from '../../types';
+import { IArticle, TopicsQueryResponse } from '../../types';
 
 type Props = {
   article: IArticle;
@@ -15,8 +17,18 @@ type Props = {
   closeModal: () => void;
 };
 
-const ArticleContainer = (props: Props) => {
-  const { article, queryParams, topicIds, currentCategoryId } = props;
+type FinalProps = {
+  topicsQuery: TopicsQueryResponse;
+} & Props;
+
+const ArticleContainer = (props: FinalProps) => {
+  const {
+    article,
+    queryParams,
+    topicIds,
+    currentCategoryId,
+    topicsQuery
+  } = props;
 
   const renderButton = ({
     name,
@@ -53,7 +65,8 @@ const ArticleContainer = (props: Props) => {
     ...props,
     renderButton,
     article,
-    currentCategoryId
+    currentCategoryId,
+    topics: topicsQuery.knowledgeBaseTopics || []
   };
 
   return <ArticleForm {...extendedProps} />;
@@ -83,4 +96,11 @@ const getRefetchQueries = (
   ];
 };
 
-export default ArticleContainer;
+export default compose(
+  graphql<Props, TopicsQueryResponse>(gql(queries.knowledgeBaseTopics), {
+    name: 'topicsQuery',
+    options: () => ({
+      fetchPolicy: 'network-only'
+    })
+  })
+)(ArticleContainer);

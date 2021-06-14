@@ -15,6 +15,8 @@ export interface IArticle {
   createdDate: Date;
   modifiedBy: string;
   modifiedDate: Date;
+  topicId: string;
+  categoryId: string;
 }
 
 export interface ITopic {
@@ -30,6 +32,7 @@ export interface ITopic {
   createdDate: Date;
   modifiedBy: string;
   modifiedDate: Date;
+  parentCategories: ICategory[];
 }
 
 export interface ICategory {
@@ -43,6 +46,7 @@ export interface ICategory {
   modifiedBy: string;
   modifiedDate: Date;
   firstTopic: ITopic;
+  parentCategoryId?: string;
 }
 
 // mutation types

@@ -1,3 +1,4 @@
+import FingerprintJS from '@fingerprintjs/fingerprintjs';
 import { ENV } from './types';
 
 export const getEnv = (): ENV => {
@@ -10,7 +11,7 @@ export const getStorage = () => {
 
 export const listenForCommonRequests = async (event: any, iframe: any) => {
   const { message, fromErxes, source, key, value } = event.data;
-
+  
   if (fromErxes && iframe.contentWindow) {
     if (message === "requestingBrowserInfo") {
       iframe.contentWindow.postMessage(
@@ -62,7 +63,7 @@ export const getBrowserInfo = async () => {
   if (window.location.hostname === 'localhost') {
     return {
       url: window.location.pathname,
-      hostname: window.location.origin,
+      hostname: window.location.href,
       language: navigator.language,
       userAgent: navigator.userAgent
     };
@@ -116,3 +117,13 @@ export const setErxesProperty = (name: string, value: any) => {
 
   window.Erxes = erxes;
 };
+
+export const getVisitorId = async () => {
+  const fp = await FingerprintJS.load();
+
+  // The FingerprintJS agent is ready.
+  const result = await fp.get();
+
+  // This is the visitor identifier:
+  return result.visitorId;
+}

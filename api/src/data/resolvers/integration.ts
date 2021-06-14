@@ -1,10 +1,12 @@
-import { Brands, Channels, Forms, MessengerApps, Tags } from '../../db/models';
+import { Forms, MessengerApps, Tags } from '../../db/models';
 import { KIND_CHOICES } from '../../db/models/definitions/constants';
 import { IIntegrationDocument } from '../../db/models/definitions/integrations';
+import { IContext } from '../types';
+import { getDocument, getDocumentList } from './mutations/cacheUtils';
 
 export default {
   brand(integration: IIntegrationDocument) {
-    return Brands.findOne({ _id: integration.brandId });
+    return getDocument('brands', { _id: integration.brandId });
   },
 
   form(integration: IIntegrationDocument) {
@@ -12,7 +14,9 @@ export default {
   },
 
   channels(integration: IIntegrationDocument) {
-    return Channels.find({ integrationIds: { $in: [integration._id] } });
+    return getDocumentList('channels', {
+      integrationIds: { $in: [integration._id] }
+    });
   },
 
   tags(integration: IIntegrationDocument) {
@@ -47,5 +51,23 @@ export default {
       });
     }
     return [];
+  },
+
+  async healthStatus(
+    integration: IIntegrationDocument,
+    _args,
+    { dataSources }: IContext
+  ) {
+    if (integration.kind.includes('facebook')) {
+      try {
+        return dataSources.IntegrationsAPI.fetchApi('/facebook/get-status', {
+          integrationId: integration._id
+        });
+      } catch (e) {
+        return { status: 'healthy' };
+      }
+    }
+
+    return { status: 'healthy' };
   }
 };

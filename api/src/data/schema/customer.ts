@@ -17,6 +17,8 @@ export const types = `
     integrationId: String
     firstName: String
     lastName: String
+    middleName: String
+
     birthDate: Date
     sex: Int
 
@@ -40,7 +42,7 @@ export const types = `
     leadStatus: String
     hasAuthority: String
     description: String
-    doNotDisturb: String
+    isSubscribed: String
     code: String
     emailValidationStatus: String
     phoneValidationStatus: String
@@ -99,6 +101,7 @@ const fields = `
   avatar: String
   firstName: String
   lastName: String
+  middleName: String
   primaryEmail: String
   emails: [String]
   primaryPhone: String
@@ -109,7 +112,7 @@ const fields = `
   leadStatus: String
   hasAuthority: String
   description: String
-  doNotDisturb: String
+  isSubscribed: String
   links: JSON
   customFieldsData: JSON
   code: String

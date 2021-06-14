@@ -6,6 +6,7 @@ import { MESSAGE_TYPES } from '../containers/AppContext';
 type Props = {
   placeholder?: string;
   conversationId: string | null;
+  inputDisabled: boolean;
   isAttachingFile: boolean;
   isParentFocused: boolean;
   sendMessage: (contentType: string, message: string) => void;
@@ -91,6 +92,13 @@ class MessageSender extends React.Component<Props, State> {
 
   onSubmit(e: React.FormEvent) {
     e.preventDefault();
+
+    const { conversationId, inputDisabled } = this.props;
+
+    if ((conversationId || '').length === 0 && inputDisabled) {
+      return;
+    }
+
     this.sendMessage();
   }
 
@@ -186,6 +194,8 @@ class MessageSender extends React.Component<Props, State> {
   }
 
   render() {
+    const { conversationId, inputDisabled } = this.props;
+
     return (
       <form
         className="erxes-message-sender"
@@ -202,6 +212,7 @@ class MessageSender extends React.Component<Props, State> {
           onBlur={this.handleOnBlur}
           onClick={this.handleClick}
           onKeyDown={this.handleKeyPress}
+          disabled={(conversationId || '').length > 0 ? false : inputDisabled}
         />
         <div className="ctrl">
           {this.renderVideoCallRequest()}

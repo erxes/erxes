@@ -6,11 +6,14 @@ const segmentFields = `
   subOf
   color
   conditions
+
+  boardId
+  pipelineId
 `;
 
 const segments = `
-  query segments($contentTypes: [String]!) {
-    segments(contentTypes: $contentTypes) {
+  query segments($contentTypes: [String]!, $boardId: String, $pipelineId: String) {
+    segments(contentTypes: $contentTypes, boardId: $boardId, pipelineId: $pipelineId) {
       ${segmentFields}
 
       getSubSegments {
@@ -31,8 +34,8 @@ const segmentDetail = `
   }
 `;
 const segmentsPreviewCount = `
-  query segmentsPreviewCount($contentType: String!, $conditions: JSON, $subOf: String) {
-    segmentsPreviewCount(contentType: $contentType, conditions: $conditions, subOf: $subOf)
+  query segmentsPreviewCount($contentType: String!, $conditions: JSON, $subOf: String, $boardId: String, $pipelineId: String) {
+    segmentsPreviewCount(contentType: $contentType, conditions: $conditions, subOf: $subOf, boardId: $boardId, pipelineId: $pipelineId)
   }
 `;
 
@@ -47,12 +50,6 @@ const headSegments = `
   }
 `;
 
-const combinedFields = `
-  query fieldsCombinedByContentType($contentType: String!) {
-    fieldsCombinedByContentType(contentType: $contentType)
-  }
-`;
-
 const events = `
   query events($contentType: String!) {
     segmentsEvents(contentType: $contentType)
@@ -64,6 +61,5 @@ export default {
   segmentDetail,
   headSegments,
   events,
-  combinedFields,
   segmentsPreviewCount
 };

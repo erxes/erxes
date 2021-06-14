@@ -59,6 +59,7 @@ class Labels extends React.PureComponent<IProps, { isHover: boolean }> {
         >
           <RTG.CSSTransition
             in={isShowLabel}
+            appear={isShowLabel}
             timeout={timeout}
             classNames="erxes-label"
           >

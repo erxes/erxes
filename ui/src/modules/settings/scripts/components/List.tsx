@@ -66,7 +66,7 @@ class ScriptList extends React.Component<Props> {
             )}
             {object.leads.length > 0 && (
               <div>
-                <Tip text="Pop ups" placement="top">
+                <Tip text="Forms" placement="top">
                   <Icon icon="window" />
                 </Tip>
                 {object.leads.map(lead => ` ${lead.name},`)}

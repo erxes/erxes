@@ -2,7 +2,7 @@ import { Col, Row } from 'antd';
 import { IDashboardItem } from 'modules/dashboard/types';
 import React from 'react';
 import styled from 'styled-components';
-import { ChartRenderer } from '../ChartRenderer';
+import ChartRenderer from '../ChartRenderer';
 import InitialDataItem from './InitialDataItem';
 
 type Props = {

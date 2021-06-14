@@ -25,7 +25,7 @@ export const types = `
 
     businessType: String
     description: String
-    doNotDisturb: String
+    isSubscribed: String
     links: JSON
     owner: User
     parentCompany: Company
@@ -37,6 +37,7 @@ export const types = `
     customers: [Customer]
     getTags: [Tag]
     code: String
+    location: String
   }
 
   type CompaniesListResponse {
@@ -89,12 +90,13 @@ const commonFields = `
   ownerId: String,
   businessType: String,
   description: String,
-  doNotDisturb: String,
+  isSubscribed: String,
   links: JSON,
 
   tagIds: [String]
   customFieldsData: JSON
   code: String
+  location: String
 `;
 
 export const mutations = `

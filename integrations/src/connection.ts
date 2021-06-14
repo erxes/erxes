@@ -9,12 +9,12 @@ const NODE_ENV = getEnv({ name: 'NODE_ENV' });
 const MONGO_URL = getEnv({ name: 'MONGO_URL', defaultValue: '' });
 
 mongoose.Promise = global.Promise;
-mongoose.set('useFindAndModify', false);
 
-export const connectionOptions = {
+export const connectionOptions: mongoose.ConnectionOptions = {
   useNewUrlParser: true,
   useCreateIndex: true,
   autoReconnect: true,
+  family: 4,
   useFindAndModify: false
 };
 
@@ -28,7 +28,7 @@ mongoose.connection
     debugDb(`Disconnected from the database: ${MONGO_URL}`);
   })
   .on('error', error => {
-    debugDb(`Database connection error: ${MONGO_URL}`, error);
+    debugDb(`Database connection error: ${MONGO_URL} ${error}`);
   });
 
 export const connect = (url?: string) => {

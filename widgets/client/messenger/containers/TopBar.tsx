@@ -16,7 +16,6 @@ const container = (props: Props) => {
     <AppConsumer>
       {({
         endConversation,
-        getColor,
         toggle,
         setHeadHeight,
         headHeight,

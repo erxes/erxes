@@ -4,17 +4,30 @@ export const formDetailQuery = `
       title
       description
       buttonText
+      numberOfPages
 
       fields {
         _id
         name
         type
         text
+        content
         description
         options
         isRequired
         order
         validation
+        associatedFieldId
+        column
+        
+        groupId
+        logicAction
+        pageNumber
+        logics {
+          fieldId
+          logicOperator
+          logicValue
+        }
       }
     }
   }
@@ -42,6 +55,7 @@ export const saveFormMutation = `
     widgetsSaveLead(integrationId: $integrationId, formId: $formId, submissions: $submissions, browserInfo: $browserInfo, cachedCustomerId: $cachedCustomerId) {
       status
       messageId
+      customerId
       errors {
         fieldId
         code
@@ -52,8 +66,8 @@ export const saveFormMutation = `
 `;
 
 export const sendEmailMutation = `
-  mutation widgetsSendEmail($toEmails: [String], $fromEmail: String, $title: String, $content: String, $customerId: String, $formId: String) {
-    widgetsSendEmail(toEmails: $toEmails, fromEmail: $fromEmail, title: $title, content: $content, customerId: $customerId, formId: $formId)
+  mutation widgetsSendEmail($toEmails: [String], $fromEmail: String, $title: String, $content: String, $customerId: String, $formId: String, $attachments: [AttachmentInput]) {
+    widgetsSendEmail(toEmails: $toEmails, fromEmail: $fromEmail, title: $title, content: $content, customerId: $customerId, formId: $formId, attachments: $attachments)
   }
 `;
 

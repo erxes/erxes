@@ -12,33 +12,53 @@ describe('tagQueries', () => {
 
   test('Tags', async () => {
     // Creating test data
-    await tagsFactory({ type: 'customer' });
-    await tagsFactory({ type: 'customer' });
+    const parentTag = await tagsFactory({ type: 'customer' });
+    const tag = await tagsFactory({
+      type: 'customer',
+      parentId: parentTag._id
+    });
+
     await tagsFactory({ type: 'company' });
     await tagsFactory({ type: 'company' });
 
+    await Tags.updateOne(
+      { _id: parentTag._id },
+      { $set: { relatedIds: [tag._id] } }
+    );
+
     const qry = `
-      query tags($type: String) {
-        tags(type: $type) {
+      query tags($type: String, $searchValue: String) {
+        tags(type: $type, searchValue: $searchValue) {
           _id
           name
           type
           colorCode
           createdAt
           objectCount
+          totalObjectCount
         }
       }
     `;
 
     // customer ======================
     let response = await graphqlRequest(qry, 'tags', { type: 'customer' });
+    const parent = response.find(t => t._id === parentTag._id);
 
     expect(response.length).toBe(2);
+    expect(parent.totalObjectCount).toBe(0);
 
     // company =======================
     response = await graphqlRequest(qry, 'tags', { type: 'company' });
 
     expect(response.length).toBe(2);
+
+    // customer with searchValue =======================
+    response = await graphqlRequest(qry, 'tags', {
+      type: 'customer',
+      searchValue: tag.name
+    });
+
+    expect(response.length).toBe(1);
   });
 
   test('Tag detail', async () => {

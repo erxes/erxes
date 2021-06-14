@@ -4,16 +4,12 @@ import {
   FlexBody,
   FlexCenterContent
 } from 'modules/activityLogs/styles';
-import { IActivityLog } from 'modules/activityLogs/types';
+import { IActivityLogItemProps } from 'modules/activityLogs/types';
 import Tip from 'modules/common/components/Tip';
 import { renderUserFullName } from 'modules/common/utils';
 import React from 'react';
 
-type Props = {
-  activity: IActivityLog;
-};
-
-class ArchiveLog extends React.Component<Props> {
+class ArchiveLog extends React.Component<IActivityLogItemProps> {
   renderContent = () => {
     const { activity } = this.props;
     const { contentType, createdByDetail, content } = activity;

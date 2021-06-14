@@ -14,6 +14,7 @@ import { isObject } from 'util';
 import GroupList from '../containers/GroupList';
 import { FilterItem, FilterWrapper, NotWrappable } from '../styles';
 import { IActions, IModule, IPermissionDocument, IUserGroup } from '../types';
+import PermissionFixer from './PermissionFixer';
 import PermissionForm from './PermissionForm';
 import PermissionRow from './PermissionRow';
 import {
@@ -29,6 +30,7 @@ type Props = {
   isLoading: boolean;
   totalCount: number;
   currentGroupName?: string;
+  fixPermissions: any;
 } & commonProps;
 
 type commonProps = {
@@ -164,6 +166,15 @@ class PermissionList extends React.Component<Props> {
     return <PermissionForm {...extendedProps} />;
   };
 
+  renderPermissionFixer = props => {
+    const updatedProps = {
+      ...props,
+      fixPermissions: this.props.fixPermissions
+    };
+
+    return <PermissionFixer {...updatedProps} />;
+  };
+
   renderActionBar() {
     const trigger = (
       <Button
@@ -176,12 +187,28 @@ class PermissionList extends React.Component<Props> {
       </Button>
     );
 
+    const fixTrigger = (
+      <Button
+        id="fix-permissions"
+        btnStyle="simple"
+        icon="wrench"
+        uppercase={false}
+      >
+        Fix permissions
+      </Button>
+    );
+
     const title = (
       <Title>{this.props.currentGroupName || __('All permissions')}</Title>
     );
 
     const actionBarRight = (
       <NotWrappable>
+        <ModalTrigger
+          title="Fix permissions"
+          trigger={fixTrigger}
+          content={this.renderPermissionFixer}
+        />
         <ModalTrigger
           title="New permission"
           size="lg"

@@ -1,6 +1,13 @@
 import * as faker from 'faker';
 import { graphqlRequest } from '../db/connection';
-import { fieldFactory, fieldGroupFactory, userFactory } from '../db/factories';
+import {
+  boardFactory,
+  fieldFactory,
+  fieldGroupFactory,
+  formFactory,
+  pipelineFactory,
+  userFactory
+} from '../db/factories';
 import { Fields, FieldsGroups, Users } from '../db/models';
 
 import './setup.ts';
@@ -27,6 +34,14 @@ const fieldGroupArgs = {
   order: 2,
   description: faker.random.word(),
   isVisible: true
+};
+
+const checkFieldGroupMutationResults = (result, args) => {
+  expect(result.contentType).toBe(args.contentType);
+  expect(result.name).toBe(args.name);
+  expect(result.description).toBe(args.description);
+  expect(result.isVisible).toBe(args.isVisible);
+  expect(result.boardsPipelines.length).toBe(1);
 };
 
 describe('Fields mutations', () => {
@@ -65,6 +80,7 @@ describe('Fields mutations', () => {
     $order: Int
     $description: String
     $isVisible: Boolean
+    $boardsPipelines: [BoardsPipelinesInput]
   `;
 
   const fieldsGroupsCommonParams = `
@@ -73,6 +89,7 @@ describe('Fields mutations', () => {
     order: $order
     description: $description
     isVisible: $isVisible
+    boardsPipelines: $boardsPipelines
   `;
 
   beforeEach(async () => {
@@ -253,8 +270,115 @@ describe('Fields mutations', () => {
     expect(field.isVisible).toBe(args.isVisible);
   });
 
-  test('Add group field', async () => {
+  test('fieldsBulkAddAndEdit', async () => {
+    const form = await formFactory();
+    const field1 = await fieldFactory({
+      contentType: 'form',
+      contentTypeId: form._id
+    });
+    const field2 = await fieldFactory({
+      contentType: 'form',
+      contentTypeId: form._id
+    });
+    const field3 = await fieldFactory({
+      contentType: 'form',
+      contentTypeId: form._id
+    });
+
+    const addingFields = [
+      {
+        text: '1',
+        type: 'input',
+        tempFieldId: '123'
+      },
+      {
+        text: '2',
+        type: 'input',
+        logicAction: 'show',
+        tempFieldId: '001',
+        logics: [
+          {
+            tempFieldId: '123',
+            logicOperator: 'numberigt',
+            logicValue: 10
+          },
+          {
+            fieldId: field1._id,
+            logicOperator: 'c',
+            logicValue: 'hi'
+          }
+        ]
+      }
+    ];
+
+    const editingFields = [
+      {
+        text: '3',
+        type: 'input',
+        _id: field2._id
+      },
+      {
+        text: '4',
+        type: 'input',
+        logicAction: 'show',
+        _id: field3._id,
+        logics: [
+          {
+            tempFieldId: '123',
+            logicOperator: 'numberigt',
+            logicValue: 10
+          },
+          {
+            fieldId: field2._id,
+            logicOperator: 'c',
+            logicValue: 'hi'
+          }
+        ]
+      }
+    ];
+
+    const args = {
+      contentType: 'form',
+      contentTypeId: form._id,
+      addingFields,
+      editingFields
+    };
+
     const mutation = `
+      mutation fieldsBulkAddAndEdit($contentType: String!, $contentTypeId: String, $addingFields: [FieldItem], $editingFields: [FieldItem]) {
+        fieldsBulkAddAndEdit(contentType: $contentType
+          contentTypeId: $contentTypeId
+          addingFields: $addingFields
+          editingFields: $editingFields) {
+          _id
+          text
+        }
+      }
+    `;
+
+    await graphqlRequest(mutation, 'fieldsBulkAddAndEdit', args, context);
+
+    const fields = await Fields.find({ contentTypeId: form._id });
+
+    expect(fields.length).toBe(5);
+
+    const mutationResult = await graphqlRequest(
+      mutation,
+      'fieldsBulkAddAndEdit',
+      {
+        contentType: 'form',
+        contentTypeId: form._id
+      },
+      context
+    );
+
+    expect(mutationResult).toBeNull();
+  }),
+    test('Add group field', async () => {
+      const board = await boardFactory({ type: 'task' });
+      const pipeline = await pipelineFactory({ boardId: board._id });
+
+      const mutation = `
       mutation fieldsGroupsAdd(${fieldsGroupsCommonParamDefs}) {
         fieldsGroupsAdd(${fieldsGroupsCommonParams}) {
           name
@@ -262,24 +386,27 @@ describe('Fields mutations', () => {
           order
           description
           isVisible
+          boardsPipelines {
+            boardId
+            pipelineIds
+          }
         }
       }
     `;
 
-    const fieldGroup = await graphqlRequest(
-      mutation,
-      'fieldsGroupsAdd',
-      fieldGroupArgs
-    );
+      const fieldGroup = await graphqlRequest(mutation, 'fieldsGroupsAdd', {
+        ...fieldGroupArgs,
+        boardsPipelines: [{ boardId: board._id, pipelineIds: [pipeline._id] }]
+      });
 
-    expect(fieldGroup.contentType).toBe(fieldGroupArgs.contentType);
-    expect(fieldGroup.name).toBe(fieldGroupArgs.name);
-    expect(fieldGroup.description).toBe(fieldGroupArgs.description);
-    expect(fieldGroup.order).toBe(1);
-    expect(fieldGroup.isVisible).toBe(fieldGroupArgs.isVisible);
-  });
+      expect(fieldGroup.order).toBe(1);
+      checkFieldGroupMutationResults(fieldGroup, fieldGroupArgs);
+    });
 
   test('Edit group field', async () => {
+    const board = await boardFactory({ type: 'task' });
+    const pipeline = await pipelineFactory({ boardId: board._id });
+
     const mutation = `
       mutation fieldsGroupsEdit($_id: String! ${fieldsGroupsCommonParamDefs}) {
         fieldsGroupsEdit(_id: $_id ${fieldsGroupsCommonParams}) {
@@ -289,6 +416,10 @@ describe('Fields mutations', () => {
           order
           description
           isVisible
+          boardsPipelines {
+            boardId
+            pipelineIds
+          }
         }
       }
     `;
@@ -296,16 +427,17 @@ describe('Fields mutations', () => {
     const fieldGroup = await graphqlRequest(
       mutation,
       'fieldsGroupsEdit',
-      { _id: _fieldGroup._id, ...fieldGroupArgs },
+      {
+        _id: _fieldGroup._id,
+        ...fieldGroupArgs,
+        boardsPipelines: [{ boardId: board._id, pipelineIds: [pipeline._id] }]
+      },
       context
     );
 
     expect(fieldGroup._id).toBe(_fieldGroup._id);
-    expect(fieldGroup.contentType).toBe(fieldGroupArgs.contentType);
-    expect(fieldGroup.name).toBe(fieldGroupArgs.name);
-    expect(fieldGroup.description).toBe(fieldGroupArgs.description);
     expect(fieldGroup.order).toBe(fieldGroupArgs.order);
-    expect(fieldGroup.isVisible).toBe(fieldGroupArgs.isVisible);
+    checkFieldGroupMutationResults(fieldGroup, fieldGroupArgs);
   });
 
   test('Remove group field', async () => {
@@ -348,5 +480,36 @@ describe('Fields mutations', () => {
 
     expect(fieldGroup._id).toBe(args._id);
     expect(fieldGroup.isVisible).toBe(args.isVisible);
+  });
+
+  test('Update order fieldGroup', async () => {
+    const orders = [
+      {
+        _id: _fieldGroup._id,
+        order: 1
+      }
+    ];
+
+    const mutation = `
+      mutation fieldsGroupsUpdateOrder($orders: [OrderItem]) {
+        fieldsGroupsUpdateOrder(orders: $orders) {
+          _id
+          order
+        }
+      }
+    `;
+
+    const [fields] = await graphqlRequest(
+      mutation,
+      'fieldsGroupsUpdateOrder',
+      { orders },
+      context
+    );
+
+    const orderIds = orders.map(order => order._id);
+    const orderItems = orders.map(item => item.order);
+
+    expect(orderIds).toContain(fields._id);
+    expect(orderItems).toContain(fields.order);
   });
 });

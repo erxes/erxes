@@ -39,6 +39,7 @@ type State = {
   attachments: IAttachment[];
   sentAs: string;
   templateId: string;
+  isSaved: boolean;
 };
 
 class WidgetForm extends React.Component<Props, State> {
@@ -50,8 +51,11 @@ class WidgetForm extends React.Component<Props, State> {
       channel: props.channelType || 'email',
       attachments: [],
       sentAs: 'snippet',
-      templateId: ''
+      templateId: '',
+      isSaved: false
     };
+
+    this.close = this.close.bind(this);
   }
 
   save = e => {
@@ -86,7 +90,7 @@ class WidgetForm extends React.Component<Props, State> {
       } as IEngageMessenger;
     }
 
-    return save(doc, () => this.props.closeModal());
+    return save(doc, () => this.close);
   };
 
   onChangeCommon = <T extends keyof State>(name: T, value: State[T]) => {
@@ -157,6 +161,12 @@ class WidgetForm extends React.Component<Props, State> {
     );
   }
 
+  close() {
+    this.setState({ isSaved: true }, () => {
+      this.props.closeModal();
+    });
+  }
+
   renderFormContent() {
     const currentUser = this.props.currentUser;
 
@@ -170,6 +180,7 @@ class WidgetForm extends React.Component<Props, State> {
           ...MAIL_TOOLBARS_CONFIG
         ]}
         name={`engage_widget_${this.state.channel}_${currentUser._id}`}
+        isSubmitted={this.state.isSaved}
       />
     );
 
@@ -304,7 +315,7 @@ class WidgetForm extends React.Component<Props, State> {
             btnStyle="simple"
             icon="times-circle"
             uppercase={false}
-            onClick={this.props.closeModal}
+            onClick={this.close}
           >
             Close
           </Button>

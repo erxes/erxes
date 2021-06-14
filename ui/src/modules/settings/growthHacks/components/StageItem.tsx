@@ -38,17 +38,16 @@ class StageItem extends React.Component<Props, {}> {
           name="name"
           onChange={onChangeName.bind(this, stage._id)}
         />
-
-        <Button btnStyle="link" onClick={onBuildClick}>
-          <Tip text={__('Build a form')}>
+        <Tip text="Build a form">
+          <Button btnStyle="link" onClick={onBuildClick}>
             <Icon
-              icon={stage.formId ? 'file-edit-3' : 'file-plus-alt'}
+              icon={stage.formId ? 'file-edit-alt' : 'file-plus-alt'}
               color={
                 stage.formId ? colors.colorSecondary : colors.colorCoreGreen
               }
             />
-          </Tip>
-        </Button>
+          </Button>
+        </Tip>
 
         <Button
           btnStyle="link"

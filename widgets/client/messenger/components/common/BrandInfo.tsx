@@ -11,7 +11,7 @@ function BrandInfo(props: Props) {
   return (
     <div className="welcome-info">
       <h3>{brand.name}</h3>
-      <div className="description">{brand.description}</div>
+      {brand.description && <div className="description">{brand.description}</div>}
     </div>
   );
 }

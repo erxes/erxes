@@ -14,6 +14,7 @@ type Props = {
   defaultValue: string[];
   isRequired?: boolean;
   formProps: IFormProps;
+  description?: string;
 };
 
 type FinalProps = {

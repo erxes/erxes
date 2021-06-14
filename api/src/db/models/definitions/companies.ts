@@ -1,7 +1,7 @@
 import { Document, Schema } from 'mongoose';
 
 import { customFieldSchema, ICustomField, ILink } from './common';
-import { COMPANY_INDUSTRY_TYPES, COMPANY_SELECT_OPTIONS } from './constants';
+import { COMPANY_SELECT_OPTIONS } from './constants';
 
 import { field, schemaWrapper } from './utils';
 
@@ -28,12 +28,13 @@ export interface ICompany {
   businessType?: string;
   description?: string;
   employees?: number;
-  doNotDisturb?: string;
+  isSubscribed?: string;
   links?: ILink;
   tagIds?: string[];
   customFieldsData?: ICustomField[];
   website?: string;
   code?: string;
+  location?: string;
 }
 
 export interface ICompanyDocument extends ICompany, Document {
@@ -82,8 +83,7 @@ export const companySchema = schemaWrapper(
 
     industry: field({
       type: String,
-      enum: COMPANY_INDUSTRY_TYPES,
-      label: 'Industry',
+      label: 'Industries',
       optional: true,
       esType: 'keyword'
     }),
@@ -121,7 +121,7 @@ export const companySchema = schemaWrapper(
     }),
     phones: field({ type: [String], optional: true, label: 'Phones' }),
 
-    ownerId: field({ type: String, optional: true, label: 'Owner' }),
+    ownerId: field({ type: String, optional: true }),
 
     status: field({
       type: String,
@@ -152,6 +152,14 @@ export const companySchema = schemaWrapper(
       label: 'Do not disturb',
       selectOptions: COMPANY_SELECT_OPTIONS.DO_NOT_DISTURB
     }),
+    isSubscribed: field({
+      type: String,
+      optional: true,
+      default: 'Yes',
+      enum: getEnum('DO_NOT_DISTURB'),
+      label: 'Subscribed',
+      selectOptions: COMPANY_SELECT_OPTIONS.DO_NOT_DISTURB
+    }),
     links: field({ type: Object, default: {}, label: 'Links' }),
 
     tagIds: field({
@@ -173,6 +181,7 @@ export const companySchema = schemaWrapper(
       label: 'Custom fields data'
     }),
     searchText: field({ type: String, optional: true, index: true }),
-    code: field({ type: String, label: 'Code', optional: true })
+    code: field({ type: String, label: 'Code', optional: true }),
+    location: field({ type: String, optional: true, label: 'Location' })
   })
 );

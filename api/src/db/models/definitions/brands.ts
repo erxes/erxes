@@ -1,5 +1,5 @@
 import { Document, Schema } from 'mongoose';
-import { field } from './utils';
+import { field, schemaHooksWrapper } from './utils';
 
 export interface IBrandEmailConfig {
   email?: string;
@@ -38,12 +38,15 @@ export const brandEmailConfigSchema = new Schema(
   { _id: false }
 );
 
-export const brandSchema = new Schema({
-  _id: field({ pkey: true }),
-  code: field({ type: String, label: 'Code' }),
-  name: field({ type: String, label: 'Name' }),
-  description: field({ type: String, optional: true, label: 'Description' }),
-  userId: field({ type: String, label: 'Created by' }),
-  createdAt: field({ type: Date, label: 'Created at' }),
-  emailConfig: field({ type: brandEmailConfigSchema, label: 'Email config' })
-});
+export const brandSchema = schemaHooksWrapper(
+  new Schema({
+    _id: field({ pkey: true }),
+    code: field({ type: String, label: 'Code' }),
+    name: field({ type: String, label: 'Name' }),
+    description: field({ type: String, optional: true, label: 'Description' }),
+    userId: field({ type: String, label: 'Created by' }),
+    createdAt: field({ type: Date, label: 'Created at' }),
+    emailConfig: field({ type: brandEmailConfigSchema, label: 'Email config' })
+  }),
+  'erxes_brands'
+);

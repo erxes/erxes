@@ -117,6 +117,11 @@ const loadConversationMessageClass = () => {
     public static async createRequest(doc: IConversationMessage) {
       const { erxesApiId, to } = doc;
 
+      // single sms sent from customer detail page doesn't have conversation message id
+      if (!erxesApiId) {
+        return ConversationMessages.create(doc);
+      }
+
       const exists = await ConversationMessages.findOne({ erxesApiId, to });
 
       if (exists) {

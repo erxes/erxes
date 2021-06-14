@@ -1,6 +1,7 @@
 import React from 'react';
 // tslint:disable-next-line:ordered-imports
 import { Select, Input } from 'antd';
+import { complexFilters } from 'modules/dashboard/constants';
 
 const FilterInputs = {
   string: ({ values, onChange, filters }) => {
@@ -25,6 +26,7 @@ const FilterInputs = {
         mode="tags"
         onChange={onChange}
         value={values}
+        optionFilterProp="key"
       >
         {selectOptions}
       </Select>
@@ -67,7 +69,7 @@ class FilterInput extends React.Component<Props> {
     if (
       filters &&
       member.values &&
-      member.dimension.name === 'Deals.pipelineName'
+      complexFilters.includes(member.dimension.name)
     ) {
       for (const filter of filters) {
         for (const value of member.values) {

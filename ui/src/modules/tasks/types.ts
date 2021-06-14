@@ -1,6 +1,8 @@
 import { IItem } from 'modules/boards/types';
 import { IActivityLogForMonth } from '../activityLogs/types';
 
+export type ITask = IItem;
+
 export type EditMutationVariables = {
   _id: string;
   name?: string;
@@ -25,7 +27,21 @@ export type ActivityLogQueryResponse = {
 };
 
 export type TaskDetailQueryResponse = {
-  taskDetail: IItem;
+  taskDetail: ITask;
   loading: boolean;
   refetch: () => void;
+};
+
+export type TasksQueryResponse = {
+  tasks: ITask[];
+  loading: boolean;
+  refetch: () => void;
+  fetchMore: any;
+};
+
+export type TasksTotalCountQueryResponse = {
+  tasksTotalCount: number;
+  loading: boolean;
+  refetch: () => void;
+  fetchMore: any;
 };

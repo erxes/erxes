@@ -2,14 +2,16 @@ const commonParamsDef = `
   $title: String,
   $description: String,
   $buttonText: String,
-  $type: String!
+  $type: String!,
+  $numberOfPages: Int
 `;
 
 const commonParams = `
   title: $title,
   description: $description,
   buttonText: $buttonText,
-  type: $type
+  type: $type,
+  numberOfPages: $numberOfPages
 `;
 
 const addForm = `
@@ -36,6 +38,7 @@ const commonFieldParamsDef = `
   $options: [String],
   $isRequired: Boolean,
   $order: Int
+  $associatedFieldId: String
 `;
 
 const commonFieldParams = `
@@ -46,6 +49,7 @@ const commonFieldParams = `
   options: $options,
   isRequired: $isRequired,
   order: $order
+  associatedFieldId: $associatedFieldId
 `;
 
 const fieldsAdd = `
@@ -102,11 +106,31 @@ const formSubmissionsSave = `
   }
 `;
 
+const fieldsBulkAddAndEdit = `
+  mutation fieldsBulkAddAndEdit(
+    $contentType: String!,
+    $contentTypeId: String,
+    $addingFields: [FieldItem],
+    $editingFields: [FieldItem]
+  ) {
+      fieldsBulkAddAndEdit(
+        contentType: $contentType,
+        contentTypeId: $contentTypeId,
+        addingFields: $addingFields,
+        editingFields: $editingFields
+      ) {
+        _id
+        contentTypeId
+      }
+  }
+`;
+
 export default {
   addForm,
   editForm,
   fieldsAdd,
   fieldsEdit,
   fieldsRemove,
-  formSubmissionsSave
+  formSubmissionsSave,
+  fieldsBulkAddAndEdit
 };

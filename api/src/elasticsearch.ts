@@ -2,7 +2,7 @@ import * as dotenv from 'dotenv';
 import * as elasticsearch from 'elasticsearch';
 import * as telemetry from 'erxes-telemetry';
 import * as mongoUri from 'mongo-uri';
-import { debugBase } from './debuggers';
+import { debugError } from './debuggers';
 
 // load environment variables
 dotenv.config();
@@ -35,13 +35,19 @@ export const getIndexPrefix = () => {
   return `${dbName}__`;
 };
 
-export const fetchElk = async (
+export const fetchElk = async ({
   action,
-  index: string,
-  body: any,
-  id?: string,
-  defaultValue?: any
-) => {
+  index,
+  body,
+  _id,
+  defaultValue
+}: {
+  action: string;
+  index: string;
+  body: any;
+  _id?: string;
+  defaultValue?: any;
+}) => {
   if (NODE_ENV === 'test') {
     return action === 'search'
       ? { hits: { total: { value: 0 }, hits: [] } }
@@ -54,17 +60,21 @@ export const fetchElk = async (
       body
     };
 
-    if (id) {
-      params.id = id;
+    if (action === 'search' && body && !body.size) {
+      body.size = 10000;
+    }
+
+    if (_id) {
+      params.id = _id;
     }
 
     const response = await client[action](params);
 
     return response;
   } catch (e) {
-    debugBase(`Error during elk query ${e}`);
+    debugError(`Error during elk query ${e.message}`);
 
-    if (defaultValue) {
+    if (typeof defaultValue !== undefined) {
       return defaultValue;
     }
 

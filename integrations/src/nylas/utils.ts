@@ -1,14 +1,16 @@
+import * as crypto from 'crypto';
 import * as dotenv from 'dotenv';
-import { debugNylas } from '../debuggers';
+import { debugError, debugNylas } from '../debuggers';
 import { getGoogleConfigs } from '../gmail/utils';
 import { sendMessage } from '../messageBroker';
 import { Accounts, Integrations } from '../models';
 import { compose, getConfig, getEnv } from '../utils';
 import { getCalendarOrEvent, getMessageById } from './api';
 import {
+  GOOGLE_CALENDAR_SCOPES,
+  GOOGLE_GMAIL_SCOPES,
   GOOGLE_OAUTH_ACCESS_TOKEN_URL,
   GOOGLE_OAUTH_AUTH_URL,
-  GOOGLE_SCOPES,
   MICROSOFT_OAUTH_ACCESS_TOKEN_URL,
   MICROSOFT_OAUTH_AUTH_URL,
   MICROSOFT_SCOPES
@@ -74,7 +76,7 @@ export const syncEvents = async (
         break;
     }
   } catch (e) {
-    debugNylas(`Failed to sync events: ${e.message}`);
+    debugError(`Failed to sync events: ${e.message}`);
 
     throw e;
   }
@@ -125,7 +127,7 @@ export const syncCalendars = async (
         break;
     }
   } catch (e) {
-    debugNylas(`Failed to sync calendars: ${e.message}`);
+    debugError(`Failed to sync calendars: ${e.message}`);
 
     throw e;
   }
@@ -145,12 +147,23 @@ const syncMessages = async (accountId: string, messageId: string) => {
   if (integration) {
     const { nylasToken, email, kind } = integration;
 
-    let message;
+    let message: any = {};
 
     try {
       message = await getMessageById(nylasToken, messageId);
+
+      if (!message) {
+        throw new Error(`Nylas message not found, messageId: ${messageId}`);
+      }
+
+      const folder = message.folder || {};
+      const folderName = folder.name || '';
+
+      if (folderName === 'drafts') {
+        return;
+      }
     } catch (e) {
-      debugNylas(`Failed to get nylas message by id: ${e.message}`);
+      debugError(`Failed to get nylas message by id: ${e.message}`);
 
       throw e;
     }
@@ -158,7 +171,10 @@ const syncMessages = async (accountId: string, messageId: string) => {
     const [from] = message.from;
 
     // Prevent to send email to itself
-    if (from.email === integration.email && !message.subject.includes('Re:')) {
+    if (
+      !from ||
+      (from.email === integration.email && !message.subject.includes('Re:'))
+    ) {
       return;
     }
 
@@ -254,13 +270,14 @@ export const getProviderSettings = async (
  * @param {String} kind
  * @returns {Object} configs
  */
-const getProviderConfigs = (kind: string) => {
+const getProviderConfigs = (kind: string, type?: string) => {
   switch (kind) {
     case 'gmail': {
       return {
         params: {
           access_type: 'offline',
-          scope: GOOGLE_SCOPES
+          scope:
+            type === 'calendar' ? GOOGLE_CALENDAR_SCOPES : GOOGLE_GMAIL_SCOPES
         },
         urls: {
           authUrl: GOOGLE_OAUTH_AUTH_URL,
@@ -295,6 +312,42 @@ export const extractDate = (date: Date) => {
 
 export const getTime = (date: Date) => {
   return date.getTime() / 1000;
+};
+
+const IV_LENGTH = 16; // For AES, this is always 16
+
+export const encryptToken = text => {
+  const iv = crypto.randomBytes(IV_LENGTH);
+
+  const cipher = crypto.createCipheriv(
+    'aes-256-cbc',
+    Buffer.from(process.env.NYLAS_ENCRYPTION_KEY),
+    iv
+  );
+
+  let encrypted = cipher.update(text);
+
+  encrypted = Buffer.concat([encrypted, cipher.final()]);
+
+  return iv.toString('hex') + ':' + encrypted.toString('hex');
+};
+
+export const decryptToken = text => {
+  const textParts = text.split(':');
+  const iv = Buffer.from(textParts.shift(), 'hex');
+  const encryptedText = Buffer.from(textParts.join(':'), 'hex');
+
+  const decipher = crypto.createDecipheriv(
+    'aes-256-cbc',
+    Buffer.from(process.env.NYLAS_ENCRYPTION_KEY),
+    iv
+  );
+
+  let decrypted = decipher.update(encryptedText);
+
+  decrypted = Buffer.concat([decrypted, decipher.final()]);
+
+  return decrypted.toString();
 };
 
 export { getProviderConfigs, buildEmailAddress, syncMessages };

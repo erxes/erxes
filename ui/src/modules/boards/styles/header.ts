@@ -1,4 +1,5 @@
 import { colors, dimensions } from 'modules/common/styles';
+import { BarItems as BarItemsCommon } from 'modules/layout/styles';
 import styled, { css } from 'styled-components';
 import styledTS from 'styled-components-ts';
 
@@ -113,6 +114,39 @@ export const HeaderLink = styled(HeaderButton)`
 
     &:hover {
       color: ${colors.colorCoreDarkGray};
+    }
+  }
+`;
+
+export const BarItems = styled(BarItemsCommon)`
+  .dropdown-menu {
+    max-height: 360px;
+    max-height: calc(100vh - 120px);
+    overflow: auto;
+    background: ${colors.colorWhite};
+
+    li {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      transition: all ease 0.3s;
+
+      > i {
+        padding: 0 ${dimensions.unitSpacing + 5}px;
+      }
+
+      > a {
+        flex: 1;
+
+        &:hover,
+        &:focus {
+          background: transparent;
+        }
+      }
+
+      &:hover {
+        background: ${colors.bgActive};
+      }
     }
   }
 `;

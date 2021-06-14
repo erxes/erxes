@@ -1,11 +1,11 @@
-import { Col, Row, Statistic, Table } from 'antd';
+import { Col, Empty, Row, Statistic, Table } from 'antd';
 import { getDashboardToken, getEnv } from 'apolloClient';
 import axios from 'axios';
 import dayjs from 'dayjs';
 import Spinner from 'modules/common/components/Spinner';
 import numeral from 'numeral';
 
-import React from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import {
   Area,
   AreaChart,
@@ -24,16 +24,51 @@ import {
   YAxis
 } from 'recharts';
 import { chartColors, replaceTexts } from '../constants';
+import { EmptyWrapper } from './styles';
 
 const { REACT_APP_DASHBOARD_API_URL } = getEnv();
 const dashboardToken = getDashboardToken();
 
-const numberFormatter = item => numeral(item).format('0,0');
+
+const msConversion = (millis) => {
+  let sec = Math.floor(millis / 1000) as any;
+  const hrs = Math.floor(sec / 3600) as any;
+  sec -= hrs * 3600;
+  let min = Math.floor(sec / 60) as any;
+  sec -= min * 60;
+
+  sec = '' + sec;
+  sec = ('00' + sec).substring(sec.length);
+
+  if (hrs > 0) {
+    min = '' + min;
+    min = ('00' + min).substring(min.length);
+    return `${hrs}h:${min}m:${sec}s`;
+  }
+  else {
+    return `${min}m:${sec}s`;
+  }
+}
+
+const numberFormatter = (item, measureType) => {
+
+
+  if (measureType === 'Conversations.avgResponse') {
+    return msConversion(item);
+  }
+
+  if (measureType === 'Conversations.avgClose') {
+    return msConversion(item);
+  }
+
+  return numeral(item).format('0,0');
+
+};
 
 const dateFormatter = (item, dateType) => {
   switch (dateType) {
-    case 'hours':
-      return dayjs(item).format('HH');
+    case 'hour':
+      return dayjs(item).format('HH:mm');
     case 'day':
       return dayjs(item).format('MMM/DD');
     case 'month':
@@ -47,7 +82,7 @@ const dateFormatter = (item, dateType) => {
   }
 };
 
-function decamelize(str, separator) {
+const decamelize = (str, separator) => {
   separator = typeof separator === 'undefined' ? ' ' : separator;
 
   const replace = replaceTexts.find(value => {
@@ -64,12 +99,14 @@ function decamelize(str, separator) {
     .replace('-', ' ');
 
   return str.toLowerCase();
-}
+};
 
 const xAxisFormatter = (item, dateType) => {
   if (dateType) {
     return dateFormatter(item, dateType);
-  } else {
+  }
+
+  else {
     return decamelize(item.toString(), ' ');
   }
 };
@@ -79,7 +116,8 @@ const CartesianChart = ({
   children,
   ChartComponent,
   height,
-  dateType
+  dateType,
+  measureType
 }) => (
   <ResponsiveContainer width="100%" height={height}>
     <ChartComponent margin={{ left: -10 }} data={resultSet.chartPivot}>
@@ -93,27 +131,29 @@ const CartesianChart = ({
       <YAxis
         axisLine={false}
         tickLine={false}
-        tickFormatter={numberFormatter}
+        tickFormatter={item => numberFormatter(item, measureType)}
       />
       <CartesianGrid vertical={false} />
       {children}
       <Legend />
       <Tooltip
         labelFormatter={item => xAxisFormatter(item, dateType)}
-        formatter={numberFormatter}
+        formatter={item => numberFormatter(item, measureType)}
       />
     </ChartComponent>
   </ResponsiveContainer>
 );
 
+
 const TypeToChartComponent = {
-  line: ({ resultSet, height, dateType }) => {
+  line: ({ resultSet, height, dateType, measureType }) => {
     return (
       <CartesianChart
         resultSet={resultSet}
         height={height}
         ChartComponent={LineChart}
         dateType={dateType}
+        measureType={measureType}
       >
         {resultSet.seriesNames.map((series, i) => (
           <Line
@@ -126,13 +166,14 @@ const TypeToChartComponent = {
       </CartesianChart>
     );
   },
-  bar: ({ resultSet, height, dateType }) => {
+  bar: ({ resultSet, height, dateType, measureType }) => {
     return (
       <CartesianChart
         resultSet={resultSet}
         height={height}
         ChartComponent={BarChart}
         dateType={dateType}
+        measureType={measureType}
       >
         {resultSet.seriesNames.map((series, i) => (
           <Bar
@@ -146,13 +187,14 @@ const TypeToChartComponent = {
       </CartesianChart>
     );
   },
-  area: ({ resultSet, height, dateType }) => {
+  area: ({ resultSet, height, dateType, measureType }) => {
     return (
       <CartesianChart
         resultSet={resultSet}
         height={height}
         dateType={dateType}
         ChartComponent={AreaChart}
+        measureType={measureType}
       >
         {resultSet.seriesNames.map((series, i) => (
           <Area
@@ -185,6 +227,7 @@ const TypeToChartComponent = {
             <Pie
               isAnimationActive={false}
               data={renderData(resultSet.chartPivot)}
+              nameKey="x"
               dataKey={resultSet.seriesNames[0].key}
               fill="#8884d8"
             >
@@ -205,9 +248,24 @@ const TypeToChartComponent = {
   },
 
   table: ({ resultSet }) => {
-    const columns = resultSet.tableColumns;
+    const columns = resultSet.tableColumns.map(column => {
+      return {
+        key: column.key,
+        title: column.shortTitle
+      };
+    });
+
     const renderResult = result => {
       for (const [key, value] of Object.entries(result)) {
+
+        if (key === 'Conversations.avgResponse') {
+          result[key] = msConversion(result[key])
+        }
+
+        if (key === 'Conversations.avgClose') {
+          result[key] = msConversion(result[key])
+        }
+
         if (typeof value === 'number') {
           result[key] = result[key]
             .toString()
@@ -257,10 +315,10 @@ const TypeToMemoChartComponent = Object.keys(TypeToChartComponent)
   }))
   .reduce((a, b) => ({ ...a, ...b }));
 
-const renderChart = Component => ({ result, dateType, height }) => {
+const renderChart = Component => ({ result, dateType, height, measureType }) => {
   return (
     (result && (
-      <Component height={height} resultSet={result} dateType={dateType} />
+      <Component height={height} resultSet={result} dateType={dateType} measureType={measureType} />
     )) || <Spinner objective={true} />
   );
 };
@@ -271,34 +329,28 @@ type Props = {
   chartHeight?: any;
 };
 
-type State = {
-  result;
-};
+function usePrevious(value) {
+  const ref = useRef();
+  useEffect(() => {
+    ref.current = value;
+  });
+  return ref.current;
+}
 
-export class ChartRenderer extends React.Component<Props, State> {
-  constructor(props) {
-    super(props);
+export default function ChartRenderer(props: Props) {
+  const [result, setResult] = useState<any>({ result: {} });
 
-    this.state = {
-      result: {}
-    };
-  }
+  const { query, chartType, chartHeight } = props;
 
-  componentDidMount() {
-    this.setState({ result: {} }, () => {
-      this.getDatas();
-    });
-  }
+  const prevAmount = usePrevious({ query }) || ({} as any);
 
-  componentWillReceiveProps() {
-    this.setState({ result: {} }, () => {
-      this.getDatas();
-    });
-  }
+  useEffect(() => {
+    if (JSON.stringify(prevAmount.query) !== JSON.stringify(query)) {
+      getDatas();
+    }
+  });
 
-  getDatas = () => {
-    const { query } = this.props;
-
+  const getDatas = () => {
     axios
       .get(`${REACT_APP_DASHBOARD_API_URL}/get`, {
         params: {
@@ -306,30 +358,44 @@ export class ChartRenderer extends React.Component<Props, State> {
           dashboardToken
         }
       })
-      .then(response => this.setState({ result: response.data }));
+      .then(response => setResult(response.data));
   };
 
-  render() {
-    const { result } = this.state;
-    const { query, chartType, chartHeight } = this.props;
+  const component = TypeToMemoChartComponent[chartType];
 
-    const component = TypeToMemoChartComponent[chartType];
+  let dateType = '';
 
-    let dateType = '';
 
-    if (result.seriesNames) {
-      const { timeDimensions } = query;
+  if (result.seriesNames) {
+    const { timeDimensions, measures } = query;
 
-      if (timeDimensions[0]) {
-        dateType = timeDimensions[0].granularity;
-      }
-      return renderChart(component)({
-        height: chartHeight,
-        result,
-        dateType
-      });
+    const measureType = measures[0];
+
+    if (timeDimensions[0]) {
+      dateType = timeDimensions[0].granularity;
     }
 
-    return <Spinner objective={true} />;
+
+    return renderChart(component)({
+      height: chartHeight,
+      result,
+      dateType,
+      measureType
+    });
   }
+
+  if (result === 'No data') {
+    return (
+      <EmptyWrapper>
+        <Empty
+          imageStyle={{
+            height: 200
+          }}
+          description={<>No data</>}
+        />
+      </EmptyWrapper>
+    );
+  }
+
+  return <Spinner objective={true} />;
 }

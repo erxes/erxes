@@ -1,5 +1,5 @@
 import Button from 'modules/common/components/Button';
-import { FormControl } from 'modules/common/components/form';
+import { ControlLabel, FormControl } from 'modules/common/components/form';
 import Icon from 'modules/common/components/Icon';
 import { Tabs, TabTitle } from 'modules/common/components/tabs';
 import { IOption } from 'modules/common/types';
@@ -9,7 +9,9 @@ import React from 'react';
 import Select from 'react-select-plus';
 import RTG from 'react-transition-group';
 import { PRIORITIES } from '../constants';
+import SegmentFilter from '../containers/SegmentFilter';
 import {
+  CustomRangeContainer,
   FilterBox,
   FilterButton,
   MenuFooter,
@@ -22,7 +24,7 @@ import SelectLabel from './label/SelectLabel';
 
 type Props = {
   onSearch: (search: string) => void;
-  onSelect: (values: string[] | string, name: string) => void;
+  onSelect: (values: string[] | string, key: string) => void;
   queryParams: any;
   link: string;
   extraFilter?: React.ReactNode;
@@ -91,42 +93,48 @@ export default class RightMenu extends React.Component<Props, State> {
     this.setState({ [name]: value } as Pick<StringState, keyof StringState>);
   };
 
+  renderLink(label: string, key: string, value: string) {
+    const { onSelect, queryParams } = this.props;
+
+    const selected = queryParams[key] === value;
+
+    const onClick = _e => {
+      onSelect(value, key);
+    };
+
+    return (
+      <FilterButton selected={selected} onClick={onClick}>
+        {__(label)}
+        {selected && <Icon icon="check-1" size={14} />}
+      </FilterButton>
+    );
+  }
+
+  onChangeRangeFilter = (kind, e) => {
+    this.props.onSelect(e.currentTarget.value, kind);
+  };
+
   renderDates() {
-    const { queryParams, link } = this.props;
+    const { link } = this.props;
 
     if (link.includes('calendar')) {
       return null;
     }
 
-    const { onSelect } = this.props;
-
-    const renderLink = (label: string, name: string) => {
-      const selected = queryParams.closeDateType === name;
-
-      return (
-        <FilterButton
-          selected={selected}
-          onClick={onSelect.bind(this, name, 'closeDateType')}
-        >
-          {__(label)}
-          {selected && <Icon icon="check-1" size={14} />}
-        </FilterButton>
-      );
-    };
-
     return (
       <>
-        {renderLink('Due to the next day', 'nextDay')}
-        {renderLink('Due in the next week', 'nextWeek')}
-        {renderLink('Due in the next month', 'nextMonth')}
-        {renderLink('Has no close date', 'noCloseDate')}
-        {renderLink('Overdue', 'overdue')}
+        {this.renderLink('Assigned to me', 'assignedToMe', 'true')}
+        {this.renderLink('Due tomorrow', 'closeDateType', 'nextDay')}
+        {this.renderLink('Due next week', 'closeDateType', 'nextWeek')}
+        {this.renderLink('Due next month', 'closeDateType', 'nextMonth')}
+        {this.renderLink('Has no close date', 'closeDateType', 'noCloseDate')}
+        {this.renderLink('Overdue', 'overdue', 'closeDateType')}
       </>
     );
   }
 
   renderFilter() {
-    const { queryParams, onSelect, extraFilter } = this.props;
+    const { queryParams, onSelect, extraFilter, options } = this.props;
 
     const priorityValues = PRIORITIES.map(p => ({ label: p, value: p }));
     const priorities = queryParams ? queryParams.priority : [];
@@ -145,6 +153,7 @@ export default class RightMenu extends React.Component<Props, State> {
           onKeyPress={this.onSearch}
           autoFocus={true}
         />
+
         <SelectTeamMembers
           label="Filter by created members"
           name="userIds"
@@ -160,6 +169,7 @@ export default class RightMenu extends React.Component<Props, State> {
           multi={true}
           loadingPlaceholder={__('Loading...')}
         />
+
         <SelectTeamMembers
           label="Filter by team members"
           name="assignedUserIds"
@@ -181,7 +191,40 @@ export default class RightMenu extends React.Component<Props, State> {
         />
 
         {extraFilter}
+
+        <ControlLabel>Date range:</ControlLabel>
+
+        <CustomRangeContainer>
+          <div className="input-container">
+            <FormControl
+              defaultValue={queryParams.startDate}
+              type="date"
+              required={false}
+              name="startDate"
+              onChange={this.onChangeRangeFilter.bind(this, 'startDate')}
+              placeholder={'Start date'}
+            />
+          </div>
+
+          <div className="input-container">
+            <FormControl
+              defaultValue={queryParams.endDate}
+              type="date"
+              required={false}
+              name="endDate"
+              placeholder={'End date'}
+              onChange={this.onChangeRangeFilter.bind(this, 'endDate')}
+            />
+          </div>
+        </CustomRangeContainer>
+
         {this.renderDates()}
+
+        <SegmentFilter
+          type={options.type}
+          boardId={queryParams.id || ''}
+          pipelineId={queryParams.pipelineId || ''}
+        />
       </FilterBox>
     );
   }

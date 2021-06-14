@@ -1,6 +1,6 @@
 import * as request from 'request-promise';
 import * as Smooch from 'smooch-core';
-import { debugSmooch } from '../debuggers';
+import { debugError, debugSmooch } from '../debuggers';
 import { Integrations } from '../models';
 import { getConfig } from '../utils';
 import { TELEGRAM_API_URL } from './constants';
@@ -49,8 +49,7 @@ const saveCustomer = async (customer: ISmoochCustomerInput) => {
 
   if (!integration) {
     return debugSmooch(
-      'Integration not found with smoochIntegrationId: ',
-      smoochIntegrationId
+      `Integration not found with smoochIntegrationId: ${smoochIntegrationId}`
     );
   }
 
@@ -82,8 +81,7 @@ const saveConversation = async (
 
   if (!integration) {
     return debugSmooch(
-      'Integration not found with smoochIntegrationId: ',
-      smoochIntegrationId
+      `Integration not found with smoochIntegrationId: ${smoochIntegrationId}`
     );
   }
 
@@ -116,8 +114,7 @@ const saveMessage = async (
 
   if (!integration) {
     return debugSmooch(
-      'Integration not found with smoochIntegrationId: ',
-      smoochIntegrationId
+      `Integration not found with smoochIntegrationId: ${smoochIntegrationId}`
     );
   }
 
@@ -147,7 +144,7 @@ const removeIntegration = async (integrationId: string) => {
       integrationId
     });
   } catch (e) {
-    debugSmooch(e.message);
+    debugError(e.message);
     throw e;
   }
 };
@@ -188,14 +185,14 @@ const setupSmoochWebhook = async () => {
           includeClient: true
         });
       } catch (e) {
-        debugSmooch(
+        debugError(
           `An error occurred while setting up smooch webhook: ${e.message}`
         );
         throw e;
       }
     }
   } catch (error) {
-    debugSmooch(
+    debugError(
       `An error occurred while setting up smooch webhook: ${error.message}`
     );
     throw error;
@@ -211,7 +208,7 @@ const getTelegramFile = async (token: string, fileId: string) => {
     });
     return `${TELEGRAM_API_URL}/file/bot${token}/${result.file_path}`;
   } catch (e) {
-    debugSmooch(e.mesage);
+    debugError(e.mesage);
     throw e;
   }
 };
@@ -278,7 +275,7 @@ const reply = async requestBody => {
       content
     });
   } catch (e) {
-    debugSmooch(`Failed to send smooch message: ${e.message}`);
+    debugError(`Failed to send smooch message: ${e.message}`);
     throw e;
   }
 };
@@ -335,7 +332,7 @@ const createIntegration = async requestBody => {
       { $set: { smoochIntegrationId: result.integration._id } }
     );
   } catch (e) {
-    debugSmooch(`Failed to create smooch integration: ${e.message}`);
+    debugError(`Failed to create smooch integration: ${e.message}`);
 
     await Integrations.deleteOne({ _id: integration.id });
 

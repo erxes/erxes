@@ -79,7 +79,7 @@ const init = async app => {
     return res.json(account.uid);
   });
 
-  app.post('/twitter/create-integration', async (req, res) => {
+  app.post('/twitter/create-integration', async (req, res, next) => {
     debugRequest(debugTwitter, req);
 
     const { accountId, integrationId, data, kind } = req.body;
@@ -89,7 +89,7 @@ const init = async app => {
     });
 
     if (prevEntry) {
-      throw new Error(`You already have integration on this account`);
+      return next(new Error(`You already have integration on this account`));
     }
 
     const account = await Accounts.getAccount({ _id: accountId });
@@ -118,11 +118,11 @@ const init = async app => {
     return res.json({ status: 'ok ' });
   });
 
-  app.post('/twitter/reply', async (req, res) => {
+  app.post('/twitter/reply', async (req, res, next) => {
     const { attachments, conversationId, content, integrationId } = req.body;
 
     if (attachments.length > 1) {
-      throw new Error('You can only attach one file');
+      return next(new Error('You can only attach one file'));
     }
 
     const attachment = {

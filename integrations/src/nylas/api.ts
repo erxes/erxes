@@ -1,6 +1,6 @@
 import * as fs from 'fs';
 import * as Nylas from 'nylas';
-import { debugNylas } from '../debuggers';
+import { debugError, debugNylas } from '../debuggers';
 import { Integrations } from '../models';
 import { sendRequest } from '../utils';
 import { getConfig } from '../utils';
@@ -14,7 +14,7 @@ import {
   IMessageDraft,
   INylasSchedulePageDoc
 } from './types';
-import { extractDate } from './utils';
+import { extractDate, decryptToken } from './utils';
 
 /**
  * Build message and send API request
@@ -139,7 +139,7 @@ export const setNylasToken = (accessToken: string) => {
     return false;
   }
 
-  const nylas = Nylas.with(accessToken);
+  const nylas = Nylas.with(decryptToken(accessToken));
 
   return nylas;
 };
@@ -296,7 +296,7 @@ const getCalendarOrEvent = async (
 
     return JSON.parse(response);
   } catch (e) {
-    debugNylas(`Failed to get events: ${e.message}`);
+    debugError(`Failed to get events: ${e.message}`);
 
     throw e;
   }
@@ -318,7 +318,7 @@ const getCalendarList = async (accessToken: string) => {
 
     return responses.map(response => JSON.parse(response));
   } catch (e) {
-    debugNylas(`Failed to get calendar list: ${e.message}`);
+    debugError(`Failed to get calendar list: ${e.message}`);
 
     throw e;
   }
@@ -372,7 +372,7 @@ const getEventList = async (
 
     return responses.map(response => JSON.parse(response));
   } catch (e) {
-    debugNylas(`Failed to get event list: ${e.message}`);
+    debugError(`Failed to get event list: ${e.message}`);
 
     throw e;
   }
@@ -386,11 +386,7 @@ const checkCalendarAvailability = async (
   try {
     const responses = await sendRequest({
       method: 'POST',
-      headerParams: {
-        Authorization: `Basic ${Buffer.from(`${accessToken}:`).toString(
-          'base64'
-        )}`
-      },
+      headerParams: generateHeaderParams(accessToken),
       body: {
         start_time: dates.startTime,
         end_time: dates.endTime
@@ -403,7 +399,7 @@ const checkCalendarAvailability = async (
 
     return responses.map(response => JSON.parse(response));
   } catch (e) {
-    debugNylas(`Failed to check availability: ${e.message}`);
+    debugError(`Failed to check availability: ${e.message}`);
 
     throw e;
   }
@@ -414,11 +410,7 @@ const deleteCalendarEvent = async (eventId: string, accessToken: string) => {
     await sendRequest({
       url: `${NYLAS_API_URL}/events/${eventId}`,
       method: 'DELETE',
-      headerParams: {
-        Authorization: `Basic ${Buffer.from(`${accessToken}:`).toString(
-          'base64'
-        )}`
-      },
+      headerParams: generateHeaderParams(accessToken),
       body: {
         notify_participants: true
       }
@@ -426,7 +418,7 @@ const deleteCalendarEvent = async (eventId: string, accessToken: string) => {
 
     debugNylas(`Successfully deleted the event`);
   } catch (e) {
-    debugNylas(`Failed to delete event: ${e.message}`);
+    debugError(`Failed to delete event: ${e.message}`);
 
     throw e;
   }
@@ -493,7 +485,7 @@ const createEvent = async (
 
     return event.save({ notify_participants: doc.notifyParticipants });
   } catch (e) {
-    debugNylas(`Failed to create event: ${e.message}`);
+    debugError(`Failed to create event: ${e.message}`);
 
     throw e;
   }
@@ -510,11 +502,7 @@ const updateEvent = async (
     const response = await sendRequest({
       url: `${NYLAS_API_URL}/events/${eventId}`,
       method: 'PUT',
-      headerParams: {
-        Authorization: `Basic ${Buffer.from(`${accessToken}:`).toString(
-          'base64'
-        )}`
-      },
+      headerParams: generateHeaderParams(accessToken),
       params: {
         notify_participants: doc.notifyParticipants
       },
@@ -537,7 +525,7 @@ const updateEvent = async (
 
     return response;
   } catch (e) {
-    debugNylas(`Failed to update event: ${e.message}`);
+    debugError(`Failed to update event: ${e.message}`);
 
     throw e;
   }
@@ -565,7 +553,7 @@ const sendEventAttendance = async (
 
     debugNylas(`Successfully send attendance with event id: ${eventId}`);
   } catch (e) {
-    debugNylas(`Failed to send event attendance: ${e.message}`);
+    debugError(`Failed to send event attendance: ${e.message}`);
 
     throw e;
   }
@@ -579,7 +567,7 @@ const getSchedulePages = async (accessToken: string) => {
       url: NYLAS_SCHEDULE_MANAGE_PAGES,
       method: 'GET',
       headerParams: {
-        Authorization: `Bearer ${accessToken}`
+        Authorization: `Bearer ${decryptToken(accessToken)}`
       }
     });
 
@@ -589,7 +577,7 @@ const getSchedulePages = async (accessToken: string) => {
 
     return response;
   } catch (e) {
-    debugNylas(`Failed to get pages: ${e.message}`);
+    debugError(`Failed to get pages: ${e.message}`);
 
     throw e.error;
   }
@@ -607,7 +595,7 @@ const generatePageBody = async (
   const booking = doc.booking;
 
   return {
-    access_tokens: [accessToken],
+    access_tokens: [decryptToken(accessToken)],
     name: doc.name,
     slug: doc.slug,
     config: {
@@ -662,7 +650,7 @@ const createSchedulePage = async (
 
     return response;
   } catch (e) {
-    debugNylas(`Failed to get pages: ${e.message}`);
+    debugError(`Failed to get pages: ${e.message}`);
 
     throw e.error || e.statusCode;
   }
@@ -679,11 +667,7 @@ const updateSchedulePage = async (
     const response = await sendRequest({
       url: `${NYLAS_SCHEDULE_MANAGE_PAGES}/${pageId}`,
       method: 'PUT',
-      headerParams: {
-        Authorization: `Basic ${Buffer.from(`${editToken}:`).toString(
-          'base64'
-        )}`
-      },
+      headerParams: generateHeaderParams(editToken),
       body
     });
 
@@ -691,7 +675,7 @@ const updateSchedulePage = async (
 
     return response;
   } catch (e) {
-    debugNylas(`Failed to delete page: ${e.message}`);
+    debugError(`Failed to delete page: ${e.message}`);
 
     throw e.error;
   }
@@ -702,11 +686,7 @@ const deleteSchedulePage = async (pageId: string, accessToken: string) => {
     await sendRequest({
       url: `${NYLAS_SCHEDULE_MANAGE_PAGES}/${pageId}`,
       method: 'DELETE',
-      headerParams: {
-        Authorization: `Basic ${Buffer.from(`${accessToken}:`).toString(
-          'base64'
-        )}`
-      },
+      headerParams: generateHeaderParams(accessToken),
       body: {
         notify_participants: true
       }
@@ -714,10 +694,18 @@ const deleteSchedulePage = async (pageId: string, accessToken: string) => {
 
     debugNylas(`Successfully deleted the page`);
   } catch (e) {
-    debugNylas(`Failed to delete page: ${e.message}`);
+    debugError(`Failed to delete page: ${e.message}`);
 
     throw e.error;
   }
+};
+
+export const generateHeaderParams = (accessToken: string) => {
+  return {
+    Authorization: `Basic ${Buffer.from(
+      `${decryptToken(accessToken)}:`
+    ).toString('base64')}`
+  };
 };
 
 export {

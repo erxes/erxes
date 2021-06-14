@@ -16,6 +16,10 @@ const integrationFields = `
     name
     colorCode
   }
+  channels {
+    _id
+    name
+  }
 `;
 
 const integrations = `
@@ -78,6 +82,17 @@ const integrations = `
   }
 `;
 
+const formFields = `
+    _id
+    title
+    code
+    description
+    buttonText
+    numberOfPages
+    createdDate
+    createdUserId
+`;
+
 const integrationDetail = `
   query integrationDetail($_id: String!) {
     integrationDetail(_id: $_id) {
@@ -86,13 +101,7 @@ const integrationDetail = `
       formId
 
       form {
-        _id
-        title
-        code
-        description
-        createdDate
-        createdUserId
-        buttonText
+        ${formFields}
         themeColor
         contactsGathered
         viewCount
@@ -118,14 +127,8 @@ const integrationDetail = `
 const formDetail = `
   query formDetail($_id: String!) {
     formDetail(_id: $_id) {
-      _id
-      title
-      code
+      ${formFields}
       type
-      description
-      buttonText
-      createdDate
-      createdUserId
       createdUser {
         _id
         details {
@@ -154,17 +157,33 @@ const fields = `
       type
       validation
       text
+      content
       description
       options
       isRequired
       order
+      column
+      logicAction
+      logics {
+        fieldId
+        logicOperator
+        logicValue
+      }
+      groupName
+      associatedFieldId
+      associatedField {
+        _id
+        text
+        contentType
+      }
+      pageNumber
     }
   }
 `;
 
 const fieldsCombinedByContentType = `
-  query fieldsCombinedByContentType($contentType: String!,$usageType: String, $excludedNames: [String]) {
-    fieldsCombinedByContentType(contentType: $contentType,usageType: $usageType, excludedNames: $excludedNames)
+  query fieldsCombinedByContentType($contentType: String!,$usageType: String, $excludedNames: [String], $segmentId: String, $pipelineId: String) {
+    fieldsCombinedByContentType(contentType: $contentType,usageType: $usageType, excludedNames: $excludedNames, segmentId: $segmentId, pipelineId: $pipelineId)
   }
 `;
 
@@ -202,10 +221,10 @@ export default {
   integrations,
   integrationDetail,
   integrationsTotalCount,
-  fields,
   formDetail,
   tags,
   forms,
   fieldsCombinedByContentType,
-  fieldsDefaultColumnsConfig
+  fieldsDefaultColumnsConfig,
+  fields
 };

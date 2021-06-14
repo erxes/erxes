@@ -1,7 +1,7 @@
 import { Brands } from '../../../db/models';
 import { checkPermission, requireLogin } from '../../permissions/wrappers';
 import { IContext } from '../../types';
-import { readFile } from '../../utils';
+import { getDocumentList } from '../mutations/cacheUtils';
 
 interface IListArgs {
   page?: number;
@@ -22,6 +22,13 @@ const queryBuilder = (params: IListArgs, brandIdSelector: any) => {
 };
 
 const brandQueries = {
+  /**
+   * All brands
+   */
+  allBrands(_root, {}, { brandIdSelector }: IContext) {
+    return getDocumentList('brands', brandIdSelector);
+  },
+
   /**
    * Brands list
    */
@@ -50,10 +57,6 @@ const brandQueries = {
    */
   brandsGetLast() {
     return Brands.findOne({}).sort({ createdAt: -1 });
-  },
-
-  brandsGetDefaultEmailConfig() {
-    return readFile('conversationCron');
   }
 };
 

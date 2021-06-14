@@ -26,7 +26,10 @@ import ImportHistory from './importHistory';
 import Integration from './integration';
 import InternalNote from './internalNote';
 import KnowledgeBaseArticle from './knowledgeBaseArticle';
-import KnowledgeBaseCategory from './knowledgeBaseCategory';
+import {
+  KnowledgeBaseCategory,
+  KnowledgeBaseParentCategory
+} from './knowledgeBaseCategory';
 import KnowledgeBaseTopic from './knowledgeBaseTopic';
 import Mutation from './mutations';
 import Notification from './notification';
@@ -40,6 +43,7 @@ import Script from './script';
 import Segment from './segment';
 import Stage from './stages';
 import Subscription from './subscriptions';
+import Tag from './tags';
 import Task from './tasks';
 import Ticket from './tickets';
 import User from './user';
@@ -74,6 +78,7 @@ const resolvers: any = {
 
   KnowledgeBaseArticle,
   KnowledgeBaseCategory,
+  KnowledgeBaseParentCategory,
   KnowledgeBaseTopic,
 
   Notification,
@@ -94,7 +99,8 @@ const resolvers: any = {
   Pipeline,
   GrowthHack,
   CalendarGroup,
-  CalendarBoard
+  CalendarBoard,
+  Tag
 };
 
 export default resolvers;

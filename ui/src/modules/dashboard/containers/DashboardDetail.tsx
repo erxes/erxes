@@ -19,7 +19,7 @@ type FinalProps = {
 } & Props &
   IRouterProps;
 
-class CustomerDetailsContainer extends React.Component<FinalProps, {}> {
+class DashboardDetailsContainer extends React.Component<FinalProps, {}> {
   render() {
     const { dashboardDetailQuery } = this.props;
 
@@ -49,5 +49,5 @@ export default withProps<Props>(
         })
       }
     )
-  )(CustomerDetailsContainer)
+  )(DashboardDetailsContainer)
 );

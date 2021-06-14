@@ -1,49 +1,29 @@
 import * as dotenv from 'dotenv';
 import { connect } from '../db/connection';
-import { Customers } from '../db/models';
+import { Deals, GrowthHacks, Tasks, Tickets } from '../db/models';
 
 dotenv.config();
+
+const fixStageChangedDates = async collection => {
+  const items = await collection.find({ stageChangedDate: { $exists: false } });
+
+  console.log('found: ', items.length);
+
+  for (const item of items) {
+    await collection.update(
+      { _id: item._id },
+      { $set: { stageChangedDate: item.createdAt } }
+    );
+  }
+};
 
 const command = async () => {
   await connect();
 
-  const argv = process.argv;
-  const limit = argv.pop();
-
-  const selector = {
-    relatedIntegrationIds: { $exists: false },
-    integrationId: { $exists: true, $ne: null },
-    profileScore: { $gt: 0 }
-  };
-
-  const customers = await Customers.find(selector).limit(
-    limit ? parseInt(limit, 10) : 10000
-  );
-
-  console.log(`Limit: ${limit}, length: ${customers.length}`);
-
-  const bulkOptions: any[] = [];
-
-  for (const customer of customers) {
-    if (!customer.integrationId) {
-      continue;
-    }
-
-    bulkOptions.push({
-      updateOne: {
-        filter: {
-          _id: customer._id
-        },
-        update: {
-          $set: {
-            relatedIntegrationIds: [customer.integrationId]
-          }
-        }
-      }
-    });
-  }
-
-  await Customers.bulkWrite(bulkOptions);
+  await fixStageChangedDates(Deals);
+  await fixStageChangedDates(Tickets);
+  await fixStageChangedDates(Tasks);
+  await fixStageChangedDates(GrowthHacks);
 
   process.exit();
 };

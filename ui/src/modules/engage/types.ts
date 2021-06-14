@@ -58,6 +58,8 @@ export interface IEngageSmsStats {
   sending_failed: number;
   delivery_failed: number;
   delivery_unconfirmed: number;
+  webhook_delivered: number;
+  error?: number;
 }
 
 export interface IDeliveryReport {
@@ -93,6 +95,7 @@ export interface IEngageMessageDoc {
   type?: string;
   segmentIds?: string[];
   tagIds?: string[];
+  customerTagIds?: string[];
   brandIds?: string[];
   customerIds?: string[];
   title: string;
@@ -112,21 +115,24 @@ export interface IEngageMessage extends IEngageMessageDoc {
   createdDate: Date;
   messengerReceivedCustomerIds?: string[];
   brand: IBrand;
-  segment: ISegment;
+  segments: ISegment[];
   fromUser: IUser;
   tagIds: string[];
+  customerTags: ITag[];
   getTags: ITag[];
   totalCustomersCount?: number;
   validCustomersCount?: number;
+  runCount?: number;
+  lastRunAt?: Date;
 
   stats?: IEngageStats;
   logs?: Array<{ message: string }>;
   smsStats?: IEngageSmsStats;
   fromIntegration?: IIntegration;
+  createdUser: string;
 }
 
 // mutation types
-
 export type MutationVariables = {
   _id: string;
 };
@@ -141,6 +147,10 @@ export type SetPauseMutationResponse = {
 
 export type SetLiveMutationResponse = {
   setLiveMutation: (params: { variables: MutationVariables }) => Promise<void>;
+};
+
+export type CopyMutationResponse = {
+  copyMutation: (params: { variables: MutationVariables }) => Promise<void>;
 };
 
 export type SetLiveManualMutationResponse = {
@@ -242,6 +252,7 @@ export type IEmailFormProps = {
   fromUserId: string;
   content: string;
   scheduleDate: IEngageScheduleDate;
+  isSaved?: boolean;
 };
 
 export type EngageConfigQueryResponse = {

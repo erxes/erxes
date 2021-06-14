@@ -456,6 +456,9 @@ describe('Customers model tests', () => {
       });
     });
 
+    const processState = process.env.ELK_SYNCER;
+    process.env.ELK_SYNCER = 'false';
+
     // Merging both customers companyIds and tagIds
     const mergedCompanyIds = await Conformities.filterConformity({
       mainType: 'customer',
@@ -559,6 +562,7 @@ describe('Customers model tests', () => {
     });
 
     expect(deals).toHaveLength(1);
+    process.env.ELK_SYNCER = processState;
     mock.restore();
   });
 

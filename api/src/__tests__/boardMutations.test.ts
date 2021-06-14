@@ -1,11 +1,20 @@
 import { graphqlRequest } from '../db/connection';
 import {
   boardFactory,
+  dealFactory,
+  fieldGroupFactory,
   pipelineFactory,
   stageFactory,
   userFactory
 } from '../db/factories';
-import { Boards, Deals, Pipelines, Stages, Users } from '../db/models';
+import {
+  Boards,
+  Deals,
+  FieldsGroups,
+  Pipelines,
+  Stages,
+  Users
+} from '../db/models';
 import {
   IBoardDocument,
   IPipelineDocument,
@@ -132,6 +141,7 @@ describe('Test boards mutations', () => {
   test('Remove board', async () => {
     // disconnect pipeline connected to board
     await Pipelines.updateMany({}, { $set: { boardId: 'fakeBoardId' } });
+    await fieldGroupFactory({ boardIds: [board._id] });
 
     const mutation = `
       mutation boardsRemove($_id: String!) {
@@ -142,6 +152,7 @@ describe('Test boards mutations', () => {
     await graphqlRequest(mutation, 'boardsRemove', { _id: board._id }, context);
 
     expect(await Boards.findOne({ _id: board._id })).toBe(null);
+    expect((await FieldsGroups.find({ boardIds: [board._id] })).length).toBe(0);
   });
 
   test('Create pipeline', async () => {
@@ -315,6 +326,7 @@ describe('Test boards mutations', () => {
 
     const user = await userFactory();
     const pipe = await pipelineFactory({ watchedUserIds: [user._id] });
+    await fieldGroupFactory({ pipelineIds: [pipe._id] });
 
     await graphqlRequest(
       mutation,
@@ -324,6 +336,7 @@ describe('Test boards mutations', () => {
     );
 
     expect(await Pipelines.findOne({ _id: pipe._id })).toBe(null);
+    expect((await FieldsGroups.find({ pipelineIds: pipe._id })).length).toBe(0);
   });
 
   test('Stage update orders', async () => {
@@ -385,5 +398,54 @@ describe('Test boards mutations', () => {
     await graphqlRequest(mutation, 'stagesRemove', { _id: stage._id });
 
     expect(await Stages.findOne({ _id: stage._id })).toBe(null);
+  });
+
+  test('Sort items in stages', async () => {
+    const mutation = `
+      mutation stagesSortItems($stageId: String!, $type: String, $proccessId: String, $sortType: String) {
+        stagesSortItems(stageId: $stageId, type: $type, proccessId: $proccessId, sortType: $sortType)
+      }
+    `;
+
+    // no items in stage
+    let response = await graphqlRequest(mutation, 'stagesSortItems', {
+      stageId: stage._id,
+      type: 'deal',
+      processId: Math.random().toString(),
+      sortType: 'created-asc'
+    });
+
+    expect(response).toEqual(null);
+
+    // 3 items in stage
+    const deal = await dealFactory({
+      stageId: stage._id
+    });
+    const deal1 = await dealFactory({
+      stageId: stage._id,
+      closeDate: new Date('2021-03-01')
+    });
+    const deal2 = await dealFactory({
+      stageId: stage._id,
+      closeDate: new Date('2021-02-01')
+    });
+
+    response = await graphqlRequest(mutation, 'stagesSortItems', {
+      stageId: stage._id,
+      type: 'deal',
+      processId: Math.random().toString(),
+      sortType: 'close-asc'
+    });
+
+    expect(response).toEqual('ok');
+
+    const deals = await Deals.find({
+      stageId: stage._id,
+      status: 'active'
+    }).sort({ order: 1 });
+
+    expect(deals[0]._id).toEqual(deal2._id);
+    expect(deals[1]._id).toEqual(deal1._id);
+    expect(deals[2]._id).toEqual(deal._id);
   });
 });

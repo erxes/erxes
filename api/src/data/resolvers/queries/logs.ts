@@ -1,7 +1,8 @@
 import {
   attachmentSchema,
   boardSchema,
-  pipelineSchema
+  pipelineSchema,
+  stageSchema as boardStageSchema
 } from '../../../db/models/definitions/boards';
 import {
   brandEmailConfigSchema,
@@ -223,6 +224,22 @@ const LOG_MAPPINGS: ISchemaMap[] = [
   {
     name: MODULE_NAMES.USER,
     schemas: [userSchema]
+  },
+  {
+    name: MODULE_NAMES.STAGE_DEAL,
+    schemas: [boardStageSchema]
+  },
+  {
+    name: MODULE_NAMES.STAGE_TASK,
+    schemas: [boardStageSchema]
+  },
+  {
+    name: MODULE_NAMES.STAGE_TICKET,
+    schemas: [boardStageSchema]
+  },
+  {
+    name: MODULE_NAMES.STAGE_GH,
+    schemas: [boardStageSchema]
   }
 ];
 

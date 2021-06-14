@@ -71,7 +71,7 @@ $topbar-shadow: rgba(0, 0, 0, .1);
     h3 {
       font-size: 20px;
       font-weight: bold;
-      margin: 0 0 10px;
+      margin: 0;
       text-overflow: ellipsis;
       overflow: hidden;
     }
@@ -80,6 +80,7 @@ $topbar-shadow: rgba(0, 0, 0, .1);
       opacity: 0.8;
       font-size: 13px;
       line-height: 21px;
+      margin-top: 10px;
     }
   }
 

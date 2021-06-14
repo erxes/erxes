@@ -2,6 +2,7 @@ import SortableList from 'modules/common/components/SortableList';
 import { IField } from 'modules/settings/properties/types';
 import React from 'react';
 import xss from 'xss';
+import { FieldsWrapper } from '../styles';
 import FieldPreview from './FieldPreview';
 
 type Props = {
@@ -9,6 +10,7 @@ type Props = {
   formDesc?: string;
   onFieldClick?: (field: IField) => void;
   onChangeFieldsOrder?: (fields: IField[]) => void;
+  currentPage: number;
 };
 
 type State = {
@@ -74,16 +76,27 @@ class FieldsPreview extends React.Component<Props, State> {
       );
     };
 
+    let fields = this.props.fields || [];
+    fields = fields.filter(f => {
+      const pageNumber = f.pageNumber || 1;
+      if (pageNumber === this.props.currentPage) {
+        return f;
+      }
+      return null;
+    });
+
     return (
       <>
         {this.renderFormDesc()}
 
-        <SortableList
-          child={child}
-          fields={this.state.fields || []}
-          onChangeFields={this.onChangeFields}
-          droppableId="form"
-        />
+        <FieldsWrapper>
+          <SortableList
+            child={child}
+            fields={fields}
+            onChangeFields={this.onChangeFields}
+            droppableId="form"
+          />
+        </FieldsWrapper>
       </>
     );
   }
