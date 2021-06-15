@@ -25,7 +25,8 @@ export const TAG_TYPES = {
     'engageMessage',
     'company',
     'integration',
-    'product'
+    'product',
+    'forum'
   ]
 };
 

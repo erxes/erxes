@@ -33,6 +33,7 @@ export const types = `
         description: String
         topicId: String
         forumId: String
+        tagId: String
         createdBy: String
         createdUser: User
         createdDate: Date
@@ -103,6 +104,7 @@ const discussionMutationParams = `
     startDate: Date
     closeDate: Date
     isComplete: Boolean
+    tagId: String
 `;
 
 const commentMutationParams = `

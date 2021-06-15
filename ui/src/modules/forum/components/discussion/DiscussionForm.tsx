@@ -9,8 +9,9 @@ import { ModalFooter } from 'modules/common/styles/main';
 import { FlexContent, FlexItem } from 'modules/layout/styles';
 import { IButtonMutateProps, IFormProps } from 'modules/common/types';
 import { IDiscussion } from '../../types';
-import SelectTag from '../../containers/SelectTag';
 import DateSelector from '../../common/DateSelecter';
+import { ITag } from 'erxes-ui/lib/tags/types';
+import Select from 'react-select-plus';
 
 type Props = {
   renderButton: (props: IButtonMutateProps) => JSX.Element;
@@ -18,12 +19,14 @@ type Props = {
   currentTopicId: string;
   discussion: IDiscussion;
   forumId: string;
+  tags: ITag[];
 };
 
 type State = {
   content: string;
   startDate: Date;
   closeDate: Date;
+  tag: string;
 };
 class DiscussionForm extends React.Component<Props, State> {
   constructor(props: Props) {
@@ -34,7 +37,8 @@ class DiscussionForm extends React.Component<Props, State> {
     this.state = {
       content: discussion.content,
       startDate: discussion.startDate,
-      closeDate: discussion.closeDate
+      closeDate: discussion.closeDate,
+      tag: discussion.tagId
     };
   }
   generateDoc = (values: {
@@ -44,7 +48,7 @@ class DiscussionForm extends React.Component<Props, State> {
     status: string;
   }) => {
     const { currentTopicId, discussion, forumId } = this.props;
-    const { content, startDate, closeDate } = this.state;
+    const { content, startDate, closeDate, tag } = this.state;
     const finalValues = values;
 
     if (discussion) {
@@ -61,7 +65,8 @@ class DiscussionForm extends React.Component<Props, State> {
       content,
       status: finalValues.status,
       startDate,
-      closeDate
+      closeDate,
+      tagId: tag
     };
   };
 
@@ -77,9 +82,22 @@ class DiscussionForm extends React.Component<Props, State> {
     this.setState({ closeDate: value });
   };
 
+  onChangeTag = item => {
+    this.setState({ tag: item ? item.value : '' });
+  };
+
+  generateTags = items => {
+    return items.map(el => {
+      return {
+        value: el._id,
+        label: el.name
+      };
+    });
+  };
+
   renderContent = (formProps: IFormProps) => {
-    const { closeModal, renderButton, discussion } = this.props;
-    const { content, startDate, closeDate } = this.state;
+    const { closeModal, renderButton, discussion, tags } = this.props;
+    const { content, startDate, closeDate, tag } = this.state;
     const { values, isSubmitted } = formProps;
     const object = discussion || ({} as IDiscussion);
 
@@ -153,13 +171,12 @@ class DiscussionForm extends React.Component<Props, State> {
 
           <FlexItem count={2} hasSpace={true}>
             <FormGroup>
-              <ControlLabel required={true}>{'Tags'}</ControlLabel>
-              <SelectTag
-                label="Choose a tag"
-                name="tag"
-                initialValue={'General'}
-                onSelect={this.onChange}
-                multi={false}
+              <ControlLabel>{'Tags'}</ControlLabel>
+              <Select
+                placeholder="Select tags"
+                value={tag}
+                options={this.generateTags(tags)}
+                onChange={this.onChangeTag}
               />
             </FormGroup>
           </FlexItem>
@@ -187,7 +204,7 @@ class DiscussionForm extends React.Component<Props, State> {
           </Button>
 
           {renderButton({
-            name: 'topic',
+            name: 'discussion',
             values: this.generateDoc(values),
             isSubmitted,
             callback: closeModal,

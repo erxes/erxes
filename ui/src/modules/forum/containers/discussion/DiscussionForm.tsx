@@ -6,6 +6,10 @@ import { mutations, queries } from '../../graphql';
 import { generatePaginationParams } from 'modules/common/utils/router';
 import * as compose from 'lodash.flowright';
 import gql from 'graphql-tag';
+import { TagsQueryResponse } from '../../../tags/types';
+import { queries as tagQueries } from 'modules/tags/graphql';
+import { TAG_TYPES } from 'modules/tags/constants';
+import { graphql } from 'react-apollo';
 
 import { IDiscussion } from '../../types';
 
@@ -15,6 +19,7 @@ type Props = {
   closeModal: () => void;
   discussion: IDiscussion;
   forumId: string;
+  tagsQuery: TagsQueryResponse;
 };
 
 const DiscussionFormContainer = (props: Props) => {
@@ -23,7 +28,8 @@ const DiscussionFormContainer = (props: Props) => {
     currentTopicId,
     discussion,
     queryParams,
-    forumId
+    forumId,
+    tagsQuery
   } = props;
 
   const renderButton = ({
@@ -52,13 +58,16 @@ const DiscussionFormContainer = (props: Props) => {
     );
   };
 
+  const tags = tagsQuery.tags || [];
+
   const updatedProps = {
     ...props,
     renderButton,
     closeModal,
     discussion,
     currentTopicId,
-    forumId
+    forumId,
+    tags
   };
 
   return <DiscussionForm {...updatedProps} />;
@@ -92,4 +101,13 @@ const getRefetchQueries = (
   ];
 };
 
-export default compose()(DiscussionFormContainer);
+export default compose(
+  graphql<{}, TagsQueryResponse, { type: string }>(gql(tagQueries.tags), {
+    name: 'tagsQuery',
+    options: () => ({
+      variables: {
+        type: TAG_TYPES.FORUM
+      }
+    })
+  })
+)(DiscussionFormContainer);

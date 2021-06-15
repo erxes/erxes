@@ -36,6 +36,7 @@ const forumDiscussionParamsDef = `
     $startDate: Date
     $closeDate: Date
     $isComplete: Boolean
+    $tagId: String
 `;
 
 const forumDiscussionParamsVal = `
@@ -48,6 +49,7 @@ const forumDiscussionParamsVal = `
     startDate: $startDate
     closeDate: $closeDate
     isComplete: $isComplete
+    tagId: $tagId
 `;
 
 const forumsAdd = `

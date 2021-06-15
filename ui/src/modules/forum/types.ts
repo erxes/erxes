@@ -50,6 +50,7 @@ export interface IDiscussion {
   startDate: Date;
   closeDate: Date;
   isComplete: boolean;
+  tagId: string;
 }
 
 export interface IComment {

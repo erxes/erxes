@@ -119,6 +119,7 @@ const forumDiscussions = `
             startDate
             closeDate
             isComplete
+            tagId
             createdUser {
                 _id
                 username
