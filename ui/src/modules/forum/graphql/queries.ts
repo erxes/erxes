@@ -1,36 +1,98 @@
-const topicFields = `
+const userFields = `
+    _id
+    username
+    email
+    details {
+    avatar
+    fullName
+    }   
+`;
+
+const commentFields = `
     _id
     title
-    description
-    forumId
+    content
+    createdDate
+    createdUser {
+        _id
+        username
+        email
+        details {
+        avatar
+        fullName
+        }
+    }
+    createdCustomer {
+        _id
+        firstName
+        lastName
+        avatar
+    }
 `;
 
 const discussionFields = `
     _id
     title
     description
+    createdBy
+    createdDate
+    modifiedBy
+    modifiedDate
+    content
+    status
+    startDate
+    closeDate
+    isComplete
+    tagId   
+
+    createdUser {
+        ${userFields}
+    }
+    comments{
+        ${commentFields}
+    }
+`;
+
+const topicFields = `
+    _id
+    title
+    description
+    forumId
+
+    createdBy
+    createdDate
+    modifiedBy
+    modifiedDate
+
+    discussions{
+        ${discussionFields}
+    }
+`;
+
+const forumFields = `
+    _id
+    title
+    description
+    languageCode
+
+    createdBy
+    createdDate
+    modifiedBy
+    modifiedDate
+
+    topics{
+        ${topicFields}
+    }
+    brand{
+        _id
+        name
+    }
 `;
 
 const forums = `
     query forums{
         forums{
-            _id
-            title
-            description
-            languageCode
-            
-            createdBy
-            createdDate
-            modifiedBy
-            modifiedDate
-
-            topics{
-                ${topicFields}
-            }
-            brand{
-                _id
-                name
-            }
+            ${forumFields}
         }
     }
 `;
@@ -38,13 +100,7 @@ const forums = `
 const forumDetail = `
     query forumDetail($_id: String!){
         forumDetail(_id: $_id){
-            _id
-            title
-            description
-            
-            topics{
-                ${topicFields}
-            }
+            ${forumFields}
         }
     }
 `;
@@ -58,19 +114,7 @@ const forumsTotalCount = `
 const forumTopics = `
     query forumTopics($forumId: String!){
         forumTopics(forumId: $forumId){
-            _id
-            title
-            description
-            forumId
-
-            createdBy
-            createdDate
-            modifiedBy
-            modifiedDate
-
-            discussions{
-                ${discussionFields}
-            }
+            ${topicFields}
         }
     }
 `;
@@ -78,14 +122,7 @@ const forumTopics = `
 const forumTopicDetail = `
     query forumTopicDetail($_id: String!){
         forumTopicDetail(_id: $_id){
-            _id
-            title
-            description
-            forumId
-
-            discussions{
-                ${discussionFields}
-            }
+           ${topicFields}
         }
     }
 `;
@@ -107,49 +144,8 @@ const forumTopicsGetLast = `
 const forumDiscussions = `
     query forumDiscussions($page: Int $perPage: Int $topicId: String!){
         forumDiscussions(page: $page perPage: $perPage topicId: $topicId){
-            _id
-            title
-            description
-            createdBy
-            createdDate
-            modifiedBy
-            modifiedDate
-            content
-            status
-            startDate
-            closeDate
-            isComplete
-            tagId
-            createdUser {
-                _id
-                username
-                email
-                details {
-                  avatar
-                  fullName
-                }
-            }
-            comments{
-                _id
-                title
-                content
-                createdDate
-                createdUser {
-                    _id
-                    username
-                    email
-                    details {
-                      avatar
-                      fullName
-                    }
-                }
-                createdCustomer {
-                    _id
-                    firstName
-                    lastName
-                    avatar
-                }
-            }
+            ${discussionFields}
+            
         }
     }
 `;
@@ -157,9 +153,7 @@ const forumDiscussions = `
 const forumDiscussionDetail = `
     query forumDiscussionDetail($_id: String!){
         forumDiscussionDetail(_id: $_id){
-            _id
-            title
-            description
+            ${discussionFields}
         }
     }
 `;
