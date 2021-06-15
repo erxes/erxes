@@ -9,7 +9,12 @@ import TwitterPicker from 'react-color/lib/Twitter';
 import Select from 'react-select-plus';
 import { COLORS, FONTS } from '../../constants';
 import { Styles } from '../../types';
-import { ColorPickerWrap } from '../../styles';
+import {
+  ColorPickerWrap,
+  SelectWrap,
+  TextWrapColor,
+  LastColorPicker
+} from '../../styles';
 
 type Props = {
   styles?: Styles;
@@ -84,7 +89,9 @@ function ColorFont({ styles = {}, handleFormChange }: Props) {
 
     return (
       <FormGroup>
-        <ControlLabel>{label}</ControlLabel>
+        <ControlLabel>
+          <TextWrapColor>{label}</TextWrapColor>
+        </ControlLabel>
         <div>
           <OverlayTrigger
             trigger="click"
@@ -103,7 +110,9 @@ function ColorFont({ styles = {}, handleFormChange }: Props) {
             }
           >
             <ColorPick>
-              <ColorPicker style={{ backgroundColor: value }} />
+              <ColorPicker
+                style={{ backgroundColor: value ? value : COLORS[4] }}
+              />
             </ColorPick>
           </OverlayTrigger>
         </div>
@@ -132,11 +141,13 @@ function ColorFont({ styles = {}, handleFormChange }: Props) {
               name: 'footerColor',
               value: footerColor
             })}
-            {renderColor({
-              label: 'Help Center',
-              name: 'helpColor',
-              value: helpColor
-            })}
+            <LastColorPicker>
+              {renderColor({
+                label: 'Help Center',
+                name: 'helpColor',
+                value: helpColor
+              })}
+            </LastColorPicker>
           </ColorPickerWrap>
         </FlexContent>
       </FormGroup>
@@ -149,39 +160,49 @@ function ColorFont({ styles = {}, handleFormChange }: Props) {
               name: 'backgroundColor',
               value: backgroundColor
             })}
-            {renderColor({
-              label: 'Active tab',
-              name: 'activeTabColor',
-              value: activeTabColor
-            })}
+            <LastColorPicker>
+              {renderColor({
+                label: 'Active tab',
+                name: 'activeTabColor',
+                value: activeTabColor
+              })}
+            </LastColorPicker>
           </ColorPickerWrap>
         </FlexContent>
       </FormGroup>
       <FormGroup>
         <ControlLabel>Portal fonts</ControlLabel>
-        {renderSelect({
-          label: 'Base font',
-          name: 'baseFont',
-          value: baseFont
-        })}
-        <ColorPickerWrap>
-          {renderColor({
-            label: 'Base Color',
-            name: 'baseColor',
-            value: baseColor
+        <SelectWrap>
+          {renderSelect({
+            label: 'Base font',
+            name: 'baseFont',
+            value: baseFont
           })}
+        </SelectWrap>
+        <ColorPickerWrap>
+          <LastColorPicker>
+            {renderColor({
+              label: 'Base Color',
+              name: 'baseColor',
+              value: baseColor
+            })}
+          </LastColorPicker>
         </ColorPickerWrap>
-        {renderSelect({
-          label: 'Heading font',
-          name: 'headingFont',
-          value: headingFont
-        })}
-        <ColorPickerWrap>
-          {renderColor({
-            label: 'Heading Color',
-            name: 'headingColor',
-            value: headingColor
+        <SelectWrap>
+          {renderSelect({
+            label: 'Heading font',
+            name: 'headingFont',
+            value: headingFont
           })}
+        </SelectWrap>
+        <ColorPickerWrap>
+          <LastColorPicker>
+            {renderColor({
+              label: 'Heading Color',
+              name: 'headingColor',
+              value: headingColor
+            })}
+          </LastColorPicker>
         </ColorPickerWrap>
       </FormGroup>
       <FormGroup>
@@ -193,11 +214,13 @@ function ColorFont({ styles = {}, handleFormChange }: Props) {
               name: 'linkColor',
               value: linkColor
             })}
-            {renderColor({
-              label: 'Link hover text',
-              name: 'linkHoverColor',
-              value: linkHoverColor
-            })}
+            <LastColorPicker>
+              {renderColor({
+                label: 'Link hover text',
+                name: 'linkHoverColor',
+                value: linkHoverColor
+              })}
+            </LastColorPicker>
           </ColorPickerWrap>
         </FlexContent>
       </FormGroup>
@@ -215,11 +238,13 @@ function ColorFont({ styles = {}, handleFormChange }: Props) {
               name: 'primaryBtnColor',
               value: primaryBtnColor
             })}
-            {renderColor({
-              label: 'Secondary action button',
-              name: 'secondaryBtnColor',
-              value: secondaryBtnColor
-            })}
+            <LastColorPicker>
+              {renderColor({
+                label: 'Secondary action button',
+                name: 'secondaryBtnColor',
+                value: secondaryBtnColor
+              })}
+            </LastColorPicker>
           </ColorPickerWrap>
         </FlexContent>
       </FormGroup>
