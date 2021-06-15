@@ -125,7 +125,7 @@ class DiscussionForm extends React.Component<Props, State> {
         <FlexContent>
           <FlexItem count={2}>
             <FormGroup>
-              <ControlLabel required={true}>{'Start date'}</ControlLabel>
+              <ControlLabel>{'Start date'}</ControlLabel>
               <DateSelector
                 name={'Start Date'}
                 isComplete={object.isComplete}
@@ -137,7 +137,7 @@ class DiscussionForm extends React.Component<Props, State> {
 
           <FlexItem count={2} hasSpace={true}>
             <FormGroup>
-              <ControlLabel required={true}>{'Close date'}</ControlLabel>
+              <ControlLabel>{'Close date'}</ControlLabel>
               <DateSelector
                 name={'Close Date'}
                 isComplete={object.isComplete}
