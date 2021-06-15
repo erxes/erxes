@@ -52,6 +52,7 @@ export const createNylasIntegration = async (
   try {
     if (data.email) {
       const integration = await Integrations.findOne({
+        kind,
         email: data.email
       }).lean();
 
