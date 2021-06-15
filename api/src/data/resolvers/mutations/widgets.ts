@@ -5,6 +5,7 @@ import {
   ConversationMessages,
   Conversations,
   Customers,
+  Fields,
   Forms,
   Integrations,
   KnowledgeBaseArticles,
@@ -334,6 +335,13 @@ const widgetMutations = {
       if (!company) {
         companyData.primaryName = companyData.name;
         companyData.names = [companyData.name];
+
+        const { customFieldsData } = await Fields.generateCustomFieldsData(
+          companyData,
+          'company'
+        );
+
+        companyData.customFieldsData = customFieldsData;
 
         try {
           company = await Companies.createCompany({

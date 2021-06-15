@@ -723,8 +723,6 @@ export const loadClass = () => {
       doc.phones = phones;
       doc.deviceTokens = deviceTokens;
 
-      console.log('doc: ', doc);
-
       return doc;
     }
 
@@ -737,14 +735,15 @@ export const loadClass = () => {
     }: ICreateMessengerCustomerParams) {
       this.fixListFields(doc, customData);
 
-      const asd = await Fields.generateCustomFieldsData(customData);
-
-      console.log('asd: ', asd);
+      const {
+        customFieldsData,
+        trackedData
+      } = await Fields.generateCustomFieldsData(customData, 'customer');
 
       return this.createCustomer({
         ...doc,
-        trackedData: Fields.generateTypedListFromMap(customData),
-        // customFieldsData: await Fields.generateCustomFieldsData(customData),
+        trackedData,
+        customFieldsData,
         lastSeenAt: new Date(),
         isOnline: true,
         sessionCount: 1
@@ -763,13 +762,15 @@ export const loadClass = () => {
 
       this.fixListFields(doc, customData, customer);
 
-      const asd = await Fields.generateCustomFieldsData(customData);
-
-      console.log('asd: ', asd);
+      const {
+        customFieldsData,
+        trackedData
+      } = await Fields.generateCustomFieldsData(customData, 'customer');
 
       const modifier = {
         ...doc,
-        trackedData: Fields.generateTypedListFromMap(customData),
+        trackedData,
+        customFieldsData,
         state: doc.isUser ? 'customer' : customer.state,
         modifiedAt: new Date()
       };

@@ -81,7 +81,7 @@ export interface IFieldModel extends Model<IFieldDocument> {
       [key: string]: any;
     },
     contentType: string
-  ): Promise<ICustomField[]>;
+  ): Promise<any>;
 }
 
 export const loadFieldClass = () => {
