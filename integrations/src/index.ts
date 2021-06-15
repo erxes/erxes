@@ -143,7 +143,16 @@ app.get('/integrations', async (req, res) => {
 app.get('/integrationDetail', async (req, res) => {
   const { erxesApiId } = req.query;
 
-  const integration = await Integrations.findOne({ erxesApiId });
+  // do not expose fields below
+  const integration = await Integrations.findOne(
+    { erxesApiId },
+    {
+      nylasToken: 0,
+      nylasAccountId: 0,
+      nylasBillingState: 0,
+      googleAccessToken: 0
+    }
+  );
 
   debugResponse(debugIntegrations, req, JSON.stringify(integration));
 
