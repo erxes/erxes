@@ -1,5 +1,5 @@
 import { IDiscussionDocument } from '../../db/models/definitions/forums';
-import { DiscussionComments } from '../../db/models';
+import { DiscussionComments, Tags } from '../../db/models';
 import { getDocument } from './mutations/cacheUtils';
 
 export default {
@@ -9,5 +9,8 @@ export default {
 
   comments(discussion: IDiscussionDocument) {
     return DiscussionComments.find({ discussionId: discussion._id });
+  },
+  getTags(discussion: IDiscussionDocument) {
+    return Tags.find({ _id: { $in: discussion.tagIds || [] } });
   }
 };

@@ -2,6 +2,7 @@ import { QueryResponse } from 'modules/common/types';
 import { IUser } from 'modules/auth/types';
 import { IBrand } from 'modules/settings/brands/types';
 import { ICustomer } from 'erxes-ui/lib/customers/types';
+import { ITag } from 'erxes-ui/lib/tags/types';
 
 export interface IForum {
   _id: string;
@@ -50,7 +51,8 @@ export interface IDiscussion {
   startDate: Date;
   closeDate: Date;
   isComplete: boolean;
-  tagId: string;
+  tagIds: string[];
+  getTags: ITag[];
 }
 
 export interface IComment {

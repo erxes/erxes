@@ -43,7 +43,13 @@ const discussionFields = `
     startDate
     closeDate
     isComplete
-    tagId   
+    tagIds   
+    
+    getTags {
+        _id
+        name
+        colorCode
+      }
 
     createdUser {
         ${userFields}

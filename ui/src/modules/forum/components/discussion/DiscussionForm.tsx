@@ -26,7 +26,7 @@ type State = {
   content: string;
   startDate: Date;
   closeDate: Date;
-  tag: string;
+  tagIds: string[];
 };
 class DiscussionForm extends React.Component<Props, State> {
   constructor(props: Props) {
@@ -38,7 +38,7 @@ class DiscussionForm extends React.Component<Props, State> {
       content: discussion.content,
       startDate: discussion.startDate,
       closeDate: discussion.closeDate,
-      tag: discussion.tagId
+      tagIds: discussion.tagIds
     };
   }
   generateDoc = (values: {
@@ -48,7 +48,7 @@ class DiscussionForm extends React.Component<Props, State> {
     status: string;
   }) => {
     const { currentTopicId, discussion, forumId } = this.props;
-    const { content, startDate, closeDate, tag } = this.state;
+    const { content, startDate, closeDate, tagIds } = this.state;
     const finalValues = values;
 
     if (discussion) {
@@ -66,7 +66,7 @@ class DiscussionForm extends React.Component<Props, State> {
       status: finalValues.status,
       startDate,
       closeDate,
-      tagId: tag
+      tagIds
     };
   };
 
@@ -82,8 +82,8 @@ class DiscussionForm extends React.Component<Props, State> {
     this.setState({ closeDate: value });
   };
 
-  onChangeTag = item => {
-    this.setState({ tag: item ? item.value : '' });
+  onChangeTag = items => {
+    this.setState({ tagIds: items.map(el => el.value) });
   };
 
   generateTags = items => {
@@ -97,7 +97,7 @@ class DiscussionForm extends React.Component<Props, State> {
 
   renderContent = (formProps: IFormProps) => {
     const { closeModal, renderButton, discussion, tags } = this.props;
-    const { content, startDate, closeDate, tag } = this.state;
+    const { content, startDate, closeDate, tagIds } = this.state;
     const { values, isSubmitted } = formProps;
     const object = discussion || ({} as IDiscussion);
 
@@ -174,9 +174,10 @@ class DiscussionForm extends React.Component<Props, State> {
               <ControlLabel>{'Tags'}</ControlLabel>
               <Select
                 placeholder="Select tags"
-                value={tag}
+                value={tagIds}
                 options={this.generateTags(tags)}
                 onChange={this.onChangeTag}
+                multi={true}
               />
             </FormGroup>
           </FlexItem>

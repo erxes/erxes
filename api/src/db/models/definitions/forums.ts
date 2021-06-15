@@ -32,7 +32,7 @@ export interface ITopicDocument extends ICommonFields, ITopic, Document {
 export interface IDiscussion {
   title?: string;
   description?: string;
-  tagId?: string;
+  tagIds?: string[];
   topicId: string;
   forumId: string;
   content: string;
@@ -101,7 +101,7 @@ export const discussionSchema = new Schema({
   _id: field({ pkey: true }),
   title: field({ type: String, optional: true, label: 'Title' }),
   description: field({ type: String, optional: true, label: 'Description' }),
-  tagId: field({ type: String, optional: true, label: 'Tag' }),
+  tagIds: field({ type: [String], optional: true, label: 'Tag' }),
   topicId: field({ type: String, label: 'Topic' }),
   forumId: field({ type: String, label: 'Forum' }),
   content: field({ type: String, label: 'Content' }),

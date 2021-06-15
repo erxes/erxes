@@ -5,6 +5,7 @@ import ModalTrigger from 'modules/common/components/ModalTrigger';
 import Button from 'modules/common/components/Button';
 import Icon from 'modules/common/components/Icon';
 import { getUserAvatar } from 'modules/common/utils';
+import Tags from 'modules/common/components/Tags';
 
 import Tip from 'modules/common/components/Tip';
 
@@ -32,6 +33,8 @@ type Props = {
 
 const DiscussionRow = (props: Props) => {
   const { discussion, currentTopicId, queryParams, forumId } = props;
+
+  const tags = discussion.getTags || [];
 
   const user = discussion.createdUser;
 
@@ -96,7 +99,8 @@ const DiscussionRow = (props: Props) => {
   const title = (
     <DiscussionTitle>
       {discussion.title}
-      <Label lblStyle="simple">{'tag'}</Label>
+      <Label>{discussion.status}</Label>
+      <Tags tags={tags} limit={2} />
     </DiscussionTitle>
   );
 
