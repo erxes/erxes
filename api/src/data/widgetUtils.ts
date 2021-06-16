@@ -382,7 +382,7 @@ export const solveActions = async (
   const fieldsWithActions = await Fields.find({
     contentTypeId: formId,
     'actions.0': { $exists: true }
-  });
+  }).lean();
 
   const groupByStageId = array => {
     return array.reduce((r, a) => {
@@ -538,12 +538,6 @@ export const solveSubmissions = async (args: {
 
     for (const submission of submissionsGrouped[groupId]) {
       const submissionType = submission.type || '';
-
-      // const blabla = await Fields.findById(submission._id);
-
-      // if (blabla && blabla.stageId) {
-      //   stageId = blabla.stageId;
-      // }
 
       if (submissionType.includes('customerLinks')) {
         customerLinks[getSocialLinkKey(submissionType)] = submission.value;

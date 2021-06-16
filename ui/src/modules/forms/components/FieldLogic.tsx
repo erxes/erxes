@@ -256,10 +256,6 @@ function FieldLogic(props: Props) {
     );
   };
 
-  // const [selectedFieldId, setFieldId] = useState<string>(
-  //   props.currentField.associatedFieldId || ''
-  // );
-
   const renderBoardItemSelect = () => {
     if (
       type === 'logic' ||

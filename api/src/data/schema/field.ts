@@ -16,11 +16,22 @@ const fieldCommonFields = `
   stageId: String
 `;
 
-const commonLogicTypes = `
-  fieldId: String!
+const commonTypes = `
   logicOperator: String
   logicValue: JSON
+`;
+
+const commonLogicTypes = `
+  fieldId: String!
   logicAction: String
+  ${commonTypes}
+`;
+
+const commonLogicInputTypes = `
+  fieldId: String
+  tempFieldId: String
+  logicAction: String!
+  ${commonTypes}
 `;
 
 export const fieldsTypes = `
@@ -62,19 +73,11 @@ export const fieldsTypes = `
   }
 
   input LogicInput {
-    fieldId: String
-    tempFieldId: String
-    logicOperator: String
-    logicValue: JSON
-    logicAction: String!
+    ${commonLogicInputTypes}
   }
 
   input ActionInput {
-    fieldId: String
-    tempFieldId: String
-    logicOperator: String
-    logicValue: JSON
-    logicAction: String!
+    ${commonLogicInputTypes}
     tagIds: [String]
     itemId: String
     itemName: String

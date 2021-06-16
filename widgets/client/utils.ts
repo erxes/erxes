@@ -33,7 +33,6 @@ export type LogicParams = {
   operator: string;
   validation?: string;
   logicValue: FieldValue;
-  logicAction: string;
   fieldValue?: FieldValue;
   type?: string;
 };
@@ -67,11 +66,11 @@ const setDayjsLocale = (code: string) => {
 
 export const setLocale = (code?: string) => {
   import(`../locales/${code}.json`)
-    .then(translations => {
+    .then((translations) => {
       T.setTexts(translations);
       setDayjsLocale(code || 'en');
     })
-    .catch(e => console.log(e)); // tslint:disable-line
+    .catch((e) => console.log(e)); // tslint:disable-line
 };
 
 export const __ = (msg: string) => {
@@ -111,7 +110,7 @@ export const scrollTo = (element: any, to: number, duration: number) => {
 export const makeClickableLink = (selector: string) => {
   const nodes = Array.from(document.querySelectorAll(selector));
 
-  nodes.forEach(node => {
+  nodes.forEach((node) => {
     node.setAttribute('target', '__blank');
   });
 };
@@ -268,7 +267,7 @@ export const urlify = (text: string) => {
     return text;
   }
 
-  return text.replace(urlRegex, url => {
+  return text.replace(urlRegex, (url) => {
     if (url.startsWith('http')) {
       return `<a href="${url}" target="_blank">${url}</a>`;
     }
@@ -279,17 +278,9 @@ export const urlify = (text: string) => {
 
 export const checkLogicFulfilled = (logics: LogicParams[]) => {
   const values: { [key: string]: boolean } = {};
-
+  
   for (const logic of logics) {
-    const {
-      fieldId,
-      operator,
-      logicValue,
-      fieldValue,
-      validation,
-      type,
-      logicAction
-    } = logic;
+    const { fieldId, operator, logicValue, fieldValue, validation, type } = logic;
     const key = `${fieldId}_${logicValue}`;
     values[key] = false;
 
@@ -385,6 +376,7 @@ export const checkLogicFulfilled = (logics: LogicParams[]) => {
           values[key] = false;
         }
       }
+      
     }
 
     if (validation && validation.includes('date')) {
@@ -433,15 +425,6 @@ export const checkLogicFulfilled = (logics: LogicParams[]) => {
         }
       }
     }
-
-    if (
-      logicAction === 'tag' ||
-      logicAction === 'deal' ||
-      logicAction === 'task' ||
-      logicAction === 'ticket'
-    ) {
-      values[key] = true;
-    }
   }
 
   const result = [];
@@ -452,7 +435,7 @@ export const checkLogicFulfilled = (logics: LogicParams[]) => {
 
   if (result.filter(val => !val).length === 0) {
     return true;
-  }
+  } 
 
   return false;
-};
+}

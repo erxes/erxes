@@ -12,6 +12,14 @@ interface IFieldsDefaultColmns {
   [index: number]: { name: string; label: string; order: number } | {};
 }
 
+interface IFieldsQueryParams {
+  contentType: string;
+  contentTypeId: string;
+  isVisible: boolean;
+  boardId?: string;
+  pipelineId?: string;
+}
+
 export interface IFieldsQuery {
   contentType: string;
   contentTypeId?: string;
@@ -31,13 +39,7 @@ const fieldQueries = {
       isVisible,
       boardId,
       pipelineId
-    }: {
-      contentType: string;
-      contentTypeId: string;
-      isVisible: boolean;
-      boardId?: string;
-      pipelineId?: string;
-    }
+    }: IFieldsQueryParams
   ) {
     const query: IFieldsQuery = { contentType };
 

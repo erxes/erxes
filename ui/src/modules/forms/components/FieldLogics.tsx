@@ -1,5 +1,4 @@
 import Button from 'modules/common/components/Button';
-// import { FormControl, FormGroup } from 'modules/common/components/form';
 import Icon from 'modules/common/components/Icon';
 import Info from 'modules/common/components/Info';
 import { __ } from 'modules/common/utils';
@@ -25,12 +24,6 @@ type Props = {
   onPropertyChange: (selectedField: IField) => void;
 };
 
-// const showOptions = [
-//   { value: 'show', label: 'Show this field' },
-//   { value: 'hide', label: 'Hide this field' },
-//   { value: 'tag', label: 'Add a tag'}
-// ];
-
 function FieldLogics(props: Props) {
   const { fields, currentField, onFieldChange, type } = props;
 
@@ -49,9 +42,6 @@ function FieldLogics(props: Props) {
   useEffect(() => {
     onFieldChange('actions', actions);
   }, [actions, onFieldChange]);
-
-  // const onChangeLogicAction = e =>
-  //   onFieldChange('logicAction', e.currentTarget.value);
 
   const onChangeLogic = (name, value, index, isLogic: boolean) => {
     // find current editing one
@@ -153,7 +143,7 @@ function FieldLogics(props: Props) {
 
   const renderContent = () => {
     let enabled = false;
-    // const { logics = [], actions = [] } = currentField;
+
     const currentActions = currentField.actions || [];
     const currentLogics = currentField.logics || [];
 

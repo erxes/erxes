@@ -19,6 +19,32 @@ import { KIND_CHOICES } from '../db/models/definitions/constants';
 import './setup.ts';
 
 describe('fieldQueries', () => {
+  const fieldsQuery = `
+    query fields($contentTypeId: String $isVisible: Boolean $boardId: String $pipelineId: String) {
+      fields(contentType: $contentType contentTypeId: $contentTypeId isVisible: $isVisible boardId: $boardId pipelineId: $pipelineId) {
+        name
+        text
+        isVisible
+        _id
+        lastUpdatedUser {
+          _id
+        }
+        groupName
+        actions {
+          tagIds
+          pipelineId
+          boardId
+          stageId
+          itemId
+          itemName
+        }
+        associatedField {
+          _id
+         text
+       }
+      }
+    }`;
+
   afterEach(async () => {
     // Clearing test data
     await Fields.deleteMany({});
@@ -34,42 +60,22 @@ describe('fieldQueries', () => {
     await fieldFactory({ contentType: 'company' });
     await fieldFactory({ contentType: 'customer' });
 
-    const qry = `
-      query fields($contentType: String! $contentTypeId: String) {
-        fields(contentType: $contentType contentTypeId: $contentTypeId) {
-          name
-          _id
-          lastUpdatedUser {
-            _id
-          }
-          actions {
-            tagIds
-            pipelineId
-            boardId
-            stageId
-            itemId
-            itemName
-          }
-        }
-      }
-    `;
-
     // company ===================
-    let responses = await graphqlRequest(qry, 'fields', {
+    let responses = await graphqlRequest(fieldsQuery, 'fields', {
       contentType: 'company'
     });
 
     expect(responses.length).toBe(2);
 
     // customer ==================
-    responses = await graphqlRequest(qry, 'fields', {
+    responses = await graphqlRequest(fieldsQuery, 'fields', {
       contentType: 'customer'
     });
 
     expect(responses.length).toBe(2);
 
     // company with contentTypeId ===
-    responses = await graphqlRequest(qry, 'fields', {
+    responses = await graphqlRequest(fieldsQuery, 'fields', {
       contentType: 'company',
       contentTypeId
     });
@@ -77,7 +83,7 @@ describe('fieldQueries', () => {
     expect(responses.length).toBe(1);
 
     // customer with contentTypeId ===
-    responses = await graphqlRequest(qry, 'fields', {
+    responses = await graphqlRequest(fieldsQuery, 'fields', {
       contentType: 'customer',
       contentTypeId
     });
@@ -378,17 +384,7 @@ describe('fieldQueries', () => {
       isDefinedByErxes: false
     });
 
-    const qry = `
-   query fields($contentType: String! $contentTypeId: String, $isVisible: Boolean) {
-     fields(contentType: $contentType contentTypeId: $contentTypeId, isVisible: $isVisible) {
-       text
-       _id
-       isVisible
-     }
-   }
- `;
-
-    const responses = await graphqlRequest(qry, 'fields', {
+    const responses = await graphqlRequest(fieldsQuery, 'fields', {
       contentType: 'customer',
       isVisible: true
     });
@@ -418,29 +414,7 @@ describe('fieldQueries', () => {
       ]
     });
 
-    const qry = `
-    query fields($contentType: String! $contentTypeId: String, $isVisible: Boolean) {
-       fields(contentType: $contentType contentTypeId: $contentTypeId, isVisible: $isVisible) {
-         text
-        _id
-        isVisible
-        associatedField {
-           _id
-          text
-        }
-        actions {
-          tagIds
-          pipelineId
-          boardId
-          stageId
-          itemId
-          itemName
-        }
-      }
-    }
- `;
-
-    const responses = await graphqlRequest(qry, 'fields', {
+    const responses = await graphqlRequest(fieldsQuery, 'fields', {
       contentType: 'form',
       isVisible: true
     });
@@ -463,30 +437,7 @@ describe('fieldQueries', () => {
       groupId: (group && group._id) || ''
     });
 
-    const qry = `
-    query fields(
-      $contentType: String!
-      $contentTypeId: String
-      $isVisible: Boolean
-    ) {
-      fields(
-        contentType: $contentType
-        contentTypeId: $contentTypeId
-        isVisible: $isVisible
-      ) {
-        text
-        groupName
-        _id
-        isVisible
-        associatedField {
-          _id
-          text
-        }
-      }
-    }
- `;
-
-    const responses = await graphqlRequest(qry, 'fields', {
+    const responses = await graphqlRequest(fieldsQuery, 'fields', {
       contentType: 'form',
       isVisible: true
     });

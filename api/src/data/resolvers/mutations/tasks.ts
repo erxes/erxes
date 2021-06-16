@@ -18,14 +18,7 @@ import {
 interface ITasksEdit extends ITask {
   _id: string;
 }
-// doc: (IDeal | IItemCommonFields | ITicket | IGrowthHack) & {
-//   proccessId: string;
-//   aboveItemId: string;
-// },
-// type: string,
-// createModel: any,
-// user?: IUserDocument,
-// docModifier?: any
+
 const taskMutations = {
   /**
    * Creates a new task
