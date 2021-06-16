@@ -222,6 +222,11 @@ export const checkFieldNames = async (type: string, fields: string[]) => {
       property.type = 'categoryCode';
     }
 
+    if (fieldName === 'vendorCode') {
+      property.name = 'vendorCode';
+      property.type = 'vendorCode';
+    }
+
     if (!property.type) {
       throw new Error(`Bad column name ${fieldName}`);
     }
