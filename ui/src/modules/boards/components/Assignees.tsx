@@ -22,10 +22,9 @@ function Assignees(props: Props) {
   };
 
   const { users = [], limit = 3 } = props;
-
   return (
     <Wrapper>
-      {users.slice(0, limit).map(user => (
+      {users.filter(u=>u.isActive).slice(0, limit).map(user => (
         <img
           alt={getFullName(user)}
           title={getFullName(user)}
