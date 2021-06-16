@@ -84,6 +84,11 @@ const webhookMiddleware = async (req, res, next) => {
     // get or create customer
     let customer = await findCustomer(params);
 
+    // if (params.data) {
+    //   const data = await Fields.generateCustomFieldsData(params.data, 'customer');
+    //   customFieldsData =
+    // }
+
     const doc = {
       state: params.customerState,
       primaryEmail: params.customerPrimaryEmail,
