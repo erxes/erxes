@@ -284,21 +284,6 @@ class IntegrationListItem extends React.Component<Props, State> {
       case INTEGRATION_KINDS.CALLPRO:
         value = externalData.phoneNumber;
         break;
-      case INTEGRATION_KINDS.CHATFUEL:
-        value = (externalData.chatfuelConfigs || {}).toString();
-        break;
-      case INTEGRATION_KINDS.WHATSAPP:
-        value = externalData.whatsappToken;
-        break;
-      case INTEGRATION_KINDS.SMOOCH_TELEGRAM:
-        value = externalData.telegramBotToken;
-        break;
-      case INTEGRATION_KINDS.SMOOCH_VIBER:
-        value = externalData.viberBotToken;
-        break;
-      case INTEGRATION_KINDS.SMOOCH_LINE:
-        value = externalData.lineChannelId;
-        break;
       case INTEGRATION_KINDS.TELNYX:
         value = externalData.telnyxPhoneNumber;
         break;
