@@ -33,6 +33,7 @@ export type LogicParams = {
   operator: string;
   validation?: string;
   logicValue: FieldValue;
+  logicAction: string;
   fieldValue?: FieldValue;
   type?: string;
 };
