@@ -178,6 +178,7 @@ class Properties extends React.Component<
         <Dropdown.Menu>
           <ModalTrigger
             title={__('Add Group')}
+            size={size}
             trigger={addGroup}
             autoOpenKey={`showProperty${currentType}Modal`}
             content={groupContent}

@@ -3,7 +3,6 @@ import FormGroup from 'modules/common/components/form/Group';
 import ControlLabel from 'modules/common/components/form/Label';
 import { FlexItem } from 'modules/common/components/step/styles';
 import { __ } from 'modules/common/utils';
-import { MESSAGE_TYPES } from 'modules/engage/constants';
 import { CAMPAIGN_TARGET_TYPES } from 'modules/engage/constants';
 import { SelectMessageType } from 'modules/engage/styles';
 import React from 'react';
