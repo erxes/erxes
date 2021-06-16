@@ -13,11 +13,12 @@ import {
   IFormProps
 } from 'modules/common/types';
 import { IDiscussion } from '../../types';
-import DateSelector from '../../common/DateSelecter';
 import { ITag } from 'erxes-ui/lib/tags/types';
 import Select from 'react-select-plus';
 import Uploader from 'modules/common/components/Uploader';
 import Icon from 'modules/common/components/Icon';
+import DateControl from '../../common/DateControl';
+import { DateContainer } from '../../common/styles';
 
 type Props = {
   renderButton: (props: IButtonMutateProps) => JSX.Element;
@@ -83,12 +84,12 @@ class DiscussionForm extends React.Component<Props, State> {
     this.setState({ content: e.editor.getData() });
   };
 
-  onStartDateFieldsChange = (value: any) => {
-    this.setState({ startDate: value });
+  onStartDateFieldsChange = (startDate: any) => {
+    this.setState({ startDate });
   };
 
-  onCloseDateFieldChange = (value: any) => {
-    this.setState({ closeDate: value });
+  onCloseDateFieldChange = (closeDate: any) => {
+    this.setState({ closeDate });
   };
 
   onChangeTag = items => {
@@ -136,25 +137,35 @@ class DiscussionForm extends React.Component<Props, State> {
         <FlexContent>
           <FlexItem count={2}>
             <FormGroup>
-              <ControlLabel>{'Start date'}</ControlLabel>
-              <DateSelector
-                name={'Start Date'}
-                isComplete={object.isComplete}
-                date={startDate}
-                onChangeField={this.onStartDateFieldsChange}
-              />
+              <ControlLabel required={false}>Start Date</ControlLabel>
+              <DateContainer>
+                <DateControl
+                  {...formProps}
+                  required={false}
+                  name="startDate"
+                  placeholder={'Start Date'}
+                  value={startDate}
+                  onChange={this.onStartDateFieldsChange}
+                  timeFormat={true}
+                />
+              </DateContainer>
             </FormGroup>
           </FlexItem>
 
           <FlexItem count={2} hasSpace={true}>
             <FormGroup>
-              <ControlLabel>{'Close date'}</ControlLabel>
-              <DateSelector
-                name={'Close Date'}
-                isComplete={object.isComplete}
-                date={closeDate}
-                onChangeField={this.onCloseDateFieldChange}
-              />
+              <ControlLabel required={false}>Close Date</ControlLabel>
+              <DateContainer>
+                <DateControl
+                  {...formProps}
+                  required={false}
+                  name="closeDate"
+                  placeholder={'Close Date'}
+                  value={closeDate}
+                  onChange={this.onCloseDateFieldChange}
+                  timeFormat={true}
+                />
+              </DateContainer>
             </FormGroup>
           </FlexItem>
         </FlexContent>
