@@ -7,11 +7,17 @@ import FormGroup from 'modules/common/components/form/Group';
 import ControlLabel from 'modules/common/components/form/Label';
 import { ModalFooter } from 'modules/common/styles/main';
 import { FlexContent, FlexItem } from 'modules/layout/styles';
-import { IButtonMutateProps, IFormProps } from 'modules/common/types';
+import {
+  IAttachment,
+  IButtonMutateProps,
+  IFormProps
+} from 'modules/common/types';
 import { IDiscussion } from '../../types';
 import DateSelector from '../../common/DateSelecter';
 import { ITag } from 'erxes-ui/lib/tags/types';
 import Select from 'react-select-plus';
+import Uploader from 'modules/common/components/Uploader';
+import Icon from 'modules/common/components/Icon';
 
 type Props = {
   renderButton: (props: IButtonMutateProps) => JSX.Element;
@@ -27,6 +33,7 @@ type State = {
   startDate: Date;
   closeDate: Date;
   tagIds: string[];
+  attachments?: IAttachment[];
 };
 class DiscussionForm extends React.Component<Props, State> {
   constructor(props: Props) {
@@ -38,7 +45,8 @@ class DiscussionForm extends React.Component<Props, State> {
       content: discussion.content,
       startDate: discussion.startDate,
       closeDate: discussion.closeDate,
-      tagIds: discussion.tagIds
+      tagIds: discussion.tagIds,
+      attachments: discussion.attachments
     };
   }
   generateDoc = (values: {
@@ -48,7 +56,7 @@ class DiscussionForm extends React.Component<Props, State> {
     status: string;
   }) => {
     const { currentTopicId, discussion, forumId } = this.props;
-    const { content, startDate, closeDate, tagIds } = this.state;
+    const { content, startDate, closeDate, tagIds, attachments } = this.state;
     const finalValues = values;
 
     if (discussion) {
@@ -66,7 +74,8 @@ class DiscussionForm extends React.Component<Props, State> {
       status: finalValues.status,
       startDate,
       closeDate,
-      tagIds
+      tagIds,
+      attachments
     };
   };
 
@@ -95,9 +104,11 @@ class DiscussionForm extends React.Component<Props, State> {
     });
   };
 
+  onChangeAttachment = files => this.setState({ attachments: files });
+
   renderContent = (formProps: IFormProps) => {
     const { closeModal, renderButton, discussion, tags } = this.props;
-    const { content, startDate, closeDate, tagIds } = this.state;
+    const { content, startDate, closeDate, tagIds, attachments } = this.state;
     const { values, isSubmitted } = formProps;
     const object = discussion || ({} as IDiscussion);
 
@@ -182,6 +193,18 @@ class DiscussionForm extends React.Component<Props, State> {
             </FormGroup>
           </FlexItem>
         </FlexContent>
+
+        <FormGroup>
+          <ControlLabel>
+            <Icon icon="paperclip" />
+            {'Attachments'}
+          </ControlLabel>
+
+          <Uploader
+            defaultFileList={attachments || []}
+            onChange={this.onChangeAttachment}
+          />
+        </FormGroup>
 
         <FormGroup>
           <ControlLabel required={true}>{'Content'}</ControlLabel>

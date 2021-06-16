@@ -44,6 +44,9 @@ const discussionFields = `
     closeDate
     isComplete
     tagIds   
+
+    attachments
+
     
     getTags {
         _id

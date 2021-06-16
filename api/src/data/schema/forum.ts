@@ -46,6 +46,9 @@ export const types = `
         closeDate: Date
         isComplete: Boolean
         getTags: [Tag]
+
+        attachments: [JSON]
+
     }
 
 
@@ -106,6 +109,8 @@ const discussionMutationParams = `
     closeDate: Date
     isComplete: Boolean
     tagIds: [String]
+
+    attachments: [JSON]
 `;
 
 const commentMutationParams = `

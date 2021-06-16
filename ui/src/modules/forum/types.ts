@@ -1,4 +1,4 @@
-import { QueryResponse } from 'modules/common/types';
+import { IAttachment, QueryResponse } from 'modules/common/types';
 import { IUser } from 'modules/auth/types';
 import { IBrand } from 'modules/settings/brands/types';
 import { ICustomer } from 'erxes-ui/lib/customers/types';
@@ -53,6 +53,7 @@ export interface IDiscussion {
   isComplete: boolean;
   tagIds: string[];
   getTags: ITag[];
+  attachments?: IAttachment[];
 }
 
 export interface IComment {

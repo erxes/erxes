@@ -37,6 +37,7 @@ const forumDiscussionParamsDef = `
     $closeDate: Date
     $isComplete: Boolean
     $tagIds: [String]
+    $attachments: [JSON]
 `;
 
 const forumDiscussionParamsVal = `
@@ -50,6 +51,7 @@ const forumDiscussionParamsVal = `
     closeDate: $closeDate
     isComplete: $isComplete
     tagIds: $tagIds
+    attachments: $attachments
 `;
 
 const forumsAdd = `

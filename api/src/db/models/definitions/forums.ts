@@ -65,6 +65,16 @@ export interface ICommentLikeDocument
     Document {
   _id: string;
 }
+
+export const attachmentSchema = new Schema(
+  {
+    name: field({ type: String }),
+    url: field({ type: String }),
+    type: field({ type: String }),
+    size: field({ type: Number, optional: true })
+  },
+  { _id: false }
+);
 // Mongoose schemas ==================
 
 // Schema for common fields
@@ -114,6 +124,8 @@ export const discussionSchema = new Schema({
   startDate: field({ type: Date, label: 'Start Date' }),
   closeDate: field({ type: Date, label: 'Close Date' }),
   isComplete: field({ type: Boolean, label: 'Complete' }),
+  attachments: field({ type: [attachmentSchema], label: 'Attachments' }),
+
   ...commonFields
 });
 
