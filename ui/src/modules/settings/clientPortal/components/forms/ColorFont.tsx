@@ -9,12 +9,7 @@ import TwitterPicker from 'react-color/lib/Twitter';
 import Select from 'react-select-plus';
 import { COLORS, FONTS } from '../../constants';
 import { Styles } from '../../types';
-import {
-  ColorPickerWrap,
-  SelectWrap,
-  ColorChooserTile,
-  LastColorPicker
-} from '../../styles';
+import { ColorPickerWrap, SelectWrap, ColorChooserTile } from '../../styles';
 
 type Props = {
   styles?: Styles;
@@ -139,13 +134,11 @@ function ColorFont({ styles = {}, handleFormChange }: Props) {
               name: 'footerColor',
               value: footerColor
             })}
-            <LastColorPicker>
-              {renderColor({
-                label: 'Help Center',
-                name: 'helpColor',
-                value: helpColor
-              })}
-            </LastColorPicker>
+            {renderColor({
+              label: 'Help Center',
+              name: 'helpColor',
+              value: helpColor
+            })}
           </ColorPickerWrap>
         </FlexContent>
       </FormGroup>
@@ -158,13 +151,11 @@ function ColorFont({ styles = {}, handleFormChange }: Props) {
               name: 'backgroundColor',
               value: backgroundColor
             })}
-            <LastColorPicker>
-              {renderColor({
-                label: 'Active tab',
-                name: 'activeTabColor',
-                value: activeTabColor
-              })}
-            </LastColorPicker>
+            {renderColor({
+              label: 'Active tab',
+              name: 'activeTabColor',
+              value: activeTabColor
+            })}
           </ColorPickerWrap>
         </FlexContent>
       </FormGroup>
@@ -178,13 +169,11 @@ function ColorFont({ styles = {}, handleFormChange }: Props) {
           })}
         </SelectWrap>
         <ColorPickerWrap>
-          <LastColorPicker>
-            {renderColor({
-              label: 'Base Color',
-              name: 'baseColor',
-              value: baseColor
-            })}
-          </LastColorPicker>
+          {renderColor({
+            label: 'Base Color',
+            name: 'baseColor',
+            value: baseColor
+          })}
         </ColorPickerWrap>
         <SelectWrap>
           {renderSelect({
@@ -194,13 +183,11 @@ function ColorFont({ styles = {}, handleFormChange }: Props) {
           })}
         </SelectWrap>
         <ColorPickerWrap>
-          <LastColorPicker>
-            {renderColor({
-              label: 'Heading Color',
-              name: 'headingColor',
-              value: headingColor
-            })}
-          </LastColorPicker>
+          {renderColor({
+            label: 'Heading Color',
+            name: 'headingColor',
+            value: headingColor
+          })}
         </ColorPickerWrap>
       </FormGroup>
       <FormGroup>
@@ -212,13 +199,11 @@ function ColorFont({ styles = {}, handleFormChange }: Props) {
               name: 'linkColor',
               value: linkColor
             })}
-            <LastColorPicker>
-              {renderColor({
-                label: 'Link hover text',
-                name: 'linkHoverColor',
-                value: linkHoverColor
-              })}
-            </LastColorPicker>
+            {renderColor({
+              label: 'Link hover text',
+              name: 'linkHoverColor',
+              value: linkHoverColor
+            })}
           </ColorPickerWrap>
         </FlexContent>
       </FormGroup>
@@ -227,22 +212,20 @@ function ColorFont({ styles = {}, handleFormChange }: Props) {
         <FlexContent>
           <ColorPickerWrap>
             {renderColor({
-              label: 'Heading divider & Input focus glow',
-              name: 'dividerColor',
-              value: dividerColor
-            })}
-            {renderColor({
               label: 'Primary action button',
               name: 'primaryBtnColor',
               value: primaryBtnColor
             })}
-            <LastColorPicker>
-              {renderColor({
-                label: 'Secondary action button',
-                name: 'secondaryBtnColor',
-                value: secondaryBtnColor
-              })}
-            </LastColorPicker>
+            {renderColor({
+              label: 'Secondary action button',
+              name: 'secondaryBtnColor',
+              value: secondaryBtnColor
+            })}
+            {renderColor({
+              label: 'Heading divider & Input focus glow',
+              name: 'dividerColor',
+              value: dividerColor
+            })}
           </ColorPickerWrap>
         </FlexContent>
       </FormGroup>

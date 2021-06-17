@@ -65,14 +65,12 @@ export const TitleWrap = styled.div`
 export const CheckCircleWrap = styled.div`
   display: flex;
 
-  div:first-child(
-    button {
+  > div {
+    margin-bottom: 0px;
+
+    &:first-child button {
       padding-left: 0px;
     }
-  )
-
-  div {
-    margin-bottom: 0px;
   }
 `;
 
@@ -98,12 +96,14 @@ export const ColorPickerWrap = styled.div`
   display: flex;
   margin-top: 10px;
 
-  >div{
+  > div {
     margin-bottom: 0px;
+    padding-right: ${dimensions.coreSpacing}px;
   }
 
-  >div{
-    padding-right: ${dimensions.coreSpacing}px;
+  > div:last-child {
+    padding-right: 0px;
+  }
 `;
 
 export const Wrap = styled.div`
