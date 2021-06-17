@@ -14,7 +14,8 @@ import React, { useState } from 'react';
 import { OverlayTrigger, Popover } from 'react-bootstrap';
 import Select from 'react-select-plus';
 import { ClientPortalConfig } from '../../types';
-import { Half, Full, SelectsWrap, IconWrap } from '../../styles';
+import { FlexRow, SelectsWrap, IconWrap } from '../../styles';
+import { Half } from 'modules/engage/styles';
 
 type Props = {
   topics: ITopic[];
@@ -270,7 +271,7 @@ function General({
       </FlexContent>
 
       <FlexContent>
-        <Full>
+        <FlexRow>
           <Half>
             {renderControl({
               label: 'Knowledge Base',
@@ -293,7 +294,7 @@ function General({
               />
             </FormGroup>
           </Half>
-        </Full>
+        </FlexRow>
       </FlexContent>
 
       {renderControl({
