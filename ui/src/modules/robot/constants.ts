@@ -1,5 +1,7 @@
 import colors from 'modules/common/styles/colors';
 
+export const PLACEHOLDER = 'Choose one';
+
 export const FEATURE_DETAILS = {
   growthHacks: {
     text: 'Growth hacking',
@@ -299,8 +301,6 @@ export const FEATURES = [
   }
 ];
 
-export const PLACEHOLDER = 'Choose one';
-
 export const ROLE_VALUE = [
   { _id: 'one', name: "I've never used CAM or business ... before." },
   { _id: 'two', name: "I'm ... to erxes but I've used a CAM before." },
@@ -333,6 +333,7 @@ export const ROLE_SETUP = [
       },
       {
         name: 'Create your brands and channels',
+        value: 'channelBrands',
         steps: '2 steps',
         types: [
           'sales',
@@ -511,8 +512,9 @@ export const ROLE_SETUP = [
     ]
   }
 ];
+
 export const ROLE_SETUP_DETAILS = {
-  ChannelBrands: {
+  channelBrands: {
     text: 'Channel and Brands',
     description:
       'Setting your general configuration adjusts the basic fundamental features on our platform.',

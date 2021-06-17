@@ -1,6 +1,6 @@
 import CollapseContent from 'modules/common/components/CollapseContent';
 import { __ } from 'modules/common/utils';
-import { ROLE_SETUP } from 'modules/robot/constants';
+import { ROLE_SETUP, ROLE_SETUP_DETAILS } from 'modules/robot/constants';
 import { IFeature, IRoleValue } from 'modules/robot/types';
 import ProgressBar from 'modules/common/components/ProgressBar';
 import React from 'react';
@@ -57,14 +57,23 @@ type Props = {
   toggleContent: (isShow: boolean) => void;
 };
 
-type State = { selectedOptions?: IFeature; showComplete: boolean };
+type State = { selectedOption: IFeature; showComplete: boolean };
 
 class Setup extends React.Component<Props, State> {
   constructor(props) {
     super(props);
 
-    this.state = { selectedOptions: undefined, showComplete: true };
+    this.state = { selectedOption: {} as IFeature, showComplete: true };
   }
+
+  onRoleClick = (value?: string) => {
+    this.setState(
+      { selectedOption: value ? ROLE_SETUP_DETAILS[value] : {} },
+      () => {
+        this.props.changeRoute('setupDetail');
+      }
+    );
+  };
 
   withHeader = (content: React.ReactNode) => {
     const { changeRoute, currentRoute, toggleContent } = this.props;
@@ -119,14 +128,8 @@ class Setup extends React.Component<Props, State> {
     );
   };
 
-  renderSetup(roleOption?: IFeature) {
-    const { changeRoute, roleValue } = this.props;
-
-    const onClick = () => {
-      this.setState({ selectedOptions: roleOption }, () => {
-        changeRoute('setupDetail');
-      });
-    };
+  renderSetup() {
+    const { roleValue } = this.props;
 
     return (
       <SetupList>
@@ -139,12 +142,16 @@ class Setup extends React.Component<Props, State> {
             {group.content.map((content, index) => {
               if (content.types.includes(roleValue.value)) {
                 return (
-                  <Text key={index} onClick={onClick}>
+                  <Text
+                    key={index}
+                    onClick={this.onRoleClick.bind(this, content.value)}
+                  >
                     <h6>{content.name}</h6>
                     <p>{content.steps}</p>
                   </Text>
                 );
               }
+
               return null;
             })}
           </CollapseContent>
@@ -154,12 +161,12 @@ class Setup extends React.Component<Props, State> {
   }
 
   renderContent() {
-    const { selectedOptions } = this.state;
+    const { selectedOption } = this.state;
     const { currentRoute, currentUser, roleValue } = this.props;
-
+    console.log(selectedOption);
     if (currentRoute === 'setupDetail') {
       return this.withHeader(
-        selectedOptions && <SetupDetail feature={selectedOptions} />
+        selectedOption && <SetupDetail feature={selectedOption} />
       );
     }
 
