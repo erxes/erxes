@@ -23,6 +23,7 @@ export const Circle = styledTS<{ active: boolean }>(styled.div)`
 export const FlexRow = styled.div`
   flex: 1;
   display: flex;
+  align-items: baseline;
 
   > div:first-child {
     padding-right: ${dimensions.coreSpacing}px;
@@ -78,7 +79,6 @@ export const LastColorPicker = styled.div`
 
 export const ColorPickerWrap = styled.div`
   display: flex;
-  flex: 1;
   margin-top: ${dimensions.unitSpacing}px;
 
   > div{
@@ -100,6 +100,8 @@ export const SelectWrap = styled.div`
   flex: 1;
 
   > div:first-child {
+    margin-bottom: 0;
+
     label {
       font-size: 12px;
       text-transform: capitalize;
