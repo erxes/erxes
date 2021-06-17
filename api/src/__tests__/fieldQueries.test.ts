@@ -20,7 +20,7 @@ import './setup.ts';
 
 describe('fieldQueries', () => {
   const fieldsQuery = `
-    query fields($contentTypeId: String $isVisible: Boolean $boardId: String $pipelineId: String) {
+    query fields($contentType: String! $contentTypeId: String $isVisible: Boolean $boardId: String $pipelineId: String) {
       fields(contentType: $contentType contentTypeId: $contentTypeId isVisible: $isVisible boardId: $boardId pipelineId: $pipelineId) {
         name
         text
