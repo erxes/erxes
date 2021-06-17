@@ -165,6 +165,7 @@ function ColorFont({ styles = {}, handleFormChange }: Props) {
         </FlexContent>
       </FormGroup>
       <FormGroup>
+        <ControlLabel>Portal fonts</ControlLabel>
         <FlexRow>
           <ColorPickerWrap>
             {renderColor({

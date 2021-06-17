@@ -78,9 +78,12 @@ export const LastColorPicker = styled.div`
 
 export const ColorPickerWrap = styled.div`
   display: flex;
+  flex: 1;
+  margin-top: ${dimensions.unitSpacing}px;
 
   > div{
-    padding-right: ${dimensions.coreSpacing}px;
+    padding-right: ${dimensions.coreSpacing + dimensions.unitSpacing}px;
+    margin-bottom: 0;
 `;
 
 export const Wrap = styled.div`
