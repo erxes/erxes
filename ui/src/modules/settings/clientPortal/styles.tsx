@@ -39,12 +39,10 @@ export const ButtonWrap = styled.div`
   text-align: right;
 `;
 
-export const TitleWrap = styled.div`
-  h2 {
-    font-size: 16px;
-    padding-bottom: ${dimensions.unitSpacing}px;
-    border-bottom: 1px dotted ${colors.borderDarker};
-  }
+export const Title = styled.h2`
+  font-size: 16px;
+  padding-bottom: ${dimensions.unitSpacing}px;
+  border-bottom: 1px dotted ${colors.borderDarker};
 `;
 
 export const CheckCircleWrap = styled.div`
@@ -68,6 +66,7 @@ export const TexWrapAdvanced = styled.div`
   text-transform: capitalize;
   color: ${colors.textPrimary} !important;
 `;
+
 export const ButtonsWrap = styled.div`
   display: flex;
   align-items: center;
@@ -80,14 +79,8 @@ export const LastColorPicker = styled.div`
 export const ColorPickerWrap = styled.div`
   display: flex;
 
-  > div {
-    margin-bottom: 0px;
+  > div{
     padding-right: ${dimensions.coreSpacing}px;
-  }
-
-  > div:last-child {
-    padding-right: 0px;
-  }
 `;
 
 export const Wrap = styled.div`

@@ -6,9 +6,9 @@ import React, { useState } from 'react';
 import {
   Circle,
   CheckCircleWrap,
-  TitleWrap,
   ButtonsWrap,
-  TexWrapAdvanced
+  TexWrapAdvanced,
+  Title
 } from '../../styles';
 import { AdvancedSettings } from '../../types';
 
@@ -66,11 +66,9 @@ function Advanced({ advanced = {}, handleFormChange }: Props) {
   ) {
     return (
       <FormGroup>
-        <TitleWrap>
-          {title && <h2>{title}</h2>}
-          <ControlLabel>{desciption}</ControlLabel>
-          {content}
-        </TitleWrap>
+        {title && <Title>{title}</Title>}
+        <ControlLabel>{desciption}</ControlLabel>
+        {content}
       </FormGroup>
     );
   }
