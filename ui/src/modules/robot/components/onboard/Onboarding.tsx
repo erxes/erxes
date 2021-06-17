@@ -1,11 +1,13 @@
 import Button from 'modules/common/components/Button';
 import CommonPortal from 'modules/common/components/CommonPortal';
 import Icon from 'modules/common/components/Icon';
+import { IRoleValue } from 'modules/robot/types';
 import * as React from 'react';
 import styled from 'styled-components';
 import { BackDrop } from '../styles';
-import Customization from './Customization';
+/* import Customization from './Customization'; */
 import Indicator from './Indicator';
+import Roles from './Roles';
 import Welcome from './Welcome';
 
 const Wrapper = styled.div`
@@ -37,6 +39,7 @@ const ButtonWrapper = styled.div`
 `;
 
 type Props = {
+  getRoleOptions: (roleValue: IRoleValue) => void;
   onClick?: () => void;
   currentUserName: string;
   changeRoute: (route: string) => void;
@@ -94,9 +97,10 @@ class Onboarding extends React.PureComponent<Props, State> {
     }
 
     return (
-      <Customization
-        changeRoute={this.props.changeRoute}
+      <Roles
+        getRoleOptions={this.props.getRoleOptions}
         renderButton={this.renderButton}
+        changeRoute={this.props.changeRoute}
       />
     );
   };

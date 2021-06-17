@@ -159,7 +159,9 @@ class Todo extends React.Component<Props, State> {
 
     if (currentRoute === 'todoDetail') {
       return this.withHeader(
-        selectedFeature && <TodoDetail feature={selectedFeature} />
+        selectedFeature && (
+          <TodoDetail feature={selectedFeature} currentRoute={currentRoute} />
+        )
       );
     }
 

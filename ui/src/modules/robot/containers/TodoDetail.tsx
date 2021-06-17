@@ -15,6 +15,7 @@ import {
 
 type Props = {
   feature: IFeature;
+  currentRoute?: string;
 };
 
 type FinalProps = Props &
@@ -38,12 +39,11 @@ class TodoDetailContainer extends React.Component<FinalProps> {
 
   completeShowStep = () => {
     const { completeShowStepMutation, feature } = this.props;
-
     completeShowStepMutation({ variables: { step: `${feature.name}Show` } });
   };
 
   render() {
-    const { stepsCompletenessQuery } = this.props;
+    const { stepsCompletenessQuery, currentRoute } = this.props;
 
     const updatedProps = {
       ...this.props,
@@ -52,7 +52,15 @@ class TodoDetailContainer extends React.Component<FinalProps> {
         stepsCompletenessQuery.onboardingStepsCompleteness || {}
     };
 
-    return <TodoDetail {...updatedProps} />;
+    if (currentRoute === 'todoDetail') {
+      return <TodoDetail {...updatedProps} />;
+    }
+
+    /* if (currentRoute === "setupDetail") {
+      return <SetupDetail {...updatedProps} />;
+    } */
+
+    return null;
   }
 }
 

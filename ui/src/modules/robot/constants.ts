@@ -298,3 +298,225 @@ export const FEATURES = [
     key: 'tasks'
   }
 ];
+
+export const PLACEHOLDER = 'Choose one';
+
+export const ROLE_VALUE = [
+  { _id: 'one', name: "I've never used CAM or business ... before." },
+  { _id: 'two', name: "I'm ... to erxes but I've used a CAM before." },
+  { _id: 'three', name: 'I know my way around erxes pretty well.' }
+];
+
+export const ROLE_OPTIONS = [
+  { _id: 'sales', name: 'Sales' },
+  { _id: 'marketing', name: 'Marketing' },
+  { _id: 'customerSupport', name: 'Customer Support' },
+  { _id: 'managementAndOperations', name: 'Management and Operations' },
+  { _id: 'above', name: 'All of the above' }
+];
+
+export const ROLE_SETUP = [
+  {
+    title: 'Options',
+    key: 'options',
+    content: [
+      {
+        name: 'Set your general settings',
+        steps: '2 steps',
+        types: [
+          'sales',
+          'marketing',
+          'customerSupport',
+          'managementAndOperations',
+          'above'
+        ]
+      },
+      {
+        name: 'Create your brands and channels',
+        steps: '2 steps',
+        types: [
+          'sales',
+          'marketing',
+          'customerSupport',
+          'managementAndOperations',
+          'above'
+        ]
+      },
+      {
+        name: 'Integrate other apps into erxes',
+        steps: '1 steps',
+        types: [
+          'sales',
+          'marketing',
+          'customerSupport',
+          'managementAndOperations',
+          'above'
+        ]
+      },
+      {
+        name: 'Customize your erxes database',
+        steps: '3 steps',
+        types: [
+          'sales',
+          'marketing',
+          'customerSupport',
+          'managementAndOperations',
+          'above'
+        ]
+      }
+    ]
+  },
+  {
+    title: 'Operational',
+    key: 'operational',
+    content: [
+      {
+        name: 'Import your existing contacts',
+        steps: '3 steps',
+        types: ['sales', 'marketing']
+      },
+      {
+        name: 'Customize your Sales Pipeline',
+        steps: '3 steps',
+        types: ['sales', 'above']
+      },
+      {
+        name: 'Invite your team members',
+        steps: '3 steps',
+        types: [
+          'sales',
+          'marketing',
+          'customerSupport',
+          'managementAndOperations',
+          'above'
+        ]
+      },
+      {
+        name: 'Add your product and services',
+        steps: '3 steps',
+        types: ['sales', 'above']
+      },
+      {
+        name: 'Install erxes widgets',
+        steps: '3 steps',
+        types: ['sales', 'marketing', 'customerSupport', 'above']
+      },
+      {
+        name: 'Create your lead generation Forms',
+        steps: '4 steps',
+        types: ['marketing']
+      },
+      {
+        name: 'Create your Knowledge Base',
+        steps: '5 steps',
+        types: ['customerSupport', 'managementAndOperations']
+      },
+      {
+        name: 'Plan your content with Tasks',
+        steps: '6 steps',
+        types: ['marketing']
+      },
+      {
+        name: 'Customize your Tickets',
+        steps: '7 steps',
+        types: ['customerSupport', 'managementAndOperations', 'above']
+      },
+      {
+        name: 'Customize your Tasks',
+        steps: '8 steps',
+        types: ['customerSupport', 'managementAndOperations', 'above']
+      },
+      {
+        name: 'Import your existing customer data to erxes',
+        steps: '7 steps',
+        types: ['above']
+      },
+      {
+        name: 'Create your Forms',
+        steps: '7 steps',
+        types: ['above']
+      },
+      {
+        name: 'Customize your Knowledge Base',
+        steps: '7 steps',
+        types: ['above']
+      }
+    ]
+  },
+  {
+    title: 'On-going',
+    key: 'on-going',
+    content: [
+      {
+        name: 'Segment your contacts',
+        steps: '1 steps',
+        types: ['sales', 'marketing', 'above']
+      },
+      {
+        name: 'Prepare content templates',
+        steps: '2 steps',
+        types: ['sales', 'customerSupport', 'managementAndOperations', 'above']
+      },
+      {
+        name: 'Automate your sales with Campaigns',
+        steps: '3 steps',
+        types: ['sales']
+      },
+      {
+        name: 'Customize your Reports',
+        steps: '4 steps',
+        types: [
+          'sales',
+          'marketing',
+          'customerSupport',
+          'managementAndOperations',
+          'above'
+        ]
+      },
+      {
+        name: 'Customize your Growth Hacking',
+        steps: '5 steps',
+        types: ['marketing', 'above']
+      },
+      {
+        name: 'Customize your customer segmentation',
+        steps: '6 steps',
+        types: ['marketing']
+      },
+      {
+        name: 'Prepare the email/response templates',
+        steps: '7 steps',
+        types: ['marketing']
+      },
+      {
+        name: 'Automate your lead generation with Campaigns',
+        steps: '8 steps',
+        types: ['marketing']
+      },
+      {
+        name: 'Automate your customer support process',
+        steps: '9 steps',
+        types: ['customerSupport']
+      },
+      {
+        name: 'Automate your operational process',
+        steps: '10 steps',
+        types: ['managementAndOperations']
+      },
+      {
+        name: 'Automate with Campaigns',
+        steps: '11 steps',
+        types: ['above']
+      }
+    ]
+  }
+];
+export const ROLE_SETUP_DETAILS = {
+  CreateBrandandChannels: {
+    text: 'Channel and Brands',
+    purpose:
+      'Setting your general configuration adjusts the basic fundamental features on our platform.',
+    videoUrl: 'https://www.youtube.com/embed/Z5KI5YuvZ7U?autoplay=1',
+    videoThumb: 'https://img.youtube.com/vi/Z5KI5YuvZ7U/mqdefault.jpg'
+  }
+};

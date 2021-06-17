@@ -1,9 +1,11 @@
 import { IUser } from 'modules/auth/types';
 import React from 'react';
 import RTG from 'react-transition-group';
-import { IFeature } from '../types';
+import { IFeature, IRoleValue } from '../types';
 import { getCurrentUserName } from '../utils';
 import Onboarding from './onboard/Onboarding';
+import Setup from './onboard/Setup';
+import SetupDetail from './onboard/SetupDetail';
 import { Content } from './styles';
 import Suggestion from './Suggestion';
 import Todo from './Todo';
@@ -21,13 +23,14 @@ type Props = {
 
 type State = {
   welcomeStep: number;
+  roleValue: IRoleValue;
 };
 
 class AssistantContent extends React.Component<Props, State> {
   constructor(props) {
     super(props);
 
-    this.state = { welcomeStep: 0 };
+    this.state = { welcomeStep: 0, roleValue: {} as IRoleValue };
   }
 
   restartOnboard = () => {
@@ -55,8 +58,13 @@ class AssistantContent extends React.Component<Props, State> {
       changeRoute('todoList');
     };
 
+    const getRoleOptions = (roleValue: IRoleValue) => {
+      this.setState({ roleValue });
+    };
+
     const onBoarding = (
       <Onboarding
+        getRoleOptions={getRoleOptions}
         currentUserName={getCurrentUserName(currentUser)}
         changeRoute={changeRoute}
         activeStep={this.state.welcomeStep}
@@ -77,6 +85,14 @@ class AssistantContent extends React.Component<Props, State> {
 
     if (currentRoute === 'todoList' || currentRoute === 'todoDetail') {
       return <Todo {...this.props} restartOnboard={this.restartOnboard} />;
+    }
+
+    if (currentRoute === 'setupList') {
+      return <Setup {...this.props} roleValue={this.state.roleValue} />;
+    }
+
+    if (currentRoute === 'setupDetail') {
+      return <SetupDetail {...this.props} />;
     }
 
     return null;

@@ -4,7 +4,7 @@ import styled from 'styled-components';
 import styledTS from 'styled-components-ts';
 
 const SubContent = styled.div`
-  padding: 0 16px;
+  padding: 0px;
 
   p {
     font-size: 12px;
@@ -151,6 +151,34 @@ const ProgressText = styled.div`
   font-size: 12px;
 `;
 
+const Container = styled.div`
+  width: 280px;
+  p {
+    margin-top: 20px;
+  }
+`;
+
+const SetupList = styled.div`
+  div {
+    border-radius: ${dimensions.unitSpacing}px;
+    a {
+      padding: 10px;
+      h4 {
+        font-size: 16px;
+      }
+    }
+    div {
+      div {
+        padding: 0px;
+        div {
+          border-radius: 0px;
+          padding: 10px;
+        }
+      }
+    }
+  }
+`;
+
 export {
   Bot,
   Greeting,
@@ -164,5 +192,7 @@ export {
   CompletedTaskWrapper,
   CompletedTaskName,
   ProgressText,
-  RestartButton
+  RestartButton,
+  Container,
+  SetupList
 };
