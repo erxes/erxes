@@ -1,18 +1,7 @@
 import colors from 'erxes-ui/lib/styles/colors';
 import { dimensions } from 'modules/common/styles';
-import { FlexContent } from 'modules/layout/styles';
 import styled from 'styled-components';
 import styledTS from 'styled-components-ts';
-
-export const Domain = styled(FlexContent)`
-  align-items: flex-end;
-
-  span {
-    font-size: 14px;
-    font-weight: 500;
-    flex: initial;
-  }
-`;
 
 export const StyledUrl = styled.div`
   color: ${colors.colorCoreGray};
@@ -31,17 +20,13 @@ export const Circle = styledTS<{ active: boolean }>(styled.div)`
   border: 2px ${colors.borderPrimary} solid;
 `;
 
-export const Full = styled.div`
-  width: 100%;
+export const FlexRow = styled.div`
+  flex: 1;
   display: flex;
 
   > div:first-child {
     padding-right: ${dimensions.coreSpacing}px;
   }
-`;
-
-export const Half = styled.div`
-  width: 50%;
 `;
 
 export const SelectsWrap = styled.div`
@@ -65,14 +50,12 @@ export const TitleWrap = styled.div`
 export const CheckCircleWrap = styled.div`
   display: flex;
 
-  div:first-child(
-    button {
-      padding-left: 0px;
-    }
-  )
-
-  div {
+  > div {
     margin-bottom: 0px;
+
+    &:first-child button {
+      padding-left 0px
+    }
   }
 `;
 

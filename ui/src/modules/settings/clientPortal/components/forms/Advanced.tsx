@@ -100,6 +100,7 @@ function Advanced({ advanced = {}, handleFormChange }: Props) {
           </CheckCircleWrap>
         </FlexContent>
       )}
+
       {renderContent(
         'User Permissions for portal',
         'Who can submit a new ticket on portal',
@@ -118,6 +119,7 @@ function Advanced({ advanced = {}, handleFormChange }: Props) {
           </CheckCircleWrap>
         </FlexContent>
       )}
+
       {renderContent(
         '',
         'Who can view tickets on portal',
