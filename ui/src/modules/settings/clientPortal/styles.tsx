@@ -31,7 +31,7 @@ export const FlexRow = styled.div`
 
 export const SelectsWrap = styled.div`
   > div:first-child {
-    padding-bottom: 20px;
+    padding-bottom: ${dimensions.coreSpacing}px;
   }
 `;
 
@@ -52,13 +52,13 @@ export const CheckCircleWrap = styled.div`
     margin-bottom: 0px;
 
     &:first-child button {
-      padding-left 0px;
+      padding-left: 0px;
     }
   }
 `;
 
 export const ColorChooserTile = styled.div`
-  margin-bottom: 5px;
+  margin-bottom: ${dimensions.unitSpacing - 5}px;
   font-size: 12px;
 `;
 
@@ -86,10 +86,10 @@ export const ColorPickerWrap = styled.div`
 export const Wrap = styled.div`
   display: flex;
   align-items: center;
-  margin-bottom: 10px;
+  margin-bottom: ${dimensions.unitSpacing}px;
 
   label {
-    margin-right: 10px;
+    margin-right: ${dimensions.unitSpacing}px;
   }
 `;
 
