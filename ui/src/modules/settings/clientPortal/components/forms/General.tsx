@@ -14,7 +14,7 @@ import React, { useState } from 'react';
 import { OverlayTrigger, Popover } from 'react-bootstrap';
 import Select from 'react-select-plus';
 import { ClientPortalConfig } from '../../types';
-import { Half, Full, SelectsWrap } from '../../styles';
+import { Half, Full, SelectsWrap, IconWrap } from '../../styles';
 
 type Props = {
   topics: ITopic[];
@@ -165,7 +165,9 @@ function General({
               })}
               rootClose={true}
             >
-              <Icon icon="cog" size={24} />
+              <IconWrap>
+                <Icon icon="cog" size={24} />
+              </IconWrap>
             </OverlayTrigger>
           )}
         </FlexContent>

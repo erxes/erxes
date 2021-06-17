@@ -12,7 +12,7 @@ import { Styles } from '../../types';
 import {
   ColorPickerWrap,
   SelectWrap,
-  TextWrapColor,
+  ColorChooserTile,
   LastColorPicker
 } from '../../styles';
 
@@ -89,9 +89,7 @@ function ColorFont({ styles = {}, handleFormChange }: Props) {
 
     return (
       <FormGroup>
-        <ControlLabel>
-          <TextWrapColor>{label}</TextWrapColor>
-        </ControlLabel>
+        <ColorChooserTile>{label}</ColorChooserTile>
         <div>
           <OverlayTrigger
             trigger="click"

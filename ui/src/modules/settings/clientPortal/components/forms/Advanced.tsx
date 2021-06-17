@@ -8,7 +8,6 @@ import {
   CheckCircleWrap,
   TitleWrap,
   ButtonsWrap,
-  FirstCheckCircle,
   TexWrapAdvanced
 } from '../../styles';
 import { AdvancedSettings } from '../../types';
@@ -68,7 +67,7 @@ function Advanced({ advanced = {}, handleFormChange }: Props) {
     return (
       <FormGroup>
         <TitleWrap>
-          <h2>{title}</h2>
+          {title && <h2>{title}</h2>}
           <ControlLabel>{desciption}</ControlLabel>
           {content}
         </TitleWrap>
@@ -83,13 +82,11 @@ function Advanced({ advanced = {}, handleFormChange }: Props) {
         'Allow users to Sign Up from the customer portal',
         <FlexContent>
           <CheckCircleWrap>
-            <FirstCheckCircle>
-              {renderControl({
-                name: 'authAllow',
-                label: 'Yes',
-                value: 'yes'
-              })}
-            </FirstCheckCircle>
+            {renderControl({
+              name: 'authAllow',
+              label: 'Yes',
+              value: 'yes'
+            })}
             {renderControl({
               name: 'authAllow',
               label: 'No',
@@ -108,13 +105,11 @@ function Advanced({ advanced = {}, handleFormChange }: Props) {
         'Who can submit a new ticket on portal',
         <FlexContent>
           <CheckCircleWrap>
-            <FirstCheckCircle>
-              {renderControl({
-                name: 'permission',
-                label: 'Logged in users',
-                value: 'loggedInUsers'
-              })}
-            </FirstCheckCircle>
+            {renderControl({
+              name: 'permission',
+              label: 'Logged in users',
+              value: 'loggedInUsers'
+            })}
             {renderControl({
               name: 'permission',
               label: 'Everyone',
@@ -128,13 +123,11 @@ function Advanced({ advanced = {}, handleFormChange }: Props) {
         'Who can view tickets on portal',
         <FlexContent>
           <CheckCircleWrap>
-            <FirstCheckCircle>
-              {renderControl({
-                name: 'viewTicket',
-                label: 'Logged in Users',
-                value: 'loggedInUsers'
-              })}
-            </FirstCheckCircle>
+            {renderControl({
+              name: 'viewTicket',
+              label: 'Logged in Users',
+              value: 'loggedInUsers'
+            })}
             {renderControl({
               name: 'viewTicket',
               label: 'Anyone with a public ticket URL',
