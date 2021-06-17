@@ -143,7 +143,7 @@ class DiscussionForm extends React.Component<Props, State> {
                   {...formProps}
                   required={false}
                   name="startDate"
-                  placeholder={'Start Date'}
+                  placeholder={'Choose a start date'}
                   value={startDate}
                   onChange={this.onStartDateFieldsChange}
                   timeFormat={true}
@@ -160,7 +160,7 @@ class DiscussionForm extends React.Component<Props, State> {
                   {...formProps}
                   required={false}
                   name="closeDate"
-                  placeholder={'Close Date'}
+                  placeholder={'Choose a close date'}
                   value={closeDate}
                   onChange={this.onCloseDateFieldChange}
                   timeFormat={true}
