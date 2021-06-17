@@ -23,6 +23,7 @@ export const Circle = styledTS<{ active: boolean }>(styled.div)`
 export const FlexRow = styled.div`
   flex: 1;
   display: flex;
+  align-items: baseline;
 
   > div:first-child {
     padding-right: ${dimensions.coreSpacing}px;
