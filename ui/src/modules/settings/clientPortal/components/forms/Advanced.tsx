@@ -3,13 +3,7 @@ import FormGroup from 'erxes-ui/lib/components/form/Group';
 import ControlLabel from 'erxes-ui/lib/components/form/Label';
 import { FlexContent } from 'erxes-ui/lib/layout/styles';
 import React, { useState } from 'react';
-import {
-  Circle,
-  CheckCircleWrap,
-  ButtonsWrap,
-  TexWrapAdvanced,
-  Title
-} from '../../styles';
+import { Circle, CheckCircleWrap, RadioButtonWrap, Title } from '../../styles';
 import { AdvancedSettings } from '../../types';
 
 type Props = {
@@ -50,10 +44,10 @@ function Advanced({ advanced = {}, handleFormChange }: Props) {
     return (
       <FormGroup>
         <Button btnStyle="link" onClick={handleClick}>
-          <ButtonsWrap>
+          <RadioButtonWrap>
             <Circle active={toggle[name] === value} />
-            <TexWrapAdvanced>{label}</TexWrapAdvanced>
-          </ButtonsWrap>
+            {label}
+          </RadioButtonWrap>
         </Button>
       </FormGroup>
     );

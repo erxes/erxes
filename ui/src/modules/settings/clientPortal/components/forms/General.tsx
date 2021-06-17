@@ -14,7 +14,7 @@ import React, { useState } from 'react';
 import { OverlayTrigger, Popover } from 'react-bootstrap';
 import Select from 'react-select-plus';
 import { ClientPortalConfig } from '../../types';
-import { FlexRow, SelectsWrap, IconWrap } from '../../styles';
+import { FlexRow, ChooserWrap, IconWrap } from '../../styles';
 import { Half } from 'modules/engage/styles';
 
 type Props = {
@@ -203,9 +203,9 @@ function General({
     return (
       <FormGroup>
         <ControlLabel>Task public pipeline</ControlLabel>
-        <SelectsWrap>
+        <ChooserWrap>
           {renderSelect(boards, handleSelectBoard, taskPublicBoardId)}
-        </SelectsWrap>
+        </ChooserWrap>
         {renderSelect(pipelines, handleSelecPipeline, taskPublicPipelineId)}
       </FormGroup>
     );

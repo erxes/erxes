@@ -30,7 +30,7 @@ export const FlexRow = styled.div`
   }
 `;
 
-export const SelectsWrap = styled.div`
+export const ChooserWrap = styled.div`
   > div:first-child {
     padding-bottom: ${dimensions.coreSpacing}px;
   }
@@ -63,18 +63,11 @@ export const ColorChooserTile = styled.div`
   font-size: 12px;
 `;
 
-export const TexWrapAdvanced = styled.div`
-  text-transform: capitalize;
-  color: ${colors.textPrimary} !important;
-`;
-
-export const ButtonsWrap = styled.div`
+export const RadioButtonWrap = styled.div`
   display: flex;
   align-items: center;
-`;
-
-export const LastColorPicker = styled.div`
-  padding-right: 0px !important;
+  text-transform: capitalize;
+  color: ${colors.textPrimary} !important;
 `;
 
 export const ColorPickerWrap = styled.div`
