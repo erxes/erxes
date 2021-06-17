@@ -4,14 +4,14 @@ import RTG from 'react-transition-group';
 import { IFeature, IRoleValue } from '../types';
 import { getCurrentUserName } from '../utils';
 import Onboarding from './onboard/Onboarding';
-import Setup from './onboard/Setup';
-import SetupDetail from './onboard/SetupDetail';
+import Setup from './Setup';
 import { Content } from './styles';
 import Suggestion from './Suggestion';
 import Todo from './Todo';
 
 type Props = {
   availableFeatures: IFeature[];
+  roleSetupOptions: IFeature[];
   currentRoute?: string;
   changeRoute: (route: string) => void;
   forceComplete: () => void;
@@ -87,12 +87,8 @@ class AssistantContent extends React.Component<Props, State> {
       return <Todo {...this.props} restartOnboard={this.restartOnboard} />;
     }
 
-    if (currentRoute === 'setupList') {
+    if (currentRoute === 'setupList' || currentRoute === 'setupDetail') {
       return <Setup {...this.props} roleValue={this.state.roleValue} />;
-    }
-
-    if (currentRoute === 'setupDetail') {
-      return <SetupDetail {...this.props} />;
     }
 
     return null;

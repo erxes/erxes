@@ -512,11 +512,30 @@ export const ROLE_SETUP = [
   }
 ];
 export const ROLE_SETUP_DETAILS = {
-  CreateBrandandChannels: {
+  ChannelBrands: {
     text: 'Channel and Brands',
-    purpose:
+    description:
       'Setting your general configuration adjusts the basic fundamental features on our platform.',
     videoUrl: 'https://www.youtube.com/embed/Z5KI5YuvZ7U?autoplay=1',
-    videoThumb: 'https://img.youtube.com/vi/Z5KI5YuvZ7U/mqdefault.jpg'
-  }
+    videoThumb: 'https://img.youtube.com/vi/Z5KI5YuvZ7U/mqdefault.jpg',
+    settingsDetails: {
+      growthHackBoardsCreate: {
+        name: 'Create a marketing campaign',
+        url: '/settings/boards/growthHack#showBoardModal=true'
+      },
+      growthHackPipelinesCreate: {
+        name: 'Then create a project',
+        url: '/settings/boards/growthHack#showPipelineModal=true'
+      },
+      growthHackTemplatesDuplicate: {
+        name: 'Duplicate growth hacking templates',
+        url: '/settings/boards/growthHackTemplate'
+      },
+      growthHackCreate: {
+        name: 'Now add an experiments',
+        url: '/growthHack/board'
+      }
+    }
+  },
+  brands: {}
 };

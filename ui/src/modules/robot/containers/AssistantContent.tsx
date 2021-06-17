@@ -7,7 +7,7 @@ import React from 'react';
 import { graphql } from 'react-apollo';
 import { withProps } from '../../common/utils';
 import AssistantContent from '../components/AssistantContent';
-import { FEATURE_DETAILS } from '../constants';
+import { FEATURE_DETAILS, ROLE_SETUP_DETAILS } from '../constants';
 import { mutations, queries } from '../graphql';
 import {
   ForceCompleteMutationResponse,
@@ -95,12 +95,18 @@ class AssistantContentContainer extends React.Component<FinalProps> {
         chosenFeatures
       );
     }
-
     const features = sortedFeatures.map(feature => {
       const details = FEATURE_DETAILS[feature.name] || {};
 
       return {
         ...feature,
+        ...details
+      };
+    });
+
+    const roleSetups = Object.keys(ROLE_SETUP_DETAILS).map(e => {
+      const details = ROLE_SETUP_DETAILS[e] || {};
+      return {
         ...details
       };
     });
@@ -112,6 +118,7 @@ class AssistantContentContainer extends React.Component<FinalProps> {
         changeRoute={this.changeStep}
         forceComplete={this.forceComplete}
         availableFeatures={features}
+        roleSetupOptions={roleSetups}
       />
     );
   }
