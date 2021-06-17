@@ -100,6 +100,7 @@ export const SelectWrap = styled.div`
     label {
       font-size: 12px;
       text-transform: capitalize;
+      font-weight: unset;
     }
   }
 `;
