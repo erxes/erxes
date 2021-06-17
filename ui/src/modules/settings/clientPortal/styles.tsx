@@ -79,7 +79,6 @@ export const LastColorPicker = styled.div`
 
 export const ColorPickerWrap = styled.div`
   display: flex;
-  margin-top: 10px;
 
   > div {
     margin-bottom: 0px;
@@ -102,7 +101,14 @@ export const Wrap = styled.div`
 `;
 
 export const SelectWrap = styled.div`
-  margin-top: 20px;
+  flex: 1;
+
+  > div:first-child {
+    label {
+      font-size: 12px;
+      text-transform: capitalize;
+    }
+  }
 `;
 
 export const IconWrap = styled.div`

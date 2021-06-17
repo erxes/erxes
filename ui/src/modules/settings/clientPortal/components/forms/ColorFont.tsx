@@ -9,7 +9,12 @@ import TwitterPicker from 'react-color/lib/Twitter';
 import Select from 'react-select-plus';
 import { COLORS, FONTS } from '../../constants';
 import { Styles } from '../../types';
-import { ColorPickerWrap, SelectWrap, ColorChooserTile } from '../../styles';
+import {
+  ColorPickerWrap,
+  SelectWrap,
+  ColorChooserTile,
+  FlexRow
+} from '../../styles';
 
 type Props = {
   styles?: Styles;
@@ -38,8 +43,8 @@ function ColorFont({ styles = {}, handleFormChange }: Props) {
     secondaryBtnColor,
     dividerColor,
     baseColor,
-    headingColor,
     baseFont,
+    headingColor,
     headingFont
   } = styles;
 
@@ -160,35 +165,38 @@ function ColorFont({ styles = {}, handleFormChange }: Props) {
         </FlexContent>
       </FormGroup>
       <FormGroup>
-        <ControlLabel>Portal fonts</ControlLabel>
-        <SelectWrap>
-          {renderSelect({
-            label: 'Base font',
-            name: 'baseFont',
-            value: baseFont
-          })}
-        </SelectWrap>
-        <ColorPickerWrap>
-          {renderColor({
-            label: 'Base Color',
-            name: 'baseColor',
-            value: baseColor
-          })}
-        </ColorPickerWrap>
-        <SelectWrap>
-          {renderSelect({
-            label: 'Heading font',
-            name: 'headingFont',
-            value: headingFont
-          })}
-        </SelectWrap>
-        <ColorPickerWrap>
-          {renderColor({
-            label: 'Heading Color',
-            name: 'headingColor',
-            value: headingColor
-          })}
-        </ColorPickerWrap>
+        <FlexRow>
+          <ColorPickerWrap>
+            {renderColor({
+              label: 'Base Color',
+              name: 'baseColor',
+              value: baseColor
+            })}
+          </ColorPickerWrap>
+          <SelectWrap>
+            {renderSelect({
+              label: 'Base font',
+              name: 'baseFont',
+              value: baseFont
+            })}
+          </SelectWrap>
+        </FlexRow>
+        <FlexRow>
+          <ColorPickerWrap>
+            {renderColor({
+              label: 'Heading Color',
+              name: 'headingColor',
+              value: headingColor
+            })}
+          </ColorPickerWrap>
+          <SelectWrap>
+            {renderSelect({
+              label: 'Heading font',
+              name: 'headingFont',
+              value: headingFont
+            })}
+          </SelectWrap>
+        </FlexRow>
       </FormGroup>
       <FormGroup>
         <ControlLabel>Link color</ControlLabel>
