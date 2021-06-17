@@ -3,6 +3,7 @@ import ControlLabel from 'erxes-ui/lib/components/form/Label';
 import { TextArea } from 'erxes-ui/lib/components/form/styles';
 import Toggle from 'erxes-ui/lib/components/Toggle';
 import { FlexContent } from 'modules/layout/styles';
+import { Wrap } from '../../styles';
 import React from 'react';
 
 type Props = {
@@ -24,16 +25,18 @@ function StyleSheet({ css, mobileResponsive, handleFormChange }: Props) {
     <>
       <FormGroup>
         <FlexContent>
-          <ControlLabel>Include mobile friendly stylesheet</ControlLabel>
-          <Toggle
-            name="mobileResponsive"
-            checked={mobileResponsive}
-            onChange={handleToggle}
-            icons={{
-              checked: null,
-              unchecked: null
-            }}
-          />
+          <Wrap>
+            <ControlLabel>Include mobile friendly stylesheet</ControlLabel>
+            <Toggle
+              name="mobileResponsive"
+              checked={mobileResponsive}
+              onChange={handleToggle}
+              icons={{
+                checked: null,
+                unchecked: null
+              }}
+            />
+          </Wrap>
         </FlexContent>
         <p>
           This will make your default theme mobile friendly and will optimize it

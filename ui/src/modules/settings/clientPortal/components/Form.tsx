@@ -7,6 +7,7 @@ import { ClientPortalConfig } from '../types';
 import Advanced from './forms/Advanced';
 import ColorFont from './forms/ColorFont';
 import StyleSheet from './forms/StyleSheet';
+import { ButtonWrap } from '../styles';
 
 type Props = {
   configType: string;
@@ -122,9 +123,11 @@ function Form({ defaultConfigValues = {}, handleUpdate, configType }: Props) {
 
   function renderSubmit() {
     return (
-      <Button btnStyle="success" type="submit">
-        Submit
-      </Button>
+      <ButtonWrap>
+        <Button btnStyle="success" type="submit">
+          Submit
+        </Button>
+      </ButtonWrap>
     );
   }
 

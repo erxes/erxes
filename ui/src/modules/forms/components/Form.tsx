@@ -32,7 +32,7 @@ type State = {
   currentMode: 'create' | 'update' | undefined;
   currentField?: IField;
   title: string;
-  description: string;
+  desc: string;
   type?: string;
   buttonText: string;
   numberOfPages?: number;
@@ -48,7 +48,7 @@ class Form extends React.Component<Props, State> {
     this.state = {
       fields: (props.formData ? props.formData.fields : props.fields) || [],
       title: form.title || '',
-      description: form.description || '',
+      desc: form.description || '',
       buttonText: form.buttonText || 'Send',
       currentMode: undefined,
       currentField: undefined,
@@ -60,7 +60,7 @@ class Form extends React.Component<Props, State> {
 
   componentWillReceiveProps(nextProps: Props) {
     const { saveForm, type, isReadyToSave, formData } = this.props;
-    const { title, buttonText, description, fields } = this.state;
+    const { title, buttonText, desc, fields } = this.state;
 
     if (nextProps.formData && nextProps.formData !== formData) {
       this.setState({
@@ -74,7 +74,7 @@ class Form extends React.Component<Props, State> {
           ? { ...nextProps.formData }
           : {
               title,
-              description,
+              description: desc,
               buttonText,
               fields,
               type
@@ -89,7 +89,7 @@ class Form extends React.Component<Props, State> {
     }
 
     const { onDocChange } = this.props;
-    const { title, buttonText, description, numberOfPages } = this.state;
+    const { title, buttonText, desc, numberOfPages } = this.state;
 
     const onChangeField = e => {
       const name: keyof State = e.target.name;
@@ -118,8 +118,8 @@ class Form extends React.Component<Props, State> {
           <ControlLabel>{__('Form description')}</ControlLabel>
           <FormControl
             componentClass="textarea"
-            name="description"
-            value={description}
+            name="desc"
+            value={desc}
             onChange={onChangeField}
           />
         </FormGroup>
@@ -219,14 +219,14 @@ class Form extends React.Component<Props, State> {
       currentMode,
       currentField,
       fields,
-      description,
+      desc,
       numberOfPages
     } = this.state;
 
     const renderer = () => {
       return (
         <FieldsPreview
-          formDesc={description}
+          formDesc={desc}
           fields={fields}
           onFieldClick={this.onFieldClick}
           onChangeFieldsOrder={this.onChangeFieldsOrder}
