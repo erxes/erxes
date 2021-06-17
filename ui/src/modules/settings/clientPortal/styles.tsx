@@ -11,12 +11,12 @@ export const StyledUrl = styled.div`
 
 export const Circle = styledTS<{ active: boolean }>(styled.div)`
   display: inline-box;
-  margin-right: 6px;
+  margin-right: ${dimensions.unitSpacing - 4}px;
   background-color: ${props =>
     props.active ? colors.colorSecondary : colors.colorWhite};
   width: 14px;
   height: 14px;
-  border-radius: 7px;
+  border-radius: ${dimensions.unitSpacing - 3}px;
   border: 2px ${colors.borderPrimary} solid;
 `;
 
