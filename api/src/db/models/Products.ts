@@ -167,6 +167,7 @@ export const loadProductClass = () => {
       const type: string = productFields.type || '';
       const description: string = productFields.description || '';
       const categoryId: string = productFields.categoryId || '';
+      const vendorId: string = productFields.vendorId || '';
       const usedIds: string[] = [];
 
       for (const productId of productIds) {
@@ -205,7 +206,8 @@ export const loadProductClass = () => {
         name,
         type,
         description,
-        categoryId
+        categoryId,
+        vendorId
       });
 
       const dealProductIds = await Deals.find({
