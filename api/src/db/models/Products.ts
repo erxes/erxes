@@ -1,5 +1,6 @@
 import { Model, model } from 'mongoose';
-import { Companies, Deals, Fields } from '.';
+import { Deals, Fields } from '.';
+import Companies from './Companies';
 import { ICustomField } from './definitions/common';
 import { PRODUCT_STATUSES } from './definitions/constants';
 import {
