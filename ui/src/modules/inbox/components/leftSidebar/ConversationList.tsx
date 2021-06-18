@@ -54,7 +54,7 @@ export default class ConversationList extends React.Component<Props> {
         </ConversationItems>
         {!loading && conversations.length === 0 && (
           <EmptyState
-            text={__("Let's get you messaging away!")}
+            text="Let's get you messaging away!"
             size="full"
             image="/images/actions/6.svg"
             extra={<IntegrationModal trigger={popupTrigger} />}

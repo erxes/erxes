@@ -1284,7 +1284,7 @@
   "Scripts": "Скрипүүд",
   "New script": "Шинэ Скрипт",
   "Getting Started with erxes Scripts": "Эрксисийн скриптүүдийг эхлүүлэх",
-  "Avoid duplication of erxes widget scripts on your website, which might disable some of your erxes widgets messenger, popups, etc": "Вэбсайт дээрх erxes виджет скриптийг давхардуулахаас зайлсхий, ингэснээр таны зарим эрксис виджетүүд мессенжер, попапууд гэх мэтийг идэвхгүй болгож магадгүй юм.",
+  "Avoid duplication of erxes widget scripts on your website, which might disable some of your erxes widgets (messenger, popups, etc)": "Вэбсайт дээрх erxes виджет скриптийг хуулбарлахаас зайлсхийх хэрэгтэй бөгөөд ингэснээр зарим erxes виджетүүд (мессенжер, попапууд гэх мэт) -ийг идэвхгүй болгож магадгүй юм.",
   "Generate the combination of scripts": "Скриптүүдийн хослолыг бий болгох",
   "Click on “New Script” and choose which widgets you’re going to display in a single page": "Шинэ скрипт дээр дарж аль хуудсанд нэг виджет харуулахаа сонгоно уу",
   "Copy the updated script and paste it into your website or Google Tag Manager": "Шинэчлэгдсэн скриптийг хуулж аваад вэбсайт эсвэл Гүүгл Таг Менежер дээр буулгана уу",

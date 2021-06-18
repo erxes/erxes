@@ -123,7 +123,7 @@ class OptionStep extends React.Component<Props, {}> {
           </FormGroup>
 
           <FormGroup>
-            <ControlLabel>{__('Submit once')}</ControlLabel>
+            <ControlLabel>Limit to 1 response</ControlLabel>
             <Description>
               Turn on to receive a submission from the visitor only once. Once a
               submission is received, the form will not display again.

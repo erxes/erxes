@@ -3,7 +3,6 @@ import ActionButtons from 'modules/common/components/ActionButtons';
 import Button from 'modules/common/components/Button';
 import Tip from 'modules/common/components/Tip';
 import { IButtonMutateProps } from 'modules/common/types';
-import { __ } from 'modules/common/utils';
 import React from 'react';
 import PipelineForm from '../containers/PipelineForm';
 import { IOption } from '../types';
@@ -43,10 +42,10 @@ class PipelineRow extends React.Component<Props, State> {
 
     return (
       <>
-        <Tip text={__('Edit')} placement="top">
+        <Tip text="Edit" placement="top">
           <Button btnStyle="link" onClick={edit} icon="edit-3" />
         </Tip>
-        <Tip text={__('Delete')}>
+        <Tip text="Delete">
           <Button btnStyle="link" onClick={onClick} icon="times-circle" />
         </Tip>
       </>

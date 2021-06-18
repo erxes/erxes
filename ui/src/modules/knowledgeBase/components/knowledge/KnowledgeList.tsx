@@ -3,7 +3,6 @@ import DataWithLoader from 'modules/common/components/DataWithLoader';
 import ModalTrigger from 'modules/common/components/ModalTrigger';
 import { TopHeader } from 'modules/common/styles/main';
 import { IButtonMutateProps } from 'modules/common/types';
-import { __ } from 'modules/common/utils';
 import Sidebar from 'modules/layout/components/Sidebar';
 import React from 'react';
 import KnowledgeForm from '../../containers/knowledge/KnowledgeForm';
@@ -70,7 +69,7 @@ class KnowledgeList extends React.Component<Props> {
     return (
       <TopHeader>
         <ModalTrigger
-          title={__('Add Knowledge Base')}
+          title="Add Knowledge Base"
           autoOpenKey="showKBAddModal"
           trigger={trigger}
           content={content}
@@ -89,7 +88,7 @@ class KnowledgeList extends React.Component<Props> {
           data={this.renderTopics()}
           loading={loading}
           count={topics.length}
-          emptyText={__('There is no knowledge base')}
+          emptyText="There is no knowledge base"
           emptyImage="/images/actions/18.svg"
         />
       </Sidebar>

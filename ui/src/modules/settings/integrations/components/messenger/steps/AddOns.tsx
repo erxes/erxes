@@ -219,7 +219,7 @@ class AddOns extends React.Component<Props, State> {
             />
           </FormGroup>
           <FormGroup>
-            <ControlLabel>{__('Websites')}</ControlLabel>
+            <ControlLabel>Websites</ControlLabel>
             <p>
               {__('Which website(s) do you want to display in this messenger')}?
             </p>
@@ -228,9 +228,7 @@ class AddOns extends React.Component<Props, State> {
             <FormGroup key={index}>
               <WebsiteItem>
                 <FormGroup>
-                  <ControlLabel required={true}>
-                    {__('Website Title')}
-                  </ControlLabel>
+                  <ControlLabel required={true}>Website Title</ControlLabel>
                   <FormControl
                     name="description"
                     onChange={this.onChangeInput.bind(

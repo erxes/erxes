@@ -1,6 +1,5 @@
 import Button from 'modules/common/components/Button';
 import { TopHeader } from 'modules/common/styles/main';
-import { __ } from 'modules/common/utils';
 import LeftSidebar from 'modules/layout/components/Sidebar';
 import { SidebarList as List } from 'modules/layout/styles';
 import React from 'react';
@@ -62,23 +61,23 @@ class Sidebar extends React.Component<Props> {
         <List>
           {this.renderListItem(
             `/dashboard/reports/${dashboardId}`,
-            __('All'),
+            'All',
             true
           )}
           {this.renderListItem(
             `/dashboard/reports/${dashboardId}?type=customers`,
-            __('Customer'),
+            'Customer',
             false
           )}
 
           {this.renderListItem(
             `/dashboard/reports/${dashboardId}?type=conversations`,
-            __('Conversation'),
+            'Conversation',
             false
           )}
           {this.renderListItem(
             `/dashboard/reports/${dashboardId}?type=deals`,
-            __('Deal'),
+            'Deal',
             false
           )}
         </List>

@@ -38,7 +38,7 @@ class EmailTemplateList extends React.Component<Props> {
     return (
       <ModalTrigger
         enforceFocus={false}
-        title={__('Edit')}
+        title="Edit"
         size="lg"
         trigger={
           <div>

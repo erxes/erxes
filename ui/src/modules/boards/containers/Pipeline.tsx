@@ -15,7 +15,6 @@ import gql from 'graphql-tag';
 import EmptyState from 'modules/common/components/EmptyState';
 import Spinner from 'modules/common/components/Spinner';
 import { IRouterProps } from 'modules/common/types';
-import { __ } from 'modules/common/utils';
 import { withProps } from 'modules/common/utils';
 import { graphql } from 'react-apollo';
 import { withRouter } from 'react-router-dom';
@@ -78,7 +77,7 @@ class WithStages extends Component<WithStagesQueryProps> {
       return (
         <EmptyState
           image="/images/actions/8.svg"
-          text={__('No stage in this pipeline')}
+          text="No stage in this pipeline"
           size="small"
           light={true}
         />

@@ -216,7 +216,7 @@ class PipelineForm extends React.Component<Props, State> {
 
     return (
       <FormGroup>
-        <ControlLabel required={true}>{__('Campaign')}</ControlLabel>
+        <ControlLabel required={true}>Campaign</ControlLabel>
         <Select
           placeholder={__('Choose a campaign')}
           value={this.state.boardId}
@@ -284,7 +284,7 @@ class PipelineForm extends React.Component<Props, State> {
           {this.renderBoards()}
 
           <FormGroup>
-            <ControlLabel>{__('Scoring type')}</ControlLabel>
+            <ControlLabel>Scoring type</ControlLabel>
 
             <FlexContent>
               {this.renderBox(
@@ -308,7 +308,7 @@ class PipelineForm extends React.Component<Props, State> {
           <FormGroup>
             <FlexContent>
               <DateItem>
-                <ControlLabel required={true}>{__('Start date')}</ControlLabel>
+                <ControlLabel required={true}>Start date</ControlLabel>
                 <DateControl
                   {...formProps}
                   required={true}
@@ -319,7 +319,7 @@ class PipelineForm extends React.Component<Props, State> {
                 />
               </DateItem>
               <DateItem>
-                <ControlLabel required={true}>{__('End date')}</ControlLabel>
+                <ControlLabel required={true}>'End date'</ControlLabel>
                 <DateControl
                   {...formProps}
                   required={true}
@@ -335,7 +335,7 @@ class PipelineForm extends React.Component<Props, State> {
           <FlexContent>
             <ExpandWrapper>
               <FormGroup>
-                <ControlLabel>{__('Metric')}</ControlLabel>
+                <ControlLabel>Metric</ControlLabel>
                 <Select
                   placeholder={__('Choose a metric')}
                   value={metric}
@@ -399,7 +399,7 @@ class PipelineForm extends React.Component<Props, State> {
             </Button>
 
             {renderButton({
-              name: __('pipeline'),
+              name: 'pipeline',
               values: this.generateDoc(values),
               isSubmitted,
               callback: closeModal,

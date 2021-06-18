@@ -144,7 +144,7 @@ class GroupForm extends React.Component<Props, State> {
           {this.renderBoards()}
 
           <FormGroup>
-            <ControlLabel>{__('Is private')}</ControlLabel>
+            <ControlLabel>Is private</ControlLabel>
 
             <FormControl
               {...formProps}

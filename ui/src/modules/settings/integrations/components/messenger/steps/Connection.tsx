@@ -86,7 +86,7 @@ class Connection extends React.Component<Props, State> {
             />
           </FormGroup>
           <FormGroup>
-            <ControlLabel>{__('Bot show initial message')}</ControlLabel>
+            <ControlLabel>Bot show initial message</ControlLabel>
             <p>{__('Please build initial message in BotPress builder')}</p>
 
             <Toggle

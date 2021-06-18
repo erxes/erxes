@@ -195,7 +195,7 @@ class List extends React.Component<IProps, State> {
       content = (
         <EmptyState
           image="/images/actions/8.svg"
-          text={__('No Brands')}
+          text="No Brands"
           size="small"
         />
       );

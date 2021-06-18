@@ -78,9 +78,7 @@ class Boards extends React.Component<Props, {}> {
     const { loading, boards, options } = this.props;
 
     const boardName =
-      options && options.boardName
-        ? options.boardName.toLowerCase()
-        : __('board');
+      options && options.boardName ? options.boardName.toLowerCase() : 'board';
 
     return (
       <Sidebar wide={true} header={this.renderSidebarHeader()} full={true}>

@@ -97,7 +97,7 @@ function Customization(props: Props) {
         <h3>{__('Where do you want to start')}?</h3>
         <p>
           {__('There are a ton of things you can do with')}
-          <strong>{__('erxes')}</strong>.
+          <strong> {__('erxes')}</strong>.
           {__(
             "Let's pick the place to start, and we'll help you to get the most out of it"
           )}
@@ -105,7 +105,7 @@ function Customization(props: Props) {
         </p>
         <p>
           <i>
-            {__('You can choose')} <strong>{__('at least two')}</strong>
+            {__('You can choose')} <strong>{__('at least two')} </strong>
             {__('fields in your priority order')}
           </i>
         </p>

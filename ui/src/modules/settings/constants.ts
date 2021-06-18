@@ -89,7 +89,7 @@ export const EMPTY_SEGMENT_CONTENT = {
 export const EMPTY_NEW_SEGMENT_CONTENT = {
   title: __('Setup a new segment'),
   description: `${__('There aren’t any filters at the moment')}.${__(
-    'You can create a segment by Property and/or by events'
+    'You can create a segment by Property and/or by Events'
   )}`,
   steps: [
     {
@@ -126,7 +126,7 @@ export const EMPTY_NEW_SEGMENT_CONTENT = {
 export const EMPTY_CONTENT_SCRIPT = {
   title: __('Getting Started with erxes Scripts'),
   description: __(
-    'Avoid duplication of erxes widget scripts on your website, which might disable some of your erxes widgets messenger, popups, etc'
+    `Avoid duplication of erxes widget scripts on your website, which might disable some of your erxes widgets (messenger, popups, etc)`
   ),
   steps: [
     {
@@ -146,7 +146,7 @@ export const EMPTY_CONTENT_SCRIPT = {
 export const EMPTY_CONTENT_POPUPS = {
   title: __('Getting Started with erxes Popups'),
   description: __(
-    'Never miss a potential lead by capturing them with a customizable Popups & Forms'
+    'Never miss a potential lead by capturing them with a customizable Forms'
   ),
   steps: [
     {
@@ -169,7 +169,7 @@ export const EMPTY_CONTENT_POPUPS = {
 };
 
 export const EMPTY_CONTENT_ENGAGE = {
-  title: __('Getting Started with Engage'),
+  title: __('Getting Started with Campaigns'),
   description:
     __(
       'Learn how to use this feature to engage your contacts and drive conversations'
@@ -309,9 +309,9 @@ export const EMPTY_CONTENT_CONTACTS = {
       urlText: 'Visit AppStore'
     },
     {
-      title: __('Generate contacts through Popups'),
-      description: 'Create your popups and start collecting Leads',
-      url: '/leads/create',
+      title: __('Generate contacts through Forms'),
+      description: 'Create your forms and start collecting Leads',
+      url: '/forms/create',
       urlText: 'Create a Popup'
     }
   ]

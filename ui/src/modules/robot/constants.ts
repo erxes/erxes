@@ -1,5 +1,4 @@
 import colors from 'modules/common/styles/colors';
-import { __ } from 'modules/common/utils';
 
 export const FEATURE_DETAILS = {
   growthHacks: {
@@ -85,7 +84,7 @@ export const FEATURE_DETAILS = {
     }
   },
   contacts: {
-    text: __('Contact Management'),
+    text: 'Contact Management',
     icon: 'users',
     color: colors.colorCoreBlue,
     description:
@@ -169,7 +168,7 @@ export const FEATURE_DETAILS = {
     }
   },
   engages: {
-    text: __('Email & SMS Marketing'),
+    text: 'Email & SMS Marketing',
     color: '#e359ae',
     icon: 'megaphone',
     videoUrl: 'https://www.youtube.com/embed/hd07s0oZ83A?autoplay=1',

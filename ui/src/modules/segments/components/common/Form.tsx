@@ -406,7 +406,7 @@ class Form extends React.Component<Props, State> {
         <FlexContent>
           <FlexItem count={5}>
             <FormGroup>
-              <ControlLabel required={true}>{__('Segment Name')}</ControlLabel>
+              <ControlLabel required={true}>Segment Name</ControlLabel>
               <FormControl
                 {...formProps}
                 name="name"
