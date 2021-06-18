@@ -49,7 +49,7 @@ class CategoryRow extends React.Component<Props> {
     return (
       <ModalTrigger
         size={this.size}
-        title={__('Edit')}
+        title="Edit"
         trigger={editTrigger}
         content={content}
       />
