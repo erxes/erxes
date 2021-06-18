@@ -19,6 +19,15 @@ const histories = `
   }
 `;
 
+const allLeadIntegrations = `
+  query allLeadIntegrations {
+    allLeadIntegrations {
+      _id
+      name
+    }
+  }
+`;
+
 const historyDetail = `
   query importHistoryDetail($_id: String!) {
     importHistoryDetail(_id: $_id) {
@@ -48,6 +57,7 @@ const historyDetailForLoad = `
 `;
 
 export default {
+  allLeadIntegrations,
   histories,
   historyDetail,
   historyDetailForLoad
