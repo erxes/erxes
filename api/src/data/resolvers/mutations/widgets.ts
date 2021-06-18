@@ -207,7 +207,7 @@ const widgetMutations = {
     });
 
     //  actions
-    solveActions(
+    await solveActions(
       formId,
       submissions,
       cachedCustomer,
