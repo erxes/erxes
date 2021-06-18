@@ -135,6 +135,7 @@ class Conversation extends React.Component<Props, { toggleMessage: boolean }> {
     const { _id, integration } = conversation;
 
     let { customer } = conversation;
+    const { createdAt } = activity;
 
     if (!customer) {
       return null;
@@ -194,11 +195,18 @@ class Conversation extends React.Component<Props, { toggleMessage: boolean }> {
 
     return (
       <FlexBody>
-        <b>{renderFullName(customer)}</b> {action}&nbsp;
-        <Link to={`/inbox/index?_id=${_id}`}>
-          <strong>{kind}</strong>
-        </Link>
-        &nbsp;{item}
+        <FlexCenterContent>
+          <div>
+            <b>{renderFullName(customer)}</b> {action}&nbsp;
+            <Link to={`/inbox/index?_id=${_id}`}>
+              <strong>{kind}</strong>
+            </Link>
+            &nbsp;{item}
+          </div>
+          <ActivityDate>
+            {dayjs(createdAt).format('MMM D, h:mm A')}
+          </ActivityDate>
+        </FlexCenterContent>
       </FlexBody>
     );
   }
