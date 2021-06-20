@@ -1,6 +1,6 @@
 import { Document, Schema } from 'mongoose';
 import { field } from './utils';
-import { PUBLISH_STATUSES } from './constants';
+import { PUBLISH_STATUSES, REACTION_CHOICES } from './constants';
 interface ICommonFields {
   createdBy: string;
   createdDate: Date;
@@ -140,7 +140,7 @@ export const commentSchema = new Schema({
 
 export const forumLikeSchema = new Schema({
   _id: field({ pkey: true }),
-  type: field({ type: String, label: 'Type' }),
+  type: field({ type: String, enum: REACTION_CHOICES.ALL, label: 'Type' }),
   contentTypeId: field({ type: String, label: 'Content type' }),
   ...commonFields
 });
