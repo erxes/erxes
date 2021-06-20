@@ -3,7 +3,7 @@ import {
   Forums,
   ForumTopics,
   DiscussionComments,
-  DiscussionCommentLikes
+  ForumLikes
 } from '../../../db/models';
 
 import { IContext } from '../../types';
@@ -118,15 +118,16 @@ const forumQueries = {
   },
 
   /**
-   * discussion comment like
+   * userLiked forum like
    */
-  async isUserLikedComment(
+  async isUserLikedForum(
     _root,
-    args: { commentId: string },
+    args: { type: string; contentTypeId: string },
     { user }: IContext
   ) {
-    const isLiked = await DiscussionCommentLikes.findOne({
-      commentId: args.commentId,
+    const isLiked = await ForumLikes.findOne({
+      type: args.type,
+      contentTypeId: args.contentTypeId,
       createdBy: user._id
     });
 
@@ -138,11 +139,15 @@ const forumQueries = {
   },
 
   /**
-   * comment likes count
+   * forum likes count
    */
-  async discussionCommentLikesTotalCount(_root, args: { commentId: string }) {
-    return DiscussionCommentLikes.find({
-      commentId: args.commentId
+  async forumLikesTotalCount(
+    _root,
+    args: { type: string; contentTypeId: string }
+  ) {
+    return ForumLikes.find({
+      type: args.type,
+      contentTypeId: args.contentTypeId
     }).countDocuments();
   }
 };
@@ -152,12 +157,12 @@ requireLogin(forumQueries, 'forumTopicsTotalCount');
 requireLogin(forumQueries, 'forumTopicsGetLast');
 requireLogin(forumQueries, 'forumDiscussionsTotalCount');
 requireLogin(forumQueries, 'discussionCommentsTotalCount');
-requireLogin(forumQueries, 'discussionCommentLikesTotalCount');
+requireLogin(forumQueries, 'forumLikesTotalCount');
 
 checkPermission(forumQueries, 'forums', 'showForums', []);
 checkPermission(forumQueries, 'forumTopics', 'showForums', []);
 checkPermission(forumQueries, 'forumDiscussions', 'showForums', []);
 checkPermission(forumQueries, 'discussionComments', 'showForums', []);
-checkPermission(forumQueries, 'isUserLikedComment', 'showForums', []);
+checkPermission(forumQueries, 'isUserLikedForum', 'showForums', []);
 
 export default forumQueries;

@@ -55,13 +55,14 @@ export interface ICommentDocument extends ICommonFields, IComment, Document {
   _id: string;
 }
 
-export interface ICommentLike {
-  commentId: string;
+export interface IForumLike {
+  type: string;
+  contentTypeId: string;
 }
 
-export interface ICommentLikeDocument
+export interface IForumLikeDocument
   extends ICommonFields,
-    ICommentLike,
+    IForumLike,
     Document {
   _id: string;
 }
@@ -137,9 +138,9 @@ export const commentSchema = new Schema({
   ...commonFields
 });
 
-export const commentLikeSchema = new Schema({
+export const forumLikeSchema = new Schema({
   _id: field({ pkey: true }),
-  commentId: field({ type: String, label: 'Comment' }),
-  discussionId: field({ type: String, label: 'Discussion' }),
+  type: field({ type: String, label: 'Type' }),
+  contentTypeId: field({ type: String, label: 'Content type' }),
   ...commonFields
 });
