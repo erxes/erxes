@@ -11,7 +11,6 @@ import Todo from './Todo';
 
 type Props = {
   availableFeatures: IFeature[];
-  roleSetupOptions: IFeature[];
   currentRoute?: string;
   changeRoute: (route: string) => void;
   forceComplete: () => void;

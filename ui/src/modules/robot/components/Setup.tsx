@@ -2,7 +2,6 @@ import CollapseContent from 'modules/common/components/CollapseContent';
 import { __ } from 'modules/common/utils';
 import { ROLE_SETUP, ROLE_SETUP_DETAILS } from 'modules/robot/constants';
 import { IFeature, IRoleValue } from 'modules/robot/types';
-import ProgressBar from 'modules/common/components/ProgressBar';
 import React from 'react';
 import styled from 'styled-components';
 import {
@@ -10,12 +9,11 @@ import {
   Greeting,
   NavButton,
   SetupList,
-  SubContent,
-  ProgressText
+  SubContent
 } from './styles';
 import colors from 'modules/common/styles/colors';
 import dimensions from 'modules/common/styles/dimensions';
-import { calculatePercentage, getCurrentUserName } from 'modules/robot/utils';
+import { getCurrentUserName } from 'modules/robot/utils';
 import { IUser } from 'modules/auth/types';
 import Icon from 'modules/common/components/Icon';
 import SetupDetail from '../containers/SetupDetail';
@@ -40,7 +38,7 @@ const Text = styled.div`
   p {
     margin: 0px;
     font-size: 11px;
-    background-color: #673fbd;
+    background-color: rgba(101, 105, 223, 0.8);
     color: white;
     padding: 2px 5px 2px;
     border-radius: ${dimensions.unitSpacing}px;
@@ -48,7 +46,6 @@ const Text = styled.div`
 `;
 
 type Props = {
-  roleSetupOptions: IFeature[];
   currentRoute?: string;
   changeRoute: (route: string) => void;
   roleValue: IRoleValue;
@@ -66,9 +63,9 @@ class Setup extends React.Component<Props, State> {
     this.state = { selectedOption: {} as IFeature, showComplete: true };
   }
 
-  onRoleClick = (value?: string) => {
+  onRoleClick = (title?: string) => {
     this.setState(
-      { selectedOption: value ? ROLE_SETUP_DETAILS[value] : {} },
+      { selectedOption: title ? ROLE_SETUP_DETAILS[title] : {} },
       () => {
         this.props.changeRoute('setupDetail');
       }
@@ -102,32 +99,6 @@ class Setup extends React.Component<Props, State> {
     );
   };
 
-  renderProgress = () => {
-    const percentage = this.getPercentage();
-    let text = 'keep going!';
-
-    if (percentage < 75 && percentage > 50) {
-      text = "you're halfway through, keep going!";
-    }
-
-    if (percentage > 75 && percentage < 100) {
-      text = 'almost done, just a little more!';
-    }
-
-    if (percentage === 100) {
-      text = 'awesome!';
-    }
-
-    return (
-      <div>
-        <ProgressBar percentage={percentage} color="#3B85F4" height="8px" />
-        <ProgressText>
-          {percentage}% done - {text}
-        </ProgressText>
-      </div>
-    );
-  };
-
   renderSetup() {
     const { roleValue } = this.props;
 
@@ -144,14 +115,13 @@ class Setup extends React.Component<Props, State> {
                 return (
                   <Text
                     key={index}
-                    onClick={this.onRoleClick.bind(this, content.value)}
+                    onClick={this.onRoleClick.bind(this, content.title)}
                   >
                     <h6>{content.name}</h6>
                     <p>{content.steps}</p>
                   </Text>
                 );
               }
-
               return null;
             })}
           </CollapseContent>
@@ -163,20 +133,15 @@ class Setup extends React.Component<Props, State> {
   renderContent() {
     const { selectedOption } = this.state;
     const { currentRoute, currentUser, roleValue } = this.props;
-    console.log(selectedOption);
+    const text = "Let's set up your workplace for success";
+
     if (currentRoute === 'setupDetail') {
       return this.withHeader(
-        selectedOption && <SetupDetail feature={selectedOption} />
+        selectedOption && <SetupDetail roleOption={selectedOption} />
       );
     }
 
     if (currentRoute === 'setupList') {
-      const percentage = this.getPercentage();
-      let text = "Let's set up your workplace for success";
-
-      if (percentage === 100) {
-        text = 'Congratulations! You have finished setting up';
-      }
       return this.withHeader(
         <>
           <Greeting>
@@ -187,8 +152,6 @@ class Setup extends React.Component<Props, State> {
               </span>
             </b>
             <p>{__(text)}.</p>
-
-            {this.renderProgress()}
           </Greeting>
 
           <SubContent>
@@ -202,19 +165,6 @@ class Setup extends React.Component<Props, State> {
       );
     }
     return null;
-  }
-
-  toggleFeatures = () => {
-    this.setState({ showComplete: !this.state.showComplete });
-  };
-
-  getPercentage() {
-    const { roleSetupOptions } = this.props;
-    const completedCount = roleSetupOptions.filter(
-      feature => feature.isComplete
-    ).length;
-
-    return calculatePercentage(roleSetupOptions.length + 1, completedCount + 1);
   }
 
   render() {

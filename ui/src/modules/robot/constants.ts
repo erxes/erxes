@@ -322,7 +322,8 @@ export const ROLE_SETUP = [
     content: [
       {
         name: 'Set your general settings',
-        steps: '2 steps',
+        title: 'generalSettings',
+        steps: '3 steps',
         types: [
           'sales',
           'marketing',
@@ -333,7 +334,7 @@ export const ROLE_SETUP = [
       },
       {
         name: 'Create your brands and channels',
-        value: 'channelBrands',
+        title: 'channelBrands',
         steps: '2 steps',
         types: [
           'sales',
@@ -345,7 +346,8 @@ export const ROLE_SETUP = [
       },
       {
         name: 'Integrate other apps into erxes',
-        steps: '1 steps',
+        title: 'integrationOtherApps',
+        steps: '2 steps',
         types: [
           'sales',
           'marketing',
@@ -356,7 +358,8 @@ export const ROLE_SETUP = [
       },
       {
         name: 'Customize your erxes database',
-        steps: '3 steps',
+        title: 'customizeDatabase',
+        steps: '2 steps',
         types: [
           'sales',
           'marketing',
@@ -373,17 +376,20 @@ export const ROLE_SETUP = [
     content: [
       {
         name: 'Import your existing contacts',
-        steps: '3 steps',
+        title: 'importExistingContacts',
+        steps: '6 steps',
         types: ['sales', 'marketing']
       },
       {
         name: 'Customize your Sales Pipeline',
+        title: 'salesPipeline',
         steps: '3 steps',
         types: ['sales', 'above']
       },
       {
         name: 'Invite your team members',
-        steps: '3 steps',
+        title: 'inviteTeamMembers',
+        steps: '2 steps',
         types: [
           'sales',
           'marketing',
@@ -394,52 +400,62 @@ export const ROLE_SETUP = [
       },
       {
         name: 'Add your product and services',
-        steps: '3 steps',
+        title: 'createProductServices',
+        steps: '2 steps',
         types: ['sales', 'above']
       },
       {
         name: 'Install erxes widgets',
+        title: '',
         steps: '3 steps',
         types: ['sales', 'marketing', 'customerSupport', 'above']
       },
       {
         name: 'Create your lead generation Forms',
+        title: '',
         steps: '4 steps',
         types: ['marketing']
       },
       {
         name: 'Create your Knowledge Base',
+        title: '',
         steps: '5 steps',
         types: ['customerSupport', 'managementAndOperations']
       },
       {
         name: 'Plan your content with Tasks',
+        title: '',
         steps: '6 steps',
         types: ['marketing']
       },
       {
         name: 'Customize your Tickets',
-        steps: '7 steps',
+        title: 'customizeTickets',
+        steps: '3 steps',
         types: ['customerSupport', 'managementAndOperations', 'above']
       },
       {
         name: 'Customize your Tasks',
-        steps: '8 steps',
+        title: 'customizeTasks',
+        steps: '3 steps',
         types: ['customerSupport', 'managementAndOperations', 'above']
       },
       {
         name: 'Import your existing customer data to erxes',
+        title: '',
         steps: '7 steps',
         types: ['above']
       },
       {
         name: 'Create your Forms',
+        title: '',
         steps: '7 steps',
         types: ['above']
       },
       {
         name: 'Customize your Knowledge Base',
-        steps: '7 steps',
+        title: 'customizeKnowledgeBase',
+        steps: '3 steps',
         types: ['above']
       }
     ]
@@ -450,21 +466,25 @@ export const ROLE_SETUP = [
     content: [
       {
         name: 'Segment your contacts',
+        title: '',
         steps: '1 steps',
         types: ['sales', 'marketing', 'above']
       },
       {
         name: 'Prepare content templates',
+        title: '',
         steps: '2 steps',
         types: ['sales', 'customerSupport', 'managementAndOperations', 'above']
       },
       {
         name: 'Automate your sales with Campaigns',
-        steps: '3 steps',
+        title: 'automateCampaigns',
+        steps: '4 steps',
         types: ['sales']
       },
       {
         name: 'Customize your Reports',
+        title: '',
         steps: '4 steps',
         types: [
           'sales',
@@ -476,37 +496,44 @@ export const ROLE_SETUP = [
       },
       {
         name: 'Customize your Growth Hacking',
+        title: 'customizeGrowthHacking',
         steps: '5 steps',
         types: ['marketing', 'above']
       },
       {
         name: 'Customize your customer segmentation',
+        title: 'customizeSegmentation',
         steps: '6 steps',
         types: ['marketing']
       },
       {
         name: 'Prepare the email/response templates',
+        title: 'prepareMailResponseTemplates',
         steps: '7 steps',
         types: ['marketing']
       },
       {
         name: 'Automate your lead generation with Campaigns',
-        steps: '8 steps',
+        title: 'automateCampaigns',
+        steps: '4 steps',
         types: ['marketing']
       },
       {
         name: 'Automate your customer support process',
+        title: '',
         steps: '9 steps',
         types: ['customerSupport']
       },
       {
         name: 'Automate your operational process',
+        title: '',
         steps: '10 steps',
         types: ['managementAndOperations']
       },
       {
         name: 'Automate with Campaigns',
-        steps: '11 steps',
+        title: 'automateCampaigns',
+        steps: '4 steps',
         types: ['above']
       }
     ]
@@ -514,30 +541,309 @@ export const ROLE_SETUP = [
 ];
 
 export const ROLE_SETUP_DETAILS = {
-  channelBrands: {
-    text: 'Channel and Brands',
+  generalSettings: {
+    text: 'Set your general settings',
     description:
       'Setting your general configuration adjusts the basic fundamental features on our platform.',
     videoUrl: 'https://www.youtube.com/embed/Z5KI5YuvZ7U?autoplay=1',
     videoThumb: 'https://img.youtube.com/vi/Z5KI5YuvZ7U/mqdefault.jpg',
     settingsDetails: {
-      growthHackBoardsCreate: {
-        name: 'Create a marketing campaign',
+      step1: {
+        name: 'Set your general setting',
         url: '/settings/boards/growthHack#showBoardModal=true'
       },
-      growthHackPipelinesCreate: {
-        name: 'Then create a project',
+      step2: {
+        name: 'Set the types of file you would like to upload',
         url: '/settings/boards/growthHack#showPipelineModal=true'
       },
-      growthHackTemplatesDuplicate: {
-        name: 'Duplicate growth hacking templates',
+      step3: {
+        name: 'Set your constants',
         url: '/settings/boards/growthHackTemplate'
-      },
-      growthHackCreate: {
-        name: 'Now add an experiments',
-        url: '/growthHack/board'
       }
     }
   },
-  brands: {}
+  channelBrands: {
+    text: 'Brand & channel set up',
+    description:
+      'Creating brands and channels allows you can organize and view all messages and emails sent from customers under one platform. Customizing the incoming communication channels is the foundation of all your effective operational process.  ',
+    videoUrl: 'https://www.youtube.com/embed/Z5KI5YuvZ7U?autoplay=1',
+    videoThumb: 'https://img.youtube.com/vi/Z5KI5YuvZ7U/mqdefault.jpg',
+    settingsDetails: {
+      step1: {
+        name: 'Create brands',
+        url: '/settings/boards/growthHack#showBoardModal=true'
+      },
+      step2: {
+        name: 'Create channels',
+        url: '/settings/boards/growthHack#showPipelineModal=true'
+      }
+    }
+  },
+  integrationOtherApps: {
+    text: 'Integration/ App Store',
+    description:
+      'You can bring all inboxes to one window and manage your interactions with your customers. The shared Team Inbox keeps all history of your engagements. It also provides tags and filter tools to help you work more productively.',
+    videoUrl: 'https://www.youtube.com/embed/Z5KI5YuvZ7U?autoplay=1',
+    videoThumb: 'https://img.youtube.com/vi/Z5KI5YuvZ7U/mqdefault.jpg',
+    settingsDetails: {
+      step1: {
+        name: 'Choose which integrations you would like to add',
+        url: '/settings/boards/growthHack#showBoardModal=true'
+      },
+      step2: {
+        name:
+          'Follow the instructions as shown to successfully integrate communication channels',
+        url: '/settings/boards/growthHack#showPipelineModal=true'
+      }
+    }
+  },
+  customizeDatabase: {
+    text: 'Properties',
+    description:
+      'Adjust customer data settings, add properties for customer information, etc. for your     customer database.',
+    videoUrl: 'https://www.youtube.com/embed/Z5KI5YuvZ7U?autoplay=1',
+    videoThumb: 'https://img.youtube.com/vi/Z5KI5YuvZ7U/mqdefault.jpg',
+    settingsDetails: {
+      step1: {
+        name: 'Adjust the existing fields',
+        url: '/settings/boards/growthHack#showBoardModal=true'
+      },
+      step2: {
+        name:
+          'Add new groups and fields if the fields you require are not there',
+        url: '/settings/boards/growthHack#showPipelineModal=true'
+      }
+    }
+  },
+  importExistingContacts: {
+    text: 'Import',
+    description:
+      'You will be able to import large files and export data from our system.',
+    videoUrl: 'https://www.youtube.com/embed/Z5KI5YuvZ7U?autoplay=1',
+    videoThumb: 'https://img.youtube.com/vi/Z5KI5YuvZ7U/mqdefault.jpg',
+    settingsDetails: {
+      step1: {
+        name: 'Add groups',
+        url: '/settings/boards/growthHack#showBoardModal=true'
+      },
+      step2: {
+        name: 'Add properties',
+        url: '/settings/boards/growthHack#showPipelineModal=true'
+      },
+      step3: {
+        name: 'Prepare files to be imported on excel',
+        url: '/settings/boards/growthHack#showPipelineModal=true'
+      },
+      step4: {
+        name: 'Download a template',
+        url: '/settings/boards/growthHack#showPipelineModal=true'
+      },
+      step5: {
+        name: 'Enter your data in the template',
+        url: '/settings/boards/growthHack#showPipelineModal=true'
+      },
+      step6: {
+        name: 'Import the file',
+        url: '/settings/boards/growthHack#showPipelineModal=true'
+      }
+    }
+  },
+  inviteTeamMembers: {
+    text: 'Team members/ Permission',
+    description:
+      'Invite your team members into your organization to manage all internal and external activities in one location.',
+    videoUrl: 'https://www.youtube.com/embed/Z5KI5YuvZ7U?autoplay=1',
+    videoThumb: 'https://img.youtube.com/vi/Z5KI5YuvZ7U/mqdefault.jpg',
+    settingsDetails: {
+      step1: {
+        name: 'Add your team member(s)',
+        url: '/settings/boards/growthHack#showBoardModal=true'
+      },
+      step2: {
+        name: "Enter your team member's information",
+        url: '/settings/boards/growthHack#showPipelineModal=true'
+      }
+    }
+  },
+  salesPipeline: {
+    text: 'Sales stage',
+    description:
+      'Create sales stages to track your entire sales pipeline from one dashboard. Erxes also provides a field where you can add notes, tags, checklist dealine and all other useful tools to lead you successful sales.',
+    videoUrl: 'https://www.youtube.com/embed/Z5KI5YuvZ7U?autoplay=1',
+    videoThumb: 'https://img.youtube.com/vi/Z5KI5YuvZ7U/mqdefault.jpg',
+    settingsDetails: {
+      step1: {
+        name: 'Create a board',
+        url: '/settings/boards/growthHack#showBoardModal=true'
+      },
+      step2: {
+        name: 'Create a pipeline to be used on your board',
+        url: '/settings/boards/growthHack#showPipelineModal=true'
+      },
+      step3: {
+        name: 'Customize the stages in your pipeline',
+        url: '/settings/boards/growthHack#showPipelineModal=true'
+      }
+    }
+  },
+  createProductServices: {
+    text: 'Product & service',
+    description:
+      'Add and categorize your products and services to our system. Storing them all in one place is a great way to stay organized.',
+    videoUrl: 'https://www.youtube.com/embed/Z5KI5YuvZ7U?autoplay=1',
+    videoThumb: 'https://img.youtube.com/vi/Z5KI5YuvZ7U/mqdefault.jpg',
+    settingsDetails: {
+      step1: {
+        name: 'Add a category',
+        url: '/settings/boards/growthHack#showBoardModal=true'
+      },
+      step2: {
+        name: 'Add a product & service into the category',
+        url: '/settings/boards/growthHack#showPipelineModal=true'
+      }
+    }
+  },
+  customizeTickets: {
+    text: 'Ticket stage',
+    description:
+      "Customizing your ticket stages will help your team members with the process of receiving, maintaining, and resolving complaints from the organization's customers.",
+    videoUrl: 'https://www.youtube.com/embed/Z5KI5YuvZ7U?autoplay=1',
+    videoThumb: 'https://img.youtube.com/vi/Z5KI5YuvZ7U/mqdefault.jpg',
+    settingsDetails: {
+      step1: {
+        name: 'Create a board',
+        url: '/settings/boards/growthHack#showBoardModal=true'
+      },
+      step2: {
+        name: 'Create a pipeline to be used on your board',
+        url: '/settings/boards/growthHack#showPipelineModal=true'
+      },
+      step3: {
+        name: 'Customize the stages in your pipeline',
+        url: '/settings/boards/growthHack#showPipelineModal=true'
+      }
+    }
+  },
+  customizeTasks: {
+    text: 'Task stage',
+    description:
+      "Customizing your ticket stages will help you manage and keep track of the organization's internal operations and activities. You can save time, manage your projects, monitor your team and increase your productivity in just a few clicks. ",
+    videoUrl: 'https://www.youtube.com/embed/Z5KI5YuvZ7U?autoplay=1',
+    videoThumb: 'https://img.youtube.com/vi/Z5KI5YuvZ7U/mqdefault.jpg',
+    settingsDetails: {
+      step1: {
+        name: 'Create a board',
+        url: '/settings/boards/growthHack#showBoardModal=true'
+      },
+      step2: {
+        name: 'Create a pipeline to be used on your board',
+        url: '/settings/boards/growthHack#showPipelineModal=true'
+      },
+      step3: {
+        name: 'Customize the stages in your pipeline',
+        url: '/settings/boards/growthHack#showPipelineModal=true'
+      }
+    }
+  },
+  customizeGrowthHacking: {
+    text: 'Growth hacking stage',
+    description:
+      "Evaluate the percentage of success on every idea by dividing them into categories. This enables you to more effectively predict an experiment's impact.",
+    videoUrl: 'https://www.youtube.com/embed/Z5KI5YuvZ7U?autoplay=1',
+    videoThumb: 'https://img.youtube.com/vi/Z5KI5YuvZ7U/mqdefault.jpg',
+    settingsDetails: {
+      step1: {
+        name: 'Create a growth hacking template',
+        url: '/settings/boards/growthHack#showBoardModal=true'
+      },
+      step2: {
+        name: 'Customize the stages in your template',
+        url: '/settings/boards/growthHack#showPipelineModal=true'
+      }
+    }
+  },
+  customizeSegmentation: {
+    text: 'Contact',
+    description:
+      'A segment is smaller group of your contacts defined by rules or filters that you set. This can be used for target marketing.',
+    videoUrl: 'https://www.youtube.com/embed/Z5KI5YuvZ7U?autoplay=1',
+    videoThumb: 'https://img.youtube.com/vi/Z5KI5YuvZ7U/mqdefault.jpg',
+    settingsDetails: {
+      step1: {
+        name: 'Famliarize yourself with the existing segments ',
+        url: '/settings/boards/growthHack#showBoardModal=true'
+      },
+      step2: {
+        name: 'Create a segment',
+        url: '/settings/boards/growthHack#showPipelineModal=true'
+      },
+      step3: {
+        name: 'Create a subsegment within the previous segment',
+        url: '/settings/boards/growthHack#showPipelineModal=true'
+      }
+    }
+  },
+  prepareMailResponseTemplates: {
+    text: 'Email/response template',
+    description:
+      'You can save a lot of time by preparing email/response templates, all you need to do is automate your entire operation with prepared scripts. ',
+    videoUrl: 'https://www.youtube.com/embed/Z5KI5YuvZ7U?autoplay=1',
+    videoThumb: 'https://img.youtube.com/vi/Z5KI5YuvZ7U/mqdefault.jpg',
+    settingsDetails: {
+      step1: {
+        name: 'Create a response template',
+        url: '/settings/boards/growthHack#showBoardModal=true'
+      },
+      step2: {
+        name: 'Create an email template',
+        url: '/settings/boards/growthHack#showPipelineModal=true'
+      }
+    }
+  },
+  automateCampaigns: {
+    text: 'Campaigns',
+    description:
+      'Create campaigns that automatically deliver information to customers based on segments and labels. Start converting your prospects into potential customers through email, SMS, Live chat, and In-app-messaging or more interactions to drive them to a successful close. You can make manual and visitor auto campaigns as well.',
+    videoUrl: 'https://www.youtube.com/embed/Z5KI5YuvZ7U?autoplay=1',
+    videoThumb: 'https://img.youtube.com/vi/Z5KI5YuvZ7U/mqdefault.jpg',
+    settingsDetails: {
+      step1: {
+        name: 'Create a campaign',
+        url: '/settings/boards/growthHack#showBoardModal=true'
+      },
+      step2: {
+        name: 'Choose a channel',
+        url: '/settings/boards/growthHack#showPipelineModal=true'
+      },
+      step3: {
+        name: 'Choose the recipients of the campaign',
+        url: '/settings/boards/growthHack#showPipelineModal=true'
+      },
+      step4: {
+        name: 'Compose your campaign',
+        url: '/settings/boards/growthHack#showPipelineModal=true'
+      }
+    }
+  },
+  customizeKnowledgeBase: {
+    text: 'Khowledge Base',
+    description:
+      'Educate both your customers and staff by creating a help center related to your brands, products and services to reach higher level of satisfactions.',
+    videoUrl: 'https://www.youtube.com/embed/Z5KI5YuvZ7U?autoplay=1',
+    videoThumb: 'https://img.youtube.com/vi/Z5KI5YuvZ7U/mqdefault.jpg',
+    settingsDetails: {
+      step1: {
+        name: 'Add and edit the appearance of your knowledge base',
+        url: '/settings/boards/growthHack#showBoardModal=true'
+      },
+      step2: {
+        name: 'Add categories in the knowledge base',
+        url: '/settings/boards/growthHack#showPipelineModal=true'
+      },
+      step3: {
+        name: 'Add an article within the knowledge base',
+        url: '/settings/boards/growthHack#showPipelineModal=true'
+      }
+    }
+  }
 };

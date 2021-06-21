@@ -107,7 +107,7 @@ class TodoDetail extends React.Component<Props> {
 
   renderSettings() {
     const { feature, stepsCompleteness } = this.props;
-
+    console.log(feature, 'todoDetail');
     if (!feature.showSettings) {
       return null;
     }

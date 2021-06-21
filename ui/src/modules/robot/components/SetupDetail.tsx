@@ -65,18 +65,14 @@ const Progress = styled.div`
 `;
 
 type Props = {
-  feature: IFeature;
+  roleOption: IFeature;
   completeShowStep: () => void;
   stepsCompleteness: { [key: string]: boolean };
 };
 
 class SetupDetail extends React.Component<Props> {
   renderProgress = () => {
-    const { feature, stepsCompleteness } = this.props;
-
-    if (!feature.showSettings || feature.settings.length === 0) {
-      return null;
-    }
+    const { stepsCompleteness } = this.props;
 
     let total = 0;
     let done = 0;
@@ -106,25 +102,14 @@ class SetupDetail extends React.Component<Props> {
   };
 
   renderSettings() {
-    const { feature, stepsCompleteness } = this.props;
-
-    if (!feature.showSettings) {
-      return null;
-    }
-
+    const { roleOption } = this.props;
     return (
       <Checklist>
-        {feature.settings.map((setting, index) => {
-          const detail = feature.settingsDetails[setting];
-
+        {Object.entries(roleOption.settingsDetails).map((steps, index) => {
+          const detail = steps[1];
           return (
-            <ChecklistItem key={index} isComplete={stepsCompleteness[setting]}>
+            <ChecklistItem key={index}>
               <Link to={`${detail.url}#signedIn=true`}>{detail.name}</Link>
-              {stepsCompleteness[setting] && (
-                <span role="img" aria-label="Selebration">
-                  🎉
-                </span>
-              )}
             </ChecklistItem>
           );
         })}
@@ -133,15 +118,15 @@ class SetupDetail extends React.Component<Props> {
   }
 
   renderVideo() {
-    const { feature } = this.props;
+    const { roleOption } = this.props;
 
-    if (feature.videoUrl && feature.videoUrl !== 'url') {
+    if (roleOption.videoUrl && roleOption.videoUrl !== 'url') {
       return (
         <VideoPopup
           onVideoClick={this.props.completeShowStep}
-          name={feature.name}
-          videoUrl={feature.videoUrl}
-          thumbImage={feature.videoThumb}
+          name={roleOption.name}
+          videoUrl={roleOption.videoUrl}
+          thumbImage={roleOption.videoThumb}
         />
       );
     }
@@ -150,13 +135,12 @@ class SetupDetail extends React.Component<Props> {
   }
 
   render() {
-    const { feature } = this.props;
-
+    const { roleOption } = this.props;
     return (
       <>
-        <Title>{feature.text}</Title>
+        <Title>{roleOption.text}</Title>
         {this.renderVideo()}
-        <p>{feature.description}</p>
+        <p>{roleOption.description}</p>
         {this.renderProgress()}
         {this.renderSettings()}
       </>
