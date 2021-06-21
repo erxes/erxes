@@ -23,7 +23,6 @@ class Supporters extends React.Component<Props> {
 
   renderSupporter(user: IUser, isOnline: boolean, color: string) {
     const details = user.details || ({} as IUserDetails);
-
     return (
       <div
         key={user._id}
