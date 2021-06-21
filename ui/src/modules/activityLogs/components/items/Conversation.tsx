@@ -214,8 +214,6 @@ class Conversation extends React.Component<Props, { toggleMessage: boolean }> {
 
     const { customer, content, createdAt, integration } = conversation;
 
-    console.log('-->', integration);
-
     if (!this.state.toggleMessage && integration) {
       return (
         <>
