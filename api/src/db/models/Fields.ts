@@ -15,7 +15,6 @@ import {
   PROPERTY_GROUPS
 } from '../../data/constants';
 import { updateOrder } from './boardUtils';
-import { ICustomField } from './definitions/common';
 import { FIELDS_GROUPS_CONTENT_TYPES } from './definitions/constants';
 import {
   fieldGroupSchema,

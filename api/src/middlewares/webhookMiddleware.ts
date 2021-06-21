@@ -1,4 +1,5 @@
 import { NodeVM } from 'vm2';
+import { RABBITMQ_QUEUES } from '../data/constants';
 import { findCompany, findCustomer } from '../data/utils';
 import {
   Companies,
@@ -9,6 +10,7 @@ import {
   Fields,
   Integrations
 } from '../db/models';
+import messageBroker from '../messageBroker';
 import { graphqlPubsub } from '../pubsub';
 
 const checkCompanyFieldsExists = async doc => {
@@ -266,6 +268,17 @@ const webhookMiddleware = async (req, res, next) => {
         }
       });
     }
+
+    if (params.customers) {
+      await messageBroker().sendRPCMessage(
+        RABBITMQ_QUEUES.RPC_API_TO_WEBHOOKWORKERS,
+        {
+          type: 'customer',
+          data: params.customers
+        }
+      );
+    }
+
     return res.send('ok');
   } catch (e) {
     return next(e);

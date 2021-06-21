@@ -420,3 +420,45 @@ export const receiveImportCreate = async (content: any) => {
 
   return { id: importHistory.id };
 };
+
+export const importFromWebhook = async (content: any) => {
+  const { data, type } = content;
+
+  // const useElkSyncer = ELK_SYNCER === 'false' ? false : true;
+
+  if (data.length === 0) {
+    throw new Error('Please import at least one row of data');
+  }
+
+  const properties = await checkFieldNames(type, Object.keys(data[0]));
+
+  // const handleBulkOperation = async (rows: any) => {
+  //   if (rows.length === 0) {
+  //     return debugWorkers('Please import at least one row of data');
+  //   }
+
+  //   const result: unknown[] = [];
+
+  //   for (const row of rows) {
+  //     result.push(Object.values(row));
+  //   }
+
+  //   const workerPath = path.resolve(getWorkerFile('bulkInsert'));
+
+  //   await myWorker.createWorker(workerPath, {
+  //     contentType: type,
+  //     properties,
+  //     result,
+  //     useElkSyncer
+  //   });
+  // };
+
+  // importBulkStream({
+  //   fileName,
+  //   uploadType,
+  //   bulkLimit: WORKER_BULK_LIMIT,
+  //   handleBulkOperation
+  // });
+
+  return { properties };
+};
