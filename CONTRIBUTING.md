@@ -2,27 +2,27 @@
 
 ## Introduction
 
-First, thank you for considering contributing to erxes! It's people like you that make the open source community such a great community! 😊
+First, let me thank you for considering contributing to erxes, more power to you! It's a bunch of people like you that make the open source community such a great community! 😊
 
-We welcome any type of contribution, not only code. You can help with 
-- **QA**: file bug reports, the more details you can give the better (e.g. screenshots with the console open)
-- **Marketing**: writing blog posts, howto's, printing stickers, ...
-- **Community**: presenting the project at meetups, organizing a dedicated meetup for the local community, ...
-- **Code**: take a look at the [open issues](https://github.com/erxes/erxes/issues). Even if you can't write code, commenting on them, showing that you care about a given issue matters. It helps us triage them.
+We welcome any type of contribution, not only code. You can proceed to have a look into the repository and help with 
+- **QA**: file bug reports, the more details you can give the better it will be to understand(e.g. screenshots with the console open)
+- **Marketing**: writing blog posts, how to's, printing stickers, ...
+- **Community**: presenting the project at the meetups, organizing a dedicated meetup for the local community, ...
+- **Code**: You can take a look at all the open issues here [open issues](https://github.com/erxes/erxes/issues). Even if you can't write code, commenting on them, showing that you care about a given issue matters. It helps us triage them.
 - **Money**: we welcome financial contributions in full transparency on our [open collective](https://opencollective.com/erxes).
 
 ## Your First Contribution
 
-Working on your first Pull Request? You can learn how from this *free* series, [How to Contribute to an Open Source Project on GitHub](https://egghead.io/series/how-to-contribute-to-an-open-source-project-on-github).
+Working on your first Pull Request? You can learn how to proceed from this *free* series, [How to Contribute to an Open Source Project on GitHub](https://egghead.io/series/how-to-contribute-to-an-open-source-project-on-github).
 
 ## Submitting code
 
-Any code change should be submitted as a pull request. The description should explain what the code does and give steps to execute it. The pull request should also contain tests.
+Any code change has to be submitted as a pull request. The description should briefly explain what the code does and give steps to execute it. The pull request should also contain tests.
 
 ## Code review process
 
-The bigger the pull request, the longer it will take to review and merge. Try to break down large pull requests in smaller chunks that are easier to review and merge.
-It is also always helpful to have some context for your pull request. What was the purpose? Why does it matter to you?
+The bigger the pull request, the longer it will take to review and merge. Please try to break down large pull requests in smaller chunks that are easier to review and merge.
+It is also always helpful to have some context for your pull request. What was the purpose? Why does it matter to you? for a better understanding.
 
 ## Financial contributions
 
