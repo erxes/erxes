@@ -389,7 +389,7 @@ export class AppProvider extends React.Component<{}, IState> {
           callback();
         }
 
-        //cache customerId
+        // cache customerId
         setLocalStorageItem("customerId", widgetsSaveCustomerGetNotified._id);
         connection.data.customerId = widgetsSaveCustomerGetNotified._id;
 
