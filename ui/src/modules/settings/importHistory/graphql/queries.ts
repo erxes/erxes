@@ -24,6 +24,7 @@ const allLeadIntegrations = `
     allLeadIntegrations {
       _id
       name
+      formId
     }
   }
 `;
