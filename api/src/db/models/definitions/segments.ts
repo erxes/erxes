@@ -45,7 +45,7 @@ export interface ISegment {
   color: string;
 
   conditions: ICondition[];
-  conditionsConjunction: 'and' | 'or';
+  conditionsConjunction?: 'and' | 'or';
 
   scopeBrandIds?: string[];
 

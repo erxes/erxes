@@ -72,6 +72,7 @@ import {
   PRODUCT_TYPES,
   WEBHOOK_ACTIONS
 } from './models/definitions/constants';
+import { ICustomerDocument } from './models/definitions/customers';
 import {
   IEmail,
   IMessenger,
@@ -563,7 +564,7 @@ export const customerFactory = async (
   params: ICustomerFactoryInput = {},
   useModelMethod = false,
   syncToEs = false
-) => {
+): Promise<ICustomerDocument> => {
   const createdAt = faker.date.past();
 
   const doc = {
