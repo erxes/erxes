@@ -128,8 +128,6 @@ const create = async ({
   };
 
   const prepareDocs = async (body, type, collectionDocs) => {
-    console.log('body: ', body);
-    console.log(collectionDocs);
     debugWorkers(`prepareDocs called`);
 
     const response = await fetchElk({

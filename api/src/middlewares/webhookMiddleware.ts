@@ -24,6 +24,8 @@ const checkCompanyFieldsExists = async doc => {
 };
 
 const solveCustomFieldsData = (customFieldsData, prevCustomFieldsData) => {
+  prevCustomFieldsData = prevCustomFieldsData || [];
+
   for (const data of customFieldsData) {
     const prevData = prevCustomFieldsData.find(d => d.field === data.field);
 
@@ -145,7 +147,7 @@ const webhookMiddleware = async (req, res, next) => {
 
       doc.customFieldsData = solveCustomFieldsData(
         customFieldsData,
-        customer.customFieldsData || []
+        customer.customFieldsData
       );
 
       customer = await Customers.updateCustomer(customer._id, doc);
