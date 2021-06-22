@@ -269,13 +269,20 @@ const webhookMiddleware = async (req, res, next) => {
       });
     }
 
+    let bulkData: any;
+
     if (params.customers) {
+      bulkData = { type: 'customer', data: params.customers };
+    }
+
+    if (params.companies) {
+      bulkData = { type: 'company', data: params.companies };
+    }
+
+    if (bulkData) {
       await messageBroker().sendRPCMessage(
         RABBITMQ_QUEUES.RPC_API_TO_WEBHOOKWORKERS,
-        {
-          type: 'customer',
-          data: params.customers
-        }
+        bulkData
       );
     }
 

@@ -42,7 +42,7 @@ export const initBroker = async server => {
     const response = { status: 'success', data: {}, errorMessage: '' };
 
     try {
-      response.data = await importFromWebhook(content);
+      await importFromWebhook(content);
     } catch (e) {
       response.status = 'error';
       response.errorMessage = e.message;
