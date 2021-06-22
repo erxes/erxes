@@ -38,7 +38,7 @@ export const initBroker = async server => {
     return response;
   });
 
-  consumeRPCQueue(RABBITMQ_QUEUES.RPC_API_TO_WEBHOOKWORKERS, async content => {
+  consumeRPCQueue(RABBITMQ_QUEUES.RPC_API_TO_WEBHOOK_WORKERS, async content => {
     const response = { status: 'success', data: {}, errorMessage: '' };
 
     try {

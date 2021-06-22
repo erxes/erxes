@@ -283,7 +283,7 @@ const webhookMiddleware = async (req, res, next) => {
 
     if (bulkData) {
       await messageBroker().sendRPCMessage(
-        RABBITMQ_QUEUES.RPC_API_TO_WEBHOOKWORKERS,
+        RABBITMQ_QUEUES.RPC_API_TO_WEBHOOK_WORKERS,
         bulkData
       );
     }
