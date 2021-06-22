@@ -75,6 +75,12 @@ export interface IFieldModel extends Model<IFieldDocument> {
     groupId: string,
     contentType: string
   ): Promise<IFieldDocument[]>;
+  generateCustomFieldsData(
+    data: {
+      [key: string]: any;
+    },
+    contentType: string
+  ): Promise<any>;
 }
 
 export const loadFieldClass = () => {
@@ -437,6 +443,43 @@ export const loadFieldClass = () => {
           await Fields.insertMany(deviceFields);
           break;
       }
+    }
+
+    public static async generateCustomFieldsData(
+      data: { [key: string]: any },
+      contentType: string
+    ) {
+      const keys = Object.keys(data || {});
+
+      let customFieldsData: any = [];
+
+      for (const key of keys) {
+        const customField = await Fields.findOne({
+          contentType,
+          text: key
+        });
+
+        let value = data[key];
+
+        if (customField) {
+          if (customField.validation === 'date') {
+            value = new Date(data[key]);
+          }
+
+          customFieldsData.push({
+            field: customField._id,
+            value
+          });
+
+          delete data[key];
+        }
+      }
+
+      const trackedData = await this.generateTypedListFromMap(data);
+
+      customFieldsData = await this.prepareCustomFieldsData(customFieldsData);
+
+      return { customFieldsData, trackedData };
     }
   }
 
