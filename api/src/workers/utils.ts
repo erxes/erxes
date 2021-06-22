@@ -208,7 +208,10 @@ const importBulkStream = ({
             rows = [];
             next();
           })
-          .catch(e => reject(e));
+          .catch(e => {
+            debugError(`Error during bulk insert from csv: ${e.message}`);
+            reject(e);
+          });
       }
 
       return next();
@@ -444,7 +447,10 @@ const importWebhookStream = ({
             rows = [];
             next();
           })
-          .catch(e => reject(e));
+          .catch(e => {
+            debugError(`Error during bulk insert from webhook: ${e.message}`);
+            reject(e);
+          });
       }
 
       return next();
