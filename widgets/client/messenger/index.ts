@@ -41,8 +41,6 @@ widgetConnect({
         name: setting.name,
         data: setting.data,
         companyData: setting.companyData,
-        customFieldsData: setting.customFieldsData,
-        companyCustomFieldsData: setting.companyCustomFieldsData
       }
     });
   },
