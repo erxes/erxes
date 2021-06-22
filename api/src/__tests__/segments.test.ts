@@ -30,7 +30,7 @@ describe('Segments mutations', () => {
       true
     );
 
-    await sleep(1000);
+    await sleep(2000);
 
     const subSegment = await segmentFactory({
       contentType: 'customer',
