@@ -79,7 +79,7 @@ jobs:
       - name: Test
         run: |
           cd api
-          yarn test segments
+          yarn test
         env:
           MONGO_URL: mongodb://localhost/erxes
           TEST_MONGO_URL: mongodb://localhost/test
