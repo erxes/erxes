@@ -44,6 +44,7 @@ const users = `
     users {
       _id
       email
+      isActive
       details {
         avatar
         fullName
