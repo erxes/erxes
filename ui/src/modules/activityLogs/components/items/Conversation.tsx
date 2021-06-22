@@ -203,6 +203,12 @@ class Conversation extends React.Component<Props, { toggleMessage: boolean }> {
     );
   }
 
+  renderDate(createdAt) {
+    return (
+      <ActivityDate>{dayjs(createdAt).format('MMM D, h:mm A')}</ActivityDate>
+    );
+  }
+
   renderContent() {
     const { conversation, messages } = this.props;
 
@@ -218,7 +224,10 @@ class Conversation extends React.Component<Props, { toggleMessage: boolean }> {
                 <b>{renderFullName(customer)}</b>
               </span>
             ) : (
-              <span>{this.renderAction()}</span>
+              <FlexCenterContent>
+                <span>{this.renderAction()}</span>
+                {this.renderDate(createdAt)}
+              </FlexCenterContent>
             )}
           </Header>
           {this.renderMessages()}
@@ -232,9 +241,7 @@ class Conversation extends React.Component<Props, { toggleMessage: boolean }> {
           {this.renderAction()}
 
           <Tip text={dayjs(createdAt).format('llll')}>
-            <ActivityDate>
-              {dayjs(createdAt).format('MMM D, h:mm A')}
-            </ActivityDate>
+            {this.renderDate(createdAt)}
           </Tip>
         </FlexCenterContent>
         {content && (
