@@ -3,6 +3,7 @@ import * as faker from 'faker';
 import * as Random from 'meteor-random';
 import * as momentTz from 'moment-timezone';
 import { FIELDS_GROUPS_CONTENT_TYPES } from '../data/constants';
+import { fetchElk } from '../elasticsearch';
 import {
   Boards,
   Brands,
@@ -77,6 +78,7 @@ import {
   IScheduleDate
 } from './models/definitions/engages';
 import { IMessengerAppCrendentials } from './models/definitions/messengerApps';
+import { ICondition } from './models/definitions/segments';
 import { IUserDocument } from './models/definitions/users';
 import PipelineTemplates from './models/PipelineTemplates';
 
@@ -378,19 +380,13 @@ export const responseTemplateFactory = (
   return responseTemplate.save();
 };
 
-interface IConditionsInput {
-  field?: string;
-  operator?: string;
-  value?: any;
-  type?: string;
-}
-
 interface ISegmentFactoryInput {
   contentType?: string;
   description?: string;
   subOf?: string;
   color?: string;
-  conditions?: IConditionsInput[];
+  conditions?: ICondition[];
+  conditionsConjunction?: 'and' | 'or';
   boardId?: string;
   pipelineId?: string;
 }
@@ -412,6 +408,7 @@ export const segmentFactory = (params: ISegmentFactoryInput = {}) => {
     subOf: params.subOf,
     color: params.color || '#809b87',
     conditions: params.conditions || defaultConditions,
+    conditionsConjunction: params.conditionsConjunction,
     boardId: params.boardId,
     pipelineId: params.pipelineId
   });
@@ -564,7 +561,8 @@ interface ICustomerFactoryInput {
 
 export const customerFactory = async (
   params: ICustomerFactoryInput = {},
-  useModelMethod = false
+  useModelMethod = false,
+  syncToEs = false
 ) => {
   const createdAt = faker.date.past();
 
@@ -601,12 +599,28 @@ export const customerFactory = async (
   };
 
   if (useModelMethod) {
-    return Customers.createCustomer(doc);
+    const customer = await Customers.createCustomer(doc);
+    return syncToEs
+      ? await fetchElk({
+          action: 'create',
+          index: 'customers',
+          body: doc,
+          _id: customer._id
+        })
+      : customer;
   }
 
-  const customer = new Customers(doc);
+  const customerObject = new Customers(doc);
+  const savedCustomer = await customerObject.save();
 
-  return customer.save();
+  return syncToEs
+    ? await fetchElk({
+        action: 'create',
+        index: 'customers',
+        body: doc,
+        _id: savedCustomer._id
+      })
+    : savedCustomer;
 };
 
 interface IFieldFactoryInput {

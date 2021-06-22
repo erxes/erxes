@@ -72,6 +72,14 @@ describe('customerQueries', () => {
     }
   `;
 
+  let gmock;
+
+  const createGMock = () => {
+    gmock = sinon.stub(elk, 'fetchElk').callsFake(() => {
+      return Promise.resolve({ hits: { hits: [] } });
+    });
+  };
+
   afterEach(async () => {
     // Clearing test data
     await Customers.deleteMany({});
@@ -81,10 +89,16 @@ describe('customerQueries', () => {
   });
 
   test('Customers', async () => {
+    await createGMock();
+
     await graphqlRequest(qryCustomers, 'customers', {});
+
+    gmock.restore();
   });
 
   test('Customers filtered by ids', async () => {
+    await createGMock();
+
     const customer1 = await customerFactory({}, true);
     const customer2 = await customerFactory({}, true);
     const customer3 = await customerFactory({}, true);
@@ -96,10 +110,14 @@ describe('customerQueries', () => {
     const ids = [customer1._id, customer2._id, customer3._id];
 
     await graphqlRequest(qryCustomers, 'customers', { ids });
+
+    gmock.restore();
   });
 
   test('Main customers', async () => {
+    await createGMock();
     await graphqlRequest(qryCustomersMain, 'customersMain', {});
+    gmock.restore();
   });
 
   test('Count customers', async () => {
@@ -167,6 +185,8 @@ describe('customerQueries', () => {
   });
 
   test('Customer filtered by submitted form', async () => {
+    await createGMock();
+
     const customer1 = await customerFactory({}, true);
     const customer2 = await customerFactory({}, true);
 
@@ -184,9 +204,13 @@ describe('customerQueries', () => {
     await graphqlRequest(qryCustomersMain, 'customersMain', {
       form: form._id
     });
+
+    gmock.restore();
   });
 
-  test('Customer filtered by submitted form with startDate and endDate', async () => {
+  test('Customer filtered by submitted form with startDcate and endDate', async () => {
+    await createGMock();
+
     const customer = await customerFactory({}, true);
     const customer1 = await customerFactory({}, true);
     const customer2 = await customerFactory({}, true);
@@ -216,12 +240,17 @@ describe('customerQueries', () => {
     };
 
     await graphqlRequest(qryCustomersMain, 'customersMain', args);
+
+    gmock.restore();
   });
 
   test('Customer filtered by default selector', async () => {
-    await integrationFactory({});
+    await createGMock();
 
+    await integrationFactory({});
     await graphqlRequest(qryCustomersMain, 'customersMain', {});
+
+    gmock.restore();
   });
 
   test('Customer detail', async () => {
