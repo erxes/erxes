@@ -46,7 +46,7 @@ class Supporters extends React.Component<Props> {
 
   renderOnlineState(isOnline: boolean) {
     const stateClasses = classNames("erxes-state", {
-      online: isOnline
+      online: isOnline,
     });
 
     return <span className={stateClasses} />;
@@ -57,15 +57,17 @@ class Supporters extends React.Component<Props> {
       users,
       isOnline = false,
       isExpanded = false,
-      color = ""
+      color = "",
     } = this.props;
 
-    const supporters = users.map(user =>
+    const activeUsers = users.filter((user) => user.isActive);
+
+    const supporters = activeUsers.map((user) =>
       this.renderSupporter(user, isOnline, color)
     );
 
     const wrapperClass = classNames("erxes-supporters", {
-      full: isExpanded
+      full: isExpanded,
     });
 
     return <div className={wrapperClass}>{supporters}</div>;
