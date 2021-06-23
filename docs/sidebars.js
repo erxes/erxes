@@ -59,7 +59,7 @@ module.exports = {
             ] 
           },
         {
-          Turorials: [
+          Tutorials: [
            "developer/graphql-api",
            "developer/android-sdk",
            "developer/ios-sdk",
