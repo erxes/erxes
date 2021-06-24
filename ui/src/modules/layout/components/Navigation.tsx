@@ -1,133 +1,21 @@
 import Label from 'modules/common/components/Label';
 import Tip from 'modules/common/components/Tip';
 import WithPermission from 'modules/common/components/WithPermission';
-import { colors, dimensions } from 'modules/common/styles';
 import { __, getEnv, setBadge } from 'modules/common/utils';
 import { pluginsOfNavigations } from 'pluginUtils';
 import React from 'react';
 import { NavLink } from 'react-router-dom';
-import styled from 'styled-components';
+import { LeftNavigation, NavIcon, Nav, Collapse } from '../styles';
 
 const { REACT_APP_DASHBOARD_URL } = getEnv();
 
-const LeftNavigation = styled.aside`
-  width: ${dimensions.headerSpacingWide}px;
-  background: ${colors.colorPrimaryDark};
-  box-shadow: 1px 0px 5px rgba(0, 0, 0, 0.1);
-  z-index: 11;
-  flex-shrink: 0;
-  position: absolute;
-  left: 0;
-  top: 0;
-  bottom: 0;
-
-  > a {
-    display: flex;
-    margin-top: ${dimensions.unitSpacing / 2}px;
-    height: ${dimensions.headerSpacing}px;
-    justify-content: center;
-    align-items: center;
-
-    img {
-      max-height: 28px;
-      transition: all 0.3s ease;
-      max-width: 80%;
-
-      &:hover {
-        transform: scale(1.1);
-      }
-    }
-  }
-`;
-
-const Nav = styled.nav`
-  display: block;
-  margin-top: ${dimensions.unitSpacing / 2}px;
-  height: calc(100% - 130px);
-
-  > a {
-    display: block;
-    height: ${dimensions.headerSpacing + 10}px;
-    text-align: center;
-    position: relative;
-    transition: all 0.3s ease;
-
-    i {
-      opacity: 0.8;
-      transition: all 0.3s ease;
-    }
-
-    span {
-      position: absolute;
-      right: 12px;
-      bottom: 12px;
-      padding: 4px;
-      min-width: 19px;
-      min-height: 19px;
-    }
-
-    &.active {
-      background: rgba(0, 0, 0, 0.13);
-
-      &:before {
-        content: '';
-        width: 3px;
-        background: ${colors.colorCoreTeal};
-        position: absolute;
-        display: block;
-        left: 0;
-        top: 5px;
-        bottom: 5px;
-        border-top-right-radius: 3px;
-        border-bottom-right-radius: 3px;
-      }
-
-      i {
-        opacity: 1;
-      }
-    }
-
-    &:focus {
-      outline: 0;
-    }
-
-    &:hover {
-      background: rgba(0, 0, 0, 0.06);
-
-      i {
-        opacity: 1;
-      }
-    }
-
-    &.bottom {
-      position: absolute;
-      bottom: 0;
-      width: 100%;
-    }
-
-    @media (max-height: 760px) {
-      height: ${dimensions.headerSpacing}px;
-
-      i {
-        line-height: ${dimensions.headerSpacing}px;
-      }
-    }
-  }
-
-  &::-webkit-scrollbar {
-    display: none;
-  }
-`;
-
-const NavIcon = styled.i`
-  font-size: 16px;
-  line-height: ${dimensions.headerSpacing + 10}px;
-  color: ${colors.colorWhite};
-`;
-
-class Navigation extends React.Component<{
+type IProps = {
   unreadConversationsCount?: number;
-}> {
+  collapsed: boolean;
+  onCollapseNavigation: () => void;
+};
+
+class Navigation extends React.Component<IProps> {
   componentWillReceiveProps(nextProps) {
     const unreadCount = nextProps.unreadConversationsCount;
 
@@ -143,20 +31,43 @@ class Navigation extends React.Component<{
     icon: string,
     label?: React.ReactNode
   ) => {
+    const { collapsed } = this.props;
+
     return (
       <WithPermission key={url} action={permission}>
-        <Tip placement="right" text={text}>
+        {collapsed ? (
           <NavLink to={url}>
             <NavIcon className={icon} />
-            {label}
+            {__(text)}
           </NavLink>
-        </Tip>
+        ) : (
+          <Tip placement="right" text={text}>
+            <NavLink to={url}>
+              <NavIcon className={icon} />
+              {label}
+            </NavLink>
+          </Tip>
+        )}
       </WithPermission>
     );
   };
 
+  renderCollapse() {
+    const { onCollapseNavigation, collapsed } = this.props;
+    const icon = collapsed ? 'icon-sign-in-alt' : 'icon-sign-out-alt';
+
+    return (
+      <Collapse onClick={onCollapseNavigation} collapsed={collapsed}>
+        <NavIcon className={icon} />
+        {collapsed && __('Collapse menu')}
+      </Collapse>
+    );
+  }
+
   render() {
-    const { unreadConversationsCount } = this.props;
+    const { unreadConversationsCount, collapsed } = this.props;
+
+    const logo = collapsed ? 'logo.png' : 'erxes.png';
 
     const unreadIndicator = unreadConversationsCount !== 0 && (
       <Label shake={true} lblStyle="danger" ignoreTrans={true}>
@@ -165,19 +76,18 @@ class Navigation extends React.Component<{
     );
 
     return (
-      <LeftNavigation>
+      <LeftNavigation collapsed={collapsed}>
         <NavLink to="/">
-          <img src="/images/erxes.png" alt="erxes" />
+          <img src={`/images/${logo}`} alt="erxes" />
         </NavLink>
-        {REACT_APP_DASHBOARD_URL !== 'undefined'
-          ? this.renderNavItem(
+        <Nav id="navigation" collapsed={collapsed}>
+          {REACT_APP_DASHBOARD_URL !== 'undefined' &&
+            this.renderNavItem(
               'showDashboards',
               __('Dashboard'),
               '/dashboard',
               'icon-dashboard'
-            )
-          : null}
-        <Nav id="navigation">
+            )}
           {this.renderNavItem(
             'showConversations',
             __('Conversation'),
@@ -221,6 +131,7 @@ class Navigation extends React.Component<{
             '/knowledgeBase',
             'icon-book'
           )}
+          {this.renderCollapse()}
 
           {pluginsOfNavigations(this.renderNavItem)}
         </Nav>

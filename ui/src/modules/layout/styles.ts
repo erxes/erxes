@@ -28,6 +28,11 @@ import styledTS from 'styled-components-ts';
 import { colors, dimensions } from '../common/styles';
 import { rgba } from '../common/styles/color';
 
+const wideNavigation =
+  dimensions.headerSpacingWide +
+  dimensions.headerSpacingWide +
+  dimensions.coreSpacing;
+
 const UserHelper = styled.div`
   height: 50px;
   display: flex;
@@ -55,12 +60,13 @@ const Layout = styledTS<{ isSqueezed?: boolean }>(styled.main)`
     `};
 `;
 
-const MainWrapper = styled.div`
+const MainWrapper = styledTS<{ collapsed: boolean }>(styled.div)`
   flex: 1;
   display: flex;
   flex-direction: column;
   padding-top: ${dimensions.headerSpacing}px;
-  padding-left: ${dimensions.headerSpacingWide}px;
+  padding-left: ${props =>
+    props.collapsed ? wideNavigation : dimensions.headerSpacingWide}px;
   max-width: 100%;
 `;
 
@@ -165,6 +171,143 @@ const PasswordWithEye = styled.div`
   }
 `;
 
+const LeftNavigation = styledTS<{ collapsed: boolean }>(styled.aside)`
+  width: ${props =>
+    props.collapsed ? wideNavigation : dimensions.headerSpacingWide}px;
+  background: ${colors.colorPrimaryDark};
+  box-shadow: 1px 0px 5px rgba(0, 0, 0, 0.1);
+  z-index: 11;
+  flex-shrink: 0;
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+
+  > a {
+    display: flex;
+    margin-top: ${dimensions.unitSpacing / 2}px;
+    height: ${dimensions.headerSpacing}px;
+    justify-content: center;
+    align-items: center;
+
+    img {
+      max-height: ${props => (props.collapsed ? '35' : '28')}px;
+      transition: all 0.3s ease;
+      max-width: 80%;
+
+      &:hover {
+        transform: scale(1.1);
+      }
+    }
+  }
+`;
+
+const Nav = styledTS<{ collapsed: boolean }>(styled.nav)`
+  display: block;
+  margin-top: ${dimensions.unitSpacing / 2}px;
+  height: calc(100% - 130px);
+
+  > a {
+    display: block;
+    color: ${colors.bgLight}
+    height: ${dimensions.headerSpacing + 10}px;
+    text-align: ${props => !props.collapsed && 'center'};
+    position: relative;
+    opacity: .8;
+    transition: all 0.3s ease;
+
+    i {
+      padding: ${props => props.collapsed && '0 10px 0 15px'};
+      opacity: 0.8;
+      transition: all 0.3s ease;
+    }
+
+    span {
+      position: absolute;
+      right: 12px;
+      bottom: 12px;
+      padding: 4px;
+      min-width: 19px;
+      min-height: 19px;
+    }
+
+    &.active {
+      background: rgba(0, 0, 0, 0.13);
+      opacity: 1;
+
+      &:before {
+        content: "";
+        width: 3px;
+        background: ${colors.colorCoreTeal};
+        position: absolute;
+        display: block;
+        left: 0;
+        top: 5px;
+        bottom: 5px;
+        border-top-right-radius: 3px;
+        border-bottom-right-radius: 3px;
+      }
+
+      i {
+        opacity: 1;
+      }
+    }
+
+    &:focus {
+      outline: 0;
+    }
+
+    &:hover {
+      background: rgba(0, 0, 0, 0.06);
+
+      i {
+        opacity: 1;
+      }
+    }
+
+    &.bottom {
+      position: absolute;
+      bottom: 0;
+      width: 100%;
+    }
+
+    @media (max-height: 760px) {
+      height: ${dimensions.headerSpacing}px;
+
+      i {
+        line-height: ${dimensions.headerSpacing}px;
+      }
+    }
+  }
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
+`;
+
+const NavIcon = styled.i`
+  font-size: 16px;
+  line-height: ${dimensions.headerSpacing + 10}px;
+  color: ${colors.colorWhite};
+`;
+
+const Collapse = styledTS<{ collapsed: boolean }>(styled.div)`
+  cursor: pointer;
+  text-transform: uppercase;
+  font-size: 11px;
+  color: ${colors.colorShadowGray};
+  text-align: ${props => !props.collapsed && 'center'};
+
+  > i {
+    padding: ${props => props.collapsed && '0 10px 0 15px'};
+    color: ${colors.colorShadowGray};
+  }
+
+  &:hover {
+
+  }
+`;
+
 export {
   Layout,
   MainWrapper,
@@ -193,5 +336,9 @@ export {
   SectionBodyItem,
   MobileRecommend,
   FieldStyle,
-  PasswordWithEye
+  PasswordWithEye,
+  LeftNavigation,
+  Nav,
+  NavIcon,
+  Collapse
 };
