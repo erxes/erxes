@@ -33,7 +33,7 @@ class AssistantContentContainer extends React.Component<FinalProps> {
   changeStep = (route: string) => {
     const { getAvailableFeaturesQuery } = this.props;
 
-    if (route === 'todoList' && getAvailableFeaturesQuery) {
+    if (route === 'setupList' && getAvailableFeaturesQuery) {
       getAvailableFeaturesQuery.refetch();
     }
 
@@ -68,7 +68,7 @@ class AssistantContentContainer extends React.Component<FinalProps> {
               onboardStatus === 'initial' &&
               localStorage.getItem('erxes_customization_features')
             ) {
-              this.props.changeRoute('todoList');
+              this.props.changeRoute('setupList');
             }
           });
       }, 3000);

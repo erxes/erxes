@@ -406,25 +406,25 @@ export const ROLE_SETUP = [
       },
       {
         name: 'Install erxes widgets',
-        title: '',
+        title: 'undefined',
         steps: '3 steps',
         types: ['sales', 'marketing', 'customerSupport', 'above']
       },
       {
         name: 'Create your lead generation Forms',
-        title: '',
+        title: 'undefined',
         steps: '4 steps',
         types: ['marketing']
       },
       {
         name: 'Create your Knowledge Base',
-        title: '',
+        title: 'undefined',
         steps: '5 steps',
         types: ['customerSupport', 'managementAndOperations']
       },
       {
         name: 'Plan your content with Tasks',
-        title: '',
+        title: 'undefined',
         steps: '6 steps',
         types: ['marketing']
       },
@@ -442,13 +442,13 @@ export const ROLE_SETUP = [
       },
       {
         name: 'Import your existing customer data to erxes',
-        title: '',
+        title: 'undefined',
         steps: '7 steps',
         types: ['above']
       },
       {
         name: 'Create your Forms',
-        title: '',
+        title: 'undefined',
         steps: '7 steps',
         types: ['above']
       },
@@ -466,13 +466,13 @@ export const ROLE_SETUP = [
     content: [
       {
         name: 'Segment your contacts',
-        title: '',
+        title: 'undefined',
         steps: '1 steps',
         types: ['sales', 'marketing', 'above']
       },
       {
         name: 'Prepare content templates',
-        title: '',
+        title: 'undefined',
         steps: '2 steps',
         types: ['sales', 'customerSupport', 'managementAndOperations', 'above']
       },
@@ -484,7 +484,7 @@ export const ROLE_SETUP = [
       },
       {
         name: 'Customize your Reports',
-        title: '',
+        title: 'undefined',
         steps: '4 steps',
         types: [
           'sales',
@@ -509,7 +509,7 @@ export const ROLE_SETUP = [
       {
         name: 'Prepare the email/response templates',
         title: 'prepareMailResponseTemplates',
-        steps: '7 steps',
+        steps: '2 steps',
         types: ['marketing']
       },
       {
@@ -520,13 +520,13 @@ export const ROLE_SETUP = [
       },
       {
         name: 'Automate your customer support process',
-        title: '',
+        title: 'undefined',
         steps: '9 steps',
         types: ['customerSupport']
       },
       {
         name: 'Automate your operational process',
-        title: '',
+        title: 'undefined',
         steps: '10 steps',
         types: ['managementAndOperations']
       },
@@ -550,15 +550,15 @@ export const ROLE_SETUP_DETAILS = {
     settingsDetails: {
       step1: {
         name: 'Set your general setting',
-        url: '/settings/boards/growthHack#showBoardModal=true'
+        url: '/settings/boards/'
       },
       step2: {
         name: 'Set the types of file you would like to upload',
-        url: '/settings/boards/growthHack#showPipelineModal=true'
+        url: '/settings/boards/'
       },
       step3: {
         name: 'Set your constants',
-        url: '/settings/boards/growthHackTemplate'
+        url: '/settings/boards/'
       }
     }
   },
@@ -571,11 +571,11 @@ export const ROLE_SETUP_DETAILS = {
     settingsDetails: {
       step1: {
         name: 'Create brands',
-        url: '/settings/boards/growthHack#showBoardModal=true'
+        url: '/settings/boards/'
       },
       step2: {
         name: 'Create channels',
-        url: '/settings/boards/growthHack#showPipelineModal=true'
+        url: '/settings/boards/'
       }
     }
   },
@@ -588,12 +588,12 @@ export const ROLE_SETUP_DETAILS = {
     settingsDetails: {
       step1: {
         name: 'Choose which integrations you would like to add',
-        url: '/settings/boards/growthHack#showBoardModal=true'
+        url: '/settings/boards/'
       },
       step2: {
         name:
           'Follow the instructions as shown to successfully integrate communication channels',
-        url: '/settings/boards/growthHack#showPipelineModal=true'
+        url: '/settings/boards/'
       }
     }
   },
@@ -606,12 +606,12 @@ export const ROLE_SETUP_DETAILS = {
     settingsDetails: {
       step1: {
         name: 'Adjust the existing fields',
-        url: '/settings/boards/growthHack#showBoardModal=true'
+        url: '/settings/boards/'
       },
       step2: {
         name:
           'Add new groups and fields if the fields you require are not there',
-        url: '/settings/boards/growthHack#showPipelineModal=true'
+        url: '/settings/boards/'
       }
     }
   },
@@ -624,27 +624,27 @@ export const ROLE_SETUP_DETAILS = {
     settingsDetails: {
       step1: {
         name: 'Add groups',
-        url: '/settings/boards/growthHack#showBoardModal=true'
+        url: '/settings/boards/'
       },
       step2: {
         name: 'Add properties',
-        url: '/settings/boards/growthHack#showPipelineModal=true'
+        url: '/settings/boards/'
       },
       step3: {
         name: 'Prepare files to be imported on excel',
-        url: '/settings/boards/growthHack#showPipelineModal=true'
+        url: '/settings/boards/'
       },
       step4: {
         name: 'Download a template',
-        url: '/settings/boards/growthHack#showPipelineModal=true'
+        url: '/settings/boards/'
       },
       step5: {
         name: 'Enter your data in the template',
-        url: '/settings/boards/growthHack#showPipelineModal=true'
+        url: '/settings/boards/'
       },
       step6: {
         name: 'Import the file',
-        url: '/settings/boards/growthHack#showPipelineModal=true'
+        url: '/settings/boards/'
       }
     }
   },
@@ -657,11 +657,11 @@ export const ROLE_SETUP_DETAILS = {
     settingsDetails: {
       step1: {
         name: 'Add your team member(s)',
-        url: '/settings/boards/growthHack#showBoardModal=true'
+        url: '/settings/boards/'
       },
       step2: {
         name: "Enter your team member's information",
-        url: '/settings/boards/growthHack#showPipelineModal=true'
+        url: '/settings/boards/'
       }
     }
   },
@@ -674,15 +674,15 @@ export const ROLE_SETUP_DETAILS = {
     settingsDetails: {
       step1: {
         name: 'Create a board',
-        url: '/settings/boards/growthHack#showBoardModal=true'
+        url: '/settings/boards/'
       },
       step2: {
         name: 'Create a pipeline to be used on your board',
-        url: '/settings/boards/growthHack#showPipelineModal=true'
+        url: '/settings/boards/'
       },
       step3: {
         name: 'Customize the stages in your pipeline',
-        url: '/settings/boards/growthHack#showPipelineModal=true'
+        url: '/settings/boards/'
       }
     }
   },
@@ -695,11 +695,11 @@ export const ROLE_SETUP_DETAILS = {
     settingsDetails: {
       step1: {
         name: 'Add a category',
-        url: '/settings/boards/growthHack#showBoardModal=true'
+        url: '/settings/boards/'
       },
       step2: {
         name: 'Add a product & service into the category',
-        url: '/settings/boards/growthHack#showPipelineModal=true'
+        url: '/settings/boards/'
       }
     }
   },
@@ -712,15 +712,15 @@ export const ROLE_SETUP_DETAILS = {
     settingsDetails: {
       step1: {
         name: 'Create a board',
-        url: '/settings/boards/growthHack#showBoardModal=true'
+        url: '/settings/boards/'
       },
       step2: {
         name: 'Create a pipeline to be used on your board',
-        url: '/settings/boards/growthHack#showPipelineModal=true'
+        url: '/settings/boards/'
       },
       step3: {
         name: 'Customize the stages in your pipeline',
-        url: '/settings/boards/growthHack#showPipelineModal=true'
+        url: '/settings/boards/'
       }
     }
   },
@@ -733,15 +733,15 @@ export const ROLE_SETUP_DETAILS = {
     settingsDetails: {
       step1: {
         name: 'Create a board',
-        url: '/settings/boards/growthHack#showBoardModal=true'
+        url: '/settings/boards/'
       },
       step2: {
         name: 'Create a pipeline to be used on your board',
-        url: '/settings/boards/growthHack#showPipelineModal=true'
+        url: '/settings/boards/'
       },
       step3: {
         name: 'Customize the stages in your pipeline',
-        url: '/settings/boards/growthHack#showPipelineModal=true'
+        url: '/settings/boards/'
       }
     }
   },
@@ -754,11 +754,11 @@ export const ROLE_SETUP_DETAILS = {
     settingsDetails: {
       step1: {
         name: 'Create a growth hacking template',
-        url: '/settings/boards/growthHack#showBoardModal=true'
+        url: '/settings/boards/'
       },
       step2: {
         name: 'Customize the stages in your template',
-        url: '/settings/boards/growthHack#showPipelineModal=true'
+        url: '/settings/boards/'
       }
     }
   },
@@ -771,15 +771,15 @@ export const ROLE_SETUP_DETAILS = {
     settingsDetails: {
       step1: {
         name: 'Famliarize yourself with the existing segments ',
-        url: '/settings/boards/growthHack#showBoardModal=true'
+        url: '/settings/boards/'
       },
       step2: {
         name: 'Create a segment',
-        url: '/settings/boards/growthHack#showPipelineModal=true'
+        url: '/settings/boards/'
       },
       step3: {
         name: 'Create a subsegment within the previous segment',
-        url: '/settings/boards/growthHack#showPipelineModal=true'
+        url: '/settings/boards/'
       }
     }
   },
@@ -792,11 +792,11 @@ export const ROLE_SETUP_DETAILS = {
     settingsDetails: {
       step1: {
         name: 'Create a response template',
-        url: '/settings/boards/growthHack#showBoardModal=true'
+        url: '/settings/boards/'
       },
       step2: {
         name: 'Create an email template',
-        url: '/settings/boards/growthHack#showPipelineModal=true'
+        url: '/settings/boards/'
       }
     }
   },
@@ -809,19 +809,19 @@ export const ROLE_SETUP_DETAILS = {
     settingsDetails: {
       step1: {
         name: 'Create a campaign',
-        url: '/settings/boards/growthHack#showBoardModal=true'
+        url: '/settings/boards/'
       },
       step2: {
         name: 'Choose a channel',
-        url: '/settings/boards/growthHack#showPipelineModal=true'
+        url: '/settings/boards/'
       },
       step3: {
         name: 'Choose the recipients of the campaign',
-        url: '/settings/boards/growthHack#showPipelineModal=true'
+        url: '/settings/boards/'
       },
       step4: {
         name: 'Compose your campaign',
-        url: '/settings/boards/growthHack#showPipelineModal=true'
+        url: '/settings/boards/'
       }
     }
   },
@@ -834,15 +834,27 @@ export const ROLE_SETUP_DETAILS = {
     settingsDetails: {
       step1: {
         name: 'Add and edit the appearance of your knowledge base',
-        url: '/settings/boards/growthHack#showBoardModal=true'
+        url: '/settings/boards/'
       },
       step2: {
         name: 'Add categories in the knowledge base',
-        url: '/settings/boards/growthHack#showPipelineModal=true'
+        url: '/settings/boards/'
       },
       step3: {
         name: 'Add an article within the knowledge base',
-        url: '/settings/boards/growthHack#showPipelineModal=true'
+        url: '/settings/boards/'
+      }
+    }
+  },
+  undefined: {
+    text: 'undefined',
+    description: 'undefined',
+    videoUrl: 'https://www.youtube.com/embed/Z5KI5YuvZ7U?autoplay=1',
+    videoThumb: 'https://img.youtube.com/vi/Z5KI5YuvZ7U/mqdefault.jpg',
+    settingsDetails: {
+      step1: {
+        name: 'undefined',
+        url: '/settings/boards/'
       }
     }
   }

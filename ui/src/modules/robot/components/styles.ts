@@ -5,10 +5,12 @@ import styledTS from 'styled-components-ts';
 
 const SubContent = styled.div`
   padding: 0px;
-
   p {
     font-size: 12px;
     color: ${colors.textSecondary};
+  }
+  h5 {
+    margin-top: 20px;
   }
 `;
 
@@ -159,17 +161,22 @@ const Container = styled.div`
 `;
 
 const SetupList = styled.div`
+  margin-bottom: 20px;
   div {
     border-radius: ${dimensions.unitSpacing}px;
+    background-color: #fafafa;
     a {
-      padding: 10px;
+      padding: 5px 10px;
       h4 {
-        font-size: 16px;
+        font-size: 12px;
+        background-color: #fafafa;
+        text-transform: uppercase;
       }
     }
     div {
       div {
         padding: 0px;
+        background: ${colors.colorWhite};
         div {
           border-radius: 0px;
           padding: 10px;

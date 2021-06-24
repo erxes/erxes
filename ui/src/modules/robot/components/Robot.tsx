@@ -19,7 +19,7 @@ class Robot extends React.Component<Props, State> {
   constructor(props) {
     super(props);
 
-    this.state = { currentRoute: 'todoList', showContent: false };
+    this.state = { currentRoute: 'setupList', showContent: false };
   }
 
   changeRoute = (currentRoute: string) => {
@@ -46,7 +46,7 @@ class Robot extends React.Component<Props, State> {
   toggleContent = (isShow: boolean) => {
     this.setState({ showContent: isShow }, () => {
       if (!isShow) {
-        debounce(() => this.changeRoute('todoList'), 500)();
+        debounce(() => this.changeRoute('setupList'), 500)();
       }
     });
   };
@@ -54,7 +54,7 @@ class Robot extends React.Component<Props, State> {
   changeContent = () => {
     const { currentRoute } = this.state;
 
-    if (currentRoute && !currentRoute.includes('todo')) {
+    if (currentRoute && !currentRoute.includes('setup')) {
       return;
     }
 

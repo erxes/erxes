@@ -23,17 +23,27 @@ type Props = {
 type State = {
   welcomeStep: number;
   roleValue: IRoleValue;
+  roleValueLabel: string;
 };
 
 class AssistantContent extends React.Component<Props, State> {
   constructor(props) {
     super(props);
 
-    this.state = { welcomeStep: 0, roleValue: {} as IRoleValue };
+    this.state = {
+      welcomeStep: 0,
+      roleValue: { value: 'sales', label: 'Sales' } as IRoleValue,
+      roleValueLabel: ''
+    };
   }
 
   restartOnboard = () => {
     this.setState({ welcomeStep: 1 });
+    this.props.changeRoute('initial');
+  };
+
+  restartRole = (role: string) => {
+    this.setState({ welcomeStep: 1, roleValueLabel: role });
     this.props.changeRoute('initial');
   };
 
@@ -67,6 +77,7 @@ class AssistantContent extends React.Component<Props, State> {
         currentUserName={getCurrentUserName(currentUser)}
         changeRoute={changeRoute}
         activeStep={this.state.welcomeStep}
+        roleValueLabel={this.state.roleValueLabel}
       />
     );
 
@@ -87,7 +98,13 @@ class AssistantContent extends React.Component<Props, State> {
     }
 
     if (currentRoute === 'setupList' || currentRoute === 'setupDetail') {
-      return <Setup {...this.props} roleValue={this.state.roleValue} />;
+      return (
+        <Setup
+          {...this.props}
+          roleValue={this.state.roleValue}
+          restartRole={this.restartRole}
+        />
+      );
     }
 
     return null;

@@ -8,23 +8,25 @@ import {
   Container,
   Greeting,
   NavButton,
+  ProgressText,
+  RestartButton,
   SetupList,
   SubContent
 } from './styles';
-import colors from 'modules/common/styles/colors';
 import dimensions from 'modules/common/styles/dimensions';
 import { getCurrentUserName } from 'modules/robot/utils';
 import { IUser } from 'modules/auth/types';
 import Icon from 'modules/common/components/Icon';
 import SetupDetail from '../containers/SetupDetail';
+import ProgressBar from 'modules/common/components/ProgressBar';
 
 const Text = styled.div`
   font-weight: normal;
-  background: ${colors.colorWhite};
   display: flex;
   align-items: center;
   justify-content: space-between;
-  border-bottom: 1px solid #eee;
+  border: 1px solid #eee;
+  border-top: none;
 
   &:hover {
     cursor: pointer;
@@ -32,6 +34,7 @@ const Text = styled.div`
 
   h6 {
     margin: 0px;
+    font-weight: 400;
     width: 80%;
   }
 
@@ -52,20 +55,32 @@ type Props = {
   currentUser: IUser;
   showContent: boolean;
   toggleContent: (isShow: boolean) => void;
+  restartRole: (role: string) => void;
 };
 
-type State = { selectedOption: IFeature; showComplete: boolean };
+type State = {
+  selectedOption: IFeature;
+  showComplete: boolean;
+  collapseKey: any;
+};
 
 class Setup extends React.Component<Props, State> {
   constructor(props) {
     super(props);
 
-    this.state = { selectedOption: {} as IFeature, showComplete: true };
+    this.state = {
+      selectedOption: {} as IFeature,
+      showComplete: true,
+      collapseKey: ''
+    };
   }
 
-  onRoleClick = (title?: string) => {
+  onRoleClick = (title?: string, gkey?: string) => {
     this.setState(
-      { selectedOption: title ? ROLE_SETUP_DETAILS[title] : {} },
+      {
+        selectedOption: title ? ROLE_SETUP_DETAILS[title] : {},
+        collapseKey: gkey
+      },
       () => {
         this.props.changeRoute('setupDetail');
       }
@@ -99,6 +114,20 @@ class Setup extends React.Component<Props, State> {
     );
   };
 
+  openCollapse(gkey: string): boolean {
+    if (gkey === this.state.collapseKey) {
+      return true;
+    }
+    return false;
+  }
+
+  toggleList(gkey: string) {
+    const clickedOne = gkey;
+    console.log(clickedOne, '------');
+    console.log(this.openCollapse(gkey), '========');
+    return;
+  }
+
   renderSetup() {
     const { roleValue } = this.props;
 
@@ -109,13 +138,19 @@ class Setup extends React.Component<Props, State> {
             key={group.key}
             id={group.key}
             title={__(group.title)}
+            open={this.openCollapse(group.key)}
+            onClick={() => this.toggleList(group.key)}
           >
             {group.content.map((content, index) => {
               if (content.types.includes(roleValue.value)) {
                 return (
                   <Text
                     key={index}
-                    onClick={this.onRoleClick.bind(this, content.title)}
+                    onClick={this.onRoleClick.bind(
+                      this,
+                      content.title,
+                      group.key
+                    )}
                   >
                     <h6>{content.name}</h6>
                     <p>{content.steps}</p>
@@ -130,10 +165,44 @@ class Setup extends React.Component<Props, State> {
     );
   }
 
+  getPercentage() {
+    const min = 0;
+    const max = 100;
+    const percentage = Math.floor(min + Math.random() * (max - min));
+    return percentage;
+  }
+
+  renderProgress = () => {
+    const percentage = this.getPercentage();
+
+    let text = 'keep going!';
+
+    if (percentage < 75 && percentage > 50) {
+      text = "you're halfway through, keep going!";
+    }
+
+    if (percentage > 75 && percentage < 100) {
+      text = 'almost done, just a little more!';
+    }
+
+    if (percentage === 100) {
+      text = 'awesome!';
+    }
+
+    return (
+      <div>
+        <ProgressBar percentage={percentage} color="#3B85F4" height="8px" />
+        <ProgressText>
+          {percentage}% done - {text}
+        </ProgressText>
+      </div>
+    );
+  };
+
   renderContent() {
     const { selectedOption } = this.state;
-    const { currentRoute, currentUser, roleValue } = this.props;
-    const text = "Let's set up your workplace for success";
+    const { currentRoute, currentUser, roleValue, restartRole } = this.props;
+    const percentage = this.getPercentage();
 
     if (currentRoute === 'setupDetail') {
       return this.withHeader(
@@ -142,6 +211,11 @@ class Setup extends React.Component<Props, State> {
     }
 
     if (currentRoute === 'setupList') {
+      let text = "Let's set up your workplace for success";
+
+      if (percentage === 100) {
+        text = 'Congratulations! You have finished setting up';
+      }
       return this.withHeader(
         <>
           <Greeting>
@@ -154,13 +228,19 @@ class Setup extends React.Component<Props, State> {
             <p>{__(text)}.</p>
           </Greeting>
 
+          {this.renderProgress()}
+
           <SubContent>
-            <h4>
+            <h5>
               {roleValue.label} {__('Setup')}
-            </h4>
+            </h5>
           </SubContent>
 
           {this.renderSetup()}
+
+          <RestartButton onClick={() => restartRole(roleValue.label)}>
+            {__('Reselect role')}
+          </RestartButton>
         </>
       );
     }

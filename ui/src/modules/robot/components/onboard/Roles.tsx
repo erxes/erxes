@@ -15,9 +15,11 @@ type Props = {
   ) => React.ReactNode;
   changeRoute: (route: string) => void;
   getRoleOptions: (roleValue: IRoleValue) => void;
+  roleValueLabel: string;
 };
 
 type State = {
+  step: number;
   selectedRole: string;
   selectedValue: string;
 };
@@ -27,6 +29,7 @@ class Roles extends React.Component<Props, State> {
     super(props);
 
     this.state = {
+      step: 1,
       selectedRole: '',
       selectedValue: ''
     };
@@ -42,6 +45,7 @@ class Roles extends React.Component<Props, State> {
   render() {
     const { renderButton, changeRoute } = this.props;
     const { selectedRole, selectedValue } = this.state;
+
     const selectedRoleOnChange = value => this.onChange('selectedRole', value);
     const selectedValueOnChange = value =>
       this.onChange('selectedValue', value);

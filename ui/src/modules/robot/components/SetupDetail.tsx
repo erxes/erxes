@@ -74,8 +74,8 @@ class SetupDetail extends React.Component<Props> {
   renderProgress = () => {
     const { stepsCompleteness } = this.props;
 
-    let total = 0;
-    let done = 0;
+    let total = 3;
+    let done = 1;
 
     for (const key in stepsCompleteness) {
       if (stepsCompleteness.hasOwnProperty(key)) {

@@ -44,6 +44,7 @@ type Props = {
   currentUserName: string;
   changeRoute: (route: string) => void;
   activeStep?: number;
+  roleValueLabel: string;
 };
 
 type State = {
@@ -101,6 +102,7 @@ class Onboarding extends React.PureComponent<Props, State> {
         getRoleOptions={this.props.getRoleOptions}
         renderButton={this.renderButton}
         changeRoute={this.props.changeRoute}
+        roleValueLabel={this.props.roleValueLabel}
       />
     );
   };
