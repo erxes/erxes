@@ -5,6 +5,7 @@ import {
   ConversationMessages,
   Conversations,
   Customers,
+  Fields,
   Forms,
   Integrations,
   KnowledgeBaseArticles,
@@ -23,6 +24,7 @@ import {
 } from '../../../db/models/definitions/constants';
 import { ISubmission } from '../../../db/models/definitions/fields';
 import {
+  IAttachment,
   IIntegrationDocument,
   IMessengerDataMessagesItem
 } from '../../../db/models/definitions/integrations';
@@ -56,6 +58,7 @@ interface IWidgetEmailParams {
   content: string;
   customerId?: string;
   formId?: string;
+  attachments?: IAttachment[];
 }
 
 export const getMessengerData = async (integration: IIntegrationDocument) => {
@@ -210,7 +213,8 @@ const widgetMutations = {
       formId: args.formId,
       submissions: args.submissions,
       customer: cachedCustomer,
-      cachedCustomerId: cachedCustomer._id
+      cachedCustomerId: cachedCustomer._id,
+      conversationId: conversation._id
     });
 
     return {
@@ -258,6 +262,7 @@ const widgetMutations = {
       isUser,
       companyData,
       data,
+
       cachedCustomerId,
       deviceToken,
       visitorId
@@ -312,17 +317,10 @@ const widgetMutations = {
     }
 
     if (visitorId) {
-      try {
-        await sendToVisitorLog(
-          { visitorId, integrationId: integration._id },
-          'createOrUpdate'
-        );
-      } catch (_e) {
-        customer = await Customers.createMessengerCustomer({
-          doc: { integrationId: integration._id },
-          customData
-        });
-      }
+      await sendToVisitorLog(
+        { visitorId, integrationId: integration._id },
+        'createOrUpdate'
+      );
     }
 
     // get or create company
@@ -337,6 +335,13 @@ const widgetMutations = {
       if (!company) {
         companyData.primaryName = companyData.name;
         companyData.names = [companyData.name];
+
+        const { customFieldsData } = await Fields.generateCustomFieldsData(
+          companyData,
+          'company'
+        );
+
+        companyData.customFieldsData = customFieldsData;
 
         try {
           company = await Companies.createCompany({
@@ -717,6 +722,8 @@ const widgetMutations = {
   async widgetsSendEmail(_root, args: IWidgetEmailParams) {
     const { toEmails, fromEmail, title, content, customerId, formId } = args;
 
+    const attachments = args.attachments || [];
+
     // do not use Customers.getCustomer() because it throws error if not found
     const customer = await Customers.findOne({ _id: customerId });
     const form = await Forms.getForm(formId || '');
@@ -738,11 +745,23 @@ const widgetMutations = {
       finalContent = replacedContent || '';
     }
 
+    let mailAttachment: any = [];
+
+    if (attachments.length > 0) {
+      mailAttachment = attachments.map(file => {
+        return {
+          filename: file.name || '',
+          path: file.url || ''
+        };
+      });
+    }
+
     await sendEmail({
       toEmails,
       fromEmail,
       title,
-      template: { data: { content: finalContent } }
+      template: { data: { content: finalContent } },
+      attachments: mailAttachment
     });
   },
 

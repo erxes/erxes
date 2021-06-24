@@ -130,17 +130,20 @@ const create = async ({
   const prepareDocs = async (body, type, collectionDocs) => {
     debugWorkers(`prepareDocs called`);
 
-    const response = await fetchElk('search', type, {
-      query: { bool: { should: body } },
-      size: 10000,
-      _source: [
-        '_id',
-        'primaryEmail',
-        'primaryPhone',
-        'primaryName',
-        'code',
-        'customFieldsData'
-      ]
+    const response = await fetchElk({
+      action: 'search',
+      index: type,
+      body: {
+        query: { bool: { should: body } },
+        _source: [
+          '_id',
+          'primaryEmail',
+          'primaryPhone',
+          'primaryName',
+          'code',
+          'customFieldsData'
+        ]
+      }
     });
 
     const collections = response.hits.hits || [];
@@ -401,6 +404,19 @@ const create = async ({
       { _id: 1, code: 1 }
     );
 
+    const vendorCodes = docs.map(doc => doc.vendorCode);
+    const vendors = await Companies.find(
+      {
+        $or: [
+          { code: { $in: vendorCodes } },
+          { primaryEmail: { $in: vendorCodes } },
+          { primaryPhone: { $in: vendorCodes } },
+          { primaryName: { $in: vendorCodes } }
+        ]
+      },
+      { _id: 1, code: 1, primaryEmail: 1, primaryPhone: 1, primaryName: 1 }
+    );
+
     if (!categories) {
       throw new Error(
         'Product & service category not found check categoryCode field'
@@ -416,6 +432,24 @@ const create = async ({
         throw new Error(
           'Product & service category not found check categoryCode field'
         );
+      }
+
+      if (doc.vendorCode) {
+        const vendor = vendors.find(
+          v =>
+            v.code === doc.vendorCode ||
+            v.primaryName === doc.vendorCode ||
+            v.primaryEmail === doc.vendorCode ||
+            v.primaryPhone === doc.vendorCode
+        );
+
+        if (vendor) {
+          doc.vendorId = vendor._id;
+        } else {
+          throw new Error(
+            'Product & service vendor not found check VendorCode field'
+          );
+        }
       }
 
       doc.unitPrice = parseFloat(
@@ -641,6 +675,10 @@ connect().then(async () => {
 
         case 'categoryCode':
           doc.categoryCode = value;
+          break;
+
+        case 'vendorCode':
+          doc.vendorCode = value;
           break;
 
         case 'tag':

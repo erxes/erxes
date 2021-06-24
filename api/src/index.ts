@@ -90,6 +90,9 @@ const DASHBOARD_DOMAIN = getSubServiceDomain({
 const ENGAGES_API_DOMAIN = getSubServiceDomain({
   name: 'ENGAGES_API_DOMAIN'
 });
+const CLIENT_PORTAL_MN_DOMAIN = getSubServiceDomain({
+  name: 'CLIENT_PORTAL_MN_DOMAIN'
+});
 
 const handleTelnyxWebhook = (req, res, next, hookName: string) => {
   if (NODE_ENV === 'test') {
@@ -147,7 +150,8 @@ const corsOptions = {
     MAIN_APP_DOMAIN,
     WIDGETS_DOMAIN,
     CLIENT_PORTAL_DOMAIN,
-    DASHBOARD_DOMAIN
+    DASHBOARD_DOMAIN,
+    CLIENT_PORTAL_MN_DOMAIN
   ]
 };
 
@@ -270,31 +274,29 @@ app.get(
 );
 
 // read file
-app.get(
-  '/read-file',
-  routeErrorHandling(
-    async (req: any, res) => {
-      const key = req.query.key;
+app.get('/read-file', async (req: any, res, next) => {
+  try {
+    const key = req.query.key;
 
-      if (!key) {
-        return res.send('Invalid key');
-      }
-
-      const response = await readFileRequest(key);
-
-      res.attachment(key);
-
-      return res.send(response);
-    },
-    (res, e, next) => {
-      if (e.message.includes('key does not exist')) {
-        return res.status(404).send('Not found');
-      }
-
-      return next(e);
+    if (!key) {
+      return res.send('Invalid key');
     }
-  )
-);
+
+    const response = await readFileRequest(key);
+
+    res.attachment(key);
+
+    return res.send(response);
+  } catch (e) {
+    if (e.message.includes('key does not exist')) {
+      return res.status(404).send('Not found');
+    }
+
+    debugError(e);
+
+    return next(e);
+  }
+});
 
 // get mail attachment file
 app.get(

@@ -11,6 +11,7 @@ const fieldCommonFields = `
   logicAction: String
   column: Int
   groupName: String
+  pageNumber: Int
 `;
 
 export const fieldsTypes = `
@@ -76,6 +77,7 @@ export const fieldsQueries = `
   fieldsCombinedByContentType(contentType: String!, usageType: String, excludedNames: [String], segmentId: String, pipelineId: String): JSON
   fieldsDefaultColumnsConfig(contentType: String!): [ColumnConfigItem]
   fieldsInbox: FieldsInbox
+  fieldsItemTyped: JSON
 `;
 
 const fieldsCommonFields = `
@@ -102,7 +104,20 @@ export const fieldsMutations = `
   fieldsUpdateVisible(_id: String!, isVisible: Boolean, isVisibleInDetail: Boolean) : Field
 `;
 
+const BoardsPipelinesFields = `
+  boardId: String
+  pipelineIds : [String]
+`;
+
 export const fieldsGroupsTypes = `
+  type BoardsPipelines {
+    ${BoardsPipelinesFields}
+  }
+
+  input BoardsPipelinesInput {
+    ${BoardsPipelinesFields}
+  }
+
   type FieldsGroup {
     _id: String!
     name: String
@@ -115,6 +130,7 @@ export const fieldsGroupsTypes = `
     fields: [Field]
     lastUpdatedUserId: String
     lastUpdatedUser: User
+    boardsPipelines: [BoardsPipelines]
   }
 `;
 
@@ -125,10 +141,11 @@ const fieldsGroupsCommonFields = `
   description: String
   isVisible: Boolean
   isVisibleInDetail: Boolean
+  boardsPipelines: [BoardsPipelinesInput]
 `;
 
 export const fieldsGroupsQueries = `
-  fieldsGroups(contentType: String): [FieldsGroup]
+  fieldsGroups(contentType: String, boardId: String, pipelineId: String): [FieldsGroup]
   getSystemFieldsGroup(contentType: String): FieldsGroup
 `;
 
@@ -137,4 +154,5 @@ export const fieldsGroupsMutations = `
   fieldsGroupsEdit(_id: String!, ${fieldsGroupsCommonFields}): FieldsGroup
   fieldsGroupsRemove(_id: String!): JSON
   fieldsGroupsUpdateVisible(_id: String, isVisible: Boolean, isVisibleInDetail: Boolean) : FieldsGroup
+  fieldsGroupsUpdateOrder(orders: [OrderItem]): [FieldsGroup]
 `;

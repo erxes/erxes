@@ -10,11 +10,13 @@ import { ICategory } from '../../types';
 import { ActionButtons, CategoryItem } from './styles';
 
 type Props = {
-  topicIds: string;
+  topicId: string;
   category: ICategory;
   articlesCount: number;
   remove: (categoryId: string) => void;
   isActive: boolean;
+  isChild?: boolean;
+  isParent?: boolean;
 };
 
 class CategoryRow extends React.Component<Props> {
@@ -30,7 +32,7 @@ class CategoryRow extends React.Component<Props> {
   }
 
   renderEditAction = () => {
-    const { category, topicIds } = this.props;
+    const { category, topicId } = this.props;
 
     const editTrigger = (
       <Button btnStyle="link">
@@ -41,7 +43,7 @@ class CategoryRow extends React.Component<Props> {
     );
 
     const content = props => {
-      return this.renderEditForm({ ...props, category, topicIds });
+      return this.renderEditForm({ ...props, category, topicId });
     };
 
     return (
@@ -55,12 +57,16 @@ class CategoryRow extends React.Component<Props> {
   };
 
   render() {
-    const { category, isActive } = this.props;
+    const { category, isActive, isChild, isParent } = this.props;
 
     return (
-      <CategoryItem key={category._id} isActive={isActive}>
+      <CategoryItem key={category._id} isActive={isActive} isChild={isChild}>
         <Link to={`?id=${category._id}`}>
-          {category.title} <span>({category.articles.length})</span>
+          <div>
+            {category.title}
+            <span>({category.articles.length})</span>
+          </div>
+          {isParent && <Icon icon="angle-down" />}
         </Link>
         <ActionButtons>
           {this.renderEditAction()}

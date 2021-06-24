@@ -44,7 +44,7 @@ context("Popups", () => {
 
     cy.get('input[name="title"]').type(randomm);
     cy.get('textarea[name="desc"]').type(randomm);
-    cy.get('input[name="btnText"]').type(randomm);
+    cy.get('input[name="buttonText"]').type(randomm);
 
     cy.get('i[icon="edit-alt"]').click();
 
@@ -75,6 +75,10 @@ context("Popups", () => {
 
     cy.get("button[icon=arrow-right]")
       .eq(4)
+      .click();
+
+    cy.get("button[icon=arrow-right]")
+      .eq(5)
       .click();
 
     cy.get('select[id="successAction"]').select("redirect");

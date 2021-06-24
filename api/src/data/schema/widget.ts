@@ -51,6 +51,7 @@ export const types = `
     associatedFieldId: String
     stageId: String
     groupId: String
+    column: Int
   }
 `;
 
@@ -134,6 +135,7 @@ export const mutations = `
     content: String
     customerId: String
     formId: String
+    attachments: [AttachmentInput]
   ): String
 
   widgetGetBotInitialMessage(integrationId: String): JSON

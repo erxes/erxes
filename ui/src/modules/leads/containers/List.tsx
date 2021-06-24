@@ -44,6 +44,12 @@ class ListContainer extends React.Component<FinalProps> {
     }
   }
 
+  componentDidUpdate(prevProps) {
+    if (this.props.queryParams.page !== prevProps.queryParams.page) {
+      this.props.integrationsQuery.refetch();
+    }
+  }
+
   refetch = () => {
     const { integrationsQuery } = this.props;
 
@@ -170,7 +176,11 @@ export default withProps<Props>(
             tag: queryParams.tag,
             brandId: queryParams.brand,
             kind: INTEGRATION_KINDS.FORMS,
-            status: queryParams.status
+            status: queryParams.status,
+            sortField: queryParams.sortField,
+            sortDirection: queryParams.sortDirection
+              ? parseInt(queryParams.sortDirection, 10)
+              : undefined
           }
         };
       }

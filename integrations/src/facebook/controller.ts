@@ -374,7 +374,7 @@ const init = async app => {
           .processActivity(req, res, async context => {
             const { activity } = await context;
 
-            if (!activity) {
+            if (!activity || !activity.recipient) {
               next();
             }
 

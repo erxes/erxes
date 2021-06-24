@@ -56,6 +56,8 @@ export const types = `
     rules: [InputRule]
     isRequireOnce: Boolean
     templateId: String
+    attachments: [AttachmentInput]
+    css: String
   }
 
   input MessengerOnlineHoursSchema {
@@ -110,8 +112,12 @@ export const queries = `
     brandId: String,
     tag: String,
     status: String,
-    formLoadType: String
+    formLoadType: String,
+    sortField: String
+    sortDirection: Int
   ): [Integration]
+
+  allLeadIntegrations: [Integration]
 
   integrationsGetUsedTypes: [integrationsGetUsedTypes]
   integrationGetLineWebhookUrl(_id: String!): String

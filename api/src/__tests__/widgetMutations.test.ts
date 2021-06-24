@@ -43,7 +43,7 @@ import {
 } from '../db/models/definitions/constants';
 import { ICustomerDocument } from '../db/models/definitions/customers';
 import { IIntegrationDocument } from '../db/models/definitions/integrations';
-
+import * as elk from '../elasticsearch';
 import './setup.ts';
 
 describe('messenger connect', () => {
@@ -204,11 +204,18 @@ describe('messenger connect', () => {
     const email = 'newCustomer@gmail.com';
     const now = new Date();
 
+    await fieldFactory({
+      contentType: 'customer',
+      validation: 'date',
+      text: 'dateField'
+    });
+
     const { customerId } = await widgetMutations.widgetsMessengerConnect(
       {},
       {
         brandCode: _brand.code || '',
         email,
+        data: { dateField: new Date() },
         companyData: { name: 'company' },
         deviceToken: '111'
       }
@@ -254,31 +261,6 @@ describe('messenger connect', () => {
 
     expect(response.customerId).toBeUndefined();
     expect(response.visitorId).toBe('123');
-
-    logUtilsMock.restore();
-    mock.restore();
-  });
-
-  test('creates new customer when logger is not running', async () => {
-    const mock = sinon.stub(utils, 'sendRequest').callsFake(() => {
-      return Promise.resolve('success');
-    });
-
-    const logUtilsMock = sinon
-      .stub(logUtils, 'sendToVisitorLog')
-      .callsFake(() => {
-        throw new Error('fake error');
-      });
-
-    const response = await widgetMutations.widgetsMessengerConnect(
-      {},
-      {
-        brandCode: _brand.code || '',
-        visitorId: '123'
-      }
-    );
-
-    expect(response.customerId).toBeDefined();
 
     logUtilsMock.restore();
     mock.restore();
@@ -1456,9 +1438,9 @@ describe('lead', () => {
       type: 'pronoun'
     });
 
-    const doNotDisturbField = await fieldFactory({
+    const subscribedField = await fieldFactory({
       ...params,
-      type: 'doNotDisturb'
+      type: 'isSubscribed'
     });
 
     const hasAuthorityField = await fieldFactory({
@@ -1563,7 +1545,7 @@ describe('lead', () => {
           { _id: pronounField._id, type: 'pronoun', value: 'Male' },
           { _id: pronounField1._id, type: 'pronoun', value: 'Female' },
           { _id: pronounField2._id, type: 'pronoun', value: 'Not applicable' },
-          { _id: doNotDisturbField._id, type: 'doNotDisturb', value: 'No' },
+          { _id: subscribedField._id, type: 'isSubscribed', value: 'Yes' },
           { _id: hasAuthorityField._id, type: 'hasAuthority', value: 'No' },
           {
             _id: birthDateField._id,
@@ -1620,6 +1602,15 @@ describe('lead', () => {
   test('widgetsSendEmail', async () => {
     const customer = await customerFactory({});
     const form = await formFactory({});
+    const integration = await integrationFactory({});
+
+    const mock = sinon.stub(elk, 'fetchElk').callsFake(() => {
+      return Promise.resolve({
+        hits: {
+          hits: [{ _id: integration._id, _source: { name: integration.name } }]
+        }
+      });
+    });
 
     const emailParams = {
       toEmails: ['test-mail@gmail.com'],
@@ -1627,7 +1618,15 @@ describe('lead', () => {
       title: 'Thank you for submitting.',
       content: 'We have received your request',
       customerId: customer._id,
-      formId: form._id
+      formId: form._id,
+      attachments: [
+        {
+          name: 'name',
+          url: 'url',
+          type: 'type',
+          size: 100
+        }
+      ]
     };
 
     const response = await widgetMutations.widgetsSendEmail(
@@ -1636,5 +1635,6 @@ describe('lead', () => {
     );
 
     expect(response).toBe(undefined);
+    mock.restore();
   });
 });

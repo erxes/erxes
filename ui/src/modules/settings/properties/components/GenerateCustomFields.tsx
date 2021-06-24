@@ -185,14 +185,9 @@ class GenerateGroups extends React.Component<GroupsProps> {
 
   render() {
     const { loading, fieldsGroups, customFieldsData, isDetail } = this.props;
-    const { Section } = Sidebar;
 
     if (fieldsGroups.length === 0) {
-      return (
-        <Section>
-          <EmptyState icon="folder-2" text="Empty" size="small" />
-        </Section>
-      );
+      return null;
     }
 
     return fieldsGroups.map(fieldGroup => {

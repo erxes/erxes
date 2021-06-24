@@ -39,6 +39,7 @@ export const loadGrowthHackClass = () => {
         ...doc,
         createdAt: new Date(),
         modifiedAt: new Date(),
+        stageChangedDate: new Date(),
         searchText: fillSearchTextItem(doc)
       });
 

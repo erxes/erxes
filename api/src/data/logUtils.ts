@@ -1485,7 +1485,7 @@ export const putCreateLog = async (
 
   await sendToWebhook(LOG_ACTIONS.CREATE, params.type, params);
 
-  await callAfterMutation({ ...params, action: LOG_ACTIONS.CREATE }, user);
+  callAfterMutation({ ...params, action: LOG_ACTIONS.CREATE }, user);
 
   return putCreateLogC(messageBroker, gatherDescriptions, params, user);
 };
@@ -1501,7 +1501,7 @@ export const putUpdateLog = async (
 ) => {
   await sendToWebhook(LOG_ACTIONS.UPDATE, params.type, params);
 
-  await callAfterMutation({ ...params, action: LOG_ACTIONS.UPDATE }, user);
+  callAfterMutation({ ...params, action: LOG_ACTIONS.UPDATE }, user);
 
   return putUpdateLogC(messageBroker, gatherDescriptions, params, user);
 };
@@ -1517,7 +1517,7 @@ export const putDeleteLog = async (
 ) => {
   await sendToWebhook(LOG_ACTIONS.DELETE, params.type, params);
 
-  await callAfterMutation({ ...params, action: LOG_ACTIONS.DELETE }, user);
+  callAfterMutation({ ...params, action: LOG_ACTIONS.DELETE }, user);
 
   return putDeleteLogC(messageBroker, gatherDescriptions, params, user);
 };
@@ -1546,59 +1546,24 @@ export const fetchLogs = async (
   }
 };
 
-export const sendToVisitorLog = async (params: IVisitorLogParams, action) => {
-  const LOGS_DOMAIN = getSubServiceDomain({ name: 'LOGS_API_DOMAIN' });
-  try {
-    const response = await sendRequest(
-      {
-        url: `${LOGS_DOMAIN}/health`,
-        method: 'get'
-      },
-      'Failed to connect to logs api. Check whether LOGS_API_DOMAIN env is missing or logs api is not running'
-    );
-
-    if (response === 'ok') {
-      return messageBroker().sendMessage(RABBITMQ_QUEUES.VISITOR_LOG, {
-        action,
-        data: params
-      });
-    }
-
-    throw new Error('Logger api is not running');
-  } catch (e) {
-    debugError('Logger is not running. Error: ', e.message);
-    throw new Error(e.message);
-  }
-};
+export const sendToVisitorLog = async (params: IVisitorLogParams, action) =>
+  messageBroker().sendMessage(RABBITMQ_QUEUES.VISITOR_LOG, {
+    action,
+    data: params
+  });
 
 export const getVisitorLog = async visitorId => {
-  const LOGS_DOMAIN = getSubServiceDomain({ name: 'LOGS_API_DOMAIN' });
   try {
-    const response = await sendRequest(
-      {
-        url: `${LOGS_DOMAIN}/health`,
-        method: 'get'
-      },
-      'Failed to connect to logs api. Check whether LOGS_API_DOMAIN env is missing or logs api is not running'
-    );
-
-    if (response === 'ok') {
-      return await messageBroker().sendRPCMessage(
-        RABBITMQ_QUEUES.RPC_VISITOR_LOG,
-        {
-          action: 'get',
-          data: { visitorId }
-        }
-      );
-    }
-
-    throw new Error('Logger api is not running');
+    return messageBroker().sendRPCMessage(RABBITMQ_QUEUES.RPC_VISITOR_LOG, {
+      action: 'get',
+      data: { visitorId }
+    });
   } catch (e) {
-    debugError('Logger is not running. Error: ', e.message);
-    throw new Error(e.message);
+    debugError(
+      `Error during getVisitorLog: ${e.message} visitorId: ${visitorId}`
+    );
   }
 };
-
 interface IActivityLogParams {
   action: string;
   data: any;

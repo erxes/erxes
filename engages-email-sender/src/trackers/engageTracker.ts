@@ -4,6 +4,7 @@ import messageBroker from '../messageBroker';
 import { Configs, DeliveryReports, Stats } from '../models';
 import { ISESConfig } from '../models/Configs';
 import { SES_DELIVERY_STATUSES } from '../constants';
+import { routeErrorHandling } from '../utils';
 
 export const getApi = async (type: string): Promise<any> => {
   const config: ISESConfig = await Configs.getSESConfigs();
@@ -35,6 +36,11 @@ const handleMessage = async message => {
   }
 
   const { eventType, mail } = parsedMessage;
+
+  if (!mail) {
+    return;
+  }
+
   const { headers } = mail;
 
   const engageMessageId = headers.find(
@@ -89,7 +95,7 @@ const handleMessage = async message => {
 
   if (rejected) {
     await messageBroker().sendMessage('engagesNotification', {
-      action: 'setDoNotDisturb',
+      action: 'setSubscribed',
       data: { customerId: mailHeaders.customerId, status: type }
     });
   }
@@ -98,42 +104,45 @@ const handleMessage = async message => {
 };
 
 export const trackEngages = expressApp => {
-  expressApp.post(`/service/engage/tracker`, async (req, res) => {
-    const chunks: any = [];
+  expressApp.post(
+    `/service/engage/tracker`,
+    routeErrorHandling(async (req, res) => {
+      const chunks: any = [];
 
-    req.setEncoding('utf8');
+      req.setEncoding('utf8');
 
-    req.on('data', chunk => {
-      chunks.push(chunk);
-    });
+      req.on('data', chunk => {
+        chunks.push(chunk);
+      });
 
-    req.on('end', async () => {
-      const message = JSON.parse(chunks.join(''));
+      req.on('end', async () => {
+        const message = JSON.parse(chunks.join(''));
 
-      debugBase(`receiving on tracker: ${message}`);
+        debugBase(`receiving on tracker: ${message}`);
 
-      const { Type = '', Message = {}, Token = '', TopicArn = '' } = message;
+        const { Type = '', Message = {}, Token = '', TopicArn = '' } = message;
 
-      if (Type === 'SubscriptionConfirmation') {
-        await getApi('sns').then(api =>
-          api.confirmSubscription({ Token, TopicArn }).promise()
-        );
+        if (Type === 'SubscriptionConfirmation') {
+          await getApi('sns').then(api =>
+            api.confirmSubscription({ Token, TopicArn }).promise()
+          );
+
+          return res.end('success');
+        }
+
+        if (
+          Message ===
+          'Successfully validated SNS topic for Amazon SES event publishing.'
+        ) {
+          res.end('success');
+        }
+
+        await handleMessage(Message);
 
         return res.end('success');
-      }
-
-      if (
-        Message ===
-        'Successfully validated SNS topic for Amazon SES event publishing.'
-      ) {
-        res.end('success');
-      }
-
-      await handleMessage(Message);
-
-      return res.end('success');
-    });
-  });
+      });
+    })
+  );
 };
 
 export const awsRequests = {

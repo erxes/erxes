@@ -1,3 +1,4 @@
+import * as crypto from 'crypto';
 import * as dotenv from 'dotenv';
 import { debugError, debugNylas } from '../debuggers';
 import { getGoogleConfigs } from '../gmail/utils';
@@ -151,6 +152,10 @@ const syncMessages = async (accountId: string, messageId: string) => {
     try {
       message = await getMessageById(nylasToken, messageId);
 
+      if (!message) {
+        throw new Error(`Nylas message not found, messageId: ${messageId}`);
+      }
+
       const folder = message.folder || {};
       const folderName = folder.name || '';
 
@@ -166,7 +171,10 @@ const syncMessages = async (accountId: string, messageId: string) => {
     const [from] = message.from;
 
     // Prevent to send email to itself
-    if (from.email === integration.email && !message.subject.includes('Re:')) {
+    if (
+      !from ||
+      (from.email === integration.email && !message.subject.includes('Re:'))
+    ) {
       return;
     }
 
@@ -304,6 +312,42 @@ export const extractDate = (date: Date) => {
 
 export const getTime = (date: Date) => {
   return date.getTime() / 1000;
+};
+
+const IV_LENGTH = 16; // For AES, this is always 16
+
+export const encryptToken = text => {
+  const iv = crypto.randomBytes(IV_LENGTH);
+
+  const cipher = crypto.createCipheriv(
+    'aes-256-cbc',
+    Buffer.from(process.env.NYLAS_ENCRYPTION_KEY),
+    iv
+  );
+
+  let encrypted = cipher.update(text);
+
+  encrypted = Buffer.concat([encrypted, cipher.final()]);
+
+  return iv.toString('hex') + ':' + encrypted.toString('hex');
+};
+
+export const decryptToken = text => {
+  const textParts = text.split(':');
+  const iv = Buffer.from(textParts.shift(), 'hex');
+  const encryptedText = Buffer.from(textParts.join(':'), 'hex');
+
+  const decipher = crypto.createDecipheriv(
+    'aes-256-cbc',
+    Buffer.from(process.env.NYLAS_ENCRYPTION_KEY),
+    iv
+  );
+
+  let decrypted = decipher.update(encryptedText);
+
+  decrypted = Buffer.concat([decrypted, decipher.final()]);
+
+  return decrypted.toString();
 };
 
 export { getProviderConfigs, buildEmailAddress, syncMessages };

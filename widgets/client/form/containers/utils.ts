@@ -47,7 +47,8 @@ export const sendEmail = ({
   fromEmail,
   title,
   content,
-  formId
+  formId,
+  attachments,
 }: IEmailParams) => {
   client.mutate({
     mutation: gql(sendEmailMutation),
@@ -57,7 +58,8 @@ export const sendEmail = ({
       title,
       content,
       customerId: getLocalStorageItem("customerId"),
-      formId
+      formId,
+      attachments
     }
   });
 };
@@ -87,7 +89,7 @@ export const saveLead = (params: {
   const { doc, browserInfo, integrationId, formId, saveCallback } = params;
 
   const submissions = Object.keys(doc).map(fieldId => {
-    const { value, text, type, validation, associatedFieldId, groupId, isHidden } = doc[fieldId];
+    const { value, text, type, validation, associatedFieldId, groupId, isHidden, column } = doc[fieldId];
 
     if (isHidden) {
       return;
@@ -100,7 +102,8 @@ export const saveLead = (params: {
       value,
       validation,
       associatedFieldId,
-      groupId
+      groupId,
+      column
     };
   });
   

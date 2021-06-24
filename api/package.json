@@ -21,7 +21,10 @@
     "customCommand": "node_modules/.bin/ts-node src/commands/customCommand.ts",
     "migrateBoardItems": "node_modules/.bin/ts-node src/commands/migrateBoardItems.ts",
     "createSystemFieldsGroups": "node_modules/.bin/ts-node src/commands/createSystemFieldsGroups.ts",
-    "addMiddleName": "node_modules/.bin/ts-node src/commands/addMiddleName.ts"
+    "addMiddleName": "node_modules/.bin/ts-node src/commands/addMiddleName.ts",
+    "removeUnusedFields": "node_modules/.bin/ts-node src/commands/removeUnusedFields.ts",
+    "migrateKnowledgeBase": "node_modules/.bin/ts-node src/commands/migrateKnowledgeBase.ts",
+    "changeToSubscribed": "node_modules/.bin/ts-node src/commands/changeToSubscribed.ts"
   },
   "dependencies": {
     "@google-cloud/pubsub": "^1.1.5",
@@ -51,7 +54,7 @@
     "debug": "^4.1.1",
     "dotenv": "^4.0.0",
     "elasticsearch": "^16.6.0",
-    "erxes-api-utils": "^0.0.27",
+    "erxes-api-utils": "^0.0.29",
     "erxes-inmemory-storage": "^1.0.20",
     "erxes-message-broker": "^1.0.27",
     "erxes-telemetry": "^1.0.4",
@@ -87,6 +90,7 @@
     "sha256": "^0.2.0",
     "shelljs": "^0.8.3",
     "sift": "^13.5.0",
+    "stream-array": "^1.1.2",
     "strip": "^3.0.0",
     "ts-node": "8.0.3",
     "underscore": "^1.8.3",

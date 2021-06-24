@@ -168,7 +168,7 @@ export default withProps<Props>(
           boardId: string;
           type: string;
         }) => ({
-          variables: { boardId, type },
+          variables: { boardId, type, isAll: true },
           fetchPolicy: 'network-only'
         })
       }

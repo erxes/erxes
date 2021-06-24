@@ -18,13 +18,20 @@ import {
   Webhooks
 } from '../db/models';
 import { IBrandDocument } from '../db/models/definitions/brands';
-import { WEBHOOK_STATUS } from '../db/models/definitions/constants';
+import {
+  WEBHOOK_STATUS,
+  WEBHOOK_TYPES
+} from '../db/models/definitions/constants';
 import { ICustomer } from '../db/models/definitions/customers';
 import { IUser, IUserDocument } from '../db/models/definitions/users';
 import { debugBase, debugError } from '../debuggers';
 import memoryStorage from '../inmemoryStorage';
 import { graphqlPubsub } from '../pubsub';
-import { fieldsCombinedByContentType } from './modules/fields/utils';
+import {
+  fieldsCombinedByContentType,
+  getCustomFields
+} from './modules/fields/utils';
+import { generateAmounts, generateProducts } from './resolvers/deals';
 
 export const uploadsFolderPath = path.join(__dirname, '../private/uploads');
 
@@ -193,7 +200,7 @@ export const uploadFileAWS = async (
   const IS_PUBLIC = forcePrivate
     ? false
     : await getConfig('FILE_SYSTEM_PUBLIC', 'true');
-  const AWS_PREFIX = await getConfig('AWS_PREFIX');
+  const AWS_PREFIX = await getConfig('AWS_PREFIX', '');
   const AWS_BUCKET = await getConfig('AWS_BUCKET');
 
   // initialize s3
@@ -395,6 +402,15 @@ export const readFileRequest = async (key: string): Promise<any> => {
         },
         (error, response) => {
           if (error) {
+            if (
+              error.code === 'NoSuchKey' &&
+              error.message.includes('key does not exist')
+            ) {
+              debugBase(
+                `Error occurred when fetching s3 file with key: "${key}"`
+              );
+            }
+
             return reject(error);
           }
 
@@ -497,18 +513,22 @@ export const replaceEditorAttributes = async (args: {
   customer?: ICustomer | null;
   user?: IUser | null;
   customerFields?: string[];
+  item?: any;
   brand?: IBrandDocument;
 }): Promise<{
   replacers: IReplacer[];
   replacedContent?: string;
   customerFields?: string[];
 }> => {
-  const { content, customer, user, brand } = args;
+  const { content, user, brand, item } = args;
+  const customer = args.customer || {};
 
   const replacers: IReplacer[] = [];
 
   let replacedContent = content || '';
   let customerFields = args.customerFields;
+
+  const customFieldsData = customer.customFieldsData || [];
 
   if (!customerFields || customerFields.length === 0) {
     const possibleCustomerFields = await fieldsCombinedByContentType({
@@ -521,17 +541,27 @@ export const replaceEditorAttributes = async (args: {
       if (content.includes(`{{ customer.${field.name} }}`)) {
         if (field.name.includes('trackedData')) {
           customerFields.push('trackedData');
+
           continue;
         }
 
         if (field.name.includes('customFieldsData')) {
+          const fieldId = field.name.split('.').pop();
+
+          if (!customFieldsData.find(e => e.field === fieldId)) {
+            customFieldsData.push({ field: fieldId || '', value: '' });
+          }
+
           customerFields.push('customFieldsData');
+
           continue;
         }
 
         customerFields.push(field.name);
       }
     }
+
+    customer.customFieldsData = customFieldsData;
   }
 
   // replace customer fields
@@ -589,6 +619,60 @@ export const replaceEditorAttributes = async (args: {
     const regex = new RegExp(replacer.key, 'gi');
 
     replacedContent = replacedContent.replace(regex, replacer.value);
+  }
+
+  // deal, ticket, task mapping
+  if (item) {
+    replacers.push({ key: '{{ itemName }}', value: item.name || '' });
+    replacers.push({
+      key: '{{ itemDescription }}',
+      value: item.description || ''
+    });
+
+    replacers.push({
+      key: '{{ itemCloseDate }}',
+      value: item.closeDate ? new Date(item.closeDate).toLocaleDateString() : ''
+    });
+    replacers.push({
+      key: '{{ itemCreatedAt }}',
+      value: item.createdAt ? new Date(item.createdAt).toLocaleDateString() : ''
+    });
+    replacers.push({
+      key: '{{ itemModifiedAt }}',
+      value: item.modifiedAt
+        ? new Date(item.modifiedAt).toLocaleDateString()
+        : ''
+    });
+
+    const products = await generateProducts(item.productsData);
+    const amounts = generateAmounts(item.productsData);
+
+    replacers.push({
+      key: '{{ dealProducts }}',
+      value: products.map(p => p.product.name).join(',')
+    });
+    replacers.push({
+      key: '{{ dealAmounts }}',
+      value: Object.keys(amounts)
+        .map(key => `${amounts[key]}${key}`)
+        .join(',')
+    });
+
+    const customFields = await getCustomFields(item.contentType);
+
+    for (const customField of customFields) {
+      const cFieldsData = item.customFieldsData || [];
+      const customFieldData = cFieldsData.find(
+        c => c.field === customField._id
+      );
+
+      if (customFieldData) {
+        replacers.push({
+          key: `{{ itemCustomField.${customField._id} }}`,
+          value: customFieldData.stringValue || customFieldData.value
+        });
+      }
+    }
   }
 
   return { replacedContent, replacers, customerFields };
@@ -747,7 +831,12 @@ export const sendToWebhook = async (
         'Erxes-token': webhook.token || ''
       },
       method: 'post',
-      body: { data: JSON.stringify(data), action, type }
+      body: {
+        data: JSON.stringify(data),
+        text: prepareWebhookContent(type, action, data),
+        action,
+        type
+      }
     })
       .then(async () => {
         await Webhooks.updateStatus(webhook._id, WEBHOOK_STATUS.AVAILABLE);
@@ -765,6 +854,83 @@ export default {
   readFile,
   createTransporter,
   sendToWebhook
+};
+
+export const prepareWebhookContent = (type, action, data) => {
+  let actionText = 'created';
+  let url;
+  let content = '';
+
+  switch (action) {
+    case 'update':
+      actionText = 'has been updated';
+      break;
+    case 'delete':
+      actionText = 'has been deleted';
+      break;
+    default:
+      actionText = 'has been created';
+      break;
+  }
+
+  switch (type) {
+    case WEBHOOK_TYPES.CUSTOMER:
+      url = `/contacts/details/${data.object._id}`;
+      content = `Customer ${actionText}`;
+      break;
+
+    case WEBHOOK_TYPES.COMPANY:
+      url = `/companies/details/${data.object._id}`;
+      content = `Company ${actionText}`;
+      break;
+
+    case WEBHOOK_TYPES.KNOWLEDGEBASE:
+      url = `/knowledgeBase?id=${data.newData.categoryIds[0]}`;
+      content = `Knowledge base article ${actionText}`;
+      break;
+
+    case WEBHOOK_TYPES.USER_MESSAGES:
+      url = `/inbox/index?_id=${data.conversationId}`;
+      content = 'Admin has replied to a conversation';
+      break;
+
+    case WEBHOOK_TYPES.CUSTOMER_MESSAGES:
+      url = `/inbox/index?_id=${data.conversationId}`;
+      content = 'Customer has send a conversation message';
+      break;
+
+    case WEBHOOK_TYPES.CONVERSATION:
+      url = `/inbox/index?_id=${data._id}`;
+      content = 'Customer has started new conversation';
+      break;
+
+    case WEBHOOK_TYPES.FORM_SUBMITTED:
+      url = `/inbox/index?_id=${data.conversationId}`;
+      content = 'Customer has submitted a form';
+      break;
+
+    case WEBHOOK_TYPES.CAMPAIGN:
+      url = `/campaigns/show/${data._id}`;
+
+      if (data.method === 'messenger') {
+        url = `/campaigns/edit/${data.$_id}`;
+      }
+
+      content = 'Campaign has been created';
+      break;
+
+    default:
+      break;
+  }
+
+  url = `${getEnv({ name: 'MAIN_APP_DOMAIN' })}${url}`;
+  content = `erxes: ${content}`;
+
+  if (action !== 'delete') {
+    content = `<${url}|${content}>`;
+  }
+
+  return content;
 };
 
 export const cleanHtml = (content?: string) =>
@@ -789,11 +955,11 @@ export const handleUnsubscription = async (query: {
   const { cid, uid } = query;
 
   if (cid) {
-    await Customers.updateOne({ _id: cid }, { $set: { doNotDisturb: 'Yes' } });
+    await Customers.updateOne({ _id: cid }, { $set: { isSubscribed: 'No' } });
   }
 
   if (uid) {
-    await Users.updateOne({ _id: uid }, { $set: { doNotDisturb: 'Yes' } });
+    await Users.updateOne({ _id: uid }, { $set: { isSubscribed: 'No' } });
   }
 };
 
@@ -950,8 +1116,8 @@ export const findCustomer = async doc => {
     });
   }
 
-  if (!customer && doc.customerPrimaryPhone) {
-    customer = await Customers.findOne({ code: doc.customerPrimaryPhone });
+  if (!customer && doc.customerCode) {
+    customer = await Customers.findOne({ code: doc.customerCode });
   }
 
   return customer;

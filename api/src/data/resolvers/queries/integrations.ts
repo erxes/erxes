@@ -96,6 +96,8 @@ const integrationQueries = {
       tag: string;
       status: string;
       formLoadType: string;
+      sortField: string;
+      sortDirection: number;
     },
     { singleBrandIdSelector }: IContext
   ) {
@@ -104,12 +106,28 @@ const integrationQueries = {
       ...(await generateFilterQuery(args))
     };
 
+    if (args.kind === 'lead') {
+      return Integrations.findLeadIntegrations(query, args);
+    }
+
     const integrations = paginate(
       Integrations.findAllIntegrations(query),
       args
     );
 
     return integrations.sort({ name: 1 });
+  },
+
+  /**
+   * Get lead all integration list
+   */
+  async allLeadIntegrations(_root, _args, { singleBrandIdSelector }: IContext) {
+    const query = {
+      ...singleBrandIdSelector,
+      kind: 'lead'
+    };
+
+    return Integrations.findAllIntegrations(query).sort({ name: 1 });
   },
 
   /**

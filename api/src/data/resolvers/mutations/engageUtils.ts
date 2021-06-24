@@ -1,5 +1,6 @@
 import { Transform } from 'stream';
 import {
+  Conformities,
   Customers,
   EngageMessages,
   Integrations,
@@ -15,6 +16,7 @@ import {
 import { CONTENT_TYPES } from '../../../db/models/definitions/segments';
 import { IUserDocument } from '../../../db/models/definitions/users';
 import { fetchElk } from '../../../elasticsearch';
+import { get, removeKey, set } from '../../../inmemoryStorage';
 import messageBroker from '../../../messageBroker';
 import { MESSAGE_KINDS } from '../../constants';
 import { fetchBySegments } from '../../modules/segments/queryBuilder';
@@ -27,11 +29,13 @@ interface IEngageParams {
 }
 
 export const generateCustomerSelector = async ({
+  engageId,
   customerIds,
   segmentIds = [],
   tagIds = [],
   brandIds = []
 }: {
+  engageId?: string;
   customerIds?: string[];
   segmentIds?: string[];
   tagIds?: string[];
@@ -39,6 +43,7 @@ export const generateCustomerSelector = async ({
 }): Promise<any> => {
   // find matched customers
   let customerQuery: any = {};
+  let customersItemsMapping: { [key: string]: any } = {};
 
   if (customerIds && customerIds.length > 0) {
     customerQuery = { _id: { $in: customerIds } };
@@ -66,7 +71,56 @@ export const generateCustomerSelector = async ({
     let customerIdsBySegments: string[] = [];
 
     for (const segment of segments) {
-      const cIds = await fetchBySegments(segment);
+      const cIds = await fetchBySegments(segment, 'search', {
+        associatedCustomers: true
+      });
+
+      if (
+        engageId &&
+        ['company', 'deal', 'task', 'ticket'].includes(segment.contentType)
+      ) {
+        const returnFields = [
+          'name',
+          'description',
+          'closeDate',
+          'createdAt',
+          'modifiedAt',
+          'customFieldsData'
+        ];
+
+        if (segment.contentType === 'deal') {
+          returnFields.push('productsData');
+        }
+
+        const items = await fetchBySegments(segment, 'search', {
+          returnFields
+        });
+
+        for (const item of items) {
+          const cusIds = await Conformities.savedConformity({
+            mainType: segment.contentType,
+            mainTypeId: item._id,
+            relTypes: ['customer']
+          });
+
+          for (const customerId of cusIds) {
+            if (!customersItemsMapping[customerId]) {
+              customersItemsMapping[customerId] = [];
+            }
+
+            customersItemsMapping[customerId].push({
+              contentType: segment.contentType,
+              name: item.name,
+              description: item.description,
+              closeDate: item.closeDate,
+              createdAt: item.createdAt,
+              modifiedAt: item.modifiedAt,
+              customFieldsData: item.customFieldsData,
+              productsData: item.productsData
+            });
+          }
+        }
+      }
 
       customerIdsBySegments = [...customerIdsBySegments, ...cIds];
     }
@@ -74,9 +128,15 @@ export const generateCustomerSelector = async ({
     customerQuery = { _id: { $in: customerIdsBySegments } };
   }
 
+  await set(
+    `${engageId}_customers_items_mapping`,
+    JSON.stringify(customersItemsMapping)
+  );
+  customersItemsMapping = {};
+
   return {
     ...customerQuery,
-    $or: [{ doNotDisturb: 'No' }, { doNotDisturb: { $exists: false } }]
+    $or: [{ isSubscribed: 'Yes' }, { isSubscribed: { $exists: false } }]
   };
 };
 
@@ -84,15 +144,7 @@ const sendQueueMessage = (args: any) => {
   return messageBroker().sendMessage('erxes-api:engages-notification', args);
 };
 
-/**
- * Sends campaign
- * @param engageMessage Campaign
- * @param smsLimit Configured number per SMS campaign
- */
-export const send = async (
-  engageMessage: IEngageMessageDocument,
-  smsLimit?: number
-) => {
+export const send = async (engageMessage: IEngageMessageDocument) => {
   const {
     customerIds,
     segmentIds,
@@ -132,6 +184,7 @@ export const send = async (
   }
 
   const customersSelector = await generateCustomerSelector({
+    engageId: engageMessage._id,
     customerIds,
     segmentIds,
     tagIds: customerTagIds,
@@ -148,8 +201,7 @@ export const send = async (
   if (engageMessage.method === METHODS.SMS) {
     return sendEmailOrSms(
       { engageMessage, customersSelector, user },
-      'sendEngageSms',
-      smsLimit
+      'sendEngageSms'
     );
   }
 };
@@ -157,8 +209,7 @@ export const send = async (
 // Prepares queue data to engages-email-sender
 const sendEmailOrSms = async (
   { engageMessage, customersSelector, user }: IEngageParams,
-  action: 'sendEngage' | 'sendEngageSms',
-  smsLimit?: number
+  action: 'sendEngage' | 'sendEngageSms'
 ) => {
   const engageMessageId = engageMessage._id;
 
@@ -194,26 +245,25 @@ const sendEmailOrSms = async (
       throw new Error('No customers found');
     }
 
-    // save matched customers count
-    await EngageMessages.setCustomersCount(
-      engageMessage._id,
-      'totalCustomersCount',
-      customerInfos.length
-    );
+    const MINUTELY =
+      engageMessage.scheduleDate &&
+      engageMessage.scheduleDate.type === 'minute';
 
-    await sendQueueMessage({
-      action: 'writeLog',
-      data: {
-        engageMessageId,
-        msg: `Matched ${customerInfos.length} customers`
-      }
-    });
-
-    await EngageMessages.setCustomersCount(
-      engageMessage._id,
-      'validCustomersCount',
-      customerInfos.length
-    );
+    if (
+      !(
+        engageMessage.kind === MESSAGE_KINDS.AUTO &&
+        MINUTELY &&
+        customerInfos.length === 0
+      )
+    ) {
+      await sendQueueMessage({
+        action: 'writeLog',
+        data: {
+          engageMessageId,
+          msg: `Matched ${customerInfos.length} customers`
+        }
+      });
+    }
 
     if (
       engageMessage.scheduleDate &&
@@ -232,7 +282,8 @@ const sendEmailOrSms = async (
         engageMessageId,
         shortMessage: engageMessage.shortMessage || {},
         createdBy: engageMessage.createdBy,
-        title: engageMessage.title
+        title: engageMessage.title,
+        kind: engageMessage.kind
       };
 
       if (engageMessage.method === METHODS.EMAIL && engageMessage.email) {
@@ -247,40 +298,6 @@ const sendEmailOrSms = async (
         data.email = engageMessage.email;
       }
 
-      if (
-        engageMessage.method === METHODS.SMS &&
-        engageMessage.kind === MESSAGE_KINDS.AUTO
-      ) {
-        if (!smsLimit) {
-          await sendQueueMessage({
-            action: 'writeLog',
-            data: {
-              engageMessageId,
-              msg: `Auto campaign SMS limit is not set: "${smsLimit}"`
-            }
-          });
-
-          return;
-        }
-
-        if (smsLimit && customerInfos.length > smsLimit) {
-          await sendQueueMessage({
-            action: 'writeLog',
-            data: {
-              engageMessageId,
-              msg: `Chosen "${customerInfos.length}" customers exceeded sms limit "${smsLimit}". Campaign will not run.`
-            }
-          });
-
-          return;
-        }
-
-        await sendQueueMessage({
-          action: 'writeLog',
-          data: { engageMessageId, msg: `Preparing to send SMS campaign` }
-        });
-      }
-
       const chunks = chunkArray(customerInfos, 3000);
 
       for (const chunk of chunks) {
@@ -289,26 +306,37 @@ const sendEmailOrSms = async (
         await sendQueueMessage({ action, data });
       }
     }
+
+    await removeKey(`${engageMessage._id}_customers_items_mapping`);
   };
+
+  const customersItemsMapping = JSON.parse(
+    (await get(`${engageMessage._id}_customers_items_mapping`)) || '{}'
+  );
 
   const customerTransformerStream = new Transform({
     objectMode: true,
 
     async transform(customer: ICustomerDocument, _encoding, callback) {
-      const { replacers } = await replaceEditorAttributes({
-        content: emailContent,
-        customer,
-        customerFields
-      });
+      const itemsMapping = customersItemsMapping[customer._id] || [null];
 
-      customerInfos.push({
-        _id: customer._id,
-        primaryEmail: customer.primaryEmail,
-        emailValidationStatus: customer.emailValidationStatus,
-        phoneValidationStatus: customer.phoneValidationStatus,
-        primaryPhone: customer.primaryPhone,
-        replacers
-      });
+      for (const item of itemsMapping) {
+        const { replacers } = await replaceEditorAttributes({
+          content: emailContent,
+          customer,
+          item,
+          customerFields
+        });
+
+        customerInfos.push({
+          _id: customer._id,
+          primaryEmail: customer.primaryEmail,
+          emailValidationStatus: customer.emailValidationStatus,
+          phoneValidationStatus: customer.phoneValidationStatus,
+          primaryPhone: customer.primaryPhone,
+          replacers
+        });
+      }
 
       // signal upstream that we are ready to take more data
       callback();
@@ -381,15 +409,14 @@ export const checkCampaignDoc = (doc: IEngageMessage) => {
 };
 
 export const findElk = async (index, query) => {
-  const response = await fetchElk(
-    'search',
+  const response = await fetchElk({
+    action: 'search',
     index,
-    {
+    body: {
       query
     },
-    '',
-    { hits: { hits: [] } }
-  );
+    defaultValue: { hits: { hits: [] } }
+  });
 
   return response.hits.hits.map(hit => {
     return {
@@ -508,12 +535,12 @@ export const checkCustomerExists = async (
   must.push({
     bool: {
       should: [
-        { term: { doNotDisturb: 'No' } },
+        { term: { isSubscribed: 'yes' } },
         {
           bool: {
             must_not: {
               exists: {
-                field: 'doNotDisturb'
+                field: 'isSubscribed'
               }
             }
           }

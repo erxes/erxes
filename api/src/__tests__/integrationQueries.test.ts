@@ -7,6 +7,7 @@ import messageBroker from '../messageBroker';
 import {
   brandFactory,
   channelFactory,
+  formFactory,
   integrationFactory,
   tagsFactory
 } from '../db/factories';
@@ -39,6 +40,7 @@ describe('integrationQueries', () => {
         formLoadType: $formLoadType
       ) {
         _id
+        kind
       }
     }
   `;
@@ -98,8 +100,9 @@ describe('integrationQueries', () => {
   });
 
   test('Integrations filtered by kind', async () => {
+    const form = await formFactory();
     await integrationFactory({ kind: 'messenger' });
-    await integrationFactory({ kind: 'lead' });
+    await integrationFactory({ kind: 'lead', formId: form._id });
 
     // messenger ========================
     let responses = await graphqlRequest(qryIntegrations, 'integrations', {
@@ -186,6 +189,25 @@ describe('integrationQueries', () => {
     });
 
     expect(responses.length).toBe(1);
+  });
+
+  test('Get all lead integrations', async () => {
+    const qry = `
+      query allLeadIntegrations {
+        allLeadIntegrations {
+          _id
+          name
+        }
+      }
+    `;
+
+    await integrationFactory({ kind: 'messenger' });
+    await integrationFactory({ kind: 'lead' });
+
+    // leads =========================
+    const responses = await graphqlRequest(qry, 'allLeadIntegrations', {});
+
+    expect(responses).toHaveLength(1);
   });
 
   test('Integration detail', async () => {

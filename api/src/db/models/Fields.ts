@@ -14,6 +14,7 @@ import {
   PRODUCT_INFO,
   PROPERTY_GROUPS
 } from '../../data/constants';
+import { updateOrder } from './boardUtils';
 import { FIELDS_GROUPS_CONTENT_TYPES } from './definitions/constants';
 import {
   fieldGroupSchema,
@@ -74,6 +75,12 @@ export interface IFieldModel extends Model<IFieldDocument> {
     groupId: string,
     contentType: string
   ): Promise<IFieldDocument[]>;
+  generateCustomFieldsData(
+    data: {
+      [key: string]: any;
+    },
+    contentType: string
+  ): Promise<any>;
 }
 
 export const loadFieldClass = () => {
@@ -223,16 +230,7 @@ export const loadFieldClass = () => {
      * Update given fields orders
      */
     public static async updateOrder(orders: IOrderInput[]) {
-      const ids: string[] = [];
-
-      for (const { _id, order } of orders) {
-        ids.push(_id);
-
-        // update each fields order
-        await Fields.updateOne({ _id }, { order });
-      }
-
-      return Fields.find({ _id: { $in: ids } }).sort({ order: 1 });
+      return updateOrder(Fields, orders);
     }
 
     /*
@@ -446,6 +444,43 @@ export const loadFieldClass = () => {
           break;
       }
     }
+
+    public static async generateCustomFieldsData(
+      data: { [key: string]: any },
+      contentType: string
+    ) {
+      const keys = Object.keys(data || {});
+
+      let customFieldsData: any = [];
+
+      for (const key of keys) {
+        const customField = await Fields.findOne({
+          contentType,
+          text: key
+        });
+
+        let value = data[key];
+
+        if (customField) {
+          if (customField.validation === 'date') {
+            value = new Date(data[key]);
+          }
+
+          customFieldsData.push({
+            field: customField._id,
+            value
+          });
+
+          delete data[key];
+        }
+      }
+
+      const trackedData = await this.generateTypedListFromMap(data);
+
+      customFieldsData = await this.prepareCustomFieldsData(customFieldsData);
+
+      return { customFieldsData, trackedData };
+    }
   }
 
   fieldSchema.loadClass(Field);
@@ -458,7 +493,7 @@ export interface IFieldGroupModel extends Model<IFieldGroupDocument> {
   createGroup(doc: IFieldGroup): Promise<IFieldGroupDocument>;
   updateGroup(_id: string, doc: IFieldGroup): Promise<IFieldGroupDocument>;
   removeGroup(_id: string): Promise<string>;
-
+  updateOrder(orders: IOrderInput[]): Promise<IFieldGroupDocument[]>;
   updateGroupVisible(
     _id: string,
     lastUpdatedUserId: string,
@@ -611,6 +646,13 @@ export const loadGroupClass = () => {
           await Fields.createSystemFields(fieldGroup._id, subType.value);
         }
       }
+    }
+
+    /*
+     * Update given fieldsGroups orders
+     */
+    public static async updateOrder(orders: IOrderInput[]) {
+      return updateOrder(FieldsGroups, orders);
     }
   }
 

@@ -2,14 +2,16 @@ const commonParamsDef = `
   $title: String,
   $description: String,
   $buttonText: String,
-  $type: String!
+  $type: String!,
+  $numberOfPages: Int
 `;
 
 const commonParams = `
   title: $title,
   description: $description,
   buttonText: $buttonText,
-  type: $type
+  type: $type,
+  numberOfPages: $numberOfPages
 `;
 
 const addForm = `

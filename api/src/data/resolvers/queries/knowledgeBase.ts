@@ -8,58 +8,6 @@ import { checkPermission, requireLogin } from '../../permissions/wrappers';
 import { IContext } from '../../types';
 import { paginate } from '../../utils';
 
-/* Articles list & total count helper */
-const articlesQuery = async ({ categoryIds }: { categoryIds: string[] }) => {
-  const query: any = {};
-
-  // filter articles by category i
-  if (categoryIds) {
-    const categories = await KnowledgeBaseCategories.find({
-      _id: {
-        $in: categoryIds
-      }
-    });
-
-    let articleIds: any = [];
-
-    for (const category of categories) {
-      articleIds = articleIds.concat(category.articleIds || []);
-    }
-
-    query._id = {
-      $in: articleIds
-    };
-  }
-
-  return query;
-};
-
-/* Categories list & total count helper */
-const categoriesQuery = async ({ topicIds }: { topicIds: string[] }) => {
-  const query: any = {};
-
-  // filter categories by topic id
-  if (topicIds) {
-    let categoryIds: any = [];
-
-    const topics = await KnowledgeBaseTopics.find({
-      _id: {
-        $in: topicIds
-      }
-    });
-
-    for (const topic of topics) {
-      categoryIds = categoryIds.concat(topic.categoryIds || []);
-    }
-
-    query._id = {
-      $in: categoryIds
-    };
-  }
-
-  return query;
-};
-
 const knowledgeBaseQueries = {
   /**
    * Article list
@@ -68,10 +16,10 @@ const knowledgeBaseQueries = {
     _root,
     args: { page: number; perPage: number; categoryIds: string[] }
   ) {
-    const query = await articlesQuery(args);
-
-    const articles = KnowledgeBaseArticles.find(query).sort({
-      createdData: -1
+    const articles = KnowledgeBaseArticles.find({
+      categoryId: { $in: args.categoryIds }
+    }).sort({
+      createdDate: -1
     });
 
     return paginate(articles, args);
@@ -91,9 +39,9 @@ const knowledgeBaseQueries = {
     _root,
     args: { categoryIds: string[] }
   ) {
-    const query = await articlesQuery(args);
-
-    return KnowledgeBaseArticles.find(query).countDocuments();
+    return KnowledgeBaseArticles.find({
+      categoryId: { $in: args.categoryIds }
+    }).countDocuments();
   },
 
   /**
@@ -101,15 +49,23 @@ const knowledgeBaseQueries = {
    */
   async knowledgeBaseCategories(
     _root,
-    args: { page: number; perPage: number; topicIds: string[] }
+    {
+      page,
+      perPage,
+      topicIds
+    }: { page: number; perPage: number; topicIds: string[] }
   ) {
-    const query = await categoriesQuery(args);
-
-    const categories = KnowledgeBaseCategories.find(query).sort({
-      modifiedDate: -1
+    const categories = KnowledgeBaseCategories.find({
+      topicId: { $in: topicIds }
+    }).sort({
+      title: 1
     });
 
-    return paginate(categories, args);
+    if (!page && !perPage) {
+      return categories;
+    }
+
+    return paginate(categories, { page, perPage });
   },
 
   /**
@@ -125,9 +81,9 @@ const knowledgeBaseQueries = {
    * Category total count
    */
   async knowledgeBaseCategoriesTotalCount(_root, args: { topicIds: string[] }) {
-    const query = await categoriesQuery(args);
-
-    return KnowledgeBaseCategories.find(query).countDocuments();
+    return KnowledgeBaseCategories.find({
+      topicId: { $in: args.topicIds }
+    }).countDocuments();
   },
 
   /**

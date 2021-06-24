@@ -34,7 +34,9 @@ type State = {
   title: string;
   desc: string;
   type?: string;
-  btnText: string;
+  buttonText: string;
+  numberOfPages?: number;
+  currentPage: number;
 };
 
 class Form extends React.Component<Props, State> {
@@ -47,16 +49,18 @@ class Form extends React.Component<Props, State> {
       fields: (props.formData ? props.formData.fields : props.fields) || [],
       title: form.title || '',
       desc: form.description || '',
-      btnText: form.buttonText || 'Send',
+      buttonText: form.buttonText || 'Send',
       currentMode: undefined,
       currentField: undefined,
-      type: props.type || ''
+      type: props.type || '',
+      numberOfPages: form.numberOfPages || 1,
+      currentPage: 1
     };
   }
 
   componentWillReceiveProps(nextProps: Props) {
     const { saveForm, type, isReadyToSave, formData } = this.props;
-    const { title, btnText, desc, fields } = this.state;
+    const { title, buttonText, desc, fields } = this.state;
 
     if (nextProps.formData && nextProps.formData !== formData) {
       this.setState({
@@ -70,8 +74,8 @@ class Form extends React.Component<Props, State> {
           ? { ...nextProps.formData }
           : {
               title,
-              desc,
-              btnText,
+              description: desc,
+              buttonText,
               fields,
               type
             }
@@ -85,7 +89,7 @@ class Form extends React.Component<Props, State> {
     }
 
     const { onDocChange } = this.props;
-    const { title, btnText, desc } = this.state;
+    const { title, buttonText, desc, numberOfPages } = this.state;
 
     const onChangeField = e => {
       const name: keyof State = e.target.name;
@@ -121,10 +125,21 @@ class Form extends React.Component<Props, State> {
         </FormGroup>
 
         <FormGroup>
+          <ControlLabel>{__('Number of pages')}</ControlLabel>
+          <FormControl
+            name="numberOfPages"
+            value={numberOfPages}
+            onChange={onChangeField}
+            type={'number'}
+            min={1}
+          />
+        </FormGroup>
+
+        <FormGroup>
           <ControlLabel>{__('Form button text')}</ControlLabel>
           <FormControl
-            name="btnText"
-            value={btnText}
+            name="buttonText"
+            value={buttonText}
             onChange={onChangeField}
           />
         </FormGroup>
@@ -181,7 +196,17 @@ class Form extends React.Component<Props, State> {
   onChangeFieldsOrder = fields => {
     const { onDocChange } = this.props;
 
-    this.setState({ fields }, () => {
+    const allFields = this.state.fields;
+
+    for (const field of fields) {
+      const index = allFields.map(e => e._id).indexOf(field._id);
+
+      if (index !== -1) {
+        allFields[index] = field;
+      }
+    }
+
+    this.setState({ fields: allFields }, () => {
       if (onDocChange) {
         onDocChange(this.state);
       }
@@ -190,7 +215,13 @@ class Form extends React.Component<Props, State> {
 
   render() {
     const { renderPreviewWrapper } = this.props;
-    const { currentMode, currentField, fields, desc } = this.state;
+    const {
+      currentMode,
+      currentField,
+      fields,
+      desc,
+      numberOfPages
+    } = this.state;
 
     const renderer = () => {
       return (
@@ -199,6 +230,7 @@ class Form extends React.Component<Props, State> {
           fields={fields}
           onFieldClick={this.onFieldClick}
           onChangeFieldsOrder={this.onChangeFieldsOrder}
+          currentPage={this.state.currentPage}
         />
       );
     };
@@ -218,6 +250,7 @@ class Form extends React.Component<Props, State> {
             mode={currentMode || 'create'}
             field={currentField}
             fields={fields}
+            numberOfPages={numberOfPages || 1}
             onSubmit={this.onFieldSubmit}
             onDelete={this.onFieldDelete}
             onCancel={this.onFieldFormCancel}

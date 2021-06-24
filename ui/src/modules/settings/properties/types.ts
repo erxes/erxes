@@ -38,6 +38,13 @@ export interface IField {
   logics?: IFieldLogic[];
   logicAction?: string;
   groupName?: string;
+  pageNumber?: number;
+}
+
+export interface IBoardSelectItem {
+  _id?: string;
+  boardId: string;
+  pipelineIds: string[];
 }
 
 export interface IFieldGroup {
@@ -52,6 +59,7 @@ export interface IFieldGroup {
   fields: IField[];
   lastUpdatedUserId: string;
   lastUpdatedUser: IUser;
+  boardsPipelines?: IBoardSelectItem[];
 }
 
 export interface IContentTypeFields {
@@ -163,6 +171,32 @@ export type FieldsUpdateVisibleMutationResponse = {
       isVisible?: boolean;
       isVisibleInDetail?: boolean;
     };
+  }) => Promise<any>;
+};
+
+export type FieldsUpdateOrderMutationVariables = {
+  orders: {
+    _id: string;
+    order: number;
+  };
+};
+
+export type FieldsUpdateOrderMutationResponse = {
+  fieldsUpdateOrder: (params: {
+    variables: FieldsUpdateOrderMutationVariables;
+  }) => Promise<any>;
+};
+
+export type GroupsUpdateOrderMutationVariables = {
+  orders: {
+    _id: string;
+    order: number;
+  };
+};
+
+export type GroupsUpdateOrderMutationResponse = {
+  groupsUpdateOrder: (params: {
+    variables: GroupsUpdateOrderMutationVariables;
   }) => Promise<any>;
 };
 

@@ -1,6 +1,7 @@
-import { Menu } from 'antd';
+import { DatePicker, Menu } from 'antd';
 import Icon from 'modules/common/components/Icon';
 import { dateRanges, propertyTypes } from 'modules/dashboard/constants';
+import moment from 'moment';
 import React from 'react';
 import { TimesWrapper } from '../styles';
 import ButtonDropdown from './ButtonDropdown';
@@ -12,8 +13,14 @@ const TimeGroup = ({
   availableMembers,
   addMemberName,
   updateMethods,
-  type
+  type,
+  setIsDateRange,
+  isDateRange
 }) => {
+  const onDateRangeChange = (dateSring, m) => {
+    updateMethods.update(m, { ...m, dateRange: dateSring });
+  };
+
   const granularityMenu = (member, onClick) => (
     <Menu>
       {member.granularities.length ? (
@@ -28,21 +35,32 @@ const TimeGroup = ({
     </Menu>
   );
 
-  const dateRangeMenu = onClick => (
-    <Menu>
-      {dateRanges.map(m => (
-        <Menu.Item key={m.title || m.value} onClick={() => onClick(m)}>
-          {m.title || m.value}
-        </Menu.Item>
-      ))}
-    </Menu>
-  );
+  const dateRangeMenu = choose => {
+    const onClick = m => {
+      if (m.title === 'Date range') {
+        return setIsDateRange(true);
+      } else {
+        setIsDateRange(false);
+        return choose(m);
+      }
+    };
+
+    return (
+      <Menu>
+        {dateRanges.map(m => (
+          <Menu.Item key={m.title || m.value} onClick={() => onClick(m)}>
+            {m.title || m.value}
+          </Menu.Item>
+        ))}
+      </Menu>
+    );
+  };
 
   const renderDateRange = m => {
     if (!propertyTypes.includes(type || '')) {
       return (
         <>
-          <strong key={`${m.dimension.name}-by`}>BY</strong>,
+          <strong key={`${m.dimension.name}-by`}>BY</strong>
           <ButtonDropdown
             overlay={granularityMenu(m.dimension, granularity =>
               updateMethods.update(m, { ...m, granularity: granularity.name })
@@ -56,6 +74,41 @@ const TimeGroup = ({
         </>
       );
     }
+    return;
+  };
+
+  const renderValue = value => {
+    if (isDateRange) {
+      return 'Date range';
+    }
+
+    return value || 'All time';
+  };
+
+  const renderDateRangeValue = (dateRange, index) => {
+    if (Array.isArray(dateRange)) {
+      return moment(dateRange[index] || "2017/05/13", 'YYYY/MM/DD');
+    }
+
+    return moment().add(index, 'days')
+  }
+
+
+  const renderDatePicker = m => {
+    if (isDateRange) {
+      return (
+        <DatePicker.RangePicker
+          key={`${m.dimension.name}-date-range-picker`}
+          style={{ borderRadius: '16px', marginLeft: '10px' }}
+          onChange={(date, dateString) => onDateRangeChange(dateString, m)}
+          defaultValue={[
+            renderDateRangeValue(m.dateRange, 0),
+            renderDateRangeValue(m.dateRange, 1)
+          ]}
+        />
+      );
+    }
+
     return;
   };
 
@@ -78,14 +131,17 @@ const TimeGroup = ({
           </MemberDropdown>
         </RemoveButtonGroup>,
         <strong key={`${m.dimension.name}-for`}>FOR</strong>,
+
         <ButtonDropdown
           overlay={dateRangeMenu(dateRange =>
             updateMethods.update(m, { ...m, dateRange: dateRange.value })
           )}
           key={`${m.dimension.name}-date-range`}
         >
-          {m.dateRange || 'All time'}
+          {renderValue(m.dateRange)}
         </ButtonDropdown>,
+
+        renderDatePicker(m),
         renderDateRange(m)
       ])}
       {!members.length && (
@@ -97,7 +153,6 @@ const TimeGroup = ({
             })
           }
           availableMembers={availableMembers}
-          type="dashed"
           icon={<Icon icon="plus-1" />}
           schemaType={type}
           addMemberName={addMemberName}

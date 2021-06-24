@@ -275,7 +275,7 @@ const integrationMutations = {
         user
       );
     } catch (e) {
-      await Integrations.remove({ _id: integration._id });
+      await Integrations.deleteOne({ _id: integration._id });
       throw new Error(e);
     }
 
@@ -299,7 +299,7 @@ const integrationMutations = {
       }
     }
 
-    await Integrations.update({ _id }, { $set: doc });
+    await Integrations.updateOne({ _id }, { $set: doc });
 
     const updated = await Integrations.getIntegration({ _id });
 
@@ -419,7 +419,7 @@ const integrationMutations = {
 
     const selector = customerId
       ? { _id: customerId }
-      : { primaryEmail: { $in: doc.to } };
+      : { status: { $ne: 'deleted' }, emails: { $in: doc.to } };
 
     customer = await Customers.findOne(selector);
 

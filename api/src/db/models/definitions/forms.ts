@@ -14,6 +14,7 @@ export interface IForm {
   code?: string;
   type: string;
   description?: string;
+  numberOfPages?: number;
   buttonText?: string;
 }
 
@@ -82,6 +83,12 @@ export const formSchema = schemaWrapper(
     rules: field({
       type: [ruleSchema],
       optional: true
+    }),
+
+    numberOfPages: field({
+      type: Number,
+      optional: true,
+      min: 1
     })
   })
 );

@@ -2,11 +2,13 @@ import * as faker from 'faker';
 import * as sinon from 'sinon';
 import { graphqlRequest } from '../db/connection';
 import {
+  boardFactory,
   brandFactory,
   customerFactory,
   fieldFactory,
   fieldGroupFactory,
   integrationFactory,
+  pipelineFactory,
   usersGroupFactory
 } from '../db/factories';
 import { Companies, Customers, Fields, FieldsGroups } from '../db/models';
@@ -75,8 +77,13 @@ describe('fieldQueries', () => {
   });
 
   test('Fields combined by content type', async () => {
+    const integ = await integrationFactory({});
+
     const mock = sinon.stub(elk, 'fetchElk').callsFake(() => {
       return Promise.resolve({
+        hits: {
+          hits: [{ _id: integ._id, _source: { name: integ.name } }]
+        },
         aggregations: {
           trackedDataKeys: {
             fieldKeys: {
@@ -290,6 +297,63 @@ describe('fieldQueries', () => {
     expect(responses.length).toBe(1);
   });
 
+  test('BoardItem Field groups', async () => {
+    const board = await boardFactory({ type: 'task' });
+    const board2 = await boardFactory({ type: 'task' });
+    const pipeline = await pipelineFactory({ boardId: board._id });
+
+    const fieldGroupCommonFields = {
+      contentType: 'task',
+      isDefinedByErxes: false
+    };
+
+    await fieldGroupFactory({
+      ...fieldGroupCommonFields,
+      order: 1,
+      boardIds: [board._id],
+      pipelineIds: [pipeline._id]
+    });
+    await fieldGroupFactory({
+      ...fieldGroupCommonFields,
+      order: 2,
+      boardIds: [board._id]
+    });
+
+    await fieldGroupFactory({
+      ...fieldGroupCommonFields,
+      order: 3
+    });
+
+    await fieldGroupFactory({
+      ...fieldGroupCommonFields,
+      order: 4,
+      boardIds: [board2._id]
+    });
+
+    const qry = `
+      query fieldsGroups($contentType: String, $boardId: String, $pipelineId: String) {
+        fieldsGroups(contentType: $contentType, boardId: $boardId, pipelineId: $pipelineId) {
+          _id
+          lastUpdatedUser {
+            _id
+          }
+          order
+          fields {
+            _id
+          }
+        }
+      }
+    `;
+
+    const responses = await graphqlRequest(qry, 'fieldsGroups', {
+      contentType: 'task',
+      boardId: board._id,
+      pipelineId: pipeline._id
+    });
+
+    expect(responses.length).toBe(3);
+  });
+
   test('Fields query with isVisible filter', async () => {
     // Creating test data
     await fieldFactory({
@@ -395,7 +459,7 @@ describe('fieldQueries', () => {
           text
         }
       }
-    }    
+    }
  `;
 
     const responses = await graphqlRequest(qry, 'fields', {
@@ -499,5 +563,36 @@ describe('fieldQueries', () => {
     expect(response).toBeDefined();
     expect(response._id).toEqual(customerGroup && customerGroup._id);
     expect(response.fields[0]._id).toEqual(customerField._id);
+  });
+
+  test('fieldsItemTyped', async () => {
+    const p1 = await pipelineFactory({});
+    const g1 = await fieldGroupFactory({
+      contentType: 'deal',
+      pipelineIds: [p1._id]
+    });
+    await fieldFactory({ groupId: g1 ? g1._id : '' });
+
+    const p2 = await pipelineFactory({});
+    const g2 = await fieldGroupFactory({
+      contentType: 'ticket',
+      pipelineIds: [p2._id]
+    });
+    await fieldFactory({ groupId: g2 ? g2._id : '' });
+
+    const p3 = await pipelineFactory({});
+    const g3 = await fieldGroupFactory({
+      contentType: 'task',
+      pipelineIds: [p3._id]
+    });
+    await fieldFactory({ groupId: g3 ? g3._id : '' });
+
+    const qry = `
+      query fieldsItemTyped {
+        fieldsItemTyped
+      }
+    `;
+
+    await graphqlRequest(qry, 'fieldsItemTyped');
   });
 });

@@ -26,7 +26,10 @@ import ImportHistory from './importHistory';
 import Integration from './integration';
 import InternalNote from './internalNote';
 import KnowledgeBaseArticle from './knowledgeBaseArticle';
-import KnowledgeBaseCategory from './knowledgeBaseCategory';
+import {
+  KnowledgeBaseCategory,
+  KnowledgeBaseParentCategory
+} from './knowledgeBaseCategory';
 import KnowledgeBaseTopic from './knowledgeBaseTopic';
 import Mutation from './mutations';
 import Notification from './notification';
@@ -75,6 +78,7 @@ const resolvers: any = {
 
   KnowledgeBaseArticle,
   KnowledgeBaseCategory,
+  KnowledgeBaseParentCategory,
   KnowledgeBaseTopic,
 
   Notification,

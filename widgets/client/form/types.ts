@@ -32,6 +32,7 @@ export interface IField {
 
   logicAction?: string;
   logics?: ILogic[];
+  pageNumber?: number;
 }
 
 export interface ICallout {
@@ -50,6 +51,7 @@ export interface IForm {
   buttonText?: string;
   createdUserId: string;
   fields: IField[];
+  numberOfPages?: number;
 }
 
 interface IAttachment {
@@ -81,6 +83,7 @@ export interface IFormDoc {
     associatedFieldId: string;
     groupId: string;
     isHidden?: boolean;
+    column?: number;
   };
 }
 

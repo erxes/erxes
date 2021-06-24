@@ -1,4 +1,5 @@
 import { NodeVM } from 'vm2';
+import { RABBITMQ_QUEUES } from '../data/constants';
 import { findCompany, findCustomer } from '../data/utils';
 import {
   Companies,
@@ -9,7 +10,7 @@ import {
   Fields,
   Integrations
 } from '../db/models';
-import { ICustomField } from '../db/models/definitions/common';
+import messageBroker from '../messageBroker';
 import { graphqlPubsub } from '../pubsub';
 
 const checkCompanyFieldsExists = async doc => {
@@ -18,7 +19,30 @@ const checkCompanyFieldsExists = async doc => {
       return true;
     }
   }
+
   return false;
+};
+
+const solveCustomFieldsData = (customFieldsData, prevCustomFieldsData) => {
+  prevCustomFieldsData = prevCustomFieldsData || [];
+
+  for (const data of customFieldsData) {
+    const prevData = prevCustomFieldsData.find(d => d.field === data.field);
+
+    if (prevData) {
+      if (data.hasMultipleChoice) {
+        if (!prevData.value.includes(data.value)) {
+          prevData.value = `${prevData.value},${data.value}`;
+        }
+      } else {
+        prevData.value = data.value;
+      }
+    } else {
+      prevCustomFieldsData.push(data);
+    }
+  }
+
+  return prevCustomFieldsData;
 };
 
 const webhookMiddleware = async (req, res, next) => {
@@ -49,7 +73,8 @@ const webhookMiddleware = async (req, res, next) => {
       vm.run(webhookData.script);
     }
 
-    let customFieldsData: ICustomField[] = [];
+    let customFieldsData: any[] = [];
+    let trackedData: any;
 
     if (params.customFields) {
       customFieldsData = await Promise.all(
@@ -61,24 +86,44 @@ const webhookMiddleware = async (req, res, next) => {
 
           if (customField) {
             let value = element.value;
+
             if (customField.validation === 'date') {
               value = new Date(element.value);
             }
 
             const customFieldData = {
               field: customField._id,
+              hasMultipleChoice: (customField.options || []).length > 0,
               value
             };
+
             return customFieldData;
           }
         })
       );
     }
 
+    // prepare customFieldsData and trackedData
+    if (params.data) {
+      const data = await Fields.generateCustomFieldsData(
+        params.data,
+        'customer'
+      );
+      customFieldsData = [
+        ...new Set([...(data.customFieldsData || []), ...customFieldsData])
+      ];
+
+      trackedData = data.trackedData;
+    }
+
+    // collect non empty values
+    customFieldsData = customFieldsData.filter(cf => cf);
+
     // get or create customer
     let customer = await findCustomer(params);
 
     const doc = {
+      state: params.customerState,
       primaryEmail: params.customerPrimaryEmail,
       primaryPhone: params.customerPrimaryPhone,
       code: params.customerCode,
@@ -86,58 +131,115 @@ const webhookMiddleware = async (req, res, next) => {
       lastName: params.customerLastName,
       middleName: params.customerMiddleName,
       avatar: params.customerAvatar,
-      customFieldsData
+      customFieldsData,
+      trackedData
     };
 
     if (!customer) {
       customer = await Customers.createCustomer(doc);
     } else {
+      // remove empty values to avoid replacing existing values
+      for (const key of Object.keys(doc)) {
+        if (!doc[key]) {
+          delete doc[key];
+        }
+      }
+
+      doc.customFieldsData = solveCustomFieldsData(
+        customFieldsData,
+        customer.customFieldsData
+      );
+
       customer = await Customers.updateCustomer(customer._id, doc);
     }
 
     // get or create conversation
-    let conversation = await Conversations.findOne({
-      customerId: customer._id,
-      integrationId: integration._id
-    });
-
-    if (!conversation) {
-      conversation = await Conversations.createConversation({
+    if (params.content) {
+      let conversation = await Conversations.findOne({
         customerId: customer._id,
-        integrationId: integration._id,
-        content: params.content
+        integrationId: integration._id
       });
-    } else {
-      if (conversation.status === 'closed') {
-        await Conversations.updateOne(
-          { _id: conversation._id },
-          { status: 'open' }
+
+      if (!conversation) {
+        conversation = await Conversations.createConversation({
+          customerId: customer._id,
+          integrationId: integration._id,
+          content: params.content
+        });
+      } else {
+        if (conversation.status === 'closed') {
+          await Conversations.updateOne(
+            { _id: conversation._id },
+            { status: 'open' }
+          );
+        }
+      }
+
+      // create conversation message
+      const message = await ConversationMessages.createMessage({
+        conversationId: conversation._id,
+        customerId: customer._id,
+        content: params.content,
+        attachments: params.attachments
+      });
+
+      graphqlPubsub.publish('conversationClientMessageInserted', {
+        conversationClientMessageInserted: message
+      });
+
+      graphqlPubsub.publish('conversationMessageInserted', {
+        conversationMessageInserted: message
+      });
+    }
+
+    // company
+    let company = await findCompany(params);
+    let parentCompany;
+
+    const hasCompanyFields = await checkCompanyFieldsExists(params);
+
+    if (params.parentCompany) {
+      parentCompany = await findCompany(params.parentCompany);
+
+      let parentCompanyData;
+
+      if (params.parentCompany.companyData) {
+        parentCompanyData = await Fields.generateCustomFieldsData(
+          params.parentCompany.companyData,
+          'company'
+        );
+      }
+
+      params.parentCompany.customFieldsData =
+        parentCompanyData.customFieldsData;
+
+      customFieldsData = [
+        ...new Set([
+          ...(parentCompanyData.customFieldsData || []),
+          ...customFieldsData
+        ])
+      ];
+
+      if (!parentCompany) {
+        parentCompany = await Companies.createCompany(params.parentCompany);
+      } else {
+        parentCompany = await Companies.updateCompany(
+          company._id,
+          params.parentCompany
         );
       }
     }
 
-    // create conversation message
-    const message = await ConversationMessages.createMessage({
-      conversationId: conversation._id,
-      customerId: customer._id,
-      content: params.content,
-      attachments: params.attachments
-    });
-
-    graphqlPubsub.publish('conversationClientMessageInserted', {
-      conversationClientMessageInserted: message
-    });
-
-    graphqlPubsub.publish('conversationMessageInserted', {
-      conversationMessageInserted: message
-    });
-
-    // company
-    let company = await findCompany(params);
-
-    const hasCompanyFields = await checkCompanyFieldsExists(params);
-
     if (hasCompanyFields) {
+      let companyData;
+
+      if (params.companyData) {
+        companyData = await Fields.generateCustomFieldsData(
+          params.companyData,
+          'company'
+        );
+      }
+
       const companyDoc = {
         primaryEmail: params.companyPrimaryEmail,
         primaryPhone: params.companyPrimaryPhone,
@@ -145,7 +247,9 @@ const webhookMiddleware = async (req, res, next) => {
         website: params.companyWebsite,
         industry: params.companyIndustry,
         businessType: params.companyBusinessType,
-        avatar: params.companyAvatar
+        avatar: params.companyAvatar,
+        customFieldsData: companyData.customFieldsData,
+        parentCompanyId: parentCompany ? parentCompany._id : undefined
       };
 
       if (!company) {
@@ -166,6 +270,24 @@ const webhookMiddleware = async (req, res, next) => {
         }
       });
     }
+
+    let bulkData: any;
+
+    if (params.customers) {
+      bulkData = { type: 'customer', data: params.customers };
+    }
+
+    if (params.companies) {
+      bulkData = { type: 'company', data: params.companies };
+    }
+
+    if (bulkData) {
+      await messageBroker().sendRPCMessage(
+        RABBITMQ_QUEUES.RPC_API_TO_WEBHOOK_WORKERS,
+        bulkData
+      );
+    }
+
     return res.send('ok');
   } catch (e) {
     return next(e);
