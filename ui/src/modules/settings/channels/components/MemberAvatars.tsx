@@ -22,9 +22,8 @@ export default function MemberAvatars(props: Props) {
     const { selectedMemberIds, allMembers } = props;
 
     let selectedMembers: IUser[] = [];
-
-    selectedMembers = allMembers.filter(user =>
-      selectedMemberIds.includes(user._id)
+    selectedMembers = allMembers.filter(
+      user => user.isActive && selectedMemberIds.includes(user._id)
     );
 
     const length = selectedMembers.length;
