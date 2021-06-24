@@ -12,9 +12,9 @@ import {
   IComment,
   ICommentDocument,
   commentSchema,
-  IForumLikeDocument,
-  forumLikeSchema,
-  IForumLike
+  IForumReactionDocument,
+  forumReactionSchema,
+  IForumReaction
 } from './definitions/forums';
 
 export interface IForumModel extends Model<IForumDocument> {
@@ -351,14 +351,17 @@ const loadCommentClass = () => {
   return commentSchema;
 };
 
-export interface IForumLikeModel extends Model<IForumLikeDocument> {
-  createDoc(docFields: IForumLike, userId: string): Promise<IForumLikeDocument>;
+export interface IForumReactionModel extends Model<IForumReactionDocument> {
+  createDoc(
+    docFields: IForumReaction,
+    userId: string
+  ): Promise<IForumReactionDocument>;
 }
 
-const loadForumLikeClass = () => {
-  class ForumLike {
-    public static async createDoc(docFields: IForumLike, userId: string) {
-      return ForumLikes.create({
+const loadForumReactionClass = () => {
+  class ForumReaction {
+    public static async createDoc(docFields: IForumReaction, userId: string) {
+      return ForumReactions.create({
         ...docFields,
         createdBy: userId,
         createdDate: new Date(),
@@ -367,16 +370,16 @@ const loadForumLikeClass = () => {
     }
   }
 
-  forumLikeSchema.loadClass(ForumLike);
+  forumReactionSchema.loadClass(ForumReaction);
 
-  return forumLikeSchema;
+  return forumReactionSchema;
 };
 
 loadForumClass();
 loadTopicClass();
 loadDiscussionClass();
 loadCommentClass();
-loadForumLikeClass();
+loadForumReactionClass();
 
 export const Forums = model<IForumDocument, IForumModel>('forums', forumSchema);
 
@@ -395,7 +398,7 @@ export const DiscussionComments = model<ICommentDocument, ICommentModel>(
   commentSchema
 );
 
-export const ForumLikes = model<IForumLikeDocument, IForumLikeModel>(
-  'forum_likes',
-  forumLikeSchema
-);
+export const ForumReactions = model<
+  IForumReactionDocument,
+  IForumReactionModel
+>('forum_reactions', forumReactionSchema);

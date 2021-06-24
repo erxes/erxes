@@ -813,3 +813,9 @@ export const REACTION_CHOICES = {
   DISLIKE: 'disLike',
   ALL: ['like', 'dislike']
 };
+
+export const FORUM_CONTENT_TYPE = {
+  DISCUSSION: 'discussion',
+  COMMENT: 'comment',
+  ALL: ['discussion', 'comment']
+};

@@ -3,14 +3,14 @@ import {
   ForumTopics,
   ForumDiscussions,
   DiscussionComments,
-  ForumLikes
+  ForumReactions
 } from '../../../db/models';
 import {
   IForum,
   ITopic,
   IDiscussion,
   IComment,
-  IForumLike
+  IForumReaction
 } from '../../../db/models/definitions/forums';
 import { IContext } from '../../types';
 import { moduleCheckPermission } from '../../permissions/wrappers';
@@ -172,30 +172,29 @@ const forumMutations = {
   },
 
   /**
-   * Discussion Comment Like mutations
+   * Forum reaction mutations
    */
-
-  async forumLikesToggle(
+  async forumReactionsToggle(
     _root,
-    { ...doc }: { doc: IForumLike; type: string; contentTypeId: string },
+    { ...doc }: { doc: IForumReaction; type: string; contentTypeId: string },
     { user, docModifier }: IContext
   ) {
-    const userLiked = await ForumLikes.findOne({
+    const userReaction = await ForumReactions.findOne({
       createdBy: user._id,
       type: doc.type,
       contentTypeId: doc.contentTypeId
     });
 
-    if (userLiked) {
-      return ForumLikes.deleteOne({
+    if (userReaction) {
+      return ForumReactions.deleteOne({
         createdBy: user._id,
         contentTypeId: doc.contentTypeId
       });
     }
 
-    const like = await ForumLikes.createDoc(docModifier(doc), user._id);
+    const reaction = await ForumReactions.createDoc(docModifier(doc), user._id);
 
-    return like;
+    return reaction;
   }
 };
 

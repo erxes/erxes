@@ -80,8 +80,8 @@ export const queries = `
     discussionComments(discussionId: String!): [ForumDiscussionComment]
     discussionCommentsTotalCount(discussionId: String!): Int
 
-    isUserLikedForum(type: String! contentTypeId: String!): Boolean
-    forumLikesTotalCount(type: String! contentTypeId: String!): Int
+    isUserReactForum(type: String! contentTypeId: String! contentType: String!): Boolean
+    forumReactionsTotalCount(type: String! contentTypeId: String! contentType: String!): Int
 `;
 
 const forumMutationParams = `
@@ -136,5 +136,5 @@ export const mutations = `
     discussionCommentsEdit(_id: String ${commentMutationParams}): ForumDiscussionComment
     discussionCommentsRemove(_id: String): JSON
 
-    forumLikesToggle(type: String! contentTypeId: String ): JSON
+    forumReactionsToggle(type: String! contentTypeId: String! contentType: String! ): JSON
 `;

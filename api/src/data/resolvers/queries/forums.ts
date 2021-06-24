@@ -3,7 +3,7 @@ import {
   Forums,
   ForumTopics,
   DiscussionComments,
-  ForumLikes
+  ForumReactions
 } from '../../../db/models';
 
 import { IContext } from '../../types';
@@ -118,20 +118,21 @@ const forumQueries = {
   },
 
   /**
-   * userLiked forum like
+   * user react forum
    */
-  async isUserLikedForum(
+  async isUserReactForum(
     _root,
-    args: { type: string; contentTypeId: string },
+    args: { type: string; contentTypeId: string; contentType: string },
     { user }: IContext
   ) {
-    const isLiked = await ForumLikes.findOne({
+    const isReact = await ForumReactions.findOne({
       type: args.type,
       contentTypeId: args.contentTypeId,
-      createdBy: user._id
+      createdBy: user._id,
+      contentType: args.contentType
     });
 
-    if (isLiked) {
+    if (isReact) {
       return true;
     }
 
@@ -139,15 +140,16 @@ const forumQueries = {
   },
 
   /**
-   * forum likes count
+   * forum reactions count
    */
-  async forumLikesTotalCount(
+  async forumReactionsTotalCount(
     _root,
-    args: { type: string; contentTypeId: string }
+    args: { type: string; contentTypeId: string; contentType: string }
   ) {
-    return ForumLikes.find({
+    return ForumReactions.find({
       type: args.type,
-      contentTypeId: args.contentTypeId
+      contentTypeId: args.contentTypeId,
+      contentType: args.contentType
     }).countDocuments();
   }
 };
@@ -157,12 +159,12 @@ requireLogin(forumQueries, 'forumTopicsTotalCount');
 requireLogin(forumQueries, 'forumTopicsGetLast');
 requireLogin(forumQueries, 'forumDiscussionsTotalCount');
 requireLogin(forumQueries, 'discussionCommentsTotalCount');
-requireLogin(forumQueries, 'forumLikesTotalCount');
+requireLogin(forumQueries, 'forumReactionsTotalCount');
 
 checkPermission(forumQueries, 'forums', 'showForums', []);
 checkPermission(forumQueries, 'forumTopics', 'showForums', []);
 checkPermission(forumQueries, 'forumDiscussions', 'showForums', []);
 checkPermission(forumQueries, 'discussionComments', 'showForums', []);
-checkPermission(forumQueries, 'isUserLikedForum', 'showForums', []);
+checkPermission(forumQueries, 'isUserReactForum', 'showForums', []);
 
 export default forumQueries;

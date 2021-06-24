@@ -1,6 +1,10 @@
 import { Document, Schema } from 'mongoose';
 import { field } from './utils';
-import { PUBLISH_STATUSES, REACTION_CHOICES } from './constants';
+import {
+  PUBLISH_STATUSES,
+  REACTION_CHOICES,
+  FORUM_CONTENT_TYPE
+} from './constants';
 interface ICommonFields {
   createdBy: string;
   createdDate: Date;
@@ -55,14 +59,14 @@ export interface ICommentDocument extends ICommonFields, IComment, Document {
   _id: string;
 }
 
-export interface IForumLike {
+export interface IForumReaction {
   type: string;
   contentTypeId: string;
 }
 
-export interface IForumLikeDocument
+export interface IForumReactionDocument
   extends ICommonFields,
-    IForumLike,
+    IForumReaction,
     Document {
   _id: string;
 }
@@ -138,9 +142,14 @@ export const commentSchema = new Schema({
   ...commonFields
 });
 
-export const forumLikeSchema = new Schema({
+export const forumReactionSchema = new Schema({
   _id: field({ pkey: true }),
   type: field({ type: String, enum: REACTION_CHOICES.ALL, label: 'Type' }),
-  contentTypeId: field({ type: String, label: 'Content type' }),
+  contentType: field({
+    type: String,
+    enum: FORUM_CONTENT_TYPE.ALL,
+    label: 'Content type'
+  }),
+  contentTypeId: field({ type: String, label: 'Content type item' }),
   ...commonFields
 });
