@@ -46,7 +46,7 @@ class Home extends React.Component<Props, State> {
           integration =>
             integration.name.toLowerCase().indexOf(searchValue) !== -1 &&
             integration.category.indexOf(
-              queryParams.type || __('All integrations')
+              queryParams.type || 'All integrations'
             ) !== -1
         )
       });
@@ -97,7 +97,7 @@ class Home extends React.Component<Props, State> {
       <Content>
         <Sidebar currentType={queryParams.type} />
         <IntegrationWrapper>
-          <h3>{queryParams.type || __('All Integrations')}</h3>
+          <h3>{queryParams.type || 'All Integrations'}</h3>
           {this.renderIntegrations()}
         </IntegrationWrapper>
       </Content>

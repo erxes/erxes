@@ -14,7 +14,7 @@ class SideBar extends React.Component<Props> {
       <Link key={item} to={`?type=${item}`}>
         <Category
           key={item}
-          isActive={(this.props.currentType || __('All integrations')) === item}
+          isActive={(this.props.currentType || 'All integrations') === item}
         >
           {item}
         </Category>

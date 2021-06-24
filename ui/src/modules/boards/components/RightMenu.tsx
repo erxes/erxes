@@ -149,7 +149,7 @@ export default class RightMenu extends React.Component<Props, State> {
       <FilterBox>
         <FormControl
           defaultValue={queryParams.search}
-          placeholder={__('Search...')}
+          placeholder={__('Search ...')}
           onKeyPress={this.onSearch}
           autoFocus={true}
         />

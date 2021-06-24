@@ -30,7 +30,7 @@ class CustomerCreate extends React.Component<IActivityLogItemProps> {
       return (
         <span>
           This customer registered to erxes by
-          {content ? ` ${content.name}'s Integrations` : ''}
+          {content ? ` ${content.name}'s integrations` : ''}
         </span>
       );
     }

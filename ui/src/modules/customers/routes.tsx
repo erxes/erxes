@@ -1,7 +1,6 @@
 import { Redirect, Route } from 'react-router-dom';
 
 import asyncComponent from 'modules/common/components/AsyncComponent';
-import { __ } from 'modules/common/utils';
 import queryString from 'query-string';
 import React from 'react';
 
@@ -16,8 +15,7 @@ const CustomersList = asyncComponent(() =>
 );
 
 const contacts = () => {
-  const lastVisited =
-    localStorage.getItem('erxes_contact_url') || __('visitor');
+  const lastVisited = localStorage.getItem('erxes_contact_url') || 'visitor';
 
   if (lastVisited === 'companies') {
     return <Redirect to={lastVisited} />;

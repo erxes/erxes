@@ -319,7 +319,7 @@ class PipelineForm extends React.Component<Props, State> {
                 />
               </DateItem>
               <DateItem>
-                <ControlLabel required={true}>'End date'</ControlLabel>
+                <ControlLabel required={true}>End date</ControlLabel>
                 <DateControl
                   {...formProps}
                   required={true}

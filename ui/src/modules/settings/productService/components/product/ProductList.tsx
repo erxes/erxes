@@ -246,7 +246,7 @@ class List extends React.Component<IProps, State> {
             />
           )}
           <TaggerPopover
-            type={__('product')}
+            type="product"
             successCallback={emptyBulk}
             targets={bulk}
             trigger={tagButton}
@@ -265,7 +265,7 @@ class List extends React.Component<IProps, State> {
     }
 
     const actionBarLeft = (
-      <Title>{currentCategory.name || __('All products')}</Title>
+      <Title>{currentCategory.name || 'All products'}</Title>
     );
 
     return (
