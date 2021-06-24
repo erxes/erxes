@@ -30,7 +30,7 @@ class Roles extends React.Component<Props, State> {
 
     this.state = {
       step: 1,
-      selectedRole: '',
+      selectedRole: this.props.roleValueLabel || '',
       selectedValue: ''
     };
   }

@@ -121,13 +121,6 @@ class Setup extends React.Component<Props, State> {
     return false;
   }
 
-  toggleList(gkey: string) {
-    const clickedOne = gkey;
-    console.log(clickedOne, '------');
-    console.log(this.openCollapse(gkey), '========');
-    return;
-  }
-
   renderSetup() {
     const { roleValue } = this.props;
 
@@ -139,7 +132,6 @@ class Setup extends React.Component<Props, State> {
             id={group.key}
             title={__(group.title)}
             open={this.openCollapse(group.key)}
-            onClick={() => this.toggleList(group.key)}
           >
             {group.content.map((content, index) => {
               if (content.types.includes(roleValue.value)) {
@@ -199,6 +191,10 @@ class Setup extends React.Component<Props, State> {
     );
   };
 
+  drawContent() {
+    return;
+  }
+
   renderContent() {
     const { selectedOption } = this.state;
     const { currentRoute, currentUser, roleValue, restartRole } = this.props;
@@ -216,6 +212,7 @@ class Setup extends React.Component<Props, State> {
       if (percentage === 100) {
         text = 'Congratulations! You have finished setting up';
       }
+
       return this.withHeader(
         <>
           <Greeting>
@@ -238,12 +235,13 @@ class Setup extends React.Component<Props, State> {
 
           {this.renderSetup()}
 
-          <RestartButton onClick={() => restartRole(roleValue.label)}>
+          <RestartButton onClick={() => restartRole(roleValue.value)}>
             {__('Reselect role')}
           </RestartButton>
         </>
       );
     }
+
     return null;
   }
 
