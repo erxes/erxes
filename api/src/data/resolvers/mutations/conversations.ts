@@ -1,13 +1,11 @@
 import * as strip from 'strip';
 import * as _ from 'underscore';
 import {
-  Conformities,
   ConversationMessages,
   Conversations,
   Customers,
   Integrations
 } from '../../../db/models';
-import { getCollection } from '../../../db/models/boardUtils';
 import Messages from '../../../db/models/ConversationMessages';
 import { ICustomField } from '../../../db/models/definitions/common';
 import {
@@ -23,12 +21,11 @@ import { debugError } from '../../../debuggers';
 import messageBroker from '../../../messageBroker';
 import { graphqlPubsub } from '../../../pubsub';
 import { AUTO_BOT_MESSAGES, RABBITMQ_QUEUES } from '../../constants';
-import { ACTIVITY_LOG_ACTIONS, putActivityLog } from '../../logUtils';
 import { checkPermission, requireLogin } from '../../permissions/wrappers';
 import { IContext } from '../../types';
 import utils, { splitStr } from '../../utils';
 import QueryBuilder, { IListArgs } from '../queries/conversationQueryBuilder';
-import { conversationConvertToBoardItem, itemsAdd } from './boardUtils';
+import { conversationConvertToBoardItem } from './boardUtils';
 
 export interface IConversationMessageAdd {
   conversationId: string;
