@@ -1,5 +1,5 @@
 import {
-  fetchBySegments,
+  fetchSegment,
   generateQueryBySegment
 } from '../data/modules/segments/queryBuilder';
 import { customerFactory, dealFactory, segmentFactory } from '../db/factories';
@@ -119,7 +119,7 @@ describe('Segments mutations', () => {
       }
     });
 
-    const result = await fetchBySegments(mainSegment);
+    const result = await fetchSegment(mainSegment);
 
     expect(result.length).toBe(2);
   });
@@ -164,7 +164,7 @@ describe('Segments mutations', () => {
       ]
     });
 
-    const result = await fetchBySegments(mainSegment);
+    const result = await fetchSegment(mainSegment);
     const customer = await Customers.findOne({ lastName: 'dombo' });
 
     expect(result.length).toBe(1);
@@ -233,7 +233,7 @@ describe('Segments mutations', () => {
       ]
     });
 
-    const result = await fetchBySegments(mainSegment);
+    const result = await fetchSegment(mainSegment);
 
     expect(result.length).toBe(1);
     expect(result[0]).toBe(c1._id);
@@ -284,7 +284,7 @@ describe('Segments mutations', () => {
       ]
     });
 
-    const result = await fetchBySegments(mainSegment, 'search', {
+    const result = await fetchSegment(mainSegment, {
       associatedCustomers: true
     });
 

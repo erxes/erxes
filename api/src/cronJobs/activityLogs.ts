@@ -1,7 +1,7 @@
 import * as dotenv from 'dotenv';
 import * as schedule from 'node-schedule';
 import { ACTIVITY_LOG_ACTIONS, putActivityLog } from '../data/logUtils';
-import { fetchBySegments } from '../data/modules/segments/queryBuilder';
+import { fetchSegment } from '../data/modules/segments/queryBuilder';
 import { connect } from '../db/connection';
 import { Companies, Customers, Segments } from '../db/models';
 
@@ -15,7 +15,7 @@ export const createActivityLogsFromSegments = async () => {
   const segments = await Segments.find({});
 
   for (const segment of segments) {
-    const ids = await fetchBySegments(segment);
+    const ids = await fetchSegment(segment);
 
     const customers = await Customers.find({ _id: { $in: ids } }, { _id: 1 });
     const customerIds = customers.map(c => c._id);

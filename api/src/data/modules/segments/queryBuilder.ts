@@ -14,10 +14,17 @@ import { ICondition, ISegment } from '../../../db/models/definitions/segments';
 import { fetchElk } from '../../../elasticsearch';
 import { getEsTypes } from '../coc/utils';
 
-export const fetchBySegments = async (
+type IOptions = {
+  associatedCustomers?: boolean;
+  returnFields?: string[];
+  returnSelector?: boolean;
+  returnCount?: boolean;
+  pipelineId?: string;
+};
+
+export const fetchSegment = async (
   segment: ISegment,
-  action: 'search' | 'count' = 'search',
-  options: any = {}
+  options: IOptions = {}
 ): Promise<any> => {
   if (!segment || !segment.conditions) {
     return [];
@@ -68,20 +75,31 @@ export const fetchBySegments = async (
     };
   }
 
-  if (action === 'count') {
-    return {
-      positiveList: [],
-      negativeList: []
-    };
+  if (options.returnSelector) {
+    return selector;
   }
 
-  const response = await fetchElk({
-    action: 'search',
+  const esParams = {
     index,
     body: {
       _source: options.returnFields || false,
       query: selector
     }
+  };
+
+  // count entries
+  if (options.returnCount) {
+    const countResponse = await fetchElk({
+      action: 'count',
+      ...esParams
+    });
+
+    return countResponse.count;
+  }
+
+  const response = await fetchElk({
+    action: 'search',
+    ...esParams
   });
 
   if (options.returnFields) {
@@ -94,7 +112,7 @@ export const fetchBySegments = async (
 export const generateQueryBySegment = async (args: {
   segment: ISegment;
   selector: any;
-  options?: any;
+  options?: IOptions;
 }) => {
   const { segment, selector, options = {} } = args;
   const { contentType } = segment;
@@ -570,35 +588,4 @@ const getIndexByContentType = (contentType: string) => {
   }
 
   return index;
-};
-
-export const fetchSegment = async (action, segment: ISegment, options?) => {
-  const { contentType } = segment;
-
-  let response = await fetchBySegments(segment, action, options);
-
-  if (action === 'search') {
-    return response;
-  }
-
-  try {
-    const { positiveList, negativeList } = await response;
-
-    response = await fetchElk({
-      action: 'count',
-      index: getIndexByContentType(contentType),
-      body: {
-        query: {
-          bool: {
-            must: positiveList,
-            must_not: negativeList
-          }
-        }
-      }
-    });
-
-    return response.count;
-  } catch (e) {
-    return 0;
-  }
 };
