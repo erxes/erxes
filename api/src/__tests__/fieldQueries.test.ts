@@ -15,7 +15,7 @@ import {
 import { Companies, Customers, Fields, FieldsGroups } from '../db/models';
 import * as elk from '../elasticsearch';
 
-import { KIND_CHOICES } from '../db/models/definitions/constants';
+import { BOARD_TYPES, KIND_CHOICES } from '../db/models/definitions/constants';
 import './setup.ts';
 
 describe('fieldQueries', () => {
@@ -440,6 +440,35 @@ describe('fieldQueries', () => {
     const responses = await graphqlRequest(fieldsQuery, 'fields', {
       contentType: 'form',
       isVisible: true
+    });
+
+    expect(responses.length).toBe(1);
+    const field = responses[0];
+    expect(field.groupName).toBe(group && group.name);
+  });
+
+  test('Fields query with boardId & pipelineId', async () => {
+    // Creating test data
+    const board = await boardFactory({ type: BOARD_TYPES.TASK });
+    const pipeline = await pipelineFactory({ boardId: board._id });
+
+    const group = await fieldGroupFactory({
+      contentType: BOARD_TYPES.TASK,
+      pipelineIds: [pipeline._id],
+      boardIds: [board._id]
+    });
+
+    await fieldFactory({
+      text: 'text1',
+      contentType: BOARD_TYPES.TASK,
+      visible: true,
+      groupId: (group && group._id) || ''
+    });
+
+    const responses = await graphqlRequest(fieldsQuery, 'fields', {
+      contentType: 'task',
+      boardId: board._id,
+      pipelineId: pipeline._id
     });
 
     expect(responses.length).toBe(1);
