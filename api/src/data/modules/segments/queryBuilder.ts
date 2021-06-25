@@ -26,96 +26,13 @@ export const fetchBySegments = async (
   const { contentType } = segment;
 
   let index = getIndexByContentType(contentType);
-  const typesMap = getEsTypes(contentType);
 
   let propertyPositive: any[] = [];
   let propertyNegative: any[] = [];
 
-  if (['customer', 'lead', 'visitor'].includes(contentType)) {
-    propertyNegative.push({
-      term: {
-        status: 'deleted'
-      }
-    });
-  }
+  const selector = { bool: {} };
 
-  if (['deal', 'task', 'ticket'].includes(contentType)) {
-    let pipelineIds: string[] = [];
-
-    if (options && options.pipelineId) {
-      pipelineIds = [options.pipelineId];
-    }
-
-    if (segment.boardId) {
-      const board = await Boards.getBoard(segment.boardId);
-
-      const pipelines = await Pipelines.find(
-        {
-          _id: {
-            $in: segment.pipelineId
-              ? [segment.pipelineId]
-              : board.pipelines || []
-          }
-        },
-        { _id: 1 }
-      );
-
-      pipelineIds = pipelines.map(p => p._id);
-    }
-
-    const stages = await Stages.find({ pipelineId: pipelineIds }, { _id: 1 });
-
-    if (stages.length > 0) {
-      propertyPositive.push({
-        terms: {
-          stageId: stages.map(s => s._id)
-        }
-      });
-    }
-  }
-
-  const eventPositive = [];
-  const eventNegative = [];
-
-  await generateQueryBySegment({
-    segment,
-    typesMap,
-    propertyPositive,
-    propertyNegative,
-    eventNegative,
-    eventPositive
-  });
-
-  let idsByEvents = [];
-
-  if (eventPositive.length > 0 || eventNegative.length > 0) {
-    const idField = contentType === 'company' ? 'companyId' : 'customerId';
-
-    const eventsResponse = await fetchElk({
-      action: 'search',
-      index: 'events',
-      body: {
-        _source: idField,
-        query: {
-          bool: {
-            must: eventPositive,
-            must_not: eventNegative
-          }
-        }
-      },
-      defaultValue: { hits: { hits: [] } }
-    });
-
-    idsByEvents = eventsResponse.hits.hits
-      .map(hit => hit._source[idField])
-      .filter(_id => _id);
-
-    propertyPositive.push({
-      terms: {
-        _id: idsByEvents
-      }
-    });
-  }
+  await generateQueryBySegment({ segment, selector: selector.bool, options });
 
   if (
     ['company', 'deal', 'task', 'ticket'].includes(contentType) &&
@@ -171,12 +88,7 @@ export const fetchBySegments = async (
     index,
     body: {
       _source: options.returnFields || false,
-      query: {
-        bool: {
-          must: propertyPositive,
-          must_not: propertyNegative
-        }
-      }
+      query: selector
     }
   });
 
@@ -184,40 +96,93 @@ export const fetchBySegments = async (
     return response.hits.hits.map(hit => ({ _id: hit._id, ...hit._source }));
   }
 
-  const idsByContentType = response.hits.hits.map(hit => hit._id);
-
-  let ids = idsByContentType.length ? idsByContentType : idsByEvents;
-
-  if (idsByContentType.length > 0 && idsByEvents.length > 0) {
-    ids = _.intersection(idsByContentType, idsByEvents);
-  }
-
-  return ids;
+  return response.hits.hits.map(hit => hit._id);
 };
 
-const generateQueryBySegment = async (args: {
-  propertyPositive;
-  propertyNegative;
-  eventPositive;
-  eventNegative;
+export const generateQueryBySegment = async (args: {
   segment: ISegment;
-  typesMap: { [key: string]: any };
+  selector: any;
+  options?: any;
 }) => {
-  const {
-    segment,
-    typesMap,
-    propertyNegative,
-    propertyPositive,
-    eventNegative,
-    eventPositive
-  } = args;
+  const { segment, selector, options = {} } = args;
+  const { contentType } = segment;
+  const typesMap = getEsTypes(contentType);
 
-  // Fetching parent segment
+  if (segment.conditionsConjunction === 'and') {
+    selector.must = [];
+    selector.must_not = [];
+  } else {
+    selector.should = [
+      {
+        bool: {
+          must: []
+        }
+      },
+      {
+        bool: {
+          must_not: []
+        }
+      }
+    ];
+  }
+
+  const selectorPositiveList = selector.must || selector.should[0].bool.must;
+  const selectorNegativeList =
+    selector.must_not || selector.should[1].bool.must_not;
+
   const embeddedParentSegment = await Segments.findOne({ _id: segment.subOf });
   const parentSegment = embeddedParentSegment;
 
   if (parentSegment && (!segment._id || segment._id !== parentSegment._id)) {
     await generateQueryBySegment({ ...args, segment: parentSegment });
+  }
+
+  const eventPositive: any = [];
+  const eventNegative: any = [];
+  const propertiesPositive: any = [];
+  const propertiesNegative: any = [];
+
+  if (['customer', 'lead', 'visitor'].includes(contentType)) {
+    propertiesNegative.push({
+      term: {
+        status: 'deleted'
+      }
+    });
+  }
+
+  if (['deal', 'task', 'ticket'].includes(contentType)) {
+    let pipelineIds: string[] = [];
+
+    if (options && options.pipelineId) {
+      pipelineIds = [options.pipelineId];
+    }
+
+    if (segment.boardId) {
+      const board = await Boards.getBoard(segment.boardId);
+
+      const pipelines = await Pipelines.find(
+        {
+          _id: {
+            $in: segment.pipelineId
+              ? [segment.pipelineId]
+              : board.pipelines || []
+          }
+        },
+        { _id: 1 }
+      );
+
+      pipelineIds = pipelines.map(p => p._id);
+    }
+
+    const stages = await Stages.find({ pipelineId: pipelineIds }, { _id: 1 });
+
+    if (stages.length > 0) {
+      propertiesPositive.push({
+        terms: {
+          stageId: stages.map(s => s._id)
+        }
+      });
+    }
   }
 
   const propertyConditions: ICondition[] = [];
@@ -231,20 +196,38 @@ const generateQueryBySegment = async (args: {
     if (condition.type === 'event') {
       eventConditions.push(condition);
     }
+
+    if (condition.type === 'subSegment' && condition.subSegmentId) {
+      const subSegment = await Segments.getSegment(condition.subSegmentId);
+
+      selectorPositiveList.push({ bool: {} });
+
+      await generateQueryBySegment({
+        ...args,
+        segment: subSegment,
+        selector: selectorPositiveList[selectorPositiveList.length - 1].bool
+      });
+    }
   }
 
   for (const condition of propertyConditions) {
     const field = condition.propertyName;
 
     if (field) {
-      elkConvertConditionToQuery({
+      const [positiveQuery, negativeQuery] = elkConvertConditionToQuery({
         field,
         type: typesMap[field],
         operator: condition.propertyOperator || '',
-        value: condition.propertyValue || '',
-        positive: propertyPositive,
-        negative: propertyNegative
+        value: condition.propertyValue || ''
       });
+
+      if (positiveQuery) {
+        propertiesPositive.push(positiveQuery);
+      }
+
+      if (negativeQuery) {
+        propertiesNegative.push(negativeQuery);
+      }
     }
   }
 
@@ -295,15 +278,56 @@ const generateQueryBySegment = async (args: {
     }
 
     for (const filter of eventAttributeFilters) {
-      elkConvertConditionToQuery({
+      const [positiveQuery, negativeQuery] = elkConvertConditionToQuery({
         field: `attributes.${filter.name}`,
         operator: filter.operator,
-        value: filter.value,
-        positive: eventPositive,
-        negative: eventNegative
+        value: filter.value
+      });
+
+      if (positiveQuery) {
+        eventPositive.push(positiveQuery);
+      }
+
+      if (negativeQuery) {
+        eventNegative.push(negativeQuery);
+      }
+    }
+
+    let idsByEvents = [];
+
+    if (eventPositive.length > 0 || eventNegative.length > 0) {
+      const idField =
+        segment.contentType === 'company' ? 'companyId' : 'customerId';
+
+      const eventsResponse = await fetchElk({
+        action: 'search',
+        index: 'events',
+        body: {
+          _source: idField,
+          query: {
+            bool: {
+              must: eventPositive,
+              must_not: eventNegative
+            }
+          }
+        },
+        defaultValue: { hits: { hits: [] } }
+      });
+
+      idsByEvents = eventsResponse.hits.hits
+        .map(hit => hit._source[idField])
+        .filter(_id => _id);
+
+      propertiesPositive.push({
+        terms: {
+          _id: idsByEvents
+        }
       });
     }
   }
+
+  selectorPositiveList.push(...propertiesPositive);
+  selectorNegativeList.push(...propertiesNegative);
 };
 
 const generateNestedQuery = (
@@ -356,10 +380,8 @@ function elkConvertConditionToQuery(args: {
   type?: any;
   operator: string;
   value: string;
-  positive;
-  negative;
 }) {
-  const { field, type, operator, value, positive, negative } = args;
+  const { field, type, operator, value } = args;
 
   const fixedValue = (value || '').includes('now')
     ? value
@@ -533,13 +555,7 @@ function elkConvertConditionToQuery(args: {
     }
   }
 
-  if (positiveQuery) {
-    positive.push(positiveQuery);
-  }
-
-  if (negativeQuery) {
-    negative.push(negativeQuery);
-  }
+  return [positiveQuery, negativeQuery];
 }
 
 const getIndexByContentType = (contentType: string) => {
