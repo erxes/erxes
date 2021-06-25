@@ -26,11 +26,7 @@ export const fetchBySegments = async (
   const { contentType } = segment;
 
   let index = getIndexByContentType(contentType);
-
-  let propertyPositive: any[] = [];
-  let propertyNegative: any[] = [];
-
-  const selector = { bool: {} };
+  let selector = { bool: {} };
 
   await generateQueryBySegment({ segment, selector: selector.bool, options });
 
@@ -44,19 +40,13 @@ export const fetchBySegments = async (
       action: 'search',
       index: getIndexByContentType(segment.contentType),
       body: {
-        query: {
-          bool: {
-            must: propertyPositive,
-            must_not: propertyNegative
-          }
-        },
+        query: selector,
         _source: '_id'
       },
       defaultValue: { hits: { hits: [] } }
     });
 
     const items = itemsResponse.hits.hits;
-
     const itemIds = items.map(i => i._id);
 
     const customerIds = await Conformities.filterConformity({
@@ -65,21 +55,23 @@ export const fetchBySegments = async (
       relType: 'customer'
     });
 
-    propertyPositive = [
-      {
-        terms: {
-          _id: customerIds
-        }
+    selector = {
+      bool: {
+        must: [
+          {
+            terms: {
+              _id: customerIds
+            }
+          }
+        ]
       }
-    ];
-
-    propertyNegative = [];
+    };
   }
 
   if (action === 'count') {
     return {
-      positiveList: propertyPositive,
-      negativeList: propertyNegative
+      positiveList: [],
+      negativeList: []
     };
   }
 

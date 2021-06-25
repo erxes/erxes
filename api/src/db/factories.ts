@@ -1108,16 +1108,21 @@ interface IDealFactoryInput {
   userId?: string;
   initialStageId?: string;
   sourceConversationIds?: string[];
+  companyIds?: string[];
+  customerIds?: string[];
 }
 
-export const dealFactory = async (params: IDealFactoryInput = {}) => {
+export const dealFactory = async (
+  params: IDealFactoryInput = {},
+  syncToEs = false
+) => {
   const board = await boardFactory({ type: BOARD_TYPES.DEAL });
   const pipeline = await pipelineFactory({ boardId: board._id });
   const stage = await stageFactory({ pipelineId: pipeline._id });
 
   const stageId = params.stageId || stage._id;
 
-  const deal = new Deals({
+  const dealDoc = {
     ...params,
     initialStageId: stageId,
     name: params.name || faker.random.word(),
@@ -1137,9 +1142,64 @@ export const dealFactory = async (params: IDealFactoryInput = {}) => {
     searchText: params.searchText,
     sourceConversationIds: params.sourceConversationIds,
     createdAt: new Date()
-  });
+  };
 
-  return deal.save();
+  const deal = new Deals(dealDoc);
+
+  const savedDeal = await deal.save();
+
+  if (syncToEs) {
+    await fetchElk({
+      action: 'create',
+      index: 'deals',
+      body: dealDoc,
+      _id: savedDeal._id
+    });
+
+    for (const companyId of params.companyIds || []) {
+      const conform = await Conformities.addConformity({
+        mainType: 'deal',
+        mainTypeId: savedDeal._id,
+        relType: 'company',
+        relTypeId: companyId
+      });
+
+      await fetchElk({
+        action: 'create',
+        index: 'conformities',
+        body: {
+          mainType: 'deal',
+          mainTypeId: savedDeal._id,
+          relType: 'company',
+          relTypeId: companyId
+        },
+        _id: conform._id
+      });
+    }
+
+    for (const customerId of params.customerIds || []) {
+      const conform = await Conformities.addConformity({
+        mainType: 'deal',
+        mainTypeId: savedDeal._id,
+        relType: 'customer',
+        relTypeId: customerId
+      });
+
+      await fetchElk({
+        action: 'create',
+        index: 'conformities',
+        body: {
+          mainType: 'deal',
+          mainTypeId: savedDeal._id,
+          relType: 'customer',
+          relTypeId: customerId
+        },
+        _id: conform._id
+      });
+    }
+  }
+
+  return savedDeal;
 };
 
 interface ITaskFactoryInput {

@@ -2,7 +2,7 @@ import {
   fetchBySegments,
   generateQueryBySegment
 } from '../data/modules/segments/queryBuilder';
-import { customerFactory, segmentFactory } from '../db/factories';
+import { customerFactory, dealFactory, segmentFactory } from '../db/factories';
 import { Customers, Segments } from '../db/models';
 import { trackCustomEvent } from '../events';
 import { deleteAllIndexes, putMappings } from './esMappings';
@@ -237,5 +237,62 @@ describe('Segments mutations', () => {
 
     expect(result.length).toBe(1);
     expect(result[0]).toBe(c1._id);
+  });
+
+  test('fetchBySegments: card', async () => {
+    await customerFactory({}, false, true);
+    await customerFactory({}, false, true);
+    await customerFactory({}, false, true);
+
+    const c1 = await customerFactory({}, false, true);
+    const c2 = await customerFactory({}, false, true);
+
+    await dealFactory({}, true);
+    await dealFactory({}, true);
+
+    await dealFactory({ customerIds: [c1._id, c2._id], name: 'batdeal' }, true);
+
+    await sleep(2000);
+
+    const subSegment = await segmentFactory({
+      contentType: 'deal',
+
+      conditions: [
+        {
+          type: 'property',
+          propertyName: 'name',
+          propertyOperator: 'c',
+          propertyValue: 'bat'
+        }
+      ]
+    });
+
+    const mainSegment = await segmentFactory({
+      contentType: 'deal',
+
+      conditions: [
+        {
+          type: 'subSegment',
+          subSegmentId: subSegment._id
+        },
+        {
+          type: 'property',
+          propertyName: 'name',
+          propertyOperator: 'e',
+          propertyValue: 'batdeal'
+        }
+      ]
+    });
+
+    const result = await fetchBySegments(mainSegment, 'search', {
+      associatedCustomers: true
+    });
+
+    expect(result.length).toBe(2);
+
+    const [id1, id2] = result;
+
+    expect(id1).toBe(c1._id);
+    expect(id2).toBe(c2._id);
   });
 });
