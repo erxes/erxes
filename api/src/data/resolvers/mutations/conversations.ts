@@ -8,9 +8,7 @@ import {
   Integrations
 } from '../../../db/models';
 import { getCollection } from '../../../db/models/boardUtils';
-
 import Messages from '../../../db/models/ConversationMessages';
-import { ICustomField } from '../../../db/models/definitions/common';
 import {
   KIND_CHOICES,
   MESSAGE_TYPES,
@@ -24,7 +22,7 @@ import { debugError } from '../../../debuggers';
 import messageBroker from '../../../messageBroker';
 import { graphqlPubsub } from '../../../pubsub';
 import { AUTO_BOT_MESSAGES, RABBITMQ_QUEUES } from '../../constants';
-import { putActivityLog, ACTIVITY_LOG_ACTIONS } from '../../logUtils';
+import { ACTIVITY_LOG_ACTIONS, putActivityLog } from '../../logUtils';
 import { checkPermission, requireLogin } from '../../permissions/wrappers';
 import { IContext } from '../../types';
 import utils, { splitStr } from '../../utils';
@@ -46,13 +44,12 @@ interface IReplyFacebookComment {
   content: string;
 }
 
-export interface IConversationConvertParams {
+interface IConversationConvert {
   _id: string;
   type: string;
   itemId: string;
   stageId: string;
   itemName: string;
-  customFieldsData?: ICustomField[];
 }
 
 /**
@@ -671,7 +668,7 @@ const conversationMutations = {
 
   async conversationConvertToCard(
     _root,
-    params: IConversationConvertParams,
+    params: IConversationConvert,
     { user, docModifier }: IContext
   ) {
     const { _id, type, itemId, itemName, stageId } = params;
