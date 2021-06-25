@@ -1,11 +1,18 @@
 import Label from 'modules/common/components/Label';
-import Tip from 'modules/common/components/Tip';
 import WithPermission from 'modules/common/components/WithPermission';
 import { __, getEnv, setBadge } from 'modules/common/utils';
 import { pluginsOfNavigations } from 'pluginUtils';
 import React from 'react';
 import { NavLink } from 'react-router-dom';
-import { LeftNavigation, NavIcon, Nav, Collapse } from '../styles';
+import {
+  LeftNavigation,
+  NavIcon,
+  Nav,
+  Collapse,
+  SubNav,
+  NavItem,
+  SubNavTitle
+} from '../styles';
 
 const { REACT_APP_DASHBOARD_URL } = getEnv();
 
@@ -29,6 +36,7 @@ class Navigation extends React.Component<IProps> {
     text: string,
     url: string,
     icon: string,
+    childrens?: any,
     label?: React.ReactNode
   ) => {
     const { collapsed } = this.props;
@@ -36,17 +44,38 @@ class Navigation extends React.Component<IProps> {
     return (
       <WithPermission key={url} action={permission}>
         {collapsed ? (
-          <NavLink to={url}>
-            <NavIcon className={icon} />
-            {__(text)}
-          </NavLink>
+          <NavItem>
+            <NavLink to={url}>
+              <NavIcon className={icon} />
+              {__(text)}
+            </NavLink>
+            {childrens && (
+              <SubNav collapsed={collapsed}>
+                {childrens.map((child, index) => (
+                  <li key={index}>
+                    <NavLink to={child.link}>{child.value}</NavLink>
+                  </li>
+                ))}
+              </SubNav>
+            )}
+          </NavItem>
         ) : (
-          <Tip placement="right" text={text}>
+          <NavItem>
             <NavLink to={url}>
               <NavIcon className={icon} />
               {label}
             </NavLink>
-          </Tip>
+            {childrens && (
+              <SubNav collapsed={collapsed}>
+                <SubNavTitle>{__(text)}</SubNavTitle>
+                {childrens.map((child, index) => (
+                  <li key={index}>
+                    <NavLink to={child.link}>{child.value}</NavLink>
+                  </li>
+                ))}
+              </SubNav>
+            )}
+          </NavItem>
         )}
       </WithPermission>
     );
@@ -90,47 +119,157 @@ class Navigation extends React.Component<IProps> {
             )}
           {this.renderNavItem(
             'showConversations',
-            __('Conversation'),
+            __('Team Inbox'),
             '/inbox',
             'icon-chat',
+            [
+              { key: 'channels', link: __('Conversation'), value: 'Channels' },
+              {
+                key: 'channels',
+                link: __('Conversation'),
+                value: 'Integrations'
+              },
+              { key: 'channels', link: __('Conversation'), value: 'Skills' },
+              { key: 'channels', link: __('Conversation'), value: 'Responses' }
+            ],
             unreadIndicator
-          )}
-          {this.renderNavItem(
-            'showGrowthHacks',
-            __('Growth Hacking'),
-            '/growthHack',
-            'icon-idea'
-          )}
-          {this.renderNavItem(
-            'showDeals',
-            __('Deal'),
-            '/deal',
-            'icon-piggy-bank'
           )}
           {this.renderNavItem(
             'showCustomers',
             __('Contacts'),
             '/contacts',
-            'icon-users'
+            'icon-users',
+            [
+              { key: 'channels', link: __('Conversation'), value: 'Visitors' },
+              { key: 'channels', link: __('Conversation'), value: 'Leads' },
+              {
+                key: 'channels',
+                link: __('Conversation'),
+                value: 'Customers'
+              },
+              { key: 'channels', link: __('Conversation'), value: 'Companies' },
+              {
+                key: 'channels',
+                link: __('Conversation'),
+                value: 'Segments',
+                additional: true
+              },
+              {
+                key: 'channels',
+                link: __('Conversation'),
+                value: 'Tags',
+                additional: true
+              }
+            ]
           )}
           {this.renderNavItem(
             'showForms',
-            __('Forms'),
+            __('Marketing'),
             '/forms',
-            'icon-laptop'
+            'icon-megaphone',
+            [
+              { key: 'channels', link: __('Conversation'), value: 'Forms' },
+              { key: 'channels', link: __('Conversation'), value: 'Campaigns' },
+              {
+                key: 'channels',
+                link: __('Conversation'),
+                value: 'Growth hacking'
+              }
+            ]
+          )}
+          {this.renderNavItem(
+            'showForms',
+            __('Sales'),
+            '/forms',
+            'icon-laptop',
+            [
+              {
+                key: 'channels',
+                link: __('Conversation'),
+                value: 'Sales pipeline'
+              },
+              {
+                key: 'channels',
+                link: __('Conversation'),
+                value: 'Products & service'
+              }
+            ]
+          )}
+          {this.renderNavItem(
+            'showForms',
+            __('Support'),
+            '/forms',
+            'icon-idea',
+            [
+              {
+                key: 'channels',
+                link: __('Conversation'),
+                value: 'Tickets'
+              },
+              {
+                key: 'channels',
+                link: __('Conversation'),
+                value: 'Knowledgebase'
+              },
+              {
+                key: 'channels',
+                link: __('Conversation'),
+                value: 'Forum'
+              }
+            ]
           )}
           {this.renderNavItem(
             'showEngagesMessages',
-            __('Campaigns'),
+            __('Managament'),
             '/campaigns',
-            'icon-megaphone'
+            'icon-piggy-bank',
+            [
+              {
+                key: 'channels',
+                link: __('Conversation'),
+                value: 'Task'
+              },
+              {
+                key: 'channels',
+                link: __('Conversation'),
+                value: 'Reports'
+              },
+              {
+                key: 'channels',
+                link: __('Conversation'),
+                value: 'Calendar (Coming soon)'
+              },
+              {
+                key: 'channels',
+                link: __('Conversation'),
+                value: 'Scheduler (Coming soon)'
+              }
+            ]
           )}
           {this.renderNavItem(
-            'showKnowledgeBase',
-            __('Knowledge Base'),
-            '/knowledgeBase',
-            'icon-book'
+            'showEngagesMessages',
+            __('Quick access'),
+            '/campaigns',
+            'icon-link-broken',
+            [
+              {
+                key: 'channels',
+                link: __('Conversation'),
+                value: 'Create a new email'
+              },
+              {
+                key: 'channels',
+                link: __('Conversation'),
+                value: 'Create a new task'
+              },
+              {
+                key: 'channels',
+                link: __('Conversation'),
+                value: 'Create a new deal'
+              }
+            ]
           )}
+
           {this.renderCollapse()}
 
           {pluginsOfNavigations(this.renderNavItem)}

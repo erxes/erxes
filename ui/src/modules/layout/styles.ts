@@ -207,11 +207,12 @@ const Nav = styledTS<{ collapsed: boolean }>(styled.nav)`
   margin-top: ${dimensions.unitSpacing / 2}px;
   height: calc(100% - 130px);
 
-  > a {
-    display: block;
+  > div > a {
+    display: flex;
+    align-items: center;
     color: ${colors.bgLight}
     height: ${dimensions.headerSpacing + 10}px;
-    text-align: ${props => !props.collapsed && 'center'};
+    justify-content: ${props => !props.collapsed && 'center'};
     position: relative;
     opacity: .8;
     transition: all 0.3s ease;
@@ -308,6 +309,62 @@ const Collapse = styledTS<{ collapsed: boolean }>(styled.div)`
   }
 `;
 
+const SubNav = styledTS<{ collapsed: boolean }>(styled.ul)`
+  background: ${colors.colorPrimaryDark};
+  position: absolute;
+  left: ${props =>
+    props.collapsed
+      ? wideNavigation
+      : dimensions.headerSpacing + dimensions.coreSpacing}px;
+  word-wrap: break-word;
+  width: 220px;
+  max-height: 100vh;
+  box-shadow: 0 3px 5px rgba(0, 0, 0, 0.2);
+  z-index: 999;
+  visibility: hidden;
+  top: 0;
+  margin: 0;
+  padding: 0;
+  color: ${colors.colorShadowGray};
+  list-style: none;
+
+  li {
+    padding: ${dimensions.unitSpacing - 3}px ${dimensions.coreSpacing}px;
+    opacity: 0.9;
+
+    > a {
+      color: ${colors.colorWhite};
+    }
+
+    &:last-child {
+      padding-bottom: ${dimensions.unitSpacing}px;
+    }
+
+    &:hover {
+      background: rgba(0, 0, 0, 0.06);
+
+      i {
+        opacity: 1;
+      }
+    }
+  }
+`;
+
+const NavItem = styled.div`
+  position: relative;
+
+  &:hover {
+    ${SubNav} {
+      visibility: visible;
+    }
+  }
+`;
+
+const SubNavTitle = styled.div`
+  padding: ${dimensions.unitSpacing - 3}px ${dimensions.coreSpacing}px;
+  background: ${colors.colorPrimary};
+`;
+
 export {
   Layout,
   MainWrapper,
@@ -340,5 +397,8 @@ export {
   LeftNavigation,
   Nav,
   NavIcon,
+  SubNav,
+  NavItem,
+  SubNavTitle,
   Collapse
 };
