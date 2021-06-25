@@ -6,13 +6,7 @@ import { customerFactory, dealFactory, segmentFactory } from '../db/factories';
 import { Customers, Segments } from '../db/models';
 import { trackCustomEvent } from '../events';
 import { deleteAllIndexes, putMappings } from './esMappings';
-import './setup.ts';
-
-function sleep(ms) {
-  return new Promise(resolve => {
-    setTimeout(resolve, ms);
-  });
-}
+import { sleep } from './setup';
 
 const initialData = async () => {
   await customerFactory({}, false, true);

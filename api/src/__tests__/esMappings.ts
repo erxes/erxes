@@ -204,7 +204,6 @@ const putMapping = async (index, mapping) => {
 
 export const putMappings = async () => {
   const prefix = getIndexPrefix();
-
   await putMapping(`${prefix}customers`, customer_mapping);
   await putMapping(`${prefix}companies`, company_mapping);
   await putMapping(`${prefix}events`, event_mapping);
