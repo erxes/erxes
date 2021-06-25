@@ -662,10 +662,8 @@ export const conversationConvertToBoardItem = async (
 ) => {
   const { _id, type, itemId, itemName, stageId, customFieldsData = [] } = args;
 
-  console.log(args);
-
   const conversation = await Conversations.getConversation(_id);
-  console.log(conversation);
+
   const { collection, update, create } = getCollection(type);
 
   if (itemId) {
@@ -732,8 +730,6 @@ export const conversationConvertToBoardItem = async (
     doc.customFieldsData = customFieldsData;
 
     const item = await itemsAdd(doc, type, create, user, docModifier);
-
-    console.log('item = ', item);
 
     return item._id;
   }
