@@ -284,7 +284,7 @@ describe('Segments mutations', () => {
       ]
     });
 
-    const result = await fetchSegment(mainSegment, {
+    let result = await fetchSegment(mainSegment, {
       associatedCustomers: true
     });
 
@@ -294,5 +294,12 @@ describe('Segments mutations', () => {
 
     expect(id1).toBe(c1._id);
     expect(id2).toBe(c2._id);
+
+    // count =============
+    result = await fetchSegment(mainSegment, {
+      returnCount: true
+    });
+
+    expect(result).toBe(1);
   });
 });

@@ -79,19 +79,14 @@ export const fetchSegment = async (
     return selector;
   }
 
-  const esParams = {
-    index,
-    body: {
-      _source: options.returnFields || false,
-      query: selector
-    }
-  };
-
   // count entries
   if (options.returnCount) {
     const countResponse = await fetchElk({
       action: 'count',
-      ...esParams
+      index,
+      body: {
+        query: selector
+      }
     });
 
     return countResponse.count;
@@ -99,7 +94,11 @@ export const fetchSegment = async (
 
   const response = await fetchElk({
     action: 'search',
-    ...esParams
+    index,
+    body: {
+      _source: options.returnFields || false,
+      query: selector
+    }
   });
 
   if (options.returnFields) {
