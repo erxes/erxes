@@ -670,7 +670,6 @@ const conversationMutations = {
     params: IConversationConvert,
     { user, docModifier }: IContext
   ) {
-    // return Conversations.convertToBoardItem(params, user, docModifier)
     return conversationConvertToBoardItem(params, user, docModifier);
   },
 
