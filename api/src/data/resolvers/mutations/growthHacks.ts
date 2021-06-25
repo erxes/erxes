@@ -29,9 +29,9 @@ const growthHackMutations = {
     return itemsAdd(
       doc,
       'growthHack',
-      docModifier,
+      GrowthHacks.createGrowthHack,
       user,
-      GrowthHacks.createGrowthHack
+      docModifier
     );
   },
 

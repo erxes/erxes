@@ -305,7 +305,7 @@ describe('Fields mutations', () => {
           {
             logicAction: 'show',
             fieldId: field1._id,
-            logicOperator: 'c',
+            logicOperator: 'contains',
             logicValue: 'hi'
           }
         ]
@@ -332,7 +332,7 @@ describe('Fields mutations', () => {
           {
             logicAction: 'show',
             fieldId: field2._id,
-            logicOperator: 'c',
+            logicOperator: 'contains',
             logicValue: 'hi'
           }
         ]
