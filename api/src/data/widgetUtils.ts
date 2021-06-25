@@ -20,6 +20,7 @@ import { ILogic, ISubmission } from '../db/models/definitions/fields';
 import { debugBase, debugError } from '../debuggers';
 import { client, fetchElk, getIndexPrefix } from '../elasticsearch';
 import { getVisitorLog, sendToVisitorLog } from './logUtils';
+import { conversationConvertToBoardItem } from './resolvers/mutations/boardUtils';
 import { findCompany, findCustomer } from './utils';
 
 export const getOrCreateEngageMessage = async (
@@ -468,8 +469,8 @@ export const solveActions = async (
               itemName,
               customFieldsData
             };
-            console.log(doc);
-            // await Conversations.convert(doc);
+
+            await conversationConvertToBoardItem(doc);
           }
         }
       }
