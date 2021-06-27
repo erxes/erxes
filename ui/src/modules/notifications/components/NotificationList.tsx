@@ -91,6 +91,7 @@ class NotificationList extends React.Component<Props, State> {
           size="small"
           onClick={this.markAllRead.bind(this, true)}
           icon="window-maximize"
+          uppercase={false}
         >
           Mark Page Read
         </Button>
@@ -99,6 +100,7 @@ class NotificationList extends React.Component<Props, State> {
           size="small"
           onClick={this.markAllRead.bind(this, false)}
           icon="eye"
+          uppercase={false}
         >
           Mark All Read
         </Button>

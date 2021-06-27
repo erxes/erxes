@@ -26,7 +26,7 @@ class AuthLayout extends React.Component<Props, {}> {
             <b>{__('erxes Inc')}</b>
             <div>{__(desciption)}</div>
           </div>
-          <Button btnStyle="link" size="small" href={link}>
+          <Button btnStyle="link" size="small" href={link} uppercase={false}>
             {__('Get')}
           </Button>
         </CenterContent>
