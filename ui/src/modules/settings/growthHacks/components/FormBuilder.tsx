@@ -55,6 +55,7 @@ class FormBuilder extends React.Component<
             type="button"
             icon="cancel-1"
             onClick={this.saveForm}
+            uppercase={false}
           >
             Save
           </Button>

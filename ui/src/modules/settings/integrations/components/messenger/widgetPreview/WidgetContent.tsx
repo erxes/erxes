@@ -98,7 +98,11 @@ class WidgetContent extends React.Component<Props, { skillResponse?: string }> {
           }
 
           return (
-            <Button onClick={this.onSkillClick.bind(this, skill)} key={index}>
+            <Button
+              onClick={this.onSkillClick.bind(this, skill)}
+              key={index}
+              uppercase={false}
+            >
               {skill.label}
             </Button>
           );

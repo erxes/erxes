@@ -80,6 +80,7 @@ class StageForm extends React.Component<Props> {
         </CurrentStage>
         {this.renderFormFields()}
         <Button
+          uppercase={false}
           style={{ float: 'right' }}
           onClick={save}
           type="submit"

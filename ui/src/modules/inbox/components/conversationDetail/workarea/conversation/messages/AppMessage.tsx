@@ -28,7 +28,7 @@ export default class AppMessage extends React.Component<Props, {}> {
               target="_blank"
               rel="noopener noreferrer"
             >
-              <Button>Join Call</Button>
+              <Button uppercase={false}>Join Call</Button>
             </a>
           </CallButton>
         </AppMessageBox>

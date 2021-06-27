@@ -44,7 +44,7 @@ export default class RowActions extends React.Component<Props, {}> {
     const { size, renderForm, object, save } = this.props;
 
     const editTrigger = (
-      <Button btnStyle="link">
+      <Button btnStyle="link" uppercase={false}>
         <Tip text={__('Edit')} placement="top">
           <Icon icon="edit-3" />
         </Tip>
