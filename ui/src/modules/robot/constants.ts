@@ -302,9 +302,9 @@ export const FEATURES = [
 ];
 
 export const ROLE_VALUE = [
-  { _id: 'one', name: "I've never used CAM or business ... before." },
-  { _id: 'two', name: "I'm ... to erxes but I've used a CAM before." },
-  { _id: 'three', name: 'I know my way around erxes pretty well.' }
+  { _id: 'answerOne', name: "I've never used CAM or business ... before." },
+  { _id: 'answerTwo', name: "I'm ... to erxes but I've used a CAM before." },
+  { _id: 'answerThree', name: 'I know my way around erxes pretty well.' }
 ];
 
 export const ROLE_OPTIONS = [

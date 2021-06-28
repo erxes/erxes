@@ -186,6 +186,34 @@ const SetupList = styled.div`
   }
 `;
 
+const Text = styled.div`
+  font-weight: normal;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border: 1px solid #eee;
+  border-top: none;
+
+  &:hover {
+    cursor: pointer;
+  }
+
+  h6 {
+    margin: 0px;
+    font-weight: 400;
+    width: 80%;
+  }
+
+  p {
+    margin: 0px;
+    font-size: 11px;
+    background-color: rgba(101, 105, 223, 0.8);
+    color: white;
+    padding: 2px 5px 2px;
+    border-radius: ${dimensions.unitSpacing}px;
+  }
+`;
+
 export {
   Bot,
   Greeting,
@@ -201,5 +229,6 @@ export {
   ProgressText,
   RestartButton,
   Container,
-  SetupList
+  SetupList,
+  Text
 };

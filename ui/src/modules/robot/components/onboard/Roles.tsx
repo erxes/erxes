@@ -5,6 +5,8 @@ import Select from 'react-select-plus';
 import { selectOptions } from '../../utils';
 import { Container, SubContent } from '../styles';
 import { IRoleValue } from 'modules/robot/types';
+import { Tooltip } from 'antd';
+import Icon from 'modules/common/components/Icon';
 
 type Props = {
   renderButton: (
@@ -15,7 +17,7 @@ type Props = {
   ) => React.ReactNode;
   changeRoute: (route: string) => void;
   getRoleOptions: (roleValue: IRoleValue) => void;
-  roleValueLabel: string;
+  roleValue: IRoleValue;
 };
 
 type State = {
@@ -30,7 +32,7 @@ class Roles extends React.Component<Props, State> {
 
     this.state = {
       step: 1,
-      selectedRole: this.props.roleValueLabel || '',
+      selectedRole: this.props.roleValue.value || '',
       selectedValue: ''
     };
   }
@@ -39,6 +41,14 @@ class Roles extends React.Component<Props, State> {
     this.setState({ [key]: value } as any);
     if (key === 'selectedRole') {
       this.props.getRoleOptions(value);
+      if (key && value) {
+        localStorage.setItem(key, value.value);
+      }
+    }
+    if (key === 'selectedValue') {
+      if (key && value) {
+        localStorage.setItem(key, value.value);
+      }
     }
   };
 
@@ -56,7 +66,12 @@ class Roles extends React.Component<Props, State> {
           <h4>{__('Your Role')}</h4>
         </SubContent>
 
-        <p>{__("What's your main area of work")}?</p>
+        <p>
+          {__("What's your main area of work")}?{' '}
+          <Tooltip placement="right" title="why does not work ?????">
+            <Icon icon="icon-info-circle" />
+          </Tooltip>
+        </p>
         <Select
           value={selectedRole}
           onChange={selectedRoleOnChange}
