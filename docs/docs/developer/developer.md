@@ -42,6 +42,10 @@ cd erxes-api
 # Copy preconfigured environment variables:
 cp .env.sample .env
 
+# Edit .env file
+code .env
+REDIS_PASSWORD=pass
+
 # Install dependencies (package.json)
 yarn install
 
