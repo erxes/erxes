@@ -25,7 +25,7 @@ class PerSettings extends React.Component<Props, State> {
 
     this.state = {
       config: props.config,
-      hasOpen: false,
+      hasOpen: false
     };
   }
 
@@ -37,18 +37,14 @@ class PerSettings extends React.Component<Props, State> {
     this.setState({ config: { ...this.state.config, pipelineId } });
   };
 
-  onChangeStage = (stageId: string) => {
-    this.setState({ config: { ...this.state.config, stageId } });
-  };
-
   onSave = e => {
     e.preventDefault();
     const { configsMap, currentConfigKey } = this.props;
     const { config } = this.state;
-    const key = config.stageId;
+    const key = config.pipelineId;
 
-    delete configsMap.ebarimtConfig[currentConfigKey];
-    configsMap.ebarimtConfig[key] = config;
+    delete configsMap.remainderConfig[currentConfigKey];
+    configsMap.remainderConfig[key] = config;
     this.props.save(configsMap);
   }
 
@@ -56,14 +52,6 @@ class PerSettings extends React.Component<Props, State> {
     e.preventDefault();
 
     this.props.delete(this.props.currentConfigKey);
-  }
-
-  onChangeCombo = option => {
-    this.onChangeConfig('defaultPay', option.value)
-  };
-
-  onChangeCheckbox = (code: string, e) => {
-    this.onChangeConfig(code, e.target.checked)
   }
 
   onChangeConfig = (code: string, value) => {
@@ -92,26 +80,10 @@ class PerSettings extends React.Component<Props, State> {
     );
   };
 
-  renderCheckbox = (key: string, title?: string, description?: string) => {
-    const { config } = this.state;
-
-    return (
-      <FormGroup>
-        <ControlLabel>{title || key}</ControlLabel>
-        {description && <p>{__(description)}</p>}
-        <FormControl
-          checked={config[key]}
-          onChange={this.onChangeCheckbox.bind(this, key)}
-          componentClass='checkbox'
-        />
-      </FormGroup>
-    );
-  }
-
   render() {
     const { config } = this.state;
     return (
-      <CollapseContent title={__(config.title)} open={this.props.currentConfigKey === 'newEbarimtConfig' ? true: false}>
+      <CollapseContent title={__(config.title)} open={this.props.currentConfigKey === 'newremainderConfig' ? true: false}>
         <FormGroup>
           <ControlLabel>{'Title'}</ControlLabel>
           <FormControl
@@ -129,33 +101,13 @@ class PerSettings extends React.Component<Props, State> {
             autoSelectStage={false}
             boardId={config.boardId}
             pipelineId={config.pipelineId}
-            stageId={config.stageId}
             onChangeBoard={this.onChangeBoard}
             onChangePipeline={this.onChangePipeline}
-            onChangeStage={this.onChangeStage}
-
           />
         </FormGroup>
 
-        {this.renderInput('userEmail', 'userEmail', '')}
-        {this.renderCheckbox('hasVat', 'hasVat', '')}
-        {this.renderCheckbox('hasCitytax', 'hasCitytax', '')}
-        {this.renderCheckbox('isEbarimt', 'isEbarimt', '')}
-
-        <FormGroup>
-          <ControlLabel>{'defaultPay'}</ControlLabel>
-          <Select
-            value={config.defaultPay}
-            onChange={this.onChangeCombo}
-            clearable={false}
-            required={true}
-            options={[
-              { value: 'debtAmount', label: 'debtAmount' },
-              { value: 'cashAmount', label: 'cashAmount' },
-              { value: 'cardAmount', label: 'cardAmount' }
-            ]}
-          />
-        </FormGroup>
+        {this.renderInput('account', 'account', '')}
+        {this.renderInput('location', 'location', '')}
 
         <ModalFooter>
           <Button
@@ -172,7 +124,7 @@ class PerSettings extends React.Component<Props, State> {
             icon="check-circle"
             onClick={this.onSave}
             uppercase={false}
-            disabled={config.stageId ? false : true}
+            disabled={config.pipelineId ? false : true}
           >
             Save
           </Button>

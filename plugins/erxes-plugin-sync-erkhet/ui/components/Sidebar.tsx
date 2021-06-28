@@ -47,6 +47,10 @@ class Sidebar extends React.Component {
             '/erxes-plugin-sync-erkhet/settings/stage',
             'Stage in Ebarimt config'
           )}
+          {this.renderListItem(
+            '/erxes-plugin-sync-erkhet/settings/pipeline',
+            'Pipeline remiainder config'
+          )}
         </List>
       </LeftSidebar>
     );

@@ -3,13 +3,13 @@ import * as compose from 'lodash.flowright';
 import { Spinner, Alert, withProps } from 'erxes-ui';
 import React from 'react';
 import { graphql } from 'react-apollo';
-import GeneralSettings from '../components/GeneralSettings';
 import { mutations, queries } from '../graphql';
 import { ConfigsQueryResponse, IConfigsMap } from '../types';
 
 type FinalProps = {
   configsQuery: ConfigsQueryResponse;
   updateConfigs: (configsMap: IConfigsMap) => Promise<void>;
+  component: any;
 };
 
 class SettingsContainer extends React.Component<FinalProps> {
@@ -43,8 +43,9 @@ class SettingsContainer extends React.Component<FinalProps> {
       configsMap[config.code] = config.value;
     }
 
+    const Component = this.props.component;
     return (
-      <GeneralSettings
+      <Component
         {...this.props}
         configsMap={configsMap}
         save={save}

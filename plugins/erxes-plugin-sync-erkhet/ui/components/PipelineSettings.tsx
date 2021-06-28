@@ -4,7 +4,7 @@ import React from 'react';
 import { ContentBox } from '../styles';
 import { IConfigsMap } from '../types';
 import Header from './Header';
-import PerSettings from './PerSettings';
+import PerRemSettings from './PerRemSettings';
 import Sidebar from './Sidebar';
 
 type Props = {
@@ -29,21 +29,17 @@ class GeneralSettings extends React.Component<Props, State> {
     e.preventDefault();
     const { configsMap } = this.state;
 
-    if (!configsMap.ebarimtConfig) {
-      configsMap.ebarimtConfig = {}
+    if (!configsMap.remainderConfig) {
+      configsMap.remainderConfig = {}
     }
 
     // must save prev item saved then new item
-    configsMap.ebarimtConfig.newEbarimtConfig = {
-      title: 'New Ebarimt Config',
+    configsMap.remainderConfig.newPipelineConfig = {
+      title: 'New Pipeline Remainder Config',
       boardId: '',
       pipelineId: '',
-      stageId: '',
-      userEmail: '',
-      hasVat: false,
-      hasCitytax: false,
-      isEbarimt: true,
-      defaultPay: 'debtAmount',
+      account: '',
+      location: ''
     }
 
     this.setState({ configsMap });
@@ -51,8 +47,8 @@ class GeneralSettings extends React.Component<Props, State> {
 
   delete = (currentConfigKey: string) => {
     const { configsMap } = this.state;
-    delete configsMap.ebarimtConfig[currentConfigKey];
-    delete configsMap.ebarimtConfig['newEbarimtConfig'];
+    delete configsMap.remainderConfig[currentConfigKey];
+    delete configsMap.remainderConfig['newPipelineConfig'];
 
     this.setState({ configsMap });
 
@@ -62,7 +58,7 @@ class GeneralSettings extends React.Component<Props, State> {
   renderConfigs(configs) {
     return Object.keys(configs).map(key => {
       return (
-        <PerSettings
+        <PerRemSettings
           configsMap={this.state.configsMap}
           config={configs[key]}
           currentConfigKey={key}
@@ -75,7 +71,7 @@ class GeneralSettings extends React.Component<Props, State> {
 
   renderContent() {
     const { configsMap } = this.state;
-    const configs = configsMap.ebarimtConfig || {};
+    const configs = configsMap.remainderConfig || {};
 
     return (
       <ContentBox id={'GeneralSettingsMenu'}>
@@ -87,7 +83,7 @@ class GeneralSettings extends React.Component<Props, State> {
   render() {
     const breadcrumb = [
       { title: __('Settings'), link: '/settings' },
-      { title: __('Ebarimt config') }
+      { title: __('Remainder config') }
     ];
 
     const actionButtons = (
@@ -105,14 +101,14 @@ class GeneralSettings extends React.Component<Props, State> {
       <Wrapper
         header={
           <Wrapper.Header
-            title={__('Ebarimt config')}
+            title={__('Remainder config')}
             breadcrumb={breadcrumb}
           />
         }
         mainHead={<Header />}
         actionBar={
           <Wrapper.ActionBar
-            left={<Title>{__('Ebarimt configs')}</Title>}
+            left={<Title>{__('Remainder configs')}</Title>}
             right={actionButtons}
           />
         }
