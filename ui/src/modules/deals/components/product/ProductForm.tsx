@@ -82,7 +82,7 @@ class ProductForm extends React.Component<Props, State> {
           : 0,
         amount: 0,
         currency,
-        tickUsed: true
+        tickUsed: false
       });
 
       onChangeProductsData(productsData);
