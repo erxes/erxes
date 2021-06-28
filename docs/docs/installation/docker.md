@@ -163,9 +163,20 @@ cp .env.sample .env
 7. Run the following to start containers
 
 ```bash
+cd 'example_directory'
 docker-compose up -d
 ```
+8. To install yarn, simply use the following command:
 
+```bash
+sudo apt remove cmdtest
+sudo apt remove yarn
+curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | sudo apt-key add -
+echo "deb https://dl.yarnpkg.com/debian/ stable main" | sudo tee /etc/apt/sources.list.d/yarn.list
+sudo apt-get update
+sudo apt-get install yarn -y
+
+```
 
 8. Run the following
 
