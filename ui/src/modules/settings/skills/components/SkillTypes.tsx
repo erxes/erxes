@@ -47,7 +47,7 @@ function SkillTypes({
 
   function renderEditAction(object: ISkillTypesDocument) {
     const trigger = (
-      <Button id="skilltype-edit" btnStyle="link" uppercase={false}>
+      <Button id="skilltype-edit" btnStyle="link">
         <Tip text={__('Edit')} placement="bottom">
           <Icon icon="edit" />
         </Tip>
@@ -61,7 +61,7 @@ function SkillTypes({
     const handleRemove = () => remove(object._id);
 
     return (
-      <Button btnStyle="link" onClick={handleRemove} uppercase={false}>
+      <Button btnStyle="link" onClick={handleRemove}>
         <Tip text={__('Remove')} placement="bottom">
           <Icon icon="cancel-1" />
         </Tip>
@@ -92,7 +92,6 @@ function SkillTypes({
       <Button
         id="skilltype-new"
         btnStyle="success"
-        uppercase={false}
         icon="plus-circle"
         block={true}
       >

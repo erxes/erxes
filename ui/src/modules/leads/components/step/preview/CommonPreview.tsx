@@ -79,7 +79,6 @@ class CommonPreview extends React.Component<Props, {}> {
           btnStyle={btnStyle}
           style={{ backgroundColor: theme ? theme : color, margin: '5px' }}
           onClick={action}
-          uppercase={false}
         >
           {title}
         </Button>

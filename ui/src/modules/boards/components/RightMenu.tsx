@@ -241,7 +241,6 @@ export default class RightMenu extends React.Component<Props, State> {
               <Button
                 block={true}
                 btnStyle="warning"
-                uppercase={false}
                 onClick={clearFilter}
                 icon="times-circle"
               >
@@ -276,18 +275,12 @@ export default class RightMenu extends React.Component<Props, State> {
           <Button
             btnStyle="warning"
             icon="times-circle"
-            uppercase={false}
             onClick={this.props.clearFilter}
           >
             {__('Clear Filter')}
           </Button>
         )}
-        <Button
-          btnStyle="simple"
-          uppercase={false}
-          icon="bars"
-          onClick={this.toggleMenu}
-        >
+        <Button btnStyle="simple" icon="bars" onClick={this.toggleMenu}>
           {showMenu ? __('Hide Menu') : __('Show Menu')}
         </Button>
 

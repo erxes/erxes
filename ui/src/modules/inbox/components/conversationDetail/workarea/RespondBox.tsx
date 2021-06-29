@@ -501,7 +501,6 @@ class RespondBox extends React.Component<Props, State> {
           btnStyle="success"
           size="small"
           icon="message"
-          uppercase={false}
         >
           {!disabled && 'Send'}
         </Button>

@@ -46,7 +46,7 @@ export default (props: IProps) => {
   );
 
   const trigger = (
-    <Button icon="export" btnStyle="primary" size="small" uppercase={false}>
+    <Button icon="export" btnStyle="primary" size="small">
       {__(`Export Forms data`)}
     </Button>
   );

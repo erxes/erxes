@@ -188,7 +188,6 @@ class CustomFields extends React.Component<Props, State> {
             </FormGroup>
           ))}
           <Button
-            uppercase={false}
             onClick={this.onAddMoreInput}
             icon="plus-circle"
             btnStyle="primary"

@@ -257,7 +257,6 @@ class EngageSettingsContent extends React.Component<Props, State> {
               onClick={this.onVerifyEmail}
               btnStyle="primary"
               icon="check-circle"
-              uppercase={false}
             >
               Verify
             </Button>
@@ -294,7 +293,6 @@ class EngageSettingsContent extends React.Component<Props, State> {
               btnStyle="primary"
               icon="message"
               onClick={this.onSendTestEmail}
-              uppercase={false}
             >
               Send test email
             </Button>

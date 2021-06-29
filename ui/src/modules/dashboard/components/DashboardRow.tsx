@@ -23,7 +23,7 @@ class PipelineRow extends React.Component<Props, {}> {
     };
 
     const editTrigger = (
-      <Button btnStyle="link" uppercase={false}>
+      <Button btnStyle="link">
         <Tip text={__('Edit')} placement="left">
           <Icon icon="edit-3" />
         </Tip>

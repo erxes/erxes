@@ -96,7 +96,6 @@ class SmsForm extends React.Component<Props, State> {
           size="small"
           icon="message"
           disabled={hasContent === '' || !primaryPhone}
-          uppercase={false}
         >
           {__('Send')}
         </Button>

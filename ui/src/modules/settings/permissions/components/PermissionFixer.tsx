@@ -65,17 +65,10 @@ export default class PermissionFixer extends React.Component<Props, State> {
             type="button"
             onClick={closeModal}
             icon="cancel-1"
-            uppercase={false}
           >
             Cancel
           </Button>
-          <Button
-            btnStyle="success"
-            type="button"
-            onClick={fix}
-            icon="wrench"
-            uppercase={false}
-          >
+          <Button btnStyle="success" type="button" onClick={fix} icon="wrench">
             Fix
           </Button>
         </ModalFooter>

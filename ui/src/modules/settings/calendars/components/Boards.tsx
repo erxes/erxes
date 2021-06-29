@@ -42,12 +42,7 @@ class Boards extends React.Component<Props, {}> {
     const { renderButton } = this.props;
 
     const addBoard = (
-      <Button
-        btnStyle="success"
-        icon="plus-circle"
-        uppercase={false}
-        block={true}
-      >
+      <Button btnStyle="success" icon="plus-circle" block={true}>
         Add New Board
       </Button>
     );

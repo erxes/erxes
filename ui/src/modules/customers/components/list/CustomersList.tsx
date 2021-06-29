@@ -244,12 +244,7 @@ class CustomersList extends React.Component<IProps, State> {
     } = this.props;
 
     const addTrigger = (
-      <Button
-        btnStyle="success"
-        size="small"
-        icon="plus-circle"
-        uppercase={false}
-      >
+      <Button btnStyle="success" size="small" icon="plus-circle">
         Add {type || 'customer'}
       </Button>
     );
@@ -350,7 +345,7 @@ class CustomersList extends React.Component<IProps, State> {
 
         <Dropdown className="dropdown-btn" alignRight={true}>
           <Dropdown.Toggle as={DropdownToggle} id="dropdown-customize">
-            <Button btnStyle="simple" size="small" uppercase={false}>
+            <Button btnStyle="simple" size="small">
               {__('Customize ')} <Icon icon="angle-down" />
             </Button>
           </Dropdown.Toggle>
@@ -393,12 +388,7 @@ class CustomersList extends React.Component<IProps, State> {
           </Dropdown.Menu>
         </Dropdown>
         <Link to={`/settings/importHistories?type=${type}`}>
-          <Button
-            btnStyle="primary"
-            size="small"
-            icon="arrow-from-right"
-            uppercase={false}
-          >
+          <Button btnStyle="primary" size="small" icon="arrow-from-right">
             {__('Go to import')}
           </Button>
         </Link>
@@ -419,14 +409,14 @@ class CustomersList extends React.Component<IProps, State> {
     let actionBarLeft: React.ReactNode;
 
     const mergeButton = (
-      <Button btnStyle="primary" size="small" icon="merge" uppercase={false}>
+      <Button btnStyle="primary" size="small" icon="merge">
         Merge
       </Button>
     );
 
     if (bulk.length > 0) {
       const tagButton = (
-        <Button btnStyle="simple" size="small" icon="tag-alt" uppercase={false}>
+        <Button btnStyle="simple" size="small" icon="tag-alt">
           Tag
         </Button>
       );
@@ -472,7 +462,7 @@ class CustomersList extends React.Component<IProps, State> {
             onClick={this.onTargetSelect}
           >
             <Dropdown.Toggle as={DropdownToggle} id="dropdown-customize">
-              <Button btnStyle="simple" size="small" uppercase={false}>
+              <Button btnStyle="simple" size="small">
                 {__('Change email status ')} <Icon icon="angle-down" />
               </Button>
             </Dropdown.Toggle>
@@ -483,7 +473,7 @@ class CustomersList extends React.Component<IProps, State> {
 
           <Dropdown className="dropdown-btn" alignRight={true}>
             <Dropdown.Toggle as={DropdownToggle} id="dropdown-customize">
-              <Button btnStyle="simple" size="small" uppercase={false}>
+              <Button btnStyle="simple" size="small">
                 {__('Change phone status ')} <Icon icon="angle-down" />
               </Button>
             </Dropdown.Toggle>
@@ -497,7 +487,6 @@ class CustomersList extends React.Component<IProps, State> {
             size="small"
             icon="times-circle"
             onClick={onClick}
-            uppercase={false}
           >
             Remove
           </Button>

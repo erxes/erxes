@@ -170,7 +170,7 @@ class Properties extends React.Component<
     return (
       <Dropdown alignRight={true}>
         <Dropdown.Toggle as={DropdownToggle} id="dropdown-properties">
-          <Button btnStyle="primary" uppercase={false} icon="plus-circle">
+          <Button btnStyle="primary" icon="plus-circle">
             {__('Add Group & Field ')}
             <Icon icon="angle-down" />
           </Button>

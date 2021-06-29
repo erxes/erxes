@@ -31,7 +31,7 @@ class ChannelRow extends React.Component<Props, {}> {
     const { channel, renderButton } = this.props;
 
     const editTrigger = (
-      <Button btnStyle="link" uppercase={false}>
+      <Button btnStyle="link">
         <Tip text={__('Edit')} placement="bottom">
           <Icon icon="edit" />
         </Tip>

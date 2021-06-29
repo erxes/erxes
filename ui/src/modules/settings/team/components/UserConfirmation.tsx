@@ -67,12 +67,7 @@ class Confirmation extends React.Component<{
             <ControlLabel>{__('Re-type Password to confirm')}</ControlLabel>
             <FormControl type="password" id="passwordConfirmation" />
           </FormGroup>
-          <Button
-            btnStyle="success"
-            type="submit"
-            block={true}
-            uppercase={false}
-          >
+          <Button btnStyle="success" type="submit" block={true}>
             Submit
           </Button>
         </form>

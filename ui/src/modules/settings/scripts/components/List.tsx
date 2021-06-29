@@ -31,7 +31,7 @@ class ScriptList extends React.Component<Props> {
       <ModalTrigger
         title="Install code"
         trigger={
-          <Button btnStyle="link" uppercase={false}>
+          <Button btnStyle="link">
             <Tip text="Install code" placement="top">
               <Icon icon="code" />
             </Tip>

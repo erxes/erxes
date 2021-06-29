@@ -84,13 +84,13 @@ class DashboardDetail extends React.Component<Props, State> {
     const rightActionBar = (
       <RightActions>
         <Link to={`/dashboard/reports/${id}`}>
-          <Button uppercase={false} btnStyle="simple" icon="plus-circle">
+          <Button btnStyle="simple" icon="plus-circle">
             Add chart from Library
           </Button>
         </Link>
         {!isExplore && (
           <Link to={`/dashboard/explore/${id}`}>
-            <Button uppercase={false} btnStyle="success" icon="plus-circle">
+            <Button btnStyle="success" icon="plus-circle">
               Create a new chart
             </Button>
           </Link>

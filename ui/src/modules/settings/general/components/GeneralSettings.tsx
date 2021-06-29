@@ -156,7 +156,6 @@ class GeneralSettings extends React.Component<Props, State> {
         btnStyle="primary"
         onClick={this.save}
         icon="check-circle"
-        uppercase={false}
       >
         Save
       </Button>

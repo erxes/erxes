@@ -163,7 +163,6 @@ class Webhook extends React.Component<Props> {
             type="button"
             onClick={callback}
             icon="times-circle"
-            uppercase={false}
           >
             Cancel
           </Button>

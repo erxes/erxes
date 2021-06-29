@@ -43,7 +43,6 @@ class Sidebar extends React.Component<Props, {}> {
         id={'NewBrandButton'}
         btnStyle="success"
         block={true}
-        uppercase={false}
         icon="plus-circle"
       >
         {__('Add New Brand')}

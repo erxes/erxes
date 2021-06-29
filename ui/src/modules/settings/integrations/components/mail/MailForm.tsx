@@ -796,7 +796,6 @@ class MailForm extends React.Component<Props, State> {
         size="small"
         icon={isLoading ? undefined : icon}
         disabled={isLoading}
-        uppercase={false}
       >
         {isLoading && <SmallLoader />}
         {label}

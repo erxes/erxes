@@ -93,7 +93,7 @@ class IntegrationListItem extends React.Component<Props, State> {
     }
 
     const showTrigger = (
-      <Button btnStyle="link" uppercase={false}>
+      <Button btnStyle="link">
         <Tip text="Show" placement="top">
           <Icon icon="eye" />
         </Tip>
@@ -135,7 +135,7 @@ class IntegrationListItem extends React.Component<Props, State> {
     }
 
     const editTrigger = (
-      <Button btnStyle="link" uppercase={false}>
+      <Button btnStyle="link">
         <Tip text="Edit" placement="top">
           <Icon icon="edit-3" />
         </Tip>
@@ -173,7 +173,7 @@ class IntegrationListItem extends React.Component<Props, State> {
 
     if (kind === INTEGRATION_KINDS.MESSENGER) {
       const editTrigger = (
-        <Button btnStyle="link" uppercase={false}>
+        <Button btnStyle="link">
           <Tip text="Install code" placement="top">
             <Icon icon="code" />
           </Tip>
@@ -240,7 +240,7 @@ class IntegrationListItem extends React.Component<Props, State> {
       integration.healthStatus.status === 'account-token'
     ) {
       const editTrigger = (
-        <Button btnStyle="link" uppercase={false}>
+        <Button btnStyle="link">
           <Tip text={__('Repair')} placement="top">
             <Icon icon="refresh" />
           </Tip>

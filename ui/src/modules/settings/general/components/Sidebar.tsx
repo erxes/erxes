@@ -24,12 +24,7 @@ class Sidebar extends React.Component {
     return (
       <TopHeader>
         <Link to="/settings/">
-          <Button
-            btnStyle="simple"
-            icon="arrow-circle-left"
-            block={true}
-            uppercase={false}
-          >
+          <Button btnStyle="simple" icon="arrow-circle-left" block={true}>
             Back to Settings
           </Button>
         </Link>

@@ -56,7 +56,6 @@ class BoardForm extends React.Component<Props, {}> {
             type="button"
             icon="cancel-1"
             onClick={closeModal}
-            uppercase={false}
           >
             Cancel
           </Button>

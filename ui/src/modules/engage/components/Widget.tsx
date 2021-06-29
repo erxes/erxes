@@ -28,12 +28,7 @@ class Widget extends React.Component<Props> {
     }
 
     return (
-      <Button
-        btnStyle="success"
-        size="small"
-        icon="envelope-alt"
-        uppercase={false}
-      >
+      <Button btnStyle="success" size="small" icon="envelope-alt">
         Message
       </Button>
     );

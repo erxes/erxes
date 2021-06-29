@@ -81,7 +81,6 @@ class AddForm extends React.Component<IProps, State> {
             icon="times"
             onClick={this.close}
             size="small"
-            uppercase={false}
           >
             Close
           </Button>

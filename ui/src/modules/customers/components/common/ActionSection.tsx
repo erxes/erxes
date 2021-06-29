@@ -68,7 +68,6 @@ class ActionSection extends React.Component<Props, { customerState: string }> {
               disabled={primaryEmail ? false : true}
               size="small"
               btnStyle={primaryEmail ? 'primary' : 'simple'}
-              uppercase={false}
             >
               <Tip text="Send e-mail" placement="top-end">
                 <Icon icon="envelope" />
@@ -88,7 +87,6 @@ class ActionSection extends React.Component<Props, { customerState: string }> {
               disabled={primaryPhone ? false : true}
               size="small"
               btnStyle={primaryPhone ? 'primary' : 'simple'}
-              uppercase={false}
             >
               <Tip text="Send SMS" placement="top-end">
                 <Icon icon="message" />
@@ -102,7 +100,6 @@ class ActionSection extends React.Component<Props, { customerState: string }> {
           size="small"
           btnStyle={primaryPhone ? 'primary' : 'simple'}
           disabled={primaryPhone ? false : true}
-          uppercase={false}
         >
           <Tip text="Call" placement="top-end">
             <Icon icon="phone" />
@@ -116,7 +113,7 @@ class ActionSection extends React.Component<Props, { customerState: string }> {
     const { isSmall } = this.props;
 
     return (
-      <Button size="small" btnStyle="default" uppercase={false}>
+      <Button size="small" btnStyle="default">
         {isSmall ? (
           <Icon icon="ellipsis-h" />
         ) : (

@@ -133,7 +133,7 @@ class List extends React.Component<IProps, State> {
     ];
 
     const trigger = (
-      <Button btnStyle="primary" uppercase={false} icon="plus-circle">
+      <Button btnStyle="primary" icon="plus-circle">
         Add Product / Service
       </Button>
     );
@@ -151,7 +151,7 @@ class List extends React.Component<IProps, State> {
           onFocus={this.moveCursorAtTheEnd}
         />
         <Link to="/settings/importHistories?type=product">
-          <Button btnStyle="simple" uppercase={false} icon="arrow-from-right">
+          <Button btnStyle="simple" icon="arrow-from-right">
             {__('Go to import')}
           </Button>
         </Link>
@@ -214,7 +214,7 @@ class List extends React.Component<IProps, State> {
 
     if (bulk.length > 0) {
       const tagButton = (
-        <Button btnStyle="simple" size="small" icon="tag-alt" uppercase={false}>
+        <Button btnStyle="simple" size="small" icon="tag-alt">
           Tag
         </Button>
       );
@@ -229,7 +229,7 @@ class List extends React.Component<IProps, State> {
           });
 
       const mergeButton = (
-        <Button btnStyle="primary" size="small" icon="merge" uppercase={false}>
+        <Button btnStyle="primary" size="small" icon="merge">
           Merge
         </Button>
       );
@@ -257,7 +257,6 @@ class List extends React.Component<IProps, State> {
             size="small"
             icon="cancel-1"
             onClick={onClick}
-            uppercase={false}
           >
             Remove
           </Button>

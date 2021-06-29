@@ -51,12 +51,7 @@ class ForgotPassword extends React.Component<Props, { email: string }> {
               onChange={this.handleEmailChange}
             />
           </FormGroup>
-          <Button
-            btnStyle="success"
-            type="submit"
-            block={true}
-            uppercase={false}
-          >
+          <Button btnStyle="success" type="submit" block={true}>
             Email me the instruction
           </Button>
         </form>

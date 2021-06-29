@@ -26,7 +26,7 @@ class BrandRow extends React.Component<Props> {
     const { brand, renderButton } = this.props;
 
     const editTrigger = (
-      <Button btnStyle="link" uppercase={false}>
+      <Button btnStyle="link">
         <Tip text={__('Edit')} placement="bottom">
           <Icon icon="edit" />
         </Tip>

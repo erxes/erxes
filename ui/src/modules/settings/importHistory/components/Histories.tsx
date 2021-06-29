@@ -132,7 +132,7 @@ class Histories extends React.Component<Props & IRouterProps> {
     };
 
     const editColumns = (
-      <Button btnStyle={btnStyle} size="small" icon={icon} uppercase={false}>
+      <Button btnStyle={btnStyle} size="small" icon={icon}>
         {__(`${text}`)}
       </Button>
     );
@@ -180,7 +180,6 @@ class Histories extends React.Component<Props & IRouterProps> {
         size="small"
         icon="folder-download"
         href={`${REACT_APP_API_URL}/download-template/?name=${name}`}
-        uppercase={false}
       >
         {__('Download template')}
       </Button>
@@ -227,7 +226,6 @@ class Histories extends React.Component<Props & IRouterProps> {
         btnStyle="primary"
         size="small"
         onClick={exportData}
-        uppercase={false}
       >
         {__(`Export ${this.getButtonText()}`)}
       </Button>

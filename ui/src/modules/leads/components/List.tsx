@@ -84,7 +84,7 @@ class List extends React.Component<Props, {}> {
 
     if (bulk.length > 0) {
       const tagButton = (
-        <Button btnStyle="simple" size="small" icon="tag-alt" uppercase={false}>
+        <Button btnStyle="simple" size="small" icon="tag-alt">
           Tag
         </Button>
       );
@@ -103,12 +103,7 @@ class List extends React.Component<Props, {}> {
 
     const actionBarRight = (
       <Link to="/forms/create">
-        <Button
-          btnStyle="success"
-          size="small"
-          icon="plus-circle"
-          uppercase={false}
-        >
+        <Button btnStyle="success" size="small" icon="plus-circle">
           {__('Create Forms')}
         </Button>
       </Link>

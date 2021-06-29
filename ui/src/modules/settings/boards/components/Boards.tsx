@@ -47,12 +47,7 @@ class Boards extends React.Component<Props, {}> {
     const boardName = options ? options.boardName : 'Board';
 
     const addBoard = (
-      <Button
-        btnStyle="success"
-        icon="plus-circle"
-        uppercase={false}
-        block={true}
-      >
+      <Button btnStyle="success" icon="plus-circle" block={true}>
         Add New {boardName}
       </Button>
     );

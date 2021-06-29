@@ -92,7 +92,6 @@ class EmailTemplate extends React.Component<Props, State> {
           btnStyle="primary"
           onClick={this.handleFetch}
           icon="angle-double-down"
-          uppercase={false}
         >
           Load More
         </Button>
@@ -134,7 +133,7 @@ class EmailTemplate extends React.Component<Props, State> {
             this.overlayRef = overlayTrigger;
           }}
         >
-          <Button btnStyle="link" uppercase={false}>
+          <Button btnStyle="link">
             <Tip text={__('Email template')}>
               <Icon icon="file-bookmark-alt" />
             </Tip>

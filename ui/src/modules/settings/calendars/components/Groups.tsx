@@ -153,7 +153,7 @@ class Groups extends React.Component<Props, State> {
     return (
       <Dropdown className="dropdown-btn" alignRight={true}>
         <Dropdown.Toggle as={DropdownToggle} id="dropdown-customize">
-          <Button btnStyle="simple" uppercase={false}>
+          <Button btnStyle="simple">
             {__('Add calendar')} <Icon icon="angle-down" />
           </Button>
         </Dropdown.Toggle>
@@ -183,12 +183,7 @@ class Groups extends React.Component<Props, State> {
     return (
       <>
         {this.addButton()}
-        <Button
-          btnStyle="primary"
-          uppercase={false}
-          icon="plus-circle"
-          onClick={this.addGroup}
-        >
+        <Button btnStyle="primary" icon="plus-circle" onClick={this.addGroup}>
           Add group
         </Button>
       </>

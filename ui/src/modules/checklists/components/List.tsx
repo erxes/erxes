@@ -141,12 +141,7 @@ function List(props: Props) {
 
     if (item.percent) {
       return (
-        <Button
-          btnStyle="simple"
-          size="small"
-          onClick={onClickHideShowBtn}
-          uppercase={false}
-        >
+        <Button btnStyle="simple" size="small" onClick={onClickHideShowBtn}>
           {__(btnText)}
         </Button>
       );
@@ -167,12 +162,7 @@ function List(props: Props) {
         <h5 onClick={onClick}>{title}</h5>
         <div>
           {renderIsCheckedBtn()}
-          <Button
-            btnStyle="simple"
-            size="small"
-            onClick={removeClick}
-            uppercase={false}
-          >
+          <Button btnStyle="simple" size="small" onClick={removeClick}>
             Delete
           </Button>
         </div>
@@ -309,12 +299,7 @@ function List(props: Props) {
     }
 
     return (
-      <Button
-        size="small"
-        btnStyle="simple"
-        onClick={onAddItemClick}
-        uppercase={false}
-      >
+      <Button size="small" btnStyle="simple" onClick={onAddItemClick}>
         {__('Add an item')}
       </Button>
     );

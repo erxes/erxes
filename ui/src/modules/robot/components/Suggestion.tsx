@@ -58,20 +58,10 @@ export default function Suggestion({
             {__("You haven't fully configured. Would you like to configure")}
           </p>
 
-          <Button
-            btnStyle="success"
-            size="small"
-            onClick={onResumeClick}
-            uppercase={false}
-          >
+          <Button btnStyle="success" size="small" onClick={onResumeClick}>
             Resume
           </Button>
-          <Button
-            btnStyle="link"
-            size="small"
-            onClick={forceComplete}
-            uppercase={false}
-          >
+          <Button btnStyle="link" size="small" onClick={forceComplete}>
             Never see again
           </Button>
         </div>
