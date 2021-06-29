@@ -551,17 +551,17 @@ export const ROLE_SETUP_DETAILS = {
     videoUrl: 'https://www.youtube.com/embed/Z5KI5YuvZ7U?autoplay=1',
     videoThumb: 'https://img.youtube.com/vi/Z5KI5YuvZ7U/mqdefault.jpg',
     settingsDetails: {
-      step1: {
+      generalSettingsCreate: {
         name: 'Set your general setting',
-        url: '/settings/boards/'
+        url: '/settings/general'
       },
-      step2: {
+      generalSettingsUploadCreate: {
         name: 'Set the types of file you would like to upload',
-        url: '/settings/boards/'
+        url: '/settings/general/'
       },
-      step3: {
+      generealSettingsConstantsCreate: {
         name: 'Set your constants',
-        url: '/settings/boards/'
+        url: '/settings/general/'
       }
     }
   },
@@ -572,13 +572,13 @@ export const ROLE_SETUP_DETAILS = {
     videoUrl: 'https://www.youtube.com/embed/Z5KI5YuvZ7U?autoplay=1',
     videoThumb: 'https://img.youtube.com/vi/Z5KI5YuvZ7U/mqdefault.jpg',
     settingsDetails: {
-      step1: {
+      brandCreate: {
         name: 'Create brands',
-        url: '/settings/boards/'
+        url: '/settings/brands#showBrandAddModal=true'
       },
-      step2: {
+      channelCreate: {
         name: 'Create channels',
-        url: '/settings/boards/'
+        url: '/settings/channels#showChannelAddModal=true'
       }
     }
   },
@@ -589,17 +589,18 @@ export const ROLE_SETUP_DETAILS = {
     videoUrl: 'https://www.youtube.com/embed/Z5KI5YuvZ7U?autoplay=1',
     videoThumb: 'https://img.youtube.com/vi/Z5KI5YuvZ7U/mqdefault.jpg',
     settingsDetails: {
-      step1: {
+      integrationsCreate: {
         name: 'Choose which integrations you would like to add',
-        url: '/settings/boards/'
+        url: '/settings/integrations/'
       },
-      step2: {
+      connectIntegrationsToChannel: {
         name:
           'Follow the instructions as shown to successfully integrate communication channels',
-        url: '/settings/boards/'
+        url: '/settings/channels/'
       }
     }
   },
+
   customizeDatabase: {
     text: 'Properties',
     description:
@@ -607,17 +608,18 @@ export const ROLE_SETUP_DETAILS = {
     videoUrl: 'https://www.youtube.com/embed/Z5KI5YuvZ7U?autoplay=1',
     videoThumb: 'https://img.youtube.com/vi/Z5KI5YuvZ7U/mqdefault.jpg',
     settingsDetails: {
-      step1: {
-        name: 'Adjust the existing fields',
-        url: '/settings/boards/'
-      },
-      step2: {
+      fieldGroupCreate: {
         name:
           'Add new groups and fields if the fields you require are not there',
-        url: '/settings/boards/'
+        url: '/settings/properties/'
+      },
+      fieldCreate: {
+        name: 'Adjust the existing fields',
+        url: '/settings/properties/'
       }
     }
   },
+
   importExistingContacts: {
     text: 'Import',
     description:
@@ -625,29 +627,29 @@ export const ROLE_SETUP_DETAILS = {
     videoUrl: 'https://www.youtube.com/embed/Z5KI5YuvZ7U?autoplay=1',
     videoThumb: 'https://img.youtube.com/vi/Z5KI5YuvZ7U/mqdefault.jpg',
     settingsDetails: {
-      step1: {
+      fieldGroupCreate: {
         name: 'Add groups',
-        url: '/settings/boards/'
+        url: '/settings/importHistories/'
       },
-      step2: {
+      fieldCreate: {
         name: 'Add properties',
-        url: '/settings/boards/'
+        url: '/settings/importHistories/'
       },
-      step3: {
+      importPrepareFiles: {
         name: 'Prepare files to be imported on excel',
-        url: '/settings/boards/'
+        url: '/settings/importHistories/'
       },
-      step4: {
+      importDownloadTemplate: {
         name: 'Download a template',
-        url: '/settings/boards/'
+        url: '/settings/importHistories/'
       },
-      step5: {
+      importEnterData: {
         name: 'Enter your data in the template',
-        url: '/settings/boards/'
+        url: '/settings/importHistories/'
       },
-      step6: {
+      importCreate: {
         name: 'Import the file',
-        url: '/settings/boards/'
+        url: '/settings/importHistories/'
       }
     }
   },
@@ -658,13 +660,17 @@ export const ROLE_SETUP_DETAILS = {
     videoUrl: 'https://www.youtube.com/embed/Z5KI5YuvZ7U?autoplay=1',
     videoThumb: 'https://img.youtube.com/vi/Z5KI5YuvZ7U/mqdefault.jpg',
     settingsDetails: {
-      step1: {
-        name: 'Add your team member(s)',
-        url: '/settings/boards/'
+      permissionGroupCreate: {
+        name: 'Create user group for permission',
+        url: '/settings/team'
       },
-      step2: {
+      userCreate: {
+        name: 'Add your team member(s)',
+        url: '/settings/team/'
+      },
+      userEdit: {
         name: "Enter your team member's information",
-        url: '/settings/boards/'
+        url: '/settings/team/'
       }
     }
   },
@@ -675,17 +681,17 @@ export const ROLE_SETUP_DETAILS = {
     videoUrl: 'https://www.youtube.com/embed/Z5KI5YuvZ7U?autoplay=1',
     videoThumb: 'https://img.youtube.com/vi/Z5KI5YuvZ7U/mqdefault.jpg',
     settingsDetails: {
-      step1: {
+      dealBoardCreate: {
         name: 'Create a board',
-        url: '/settings/boards/'
+        url: '/settings/boards/deal#showBoardModal=true'
       },
-      step2: {
+      dealPipelineCreate: {
         name: 'Create a pipeline to be used on your board',
-        url: '/settings/boards/'
+        url: '/settings/boards/deal#showPipelineModal=true'
       },
-      step3: {
+      dealStageCreate: {
         name: 'Customize the stages in your pipeline',
-        url: '/settings/boards/'
+        url: '/settings/boards/deal'
       }
     }
   },
@@ -696,11 +702,11 @@ export const ROLE_SETUP_DETAILS = {
     videoUrl: 'https://www.youtube.com/embed/Z5KI5YuvZ7U?autoplay=1',
     videoThumb: 'https://img.youtube.com/vi/Z5KI5YuvZ7U/mqdefault.jpg',
     settingsDetails: {
-      step1: {
+      productCategoryCreate: {
         name: 'Add a category',
         url: '/settings/boards/'
       },
-      step2: {
+      productCreate: {
         name: 'Add a product & service into the category',
         url: '/settings/boards/'
       }
@@ -713,20 +719,21 @@ export const ROLE_SETUP_DETAILS = {
     videoUrl: 'https://www.youtube.com/embed/Z5KI5YuvZ7U?autoplay=1',
     videoThumb: 'https://img.youtube.com/vi/Z5KI5YuvZ7U/mqdefault.jpg',
     settingsDetails: {
-      step1: {
+      ticketBoardCreate: {
         name: 'Create a board',
-        url: '/settings/boards/'
+        url: '/settings/boards/ticket#showBoardModal=true'
       },
-      step2: {
+      ticketPipelineCreate: {
         name: 'Create a pipeline to be used on your board',
-        url: '/settings/boards/'
+        url: '/settings/boards/ticket#showPipelineModal=true'
       },
-      step3: {
+      ticketStageCreate: {
         name: 'Customize the stages in your pipeline',
-        url: '/settings/boards/'
+        url: '/settings/boards/ticket'
       }
     }
   },
+
   customizeTasks: {
     text: 'Task stage',
     description:
@@ -734,20 +741,21 @@ export const ROLE_SETUP_DETAILS = {
     videoUrl: 'https://www.youtube.com/embed/Z5KI5YuvZ7U?autoplay=1',
     videoThumb: 'https://img.youtube.com/vi/Z5KI5YuvZ7U/mqdefault.jpg',
     settingsDetails: {
-      step1: {
+      taskBoardCreate: {
         name: 'Create a board',
-        url: '/settings/boards/'
+        url: '/settings/boards/task#showBoardModal=true'
       },
-      step2: {
+      taskPipelineCreate: {
         name: 'Create a pipeline to be used on your board',
-        url: '/settings/boards/'
+        url: '/settings/boards/task#showBoardModal=true'
       },
-      step3: {
+      taskStageCreate: {
         name: 'Customize the stages in your pipeline',
-        url: '/settings/boards/'
+        url: '/settings/boards/task'
       }
     }
   },
+
   customizeGrowthHacking: {
     text: 'Growth hacking stage',
     description:
@@ -755,16 +763,17 @@ export const ROLE_SETUP_DETAILS = {
     videoUrl: 'https://www.youtube.com/embed/Z5KI5YuvZ7U?autoplay=1',
     videoThumb: 'https://img.youtube.com/vi/Z5KI5YuvZ7U/mqdefault.jpg',
     settingsDetails: {
-      step1: {
+      growthHackingTemplateCreate: {
         name: 'Create a growth hacking template',
-        url: '/settings/boards/'
+        url: '/settings/boards/growthHackTemplate'
       },
-      step2: {
+      growthHackingStageCreate: {
         name: 'Customize the stages in your template',
-        url: '/settings/boards/'
+        url: '/settings/boards/growthHackTemplate'
       }
     }
   },
+
   customizeSegmentation: {
     text: 'Contact',
     description:
@@ -776,16 +785,17 @@ export const ROLE_SETUP_DETAILS = {
         name: 'Famliarize yourself with the existing segments ',
         url: '/settings/boards/'
       },
-      step2: {
+      segmentCreate: {
         name: 'Create a segment',
-        url: '/settings/boards/'
+        url: '/segments/new/customer'
       },
-      step3: {
+      subSegmentCreate: {
         name: 'Create a subsegment within the previous segment',
-        url: '/settings/boards/'
+        url: '/segments/new/customer'
       }
     }
   },
+
   prepareMailResponseTemplates: {
     text: 'Email/response template',
     description:
@@ -793,16 +803,17 @@ export const ROLE_SETUP_DETAILS = {
     videoUrl: 'https://www.youtube.com/embed/Z5KI5YuvZ7U?autoplay=1',
     videoThumb: 'https://img.youtube.com/vi/Z5KI5YuvZ7U/mqdefault.jpg',
     settingsDetails: {
-      step1: {
+      createResponseTemplate: {
         name: 'Create a response template',
-        url: '/settings/boards/'
+        url: '/settings/response-templates'
       },
-      step2: {
+      createEmailTemplate: {
         name: 'Create an email template',
-        url: '/settings/boards/'
+        url: '/settings/email-templates'
       }
     }
   },
+
   automateCampaigns: {
     text: 'Campaigns',
     description:
@@ -810,24 +821,25 @@ export const ROLE_SETUP_DETAILS = {
     videoUrl: 'https://www.youtube.com/embed/Z5KI5YuvZ7U?autoplay=1',
     videoThumb: 'https://img.youtube.com/vi/Z5KI5YuvZ7U/mqdefault.jpg',
     settingsDetails: {
-      step1: {
+      createCampaign: {
         name: 'Create a campaign',
-        url: '/settings/boards/'
+        url: '/campaigns'
       },
-      step2: {
+      chooseCampaignChannel: {
         name: 'Choose a channel',
-        url: '/settings/boards/'
+        url: '/campaigns'
       },
-      step3: {
+      chooseRecipientsChannel: {
         name: 'Choose the recipients of the campaign',
         url: '/settings/boards/'
       },
-      step4: {
+      composeCampaign: {
         name: 'Compose your campaign',
         url: '/settings/boards/'
       }
     }
   },
+
   customizeKnowledgeBase: {
     text: 'Khowledge Base',
     description:
@@ -835,15 +847,15 @@ export const ROLE_SETUP_DETAILS = {
     videoUrl: 'https://www.youtube.com/embed/Z5KI5YuvZ7U?autoplay=1',
     videoThumb: 'https://img.youtube.com/vi/Z5KI5YuvZ7U/mqdefault.jpg',
     settingsDetails: {
-      step1: {
+      createForm: {
         name: 'Add and edit the appearance of your knowledge base',
-        url: '/settings/boards/'
+        url: '/knowledgeBase'
       },
-      step2: {
+      createCategoryForm: {
         name: 'Add categories in the knowledge base',
         url: '/settings/boards/'
       },
-      step3: {
+      createArticleForm: {
         name: 'Add an article within the knowledge base',
         url: '/settings/boards/'
       }
