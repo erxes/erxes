@@ -8,7 +8,6 @@ import React from 'react';
 import KnowledgeForm from '../../containers/knowledge/KnowledgeForm';
 import { ITopic } from '../../types';
 import KnowledgeRow from './KnowledgeRow';
-
 type Props = {
   queryParams: any;
   currentCategoryId: string;
