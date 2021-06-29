@@ -39,6 +39,7 @@ const messageFields = `
 
 const userFields = `
   _id
+  isActive
   details {
     avatar
     fullName

@@ -192,6 +192,15 @@ const FormTable = styled.div`
 
 const CellWrapper = styled.div`
   display: inline-block;
+  max-width: 100%;
+
+  > a {
+    display: block;
+
+    div:first-child {
+      float: left;
+    }
+  }
 `;
 
 const CallBox = styled.div`
