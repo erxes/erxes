@@ -1,5 +1,8 @@
 import colors from 'modules/common/styles/colors';
 
+export const TOOLTIP =
+  'Your responsive will determine your onboarindg guides. Each guide contains all-inclusive info on how to setup an organization from start to finish. You can re-select this later on.';
+
 export const PLACEHOLDER = 'Choose one';
 
 export const FEATURE_DETAILS = {
@@ -302,8 +305,8 @@ export const FEATURES = [
 ];
 
 export const ROLE_VALUE = [
-  { _id: 'answerOne', name: "I've never used CAM or business ... before." },
-  { _id: 'answerTwo', name: "I'm ... to erxes but I've used a CAM before." },
+  { _id: 'answerOne', name: "I've never used CRM or business ... before." },
+  { _id: 'answerTwo', name: "I'm ... to erxes but I've used a CRM before." },
   { _id: 'answerThree', name: 'I know my way around erxes pretty well.' }
 ];
 
@@ -317,8 +320,8 @@ export const ROLE_OPTIONS = [
 
 export const ROLE_SETUP = [
   {
-    title: 'Options',
-    key: 'options',
+    title: 'Setup',
+    key: 'setup',
     content: [
       {
         name: 'Set your general settings',

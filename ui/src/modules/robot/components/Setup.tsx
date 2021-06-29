@@ -23,10 +23,11 @@ type Props = {
   currentRoute?: string;
   changeRoute: (route: string) => void;
   roleValue: IRoleValue;
+  answerOf: IRoleValue;
   currentUser: IUser;
   showContent: boolean;
   toggleContent: (isShow: boolean) => void;
-  restartRole: (role: string) => void;
+  restartRole: (role: string, answer: string) => void;
 };
 
 type State = {
@@ -160,7 +161,7 @@ class Setup extends React.Component<Props, State> {
   }
 
   drawContent() {
-    const { roleValue, restartRole } = this.props;
+    const { roleValue, restartRole, answerOf } = this.props;
 
     return (
       <>
@@ -175,7 +176,9 @@ class Setup extends React.Component<Props, State> {
 
         {this.renderSetup()}
 
-        <RestartButton onClick={() => restartRole(roleValue.value)}>
+        <RestartButton
+          onClick={() => restartRole(roleValue.value, answerOf.value)}
+        >
           {__('Reselect role')}
         </RestartButton>
       </>

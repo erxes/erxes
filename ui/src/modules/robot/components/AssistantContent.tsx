@@ -23,6 +23,7 @@ type Props = {
 type State = {
   welcomeStep: number;
   roleValue: IRoleValue;
+  answerOf: IRoleValue;
 };
 
 class AssistantContent extends React.Component<Props, State> {
@@ -31,7 +32,11 @@ class AssistantContent extends React.Component<Props, State> {
 
     this.state = {
       welcomeStep: 0,
-      roleValue: { value: 'sales', label: 'Sales' } as IRoleValue
+      roleValue: { value: 'sales', label: 'Sales' } as IRoleValue,
+      answerOf: {
+        value: '',
+        label: ''
+      } as IRoleValue
     };
   }
 
@@ -40,8 +45,12 @@ class AssistantContent extends React.Component<Props, State> {
     this.props.changeRoute('initial');
   };
 
-  restartRole = (value: string) => {
-    this.setState({ welcomeStep: 1, roleValue: { value, label: '' } });
+  restartRole = (value: string, answer: string) => {
+    this.setState({
+      welcomeStep: 1,
+      roleValue: { value, label: '' },
+      answerOf: { value: answer, label: '' }
+    });
     this.props.changeRoute('initial');
   };
 
@@ -69,13 +78,19 @@ class AssistantContent extends React.Component<Props, State> {
       this.setState({ roleValue });
     };
 
+    const getAnswerOf = (answerOf: IRoleValue) => {
+      this.setState({ answerOf });
+    };
+
     const onBoarding = (
       <Onboarding
         getRoleOptions={getRoleOptions}
+        getAnswerOf={getAnswerOf}
         currentUserName={getCurrentUserName(currentUser)}
         changeRoute={changeRoute}
         activeStep={this.state.welcomeStep}
         roleValue={this.state.roleValue}
+        answerOf={this.state.answerOf}
       />
     );
 
@@ -101,6 +116,7 @@ class AssistantContent extends React.Component<Props, State> {
           {...this.props}
           roleValue={this.state.roleValue}
           restartRole={this.restartRole}
+          answerOf={this.state.answerOf}
         />
       );
     }

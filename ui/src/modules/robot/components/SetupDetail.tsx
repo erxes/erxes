@@ -1,5 +1,6 @@
 import ProgressBar from 'modules/common/components/ProgressBar';
 import colors from 'modules/common/styles/colors';
+import { __ } from 'modules/common/utils';
 import React from 'react';
 import { Link } from 'react-router-dom';
 import styled from 'styled-components';
@@ -138,9 +139,9 @@ class SetupDetail extends React.Component<Props> {
     const { roleOption } = this.props;
     return (
       <>
-        <Title>{roleOption.text}</Title>
+        <Title>{__(roleOption.text)}</Title>
         {this.renderVideo()}
-        <p>{roleOption.description}</p>
+        <p>{__(roleOption.description)}</p>
         {this.renderProgress()}
         {this.renderSettings()}
       </>

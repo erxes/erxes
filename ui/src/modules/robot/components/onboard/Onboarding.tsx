@@ -40,11 +40,13 @@ const ButtonWrapper = styled.div`
 
 type Props = {
   getRoleOptions: (roleValue: IRoleValue) => void;
+  getAnswerOf: (answerOf: IRoleValue) => void;
   onClick?: () => void;
   currentUserName: string;
   changeRoute: (route: string) => void;
   activeStep?: number;
   roleValue: IRoleValue;
+  answerOf: IRoleValue;
 };
 
 type State = {
@@ -100,9 +102,11 @@ class Onboarding extends React.PureComponent<Props, State> {
     return (
       <Roles
         getRoleOptions={this.props.getRoleOptions}
+        getAnswerOf={this.props.getAnswerOf}
         renderButton={this.renderButton}
         changeRoute={this.props.changeRoute}
         roleValue={this.props.roleValue}
+        answerOf={this.props.answerOf}
       />
     );
   };

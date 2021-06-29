@@ -1,12 +1,26 @@
 import { __ } from 'modules/common/utils';
-import { PLACEHOLDER, ROLE_OPTIONS, ROLE_VALUE } from 'modules/robot/constants';
+import {
+  PLACEHOLDER,
+  ROLE_OPTIONS,
+  ROLE_VALUE,
+  TOOLTIP
+} from 'modules/robot/constants';
 import React from 'react';
 import Select from 'react-select-plus';
 import { selectOptions } from '../../utils';
 import { Container, SubContent } from '../styles';
 import { IRoleValue } from 'modules/robot/types';
-import { Tooltip } from 'antd';
+import Tip from 'modules/common/components/Tip';
 import Icon from 'modules/common/components/Icon';
+import styled from 'styled-components';
+
+const SelectUp = styled.div`
+  .Select-menu-outer {
+    position: absolute;
+    top: auto;
+    bottom: calc(100% - 1px);
+  }
+`;
 
 type Props = {
   renderButton: (
@@ -17,13 +31,15 @@ type Props = {
   ) => React.ReactNode;
   changeRoute: (route: string) => void;
   getRoleOptions: (roleValue: IRoleValue) => void;
+  getAnswerOf: (answerOf: IRoleValue) => void;
   roleValue: IRoleValue;
+  answerOf: IRoleValue;
 };
 
 type State = {
   step: number;
   selectedRole: string;
-  selectedValue: string;
+  selectedAnswer: string;
 };
 
 class Roles extends React.Component<Props, State> {
@@ -33,7 +49,7 @@ class Roles extends React.Component<Props, State> {
     this.state = {
       step: 1,
       selectedRole: this.props.roleValue.value || '',
-      selectedValue: ''
+      selectedAnswer: this.props.answerOf.value || ''
     };
   }
 
@@ -45,7 +61,8 @@ class Roles extends React.Component<Props, State> {
         localStorage.setItem(key, value.value);
       }
     }
-    if (key === 'selectedValue') {
+    if (key === 'selectedAnswer') {
+      this.props.getAnswerOf(value);
       if (key && value) {
         localStorage.setItem(key, value.value);
       }
@@ -54,11 +71,11 @@ class Roles extends React.Component<Props, State> {
 
   render() {
     const { renderButton, changeRoute } = this.props;
-    const { selectedRole, selectedValue } = this.state;
+    const { selectedRole, selectedAnswer } = this.state;
 
     const selectedRoleOnChange = value => this.onChange('selectedRole', value);
-    const selectedValueOnChange = value =>
-      this.onChange('selectedValue', value);
+    const selectedAnswerOnChange = value =>
+      this.onChange('selectedAnswer', value);
 
     return (
       <Container>
@@ -68,9 +85,9 @@ class Roles extends React.Component<Props, State> {
 
         <p>
           {__("What's your main area of work")}?{' '}
-          <Tooltip placement="right" title="why does not work ?????">
-            <Icon icon="icon-info-circle" />
-          </Tooltip>
+          <Tip placement="bottom-start" text={__(TOOLTIP)}>
+            <Icon icon="info-circle" color="hsl(259,50%,51.9%)" />
+          </Tip>
         </p>
         <Select
           value={selectedRole}
@@ -80,18 +97,19 @@ class Roles extends React.Component<Props, State> {
         />
 
         <p>{__('Which of these sounds most like you')}?</p>
-        <Select
-          value={selectedValue}
-          onChange={selectedValueOnChange}
-          placeholder={PLACEHOLDER}
-          options={selectOptions(ROLE_VALUE)}
-        />
-
+        <SelectUp>
+          <Select
+            value={selectedAnswer}
+            onChange={selectedAnswerOnChange}
+            placeholder={PLACEHOLDER}
+            options={selectOptions(ROLE_VALUE)}
+          />
+        </SelectUp>
         {renderButton(
           'Next',
           () => changeRoute('setupList'),
           'arrow-circle-right',
-          !selectedRole || !selectedValue ? true : false
+          !selectedRole || !selectedAnswer ? true : false
         )}
       </Container>
     );

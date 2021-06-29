@@ -894,5 +894,14 @@
   "Your email will be sent with Erxes email template": "Бидний бэлдэж өгсөн email загварын дагуу mail явуулах болно",
   "Join a call": "Дуудлага руу орох",
   "Invite to video call": "Видео дуудлагад урих",
-  "Video call invitation sent": "Видео дуудлагын урилга илгээсэн"
+  "Video call invitation sent": "Видео дуудлагын урилга илгээсэн",
+
+  "Set Your General Settings": "Ерөнхий тохиргоонуудаа тохируулна уу",
+  "Setting your general configuration adjusts the basic fundamental features on our platform.": "Ерөнхий тохиргоогоо тохируулах нь манай платформ дээрх үндсэн суурь зүйлийг тохируулдаг.",
+  "Set your general setting": "Ерөнхий тохиргоогоо тохируулна уу",
+  "Set the types of file you would like to upload": "Байршуулахыг хүссэн файлын төрлийг тохируулна уу",
+  "Set your constants": "Тогтмол тохируулах мэдээллээ тохируулна уу",
+  "Creating brands and channels allows you can organize and view all messages and emails sent from customers under one platform. Customizing the incoming communication channels is the foundation of all your effective operational process.": "Брэнд, суваг бий болгох нь үйлчлүүлэгчдээс илгээсэн бүх мессеж, имэйлийг нэг платформ дор цэгцэлж үзэх боломжтой. Харилцагчидтайгаа харилцаж буй сувгуудаа зөв ангих нь танай байгууллагын үйл ажиллагааны үндсэн суурь юм. ",
+  "Create brands": "Брэнд үүсгэх",
+  "Create channels": "Суваг үүсгэх"
 }
