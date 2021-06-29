@@ -43,7 +43,7 @@ class List extends React.Component<Props> {
     const { bulk, emptyBulk } = this.props;
 
     const tagButton = (
-      <Button btnStyle="simple" size="small" icon="tag-alt">
+      <Button btnStyle="simple" size="small" icon="tag-alt" uppercase={false}>
         {__('Tag')}
       </Button>
     );
@@ -81,7 +81,7 @@ class List extends React.Component<Props> {
     }
 
     const trigger = (
-      <Button btnStyle="warning" size="small" icon="analysis">
+      <Button btnStyle="warning" size="small" icon="analysis" uppercase={false}>
         {__('Email statistics')}
       </Button>
     );
@@ -167,7 +167,12 @@ class List extends React.Component<Props> {
 
   renderRightActionBar = () => {
     const trigger = (
-      <Button btnStyle="success" size="small" icon="plus-circle">
+      <Button
+        btnStyle="success"
+        size="small"
+        icon="plus-circle"
+        uppercase={false}
+      >
         {__('New campaign')}
       </Button>
     );

@@ -100,7 +100,6 @@ class GroupsContainer extends React.Component<FinalProps> {
           refetchQueries={getRefetchQueries(boardId)}
           isSubmitted={isSubmitted}
           type="submit"
-          uppercase={false}
           successMessage={`You successfully ${
             object ? 'updated' : 'added'
           } a ${name}`}
@@ -178,7 +177,6 @@ class GroupsContainer extends React.Component<FinalProps> {
           refetchQueries={getRefetchQueries(boardId)}
           isSubmitted={isSubmitted}
           type="submit"
-          uppercase={false}
           successMessage={`You successfully ${
             object ? 'updated' : 'added'
           } a ${name}`}

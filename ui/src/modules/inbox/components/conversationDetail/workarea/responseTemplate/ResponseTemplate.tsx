@@ -39,7 +39,7 @@ class ResponseTemplate extends React.Component<Props, State> {
     const { brands, content, brandId, attachments } = this.props;
 
     const saveTrigger = (
-      <Button id="response-template-handler" btnStyle="link">
+      <Button id="response-template-handler" btnStyle="link" uppercase={false}>
         <Tip text={__('Save as template')}>
           <Icon icon="file-upload-alt" />
         </Tip>
@@ -66,7 +66,7 @@ class ResponseTemplate extends React.Component<Props, State> {
             this.overlayRef = overlayTrigger;
           }}
         >
-          <Button btnStyle="link">
+          <Button btnStyle="link" uppercase={false}>
             <Tip text={__('Response template')}>
               <Icon icon="file-bookmark-alt" />
             </Tip>

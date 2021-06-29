@@ -52,7 +52,6 @@ const SelectBrandContainer = (props: ChildProps<FinalProps>) => {
         callback={callBackResponse}
         isSubmitted={isSubmitted}
         type="submit"
-        uppercase={false}
         successMessage={`You successfully added a ${name}`}
       />
     );

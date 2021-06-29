@@ -166,7 +166,12 @@ class CompaniesList extends React.Component<IProps, State> {
     );
 
     const addTrigger = (
-      <Button btnStyle="success" size="small" icon="plus-circle">
+      <Button
+        btnStyle="success"
+        size="small"
+        icon="plus-circle"
+        uppercase={false}
+      >
         Add company
       </Button>
     );
@@ -174,7 +179,7 @@ class CompaniesList extends React.Component<IProps, State> {
     const editColumns = <a href="#edit">{__('Choose Properties/View')}</a>;
 
     const mergeButton = (
-      <Button btnStyle="primary" size="small" icon="merge">
+      <Button btnStyle="primary" size="small" icon="merge" uppercase={false}>
         Merge
       </Button>
     );
@@ -187,7 +192,7 @@ class CompaniesList extends React.Component<IProps, State> {
 
     if (bulk.length > 0) {
       const tagButton = (
-        <Button btnStyle="simple" size="small" icon="tag-alt">
+        <Button btnStyle="simple" size="small" icon="tag-alt" uppercase={false}>
           Tag
         </Button>
       );
@@ -231,6 +236,7 @@ class CompaniesList extends React.Component<IProps, State> {
             size="small"
             icon="cancel-1"
             onClick={onClick}
+            uppercase={false}
           >
             Remove
           </Button>
@@ -268,7 +274,7 @@ class CompaniesList extends React.Component<IProps, State> {
 
         <Dropdown className="dropdown-btn" alignRight={true}>
           <Dropdown.Toggle as={DropdownToggle} id="dropdown-customize">
-            <Button btnStyle="simple" size="small">
+            <Button btnStyle="simple" size="small" uppercase={false}>
               {__('Customize ')} <Icon icon="angle-down" />
             </Button>
           </Dropdown.Toggle>
@@ -293,7 +299,12 @@ class CompaniesList extends React.Component<IProps, State> {
           </Dropdown.Menu>
         </Dropdown>
         <Link to="/settings/importHistories?type=company">
-          <Button btnStyle="primary" size="small" icon="arrow-from-right">
+          <Button
+            btnStyle="primary"
+            size="small"
+            icon="arrow-from-right"
+            uppercase={false}
+          >
             {__('Go to import')}
           </Button>
         </Link>

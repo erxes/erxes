@@ -214,7 +214,7 @@ class List extends React.Component<IProps, State> {
 
     if (bulk.length > 0) {
       const tagButton = (
-        <Button btnStyle="simple" size="small" icon="tag-alt">
+        <Button btnStyle="simple" size="small" icon="tag-alt" uppercase={false}>
           Tag
         </Button>
       );
@@ -229,7 +229,7 @@ class List extends React.Component<IProps, State> {
           });
 
       const mergeButton = (
-        <Button btnStyle="primary" size="small" icon="merge">
+        <Button btnStyle="primary" size="small" icon="merge" uppercase={false}>
           Merge
         </Button>
       );
@@ -257,6 +257,7 @@ class List extends React.Component<IProps, State> {
             size="small"
             icon="cancel-1"
             onClick={onClick}
+            uppercase={false}
           >
             Remove
           </Button>

@@ -59,7 +59,6 @@ class IntegrationFormContainer extends React.Component<FinalProps, State> {
         callback={callback}
         isSubmitted={isSubmitted}
         refetchQueries={getRefetchQueries(type)}
-        uppercase={false}
         type="submit"
         successMessage={`You successfully added a ${type} ${name}`}
       />

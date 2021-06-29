@@ -78,7 +78,7 @@ class WebhookList extends React.Component<FinalProps, States> {
 
     return (
       <CopyToClipboard text={object.token} onCopy={onCopy}>
-        <Button btnStyle="link">
+        <Button btnStyle="link" uppercase={false}>
           <Tip text={__('Copy token')} placement="top">
             <Icon icon="copy" size={15} />
           </Tip>

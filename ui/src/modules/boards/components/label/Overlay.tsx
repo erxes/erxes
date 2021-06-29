@@ -139,6 +139,7 @@ export default class Overlay extends React.Component<
             icon="plus-circle"
             size="small"
             btnStyle="success"
+            uppercase={false}
           >
             Create a new label
           </Button>

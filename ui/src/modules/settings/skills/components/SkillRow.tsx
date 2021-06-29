@@ -40,7 +40,7 @@ function SkillRow({ skill, skillTypes, refetchQueries, removeItem }: Props) {
 
   function renderActions() {
     const trigger = (
-      <Button id="skill-edit-skill" btnStyle="link">
+      <Button id="skill-edit-skill" btnStyle="link" uppercase={false}>
         <Tip text={__('Edit')} placement="bottom">
           <Icon icon="edit-3" />
         </Tip>

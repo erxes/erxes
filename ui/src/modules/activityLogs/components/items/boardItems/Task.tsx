@@ -112,6 +112,7 @@ class Task extends React.Component<Props, State> {
             btnStyle="simple"
             size="small"
             onClick={this.onChange.bind(this, 'editing')}
+            uppercase={false}
           >
             Cancel
           </Button>
@@ -120,6 +121,7 @@ class Task extends React.Component<Props, State> {
             size="small"
             icon="checked-1"
             onClick={this.saveItem.bind(this, 'name', this.state.name)}
+            uppercase={false}
           >
             Save
           </Button>

@@ -64,6 +64,7 @@ class Mail extends React.PureComponent<Props, State> {
     return (
       <Reply>
         <Button
+          uppercase={false}
           icon="reply"
           size="small"
           onClick={this.toggleReply}
@@ -73,6 +74,7 @@ class Mail extends React.PureComponent<Props, State> {
         </Button>
         {addressLength > 1 && (
           <Button
+            uppercase={false}
             icon="reply-all"
             size="small"
             onClick={toggleReplyAll}
@@ -82,6 +84,7 @@ class Mail extends React.PureComponent<Props, State> {
           </Button>
         )}
         <Button
+          uppercase={false}
           icon="corner-down-right-alt"
           size="small"
           onClick={toggleForward}

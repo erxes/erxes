@@ -124,7 +124,7 @@ class Row extends React.Component<Props, State> {
           </div>
 
           <Modal.Footer>
-            <Button type="primary" onClick={this.onMerge}>
+            <Button type="primary" onClick={this.onMerge} uppercase={false}>
               {__('Merge')}
             </Button>
           </Modal.Footer>

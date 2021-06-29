@@ -30,7 +30,7 @@ class BoardRow extends React.Component<Props, {}> {
     const { board, renderButton } = this.props;
 
     const editTrigger = (
-      <Button btnStyle="link">
+      <Button btnStyle="link" uppercase={false}>
         <Tip text="Edit" placement="bottom">
           <Icon icon="edit" />
         </Tip>

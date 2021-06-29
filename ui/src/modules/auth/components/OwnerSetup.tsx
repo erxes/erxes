@@ -208,6 +208,7 @@ const OwnerSetup = (props: Props) => {
           btnStyle="success"
           type="submit"
           block={true}
+          uppercase={false}
           disabled={!subscribeEmail}
         >
           Save and continue to login

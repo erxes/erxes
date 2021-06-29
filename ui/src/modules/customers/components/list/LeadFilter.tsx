@@ -57,6 +57,7 @@ function Leads({
           btnStyle="link"
           onClick={loadMore}
           icon="angle-double-down"
+          uppercase={false}
         >
           Load more
         </Button>

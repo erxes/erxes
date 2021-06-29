@@ -49,7 +49,7 @@ const ArticleRow = (props: Props) => {
     const { queryParams, currentCategoryId, topicId } = props;
 
     const editButton = (
-      <Button btnStyle="link">
+      <Button btnStyle="link" uppercase={false}>
         <Tip text={__('Edit')}>
           <Icon icon="edit" />
         </Tip>

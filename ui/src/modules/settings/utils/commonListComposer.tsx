@@ -141,7 +141,6 @@ function commonListComposer<ComponentProps>(options) {
           callback={afterMutate}
           isSubmitted={isSubmitted}
           type="submit"
-          uppercase={false}
           confirmationUpdate={confirmationUpdate}
           successMessage={`You successfully ${successAction} a ${name}`}
         />

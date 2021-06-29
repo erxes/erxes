@@ -56,7 +56,7 @@ class List extends React.Component<IProps> {
 
   renderEditAction(category: IProductCategory) {
     const trigger = (
-      <Button btnStyle="link">
+      <Button btnStyle="link" uppercase={false}>
         <Tip text={__('Edit')} placement="bottom">
           <Icon icon="edit" />
         </Tip>
@@ -70,7 +70,11 @@ class List extends React.Component<IProps> {
     const { remove } = this.props;
 
     return (
-      <Button btnStyle="link" onClick={remove.bind(null, category._id)}>
+      <Button
+        btnStyle="link"
+        onClick={remove.bind(null, category._id)}
+        uppercase={false}
+      >
         <Tip text={__('Remove')} placement="bottom">
           <Icon icon="cancel-1" />
         </Tip>

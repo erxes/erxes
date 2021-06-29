@@ -34,7 +34,7 @@ class Row extends React.Component<Props> {
 
     return (
       <Link to={`/forms/edit/${integration._id}/${formId}`}>
-        <Button btnStyle="link">
+        <Button btnStyle="link" uppercase={false}>
           <Tip text={__('Manage')} placement="top">
             <Icon icon="edit-3" />
           </Tip>
@@ -45,7 +45,7 @@ class Row extends React.Component<Props> {
 
   renderEditAction(integration) {
     const trigger = (
-      <Button btnStyle="link">
+      <Button btnStyle="link" uppercase={false}>
         <Tip text={__('Install code')} placement="top">
           <Icon icon="code" />
         </Tip>

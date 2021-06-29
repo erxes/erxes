@@ -41,6 +41,7 @@ export default class DealList extends React.Component<Props> {
               btnStyle="success"
               icon="refresh"
               onClick={this.props.loadMore}
+              uppercase={false}
             >
               Load More
             </Button>
