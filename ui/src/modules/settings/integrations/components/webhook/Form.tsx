@@ -47,16 +47,18 @@ const examplePayload = `{
   "companyWebsite": "https://company.com",
   "companyIndustry": "Automobiles",
   "companyBusinessType": "Investor",
+  "companyCode": "123456",
   "companyData": {
       "custom field key": "value"
   },
   "parentCompany": {
-      "primaryEmail": "example@company.com",
-      "primaryPhone": "+123456789",
-      "primaryName": "example llc",
-      "website": "https://company.com",
-      "industry": "Automobiles",
-      "businessType": "Investor",
+      "companyPrimaryEmail": "example@company.com",
+      "companyPrimaryPhone": "+123456789",
+      "companyPrimaryName": "example llc",
+      "companyCode": "123456",
+      "companyWebsite": "https://company.com",
+      "companyIndustry": "Automobiles",
+      "companyBusinessType": "Investor",
       "companyData": {
           "custom field key": "value"
       },
@@ -102,14 +104,14 @@ class Webhook extends React.Component<Props> {
         <FormGroup>
           <ControlLabel required={false}>Token</ControlLabel>
           <Description>
-            {
+            {__(
               'This token will be used to sign the incoming payload, so that erxes can verify that the request came from trusted sources.'
-            }
+            )}
           </Description>
           <FormControl
             {...formProps}
             name="Token (otional)"
-            placeholder="Will be generated automatically when left blank"
+            placeholder={__('Will be generated automatically when left blank')}
             required={false}
             autoFocus={false}
           />

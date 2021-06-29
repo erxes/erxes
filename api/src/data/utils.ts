@@ -1144,8 +1144,13 @@ export const findCompany = async doc => {
     });
   }
 
+  if (!company && doc.companyCode) {
+    company = await Companies.findOne({ code: doc.companyCode });
+  }
+
   if (!company && doc.companyPrimaryName) {
     company = await Companies.findOne({ primaryName: doc.companyPrimaryName });
   }
+
   return company;
 };

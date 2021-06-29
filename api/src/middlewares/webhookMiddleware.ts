@@ -109,6 +109,7 @@ const webhookMiddleware = async (req, res, next) => {
         params.data,
         'customer'
       );
+
       customFieldsData = [
         ...new Set([...(data.customFieldsData || []), ...customFieldsData])
       ];
@@ -201,7 +202,9 @@ const webhookMiddleware = async (req, res, next) => {
     if (params.parentCompany) {
       parentCompany = await findCompany(params.parentCompany);
 
-      let parentCompanyData;
+      let parentCompanyData: { customFieldsData: any[] } = {
+        customFieldsData: []
+      };
 
       if (params.parentCompany.companyData) {
         parentCompanyData = await Fields.generateCustomFieldsData(
@@ -210,28 +213,43 @@ const webhookMiddleware = async (req, res, next) => {
         );
       }
 
-      params.parentCompany.customFieldsData =
-        parentCompanyData.customFieldsData;
+      const parentParams = params.parentCompany;
 
-      customFieldsData = [
-        ...new Set([
-          ...(parentCompanyData.customFieldsData || []),
-          ...customFieldsData
-        ])
-      ];
+      const parentCompanyDoc = {
+        primaryEmail: parentParams.companyPrimaryEmail,
+        primaryPhone: parentParams.companyPrimaryPhone,
+        primaryName: parentParams.companyPrimaryName,
+        website: parentParams.companyWebsite,
+        industry: parentParams.companyIndustry,
+        businessType: parentParams.companyBusinessType,
+        avatar: parentParams.companyAvatar,
+        code: parentParams.companyCode,
+        customFieldsData: parentCompanyData.customFieldsData
+      };
 
       if (!parentCompany) {
-        parentCompany = await Companies.createCompany(params.parentCompany);
+        parentCompany = await Companies.createCompany(parentCompanyDoc);
       } else {
+        for (const key of Object.keys(doc)) {
+          if (!doc[key]) {
+            delete doc[key];
+          }
+        }
+
+        parentCompanyDoc.customFieldsData = solveCustomFieldsData(
+          parentCompanyData.customFieldsData,
+          parentCompanyDoc.customFieldsData
+        );
+
         parentCompany = await Companies.updateCompany(
-          company._id,
-          params.parentCompany
+          parentCompany._id,
+          parentCompanyDoc
         );
       }
     }
 
     if (hasCompanyFields) {
-      let companyData;
+      let companyData = { customFieldsData: [] };
 
       if (params.companyData) {
         companyData = await Fields.generateCustomFieldsData(
@@ -248,13 +266,32 @@ const webhookMiddleware = async (req, res, next) => {
         industry: params.companyIndustry,
         businessType: params.companyBusinessType,
         avatar: params.companyAvatar,
-        customFieldsData: companyData.customFieldsData,
+        code: params.companyCode,
+        customFieldsData: companyData && companyData.customFieldsData,
         parentCompanyId: parentCompany ? parentCompany._id : undefined
       };
 
       if (!company) {
         company = await Companies.createCompany(companyDoc);
       } else {
+        company = await Companies.updateCompany(company._id, companyDoc);
+      }
+
+      if (!company) {
+        company = await Companies.createCompany(companyDoc);
+      } else {
+        // remove empty values to avoid replacing existing values
+        for (const key of Object.keys(doc)) {
+          if (!doc[key]) {
+            delete doc[key];
+          }
+        }
+
+        companyDoc.customFieldsData = solveCustomFieldsData(
+          companyData.customFieldsData,
+          company.customFieldsData
+        );
+
         company = await Companies.updateCompany(company._id, companyDoc);
       }
     }

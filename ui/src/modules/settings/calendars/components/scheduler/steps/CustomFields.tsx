@@ -193,7 +193,7 @@ class CustomFields extends React.Component<Props, State> {
             icon="plus-circle"
             btnStyle="primary"
           >
-            {__('Add a field')}
+            Add a field
           </Button>
         </LeftItem>
       </FlexItem>
