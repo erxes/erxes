@@ -115,7 +115,11 @@ class Status extends React.PureComponent<{
               <HeaderDescription
                 icon="/images/actions/28.svg"
                 title="System status"
-                description={`This allows you to see erxes's real-time information on all system statuses. You'll find live and historical data on system performance.`}
+                description={`${__(
+                  `This allows you to see erxes's real-time information on all system statuses`
+                )}.${__(
+                  `You'll find live and historical data on system performance`
+                )}`}
               />
             }
           />

@@ -4,7 +4,6 @@ import Button from 'modules/common/components/Button';
 import EmptyState from 'modules/common/components/EmptyState';
 import FormControl from 'modules/common/components/form/Control';
 import FormGroup from 'modules/common/components/form/Group';
-import { __ } from 'modules/common/utils';
 import Sidebar from 'modules/layout/components/Sidebar';
 import { IBoard, IGroup } from 'modules/settings/calendars/types';
 import React from 'react';
@@ -229,7 +228,7 @@ class LeftSidebar extends React.Component<Props, State> {
           icon="plus-circle"
           disabled={disabled}
         >
-          {__('Create Event')}
+          Create Event
         </Button>
         <EventForm
           {...this.props}

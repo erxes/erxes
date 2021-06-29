@@ -77,7 +77,7 @@ class Boards extends React.Component<Props, {}> {
           data={<List>{this.renderItems()}</List>}
           loading={loading}
           count={boards.length}
-          emptyText={`There is no board`}
+          emptyText={__('There is no board')}
           emptyImage="/images/actions/18.svg"
           objective={true}
         />
