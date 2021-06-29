@@ -24,7 +24,7 @@ class CustomerCreate extends React.Component<IActivityLogItemProps> {
       );
     }
 
-    if (createdByDetail && createdByDetail.type === __('brand')) {
+    if (createdByDetail && createdByDetail.type === 'brand') {
       const { content } = createdByDetail;
 
       return (
