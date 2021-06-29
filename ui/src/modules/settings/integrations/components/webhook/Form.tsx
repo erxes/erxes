@@ -47,16 +47,18 @@ const examplePayload = `{
   "companyWebsite": "https://company.com",
   "companyIndustry": "Automobiles",
   "companyBusinessType": "Investor",
+  "companyCode": "123456",
   "companyData": {
       "custom field key": "value"
   },
   "parentCompany": {
-      "primaryEmail": "example@company.com",
-      "primaryPhone": "+123456789",
-      "primaryName": "example llc",
-      "website": "https://company.com",
-      "industry": "Automobiles",
-      "businessType": "Investor",
+      "companyPrimaryEmail": "example@company.com",
+      "companyPrimaryPhone": "+123456789",
+      "companyPrimaryName": "example llc",
+      "companyCode": "123456",
+      "companyWebsite": "https://company.com",
+      "companyIndustry": "Automobiles",
+      "companyBusinessType": "Investor",
       "companyData": {
           "custom field key": "value"
       },
