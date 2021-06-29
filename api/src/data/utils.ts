@@ -587,10 +587,12 @@ export const replaceEditorAttributes = async (args: {
         continue;
       }
 
-      replacers.push({
-        key: `{{ customer.${field} }}`,
-        value: customer[field] || ''
-      });
+      if (customer[field]) {
+        replacers.push({
+          key: `{{ customer.${field} }}`,
+          value: customer[field]
+        });
+      }
     }
   }
 
