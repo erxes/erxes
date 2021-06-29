@@ -101,9 +101,9 @@ class DashboardDetail extends React.Component<Props, State> {
     return (
       <BoardContainer>
         <Header
-          title={`${'Dashboard' || ''}`}
+          title={`${__('Dashboard') || ''}`}
           breadcrumb={[
-            { title: __('Dashboard'), link: '/dashboard' },
+            { title: 'Dashboard', link: '/dashboard' },
             { title: dashboard.name || '' }
           ]}
         />
