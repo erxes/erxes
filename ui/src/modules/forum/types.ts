@@ -33,6 +33,7 @@ export interface ITopic {
   modifiedDate: Date;
 
   discussions: IDiscussion[];
+  forum: IForum;
 }
 
 export interface IDiscussion {
