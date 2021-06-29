@@ -6,7 +6,7 @@ import {
 } from 'modules/activityLogs/styles';
 import { IActivityLogItemProps } from 'modules/activityLogs/types';
 import Tip from 'modules/common/components/Tip';
-import { __, renderUserFullName } from 'modules/common/utils';
+import { renderUserFullName } from 'modules/common/utils';
 import React from 'react';
 
 class CustomerCreate extends React.Component<IActivityLogItemProps> {
@@ -24,7 +24,7 @@ class CustomerCreate extends React.Component<IActivityLogItemProps> {
       );
     }
 
-    if (createdByDetail && createdByDetail.type === __('brand')) {
+    if (createdByDetail && createdByDetail.type === 'brand') {
       const { content } = createdByDetail;
 
       return (
