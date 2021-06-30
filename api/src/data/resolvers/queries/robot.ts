@@ -6,132 +6,6 @@ import { getUserAllowedActions, IModuleMap } from '../../permissions/utils';
 import { moduleRequireLogin } from '../../permissions/wrappers';
 import { IContext } from '../../types';
 
-const features1: {
-  [key: string]: { settings: string[]; settingsPermissions: string[] };
-} = {
-  growthHacks: {
-    settings: [
-      'growthHackBoardsCreate',
-      'growthHackPipelinesCreate',
-      'growthHackTemplatesDuplicate',
-      'growthHackCreate'
-    ],
-    settingsPermissions: [
-      'growthHackBoardsAdd',
-      'growthHackPipelinesAdd',
-      'growthHackStagesAdd',
-      'growthHackTemplatesDuplicate'
-    ]
-  },
-  deals: {
-    settings: [
-      'dealBoardsCreate',
-      'dealPipelinesCreate',
-      'productCreate',
-      'dealCreate'
-    ],
-    settingsPermissions: [
-      'dealBoardsAdd',
-      'dealPipelinesAdd',
-      'dealStagesAdd',
-      'manageProducts'
-    ]
-  },
-  inbox: {
-    settings: [
-      'brandCreate',
-      'channelCreate',
-      'messengerIntegrationCreate',
-      'connectIntegrationsToChannel',
-      'responseTemplateCreate'
-    ],
-    settingsPermissions: [
-      'manageBrands',
-      'manageChannels',
-      'integrationsCreateMessengerIntegration',
-      'manageResponseTemplate'
-    ]
-  },
-  engages: {
-    settings: [
-      'engageVerifyEmail',
-      'engageSendTestEmail',
-      'emailTemplateCreate',
-      'segmentCreate',
-      'engageCreate'
-    ],
-    settingsPermissions: [
-      'manageEmailTemplate',
-      'manageSegments',
-      'engageMessageAdd',
-      'engageMessageRemove'
-    ]
-  },
-  contacts: {
-    settings: [
-      'leadCreate',
-      'customerCreate',
-      'companyCreate',
-      'productCreate',
-      'fieldCreate',
-      'tagCreate'
-    ],
-    settingsPermissions: [
-      'customersAdd',
-      'companiesAdd',
-      'manageProducts',
-      'manageTags',
-      'manageForms'
-    ]
-  },
-  integrations: {
-    settings: [
-      'brandCreate',
-      'messengerIntegrationCreate',
-      'connectIntegrationsToChannel',
-      'messengerIntegrationInstalled'
-    ],
-    settingsPermissions: [
-      'integrationsCreateMessengerIntegration',
-      'manageChannels',
-      'manageBrands'
-    ]
-  },
-  leads: {
-    settings: [
-      'brandCreate',
-      'leadIntegrationCreate',
-      'leadIntegrationInstalled'
-    ],
-    settingsPermissions: ['integrationsCreateLeadIntegration', 'manageBrands']
-  },
-  knowledgeBase: {
-    settings: [
-      'brandCreate',
-      'knowledgeBaseTopicCreate',
-      'knowledgeBaseCategoryCreate',
-      'knowledgeBaseArticleCreate',
-      'knowledgeBaseInstalled'
-    ],
-    settingsPermissions: ['manageKnowledgeBase', 'manageBrands']
-  },
-  tasks: {
-    settings: [
-      'taskBoardsCreate',
-      'taskPipelinesCreate',
-      'taskCreate',
-      'taskAssignUser'
-    ],
-    settingsPermissions: [
-      'taskBoardsAdd',
-      'taskPipelinesAdd',
-      'taskStagesAdd',
-      'taskAdd',
-      'taskEdit'
-    ]
-  }
-};
-
 const features: {
   [key: string]: { settings: string[]; settingsPermissions: string[] };
 } = {
@@ -177,6 +51,60 @@ const features: {
   inviteTeamMembers: {
     settings: ['permissionGroupCreate', 'usersInvite', 'userEdit'],
     settingsPermissions: ['manageForms', 'usersInvite', 'usersEdit']
+  },
+
+  salesPipeline: {
+    settings: ['dealBoardCreate', 'dealPipelineCreate', 'dealStageCreate'],
+    settingsPermissions: ['dealBoardsAdd', 'dealPipelinesAdd']
+  },
+
+  createProductServices: {
+    settings: ['productCategoryCreate', 'productCreate'],
+    settingsPermissions: ['manageProducts']
+  },
+
+  customizeTickets: {
+    settings: [
+      'ticketBoardCreate',
+      'ticketPipelineCreate',
+      'ticketStageCreate'
+    ],
+    settingsPermissions: ['ticketBoardsAdd', 'ticketPipelinesAdd']
+  },
+
+  customizeTasks: {
+    settings: ['taskBoardCreate', 'taskPipelineCreate', 'taskStageCreate'],
+    settingsPermissions: ['taskBoardsAdd', 'taskPipelinesAdd']
+  },
+
+  customizeGrowthHacking: {
+    settings: ['growthHackingTemplateCreate', 'growthHackingStageCreate'],
+    settingsPermissions: ['growthHackStagesAdd', 'growthHackTemplatesAdd']
+  },
+
+  customizeSegmentation: {
+    settings: ['segmentFamliarize', 'segmentCreate', 'subSegmentCreate'],
+    settingsPermissions: ['manageSegments']
+  },
+
+  prepareMailResponseTemplates: {
+    settings: ['createResponseTemplate', 'createEmailTemplate'],
+    settingsPermissions: ['manageEmailTemplate']
+  },
+
+  automateCampaigns: {
+    settings: [
+      'createCampaign',
+      'chooseCampaignChannel',
+      'chooseRecipientsChannel',
+      'composeCampaign'
+    ],
+    settingsPermissions: ['engageMessageAdd']
+  },
+
+  customizeKnowledgeBase: {
+    settings: ['createForm', 'createCategoryForm', 'createArticleForm'],
+    settingsPermissions: ['manageKnowledgeBase']
   }
 };
 

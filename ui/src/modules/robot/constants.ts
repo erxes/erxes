@@ -392,7 +392,7 @@ export const ROLE_SETUP = [
       {
         name: 'Invite your team members',
         title: 'inviteTeamMembers',
-        steps: '2 steps',
+        steps: '3 steps',
         types: [
           'sales',
           'marketing',
@@ -674,6 +674,7 @@ export const ROLE_SETUP_DETAILS = {
       }
     }
   },
+
   salesPipeline: {
     text: 'Sales stage',
     description:
