@@ -6,7 +6,7 @@ import { getUserAllowedActions, IModuleMap } from '../../permissions/utils';
 import { moduleRequireLogin } from '../../permissions/wrappers';
 import { IContext } from '../../types';
 
-const features: {
+const features1: {
   [key: string]: { settings: string[]; settingsPermissions: string[] };
 } = {
   growthHacks: {
@@ -129,6 +129,54 @@ const features: {
       'taskAdd',
       'taskEdit'
     ]
+  }
+};
+
+const features: {
+  [key: string]: { settings: string[]; settingsPermissions: string[] };
+} = {
+  generalSettings: {
+    settings: [
+      'generalSettingsCreate',
+      'generalSettingsUploadCreate',
+      'generelSettingsConstantsCreate'
+    ],
+    settingsPermissions: ['showGeneralSettings', 'manageGeneralSettings']
+  },
+
+  channelBrands: {
+    settings: ['brandCreate', 'channelCreate'],
+    settingsPermissions: ['brandCreate', 'channelCreate']
+  },
+
+  integrationOtherApps: {
+    settings: ['integrationsCreate', 'connectIntegrationsToChannel'],
+    settingsPermissions: [
+      'integrationsCreateMessengerIntegration',
+      'manageChannels'
+    ]
+  },
+
+  customizeDatabase: {
+    settings: ['fieldGroupCreate', 'fieldCreate'],
+    settingsPermissions: ['manageForms']
+  },
+
+  importExistingContacts: {
+    settings: [
+      'fieldGroupCreate',
+      'fieldCreate',
+      'importPrepareFiles',
+      'importDownloadTemplate',
+      'importEnterData',
+      'importCreate'
+    ],
+    settingsPermissions: ['manageForms', 'importHistories']
+  },
+
+  inviteTeamMembers: {
+    settings: ['permissionGroupCreate', 'usersInvite', 'userEdit'],
+    settingsPermissions: ['manageForms', 'usersInvite', 'usersEdit']
   }
 };
 

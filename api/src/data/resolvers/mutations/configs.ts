@@ -65,7 +65,7 @@ const configMutations = {
         prevConfig.value.toString() !== updatedConfig.value.toString()
       ) {
         registerOnboardHistory({
-          type: 'generealSettingsConstantsCreate',
+          type: 'generelSettingsConstantsCreate',
           user
         });
       }

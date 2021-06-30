@@ -559,7 +559,7 @@ export const ROLE_SETUP_DETAILS = {
         name: 'Set the types of file you would like to upload',
         url: '/settings/general/'
       },
-      generealSettingsConstantsCreate: {
+      generelSettingsConstantsCreate: {
         name: 'Set your constants',
         url: '/settings/general/'
       }
@@ -664,7 +664,7 @@ export const ROLE_SETUP_DETAILS = {
         name: 'Create user group for permission',
         url: '/settings/team'
       },
-      userCreate: {
+      usersInvite: {
         name: 'Add your team member(s)',
         url: '/settings/team/'
       },
@@ -781,7 +781,7 @@ export const ROLE_SETUP_DETAILS = {
     videoUrl: 'https://www.youtube.com/embed/Z5KI5YuvZ7U?autoplay=1',
     videoThumb: 'https://img.youtube.com/vi/Z5KI5YuvZ7U/mqdefault.jpg',
     settingsDetails: {
-      step1: {
+      segmentFamliarize: {
         name: 'Famliarize yourself with the existing segments ',
         url: '/settings/boards/'
       },
