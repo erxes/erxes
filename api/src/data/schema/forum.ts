@@ -79,9 +79,6 @@ export const queries = `
 
     discussionComments(discussionId: String!): [ForumDiscussionComment]
     discussionCommentsTotalCount(discussionId: String!): Int
-
-    isUserReactForum(type: String! contentTypeId: String! contentType: String!): Boolean
-    forumReactionsTotalCount(type: String! contentTypeId: String! contentType: String!): Int
 `;
 
 const forumMutationParams = `

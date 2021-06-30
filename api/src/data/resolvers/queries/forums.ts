@@ -2,8 +2,7 @@ import {
   ForumDiscussions,
   Forums,
   ForumTopics,
-  DiscussionComments,
-  ForumReactions
+  DiscussionComments
 } from '../../../db/models';
 
 import { IContext } from '../../types';
@@ -115,42 +114,6 @@ const forumQueries = {
     return DiscussionComments.find({
       discussionId: args.discussionId
     }).countDocuments();
-  },
-
-  /**
-   * user react forum
-   */
-  async isUserReactForum(
-    _root,
-    args: { type: string; contentTypeId: string; contentType: string },
-    { user }: IContext
-  ) {
-    const isReact = await ForumReactions.findOne({
-      type: args.type,
-      contentTypeId: args.contentTypeId,
-      createdBy: user._id,
-      contentType: args.contentType
-    });
-
-    if (isReact) {
-      return true;
-    }
-
-    return false;
-  },
-
-  /**
-   * forum reactions count
-   */
-  async forumReactionsTotalCount(
-    _root,
-    args: { type: string; contentTypeId: string; contentType: string }
-  ) {
-    return ForumReactions.find({
-      type: args.type,
-      contentTypeId: args.contentTypeId,
-      contentType: args.contentType
-    }).countDocuments();
   }
 };
 
@@ -159,12 +122,10 @@ requireLogin(forumQueries, 'forumTopicsTotalCount');
 requireLogin(forumQueries, 'forumTopicsGetLast');
 requireLogin(forumQueries, 'forumDiscussionsTotalCount');
 requireLogin(forumQueries, 'discussionCommentsTotalCount');
-requireLogin(forumQueries, 'forumReactionsTotalCount');
 
 checkPermission(forumQueries, 'forums', 'showForums', []);
 checkPermission(forumQueries, 'forumTopics', 'showForums', []);
 checkPermission(forumQueries, 'forumDiscussions', 'showForums', []);
 checkPermission(forumQueries, 'discussionComments', 'showForums', []);
-checkPermission(forumQueries, 'isUserReactForum', 'showForums', []);
 
 export default forumQueries;
