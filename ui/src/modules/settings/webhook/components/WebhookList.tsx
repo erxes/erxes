@@ -170,8 +170,10 @@ class WebhookList extends React.Component<FinalProps, States> {
         leftActionBar={
           <HeaderDescription
             icon="/images/actions/21.svg"
-            title="Outgoing webhooks"
-            description="Webhooks allow you to listen for triggers in your app, which will send relevant data to external URLs in real-time."
+            title={__('Outgoing webhooks')}
+            description={__(
+              'Webhooks allow you to listen for triggers in your app, which will send relevant data to external URLs in real-time'
+            )}
           />
         }
         renderFilter={this.renderFilter}

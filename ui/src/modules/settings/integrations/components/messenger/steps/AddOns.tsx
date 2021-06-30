@@ -272,7 +272,7 @@ class AddOns extends React.Component<Props, State> {
             icon="plus-circle"
             btnStyle="primary"
           >
-            {__('Add a Website')}
+            Add a Website
           </Button>
         </LeftItem>
       </FlexItem>

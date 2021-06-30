@@ -5,6 +5,7 @@ import Header from 'modules/layout/components/Header';
 import { Contents, HeightedWrapper } from 'modules/layout/styles';
 import MailForm from 'modules/settings/integrations/containers/mail/MailForm';
 import React from 'react';
+import { __ } from 'modules/common/utils';
 
 const Sidebar = asyncComponent(() =>
   import(
@@ -38,7 +39,7 @@ function Inbox({ currentConversationId, queryParams, currentUser }: Props) {
     <ModalTrigger
       dialogClassName="middle"
       title="Send an Email"
-      trigger={<span>Send an Email</span>}
+      trigger={<span>{__('Send an Email')}</span>}
       size="lg"
       content={content}
       paddingContent="less-padding"
