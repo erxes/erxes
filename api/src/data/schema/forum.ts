@@ -60,6 +60,9 @@ export const types = `
         createdUser: User
         createdDate: Date
         createdCustomer: Customer
+
+        currentCustomerReaction: String
+        reactionTotalCount: Int
     }
 `;
 
