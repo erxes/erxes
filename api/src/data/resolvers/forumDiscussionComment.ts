@@ -1,7 +1,6 @@
 import { Customers, ForumReactions } from '../../db/models';
 import { ICommentDocument } from '../../db/models/definitions/forums';
 import { getDocument } from './mutations/cacheUtils';
-import { IContext } from '../types';
 
 export default {
   createdUser(comment: ICommentDocument) {
@@ -14,12 +13,13 @@ export default {
   async currentCustomerReaction(
     comment: ICommentDocument,
     _params,
-    { user }: IContext
+    _context,
+    { variableValues }
   ) {
     const reaction = await ForumReactions.findOne({
       contentType: 'comment',
       contentTypeId: comment._id,
-      createdBy: user._id
+      createdBy: variableValues.currentCustomerId
     });
 
     return reaction?.type;
