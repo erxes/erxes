@@ -22,8 +22,17 @@ class Forum extends React.Component<Props> {
       title: ''
     };
 
-    const list = [{ title: 'Forum', link: '/forum' }];
+    const list = [{ title: __('Forum'), link: '/forum' }];
     const topicLink = `/forum?id=${currentTopic._id}`;
+
+    if (currentTopic.forum) {
+      const { forum } = currentTopic;
+
+      list.push({
+        title: forum.title,
+        link: topicLink
+      });
+    }
 
     if (currentTopic.title) {
       list.push({
@@ -40,7 +49,7 @@ class Forum extends React.Component<Props> {
 
     const trigger = (
       <Button btnStyle="primary" uppercase={false} icon="plus-circle">
-        Add Discussion
+        {__('Add Discussion')}
       </Button>
     );
 
@@ -55,7 +64,7 @@ class Forum extends React.Component<Props> {
 
     const actionBarLeft = currentTopic._id && (
       <ModalTrigger
-        title="Add Discussion"
+        title={__('Add Discussion')}
         trigger={trigger}
         size="lg"
         autoOpenKey="showForumAddDiscussionModal"

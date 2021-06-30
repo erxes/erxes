@@ -19,6 +19,7 @@ import Uploader from 'modules/common/components/Uploader';
 import Icon from 'modules/common/components/Icon';
 import DateControl from '../../common/DateControl';
 import { DateContainer } from '../../common/styles';
+import { __ } from 'modules/common/utils';
 
 type Props = {
   renderButton: (props: IButtonMutateProps) => JSX.Element;
@@ -116,7 +117,7 @@ class DiscussionForm extends React.Component<Props, State> {
     return (
       <>
         <FormGroup>
-          <ControlLabel required={true}>Title</ControlLabel>
+          <ControlLabel required={true}>{__('Title')}</ControlLabel>
           <FormControl
             {...formProps}
             name="title"
@@ -126,7 +127,7 @@ class DiscussionForm extends React.Component<Props, State> {
         </FormGroup>
 
         <FormGroup>
-          <ControlLabel>Description</ControlLabel>
+          <ControlLabel>{__('Description')}</ControlLabel>
           <FormControl
             {...formProps}
             name="description"
@@ -137,13 +138,13 @@ class DiscussionForm extends React.Component<Props, State> {
         <FlexContent>
           <FlexItem count={2}>
             <FormGroup>
-              <ControlLabel required={false}>Start Date</ControlLabel>
+              <ControlLabel required={false}>{__('Start Date')}</ControlLabel>
               <DateContainer>
                 <DateControl
                   {...formProps}
                   required={false}
                   name="startDate"
-                  placeholder={'Choose a start date'}
+                  placeholder={__('Choose start date')}
                   value={startDate}
                   onChange={this.onStartDateFieldsChange}
                   timeFormat={true}
@@ -154,13 +155,13 @@ class DiscussionForm extends React.Component<Props, State> {
 
           <FlexItem count={2} hasSpace={true}>
             <FormGroup>
-              <ControlLabel required={false}>Close Date</ControlLabel>
+              <ControlLabel required={false}>{__('End Date')}</ControlLabel>
               <DateContainer>
                 <DateControl
                   {...formProps}
                   required={false}
                   name="closeDate"
-                  placeholder={'Choose a close date'}
+                  placeholder={__('Choose end date')}
                   value={closeDate}
                   onChange={this.onCloseDateFieldChange}
                   timeFormat={true}
@@ -173,12 +174,12 @@ class DiscussionForm extends React.Component<Props, State> {
         <FlexContent>
           <FlexItem count={2}>
             <FormGroup>
-              <ControlLabel required={true}>{'Status'}</ControlLabel>
+              <ControlLabel required={true}>{__('Status')}</ControlLabel>
               <FormControl
                 {...formProps}
                 name="status"
                 componentClass="select"
-                placeholder={'Select'}
+                placeholder={__('Select')}
                 defaultValue={object.status || 'draft'}
                 required={true}
               >
@@ -193,7 +194,7 @@ class DiscussionForm extends React.Component<Props, State> {
 
           <FlexItem count={2} hasSpace={true}>
             <FormGroup>
-              <ControlLabel>{'Tags'}</ControlLabel>
+              <ControlLabel>{__('Tags')}</ControlLabel>
               <Select
                 placeholder="Select tags"
                 value={tagIds}
@@ -218,7 +219,7 @@ class DiscussionForm extends React.Component<Props, State> {
         </FormGroup>
 
         <FormGroup>
-          <ControlLabel required={true}>{'Content'}</ControlLabel>
+          <ControlLabel required={true}>{__('Content')}</ControlLabel>
           <EditorCK
             content={content}
             onChange={this.onChange}

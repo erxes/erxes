@@ -13,6 +13,7 @@ import { ExpandWrapper } from 'modules/settings/styles';
 
 import { IButtonMutateProps, IFormProps } from 'modules/common/types';
 import { IForum } from '../../types';
+import { __ } from 'modules/common/utils';
 
 type Props = {
   closeModal: () => void;
@@ -66,7 +67,7 @@ class ForumForm extends React.Component<Props> {
     return (
       <React.Fragment>
         <FormGroup>
-          <ControlLabel required={true}>Title</ControlLabel>
+          <ControlLabel required={true}>{__('Title')}</ControlLabel>
           <FormControl
             {...formProps}
             name="title"
@@ -77,7 +78,7 @@ class ForumForm extends React.Component<Props> {
         </FormGroup>
 
         <FormGroup>
-          <ControlLabel>Description</ControlLabel>
+          <ControlLabel>{__('Description')}</ControlLabel>
           <FormControl
             {...formProps}
             name="description"
@@ -96,7 +97,7 @@ class ForumForm extends React.Component<Props> {
         <FlexContent>
           <ExpandWrapper>
             <FormGroup>
-              <ControlLabel>Language</ControlLabel>
+              <ControlLabel>{__('Language')}</ControlLabel>
 
               <FormControl
                 {...formProps}

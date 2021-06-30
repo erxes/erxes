@@ -7,6 +7,7 @@ import { ModalFooter } from 'modules/common/styles/main';
 import { IButtonMutateProps, IFormProps } from 'modules/common/types';
 import React from 'react';
 import { ITopic } from '../../types';
+import { __ } from 'modules/common/utils';
 
 type Props = {
   closeModal: () => void;
@@ -46,7 +47,7 @@ class TopicForm extends React.Component<Props> {
     return (
       <>
         <FormGroup>
-          <ControlLabel required={true}>Title</ControlLabel>
+          <ControlLabel required={true}>{__('Title')}</ControlLabel>
           <FormControl
             {...formProps}
             name="title"
@@ -56,7 +57,7 @@ class TopicForm extends React.Component<Props> {
         </FormGroup>
 
         <FormGroup>
-          <ControlLabel>Description</ControlLabel>
+          <ControlLabel>{__('Description')}</ControlLabel>
           <FormControl
             {...formProps}
             name="description"

@@ -11,6 +11,7 @@ import ForumRow from './ForumRow';
 import { IButtonMutateProps } from 'modules/common/types';
 
 import { IForum } from '../../types';
+import { __ } from 'modules/common/utils';
 
 type Props = {
   forums: IForum[];
@@ -58,7 +59,7 @@ class ForumList extends React.Component<Props> {
     return (
       <TopHeader>
         <ModalTrigger
-          title="Add Forum"
+          title={__('Add Forum')}
           autoOpenKey="showForumAddModal"
           trigger={trigger}
           content={content}

@@ -22,6 +22,7 @@ import {
 import { DiscussionForm } from '../../containers/discussion';
 import { IDiscussion } from '../../types';
 import DiscussionDetail from './DiscussionDetail';
+import { __ } from 'modules/common/utils';
 
 type Props = {
   queryParams: any;
@@ -114,7 +115,7 @@ const DiscussionRow = (props: Props) => {
             alt={(user && user.details && user.details.fullName) || 'author'}
             src={getUserAvatar(user)}
           />
-          {'Created By'}
+          {__('Written By')}
           <AuthorName>
             {user &&
               ((user.details && user.details.fullName) ||

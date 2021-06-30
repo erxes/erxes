@@ -16,6 +16,7 @@ import Icon from 'modules/common/components/Icon';
 
 import { ForumForm } from '../../containers/forums';
 import { TopicList, TopicForm } from '../../containers/topic';
+import { __ } from 'modules/common/utils';
 
 type Props = {
   forum: IForum;
@@ -65,9 +66,9 @@ class ForumRow extends React.Component<Props, State> {
   renderManage() {
     const { forum, renderButton, remove } = this.props;
 
-    const addTopic = <Dropdown.Item>{'Add Topic'}</Dropdown.Item>;
+    const addTopic = <Dropdown.Item>{__('Add Topic')}</Dropdown.Item>;
 
-    const manageForum = <Dropdown.Item>{'Edit Forum'}</Dropdown.Item>;
+    const manageForum = <Dropdown.Item>{__('Edit Forum')}</Dropdown.Item>;
 
     const content = props => (
       <ForumForm
@@ -83,19 +84,19 @@ class ForumRow extends React.Component<Props, State> {
     return (
       <RowActions>
         <Dropdown alignRight={true} style={{ float: 'left' }}>
-          <Dropdown.Toggle as={DropdownToggle} id="dropdown-knowledgebase">
+          <Dropdown.Toggle as={DropdownToggle} id="dropdown-forum">
             <Icon icon="cog" size={15} />
           </Dropdown.Toggle>
           <Dropdown.Menu>
             <ModalTrigger
-              title="Manage Forum"
+              title={__('Manage Forum')}
               trigger={manageForum}
               content={content}
               enforceFocus={false}
               size="lg"
             />
             <ModalTrigger
-              title="Add Topic"
+              title={__('Add Topic')}
               trigger={addTopic}
               autoOpenKey="showForumAddTopicModal"
               content={topicContent}
