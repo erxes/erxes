@@ -24,13 +24,12 @@ class Forum extends React.Component<Props> {
 
     const list = [{ title: __('Forum'), link: '/forum' }];
     const topicLink = `/forum?id=${currentTopic._id}`;
+    const currentForum = currentTopic.forum || { title: '' };
 
-    if (currentTopic.forum) {
-      const { forum } = currentTopic;
-
+    if (currentForum.title) {
       list.push({
-        title: forum.title,
-        link: topicLink
+        title: currentForum.title,
+        link: currentTopic ? topicLink : ''
       });
     }
 
