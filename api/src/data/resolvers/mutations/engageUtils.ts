@@ -28,11 +28,6 @@ interface IEngageParams {
   user: IUserDocument;
 }
 
-interface IReplacer {
-  key: string;
-  value: string;
-}
-
 export const generateCustomerSelector = async ({
   engageId,
   customerIds,
@@ -233,7 +228,7 @@ const sendEmailOrSms = async (
     emailValidationStatus?: string;
     phoneValidationStatus?: string;
     primaryPhone?: string;
-    replacers: IReplacer[];
+    replacers: Array<{ key: string; value: string }>;
   }> = [];
   const emailConf = engageMessage.email ? engageMessage.email : { content: '' };
   const emailContent = emailConf.content || '';
@@ -324,24 +319,7 @@ const sendEmailOrSms = async (
     objectMode: true,
 
     async transform(customer: ICustomerDocument, _encoding, callback) {
-      const itemsMapping = customersItemsMapping[customer._id] || [];
-
-      const { replacers: mainReplacers } = await replaceEditorAttributes({
-        content: emailContent,
-        customer,
-        customerFields
-      });
-
-      let list: IReplacer[] = [];
-
-      const customerInfo: any = {
-        _id: customer._id,
-        primaryEmail: customer.primaryEmail,
-        emailValidationStatus: customer.emailValidationStatus,
-        phoneValidationStatus: customer.phoneValidationStatus,
-        primaryPhone: customer.primaryPhone,
-        replacers: mainReplacers
-      };
+      const itemsMapping = customersItemsMapping[customer._id] || [null];
 
       for (const item of itemsMapping) {
         const { replacers } = await replaceEditorAttributes({
@@ -351,13 +329,15 @@ const sendEmailOrSms = async (
           customerFields
         });
 
-        list = [...list, ...replacers];
+        customerInfos.push({
+          _id: customer._id,
+          primaryEmail: customer.primaryEmail,
+          emailValidationStatus: customer.emailValidationStatus,
+          phoneValidationStatus: customer.phoneValidationStatus,
+          primaryPhone: customer.primaryPhone,
+          replacers
+        });
       }
-
-      // to prevent duplication
-      customerInfo.replacers = [...new Set([...mainReplacers, ...list])];
-
-      customerInfos.push(customerInfo);
 
       // signal upstream that we are ready to take more data
       callback();
