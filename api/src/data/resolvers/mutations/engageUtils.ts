@@ -126,12 +126,13 @@ export const generateCustomerSelector = async ({
     }
 
     customerQuery = { _id: { $in: customerIdsBySegments } };
-  }
+  } // end segmentIds if
 
   await set(
     `${engageId}_customers_items_mapping`,
     JSON.stringify(customersItemsMapping)
   );
+
   customersItemsMapping = {};
 
   return {
