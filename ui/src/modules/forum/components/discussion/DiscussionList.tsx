@@ -7,7 +7,7 @@ import { RowDiscussion } from './styles';
 import { IDiscussion } from '../../types';
 import { DiscussionRow } from '../discussion';
 
-import { EMPTY_CONTENT_KNOWLEDGEBASE } from 'modules/settings/constants';
+import { EMPTY_CONTENT_FORUM } from 'modules/settings/constants';
 
 type Props = {
   discussions: IDiscussion[];
@@ -56,10 +56,7 @@ class DiscussionList extends React.Component<Props> {
         loading={loading}
         count={discussions.length}
         emptyContent={
-          <EmptyContent
-            content={EMPTY_CONTENT_KNOWLEDGEBASE}
-            maxItemWidth="420px"
-          />
+          <EmptyContent content={EMPTY_CONTENT_FORUM} maxItemWidth="420px" />
         }
         loadingContent={this.renderLoading()}
         data={this.renderDiscussions()}
