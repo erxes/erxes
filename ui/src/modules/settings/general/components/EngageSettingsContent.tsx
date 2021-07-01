@@ -255,7 +255,7 @@ class EngageSettingsContent extends React.Component<Props, State> {
 
             <Button
               onClick={this.onVerifyEmail}
-              btnStyle="primary"
+              btnStyle="success"
               icon="check-circle"
             >
               Verify
@@ -290,7 +290,7 @@ class EngageSettingsContent extends React.Component<Props, State> {
 
           <ModalFooter>
             <Button
-              btnStyle="primary"
+              btnStyle="success"
               icon="message"
               onClick={this.onSendTestEmail}
             >

@@ -182,7 +182,7 @@ class Pipelines extends React.Component<Props, State> {
       <>
         {this.renderAdditionalButton()}
         <Button
-          btnStyle="primary"
+          btnStyle="success"
           icon="plus-circle"
           onClick={this.addPipeline}
         >

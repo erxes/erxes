@@ -133,7 +133,7 @@ class List extends React.Component<IProps, State> {
     ];
 
     const trigger = (
-      <Button btnStyle="primary" icon="plus-circle">
+      <Button btnStyle="success" icon="plus-circle">
         Add Product / Service
       </Button>
     );

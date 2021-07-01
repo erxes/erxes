@@ -209,7 +209,7 @@ class IntegrationConfigs extends React.Component<Props, State> {
 
   render() {
     const actionButtons = (
-      <Button btnStyle="primary" onClick={this.save} icon="check-circle">
+      <Button btnStyle="success" onClick={this.save} icon="check-circle">
         Save
       </Button>
     );

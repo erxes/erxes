@@ -179,7 +179,7 @@ class PermissionList extends React.Component<Props> {
     const trigger = (
       <Button
         id="permission-new-permission"
-        btnStyle="primary"
+        btnStyle="success"
         icon="plus-circle"
       >
         New permission

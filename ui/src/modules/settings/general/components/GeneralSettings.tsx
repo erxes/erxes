@@ -153,7 +153,7 @@ class GeneralSettings extends React.Component<Props, State> {
     const actionButtons = (
       <Button
         id="generalSettingsSave"
-        btnStyle="primary"
+        btnStyle="success"
         onClick={this.save}
         icon="check-circle"
       >
