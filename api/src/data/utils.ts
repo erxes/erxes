@@ -522,7 +522,6 @@ export const replaceEditorAttributes = async (args: {
 }> => {
   const { content, user, brand, item } = args;
   const customer = args.customer || {};
-
   const replacers: IReplacer[] = [];
 
   let replacedContent = content || '';
@@ -565,7 +564,7 @@ export const replaceEditorAttributes = async (args: {
   }
 
   // replace customer fields
-  if (customer) {
+  if (args.customer) {
     replacers.push({
       key: '{{ customer.name }}',
       value: Customers.getCustomerName(customer)
@@ -589,7 +588,7 @@ export const replaceEditorAttributes = async (args: {
 
       replacers.push({
         key: `{{ customer.${field} }}`,
-        value: customer[field] || ''
+        value: customer[field]
       });
     }
   }
