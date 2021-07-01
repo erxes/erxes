@@ -375,7 +375,7 @@ services:
       REACT_APP_API_URL: http://localhost:3300
       REACT_APP_API_SUBSCRIPTION_URL: ws://localhost:3300/subscriptions
       REACT_APP_DASHBOARD_API_URL: http://localhost:4300
-      NGINX_HOST: localhost
+      NGINX_HOST: localhost:3300
     networks:
       - erxes-net
 
@@ -441,7 +441,7 @@ services:
       - ./rabbitmq-data:/var/lib/rabbitmq
 
   elasticsearch:
-    image: "docker.elastic.co/elasticsearch/elasticsearch:7.5.2"
+    image: "docker.elastic.co/elasticsearch/elasticsearch:7.8.0"
     container_name: "elasticsearch"
     environment:
       - discovery.type=single-node
@@ -470,7 +470,7 @@ services:
       - erxes-net
 networks:
   erxes-net:
-    driver: bridge
+    driver: bridge 
 ```
 
 If you have trouble running erxes docker images, feel free to open [issue](https://github.com/erxes/erxes/issues). Also you can ask any question related to docker installation in our [discussion](https://github.com/erxes/erxes/discussions). Our DevOps team will help you to solve your problem.
