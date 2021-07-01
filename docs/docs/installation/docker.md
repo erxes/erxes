@@ -302,7 +302,7 @@ services:
       MAIN_APP_DOMAIN: http://localhost
       MAIN_API_DOMAIN: http://localhost:3300
       # MongoDB
-      MONGO_URL: mongodb://mongo/erxes_integrations?authSource=admin
+      MONGO_URL: mongodb://mongo/erxes
       # RabbitMQ
       RABBITMQ_URL: "amqp://rabbitmq:5672/erxes"
       # Redis
@@ -375,7 +375,7 @@ services:
       REACT_APP_API_URL: http://localhost:3300
       REACT_APP_API_SUBSCRIPTION_URL: ws://localhost:3300/subscriptions
       REACT_APP_DASHBOARD_API_URL: http://localhost:4300
-      NGINX_HOST: localhost:3300
+      NGINX_HOST: localhost
     networks:
       - erxes-net
 
