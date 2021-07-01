@@ -19,7 +19,8 @@ type Props = {
 class Forum extends React.Component<Props> {
   breadcrumb() {
     const currentTopic = this.props.currentTopic || {
-      title: ''
+      title: '',
+      forum: { title: '' }
     };
 
     const list = [{ title: __('Forum'), link: '/forum' }];
