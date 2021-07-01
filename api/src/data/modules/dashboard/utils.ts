@@ -7,6 +7,7 @@ import {
   Tags,
   Users
 } from '../../../db/models';
+import { KIND_CHOICES } from '../../../db/models/definitions/constants';
 
 export const getUsers = async () => {
   return Users.aggregate([
@@ -45,6 +46,22 @@ export const getIntegrations = async () => {
       }
     }
   ]);
+};
+
+export const getIntegrationTypes = async () => {
+  const integrationKinds = KIND_CHOICES.ALL;
+
+  const filters = [] as any;
+
+  Promise.all(
+    integrationKinds.map(kind => async () => {
+      const integrationIds = await Integrations.find({ kind }).distinct('_id');
+
+      filters.push({ label: kind, value: integrationIds });
+    })
+  );
+
+  return filters;
 };
 
 export const getTags = async type => {
