@@ -72,8 +72,11 @@ const topicFields = `
     createdDate
     modifiedBy
     modifiedDate
+
     forum{
+       _id
        title 
+       desciption
     }
 
     discussions{

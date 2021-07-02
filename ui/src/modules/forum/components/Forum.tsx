@@ -19,11 +19,20 @@ type Props = {
 class Forum extends React.Component<Props> {
   breadcrumb() {
     const currentTopic = this.props.currentTopic || {
-      title: ''
+      title: '',
+      forum: { title: '' }
     };
 
+    const currentForum = currentTopic.forum || { title: '' };
     const list = [{ title: __('Forum'), link: '/forum' }];
     const topicLink = `/forum?id=${currentTopic._id}`;
+
+    if (currentForum.title) {
+      list.push({
+        title: currentForum.title,
+        link: currentTopic ? topicLink : ''
+      });
+    }
 
     if (currentTopic.title) {
       list.push({
