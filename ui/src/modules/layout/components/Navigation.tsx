@@ -13,6 +13,7 @@ import {
   NavItem,
   SubNavTitle
 } from '../styles';
+import Tip from 'modules/common/components/Tip';
 
 const { REACT_APP_DASHBOARD_URL } = getEnv();
 
@@ -46,7 +47,8 @@ class Navigation extends React.Component<IProps> {
         <NavItem>
           <NavLink to={url}>
             <NavIcon className={icon} />
-            {collapsed ? __(text) : label}
+            {collapsed && __(text)}
+            {label}
           </NavLink>
           {childrens && (
             <SubNav collapsed={collapsed}>
@@ -69,8 +71,18 @@ class Navigation extends React.Component<IProps> {
 
     return (
       <Collapse onClick={onCollapseNavigation} collapsed={collapsed}>
-        <NavIcon className={icon} />
-        {collapsed && __('Collapse menu')}
+        {collapsed ? (
+          <>
+            <NavIcon className={icon} />
+            {__('Collapse menu')}
+          </>
+        ) : (
+          <Tip placement="right" text={__('Expand menu')}>
+            <a>
+              <NavIcon className={icon} />
+            </a>
+          </Tip>
+        )}
       </Collapse>
     );
   }
@@ -194,7 +206,7 @@ class Navigation extends React.Component<IProps> {
           {this.renderNavItem(
             'showSupport',
             __('Support'),
-            '/inbox/ticket/board',
+            '/knowledgeBase',
             'icon-idea',
             [
               {
