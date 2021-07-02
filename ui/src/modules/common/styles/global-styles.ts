@@ -1141,6 +1141,22 @@ a:hover {
   .modal-close-date {
     width: 330px;
   }
+
+  .modal-icon-title {
+    
+  }
+
+  .modal-li{
+    display: flex;
+  }
+
+  .modal-items-list {
+    height: auto;
+    width: 100%;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-start;
+  }
 `;
 
 const globalStyle = [`${style}`] as any;
