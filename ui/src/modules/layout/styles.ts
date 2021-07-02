@@ -328,50 +328,6 @@ const SubNav = styledTS<{ collapsed: boolean }>(styled.ul)`
   color: ${colors.colorShadowGray};
   list-style: none;
 
-  li {
-    > a {
-      padding: ${dimensions.unitSpacing - 3}px ${dimensions.coreSpacing}px;
-      color: ${colors.colorWhite};
-      opacity: 0.9;
-      display: block;
-
-      &.active {
-        opacity: 1;
-        font-weight: bold;
-        position: relative;
-
-        ${props =>
-          !props.collapsed &&
-          css`
-            &:before {
-              content: '';
-              width: 3px;
-              background: #63d2d6;
-              position: absolute;
-              display: block;
-              left: 0;
-              top: 5px;
-              bottom: 5px;
-              border-top-right-radius: 3px;
-              border-bottom-right-radius: 3px;
-            }
-          `};
-      }
-    }
-
-    &:last-child a {
-      padding-bottom: ${dimensions.unitSpacing}px;
-    }
-
-    &:hover {
-      background: rgba(0, 0, 0, 0.06);
-
-      > a {
-        opacity: 1;
-      }
-    }
-  }
-
   &:after {
     content: " ";
     border: solid transparent;
@@ -387,6 +343,62 @@ const SubNav = styledTS<{ collapsed: boolean }>(styled.ul)`
   }
 `;
 
+const SubNavItem = styledTS<{ collapsed: boolean; additional: boolean }>(
+  styled.li
+)`
+    border-top: ${props =>
+      props.additional && `1px solid ${rgba(colors.borderPrimary, 0.3)}`};
+
+    > a {
+    padding: ${dimensions.unitSpacing - 3}px ${dimensions.coreSpacing}px;
+    color: ${colors.colorWhite};
+    opacity: 0.9;
+    display: block;
+
+    &.active {
+      opacity: 1;
+      font-weight: bold;
+      position: relative;
+
+      ${props =>
+        !props.collapsed &&
+        css`
+          &:before {
+            content: '';
+            width: 3px;
+            background: #63d2d6;
+            position: absolute;
+            display: block;
+            left: 0;
+            top: 5px;
+            bottom: 5px;
+            border-top-right-radius: 3px;
+            border-bottom-right-radius: 3px;
+          }
+        `};
+      }
+    }
+
+    &:last-child a {
+      padding-bottom: ${dimensions.unitSpacing}px;
+    }
+
+    &:hover {
+      background: rgba(0, 0, 0, 0.06);
+
+      > a {
+        opacity: 1;
+      }
+    }
+`;
+
+const SubNavTitle = styled.div`
+  padding: ${dimensions.unitSpacing}px ${dimensions.coreSpacing}px;
+  text-transform: uppercase;
+  color: ${colors.colorWhite};
+  font-weight: 500;
+`;
+
 const NavItem = styled.div`
   position: relative;
 
@@ -395,13 +407,6 @@ const NavItem = styled.div`
       visibility: visible;
     }
   }
-`;
-
-const SubNavTitle = styled.div`
-  padding: ${dimensions.unitSpacing}px ${dimensions.coreSpacing}px;
-  text-transform: uppercase;
-  color: ${colors.colorWhite};
-  font-weight: 500;
 `;
 
 export {
@@ -439,5 +444,6 @@ export {
   SubNav,
   NavItem,
   SubNavTitle,
+  SubNavItem,
   Collapse
 };

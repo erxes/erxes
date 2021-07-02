@@ -11,7 +11,8 @@ import {
   Collapse,
   SubNav,
   NavItem,
-  SubNavTitle
+  SubNavTitle,
+  SubNavItem
 } from '../styles';
 import Tip from 'modules/common/components/Tip';
 
@@ -54,9 +55,13 @@ class Navigation extends React.Component<IProps> {
             <SubNav collapsed={collapsed}>
               {!collapsed && <SubNavTitle>{__(text)}</SubNavTitle>}
               {childrens.map((child, index) => (
-                <li key={index}>
+                <SubNavItem
+                  key={index}
+                  collapsed={collapsed}
+                  additional={child.additional || false}
+                >
                   <NavLink to={child.link}>{__(child.value)}</NavLink>
-                </li>
+                </SubNavItem>
               ))}
             </SubNav>
           )}
@@ -118,7 +123,8 @@ class Navigation extends React.Component<IProps> {
               {
                 key: 'showChannels',
                 link: '/settings/channels',
-                value: 'Channels'
+                value: 'Channels',
+                additional: true
               },
               {
                 key: 'showIntegrations',
@@ -161,8 +167,7 @@ class Navigation extends React.Component<IProps> {
               {
                 key: 'showTags',
                 link: '/tags/conversation',
-                value: 'Tags',
-                additional: true
+                value: 'Tags'
               }
             ]
           )}
