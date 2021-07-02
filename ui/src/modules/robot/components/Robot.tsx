@@ -4,10 +4,12 @@ import Version from 'modules/settings/status/containers/Version';
 import * as React from 'react';
 import RTG from 'react-transition-group';
 import AssistantContent from '../containers/AssistantContent';
-import { Bot } from './styles';
+import { Bot, BotText } from './styles';
+import { __ } from 'modules/common/utils';
 
 type Props = {
   currentUser: IUser;
+  collapsed: boolean;
 };
 
 type State = {
@@ -62,6 +64,8 @@ class Robot extends React.Component<Props, State> {
   };
 
   render() {
+    const { collapsed } = this.props;
+
     return (
       <>
         {this.renderContent()}
@@ -71,8 +75,9 @@ class Robot extends React.Component<Props, State> {
           timeout={2600}
           classNames="robot"
         >
-          <Bot onClick={this.changeContent}>
+          <Bot onClick={this.changeContent} collapsed={collapsed}>
             <img src="/images/erxes-bot.svg" alt="assistant robot" />
+            {collapsed && <BotText>{__('Need help')}?</BotText>}
           </Bot>
         </RTG.CSSTransition>
       </>

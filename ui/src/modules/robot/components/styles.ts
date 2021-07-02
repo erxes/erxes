@@ -29,13 +29,16 @@ const Greeting = styled(SubContent)`
   }
 `;
 
-const Bot = styled.div`
+const Bot = styledTS<{ collapsed: boolean }>(styled.div)`
   position: fixed;
   bottom: 0px;
-  width: 70px;
+  width: ${props => (props.collapsed ? '160px' : '70px')};
   padding: 10px 0;
   text-align: center;
   z-index: 15;
+  color: ${colors.colorWhite};
+  display: ${props => props.collapsed && 'flex'};
+  align-items: center;
 
   &:hover {
     cursor: pointer;
@@ -43,7 +46,14 @@ const Bot = styled.div`
 
   img {
     width: 42px;
+    margin-left: ${props => props.collapsed && `${dimensions.unitSpacing}px`}
   }
+`;
+
+const BotText = styled.h5`
+  margin: ${dimensions.unitSpacing - 4}px 0 0 ${dimensions.unitSpacing - 5}px;
+  text-transform: capitalize;
+  font-weight: normal;
 `;
 
 const Title = styled.h2`
@@ -153,6 +163,7 @@ const ProgressText = styled.div`
 
 export {
   Bot,
+  BotText,
   Greeting,
   SubContent,
   Title,

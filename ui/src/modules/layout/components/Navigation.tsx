@@ -43,40 +43,22 @@ class Navigation extends React.Component<IProps> {
 
     return (
       <WithPermission key={url} action={permission}>
-        {collapsed ? (
-          <NavItem>
-            <NavLink to={url}>
-              <NavIcon className={icon} />
-              {__(text)}
-            </NavLink>
-            {childrens && (
-              <SubNav collapsed={collapsed}>
-                {childrens.map((child, index) => (
-                  <li key={index}>
-                    <NavLink to={child.link}>{child.value}</NavLink>
-                  </li>
-                ))}
-              </SubNav>
-            )}
-          </NavItem>
-        ) : (
-          <NavItem>
-            <NavLink to={url}>
-              <NavIcon className={icon} />
-              {label}
-            </NavLink>
-            {childrens && (
-              <SubNav collapsed={collapsed}>
-                <SubNavTitle>{__(text)}</SubNavTitle>
-                {childrens.map((child, index) => (
-                  <li key={index}>
-                    <NavLink to={child.link}>{child.value}</NavLink>
-                  </li>
-                ))}
-              </SubNav>
-            )}
-          </NavItem>
-        )}
+        <NavItem>
+          <NavLink to={url}>
+            <NavIcon className={icon} />
+            {collapsed ? __(text) : label}
+          </NavLink>
+          {childrens && (
+            <SubNav collapsed={collapsed}>
+              {!collapsed && <SubNavTitle>{__(text)}</SubNavTitle>}
+              {childrens.map((child, index) => (
+                <li key={index}>
+                  <NavLink to={child.link}>{__(child.value)}</NavLink>
+                </li>
+              ))}
+            </SubNav>
+          )}
+        </NavItem>
       </WithPermission>
     );
   };
@@ -110,162 +92,148 @@ class Navigation extends React.Component<IProps> {
           <img src={`/images/${logo}`} alt="erxes" />
         </NavLink>
         <Nav id="navigation" collapsed={collapsed}>
-          {REACT_APP_DASHBOARD_URL !== 'undefined' &&
-            this.renderNavItem(
-              'showDashboards',
-              __('Dashboard'),
-              '/dashboard',
-              'icon-dashboard'
-            )}
           {this.renderNavItem(
             'showConversations',
             __('Team Inbox'),
             '/inbox',
             'icon-chat',
             [
-              { key: 'channels', link: __('Conversation'), value: 'Channels' },
               {
-                key: 'channels',
-                link: __('Conversation'),
+                key: 'showConversations',
+                link: '/inbox',
+                value: 'Conversations'
+              },
+              {
+                key: 'showChannels',
+                link: '/settings/channels',
+                value: 'Channels'
+              },
+              {
+                key: 'showIntegrations',
+                link: '/settings/integrations',
                 value: 'Integrations'
               },
-              { key: 'channels', link: __('Conversation'), value: 'Skills' },
-              { key: 'channels', link: __('Conversation'), value: 'Responses' }
+              { key: 'showSkills', link: '/settings/skills', value: 'Skills' },
+              {
+                key: 'showResponses',
+                link: '/settings/response-templates',
+                value: 'Responses'
+              }
             ],
             unreadIndicator
           )}
           {this.renderNavItem(
             'showCustomers',
             __('Contacts'),
-            '/contacts',
+            '/contacts/customer',
             'icon-users',
             [
-              { key: 'channels', link: __('Conversation'), value: 'Visitors' },
-              { key: 'channels', link: __('Conversation'), value: 'Leads' },
               {
-                key: 'channels',
-                link: __('Conversation'),
+                key: 'showVisitors',
+                link: '/contacts/visitor',
+                value: 'Visitors'
+              },
+              { key: 'showLeads', link: '/contacts/lead', value: 'Leads' },
+              {
+                key: 'showCustomers',
+                link: '/contacts/customer',
                 value: 'Customers'
               },
-              { key: 'channels', link: __('Conversation'), value: 'Companies' },
+              { key: 'showCompanies', link: '/companies', value: 'Companies' },
               {
-                key: 'channels',
-                link: __('Conversation'),
+                key: 'showSegments',
+                link: '/segments/customer',
                 value: 'Segments',
                 additional: true
               },
               {
-                key: 'channels',
-                link: __('Conversation'),
+                key: 'showTags',
+                link: '/tags/conversation',
                 value: 'Tags',
                 additional: true
               }
             ]
           )}
           {this.renderNavItem(
-            'showForms',
+            'showMarketing',
             __('Marketing'),
             '/forms',
             'icon-megaphone',
             [
-              { key: 'channels', link: __('Conversation'), value: 'Forms' },
-              { key: 'channels', link: __('Conversation'), value: 'Campaigns' },
+              { key: 'showForms', link: '/forms', value: 'Forms' },
               {
-                key: 'channels',
-                link: __('Conversation'),
+                key: 'showEngagesMessages',
+                link: '/campaigns',
+                value: 'Campaigns'
+              },
+              {
+                key: 'showGrowthHacks',
+                link: '/growthHack',
                 value: 'Growth hacking'
               }
             ]
           )}
           {this.renderNavItem(
-            'showForms',
+            'showSales',
             __('Sales'),
-            '/forms',
+            '/deal',
             'icon-laptop',
             [
               {
-                key: 'channels',
-                link: __('Conversation'),
+                key: 'showSales',
+                link: '/deal',
                 value: 'Sales pipeline'
               },
               {
-                key: 'channels',
-                link: __('Conversation'),
+                key: 'showProductService',
+                link: '/settings/product-service',
                 value: 'Products & service'
               }
             ]
           )}
           {this.renderNavItem(
-            'showForms',
+            'showSupport',
             __('Support'),
-            '/forms',
+            '/inbox/ticket/board',
             'icon-idea',
             [
               {
-                key: 'channels',
-                link: __('Conversation'),
+                key: 'showTickets',
+                link: '/inbox/ticket/board',
                 value: 'Tickets'
               },
               {
-                key: 'channels',
-                link: __('Conversation'),
+                key: 'showKnowledgeBase',
+                link: '/knowledgeBase',
                 value: 'Knowledgebase'
               },
               {
-                key: 'channels',
-                link: __('Conversation'),
+                key: 'showForum',
+                link: '/forum',
                 value: 'Forum'
               }
             ]
           )}
           {this.renderNavItem(
-            'showEngagesMessages',
+            'showManagement',
             __('Managament'),
-            '/campaigns',
+            '/task',
             'icon-piggy-bank',
             [
               {
-                key: 'channels',
-                link: __('Conversation'),
+                key: 'showTask',
+                link: '/task',
                 value: 'Task'
               },
-              {
-                key: 'channels',
-                link: __('Conversation'),
+              REACT_APP_DASHBOARD_URL !== 'undefined' && {
+                key: 'showDashboards',
+                link: '/dashboard',
                 value: 'Reports'
               },
               {
-                key: 'channels',
-                link: __('Conversation'),
-                value: 'Calendar (Coming soon)'
-              },
-              {
-                key: 'channels',
-                link: __('Conversation'),
-                value: 'Scheduler (Coming soon)'
-              }
-            ]
-          )}
-          {this.renderNavItem(
-            'showEngagesMessages',
-            __('Quick access'),
-            '/campaigns',
-            'icon-link-broken',
-            [
-              {
-                key: 'channels',
-                link: __('Conversation'),
-                value: 'Create a new email'
-              },
-              {
-                key: 'channels',
-                link: __('Conversation'),
-                value: 'Create a new task'
-              },
-              {
-                key: 'channels',
-                link: __('Conversation'),
-                value: 'Create a new deal'
+                key: 'showCalendar',
+                link: '/calendar',
+                value: 'Calendar'
               }
             ]
           )}

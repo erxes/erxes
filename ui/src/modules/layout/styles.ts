@@ -310,7 +310,7 @@ const Collapse = styledTS<{ collapsed: boolean }>(styled.div)`
 `;
 
 const SubNav = styledTS<{ collapsed: boolean }>(styled.ul)`
-  background: ${colors.colorPrimaryDark};
+  background: ${colors.colorSecondary};
   position: absolute;
   left: ${props =>
     props.collapsed
@@ -329,24 +329,61 @@ const SubNav = styledTS<{ collapsed: boolean }>(styled.ul)`
   list-style: none;
 
   li {
-    padding: ${dimensions.unitSpacing - 3}px ${dimensions.coreSpacing}px;
-    opacity: 0.9;
-
     > a {
+      padding: ${dimensions.unitSpacing - 3}px ${dimensions.coreSpacing}px;
       color: ${colors.colorWhite};
+      opacity: 0.9;
+      display: block;
+
+      &.active {
+        opacity: 1;
+        font-weight: bold;
+        position: relative;
+
+        ${props =>
+          !props.collapsed &&
+          css`
+            &:before {
+              content: '';
+              width: 3px;
+              background: #63d2d6;
+              position: absolute;
+              display: block;
+              left: 0;
+              top: 5px;
+              bottom: 5px;
+              border-top-right-radius: 3px;
+              border-bottom-right-radius: 3px;
+            }
+          `};
+      }
     }
 
-    &:last-child {
+    &:last-child a {
       padding-bottom: ${dimensions.unitSpacing}px;
     }
 
     &:hover {
       background: rgba(0, 0, 0, 0.06);
 
-      i {
+      > a {
         opacity: 1;
       }
     }
+  }
+
+  &:after {
+    content: " ";
+    border: solid transparent;
+    height: 0;
+    width: 0;
+    position: absolute;
+    pointer-events: none;
+    border-width: ${dimensions.unitSpacing}px;
+    top: ${dimensions.coreSpacing}px;
+    left: -${dimensions.coreSpacing}px;
+    z-index: 10000;
+    border-right-color: ${colors.colorSecondary};
   }
 `;
 
@@ -361,8 +398,10 @@ const NavItem = styled.div`
 `;
 
 const SubNavTitle = styled.div`
-  padding: ${dimensions.unitSpacing - 3}px ${dimensions.coreSpacing}px;
-  background: ${colors.colorPrimary};
+  padding: ${dimensions.unitSpacing}px ${dimensions.coreSpacing}px;
+  text-transform: uppercase;
+  color: ${colors.colorWhite};
+  font-weight: 500;
 `;
 
 export {

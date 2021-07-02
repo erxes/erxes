@@ -91,6 +91,7 @@ class MainLayout extends React.Component<IProps, { isCollapsed: boolean }> {
 
   render() {
     const { currentUser, children, isShownIndicator, history } = this.props;
+    const { isCollapsed } = this.state;
 
     if (history.location.pathname.startsWith('/videoCall')) {
       return children;
@@ -104,12 +105,12 @@ class MainLayout extends React.Component<IProps, { isCollapsed: boolean }> {
           {currentUser && (
             <Navigation
               currentUser={currentUser}
-              collapsed={this.state.isCollapsed}
+              collapsed={isCollapsed}
               onCollapseNavigation={this.onCollapseNavigation}
             />
           )}
 
-          <MainWrapper collapsed={this.state.isCollapsed}>
+          <MainWrapper collapsed={isCollapsed}>
             <NotifProvider currentUser={currentUser}>
               <MainBar />
             </NotifProvider>
@@ -119,7 +120,7 @@ class MainLayout extends React.Component<IProps, { isCollapsed: boolean }> {
           <DetectBrowser />
         </Layout>
 
-        <Robot />
+        <Robot collapsed={isCollapsed} />
       </>
     );
   }
