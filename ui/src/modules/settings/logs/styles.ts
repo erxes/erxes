@@ -10,7 +10,8 @@ const LogBox = styledTS<{ color?: string }>(styled.div)`
   width: 45%;
 
   > div {
-    margin-bottom: 10px
+    margin-bottom: 10px;
+
     > ul {
       margin: 0;
     }
