@@ -588,7 +588,7 @@ export const replaceEditorAttributes = async (args: {
 
       replacers.push({
         key: `{{ customer.${field} }}`,
-        value: customer[field]
+        value: customer[field] || ''
       });
     }
   }
