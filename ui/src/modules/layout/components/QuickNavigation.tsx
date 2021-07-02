@@ -16,7 +16,7 @@ import Dropdown from 'react-bootstrap/Dropdown';
 import { Link, NavLink } from 'react-router-dom';
 import styled from 'styled-components';
 import Search from '../containers/Search';
-import { UserHelper } from '../styles';
+import { UserHelper, DropNav } from '../styles';
 import BrandChooser from './BrandChooser';
 
 const Signature = asyncComponent(() =>
@@ -193,39 +193,47 @@ const QuickNavigation = ({
             <Dropdown.Divider />
 
             <li>
-              <Link to="/profile">{__('View Profile')}</Link>
+              <Link to="/profile">{__('My Profile')}</Link>
             </li>
 
-            <ModalTrigger
-              title="Change Password"
-              trigger={
-                <li>
-                  <a href="#change-password">{__('Change password')}</a>
-                </li>
-              }
-              content={passContent}
-            />
+            <li>
+              <DropNav>
+                {__('Account Settings')}
+                <Icon icon="angle-right" />
+                <ul>
+                  <ModalTrigger
+                    title="Change Password"
+                    trigger={
+                      <li>
+                        <a href="#change-password">{__('Change password')}</a>
+                      </li>
+                    }
+                    content={passContent}
+                  />
 
-            <ModalTrigger
-              title="Email signatures"
-              enforceFocus={false}
-              trigger={
-                <li>
-                  <a href="#email">{__('Email signatures')}</a>
-                </li>
-              }
-              content={signatureContent}
-            />
+                  <ModalTrigger
+                    title="Email signatures"
+                    enforceFocus={false}
+                    trigger={
+                      <li>
+                        <a href="#email">{__('Email signatures')}</a>
+                      </li>
+                    }
+                    content={signatureContent}
+                  />
 
-            <ModalTrigger
-              title="Notification settings"
-              trigger={
-                <li>
-                  <a href="#notif">{__('Notification settings')}</a>
-                </li>
-              }
-              content={notificationContent}
-            />
+                  <ModalTrigger
+                    title="Notification settings"
+                    trigger={
+                      <li>
+                        <a href="#notif">{__('Notification settings')}</a>
+                      </li>
+                    }
+                    content={notificationContent}
+                  />
+                </ul>
+              </DropNav>
+            </li>
 
             <Dropdown.Divider />
             <Dropdown.Item onClick={logout}>{__('Sign out')}</Dropdown.Item>

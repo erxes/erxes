@@ -409,6 +409,33 @@ const NavItem = styled.div`
   }
 `;
 
+const DropNav = styled.a`
+  position: relative;
+  display: flex !important;
+  align-items: center;
+  justify-content: space-between;
+
+  ul {
+    position: absolute;
+    visibility: hidden;
+    top: 0px;
+    left: auto;
+    margin: 0px;
+    right: 0px;
+    background: #fff;
+    padding: 0;
+    list-style: none;
+    transform: translate(-240px, 0px);
+    box-shadow: 0 5px 15px 1px rgba(0, 0, 0, 0.15);
+  }
+
+  &:hover {
+    ul {
+      visibility: visible;
+    }
+  }
+`;
+
 export {
   Layout,
   MainWrapper,
@@ -445,5 +472,6 @@ export {
   NavItem,
   SubNavTitle,
   SubNavItem,
-  Collapse
+  Collapse,
+  DropNav
 };
