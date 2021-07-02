@@ -144,7 +144,7 @@ class Pipelines extends React.Component<Props, State> {
         <Table>
           <thead>
             <tr>
-              <th>{__(pipelineName)}</th>
+              <th>{__('pipelineName')}</th>
               <th>{__('Actions')}</th>
             </tr>
           </thead>

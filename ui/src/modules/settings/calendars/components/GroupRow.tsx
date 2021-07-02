@@ -2,6 +2,7 @@ import ActionButtons from 'modules/common/components/ActionButtons';
 import Button from 'modules/common/components/Button';
 import Icon from 'modules/common/components/Icon';
 import Tip from 'modules/common/components/Tip';
+import { __ } from 'modules/common/utils';
 import { IButtonMutateProps } from 'modules/common/types';
 import React from 'react';
 import AccountCalendars from '../containers/AccountCalendars';
@@ -46,10 +47,10 @@ class GroupRow extends React.Component<Props, State> {
 
     return (
       <>
-        <Tip text="Edit" placement="top">
+        <Tip text={__('Edit')} placement="top">
           <Button btnStyle="link" onClick={edit} icon="edit-3" />
         </Tip>
-        <Tip text="Delete">
+        <Tip text={__('Delete')}>
           <Button btnStyle="link" onClick={onClick} icon="times-circle" />
         </Tip>
       </>
@@ -85,10 +86,10 @@ class GroupRow extends React.Component<Props, State> {
 
     return (
       <>
-        <Tip text="Edit" placement="top">
+        <Tip text={__('Edit')} placement="top">
           <Button btnStyle="link" onClick={edit} icon="edit-3" />
         </Tip>
-        <Tip text="Delete">
+        <Tip text={__('Delete')}>
           <Button btnStyle="link" onClick={onClick} icon="times-circle" />
         </Tip>
       </>

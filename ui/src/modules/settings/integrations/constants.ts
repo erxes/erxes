@@ -1,14 +1,16 @@
+import { __ } from 'modules/common/utils';
+
 export const days = [
-  { value: 'everyday', label: 'Everyday' },
-  { value: 'weekdays', label: 'Weekdays' },
-  { value: 'weekends', label: 'Weekends' },
-  { value: 'monday', label: 'Monday' },
-  { value: 'tuesday', label: 'Tuesday' },
-  { value: 'wednesday', label: 'Wednesday' },
-  { value: 'thursday', label: 'Thursday' },
-  { value: 'friday', label: 'Friday' },
-  { value: 'saturday', label: 'Saturday' },
-  { value: 'sunday', label: 'Sunday' }
+  { value: 'everyday', label: __('Everyday') },
+  { value: 'weekdays', label: __('Weekdays') },
+  { value: 'weekends', label: __('Weekends') },
+  { value: 'monday', label: __('Monday') },
+  { value: 'tuesday', label: __('Tuesday') },
+  { value: 'wednesday', label: __('Wednesday') },
+  { value: 'thursday', label: __('Thursday') },
+  { value: 'friday', label: __('Friday') },
+  { value: 'saturday', label: __('Saturday') },
+  { value: 'sunday', label: __('Sunday') }
 ];
 
 export const hours = [
@@ -191,8 +193,9 @@ export const INTEGRATIONS = [
   },
   {
     name: 'Gmail',
-    description:
-      'Connect a company email address such as sales@mycompany.com or info@mycompany.com',
+    description: __(
+      'Connect a company email address such as sales@mycompany.com or info@mycompany.com'
+    ),
     inMessenger: false,
     isAvailable: true,
     kind: 'gmail',
