@@ -76,7 +76,7 @@ const topicFields = `
     forum{
        _id
        title 
-       desciption
+       description
     }
 
     discussions{
