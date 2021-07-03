@@ -48,6 +48,7 @@ export const types = `
         getTags: [Tag]
 
         attachments: [JSON]
+        createdCustomer: Customer
 
     }
 

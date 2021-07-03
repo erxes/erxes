@@ -55,6 +55,7 @@ export interface IDiscussion {
   tagIds: string[];
   getTags: ITag[];
   attachments?: IAttachment[];
+  createdCustomer?: ICustomer;
 }
 
 export interface IComment {

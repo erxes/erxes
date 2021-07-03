@@ -1,5 +1,5 @@
 import { IDiscussionDocument } from '../../db/models/definitions/forums';
-import { DiscussionComments, Tags } from '../../db/models';
+import { DiscussionComments, Tags, Customers } from '../../db/models';
 import { getDocument } from './mutations/cacheUtils';
 
 export default {
@@ -12,5 +12,8 @@ export default {
   },
   getTags(discussion: IDiscussionDocument) {
     return Tags.find({ _id: { $in: discussion.tagIds || [] } });
+  },
+  createdCustomer(discussion: IDiscussionDocument) {
+    return Customers.findOne({ _id: discussion.createdBy });
   }
 };

@@ -1,9 +1,8 @@
 import React from 'react';
-
 import Form from 'modules/common/components/form/Form';
 import dayjs from 'dayjs';
 import { getUserAvatar } from 'modules/common/utils';
-
+import NameCard from 'modules/common/components/nameCard/NameCard';
 import {
   CommentWrapper,
   DiscussionComment,
@@ -30,20 +29,18 @@ class DiscussionDetail extends React.Component<Props> {
           return (
             <DiscussionComment key={index}>
               <CreatedUser>
-                <img
-                  src={
-                    createdUser
-                      ? getUserAvatar(createdUser)
-                      : createdCustomer.avatar
-                  }
-                  alt="profile"
-                />
+                {createdUser ? (
+                  <img src={getUserAvatar(createdUser)} alt="profile" />
+                ) : (
+                  <NameCard.Avatar customer={createdCustomer} size={30} />
+                )}
                 <div>
                   <CommentContent>
                     <h5>
                       {createdUser
-                        ? createdUser.username
-                        : createdCustomer.firstName}
+                        ? `${createdUser.details &&
+                            createdUser.details.fullName}`
+                        : `${createdCustomer.firstName} ${createdCustomer.lastName}`}
                     </h5>
                     <div
                       className="comment"

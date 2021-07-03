@@ -8,6 +8,13 @@ const userFields = `
     }   
 `;
 
+const customerFields = `
+    _id
+    firstName
+    lastName
+    avatar
+`;
+
 const commentFields = `
     _id
     title
@@ -23,10 +30,7 @@ const commentFields = `
         }
     }
     createdCustomer {
-        _id
-        firstName
-        lastName
-        avatar
+        ${customerFields}
     }
 `;
 
@@ -56,6 +60,9 @@ const discussionFields = `
 
     createdUser {
         ${userFields}
+    }
+    createdCustomer{
+        ${customerFields}
     }
     comments{
         ${commentFields}

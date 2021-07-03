@@ -1,14 +1,13 @@
 import React from 'react';
 import dayjs from 'dayjs';
-
 import ModalTrigger from 'modules/common/components/ModalTrigger';
 import Button from 'modules/common/components/Button';
 import Icon from 'modules/common/components/Icon';
 import { getUserAvatar } from 'modules/common/utils';
 import Tags from 'modules/common/components/Tags';
-
+import NameCard from 'modules/common/components/nameCard/NameCard';
+import { FlexItem } from 'modules/companies/styles';
 import Tip from 'modules/common/components/Tip';
-
 import Label from 'modules/common/components/Label';
 
 import {
@@ -38,6 +37,8 @@ const DiscussionRow = (props: Props) => {
   const tags = discussion.getTags || [];
 
   const user = discussion.createdUser;
+
+  const customer = discussion.createdCustomer;
 
   const remove = () => {
     return props.remove(discussion._id);
@@ -111,16 +112,23 @@ const DiscussionRow = (props: Props) => {
         {renderDetail(title)}
         <p>{discussion.description}</p>
         <DiscussionMeta>
-          <img
-            alt={(user && user.details && user.details.fullName) || 'author'}
-            src={getUserAvatar(user)}
-          />
+          {user ? (
+            <img
+              alt={(user.details && user.details.fullName) || 'author'}
+              src={getUserAvatar(user)}
+            />
+          ) : (
+            <FlexItem>
+              <NameCard.Avatar customer={customer} size={20} /> &emsp;
+            </FlexItem>
+          )}
           {__('Written By')}
           <AuthorName>
-            {user &&
-              ((user.details && user.details.fullName) ||
+            {user
+              ? (user.details && user.details.fullName) ||
                 user.username ||
-                user.email)}
+                user.email
+              : customer && `${customer.firstName} ${customer.lastName}`}
           </AuthorName>
           <Icon icon="clock-eight" /> {'Created'}{' '}
           {dayjs(discussion.createdDate).format('ll')}
