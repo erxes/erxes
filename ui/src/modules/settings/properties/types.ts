@@ -3,6 +3,7 @@ import { QueryResponse } from 'modules/common/types';
 
 export interface IFieldLogic {
   fieldId?: string;
+  targetFieldId?: string;
   tempFieldId?: string;
   logicOperator: string;
   logicValue: string;

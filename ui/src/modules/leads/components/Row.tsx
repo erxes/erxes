@@ -15,6 +15,7 @@ import { RowTitle } from 'modules/engage/styles';
 import { Capitalize } from 'modules/settings/permissions/styles';
 import React from 'react';
 import { Link } from 'react-router-dom';
+import AdvancedSettings from '../containers/AdvancedSettings';
 import { ILeadIntegration } from '../types';
 import Manage from './Manage';
 
@@ -61,6 +62,30 @@ class Row extends React.Component<Props> {
         trigger={trigger}
         content={content}
         isOpen={this.props.showCode}
+        isAnimate={true}
+      />
+    );
+  }
+
+  renderAdvancedSettingsAction(integration) {
+    const trigger = (
+      <Button btnStyle="link">
+        <Tip text={__('Advanced settings')} placement="top">
+          <Icon icon="cog" />
+        </Tip>
+      </Button>
+    );
+
+    const content = props => (
+      <AdvancedSettings formId={integration.formId} {...props} />
+    );
+
+    return (
+      <ModalTrigger
+        title={`Advanced settings of ${integration.name}`}
+        size="lg"
+        trigger={trigger}
+        content={content}
         isAnimate={true}
       />
     );
@@ -229,6 +254,7 @@ class Row extends React.Component<Props> {
           <ActionButtons>
             {this.manageAction(integration)}
             {this.renderEditAction(integration)}
+            {this.renderAdvancedSettingsAction(integration)}
             {this.renderArchiveAction()}
             {this.renderUnarchiveAction()}
             {this.renderExportAction()}
