@@ -136,9 +136,13 @@ function Skills(props: Props) {
         <HeaderDescription
           icon="/images/actions/32.svg"
           title={'All Skills'}
-          description={__(
-            'The skills feature works with the erxes Messenger and the Team Inbox. By creating and assigning certain skills to your team members, they will only see conversations that they have the skills for. As for the customers, they will see the option to choose from when interacting with you through the erxes Messenger. This way conversations are directed to the right person'
-          )}
+          description={`${__(
+            'The skills feature works with the erxes Messenger and the Team Inbox'
+          )}.${__(
+            'By creating and assigning certain skills to your team members, they will only see conversations that they have the skills for'
+          )}.${__(
+            'As for the customers, they will see the option to choose from when interacting with you through the erxes Messenger'
+          )}.${__('This way conversations are directed to the right person')}`}
         />
       }
       actionBar={renderActionBar()}

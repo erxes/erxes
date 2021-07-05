@@ -1,10 +1,12 @@
+import React, { useState } from 'react';
+import { BoxContainer, ProjectItem } from './styles';
+
 import { IPipeline } from 'modules/boards/types';
 import { IButtonMutateProps } from 'modules/common/types';
+import { __ } from 'modules/common/utils';
 import PipelineForm from 'modules/settings/boards/containers/PipelineForm';
 import { options } from 'modules/settings/growthHacks/options';
-import React, { useState } from 'react';
 import PipelineRow from './PipelineRow';
-import { BoxContainer, ProjectItem } from './styles';
 
 type Props = {
   pipelines: IPipeline[];
@@ -39,10 +41,8 @@ function PipelineList(props: Props) {
       <div>
         <ProjectItem new={true} onClick={toggleVisibility}>
           <h5>
-            +<br />
-            Create <br />
-            New <br />
-            Project
+            {__('+ Create New Project')}
+            <br />
           </h5>
         </ProjectItem>
       </div>

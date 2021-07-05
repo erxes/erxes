@@ -35,7 +35,7 @@ class InitialData extends React.Component<Props> {
   render() {
     const { dashboardId } = this.props;
 
-    const leftActionBar = <Title>Reports library</Title>;
+    const leftActionBar = <Title>{__('Reports library')}</Title>;
 
     const rightActionBar = (
       <RightActions>
@@ -51,7 +51,7 @@ class InitialData extends React.Component<Props> {
       <Wrapper
         header={
           <Wrapper.Header
-            title={`${'Dashboard' || ''}`}
+            title={`${__('Dashboard') || ''}`}
             breadcrumb={[
               { title: __('Dashboard'), link: '/dashboard' },
               { title: __('Reports library') }

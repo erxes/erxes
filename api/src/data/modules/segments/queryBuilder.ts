@@ -98,7 +98,8 @@ export const fetchSegment = async (
     body: {
       _source: options.returnFields || false,
       query: selector
-    }
+    },
+    defaultValue: { hits: { hits: [] } }
   });
 
   if (options.returnFields) {
