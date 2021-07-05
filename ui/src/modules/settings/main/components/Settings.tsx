@@ -4,7 +4,14 @@ import Wrapper from 'modules/layout/components/Wrapper';
 import { pluginsOfSettings } from 'pluginUtils';
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Box, BoxName, MenusContainer, Column, ColumnTitle } from '../styles';
+import {
+  Box,
+  BoxName,
+  MenusContainer,
+  Row,
+  RowTitle,
+  Divider
+} from '../styles';
 
 const breadcrumb = [{ title: __('Settings'), link: '/settings' }];
 
@@ -112,11 +119,13 @@ class Settings extends React.PureComponent {
     image: string,
     to: string,
     action: string,
-    permissions?: string[]
+    permissions?: string[],
+    type?: string
   ) {
     const box = (
-      <Box>
+      <Box className={type && 'hasBorder'}>
         <Link to={to}>
+          {type && <em>{type}</em>}
           <img src={image} alt={name} />
           <BoxName>{__(name)}</BoxName>
         </Link>
@@ -137,14 +146,14 @@ class Settings extends React.PureComponent {
   render() {
     const content = (
       <MenusContainer id={'SettingsMain'}>
-        <Column>
-          <ColumnTitle>
-            {__('General Settings')} &nbsp;|
+        <Row>
+          <RowTitle>
+            {__('General Settings')}
             <span>{__('Set up your basic settings')}</span>
-          </ColumnTitle>
+          </RowTitle>
           <div id={'SettingsGeneralSettings'}>
             {this.renderBox(
-              'System config',
+              'System Configuration',
               '/images/icons/erxes-16.svg',
               '/settings/general',
               'generalSettingsAll',
@@ -178,30 +187,31 @@ class Settings extends React.PureComponent {
               ''
             )}
           </div>
-        </Column>
-        <Column>
-          <ColumnTitle>
-            {__('Team Settings')} &nbsp;|
+        </Row>
+        <Divider />
+        <Row>
+          <RowTitle>
+            {__('Team Settings')}
             <span>{__('Manage your team members and their usage')}</span>
-          </ColumnTitle>
+          </RowTitle>
           <div id={'SettingsTeamSettings'}>
             {this.renderBox(
               'Team Members',
-              '/images/icons/erxes-02.svg',
+              '/images/icons/erxes-23.svg',
               '/settings/team',
               'usersAll',
               teamPermissions
             )}
             {this.renderBox(
-              'Permission',
-              '/images/icons/erxes-23.svg',
+              'Permissions',
+              '/images/icons/erxes-02.svg',
               '/settings/permissions',
               'permissionsAll',
               permissionActions
             )}
             {this.renderBox(
               'Skills',
-              '/images/icons/erxes-07.svg',
+              '/images/icons/deal-insight-won.svg',
               '/settings/skills',
               'skillTypesAll',
               [
@@ -213,30 +223,32 @@ class Settings extends React.PureComponent {
               ]
             )}
             {this.renderBox(
-              'Groups & Calendars',
+              'Calendars',
               '/images/icons/erxes-21.svg',
               '/settings/calendars',
               'calendarsAll',
               calendarActions
             )}
             {this.renderBox(
-              'Schedule',
-              '/images/icons/erxes-21.svg',
+              'Scheduler',
+              '/images/icons/erxes-14.svg',
               '/settings/schedule',
               'calendarsAll',
-              calendarActions
+              calendarActions,
+              'New'
             )}
           </div>
-        </Column>
-        <Column>
-          <ColumnTitle>
-            {__('Multipurpose Settings')} &nbsp;|
+        </Row>
+        <Divider />
+        <Row>
+          <RowTitle>
+            {__('Multipurpose Settings')}
             <span>
               {__(
                 'Organize your information with secondary features used across different core features'
               )}
             </span>
-          </ColumnTitle>
+          </RowTitle>
           <div id={'SettingsMultipurposeSettings'}>
             {this.renderBox(
               'Channels',
@@ -267,14 +279,14 @@ class Settings extends React.PureComponent {
               ['showSegments', 'manageSegments']
             )}
             {this.renderBox(
-              'Script manager',
+              'Widget Script Manager',
               '/images/icons/erxes-12.svg',
               '/settings/scripts',
               'scriptsAll',
               ['showScripts', 'manageScripts']
             )}
             {this.renderBox(
-              'Product & Service',
+              'Products & Services',
               '/images/icons/deal-insight-volume.svg',
               '/settings/product-service',
               'productsAll',
@@ -302,52 +314,52 @@ class Settings extends React.PureComponent {
               ['showEmailTemplates', 'manageEmailTemplate']
             )}
           </div>
-        </Column>
-
-        <Column>
-          <ColumnTitle>
-            {__('Feature Settings')} &nbsp;|
+        </Row>
+        <Divider />
+        <Row>
+          <RowTitle>
+            {__('Feature Settings')}
             <span>{__('Setup and manage individual core features')}</span>
-          </ColumnTitle>
+          </RowTitle>
           <div id={'SettingsFeatureSettings'}>
             {this.renderBox(
-              'Sales board & Pipelines',
+              'Sales Pipelines',
               '/images/icons/erxes-19.svg',
               '/settings/boards/deal',
               'dealsAll',
               dealPermissions
             )}
             {this.renderBox(
-              'Task board & Pipelines',
+              'Task Pipelines',
               '/images/icons/erxes-19.svg',
               '/settings/boards/task',
               'tasksAll',
               taskPermissions
             )}
             {this.renderBox(
-              'Ticket board & Pipelines',
+              'Ticket Pipelines',
               '/images/icons/erxes-19.svg',
               '/settings/boards/ticket',
               'ticketsAll',
               ticketPermissions
             )}
             {this.renderBox(
-              'Marketing campaigns & Projects',
+              'Growth Hacking',
               '/images/icons/erxes-20.svg',
               '/settings/boards/growthHack',
               'growthHacksAll',
               growthHackPermissions
             )}
           </div>
-        </Column>
-
-        <Column>
-          <ColumnTitle>
-            {__('Monitor')} &nbsp;|
+        </Row>
+        <Divider />
+        <Row>
+          <RowTitle>
+            {__('Monitor')}
             <span>
               {__("Keep track of your organization's status and activity")}
             </span>
-          </ColumnTitle>
+          </RowTitle>
           <div id={'SettingsMonitorSettings'}>
             {this.renderBox(
               'Status',
@@ -374,7 +386,7 @@ class Settings extends React.PureComponent {
               ''
             )}
           </div>
-        </Column>
+        </Row>
 
         {pluginsOfSettings(this.renderBox)}
       </MenusContainer>

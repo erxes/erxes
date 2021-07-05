@@ -4,7 +4,7 @@ import { IItem } from 'modules/boards/types';
 import { __ } from 'modules/common/utils';
 import { ICompany } from 'modules/companies/types';
 import { ICustomer } from 'modules/customers/types';
-import { Divider, Column, ColumnTitle } from 'modules/settings/main/styles';
+import { Divider, Row, RowTitle } from 'modules/settings/main/styles';
 import React from 'react';
 import { Route } from 'react-router-dom';
 import pluginModules from './plugins';
@@ -136,10 +136,10 @@ const renderSettings = (
   return (
     <>
       <Divider />
-      <Column>
-        <ColumnTitle>{__('Plugins Settings')}</ColumnTitle>
+      <Row>
+        <RowTitle>{__('Plugins Settings')}</RowTitle>
         <div id={'PluginsSettings'}>{pluginsBoxs}</div>
-      </Column>
+      </Row>
     </>
   );
 };

@@ -3,16 +3,16 @@ import { darken } from 'modules/common/styles/color';
 import { BoxRoot } from 'modules/common/styles/main';
 import styled from 'styled-components';
 
-const columnTitleSize = 250;
+const columnTitleSize = 300;
 const boxSize = 150;
 
 const MenusContainer = styled.div`
   padding: ${dimensions.coreSpacing}px ${dimensions.headerSpacing}px;
 `;
 
-const Column = styled.div`
+const Row = styled.div`
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
   padding-top: ${dimensions.coreSpacing}px;
 
   @media (max-width: 1170px) {
@@ -21,26 +21,33 @@ const Column = styled.div`
   }
 `;
 
-const ColumnTitle = styled.h3`
-  font-size: ${typography.fontSizeHeading8 + 2}px;
+const RowTitle = styled.h3`
+  font-size: ${typography.fontSizeHeading8 + 1}px;
   font-weight: ${typography.fontWeightMedium};
   text-transform: uppercase;
   margin: 0 0 ${dimensions.coreSpacing}px;
   color: ${colors.colorCoreDarkGray};
   flex-shrink: 0;
+  align-self: center;
+  width: ${columnTitleSize}px;
 
   > span {
     text-transform: initial;
-    padding-left: 5px;
-    color: #888;
+    display: block;
+    color: ${colors.colorCoreGray};
+    margin-top: ${dimensions.unitSpacing - 5}px;
     font-weight: normal;
+    max-width: ${columnTitleSize - 40}px;
+    line-height: 1.4;
   }
 `;
 
 const Box = styled(BoxRoot)`
-  width: ${boxSize + 10}px;
+  width: ${boxSize + dimensions.coreSpacing}px;
   height: ${boxSize}px;
   border-color: transparent;
+  background: ${colors.colorWhite};
+  position: relative;
 
   img {
     height: 83px;
@@ -53,8 +60,32 @@ const Box = styled(BoxRoot)`
     justify-content: space-between;
     height: 100%;
 
+    > em {
+      background: ${colors.colorCoreGreen};
+      border-radius: 3px;
+      color: #fff;
+      font-size: 11px;
+      font-weight: 600;
+      padding: 0 ${dimensions.unitSpacing - 5}px;
+      position: absolute;
+      right: ${dimensions.unitSpacing - 5}px;
+      top: ${dimensions.unitSpacing - 5}px;
+      text-transform: uppercase;
+    }
+
     &:focus {
       text-decoration: none;
+    }
+  }
+
+  &.hasBorder {
+    border-bottom: ${dimensions.unitSpacing - 7}px solid
+      ${colors.colorCoreGreen};
+  }
+
+  &:hover {
+    img {
+      transform: scale(1.1) rotate(4deg);
     }
   }
 `;
@@ -75,4 +106,4 @@ const BoxName = styled.span`
   margin: 0 !important;
 `;
 
-export { Column, ColumnTitle, Box, Divider, BoxName, MenusContainer };
+export { Row, RowTitle, Box, Divider, BoxName, MenusContainer };
