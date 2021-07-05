@@ -83,9 +83,9 @@ class Channels extends React.Component<Props, {}> {
           <HeaderDescription
             icon="/images/actions/31.svg"
             title={'Channels'}
-            description={__(
-              'Channels are important to know how and where your team members are spread out. Manage your channels and stay at the top of your game.'
-            )}
+            description={`${__(
+              `Channels are important to know how and where your team members are spread out`
+            )}.${__(`Manage your channels and stay at the top of your game`)}`}
           />
         }
         leftSidebar={
@@ -113,7 +113,9 @@ class Channels extends React.Component<Props, {}> {
             }
             loading={loading}
             count={integrationsCount}
-            emptyText="Choose from our many integrations and add to your channel"
+            emptyText={__(
+              'Choose from our many integrations and add to your channel'
+            )}
             emptyImage="/images/actions/2.svg"
           />
         }

@@ -522,7 +522,6 @@ export const replaceEditorAttributes = async (args: {
 }> => {
   const { content, user, brand, item } = args;
   const customer = args.customer || {};
-
   const replacers: IReplacer[] = [];
 
   let replacedContent = content || '';
@@ -565,7 +564,7 @@ export const replaceEditorAttributes = async (args: {
   }
 
   // replace customer fields
-  if (customer) {
+  if (args.customer) {
     replacers.push({
       key: '{{ customer.name }}',
       value: Customers.getCustomerName(customer)
@@ -1144,8 +1143,13 @@ export const findCompany = async doc => {
     });
   }
 
+  if (!company && doc.companyCode) {
+    company = await Companies.findOne({ code: doc.companyCode });
+  }
+
   if (!company && doc.companyPrimaryName) {
     company = await Companies.findOne({ primaryName: doc.companyPrimaryName });
   }
+
   return company;
 };

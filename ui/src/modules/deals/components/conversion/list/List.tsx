@@ -27,10 +27,10 @@ class List extends React.Component<Props, {}> {
 
     const lastStageItemsTotalCount = lastStage.itemsTotalCount || 0;
 
-    const avarage =
+    const Average =
       (lastStageItemsTotalCount * 100) / firstStageInitialDealsTotalCount;
 
-    return <Result>Winrate: {parseInt(`${avarage}`, 10)}%</Result>;
+    return <Result>Winrate: {parseInt(`${Average}`, 10)}%</Result>;
   }
 
   render() {

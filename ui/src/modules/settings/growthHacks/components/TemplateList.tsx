@@ -125,7 +125,11 @@ class TemplateList extends React.Component<Props> {
           <HeaderDescription
             icon="/images/actions/34.svg"
             title="Growth Hacking Templates"
-            description={`Manage your boards and pipelines so that its easy to manage incoming leads or requests that is adaptable to your team's needs. Add in or delete boards and pipelines to keep business development on track and in check.`}
+            description={`${__(
+              'Manage your boards and pipelines so that its easy to manage incoming leads or requests that is adaptable to your teams needs'
+            )}.${__(
+              'Add in or delete boards and pipelines to keep business development on track and in check'
+            )}`}
           />
         }
         additionalButton={this.renderButton()}
