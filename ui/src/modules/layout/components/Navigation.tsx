@@ -83,7 +83,7 @@ class Navigation extends React.Component<IProps> {
           </>
         ) : (
           <Tip placement="right" text={__('Expand menu')}>
-            <a>
+            <a href="#">
               <NavIcon className={icon} />
             </a>
           </Tip>

@@ -3,16 +3,16 @@ import { darken } from 'modules/common/styles/color';
 import { BoxRoot } from 'modules/common/styles/main';
 import styled from 'styled-components';
 
-const rowTitleSize = 250;
+const columnTitleSize = 250;
 const boxSize = 150;
 
 const MenusContainer = styled.div`
-  padding: ${dimensions.coreSpacing}px 0;
+  padding: ${dimensions.coreSpacing}px ${dimensions.headerSpacing}px;
 `;
 
-const Row = styled.div`
+const Column = styled.div`
   display: flex;
-  flex-direction: row;
+  flex-direction: column;
   padding-top: ${dimensions.coreSpacing}px;
 
   @media (max-width: 1170px) {
@@ -21,20 +21,19 @@ const Row = styled.div`
   }
 `;
 
-const RowTitle = styled.h3`
-  font-size: ${typography.fontSizeHeading8}px;
+const ColumnTitle = styled.h3`
+  font-size: ${typography.fontSizeHeading8 + 2}px;
   font-weight: ${typography.fontWeightMedium};
-  padding: 0 ${dimensions.coreSpacing * 2}px 0 ${dimensions.coreSpacing * 1.5}px;
   text-transform: uppercase;
-  align-self: center;
   margin: 0 0 ${dimensions.coreSpacing}px;
   color: ${colors.colorCoreDarkGray};
   flex-shrink: 0;
-  width: ${rowTitleSize}px;
 
-  @media (max-width: 1170px) {
-    align-self: baseline;
-    padding: 0;
+  > span {
+    text-transform: initial;
+    padding-left: 5px;
+    color: #888;
+    font-weight: normal;
   }
 `;
 
@@ -64,7 +63,7 @@ const Divider = styled.div`
   border-bottom: 1px dotted ${darken(colors.borderDarker, 5)};
   padding-bottom: ${dimensions.coreSpacing}px;
   margin: 0 ${dimensions.coreSpacing}px ${dimensions.coreSpacing}px
-    ${rowTitleSize}px;
+    ${columnTitleSize}px;
 
   @media (max-width: 1170px) {
     margin-left: ${dimensions.coreSpacing}px;
@@ -76,4 +75,4 @@ const BoxName = styled.span`
   margin: 0 !important;
 `;
 
-export { Row, RowTitle, Box, Divider, BoxName, MenusContainer };
+export { Column, ColumnTitle, Box, Divider, BoxName, MenusContainer };
