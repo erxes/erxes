@@ -238,6 +238,7 @@ const sendEmailOrSms = async (
   const emailConf = engageMessage.email ? engageMessage.email : { content: '' };
   const emailContent = emailConf.content || '';
 
+  // TODO: refactor customerFields. try removing this paramter in replaceEditorAttributes.
   const { customerFields } = await replaceEditorAttributes({
     content: emailContent
   });
