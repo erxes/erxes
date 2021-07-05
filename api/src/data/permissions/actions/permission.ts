@@ -737,7 +737,7 @@ export const moduleObjects = {
         description: 'Show permissions'
       },
       {
-        name: 'showPermissionsModules',
+        name: 'showPermissionModules',
         description: 'Show permissions modules'
       },
       {
