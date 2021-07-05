@@ -521,50 +521,50 @@ export const replaceEditorAttributes = async (args: {
   customerFields?: string[];
 }> => {
   const { content, user, brand, item } = args;
-  const customer = args.customer;
+  const customer = args.customer || {};
   const replacers: IReplacer[] = [];
 
   let replacedContent = content || '';
   let customerFields = args.customerFields;
 
-  if (customer) {
-    const customFieldsData = customer.customFieldsData || [];
+  const customFieldsData = customer.customFieldsData || [];
 
-    if (!customerFields || customerFields.length === 0) {
-      const possibleCustomerFields = await fieldsCombinedByContentType({
-        contentType: 'customer'
-      });
+  if (!customerFields || customerFields.length === 0) {
+    const possibleCustomerFields = await fieldsCombinedByContentType({
+      contentType: 'customer'
+    });
 
-      customerFields = ['firstName', 'lastName', 'middleName'];
+    customerFields = ['firstName', 'lastName', 'middleName'];
 
-      for (const field of possibleCustomerFields) {
-        if (content.includes(`{{ customer.${field.name} }}`)) {
-          if (field.name.includes('trackedData')) {
-            customerFields.push('trackedData');
+    for (const field of possibleCustomerFields) {
+      if (content.includes(`{{ customer.${field.name} }}`)) {
+        if (field.name.includes('trackedData')) {
+          customerFields.push('trackedData');
 
-            continue;
-          }
-
-          if (field.name.includes('customFieldsData')) {
-            const fieldId = field.name.split('.').pop();
-
-            if (!customFieldsData.find(e => e.field === fieldId)) {
-              customFieldsData.push({ field: fieldId || '', value: '' });
-            }
-
-            customerFields.push('customFieldsData');
-
-            continue;
-          }
-
-          customerFields.push(field.name);
+          continue;
         }
-      }
 
-      customer.customFieldsData = customFieldsData;
+        if (field.name.includes('customFieldsData')) {
+          const fieldId = field.name.split('.').pop();
+
+          if (!customFieldsData.find(e => e.field === fieldId)) {
+            customFieldsData.push({ field: fieldId || '', value: '' });
+          }
+
+          customerFields.push('customFieldsData');
+
+          continue;
+        }
+
+        customerFields.push(field.name);
+      }
     }
 
-    // replace customer fields
+    customer.customFieldsData = customFieldsData;
+  }
+
+  // replace customer fields
+  if (args.customer) {
     replacers.push({
       key: '{{ customer.name }}',
       value: Customers.getCustomerName(customer)
