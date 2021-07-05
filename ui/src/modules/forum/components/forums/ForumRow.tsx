@@ -121,7 +121,11 @@ class ForumRow extends React.Component<Props, State> {
           {this.renderManage()}
         </SectionHead>
         {this.state.detailed && (
-          <TopicList forumId={forum._id} currentTopicId={currentTopicId} />
+          <TopicList
+            forumId={forum._id}
+            currentTopicId={currentTopicId}
+            forum={forum}
+          />
         )}
       </ForumsRow>
     );

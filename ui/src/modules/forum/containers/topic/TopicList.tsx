@@ -7,24 +7,18 @@ import { Alert, confirm } from 'modules/common/utils';
 import gql from 'graphql-tag';
 import { graphql } from 'react-apollo';
 import { queries, mutations } from '../../graphql';
-import { TopicsQueryResponse, RemoveTopicsMutationResponse } from '../../types';
+import { IForum, RemoveTopicsMutationResponse } from '../../types';
 
 type Props = {
   forumId: string;
   currentTopicId: string;
+  forum: IForum;
 };
 
-type FinalProps = {
-  forumTopicsQuery: TopicsQueryResponse;
-} & Props &
-  RemoveTopicsMutationResponse;
+type FinalProps = {} & Props & RemoveTopicsMutationResponse;
 
 const TopicListContainer = (props: FinalProps) => {
-  const { forumTopicsQuery, removeTopicsMutation } = props;
-
-  if (forumTopicsQuery.loading) {
-    return null;
-  }
+  const { removeTopicsMutation } = props;
 
   const remove = topicId => {
     confirm().then(() => {
@@ -34,8 +28,6 @@ const TopicListContainer = (props: FinalProps) => {
         }
       })
         .then(() => {
-          forumTopicsQuery.refetch();
-
           Alert.success('You successfully deleted a topic');
         })
         .catch(error => {
@@ -44,11 +36,8 @@ const TopicListContainer = (props: FinalProps) => {
     });
   };
 
-  const forumTopics = forumTopicsQuery.forumTopics || [];
-
   const updatedProps = {
     ...props,
-    forumTopics,
     remove
   };
 
@@ -56,15 +45,6 @@ const TopicListContainer = (props: FinalProps) => {
 };
 
 export default compose(
-  graphql<Props, TopicsQueryResponse, { forumId: string }>(
-    gql(queries.forumTopics),
-    {
-      name: 'forumTopicsQuery',
-      options: ({ forumId }) => ({
-        variables: { forumId }
-      })
-    }
-  ),
   graphql<Props, RemoveTopicsMutationResponse, { _id: string }>(
     gql(mutations.forumTopicsRemove),
     {

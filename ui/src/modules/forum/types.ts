@@ -42,7 +42,7 @@ export interface IDiscussion {
   description: string;
 
   createdBy: string;
-  createdUser: IUser;
+  createdUser?: IUser;
   createdDate: Date;
   modifiedBy: string;
   modifiedDate: Date;

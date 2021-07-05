@@ -1,40 +1,30 @@
 import React from 'react';
 import TopicRow from './TopicRow';
 import { Topics } from './styles';
-import { ITopic } from '../../types';
+import { IForum } from '../../types';
 
 type Props = {
-  forumTopics: ITopic[];
-  forumId: string;
   currentTopicId: string;
   remove: (topicId: string) => void;
+  forum: IForum;
 };
 
 class TopicList extends React.Component<Props> {
-  generateTopic = (topics, _id) => {
-    topics.filter(f => f._id === _id);
-  };
-
   render() {
-    const { forumTopics, forumId, currentTopicId, remove } = this.props;
-
-    this.generateTopic(forumTopics, forumId);
+    const { forum, currentTopicId, remove } = this.props;
+    const { topics } = forum;
 
     return (
       <Topics>
-        {forumTopics.map((topic, index) => {
-          if (topic.forumId === forumId) {
-            return (
-              <TopicRow
-                key={index}
-                isActive={topic._id === currentTopicId}
-                topic={topic}
-                remove={remove}
-              />
-            );
-          } else {
-            return null;
-          }
+        {topics.map((topic, index) => {
+          return (
+            <TopicRow
+              key={index}
+              isActive={topic._id === currentTopicId}
+              topic={topic}
+              remove={remove}
+            />
+          );
         })}
       </Topics>
     );

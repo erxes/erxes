@@ -40,7 +40,9 @@ class DiscussionDetail extends React.Component<Props> {
                       {createdUser
                         ? `${createdUser.details &&
                             createdUser.details.fullName}`
-                        : `${createdCustomer.firstName} ${createdCustomer.lastName}`}
+                        : `${createdCustomer &&
+                            createdCustomer.firstName} ${createdCustomer &&
+                            createdCustomer.lastName}`}
                     </h5>
                     <div
                       className="comment"
