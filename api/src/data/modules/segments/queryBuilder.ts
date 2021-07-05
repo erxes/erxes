@@ -177,7 +177,8 @@ export const fetchBySegments = async (
           must_not: propertyNegative
         }
       }
-    }
+    },
+    defaultValue: { hits: { hits: [] } }
   });
 
   if (options.returnFields) {

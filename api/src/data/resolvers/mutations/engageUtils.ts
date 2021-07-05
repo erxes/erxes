@@ -214,13 +214,18 @@ const sendEmailOrSms = async (
 ) => {
   const engageMessageId = engageMessage._id;
 
-  await sendQueueMessage({
-    action: 'writeLog',
-    data: {
-      engageMessageId,
-      msg: `Run at ${new Date()}`
-    }
-  });
+  const MINUTELY =
+    engageMessage.scheduleDate && engageMessage.scheduleDate.type === 'minute';
+
+  if (!(engageMessage.kind === MESSAGE_KINDS.AUTO && MINUTELY)) {
+    await sendQueueMessage({
+      action: 'writeLog',
+      data: {
+        engageMessageId,
+        msg: `Run at ${new Date()}`
+      }
+    });
+  }
 
   const customerInfos: Array<{
     _id: string;
@@ -245,10 +250,6 @@ const sendEmailOrSms = async (
       await EngageMessages.deleteOne({ _id: engageMessage._id });
       throw new Error('No customers found');
     }
-
-    const MINUTELY =
-      engageMessage.scheduleDate &&
-      engageMessage.scheduleDate.type === 'minute';
 
     if (
       !(
