@@ -196,7 +196,7 @@ class DiscussionForm extends React.Component<Props, State> {
             <FormGroup>
               <ControlLabel>{__('Tags')}</ControlLabel>
               <Select
-                placeholder="Select tags"
+                placeholder={__('Choose your tags')}
                 value={tagIds}
                 options={this.generateTags(tags)}
                 onChange={this.onChangeTag}
@@ -209,7 +209,7 @@ class DiscussionForm extends React.Component<Props, State> {
         <FormGroup>
           <ControlLabel>
             <Icon icon="paperclip" />
-            {'Attachments'}
+            {__('Attachments')}
           </ControlLabel>
 
           <Uploader
