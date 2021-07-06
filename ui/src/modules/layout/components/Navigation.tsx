@@ -56,12 +56,14 @@ class Navigation extends React.Component<IProps> {
             <SubNav collapsed={collapsed}>
               {!collapsed && <SubNavTitle>{__(text)}</SubNavTitle>}
               {childrens.map((child, index) => (
-                <SubNavItem key={index} additional={child.additional || false}>
-                  <NavLink to={child.link}>
-                    <i className={child.icon} />
-                    {__(child.value)}
-                  </NavLink>
-                </SubNavItem>
+                <WithPermission key={index} action={child.permission}>
+                  <SubNavItem additional={child.additional || false}>
+                    <NavLink to={child.link}>
+                      <i className={child.icon} />
+                      {__(child.value)}
+                    </NavLink>
+                  </SubNavItem>
+                </WithPermission>
               ))}
             </SubNav>
           )}
@@ -109,32 +111,32 @@ class Navigation extends React.Component<IProps> {
             'icon-chat',
             [
               {
-                key: 'showConversations',
+                permission: 'showConversations',
                 link: '/inbox',
                 value: 'Conversations',
                 icon: 'icon-chat'
               },
               {
-                key: 'showChannels',
+                permission: 'showChannels',
                 link: '/settings/channels',
                 value: 'Channels',
                 icon: 'icon-layer-group',
                 additional: true
               },
               {
-                key: 'showIntegrations',
+                permission: 'showIntegrations',
                 link: '/settings/integrations',
                 value: 'Integrations',
                 icon: 'icon-puzzle-piece'
               },
               {
-                key: 'showSkills',
+                permission: 'getSkills',
                 link: '/settings/skills',
                 value: 'Skills',
                 icon: 'icon-file-info-alt'
               },
               {
-                key: 'showResponses',
+                permission: 'showResponseTemplates',
                 link: '/settings/response-templates',
                 value: 'Responses',
                 icon: 'icon-files-landscapes'
@@ -149,38 +151,38 @@ class Navigation extends React.Component<IProps> {
             'icon-users',
             [
               {
-                key: 'showVisitors',
+                permission: 'showCustomers',
                 link: '/contacts/visitor',
                 value: 'Visitors',
                 icon: 'icon-user-square'
               },
               {
-                key: 'showLeads',
+                permission: 'showCustomers',
                 link: '/contacts/lead',
                 value: 'Leads',
                 icon: 'icon-file-alt'
               },
               {
-                key: 'showCustomers',
+                permission: 'showCustomers',
                 link: '/contacts/customer',
                 value: 'Customers',
                 icon: 'icon-users-alt'
               },
               {
-                key: 'showCompanies',
+                permission: 'showCompanies',
                 link: '/companies',
                 value: 'Companies',
                 icon: 'icon-building'
               },
               {
-                key: 'showSegments',
+                permission: 'showSegments',
                 link: '/segments/customer',
                 value: 'Segments',
                 icon: 'icon-chart-pie-alt',
                 additional: true
               },
               {
-                key: 'showTags',
+                permission: 'showTags',
                 link: '/tags/conversation',
                 value: 'Tags',
                 icon: 'icon-tag-alt'
@@ -188,25 +190,25 @@ class Navigation extends React.Component<IProps> {
             ]
           )}
           {this.renderNavItem(
-            'showMarketing',
+            'showForms',
             __('Marketing'),
             '/forms',
             'icon-head-1',
             [
               {
-                key: 'showForms',
+                permission: 'showForms',
                 link: '/forms',
                 value: 'Forms',
                 icon: 'icon-laptop'
               },
               {
-                key: 'showEngagesMessages',
+                permission: 'showEngagesMessages',
                 link: '/campaigns',
                 value: 'Campaigns',
                 icon: 'icon-megaphone'
               },
               {
-                key: 'showGrowthHacks',
+                permission: 'showGrowthHacks',
                 link: '/growthHack',
                 value: 'Growth hacking',
                 icon: 'icon-idea'
@@ -214,19 +216,19 @@ class Navigation extends React.Component<IProps> {
             ]
           )}
           {this.renderNavItem(
-            'showSales',
+            'showDeals',
             __('Sales'),
             '/deal',
             'icon-signal-alt-3',
             [
               {
-                key: 'showSales',
+                permission: 'showDeals',
                 link: '/deal',
                 value: 'Sales pipeline',
                 icon: 'icon-piggy-bank'
               },
               {
-                key: 'showProductService',
+                permission: 'showProducts',
                 link: '/settings/product-service',
                 value: 'Products & service',
                 icon: 'icon-box'
@@ -234,25 +236,25 @@ class Navigation extends React.Component<IProps> {
             ]
           )}
           {this.renderNavItem(
-            'showSupport',
+            'showKnowledgeBase',
             __('Support'),
             '/knowledgeBase',
             'icon-circular',
             [
               {
-                key: 'showTickets',
+                permission: 'showTickets',
                 link: '/inbox/ticket/board',
                 value: 'Tickets',
                 icon: 'icon-ticket'
               },
               {
-                key: 'showKnowledgeBase',
+                permission: 'showKnowledgeBase',
                 link: '/knowledgeBase',
                 value: 'Knowledgebase',
                 icon: 'icon-book-open'
               },
               {
-                key: 'showForum',
+                permission: 'showForum',
                 link: '/forum',
                 value: 'Forum',
                 icon: 'icon-list-ui-alt'
@@ -260,25 +262,25 @@ class Navigation extends React.Component<IProps> {
             ]
           )}
           {this.renderNavItem(
-            'showManagement',
+            'showConversations',
             __('Managament'),
             '/task',
             'icon-laptop',
             [
               {
-                key: 'showTask',
+                permission: 'showConversations',
                 link: '/task',
                 value: 'Task',
                 icon: 'icon-file-check-alt'
               },
               REACT_APP_DASHBOARD_URL !== 'undefined' && {
-                key: 'showDashboards',
+                permission: 'showDashboards',
                 link: '/dashboard',
                 value: 'Reports',
                 icon: 'icon-dashboard'
               },
               {
-                key: 'showCalendar',
+                permission: 'showCalendars',
                 link: '/calendar',
                 value: 'Calendar',
                 icon: 'icon-calendar-alt'
