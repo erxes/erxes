@@ -292,23 +292,6 @@ const NavIcon = styled.i`
   color: ${colors.colorWhite};
 `;
 
-const Collapse = styledTS<{ collapsed: boolean }>(styled.div)`
-  cursor: pointer;
-  text-transform: uppercase;
-  font-size: 11px;
-  color: ${colors.colorShadowGray};
-  text-align: ${props => !props.collapsed && 'center'};
-
-  > i {
-    padding: ${props => props.collapsed && '0 10px 0 15px'};
-    color: ${colors.colorShadowGray};
-  }
-
-  &:hover {
-
-  }
-`;
-
 const SubNav = styledTS<{ collapsed: boolean }>(styled.ul)`
   background: ${colors.colorSecondary};
   position: absolute;
@@ -436,6 +419,37 @@ const DropNav = styled.a`
   }
 `;
 
+const ExpandIcon = styledTS<{ collapsed: boolean }>(styled.div)`
+  background: ${props =>
+    !props.collapsed ? colors.colorPrimaryDark : colors.colorWhite};
+  position: absolute;
+  top: 12px;
+  z-index: 999;
+  right: -12px;
+  height: ${dimensions.coreSpacing + 5}px;
+  width: ${dimensions.coreSpacing + 5}px;
+  border-radius: 50px;
+  text-align: center;
+  transition: width 0.3s;
+
+  > i {
+    color: ${props =>
+      props.collapsed ? colors.colorPrimaryDark : colors.colorWhite};
+    line-height: ${dimensions.coreSpacing + 5}px;
+    transition: all ease 0.3s;
+  }
+
+  &:hover {
+    width: 30px;
+    right: -15px;
+
+    > i {
+      float: ${props => (props.collapsed ? 'left' : 'right')};
+    }
+  }
+}
+`;
+
 export {
   Layout,
   MainWrapper,
@@ -472,6 +486,6 @@ export {
   NavItem,
   SubNavTitle,
   SubNavItem,
-  Collapse,
-  DropNav
+  DropNav,
+  ExpandIcon
 };

@@ -8,13 +8,14 @@ import {
   LeftNavigation,
   NavIcon,
   Nav,
-  Collapse,
   SubNav,
   NavItem,
   SubNavTitle,
-  SubNavItem
+  SubNavItem,
+  ExpandIcon
 } from '../styles';
 import Tip from 'modules/common/components/Tip';
+import Icon from 'erxes-ui/lib/components/Icon';
 
 const { REACT_APP_DASHBOARD_URL } = getEnv();
 
@@ -72,23 +73,15 @@ class Navigation extends React.Component<IProps> {
 
   renderCollapse() {
     const { onCollapseNavigation, collapsed } = this.props;
-    const icon = collapsed ? 'icon-sign-in-alt' : 'icon-sign-out-alt';
+    const icon = collapsed ? 'angle-double-left' : 'angle-double-right';
+    const tooltipText = collapsed ? 'Collapse menu' : 'Expand menu';
 
     return (
-      <Collapse onClick={onCollapseNavigation} collapsed={collapsed}>
-        {collapsed ? (
-          <>
-            <NavIcon className={icon} />
-            {__('Collapse menu')}
-          </>
-        ) : (
-          <Tip placement="right" text={__('Expand menu')}>
-            <a href="#">
-              <NavIcon className={icon} />
-            </a>
-          </Tip>
-        )}
-      </Collapse>
+      <Tip placement="right" text={__(tooltipText)}>
+        <ExpandIcon onClick={onCollapseNavigation} collapsed={collapsed}>
+          <Icon icon={icon} size={22} />
+        </ExpandIcon>
+      </Tip>
     );
   }
 
@@ -107,6 +100,7 @@ class Navigation extends React.Component<IProps> {
       <LeftNavigation collapsed={collapsed}>
         <NavLink to="/">
           <img src={`/images/${logo}`} alt="erxes" />
+          {this.renderCollapse()}
         </NavLink>
         <Nav id="navigation" collapsed={collapsed}>
           {this.renderNavItem(
@@ -254,8 +248,6 @@ class Navigation extends React.Component<IProps> {
               }
             ]
           )}
-
-          {this.renderCollapse()}
 
           {pluginsOfNavigations(this.renderNavItem)}
         </Nav>
