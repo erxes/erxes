@@ -40,6 +40,10 @@ const RowTitle = styled.h3`
     max-width: ${columnTitleSize - 40}px;
     line-height: 1.4;
   }
+
+  @media (max-width: 1170px) {
+    align-self: flex-start;
+  }
 `;
 
 const Box = styled(BoxRoot)`

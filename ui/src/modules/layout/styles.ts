@@ -218,8 +218,7 @@ const Nav = styledTS<{ collapsed: boolean }>(styled.nav)`
     transition: all 0.3s ease;
 
     i {
-      padding: ${props => props.collapsed && '0 10px 0 15px'};
-      opacity: 0.8;
+      padding: ${props => props.collapsed && '0 15px 0 20px'};
       transition: all 0.3s ease;
     }
 
@@ -248,10 +247,6 @@ const Nav = styledTS<{ collapsed: boolean }>(styled.nav)`
         border-top-right-radius: 3px;
         border-bottom-right-radius: 3px;
       }
-
-      i {
-        opacity: 1;
-      }
     }
 
     &:focus {
@@ -260,10 +255,7 @@ const Nav = styledTS<{ collapsed: boolean }>(styled.nav)`
 
     &:hover {
       background: rgba(0, 0, 0, 0.06);
-
-      i {
-        opacity: 1;
-      }
+      opacity: 1;
     }
 
     &.bottom {
@@ -310,6 +302,8 @@ const SubNav = styledTS<{ collapsed: boolean }>(styled.ul)`
   padding: 0;
   color: ${colors.colorShadowGray};
   list-style: none;
+  border-top-right-radius: 5px;
+  border-bottom-right-radius: 5px;
 
   &:after {
     content: " ";
@@ -326,51 +320,34 @@ const SubNav = styledTS<{ collapsed: boolean }>(styled.ul)`
   }
 `;
 
-const SubNavItem = styledTS<{ collapsed: boolean; additional: boolean }>(
-  styled.li
-)`
-    border-top: ${props =>
-      props.additional && `1px solid ${rgba(colors.borderPrimary, 0.3)}`};
-
+const SubNavItem = styledTS<{ additional: boolean }>(styled.li)`
     > a {
-    padding: ${dimensions.unitSpacing - 3}px ${dimensions.coreSpacing}px;
-    color: ${colors.colorWhite};
-    opacity: 0.9;
-    display: block;
+      padding: ${dimensions.unitSpacing}px;
+      margin: 0 ${dimensions.unitSpacing}px;
+      color: ${colors.colorWhite};
+      opacity: .8;
+      display: flex;
+      align-items: center;
+      border-top: ${props =>
+        props.additional && `1px solid ${rgba(colors.borderPrimary, 0.6)}`};
 
-    &.active {
-      opacity: 1;
-      font-weight: bold;
-      position: relative;
+      > i {
+        font-size: 16px;
+        margin-right: ${dimensions.unitSpacing}px;
+      }
 
-      ${props =>
-        !props.collapsed &&
-        css`
-          &:before {
-            content: '';
-            width: 3px;
-            background: #63d2d6;
-            position: absolute;
-            display: block;
-            left: 0;
-            top: 5px;
-            bottom: 5px;
-            border-top-right-radius: 3px;
-            border-bottom-right-radius: 3px;
-          }
-        `};
+      &.active {
+        opacity: 1;
+        font-weight: bold;
+        position: relative;
       }
     }
 
-    &:last-child a {
-      padding-bottom: ${dimensions.unitSpacing}px;
-    }
+    &:hover  {
+      background: ${rgba(colors.colorBlack, 0.06)};
 
-    &:hover {
-      background: rgba(0, 0, 0, 0.06);
-
-      > a {
-        opacity: 1;
+      > a { 
+         opacity: 1 
       }
     }
 `;
@@ -426,9 +403,10 @@ const ExpandIcon = styledTS<{ collapsed: boolean }>(styled.div)`
   top: 12px;
   z-index: 999;
   right: -12px;
+  cursor: pointer;
   height: ${dimensions.coreSpacing + 5}px;
   width: ${dimensions.coreSpacing + 5}px;
-  border-radius: 50px;
+  border-radius: ${dimensions.headerSpacing}px;
   text-align: center;
   transition: width 0.3s;
 

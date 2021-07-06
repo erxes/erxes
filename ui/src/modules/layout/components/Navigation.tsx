@@ -15,7 +15,7 @@ import {
   ExpandIcon
 } from '../styles';
 import Tip from 'modules/common/components/Tip';
-import Icon from 'erxes-ui/lib/components/Icon';
+import Icon from 'modules/common/components/Icon';
 
 const { REACT_APP_DASHBOARD_URL } = getEnv();
 
@@ -56,12 +56,11 @@ class Navigation extends React.Component<IProps> {
             <SubNav collapsed={collapsed}>
               {!collapsed && <SubNavTitle>{__(text)}</SubNavTitle>}
               {childrens.map((child, index) => (
-                <SubNavItem
-                  key={index}
-                  collapsed={collapsed}
-                  additional={child.additional || false}
-                >
-                  <NavLink to={child.link}>{__(child.value)}</NavLink>
+                <SubNavItem key={index} additional={child.additional || false}>
+                  <NavLink to={child.link}>
+                    <i className={child.icon} />
+                    {__(child.value)}
+                  </NavLink>
                 </SubNavItem>
               ))}
             </SubNav>
@@ -100,8 +99,8 @@ class Navigation extends React.Component<IProps> {
       <LeftNavigation collapsed={collapsed}>
         <NavLink to="/">
           <img src={`/images/${logo}`} alt="erxes" />
-          {this.renderCollapse()}
         </NavLink>
+        {this.renderCollapse()}
         <Nav id="navigation" collapsed={collapsed}>
           {this.renderNavItem(
             'showConversations',
@@ -112,24 +111,33 @@ class Navigation extends React.Component<IProps> {
               {
                 key: 'showConversations',
                 link: '/inbox',
-                value: 'Conversations'
+                value: 'Conversations',
+                icon: 'icon-chat'
               },
               {
                 key: 'showChannels',
                 link: '/settings/channels',
                 value: 'Channels',
+                icon: 'icon-layer-group',
                 additional: true
               },
               {
                 key: 'showIntegrations',
                 link: '/settings/integrations',
-                value: 'Integrations'
+                value: 'Integrations',
+                icon: 'icon-puzzle-piece'
               },
-              { key: 'showSkills', link: '/settings/skills', value: 'Skills' },
+              {
+                key: 'showSkills',
+                link: '/settings/skills',
+                value: 'Skills',
+                icon: 'icon-file-info-alt'
+              },
               {
                 key: 'showResponses',
                 link: '/settings/response-templates',
-                value: 'Responses'
+                value: 'Responses',
+                icon: 'icon-files-landscapes'
               }
             ],
             unreadIndicator
@@ -143,25 +151,39 @@ class Navigation extends React.Component<IProps> {
               {
                 key: 'showVisitors',
                 link: '/contacts/visitor',
-                value: 'Visitors'
+                value: 'Visitors',
+                icon: 'icon-user-square'
               },
-              { key: 'showLeads', link: '/contacts/lead', value: 'Leads' },
+              {
+                key: 'showLeads',
+                link: '/contacts/lead',
+                value: 'Leads',
+                icon: 'icon-file-alt'
+              },
               {
                 key: 'showCustomers',
                 link: '/contacts/customer',
-                value: 'Customers'
+                value: 'Customers',
+                icon: 'icon-users-alt'
               },
-              { key: 'showCompanies', link: '/companies', value: 'Companies' },
+              {
+                key: 'showCompanies',
+                link: '/companies',
+                value: 'Companies',
+                icon: 'icon-building'
+              },
               {
                 key: 'showSegments',
                 link: '/segments/customer',
                 value: 'Segments',
+                icon: 'icon-chart-pie-alt',
                 additional: true
               },
               {
                 key: 'showTags',
                 link: '/tags/conversation',
-                value: 'Tags'
+                value: 'Tags',
+                icon: 'icon-tag-alt'
               }
             ]
           )}
@@ -169,18 +191,25 @@ class Navigation extends React.Component<IProps> {
             'showMarketing',
             __('Marketing'),
             '/forms',
-            'icon-megaphone',
+            'icon-head-1',
             [
-              { key: 'showForms', link: '/forms', value: 'Forms' },
+              {
+                key: 'showForms',
+                link: '/forms',
+                value: 'Forms',
+                icon: 'icon-laptop'
+              },
               {
                 key: 'showEngagesMessages',
                 link: '/campaigns',
-                value: 'Campaigns'
+                value: 'Campaigns',
+                icon: 'icon-megaphone'
               },
               {
                 key: 'showGrowthHacks',
                 link: '/growthHack',
-                value: 'Growth hacking'
+                value: 'Growth hacking',
+                icon: 'icon-idea'
               }
             ]
           )}
@@ -188,17 +217,19 @@ class Navigation extends React.Component<IProps> {
             'showSales',
             __('Sales'),
             '/deal',
-            'icon-laptop',
+            'icon-signal-alt-3',
             [
               {
                 key: 'showSales',
                 link: '/deal',
-                value: 'Sales pipeline'
+                value: 'Sales pipeline',
+                icon: 'icon-piggy-bank'
               },
               {
                 key: 'showProductService',
                 link: '/settings/product-service',
-                value: 'Products & service'
+                value: 'Products & service',
+                icon: 'icon-box'
               }
             ]
           )}
@@ -206,22 +237,25 @@ class Navigation extends React.Component<IProps> {
             'showSupport',
             __('Support'),
             '/knowledgeBase',
-            'icon-idea',
+            'icon-circular',
             [
               {
                 key: 'showTickets',
                 link: '/inbox/ticket/board',
-                value: 'Tickets'
+                value: 'Tickets',
+                icon: 'icon-ticket'
               },
               {
                 key: 'showKnowledgeBase',
                 link: '/knowledgeBase',
-                value: 'Knowledgebase'
+                value: 'Knowledgebase',
+                icon: 'icon-book-open'
               },
               {
                 key: 'showForum',
                 link: '/forum',
-                value: 'Forum'
+                value: 'Forum',
+                icon: 'icon-list-ui-alt'
               }
             ]
           )}
@@ -229,22 +263,25 @@ class Navigation extends React.Component<IProps> {
             'showManagement',
             __('Managament'),
             '/task',
-            'icon-piggy-bank',
+            'icon-laptop',
             [
               {
                 key: 'showTask',
                 link: '/task',
-                value: 'Task'
+                value: 'Task',
+                icon: 'icon-file-check-alt'
               },
               REACT_APP_DASHBOARD_URL !== 'undefined' && {
                 key: 'showDashboards',
                 link: '/dashboard',
-                value: 'Reports'
+                value: 'Reports',
+                icon: 'icon-dashboard'
               },
               {
                 key: 'showCalendar',
                 link: '/calendar',
-                value: 'Calendar'
+                value: 'Calendar',
+                icon: 'icon-calendar-alt'
               }
             ]
           )}
