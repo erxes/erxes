@@ -26,8 +26,6 @@ class KnowledgeBase extends React.Component<Props> {
     const list = [{ title: __('Knowledge Base'), link: '/knowledgeBase' }];
     const categoryLink = `/knowledgeBase?id=${currentCategory._id}`;
 
-    console.log(currentKnowledgeBase);
-
     if (currentKnowledgeBase.title) {
       list.push({
         title: currentKnowledgeBase.title,
