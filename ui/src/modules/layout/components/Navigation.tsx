@@ -19,6 +19,14 @@ import Icon from 'modules/common/components/Icon';
 
 const { REACT_APP_DASHBOARD_URL } = getEnv();
 
+export interface ISubNav {
+  permission: string;
+  link: string;
+  value: string;
+  icon: string;
+  additional?: boolean;
+}
+
 type IProps = {
   unreadConversationsCount?: number;
   collapsed: boolean;
@@ -34,12 +42,25 @@ class Navigation extends React.Component<IProps> {
     }
   }
 
+  renderSubNavItem = (child, index: number) => {
+    return (
+      <WithPermission key={index} action={child.permission}>
+        <SubNavItem additional={child.additional || false}>
+          <NavLink to={child.link}>
+            <i className={child.icon} />
+            {__(child.value)}
+          </NavLink>
+        </SubNavItem>
+      </WithPermission>
+    );
+  };
+
   renderNavItem = (
     permission: string,
     text: string,
     url: string,
     icon: string,
-    childrens?: any,
+    childrens?: ISubNav[],
     label?: React.ReactNode
   ) => {
     const { collapsed } = this.props;
@@ -55,16 +76,9 @@ class Navigation extends React.Component<IProps> {
           {childrens && (
             <SubNav collapsed={collapsed}>
               {!collapsed && <SubNavTitle>{__(text)}</SubNavTitle>}
-              {childrens.map((child, index) => (
-                <WithPermission key={index} action={child.permission}>
-                  <SubNavItem additional={child.additional || false}>
-                    <NavLink to={child.link}>
-                      <i className={child.icon} />
-                      {__(child.value)}
-                    </NavLink>
-                  </SubNavItem>
-                </WithPermission>
-              ))}
+              {childrens.map((child, index) =>
+                this.renderSubNavItem(child, index)
+              )}
             </SubNav>
           )}
         </NavItem>
@@ -273,12 +287,14 @@ class Navigation extends React.Component<IProps> {
                 value: 'Task',
                 icon: 'icon-file-check-alt'
               },
-              REACT_APP_DASHBOARD_URL !== 'undefined' && {
-                permission: 'showDashboards',
-                link: '/dashboard',
-                value: 'Reports',
-                icon: 'icon-dashboard'
-              },
+              REACT_APP_DASHBOARD_URL !== 'undefined'
+                ? {
+                    permission: 'showDashboards',
+                    link: '/dashboard',
+                    value: 'Reports',
+                    icon: 'icon-dashboard'
+                  }
+                : ({} as ISubNav),
               {
                 permission: 'showCalendars',
                 link: '/calendar',
