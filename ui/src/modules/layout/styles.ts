@@ -292,7 +292,7 @@ const SubNav = styledTS<{ collapsed: boolean }>(styled.ul)`
       ? wideNavigation
       : dimensions.headerSpacing + dimensions.coreSpacing}px;
   word-wrap: break-word;
-  width: 220px;
+  width: 200px;
   max-height: 100vh;
   box-shadow: 0 3px 5px rgba(0, 0, 0, 0.2);
   z-index: 999;
@@ -328,6 +328,8 @@ const SubNavItem = styledTS<{ additional: boolean }>(styled.li)`
       opacity: .8;
       display: flex;
       align-items: center;
+      border-radius: ${props =>
+        !props.additional && dimensions.unitSpacing - 5}px;
       border-top: ${props =>
         props.additional && `1px solid ${rgba(colors.borderPrimary, 0.6)}`};
 
@@ -340,15 +342,21 @@ const SubNavItem = styledTS<{ additional: boolean }>(styled.li)`
         opacity: 1;
         font-weight: bold;
         position: relative;
+        background: ${rgba(colors.colorBlack, 0.07)};
+      }
+
+      &:hover  {
+        background: ${rgba(colors.colorBlack, 0.06)};
+        opacity: 1;
       }
     }
 
-    &:hover  {
-      background: ${rgba(colors.colorBlack, 0.06)};
+    &:first-child > a.active {
+      margin-top: ${dimensions.unitSpacing}px;
+    }
 
-      > a { 
-         opacity: 1 
-      }
+    &:last-child > a {
+      margin-bottom: ${dimensions.unitSpacing}px;
     }
 `;
 
@@ -408,7 +416,7 @@ const ExpandIcon = styledTS<{ collapsed: boolean }>(styled.div)`
   width: ${dimensions.coreSpacing + 5}px;
   border-radius: ${dimensions.headerSpacing}px;
   text-align: center;
-  transition: width 0.3s;
+  transition: all 0.3s;
 
   > i {
     color: ${props =>
