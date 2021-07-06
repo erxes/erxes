@@ -32,22 +32,23 @@ sudo apt-get install \
     apt-transport-https \
     ca-certificates \
     curl \
-    gnupg \
-    lsb-release
+    gnupg-agent \
+    software-properties-common
 ```
 
 3. Add Docker’s official GPG key:
 
 ```sh
-curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg
+curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
 ```
 
 4. Use the following command to set up the stable repository.
 
 ```sh
-    echo \
-  "deb [arch=amd64 signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/ubuntu \
-  $(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+sudo add-apt-repository \
+   "deb [arch=amd64] https://download.docker.com/linux/ubuntu \
+   $(lsb_release -cs) \
+   stable"
 ```
 
 #### INSTALL DOCKER CE
@@ -63,35 +64,18 @@ sudo apt-get update
 ```sh
 sudo apt-get install docker-ce docker-ce-cli containerd.io
 ```
-3. Create the docker group if it does not exist:
+
+3. Verify that Docker CE is installed correctly by running the `hello-world` image.
 
 ```sh
-sudo groupadd docker
+sudo docker run hello-world
 ```
 
-4. Add your user to the docker group.
+4. Optional: If you would like to use Docker as a non-root user, you should now consider adding your user to the “docker” group with something like:
 
 ```sh
-sudo usermod -aG docker $USER
+sudo usermod -aG docker your-user
 ```
-5. Run the following command or Logout and login again and run (that doesn't work you may need to reboot your machine first)
-
-```sh
-newgrp docker
-```
-6. Check if docker can be run without root
-
-```sh
-docker run hello-world
-```
-7. Reboot if still got error
-
-```sh
-reboot
-```
-
-
-
 
 _Don't forget to restart shell to take effect._
 
@@ -101,11 +85,11 @@ Official Docker documentation: https://docs.docker.com/install/
 
 (Linux variant)
 
-1. To install docker, simply use the following command:
+1. Run this command to download the current stable release of Docker Compose:
 
 ```sh
 sudo curl -L "https://github.com/docker/compose/releases/download/1.26.2/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
-``` 
+```
 
 2. Apply executable permissions to the binary:
 
@@ -133,68 +117,47 @@ Official Docker compose documentation: https://docs.docker.com/compose/install/
 ```
 
 2. Save the `docker-compose.yml` file.
-3. Create the same directory as like `erxes` :
+3. Run the following command in your shell:
 
 ```bash
-mkdir 'example_directory'
-cd 'example_directory'
-mkdir data elasticsearchData rabbitmq-data redis-data mongoConnectorData
-```
-4. Go to the erxes directory:
-```bash
-cd 'erxes/ui'
-cp .env.sample .env
-```
-5. Go to the erxes directory:
-```bash
-cd 'erxes/api'
-cp .env.sample .env
-code .env
-Editing inside .env
-REDIS_PASSWORD='pass'
-```
-6. Go to the erxes directory:
-```bash
-cd 'erxes/elkSyncer'
-cp .env.sample .env
+mkdir elasticsearch-data && chown 1000:1000 elasticsearch-data
 ```
 
+- elasticsearch container migth fail to start due to permission
 
-7. Run the following to start containers
+4. Run the following to start containers
 
 ```bash
-cd 'example_directory'
 docker-compose up -d
 ```
-8. To install yarn, simply use the following command:
+
+- To stop the containers:
 
 ```bash
-sudo apt remove cmdtest
-sudo apt remove yarn
-curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | sudo apt-key add -
-echo "deb https://dl.yarnpkg.com/debian/ stable main" | sudo tee /etc/apt/sources.list.d/yarn.list
-sudo apt-get update
-sudo apt-get install yarn -y
+docker-compose down
+```
+
+5. Run the following
+
+```bash
+docker exec -it erxes-api yarn initProject
+```
+
+- this will create default admin account with a random password.
 
 ```
 
-8. Run the following
+(username: admin@erxes.io , password: auto generated password)
 
-```bash
-cd 'erxes/api'
-yarn install
-yarn dev
 ```
 
-8. Run the following
+6. Finish up by running
 
 ```bash
-cd 'erxes/ui'
-yarn install
-yarn start
+docker exec -it erxes-api yarn loadPermissionData
 ```
 
-9. Now you may visit `localhost:3000` and log in with your admin account.
+7. Now you may visit `localhost:3000` and log in with your admin account.
 
 ### Default ports
 
@@ -227,133 +190,211 @@ The latest version [**release**](https://github.com/erxes/erxes/releases) source
 </aside>
 
 ```yaml
-version: '3'
+version: "2.1"
 services:
-  mongo:
-    hostname: mongo
-    image: mongo
-    container_name: mongo
+  erxes:
+    image: erxes/erxes:0.17.6
+    container_name: erxes
+    restart: unless-stopped
+    environment:
+      # erxes
+      REACT_APP_CDN_HOST: http://localhost:3200
+      REACT_APP_API_URL: http://localhost:3300
+      REACT_APP_API_SUBSCRIPTION_URL: ws://localhost:3300/subscriptions
+      NGINX_HOST: localhost
     ports:
-      - "127.0.0.1:27017:27017"
+      - "3000:80"
     networks:
       - erxes-net
+
+  erxes-api:
+    image: erxes/erxes-api:0.17.6
+    container_name: erxes-api
+    restart: unless-stopped
+    environment:
+      # erxes-api
+      PORT: "3300"
+      NODE_ENV: production
+      DEBUG: "erxes-api:*"
+      JWT_TOKEN_SECRET: token
+      # public urls
+      MAIN_APP_DOMAIN: http://localhost:3000
+      WIDGETS_DOMAIN: http://localhost:3200
+      INTEGRATIONS_API_DOMAIN: http://localhost:3400
+      # non public urls
+      CRONS_API_DOMAIN: http://erxes-crons:3600
+      WORKERS_API_DOMAIN: http://erxes-workers:3700
+      LOGS_API_DOMAIN: http://erxes-logger:3800
+      ENGAGES_API_DOMAIN: http://erxes-engages:3900
+      # MongoDB
+      MONGO_URL: mongodb://mongo/erxes
+      # Elasticsearch
+      ELASTICSEARCH_URL: http://elasticsearch
+    ports:
+      - "3300:3300"
+    depends_on:
+      mongo:
+        condition: service_healthy
+      elasticsearch:
+        condition: service_healthy
+    networks:
+      - erxes-net
+
+  erxes-crons:
+    image: erxes/erxes-api:0.17.6
+    container_name: erxes-crons
+    entrypoint: ["node", "--max_old_space_size=8192", "dist/cronJobs"]
+    restart: unless-stopped
+    environment:
+      # erxes-crons
+      PORT_CRONS: "3600"
+      NODE_ENV: production
+      PROCESS_NAME: crons
+      DEBUG: "erxes-crons:*"
+      # MongoDB
+      MONGO_URL: mongodb://mongo/erxes
+    depends_on:
+      mongo:
+        condition: service_healthy
+    networks:
+      - erxes-net
+
+  erxes-workers:
+    image: erxes/erxes-api:0.17.6
+    container_name: erxes-workers
+    entrypoint:
+      [
+        "node",
+        "--max_old_space_size=8192",
+        "--experimental-worker",
+        "dist/workers",
+      ]
+    restart: unless-stopped
+    environment:
+      # erxes-workers
+      PORT_WORKERS: "3700"
+      NODE_ENV: production
+      DEBUG: "erxes-workers:*"
+      JWT_TOKEN_SECRET: token
+      # MongoDB
+      MONGO_URL: mongodb://mongo/erxes
+    depends_on:
+      mongo:
+        condition: service_healthy
+    networks:
+      - erxes-net
+
+  erxes-widgets:
+    image: erxes/erxes-widgets:0.17.6
+    container_name: erxes-widgets
+    restart: unless-stopped
+    environment:
+      # erxes-widgets
+      PORT: "3200"
+      ROOT_URL: http://localhost:3200
+      API_URL: http://localhost:3300
+      API_SUBSCRIPTIONS_URL: ws://localhost:3300/subscriptions
+    ports:
+      - "3200:3200"
+    networks:
+      - erxes-net
+
+  erxes-engages:
+    image: erxes/erxes-engages-email-sender:0.17.6
+    container_name: erxes-engages
+    restart: unless-stopped
+    environment:
+      PORT: "3900"
+      NODE_ENV: production
+      DEBUG: "erxes-engages:*"
+      # public urls
+      MAIN_API_DOMAIN: http://localhost:3300
+      # MongoDB
+      MONGO_URL: mongodb://mongo/erxes_engages
+    depends_on:
+      mongo:
+        condition: service_healthy
+    networks:
+      - erxes-net
+
+  erxes-logger:
+    image: erxes/erxes-logger:0.17.6
+    container_name: erxes-logger
+    restart: unless-stopped
+    environment:
+      PORT: "3800"
+      DEBUG: "erxes-logs:*"
+      # MongoDB
+      MONGO_URL: mongodb://mongo/erxes_logs
+    depends_on:
+      mongo:
+        condition: service_healthy
+    networks:
+      - erxes-net
+
+  erxes-integrations:
+    image: erxes/erxes-integrations:0.17.6
+    container_name: erxes-integrations
+    restart: unless-stopped
+    environment:
+      PORT: "3400"
+      NODE_ENV: production
+      DEBUG: "erxes-integrations:*"
+      # public urls
+      DOMAIN: http://localhost:3400
+      MAIN_APP_DOMAIN: http://localhost:3000
+      MAIN_API_DOMAIN: http://localhost:3300
+      # non public urls
+      # MongoDB
+      MONGO_URL: mongodb://mongo/erxes_integrations
+    ports:
+      - "3400:3400"
+    depends_on:
+      mongo:
+        condition: service_healthy
+    networks:
+      - erxes-net
+
+  mongo:
+    image: mongo:3.6.13
+    container_name: mongo
+    restart: unless-stopped
     healthcheck:
-      test: test $$(echo "rs.initiate().ok || rs.status().ok" | mongo --quiet) -eq 1
+      test: echo 'rs.initiate().ok' | mongo localhost:27017/test?replicaSet=rs0 --quiet
       interval: 2s
       timeout: 2s
       retries: 200
     command: ["--replSet", "rs0", "--bind_ip_all"]
-    volumes:
-      - ./data/db:/data/db
-
-  redis:
-    image: 'redis'
-    container_name: redis
-    ports:
-      - "127.0.0.1:6379:6379"
     networks:
       - erxes-net
-    command: redis-server --requirepass pass
-
-  rabbitmq:
-    image: rabbitmq:3.7.17-management
-    container_name: rabbitmq
-    restart: unless-stopped
-    hostname: rabbitmq
-    ports:
-      - "127.0.0.1:15672:15672"
-      - "127.0.0.1:5672:5672"
-    networks:
-      - erxes-net
-    # RabbitMQ data will be saved into ./rabbitmq-data folder.
+    # MongoDB data will be saved into ./mongo-data folder.
     volumes:
-      - ./rabbitmq-data:/var/lib/rabbitmq
+      - ./mongo-data:/data/db
 
   elasticsearch:
-    image: "docker.elastic.co/elasticsearch/elasticsearch:7.5.2"
-    container_name: "elasticsearch"
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.5.2
+    container_name: elasticsearch
     environment:
+      - bootstrap.memory_lock=true
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
       - discovery.type=single-node
     ulimits:
       memlock:
         soft: -1
         hard: -1
-      nofile:
-        soft: 32768
-        hard: 65536
-    ports:
-      - "127.0.0.1:9200:9200"
-    networks:
-      - erxes-net
     volumes:
-      - ./elasticsearchData:/usr/share/elasticsearch/data
-
-  kibana:
-    image: "docker.elastic.co/kibana/kibana:7.5.2"
-    container_name: "kibana"
-    depends_on:
-      - "elasticsearch"
-    ports:
-      - "127.0.0.1:5601:5601"
+      - ./elasticsearch-data:/usr/share/elasticsearch/data
     networks:
       - erxes-net
-
-  elksyncer:
-    container_name: "elksyncer"
-    build:
-       dockerfile: ./Dockerfile
-       context: ../erxes/elkSyncer
-    env_file:
-      ../erxes/elkSyncer/.env
-    depends_on:
-      - "mongo"
-      - "elasticsearch"
-    volumes:
-      - ./mongoConnectorLog:/var/log/mongo-connector
-    tty: true
-    networks:
-      - erxes-net
-
-  # elksyncer:
-  #   container_name: 'elksyncer'
-  #   build:
-  #     dockerfile: ./Dockerfile
-  #     context: ../../erxes-saas/erxes/elkSyncer
-  #   env_file:
-  #     ../../erxes-saas/erxes/elkSyncer/.env
-  #   depends_on:
-  #     - 'mongo'
-  #     - 'elasticsearch'
-  #   networks:
-  #     - erxes-net
-
-  # erxes-api-check:
-  #   image: registry.erxes.io/erxes-enterprise/erxes-api:golomt
-  #   container_name: erxes-api
-  #   restart: unless-stopped
-  #   environment:
-  #     PORT: "3300"
-  #     NODE_ENV: production
-  #     DEBUG: "erxes-api:*"
-  #     MAIN_APP_DOMAIN: http://localhost:3000
-  #     INTEGRATIONS_API_DOMAIN: http://localhost:3400
-  #     LOGS_API_DOMAIN: http://localhost:3800
-  #     MONGO_URL: mongodb://mongo/erxes
-  #     ELASTICSEARCH_URL: http://elasticsearch:9200
-  #     RABBITMQ_HOST: "amqp://rabbitmq"
-  #     MESSAGE_BROKER_PREFIX: "1"
-  #     JWT_TOKEN_SECRET: "token"
-  #     DD_SERVICE: ""
-  #     DD_HOST: ""
-  #   ports:
-  #     - "127.0.0.1:3300:3300"
-  #   networks:
-  #     - erxes-net
+    healthcheck:
+      test: curl -s http://localhost:9200 >/dev/null; if [[ $$? == 52 ]]; then echo 0; else echo 1; fi
+      interval: 30s
+      timeout: 10s
+      retries: 5
 
 networks:
   erxes-net:
     driver: bridge
-
 ```
 
 If you have trouble running erxes docker images, feel free to open [issue](https://github.com/erxes/erxes/issues).
