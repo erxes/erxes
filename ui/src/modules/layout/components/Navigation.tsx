@@ -49,7 +49,7 @@ class Navigation extends React.Component<IProps> {
         <NavItem>
           <NavLink to={url}>
             <NavIcon className={icon} />
-            {collapsed && __(text)}
+            {collapsed && <label>{__(text)}</label>}
             {label}
           </NavLink>
           {childrens && (

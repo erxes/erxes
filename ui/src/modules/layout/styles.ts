@@ -214,8 +214,12 @@ const Nav = styledTS<{ collapsed: boolean }>(styled.nav)`
     height: ${dimensions.headerSpacing + 10}px;
     justify-content: ${props => !props.collapsed && 'center'};
     position: relative;
-    opacity: .8;
     transition: all 0.3s ease;
+
+    i, label {
+      opacity: .8;
+      cursor: pointer;
+    }
 
     i {
       padding: ${props => props.collapsed && '0 15px 0 20px'};
@@ -224,16 +228,19 @@ const Nav = styledTS<{ collapsed: boolean }>(styled.nav)`
 
     span {
       position: absolute;
-      right: 12px;
+      left: ${props =>
+        props.collapsed
+          ? dimensions.coreSpacing + dimensions.unitSpacing
+          : dimensions.coreSpacing + dimensions.coreSpacing - 1}px;
       bottom: 12px;
       padding: 4px;
       min-width: 19px;
       min-height: 19px;
+      text-align: center
     }
 
     &.active {
       background: rgba(0, 0, 0, 0.13);
-      opacity: 1;
 
       &:before {
         content: "";
@@ -247,6 +254,10 @@ const Nav = styledTS<{ collapsed: boolean }>(styled.nav)`
         border-top-right-radius: 3px;
         border-bottom-right-radius: 3px;
       }
+
+      > i, label {
+        opacity: 1;
+      }
     }
 
     &:focus {
@@ -255,7 +266,10 @@ const Nav = styledTS<{ collapsed: boolean }>(styled.nav)`
 
     &:hover {
       background: rgba(0, 0, 0, 0.06);
-      opacity: 1;
+
+      > i, label {
+        opacity: 1;
+      }
     }
 
     &.bottom {
