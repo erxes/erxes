@@ -87,7 +87,7 @@ export type IButtonMutateProps = {
 export type IMentionUser = {
   id: string;
   avatar: string;
-  fullName: string;
+  username: string;
 };
 
 export type IEditorProps = {
