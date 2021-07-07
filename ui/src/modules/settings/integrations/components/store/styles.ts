@@ -231,25 +231,21 @@ const SidebarList = styled.ul`
   }
 `;
 
-const LeftSidebar = styled.div`
-  width: 200px;
-  position: relative;
-  margin: 10px;
-  flex-shrink: 0;
+const TopHeader = styled.div`
+  padding: 18px 20px;
+  background-color: white;
 `;
 
 const FixedSection = styled.div`
-  position: fixed;
-  width: 200px;
-  top: 220px;
   bottom: ${dimensions.coreSpacing}px;
+  background-color: white;
   transition: all ease 0.5s;
   overflow-y: hidden;
+  height: 100%;
 
   &:hover {
     overflow-y: scroll;
   }
-
   &::-webkit-scrollbar {
     width: 5px;
   }
@@ -257,6 +253,11 @@ const FixedSection = styled.div`
   &::-webkit-scrollbar-thumb {
     border-radius: 5px;
   }
+`;
+
+const SideBarContent = styled.div`
+  margin-left: 10px;
+  height: 100%;
 `;
 
 const SearchInput = styled.div`
@@ -294,12 +295,13 @@ export {
   CollapsibleContent,
   Box,
   Type,
+  TopHeader,
   Content,
   Category,
   SidebarList,
-  LeftSidebar,
   FixedSection,
   SearchInput,
   Ribbon,
-  FullHeight
+  FullHeight,
+  SideBarContent
 };
