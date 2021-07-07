@@ -49,17 +49,15 @@ export const getIntegrations = async () => {
 };
 
 export const getIntegrationTypes = async () => {
-  const integrationKinds = KIND_CHOICES.ALL;
-
   const filters = [] as any;
 
-  Promise.all(
-    integrationKinds.map(kind => async () => {
-      const integrationIds = await Integrations.find({ kind }).distinct('_id');
+  for (const kind of KIND_CHOICES.ALL) {
+    const integrationIds = await Integrations.find({ kind }).distinct('_id');
 
+    if (integrationIds.length > 0) {
       filters.push({ label: kind, value: integrationIds });
-    })
-  );
+    }
+  }
 
   return filters;
 };
