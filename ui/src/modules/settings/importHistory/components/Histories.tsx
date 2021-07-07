@@ -266,30 +266,28 @@ class Histories extends React.Component<Props & IRouterProps> {
       { title: __(currentType) }
     ];
 
+    const headerDescription = (
+      <HeaderDescription
+        icon="/images/actions/27.svg"
+        title={__('Import & export')}
+        description={`${__(
+          'Here you can find data of all your previous imports of companies and customers'
+        )}.${__('Find out when they joined and their current status')}.${__(
+          'Nothing goes missing around here'
+        )}`}
+      />
+    );
+
     return (
       <Wrapper
         header={
           <Wrapper.Header title={__(currentType)} breadcrumb={breadcrumb} />
         }
-        actionBar={
-          <Wrapper.ActionBar
-            left={
-              <HeaderDescription
-                icon="/images/actions/27.svg"
-                title={__('Import & export')}
-                description={`${__(
-                  'Here you can find data of all your previous imports of companies and customers'
-                )}.${__(
-                  'Find out when they joined and their current status'
-                )}.${__('Nothing goes missing around here')}`}
-              />
-            }
-            right={this.renderImportButton()}
-          />
-        }
+        actionBar={<Wrapper.ActionBar right={this.renderImportButton()} />}
         leftSidebar={
           <Sidebar title={__('Import & export')} currentType={currentType} />
         }
+        mainHead={headerDescription}
         footer={<Pagination count={totalCount} />}
         content={
           <DataWithLoader

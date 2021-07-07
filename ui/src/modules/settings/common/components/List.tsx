@@ -74,11 +74,11 @@ class List extends React.Component<Props & ICommonListProps, {}> {
         header={<Wrapper.Header title={title} breadcrumb={breadcrumb} />}
         actionBar={
           <Wrapper.ActionBar
-            left={leftActionBar}
             right={actionBarRight}
             bottom={renderFilter && renderFilter()}
           />
         }
+        mainHead={leftActionBar}
         footer={<Pagination count={totalCount} />}
         center={center}
         content={
