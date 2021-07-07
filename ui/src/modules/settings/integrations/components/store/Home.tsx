@@ -95,7 +95,6 @@ class Home extends React.Component<Props, State> {
 
     return (
       <Content>
-        <Sidebar currentType={queryParams.type} />
         <IntegrationWrapper>
           <h3>{queryParams.type || 'All Integrations'}</h3>
           {this.renderIntegrations()}
@@ -118,33 +117,33 @@ class Home extends React.Component<Props, State> {
   }
 
   render() {
+    const { queryParams } = this.props;
     const breadcrumb = [
       { title: __('Settings'), link: '/settings' },
       { title: __('App store') },
       { title: `${this.props.queryParams.type || __('All integrations')}` }
     ];
 
+    const headerDescription = (
+      <HeaderDescription
+        icon="/images/actions/33.svg"
+        title="App store"
+        description={`${__(
+          'Set up your integrations and start connecting with your customers'
+        )}.${__(
+          'Now you can reach them on wherever platform they feel most comfortable'
+        )}`}
+      />
+    );
+
     return (
       <Wrapper
         header={
           <Wrapper.Header title={__('App store')} breadcrumb={breadcrumb} />
         }
-        actionBar={
-          <Wrapper.ActionBar
-            left={
-              <HeaderDescription
-                icon="/images/actions/33.svg"
-                title="App store"
-                description={`${__(
-                  'Set up your integrations and start connecting with your customers'
-                )}.${__(
-                  'Now you can reach them on wherever platform they feel most comfortable'
-                )}`}
-              />
-            }
-            right={this.renderSearch()}
-          />
-        }
+        actionBar={<Wrapper.ActionBar right={this.renderSearch()} />}
+        mainHead={headerDescription}
+        leftSidebar={<Sidebar currentType={queryParams.type} />}
         content={this.renderContent()}
       />
     );

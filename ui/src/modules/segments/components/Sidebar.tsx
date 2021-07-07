@@ -3,6 +3,9 @@ import Sidebar from 'modules/layout/components/Sidebar';
 import { SidebarList } from 'modules/layout/styles';
 import React from 'react';
 import { NavLink } from 'react-router-dom';
+import Button from 'modules/common/components/Button';
+import { TopHeader } from 'modules/common/styles/main';
+import { Link } from 'react-router-dom';
 
 function TagsSidebar() {
   const { Title } = Sidebar.Section;
@@ -10,8 +13,19 @@ function TagsSidebar() {
   return (
     <Sidebar>
       <Sidebar.Section>
+        <TopHeader>
+          <Link to="/settings/">
+            <Button
+              btnStyle="simple"
+              icon="arrow-circle-left"
+              block={true}
+              uppercase={false}
+            >
+              Back to Settings
+            </Button>
+          </Link>
+        </TopHeader>
         <Title>{__('Segments')}</Title>
-
         <SidebarList id={'SegmentSidebar'}>
           <li>
             <NavLink activeClassName="active" to="/segments/customer">
