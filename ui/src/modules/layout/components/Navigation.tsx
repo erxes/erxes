@@ -224,7 +224,7 @@ class Navigation extends React.Component<IProps> {
               {
                 permission: 'showGrowthHacks',
                 link: '/growthHack',
-                value: 'Growth hacking',
+                value: 'Growth Hacking',
                 icon: 'icon-idea'
               }
             ]
@@ -238,13 +238,13 @@ class Navigation extends React.Component<IProps> {
               {
                 permission: 'showDeals',
                 link: '/deal',
-                value: 'Sales pipeline',
+                value: 'Sales Pipeline',
                 icon: 'icon-piggy-bank'
               },
               {
                 permission: 'showProducts',
                 link: '/settings/product-service',
-                value: 'Products & service',
+                value: 'Products & Service',
                 icon: 'icon-box'
               }
             ]
