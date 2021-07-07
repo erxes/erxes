@@ -3,6 +3,8 @@ import LeftSidebar from 'modules/layout/components/Sidebar';
 import { SidebarList as List } from 'modules/layout/styles';
 import React from 'react';
 import { Link } from 'react-router-dom';
+import Button from 'modules/common/components/Button';
+import styled from 'styled-components';
 
 const ITEM_TYPES = {
   CUSTOMER: 'customer',
@@ -23,12 +25,33 @@ type Props = {
   title: string;
 };
 
+const TopHeader = styled.div`
+  padding: 18px 20px;
+  background-color: white;
+`;
+
 class Sidebar extends React.Component<Props> {
   renderSidebarHeader = () => {
     const { title } = this.props;
     const { Header } = LeftSidebar;
 
-    return <Header uppercase={true}>{__(title)}</Header>;
+    return (
+      <div>
+        <TopHeader>
+          <Link to="/settings/">
+            <Button
+              btnStyle="simple"
+              icon="arrow-circle-left"
+              block={true}
+              uppercase={false}
+            >
+              Back to Settings
+            </Button>
+          </Link>
+        </TopHeader>
+        <Header uppercase={true}>{__(title)}</Header>
+      </div>
+    );
   };
 
   getClassName(type) {
