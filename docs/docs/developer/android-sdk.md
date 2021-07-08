@@ -71,9 +71,9 @@ public class CustomActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         config = new Config.Builder("brandid")
-                .setApiHost("https://url/graphql")
-                .setSubscriptionHost("wss://url/subscriptions")
-                .setUploadHost("https://url/upload-file")
+                .setApiHost("https://apiUrl/graphql")
+                .setSubscriptionHost("wss://apiUrl/subscriptions")
+                .setUploadHost("https://apiUrl/upload-file")
                 .build(this);
     }
  }
@@ -81,16 +81,20 @@ public class CustomActivity extends AppCompatActivity {
 ### Start Erxes SDK
 
 + Call a ErxesSdk with login form
-```java
-    config.Start();
-```
-+ following example user will log-in to erxes with email without login form
 
 ```java
-    config.Start_login_email("example@email.com");
+    public void onClick(View view) {
+        config.Start();
+    }
 ```
-+ following example user will log-in to erxes with phoneNumber without login form
++ If your application has already registered user provide info with this function
+
 ```java
-    config.Start_login_email("phoneNumber");
-```}
+    public void onClick(View view) {
+        JSONObject customData = new JSONObject();
+        customData.put("firstName","itgel");
+        customData.put("lastName","galt");
+        config.start(email: "info@erxes.co", phone: "88998899", data: customData)
+    }
+```
 
