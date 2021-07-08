@@ -128,7 +128,7 @@ class Navigation extends React.Component<IProps> {
                 permission: 'showConversations',
                 link: '/inbox',
                 value: 'Conversations',
-                icon: 'icon-chat'
+                icon: 'icon-comments'
               },
               {
                 permission: 'showChannels',

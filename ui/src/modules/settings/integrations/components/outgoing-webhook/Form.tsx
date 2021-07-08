@@ -71,7 +71,7 @@ class OutgoingWebhookForm extends React.Component<Props, State> {
 
   generateDoc = (values: { _id?: string; url: string }) => {
     const { selectedActions } = this.state;
-    console.log(values);
+
     return {
       url: values.url,
       actions: this.collectValues(selectedActions)
