@@ -1,4 +1,4 @@
-import CollapseContent from 'modules/common/components/CollapseContent';
+// import CollapseContent from "modules/common/components/CollapseContent";
 import Button from 'modules/common/components/Button';
 import { __ } from 'modules/common/utils';
 import LeftSidebar from 'modules/layout/components/Sidebar';
@@ -6,17 +6,13 @@ import { SidebarList as List } from 'modules/layout/styles';
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { PROPERTY_GROUPS } from '../constants';
-import styled from 'styled-components';
+import { TopHeader } from 'modules/common/styles/main';
+import { PropertyGroup } from '../styles';
 
 type Props = {
   currentType: string;
   title: string;
 };
-
-const TopHeader = styled.div`
-  padding: 18px 20px;
-  background-color: white;
-`;
 
 class Sidebar extends React.Component<Props> {
   renderSidebarHeader = () => {
@@ -24,7 +20,7 @@ class Sidebar extends React.Component<Props> {
     const { Header } = LeftSidebar;
 
     return (
-      <div>
+      <>
         <TopHeader>
           <Link to="/settings/">
             <Button
@@ -38,45 +34,38 @@ class Sidebar extends React.Component<Props> {
           </Link>
         </TopHeader>
         <Header uppercase={true}>{__(title)}</Header>
-      </div>
+      </>
     );
   };
 
-  renderSideBar() {
-    return PROPERTY_GROUPS.map(group => (
-      <CollapseContent key={group.value} title={__(group.label)} compact={true}>
-        <List key={`list_${group.value}`}>
-          {group.types.map(type => {
-            return this.renderListItem(group.value, type.value, type.label);
-          })}
-        </List>
-      </CollapseContent>
-    ));
-  }
-
-  getClassName(type) {
-    const { currentType } = this.props;
-
-    if (type === currentType) {
-      return 'active';
-    }
-
-    return '';
-  }
-
   renderListItem(group: string, type: string, text: string) {
+    const className = this.props.currentType === type ? 'active' : '';
+
     return (
       <li key={`${group}_${type}`}>
-        <Link to={`?type=${type}`} className={this.getClassName(type)}>
+        <Link to={`?type=${type}`} className={className}>
           {__(text)}
         </Link>
       </li>
     );
   }
 
+  renderSideBar() {
+    return PROPERTY_GROUPS.map(group => (
+      <PropertyGroup key={group.value}>
+        <h4>{group.value}</h4>
+        <List key={`list_${group.value}`}>
+          {group.types.map(type => {
+            return this.renderListItem(group.value, type.value, type.label);
+          })}
+        </List>
+      </PropertyGroup>
+    ));
+  }
+
   render() {
     return (
-      <LeftSidebar header={this.renderSidebarHeader()}>
+      <LeftSidebar header={this.renderSidebarHeader()} full={true}>
         {this.renderSideBar()}
       </LeftSidebar>
     );

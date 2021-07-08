@@ -27,6 +27,24 @@ const PropertyList = styled.ul`
   }
 `;
 
+const PropertyGroup = styled.div`
+  margin-bottom: ${dimensions.coreSpacing}px;
+
+  > h4 {
+    background: ${colors.bgLight};
+    margin: 0;
+    border-top: 1px solid ${colors.borderPrimary};
+    border-bottom: 1px solid ${colors.borderPrimary};
+    padding: ${dimensions.unitSpacing}px ${dimensions.coreSpacing}px;
+    font-size: 16px;
+    text-transform: capitalize;
+  }
+
+  &:first-child h4 {
+    border-top: 0;
+  }
+`;
+
 const InputDescription = styled.p`
   font-size: 12px;
   color: ${colors.colorCoreGray};
@@ -181,6 +199,7 @@ const FlexRow = styled.div`
 
 export {
   PropertyList,
+  PropertyGroup,
   DropIcon,
   FieldType,
   InputDescription,
