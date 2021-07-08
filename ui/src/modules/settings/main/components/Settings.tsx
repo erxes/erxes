@@ -179,13 +179,6 @@ class Settings extends React.PureComponent {
               'importHistoriesAll',
               ['importHistories', 'removeImportHistories', 'importXlsFile']
             )}
-
-            {this.renderBox(
-              'Outgoing webhooks',
-              '/images/icons/erxes-11.svg',
-              '/settings/webhooks',
-              ''
-            )}
           </div>
         </Row>
         <Divider />
@@ -294,7 +287,7 @@ class Settings extends React.PureComponent {
             )}
             {this.renderBox(
               'Growth Hacking Templates',
-              '/images/icons/erxes-21.svg',
+              '/images/icons/erxes-12.svg',
               '/settings/boards/growthHackTemplate',
               'growthHacksAll',
               growthHackTemplatePermissions
@@ -312,6 +305,12 @@ class Settings extends React.PureComponent {
               '/settings/email-templates',
               'emailTemplateAll',
               ['showEmailTemplates', 'manageEmailTemplate']
+            )}
+            {this.renderBox(
+              'Outgoing webhooks',
+              '/images/icons/erxes-11.svg',
+              '/settings/webhooks',
+              ''
             )}
           </div>
         </Row>
