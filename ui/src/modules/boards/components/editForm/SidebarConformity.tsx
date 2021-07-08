@@ -12,21 +12,14 @@ type Props = {
 };
 
 class SidebarConformity extends React.Component<Props> {
-  shouldComponentUpdate(nextProps: Props) {
-    if (nextProps.item.modifiedAt === this.props.item.modifiedAt) {
-      return false;
-    }
-    return true;
-  }
 
   render() {
     const { item, options, renderItems } = this.props;
-
     return (
       <RightContent>
-        <CompanySection mainType={options.type} mainTypeId={item._id} />
+        <CompanySection mainType={options.type} mainTypeId={item._id} companies={item.companies}/>
 
-        <CustomerSection mainType={options.type} mainTypeId={item._id} />
+        <CustomerSection mainType={options.type} mainTypeId={item._id} customers={item.customers}/>
 
         {renderItems()}
       </RightContent>
