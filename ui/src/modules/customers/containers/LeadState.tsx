@@ -1,5 +1,7 @@
 import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
+import debounce from 'lodash/debounce';
+import { IRouterProps } from 'modules/common/types';
 import { __, Alert } from 'modules/common/utils';
 import { confirm } from 'modules/common/utils';
 import LeadState from 'modules/customers/components/detail/LeadState';
@@ -23,50 +25,53 @@ type FinalProps = {
   customersQuery: CustomersQueryResponse;
 } & Props &
   EditMutationResponse &
-  ChangeStateMutationResponse;
+  ChangeStateMutationResponse &
+  IRouterProps;
 
-class CustomerChooser extends React.Component<FinalProps> {
-  render() {
-    const { customersEdit, customer, customersChangeState } = this.props;
+function CustomerChooser(props: FinalProps) {
+  const { customersEdit, customer, customersChangeState } = props;
 
-    const changeState = (value: string) => {
-      confirm(__('Are your sure you want to convert lead to customer?')).then(
-        () =>
-          customersChangeState({
-            variables: {
-              _id: customer._id,
-              value
-            }
-          })
-            .then(() => {
-              Alert.success('You successfully converted to customer');
-            })
-            .catch(e => {
-              Alert.error(e.message);
-            })
-      );
-    };
-
-    const saveState = (state: string) => {
-      customersEdit({
-        variables: { _id: customer._id, leadStatus: state }
-      })
-        .then(() => {
-          Alert.success('You successfully updated state');
+  const changeState = (value: string) => {
+    confirm(__('Are your sure you want to convert lead to customer?')).then(
+      () =>
+        customersChangeState({
+          variables: {
+            _id: customer._id,
+            value
+          }
         })
-        .catch(e => {
-          Alert.error(e.message);
-        });
-    };
-
-    return (
-      <LeadState
-        customer={customer}
-        saveState={saveState}
-        changeCustomerState={changeState}
-      />
+          .then(() => {
+            debounce(() => {
+              Alert.success('You successfully converted to customer');
+            }, 5500)();
+          })
+          .catch(e => {
+            Alert.error(e.message);
+          })
     );
-  }
+  };
+
+  const saveState = (state: string) => {
+    customersEdit({
+      variables: { _id: customer._id, leadStatus: state }
+    })
+      .then(() => {
+        debounce(() => {
+          Alert.success('You successfully updated state');
+        }, 5500)();
+      })
+      .catch(e => {
+        Alert.error(e.message);
+      });
+  };
+
+  return (
+    <LeadState
+      customer={customer}
+      saveState={saveState}
+      changeCustomerState={changeState}
+    />
+  );
 }
 
 export default compose(
@@ -75,10 +80,9 @@ export default compose(
     gql(mutations.customersEdit),
     {
       name: 'customersEdit',
-      options: () => {
-        return {
-          refetchQueries: ['customersMain', 'customers']
-        };
+      options: {
+        awaitRefetchQueries: true,
+        refetchQueries: ['customersMain', 'customerCounts']
       }
     }
   ),
@@ -87,6 +91,7 @@ export default compose(
     {
       name: 'customersChangeState',
       options: {
+        awaitRefetchQueries: true,
         refetchQueries: ['customersMain', 'customerCounts', 'customerDetail']
       }
     }
