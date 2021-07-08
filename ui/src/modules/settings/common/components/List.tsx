@@ -14,7 +14,8 @@ type Props = {
   size?: 'sm' | 'lg' | 'xl';
   renderForm: (doc: { save: () => void; closeModal: () => void }) => any;
   renderContent: (params: any) => any;
-  leftActionBar: React.ReactNode;
+  leftActionBar?: React.ReactNode;
+  mainHead?: React.ReactNode;
   breadcrumb?: IBreadCrumbItem[];
   center?: boolean;
   renderFilter?: () => any;
@@ -32,6 +33,7 @@ class List extends React.Component<Props & ICommonListProps, {}> {
       renderForm,
       renderFilter,
       leftActionBar,
+      mainHead,
       breadcrumb,
       totalCount,
       objects,
@@ -79,7 +81,7 @@ class List extends React.Component<Props & ICommonListProps, {}> {
             bottom={renderFilter && renderFilter()}
           />
         }
-        mainHead={leftActionBar}
+        mainHead={mainHead}
         footer={<Pagination count={totalCount} />}
         center={center}
         content={
