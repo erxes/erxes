@@ -3,8 +3,7 @@ import LeftSidebar from 'modules/layout/components/Sidebar';
 import { SidebarList as List } from 'modules/layout/styles';
 import React from 'react';
 import { Link } from 'react-router-dom';
-import Button from 'modules/common/components/Button';
-import styled from 'styled-components';
+import SidebarHeader from 'modules/settings/common/components/SidebarHeader';
 
 const ITEM_TYPES = {
   CUSTOMER: 'customer',
@@ -25,11 +24,6 @@ type Props = {
   title: string;
 };
 
-const TopHeader = styled.div`
-  padding: 18px 20px;
-  background-color: white;
-`;
-
 class Sidebar extends React.Component<Props> {
   renderSidebarHeader = () => {
     const { title } = this.props;
@@ -37,37 +31,18 @@ class Sidebar extends React.Component<Props> {
 
     return (
       <div>
-        <TopHeader>
-          <Link to="/settings/">
-            <Button
-              btnStyle="simple"
-              icon="arrow-circle-left"
-              block={true}
-              uppercase={false}
-            >
-              Back to Settings
-            </Button>
-          </Link>
-        </TopHeader>
+        <SidebarHeader />
         <Header uppercase={true}>{__(title)}</Header>
       </div>
     );
   };
 
-  getClassName(type) {
-    const { currentType } = this.props;
-
-    if (type === currentType) {
-      return 'active';
-    }
-
-    return '';
-  }
-
   renderListItem(type: string, text: string) {
+    const className = this.props.currentType === type ? 'active' : '';
+
     return (
       <li>
-        <Link to={`?type=${type}`} className={this.getClassName(type)}>
+        <Link to={`?type=${type}`} className={className}>
           {__(text)}
         </Link>
       </li>

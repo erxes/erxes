@@ -1,12 +1,11 @@
-import Button from 'modules/common/components/Button';
 import { __ } from 'modules/common/utils';
 import LeftSidebar from 'modules/layout/components/Sidebar';
 import { SidebarList as List } from 'modules/layout/styles';
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { PROPERTY_GROUPS } from '../constants';
-import { TopHeader } from 'modules/common/styles/main';
 import { SidebarList } from 'modules/settings/styles';
+import SidebarHeader from 'modules/settings/common/components/SidebarHeader';
 
 type Props = {
   currentType: string;
@@ -39,23 +38,8 @@ class Sidebar extends React.Component<Props> {
   }
 
   render() {
-    const header = (
-      <TopHeader>
-        <Link to="/settings/">
-          <Button
-            btnStyle="simple"
-            icon="arrow-circle-left"
-            block={true}
-            uppercase={false}
-          >
-            Back to Settings
-          </Button>
-        </Link>
-      </TopHeader>
-    );
-
     return (
-      <LeftSidebar header={header} full={true}>
+      <LeftSidebar header={<SidebarHeader />} full={true}>
         {this.renderSideBar()}
       </LeftSidebar>
     );

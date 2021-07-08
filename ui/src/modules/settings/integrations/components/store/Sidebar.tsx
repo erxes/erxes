@@ -4,9 +4,8 @@ import { Link } from 'react-router-dom';
 import { INTEGRATION_FILTERS } from '../../constants';
 import LeftSidebar from 'modules/layout/components/Sidebar';
 import { SidebarList as List } from 'modules/layout/styles';
-import Button from 'modules/common/components/Button';
-import { TopHeader } from 'modules/common/styles/main';
 import { SidebarList } from 'modules/settings/styles';
+import SidebarHeader from 'modules/settings/common/components/SidebarHeader';
 
 type Props = {
   currentType: string;
@@ -27,23 +26,8 @@ class SideBar extends React.Component<Props> {
   }
 
   render() {
-    const topHeader = (
-      <TopHeader>
-        <Link to="/settings/">
-          <Button
-            btnStyle="simple"
-            icon="arrow-circle-left"
-            block={true}
-            uppercase={false}
-          >
-            Back to Settings
-          </Button>
-        </Link>
-      </TopHeader>
-    );
-
     return (
-      <LeftSidebar header={topHeader} full={true}>
+      <LeftSidebar header={<SidebarHeader />} full={true}>
         <List id="SettingsSidebar">
           {INTEGRATION_FILTERS.map((data, index) => (
             <SidebarList key={index}>
