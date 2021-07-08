@@ -9,6 +9,7 @@ import Telegram from '../../components/telegram/Telegram';
 import TelnyxForm from '../../components/telnyx/TelnyxForm';
 import Viber from '../../components/viber/Viber';
 import WebHookForm from '../../components/webhook/Form';
+import OutgoingWebHookFrom from '../../components/outgoing-webhook/Form';
 import Whatsapp from '../../components/whatsapp/Whatsapp';
 import { getRefetchQueries } from '../utils';
 
@@ -30,7 +31,8 @@ const INTEGRATION_FORM = {
   'smooch-telegram': Telegram,
   whatsapp: Whatsapp,
   telnyx: TelnyxForm,
-  webhook: WebHookForm
+  webhook: WebHookForm,
+  'outgoing-webhook': OutgoingWebHookFrom
 };
 
 class IntegrationFormContainer extends React.Component<FinalProps, State> {

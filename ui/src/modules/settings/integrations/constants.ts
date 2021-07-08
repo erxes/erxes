@@ -375,9 +375,9 @@ export const INTEGRATIONS = [
     description: 'Configure outging webhooks',
     inMessenger: false,
     isAvailable: true,
-    kind: 'webhook',
+    kind: 'outgoing-webhook',
     logo: '/images/integrations/webhook.png',
-    createModal: 'webhook',
+    createModal: 'outgoing-webhook',
     category:
       'All integrations, For support teams, Conversation, Marketing automation'
   }
