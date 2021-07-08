@@ -101,6 +101,7 @@ export default class WorkArea extends React.Component<Props, State> {
   }
 
   componentDidUpdate(prevProps, prevState, snapshot) {
+
     const { conversationMessages, typingInfo } = this.props;
 
     const messageCount = conversationMessages.length;

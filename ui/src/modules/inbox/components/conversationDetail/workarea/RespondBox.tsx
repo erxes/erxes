@@ -68,8 +68,8 @@ type State = {
   editorKey: string;
   loading: object;
   facebookMessageTag: string;
+  characterCount:number;
 };
-
 class RespondBox extends React.Component<Props, State> {
   constructor(props) {
     super(props);
@@ -85,7 +85,8 @@ class RespondBox extends React.Component<Props, State> {
       content: '',
       mentionedUserIds: [],
       loading: {},
-      facebookMessageTag: ''
+      facebookMessageTag: '',
+      characterCount:160
     };
   }
 
@@ -136,8 +137,13 @@ class RespondBox extends React.Component<Props, State> {
   onEditorContentChange = (content: string) => {
     this.setState({ content });
 
+    this.calcCharacterCount(160, content) ;
+
     if (this.isContentWritten()) {
-      localStorage.setItem(this.props.conversation._id, content);
+      localStorage.setItem(this.props.conversation._id, content);   
+    }
+    if (!this.isContentWritten()) {
+      this.setState({ characterCount:160 });  
     }
   };
 
@@ -266,6 +272,16 @@ class RespondBox extends React.Component<Props, State> {
   cleanText(text: string) {
     return text.replace(/&nbsp;/g, ' ');
   }
+  calcCharacterCount = (maxChar: number, content: string) => {
+    var dom = new DOMParser().parseFromString(content, 'text/html');
+    var text = dom.body.textContent;
+
+    if( text && text.length > 0){
+      const characterCount= maxChar - text.length;
+      this.setState({characterCount})
+    }
+    
+  }
 
   addMessage = () => {
     const { conversation, sendMessage } = this.props;
@@ -366,7 +382,6 @@ class RespondBox extends React.Component<Props, State> {
 
     return null;
   }
-
   renderFacebookTagMessage() {
     const selectTag = value => {
       this.setState({ facebookMessageTag: value });
@@ -393,9 +408,8 @@ class RespondBox extends React.Component<Props, State> {
 
     return null;
   }
-
   renderEditor() {
-    const { isInternal, responseTemplate } = this.state;
+    const { isInternal, responseTemplate , characterCount} = this.state;
     const { responseTemplates, conversation } = this.props;
 
     let type = 'message';
@@ -412,6 +426,7 @@ class RespondBox extends React.Component<Props, State> {
       <Editor
         currentConversation={conversation._id}
         defaultContent={this.getUnsendMessage(conversation._id)}
+        integrationKind={conversation.integration.kind}
         key={this.state.editorKey}
         onChange={this.onEditorContentChange}
         onAddMention={this.onAddMention}
@@ -423,6 +438,7 @@ class RespondBox extends React.Component<Props, State> {
         responseTemplate={responseTemplate}
         responseTemplates={responseTemplates}
         handleFileInput={this.handleFileInput}
+        characterCount={characterCount}
       />
     );
   }
@@ -474,6 +490,7 @@ class RespondBox extends React.Component<Props, State> {
 
     return (
       <EditorActions>
+
         {this.renderCheckbox(integration.kind)}
 
         {this.renderVideoRoom()}
