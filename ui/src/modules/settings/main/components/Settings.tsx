@@ -211,7 +211,7 @@ class Settings extends React.PureComponent {
             )}
             {this.renderBox(
               'Skills',
-              '/images/icons/deal-insight-won.svg',
+              '/images/icons/erxes-29.png',
               '/settings/skills',
               'skillTypesAll',
               [
@@ -280,14 +280,14 @@ class Settings extends React.PureComponent {
             )}
             {this.renderBox(
               'Widget Script Manager',
-              '/images/icons/erxes-12.svg',
+              '/images/icons/erxes-30.png',
               '/settings/scripts',
               'scriptsAll',
               ['showScripts', 'manageScripts']
             )}
             {this.renderBox(
               'Products & Services',
-              '/images/icons/deal-insight-volume.svg',
+              '/images/icons/erxes-31.png',
               '/settings/product-service',
               'productsAll',
               productPermissions
@@ -324,14 +324,14 @@ class Settings extends React.PureComponent {
           <div id={'SettingsFeatureSettings'}>
             {this.renderBox(
               'Sales Pipelines',
-              '/images/icons/erxes-19.svg',
+              '/images/icons/erxes-25.png',
               '/settings/boards/deal',
               'dealsAll',
               dealPermissions
             )}
             {this.renderBox(
               'Task Pipelines',
-              '/images/icons/erxes-19.svg',
+              '/images/icons/erxes-13.svg',
               '/settings/boards/task',
               'tasksAll',
               taskPermissions
@@ -369,19 +369,19 @@ class Settings extends React.PureComponent {
             )}
             {this.renderBox(
               'Logs',
-              '/images/icons/erxes-14.svg',
+              '/images/icons/erxes-33.png',
               '/settings/logs',
               'viewLogs'
             )}
             {this.renderBox(
               'Email Deliveries',
-              '/images/icons/erxes-13.svg',
+              '/images/icons/erxes-27.png',
               '/settings/emailDelivery',
               ''
             )}
             {this.renderBox(
               'SMS Deliveries',
-              '/images/icons/erxes-08.svg',
+              '/images/icons/erxes-34.png',
               '/settings/sms-deliveries',
               ''
             )}
