@@ -68,6 +68,7 @@ const MainWrapper = styledTS<{ collapsed: boolean }>(styled.div)`
   padding-left: ${props =>
     props.collapsed ? wideNavigation : dimensions.headerSpacingWide}px;
   max-width: 100%;
+  transition: width .3s;
 `;
 
 const Authlayout = styled.div`
@@ -331,13 +332,17 @@ const SubNav = styledTS<{ collapsed: boolean }>(styled.ul)`
     left: -${dimensions.coreSpacing}px;
     z-index: 10000;
     border-right-color: ${colors.colorSecondary};
+
+    @media (max-height: 760px) {
+      top: ${dimensions.coreSpacing - 5}px;
+    }
   }
 `;
 
 const SubNavItem = styledTS<{ additional: boolean }>(styled.li)`
     > a {
-      padding: ${dimensions.unitSpacing}px;
-      margin: 0 ${dimensions.unitSpacing}px;
+      padding: ${dimensions.unitSpacing - 4}px ${dimensions.unitSpacing}px;
+      margin: ${dimensions.unitSpacing - 5}px ${dimensions.unitSpacing}px;
       color: ${colors.colorWhite};
       opacity: .8;
       display: flex;
@@ -346,6 +351,10 @@ const SubNavItem = styledTS<{ additional: boolean }>(styled.li)`
         !props.additional && dimensions.unitSpacing - 5}px;
       border-top: ${props =>
         props.additional && `1px solid ${rgba(colors.borderPrimary, 0.6)}`};
+      border-bottom-left-radius: ${props =>
+        props.additional && dimensions.unitSpacing - 5}px;
+      border-bottom-right-radius: ${props =>
+        props.additional && dimensions.unitSpacing - 5}px;
 
       > i {
         font-size: 16px;
@@ -364,18 +373,10 @@ const SubNavItem = styledTS<{ additional: boolean }>(styled.li)`
         opacity: 1;
       }
     }
-
-    &:first-child > a.active {
-      margin-top: ${dimensions.unitSpacing}px;
-    }
-
-    &:last-child > a {
-      margin-bottom: ${dimensions.unitSpacing}px;
-    }
 `;
 
 const SubNavTitle = styled.div`
-  padding: ${dimensions.unitSpacing}px ${dimensions.coreSpacing}px;
+  padding: ${dimensions.unitSpacing}px ${dimensions.coreSpacing}px 2px;
   text-transform: uppercase;
   color: ${colors.colorWhite};
   font-weight: 500;

@@ -16,7 +16,6 @@ import { IFieldGroup, IField } from '../types';
 import PropertyRow from './PropertyRow';
 import Sidebar from './Sidebar';
 import SortableList from 'modules/common/components/SortableList';
-// import { collectOrders } from "modules/boards/utils";
 
 type Props = {
   queryParams: any;
