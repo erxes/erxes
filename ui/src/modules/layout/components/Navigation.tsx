@@ -221,6 +221,12 @@ class Navigation extends React.Component<{
             '/knowledgeBase',
             'icon-book'
           )}
+          {this.renderNavItem(
+            'showAutomations',
+            __('Automations'),
+            '/automations/create',
+            'icon-users'
+          )}
 
           {pluginsOfNavigations(this.renderNavItem)}
         </Nav>
