@@ -481,7 +481,7 @@ Advanced steps to install scripts. Erxes let you enable to track all possible cu
 
 ![](https://erxes-docs.s3-us-west-2.amazonaws.com/script-installation/advancedsetup/5.+Source+3.png)
 
-#### Step 3: If you want to get user information automatically, you can insert additional field under `brand_id` in your messenger script. Insert the messenger script in your web body section. :
+#### Step 3: If you want to get user information automatically, you can insert additional fields under `brand_id` in your messenger script. Insert the messenger script in your web body section. :
 
 ```
 <script>
