@@ -17,6 +17,7 @@ import ExportPopupsData from '../containers/ExportPopupsData';
 import { IImportHistory } from '../types';
 import HistoryRow from './Row';
 import Sidebar from './Sidebar';
+import { Title } from 'modules/common/styles/main';
 
 type Props = {
   queryParams: any;
@@ -283,10 +284,13 @@ class Histories extends React.Component<Props & IRouterProps> {
         header={
           <Wrapper.Header title={__(currentType)} breadcrumb={breadcrumb} />
         }
-        actionBar={<Wrapper.ActionBar right={this.renderImportButton()} />}
-        leftSidebar={
-          <Sidebar title={__('Import & export')} currentType={currentType} />
+        actionBar={
+          <Wrapper.ActionBar
+            left={<Title capitalize={true}>{__(currentType)}</Title>}
+            right={this.renderImportButton()}
+          />
         }
+        leftSidebar={<Sidebar title={__('Types')} currentType={currentType} />}
         mainHead={headerDescription}
         footer={<Pagination count={totalCount} />}
         content={
