@@ -4,9 +4,9 @@ import { Link } from 'react-router-dom';
 import { INTEGRATION_FILTERS } from '../../constants';
 import LeftSidebar from 'modules/layout/components/Sidebar';
 import { SidebarList as List } from 'modules/layout/styles';
-import { SidebarList } from './styles';
 import Button from 'modules/common/components/Button';
 import { TopHeader } from 'modules/common/styles/main';
+import { SidebarList } from 'modules/settings/styles';
 
 type Props = {
   currentType: string;
@@ -14,16 +14,12 @@ type Props = {
 
 class SideBar extends React.Component<Props> {
   renderCategory(item) {
+    const className =
+      (this.props.currentType || 'All integrations') === item ? 'active' : '';
+
     return (
       <li key={item}>
-        <Link
-          to={`?type=${item}`}
-          className={
-            (this.props.currentType || 'All integrations') === item
-              ? 'active'
-              : ''
-          }
-        >
+        <Link to={`?type=${item}`} className={className}>
           {item}
         </Link>
       </li>

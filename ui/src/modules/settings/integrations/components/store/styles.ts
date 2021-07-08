@@ -201,19 +201,6 @@ const Content = styled(Contents)`
   padding-left: ${dimensions.unitSpacing}px;
 `;
 
-const SidebarList = styled.div`
-  padding: ${dimensions.unitSpacing}px 0;
-
-  a {
-    color: ${colors.textPrimary};
-  }
-
-  > div {
-    padding: 0 ${dimensions.coreSpacing}px ${dimensions.unitSpacing}px;
-    margin: 0;
-  }
-`;
-
 const SearchInput = styled.div`
   position: relative;
 
@@ -250,7 +237,6 @@ export {
   Box,
   Type,
   Content,
-  SidebarList,
   SearchInput,
   Ribbon,
   FullHeight
