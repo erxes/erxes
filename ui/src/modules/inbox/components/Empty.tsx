@@ -21,14 +21,12 @@ function Empty({ queryParams, currentUser }: Props) {
   const suggestContent = (
     <>
       <Link to="/settings/channels">
-        <Button btnStyle="simple" uppercase={false} icon="sitemap-1">
+        <Button btnStyle="simple" icon="sitemap-1">
           {__('Manage Channels')}
         </Button>
       </Link>
       <Link to="/tutorial#usingStage?open=teamInbox">
-        <Button uppercase={false} icon="laptop-1">
-          {__('Watch Tutorial')}
-        </Button>
+        <Button icon="laptop-1">{__('Watch Tutorial')}</Button>
       </Link>
     </>
   );

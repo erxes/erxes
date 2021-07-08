@@ -130,7 +130,7 @@ class PropertyForm extends React.Component<Props, State> {
   renderAddGroup = () => {
     const { queryParams } = this.props;
 
-    const trigger = <Button uppercase={false}>Create group</Button>;
+    const trigger = <Button>Create group</Button>;
     const content = props => (
       <PropertyGroupForm {...props} queryParams={queryParams} />
     );
@@ -235,12 +235,7 @@ class PropertyForm extends React.Component<Props, State> {
         </FormGroup>
 
         <ModalFooter>
-          <Button
-            btnStyle="simple"
-            onClick={closeModal}
-            icon="times-circle"
-            uppercase={false}
-          >
+          <Button btnStyle="simple" onClick={closeModal} icon="times-circle">
             Close
           </Button>
 

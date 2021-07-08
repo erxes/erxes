@@ -254,7 +254,6 @@ class ArticleForm extends React.Component<Props, State> {
             type="button"
             onClick={this.props.closeModal}
             icon="times-circle"
-            uppercase={false}
           >
             {__('Cancel')}
           </Button>

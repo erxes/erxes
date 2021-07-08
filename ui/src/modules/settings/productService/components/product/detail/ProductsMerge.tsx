@@ -165,18 +165,12 @@ class ProductsMerge extends React.Component<Props, State> {
         </Columns>
 
         <ModalFooter>
-          <Button
-            btnStyle="simple"
-            onClick={closeModal}
-            icon="times-circle"
-            uppercase={false}
-          >
+          <Button btnStyle="simple" onClick={closeModal} icon="times-circle">
             Cancel
           </Button>
           <Button
             type="submit"
             btnStyle="success"
-            uppercase={false}
             icon={mergeProductLoading ? undefined : 'check-circle'}
             disabled={mergeProductLoading}
           >

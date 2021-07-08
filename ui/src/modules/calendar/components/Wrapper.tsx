@@ -121,7 +121,7 @@ class CalendarWrapper extends React.Component<Props, State> {
         <Icon icon="angle-left" onClick={this.onChange.bind(this, false)} />
         <Icon icon="angle-right" onClick={this.onChange.bind(this, true)} />
         <h2>{dayjs(currentDate).format(format)}</h2>
-        <Button btnStyle="simple" uppercase={false} onClick={onClick}>
+        <Button btnStyle="simple" onClick={onClick}>
           Today
         </Button>
       </CalendarController>
