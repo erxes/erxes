@@ -12,10 +12,6 @@ const IntegrationWrapper = styled.div`
   min-width: 1000px;
   background: ${colors.colorWhite};
   z-index: 1;
-
-  h3 {
-    margin: 30px 0 0 ${dimensions.coreSpacing}px;
-  }
 `;
 
 const IntegrationRow = styled.div`
@@ -205,59 +201,17 @@ const Content = styled(Contents)`
   padding-left: ${dimensions.unitSpacing}px;
 `;
 
-const Category = styledTS<{ isActive?: boolean }>(styled.li)`
-  margin-bottom: ${dimensions.unitSpacing - 5}px;
-  transition: all ease 0.3s;
-  cursor: pointer;
-  color: ${props => props.isActive && colors.colorPrimary};
-  font-weight: ${props => props.isActive && 500};
-
-  &:hover {
-    color: ${colors.colorPrimary};
-  }
-`;
-
-const SidebarList = styled.ul`
-  margin: 0;
+const SidebarList = styled.div`
   padding: ${dimensions.unitSpacing}px 0;
-  list-style: none;
 
   a {
     color: ${colors.textPrimary};
   }
 
-  h4 {
-    margin-bottom: ${dimensions.coreSpacing - 5}px;
+  > div {
+    padding: 0 ${dimensions.coreSpacing}px ${dimensions.unitSpacing}px;
+    margin: 0;
   }
-`;
-
-const TopHeader = styled.div`
-  padding: 18px 20px;
-  background-color: white;
-`;
-
-const FixedSection = styled.div`
-  bottom: ${dimensions.coreSpacing}px;
-  background-color: white;
-  transition: all ease 0.5s;
-  overflow-y: hidden;
-  height: 100%;
-
-  &:hover {
-    overflow-y: scroll;
-  }
-  &::-webkit-scrollbar {
-    width: 5px;
-  }
-
-  &::-webkit-scrollbar-thumb {
-    border-radius: 5px;
-  }
-`;
-
-const SideBarContent = styled.div`
-  margin-left: 10px;
-  height: 100%;
 `;
 
 const SearchInput = styled.div`
@@ -295,13 +249,9 @@ export {
   CollapsibleContent,
   Box,
   Type,
-  TopHeader,
   Content,
-  Category,
   SidebarList,
-  FixedSection,
   SearchInput,
   Ribbon,
-  FullHeight,
-  SideBarContent
+  FullHeight
 };

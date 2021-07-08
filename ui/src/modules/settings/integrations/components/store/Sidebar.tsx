@@ -3,14 +3,10 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { INTEGRATION_FILTERS } from '../../constants';
 import LeftSidebar from 'modules/layout/components/Sidebar';
-import {
-  Category,
-  TopHeader,
-  SidebarList,
-  FixedSection,
-  SideBarContent
-} from './styles';
+import { SidebarList as List } from 'modules/layout/styles';
+import { SidebarList } from './styles';
 import Button from 'modules/common/components/Button';
+import { TopHeader } from 'modules/common/styles/main';
 
 type Props = {
   currentType: string;
@@ -19,14 +15,18 @@ type Props = {
 class SideBar extends React.Component<Props> {
   renderCategory(item) {
     return (
-      <Link key={item} to={`?type=${item}`}>
-        <Category
-          key={item}
-          isActive={(this.props.currentType || 'All integrations') === item}
+      <li key={item}>
+        <Link
+          to={`?type=${item}`}
+          className={
+            (this.props.currentType || 'All integrations') === item
+              ? 'active'
+              : ''
+          }
         >
           {item}
-        </Category>
-      </Link>
+        </Link>
+      </li>
     );
   }
 
@@ -45,18 +45,19 @@ class SideBar extends React.Component<Props> {
         </Link>
       </TopHeader>
     );
+
     return (
-      <LeftSidebar header={topHeader}>
-        <FixedSection>
-          <SideBarContent>
-            {INTEGRATION_FILTERS.map((data, index) => (
-              <SidebarList key={index}>
-                <h4>{__(data.name)}</h4>
-                {data.items.map(item => this.renderCategory(__(item)))}
-              </SidebarList>
-            ))}
-          </SideBarContent>
-        </FixedSection>
+      <LeftSidebar header={topHeader} full={true}>
+        <List id="SettingsSidebar">
+          {INTEGRATION_FILTERS.map((data, index) => (
+            <SidebarList key={index}>
+              <LeftSidebar.Header uppercase={true}>
+                {__(data.name)}
+              </LeftSidebar.Header>
+              {data.items.map(item => this.renderCategory(__(item)))}
+            </SidebarList>
+          ))}
+        </List>
       </LeftSidebar>
     );
   }

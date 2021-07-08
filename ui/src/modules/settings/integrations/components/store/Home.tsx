@@ -10,6 +10,7 @@ import { ByKindTotalCount } from '../../types';
 import Row from './Row';
 import Sidebar from './Sidebar';
 import { Content, FullHeight, IntegrationWrapper, SearchInput } from './styles';
+import { Title } from 'modules/common/styles/main';
 
 type Props = {
   totalCount: ByKindTotalCount;
@@ -90,19 +91,6 @@ class Home extends React.Component<Props, State> {
     return datas;
   }
 
-  renderContent() {
-    const { queryParams } = this.props;
-
-    return (
-      <Content>
-        <IntegrationWrapper>
-          <h3>{queryParams.type || 'All Integrations'}</h3>
-          {this.renderIntegrations()}
-        </IntegrationWrapper>
-      </Content>
-    );
-  }
-
   renderSearch() {
     return (
       <SearchInput>
@@ -118,6 +106,7 @@ class Home extends React.Component<Props, State> {
 
   render() {
     const { queryParams } = this.props;
+
     const breadcrumb = [
       { title: __('Settings'), link: '/settings' },
       { title: __('App store') },
@@ -141,10 +130,19 @@ class Home extends React.Component<Props, State> {
         header={
           <Wrapper.Header title={__('App store')} breadcrumb={breadcrumb} />
         }
-        actionBar={<Wrapper.ActionBar right={this.renderSearch()} />}
+        actionBar={
+          <Wrapper.ActionBar
+            left={<Title>{queryParams.type || 'All Integrations'}</Title>}
+            right={this.renderSearch()}
+          />
+        }
         mainHead={headerDescription}
         leftSidebar={<Sidebar currentType={queryParams.type} />}
-        content={this.renderContent()}
+        content={
+          <Content>
+            <IntegrationWrapper>{this.renderIntegrations()}</IntegrationWrapper>
+          </Content>
+        }
       />
     );
   }
