@@ -24,6 +24,7 @@ type Props = {
   onChange: (option: { cardId?: string; name?: string }) => void;
   type: string;
   additionalValue?: string;
+  defaultValue?: string;
 };
 
 type State = {
@@ -36,24 +37,29 @@ class CardSelect extends React.Component<Props, State> {
     super(props);
 
     this.state = {
-      searchValue: ''
+      searchValue: '',
+      selectedValue: props.defaultValue
+        ? props.options.find(e => e.value === props.defaultValue)
+        : undefined
     };
   }
 
   handleChange = option => {
     const { onChange } = this.props;
 
-    if (option) {
-      onChange({
-        cardId: option.value,
-        name: option.label
-      });
-
-      this.setState({
-        searchValue: option.value === 'copiedItem' ? option.label : '',
-        selectedValue: option
-      });
+    if (!option) {
+      option = { value: '', label: '' };
     }
+
+    onChange({
+      cardId: option.value,
+      name: option.label
+    });
+
+    this.setState({
+      searchValue: option.value === 'copiedItem' ? option.label : '',
+      selectedValue: option
+    });
   };
 
   handleInput = (searchValue: string) => {
@@ -82,8 +88,12 @@ class CardSelect extends React.Component<Props, State> {
   };
 
   render() {
-    const { placeholder, options, additionalValue } = this.props;
-    const { selectedValue } = this.state;
+    const { placeholder, options, additionalValue, defaultValue } = this.props;
+    let { selectedValue } = this.state;
+
+    if (defaultValue) {
+      selectedValue = options.find(e => e.value === defaultValue);
+    }
 
     if (additionalValue) {
       options.push({ value: 'copiedItem', label: additionalValue });
@@ -102,7 +112,7 @@ class CardSelect extends React.Component<Props, State> {
             onChange={this.handleChange}
             onInputChange={this.handleInput}
             onInputKeyDown={this.handleKeyDown}
-            clearable={false}
+            clearable={true}
           />
         </FillContent>
       </Wrapper>

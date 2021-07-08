@@ -86,8 +86,7 @@ const SelectInput = styled.div`
   }
 `;
 
-const LogicIndicator = styled.span`
-  background: ${colors.colorCoreOrange};
+const indicatorCommon = `
   padding: 2px 8px;
   font-weight: 500;
   border-radius: 16px;
@@ -95,6 +94,21 @@ const LogicIndicator = styled.span`
   font-size: 10px;
   margin-left: 4px;
   color: #fff;
+`;
+
+const LogicIndicator = styled.span`
+  background: ${colors.colorCoreOrange};
+  ${indicatorCommon}
+`;
+
+const ActionIndicator = styled.span`
+  background: ${colors.colorCoreGreen};
+  ${indicatorCommon}
+`;
+
+const MappedIndicator = styled.span`
+  background: ${colors.colorCoreYellow};
+  ${indicatorCommon}
 `;
 
 const PropertyListTable = styled.div`
@@ -189,6 +203,8 @@ export {
   SelectInput,
   PropertyListTable,
   LogicIndicator,
+  ActionIndicator,
+  MappedIndicator,
   PropertyTableHeader,
   PropertyTableRow,
   RowField,

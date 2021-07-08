@@ -51,7 +51,7 @@ export const types = `
     associatedFieldId: String
     stageId: String
     groupId: String
-    column: Int
+    column: String
   }
 `;
 

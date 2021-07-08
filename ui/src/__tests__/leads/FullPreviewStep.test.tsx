@@ -13,7 +13,8 @@ describe('FullPreviewStep component', () => {
       title: 'Title',
       btnText: 'Save',
       desc: 'desc'
-    }
+    },
+    tags: []
   };
 
   test('renders shallow successfully', () => {

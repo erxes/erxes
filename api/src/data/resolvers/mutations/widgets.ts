@@ -47,7 +47,11 @@ import {
   sendRequest,
   sendToWebhook
 } from '../../utils';
-import { convertVisitorToCustomer, solveSubmissions } from '../../widgetUtils';
+import {
+  convertVisitorToCustomer,
+  solveActions,
+  solveSubmissions
+} from '../../widgetUtils';
 import { getDocument, getMessengerApps } from './cacheUtils';
 import { conversationNotifReceivers } from './conversations';
 
@@ -181,7 +185,12 @@ const widgetMutations = {
 
     const content = form.title;
 
-    const cachedCustomer = await solveSubmissions(args);
+    const {
+      cachedCustomer,
+      taskCustomData,
+      ticketCustomData,
+      dealCustomData
+    } = await solveSubmissions(args);
 
     // create conversation
     const conversation = await Conversations.createConversation({
@@ -197,6 +206,16 @@ const widgetMutations = {
       content,
       formWidgetData: submissions
     });
+
+    //  actions
+    await solveActions(
+      formId,
+      submissions,
+      cachedCustomer,
+      conversation._id,
+      form.title,
+      { taskCustomData, dealCustomData, ticketCustomData }
+    );
 
     // increasing form submitted count
     await Integrations.increaseContactsGathered(formId);

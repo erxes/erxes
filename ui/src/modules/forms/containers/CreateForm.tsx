@@ -2,6 +2,7 @@ import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
 import { Alert, withProps } from 'modules/common/utils';
 import { IField } from 'modules/settings/properties/types';
+import { TagsQueryResponse } from 'modules/tags/types';
 import React from 'react';
 import { graphql } from 'react-apollo';
 import { withRouter } from 'react-router-dom';
@@ -15,6 +16,8 @@ import {
   FieldsBulkAddAndEditMutationResponse,
   IFormData
 } from '../types';
+import { queries as tagQueries } from 'modules/tags/graphql';
+import { TAG_TYPES } from 'modules/tags/constants';
 
 type Props = {
   afterDbSave: (formId: string) => void;
@@ -25,6 +28,7 @@ type Props = {
   showMessage?: boolean;
   currentMode?: 'create' | 'update' | undefined;
   currentField?: IField;
+  tagsQuery?: TagsQueryResponse;
 };
 
 type FinalProps = {} & Props &
@@ -42,7 +46,8 @@ class CreateFormContainer extends React.Component<FinalProps, {}> {
       addFormMutation,
       afterDbSave,
       fieldsBulkAddAndEditMutation,
-      showMessage
+      showMessage,
+      tagsQuery
     } = this.props;
 
     const saveForm = doc => {
@@ -96,7 +101,8 @@ class CreateFormContainer extends React.Component<FinalProps, {}> {
     const updatedProps = {
       ...this.props,
       fields: [],
-      saveForm
+      saveForm,
+      tags: (tagsQuery ? tagsQuery.tags : null) || []
     };
 
     return <Form {...updatedProps} />;
@@ -120,6 +126,17 @@ export default withProps<Props>(
       BulkEditAndAddMutationVariables
     >(gql(mutations.fieldsBulkAddAndEdit), {
       name: 'fieldsBulkAddAndEditMutation'
-    })
+    }),
+    graphql<{ loadingMainQuery: boolean }, TagsQueryResponse, { type: string }>(
+      gql(tagQueries.tags),
+      {
+        name: 'tagsQuery',
+        options: () => ({
+          variables: {
+            type: TAG_TYPES.CUSTOMER
+          }
+        })
+      }
+    )
   )(withRouter<FinalProps>(CreateFormContainer))
 );

@@ -18,6 +18,7 @@ export const formDetailQuery = `
         order
         validation
         associatedFieldId
+        hasCustomOptions
         column
         
         groupId
@@ -27,6 +28,7 @@ export const formDetailQuery = `
           fieldId
           logicOperator
           logicValue
+          logicAction
         }
       }
     }

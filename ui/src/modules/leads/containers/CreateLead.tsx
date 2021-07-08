@@ -11,6 +11,7 @@ import {
   AddIntegrationMutationVariables
 } from 'modules/settings/integrations/types';
 import { AddFieldsMutationResponse } from 'modules/settings/properties/types';
+import { TagsQueryResponse } from 'modules/tags/types';
 import React from 'react';
 import { graphql } from 'react-apollo';
 import { withRouter } from 'react-router-dom';
@@ -18,10 +19,13 @@ import { IRouterProps } from '../../common/types';
 import Lead from '../components/Lead';
 import { mutations } from '../graphql';
 import { ILeadData } from '../types';
+import { queries as tagQueries } from 'modules/tags/graphql';
+import { TAG_TYPES } from 'modules/tags/constants';
 
 type Props = {
   emailTemplatesQuery: EmailTemplatesQueryResponse;
   emailTemplatesTotalCountQuery: EmailTemplatesTotalCountQueryResponse;
+  tagsQuery?: TagsQueryResponse;
 } & IRouterProps &
   AddIntegrationMutationResponse &
   AddFieldsMutationResponse;
@@ -47,7 +51,12 @@ class CreateLeadContainer extends React.Component<Props, State> {
   }
 
   render() {
-    const { addIntegrationMutation, history, emailTemplatesQuery } = this.props;
+    const {
+      addIntegrationMutation,
+      history,
+      emailTemplatesQuery,
+      tagsQuery
+    } = this.props;
     const afterFormDbSave = id => {
       this.setState({ isReadyToSaveForm: false });
 
@@ -104,7 +113,8 @@ class CreateLeadContainer extends React.Component<Props, State> {
       afterFormDbSave,
       isActionLoading: this.state.isLoading,
       isReadyToSaveForm: this.state.isReadyToSaveForm,
-      emailTemplates: emailTemplatesQuery.emailTemplates || []
+      emailTemplates: emailTemplatesQuery.emailTemplates || [],
+      tags: (tagsQuery ? tagsQuery.tags : null) || []
     };
 
     return <Lead {...updatedProps} />;
@@ -123,7 +133,15 @@ const withTemplatesQuery = withProps<Props>(
           }
         })
       }
-    )
+    ),
+    graphql<TagsQueryResponse, { type: string }>(gql(tagQueries.tags), {
+      name: 'tagsQuery',
+      options: () => ({
+        variables: {
+          type: TAG_TYPES.CUSTOMER
+        }
+      })
+    })
   )(CreateLeadContainer)
 );
 

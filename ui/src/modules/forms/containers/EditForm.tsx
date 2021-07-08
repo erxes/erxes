@@ -3,6 +3,7 @@ import * as compose from 'lodash.flowright';
 import { Alert, withProps } from 'modules/common/utils';
 import { IIntegration } from 'modules/settings/integrations/types';
 import { FieldsQueryResponse, IField } from 'modules/settings/properties/types';
+import { TagsQueryResponse } from 'modules/tags/types';
 import React from 'react';
 import { graphql } from 'react-apollo';
 import { withRouter } from 'react-router-dom';
@@ -19,6 +20,8 @@ import {
   RemoveFieldMutationResponse,
   RemoveFieldMutationVariables
 } from '../types';
+import { queries as tagQueries } from 'modules/tags/graphql';
+import { TAG_TYPES } from 'modules/tags/constants';
 
 type Props = {
   afterDbSave: (formId: string) => void;
@@ -30,6 +33,7 @@ type Props = {
   formId: string;
   integration?: IIntegration;
   showMessage?: boolean;
+  tagsQuery?: TagsQueryResponse;
 };
 
 type FinalProps = {
@@ -63,7 +67,8 @@ class EditFormContainer extends React.Component<FinalProps> {
       fieldsBulkAddAndEditMutation,
       fieldsQuery,
       formDetailQuery,
-      showMessage
+      showMessage,
+      tagsQuery
     } = this.props;
 
     if (fieldsQuery.loading || formDetailQuery.loading) {
@@ -102,6 +107,13 @@ class EditFormContainer extends React.Component<FinalProps> {
               f.logics = f.logics.map(l => {
                 delete l.__typename;
                 return l;
+              });
+            }
+
+            if (f.actions && f.actions.length > 0) {
+              f.actions = f.actions.map(a => {
+                delete a.__typename;
+                return a;
               });
             }
 
@@ -182,7 +194,8 @@ class EditFormContainer extends React.Component<FinalProps> {
       ...this.props,
       fields: dbFields.map(field => ({ ...field })),
       saveForm,
-      form
+      form,
+      tags: (tagsQuery ? tagsQuery.tags : null) || []
     };
 
     return <Form {...updatedProps} />;
@@ -214,6 +227,17 @@ export default withProps<Props>(
         options: ({ formId }) => ({
           variables: {
             _id: formId
+          }
+        })
+      }
+    ),
+    graphql<{ loadingMainQuery: boolean }, TagsQueryResponse, { type: string }>(
+      gql(tagQueries.tags),
+      {
+        name: 'tagsQuery',
+        options: () => ({
+          variables: {
+            type: TAG_TYPES.CUSTOMER
           }
         })
       }

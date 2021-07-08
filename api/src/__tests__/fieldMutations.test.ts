@@ -294,17 +294,18 @@ describe('Fields mutations', () => {
       {
         text: '2',
         type: 'input',
-        logicAction: 'show',
         tempFieldId: '001',
         logics: [
           {
+            logicAction: 'show',
             tempFieldId: '123',
             logicOperator: 'numberigt',
             logicValue: 10
           },
           {
+            logicAction: 'show',
             fieldId: field1._id,
-            logicOperator: 'c',
+            logicOperator: 'contains',
             logicValue: 'hi'
           }
         ]
@@ -320,17 +321,18 @@ describe('Fields mutations', () => {
       {
         text: '4',
         type: 'input',
-        logicAction: 'show',
         _id: field3._id,
         logics: [
           {
+            logicAction: 'show',
             tempFieldId: '123',
             logicOperator: 'numberigt',
             logicValue: 10
           },
           {
+            logicAction: 'show',
             fieldId: field2._id,
-            logicOperator: 'c',
+            logicOperator: 'contains',
             logicValue: 'hi'
           }
         ]

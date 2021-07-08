@@ -147,7 +147,9 @@ export default compose(
     options: ({ queryParams }) => ({
       variables: {
         contentType: queryParams.type,
-        isVisible: true
+        isVisible: true,
+        boardId: queryParams.boardId,
+        pipelineId: queryParams.pipelineId
       },
       fetchPolicy: 'network-only',
       refetchQueries: getRefetchQueries(queryParams)

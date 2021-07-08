@@ -83,6 +83,17 @@ export interface IAttachment {
   type: string;
 }
 
+interface ILogicAction {
+  fieldId: string;
+  action: string;
+}
+interface IFormLogic {
+  fieldId: string;
+  operator: string;
+  value: string | number | Date | string[];
+  actions: [ILogicAction];
+}
+
 export interface ILeadData {
   loadType?: string;
   successAction?: string;
@@ -104,6 +115,7 @@ export interface ILeadData {
   templateId?: string;
   attachments?: IAttachment[];
   css?: string;
+  logics?: [IFormLogic];
 }
 
 export interface IWebhookData {
@@ -223,6 +235,34 @@ export const submissionSchema = new Schema(
   { _id: false }
 );
 
+// schema for logic action
+export const actionSchema = new Schema(
+  {
+    fieldId: field({
+      type: String
+    }),
+    action: field({
+      type: String
+    })
+  },
+  { _id: false }
+);
+
+// schema for form logic
+export const logicSchema = new Schema({
+  fieldId: field({
+    type: String
+  }),
+  operator: field({
+    type: String
+  }),
+  value: field({
+    type: Schema.Types.Mixed,
+    optional: true
+  }),
+  actions: field({ type: [actionSchema] })
+});
+
 // subdocument schema for LeadData
 export const leadDataSchema = new Schema(
   {
@@ -322,6 +362,10 @@ export const leadDataSchema = new Schema(
       type: String,
       optional: true,
       label: 'Custom CSS'
+    }),
+    logics: field({
+      type: [logicSchema],
+      optional: true
     })
   },
   { _id: false }

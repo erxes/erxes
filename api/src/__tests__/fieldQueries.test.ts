@@ -9,15 +9,42 @@ import {
   fieldGroupFactory,
   integrationFactory,
   pipelineFactory,
+  stageFactory,
   usersGroupFactory
 } from '../db/factories';
 import { Companies, Customers, Fields, FieldsGroups } from '../db/models';
 import * as elk from '../elasticsearch';
 
-import { KIND_CHOICES } from '../db/models/definitions/constants';
+import { BOARD_TYPES, KIND_CHOICES } from '../db/models/definitions/constants';
 import './setup.ts';
 
 describe('fieldQueries', () => {
+  const fieldsQuery = `
+    query fields($contentType: String! $contentTypeId: String $isVisible: Boolean $boardId: String $pipelineId: String) {
+      fields(contentType: $contentType contentTypeId: $contentTypeId isVisible: $isVisible boardId: $boardId pipelineId: $pipelineId) {
+        name
+        text
+        isVisible
+        _id
+        lastUpdatedUser {
+          _id
+        }
+        groupName
+        actions {
+          tagIds
+          pipelineId
+          boardId
+          stageId
+          itemId
+          itemName
+        }
+        associatedField {
+          _id
+         text
+       }
+      }
+    }`;
+
   afterEach(async () => {
     // Clearing test data
     await Fields.deleteMany({});
@@ -33,34 +60,22 @@ describe('fieldQueries', () => {
     await fieldFactory({ contentType: 'company' });
     await fieldFactory({ contentType: 'customer' });
 
-    const qry = `
-      query fields($contentType: String! $contentTypeId: String) {
-        fields(contentType: $contentType contentTypeId: $contentTypeId) {
-          name
-          _id
-          lastUpdatedUser {
-            _id
-          }
-        }
-      }
-    `;
-
     // company ===================
-    let responses = await graphqlRequest(qry, 'fields', {
+    let responses = await graphqlRequest(fieldsQuery, 'fields', {
       contentType: 'company'
     });
 
     expect(responses.length).toBe(2);
 
     // customer ==================
-    responses = await graphqlRequest(qry, 'fields', {
+    responses = await graphqlRequest(fieldsQuery, 'fields', {
       contentType: 'customer'
     });
 
     expect(responses.length).toBe(2);
 
     // company with contentTypeId ===
-    responses = await graphqlRequest(qry, 'fields', {
+    responses = await graphqlRequest(fieldsQuery, 'fields', {
       contentType: 'company',
       contentTypeId
     });
@@ -68,7 +83,7 @@ describe('fieldQueries', () => {
     expect(responses.length).toBe(1);
 
     // customer with contentTypeId ===
-    responses = await graphqlRequest(qry, 'fields', {
+    responses = await graphqlRequest(fieldsQuery, 'fields', {
       contentType: 'customer',
       contentTypeId
     });
@@ -351,7 +366,7 @@ describe('fieldQueries', () => {
       pipelineId: pipeline._id
     });
 
-    expect(responses.length).toBe(3);
+    expect(responses.length).toBe(4);
   });
 
   test('Fields query with isVisible filter', async () => {
@@ -369,17 +384,7 @@ describe('fieldQueries', () => {
       isDefinedByErxes: false
     });
 
-    const qry = `
-   query fields($contentType: String! $contentTypeId: String, $isVisible: Boolean) {
-     fields(contentType: $contentType contentTypeId: $contentTypeId, isVisible: $isVisible) {
-       text
-       _id
-       isVisible
-     }
-   }
- `;
-
-    const responses = await graphqlRequest(qry, 'fields', {
+    const responses = await graphqlRequest(fieldsQuery, 'fields', {
       contentType: 'customer',
       isVisible: true
     });
@@ -395,28 +400,21 @@ describe('fieldQueries', () => {
       visible: true
     });
 
+    const board = await boardFactory({ type: 'task' });
+    const pipeline = await pipelineFactory({ boardId: board._id });
+    const stage = await stageFactory({ pipelineId: pipeline._id });
+
     await fieldFactory({
       text: 'text1',
       contentType: 'form',
       visible: true,
-      associatedFieldId: customField._id
+      associatedFieldId: customField._id,
+      actions: [
+        { logicAction: 'task', stageId: stage._id, fieldId: customField._id }
+      ]
     });
 
-    const qry = `
-   query fields($contentType: String! $contentTypeId: String, $isVisible: Boolean) {
-     fields(contentType: $contentType contentTypeId: $contentTypeId, isVisible: $isVisible) {
-       text
-       _id
-       isVisible
-       associatedField {
-         _id
-         text
-       }
-     }
-   }
- `;
-
-    const responses = await graphqlRequest(qry, 'fields', {
+    const responses = await graphqlRequest(fieldsQuery, 'fields', {
       contentType: 'form',
       isVisible: true
     });
@@ -439,32 +437,38 @@ describe('fieldQueries', () => {
       groupId: (group && group._id) || ''
     });
 
-    const qry = `
-    query fields(
-      $contentType: String!
-      $contentTypeId: String
-      $isVisible: Boolean
-    ) {
-      fields(
-        contentType: $contentType
-        contentTypeId: $contentTypeId
-        isVisible: $isVisible
-      ) {
-        text
-        groupName
-        _id
-        isVisible
-        associatedField {
-          _id
-          text
-        }
-      }
-    }
- `;
-
-    const responses = await graphqlRequest(qry, 'fields', {
+    const responses = await graphqlRequest(fieldsQuery, 'fields', {
       contentType: 'form',
       isVisible: true
+    });
+
+    expect(responses.length).toBe(1);
+    const field = responses[0];
+    expect(field.groupName).toBe(group && group.name);
+  });
+
+  test('Fields query with boardId & pipelineId', async () => {
+    // Creating test data
+    const board = await boardFactory({ type: BOARD_TYPES.TASK });
+    const pipeline = await pipelineFactory({ boardId: board._id });
+
+    const group = await fieldGroupFactory({
+      contentType: BOARD_TYPES.TASK,
+      pipelineIds: [pipeline._id],
+      boardIds: [board._id]
+    });
+
+    await fieldFactory({
+      text: 'text1',
+      contentType: BOARD_TYPES.TASK,
+      visible: true,
+      groupId: (group && group._id) || ''
+    });
+
+    const responses = await graphqlRequest(fieldsQuery, 'fields', {
+      contentType: 'task',
+      boardId: board._id,
+      pipelineId: pipeline._id
     });
 
     expect(responses.length).toBe(1);

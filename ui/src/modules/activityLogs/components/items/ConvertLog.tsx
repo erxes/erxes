@@ -26,6 +26,10 @@ class ConvertLog extends React.Component<IActivityLogItemProps> {
       userName = renderUserFullName(createdByDetail.content);
     }
 
+    if (userName === 'Unknown') {
+      userName = 'System';
+    }
+
     const conversation = (
       <Link to={`/inbox/index?_id=${content}`} target="_blank">
         conversation

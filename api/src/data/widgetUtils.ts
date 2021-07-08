@@ -8,17 +8,19 @@ import {
   Fields,
   FieldsGroups,
   FormSubmissions,
-  Integrations
+  Integrations,
+  Tags
 } from '../db/models';
 import Messages from '../db/models/ConversationMessages';
 import { IBrowserInfo } from '../db/models/Customers';
 import { ICustomField, ILink } from '../db/models/definitions/common';
 import { KIND_CHOICES } from '../db/models/definitions/constants';
 import { ICustomerDocument } from '../db/models/definitions/customers';
-import { ISubmission } from '../db/models/definitions/fields';
+import { ILogic, ISubmission } from '../db/models/definitions/fields';
 import { debugBase, debugError } from '../debuggers';
 import { client, fetchElk, getIndexPrefix } from '../elasticsearch';
 import { getVisitorLog, sendToVisitorLog } from './logUtils';
+import { conversationConvertToBoardItem } from './resolvers/mutations/boardUtils';
 import { findCompany, findCustomer } from './utils';
 
 export const getOrCreateEngageMessage = async (
@@ -260,21 +262,11 @@ const prepareCustomFieldsData = (
   customerData: ICustomField[],
   submissionData: ICustomField[]
 ) => {
-  const customFieldsData: ICustomField[] = [];
-
   if (customerData.length === 0) {
     return submissionData;
   }
 
-  for (const data of submissionData) {
-    const existingData = customerData.find(e => e.field === data.field);
-
-    if (existingData && Array.isArray(existingData.value)) {
-      data.value = existingData.value.concat(data.value);
-    }
-
-    customFieldsData.push(data);
-  }
+  const customFieldsData = [...new Set([...customerData, ...submissionData])];
 
   return customFieldsData;
 };
@@ -378,6 +370,118 @@ const groupSubmissions = (submissions: ISubmission[]) => {
   return submissionsGrouped;
 };
 
+export const solveActions = async (
+  formId,
+  submissions,
+  customer,
+  conversationId,
+  formTitle,
+  customData
+) => {
+  const { dealCustomData, taskCustomData, ticketCustomData } = customData;
+
+  const fieldsWithActions = await Fields.find({
+    contentTypeId: formId,
+    'actions.0': { $exists: true }
+  }).lean();
+
+  const groupByStageId = array => {
+    return array.reduce((r, a) => {
+      r[a.stageId || ''] = [...(r[a.stageId || ''] || []), a];
+      return r;
+    }, {});
+  };
+
+  const actionsGroupedByType = fieldsWithActions.reduce((g: any, field) => {
+    const tasks =
+      (field.actions && field.actions.filter(e => e.logicAction === 'task')) ||
+      [];
+    const deals =
+      (field.actions && field.actions.filter(e => e.logicAction === 'deal')) ||
+      [];
+    const tickets =
+      (field.actions &&
+        field.actions.filter(e => e.logicAction === 'ticket')) ||
+      [];
+
+    const tags =
+      (field.actions && field.actions.filter(e => e.logicAction === 'tag')) ||
+      [];
+
+    g.task = { _id: field._id, actions: groupByStageId(tasks) };
+    g.deal = { _id: field._id, actions: groupByStageId(deals) };
+    g.ticket = { _id: field._id, actions: groupByStageId(tickets) };
+    g.tag = { _id: field._id, actions: tags };
+    return g;
+  }, {});
+
+  const executeActions = async (actionType, data) => {
+    const { _id, actions } = data;
+
+    const submission = submissions.find(e => e._id === _id);
+    if (!submission) {
+      return;
+    }
+
+    for (const key of Object.keys(actions)) {
+      for (const action of actions[key]) {
+        if (isLogicFulfilled(action, submission.value)) {
+          if (actionType === 'tag') {
+            const tagIds = [
+              ...new Set([...(action.tagIds || []), ...(customer.tagIds || [])])
+            ];
+            await Tags.tagObject({
+              type: 'customer',
+              targetIds: [customer._id],
+              tagIds
+            });
+          }
+
+          if (['task', 'deal', 'ticket'].includes(action.logicAction)) {
+            let customFieldsData;
+
+            switch (action.logicAction) {
+              case 'deal':
+                customFieldsData = dealCustomData;
+                break;
+              case 'ticket':
+                customFieldsData = ticketCustomData;
+                break;
+
+              default:
+                customFieldsData = taskCustomData;
+                break;
+            }
+
+            let itemName = action.itemName;
+
+            if (!action.itemId && !action.itemName) {
+              itemName = `${formTitle} - ${Customers.getCustomerName(
+                customer
+              )}`;
+            }
+
+            const doc = {
+              _id: conversationId,
+              type: action.logicAction,
+              itemId: action.itemId || '',
+              stageId: action.stageId || '',
+              itemName,
+              customFieldsData
+            };
+
+            await conversationConvertToBoardItem(doc);
+          }
+        }
+      }
+    }
+  };
+
+  for (const [key, value] of Object.entries(actionsGroupedByType)) {
+    executeActions(key, value);
+  }
+};
+
 export const solveSubmissions = async (args: {
   integrationId: string;
   formId: string;
@@ -395,6 +499,10 @@ export const solveSubmissions = async (args: {
   } = {};
 
   let cachedCustomer;
+
+  const taskCustomData: ICustomField[] = [];
+  const dealCustomData: ICustomField[] = [];
+  const ticketCustomData: ICustomField[] = [];
 
   for (const groupId of Object.keys(submissionsGrouped)) {
     let email;
@@ -422,6 +530,7 @@ export const solveSubmissions = async (args: {
     let industries = '';
     let businessType = '';
     let location = '';
+    // let stageId = '';
 
     const companyLinks: ILink = {};
 
@@ -543,6 +652,7 @@ export const solveSubmissions = async (args: {
         ].includes(submissionType)
       ) {
         const field = await Fields.findById(submission.associatedFieldId);
+
         if (!field) {
           continue;
         }
@@ -558,6 +668,27 @@ export const solveSubmissions = async (args: {
 
         if (fieldGroup && fieldGroup.contentType === 'customer') {
           customFieldsData.push({
+            field: submission.associatedFieldId,
+            value: submission.value
+          });
+        }
+
+        if (fieldGroup && fieldGroup.contentType === 'task') {
+          taskCustomData.push({
+            field: submission.associatedFieldId,
+            value: submission.value
+          });
+        }
+
+        if (fieldGroup && fieldGroup.contentType === 'deal') {
+          dealCustomData.push({
+            field: submission.associatedFieldId,
+            value: submission.value
+          });
+        }
+
+        if (fieldGroup && fieldGroup.contentType === 'ticket') {
+          ticketCustomData.push({
             field: submission.associatedFieldId,
             value: submission.value
           });
@@ -770,5 +901,75 @@ export const solveSubmissions = async (args: {
     submittedAt: new Date()
   });
 
-  return cachedCustomer;
+  return { cachedCustomer, taskCustomData, dealCustomData, ticketCustomData };
+};
+
+export const isLogicFulfilled = (logic: ILogic, valueToTest: any) => {
+  const { logicOperator } = logic;
+  const logicValue: any = logic.logicValue;
+
+  // is
+  if (logicOperator === 'is' && valueToTest !== logicValue) {
+    return false;
+  }
+
+  // isNot
+  if (logicOperator === 'isNot' && valueToTest === logicValue) {
+    return false;
+  }
+
+  // isUnknown
+  if (logicOperator === 'isUnknown' && valueToTest) {
+    return false;
+  }
+
+  // hasAnyValue
+  if (logicOperator === 'hasAnyValue' && !valueToTest) {
+    return false;
+  }
+
+  // startsWith
+  if (
+    logicOperator === 'startsWith' &&
+    valueToTest &&
+    !valueToTest.startsWith(logicValue)
+  ) {
+    return false;
+  }
+
+  // endsWith
+  if (
+    logicOperator === 'endsWith' &&
+    valueToTest &&
+    !valueToTest.endsWith(logicValue)
+  ) {
+    return false;
+  }
+
+  // contains
+  if (
+    logicOperator === 'contains' &&
+    valueToTest &&
+    !valueToTest.includes(logicValue)
+  ) {
+    return false;
+  }
+
+  // greaterThan
+  if (
+    logicOperator === 'greaterThan' &&
+    valueToTest < parseInt(logicValue, 10)
+  ) {
+    return false;
+  }
+
+  if (logicOperator === 'lessThan' && valueToTest > parseInt(logicValue, 10)) {
+    return false;
+  }
+
+  if (logicOperator === 'doesNotContain' && valueToTest.includes(logicValue)) {
+    return false;
+  }
+
+  return true;
 };

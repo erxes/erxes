@@ -6,6 +6,7 @@ import FieldForm from 'modules/forms/components/FieldForm';
 import FieldsPreview from 'modules/forms/components/FieldsPreview';
 import { IFormData } from 'modules/forms/types';
 import { IField } from 'modules/settings/properties/types';
+import { ITag } from 'modules/tags/types';
 import React from 'react';
 import CalloutPreview from './preview/CalloutPreview';
 import FormPreview from './preview/FormPreview';
@@ -35,6 +36,7 @@ type Props = {
   thankTitle?: string;
   thankContent?: string;
   skip?: boolean;
+  tags: ITag[];
 };
 
 type State = {
@@ -190,6 +192,7 @@ class FullPreviewStep extends React.Component<Props, State> {
               mode={currentMode || 'create'}
               fields={fields}
               field={currentField}
+              tags={this.props.tags}
               numberOfPages={formData.numberOfPages || 1}
               onSubmit={this.onFieldSubmit}
               onDelete={this.onFieldDelete}

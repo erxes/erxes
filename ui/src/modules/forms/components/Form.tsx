@@ -5,6 +5,7 @@ import { __ } from 'modules/common/utils';
 import { FlexContent } from 'modules/layout/styles';
 import { IField } from 'modules/settings/properties/types';
 import { Description } from 'modules/settings/styles';
+import { ITag } from 'modules/tags/types';
 import React from 'react';
 import FormGroup from '../../common/components/form/Group';
 import { FormTop, Title } from '../styles';
@@ -25,6 +26,7 @@ type Props = {
   hideOptionalFields?: boolean;
   currentMode?: 'create' | 'update' | undefined;
   currentField?: IField;
+  tags: ITag[];
 };
 
 type State = {
@@ -250,6 +252,7 @@ class Form extends React.Component<Props, State> {
             mode={currentMode || 'create'}
             field={currentField}
             fields={fields}
+            tags={this.props.tags}
             numberOfPages={numberOfPages || 1}
             onSubmit={this.onFieldSubmit}
             onDelete={this.onFieldDelete}

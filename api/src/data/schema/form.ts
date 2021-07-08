@@ -18,7 +18,6 @@ export const types = `
     createdUser: User
     createdDate: Date
     numberOfPages: Int
-
     fields: [Field]
   }
 `;

@@ -9,6 +9,7 @@ export interface ILogic {
   fieldId: string;
   logicOperator: string;
   logicValue: FieldValue;
+  logicAction: string;
 }
 
 export interface IField {
@@ -21,6 +22,7 @@ export interface IField {
   content?: string;
   description?: string;
   options?: string[];
+  hasCustomOptions?: boolean;
   isRequired: boolean;
   isDefinedByErxes: boolean;
   order: number;
@@ -28,7 +30,7 @@ export interface IField {
   isVisible: boolean;
   lastUpdatedUserId: string;
   associatedFieldId?: string;
-  column?: number;
+  column?: string;
 
   logicAction?: string;
   logics?: ILogic[];
@@ -83,7 +85,7 @@ export interface IFormDoc {
     associatedFieldId: string;
     groupId: string;
     isHidden?: boolean;
-    column?: number;
+    column?: string;
   };
 }
 

@@ -25,7 +25,7 @@ const ticketMutations = {
     doc: ITicket & { proccessId: string; aboveItemId: string },
     { user, docModifier }: IContext
   ) {
-    return itemsAdd(doc, 'ticket', user, docModifier, Tickets.createTicket);
+    return itemsAdd(doc, 'ticket', Tickets.createTicket, user, docModifier);
   },
 
   /**

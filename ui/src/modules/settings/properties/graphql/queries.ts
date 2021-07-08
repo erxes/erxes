@@ -59,20 +59,28 @@ const getSystemFieldsGroup = `
   }
 `;
 
+export const logicCommonTypes = `
+  fieldId
+  logicOperator
+  logicValue
+  logicAction
+`;
+
 const fields = `
-  query fields($contentType: String!, $contentTypeId: String, $isVisible: Boolean) {
-    fields(contentType: $contentType, contentTypeId: $contentTypeId, isVisible: $isVisible) {
+  query fields($contentType: String!, $contentTypeId: String, $isVisible: Boolean, $boardId: String, $pipelineId: String) {
+    fields(contentType: $contentType, contentTypeId: $contentTypeId, isVisible: $isVisible, boardId: $boardId, pipelineId: $pipelineId) {
       _id
       type
       validation
       text
       description
       options
+      hasCustomOptions
       isRequired
       isDefinedByErxes
       order
       associatedFieldId
-      logicAction
+      
       column
       associatedField {
         _id
@@ -80,11 +88,19 @@ const fields = `
         contentType
       }
       logics {
-        fieldId
-        logicOperator
-        logicValue
+        ${logicCommonTypes}
+      }
+      actions {
+        ${logicCommonTypes}
+        tagIds
+        pipelineId
+        boardId
+        stageId
+        itemId
+        itemName
       }
       groupName
+      stageId
     }
   }
 `;

@@ -12,6 +12,14 @@ interface IFieldsDefaultColmns {
   [index: number]: { name: string; label: string; order: number } | {};
 }
 
+interface IFieldsQueryParams {
+  contentType: string;
+  contentTypeId: string;
+  isVisible: boolean;
+  boardId?: string;
+  pipelineId?: string;
+}
+
 export interface IFieldsQuery {
   contentType: string;
   contentTypeId?: string;
@@ -28,8 +36,10 @@ const fieldQueries = {
     {
       contentType,
       contentTypeId,
-      isVisible
-    }: { contentType: string; contentTypeId: string; isVisible: boolean }
+      isVisible,
+      boardId,
+      pipelineId
+    }: IFieldsQueryParams
   ) {
     const query: IFieldsQuery = { contentType };
 
@@ -39,6 +49,49 @@ const fieldQueries = {
 
     if (isVisible) {
       query.isVisible = isVisible;
+    }
+
+    if (boardId || pipelineId) {
+      return Fields.aggregate([
+        {
+          $lookup: {
+            from: 'fields_groups',
+            localField: 'groupId',
+            foreignField: '_id',
+            as: 'group'
+          }
+        },
+        { $unwind: '$group' },
+        {
+          $match: {
+            contentType,
+            $or: [
+              {
+                $or: [
+                  { 'group.boardIds': boardId },
+                  {
+                    'group.boardIds': {
+                      $size: 0
+                    }
+                  }
+                ]
+              },
+              {
+                $or: [
+                  {
+                    'group.pipelineIds': pipelineId
+                  },
+                  {
+                    'group.pipelineIds': {
+                      $size: 0
+                    }
+                  }
+                ]
+              }
+            ]
+          }
+        }
+      ]);
     }
 
     return Fields.find(query).sort({ order: 1 });
@@ -74,8 +127,8 @@ const fieldQueries = {
       return [
         { name: 'categoryCode', label: 'Category Code', order: 0 },
         { name: 'code', label: 'Code', order: 1 },
-        { name: 'name', label: 'Name', order: 1 },
-        { name: 'vendorCode', label: 'Vendor Code', order: 2 }
+        { name: 'name', label: 'Name', order: 2 },
+        { name: 'vendorCode', label: 'Vendor Code', order: 3 }
       ];
     }
 
@@ -190,7 +243,7 @@ const fieldsGroupQueries = {
     if (boardId && pipelineId) {
       query = {
         contentType,
-        $and: [
+        $or: [
           {
             $or: [
               {

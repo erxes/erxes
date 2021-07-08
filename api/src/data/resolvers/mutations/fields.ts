@@ -76,7 +76,6 @@ const fieldMutations = {
       }
 
       const tempId = f.tempFieldId;
-
       const field = await Fields.createField({
         ...f,
         contentType,
@@ -93,8 +92,10 @@ const fieldMutations = {
       const logics = f.logics || [];
 
       for (const logic of logics) {
-        if (f.logics && !logic.fieldId && logic.tempFieldId) {
-          f.logics[logics.indexOf(logic)].fieldId = temp[logic.tempFieldId];
+        if (f.logics && logic.tempFieldId) {
+          if (!logic.fieldId) {
+            f.logics[logics.indexOf(logic)].fieldId = temp[logic.tempFieldId];
+          }
         }
       }
 

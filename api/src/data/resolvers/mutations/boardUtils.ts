@@ -1,5 +1,12 @@
 import resolvers from '..';
-import { Boards, Notifications, Pipelines, Stages } from '../../../db/models';
+import {
+  Boards,
+  Conformities,
+  Conversations,
+  Notifications,
+  Pipelines,
+  Stages
+} from '../../../db/models';
 import {
   destroyBoardItemRelations,
   getCollection,
@@ -45,6 +52,7 @@ import {
   prepareBoardItemDoc,
   sendNotifications
 } from '../boardUtils';
+import { IConversationConvert } from './conversations';
 
 export const itemResolver = async (type: string, item: IItemCommonFields) => {
   let resolverType = '';
@@ -87,19 +95,26 @@ export const itemsAdd = async (
     aboveItemId: string;
   },
   type: string,
-  user: IUserDocument,
-  docModifier: any,
-  createModel: any
+  createModel: any,
+  user?: IUserDocument,
+  docModifier?: any
 ) => {
   const { collection } = getCollection(type);
 
   doc.initialStageId = doc.stageId;
-  doc.watchedUserIds = [user._id];
+
+  if (user) {
+    doc.watchedUserIds = [user._id];
+  }
+
+  if (docModifier) {
+    doc = { ...docModifier(doc) };
+  }
 
   const extendedDoc = {
-    ...docModifier(doc),
-    modifiedBy: user._id,
-    userId: user._id,
+    ...doc,
+    modifiedBy: user && user._id,
+    userId: user && user._id,
     order: await getNewOrder({
       collection,
       stageId: doc.stageId,
@@ -116,23 +131,25 @@ export const itemsAdd = async (
     customerIds: doc.customerIds
   });
 
-  await sendNotifications({
-    item,
-    user,
-    type: NOTIFICATION_TYPES.DEAL_ADD,
-    action: `invited you to the ${type}`,
-    content: `'${item.name}'.`,
-    contentType: type
-  });
+  if (user) {
+    await sendNotifications({
+      item,
+      user,
+      type: NOTIFICATION_TYPES.DEAL_ADD,
+      action: `invited you to the ${type}`,
+      content: `'${item.name}'.`,
+      contentType: type
+    });
 
-  await putCreateLog(
-    {
-      type,
-      newData: extendedDoc,
-      object: item
-    },
-    user
-  );
+    await putCreateLog(
+      {
+        type,
+        newData: extendedDoc,
+        object: item
+      },
+      user
+    );
+  }
 
   const stage = await Stages.getStage(item.stageId);
 
@@ -636,4 +653,84 @@ export const itemsArchive = async (
   }
 
   return 'ok';
+};
+
+export const conversationConvertToBoardItem = async (
+  args: IConversationConvert,
+  user?: IUserDocument,
+  docModifier?: any
+) => {
+  const { _id, type, itemId, itemName, stageId, customFieldsData = [] } = args;
+
+  const conversation = await Conversations.getConversation(_id);
+
+  const { collection, update, create } = getCollection(type);
+
+  if (itemId) {
+    const oldItem = await collection.findOne({ _id: itemId }).lean();
+
+    const doc = oldItem;
+
+    doc.customFieldsData = [
+      ...new Set([...customFieldsData, ...oldItem.customFieldsData])
+    ];
+
+    if (conversation.assignedUserId) {
+      const assignedUserIds = oldItem.assignedUserIds || [];
+      assignedUserIds.push(conversation.assignedUserId);
+
+      doc.assignedUserIds = assignedUserIds;
+    }
+
+    const sourceConversationIds: string[] = oldItem.sourceConversationIds || [];
+
+    sourceConversationIds.push(conversation._id);
+
+    doc.sourceConversationIds = sourceConversationIds;
+
+    const item = await update(oldItem._id, doc);
+
+    if (user) {
+      item.userId = user._id;
+    }
+
+    await putActivityLog({
+      action: ACTIVITY_LOG_ACTIONS.CREATE_BOARD_ITEM,
+      data: { item, contentType: type }
+    });
+
+    const relTypeIds: string[] = [];
+
+    sourceConversationIds.forEach(async conversationId => {
+      const con = await Conversations.getConversation(conversationId);
+
+      if (con.customerId) {
+        relTypeIds.push(con.customerId);
+      }
+    });
+
+    if (conversation.customerId) {
+      await Conformities.addConformity({
+        mainType: type,
+        mainTypeId: item._id,
+        relType: 'customer',
+        relTypeId: conversation.customerId
+      });
+    }
+
+    return item._id;
+  } else {
+    const doc: any = {};
+
+    doc.name = itemName;
+    doc.stageId = stageId;
+    doc.sourceConversationIds = [_id];
+    doc.customerIds = [conversation.customerId];
+    doc.assignedUserIds = [conversation.assignedUserId];
+    doc.customFieldsData = customFieldsData;
+
+    const item = await itemsAdd(doc, type, create, user, docModifier);
+
+    return item._id;
+  }
 };
