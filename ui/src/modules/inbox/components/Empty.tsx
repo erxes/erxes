@@ -13,10 +13,7 @@ type Props = {
 };
 
 function Empty({ queryParams, currentUser }: Props) {
-  const menuInbox = [
-    { title: 'Team Inbox', link: '/inbox/index' },
-    { title: 'Ticket', link: '/inbox/ticket' }
-  ];
+  const menuInbox = [{ title: 'Team Inbox', link: '/inbox/index' }];
 
   const suggestContent = (
     <>

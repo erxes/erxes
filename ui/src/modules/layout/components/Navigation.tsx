@@ -257,7 +257,7 @@ class Navigation extends React.Component<IProps> {
             [
               {
                 permission: 'showTickets',
-                link: '/inbox/ticket/board',
+                link: '/ticket/board',
                 value: 'Tickets',
                 icon: 'icon-ticket'
               },
