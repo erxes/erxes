@@ -9,11 +9,10 @@ export const Container = styled.div`
   background-color: #f8f9ff;
   width: 100%;
   height: 100%;
-  font-weight: bold;
 
   #canvas {
-    position: absolute;
-    text-align: center;
+    position: relative;
+    font-weight: bold;
   }
 
   .jtk-connector {
@@ -28,11 +27,20 @@ export const Container = styled.div`
       z-index: 6;
   }
 
+  .automation-description {
+    text-align: center;
+    font-weight: bold;
+  }
+
+  #triggers-wrapper {
+    position: relative;
+    width: 100%;
+    text-align: center;
+  }
+
   .trigger {
+    display: inline-block;
     cursor: pointer;
-    position: absolute;
-    top: 80px;
-    left: 550px;
     width: 220px;
     padding: 16px;
     margin-left: 20px;
@@ -50,124 +58,322 @@ export const Container = styled.div`
     left: 900px;
   }
 
-  .action-wrapper {
-    height: 300px;
-    position: absolute;
+  #actions-wrapper {
+    position: relative;
+  }
+
+  .divider {
+    display: block;
+    text-align: center;
+    margin-top: 50px;
+    margin-bottom: 50px;
   }
 
   .action {
-    position: absolute;
-    left: 40px;
-    bottom: 180px;
+    display: inline-block;
     height: 50px;
     cursor: pointer;
+  }
+
+  .action .description {
     border: 1px solid var(--slate-300);
     box-shadow: 0 4px 4px 0 rgb(0 0 0 / 13%);
     background: #FFF;
     font-size: 14px;
     border-radius: 5px;
     padding: 10px 20px;
+    margin-top: 40px;
+    margin-bottom: 40px;
+    color: white;
   }
 
-  #condition {
-    top: 300px;
-    left: 550px;
-    width: 600px;
+  .action .plus {
+    margin: 0 auto;
+  }
 
-    .action {
-      background-color: #4e5568;
-      color: white;
-    }
+  .action .description[type="ADD_TAGS"] {
+    background: #60cb98;
+  }
 
-    .plus {
-      left: 48%;
-    }
+  .action .description[type="ADD_CONTACT"] {
+    background: #db5d80;
+  }
+
+  .action .description[type="REMOVE_TAGS"] {
+    background: #4e5568;
+  }
+
+  .action .description[type="IF"] {
+    background: #4a9ccd;
+    margin-bottom: 100px;
   }
 
   .plus {
-    position: absolute;
-    top: 0px;
     width: 35px;
     height: 35px;
     border: 1px solid;
     border-radius: 50%;
     font-size: 20px;
+    text-align: center;
+  }
+
+  #main-plus {
+    position: relative;
+    left: 50%;
+    margin-top: 100px;
+  }
+
+  .action-if .plus {
+    margin-top: 50px;
   }
 
   .yes, .no {
-    position: absolute;
-    bottom: 0px;
-    width: 55px;
-    height: 55px;
+    width: 45px;
+    height: 45px;
     border: 1px solid;
     border-radius: 50%;
-    font-size: 18px;
+    font-size: 13px;
     padding: 10px;
   }
 
   .yes {
-    left: 0px;
     border: 2px solid #19cca3
     color: #11866f;
   }
 
   .no {
-    right: 0px;
     border: 2px solid #f3376b;
     color: #e40e49;
   }
 `;
 
 const plumb: any = jsPlumb;
+let instance;
+
+const triggers = [
+  {
+    name: 'formSubmit',
+    text: 'Contact submits any form'
+  },
+  {
+    name: 'webpageVisited',
+    text: 'Web page is visited'
+  }
+];
+
+const actionsMap = {
+  '1': {
+    id: '1',
+    type: 'ADD_TAGS',
+    text: 'Enter the automation',
+    nextActionId: '2'
+  },
+  '2': {
+    id: '2',
+    prevActionId: '1',
+    text:
+      'Does the contact match the following conditions ? (has clicked any link)',
+    type: 'IF',
+    data: {
+      yes: '3',
+      no: '5'
+    }
+  },
+  '3': {
+    id: '3',
+    prevActionId: '2',
+    text: 'Create contact',
+    type: 'ADD_CONTACT',
+    nextActionId: '4'
+  },
+  '4': {
+    id: '4',
+    prevActionId: '3',
+    text: 'Add task Call',
+    type: 'REMOVE_TAGS'
+  },
+  '5': {
+    id: '5',
+    prevActionId: '2',
+    text: 'Add task Call',
+    type: 'REMOVE_TAGS'
+  }
+};
+
+const drawActions = (sourceElement, currentActionId) => {
+  if (!currentActionId) {
+    return;
+  }
+
+  const action = actionsMap[currentActionId];
+
+  const description = `
+    <div class="description" id="action-description-${action.id}" type="${action.type}">
+      ${action.text}
+    </div>
+  `;
+
+  if (action.type === 'IF') {
+    jquery(`
+      <div class="divider">
+        <div id="action-${action.id}" class="action action-if">
+          ${description}
+
+          <div style="float:left">
+            <div class="yes" id="yes-${action.id}">Yes</div>
+
+            <div class="plus" id="yes-plus-${action.id}">+</div>
+          </div>
+
+          <div style="float:right">
+            <div class="no" id="no-${action.id}">No</div>
+            <div class="plus" id="no-plus-${action.id}">+</div>
+          </div>
+        </div>
+      </div>
+    `).insertAfter(sourceElement);
+
+    if (action.prevActionId) {
+      instance.connect({
+        source: `plus-${action.prevActionId}`,
+        target: `action-description-${action.id}`,
+        anchors: ['BottomCenter', 'TopCenter'],
+        connector: 'Straight',
+        endpoint: 'Blank'
+      });
+    }
+
+    instance.connect({
+      source: `action-description-${action.id}`,
+      target: `yes-${action.id}`,
+      anchors: ['BottomCenter', 'TopCenter'],
+      endpoint: 'Blank'
+    });
+
+    instance.connect({
+      source: `action-description-${action.id}`,
+      target: `no-${action.id}`,
+      anchors: ['BottomCenter', 'TopCenter'],
+      endpoint: 'Blank'
+    });
+
+    instance.connect({
+      source: `yes-${action.id}`,
+      target: `yes-plus-${action.id}`,
+      anchors: ['BottomCenter', 'TopCenter'],
+      connector: 'Straight',
+      endpoint: 'Blank'
+    });
+
+    instance.connect({
+      source: `no-${action.id}`,
+      target: `no-plus-${action.id}`,
+      anchors: ['BottomCenter', 'TopCenter'],
+      connector: 'Straight',
+      endpoint: 'Blank'
+    });
+
+    if (action.data) {
+      if (action.data.yes) {
+        drawActions(jquery(`#yes-plus-${action.id}`), action.data.yes);
+      }
+
+      if (action.data.no) {
+        drawActions(jquery(`#no-plus-${action.id}`), action.data.no);
+      }
+    }
+
+    return null;
+  }
+
+  jquery(`
+    <div class="divider">
+      <div id="action-${action.id}" class="action">
+        ${description}
+        <div class="plus" id="plus-${action.id}">+</div>
+      </div>
+    </div>
+  `).insertAfter(sourceElement);
+
+  if (action.prevActionId) {
+    instance.connect({
+      source: `plus-${action.prevActionId}`,
+      target: `action-description-${action.id}`,
+      anchors: ['BottomCenter', 'TopCenter'],
+      connector: 'Straight',
+      endpoint: 'Blank'
+    });
+  }
+
+  instance.connect({
+    source: `action-description-${action.id}`,
+    target: `plus-${action.id}`,
+    anchors: ['BottomCenter', 'TopCenter'],
+    connector: 'Straight',
+    endpoint: 'Blank'
+  });
+
+  if (!action.prevActionId) {
+    instance.connect({
+      source: `main-plus`,
+      target: `action-description-${action.id}`,
+      anchors: ['BottomCenter', 'TopCenter'],
+      connector: 'Straight',
+      endpoint: 'Blank'
+    });
+  }
+
+  return drawActions(jquery(`#plus-${action.id}`), action.nextActionId);
+};
 
 class Form extends React.Component {
   componentDidMount() {
-    const instance = plumb.getInstance({
+    instance = plumb.getInstance({
       Container: 'canvas'
     });
+    // Add triggers to dom ==========
+    jquery('#triggers-wrapper').append(`
+      <div id="add-trigger" class="trigger">
+        Add a new trigger
+      </div>
+    `);
+
+    const addTrigger = trigger => {
+      jquery(`
+        <div id="trigger-${trigger.name}" class="trigger">
+          ${trigger.text}
+        </div>
+      `).insertBefore('#add-trigger');
+    };
+
+    for (const trigger of triggers) {
+      addTrigger(trigger);
+    }
+
+    jquery('#add-trigger').click(() => {
+      addTrigger({ name: 'tagAdded', text: 'Tag added' });
+    });
+
+    // Add actions to dom ===============
+    drawActions(jquery('#main-plus'), '1');
 
     instance.bind('ready', () => {
-      instance.connect({
-        source: 'trigger1',
-        target: 'plus1',
-        anchors: ['BottomCenter', 'TopCenter'],
-        endpoint: 'Blank'
-      });
-
-      instance.draggable('trigger1');
-      instance.draggable('add-trigger');
+      for (const trigger of triggers) {
+        instance.connect({
+          source: `trigger-${trigger.name}`,
+          target: 'main-plus',
+          anchors: ['BottomCenter', 'TopCenter'],
+          connector: 'Straight',
+          endpoint: 'Blank'
+        });
+      }
 
       instance.connect({
         source: 'add-trigger',
-        target: 'plus1',
+        target: 'main-plus',
         anchors: ['BottomCenter', 'TopCenter'],
+        connector: 'Straight',
         endpoint: 'Blank'
-      });
-
-      instance.connect({
-        source: 'plus1',
-        target: 'action-condition',
-        anchors: ['BottomCenter', 'TopCenter'],
-        endpoint: 'Blank',
-        connector: 'Straight'
-      });
-
-      instance.connect({
-        source: 'action-condition',
-        target: 'condition-yes',
-        anchors: ['BottomCenter', 'TopCenter'],
-        endpoint: 'Blank'
-      });
-
-      instance.connect({
-        source: 'action-condition',
-        target: 'condition-no',
-        anchors: ['BottomCenter', 'TopCenter'],
-        endpoint: 'Blank'
-      });
-
-      jquery('.plus').click(event => {
-        jquery(event.target).replaceWith('<div>test</div>');
       });
     });
   }
@@ -175,33 +381,18 @@ class Form extends React.Component {
   render() {
     const content = (
       <Container>
+        <h4 className="automation-description">
+          Start this automation when one of these actions takes place
+        </h4>
+
         <div id="canvas">
-          <h4>Start this automation when one of these actions takes place</h4>
+          <div id="triggers-wrapper" />
 
-          <div id="trigger1" className="trigger">
-            Contact submits any form
-          </div>
-          <div id="add-trigger" className="trigger">
-            Add a new trigger
+          <div id="main-plus" className="plus">
+            +
           </div>
 
-          <div className="action-wrapper" id="condition">
-            <div id="plus1" className="plus">
-              +
-            </div>
-
-            <div className="action" id="action-condition">
-              Does the contact match the following conditions ? (has clicked any
-              link)
-            </div>
-
-            <div className="yes" id="condition-yes">
-              Yes
-            </div>
-            <div className="no" id="condition-no">
-              No
-            </div>
-          </div>
+          <div id="actions-wrapper" />
         </div>
       </Container>
     );
