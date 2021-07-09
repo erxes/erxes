@@ -4,7 +4,7 @@ import Version from 'modules/settings/status/containers/Version';
 import * as React from 'react';
 import RTG from 'react-transition-group';
 import AssistantContent from '../containers/AssistantContent';
-import { Bot, BotText } from './styles';
+import { Bot, BotWrapper } from './styles';
 import { __ } from 'modules/common/utils';
 
 type Props = {
@@ -76,8 +76,12 @@ class Robot extends React.Component<Props, State> {
           classNames="robot"
         >
           <Bot onClick={this.changeContent} collapsed={collapsed}>
-            <img src="/images/erxes-bot.svg" alt="assistant robot" />
-            {collapsed && <BotText>{__('Need help')}?</BotText>}
+            <BotWrapper collapsed={collapsed}>
+              <span>
+                <img src="/images/erxes-bot.svg" alt="assistant robot" />
+              </span>
+              {collapsed && <>{__('Need Help')}?</>}
+            </BotWrapper>
           </Bot>
         </RTG.CSSTransition>
       </>

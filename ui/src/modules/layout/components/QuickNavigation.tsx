@@ -6,14 +6,13 @@ import ModalTrigger from 'modules/common/components/ModalTrigger';
 import NameCard from 'modules/common/components/nameCard/NameCard';
 import Tip from 'modules/common/components/Tip';
 import { colors } from 'modules/common/styles';
-import { lighten, rgba } from 'modules/common/styles/color';
-import { __, can } from 'modules/common/utils';
+import { __ } from 'modules/common/utils';
 import Widget from 'modules/notifications/containers/Widget';
 import NotificationSettings from 'modules/settings/profile/containers/NotificationSettings';
 import Version from 'modules/settings/status/containers/Version';
 import React from 'react';
 import Dropdown from 'react-bootstrap/Dropdown';
-import { Link, NavLink } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import styled from 'styled-components';
 import Search from '../containers/Search';
 import { UserHelper, DropNav } from '../styles';
@@ -70,31 +69,6 @@ const NavItem = styled.div`
   }
 `;
 
-const Round = styled(NavItem)`
-  padding-left: 24px;
-
-  > a {
-    padding: 0 10px;
-    background: ${lighten(colors.colorPrimary, 5)};
-    color: ${colors.colorWhite};
-    border-radius: 17px;
-
-    > span {
-      margin-left: 5px;
-    }
-
-    &.active,
-    &:hover {
-      background: ${lighten(colors.colorPrimary, 15)};
-      color: ${rgba(colors.colorWhite, 0.8)};
-    }
-  }
-
-  @media (max-width: 768px) {
-    display: none;
-  }
-`;
-
 const QuickNavigation = ({
   logout,
   currentUser,
@@ -144,30 +118,14 @@ const QuickNavigation = ({
         <Search />
       </NavItem>
 
-      {can('showCalendars', currentUser) && (
-        <NavItem>
-          <Tip text={__('Calendar')} placement="bottom">
-            <Link to="/calendar">
-              <Icon icon="calendar-alt" size={20} />
-            </Link>
-          </Tip>
-        </NavItem>
-      )}
-
       <NavItem>
-        <Tip text={__('Task')} placement="bottom">
-          <Link to="/task">
-            <Icon icon="file-check-alt" size={21} />
+        <Tip text={__('Tutorial')} placement="bottom">
+          <Link to="/tutorial#defaultStage">
+            <Icon icon="question-circle" size={21} />
           </Link>
         </Tip>
       </NavItem>
 
-      <Round>
-        <NavLink to="/tutorial#defaultStage">
-          <Icon icon="question-circle" size={20} />{' '}
-          <span>{__('Tutorial')}</span>
-        </NavLink>
-      </Round>
       <NavItem>
         <Widget />
       </NavItem>
