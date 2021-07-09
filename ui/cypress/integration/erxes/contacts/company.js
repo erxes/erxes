@@ -12,12 +12,13 @@ context("Contacts", () => {
 
     cy.get("#navigation")
       .children()
-      .eq(3)
+      .eq(1)
       .click();
 
     const random = fakeName(6);
 
     cy.get('a[href="/companies"]').click();
+    // cy.get('i[icon = "building"]').click();
     cy.get('i[icon = "plus-circle"]').click();
 
     cy.get('div .Select-placeholder').contains('Enter company name').click().type(random + "@nmma.co");

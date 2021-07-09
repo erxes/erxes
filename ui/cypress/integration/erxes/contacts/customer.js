@@ -12,7 +12,7 @@ context("Contacts", () => {
 
     cy.get("#navigation")
       .children()
-      .eq(3)
+      .eq(1)
       .click();
 
     cy.get('a[href="/contacts/customer"]').click();
