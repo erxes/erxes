@@ -47,6 +47,7 @@
     "typescript": "^3.0.3"
   },
   "dependencies": {
+    "@ckeditor/ckeditor5-react": "^3.0.2",
     "fs-extra": "^9.0.1"
   }
 }
