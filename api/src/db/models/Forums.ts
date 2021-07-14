@@ -23,7 +23,7 @@ export interface IForumModel extends Model<IForumDocument> {
   updateDoc(
     _id: string,
     docFields: IForum,
-    userId: string
+    userId?: string
   ): Promise<IForumDocument>;
   removeDoc(_id: string): void;
 }
@@ -172,7 +172,7 @@ export const loadTopicClass = () => {
       const topic = await ForumTopics.findOne({ _id });
 
       if (!topic) {
-        throw new Error('Forum Topic not found');
+        throw new Error('Topic not found');
       }
 
       // remove child discussions
@@ -274,11 +274,11 @@ const loadDiscussionClass = () => {
 
 export interface ICommentModel extends Model<ICommentDocument> {
   getComment(_id: string): Promise<ICommentDocument>;
-  createDoc(docFields: IComment, userId: string): Promise<ICommentDocument>;
+  createDoc(docFields: IComment, userId?: string): Promise<ICommentDocument>;
   updateDoc(
     _id: string,
     docFields: IComment,
-    userId: string
+    userId?: string
   ): Promise<ICommentDocument>;
   removeDoc(_id: string): void;
 }
@@ -301,7 +301,7 @@ const loadCommentClass = () => {
     /**
      * Create new comment
      */
-    public static async createDoc(docFields: IComment, userId: string) {
+    public static async createDoc(docFields: IComment, userId?: string) {
       if (!userId) {
         throw new Error('userId must be supplied');
       }
@@ -340,7 +340,7 @@ const loadCommentClass = () => {
       const comment = await DiscussionComments.findOne({ _id });
 
       if (!comment) {
-        throw new Error('comment not found');
+        throw new Error('Comment not found');
       }
 
       return DiscussionComments.deleteOne({ _id });

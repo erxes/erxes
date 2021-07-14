@@ -26,7 +26,7 @@ export interface IForumDocument extends ICommonFields, IForum, Document {
 export interface ITopic {
   title?: string;
   description?: string;
-  forumId: string;
+  forumId?: string;
 }
 
 export interface ITopicDocument extends ICommonFields, ITopic, Document {
@@ -37,9 +37,14 @@ export interface IDiscussion {
   title?: string;
   description?: string;
   tagIds?: string[];
-  topicId: string;
-  forumId: string;
-  content: string;
+  topicId?: string;
+  forumId?: string;
+  content?: string;
+  startDate?: Date;
+  closeDate?: Date;
+  attachments?: any[];
+  isComplete?: boolean;
+  status?: string;
 }
 
 export interface IDiscussionDocument
@@ -52,7 +57,7 @@ export interface IDiscussionDocument
 export interface IComment {
   title?: string;
   content?: string;
-  discussionId: string;
+  discussionId?: string;
 }
 
 export interface ICommentDocument extends ICommonFields, IComment, Document {
@@ -61,7 +66,7 @@ export interface ICommentDocument extends ICommonFields, IComment, Document {
 
 export interface IForumReaction {
   type: string;
-  contentTypeId: string;
+  contentTypeId?: string;
 }
 
 export interface IForumReactionDocument
