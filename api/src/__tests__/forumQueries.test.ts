@@ -115,7 +115,7 @@ describe('forumQueries', () => {
         }
     `;
 
-    let response = await graphqlRequest(qry, 'forumTopics', args);
+    const response = await graphqlRequest(qry, 'forumTopics', args);
 
     expect(response.length).toBe(2);
   });
