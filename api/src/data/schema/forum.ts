@@ -21,7 +21,6 @@ export const types = `
         createdDate: Date
         modifiedBy: String
         modifiedDate: Date
-        discussionIds: [String]
         forum: Forum
 
         discussions: [ForumDiscussion]
@@ -96,7 +95,6 @@ const topicMutationParams = `
     title: String
     description: String
     forumId: String
-    discussionIds: [String]
 `;
 
 const discussionMutationParams = `
