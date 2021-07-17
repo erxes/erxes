@@ -16,14 +16,12 @@ const forumTopicParamsDef = `
     $title: String
     $description: String
     $forumId: String
-    $discussionIds: [String]
 `;
 
 const forumTopicParamVal = `
     title: $title
     description: $description
     forumId: $forumId
-    discussionIds: $discussionIds
 `;
 
 const forumDiscussionParamsDef = `
