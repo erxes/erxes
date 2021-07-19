@@ -18,6 +18,7 @@ export const consumeInventory = async (models, memoryStorage, doc, old_code, act
       categoryId: productCategory ? productCategory._id : product.categoryId,
       categoryCode: productCategory ? productCategory.code : product.categoryCode,
       description: eval("`" + config.consumeDescription + "`"),
+      status: 'active',
     };
 
     if (product) {
