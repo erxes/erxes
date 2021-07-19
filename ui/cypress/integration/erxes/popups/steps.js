@@ -14,7 +14,7 @@ context("Popups", () => {
 
     cy.get("#navigation")
       .children()
-      .eq(4)
+      .eq(2)
       .click();
 
     cy.get('button[icon="plus-circle"]').click();
@@ -63,12 +63,14 @@ context("Popups", () => {
       .eq(3)
       .click();
 
-    cy.get('button[icon="plus-circle"]').eq(1).click();
+    cy.get('button[icon="plus-circle"]')
+      .eq(1)
+      .click();
     cy.get('input[name="name"]').type(randomm);
     cy.get('textarea[name="description"]').type(randomm);
     cy.get('.modal-body button[icon="check-circle"]').click();
 
-    cy.get('input[id="popupName"]').type('popup name')
+    cy.get('input[id="popupName"]').type("popup name");
     cy.get('select[name="brandId"]').select(randomm);
 
     cy.get('select[id="languageCode"]').select("English");
@@ -83,10 +85,6 @@ context("Popups", () => {
 
     cy.get('select[id="successAction"]').select("redirect");
     cy.get('input[id="redirectUrl"]').type(randomm);
-
-    cy.get("ul")
-      .eq(1)
-      .click();
 
     cy.get('i[icon="mobile-android"]').click();
 
@@ -107,5 +105,4 @@ function addField() {
     cy.get("#FieldDescription").type(randomm);
     cy.get('.modal-footer > button[icon="plus-circle"]').click();
   }
-
 }
