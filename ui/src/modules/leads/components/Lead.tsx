@@ -246,7 +246,7 @@ class Lead extends React.Component<Props, State> {
 
     const cancelButton = (
       <Link to="/forms">
-        <Button btnStyle="simple" icon="times-circle" uppercase={false}>
+        <Button btnStyle="simple" icon="times-circle">
           Cancel
         </Button>
       </Link>
@@ -259,7 +259,6 @@ class Lead extends React.Component<Props, State> {
         <Button
           disabled={isActionLoading}
           btnStyle="success"
-          uppercase={false}
           icon={isActionLoading ? undefined : 'check-circle'}
           onClick={this.handleSubmit}
         >

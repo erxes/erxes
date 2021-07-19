@@ -160,7 +160,7 @@ class Pipelines extends React.Component<Props, State> {
     if (options && options.additionalButton) {
       return (
         <Link to={options.additionalButton}>
-          <Button uppercase={false} icon="arrow-to-right" btnStyle="simple">
+          <Button icon="arrow-to-right" btnStyle="simple">
             {options.additionalButtonText}
           </Button>
         </Link>
@@ -182,8 +182,7 @@ class Pipelines extends React.Component<Props, State> {
       <>
         {this.renderAdditionalButton()}
         <Button
-          btnStyle="primary"
-          uppercase={false}
+          btnStyle="success"
           icon="plus-circle"
           onClick={this.addPipeline}
         >

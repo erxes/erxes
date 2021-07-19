@@ -68,7 +68,6 @@ const Description = (props: DescProps) => {
           icon="times-circle"
           btnStyle="simple"
           size="small"
-          uppercase={false}
           onClick={toggleEdit}
         >
           Cancel
@@ -78,7 +77,6 @@ const Description = (props: DescProps) => {
             onClick={onSend}
             btnStyle="success"
             size="small"
-            uppercase={false}
             icon="check-circle"
           >
             Save

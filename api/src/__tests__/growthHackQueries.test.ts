@@ -26,7 +26,7 @@ describe('growthHackQueries', () => {
     closeDate
     description
     pipeline { _id }
-    assignedUsers { _id }
+    assignedUsers
     impact
     labels { _id }
     createdUser { _id }
@@ -43,14 +43,14 @@ describe('growthHackQueries', () => {
 
   const qryGrowthHackFilter = `
     query growthHacks(
-      $stageId: String 
+      $stageId: String
       $assignedUserIds: [String]
       $priority: [String]
       $hackStage: [String]
       $closeDateType: String
     ) {
       growthHacks(
-        stageId: $stageId 
+        stageId: $stageId
         assignedUserIds: $assignedUserIds
         priority: $priority
         hackStage: $hackStage

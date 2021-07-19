@@ -1,133 +1,39 @@
 import Label from 'modules/common/components/Label';
-import Tip from 'modules/common/components/Tip';
 import WithPermission from 'modules/common/components/WithPermission';
-import { colors, dimensions } from 'modules/common/styles';
 import { __, getEnv, setBadge } from 'modules/common/utils';
 import { pluginsOfNavigations } from 'pluginUtils';
 import React from 'react';
 import { NavLink } from 'react-router-dom';
-import styled from 'styled-components';
+import {
+  LeftNavigation,
+  NavIcon,
+  Nav,
+  SubNav,
+  NavItem,
+  SubNavTitle,
+  SubNavItem,
+  ExpandIcon
+} from '../styles';
+import Tip from 'modules/common/components/Tip';
+import Icon from 'modules/common/components/Icon';
 
 const { REACT_APP_DASHBOARD_URL } = getEnv();
 
-const LeftNavigation = styled.aside`
-  width: ${dimensions.headerSpacingWide}px;
-  background: ${colors.colorPrimaryDark};
-  box-shadow: 1px 0px 5px rgba(0, 0, 0, 0.1);
-  z-index: 11;
-  flex-shrink: 0;
-  position: absolute;
-  left: 0;
-  top: 0;
-  bottom: 0;
+export interface ISubNav {
+  permission: string;
+  link: string;
+  value: string;
+  icon: string;
+  additional?: boolean;
+}
 
-  > a {
-    display: flex;
-    margin-top: ${dimensions.unitSpacing / 2}px;
-    height: ${dimensions.headerSpacing}px;
-    justify-content: center;
-    align-items: center;
-
-    img {
-      max-height: 28px;
-      transition: all 0.3s ease;
-      max-width: 80%;
-
-      &:hover {
-        transform: scale(1.1);
-      }
-    }
-  }
-`;
-
-const Nav = styled.nav`
-  display: block;
-  margin-top: ${dimensions.unitSpacing / 2}px;
-  height: calc(100% - 130px);
-
-  > a {
-    display: block;
-    height: ${dimensions.headerSpacing + 10}px;
-    text-align: center;
-    position: relative;
-    transition: all 0.3s ease;
-
-    i {
-      opacity: 0.8;
-      transition: all 0.3s ease;
-    }
-
-    span {
-      position: absolute;
-      right: 12px;
-      bottom: 12px;
-      padding: 4px;
-      min-width: 19px;
-      min-height: 19px;
-    }
-
-    &.active {
-      background: rgba(0, 0, 0, 0.13);
-
-      &:before {
-        content: '';
-        width: 3px;
-        background: ${colors.colorCoreTeal};
-        position: absolute;
-        display: block;
-        left: 0;
-        top: 5px;
-        bottom: 5px;
-        border-top-right-radius: 3px;
-        border-bottom-right-radius: 3px;
-      }
-
-      i {
-        opacity: 1;
-      }
-    }
-
-    &:focus {
-      outline: 0;
-    }
-
-    &:hover {
-      background: rgba(0, 0, 0, 0.06);
-
-      i {
-        opacity: 1;
-      }
-    }
-
-    &.bottom {
-      position: absolute;
-      bottom: 0;
-      width: 100%;
-    }
-
-    @media (max-height: 760px) {
-      height: ${dimensions.headerSpacing}px;
-
-      i {
-        line-height: ${dimensions.headerSpacing}px;
-      }
-    }
-  }
-
-  &::-webkit-scrollbar {
-    display: none;
-  }
-`;
-
-const NavIcon = styled.i`
-  font-size: 16px;
-  line-height: ${dimensions.headerSpacing + 10}px;
-  color: ${colors.colorWhite};
-`;
-
-class Navigation extends React.Component<{
+type IProps = {
   unreadConversationsCount?: number;
-}> {
+  collapsed: boolean;
+  onCollapseNavigation: () => void;
+};
+
+class Navigation extends React.Component<IProps> {
   componentWillReceiveProps(nextProps) {
     const unreadCount = nextProps.unreadConversationsCount;
 
@@ -136,27 +42,68 @@ class Navigation extends React.Component<{
     }
   }
 
+  renderSubNavItem = (child, index: number) => {
+    return (
+      <WithPermission key={index} action={child.permission}>
+        <SubNavItem additional={child.additional || false}>
+          <NavLink to={child.link}>
+            <i className={child.icon} />
+            {__(child.value)}
+          </NavLink>
+        </SubNavItem>
+      </WithPermission>
+    );
+  };
+
   renderNavItem = (
     permission: string,
     text: string,
     url: string,
     icon: string,
+    childrens?: ISubNav[],
     label?: React.ReactNode
   ) => {
+    const { collapsed } = this.props;
+
     return (
       <WithPermission key={url} action={permission}>
-        <Tip placement="right" text={text}>
+        <NavItem>
           <NavLink to={url}>
             <NavIcon className={icon} />
+            {collapsed && <label>{__(text)}</label>}
             {label}
           </NavLink>
-        </Tip>
+          {childrens && (
+            <SubNav collapsed={collapsed}>
+              {!collapsed && <SubNavTitle>{__(text)}</SubNavTitle>}
+              {childrens.map((child, index) =>
+                this.renderSubNavItem(child, index)
+              )}
+            </SubNav>
+          )}
+        </NavItem>
       </WithPermission>
     );
   };
 
+  renderCollapse() {
+    const { onCollapseNavigation, collapsed } = this.props;
+    const icon = collapsed ? 'angle-double-left' : 'angle-double-right';
+    const tooltipText = collapsed ? 'Collapse menu' : 'Expand menu';
+
+    return (
+      <Tip placement="right" text={__(tooltipText)}>
+        <ExpandIcon onClick={onCollapseNavigation} collapsed={collapsed}>
+          <Icon icon={icon} size={22} />
+        </ExpandIcon>
+      </Tip>
+    );
+  }
+
   render() {
-    const { unreadConversationsCount } = this.props;
+    const { unreadConversationsCount, collapsed } = this.props;
+
+    const logo = collapsed ? 'logo.png' : 'erxes.png';
 
     const unreadIndicator = unreadConversationsCount !== 0 && (
       <Label shake={true} lblStyle="danger" ignoreTrans={true}>
@@ -165,61 +112,196 @@ class Navigation extends React.Component<{
     );
 
     return (
-      <LeftNavigation>
+      <LeftNavigation collapsed={collapsed}>
         <NavLink to="/">
-          <img src="/images/erxes.png" alt="erxes" />
+          <img src={`/images/${logo}`} alt="erxes" />
         </NavLink>
-        {REACT_APP_DASHBOARD_URL !== 'undefined'
-          ? this.renderNavItem(
-              'showDashboards',
-              __('Dashboard'),
-              '/dashboard',
-              'icon-dashboard'
-            )
-          : null}
-        <Nav id="navigation">
+        {this.renderCollapse()}
+        <Nav id="navigation" collapsed={collapsed}>
           {this.renderNavItem(
             'showConversations',
-            __('Conversation'),
+            __('Team Inbox'),
             '/inbox',
             'icon-chat',
+            [
+              {
+                permission: 'showConversations',
+                link: '/inbox',
+                value: 'Conversations',
+                icon: 'icon-comments'
+              },
+              {
+                permission: 'showChannels',
+                link: '/settings/channels',
+                value: 'Channels',
+                icon: 'icon-layer-group',
+                additional: true
+              },
+              {
+                permission: 'showIntegrations',
+                link: '/settings/integrations',
+                value: 'Integrations',
+                icon: 'icon-puzzle-piece'
+              },
+              {
+                permission: 'getSkills',
+                link: '/settings/skills',
+                value: 'Skills',
+                icon: 'icon-file-info-alt'
+              },
+              {
+                permission: 'showResponseTemplates',
+                link: '/settings/response-templates',
+                value: 'Responses',
+                icon: 'icon-files-landscapes'
+              }
+            ],
             unreadIndicator
-          )}
-          {this.renderNavItem(
-            'showGrowthHacks',
-            __('Growth Hacking'),
-            '/growthHack',
-            'icon-idea'
-          )}
-          {this.renderNavItem(
-            'showDeals',
-            __('Deal'),
-            '/deal',
-            'icon-piggy-bank'
           )}
           {this.renderNavItem(
             'showCustomers',
             __('Contacts'),
-            '/contacts',
-            'icon-users'
+            '/contacts/customer',
+            'icon-users',
+            [
+              {
+                permission: 'showCustomers',
+                link: '/contacts/visitor',
+                value: 'Visitors',
+                icon: 'icon-user-square'
+              },
+              {
+                permission: 'showCustomers',
+                link: '/contacts/lead',
+                value: 'Leads',
+                icon: 'icon-file-alt'
+              },
+              {
+                permission: 'showCustomers',
+                link: '/contacts/customer',
+                value: 'Customers',
+                icon: 'icon-users-alt'
+              },
+              {
+                permission: 'showCompanies',
+                link: '/companies',
+                value: 'Companies',
+                icon: 'icon-building'
+              },
+              {
+                permission: 'showSegments',
+                link: '/segments/customer',
+                value: 'Segments',
+                icon: 'icon-chart-pie-alt',
+                additional: true
+              },
+              {
+                permission: 'showTags',
+                link: '/tags/conversation',
+                value: 'Tags',
+                icon: 'icon-tag-alt'
+              }
+            ]
           )}
           {this.renderNavItem(
             'showForms',
-            __('Forms'),
+            __('Marketing'),
             '/forms',
-            'icon-laptop'
+            'icon-head-1',
+            [
+              {
+                permission: 'showForms',
+                link: '/forms',
+                value: 'Forms',
+                icon: 'icon-laptop'
+              },
+              {
+                permission: 'showEngagesMessages',
+                link: '/campaigns',
+                value: 'Campaigns',
+                icon: 'icon-megaphone'
+              },
+              {
+                permission: 'showGrowthHacks',
+                link: '/growthHack',
+                value: 'Growth Hacking',
+                icon: 'icon-idea'
+              }
+            ]
           )}
           {this.renderNavItem(
-            'showEngagesMessages',
-            __('Campaigns'),
-            '/campaigns',
-            'icon-megaphone'
+            'showDeals',
+            __('Sales'),
+            '/deal',
+            'icon-signal-alt-3',
+            [
+              {
+                permission: 'showDeals',
+                link: '/deal',
+                value: 'Sales Pipeline',
+                icon: 'icon-piggy-bank'
+              },
+              {
+                permission: 'showProducts',
+                link: '/settings/product-service',
+                value: 'Products & Service',
+                icon: 'icon-box'
+              }
+            ]
           )}
           {this.renderNavItem(
             'showKnowledgeBase',
-            __('Knowledge Base'),
+            __('Support'),
             '/knowledgeBase',
-            'icon-book'
+            'icon-circular',
+            [
+              {
+                permission: 'showTickets',
+                link: '/ticket/board',
+                value: 'Tickets',
+                icon: 'icon-ticket'
+              },
+              {
+                permission: 'showKnowledgeBase',
+                link: '/knowledgeBase',
+                value: 'Knowledgebase',
+                icon: 'icon-book-open'
+              },
+              {
+                permission: 'showForum',
+                link: '/forum',
+                value: 'Forum',
+                icon: 'icon-list-ui-alt'
+              }
+            ]
+          )}
+          {this.renderNavItem(
+            'showConversations',
+            __('Managament'),
+            '/task',
+            'icon-laptop',
+            [
+              {
+                permission: 'showConversations',
+                link: '/task',
+                value: 'Task',
+                icon: 'icon-file-check-alt'
+              },
+              REACT_APP_DASHBOARD_URL !== 'undefined'
+                ? {
+                    permission: 'showDashboards',
+                    link: '/dashboard',
+                    value: 'Reports',
+                    icon: 'icon-dashboard'
+                  }
+                : ({} as ISubNav),
+              {
+                permission: 'showCalendars',
+                link: '/calendar',
+                value: 'Calendar',
+                icon: 'icon-calendar-alt'
+              }
+            ]
           )}
 
           {pluginsOfNavigations(this.renderNavItem)}
