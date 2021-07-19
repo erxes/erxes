@@ -17,6 +17,7 @@ import ExportPopupsData from '../containers/ExportPopupsData';
 import { IImportHistory } from '../types';
 import HistoryRow from './Row';
 import Sidebar from './Sidebar';
+import { Title } from 'modules/common/styles/main';
 
 type Props = {
   queryParams: any;
@@ -266,6 +267,18 @@ class Histories extends React.Component<Props & IRouterProps> {
       { title: __(currentType) }
     ];
 
+    const headerDescription = (
+      <HeaderDescription
+        icon="/images/actions/27.svg"
+        title={__('Import & export')}
+        description={`${__(
+          'Here you can find data of all your previous imports of companies and customers'
+        )}.${__('Find out when they joined and their current status')}.${__(
+          'Nothing goes missing around here'
+        )}`}
+      />
+    );
+
     return (
       <Wrapper
         header={
@@ -273,23 +286,12 @@ class Histories extends React.Component<Props & IRouterProps> {
         }
         actionBar={
           <Wrapper.ActionBar
-            left={
-              <HeaderDescription
-                icon="/images/actions/27.svg"
-                title={__('Import & export')}
-                description={`${__(
-                  'Here you can find data of all your previous imports of companies and customers'
-                )}.${__(
-                  'Find out when they joined and their current status'
-                )}.${__('Nothing goes missing around here')}`}
-              />
-            }
+            left={<Title capitalize={true}>{__(currentType)}</Title>}
             right={this.renderImportButton()}
           />
         }
-        leftSidebar={
-          <Sidebar title={__('Import & export')} currentType={currentType} />
-        }
+        leftSidebar={<Sidebar title={__('Types')} currentType={currentType} />}
+        mainHead={headerDescription}
         footer={<Pagination count={totalCount} />}
         content={
           <DataWithLoader

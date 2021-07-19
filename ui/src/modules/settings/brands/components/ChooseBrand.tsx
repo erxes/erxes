@@ -78,17 +78,11 @@ class ChooseBrand extends React.Component<Props> {
           <Button
             btnStyle="simple"
             icon="times-circle"
-            uppercase={false}
             onClick={this.props.closeModal}
           >
             Cancel
           </Button>
-          <Button
-            btnStyle="success"
-            type="submit"
-            icon="check-circle"
-            uppercase={false}
-          >
+          <Button btnStyle="success" type="submit" icon="check-circle">
             Save
           </Button>
         </ModalFooter>
