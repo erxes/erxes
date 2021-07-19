@@ -9,10 +9,17 @@ import strip from 'strip';
 import { sendDesktopNotification, withProps } from '../../common/utils';
 import Navigation from '../components/Navigation';
 
-class NavigationContainer extends React.Component<{
-  unreadConversationsCountQuery: UnreadConversationsTotalCountQueryResponse;
+type Props = {
+  collapsed: boolean;
   currentUser: IUser;
-}> {
+  onCollapseNavigation: () => void;
+};
+
+type FinalProps = {
+  unreadConversationsCountQuery: UnreadConversationsTotalCountQueryResponse;
+} & Props;
+
+class NavigationContainer extends React.Component<FinalProps> {
   componentWillMount() {
     const { unreadConversationsCountQuery, currentUser } = this.props;
 
@@ -41,6 +48,7 @@ class NavigationContainer extends React.Component<{
       unreadConversationsCountQuery.conversationsTotalUnreadCount || 0;
 
     const props = {
+      ...this.props,
       unreadConversationsCount
     };
 
@@ -48,7 +56,7 @@ class NavigationContainer extends React.Component<{
   }
 }
 
-export default withProps<{ currentUser: IUser }>(
+export default withProps<Props>(
   compose(
     graphql<{}, UnreadConversationsTotalCountQueryResponse>(
       gql(queries.unreadConversationsCount),
