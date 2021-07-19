@@ -45,11 +45,11 @@ class AssistantContent extends React.Component<Props, State> {
     this.props.changeRoute('initial');
   };
 
-  restartRole = (value: string, answer: string) => {
+  restartRole = (roleValue: IRoleValue, answerOf: IRoleValue) => {
     this.setState({
       welcomeStep: 1,
-      roleValue: { value, label: '' },
-      answerOf: { value: answer, label: '' }
+      roleValue,
+      answerOf
     });
     this.props.changeRoute('initial');
   };
@@ -91,6 +91,7 @@ class AssistantContent extends React.Component<Props, State> {
         activeStep={this.state.welcomeStep}
         roleValue={this.state.roleValue}
         answerOf={this.state.answerOf}
+        toggleContent={this.props.toggleContent}
       />
     );
 

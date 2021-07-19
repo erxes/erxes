@@ -14,7 +14,7 @@ import {
 } from '../types';
 
 type Props = {
-  roleOption: IFeature;
+  feature: IFeature;
 };
 
 type FinalProps = Props &
@@ -37,8 +37,8 @@ class SetupDetailContainer extends React.Component<FinalProps> {
   }
 
   completeShowStep = () => {
-    const { completeShowStepMutation, roleOption } = this.props;
-    completeShowStepMutation({ variables: { step: `${roleOption.name}Show` } });
+    const { completeShowStepMutation, feature } = this.props;
+    completeShowStepMutation({ variables: { step: `${feature.name}Show` } });
   };
 
   render() {
@@ -59,10 +59,10 @@ export default withProps<Props>(
   compose(
     graphql<Props>(gql(queries.stepsCompleteness), {
       name: 'stepsCompletenessQuery',
-      options: ({ roleOption }) => {
+      options: ({ feature }) => {
         return {
           variables: {
-            steps: roleOption.settings
+            steps: feature.settings
           }
         };
       }

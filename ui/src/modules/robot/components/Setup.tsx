@@ -1,6 +1,6 @@
 import CollapseContent from 'modules/common/components/CollapseContent';
 import { __ } from 'modules/common/utils';
-import { ROLE_SETUP, ROLE_SETUP_DETAILS } from 'modules/robot/constants';
+import { ROLE_SETUP } from 'modules/robot/constants';
 import { IFeature, IRoleValue } from 'modules/robot/types';
 import React from 'react';
 import {
@@ -13,7 +13,7 @@ import {
   SubContent,
   Text
 } from './styles';
-import { getCurrentUserName } from 'modules/robot/utils';
+import { calculatePercentage, getCurrentUserName } from 'modules/robot/utils';
 import { IUser } from 'modules/auth/types';
 import Icon from 'modules/common/components/Icon';
 import SetupDetail from '../containers/SetupDetail';
@@ -27,7 +27,8 @@ type Props = {
   currentUser: IUser;
   showContent: boolean;
   toggleContent: (isShow: boolean) => void;
-  restartRole: (role: string, answer: string) => void;
+  restartRole: (roleValue: IRoleValue, answer: IRoleValue) => void;
+  availableFeatures: IFeature[];
 };
 
 type State = {
@@ -124,8 +125,39 @@ class Setup extends React.Component<Props, State> {
     );
   };
 
+  renderFeature(feature: IFeature, completed?: boolean) {
+    const { changeRoute } = this.props;
+
+    this.setState({ selectedOption: feature }, () => {
+      changeRoute('setupDetail');
+    });
+  }
+
+  checkCondition(title?: string) {
+    const { availableFeatures } = this.props;
+
+    {
+      availableFeatures.map(availabeFeature => {
+        if (availabeFeature.name === title) {
+          this.renderFeature(availabeFeature);
+        }
+      });
+    }
+  }
+
   renderSetup() {
     const { roleValue } = this.props;
+
+    const onRoleClick = (title?: string, gkey?: string) => {
+      this.setState(
+        {
+          collapseKey: gkey
+        },
+        () => {
+          this.checkCondition(title);
+        }
+      );
+    };
 
     return (
       <SetupList>
@@ -141,14 +173,10 @@ class Setup extends React.Component<Props, State> {
                 return (
                   <Text
                     key={index}
-                    onClick={this.onRoleClick.bind(
-                      this,
-                      content.title,
-                      group.key
-                    )}
+                    onClick={onRoleClick.bind(this, content.title, group.key)}
                   >
-                    <h6>{content.name}</h6>
-                    <p>{content.steps}</p>
+                    <h6>{__(content.name)}</h6>
+                    <p>{__(content.steps)}</p>
                   </Text>
                 );
               }
@@ -170,15 +198,13 @@ class Setup extends React.Component<Props, State> {
 
         <SubContent>
           <h5>
-            {roleValue.label} {__('Setup')}
+            {__(roleValue.label)} {__('Setup')}
           </h5>
         </SubContent>
 
         {this.renderSetup()}
 
-        <RestartButton
-          onClick={() => restartRole(roleValue.value, answerOf.value)}
-        >
+        <RestartButton onClick={() => restartRole(roleValue, answerOf)}>
           {__('Reselect role')}
         </RestartButton>
       </>
@@ -186,23 +212,16 @@ class Setup extends React.Component<Props, State> {
   }
 
   getPercentage() {
-    const min = 0;
-    const max = 100;
-    const percentage = Math.floor(min + Math.random() * (max - min));
-    return percentage;
-  }
+    const { availableFeatures } = this.props;
+    const completedCount = availableFeatures.filter(
+      feature => feature.isComplete
+    ).length;
 
-  onRoleClick = (title?: string, gkey?: string) => {
-    this.setState(
-      {
-        selectedOption: title ? ROLE_SETUP_DETAILS[title] : {},
-        collapseKey: gkey
-      },
-      () => {
-        this.props.changeRoute('setupDetail');
-      }
+    return calculatePercentage(
+      availableFeatures.length + 1,
+      completedCount + 1
     );
-  };
+  }
 
   openCollapse(gkey: string): boolean {
     if (gkey === this.state.collapseKey) {
@@ -217,7 +236,7 @@ class Setup extends React.Component<Props, State> {
 
     if (currentRoute === 'setupDetail') {
       return this.withHeader(
-        selectedOption && <SetupDetail roleOption={selectedOption} />
+        selectedOption && <SetupDetail feature={selectedOption} />
       );
     }
 

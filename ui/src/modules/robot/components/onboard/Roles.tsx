@@ -34,6 +34,7 @@ type Props = {
   getAnswerOf: (answerOf: IRoleValue) => void;
   roleValue: IRoleValue;
   answerOf: IRoleValue;
+  toggleContent: (isShow: boolean) => void;
 };
 
 type State = {
@@ -92,16 +93,16 @@ class Roles extends React.Component<Props, State> {
         <Select
           value={selectedRole}
           onChange={selectedRoleOnChange}
-          placeholder={PLACEHOLDER}
+          placeholder={__(PLACEHOLDER)}
           options={selectOptions(ROLE_OPTIONS)}
         />
 
-        <p>{__('Which of these sounds most like you')}?</p>
+        <p>{__('Which of these sounds the most like you')}?</p>
         <SelectUp>
           <Select
             value={selectedAnswer}
             onChange={selectedAnswerOnChange}
-            placeholder={PLACEHOLDER}
+            placeholder={__(PLACEHOLDER)}
             options={selectOptions(ROLE_VALUE)}
           />
         </SelectUp>

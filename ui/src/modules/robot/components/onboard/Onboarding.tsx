@@ -47,6 +47,7 @@ type Props = {
   activeStep?: number;
   roleValue: IRoleValue;
   answerOf: IRoleValue;
+  toggleContent: (isShow: boolean) => void;
 };
 
 type State = {
@@ -107,6 +108,7 @@ class Onboarding extends React.PureComponent<Props, State> {
         changeRoute={this.props.changeRoute}
         roleValue={this.props.roleValue}
         answerOf={this.props.answerOf}
+        toggleContent={this.props.toggleContent}
       />
     );
   };
