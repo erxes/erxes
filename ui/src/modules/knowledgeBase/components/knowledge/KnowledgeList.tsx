@@ -52,12 +52,7 @@ class KnowledgeList extends React.Component<Props> {
 
   renderSidebarHeader() {
     const trigger = (
-      <Button
-        btnStyle="success"
-        block={true}
-        uppercase={false}
-        icon="plus-circle"
-      >
+      <Button btnStyle="success" block={true} icon="plus-circle">
         Add Knowledge Base
       </Button>
     );

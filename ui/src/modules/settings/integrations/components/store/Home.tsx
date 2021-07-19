@@ -10,6 +10,7 @@ import { ByKindTotalCount } from '../../types';
 import Row from './Row';
 import Sidebar from './Sidebar';
 import { Content, FullHeight, IntegrationWrapper, SearchInput } from './styles';
+import { Title } from 'modules/common/styles/main';
 
 type Props = {
   totalCount: ByKindTotalCount;
@@ -90,20 +91,6 @@ class Home extends React.Component<Props, State> {
     return datas;
   }
 
-  renderContent() {
-    const { queryParams } = this.props;
-
-    return (
-      <Content>
-        <Sidebar currentType={queryParams.type} />
-        <IntegrationWrapper>
-          <h3>{queryParams.type || 'All Integrations'}</h3>
-          {this.renderIntegrations()}
-        </IntegrationWrapper>
-      </Content>
-    );
-  }
-
   renderSearch() {
     return (
       <SearchInput>
@@ -118,11 +105,25 @@ class Home extends React.Component<Props, State> {
   }
 
   render() {
+    const { queryParams } = this.props;
+
     const breadcrumb = [
       { title: __('Settings'), link: '/settings' },
       { title: __('App store') },
       { title: `${this.props.queryParams.type || __('All integrations')}` }
     ];
+
+    const headerDescription = (
+      <HeaderDescription
+        icon="/images/actions/33.svg"
+        title="App store"
+        description={`${__(
+          'Set up your integrations and start connecting with your customers'
+        )}.${__(
+          'Now you can reach them on wherever platform they feel most comfortable'
+        )}`}
+      />
+    );
 
     return (
       <Wrapper
@@ -131,21 +132,17 @@ class Home extends React.Component<Props, State> {
         }
         actionBar={
           <Wrapper.ActionBar
-            left={
-              <HeaderDescription
-                icon="/images/actions/33.svg"
-                title="App store"
-                description={`${__(
-                  'Set up your integrations and start connecting with your customers'
-                )}.${__(
-                  'Now you can reach them on wherever platform they feel most comfortable'
-                )}`}
-              />
-            }
+            left={<Title>{queryParams.type || 'All Integrations'}</Title>}
             right={this.renderSearch()}
           />
         }
-        content={this.renderContent()}
+        mainHead={headerDescription}
+        leftSidebar={<Sidebar currentType={queryParams.type} />}
+        content={
+          <Content>
+            <IntegrationWrapper>{this.renderIntegrations()}</IntegrationWrapper>
+          </Content>
+        }
       />
     );
   }

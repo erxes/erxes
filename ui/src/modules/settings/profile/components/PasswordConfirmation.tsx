@@ -36,17 +36,11 @@ class PasswordConfirmation extends React.Component<Props> {
           <Button
             btnStyle="simple"
             icon="times-circle"
-            uppercase={false}
             onClick={this.props.closeModal}
           >
             Cancel
           </Button>
-          <Button
-            type="submit"
-            btnStyle="success"
-            icon="check-circle"
-            uppercase={false}
-          >
+          <Button type="submit" btnStyle="success" icon="check-circle">
             Save
           </Button>
         </ModalFooter>
