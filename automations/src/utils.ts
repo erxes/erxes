@@ -29,9 +29,34 @@ export const isTargetInSegment = async (segmentId: string, targetId: string) => 
 
 type IActionsMap = { [key: string]: IAction };
 
-export let tags: string[] = [];
+export let tags: any[] = [];
+export let tasks: any[] = [];
+export let deals: any[] = [];
+export let customers: any[] = [];
 
-export const resetTags = () => tags = [];
+export const reset = () => {
+  tags = [];
+  tasks = [];
+  deals = [];
+  customers = [];
+}
+
+export const replacePlaceHolders = ({ actionData, triggerData }: { actionData?: any, triggerData?: any }) => {
+  if (actionData && triggerData ) {
+    const triggerDataKeys = Object.keys(triggerData);
+    const actionDataKeys = Object.keys(actionData);
+
+    for (const triggerDataKey of triggerDataKeys) {
+      for (const actionDataKey of actionDataKeys) {
+        if (actionData[actionDataKey].includes(`{{ ${triggerDataKey} }}`)) {
+          actionData[actionDataKey] = actionData[actionDataKey].replace(`{{ ${triggerDataKey} }}`, triggerData[triggerDataKey]);
+        }
+      }
+    }
+  }
+
+  return actionData;
+}
 
 export const executeActions = async (execution: IExecutionDocument, actionsMap: IActionsMap, currentActionId?: string): Promise<string> => {
   if (!currentActionId) {
@@ -71,6 +96,14 @@ export const executeActions = async (execution: IExecutionDocument, actionsMap: 
 
   if (action.type === ACTIONS.REMOVE_TAGS) {
     tags = tags.filter(t => !action.data.names.includes(t));
+  }
+
+  if (action.type === ACTIONS.ADD_TASK) {
+    tasks.push(replacePlaceHolders({ actionData: action.data, triggerData: execution.triggerData }));
+  }
+
+  if (action.type === ACTIONS.ADD_DEAL) {
+    deals.push(replacePlaceHolders({ actionData: action.data, triggerData: execution.triggerData }));
   }
 
   return executeActions(execution, actionsMap, action.nextActionId);

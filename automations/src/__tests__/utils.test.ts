@@ -1,7 +1,7 @@
 import Automations from "../models/Automations";
 import { Executions } from "../models/Executions";
 import { automationFactory } from "../models/factories";
-import { receiveTrigger, resetTags, tags } from "../utils";
+import { deals, receiveTrigger, reset, tags, tasks } from "../utils";
 import "./setup";
 
 describe('executeActions (if)', () => {
@@ -52,7 +52,7 @@ describe('executeActions (if)', () => {
   afterEach(async () => {
     await Automations.remove({});
     await Executions.remove({});
-    resetTags();
+    reset();
   })
 
   test("if yes", async (done) => {
@@ -128,7 +128,7 @@ describe('executeActions (wait)', () => {
   afterEach(async () => {
     await Automations.remove({});
     await Executions.remove({});
-    resetTags();
+    reset();
   })
 
   test("wait", async (done) => {
@@ -140,6 +140,95 @@ describe('executeActions (wait)', () => {
 
     expect(execution.waitingActionId).toBe('2');
     expect(execution.lastCheckedWaitDate).not.toBe(null);
+
+    done();
+  });
+});
+
+describe('executeActions (placeholder)', () => {
+  beforeEach(async () => {
+    /*
+        form submit (trigger)
+              |
+        create task (action)
+              |
+        create deal (action)
+    */
+    await automationFactory({
+      name: "1",
+      triggers: [
+        {
+          id: "1",
+          type: "formSubmit",
+          data: {
+            fields: [
+              { fieldName: 'field_id1', label: 'Product name' },
+              { fieldName: 'field_id2', label: 'Price' },
+            ]
+          },
+        },
+        {
+          id: "2",
+          type: "createCustomer",
+          data: {
+            fields: [
+              { fieldName: 'firstName', label: 'First name' },
+              { fieldName: 'lastName', label: 'Last name' },
+            ]
+          },
+        },
+      ],
+
+      actions: [
+        {
+          id: "1",
+          type: "ADD_TASK",
+          data: { description: 'Customer"s first name is {{ firstName }}, lastName is {{ lastName }}' },
+          nextActionId: "2",
+        },
+        {
+          id: "2",
+          prevActionId: "1",
+          type: "ADD_DEAL",
+          data: { title: "title {{ field_1 }}", description: 'Price: {{ field_2 }} shvv' },
+        },
+      ],
+    });
+  });
+
+  afterEach(async () => {
+    await Automations.remove({});
+    await Executions.remove({});
+    reset();
+  })
+
+  test("check deal", async (done) => {
+    await receiveTrigger({ triggerType: "formSubmit", targetId: "submission1", data: {
+      "field_1": "Hoodie",
+      "field_2": 1000
+    } });
+
+    expect(deals.length).toBe(1);
+
+    const [deal] = deals;
+
+    expect(deal.title).toBe('title Hoodie')
+    expect(deal.description).toBe('Price: 1000 shvv')
+
+    done();
+  });
+
+  test("check task", async (done) => {
+    await receiveTrigger({ triggerType: "createCustomer", targetId: "customer1", data: {
+      "firstName": "Dombo",
+      "lastName": "Gombo"
+    } });
+
+    expect(tasks.length).toBe(1);
+
+    const [task] = tasks;
+
+    expect(task.description).toBe('Customer"s first name is Dombo, lastName is Gombo')
 
     done();
   });
