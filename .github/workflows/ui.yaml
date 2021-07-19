@@ -103,11 +103,11 @@ jobs:
         REACT_APP_API_URL: http://localhost:3300
         REACT_APP_API_SUBSCRIPTION_URL: ws://localhost:3300/subscriptions
 
-    - name: Cypress run
-      run: |
-        cd ui
-        yarn install
-        yarn record-cypress
+    # - name: Cypress run
+    #   run: |
+    #     cd ui
+    #     yarn install
+    #     yarn record-cypress
 
     - name: Build
       run: |
