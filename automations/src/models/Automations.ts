@@ -7,16 +7,26 @@ export interface IAction {
    prevActionId?: string;
    nextActionId?: string;
 }
-
+export interface ITrigger {
+   id: string;
+   type: string;
+   data?: any;
+}
 export interface IAutomation {
   name: string;
-  triggers: string[];
+  triggers: ITrigger[];
   actions: IAction[];
 }
 
 export interface IAutomationDocument extends IAutomation, Document {
   _id: string;
 }
+
+export const triggerSchema = new Schema({
+  id: { type: String, required: true },
+  type: { type: String, required: true },
+  data: { type: Object },
+}, { _id: false });
 
 export const actionSchema = new Schema({
   id: { type: String, required: true },
@@ -28,7 +38,7 @@ export const actionSchema = new Schema({
 
 export const automationSchema = new Schema({
   name: { type: String, required: true },
-  triggers: { type: [String] },
+  triggers: { type: [triggerSchema] },
   actions: { type: [actionSchema] },
 });
 

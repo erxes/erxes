@@ -20,7 +20,7 @@ describe('executeActions (if)', () => {
     */
     await automationFactory({
       name: "1",
-      triggers: ["websiteVisited"],
+      triggers: [{ id: "1", type: "websiteVisited" }],
       actions: [
         {
           id: "1",
@@ -56,7 +56,7 @@ describe('executeActions (if)', () => {
   })
 
   test("if yes", async (done) => {
-    await receiveTrigger({ trigger: "websiteVisited", targetId: "customerId1" });
+    await receiveTrigger({ triggerType: "websiteVisited", targetId: "customerId1" });
 
     expect(tags).toEqual(["t2"]);
     expect(await Automations.find().count()).toBe(1);
@@ -64,7 +64,7 @@ describe('executeActions (if)', () => {
 
     const execution = await Executions.findOne();
 
-    expect(execution.trigger).toBe('websiteVisited');
+    expect(execution.triggerType).toBe('websiteVisited');
     expect(execution.waitingActionId).toBe(null);
     expect(execution.lastCheckedWaitDate).toBe(null);
 
@@ -72,7 +72,7 @@ describe('executeActions (if)', () => {
   });
 
   test("if no", async (done) => {
-    await receiveTrigger({ trigger: "websiteVisited", targetId: "customerId2" });
+    await receiveTrigger({ triggerType: "websiteVisited", targetId: "customerId2" });
 
     expect(tags).toEqual(["t1", "t2"]);
 
@@ -96,7 +96,7 @@ describe('executeActions (wait)', () => {
     */
     await automationFactory({
       name: "1",
-      triggers: ["websiteVisited"],
+      triggers: [{ id: "1", type: "websiteVisited" }],
       actions: [
         {
           id: "1",
@@ -132,7 +132,7 @@ describe('executeActions (wait)', () => {
   })
 
   test("wait", async (done) => {
-    await receiveTrigger({ trigger: "websiteVisited", targetId: "customerId1" });
+    await receiveTrigger({ triggerType: "websiteVisited", targetId: "customerId1" });
 
     expect(tags).toEqual(["t1", "t2"]);
 

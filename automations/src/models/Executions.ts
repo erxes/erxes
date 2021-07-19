@@ -2,7 +2,8 @@ import { Document, Model, model, Schema } from 'mongoose';
 
 export interface IExecution {
   automationId: string;
-  trigger: string;
+  triggerType: string;
+  triggerData: any;
   targetId: string;
   status: string;
   lastCheckedWaitDate: Date;
@@ -15,7 +16,8 @@ export interface IExecutionDocument extends IExecution, Document {
 
 export const executionSchema = new Schema({
   automationId: { type: String, required: true },
-  trigger: { type: String, required: true },
+  triggerType: { type: String, required: true },
+  triggerData: { type: Object },
   targetId: { type: String, required: true },
   lastCheckedWaitDate: { type: Date },
   waitingActionId: { type: String },

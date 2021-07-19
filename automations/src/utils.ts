@@ -76,8 +76,8 @@ export const executeActions = async (execution: IExecutionDocument, actionsMap: 
   return executeActions(execution, actionsMap, action.nextActionId);
 }
 
-export const executeAutomation = async ({ automation, trigger, targetId }: { automation: IAutomationDocument, trigger: string, targetId: string }) => {
-  const execution = await Executions.create({ automationId: automation._id, trigger, targetId });
+export const executeAutomation = async ({ automation, triggerType, targetId, triggerData }: { automation: IAutomationDocument, triggerType: string, targetId: string, triggerData?: any }) => {
+  const execution = await Executions.create({ automationId: automation._id, triggerType, triggerData, targetId });
   const actionsMap: IActionsMap = {};
 
   let firstActionId: string;
@@ -93,13 +93,19 @@ export const executeAutomation = async ({ automation, trigger, targetId }: { aut
   await executeActions(execution, actionsMap, firstActionId);
 }
 
-export const receiveTrigger = async ({ trigger, targetId }: { trigger: string, targetId: string }) => {
-  const automations = await Automations.find({ triggers: { $in: [trigger] } });
-  const executions = await Executions.find({ automationId: { $in: automations.map(a => a._id) }, targetId, waitingActionId: { $ne: null } });
+export const receiveTrigger = async ({ triggerType, targetId, data }: { triggerType: string, targetId: string, data?: any }) => {
+  const automations = await Automations.find({ 'triggers.type': { $in: [triggerType] } });
+
+  const executions = await Executions.find({
+    automationId: { $in: automations.map(a => a._id) },
+    triggerType,
+    targetId,
+    waitingActionId: { $ne: null }
+  });
 
   if (executions.length === 0) {
     for (const automation of automations) {
-      await executeAutomation({ automation, trigger, targetId });
+      await executeAutomation({ automation, triggerType, targetId, triggerData: data });
     }
   }
 }
