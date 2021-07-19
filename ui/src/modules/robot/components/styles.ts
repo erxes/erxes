@@ -29,21 +29,51 @@ const Greeting = styled(SubContent)`
   }
 `;
 
-const Bot = styled.div`
+const Bot = styledTS<{ collapsed: boolean }>(styled.div)`
   position: fixed;
   bottom: 0px;
-  width: 70px;
+  width: ${props => (props.collapsed ? '160px' : '70px')};
   padding: 10px 0;
   text-align: center;
   z-index: 15;
+  display: ${props => props.collapsed && 'flex'};
+  align-items: center;
 
   &:hover {
     cursor: pointer;
   }
+`;
 
-  img {
-    width: 42px;
+const BotWrapper = styledTS<{ collapsed: boolean }>(styled.div)`
+  background: ${props => props.collapsed && 'rgba(0,0,0,0.13)'};
+  display: flex;
+  align-items: center;
+  justify-content: ${props => !props.collapsed && 'center'};
+  padding: ${props => props.collapsed && ' 0px 10px 0px 0px'};
+  color: ${colors.colorWhite};
+  border-radius: ${dimensions.coreSpacing}px;
+  margin: 0px 0px ${dimensions.unitSpacing}px ${props =>
+  props.collapsed ? dimensions.unitSpacing + 5 : 0}px;
+
+  > span {
+    margin-right: ${props => props.collapsed && dimensions.unitSpacing - 2}px;
+    padding: ${dimensions.unitSpacing - 6}px;
+    background: ${colors.colorSecondary};
+    border-radius: ${dimensions.coreSpacing}px ${dimensions.coreSpacing}px ${
+  dimensions.coreSpacing
+}px 2px;
+    transition: all 0.3s ease-in 0s;
+
+    img {
+      width: 38px;
+    }
   }
+`;
+
+const BotText = styled.h5`
+  margin: ${dimensions.unitSpacing - 4}px 0 0 ${dimensions.unitSpacing - 5}px;
+  text-transform: capitalize;
+  font-weight: normal;
 `;
 
 const Title = styled.h2`
@@ -83,7 +113,7 @@ const Content = styled.div`
   background: ${colors.colorWhite};
   min-width: 320px;
   box-shadow: 0 5px 15px 1px rgba(0, 0, 0, 0.15);
-  bottom: 65px;
+  bottom: 80px;
   left: 15px;
   max-height: calc(100% - 75px);
   overflow: auto;
@@ -153,6 +183,7 @@ const ProgressText = styled.div`
 
 export {
   Bot,
+  BotText,
   Greeting,
   SubContent,
   Title,
@@ -161,6 +192,7 @@ export {
   ContentWrapper,
   SubHeader,
   BackDrop,
+  BotWrapper,
   CompletedTaskWrapper,
   CompletedTaskName,
   ProgressText,

@@ -112,7 +112,6 @@ class Facebook extends React.Component<Props, State> {
 
                 <Button
                   disabled={page.isUsed}
-                  uppercase={false}
                   btnStyle={
                     this.state.selectedPages.includes(page.id)
                       ? 'primary'
@@ -206,7 +205,7 @@ class Facebook extends React.Component<Props, State> {
           </Indicator>
           <Button.Group>
             <Link to="/settings/integrations">
-              <Button btnStyle="simple" icon="times-circle" uppercase={false}>
+              <Button btnStyle="simple" icon="times-circle">
                 Cancel
               </Button>
             </Link>
