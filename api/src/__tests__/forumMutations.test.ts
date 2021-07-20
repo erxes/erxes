@@ -8,8 +8,7 @@ import {
   ForumDiscussions,
   DiscussionComments
 } from '../db/models';
-import { PUBLISH_STATUSES } from '../db/models/definitions/constants';
-
+import { FORUM_DISCUSSION_STATUSES } from '../db/models/definitions/constants';
 import {
   brandFactory,
   forumFactory,
@@ -37,7 +36,7 @@ const topicArgs = {
 const discussionArgs = {
   title: faker.random.word(),
   description: faker.random.word(),
-  status: PUBLISH_STATUSES.DRAFT,
+  status: FORUM_DISCUSSION_STATUSES.PUBLISH,
   content: faker.random.word()
 };
 
@@ -60,7 +59,7 @@ describe('mutations', () => {
       forumId: _forum._id
     });
     _forumDiscussion = await forumDiscussionFactory({
-      status: PUBLISH_STATUSES.PUBLISH,
+      status: FORUM_DISCUSSION_STATUSES.CLOSED,
       forumId: _forum._id,
       topicId: _forumTopic._id
     });

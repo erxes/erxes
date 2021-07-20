@@ -183,7 +183,7 @@ class DiscussionForm extends React.Component<Props, State> {
                 defaultValue={object.status || 'draft'}
                 required={true}
               >
-                {[{ value: 'draft' }, { value: 'publish' }].map(op => (
+                {[{ value: 'publish' }, { value: 'closed' }].map(op => (
                   <option key={op.value} value={op.value}>
                     {op.value}
                   </option>

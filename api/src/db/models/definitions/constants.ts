@@ -819,3 +819,9 @@ export const FORUM_CONTENT_TYPE = {
   COMMENT: 'comment',
   ALL: ['discussion', 'comment']
 };
+
+export const FORUM_DISCUSSION_STATUSES = {
+  PUBLISH: 'publish',
+  CLOSED: 'closed',
+  ALL: ['publish', 'closed']
+};

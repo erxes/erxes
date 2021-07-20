@@ -1704,7 +1704,7 @@ export const forumDiscussionFactory = async (
     title: faker.random.word(),
     description: faker.lorem.sentence,
     content: faker.lorem.sentence,
-    status: params.status || 'draft',
+    status: params.status || 'publish',
     modifiedBy: params.modifiedBy,
     forumId: params.forumId,
     topicId: params.topicId,

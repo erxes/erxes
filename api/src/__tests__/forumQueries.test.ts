@@ -3,11 +3,7 @@ import {
   discussionCommentFactory,
   forumDiscussionFactory,
   forumFactory,
-  forumTopicFactory,
-  knowledgeBaseArticleFactory,
-  knowledgeBaseCategoryFactory,
-  knowledgeBaseTopicFactory,
-  userFactory
+  forumTopicFactory
 } from '../db/factories';
 import {
   DiscussionComments,

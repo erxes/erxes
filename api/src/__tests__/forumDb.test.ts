@@ -18,7 +18,7 @@ import {
   Forums,
   DiscussionComments
 } from '../db/models';
-import { PUBLISH_STATUSES } from '../db/models/definitions/constants';
+import { FORUM_DISCUSSION_STATUSES } from '../db/models/definitions/constants';
 
 expect.extend(toBeType);
 
@@ -314,7 +314,7 @@ describe('test forum models', () => {
         title: 'Test discussion title',
         description: 'Test discussion description',
         content: 'Test discussion content',
-        status: PUBLISH_STATUSES.DRAFT
+        status: FORUM_DISCUSSION_STATUSES.CLOSED
       };
 
       const discussion = await ForumDiscussions.createDoc(doc, _user._id);
@@ -340,7 +340,7 @@ describe('test forum models', () => {
         title: 'Test discussion title',
         description: 'Test discussion description',
         content: 'Test discussion content',
-        status: PUBLISH_STATUSES.DRAFT
+        status: FORUM_DISCUSSION_STATUSES.CLOSED
       };
 
       const discussion = await ForumDiscussions.createDoc(doc, _user._id);
@@ -348,7 +348,7 @@ describe('test forum models', () => {
       discussion.title = 'Test discussion title 2';
       discussion.description = 'Test discussion description 2';
       discussion.content = 'Test discussion content 2';
-      discussion.status = PUBLISH_STATUSES.PUBLISH;
+      discussion.status = FORUM_DISCUSSION_STATUSES.PUBLISH;
 
       const updatedDiscussion = await ForumDiscussions.updateDoc(
         discussion._id,
@@ -371,7 +371,7 @@ describe('test forum models', () => {
         title: 'Test discussion title',
         description: 'Test discussion description',
         content: 'Test discussion content',
-        status: PUBLISH_STATUSES.DRAFT
+        status: FORUM_DISCUSSION_STATUSES.PUBLISH
       };
 
       const discussion = await ForumDiscussions.createDoc(doc, _user._id);
