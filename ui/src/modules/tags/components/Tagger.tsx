@@ -84,11 +84,11 @@ class Tagger extends React.Component<Props, { tagsForList: any[] }> {
   };
 
   render() {
-    if (this.props.loading) {
+    const { className, event, type, loading } = this.props;
+
+    if (loading) {
       return <Spinner objective={true} />;
     }
-
-    const { className, event, type } = this.props;
 
     const links = [
       {

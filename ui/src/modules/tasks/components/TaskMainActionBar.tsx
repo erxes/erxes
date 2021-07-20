@@ -71,7 +71,7 @@ const TaskMainActionBar = (props: Props) => {
   const extraFilter = (
     <>
       <SelectCompanies
-        label="Filter by companies"
+        label={__('Filter by companies')}
         name="companyIds"
         queryParams={queryParams}
         onSelect={onSelect}

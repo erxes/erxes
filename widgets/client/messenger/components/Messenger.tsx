@@ -16,7 +16,7 @@ function Messenger({
   activeRoute,
   isOnline = false,
   supporters,
-  loading
+  loading,
 }: Props) {
   const WithSupporters = (Component: any) => {
     return (
