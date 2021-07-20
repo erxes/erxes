@@ -133,7 +133,7 @@ jobs:
         run: |
           cd logger
           echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin
-          docker build -t erxes/erxes-logger:${GITHUB_REF#refs/tags/} -t erxes/erxes-logger:latest -f Dockerfile .
+          docker build -t erxes/erxes-logger:${GITHUB_REF#refs/tags/} -f Dockerfile .
           docker push erxes/erxes-logger:${GITHUB_REF#refs/tags/}
           docker push erxes/erxes-logger:latest
 
