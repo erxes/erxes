@@ -118,7 +118,6 @@ function FieldLogics(props: Props) {
     return (
       <Button
         block={true}
-        uppercase={false}
         btnStyle="success"
         icon="check-circle"
         onClick={onEnableLogic}

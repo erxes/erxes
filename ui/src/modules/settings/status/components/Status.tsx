@@ -104,22 +104,22 @@ class Status extends React.PureComponent<{
       </div>
     );
 
+    const headerDescription = (
+      <HeaderDescription
+        icon="/images/actions/28.svg"
+        title="System status"
+        description={`${__(
+          `This allows you to see erxes's real-time information on all system statuses`
+        )}.${__(`You'll find live and historical data on system performance`)}`}
+      />
+    );
+
     return (
       <Wrapper
         header={
           <Wrapper.Header title={__('System status')} breadcrumb={breadcrumb} />
         }
-        actionBar={
-          <Wrapper.ActionBar
-            left={
-              <HeaderDescription
-                icon="/images/actions/28.svg"
-                title="System status"
-                description={`This allows you to see erxes's real-time information on all system statuses. You'll find live and historical data on system performance.`}
-              />
-            }
-          />
-        }
+        mainHead={headerDescription}
         content={content}
         transparent={true}
         center={true}

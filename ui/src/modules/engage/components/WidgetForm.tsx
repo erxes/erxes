@@ -311,20 +311,10 @@ class WidgetForm extends React.Component<Props, State> {
         {this.renderFormContent()}
 
         <ModalFooter>
-          <Button
-            btnStyle="simple"
-            icon="times-circle"
-            uppercase={false}
-            onClick={this.close}
-          >
+          <Button btnStyle="simple" icon="times-circle" onClick={this.close}>
             Close
           </Button>
-          <Button
-            uppercase={false}
-            type="submit"
-            btnStyle="success"
-            icon="message"
-          >
+          <Button type="submit" btnStyle="success" icon="message">
             Send
           </Button>
         </ModalFooter>

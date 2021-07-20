@@ -96,7 +96,8 @@ function Customization(props: Props) {
       <SubContent>
         <h3>{__('Where do you want to start')}?</h3>
         <p>
-          There are a ton of things you can do with <strong>erxes</strong>.
+          {__('There are a ton of things you can do with')}
+          <strong> {__('erxes')}</strong>.
           {__(
             "Let's pick the place to start, and we'll help you to get the most out of it"
           )}
@@ -104,8 +105,8 @@ function Customization(props: Props) {
         </p>
         <p>
           <i>
-            You can choose <strong>at least two</strong> fields in your priority
-            order
+            {__('You can choose')} <strong>{__('at least two')} </strong>
+            {__('fields in your priority order')}
           </i>
         </p>
       </SubContent>
@@ -113,7 +114,7 @@ function Customization(props: Props) {
         {FEATURES.map(feature => renderItem(feature))}
       </Features>
       {props.renderButton(
-        'Finish',
+        __('Finish'),
         saveFeatures,
         'check-circle',
         features.length < 2

@@ -27,7 +27,7 @@ function renderWebsiteApps(websites, color) {
     <ContentBox key={index}>
       <Website color={color}>
         <p>{website.description}</p>
-        <Button uppercase={false}>{website.buttonText}</Button>
+        <Button>{website.buttonText}</Button>
       </Website>
     </ContentBox>
   ));

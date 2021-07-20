@@ -64,12 +64,7 @@ class InstallCode extends React.Component<Props, State> {
           <ReactMarkdown source={this.state.code} />
           {this.state.code ? (
             <CopyToClipboard text={this.state.code} onCopy={this.onCopy}>
-              <Button
-                size="small"
-                btnStyle="primary"
-                icon="copy-1"
-                uppercase={false}
-              >
+              <Button size="small" btnStyle="primary" icon="copy-1">
                 {this.state.copied ? 'Copied' : 'Copy to clipboard'}
               </Button>
             </CopyToClipboard>
@@ -82,7 +77,6 @@ class InstallCode extends React.Component<Props, State> {
           <Button
             btnStyle="simple"
             icon="times-circle"
-            uppercase={false}
             onClick={this.props.closeModal}
           >
             Close

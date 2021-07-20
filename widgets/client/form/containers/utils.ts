@@ -89,7 +89,7 @@ export const saveLead = (params: {
   const { doc, browserInfo, integrationId, formId, saveCallback } = params;
 
   const submissions = Object.keys(doc).map(fieldId => {
-    const { value, text, type, validation, associatedFieldId, groupId, isHidden } = doc[fieldId];
+    const { value, text, type, validation, associatedFieldId, groupId, isHidden, column } = doc[fieldId];
 
     if (isHidden) {
       return;
@@ -102,7 +102,8 @@ export const saveLead = (params: {
       value,
       validation,
       associatedFieldId,
-      groupId
+      groupId,
+      column
     };
   });
   

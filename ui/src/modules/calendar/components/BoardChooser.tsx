@@ -93,7 +93,7 @@ class BoardChooser extends React.Component<Props> {
           text="Create Calendar group first"
           size="small"
           extra={
-            <Button btnStyle="warning" uppercase={false} size="small">
+            <Button btnStyle="warning" size="small">
               <Link
                 to={`/settings/calendars?boardId=${
                   currentBoard ? currentBoard._id : ''

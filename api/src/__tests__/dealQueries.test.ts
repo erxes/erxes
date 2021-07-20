@@ -73,7 +73,7 @@ describe('dealQueries', () => {
     customers { _id }
     products
     productsData
-    assignedUsers { _id }
+    assignedUsers
     labels { _id }
     hasNotified
     isWatched

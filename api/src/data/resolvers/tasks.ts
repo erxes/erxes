@@ -20,7 +20,7 @@ export default {
       relTypes: ['company']
     });
 
-    return Companies.find({ _id: { $in: companyIds || [] } });
+    return Companies.findActiveCompanies({ _id: { $in: companyIds || [] } });
   },
 
   async createdUser(task: ITaskDocument) {
@@ -34,7 +34,7 @@ export default {
       relTypes: ['customer']
     });
 
-    return Customers.find({ _id: { $in: customerIds || [] } });
+    return Customers.findActiveCustomers({ _id: { $in: customerIds || [] } });
   },
 
   assignedUsers(task: ITaskDocument) {

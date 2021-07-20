@@ -31,9 +31,7 @@ export default class ConversationList extends React.Component<Props> {
     } = this.props;
 
     const popupTrigger = (
-      <Button uppercase={false} icon="processor">
-        {__('Connect Integration')}
-      </Button>
+      <Button icon="processor">{__('Connect Integration')}</Button>
     );
 
     return (

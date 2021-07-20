@@ -211,7 +211,7 @@ class AutoAndManualForm extends React.Component<Props, State> {
           this.setState({ isSaved: true });
         }}
       >
-        <Button btnStyle="simple" uppercase={false} icon="times-circle">
+        <Button btnStyle="simple" icon="times-circle">
           Cancel
         </Button>
       </Link>
@@ -224,7 +224,6 @@ class AutoAndManualForm extends React.Component<Props, State> {
           <Button
             disabled={isActionLoading}
             btnStyle="warning"
-            uppercase={false}
             icon={isActionLoading ? undefined : 'file-alt'}
             onClick={this.handleSubmit.bind(this, 'draft')}
           >
@@ -233,7 +232,6 @@ class AutoAndManualForm extends React.Component<Props, State> {
           <Button
             disabled={isActionLoading}
             btnStyle="success"
-            uppercase={false}
             icon={isActionLoading ? undefined : 'check-circle'}
             onClick={this.handleSubmit.bind(this, 'live')}
           >

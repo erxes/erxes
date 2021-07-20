@@ -2,6 +2,7 @@ import * as dotenv from 'dotenv';
 import messageBroker from 'erxes-message-broker';
 import { RABBITMQ_QUEUES } from '../data/constants';
 import {
+  importFromWebhook,
   receiveImportCancel,
   receiveImportCreate,
   receiveImportRemove
@@ -29,6 +30,19 @@ export const initBroker = async server => {
         content.action === 'removeImport'
           ? await receiveImportRemove(content)
           : await receiveImportCreate(content);
+    } catch (e) {
+      response.status = 'error';
+      response.errorMessage = e.message;
+    }
+
+    return response;
+  });
+
+  consumeRPCQueue(RABBITMQ_QUEUES.RPC_API_TO_WEBHOOK_WORKERS, async content => {
+    const response = { status: 'success', data: {}, errorMessage: '' };
+
+    try {
+      await importFromWebhook(content);
     } catch (e) {
       response.status = 'error';
       response.errorMessage = e.message;

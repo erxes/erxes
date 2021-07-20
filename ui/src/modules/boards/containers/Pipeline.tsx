@@ -1,15 +1,7 @@
-import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
-import EmptyState from 'modules/common/components/EmptyState';
-import Spinner from 'modules/common/components/Spinner';
-import { IRouterProps } from 'modules/common/types';
-import { withProps } from 'modules/common/utils';
+
 import React, { Component } from 'react';
-import { graphql } from 'react-apollo';
 import { DragDropContext, Droppable } from 'react-beautiful-dnd';
-import { withRouter } from 'react-router-dom';
-import styled from 'styled-components';
-import { queries } from '../graphql';
 import {
   IItemMap,
   IOptions,
@@ -18,6 +10,16 @@ import {
   StagesQueryResponse
 } from '../types';
 import { PipelineConsumer, PipelineProvider } from './PipelineContext';
+
+import gql from 'graphql-tag';
+import EmptyState from 'modules/common/components/EmptyState';
+import Spinner from 'modules/common/components/Spinner';
+import { IRouterProps } from 'modules/common/types';
+import { withProps } from 'modules/common/utils';
+import { graphql } from 'react-apollo';
+import { withRouter } from 'react-router-dom';
+import styled from 'styled-components';
+import { queries } from '../graphql';
 import Stage from './Stage';
 
 const Container = styled.div`

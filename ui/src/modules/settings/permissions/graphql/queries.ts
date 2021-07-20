@@ -23,6 +23,7 @@ const usersGroups = `
       memberIds
       members {
         _id
+        isActive
         details {
           fullName
           avatar

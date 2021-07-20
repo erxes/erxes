@@ -87,7 +87,13 @@ class EmailTemplateList extends React.Component<Props> {
           <HeaderDescription
             icon="/images/actions/22.svg"
             title="Email templates"
-            description={`It's all about thinking ahead for your customers. Team members will be able to choose from email templates and send out one message to multiple recipients. You can use the email templates to send out a Mass email for leads/customers or you can send to other team members.`}
+            description={`${__(
+              `It's all about thinking ahead for your customers`
+            )}.${__(
+              'Team members will be able to choose from email templates and send out one message to multiple recipients'
+            )}.${__(
+              'You can use the email templates to send out a Mass email for leads/customers or you can send to other team members'
+            )}`}
           />
         }
         renderForm={this.renderForm}

@@ -218,7 +218,6 @@ class Condition extends React.Component<Props, State> {
                 <Button
                   btnStyle="simple"
                   icon="plus-circle"
-                  uppercase={false}
                   onClick={this.addAttributeFilter}
                 >
                   Add event attribute
@@ -231,7 +230,6 @@ class Condition extends React.Component<Props, State> {
             <Button
               className="round"
               btnStyle="danger"
-              uppercase={false}
               icon="times"
               onClick={this.removeCondition}
             />

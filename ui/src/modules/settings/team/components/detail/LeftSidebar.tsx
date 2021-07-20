@@ -168,7 +168,6 @@ function LeftSidebar({
                 key={skill._id}
                 btnStyle="simple"
                 size="small"
-                uppercase={false}
                 onClick={handleRemove}
               >
                 {skill.name}&nbsp;

@@ -1,4 +1,5 @@
 import {
+  companyFactory,
   dealFactory,
   fieldFactory,
   productCategoryFactory,
@@ -67,6 +68,11 @@ describe('Test products model', () => {
     // testing product category
     args.categoryCode = productCategory.code;
     args.code = '234';
+    productObj = await Products.createProduct(args);
+
+    // testing product vendor
+    args.vendorCode = (await companyFactory({ code: '1234' })).code;
+    args.code = '2345';
     productObj = await Products.createProduct(args);
 
     expect(productObj.categoryId).toBe(productCategory._id);

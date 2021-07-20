@@ -119,6 +119,18 @@ const integrationQueries = {
   },
 
   /**
+   * Get lead all integration list
+   */
+  async allLeadIntegrations(_root, _args, { singleBrandIdSelector }: IContext) {
+    const query = {
+      ...singleBrandIdSelector,
+      kind: 'lead'
+    };
+
+    return Integrations.findAllIntegrations(query).sort({ name: 1 });
+  },
+
+  /**
    * Get used integration types
    */
   async integrationsGetUsedTypes(_root, {}) {

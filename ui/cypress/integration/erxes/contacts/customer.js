@@ -1,4 +1,10 @@
-import { SignIn, fakeName, waitElm, waitTilDisappear, waitAndClick } from '../utils';
+import {
+  SignIn,
+  fakeName,
+  waitElm,
+  waitTilDisappear,
+  waitAndClick,
+} from "../utils";
 
 SignIn;
 
@@ -10,12 +16,7 @@ context("Contacts", () => {
   it("Customer", () => {
     cy.signIn();
 
-    cy.get("#navigation")
-      .children()
-      .eq(3)
-      .click();
-
-    cy.get('a[href="/contacts/customer"]').click();
+    cy.visit("/contacts/customer");
 
     waitElm('button[icon="plus-circle"]');
     cy.get('button[icon="plus-circle"]').click();
@@ -24,10 +25,15 @@ context("Contacts", () => {
 
     cy.get('input[name="firstName"]').type(random);
 
-    cy.get('div .Select-placeholder').contains('Enter an email').click().type(random + "@nmma.co");
-    waitAndClick('div .Select-menu-outer');
+    cy.get("div .Select-placeholder")
+      .contains("Enter an email")
+      .click()
+      .type(random + "@nmma.co");
+    waitAndClick("div .Select-menu-outer");
 
-    cy.get('button[type="submit"]').eq(0).click();
+    cy.get('button[type="submit"]')
+      .eq(0)
+      .click();
     waitTilDisappear('button[type="submit"]');
 
     cy.get("#customers")

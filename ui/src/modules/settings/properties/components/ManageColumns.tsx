@@ -121,25 +121,24 @@ class ManageColumns extends React.Component<Props, State> {
             type="button"
             btnStyle="simple"
             onClick={this.props.closeModal}
-            uppercase={false}
           >
             Cancel
           </Button>
 
           {type && type === 'import' ? (
-            <Button uppercase={false} type="submit" onClick={onclickCsv}>
+            <Button type="submit" onClick={onclickCsv}>
               Download csv
             </Button>
           ) : null}
 
           {type && type === 'export' ? (
-            <Button uppercase={false} type="submit" onClick={this.onSubmit}>
+            <Button type="submit" onClick={this.onSubmit}>
               Export {contentType}
             </Button>
           ) : null}
 
           {!['export', 'import'].includes(type) ? (
-            <Button uppercase={false} type="submit" onClick={this.onSubmit}>
+            <Button type="submit" onClick={this.onSubmit}>
               Save
             </Button>
           ) : null}

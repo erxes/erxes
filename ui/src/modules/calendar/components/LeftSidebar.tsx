@@ -4,7 +4,6 @@ import Button from 'modules/common/components/Button';
 import EmptyState from 'modules/common/components/EmptyState';
 import FormControl from 'modules/common/components/form/Control';
 import FormGroup from 'modules/common/components/form/Group';
-import { __ } from 'modules/common/utils';
 import Sidebar from 'modules/layout/components/Sidebar';
 import { IBoard, IGroup } from 'modules/settings/calendars/types';
 import React from 'react';
@@ -171,12 +170,7 @@ class LeftSidebar extends React.Component<Props, State> {
               currentBoard ? currentBoard._id : ''
             }`}
           >
-            <Button
-              block={true}
-              uppercase={false}
-              btnStyle="success"
-              icon="cog"
-            >
+            <Button block={true} btnStyle="success" icon="cog">
               Connect account
             </Button>
           </Link>
@@ -222,14 +216,13 @@ class LeftSidebar extends React.Component<Props, State> {
     return (
       <CommonWrapper>
         <Button
-          uppercase={false}
           btnStyle={!disabled ? 'success' : 'simple'}
           onClick={this.onHideModal}
           block={true}
           icon="plus-circle"
           disabled={disabled}
         >
-          {__('Create Event')}
+          Create Event
         </Button>
         <EventForm
           {...this.props}
@@ -258,7 +251,7 @@ class LeftSidebar extends React.Component<Props, State> {
             size="full"
             extra={
               <Link to="/settings/calendars">
-                <Button uppercase={false} btnStyle="success" icon="cog">
+                <Button btnStyle="success" icon="cog">
                   Create Board & Group
                 </Button>
               </Link>

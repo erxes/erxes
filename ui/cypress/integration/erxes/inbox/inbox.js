@@ -10,7 +10,7 @@ context("Inbox", () => {
   it("Conversation", () => {
     cy.signIn();
 
-    for(let i = 0; i < 2; i++){
+    for (let i = 0; i < 2; i++) {
       sendMessage();
     }
 
@@ -35,14 +35,14 @@ context("Inbox", () => {
 
     cy.get('button[icon="redo"]').click();
 
-    cy.get('a[href="/inbox"]').click();
+    cy.visit("/inbox");
 
-    waitAndClick('#conversationTags');
+    waitAndClick("#conversationTags");
 
     cy.get('input[placeholder="Search"]').type("Angry");
     cy.get('i[class="icon icon-tag-alt"]').click();
 
-    waitAndClick('div[class="RichEditor-editor"]')
+    waitAndClick('div[class="RichEditor-editor"]');
 
     cy.get("#conversationAssignTrigger").click();
     cy.get('input[placeholder="Search"]').type("Admin");
@@ -55,7 +55,9 @@ const sendMessage = () => {
   randomm = fakeName(2);
 
   cy.get('div[class="RichEditor-editor"]').click();
-  cy.get('div[class="RichEditor-editor"]').focused().clear();
+  cy.get('div[class="RichEditor-editor"]')
+    .focused()
+    .clear();
   cy.get('div[class="RichEditor-editor"]').type(randomm);
   cy.get('button[icon="message"]').click();
 };

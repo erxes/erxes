@@ -73,18 +73,12 @@ class GenerateGroup extends React.Component<Props, State> {
       <Sidebar.Footer>
         <Button
           btnStyle="simple"
-          uppercase={false}
           onClick={this.cancelEditing}
           icon="times-circle"
         >
           Discard
         </Button>
-        <Button
-          btnStyle="success"
-          uppercase={false}
-          onClick={this.save}
-          icon="check-circle"
-        >
+        <Button btnStyle="success" onClick={this.save} icon="check-circle">
           Save
         </Button>
       </Sidebar.Footer>

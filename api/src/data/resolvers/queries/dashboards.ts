@@ -8,6 +8,7 @@ import {
   getBoards,
   getBrands,
   getIntegrations,
+  getIntegrationTypes,
   getPipelines,
   getTags,
   getUsers
@@ -93,6 +94,10 @@ const dashBoardQueries = {
 
       if (type.includes('integrationName')) {
         return getIntegrations();
+      }
+
+      if (type.includes('integrationType')) {
+        return getIntegrationTypes();
       }
 
       if (type.includes('board')) {

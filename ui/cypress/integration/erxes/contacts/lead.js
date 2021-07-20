@@ -1,4 +1,10 @@
-import { SignIn, fakeName, waitElm, waitTilDisappear, waitAndClick } from '../utils';
+import {
+  SignIn,
+  fakeName,
+  waitElm,
+  waitTilDisappear,
+  waitAndClick,
+} from "../utils";
 
 SignIn;
 
@@ -10,45 +16,54 @@ context("Contacts", () => {
   it("Lead", () => {
     cy.signIn();
 
-    cy.get("#navigation")
-      .children()
-      .eq(3)
-      .click();
+    cy.visit("/contacts/lead");
 
     const random = fakeName(6);
-
-    cy.get('a[href="/contacts/lead"]').click();
 
     cy.get('button[icon="plus-circle"]').click();
 
     cy.get('input[name="firstName"]').type(random);
 
-    cy.get('div .Select-placeholder').contains('Enter an email').click().type(random + "@nmma.co");
-    waitAndClick('div .Select-menu-outer');
+    cy.get("div .Select-placeholder")
+      .contains("Enter an email")
+      .click()
+      .type(random + "@nmma.co");
+    waitAndClick("div .Select-menu-outer");
 
-    cy.get('button[type="submit"]').eq(0).click();
+    cy.get('button[type="submit"]')
+      .eq(0)
+      .click();
     // for save button disappear which mean popup close
     waitTilDisappear('button[type="submit"]');
 
-    cy.get("#customers>.crow").eq(2).get("#customersCheckBox").click();
+    cy.get("#customers>.crow")
+      .eq(2)
+      .get("#customersCheckBox")
+      .click();
 
     cy.get('button[icon="tag-alt"]').click();
 
     waitElm('i[class="icon icon-tag-alt"]');
 
-    cy.get('i[class="icon icon-tag-alt"]').eq(0).click();
+    cy.get('i[class="icon icon-tag-alt"]')
+      .eq(0)
+      .click();
 
     cy.get('button[icon="tag-alt"]').click();
 
     waitTilDisappear('button[icon="tag-alt"]');
 
-    cy.get("#customers>.crow").eq(3).within(() => {
-      cy.get("#customersCheckBox").click();
-    })
+    cy.get("#customers>.crow")
+      .eq(3)
+      .within(() => {
+        cy.get("#customersCheckBox").click();
+      });
 
-    cy.get("#customers>.crow").eq(4).within(() => {
-      cy.get("#customersCheckBox").click();
-    })
+    cy.get("#customers>.crow")
+      .eq(4)
+      .within(() => {
+        cy.get("#customersCheckBox").click();
+      });
 
     waitElm('i[icon="merge"]');
     cy.get('i[icon="merge"]').click();

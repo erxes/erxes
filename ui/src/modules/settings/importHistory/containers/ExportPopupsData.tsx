@@ -1,30 +1,32 @@
 import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
-import { queries } from 'modules/leads/graphql';
-import { LeadIntegrationsQueryResponse } from 'modules/leads/types';
+import { queries } from '../graphql';
 import React from 'react';
 import { graphql } from 'react-apollo';
 import ExportPopupsData from '../components/ExportPopupsData';
+import { ILeadIntegration } from 'modules/leads/types';
+
+type AllLeadIntegrationsQueryResponse = {
+  allLeadIntegrations: ILeadIntegration[];
+};
 
 interface IProps {
-  popupsQuery: LeadIntegrationsQueryResponse;
+  allLeadIntegrationsQuery: AllLeadIntegrationsQueryResponse;
 }
 
 const ExportPopupsDataContainer = (props: IProps) => {
-  const { popupsQuery } = props;
+  const { allLeadIntegrationsQuery } = props;
 
-  const popups = popupsQuery.integrations || [];
+  const popups = allLeadIntegrationsQuery.allLeadIntegrations || [];
 
   return <ExportPopupsData popups={popups} />;
 };
 
 export default compose(
-  graphql(gql(queries.integrations), {
-    name: 'popupsQuery',
-    options: () => ({
-      variables: {
-        kind: 'lead'
-      }
-    })
-  })
+  graphql<{}, AllLeadIntegrationsQueryResponse, {}>(
+    gql(queries.allLeadIntegrations),
+    {
+      name: 'allLeadIntegrationsQuery'
+    }
+  )
 )(ExportPopupsDataContainer);

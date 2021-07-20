@@ -59,7 +59,7 @@ export default function ConvertTo(props: Props) {
     <Container>
       <Dropdown>
         <Dropdown.Toggle as={DropdownToggle} id="dropdown-convert-to">
-          <Button uppercase={false}>
+          <Button>
             {__('Convert')} <Icon icon="angle-down" />
           </Button>
         </Dropdown.Toggle>

@@ -31,7 +31,6 @@ class Resolver extends React.Component<Props> {
 
     const btnAttrs = {
       size: 'small',
-      uppercase: false,
       btnStyle: hasClosedConversation ? 'warning' : 'success',
       icon,
       onClick: hasClosedConversation

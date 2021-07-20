@@ -69,7 +69,7 @@ class Todo extends React.Component<Props, State> {
 
   renderProgress = () => {
     const percentage = this.getPercentage();
-    let text = 'keep going!';
+    let text = __('keep going!');
 
     if (percentage < 75 && percentage > 50) {
       text = "you're halfway through, keep going!";
@@ -87,7 +87,8 @@ class Todo extends React.Component<Props, State> {
       <div>
         <ProgressBar percentage={percentage} color="#3B85F4" height="8px" />
         <ProgressText>
-          {percentage}% done - {text}
+          {percentage}
+          {__('% done -')} {text}
         </ProgressText>
       </div>
     );

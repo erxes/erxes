@@ -231,11 +231,17 @@ describe('engage message mutation tests', () => {
   });
 
   test('generateCustomerSelector', async () => {
-    const segment = await segmentFactory({});
+    const segment = await segmentFactory({ contentType: 'deal' });
     const brand = await brandFactory({});
+
     await integrationFactory({ brandId: brand._id });
 
+    const engage = await engageMessageFactory({
+      segmentIds: [segment._id]
+    });
+
     await engageUtils.generateCustomerSelector({
+      engageId: engage._id,
       segmentIds: [segment._id],
       brandIds: [brand._id]
     });

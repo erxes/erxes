@@ -99,9 +99,16 @@ const inboxFields = `
   }
 `;
 
+const fieldsItemTyped = `
+  query fieldsItemTyped {
+    fieldsItemTyped
+  }
+`;
+
 export default {
   fieldsGroups,
   fields,
   getSystemFieldsGroup,
-  inboxFields
+  inboxFields,
+  fieldsItemTyped
 };

@@ -35,7 +35,7 @@ class Base extends React.Component<Props> {
     }
 
     return (
-      <Button btnStyle="success" icon="plus-circle" uppercase={false}>
+      <Button btnStyle="success" icon="plus-circle">
         <Link
           to={`/settings/schedule/create/${this.props.queryParams.accountId}`}
         >
@@ -74,8 +74,8 @@ class Base extends React.Component<Props> {
           <Table>
             <thead>
               <tr>
-                <th>Your Scheduling Pages</th>
-                <th> Action</th>
+                <th>{__('Your Scheduling Pages')}</th>
+                <th> {__('Action')}</th>
               </tr>
             </thead>
 
@@ -112,7 +112,11 @@ class Base extends React.Component<Props> {
           <HeaderDescription
             icon="/images/actions/34.svg"
             title={`Calendar & Schedule`}
-            description="Manage your boards and calendars so that its easy to manage incoming forms or requests that is adaptable to your team's needs. Add in or delete boards and calendars to keep business development on track and in check."
+            description={`${__(
+              "Manage your boards and calendars so that its easy to manage incoming pop ups or requests that is adaptable to your team's needs"
+            )}.${__(
+              `Add in or delete boards and calendars to keep business development on track and in check`
+            )}`}
           />
         }
         content={content}

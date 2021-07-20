@@ -37,13 +37,6 @@ describe('responseTemplateQueries', () => {
     `;
 
     let response = await graphqlRequest(qry, 'responseTemplates', {
-      page: 1,
-      perPage: 2
-    });
-
-    expect(response.length).toBe(2);
-
-    response = await graphqlRequest(qry, 'responseTemplates', {
       brandId: brand._id
     });
 

@@ -27,7 +27,7 @@ describe('ticketQueries', () => {
     description
     companies { _id }
     customers { _id }
-    assignedUsers { _id }
+    assignedUsers
     boardId
     pipeline { _id }
     stage { _id }

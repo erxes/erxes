@@ -117,6 +117,8 @@ export const queries = `
     sortDirection: Int
   ): [Integration]
 
+  allLeadIntegrations: [Integration]
+
   integrationsGetUsedTypes: [integrationsGetUsedTypes]
   integrationGetLineWebhookUrl(_id: String!): String
   integrationDetail(_id: String!): Integration

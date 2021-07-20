@@ -7,10 +7,10 @@ import { Link } from 'react-router-dom';
 import {
   Box,
   BoxName,
-  Divider,
   MenusContainer,
   Row,
-  RowTitle
+  RowTitle,
+  Divider
 } from '../styles';
 
 const breadcrumb = [{ title: __('Settings'), link: '/settings' }];
@@ -119,11 +119,13 @@ class Settings extends React.PureComponent {
     image: string,
     to: string,
     action: string,
-    permissions?: string[]
+    permissions?: string[],
+    type?: string
   ) {
     const box = (
-      <Box>
+      <Box className={type && 'hasBorder'}>
         <Link to={to}>
+          {type && <em>{type}</em>}
           <img src={image} alt={name} />
           <BoxName>{__(name)}</BoxName>
         </Link>
@@ -145,34 +147,115 @@ class Settings extends React.PureComponent {
     const content = (
       <MenusContainer id={'SettingsMain'}>
         <Row>
-          <RowTitle>{__('General Settings')}</RowTitle>
+          <RowTitle>
+            {__('General Settings')}
+            <span>{__('Set up your basic settings')}</span>
+          </RowTitle>
           <div id={'SettingsGeneralSettings'}>
             {this.renderBox(
-              'System config',
+              'System Configuration',
               '/images/icons/erxes-16.svg',
               '/settings/general',
               'generalSettingsAll',
               ['manageGeneralSettings', 'showGeneralSettings']
             )}
             {this.renderBox(
-              'Team Members',
-              '/images/icons/erxes-02.svg',
-              '/settings/team',
-              'usersAll',
-              teamPermissions
-            )}
-            {this.renderBox(
-              'Permission',
-              '/images/icons/erxes-23.svg',
-              '/settings/permissions',
-              'permissionsAll',
-              permissionActions
+              'Brands',
+              '/images/icons/erxes-03.svg',
+              '/settings/brands',
+              'brandsAll',
+              ['showBrands', 'manageBrands']
             )}
             {this.renderBox(
               'Properties',
               '/images/icons/erxes-01.svg',
               '/settings/properties',
               ''
+            )}
+            {this.renderBox(
+              'Import & Export',
+              '/images/icons/erxes-22.svg',
+              '/settings/importHistories',
+              'importHistoriesAll',
+              ['importHistories', 'removeImportHistories', 'importXlsFile']
+            )}
+          </div>
+        </Row>
+        <Divider />
+        <Row>
+          <RowTitle>
+            {__('Team Settings')}
+            <span>{__('Manage your team members and their usage')}</span>
+          </RowTitle>
+          <div id={'SettingsTeamSettings'}>
+            {this.renderBox(
+              'Team Members',
+              '/images/icons/erxes-23.svg',
+              '/settings/team',
+              'usersAll',
+              teamPermissions
+            )}
+            {this.renderBox(
+              'Permissions',
+              '/images/icons/erxes-02.svg',
+              '/settings/permissions',
+              'permissionsAll',
+              permissionActions
+            )}
+            {this.renderBox(
+              'Skills',
+              '/images/icons/erxes-29.png',
+              '/settings/skills',
+              'skillTypesAll',
+              [
+                'getSkillTypes',
+                'getSkill',
+                'getSkills',
+                'manageSkills',
+                'manageSkillTypes'
+              ]
+            )}
+            {this.renderBox(
+              'Calendars',
+              '/images/icons/erxes-21.svg',
+              '/settings/calendars',
+              'calendarsAll',
+              calendarActions
+            )}
+            {this.renderBox(
+              'Scheduler',
+              '/images/icons/erxes-14.svg',
+              '/settings/schedule',
+              'calendarsAll',
+              calendarActions,
+              'New'
+            )}
+          </div>
+        </Row>
+        <Divider />
+        <Row>
+          <RowTitle>
+            {__('Multipurpose Settings')}
+            <span>
+              {__(
+                'Organize your information with secondary features used across different core features'
+              )}
+            </span>
+          </RowTitle>
+          <div id={'SettingsMultipurposeSettings'}>
+            {this.renderBox(
+              'Channels',
+              '/images/icons/erxes-05.svg',
+              '/settings/channels',
+              'channelsAll',
+              ['showChannels', 'manageChannels']
+            )}
+            {this.renderBox(
+              'Integrations',
+              '/images/icons/erxes-04.svg',
+              '/settings/integrations',
+              'integrationsAll',
+              integrationSettingsActions
             )}
             {this.renderBox(
               'Tags',
@@ -189,81 +272,25 @@ class Settings extends React.PureComponent {
               ['showSegments', 'manageSegments']
             )}
             {this.renderBox(
-              'Import & Export',
-              '/images/icons/erxes-22.svg',
-              '/settings/importHistories',
-              'importHistoriesAll',
-              ['importHistories', 'removeImportHistories', 'importXlsFile']
+              'Widget Script Manager',
+              '/images/icons/erxes-30.png',
+              '/settings/scripts',
+              'scriptsAll',
+              ['showScripts', 'manageScripts']
             )}
             {this.renderBox(
-              'Status',
-              '/images/icons/erxes-06.svg',
-              '/settings/status',
-              ''
+              'Products & Services',
+              '/images/icons/erxes-31.png',
+              '/settings/product-service',
+              'productsAll',
+              productPermissions
             )}
             {this.renderBox(
-              'Logs',
-              '/images/icons/erxes-14.svg',
-              '/settings/logs',
-              'viewLogs'
-            )}
-            {this.renderBox(
-              'Email Deliveries',
-              '/images/icons/erxes-13.svg',
-              '/settings/emailDelivery',
-              ''
-            )}
-            {this.renderBox(
-              'SMS Deliveries',
-              '/images/icons/erxes-08.svg',
-              '/settings/sms-deliveries',
-              ''
-            )}
-            {this.renderBox(
-              'Outgoing webhooks',
-              '/images/icons/erxes-11.svg',
-              '/settings/webhooks',
-              ''
-            )}
-            {this.renderBox(
-              'Skills',
-              '/images/icons/erxes-07.svg',
-              '/settings/skills',
-              'skillTypesAll',
-              [
-                'getSkillTypes',
-                'getSkill',
-                'getSkills',
-                'manageSkills',
-                'manageSkillTypes'
-              ]
-            )}
-          </div>
-        </Row>
-        <Divider />
-        <Row>
-          <RowTitle>{__('Integration Settings')}</RowTitle>
-          <div id={'SettingsIntegrationSettings'}>
-            {this.renderBox(
-              'Channels',
-              '/images/icons/erxes-05.svg',
-              '/settings/channels',
-              'channelsAll',
-              ['showChannels', 'manageChannels']
-            )}
-            {this.renderBox(
-              'Brands',
-              '/images/icons/erxes-03.svg',
-              '/settings/brands',
-              'brandsAll',
-              ['showBrands', 'manageBrands']
-            )}
-            {this.renderBox(
-              'App store',
-              '/images/icons/erxes-04.svg',
-              '/settings/integrations',
-              'integrationsAll',
-              integrationSettingsActions
+              'Growth Hacking Templates',
+              '/images/icons/erxes-12.svg',
+              '/settings/boards/growthHackTemplate',
+              'growthHacksAll',
+              growthHackTemplatePermissions
             )}
             {this.renderBox(
               'Response Template',
@@ -280,100 +307,86 @@ class Settings extends React.PureComponent {
               ['showEmailTemplates', 'manageEmailTemplate']
             )}
             {this.renderBox(
-              'Script manager',
-              '/images/icons/erxes-12.svg',
-              '/settings/scripts',
-              'scriptsAll',
-              ['showScripts', 'manageScripts']
+              'Outgoing webhooks',
+              '/images/icons/erxes-11.svg',
+              '/settings/webhooks',
+              ''
             )}
           </div>
         </Row>
         <Divider />
         <Row>
-          <RowTitle>{__('Growth Hacking Settings')}</RowTitle>
-          <div id={'SettingsGrowthHackingSettings'}>
+          <RowTitle>
+            {__('Feature Settings')}
+            <span>{__('Setup and manage individual core features')}</span>
+          </RowTitle>
+          <div id={'SettingsFeatureSettings'}>
             {this.renderBox(
-              'Marketing campaigns & Projects',
-              '/images/icons/erxes-20.svg',
-              '/settings/boards/growthHack',
-              'growthHacksAll',
-              growthHackPermissions
-            )}
-            {this.renderBox(
-              'Growth Hacking Templates',
-              '/images/icons/erxes-21.svg',
-              '/settings/boards/growthHackTemplate',
-              'growthHacksAll',
-              growthHackTemplatePermissions
-            )}
-          </div>
-        </Row>
-        <Divider />
-        <Row>
-          <RowTitle>{__('Sales Pipeline Settings')}</RowTitle>
-          <div id={'SettingsSalesPipelineSettings'}>
-            {this.renderBox(
-              'Sales board & Pipelines',
-              '/images/icons/erxes-19.svg',
+              'Sales Pipelines',
+              '/images/icons/erxes-25.png',
               '/settings/boards/deal',
               'dealsAll',
               dealPermissions
             )}
             {this.renderBox(
-              'Product & Service',
-              '/images/icons/deal-insight-volume.svg',
-              '/settings/product-service',
-              'productsAll',
-              productPermissions
+              'Task Pipelines',
+              '/images/icons/erxes-13.svg',
+              '/settings/boards/task',
+              'tasksAll',
+              taskPermissions
             )}
-          </div>
-        </Row>
-        <Divider />
-        <Row>
-          <RowTitle>{__('Ticket Settings')}</RowTitle>
-          <div id={'SettingsTicketSettings'}>
             {this.renderBox(
-              'Ticket board & Pipelines',
+              'Ticket Pipelines',
               '/images/icons/erxes-19.svg',
               '/settings/boards/ticket',
               'ticketsAll',
               ticketPermissions
             )}
-          </div>
-        </Row>
-        <Divider />
-        <Row>
-          <RowTitle>{__('Task Settings')}</RowTitle>
-          <div id={'SettingsTaskSettings'}>
             {this.renderBox(
-              'Task board & Pipelines',
-              '/images/icons/erxes-19.svg',
-              '/settings/boards/task',
-              'tasksAll',
-              taskPermissions
+              'Growth Hacking',
+              '/images/icons/erxes-20.svg',
+              '/settings/boards/growthHack',
+              'growthHacksAll',
+              growthHackPermissions
             )}
           </div>
         </Row>
         <Divider />
         <Row>
-          <RowTitle>{__('Calendar & Schedule Settings')}</RowTitle>
-          <div id={'SettingsCalendarSettings'}>
+          <RowTitle>
+            {__('Monitor')}
+            <span>
+              {__("Keep track of your organization's status and activity")}
+            </span>
+          </RowTitle>
+          <div id={'SettingsMonitorSettings'}>
             {this.renderBox(
-              'Groups & Calendars',
-              '/images/icons/erxes-21.svg',
-              '/settings/calendars',
-              'calendarsAll',
-              calendarActions
+              'Status',
+              '/images/icons/erxes-06.svg',
+              '/settings/status',
+              ''
             )}
             {this.renderBox(
-              'Schedule',
-              '/images/icons/erxes-21.svg',
-              '/settings/schedule',
-              'calendarsAll',
-              calendarActions
+              'Logs',
+              '/images/icons/erxes-33.png',
+              '/settings/logs',
+              'viewLogs'
+            )}
+            {this.renderBox(
+              'Email Deliveries',
+              '/images/icons/erxes-27.png',
+              '/settings/emailDelivery',
+              ''
+            )}
+            {this.renderBox(
+              'SMS Deliveries',
+              '/images/icons/erxes-34.png',
+              '/settings/sms-deliveries',
+              ''
             )}
           </div>
         </Row>
+
         {pluginsOfSettings(this.renderBox)}
       </MenusContainer>
     );

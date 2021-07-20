@@ -88,6 +88,7 @@ export interface ICustomerModel extends Model<ICustomerDocument> {
     customerFields: ICustomerFieldsInput,
     idsToExclude?: string[] | string
   ): never;
+  findActiveCustomers(selector, fields?): Promise<ICustomerDocument[]>;
   getCustomer(_id: string): Promise<ICustomerDocument>;
   getCustomerName(customer: ICustomer): string;
   createVisitor(): Promise<string>;
@@ -230,6 +231,13 @@ export const loadClass = () => {
       }
 
       return 'Unknown';
+    }
+
+    public static async findActiveCustomers(selector, fields) {
+      return Customers.find(
+        { ...selector, status: { $ne: 'deleted' } },
+        fields
+      );
     }
 
     /**
@@ -727,9 +735,15 @@ export const loadClass = () => {
     }: ICreateMessengerCustomerParams) {
       this.fixListFields(doc, customData);
 
+      const {
+        customFieldsData,
+        trackedData
+      } = await Fields.generateCustomFieldsData(customData, 'customer');
+
       return this.createCustomer({
         ...doc,
-        trackedData: Fields.generateTypedListFromMap(customData),
+        trackedData,
+        customFieldsData,
         lastSeenAt: new Date(),
         isOnline: true,
         sessionCount: 1
@@ -748,9 +762,15 @@ export const loadClass = () => {
 
       this.fixListFields(doc, customData, customer);
 
+      const {
+        customFieldsData,
+        trackedData
+      } = await Fields.generateCustomFieldsData(customData, 'customer');
+
       const modifier = {
         ...doc,
-        trackedData: Fields.generateTypedListFromMap(customData),
+        trackedData,
+        customFieldsData,
         state: doc.isUser ? 'customer' : customer.state,
         modifiedAt: new Date()
       };

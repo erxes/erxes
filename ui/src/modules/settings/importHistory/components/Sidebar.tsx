@@ -3,6 +3,7 @@ import LeftSidebar from 'modules/layout/components/Sidebar';
 import { SidebarList as List } from 'modules/layout/styles';
 import React from 'react';
 import { Link } from 'react-router-dom';
+import SidebarHeader from 'modules/settings/common/components/SidebarHeader';
 
 const ITEM_TYPES = {
   CUSTOMER: 'customer',
@@ -28,23 +29,20 @@ class Sidebar extends React.Component<Props> {
     const { title } = this.props;
     const { Header } = LeftSidebar;
 
-    return <Header uppercase={true}>{__(title)}</Header>;
+    return (
+      <div>
+        <SidebarHeader />
+        <Header uppercase={true}>{__(title)}</Header>
+      </div>
+    );
   };
 
-  getClassName(type) {
-    const { currentType } = this.props;
-
-    if (type === currentType) {
-      return 'active';
-    }
-
-    return '';
-  }
-
   renderListItem(type: string, text: string) {
+    const className = this.props.currentType === type ? 'active' : '';
+
     return (
       <li>
-        <Link to={`?type=${type}`} className={this.getClassName(type)}>
+        <Link to={`?type=${type}`} className={className}>
           {__(text)}
         </Link>
       </li>
@@ -53,7 +51,7 @@ class Sidebar extends React.Component<Props> {
 
   render() {
     return (
-      <LeftSidebar header={this.renderSidebarHeader()}>
+      <LeftSidebar header={this.renderSidebarHeader()} full={true}>
         <LeftSidebar.Section>
           <List id={'ImportExportSidebar'}>
             {this.renderListItem(ITEM_TYPES.BRAND, 'Brands')}

@@ -59,12 +59,8 @@ class WidgetContent extends React.Component<Props, { skillResponse?: string }> {
         <h5>{__('Audio and video call')}</h5>
         <p>{__('You can contact the operator by voice or video!')}</p>
         <CallButtons color={color}>
-          <Button uppercase={false} icon="phone-call">
-            {__('Audio call')}
-          </Button>
-          <Button uppercase={false} icon="videocamera">
-            {__('Video call')}
-          </Button>
+          <Button icon="phone-call">{__('Audio call')}</Button>
+          <Button icon="videocamera">{__('Video call')}</Button>
         </CallButtons>
       </VideoCallRequestWrapper>
     );

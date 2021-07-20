@@ -27,8 +27,8 @@ describe('tagQueries', () => {
     );
 
     const qry = `
-      query tags($type: String) {
-        tags(type: $type) {
+      query tags($type: String, $searchValue: String) {
+        tags(type: $type, searchValue: $searchValue) {
           _id
           name
           type
@@ -51,6 +51,14 @@ describe('tagQueries', () => {
     response = await graphqlRequest(qry, 'tags', { type: 'company' });
 
     expect(response.length).toBe(2);
+
+    // customer with searchValue =======================
+    response = await graphqlRequest(qry, 'tags', {
+      type: 'customer',
+      searchValue: tag.name
+    });
+
+    expect(response.length).toBe(1);
   });
 
   test('Tag detail', async () => {

@@ -42,12 +42,7 @@ class Boards extends React.Component<Props, {}> {
     const { renderButton } = this.props;
 
     const addBoard = (
-      <Button
-        btnStyle="success"
-        icon="plus-circle"
-        uppercase={false}
-        block={true}
-      >
+      <Button btnStyle="success" icon="plus-circle" block={true}>
         Add New Board
       </Button>
     );
@@ -77,7 +72,7 @@ class Boards extends React.Component<Props, {}> {
           data={<List>{this.renderItems()}</List>}
           loading={loading}
           count={boards.length}
-          emptyText={`There is no board`}
+          emptyText={__('There is no board')}
           emptyImage="/images/actions/18.svg"
           objective={true}
         />

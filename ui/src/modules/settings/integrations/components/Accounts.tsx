@@ -71,12 +71,7 @@ class Accounts extends React.Component<Props, { accountId?: string }> {
     }
 
     return (
-      <Button
-        uppercase={false}
-        btnStyle="primary"
-        icon="plus-circle"
-        onClick={onAdd}
-      >
+      <Button btnStyle="primary" icon="plus-circle" onClick={onAdd}>
         Add Account
       </Button>
     );
@@ -109,7 +104,6 @@ class Accounts extends React.Component<Props, { accountId?: string }> {
         <div>
           <Button
             onClick={this.onSelectAccount.bind(this, account._id)}
-            uppercase={false}
             btnStyle={
               this.state.accountId === account._id ? 'primary' : 'simple'
             }
@@ -122,7 +116,6 @@ class Accounts extends React.Component<Props, { accountId?: string }> {
           <Button
             onClick={this.onRemove.bind(this, account._id)}
             btnStyle="danger"
-            uppercase={false}
           >
             {__('Remove')}
           </Button>

@@ -174,7 +174,7 @@ function BuildSkill({
   function renderAddSkill() {
     return (
       <Link to={'/settings/skills'} target="_blank">
-        <Button btnStyle="primary" uppercase={false} icon="plus-circle">
+        <Button btnStyle="primary" icon="plus-circle">
           Create skill
         </Button>
       </Link>
@@ -227,12 +227,7 @@ function BuildSkill({
         </FormGroup>
         {skillType ? (
           <FormGroup>
-            <Button
-              btnStyle="simple"
-              uppercase={false}
-              icon="plus-circle"
-              onClick={handleAdd}
-            >
+            <Button btnStyle="simple" icon="plus-circle" onClick={handleAdd}>
               Add skill option
             </Button>
           </FormGroup>

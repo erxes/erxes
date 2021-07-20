@@ -14,7 +14,7 @@ export const types = `
 `;
 
 export const queries = `
-  tags(type: String): [Tag]
+  tags(type: String, searchValue: String): [Tag]
   tagDetail(_id: String!): Tag
 `;
 

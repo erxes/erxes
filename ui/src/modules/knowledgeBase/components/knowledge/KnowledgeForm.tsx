@@ -150,12 +150,7 @@ class KnowledgeForm extends React.Component<Props, State> {
         <ReactMarkdown source={code} />
         {code ? (
           <CopyToClipboard text={code} onCopy={this.onCopy.bind(this, name)}>
-            <Button
-              btnStyle="primary"
-              size="small"
-              icon="copy-1"
-              uppercase={false}
-            >
+            <Button btnStyle="primary" size="small" icon="copy-1">
               {copied ? 'Copied' : 'Copy to clipboard'}
             </Button>
           </CopyToClipboard>
@@ -353,7 +348,8 @@ class KnowledgeForm extends React.Component<Props, State> {
             btnStyle="simple"
             type="button"
             onClick={closeModal}
-            icon="cancel-1"
+            icon="times-circle"
+            uppercase={false}
           >
             Cancel
           </Button>
@@ -363,13 +359,13 @@ class KnowledgeForm extends React.Component<Props, State> {
                 btnStyle="danger"
                 type="button"
                 onClick={this.remove}
-                icon="cancel-1"
+                icon="trash"
+                uppercase={false}
               >
                 Delete
               </Button>
 
               <Button
-                uppercase={false}
                 btnStyle="primary"
                 icon="plus-circle"
                 onClick={this.onSimulate}

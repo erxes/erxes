@@ -57,7 +57,17 @@ export const queries = `
   productCategoriesTotalCount: Int
   productCategoryDetail(_id: String): ProductCategory
 
-  products(type: String, categoryId: String, searchValue: String, tag: String, page: Int, perPage: Int ids: [String], excludeIds: Boolean): [Product]
+  products(
+    type: String,
+    categoryId: String,
+    searchValue: String,
+    tag: String,
+    page: Int,
+    perPage: Int ids: [String],
+    excludeIds: Boolean,
+    pipelineId: String,
+    boardId: String
+  ): [Product]
   productsTotalCount(type: String): Int
   productDetail(_id: String): Product
   productCountByTags: JSON

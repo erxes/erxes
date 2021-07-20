@@ -42,7 +42,6 @@ const BrandForm = (props: Props) => {
           btnStyle="simple"
           type="button"
           icon="times-circle"
-          uppercase={false}
           onClick={closeModal}
         >
           Cancel

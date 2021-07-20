@@ -4,6 +4,7 @@ import FormControl from 'modules/common/components/form/Control';
 import Icon from 'modules/common/components/Icon';
 import Tip from 'modules/common/components/Tip';
 import { colors } from 'modules/common/styles';
+import { __ } from 'modules/common/utils';
 import { StageItemContainer } from 'modules/settings/boards/styles';
 import React from 'react';
 
@@ -31,7 +32,7 @@ class StageItem extends React.Component<Props, {}> {
         <FormControl
           defaultValue={stage.name}
           type="text"
-          placeholder="Stage name"
+          placeholder={__('Stage name')}
           onKeyPress={onKeyPress}
           autoFocus={true}
           name="name"

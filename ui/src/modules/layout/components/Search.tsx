@@ -256,7 +256,7 @@ class Search extends React.Component<
       }
 
       if (module === 'tickets') {
-        href = `/inbox/ticket/board?id=${source.boardId}&itemId=${source._id}&pipelineId=${source.pipelineId}`;
+        href = `/ticket/board?id=${source.boardId}&itemId=${source._id}&pipelineId=${source.pipelineId}`;
       }
 
       return (

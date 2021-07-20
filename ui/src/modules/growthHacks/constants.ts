@@ -1,3 +1,4 @@
+import { __ } from 'modules/common/utils';
 export const HACKSTAGES = [
   'Awareness',
   'Acquisition',
@@ -8,8 +9,8 @@ export const HACKSTAGES = [
 ];
 
 export const GROWTHHACK_STATES = [
-  'All',
-  'In progress',
-  'Not started',
-  'Completed'
+  __('All'),
+  __('In progress'),
+  __('Not started'),
+  __('Completed')
 ];

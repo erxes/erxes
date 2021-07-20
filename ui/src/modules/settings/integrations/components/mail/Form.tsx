@@ -138,7 +138,6 @@ class Form extends React.Component<Props, State> {
             type="button"
             onClick={this.props.closeModal}
             icon="times-circle"
-            uppercase={false}
           >
             Cancel
           </Button>

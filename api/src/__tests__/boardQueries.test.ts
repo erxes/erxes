@@ -652,7 +652,7 @@ describe('boardQueries', () => {
       `/task/board?_id=${taskBoard._id}&pipelineId=${taskPipeline._id}&itemId=${task._id}`
     );
     expect(response.ticketUrl).toBe(
-      `/inbox/ticket/board?_id=${ticketBoard._id}&pipelineId=${ticketPipeline._id}&itemId=${ticket._id}`
+      `/ticket/board?_id=${ticketBoard._id}&pipelineId=${ticketPipeline._id}&itemId=${ticket._id}`
     );
 
     response = await graphqlRequest(qry, 'convertToInfo', {

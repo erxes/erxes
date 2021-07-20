@@ -14,7 +14,7 @@ type Props = {
 
 function HistoryRow({ history, removeHistory, onClick }: Props) {
   const { user = {} } = history;
-  const { details = {} } = user;
+  const { details = {} } = user || {};
 
   const onRemove = () =>
     confirm().then(() => {

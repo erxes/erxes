@@ -42,14 +42,7 @@ const commonFields = `
     colorCode
   }
 
-  assignedUsers {
-    _id
-    email
-    details {
-      fullName
-      avatar
-    }
-  }
+  assignedUsers 
 `;
 
 export const growthHackFields = `

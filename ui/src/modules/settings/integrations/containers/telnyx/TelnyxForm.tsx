@@ -28,7 +28,6 @@ class TelnyxContainer extends React.Component<FinalProps> {
         callback={callback}
         isSubmitted={isSubmitted}
         type="submit"
-        uppercase={false}
         successMessage={`You successfully added a ${name}`}
         refetchQueries={getRefetchQueries(INTEGRATION_KINDS.TELNYX)}
       />

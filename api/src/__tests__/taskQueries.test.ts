@@ -31,9 +31,7 @@ describe('taskQueries', () => {
     customers {
       _id
     }
-    assignedUsers {
-      _id
-    }
+    assignedUsers
     isWatched
     hasNotified
     labels { _id }

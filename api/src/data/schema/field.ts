@@ -77,6 +77,7 @@ export const fieldsQueries = `
   fieldsCombinedByContentType(contentType: String!, usageType: String, excludedNames: [String], segmentId: String, pipelineId: String): JSON
   fieldsDefaultColumnsConfig(contentType: String!): [ColumnConfigItem]
   fieldsInbox: FieldsInbox
+  fieldsItemTyped: JSON
 `;
 
 const fieldsCommonFields = `

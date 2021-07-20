@@ -170,7 +170,7 @@ class CreateSchedulePage extends React.Component<FinalProps, State> {
   renderButtons() {
     const cancelButton = (
       <Link to={`/settings/schedule`}>
-        <Button btnStyle="simple" icon="times-circle" uppercase={false}>
+        <Button btnStyle="simple" icon="times-circle">
           Cancel
         </Button>
       </Link>
@@ -179,12 +179,7 @@ class CreateSchedulePage extends React.Component<FinalProps, State> {
     return (
       <Button.Group>
         {cancelButton}
-        <Button
-          btnStyle="success"
-          uppercase={false}
-          onClick={this.save}
-          icon="check-circle"
-        >
+        <Button btnStyle="success" onClick={this.save} icon="check-circle">
           Save
         </Button>
       </Button.Group>

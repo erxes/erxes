@@ -8,7 +8,6 @@ import React from 'react';
 import KnowledgeForm from '../../containers/knowledge/KnowledgeForm';
 import { ITopic } from '../../types';
 import KnowledgeRow from './KnowledgeRow';
-
 type Props = {
   queryParams: any;
   currentCategoryId: string;
@@ -53,12 +52,7 @@ class KnowledgeList extends React.Component<Props> {
 
   renderSidebarHeader() {
     const trigger = (
-      <Button
-        btnStyle="success"
-        block={true}
-        uppercase={false}
-        icon="plus-circle"
-      >
+      <Button btnStyle="success" block={true} icon="plus-circle">
         Add Knowledge Base
       </Button>
     );

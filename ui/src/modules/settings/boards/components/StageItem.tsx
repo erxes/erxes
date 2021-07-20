@@ -58,10 +58,10 @@ class StageItem extends React.Component<Props, {}> {
           onChange={onChangeStatus.bind(this, stage._id)}
         >
           <option key="active" value="active">
-            Active
+            {__('Active')}
           </option>
           <option key="archived" value="archived">
-            Archived
+            {__('Archived')}
           </option>
         </FormControl>
 

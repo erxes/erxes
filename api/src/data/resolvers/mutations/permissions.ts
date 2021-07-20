@@ -287,7 +287,11 @@ const usersGroupMutations = {
   },
 
   async permissionsFix(_root, _params) {
-    return fixPermissions();
+    const result = await fixPermissions();
+
+    await resetPermissionsCache();
+
+    return result;
   }
 };
 

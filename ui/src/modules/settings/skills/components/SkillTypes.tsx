@@ -92,7 +92,6 @@ function SkillTypes({
       <Button
         id="skilltype-new"
         btnStyle="success"
-        uppercase={false}
         icon="plus-circle"
         block={true}
       >
@@ -132,7 +131,9 @@ function SkillTypes({
         data={renderContent()}
         loading={loading}
         count={totalCount}
-        emptyText="Get started by grouping the skills into types. For example, language skills"
+        emptyText={`${__('Get started by grouping the skills into types')}.${__(
+          'For example, language skills'
+        )}`}
         emptyImage="/images/actions/26.svg"
       />
       <LoadMore all={totalCount} loading={loading} />

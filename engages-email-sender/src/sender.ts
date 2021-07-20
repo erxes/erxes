@@ -141,13 +141,11 @@ export const start = async (data: IEmailParams) => {
   // finalized email list
   emails = cleanCustomers.map(customer => customer.primaryEmail);
 
-  if (emails.length > 0) {
-    await Logs.createLog(
-      engageMessageId,
-      'regular',
-      `Preparing to send emails to ${emails.length}: ${emails}`
-    );
-  }
+  await Logs.createLog(
+    engageMessageId,
+    'regular',
+    `Preparing to send emails to ${emails.length}: ${emails}`
+  );
 
   // set finalized count of the campaign
   await setCampaignCount({

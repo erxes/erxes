@@ -15,12 +15,11 @@ class FaqCategories extends React.Component<Props, IState> {
     super(props);
 
     this.state = { searchString: "" };
-    this.search = this.search.bind(this);
   }
 
-  search(searchString: string) {
+  search = (searchString: string) => {
     this.setState({ searchString });
-  }
+  };
 
   render() {
     const { topicId } = this.props;

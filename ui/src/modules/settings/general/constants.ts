@@ -1,3 +1,5 @@
+import { __ } from 'modules/common/utils';
+
 export const LANGUAGES = [
   { label: 'English', value: 'en' },
   { label: 'Mongolian', value: 'mn' },
@@ -20,23 +22,23 @@ export const LANGUAGES = [
 ];
 
 export const SERVICE_TYPES = [
-  { label: 'Local', value: 'local' },
-  { label: 'Amazon Web Service', value: 'AWS' },
-  { label: 'Google Cloud Service', value: 'GCS' }
+  { label: __('Local'), value: 'local' },
+  { label: __('Amazon Web Service'), value: 'AWS' },
+  { label: __('Google Cloud Service'), value: 'GCS' }
 ];
 
 export const FILE_SYSTEM_TYPES = [
-  { label: 'Public', value: 'true' },
-  { label: 'Private', value: 'false' }
+  { label: __('Public'), value: 'true' },
+  { label: __('Private'), value: 'false' }
 ];
 
 export const DATA_RETENTION_DURATION = [
-  { label: '3 months', value: 3 },
-  { label: '4 months', value: 4 },
-  { label: '5 months', value: 5 },
-  { label: '6 months', value: 6 },
-  { label: '9 months', value: 9 },
-  { label: '12 months', value: 12 }
+  { label: __('3 months'), value: 3 },
+  { label: __('4 months'), value: 4 },
+  { label: __('5 months'), value: 5 },
+  { label: __('6 months'), value: 6 },
+  { label: __('9 months'), value: 9 },
+  { label: __('12 months'), value: 12 }
 ];
 
 export const MEASUREMENTS = [

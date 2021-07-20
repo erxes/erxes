@@ -129,7 +129,6 @@ class LeftSidebar extends React.Component<Props, State> {
           {queryParams.status !== CONVERSATION_STATUSES.CLOSED && (
             <Button
               size="small"
-              uppercase={false}
               btnStyle="simple"
               onClick={this.props.resolveAll}
             >

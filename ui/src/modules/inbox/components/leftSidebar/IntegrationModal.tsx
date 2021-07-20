@@ -66,7 +66,7 @@ type Props = {
 
 export const IntegrationModal = ({ trigger }: Props) => {
   const defaultTrigger = (
-    <Button block={true} btnStyle="link" icon="processor" uppercase={false}>
+    <Button block={true} btnStyle="link" icon="processor">
       {__('Connect Integration')}
     </Button>
   );

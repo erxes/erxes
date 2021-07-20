@@ -213,5 +213,6 @@ export const complexFilters = [
   'Tasks.board',
   'Tasks.pipeline',
   'Tickets.board',
-  'Tickets.pipeline'
+  'Tickets.pipeline',
+  'Conversations.integrationType'
 ];

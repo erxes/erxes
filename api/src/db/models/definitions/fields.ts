@@ -10,6 +10,7 @@ export interface ISubmission {
   associatedFieldId?: string;
   stageId?: string;
   groupId?: string;
+  column?: number;
 }
 export interface ILogic {
   fieldId: string;

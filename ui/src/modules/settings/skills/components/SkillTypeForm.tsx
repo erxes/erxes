@@ -47,7 +47,6 @@ function SkillTypeForm({ closeModal, object, renderButton }: Props) {
           <Button
             btnStyle="simple"
             type="button"
-            uppercase={false}
             onClick={closeModal}
             icon="times-circle"
           >

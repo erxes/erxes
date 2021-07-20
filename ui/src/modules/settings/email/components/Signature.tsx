@@ -140,21 +140,11 @@ class Signature extends React.Component<Props, State> {
 
           {this.renderSignatureEditor()}
           <ModalFooter>
-            <Button
-              btnStyle="simple"
-              onClick={this.close}
-              icon="times-circle"
-              uppercase={false}
-            >
+            <Button btnStyle="simple" onClick={this.close} icon="times-circle">
               Close
             </Button>
 
-            <Button
-              btnStyle="success"
-              type="submit"
-              icon="check-circle"
-              uppercase={false}
-            >
+            <Button btnStyle="success" type="submit" icon="check-circle">
               Save
             </Button>
           </ModalFooter>

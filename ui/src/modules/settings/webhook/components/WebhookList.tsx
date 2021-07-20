@@ -102,13 +102,7 @@ class WebhookList extends React.Component<FinalProps, States> {
   };
 
   renderBrandChooser() {
-    const { configsEnvQuery = {}, history, queryParams } = this.props;
-
-    const env = configsEnvQuery.configsGetEnv || {};
-
-    if (env.USE_BRAND_RESTRICTIONS !== 'true') {
-      return null;
-    }
+    const { history, queryParams } = this.props;
 
     const onSelect = brandIds => {
       router.setParams(history, { brandIds });
@@ -128,6 +122,14 @@ class WebhookList extends React.Component<FinalProps, States> {
   }
 
   renderFilter = () => {
+    const { configsEnvQuery = {} } = this.props;
+
+    const env = configsEnvQuery.configsGetEnv || {};
+
+    if (env.USE_BRAND_RESTRICTIONS !== 'true') {
+      return null;
+    }
+
     return (
       <FilterContainer>
         <FlexRow>{this.renderBrandChooser()}</FlexRow>
@@ -167,11 +169,13 @@ class WebhookList extends React.Component<FinalProps, States> {
           { title: __('Webhooks') }
         ]}
         title={__('Webhooks')}
-        leftActionBar={
+        mainHead={
           <HeaderDescription
             icon="/images/actions/21.svg"
-            title="Outgoing webhooks"
-            description="Webhooks allow you to listen for triggers in your app, which will send relevant data to external URLs in real-time."
+            title={__('Outgoing webhooks')}
+            description={__(
+              'Webhooks allow you to listen for triggers in your app, which will send relevant data to external URLs in real-time'
+            )}
           />
         }
         renderFilter={this.renderFilter}

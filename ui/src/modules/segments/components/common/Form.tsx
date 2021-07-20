@@ -459,7 +459,7 @@ class Form extends React.Component<Props, State> {
           <Button.Group>
             {isForm && (
               <Link to={`/segments/${contentType}`}>
-                <Button uppercase={false} btnStyle="simple" icon="times-circle">
+                <Button btnStyle="simple" icon="times-circle">
                   Cancel
                 </Button>
               </Link>
@@ -468,7 +468,6 @@ class Form extends React.Component<Props, State> {
             {previewCount && (
               <Button
                 id="segment-show-count"
-                uppercase={false}
                 icon="crosshairs"
                 onClick={onPreviewCount}
               >

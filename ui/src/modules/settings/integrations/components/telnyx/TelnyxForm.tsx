@@ -99,7 +99,6 @@ class TelnyxForm extends React.Component<Props, State> {
             type="button"
             onClick={closeModal}
             icon="times-circle"
-            uppercase={false}
           >
             Cancel
           </Button>

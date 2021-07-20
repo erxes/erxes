@@ -19,6 +19,8 @@ import {
 } from '../db/models/ImportHistory';
 import { debugError, debugWorkers } from '../debuggers';
 import CustomWorker from './workerUtil';
+import * as streamify from 'stream-array';
+import * as os from 'os';
 
 const { MONGO_URL = '', ELK_SYNCER } = process.env;
 
@@ -206,7 +208,10 @@ const importBulkStream = ({
             rows = [];
             next();
           })
-          .catch(e => reject(e));
+          .catch(e => {
+            debugError(`Error during bulk insert from csv: ${e.message}`);
+            reject(e);
+          });
       }
 
       return next();
@@ -419,4 +424,85 @@ export const receiveImportCreate = async (content: any) => {
   });
 
   return { id: importHistory.id };
+};
+
+const importWebhookStream = ({
+  data,
+  bulkLimit,
+  handleBulkOperation
+}: {
+  data: any[];
+  bulkLimit: number;
+  handleBulkOperation: (rows: any) => Promise<void>;
+}) => {
+  return new Promise(async (resolve, reject) => {
+    let rows: any = [];
+
+    const write = (row, _, next) => {
+      rows.push(row);
+
+      if (rows.length === bulkLimit) {
+        return handleBulkOperation(rows)
+          .then(() => {
+            rows = [];
+            next();
+          })
+          .catch(e => {
+            debugError(`Error during bulk insert from webhook: ${e.message}`);
+            reject(e);
+          });
+      }
+
+      return next();
+    };
+
+    streamify(data, os.EOL)
+      .pipe(new Writable({ write, objectMode: true }))
+      .on('finish', () => {
+        handleBulkOperation(rows).then(() => {
+          resolve('success');
+        });
+      })
+      .on('error', e => reject(e));
+  });
+};
+
+export const importFromWebhook = async (content: any) => {
+  const { data, type } = content;
+
+  const useElkSyncer = ELK_SYNCER === 'false' ? false : true;
+
+  if (data.length === 0) {
+    throw new Error('Please import at least one row of data');
+  }
+
+  const properties = await checkFieldNames(type, Object.keys(data[0]));
+
+  const handleBulkOperation = async (rows: any) => {
+    if (rows.length === 0) {
+      return debugWorkers('Please import at least one row of data');
+    }
+
+    const result: any[] = [];
+
+    for (const row of rows) {
+      result.push(Object.values(row));
+    }
+
+    const workerPath = path.resolve(getWorkerFile('bulkInsert'));
+
+    await myWorker.createWorker(workerPath, {
+      contentType: type,
+      properties,
+      result,
+      useElkSyncer,
+      percentage: 0
+    });
+  };
+
+  importWebhookStream({
+    data,
+    bulkLimit: WORKER_BULK_LIMIT,
+    handleBulkOperation
+  });
 };

@@ -146,7 +146,7 @@ class Options extends React.Component<Props, State> {
 
           {this.renderToggle({
             label: __('Require Authentication'),
-            description: 'It will require email and phone in widget',
+            description: __('It will require email and phone in widget'),
             checked: this.props.requireAuth,
             onChange: requireAuthChange
           })}

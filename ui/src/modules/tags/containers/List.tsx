@@ -28,7 +28,7 @@ const ListContainer = (props: FinalProps) => {
 
   const remove = tag => {
     confirm(
-      `All associated ${type}(s) with the tag will be permanently deleted (no undo). Are you sure ?`
+      `This action will untag all ${type}(s) with this tag and remove the tag. Are you sure?`
     )
       .then(() => {
         removeMutation({ variables: { _id: tag._id } })
@@ -71,7 +71,6 @@ const ListContainer = (props: FinalProps) => {
         callback={callback}
         refetchQueries={getRefetchQueries(type)}
         isSubmitted={isSubmitted}
-        uppercase={false}
         type="submit"
         successMessage={`You successfully ${
           object ? 'updated' : 'added'

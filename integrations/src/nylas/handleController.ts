@@ -21,7 +21,8 @@ import {
   sendMessage,
   updateEvent,
   updateSchedulePage,
-  uploadFile
+  uploadFile,
+  generateHeaderParams
 } from './api';
 import {
   connectExchangeToNylas,
@@ -51,6 +52,7 @@ export const createNylasIntegration = async (
   try {
     if (data.email) {
       const integration = await Integrations.findOne({
+        kind,
         email: data.email
       }).lean();
 
@@ -193,11 +195,7 @@ export const nylasSendEmail = async (erxesApiId: string, params: any) => {
       await sendRequest({
         url: `${NYLAS_API_URL}/messages/${message.id}`,
         method: 'PUT',
-        headerParams: {
-          Authorization: `Basic ${Buffer.from(
-            `${integration.nylasToken}:`
-          ).toString('base64')}`
-        },
+        headerParams: generateHeaderParams(integration.nylasToken),
         body: { unread: true }
       });
 

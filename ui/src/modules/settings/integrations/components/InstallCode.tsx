@@ -411,11 +411,7 @@ class InstallCode extends React.PureComponent<Props, State> {
             text={code}
             onCopy={this.onCopy.bind(this, currentTab)}
           >
-            <Button
-              uppercase={false}
-              btnStyle={action ? 'primary' : 'success'}
-              icon="copy-1"
-            >
+            <Button btnStyle={action ? 'primary' : 'success'} icon="copy-1">
               {action ? 'Copied' : 'Copy to clipboard'}
             </Button>
           </CopyToClipboard>
@@ -539,7 +535,6 @@ class InstallCode extends React.PureComponent<Props, State> {
 
         <ModalFooter>
           <Button
-            uppercase={false}
             btnStyle="primary"
             icon="plus-circle"
             onClick={this.onSimulate}
@@ -550,7 +545,6 @@ class InstallCode extends React.PureComponent<Props, State> {
           <Button
             btnStyle="simple"
             icon="times-circle"
-            uppercase={false}
             onClick={this.props.closeModal}
           >
             Close

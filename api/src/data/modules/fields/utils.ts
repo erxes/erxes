@@ -45,7 +45,7 @@ const generateBasicInfosFromSchema = async (
   return queFields;
 };
 
-const getCustomFields = async (contentType: string) => {
+export const getCustomFields = async (contentType: string) => {
   if (!isUsingElk()) {
     return Fields.find({
       contentType,
@@ -220,6 +220,11 @@ export const checkFieldNames = async (type: string, fields: string[]) => {
     if (fieldName === 'categoryCode') {
       property.name = 'categoryCode';
       property.type = 'categoryCode';
+    }
+
+    if (fieldName === 'vendorCode') {
+      property.name = 'vendorCode';
+      property.type = 'vendorCode';
     }
 
     if (!property.type) {

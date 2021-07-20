@@ -95,7 +95,7 @@ class SegmentsList extends React.Component<Props> {
 
     const actionBarRight = (
       <Link id={'NewSegmentButton'} to={`/segments/new/${contentType}`}>
-        <Button btnStyle="primary" uppercase={false} icon="plus-circle">
+        <Button btnStyle="success" icon="plus-circle">
           New segment
         </Button>
       </Link>

@@ -191,6 +191,25 @@ describe('integrationQueries', () => {
     expect(responses.length).toBe(1);
   });
 
+  test('Get all lead integrations', async () => {
+    const qry = `
+      query allLeadIntegrations {
+        allLeadIntegrations {
+          _id
+          name
+        }
+      }
+    `;
+
+    await integrationFactory({ kind: 'messenger' });
+    await integrationFactory({ kind: 'lead' });
+
+    // leads =========================
+    const responses = await graphqlRequest(qry, 'allLeadIntegrations', {});
+
+    expect(responses).toHaveLength(1);
+  });
+
   test('Integration detail', async () => {
     const qry = `
       query integrationDetail($_id: String!) {

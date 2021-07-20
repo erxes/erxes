@@ -201,20 +201,10 @@ class CompaniesMerge extends React.Component<Props, State> {
         </Columns>
 
         <ModalFooter>
-          <Button
-            btnStyle="simple"
-            onClick={closeModal}
-            uppercase={false}
-            icon="times-circle"
-          >
+          <Button btnStyle="simple" onClick={closeModal} icon="times-circle">
             Cancel
           </Button>
-          <Button
-            type="submit"
-            btnStyle="success"
-            uppercase={false}
-            icon="check-circle"
-          >
+          <Button type="submit" btnStyle="success" icon="check-circle">
             Save
           </Button>
         </ModalFooter>

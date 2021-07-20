@@ -7,7 +7,7 @@ import {
   IIntegrationLink,
   IIntegrationMessengerData,
   IIntegrationMessengerDataMessagesItem,
-  IUser
+  IUser,
 } from "../../types";
 import { __ } from "../../utils";
 import { Integrations, TopBar } from "../containers";
@@ -62,7 +62,7 @@ class Home extends React.Component<Props, State> {
     }
 
     const indicatorClasses = classNames("indicator", {
-      left: this.state.activeSupport
+      left: this.state.activeSupport,
     });
 
     return (
@@ -123,15 +123,15 @@ class Home extends React.Component<Props, State> {
       supporters,
       loading,
       messengerData,
-      serverTime
+      serverTime,
     } = this.props;
 
     return (
       <div
         className={classNames("erxes-welcome", {
-          tabbed: messengerData.knowledgeBaseTopicId
+          tabbed: messengerData.knowledgeBaseTopicId,
         })}
-        ref={node => {
+        ref={(node) => {
           this.node = node;
         }}
       >
@@ -161,7 +161,7 @@ class Home extends React.Component<Props, State> {
         <TopBar middle={this.renderHead()} />
         <div
           className={classNames("erxes-home-content", {
-            tabbed: topicId
+            tabbed: topicId,
           })}
         >
           <RTG.CSSTransition

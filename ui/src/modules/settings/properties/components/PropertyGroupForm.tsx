@@ -194,12 +194,7 @@ class PropertyGroupForm extends React.Component<Props, State> {
         {this.renderBoardSelect()}
 
         <ModalFooter>
-          <Button
-            btnStyle="simple"
-            onClick={closeModal}
-            icon="times-circle"
-            uppercase={false}
-          >
+          <Button btnStyle="simple" onClick={closeModal} icon="times-circle">
             Close
           </Button>
 

@@ -19,8 +19,8 @@ cube(`Deals`, {
     avgAmount: {
       sql: `${amount}`,
       type: `avg`,
-      title: `Avarage amount`
-    },
+      title: `Average amount`
+    }
   },
 
   dimensions: {

@@ -116,7 +116,7 @@ class Manage extends React.Component<Props, State> {
           <ReactMarkdown source={code || ''} />
           {code ? (
             <CopyToClipboard text={code} onCopy={onCopy}>
-              <Button btnStyle="primary" icon="copy-1" uppercase={false}>
+              <Button btnStyle="primary" icon="copy-1">
                 {copied ? 'Copied' : 'Copy to clipboard'}
               </Button>
             </CopyToClipboard>
@@ -163,7 +163,6 @@ class Manage extends React.Component<Props, State> {
 
         <ModalFooter>
           <Button
-            uppercase={false}
             btnStyle="primary"
             icon="plus-circle"
             onClick={this.onSimulate}
@@ -174,7 +173,6 @@ class Manage extends React.Component<Props, State> {
           <Button
             btnStyle="simple"
             icon="times-circle"
-            uppercase={false}
             onClick={this.props.closeModal}
           >
             Close

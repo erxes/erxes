@@ -131,7 +131,6 @@ class GroupList extends React.Component<IProps> {
       <Button
         id="permission-create-user-group"
         btnStyle="success"
-        uppercase={false}
         icon="plus-circle"
         block={true}
       >

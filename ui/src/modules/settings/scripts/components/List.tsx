@@ -108,11 +108,15 @@ class ScriptList extends React.Component<Props> {
           { title: __('Scripts') }
         ]}
         title={__('Scripts')}
-        leftActionBar={
+        mainHead={
           <HeaderDescription
             icon="/images/actions/23.svg"
             title="Scripts"
-            description={`Script manager allows erxes users to quickly and easily generate and update related scripts for any of their business websites. Set up once and your team will be able to easily display multiple erxes widgets on any of their businesses websites`}
+            description={`${__(
+              'Script manager allows erxes users to quickly and easily generate and update related scripts for any of their business websites'
+            )}.${__(
+              `Set up once and your team will be able to easily display multiple erxes widgets on any of their businesses websites`
+            )}`}
           />
         }
         renderForm={this.renderForm}

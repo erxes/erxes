@@ -280,7 +280,7 @@ class CreateMessenger extends React.Component<Props, State> {
   renderButtons() {
     const cancelButton = (
       <Link to="/settings/integrations">
-        <Button btnStyle="simple" icon="times-circle" uppercase={false}>
+        <Button btnStyle="simple" icon="times-circle">
           Cancel
         </Button>
       </Link>
@@ -289,12 +289,7 @@ class CreateMessenger extends React.Component<Props, State> {
     return (
       <Button.Group>
         {cancelButton}
-        <Button
-          btnStyle="success"
-          uppercase={false}
-          icon="check-circle"
-          onClick={this.save}
-        >
+        <Button btnStyle="success" icon="check-circle" onClick={this.save}>
           Save
         </Button>
       </Button.Group>

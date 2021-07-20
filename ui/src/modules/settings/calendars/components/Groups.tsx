@@ -183,12 +183,7 @@ class Groups extends React.Component<Props, State> {
     return (
       <>
         {this.addButton()}
-        <Button
-          btnStyle="primary"
-          uppercase={false}
-          icon="plus-circle"
-          onClick={this.addGroup}
-        >
+        <Button btnStyle="success" icon="plus-circle" onClick={this.addGroup}>
           Add group
         </Button>
       </>

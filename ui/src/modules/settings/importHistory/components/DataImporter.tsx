@@ -8,12 +8,10 @@ import styled from 'styled-components';
 const ImportButton = styled.label`
   border-radius: 30px;
   transition: all 0.3s ease;
-  text-transform: uppercase;
   padding: 6px 15px 6px 32px;
   background: ${colors.colorCoreGreen};
-  font-size: 10px;
+  font-size: calc(10px + 1px);
   color: ${colors.colorWhite};
-  box-shadow: 0 2px 16px 0 ${lighten(colors.colorCoreGreen, 35)};
   position: relative;
 
   i {

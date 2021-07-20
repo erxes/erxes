@@ -75,12 +75,7 @@ const ActivateInstallation = () => {
           autoFocus={true}
         />
       </FormGroup>
-      <Button
-        uppercase={false}
-        btnStyle="success"
-        type="submit"
-        icon="check-circle"
-      >
+      <Button btnStyle="success" type="submit" icon="check-circle">
         Activate
       </Button>
     </form>

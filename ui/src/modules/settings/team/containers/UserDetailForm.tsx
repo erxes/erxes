@@ -111,7 +111,6 @@ const UserDetailFormContainer = (props: Props & FinalProps) => {
         isSubmitted={isSubmitted}
         type="submit"
         icon="check-circle"
-        uppercase={false}
         successMessage={`You successfully ${
           object ? 'updated' : 'added'
         } a ${name}`}

@@ -81,7 +81,6 @@ class SegmentsFormContainer extends React.Component<
         variables={values}
         callback={callBackResponse}
         isSubmitted={isSubmitted}
-        uppercase={false}
         icon="check-circle"
         type="submit"
         successMessage={`You successfully ${

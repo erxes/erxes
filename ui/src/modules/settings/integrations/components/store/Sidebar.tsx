@@ -2,7 +2,10 @@ import { __ } from 'modules/common/utils';
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { INTEGRATION_FILTERS } from '../../constants';
-import { Category, FixedSection, LeftSidebar, SidebarList } from './styles';
+import LeftSidebar from 'modules/layout/components/Sidebar';
+import { SidebarList as List } from 'modules/layout/styles';
+import { SidebarList } from 'modules/settings/styles';
+import SidebarHeader from 'modules/settings/common/components/SidebarHeader';
 
 type Props = {
   currentType: string;
@@ -10,29 +13,31 @@ type Props = {
 
 class SideBar extends React.Component<Props> {
   renderCategory(item) {
+    const className =
+      (this.props.currentType || 'All integrations') === item ? 'active' : '';
+
     return (
-      <Link key={item} to={`?type=${item}`}>
-        <Category
-          key={item}
-          isActive={(this.props.currentType || 'All integrations') === item}
-        >
+      <li key={item}>
+        <Link to={`?type=${item}`} className={className}>
           {item}
-        </Category>
-      </Link>
+        </Link>
+      </li>
     );
   }
 
   render() {
     return (
-      <LeftSidebar>
-        <FixedSection>
+      <LeftSidebar header={<SidebarHeader />} full={true}>
+        <List id="SettingsSidebar">
           {INTEGRATION_FILTERS.map((data, index) => (
             <SidebarList key={index}>
-              <h4>{__(data.name)}</h4>
+              <LeftSidebar.Header uppercase={true}>
+                {__(data.name)}
+              </LeftSidebar.Header>
               {data.items.map(item => this.renderCategory(__(item)))}
             </SidebarList>
           ))}
-        </FixedSection>
+        </List>
       </LeftSidebar>
     );
   }

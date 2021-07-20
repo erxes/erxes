@@ -121,7 +121,6 @@ class EditProfile extends React.Component<Props, State> {
             btnStyle="simple"
             onClick={this.props.closeModal}
             icon="times-circle"
-            uppercase={false}
           >
             Cancel
           </Button>

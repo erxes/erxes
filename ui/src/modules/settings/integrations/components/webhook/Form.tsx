@@ -26,23 +26,43 @@ const examplePayload = `{
   "customerFirstName": "John",
   "customerLastName": "Michael",
   "customerMiddleName": "Doe",
-  "content": "Content"
+  "content": "Content",
   "attachments": [{
       "url": "/images/example.png",
       "text": "Example",
-      "size": 1048576, // 1mb
+      "size": 1048576,
       "type": "image/png"
   }],
-  "companyPrimaryEmail":"example@company.com",
-  "companyPrimaryPhone":"+123456789",
-  "companyPrimaryName":"example llc",
-  "companyWebsite":"https://company.com",
-  "companyIndustry":"Automobiles",
-  "companyBusinessType":"Investor",
+  "data": {
+      "key": "value",
+      "another key": "another value"
+  },
   "customFields": [{
       "name": "custom field name",
       "value": "custom field value"
-  }]
+  }],
+  "companyPrimaryEmail": "example@company.com",
+  "companyPrimaryPhone": "+123456789",
+  "companyPrimaryName": "example llc",
+  "companyWebsite": "https://company.com",
+  "companyIndustry": "Automobiles",
+  "companyBusinessType": "Investor",
+  "companyCode": "123456",
+  "companyData": {
+      "custom field key": "value"
+  },
+  "parentCompany": {
+      "companyPrimaryEmail": "example@company.com",
+      "companyPrimaryPhone": "+123456789",
+      "companyPrimaryName": "example llc",
+      "companyCode": "123456",
+      "companyWebsite": "https://company.com",
+      "companyIndustry": "Automobiles",
+      "companyBusinessType": "Investor",
+      "companyData": {
+          "custom field key": "value"
+      },
+  }
 }`;
 
 class Webhook extends React.Component<Props> {
@@ -84,14 +104,14 @@ class Webhook extends React.Component<Props> {
         <FormGroup>
           <ControlLabel required={false}>Token</ControlLabel>
           <Description>
-            {
+            {__(
               'This token will be used to sign the incoming payload, so that erxes can verify that the request came from trusted sources.'
-            }
+            )}
           </Description>
           <FormControl
             {...formProps}
             name="Token (otional)"
-            placeholder="Will be generated automatically when left blank"
+            placeholder={__('Will be generated automatically when left blank')}
             required={false}
             autoFocus={false}
           />
@@ -145,7 +165,6 @@ class Webhook extends React.Component<Props> {
             type="button"
             onClick={callback}
             icon="times-circle"
-            uppercase={false}
           >
             Cancel
           </Button>

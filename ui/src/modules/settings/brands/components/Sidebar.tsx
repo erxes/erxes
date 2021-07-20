@@ -5,7 +5,6 @@ import ModalTrigger from 'modules/common/components/ModalTrigger';
 import Spinner from 'modules/common/components/Spinner';
 import { TopHeader } from 'modules/common/styles/main';
 import { IButtonMutateProps } from 'modules/common/types';
-import { __ } from 'modules/common/utils';
 import LeftSidebar from 'modules/layout/components/Sidebar';
 import { SidebarList as List } from 'modules/layout/styles';
 import React from 'react';
@@ -43,10 +42,9 @@ class Sidebar extends React.Component<Props, {}> {
         id={'NewBrandButton'}
         btnStyle="success"
         block={true}
-        uppercase={false}
         icon="plus-circle"
       >
-        {__('Add New Brand')}
+        Add New Brand
       </Button>
     );
 

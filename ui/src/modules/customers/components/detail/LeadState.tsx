@@ -73,7 +73,6 @@ class LeadState extends React.Component<IProps, { currentState: string }> {
         <Button
           icon="check-circle"
           btnStyle="danger"
-          uppercase={false}
           onClick={this.convertToCustomer}
         >
           Mark as Complete
