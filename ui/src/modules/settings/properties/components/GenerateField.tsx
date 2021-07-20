@@ -237,7 +237,7 @@ export default class GenerateField extends React.Component<Props, State> {
         onValueChange({ _id: id, value: e });
       }
 
-    }
+    };
 
     return (<SelectCustomers
       label="Filter by customers"
@@ -248,7 +248,7 @@ export default class GenerateField extends React.Component<Props, State> {
       onSelect={onSelect}
     />
     );
-  };
+  }
 
   renderHtml() {
     const { content } = this.props.field;
