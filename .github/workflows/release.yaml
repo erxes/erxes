@@ -169,7 +169,7 @@ jobs:
         run: |
           cd integrations
           echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin
-          docker build -t erxes/erxes-integrations:${GITHUB_REF#refs/tags/} -t erxes/erxes-integrations:latest -f Dockerfile .
+          docker build -t erxes/erxes-integrations:${GITHUB_REF#refs/tags/} -f Dockerfile .
           docker push erxes/erxes-integrations:${GITHUB_REF#refs/tags/}
           docker push erxes/erxes-integrations:latest
 
