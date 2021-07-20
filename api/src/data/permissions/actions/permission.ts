@@ -1235,5 +1235,24 @@ export const moduleObjects = {
         description: 'Remove calendar groups'
       }
     ]
+  },
+  forums: {
+    name: 'forums',
+    description: 'Forum',
+    actions: [
+      {
+        name: 'forumsAll',
+        description: 'All',
+        use: ['showForums', 'manageForums']
+      },
+      {
+        name: 'manageForums',
+        description: 'Manage forums'
+      },
+      {
+        name: 'showForums',
+        description: 'Show forums'
+      }
+    ]
   }
 };

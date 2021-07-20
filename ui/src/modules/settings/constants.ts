@@ -354,3 +354,25 @@ export const WEBHOOK_ACTIONS = [
     type: 'popupSubmitted'
   }
 ];
+
+export const EMPTY_CONTENT_FORUM = {
+  title: 'Getting Started with erxes Forum',
+  description:
+    'A forum is a place where your community members can leave messages or discuss particular subjects.',
+  steps: [
+    {
+      title: 'Create your forum',
+      description:
+        '<ul><li>Make sure you’ve created your Brands</li><li>Click on “Add Forum” to create one for a specific Brand.</li><li>Click on the “Settings” button and “Add Topics”.</li><li>Click on “Add Discussions” to start adding specific discussion ideas.</li></ul>',
+      html: true
+    },
+    {
+      title: 'Install the script',
+      description:
+        '<ul><li>Copy the individual script by clicking on the Settings button.</li><li>Use Script Manager in the Settings to avoid script duplication errors if you’re planning to display a forum along with any other erxes widgets.</li></ul>',
+      html: true,
+      url: '/settings/scripts',
+      urlText: 'Go to Script Manager'
+    }
+  ]
+};

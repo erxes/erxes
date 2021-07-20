@@ -206,6 +206,12 @@ import {
   types as SmsDeliveryTypes
 } from './smsDelivery';
 
+import {
+  queries as ForumQueries,
+  mutations as ForumMutations,
+  types as ForumTypes
+} from './forum';
+
 export let types = `
   scalar JSON
   scalar Date
@@ -253,6 +259,7 @@ export let types = `
   ${WebhookTypes}
   ${CalendarTypes}
   ${SmsDeliveryTypes}
+  ${ForumTypes}
 `;
 
 export let queries = `
@@ -298,6 +305,7 @@ export let queries = `
   ${CalendarQueries}
   ${MessengerAppQueries}
   ${SmsDeliveryQueries}
+  ${ForumQueries}
 `;
 
 export let mutations = `
@@ -340,6 +348,7 @@ export let mutations = `
   ${WidgetMutations}
   ${WebhookMutations}
   ${CalendarMutations}
+  ${ForumMutations}
 `;
 
 export let subscriptions = `
