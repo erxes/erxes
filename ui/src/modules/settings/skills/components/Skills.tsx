@@ -55,12 +55,7 @@ function Skills(props: Props) {
 
   function renderActionBar() {
     const trigger = (
-      <Button
-        id="skill-new-skill"
-        btnStyle="primary"
-        icon="plus-circle"
-        uppercase={false}
-      >
+      <Button id="skill-new-skill" btnStyle="success" icon="plus-circle">
         {__('New skill')}
       </Button>
     );

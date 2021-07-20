@@ -23,12 +23,7 @@ type Props = {
 
 function List({ tags, type, remove, merge, loading, renderButton }: Props) {
   const trigger = (
-    <Button
-      id={'AddTagButton'}
-      btnStyle="primary"
-      uppercase={false}
-      icon="plus-circle"
-    >
+    <Button id={'AddTagButton'} btnStyle="success" icon="plus-circle">
       Add tag
     </Button>
   );

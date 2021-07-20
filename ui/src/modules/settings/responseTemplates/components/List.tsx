@@ -137,7 +137,7 @@ class ResponseTemplateList extends React.Component<FinalProps, States> {
           { title: __('Response templates') }
         ]}
         title={__('Response templates')}
-        leftActionBar={
+        mainHead={
           <HeaderDescription
             icon="/images/actions/24.svg"
             title="Response templates"

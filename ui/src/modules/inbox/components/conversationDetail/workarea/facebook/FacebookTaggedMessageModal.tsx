@@ -73,7 +73,7 @@ class Modal extends React.Component<Props, {}> {
         </FormGroup>
 
         <ModalFooter>
-          <Button onClick={this.onSave} btnStyle="success" uppercase={false}>
+          <Button onClick={this.onSave} btnStyle="success">
             Submit
           </Button>
         </ModalFooter>
@@ -82,11 +82,7 @@ class Modal extends React.Component<Props, {}> {
   };
 
   render() {
-    const trigger = (
-      <Button btnStyle="default" uppercase={false}>
-        {__('Choose tag')}
-      </Button>
-    );
+    const trigger = <Button btnStyle="default">{__('Choose tag')}</Button>;
 
     return (
       <ModalTrigger

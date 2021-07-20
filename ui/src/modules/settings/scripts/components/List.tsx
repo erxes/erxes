@@ -108,7 +108,7 @@ class ScriptList extends React.Component<Props> {
           { title: __('Scripts') }
         ]}
         title={__('Scripts')}
-        leftActionBar={
+        mainHead={
           <HeaderDescription
             icon="/images/actions/23.svg"
             title="Scripts"

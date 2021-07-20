@@ -28,10 +28,7 @@ type Props = {
 };
 
 function Inbox({ currentConversationId, queryParams, currentUser }: Props) {
-  const menuInbox = [
-    { title: 'Team Inbox', link: '/inbox/index' },
-    { title: 'Ticket', link: '/inbox/ticket' }
-  ];
+  const menuInbox = [{ title: 'Team Inbox', link: '/inbox/index' }];
 
   const content = () => <MailForm isReply={false} clearOnSubmit={true} />;
 

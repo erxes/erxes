@@ -167,7 +167,6 @@ class CommonFieldForm extends React.PureComponent<Props, CommonTypes> {
             type="button"
             onClick={closeModal}
             icon="times-circle"
-            uppercase={false}
           >
             Cancel
           </Button>
@@ -176,7 +175,6 @@ class CommonFieldForm extends React.PureComponent<Props, CommonTypes> {
             type="submit"
             btnStyle="success"
             icon="check-circle"
-            uppercase={false}
           >
             {__('Save')}
           </Button>
