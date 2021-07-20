@@ -115,6 +115,7 @@ export const Container = styled.div`
     border-radius: 50%;
     font-size: 20px;
     text-align: center;
+    cursor: pointer;
   }
 
   #main-plus {
@@ -150,44 +151,20 @@ export const Container = styled.div`
 const plumb: any = jsPlumb;
 let instance;
 
-const trigger = {
-  name: 'formSubmit',
-  text: 'Contact submits any form'
-};
+let trigger;
 
-const actionsMap = {
-  '1': {
-    id: '1',
-    type: 'ADD_TICKET',
-    text: 'Create a new ticket',
-    nextActionId: '2'
-  },
-  '2': {
-    id: '2',
-    prevActionId: '1',
-    text:
-      'Does the trigger match the following conditions ? (submission type is deal)',
-    type: 'IF',
-    data: {
-      yes: '3',
-      no: '5'
-    }
-  },
-  '3': {
-    id: '3',
-    prevActionId: '2',
-    text: 'Create a deal',
-    type: 'ADD_DEAL'
-  },
-  '5': {
-    id: '5',
-    prevActionId: '2',
-    text: 'Create a ticket',
-    type: 'ADD_TICKET'
+const actionsMap = {};
+
+const drawActions = (sourceElement, currentActionId?: string) => {
+  if (currentActionId === 'initial') {
+    jquery('.action').remove();
+
+    return drawActions(
+      sourceElement,
+      Object.keys(actionsMap).length > 0 ? '1' : undefined
+    );
   }
-};
 
-const drawActions = (sourceElement, currentActionId) => {
   if (!currentActionId) {
     return;
   }
@@ -313,42 +290,132 @@ const drawActions = (sourceElement, currentActionId) => {
   return drawActions(jquery(`#plus-${action.id}`), action.nextActionId);
 };
 
-class Form extends React.Component {
-  componentDidMount() {
-    instance = plumb.getInstance({
-      Container: 'canvas'
-    });
-    // Add triggers to dom ==========
+const renderTrigger = () => {
+  if (trigger) {
+    jquery('#add-trigger').remove();
+
     jquery('#triggers-wrapper').append(`
+      <div id="trigger-${trigger.name}" class="trigger">
+        ${trigger.text}
+      </div>
+    `);
+
+    return instance.connect({
+      source: `trigger-${trigger.name}`,
+      target: 'main-plus',
+      anchors: ['BottomCenter', 'TopCenter'],
+      connector: 'Straight',
+      endpoint: 'Blank'
+    });
+  }
+
+  jquery('#triggers-wrapper').append(`
       <div id="add-trigger" class="trigger">
         Add a new trigger
       </div>
     `);
 
-    jquery(`
-      <div id="trigger-${trigger.name}" class="trigger">
-        ${trigger.text}
-      </div>
-    `).insertBefore('#add-trigger');
+  jquery('#add-trigger').click(() => {
+    trigger = {
+      name: 'formSubmit',
+      text: 'Contact submits any form'
+    };
+
+    renderTrigger();
+  });
+
+  instance.connect({
+    source: 'add-trigger',
+    target: 'main-plus',
+    anchors: ['BottomCenter', 'TopCenter'],
+    connector: 'Straight',
+    endpoint: 'Blank'
+  });
+};
+
+class Form extends React.Component {
+  componentDidMount() {
+    instance = plumb.getInstance({
+      Container: 'canvas'
+    });
 
     // Add actions to dom ===============
-    drawActions(jquery('#main-plus'), '1');
+    drawActions(jquery('#main-plus'), 'initial');
 
     instance.bind('ready', () => {
-      instance.connect({
-        source: `trigger-${trigger.name}`,
-        target: 'main-plus',
-        anchors: ['BottomCenter', 'TopCenter'],
-        connector: 'Straight',
-        endpoint: 'Blank'
-      });
+      renderTrigger();
 
-      instance.connect({
-        source: 'add-trigger',
-        target: 'main-plus',
-        anchors: ['BottomCenter', 'TopCenter'],
-        connector: 'Straight',
-        endpoint: 'Blank'
+      let nextId = 0;
+
+      jquery('#canvas').on('click', '.plus', e => {
+        const id = jquery(e.target).attr('id');
+        const actionAttr = jquery(e.target)
+          .closest('.action')
+          .attr('id');
+        const actionId = (actionAttr || '').replace('action-', '');
+
+        nextId++;
+
+        if (actionId) {
+          const prevAction = actionsMap[actionId];
+
+          if (id.includes('yes') || id.includes('no')) {
+            prevAction.data[id.includes('yes') ? 'yes' : 'no'] = nextId;
+          } else {
+            prevAction.nextActionId = nextId;
+          }
+        }
+
+        let actionData = {};
+
+        if (nextId === 1) {
+          actionData = {
+            type: 'ADD_TICKET',
+            text: 'Create a new ticket'
+          };
+        }
+
+        if (nextId === 2) {
+          actionData = {
+            text:
+              'Does the trigger match the following conditions ? (submission type is deal)',
+            type: 'IF',
+            data: {}
+          };
+        }
+
+        if (nextId === 3) {
+          actionData = {
+            text: 'Create a deal',
+            type: 'ADD_DEAL'
+          };
+        }
+
+        if (nextId === 4) {
+          actionData = {
+            text: 'Create a ticket',
+            type: 'ADD_TICKET'
+          };
+        }
+
+        if (nextId === 5) {
+          actionData = {
+            text:
+              'Does the trigger match the following conditions ? (submission type is deal)',
+            type: 'IF',
+            data: {}
+          };
+        }
+
+        const nextIdStr = nextId.toString();
+
+        actionsMap[nextIdStr] = {
+          id: nextIdStr,
+          prevActionId: actionId,
+          ...actionData
+        };
+
+        drawActions(jquery('#main-plus'), 'initial');
       });
     });
   }
