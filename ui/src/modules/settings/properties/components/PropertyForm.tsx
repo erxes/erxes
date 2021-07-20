@@ -214,6 +214,7 @@ class PropertyForm extends React.Component<Props, State> {
             <option value="check">Checkbox</option>
             <option value="radio">Radio button</option>
             <option value="file">File</option>
+            <option value="customer">Customer</option>
           </FormControl>
         </FormGroup>
         {this.renderOptions()}
