@@ -91,15 +91,15 @@ export const Container = styled.div`
     margin: 0 auto;
   }
 
-  .action .description[type="ADD_TAGS"] {
+  .action .description[type="ADD_TICKET"] {
     background: #60cb98;
   }
 
-  .action .description[type="ADD_CONTACT"] {
+  .action .description[type="ADD_TASK"] {
     background: #db5d80;
   }
 
-  .action .description[type="REMOVE_TAGS"] {
+  .action .description[type="ADD_DEAL"] {
     background: #4e5568;
   }
 
@@ -158,15 +158,15 @@ const trigger = {
 const actionsMap = {
   '1': {
     id: '1',
-    type: 'ADD_TAGS',
-    text: 'Enter the automation',
+    type: 'ADD_TICKET',
+    text: 'Create a new ticket',
     nextActionId: '2'
   },
   '2': {
     id: '2',
     prevActionId: '1',
     text:
-      'Does the contact match the following conditions ? (has clicked any link)',
+      'Does the trigger match the following conditions ? (submission type is deal)',
     type: 'IF',
     data: {
       yes: '3',
@@ -176,21 +176,14 @@ const actionsMap = {
   '3': {
     id: '3',
     prevActionId: '2',
-    text: 'Create contact',
-    type: 'ADD_CONTACT',
-    nextActionId: '4'
-  },
-  '4': {
-    id: '4',
-    prevActionId: '3',
-    text: 'Add task Call',
-    type: 'REMOVE_TAGS'
+    text: 'Create a deal',
+    type: 'ADD_DEAL'
   },
   '5': {
     id: '5',
     prevActionId: '2',
-    text: 'Add task Call',
-    type: 'REMOVE_TAGS'
+    text: 'Create a ticket',
+    type: 'ADD_TICKET'
   }
 };
 
