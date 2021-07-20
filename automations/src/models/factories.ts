@@ -4,7 +4,7 @@ import Automations, { IAutomation } from './Automations';
 export const automationFactory = async (params: IAutomation) => {
   const automation = new Automations({
     name: params.name || faker.random.word(),
-    triggers: params.triggers || ['webpageVisited'],
+    trigger: params.trigger || { type: 'webpageVisited' },
     actions: params.actions || [],
   });
 

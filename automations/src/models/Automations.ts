@@ -3,18 +3,17 @@ import { Document, Model, model, Schema } from 'mongoose';
 export interface IAction {
    id: string;
    type: string;
-   data: any;
+   config: any;
    prevActionId?: string;
    nextActionId?: string;
 }
 export interface ITrigger {
-   id: string;
    type: string;
-   data?: any;
+   config?: any;
 }
 export interface IAutomation {
   name: string;
-  triggers: ITrigger[];
+  trigger: ITrigger;
   actions: IAction[];
 }
 
@@ -23,22 +22,21 @@ export interface IAutomationDocument extends IAutomation, Document {
 }
 
 export const triggerSchema = new Schema({
-  id: { type: String, required: true },
   type: { type: String, required: true },
-  data: { type: Object },
+  config: { type: Object },
 }, { _id: false });
 
 export const actionSchema = new Schema({
   id: { type: String, required: true },
   type: { type: String, required: true },
-  data: { type: Object },
+  config: { type: Object },
   prevActionId: { type: String },
   nextActionId: { type: String },
 }, { _id: false });
 
 export const automationSchema = new Schema({
   name: { type: String, required: true },
-  triggers: { type: [triggerSchema] },
+  trigger: { type: triggerSchema },
   actions: { type: [actionSchema] },
 });
 

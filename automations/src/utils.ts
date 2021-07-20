@@ -79,31 +79,31 @@ export const executeActions = async (execution: IExecutionDocument, actionsMap: 
   }
 
   if (action.type === ACTIONS.IF) {
-    if (await isTargetInSegment(action.data.segmentId, execution.targetId)) {
-      return executeActions(execution, actionsMap, action.data.yes);
+    if (await isTargetInSegment(action.config.segmentId, execution.targetId)) {
+      return executeActions(execution, actionsMap, action.config.yes);
     } else {
-      return executeActions(execution, actionsMap, action.data.no);
+      return executeActions(execution, actionsMap, action.config.no);
     }
   }
 
   if (action.type === ACTIONS.GO_TO) {
-    return executeActions(execution, actionsMap, action.data.toId);
+    return executeActions(execution, actionsMap, action.config.toId);
   }
 
   if (action.type === ACTIONS.ADD_TAGS) {
-    tags = [...tags, ...action.data.names];
+    tags = [...tags, ...action.config.names];
   }
 
   if (action.type === ACTIONS.REMOVE_TAGS) {
-    tags = tags.filter(t => !action.data.names.includes(t));
+    tags = tags.filter(t => !action.config.names.includes(t));
   }
 
   if (action.type === ACTIONS.ADD_TASK) {
-    tasks.push(replacePlaceHolders({ actionData: action.data, triggerData: execution.triggerData }));
+    tasks.push(replacePlaceHolders({ actionData: action.config, triggerData: execution.triggerData }));
   }
 
   if (action.type === ACTIONS.ADD_DEAL) {
-    deals.push(replacePlaceHolders({ actionData: action.data, triggerData: execution.triggerData }));
+    deals.push(replacePlaceHolders({ actionData: action.config, triggerData: execution.triggerData }));
   }
 
   return executeActions(execution, actionsMap, action.nextActionId);
@@ -127,7 +127,7 @@ export const executeAutomation = async ({ automation, triggerType, targetId, tri
 }
 
 export const receiveTrigger = async ({ triggerType, targetId, data }: { triggerType: string, targetId: string, data?: any }) => {
-  const automations = await Automations.find({ 'triggers.type': { $in: [triggerType] } });
+  const automations = await Automations.find({ 'trigger.type': { $in: [triggerType] } });
 
   const executions = await Executions.find({
     automationId: { $in: automations.map(a => a._id) },
