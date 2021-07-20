@@ -42,6 +42,11 @@ module.exports = {
           position: "left",
         },
         {
+          to: "/components",
+          label: "Components",
+          position: "left",
+        },
+        {
           href: "https://github.com/erxes/erxes",
           position: "right",
           label: "Star",
