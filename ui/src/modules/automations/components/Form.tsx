@@ -150,16 +150,10 @@ export const Container = styled.div`
 const plumb: any = jsPlumb;
 let instance;
 
-const triggers = [
-  {
-    name: 'formSubmit',
-    text: 'Contact submits any form'
-  },
-  {
-    name: 'webpageVisited',
-    text: 'Web page is visited'
-  }
-];
+const trigger = {
+  name: 'formSubmit',
+  text: 'Contact submits any form'
+};
 
 const actionsMap = {
   '1': {
@@ -338,35 +332,23 @@ class Form extends React.Component {
       </div>
     `);
 
-    const addTrigger = trigger => {
-      jquery(`
-        <div id="trigger-${trigger.name}" class="trigger">
-          ${trigger.text}
-        </div>
-      `).insertBefore('#add-trigger');
-    };
-
-    for (const trigger of triggers) {
-      addTrigger(trigger);
-    }
-
-    jquery('#add-trigger').click(() => {
-      addTrigger({ name: 'tagAdded', text: 'Tag added' });
-    });
+    jquery(`
+      <div id="trigger-${trigger.name}" class="trigger">
+        ${trigger.text}
+      </div>
+    `).insertBefore('#add-trigger');
 
     // Add actions to dom ===============
     drawActions(jquery('#main-plus'), '1');
 
     instance.bind('ready', () => {
-      for (const trigger of triggers) {
-        instance.connect({
-          source: `trigger-${trigger.name}`,
-          target: 'main-plus',
-          anchors: ['BottomCenter', 'TopCenter'],
-          connector: 'Straight',
-          endpoint: 'Blank'
-        });
-      }
+      instance.connect({
+        source: `trigger-${trigger.name}`,
+        target: 'main-plus',
+        anchors: ['BottomCenter', 'TopCenter'],
+        connector: 'Straight',
+        endpoint: 'Blank'
+      });
 
       instance.connect({
         source: 'add-trigger',
