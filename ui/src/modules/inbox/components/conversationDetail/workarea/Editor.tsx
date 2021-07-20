@@ -21,6 +21,7 @@ import TemplateList from './TemplateList';
 type EditorProps = {
   currentConversation: string;
   defaultContent?: string;
+  integrationKind: string;
   onChange: (content: string) => void;
   onAddMention: (mentions: any) => void;
   onAddMessage: () => void;
@@ -31,6 +32,7 @@ type EditorProps = {
   handleFileInput: (e: React.FormEvent<HTMLInputElement>) => void;
   mentions: any;
   placeholder?: string | React.ReactNode;
+  characterCount: number
 };
 
 type State = {
@@ -40,6 +42,7 @@ type State = {
   templatesState: any;
   hideTemplates: boolean;
 };
+
 
 const MentionEntry = props => {
   const { mention, theme, searchValue, ...parentProps } = props;
@@ -111,7 +114,6 @@ export default class Editor extends React.Component<EditorProps, State> {
       // calling onChange, because draftjs's onChange is not trigerring after
       // this setState
       this.props.onChange(this.getContent(editorState));
-
       // set editor state from response template
       this.setState({ editorState });
     }
@@ -196,6 +198,8 @@ export default class Editor extends React.Component<EditorProps, State> {
     const es = EditorState.push(editorState, contentState, 'insert-characters');
 
     editorState = EditorState.moveFocusToEnd(es);
+
+   
 
     return this.setState({ editorState, templatesState: null });
   };
@@ -344,7 +348,7 @@ export default class Editor extends React.Component<EditorProps, State> {
   render() {
     const { MentionSuggestions } = this.mentionPlugin;
     const plugins = [this.mentionPlugin];
-
+    
     const pluginContent = (
       <MentionSuggestions
         onSearchChange={this.onSearchChange}
