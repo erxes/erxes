@@ -180,7 +180,7 @@ class DiscussionForm extends React.Component<Props, State> {
                 name="status"
                 componentClass="select"
                 placeholder={__('Select')}
-                defaultValue={object.status || 'draft'}
+                defaultValue={object.status || 'publish'}
                 required={true}
               >
                 {[{ value: 'publish' }, { value: 'closed' }].map(op => (
