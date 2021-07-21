@@ -82,7 +82,7 @@ export const loadForumClass = () => {
      *  Remove forum document
      */
     public static async removeDoc(_id: string) {
-      const forum = Forums.findOne({ _id });
+      const forum = await Forums.findOne({ _id });
 
       if (!forum) {
         throw new Error('Forum not found');
@@ -289,7 +289,7 @@ const loadCommentClass = () => {
      * Get one comment
      */
     public static async getComment(_id: string) {
-      const comment = DiscussionComments.findOne({ _id });
+      const comment = await DiscussionComments.findOne({ _id });
 
       if (!comment) {
         throw new Error('Comment not found');
