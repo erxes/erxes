@@ -140,6 +140,7 @@ class Setup extends React.Component<Props, State> {
       if (availabeFeature.name === title) {
         this.renderFeature(availabeFeature);
       }
+
       return null;
     });
   }
@@ -165,7 +166,7 @@ class Setup extends React.Component<Props, State> {
             key={group.key}
             id={group.key}
             title={__(group.title)}
-            open={this.openCollapse(group.key)}
+            open={group.key === this.state.collapseKey ? true : false}
           >
             {group.content.map((content, index) => {
               if (content.types.includes(roleValue.value)) {
@@ -179,6 +180,7 @@ class Setup extends React.Component<Props, State> {
                   </Text>
                 );
               }
+
               return null;
             })}
           </CollapseContent>
@@ -212,6 +214,7 @@ class Setup extends React.Component<Props, State> {
 
   getPercentage() {
     const { availableFeatures } = this.props;
+
     const completedCount = availableFeatures.filter(
       feature => feature.isComplete
     ).length;
@@ -220,13 +223,6 @@ class Setup extends React.Component<Props, State> {
       availableFeatures.length + 1,
       completedCount + 1
     );
-  }
-
-  openCollapse(gkey: string): boolean {
-    if (gkey === this.state.collapseKey) {
-      return true;
-    }
-    return false;
   }
 
   renderContent() {

@@ -38,6 +38,7 @@ class SetupDetailContainer extends React.Component<FinalProps> {
 
   completeShowStep = () => {
     const { completeShowStepMutation, feature } = this.props;
+
     completeShowStepMutation({ variables: { step: `${feature.name}Show` } });
   };
 
