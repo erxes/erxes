@@ -336,12 +336,13 @@ const widgetMutations = {
         companyData.primaryName = companyData.name;
         companyData.names = [companyData.name];
 
-        const { customFieldsData } = await Fields.generateCustomFieldsData(
-          companyData,
-          'company'
-        );
+        const {
+          customFieldsData,
+          trackedData
+        } = await Fields.generateCustomFieldsData(companyData, 'company');
 
         companyData.customFieldsData = customFieldsData;
+        companyData.trackedData = trackedData;
 
         try {
           company = await Companies.createCompany({

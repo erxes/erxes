@@ -1,5 +1,6 @@
 import CustomFieldsSection from 'modules/companies/containers/detail/CustomFieldsSection';
 import { ICompany } from 'modules/companies/types';
+import { TrackedDataSection } from 'modules/customers/components/common';
 import TaggerSection from 'modules/customers/components/common/TaggerSection';
 import Sidebar from 'modules/layout/components/Sidebar';
 import { IField } from 'modules/settings/properties/types';
@@ -20,6 +21,7 @@ class LeftSidebar extends React.Component<Props> {
       <Sidebar wide={true}>
         <BasicInfoSection company={company} fields={fields} />
         <CustomFieldsSection company={company} />
+        <TrackedDataSection company={company} />
         <TaggerSection
           data={company}
           type="company"
