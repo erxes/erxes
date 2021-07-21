@@ -14,7 +14,9 @@ import {
   forumFactory,
   forumTopicFactory,
   forumDiscussionFactory,
-  discussionCommentFactory
+  discussionCommentFactory,
+  forumReactionFactory,
+  userFactory
 } from '../db/factories';
 
 import './setup.ts';
@@ -45,15 +47,23 @@ const commentArgs = {
   content: faker.random.word()
 };
 
+const reactionArgs = {
+  type: 'like',
+  contentType: 'comment'
+};
+
 describe('mutations', () => {
+  let _user;
   let _forum;
   let _forumTopic;
   let _forumDiscussion;
   let _discussionComment;
+  let _forumReaction;
   let _brand;
 
   beforeEach(async () => {
     // Creating test data
+    _user = await userFactory({});
     _forum = await forumFactory({});
     _forumTopic = await forumTopicFactory({
       forumId: _forum._id
@@ -65,6 +75,10 @@ describe('mutations', () => {
     });
     _discussionComment = await discussionCommentFactory({
       discussionId: _forumDiscussion._id
+    });
+    _forumReaction = await forumReactionFactory({
+      contentTypeId: _discussionComment._id,
+      userId: _user._id
     });
     _brand = await brandFactory({});
   });
@@ -367,5 +381,51 @@ describe('mutations', () => {
     await graphqlRequest(mutation, 'discussionCommentsRemove', { _id });
 
     expect(await DiscussionComments.findOne({ _id })).toBe(null);
+  });
+
+  test('Forum reaction toggle', async () => {
+    const doc = {
+      contentTypeId: _discussionComment._id,
+      ...reactionArgs
+    };
+
+    const mutation = `
+      mutation forumReactionsToggle($type: String! $contentType: String! $contentTypeId: String!){
+        forumReactionsToggle(type: $type contentType: $contentType contentTypeId: $contentTypeId)
+      }
+    `;
+
+    const reaction = await graphqlRequest(
+      mutation,
+      'forumReactionsToggle',
+      doc
+    );
+
+    expect(reaction.type).toBe(doc.type);
+    expect(reaction.contentType).toBe(doc.contentType);
+    expect(reaction.contentTypeId).toBe(doc.contentTypeId);
+  });
+
+  test('Forum reaction toggle with user reaction', async () => {
+    const doc = {
+      type: _forumReaction.type,
+      contentTypeId: _discussionComment._id,
+      contentType: _forumReaction.contentType
+    };
+
+    const mutation = `
+      mutation forumReactionsToggle($type: String! $contentType: String! $contentTypeId: String!){
+        forumReactionsToggle(type: $type contentType: $contentType contentTypeId: $contentTypeId)
+      }
+    `;
+
+    const reaction = await graphqlRequest(
+      mutation,
+      'forumReactionsToggle',
+      doc,
+      { user: _user }
+    );
+
+    expect(reaction._id).toBe(undefined);
   });
 });

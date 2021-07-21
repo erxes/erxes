@@ -59,7 +59,8 @@ import {
   Forums,
   ForumTopics,
   ForumDiscussions,
-  DiscussionComments
+  DiscussionComments,
+  ForumReactions
 } from './models';
 import { ICustomField } from './models/definitions/common';
 import {
@@ -1733,6 +1734,31 @@ export const discussionCommentFactory = async (
   };
 
   return DiscussionComments.createDoc(
+    {
+      ...doc,
+      ...params
+    },
+    params.userId || faker.random.word()
+  );
+};
+
+interface IForumReactionFactoryInput {
+  type?: string;
+  contentType?: string;
+  contentTypeId?: string;
+  userId?: string;
+}
+
+export const forumReactionFactory = async (
+  params: IForumReactionFactoryInput = {}
+) => {
+  const doc = {
+    type: params.type || 'like',
+    contentType: params.contentType || 'comment',
+    contentTypeId: params.contentTypeId || faker.random.word()
+  };
+
+  return ForumReactions.createDoc(
     {
       ...doc,
       ...params

@@ -16,7 +16,8 @@ import {
   ForumDiscussions,
   Brands,
   Forums,
-  DiscussionComments
+  DiscussionComments,
+  ForumReactions
 } from '../db/models';
 import { FORUM_DISCUSSION_STATUSES } from '../db/models/definitions/constants';
 
@@ -365,8 +366,6 @@ describe('test forum models', () => {
     });
 
     test('Remove dicsussion', async () => {
-      console.log('ereherker');
-
       const doc = {
         title: 'Test discussion title',
         description: 'Test discussion description',
@@ -475,6 +474,28 @@ describe('test forum models', () => {
       await DiscussionComments.removeDoc(comment._id);
 
       expect(await DiscussionComments.find().countDocuments()).toBe(0);
+    });
+  });
+
+  describe('Forum discussion reaction', () => {
+    afterEach(async () => {
+      await ForumReactions.deleteMany({});
+    });
+
+    test('Create Discussion Reaction', async () => {
+      const comment = await discussionCommentFactory();
+
+      const doc = {
+        type: 'like',
+        contentType: 'comment',
+        contentTypeId: comment._id
+      };
+
+      const reaction = await ForumReactions.createDoc(doc, _user._id);
+
+      expect(reaction.type).toBe(doc.type);
+      expect(reaction.contentType).toBe(doc.contentType);
+      expect(reaction.contentTypeId).toBe(doc.contentTypeId);
     });
   });
 });
