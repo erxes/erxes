@@ -1,13 +1,13 @@
 import { IUser } from 'modules/auth/types';
-import { roundToTwo } from 'modules/common/utils';
+import { roundToTwo, __ } from 'modules/common/utils';
 
 type Options = {
   _id: string;
-  name?: string;
+  name?: any;
 };
 
 export function selectOptions(array: Options[] = []) {
-  return array.map(item => ({ value: item._id, label: item.name }));
+  return array.map(item => ({ value: item._id, label: __(item.name) }));
 }
 
 export const getCurrentUserName = (user: IUser) => {

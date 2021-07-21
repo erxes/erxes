@@ -1,4 +1,5 @@
 import colors from 'modules/common/styles/colors';
+import { __ } from 'modules/common/utils';
 
 export const TOOLTIP =
   'Your responsive will determine your onboarindg guides. Each guide contains all-inclusive info on how to setup an organization from start to finish. You can re-select this later on.';
@@ -305,9 +306,15 @@ export const FEATURES = [
 ];
 
 export const ROLE_VALUE = [
-  { _id: 'answerOne', name: 'I’ve never used a CRM or business tools before' },
-  { _id: 'answerTwo', name: 'I’m new to erxes, but I have used a CRM before' },
-  { _id: 'answerThree', name: 'I know my way around erxes well' }
+  {
+    _id: 'answerOne',
+    name: __('I’ve never used a CRM or business tools before')
+  },
+  {
+    _id: 'answerTwo',
+    name: __('I’m new to erxes, but I have used a CRM before')
+  },
+  { _id: 'answerThree', name: __('I know my way around erxes well') }
 ];
 
 export const ROLE_OPTIONS = [
