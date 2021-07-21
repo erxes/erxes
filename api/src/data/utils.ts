@@ -27,7 +27,11 @@ import { IUser, IUserDocument } from '../db/models/definitions/users';
 import { debugBase, debugError } from '../debuggers';
 import memoryStorage from '../inmemoryStorage';
 import { graphqlPubsub } from '../pubsub';
-import { fieldsCombinedByContentType } from './modules/fields/utils';
+import {
+  fieldsCombinedByContentType,
+  getCustomFields
+} from './modules/fields/utils';
+import { generateAmounts, generateProducts } from './resolvers/deals';
 
 export const uploadsFolderPath = path.join(__dirname, '../private/uploads');
 
@@ -509,15 +513,15 @@ export const replaceEditorAttributes = async (args: {
   customer?: ICustomer | null;
   user?: IUser | null;
   customerFields?: string[];
+  item?: any;
   brand?: IBrandDocument;
 }): Promise<{
   replacers: IReplacer[];
   replacedContent?: string;
   customerFields?: string[];
 }> => {
-  const { content, user, brand } = args;
+  const { content, user, brand, item } = args;
   const customer = args.customer || {};
-
   const replacers: IReplacer[] = [];
 
   let replacedContent = content || '';
@@ -560,7 +564,7 @@ export const replaceEditorAttributes = async (args: {
   }
 
   // replace customer fields
-  if (customer) {
+  if (args.customer) {
     replacers.push({
       key: '{{ customer.name }}',
       value: Customers.getCustomerName(customer)
@@ -614,6 +618,60 @@ export const replaceEditorAttributes = async (args: {
     const regex = new RegExp(replacer.key, 'gi');
 
     replacedContent = replacedContent.replace(regex, replacer.value);
+  }
+
+  // deal, ticket, task mapping
+  if (item) {
+    replacers.push({ key: '{{ itemName }}', value: item.name || '' });
+    replacers.push({
+      key: '{{ itemDescription }}',
+      value: item.description || ''
+    });
+
+    replacers.push({
+      key: '{{ itemCloseDate }}',
+      value: item.closeDate ? new Date(item.closeDate).toLocaleDateString() : ''
+    });
+    replacers.push({
+      key: '{{ itemCreatedAt }}',
+      value: item.createdAt ? new Date(item.createdAt).toLocaleDateString() : ''
+    });
+    replacers.push({
+      key: '{{ itemModifiedAt }}',
+      value: item.modifiedAt
+        ? new Date(item.modifiedAt).toLocaleDateString()
+        : ''
+    });
+
+    const products = await generateProducts(item.productsData);
+    const amounts = generateAmounts(item.productsData);
+
+    replacers.push({
+      key: '{{ dealProducts }}',
+      value: products.map(p => p.product.name).join(',')
+    });
+    replacers.push({
+      key: '{{ dealAmounts }}',
+      value: Object.keys(amounts)
+        .map(key => `${amounts[key]}${key}`)
+        .join(',')
+    });
+
+    const customFields = await getCustomFields(item.contentType);
+
+    for (const customField of customFields) {
+      const cFieldsData = item.customFieldsData || [];
+      const customFieldData = cFieldsData.find(
+        c => c.field === customField._id
+      );
+
+      if (customFieldData) {
+        replacers.push({
+          key: `{{ itemCustomField.${customField._id} }}`,
+          value: customFieldData.stringValue || customFieldData.value
+        });
+      }
+    }
   }
 
   return { replacedContent, replacers, customerFields };
@@ -1085,8 +1143,13 @@ export const findCompany = async doc => {
     });
   }
 
+  if (!company && doc.companyCode) {
+    company = await Companies.findOne({ code: doc.companyCode });
+  }
+
   if (!company && doc.companyPrimaryName) {
     company = await Companies.findOne({ primaryName: doc.companyPrimaryName });
   }
+
   return company;
 };

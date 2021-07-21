@@ -154,6 +154,7 @@ class CategoryForm extends React.Component<Props, State> {
           value={self.state.parentCategoryId}
           options={self.generateOptions(categories, true)}
           onChange={onChange}
+          clearable={false}
         />
       </FormGroup>
     );
@@ -205,7 +206,8 @@ class CategoryForm extends React.Component<Props, State> {
             btnStyle="simple"
             type="button"
             onClick={closeModal}
-            icon="cancel-1"
+            icon="times-circle"
+            uppercase={false}
           >
             Cancel
           </Button>

@@ -107,7 +107,7 @@ jobs:
       run: |
         cd ui
         yarn install
-        yarn record-cypress
+#        yarn record-cypress
 
     - name: Build
       run: |
