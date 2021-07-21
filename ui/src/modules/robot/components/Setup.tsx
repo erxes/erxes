@@ -136,13 +136,12 @@ class Setup extends React.Component<Props, State> {
   checkCondition(title?: string) {
     const { availableFeatures } = this.props;
 
-    {
-      availableFeatures.map(availabeFeature => {
-        if (availabeFeature.name === title) {
-          this.renderFeature(availabeFeature);
-        }
-      });
-    }
+    availableFeatures.map(availabeFeature => {
+      if (availabeFeature.name === title) {
+        this.renderFeature(availabeFeature);
+      }
+      return null;
+    });
   }
 
   renderSetup() {

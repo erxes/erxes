@@ -115,7 +115,7 @@ class SetupDetail extends React.Component<Props> {
           const detail = feature.settingsDetails[setting];
           return (
             <ChecklistItem key={index} isComplete={stepsCompleteness[setting]}>
-              <Link to={`${detail.url}#signedIn=true`}>{detail.name}</Link>
+              <Link to={`${detail.url}#signedIn=true`}>{__(detail.name)}</Link>
               {stepsCompleteness[setting] && (
                 <span role="img" aria-label="Selebration">
                   🎉

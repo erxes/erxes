@@ -86,7 +86,7 @@ class Roles extends React.Component<Props, State> {
 
         <p>
           {__("What's your main area of work")}?{' '}
-          <Tip placement="bottom-start" text={__(TOOLTIP)}>
+          <Tip placement="top-start" text={__(TOOLTIP)}>
             <Icon icon="info-circle" color="hsl(259,50%,51.9%)" />
           </Tip>
         </p>

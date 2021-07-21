@@ -585,7 +585,7 @@ export const ROLE_SETUP_DETAILS = {
   integrationOtherApps: {
     text: 'Integration/ App Store',
     description:
-      'You can bring all inboxes to one window and manage your interactions with your customers. The shared Team Inbox keeps all history of your engagements. It also provides tags and filter tools to help you work more productively.',
+      'You can bring all inboxes to one window and manage your interactions with your customers. The shared Team Inbox keeps all history of your engagements It also provides tags and filter tools to help you work more productively',
     videoUrl: 'https://www.youtube.com/embed/Z5KI5YuvZ7U?autoplay=1',
     videoThumb: 'https://img.youtube.com/vi/Z5KI5YuvZ7U/mqdefault.jpg',
     settingsDetails: {
@@ -603,7 +603,7 @@ export const ROLE_SETUP_DETAILS = {
   customizeDatabase: {
     text: 'Properties',
     description:
-      'Adjust customer data settings, add properties for customer information, etc. for your     customer database.',
+      'Adjust customer data settings, add properties for customer information, etc for your customer database',
     videoUrl: 'https://www.youtube.com/embed/Z5KI5YuvZ7U?autoplay=1',
     videoThumb: 'https://img.youtube.com/vi/Z5KI5YuvZ7U/mqdefault.jpg',
     settingsDetails: {
@@ -621,7 +621,7 @@ export const ROLE_SETUP_DETAILS = {
   importExistingContacts: {
     text: 'Import',
     description:
-      'You will be able to import large files and export data from our system.',
+      'You will be able to import large files and export data from our system',
     videoUrl: 'https://www.youtube.com/embed/Z5KI5YuvZ7U?autoplay=1',
     videoThumb: 'https://img.youtube.com/vi/Z5KI5YuvZ7U/mqdefault.jpg',
     settingsDetails: {
@@ -654,7 +654,7 @@ export const ROLE_SETUP_DETAILS = {
   inviteTeamMembers: {
     text: 'Team members/ Permission',
     description:
-      'Invite your team members into your organization to manage all internal and external activities in one location.',
+      'Invite your team members into your organization to manage all internal and external activities in one location',
     videoUrl: 'https://www.youtube.com/embed/Z5KI5YuvZ7U?autoplay=1',
     videoThumb: 'https://img.youtube.com/vi/Z5KI5YuvZ7U/mqdefault.jpg',
     settingsDetails: {
