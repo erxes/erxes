@@ -146,7 +146,7 @@ describe('test forum models', () => {
       try {
         await Forums.removeDoc('fakeId');
       } catch (e) {
-        expect(e.message).toBe('Topic not found');
+        expect(e.message).toBe('Forum not found');
       }
     });
   });
@@ -380,6 +380,12 @@ describe('test forum models', () => {
       await ForumDiscussions.removeDoc(discussion._id);
 
       expect(await ForumDiscussions.find().countDocuments()).toBe(0);
+
+      try {
+        await ForumDiscussions.removeDoc('fakeId');
+      } catch (e) {
+        expect(e.message).toBe('Discussion not found');
+      }
     });
   });
 
@@ -474,6 +480,12 @@ describe('test forum models', () => {
       await DiscussionComments.removeDoc(comment._id);
 
       expect(await DiscussionComments.find().countDocuments()).toBe(0);
+
+      try {
+        await DiscussionComments.removeDoc('fakeId');
+      } catch (e) {
+        expect(e.message).toBe('Comment not found');
+      }
     });
   });
 
