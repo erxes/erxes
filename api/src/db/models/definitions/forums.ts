@@ -65,7 +65,8 @@ export interface ICommentDocument extends ICommonFields, IComment, Document {
 }
 
 export interface IForumReaction {
-  type: string;
+  type?: string;
+  contentType?: string;
   contentTypeId?: string;
 }
 
