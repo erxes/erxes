@@ -568,7 +568,7 @@ export const ROLE_SETUP_DETAILS = {
   channelBrands: {
     text: 'Brand & channel set up',
     description:
-      'Creating brands and channels allows you can organize and view all messages and emails sent from customers under one platform. Customizing the incoming communication channels is the foundation of all your effective operational process',
+      'Creating brands and channels allows you can organize and view all messages and emails sent from customers under one platform',
     videoUrl: 'https://www.youtube.com/embed/Z5KI5YuvZ7U?autoplay=1',
     videoThumb: 'https://img.youtube.com/vi/Z5KI5YuvZ7U/mqdefault.jpg',
     settingsDetails: {
