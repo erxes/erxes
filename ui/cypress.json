@@ -8,8 +8,6 @@
   "defaultCommandTimeout": 80000,
   "viewportWidth": 1368,
   "viewportHeight": 920,
-  "video": false,
-  "screenshotOnRunFailure": false,
   "retries": {
     "runMode": 2,
     "openMode": 0

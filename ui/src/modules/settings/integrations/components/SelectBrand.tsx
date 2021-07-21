@@ -30,7 +30,7 @@ class SelectBrand extends React.Component<Props, {}> {
     }
 
     const trigger = (
-      <Button btnStyle="primary" uppercase={false} icon="plus-circle">
+      <Button btnStyle="primary" icon="plus-circle">
         Create brand
       </Button>
     );

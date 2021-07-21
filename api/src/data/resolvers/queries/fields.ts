@@ -2,7 +2,7 @@ import {
   FIELD_CONTENT_TYPES,
   FIELDS_GROUPS_CONTENT_TYPES
 } from '../../../data/constants';
-import { Fields, FieldsGroups } from '../../../db/models';
+import { Boards, Fields, FieldsGroups, Pipelines } from '../../../db/models';
 import { IFieldDocument } from '../../../db/models/definitions/fields';
 import { fieldsCombinedByContentType } from '../../modules/fields/utils';
 import { checkPermission, requireLogin } from '../../permissions/wrappers';
@@ -128,11 +128,44 @@ const fieldQueries = {
     }
 
     return response;
+  },
+
+  async fieldsItemTyped(_root) {
+    const result = {};
+
+    for (const ct of ['deal', 'ticket', 'task']) {
+      result[ct] = [];
+
+      const groups = await FieldsGroups.find({ contentType: ct });
+
+      for (const group of groups) {
+        const fields = await Fields.find({ groupId: group._id });
+        const pipelines = await Pipelines.find({
+          _id: { $in: group.pipelineIds || [] }
+        });
+
+        for (const pipeline of pipelines) {
+          const board = await Boards.getBoard(pipeline.boardId);
+
+          for (const field of fields) {
+            result[ct].push({
+              boardName: board.name,
+              pipelineName: pipeline.name,
+              fieldId: field._id,
+              fieldName: field.text
+            });
+          }
+        }
+      }
+    }
+
+    return result;
   }
 };
 
 requireLogin(fieldQueries, 'fieldsCombinedByContentType');
 requireLogin(fieldQueries, 'fieldsDefaultColumnsConfig');
+requireLogin(fieldQueries, 'fieldsItemTyped');
 
 checkPermission(fieldQueries, 'fields', 'showForms', []);
 

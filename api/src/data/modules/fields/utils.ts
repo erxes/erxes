@@ -45,7 +45,7 @@ const generateBasicInfosFromSchema = async (
   return queFields;
 };
 
-const getCustomFields = async (contentType: string) => {
+export const getCustomFields = async (contentType: string) => {
   if (!isUsingElk()) {
     return Fields.find({
       contentType,

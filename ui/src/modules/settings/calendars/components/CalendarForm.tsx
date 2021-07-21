@@ -181,7 +181,6 @@ class CalendarForm extends React.Component<FinalProps, State> {
               type="button"
               icon="times-circle"
               onClick={closeModal}
-              uppercase={false}
             >
               Cancel
             </Button>

@@ -40,12 +40,7 @@ class Sidebar extends React.Component<Props> {
     return (
       <TopHeader>
         <Link to="/dashboard">
-          <Button
-            btnStyle="simple"
-            icon="arrow-circle-left"
-            block={true}
-            uppercase={false}
-          >
+          <Button btnStyle="simple" icon="arrow-circle-left" block={true}>
             Back to Dashboard
           </Button>
         </Link>
