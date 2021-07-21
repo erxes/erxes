@@ -76,7 +76,6 @@ class Onboarding extends React.PureComponent<Props, State> {
       <ButtonWrapper>
         <Button
           id="robot-get-started"
-          uppercase={false}
           onClick={handleClick}
           btnStyle="primary"
           disabled={disabled}

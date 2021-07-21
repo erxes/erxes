@@ -43,10 +43,10 @@ const TicketMainActionBar = (props: Props) => {
       const { currentBoard, currentPipeline } = props;
 
       if (currentBoard && currentPipeline) {
-        return `/inbox/ticket/${type}?id=${currentBoard._id}&pipelineId=${currentPipeline._id}`;
+        return `/ticket/${type}?id=${currentBoard._id}&pipelineId=${currentPipeline._id}`;
       }
 
-      return `/inbox/ticket/${type}`;
+      return `/ticket/${type}`;
     };
 
     const boardLink = onFilterClick('board');
@@ -91,7 +91,7 @@ const TicketMainActionBar = (props: Props) => {
   const extraFilter = (
     <>
       <Select
-        placeholder="Choose a source"
+        placeholder={__('Choose a source')}
         value={sources}
         options={sourceValues}
         name="source"
@@ -120,7 +120,7 @@ const TicketMainActionBar = (props: Props) => {
     ...props,
     options,
     extraFilter,
-    link: `/inbox/ticket/${viewType}`,
+    link: `/ticket/${viewType}`,
     rightContent: viewChooser
   };
 

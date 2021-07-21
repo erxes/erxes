@@ -13,7 +13,7 @@ context('Brands', () => {
 
     // Brand
     cy.get('#Settings').click();
-    cy.get('#SettingsIntegrationSettings').children().eq(1).click();
+    cy.get('#SettingsGeneralSettings').children().eq(1).click();
     cy.url().should('include', '/settings/brands');
 
     waitElm('#BrandSidebar li');

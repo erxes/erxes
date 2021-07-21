@@ -204,11 +204,18 @@ describe('messenger connect', () => {
     const email = 'newCustomer@gmail.com';
     const now = new Date();
 
+    await fieldFactory({
+      contentType: 'customer',
+      validation: 'date',
+      text: 'dateField'
+    });
+
     const { customerId } = await widgetMutations.widgetsMessengerConnect(
       {},
       {
         brandCode: _brand.code || '',
         email,
+        data: { dateField: new Date() },
         companyData: { name: 'company' },
         deviceToken: '111'
       }

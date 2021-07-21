@@ -141,7 +141,7 @@ class Gmail extends React.Component<Props, State> {
           </Indicator>
           <Button.Group>
             <Link to="/settings/integrations">
-              <Button btnStyle="simple" icon="times-circle" uppercase={false}>
+              <Button btnStyle="simple" icon="times-circle">
                 Cancel
               </Button>
             </Link>

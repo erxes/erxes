@@ -68,7 +68,6 @@ class AddForm extends React.Component<Props, State> {
             btnStyle="simple"
             onClick={this.props.closeModal}
             icon="times-circle"
-            uppercase={false}
           >
             Close
           </Button>
@@ -78,7 +77,6 @@ class AddForm extends React.Component<Props, State> {
             btnStyle="success"
             icon="check-circle"
             type="submit"
-            uppercase={false}
           >
             Save
           </Button>
