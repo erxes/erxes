@@ -1,6 +1,6 @@
 import { Model, model } from 'mongoose';
 import { ACTIVITY_LOG_ACTIONS, putActivityLog } from '../../data/logUtils';
-import { validSearchText } from '../../data/utils';
+import { sendToWebhook, validSearchText } from '../../data/utils';
 import { validateSingle } from '../../data/verifierUtils';
 import {
   Conformities,
@@ -855,6 +855,13 @@ export const loadClass = () => {
     ) {
       const { customerId, type, value } = args;
 
+      const webhookData: any = {};
+
+      let customer = await Customers.getCustomer(customerId);
+
+      webhookData.type = 'customer';
+      webhookData.object = customer;
+
       if (type === 'email') {
         await Customers.updateOne(
           { _id: customerId },
@@ -863,6 +870,8 @@ export const loadClass = () => {
             $push: { emails: value }
           }
         );
+
+        webhookData.newData = { email: value };
       }
 
       if (type === 'phone') {
@@ -873,9 +882,15 @@ export const loadClass = () => {
             $push: { phones: value }
           }
         );
+
+        webhookData.newData = { phone: value };
       }
 
-      const customer = await Customers.getCustomer(customerId);
+      customer = await Customers.getCustomer(customerId);
+
+      webhookData.updatedDocument = customer;
+
+      await sendToWebhook('update', 'customer', webhookData);
 
       const pssDoc = await Customers.calcPSS(customer);
 
