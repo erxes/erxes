@@ -171,12 +171,14 @@ export const ROLE_SETUP = [
         steps: 3,
         types: ['sales', 'marketing', 'above']
       },
+
       {
         name: 'Prepare content templates',
         title: 'prepareContentTemplates',
         steps: 2,
         types: ['sales', 'customerSupport', 'managementAndOperations', 'above']
       },
+
       {
         name: 'Automate your sales with Campaigns',
         title: 'automateCampaigns',
@@ -325,22 +327,14 @@ export const ROLE_SETUP_DETAILS = {
     settingsDetails: {
       fieldGroupCreate: {
         name: 'Add groups',
-        url: '/settings/importHistories/'
+        url: '/settings/properties/'
       },
       fieldCreate: {
         name: 'Add properties',
-        url: '/settings/importHistories/'
-      },
-      importPrepareFiles: {
-        name: 'Prepare files to be imported on excel',
-        url: '/settings/importHistories/'
+        url: '/settings/properties/'
       },
       importDownloadTemplate: {
         name: 'Download a template',
-        url: '/settings/importHistories/'
-      },
-      importEnterData: {
-        name: 'Enter your data in the template',
         url: '/settings/importHistories/'
       },
       importCreate: {
@@ -349,6 +343,7 @@ export const ROLE_SETUP_DETAILS = {
       }
     }
   },
+
   inviteTeamMembers: {
     text: 'Team members/ Permission',
     description:
@@ -356,9 +351,9 @@ export const ROLE_SETUP_DETAILS = {
     videoUrl: '',
     videoThumb: '',
     settingsDetails: {
-      permissionGroupCreate: {
+      userGroupCreate: {
         name: 'Create user group for permission',
-        url: '/settings/team'
+        url: '/settings/permissions'
       },
       usersInvite: {
         name: 'Add your team member(s)',
@@ -391,6 +386,7 @@ export const ROLE_SETUP_DETAILS = {
       }
     }
   },
+
   createProductServices: {
     text: 'Product & service',
     description: 'Add and categorize your products and services to our system',
@@ -407,6 +403,29 @@ export const ROLE_SETUP_DETAILS = {
       }
     }
   },
+
+  /* salesPipeline: {
+    text: 'Sales stage',
+    description:
+      'Create sales stages to track your entire sales pipeline from one dashboard. Erxes also provides a field where you can add notes, tags, checklist dealine and all other useful tools to lead you successful sales.',
+    videoUrl: 'https://www.youtube.com/embed/Z5KI5YuvZ7U?autoplay=1',
+    videoThumb: 'https://img.youtube.com/vi/Z5KI5YuvZ7U/mqdefault.jpg',
+    settingsDetails: {
+      dealBoardsCreate: {
+        name: 'Create a board',
+        url: '/settings/boards/deal#showBoardModal=true'
+      },
+      dealPipelinesCreate: {
+        name: 'Create a pipeline to be used on your board',
+        url: '/settings/boards/deal#showPipelineModal=true'
+      },
+      dealCreate: {
+        name: 'Create deal',
+        url: '/deal/board'
+      }
+    }
+  }, */
+
   customizeTickets: {
     text: 'Ticket stage',
     description:
@@ -414,17 +433,17 @@ export const ROLE_SETUP_DETAILS = {
     videoUrl: '',
     videoThumb: '',
     settingsDetails: {
-      ticketBoardCreate: {
+      ticketBoardsCreate: {
         name: 'Create a board',
         url: '/settings/boards/ticket#showBoardModal=true'
       },
-      ticketPipelineCreate: {
+      ticketPipelinesCreate: {
         name: 'Create a pipeline to be used on your board',
         url: '/settings/boards/ticket#showPipelineModal=true'
       },
-      ticketStageCreate: {
-        name: 'Customize the stages in your pipeline',
-        url: '/settings/boards/ticket'
+      ticketCreate: {
+        name: 'Create ticket',
+        url: '/ticket/board'
       }
     }
   },
@@ -435,20 +454,21 @@ export const ROLE_SETUP_DETAILS = {
     videoUrl: '',
     videoThumb: '',
     settingsDetails: {
-      taskBoardCreate: {
+      taskBoardsCreate: {
         name: 'Create a board',
         url: '/settings/boards/task#showBoardModal=true'
       },
-      taskPipelineCreate: {
+      taskPipelinesCreate: {
         name: 'Create a pipeline to be used on your board',
         url: '/settings/boards/task#showBoardModal=true'
       },
-      taskStageCreate: {
-        name: 'Customize the stages in your pipeline',
-        url: '/settings/boards/task'
+      taskCreate: {
+        name: 'Create task',
+        url: '/task/board'
       }
     }
   },
+
   customizeGrowthHacking: {
     text: 'Growth hacking stage',
     description:
@@ -456,16 +476,28 @@ export const ROLE_SETUP_DETAILS = {
     videoUrl: '',
     videoThumb: '',
     settingsDetails: {
-      growthHackingTemplateCreate: {
+      growthHackBoardCreate: {
+        name: 'Create marketing campaign',
+        url: '/settings/boards/growthHack#showBoardModal=true'
+      },
+
+      pipelineTemplate: {
         name: 'Create a growth hacking template',
         url: '/settings/boards/growthHackTemplate'
       },
-      growthHackingStageCreate: {
-        name: 'Customize the stages in your template',
-        url: '/settings/boards/growthHackTemplate'
+
+      growthHackPipelines: {
+        name: 'Create marketing projects',
+        url: '/settings/boards/growthHack#showPipelineModal=true'
+      },
+
+      growthHackCreate: {
+        name: 'Create experiments',
+        url: '/growthHack/board'
       }
     }
   },
+
   customizeSegmentation: {
     text: 'Contact',
     description:
@@ -473,10 +505,6 @@ export const ROLE_SETUP_DETAILS = {
     videoUrl: '',
     videoThumb: '',
     settingsDetails: {
-      segmentFamliarize: {
-        name: 'Famliarize yourself with the existing segments ',
-        url: '/settings/boards/'
-      },
       segmentCreate: {
         name: 'Create a segment',
         url: '/segments/new/customer'
@@ -487,6 +515,7 @@ export const ROLE_SETUP_DETAILS = {
       }
     }
   },
+
   prepareMailResponseTemplates: {
     text: 'Email/response template',
     description:
@@ -496,14 +525,15 @@ export const ROLE_SETUP_DETAILS = {
     settingsDetails: {
       createResponseTemplate: {
         name: 'Create a response template',
-        url: '/settings/response-templates'
+        url: '/settings/response-templates#showListFormModal=true'
       },
       createEmailTemplate: {
         name: 'Create an email template',
-        url: '/settings/email-templates'
+        url: '/settings/email-templates#showListFormModal=true'
       }
     }
   },
+
   automateCampaigns: {
     text: 'Campaigns',
     description:
@@ -511,24 +541,21 @@ export const ROLE_SETUP_DETAILS = {
     videoUrl: '',
     videoThumb: '',
     settingsDetails: {
-      createCampaign: {
+      engageVerifyEmail: {
+        name: 'Verify your sending email',
+        url: '/settings/campaign-configs'
+      },
+      engageSendTestEmail: {
+        name: 'Send test email',
+        url: '/settings/campaign-configs'
+      },
+      engageCreate: {
         name: 'Create a campaign',
-        url: '/campaigns'
-      },
-      chooseCampaignChannel: {
-        name: 'Choose a channel',
-        url: '/campaigns'
-      },
-      chooseRecipientsChannel: {
-        name: 'Choose the recipients of the campaign',
-        url: '/settings/boards/'
-      },
-      composeCampaign: {
-        name: 'Compose your campaign',
-        url: '/settings/boards/'
+        url: '/campaigns/create?kind=auto'
       }
     }
   },
+
   customizeKnowledgeBase: {
     text: 'Khowledge Base',
     description:
@@ -536,17 +563,21 @@ export const ROLE_SETUP_DETAILS = {
     videoUrl: '',
     videoThumb: '',
     settingsDetails: {
-      createForm: {
-        name: 'Add and edit the appearance of your knowledge base',
-        url: '/knowledgeBase'
+      knowledgeBaseTopicCreate: {
+        name: 'Create topic',
+        url: '/knowledgebase#showKBAddModal=true'
       },
-      createCategoryForm: {
-        name: 'Add categories in the knowledge base',
-        url: '/settings/boards/'
+      knowledgeBaseCategoryCreate: {
+        name: 'Create category',
+        url: '/knowledgebase#showKBAddCategoryModal=true'
       },
-      createArticleForm: {
-        name: 'Add an article within the knowledge base',
-        url: '/settings/boards/'
+      knowledgeBaseArticleCreate: {
+        name: 'Now write articles',
+        url: '/knowledgebase#showKBAddArticleModal=true'
+      },
+      knowledgeBaseInstalled: {
+        name: 'Embed knowledgebase',
+        url: '#'
       }
     }
   },
@@ -558,13 +589,9 @@ export const ROLE_SETUP_DETAILS = {
     videoUrl: '',
     videoThumb: '',
     settingsDetails: {
-      step1: {
+      messengerIntegrationCreate: {
         name: 'Add the erxes messenger',
-        url: '/settings/boards/'
-      },
-      step2: {
-        name: 'Adjust the erxes messenger',
-        url: '/settings/boards/'
+        url: '/settings/integrations/createMessenger'
       }
     }
   },
@@ -575,13 +602,13 @@ export const ROLE_SETUP_DETAILS = {
     videoUrl: '',
     videoThumb: '',
     settingsDetails: {
-      step1: {
-        name: 'Create a form',
-        url: '/settings/boards/'
+      leadIntegrationCreate: {
+        name: 'Create forms',
+        url: '/forms/create'
       },
-      step2: {
-        name: 'Customize the form',
-        url: '/settings/boards/'
+      leadIntegrationInstalled: {
+        name: 'Install on website',
+        url: '/forms'
       }
     }
   },
@@ -727,42 +754,36 @@ export const ROLE_SETUP_DETAILS = {
       step1: {
         name: 'Create a response template',
         url: '/settings/boards/'
-      },
-      step2: {
-        name: 'Create an email template',
-        url: '/settings/boards/'
       }
-    }
-  },
-  customizeReports: {
-    text: '',
-    description: '',
-    videoUrl: '',
-    videoThumb: '',
-    settingsDetails: {
-      step1: {
-        name: 'Create a dashboard',
-        url: '/settings/boards/'
-      },
-      step2: {
-        name: 'Create a chart',
-        url: '/settings/boards/'
-      },
-      Step3: {
-        name: 'Adjust the measurements on the chart',
-        url: '/settings/boards/'
+    },
+
+    customizeReports: {
+      text: '',
+      description: '',
+      videoUrl: '',
+      videoThumb: '',
+      settingsDetails: {
+        dashboardCreate: {
+          name: 'Create a dashboard',
+          url: '/dashboard#showDashboardAddModal=true'
+        },
+        dashboardItemCreate: {
+          name: 'Create a chart',
+          url: '/settings/boards/'
+        }
       }
-    }
-  },
-  comingSoon: {
-    text: 'Coming Soon',
-    description: 'Coming Soon',
-    videoUrl: '',
-    videoThumb: '',
-    settingsDetails: {
-      step1: {
-        name: 'Coming Soon',
-        url: '/settings/boards/'
+    },
+
+    comingSoon: {
+      text: 'Coming Soon',
+      description: 'Coming Soon',
+      videoUrl: '',
+      videoThumb: '',
+      settingsDetails: {
+        step1: {
+          name: 'Coming Soon',
+          url: '/settings/boards/'
+        }
       }
     }
   }
