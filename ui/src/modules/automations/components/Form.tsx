@@ -16,406 +16,318 @@ export const Container = styled.div`
   }
 
   .jtk-connector {
-      z-index: 4;
+    z-index: 4;
   }
 
   .jtk-endpoint {
-      z-index: 5;
+    z-index: 5;
   }
 
   .jtk-overlay {
-      z-index: 6;
+    z-index: 6;
   }
 
-  .automation-description {
+  .trigger,
+  .action {
+    width: 100px;
+    height: 100px;
+    line-height: 100px;
+    position: absolute;
+    border: 1px solid;
+    border-radius: 20px;
     text-align: center;
-    font-weight: bold;
-  }
-
-  #triggers-wrapper {
-    position: relative;
-    width: 100%;
-    text-align: center;
+    cursor: pointer;
+    margin-bottom: 50px;
+    color: #ffff;
   }
 
   .trigger {
-    display: inline-block;
-    cursor: pointer;
-    width: 220px;
-    padding: 16px;
-    margin-left: 20px;
-    border: 1px solid var(--slate-300);
-    box-shadow: 0 4px 4px 0 rgb(0 0 0 / 13%);
-    background: #FFF;
-    font-size: 14px;
-    color: var(--slate-600);
-    text-decoration: none;
-    border-radius: 5px;
-  }
-
-  #add-trigger {
-    border-style: dotted;
-    left: 900px;
-  }
-
-  #actions-wrapper {
-    position: relative;
-  }
-
-  .divider {
-    display: block;
-    text-align: center;
-    margin-top: 50px;
-    margin-bottom: 50px;
+    color: black;
   }
 
   .action {
-    display: inline-block;
-    height: 50px;
-    cursor: pointer;
-  }
-
-  .action .description {
-    border: 1px solid var(--slate-300);
-    box-shadow: 0 4px 4px 0 rgb(0 0 0 / 13%);
-    background: #FFF;
-    font-size: 14px;
-    border-radius: 5px;
-    padding: 10px 20px;
-    margin-top: 40px;
-    margin-bottom: 40px;
-    color: white;
-  }
-
-  .action .plus {
-    margin: 0 auto;
-  }
-
-  .action .description[type="ADD_TICKET"] {
     background: #60cb98;
   }
 
-  .action .description[type="ADD_TASK"] {
+  .action[type='if'] {
+    background: #4a7cb8;
+  }
+
+  .action[type='createTicket'] {
+    background: #60cb98;
+  }
+
+  .action[type='createTask'] {
     background: #db5d80;
   }
 
-  .action .description[type="ADD_DEAL"] {
-    background: #4e5568;
-  }
-
-  .action .description[type="IF"] {
-    background: #4a9ccd;
-    margin-bottom: 100px;
-  }
-
-  .plus {
-    width: 35px;
-    height: 35px;
-    border: 1px solid;
-    border-radius: 50%;
-    font-size: 20px;
-    text-align: center;
-    cursor: pointer;
-  }
-
-  #main-plus {
-    position: relative;
-    left: 50%;
-    margin-top: 100px;
-  }
-
-  .action-if .plus {
-    margin-top: 50px;
-  }
-
-  .yes, .no {
-    width: 45px;
-    height: 45px;
-    border: 1px solid;
-    border-radius: 50%;
-    font-size: 13px;
-    padding: 10px;
-  }
-
-  .yes {
-    border: 2px solid #19cca3
-    color: #11866f;
-  }
-
-  .no {
-    border: 2px solid #f3376b;
-    color: #e40e49;
+  .action[type='createDeal'] {
+    background: #60cb98;
   }
 `;
 
 const plumb: any = jsPlumb;
+
+const actions: IAction[] = JSON.parse(localStorage.getItem('actions') || '[]');
+const triggers: ITrigger[] = JSON.parse(
+  localStorage.getItem('triggers') || '[]'
+);
+
 let instance;
 
-let trigger;
-
-const actionsMap = {};
-
-const drawActions = (sourceElement, currentActionId?: string) => {
-  if (currentActionId === 'initial') {
-    jquery('.action').remove();
-
-    return drawActions(
-      sourceElement,
-      Object.keys(actionsMap).length > 0 ? '1' : undefined
-    );
-  }
-
-  if (!currentActionId) {
-    return;
-  }
-
-  const action = actionsMap[currentActionId];
-
-  const description = `
-    <div class="description" id="action-description-${action.id}" type="${action.type}">
-      ${action.text}
-    </div>
-  `;
-
-  if (action.type === 'IF') {
-    jquery(`
-      <div class="divider">
-        <div id="action-${action.id}" class="action action-if">
-          ${description}
-
-          <div style="float:left">
-            <div class="yes" id="yes-${action.id}">Yes</div>
-
-            <div class="plus" id="yes-plus-${action.id}">+</div>
-          </div>
-
-          <div style="float:right">
-            <div class="no" id="no-${action.id}">No</div>
-            <div class="plus" id="no-plus-${action.id}">+</div>
-          </div>
-        </div>
-      </div>
-    `).insertAfter(sourceElement);
-
-    if (action.prevActionId) {
-      instance.connect({
-        source: `plus-${action.prevActionId}`,
-        target: `action-description-${action.id}`,
-        anchors: ['BottomCenter', 'TopCenter'],
-        connector: 'Straight',
-        endpoint: 'Blank'
-      });
-    }
-
-    instance.connect({
-      source: `action-description-${action.id}`,
-      target: `yes-${action.id}`,
-      anchors: ['BottomCenter', 'TopCenter'],
-      endpoint: 'Blank'
-    });
-
-    instance.connect({
-      source: `action-description-${action.id}`,
-      target: `no-${action.id}`,
-      anchors: ['BottomCenter', 'TopCenter'],
-      endpoint: 'Blank'
-    });
-
-    instance.connect({
-      source: `yes-${action.id}`,
-      target: `yes-plus-${action.id}`,
-      anchors: ['BottomCenter', 'TopCenter'],
-      connector: 'Straight',
-      endpoint: 'Blank'
-    });
-
-    instance.connect({
-      source: `no-${action.id}`,
-      target: `no-plus-${action.id}`,
-      anchors: ['BottomCenter', 'TopCenter'],
-      connector: 'Straight',
-      endpoint: 'Blank'
-    });
-
-    if (action.data) {
-      if (action.data.yes) {
-        drawActions(jquery(`#yes-plus-${action.id}`), action.data.yes);
-      }
-
-      if (action.data.no) {
-        drawActions(jquery(`#no-plus-${action.id}`), action.data.no);
-      }
-    }
-
-    return null;
-  }
-
-  jquery(`
-    <div class="divider">
-      <div id="action-${action.id}" class="action">
-        ${description}
-        <div class="plus" id="plus-${action.id}">+</div>
-      </div>
-    </div>
-  `).insertAfter(sourceElement);
-
-  if (action.prevActionId) {
-    instance.connect({
-      source: `plus-${action.prevActionId}`,
-      target: `action-description-${action.id}`,
-      anchors: ['BottomCenter', 'TopCenter'],
-      connector: 'Straight',
-      endpoint: 'Blank'
-    });
-  }
-
-  instance.connect({
-    source: `action-description-${action.id}`,
-    target: `plus-${action.id}`,
-    anchors: ['BottomCenter', 'TopCenter'],
-    connector: 'Straight',
-    endpoint: 'Blank'
-  });
-
-  if (!action.prevActionId) {
-    instance.connect({
-      source: `main-plus`,
-      target: `action-description-${action.id}`,
-      anchors: ['BottomCenter', 'TopCenter'],
-      connector: 'Straight',
-      endpoint: 'Blank'
-    });
-  }
-
-  return drawActions(jquery(`#plus-${action.id}`), action.nextActionId);
+type IAction = {
+  id: number;
+  type: string;
+  nextActionId?: string;
+  style?: any;
+  config?: any;
 };
 
-const renderTrigger = () => {
-  if (trigger) {
-    jquery('#add-trigger').remove();
+type ITrigger = {
+  id: number;
+  type: string;
+  actionId?: string;
+  style?: any;
+};
 
-    jquery('#triggers-wrapper').append(`
-      <div id="trigger-${trigger.name}" class="trigger">
-        ${trigger.text}
-      </div>
-    `);
+const renderTrigger = (trigger: ITrigger) => {
+  const idElm = `trigger-${trigger.id}`;
 
-    return instance.connect({
-      source: `trigger-${trigger.name}`,
-      target: 'main-plus',
-      anchors: ['BottomCenter', 'TopCenter'],
-      connector: 'Straight',
-      endpoint: 'Blank'
+  jquery('#canvas').append(`
+          <div class="trigger" id="${idElm}" style="${trigger.style}">
+            ${trigger.type}
+          </div>
+        `);
+
+  instance.addEndpoint(idElm, {
+    anchor: [1, 0.5],
+    isSource: true
+  });
+
+  instance.draggable(instance.getSelector(`#${idElm}`));
+};
+
+const renderAction = ({ id, type, style }: IAction) => {
+  const idElm = `action-${id}`;
+
+  jquery('#canvas').append(`
+          <div class="action" id="${idElm}" style="${style}" type="${type}">
+            ${type}
+          </div>
+        `);
+
+  if (type === 'if') {
+    instance.addEndpoint(idElm, {
+      anchor: ['Left'],
+      isTarget: true
+    });
+
+    instance.addEndpoint(idElm, {
+      anchor: [1, 0.2],
+      isSource: true,
+      overlays: [
+        [
+          'Label',
+          {
+            location: [1.8, 0.5],
+            label: 'Yes',
+            visible: true
+          }
+        ]
+      ]
+    });
+
+    instance.addEndpoint(idElm, {
+      anchor: [1, 0.8],
+      isSource: true,
+      overlays: [
+        [
+          'Label',
+          {
+            location: [1.8, 0.5],
+            label: 'No',
+            visible: true
+          }
+        ]
+      ]
+    });
+  } else {
+    instance.addEndpoint(idElm, {
+      anchor: ['Left'],
+      isTarget: true
+    });
+
+    instance.addEndpoint(idElm, {
+      anchor: ['Right'],
+      isSource: true
     });
   }
 
-  jquery('#triggers-wrapper').append(`
-      <div id="add-trigger" class="trigger">
-        Add a new trigger
-      </div>
-    `);
-
-  jquery('#add-trigger').click(() => {
-    trigger = {
-      name: 'formSubmit',
-      text: 'Contact submits any form'
-    };
-
-    renderTrigger();
-  });
-
-  instance.connect({
-    source: 'add-trigger',
-    target: 'main-plus',
-    anchors: ['BottomCenter', 'TopCenter'],
-    connector: 'Straight',
-    endpoint: 'Blank'
-  });
+  instance.draggable(instance.getSelector(`#${idElm}`));
 };
-
 class Form extends React.Component {
   componentDidMount() {
     instance = plumb.getInstance({
+      DragOptions: { cursor: 'pointer', zIndex: 2000 },
+      PaintStyle: {
+        gradient: {
+          stops: [
+            [0, '#0d78bc'],
+            [1, '#558822']
+          ]
+        },
+        stroke: '#558822',
+        strokeWidth: 3
+      },
       Container: 'canvas'
     });
 
-    // Add actions to dom ===============
-    drawActions(jquery('#main-plus'), 'initial');
-
     instance.bind('ready', () => {
-      renderTrigger();
+      instance.bind('connection', info => {
+        const sourceId = info.sourceId;
+        const targetId = info.targetId;
 
-      let nextId = 0;
+        if (sourceId.includes('trigger')) {
+          const trigger = triggers.find(
+            t => t.id.toString() === sourceId.replace('trigger-', '')
+          );
 
-      jquery('#canvas').on('click', '.plus', e => {
-        const id = jquery(e.target).attr('id');
-        const actionAttr = jquery(e.target)
-          .closest('.action')
-          .attr('id');
-        const actionId = (actionAttr || '').replace('action-', '');
+          if (trigger) {
+            trigger.actionId = targetId.replace('action-', '');
+          }
+        } else {
+          const sourceAction = actions.find(
+            a => a.id.toString() === sourceId.replace('action-', '')
+          );
 
-        nextId++;
+          if (sourceAction) {
+            const nextActionId = targetId.replace('action-', '');
 
-        if (actionId) {
-          const prevAction = actionsMap[actionId];
+            if (sourceAction.type === 'if') {
+              if (!sourceAction.config) {
+                sourceAction.config = {};
+              }
 
-          if (id.includes('yes') || id.includes('no')) {
-            prevAction.data[id.includes('yes') ? 'yes' : 'no'] = nextId;
-          } else {
-            prevAction.nextActionId = nextId;
+              sourceAction.config[
+                info.sourceEndpoint.anchor.y === 0.2 ? 'yes' : 'no'
+              ] = nextActionId;
+            } else {
+              sourceAction.nextActionId = nextActionId;
+            }
           }
         }
+      });
 
-        let actionData = {};
+      instance.bind('connectionDetached', info => {
+        const sourceId = info.sourceId;
 
-        if (nextId === 1) {
-          actionData = {
-            type: 'ADD_TICKET',
-            text: 'Create a new ticket'
-          };
+        if (sourceId.includes('trigger')) {
+          const trigger = triggers.find(
+            t => t.id.toString() === sourceId.replace('trigger-', '')
+          );
+
+          if (trigger) {
+            trigger.actionId = undefined;
+          }
+        } else {
+          const sourceAction = actions.find(
+            a => a.id.toString() === sourceId.replace('action-', '')
+          );
+
+          if (sourceAction) {
+            if (sourceAction.type === 'if') {
+              if (!sourceAction.config) {
+                sourceAction.config = {};
+              }
+
+              sourceAction.config[
+                info.sourceEndpoint.anchor.y === 0.2 ? 'yes' : 'no'
+              ] = undefined;
+            } else {
+              sourceAction.nextActionId = undefined;
+            }
+          }
+        }
+      });
+
+      for (const action of actions) {
+        renderAction(action);
+      }
+
+      for (const trigger of triggers) {
+        renderTrigger(trigger);
+      }
+
+      // create connections ===================
+      for (const trigger of triggers) {
+        if (trigger.actionId) {
+          instance.connect({
+            source: `trigger-${trigger.id}`,
+            target: `action-${trigger.actionId}`,
+            anchors: ['Right', 'Left']
+          });
+        }
+      }
+
+      for (const action of actions) {
+        if (action.type === 'if') {
+          if (action.config) {
+            if (action.config.yes) {
+              instance.connect({
+                source: `action-${action.id}`,
+                target: `action-${action.config.yes}`,
+                anchors: [[1, 0.2], 'Left']
+              });
+            }
+
+            if (action.config.no) {
+              instance.connect({
+                source: `action-${action.id}`,
+                target: `action-${action.config.no}`,
+                anchors: [[1, 0.8], 'Left']
+              });
+            }
+          }
+        } else {
+          if (action.nextActionId) {
+            instance.connect({
+              source: `action-${action.id}`,
+              target: `action-${action.nextActionId}`,
+              anchors: ['Right', 'Left']
+            });
+          }
+        }
+      }
+
+      jquery('#add-trigger').on('change', e => {
+        const trigger = { id: triggers.length, type: e.target.value };
+
+        triggers.push(trigger);
+
+        renderTrigger(trigger);
+      });
+
+      jquery('#add-action').on('change', e => {
+        const id = actions.length;
+        const actionType = e.target.value;
+
+        actions.push({ id: actions.length, type: actionType });
+
+        renderAction({ id, type: actionType });
+      });
+
+      jquery('#save').click(() => {
+        for (const action of actions) {
+          action.style = jquery(`#action-${action.id}`).attr('style');
         }
 
-        if (nextId === 2) {
-          actionData = {
-            text:
-              'Does the trigger match the following conditions ? (submission type is deal)',
-            type: 'IF',
-            data: {}
-          };
+        localStorage.setItem('actions', JSON.stringify(actions));
+
+        for (const trigger of triggers) {
+          trigger.style = jquery(`#trigger-${trigger.id}`).attr('style');
         }
 
-        if (nextId === 3) {
-          actionData = {
-            text: 'Create a deal',
-            type: 'ADD_DEAL'
-          };
-        }
-
-        if (nextId === 4) {
-          actionData = {
-            text: 'Create a ticket',
-            type: 'ADD_TICKET'
-          };
-        }
-
-        if (nextId === 5) {
-          actionData = {
-            text:
-              'Does the trigger match the following conditions ? (submission type is deal)',
-            type: 'IF',
-            data: {}
-          };
-        }
-
-        const nextIdStr = nextId.toString();
-
-        actionsMap[nextIdStr] = {
-          id: nextIdStr,
-          prevActionId: actionId,
-          ...actionData
-        };
-
-        drawActions(jquery('#main-plus'), 'initial');
+        localStorage.setItem('triggers', JSON.stringify(triggers));
       });
     });
   }
@@ -423,19 +335,32 @@ class Form extends React.Component {
   render() {
     const content = (
       <Container>
-        <h4 className="automation-description">
-          Start this automation when one of these actions takes place
-        </h4>
+        <p>
+          <label>Triggers</label>
 
-        <div id="canvas">
-          <div id="triggers-wrapper" />
+          <select id="add-trigger">
+            <option>Choose trigger</option>
+            <option value="formSubmit">Form submit</option>
+            <option value="dealCreate">Deal create</option>
+          </select>
+        </p>
 
-          <div id="main-plus" className="plus">
-            +
-          </div>
+        <p>
+          <label>Actions</label>
 
-          <div id="actions-wrapper" />
-        </div>
+          <select id="add-action">
+            <option>Choose action</option>
+            <option value="createTask">Create task</option>
+            <option value="createDeal">Create deal</option>
+            <option value="createTicket">Create ticket</option>
+            <option value="if">IF</option>
+          </select>
+        </p>
+
+        <p>
+          <button id="save">Save</button>
+        </p>
+        <div id="canvas" />
       </Container>
     );
 
