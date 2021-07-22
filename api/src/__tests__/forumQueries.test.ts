@@ -230,6 +230,18 @@ describe('forumQueries', () => {
                 description
                 status
                 content
+                createdUser{
+                  _id
+                }
+                createdCustomer{
+                  _id
+                }
+                comments{
+                  _id
+                }
+                getTags{
+                  _id
+                }
             }
         }
     `;
@@ -274,6 +286,14 @@ describe('forumQueries', () => {
                 _id
                 title
                 content
+                createdUser{
+                  _id
+                }
+                createdCustomer{
+                  _id
+                }
+                currentCustomerReaction
+                reactionTotalCount
             }
         }
     `;
