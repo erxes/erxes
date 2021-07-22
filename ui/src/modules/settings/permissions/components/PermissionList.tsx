@@ -179,21 +179,15 @@ class PermissionList extends React.Component<Props> {
     const trigger = (
       <Button
         id="permission-new-permission"
-        btnStyle="primary"
+        btnStyle="success"
         icon="plus-circle"
-        uppercase={false}
       >
         New permission
       </Button>
     );
 
     const fixTrigger = (
-      <Button
-        id="fix-permissions"
-        btnStyle="simple"
-        icon="wrench"
-        uppercase={false}
-      >
+      <Button id="fix-permissions" btnStyle="simple" icon="wrench">
         Fix permissions
       </Button>
     );

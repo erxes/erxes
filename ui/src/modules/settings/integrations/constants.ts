@@ -360,15 +360,27 @@ export const INTEGRATIONS = [
       'All integrations, For support teams, For marketing teams, Conversation'
   },
   {
-    name: 'Webhook',
+    name: 'Incoming Webhook',
     description: 'Configure incoming webhooks',
     inMessenger: false,
     isAvailable: true,
     kind: 'webhook',
-    logo: '/images/integrations/webhook.png',
+    logo: '/images/integrations/incoming-webhook.png',
     createModal: 'webhook',
-    category: 'All integrations, For support teams, Conversation'
+    category:
+      'All integrations, For support teams, Conversation, Marketing automation'
   }
+  // {
+  //   name: 'Outgoing Webhook',
+  //   description: 'Configure outging webhooks',
+  //   inMessenger: false,
+  //   isAvailable: true,
+  //   kind: 'outgoing-webhook',
+  //   logo: '/images/integrations/webhook.png',
+  //   createModal: 'outgoing-webhook',
+  //   category:
+  //     'All integrations, For support teams, Conversation, Marketing automation'
+  // }
 ];
 
 export const INTEGRATION_FILTERS = [

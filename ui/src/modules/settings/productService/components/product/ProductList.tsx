@@ -133,7 +133,7 @@ class List extends React.Component<IProps, State> {
     ];
 
     const trigger = (
-      <Button btnStyle="primary" uppercase={false} icon="plus-circle">
+      <Button btnStyle="success" icon="plus-circle">
         Add Product / Service
       </Button>
     );
@@ -151,7 +151,7 @@ class List extends React.Component<IProps, State> {
           onFocus={this.moveCursorAtTheEnd}
         />
         <Link to="/settings/importHistories?type=product">
-          <Button btnStyle="simple" uppercase={false} icon="arrow-from-right">
+          <Button btnStyle="simple" icon="arrow-from-right">
             {__('Go to import')}
           </Button>
         </Link>
