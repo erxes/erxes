@@ -226,12 +226,14 @@ const Text = styled.div`
 
   &:hover {
     cursor: pointer;
+    background-color: #fafafa;
+    font-weight: 500;
   }
 
   h6 {
     margin: 0px;
     font-weight: 400;
-    width: 80%;
+    width: 70%;
   }
 
   p {

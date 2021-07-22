@@ -101,31 +101,32 @@ class Setup extends React.Component<Props, State> {
   renderProgress = () => {
     const percentage = this.getPercentage();
 
-    let text = 'keep going!';
+    let text = __('keep going!');
 
     if (percentage < 75 && percentage > 50) {
-      text = "you're halfway through, keep going!";
+      text = __("you're halfway through, keep going!");
     }
 
     if (percentage > 75 && percentage < 100) {
-      text = 'almost done, just a little more!';
+      text = __('almost done, just a little more!');
     }
 
     if (percentage === 100) {
-      text = 'awesome!';
+      text = __('awesome!');
     }
 
     return (
       <div>
         <ProgressBar percentage={percentage} color="#3B85F4" height="8px" />
         <ProgressText>
-          {percentage}% done - {text}
+          {percentage}
+          {__('% done -')} {text}
         </ProgressText>
       </div>
     );
   };
 
-  renderFeature(feature: IFeature, completed?: boolean) {
+  renderFeature(feature: IFeature) {
     const { changeRoute } = this.props;
 
     this.setState({ selectedOption: feature }, () => {
@@ -176,7 +177,9 @@ class Setup extends React.Component<Props, State> {
                     onClick={onRoleClick.bind(this, content.title, group.key)}
                   >
                     <h6>{__(content.name)}</h6>
-                    <p>{__(content.steps)}</p>
+                    <p>
+                      {content.steps} {__('steps')}
+                    </p>
                   </Text>
                 );
               }
