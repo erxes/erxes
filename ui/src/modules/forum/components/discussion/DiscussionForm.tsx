@@ -138,7 +138,7 @@ class DiscussionForm extends React.Component<Props, State> {
         <FlexContent>
           <FlexItem count={2}>
             <FormGroup>
-              <ControlLabel required={false}>{__('Start Date')}</ControlLabel>
+              <ControlLabel required={false}>{__('Start date')}</ControlLabel>
               <DateContainer>
                 <DateControl
                   {...formProps}
@@ -155,7 +155,7 @@ class DiscussionForm extends React.Component<Props, State> {
 
           <FlexItem count={2} hasSpace={true}>
             <FormGroup>
-              <ControlLabel required={false}>{__('End Date')}</ControlLabel>
+              <ControlLabel required={false}>{__('End date')}</ControlLabel>
               <DateContainer>
                 <DateControl
                   {...formProps}
