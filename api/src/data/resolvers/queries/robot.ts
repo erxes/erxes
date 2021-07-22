@@ -40,21 +40,19 @@ const features: {
     settings: [
       'fieldGroupCreate',
       'fieldCreate',
-      'importPrepareFiles',
       'importDownloadTemplate',
-      'importEnterData',
       'importCreate'
     ],
     settingsPermissions: ['manageForms', 'importHistories']
   },
 
   inviteTeamMembers: {
-    settings: ['permissionGroupCreate', 'usersInvite', 'userEdit'],
-    settingsPermissions: ['manageForms', 'usersInvite', 'usersEdit']
+    settings: ['userGroupCreate', 'usersInvite'],
+    settingsPermissions: ['usersInvite']
   },
 
   salesPipeline: {
-    settings: ['dealBoardCreate', 'dealPipelineCreate', 'dealStageCreate'],
+    settings: ['dealBoardsCreate', 'dealPipelinesCreate', 'dealStageCreate'],
     settingsPermissions: ['dealBoardsAdd', 'dealPipelinesAdd']
   },
 
@@ -65,25 +63,25 @@ const features: {
 
   customizeTickets: {
     settings: [
-      'ticketBoardCreate',
-      'ticketPipelineCreate',
+      'ticketBoardsCreate',
+      'ticketPipelinesCreate',
       'ticketStageCreate'
     ],
     settingsPermissions: ['ticketBoardsAdd', 'ticketPipelinesAdd']
   },
 
   customizeTasks: {
-    settings: ['taskBoardCreate', 'taskPipelineCreate', 'taskStageCreate'],
+    settings: ['taskBoardsCreate', 'taskPipelinesCreate', 'taskStageCreate'],
     settingsPermissions: ['taskBoardsAdd', 'taskPipelinesAdd']
   },
 
   customizeGrowthHacking: {
-    settings: ['growthHackingTemplateCreate', 'growthHackingStageCreate'],
+    settings: ['growthHackBoardCreate', 'pipelineTemplate'],
     settingsPermissions: ['growthHackStagesAdd', 'growthHackTemplatesAdd']
   },
 
   customizeSegmentation: {
-    settings: ['segmentFamliarize', 'segmentCreate', 'subSegmentCreate'],
+    settings: ['segmentCreate', 'subSegmentCreate'],
     settingsPermissions: ['manageSegments']
   },
 
@@ -93,18 +91,28 @@ const features: {
   },
 
   automateCampaigns: {
-    settings: [
-      'createCampaign',
-      'chooseCampaignChannel',
-      'chooseRecipientsChannel',
-      'composeCampaign'
-    ],
+    settings: ['engageVerifyEmail', 'engageSendTestEmail', 'engageCreate'],
     settingsPermissions: ['engageMessageAdd']
   },
 
   customizeKnowledgeBase: {
-    settings: ['createForm', 'createCategoryForm', 'createArticleForm'],
+    settings: [
+      'knowledgeBaseTopicCreate',
+      'knowledgeBaseCategoryCreate',
+      'knowledgeBaseArticleCreate',
+      'knowledgeBaseInstalled'
+    ],
     settingsPermissions: ['manageKnowledgeBase']
+  },
+
+  customizeReports: {
+    settings: ['dashboardCreate', 'dashboardItemCreate'],
+    settingsPermissions: ['dashboardAdd', 'dashboardItemAdd']
+  },
+
+  createLeadGenerationForm: {
+    settings: ['leadIntegrationCreate', 'leadIntegrationInstalled'],
+    settingsPermissions: ['manageForms']
   }
 };
 

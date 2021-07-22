@@ -99,6 +99,7 @@ const DashbaordForm = (props: Props) => {
   return (
     <ModalTrigger
       title={dashboard ? `Edit dashboard` : `Add dashboard`}
+      autoOpenKey="showDashboardAddModal"
       trigger={trigger}
       content={content}
     />
