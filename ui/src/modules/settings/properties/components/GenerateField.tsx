@@ -3,6 +3,7 @@ import FormControl from 'modules/common/components/form/Control';
 import FormGroup from 'modules/common/components/form/Group';
 import ControlLabel from 'modules/common/components/form/Label';
 import Uploader from 'modules/common/components/Uploader';
+import SelectCustomers from '../../../customers/containers/common/SelectCustomers';
 import { IAttachment } from 'modules/common/types';
 import {
   COMPANY_BUSINESS_TYPES,
@@ -224,6 +225,31 @@ export default class GenerateField extends React.Component<Props, State> {
     );
   }
 
+  renderCustomer({ id, value }) {
+
+    const onSelect = (e) => {
+
+      const { onValueChange } = this.props;
+
+      if (onValueChange) {
+        this.setState({ value: e });
+
+        onValueChange({ _id: id, value: e });
+      }
+
+    };
+
+    return (
+      <SelectCustomers
+        label="Filter by customers"
+        name="customerIds"
+        multi={false}
+        initialValue={value}
+        onSelect={onSelect}
+      />
+    );
+  }
+
   renderHtml() {
     const { content } = this.props.field;
     return (
@@ -377,6 +403,10 @@ export default class GenerateField extends React.Component<Props, State> {
 
       case 'html': {
         return this.renderHtml();
+      }
+
+      case 'customer': {
+        return this.renderCustomer(attrs);
       }
 
       default:
