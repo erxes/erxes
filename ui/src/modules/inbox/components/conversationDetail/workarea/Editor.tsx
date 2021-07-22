@@ -43,7 +43,6 @@ type State = {
   hideTemplates: boolean;
 };
 
-
 const MentionEntry = props => {
   const { mention, theme, searchValue, ...parentProps } = props;
 
@@ -198,8 +197,6 @@ export default class Editor extends React.Component<EditorProps, State> {
     const es = EditorState.push(editorState, contentState, 'insert-characters');
 
     editorState = EditorState.moveFocusToEnd(es);
-
-   
 
     return this.setState({ editorState, templatesState: null });
   };

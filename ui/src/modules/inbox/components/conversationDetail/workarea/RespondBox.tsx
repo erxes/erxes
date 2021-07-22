@@ -137,7 +137,7 @@ class RespondBox extends React.Component<Props, State> {
   onEditorContentChange = (content: string) => {
     this.setState({ content });
 
-    this.calcCharacterCount(160, content) ;
+    this.calcCharacterCount(160, content);
 
     if (this.isContentWritten()) {
       localStorage.setItem(this.props.conversation._id, content);   
@@ -273,11 +273,11 @@ class RespondBox extends React.Component<Props, State> {
     return text.replace(/&nbsp;/g, ' ');
   }
   calcCharacterCount = (maxChar: number, content: string) => {
-    var dom = new DOMParser().parseFromString(content, 'text/html');
-    var text = dom.body.textContent;
+    let dom = new DOMParser().parseFromString(content, 'text/html');
+    let text = dom.body.textContent;
 
     if( text && text.length > 0){
-      const characterCount= maxChar - text.length;
+      let characterCount= maxChar - text.length;
       this.setState({characterCount})
     }
     
@@ -409,7 +409,7 @@ class RespondBox extends React.Component<Props, State> {
     return null;
   }
   renderEditor() {
-    const { isInternal, responseTemplate , characterCount} = this.state;
+    const { isInternal, responseTemplate ,characterCount} = this.state;
     const { responseTemplates, conversation } = this.props;
 
     let type = 'message';
@@ -490,7 +490,6 @@ class RespondBox extends React.Component<Props, State> {
 
     return (
       <EditorActions>
-
         {this.renderCheckbox(integration.kind)}
 
         {this.renderVideoRoom()}
