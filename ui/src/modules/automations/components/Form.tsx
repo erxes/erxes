@@ -169,6 +169,115 @@ const renderAction = ({ id, type, style }: IAction) => {
 
   instance.draggable(instance.getSelector(`#${idElm}`));
 };
+
+const createInitialConnections = () => {
+  for (const trigger of triggers) {
+    if (trigger.actionId) {
+      instance.connect({
+        source: `trigger-${trigger.id}`,
+        target: `action-${trigger.actionId}`,
+        anchors: ['Right', 'Left']
+      });
+    }
+  }
+
+  for (const action of actions) {
+    if (action.type === 'if') {
+      if (action.config) {
+        if (action.config.yes) {
+          instance.connect({
+            source: `action-${action.id}`,
+            target: `action-${action.config.yes}`,
+            anchors: [[1, 0.2], 'Left']
+          });
+        }
+
+        if (action.config.no) {
+          instance.connect({
+            source: `action-${action.id}`,
+            target: `action-${action.config.no}`,
+            anchors: [[1, 0.8], 'Left']
+          });
+        }
+      }
+    } else {
+      if (action.nextActionId) {
+        instance.connect({
+          source: `action-${action.id}`,
+          target: `action-${action.nextActionId}`,
+          anchors: ['Right', 'Left']
+        });
+      }
+    }
+  }
+};
+
+const onConnection = info => {
+  const sourceId = info.sourceId;
+  const targetId = info.targetId;
+
+  if (sourceId.includes('trigger')) {
+    const trigger = triggers.find(
+      t => t.id.toString() === sourceId.replace('trigger-', '')
+    );
+
+    if (trigger) {
+      trigger.actionId = targetId.replace('action-', '');
+    }
+  } else {
+    const sourceAction = actions.find(
+      a => a.id.toString() === sourceId.replace('action-', '')
+    );
+
+    if (sourceAction) {
+      const nextActionId = targetId.replace('action-', '');
+
+      if (sourceAction.type === 'if') {
+        if (!sourceAction.config) {
+          sourceAction.config = {};
+        }
+
+        sourceAction.config[
+          info.sourceEndpoint.anchor.y === 0.2 ? 'yes' : 'no'
+        ] = nextActionId;
+      } else {
+        sourceAction.nextActionId = nextActionId;
+      }
+    }
+  }
+};
+
+const onDettachConnection = info => {
+  const sourceId = info.sourceId;
+
+  if (sourceId.includes('trigger')) {
+    const trigger = triggers.find(
+      t => t.id.toString() === sourceId.replace('trigger-', '')
+    );
+
+    if (trigger) {
+      trigger.actionId = undefined;
+    }
+  } else {
+    const sourceAction = actions.find(
+      a => a.id.toString() === sourceId.replace('action-', '')
+    );
+
+    if (sourceAction) {
+      if (sourceAction.type === 'if') {
+        if (!sourceAction.config) {
+          sourceAction.config = {};
+        }
+
+        sourceAction.config[
+          info.sourceEndpoint.anchor.y === 0.2 ? 'yes' : 'no'
+        ] = undefined;
+      } else {
+        sourceAction.nextActionId = undefined;
+      }
+    }
+  }
+};
 class Form extends React.Component {
   componentDidMount() {
     instance = plumb.getInstance({
@@ -188,70 +297,11 @@ class Form extends React.Component {
 
     instance.bind('ready', () => {
       instance.bind('connection', info => {
-        const sourceId = info.sourceId;
-        const targetId = info.targetId;
-
-        if (sourceId.includes('trigger')) {
-          const trigger = triggers.find(
-            t => t.id.toString() === sourceId.replace('trigger-', '')
-          );
-
-          if (trigger) {
-            trigger.actionId = targetId.replace('action-', '');
-          }
-        } else {
-          const sourceAction = actions.find(
-            a => a.id.toString() === sourceId.replace('action-', '')
-          );
-
-          if (sourceAction) {
-            const nextActionId = targetId.replace('action-', '');
-
-            if (sourceAction.type === 'if') {
-              if (!sourceAction.config) {
-                sourceAction.config = {};
-              }
-
-              sourceAction.config[
-                info.sourceEndpoint.anchor.y === 0.2 ? 'yes' : 'no'
-              ] = nextActionId;
-            } else {
-              sourceAction.nextActionId = nextActionId;
-            }
-          }
-        }
+        onConnection(info);
       });
 
       instance.bind('connectionDetached', info => {
-        const sourceId = info.sourceId;
-
-        if (sourceId.includes('trigger')) {
-          const trigger = triggers.find(
-            t => t.id.toString() === sourceId.replace('trigger-', '')
-          );
-
-          if (trigger) {
-            trigger.actionId = undefined;
-          }
-        } else {
-          const sourceAction = actions.find(
-            a => a.id.toString() === sourceId.replace('action-', '')
-          );
-
-          if (sourceAction) {
-            if (sourceAction.type === 'if') {
-              if (!sourceAction.config) {
-                sourceAction.config = {};
-              }
-
-              sourceAction.config[
-                info.sourceEndpoint.anchor.y === 0.2 ? 'yes' : 'no'
-              ] = undefined;
-            } else {
-              sourceAction.nextActionId = undefined;
-            }
-          }
-        }
+        onDettachConnection(info);
       });
 
       for (const action of actions) {
@@ -263,45 +313,7 @@ class Form extends React.Component {
       }
 
       // create connections ===================
-      for (const trigger of triggers) {
-        if (trigger.actionId) {
-          instance.connect({
-            source: `trigger-${trigger.id}`,
-            target: `action-${trigger.actionId}`,
-            anchors: ['Right', 'Left']
-          });
-        }
-      }
-
-      for (const action of actions) {
-        if (action.type === 'if') {
-          if (action.config) {
-            if (action.config.yes) {
-              instance.connect({
-                source: `action-${action.id}`,
-                target: `action-${action.config.yes}`,
-                anchors: [[1, 0.2], 'Left']
-              });
-            }
-
-            if (action.config.no) {
-              instance.connect({
-                source: `action-${action.id}`,
-                target: `action-${action.config.no}`,
-                anchors: [[1, 0.8], 'Left']
-              });
-            }
-          }
-        } else {
-          if (action.nextActionId) {
-            instance.connect({
-              source: `action-${action.id}`,
-              target: `action-${action.nextActionId}`,
-              anchors: ['Right', 'Left']
-            });
-          }
-        }
-      }
+      createInitialConnections();
 
       jquery('#add-trigger').on('change', e => {
         const trigger = { id: triggers.length, type: e.target.value };
