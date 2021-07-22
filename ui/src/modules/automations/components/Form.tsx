@@ -53,6 +53,10 @@ export const Container = styled.div`
     background: #4a7cb8;
   }
 
+  .action[type='goto'] {
+    background: #ed8d50;
+  }
+
   .action[type='createTicket'] {
     background: #60cb98;
   }
@@ -354,6 +358,7 @@ class Form extends React.Component {
             <option value="createDeal">Create deal</option>
             <option value="createTicket">Create ticket</option>
             <option value="if">IF</option>
+            <option value="goto">Go to another action</option>
           </select>
         </p>
 
