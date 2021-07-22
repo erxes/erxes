@@ -871,7 +871,7 @@ export const loadClass = () => {
           }
         );
 
-        webhookData.newData = { 'visitorContactInfo.email': value };
+        webhookData.newData = { email: value };
       }
 
       if (type === 'phone') {
@@ -883,7 +883,7 @@ export const loadClass = () => {
           }
         );
 
-        webhookData.newData = { 'visitorContactInfo.phone': value };
+        webhookData.newData = { phone: value };
       }
 
       customer = await Customers.getCustomer(customerId);
