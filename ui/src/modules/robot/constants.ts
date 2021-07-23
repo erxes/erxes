@@ -118,6 +118,18 @@ export const ROLE_SETUP = [
         types: ['marketing']
       },
       {
+        name: 'Create your Knowledge Base',
+        title: 'createKnowledgeBase',
+        steps: 3,
+        types: ['customerSupport', 'managementAndOperations']
+      },
+      {
+        name: 'Plan your content with Tasks',
+        title: 'planContentWithTasks',
+        steps: 3,
+        types: ['marketing']
+      },
+      {
         name: 'Customize your Tickets',
         title: 'customizeTickets',
         steps: 3,
@@ -129,12 +141,23 @@ export const ROLE_SETUP = [
         steps: 3,
         types: ['customerSupport', 'managementAndOperations', 'above']
       },
-
+      {
+        name: 'Import your existing customer data to erxes',
+        title: 'importCustomerData',
+        steps: 6,
+        types: ['above']
+      },
+      {
+        name: 'Create your Forms',
+        title: 'createForms',
+        steps: 7,
+        types: ['above']
+      },
       {
         name: 'Customize your Knowledge Base',
         title: 'customizeKnowledgeBase',
         steps: 3,
-        types: ['customerSupport', 'managementAndOperations']
+        types: ['above']
       }
     ]
   },
@@ -143,17 +166,17 @@ export const ROLE_SETUP = [
     key: 'on-going',
     content: [
       {
-        name: 'Customize your customer segmentation',
-        title: 'customizeSegmentation',
-        steps: '3',
-        types: ['marketing']
+        name: 'Segment your contacts',
+        title: 'segmentContacts',
+        steps: 3,
+        types: ['sales', 'marketing', 'above']
       },
 
       {
-        name: 'Prepare the email/response templates',
-        title: 'prepareMailResponseTemplates',
-        steps: 3,
-        types: ['marketing']
+        name: 'Prepare content templates',
+        title: 'prepareContentTemplates',
+        steps: 2,
+        types: ['sales', 'customerSupport', 'managementAndOperations', 'above']
       },
 
       {
@@ -181,6 +204,18 @@ export const ROLE_SETUP = [
         types: ['marketing', 'above']
       },
       {
+        name: 'Customize your customer segmentation',
+        title: 'customizeSegmentation',
+        steps: 3,
+        types: ['marketing']
+      },
+      {
+        name: 'Prepare the email/response templates',
+        title: 'prepareMailResponseTemplates',
+        steps: 2,
+        types: ['marketing']
+      },
+      {
         name: 'Automate your lead generation with Campaigns',
         title: 'automateCampaigns',
         steps: 4,
@@ -188,13 +223,13 @@ export const ROLE_SETUP = [
       },
       {
         name: 'Automate your customer support process',
-        title: 'comingSoon',
+        title: '',
         steps: 9,
         types: ['customerSupport']
       },
       {
         name: 'Automate your operational process',
-        title: 'comingSoon',
+        title: '',
         steps: 0,
         types: ['managementAndOperations']
       },
@@ -323,6 +358,31 @@ export const ROLE_SETUP_DETAILS = {
       usersInvite: {
         name: 'Add your team member(s)',
         url: '/settings/team/'
+      },
+      userEdit: {
+        name: "Enter your team member's information",
+        url: '/settings/team/'
+      }
+    }
+  },
+  salesPipeline: {
+    text: 'Sales stage',
+    description:
+      'Create sales stages to track your entire sales pipeline from one dashboard',
+    videoUrl: '',
+    videoThumb: '',
+    settingsDetails: {
+      dealBoardCreate: {
+        name: 'Create a board',
+        url: '/settings/boards/deal#showBoardModal=true'
+      },
+      dealPipelineCreate: {
+        name: 'Create a pipeline to be used on your board',
+        url: '/settings/boards/deal#showPipelineModal=true'
+      },
+      dealStageCreate: {
+        name: 'Customize the stages in your pipeline',
+        url: '/settings/boards/deal'
       }
     }
   },
@@ -340,28 +400,6 @@ export const ROLE_SETUP_DETAILS = {
       productCreate: {
         name: 'Add a product & service into the category',
         url: '/settings/boards/'
-      }
-    }
-  },
-
-  salesPipeline: {
-    text: 'Sales stage',
-    description:
-      'Create sales stages to track your entire sales pipeline from one dashboard. Erxes also provides a field where you can add notes, tags, checklist dealine and all other useful tools to lead you successful sales.',
-    videoUrl: 'https://www.youtube.com/embed/Z5KI5YuvZ7U?autoplay=1',
-    videoThumb: 'https://img.youtube.com/vi/Z5KI5YuvZ7U/mqdefault.jpg',
-    settingsDetails: {
-      dealBoardsCreate: {
-        name: 'Create a board',
-        url: '/settings/boards/deal#showBoardModal=true'
-      },
-      dealPipelinesCreate: {
-        name: 'Create a pipeline to be used on your board',
-        url: '/settings/boards/deal#showPipelineModal=true'
-      },
-      dealCreate: {
-        name: 'Create deal',
-        url: '/deal/board'
       }
     }
   },
@@ -542,9 +580,158 @@ export const ROLE_SETUP_DETAILS = {
     videoUrl: '',
     videoThumb: '',
     settingsDetails: {
-      leadIntegrationCreate: {
-        name: 'Create forms',
-        url: '/forms/create'
+      step1: {
+        name: 'Create a form',
+        url: '/settings/boards/'
+      },
+      step2: {
+        name: 'Customize the form',
+        url: '/settings/boards/'
+      }
+    }
+  },
+  createKnowledgeBase: {
+    text: 'Khowledge Base',
+    description:
+      'Educate both your customers and staff by creating a help center related to your brands, products and services to reach higher level of satisfactions',
+    videoUrl: '',
+    videoThumb: '',
+    settingsDetails: {
+      step1: {
+        name: 'Add and edit the appearance of your knowledge base',
+        url: '/settings/boards/'
+      },
+      step2: {
+        name: 'Add categories in the knowledge base',
+        url: '/settings/boards/'
+      },
+      step3: {
+        name: 'Add an article within the knowledge base',
+        url: '/settings/boards/'
+      }
+    }
+  },
+  planContentWithTasks: {
+    text: '',
+    description:
+      "Customizing your ticket stages will help you manage and keep track of the organization's internal operations and activities. You can save time, manage your projects, monitor your team and increase your productivity in just a few clicks",
+    videoUrl: '',
+    videoThumb: '',
+    settingsDetails: {
+      step1: {
+        name: 'Create a board',
+        url: '/settings/boards/'
+      },
+      step2: {
+        name: 'Create a pipeline to be used on your board',
+        url: '/settings/boards/'
+      },
+      Step3: {
+        name: 'Customize the stages in your pipeline',
+        url: '/settings/boards/'
+      }
+    }
+  },
+  importCustomerData: {
+    text: '',
+    description: 'Import your customer data into our the system',
+    videoUrl: '',
+    videoThumb: '',
+    settingsDetails: {
+      step1: {
+        name: 'Add group',
+        url: '/settings/boards/'
+      },
+      step2: {
+        name: 'Add property',
+        url: '/settings/boards/'
+      },
+      Step3: {
+        name: 'Prepare files to be imported',
+        url: '/settings/boards/'
+      },
+      step4: {
+        name: 'Download template',
+        url: '/settings/boards/'
+      },
+      step5: {
+        name: 'Enter data in downloaded template',
+        url: '/settings/boards/'
+      },
+      Step6: {
+        name: 'Import customer',
+        url: '/settings/boards/'
+      }
+    }
+  },
+  createForms: {
+    text: '',
+    description:
+      "This allows you to add a form on your organization's website/business messenger to collect information from your customers",
+    videoUrl: '',
+    videoThumb: '',
+    settingsDetails: {
+      step1: {
+        name: 'Create a form',
+        url: '/settings/boards/'
+      },
+      step2: {
+        name: 'Customize the style',
+        url: '/settings/boards/'
+      },
+      Step3: {
+        name: 'Customize the CallOut',
+        url: '/settings/boards/'
+      },
+      step4: {
+        name: 'Add content',
+        url: '/settings/boards/'
+      },
+      step5: {
+        name: 'Add rules',
+        url: '/settings/boards/'
+      },
+      step6: {
+        name: 'Add options',
+        url: '/settings/boards/'
+      },
+      step7: {
+        name: 'Add confirmation',
+        url: '/settings/boards/'
+      }
+    }
+  },
+  segmentContacts: {
+    text: '',
+    description:
+      'Purpose: A segment is a smaller group of your contacts defined by rules or filters that you set. This can be used for target marketing',
+    videoUrl: '',
+    videoThumb: '',
+    settingsDetails: {
+      step1: {
+        name: 'Famliarize yourself with the existing segments',
+        url: '/settings/boards/'
+      },
+      step2: {
+        name: 'Create a segment',
+        url: '/settings/boards/'
+      },
+      Step3: {
+        name: 'Create a subsegment within the previous segment',
+        url: '/settings/boards/'
+      }
+    }
+  },
+  prepareContentTemplates: {
+    text: '',
+    description:
+      'You can save a lot of time by preparing email/response templates, all you need to do is automate your entire operation with prepared scripts',
+    videoUrl: '',
+    videoThumb: '',
+    settingsDetails: {
+      step1: {
+        name: 'Create a response template',
+        url: '/settings/boards/'
       },
       leadIntegrationInstalled: {
         name: 'Install on website',
@@ -552,7 +739,6 @@ export const ROLE_SETUP_DETAILS = {
       }
     }
   },
-
   customizeReports: {
     text: '',
     description: '',
@@ -565,19 +751,6 @@ export const ROLE_SETUP_DETAILS = {
       },
       dashboardItemCreate: {
         name: 'Create a chart',
-        url: '/settings/boards/'
-      }
-    }
-  },
-
-  comingSoon: {
-    text: 'Coming Soon',
-    description: 'Coming Soon',
-    videoUrl: '',
-    videoThumb: '',
-    settingsDetails: {
-      step1: {
-        name: 'Coming Soon',
         url: '/settings/boards/'
       }
     }
