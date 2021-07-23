@@ -332,17 +332,18 @@ const widgetMutations = {
         ]
       });
 
+      companyData.names = [companyData.name];
+
+      const {
+        customFieldsData,
+        trackedData
+      } = await Fields.generateCustomFieldsData(companyData, 'company');
+
+      companyData.customFieldsData = customFieldsData;
+      companyData.trackedData = trackedData;
+
       if (!company) {
         companyData.primaryName = companyData.name;
-        companyData.names = [companyData.name];
-
-        const {
-          customFieldsData,
-          trackedData
-        } = await Fields.generateCustomFieldsData(companyData, 'company');
-
-        companyData.customFieldsData = customFieldsData;
-        companyData.trackedData = trackedData;
 
         try {
           company = await Companies.createCompany({
@@ -359,6 +360,15 @@ const widgetMutations = {
               relTypeId: company._id
             });
           }
+        } catch (e) {
+          debugError(e.message);
+        }
+      } else {
+        try {
+          company = await Companies.updateCompany(company._id, {
+            ...companyData,
+            scopeBrandIds: [brand._id]
+          });
         } catch (e) {
           debugError(e.message);
         }
