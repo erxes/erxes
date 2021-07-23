@@ -14,6 +14,20 @@ type Props = {
 };
 
 class LeftSidebar extends React.Component<Props> {
+  renderTrackedData() {
+    const { trackedData = [] } = this.props.company;
+
+    if (trackedData.length === 0) {
+      return null;
+    }
+
+    return (
+      <>
+        <TrackedDataSection company={this.props.company} />
+      </>
+    );
+  }
+
   render() {
     const { company, taggerRefetchQueries, fields } = this.props;
 
@@ -21,7 +35,7 @@ class LeftSidebar extends React.Component<Props> {
       <Sidebar wide={true}>
         <BasicInfoSection company={company} fields={fields} />
         <CustomFieldsSection company={company} />
-        <TrackedDataSection company={company} />
+        {this.renderTrackedData()}
         <TaggerSection
           data={company}
           type="company"
