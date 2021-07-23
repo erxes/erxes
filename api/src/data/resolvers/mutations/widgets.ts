@@ -326,14 +326,7 @@ const widgetMutations = {
 
     // get or create company
     if (companyData && companyData.name) {
-      let company = await Companies.findOne({
-        $or: [
-          { names: { $in: [companyData.name] } },
-          { primaryName: companyData.name }
-        ]
-      });
-
-      companyData.names = [companyData.name];
+      let company = await findCompany(companyData);
 
       const {
         customFieldsData,
@@ -355,14 +348,10 @@ const widgetMutations = {
           debugError(e.message);
         }
       } else {
-        try {
-          company = await Companies.updateCompany(company._id, {
-            ...companyData,
-            scopeBrandIds: [brand._id]
-          });
-        } catch (e) {
-          debugError(e.message);
-        }
+        company = await Companies.updateCompany(company._id, {
+          ...companyData,
+          scopeBrandIds: [brand._id]
+        });
       }
 
       if (customer && company) {
