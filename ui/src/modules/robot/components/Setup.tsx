@@ -128,7 +128,7 @@ class Setup extends React.Component<Props, State> {
 
   renderFeature(feature: IFeature, completed?: boolean) {
     const { changeRoute } = this.props;
-    console.log(completed, '======');
+
     if (completed) {
       this.setState({ selectedOption: feature }, () => {
         changeRoute('setupDetail');

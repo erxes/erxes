@@ -78,7 +78,7 @@ export const ROLE_SETUP = [
       {
         name: 'Import your existing contacts',
         title: 'importExistingContacts',
-        steps: 6,
+        steps: 4,
         types: ['sales', 'marketing']
       },
       {
@@ -120,7 +120,7 @@ export const ROLE_SETUP = [
       {
         name: 'Create your Knowledge Base',
         title: 'customizeKnowledgeBase',
-        steps: 3,
+        steps: 4,
         types: ['customerSupport', 'managementAndOperations']
       },
       {
@@ -144,19 +144,19 @@ export const ROLE_SETUP = [
       {
         name: 'Import your existing customer data to erxes',
         title: 'importExistingContacts',
-        steps: 6,
+        steps: 4,
         types: ['above']
       },
       {
         name: 'Create your Forms',
         title: 'createLeadGenerationForm',
-        steps: 7,
+        steps: 2,
         types: ['above']
       },
       {
         name: 'Customize your Knowledge Base',
         title: 'customizeKnowledgeBase',
-        steps: 3,
+        steps: 4,
         types: ['above']
       }
     ]
@@ -182,7 +182,7 @@ export const ROLE_SETUP = [
       {
         name: 'Automate your sales with Campaigns',
         title: 'automateCampaigns',
-        steps: 4,
+        steps: 3,
         types: ['sales']
       },
       {
@@ -200,13 +200,13 @@ export const ROLE_SETUP = [
       {
         name: 'Customize your Growth Hacking',
         title: 'customizeGrowthHacking',
-        steps: 2,
+        steps: 4,
         types: ['marketing', 'above']
       },
       {
         name: 'Customize your customer segmentation',
         title: 'customizeSegmentation',
-        steps: 3,
+        steps: 2,
         types: ['marketing']
       },
       {
@@ -218,7 +218,7 @@ export const ROLE_SETUP = [
       {
         name: 'Automate your lead generation with Campaigns',
         title: 'automateCampaigns',
-        steps: 4,
+        steps: 3,
         types: ['marketing']
       },
       {
@@ -236,7 +236,7 @@ export const ROLE_SETUP = [
       {
         name: 'Automate with Campaigns',
         title: 'automateCampaigns',
-        steps: 4,
+        steps: 3,
         types: ['above']
       }
     ]
@@ -343,7 +343,6 @@ export const ROLE_SETUP_DETAILS = {
       }
     }
   },
-
   inviteTeamMembers: {
     text: 'Team members/ Permission',
     description:
@@ -365,7 +364,6 @@ export const ROLE_SETUP_DETAILS = {
       }
     }
   },
-
   salesPipeline: {
     text: 'Sales stage',
     description:
@@ -387,7 +385,6 @@ export const ROLE_SETUP_DETAILS = {
       }
     }
   },
-
   createProductServices: {
     text: 'Product & service',
     description: 'Add and categorize your products and services to our system',
@@ -404,7 +401,6 @@ export const ROLE_SETUP_DETAILS = {
       }
     }
   },
-
   customizeTickets: {
     text: 'Ticket stage',
     description:
@@ -426,7 +422,6 @@ export const ROLE_SETUP_DETAILS = {
       }
     }
   },
-
   customizeTasks: {
     text: 'Task stage',
     description:
@@ -448,7 +443,6 @@ export const ROLE_SETUP_DETAILS = {
       }
     }
   },
-
   customizeGrowthHacking: {
     text: 'Growth hacking stage',
     description:
@@ -477,7 +471,6 @@ export const ROLE_SETUP_DETAILS = {
       }
     }
   },
-
   customizeSegmentation: {
     text: 'Contact',
     description:
@@ -495,7 +488,6 @@ export const ROLE_SETUP_DETAILS = {
       }
     }
   },
-
   prepareMailResponseTemplates: {
     text: 'Email/response template',
     description:
@@ -513,7 +505,6 @@ export const ROLE_SETUP_DETAILS = {
       }
     }
   },
-
   automateCampaigns: {
     text: 'Campaigns',
     description:
@@ -535,7 +526,6 @@ export const ROLE_SETUP_DETAILS = {
       }
     }
   },
-
   customizeKnowledgeBase: {
     text: 'Khowledge Base',
     description:
@@ -561,7 +551,6 @@ export const ROLE_SETUP_DETAILS = {
       }
     }
   },
-  /*Additional*/
   installErxesWidgets: {
     text: 'Erxes Widgets',
     description:
@@ -575,9 +564,8 @@ export const ROLE_SETUP_DETAILS = {
       }
     }
   },
-
   createLeadGenerationForm: {
-    text: '',
+    text: 'Form',
     description:
       "This allows you to add a form on your organization's website/business messenger to collect information from your potential leads",
     videoUrl: '',
@@ -593,9 +581,8 @@ export const ROLE_SETUP_DETAILS = {
       }
     }
   },
-
   prepareContentTemplates: {
-    text: '',
+    text: 'Content template',
     description:
       'You can save a lot of time by preparing email/response templates, all you need to do is automate your entire operation with prepared scripts',
     videoUrl: '',
@@ -617,10 +604,10 @@ export const ROLE_SETUP_DETAILS = {
       }
     }
   },
-
   customizeReports: {
-    text: '',
-    description: '',
+    text: 'Reports',
+    description:
+      'Reports help you oversee the progress and effectiveness of your organization’s activities and make management decisions',
     videoUrl: '',
     videoThumb: '',
     settingsDetails: {
