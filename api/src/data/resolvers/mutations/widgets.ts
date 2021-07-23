@@ -40,6 +40,7 @@ import { AUTO_BOT_MESSAGES, BOT_MESSAGE_TYPES } from '../../constants';
 import { sendToVisitorLog } from '../../logUtils';
 import { IContext } from '../../types';
 import {
+  findCompany,
   registerOnboardHistory,
   replaceEditorAttributes,
   sendEmail,
@@ -350,16 +351,6 @@ const widgetMutations = {
             ...companyData,
             scopeBrandIds: [brand._id]
           });
-
-          if (customer) {
-            // add company to customer's companyIds list
-            await Conformities.create({
-              mainType: 'customer',
-              mainTypeId: customer._id,
-              relType: 'company',
-              relTypeId: company._id
-            });
-          }
         } catch (e) {
           debugError(e.message);
         }
@@ -372,6 +363,16 @@ const widgetMutations = {
         } catch (e) {
           debugError(e.message);
         }
+      }
+
+      if (customer && company) {
+        // add company to customer's companyIds list
+        await Conformities.create({
+          mainType: 'customer',
+          mainTypeId: customer._id,
+          relType: 'company',
+          relTypeId: company._id
+        });
       }
     }
 
