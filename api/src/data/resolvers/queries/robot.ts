@@ -62,16 +62,12 @@ const features: {
   },
 
   customizeTickets: {
-    settings: [
-      'ticketBoardsCreate',
-      'ticketPipelinesCreate',
-      'ticketStageCreate'
-    ],
+    settings: ['ticketBoardsCreate', 'ticketPipelinesCreate', 'ticketCreate'],
     settingsPermissions: ['ticketBoardsAdd', 'ticketPipelinesAdd']
   },
 
   customizeTasks: {
-    settings: ['taskBoardsCreate', 'taskPipelinesCreate', 'taskStageCreate'],
+    settings: ['taskBoardsCreate', 'taskPipelinesCreate', 'taskCreate'],
     settingsPermissions: ['taskBoardsAdd', 'taskPipelinesAdd']
   },
 
@@ -87,6 +83,15 @@ const features: {
 
   prepareMailResponseTemplates: {
     settings: ['createResponseTemplate', 'createEmailTemplate'],
+    settingsPermissions: ['manageEmailTemplate']
+  },
+
+  prepareContentTemplates: {
+    settings: [
+      'createResponseTemplate',
+      'createEmailTemplate',
+      'pipelineTemplate'
+    ],
     settingsPermissions: ['manageEmailTemplate']
   },
 
