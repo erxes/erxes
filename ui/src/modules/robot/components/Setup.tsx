@@ -218,6 +218,8 @@ class Setup extends React.Component<Props, State> {
   getPercentage() {
     const { availableFeatures } = this.props;
 
+    console.log(availableFeatures);
+
     const completedCount = availableFeatures.filter(
       feature => feature.isComplete
     ).length;

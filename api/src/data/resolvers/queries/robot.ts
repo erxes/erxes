@@ -52,7 +52,7 @@ const features: {
   },
 
   salesPipeline: {
-    settings: ['dealBoardsCreate', 'dealPipelinesCreate', 'dealStageCreate'],
+    settings: ['dealBoardsCreate', 'dealPipelinesCreate', 'dealCreate'],
     settingsPermissions: ['dealBoardsAdd', 'dealPipelinesAdd']
   },
 
@@ -113,6 +113,11 @@ const features: {
   createLeadGenerationForm: {
     settings: ['leadIntegrationCreate', 'leadIntegrationInstalled'],
     settingsPermissions: ['manageForms']
+  },
+
+  installErxesWidgets: {
+    settings: ['messengerIntegrationCreate'],
+    settingsPermissions: ['integrationsCreateMessengerIntegration']
   }
 };
 

@@ -108,7 +108,7 @@ export const ROLE_SETUP = [
       {
         name: 'Install erxes widgets',
         title: 'installErxesWidgets',
-        steps: 2,
+        steps: 1,
         types: ['sales', 'marketing', 'customerSupport', 'above']
       },
       {
@@ -119,13 +119,13 @@ export const ROLE_SETUP = [
       },
       {
         name: 'Create your Knowledge Base',
-        title: 'createKnowledgeBase',
+        title: 'customizeKnowledgeBase',
         steps: 3,
         types: ['customerSupport', 'managementAndOperations']
       },
       {
         name: 'Plan your content with Tasks',
-        title: 'planContentWithTasks',
+        title: 'customizeTickets',
         steps: 3,
         types: ['marketing']
       },
@@ -143,13 +143,13 @@ export const ROLE_SETUP = [
       },
       {
         name: 'Import your existing customer data to erxes',
-        title: 'importCustomerData',
+        title: 'importExistingContacts',
         steps: 6,
         types: ['above']
       },
       {
         name: 'Create your Forms',
-        title: 'createForms',
+        title: 'createLeadGenerationForm',
         steps: 7,
         types: ['above']
       },
@@ -167,8 +167,8 @@ export const ROLE_SETUP = [
     content: [
       {
         name: 'Segment your contacts',
-        title: 'segmentContacts',
-        steps: 3,
+        title: 'customizeSegmentation',
+        steps: 2,
         types: ['sales', 'marketing', 'above']
       },
 
@@ -188,7 +188,7 @@ export const ROLE_SETUP = [
       {
         name: 'Customize your Reports',
         title: 'customizeReports',
-        steps: 4,
+        steps: 2,
         types: [
           'sales',
           'marketing',
@@ -365,6 +365,7 @@ export const ROLE_SETUP_DETAILS = {
       }
     }
   },
+
   salesPipeline: {
     text: 'Sales stage',
     description:
@@ -372,16 +373,16 @@ export const ROLE_SETUP_DETAILS = {
     videoUrl: '',
     videoThumb: '',
     settingsDetails: {
-      dealBoardCreate: {
+      dealBoardsCreate: {
         name: 'Create a board',
         url: '/settings/boards/deal#showBoardModal=true'
       },
-      dealPipelineCreate: {
+      dealPipelinesCreate: {
         name: 'Create a pipeline to be used on your board',
         url: '/settings/boards/deal#showPipelineModal=true'
       },
-      dealStageCreate: {
-        name: 'Customize the stages in your pipeline',
+      dealCreate: {
+        name: 'Create deal',
         url: '/settings/boards/deal'
       }
     }
@@ -425,6 +426,7 @@ export const ROLE_SETUP_DETAILS = {
       }
     }
   },
+
   customizeTasks: {
     text: 'Task stage',
     description:
@@ -573,6 +575,7 @@ export const ROLE_SETUP_DETAILS = {
       }
     }
   },
+
   createLeadGenerationForm: {
     text: '',
     description:
@@ -580,158 +583,9 @@ export const ROLE_SETUP_DETAILS = {
     videoUrl: '',
     videoThumb: '',
     settingsDetails: {
-      step1: {
-        name: 'Create a form',
-        url: '/settings/boards/'
-      },
-      step2: {
-        name: 'Customize the form',
-        url: '/settings/boards/'
-      }
-    }
-  },
-  createKnowledgeBase: {
-    text: 'Khowledge Base',
-    description:
-      'Educate both your customers and staff by creating a help center related to your brands, products and services to reach higher level of satisfactions',
-    videoUrl: '',
-    videoThumb: '',
-    settingsDetails: {
-      step1: {
-        name: 'Add and edit the appearance of your knowledge base',
-        url: '/settings/boards/'
-      },
-      step2: {
-        name: 'Add categories in the knowledge base',
-        url: '/settings/boards/'
-      },
-      step3: {
-        name: 'Add an article within the knowledge base',
-        url: '/settings/boards/'
-      }
-    }
-  },
-  planContentWithTasks: {
-    text: '',
-    description:
-      "Customizing your ticket stages will help you manage and keep track of the organization's internal operations and activities. You can save time, manage your projects, monitor your team and increase your productivity in just a few clicks",
-    videoUrl: '',
-    videoThumb: '',
-    settingsDetails: {
-      step1: {
-        name: 'Create a board',
-        url: '/settings/boards/'
-      },
-      step2: {
-        name: 'Create a pipeline to be used on your board',
-        url: '/settings/boards/'
-      },
-      Step3: {
-        name: 'Customize the stages in your pipeline',
-        url: '/settings/boards/'
-      }
-    }
-  },
-  importCustomerData: {
-    text: '',
-    description: 'Import your customer data into our the system',
-    videoUrl: '',
-    videoThumb: '',
-    settingsDetails: {
-      step1: {
-        name: 'Add group',
-        url: '/settings/boards/'
-      },
-      step2: {
-        name: 'Add property',
-        url: '/settings/boards/'
-      },
-      Step3: {
-        name: 'Prepare files to be imported',
-        url: '/settings/boards/'
-      },
-      step4: {
-        name: 'Download template',
-        url: '/settings/boards/'
-      },
-      step5: {
-        name: 'Enter data in downloaded template',
-        url: '/settings/boards/'
-      },
-      Step6: {
-        name: 'Import customer',
-        url: '/settings/boards/'
-      }
-    }
-  },
-  createForms: {
-    text: '',
-    description:
-      "This allows you to add a form on your organization's website/business messenger to collect information from your customers",
-    videoUrl: '',
-    videoThumb: '',
-    settingsDetails: {
-      step1: {
-        name: 'Create a form',
-        url: '/settings/boards/'
-      },
-      step2: {
-        name: 'Customize the style',
-        url: '/settings/boards/'
-      },
-      Step3: {
-        name: 'Customize the CallOut',
-        url: '/settings/boards/'
-      },
-      step4: {
-        name: 'Add content',
-        url: '/settings/boards/'
-      },
-      step5: {
-        name: 'Add rules',
-        url: '/settings/boards/'
-      },
-      step6: {
-        name: 'Add options',
-        url: '/settings/boards/'
-      },
-      step7: {
-        name: 'Add confirmation',
-        url: '/settings/boards/'
-      }
-    }
-  },
-  segmentContacts: {
-    text: '',
-    description:
-      'Purpose: A segment is a smaller group of your contacts defined by rules or filters that you set. This can be used for target marketing',
-    videoUrl: '',
-    videoThumb: '',
-    settingsDetails: {
-      step1: {
-        name: 'Famliarize yourself with the existing segments',
-        url: '/settings/boards/'
-      },
-      step2: {
-        name: 'Create a segment',
-        url: '/settings/boards/'
-      },
-      Step3: {
-        name: 'Create a subsegment within the previous segment',
-        url: '/settings/boards/'
-      }
-    }
-  },
-  prepareContentTemplates: {
-    text: '',
-    description:
-      'You can save a lot of time by preparing email/response templates, all you need to do is automate your entire operation with prepared scripts',
-    videoUrl: '',
-    videoThumb: '',
-    settingsDetails: {
-      step1: {
-        name: 'Create a response template',
-        url: '/settings/boards/'
+      leadIntegrationCreate: {
+        name: 'Create forms',
+        url: '/forms/create'
       },
       leadIntegrationInstalled: {
         name: 'Install on website',
@@ -739,6 +593,31 @@ export const ROLE_SETUP_DETAILS = {
       }
     }
   },
+
+  prepareContentTemplates: {
+    text: '',
+    description:
+      'You can save a lot of time by preparing email/response templates, all you need to do is automate your entire operation with prepared scripts',
+    videoUrl: '',
+    videoThumb: '',
+    settingsDetails: {
+      createResponseTemplate: {
+        name: 'Create a response template',
+        url: '/settings/response-templates#showListFormModal=true'
+      },
+
+      createEmailTemplate: {
+        name: 'Create an email template',
+        url: '/settings/email-templates#showListFormModal=true'
+      },
+
+      pipelineTemplate: {
+        name: 'Create a growth hacking template',
+        url: '/settings/boards/growthHackTemplate'
+      }
+    }
+  },
+
   customizeReports: {
     text: '',
     description: '',
