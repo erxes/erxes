@@ -95,11 +95,7 @@ class TodoDetail extends React.Component<Props> {
 
     return (
       <Progress>
-        <ProgressBar
-          percentage={percent}
-          color={colors.colorCoreBlue}
-          height="10px"
-        />
+        <ProgressBar percentage={percent} color={colors.colorCoreBlue} />
         <span>{percent}%</span>
       </Progress>
     );

@@ -85,7 +85,7 @@ class Todo extends React.Component<Props, State> {
 
     return (
       <div>
-        <ProgressBar percentage={percentage} color="#3B85F4" height="8px" />
+        <ProgressBar percentage={percentage} color="#3B85F4" height={8} />
         <ProgressText>
           {percentage}
           {__('% done -')} {text}

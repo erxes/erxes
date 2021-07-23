@@ -229,11 +229,7 @@ function List(props: Props) {
     return (
       <Progress>
         <span>{item.percent.toFixed(0)}%</span>
-        <ProgressBar
-          percentage={item.percent}
-          color={colors.colorPrimary}
-          height="10px"
-        />
+        <ProgressBar percentage={item.percent} color={colors.colorPrimary} />
       </Progress>
     );
   }
