@@ -175,7 +175,7 @@ export const ROLE_SETUP = [
       {
         name: 'Prepare content templates',
         title: 'prepareContentTemplates',
-        steps: 2,
+        steps: 3,
         types: ['sales', 'customerSupport', 'managementAndOperations', 'above']
       },
 
