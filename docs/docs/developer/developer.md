@@ -29,7 +29,7 @@ Before you can develop and test erxes, you must install and configure the follow
 sudo apt install git
 
 #install nodejs
-sudo apt curl
+sudo apt install curl
 curl -sL https://deb.nodesource.com/setup_13.x | sudo -E bash -
 sudo apt-get install nodejs
 
