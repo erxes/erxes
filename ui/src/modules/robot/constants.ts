@@ -386,7 +386,7 @@ export const ROLE_SETUP_DETAILS = {
     }
   },
   createProductServices: {
-    text: 'Product & service',
+    text: 'Product & Service',
     description: 'Add and categorize your products and services to our system',
     videoUrl: '',
     videoThumb: '',
@@ -546,7 +546,7 @@ export const ROLE_SETUP_DETAILS = {
         url: '/knowledgebase#showKBAddArticleModal=true'
       },
       knowledgeBaseInstalled: {
-        name: 'Embed knowledgebase',
+        name: 'Embed knowledge base',
         url: '#'
       }
     }
@@ -612,7 +612,7 @@ export const ROLE_SETUP_DETAILS = {
     videoThumb: '',
     settingsDetails: {
       dashboardCreate: {
-        name: 'Create a dashboard',
+        name: 'Create a Dashboard',
         url: '/dashboard#showDashboardAddModal=true'
       },
       dashboardItemCreate: {
