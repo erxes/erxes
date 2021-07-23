@@ -138,6 +138,20 @@ class Setup extends React.Component<Props, State> {
 
   checkCondition(title?: string) {
     const { availableFeatures } = this.props;
+    const completedTasks = availableFeatures.filter(
+      feature => feature.isComplete
+    );
+    const percentage = this.getPercentage();
+
+    if (percentage === 100) {
+      completedTasks.map(availabeFeature => {
+        if (availabeFeature.name === title) {
+          this.renderFeature(availabeFeature, true);
+        }
+
+        return null;
+      });
+    }
 
     availableFeatures.map(availabeFeature => {
       if (availabeFeature.name === title) {
@@ -147,21 +161,6 @@ class Setup extends React.Component<Props, State> {
       return null;
     });
   }
-
-  renderCompleted = () => {
-    const { availableFeatures } = this.props;
-    const completedTasks = availableFeatures.filter(
-      feature => feature.isComplete
-    );
-
-    return (
-      <>
-        {completedTasks.map(availabeFeature =>
-          this.renderFeature(availabeFeature, true)
-        )}
-      </>
-    );
-  };
 
   renderSetup() {
     const { roleValue } = this.props;
@@ -238,8 +237,6 @@ class Setup extends React.Component<Props, State> {
     const completedCount = availableFeatures.filter(
       feature => feature.isComplete
     ).length;
-
-    console.log(completedCount);
 
     return calculatePercentage(
       availableFeatures.length + 1,
