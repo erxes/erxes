@@ -383,7 +383,7 @@ export const ROLE_SETUP_DETAILS = {
       },
       dealCreate: {
         name: 'Create deal',
-        url: '/settings/boards/deal'
+        url: '/deal/board'
       }
     }
   },
