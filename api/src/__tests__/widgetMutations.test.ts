@@ -269,8 +269,8 @@ describe('messenger connect', () => {
         companyData: {
           name: 'test company',
           email: 'testmail@company.com',
-          phone: '123456789',
-          code: '123'
+          phone: '0987654321',
+          code: '1234'
         },
         deviceToken: '111'
       }

@@ -146,9 +146,9 @@ export const loadClass = () => {
       trackedData: any[] = [],
       company?: ICompanyDocument
     ) {
-      let emails: string[] = [];
-      let phones: string[] = [];
-      let names: string[] = [];
+      let emails: string[] = doc.emails || [];
+      let phones: string[] = doc.phones || [];
+      let names: string[] = doc.names || [];
 
       // extract basic fields from customData
       for (const name of this.companyFieldNames()) {
@@ -160,9 +160,9 @@ export const loadClass = () => {
       doc.trackedData = trackedData;
 
       if (company) {
-        emails = company.emails || [];
-        phones = company.phones || [];
-        names = company.names || [];
+        emails = Array.from(new Set([...(company.emails || []), ...emails]));
+        phones = Array.from(new Set([...(company.phones || []), ...phones]));
+        names = Array.from(new Set([...(company.names || []), ...names]));
       }
 
       if (doc.email) {
