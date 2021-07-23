@@ -261,7 +261,9 @@ export const loadClass = () => {
       // Checking duplicated fields of company
       await Companies.checkDuplication(doc, [_id]);
 
-      this.fixListFields(doc, doc.trackedData);
+      const company = await Companies.getCompany(_id);
+
+      this.fixListFields(doc, doc.trackedData, company);
 
       // clean custom field values
       if (doc.customFieldsData) {
