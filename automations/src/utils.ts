@@ -1,3 +1,4 @@
+import { addDeal } from './actions/addDeals';
 import { ACTIONS } from './constants';
 import { debugBase } from './debuggers';
 import Automations, { IAction, IAutomationDocument } from './models/Automations';
@@ -42,7 +43,7 @@ export const reset = () => {
 }
 
 export const replacePlaceHolders = ({ actionData, triggerData }: { actionData?: any, triggerData?: any }) => {
-  if (actionData && triggerData ) {
+  if (actionData && triggerData) {
     const triggerDataKeys = Object.keys(triggerData);
     const actionDataKeys = Object.keys(actionData);
 
@@ -103,7 +104,13 @@ export const executeActions = async (execution: IExecutionDocument, actionsMap: 
   }
 
   if (action.type === ACTIONS.ADD_DEAL) {
-    deals.push(replacePlaceHolders({ actionData: action.config, triggerData: execution.triggerData }));
+    const result = await addDeal({ config: action.config, data: execution.triggerData });
+    execution.actionsData.push({ actionId: currentActionId, data: result })
+    // deals.push(replacePlaceHolders({ actionData: action.config, triggerData: execution.triggerData }));
+  }
+
+  if (action.type === ACTIONS.REMOVE_DEAL) {
+    deals = deals.filter(t => !action.config.names.includes(t));
   }
 
   return executeActions(execution, actionsMap, action.nextActionId);
@@ -127,7 +134,7 @@ export const executeAutomation = async ({ automation, triggerType, targetId, tri
 }
 
 export const receiveTrigger = async ({ triggerType, targetId, data }: { triggerType: string, targetId: string, data?: any }) => {
-  const automations = await Automations.find({ 'trigger.type': { $in: [triggerType] } });
+  const automations = await Automations.find({ 'triggers.type': { $in: [triggerType] } });
 
   const executions = await Executions.find({
     automationId: { $in: automations.map(a => a._id) },

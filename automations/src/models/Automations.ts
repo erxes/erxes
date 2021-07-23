@@ -13,7 +13,7 @@ export interface ITrigger {
 }
 export interface IAutomation {
   name: string;
-  trigger: ITrigger;
+  triggers: ITrigger[];
   actions: IAction[];
 }
 
@@ -36,7 +36,8 @@ export const actionSchema = new Schema({
 
 export const automationSchema = new Schema({
   name: { type: String, required: true },
-  trigger: { type: triggerSchema },
+  status: {type: String, default: 'draft'},
+  triggers: { type: [triggerSchema] },
   actions: { type: [actionSchema] },
 });
 
