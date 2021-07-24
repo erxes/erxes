@@ -1,74 +1,12 @@
 import { __ } from 'modules/common/utils';
-import { jsPlumb } from 'jsplumb';
-import jquery from 'jquery';
 import Wrapper from 'modules/layout/components/Wrapper';
 import React from 'react';
-import styled from 'styled-components';
-
-export const Container = styled.div`
-  background-color: #f8f9ff;
-  width: 100%;
-  height: 100%;
-
-  #canvas {
-    position: relative;
-    font-weight: bold;
-  }
-
-  .jtk-connector {
-    z-index: 4;
-  }
-
-  .jtk-endpoint {
-    z-index: 5;
-  }
-
-  .jtk-overlay {
-    z-index: 6;
-  }
-
-  .trigger,
-  .action {
-    width: 100px;
-    height: 100px;
-    line-height: 100px;
-    position: absolute;
-    border: 1px solid;
-    border-radius: 20px;
-    text-align: center;
-    cursor: pointer;
-    margin-bottom: 50px;
-    color: #ffff;
-  }
-
-  .trigger {
-    color: black;
-  }
-
-  .action {
-    background: #60cb98;
-  }
-
-  .action[type='if'] {
-    background: #4a7cb8;
-  }
-
-  .action[type='goto'] {
-    background: #ed8d50;
-  }
-
-  .action[type='createTicket'] {
-    background: #60cb98;
-  }
-
-  .action[type='createTask'] {
-    background: #db5d80;
-  }
-
-  .action[type='createDeal'] {
-    background: #60cb98;
-  }
-`;
+import Button from 'modules/common/components/Button';
+import ModalTrigger from 'modules/common/components/ModalTrigger';
+import TriggerForm from '../containers/forms/TriggerForm';
+import { jsPlumb } from 'jsplumb';
+import jquery from 'jquery';
+import { Container } from '../styles';
 
 const plumb: any = jsPlumb;
 
@@ -98,10 +36,10 @@ const renderTrigger = (trigger: ITrigger) => {
   const idElm = `trigger-${trigger.id}`;
 
   jquery('#canvas').append(`
-          <div class="trigger" id="${idElm}" style="${trigger.style}">
-            ${trigger.type}
-          </div>
-        `);
+            <div class="trigger" id="${idElm}" style="${trigger.style}">
+              ${trigger.type}
+            </div>
+          `);
 
   instance.addEndpoint(idElm, {
     anchor: [1, 0.5],
@@ -115,10 +53,10 @@ const renderAction = ({ id, type, style }: IAction) => {
   const idElm = `action-${id}`;
 
   jquery('#canvas').append(`
-          <div class="action" id="${idElm}" style="${style}" type="${type}">
-            ${type}
-          </div>
-        `);
+            <div class="action" id="${idElm}" style="${style}" type="${type}">
+              ${type}
+            </div>
+          `);
 
   if (type === 'if') {
     instance.addEndpoint(idElm, {
@@ -278,7 +216,8 @@ const onDettachConnection = info => {
     }
   }
 };
-class Form extends React.Component {
+
+class Automations extends React.Component {
   componentDidMount() {
     instance = plumb.getInstance({
       DragOptions: { cursor: 'pointer', zIndex: 2000 },
@@ -348,39 +287,27 @@ class Form extends React.Component {
     });
   }
 
-  render() {
-    const content = (
-      <Container>
-        <p>
-          <label>Triggers</label>
-
-          <select id="add-trigger">
-            <option>Choose trigger</option>
-            <option value="formSubmit">Form submit</option>
-            <option value="dealCreate">Deal create</option>
-          </select>
-        </p>
-
-        <p>
-          <label>Actions</label>
-
-          <select id="add-action">
-            <option>Choose action</option>
-            <option value="createTask">Create task</option>
-            <option value="createDeal">Create deal</option>
-            <option value="createTicket">Create ticket</option>
-            <option value="if">IF</option>
-            <option value="goto">Go to another action</option>
-          </select>
-        </p>
-
-        <p>
-          <button id="save">Save</button>
-        </p>
-        <div id="canvas" />
-      </Container>
+  renderForm() {
+    const addTrigger = (
+      <Button btnStyle="primary" icon="plus-circle">
+        Add New Trigger
+      </Button>
     );
 
+    const content = props => <TriggerForm {...props} />;
+
+    return (
+      <div>
+        <ModalTrigger
+          title="Select a Trigger"
+          trigger={addTrigger}
+          content={content}
+        />
+      </div>
+    );
+  }
+
+  render() {
     return (
       <Wrapper
         header={
@@ -389,10 +316,15 @@ class Form extends React.Component {
             breadcrumb={[{ title: __('Automations'), link: '/automations' }]}
           />
         }
-        content={content}
+        actionBar={<Wrapper.ActionBar right={this.renderForm()} />}
+        content={
+          <Container>
+            <div id="canvas" />
+          </Container>
+        }
       />
     );
   }
 }
 
-export default Form;
+export default Automations;

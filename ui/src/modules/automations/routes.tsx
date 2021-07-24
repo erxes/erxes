@@ -3,7 +3,7 @@ import React from 'react';
 import { Route } from 'react-router-dom';
 
 const Create = asyncComponent(() =>
-  import(/* webpackChunkName: "Automations" */ './containers/Form')
+  import(/* webpackChunkName: "Automations" */ './containers/Automations')
 );
 
 const create = ({}) => {
