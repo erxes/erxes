@@ -1,6 +1,5 @@
 import { __ } from 'modules/common/utils';
 import React from 'react';
-import jquery from 'jquery';
 import { FlexRow } from 'modules/settings/styles';
 import { IAction, ITrigger } from '../../types';
 import { ModalFooter } from 'modules/common/styles/main';
@@ -13,13 +12,14 @@ const triggers: ITrigger[] = JSON.parse(
 
 type Props = {
   closeModal: () => void;
+  closeParentModal: () => void;
 };
 
 type State = {
   activeTrigger: string;
 };
 
-class ActionsForm extends React.Component<Props, State> {
+class TriggerDetailForm extends React.Component<Props, State> {
   constructor(props) {
     super(props);
 
@@ -29,17 +29,10 @@ class ActionsForm extends React.Component<Props, State> {
   }
 
   onSave = () => {
-    for (const action of actions) {
-      action.style = jquery(`#action-${action.id}`).attr('style');
-    }
-
+    console.log('here');
     localStorage.setItem('actions', JSON.stringify(actions));
-
-    for (const trigger of triggers) {
-      trigger.style = jquery(`#trigger-${trigger.id}`).attr('style');
-    }
-
     localStorage.setItem('triggers', JSON.stringify(triggers));
+    this.props.closeParentModal();
   };
 
   render() {
@@ -65,4 +58,4 @@ class ActionsForm extends React.Component<Props, State> {
   }
 }
 
-export default ActionsForm;
+export default TriggerDetailForm;

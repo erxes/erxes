@@ -6,7 +6,7 @@ const Create = asyncComponent(() =>
   import(/* webpackChunkName: "Automations" */ './containers/Automations')
 );
 
-const create = ({}) => {
+const create = () => {
   return <Create />;
 };
 

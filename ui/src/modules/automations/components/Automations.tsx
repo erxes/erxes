@@ -4,9 +4,11 @@ import React from 'react';
 import Button from 'modules/common/components/Button';
 import ModalTrigger from 'modules/common/components/ModalTrigger';
 import TriggerForm from '../containers/forms/TriggerForm';
+import ActionsForm from '../containers/forms/ActionsForm';
 import { jsPlumb } from 'jsplumb';
 import jquery from 'jquery';
 import { Container } from '../styles';
+import { BarItems } from 'modules/layout/styles';
 
 const plumb: any = jsPlumb;
 
@@ -34,7 +36,7 @@ type ITrigger = {
 
 const renderTrigger = (trigger: ITrigger) => {
   const idElm = `trigger-${trigger.id}`;
-
+  console.log('here12312');
   jquery('#canvas').append(`
             <div class="trigger" id="${idElm}" style="${trigger.style}">
               ${trigger.type}
@@ -246,7 +248,7 @@ class Automations extends React.Component {
       for (const action of actions) {
         renderAction(action);
       }
-
+      console.log(triggers);
       for (const trigger of triggers) {
         renderTrigger(trigger);
       }
@@ -287,9 +289,29 @@ class Automations extends React.Component {
     });
   }
 
-  renderForm() {
-    const addTrigger = (
-      <Button btnStyle="primary" icon="plus-circle">
+  renderActionForm() {
+    const trigger = (
+      <Button btnStyle="success" size="small" icon="plus-circle">
+        Add New Action
+      </Button>
+    );
+
+    const content = props => <ActionsForm {...props} />;
+
+    return (
+      <div>
+        <ModalTrigger
+          title="Add a New Action"
+          trigger={trigger}
+          content={content}
+        />
+      </div>
+    );
+  }
+
+  renderTriggerForm() {
+    const trigger = (
+      <Button btnStyle="success" size="small" icon="plus-circle">
         Add New Trigger
       </Button>
     );
@@ -300,10 +322,19 @@ class Automations extends React.Component {
       <div>
         <ModalTrigger
           title="Select a Trigger"
-          trigger={addTrigger}
+          trigger={trigger}
           content={content}
         />
       </div>
+    );
+  }
+
+  rendeRightActionbar() {
+    return (
+      <BarItems>
+        {this.renderTriggerForm()}
+        {this.renderActionForm()}
+      </BarItems>
     );
   }
 
@@ -316,7 +347,7 @@ class Automations extends React.Component {
             breadcrumb={[{ title: __('Automations'), link: '/automations' }]}
           />
         }
-        actionBar={<Wrapper.ActionBar right={this.renderForm()} />}
+        actionBar={<Wrapper.ActionBar right={this.rendeRightActionbar()} />}
         content={
           <Container>
             <div id="canvas" />

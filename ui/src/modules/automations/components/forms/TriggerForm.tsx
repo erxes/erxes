@@ -5,7 +5,7 @@ import { TriggerBox } from '../../styles';
 import Icon from 'modules/common/components/Icon';
 import { FlexRow } from 'modules/settings/styles';
 import { IAction, ITrigger } from '../../types';
-// import Button from "modules/common/components/Button";
+import TriggerDetailForm from './TriggerDetailForm';
 import ModalTrigger from 'modules/common/components/ModalTrigger';
 
 const actions: IAction[] = JSON.parse(localStorage.getItem('actions') || '[]');
@@ -48,19 +48,21 @@ class TriggerForm extends React.Component<Props, State> {
     this.setState({ activeTrigger: key });
   };
 
-  renderTrigger(key: string, icon: string, btnText: string) {
+  renderTrigger(key: string, icon: string, text: string) {
     const addTrigger = (
-      <TriggerBox onClick={this.onClickTrigger.bind(this, key)}>
+      <TriggerBox>
         <Icon icon={icon} size={30} />
-        {__(btnText)}
+        {__(text)}
       </TriggerBox>
     );
 
-    const content = props => <Form {...props} />;
+    const content = props => (
+      <TriggerDetailForm closeParentModal={this.props.closeModal} {...props} />
+    );
 
     return (
       <ModalTrigger
-        title="Action?"
+        title={`${text} options`}
         trigger={addTrigger}
         content={content}
         size="lg"
