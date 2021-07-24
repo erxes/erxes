@@ -42,6 +42,7 @@ export const automationSchema = new Schema({
 });
 
 export interface IAutomationModel extends Model<IAutomationDocument> {
+  getAutomation(selector: any): IAutomationDocument
 }
 
 export const loadClass = () => {

@@ -79,19 +79,21 @@ const configQueries = {
       releaseInfo: {}
     };
 
-    const erxesDomain = getEnv({ name: 'MAIN_APP_DOMAIN' });
+    // const erxesDomain = getEnv({ name: 'MAIN_APP_DOMAIN' });
 
-    const erxesVersion = await sendRequest({
-      url: `${erxesDomain}/version.json`,
-      method: 'GET'
-    });
+    // const erxesVersion = await sendRequest({
+    //   url: `${erxesDomain}/version.json`,
+    //   method: 'GET'
+    // });
 
-    result.version = erxesVersion.packageVersion || '-';
+    // result.version = erxesVersion.packageVersion || '-';
+    result.version = '-';
 
-    const response = await sendRequest({
-      url: `${process.env.CORE_URL || 'https://erxes.io'}/git-release-info`,
-      method: 'GET'
-    });
+    // const response = await sendRequest({
+    //   url: `${process.env.CORE_URL || 'https://erxes.io'}/git-release-info`,
+    //   method: 'GET'
+    // });
+    const response = { tag_name: '' };
 
     result.isLatest = result.version === response.tag_name;
 

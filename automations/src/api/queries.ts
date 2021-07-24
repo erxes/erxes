@@ -1,0 +1,67 @@
+import { Router } from 'express';
+import { debugEngages, debugRequest } from '../debuggers';
+import Automations from '../models/Automations';
+import { routeErrorHandling } from './utils';
+
+const router = Router();
+
+router.get(
+  '/automation-detail/:automationId',
+  routeErrorHandling(async (req, res) => {
+    debugRequest(debugEngages, req);
+
+    const { automationId } = req.params;
+
+    const automations = await Automations.getAutomation({ _id: automationId });
+
+    return res.json(automations);
+  })
+);
+
+router.get(
+  '/automations-main',
+  routeErrorHandling(async (req, res) => {
+    const { page, perPage, status, searchValue } = req.query;
+
+    const _page = Number(page || '1');
+    const _limit = Number(perPage || '20');
+
+    const filter: any = {};
+
+    if (status) {
+      filter.status = status;
+    }
+
+    if (searchValue) {
+      filter.name = new RegExp(`.*${searchValue}.*`, 'i')
+    }
+
+    const automations = await Automations.find(filter)
+      .limit(_limit)
+      .skip((_page - 1) * _limit)
+      .sort({ createdAt: -1 });
+
+    if (!automations) {
+      return res.json({ list: [], totalCount: 0 });
+    }
+
+    const totalCount = await Automations.countDocuments();
+
+    return res.json({
+      list: automations,
+      totalCount
+    });
+  })
+);
+
+router.get(
+  '/automations',
+  routeErrorHandling(async (req, res) => {
+    const { selector } = req.query;
+
+    const automations = await Automations.find(selector);
+    return res.json(automations);
+  })
+);
+
+export default router;
