@@ -4,8 +4,7 @@ import { filterXSS } from 'xss';
 import { connect } from './connection';
 import { debugBase, debugError, debugInit } from './debuggers';
 import { initBroker } from "./messageBroker";
-import queries from './api/queries';
-import mutations from './api/mutations';
+import controllers from './controllers';
 
 export const app = express();
 
@@ -29,8 +28,7 @@ app.use((req: any, _res, next) => {
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
-app.use('/queries', queries);
-app.use('/mutations', mutations);
+app.use('/api', controllers);
 
 // Error handling middleware
 app.use((error, _req, res, _next) => {

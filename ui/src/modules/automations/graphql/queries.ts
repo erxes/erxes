@@ -1,8 +1,21 @@
 export const automationFields = `
   _id
   name
-  actions
-  triggers
+  status
+  triggers {
+    id
+    type
+    actionId
+    style
+    config
+  }
+  actions {
+    id
+    type
+    nextActionId
+    style
+    config
+  }
 `;
 
 const listParamsDef = `
@@ -48,7 +61,7 @@ export const automationsMain = `
 `;
 
 export const automationDetail = `
-  query automationDetail($_id: String) {
+  query automationDetail($_id: String!) {
     automationDetail(_id: $_id) {
       ${automationFields}
     }

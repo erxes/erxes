@@ -3,15 +3,15 @@ import { automationFields } from './queries';
 const commonFields = `
   $name: String,
   $status: String,
-  $actions: JSON
-  $triggers: JSON
+  $triggers: [TriggerInput],
+  $actions: [ActionInput],
 `;
 
 const commonVariables = `
   name: $name,
   status: $status,
+  triggers: $triggers,
   actions: $actions,
-  triggers: $triggers
 `;
 
 const automationsAdd = `

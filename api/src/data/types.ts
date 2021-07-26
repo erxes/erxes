@@ -12,7 +12,7 @@ export interface IContext {
   commonQuerySelectorElk: {};
   singleBrandIdSelector: {};
   dataSources: {
-    AutomationsApi: any;
+    AutomationsAPI: any;
     EngagesAPI: any;
     IntegrationsAPI: any;
     HelpersApi: any;

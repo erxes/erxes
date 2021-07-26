@@ -13,6 +13,14 @@ export default class AutomationAPI extends RESTDataSource {
     this.httpCache = new HTTPCache();
   }
 
+  public willSendRequest(request) {
+    const { user } = this.context || {};
+
+    if (user) {
+      request.headers.set('userId', user._id);
+    }
+  }
+
   public didEncounterError(e) {
     const error = e.extensions || {};
     const { response } = error;
@@ -28,7 +36,7 @@ export default class AutomationAPI extends RESTDataSource {
   // fetches all automations
   public async getAutomations(selector) {
     try {
-      const response = await this.get('/queries/automations', selector);
+      const response = await this.get('/api/automations', selector);
 
       return response;
     } catch (e) {
@@ -41,8 +49,7 @@ export default class AutomationAPI extends RESTDataSource {
   // fetches all automationsMain
   public async getAutomationsMain(params) {
     try {
-      console.log(params, 'zzzzzzzzzzzzzzzz');
-      const response = await this.get('/queries/automations-main', params);
+      const response = await this.get('/api/automations-main', params);
 
       return response;
     } catch (e) {
@@ -56,7 +63,7 @@ export default class AutomationAPI extends RESTDataSource {
   public async getAutomationDetail(automationsId) {
     try {
       const response = await this.get(
-        `/queries/automation-detail/${automationsId}`
+        `/api/automation-detail/${automationsId}`
       );
 
       return response;
@@ -69,7 +76,7 @@ export default class AutomationAPI extends RESTDataSource {
 
   public async createAutomation(doc) {
     try {
-      return this.post(`/mutations/createAutomation`, doc);
+      return this.post(`/api/createAutomation`, { doc });
     } catch (e) {
       debugError(e);
       return { error: e.message };
@@ -78,7 +85,7 @@ export default class AutomationAPI extends RESTDataSource {
 
   public async updateAutomation(doc) {
     try {
-      return this.post(`/mutations/updateAutomation`, doc);
+      return this.post(`/api/updateAutomation`, { doc });
     } catch (e) {
       debugError(e);
       return { error: e.message };
@@ -87,7 +94,7 @@ export default class AutomationAPI extends RESTDataSource {
 
   public async removeAutomations(automationIds) {
     try {
-      return this.post(`/mutations/removeAutomations`, automationIds);
+      return this.post(`/api/removeAutomations`, { automationIds });
     } catch (e) {
       debugError(e);
       return { error: e.message };

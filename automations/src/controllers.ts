@@ -1,9 +1,62 @@
 import { Router } from 'express';
-import { debugEngages, debugRequest } from '../debuggers';
-import Automations from '../models/Automations';
-import { routeErrorHandling } from './utils';
+import { debugError, debugEngages, debugRequest } from './debuggers';
+import Automations from './models/Automations';
+
+export const routeErrorHandling = (fn, callback?: any) => {
+  return async (req, res, next) => {
+    try {
+      await fn(req, res, next);
+    } catch (e) {
+      debugError(e.message);
+
+      if (callback) {
+        return callback(res, e);
+      }
+
+      return next(e);
+    }
+  };
+};
 
 const router = Router();
+
+router.post(
+  '/createAutomation',
+  routeErrorHandling(async (req, res) => {
+    debugRequest(debugEngages, req);
+
+    const { doc } = req.body;
+    const automation = await Automations.create({ ...doc });
+
+    return res.json({ ...automation });
+  })
+);
+
+router.post(
+  '/updateAutomation',
+  routeErrorHandling(async (req, res) => {
+    debugRequest(debugEngages, req);
+    const { doc } = req.body;
+    const { _id } = doc;
+
+    await Automations.updateOne({ _id }, { $set: { ...doc } });
+    const updated = await Automations.getAutomation({ _id });
+
+    return res.json({ ...updated });
+  })
+);
+
+router.post(
+  '/removeAutomations',
+  routeErrorHandling(async (req, res) => {
+    debugRequest(debugEngages, req);
+
+    const { automationIds } = req.body;
+    await Automations.deleteMany({ _id: { $in: automationIds } });
+
+    return res.json({ status: 'ok' });
+  })
+);
 
 router.get(
   '/automation-detail/:automationId',

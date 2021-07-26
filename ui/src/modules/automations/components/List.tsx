@@ -119,7 +119,8 @@ class AutomationsList extends React.Component<IProps, State> {
                   onChange={this.onChange}
                 />
               </th>
-              <th>{__('Tags')}</th>
+              <th>{__('Name')}</th>
+              <th>{__('Status')}</th>
             </tr>
           </thead>
           <tbody id="automations" className={isExpand ? 'expand' : ''}>

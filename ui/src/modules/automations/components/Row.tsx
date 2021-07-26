@@ -33,6 +33,8 @@ function CompanyRow({ automation, history, isChecked, toggleBulk }: Props) {
           onChange={onChange}
         />
       </td>
+      <td> {automation.name} </td>
+      <td> {automation.status} </td>
     </tr>
   );
 }

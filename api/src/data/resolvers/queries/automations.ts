@@ -16,22 +16,21 @@ const automationQueries = {
    * Automations list
    */
   async automations(_root, params: IListArgs, { dataSources }: IContext) {
-    return dataSources.AutomationsApi.getAutomations(params);
+    return dataSources.AutomationsAPI.getAutomations(params);
   },
 
   /**
    * Automations for only main list
    */
   async automationsMain(_root, params: IListArgs, { dataSources }: IContext) {
-    console.log('qqqqqqqqqqqq', dataSources.AutomationsApi);
-    return dataSources.AutomationsApi.getAutomationsMain(params);
+    return dataSources.AutomationsAPI.getAutomationsMain(params);
   },
 
   /**
    * Get one automation
    */
   automationDetail(_root, { _id }: { _id: string }, { dataSources }: IContext) {
-    return dataSources.AutomationsApi.getAutomationDetail(_id);
+    return dataSources.AutomationsAPI.getAutomationDetail(_id);
   }
 };
 

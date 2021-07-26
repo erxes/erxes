@@ -20,7 +20,7 @@ const automationMutations = {
     doc: IAutomation,
     { user, docModifier, dataSources }: IContext
   ) {
-    const automation = await dataSources.AutomationsApi.createAutomation(
+    const automation = await dataSources.AutomationsAPI.createAutomation(
       docModifier(doc)
     );
 
@@ -44,10 +44,10 @@ const automationMutations = {
     { _id, ...doc }: IAutomationsEdit,
     { user, dataSources }: IContext
   ) {
-    const automation = await dataSources.AutomationsApi.getAutomationDetail(
+    const automation = await dataSources.AutomationsAPI.getAutomationDetail(
       _id
     );
-    const updated = await dataSources.AutomationsApi.updateAutomation({
+    const updated = await dataSources.AutomationsAPI.updateAutomation({
       _id,
       ...doc
     });
@@ -73,11 +73,11 @@ const automationMutations = {
     { automationIds }: { automationIds: string[] },
     { user, dataSources }: IContext
   ) {
-    const automations = await dataSources.AutomationsApi.getAutomations({
+    const automations = await dataSources.AutomationsAPI.getAutomations({
       _id: { $in: automationIds }
     });
 
-    await dataSources.AutomationsApi.removeAutomations(automationIds);
+    await dataSources.AutomationsAPI.removeAutomations(automationIds);
 
     for (const automation of automations) {
       await putDeleteLog(

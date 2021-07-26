@@ -1,7 +1,7 @@
 import { QueryResponse } from 'modules/common/types';
 
 export type IAction = {
-  id: number;
+  id: string;
   type: string;
   nextActionId?: string;
   style?: any;
@@ -9,10 +9,11 @@ export type IAction = {
 };
 
 export type ITrigger = {
-  id: number;
+  id: string;
   type: string;
   actionId?: string;
   style?: any;
+  config?: any;
 };
 
 export interface IAutomationDoc {
