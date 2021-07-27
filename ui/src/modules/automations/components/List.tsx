@@ -96,7 +96,6 @@ class AutomationsList extends React.Component<IProps, State> {
 
   render() {
     const {
-      automations,
       history,
       loading,
       toggleBulk,
@@ -106,6 +105,8 @@ class AutomationsList extends React.Component<IProps, State> {
       queryParams,
       isExpand
     } = this.props;
+
+    const automations = this.props.automations || [];
 
     const mainContent = (
       <withTableWrapper.Wrapper>

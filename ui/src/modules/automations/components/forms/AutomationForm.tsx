@@ -326,6 +326,30 @@ class AutomationForm extends React.Component<Props, State> {
     const { id, renderButton } = this.props;
     const { isSubmitted } = formProps;
 
+    const generateValues = () => {
+      const finalValues = {
+        _id: id,
+        name,
+        status,
+        triggers: triggers.map(t => ({
+          id: t.id,
+          type: t.type,
+          actionId: t.actionId,
+          config: t.config,
+          style: jquery(`#trigger-${t.id}`).attr('style')
+        })),
+        actions: actions.map(a => ({
+          id: a.id,
+          type: a.type,
+          nextActionId: a.nextActionId,
+          config: a.config,
+          style: jquery(`#action-${a.id}`).attr('style')
+        }))
+      };
+
+      return finalValues;
+    };
+
     return (
       <Container>
         <FormWrapper>
@@ -345,7 +369,7 @@ class AutomationForm extends React.Component<Props, State> {
           <FormColumn>
             {renderButton({
               name: 'save',
-              values: { _id: id || '', name, status, triggers, actions },
+              values: generateValues(),
               isSubmitted
             })}
           </FormColumn>

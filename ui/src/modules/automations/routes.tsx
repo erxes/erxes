@@ -13,7 +13,7 @@ const Details = asyncComponent(() =>
   import(/* webpackChunkName: "AutomationDetails" */ './containers/Details')
 );
 
-const AutomationsList = asyncComponent(() =>
+const List = asyncComponent(() =>
   import(/* webpackChunkName: "AutomationsList" */ './containers/List')
 );
 
@@ -32,7 +32,7 @@ const list = ({ location }) => {
 
   localStorage.setItem('erxes_contact_url', 'companies');
 
-  return <AutomationsList queryParams={queryParams} />;
+  return <List queryParams={queryParams} />;
 };
 
 const routes = () => {
