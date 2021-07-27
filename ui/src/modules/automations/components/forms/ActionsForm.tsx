@@ -17,9 +17,9 @@ class ActionsForm extends React.Component<Props> {
     closeModal();
   };
 
-  renderBox(action) {
+  renderBox(action, index) {
     return (
-      <ActionBox onClick={this.onClickAction.bind(this, action)}>
+      <ActionBox key={index} onClick={this.onClickAction.bind(this, action)}>
         <Icon icon={action.icon} size={30} />
         <div>
           <b>{__(action.label)}</b>
@@ -30,7 +30,7 @@ class ActionsForm extends React.Component<Props> {
   }
 
   render() {
-    return <>{ACTIONS.map(action => this.renderBox(action))}</>;
+    return <>{ACTIONS.map((action, index) => this.renderBox(action, index))}</>;
   }
 }
 

@@ -57,11 +57,19 @@ class AutomationForm extends React.Component<Props, State> {
     };
   }
 
+  onClick = trigger => {
+    console.log(trigger);
+  };
+
   renderTrigger = (trigger: ITrigger) => {
+    console.log(trigger);
+    const onClick = () => console.log('ahsdhashdh');
     const idElm = `trigger-${trigger.id}`;
 
     jquery('#canvas').append(`
-          <div class="trigger" id="${idElm}" style="${trigger.style}">
+          <div class="trigger" id="${idElm}" style="${trigger.style}"
+            onclick="${onClick}"
+          >
             ${trigger.type}
           </div>
         `);
@@ -266,6 +274,7 @@ class AutomationForm extends React.Component<Props, State> {
 
     instance.bind('ready', () => {
       const { triggers, actions } = this.state;
+
       instance.bind('connection', info => {
         this.onConnection(info);
       });
@@ -330,66 +339,6 @@ class AutomationForm extends React.Component<Props, State> {
                 onChange={this.onNameChange}
                 required={true}
                 autoFocus={true}
-              />
-            </FormGroup>
-          </FormColumn>
-          <FormColumn>
-            <FormGroup>
-              <ControlLabel>Triggers</ControlLabel>
-              <FormControl
-                componentClass="select"
-                value={'Choose trigger'}
-                options={[
-                  {
-                    value: '',
-                    label: 'Choose trigger'
-                  },
-                  {
-                    value: 'formSubmit',
-                    label: 'Form submit'
-                  },
-                  {
-                    value: 'dealCreate',
-                    label: 'Deal create'
-                  }
-                ]}
-                // onChange={this.addTrigger}
-              />
-            </FormGroup>
-          </FormColumn>
-          <FormColumn>
-            <FormGroup>
-              <ControlLabel>Actions</ControlLabel>
-              <FormControl
-                componentClass="select"
-                value={'Choose trigger'}
-                options={[
-                  {
-                    value: '',
-                    label: 'Choose action'
-                  },
-                  {
-                    value: 'createTask',
-                    label: 'Create task'
-                  },
-                  {
-                    value: 'createDeal',
-                    label: 'Create deal'
-                  },
-                  {
-                    value: 'createTicket',
-                    label: 'Create ticket'
-                  },
-                  {
-                    value: 'if',
-                    label: 'IF'
-                  },
-                  {
-                    value: 'goto',
-                    label: 'Go to another action'
-                  }
-                ]}
-                // onChange={this.addAction}
               />
             </FormGroup>
           </FormColumn>
