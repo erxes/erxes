@@ -28,7 +28,7 @@ router.post(
     const { doc } = req.body;
     const automation = await Automations.create({ ...doc });
 
-    return res.json({ ...automation });
+    return res.json({ ...(await Automations.getAutomation({ _id: automation._id })) });
   })
 );
 

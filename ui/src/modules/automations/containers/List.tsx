@@ -134,7 +134,8 @@ export default withProps<Props>(
       {
         name: 'automationsMainQuery',
         options: ({ queryParams }) => ({
-          variables: generateParams({ queryParams })
+          variables: generateParams({ queryParams }),
+          fetchPolicy: 'network-only'
         })
       }
     ),

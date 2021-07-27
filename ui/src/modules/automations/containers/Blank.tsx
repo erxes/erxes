@@ -22,11 +22,19 @@ const BlankContainer = (props: FinalProps) => {
     isSubmitted,
     callback
   }: IButtonMutateProps) => {
+    const afterAdd = data => {
+      if (!data.automationsAdd || !data.automationsAdd._id) {
+        return;
+      }
+
+      window.location.href = `/automations/details/${data.automationsAdd._id}`;
+    };
+
     return (
       <ButtonMutate
         mutation={mutations.automationsAdd}
         variables={values}
-        callback={callback}
+        callback={afterAdd}
         refetchQueries={['automations', 'automationsMain', 'automationDetail']}
         isSubmitted={isSubmitted}
         type="submit"
