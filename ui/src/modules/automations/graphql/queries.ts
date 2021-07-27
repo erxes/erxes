@@ -38,15 +38,6 @@ const listParamsValue = `
   sortDirection: $sortDirection
 `;
 
-export const forms = `
-  query forms {
-    forms {
-      _id
-      title
-    }
-  }
-`;
-
 export const automations = `
   query automations(${listParamsDef}) {
     automations(${listParamsValue}) {
@@ -78,7 +69,6 @@ export const automationDetail = `
 `;
 
 export default {
-  forms,
   automations,
   automationsMain,
   automationDetail

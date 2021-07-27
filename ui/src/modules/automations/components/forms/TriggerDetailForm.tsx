@@ -1,22 +1,18 @@
 import { __ } from 'modules/common/utils';
 import React from 'react';
 import Select from 'react-select-plus';
-import { IAction, ITrigger } from '../../types';
 import { ModalFooter } from 'modules/common/styles/main';
 import Button from 'modules/common/components/Button';
 import FormGroup from 'modules/common/components/form/Group';
 import ControlLabel from 'modules/common/components/form/Label';
-import { IForm } from 'modules/forms/types';
-
-const actions: IAction[] = JSON.parse(localStorage.getItem('actions') || '[]');
-const triggers: ITrigger[] = JSON.parse(
-  localStorage.getItem('triggers') || '[]'
-);
+import { ILeadIntegration } from 'modules/leads/types';
 
 type Props = {
   closeModal: () => void;
   closeParentModal: () => void;
-  forms: IForm[];
+  forms: ILeadIntegration[];
+  activeTrigger: string;
+  addTrigger: (value: string) => void;
 };
 
 type State = {
@@ -33,8 +29,10 @@ class TriggerDetailForm extends React.Component<Props, State> {
   }
 
   onSave = () => {
-    localStorage.setItem('actions', JSON.stringify(actions));
-    localStorage.setItem('triggers', JSON.stringify(triggers));
+    const { addTrigger, activeTrigger } = this.props;
+
+    addTrigger(activeTrigger);
+
     this.props.closeParentModal();
   };
 
@@ -45,8 +43,8 @@ class TriggerDetailForm extends React.Component<Props, State> {
   render() {
     const { forms } = this.props;
 
-    const selectOptions = (array: IForm[] = []) => {
-      return array.map(item => ({ value: item._id, label: item.title }));
+    const selectOptions = (array: ILeadIntegration[] = []) => {
+      return array.map(item => ({ value: item._id, label: item.name }));
     };
 
     return (

@@ -4,8 +4,8 @@ import jquery from 'jquery';
 import Wrapper from 'modules/layout/components/Wrapper';
 import React from 'react';
 
-import { IAction, IAutomation, ITrigger } from '../types';
-import { Container } from '../styles';
+import { IAction, IAutomation, ITrigger } from '../../types';
+import { Container } from '../../styles';
 import Form from 'modules/common/components/form/Form';
 import { IButtonMutateProps, IFormProps } from 'modules/common/types';
 import {
@@ -14,6 +14,11 @@ import {
   FormGroup
 } from 'modules/common/components/form';
 import { FormColumn, FormWrapper } from 'modules/common/styles/main';
+import { BarItems } from 'modules/layout/styles';
+import Button from 'modules/common/components/Button';
+import ModalTrigger from 'modules/common/components/ModalTrigger';
+import TriggerForm from '../../containers/forms/TriggerForm';
+import ActionsForm from '../../containers/forms/ActionsForm';
 
 const plumb: any = jsPlumb;
 let instance;
@@ -31,7 +36,7 @@ type State = {
   triggers: ITrigger[];
 };
 
-class Detail extends React.Component<Props, State> {
+class AutomationForm extends React.Component<Props, State> {
   constructor(props) {
     super(props);
 
@@ -282,10 +287,10 @@ class Detail extends React.Component<Props, State> {
     });
   }
 
-  addTrigger = e => {
+  addTrigger = (value: string) => {
     const { triggers } = this.state;
-    const trigger = { id: String(triggers.length), type: e.target.value };
-
+    const trigger = { id: String(triggers.length), type: value };
+    console.log(trigger, triggers);
     triggers.push(trigger);
     this.setState({ triggers });
 
@@ -348,7 +353,7 @@ class Detail extends React.Component<Props, State> {
                     label: 'Deal create'
                   }
                 ]}
-                onChange={this.addTrigger}
+                // onChange={this.addTrigger}
               />
             </FormGroup>
           </FormColumn>
@@ -406,6 +411,69 @@ class Detail extends React.Component<Props, State> {
     return <Form renderContent={this.formContent} />;
   };
 
+  renderActionForm() {
+    const trigger = (
+      <Button btnStyle="primary" size="small" icon="plus-circle">
+        Add New Action
+      </Button>
+    );
+
+    const content = props => <ActionsForm {...props} />;
+
+    return (
+      <div>
+        <ModalTrigger
+          title="Add a New Action"
+          trigger={trigger}
+          content={content}
+        />
+      </div>
+    );
+  }
+
+  renderTriggerForm() {
+    const trigger = (
+      <Button btnStyle="primary" size="small" icon="plus-circle">
+        Add New Trigger
+      </Button>
+    );
+
+    const content = props => (
+      <TriggerForm
+        renderTrigger={this.renderTrigger}
+        addTrigger={this.addTrigger}
+        {...props}
+      />
+    );
+
+    return (
+      <div>
+        <ModalTrigger
+          title="Select a Trigger"
+          trigger={trigger}
+          content={content}
+        />
+      </div>
+    );
+  }
+
+  rendeRightActionbar() {
+    const { renderButton, id } = this.props;
+    const { name, status, triggers, actions } = this.state;
+
+    return (
+      <BarItems>
+        {this.renderTriggerForm()}
+        {this.renderActionForm()}
+        {renderButton({
+          name: 'save',
+          values: { _id: id || '', name, status, triggers, actions },
+          isSubmitted: true
+        })}
+      </BarItems>
+    );
+  }
+
   render() {
     const { automation } = this.props;
 
@@ -420,10 +488,11 @@ class Detail extends React.Component<Props, State> {
             ]}
           />
         }
+        actionBar={<Wrapper.ActionBar right={this.rendeRightActionbar()} />}
         content={this.renderContent()}
       />
     );
   }
 }
 
-export default Detail;
+export default AutomationForm;

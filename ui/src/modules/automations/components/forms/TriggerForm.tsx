@@ -15,6 +15,7 @@ const triggers: ITrigger[] = JSON.parse(
 
 type Props = {
   closeModal: () => void;
+  addTrigger: (value: string) => void;
 };
 
 type State = {
@@ -44,12 +45,10 @@ class TriggerForm extends React.Component<Props, State> {
     localStorage.setItem('triggers', JSON.stringify(triggers));
   };
 
-  onClickTrigger = (key: string) => {
-    this.setState({ activeTrigger: key });
-  };
+  renderBox(key: string, icon: string, text: string) {
+    const { closeModal, addTrigger } = this.props;
 
-  renderTrigger(key: string, icon: string, text: string) {
-    const addTrigger = (
+    const trigger = (
       <TriggerBox>
         <Icon icon={icon} size={30} />
         {__(text)}
@@ -57,13 +56,18 @@ class TriggerForm extends React.Component<Props, State> {
     );
 
     const content = props => (
-      <TriggerDetailForm closeParentModal={this.props.closeModal} {...props} />
+      <TriggerDetailForm
+        closeParentModal={closeModal}
+        activeTrigger={key}
+        addTrigger={addTrigger}
+        {...props}
+      />
     );
 
     return (
       <ModalTrigger
         title={`${text} options`}
-        trigger={addTrigger}
+        trigger={trigger}
         content={content}
         size="lg"
       />
@@ -72,37 +76,10 @@ class TriggerForm extends React.Component<Props, State> {
 
   render() {
     return (
-      <>
-        {/* <p>
-          <label>Triggers</label>
-
-          <select id="add-trigger">
-            <option>Choose trigger</option>
-            <option value="formSubmit">Form submit</option>
-            <option value="dealCreate">Deal create</option>
-          </select>
-        </p> */}
-        <FlexRow>
-          {this.renderTrigger('form', 'file-plus-alt', 'Form Submit')}
-          {this.renderTrigger('deal', 'file-plus', 'Deal create')}
-        </FlexRow>
-        {/* <p>
-          <label>Actions</label>
-
-          <select id="add-action">
-            <option>Choose action</option>
-            <option value="createTask">Create task</option>
-            <option value="createDeal">Create deal</option>
-            <option value="createTicket">Create ticket</option>
-            <option value="if">IF</option>
-            <option value="goto">Go to another action</option>
-          </select>
-        </p>
-
-        <p>
-          <button id="save">Save</button>
-        </p> */}
-      </>
+      <FlexRow>
+        {this.renderBox('formSubmit', 'file-plus-alt', 'Form Submit')}
+        {this.renderBox('dealCreate', 'file-plus', 'Deal create')}
+      </FlexRow>
     );
   }
 }

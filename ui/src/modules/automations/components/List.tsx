@@ -124,7 +124,7 @@ class AutomationsList extends React.Component<IProps, State> {
             </tr>
           </thead>
           <tbody id="automations" className={isExpand ? 'expand' : ''}>
-            {automations.map(automation => (
+            {(automations || []).map(automation => (
               <Row
                 automation={automation}
                 isChecked={bulk.includes(automation)}
@@ -200,7 +200,7 @@ class AutomationsList extends React.Component<IProps, State> {
           <DataWithLoader
             data={mainContent}
             loading={loading}
-            count={automations.length}
+            count={(automations || []).length}
             emptyText="Add in your first automation!"
             emptyImage="/images/actions/1.svg"
           />

@@ -8,7 +8,7 @@ import { withProps } from 'modules/common/utils';
 import React from 'react';
 import { graphql } from 'react-apollo';
 import { IUser } from '../../auth/types';
-import Detail from '../components/Detail';
+import AutomationForm from '../components/forms/AutomationForm';
 import { queries, mutations } from '../graphql';
 import { DetailQueryResponse } from '../types';
 
@@ -82,7 +82,7 @@ const AutomationDetailsContainer = (props: FinalProps) => {
     renderButton
   };
 
-  return <Detail {...updatedProps} />;
+  return <AutomationForm {...updatedProps} />;
 };
 
 export default withProps<Props>(
