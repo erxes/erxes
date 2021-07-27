@@ -1,7 +1,7 @@
-import { addDeal } from './actions/addDeals';
+// import { addDeal } from './actions/addDeals';
 import { ACTIONS } from './constants';
 import { debugBase } from './debuggers';
-import Automations, { IAction, IAutomationDocument } from './models/Automations';
+import Automations, { IAction, IAutomationDocument, ITrigger } from './models/Automations';
 import { Executions, IExecutionDocument } from './models/Executions';
 
 export const getEnv = ({
@@ -104,9 +104,9 @@ export const executeActions = async (execution: IExecutionDocument, actionsMap: 
   }
 
   if (action.type === ACTIONS.ADD_DEAL) {
-    const result = await addDeal({ config: action.config, data: execution.triggerData });
-    execution.actionsData.push({ actionId: currentActionId, data: result })
-    // deals.push(replacePlaceHolders({ actionData: action.config, triggerData: execution.triggerData }));
+    // const result = await addDeal({ config: action.config, data: execution.triggerData });
+    // execution.actionsData.push({ actionId: currentActionId, data: result })
+    deals.push(replacePlaceHolders({ actionData: action.config, triggerData: execution.triggerData }));
   }
 
   if (action.type === ACTIONS.REMOVE_DEAL) {
@@ -116,36 +116,31 @@ export const executeActions = async (execution: IExecutionDocument, actionsMap: 
   return executeActions(execution, actionsMap, action.nextActionId);
 }
 
-export const executeAutomation = async ({ automation, triggerType, targetId, triggerData }: { automation: IAutomationDocument, triggerType: string, targetId: string, triggerData?: any }) => {
-  const execution = await Executions.create({ automationId: automation._id, triggerType, triggerData, targetId });
+export const executeAutomation = async ({ automation, trigger, targetId, triggerData }: { automation: IAutomationDocument, trigger: ITrigger, targetId: string, triggerData?: any }) => {
+  const execution = await Executions.create({ automationId: automation._id, triggerId: trigger.id, triggerData, targetId });
   const actionsMap: IActionsMap = {};
-
-  let firstActionId: string;
 
   for (const action of automation.actions) {
     actionsMap[action.id] = action;
-
-    if (!action.prevActionId) {
-      firstActionId = action.id;
-    }
   }
 
-  await executeActions(execution, actionsMap, firstActionId);
+  await executeActions(execution, actionsMap, trigger.actionId);
 }
 
 export const receiveTrigger = async ({ triggerType, targetId, data }: { triggerType: string, targetId: string, data?: any }) => {
-  const automations = await Automations.find({ 'triggers.type': { $in: [triggerType] } });
+  const automations = await Automations.find({ status: 'active', 'triggers.type': { $in: [triggerType] } }).lean();
 
-  const executions = await Executions.find({
-    automationId: { $in: automations.map(a => a._id) },
-    triggerType,
-    targetId,
-    waitingActionId: { $ne: null }
-  });
+  if (!automations.length) {
+    return;
+  }
 
-  if (executions.length === 0) {
-    for (const automation of automations) {
-      await executeAutomation({ automation, triggerType, targetId, triggerData: data });
+  for (const automation of automations) {
+    for (const trigger of automation.triggers) {
+      if (trigger.type !== triggerType) {
+        continue;
+      }
+
+      await executeAutomation({ automation, trigger, targetId, triggerData: data });
     }
   }
 }

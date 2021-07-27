@@ -20,7 +20,8 @@ describe('executeActions (if)', () => {
     */
     await automationFactory({
       name: "1",
-      triggers: [{ type: "websiteVisited" }],
+      status: 'active',
+      triggers: [{ id: '1', type: "websiteVisited", actionId: '1' }],
       actions: [
         {
           id: "1",
@@ -30,7 +31,6 @@ describe('executeActions (if)', () => {
         },
         {
           id: "2",
-          prevActionId: "1",
           type: "IF",
           config: {
             segmentId: "segmentId",
@@ -39,7 +39,6 @@ describe('executeActions (if)', () => {
         },
         {
           id: "3",
-          prevActionId: "2",
           type: "REMOVE_TAGS",
           config: {
             names: ["t1"],
@@ -64,7 +63,7 @@ describe('executeActions (if)', () => {
 
     const execution = await Executions.findOne();
 
-    expect(execution.triggerType).toBe('websiteVisited');
+    expect(execution.triggerId).toBe('1');
     expect(execution.waitingActionId).toBe(null);
     expect(execution.lastCheckedWaitDate).toBe(null);
 
@@ -96,7 +95,8 @@ describe('executeActions (wait)', () => {
     */
     await automationFactory({
       name: "1",
-      triggers: [{ type: "websiteVisited" }],
+      status: 'active',
+      triggers: [{ id: '1', type: "websiteVisited", actionId: '1' }],
       actions: [
         {
           id: "1",
@@ -106,7 +106,6 @@ describe('executeActions (wait)', () => {
         },
         {
           id: "2",
-          prevActionId: "1",
           type: "WAIT",
           config: {
             period: '1d',
@@ -115,7 +114,6 @@ describe('executeActions (wait)', () => {
         },
         {
           id: "3",
-          prevActionId: "2",
           type: "IF",
           config: {
             segmentId: "segmentId",
@@ -156,9 +154,12 @@ describe('executeActions (placeholder)', () => {
     */
     await automationFactory({
       name: "1",
+      status: 'active',
       triggers:
         [{
+          id: '1',
           type: "formSubmit",
+          actionId: '1',
           config: {
             fields: [
               { fieldName: 'field_id1', label: 'Product name' },
@@ -176,7 +177,6 @@ describe('executeActions (placeholder)', () => {
         },
         {
           id: "2",
-          prevActionId: "1",
           type: "ADD_DEAL",
           config: { title: "title {{ field_1 }}", description: 'Price: {{ field_2 }} shvv' },
         },
@@ -191,10 +191,12 @@ describe('executeActions (placeholder)', () => {
   })
 
   test("check deal", async (done) => {
-    await receiveTrigger({ triggerType: "formSubmit", targetId: "submission1", data: {
-      "field_1": "Hoodie",
-      "field_2": 1000
-    } });
+    await receiveTrigger({
+      triggerType: "formSubmit", targetId: "submission1", data: {
+        "field_1": "Hoodie",
+        "field_2": 1000
+      }
+    });
 
     expect(deals.length).toBe(1);
 
