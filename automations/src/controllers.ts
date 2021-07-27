@@ -21,7 +21,7 @@ export const routeErrorHandling = (fn, callback?: any) => {
 const router = Router();
 
 router.post(
-  '/createAutomation',
+  '/create',
   routeErrorHandling(async (req, res) => {
     debugRequest(debugEngages, req);
 
@@ -33,7 +33,7 @@ router.post(
 );
 
 router.post(
-  '/updateAutomation',
+  '/update',
   routeErrorHandling(async (req, res) => {
     debugRequest(debugEngages, req);
     const { doc } = req.body;
@@ -47,7 +47,7 @@ router.post(
 );
 
 router.post(
-  '/removeAutomations',
+  '/remove',
   routeErrorHandling(async (req, res) => {
     debugRequest(debugEngages, req);
 
@@ -59,20 +59,20 @@ router.post(
 );
 
 router.get(
-  '/automation-detail/:automationId',
+  '/detail/:id',
   routeErrorHandling(async (req, res) => {
     debugRequest(debugEngages, req);
 
-    const { automationId } = req.params;
+    const { id } = req.params;
 
-    const automations = await Automations.getAutomation({ _id: automationId });
+    const automations = await Automations.getAutomation({ _id: id });
 
     return res.json(automations);
   })
 );
 
 router.get(
-  '/automations-main',
+  '/list',
   routeErrorHandling(async (req, res) => {
     const { page, perPage, status, searchValue } = req.query;
 
@@ -108,7 +108,7 @@ router.get(
 );
 
 router.get(
-  '/automations',
+  '/find',
   routeErrorHandling(async (req, res) => {
     const { selector } = req.query;
 
