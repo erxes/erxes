@@ -36,7 +36,7 @@ type ITrigger = {
 
 const renderTrigger = (trigger: ITrigger) => {
   const idElm = `trigger-${trigger.id}`;
-  console.log('here12312');
+
   jquery('#canvas').append(`
             <div class="trigger" id="${idElm}" style="${trigger.style}">
               ${trigger.type}
@@ -248,14 +248,14 @@ class Automations extends React.Component {
       for (const action of actions) {
         renderAction(action);
       }
-      console.log(triggers);
+
       for (const trigger of triggers) {
         renderTrigger(trigger);
       }
 
       // create connections ===================
       createInitialConnections();
-
+      console.log('here12312');
       jquery('#add-trigger').on('change', e => {
         const trigger = { id: triggers.length, type: e.target.value };
 
@@ -267,7 +267,7 @@ class Automations extends React.Component {
       jquery('#add-action').on('change', e => {
         const id = actions.length;
         const actionType = e.target.value;
-
+        console.log('hereeeee');
         actions.push({ id: actions.length, type: actionType });
 
         renderAction({ id, type: actionType });
@@ -350,6 +350,32 @@ class Automations extends React.Component {
         actionBar={<Wrapper.ActionBar right={this.rendeRightActionbar()} />}
         content={
           <Container>
+            <p>
+              <label>Triggers</label>
+
+              <select id="add-trigger">
+                <option>Choose trigger</option>
+                <option value="formSubmit">Form submit</option>
+                <option value="dealCreate">Deal create</option>
+              </select>
+            </p>
+
+            <p>
+              <label>Actions</label>
+
+              <select id="add-action">
+                <option>Choose action</option>
+                <option value="createTask">Create task</option>
+                <option value="createDeal">Create deal</option>
+                <option value="createTicket">Create ticket</option>
+                <option value="if">IF</option>
+                <option value="goto">Go to another action</option>
+              </select>
+            </p>
+
+            <p>
+              <button id="save">Save</button>
+            </p>
             <div id="canvas" />
           </Container>
         }

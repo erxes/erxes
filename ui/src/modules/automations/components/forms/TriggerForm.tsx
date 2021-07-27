@@ -5,7 +5,7 @@ import { TriggerBox } from '../../styles';
 import Icon from 'modules/common/components/Icon';
 import { FlexRow } from 'modules/settings/styles';
 import { IAction, ITrigger } from '../../types';
-import TriggerDetailForm from './TriggerDetailForm';
+import TriggerDetailForm from '../../containers/forms/TriggerDetailForm';
 import ModalTrigger from 'modules/common/components/ModalTrigger';
 
 const actions: IAction[] = JSON.parse(localStorage.getItem('actions') || '[]');
