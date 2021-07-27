@@ -1,6 +1,7 @@
 import * as dotenv from 'dotenv';
 import messageBroker from 'erxes-message-broker';
 import { debugBase } from './debuggers';
+import { receiveTrigger } from './utils';
 
 dotenv.config();
 
@@ -15,11 +16,22 @@ export const initBroker = async server => {
 
   const { consumeQueue } = client;
 
-  consumeQueue('erxes-api:automations-notification', async ({ action, data }) => {
-    debugBase(`Receiving queue data from erxes-api ${action} ${JSON.stringify(data)}`);
+  consumeQueue('erxes-automations:trigger', async param => {
+    debugBase(`Receiving queue data from erxes-api: ${JSON.stringify(param)}`);
+
+    const { triggerType, data } = param
+    await receiveTrigger({ triggerType, targetId: '', data });
   });
 };
 
-export default function() {
+export default function () {
   return client;
+}
+
+export const sendRPCMessage = (module: string, action: string, data: any) => {
+  return client().sendRPCMessage('rpc_queue:automations_to_api', {
+    module,
+    action,
+    data
+  });
 }

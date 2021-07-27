@@ -306,8 +306,8 @@ class Navigation extends React.Component<IProps> {
           {this.renderNavItem(
             'showAutomations',
             __('Automations'),
-            '/automations/create',
-            'icon-users'
+            '/automations',
+            'icon-sign-alt'
           )}
 
           {pluginsOfNavigations(this.renderNavItem)}

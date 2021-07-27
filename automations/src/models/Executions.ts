@@ -1,9 +1,16 @@
 import { Document, Model, model, Schema } from 'mongoose';
 
+export interface IActionData {
+  actionId: string;
+  data: any;
+}
+
 export interface IExecution {
   automationId: string;
+  triggerId: string;
   triggerType: string;
   triggerData: any;
+  actionsData: IActionData[];
   targetId: string;
   status: string;
   lastCheckedWaitDate: Date;
@@ -14,10 +21,18 @@ export interface IExecutionDocument extends IExecution, Document {
   _id: string;
 }
 
+export const actionDataSchema = new Schema({
+  id: { type: String, required: true },
+  actionId: { type: String, required: true },
+  data: { type: Object }
+}, { _id: false });
+
 export const executionSchema = new Schema({
   automationId: { type: String, required: true },
+  triggerId: { type: String, required: true },
   triggerType: { type: String, required: true },
   triggerData: { type: Object },
+  actionsData: { type: [actionDataSchema] },
   targetId: { type: String, required: true },
   lastCheckedWaitDate: { type: Date },
   waitingActionId: { type: String },

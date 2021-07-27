@@ -1,0 +1,6 @@
+npm-debug.log*
+coverage
+.migrate
+
+# Google config file
+google_cred.json

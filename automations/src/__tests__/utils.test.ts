@@ -20,7 +20,7 @@ describe('executeActions (if)', () => {
     */
     await automationFactory({
       name: "1",
-      trigger: { type: "websiteVisited" },
+      triggers: [{ type: "websiteVisited" }],
       actions: [
         {
           id: "1",
@@ -96,7 +96,7 @@ describe('executeActions (wait)', () => {
     */
     await automationFactory({
       name: "1",
-      trigger: { type: "websiteVisited" },
+      triggers: [{ type: "websiteVisited" }],
       actions: [
         {
           id: "1",
@@ -156,8 +156,8 @@ describe('executeActions (placeholder)', () => {
     */
     await automationFactory({
       name: "1",
-      trigger: 
-        {
+      triggers:
+        [{
           type: "formSubmit",
           config: {
             fields: [
@@ -165,7 +165,7 @@ describe('executeActions (placeholder)', () => {
               { fieldName: 'field_id2', label: 'Price' },
             ]
           },
-        },
+        }],
 
       actions: [
         {
