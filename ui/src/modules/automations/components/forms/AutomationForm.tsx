@@ -4,8 +4,8 @@ import jquery from 'jquery';
 import Wrapper from 'modules/layout/components/Wrapper';
 import React from 'react';
 
-import { IAction, IAutomation, ITrigger } from '../types';
-import { Container } from '../styles';
+import { IAction, IAutomation, ITrigger } from '../../types';
+import { Container } from '../../styles';
 import Form from 'modules/common/components/form/Form';
 import { IButtonMutateProps, IFormProps } from 'modules/common/types';
 import {
@@ -14,6 +14,11 @@ import {
   FormGroup
 } from 'modules/common/components/form';
 import { FormColumn, FormWrapper } from 'modules/common/styles/main';
+import { BarItems } from 'modules/layout/styles';
+import Button from 'modules/common/components/Button';
+import ModalTrigger from 'modules/common/components/ModalTrigger';
+import TriggerForm from '../../containers/forms/TriggerForm';
+import ActionsForm from '../../containers/forms/ActionsForm';
 
 const plumb: any = jsPlumb;
 let instance;
@@ -31,7 +36,7 @@ type State = {
   triggers: ITrigger[];
 };
 
-class Detail extends React.Component<Props, State> {
+class AutomationForm extends React.Component<Props, State> {
   constructor(props) {
     super(props);
 
@@ -52,11 +57,19 @@ class Detail extends React.Component<Props, State> {
     };
   }
 
+  onClick = trigger => {
+    console.log(trigger);
+  };
+
   renderTrigger = (trigger: ITrigger) => {
+    console.log(trigger);
+    const onClick = () => console.log('ahsdhashdh');
     const idElm = `trigger-${trigger.id}`;
 
     jquery('#canvas').append(`
-          <div class="trigger" id="${idElm}" style="${trigger.style}">
+          <div class="trigger" id="${idElm}" style="${trigger.style}"
+            onclick="${onClick}"
+          >
             ${trigger.type}
           </div>
         `);
@@ -261,6 +274,7 @@ class Detail extends React.Component<Props, State> {
 
     instance.bind('ready', () => {
       const { triggers, actions } = this.state;
+
       instance.bind('connection', info => {
         this.onConnection(info);
       });
@@ -282,9 +296,9 @@ class Detail extends React.Component<Props, State> {
     });
   }
 
-  addTrigger = e => {
+  addTrigger = (value: string) => {
     const { triggers } = this.state;
-    const trigger = { id: String(triggers.length), type: e.target.value };
+    const trigger = { id: String(triggers.length), type: value };
 
     triggers.push(trigger);
     this.setState({ triggers });
@@ -292,9 +306,9 @@ class Detail extends React.Component<Props, State> {
     this.renderTrigger(trigger);
   };
 
-  addAction = e => {
+  addAction = (value: string) => {
     const { actions } = this.state;
-    const action = { id: String(actions.length), type: e.target.value };
+    const action = { id: String(actions.length), type: value };
 
     actions.push(action);
     this.setState({ actions });
@@ -353,66 +367,6 @@ class Detail extends React.Component<Props, State> {
             </FormGroup>
           </FormColumn>
           <FormColumn>
-            <FormGroup>
-              <ControlLabel>Triggers</ControlLabel>
-              <FormControl
-                componentClass="select"
-                value={'Choose trigger'}
-                options={[
-                  {
-                    value: '',
-                    label: 'Choose trigger'
-                  },
-                  {
-                    value: 'formSubmit',
-                    label: 'Form submit'
-                  },
-                  {
-                    value: 'dealCreate',
-                    label: 'Deal create'
-                  }
-                ]}
-                onChange={this.addTrigger}
-              />
-            </FormGroup>
-          </FormColumn>
-          <FormColumn>
-            <FormGroup>
-              <ControlLabel>Actions</ControlLabel>
-              <FormControl
-                componentClass="select"
-                value={'Choose trigger'}
-                options={[
-                  {
-                    value: '',
-                    label: 'Choose action'
-                  },
-                  {
-                    value: 'createTask',
-                    label: 'Create task'
-                  },
-                  {
-                    value: 'createDeal',
-                    label: 'Create deal'
-                  },
-                  {
-                    value: 'createTicket',
-                    label: 'Create ticket'
-                  },
-                  {
-                    value: 'if',
-                    label: 'IF'
-                  },
-                  {
-                    value: 'goto',
-                    label: 'Go to another action'
-                  }
-                ]}
-                onChange={this.addAction}
-              />
-            </FormGroup>
-          </FormColumn>
-          <FormColumn>
             {renderButton({
               name: 'save',
               values: generateValues(),
@@ -430,6 +384,67 @@ class Detail extends React.Component<Props, State> {
     return <Form renderContent={this.formContent} />;
   };
 
+  renderActionForm() {
+    const trigger = (
+      <Button btnStyle="primary" size="small" icon="plus-circle">
+        Add New Action
+      </Button>
+    );
+
+    const content = props => (
+      <ActionsForm addAction={this.addAction} {...props} />
+    );
+
+    return (
+      <div>
+        <ModalTrigger
+          title="Add a New Action"
+          trigger={trigger}
+          content={content}
+        />
+      </div>
+    );
+  }
+
+  renderTriggerForm() {
+    const trigger = (
+      <Button btnStyle="primary" size="small" icon="plus-circle">
+        Add New Trigger
+      </Button>
+    );
+
+    const content = props => (
+      <TriggerForm addTrigger={this.addTrigger} {...props} />
+    );
+
+    return (
+      <div>
+        <ModalTrigger
+          title="Select a Trigger"
+          trigger={trigger}
+          content={content}
+        />
+      </div>
+    );
+  }
+
+  rendeRightActionbar() {
+    const { renderButton, id } = this.props;
+    const { name, status, triggers, actions } = this.state;
+
+    return (
+      <BarItems>
+        {this.renderTriggerForm()}
+        {this.renderActionForm()}
+        {renderButton({
+          name: 'save',
+          values: { _id: id || '', name, status, triggers, actions },
+          isSubmitted: true
+        })}
+      </BarItems>
+    );
+  }
+
   render() {
     const { automation } = this.props;
 
@@ -444,10 +459,11 @@ class Detail extends React.Component<Props, State> {
             ]}
           />
         }
+        actionBar={<Wrapper.ActionBar right={this.rendeRightActionbar()} />}
         content={this.renderContent()}
       />
     );
   }
 }
 
-export default Detail;
+export default AutomationForm;
