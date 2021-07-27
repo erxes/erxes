@@ -30,7 +30,7 @@ export interface IAutomation extends IAutomationDoc {
 // mutation types
 
 export type EditMutationResponse = {
-  automationsEdit: (params: { variables: IAutomation }) => Promise<any>;
+  editAutomationMutation: (params: { variables: IAutomation }) => Promise<any>;
 };
 
 export type RemoveMutationVariables = {
@@ -44,7 +44,9 @@ export type RemoveMutationResponse = {
 };
 
 export type AddMutationResponse = {
-  automationsAdd: (params: { variables: IAutomationDoc }) => Promise<any>;
+  addAutomationMutation: (params: {
+    variables: IAutomationDoc;
+  }) => Promise<any>;
 };
 
 // query types

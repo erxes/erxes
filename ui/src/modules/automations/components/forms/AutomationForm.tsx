@@ -1,4 +1,4 @@
-import { __ } from 'modules/common/utils';
+import { __, Alert } from 'modules/common/utils';
 import { jsPlumb } from 'jsplumb';
 import jquery from 'jquery';
 import Wrapper from 'modules/layout/components/Wrapper';
@@ -7,7 +7,7 @@ import React from 'react';
 import { IAction, IAutomation, ITrigger } from '../../types';
 import { Container } from '../../styles';
 import Form from 'modules/common/components/form/Form';
-import { IButtonMutateProps, IFormProps } from 'modules/common/types';
+import { IFormProps } from 'modules/common/types';
 import {
   ControlLabel,
   FormControl,
@@ -32,7 +32,7 @@ let instance;
 type Props = {
   id?: string;
   automation?: IAutomation;
-  renderButton: (props: IButtonMutateProps) => JSX.Element;
+  save: (params: any) => void;
 };
 
 type State = {
@@ -68,6 +68,43 @@ class AutomationForm extends React.Component<Props, State> {
   onClick = (trigger?: ITrigger) => {
     console.log('here');
     this.setState({ showModal: !this.state.showModal });
+  };
+
+  handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+
+    const { name, status, triggers, actions } = this.state;
+    const { id, save } = this.props;
+
+    if (!name) {
+      return Alert.error('Enter an Automation name');
+    }
+
+    const generateValues = () => {
+      const finalValues = {
+        _id: id,
+        name,
+        status,
+        triggers: triggers.map(t => ({
+          id: t.id,
+          type: t.type,
+          actionId: t.actionId,
+          config: t.config,
+          style: jquery(`#trigger-${t.id}`).attr('style')
+        })),
+        actions: actions.map(a => ({
+          id: a.id,
+          type: a.type,
+          nextActionId: a.nextActionId,
+          config: a.config,
+          style: jquery(`#action-${a.id}`).attr('style')
+        }))
+      };
+
+      return finalValues;
+    };
+
+    save(generateValues());
   };
 
   renderTrigger = (trigger: ITrigger) => {
@@ -254,33 +291,33 @@ class AutomationForm extends React.Component<Props, State> {
   };
 
   formContent = (formProps: IFormProps) => {
-    const { name, status, triggers, actions } = this.state;
-    const { id, renderButton } = this.props;
-    const { isSubmitted } = formProps;
+    const { name } = this.state;
+    // const { id } = this.props;
+    // const { isSubmitted } = formProps;
 
-    const generateValues = () => {
-      const finalValues = {
-        _id: id,
-        name,
-        status,
-        triggers: triggers.map(t => ({
-          id: t.id,
-          type: t.type,
-          actionId: t.actionId,
-          config: t.config,
-          style: jquery(`#trigger-${t.id}`).attr('style')
-        })),
-        actions: actions.map(a => ({
-          id: a.id,
-          type: a.type,
-          nextActionId: a.nextActionId,
-          config: a.config,
-          style: jquery(`#action-${a.id}`).attr('style')
-        }))
-      };
+    // const generateValues = () => {
+    //   const finalValues = {
+    //     _id: id,
+    //     name,
+    //     status,
+    //     triggers: triggers.map((t) => ({
+    //       id: t.id,
+    //       type: t.type,
+    //       actionId: t.actionId,
+    //       config: t.config,
+    //       style: jquery(`#trigger-${t.id}`).attr("style"),
+    //     })),
+    //     actions: actions.map((a) => ({
+    //       id: a.id,
+    //       type: a.type,
+    //       nextActionId: a.nextActionId,
+    //       config: a.config,
+    //       style: jquery(`#action-${a.id}`).attr("style"),
+    //     })),
+    //   };
 
-      return finalValues;
-    };
+    //   return finalValues;
+    // };
 
     return (
       <Container>
@@ -299,11 +336,11 @@ class AutomationForm extends React.Component<Props, State> {
             </FormGroup>
           </FormColumn>
           <FormColumn>
-            {renderButton({
-              name: 'save',
+            {/* {renderButton({
+              name: "save",
               values: generateValues(),
-              isSubmitted
-            })}
+              isSubmitted,
+            })} */}
           </FormColumn>
         </FormWrapper>
 
@@ -360,7 +397,7 @@ class AutomationForm extends React.Component<Props, State> {
     );
   }
 
-  renderEditForm() {
+  renderManageForm() {
     if (!this.state.showModal) {
       return null;
     }
@@ -383,18 +420,18 @@ class AutomationForm extends React.Component<Props, State> {
   }
 
   rendeRightActionbar() {
-    const { renderButton, id } = this.props;
-    const { name, status, triggers, actions } = this.state;
-
     return (
       <BarItems>
         {this.renderTriggerForm()}
         {this.renderActionForm()}
-        {renderButton({
-          name: 'save',
-          values: { _id: id || '', name, status, triggers, actions },
-          isSubmitted: true
-        })}
+        <Button
+          btnStyle="success"
+          size="small"
+          icon={'check-circle'}
+          onClick={this.handleSubmit}
+        >
+          Save
+        </Button>
       </BarItems>
     );
   }
@@ -403,7 +440,7 @@ class AutomationForm extends React.Component<Props, State> {
     const { automation } = this.props;
 
     return (
-      <>
+      <React.Fragment>
         <Wrapper
           header={
             <Wrapper.Header
@@ -417,8 +454,8 @@ class AutomationForm extends React.Component<Props, State> {
           actionBar={<Wrapper.ActionBar right={this.rendeRightActionbar()} />}
           content={this.renderContent()}
         />
-        {this.renderEditForm()}
-      </>
+        {this.renderManageForm()}
+      </React.Fragment>
     );
   }
 }

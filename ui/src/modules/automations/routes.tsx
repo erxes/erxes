@@ -5,12 +5,14 @@ import { Route } from 'react-router-dom';
 
 const Form = asyncComponent(() =>
   import(
-    /* webpackChunkName: "AutomationBlank" */ './containers/forms/AutomationForm'
+    /* webpackChunkName: "AutomationBlank" */ './containers/forms/CreateAutomation'
   )
 );
 
 const Details = asyncComponent(() =>
-  import(/* webpackChunkName: "AutomationDetails" */ './containers/Details')
+  import(
+    /* webpackChunkName: "AutomationDetails" */ './containers/forms/EditAutomation'
+  )
 );
 
 const List = asyncComponent(() =>
