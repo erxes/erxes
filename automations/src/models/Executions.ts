@@ -21,7 +21,6 @@ export interface IExecutionDocument extends IExecution, Document {
 }
 
 export const actionDataSchema = new Schema({
-  id: { type: String, required: true },
   actionId: { type: String, required: true },
   data: { type: Object }
 }, { _id: false });

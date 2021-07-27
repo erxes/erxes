@@ -34,5 +34,11 @@ export const ACTIONS = [
     icon: 'file-plus',
     label: 'Go to another action',
     description: 'Add a new action'
+  },
+  {
+    value: 'wait',
+    icon: 'file-plus',
+    label: 'Wait for next action',
+    description: 'Add a new action'
   }
 ];

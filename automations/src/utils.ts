@@ -1,8 +1,10 @@
-// import { addDeal } from './actions/addDeals';
-import { ACTIONS } from './constants';
+import { addDeal, addTask, addTicket } from './actions';
+import { ACTIONS, TRIGGERS } from './constants';
 import { debugBase } from './debuggers';
-import Automations, { IAction, IAutomationDocument, ITrigger } from './models/Automations';
+import { getActionsMap } from './helpers';
+import Automations, { IAction, IActionsMap, IAutomationDocument, ITrigger } from './models/Automations';
 import { Executions, IExecutionDocument } from './models/Executions';
+import { cronjob, dealCreate, formSubmit, websiteVisited } from './triggers';
 
 export const getEnv = ({
   name,
@@ -28,8 +30,6 @@ export const isTargetInSegment = async (segmentId: string, targetId: string) => 
   return segmentId && targetId.includes('1');
 }
 
-type IActionsMap = { [key: string]: IAction };
-
 export let tags: any[] = [];
 export let tasks: any[] = [];
 export let deals: any[] = [];
@@ -40,23 +40,6 @@ export const reset = () => {
   tasks = [];
   deals = [];
   customers = [];
-}
-
-export const replacePlaceHolders = ({ actionData, triggerData }: { actionData?: any, triggerData?: any }) => {
-  if (actionData && triggerData) {
-    const triggerDataKeys = Object.keys(triggerData);
-    const actionDataKeys = Object.keys(actionData);
-
-    for (const triggerDataKey of triggerDataKeys) {
-      for (const actionDataKey of actionDataKeys) {
-        if (actionData[actionDataKey].includes(`{{ ${triggerDataKey} }}`)) {
-          actionData[actionDataKey] = actionData[actionDataKey].replace(`{{ ${triggerDataKey} }}`, triggerData[triggerDataKey]);
-        }
-      }
-    }
-  }
-
-  return actionData;
 }
 
 export const executeActions = async (execution: IExecutionDocument, actionsMap: IActionsMap, currentActionId?: string): Promise<string> => {
@@ -99,32 +82,57 @@ export const executeActions = async (execution: IExecutionDocument, actionsMap: 
     tags = tags.filter(t => !action.config.names.includes(t));
   }
 
-  if (action.type === ACTIONS.ADD_TASK) {
-    tasks.push(replacePlaceHolders({ actionData: action.config, triggerData: execution.triggerData }));
+  if (action.type === ACTIONS.CREATE_TASK) {
+    const result = await addTask({ action, execution });
+
+    execution.actionsData.push({ actionId: currentActionId, data: result })
+    // tasks.push(replacePlaceHolders({ actionData: action.config, triggerData: execution.triggerData }));
+  }
+
+  if (action.type === ACTIONS.ADD_TICKET) {
+    const result = await addTicket({ action, execution });
+    execution.actionsData.push({ actionId: currentActionId, data: result })
+    // tasks.push(replacePlaceHolders({ actionData: action.config, triggerData: execution.triggerData }));
   }
 
   if (action.type === ACTIONS.ADD_DEAL) {
-    // const result = await addDeal({ config: action.config, data: execution.triggerData });
-    // execution.actionsData.push({ actionId: currentActionId, data: result })
-    deals.push(replacePlaceHolders({ actionData: action.config, triggerData: execution.triggerData }));
+    const result = await addDeal({ action, execution });
+    execution.actionsData.push({ actionId: currentActionId, data: result })
   }
 
   if (action.type === ACTIONS.REMOVE_DEAL) {
     deals = deals.filter(t => !action.config.names.includes(t));
   }
 
+  await execution.save();
+
   return executeActions(execution, actionsMap, action.nextActionId);
 }
 
 export const executeAutomation = async ({ automation, trigger, targetId, triggerData }: { automation: IAutomationDocument, trigger: ITrigger, targetId: string, triggerData?: any }) => {
   const execution = await Executions.create({ automationId: automation._id, triggerId: trigger.id, triggerData, targetId });
-  const actionsMap: IActionsMap = {};
 
-  for (const action of automation.actions) {
-    actionsMap[action.id] = action;
+  await executeActions(execution, await getActionsMap(automation), trigger.actionId);
+}
+
+export const checkTrigger = async ({ trigger, data, targetId }: { trigger: ITrigger, data: any, targetId: string }) => {
+  if (trigger.type === TRIGGERS.FORM_SUBMIT) {
+    return formSubmit({ trigger, data, targetId });
   }
 
-  await executeActions(execution, actionsMap, trigger.actionId);
+  if (trigger.type === TRIGGERS.WEBSITE_VISITED) {
+    return websiteVisited({ trigger, data, targetId });
+  }
+
+  if (trigger.type === TRIGGERS.CRONJOB) {
+    return cronjob({ trigger, data, targetId });
+  }
+
+  if (trigger.type === TRIGGERS.DEAL_CREATE) {
+    return dealCreate({ trigger, data, targetId })
+  }
+
+  return false;
 }
 
 export const receiveTrigger = async ({ triggerType, targetId, data }: { triggerType: string, targetId: string, data?: any }) => {
@@ -137,6 +145,10 @@ export const receiveTrigger = async ({ triggerType, targetId, data }: { triggerT
   for (const automation of automations) {
     for (const trigger of automation.triggers) {
       if (trigger.type !== triggerType) {
+        continue;
+      }
+
+      if (!await checkTrigger({ trigger, data, targetId })) {
         continue;
       }
 

@@ -12,7 +12,7 @@ export const receiveRpcMessageTasks = async (action, doc) => {
       graphqlPubsub.publish('pipelinesChanged', {
         pipelinesChanged: {
           _id: stage.pipelineId,
-          proccessId: doc.proccessId,
+          proccessId: doc.proccessId || Math.random(),
           action: 'itemAdd',
           data: {
             task,
@@ -22,7 +22,7 @@ export const receiveRpcMessageTasks = async (action, doc) => {
         }
       });
 
-      return sendSuccess({ task });
+      return sendSuccess({ ...task });
     } catch (e) {
       return sendError(e.message);
     }
