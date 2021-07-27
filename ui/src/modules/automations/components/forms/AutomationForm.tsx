@@ -19,6 +19,12 @@ import Button from 'modules/common/components/Button';
 import ModalTrigger from 'modules/common/components/ModalTrigger';
 import TriggerForm from '../../containers/forms/TriggerForm';
 import ActionsForm from '../../containers/forms/ActionsForm';
+import TriggerDetailForm from '../../containers/forms/TriggerDetailForm';
+import Modal from 'react-bootstrap/Modal';
+import {
+  createInitialConnections,
+  connection
+} from 'modules/automations/utils';
 
 const plumb: any = jsPlumb;
 let instance;
@@ -32,6 +38,7 @@ type Props = {
 type State = {
   name: string;
   status: string;
+  showModal: boolean;
   actions: IAction[];
   triggers: ITrigger[];
 };
@@ -53,26 +60,30 @@ class AutomationForm extends React.Component<Props, State> {
       name: automation.name,
       status: automation.status,
       actions: automation.actions || [],
-      triggers: automation.triggers || []
+      triggers: automation.triggers || [],
+      showModal: false
     };
   }
 
-  onClick = trigger => {
-    console.log(trigger);
+  onClick = (trigger?: ITrigger) => {
+    console.log('here');
+    this.setState({ showModal: !this.state.showModal });
   };
 
   renderTrigger = (trigger: ITrigger) => {
-    console.log(trigger);
-    const onClick = () => console.log('ahsdhashdh');
     const idElm = `trigger-${trigger.id}`;
 
     jquery('#canvas').append(`
-          <div class="trigger" id="${idElm}" style="${trigger.style}"
-            onclick="${onClick}"
-          >
-            ${trigger.type}
-          </div>
-        `);
+      <div class="trigger" id="${idElm}" style="${trigger.style}">
+        ${trigger.type}
+      </div>
+    `);
+
+    jquery('#canvas').on('click', `#${idElm}`, event => {
+      event.preventDefault();
+
+      this.onClick(trigger);
+    });
 
     instance.addEndpoint(idElm, {
       anchor: [1, 0.5],
@@ -141,118 +152,19 @@ class AutomationForm extends React.Component<Props, State> {
     instance.draggable(instance.getSelector(`#${idElm}`));
   };
 
-  createInitialConnections = () => {
-    const { triggers, actions } = this.state;
-
-    for (const trigger of triggers) {
-      if (trigger.actionId) {
-        instance.connect({
-          source: `trigger-${trigger.id}`,
-          target: `action-${trigger.actionId}`,
-          anchors: ['Right', 'Left']
-        });
-      }
-    }
-
-    for (const action of actions) {
-      if (action.type === 'if') {
-        if (action.config) {
-          if (action.config.yes) {
-            instance.connect({
-              source: `action-${action.id}`,
-              target: `action-${action.config.yes}`,
-              anchors: [[1, 0.2], 'Left']
-            });
-          }
-
-          if (action.config.no) {
-            instance.connect({
-              source: `action-${action.id}`,
-              target: `action-${action.config.no}`,
-              anchors: [[1, 0.8], 'Left']
-            });
-          }
-        }
-      } else {
-        if (action.nextActionId) {
-          instance.connect({
-            source: `action-${action.id}`,
-            target: `action-${action.nextActionId}`,
-            anchors: ['Right', 'Left']
-          });
-        }
-      }
-    }
-  };
-
   onConnection = info => {
     const { triggers, actions } = this.state;
-    const sourceId = info.sourceId;
-    const targetId = info.targetId;
 
-    if (sourceId.includes('trigger')) {
-      const trigger = triggers.find(
-        t => t.id.toString() === sourceId.replace('trigger-', '')
-      );
+    connection(triggers, actions, info, info.targetId.replace('action-', ''));
 
-      if (trigger) {
-        trigger.actionId = targetId.replace('action-', '');
-      }
-    } else {
-      const sourceAction = actions.find(
-        a => a.id.toString() === sourceId.replace('action-', '')
-      );
-
-      if (sourceAction) {
-        const nextActionId = targetId.replace('action-', '');
-
-        if (sourceAction.type === 'if') {
-          if (!sourceAction.config) {
-            sourceAction.config = {};
-          }
-
-          sourceAction.config[
-            info.sourceEndpoint.anchor.y === 0.2 ? 'yes' : 'no'
-          ] = nextActionId;
-        } else {
-          sourceAction.nextActionId = nextActionId;
-        }
-      }
-    }
     this.setState({ triggers, actions });
   };
 
   onDettachConnection = info => {
     const { triggers, actions } = this.state;
-    const sourceId = info.sourceId;
 
-    if (sourceId.includes('trigger')) {
-      const trigger = triggers.find(
-        t => t.id.toString() === sourceId.replace('trigger-', '')
-      );
+    connection(triggers, actions, info, undefined);
 
-      if (trigger) {
-        trigger.actionId = undefined;
-      }
-    } else {
-      const sourceAction = actions.find(
-        a => a.id.toString() === sourceId.replace('action-', '')
-      );
-
-      if (sourceAction) {
-        if (sourceAction.type === 'if') {
-          if (!sourceAction.config) {
-            sourceAction.config = {};
-          }
-
-          sourceAction.config[
-            info.sourceEndpoint.anchor.y === 0.2 ? 'yes' : 'no'
-          ] = undefined;
-        } else {
-          sourceAction.nextActionId = undefined;
-        }
-      }
-    }
     this.setState({ triggers, actions });
   };
 
@@ -292,7 +204,27 @@ class AutomationForm extends React.Component<Props, State> {
       }
 
       // create connections ===================
-      this.createInitialConnections();
+      createInitialConnections(triggers, actions, instance);
+
+      instance.bind('contextmenu', (component, event) => {
+        if (component.hasClass('jtk-connector')) {
+          console.log('heree cnnecct', event.pageY, event.pageX);
+          event.preventDefault();
+          // instance.getSelector(`#${idElm}`).selectedConnection = component;
+          jquery(
+            "<div class='custom-menu'><button class='delete-connection'>Delete connection</button></div>"
+          )
+            .appendTo('#canvas')
+            .css({ top: event.pageY + 'px', left: event.pageX + 'px' });
+        }
+      });
+
+      jquery('#canvas').on('click', '.delete-connection', event => {
+        instance
+          .deleteConnection
+          // instance.getSelector(`#${idElm}`).selectedConnection
+          ();
+      });
     });
   }
 
@@ -428,6 +360,28 @@ class AutomationForm extends React.Component<Props, State> {
     );
   }
 
+  renderEditForm() {
+    if (!this.state.showModal) {
+      return null;
+    }
+
+    return (
+      <Modal show={true} onHide={this.onClick}>
+        <Modal.Header closeButton={true}>
+          <Modal.Title>Edit</Modal.Title>
+        </Modal.Header>
+
+        <Modal.Body>
+          <TriggerDetailForm
+            activeTrigger=""
+            addTrigger={this.addTrigger}
+            closeModal={this.onClick}
+          />
+        </Modal.Body>
+      </Modal>
+    );
+  }
+
   rendeRightActionbar() {
     const { renderButton, id } = this.props;
     const { name, status, triggers, actions } = this.state;
@@ -449,19 +403,22 @@ class AutomationForm extends React.Component<Props, State> {
     const { automation } = this.props;
 
     return (
-      <Wrapper
-        header={
-          <Wrapper.Header
-            title={`${'Automations' || ''}`}
-            breadcrumb={[
-              { title: __('Automations'), link: '/automations' },
-              { title: `${(automation && automation.name) || ''}` }
-            ]}
-          />
-        }
-        actionBar={<Wrapper.ActionBar right={this.rendeRightActionbar()} />}
-        content={this.renderContent()}
-      />
+      <>
+        <Wrapper
+          header={
+            <Wrapper.Header
+              title={`${'Automations' || ''}`}
+              breadcrumb={[
+                { title: __('Automations'), link: '/automations' },
+                { title: `${(automation && automation.name) || ''}` }
+              ]}
+            />
+          }
+          actionBar={<Wrapper.ActionBar right={this.rendeRightActionbar()} />}
+          content={this.renderContent()}
+        />
+        {this.renderEditForm()}
+      </>
     );
   }
 }

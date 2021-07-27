@@ -10,7 +10,7 @@ import { queries } from 'modules/leads/graphql';
 
 type Props = {
   closeModal: () => void;
-  closeParentModal: () => void;
+  closeParentModal?: () => void;
   activeTrigger: string;
   addTrigger: (value: string) => void;
 };

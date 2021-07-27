@@ -63,4 +63,12 @@ export const Container = styled.div`
   .action[type='createDeal'] {
     background: #60cb98;
   }
+
+  .custom-menu {
+    z-index: 1000;
+    position: absolute;
+    background-color: #c0c0c0;
+    border: 1px solid black;
+    padding: 2px;
+  }
 `;

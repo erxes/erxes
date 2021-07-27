@@ -9,7 +9,7 @@ import { ILeadIntegration } from 'modules/leads/types';
 
 type Props = {
   closeModal: () => void;
-  closeParentModal: () => void;
+  closeParentModal?: () => void;
   forms: ILeadIntegration[];
   activeTrigger: string;
   addTrigger: (value: string) => void;
@@ -29,11 +29,16 @@ class TriggerDetailForm extends React.Component<Props, State> {
   }
 
   onSave = () => {
-    const { addTrigger, activeTrigger } = this.props;
+    const {
+      addTrigger,
+      activeTrigger,
+      closeParentModal,
+      closeModal
+    } = this.props;
 
     addTrigger(activeTrigger);
 
-    this.props.closeParentModal();
+    closeParentModal ? closeParentModal() : closeModal();
   };
 
   onChangeForm = option => {
