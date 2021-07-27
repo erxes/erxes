@@ -30,29 +30,10 @@ const AutomationDetailsContainer = (props: FinalProps) => {
     isSubmitted,
     callback
   }: IButtonMutateProps) => {
-    const finalValues = {
-      _id: values._id,
-      name: values.name,
-      status: values.status,
-      triggers: values.triggers.map(t => ({
-        id: t.id,
-        type: t.type,
-        actionId: t.actionId,
-        config: t.config,
-        style: t.style
-      })),
-      actions: values.actions.map(m => ({
-        id: m.id,
-        type: m.type,
-        nextActionId: m.nextActionId,
-        config: m.config,
-        style: m.style
-      }))
-    };
     return (
       <ButtonMutate
         mutation={mutations.automationsEdit}
-        variables={finalValues}
+        variables={values}
         callback={callback}
         refetchQueries={['automations', 'automationsMain', 'automationDetail']}
         isSubmitted={isSubmitted}
