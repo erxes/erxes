@@ -13,7 +13,7 @@ class ActionsForm extends React.Component<Props> {
   onClickAction = action => {
     const { addAction, closeModal } = this.props;
 
-    addAction(action.label);
+    addAction(action.value);
     closeModal();
   };
 
