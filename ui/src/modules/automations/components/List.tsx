@@ -96,7 +96,6 @@ class AutomationsList extends React.Component<IProps, State> {
 
   render() {
     const {
-      automations,
       history,
       loading,
       toggleBulk,
@@ -106,6 +105,8 @@ class AutomationsList extends React.Component<IProps, State> {
       queryParams,
       isExpand
     } = this.props;
+
+    const automations = this.props.automations || [];
 
     const mainContent = (
       <withTableWrapper.Wrapper>
@@ -124,15 +125,16 @@ class AutomationsList extends React.Component<IProps, State> {
             </tr>
           </thead>
           <tbody id="automations" className={isExpand ? 'expand' : ''}>
-            {automations.map(automation => (
-              <Row
-                automation={automation}
-                isChecked={bulk.includes(automation)}
-                key={automation._id}
-                history={history}
-                toggleBulk={toggleBulk}
-              />
-            ))}
+            {automations &&
+              automations.map(automation => (
+                <Row
+                  automation={automation}
+                  isChecked={bulk.includes(automation)}
+                  key={automation._id}
+                  history={history}
+                  toggleBulk={toggleBulk}
+                />
+              ))}
           </tbody>
         </Table>
       </withTableWrapper.Wrapper>
