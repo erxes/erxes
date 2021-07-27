@@ -36,7 +36,7 @@ export default class AutomationAPI extends RESTDataSource {
   // fetches all automations
   public async getAutomations(selector) {
     try {
-      const response = await this.get('/api/automations', selector);
+      const response = await this.get('/api/find', selector);
 
       return response;
     } catch (e) {
@@ -49,7 +49,7 @@ export default class AutomationAPI extends RESTDataSource {
   // fetches all automationsMain
   public async getAutomationsMain(params) {
     try {
-      const response = await this.get('/api/automations-main', params);
+      const response = await this.get('/api/list', params);
 
       return response;
     } catch (e) {
@@ -62,9 +62,7 @@ export default class AutomationAPI extends RESTDataSource {
   // fetches all automationsDetail
   public async getAutomationDetail(automationsId) {
     try {
-      const response = await this.get(
-        `/api/automation-detail/${automationsId}`
-      );
+      const response = await this.get(`/api/detail/${automationsId}`);
 
       return response;
     } catch (e) {
@@ -76,7 +74,7 @@ export default class AutomationAPI extends RESTDataSource {
 
   public async createAutomation(doc) {
     try {
-      return this.post(`/api/createAutomation`, { doc });
+      return this.post(`/api/create`, { doc });
     } catch (e) {
       debugError(e);
       return { error: e.message };
@@ -85,7 +83,7 @@ export default class AutomationAPI extends RESTDataSource {
 
   public async updateAutomation(doc) {
     try {
-      return this.post(`/api/updateAutomation`, { doc });
+      return this.post(`/api/update`, { doc });
     } catch (e) {
       debugError(e);
       return { error: e.message };
@@ -94,7 +92,7 @@ export default class AutomationAPI extends RESTDataSource {
 
   public async removeAutomations(automationIds) {
     try {
-      return this.post(`/api/removeAutomations`, { automationIds });
+      return this.post(`/api/remove`, { automationIds });
     } catch (e) {
       debugError(e);
       return { error: e.message };
