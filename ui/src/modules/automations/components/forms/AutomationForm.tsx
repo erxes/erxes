@@ -290,16 +290,16 @@ class AutomationForm extends React.Component<Props, State> {
   addTrigger = (value: string) => {
     const { triggers } = this.state;
     const trigger = { id: String(triggers.length), type: value };
-    console.log(trigger, triggers);
+
     triggers.push(trigger);
     this.setState({ triggers });
 
     this.renderTrigger(trigger);
   };
 
-  addAction = e => {
+  addAction = (value: string) => {
     const { actions } = this.state;
-    const action = { id: String(actions.length), type: e.target.value };
+    const action = { id: String(actions.length), type: value };
 
     actions.push(action);
     this.setState({ actions });
@@ -389,7 +389,7 @@ class AutomationForm extends React.Component<Props, State> {
                     label: 'Go to another action'
                   }
                 ]}
-                onChange={this.addAction}
+                // onChange={this.addAction}
               />
             </FormGroup>
           </FormColumn>
@@ -418,7 +418,9 @@ class AutomationForm extends React.Component<Props, State> {
       </Button>
     );
 
-    const content = props => <ActionsForm {...props} />;
+    const content = props => (
+      <ActionsForm addAction={this.addAction} {...props} />
+    );
 
     return (
       <div>
@@ -439,11 +441,7 @@ class AutomationForm extends React.Component<Props, State> {
     );
 
     const content = props => (
-      <TriggerForm
-        renderTrigger={this.renderTrigger}
-        addTrigger={this.addTrigger}
-        {...props}
-      />
+      <TriggerForm addTrigger={this.addTrigger} {...props} />
     );
 
     return (

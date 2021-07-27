@@ -1,67 +1,36 @@
 import { __ } from 'modules/common/utils';
 import React from 'react';
-import jquery from 'jquery';
-import { FlexRow } from 'modules/settings/styles';
-import { IAction, ITrigger } from '../../types';
-import { ModalFooter } from 'modules/common/styles/main';
-import Button from 'modules/common/components/Button';
-
-const actions: IAction[] = JSON.parse(localStorage.getItem('actions') || '[]');
-const triggers: ITrigger[] = JSON.parse(
-  localStorage.getItem('triggers') || '[]'
-);
+import { ActionBox } from 'modules/automations/styles';
+import Icon from 'modules/common/components/Icon';
+import { ACTIONS } from 'modules/automations/constants';
 
 type Props = {
   closeModal: () => void;
+  addAction: (value: string) => void;
 };
 
-type State = {
-  activeTrigger: string;
-};
+class ActionsForm extends React.Component<Props> {
+  onClickAction = action => {
+    const { addAction, closeModal } = this.props;
 
-class ActionsForm extends React.Component<Props, State> {
-  constructor(props) {
-    super(props);
-
-    this.state = {
-      activeTrigger: ''
-    };
-  }
-
-  onSave = () => {
-    for (const action of actions) {
-      action.style = jquery(`#action-${action.id}`).attr('style');
-    }
-
-    localStorage.setItem('actions', JSON.stringify(actions));
-
-    for (const trigger of triggers) {
-      trigger.style = jquery(`#trigger-${trigger.id}`).attr('style');
-    }
-
-    localStorage.setItem('triggers', JSON.stringify(triggers));
+    addAction(action.label);
+    closeModal();
   };
 
-  render() {
+  renderBox(action) {
     return (
-      <>
-        <FlexRow>hi</FlexRow>
-        <ModalFooter>
-          <Button
-            btnStyle="simple"
-            type="button"
-            onClick={this.props.closeModal}
-            icon="times-circle"
-          >
-            {__('Cancel')}
-          </Button>
-
-          <Button btnStyle="success" icon="checked-1" onClick={this.onSave}>
-            Save
-          </Button>
-        </ModalFooter>
-      </>
+      <ActionBox onClick={this.onClickAction.bind(this, action)}>
+        <Icon icon={action.icon} size={30} />
+        <div>
+          <b>{__(action.label)}</b>
+          <p>{__(action.description)}</p>
+        </div>
+      </ActionBox>
     );
+  }
+
+  render() {
+    return <>{ACTIONS.map(action => this.renderBox(action))}</>;
   }
 }
 

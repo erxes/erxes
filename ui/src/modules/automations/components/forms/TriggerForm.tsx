@@ -18,19 +18,7 @@ type Props = {
   addTrigger: (value: string) => void;
 };
 
-type State = {
-  activeTrigger: string;
-};
-
-class TriggerForm extends React.Component<Props, State> {
-  constructor(props) {
-    super(props);
-
-    this.state = {
-      activeTrigger: ''
-    };
-  }
-
+class TriggerForm extends React.Component<Props> {
   onSave = () => {
     for (const action of actions) {
       action.style = jquery(`#action-${action.id}`).attr('style');

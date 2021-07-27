@@ -87,3 +87,18 @@ export const TriggerBox = styled.div`
     box-shadow: 0 6px 10px 1px rgba(136, 136, 136, 0.12);
   }
 `;
+
+export const ActionBox = styled(TriggerBox)`
+  flex-direction: row;
+  margin-bottom: ${dimensions.unitSpacing}px;
+
+  > i {
+    margin-right: ${dimensions.unitSpacing}px;
+  }
+
+  > div {
+    p {
+      margin: 0;
+    }
+  }
+`;

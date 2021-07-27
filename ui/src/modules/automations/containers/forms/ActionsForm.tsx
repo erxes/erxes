@@ -3,6 +3,7 @@ import Form from '../../components/forms/ActionsForm';
 
 type Props = {
   closeModal: () => void;
+  addAction: (value: string) => void;
 };
 
 const ActionsFormContainer = (props: Props) => {
