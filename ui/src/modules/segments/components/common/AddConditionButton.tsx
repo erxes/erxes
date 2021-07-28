@@ -6,6 +6,7 @@ import { ISegmentCondition } from '../../types';
 
 type Props = {
   contentType: string;
+  isModal?: boolean;
   addCondition: (condition: ISegmentCondition) => void;
 };
 
@@ -29,7 +30,12 @@ function AddConditionButton(props: Props) {
   };
 
   const renderAddEvents = () => {
-    if (!['customer', 'lead', 'visitor'].includes(props.contentType)) {
+    const { isModal } = props;
+
+    if (
+      !['customer', 'lead', 'visitor'].includes(props.contentType) ||
+      isModal
+    ) {
       return null;
     }
 

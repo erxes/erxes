@@ -25,6 +25,7 @@ type Props = {
   contentType: string;
   history: any;
   id?: string;
+  closeModal?: () => void;
 };
 
 type FinalProps = {
@@ -68,7 +69,9 @@ class SegmentsFormContainer extends React.Component<
     const { contentType, history } = this.props;
 
     const callBackResponse = () => {
-      history.push(`/segments/${contentType}`);
+      if (history) {
+        history.push(`/segments/${contentType}`);
+      }
 
       if (callback) {
         callback();
@@ -151,7 +154,8 @@ class SegmentsFormContainer extends React.Component<
       segmentDetailQuery,
       headSegmentsQuery,
       boardsQuery,
-      eventsQuery
+      eventsQuery,
+      history
     } = this.props;
 
     if (segmentDetailQuery.loading) {
@@ -163,6 +167,7 @@ class SegmentsFormContainer extends React.Component<
 
     const segment = segmentDetailQuery.segmentDetail;
     const headSegments = headSegmentsQuery.segmentsGetHeads || [];
+    const isModal = history ? false : true;
 
     const updatedProps = {
       ...this.props,
@@ -177,7 +182,8 @@ class SegmentsFormContainer extends React.Component<
       fetchFields: this.fetchFields,
       fields: this.state.fields,
       count: this.state.count,
-      counterLoading: this.state.loading
+      counterLoading: this.state.loading,
+      isModal
     };
 
     return <SegmentsForm {...updatedProps} />;

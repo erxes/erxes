@@ -42,6 +42,7 @@ type Props = {
   segment?: ISegment;
   headSegments: ISegment[];
   isForm?: boolean;
+  closeModal?: () => void;
   afterSave?: () => void;
   fetchFields?: (pipelineId?: string) => void;
   previewCount?: (args: {
@@ -50,6 +51,7 @@ type Props = {
     boardId?: string;
     pipelineId?: string;
   }) => void;
+  isModal?: boolean;
 };
 
 type State = {
@@ -62,7 +64,7 @@ type State = {
   pipelineId?: string;
 };
 
-class Form extends React.Component<Props, State> {
+class SegmentForm extends React.Component<Props, State> {
   constructor(props) {
     super(props);
 
@@ -263,8 +265,9 @@ class Form extends React.Component<Props, State> {
 
   renderConditions() {
     const { conditions } = this.state;
+    const { isModal } = this.props;
 
-    if (conditions.length === 0) {
+    if (conditions.length === 0 && !isModal) {
       return (
         <EmptyContent
           content={EMPTY_NEW_SEGMENT_CONTENT}
@@ -313,6 +316,7 @@ class Form extends React.Component<Props, State> {
       <FilterBox>
         {this.renderConditions()}
         <AddConditionButton
+          isModal={this.props.isModal}
           contentType={this.props.contentType || ''}
           addCondition={this.addCondition}
         />
@@ -359,12 +363,13 @@ class Form extends React.Component<Props, State> {
 
   renderForm = (formProps: IFormProps) => {
     const {
-      isForm,
+      isModal,
       segment,
       contentType,
       renderButton,
       afterSave,
-      previewCount
+      previewCount,
+      closeModal
     } = this.props;
 
     const { values, isSubmitted } = formProps;
@@ -457,7 +462,16 @@ class Form extends React.Component<Props, State> {
 
         <ModalFooter id="button-group">
           <Button.Group>
-            {isForm && (
+            {isModal ? (
+              <Button
+                btnStyle="simple"
+                type="button"
+                icon="times-circle"
+                onClick={closeModal}
+              >
+                Cancel
+              </Button>
+            ) : (
               <Link to={`/segments/${contentType}`}>
                 <Button btnStyle="simple" icon="times-circle">
                   Cancel
@@ -478,7 +492,7 @@ class Form extends React.Component<Props, State> {
             {renderButton({
               name: 'segment',
               values: this.generateDoc(values),
-              callback: afterSave,
+              callback: closeModal || afterSave,
               isSubmitted,
               object: segment
             })}
@@ -497,4 +511,4 @@ class Form extends React.Component<Props, State> {
   }
 }
 
-export default Form;
+export default SegmentForm;
