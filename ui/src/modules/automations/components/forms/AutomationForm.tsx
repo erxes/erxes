@@ -41,6 +41,7 @@ type State = {
   showModal: boolean;
   actions: IAction[];
   triggers: ITrigger[];
+  selectedContentId?: string;
 };
 
 class AutomationForm extends React.Component<Props, State> {
@@ -66,8 +67,13 @@ class AutomationForm extends React.Component<Props, State> {
   }
 
   onClick = (trigger?: ITrigger) => {
-    console.log('here');
-    this.setState({ showModal: !this.state.showModal });
+    const config = trigger && trigger.config;
+    const selectedContentId = config && config.contentId;
+
+    this.setState({
+      showModal: !this.state.showModal,
+      selectedContentId
+    });
   };
 
   handleSubmit = (e: React.FormEvent) => {
@@ -419,6 +425,7 @@ class AutomationForm extends React.Component<Props, State> {
             activeTrigger=""
             addTrigger={this.addTrigger}
             closeModal={this.onClick}
+            contentId={this.state.selectedContentId}
           />
         </Modal.Body>
       </Modal>

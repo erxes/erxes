@@ -12,6 +12,7 @@ type Props = {
   closeParentModal?: () => void;
   forms: ILeadIntegration[];
   activeTrigger: string;
+  contentId?: string;
   addTrigger: (value: string, contentId?: string) => void;
 };
 
@@ -24,7 +25,7 @@ class TriggerDetailForm extends React.Component<Props, State> {
     super(props);
 
     this.state = {
-      activeFormId: ''
+      activeFormId: this.props.contentId || ''
     };
   }
 

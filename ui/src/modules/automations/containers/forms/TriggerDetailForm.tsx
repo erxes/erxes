@@ -12,6 +12,7 @@ type Props = {
   closeModal: () => void;
   closeParentModal?: () => void;
   activeTrigger: string;
+  contentId?: string;
   addTrigger: (value: string) => void;
 };
 
