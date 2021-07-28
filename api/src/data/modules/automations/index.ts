@@ -6,10 +6,10 @@ export const receiveRpcMessage = async msg => {
   const doc = JSON.parse(payload || '{}');
   switch (module) {
     case 'deal':
-      receiveRpcMessageDeals(action, doc);
-      break;
+      return receiveRpcMessageDeals(action, doc);
     case 'task':
-      receiveRpcMessageTasks(action, doc);
-      break;
+      return receiveRpcMessageTasks(action, doc);
   }
+
+  return;
 };

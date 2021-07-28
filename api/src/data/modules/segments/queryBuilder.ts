@@ -19,7 +19,28 @@ type IOptions = {
   returnFields?: string[];
   returnSelector?: boolean;
   returnCount?: boolean;
+  defaultMustSelector?: any[];
   pipelineId?: string;
+};
+
+export const isInSegment = async (
+  segmentId: string,
+  idToCheck: string,
+  options: IOptions = {}
+): Promise<boolean> => {
+  options.returnCount = true;
+  options.defaultMustSelector = [
+    {
+      match: {
+        _id: idToCheck
+      }
+    }
+  ];
+
+  const segment = await Segments.getSegment(segmentId);
+  const count = await fetchSegment(segment, options);
+
+  return count > 0;
 };
 
 export const fetchSegment = async (
@@ -35,7 +56,12 @@ export const fetchSegment = async (
   let index = getIndexByContentType(contentType);
   let selector = { bool: {} };
 
-  await generateQueryBySegment({ segment, selector: selector.bool, options });
+  await generateQueryBySegment({
+    segment,
+    selector: selector.bool,
+    options,
+    isInitialCall: true
+  });
 
   if (
     ['company', 'deal', 'task', 'ticket'].includes(contentType) &&
@@ -113,13 +139,19 @@ export const generateQueryBySegment = async (args: {
   segment: ISegment;
   selector: any;
   options?: IOptions;
+  isInitialCall?: boolean;
 }) => {
-  const { segment, selector, options = {} } = args;
+  const { segment, selector, options = {}, isInitialCall } = args;
   const { contentType } = segment;
   const typesMap = getEsTypes(contentType);
 
+  const must =
+    isInitialCall && options.defaultMustSelector
+      ? options.defaultMustSelector.map(s => ({ ...s }))
+      : [];
+
   if (segment.conditionsConjunction === 'and') {
-    selector.must = [];
+    selector.must = must;
     selector.must_not = [];
   } else {
     selector.should = [
@@ -144,7 +176,11 @@ export const generateQueryBySegment = async (args: {
   const parentSegment = embeddedParentSegment;
 
   if (parentSegment && (!segment._id || segment._id !== parentSegment._id)) {
-    await generateQueryBySegment({ ...args, segment: parentSegment });
+    await generateQueryBySegment({
+      ...args,
+      segment: parentSegment,
+      isInitialCall: false
+    });
   }
 
   const eventPositive: any = [];
@@ -215,7 +251,8 @@ export const generateQueryBySegment = async (args: {
       await generateQueryBySegment({
         ...args,
         segment: subSegment,
-        selector: selectorPositiveList[selectorPositiveList.length - 1].bool
+        selector: selectorPositiveList[selectorPositiveList.length - 1].bool,
+        isInitialCall: false
       });
     }
   }

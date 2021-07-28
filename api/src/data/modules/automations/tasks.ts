@@ -1,18 +1,31 @@
-import { Tasks, Stages } from '../../../db/models';
+import { Tasks, Stages, Conformities } from '../../../db/models';
 import { graphqlPubsub } from '../../../pubsub';
 import { sendError, sendSuccess } from './utils';
 
 export const receiveRpcMessageTasks = async (action, doc) => {
   if (action === 'add-task') {
     try {
+      if (doc.conversationId) {
+        doc.sourceConversationIds = [doc.conversationId];
+      }
+
       const task = await Tasks.createTask({ ...doc });
+
+      if (doc.customerId) {
+        await Conformities.addConformity({
+          mainType: 'task',
+          mainTypeId: task._id,
+          relType: 'customer',
+          relTypeId: doc.customerId
+        });
+      }
 
       const stage = await Stages.getStage(task.stageId);
 
       graphqlPubsub.publish('pipelinesChanged', {
         pipelinesChanged: {
           _id: stage.pipelineId,
-          proccessId: doc.proccessId,
+          proccessId: doc.proccessId || Math.random(),
           action: 'itemAdd',
           data: {
             task,
@@ -22,7 +35,7 @@ export const receiveRpcMessageTasks = async (action, doc) => {
         }
       });
 
-      return sendSuccess({ task });
+      return sendSuccess({ ...task });
     } catch (e) {
       return sendError(e.message);
     }

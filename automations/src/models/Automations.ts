@@ -1,5 +1,7 @@
 import { Document, Model, model, Schema } from 'mongoose';
 
+export type IActionsMap = { [key: string]: IAction };
+
 export interface IAction {
   id: string;
   type: string;

@@ -1,5 +1,6 @@
 import * as dotenv from 'dotenv';
 import messageBroker from 'erxes-message-broker';
+import { playWait } from './actions';
 import { debugBase } from './debuggers';
 import { receiveTrigger } from './utils';
 
@@ -19,8 +20,13 @@ export const initBroker = async server => {
   consumeQueue('erxes-automations:trigger', async param => {
     debugBase(`Receiving queue data from erxes-api: ${JSON.stringify(param)}`);
 
-    const { triggerType, data } = param
-    await receiveTrigger({ triggerType, targetId: '', data });
+    const { triggerType, actionType, data, targetId } = param;
+    if (actionType && actionType === 'wait') {
+      await playWait();
+      return;
+    }
+
+    await receiveTrigger({ triggerType, targetId, data });
   });
 };
 
@@ -28,10 +34,10 @@ export default function () {
   return client;
 }
 
-export const sendRPCMessage = (module: string, action: string, data: any) => {
-  return client().sendRPCMessage('rpc_queue:automations_to_api', {
+export const sendRPCMessage = async (module: string, action: string, data: any) => {
+  return client.sendRPCMessage('rpc_queue:automations_to_api', {
     module,
     action,
-    data
+    payload: JSON.stringify(data)
   });
 }

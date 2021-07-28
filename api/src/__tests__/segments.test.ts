@@ -1,6 +1,7 @@
 import {
   fetchSegment,
-  generateQueryBySegment
+  generateQueryBySegment,
+  isInSegment
 } from '../data/modules/segments/queryBuilder';
 import { customerFactory, dealFactory, segmentFactory } from '../db/factories';
 import { Customers, Segments } from '../db/models';
@@ -43,7 +44,7 @@ describe('Segments mutations', () => {
     await deleteAllIndexes();
   });
 
-  test('fetchBySegments: OR', async () => {
+  test('fetchBySegment: OR', async () => {
     await initialData();
 
     const subSegment = await segmentFactory({
@@ -118,7 +119,7 @@ describe('Segments mutations', () => {
     expect(result.length).toBe(2);
   });
 
-  test('fetchBySegments: AND', async () => {
+  test('fetchBySegment: AND', async () => {
     await initialData();
 
     const subSegment = await segmentFactory({
@@ -165,7 +166,7 @@ describe('Segments mutations', () => {
     expect(result[0]).toBe(customer?._id);
   });
 
-  test('fetchBySegments: event', async () => {
+  test('fetchBySegment: event', async () => {
     await customerFactory({}, false, true);
     await customerFactory({}, false, true);
 
@@ -233,7 +234,7 @@ describe('Segments mutations', () => {
     expect(result[0]).toBe(c1._id);
   });
 
-  test('fetchBySegments: card', async () => {
+  const prepareCardData = async (extraAction?) => {
     await customerFactory({}, false, true);
     await customerFactory({}, false, true);
     await customerFactory({}, false, true);
@@ -244,7 +245,14 @@ describe('Segments mutations', () => {
     await dealFactory({}, true);
     await dealFactory({}, true);
 
-    await dealFactory({ customerIds: [c1._id, c2._id], name: 'batdeal' }, true);
+    const d1 = await dealFactory(
+      { customerIds: [c1._id, c2._id], name: 'batdeal' },
+      true
+    );
+
+    if (extraAction) {
+      await extraAction({ c1, c2 });
+    }
 
     await sleep(2000);
 
@@ -278,6 +286,12 @@ describe('Segments mutations', () => {
       ]
     });
 
+    return { mainSegment, d1, c1, c2 };
+  };
+
+  test('fetchBySegment: card', async () => {
+    const { mainSegment, c1, c2 } = await prepareCardData();
+
     let result = await fetchSegment(mainSegment, {
       associatedCustomers: true
     });
@@ -295,5 +309,26 @@ describe('Segments mutations', () => {
     });
 
     expect(result).toBe(1);
+  });
+
+  test('fetchBySegment: check exists', async () => {
+    let d3;
+
+    const { mainSegment, d1 } = await prepareCardData(async ({ c1, c2 }) => {
+      await dealFactory(
+        { customerIds: [c1._id, c2._id], name: 'batdeal' },
+        true
+      );
+      d3 = await dealFactory(
+        { customerIds: [c1._id, c2._id], name: 'seconddeal' },
+        true
+      );
+    });
+
+    const d1result = await isInSegment(mainSegment._id, d1._id, {});
+    expect(d1result).toBe(true);
+
+    const d3result = await isInSegment(mainSegment._id, d3._id, {});
+    expect(d3result).toBe(false);
   });
 });
