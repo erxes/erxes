@@ -265,9 +265,15 @@ class AutomationForm extends React.Component<Props, State> {
     });
   }
 
-  addTrigger = (value: string) => {
+  addTrigger = (value: string, contentId?: string) => {
     const { triggers } = this.state;
-    const trigger = { id: String(triggers.length), type: value };
+    const trigger: any = { id: String(triggers.length), type: value };
+
+    if (contentId) {
+      trigger.config = {
+        contentId
+      };
+    }
 
     triggers.push(trigger);
     this.setState({ triggers });

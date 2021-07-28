@@ -2,7 +2,7 @@ import Automations from "../models/Automations"
 
 export const formSubmit = async ({ trigger, data, targetId }) => {
 
-  const automations = await Automations.find({ 'triggers.config.formId': targetId, 'triggers.type': 'formSubmit' });
+  const automations = await Automations.find({ 'triggers.config.contentId': targetId, 'triggers.type': 'formSubmit' });
 
   if (automations.length === 0) {
     return false;
