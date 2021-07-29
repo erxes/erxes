@@ -91,20 +91,29 @@ const WIDGETS_DOMAIN = getSubServiceDomain({ name: 'WIDGETS_DOMAIN' });
 const INTEGRATIONS_API_DOMAIN = getSubServiceDomain({
   name: 'INTEGRATIONS_API_DOMAIN'
 });
+
 const CLIENT_PORTAL_DOMAIN = getSubServiceDomain({
   name: 'CLIENT_PORTAL_DOMAIN'
 });
+
 const DASHBOARD_DOMAIN = getSubServiceDomain({
   name: 'DASHBOARD_DOMAIN'
 });
+
 const ENGAGES_API_DOMAIN = getSubServiceDomain({
   name: 'ENGAGES_API_DOMAIN'
 });
+
 const CP_DOMAIN = getSubServiceDomain({
   name: 'CP_DOMAIN'
 });
+
 const CLIENT_PORTAL_MN_DOMAIN = getSubServiceDomain({
   name: 'CLIENT_PORTAL_MN_DOMAIN'
+});
+
+const CLIENT_PORTAL_DOMAINS = getSubServiceDomain({
+  name: 'CLIENT_PORTAL_DOMAINS'
 });
 
 const handleTelnyxWebhook = (req, res, next, hookName: string) => {
@@ -172,7 +181,8 @@ const corsOptions = {
     CLIENT_PORTAL_DOMAIN,
     CP_DOMAIN,
     DASHBOARD_DOMAIN,
-    CLIENT_PORTAL_MN_DOMAIN
+    CLIENT_PORTAL_MN_DOMAIN,
+    ...CLIENT_PORTAL_DOMAINS.split(',')
   ]
 };
 
