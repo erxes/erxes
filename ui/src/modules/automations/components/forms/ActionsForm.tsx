@@ -3,10 +3,12 @@ import React from 'react';
 import { ActionBox } from 'modules/automations/styles';
 import Icon from 'modules/common/components/Icon';
 import { ACTIONS } from 'modules/automations/constants';
+import { ITrigger } from 'modules/automations/types';
 
 type Props = {
   closeModal: () => void;
   addAction: (value: string) => void;
+  trigger?: ITrigger;
 };
 
 class ActionsForm extends React.Component<Props> {

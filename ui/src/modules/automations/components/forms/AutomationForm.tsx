@@ -25,6 +25,7 @@ import {
   createInitialConnections,
   connection
 } from 'modules/automations/utils';
+import ActionDetailForm from '../../containers/forms/ActionDetailForm';
 
 const plumb: any = jsPlumb;
 let instance;
@@ -39,9 +40,14 @@ type State = {
   name: string;
   status: string;
   showModal: boolean;
+  showActionModal: boolean;
   actions: IAction[];
   triggers: ITrigger[];
   selectedContentId?: string;
+  currentAction?: {
+    trigger: ITrigger;
+    action: IAction;
+  };
 };
 
 class AutomationForm extends React.Component<Props, State> {
@@ -62,11 +68,16 @@ class AutomationForm extends React.Component<Props, State> {
       status: automation.status,
       actions: automation.actions || [],
       triggers: automation.triggers || [],
-      showModal: false
+      showModal: false,
+      showActionModal: false
     };
   }
 
   onClick = (trigger?: ITrigger) => {
+    if (!trigger) {
+      return;
+    }
+
     const config = trigger && trigger.config;
     const selectedContentId = config && config.contentId;
 
@@ -74,6 +85,25 @@ class AutomationForm extends React.Component<Props, State> {
       showModal: !this.state.showModal,
       selectedContentId
     });
+  };
+
+  onClickAction = (action?: IAction) => {
+    if (!action) {
+      return;
+    }
+
+    const { triggers = [] } = this.state;
+    const relatedTrigger = triggers.find(e => e.actionId === action.id);
+
+    console.log(action);
+    console.log(this.state.triggers);
+
+    if (relatedTrigger) {
+      this.setState({
+        showActionModal: !this.state.showModal,
+        currentAction: { trigger: relatedTrigger, action }
+      });
+    }
   };
 
   handleSubmit = (e: React.FormEvent) => {
@@ -144,6 +174,12 @@ class AutomationForm extends React.Component<Props, State> {
             ${action.type}
           </div>
         `);
+
+    jquery('#canvas').on('click', `#${idElm}`, event => {
+      event.preventDefault();
+
+      this.onClickAction(action);
+    });
 
     if (action.type === 'if') {
       instance.addEndpoint(idElm, {
@@ -432,6 +468,34 @@ class AutomationForm extends React.Component<Props, State> {
     );
   }
 
+  renderManageAction() {
+    if (!this.state.showActionModal) {
+      return null;
+    }
+
+    const { currentAction } = this.state;
+
+    if (!currentAction) {
+      return;
+    }
+
+    return (
+      <Modal show={true} onHide={this.onClick}>
+        <Modal.Header closeButton={true}>
+          <Modal.Title>Edit action</Modal.Title>
+        </Modal.Header>
+
+        <Modal.Body>
+          <ActionDetailForm
+            trigger={currentAction.trigger}
+            action={currentAction.action}
+            closeModal={this.onClick}
+          />
+        </Modal.Body>
+      </Modal>
+    );
+  }
+
   rendeRightActionbar() {
     return (
       <BarItems>
@@ -468,6 +532,7 @@ class AutomationForm extends React.Component<Props, State> {
           content={this.renderContent()}
         />
         {this.renderManageForm()}
+        {this.renderManageAction()}
       </React.Fragment>
     );
   }
