@@ -14,7 +14,7 @@ import client from 'erxes-ui/lib/apolloClient';
 type Props = {
   closeModal: () => void;
   closeParentModal?: () => void;
-  trigger?: ITrigger;
+  trigger: ITrigger;
   action: IAction;
 };
 

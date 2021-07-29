@@ -6,19 +6,21 @@ import Button from 'modules/common/components/Button';
 // import FormGroup from 'modules/common/components/form/Group';
 // import ControlLabel from 'modules/common/components/form/Label';
 import { IAction, ITrigger } from 'modules/automations/types';
+import { IForm } from 'modules/forms/types';
 
 type Props = {
   closeModal: () => void;
   closeParentModal?: () => void;
-  trigger?: ITrigger;
+  fetchFormDetail: (_id: string, callback: (form: IForm) => void) => void;
+  trigger: ITrigger;
   action: IAction;
 };
 
-// type State = {
-//   activeFormId: string;
-// };
+type State = {
+  form?: IForm;
+};
 
-class TriggerDetailForm extends React.Component<Props> {
+class TriggerDetailForm extends React.Component<Props, State> {
   constructor(props) {
     super(props);
   }
@@ -31,10 +33,30 @@ class TriggerDetailForm extends React.Component<Props> {
   };
 
   onChangeForm = option => {
-    this.setState({ activeFormId: option.value });
+    // this.setState({ activeFormId: option.value });
   };
 
   render() {
+    const { trigger, action } = this.props;
+    const { config = {} } = trigger;
+
+    if (
+      action.type === 'if' &&
+      trigger.type === 'formSubmit' &&
+      config.contentId
+    ) {
+      const { fetchFormDetail } = this.props;
+      fetchFormDetail(config.contentId, (form: IForm) => {
+        console.log('FORM = ', form);
+
+        if (form) {
+          this.setState({
+            form
+          });
+        }
+      });
+    }
+
     return (
       <>
         <ModalFooter>

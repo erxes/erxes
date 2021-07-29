@@ -44,7 +44,13 @@ class TriggerDetailForm extends React.Component<Props, State> {
   };
 
   onChangeForm = option => {
-    this.setState({ activeFormId: option.value });
+    const form = this.props.forms.find(e => e._id === option.value);
+
+    if (!form) {
+      return;
+    }
+
+    this.setState({ activeFormId: form.formId });
   };
 
   render() {
