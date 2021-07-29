@@ -10,14 +10,15 @@ import { ILeadIntegration } from 'modules/leads/types';
 type Props = {
   closeModal: () => void;
   closeParentModal?: () => void;
-  forms: ILeadIntegration[];
+  formIntegrations: ILeadIntegration[];
   activeTrigger: string;
   contentId?: string;
   addTrigger: (value: string, contentId?: string) => void;
 };
 
 type State = {
-  activeFormId: string;
+  activeIntegrationId: string;
+  formId: string;
 };
 
 class TriggerDetailForm extends React.Component<Props, State> {
@@ -25,7 +26,8 @@ class TriggerDetailForm extends React.Component<Props, State> {
     super(props);
 
     this.state = {
-      activeFormId: this.props.contentId || ''
+      activeIntegrationId: '',
+      formId: ''
     };
   }
 
@@ -37,24 +39,24 @@ class TriggerDetailForm extends React.Component<Props, State> {
       closeModal
     } = this.props;
 
-    const { activeFormId } = this.state;
+    const { formId } = this.state;
 
-    addTrigger(activeTrigger, activeFormId);
+    addTrigger(activeTrigger, formId);
     closeParentModal ? closeParentModal() : closeModal();
   };
 
   onChangeForm = option => {
-    const form = this.props.forms.find(e => e._id === option.value);
+    const form = this.props.formIntegrations.find(e => e._id === option.value);
 
     if (!form) {
       return;
     }
 
-    this.setState({ activeFormId: form.formId });
+    this.setState({ formId: form.formId, activeIntegrationId: option.value });
   };
 
   render() {
-    const { forms } = this.props;
+    const { formIntegrations } = this.props;
 
     const selectOptions = (array: ILeadIntegration[] = []) => {
       return array.map(item => ({ value: item._id, label: item.name }));
@@ -66,8 +68,8 @@ class TriggerDetailForm extends React.Component<Props, State> {
           <ControlLabel required={true}>{__('Select form')}</ControlLabel>
           <Select
             isRequired={true}
-            value={this.state.activeFormId}
-            options={selectOptions(forms)}
+            value={this.state.activeIntegrationId}
+            options={selectOptions(formIntegrations)}
             onChange={this.onChangeForm}
             placeholder={__('Select')}
           />

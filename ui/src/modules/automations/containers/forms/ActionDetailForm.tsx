@@ -8,8 +8,8 @@ import { INTEGRATION_KINDS } from 'modules/settings/integrations/constants';
 import { withProps } from 'modules/common/utils';
 import { queries } from 'modules/forms/graphql';
 import { IAction, ITrigger } from 'modules/automations/types';
-import { IForm } from 'modules/forms/types';
 import client from 'erxes-ui/lib/apolloClient';
+import { IField } from 'modules/settings/properties/types';
 
 type Props = {
   closeModal: () => void;
@@ -23,15 +23,15 @@ type FinalProps = {
 } & Props;
 
 class ActionDetailFOrm extends React.Component<FinalProps> {
-  fetchFormDetail = (_id: string, callback: (form: IForm) => void) => {
+  fetchFormFields = (formId: string, callback: (fields: IField[]) => void) => {
     client
       .query({
-        query: gql(queries.formDetail),
+        query: gql(queries.fields),
         fetchPolicy: 'network-only',
-        variables: { _id }
+        variables: { contentType: 'form', contentTypeId: formId }
       })
       .then(({ data }: any) => {
-        callback(data.formDetail);
+        callback(data.fields);
       });
   };
 
@@ -40,7 +40,7 @@ class ActionDetailFOrm extends React.Component<FinalProps> {
 
     const extendedProps = {
       ...this.props,
-      fetchFormDetail: this.fetchFormDetail
+      fetchFormFields: this.fetchFormFields
     };
 
     return <Form {...extendedProps} />;

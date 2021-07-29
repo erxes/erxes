@@ -21,11 +21,11 @@ type FinalProps = {
 } & Props;
 
 const TriggerDetailFormContainer = (props: FinalProps) => {
-  const forms = props.integrationsQuery.integrations || [];
+  const formIntegrations = props.integrationsQuery.integrations || [];
 
   const extendedProps = {
     ...props,
-    forms
+    formIntegrations
   };
 
   return <Form {...extendedProps} />;

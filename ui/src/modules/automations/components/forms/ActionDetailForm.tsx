@@ -6,23 +6,35 @@ import Button from 'modules/common/components/Button';
 // import FormGroup from 'modules/common/components/form/Group';
 // import ControlLabel from 'modules/common/components/form/Label';
 import { IAction, ITrigger } from 'modules/automations/types';
-import { IForm } from 'modules/forms/types';
+
+import GenerateField from 'modules/settings/properties/components/GenerateField';
+import { IField } from 'modules/settings/properties/types';
+import { SidebarContent } from 'modules/inbox/components/leftSidebar/styles';
 
 type Props = {
   closeModal: () => void;
   closeParentModal?: () => void;
-  fetchFormDetail: (_id: string, callback: (form: IForm) => void) => void;
+  fetchFormFields: (
+    formId: string,
+    callback: (fields: IField[]) => void
+  ) => void;
   trigger: ITrigger;
   action: IAction;
 };
 
 type State = {
-  form?: IForm;
+  formFields?: IField[];
+  queryLoaded: boolean;
 };
 
 class TriggerDetailForm extends React.Component<Props, State> {
   constructor(props) {
     super(props);
+
+    this.state = {
+      queryLoaded: false,
+      formFields: []
+    };
   }
 
   onSave = () => {
@@ -36,22 +48,46 @@ class TriggerDetailForm extends React.Component<Props, State> {
     // this.setState({ activeFormId: option.value });
   };
 
+  renderFormFields() {
+    const { trigger, action } = this.props;
+    const fields = this.state.formFields || [];
+
+    if (action.type !== 'if' || trigger.type !== 'formSubmit') {
+      return null;
+    }
+
+    // const onClickItem = () => {
+    //   // if (onClick) {
+    //   //   onClick(field);
+    //   // }
+    // };
+
+    return (
+      <SidebarContent>
+        {fields.map((field, index) => {
+          return <GenerateField field={field} key={index} />;
+        })}
+      </SidebarContent>
+    );
+  }
+
   render() {
     const { trigger, action } = this.props;
     const { config = {} } = trigger;
 
     if (
+      !this.state.queryLoaded &&
       action.type === 'if' &&
       trigger.type === 'formSubmit' &&
       config.contentId
     ) {
-      const { fetchFormDetail } = this.props;
-      fetchFormDetail(config.contentId, (form: IForm) => {
-        console.log('FORM = ', form);
+      const { fetchFormFields } = this.props;
 
-        if (form) {
+      fetchFormFields(config.contentId, (fields: IField[]) => {
+        if (fields) {
           this.setState({
-            form
+            formFields: fields,
+            queryLoaded: true
           });
         }
       });
@@ -59,6 +95,7 @@ class TriggerDetailForm extends React.Component<Props, State> {
 
     return (
       <>
+        {this.renderFormFields()}
         <ModalFooter>
           <Button
             btnStyle="simple"
