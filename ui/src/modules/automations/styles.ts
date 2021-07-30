@@ -102,3 +102,13 @@ export const ActionBox = styled(TriggerBox)`
     }
   }
 `;
+
+export const ConditionContaier = styled.div`
+  padding: ${dimensions.coreSpacing}px;
+  transition: all ease 0.5s;
+  background: ${colors.bgGray};
+  border-radius: 8px;
+  .dropdown {
+    display: none;
+  }
+`;

@@ -7,9 +7,10 @@ import Button from 'modules/common/components/Button';
 // import ControlLabel from 'modules/common/components/form/Label';
 import { IAction, ITrigger } from 'modules/automations/types';
 
-import GenerateField from 'modules/settings/properties/components/GenerateField';
+// import GenerateField from 'modules/settings/properties/components/GenerateField';
 import { IField } from 'modules/settings/properties/types';
-import { SidebarContent } from 'modules/inbox/components/leftSidebar/styles';
+// import { SidebarContent } from 'modules/inbox/components/leftSidebar/styles';
+import FieldConditions from './FieldConditions';
 
 type Props = {
   closeModal: () => void;
@@ -73,13 +74,7 @@ class TriggerDetailForm extends React.Component<Props, State> {
     //   // }
     // };
 
-    return (
-      <SidebarContent>
-        {fields.map((field, index) => {
-          return <GenerateField field={field} key={index} />;
-        })}
-      </SidebarContent>
-    );
+    return <FieldConditions fields={fields} />;
   }
 
   render() {
