@@ -7,11 +7,12 @@ import { LeadIntegrationsQueryResponse } from 'modules/leads/types';
 import { INTEGRATION_KINDS } from 'modules/settings/integrations/constants';
 import { withProps } from 'modules/common/utils';
 import { queries } from 'modules/leads/graphql';
+import { ITrigger } from 'modules/automations/types';
 
 type Props = {
   closeModal: () => void;
   closeParentModal?: () => void;
-  activeTrigger: string;
+  activeTrigger: ITrigger;
   contentId?: string;
   addTrigger: (value: string) => void;
 };
