@@ -23,6 +23,7 @@ class ActionsForm extends React.Component<Props> {
 
   renderBox(action, index) {
     const { closeModal, addAction } = this.props;
+    const currentAction = { trigger: {} as ITrigger, action };
 
     const trigger = (
       <ActionBox key={index} onClick={this.onClickAction.bind(this, action)}>
@@ -38,6 +39,7 @@ class ActionsForm extends React.Component<Props> {
       <ActionDetailForm
         closeParentModal={closeModal}
         activeAction={action.value}
+        currentAction={currentAction}
         addAction={addAction}
         {...props}
       />

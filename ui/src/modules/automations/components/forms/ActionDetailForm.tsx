@@ -84,6 +84,7 @@ class TriggerDetailForm extends React.Component<Props, State> {
 
   render() {
     const { currentAction, closeModal } = this.props;
+
     const { config = {} } = currentAction.trigger;
 
     if (
@@ -107,6 +108,7 @@ class TriggerDetailForm extends React.Component<Props, State> {
     return (
       <>
         {this.renderFormFields()}
+        <div>content {currentAction.action.type}</div>
         <ModalFooter>
           <Button
             btnStyle="simple"
