@@ -43,8 +43,9 @@ type State = {
   showActionModal: boolean;
   actions: IAction[];
   triggers: ITrigger[];
+  activeTrigger: ITrigger;
   selectedContentId?: string;
-  currentAction?: {
+  currentAction: {
     trigger: ITrigger;
     action: IAction;
   };
@@ -68,12 +69,14 @@ class AutomationForm extends React.Component<Props, State> {
       status: automation.status,
       actions: automation.actions || [],
       triggers: automation.triggers || [],
+      activeTrigger: {} as ITrigger,
       showModal: false,
-      showActionModal: false
+      showActionModal: false,
+      currentAction: { trigger: {} as ITrigger, action: {} as IAction }
     };
   }
 
-  onClick = (trigger?: ITrigger) => {
+  onClickTrigger = (trigger?: ITrigger) => {
     if (!trigger) {
       return;
     }
@@ -83,7 +86,8 @@ class AutomationForm extends React.Component<Props, State> {
 
     this.setState({
       showModal: !this.state.showModal,
-      selectedContentId
+      selectedContentId,
+      activeTrigger: trigger
     });
   };
 
@@ -95,15 +99,13 @@ class AutomationForm extends React.Component<Props, State> {
     const { triggers = [] } = this.state;
     const relatedTrigger = triggers.find(e => e.actionId === action.id);
 
-    console.log(action);
-    console.log(this.state.triggers);
-
-    if (relatedTrigger) {
-      this.setState({
-        showActionModal: !this.state.showModal,
-        currentAction: { trigger: relatedTrigger, action }
-      });
-    }
+    this.setState({
+      showActionModal: !this.state.showActionModal,
+      currentAction: {
+        trigger: relatedTrigger ? relatedTrigger : ({} as ITrigger),
+        action
+      }
+    });
   };
 
   handleSubmit = (e: React.FormEvent) => {
@@ -155,7 +157,7 @@ class AutomationForm extends React.Component<Props, State> {
     jquery('#canvas').on('click', `#${idElm}`, event => {
       event.preventDefault();
 
-      this.onClick(trigger);
+      this.onClickTrigger(trigger);
     });
 
     instance.addEndpoint(idElm, {
@@ -339,34 +341,6 @@ class AutomationForm extends React.Component<Props, State> {
   };
 
   formContent = (formProps: IFormProps) => {
-    const { name } = this.state;
-    // const { id } = this.props;
-    // const { isSubmitted } = formProps;
-
-    // const generateValues = () => {
-    //   const finalValues = {
-    //     _id: id,
-    //     name,
-    //     status,
-    //     triggers: triggers.map((t) => ({
-    //       id: t.id,
-    //       type: t.type,
-    //       actionId: t.actionId,
-    //       config: t.config,
-    //       style: jquery(`#trigger-${t.id}`).attr("style"),
-    //     })),
-    //     actions: actions.map((a) => ({
-    //       id: a.id,
-    //       type: a.type,
-    //       nextActionId: a.nextActionId,
-    //       config: a.config,
-    //       style: jquery(`#action-${a.id}`).attr("style"),
-    //     })),
-    //   };
-
-    //   return finalValues;
-    // };
-
     return (
       <Container>
         <FormWrapper>
@@ -376,19 +350,12 @@ class AutomationForm extends React.Component<Props, State> {
               <FormControl
                 {...formProps}
                 name="name"
-                value={name}
+                value={this.state.name}
                 onChange={this.onNameChange}
                 required={true}
                 autoFocus={true}
               />
             </FormGroup>
-          </FormColumn>
-          <FormColumn>
-            {/* {renderButton({
-              name: "save",
-              values: generateValues(),
-              isSubmitted,
-            })} */}
           </FormColumn>
         </FormWrapper>
 
@@ -446,22 +413,24 @@ class AutomationForm extends React.Component<Props, State> {
   }
 
   renderManageForm() {
-    if (!this.state.showModal) {
+    const { showModal, activeTrigger, selectedContentId } = this.state;
+
+    if (!showModal) {
       return null;
     }
 
     return (
-      <Modal show={true} onHide={this.onClick}>
+      <Modal show={true} onHide={this.onClickTrigger}>
         <Modal.Header closeButton={true}>
           <Modal.Title>Edit</Modal.Title>
         </Modal.Header>
 
         <Modal.Body>
           <TriggerDetailForm
-            activeTrigger=""
+            activeTrigger={activeTrigger.type}
             addTrigger={this.addTrigger}
-            closeModal={this.onClick}
-            contentId={this.state.selectedContentId}
+            closeModal={this.onClickTrigger}
+            contentId={selectedContentId}
           />
         </Modal.Body>
       </Modal>
@@ -469,27 +438,23 @@ class AutomationForm extends React.Component<Props, State> {
   }
 
   renderManageAction() {
-    if (!this.state.showActionModal) {
+    const { showActionModal, currentAction } = this.state;
+
+    if (!showActionModal) {
       return null;
     }
 
-    const { currentAction } = this.state;
-
-    if (!currentAction) {
-      return;
-    }
-
     return (
-      <Modal show={true} onHide={this.onClick}>
+      <Modal show={true} onHide={this.onClickAction}>
         <Modal.Header closeButton={true}>
           <Modal.Title>Edit action</Modal.Title>
         </Modal.Header>
 
         <Modal.Body>
           <ActionDetailForm
-            trigger={currentAction.trigger}
-            action={currentAction.action}
-            closeModal={this.onClick}
+            closeModal={this.onClickAction}
+            currentAction={currentAction}
+            addAction={this.addAction}
           />
         </Modal.Body>
       </Modal>

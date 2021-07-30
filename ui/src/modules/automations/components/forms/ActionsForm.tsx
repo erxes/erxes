@@ -4,6 +4,8 @@ import { ActionBox } from 'modules/automations/styles';
 import Icon from 'modules/common/components/Icon';
 import { ACTIONS } from 'modules/automations/constants';
 import { ITrigger } from 'modules/automations/types';
+import ModalTrigger from 'modules/common/components/ModalTrigger';
+import ActionDetailForm from 'modules/automations/containers/forms/ActionDetailForm';
 
 type Props = {
   closeModal: () => void;
@@ -20,7 +22,9 @@ class ActionsForm extends React.Component<Props> {
   };
 
   renderBox(action, index) {
-    return (
+    const { closeModal, addAction } = this.props;
+
+    const trigger = (
       <ActionBox key={index} onClick={this.onClickAction.bind(this, action)}>
         <Icon icon={action.icon} size={30} />
         <div>
@@ -28,6 +32,24 @@ class ActionsForm extends React.Component<Props> {
           <p>{__(action.description)}</p>
         </div>
       </ActionBox>
+    );
+
+    const content = props => (
+      <ActionDetailForm
+        closeParentModal={closeModal}
+        activeAction={action.value}
+        addAction={addAction}
+        {...props}
+      />
+    );
+
+    return (
+      <ModalTrigger
+        title={`${action.label} options`}
+        trigger={trigger}
+        content={content}
+        size="lg"
+      />
     );
   }
 

@@ -14,8 +14,11 @@ import client from 'erxes-ui/lib/apolloClient';
 type Props = {
   closeModal: () => void;
   closeParentModal?: () => void;
-  trigger?: ITrigger;
-  action: IAction;
+  currentAction: {
+    trigger: ITrigger;
+    action: IAction;
+  };
+  addAction: (value: string, contentId?: string) => void;
 };
 
 type FinalProps = {
@@ -36,8 +39,6 @@ class ActionDetailFOrm extends React.Component<FinalProps> {
   };
 
   render() {
-    console.log('TRIGGER = ', this.props.trigger);
-
     const extendedProps = {
       ...this.props,
       fetchFormDetail: this.fetchFormDetail

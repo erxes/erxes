@@ -10,8 +10,11 @@ import { IAction, ITrigger } from 'modules/automations/types';
 type Props = {
   closeModal: () => void;
   closeParentModal?: () => void;
-  trigger?: ITrigger;
-  action: IAction;
+  currentAction: {
+    trigger: ITrigger;
+    action: IAction;
+  };
+  addAction: (value: string, contentId?: string) => void;
 };
 
 // type State = {
@@ -24,24 +27,28 @@ class TriggerDetailForm extends React.Component<Props> {
   }
 
   onSave = () => {
-    const { closeParentModal, closeModal } = this.props;
+    const {
+      closeParentModal,
+      closeModal,
+      addAction,
+      currentAction
+    } = this.props;
 
-    // addTrigger(activeTrigger, activeFormId);
+    addAction(currentAction.action.type);
     closeParentModal ? closeParentModal() : closeModal();
   };
 
-  onChangeForm = option => {
-    this.setState({ activeFormId: option.value });
-  };
-
   render() {
+    const { currentAction, closeModal } = this.props;
+    console.log(currentAction);
     return (
       <>
+        <div>content</div>
         <ModalFooter>
           <Button
             btnStyle="simple"
             type="button"
-            onClick={this.props.closeModal}
+            onClick={closeModal}
             icon="times-circle"
           >
             {__('Cancel')}
