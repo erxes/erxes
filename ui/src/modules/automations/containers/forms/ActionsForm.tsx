@@ -4,6 +4,7 @@ import Form from '../../components/forms/ActionsForm';
 type Props = {
   closeModal: () => void;
   addAction: (value: string) => void;
+  addActionConfig: (config: any) => void;
 };
 
 const ActionsFormContainer = (props: Props) => {

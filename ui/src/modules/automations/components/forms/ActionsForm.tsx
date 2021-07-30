@@ -10,6 +10,7 @@ import ActionDetailForm from 'modules/automations/containers/forms/ActionDetailF
 type Props = {
   closeModal: () => void;
   addAction: (value: string) => void;
+  addActionConfig: (config: any) => void;
   trigger?: ITrigger;
 };
 
@@ -22,7 +23,7 @@ class ActionsForm extends React.Component<Props> {
   };
 
   renderBox(action, index) {
-    const { closeModal, addAction } = this.props;
+    const { closeModal, addAction, addActionConfig } = this.props;
     const currentAction = { trigger: {} as ITrigger, action };
 
     const trigger = (
@@ -41,6 +42,7 @@ class ActionsForm extends React.Component<Props> {
         activeAction={action.value}
         currentAction={currentAction}
         addAction={addAction}
+        addActionConfig={addActionConfig}
         {...props}
       />
     );

@@ -18,6 +18,7 @@ type Props = {
     trigger: ITrigger;
     action: IAction;
   };
+  addActionConfig: (config: any) => void;
   addAction: (value: string, contentId?: string) => void;
 };
 

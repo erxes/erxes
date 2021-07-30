@@ -25,6 +25,7 @@ export interface IActionCondition {
 type Props = {
   fields: IField[];
   condition?: IActionCondition;
+  onUpdateCondition: (condition: IActionCondition) => void;
 };
 
 type State = {
@@ -56,11 +57,15 @@ class FieldConditions extends React.Component<Props, State> {
       fieldConditions[index][name] = value;
       condition.fieldConditions = fieldConditions;
       this.setState({ condition });
+
+      this.props.onUpdateCondition(condition);
     };
 
     const removeCondition = index => {
       condition.fieldConditions.splice(index, 1);
       this.setState({ condition });
+
+      this.props.onUpdateCondition(condition);
     };
 
     return (
@@ -94,6 +99,8 @@ class FieldConditions extends React.Component<Props, State> {
       condition.condition = (e.currentTarget as HTMLInputElement).value;
 
       this.setState({ condition });
+
+      this.props.onUpdateCondition(condition);
     };
     return (
       <>
@@ -131,6 +138,8 @@ class FieldConditions extends React.Component<Props, State> {
       condition.fieldConditions.push(newCondition);
 
       this.setState({ condition });
+
+      this.props.onUpdateCondition(condition);
     };
 
     return (
