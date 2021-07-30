@@ -14,8 +14,11 @@ import { IField } from 'modules/settings/properties/types';
 type Props = {
   closeModal: () => void;
   closeParentModal?: () => void;
-  trigger: ITrigger;
-  action: IAction;
+  currentAction: {
+    trigger: ITrigger;
+    action: IAction;
+  };
+  addAction: (value: string, contentId?: string) => void;
 };
 
 type FinalProps = {
