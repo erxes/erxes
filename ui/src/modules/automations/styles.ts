@@ -52,6 +52,10 @@ export const Container = styled.div`
     background: #ed8d50;
   }
 
+  .action[type='performMath'] {
+    background: #ed0d50;
+  }
+
   .action[type='createTicket'] {
     background: #60cb98;
   }

@@ -11,6 +11,7 @@ import { IAction, ITrigger } from 'modules/automations/types';
 import { IField } from 'modules/settings/properties/types';
 // import { SidebarContent } from 'modules/inbox/components/leftSidebar/styles';
 import FieldConditions, { IActionCondition } from './FieldConditions';
+import { ActionForms } from '../actions';
 
 type Props = {
   closeModal: () => void;
@@ -111,10 +112,13 @@ class TriggerDetailForm extends React.Component<Props, State> {
       });
     }
 
+    const Content =
+      ActionForms[currentAction.action.type] || ActionForms.default;
+
     return (
       <>
         {this.renderFormFields()}
-        <div>content {currentAction.action.type}</div>
+        <Content action={currentAction.action}></Content>
         <ModalFooter>
           <Button
             btnStyle="simple"

@@ -243,6 +243,7 @@ class AutomationForm extends React.Component<Props, State> {
   };
 
   addAction = (value: string) => {
+    console.log(value);
     const { actions } = this.state;
     const action = { id: String(actions.length), type: value };
 

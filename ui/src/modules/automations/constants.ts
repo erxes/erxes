@@ -30,6 +30,12 @@ export const ACTIONS = [
     description: 'Add a new action'
   },
   {
+    type: 'performMath',
+    icon: 'file-plus',
+    label: 'Perform Math',
+    description: 'Add a new action'
+  },
+  {
     type: 'goto',
     icon: 'file-plus',
     label: 'Go to another action',

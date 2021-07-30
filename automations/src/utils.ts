@@ -2,7 +2,7 @@ import { addDeal, addTask, addTicket } from './actions';
 import { ACTIONS, TRIGGERS } from './constants';
 import { debugBase } from './debuggers';
 import { getActionsMap } from './helpers';
-import Automations, { IAction, IActionsMap, IAutomationDocument, ITrigger } from './models/Automations';
+import Automations, { IActionsMap, IAutomationDocument, ITrigger } from './models/Automations';
 import { Executions, IExecutionDocument } from './models/Executions';
 import { cronjob, dealCreate, formSubmit, websiteVisited } from './triggers';
 
