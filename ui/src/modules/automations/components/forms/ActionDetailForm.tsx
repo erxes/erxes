@@ -20,8 +20,11 @@ type Props = {
     formId: string,
     callback: (fields: IField[]) => void
   ) => void;
-  trigger: ITrigger;
-  action: IAction;
+  currentAction: {
+    trigger: ITrigger;
+    action: IAction;
+  };
+  addAction: (value: string, contentId?: string) => void;
 };
 
 type State = {
@@ -41,10 +44,17 @@ class TriggerDetailForm extends React.Component<Props, State> {
   }
 
   onSave = () => {
-    const { closeParentModal, closeModal, addActionConfig } = this.props;
+    const {
+      closeParentModal,
+      closeModal,
+      addAction,
+      currentAction,
+      addActionConfig
+    } = this.props;
+
+    addAction(currentAction.action.type);
 
     addActionConfig(this.state.formFieldConditions);
-
     closeParentModal ? closeParentModal() : closeModal();
   };
 
@@ -53,10 +63,13 @@ class TriggerDetailForm extends React.Component<Props, State> {
   };
 
   renderFormFields() {
-    const { trigger, action } = this.props;
+    const { currentAction } = this.props;
     const fields = this.state.formFields || [];
 
-    if (action.type !== 'if' || trigger.type !== 'formSubmit') {
+    if (
+      currentAction.action.type !== 'if' ||
+      currentAction.trigger.type !== 'formSubmit'
+    ) {
       return null;
     }
 
@@ -76,13 +89,14 @@ class TriggerDetailForm extends React.Component<Props, State> {
   }
 
   render() {
-    const { trigger, action } = this.props;
-    const { config = {} } = trigger;
+    const { currentAction, closeModal } = this.props;
+
+    const { config = {} } = currentAction.trigger;
 
     if (
       !this.state.queryLoaded &&
-      action.type === 'if' &&
-      trigger.type === 'formSubmit' &&
+      currentAction.action.type === 'if' &&
+      currentAction.trigger.type === 'formSubmit' &&
       config.contentId
     ) {
       const { fetchFormFields } = this.props;
@@ -100,11 +114,12 @@ class TriggerDetailForm extends React.Component<Props, State> {
     return (
       <>
         {this.renderFormFields()}
+        <div>content {currentAction.action.type}</div>
         <ModalFooter>
           <Button
             btnStyle="simple"
             type="button"
-            onClick={this.props.closeModal}
+            onClick={closeModal}
             icon="times-circle"
           >
             {__('Cancel')}
