@@ -1,5 +1,4 @@
 import { receiveRpcMessageDeals } from './deals';
-import { receiveRpcMessagePerformMath } from './performMath';
 import { receiveRpcMessageTasks } from './tasks';
 import { receiveRpcMessageTickets } from './tickets';
 
@@ -13,8 +12,6 @@ export const receiveRpcMessage = async msg => {
       return receiveRpcMessageTasks(action, doc);
     case 'ticket':
       return receiveRpcMessageTickets(action, doc);
-    case 'performMath':
-      return receiveRpcMessagePerformMath(doc);
   }
 
   return;
