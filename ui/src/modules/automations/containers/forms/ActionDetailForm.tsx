@@ -36,8 +36,6 @@ class ActionDetailFOrm extends React.Component<FinalProps> {
   };
 
   render() {
-    console.log('TRIGGER = ', this.props.trigger);
-
     const extendedProps = {
       ...this.props,
       fetchFormFields: this.fetchFormFields

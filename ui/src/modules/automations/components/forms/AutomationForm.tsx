@@ -95,9 +95,6 @@ class AutomationForm extends React.Component<Props, State> {
     const { triggers = [] } = this.state;
     const relatedTrigger = triggers.find(e => e.actionId === action.id);
 
-    console.log(action);
-    console.log(this.state.triggers);
-
     if (relatedTrigger) {
       this.setState({
         showActionModal: !this.state.showModal,

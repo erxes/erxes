@@ -19,7 +19,6 @@ const AutomationFormContainer = (props: FinalProps) => {
   const { currentUser, addAutomationMutation } = props;
 
   const save = (doc: IAutomationDoc) => {
-    console.log(doc);
     addAutomationMutation({
       variables: {
         ...doc
