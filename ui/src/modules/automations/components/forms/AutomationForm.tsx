@@ -368,50 +368,6 @@ class AutomationForm extends React.Component<Props, State> {
     return <Form renderContent={this.formContent} />;
   };
 
-  renderActionForm() {
-    const trigger = (
-      <Button btnStyle="primary" size="small" icon="plus-circle">
-        Add New Action
-      </Button>
-    );
-
-    const content = props => (
-      <ActionsForm addAction={this.addAction} {...props} />
-    );
-
-    return (
-      <div>
-        <ModalTrigger
-          title="Add a New Action"
-          trigger={trigger}
-          content={content}
-        />
-      </div>
-    );
-  }
-
-  renderTriggerForm() {
-    const trigger = (
-      <Button btnStyle="primary" size="small" icon="plus-circle">
-        Add New Trigger
-      </Button>
-    );
-
-    const content = props => (
-      <TriggerForm addTrigger={this.addTrigger} {...props} />
-    );
-
-    return (
-      <div>
-        <ModalTrigger
-          title="Select a Trigger"
-          trigger={trigger}
-          content={content}
-        />
-      </div>
-    );
-  }
-
   renderManageForm() {
     const { showModal, activeTrigger, selectedContentId } = this.state;
 
@@ -461,11 +417,39 @@ class AutomationForm extends React.Component<Props, State> {
     );
   }
 
+  renderModalTrigger(triggerBtnText: string, content: any, title: string) {
+    const trigger = (
+      <Button btnStyle="primary" size="small" icon="plus-circle">
+        {triggerBtnText}
+      </Button>
+    );
+
+    const component = props => content({ ...props });
+
+    return (
+      <div>
+        <ModalTrigger title={title} trigger={trigger} content={component} />
+      </div>
+    );
+  }
+
   rendeRightActionbar() {
     return (
       <BarItems>
-        {this.renderTriggerForm()}
-        {this.renderActionForm()}
+        {this.renderModalTrigger(
+          'Add New Trigger',
+          props => (
+            <TriggerForm addTrigger={this.addTrigger} {...props} />
+          ),
+          'Select a Trigger'
+        )}
+        {this.renderModalTrigger(
+          'Add New Action',
+          props => (
+            <ActionsForm addAction={this.addAction} {...props} />
+          ),
+          'Select a Action'
+        )}
         <Button
           btnStyle="success"
           size="small"
