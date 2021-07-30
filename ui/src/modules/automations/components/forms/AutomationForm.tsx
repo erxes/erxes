@@ -76,6 +76,66 @@ class AutomationForm extends React.Component<Props, State> {
     };
   }
 
+  componentDidMount() {
+    instance = plumb.getInstance({
+      DragOptions: { cursor: 'pointer', zIndex: 2000 },
+      PaintStyle: {
+        gradient: {
+          stops: [
+            [0, '#0d78bc'],
+            [1, '#558822']
+          ]
+        },
+        stroke: '#558822',
+        strokeWidth: 3
+      },
+      Container: 'canvas'
+    });
+
+    instance.bind('ready', () => {
+      const { triggers, actions } = this.state;
+
+      instance.bind('connection', info => {
+        this.onConnection(info);
+      });
+
+      instance.bind('connectionDetached', info => {
+        this.onDettachConnection(info);
+      });
+
+      for (const action of actions) {
+        this.renderAction(action);
+      }
+
+      for (const trigger of triggers) {
+        this.renderTrigger(trigger);
+      }
+
+      // create connections ===================
+      createInitialConnections(triggers, actions, instance);
+
+      instance.bind('contextmenu', (component, event) => {
+        if (component.hasClass('jtk-connector')) {
+          console.log('heree cnnecct', event.pageY, event.pageX);
+          event.preventDefault();
+          // instance.getSelector(`#${idElm}`).selectedConnection = component;
+          jquery(
+            "<div class='custom-menu'><button class='delete-connection'>Delete connection</button></div>"
+          )
+            .appendTo('#canvas')
+            .css({ top: event.pageY + 'px', left: event.pageX + 'px' });
+        }
+      });
+
+      jquery('#canvas').on('click', '.delete-connection', event => {
+        instance
+          .deleteConnection
+          // instance.getSelector(`#${idElm}`).selectedConnection
+          ();
+      });
+    });
+  }
+
   onClickTrigger = (trigger?: ITrigger) => {
     if (!trigger) {
       return;
@@ -143,6 +203,77 @@ class AutomationForm extends React.Component<Props, State> {
     };
 
     save(generateValues());
+  };
+
+  onConnection = info => {
+    const { triggers, actions } = this.state;
+
+    connection(triggers, actions, info, info.targetId.replace('action-', ''));
+
+    this.setState({ triggers, actions });
+  };
+
+  onDettachConnection = info => {
+    const { triggers, actions } = this.state;
+
+    connection(triggers, actions, info, undefined);
+
+    this.setState({ triggers, actions });
+  };
+
+  addTrigger = (value: string, contentId?: string) => {
+    const { triggers } = this.state;
+    const trigger: any = { id: String(triggers.length), type: value };
+
+    if (contentId) {
+      trigger.config = {
+        contentId
+      };
+    }
+
+    triggers.push(trigger);
+    this.setState({ triggers });
+
+    this.renderTrigger(trigger);
+  };
+
+  addAction = (value: string) => {
+    const { actions } = this.state;
+    const action = { id: String(actions.length), type: value };
+
+    actions.push(action);
+    this.setState({ actions });
+
+    this.renderAction(action);
+  };
+
+  onNameChange = (e: React.FormEvent<HTMLElement>) => {
+    const value = (e.currentTarget as HTMLButtonElement).value;
+    this.setState({ name: value });
+  };
+
+  formContent = (formProps: IFormProps) => {
+    return (
+      <Container>
+        <FormWrapper>
+          <FormColumn>
+            <FormGroup>
+              <ControlLabel required={true}>Name</ControlLabel>
+              <FormControl
+                {...formProps}
+                name="name"
+                value={this.state.name}
+                onChange={this.onNameChange}
+                required={true}
+                autoFocus={true}
+              />
+            </FormGroup>
+          </FormColumn>
+        </FormWrapper>
+
+        <div id="canvas" />
+      </Container>
+    );
   };
 
   renderTrigger = (trigger: ITrigger) => {
@@ -231,137 +362,6 @@ class AutomationForm extends React.Component<Props, State> {
     }
 
     instance.draggable(instance.getSelector(`#${idElm}`));
-  };
-
-  onConnection = info => {
-    const { triggers, actions } = this.state;
-
-    connection(triggers, actions, info, info.targetId.replace('action-', ''));
-
-    this.setState({ triggers, actions });
-  };
-
-  onDettachConnection = info => {
-    const { triggers, actions } = this.state;
-
-    connection(triggers, actions, info, undefined);
-
-    this.setState({ triggers, actions });
-  };
-
-  componentDidMount() {
-    instance = plumb.getInstance({
-      DragOptions: { cursor: 'pointer', zIndex: 2000 },
-      PaintStyle: {
-        gradient: {
-          stops: [
-            [0, '#0d78bc'],
-            [1, '#558822']
-          ]
-        },
-        stroke: '#558822',
-        strokeWidth: 3
-      },
-      Container: 'canvas'
-    });
-
-    instance.bind('ready', () => {
-      const { triggers, actions } = this.state;
-
-      instance.bind('connection', info => {
-        this.onConnection(info);
-      });
-
-      instance.bind('connectionDetached', info => {
-        this.onDettachConnection(info);
-      });
-
-      for (const action of actions) {
-        this.renderAction(action);
-      }
-
-      for (const trigger of triggers) {
-        this.renderTrigger(trigger);
-      }
-
-      // create connections ===================
-      createInitialConnections(triggers, actions, instance);
-
-      instance.bind('contextmenu', (component, event) => {
-        if (component.hasClass('jtk-connector')) {
-          console.log('heree cnnecct', event.pageY, event.pageX);
-          event.preventDefault();
-          // instance.getSelector(`#${idElm}`).selectedConnection = component;
-          jquery(
-            "<div class='custom-menu'><button class='delete-connection'>Delete connection</button></div>"
-          )
-            .appendTo('#canvas')
-            .css({ top: event.pageY + 'px', left: event.pageX + 'px' });
-        }
-      });
-
-      jquery('#canvas').on('click', '.delete-connection', event => {
-        instance
-          .deleteConnection
-          // instance.getSelector(`#${idElm}`).selectedConnection
-          ();
-      });
-    });
-  }
-
-  addTrigger = (value: string, contentId?: string) => {
-    const { triggers } = this.state;
-    const trigger: any = { id: String(triggers.length), type: value };
-
-    if (contentId) {
-      trigger.config = {
-        contentId
-      };
-    }
-
-    triggers.push(trigger);
-    this.setState({ triggers });
-
-    this.renderTrigger(trigger);
-  };
-
-  addAction = (value: string) => {
-    const { actions } = this.state;
-    const action = { id: String(actions.length), type: value };
-
-    actions.push(action);
-    this.setState({ actions });
-
-    this.renderAction(action);
-  };
-
-  onNameChange = (e: React.FormEvent<HTMLElement>) => {
-    const value = (e.currentTarget as HTMLButtonElement).value;
-    this.setState({ name: value });
-  };
-
-  formContent = (formProps: IFormProps) => {
-    return (
-      <Container>
-        <FormWrapper>
-          <FormColumn>
-            <FormGroup>
-              <ControlLabel required={true}>Name</ControlLabel>
-              <FormControl
-                {...formProps}
-                name="name"
-                value={this.state.name}
-                onChange={this.onNameChange}
-                required={true}
-                autoFocus={true}
-              />
-            </FormGroup>
-          </FormColumn>
-        </FormWrapper>
-
-        <div id="canvas" />
-      </Container>
-    );
   };
 
   renderContent = () => {
