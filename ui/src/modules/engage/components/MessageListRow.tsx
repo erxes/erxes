@@ -164,30 +164,9 @@ class Row extends React.Component<Props> {
 
   renderStatus() {
     const { message } = this.props;
-    const {
-      stats = { send: 0, total: 0 },
-      kind,
-      validCustomersCount,
-      smsStats = { total: 0 },
-      scheduleDate,
-      isLive
-    } = message;
+    const { kind, scheduleDate, isLive, runCount } = message;
 
-    const totalEmailsMatch = validCustomersCount === stats.total;
-
-    if (kind === MESSAGE_KINDS.MANUAL) {
-      if (
-        message.method === METHODS.MESSENGER ||
-        totalEmailsMatch ||
-        validCustomersCount === smsStats.total
-      ) {
-        return <Label lblStyle="success">Sent</Label>;
-      }
-
-      if (message.method === METHODS.SMS && smsStats.total === 0) {
-        return <Label lblStyle="danger">Not sent</Label>;
-      }
-
+    if (kind === MESSAGE_KINDS.MANUAL && runCount > 0) {
       return <Label lblStyle="success">Sent</Label>;
     }
 
@@ -210,8 +189,8 @@ class Row extends React.Component<Props> {
         labelText = 'Sent';
       }
       if (!isLive) {
-        labelStyle = totalEmailsMatch ? 'success' : 'simple';
-        labelText = totalEmailsMatch ? 'Sent' : 'Paused';
+        labelStyle = 'simple';
+        labelText = 'Paused';
       }
       if (isLive) {
         labelStyle = 'primary';
@@ -262,20 +241,20 @@ class Row extends React.Component<Props> {
   render() {
     const { isChecked, message, remove } = this.props;
     const {
-      stats = { send: '' },
       brand = { name: '' },
-      smsStats = { total: 0 },
-      method,
-      scheduleDate
+      scheduleDate,
+      totalCustomersCount = 0,
+      segmentIds = [],
+      brandIds = [],
+      customerTagIds = []
     } = message;
-    let totalCount = 0;
 
-    if (method === METHODS.SMS) {
-      totalCount = smsStats.total;
-    }
-    if (method === METHODS.EMAIL || method === METHODS.MESSENGER) {
-      totalCount = stats.total;
-    }
+    // segment or brand or tagIds can determine target count if total is 0
+    const targetCount =
+      totalCustomersCount ||
+      segmentIds.length ||
+      brandIds.length ||
+      customerTagIds.length;
 
     return (
       <tr key={message._id}>
@@ -298,7 +277,7 @@ class Row extends React.Component<Props> {
         <td>{this.renderStatus()}</td>
         <td className="text-primary">
           <Icon icon="cube-2" />
-          <b> {s.numberFormat(totalCount)}</b>
+          <b> {s.numberFormat(targetCount)}</b>
         </td>
         <td>{this.renderType(message)}</td>
         <td>
