@@ -364,55 +364,23 @@ class AutomationForm extends React.Component<Props, State> {
     instance.draggable(instance.getSelector(`#${idElm}`));
   };
 
-  renderContent = () => {
-    return <Form renderContent={this.formContent} />;
-  };
-
-  renderManageForm() {
-    const { showModal, activeTrigger, selectedContentId } = this.state;
-
-    if (!showModal) {
+  renderModal(
+    shodModal: boolean,
+    onClick: () => void,
+    title: string,
+    content: any
+  ) {
+    if (!shodModal) {
       return null;
     }
 
     return (
-      <Modal show={true} onHide={this.onClickTrigger}>
+      <Modal show={true} onHide={onClick}>
         <Modal.Header closeButton={true}>
-          <Modal.Title>Edit</Modal.Title>
+          <Modal.Title>{title}</Modal.Title>
         </Modal.Header>
 
-        <Modal.Body>
-          <TriggerDetailForm
-            activeTrigger={activeTrigger.type}
-            addTrigger={this.addTrigger}
-            closeModal={this.onClickTrigger}
-            contentId={selectedContentId}
-          />
-        </Modal.Body>
-      </Modal>
-    );
-  }
-
-  renderManageAction() {
-    const { showActionModal, currentAction } = this.state;
-
-    if (!showActionModal) {
-      return null;
-    }
-
-    return (
-      <Modal show={true} onHide={this.onClickAction}>
-        <Modal.Header closeButton={true}>
-          <Modal.Title>Edit action</Modal.Title>
-        </Modal.Header>
-
-        <Modal.Body>
-          <ActionDetailForm
-            closeModal={this.onClickAction}
-            currentAction={currentAction}
-            addAction={this.addAction}
-          />
-        </Modal.Body>
+        <Modal.Body>{content}</Modal.Body>
       </Modal>
     );
   }
@@ -464,6 +432,13 @@ class AutomationForm extends React.Component<Props, State> {
 
   render() {
     const { automation } = this.props;
+    const {
+      showModal,
+      showActionModal,
+      currentAction,
+      activeTrigger,
+      selectedContentId
+    } = this.state;
 
     return (
       <React.Fragment>
@@ -478,10 +453,31 @@ class AutomationForm extends React.Component<Props, State> {
             />
           }
           actionBar={<Wrapper.ActionBar right={this.rendeRightActionbar()} />}
-          content={this.renderContent()}
+          content={<Form renderContent={this.formContent} />}
         />
-        {this.renderManageForm()}
-        {this.renderManageAction()}
+
+        {this.renderModal(
+          showModal,
+          this.onClickTrigger,
+          'Edit trigger',
+          <TriggerDetailForm
+            activeTrigger={activeTrigger.type}
+            addTrigger={this.addTrigger}
+            closeModal={this.onClickTrigger}
+            contentId={selectedContentId}
+          />
+        )}
+
+        {this.renderModal(
+          showActionModal,
+          this.onClickAction,
+          'Edit action',
+          <ActionDetailForm
+            closeModal={this.onClickAction}
+            currentAction={currentAction}
+            addAction={this.addAction}
+          />
+        )}
       </React.Fragment>
     );
   }
