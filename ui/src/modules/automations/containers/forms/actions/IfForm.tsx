@@ -1,5 +1,5 @@
 import React from 'react';
-import Form from '../../components/forms/ActionDetailForm';
+import Form from '../../../components/forms/actions/IfForm';
 import { graphql } from 'react-apollo';
 import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
@@ -26,7 +26,7 @@ type FinalProps = {
   integrationsQuery: LeadIntegrationsQueryResponse;
 } & Props;
 
-class ActionDetailFOrm extends React.Component<FinalProps> {
+class IfForm extends React.Component<FinalProps> {
   fetchFormFields = (formId: string, callback: (fields: IField[]) => void) => {
     client
       .query({
@@ -72,5 +72,5 @@ export default withProps<Props>(
         };
       }
     })
-  )(ActionDetailFOrm)
+  )(IfForm)
 );

@@ -25,7 +25,7 @@ import {
   createInitialConnections,
   connection
 } from 'modules/automations/utils';
-import ActionDetailForm from '../../containers/forms/ActionDetailForm';
+import ActionDetailForm from './ActionDetailForm';
 
 const plumb: any = jsPlumb;
 let instance;

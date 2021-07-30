@@ -5,7 +5,7 @@ import Icon from 'modules/common/components/Icon';
 import { ACTIONS } from 'modules/automations/constants';
 import { ITrigger } from 'modules/automations/types';
 import ModalTrigger from 'modules/common/components/ModalTrigger';
-import ActionDetailForm from 'modules/automations/containers/forms/ActionDetailForm';
+import ActionDetailForm from './ActionDetailForm';
 
 type Props = {
   closeModal: () => void;
@@ -51,7 +51,11 @@ class ActionsForm extends React.Component<Props> {
   }
 
   render() {
-    return <>{ACTIONS.map((action, index) => this.renderBox(action, index))}</>;
+    return ACTIONS.map((action, index) => (
+      <React.Fragment key={index}>
+        {this.renderBox(action, index)}
+      </React.Fragment>
+    ));
   }
 }
 
