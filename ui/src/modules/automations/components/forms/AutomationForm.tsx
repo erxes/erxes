@@ -136,6 +136,13 @@ class AutomationForm extends React.Component<Props, State> {
     });
   }
 
+  onAddActionConfig = config => {
+    const { currentAction } = this.state;
+
+    currentAction.action.config = config;
+    this.setState({ currentAction });
+  };
+
   onClickTrigger = (trigger?: ITrigger) => {
     if (!trigger) {
       return;
@@ -414,7 +421,11 @@ class AutomationForm extends React.Component<Props, State> {
         {this.renderModalTrigger(
           'Add New Action',
           props => (
-            <ActionsForm addAction={this.addAction} {...props} />
+            <ActionsForm
+              addAction={this.addAction}
+              {...props}
+              addActionConfig={this.onAddActionConfig}
+            />
           ),
           'Select a Action'
         )}
@@ -474,8 +485,9 @@ class AutomationForm extends React.Component<Props, State> {
           'Edit action',
           <ActionDetailForm
             closeModal={this.onClickAction}
-            // currentAction={currentAction}
+            currentAction={currentAction}
             addAction={this.addAction}
+            addActionConfig={this.onAddActionConfig}
           />
         )}
       </React.Fragment>
