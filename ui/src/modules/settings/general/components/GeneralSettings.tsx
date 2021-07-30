@@ -150,13 +150,14 @@ class GeneralSettings extends React.Component<Props, State> {
       { title: __('General system config') }
     ];
 
+    console.log(configsMap);
+
     const actionButtons = (
       <Button
         id="generalSettingsSave"
-        btnStyle="primary"
+        btnStyle="success"
         onClick={this.save}
         icon="check-circle"
-        uppercase={false}
       >
         Save
       </Button>
@@ -271,7 +272,7 @@ class GeneralSettings extends React.Component<Props, State> {
           </FormGroup>
         </CollapseContent>
 
-        <CollapseContent title="Google Cloud Storage">
+        <CollapseContent title={__('Google Cloud Storage')}>
           <Info>
             <a
               target="_blank"

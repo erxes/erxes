@@ -233,6 +233,13 @@ const LeftAlign = styled.div`
   font-size: 11px;
 `;
 
+const FacebookTagText = styled.p`
+  margin-top: 5px;
+  a {
+    margin: 5px;
+  }
+`;
+
 export {
   PostContainer,
   User,
@@ -245,5 +252,6 @@ export {
   ContentContainer,
   LeftAlign,
   DateTime,
-  ShowMore
+  ShowMore,
+  FacebookTagText
 };

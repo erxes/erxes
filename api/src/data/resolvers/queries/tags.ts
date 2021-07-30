@@ -6,8 +6,18 @@ const tagQueries = {
   /**
    * Tags list
    */
-  tags(_root, { type }: { type: string }, { commonQuerySelector }: IContext) {
-    return Tags.find({ ...commonQuerySelector, type }).sort({
+  tags(
+    _root,
+    { type, searchValue }: { type: string; searchValue?: string },
+    { commonQuerySelector }: IContext
+  ) {
+    const selector: any = { ...commonQuerySelector, type };
+
+    if (searchValue) {
+      selector.name = new RegExp(`.*${searchValue}.*`, 'i');
+    }
+
+    return Tags.find(selector).sort({
       order: 1,
       name: 1
     });

@@ -59,7 +59,6 @@ const DashbaordFormContent = (props: FinalProps) => {
             btnStyle="simple"
             type="button"
             icon="times-circle"
-            uppercase={false}
             onClick={props.closeModal}
           >
             Cancel
@@ -82,9 +81,7 @@ const DashbaordFormContent = (props: FinalProps) => {
 
 const DashbaordForm = (props: Props) => {
   const defatulTrigger = (
-    <Button uppercase={false} icon="sitemap-1">
-      {__('Create new Dashboard')}
-    </Button>
+    <Button icon="sitemap-1">{__('Create new Dashboard')}</Button>
   );
 
   const { dashboard, trigger = defatulTrigger, renderButton } = props;
@@ -102,6 +99,7 @@ const DashbaordForm = (props: Props) => {
   return (
     <ModalTrigger
       title={dashboard ? `Edit dashboard` : `Add dashboard`}
+      autoOpenKey="showDashboardAddModal"
       trigger={trigger}
       content={content}
     />

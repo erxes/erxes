@@ -87,7 +87,6 @@ class RefreshPermissionForm extends React.PureComponent<Props, CommonTypes> {
             type="button"
             onClick={closeModal}
             icon="times-circle"
-            uppercase={false}
           >
             Cancel
           </Button>
