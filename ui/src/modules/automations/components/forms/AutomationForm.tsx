@@ -394,11 +394,7 @@ class AutomationForm extends React.Component<Props, State> {
 
     const component = props => content({ ...props });
 
-    return (
-      <div>
-        <ModalTrigger title={title} trigger={trigger} content={component} />
-      </div>
-    );
+    return <ModalTrigger title={title} trigger={trigger} content={component} />;
   }
 
   rendeRightActionbar() {
