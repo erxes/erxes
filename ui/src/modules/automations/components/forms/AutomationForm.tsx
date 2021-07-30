@@ -19,7 +19,7 @@ import Button from 'modules/common/components/Button';
 import ModalTrigger from 'modules/common/components/ModalTrigger';
 import TriggerForm from '../../containers/forms/TriggerForm';
 import ActionsForm from '../../containers/forms/ActionsForm';
-import TriggerDetailForm from '../../containers/forms/TriggerDetailForm';
+import TriggerDetailForm from './TriggerDetailForm';
 import Modal from 'react-bootstrap/Modal';
 import {
   createInitialConnections,

@@ -1,17 +1,12 @@
 import { __ } from 'modules/common/utils';
 import React from 'react';
-// import Select from 'react-select-plus';
 import { ModalFooter } from 'modules/common/styles/main';
 import Button from 'modules/common/components/Button';
-// import FormGroup from 'modules/common/components/form/Group';
-// import ControlLabel from 'modules/common/components/form/Label';
 import { IAction, ITrigger } from 'modules/automations/types';
 
-// import GenerateField from 'modules/settings/properties/components/GenerateField';
 import { IField } from 'modules/settings/properties/types';
-// import { SidebarContent } from 'modules/inbox/components/leftSidebar/styles';
 import FieldConditions, { IActionCondition } from './FieldConditions';
-import { ActionForms } from '../actions';
+import { ActionForms } from './actions';
 
 type Props = {
   closeModal: () => void;
@@ -119,7 +114,7 @@ class TriggerDetailForm extends React.Component<Props, State> {
     return (
       <>
         {this.renderFormFields()}
-        <Content action={currentAction.action}></Content>
+        <Content action={currentAction.action} />
         <ModalFooter>
           <Button
             btnStyle="simple"

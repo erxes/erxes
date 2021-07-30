@@ -1,5 +1,5 @@
 import React from 'react';
-import Form from '../../components/forms/TriggerDetailForm';
+import Form from '../../../components/forms/triggers/FormSubmit';
 import { graphql } from 'react-apollo';
 import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
@@ -15,13 +15,14 @@ type Props = {
   activeTrigger: ITrigger;
   contentId?: string;
   addTrigger: (value: string) => void;
+  onSave: (contentId: string) => void;
 };
 
 type FinalProps = {
   integrationsQuery: LeadIntegrationsQueryResponse;
 } & Props;
 
-const TriggerDetailFormContainer = (props: FinalProps) => {
+const FormSubmitContainer = (props: FinalProps) => {
   const formIntegrations = props.integrationsQuery.integrations || [];
 
   const extendedProps = {
@@ -55,5 +56,5 @@ export default withProps<Props>(
         };
       }
     })
-  )(TriggerDetailFormContainer)
+  )(FormSubmitContainer)
 );

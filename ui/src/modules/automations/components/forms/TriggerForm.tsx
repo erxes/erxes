@@ -3,7 +3,7 @@ import React from 'react';
 import { TriggerBox } from '../../styles';
 import Icon from 'modules/common/components/Icon';
 import { FlexRow } from 'modules/settings/styles';
-import TriggerDetailForm from '../../containers/forms/TriggerDetailForm';
+import TriggerDetailForm from './TriggerDetailForm';
 import ModalTrigger from 'modules/common/components/ModalTrigger';
 
 type Props = {
