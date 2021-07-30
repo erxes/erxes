@@ -476,6 +476,12 @@ class AutomationForm extends React.Component<Props, State> {
       return;
     }
 
+    const addActionConfig = (config: any) => {
+      currentAction.action.config = config;
+
+      this.setState({ currentAction });
+    };
+
     return (
       <Modal show={true} onHide={this.onClick}>
         <Modal.Header closeButton={true}>
@@ -487,6 +493,7 @@ class AutomationForm extends React.Component<Props, State> {
             trigger={currentAction.trigger}
             action={currentAction.action}
             closeModal={this.onClick}
+            addActionConfig={addActionConfig}
           />
         </Modal.Body>
       </Modal>

@@ -10,10 +10,11 @@ import { IAction, ITrigger } from 'modules/automations/types';
 // import GenerateField from 'modules/settings/properties/components/GenerateField';
 import { IField } from 'modules/settings/properties/types';
 // import { SidebarContent } from 'modules/inbox/components/leftSidebar/styles';
-import FieldConditions from './FieldConditions';
+import FieldConditions, { IActionCondition } from './FieldConditions';
 
 type Props = {
   closeModal: () => void;
+  addActionConfig: (value: any) => void;
   closeParentModal?: () => void;
   fetchFormFields: (
     formId: string,
@@ -26,6 +27,7 @@ type Props = {
 type State = {
   formFields?: IField[];
   queryLoaded: boolean;
+  formFieldConditions?: IActionCondition;
 };
 
 class TriggerDetailForm extends React.Component<Props, State> {
@@ -39,9 +41,10 @@ class TriggerDetailForm extends React.Component<Props, State> {
   }
 
   onSave = () => {
-    const { closeParentModal, closeModal } = this.props;
+    const { closeParentModal, closeModal, addActionConfig } = this.props;
 
-    // addTrigger(activeTrigger, activeFormId);
+    addActionConfig(this.state.formFieldConditions);
+
     closeParentModal ? closeParentModal() : closeModal();
   };
 
@@ -63,7 +66,13 @@ class TriggerDetailForm extends React.Component<Props, State> {
     //   // }
     // };
 
-    return <FieldConditions fields={fields} />;
+    const onUpdateCondition = condition => {
+      this.setState({ formFieldConditions: condition });
+    };
+
+    return (
+      <FieldConditions fields={fields} onUpdateCondition={onUpdateCondition} />
+    );
   }
 
   render() {
