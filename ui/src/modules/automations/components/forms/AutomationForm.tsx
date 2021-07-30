@@ -227,7 +227,7 @@ class AutomationForm extends React.Component<Props, State> {
   addTrigger = (value: string, contentId?: string) => {
     const { triggers } = this.state;
     const trigger: any = { id: String(triggers.length), type: value };
-    console.log(value, trigger);
+
     if (contentId) {
       trigger.config = {
         contentId
@@ -237,9 +237,7 @@ class AutomationForm extends React.Component<Props, State> {
     triggers.push(trigger);
     this.setState({ triggers, activeTrigger: trigger });
 
-    if (contentId === '') {
-      return this.renderTrigger(trigger);
-    }
+    return this.renderTrigger(trigger);
   };
 
   addAction = (value: string) => {
