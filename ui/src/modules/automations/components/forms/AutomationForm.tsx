@@ -144,17 +144,13 @@ class AutomationForm extends React.Component<Props, State> {
   };
 
   onClickTrigger = (trigger?: ITrigger) => {
-    if (!trigger) {
-      return;
-    }
-
     const config = trigger && trigger.config;
     const selectedContentId = config && config.contentId;
 
     this.setState({
       showModal: !this.state.showModal,
       selectedContentId,
-      activeTrigger: trigger
+      activeTrigger: trigger ? trigger : ({} as ITrigger)
     });
   };
 
@@ -231,7 +227,7 @@ class AutomationForm extends React.Component<Props, State> {
   addTrigger = (value: string, contentId?: string) => {
     const { triggers } = this.state;
     const trigger: any = { id: String(triggers.length), type: value };
-
+    console.log(value, trigger);
     if (contentId) {
       trigger.config = {
         contentId
@@ -239,9 +235,11 @@ class AutomationForm extends React.Component<Props, State> {
     }
 
     triggers.push(trigger);
-    this.setState({ triggers });
+    this.setState({ triggers, activeTrigger: trigger });
 
-    this.renderTrigger(trigger);
+    if (contentId === '') {
+      return this.renderTrigger(trigger);
+    }
   };
 
   addAction = (value: string) => {
@@ -320,7 +318,7 @@ class AutomationForm extends React.Component<Props, State> {
 
       this.onClickAction(action);
     });
-    console.log(action);
+
     if (action.type === 'if') {
       instance.addEndpoint(idElm, {
         anchor: ['Left'],
@@ -468,7 +466,7 @@ class AutomationForm extends React.Component<Props, State> {
           this.onClickTrigger,
           'Edit trigger',
           <TriggerDetailForm
-            activeTrigger={activeTrigger.type}
+            activeTrigger={activeTrigger}
             addTrigger={this.addTrigger}
             closeModal={this.onClickTrigger}
             contentId={selectedContentId}

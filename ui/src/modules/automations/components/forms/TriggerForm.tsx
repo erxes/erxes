@@ -25,7 +25,9 @@ class TriggerForm extends React.Component<Props> {
     const content = props => (
       <TriggerDetailForm
         closeParentModal={closeModal}
-        activeTrigger={key}
+        activeTrigger={{
+          type: key
+        }}
         addTrigger={addTrigger}
         {...props}
       />

@@ -6,12 +6,13 @@ import Button from 'modules/common/components/Button';
 import FormGroup from 'modules/common/components/form/Group';
 import ControlLabel from 'modules/common/components/form/Label';
 import { ILeadIntegration } from 'modules/leads/types';
+import { ITrigger } from 'modules/automations/types';
 
 type Props = {
   closeModal: () => void;
   closeParentModal?: () => void;
   formIntegrations: ILeadIntegration[];
-  activeTrigger: string;
+  activeTrigger: ITrigger;
   contentId?: string;
   addTrigger: (value: string, contentId?: string) => void;
 };
@@ -26,7 +27,9 @@ class TriggerDetailForm extends React.Component<Props, State> {
     super(props);
 
     this.state = {
-      activeIntegrationId: '',
+      activeIntegrationId: props.activeTrigger.config
+        ? props.activeTrigger.config.contentId
+        : '',
       formId: ''
     };
   }
@@ -39,9 +42,10 @@ class TriggerDetailForm extends React.Component<Props, State> {
       closeModal
     } = this.props;
 
-    const { formId } = this.state;
+    const { activeIntegrationId } = this.state;
 
-    addTrigger(activeTrigger, formId);
+    addTrigger(activeTrigger.type, activeIntegrationId);
+
     closeParentModal ? closeParentModal() : closeModal();
   };
 
