@@ -15,19 +15,12 @@ type Props = {
 };
 
 class ActionsForm extends React.Component<Props> {
-  onClickAction = action => {
-    const { addAction, closeModal } = this.props;
-
-    addAction(action.value);
-    closeModal();
-  };
-
   renderBox(action, index) {
     const { closeModal, addAction, addActionConfig } = this.props;
     const currentAction = { trigger: {} as ITrigger, action };
 
     const trigger = (
-      <ActionBox key={index} onClick={this.onClickAction.bind(this, action)}>
+      <ActionBox key={index}>
         <Icon icon={action.icon} size={30} />
         <div>
           <b>{__(action.label)}</b>
@@ -39,7 +32,7 @@ class ActionsForm extends React.Component<Props> {
     const content = props => (
       <ActionDetailForm
         closeParentModal={closeModal}
-        activeAction={action.value}
+        activeAction={action.type}
         currentAction={currentAction}
         addAction={addAction}
         addActionConfig={addActionConfig}

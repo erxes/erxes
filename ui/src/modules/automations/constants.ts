@@ -1,42 +1,42 @@
 export const ACTIONS = [
   {
-    value: '',
+    type: '',
     icon: 'file-plus',
     label: 'Choose action',
     description: 'Add a new action'
   },
   {
-    value: 'createTask',
+    type: 'createTask',
     icon: 'file-plus',
     label: 'Create task',
     description: 'Add a new action'
   },
   {
-    value: 'createDeal',
+    type: 'createDeal',
     icon: 'file-plus',
     label: 'Create deal',
     description: 'Add a new action'
   },
   {
-    value: 'createTicket',
+    type: 'createTicket',
     icon: 'file-plus',
     label: 'Create ticket',
     description: 'Add a new action'
   },
   {
-    value: 'if',
+    type: 'if',
     icon: 'file-plus',
     label: 'IF',
     description: 'Add a new action'
   },
   {
-    value: 'goto',
+    type: 'goto',
     icon: 'file-plus',
     label: 'Go to another action',
     description: 'Add a new action'
   },
   {
-    value: 'wait',
+    type: 'wait',
     icon: 'file-plus',
     label: 'Wait for next action',
     description: 'Add a new action'

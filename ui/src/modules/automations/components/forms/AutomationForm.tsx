@@ -320,7 +320,7 @@ class AutomationForm extends React.Component<Props, State> {
 
       this.onClickAction(action);
     });
-
+    console.log(action);
     if (action.type === 'if') {
       instance.addEndpoint(idElm, {
         anchor: ['Left'],
