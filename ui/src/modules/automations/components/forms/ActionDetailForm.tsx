@@ -1,4 +1,3 @@
-import { __ } from 'modules/common/utils';
 import React from 'react';
 import { IAction, ITrigger } from 'modules/automations/types';
 import { ActionForms } from './actions';

@@ -25,14 +25,12 @@ const details = ({ match }) => {
   return <Details id={id} />;
 };
 
-const form = ({}) => {
+const form = () => {
   return <Form />;
 };
 
 const list = ({ location }) => {
   const queryParams = queryString.parse(location.search);
-
-  localStorage.setItem('erxes_contact_url', 'companies');
 
   return <List queryParams={queryParams} />;
 };
