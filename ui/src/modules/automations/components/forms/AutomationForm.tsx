@@ -241,7 +241,6 @@ class AutomationForm extends React.Component<Props, State> {
   };
 
   addAction = (value: string) => {
-    console.log(value);
     const { actions } = this.state;
     const action = { id: String(actions.length), type: value };
 
@@ -289,7 +288,7 @@ class AutomationForm extends React.Component<Props, State> {
       </div>
     `);
 
-    jquery('#canvas').on('click', `#${idElm}`, event => {
+    jquery('#canvas').on('dblclick', `#${idElm}`, event => {
       event.preventDefault();
 
       this.onClickTrigger(trigger);
@@ -312,7 +311,7 @@ class AutomationForm extends React.Component<Props, State> {
           </div>
         `);
 
-    jquery('#canvas').on('click', `#${idElm}`, event => {
+    jquery('#canvas').on('dblclick', `#${idElm}`, event => {
       event.preventDefault();
 
       this.onClickAction(action);
