@@ -98,6 +98,7 @@ class TriggerDetailForm extends React.Component<Props, State> {
       !this.state.queryLoaded &&
       currentAction.action.type === 'if' &&
       currentAction.trigger.type === 'formSubmit' &&
+      config &&
       config.contentId
     ) {
       const { fetchFormFields } = this.props;

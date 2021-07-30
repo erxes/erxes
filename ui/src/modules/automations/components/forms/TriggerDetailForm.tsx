@@ -42,9 +42,9 @@ class TriggerDetailForm extends React.Component<Props, State> {
       closeModal
     } = this.props;
 
-    const { activeIntegrationId } = this.state;
+    const { formId } = this.state;
 
-    addTrigger(activeTrigger.type, activeIntegrationId);
+    addTrigger(activeTrigger.type, formId);
 
     closeParentModal ? closeParentModal() : closeModal();
   };
@@ -66,13 +66,21 @@ class TriggerDetailForm extends React.Component<Props, State> {
       return array.map(item => ({ value: item._id, label: item.name }));
     };
 
+    const selectedValue = formIntegrations.find(
+      item => item.formId === this.state.activeIntegrationId
+    );
+
+    const value = selectedValue
+      ? selectedValue._id
+      : this.state.activeIntegrationId;
+
     return (
       <>
         <FormGroup>
           <ControlLabel required={true}>{__('Select form')}</ControlLabel>
           <Select
             isRequired={true}
-            value={this.state.activeIntegrationId}
+            value={value}
             options={selectOptions(formIntegrations)}
             onChange={this.onChangeForm}
             placeholder={__('Select')}
