@@ -14,7 +14,7 @@ type Props = {
   formIntegrations: ILeadIntegration[];
   activeTrigger: ITrigger;
   contentId?: string;
-  addTrigger: (value: string, contentId?: string) => void;
+  addTrigger: (value: string, contentId?: string, triggerId?: string) => void;
 };
 
 type State = {
@@ -44,7 +44,7 @@ class FormSubmit extends React.Component<Props, State> {
 
     const { formId } = this.state;
 
-    addTrigger(activeTrigger.type, formId);
+    addTrigger(activeTrigger.type, formId, activeTrigger.id);
 
     closeParentModal ? closeParentModal() : closeModal();
   };

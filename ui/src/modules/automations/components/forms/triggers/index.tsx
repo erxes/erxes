@@ -13,6 +13,7 @@ type Props = {
 
 class DefaultForm extends React.Component<Props> {
   render() {
+    console.log('action: ', this.props.action);
     return (
       <>
         <div>content {this.props.action.type}</div>

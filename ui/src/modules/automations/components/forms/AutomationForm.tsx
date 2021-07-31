@@ -44,11 +44,8 @@ type State = {
   actions: IAction[];
   triggers: ITrigger[];
   activeTrigger: ITrigger;
+  activeAction: IAction;
   selectedContentId?: string;
-  currentAction: {
-    trigger: ITrigger;
-    action: IAction;
-  };
 };
 
 class AutomationForm extends React.Component<Props, State> {
@@ -72,7 +69,7 @@ class AutomationForm extends React.Component<Props, State> {
       activeTrigger: {} as ITrigger,
       showModal: false,
       showActionModal: false,
-      currentAction: { trigger: {} as ITrigger, action: {} as IAction }
+      activeAction: {} as IAction
     };
   }
 
@@ -137,10 +134,10 @@ class AutomationForm extends React.Component<Props, State> {
   }
 
   onAddActionConfig = config => {
-    const { currentAction } = this.state;
+    const { activeAction } = this.state;
 
-    currentAction.action.config = config;
-    this.setState({ currentAction });
+    activeAction.config = config;
+    this.setState({ activeAction });
   };
 
   onClickTrigger = (trigger?: ITrigger) => {
@@ -159,15 +156,9 @@ class AutomationForm extends React.Component<Props, State> {
       return;
     }
 
-    const { triggers = [] } = this.state;
-    const relatedTrigger = triggers.find(e => e.actionId === action.id);
-
     this.setState({
       showActionModal: !this.state.showActionModal,
-      currentAction: {
-        trigger: relatedTrigger ? relatedTrigger : ({} as ITrigger),
-        action
-      }
+      activeAction: action
     });
   };
 
@@ -224,9 +215,18 @@ class AutomationForm extends React.Component<Props, State> {
     this.setState({ triggers, actions });
   };
 
-  addTrigger = (value: string, contentId?: string) => {
+  addTrigger = (value: string, contentId?: string, triggerId?: string) => {
     const { triggers } = this.state;
-    const trigger: any = { id: String(triggers.length), type: value };
+    let trigger: any = { id: String(triggers.length), type: value };
+    let triggerIndex = -1;
+
+    if (triggerId) {
+      triggerIndex = triggers.findIndex(t => t.id === triggerId);
+
+      if (triggerIndex !== -1) {
+        trigger = triggers[triggerIndex];
+      }
+    }
 
     if (contentId) {
       trigger.config = {
@@ -234,10 +234,17 @@ class AutomationForm extends React.Component<Props, State> {
       };
     }
 
-    triggers.push(trigger);
+    if (triggerIndex !== -1) {
+      triggers[triggerIndex] = trigger;
+    } else {
+      triggers.push(trigger);
+    }
+
     this.setState({ triggers, activeTrigger: trigger });
 
-    return this.renderTrigger(trigger);
+    if (!triggerId) {
+      this.renderTrigger(trigger);
+    }
   };
 
   addAction = (value: string) => {
@@ -438,7 +445,7 @@ class AutomationForm extends React.Component<Props, State> {
     const {
       showModal,
       showActionModal,
-      currentAction,
+      activeAction,
       activeTrigger,
       selectedContentId
     } = this.state;
@@ -477,7 +484,7 @@ class AutomationForm extends React.Component<Props, State> {
           'Edit action',
           <ActionDetailForm
             closeModal={this.onClickAction}
-            currentAction={currentAction}
+            activeAction={activeAction}
             addAction={this.addAction}
             addActionConfig={this.onAddActionConfig}
           />
