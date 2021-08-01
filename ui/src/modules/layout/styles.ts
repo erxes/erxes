@@ -419,6 +419,46 @@ const DropNav = styled.a`
   }
 `;
 
+const DropSubNav = styled.ul`
+  background: ${colors.colorSecondary};
+  word-wrap: break-word;
+  width: auto;
+  top: 0;
+  margin: 0;
+  padding: 5px;
+  color: ${colors.colorShadowGray};
+  list-style: none;
+  transition: all 0.9s ease-out;
+`;
+
+const DropSubNavItem = styled.li`
+  > a {
+    padding: 4px 12px;
+    color: ${colors.colorWhite};
+    opacity: 0.8;
+    display: flex;
+    align-items: center;
+    border-radius: 5px;
+
+    > i {
+      font-size: 14px;
+      margin-right: ${dimensions.unitSpacing}px;
+    }
+
+    &.active {
+      opacity: 1;
+      font-weight: bold;
+      position: relative;
+      background: ${rgba(colors.colorBlack, 0.07)};
+    }
+
+    &:hover {
+      background: ${rgba(colors.colorBlack, 0.06)};
+      opacity: 1;
+    }
+  }
+`;
+
 const ExpandIcon = styledTS<{ collapsed: boolean }>(styled.div)`
   background: ${props =>
     !props.collapsed ? colors.colorPrimaryDark : colors.colorWhite};
@@ -487,6 +527,8 @@ export {
   NavItem,
   SubNavTitle,
   SubNavItem,
+  DropSubNav,
+  DropSubNavItem,
   DropNav,
   ExpandIcon
 };

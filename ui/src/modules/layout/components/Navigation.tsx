@@ -12,6 +12,8 @@ import {
   NavItem,
   SubNavTitle,
   SubNavItem,
+  DropSubNav,
+  DropSubNavItem,
   ExpandIcon
 } from '../styles';
 import Tip from 'modules/common/components/Tip';
@@ -55,6 +57,34 @@ class Navigation extends React.Component<IProps> {
     );
   };
 
+  renderChildren(children, collapsed, url, text: string) {
+    if (!children) {
+      return null;
+    }
+
+    if (collapsed && window.location.pathname.startsWith(url)) {
+      return children.map((child, index) => (
+        <DropSubNav>
+          <WithPermission key={index} action={child.permission}>
+            <DropSubNavItem>
+              <NavLink to={child.link}>
+                <i className={child.icon} />
+                {__(child.value)}
+              </NavLink>
+            </DropSubNavItem>
+          </WithPermission>
+        </DropSubNav>
+      ));
+    }
+
+    return (
+      <SubNav collapsed={collapsed}>
+        {!collapsed && <SubNavTitle>{__(text)}</SubNavTitle>}
+        {children.map((child, index) => this.renderSubNavItem(child, index))}
+      </SubNav>
+    );
+  }
+
   renderNavItem = (
     permission: string,
     text: string,
@@ -73,14 +103,7 @@ class Navigation extends React.Component<IProps> {
             {collapsed && <label>{__(text)}</label>}
             {label}
           </NavLink>
-          {childrens && (
-            <SubNav collapsed={collapsed}>
-              {!collapsed && <SubNavTitle>{__(text)}</SubNavTitle>}
-              {childrens.map((child, index) =>
-                this.renderSubNavItem(child, index)
-              )}
-            </SubNav>
-          )}
+          {this.renderChildren(childrens, collapsed, url, text)}
         </NavItem>
       </WithPermission>
     );
