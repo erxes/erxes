@@ -5,6 +5,7 @@ import {
   ConversationMessages,
   Conversations,
   Customers,
+  Fields,
   Forms,
   Integrations,
   KnowledgeBaseArticles,
@@ -39,6 +40,7 @@ import { AUTO_BOT_MESSAGES, BOT_MESSAGE_TYPES } from '../../constants';
 import { sendToVisitorLog } from '../../logUtils';
 import { IContext } from '../../types';
 import {
+  findCompany,
   registerOnboardHistory,
   replaceEditorAttributes,
   sendEmail,
@@ -261,6 +263,7 @@ const widgetMutations = {
       isUser,
       companyData,
       data,
+
       cachedCustomerId,
       deviceToken,
       visitorId
@@ -323,35 +326,42 @@ const widgetMutations = {
 
     // get or create company
     if (companyData && companyData.name) {
-      let company = await Companies.findOne({
-        $or: [
-          { names: { $in: [companyData.name] } },
-          { primaryName: companyData.name }
-        ]
-      });
+      let company = await findCompany(companyData);
+
+      const {
+        customFieldsData,
+        trackedData
+      } = await Fields.generateCustomFieldsData(companyData, 'company');
+
+      companyData.customFieldsData = customFieldsData;
+      companyData.trackedData = trackedData;
 
       if (!company) {
         companyData.primaryName = companyData.name;
-        companyData.names = [companyData.name];
 
         try {
           company = await Companies.createCompany({
             ...companyData,
             scopeBrandIds: [brand._id]
           });
-
-          if (customer) {
-            // add company to customer's companyIds list
-            await Conformities.create({
-              mainType: 'customer',
-              mainTypeId: customer._id,
-              relType: 'company',
-              relTypeId: company._id
-            });
-          }
         } catch (e) {
           debugError(e.message);
         }
+      } else {
+        company = await Companies.updateCompany(company._id, {
+          ...companyData,
+          scopeBrandIds: [brand._id]
+        });
+      }
+
+      if (customer && company) {
+        // add company to customer's companyIds list
+        await Conformities.create({
+          mainType: 'customer',
+          mainTypeId: customer._id,
+          relType: 'company',
+          relTypeId: company._id
+        });
       }
     }
 
