@@ -19,6 +19,7 @@ type Props = {
   renderButton: (props: IButtonMutateProps) => JSX.Element;
   segment: ISegment;
   headSegments: ISegment[];
+  segments: ISegment[];
   count: number;
   fetchFields: (pipelineId?: string) => void;
   previewCount: (args: {
@@ -28,6 +29,8 @@ type Props = {
     pipelineId?: string;
   }) => void;
   counterLoading: boolean;
+  isModal: boolean;
+  closeModal?: () => void;
 };
 
 const SegmentsForm = (props: Props) => {
@@ -71,7 +74,10 @@ const SegmentsForm = (props: Props) => {
     headSegments,
     boards,
     fetchFields,
-    previewCount
+    previewCount,
+    isModal,
+    closeModal,
+    segments
   } = props;
 
   const title = props.segment
@@ -84,24 +90,31 @@ const SegmentsForm = (props: Props) => {
     { title }
   ];
 
-  return (
+  const content = (
+    <Form
+      contentType={contentType}
+      fields={fields}
+      events={events}
+      boards={boards}
+      renderButton={renderButton}
+      segment={segment}
+      headSegments={headSegments}
+      segments={segments}
+      fetchFields={fetchFields}
+      previewCount={previewCount}
+      isForm={true}
+      closeModal={closeModal}
+      isModal={isModal}
+    />
+  );
+
+  return isModal ? (
+    content
+  ) : (
     <Wrapper
       header={<Wrapper.Header title={title} breadcrumb={breadcrumb} />}
       actionBar={<Wrapper.ActionBar left={pageTitle} />}
-      content={
-        <Form
-          contentType={contentType}
-          fields={fields}
-          events={events}
-          boards={boards}
-          renderButton={renderButton}
-          segment={segment}
-          headSegments={headSegments}
-          fetchFields={fetchFields}
-          previewCount={previewCount}
-          isForm={true}
-        />
-      }
+      content={content}
       rightSidebar={renderSidebar()}
     />
   );

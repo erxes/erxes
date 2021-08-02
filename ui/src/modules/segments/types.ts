@@ -23,6 +23,8 @@ export interface ISegmentCondition {
   eventOccurence?: string;
   eventOccurenceValue?: number;
   eventAttributeFilters?: IConditionFilter[];
+
+  subSegmentId?: string;
 }
 export interface ISegmentWithConditionDoc {
   name: string;

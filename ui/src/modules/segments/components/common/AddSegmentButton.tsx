@@ -29,14 +29,6 @@ function AddConditionButton(props: Props) {
     });
   };
 
-  const addSegmentCondition = () => {
-    props.addCondition({
-      key: Math.random().toString(),
-      type: 'subSegment',
-      eventAttributeFilters: []
-    });
-  };
-
   const renderAddEvents = () => {
     const { isModal } = props;
 
@@ -68,16 +60,7 @@ function AddConditionButton(props: Props) {
           icon="subject"
           onClick={addPropertyCondition}
         >
-          {__('Add Properties')}
-        </Button>
-
-        <Button
-          id="segment-add-properties"
-          btnStyle="primary"
-          icon="segment"
-          onClick={addSegmentCondition}
-        >
-          {__('Add Segment')}
+          {__('Add Properaaaties')}
         </Button>
 
         {renderAddEvents()}

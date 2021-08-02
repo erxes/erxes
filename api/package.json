@@ -87,6 +87,7 @@
     "redis": "^2.8.0",
     "request": "^2.88.0",
     "requestify": "^0.2.5",
+    "server-timing-header": "^1.9.0",
     "sha256": "^0.2.0",
     "shelljs": "^0.8.3",
     "sift": "^13.5.0",
