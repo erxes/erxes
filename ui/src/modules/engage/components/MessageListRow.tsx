@@ -164,18 +164,30 @@ class Row extends React.Component<Props> {
 
   renderStatus() {
     const { message } = this.props;
-    const { kind, scheduleDate, isLive, runCount } = message;
+    const { kind, scheduleDate, isLive, runCount, isDraft } = message;
+    let labelStyle = 'primary';
+    let labelText = 'Sending';
 
-    if (kind === MESSAGE_KINDS.MANUAL && runCount > 0) {
-      return <Label lblStyle="success">Sent</Label>;
+    if (!isLive && isDraft) {
+      labelStyle = 'simple';
+      labelText = 'Paused';
+    }
+    if (isLive && !isDraft) {
+      labelStyle = 'primary';
+      labelText = 'Sending';
+    }
+
+    if (kind === MESSAGE_KINDS.MANUAL) {
+      if (runCount > 0) {
+        labelStyle = 'success';
+        labelText = 'Sent';
+      }
     }
 
     // scheduled auto campaign
     if (scheduleDate && kind === MESSAGE_KINDS.AUTO) {
       const scheduledDate = new Date(scheduleDate.dateTime);
       const now = new Date();
-      let labelStyle = 'primary';
-      let labelText = 'Sending';
 
       if (
         scheduleDate.type === 'pre' &&
@@ -188,19 +200,9 @@ class Row extends React.Component<Props> {
         labelStyle = 'success';
         labelText = 'Sent';
       }
-      if (!isLive) {
-        labelStyle = 'simple';
-        labelText = 'Paused';
-      }
-      if (isLive) {
-        labelStyle = 'primary';
-        labelText = 'Sending';
-      }
-
-      return <Label lblStyle={labelStyle}>{labelText}</Label>;
     }
 
-    return <Label lblStyle="primary">Sending</Label>;
+    return <Label lblStyle={labelStyle}>{labelText}</Label>;
   }
 
   renderType(msg) {
