@@ -35,8 +35,13 @@ import {
 import { debugError } from '../../../debuggers';
 import { trackViewPageEvent } from '../../../events';
 import { get, set } from '../../../inmemoryStorage';
+import messageBroker from '../../../messageBroker';
 import { graphqlPubsub } from '../../../pubsub';
-import { AUTO_BOT_MESSAGES, BOT_MESSAGE_TYPES } from '../../constants';
+import {
+  AUTO_BOT_MESSAGES,
+  BOT_MESSAGE_TYPES,
+  RABBITMQ_QUEUES
+} from '../../constants';
 import { sendToVisitorLog } from '../../logUtils';
 import { IContext } from '../../types';
 import {
@@ -210,12 +215,20 @@ const widgetMutations = {
       conversationMessageInserted: message
     });
 
-    await sendToWebhook('create', 'popupSubmitted', {
+    const formData = {
       formId: args.formId,
       submissions: args.submissions,
       customer: cachedCustomer,
       cachedCustomerId: cachedCustomer._id,
       conversationId: conversation._id
+    };
+
+    await sendToWebhook('create', 'popupSubmitted', formData);
+
+    messageBroker().sendMessage(RABBITMQ_QUEUES.AUTOMATIONS_TRIGGER, {
+      triggerType: 'formSubmit',
+      data: formData,
+      targetId: args.formId
     });
 
     return {

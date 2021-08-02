@@ -20,7 +20,7 @@ export interface IAttributeFilter {
 }
 
 export interface ICondition {
-  type: 'property' | 'event';
+  type: 'property' | 'event' | 'subSegment';
 
   propertyName?: string;
   propertyOperator?: string;
@@ -30,6 +30,8 @@ export interface ICondition {
   eventOccurence?: 'exactly' | 'atleast' | 'atmost';
   eventOccurenceValue?: number;
   eventAttributeFilters?: IAttributeFilter[];
+
+  subSegmentId?: string;
 }
 
 export interface IConditionDocument extends ICondition, Document {}
@@ -41,7 +43,10 @@ export interface ISegment {
   description?: string;
   subOf: string;
   color: string;
+
   conditions: ICondition[];
+  conditionsConjunction?: 'and' | 'or';
+
   scopeBrandIds?: string[];
 
   boardId?: string;
@@ -96,7 +101,9 @@ export const conditionSchema = new Schema(
       optional: true
     }),
 
-    eventAttributeFilters: field({ type: [eventAttributeSchema] })
+    eventAttributeFilters: field({ type: [eventAttributeSchema] }),
+
+    subSegmentId: field({ type: String, optional: true })
   },
   { _id: false }
 );
@@ -113,6 +120,14 @@ export const segmentSchema = schemaWrapper(
     description: field({ type: String, optional: true }),
     subOf: field({ type: String, optional: true }),
     color: field({ type: String }),
+
+    conditionsConjunction: field({
+      type: String,
+      enum: ['and', 'or'],
+      default: 'and',
+      label: 'Conjunction'
+    }),
+
     conditions: field({ type: [conditionSchema] }),
 
     boardId: field({ type: String }),

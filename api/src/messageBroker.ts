@@ -5,6 +5,7 @@ import {
   receiveIntegrationsNotification,
   receiveRpcMessage
 } from './data/modules/integrations/receiveMessage';
+import { receiveRpcMessage as receiveAutomations } from './data/modules/automations';
 import { pluginsConsume } from './pluginUtils';
 import { graphqlPubsub } from './pubsub';
 
@@ -25,6 +26,11 @@ export const initBroker = async (server?) => {
   consumeRPCQueue(
     'rpc_queue:integrations_to_api',
     async data => await receiveRpcMessage(data)
+  );
+
+  consumeRPCQueue(
+    'rpc_queue:automations_to_api',
+    async data => await receiveAutomations(data)
   );
 
   // graphql subscriptions call =========

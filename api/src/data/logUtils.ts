@@ -1487,6 +1487,12 @@ export const putCreateLog = async (
 
   callAfterMutation({ ...params, action: LOG_ACTIONS.CREATE }, user);
 
+  messageBroker().sendMessage(RABBITMQ_QUEUES.AUTOMATIONS_TRIGGER, {
+    triggerType: `${params.type}Create`,
+    data: params,
+    targetId: params.object._id
+  });
+
   return putCreateLogC(messageBroker, gatherDescriptions, params, user);
 };
 
@@ -1503,6 +1509,12 @@ export const putUpdateLog = async (
 
   callAfterMutation({ ...params, action: LOG_ACTIONS.UPDATE }, user);
 
+  messageBroker().sendMessage(RABBITMQ_QUEUES.AUTOMATIONS_TRIGGER, {
+    triggerType: `${params.type}Update`,
+    data: params,
+    targetId: params.object._id
+  });
+
   return putUpdateLogC(messageBroker, gatherDescriptions, params, user);
 };
 
@@ -1518,6 +1530,12 @@ export const putDeleteLog = async (
   await sendToWebhook(LOG_ACTIONS.DELETE, params.type, params);
 
   callAfterMutation({ ...params, action: LOG_ACTIONS.DELETE }, user);
+
+  messageBroker().sendMessage(RABBITMQ_QUEUES.AUTOMATIONS_TRIGGER, {
+    triggerType: `${params.type}Delete`,
+    data: params,
+    targetId: params.object._id
+  });
 
   return putDeleteLogC(messageBroker, gatherDescriptions, params, user);
 };

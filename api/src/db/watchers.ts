@@ -2,7 +2,7 @@ import { getEnv } from '../data/utils';
 import { fetchElk } from '../elasticsearch';
 import { Companies, Customers } from './models';
 
-const sendElkRequest = (data, index: string) => {
+export const sendElkRequest = (data, index: string) => {
   const { operationType, documentKey } = data;
 
   switch (operationType) {

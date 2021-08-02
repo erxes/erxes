@@ -1,4 +1,5 @@
 import activityLogs from './activityLogs';
+import automations from './automations';
 import boards from './boards';
 import brands from './brands';
 import calendars from './calendars';
@@ -90,5 +91,6 @@ export default {
   ...skillTypesQueries,
   ...skillQueries,
   ...messengerAppsQueries,
-  ...smsDeliveries
+  ...smsDeliveries,
+  ...automations
 };

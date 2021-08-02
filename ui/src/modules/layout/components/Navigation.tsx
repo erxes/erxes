@@ -253,7 +253,7 @@ class Navigation extends React.Component<IProps> {
             'showKnowledgeBase',
             __('Support'),
             '/knowledgeBase',
-            'icon-circular',
+            'icon-leaf',
             [
               {
                 permission: 'showTickets',
@@ -302,6 +302,12 @@ class Navigation extends React.Component<IProps> {
                 icon: 'icon-calendar-alt'
               }
             ]
+          )}
+          {this.renderNavItem(
+            'showAutomations',
+            __('Automations'),
+            '/automations',
+            'icon-circular'
           )}
 
           {pluginsOfNavigations(this.renderNavItem)}
