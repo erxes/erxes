@@ -19,6 +19,7 @@ type Props = {
   renderButton: (props: IButtonMutateProps) => JSX.Element;
   segment: ISegment;
   headSegments: ISegment[];
+  segments: ISegment[];
   count: number;
   fetchFields: (pipelineId?: string) => void;
   previewCount: (args: {
@@ -75,7 +76,8 @@ const SegmentsForm = (props: Props) => {
     fetchFields,
     previewCount,
     isModal,
-    closeModal
+    closeModal,
+    segments
   } = props;
 
   const title = props.segment
@@ -97,6 +99,7 @@ const SegmentsForm = (props: Props) => {
       renderButton={renderButton}
       segment={segment}
       headSegments={headSegments}
+      segments={segments}
       fetchFields={fetchFields}
       previewCount={previewCount}
       isForm={true}

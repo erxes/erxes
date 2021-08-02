@@ -20,7 +20,7 @@ import {
 } from 'modules/segments/types';
 import { isBoardKind } from 'modules/segments/utils';
 import { EMPTY_NEW_SEGMENT_CONTENT } from 'modules/settings/constants';
-import { ColorPick, ColorPicker, ExpandWrapper } from 'modules/settings/styles';
+import { ColorPick, ColorPicker } from 'modules/settings/styles';
 import React from 'react';
 import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
 import Popover from 'react-bootstrap/Popover';
@@ -31,6 +31,7 @@ import { FilterBox, SegmentTitle, SegmentWrapper } from '../styles';
 import AddConditionButton from './AddConditionButton';
 import EventCondition from './EventCondition';
 import PropertyCondition from './PropertyCondition';
+import SegmentCondition from './SegmentCondition';
 
 type Props = {
   contentType?: string;
@@ -41,6 +42,7 @@ type Props = {
   edit?: (params: { _id: string; doc: ISegmentWithConditionDoc }) => void;
   segment?: ISegment;
   headSegments: ISegment[];
+  segments: ISegment[];
   isForm?: boolean;
   closeModal?: () => void;
   afterSave?: () => void;
@@ -62,6 +64,7 @@ type State = {
   conditions: ISegmentCondition[];
   boardId?: string;
   pipelineId?: string;
+  conditionsConjunction?: string;
 };
 
 class SegmentForm extends React.Component<Props, State> {
@@ -73,7 +76,8 @@ class SegmentForm extends React.Component<Props, State> {
       description: '',
       subOf: '',
       color: generateRandomColorCode(),
-      conditions: []
+      conditions: [],
+      conditionsConjunction: ''
     };
 
     segment.conditions = segment.conditions.map((cond: ISegmentCondition) => ({
@@ -147,6 +151,20 @@ class SegmentForm extends React.Component<Props, State> {
     });
   };
 
+  changeSegmentCondition = (args: { key?: string; value: string }) => {
+    const condition = {
+      type: 'subSegment',
+      key: args.key,
+      subSegmentId: args.value
+    };
+
+    this.setState({
+      conditions: this.state.conditions.map(c =>
+        c.key === condition.key ? condition : c
+      )
+    });
+  };
+
   removeCondition = (key: string) => {
     const conditions = this.state.conditions.filter(c => c.key !== key);
 
@@ -173,6 +191,7 @@ class SegmentForm extends React.Component<Props, State> {
     name: string;
     subOf: string;
     color: string;
+    conditionsConjunction: string;
   }) => {
     const { segment, contentType } = this.props;
     const { color, conditions, boardId, pipelineId } = this.state;
@@ -231,7 +250,7 @@ class SegmentForm extends React.Component<Props, State> {
   }
 
   renderCondition(condition: ISegmentCondition) {
-    const { fields, events } = this.props;
+    const { fields, events, segments } = this.props;
 
     if (condition.type === 'property') {
       return (
@@ -243,6 +262,19 @@ class SegmentForm extends React.Component<Props, State> {
           operator={condition.propertyOperator || ''}
           value={condition.propertyValue || ''}
           onChange={this.changePropertyCondition}
+          onRemove={this.removeCondition}
+        />
+      );
+    }
+
+    if (condition.type === 'subSegment') {
+      return (
+        <SegmentCondition
+          segments={segments}
+          key={condition.key}
+          conditionKey={condition.key || ''}
+          value={condition.subSegmentId || ''}
+          onChange={this.changeSegmentCondition}
           onRemove={this.removeCondition}
         />
       );
@@ -394,6 +426,12 @@ class SegmentForm extends React.Component<Props, State> {
 
     const colorOnChange = e => this.handleChange('color', e.hex);
 
+    const conjunctionOnChange = (e: React.FormEvent) =>
+      this.handleChange(
+        'conditionsConjunction',
+        (e.currentTarget as HTMLInputElement).value
+      );
+
     const onPreviewCount = () => {
       if (previewCount) {
         previewCount({ conditions, subOf, boardId, pipelineId });
@@ -428,7 +466,7 @@ class SegmentForm extends React.Component<Props, State> {
         </FlexContent>
 
         <FlexContent>
-          <ExpandWrapper>
+          <FlexItem count={7}>
             <FormGroup>
               <ControlLabel>Description</ControlLabel>
               <FormControl
@@ -438,23 +476,39 @@ class SegmentForm extends React.Component<Props, State> {
                 onChange={descOnChange}
               />
             </FormGroup>
-          </ExpandWrapper>
-
-          <FormGroup>
-            <ControlLabel>Color</ControlLabel>
-            <div id="segment-color">
-              <OverlayTrigger
-                trigger="click"
-                rootClose={true}
-                placement="bottom"
-                overlay={popoverTop}
+          </FlexItem>
+          <FlexItem count={3} hasSpace={true}>
+            <FormGroup>
+              <ControlLabel>Conjunction</ControlLabel>
+              <FormControl
+                {...formProps}
+                name="conditionsConjunction"
+                componentClass="select"
+                value={this.state.conditionsConjunction || ''}
+                onChange={conjunctionOnChange}
               >
-                <ColorPick>
-                  <ColorPicker style={{ backgroundColor: color }} />
-                </ColorPick>
-              </OverlayTrigger>
-            </div>
-          </FormGroup>
+                <option value="and">{__('And')}</option>
+                <option value="or">{__('Or')}</option>
+              </FormControl>
+            </FormGroup>
+          </FlexItem>
+          <FlexItem hasSpace={true}>
+            <FormGroup>
+              <ControlLabel>Color</ControlLabel>
+              <div id="segment-color">
+                <OverlayTrigger
+                  trigger="click"
+                  rootClose={true}
+                  placement="bottom"
+                  overlay={popoverTop}
+                >
+                  <ColorPick>
+                    <ColorPicker style={{ backgroundColor: color }} />
+                  </ColorPick>
+                </OverlayTrigger>
+              </div>
+            </FormGroup>
+          </FlexItem>
         </FlexContent>
 
         {this.renderBoardFields()}

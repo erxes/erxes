@@ -17,7 +17,8 @@ import {
   EventsQueryResponse,
   HeadSegmentsQueryResponse,
   ISegmentCondition,
-  SegmentDetailQueryResponse
+  SegmentDetailQueryResponse,
+  SegmentsQueryResponse
 } from '../types';
 import { isBoardKind } from '../utils';
 
@@ -33,6 +34,7 @@ type FinalProps = {
   headSegmentsQuery: HeadSegmentsQueryResponse;
   eventsQuery: EventsQueryResponse;
   boardsQuery?: BoardsQueryResponse;
+  segmentsQuery: SegmentsQueryResponse;
 } & Props &
   AddMutationResponse &
   EditMutationResponse;
@@ -155,6 +157,7 @@ class SegmentsFormContainer extends React.Component<
       headSegmentsQuery,
       boardsQuery,
       eventsQuery,
+      segmentsQuery,
       history
     } = this.props;
 
@@ -167,6 +170,7 @@ class SegmentsFormContainer extends React.Component<
 
     const segment = segmentDetailQuery.segmentDetail;
     const headSegments = headSegmentsQuery.segmentsGetHeads || [];
+    const segments = segmentsQuery.segments || [];
     const isModal = history ? false : true;
 
     const updatedProps = {
@@ -176,6 +180,7 @@ class SegmentsFormContainer extends React.Component<
       headSegments: headSegments.filter(s =>
         s.contentType === contentType && segment ? s._id !== segment._id : true
       ),
+      segments: segments.filter(s => (segment ? s._id !== segment._id : true)),
       events,
       renderButton: this.renderButton,
       previewCount: this.previewCount,
@@ -207,6 +212,17 @@ export default withProps<Props>(
         name: 'headSegmentsQuery'
       }
     ),
+    graphql<Props, SegmentsQueryResponse, { contentTypes: string[] }>(
+      gql(queries.segments),
+      {
+        name: 'segmentsQuery',
+        options: ({ contentType }) => ({
+          fetchPolicy: 'network-only',
+          variables: { contentTypes: [contentType] }
+        })
+      }
+    ),
+
     graphql<Props>(gql(queries.events), {
       name: 'eventsQuery',
       options: ({ contentType }) => ({

@@ -6,6 +6,7 @@ const paramDefs = `
   $conditions: [SegmentCondition],
   $boardId: String,
   $pipelineId: String,
+  $conditionsConjunction: String
 `;
 
 const params = `
@@ -16,6 +17,7 @@ const params = `
   conditions: $conditions,
   boardId: $boardId,
   pipelineId: $pipelineId,
+  conditionsConjunction: $conditionsConjunction
 `;
 
 const segmentsAdd = `

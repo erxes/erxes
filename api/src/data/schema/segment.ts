@@ -16,6 +16,8 @@ export const types = `
     eventOccurence: String,
     eventOccurenceValue: Float,
     eventAttributeFilters: [EventAttributeFilter],
+
+    subSegmentId: String
   }
 
   type Segment {
@@ -26,6 +28,7 @@ export const types = `
     subOf: String
     color: String
     conditions: JSON
+    conditionsConjunction: String
 
     getSubSegments: [Segment]
 
@@ -50,6 +53,7 @@ const commonFields = `
   conditions: [SegmentCondition],
   boardId: String,
   pipelineId: String,
+  conditionsConjunction: String
 `;
 
 export const mutations = `

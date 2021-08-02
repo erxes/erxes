@@ -6,6 +6,7 @@ const segmentFields = `
   subOf
   color
   conditions
+  conditionsConjunction
 
   boardId
   pipelineId
