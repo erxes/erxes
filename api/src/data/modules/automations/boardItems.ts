@@ -6,6 +6,7 @@ import { sendError, sendSuccess } from './utils';
 
 export const receiveRpcMessageBoardItem = async (module, action, doc) => {
   if (action.includes('add')) {
+    console.log('add - ', module);
     try {
       if (doc.conversationId) {
         doc.sourceConversationIds = [doc.conversationId];
@@ -19,12 +20,17 @@ export const receiveRpcMessageBoardItem = async (module, action, doc) => {
         doc.companyIds = [doc.companyId];
       }
 
+      //   'dealStage change'
+
       const { create } = getCollection(module);
 
       const item = await itemsAdd(doc, module, create);
 
+      console.log('item: ', item);
+
       return sendSuccess({ ...item });
     } catch (e) {
+      console.log(e.message);
       return sendError(e.message);
     }
   }

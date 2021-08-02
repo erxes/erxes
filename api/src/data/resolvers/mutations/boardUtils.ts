@@ -96,8 +96,10 @@ export const itemsAdd = async (
   doc.initialStageId = doc.stageId;
   doc.watchedUserIds = user && [user._id];
 
+  const modifiedDoc = docModifier ? docModifier(doc) : doc;
+
   const extendedDoc = {
-    ...docModifier(doc),
+    ...modifiedDoc,
     modifiedBy: user && user._id,
     userId: user && user._id,
     order: await getNewOrder({
