@@ -87,19 +87,19 @@ export const itemsAdd = async (
     aboveItemId: string;
   },
   type: string,
-  user: IUserDocument,
-  docModifier: any,
-  createModel: any
+  createModel: any,
+  user?: IUserDocument,
+  docModifier?: any
 ) => {
   const { collection } = getCollection(type);
 
   doc.initialStageId = doc.stageId;
-  doc.watchedUserIds = [user._id];
+  doc.watchedUserIds = user && [user._id];
 
   const extendedDoc = {
     ...docModifier(doc),
-    modifiedBy: user._id,
-    userId: user._id,
+    modifiedBy: user && user._id,
+    userId: user && user._id,
     order: await getNewOrder({
       collection,
       stageId: doc.stageId,
@@ -116,23 +116,25 @@ export const itemsAdd = async (
     customerIds: doc.customerIds
   });
 
-  await sendNotifications({
-    item,
-    user,
-    type: NOTIFICATION_TYPES.DEAL_ADD,
-    action: `invited you to the ${type}`,
-    content: `'${item.name}'.`,
-    contentType: type
-  });
+  if (user) {
+    await sendNotifications({
+      item,
+      user,
+      type: NOTIFICATION_TYPES.DEAL_ADD,
+      action: `invited you to the ${type}`,
+      content: `'${item.name}'.`,
+      contentType: type
+    });
 
-  await putCreateLog(
-    {
-      type,
-      newData: extendedDoc,
-      object: item
-    },
-    user
-  );
+    await putCreateLog(
+      {
+        type,
+        newData: extendedDoc,
+        object: item
+      },
+      user
+    );
+  }
 
   const stage = await Stages.getStage(item.stageId);
 
@@ -446,7 +448,7 @@ export const itemsChange = async (
     sourceStageId
   } = doc;
 
-  const item = await getItem(type, itemId);
+  const item = await getItem(type, { _id: itemId });
 
   const extendedDoc: IItemCommonFields = {
     modifiedAt: new Date(),
@@ -516,7 +518,7 @@ export const itemsRemove = async (
   type: string,
   user: IUserDocument
 ) => {
-  const item = await getItem(type, _id);
+  const item = await getItem(type, { _id });
 
   await sendNotifications({
     item,
@@ -544,7 +546,7 @@ export const itemsCopy = async (
   extraDocParam: string[],
   modelCreate: any
 ) => {
-  const item = await getItem(type, _id);
+  const item = await getItem(type, { _id });
 
   const doc = await prepareBoardItemDoc(_id, type, user._id);
 
