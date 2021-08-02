@@ -42,8 +42,6 @@ class IfForm extends React.Component<Props, State> {
   render() {
     const { closeModal } = this.props;
 
-    console.log('render');
-
     return (
       <>
         <ModalFooter>

@@ -5,6 +5,7 @@ import { PerformMathForm } from './PerformMath';
 import IfForm from 'modules/automations/containers/forms/actions/IfForm';
 import Button from 'modules/common/components/Button';
 import { __ } from 'modules/common/utils';
+import BoardItemForm from 'modules/automations/containers/forms/actions/BoardItemForm';
 
 type Props = {
   closeModal: () => void;
@@ -18,7 +19,7 @@ class DefaultForm extends React.Component<Props> {
 
     return (
       <>
-        <div>content {action.type}</div>
+        <div>contents {action.type}</div>
         <ModalFooter>
           <Button
             btnStyle="simple"
@@ -45,5 +46,6 @@ class DefaultForm extends React.Component<Props> {
 export const ActionForms = {
   default: DefaultForm,
   performMath: PerformMathForm,
-  if: IfForm
+  if: IfForm,
+  boardItem: BoardItemForm
 };

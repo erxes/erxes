@@ -146,19 +146,17 @@ class AutomationForm extends React.Component<Props, State> {
 
     this.setState({
       showModal: !this.state.showModal,
+      showActionModal: false,
       selectedContentId,
       activeTrigger: trigger ? trigger : ({} as ITrigger)
     });
   };
 
   onClickAction = (action?: IAction) => {
-    if (!action) {
-      return;
-    }
-
     this.setState({
       showActionModal: !this.state.showActionModal,
-      activeAction: action
+      showModal: false,
+      activeAction: action ? action : ({} as IAction)
     });
   };
 
@@ -247,14 +245,49 @@ class AutomationForm extends React.Component<Props, State> {
     }
   };
 
-  addAction = (value: string) => {
+  addAction = (
+    value: string,
+    contentId?: string,
+    actionId?: string,
+    config?: any
+  ) => {
     const { actions } = this.state;
-    const action = { id: String(actions.length), type: value };
 
-    actions.push(action);
-    this.setState({ actions });
+    console.log('config: ', config);
 
-    this.renderAction(action);
+    let action: any = { id: String(actions.length), type: value };
+
+    let actionIndex = -1;
+
+    if (actionId) {
+      actionIndex = actions.findIndex(a => a.id === actionId);
+
+      if (actionIndex !== -1) {
+        action = actions[actionIndex];
+      }
+    }
+
+    if (contentId) {
+      action.config = {
+        contentId
+      };
+    }
+
+    if (config) {
+      action.config = config;
+    }
+
+    if (actionIndex !== -1) {
+      actions[actionIndex] = action;
+    } else {
+      actions.push(action);
+    }
+
+    this.setState({ actions, activeAction: action });
+
+    if (!actionId) {
+      this.renderAction(action);
+    }
   };
 
   onNameChange = (e: React.FormEvent<HTMLElement>) => {
@@ -375,12 +408,12 @@ class AutomationForm extends React.Component<Props, State> {
   };
 
   renderModal(
-    shodModal: boolean,
+    showModal: boolean,
     onClick: () => void,
     title: string,
     content: any
   ) {
-    if (!shodModal) {
+    if (!showModal) {
       return null;
     }
 

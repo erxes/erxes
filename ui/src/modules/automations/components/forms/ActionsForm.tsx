@@ -32,7 +32,7 @@ class ActionsForm extends React.Component<Props> {
     const content = props => (
       <ActionDetailForm
         closeParentModal={closeModal}
-        activeAction={action.type}
+        activeAction={action}
         currentAction={currentAction}
         addAction={addAction}
         addActionConfig={addActionConfig}

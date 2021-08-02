@@ -7,7 +7,7 @@ type Props = {
   addActionConfig: (value: any) => void;
   closeParentModal?: () => void;
   activeAction: IAction;
-  addAction: (value: string, contentId?: string) => void;
+  addAction: (value: string, contentId?: string, actionId?: string) => void;
 };
 
 class ActionDetailForm extends React.Component<Props> {
@@ -27,7 +27,13 @@ class ActionDetailForm extends React.Component<Props> {
   render() {
     const { activeAction } = this.props;
 
-    const Content = ActionForms[activeAction.type] || ActionForms.default;
+    let { type } = activeAction;
+
+    if (['createDeal', 'createTask', 'createTicket'].includes(type)) {
+      type = 'boardItem';
+    }
+
+    const Content = ActionForms[type] || ActionForms.default;
 
     return (
       <Content action={activeAction} onSave={this.onSave} {...this.props} />
