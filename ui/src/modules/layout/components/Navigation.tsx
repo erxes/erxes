@@ -62,12 +62,18 @@ class Navigation extends React.Component<IProps> {
       return null;
     }
 
-    if (collapsed && window.location.pathname.startsWith(url)) {
-      return children.map((child, index) => (
+    const urlParams = new URLSearchParams(window.location.search);
+    const parent = urlParams.get('parent');
+
+    if (
+      collapsed &&
+      (parent === url || window.location.pathname.startsWith(url))
+    ) {
+      return children.map((child, index: number) => (
         <DropSubNav>
           <WithPermission key={index} action={child.permission}>
             <DropSubNavItem>
-              <NavLink to={child.link}>
+              <NavLink to={`${child.link}?parent=${url}`}>
                 <i className={child.icon} />
                 {__(child.value)}
               </NavLink>
@@ -77,12 +83,14 @@ class Navigation extends React.Component<IProps> {
       ));
     }
 
-    return (
-      <SubNav collapsed={collapsed}>
-        {!collapsed && <SubNavTitle>{__(text)}</SubNavTitle>}
-        {children.map((child, index) => this.renderSubNavItem(child, index))}
-      </SubNav>
-    );
+    if (!collapsed) {
+      return (
+        <SubNav collapsed={collapsed}>
+          {!collapsed && <SubNavTitle>{__(text)}</SubNavTitle>}
+          {children.map((child, index) => this.renderSubNavItem(child, index))}
+        </SubNav>
+      );
+    }
   }
 
   renderNavItem = (
