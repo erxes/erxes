@@ -7,8 +7,8 @@ export const ACTIONS = {
   ADD_TAGS: "ADD_TAGS",
   REMOVE_TAGS: "REMOVE_TAGS",
   CREATE_TASK: "createTask",
-  ADD_TICKET: "ADD_TICKET",
-  ADD_DEAL: "ADD_DEAL",
+  CREATE_TICKET: "createTicket",
+  CREATE_DEAL: "createDeal",
   REMOVE_DEAL: "REMOVE_DEAL",
 };
 

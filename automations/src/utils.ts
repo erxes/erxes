@@ -1,4 +1,4 @@
-import { addBoardItem, addDeal, addTask, addTicket } from './actions';
+import { addBoardItem } from './actions';
 import { ACTIONS, TRIGGERS } from './constants';
 import { debugBase } from './debuggers';
 import { getActionsMap } from './helpers';
@@ -84,18 +84,15 @@ export const executeActions = async (execution: IExecutionDocument, actionsMap: 
 
   if (action.type === ACTIONS.CREATE_TASK) {
     const result = await addBoardItem({ action, execution, type: 'task' });
-
     execution.actionsData.push({ actionId: currentActionId, data: result })
-    // tasks.push(replacePlaceHolders({ actionData: action.config, triggerData: execution.triggerData }));
   }
 
-  if (action.type === ACTIONS.ADD_TICKET) {
+  if (action.type === ACTIONS.CREATE_TICKET) {
     const result = await addBoardItem({ action, execution, type: 'ticket' });
     execution.actionsData.push({ actionId: currentActionId, data: result })
-    // tasks.push(replacePlaceHolders({ actionData: action.config, triggerData: execution.triggerData }));
   }
 
-  if (action.type === ACTIONS.ADD_DEAL) {
+  if (action.type === ACTIONS.CREATE_DEAL) {
     const result = await addBoardItem({ action, execution, type: 'deal' });
     execution.actionsData.push({ actionId: currentActionId, data: result })
   }
