@@ -3,8 +3,6 @@ import { sendRPCMessage } from '../messageBroker';
 
 export const addTask = async ({ action, execution }) => {
 
-  console.log(execution)
-
   const newData = await replacePlaceHolders({ actionData: action.config, triggerData: { ...execution.triggerData, ...execution.actionsData } });
 
   if (execution.triggerData.hasOwnProperty('conversationId')) {
@@ -15,5 +13,15 @@ export const addTask = async ({ action, execution }) => {
     newData.customerId = execution.triggerData.cachedCustomerId;
   }
 
-  return sendRPCMessage('task', 'add-task', { name: 'gggggggggggggg', stageId: 'FnsbxzEJKQ7LzQPrd', ...newData });
+  const { config = {} } = action;
+
+  if (config.hasOwnProperty('cardName')) {
+    newData.name = config.cardName
+  }
+
+  if (config.hasOwnProperty('stageId')) {
+    newData.stageId = config.stageId
+  }
+
+  return sendRPCMessage('task', 'add-task', { ...newData });
 }
