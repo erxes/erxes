@@ -1,8 +1,7 @@
-import { __ } from 'modules/common/utils';
 import React from 'react';
-import { ModalFooter } from 'modules/common/styles/main';
-import Button from 'modules/common/components/Button';
+
 import { IAction, ITrigger } from 'modules/automations/types';
+import { SegmentsForm } from 'modules/segments/containers';
 
 type Props = {
   closeModal: () => void;
@@ -42,24 +41,7 @@ class IfForm extends React.Component<Props, State> {
   render() {
     const { closeModal } = this.props;
 
-    return (
-      <>
-        <ModalFooter>
-          <Button
-            btnStyle="simple"
-            type="button"
-            onClick={closeModal}
-            icon="times-circle"
-          >
-            {__('Cancel')}
-          </Button>
-
-          <Button btnStyle="success" icon="checked-1" onClick={this.onSave}>
-            Save
-          </Button>
-        </ModalFooter>
-      </>
-    );
+    return <SegmentsForm contentType="customer" closeModal={closeModal} />;
   }
 }
 

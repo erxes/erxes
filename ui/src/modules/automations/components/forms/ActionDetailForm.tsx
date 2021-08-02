@@ -35,6 +35,8 @@ class ActionDetailForm extends React.Component<Props> {
 
     const Content = ActionForms[type] || ActionForms.default;
 
+    console.log('sdadas', Content);
+
     return (
       <Content action={activeAction} onSave={this.onSave} {...this.props} />
     );

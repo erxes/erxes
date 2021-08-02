@@ -526,21 +526,23 @@ class SegmentForm extends React.Component<Props, State> {
                 Cancel
               </Button>
             ) : (
-              <Link to={`/segments/${contentType}`}>
-                <Button btnStyle="simple" icon="times-circle">
-                  Cancel
-                </Button>
-              </Link>
-            )}
+              <>
+                <Link to={`/segments/${contentType}`}>
+                  <Button btnStyle="simple" icon="times-circle">
+                    Cancel
+                  </Button>
+                </Link>
 
-            {previewCount && (
-              <Button
-                id="segment-show-count"
-                icon="crosshairs"
-                onClick={onPreviewCount}
-              >
-                Show count
-              </Button>
+                {previewCount && (
+                  <Button
+                    id="segment-show-count"
+                    icon="crosshairs"
+                    onClick={onPreviewCount}
+                  >
+                    Show count
+                  </Button>
+                )}
+              </>
             )}
 
             {renderButton({
