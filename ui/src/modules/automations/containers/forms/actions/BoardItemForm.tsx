@@ -38,8 +38,6 @@ class BoardItemSelectContainer extends React.Component<IProps> {
         break;
     }
 
-    console.log('asd =  ', this.props.activeAction);
-
     client
       .query({
         query: gql(queries[`${type}s`]),

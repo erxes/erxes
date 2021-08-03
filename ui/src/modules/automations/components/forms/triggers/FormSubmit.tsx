@@ -46,9 +46,6 @@ class FormSubmit extends React.Component<Props, State> {
 
     addTrigger(activeTrigger.type, formId, activeTrigger.id);
 
-    console.log('closeParentModal: ', closeParentModal);
-    console.log('closeModal: ', closeModal);
-
     closeParentModal ? closeParentModal() : closeModal();
   };
 

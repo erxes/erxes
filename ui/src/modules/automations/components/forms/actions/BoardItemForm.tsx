@@ -126,11 +126,7 @@ class AddForm extends React.Component<Props, State> {
 
     const { config } = this.state;
 
-    // addTrigger(activeTrigger.type, formId, activeTrigger.id);
     addAction(activeAction.type, '', activeAction.id, config);
-
-    console.log('closeParentModal: ', closeParentModal);
-    console.log('closeModal: ', closeModal);
 
     closeParentModal ? closeParentModal() : closeModal();
   };
