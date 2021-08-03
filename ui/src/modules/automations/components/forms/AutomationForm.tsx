@@ -24,7 +24,9 @@ import {
   createInitialConnections,
   connection,
   deleteConnection,
-  deleteControl
+  deleteControl,
+  sourceEndpoint,
+  targetEndpoint
 } from 'modules/automations/utils';
 import ActionDetailForm from './ActionDetailForm';
 
@@ -77,16 +79,28 @@ class AutomationForm extends React.Component<Props, State> {
   componentDidMount() {
     instance = plumb.getInstance({
       DragOptions: { cursor: 'pointer', zIndex: 2000 },
-      PaintStyle: {
-        gradient: {
-          stops: [
-            [0, '#0d78bc'],
-            [1, '#558822']
-          ]
-        },
-        stroke: '#558822',
-        strokeWidth: 3
-      },
+      // PaintStyle: {
+      //   gradient: {
+      //     stops: [
+      //       [0, '#0d78bc'],
+      //       [1, '#558822']
+      //     ]
+      //   },
+      //   stroke: '#558822',
+      //   strokeWidth: 3
+      // },
+      ConnectionOverlays: [
+        [
+          'Arrow',
+          {
+            location: 1,
+            visible: true,
+            width: 20,
+            length: 20,
+            id: 'ARROW'
+          }
+        ]
+      ],
       Container: 'canvas'
     });
 
@@ -340,9 +354,8 @@ class AutomationForm extends React.Component<Props, State> {
       this.onClickTrigger(trigger);
     });
 
-    instance.addEndpoint(idElm, {
-      anchor: [1, 0.5],
-      isSource: true
+    instance.addEndpoint(idElm, sourceEndpoint, {
+      anchor: [1, 0.5]
     });
 
     instance.draggable(instance.getSelector(`#${idElm}`));
@@ -364,14 +377,12 @@ class AutomationForm extends React.Component<Props, State> {
     });
 
     if (action.type === 'if') {
-      instance.addEndpoint(idElm, {
-        anchor: ['Left'],
-        isTarget: true
+      instance.addEndpoint(idElm, targetEndpoint, {
+        anchor: ['Left']
       });
 
-      instance.addEndpoint(idElm, {
+      instance.addEndpoint(idElm, sourceEndpoint, {
         anchor: [1, 0.2],
-        isSource: true,
         overlays: [
           [
             'Label',
@@ -384,9 +395,8 @@ class AutomationForm extends React.Component<Props, State> {
         ]
       });
 
-      instance.addEndpoint(idElm, {
+      instance.addEndpoint(idElm, sourceEndpoint, {
         anchor: [1, 0.8],
-        isSource: true,
         overlays: [
           [
             'Label',
@@ -399,14 +409,12 @@ class AutomationForm extends React.Component<Props, State> {
         ]
       });
     } else {
-      instance.addEndpoint(idElm, {
-        anchor: ['Left'],
-        isTarget: true
+      instance.addEndpoint(idElm, targetEndpoint, {
+        anchor: ['Left']
       });
 
-      instance.addEndpoint(idElm, {
-        anchor: ['Right'],
-        isSource: true
+      instance.addEndpoint(idElm, sourceEndpoint, {
+        anchor: ['Right']
       });
     }
 

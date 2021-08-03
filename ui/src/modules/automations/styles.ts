@@ -13,6 +13,11 @@ export const Container = styled.div`
       z-index: 1000;
       position: absolute;
     }
+
+    path,
+    .jtk-endpoint {
+      cursor: pointer;
+    }
   }
 
   .jtk-connector {
