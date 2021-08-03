@@ -75,7 +75,7 @@ export const pluginsOfNavigations = (
     text: string,
     url: string,
     icon: string,
-    childrens?: ISubNav[],
+    children?: ISubNav[],
     label?: React.ReactNode
   ) => React.ReactNode
 ) => {

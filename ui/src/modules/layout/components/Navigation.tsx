@@ -61,9 +61,18 @@ class Navigation extends React.Component<IProps> {
     collapsed: boolean,
     url: string,
     text: string,
+    icon: string,
     children?: ISubNav[]
   ) {
     if (!children) {
+      if (!collapsed)
+        return (
+          <Tip placement="right" text={__(text)}>
+            <NavLink to={url}>
+              <NavIcon className={icon} />
+            </NavLink>
+          </Tip>
+        );
       return null;
     }
 
@@ -91,7 +100,7 @@ class Navigation extends React.Component<IProps> {
 
     return (
       <SubNav collapsed={collapsed}>
-        {!collapsed && <SubNavTitle>{__(text)}</SubNavTitle>}
+        {<SubNavTitle>{__(text)}</SubNavTitle>}
         {children.map((child, index) => this.renderSubNavItem(child, index))}
       </SubNav>
     );
@@ -115,7 +124,7 @@ class Navigation extends React.Component<IProps> {
             {collapsed && <label>{__(text)}</label>}
             {label}
           </NavLink>
-          {this.renderChildren(collapsed, url, text, children)}
+          {this.renderChildren(collapsed, url, text, icon, children)}
         </NavItem>
       </WithPermission>
     );
