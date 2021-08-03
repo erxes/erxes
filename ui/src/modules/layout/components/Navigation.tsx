@@ -65,7 +65,7 @@ class Navigation extends React.Component<IProps> {
     children?: ISubNav[]
   ) {
     if (!children) {
-      if (!collapsed)
+      if (!collapsed) {
         return (
           <Tip placement="right" text={__(text)}>
             <NavLink to={url}>
@@ -73,6 +73,8 @@ class Navigation extends React.Component<IProps> {
             </NavLink>
           </Tip>
         );
+      }
+
       return null;
     }
 
