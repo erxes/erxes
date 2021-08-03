@@ -3,7 +3,6 @@ import { jsPlumb } from 'jsplumb';
 import jquery from 'jquery';
 import Wrapper from 'modules/layout/components/Wrapper';
 import React from 'react';
-
 import { IAction, IAutomation, ITrigger } from '../../types';
 import { Container } from '../../styles';
 import Form from 'modules/common/components/form/Form';
@@ -113,9 +112,9 @@ class AutomationForm extends React.Component<Props, State> {
 
       instance.bind('contextmenu', (component, event) => {
         if (component.hasClass('jtk-connector')) {
-          console.log('heree cnnecct', event.pageY, event.pageX);
+          console.log('heree cnnecct', event.pageY, event.pageX, component);
           event.preventDefault();
-          // instance.getSelector(`#${idElm}`).selectedConnection = component;
+          (window as any).selectedConnection = component;
           jquery(
             "<div class='custom-menu'><button class='delete-connection'>Delete connection</button></div>"
           )
@@ -125,10 +124,26 @@ class AutomationForm extends React.Component<Props, State> {
       });
 
       jquery('#canvas').on('click', '.delete-connection', event => {
-        instance
-          .deleteConnection
-          // instance.getSelector(`#${idElm}`).selectedConnection
-          ();
+        instance.deleteConnection((window as any).selectedConnection);
+      });
+
+      jquery('#canvas').bind('click', event => {
+        jquery('div.custom-menu').remove();
+      });
+
+      jquery('#canvas').on('contextmenu', '.control', event => {
+        event.preventDefault();
+
+        (window as any).selectedControl = event.currentTarget.id;
+        jquery(
+          "<div class='custom-menu'><button class='delete-control'>Delete control</button></div>"
+        )
+          .appendTo('#canvas')
+          .css({ top: event.pageY + 'px', left: event.pageX + 'px' });
+      });
+
+      jquery('#canvas').on('click', '.delete-control', event => {
+        instance.remove((window as any).selectedControl);
       });
     });
   }
@@ -321,7 +336,7 @@ class AutomationForm extends React.Component<Props, State> {
     const idElm = `trigger-${trigger.id}`;
 
     jquery('#canvas').append(`
-      <div class="trigger" id="${idElm}" style="${trigger.style}">
+      <div class="trigger control" id="${idElm}" style="${trigger.style}">
         ${trigger.type}
       </div>
     `);
@@ -344,7 +359,7 @@ class AutomationForm extends React.Component<Props, State> {
     const idElm = `action-${action.id}`;
 
     jquery('#canvas').append(`
-          <div class="action" id="${idElm}" style="${action.style}" type="${action.type}">
+          <div class="action control" id="${idElm}" style="${action.style}" type="${action.type}">
             ${action.type}
           </div>
         `);

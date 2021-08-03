@@ -8,6 +8,10 @@ export const Container = styled.div`
   #canvas {
     position: relative;
     font-weight: bold;
+
+    .custom-menu {
+      position: absolute;
+    }
   }
 
   .jtk-connector {
