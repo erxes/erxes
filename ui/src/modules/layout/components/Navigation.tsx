@@ -57,40 +57,44 @@ class Navigation extends React.Component<IProps> {
     );
   };
 
-  renderChildren(children, collapsed, url, text: string) {
+  renderChildren(
+    collapsed: boolean,
+    url: string,
+    text: string,
+    children?: ISubNav[]
+  ) {
     if (!children) {
       return null;
     }
 
-    const urlParams = new URLSearchParams(window.location.search);
-    const parent = urlParams.get('parent');
+    if (collapsed) {
+      const urlParams = new URLSearchParams(window.location.search);
+      const parent = urlParams.get('parent');
 
-    if (
-      collapsed &&
-      (parent === url || window.location.pathname.startsWith(url))
-    ) {
-      return children.map((child, index: number) => (
-        <DropSubNav>
-          <WithPermission key={index} action={child.permission}>
-            <DropSubNavItem>
-              <NavLink to={`${child.link}?parent=${url}`}>
-                <i className={child.icon} />
-                {__(child.value)}
-              </NavLink>
-            </DropSubNavItem>
-          </WithPermission>
-        </DropSubNav>
-      ));
+      if (parent === url || window.location.pathname.startsWith(url)) {
+        return children.map((child, index: number) => (
+          <DropSubNav>
+            <WithPermission key={index} action={child.permission}>
+              <DropSubNavItem>
+                <NavLink to={`${child.link}?parent=${url}`}>
+                  <i className={child.icon} />
+                  {__(child.value)}
+                </NavLink>
+              </DropSubNavItem>
+            </WithPermission>
+          </DropSubNav>
+        ));
+      }
+
+      return null;
     }
 
-    if (!collapsed) {
-      return (
-        <SubNav collapsed={collapsed}>
-          {!collapsed && <SubNavTitle>{__(text)}</SubNavTitle>}
-          {children.map((child, index) => this.renderSubNavItem(child, index))}
-        </SubNav>
-      );
-    }
+    return (
+      <SubNav collapsed={collapsed}>
+        {!collapsed && <SubNavTitle>{__(text)}</SubNavTitle>}
+        {children.map((child, index) => this.renderSubNavItem(child, index))}
+      </SubNav>
+    );
   }
 
   renderNavItem = (
@@ -98,7 +102,7 @@ class Navigation extends React.Component<IProps> {
     text: string,
     url: string,
     icon: string,
-    childrens?: ISubNav[],
+    children?: ISubNav[],
     label?: React.ReactNode
   ) => {
     const { collapsed } = this.props;
@@ -111,7 +115,7 @@ class Navigation extends React.Component<IProps> {
             {collapsed && <label>{__(text)}</label>}
             {label}
           </NavLink>
-          {this.renderChildren(childrens, collapsed, url, text)}
+          {this.renderChildren(collapsed, url, text, children)}
         </NavItem>
       </WithPermission>
     );
