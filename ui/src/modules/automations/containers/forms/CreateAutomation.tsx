@@ -24,7 +24,8 @@ const AutomationFormContainer = (props: FinalProps) => {
         ...doc
       }
     })
-      .then(() => {
+      .then(data => {
+        window.location.href = `/automations/details/${data.data.automationsAdd._id}`;
         Alert.success(`You successfully created a ${doc.name}`);
       })
 
@@ -32,34 +33,6 @@ const AutomationFormContainer = (props: FinalProps) => {
         Alert.error(error.message);
       });
   };
-
-  // const renderButton = ({
-  //   name,
-  //   values,
-  //   isSubmitted,
-  //   callback
-  // }: IButtonMutateProps) => {
-  //   const afterAdd = data => {
-  //     if (!data.automationsAdd || !data.automationsAdd._id) {
-  //       return;
-  //     }
-
-  //     window.location.href = `/automations/details/${data.automationsAdd._id}`;
-  //   };
-
-  //   return (
-  //     <ButtonMutate
-  //       mutation={mutations.automationsAdd}
-  //       variables={values}
-  //       callback={afterAdd}
-  //       refetchQueries={['automations', 'automationsMain', 'automationDetail']}
-  //       isSubmitted={isSubmitted}
-  //       btnSize="small"
-  //       type="submit"
-  //       successMessage={`You successfully created a ${name}`}
-  //     />
-  //   );
-  // };
 
   const updatedProps = {
     ...props,
@@ -76,7 +49,10 @@ export default withProps<Props>(
     graphql<{}, AddMutationResponse, IAutomationDoc>(
       gql(mutations.automationsAdd),
       {
-        name: 'addAutomationMutation'
+        name: 'addAutomationMutation',
+        options: () => ({
+          refetchQueries: ['automations', 'automationsMain', 'automationDetail']
+        })
       }
     )
   )(AutomationFormContainer)

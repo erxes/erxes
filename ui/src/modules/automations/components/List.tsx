@@ -122,7 +122,6 @@ class AutomationsList extends React.Component<IProps, State> {
               </th>
               <th>{__('Name')}</th>
               <th>{__('Status')}</th>
-              <th>{__('Actions')}</th>
             </tr>
           </thead>
           <tbody id="automations" className={isExpand ? 'expand' : ''}>
@@ -213,6 +212,6 @@ class AutomationsList extends React.Component<IProps, State> {
 }
 
 export default withTableWrapper(
-  'Company',
+  'Automation',
   withRouter<IRouterProps>(AutomationsList)
 );

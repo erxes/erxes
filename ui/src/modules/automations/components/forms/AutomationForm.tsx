@@ -133,33 +133,6 @@ class AutomationForm extends React.Component<Props, State> {
     });
   }
 
-  onAddActionConfig = config => {
-    const { activeAction } = this.state;
-
-    activeAction.config = config;
-    this.setState({ activeAction });
-  };
-
-  onClickTrigger = (trigger?: ITrigger) => {
-    const config = trigger && trigger.config;
-    const selectedContentId = config && config.contentId;
-
-    this.setState({
-      showModal: !this.state.showModal,
-      showActionModal: false,
-      selectedContentId,
-      activeTrigger: trigger ? trigger : ({} as ITrigger)
-    });
-  };
-
-  onClickAction = (action?: IAction) => {
-    this.setState({
-      showActionModal: !this.state.showActionModal,
-      showModal: false,
-      activeAction: action ? action : ({} as IAction)
-    });
-  };
-
   handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -195,6 +168,33 @@ class AutomationForm extends React.Component<Props, State> {
     };
 
     save(generateValues());
+  };
+
+  onAddActionConfig = config => {
+    const { activeAction } = this.state;
+
+    activeAction.config = config;
+    this.setState({ activeAction });
+  };
+
+  onClickTrigger = (trigger?: ITrigger) => {
+    const config = trigger && trigger.config;
+    const selectedContentId = config && config.contentId;
+
+    this.setState({
+      showModal: !this.state.showModal,
+      showActionModal: false,
+      selectedContentId,
+      activeTrigger: trigger ? trigger : ({} as ITrigger)
+    });
+  };
+
+  onClickAction = (action?: IAction) => {
+    this.setState({
+      showActionModal: !this.state.showActionModal,
+      showModal: false,
+      activeAction: action ? action : ({} as IAction)
+    });
   };
 
   onConnection = info => {
@@ -252,8 +252,6 @@ class AutomationForm extends React.Component<Props, State> {
     config?: any
   ) => {
     const { actions } = this.state;
-
-    console.log('config: ', config);
 
     let action: any = { id: String(actions.length), type: value };
 

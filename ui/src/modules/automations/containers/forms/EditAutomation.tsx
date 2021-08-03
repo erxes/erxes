@@ -42,25 +42,6 @@ const AutomationDetailsContainer = (props: FinalProps) => {
       });
   };
 
-  // const renderButton = ({
-  //   name,
-  //   values,
-  //   isSubmitted,
-  //   callback,
-  // }: IButtonMutateProps) => {
-  //   return (
-  //     <ButtonMutate
-  //       mutation={mutations.automationsEdit}
-  //       variables={values}
-  //       callback={callback}
-  //       refetchQueries={["automations", "automationsMain", "automationDetail"]}
-  //       isSubmitted={isSubmitted}
-  //       type="submit"
-  //       successMessage={`You successfully updated a ${name}`}
-  //     />
-  //   );
-  // };
-
   if (automationDetailQuery.loading) {
     return <Spinner objective={true} />;
   }
@@ -100,7 +81,10 @@ export default withProps<Props>(
     graphql<{}, EditMutationResponse, IAutomation>(
       gql(mutations.automationsEdit),
       {
-        name: 'editAutomationMutation'
+        name: 'editAutomationMutation',
+        options: () => ({
+          refetchQueries: ['automations', 'automationsMain', 'automationDetail']
+        })
       }
     )
   )(AutomationDetailsContainer)
