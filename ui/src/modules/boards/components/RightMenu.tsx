@@ -1,3 +1,4 @@
+import Drawer from 'modules/common/components/Drawer';
 import Button from 'modules/common/components/Button';
 import { ControlLabel, FormControl } from 'modules/common/components/form';
 import Icon from 'modules/common/components/Icon';
@@ -7,7 +8,6 @@ import { __ } from 'modules/common/utils';
 import SelectTeamMembers from 'modules/settings/team/containers/SelectTeamMembers';
 import React from 'react';
 import Select from 'react-select-plus';
-import RTG from 'react-transition-group';
 import { PRIORITIES } from '../constants';
 import SegmentFilter from '../containers/SegmentFilter';
 import {
@@ -266,30 +266,23 @@ export default class RightMenu extends React.Component<Props, State> {
       this.onChange('currentTab', name);
     };
 
-    const { currentTab, showMenu } = this.state;
+    const { currentTab } = this.state;
     const { isFiltered } = this.props;
 
     return (
       <div ref={this.setWrapperRef}>
         {isFiltered && (
-          <Button
-            btnStyle="warning"
-            icon="times-circle"
-            onClick={this.props.clearFilter}
-          >
-            {__('Clear Filter')}
-          </Button>
+          <div style={{ position: 'absolute', marginLeft: '35px' }}>
+            <Button
+              btnStyle="warning"
+              icon="times-circle"
+              onClick={this.props.clearFilter}
+            >
+              {__('Clear Filter')}
+            </Button>
+          </div>
         )}
-        <Button btnStyle="simple" icon="bars" onClick={this.toggleMenu}>
-          {showMenu ? __('Hide Menu') : __('Show Menu')}
-        </Button>
-
-        <RTG.CSSTransition
-          in={this.state.showMenu}
-          timeout={300}
-          classNames="slide-in-right"
-          unmountOnExit={true}
-        >
+        <Drawer icon={'bars'} side={'right'} title={'Show Menu'}>
           <RightMenuContainer>
             <Tabs full={true}>
               <TabTitle
@@ -307,7 +300,7 @@ export default class RightMenu extends React.Component<Props, State> {
             </Tabs>
             {this.renderTabContent()}
           </RightMenuContainer>
-        </RTG.CSSTransition>
+        </Drawer>
       </div>
     );
   }

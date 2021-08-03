@@ -242,6 +242,66 @@ a:hover {
   transition: all 300ms cubic-bezier(0.445, 0.05, 0.55, 0.95);
 }
 
+.slide-in-left-appear,
+.slide-in-left-enter {
+  opacity: 0;
+  transform: translateX(-30px);
+}
+
+.slide-in-left-appear-active,
+.slide-in-left-enter-active {
+  opacity: 1;
+  transform: translateX(0);
+  transition: all 300ms cubic-bezier(0.445, 0.05, 0.55, 0.95);
+}
+
+.slide-in-left-exit,
+.slide-in-left-exit-active {
+  opacity: 0;
+  transform: translateX(-30px);
+  transition: all 300ms cubic-bezier(0.445, 0.05, 0.55, 0.95);
+}
+
+.slide-in-top-appear,
+.slide-in-top-enter {
+  opacity: 0;
+  transform: translateY(-30px);
+}
+
+.slide-in-top-appear-active,
+.slide-in-top-enter-active {
+  opacity: 1;
+  transform: translateY(0);
+  transition: all 300ms cubic-bezier(0.445, 0.05, 0.55, 0.95);
+}
+
+.slide-in-top-exit,
+.slide-in-top-exit-active {
+  opacity: 0;
+  transform: translateY(-30px);
+  transition: all 300ms cubic-bezier(0.445, 0.05, 0.55, 0.95);
+}
+
+.slide-in-bottom-appear,
+.slide-in-bottom-enter {
+  opacity: 0;
+  transform: translateY(30px);
+}
+
+.slide-in-bottom-appear-active,
+.slide-in-bottom-enter-active {
+  opacity: 1;
+  transform: translateY(0);
+  transition: all 300ms cubic-bezier(0.445, 0.05, 0.55, 0.95);
+}
+
+.slide-in-bottom-exit,
+.slide-in-bottom-exit-active {
+  opacity: 0;
+  transform: translateY(30px);
+  transition: all 300ms cubic-bezier(0.445, 0.05, 0.55, 0.95);
+}
+
 .robot-appear,
 .robot-enter {
   opacity: 0;

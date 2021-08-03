@@ -60,19 +60,14 @@ const FilterButton = styledTS<{ selected?: boolean }>(styled.div)`
 `;
 
 export const RightMenuContainer = styled.div`
-  position: fixed;
+  position: relative;
   z-index: 2;
-  top: 100px;
-  right: 0;
-  bottom: 0;
-  width: 300px;
+  width: 20vw;
   background: ${colors.bgLight};
   white-space: normal;
   overflow: hidden;
   display: flex;
   flex-direction: column;
-  box-shadow: 0 12px 24px -6px rgba(9, 30, 66, 0.25),
-    0 0 0 1px rgba(9, 30, 66, 0.08);
 
   ${TabContainer} {
     height: 40px;
