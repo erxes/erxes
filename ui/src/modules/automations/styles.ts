@@ -10,6 +10,7 @@ export const Container = styled.div`
     font-weight: bold;
 
     .custom-menu {
+      z-index: 1000;
       position: absolute;
     }
   }

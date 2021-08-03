@@ -22,7 +22,9 @@ import TriggerDetailForm from './TriggerDetailForm';
 import Modal from 'react-bootstrap/Modal';
 import {
   createInitialConnections,
-  connection
+  connection,
+  deleteConnection,
+  deleteControl
 } from 'modules/automations/utils';
 import ActionDetailForm from './ActionDetailForm';
 
@@ -110,40 +112,31 @@ class AutomationForm extends React.Component<Props, State> {
       // create connections ===================
       createInitialConnections(triggers, actions, instance);
 
-      instance.bind('contextmenu', (component, event) => {
-        if (component.hasClass('jtk-connector')) {
-          console.log('heree cnnecct', event.pageY, event.pageX, component);
-          event.preventDefault();
-          (window as any).selectedConnection = component;
-          jquery(
-            "<div class='custom-menu'><button class='delete-connection'>Delete connection</button></div>"
-          )
-            .appendTo('#canvas')
-            .css({ top: event.pageY + 'px', left: event.pageX + 'px' });
+      // delete connections ===================
+      deleteConnection(instance);
+
+      // delete control ===================
+      deleteControl();
+
+      // delete from state ===================
+      jquery('#canvas').on('click', '.delete-control', () => {
+        const item = (window as any).selectedControl;
+        const splitItem = item.split('-');
+        const type = splitItem[0];
+
+        instance.remove(item);
+
+        if (type === 'action') {
+          return this.setState({
+            actions: actions.filter(action => action.id !== splitItem[1])
+          });
         }
-      });
 
-      jquery('#canvas').on('click', '.delete-connection', event => {
-        instance.deleteConnection((window as any).selectedConnection);
-      });
-
-      jquery('#canvas').bind('click', event => {
-        jquery('div.custom-menu').remove();
-      });
-
-      jquery('#canvas').on('contextmenu', '.control', event => {
-        event.preventDefault();
-
-        (window as any).selectedControl = event.currentTarget.id;
-        jquery(
-          "<div class='custom-menu'><button class='delete-control'>Delete control</button></div>"
-        )
-          .appendTo('#canvas')
-          .css({ top: event.pageY + 'px', left: event.pageX + 'px' });
-      });
-
-      jquery('#canvas').on('click', '.delete-control', event => {
-        instance.remove((window as any).selectedControl);
+        if (type === 'trigger') {
+          return this.setState({
+            triggers: triggers.filter(trigger => trigger.id !== splitItem[1])
+          });
+        }
       });
     });
   }

@@ -1,4 +1,5 @@
 import { ITrigger, IAction } from './types';
+import jquery from 'jquery';
 
 export const createInitialConnections = (
   triggers: ITrigger[],
@@ -81,4 +82,40 @@ export const connection = (
       }
     }
   }
+};
+
+export const deleteConnection = instance => {
+  instance.bind('contextmenu', (component, event) => {
+    if (component.hasClass('jtk-connector')) {
+      event.preventDefault();
+
+      (window as any).selectedConnection = component;
+      jquery(
+        "<div class='custom-menu'><button class='delete-connection'>Delete connection</button></div>"
+      )
+        .appendTo('#canvas')
+        .css({ top: event.pageY - 180 + 'px', left: event.pageX - 100 + 'px' });
+    }
+  });
+
+  jquery('#canvas').on('click', '.delete-connection', () => {
+    instance.deleteConnection((window as any).selectedConnection);
+  });
+
+  jquery('#canvas').bind('click', () => {
+    jquery('div.custom-menu').remove();
+  });
+};
+
+export const deleteControl = () => {
+  jquery('#canvas').on('contextmenu', '.control', event => {
+    event.preventDefault();
+
+    (window as any).selectedControl = event.currentTarget.id;
+    jquery(
+      "<div class='custom-menu'><button class='delete-control'>Delete control</button></div>"
+    )
+      .appendTo('#canvas')
+      .css({ top: event.pageY - 180 + 'px', left: event.pageX - 100 + 'px' });
+  });
 };
