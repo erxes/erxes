@@ -102,7 +102,7 @@ class Navigation extends React.Component<IProps> {
 
     return (
       <SubNav collapsed={collapsed}>
-        {<SubNavTitle>{__(text)}</SubNavTitle>}
+        {!collapsed && <SubNavTitle>{__(text)}</SubNavTitle>}
         {children.map((child, index) => this.renderSubNavItem(child, index))}
       </SubNav>
     );
