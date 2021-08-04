@@ -425,15 +425,34 @@ const DropSubNav = styled.ul`
   width: auto;
   top: 0;
   margin: 0;
-  padding: 5px;
-  color: ${colors.colorShadowGray};
+  padding: ${dimensions.unitSpacing - 5}px;
   list-style: none;
   transition: all 0.9s ease-out;
+
+  &:after {
+    content: ' ';
+    position: absolute;
+    pointer-events: none;
+    z-index: 10000;
+    left: ${dimensions.headerSpacing + 15}px;
+    top: ${dimensions.headerSpacing}px;
+    width: 0;
+    height: 0;
+    border-left: ${dimensions.unitSpacing + 2}px solid transparent;
+    border-right: ${dimensions.unitSpacing + 2}px solid transparent;
+    border-bottom: ${dimensions.unitSpacing}px solid ${colors.colorSecondary};
+
+    @media (max-height: 760px) {
+      top: ${dimensions.headerSpacing - 10}px;
+    }
+  }
 `;
 
 const DropSubNavItem = styled.li`
+  padding: ${dimensions.unitSpacing - 6}px;
+
   > a {
-    padding: 4px 12px;
+    padding: ${dimensions.unitSpacing - 3}px ${dimensions.unitSpacing + 2}px;
     color: ${colors.colorWhite};
     opacity: 0.8;
     display: flex;
