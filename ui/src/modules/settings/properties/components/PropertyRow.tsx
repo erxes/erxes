@@ -2,7 +2,7 @@ import ActionButtons from 'modules/common/components/ActionButtons';
 import Button from 'modules/common/components/Button';
 import EmptyState from 'modules/common/components/EmptyState';
 import ModalTrigger from 'modules/common/components/ModalTrigger';
-import Toggle from 'modules/common/components/Toggle';
+import Switch from 'modules/common/components/Switch';
 import { __, Alert, confirm } from 'modules/common/utils';
 import React from 'react';
 import Collapse from 'react-bootstrap/Collapse';
@@ -76,8 +76,8 @@ class PropertyRow extends React.Component<Props, State> {
       return Alert.error('You cannot update this property');
     }
 
-    if (e.target.id === 'visibleDetailToggle') {
-      const isVisibleInDetail = e.target.checked;
+    if (e.target.props.id === 'visibleDetailToggle') {
+      const isVisibleInDetail = e.checked;
 
       return this.props.updatePropertyDetailVisible({
         _id: property._id,
@@ -85,7 +85,7 @@ class PropertyRow extends React.Component<Props, State> {
       });
     }
 
-    const isVisible = e.target.checked;
+    const isVisible = e.checked;
 
     return this.props.updatePropertyVisible({ _id: property._id, isVisible });
   };
@@ -144,31 +144,23 @@ class PropertyRow extends React.Component<Props, State> {
             : 'Erxes'}
         </RowField>
         <RowField>
-          <Toggle
+          <Switch 
             id="visibleToggle"
             defaultChecked={field.isVisible}
             disabled={!field.canHide}
-            icons={{
-              checked: <span>Yes</span>,
-              unchecked: <span>No</span>
-            }}
             onChange={onChange}
           />
+
         </RowField>
         {['visitor', 'lead', 'customer', 'device'].includes(
           field.contentType
         ) ? (
           <RowField>
-            <Toggle
+            <Switch
               id="visibleDetailToggle"
               defaultChecked={field.isVisibleInDetail}
               disabled={!field.canHide}
-              icons={{
-                checked: <span>Yes</span>,
-                unchecked: <span>No</span>
-              }}
-              onChange={onChange}
-            />
+              onChange={onChange}/>
           </RowField>
         ) : (
           <></>
