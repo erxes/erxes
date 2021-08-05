@@ -245,18 +245,8 @@ class Row extends React.Component<Props> {
     const {
       brand = { name: '' },
       scheduleDate,
-      totalCustomersCount = 0,
-      segmentIds = [],
-      brandIds = [],
-      customerTagIds = []
+      totalCustomersCount = 0
     } = message;
-
-    // segment or brand or tagIds can determine target count if total is 0
-    const targetCount =
-      totalCustomersCount ||
-      segmentIds.length ||
-      brandIds.length ||
-      customerTagIds.length;
 
     return (
       <tr key={message._id}>
@@ -279,7 +269,7 @@ class Row extends React.Component<Props> {
         <td>{this.renderStatus()}</td>
         <td className="text-primary">
           <Icon icon="cube-2" />
-          <b> {s.numberFormat(targetCount)}</b>
+          <b> {s.numberFormat(totalCustomersCount)}</b>
         </td>
         <td>{this.renderType(message)}</td>
         <td>

@@ -1,5 +1,6 @@
 import * as Random from 'meteor-random';
 import { Document, Model, model, Schema } from 'mongoose';
+import { sendToAutomations } from '../utils';
 import { field } from './Logs';
 
 const ACTIVITY_ACTIONS = {
@@ -90,7 +91,7 @@ export interface IActivityLogModel extends Model<IActivityLogDocument> {
 
   createSegmentLog(
     segment: any,
-    customer: string[],
+    contentIds: string[],
     type: string,
     maxBulk?: number
   );
@@ -345,7 +346,7 @@ export const loadClass = () => {
       for (const contentId of diffContentIds) {
         bulkCounter = bulkCounter + 1;
 
-        bulkOpt.push({
+        const doc = {
           contentType: type,
           contentId,
           action: 'segment',
@@ -353,7 +354,11 @@ export const loadClass = () => {
             id: segment._id,
             content: segment.name
           }
-        });
+        };
+
+        bulkOpt.push(doc);
+
+        await sendToAutomations(doc);
 
         if (bulkCounter === maxBulk) {
           await ActivityLogs.insertMany(bulkOpt);

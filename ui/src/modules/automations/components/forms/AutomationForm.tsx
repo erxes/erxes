@@ -22,7 +22,11 @@ import TriggerDetailForm from './TriggerDetailForm';
 import Modal from 'react-bootstrap/Modal';
 import {
   createInitialConnections,
-  connection
+  connection,
+  deleteConnection,
+  deleteControl,
+  sourceEndpoint,
+  targetEndpoint
 } from 'modules/automations/utils';
 import ActionDetailForm from './ActionDetailForm';
 
@@ -75,16 +79,28 @@ class AutomationForm extends React.Component<Props, State> {
   componentDidMount() {
     instance = plumb.getInstance({
       DragOptions: { cursor: 'pointer', zIndex: 2000 },
-      PaintStyle: {
-        gradient: {
-          stops: [
-            [0, '#0d78bc'],
-            [1, '#558822']
-          ]
-        },
-        stroke: '#558822',
-        strokeWidth: 3
-      },
+      // PaintStyle: {
+      //   gradient: {
+      //     stops: [
+      //       [0, '#0d78bc'],
+      //       [1, '#558822']
+      //     ]
+      //   },
+      //   stroke: '#558822',
+      //   strokeWidth: 3
+      // },
+      ConnectionOverlays: [
+        [
+          'Arrow',
+          {
+            location: 1,
+            visible: true,
+            width: 20,
+            length: 20,
+            id: 'ARROW'
+          }
+        ]
+      ],
       Container: 'canvas'
     });
 
@@ -110,40 +126,31 @@ class AutomationForm extends React.Component<Props, State> {
       // create connections ===================
       createInitialConnections(triggers, actions, instance);
 
-      instance.bind('contextmenu', (component, event) => {
-        if (component.hasClass('jtk-connector')) {
-          console.log('heree cnnecct', event.pageY, event.pageX, component);
-          event.preventDefault();
-          (window as any).selectedConnection = component;
-          jquery(
-            "<div class='custom-menu'><button class='delete-connection'>Delete connection</button></div>"
-          )
-            .appendTo('#canvas')
-            .css({ top: event.pageY + 'px', left: event.pageX + 'px' });
+      // delete connections ===================
+      deleteConnection(instance);
+
+      // delete control ===================
+      deleteControl();
+
+      // delete from state ===================
+      jquery('#canvas').on('click', '.delete-control', () => {
+        const item = (window as any).selectedControl;
+        const splitItem = item.split('-');
+        const type = splitItem[0];
+
+        instance.remove(item);
+
+        if (type === 'action') {
+          return this.setState({
+            actions: actions.filter(action => action.id !== splitItem[1])
+          });
         }
-      });
 
-      jquery('#canvas').on('click', '.delete-connection', event => {
-        instance.deleteConnection((window as any).selectedConnection);
-      });
-
-      jquery('#canvas').bind('click', event => {
-        jquery('div.custom-menu').remove();
-      });
-
-      jquery('#canvas').on('contextmenu', '.control', event => {
-        event.preventDefault();
-
-        (window as any).selectedControl = event.currentTarget.id;
-        jquery(
-          "<div class='custom-menu'><button class='delete-control'>Delete control</button></div>"
-        )
-          .appendTo('#canvas')
-          .css({ top: event.pageY + 'px', left: event.pageX + 'px' });
-      });
-
-      jquery('#canvas').on('click', '.delete-control', event => {
-        instance.remove((window as any).selectedControl);
+        if (type === 'trigger') {
+          return this.setState({
+            triggers: triggers.filter(trigger => trigger.id !== splitItem[1])
+          });
+        }
       });
     });
   }
@@ -347,9 +354,8 @@ class AutomationForm extends React.Component<Props, State> {
       this.onClickTrigger(trigger);
     });
 
-    instance.addEndpoint(idElm, {
-      anchor: [1, 0.5],
-      isSource: true
+    instance.addEndpoint(idElm, sourceEndpoint, {
+      anchor: [1, 0.5]
     });
 
     instance.draggable(instance.getSelector(`#${idElm}`));
@@ -371,14 +377,12 @@ class AutomationForm extends React.Component<Props, State> {
     });
 
     if (action.type === 'if') {
-      instance.addEndpoint(idElm, {
-        anchor: ['Left'],
-        isTarget: true
+      instance.addEndpoint(idElm, targetEndpoint, {
+        anchor: ['Left']
       });
 
-      instance.addEndpoint(idElm, {
+      instance.addEndpoint(idElm, sourceEndpoint, {
         anchor: [1, 0.2],
-        isSource: true,
         overlays: [
           [
             'Label',
@@ -391,9 +395,8 @@ class AutomationForm extends React.Component<Props, State> {
         ]
       });
 
-      instance.addEndpoint(idElm, {
+      instance.addEndpoint(idElm, sourceEndpoint, {
         anchor: [1, 0.8],
-        isSource: true,
         overlays: [
           [
             'Label',
@@ -406,14 +409,12 @@ class AutomationForm extends React.Component<Props, State> {
         ]
       });
     } else {
-      instance.addEndpoint(idElm, {
-        anchor: ['Left'],
-        isTarget: true
+      instance.addEndpoint(idElm, targetEndpoint, {
+        anchor: ['Left']
       });
 
-      instance.addEndpoint(idElm, {
-        anchor: ['Right'],
-        isSource: true
+      instance.addEndpoint(idElm, sourceEndpoint, {
+        anchor: ['Right']
       });
     }
 
@@ -450,7 +451,14 @@ class AutomationForm extends React.Component<Props, State> {
 
     const component = props => content({ ...props });
 
-    return <ModalTrigger title={title} trigger={trigger} content={component} />;
+    return (
+      <ModalTrigger
+        title={title}
+        trigger={trigger}
+        content={component}
+        size="xl"
+      />
+    );
   }
 
   rendeRightActionbar() {

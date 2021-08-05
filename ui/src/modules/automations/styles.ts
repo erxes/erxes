@@ -1,6 +1,7 @@
 import styled from 'styled-components';
 import colors from 'modules/common/styles/colors';
 import { dimensions } from 'erxes-ui/lib/styles/eindex';
+import styledTS from 'styled-components-ts';
 
 export const Container = styled.div`
   padding: ${dimensions.coreSpacing}px;
@@ -10,7 +11,13 @@ export const Container = styled.div`
     font-weight: bold;
 
     .custom-menu {
+      z-index: 1000;
       position: absolute;
+    }
+
+    path,
+    .jtk-endpoint {
+      cursor: pointer;
     }
   }
 
@@ -73,10 +80,13 @@ export const Container = styled.div`
   }
 `;
 
-export const TriggerBox = styled.div`
+export const TriggerBox = styledTS<{ selected?: boolean }>(styled.div)`
   background: ${colors.colorWhite};
   border-radius: 2px;
-  border: 1px solid ${colors.borderPrimary};
+  border: ${props =>
+    props.selected
+      ? `2px solid ${colors.colorPrimary}`
+      : `1px solid ${colors.borderPrimary}`};
   display: flex;
   flex-direction: column;
   align-items: center;

@@ -1,6 +1,7 @@
 import React from 'react';
 import { ITrigger } from 'modules/automations/types';
-import { TriggerForms } from './triggers';
+// import { TriggerForms } from './triggers';
+import { SegmentsForm } from 'modules/segments/containers';
 
 type Props = {
   closeModal: () => void;
@@ -25,12 +26,22 @@ class TriggerDetailForm extends React.Component<Props> {
   };
 
   render() {
-    const { activeTrigger } = this.props;
+    const { activeTrigger, closeModal } = this.props;
 
-    const Content = TriggerForms[activeTrigger.type] || TriggerForms.default;
+    // const Content = TriggerForms[activeTrigger.type] || TriggerForms.default;
+
+    // return (
+    //   <Content action={activeTrigger} onSave={this.onSave} {...this.props} />
+    // );
+
+    const config = activeTrigger.config || {};
 
     return (
-      <Content action={activeTrigger} onSave={this.onSave} {...this.props} />
+      <SegmentsForm
+        contentType={activeTrigger.type || 'customer'}
+        closeModal={closeModal}
+        id={config.segmentId}
+      />
     );
   }
 }

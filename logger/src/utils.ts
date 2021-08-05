@@ -1,4 +1,5 @@
 import { debugBase, debugError } from './debuggers';
+import messageBroker from './messageBroker';
 import Logs from './models/Logs';
 
 /**
@@ -282,4 +283,8 @@ export const routeErrorHandling = (fn, callback?: any) => {
       return next(e);
     }
   };
+};
+
+export const sendToAutomations = data => {
+  messageBroker().sendMessage('erxes-automations:trigger', data);
 };
