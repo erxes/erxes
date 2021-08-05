@@ -22,6 +22,7 @@ export interface IAttributeFilter {
 export interface ICondition {
   type: 'property' | 'event' | 'subSegment';
 
+  propertyType?: 'customer' | 'company' | 'deal' | 'task' | 'task' | 'ticket';
   propertyName?: string;
   propertyOperator?: string;
   propertyValue?: string;
@@ -70,6 +71,11 @@ const eventAttributeSchema = new Schema(
 export const conditionSchema = new Schema(
   {
     type: field({ type: String }),
+
+    propertyType: field({
+      type: String,
+      optional: true
+    }),
 
     propertyName: field({
       type: String,

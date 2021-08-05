@@ -54,12 +54,14 @@ describe('Segments mutations', () => {
       conditions: [
         {
           type: 'property',
+          propertyType: 'customer',
           propertyName: 'lastName',
           propertyOperator: 'c',
           propertyValue: 'dombo'
         },
         {
           type: 'property',
+          propertyType: 'customer',
           propertyName: 'lastName',
           propertyOperator: 'c',
           propertyValue: 'rombo'
@@ -77,6 +79,7 @@ describe('Segments mutations', () => {
         },
         {
           type: 'property',
+          propertyType: 'customer',
           propertyName: 'firstName',
           propertyOperator: 'c',
           propertyValue: 'bat'
@@ -129,12 +132,14 @@ describe('Segments mutations', () => {
       conditions: [
         {
           type: 'property',
+          propertyType: 'customer',
           propertyName: 'lastName',
           propertyOperator: 'c',
           propertyValue: 'dombo'
         },
         {
           type: 'property',
+          propertyType: 'customer',
           propertyName: 'lastName',
           propertyOperator: 'c',
           propertyValue: 'do'
@@ -152,6 +157,7 @@ describe('Segments mutations', () => {
         },
         {
           type: 'property',
+          propertyType: 'customer',
           propertyName: 'firstName',
           propertyOperator: 'c',
           propertyValue: 'bat'
@@ -221,6 +227,7 @@ describe('Segments mutations', () => {
         },
         {
           type: 'property',
+          propertyType: 'customer',
           propertyName: 'firstName',
           propertyOperator: 'c',
           propertyValue: 'bat'
@@ -262,6 +269,7 @@ describe('Segments mutations', () => {
       conditions: [
         {
           type: 'property',
+          propertyType: 'deal',
           propertyName: 'name',
           propertyOperator: 'c',
           propertyValue: 'bat'
@@ -279,6 +287,7 @@ describe('Segments mutations', () => {
         },
         {
           type: 'property',
+          propertyType: 'deal',
           propertyName: 'name',
           propertyOperator: 'e',
           propertyValue: 'batdeal'
@@ -330,5 +339,81 @@ describe('Segments mutations', () => {
 
     const d3result = await isInSegment(mainSegment._id, d3._id, {});
     expect(d3result).toBe(false);
+  });
+
+  test('fetchBySegment: mixed content types', async () => {
+    await customerFactory({}, false, true);
+    await customerFactory({}, false, true);
+    await customerFactory({}, false, true);
+
+    const customer = await customerFactory(
+      {
+        firstName: 'batamar',
+        lastName: 'dombo'
+      },
+      false,
+      true
+    );
+
+    const customer2 = await customerFactory(
+      { firstName: 'batamar' },
+      false,
+      true
+    );
+
+    await dealFactory({}, true);
+    await dealFactory(
+      { customerIds: [customer2._id], name: 'dombodeal' },
+      true
+    );
+    await dealFactory({ customerIds: [customer._id], name: 'batdeal' }, true);
+
+    await sleep(2000);
+
+    const subSegment = await segmentFactory({
+      contentType: 'customer',
+      conditionsConjunction: 'or',
+
+      conditions: [
+        {
+          type: 'property',
+          propertyType: 'deal',
+          propertyName: 'name',
+          propertyOperator: 'c',
+          propertyValue: 'dombo'
+        },
+        {
+          type: 'property',
+          propertyType: 'deal',
+          propertyName: 'name',
+          propertyOperator: 'c',
+          propertyValue: 'bat'
+        }
+      ]
+    });
+
+    const segment = await segmentFactory({
+      contentType: 'customer',
+      conditionsConjunction: 'and',
+
+      conditions: [
+        {
+          type: 'subSegment',
+          subSegmentId: subSegment._id
+        },
+        {
+          type: 'property',
+          propertyType: 'customer',
+          propertyName: 'lastName',
+          propertyOperator: 'c',
+          propertyValue: 'dombo'
+        }
+      ]
+    });
+
+    const result = await fetchSegment(segment);
+
+    expect(result.length).toBe(1);
+    expect(result[0]).toBe(customer._id);
   });
 });
