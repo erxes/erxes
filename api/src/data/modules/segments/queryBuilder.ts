@@ -143,11 +143,12 @@ export const generateQueryBySegment = async (args: {
 }) => {
   const { segment, selector, options = {}, isInitialCall } = args;
   const { contentType } = segment;
+  const { defaultMustSelector } = options;
   const typesMap = getEsTypes(contentType);
 
   const must =
-    isInitialCall && options.defaultMustSelector
-      ? options.defaultMustSelector.map(s => ({ ...s }))
+    isInitialCall && defaultMustSelector
+      ? defaultMustSelector.map(s => ({ ...s }))
       : [];
 
   if (segment.conditionsConjunction === 'and') {
@@ -260,7 +261,7 @@ export const generateQueryBySegment = async (args: {
   for (const condition of propertyConditions) {
     const field = condition.propertyName;
 
-    if (field) {
+    if (field && condition.propertyType) {
       const [positiveQuery, negativeQuery] = elkConvertConditionToQuery({
         field,
         type: typesMap[field],
@@ -268,12 +269,27 @@ export const generateQueryBySegment = async (args: {
         value: condition.propertyValue || ''
       });
 
-      if (positiveQuery) {
-        propertiesPositive.push(positiveQuery);
-      }
+      if (contentType === condition.propertyType) {
+        if (positiveQuery) {
+          propertiesPositive.push(positiveQuery);
+        }
 
-      if (negativeQuery) {
-        propertiesNegative.push(negativeQuery);
+        if (negativeQuery) {
+          propertiesNegative.push(negativeQuery);
+        }
+      } else {
+        const ids = await associationPropertyFilter({
+          mainType: contentType,
+          propertyType: condition.propertyType,
+          positiveQuery,
+          negativeQuery
+        });
+
+        propertiesPositive.push({
+          terms: {
+            _id: ids
+          }
+        });
       }
     }
   }
@@ -340,30 +356,13 @@ export const generateQueryBySegment = async (args: {
       }
     }
 
-    let idsByEvents = [];
-
     if (eventPositive.length > 0 || eventNegative.length > 0) {
-      const idField =
-        segment.contentType === 'company' ? 'companyId' : 'customerId';
-
-      const eventsResponse = await fetchElk({
-        action: 'search',
+      const idsByEvents = await fetchByQuery({
         index: 'events',
-        body: {
-          _source: idField,
-          query: {
-            bool: {
-              must: eventPositive,
-              must_not: eventNegative
-            }
-          }
-        },
-        defaultValue: { hits: { hits: [] } }
+        _source: contentType === 'company' ? 'companyId' : 'customerId',
+        positiveQuery: eventPositive,
+        negativeQuery: eventNegative
       });
-
-      idsByEvents = eventsResponse.hits.hits
-        .map(hit => hit._source[idField])
-        .filter(_id => _id);
 
       propertiesPositive.push({
         terms: {
@@ -625,4 +624,85 @@ const getIndexByContentType = (contentType: string) => {
   }
 
   return index;
+};
+
+const fetchByQuery = async ({
+  index,
+  positiveQuery,
+  negativeQuery,
+  _source = '_id'
+}: {
+  index: string;
+  _source?: string;
+  positiveQuery: any;
+  negativeQuery: any;
+}) => {
+  const response = await fetchElk({
+    action: 'search',
+    index,
+    body: {
+      _source,
+      query: {
+        bool: {
+          must: positiveQuery,
+          must_not: negativeQuery
+        }
+      }
+    },
+    defaultValue: { hits: { hits: [] } }
+  });
+
+  return response.hits.hits.map(hit =>
+    _source === '_id' ? hit._id : hit._source[_source]
+  );
+};
+
+const associationPropertyFilter = async ({
+  mainType,
+  propertyType,
+  positiveQuery,
+  negativeQuery
+}: {
+  mainType: string;
+  propertyType: string;
+  positiveQuery: any;
+  negativeQuery: any;
+}) => {
+  let associatedTypes: string[] = [];
+
+  if (mainType === 'customer') {
+    associatedTypes = ['company', 'deal', 'ticket', 'task'];
+  }
+
+  if (mainType === 'company') {
+    associatedTypes = ['customer', 'deal', 'ticket', 'task'];
+  }
+
+  if (mainType === 'deal') {
+    associatedTypes = ['customer', 'company', 'ticket', 'task'];
+  }
+
+  if (mainType === 'task') {
+    associatedTypes = ['customer', 'company', 'ticket', 'deal'];
+  }
+
+  if (mainType === 'ticket') {
+    associatedTypes = ['customer', 'company', 'deal', 'task'];
+  }
+
+  if (associatedTypes.includes(propertyType)) {
+    const mainTypeIds = await fetchByQuery({
+      index: getIndexByContentType(mainType),
+      positiveQuery,
+      negativeQuery
+    });
+
+    return Conformities.filterConformity({
+      mainType,
+      mainTypeIds,
+      relType: propertyType
+    });
+  }
+
+  return [];
 };
