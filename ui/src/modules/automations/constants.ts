@@ -46,5 +46,11 @@ export const ACTIONS = [
     icon: 'file-plus',
     label: 'Wait for next action',
     description: 'Add a new action'
+  },
+  {
+    type: 'sendEmail',
+    icon: 'fast-mail',
+    label: 'Send email',
+    description: 'Send email'
   }
 ];

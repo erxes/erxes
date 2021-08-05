@@ -3,7 +3,7 @@ import * as schedule from 'node-schedule';
 import { ACTIVITY_LOG_ACTIONS, putActivityLog } from '../data/logUtils';
 import { fetchSegment } from '../data/modules/segments/queryBuilder';
 import { connect } from '../db/connection';
-import { Companies, Customers, Segments } from '../db/models';
+import { Companies, Customers, Segments, Tickets } from '../db/models';
 
 /**
  * Send conversation messages to customer
@@ -15,7 +15,7 @@ export const createActivityLogsFromSegments = async () => {
   const segments = await Segments.find({});
 
   for (const segment of segments) {
-    const ids = await fetchSegment(segment);
+    const ids = await fetchSegment(segment, { associatedCustomers: true });
 
     const customers = await Customers.find({ _id: { $in: ids } }, { _id: 1 });
     const customerIds = customers.map(c => c._id);
@@ -23,14 +23,22 @@ export const createActivityLogsFromSegments = async () => {
     const companies = await Companies.find({ _id: { $in: ids } }, { _id: 1 });
     const companyIds = companies.map(c => c._id);
 
+    const tickets = await Tickets.find({ _id: { $in: ids } }, { _id: 1 });
+    const ticketIds = tickets.map(c => c._id);
+
     await putActivityLog({
       action: ACTIVITY_LOG_ACTIONS.CREATE_SEGMENT_LOG,
-      data: { segment, customerIds, type: 'customer' }
+      data: { segment, contentIds: customerIds, type: 'customer' }
     });
 
     await putActivityLog({
       action: ACTIVITY_LOG_ACTIONS.CREATE_SEGMENT_LOG,
-      data: { segment, companyIds, type: 'company' }
+      data: { segment, contentIds: companyIds, type: 'company' }
+    });
+
+    await putActivityLog({
+      action: ACTIVITY_LOG_ACTIONS.CREATE_SEGMENT_LOG,
+      data: { segment, contentIds: ticketIds, type: 'ticket' }
     });
   }
 };
@@ -46,6 +54,6 @@ export const createActivityLogsFromSegments = async () => {
  * │    └──────────────────── minute (0 - 59)
  * └───────────────────────── second (0 - 59, OPTIONAL)
  */
-schedule.scheduleJob('0 45 23 * * *', () => {
+schedule.scheduleJob('*/1 * * * *', () => {
   createActivityLogsFromSegments();
 });

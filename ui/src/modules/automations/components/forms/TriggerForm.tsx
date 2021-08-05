@@ -48,6 +48,8 @@ class TriggerForm extends React.Component<Props> {
       <FlexRow>
         {this.renderBox('formSubmit', 'file-plus-alt', 'Form Submit')}
         {this.renderBox('dealCreate', 'file-plus', 'Deal create')}
+        {this.renderBox('deal', 'file-plus', 'Deal')}
+        {this.renderBox('ticket', 'file-plus', 'Ticket')}
       </FlexRow>
     );
   }

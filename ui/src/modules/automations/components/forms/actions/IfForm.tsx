@@ -39,9 +39,16 @@ class IfForm extends React.Component<Props, State> {
   };
 
   render() {
-    const { closeModal } = this.props;
+    const { closeModal, activeAction } = this.props;
 
-    return <SegmentsForm contentType="customer" closeModal={closeModal} />;
+    const config = activeAction.config || {};
+    return (
+      <SegmentsForm
+        contentType={config.contentType || 'customer'}
+        closeModal={closeModal}
+        id={config.segmentId}
+      />
+    );
   }
 }
 
