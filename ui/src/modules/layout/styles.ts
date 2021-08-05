@@ -419,6 +419,65 @@ const DropNav = styled.a`
   }
 `;
 
+const DropSubNav = styled.ul`
+  background: ${colors.colorSecondary};
+  word-wrap: break-word;
+  width: auto;
+  top: 0;
+  margin: 0;
+  padding: ${dimensions.unitSpacing - 5}px;
+  list-style: none;
+  transition: all 0.9s ease-out;
+
+  &:after {
+    content: ' ';
+    position: absolute;
+    pointer-events: none;
+    z-index: 10000;
+    left: ${dimensions.headerSpacing + 15}px;
+    top: ${dimensions.headerSpacing}px;
+    width: 0;
+    height: 0;
+    border-left: ${dimensions.unitSpacing + 2}px solid transparent;
+    border-right: ${dimensions.unitSpacing + 2}px solid transparent;
+    border-bottom: ${dimensions.unitSpacing}px solid ${colors.colorSecondary};
+
+    @media (max-height: 760px) {
+      top: ${dimensions.headerSpacing - 10}px;
+    }
+  }
+`;
+
+const DropSubNavItem = styled.li`
+  padding: ${dimensions.unitSpacing - 6}px;
+
+  > a {
+    padding: ${dimensions.unitSpacing - 3}px ${dimensions.unitSpacing + 2}px;
+    color: ${colors.colorWhite};
+    opacity: 0.8;
+    display: flex;
+    align-items: center;
+    border-radius: 5px;
+
+    > i {
+      font-size: 14px;
+      margin-right: ${dimensions.unitSpacing}px;
+    }
+
+    &.active {
+      opacity: 1;
+      font-weight: bold;
+      position: relative;
+      background: ${rgba(colors.colorBlack, 0.07)};
+    }
+
+    &:hover {
+      background: ${rgba(colors.colorBlack, 0.06)};
+      opacity: 1;
+    }
+  }
+`;
+
 const ExpandIcon = styledTS<{ collapsed: boolean }>(styled.div)`
   background: ${props =>
     !props.collapsed ? colors.colorPrimaryDark : colors.colorWhite};
@@ -487,6 +546,8 @@ export {
   NavItem,
   SubNavTitle,
   SubNavItem,
+  DropSubNav,
+  DropSubNavItem,
   DropNav,
   ExpandIcon
 };
