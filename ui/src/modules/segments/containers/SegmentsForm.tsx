@@ -1,6 +1,7 @@
 import client from 'apolloClient';
 import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
+import { ITrigger } from 'modules/automations/types';
 import { queries as boardQueries } from 'modules/boards/graphql';
 import { BoardsQueryResponse } from 'modules/boards/types';
 import ButtonMutate from 'modules/common/components/ButtonMutate';
@@ -26,7 +27,10 @@ type Props = {
   contentType: string;
   history?: any;
   id?: string;
-  closeModal?: () => void;
+  closeModal: () => void;
+  closeParentModal?: () => void;
+  activeTrigger?: ITrigger;
+  addConfig: (value: string, contentId?: string, id?: string) => void;
 };
 
 type FinalProps = {
@@ -68,15 +72,31 @@ class SegmentsFormContainer extends React.Component<
     callback,
     object
   }: IButtonMutateProps) => {
-    const { contentType, history } = this.props;
+    const {
+      contentType,
+      history,
+      addConfig,
+      activeTrigger,
+      closeParentModal,
+      closeModal
+    } = this.props;
 
-    const callBackResponse = () => {
+    const callBackResponse = data => {
       if (history) {
         history.push(`/segments/${contentType}`);
       }
 
       if (callback) {
         callback();
+      }
+
+      console.log('activeTrigger: ', activeTrigger);
+
+      if (addConfig && activeTrigger) {
+        const result = object ? data.segmentsEdit : data.segmentsAdd;
+        addConfig(activeTrigger.type, result._id, activeTrigger.id);
+
+        closeParentModal ? closeParentModal() : closeModal();
       }
     };
 

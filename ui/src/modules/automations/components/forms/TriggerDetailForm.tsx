@@ -8,23 +8,10 @@ type Props = {
   closeParentModal?: () => void;
   activeTrigger: ITrigger;
   contentId?: string;
-  addTrigger: (value: string, contentId?: string, triggerId?: string) => void;
+  addConfig: (value: string, contentId?: string, id?: string) => void;
 };
 
 class TriggerDetailForm extends React.Component<Props> {
-  onSave = contentId => {
-    const {
-      addTrigger,
-      activeTrigger,
-      closeParentModal,
-      closeModal
-    } = this.props;
-
-    addTrigger(activeTrigger.type, contentId, activeTrigger.id);
-
-    closeParentModal ? closeParentModal() : closeModal();
-  };
-
   render() {
     const { activeTrigger, closeModal } = this.props;
 
@@ -38,9 +25,10 @@ class TriggerDetailForm extends React.Component<Props> {
 
     return (
       <SegmentsForm
+        {...this.props}
         contentType={activeTrigger.type || 'customer'}
         closeModal={closeModal}
-        id={config.segmentId}
+        id={config.contentId}
       />
     );
   }

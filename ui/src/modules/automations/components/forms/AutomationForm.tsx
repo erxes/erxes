@@ -236,6 +236,7 @@ class AutomationForm extends React.Component<Props, State> {
   };
 
   addTrigger = (value: string, contentId?: string, triggerId?: string) => {
+    console.log('contentId: ', contentId);
     const { triggers } = this.state;
     let trigger: any = { id: String(triggers.length), type: value };
     let triggerIndex = -1;
@@ -526,7 +527,7 @@ class AutomationForm extends React.Component<Props, State> {
           'Edit trigger',
           <TriggerDetailForm
             activeTrigger={activeTrigger}
-            addTrigger={this.addTrigger}
+            addConfig={this.addTrigger}
             closeModal={this.onClickTrigger}
             contentId={selectedContentId}
           />
