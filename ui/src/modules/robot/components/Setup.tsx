@@ -126,42 +126,24 @@ class Setup extends React.Component<Props, State> {
     );
   };
 
-  renderFeature(feature: IFeature, completed?: boolean) {
+  renderFeature(feature: IFeature) {
     const { changeRoute } = this.props;
 
-    if (completed) {
-      this.setState({ selectedOption: feature }, () => {
-        changeRoute('setupDetail');
-      });
-    }
+    this.setState({ selectedOption: feature }, () => {
+      changeRoute('setupDetail');
+    });
   }
 
   checkCondition(title?: string) {
     const { availableFeatures } = this.props;
 
-    const completedTasks = availableFeatures.filter(
-      feature => feature.isComplete
-    );
+    availableFeatures.map(availabeFeature => {
+      if (availabeFeature.name === title) {
+        this.renderFeature(availabeFeature);
+      }
 
-    const percentage = this.getPercentage();
-
-    if (percentage !== 100) {
-      availableFeatures.map(availabeFeature => {
-        if (availabeFeature.name === title) {
-          this.renderFeature(availabeFeature, true);
-        }
-
-        return null;
-      });
-    } else {
-      completedTasks.map(availabeFeature => {
-        if (availabeFeature.name === title) {
-          this.renderFeature(availabeFeature, true);
-        }
-
-        return null;
-      });
-    }
+      return null;
+    });
   }
 
   renderSetup() {
