@@ -89,11 +89,6 @@ const EmailConfigForm = (props: Props) => {
     <>
       <FormGroup>
         <ControlLabel>Email</ControlLabel>
-        <p>
-          {__(
-            'Set an email address you wish to send your transactional emails from.'
-          )}
-        </p>
         <p>{emailText}</p>
 
         <FormControl
