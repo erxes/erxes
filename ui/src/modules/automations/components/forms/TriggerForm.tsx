@@ -6,6 +6,10 @@ import { FlexRow } from 'modules/settings/styles';
 import TriggerDetailForm from './TriggerDetailForm';
 import ModalTrigger from 'modules/common/components/ModalTrigger';
 import { TRIGGERS } from 'modules/automations/constants';
+import FormControl from 'modules/common/components/form/Control';
+import FormGroup from 'modules/common/components/form/Group';
+import ControlLabel from 'modules/common/components/form/Label';
+import { Row } from 'modules/settings/main/styles';
 
 type Props = {
   closeModal: () => void;
@@ -88,27 +92,33 @@ class TriggerForm extends React.Component<Props, State> {
   }
 
   render() {
-    const onClickTrigger = e => {
-      this.setState({ mainType: TRIGGERS[e.currentTarget.id].type });
+    const { mainType } = this.state;
+
+    const onChangeTrigger = e => {
+      const trigger = TRIGGERS.find(t => t.type === e.target.value);
+      this.setState({ mainType: (trigger && trigger.type) || 'customer' });
     };
 
     return (
       <>
-        <FlexRow>
-          {TRIGGERS.map((trigger, index) => (
-            <React.Fragment key={index}>
-              <TriggerBox
-                onClick={onClickTrigger}
-                id={`${index}`}
-                selected={trigger.type === this.state.mainType ? true : false}
-                key={index}
-              >
-                <Icon icon={trigger.icon} size={30} />
-                {__(trigger.label)}
-              </TriggerBox>
-            </React.Fragment>
-          ))}
-        </FlexRow>
+        <FormGroup>
+          <ControlLabel>Trigger</ControlLabel>
+          <Row>
+            <FormControl
+              componentClass="select"
+              placeholder={__('Select trigger')}
+              defaultValue={mainType}
+              onChange={onChangeTrigger}
+            >
+              <option />
+              {TRIGGERS.map(trigger => (
+                <option key={trigger.type} value={trigger.type}>
+                  {trigger.label} based
+                </option>
+              ))}
+            </FormControl>
+          </Row>
+        </FormGroup>
         <br />
         {this.renderSubTriggers()}
       </>
