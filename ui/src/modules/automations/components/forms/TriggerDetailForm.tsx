@@ -38,7 +38,7 @@ class TriggerDetailForm extends React.Component<Props> {
 
     return (
       <SegmentsForm
-        contentType={config.contentType || 'customer'}
+        contentType={activeTrigger.type || 'customer'}
         closeModal={closeModal}
         id={config.segmentId}
       />

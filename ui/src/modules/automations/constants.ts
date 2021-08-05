@@ -54,3 +54,84 @@ export const ACTIONS = [
     description: 'Send email'
   }
 ];
+
+export const TRIGGERS = [
+  {
+    type: 'customer',
+    icon: 'file-plus',
+    label: 'Customer',
+    description: 'Customer',
+    subTriggers: [
+      'customer',
+      'company',
+      'conversation',
+      'task',
+      'deal',
+      'ticket'
+    ]
+  },
+  {
+    type: 'lead',
+    icon: 'file-plus',
+    label: 'Lead',
+    description: 'Lead',
+    subTriggers: ['lead', 'company', 'conversation', 'task', 'deal', 'ticket']
+  },
+  {
+    type: 'visitor',
+    icon: 'file-plus',
+    label: 'Visitor',
+    description: 'Visitor',
+    subTriggers: [
+      'visitor',
+      'company',
+      'conversation',
+      'task',
+      'deal',
+      'ticket'
+    ]
+  },
+  {
+    type: 'company',
+    icon: 'file-plus',
+    label: 'Company',
+    description: 'Company',
+    subTriggers: ['company', 'customer', 'task', 'deal', 'ticket']
+  },
+  {
+    type: 'conversation',
+    icon: 'file-plus',
+    label: 'Conversation',
+    description: 'Conversation',
+    subTriggers: [
+      'conversation',
+      'visitor',
+      'lead',
+      'customer',
+      'ticket',
+      'task',
+      'ticket'
+    ]
+  },
+  {
+    type: 'task',
+    icon: 'file-plus',
+    label: 'Task',
+    description: 'Task',
+    subTriggers: ['task', 'customer', 'company', 'deal', 'ticket']
+  },
+  {
+    type: 'ticket',
+    icon: 'file-plus',
+    label: 'Ticket',
+    description: 'Ticket',
+    subTriggers: ['ticket', 'customer', 'company', 'deal', 'task']
+  },
+  {
+    type: 'deal',
+    icon: 'file-plus',
+    label: 'Deal',
+    description: 'Deal',
+    subTriggers: ['deal', 'customer', 'company', 'ticket', 'task']
+  }
+];
