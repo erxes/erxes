@@ -172,7 +172,6 @@ class AutomationForm extends React.Component<Props, State> {
         status,
         triggers: triggers.map(t => ({
           id: t.id,
-          mainType: t.mainType,
           type: t.type,
           actionId: t.actionId,
           config: t.config,
@@ -345,15 +344,9 @@ class AutomationForm extends React.Component<Props, State> {
   renderTrigger = (trigger: ITrigger) => {
     const idElm = `trigger-${trigger.id}`;
 
-    let title = `${trigger.mainType}-${trigger.type}`;
-
-    if (trigger.mainType === trigger.type) {
-      title = trigger.type;
-    }
-
     jquery('#canvas').append(`
       <div class="trigger control" id="${idElm}" style="${trigger.style}">
-        ${title}
+        ${trigger.type}
       </div>
     `);
 

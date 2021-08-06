@@ -31,12 +31,7 @@ type Props = {
   closeModal: () => void;
   closeParentModal?: () => void;
   activeTrigger?: ITrigger;
-  addConfig: (
-    mainType: string,
-    value: string,
-    contentId?: string,
-    id?: string
-  ) => void;
+  addConfig: (value: string, contentId?: string, id?: string) => void;
 };
 
 type FinalProps = {
@@ -99,12 +94,7 @@ class SegmentsFormContainer extends React.Component<
       if (addConfig && activeTrigger) {
         const result = values._id ? data.segmentsEdit : data.segmentsAdd;
 
-        addConfig(
-          activeTrigger.mainType,
-          activeTrigger.type,
-          result._id,
-          activeTrigger.id
-        );
+        addConfig(activeTrigger.type, result._id, activeTrigger.id);
 
         closeParentModal ? closeParentModal() : closeModal();
       }

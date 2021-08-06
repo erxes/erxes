@@ -9,12 +9,7 @@ type Props = {
   closeParentModal?: () => void;
   activeTrigger: ITrigger;
   contentId?: string;
-  addConfig: (
-    mainType: string,
-    value: string,
-    contentId?: string,
-    id?: string
-  ) => void;
+  addConfig: (value: string, contentId?: string, id?: string) => void;
 };
 
 class TriggerDetailForm extends React.Component<Props> {

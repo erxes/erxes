@@ -11,7 +11,6 @@ export type IAction = {
 export type ITrigger = {
   id: string;
   type: string;
-  mainType: string;
   actionId?: string;
   style?: any;
   config?: any;

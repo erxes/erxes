@@ -35,7 +35,6 @@ type Props = {
   closeModal: () => void;
   closeParentModal?: () => void;
   activeTrigger?: ITrigger;
-  addConfig: (mainType: string, value: string, contentId?: string) => void;
 };
 
 const SegmentsForm = (props: Props) => {
