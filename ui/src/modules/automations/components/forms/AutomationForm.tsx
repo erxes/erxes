@@ -172,6 +172,7 @@ class AutomationForm extends React.Component<Props, State> {
         status,
         triggers: triggers.map(t => ({
           id: t.id,
+          mainType: t.mainType,
           type: t.type,
           actionId: t.actionId,
           config: t.config,
@@ -235,18 +236,19 @@ class AutomationForm extends React.Component<Props, State> {
     this.setState({ triggers, actions });
   };
 
-  addTrigger = (value: string, contentId?: string, triggerId?: string) => {
-    console.log('contentId: ', contentId);
-    const { triggers } = this.state;
-    let trigger: any = { id: String(triggers.length), type: value };
-    let triggerIndex = -1;
+  addTrigger = (
+    mainType: string,
+    value: string,
+    contentId?: string,
+    triggerId?: string
+  ) => {
+    const { triggers, activeTrigger } = this.state;
 
-    if (triggerId) {
-      triggerIndex = triggers.findIndex(t => t.id === triggerId);
+    let trigger: any = { id: String(triggers.length), type: value, mainType };
+    const triggerIndex = triggers.findIndex(t => t.id === triggerId);
 
-      if (triggerIndex !== -1) {
-        trigger = triggers[triggerIndex];
-      }
+    if (triggerId && activeTrigger.id === triggerId) {
+      trigger = activeTrigger;
     }
 
     if (contentId) {
@@ -343,9 +345,15 @@ class AutomationForm extends React.Component<Props, State> {
   renderTrigger = (trigger: ITrigger) => {
     const idElm = `trigger-${trigger.id}`;
 
+    let title = `${trigger.mainType}-${trigger.type}`;
+
+    if (trigger.mainType === trigger.type) {
+      title = trigger.type;
+    }
+
     jquery('#canvas').append(`
       <div class="trigger control" id="${idElm}" style="${trigger.style}">
-        ${trigger.type}
+        ${title}
       </div>
     `);
 

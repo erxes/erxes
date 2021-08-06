@@ -31,10 +31,11 @@ type Props = {
   }) => void;
   counterLoading: boolean;
   isModal: boolean;
+  isAutomation?: boolean;
   closeModal: () => void;
   closeParentModal?: () => void;
   activeTrigger?: ITrigger;
-  addConfig: (value: string, contentId?: string) => void;
+  addConfig: (mainType: string, value: string, contentId?: string) => void;
 };
 
 const SegmentsForm = (props: Props) => {
@@ -124,6 +125,7 @@ const SegmentsForm = (props: Props) => {
       isForm={true}
       closeModal={closeModal}
       isModal={isModal}
+      isAutomation={props.isAutomation}
     />
   );
 

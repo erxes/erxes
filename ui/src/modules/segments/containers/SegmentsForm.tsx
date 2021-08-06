@@ -27,10 +27,16 @@ type Props = {
   contentType: string;
   history?: any;
   id?: string;
+  isAutomation?: boolean;
   closeModal: () => void;
   closeParentModal?: () => void;
   activeTrigger?: ITrigger;
-  addConfig: (value: string, contentId?: string, id?: string) => void;
+  addConfig: (
+    mainType: string,
+    value: string,
+    contentId?: string,
+    id?: string
+  ) => void;
 };
 
 type FinalProps = {
@@ -90,11 +96,15 @@ class SegmentsFormContainer extends React.Component<
         callback();
       }
 
-      console.log('activeTrigger: ', activeTrigger);
-
       if (addConfig && activeTrigger) {
-        const result = object ? data.segmentsEdit : data.segmentsAdd;
-        addConfig(activeTrigger.type, result._id, activeTrigger.id);
+        const result = values._id ? data.segmentsEdit : data.segmentsAdd;
+
+        addConfig(
+          activeTrigger.mainType,
+          activeTrigger.type,
+          result._id,
+          activeTrigger.id
+        );
 
         closeParentModal ? closeParentModal() : closeModal();
       }
@@ -102,7 +112,7 @@ class SegmentsFormContainer extends React.Component<
 
     return (
       <ButtonMutate
-        mutation={object ? mutations.segmentsEdit : mutations.segmentsAdd}
+        mutation={values._id ? mutations.segmentsEdit : mutations.segmentsAdd}
         variables={values}
         callback={callBackResponse}
         isSubmitted={isSubmitted}

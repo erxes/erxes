@@ -24,8 +24,6 @@ class TriggerForm extends React.Component<Props, State> {
   constructor(props) {
     super(props);
 
-    console.log('props: ', props);
-
     this.state = {
       mainType: ''
     };
@@ -40,6 +38,8 @@ class TriggerForm extends React.Component<Props, State> {
         {__(trigger.label)}
       </TriggerBox>
     );
+
+    trigger.mainType = this.state.mainType;
 
     const content = props => (
       <TriggerDetailForm
