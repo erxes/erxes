@@ -58,7 +58,7 @@ class DraggableContainer extends React.Component<
     const { item, history } = this.props;
 
     this.setState({ isDragDisabled: true }, () => {
-      routerUtils.setParams(history, { itemId: item._id, key: '' });
+      routerUtils.setParams(history, { itemId: item._id, key: item._id });
     });
 
     if (!this.state.hasNotified) {
