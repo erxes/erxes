@@ -4,7 +4,7 @@ import { Configs, Pipelines, Stages } from '../../../db/models';
 import { DEFAULT_CONSTANT_VALUES } from '../../../db/models/definitions/constants';
 import { fetchElk } from '../../../elasticsearch';
 import { moduleRequireLogin } from '../../permissions/wrappers';
-import { getEnv, getErxesSaasDomain, readFile, sendRequest } from '../../utils';
+import { getErxesSaasDomain, readFile, sendRequest } from '../../utils';
 
 const doSearch = async (index, value, fields) => {
   const highlightFields = {};

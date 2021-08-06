@@ -1,7 +1,6 @@
 export const types = `
   type Trigger {
     id: String
-    mainType: String
     type: String
     actionId: String
     style: JSON
@@ -31,7 +30,6 @@ export const types = `
 
   input TriggerInput {
     id: String
-    mainType: String
     type: String
     actionId: String
     style: JSON

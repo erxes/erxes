@@ -179,7 +179,6 @@ class AutomationForm extends React.Component<Props, State> {
         status,
         triggers: triggers.map(t => ({
           id: t.id,
-          mainType: t.mainType,
           type: t.type,
           actionId: t.actionId,
           config: t.config,
@@ -255,15 +254,10 @@ class AutomationForm extends React.Component<Props, State> {
     this.setState({ showDrawer: !this.state.showDrawer });
   };
 
-  addTrigger = (
-    mainType: string,
-    value: string,
-    contentId?: string,
-    triggerId?: string
-  ) => {
+  addTrigger = (value: string, contentId?: string, triggerId?: string) => {
     const { triggers, activeTrigger } = this.state;
 
-    let trigger: any = { id: String(triggers.length), type: value, mainType };
+    let trigger: any = { id: String(triggers.length), type: value };
     const triggerIndex = triggers.findIndex(t => t.id === triggerId);
 
     if (triggerId && activeTrigger.id === triggerId) {
@@ -340,15 +334,9 @@ class AutomationForm extends React.Component<Props, State> {
   renderTrigger = (trigger: ITrigger) => {
     const idElm = `trigger-${trigger.id}`;
 
-    let title = `${trigger.mainType}-${trigger.type}`;
-
-    if (trigger.mainType === trigger.type) {
-      title = trigger.type;
-    }
-
     jquery('#canvas').append(`
       <div class="trigger control" id="${idElm}" style="${trigger.style}">
-        ${title}
+        ${trigger.type}
       </div>
     `);
 
@@ -500,7 +488,7 @@ class AutomationForm extends React.Component<Props, State> {
 
       return (
         <TriggerForm
-          addTrigger={this.addTrigger}
+          addConfig={this.addTrigger}
           onClickTrigger={this.onClickTrigger}
           mainType={this.props.mainType}
         />

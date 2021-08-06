@@ -4,7 +4,6 @@ export const automationFields = `
   status
   triggers {
     id
-    mainType
     type
     actionId
     style

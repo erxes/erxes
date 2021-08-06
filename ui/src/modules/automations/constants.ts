@@ -62,15 +62,7 @@ export const TRIGGERS = [
     icon: 'file-plus',
     label: 'Customer',
     description:
-      'Start with a blank workflow that enralls and is triggered off Customer',
-    subTriggers: [
-      'customer',
-      'company',
-      'conversation',
-      'task',
-      'deal',
-      'ticket'
-    ]
+      'Start with a blank workflow that enralls and is triggered off Customer'
   },
   {
     type: 'lead',
@@ -78,8 +70,7 @@ export const TRIGGERS = [
     icon: 'file-plus',
     label: 'Lead',
     description:
-      'Start with a blank workflow that enralls and is triggered off contacts',
-    subTriggers: ['lead', 'company', 'conversation', 'task', 'deal', 'ticket']
+      'Start with a blank workflow that enralls and is triggered off contacts'
   },
   {
     type: 'visitor',
@@ -87,15 +78,7 @@ export const TRIGGERS = [
     icon: 'file-plus',
     label: 'Visitor',
     description:
-      'Start with a blank workflow that enralls and is triggered off contacts',
-    subTriggers: [
-      'visitor',
-      'company',
-      'conversation',
-      'task',
-      'deal',
-      'ticket'
-    ]
+      'Start with a blank workflow that enralls and is triggered off contacts'
   },
   {
     type: 'company',
@@ -103,8 +86,7 @@ export const TRIGGERS = [
     icon: 'file-plus',
     label: 'Company',
     description:
-      'Start with a blank workflow that enralls and is triggered off contacts',
-    subTriggers: ['company', 'customer', 'task', 'deal', 'ticket']
+      'Start with a blank workflow that enralls and is triggered off contacts'
   },
   {
     type: 'conversation',
@@ -112,16 +94,7 @@ export const TRIGGERS = [
     icon: 'file-plus',
     label: 'Conversation',
     description:
-      'Start with a blank workflow that enralls and is triggered off contacts',
-    subTriggers: [
-      'conversation',
-      'visitor',
-      'lead',
-      'customer',
-      'ticket',
-      'task',
-      'ticket'
-    ]
+      'Start with a blank workflow that enralls and is triggered off contacts'
   },
   {
     type: 'task',
@@ -129,8 +102,7 @@ export const TRIGGERS = [
     icon: 'file-plus',
     label: 'Task',
     description:
-      'Start with a blank workflow that enralls and is triggered off contacts',
-    subTriggers: ['task', 'customer', 'company', 'deal', 'ticket']
+      'Start with a blank workflow that enralls and is triggered off contacts'
   },
   {
     type: 'ticket',
@@ -138,8 +110,7 @@ export const TRIGGERS = [
     icon: 'file-plus',
     label: 'Ticket',
     description:
-      'Start with a blank workflow that enralls and is triggered off contacts',
-    subTriggers: ['ticket', 'customer', 'company', 'deal', 'task']
+      'Start with a blank workflow that enralls and is triggered off contacts'
   },
   {
     type: 'deal',
@@ -147,7 +118,6 @@ export const TRIGGERS = [
     icon: 'file-plus',
     label: 'Sales pipeline',
     description:
-      'Start with a blank workflow that enralls and is triggered off contacts',
-    subTriggers: ['deal', 'customer', 'company', 'ticket', 'task']
+      'Start with a blank workflow that enralls and is triggered off contacts'
   }
 ];
