@@ -12,6 +12,8 @@ import {
   NavItem,
   SubNavTitle,
   SubNavItem,
+  DropSubNav,
+  DropSubNavItem,
   ExpandIcon
 } from '../styles';
 import Tip from 'modules/common/components/Tip';
@@ -55,6 +57,58 @@ class Navigation extends React.Component<IProps> {
     );
   };
 
+  renderChildren(
+    collapsed: boolean,
+    url: string,
+    text: string,
+    icon: string,
+    childrens?: ISubNav[]
+  ) {
+    if (!childrens || childrens.length === 0) {
+      if (!collapsed) {
+        return (
+          <Tip placement="right" text={__(text)}>
+            <NavLink to={url}>
+              <NavIcon className={icon} />
+            </NavLink>
+          </Tip>
+        );
+      }
+
+      return null;
+    }
+
+    const urlParams = new URLSearchParams(window.location.search);
+    const parent = urlParams.get('parent');
+
+    if (
+      collapsed &&
+      (parent === url || window.location.pathname.startsWith(url))
+    ) {
+      return (
+        <DropSubNav>
+          {childrens.map((child, index) => (
+            <WithPermission key={index} action={child.permission}>
+              <DropSubNavItem>
+                <NavLink to={`${child.link}?parent=${url}`}>
+                  <i className={child.icon} />
+                  {__(child.value)}
+                </NavLink>
+              </DropSubNavItem>
+            </WithPermission>
+          ))}
+        </DropSubNav>
+      );
+    }
+
+    return (
+      <SubNav collapsed={collapsed}>
+        {!collapsed && <SubNavTitle>{__(text)}</SubNavTitle>}
+        {childrens.map((child, index) => this.renderSubNavItem(child, index))}
+      </SubNav>
+    );
+  }
+
   renderNavItem = (
     permission: string,
     text: string,
@@ -73,14 +127,7 @@ class Navigation extends React.Component<IProps> {
             {collapsed && <label>{__(text)}</label>}
             {label}
           </NavLink>
-          {childrens && (
-            <SubNav collapsed={collapsed}>
-              {!collapsed && <SubNavTitle>{__(text)}</SubNavTitle>}
-              {childrens.map((child, index) =>
-                this.renderSubNavItem(child, index)
-              )}
-            </SubNav>
-          )}
+          {this.renderChildren(collapsed, url, text, icon, childrens)}
         </NavItem>
       </WithPermission>
     );
