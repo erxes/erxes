@@ -704,5 +704,14 @@ const associationPropertyFilter = async ({
     });
   }
 
+  if (propertyType === 'form_submission') {
+    return fetchByQuery({
+      index: 'form_submissions',
+      _source: 'customerId',
+      positiveQuery,
+      negativeQuery
+    });
+  }
+
   return [];
 };

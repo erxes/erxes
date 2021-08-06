@@ -839,9 +839,10 @@ interface IFormSubmissionFactoryInput {
 }
 
 export const formSubmissionFactory = async (
-  params: IFormSubmissionFactoryInput = {}
+  params: IFormSubmissionFactoryInput = {},
+  syncToEs = false
 ) => {
-  return FormSubmissions.create({
+  const doc = {
     submittedAt: new Date(),
     customerId: params.customerId || faker.random.word(),
     contentType: params.contentType,
@@ -849,7 +850,18 @@ export const formSubmissionFactory = async (
     formId: params.formId || faker.random.word(),
     formFieldId: params.formFieldId,
     value: params.value
-  });
+  };
+
+  const submission = await FormSubmissions.create(doc);
+
+  return syncToEs
+    ? await fetchElk({
+        action: 'create',
+        index: 'form_submissions',
+        body: doc,
+        _id: submission._id
+      })
+    : submission;
 };
 
 interface INotificationConfigurationFactoryInput {
