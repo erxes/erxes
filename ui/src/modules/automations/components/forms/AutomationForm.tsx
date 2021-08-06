@@ -235,15 +235,12 @@ class AutomationForm extends React.Component<Props, State> {
     this.setState({ triggers, actions });
   };
 
-  addTrigger = (
-    mainType: string,
-    value: string,
-    contentId?: string,
-    triggerId?: string
-  ) => {
+  addTrigger = (value: string, contentId?: string, triggerId?: string) => {
     const { triggers, activeTrigger } = this.state;
 
-    let trigger: any = { id: String(triggers.length), type: value, mainType };
+    console.log('contentId: ', contentId);
+
+    let trigger: any = { id: String(triggers.length), type: value };
     const triggerIndex = triggers.findIndex(t => t.id === triggerId);
 
     if (triggerId && activeTrigger.id === triggerId) {

@@ -60,78 +60,48 @@ export const TRIGGERS = [
     type: 'customer',
     icon: 'file-plus',
     label: 'Customer',
-    description: 'Customer',
-    subTriggers: [
-      'customer',
-      'company',
-      'conversation',
-      'task',
-      'deal',
-      'ticket'
-    ]
+    description: 'Customer'
   },
   {
     type: 'lead',
     icon: 'file-plus',
     label: 'Lead',
-    description: 'Lead',
-    subTriggers: ['lead', 'company', 'conversation', 'task', 'deal', 'ticket']
+    description: 'Lead'
   },
   {
     type: 'visitor',
     icon: 'file-plus',
     label: 'Visitor',
-    description: 'Visitor',
-    subTriggers: [
-      'visitor',
-      'company',
-      'conversation',
-      'task',
-      'deal',
-      'ticket'
-    ]
+    description: 'Visitor'
   },
   {
     type: 'company',
     icon: 'file-plus',
     label: 'Company',
-    description: 'Company',
-    subTriggers: ['company', 'customer', 'task', 'deal', 'ticket']
+    description: 'Company'
   },
   {
     type: 'conversation',
     icon: 'file-plus',
     label: 'Conversation',
-    description: 'Conversation',
-    subTriggers: [
-      'conversation',
-      'visitor',
-      'lead',
-      'customer',
-      'ticket',
-      'task',
-      'ticket'
-    ]
+    description: 'Conversation'
   },
   {
     type: 'task',
     icon: 'file-plus',
     label: 'Task',
-    description: 'Task',
-    subTriggers: ['task', 'customer', 'company', 'deal', 'ticket']
+    description: 'Task'
   },
   {
     type: 'ticket',
     icon: 'file-plus',
     label: 'Ticket',
-    description: 'Ticket',
-    subTriggers: ['ticket', 'customer', 'company', 'deal', 'task']
+    description: 'Ticket'
   },
   {
     type: 'deal',
     icon: 'file-plus',
     label: 'Sales pipeline',
-    description: 'Deal',
-    subTriggers: ['deal', 'customer', 'company', 'ticket', 'task']
+    description: 'Deal'
   }
 ];
