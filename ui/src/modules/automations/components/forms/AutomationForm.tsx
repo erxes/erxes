@@ -29,6 +29,7 @@ let instance;
 
 type Props = {
   id?: string;
+  mainType: string;
   automation?: IAutomation;
   save: (params: any) => void;
 };
@@ -446,7 +447,11 @@ class AutomationForm extends React.Component<Props, State> {
         {this.renderModalTrigger(
           'Add New Trigger',
           props => (
-            <TriggerForm addTrigger={this.addTrigger} {...props} />
+            <TriggerForm
+              addTrigger={this.addTrigger}
+              mainType={this.props.mainType}
+              {...props}
+            />
           ),
           'Select a Trigger'
         )}

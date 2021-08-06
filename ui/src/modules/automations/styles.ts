@@ -168,3 +168,27 @@ export const BackButton = styled.div`
   text-align: center;
   margin-right: ${dimensions.unitSpacing}px;
 `;
+
+export const TypeBox = styled(CenterFlexRow)`
+  border: 1px solid ${colors.borderPrimary};
+  border-radius: 8px;
+  padding: ${dimensions.unitSpacing}px ${dimensions.coreSpacing}px;
+  margin-top: ${dimensions.unitSpacing}px;
+  transition: all ease 0.3s;
+  cursor: pointer;
+
+  > img {
+    width: 80px;
+    margin-right: ${dimensions.unitSpacing}px;
+  }
+
+  > div {
+    margin: 0;
+  }
+
+  &:hover {
+    border-color: ${colors.colorSecondary};
+    box-shadow: 0px 8px 20px rgba(79, 51, 175, 0.24),
+      0px 2px 6px rgba(79, 51, 175, 0.16), 0px 0px 1px rgba(79, 51, 175, 0.08);
+  }
+`;

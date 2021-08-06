@@ -13,6 +13,7 @@ import { Row } from 'modules/settings/main/styles';
 
 type Props = {
   closeModal: () => void;
+  mainType: string;
   addTrigger: (value: string, contentId?: string) => void;
 };
 
@@ -25,7 +26,7 @@ class TriggerForm extends React.Component<Props, State> {
     super(props);
 
     this.state = {
-      mainType: ''
+      mainType: props.mainType || ''
     };
   }
 

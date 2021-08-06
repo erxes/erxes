@@ -8,7 +8,9 @@ import { graphql } from 'react-apollo';
 import { AddMutationResponse, IAutomationDoc } from '../../types';
 import gql from 'graphql-tag';
 
-type Props = {};
+type Props = {
+  mainType: string;
+};
 
 type FinalProps = {
   currentUser: IUser;

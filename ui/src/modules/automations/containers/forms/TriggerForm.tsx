@@ -3,6 +3,7 @@ import Form from '../../components/forms/TriggerForm';
 
 type Props = {
   closeModal: () => void;
+  mainType: string;
   addTrigger: (value: string) => void;
 };
 
