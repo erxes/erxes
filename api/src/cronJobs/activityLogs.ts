@@ -1,9 +1,11 @@
 import * as dotenv from 'dotenv';
 import * as schedule from 'node-schedule';
+import { RABBITMQ_QUEUES } from '../data/constants';
 import { ACTIVITY_LOG_ACTIONS, putActivityLog } from '../data/logUtils';
 import { fetchSegment } from '../data/modules/segments/queryBuilder';
 import { connect } from '../db/connection';
 import { Companies, Customers, Segments, Tickets } from '../db/models';
+import messageBroker from '../messageBroker';
 
 /**
  * Send conversation messages to customer
@@ -15,7 +17,11 @@ export const createActivityLogsFromSegments = async () => {
   const segments = await Segments.find({});
 
   for (const segment of segments) {
-    const ids = await fetchSegment(segment, { associatedCustomers: true });
+    const ids = await fetchSegment(segment);
+
+    const associatedCustomers = await fetchSegment(segment, {
+      associatedCustomers: true
+    });
 
     const customers = await Customers.find({ _id: { $in: ids } }, { _id: 1 });
     const customerIds = customers.map(c => c._id);
@@ -40,6 +46,15 @@ export const createActivityLogsFromSegments = async () => {
       action: ACTIVITY_LOG_ACTIONS.CREATE_SEGMENT_LOG,
       data: { segment, contentIds: ticketIds, type: 'ticket' }
     });
+
+    if (associatedCustomers.length > 0) {
+      messageBroker().sendMessage(RABBITMQ_QUEUES.AUTOMATIONS_TRIGGER, {
+        mainType: segment.contentType,
+        type: 'customer',
+        data: associatedCustomers,
+        targetId: segment.id
+      });
+    }
   }
 };
 
