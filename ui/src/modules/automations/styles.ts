@@ -130,3 +130,41 @@ export const ConditionContaier = styled.div`
     display: none;
   }
 `;
+
+export const CenterFlexRow = styled.div`
+  display: flex;
+  align-items: center;
+`;
+
+export const Title = styled(CenterFlexRow)`
+  transition: all ease 0.3s;
+  padding: 0 ${dimensions.unitSpacing}px;
+  border-radius: 4px;
+
+  input {
+    border: 0;
+    font-size: 16px;
+  }
+
+  i {
+    visibility: hidden;
+  }
+
+  &:hover {
+    background: ${colors.bgActive};
+
+    i {
+      visibility: visible;
+    }
+  }
+`;
+
+export const BackButton = styled.div`
+  width: 35px;
+  height: 35px;
+  border-radius: 35px;
+  line-height: 35px;
+  background: rgba(0, 0, 0, 0.12);
+  text-align: center;
+  margin-right: ${dimensions.unitSpacing}px;
+`;

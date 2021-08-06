@@ -4,15 +4,8 @@ import jquery from 'jquery';
 import Wrapper from 'modules/layout/components/Wrapper';
 import React from 'react';
 import { IAction, IAutomation, ITrigger } from '../../types';
-import { Container } from '../../styles';
-import Form from 'modules/common/components/form/Form';
-import { IFormProps } from 'modules/common/types';
-import {
-  ControlLabel,
-  FormControl,
-  FormGroup
-} from 'modules/common/components/form';
-import { FormColumn, FormWrapper } from 'modules/common/styles/main';
+import { Container, CenterFlexRow, BackButton, Title } from '../../styles';
+import { FormControl } from 'modules/common/components/form';
 import { BarItems } from 'modules/layout/styles';
 import Button from 'modules/common/components/Button';
 import ModalTrigger from 'modules/common/components/ModalTrigger';
@@ -29,6 +22,7 @@ import {
   targetEndpoint
 } from 'modules/automations/utils';
 import ActionDetailForm from './ActionDetailForm';
+import Icon from 'modules/common/components/Icon';
 
 const plumb: any = jsPlumb;
 let instance;
@@ -57,7 +51,7 @@ class AutomationForm extends React.Component<Props, State> {
 
     const {
       automation = {
-        name: 'Unknown automation',
+        name: 'Your automation title',
         status: 'draft',
         triggers: [],
         actions: []
@@ -318,30 +312,6 @@ class AutomationForm extends React.Component<Props, State> {
     this.setState({ name: value });
   };
 
-  formContent = (formProps: IFormProps) => {
-    return (
-      <Container>
-        <FormWrapper>
-          <FormColumn>
-            <FormGroup>
-              <ControlLabel required={true}>Name</ControlLabel>
-              <FormControl
-                {...formProps}
-                name="name"
-                value={this.state.name}
-                onChange={this.onNameChange}
-                required={true}
-                autoFocus={true}
-              />
-            </FormGroup>
-          </FormColumn>
-        </FormWrapper>
-
-        <div id="canvas" />
-      </Container>
-    );
-  };
-
   renderTrigger = (trigger: ITrigger) => {
     const idElm = `trigger-${trigger.id}`;
 
@@ -470,7 +440,7 @@ class AutomationForm extends React.Component<Props, State> {
     );
   }
 
-  rendeRightActionbar() {
+  rendeRightActionBar() {
     return (
       <BarItems>
         {this.renderModalTrigger(
@@ -497,9 +467,29 @@ class AutomationForm extends React.Component<Props, State> {
           icon={'check-circle'}
           onClick={this.handleSubmit}
         >
-          Save
+          Publish to site
         </Button>
       </BarItems>
+    );
+  }
+
+  renderLeftActionBar() {
+    return (
+      <CenterFlexRow>
+        <BackButton>
+          <Icon icon="angle-left" size={20} />
+        </BackButton>
+        <Title>
+          <FormControl
+            name="name"
+            value={this.state.name}
+            onChange={this.onNameChange}
+            required={true}
+            autoFocus={true}
+          />
+          <Icon icon="edit-alt" size={16} />
+        </Title>
+      </CenterFlexRow>
     );
   }
 
@@ -525,8 +515,17 @@ class AutomationForm extends React.Component<Props, State> {
               ]}
             />
           }
-          actionBar={<Wrapper.ActionBar right={this.rendeRightActionbar()} />}
-          content={<Form renderContent={this.formContent} />}
+          actionBar={
+            <Wrapper.ActionBar
+              left={this.renderLeftActionBar()}
+              right={this.rendeRightActionBar()}
+            />
+          }
+          content={
+            <Container>
+              <div id="canvas" />
+            </Container>
+          }
         />
 
         {this.renderModal(
