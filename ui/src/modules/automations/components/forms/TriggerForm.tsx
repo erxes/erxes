@@ -3,18 +3,17 @@ import React from 'react';
 import { TriggerBox } from '../../styles';
 import Icon from 'modules/common/components/Icon';
 import { FlexRow } from 'modules/settings/styles';
-import TriggerDetailForm from './TriggerDetailForm';
-import ModalTrigger from 'modules/common/components/ModalTrigger';
 import { TRIGGERS } from 'modules/automations/constants';
 import FormControl from 'modules/common/components/form/Control';
 import FormGroup from 'modules/common/components/form/Group';
 import ControlLabel from 'modules/common/components/form/Label';
 import { Row } from 'modules/settings/main/styles';
+import { ITrigger } from 'modules/automations/types';
 
 type Props = {
-  closeModal: () => void;
+  onClickTrigger: (trigger: ITrigger) => void;
   mainType: string;
-  addTrigger: (value: string, contentId?: string) => void;
+  addTrigger: (mainType: string, value: string, contentId?: string) => void;
 };
 
 type State = {
@@ -31,33 +30,13 @@ class TriggerForm extends React.Component<Props, State> {
   }
 
   renderBox(trigger, index) {
-    const { closeModal, addTrigger } = this.props;
+    const { onClickTrigger } = this.props;
 
-    const triggerBox = (
-      <TriggerBox key={index}>
+    return (
+      <TriggerBox key={index} onClick={onClickTrigger.bind(this, trigger)}>
         <Icon icon={trigger.icon} size={30} />
         {__(trigger.label)}
       </TriggerBox>
-    );
-
-    trigger.mainType = this.state.mainType;
-
-    const content = props => (
-      <TriggerDetailForm
-        closeParentModal={closeModal}
-        activeTrigger={trigger}
-        addConfig={addTrigger}
-        {...props}
-      />
-    );
-
-    return (
-      <ModalTrigger
-        title={`${trigger.label} options`}
-        trigger={triggerBox}
-        content={content}
-        size="lg"
-      />
     );
   }
 

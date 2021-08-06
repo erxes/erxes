@@ -1,10 +1,11 @@
 import React from 'react';
 import Form from '../../components/forms/TriggerForm';
+import { ITrigger } from 'modules/automations/types';
 
 type Props = {
-  closeModal: () => void;
+  onClickTrigger: (trigger: ITrigger) => void;
   mainType: string;
-  addTrigger: (value: string) => void;
+  addTrigger: (mainType: string, value: string) => void;
 };
 
 const TriggerFormContainer = (props: Props) => {

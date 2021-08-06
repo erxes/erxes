@@ -2,6 +2,8 @@ import styled from 'styled-components';
 import colors from 'modules/common/styles/colors';
 import { dimensions } from 'erxes-ui/lib/styles/eindex';
 import styledTS from 'styled-components-ts';
+import { RightMenuContainer } from 'modules/boards/styles/rightMenu';
+import { Contents } from 'modules/layout/styles';
 
 export const Container = styled.div`
   padding: ${dimensions.coreSpacing}px;
@@ -190,5 +192,19 @@ export const TypeBox = styled(CenterFlexRow)`
     border-color: ${colors.colorSecondary};
     box-shadow: 0px 8px 20px rgba(79, 51, 175, 0.24),
       0px 2px 6px rgba(79, 51, 175, 0.16), 0px 0px 1px rgba(79, 51, 175, 0.08);
+  }
+`;
+
+export const RightDrawerContainer = styled(RightMenuContainer)`
+  background: ${colors.colorWhite};
+  width: 500px;
+  padding: ${dimensions.unitSpacing}px;
+`;
+
+export const AutomationFormContainer = styled(Contents)`
+  margin: 0;
+
+  > section {
+    margin: 0;
   }
 `;

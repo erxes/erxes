@@ -38,7 +38,7 @@ class ChooseType extends React.Component<Props, State> {
   renderScratchTemplates(trigger, index) {
     return (
       <TypeBox key={index} onClick={this.onClickType.bind(this, trigger.type)}>
-        <img src={`images/actions/${trigger.img}`} />
+        <img src={`images/actions/${trigger.img}`} alt={trigger.label} />
         <FormGroup>
           <ControlLabel>{trigger.label} based</ControlLabel>
           <p>{trigger.description}</p>

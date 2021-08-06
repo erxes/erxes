@@ -3,7 +3,6 @@ import { IAction } from 'modules/automations/types';
 import { ActionForms } from './actions';
 
 type Props = {
-  closeModal: () => void;
   addActionConfig: (value: any) => void;
   closeParentModal?: () => void;
   activeAction: IAction;
@@ -12,16 +11,12 @@ type Props = {
 
 class ActionDetailForm extends React.Component<Props> {
   onSave = () => {
-    const {
-      closeParentModal,
-      closeModal,
-      addAction,
-      activeAction
-    } = this.props;
+    const { closeParentModal, addAction, activeAction } = this.props;
 
     addAction(activeAction.type);
 
-    closeParentModal ? closeParentModal() : closeModal();
+    // tslint:disable-next-line:no-unused-expression
+    closeParentModal && closeParentModal();
   };
 
   render() {

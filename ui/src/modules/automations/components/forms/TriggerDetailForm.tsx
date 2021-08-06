@@ -17,9 +17,26 @@ type Props = {
   ) => void;
 };
 
-class TriggerDetailForm extends React.Component<Props> {
+class TriggerDetailForm extends React.Component<
+  Props,
+  { activeTrigger: ITrigger }
+> {
+  constructor(props) {
+    super(props);
+
+    this.state = {
+      activeTrigger: props.activeTrigger
+    };
+  }
+
+  componentWillReceiveProps(nextProps) {
+    if (nextProps.activeTrigger !== this.props.activeTrigger) {
+      this.setState({ activeTrigger: nextProps.activeTrigger });
+    }
+  }
+
   render() {
-    const { activeTrigger, closeModal } = this.props;
+    const { activeTrigger } = this.state;
 
     // const Content = TriggerForms[activeTrigger.type] || TriggerForms.default;
 
@@ -41,7 +58,7 @@ class TriggerDetailForm extends React.Component<Props> {
         <SegmentsForm
           {...this.props}
           contentType={activeTrigger.type || 'customer'}
-          closeModal={closeModal}
+          closeModal={this.props.closeModal}
           id={config.contentId}
           isAutomation={true}
         />

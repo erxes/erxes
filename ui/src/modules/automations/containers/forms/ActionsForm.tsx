@@ -1,8 +1,9 @@
 import React from 'react';
 import Form from '../../components/forms/ActionsForm';
+import { IAction } from 'modules/automations/types';
 
 type Props = {
-  closeModal: () => void;
+  onClickAction: (action: IAction) => void;
   addAction: (value: string) => void;
   addActionConfig: (config: any) => void;
 };
