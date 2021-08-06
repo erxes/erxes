@@ -9,12 +9,12 @@ import { TRIGGERS } from 'modules/automations/constants';
 
 type Props = {
   closeModal: () => void;
-  addTrigger: (value: string) => void;
+  addConfig: (value: string, contentId?: string, id?: string) => void;
 };
 
 class TriggerForm extends React.Component<Props> {
   renderBox(trigger, index) {
-    const { closeModal, addTrigger } = this.props;
+    const { closeModal, addConfig } = this.props;
 
     const triggerBox = (
       <TriggerBox key={index}>
@@ -29,7 +29,7 @@ class TriggerForm extends React.Component<Props> {
         activeTrigger={{
           type: trigger.type
         }}
-        addTrigger={addTrigger}
+        addConfig={addConfig}
         {...props}
       />
     );

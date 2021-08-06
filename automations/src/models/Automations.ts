@@ -13,7 +13,6 @@ export interface IAction {
 export interface ITrigger {
   id: string;
   type: string;
-  mainType: string;
   actionId?: string;
   config?: any;
   style?: any;
@@ -33,7 +32,6 @@ export interface IAutomationDocument extends IAutomation, Document {
 export const triggerSchema = new Schema({
   id: { type: String, required: true },
   type: { type: String, required: true },
-  mainType: { type: String, required: true },
   actionId: {type: String},
   config: { type: Object },
   style: { type: Object },

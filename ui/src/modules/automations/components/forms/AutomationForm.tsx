@@ -238,8 +238,6 @@ class AutomationForm extends React.Component<Props, State> {
   addTrigger = (value: string, contentId?: string, triggerId?: string) => {
     const { triggers, activeTrigger } = this.state;
 
-    console.log('contentId: ', contentId);
-
     let trigger: any = { id: String(triggers.length), type: value };
     const triggerIndex = triggers.findIndex(t => t.id === triggerId);
 
@@ -466,7 +464,7 @@ class AutomationForm extends React.Component<Props, State> {
         {this.renderModalTrigger(
           'Add New Trigger',
           props => (
-            <TriggerForm addTrigger={this.addTrigger} {...props} />
+            <TriggerForm addConfig={this.addTrigger} {...props} />
           ),
           'Select a Trigger'
         )}

@@ -148,8 +148,8 @@ export const checkTrigger = async ({ trigger, data, targetId }: { trigger: ITrig
   return true;
 }
 
-export const receiveTrigger = async ({ mainType, type, targetId, data }: { mainType: string, type: string, targetId: string, data?: any }) => {
-  const automations = await Automations.find({ status: 'active', 'triggers.type': { $in: [type] }, 'triggers.mainType': { $in: [mainType] } }).lean();
+export const receiveTrigger = async ({ type, targetId, data }: {  type: string, targetId: string, data?: any }) => {
+  const automations = await Automations.find({ status: 'active', 'triggers.type': { $in: [type] }}).lean();
 
   console.log('automations: ',automations)
 
@@ -159,7 +159,7 @@ export const receiveTrigger = async ({ mainType, type, targetId, data }: { mainT
 
   for (const automation of automations) {
     for (const trigger of automation.triggers) {
-      if (trigger.type !== type && trigger.mainType !== mainType) {
+      if (trigger.type !== type) {
         continue;
       }
 
