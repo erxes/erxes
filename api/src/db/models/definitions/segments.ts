@@ -22,7 +22,14 @@ export interface IAttributeFilter {
 export interface ICondition {
   type: 'property' | 'event' | 'subSegment';
 
-  propertyType?: 'customer' | 'company' | 'deal' | 'task' | 'task' | 'ticket';
+  propertyType?:
+    | 'customer'
+    | 'company'
+    | 'deal'
+    | 'task'
+    | 'task'
+    | 'ticket'
+    | 'form_submission';
   propertyName?: string;
   propertyOperator?: string;
   propertyValue?: string;
