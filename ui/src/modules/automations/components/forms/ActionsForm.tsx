@@ -17,7 +17,6 @@ type Props = {
 class ActionsForm extends React.Component<Props> {
   renderBox(action, index) {
     const { closeModal, addAction, addActionConfig } = this.props;
-    const currentAction = { trigger: {} as ITrigger, action };
 
     const trigger = (
       <ActionBox key={index}>
@@ -33,7 +32,6 @@ class ActionsForm extends React.Component<Props> {
       <ActionDetailForm
         closeParentModal={closeModal}
         activeAction={action}
-        currentAction={currentAction}
         addAction={addAction}
         addActionConfig={addActionConfig}
         {...props}

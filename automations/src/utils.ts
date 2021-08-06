@@ -129,11 +129,29 @@ export const checkTrigger = async ({ trigger, data, targetId }: { trigger: ITrig
     return dealCreate({ trigger, data, targetId })
   }
 
-  return false;
+  if (trigger.type === 'deal') {
+    return dealCreate({ trigger, data, targetId })
+  }
+
+  const automations = await Automations.find({ triggers: { $in: [trigger] } });
+
+  if (automations.length === 0) {
+    return false;
+  }
+
+
+  // check each actions of automations and process action
+  for (const { actions } of automations) {
+    console.log('actions: ', actions)
+  }
+
+  return true;
 }
 
-export const receiveTrigger = async ({ triggerType, targetId, data }: { triggerType: string, targetId: string, data?: any }) => {
-  const automations = await Automations.find({ status: 'active', 'triggers.type': { $in: [triggerType] } }).lean();
+export const receiveTrigger = async ({ mainType, type, targetId, data }: { mainType: string, type: string, targetId: string, data?: any }) => {
+  const automations = await Automations.find({ status: 'active', 'triggers.type': { $in: [type] }, 'triggers.mainType': { $in: [mainType] } }).lean();
+
+  console.log('automations: ',automations)
 
   if (!automations.length) {
     return;
@@ -141,9 +159,14 @@ export const receiveTrigger = async ({ triggerType, targetId, data }: { triggerT
 
   for (const automation of automations) {
     for (const trigger of automation.triggers) {
-      if (trigger.type !== triggerType) {
+      if (trigger.type !== type && trigger.mainType !== mainType) {
         continue;
       }
+
+
+      const triggerExists = await checkTrigger({ trigger, data, targetId })
+
+      console.log('triggerExists: ',triggerExists)
 
       if (!await checkTrigger({ trigger, data, targetId })) {
         continue;

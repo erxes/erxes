@@ -1,3 +1,4 @@
+import { ITrigger } from 'modules/automations/types';
 import { IBoard } from 'modules/boards/types';
 import Spinner from 'modules/common/components/Spinner';
 import { Title } from 'modules/common/styles/main';
@@ -30,10 +31,29 @@ type Props = {
   }) => void;
   counterLoading: boolean;
   isModal: boolean;
-  closeModal?: () => void;
+  isAutomation?: boolean;
+  closeModal: () => void;
+  closeParentModal?: () => void;
+  activeTrigger?: ITrigger;
+  addConfig: (mainType: string, value: string, contentId?: string) => void;
 };
 
 const SegmentsForm = (props: Props) => {
+  // onSave = () => {
+  //   const {
+  //     addTrigger,
+  //     activeTrigger,
+  //     closeParentModal,
+  //     closeModal
+  //   } = props;
+
+  //   const { formId } = this.state;
+
+  //   addTrigger(activeTrigger.type, formId, activeTrigger.id);
+
+  //   closeParentModal ? closeParentModal() : closeModal();
+  // };
+
   const renderHelpText = () => {
     let text = 'User(s) will receive this message';
 
@@ -105,6 +125,7 @@ const SegmentsForm = (props: Props) => {
       isForm={true}
       closeModal={closeModal}
       isModal={isModal}
+      isAutomation={props.isAutomation}
     />
   );
 

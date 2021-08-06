@@ -1,6 +1,7 @@
 import client from 'apolloClient';
 import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
+import { ITrigger } from 'modules/automations/types';
 import { queries as boardQueries } from 'modules/boards/graphql';
 import { BoardsQueryResponse } from 'modules/boards/types';
 import ButtonMutate from 'modules/common/components/ButtonMutate';
@@ -26,7 +27,16 @@ type Props = {
   contentType: string;
   history?: any;
   id?: string;
-  closeModal?: () => void;
+  isAutomation?: boolean;
+  closeModal: () => void;
+  closeParentModal?: () => void;
+  activeTrigger?: ITrigger;
+  addConfig: (
+    mainType: string,
+    value: string,
+    contentId?: string,
+    id?: string
+  ) => void;
 };
 
 type FinalProps = {
@@ -68,9 +78,16 @@ class SegmentsFormContainer extends React.Component<
     callback,
     object
   }: IButtonMutateProps) => {
-    const { contentType, history } = this.props;
+    const {
+      contentType,
+      history,
+      addConfig,
+      activeTrigger,
+      closeParentModal,
+      closeModal
+    } = this.props;
 
-    const callBackResponse = () => {
+    const callBackResponse = data => {
       if (history) {
         history.push(`/segments/${contentType}`);
       }
@@ -78,11 +95,24 @@ class SegmentsFormContainer extends React.Component<
       if (callback) {
         callback();
       }
+
+      if (addConfig && activeTrigger) {
+        const result = values._id ? data.segmentsEdit : data.segmentsAdd;
+
+        addConfig(
+          activeTrigger.mainType,
+          activeTrigger.type,
+          result._id,
+          activeTrigger.id
+        );
+
+        closeParentModal ? closeParentModal() : closeModal();
+      }
     };
 
     return (
       <ButtonMutate
-        mutation={object ? mutations.segmentsEdit : mutations.segmentsAdd}
+        mutation={values._id ? mutations.segmentsEdit : mutations.segmentsAdd}
         variables={values}
         callback={callBackResponse}
         isSubmitted={isSubmitted}

@@ -35,7 +35,7 @@ class DefaultForm extends React.Component<Props> {
             icon="checked-1"
             onClick={onSave.bind(this, '')}
           >
-            Save
+            Saves
           </Button>
         </ModalFooter>
       </>

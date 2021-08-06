@@ -13,7 +13,7 @@ import { Row } from 'modules/settings/main/styles';
 
 type Props = {
   closeModal: () => void;
-  addTrigger: (value: string) => void;
+  addTrigger: (value: string, contentId?: string) => void;
 };
 
 type State = {
@@ -29,31 +29,31 @@ class TriggerForm extends React.Component<Props, State> {
     };
   }
 
-  renderBox(key: string, icon: string, text: string) {
+  renderBox(trigger, index) {
     const { closeModal, addTrigger } = this.props;
 
-    const trigger = (
-      <TriggerBox>
-        <Icon icon={icon} size={30} />
-        {__(text)}
+    const triggerBox = (
+      <TriggerBox key={index}>
+        <Icon icon={trigger.icon} size={30} />
+        {__(trigger.label)}
       </TriggerBox>
     );
+
+    trigger.mainType = this.state.mainType;
 
     const content = props => (
       <TriggerDetailForm
         closeParentModal={closeModal}
-        activeTrigger={{
-          type: key
-        }}
-        addTrigger={addTrigger}
+        activeTrigger={trigger}
+        addConfig={addTrigger}
         {...props}
       />
     );
 
     return (
       <ModalTrigger
-        title={`${text} options`}
-        trigger={trigger}
+        title={`${trigger.label} options`}
+        trigger={triggerBox}
         content={content}
         size="lg"
       />
@@ -84,7 +84,7 @@ class TriggerForm extends React.Component<Props, State> {
       <FlexRow>
         {subTriggers.map((t, index) => (
           <React.Fragment key={index}>
-            {this.renderBox(t.type, t.icon, t.label)}
+            {this.renderBox(t, index)}
           </React.Fragment>
         ))}
       </FlexRow>
@@ -102,7 +102,7 @@ class TriggerForm extends React.Component<Props, State> {
     return (
       <>
         <FormGroup>
-          <ControlLabel>Trigger</ControlLabel>
+          <ControlLabel>Trigger type</ControlLabel>
           <Row>
             <FormControl
               componentClass="select"
@@ -119,7 +119,6 @@ class TriggerForm extends React.Component<Props, State> {
             </FormControl>
           </Row>
         </FormGroup>
-        <br />
         {this.renderSubTriggers()}
       </>
     );

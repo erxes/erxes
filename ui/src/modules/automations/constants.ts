@@ -130,7 +130,7 @@ export const TRIGGERS = [
   {
     type: 'deal',
     icon: 'file-plus',
-    label: 'Deal',
+    label: 'Sales pipeline',
     description: 'Deal',
     subTriggers: ['deal', 'customer', 'company', 'ticket', 'task']
   }
