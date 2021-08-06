@@ -6,6 +6,7 @@ export interface IEvent {
 }
 
 export interface IConditionFilter {
+  segmentKey?: string;
   key?: string;
   name: string;
   operator: string;

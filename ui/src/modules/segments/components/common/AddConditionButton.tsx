@@ -5,41 +5,40 @@ import React from 'react';
 import { ISegmentCondition } from '../../types';
 
 type Props = {
+  segmentKey?: string;
   contentType: string;
   isModal?: boolean;
-  addCondition: (condition: ISegmentCondition) => void;
+  addCondition: (condition: ISegmentCondition, segmentKey?: string) => void;
 };
 
 function AddConditionButton(props: Props) {
+  const { segmentKey, isModal } = props;
+
   const addPropertyCondition = () => {
-    props.addCondition({
-      key: Math.random().toString(),
-      type: 'property',
-      propertyName: '',
-      propertyValue: '',
-      propertyOperator: ''
-    });
+    props.addCondition(
+      {
+        key: Math.random().toString(),
+        type: 'property',
+        propertyName: '',
+        propertyValue: '',
+        propertyOperator: ''
+      },
+      isModal ? segmentKey : ''
+    );
   };
 
   const addEventCondition = () => {
-    props.addCondition({
-      key: Math.random().toString(),
-      type: 'event',
-      eventAttributeFilters: []
-    });
-  };
-
-  const addSegmentCondition = () => {
-    props.addCondition({
-      key: Math.random().toString(),
-      type: 'subSegment',
-      eventAttributeFilters: []
-    });
+    props.addCondition(
+      {
+        key: Math.random().toString(),
+        type: 'event',
+        eventAttributeFilters: []
+      },
+      isModal ? segmentKey : ''
+    );
   };
 
   const renderAddEvents = () => {
-    const { isModal } = props;
-
     if (
       !['customer', 'lead', 'visitor'].includes(props.contentType) ||
       isModal
@@ -69,15 +68,6 @@ function AddConditionButton(props: Props) {
           onClick={addPropertyCondition}
         >
           {__('Add Properties')}
-        </Button>
-
-        <Button
-          id="segment-add-properties"
-          btnStyle="primary"
-          icon="segment"
-          onClick={addSegmentCondition}
-        >
-          {__('Add Segment')}
         </Button>
 
         {renderAddEvents()}

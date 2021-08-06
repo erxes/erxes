@@ -90,8 +90,6 @@ class SegmentsFormContainer extends React.Component<
         callback();
       }
 
-      console.log('activeTrigger: ', activeTrigger);
-
       if (addConfig && activeTrigger) {
         const result = object ? data.segmentsEdit : data.segmentsAdd;
         addConfig(activeTrigger.type, result._id, activeTrigger.id);

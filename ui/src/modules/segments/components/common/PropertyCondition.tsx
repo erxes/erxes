@@ -1,6 +1,7 @@
 import React from 'react';
 import { IConditionFilter } from '../../types';
 import Filter from './Filter';
+import FilterModal from './FilterModal';
 
 type Props = {
   fields: any[];
@@ -8,24 +9,30 @@ type Props = {
   name: string;
   operator: string;
   value: string;
+  segmentKey?: string;
+  conjunction?: string;
+  index?: number;
   onChange: (args: {
+    segmentKey?: string;
     key: string;
     name: string;
     operator: string;
     value: string;
   }) => void;
-  onRemove: (id: string) => void;
+  onRemove: (id: string, segmentKey?: string) => void;
+  changeConjunction?: (segmentKey: string, conjunction: string) => void;
 };
 
 class Condition extends React.Component<Props, {}> {
   removeCondition = () => {
-    this.props.onRemove(this.props.conditionKey);
+    this.props.onRemove(this.props.conditionKey, this.props.segmentKey);
   };
 
   onChangeFilter = (filter: IConditionFilter) => {
-    const { onChange, conditionKey } = this.props;
+    const { onChange, conditionKey, segmentKey } = this.props;
 
     return onChange({
+      segmentKey: segmentKey ? segmentKey : undefined,
       key: conditionKey,
       name: filter.name,
       operator: filter.operator,
@@ -34,7 +41,16 @@ class Condition extends React.Component<Props, {}> {
   };
 
   render() {
-    const { fields, conditionKey, name, operator, value } = this.props;
+    const {
+      fields,
+      segmentKey,
+      conditionKey,
+      name,
+      operator,
+      value,
+      index,
+      conjunction
+    } = this.props;
 
     const cleanFields = fields.map(item => ({
       value: item.name || item._id,
@@ -46,11 +62,28 @@ class Condition extends React.Component<Props, {}> {
     }));
 
     const filter = {
+      segmentKey: segmentKey || '',
       key: conditionKey,
       name,
       operator,
       value
     };
+
+    if (segmentKey) {
+      return (
+        <FilterModal
+          segmentKey={segmentKey}
+          fields={cleanFields}
+          filter={filter}
+          index={index || 0}
+          groupData={true}
+          onChange={this.onChangeFilter}
+          onRemove={this.removeCondition}
+          conjunction={conjunction || 'and'}
+          changeConjunction={this.props.changeConjunction}
+        />
+      );
+    }
 
     return (
       <Filter
