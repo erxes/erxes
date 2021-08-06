@@ -61,20 +61,9 @@ class Navigation extends React.Component<IProps> {
     collapsed: boolean,
     url: string,
     text: string,
-    icon: string,
     childrens?: ISubNav[]
   ) {
     if (!childrens || childrens.length === 0) {
-      if (!collapsed) {
-        return (
-          <Tip placement="right" text={__(text)}>
-            <NavLink to={url}>
-              <NavIcon className={icon} />
-            </NavLink>
-          </Tip>
-        );
-      }
-
       return null;
     }
 
@@ -119,6 +108,20 @@ class Navigation extends React.Component<IProps> {
   ) => {
     const { collapsed } = this.props;
 
+    if (!childrens || childrens.length === 0) {
+      if (!collapsed) {
+        return (
+          <Tip placement="right" text={__(text)}>
+            <NavItem>
+              <NavLink to={url}>
+                <NavIcon className={icon} />
+              </NavLink>
+            </NavItem>
+          </Tip>
+        );
+      }
+    }
+
     return (
       <WithPermission key={url} action={permission}>
         <NavItem>
@@ -127,7 +130,7 @@ class Navigation extends React.Component<IProps> {
             {collapsed && <label>{__(text)}</label>}
             {label}
           </NavLink>
-          {this.renderChildren(collapsed, url, text, icon, childrens)}
+          {this.renderChildren(collapsed, url, text, childrens)}
         </NavItem>
       </WithPermission>
     );
