@@ -220,10 +220,15 @@ export const cleanIgnoredCustomers = async ({
       data: { customerIds: ignoredCustomerIds }
     });
 
-    return customers.filter(c => ignoredCustomerIds.indexOf(c._id) === -1);
+    return {
+      customers: customers.filter(
+        c => ignoredCustomerIds.indexOf(c._id) === -1
+      ),
+      ignoredCustomerIds
+    };
   }
 
-  return customers;
+  return { customers, ignoredCustomerIds };
 };
 
 const getAvgCondition = (fieldName: string) => ({
