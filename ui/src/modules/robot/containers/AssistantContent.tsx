@@ -7,7 +7,7 @@ import React from 'react';
 import { graphql } from 'react-apollo';
 import { withProps } from '../../common/utils';
 import AssistantContent from '../components/AssistantContent';
-import { FEATURE_DETAILS } from '../constants';
+import { ROLE_SETUP_DETAILS } from '../constants';
 import { mutations, queries } from '../graphql';
 import {
   ForceCompleteMutationResponse,
@@ -33,7 +33,7 @@ class AssistantContentContainer extends React.Component<FinalProps> {
   changeStep = (route: string) => {
     const { getAvailableFeaturesQuery } = this.props;
 
-    if (route === 'todoList' && getAvailableFeaturesQuery) {
+    if (route === 'setupList' && getAvailableFeaturesQuery) {
       getAvailableFeaturesQuery.refetch();
     }
 
@@ -68,7 +68,7 @@ class AssistantContentContainer extends React.Component<FinalProps> {
               onboardStatus === 'initial' &&
               localStorage.getItem('erxes_customization_features')
             ) {
-              this.props.changeRoute('todoList');
+              this.props.changeRoute('setupList');
             }
           });
       }, 3000);
@@ -83,7 +83,9 @@ class AssistantContentContainer extends React.Component<FinalProps> {
       : [];
 
     // get feature categories
-    const savedFeatures = localStorage.getItem('erxes_customization_features');
+    const savedFeatures = localStorage.getItem(
+      'erxes_customization_onboarding'
+    );
     let sortedFeatures = allFeatures;
 
     if (savedFeatures && savedFeatures.length > 2) {
@@ -97,7 +99,7 @@ class AssistantContentContainer extends React.Component<FinalProps> {
     }
 
     const features = sortedFeatures.map(feature => {
-      const details = FEATURE_DETAILS[feature.name] || {};
+      const details = ROLE_SETUP_DETAILS[feature.name] || {};
 
       return {
         ...feature,

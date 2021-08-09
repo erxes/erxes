@@ -125,6 +125,8 @@ export const itemsAdd = async (
     contentType: type
   });
 
+  console.log('aaaa', type);
+
   await putCreateLog(
     {
       type,
