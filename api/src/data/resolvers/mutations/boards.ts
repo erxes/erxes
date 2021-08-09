@@ -114,6 +114,8 @@ const boardMutations = {
       stages
     );
 
+    console.log('dlaksjdaaaklsjlk', doc.type);
+
     await putCreateLog(
       {
         type: `${doc.type}Pipelines`,

@@ -33,7 +33,7 @@ const CustomRangeContainer = styled.div`
       padding: 5px 0;
       color: #444;
       border-bottom: 1px solid;
-      border-color: #DDD;
+      border-color: #ddd;
       background: none;
       border-radius: 0;
       box-shadow: none;
