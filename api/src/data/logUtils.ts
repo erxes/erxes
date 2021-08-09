@@ -928,7 +928,7 @@ const gatherPipelineTemplateFieldNames = async (
   }
 
   options = await gatherUsernames({
-    idFields: [doc.createdBy],
+    idFields: [doc.createdBy || ''],
     foreignKey: 'createdBy',
     prevList: options
   });
