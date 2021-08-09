@@ -4,7 +4,6 @@ import { ITrigger } from 'modules/automations/types';
 
 type Props = {
   onClickTrigger: (trigger: ITrigger) => void;
-  mainType: string;
   // addTrigger: (mainType: string, value: string) => void;
   // closeModal: () => void;
   addConfig: (value: string, contentId?: string, id?: string) => void;

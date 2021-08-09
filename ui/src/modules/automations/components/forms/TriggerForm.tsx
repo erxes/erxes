@@ -1,19 +1,20 @@
-import { __ } from 'modules/common/utils';
 import React from 'react';
-import { TriggerBox } from '../../styles';
-import Icon from 'modules/common/components/Icon';
-import { FlexRow } from 'modules/settings/styles';
+import { Tabs, TabTitle } from 'modules/common/components/tabs';
+import { __ } from 'modules/common/utils';
 import { TRIGGERS } from 'modules/automations/constants';
+import FormGroup from 'erxes-ui/lib/components/form/Group';
+import ControlLabel from 'erxes-ui/lib/components/form/Label';
+import { TypeBox } from 'modules/automations/styles';
 import { ITrigger } from 'modules/automations/types';
 
 type Props = {
   onClickTrigger: (trigger: ITrigger) => void;
-  mainType: string;
   addConfig: (mainType: string, value: string, contentId?: string) => void;
 };
 
 type State = {
-  mainType: string;
+  currentTab: string;
+  currentType: string;
 };
 
 class TriggerForm extends React.Component<Props, State> {
@@ -21,30 +22,66 @@ class TriggerForm extends React.Component<Props, State> {
     super(props);
 
     this.state = {
-      mainType: props.mainType || ''
+      currentTab: 'new',
+      currentType: 'customer'
     };
   }
 
-  renderBox(trigger, index) {
+  tabOnClick = (currentTab: string) => {
+    this.setState({ currentTab });
+  };
+
+  onClickType = (trigger: ITrigger) => {
     const { onClickTrigger } = this.props;
 
+    this.setState({ currentType: trigger.type }, () => {
+      onClickTrigger(trigger);
+    });
+  };
+
+  renderScratchTemplates(trigger, index) {
     return (
-      <TriggerBox key={index} onClick={onClickTrigger.bind(this, trigger)}>
-        <Icon icon={trigger.icon} size={30} />
-        {__(trigger.label)}
-      </TriggerBox>
+      <TypeBox key={index} onClick={this.onClickType.bind(this, trigger)}>
+        <img src={`../images/actions/${trigger.img}`} alt={trigger.label} />
+        <FormGroup>
+          <ControlLabel>{trigger.label} based</ControlLabel>
+          <p>{trigger.description}</p>
+        </FormGroup>
+      </TypeBox>
+    );
+  }
+
+  renderTabContent() {
+    if (this.state.currentTab === 'library') {
+      return <>library templates</>;
+    }
+
+    return TRIGGERS.map((trigger, index) =>
+      this.renderScratchTemplates(trigger, index)
     );
   }
 
   render() {
+    const { currentTab } = this.state;
+
     return (
-      <FlexRow>
-        {TRIGGERS.map((action, index) => (
-          <React.Fragment key={index}>
-            {this.renderBox(action, index)}
-          </React.Fragment>
-        ))}
-      </FlexRow>
+      <>
+        <Tabs full={true}>
+          <TabTitle
+            className={currentTab === 'new' ? 'active' : ''}
+            onClick={this.tabOnClick.bind(this, 'new')}
+          >
+            {__('Start from scratch')}
+          </TabTitle>
+          <TabTitle
+            className={currentTab === 'library' ? 'active' : ''}
+            onClick={this.tabOnClick.bind(this, 'library')}
+          >
+            {__('Library')}
+          </TabTitle>
+        </Tabs>
+        {this.renderTabContent()}
+      </>
     );
   }
 }

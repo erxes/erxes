@@ -8,12 +8,10 @@ import { __, Alert, confirm, router } from 'modules/common/utils';
 import Wrapper from 'modules/layout/components/Wrapper';
 import { BarItems } from 'modules/layout/styles';
 import React from 'react';
-import { withRouter } from 'react-router-dom';
+import { withRouter, Link } from 'react-router-dom';
 import { IRouterProps } from '../../common/types';
 import { IAutomation } from '../types';
 import Row from './Row';
-import ModalTrigger from 'modules/common/components/ModalTrigger';
-import ChooseType from '../containers/forms/ChooseType';
 
 interface IProps extends IRouterProps {
   automations: IAutomation[];
@@ -94,25 +92,6 @@ class AutomationsList extends React.Component<IProps, State> {
     if (this.props.refetch) {
       this.props.refetch();
     }
-  };
-
-  renderAddButton = () => {
-    const trigger = (
-      <Button btnStyle="success" size="small" icon="plus-circle">
-        {__('New automation')}
-      </Button>
-    );
-
-    const content = contentProps => <ChooseType {...contentProps} />;
-
-    return (
-      <ModalTrigger
-        title="Choose your automation type"
-        trigger={trigger}
-        content={content}
-        enforceFocus={false}
-      />
-    );
   };
 
   render() {
@@ -196,7 +175,11 @@ class AutomationsList extends React.Component<IProps, State> {
           autoFocus={true}
           onFocus={this.moveCursorAtTheEnd}
         />
-        {this.renderAddButton()}
+        <Link to="/automations/blank">
+          <Button btnStyle="success" size="small" icon="plus-circle">
+            {__('New automation')}
+          </Button>
+        </Link>
       </BarItems>
     );
 

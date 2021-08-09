@@ -25,10 +25,8 @@ const details = ({ match }) => {
   return <Details id={id} />;
 };
 
-const form = ({ match }) => {
-  const type = match.params.type;
-
-  return <Form mainType={type} />;
+const form = () => {
+  return <Form />;
 };
 
 const list = ({ location }) => {
@@ -47,9 +45,9 @@ const routes = () => {
         component={details}
       />
       <Route
-        key="/automations/blank/:type"
+        key="/automations/blank"
         exact={true}
-        path="/automations/blank/:type"
+        path="/automations/blank"
         component={form}
       />
       <Route

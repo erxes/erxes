@@ -37,7 +37,6 @@ let instance;
 
 type Props = {
   id?: string;
-  mainType: string;
   automation?: IAutomation;
   save: (params: any) => void;
 };
@@ -490,7 +489,6 @@ class AutomationForm extends React.Component<Props, State> {
         <TriggerForm
           addConfig={this.addTrigger}
           onClickTrigger={this.onClickTrigger}
-          mainType={this.props.mainType}
         />
       );
     }
