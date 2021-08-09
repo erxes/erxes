@@ -14,6 +14,24 @@ describe('Test configs mutations', () => {
     `;
 
     await graphqlRequest(mutation, 'configsUpdate', {
+      configsMap: { UPLOAD_SERVICE_TYPE: ['local'], '': '' }
+    });
+
+    const uploadConfig = await Configs.getConfig('UPLOAD_SERVICE_TYPE');
+
+    expect(uploadConfig.value.length).toEqual(1);
+    expect(uploadConfig.value[0]).toEqual('local');
+
+    await graphqlRequest(mutation, 'configsUpdate', {
+      configsMap: { sex_choices: ['male'] }
+    });
+
+    const pronounConfig = await Configs.getConfig('sex_choices');
+
+    expect(pronounConfig.value.length).toEqual(1);
+    expect(pronounConfig.value[0]).toEqual('male');
+
+    await graphqlRequest(mutation, 'configsUpdate', {
       configsMap: {
         dealUOM: ['MNT']
       }
@@ -46,24 +64,6 @@ describe('Test configs mutations', () => {
 
     expect(googleConfig.value.length).toEqual(1);
     expect(googleConfig.value[0]).toEqual('serviceAccount');
-
-    await graphqlRequest(mutation, 'configsUpdate', {
-      configsMap: { UPLOAD_SERVICE_TYPE: ['local'] }
-    });
-
-    const uploadConfig = await Configs.getConfig('UPLOAD_SERVICE_TYPE');
-
-    expect(uploadConfig.value.length).toEqual(1);
-    expect(uploadConfig.value[0]).toEqual('local');
-
-    await graphqlRequest(mutation, 'configsUpdate', {
-      configsMap: { sex_choices: ['male'] }
-    });
-
-    const pronounConfig = await Configs.getConfig('sex_choices');
-
-    expect(pronounConfig.value.length).toEqual(1);
-    expect(pronounConfig.value[0]).toEqual('male');
 
     firebaseMock.restore();
   });
