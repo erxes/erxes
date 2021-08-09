@@ -5,7 +5,6 @@ import { IRoleValue } from 'modules/robot/types';
 import * as React from 'react';
 import styled from 'styled-components';
 import { BackDrop } from '../styles';
-/* import Customization from './Customization'; */
 import Indicator from './Indicator';
 import Roles from './Roles';
 import Welcome from './Welcome';

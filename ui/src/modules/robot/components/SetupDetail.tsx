@@ -75,7 +75,7 @@ class SetupDetail extends React.Component<Props> {
   renderProgress = () => {
     const { feature, stepsCompleteness } = this.props;
 
-    if (!feature.showSettings || feature.settings.length === 0) {
+    if (!feature || !feature.showSettings || feature.settings.length === 0) {
       return null;
     }
 
@@ -113,9 +113,10 @@ class SetupDetail extends React.Component<Props> {
       <Checklist>
         {feature.settings.map((setting, index) => {
           const detail = feature.settingsDetails[setting];
+
           return (
             <ChecklistItem key={index} isComplete={stepsCompleteness[setting]}>
-              <Link to={`${detail.url}#signedIn=true`}>{detail.name}</Link>
+              <Link to={`${detail.url}#signedIn=true`}>{__(detail.name)}</Link>
               {stepsCompleteness[setting] && (
                 <span role="img" aria-label="Selebration">
                   🎉
@@ -131,22 +132,23 @@ class SetupDetail extends React.Component<Props> {
   renderVideo() {
     const { feature } = this.props;
 
-    if (feature.videoUrl && feature.videoUrl !== 'url') {
-      return (
-        <VideoPopup
-          onVideoClick={this.props.completeShowStep}
-          name={feature.name}
-          videoUrl={feature.videoUrl}
-          thumbImage={feature.videoThumb}
-        />
-      );
+    if (!feature || !feature.videoUrl || feature.videoUrl !== 'url') {
+      return null;
     }
 
-    return;
+    return (
+      <VideoPopup
+        onVideoClick={this.props.completeShowStep}
+        name={feature.name}
+        videoUrl={feature.videoUrl}
+        thumbImage={feature.videoThumb}
+      />
+    );
   }
 
   render() {
     const { feature } = this.props;
+
     return (
       <>
         <Title>{__(feature.text)}</Title>

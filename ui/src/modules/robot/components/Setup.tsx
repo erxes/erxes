@@ -43,7 +43,7 @@ class Setup extends React.Component<Props, State> {
 
     this.state = {
       selectedOption: {} as IFeature,
-      showComplete: true,
+      showComplete: false,
       collapseKey: ''
     };
   }
@@ -101,31 +101,32 @@ class Setup extends React.Component<Props, State> {
   renderProgress = () => {
     const percentage = this.getPercentage();
 
-    let text = 'keep going!';
+    let text = __('keep going!');
 
     if (percentage < 75 && percentage > 50) {
-      text = "you're halfway through, keep going!";
+      text = __("you're halfway through, keep going!");
     }
 
     if (percentage > 75 && percentage < 100) {
-      text = 'almost done, just a little more!';
+      text = __('almost done, just a little more!');
     }
 
     if (percentage === 100) {
-      text = 'awesome!';
+      text = __('awesome!');
     }
 
     return (
       <div>
         <ProgressBar percentage={percentage} color="#3B85F4" height="8px" />
         <ProgressText>
-          {percentage}% done - {text}
+          {percentage}
+          {__('% done -')} {text}
         </ProgressText>
       </div>
     );
   };
 
-  renderFeature(feature: IFeature, completed?: boolean) {
+  renderFeature(feature: IFeature) {
     const { changeRoute } = this.props;
 
     this.setState({ selectedOption: feature }, () => {
@@ -136,13 +137,13 @@ class Setup extends React.Component<Props, State> {
   checkCondition(title?: string) {
     const { availableFeatures } = this.props;
 
-    {
-      availableFeatures.map(availabeFeature => {
-        if (availabeFeature.name === title) {
-          this.renderFeature(availabeFeature);
-        }
-      });
-    }
+    availableFeatures.map(availabeFeature => {
+      if (availabeFeature.name === title) {
+        this.renderFeature(availabeFeature);
+      }
+
+      return null;
+    });
   }
 
   renderSetup() {
@@ -166,7 +167,7 @@ class Setup extends React.Component<Props, State> {
             key={group.key}
             id={group.key}
             title={__(group.title)}
-            open={this.openCollapse(group.key)}
+            open={group.key === this.state.collapseKey ? true : false}
           >
             {group.content.map((content, index) => {
               if (content.types.includes(roleValue.value)) {
@@ -176,10 +177,13 @@ class Setup extends React.Component<Props, State> {
                     onClick={onRoleClick.bind(this, content.title, group.key)}
                   >
                     <h6>{__(content.name)}</h6>
-                    <p>{__(content.steps)}</p>
+                    <p>
+                      {content.steps} {__('steps')}
+                    </p>
                   </Text>
                 );
               }
+
               return null;
             })}
           </CollapseContent>
@@ -213,6 +217,7 @@ class Setup extends React.Component<Props, State> {
 
   getPercentage() {
     const { availableFeatures } = this.props;
+
     const completedCount = availableFeatures.filter(
       feature => feature.isComplete
     ).length;
@@ -221,13 +226,6 @@ class Setup extends React.Component<Props, State> {
       availableFeatures.length + 1,
       completedCount + 1
     );
-  }
-
-  openCollapse(gkey: string): boolean {
-    if (gkey === this.state.collapseKey) {
-      return true;
-    }
-    return false;
   }
 
   renderContent() {

@@ -83,7 +83,9 @@ class AssistantContentContainer extends React.Component<FinalProps> {
       : [];
 
     // get feature categories
-    const savedFeatures = localStorage.getItem('erxes_customization_features');
+    const savedFeatures = localStorage.getItem(
+      'erxes_customization_onboarding'
+    );
     let sortedFeatures = allFeatures;
 
     if (savedFeatures && savedFeatures.length > 2) {
@@ -95,6 +97,7 @@ class AssistantContentContainer extends React.Component<FinalProps> {
         chosenFeatures
       );
     }
+
     const features = sortedFeatures.map(feature => {
       const details = ROLE_SETUP_DETAILS[feature.name] || {};
 

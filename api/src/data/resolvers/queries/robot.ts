@@ -40,21 +40,19 @@ const features: {
     settings: [
       'fieldGroupCreate',
       'fieldCreate',
-      'importPrepareFiles',
       'importDownloadTemplate',
-      'importEnterData',
       'importCreate'
     ],
     settingsPermissions: ['manageForms', 'importHistories']
   },
 
   inviteTeamMembers: {
-    settings: ['permissionGroupCreate', 'usersInvite', 'userEdit'],
-    settingsPermissions: ['manageForms', 'usersInvite', 'usersEdit']
+    settings: ['userGroupCreate', 'usersInvite'],
+    settingsPermissions: ['usersInvite']
   },
 
   salesPipeline: {
-    settings: ['dealBoardCreate', 'dealPipelineCreate', 'dealStageCreate'],
+    settings: ['dealBoardsCreate', 'dealPipelinesCreate', 'dealCreate'],
     settingsPermissions: ['dealBoardsAdd', 'dealPipelinesAdd']
   },
 
@@ -64,26 +62,22 @@ const features: {
   },
 
   customizeTickets: {
-    settings: [
-      'ticketBoardCreate',
-      'ticketPipelineCreate',
-      'ticketStageCreate'
-    ],
+    settings: ['ticketBoardsCreate', 'ticketPipelinesCreate', 'ticketCreate'],
     settingsPermissions: ['ticketBoardsAdd', 'ticketPipelinesAdd']
   },
 
   customizeTasks: {
-    settings: ['taskBoardCreate', 'taskPipelineCreate', 'taskStageCreate'],
+    settings: ['taskBoardsCreate', 'taskPipelinesCreate', 'taskCreate'],
     settingsPermissions: ['taskBoardsAdd', 'taskPipelinesAdd']
   },
 
   customizeGrowthHacking: {
-    settings: ['growthHackingTemplateCreate', 'growthHackingStageCreate'],
+    settings: ['growthHackBoardCreate', 'pipelineTemplate'],
     settingsPermissions: ['growthHackStagesAdd', 'growthHackTemplatesAdd']
   },
 
   customizeSegmentation: {
-    settings: ['segmentFamliarize', 'segmentCreate', 'subSegmentCreate'],
+    settings: ['segmentCreate', 'subSegmentCreate'],
     settingsPermissions: ['manageSegments']
   },
 
@@ -92,19 +86,43 @@ const features: {
     settingsPermissions: ['manageEmailTemplate']
   },
 
-  automateCampaigns: {
+  prepareContentTemplates: {
     settings: [
-      'createCampaign',
-      'chooseCampaignChannel',
-      'chooseRecipientsChannel',
-      'composeCampaign'
+      'createResponseTemplate',
+      'createEmailTemplate',
+      'pipelineTemplate'
     ],
+    settingsPermissions: ['manageEmailTemplate']
+  },
+
+  automateCampaigns: {
+    settings: ['engageVerifyEmail', 'engageSendTestEmail', 'engageCreate'],
     settingsPermissions: ['engageMessageAdd']
   },
 
   customizeKnowledgeBase: {
-    settings: ['createForm', 'createCategoryForm', 'createArticleForm'],
+    settings: [
+      'knowledgeBaseTopicCreate',
+      'knowledgeBaseCategoryCreate',
+      'knowledgeBaseArticleCreate',
+      'knowledgeBaseInstalled'
+    ],
     settingsPermissions: ['manageKnowledgeBase']
+  },
+
+  customizeReports: {
+    settings: ['dashboardCreate', 'dashboardItemCreate'],
+    settingsPermissions: ['dashboardAdd', 'dashboardItemAdd']
+  },
+
+  createLeadGenerationForm: {
+    settings: ['leadIntegrationCreate', 'leadIntegrationInstalled'],
+    settingsPermissions: ['manageForms']
+  },
+
+  installErxesWidgets: {
+    settings: ['messengerIntegrationCreate'],
+    settingsPermissions: ['integrationsCreateMessengerIntegration']
   }
 };
 

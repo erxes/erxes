@@ -7,7 +7,6 @@ import Onboarding from './onboard/Onboarding';
 import Setup from './Setup';
 import { Content } from './styles';
 import Suggestion from './Suggestion';
-import Todo from './Todo';
 
 type Props = {
   availableFeatures: IFeature[];
@@ -33,10 +32,7 @@ class AssistantContent extends React.Component<Props, State> {
     this.state = {
       welcomeStep: 0,
       roleValue: { value: 'sales', label: 'Sales' } as IRoleValue,
-      answerOf: {
-        value: '',
-        label: ''
-      } as IRoleValue
+      answerOf: {} as IRoleValue
     };
   }
 
@@ -105,10 +101,6 @@ class AssistantContent extends React.Component<Props, State> {
       }
 
       return <Suggestion {...commonProps} onResumeClick={onClick} />;
-    }
-
-    if (currentRoute === 'todoList' || currentRoute === 'todoDetail') {
-      return <Todo {...this.props} restartOnboard={this.restartOnboard} />;
     }
 
     if (currentRoute === 'setupList' || currentRoute === 'setupDetail') {

@@ -33,7 +33,8 @@ export const types = `
     tagIds: [String]
 
     customFieldsData: JSON
-
+    trackedData: JSON
+    
     customers: [Customer]
     getTags: [Tag]
     code: String
