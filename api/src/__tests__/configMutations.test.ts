@@ -57,7 +57,7 @@ describe('Test configs mutations', () => {
     expect(uploadConfig.value[0]).toEqual('local');
 
     await graphqlRequest(mutation, 'configsUpdate', {
-      configsMap: { UPLOAD_SERVICE_TYPE: ['local'] }
+      configsMap: { sex_choices: ['male'] }
     });
 
     const pronounConfig = await Configs.getConfig('sex_choices');
