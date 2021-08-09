@@ -208,3 +208,8 @@ export const AutomationFormContainer = styled(Contents)`
     margin: 0;
   }
 `;
+
+export const ScrolledContent = styled.div`
+  flex: 1;
+  overflow: auto;
+`;

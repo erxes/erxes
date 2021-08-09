@@ -4,7 +4,7 @@ import { __ } from 'modules/common/utils';
 import { TRIGGERS } from 'modules/automations/constants';
 import FormGroup from 'erxes-ui/lib/components/form/Group';
 import ControlLabel from 'erxes-ui/lib/components/form/Label';
-import { TypeBox } from 'modules/automations/styles';
+import { TypeBox, ScrolledContent } from 'modules/automations/styles';
 import { ITrigger } from 'modules/automations/types';
 
 type Props = {
@@ -80,7 +80,7 @@ class TriggerForm extends React.Component<Props, State> {
             {__('Library')}
           </TabTitle>
         </Tabs>
-        {this.renderTabContent()}
+        <ScrolledContent>{this.renderTabContent()}</ScrolledContent>
       </>
     );
   }
