@@ -14,7 +14,7 @@ describe('Test configs mutations', () => {
     `;
 
     await graphqlRequest(mutation, 'configsUpdate', {
-      configsMap: { dealUOM: ['MNT'], '': '' }
+      configsMap: { dealUOM: ['MNT'], UPLOAD_FILE_TYPES: ['image/gif'] }
     });
 
     const uomConfig = await Configs.getConfig('dealUOM');
