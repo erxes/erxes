@@ -9,6 +9,7 @@ import { createServer } from 'http';
 import * as mongoose from 'mongoose';
 import * as path from 'path';
 import * as request from 'request';
+import * as serverTimingMiddleware from 'server-timing-header';
 import { initApolloServer } from './apolloClient';
 import { buildFile } from './data/modules/fileExporter/exporter';
 import { templateExport } from './data/modules/fileExporter/templateExport';
@@ -110,6 +111,8 @@ const handleTelnyxWebhook = (req, res, next, hookName: string) => {
 export const app = express();
 
 app.disable('x-powered-by');
+
+app.use(serverTimingMiddleware({}));
 
 // handle engage trackers
 app.post(`/service/engage/tracker`, async (req, res, next) => {

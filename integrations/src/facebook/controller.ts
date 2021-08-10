@@ -102,7 +102,7 @@ const init = async app => {
 
   app.get('/facebook/get-pages', async (req, res, next) => {
     debugRequest(debugFacebook, req);
-    const accountId = req.query.accountId;
+    const { kind, accountId } = req.query;
 
     const account = await Accounts.getAccount({ _id: req.query.accountId });
 
@@ -111,7 +111,7 @@ const init = async app => {
     let pages = [];
 
     try {
-      pages = await getPageList(accessToken);
+      pages = await getPageList(accessToken, kind);
     } catch (e) {
       if (!e.message.includes('Application request limit reached')) {
         await Integrations.updateOne(

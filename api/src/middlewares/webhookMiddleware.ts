@@ -202,8 +202,9 @@ const webhookMiddleware = async (req, res, next) => {
     if (params.parentCompany) {
       parentCompany = await findCompany(params.parentCompany);
 
-      let parentCompanyData: { customFieldsData: any[] } = {
-        customFieldsData: []
+      let parentCompanyData: { customFieldsData: any[]; trackedData: any[] } = {
+        customFieldsData: [],
+        trackedData: []
       };
 
       if (params.parentCompany.companyData) {
@@ -224,7 +225,8 @@ const webhookMiddleware = async (req, res, next) => {
         businessType: parentParams.companyBusinessType,
         avatar: parentParams.companyAvatar,
         code: parentParams.companyCode,
-        customFieldsData: parentCompanyData.customFieldsData
+        customFieldsData: parentCompanyData.customFieldsData,
+        trackedData: parentCompanyData.trackedData
       };
 
       if (!parentCompany) {
@@ -249,7 +251,10 @@ const webhookMiddleware = async (req, res, next) => {
     }
 
     if (hasCompanyFields) {
-      let companyData = { customFieldsData: [] };
+      let companyData: { customFieldsData: any[]; trackedData: any[] } = {
+        customFieldsData: [],
+        trackedData: []
+      };
 
       if (params.companyData) {
         companyData = await Fields.generateCustomFieldsData(
@@ -268,6 +273,7 @@ const webhookMiddleware = async (req, res, next) => {
         avatar: params.companyAvatar,
         code: params.companyCode,
         customFieldsData: companyData && companyData.customFieldsData,
+        trackedData: companyData && companyData.trackedData,
         parentCompanyId: parentCompany ? parentCompany._id : undefined
       };
 
