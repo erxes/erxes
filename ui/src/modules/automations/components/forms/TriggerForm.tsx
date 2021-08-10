@@ -46,7 +46,7 @@ class TriggerForm extends React.Component<Props, State> {
   renderScratchTemplates(trigger, index) {
     return (
       <TypeBox key={index} onClick={this.onClickType.bind(this, trigger)}>
-        <img src={`../images/actions/${trigger.img}`} alt={trigger.label} />
+        <img src={`/images/actions/${trigger.img}`} alt={trigger.label} />
         <FormGroup>
           <ControlLabel>{trigger.label} based</ControlLabel>
           <p>{trigger.description}</p>

@@ -213,13 +213,12 @@ class AutomationForm extends React.Component<Props, State> {
 
   onAddActionConfig = config => {
     const { activeAction } = this.state;
-    console.log('onAdd');
+
     activeAction.config = config;
     this.setState({ activeAction });
   };
 
   onClickTrigger = (trigger: ITrigger) => {
-    console.log('onClick', trigger);
     const config = trigger && trigger.config;
     const selectedContentId = config && config.contentId;
 
@@ -275,7 +274,7 @@ class AutomationForm extends React.Component<Props, State> {
 
   addTrigger = (data: ITrigger, contentId?: string, triggerId?: string) => {
     const { triggers, activeTrigger } = this.state;
-    console.log('add trigger', data);
+
     let trigger: any = { id: String(triggers.length), ...data };
     const triggerIndex = triggers.findIndex(t => t.id === triggerId);
 
@@ -352,7 +351,7 @@ class AutomationForm extends React.Component<Props, State> {
 
   renderTrigger = (trigger: ITrigger) => {
     const idElm = `trigger-${trigger.id}`;
-    console.log('render trigger', trigger);
+
     jquery('#canvas').append(`
       <div class="trigger control" id="${idElm}" style="${trigger.style}">
         <div class="trigger-header">
