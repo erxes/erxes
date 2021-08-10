@@ -7,6 +7,7 @@ import { ClientPortalConfig } from '../types';
 import Advanced from './forms/Advanced';
 import ColorFont from './forms/ColorFont';
 import StyleSheet from './forms/StyleSheet';
+import Config from './forms/Config';
 import { ButtonWrap } from '../styles';
 
 type Props = {
@@ -69,7 +70,11 @@ function Form({ defaultConfigValues = {}, handleUpdate, configType }: Props) {
       permission: advanced.permission || 'loggedInUsers'
     },
     css: defaultConfigValues.css || '',
-    mobileResponsive: defaultConfigValues.mobileResponsive || false
+    mobileResponsive: defaultConfigValues.mobileResponsive || false,
+    twilioAccountSid: defaultConfigValues.twilioAccountSid || '',
+    twilioAuthToken: defaultConfigValues.twilioAuthToken || '',
+    twilioFromNumber: defaultConfigValues.twilioFromNumber || '',
+    googleCredentials: defaultConfigValues.googleCredentials
   });
 
   const handleFormChange = (name: string, value: string | object) => {
@@ -116,6 +121,8 @@ function Form({ defaultConfigValues = {}, handleUpdate, configType }: Props) {
         return <ColorFont {...commonProps} />;
       case CONFIG_TYPES.STYLE_SHEET.VALUE:
         return <StyleSheet {...commonProps} />;
+      case CONFIG_TYPES.CONFIG.VALUE:
+        return <Config {...commonProps} />;
       default:
         return null;
     }

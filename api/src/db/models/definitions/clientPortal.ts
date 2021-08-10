@@ -115,5 +115,9 @@ export const clientPortalSchema = new Schema({
   advanced: field({ type: advancedSettingsSchema, optional: true }),
   css: field({ type: String, optional: true }),
   mobileResponsive: field({ type: Boolean, optional: true }),
-  createdAt: field({ type: Date, default: new Date(), label: 'Created at' })
+  createdAt: field({ type: Date, default: new Date(), label: 'Created at' }),
+  twilioAccountSid: field({ type: String, optional: true }),
+  twilioAuthToken: field({ type: String, optional: true }),
+  twilioFromNumber: field({ type: String, optional: true }),
+  googleCredentials: field({ type: Object, optional: true })
 });

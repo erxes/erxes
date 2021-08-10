@@ -29,6 +29,9 @@ function ClientPortal({ config, handleUpdate }: Props) {
       <CollapseContent title={CONFIG_TYPES.STYLE_SHEET.LABEL}>
         <Form {...commonProps} configType={CONFIG_TYPES.STYLE_SHEET.VALUE} />
       </CollapseContent>
+      <CollapseContent title={CONFIG_TYPES.CONFIG.LABEL}>
+        <Form {...commonProps} configType={CONFIG_TYPES.CONFIG.VALUE} />
+      </CollapseContent>
     </div>
   );
 }

@@ -14,6 +14,10 @@ export const CONFIG_TYPES = {
   STYLE_SHEET: {
     LABEL: 'Stylesheet',
     VALUE: 'styleSheet'
+  },
+  CONFIG: {
+    LABEL: 'System Configuration',
+    VALUE: 'System Configuration'
   }
 };
 

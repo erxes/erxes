@@ -23,6 +23,10 @@ export type ClientPortalConfig = {
   advanced?: AdvancedSettings;
   css?: string;
   mobileResponsive?: boolean;
+  googleCredentials?: object;
+  twilioAccountSid?: string;
+  twilioAuthToken?: string;
+  twilioFromNumber?: string;
 };
 
 export type Styles = {

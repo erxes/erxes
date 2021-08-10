@@ -25,6 +25,10 @@ const createOrUpdateConfig = `
     $advanced: AdvancedParams
     $css: String
     $mobileResponsive: Boolean
+    $googleCredentials: JSON
+    $twilioAccountSid: String
+    $twilioAuthToken: String
+    $twilioFromNumber: String
   ) {
     clientPortalConfigUpdate(
       _id: $_id,
@@ -50,6 +54,10 @@ const createOrUpdateConfig = `
       advanced: $advanced
       css: $css
       mobileResponsive: $mobileResponsive
+      googleCredentials: $googleCredentials
+      twilioAccountSid: $twilioAccountSid
+      twilioAuthToken: $twilioAuthToken
+      twilioFromNumber: $twilioFromNumber
     ) {
       ${commonFields}
     }

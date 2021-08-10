@@ -24,6 +24,10 @@ export const types = `
     advanced: Advanced
     css: String
     mobileResponsive: Boolean
+    googleCredentials: JSON
+    twilioAccountSid: String
+    twilioAuthToken: String
+    twilioFromNumber: String
   }
 
   type Styles {
@@ -163,6 +167,10 @@ export const mutations = `
     advanced: AdvancedParams
     css: String
     mobileResponsive: Boolean
+    googleCredentials: JSON
+    twilioAccountSid: String
+    twilioAuthToken: String
+    twilioFromNumber: String
   ): ClientPortal
   
   createTicketComment(${commentParams}): TicketComment

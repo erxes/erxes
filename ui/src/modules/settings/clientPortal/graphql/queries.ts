@@ -43,6 +43,10 @@ export const commonFields = `
   }
   css
   mobileResponsive
+  googleCredentials
+  twilioAccountSid
+  twilioAuthToken
+  twilioFromNumber
 `;
 
 const getTotalCount = `
