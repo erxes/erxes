@@ -58,6 +58,8 @@ type State = {
 };
 
 class AutomationForm extends React.Component<Props, State> {
+  private wrapperRef;
+
   constructor(props) {
     super(props);
 
@@ -161,7 +163,17 @@ class AutomationForm extends React.Component<Props, State> {
         }
       });
     });
+
+    document.addEventListener('click', this.handleClickOutside, true);
   }
+
+  componentWillUnmount() {
+    document.removeEventListener('click', this.handleClickOutside, true);
+  }
+
+  setWrapperRef = node => {
+    this.wrapperRef = node;
+  };
 
   handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -249,6 +261,12 @@ class AutomationForm extends React.Component<Props, State> {
 
   tabOnClick = (currentTab: string) => {
     this.setState({ currentTab });
+  };
+
+  handleClickOutside = event => {
+    if (this.wrapperRef && !this.wrapperRef.contains(event.target)) {
+      this.setState({ showDrawer: false });
+    }
   };
 
   toggleDrawer = () => {
@@ -555,36 +573,38 @@ class AutomationForm extends React.Component<Props, State> {
             </PageContent>
           </AutomationFormContainer>
 
-          <RTG.CSSTransition
-            in={this.state.showDrawer}
-            timeout={300}
-            classNames="slide-in-right"
-            unmountOnExit={true}
-          >
-            <RightDrawerContainer>
-              <Tabs full={true}>
-                <TabTitle
-                  className={currentTab === 'favourite' ? 'active' : ''}
-                  onClick={this.tabOnClick.bind(this, 'favourite')}
-                >
-                  {__('Favorite')}
-                </TabTitle>
-                <TabTitle
-                  className={currentTab === 'triggers' ? 'active' : ''}
-                  onClick={this.tabOnClick.bind(this, 'triggers')}
-                >
-                  {__('Triggers')}
-                </TabTitle>
-                <TabTitle
-                  className={currentTab === 'actions' ? 'active' : ''}
-                  onClick={this.tabOnClick.bind(this, 'actions')}
-                >
-                  {__('Actions')}
-                </TabTitle>
-              </Tabs>
-              {this.renderTabContent()}
-            </RightDrawerContainer>
-          </RTG.CSSTransition>
+          <div ref={this.setWrapperRef}>
+            <RTG.CSSTransition
+              in={this.state.showDrawer}
+              timeout={300}
+              classNames="slide-in-right"
+              unmountOnExit={true}
+            >
+              <RightDrawerContainer>
+                <Tabs full={true}>
+                  <TabTitle
+                    className={currentTab === 'favourite' ? 'active' : ''}
+                    onClick={this.tabOnClick.bind(this, 'favourite')}
+                  >
+                    {__('Favorite')}
+                  </TabTitle>
+                  <TabTitle
+                    className={currentTab === 'triggers' ? 'active' : ''}
+                    onClick={this.tabOnClick.bind(this, 'triggers')}
+                  >
+                    {__('Triggers')}
+                  </TabTitle>
+                  <TabTitle
+                    className={currentTab === 'actions' ? 'active' : ''}
+                    onClick={this.tabOnClick.bind(this, 'actions')}
+                  >
+                    {__('Actions')}
+                  </TabTitle>
+                </Tabs>
+                {this.renderTabContent()}
+              </RightDrawerContainer>
+            </RTG.CSSTransition>
+          </div>
         </HeightedWrapper>
       </>
     );
