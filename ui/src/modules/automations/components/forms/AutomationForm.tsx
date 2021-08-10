@@ -11,7 +11,9 @@ import {
   BackButton,
   Title,
   RightDrawerContainer,
-  AutomationFormContainer
+  AutomationFormContainer,
+  ScrolledContent,
+  BackIcon
 } from '../../styles';
 import { FormControl } from 'modules/common/components/form';
 import { BarItems, HeightedWrapper } from 'modules/layout/styles';
@@ -472,15 +474,17 @@ class AutomationForm extends React.Component<Props, State> {
       if (showTrigger && activeTrigger) {
         return (
           <>
-            <div onClick={onBack} style={{ cursor: 'pointer' }}>
-              <Icon icon="leftarrow-2" /> Back to triggers
-            </div>
-            <TriggerDetailForm
-              activeTrigger={activeTrigger}
-              addConfig={this.addTrigger}
-              closeModal={onBack}
-              contentId={selectedContentId}
-            />
+            <BackIcon onClick={onBack}>
+              <Icon icon="angle-left" size={20} /> Back to triggers
+            </BackIcon>
+            <ScrolledContent>
+              <TriggerDetailForm
+                activeTrigger={activeTrigger}
+                addConfig={this.addTrigger}
+                closeModal={onBack}
+                contentId={selectedContentId}
+              />
+            </ScrolledContent>
           </>
         );
       }
@@ -497,9 +501,9 @@ class AutomationForm extends React.Component<Props, State> {
       if (showAction && activeAction) {
         return (
           <>
-            <div onClick={onBackAction} style={{ cursor: 'pointer' }}>
-              <Icon icon="leftarrow-2" /> Back to actions
-            </div>
+            <BackIcon onClick={onBackAction}>
+              <Icon icon="angle-left" size={20} /> Back to actions
+            </BackIcon>
             <ActionDetailForm
               activeAction={activeAction}
               addAction={this.addAction}
