@@ -175,7 +175,7 @@ export const BackIcon = styled.div`
   cursor: pointer;
   display: flex;
   align-items: center;
-  margin-top: ${dimensions.unitSpacing}px;
+  margin: ${dimensions.unitSpacing}px 0;
   font-weight: 500;
 
   > i {
@@ -225,6 +225,7 @@ export const RightDrawerContainer = styled(RightMenuContainer)`
   background: ${colors.colorWhite};
   width: 500px;
   padding: ${dimensions.unitSpacing}px;
+  z-index: 10;
 `;
 
 export const AutomationFormContainer = styled(Contents)`

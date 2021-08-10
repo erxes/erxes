@@ -15,8 +15,6 @@ import Button from 'modules/common/components/Button';
 
 type Props = {
   activeAction: IAction;
-  // closeModal: () => void;
-  closeParentModal?: () => void;
   addAction: (
     value: string,
     contentId?: string,
@@ -52,7 +50,6 @@ class AddForm extends React.Component<Props, State> {
     const { config } = this.state;
     config[name] = value;
 
-    // this.setState(({ [name]: value } as unknown) as Pick<State, keyof State>);
     this.setState({ config });
   };
 
@@ -123,18 +120,11 @@ class AddForm extends React.Component<Props, State> {
   }
 
   onSave = () => {
-    const {
-      addAction,
-      activeAction
-      // closeParentModal,
-      // closeModal
-    } = this.props;
+    const { addAction, activeAction } = this.props;
 
     const { config } = this.state;
 
     addAction(activeAction.type, '', activeAction.id, config);
-
-    // closeParentModal ? closeParentModal() : closeModal();
   };
 
   render() {
