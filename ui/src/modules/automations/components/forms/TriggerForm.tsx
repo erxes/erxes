@@ -4,7 +4,12 @@ import { __ } from 'modules/common/utils';
 import { TRIGGERS } from 'modules/automations/constants';
 import FormGroup from 'erxes-ui/lib/components/form/Group';
 import ControlLabel from 'erxes-ui/lib/components/form/Label';
-import { TypeBox, ScrolledContent } from 'modules/automations/styles';
+import {
+  TypeBox,
+  ScrolledContent,
+  Description,
+  TriggerTabs
+} from 'modules/automations/styles';
 import { ITrigger } from 'modules/automations/types';
 
 type Props = {
@@ -66,20 +71,28 @@ class TriggerForm extends React.Component<Props, State> {
 
     return (
       <>
-        <Tabs full={true}>
-          <TabTitle
-            className={currentTab === 'new' ? 'active' : ''}
-            onClick={this.tabOnClick.bind(this, 'new')}
-          >
-            {__('Start from scratch')}
-          </TabTitle>
-          <TabTitle
-            className={currentTab === 'library' ? 'active' : ''}
-            onClick={this.tabOnClick.bind(this, 'library')}
-          >
-            {__('Library')}
-          </TabTitle>
-        </Tabs>
+        <Description>
+          <h4>{__('Choose your trigger type')}</h4>
+          <p>
+            {__('Start with an automation type that enrolls and triggers off')}
+          </p>
+        </Description>
+        <TriggerTabs>
+          <Tabs full={true}>
+            <TabTitle
+              className={currentTab === 'new' ? 'active' : ''}
+              onClick={this.tabOnClick.bind(this, 'new')}
+            >
+              {__('Start from scratch')}
+            </TabTitle>
+            <TabTitle
+              className={currentTab === 'library' ? 'active' : ''}
+              onClick={this.tabOnClick.bind(this, 'library')}
+            >
+              {__('Library')}
+            </TabTitle>
+          </Tabs>
+        </TriggerTabs>
         <ScrolledContent>{this.renderTabContent()}</ScrolledContent>
       </>
     );

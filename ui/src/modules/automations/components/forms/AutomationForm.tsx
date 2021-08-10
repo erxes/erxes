@@ -45,8 +45,8 @@ type State = {
   name: string;
   status: string;
   currentTab: string;
-  showTrigger: boolean;
   showDrawer: boolean;
+  showTrigger: boolean;
   showAction: boolean;
   actions: IAction[];
   triggers: ITrigger[];

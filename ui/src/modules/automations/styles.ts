@@ -173,8 +173,8 @@ export const BackButton = styled.div`
 
 export const TypeBox = styled(CenterFlexRow)`
   border: 1px solid ${colors.borderPrimary};
-  border-radius: 8px;
-  padding: ${dimensions.unitSpacing}px ${dimensions.coreSpacing}px;
+  border-radius: ${dimensions.unitSpacing - 5}px;
+  padding: ${dimensions.unitSpacing - 4}px ${dimensions.coreSpacing}px;
   margin-top: ${dimensions.unitSpacing}px;
   transition: all ease 0.3s;
   cursor: pointer;
@@ -212,4 +212,45 @@ export const AutomationFormContainer = styled(Contents)`
 export const ScrolledContent = styled.div`
   flex: 1;
   overflow: auto;
+`;
+
+export const TriggerTabs = styled.div`
+  .hxZkUW {
+    border: 1px solid ${colors.borderPrimary};
+    border-radius: 5px;
+    padding: 2px;
+    height: auto;
+
+    > span {
+      flex: 1;
+      flex-shrink: 0;
+      text-align: center;
+      font-weight: 500;
+      border-radius: ${dimensions.unitSpacing - 5}px;
+
+      &.active {
+        background: ${colors.colorSecondary};
+        color: ${colors.colorWhite};
+
+        &:before {
+          display: none;
+        }
+      }
+    }
+  }
+`;
+
+export const Description = styled.div`
+  margin: ${dimensions.coreSpacing}px ${dimensions.unitSpacing}px
+    ${dimensions.unitSpacing}px;
+
+  h4 {
+    margin: 0;
+    font-size: 16px;
+  }
+
+  > p {
+    margin: ${dimensions.unitSpacing - 5}px 0 0 0;
+    color: ${colors.colorCoreGray};
+  }
 `;
