@@ -107,7 +107,15 @@ export const executeActions = async (execution: IExecutionDocument, actionsMap: 
 }
 
 export const executeAutomation = async ({ automation, trigger, targetId, triggerData }: { automation: IAutomationDocument, trigger: ITrigger, targetId: string, triggerData?: any }) => {
-  const execution = await Executions.create({ automationId: automation._id, triggerId: trigger.id, triggerData, targetId });
+  let execution = await Executions.findOne({automationId: automation._id, triggerId: trigger.id, targetId, triggerData});
+
+  console.log('exec: ',execution)
+
+  if (execution) {
+    return
+  }
+
+  execution = await Executions.create({ automationId: automation._id, triggerId: trigger.id, triggerData, targetId });
 
   await executeActions(execution, await getActionsMap(automation), trigger.actionId);
 }
@@ -151,8 +159,6 @@ export const checkTrigger = async ({ trigger, data, targetId }: { trigger: ITrig
 export const receiveTrigger = async ({ type, targetId, data }: {  type: string, targetId: string, data?: any }) => {
   const automations = await Automations.find({ status: 'active', 'triggers.type': { $in: [type] }}).lean();
 
-  console.log('automations: ',automations)
-
   if (!automations.length) {
     return;
   }
@@ -162,11 +168,6 @@ export const receiveTrigger = async ({ type, targetId, data }: {  type: string, 
       if (trigger.type !== type) {
         continue;
       }
-
-
-      const triggerExists = await checkTrigger({ trigger, data, targetId })
-
-      console.log('triggerExists: ',triggerExists)
 
       if (!await checkTrigger({ trigger, data, targetId })) {
         continue;
