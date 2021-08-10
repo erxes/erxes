@@ -16,7 +16,7 @@ import Button from 'modules/common/components/Button';
 type Props = {
   activeAction: IAction;
   addAction: (
-    value: string,
+    action: IAction,
     contentId?: string,
     actionId?: string,
     config?: any
@@ -124,7 +124,7 @@ class AddForm extends React.Component<Props, State> {
 
     const { config } = this.state;
 
-    addAction(activeAction.type, '', activeAction.id, config);
+    addAction(activeAction, '', activeAction.id, config);
   };
 
   render() {

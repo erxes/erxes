@@ -302,14 +302,14 @@ class AutomationForm extends React.Component<Props, State> {
   };
 
   addAction = (
-    value: string,
+    data: IAction,
     contentId?: string,
     actionId?: string,
     config?: any
   ) => {
     const { actions } = this.state;
-
-    let action: any = { id: String(actions.length), type: value };
+    console.log(data);
+    let action: any = { id: String(actions.length), ...data };
 
     let actionIndex = -1;
 
@@ -355,9 +355,9 @@ class AutomationForm extends React.Component<Props, State> {
     jquery('#canvas').append(`
       <div class="trigger control" id="${idElm}" style="${trigger.style}">
         <div class="trigger-header">
-        <div>
-          <i class="icon-${trigger.icon}"></i>
-          ${trigger.label}
+          <div>
+            <i class="icon-${trigger.icon}"></i>
+            ${trigger.label}
           </div>
           <i class="icon-check-1"></i>
         </div>
@@ -382,10 +382,17 @@ class AutomationForm extends React.Component<Props, State> {
     const idElm = `action-${action.id}`;
 
     jquery('#canvas').append(`
-          <div class="action control" id="${idElm}" style="${action.style}" type="${action.type}">
-            ${action.type}
+      <div class="action control" id="${idElm}" style="${action.style}">
+        <div class="trigger-header">
+          <div>
+            <i class="icon-${action.icon}"></i>
+            ${action.label}
           </div>
-        `);
+          <i class="icon-check-1"></i>
+        </div>
+        <p>${action.description}</p>
+      </div>
+    `);
 
     jquery('#canvas').on('dblclick', `#${idElm}`, event => {
       event.preventDefault();
@@ -526,19 +533,12 @@ class AutomationForm extends React.Component<Props, State> {
             <ActionDetailForm
               activeAction={activeAction}
               addAction={this.addAction}
-              addActionConfig={this.onAddActionConfig}
             />
           </>
         );
       }
 
-      return (
-        <ActionsForm
-          addAction={this.addAction}
-          onClickAction={this.onClickAction}
-          addActionConfig={this.onAddActionConfig}
-        />
-      );
+      return <ActionsForm onClickAction={this.onClickAction} />;
     }
 
     return <div>Favourite itemss</div>;

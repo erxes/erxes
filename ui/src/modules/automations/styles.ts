@@ -58,6 +58,7 @@ export const Container = styled.div`
       > div {
         display: flex;
         align-items: center;
+        margin-right: ${dimensions.coreSpacing}px;
 
         > i {
           width: 40px;

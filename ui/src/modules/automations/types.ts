@@ -3,6 +3,9 @@ import { QueryResponse } from 'modules/common/types';
 export type IAction = {
   id: string;
   type: string;
+  icon?: string;
+  label?: string;
+  description?: string;
   nextActionId?: string;
   style?: any;
   config?: any;

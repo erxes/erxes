@@ -3,16 +3,15 @@ import { IAction } from 'modules/automations/types';
 import { ActionForms } from './actions';
 
 type Props = {
-  addActionConfig: (value: any) => void;
   activeAction: IAction;
-  addAction: (value: string, contentId?: string, actionId?: string) => void;
+  addAction: (action: IAction, contentId?: string, actionId?: string) => void;
 };
 
 class ActionDetailForm extends React.Component<Props> {
   onSave = () => {
     const { addAction, activeAction } = this.props;
 
-    addAction(activeAction.type);
+    addAction(activeAction);
   };
 
   render() {
@@ -26,9 +25,7 @@ class ActionDetailForm extends React.Component<Props> {
 
     const Content = ActionForms[type] || ActionForms.default;
 
-    return (
-      <Content action={activeAction} onSave={this.onSave} {...this.props} />
-    );
+    return <Content onSave={this.onSave} {...this.props} />;
   }
 }
 

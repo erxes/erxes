@@ -1,14 +1,11 @@
 import React from 'react';
 
-import { IAction, ITrigger } from 'modules/automations/types';
+import { IAction } from 'modules/automations/types';
 import { SegmentsForm } from 'modules/segments/containers';
 
 type Props = {
-  closeModal: () => void;
-  closeParentModal?: () => void;
-  activeTrigger: ITrigger;
   activeAction: IAction;
-  addConfig: (trigger: ITrigger, contentId?: string, config?: any) => void;
+  addAction: (action: IAction, contentId?: string, actionId?: string) => void;
 };
 
 type State = {
@@ -25,21 +22,8 @@ class IfForm extends React.Component<Props, State> {
     };
   }
 
-  onSave = () => {
-    const {
-      closeParentModal,
-      closeModal,
-      addConfig,
-      activeAction
-    } = this.props;
-
-    addConfig(activeAction);
-
-    closeParentModal ? closeParentModal() : closeModal();
-  };
-
   render() {
-    const { closeModal, activeAction } = this.props;
+    const { activeAction, addAction } = this.props;
 
     const config = activeAction.config || {};
 
@@ -47,7 +31,8 @@ class IfForm extends React.Component<Props, State> {
       <SegmentsForm
         {...this.props}
         contentType={config.contentType || 'customer'}
-        closeModal={closeModal}
+        closeModal={() => null}
+        addConfig={addAction}
         id={config.segmentId}
       />
     );

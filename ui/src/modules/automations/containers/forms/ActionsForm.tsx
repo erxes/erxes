@@ -4,8 +4,6 @@ import { IAction } from 'modules/automations/types';
 
 type Props = {
   onClickAction: (action: IAction) => void;
-  addAction: (value: string) => void;
-  addActionConfig: (config: any) => void;
 };
 
 const ActionsFormContainer = (props: Props) => {

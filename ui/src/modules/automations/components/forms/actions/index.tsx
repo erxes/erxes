@@ -8,25 +8,20 @@ import { __ } from 'modules/common/utils';
 import BoardItemForm from 'modules/automations/containers/forms/actions/BoardItemForm';
 
 type Props = {
-  closeModal: () => void;
   onSave: (contentId: string) => void;
-  action: IAction;
+  activeAction: IAction;
+  addAction: (action: IAction, contentId?: string, actionId?: string) => void;
 };
 
 class DefaultForm extends React.Component<Props> {
   render() {
-    const { closeModal, action, onSave } = this.props;
+    const { activeAction, onSave } = this.props;
 
     return (
       <>
-        <div>contents {action.type}</div>
+        <div>contents {activeAction.type}</div>
         <ModalFooter>
-          <Button
-            btnStyle="simple"
-            type="button"
-            onClick={closeModal}
-            icon="times-circle"
-          >
+          <Button btnStyle="simple" type="button" icon="times-circle">
             {__('Cancel')}
           </Button>
 
