@@ -4,13 +4,13 @@ import { dimensions } from 'erxes-ui/lib/styles/eindex';
 import styledTS from 'styled-components-ts';
 import { RightMenuContainer } from 'modules/boards/styles/rightMenu';
 import { Contents } from 'modules/layout/styles';
+import { rgba } from 'modules/common/styles/color';
 
 export const Container = styled.div`
   padding: ${dimensions.coreSpacing}px;
 
   #canvas {
     position: relative;
-    font-weight: bold;
 
     .custom-menu {
       z-index: 1000;
@@ -37,24 +37,66 @@ export const Container = styled.div`
 
   .trigger,
   .action {
-    width: 100px;
-    height: 100px;
-    line-height: 100px;
+    max-width: 300px;
     position: absolute;
-    border: 1px solid;
-    border-radius: 20px;
-    text-align: center;
+    padding: 3px;
+    background: #f5f5f5;
+    border: 1px solid ${colors.borderPrimary};
+    border-radius: 8px;
     cursor: pointer;
-    margin-bottom: 50px;
-    color: ${colors.colorWhite};
-  }
 
-  .trigger {
-    color: black;
+    .trigger-header {
+      background: ${rgba(colors.colorPrimary, 0.12)};
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-radius: 4px;
+      font-weight: 500;
+      font-size: 16px;
+      padding: ${dimensions.unitSpacing}px;
+
+      > div {
+        display: flex;
+        align-items: center;
+
+        > i {
+          width: 40px;
+          height: 40px;
+          border-radius: 4px;
+          font-size: 24px;
+          line-height: 40px;
+          text-align: center;
+          flex-shrink: 0;
+          margin-right: ${dimensions.unitSpacing}px;
+          background: ${colors.colorWhite};
+          color: ${colors.colorSecondary};
+        }
+      }
+
+      > i {
+        width: 20px;
+        height: 20px;
+        line-height: 20px;
+        text-align: center;
+        border-radius: 20px;
+        color: ${colors.colorWhite};
+        background: ${colors.colorCoreGreen};
+      }
+    }
+
+    > p {
+      font-size: 14px;
+      text-align: center;
+      margin: 0;
+      padding: ${dimensions.unitSpacing + 5}px ${dimensions.unitSpacing}px;
+      color: ${colors.colorCoreGray};
+    }
   }
 
   .action {
-    background: #60cb98;
+    .trigger-header {
+      background: ${rgba(colors.colorCoreYellow, 0.12)};
+    }
   }
 
   .action[type='if'] {
@@ -204,6 +246,10 @@ export const TypeBox = styled(CenterFlexRow)`
   margin-top: ${dimensions.unitSpacing}px;
   transition: all ease 0.3s;
   cursor: pointer;
+
+  label {
+    cursor: pointer;
+  }
 
   > img {
     width: 80px;

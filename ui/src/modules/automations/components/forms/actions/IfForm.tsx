@@ -8,7 +8,7 @@ type Props = {
   closeParentModal?: () => void;
   activeTrigger: ITrigger;
   activeAction: IAction;
-  addConfig: (value: string, contentId?: string, config?: any) => void;
+  addConfig: (trigger: ITrigger, contentId?: string, config?: any) => void;
 };
 
 type State = {
@@ -33,7 +33,7 @@ class IfForm extends React.Component<Props, State> {
       activeAction
     } = this.props;
 
-    addConfig(activeAction.type);
+    addConfig(activeAction);
 
     closeParentModal ? closeParentModal() : closeModal();
   };
@@ -42,6 +42,7 @@ class IfForm extends React.Component<Props, State> {
     const { closeModal, activeAction } = this.props;
 
     const config = activeAction.config || {};
+
     return (
       <SegmentsForm
         {...this.props}

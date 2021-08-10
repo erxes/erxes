@@ -14,7 +14,7 @@ type Props = {
   closeParentModal?: () => void;
   activeAction: IAction;
   activeTrigger: ITrigger;
-  addConfig: (value: string, contentId?: string, config?: any) => void;
+  addConfig: (trigger: ITrigger, contentId?: string, config?: any) => void;
 };
 
 type FinalProps = {

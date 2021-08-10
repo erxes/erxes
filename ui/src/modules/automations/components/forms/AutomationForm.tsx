@@ -25,7 +25,7 @@ import {
   createInitialConnections,
   connection,
   deleteConnection,
-  deleteControl,
+  // deleteControl,
   sourceEndpoint,
   targetEndpoint
 } from 'modules/automations/utils';
@@ -140,7 +140,7 @@ class AutomationForm extends React.Component<Props, State> {
       deleteConnection(instance);
 
       // delete control ===================
-      deleteControl();
+      // deleteControl();
 
       // delete from state ===================
       jquery('#canvas').on('click', '.delete-control', () => {
@@ -193,7 +193,6 @@ class AutomationForm extends React.Component<Props, State> {
         triggers: triggers.map(t => ({
           id: t.id,
           type: t.type,
-          actionId: t.actionId,
           config: t.config,
           style: jquery(`#trigger-${t.id}`).attr('style')
         })),
@@ -214,12 +213,13 @@ class AutomationForm extends React.Component<Props, State> {
 
   onAddActionConfig = config => {
     const { activeAction } = this.state;
-
+    console.log('onAdd');
     activeAction.config = config;
     this.setState({ activeAction });
   };
 
   onClickTrigger = (trigger: ITrigger) => {
+    console.log('onClick', trigger);
     const config = trigger && trigger.config;
     const selectedContentId = config && config.contentId;
 
@@ -273,10 +273,10 @@ class AutomationForm extends React.Component<Props, State> {
     this.setState({ showDrawer: !this.state.showDrawer });
   };
 
-  addTrigger = (value: string, contentId?: string, triggerId?: string) => {
+  addTrigger = (data: ITrigger, contentId?: string, triggerId?: string) => {
     const { triggers, activeTrigger } = this.state;
-
-    let trigger: any = { id: String(triggers.length), type: value };
+    console.log('add trigger', data);
+    let trigger: any = { id: String(triggers.length), ...data };
     const triggerIndex = triggers.findIndex(t => t.id === triggerId);
 
     if (triggerId && activeTrigger.id === triggerId) {
@@ -352,10 +352,17 @@ class AutomationForm extends React.Component<Props, State> {
 
   renderTrigger = (trigger: ITrigger) => {
     const idElm = `trigger-${trigger.id}`;
-
+    console.log('render trigger', trigger);
     jquery('#canvas').append(`
       <div class="trigger control" id="${idElm}" style="${trigger.style}">
-        ${trigger.type}
+        <div class="trigger-header">
+        <div>
+          <i class="icon-${trigger.icon}"></i>
+          ${trigger.label}
+          </div>
+          <i class="icon-check-1"></i>
+        </div>
+        <p>${trigger.description}</p>
       </div>
     `);
 
@@ -507,12 +514,7 @@ class AutomationForm extends React.Component<Props, State> {
         );
       }
 
-      return (
-        <TriggerForm
-          addConfig={this.addTrigger}
-          onClickTrigger={this.onClickTrigger}
-        />
-      );
+      return <TriggerForm onClickTrigger={this.onClickTrigger} />;
     }
 
     if (currentTab === 'actions') {
