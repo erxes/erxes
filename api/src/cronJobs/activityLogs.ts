@@ -71,18 +71,21 @@ export const createActivityLogsFromSegments = async () => {
     }
 
     const result = await model.find({ _id: { $in: ids } }, { _id: 1 });
-    const contentIds = result.map(c => c._id);
+    const contentIds = result.map(c => c._id) || [];
 
     await putActivityLog({
       action: ACTIVITY_LOG_ACTIONS.CREATE_SEGMENT_LOG,
       data: { segment, contentIds, type: segment.contentType }
     });
 
-    if (contentIds.length > 0) {
+    for (const contentId of contentIds) {
       messageBroker().sendMessage(RABBITMQ_QUEUES.AUTOMATIONS_TRIGGER, {
         type: segment.contentType,
-        data: contentIds,
-        targetId: segment.id
+        data: {
+          segmentId: segment._id,
+          conditions: segment.conditions
+        },
+        targetId: contentId
       });
     }
   }
