@@ -3,6 +3,8 @@ import {
   IDashboard,
   IDashboardItemInput
 } from '../../../db/models/definitions/dashboard';
+import { MODULE_NAMES } from '../../constants';
+import { putCreateLog } from '../../logUtils';
 import { checkPermission } from '../../permissions/wrappers';
 import { IContext } from '../../types';
 import { getDashboardFile, getSubServiceDomain, sendEmail } from '../../utils';
@@ -24,8 +26,20 @@ interface IDashboardEmailParams {
 }
 
 const dashboardsMutations = {
-  async dashboardAdd(_root, doc: IDashboard, { docModifier }: IContext) {
-    return Dashboards.create(docModifier(doc));
+  async dashboardAdd(_root, doc: IDashboard, { docModifier, user }: IContext) {
+    const dashboard = await Dashboards.create(docModifier(doc));
+
+    await putCreateLog(
+      {
+        type: MODULE_NAMES.DASHBOARD,
+        newData: doc,
+        object: dashboard,
+        description: `Dashboard "${doc.name}" has been created`
+      },
+      user
+    );
+
+    return dashboard;
   },
 
   async dashboardEdit(_root, { _id, ...fields }: IDashboardEdit) {
@@ -36,8 +50,20 @@ const dashboardsMutations = {
     return Dashboards.removeDashboard(_id);
   },
 
-  async dashboardItemAdd(_root, doc: IDashboardItemInput) {
-    return DashboardItems.addDashboardItem({ ...doc });
+  async dashboardItemAdd(_root, doc: IDashboardItemInput, { user }: IContext) {
+    const dashboardItem = await DashboardItems.addDashboardItem({ ...doc });
+
+    await putCreateLog(
+      {
+        type: MODULE_NAMES.DASHBOARD_ITEM,
+        newData: doc,
+        object: dashboardItem,
+        description: `Dashboard item "${doc.name}" has been created`
+      },
+      user
+    );
+
+    return dashboardItem;
   },
 
   async dashboardItemEdit(_root, { _id, ...fields }: IDashboardItemEdit) {
