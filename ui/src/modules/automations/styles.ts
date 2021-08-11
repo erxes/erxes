@@ -44,6 +44,7 @@ export const Container = styled.div`
     border: 1px solid ${colors.borderPrimary};
     border-radius: 8px;
     cursor: pointer;
+    z-index: 8;
 
     .trigger-header {
       background: ${rgba(colors.colorPrimary, 0.12)};
@@ -52,7 +53,7 @@ export const Container = styled.div`
       justify-content: space-between;
       border-radius: 4px;
       font-weight: 500;
-      font-size: 16px;
+      font-size: 14px;
       padding: ${dimensions.unitSpacing}px;
 
       > div {
@@ -86,7 +87,7 @@ export const Container = styled.div`
     }
 
     > p {
-      font-size: 14px;
+      font-size: 13px;
       text-align: center;
       margin: 0;
       padding: ${dimensions.unitSpacing + 5}px ${dimensions.unitSpacing}px;

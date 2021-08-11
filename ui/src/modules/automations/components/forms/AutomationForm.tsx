@@ -27,7 +27,10 @@ import {
   deleteConnection,
   deleteControl,
   sourceEndpoint,
-  targetEndpoint
+  targetEndpoint,
+  connectorPaintStyle,
+  connectorHoverStyle,
+  hoverPaintStyle
 } from 'modules/automations/utils';
 import ActionDetailForm from './ActionDetailForm';
 import Icon from 'modules/common/components/Icon';
@@ -89,24 +92,18 @@ class AutomationForm extends React.Component<Props, State> {
   componentDidMount() {
     instance = plumb.getInstance({
       DragOptions: { cursor: 'pointer', zIndex: 2000 },
-      // PaintStyle: {
-      //   gradient: {
-      //     stops: [
-      //       [0, '#0d78bc'],
-      //       [1, '#558822']
-      //     ]
-      //   },
-      //   stroke: '#558822',
-      //   strokeWidth: 3
-      // },
+      PaintStyle: connectorPaintStyle,
+      HoverPaintStyle: connectorHoverStyle,
+      EndpointStyle: { radius: 10 },
+      EndpointHoverStyle: hoverPaintStyle,
       ConnectionOverlays: [
         [
           'Arrow',
           {
             location: 1,
             visible: true,
-            width: 20,
-            length: 20,
+            width: 15,
+            length: 15,
             id: 'ARROW'
           }
         ]
