@@ -194,6 +194,9 @@ class AutomationForm extends React.Component<Props, State> {
           id: t.id,
           type: t.type,
           config: t.config,
+          icon: t.icon,
+          label: t.label,
+          description: t.description,
           style: jquery(`#trigger-${t.id}`).attr('style')
         })),
         actions: actions.map(a => ({
@@ -308,7 +311,7 @@ class AutomationForm extends React.Component<Props, State> {
     config?: any
   ) => {
     const { actions } = this.state;
-    console.log(data);
+
     let action: any = { id: String(actions.length), ...data };
 
     let actionIndex = -1;
