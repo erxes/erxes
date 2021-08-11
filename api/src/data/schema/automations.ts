@@ -5,6 +5,9 @@ export const types = `
     actionId: String
     style: JSON
     config: JSON
+    icon: String
+    label: String
+    description: String
   }
 
   type Action {
@@ -13,6 +16,9 @@ export const types = `
     nextActionId: String
     style: JSON
     config: JSON
+    icon: String
+    label: String
+    description: String
   }
 
   type Automation {
@@ -34,6 +40,9 @@ export const types = `
     actionId: String
     style: JSON
     config: JSON
+    icon: String
+    label: String
+    description: String
   }
 
   input ActionInput {
@@ -42,6 +51,9 @@ export const types = `
     nextActionId: String
     style: JSON
     config: JSON
+    icon: String
+    label: String
+    description: String
   }
 `;
 
