@@ -102,6 +102,7 @@ const create = async ({
       doc.customFieldsData.length > 0 &&
       prevCustomFieldsData.length > 0
     ) {
+      console.log('generateUpdateDocs: ');
       doc.customFieldsData.map(data => {
         customFieldsData.push({ field: data.field, value: data.value });
       });
@@ -117,6 +118,8 @@ const create = async ({
       );
     }
 
+    console.log('udpate docs = ', doc);
+
     updateDocs.push({
       updateOne: {
         filter: { _id },
@@ -125,6 +128,8 @@ const create = async ({
         }
       }
     });
+
+    console.log('222222222222222222222222222222', updateDocs);
   };
 
   const prepareDocs = async (body, type, collectionDocs) => {
@@ -147,6 +152,8 @@ const create = async ({
     });
 
     const collections = response.hits.hits || [];
+
+    console.log('collections: ', collections);
 
     for (const collection of collections) {
       const doc = collection._source;
@@ -188,6 +195,12 @@ const create = async ({
         );
         continue;
       }
+
+      console.log('doc.primaryPhone: ', doc.primaryPhone);
+      console.log(
+        'docIdsByPrimaryPhone[doc.primaryPhone]: ',
+        docIdsByPrimaryPhone[doc.primaryPhone]
+      );
 
       if (doc.primaryPhone && docIdsByPrimaryPhone[doc.primaryPhone]) {
         await generateUpdateDocs(
@@ -281,9 +294,14 @@ const create = async ({
       }
 
       // clean custom field values
-      doc.customFieldsData = await Fields.prepareCustomFieldsData(
-        doc.customFieldsData
-      );
+      try {
+        doc.customFieldsData = await Fields.prepareCustomFieldsData(
+          doc.customFieldsData
+        );
+      } catch (e) {
+        console.log('**********************', e.message);
+        throw new Error(e.message);
+      }
 
       if (doc.integrationId) {
         doc.relatedIntegrationIds = [doc.integrationId];
@@ -340,6 +358,9 @@ const create = async ({
       });
     });
 
+    console.log('insertDocs: ', insertDocs);
+    console.log('updateDocs: ', updateDocs);
+
     debugWorkers(`Update doc length: ${updateDocs.length}`);
 
     if (updateDocs.length > 0) {
@@ -356,9 +377,18 @@ const create = async ({
       }
 
       // clean custom field values
-      doc.customFieldsData = await Fields.prepareCustomFieldsData(
-        doc.customFieldsData
-      );
+      // doc.customFieldsData = await Fields.prepareCustomFieldsData(
+      //   doc.customFieldsData
+      // );
+
+      try {
+        doc.customFieldsData = await Fields.prepareCustomFieldsData(
+          doc.customFieldsData
+        );
+      } catch (e) {
+        // console.log("**********************", e.message)
+        throw new Error(e.message);
+      }
 
       doc.searchText = Companies.fillSearchText(doc);
       doc.createdAt = new Date();
@@ -390,10 +420,17 @@ const create = async ({
     });
 
     if (updateDocs.length > 0) {
-      await Companies.bulkWrite(updateDocs);
+      try {
+        await Companies.bulkWrite(updateDocs);
+      } catch (e) {
+        console.log('==================', e.message);
+      }
     }
-
-    objects = await Companies.insertMany(insertDocs);
+    try {
+      objects = await Companies.insertMany(insertDocs);
+    } catch (e) {
+      console.log('==================', e.message);
+    }
   }
 
   if (contentType === PRODUCT) {
