@@ -285,13 +285,10 @@ const create = async ({
       }
 
       // clean custom field values
-      try {
-        doc.customFieldsData = await Fields.prepareCustomFieldsData(
-          doc.customFieldsData
-        );
-      } catch (e) {
-        throw new Error(e.message);
-      }
+
+      doc.customFieldsData = await Fields.prepareCustomFieldsData(
+        doc.customFieldsData
+      );
 
       if (doc.integrationId) {
         doc.relatedIntegrationIds = [doc.integrationId];
@@ -364,13 +361,9 @@ const create = async ({
       }
 
       // clean custom field values
-      try {
-        doc.customFieldsData = await Fields.prepareCustomFieldsData(
-          doc.customFieldsData
-        );
-      } catch (e) {
-        throw new Error(e.message);
-      }
+      doc.customFieldsData = await Fields.prepareCustomFieldsData(
+        doc.customFieldsData
+      );
 
       doc.searchText = Companies.fillSearchText(doc);
       doc.createdAt = new Date();
