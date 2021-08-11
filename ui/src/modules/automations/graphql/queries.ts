@@ -8,6 +8,9 @@ export const automationFields = `
     actionId
     style
     config
+    icon
+    label
+    description
   }
   actions {
     id
@@ -15,6 +18,9 @@ export const automationFields = `
     nextActionId
     style
     config
+    icon
+    label
+    description
   }
 `;
 
