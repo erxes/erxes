@@ -25,7 +25,7 @@ import {
   createInitialConnections,
   connection,
   deleteConnection,
-  // deleteControl,
+  deleteControl,
   sourceEndpoint,
   targetEndpoint
 } from 'modules/automations/utils';
@@ -140,7 +140,7 @@ class AutomationForm extends React.Component<Props, State> {
       deleteConnection(instance);
 
       // delete control ===================
-      // deleteControl();
+      deleteControl();
 
       // delete from state ===================
       jquery('#canvas').on('click', '.delete-control', () => {
