@@ -150,7 +150,7 @@ const create = async ({
       }
     });
 
-    const collections = response.hits.hits || [];
+    const collections = (response && response.hits.hits) || [];
 
     for (const collection of collections) {
       const doc = collection._source;
