@@ -377,16 +377,38 @@ const create = async ({
       doc.modifiedAt = new Date();
 
       bulkValues.primaryName.push(doc.primaryName);
+      bulkValues.primaryEmail.push(doc.primaryEmail);
+      bulkValues.primaryPhone.push(doc.primaryPhone);
+      bulkValues.code.push(doc.code);
     }
 
     if (useElkSyncer) {
       bulkValues.primaryName = bulkValues.primaryName.filter(value => value);
+      bulkValues.primaryEmail = bulkValues.primaryEmail.filter(value => value);
+      bulkValues.primaryPhone = bulkValues.primaryPhone.filter(value => value);
+      bulkValues.code = bulkValues.code.filter(value => value);
 
-      await prepareDocs(
-        [{ terms: { 'primaryName.raw': bulkValues.primaryName } }],
-        'companies',
-        docs
-      );
+      const queries: Array<{ terms: { [key: string]: string[] } }> = [];
+
+      if (bulkValues.primaryName.length > 0) {
+        queries.push({ terms: { 'primaryName.raw': bulkValues.primaryName } });
+      }
+
+      if (bulkValues.primaryEmail.length > 0) {
+        queries.push({ terms: { primaryEmail: bulkValues.primaryEmail } });
+      }
+
+      if (bulkValues.primaryPhone.length > 0) {
+        queries.push({
+          terms: { 'primaryPhone.raw': bulkValues.primaryPhone }
+        });
+      }
+
+      if (bulkValues.code.length > 0) {
+        queries.push({ terms: { 'code.raw': bulkValues.code } });
+      }
+
+      await prepareDocs(queries, 'companies', docs);
     } else {
       insertDocs = docs;
     }
