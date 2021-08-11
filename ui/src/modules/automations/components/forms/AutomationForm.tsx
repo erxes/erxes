@@ -36,6 +36,7 @@ import ActionDetailForm from './ActionDetailForm';
 import Icon from 'modules/common/components/Icon';
 import PageContent from 'modules/layout/components/PageContent';
 import { Tabs, TabTitle } from 'modules/common/components/tabs';
+import { Link } from 'react-router-dom';
 
 const plumb: any = jsPlumb;
 let instance;
@@ -475,9 +476,11 @@ class AutomationForm extends React.Component<Props, State> {
   renderLeftActionBar() {
     return (
       <CenterFlexRow>
-        <BackButton>
-          <Icon icon="angle-left" size={20} />
-        </BackButton>
+        <Link to={`/automations`}>
+          <BackButton>
+            <Icon icon="angle-left" size={20} />
+          </BackButton>
+        </Link>
         <Title>
           <FormControl
             name="name"
@@ -536,6 +539,7 @@ class AutomationForm extends React.Component<Props, State> {
             </BackIcon>
             <ActionDetailForm
               activeAction={activeAction}
+              closeModal={onBackAction}
               addAction={this.addAction}
             />
           </>

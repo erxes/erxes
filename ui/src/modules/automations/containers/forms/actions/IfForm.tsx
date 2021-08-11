@@ -10,6 +10,7 @@ import client from 'erxes-ui/lib/apolloClient';
 import { IField } from 'modules/settings/properties/types';
 
 type Props = {
+  closeModal: () => void;
   activeAction: IAction;
   addAction: (action: IAction, contentId?: string, actionId?: string) => void;
 };

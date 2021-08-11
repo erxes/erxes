@@ -7,9 +7,7 @@ import React from 'react';
 
 type IProps = {
   activeAction: IAction;
-  onChange: (key: string, value: string) => void;
   closeModal: () => void;
-  closeParentModal?: () => void;
   addAction: (
     action: IAction,
     contentId?: string,

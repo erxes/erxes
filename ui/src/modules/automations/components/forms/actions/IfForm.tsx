@@ -4,6 +4,7 @@ import { IAction } from 'modules/automations/types';
 import { SegmentsForm } from 'modules/segments/containers';
 
 type Props = {
+  closeModal: () => void;
   activeAction: IAction;
   addAction: (action: IAction, contentId?: string, actionId?: string) => void;
 };
@@ -23,7 +24,7 @@ class IfForm extends React.Component<Props, State> {
   }
 
   render() {
-    const { activeAction, addAction } = this.props;
+    const { activeAction, addAction, closeModal } = this.props;
 
     const config = activeAction.config || {};
 
@@ -31,7 +32,7 @@ class IfForm extends React.Component<Props, State> {
       <SegmentsForm
         {...this.props}
         contentType={config.contentType || 'customer'}
-        closeModal={() => null}
+        closeModal={closeModal}
         addConfig={addAction}
         id={config.segmentId}
       />

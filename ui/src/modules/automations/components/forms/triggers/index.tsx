@@ -7,30 +7,28 @@ import { __ } from 'modules/common/utils';
 
 type Props = {
   closeModal: () => void;
-  onSave: (contentId: string) => void;
+  onSave: () => void;
   action: IAction;
 };
 
 class DefaultForm extends React.Component<Props> {
   render() {
+    const { action, closeModal, onSave } = this.props;
+
     return (
       <>
-        <div>content {this.props.action.type}</div>
+        <div>content {action.type}</div>
         <ModalFooter>
           <Button
             btnStyle="simple"
             type="button"
-            onClick={this.props.closeModal}
+            onClick={closeModal}
             icon="times-circle"
           >
             {__('Cancel')}
           </Button>
 
-          <Button
-            btnStyle="success"
-            icon="checked-1"
-            onClick={this.props.onSave.bind(this, '')}
-          >
+          <Button btnStyle="success" icon="checked-1" onClick={onSave}>
             Save
           </Button>
         </ModalFooter>

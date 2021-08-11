@@ -14,6 +14,7 @@ import { ModalFooter } from 'modules/common/styles/main';
 import Button from 'modules/common/components/Button';
 
 type Props = {
+  closeModal: () => void;
   activeAction: IAction;
   addAction: (
     action: IAction,
@@ -120,11 +121,11 @@ class AddForm extends React.Component<Props, State> {
   }
 
   onSave = () => {
-    const { addAction, activeAction } = this.props;
-
+    const { addAction, activeAction, closeModal } = this.props;
     const { config } = this.state;
 
     addAction(activeAction, '', activeAction.id, config);
+    closeModal();
   };
 
   render() {
@@ -137,7 +138,7 @@ class AddForm extends React.Component<Props, State> {
           <Button
             btnStyle="simple"
             type="button"
-            // onClick={this.props.closeModal}
+            onClick={this.props.closeModal}
             icon="times-circle"
           >
             {__('Cancel')}
