@@ -213,6 +213,12 @@ export const BackButton = styled.div`
   background: rgba(0, 0, 0, 0.12);
   text-align: center;
   margin-right: ${dimensions.unitSpacing}px;
+  color: ${colors.textPrimary};
+  transition: all ease 0.3s;
+
+  &:hover {
+    background: rgba(0, 0, 0, 0.18);
+  }
 `;
 
 export const BackIcon = styled.div`

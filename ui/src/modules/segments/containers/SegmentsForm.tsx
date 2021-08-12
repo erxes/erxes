@@ -29,7 +29,6 @@ type Props = {
   id?: string;
   isAutomation?: boolean;
   closeModal: () => void;
-  closeParentModal?: () => void;
   activeTrigger?: ITrigger;
   addConfig: (trigger: ITrigger, contentId?: string, id?: string) => void;
 };
@@ -78,7 +77,6 @@ class SegmentsFormContainer extends React.Component<
       history,
       addConfig,
       activeTrigger,
-      closeParentModal,
       closeModal
     } = this.props;
 
@@ -96,7 +94,7 @@ class SegmentsFormContainer extends React.Component<
 
         addConfig(activeTrigger, result._id, activeTrigger.id);
 
-        closeParentModal ? closeParentModal() : closeModal();
+        closeModal();
       }
     };
 

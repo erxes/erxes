@@ -4,7 +4,6 @@ import { SegmentsForm } from 'modules/segments/containers';
 
 type Props = {
   closeModal: () => void;
-  closeParentModal?: () => void;
   activeTrigger: ITrigger;
   contentId?: string;
   addConfig: (trigger: ITrigger, contentId?: string, id?: string) => void;
