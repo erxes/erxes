@@ -11,7 +11,7 @@ export const formSubmit = async ({ trigger, data, targetId }) => {
 
   // check each actions of automations and process action
   for (const { actions } of automations) {
-    console.log('actions: ', actions)
+    console.log('actions: ', trigger, data, actions)
   }
 
   return true;

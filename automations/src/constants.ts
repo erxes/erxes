@@ -12,19 +12,12 @@ export const ACTIONS = {
   REMOVE_DEAL: "REMOVE_DEAL",
 };
 
-export const TRIGGERS = {
-  FORM_SUBMIT: 'formSubmit',
-  CRONJOB: 'cronJob',
-  WEBSITE_VISITED: 'websiteVisited',
-
-  DEAL_CREATE: 'dealCreate',
-  TICKET_CREATE: 'ticketCreate',
-  TASK_CREATE: 'taskCreate',
-  DEAL_UPDATE: 'dealUpdate',
-  TICKET_UPDATE: 'ticketUpdate',
-  TASK_UPDATE: 'taskUpdate',
-  DEAL_DELETE: 'dealDelete',
-  TICKET_DELETE: 'ticketDelete',
-  TASK_DELETE: 'taskDelete',
-
+export const TRIGGER_TYPES = {
+  LEAD: 'lead',
+  CUSTOMER: 'customer',
+  COMPANY: 'company',
+  DEAL: 'deal',
+  TASK: 'task',
+  TICKET: 'ticket',
+  CONVERSATIONS: 'conversations',
 }

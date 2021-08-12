@@ -1,4 +1,4 @@
-import { IActionsMap, IAutomation } from "./models/Automations";
+import { IAction, IActionsMap } from "./models/Automations";
 import { IExecution } from "./models/Executions";
 
 export const replaceHelper = ({ config, data }: { config: any, data: any }) => {
@@ -33,10 +33,10 @@ export const replacePlaceHolders = ({ actionData, triggerData }: { actionData?: 
   return actionData;
 }
 
-export const getActionsMap = async (automation: IAutomation) => {
+export const getActionsMap = async (actions: IAction[]) => {
   const actionsMap: IActionsMap = {};
 
-  for (const action of automation.actions) {
+  for (const action of actions) {
     actionsMap[action.id] = action;
   }
 

@@ -5,7 +5,7 @@ export const automationFactory = async (params: IAutomation) => {
   const automation = new Automations({
     name: params.name || faker.random.word(),
     status: params.status || 'active',
-    triggers: params.triggers || [{ type: 'webpageVisited' }],
+    triggers: params.triggers,
     actions: params.actions || [],
   });
 

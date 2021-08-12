@@ -1,7 +1,4 @@
-export const dealCreate = async ({ trigger, data, targetId }) => {
-  trigger
-  data
-  targetId
-
+export const dealCreate = async ({ trigger, target }) => {
+  console.log(trigger, target)
   return true;
 }
