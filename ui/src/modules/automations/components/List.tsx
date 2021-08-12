@@ -8,7 +8,7 @@ import { __, Alert, confirm, router } from 'modules/common/utils';
 import Wrapper from 'modules/layout/components/Wrapper';
 import { BarItems } from 'modules/layout/styles';
 import React from 'react';
-import { Link, withRouter } from 'react-router-dom';
+import { withRouter, Link } from 'react-router-dom';
 import { IRouterProps } from '../../common/types';
 import { IAutomation } from '../types';
 import Row from './Row';

@@ -58,80 +58,66 @@ export const ACTIONS = [
 export const TRIGGERS = [
   {
     type: 'customer',
+    img: 'automation2.svg',
     icon: 'file-plus',
     label: 'Customer',
-    description: 'Customer',
-    subTriggers: [
-      'customer',
-      'company',
-      'conversation',
-      'task',
-      'deal',
-      'ticket'
-    ]
+    description:
+      'Start with a blank workflow that enralls and is triggered off Customer'
   },
   {
     type: 'lead',
+    img: 'automation1.svg',
     icon: 'file-plus',
     label: 'Lead',
-    description: 'Lead',
-    subTriggers: ['lead', 'company', 'conversation', 'task', 'deal', 'ticket']
+    description:
+      'Start with a blank workflow that enralls and is triggered off contacts'
   },
   {
     type: 'visitor',
+    img: 'automation1.svg',
     icon: 'file-plus',
     label: 'Visitor',
-    description: 'Visitor',
-    subTriggers: [
-      'visitor',
-      'company',
-      'conversation',
-      'task',
-      'deal',
-      'ticket'
-    ]
+    description:
+      'Start with a blank workflow that enralls and is triggered off contacts'
   },
   {
     type: 'company',
+    img: 'automation2.svg',
     icon: 'file-plus',
     label: 'Company',
-    description: 'Company',
-    subTriggers: ['company', 'customer', 'task', 'deal', 'ticket']
+    description:
+      'Start with a blank workflow that enralls and is triggered off contacts'
   },
   {
     type: 'conversation',
+    img: 'automation4.svg',
     icon: 'file-plus',
     label: 'Conversation',
-    description: 'Conversation',
-    subTriggers: [
-      'conversation',
-      'visitor',
-      'lead',
-      'customer',
-      'ticket',
-      'task',
-      'ticket'
-    ]
+    description:
+      'Start with a blank workflow that enralls and is triggered off contacts'
   },
   {
     type: 'task',
+    img: 'automation3.svg',
     icon: 'file-plus',
     label: 'Task',
-    description: 'Task',
-    subTriggers: ['task', 'customer', 'company', 'deal', 'ticket']
+    description:
+      'Start with a blank workflow that enralls and is triggered off contacts'
   },
   {
     type: 'ticket',
+    img: 'automation3.svg',
     icon: 'file-plus',
     label: 'Ticket',
-    description: 'Ticket',
-    subTriggers: ['ticket', 'customer', 'company', 'deal', 'task']
+    description:
+      'Start with a blank workflow that enralls and is triggered off contacts'
   },
   {
     type: 'deal',
+    img: 'automation3.svg',
     icon: 'file-plus',
     label: 'Sales pipeline',
-    description: 'Deal',
-    subTriggers: ['deal', 'customer', 'company', 'ticket', 'task']
+    description:
+      'Start with a blank workflow that enralls and is triggered off contacts'
   }
 ];

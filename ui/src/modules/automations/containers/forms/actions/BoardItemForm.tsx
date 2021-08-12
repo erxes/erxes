@@ -11,7 +11,7 @@ type IProps = {
   closeModal: () => void;
   closeParentModal?: () => void;
   addAction: (
-    value: string,
+    action: IAction,
     contentId?: string,
     actionId?: string,
     config?: any

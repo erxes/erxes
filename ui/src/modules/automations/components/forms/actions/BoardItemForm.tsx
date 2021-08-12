@@ -15,10 +15,8 @@ import Button from 'modules/common/components/Button';
 
 type Props = {
   activeAction: IAction;
-  closeModal: () => void;
-  closeParentModal?: () => void;
   addAction: (
-    value: string,
+    action: IAction,
     contentId?: string,
     actionId?: string,
     config?: any
@@ -42,11 +40,16 @@ class AddForm extends React.Component<Props, State> {
     };
   }
 
+  componentWillReceiveProps(nextProps) {
+    if (nextProps.activeAction !== this.props.activeAction) {
+      this.setState({ config: nextProps.activeAction.config });
+    }
+  }
+
   onChangeField = (name: string, value: string) => {
     const { config } = this.state;
     config[name] = value;
 
-    // this.setState(({ [name]: value } as unknown) as Pick<State, keyof State>);
     this.setState({ config });
   };
 
@@ -117,18 +120,11 @@ class AddForm extends React.Component<Props, State> {
   }
 
   onSave = () => {
-    const {
-      addAction,
-      activeAction,
-      closeParentModal,
-      closeModal
-    } = this.props;
+    const { addAction, activeAction } = this.props;
 
     const { config } = this.state;
 
-    addAction(activeAction.type, '', activeAction.id, config);
-
-    closeParentModal ? closeParentModal() : closeModal();
+    addAction(activeAction, '', activeAction.id, config);
   };
 
   render() {
@@ -141,7 +137,7 @@ class AddForm extends React.Component<Props, State> {
           <Button
             btnStyle="simple"
             type="button"
-            onClick={this.props.closeModal}
+            // onClick={this.props.closeModal}
             icon="times-circle"
           >
             {__('Cancel')}

@@ -1,6 +1,5 @@
 import React from 'react';
 import { ITrigger } from 'modules/automations/types';
-// import { TriggerForms } from './triggers';
 import { SegmentsForm } from 'modules/segments/containers';
 
 type Props = {
@@ -8,28 +7,42 @@ type Props = {
   closeParentModal?: () => void;
   activeTrigger: ITrigger;
   contentId?: string;
-  addConfig: (value: string, contentId?: string, id?: string) => void;
+  addConfig: (trigger: ITrigger, contentId?: string, id?: string) => void;
 };
 
-class TriggerDetailForm extends React.Component<Props> {
+class TriggerDetailForm extends React.Component<
+  Props,
+  { activeTrigger: ITrigger }
+> {
+  constructor(props) {
+    super(props);
+
+    this.state = {
+      activeTrigger: props.activeTrigger
+    };
+  }
+
+  componentWillReceiveProps(nextProps) {
+    if (nextProps.activeTrigger !== this.props.activeTrigger) {
+      this.setState({ activeTrigger: nextProps.activeTrigger });
+    }
+  }
+
   render() {
-    const { activeTrigger, closeModal } = this.props;
-
-    // const Content = TriggerForms[activeTrigger.type] || TriggerForms.default;
-
-    // return (
-    //   <Content action={activeTrigger} onSave={this.onSave} {...this.props} />
-    // );
+    const { activeTrigger } = this.state;
 
     const config = activeTrigger.config || {};
 
     return (
-      <SegmentsForm
-        {...this.props}
-        contentType={activeTrigger.type || 'customer'}
-        closeModal={closeModal}
-        id={config.contentId}
-      />
+      <>
+        <SegmentsForm
+          {...this.props}
+          contentType={activeTrigger.type || 'customer'}
+          closeModal={this.props.closeModal}
+          id={config.contentId}
+          isAutomation={true}
+        />
+      </>
     );
   }
 }

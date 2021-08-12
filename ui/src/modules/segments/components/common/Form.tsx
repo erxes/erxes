@@ -54,9 +54,11 @@ type Props = {
     pipelineId?: string;
   }) => void;
   isModal?: boolean;
+  isAutomation?: boolean;
 };
 
 type State = {
+  _id?: string;
   name: string;
   description: string;
   subOf: string;
@@ -65,6 +67,7 @@ type State = {
   boardId?: string;
   pipelineId?: string;
   conditionsConjunction?: string;
+  isCreate?: boolean;
 };
 
 class SegmentForm extends React.Component<Props, State> {
@@ -193,14 +196,18 @@ class SegmentForm extends React.Component<Props, State> {
     color: string;
     conditionsConjunction: string;
   }) => {
-    const { segment, contentType } = this.props;
-    const { color, conditions, boardId, pipelineId } = this.state;
+    const { contentType } = this.props;
+    const { color, conditions, boardId, pipelineId, _id, name } = this.state;
     const finalValues = values;
 
     const updatedConditions: ISegmentCondition[] = [];
 
-    if (segment) {
-      finalValues._id = segment._id;
+    if (_id) {
+      finalValues._id = _id;
+    }
+
+    if (!finalValues.name) {
+      finalValues.name = name;
     }
 
     conditions.forEach((cond: ISegmentCondition) => {
@@ -393,6 +400,40 @@ class SegmentForm extends React.Component<Props, State> {
     );
   };
 
+  renderSelect = () => {
+    const onChange = e => {
+      const selectedSegment =
+        this.props.segments.find(s => s._id === e.value) || {};
+
+      this.setState(selectedSegment);
+    };
+
+    if (!this.props.isAutomation) {
+      return null;
+    }
+
+    return (
+      <>
+        <FormGroup>
+          <ControlLabel required={true}>Segment</ControlLabel>
+
+          <Select
+            placeholder={__('Choose segment')}
+            options={this.props.segments.map(s => ({
+              label: s.name,
+              value: s._id
+            }))}
+            value={this.state._id}
+            onChange={onChange}
+            multi={false}
+          />
+
+          <p> Or crete new</p>
+        </FormGroup>
+      </>
+    );
+  };
+
   renderForm = (formProps: IFormProps) => {
     const {
       isModal,
@@ -561,6 +602,7 @@ class SegmentForm extends React.Component<Props, State> {
   render() {
     return (
       <SegmentWrapper>
+        {this.renderSelect()}
         <CommonForm renderContent={this.renderForm} />
       </SegmentWrapper>
     );

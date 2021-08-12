@@ -1,125 +1,98 @@
-import { __ } from 'modules/common/utils';
 import React from 'react';
-import { TriggerBox } from '../../styles';
-import Icon from 'modules/common/components/Icon';
-import { FlexRow } from 'modules/settings/styles';
-import TriggerDetailForm from './TriggerDetailForm';
-import ModalTrigger from 'modules/common/components/ModalTrigger';
+import { Tabs, TabTitle } from 'modules/common/components/tabs';
+import { __ } from 'modules/common/utils';
 import { TRIGGERS } from 'modules/automations/constants';
-import FormControl from 'modules/common/components/form/Control';
-import FormGroup from 'modules/common/components/form/Group';
-import ControlLabel from 'modules/common/components/form/Label';
-import { Row } from 'modules/settings/main/styles';
+import FormGroup from 'erxes-ui/lib/components/form/Group';
+import ControlLabel from 'erxes-ui/lib/components/form/Label';
+import {
+  TypeBox,
+  ScrolledContent,
+  Description,
+  TriggerTabs
+} from 'modules/automations/styles';
+import { ITrigger } from 'modules/automations/types';
 
 type Props = {
-  closeModal: () => void;
-  addTrigger: (value: string, contentId?: string) => void;
+  onClickTrigger: (trigger: ITrigger) => void;
 };
 
 type State = {
-  mainType: string;
+  currentTab: string;
+  currentType: string;
 };
 
 class TriggerForm extends React.Component<Props, State> {
   constructor(props) {
     super(props);
 
-    console.log('props: ', props);
-
     this.state = {
-      mainType: ''
+      currentTab: 'new',
+      currentType: 'customer'
     };
   }
 
-  renderBox(trigger, index) {
-    const { closeModal, addTrigger } = this.props;
+  tabOnClick = (currentTab: string) => {
+    this.setState({ currentTab });
+  };
 
-    const triggerBox = (
-      <TriggerBox key={index}>
-        <Icon icon={trigger.icon} size={30} />
-        {__(trigger.label)}
-      </TriggerBox>
-    );
+  onClickType = (trigger: ITrigger) => {
+    const { onClickTrigger } = this.props;
 
-    const content = props => (
-      <TriggerDetailForm
-        closeParentModal={closeModal}
-        activeTrigger={trigger}
-        addConfig={addTrigger}
-        {...props}
-      />
-    );
+    this.setState({ currentType: trigger.type }, () => {
+      onClickTrigger(trigger);
+    });
+  };
 
+  renderScratchTemplates(trigger, index) {
     return (
-      <ModalTrigger
-        title={`${trigger.label} options`}
-        trigger={triggerBox}
-        content={content}
-        size="lg"
-      />
+      <TypeBox key={index} onClick={this.onClickType.bind(this, trigger)}>
+        <img src={`/images/actions/${trigger.img}`} alt={trigger.label} />
+        <FormGroup>
+          <ControlLabel>{trigger.label} based</ControlLabel>
+          <p>{trigger.description}</p>
+        </FormGroup>
+      </TypeBox>
     );
   }
 
-  renderSubTriggers() {
-    const { mainType } = this.state;
-
-    if (!mainType) {
-      return null;
+  renderTabContent() {
+    if (this.state.currentTab === 'library') {
+      return <>library templates</>;
     }
 
-    const trigger: any = TRIGGERS.find(t => t.type === mainType) || {};
-
-    const subTriggerTypes = trigger.subTriggers || [];
-
-    const subTriggers: any[] = [];
-
-    subTriggerTypes.forEach(type => {
-      const result = TRIGGERS.find(e => e.type === type);
-      if (result) {
-        subTriggers.push(result);
-      }
-    });
-
-    return (
-      <FlexRow>
-        {subTriggers.map((t, index) => (
-          <React.Fragment key={index}>
-            {this.renderBox(t, index)}
-          </React.Fragment>
-        ))}
-      </FlexRow>
+    return TRIGGERS.map((trigger, index) =>
+      this.renderScratchTemplates(trigger, index)
     );
   }
 
   render() {
-    const { mainType } = this.state;
-
-    const onChangeTrigger = e => {
-      const trigger = TRIGGERS.find(t => t.type === e.target.value);
-      this.setState({ mainType: (trigger && trigger.type) || 'customer' });
-    };
+    const { currentTab } = this.state;
 
     return (
       <>
-        <FormGroup>
-          <ControlLabel>Trigger type</ControlLabel>
-          <Row>
-            <FormControl
-              componentClass="select"
-              placeholder={__('Select trigger')}
-              defaultValue={mainType}
-              onChange={onChangeTrigger}
+        <Description>
+          <h4>{__('Choose your trigger type')}</h4>
+          <p>
+            {__('Start with an automation type that enrolls and triggers off')}
+          </p>
+        </Description>
+        <TriggerTabs>
+          <Tabs full={true}>
+            <TabTitle
+              className={currentTab === 'new' ? 'active' : ''}
+              onClick={this.tabOnClick.bind(this, 'new')}
             >
-              <option />
-              {TRIGGERS.map(trigger => (
-                <option key={trigger.type} value={trigger.type}>
-                  {trigger.label} based
-                </option>
-              ))}
-            </FormControl>
-          </Row>
-        </FormGroup>
-        {this.renderSubTriggers()}
+              {__('Start from scratch')}
+            </TabTitle>
+            <TabTitle
+              className={currentTab === 'library' ? 'active' : ''}
+              onClick={this.tabOnClick.bind(this, 'library')}
+            >
+              {__('Library')}
+            </TabTitle>
+          </Tabs>
+        </TriggerTabs>
+        <ScrolledContent>{this.renderTabContent()}</ScrolledContent>
       </>
     );
   }

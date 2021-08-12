@@ -1,35 +1,28 @@
 import { ITrigger, IAction } from './types';
 import jquery from 'jquery';
 import { confirm, Alert } from 'modules/common/utils';
+import { colors } from 'erxes-ui/lib/styles/eindex';
+import { rgba } from 'modules/common/styles/color';
 
 export const connectorPaintStyle = {
-  strokeWidth: 2,
-  stroke: '#61B7CF',
-  joinstyle: 'round',
-  outlineStroke: 'white',
-  outlineWidth: 2
-};
-
-// .. and this is the hover style.
-export const connectorHoverStyle = {
   strokeWidth: 3,
-  stroke: '#216477',
-  outlineWidth: 5,
-  outlineStroke: 'white'
+  stroke: rgba(colors.colorBlack, 0.5),
+  dashstyle: '1 1'
 };
 
-export const endpointHoverStyle = {
-  fill: '#216477',
-  stroke: '#216477'
+export const hoverPaintStyle = {
+  fill: colors.colorPrimary
+};
+
+export const connectorHoverStyle = {
+  stroke: colors.colorPrimary
 };
 
 export const sourceEndpoint = {
   endpoint: 'Dot',
   paintStyle: {
-    stroke: '#7AB02C',
-    fill: 'transparent',
-    radius: 7,
-    strokeWidth: 1
+    fill: rgba(colors.colorSecondary, 1),
+    radius: 10
   },
   isSource: true,
   connector: [
@@ -37,15 +30,21 @@ export const sourceEndpoint = {
     { stub: [40, 60], gap: 10, cornerRadius: 5, alwaysRespectStubs: true }
   ],
   connectorStyle: connectorPaintStyle,
-  hoverPaintStyle: endpointHoverStyle,
+  hoverPaintStyle,
   connectorHoverStyle,
-  dragOptions: {}
+  dropOptions: {
+    tolerance: 'touch',
+    hoverClass: 'dropHover',
+    activeClass: 'dragActive'
+  }
 };
 // the definition of target endpoints (will appear when the user drags a connection)
 export const targetEndpoint = {
   endpoint: 'Dot',
-  paintStyle: { fill: '#7AB02C', radius: 7 },
-  hoverPaintStyle: endpointHoverStyle,
+  paintStyle: { fill: rgba(colors.colorCoreYellow, 1), radius: 10 },
+  hoverPaintStyle: {
+    fill: colors.colorPrimary
+  },
   maxConnections: -1,
   dropOptions: { hoverClass: 'hover', activeClass: 'active' },
   isTarget: true

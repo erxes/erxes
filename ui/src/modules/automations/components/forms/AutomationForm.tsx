@@ -1,34 +1,41 @@
 import { __, Alert } from 'modules/common/utils';
 import { jsPlumb } from 'jsplumb';
 import jquery from 'jquery';
+import RTG from 'react-transition-group';
 import Wrapper from 'modules/layout/components/Wrapper';
 import React from 'react';
 import { IAction, IAutomation, ITrigger } from '../../types';
-import { Container } from '../../styles';
-import Form from 'modules/common/components/form/Form';
-import { IFormProps } from 'modules/common/types';
 import {
-  ControlLabel,
-  FormControl,
-  FormGroup
-} from 'modules/common/components/form';
-import { FormColumn, FormWrapper } from 'modules/common/styles/main';
-import { BarItems } from 'modules/layout/styles';
+  Container,
+  CenterFlexRow,
+  BackButton,
+  Title,
+  RightDrawerContainer,
+  AutomationFormContainer,
+  ScrolledContent,
+  BackIcon
+} from '../../styles';
+import { FormControl } from 'modules/common/components/form';
+import { BarItems, HeightedWrapper } from 'modules/layout/styles';
 import Button from 'modules/common/components/Button';
-import ModalTrigger from 'modules/common/components/ModalTrigger';
 import TriggerForm from '../../containers/forms/TriggerForm';
 import ActionsForm from '../../containers/forms/ActionsForm';
 import TriggerDetailForm from './TriggerDetailForm';
-import Modal from 'react-bootstrap/Modal';
 import {
   createInitialConnections,
   connection,
   deleteConnection,
   deleteControl,
   sourceEndpoint,
-  targetEndpoint
+  targetEndpoint,
+  connectorPaintStyle,
+  connectorHoverStyle,
+  hoverPaintStyle
 } from 'modules/automations/utils';
 import ActionDetailForm from './ActionDetailForm';
+import Icon from 'modules/common/components/Icon';
+import PageContent from 'modules/layout/components/PageContent';
+import { Tabs, TabTitle } from 'modules/common/components/tabs';
 
 const plumb: any = jsPlumb;
 let instance;
@@ -42,8 +49,10 @@ type Props = {
 type State = {
   name: string;
   status: string;
-  showModal: boolean;
-  showActionModal: boolean;
+  currentTab: string;
+  showDrawer: boolean;
+  showTrigger: boolean;
+  showAction: boolean;
   actions: IAction[];
   triggers: ITrigger[];
   activeTrigger: ITrigger;
@@ -52,12 +61,14 @@ type State = {
 };
 
 class AutomationForm extends React.Component<Props, State> {
+  private wrapperRef;
+
   constructor(props) {
     super(props);
 
     const {
       automation = {
-        name: 'Unknown automation',
+        name: 'Your automation title',
         status: 'draft',
         triggers: [],
         actions: []
@@ -70,8 +81,10 @@ class AutomationForm extends React.Component<Props, State> {
       actions: automation.actions || [],
       triggers: automation.triggers || [],
       activeTrigger: {} as ITrigger,
-      showModal: false,
-      showActionModal: false,
+      currentTab: 'triggers',
+      showTrigger: false,
+      showDrawer: false,
+      showAction: false,
       activeAction: {} as IAction
     };
   }
@@ -79,24 +92,18 @@ class AutomationForm extends React.Component<Props, State> {
   componentDidMount() {
     instance = plumb.getInstance({
       DragOptions: { cursor: 'pointer', zIndex: 2000 },
-      // PaintStyle: {
-      //   gradient: {
-      //     stops: [
-      //       [0, '#0d78bc'],
-      //       [1, '#558822']
-      //     ]
-      //   },
-      //   stroke: '#558822',
-      //   strokeWidth: 3
-      // },
+      PaintStyle: connectorPaintStyle,
+      HoverPaintStyle: connectorHoverStyle,
+      EndpointStyle: { radius: 10 },
+      EndpointHoverStyle: hoverPaintStyle,
       ConnectionOverlays: [
         [
           'Arrow',
           {
             location: 1,
             visible: true,
-            width: 20,
-            length: 20,
+            width: 15,
+            length: 15,
             id: 'ARROW'
           }
         ]
@@ -153,7 +160,17 @@ class AutomationForm extends React.Component<Props, State> {
         }
       });
     });
+
+    document.addEventListener('click', this.handleClickOutside, true);
   }
+
+  componentWillUnmount() {
+    document.removeEventListener('click', this.handleClickOutside, true);
+  }
+
+  setWrapperRef = node => {
+    this.wrapperRef = node;
+  };
 
   handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -173,8 +190,11 @@ class AutomationForm extends React.Component<Props, State> {
         triggers: triggers.map(t => ({
           id: t.id,
           type: t.type,
-          actionId: t.actionId,
           config: t.config,
+          icon: t.icon,
+          label: t.label,
+          description: t.description,
+          actionId: t.actionId,
           style: jquery(`#trigger-${t.id}`).attr('style')
         })),
         actions: actions.map(a => ({
@@ -182,6 +202,9 @@ class AutomationForm extends React.Component<Props, State> {
           type: a.type,
           nextActionId: a.nextActionId,
           config: a.config,
+          icon: a.icon,
+          label: a.label,
+          description: a.description,
           style: jquery(`#action-${a.id}`).attr('style')
         }))
       };
@@ -199,22 +222,26 @@ class AutomationForm extends React.Component<Props, State> {
     this.setState({ activeAction });
   };
 
-  onClickTrigger = (trigger?: ITrigger) => {
+  onClickTrigger = (trigger: ITrigger) => {
     const config = trigger && trigger.config;
     const selectedContentId = config && config.contentId;
 
     this.setState({
-      showModal: !this.state.showModal,
-      showActionModal: false,
+      showTrigger: true,
+      showDrawer: true,
+      showAction: false,
+      currentTab: 'triggers',
       selectedContentId,
       activeTrigger: trigger ? trigger : ({} as ITrigger)
     });
   };
 
-  onClickAction = (action?: IAction) => {
+  onClickAction = (action: IAction) => {
     this.setState({
-      showActionModal: !this.state.showActionModal,
-      showModal: false,
+      showAction: true,
+      showDrawer: true,
+      showTrigger: false,
+      currentTab: 'actions',
       activeAction: action ? action : ({} as IAction)
     });
   };
@@ -235,18 +262,28 @@ class AutomationForm extends React.Component<Props, State> {
     this.setState({ triggers, actions });
   };
 
-  addTrigger = (value: string, contentId?: string, triggerId?: string) => {
-    console.log('contentId: ', contentId);
-    const { triggers } = this.state;
-    let trigger: any = { id: String(triggers.length), type: value };
-    let triggerIndex = -1;
+  tabOnClick = (currentTab: string) => {
+    this.setState({ currentTab });
+  };
 
-    if (triggerId) {
-      triggerIndex = triggers.findIndex(t => t.id === triggerId);
+  handleClickOutside = event => {
+    if (this.wrapperRef && !this.wrapperRef.contains(event.target)) {
+      this.setState({ showDrawer: false });
+    }
+  };
 
-      if (triggerIndex !== -1) {
-        trigger = triggers[triggerIndex];
-      }
+  toggleDrawer = () => {
+    this.setState({ showDrawer: !this.state.showDrawer });
+  };
+
+  addTrigger = (data: ITrigger, contentId?: string, triggerId?: string) => {
+    const { triggers, activeTrigger } = this.state;
+
+    let trigger: any = { id: String(triggers.length), ...data };
+    const triggerIndex = triggers.findIndex(t => t.id === triggerId);
+
+    if (triggerId && activeTrigger.id === triggerId) {
+      trigger = activeTrigger;
     }
 
     if (contentId) {
@@ -269,14 +306,14 @@ class AutomationForm extends React.Component<Props, State> {
   };
 
   addAction = (
-    value: string,
+    data: IAction,
     contentId?: string,
     actionId?: string,
     config?: any
   ) => {
     const { actions } = this.state;
 
-    let action: any = { id: String(actions.length), type: value };
+    let action: any = { id: String(actions.length), ...data };
 
     let actionIndex = -1;
 
@@ -316,36 +353,19 @@ class AutomationForm extends React.Component<Props, State> {
     this.setState({ name: value });
   };
 
-  formContent = (formProps: IFormProps) => {
-    return (
-      <Container>
-        <FormWrapper>
-          <FormColumn>
-            <FormGroup>
-              <ControlLabel required={true}>Name</ControlLabel>
-              <FormControl
-                {...formProps}
-                name="name"
-                value={this.state.name}
-                onChange={this.onNameChange}
-                required={true}
-                autoFocus={true}
-              />
-            </FormGroup>
-          </FormColumn>
-        </FormWrapper>
-
-        <div id="canvas" />
-      </Container>
-    );
-  };
-
   renderTrigger = (trigger: ITrigger) => {
     const idElm = `trigger-${trigger.id}`;
 
     jquery('#canvas').append(`
       <div class="trigger control" id="${idElm}" style="${trigger.style}">
-        ${trigger.type}
+        <div class="trigger-header">
+          <div>
+            <i class="icon-${trigger.icon}"></i>
+            ${trigger.label}
+          </div>
+          <i class="icon-check-1"></i>
+        </div>
+        <p>${trigger.description}</p>
       </div>
     `);
 
@@ -366,10 +386,17 @@ class AutomationForm extends React.Component<Props, State> {
     const idElm = `action-${action.id}`;
 
     jquery('#canvas').append(`
-          <div class="action control" id="${idElm}" style="${action.style}" type="${action.type}">
-            ${action.type}
+      <div class="action control" id="${idElm}" style="${action.style}">
+        <div class="trigger-header">
+          <div>
+            <i class="icon-${action.icon}"></i>
+            ${action.label}
           </div>
-        `);
+          <i class="icon-check-1"></i>
+        </div>
+        <p>${action.description}</p>
+      </div>
+    `);
 
     jquery('#canvas').on('dblclick', `#${idElm}`, event => {
       event.preventDefault();
@@ -422,93 +449,113 @@ class AutomationForm extends React.Component<Props, State> {
     instance.draggable(instance.getSelector(`#${idElm}`));
   };
 
-  renderModal(
-    showModal: boolean,
-    onClick: () => void,
-    title: string,
-    content: any
-  ) {
-    if (!showModal) {
-      return null;
-    }
-
-    return (
-      <Modal show={true} onHide={onClick}>
-        <Modal.Header closeButton={true}>
-          <Modal.Title>{title}</Modal.Title>
-        </Modal.Header>
-
-        <Modal.Body>{content}</Modal.Body>
-      </Modal>
-    );
-  }
-
-  renderModalTrigger(triggerBtnText: string, content: any, title: string) {
-    const trigger = (
-      <Button btnStyle="primary" size="small" icon="plus-circle">
-        {triggerBtnText}
-      </Button>
-    );
-
-    const component = props => content({ ...props });
-
-    return (
-      <ModalTrigger
-        title={title}
-        trigger={trigger}
-        content={component}
-        size="xl"
-      />
-    );
-  }
-
-  rendeRightActionbar() {
+  rendeRightActionBar() {
     return (
       <BarItems>
-        {this.renderModalTrigger(
-          'Add New Trigger',
-          props => (
-            <TriggerForm addTrigger={this.addTrigger} {...props} />
-          ),
-          'Select a Trigger'
-        )}
-        {this.renderModalTrigger(
-          'Add New Action',
-          props => (
-            <ActionsForm
-              addAction={this.addAction}
-              {...props}
-              addActionConfig={this.onAddActionConfig}
-            />
-          ),
-          'Select a Action'
-        )}
+        <Button
+          btnStyle="primary"
+          size="small"
+          icon="plus-circle"
+          onClick={this.toggleDrawer}
+        >
+          Add Trigger or Action
+        </Button>
         <Button
           btnStyle="success"
           size="small"
           icon={'check-circle'}
           onClick={this.handleSubmit}
         >
-          Save
+          Publish to site
         </Button>
       </BarItems>
     );
   }
 
-  render() {
-    const { automation } = this.props;
+  renderLeftActionBar() {
+    return (
+      <CenterFlexRow>
+        <BackButton>
+          <Icon icon="angle-left" size={20} />
+        </BackButton>
+        <Title>
+          <FormControl
+            name="name"
+            value={this.state.name}
+            onChange={this.onNameChange}
+            required={true}
+            autoFocus={true}
+          />
+          <Icon icon="edit-alt" size={16} />
+        </Title>
+      </CenterFlexRow>
+    );
+  }
+
+  renderTabContent() {
     const {
-      showModal,
-      showActionModal,
-      activeAction,
+      currentTab,
+      showTrigger,
+      showAction,
       activeTrigger,
+      activeAction,
       selectedContentId
     } = this.state;
 
+    const onBack = () => this.setState({ showTrigger: false });
+    const onBackAction = () => this.setState({ showAction: false });
+
+    if (currentTab === 'triggers') {
+      if (showTrigger && activeTrigger) {
+        return (
+          <>
+            <BackIcon onClick={onBack}>
+              <Icon icon="angle-left" size={20} /> Back to triggers
+            </BackIcon>
+            <ScrolledContent>
+              <TriggerDetailForm
+                activeTrigger={activeTrigger}
+                addConfig={this.addTrigger}
+                closeModal={onBack}
+                contentId={selectedContentId}
+              />
+            </ScrolledContent>
+          </>
+        );
+      }
+
+      return <TriggerForm onClickTrigger={this.onClickTrigger} />;
+    }
+
+    if (currentTab === 'actions') {
+      if (showAction && activeAction) {
+        return (
+          <>
+            <BackIcon onClick={onBackAction}>
+              <Icon icon="angle-left" size={20} /> Back to actions
+            </BackIcon>
+            <ActionDetailForm
+              activeAction={activeAction}
+              addAction={this.addAction}
+            />
+          </>
+        );
+      }
+
+      return <ActionsForm onClickAction={this.onClickAction} />;
+    }
+
+    return <div>Favourite itemss</div>;
+  }
+
+  render() {
+    const { automation } = this.props;
+    const { currentTab } = this.state;
+
     return (
-      <React.Fragment>
-        <Wrapper
-          header={
+      <>
+        <HeightedWrapper>
+          <AutomationFormContainer>
             <Wrapper.Header
               title={`${'Automations' || ''}`}
               breadcrumb={[
@@ -516,35 +563,55 @@ class AutomationForm extends React.Component<Props, State> {
                 { title: `${(automation && automation.name) || ''}` }
               ]}
             />
-          }
-          actionBar={<Wrapper.ActionBar right={this.rendeRightActionbar()} />}
-          content={<Form renderContent={this.formContent} />}
-        />
+            <PageContent
+              actionBar={
+                <Wrapper.ActionBar
+                  left={this.renderLeftActionBar()}
+                  right={this.rendeRightActionBar()}
+                />
+              }
+              transparent={false}
+            >
+              <Container>
+                <div id="canvas" />
+              </Container>
+            </PageContent>
+          </AutomationFormContainer>
 
-        {this.renderModal(
-          showModal,
-          this.onClickTrigger,
-          'Edit trigger',
-          <TriggerDetailForm
-            activeTrigger={activeTrigger}
-            addConfig={this.addTrigger}
-            closeModal={this.onClickTrigger}
-            contentId={selectedContentId}
-          />
-        )}
-
-        {this.renderModal(
-          showActionModal,
-          this.onClickAction,
-          'Edit action',
-          <ActionDetailForm
-            closeModal={this.onClickAction}
-            activeAction={activeAction}
-            addAction={this.addAction}
-            addActionConfig={this.onAddActionConfig}
-          />
-        )}
-      </React.Fragment>
+          <div ref={this.setWrapperRef}>
+            <RTG.CSSTransition
+              in={this.state.showDrawer}
+              timeout={300}
+              classNames="slide-in-right"
+              unmountOnExit={true}
+            >
+              <RightDrawerContainer>
+                <Tabs full={true}>
+                  <TabTitle
+                    className={currentTab === 'favourite' ? 'active' : ''}
+                    onClick={this.tabOnClick.bind(this, 'favourite')}
+                  >
+                    {__('Favorite')}
+                  </TabTitle>
+                  <TabTitle
+                    className={currentTab === 'triggers' ? 'active' : ''}
+                    onClick={this.tabOnClick.bind(this, 'triggers')}
+                  >
+                    {__('Triggers')}
+                  </TabTitle>
+                  <TabTitle
+                    className={currentTab === 'actions' ? 'active' : ''}
+                    onClick={this.tabOnClick.bind(this, 'actions')}
+                  >
+                    {__('Actions')}
+                  </TabTitle>
+                </Tabs>
+                {this.renderTabContent()}
+              </RightDrawerContainer>
+            </RTG.CSSTransition>
+          </div>
+        </HeightedWrapper>
+      </>
     );
   }
 }

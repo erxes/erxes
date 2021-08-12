@@ -8,15 +8,20 @@ export interface IAction {
   nextActionId?: string;
   config?: any;
   style?: any;
+  icon?: string
+  label?: string
+  description?: string
 }
 
 export interface ITrigger {
   id: string;
   type: string;
-  associatedtype: string;
   actionId?: string;
   config?: any;
   style?: any;
+  icon?: string
+  label?: string
+  description?: string
 }
 
 export interface IAutomation {
@@ -33,10 +38,12 @@ export interface IAutomationDocument extends IAutomation, Document {
 export const triggerSchema = new Schema({
   id: { type: String, required: true },
   type: { type: String, required: true },
-  associatedtype: { type: String, required: true },
-  actionId: {type: String},
+  actionId: { type: String },
   config: { type: Object },
   style: { type: Object },
+  icon: { type: String, optional: true },
+  label: { type: String, optional: true },
+  description: { type: String, optional: true }
 }, { _id: false });
 
 export const actionSchema = new Schema({
@@ -45,6 +52,9 @@ export const actionSchema = new Schema({
   nextActionId: { type: String },
   config: { type: Object },
   style: { type: Object },
+  icon: { type: String, optional: true },
+  label: { type: String, optional: true },
+  description: { type: String, optional: true }
 }, { _id: false });
 
 export const automationSchema = new Schema({

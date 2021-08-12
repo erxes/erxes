@@ -107,7 +107,15 @@ export const executeActions = async (execution: IExecutionDocument, actionsMap: 
 }
 
 export const executeAutomation = async ({ automation, trigger, targetId, triggerData }: { automation: IAutomationDocument, trigger: ITrigger, targetId: string, triggerData?: any }) => {
-  const execution = await Executions.create({ automationId: automation._id, triggerId: trigger.id, triggerData, targetId });
+  let execution = await Executions.findOne({automationId: automation._id, triggerId: trigger.id, targetId, triggerData});
+
+  console.log('exec: ',execution)
+
+  if (execution) {
+    return
+  }
+
+  execution = await Executions.create({ automationId: automation._id, triggerId: trigger.id, triggerData, targetId });
 
   await executeActions(execution, await getActionsMap(automation), trigger.actionId);
 }
@@ -129,11 +137,27 @@ export const checkTrigger = async ({ trigger, data, targetId }: { trigger: ITrig
     return dealCreate({ trigger, data, targetId })
   }
 
-  return false;
+  if (trigger.type === 'deal') {
+    return dealCreate({ trigger, data, targetId })
+  }
+
+  const automations = await Automations.find({ triggers: { $in: [trigger] } });
+
+  if (automations.length === 0) {
+    return false;
+  }
+
+
+  // check each actions of automations and process action
+  for (const { actions } of automations) {
+    console.log('actions: ', actions)
+  }
+
+  return true;
 }
 
-export const receiveTrigger = async ({ triggerType, targetId, data }: { triggerType: string, targetId: string, data?: any }) => {
-  const automations = await Automations.find({ status: 'active', 'triggers.type': { $in: [triggerType] } }).lean();
+export const receiveTrigger = async ({ type, targetId, data }: {  type: string, targetId: string, data?: any }) => {
+  const automations = await Automations.find({ status: 'active', 'triggers.type': { $in: [type] }}).lean();
 
   if (!automations.length) {
     return;
@@ -141,7 +165,7 @@ export const receiveTrigger = async ({ triggerType, targetId, data }: { triggerT
 
   for (const automation of automations) {
     for (const trigger of automation.triggers) {
-      if (trigger.type !== triggerType) {
+      if (trigger.type !== type) {
         continue;
       }
 

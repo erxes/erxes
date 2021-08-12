@@ -3,7 +3,14 @@ import {
   generateQueryBySegment,
   isInSegment
 } from '../data/modules/segments/queryBuilder';
-import { customerFactory, dealFactory, segmentFactory } from '../db/factories';
+import {
+  customerFactory,
+  dealFactory,
+  fieldFactory,
+  formFactory,
+  formSubmissionFactory,
+  segmentFactory
+} from '../db/factories';
 import { Customers, Segments } from '../db/models';
 import { trackCustomEvent } from '../events';
 import { deleteAllIndexes, putMappings } from './esMappings';
@@ -407,6 +414,58 @@ describe('Segments mutations', () => {
           propertyName: 'lastName',
           propertyOperator: 'c',
           propertyValue: 'dombo'
+        }
+      ]
+    });
+
+    const result = await fetchSegment(segment);
+
+    expect(result.length).toBe(1);
+    expect(result[0]).toBe(customer._id);
+  });
+
+  test('fetchBySegment: form submissions', async () => {
+    await customerFactory({}, false, true);
+    await customerFactory({}, false, true);
+
+    const customer = await customerFactory({}, false, true);
+
+    const form = await formFactory({});
+    const field = await fieldFactory({
+      contentType: 'form',
+      contentTypeId: form._id
+    });
+
+    await formSubmissionFactory(
+      {
+        formId: form._id,
+        customerId: customer._id,
+        formFieldId: field._id,
+        value: 'test'
+      },
+      true
+    );
+
+    await sleep(2000);
+
+    const segment = await segmentFactory({
+      contentType: 'customer',
+      conditionsConjunction: 'and',
+
+      conditions: [
+        {
+          type: 'property',
+          propertyType: 'form_submission',
+          propertyName: 'formFieldId',
+          propertyOperator: 'e',
+          propertyValue: field._id
+        },
+        {
+          type: 'property',
+          propertyType: 'form_submission',
+          propertyName: 'value',
+          propertyOperator: 'c',
+          propertyValue: 'test'
         }
       ]
     });

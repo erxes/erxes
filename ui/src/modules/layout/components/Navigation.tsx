@@ -12,6 +12,8 @@ import {
   NavItem,
   SubNavTitle,
   SubNavItem,
+  DropSubNav,
+  DropSubNavItem,
   ExpandIcon
 } from '../styles';
 import Tip from 'modules/common/components/Tip';
@@ -55,6 +57,47 @@ class Navigation extends React.Component<IProps> {
     );
   };
 
+  renderChildren(
+    collapsed: boolean,
+    url: string,
+    text: string,
+    childrens?: ISubNav[]
+  ) {
+    if (!childrens || childrens.length === 0) {
+      return null;
+    }
+
+    const urlParams = new URLSearchParams(window.location.search);
+    const parent = urlParams.get('parent');
+
+    if (
+      collapsed &&
+      (parent === url || window.location.pathname.startsWith(url))
+    ) {
+      return (
+        <DropSubNav>
+          {childrens.map((child, index) => (
+            <WithPermission key={index} action={child.permission}>
+              <DropSubNavItem>
+                <NavLink to={`${child.link}?parent=${url}`}>
+                  <i className={child.icon} />
+                  {__(child.value)}
+                </NavLink>
+              </DropSubNavItem>
+            </WithPermission>
+          ))}
+        </DropSubNav>
+      );
+    }
+
+    return (
+      <SubNav collapsed={collapsed}>
+        {!collapsed && <SubNavTitle>{__(text)}</SubNavTitle>}
+        {childrens.map((child, index) => this.renderSubNavItem(child, index))}
+      </SubNav>
+    );
+  }
+
   renderNavItem = (
     permission: string,
     text: string,
@@ -65,6 +108,20 @@ class Navigation extends React.Component<IProps> {
   ) => {
     const { collapsed } = this.props;
 
+    if (!childrens || childrens.length === 0) {
+      if (!collapsed) {
+        return (
+          <Tip placement="right" text={__(text)}>
+            <NavItem>
+              <NavLink to={url}>
+                <NavIcon className={icon} />
+              </NavLink>
+            </NavItem>
+          </Tip>
+        );
+      }
+    }
+
     return (
       <WithPermission key={url} action={permission}>
         <NavItem>
@@ -73,14 +130,7 @@ class Navigation extends React.Component<IProps> {
             {collapsed && <label>{__(text)}</label>}
             {label}
           </NavLink>
-          {childrens && (
-            <SubNav collapsed={collapsed}>
-              {!collapsed && <SubNavTitle>{__(text)}</SubNavTitle>}
-              {childrens.map((child, index) =>
-                this.renderSubNavItem(child, index)
-              )}
-            </SubNav>
-          )}
+          {this.renderChildren(collapsed, url, text, childrens)}
         </NavItem>
       </WithPermission>
     );

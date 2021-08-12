@@ -16,6 +16,7 @@ import {
 
 type Props = {
   id: string;
+  mainType: string;
 };
 
 type FinalProps = {

@@ -3,6 +3,9 @@ import { QueryResponse } from 'modules/common/types';
 export type IAction = {
   id: string;
   type: string;
+  icon?: string;
+  label?: string;
+  description?: string;
   nextActionId?: string;
   style?: any;
   config?: any;
@@ -11,6 +14,9 @@ export type IAction = {
 export type ITrigger = {
   id: string;
   type: string;
+  icon?: string;
+  label?: string;
+  description?: string;
   actionId?: string;
   style?: any;
   config?: any;
