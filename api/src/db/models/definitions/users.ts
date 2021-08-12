@@ -139,6 +139,12 @@ export const userSchema = schemaHooksWrapper(
       optional: true,
       default: 'Yes',
       label: 'Subscribed'
+    }),
+    isShowNotification: field({
+      type: Boolean,
+      optional: true,
+      default: false,
+      label: 'Check if user shows'
     })
   }),
   'erxes_users'

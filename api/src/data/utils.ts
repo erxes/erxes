@@ -696,6 +696,17 @@ export type ISendNotification = ISendNotificationC;
  * Send a notification
  */
 export const sendNotification = async (doc: ISendNotification) => {
+  for (const userId of doc.receivers || []) {
+    await Users.updateOne(
+      { _id: userId },
+      { $set: { isShowNotification: false } }
+    );
+
+    graphqlPubsub.publish('userChanged', {
+      userChanged: { userId: userId }
+    });
+  }
+
   return utils.sendNotification(models, memoryStorage, graphqlPubsub, doc);
 };
 
