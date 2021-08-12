@@ -1,16 +1,16 @@
 import { replacePlaceHolders } from '../helpers';
-import { sendRPCMessage } from '../messageBroker';
+import { deals } from '../utils';
+// import { sendRPCMessage } from '../messageBroker';
 
 export const addBoardItem = async ({ action, execution, type }) => {
+    const newData = await replacePlaceHolders({ actionData: action.config, target: execution.target });
 
-    const newData = await replacePlaceHolders({ actionData: action.config, triggerData: { ...execution.triggerData, ...execution.actionsData } });
-
-    if (execution.triggerData.hasOwnProperty('conversationId')) {
-        newData.conversationId = execution.triggerData.conversationId;
+    if (execution.target.hasOwnProperty('conversationId')) {
+        newData.conversationId = execution.target.conversationId;
     }
 
-    if (execution.triggerData.hasOwnProperty('cachedCustomerId')) {
-        newData.customerId = execution.triggerData.cachedCustomerId;
+    if (execution.target.hasOwnProperty('cachedCustomerId')) {
+        newData.customerId = execution.target.cachedCustomerId;
     }
 
     const { config = {} } = action;
@@ -23,5 +23,9 @@ export const addBoardItem = async ({ action, execution, type }) => {
         newData.stageId = config.stageId
     }
 
-    return sendRPCMessage(type, `add-${type}`, { ...newData });
+    newData.type = type;
+
+    deals.push(newData);
+
+    // return sendRPCMessage(type, `add-${type}`, { ...newData });
 }

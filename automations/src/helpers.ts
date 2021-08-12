@@ -1,30 +1,28 @@
 import { IAction, IActionsMap } from "./models/Automations";
-import { IExecution } from "./models/Executions";
 
-export const replaceHelper = ({ config, data }: { config: any, data: any }) => {
-  if (config && data) {
-    const dataKeys = Object.keys(data);
-    const configKeys = Object.keys(config);
-
-    for (const dataKey of dataKeys) {
-      for (const configKey of configKeys) {
-        if (config[configKey].includes(`{{ ${dataKey} }}`)) {
-          config[configKey] = config[configKey].replace(`{{ ${dataKey} }}`, data[configKey]);
-        }
-      }
-    }
-  }
-}
-
-export const replacePlaceHolders = ({ actionData, triggerData }: { actionData?: any, triggerData: IExecution }) => {
-  if (actionData && triggerData) {
-    const triggerDataKeys = Object.keys(triggerData);
+export const replacePlaceHolders = ({ actionData, target }: { actionData?: any, target: any }) => {
+  if (actionData) {
+    const targetKeys = Object.keys(target);
     const actionDataKeys = Object.keys(actionData);
 
-    for (const triggerDataKey of triggerDataKeys) {
+    for (const targetKey of targetKeys) {
       for (const actionDataKey of actionDataKeys) {
-        if (actionData[actionDataKey].includes(`{{ ${triggerDataKey} }}`)) {
-          actionData[actionDataKey] = actionData[actionDataKey].replace(`{{ ${triggerDataKey} }}`, triggerData[triggerDataKey]);
+        if (actionData[actionDataKey].includes(`{{ ${targetKey} }}`)) {
+          actionData[actionDataKey] = actionData[actionDataKey].replace(`{{ ${targetKey} }}`, target[targetKey]);
+        }
+
+        for (const complexFieldKey of ['customFieldsData', 'trackedData']) {
+          if (actionData[actionDataKey].includes(complexFieldKey)) {
+            const regex = new RegExp(`{{ ${complexFieldKey}.([\\w\\d]+) }}`);
+            const match = regex.exec(actionData[actionDataKey]);
+            const fieldId = match[1];
+
+            const complexFieldData = target[complexFieldKey].find(cfd => cfd.field === fieldId);
+
+            if (complexFieldData) {
+              actionData[actionDataKey] = actionData[actionDataKey].replace(`{{ ${complexFieldKey}.${fieldId} }}`, complexFieldData.value );
+            }
+          }
         }
       }
     }

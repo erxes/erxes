@@ -1,7 +1,7 @@
 import Automations, { ReEnrollmentRule } from "../models/Automations";
 import { Executions } from "../models/Executions";
 import { automationFactory } from "../models/factories";
-import { calculateExecution, receiveTrigger, reset, tags } from "../utils";
+import { calculateExecution, deals, receiveTrigger, reset, tags } from "../utils";
 import "./setup";
 
 describe('getOrCreateExecution', () => {
@@ -79,7 +79,7 @@ const triggers = [
 describe('executeActions (if)', () => {
   beforeEach(async () => {
     /*
-          websiteVisited (trigger)
+          deal created (trigger)
               |
             Add tag
               |
@@ -155,7 +155,7 @@ describe('executeActions (if)', () => {
 describe('executeActions (wait)', () => {
   beforeEach(async () => {
     /*
-          websiteVisited (trigger)
+          deal updated (trigger)
               |
             Add tag
               |
@@ -216,68 +216,58 @@ describe('executeActions (wait)', () => {
   });
 });
 
-// describe('executeActions (placeholder)', () => {
-//   beforeEach(async () => {
-//     /*
-//         form submit (trigger)
-//               |
-//         create task (action)
-//               |
-//         create deal (action)
-//     */
-//     await automationFactory({
-//       name: "1",
-//       status: 'active',
-//       triggers:
-//         [{
-//           id: '1',
-//           type: "formSubmit",
-//           actionId: '1',
-//           config: {
-//             fields: [
-//               { fieldName: 'field_id1', label: 'Product name' },
-//               { fieldName: 'field_id2', label: 'Price' },
-//             ]
-//           },
-//         }],
+describe('executeActions (placeholder)', () => {
+  beforeEach(async () => {
+    await automationFactory({
+      name: "1",
+      status: 'active',
+      triggers:
+        [{
+          id: '1',
+          type: "customer",
+          actionId: '1',
+          config: {
+            segmentId: 'segmentId',
+            reEnrollmentRules: [
+              { property: 'firstName' }
+            ]
+          },
+        }],
 
-//       actions: [
-//         {
-//           id: "1",
-//           type: "ADD_TASK",
-//           config: { description: 'Customer"s first name is {{ firstName }}, lastName is {{ lastName }}' },
-//           nextActionId: "2",
-//         },
-//         {
-//           id: "2",
-//           type: "ADD_DEAL",
-//           config: { title: "title {{ field_1 }}", description: 'Price: {{ field_2 }} shvv' },
-//         },
-//       ],
-//     });
-//   });
+      actions: [
+        {
+          id: "1",
+          type: "createDeal",
+          config: { title: "title {{ firstName }}", description: 'Custom fields data: {{ customFieldsData.fieldId }}' },
+        },
+      ],
+    });
+  });
 
-//   afterEach(async () => {
-//     await Automations.remove({});
-//     await Executions.remove({});
-//     reset();
-//   })
+  afterEach(async () => {
+    await Automations.remove({});
+    await Executions.remove({});
+    reset();
+  })
 
-//   test("check deal", async (done) => {
-//     await receiveTrigger({
-//       type: "formSubmit", targetId: "submission1", data: {
-//         "field_1": "Hoodie",
-//         "field_2": 1000
-//       }
-//     });
+  test("check deal", async (done) => {
+    const customer = {
+      _id: '_id',
+      firstName: 'firstName',
+      customFieldsData: [
+        { field: 'fieldId', value: 'custom value' }
+      ]
+    }
 
-//     expect(deals.length).toBe(1);
+    await receiveTrigger({ type: "customer", target: customer });
 
-//     const [deal] = deals;
+    expect(deals.length).toBe(1);
 
-//     expect(deal.title).toBe('title Hoodie')
-//     expect(deal.description).toBe('Price: 1000 shvv')
+    const [deal] = deals;
 
-//     done();
-//   });
-// });
+    expect(deal.title).toBe('title firstName');
+    expect(deal.description).toBe('Custom fields data: custom value');
+
+    done();
+  });
+});
