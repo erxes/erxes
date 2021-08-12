@@ -1,6 +1,5 @@
 import { replacePlaceHolders } from '../helpers';
-import { deals } from '../utils';
-// import { sendRPCMessage } from '../messageBroker';
+import { sendRPCMessage } from '../messageBroker';
 
 export const addBoardItem = async ({ action, execution, type }) => {
     const newData = await replacePlaceHolders({ actionData: action.config, target: execution.target });
@@ -23,9 +22,7 @@ export const addBoardItem = async ({ action, execution, type }) => {
         newData.stageId = config.stageId
     }
 
-    newData.type = type;
+    sendRPCMessage(type, `add-${type}`, { ...newData });
 
-    deals.push(newData);
-
-    // return sendRPCMessage(type, `add-${type}`, { ...newData });
+    return newData;
 }

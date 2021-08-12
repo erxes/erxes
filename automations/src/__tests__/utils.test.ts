@@ -1,7 +1,7 @@
 import Automations, { ReEnrollmentRule } from "../models/Automations";
 import { Executions } from "../models/Executions";
 import { automationFactory } from "../models/factories";
-import { calculateExecution, deals, receiveTrigger, reset, tags } from "../utils";
+import { calculateExecution, receiveTrigger, reset, tags } from "../utils";
 import "./setup";
 
 describe('getOrCreateExecution', () => {
@@ -261,9 +261,9 @@ describe('executeActions (placeholder)', () => {
 
     await receiveTrigger({ type: "customer", target: customer });
 
-    expect(deals.length).toBe(1);
+    const execution = await Executions.findOne({});
 
-    const [deal] = deals;
+    const deal = execution.actionsData[0].data;
 
     expect(deal.title).toBe('title firstName');
     expect(deal.description).toBe('Custom fields data: custom value');

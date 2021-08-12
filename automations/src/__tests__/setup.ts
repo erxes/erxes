@@ -1,5 +1,6 @@
 import * as dotenv from 'dotenv';
 import * as mongoose from 'mongoose';
+import { initBroker } from '../messageBroker';
 
 dotenv.config();
 
@@ -15,6 +16,9 @@ const getCollectionByName = collectionName => {
 
 beforeAll(async done => {
   db = await mongoose.connect(process.env.TEST_MONGO_URL);
+
+  await initBroker();
+
   done();
 });
 
