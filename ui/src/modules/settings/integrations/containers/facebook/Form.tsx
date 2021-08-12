@@ -36,6 +36,8 @@ class FacebookContainer extends React.Component<FinalProps, State> {
       return this.setState({ pages: [], accountId: '' });
     }
 
+    const { kind } = this.props;
+
     this.setState({ loadingPages: true });
 
     client
@@ -43,7 +45,7 @@ class FacebookContainer extends React.Component<FinalProps, State> {
         query: gql(queries.fetchApi),
         variables: {
           path: '/facebook/get-pages',
-          params: { accountId }
+          params: { accountId, kind }
         }
       })
       .then(({ data, loading }: any) => {
@@ -81,7 +83,6 @@ class FacebookContainer extends React.Component<FinalProps, State> {
         refetchQueries={getRefetchQueries(kind)}
         isSubmitted={isSubmitted}
         type="submit"
-        uppercase={false}
         successMessage={`You successfully added a ${name}`}
       />
     );

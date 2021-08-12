@@ -522,7 +522,6 @@ export const replaceEditorAttributes = async (args: {
 }> => {
   const { content, user, brand, item } = args;
   const customer = args.customer || {};
-
   const replacers: IReplacer[] = [];
 
   let replacedContent = content || '';
@@ -565,7 +564,7 @@ export const replaceEditorAttributes = async (args: {
   }
 
   // replace customer fields
-  if (customer) {
+  if (args.customer) {
     replacers.push({
       key: '{{ customer.name }}',
       value: Customers.getCustomerName(customer)
@@ -1126,7 +1125,34 @@ export const findCustomer = async doc => {
 export const findCompany = async doc => {
   let company;
 
-  if (doc.companyPrimaryEmail) {
+  if (doc.companyPrimaryName) {
+    company = await Companies.findOne({
+      $or: [
+        { names: { $in: [doc.companyPrimaryName] } },
+        { primaryName: doc.companyPrimaryName }
+      ]
+    });
+  }
+
+  if (!company && doc.name) {
+    company = await Companies.findOne({
+      $or: [{ names: { $in: [doc.name] } }, { primaryName: doc.name }]
+    });
+  }
+
+  if (!company && doc.email) {
+    company = await Companies.findOne({
+      $or: [{ emails: { $in: [doc.email] } }, { primaryEmail: doc.email }]
+    });
+  }
+
+  if (!company && doc.phone) {
+    company = await Companies.findOne({
+      $or: [{ phones: { $in: [doc.phone] } }, { primaryPhone: doc.phone }]
+    });
+  }
+
+  if (!company && doc.companyPrimaryEmail) {
     company = await Companies.findOne({
       $or: [
         { emails: { $in: [doc.companyPrimaryEmail] } },
@@ -1146,10 +1172,6 @@ export const findCompany = async doc => {
 
   if (!company && doc.companyCode) {
     company = await Companies.findOne({ code: doc.companyCode });
-  }
-
-  if (!company && doc.companyPrimaryName) {
-    company = await Companies.findOne({ primaryName: doc.companyPrimaryName });
   }
 
   return company;

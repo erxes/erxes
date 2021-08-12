@@ -24,7 +24,7 @@ class SelectChannels extends React.Component<Props, {}> {
     const { renderButton } = this.props;
 
     const trigger = (
-      <Button btnStyle="primary" uppercase={false} icon="plus-circle">
+      <Button btnStyle="primary" icon="plus-circle">
         Create channel
       </Button>
     );
