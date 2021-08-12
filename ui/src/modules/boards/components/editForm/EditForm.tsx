@@ -84,11 +84,12 @@ class EditForm extends React.Component<Props, State> {
 
   onHideModal = () => {
     this.closeModal(() => {
-      const { updatedItem, prevStageId } = this.state;
+      const { prevStageId } = this.state;
+      const { saveItem, onUpdate, item } = this.props;
 
-      if (updatedItem && this.props.onUpdate) {
-        this.props.onUpdate(updatedItem, prevStageId);
-      }
+      saveItem({ item }, updatedItem => {
+        onUpdate(updatedItem, prevStageId);
+      });
     });
   };
 
