@@ -2,6 +2,7 @@ import { addBoardItem } from './actions';
 import { ACTIONS } from './constants';
 import { debugBase } from './debuggers';
 import { getActionsMap } from './helpers';
+import { sendRPCMessage } from './messageBroker';
 import Automations, { IActionsMap, ReEnrollmentRule, TriggerType } from './models/Automations';
 import { Executions, IExecutionDocument } from './models/Executions';
 
@@ -25,8 +26,8 @@ export const getEnv = ({
   return value || '';
 };
 
-export const isTargetInSegment = async (segmentId: string, targetId: string) => {
-  return segmentId && targetId.includes('1');
+export const isInSegment = async (segmentId: string, targetId: string) => {
+  return sendRPCMessage('segment', 'isInSegment', { segmentId, targetId });
 }
 
 export let tags: any[] = [];
@@ -62,7 +63,7 @@ export const executeActions = async (execution: IExecutionDocument, actionsMap: 
   }
 
   if (action.type === ACTIONS.IF) {
-    if (await isTargetInSegment(action.config.segmentId, execution.targetId)) {
+    if (await isInSegment(action.config.segmentId, execution.targetId)) {
       return executeActions(execution, actionsMap, action.config.yes);
     } else {
       return executeActions(execution, actionsMap, action.config.no);

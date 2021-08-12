@@ -1,7 +1,9 @@
+import * as sinon from 'sinon';
 import Automations, { ReEnrollmentRule } from "../models/Automations";
 import { Executions } from "../models/Executions";
 import { automationFactory } from "../models/factories";
 import { calculateExecution, receiveTrigger, reset, tags } from "../utils";
+import * as utils from "../utils";
 import "./setup";
 
 describe('getOrCreateExecution', () => {
@@ -128,6 +130,10 @@ describe('executeActions (if)', () => {
   })
 
   test("if yes", async (done) => {
+    const mock = sinon.stub(utils, 'isInSegment').callsFake(() => {
+      return Promise.resolve(true);
+    });
+
     await receiveTrigger({ type: "deal", target: { _id: 'dealId1', amount: 100 } });
 
     expect(tags).toEqual(["t2"]);
@@ -140,13 +146,21 @@ describe('executeActions (if)', () => {
     expect(execution.waitingActionId).toBe(null);
     expect(execution.lastCheckedWaitDate).toBe(null);
 
+    mock.restore();
+
     done();
   });
 
   test("if no", async (done) => {
+    const mock = sinon.stub(utils, 'isInSegment').callsFake(() => {
+      return Promise.resolve(false);
+    });
+
     await receiveTrigger({ type: "deal", target: { _id: "dealId2" } });
 
     expect(tags).toEqual(["t1", "t2"]);
+
+    mock.restore();
 
     done();
   });

@@ -3,7 +3,7 @@ import { sendRPCMessage } from '../messageBroker';
 
 export const addTask = async ({ action, execution }) => {
 
-  const newData = await replacePlaceHolders({ actionData: action.config, triggerData: { ...execution.triggerData, ...execution.actionsData } });
+  const newData = await replacePlaceHolders({ actionData: action.config, target: execution.target});
 
   if (execution.triggerData.hasOwnProperty('conversationId')) {
     newData.conversationId = execution.triggerData.conversationId;
