@@ -13,11 +13,18 @@ export interface IAction {
   description?: string
 }
 
+export type TriggerType = 'lead' | 'customer' | 'company' | 'deal' | 'task' | 'ticket' | 'conversation';
+
+export type ReEnrollmentRule = {
+  property: string;
+  description?: string;
+}
+
 export interface ITrigger {
   id: string;
   type: string;
   actionId?: string;
-  config?: any;
+  config: { segmentId: string, reEnrollmentRules: ReEnrollmentRule[] };
   style?: any;
   icon?: string
   label?: string

@@ -1,10 +1,9 @@
 import { addBoardItem } from './actions';
-import { ACTIONS, TRIGGERS } from './constants';
+import { ACTIONS } from './constants';
 import { debugBase } from './debuggers';
 import { getActionsMap } from './helpers';
-import Automations, { IActionsMap, IAutomationDocument, ITrigger } from './models/Automations';
+import Automations, { IActionsMap, ReEnrollmentRule, TriggerType } from './models/Automations';
 import { Executions, IExecutionDocument } from './models/Executions';
-import { cronjob, dealCreate, formSubmit, websiteVisited } from './triggers';
 
 export const getEnv = ({
   name,
@@ -106,58 +105,41 @@ export const executeActions = async (execution: IExecutionDocument, actionsMap: 
   return executeActions(execution, actionsMap, action.nextActionId);
 }
 
-export const executeAutomation = async ({ automation, trigger, targetId, triggerData }: { automation: IAutomationDocument, trigger: ITrigger, targetId: string, triggerData?: any }) => {
-  let execution = await Executions.findOne({automationId: automation._id, triggerId: trigger.id, targetId, triggerData});
+export const calculateExecution = async ({ automationId, triggerId, reEnrollmentRules, target }: { automationId: string, triggerId: string, reEnrollmentRules: ReEnrollmentRule[], target: any }): Promise<IExecutionDocument> => {
+  const executions = await Executions.find({ automationId, triggerId, targetId: target._id });
 
-  console.log('exec: ',execution)
+  const latestExecution = executions.sort((a, b) => a.createdAt.getTime() - b.createdAt.getTime()).pop();
 
-  if (execution) {
-    return
+  if (latestExecution) {
+    let isChanged = false;
+
+    for (const reEnrollmentRule of reEnrollmentRules) {
+      const { property } = reEnrollmentRule;
+
+      if (latestExecution.target[property] !== target[property]) {
+        isChanged = true;
+        break;
+      }
+    }
+
+    if (!isChanged) {
+      return;
+    }
   }
 
-  execution = await Executions.create({ automationId: automation._id, triggerId: trigger.id, triggerData, targetId });
-
-  await executeActions(execution, await getActionsMap(automation), trigger.actionId);
+  return Executions.createExecution({
+    automationId,
+    triggerId,
+    targetId: target._id,
+    target,
+  });
 }
 
-export const checkTrigger = async ({ trigger, data, targetId }: { trigger: ITrigger, data: any, targetId: string }) => {
-  if (trigger.type === TRIGGERS.FORM_SUBMIT) {
-    return formSubmit({ trigger, data, targetId });
-  }
-
-  if (trigger.type === TRIGGERS.WEBSITE_VISITED) {
-    return websiteVisited({ trigger, data, targetId });
-  }
-
-  if (trigger.type === TRIGGERS.CRONJOB) {
-    return cronjob({ trigger, data, targetId });
-  }
-
-  if (trigger.type === TRIGGERS.DEAL_CREATE) {
-    return dealCreate({ trigger, data, targetId })
-  }
-
-  if (trigger.type === 'deal') {
-    return dealCreate({ trigger, data, targetId })
-  }
-
-  const automations = await Automations.find({ triggers: { $in: [trigger] } });
-
-  if (automations.length === 0) {
-    return false;
-  }
-
-
-  // check each actions of automations and process action
-  for (const { actions } of automations) {
-    console.log('actions: ', actions)
-  }
-
-  return true;
-}
-
-export const receiveTrigger = async ({ type, targetId, data }: {  type: string, targetId: string, data?: any }) => {
-  const automations = await Automations.find({ status: 'active', 'triggers.type': { $in: [type] }}).lean();
+/*
+ * target is one of the TriggerType objects
+ */
+export const receiveTrigger = async ({ type, target }: {  type: TriggerType, target: any }) => {
+  const automations = await Automations.find({ status: 'active', 'triggers.type': { $in: [type] }});
 
   if (!automations.length) {
     return;
@@ -169,11 +151,11 @@ export const receiveTrigger = async ({ type, targetId, data }: {  type: string, 
         continue;
       }
 
-      if (!await checkTrigger({ trigger, data, targetId })) {
-        continue;
-      }
+      const execution = await calculateExecution({ automationId: automation._id, triggerId: trigger.id, reEnrollmentRules: trigger.config.reEnrollmentRules, target });
 
-      await executeAutomation({ automation, trigger, targetId, triggerData: data });
+      if (execution) {
+        await executeActions(execution, await getActionsMap(automation.actions), trigger.actionId);
+      }
     }
   }
 }
