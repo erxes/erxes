@@ -158,9 +158,20 @@ export const ActionBox = styled(TriggerBox)`
 
   > i {
     margin-right: ${dimensions.unitSpacing}px;
+    background: ${rgba(colors.colorPrimary, 0.12)};
+    border-radius: 4px;
+    width: 45px;
+    height: 45px;
+    line-height: 45px;
+    text-align: center;
+    font-size: 22px;
+    color: ${colors.textPrimary};
   }
 
   > div {
+    b {
+      color: ${colors.textPrimary};
+    }
     p {
       margin: 0;
     }

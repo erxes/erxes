@@ -412,7 +412,7 @@ class AutomationForm extends React.Component<Props, State> {
             'Label',
             {
               location: [1.8, 0.5],
-              label: 'Yes',
+              label: 'True',
               visible: true
             }
           ]
@@ -426,7 +426,7 @@ class AutomationForm extends React.Component<Props, State> {
             'Label',
             {
               location: [1.8, 0.5],
-              label: 'No',
+              label: 'False',
               visible: true
             }
           ]

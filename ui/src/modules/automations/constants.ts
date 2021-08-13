@@ -1,19 +1,19 @@
 export const ACTIONS = [
   {
     type: '',
-    icon: 'file-plus',
+    icon: 'shoppingcart',
     label: 'Choose action',
     description: 'Add a new action'
   },
   {
     type: 'createTask',
-    icon: 'file-plus',
+    icon: 'file-plus-alt',
     label: 'Create task',
     description: 'Add a new action'
   },
   {
     type: 'createDeal',
-    icon: 'file-plus',
+    icon: 'piggy-bank',
     label: 'Create deal',
     description: 'Add a new action'
   },
@@ -25,25 +25,25 @@ export const ACTIONS = [
   },
   {
     type: 'if',
-    icon: 'file-plus',
+    icon: 'share-alt',
     label: 'IF',
     description: 'Add a new action'
   },
   {
     type: 'performMath',
-    icon: 'file-plus',
+    icon: 'calcualtor',
     label: 'Perform Math',
     description: 'Add a new action'
   },
   {
     type: 'goto',
-    icon: 'file-plus',
+    icon: 'arrows-up-right',
     label: 'Go to another action',
     description: 'Add a new action'
   },
   {
     type: 'wait',
-    icon: 'file-plus',
+    icon: 'hourglass',
     label: 'Wait for next action',
     description: 'Add a new action'
   },
