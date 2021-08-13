@@ -269,6 +269,8 @@ app.get(
   routeErrorHandling(async (req: any, res) => {
     const { importType } = req.query;
 
+    registerOnboardHistory({ type: `importDownloadTemplate`, user: req.user });
+
     const { name, response } = await templateExport(req.query);
 
     res.attachment(`${name}.${importType}`);
