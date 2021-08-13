@@ -35,7 +35,6 @@ import {
 import ActionDetailForm from './ActionDetailForm';
 import Icon from 'modules/common/components/Icon';
 import PageContent from 'modules/layout/components/PageContent';
-import { Tabs, TabTitle } from 'modules/common/components/tabs';
 import { Link } from 'react-router-dom';
 
 const plumb: any = jsPlumb;
@@ -263,18 +262,14 @@ class AutomationForm extends React.Component<Props, State> {
     this.setState({ triggers, actions });
   };
 
-  tabOnClick = (currentTab: string) => {
-    this.setState({ currentTab });
-  };
-
   handleClickOutside = event => {
     if (this.wrapperRef && !this.wrapperRef.contains(event.target)) {
       this.setState({ showDrawer: false });
     }
   };
 
-  toggleDrawer = () => {
-    this.setState({ showDrawer: !this.state.showDrawer });
+  toggleDrawer = (type: string) => {
+    this.setState({ showDrawer: !this.state.showDrawer, currentTab: type });
   };
 
   addTrigger = (data: ITrigger, contentId?: string, triggerId?: string) => {
@@ -457,9 +452,17 @@ class AutomationForm extends React.Component<Props, State> {
           btnStyle="primary"
           size="small"
           icon="plus-circle"
-          onClick={this.toggleDrawer}
+          onClick={this.toggleDrawer.bind(this, 'triggers')}
         >
-          Add Trigger or Action
+          Add a Trigger
+        </Button>
+        <Button
+          btnStyle="primary"
+          size="small"
+          icon="plus-circle"
+          onClick={this.toggleDrawer.bind(this, 'actions')}
+        >
+          Add an Action
         </Button>
         <Button
           btnStyle="success"
@@ -549,12 +552,11 @@ class AutomationForm extends React.Component<Props, State> {
       return <ActionsForm onClickAction={this.onClickAction} />;
     }
 
-    return <div>Favourite itemss</div>;
+    return null;
   }
 
   render() {
     const { automation } = this.props;
-    const { currentTab } = this.state;
 
     return (
       <>
@@ -590,26 +592,6 @@ class AutomationForm extends React.Component<Props, State> {
               unmountOnExit={true}
             >
               <RightDrawerContainer>
-                <Tabs full={true}>
-                  <TabTitle
-                    className={currentTab === 'favourite' ? 'active' : ''}
-                    onClick={this.tabOnClick.bind(this, 'favourite')}
-                  >
-                    {__('Favorite')}
-                  </TabTitle>
-                  <TabTitle
-                    className={currentTab === 'triggers' ? 'active' : ''}
-                    onClick={this.tabOnClick.bind(this, 'triggers')}
-                  >
-                    {__('Triggers')}
-                  </TabTitle>
-                  <TabTitle
-                    className={currentTab === 'actions' ? 'active' : ''}
-                    onClick={this.tabOnClick.bind(this, 'actions')}
-                  >
-                    {__('Actions')}
-                  </TabTitle>
-                </Tabs>
                 {this.renderTabContent()}
               </RightDrawerContainer>
             </RTG.CSSTransition>
