@@ -19,7 +19,8 @@ const segmentQueries = {
   ) {
     const selector: any = {
       ...commonQuerySelector,
-      contentType: { $in: contentTypes }
+      contentType: { $in: contentTypes },
+      name: { $exists: true }
     };
 
     if (boardId) {
