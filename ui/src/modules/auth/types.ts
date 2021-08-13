@@ -6,7 +6,9 @@ import {
   IUserLinks as IUserLinksC
 } from 'erxes-ui/lib/auth/types';
 
-export type IUser = IUserC & { isSubscribed?: boolean };
+export type IUser = IUserC & { isSubscribed?: boolean } & {
+  isShowNotification?: boolean;
+};
 export type IUserDetails = IUserDetailsC;
 export type IUserLinks = IUserLinksC;
 export type IUserConversation = IUserConversationC;
