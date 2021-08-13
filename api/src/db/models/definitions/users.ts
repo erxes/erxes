@@ -45,6 +45,7 @@ export interface IUser {
   doNotDisturb?: string;
   isSubscribed?: string;
   sessionCode?: string;
+  isShowNotification?: boolean;
 }
 
 export interface IUserDocument extends IUser, Document {
