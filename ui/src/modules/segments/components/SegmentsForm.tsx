@@ -124,7 +124,6 @@ const SegmentsForm = (props: Props) => {
       isForm={true}
       closeModal={closeModal}
       isModal={isModal}
-      isAutomation={props.isAutomation}
     />
   ) : (
     <Wrapper

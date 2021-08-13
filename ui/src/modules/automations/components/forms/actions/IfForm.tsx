@@ -2,6 +2,7 @@ import React from 'react';
 
 import { IAction } from 'modules/automations/types';
 import { SegmentsForm } from 'modules/segments/containers';
+import { ScrolledContent } from 'modules/automations/styles';
 
 type Props = {
   activeAction: IAction;
@@ -28,13 +29,16 @@ class IfForm extends React.Component<Props, State> {
     const config = activeAction.config || {};
 
     return (
-      <SegmentsForm
-        {...this.props}
-        contentType={config.contentType || 'customer'}
-        closeModal={() => null}
-        addConfig={addAction}
-        id={config.segmentId}
-      />
+      <ScrolledContent>
+        <SegmentsForm
+          {...this.props}
+          contentType={config.contentType || 'customer'}
+          closeModal={() => null}
+          addConfig={addAction}
+          activeTrigger={activeAction}
+          id={config.segmentId}
+        />
+      </ScrolledContent>
     );
   }
 }

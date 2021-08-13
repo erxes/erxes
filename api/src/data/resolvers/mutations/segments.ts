@@ -15,6 +15,20 @@ const segmentMutations = {
    */
   async segmentsAdd(_root, doc: ISegment, { user, docModifier }: IContext) {
     const extendedDoc = docModifier(doc);
+
+    if (extendedDoc.subSegments && extendedDoc.subSegments.length > 0) {
+      const subSegments = extendedDoc.subSegments;
+      extendedDoc.conditions = [];
+
+      await Promise.all(
+        subSegments.map(async subSegment => {
+          const item = await Segments.createSegment(subSegment);
+
+          extendedDoc.conditions.push({ subSegmentId: item._id });
+        })
+      );
+    }
+
     const segment = await Segments.createSegment(extendedDoc);
 
     await putCreateLog(

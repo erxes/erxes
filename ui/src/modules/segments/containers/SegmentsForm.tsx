@@ -27,7 +27,6 @@ type Props = {
   contentType: string;
   history?: any;
   id?: string;
-  isAutomation?: boolean;
   closeModal: () => void;
   closeParentModal?: () => void;
   activeTrigger?: ITrigger;

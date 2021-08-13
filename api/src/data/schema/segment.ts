@@ -5,6 +5,15 @@ export const types = `
     value: String,
   }
 
+  input SubSegment {
+    contentType: String
+    conditions: JSON
+    conditionsConjunction: String
+
+    boardId: String
+    pipelineId: String
+  }
+
   input SegmentCondition {
     type: String,
 
@@ -23,7 +32,7 @@ export const types = `
   type Segment {
     _id: String!
     contentType: String!
-    name: String!
+    name: String
     description: String
     subOf: String
     color: String
@@ -46,7 +55,7 @@ export const queries = `
 `;
 
 const commonFields = `
-  name: String!,
+  name: String,
   description: String,
   subOf: String,
   color: String,
@@ -54,6 +63,7 @@ const commonFields = `
   boardId: String,
   pipelineId: String,
   conditionsConjunction: String
+  subSegments: [SubSegment]
 `;
 
 export const mutations = `

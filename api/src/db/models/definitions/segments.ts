@@ -129,10 +129,10 @@ export const segmentSchema = schemaWrapper(
       enum: CONTENT_TYPES.ALL,
       label: 'Content type'
     }),
-    name: field({ type: String }),
+    name: field({ type: String, optional: true }),
     description: field({ type: String, optional: true }),
     subOf: field({ type: String, optional: true }),
-    color: field({ type: String }),
+    color: field({ type: String, optional: true }),
 
     conditionsConjunction: field({
       type: String,

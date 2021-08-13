@@ -10,7 +10,8 @@ import {
   IField,
   ISegment,
   ISegmentCondition,
-  ISegmentWithConditionDoc
+  ISegmentWithConditionDoc,
+  ISubSegment
 } from 'modules/segments/types';
 import React from 'react';
 import {
@@ -128,7 +129,7 @@ class SegmentFormAutomations extends React.Component<Props, State> {
     );
 
     if (foundedSegment) {
-      foundedSegment.conditions.map(c => {
+      foundedSegment.conditions = foundedSegment.conditions.map(c => {
         if (c.key === condition.key) {
           return condition;
         } else {
@@ -180,32 +181,24 @@ class SegmentFormAutomations extends React.Component<Props, State> {
     });
   };
 
-  generateDoc = (values: {
-    _id?: string;
-    name: string;
-    subOf: string;
-    color: string;
-    conditionsConjunction: string;
-  }) => {
-    const { segment, contentType } = this.props;
-    // const { conditions } = this.state;
+  generateDoc = (values: { _id?: string; conditionsConjunction: string }) => {
+    const { contentType } = this.props;
+    const { segments, conditionsConjunction } = this.state;
     const finalValues = values;
 
-    const updatedConditions: ISegmentCondition[] = [];
+    const subSegments: ISubSegment[] = [];
 
-    if (segment) {
-      finalValues._id = segment._id;
-    }
+    segments.forEach((cond: SegmentMap) => {
+      const { key, ...segment } = cond;
 
-    // conditions.forEach((cond: ISegmentCondition) => {
-    //   const { key, ...rest } = cond;
-    //   updatedConditions.push(rest);
-    // });
+      subSegments.push(segment);
+    });
 
     return {
       ...finalValues,
+      conditionsConjunction,
       contentType,
-      conditions: updatedConditions
+      subSegments
     };
   };
 

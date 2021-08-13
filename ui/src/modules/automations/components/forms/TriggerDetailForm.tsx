@@ -40,7 +40,6 @@ class TriggerDetailForm extends React.Component<
           contentType={activeTrigger.type || 'customer'}
           closeModal={this.props.closeModal}
           id={config.contentId}
-          isAutomation={true}
         />
       </>
     );
