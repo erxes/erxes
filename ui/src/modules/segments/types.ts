@@ -6,6 +6,7 @@ export interface IEvent {
 }
 
 export interface IConditionFilter {
+  segmentKey?: string;
   key?: string;
   name: string;
   operator: string;
@@ -26,6 +27,12 @@ export interface ISegmentCondition {
 
   subSegmentId?: string;
 }
+
+export interface ISubSegment {
+  contentType: string;
+  conditionsConjunction?: string;
+  conditions?: ISegmentCondition[];
+}
 export interface ISegmentWithConditionDoc {
   name: string;
   description: string;
@@ -41,12 +48,16 @@ export interface ISegmentDoc {
   color: string;
   conditions: ISegmentCondition[];
   subOf: string;
+  subSegments?: ISubSegment[];
+  conditionsConjunction: string;
 }
 
 export interface ISegment extends ISegmentDoc {
   _id: string;
   contentType: string;
+  conditionsConjunction: string;
   getSubSegments: ISegment[];
+  getConditionSegments: ISegment[];
   getParentSegment: ISegment;
 }
 

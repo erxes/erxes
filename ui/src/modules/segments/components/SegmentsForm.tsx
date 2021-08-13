@@ -10,6 +10,7 @@ import { FlexContent } from 'modules/layout/styles';
 import React from 'react';
 import { IEvent, ISegment, ISegmentCondition } from '../types';
 import Form from './common/Form';
+import AutomationsForm from './common/AutomationsForm';
 import { ResultCount, SegmentResult } from './styles';
 
 type Props = {
@@ -109,8 +110,8 @@ const SegmentsForm = (props: Props) => {
     { title }
   ];
 
-  const content = (
-    <Form
+  return isModal ? (
+    <AutomationsForm
       contentType={contentType}
       fields={fields}
       events={events}
@@ -120,21 +121,31 @@ const SegmentsForm = (props: Props) => {
       headSegments={headSegments}
       segments={segments}
       fetchFields={fetchFields}
-      previewCount={previewCount}
       isForm={true}
       closeModal={closeModal}
       isModal={isModal}
-      isAutomation={props.isAutomation}
     />
-  );
-
-  return isModal ? (
-    content
   ) : (
     <Wrapper
       header={<Wrapper.Header title={title} breadcrumb={breadcrumb} />}
       actionBar={<Wrapper.ActionBar left={pageTitle} />}
-      content={content}
+      content={
+        <Form
+          contentType={contentType}
+          fields={fields}
+          events={events}
+          boards={boards}
+          renderButton={renderButton}
+          segment={segment}
+          headSegments={headSegments}
+          segments={segments}
+          fetchFields={fetchFields}
+          previewCount={previewCount}
+          isForm={true}
+          closeModal={closeModal}
+          isModal={isModal}
+        />
+      }
       rightSidebar={renderSidebar()}
     />
   );

@@ -31,6 +31,10 @@ const segmentDetail = `
       getSubSegments {
         ${segmentFields}
       }
+      getConditionSegments
+      {
+        ${segmentFields}
+      }
     }
   }
 `;
