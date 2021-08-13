@@ -537,6 +537,7 @@ class AutomationForm extends React.Component<Props, State> {
             <ActionDetailForm
               activeAction={activeAction}
               addAction={this.addAction}
+              closeModal={onBackAction}
             />
           </>
         );

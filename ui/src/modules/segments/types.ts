@@ -29,6 +29,7 @@ export interface ISegmentCondition {
 }
 
 export interface ISubSegment {
+  contentType: string;
   conditionsConjunction?: string;
   conditions?: ISegmentCondition[];
 }
@@ -48,12 +49,15 @@ export interface ISegmentDoc {
   conditions: ISegmentCondition[];
   subOf: string;
   subSegments?: ISubSegment[];
+  conditionsConjunction: string;
 }
 
 export interface ISegment extends ISegmentDoc {
   _id: string;
   contentType: string;
+  conditionsConjunction: string;
   getSubSegments: ISegment[];
+  getConditionSegments: ISegment[];
   getParentSegment: ISegment;
 }
 

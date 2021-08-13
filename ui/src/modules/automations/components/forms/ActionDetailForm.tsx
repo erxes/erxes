@@ -5,6 +5,7 @@ import { ActionForms } from './actions';
 type Props = {
   activeAction: IAction;
   addAction: (action: IAction, contentId?: string, actionId?: string) => void;
+  closeModal: () => void;
 };
 
 class ActionDetailForm extends React.Component<Props> {

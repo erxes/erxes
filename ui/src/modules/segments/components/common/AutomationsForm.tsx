@@ -3,7 +3,7 @@ import Button from 'modules/common/components/Button';
 import CommonForm from 'modules/common/components/form/Form';
 import { CenterContent, ModalFooter } from 'modules/common/styles/main';
 import { IButtonMutateProps, IFormProps } from 'modules/common/types';
-import { __, generateRandomColorCode } from 'modules/common/utils';
+import { __ } from 'modules/common/utils';
 
 import {
   IEvent,
@@ -26,6 +26,7 @@ import PropertyCondition from './PropertyCondition';
 
 type SegmentMap = {
   key: string;
+  contentType: string;
   conditions: ISegmentCondition[];
   conditionsConjunction: string;
 };
@@ -58,33 +59,38 @@ class SegmentFormAutomations extends React.Component<Props, State> {
     super(props);
 
     const segment: ISegment = props.segment || {
-      name: '',
-      description: '',
-      subOf: '',
-      color: generateRandomColorCode(),
-      conditions: [],
-      conditionsConjunction: ''
+      conditionsConjunction: 'and'
     };
 
-    segment.conditions = segment.conditions.map((cond: ISegmentCondition) => ({
-      key: Math.random().toString(),
-      ...cond
-    }));
-
-    const segments = [
-      {
-        key: Math.random().toString(),
-        conditions: [
+    const segments = segment.getConditionSegments
+      ? segment.getConditionSegments.map((item: ISegment) => ({
+          _id: item._id,
+          key: Math.random().toString(),
+          contentType: item.contentType || 'customer',
+          conditionsConjunction: item.conditionsConjunction,
+          conditions: item.conditions.map((cond: ISegmentCondition) => ({
+            key: Math.random().toString(),
+            ...cond
+          }))
+        }))
+      : [
           {
             key: Math.random().toString(),
-            type: 'property'
+            contentType: props.contentType || 'customer',
+            conditions: [
+              {
+                key: Math.random().toString(),
+                type: 'property'
+              }
+            ],
+            conditionsConjunction: 'and'
           }
-        ],
-        conditionsConjunction: 'and'
-      }
-    ];
+        ];
 
-    this.state = { segments, conditionsConjunction: 'and' };
+    this.state = {
+      segments,
+      conditionsConjunction: segment.conditionsConjunction
+    };
   }
 
   addCondition = (condition: ISegmentCondition, segmentKey?: string) => {
@@ -182,23 +188,27 @@ class SegmentFormAutomations extends React.Component<Props, State> {
   };
 
   generateDoc = (values: { _id?: string; conditionsConjunction: string }) => {
-    const { contentType } = this.props;
+    const { contentType, segment } = this.props;
     const { segments, conditionsConjunction } = this.state;
     const finalValues = values;
 
-    const subSegments: ISubSegment[] = [];
+    const conditionSegments: ISubSegment[] = [];
+
+    if (segment && segment._id) {
+      finalValues._id = segment._id;
+    }
 
     segments.forEach((cond: SegmentMap) => {
-      const { key, ...segment } = cond;
+      const { key, ...item } = cond;
 
-      subSegments.push(segment);
+      conditionSegments.push(item);
     });
 
     return {
       ...finalValues,
       conditionsConjunction,
       contentType,
-      subSegments
+      conditionSegments
     };
   };
 
@@ -267,13 +277,16 @@ class SegmentFormAutomations extends React.Component<Props, State> {
   };
 
   addSegment = () => {
+    const { contentType } = this.props;
+
     this.setState({
       segments: [
         ...this.state.segments,
         {
           key: Math.random().toString(),
           conditions: [{ key: Math.random().toString(), type: 'property' }],
-          conditionsConjunction: 'and'
+          conditionsConjunction: 'and',
+          contentType: contentType || 'customer'
         }
       ]
     });

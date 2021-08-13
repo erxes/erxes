@@ -6,6 +6,7 @@ export const types = `
   }
 
   input SubSegment {
+    _id: String
     contentType: String
     conditions: JSON
     conditionsConjunction: String
@@ -40,6 +41,7 @@ export const types = `
     conditionsConjunction: String
 
     getSubSegments: [Segment]
+    getConditionSegments: [Segment]
 
     boardId: String
     pipelineId: String
@@ -63,7 +65,7 @@ const commonFields = `
   boardId: String,
   pipelineId: String,
   conditionsConjunction: String
-  subSegments: [SubSegment]
+  conditionSegments: [SubSegment]
 `;
 
 export const mutations = `
