@@ -31,7 +31,7 @@ class SidebarContainer extends React.Component<FinalProps> {
     }
 
     if (calendarsQuery.error) {
-      return <Info bordered={false}>{calendarsQuery.error.message}</Info>;
+      return <Info>{calendarsQuery.error.message}</Info>;
     }
 
     const updatedProps = {
