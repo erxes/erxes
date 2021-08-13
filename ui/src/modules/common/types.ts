@@ -88,6 +88,7 @@ export type IMentionUser = {
   id: string;
   avatar: string;
   username: string;
+  fullName: string;
 };
 
 export type IEditorProps = {
