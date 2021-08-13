@@ -173,6 +173,7 @@ interface IUserFactoryInput {
   registrationToken?: string;
   registrationTokenExpires?: Date;
   isSubscribed?: string;
+  isShowNotification?: boolean;
 }
 
 export const userFactory = async (params: IUserFactoryInput = {}) => {
@@ -203,6 +204,7 @@ export const userFactory = async (params: IUserFactoryInput = {}) => {
     brandIds: params.brandIds,
     deviceTokens: params.deviceTokens,
     isSubscribed: params.isSubscribed,
+    isShowNotification: params.isShowNotification,
     ...(params.code ? { code: params.code } : {})
   });
 
