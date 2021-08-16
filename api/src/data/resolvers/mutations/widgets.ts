@@ -598,7 +598,7 @@ const widgetMutations = {
           conversationMessageInserted: botMessage
         });
       } catch (e) {
-        debugError('Failed to connect to BOTPRESS: ', e.message);
+        debugError(`Failed to connect to BOTPRESS: ${e.message}`);
       }
     }
 
