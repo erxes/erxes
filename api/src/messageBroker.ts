@@ -20,33 +20,36 @@ export const initBroker = async (server?) => {
     envs: process.env
   });
 
-  const { consumeQueue, consumeRPCQueue } = client;
+  // do not receive messages in crons worker
+  if (!['crons', 'workers'].includes(process.env.PROCESS_NAME || '')) {
+    const { consumeQueue, consumeRPCQueue } = client;
 
-  // listen for rpc queue =========
-  consumeRPCQueue(
-    'rpc_queue:integrations_to_api',
-    async data => await receiveRpcMessage(data)
-  );
+    // listen for rpc queue =========
+    consumeRPCQueue(
+      'rpc_queue:integrations_to_api',
+      async data => await receiveRpcMessage(data)
+    );
 
-  consumeRPCQueue(
-    'rpc_queue:automations_to_api',
-    async data => await receiveAutomations(data)
-  );
+    consumeRPCQueue(
+      'rpc_queue:automations_to_api',
+      async data => await receiveAutomations(data)
+    );
 
-  // graphql subscriptions call =========
-  consumeQueue('callPublish', params => {
-    graphqlPubsub.publish(params.name, params.data);
-  });
+    // graphql subscriptions call =========
+    consumeQueue('callPublish', params => {
+      graphqlPubsub.publish(params.name, params.data);
+    });
 
-  consumeQueue('integrationsNotification', async data => {
-    await receiveIntegrationsNotification(data);
-  });
+    consumeQueue('integrationsNotification', async data => {
+      await receiveIntegrationsNotification(data);
+    });
 
-  consumeQueue('engagesNotification', async data => {
-    await receiveEngagesNotification(data);
-  });
+    consumeQueue('engagesNotification', async data => {
+      await receiveEngagesNotification(data);
+    });
 
-  pluginsConsume(client);
+    pluginsConsume(client);
+  }
 };
 
 export default function() {

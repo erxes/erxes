@@ -1,15 +1,14 @@
 export const ACTIONS = {
-  WAIT: "WAIT",
-  IF: "IF",
-  SIMPLE_IF: "SIMPLE_IF",
-  GO_TO: "GO_TO",
-  PERFORM_MATH: "PERFORM_MATH",
-  ADD_TAGS: "ADD_TAGS",
-  REMOVE_TAGS: "REMOVE_TAGS",
+  WAIT: "wait",
+  IF: "if",
+  GO_TO: "goTo",
+  SET_PROPERTY: "setProperty",
+  ADD_TAGS: "add_tags",
+  REMOVE_TAGS: "remove_tags",
   CREATE_TASK: "createTask",
   CREATE_TICKET: "createTicket",
   CREATE_DEAL: "createDeal",
-  REMOVE_DEAL: "REMOVE_DEAL",
+  REMOVE_DEAL: "remove_deal",
 };
 
 export const TRIGGER_TYPES = {

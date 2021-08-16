@@ -1,4 +1,5 @@
 import { addBoardItem } from './actions';
+import { setProperty } from './actions/setProperty';
 import { ACTIONS } from './constants';
 import { debugBase } from './debuggers';
 import { getActionsMap } from './helpers';
@@ -27,7 +28,7 @@ export const getEnv = ({
 };
 
 export const isInSegment = async (segmentId: string, targetId: string) => {
-  return sendRPCMessage('segment', 'isInSegment', { segmentId, targetId });
+  return sendRPCMessage('isInSegment', { segmentId, targetId });
 }
 
 export let tags: any[] = [];
@@ -42,7 +43,7 @@ export const reset = () => {
   customers = [];
 }
 
-export const executeActions = async (execution: IExecutionDocument, actionsMap: IActionsMap, currentActionId?: string): Promise<string> => {
+export const executeActions = async (triggerType: string, execution: IExecutionDocument, actionsMap: IActionsMap, currentActionId?: string): Promise<string> => {
   if (!currentActionId) {
     execution.waitingActionId = null;
     execution.lastCheckedWaitDate = null;
@@ -64,14 +65,18 @@ export const executeActions = async (execution: IExecutionDocument, actionsMap: 
 
   if (action.type === ACTIONS.IF) {
     if (await isInSegment(action.config.segmentId, execution.targetId)) {
-      return executeActions(execution, actionsMap, action.config.yes);
+      return executeActions(triggerType, execution, actionsMap, action.config.yes);
     } else {
-      return executeActions(execution, actionsMap, action.config.no);
+      return executeActions(triggerType, execution, actionsMap, action.config.no);
     }
   }
 
   if (action.type === ACTIONS.GO_TO) {
-    return executeActions(execution, actionsMap, action.config.toId);
+    return executeActions(triggerType, execution, actionsMap, action.config.toId);
+  }
+
+  if (action.type === ACTIONS.SET_PROPERTY) {
+    await setProperty({ triggerType, actionConfig: action.config, target: execution.target });
   }
 
   if (action.type === ACTIONS.ADD_TAGS) {
@@ -83,18 +88,15 @@ export const executeActions = async (execution: IExecutionDocument, actionsMap: 
   }
 
   if (action.type === ACTIONS.CREATE_TASK) {
-    const result = await addBoardItem({ action, execution, type: 'task' });
-    execution.actionsData.push({ actionId: currentActionId, data: result })
+    await addBoardItem({ action, execution, type: 'task' });
   }
 
   if (action.type === ACTIONS.CREATE_TICKET) {
-    const result = await addBoardItem({ action, execution, type: 'ticket' });
-    execution.actionsData.push({ actionId: currentActionId, data: result })
+    await addBoardItem({ action, execution, type: 'ticket' });
   }
 
   if (action.type === ACTIONS.CREATE_DEAL) {
-    const result = await addBoardItem({ action, execution, type: 'deal' });
-    execution.actionsData.push({ actionId: currentActionId, data: result })
+    await addBoardItem({ action, execution, type: 'deal' });
   }
 
   if (action.type === ACTIONS.REMOVE_DEAL) {
@@ -103,15 +105,19 @@ export const executeActions = async (execution: IExecutionDocument, actionsMap: 
 
   await execution.save();
 
-  return executeActions(execution, actionsMap, action.nextActionId);
+  return executeActions(triggerType, execution, actionsMap, action.nextActionId);
 }
 
-export const calculateExecution = async ({ automationId, triggerId, reEnrollmentRules, target }: { automationId: string, triggerId: string, reEnrollmentRules: ReEnrollmentRule[], target: any }): Promise<IExecutionDocument> => {
+export const calculateExecution = async ({ automationId, triggerId, triggerType, reEnrollmentRules, target }: { automationId: string, triggerId: string, triggerType: string, reEnrollmentRules: ReEnrollmentRule[], target: any }): Promise<IExecutionDocument> => {
   const executions = await Executions.find({ automationId, triggerId, targetId: target._id });
 
   const latestExecution = executions.sort((a, b) => a.createdAt.getTime() - b.createdAt.getTime()).pop();
 
   if (latestExecution) {
+    if (!reEnrollmentRules) {
+      return;
+    }
+
     let isChanged = false;
 
     for (const reEnrollmentRule of reEnrollmentRules) {
@@ -131,6 +137,7 @@ export const calculateExecution = async ({ automationId, triggerId, reEnrollment
   return Executions.createExecution({
     automationId,
     triggerId,
+    triggerType,
     targetId: target._id,
     target,
   });
@@ -139,23 +146,25 @@ export const calculateExecution = async ({ automationId, triggerId, reEnrollment
 /*
  * target is one of the TriggerType objects
  */
-export const receiveTrigger = async ({ type, target }: {  type: TriggerType, target: any }) => {
-  const automations = await Automations.find({ status: 'active', 'triggers.type': { $in: [type] }});
+export const receiveTrigger = async ({ type, targets }: {  type: TriggerType, targets: any[] }) => {
+  for (const target of targets) {
+    const automations = await Automations.find({ status: 'active', 'triggers.type': { $in: [type] }});
 
-  if (!automations.length) {
-    return;
-  }
+    if (!automations.length) {
+      return;
+    }
 
-  for (const automation of automations) {
-    for (const trigger of automation.triggers) {
-      if (trigger.type !== type) {
-        continue;
-      }
+    for (const automation of automations) {
+      for (const trigger of automation.triggers) {
+        if (trigger.type !== type) {
+          continue;
+        }
 
-      const execution = await calculateExecution({ automationId: automation._id, triggerId: trigger.id, reEnrollmentRules: trigger.config.reEnrollmentRules, target });
+        const execution = await calculateExecution({ automationId: automation._id, triggerId: trigger.id, triggerType: trigger.type, reEnrollmentRules: trigger.config.reEnrollmentRules, target });
 
-      if (execution) {
-        await executeActions(execution, await getActionsMap(automation.actions), trigger.actionId);
+        if (execution) {
+          await executeActions(trigger.type, execution, await getActionsMap(automation.actions), trigger.actionId);
+        }
       }
     }
   }

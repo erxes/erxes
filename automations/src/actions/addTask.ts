@@ -23,5 +23,5 @@ export const addTask = async ({ action, execution }) => {
     newData.stageId = config.stageId
   }
 
-  return sendRPCMessage('task', 'add-task', { ...newData });
+  return sendRPCMessage('add-task', { type: 'task', ...newData });
 }

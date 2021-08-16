@@ -17,6 +17,7 @@ import { getEsTypes } from '../coc/utils';
 type IOptions = {
   associatedCustomers?: boolean;
   returnFields?: string[];
+  returnFullDoc?: boolean;
   returnSelector?: boolean;
   returnCount?: boolean;
   defaultMustSelector?: any[];
@@ -122,13 +123,13 @@ export const fetchSegment = async (
     action: 'search',
     index,
     body: {
-      _source: options.returnFields || false,
+      _source: options.returnFields || options.returnFullDoc || false,
       query: selector
     },
     defaultValue: { hits: { hits: [] } }
   });
 
-  if (options.returnFields) {
+  if (options.returnFullDoc || options.returnFields) {
     return response.hits.hits.map(hit => ({ _id: hit._id, ...hit._source }));
   }
 
