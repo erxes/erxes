@@ -4,6 +4,7 @@ import DataWithLoader from 'modules/common/components/DataWithLoader';
 import ModalTrigger from 'modules/common/components/ModalTrigger';
 import { TopHeader } from 'modules/common/styles/main';
 import { IButtonMutateProps } from 'modules/common/types';
+import { __ } from 'modules/common/utils';
 import Sidebar from 'modules/layout/components/Sidebar';
 import { SidebarList as List } from 'modules/layout/styles';
 import React from 'react';
@@ -47,12 +48,7 @@ class Boards extends React.Component<Props, {}> {
     const boardName = options ? options.boardName : 'Board';
 
     const addBoard = (
-      <Button
-        btnStyle="success"
-        icon="plus-circle"
-        uppercase={false}
-        block={true}
-      >
+      <Button btnStyle="success" icon="plus-circle" block={true}>
         Add New {boardName}
       </Button>
     );
@@ -85,7 +81,7 @@ class Boards extends React.Component<Props, {}> {
           data={<List>{this.renderItems()}</List>}
           loading={loading}
           count={boards.length}
-          emptyText={`There is no ${boardName}`}
+          emptyText={`${__(`There is no `)}${' '}${boardName}`}
           emptyImage="/images/actions/18.svg"
           objective={true}
         />

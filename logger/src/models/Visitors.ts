@@ -85,6 +85,11 @@ export const schema = new Schema({
     label: 'Session count',
     optional: true
   }),
+  scopeBrandIds: field({
+    type: [String],
+    label: 'Related brands',
+    optional: true
+  }),
   createdAt: field({ type: Date, default: Date.now })
 });
 

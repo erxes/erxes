@@ -57,7 +57,10 @@ export const EXTEND_FIELDS = {
     { name: 'ownerEmail', label: 'Owner email' },
     { name: 'companiesPrimaryNames', label: 'Companies' }
   ],
-  PRODUCT: [{ name: 'categoryCode', label: 'Category Code' }]
+  PRODUCT: [
+    { name: 'categoryCode', label: 'Category Code' },
+    { name: 'vendorCode', label: 'Vendor Code' }
+  ]
 };
 
 export const COC_LEAD_STATUS_TYPES = [
@@ -262,7 +265,7 @@ export const MODULE_NAMES = {
   EMAIL_TEMPLATE: 'emailTemplate',
   IMPORT_HISTORY: 'importHistory',
   PRODUCT: 'product',
-  PRODUCT_CATEGORY: 'product-category',
+  PRODUCT_CATEGORY: 'productCategory',
   RESPONSE_TEMPLATE: 'responseTemplate',
   TAG: 'tag',
   TASK: 'task',
@@ -282,13 +285,17 @@ export const MODULE_NAMES = {
   ENGAGE: 'engage',
   SCRIPT: 'script',
   FIELD: 'field',
-  WEBHOOK: 'webhook'
+  FIELD_GROUP: 'fieldGroup',
+  WEBHOOK: 'webhook',
+  DASHBOARD: 'dashboard',
+  DASHBOARD_ITEM: 'dashboardItem'
 };
 
 export const RABBITMQ_QUEUES = {
   PUT_LOG: 'putLog',
   RPC_API_TO_INTEGRATIONS: 'rpc_queue:api_to_integrations',
   RPC_API_TO_WORKERS: 'rpc_queue:api_to_workers',
+  RPC_API_TO_WEBHOOK_WORKERS: 'rpc_queue:api_to_webhook_workers',
   WORKERS: 'workers',
   VISITOR_LOG: 'visitorLog',
   RPC_VISITOR_LOG: 'rpc_queue:visitorLog'

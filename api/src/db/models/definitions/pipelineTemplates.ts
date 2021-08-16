@@ -13,7 +13,7 @@ export interface IPipelineTemplate {
   type: string;
   isDefinedByErxes: boolean;
   stages: IPipelineTemplateStage[];
-  createdBy: string;
+  createdBy?: string;
   createdDate: Date;
 }
 

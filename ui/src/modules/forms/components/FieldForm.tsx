@@ -218,12 +218,7 @@ class FieldForm extends React.Component<Props, State> {
     };
 
     return (
-      <Button
-        uppercase={false}
-        btnStyle="danger"
-        onClick={onDelete}
-        icon="minus-circle-1"
-      >
+      <Button btnStyle="danger" onClick={onDelete} icon="minus-circle-1">
         Delete
       </Button>
     );
@@ -404,7 +399,6 @@ class FieldForm extends React.Component<Props, State> {
         <Modal.Footer>
           <Button
             btnStyle="simple"
-            uppercase={false}
             type="button"
             icon="times-circle"
             onClick={onCancel}
@@ -415,7 +409,6 @@ class FieldForm extends React.Component<Props, State> {
           {this.renderExtraButton()}
 
           <Button
-            uppercase={false}
             onClick={this.onSubmit}
             btnStyle="success"
             icon={mode === 'update' ? 'check-circle' : 'plus-circle'}
@@ -439,7 +432,7 @@ class FieldForm extends React.Component<Props, State> {
             <FieldPreview field={field} />
 
             <ShowPreview>
-              <Icon icon="eye" /> Field preview
+              <Icon icon="eye" /> {__('Field preview')}
             </ShowPreview>
           </Preview>
         </PreviewSection>

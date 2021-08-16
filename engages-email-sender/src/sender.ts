@@ -133,7 +133,10 @@ export const start = async (data: IEmailParams) => {
   }
 
   // cleans customers who do not open or click emails often
-  const cleanCustomers = await cleanIgnoredCustomers({
+  const {
+    customers: cleanCustomers,
+    ignoredCustomerIds
+  } = await cleanIgnoredCustomers({
     customers: filteredCustomers,
     engageMessageId
   });
@@ -141,11 +144,23 @@ export const start = async (data: IEmailParams) => {
   // finalized email list
   emails = cleanCustomers.map(customer => customer.primaryEmail);
 
-  if (emails.length > 0) {
+  await Logs.createLog(
+    engageMessageId,
+    'regular',
+    `Preparing to send emails to ${emails.length}: ${emails}`
+  );
+
+  if (ignoredCustomerIds.length > 0) {
+    const ignoredCustomers = filteredCustomers.filter(
+      cus => ignoredCustomerIds.indexOf(cus._id) !== -1
+    );
+
     await Logs.createLog(
       engageMessageId,
       'regular',
-      `Preparing to send emails to ${emails.length}: ${emails}`
+      `The following customers did not open emails frequently, therefore ignored: ${ignoredCustomers.map(
+        i => i.primaryEmail
+      )}`
     );
   }
 

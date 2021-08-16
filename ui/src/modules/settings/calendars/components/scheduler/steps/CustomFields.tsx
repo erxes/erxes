@@ -188,12 +188,11 @@ class CustomFields extends React.Component<Props, State> {
             </FormGroup>
           ))}
           <Button
-            uppercase={false}
             onClick={this.onAddMoreInput}
             icon="plus-circle"
             btnStyle="primary"
           >
-            {__('Add a field')}
+            Add a field
           </Button>
         </LeftItem>
       </FlexItem>

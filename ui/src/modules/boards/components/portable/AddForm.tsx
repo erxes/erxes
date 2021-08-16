@@ -46,9 +46,9 @@ class AddForm extends React.Component<Props, State> {
       cardId: props.cardId || '',
       cards: [],
       name:
-        localStorage.getItem(`${props.options.type}Name`) || props.mailSubject
-          ? props.mailSubject
-          : ''
+        localStorage.getItem(`${props.options.type}Name`) ||
+        props.mailSubject ||
+        ''
     };
   }
 
@@ -187,7 +187,6 @@ class AddForm extends React.Component<Props, State> {
             btnStyle="simple"
             onClick={this.props.closeModal}
             icon="times-circle"
-            uppercase={false}
           >
             Close
           </Button>
@@ -197,7 +196,6 @@ class AddForm extends React.Component<Props, State> {
             btnStyle="success"
             icon="check-circle"
             type="submit"
-            uppercase={false}
           >
             Save
           </Button>

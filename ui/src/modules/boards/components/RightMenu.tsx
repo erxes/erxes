@@ -1,5 +1,6 @@
 import Button from 'modules/common/components/Button';
 import { ControlLabel, FormControl } from 'modules/common/components/form';
+import DateControl from 'modules/common/components/form/DateControl';
 import Icon from 'modules/common/components/Icon';
 import { Tabs, TabTitle } from 'modules/common/components/tabs';
 import { IOption } from 'modules/common/types';
@@ -10,6 +11,7 @@ import Select from 'react-select-plus';
 import RTG from 'react-transition-group';
 import { PRIORITIES } from '../constants';
 import SegmentFilter from '../containers/SegmentFilter';
+import dayjs from 'dayjs';
 import {
   CustomRangeContainer,
   FilterBox,
@@ -110,8 +112,14 @@ export default class RightMenu extends React.Component<Props, State> {
     );
   }
 
-  onChangeRangeFilter = (kind, e) => {
-    this.props.onSelect(e.currentTarget.value, kind);
+  onChangeRangeFilter = (kind: string, date) => {
+    const formattedDate = date ? dayjs(date).format('YYYY-MM-DD') : '';
+
+    const { queryParams, onSelect } = this.props;
+
+    if (queryParams[kind] !== formattedDate) {
+      onSelect(formattedDate, kind);
+    }
   };
 
   renderDates() {
@@ -161,7 +169,7 @@ export default class RightMenu extends React.Component<Props, State> {
           onSelect={onSelect}
         />
         <Select
-          placeholder="Filter by priority"
+          placeholder={__('Filter by priority')}
           value={priorities}
           options={priorityValues}
           name="priority"
@@ -195,27 +203,23 @@ export default class RightMenu extends React.Component<Props, State> {
         <ControlLabel>Date range:</ControlLabel>
 
         <CustomRangeContainer>
-          <div className="input-container">
-            <FormControl
-              defaultValue={queryParams.startDate}
-              type="date"
-              required={false}
-              name="startDate"
-              onChange={this.onChangeRangeFilter.bind(this, 'startDate')}
-              placeholder={'Start date'}
-            />
-          </div>
+          <DateControl
+            value={queryParams.startDate}
+            required={false}
+            name="startDate"
+            onChange={date => this.onChangeRangeFilter('startDate', date)}
+            placeholder={'Start date'}
+            dateFormat={'YYYY-MM-DD'}
+          />
 
-          <div className="input-container">
-            <FormControl
-              defaultValue={queryParams.endDate}
-              type="date"
-              required={false}
-              name="endDate"
-              placeholder={'End date'}
-              onChange={this.onChangeRangeFilter.bind(this, 'endDate')}
-            />
-          </div>
+          <DateControl
+            value={queryParams.endDate}
+            required={false}
+            name="endDate"
+            placeholder={'End date'}
+            onChange={date => this.onChangeRangeFilter('endDate', date)}
+            dateFormat={'YYYY-MM-DD'}
+          />
         </CustomRangeContainer>
 
         {this.renderDates()}
@@ -241,7 +245,6 @@ export default class RightMenu extends React.Component<Props, State> {
               <Button
                 block={true}
                 btnStyle="warning"
-                uppercase={false}
                 onClick={clearFilter}
                 icon="times-circle"
               >
@@ -276,18 +279,12 @@ export default class RightMenu extends React.Component<Props, State> {
           <Button
             btnStyle="warning"
             icon="times-circle"
-            uppercase={false}
             onClick={this.props.clearFilter}
           >
             {__('Clear Filter')}
           </Button>
         )}
-        <Button
-          btnStyle="simple"
-          uppercase={false}
-          icon="bars"
-          onClick={this.toggleMenu}
-        >
+        <Button btnStyle="simple" icon="bars" onClick={this.toggleMenu}>
           {showMenu ? __('Hide Menu') : __('Show Menu')}
         </Button>
 

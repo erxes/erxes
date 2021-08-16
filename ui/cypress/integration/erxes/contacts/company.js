@@ -1,4 +1,4 @@
-import { SignIn, fakeName, waitTilDisappear, waitAndClick } from '../utils';
+import { SignIn, fakeName, waitTilDisappear, waitAndClick } from "../utils";
 
 SignIn;
 
@@ -10,23 +10,27 @@ context("Contacts", () => {
   it("Company", () => {
     cy.signIn();
 
-    cy.get("#navigation")
-      .children()
-      .eq(3)
-      .click();
+    cy.visit("/companies");
 
     const random = fakeName(6);
 
-    cy.get('a[href="/companies"]').click();
     cy.get('i[icon = "plus-circle"]').click();
 
-    cy.get('div .Select-placeholder').contains('Enter company name').click().type(random + "@nmma.co");
-    waitAndClick('div .Select-menu-outer');
+    cy.get("div .Select-placeholder")
+      .contains("Enter company name")
+      .click()
+      .type(random + "@nmma.co");
+    waitAndClick("div .Select-menu-outer");
 
-    cy.get('div .Select-placeholder').contains('Enter company email').click().type(random + "@nmma.co");
-    waitAndClick('div .Select-menu-outer');
+    cy.get("div .Select-placeholder")
+      .contains("Enter company email")
+      .click()
+      .type(random + "@nmma.co");
+    waitAndClick("div .Select-menu-outer");
 
-    cy.get('button[type="submit"]').eq(0).click();
+    cy.get('button[type="submit"]')
+      .eq(0)
+      .click();
     waitTilDisappear('button[type="submit"]');
 
     cy.get("#companiesCheckBox").click();
