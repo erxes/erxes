@@ -50,7 +50,10 @@ function Top(props: Props) {
   };
 
   const onChangeName = e => {
-    setName(e.target.value);
+    const name = (e.target as HTMLInputElement).value;
+
+    setName(name);
+    localStorage.setItem(`${props.item._id}Name`, name);
   };
 
   return (

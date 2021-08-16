@@ -175,14 +175,30 @@ const fieldsGroupsMutations = {
   /**
    * Create a new group for fields
    */
-  fieldsGroupsAdd(_root, doc: IFieldGroup, { user, docModifier }: IContext) {
+  async fieldsGroupsAdd(
+    _root,
+    doc: IFieldGroup,
+    { user, docModifier }: IContext
+  ) {
     if (doc.boardsPipelines) {
       doc = getBoardsAndPipelines(doc);
     }
 
-    return FieldsGroups.createGroup(
+    const fieldGroup = await FieldsGroups.createGroup(
       docModifier({ ...doc, lastUpdatedUserId: user._id })
     );
+
+    await putCreateLog(
+      {
+        type: MODULE_NAMES.FIELD_GROUP,
+        newData: doc,
+        object: fieldGroup,
+        description: `Field group "${doc.name}" has been created`
+      },
+      user
+    );
+
+    return fieldGroup;
   },
 
   /**

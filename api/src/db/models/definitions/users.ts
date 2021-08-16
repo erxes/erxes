@@ -45,6 +45,7 @@ export interface IUser {
   doNotDisturb?: string;
   isSubscribed?: string;
   sessionCode?: string;
+  isShowNotification?: boolean;
 }
 
 export interface IUserDocument extends IUser, Document {
@@ -139,6 +140,12 @@ export const userSchema = schemaHooksWrapper(
       optional: true,
       default: 'Yes',
       label: 'Subscribed'
+    }),
+    isShowNotification: field({
+      type: Boolean,
+      optional: true,
+      default: false,
+      label: 'Check if user shows'
     })
   }),
   'erxes_users'
