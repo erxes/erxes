@@ -661,10 +661,6 @@ export const solveSubmissions = async (args: {
       );
 
       conformityIds[groupId] = { customerId: customer._id, companyId: '' };
-
-      console.log('=======================================================');
-      console.log('Connected customer: ', customer);
-      console.log('=======================================================');
     }
 
     if (!(companyEmail || companyPhone || companyName)) {
