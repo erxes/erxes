@@ -31,7 +31,6 @@ import { FilterBox, SegmentTitle, SegmentWrapper } from '../styles';
 import AddConditionButton from './AddConditionButton';
 import EventCondition from './EventCondition';
 import PropertyCondition from './PropertyCondition';
-import SegmentCondition from './SegmentCondition';
 
 type Props = {
   contentType?: string;
@@ -257,9 +256,12 @@ class SegmentForm extends React.Component<Props, State> {
   }
 
   renderCondition(condition: ISegmentCondition) {
-    const { fields, events, segments } = this.props;
-
-    if (condition.type === 'property') {
+    const { fields, events } = this.props;
+    if (
+      condition.type === 'property' &&
+      condition.propertyType &&
+      condition.propertyType === 'form_submission'
+    ) {
       return (
         <PropertyCondition
           fields={fields}
@@ -274,14 +276,16 @@ class SegmentForm extends React.Component<Props, State> {
       );
     }
 
-    if (condition.type === 'subSegment') {
+    if (condition.type === 'property') {
       return (
-        <SegmentCondition
-          segments={segments}
+        <PropertyCondition
+          fields={fields}
           key={condition.key}
           conditionKey={condition.key || ''}
-          value={condition.subSegmentId || ''}
-          onChange={this.changeSegmentCondition}
+          name={condition.propertyName || ''}
+          operator={condition.propertyOperator || ''}
+          value={condition.propertyValue || ''}
+          onChange={this.changePropertyCondition}
           onRemove={this.removeCondition}
         />
       );

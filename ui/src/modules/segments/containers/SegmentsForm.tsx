@@ -123,7 +123,8 @@ class SegmentsFormContainer extends React.Component<
           pipelineId,
           contentType: ['visitor', 'lead', 'customer'].includes(contentType)
             ? 'customer'
-            : contentType
+            : contentType,
+          usageType: 'segment'
         }
       })
       .then(({ data }) => {

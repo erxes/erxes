@@ -38,6 +38,17 @@ function AddConditionButton(props: Props) {
     );
   };
 
+  const addFormCondition = () => {
+    props.addCondition({
+      key: Math.random().toString(),
+      type: 'property',
+      propertyType: 'form_submission',
+      propertyName: '',
+      propertyValue: '',
+      propertyOperator: ''
+    });
+  };
+
   const renderAddEvents = () => {
     if (
       !['customer', 'lead', 'visitor'].includes(props.contentType) ||
@@ -47,14 +58,25 @@ function AddConditionButton(props: Props) {
     }
 
     return (
-      <Button
-        id="segment-add-events"
-        btnStyle="primary"
-        icon="computer-mouse"
-        onClick={addEventCondition}
-      >
-        {__('Add Events')}
-      </Button>
+      <>
+        <Button
+          id="segment-add-properties"
+          btnStyle="primary"
+          icon="segment"
+          onClick={addFormCondition}
+        >
+          {__('Add Segment')}
+        </Button>
+
+        <Button
+          id="segment-add-events"
+          btnStyle="primary"
+          icon="computer-mouse"
+          onClick={addEventCondition}
+        >
+          {__('Add Events')}
+        </Button>
+      </>
     );
   };
 
