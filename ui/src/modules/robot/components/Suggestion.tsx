@@ -60,10 +60,20 @@ export default function Suggestion({
             )}`}
           </p>
 
-          <Button btnStyle="success" size="small" onClick={onResumeClick}>
+          <Button
+            btnStyle="success"
+            size="small"
+            onClick={onResumeClick}
+            uppercase={true}
+          >
             {__('Resume')}
           </Button>
-          <Button btnStyle="link" size="small" onClick={forceComplete}>
+          <Button
+            btnStyle="link"
+            size="small"
+            onClick={forceComplete}
+            uppercase={true}
+          >
             {__('Never see again')}
           </Button>
         </div>

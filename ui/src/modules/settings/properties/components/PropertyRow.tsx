@@ -144,7 +144,7 @@ class PropertyRow extends React.Component<Props, State> {
             : 'Erxes'}
         </RowField>
         <RowField>
-          <Switch 
+          <Switch
             id="visibleToggle"
             defaultChecked={field.isVisible}
             disabled={!field.canHide}
@@ -160,7 +160,7 @@ class PropertyRow extends React.Component<Props, State> {
               id="visibleDetailToggle"
               defaultChecked={field.isVisibleInDetail}
               disabled={!field.canHide}
-              onChange={onChange}/>
+              onChange={onChange} />
           </RowField>
         ) : (
           <></>

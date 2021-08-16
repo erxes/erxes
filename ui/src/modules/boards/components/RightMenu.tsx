@@ -1,6 +1,6 @@
 import Button from 'modules/common/components/Button';
 import { ControlLabel, FormControl } from 'modules/common/components/form';
-import  DateControl  from 'modules/common/components/form/DateControl';
+import DateControl from 'modules/common/components/form/DateControl';
 import Icon from 'modules/common/components/Icon';
 import { Tabs, TabTitle } from 'modules/common/components/tabs';
 import { IOption } from 'modules/common/types';
@@ -201,27 +201,26 @@ export default class RightMenu extends React.Component<Props, State> {
         {extraFilter}
 
         <ControlLabel>Date range:</ControlLabel>
-       
-          <CustomRangeContainer>
-            <DateControl
-              value={queryParams.startDate}
-              required={false}
-              name="startDate"
-              onChange={date => this.onChangeRangeFilter('startDate', date)}
-              placeholder={'Start date'}
-              dateFormat={'YYYY-MM-DD'}
-            />
 
-            <DateControl
-              value={queryParams.endDate}
-              required={false}
-              name="endDate"
-              placeholder={'End date'}
-              onChange={date => this.onChangeRangeFilter('endDate', date)}
-              dateFormat={'YYYY-MM-DD'}
-            />
-          </CustomRangeContainer>
-       
+        <CustomRangeContainer>
+          <DateControl
+            value={queryParams.startDate}
+            required={false}
+            name="startDate"
+            onChange={date => this.onChangeRangeFilter('startDate', date)}
+            placeholder={'Start date'}
+            dateFormat={'YYYY-MM-DD'}
+          />
+
+          <DateControl
+            value={queryParams.endDate}
+            required={false}
+            name="endDate"
+            placeholder={'End date'}
+            onChange={date => this.onChangeRangeFilter('endDate', date)}
+            dateFormat={'YYYY-MM-DD'}
+          />
+        </CustomRangeContainer>
 
         {this.renderDates()}
 

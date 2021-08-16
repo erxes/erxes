@@ -354,9 +354,11 @@ export let subscriptions = `
   activityLogsChanged: Boolean
   importHistoryChanged(_id: String!): ImportHistory
   notificationInserted(userId: String): Notification
+  notificationRead(userId: String): JSON
   onboardingChanged(userId: String!): OnboardingNotification
 
   pipelinesChanged(_id: String!): PipelineChangeResponse
+  userChanged(userId: String): JSON
 
   checklistsChanged(contentType: String!, contentTypeId: String!): Checklist
   checklistDetailChanged(_id: String!): Checklist

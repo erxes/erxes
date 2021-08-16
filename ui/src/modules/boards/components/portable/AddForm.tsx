@@ -46,9 +46,9 @@ class AddForm extends React.Component<Props, State> {
       cardId: props.cardId || '',
       cards: [],
       name:
-        localStorage.getItem(`${props.options.type}Name`) || props.mailSubject
-          ? props.mailSubject
-          : ''
+        localStorage.getItem(`${props.options.type}Name`) ||
+        props.mailSubject ||
+        ''
     };
   }
 
