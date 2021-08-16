@@ -91,6 +91,7 @@ interface IContentTypeParams {
 
 export interface IVisitorLogParams {
   visitorId: string;
+  scopeBrandIds?: string[];
   integrationId?: string;
   location?: IBrowserInfo;
 }
