@@ -47,14 +47,16 @@ function AddConditionButton(props: Props) {
     }
 
     return (
-      <Button
-        id="segment-add-events"
-        btnStyle="primary"
-        icon="computer-mouse"
-        onClick={addEventCondition}
-      >
-        {__('Add Events')}
-      </Button>
+      <>
+        <Button
+          id="segment-add-events"
+          btnStyle="primary"
+          icon="computer-mouse"
+          onClick={addEventCondition}
+        >
+          {__('Add Events')}
+        </Button>
+      </>
     );
   };
 

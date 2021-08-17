@@ -39,21 +39,6 @@ type Props = {
 };
 
 const SegmentsForm = (props: Props) => {
-  // onSave = () => {
-  //   const {
-  //     addTrigger,
-  //     activeTrigger,
-  //     closeParentModal,
-  //     closeModal
-  //   } = props;
-
-  //   const { formId } = this.state;
-
-  //   addTrigger(activeTrigger.type, formId, activeTrigger.id);
-
-  //   closeParentModal ? closeParentModal() : closeModal();
-  // };
-
   const renderHelpText = () => {
     let text = 'User(s) will receive this message';
 

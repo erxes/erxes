@@ -19,6 +19,7 @@ export interface ISegmentCondition {
   propertyName?: string;
   propertyOperator?: string;
   propertyValue?: string;
+  propertyType?: string;
 
   eventName?: string;
   eventOccurence?: string;
