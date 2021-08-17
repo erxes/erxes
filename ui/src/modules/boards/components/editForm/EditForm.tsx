@@ -31,9 +31,11 @@ class EditForm extends React.Component<Props, State> {
   constructor(props) {
     super(props);
 
+    const item = props.item;
+
     this.state = {
-      stageId: props.item.stageId,
-      updatedItem: props.item
+      stageId: item.stageId,
+      updatedItem: item
     };
   }
 
@@ -89,18 +91,20 @@ class EditForm extends React.Component<Props, State> {
       const { saveItem, onUpdate, item } = this.props;
 
       if (updatedItem) {
-        const name = localStorage.getItem(`${updatedItem._id}Name`) || '';
+        const itemName = localStorage.getItem(`${updatedItem._id}Name`) || '';
 
-        if (name && updatedItem.name !== name) {
-          this.saveItem({ name });
+        if (itemName && updatedItem.name !== itemName) {
+          this.saveItem({ itemName });
         }
+
+        saveItem({ item }, updatedItem => {
+          if (onUpdate) {
+            onUpdate(updatedItem, prevStageId);
+          }
+        });
 
         localStorage.removeItem(`${updatedItem._id}Name`);
       }
-
-      saveItem({ item }, updatedItem => {
-        onUpdate(updatedItem, prevStageId);
-      });
     });
   };
 
