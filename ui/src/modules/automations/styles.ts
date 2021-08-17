@@ -93,6 +93,29 @@ export const Container = styled.div`
       padding: ${dimensions.unitSpacing + 5}px ${dimensions.unitSpacing}px;
       color: ${colors.colorCoreGray};
     }
+
+    &.scratch {
+      top: 40%;
+      display: flex;
+      align-items: center;
+      flex-direction: column;
+      padding: 20px 20px 10px;
+      transition: all ease 0.3s;
+
+      > i {
+        width: 40px;
+        height: 40px;
+        line-height: 40px;
+        background: ${rgba(colors.colorSecondary, 0.12)};
+        border-radius: 40px;
+        color: ${colors.colorSecondary};
+        text-align: center;
+      }
+
+      &:hover {
+        border-color: ${colors.colorSecondary};
+      }
+    }
   }
 
   .action {

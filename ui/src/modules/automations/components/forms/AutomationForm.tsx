@@ -596,6 +596,24 @@ class AutomationForm extends React.Component<Props, State> {
     return null;
   }
 
+  renderContent() {
+    const { automation } = this.props;
+
+    if (!automation) {
+      return (
+        <div
+          className="trigger scratch"
+          onClick={this.toggleDrawer.bind(this, 'triggers')}
+        >
+          <Icon icon="file-plus" size={25} />
+          <p>Add your use trigger or action</p>
+        </div>
+      );
+    }
+
+    return <div id="canvas" />;
+  }
+
   render() {
     const { automation } = this.props;
 
@@ -619,9 +637,7 @@ class AutomationForm extends React.Component<Props, State> {
               }
               transparent={false}
             >
-              <Container>
-                <div id="canvas" />
-              </Container>
+              <Container>{this.renderContent()}</Container>
             </PageContent>
           </AutomationFormContainer>
 
