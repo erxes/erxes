@@ -70,8 +70,8 @@ class SetProperty extends React.Component<Props, State> {
             value={config.module}
           >
             <option value="">Choose module</option>
-            <option value="contact">Company</option>
-            <option value="contact">Contact</option>
+            <option value="company">Company</option>
+            <option value="customer">Customer</option>
             <option value="deal">Deal</option>
             <option value="task">Task</option>
             <option value="ticket">Ticket</option>
@@ -89,6 +89,7 @@ class SetProperty extends React.Component<Props, State> {
             <option value="">Choose field</option>
             <option value="size">size</option>
             <option value="amount">amount</option>
+            <option value="state">state</option>
           </select>
         </p>
 
@@ -100,6 +101,7 @@ class SetProperty extends React.Component<Props, State> {
             value={config.operator}
           >
             <option value="">Choose operator</option>
+            <option value="set">Set</option>
             <option value="add">Add</option>
             <option value="subtract">Subtract</option>
           </select>

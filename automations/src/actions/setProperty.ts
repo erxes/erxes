@@ -1,6 +1,7 @@
 import { sendRPCMessage } from '../messageBroker';
 
 export const OPERATORS = {
+  SET: "set",
   ADD: "add",
   SUBTRACT: "subtract",
   MULTIPLY: "multiply",
@@ -33,7 +34,7 @@ export const setProperty = async ({ triggerType, actionConfig, target }) => {
   for (const conformity of conformities) {
     let op1 = conformity[field];
 
-    let updatedValue;
+    let updatedValue = value;
 
     if ([OPERATORS.ADD, OPERATORS.SUBTRACT, OPERATORS.MULTIPLY, OPERATORS.DIVIDE, OPERATORS.PERCENT].includes(operator)) {
       op1 = op1 || 0;
@@ -58,6 +59,6 @@ export const setProperty = async ({ triggerType, actionConfig, target }) => {
       }
     }
 
-    await sendRPCMessage('set-property', { module, _id: conformity._id, field, value: updatedValue });
+    await sendRPCMessage('set-property', { module, _id: conformity.mainTypeId, field, value: updatedValue });
   }
 }

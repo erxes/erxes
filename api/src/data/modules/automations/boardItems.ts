@@ -1,4 +1,4 @@
-import { Conformities, Deals, Stages } from '../../../db/models';
+import { Conformities, Customers, Deals, Stages } from '../../../db/models';
 import { getCollection, getItem } from '../../../db/models/boardUtils';
 import { graphqlPubsub } from '../../../pubsub';
 import { itemsAdd } from '../../resolvers/mutations/boardUtils';
@@ -69,13 +69,21 @@ export const receiveRpcMessageBoardItem = async (action, doc) => {
   }
 
   if (action.includes('set-property')) {
-    if (doc.module === 'deal') {
-      const result = await Deals.update(
-        { _id: doc._id },
-        { $set: { [doc.field]: doc.value } }
-      );
+    let collection;
 
-      return sendSuccess(result);
+    if (doc.module === 'deal') {
+      collection = Deals;
     }
+
+    if (doc.module === 'customer') {
+      collection = Customers;
+    }
+
+    const result = await collection.update(
+      { _id: doc._id },
+      { $set: { [doc.field]: doc.value } }
+    );
+
+    return sendSuccess(result);
   }
 };
