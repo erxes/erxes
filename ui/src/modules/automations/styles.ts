@@ -109,7 +109,7 @@ export const Container = styled.div`
     background: #ed8d50;
   }
 
-  .action[type='performMath'] {
+  .action[type='setProperty'] {
     background: #ed0d50;
   }
 

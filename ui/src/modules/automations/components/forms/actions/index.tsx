@@ -1,7 +1,7 @@
 import { IAction } from 'modules/automations/types';
 import React from 'react';
 import { ModalFooter } from 'modules/common/styles/main';
-import { PerformMathForm } from './PerformMath';
+import SetProperty from './SetProperty';
 import IfForm from 'modules/automations/containers/forms/actions/IfForm';
 import Button from 'modules/common/components/Button';
 import { __ } from 'modules/common/utils';
@@ -42,7 +42,7 @@ class DefaultForm extends React.Component<Props> {
 
 export const ActionForms = {
   default: DefaultForm,
-  performMath: PerformMathForm,
+  setProperty: SetProperty,
   if: IfForm,
   boardItem: BoardItemForm
 };

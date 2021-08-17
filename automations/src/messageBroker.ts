@@ -20,14 +20,14 @@ export const initBroker = async (server?) => {
   consumeQueue('erxes-automations:trigger', async param => {
     debugBase(`Receiving queue data from erxes-api: ${JSON.stringify(param)}`);
  
-    const { type, actionType, data } = param;
+    const { type, actionType, targets } = param;
 
     if (actionType && actionType === 'wait') {
       await playWait();
       return;
     }
 
-    await receiveTrigger({ type, target: data });
+    await receiveTrigger({ type, targets });
   });
 };
 
@@ -35,9 +35,8 @@ export default function () {
   return client;
 }
 
-export const sendRPCMessage = async (module: string, action: string, data: any) => {
+export const sendRPCMessage = async (action: string, data: any) => {
   return client.sendRPCMessage('rpc_queue:automations_to_api', {
-    module,
     action,
     payload: JSON.stringify(data)
   });

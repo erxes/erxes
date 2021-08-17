@@ -9,9 +9,9 @@ export interface IExecution {
   createdAt: Date;
   automationId: string;
   triggerId: string;
+  triggerType: string;
   targetId: string;
   target: any;
-  actionsData: IActionData[];
   status: string;
   lastCheckedWaitDate: Date;
   waitingActionId: string;
@@ -30,9 +30,9 @@ export const executionSchema = new Schema({
   createdAt: { type: Date, required: true },
   automationId: { type: String, required: true },
   triggerId: { type: String, required: true },
+  triggerType: { type: String, required: true },
   targetId: { type: String, required: true },
   target: { type: Object },
-  actionsData: { type: [actionDataSchema] },
   lastCheckedWaitDate: { type: Date },
   waitingActionId: { type: String },
 });

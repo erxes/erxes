@@ -22,7 +22,7 @@ export const addBoardItem = async ({ action, execution, type }) => {
         newData.stageId = config.stageId
     }
 
-    sendRPCMessage(type, `add-${type}`, { ...newData });
+    sendRPCMessage(`add-${type}`, { type, ...newData });
 
     return newData;
 }

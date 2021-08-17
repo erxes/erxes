@@ -30,9 +30,9 @@ export const ACTIONS = [
     description: 'Add a new action'
   },
   {
-    type: 'performMath',
+    type: 'setProperty',
     icon: 'calcualtor',
-    label: 'Perform Math',
+    label: 'Set property',
     description: 'Add a new action'
   },
   {
