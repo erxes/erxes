@@ -62,6 +62,7 @@
     "react-router-dom": "^5.1.2",
     "react-scripts": "^3.0.1",
     "react-select-plus": "^1.0.0-rc.5",
+    "react-to-print": "^2.13.0",
     "react-toggle": "^4.1.1",
     "react-transition-group": "^2.5.1",
     "request-idle-callback": "^1.0.2",
