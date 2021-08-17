@@ -293,6 +293,32 @@ export const RightDrawerContainer = styled(RightMenuContainer)`
   z-index: 10;
 `;
 
+export const CenterBar = styled.div`
+  position: absolute;
+  left: 40%;
+
+  > div {
+    height: 30px;
+    border: 1px solid ${colors.borderDarker};
+    border-radius: ${dimensions.coreSpacing + dimensions.unitSpacing}px;
+
+    span {
+      font-weight: 500;
+      padding: 4px ${dimensions.coreSpacing}px;
+      border-radius: ${dimensions.coreSpacing + dimensions.unitSpacing}px;
+
+      &.active {
+        background: ${colors.colorSecondary};
+        color: ${colors.colorWhite};
+
+        &:before {
+          content: none;
+        }
+      }
+    }
+  }
+`;
+
 export const AutomationFormContainer = styled(Contents)`
   margin: 0;
 
@@ -344,5 +370,23 @@ export const Description = styled.div`
   > p {
     margin: ${dimensions.unitSpacing - 5}px 0 0 0;
     color: ${colors.colorCoreGray};
+  }
+`;
+
+export const ToggleWrapper = styled.div`
+  display: flex;
+  align-items: center;
+  margin-right: ${dimensions.coreSpacing}px;
+
+  > div {
+    margin: 0 ${dimensions.unitSpacing}px;
+  }
+
+  > span {
+    font-weight: 500;
+
+    &.active {
+      color: ${colors.colorCoreGray};
+    }
   }
 `;

@@ -13,7 +13,9 @@ import {
   RightDrawerContainer,
   AutomationFormContainer,
   ScrolledContent,
-  BackIcon
+  BackIcon,
+  CenterBar,
+  ToggleWrapper
 } from '../../styles';
 import { FormControl } from 'modules/common/components/form';
 import { BarItems, HeightedWrapper } from 'modules/layout/styles';
@@ -36,6 +38,8 @@ import ActionDetailForm from './ActionDetailForm';
 import Icon from 'modules/common/components/Icon';
 import PageContent from 'modules/layout/components/PageContent';
 import { Link } from 'react-router-dom';
+import { Tabs, TabTitle } from 'modules/common/components/tabs';
+import Toggle from 'modules/common/components/Toggle';
 
 const plumb: any = jsPlumb;
 let instance;
@@ -53,6 +57,8 @@ type State = {
   showDrawer: boolean;
   showTrigger: boolean;
   showAction: boolean;
+  isAction: boolean;
+  isActive: boolean;
   actions: IAction[];
   triggers: ITrigger[];
   activeTrigger: ITrigger;
@@ -82,6 +88,8 @@ class AutomationForm extends React.Component<Props, State> {
       triggers: automation.triggers || [],
       activeTrigger: {} as ITrigger,
       currentTab: 'triggers',
+      isAction: true,
+      isActive: false,
       showTrigger: false,
       showDrawer: false,
       showAction: false,
@@ -213,6 +221,14 @@ class AutomationForm extends React.Component<Props, State> {
     };
 
     save(generateValues());
+  };
+
+  switchActionbarTab = type => {
+    this.setState({ isAction: type === 'action' ? true : false });
+  };
+
+  onToggle = e => {
+    this.setState({ isActive: e.target.checked });
   };
 
   onAddActionConfig = config => {
@@ -446,8 +462,15 @@ class AutomationForm extends React.Component<Props, State> {
   };
 
   rendeRightActionBar() {
+    const { isActive } = this.state;
+
     return (
       <BarItems>
+        <ToggleWrapper>
+          <span className={isActive ? 'active' : ''}>Inactive</span>
+          <Toggle defaultChecked={isActive} onChange={this.onToggle} />
+          <span className={!isActive ? 'active' : ''}>Active</span>
+        </ToggleWrapper>
         <Button
           btnStyle="primary"
           size="small"
@@ -477,6 +500,8 @@ class AutomationForm extends React.Component<Props, State> {
   }
 
   renderLeftActionBar() {
+    const { isAction, name } = this.state;
+
     return (
       <CenterFlexRow>
         <Link to={`/automations`}>
@@ -487,13 +512,29 @@ class AutomationForm extends React.Component<Props, State> {
         <Title>
           <FormControl
             name="name"
-            value={this.state.name}
+            value={name}
             onChange={this.onNameChange}
             required={true}
             autoFocus={true}
           />
           <Icon icon="edit-alt" size={16} />
         </Title>
+        <CenterBar>
+          <Tabs full={true}>
+            <TabTitle
+              className={isAction ? 'active' : ''}
+              onClick={this.switchActionbarTab.bind(this, 'action')}
+            >
+              {__('Actions')}
+            </TabTitle>
+            <TabTitle
+              className={isAction ? '' : 'active'}
+              onClick={this.switchActionbarTab.bind(this, 'settings')}
+            >
+              {__('Settings')}
+            </TabTitle>
+          </Tabs>
+        </CenterBar>
       </CenterFlexRow>
     );
   }
