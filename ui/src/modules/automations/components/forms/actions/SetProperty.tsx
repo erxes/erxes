@@ -1,8 +1,6 @@
 import React from 'react';
-import { __ } from 'modules/common/utils';
 import { IAction } from 'modules/automations/types';
-import { ModalFooter } from 'modules/common/styles/main';
-import Button from 'modules/common/components/Button';
+import Common from './Common';
 
 type Props = {
   closeModal: () => void;
@@ -40,21 +38,10 @@ class SetProperty extends React.Component<Props, State> {
     const { config } = this.state;
     config[name] = value;
 
-    console.log(name, value);
-
     this.setState({ config });
   };
 
-  onSave = () => {
-    const { addAction, activeAction, closeModal } = this.props;
-    const { config } = this.state;
-
-    addAction(activeAction, '', activeAction.id, config);
-
-    closeModal();
-  };
-
-  render() {
+  renderContent() {
     const { config } = this.state;
     const onChangeSelect = (field, e) =>
       this.onChangeField(field, e.target.value);
@@ -112,22 +99,15 @@ class SetProperty extends React.Component<Props, State> {
 
           <input onChange={onChangeValue} value={config.value} />
         </p>
-
-        <ModalFooter>
-          <Button
-            btnStyle="simple"
-            type="button"
-            onClick={this.props.closeModal}
-            icon="times-circle"
-          >
-            {__('Cancel')}
-          </Button>
-
-          <Button btnStyle="success" icon="checked-1" onClick={this.onSave}>
-            Save
-          </Button>
-        </ModalFooter>
       </>
+    );
+  }
+
+  render() {
+    return (
+      <Common config={this.state.config} {...this.props}>
+        {this.renderContent()}
+      </Common>
     );
   }
 }

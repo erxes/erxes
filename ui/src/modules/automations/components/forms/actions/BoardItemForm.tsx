@@ -8,10 +8,8 @@ import {
   FormGroup
 } from 'modules/common/components/form';
 
-import { __ } from 'modules/common/utils';
 import { IAction } from 'modules/automations/types';
-import { ModalFooter } from 'modules/common/styles/main';
-import Button from 'modules/common/components/Button';
+import Common from './Common';
 
 type Props = {
   closeModal: () => void;
@@ -26,18 +24,16 @@ type Props = {
 
 type State = {
   config: any;
-  cards: any;
 };
 
-class AddForm extends React.Component<Props, State> {
+class BoardItemForm extends React.Component<Props, State> {
   constructor(props) {
     super(props);
 
     const { config = {} } = this.props.activeAction;
 
     this.state = {
-      config,
-      cards: []
+      config
     };
   }
 
@@ -102,6 +98,7 @@ class AddForm extends React.Component<Props, State> {
 
   renderName() {
     const { config } = this.state;
+
     return (
       <SelectContainer>
         <HeaderRow>
@@ -120,37 +117,14 @@ class AddForm extends React.Component<Props, State> {
     );
   }
 
-  onSave = () => {
-    const { addAction, activeAction, closeModal } = this.props;
-    const { config } = this.state;
-
-    addAction(activeAction, '', activeAction.id, config);
-    closeModal();
-  };
-
   render() {
     return (
-      <>
+      <Common config={this.state.config} {...this.props}>
         {this.renderSelect()}
         {this.renderName()}
-
-        <ModalFooter>
-          <Button
-            btnStyle="simple"
-            type="button"
-            onClick={this.props.closeModal}
-            icon="times-circle"
-          >
-            {__('Cancel')}
-          </Button>
-
-          <Button btnStyle="success" icon="checked-1" onClick={this.onSave}>
-            Save
-          </Button>
-        </ModalFooter>
-      </>
+      </Common>
     );
   }
 }
 
-export default AddForm;
+export default BoardItemForm;

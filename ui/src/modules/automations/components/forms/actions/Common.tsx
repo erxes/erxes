@@ -1,0 +1,51 @@
+import React from 'react';
+import { __ } from 'modules/common/utils';
+import { IAction } from 'modules/automations/types';
+import { ModalFooter } from 'modules/common/styles/main';
+import Button from 'modules/common/components/Button';
+
+type Props = {
+  closeModal: () => void;
+  activeAction: IAction;
+  addAction: (
+    action: IAction,
+    contentId?: string,
+    actionId?: string,
+    config?: any
+  ) => void;
+  config: any;
+  children: React.ReactNode;
+};
+
+function Common(props: Props) {
+  const { addAction, activeAction, closeModal, config, children } = props;
+
+  const onSave = () => {
+    addAction(activeAction, '', activeAction.id, config);
+
+    closeModal();
+  };
+
+  return (
+    <>
+      {children}
+
+      <ModalFooter>
+        <Button
+          btnStyle="simple"
+          type="button"
+          onClick={closeModal}
+          icon="times-circle"
+        >
+          {__('Cancel')}
+        </Button>
+
+        <Button btnStyle="success" icon="checked-1" onClick={onSave}>
+          Save
+        </Button>
+      </ModalFooter>
+    </>
+  );
+}
+
+export default Common;
