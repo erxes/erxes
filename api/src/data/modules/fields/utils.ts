@@ -382,8 +382,6 @@ const getFormFields = async () => {
     }
   ]);
 
-  console.log(fields);
-
   return {
     _id: Math.random(),
     name: 'forms.formFieldIds',
