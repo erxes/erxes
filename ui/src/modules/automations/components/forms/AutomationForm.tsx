@@ -606,7 +606,7 @@ class AutomationForm extends React.Component<Props, State> {
           onClick={this.toggleDrawer.bind(this, 'triggers')}
         >
           <Icon icon="file-plus" size={25} />
-          <p>Add your use trigger or action</p>
+          <p>How do you want to trigger this automation?</p>
         </div>
       );
     }

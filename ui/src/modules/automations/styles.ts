@@ -8,6 +8,12 @@ import { rgba } from 'modules/common/styles/color';
 
 export const Container = styled.div`
   padding: ${dimensions.coreSpacing}px;
+  height: 100%;
+  background-image: radial-gradient(
+    ${colors.bgActive} 20%,
+    ${colors.colorWhite} 20%
+  );
+  background-size: ${dimensions.unitSpacing}px ${dimensions.unitSpacing}px;
 
   #canvas {
     position: relative;
@@ -99,7 +105,7 @@ export const Container = styled.div`
       display: flex;
       align-items: center;
       flex-direction: column;
-      padding: 20px 20px 10px;
+      padding: 20px 10px 10px;
       transition: all ease 0.3s;
 
       > i {
@@ -121,31 +127,11 @@ export const Container = styled.div`
   .action {
     .trigger-header {
       background: ${rgba(colors.colorCoreYellow, 0.12)};
+
+      i {
+        color: ${colors.colorCoreYellow} !important;
+      }
     }
-  }
-
-  .action[type='if'] {
-    background: #4a7cb8;
-  }
-
-  .action[type='goto'] {
-    background: #ed8d50;
-  }
-
-  .action[type='setProperty'] {
-    background: #ed0d50;
-  }
-
-  .action[type='createTicket'] {
-    background: #60cb98;
-  }
-
-  .action[type='createTask'] {
-    background: #db5d80;
-  }
-
-  .action[type='createDeal'] {
-    background: #60cb98;
   }
 `;
 
