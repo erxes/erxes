@@ -19,6 +19,7 @@ import { ISubmission } from '../db/models/definitions/fields';
 import { debugBase, debugError } from '../debuggers';
 import { client, fetchElk, getIndexPrefix } from '../elasticsearch';
 import { getVisitorLog, sendToVisitorLog } from './logUtils';
+import { getDocument } from './resolvers/mutations/cacheUtils';
 import { findCompany, findCustomer } from './utils';
 
 export const getOrCreateEngageMessage = async (
@@ -291,6 +292,7 @@ export const updateCustomerFromForm = async (
     middleName: customer.middleName || doc.middleName,
     sex: doc.pronoun,
     birthDate: doc.birthDate,
+    scopeBrandIds: [...doc.scopeBrandIds, ...(customer.scopeBrandIds || [])],
     ...(customer.primaryEmail
       ? {}
       : {
@@ -387,6 +389,11 @@ export const solveSubmissions = async (args: {
 }) => {
   let { cachedCustomerId } = args;
   const { integrationId, browserInfo, formId } = args;
+  const integration = await getDocument('integrations', { _id: integrationId });
+
+  console.log('=======================================================');
+  console.log(`Connected integration: ${JSON.stringify(integration)}`);
+  console.log('=======================================================');
 
   const submissionsGrouped = groupSubmissions(args.submissions);
 
@@ -581,7 +588,8 @@ export const solveSubmissions = async (args: {
           firstName,
           lastName,
           middleName,
-          primaryPhone: phone
+          primaryPhone: phone,
+          scopeBrandIds: [integration.brandId || '']
         });
       }
 
@@ -602,7 +610,8 @@ export const solveSubmissions = async (args: {
           isSubscribed,
           email,
           phone,
-          links: customerLinks
+          links: customerLinks,
+          scopeBrandIds: [integration.brandId || '']
         },
         cachedCustomer
       );
@@ -627,7 +636,8 @@ export const solveSubmissions = async (args: {
           firstName,
           lastName,
           middleName,
-          primaryPhone: phone
+          primaryPhone: phone,
+          scopeBrandIds: [integration.brandId || '']
         });
       }
 
@@ -648,12 +658,17 @@ export const solveSubmissions = async (args: {
           isSubscribed,
           email,
           phone,
-          links: customerLinks
+          links: customerLinks,
+          scopeBrandIds: [integration.brandId || '']
         },
         customer
       );
 
       conformityIds[groupId] = { customerId: customer._id, companyId: '' };
+
+      console.log('=======================================================');
+      console.log('Connected customer: ', JSON.stringify(customer));
+      console.log('=======================================================');
     }
 
     if (!(companyEmail || companyPhone || companyName)) {
