@@ -155,7 +155,7 @@ export const Container = styled.div`
     .trigger-header {
       background: ${rgba(colors.colorCoreYellow, 0.12)};
 
-      i {
+      div > i {
         color: ${colors.colorCoreYellow} !important;
       }
     }
@@ -188,9 +188,11 @@ export const TriggerBox = styledTS<{ selected?: boolean }>(styled.div)`
   }
 `;
 
-export const ActionBox = styled(TriggerBox)`
+export const ActionBox = styledTS<{ isFavourite: boolean }>(styled(TriggerBox))`
   flex-direction: row;
-  margin-bottom: ${dimensions.unitSpacing}px;
+  margin-top: ${dimensions.unitSpacing}px;
+  margin-right: 0;
+  position: relative;
 
   > i {
     margin-right: ${dimensions.unitSpacing}px;
@@ -210,6 +212,16 @@ export const ActionBox = styled(TriggerBox)`
     }
     p {
       margin: 0;
+    }
+  }
+
+  .favourite-action {
+    position: absolute;
+    right: ${dimensions.coreSpacing}px;
+
+    > i {
+      background: ${props =>
+        props.isFavourite ? colors.colorCoreYellow : 'transparent'}
     }
   }
 `;
