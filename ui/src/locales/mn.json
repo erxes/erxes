@@ -483,6 +483,7 @@
   "Remove assignee": "Даалгаврыг арилгах",
   "Account settings": "Дансны тохиргоо",
   "General settings": "Ерөнхий тохиргоо",
+  "General Settings": "Ерөнхий тохиргоо",
   "Integration Settings": "Интеграцийн тохиргоо",
   "Personal settings": "Хувийн тохиргоо",
   "Add category": "Ангилал нэмэх",
@@ -1998,5 +1999,7 @@
   "Knowledgebase": "Суурь мэдлэг",
   "We're thrilled to have you on board and can't wait to see you set up your business here already": "Таныг онгоцонд суулгасандаа бид маш их баяртай байгаа бөгөөд таныг энд бизнесээ эхлүүлэхийг тэсэн ядан хүлээж байна",
   "Get Started": "Эхэлцгээе",
-  "Forum": "Форум"
+  "Forum": "Форум",
+  "Marketing":"Маркетинг",
+  "Reports":"Тайлан"
 }
