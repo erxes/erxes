@@ -5,9 +5,8 @@ import { colors } from 'erxes-ui/lib/styles/eindex';
 import { rgba } from 'modules/common/styles/color';
 
 export const connectorPaintStyle = {
-  strokeWidth: 3,
-  stroke: rgba(colors.colorBlack, 0.5),
-  dashstyle: '1 1'
+  strokeWidth: 2,
+  stroke: rgba(colors.colorBlack, 0.5)
 };
 
 export const hoverPaintStyle = {
@@ -26,7 +25,7 @@ export const sourceEndpoint = {
   },
   isSource: true,
   connector: [
-    'Bezier',
+    'Flowchart',
     { stub: [40, 60], gap: 10, cornerRadius: 5, alwaysRespectStubs: true }
   ],
   connectorStyle: connectorPaintStyle,

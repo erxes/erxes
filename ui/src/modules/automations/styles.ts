@@ -8,6 +8,12 @@ import { rgba } from 'modules/common/styles/color';
 
 export const Container = styled.div`
   padding: ${dimensions.coreSpacing}px;
+  height: 100%;
+  background-image: radial-gradient(
+    ${colors.bgActive} 20%,
+    ${colors.colorWhite} 20%
+  );
+  background-size: ${dimensions.unitSpacing}px ${dimensions.unitSpacing}px;
 
   #canvas {
     position: relative;
@@ -93,36 +99,39 @@ export const Container = styled.div`
       padding: ${dimensions.unitSpacing + 5}px ${dimensions.unitSpacing}px;
       color: ${colors.colorCoreGray};
     }
+
+    &.scratch {
+      top: 40%;
+      display: flex;
+      align-items: center;
+      flex-direction: column;
+      padding: 20px 10px 10px;
+      transition: all ease 0.3s;
+
+      > i {
+        width: 40px;
+        height: 40px;
+        line-height: 40px;
+        background: ${rgba(colors.colorSecondary, 0.12)};
+        border-radius: 40px;
+        color: ${colors.colorSecondary};
+        text-align: center;
+      }
+
+      &:hover {
+        border-color: ${colors.colorSecondary};
+      }
+    }
   }
 
   .action {
     .trigger-header {
       background: ${rgba(colors.colorCoreYellow, 0.12)};
+
+      i {
+        color: ${colors.colorCoreYellow} !important;
+      }
     }
-  }
-
-  .action[type='if'] {
-    background: #4a7cb8;
-  }
-
-  .action[type='goto'] {
-    background: #ed8d50;
-  }
-
-  .action[type='setProperty'] {
-    background: #ed0d50;
-  }
-
-  .action[type='createTicket'] {
-    background: #60cb98;
-  }
-
-  .action[type='createTask'] {
-    background: #db5d80;
-  }
-
-  .action[type='createDeal'] {
-    background: #60cb98;
   }
 `;
 
@@ -293,6 +302,32 @@ export const RightDrawerContainer = styled(RightMenuContainer)`
   z-index: 10;
 `;
 
+export const CenterBar = styled.div`
+  position: absolute;
+  left: 40%;
+
+  > div {
+    height: 30px;
+    border: 1px solid ${colors.borderDarker};
+    border-radius: ${dimensions.coreSpacing + dimensions.unitSpacing}px;
+
+    span {
+      font-weight: 500;
+      padding: 4px ${dimensions.coreSpacing}px;
+      border-radius: ${dimensions.coreSpacing + dimensions.unitSpacing}px;
+
+      &.active {
+        background: ${colors.colorSecondary};
+        color: ${colors.colorWhite};
+
+        &:before {
+          content: none;
+        }
+      }
+    }
+  }
+`;
+
 export const AutomationFormContainer = styled(Contents)`
   margin: 0;
 
@@ -344,5 +379,23 @@ export const Description = styled.div`
   > p {
     margin: ${dimensions.unitSpacing - 5}px 0 0 0;
     color: ${colors.colorCoreGray};
+  }
+`;
+
+export const ToggleWrapper = styled.div`
+  display: flex;
+  align-items: center;
+  margin-right: ${dimensions.coreSpacing}px;
+
+  > div {
+    margin: 0 ${dimensions.unitSpacing}px;
+  }
+
+  > span {
+    font-weight: 500;
+
+    &.active {
+      color: ${colors.colorCoreGray};
+    }
   }
 `;
