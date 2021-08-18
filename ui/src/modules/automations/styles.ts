@@ -399,3 +399,43 @@ export const ToggleWrapper = styled.div`
     }
   }
 `;
+
+export const EmptyContent = styled.div`
+  display: flex;
+  height: 100%;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+
+  > img {
+    width: 300px;
+  }
+
+  p {
+    text-align: center;
+    max-width: 400px;
+
+    b {
+      margin: ${dimensions.unitSpacing}px 0;
+      display: block;
+    }
+  }
+`;
+
+export const Status = styledTS<{ isActive: boolean }>(styled.div)`
+  color: ${props =>
+    props.isActive ? colors.colorCoreGreen : colors.colorCoreGray};
+  display: flex;
+  align-items: center;
+  text-transform: capitalize;
+
+  &:before {
+    content: '';
+    width: 10px;
+    height: 10px;
+    border-radius: 10px;
+    margin-right: 5px;
+    background: ${props =>
+      props.isActive ? colors.colorCoreGreen : colors.colorCoreGray};
+  }
+`;

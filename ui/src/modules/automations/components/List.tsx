@@ -12,6 +12,7 @@ import { withRouter, Link } from 'react-router-dom';
 import { IRouterProps } from '../../common/types';
 import { IAutomation } from '../types';
 import Row from './Row';
+import { EmptyContent } from '../styles';
 
 interface IProps extends IRouterProps {
   automations: IAutomation[];
@@ -122,6 +123,8 @@ class AutomationsList extends React.Component<IProps, State> {
               </th>
               <th>{__('Name')}</th>
               <th>{__('Status')}</th>
+              <th>{__('Last update')}</th>
+              <th>{__('Created date')}</th>
             </tr>
           </thead>
           <tbody id="automations" className={isExpand ? 'expand' : ''}>
@@ -169,7 +172,7 @@ class AutomationsList extends React.Component<IProps, State> {
       <BarItems>
         <FormControl
           type="text"
-          placeholder={__('Type to search')}
+          placeholder={__('Search an automation')}
           onChange={this.search}
           value={this.state.searchValue}
           autoFocus={true}
@@ -177,7 +180,7 @@ class AutomationsList extends React.Component<IProps, State> {
         />
         <Link to="/automations/blank">
           <Button btnStyle="success" size="small" icon="plus-circle">
-            {__('New automation')}
+            {__('Create an automation')}
           </Button>
         </Link>
       </BarItems>
@@ -202,8 +205,17 @@ class AutomationsList extends React.Component<IProps, State> {
             data={mainContent}
             loading={loading}
             count={(automations || []).length}
-            emptyText="Add in your first automation!"
-            emptyImage="/images/actions/1.svg"
+            emptyContent={
+              <EmptyContent>
+                <img src="/images/actions/automation.svg" />
+
+                <p>
+                  <b>You don’t have any automations yet.</b>
+                  Automatically execute repetitive tasks and make sure nothing
+                  falls through the cracks.
+                </p>
+              </EmptyContent>
+            }
           />
         }
       />

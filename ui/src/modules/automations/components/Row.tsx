@@ -1,6 +1,8 @@
 import FormControl from 'modules/common/components/form/Control';
 import React from 'react';
 import { IAutomation } from '../types';
+import dayjs from 'dayjs';
+import { Status } from '../styles';
 
 type Props = {
   automation: IAutomation;
@@ -24,6 +26,13 @@ function ActionRow({ automation, history, isChecked, toggleBulk }: Props) {
     history.push(`/automations/details/${automation._id}`);
   };
 
+  const renderStatus = () => {
+    const status = automation.status;
+    const isActive = status !== 'draft' ? true : false;
+
+    return <Status isActive={isActive}>{status}</Status>;
+  };
+
   return (
     <tr onClick={onTrClick}>
       <td id="automationsCheckBox" onClick={onClick}>
@@ -34,7 +43,9 @@ function ActionRow({ automation, history, isChecked, toggleBulk }: Props) {
         />
       </td>
       <td> {automation.name} </td>
-      <td> {automation.status} </td>
+      <td> {renderStatus()} </td>
+      <td> {dayjs(new Date()).format('MM/DD/YYYY')} </td>
+      <td> {dayjs(new Date()).format('MM/DD/YYYY')} </td>
     </tr>
   );
 }
