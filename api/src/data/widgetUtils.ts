@@ -19,6 +19,7 @@ import { ISubmission } from '../db/models/definitions/fields';
 import { debugBase, debugError } from '../debuggers';
 import { client, fetchElk, getIndexPrefix } from '../elasticsearch';
 import { getVisitorLog, sendToVisitorLog } from './logUtils';
+import { getDocument } from './resolvers/mutations/cacheUtils';
 import { findCompany, findCustomer } from './utils';
 
 export const getOrCreateEngageMessage = async (
@@ -388,7 +389,11 @@ export const solveSubmissions = async (args: {
 }) => {
   let { cachedCustomerId } = args;
   const { integrationId, browserInfo, formId } = args;
-  const integration = await Integrations.getIntegration({ _id: integrationId });
+  const integration = await getDocument('integrations', { _id: integrationId });
+
+  console.log('=======================================================');
+  console.log(`Connected integration: ${JSON.stringify(integration)}`);
+  console.log('=======================================================');
 
   const submissionsGrouped = groupSubmissions(args.submissions);
 
@@ -660,6 +665,10 @@ export const solveSubmissions = async (args: {
       );
 
       conformityIds[groupId] = { customerId: customer._id, companyId: '' };
+
+      console.log('=======================================================');
+      console.log('Connected customer: ', JSON.stringify(customer));
+      console.log('=======================================================');
     }
 
     if (!(companyEmail || companyPhone || companyName)) {
