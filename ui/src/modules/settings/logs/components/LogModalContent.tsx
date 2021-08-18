@@ -190,7 +190,7 @@ export default class LogModal extends React.Component<Props> {
     cls: string,
     iconType: string
   ): JSX.Element {
-    if (!data) {
+    if (!data || data === '{}') {
       return <span />;
     }
 
@@ -238,29 +238,25 @@ export default class LogModal extends React.Component<Props> {
     return (
       <>
         <div className="modal-items-list">
-          {log.oldData !== '{}' &&
-            this.renderData(
-              log.oldData,
-              'Before any changes',
-              'default',
-              'history'
-            )}
-          {log.addedData !== '{}' &&
-            this.renderData(log.addedData, 'Added fields', 'success', 'add')}
-          {log.changedData !== '{}' &&
-            this.renderData(
-              log.changedData,
-              'Changed fields',
-              'warning',
-              'edit'
-            )}
-          {log.removedData !== '{}' &&
-            this.renderData(
-              log.removedData,
-              'Removed fields',
-              'danger',
-              'trash'
-            )}
+          {this.renderData(
+            log.oldData,
+            'Before any changes',
+            'default',
+            'history'
+          )}
+          {this.renderData(log.addedData, 'Added fields', 'success', 'add')}
+          {this.renderData(
+            log.changedData,
+            'Changed fields',
+            'warning',
+            'edit'
+          )}
+          {this.renderData(
+            log.removedData,
+            'Removed fields',
+            'danger',
+            'trash'
+          )}
         </div>
       </>
     );
