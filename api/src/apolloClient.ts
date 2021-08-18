@@ -120,7 +120,7 @@ export const initApolloServer = async app => {
           scopeBrandIds = brandIds;
         }
 
-        if (!user.isOwner) {
+        if (!user.isOwner && scopeBrandIds.length > 0) {
           brandIdSelector = { _id: { $in: scopeBrandIds } };
           commonQuerySelector = { scopeBrandIds: { $in: scopeBrandIds } };
           commonQuerySelectorElk = { terms: { scopeBrandIds } };
