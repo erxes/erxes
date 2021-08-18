@@ -238,6 +238,12 @@ class Settings extends React.PureComponent {
                 'manageSkillTypes'
               ]
             )}
+            {this.renderBox(
+              'Organization settings',
+              '/images/erxes-35.png',
+              '/settings/organizationsettings',
+              ''
+            )}
           </div>
         </Row>
         <Divider />

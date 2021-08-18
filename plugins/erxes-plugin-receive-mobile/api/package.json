@@ -1,8 +1,0 @@
-{
-  "name": "erxes-npm-package",
-  "version": "0.0.2",
-  "main": "api/messageBrokers.ts",
-  "dependencies": {
-    "erxes-api-utils": "^0.0.25"
-  }
-}

@@ -5,5 +5,8 @@ export default {
     .default,
 
   'erxes-plugin-sync-erkhet': require('../../plugins/erxes-plugin-sync-erkhet/ui')
-    .default
+    .default,
+
+    'erxes-plugin-company-branding': require('../../plugins/erxes-plugin-company-branding/ui')
+      .default,
 };
