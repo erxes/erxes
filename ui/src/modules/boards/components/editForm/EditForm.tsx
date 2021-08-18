@@ -97,14 +97,14 @@ class EditForm extends React.Component<Props, State> {
           this.saveItem({ itemName });
         }
 
-        saveItem({ item }, updatedItem => {
-          if (onUpdate) {
-            onUpdate(updatedItem, prevStageId);
-          }
-        });
-
         localStorage.removeItem(`${updatedItem._id}Name`);
       }
+
+      saveItem({ item }, updatedSaveItem => {
+        if (onUpdate) {
+          onUpdate(updatedSaveItem, prevStageId);
+        }
+      });
     });
   };
 
