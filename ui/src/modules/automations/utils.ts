@@ -150,10 +150,14 @@ export const deleteControl = () => {
 
     (window as any).selectedControl = event.currentTarget.id;
     jquery(
-      "<div class='custom-menu'><button class='delete-control'>Delete control</button></div>"
+      `<div class='custom-menu'>
+        <i class="icon-notes note" title="Notes"></i>
+        <i class="icon-settings" title="Settings"></i>
+        <i class="icon-trash-alt delete-control" title="Delete control"></i>
+      </div>`
     )
       .appendTo('#canvas')
-      .css({ top: event.pageY - 180 + 'px', left: event.pageX - 100 + 'px' });
+      .css({ top: event.pageY - 200 + 'px', left: event.pageX - 150 + 'px' });
   });
 
   jquery('#canvas').bind('click', () => {

@@ -21,6 +21,33 @@ export const Container = styled.div`
     .custom-menu {
       z-index: 1000;
       position: absolute;
+
+      i {
+        background: #e3deee;
+        margin-left: ${dimensions.unitSpacing - 5}px;
+        padding: ${dimensions.unitSpacing - 5}px;
+        border-radius: 50%;
+        color: ${colors.colorSecondary};
+        cursor: pointer;
+        border: 1px solid ${colors.colorSecondary};
+        transition: all ease 0.3s;
+
+        &.note {
+          background: #f5f0e1;
+          color: ${colors.colorCoreYellow};
+          border: 1px solid ${colors.colorCoreYellow};
+        }
+
+        &.delete-control {
+          background: #ffe4e7;
+          color: ${colors.colorCoreRed};
+          border: 1px solid ${colors.colorCoreRed};
+        }
+
+        &:hover {
+          box-shadow: 0 0 2px 0 rgba(0, 0, 0, 0.4);
+        }
+      }
     }
 
     path,
