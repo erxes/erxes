@@ -28,7 +28,8 @@ type Props = {
 };
 
 export default class FormMessage extends React.Component<Props, {}> {
-  componentRef: any;
+  private componentRef;
+
   displayValue(data) {
     if (data.validation === 'date') {
       return dayjs(data.value).format('YYYY/MM/DD');
@@ -96,7 +97,7 @@ export default class FormMessage extends React.Component<Props, {}> {
     );
   }
 
-  onPrint() {
+  renderPrintBtn() {
     return (
       <PrintButton>
         <ReactToPrint content={() => this.componentRef}>
@@ -125,7 +126,7 @@ export default class FormMessage extends React.Component<Props, {}> {
             {formWidgetData.map(field => this.renderField(field))}
           </BodyContent>
         </PreviewBody>
-        {this.onPrint()}
+        {this.renderPrintBtn()}
       </FormTable>
     );
   }

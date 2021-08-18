@@ -240,10 +240,11 @@ const ThankContent = styled.div`
 
 const PrintButton = styled.div`
   button {
-    margin-right: 10px;
+    margin-right: ${dimensions.unitSpacing}px;
     float: right;
+
     i:before {
-      font-size: 15px;
+      font-size: ${dimensions.coreSpacing}px;
     }
   }
 `;
