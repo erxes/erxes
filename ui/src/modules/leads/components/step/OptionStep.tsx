@@ -90,7 +90,7 @@ class OptionStep extends React.Component<Props, {}> {
               id={'popupName'}
               required={true}
               onChange={this.onChangeTitle}
-              defaultValue={this.props.title}
+              value={this.props.title}
               autoFocus={true}
             />
           </FormGroup>

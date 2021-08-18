@@ -47,8 +47,8 @@ class Form extends React.Component<Props, State> {
 
     this.state = {
       fields: (props.formData ? props.formData.fields : props.fields) || [],
-      title: form.title || '',
-      desc: form.description || '',
+      title: form.title || 'Form Title',
+      desc: form.description || 'Form Description',
       buttonText: form.buttonText || 'Send',
       currentMode: undefined,
       currentField: undefined,
@@ -73,12 +73,12 @@ class Form extends React.Component<Props, State> {
         nextProps.formData
           ? { ...nextProps.formData }
           : {
-              title,
-              description: desc,
-              buttonText,
-              fields,
-              type
-            }
+            title,
+            description: desc,
+            buttonText,
+            fields,
+            type
+          }
       );
     }
   }
