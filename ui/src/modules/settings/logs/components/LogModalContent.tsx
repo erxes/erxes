@@ -236,29 +236,17 @@ export default class LogModal extends React.Component<Props> {
     }
 
     return (
-      <>
-        <div className="modal-items-list">
-          {this.renderData(
-            log.oldData,
-            'Before any changes',
-            'default',
-            'history'
-          )}
-          {this.renderData(log.addedData, 'Added fields', 'success', 'add')}
-          {this.renderData(
-            log.changedData,
-            'Changed fields',
-            'warning',
-            'edit'
-          )}
-          {this.renderData(
-            log.removedData,
-            'Removed fields',
-            'danger',
-            'trash'
-          )}
-        </div>
-      </>
+      <div className="modal-items-list">
+        {this.renderData(
+          log.oldData,
+          'Before any changes',
+          'default',
+          'history'
+        )}
+        {this.renderData(log.addedData, 'Added fields', 'success', 'add')}
+        {this.renderData(log.changedData, 'Changed fields', 'warning', 'edit')}
+        {this.renderData(log.removedData, 'Removed fields', 'danger', 'trash')}
+      </div>
     );
   }
 
