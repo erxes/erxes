@@ -98,15 +98,11 @@ class EditFormContainer extends React.Component<FinalProps> {
   }
 
   addItem(doc: IItemParams, callback: () => void) {
-    const { onAdd, addMutation, stageId, options } = this.props;
+    const { addMutation } = this.props;
 
     addMutation({ variables: doc })
-      .then(({ data }) => {
+      .then(() => {
         callback();
-
-        if (onAdd) {
-          onAdd(stageId, data[options.mutationsName.addMutation]);
-        }
       })
       .catch(error => {
         Alert.error(error.message);
