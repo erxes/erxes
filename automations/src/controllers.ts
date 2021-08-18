@@ -28,7 +28,9 @@ router.post(
     const { doc } = req.body;
     const automation = await Automations.create({ ...doc });
 
-    return res.json({ ...(await Automations.getAutomation({ _id: automation._id })) });
+    return res.json({
+      ...(await Automations.getAutomation({ _id: automation._id }))
+    });
   })
 );
 
@@ -83,10 +85,12 @@ router.get(
 
     if (status) {
       filter.status = status;
+    } else {
+      filter.status = { $ne: 'template' };
     }
 
     if (searchValue) {
-      filter.name = new RegExp(`.*${searchValue}.*`, 'i')
+      filter.name = new RegExp(`.*${searchValue}.*`, 'i');
     }
 
     const automations = await Automations.find(filter)
@@ -98,7 +102,7 @@ router.get(
       return res.json({ list: [], totalCount: 0 });
     }
 
-    const totalCount = await Automations.countDocuments();
+    const totalCount = await Automations.find(filter).countDocuments();
 
     return res.json({
       list: automations,
@@ -110,9 +114,10 @@ router.get(
 router.get(
   '/find',
   routeErrorHandling(async (req, res) => {
-    const { selector } = req.query;
+    const selector = req.query;
 
     const automations = await Automations.find(selector);
+
     return res.json(automations);
   })
 );

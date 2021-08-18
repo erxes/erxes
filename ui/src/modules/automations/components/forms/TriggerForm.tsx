@@ -14,6 +14,7 @@ import { ITrigger } from 'modules/automations/types';
 
 type Props = {
   onClickTrigger: (trigger: ITrigger) => void;
+  templates: any[];
 };
 
 type State = {
@@ -57,7 +58,7 @@ class TriggerForm extends React.Component<Props, State> {
 
   renderTabContent() {
     if (this.state.currentTab === 'library') {
-      return <>library templates</>;
+      return this.props.templates.map(t => <div key={t._id}>{t.name}</div>);
     }
 
     return TRIGGERS.map((trigger, index) =>

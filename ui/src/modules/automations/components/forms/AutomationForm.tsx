@@ -44,6 +44,7 @@ type Props = {
   id?: string;
   automation?: IAutomation;
   save: (params: any) => void;
+  saveAs?: (params: any) => void;
 };
 
 type State = {
@@ -172,11 +173,11 @@ class AutomationForm extends React.Component<Props, State> {
     this.wrapperRef = node;
   };
 
-  handleSubmit = (e: React.FormEvent) => {
+  handleSubmit = (e: React.FormEvent, isSaveAs?: boolean) => {
     e.preventDefault();
 
     const { name, status, triggers, actions } = this.state;
-    const { id, save } = this.props;
+    const { id, save, saveAs } = this.props;
 
     if (!name) {
       return Alert.error('Enter an Automation name');
@@ -212,7 +213,11 @@ class AutomationForm extends React.Component<Props, State> {
       return finalValues;
     };
 
-    save(generateValues());
+    if (isSaveAs && saveAs) {
+      saveAs(generateValues());
+    } else {
+      save(generateValues());
+    }
   };
 
   onAddActionConfig = config => {
@@ -463,6 +468,14 @@ class AutomationForm extends React.Component<Props, State> {
           onClick={this.toggleDrawer.bind(this, 'actions')}
         >
           Add an Action
+        </Button>
+        <Button
+          btnStyle="success"
+          size="small"
+          icon={'check-circle'}
+          onClick={e => this.handleSubmit(e, true)}
+        >
+          Save as a template
         </Button>
         <Button
           btnStyle="success"

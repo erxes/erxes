@@ -32,6 +32,7 @@ const listParamsDef = `
   $searchValue: String
   $sortField: String
   $sortDirection: Int
+  $status: String
 `;
 
 const listParamsValue = `
@@ -42,6 +43,7 @@ const listParamsValue = `
   searchValue: $searchValue
   sortField: $sortField
   sortDirection: $sortDirection
+  status: $status
 `;
 
 export const automations = `

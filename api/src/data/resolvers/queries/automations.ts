@@ -15,7 +15,7 @@ const automationQueries = {
   /**
    * Automations list
    */
-  async automations(_root, params: IListArgs, { dataSources }: IContext) {
+  automations(_root, params: IListArgs, { dataSources }: IContext) {
     return dataSources.AutomationsAPI.getAutomations(params);
   },
 
