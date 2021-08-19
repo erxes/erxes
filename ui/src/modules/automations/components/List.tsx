@@ -207,7 +207,7 @@ class AutomationsList extends React.Component<IProps, State> {
             count={(automations || []).length}
             emptyContent={
               <EmptyContent>
-                <img src="/images/actions/automation.svg" />
+                <img src="/images/actions/automation.svg" alt="empty-img" />
 
                 <p>
                   <b>You don’t have any automations yet.</b>

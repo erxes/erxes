@@ -478,3 +478,70 @@ export const Status = styledTS<{ isActive: boolean }>(styled.div)`
       props.isActive ? colors.colorCoreGreen : colors.colorCoreGray};
   }
 `;
+
+export const EnrollmentWrapper = styled.div`
+  border: 1px solid ${colors.borderPrimary};
+  padding: ${dimensions.unitSpacing}px;
+  margin-top: ${dimensions.unitSpacing}px;
+  border-radius: 5px;
+
+  > div {
+    margin-top: 0;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    > span {
+      margin-right: ${dimensions.headerSpacing}px;
+
+      b {
+        text-transform: uppercase;
+        display: block;
+        margin-bottom: ${dimensions.unitSpacing}px;
+      }
+
+      p {
+        color: ${colors.colorCoreGray};
+      }
+    }
+  }
+
+  > p {
+    margin-top: ${dimensions.unitSpacing}px;
+    font-weight: 500;
+  }
+`;
+
+export const StyledToggle = styled.div`
+  display: block;
+  justify-content: center !important;
+  background: ${rgba(colors.colorPrimary, 0.12)};
+  padding: ${dimensions.coreSpacing}px;
+  border-radius: 5px;
+
+  .react-toggle-track {
+    background-color: #aeb0eb;
+  }
+
+  .react-toggle-thumb {
+    border-color: #aeb0eb;
+  }
+
+  .react-toggle--checked .react-toggle-track,
+  .react-toggle:hover:not(.react-toggle--disabled) .react-toggle-track {
+    background-color: ${colors.colorSecondary} !important;
+  }
+
+  .react-toggle--checked .react-toggle-thumb {
+    border-color: ${colors.colorSecondary} !important;
+  }
+`;
+
+export const Checkbox = styled.div`
+  flex-direction: column;
+  align-items: flex-start !important;
+
+  > label {
+    margin-bottom: 5px;
+  }
+`;
