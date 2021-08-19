@@ -14,6 +14,7 @@ import DateControl from 'modules/common/components/form/DateControl';
 import Button from 'modules/common/components/Button';
 import Icon from 'modules/common/components/Icon';
 import dayjs from 'dayjs';
+import UnEnrollment from 'modules/automations/containers/forms/UnEnrollment';
 
 type Props = {
   hours: any[];
@@ -192,7 +193,7 @@ class Settings extends React.Component<Props, State> {
       );
     }
 
-    return null;
+    return <UnEnrollment />;
   }
 
   render() {
