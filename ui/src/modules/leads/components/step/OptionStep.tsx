@@ -5,6 +5,7 @@ import { LeftItem } from 'modules/common/components/step/styles';
 import Toggle from 'modules/common/components/Toggle';
 import { __ } from 'modules/common/utils';
 import { IFormData } from 'modules/forms/types';
+import { LANGUAGES } from 'modules/settings/general/constants';
 import SelectBrand from 'modules/settings/integrations/containers/SelectBrand';
 import SelectChannels from 'modules/settings/integrations/containers/SelectChannels';
 import { IField } from 'modules/settings/properties/types';
@@ -117,8 +118,12 @@ class OptionStep extends React.Component<Props, {}> {
               onChange={onChangeLanguage}
             >
               <option />
-              <option value="mn">Монгол</option>
-              <option value="en">English</option>
+
+              {LANGUAGES.map((item, index) => (
+                <option key={index} value={item.value}>
+                  {item.label}
+                </option>
+              ))}
             </FormControl>
           </FormGroup>
 
