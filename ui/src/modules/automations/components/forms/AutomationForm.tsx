@@ -40,6 +40,7 @@ import PageContent from 'modules/layout/components/PageContent';
 import { Link } from 'react-router-dom';
 import { Tabs, TabTitle } from 'modules/common/components/tabs';
 import Toggle from 'modules/common/components/Toggle';
+import Settings from './Settings';
 
 const plumb: any = jsPlumb;
 let instance;
@@ -620,19 +621,29 @@ class AutomationForm extends React.Component<Props, State> {
   renderContent() {
     const { automation } = this.props;
 
+    if (!this.state.isAction) {
+      return <Settings />;
+    }
+
     if (!automation) {
       return (
-        <div
-          className="trigger scratch"
-          onClick={this.toggleDrawer.bind(this, 'triggers')}
-        >
-          <Icon icon="file-plus" size={25} />
-          <p>How do you want to trigger this automation?</p>
-        </div>
+        <Container>
+          <div
+            className="trigger scratch"
+            onClick={this.toggleDrawer.bind(this, 'triggers')}
+          >
+            <Icon icon="file-plus" size={25} />
+            <p>How do you want to trigger this automation?</p>
+          </div>
+        </Container>
       );
     }
 
-    return <div id="canvas" />;
+    return (
+      <Container>
+        <div id="canvas" />
+      </Container>
+    );
   }
 
   render() {
@@ -658,7 +669,7 @@ class AutomationForm extends React.Component<Props, State> {
               }
               transparent={false}
             >
-              <Container>{this.renderContent()}</Container>
+              {this.renderContent()}
             </PageContent>
           </AutomationFormContainer>
 

@@ -11,6 +11,7 @@ import {
   TriggerTabs
 } from 'modules/automations/styles';
 import { ITrigger } from 'modules/automations/types';
+import ReEnrollmentContainer from 'modules/automations/containers/forms/ReEnrollment';
 
 type Props = {
   onClickTrigger: (trigger: ITrigger) => void;
@@ -57,8 +58,8 @@ class TriggerForm extends React.Component<Props, State> {
   }
 
   renderTabContent() {
-    if (this.state.currentTab === 'library') {
-      return this.props.templates.map(t => <div key={t._id}>{t.name}</div>);
+    if (this.state.currentTab === 'reenrollment') {
+      return <ReEnrollmentContainer />;
     }
 
     return TRIGGERS.map((trigger, index) =>
@@ -86,10 +87,10 @@ class TriggerForm extends React.Component<Props, State> {
               {__('Start from scratch')}
             </TabTitle>
             <TabTitle
-              className={currentTab === 'library' ? 'active' : ''}
-              onClick={this.tabOnClick.bind(this, 'library')}
+              className={currentTab === 'reenrollment' ? 'active' : ''}
+              onClick={this.tabOnClick.bind(this, 'reenrollment')}
             >
-              {__('Library')}
+              {__('Re-enrollment')}
             </TabTitle>
           </Tabs>
         </TriggerTabs>
