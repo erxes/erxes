@@ -22,11 +22,17 @@ type Props = {
 type FinalProps = {
   automationDetailQuery: DetailQueryResponse;
   currentUser: IUser;
+  saveAsTemplateMutation: any;
 } & Props &
   EditMutationResponse;
 
 const AutomationDetailsContainer = (props: FinalProps) => {
-  const { automationDetailQuery, currentUser, editAutomationMutation } = props;
+  const {
+    automationDetailQuery,
+    currentUser,
+    editAutomationMutation,
+    saveAsTemplateMutation
+  } = props;
 
   const save = (doc: IAutomation) => {
     editAutomationMutation({
@@ -36,6 +42,22 @@ const AutomationDetailsContainer = (props: FinalProps) => {
     })
       .then(() => {
         Alert.success(`You successfully updated a ${doc.name}`);
+      })
+
+      .catch(error => {
+        Alert.error(error.message);
+      });
+  };
+
+  const saveAs = (variables: IAutomation) => {
+    console.log('variables: ', variables);
+    saveAsTemplateMutation({
+      variables
+    })
+      .then(() => {
+        Alert.success(`You successfully save as a template`);
+
+        window.location.href = '/automations';
       })
 
       .catch(error => {
@@ -60,7 +82,8 @@ const AutomationDetailsContainer = (props: FinalProps) => {
     loading: automationDetailQuery.loading,
     automation: automationDetail,
     currentUser,
-    save
+    save,
+    saveAs
   };
 
   return <AutomationForm {...updatedProps} />;
@@ -87,6 +110,9 @@ export default withProps<Props>(
           refetchQueries: ['automations', 'automationsMain', 'automationDetail']
         })
       }
-    )
+    ),
+    graphql<{}, any, IAutomation>(gql(mutations.automationsSaveAsTemplate), {
+      name: 'saveAsTemplateMutation'
+    })
   )(AutomationDetailsContainer)
 );

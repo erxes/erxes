@@ -65,6 +65,7 @@ const queryParams = `
   searchValue: String
   sortField: String
   sortDirection: Int
+  status: String
 `;
 
 export const queries = `
@@ -82,6 +83,7 @@ const commonFields = `
 
 export const mutations = `
   automationsAdd(${commonFields}): Automation
+  automationsSaveAsTemplate(${commonFields}): Automation
   automationsEdit(_id: String, ${commonFields}): Automation
   automationsRemove(automationIds: [String]): [String]
 `;

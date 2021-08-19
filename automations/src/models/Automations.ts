@@ -8,27 +8,34 @@ export interface IAction {
   nextActionId?: string;
   config?: any;
   style?: any;
-  icon?: string
-  label?: string
-  description?: string
+  icon?: string;
+  label?: string;
+  description?: string;
 }
 
-export type TriggerType = 'lead' | 'customer' | 'company' | 'deal' | 'task' | 'ticket' | 'conversation';
+export type TriggerType =
+  | 'lead'
+  | 'customer'
+  | 'company'
+  | 'deal'
+  | 'task'
+  | 'ticket'
+  | 'conversation';
 
 export type ReEnrollmentRule = {
   property: string;
   description?: string;
-}
+};
 
 export interface ITrigger {
   id: string;
   type: string;
   actionId?: string;
-  config: { segmentId: string, reEnrollmentRules: ReEnrollmentRule[] };
+  config: { segmentId: string; reEnrollmentRules: ReEnrollmentRule[] };
   style?: any;
-  icon?: string
-  label?: string
-  description?: string
+  icon?: string;
+  label?: string;
+  description?: string;
 }
 
 export interface IAutomation {
@@ -42,37 +49,43 @@ export interface IAutomationDocument extends IAutomation, Document {
   _id: string;
 }
 
-export const triggerSchema = new Schema({
-  id: { type: String, required: true },
-  type: { type: String, required: true },
-  actionId: { type: String },
-  config: { type: Object },
-  style: { type: Object },
-  icon: { type: String, optional: true },
-  label: { type: String, optional: true },
-  description: { type: String, optional: true }
-}, { _id: false });
+export const triggerSchema = new Schema(
+  {
+    id: { type: String, required: true },
+    type: { type: String, required: true },
+    actionId: { type: String },
+    config: { type: Object },
+    style: { type: Object },
+    icon: { type: String, optional: true },
+    label: { type: String, optional: true },
+    description: { type: String, optional: true }
+  },
+  { _id: false }
+);
 
-export const actionSchema = new Schema({
-  id: { type: String, required: true },
-  type: { type: String, required: true },
-  nextActionId: { type: String },
-  config: { type: Object },
-  style: { type: Object },
-  icon: { type: String, optional: true },
-  label: { type: String, optional: true },
-  description: { type: String, optional: true }
-}, { _id: false });
+export const actionSchema = new Schema(
+  {
+    id: { type: String, required: true },
+    type: { type: String, required: true },
+    nextActionId: { type: String },
+    config: { type: Object },
+    style: { type: Object },
+    icon: { type: String, optional: true },
+    label: { type: String, optional: true },
+    description: { type: String, optional: true }
+  },
+  { _id: false }
+);
 
 export const automationSchema = new Schema({
   name: { type: String, required: true },
   status: { type: String, default: 'draft' },
   triggers: { type: [triggerSchema] },
-  actions: { type: [actionSchema] },
+  actions: { type: [actionSchema] }
 });
 
 export interface IAutomationModel extends Model<IAutomationDocument> {
-  getAutomation(selector: any): IAutomationDocument
+  getAutomation(selector: any): IAutomationDocument;
 }
 
 export const loadClass = () => {
@@ -90,6 +103,9 @@ export const loadClass = () => {
 loadClass();
 
 // tslint:disable-next-line
-const Automations = model<IAutomationDocument, IAutomationModel>('automations', automationSchema);
+const Automations = model<IAutomationDocument, IAutomationModel>(
+  'automations',
+  automationSchema
+);
 
 export default Automations;

@@ -4,7 +4,8 @@ import { checkPermission } from '../../permissions/wrappers';
 import { IContext } from '../../types';
 
 interface IAutomation {
-  name;
+  name: string;
+  status: string;
 }
 
 interface IAutomationsEdit extends IAutomation {
@@ -63,6 +64,34 @@ const automationMutations = {
     );
 
     return updated;
+  },
+
+  /**
+   * Save as a template
+   */
+  async automationsSaveAsTemplate(
+    _root,
+    doc: IAutomation,
+    { user, docModifier, dataSources }: IContext
+  ) {
+    console.log('=====================', doc);
+
+    doc.status = 'template';
+
+    const automation = await dataSources.AutomationsAPI.createAutomation(
+      docModifier(doc)
+    );
+
+    await putUpdateLog(
+      {
+        type: MODULE_NAMES.AUTOMATION,
+        object: automation,
+        newData: doc
+      },
+      user
+    );
+
+    return automation;
   },
 
   /**
