@@ -5,6 +5,7 @@ import styledTS from 'styled-components-ts';
 import { RightMenuContainer } from 'modules/boards/styles/rightMenu';
 import { Contents } from 'modules/layout/styles';
 import { rgba } from 'modules/common/styles/color';
+import { DateWrapper } from 'modules/forms/styles';
 
 export const Container = styled.div`
   padding: ${dimensions.coreSpacing}px;
@@ -543,5 +544,84 @@ export const Checkbox = styled.div`
 
   > label {
     margin-bottom: 5px;
+  }
+`;
+
+export const LeftSidebar = styled.ul`
+  list-style: none;
+  margin: 0;
+  width: 300px;
+
+  > li {
+    font-weight: 500;
+    cursor: pointer;
+    font-size: 14px;
+    margin-bottom: ${dimensions.unitSpacing}px;
+
+    &.active {
+      color: ${colors.colorSecondary};
+    }
+  }
+`;
+
+export const SettingsLayout = styled.div`
+  padding: ${dimensions.headerSpacing}px 0 ${dimensions.coreSpacing}px;
+  display: flex;
+`;
+
+export const SettingsContent = styled.div`
+  padding: 0 ${dimensions.coreSpacing}px;
+  flex: 1;
+
+  h3 {
+    text-transform: capitalize;
+    margin: 0 0 ${dimensions.unitSpacing}px 0;
+    font-size: ${dimensions.coreSpacing}px;
+  }
+`;
+
+export const SpecificTimeContainer = styled.div`
+  .row {
+    display: flex;
+    margin: 0;
+
+    > span,
+    button {
+      padding: 0 ${dimensions.coreSpacing}px ${dimensions.coreSpacing}px;
+      color: ${colors.colorCoreGray};
+      display: flex;
+      align-items: center;
+    }
+  }
+
+  label {
+    display: none;
+  }
+
+  .Select {
+    width: 200px;
+    flex: initial !important;
+
+    span .Select-value-label {
+      color: ${colors.textPrimary} !important;
+    }
+  }
+
+  .hATdPU span {
+    color: ${colors.colorCoreGray};
+  }
+`;
+
+export const DateControlWrapper = styled(DateWrapper)`
+  .date-row {
+    display: flex;
+    align-items: center;
+    margin-bottom: ${dimensions.coreSpacing}px;
+
+    > span,
+    label {
+      flex: inherit;
+      margin-right: ${dimensions.coreSpacing}px;
+    }
   }
 `;
