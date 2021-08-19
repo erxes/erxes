@@ -203,7 +203,8 @@ const configQueries = {
           'lastName',
           'middleName',
           'primaryPhone',
-          'primaryEmail'
+          'primaryEmail',
+          'searchText'
         ])
       },
       {
@@ -217,7 +218,8 @@ const configQueries = {
           'businessType',
           'description',
           'website',
-          'code'
+          'code',
+          'searchText'
         ])
       },
       {
