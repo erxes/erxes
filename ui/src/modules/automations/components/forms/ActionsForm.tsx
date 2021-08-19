@@ -47,26 +47,33 @@ class ActionsForm extends React.Component<Props, State> {
         onClick={onClickAction.bind(this, action)}
         isFavourite={this.state.isFavourite}
       >
-        <Icon icon={action.icon} size={30} />
-        <div>
-          <b>{__(action.label)}</b>
-          <p>{__(action.description)}</p>
-        </div>
-        <Tip text="Favourite" placement="top">
-          <div className="favourite-action" onClick={this.onFavourite}>
-            <Icon icon="star" size={20} />
+        <div className="left">
+          <Icon icon={action.icon} size={30} />
+          <div>
+            <b>{__(action.label)}</b>
+            <p>{__(action.description)}</p>
           </div>
-        </Tip>
+        </div>
+        <div className="right">
+          <Tip text="Favourite" placement="top">
+            <div className="favourite-action" onClick={this.onFavourite}>
+              <Icon icon="star" size={20} />
+            </div>
+          </Tip>
+        </div>
       </ActionBox>
     );
   }
 
   renderContent() {
-    if (this.state.currentTab === 'favourite') {
-      return <>app templates</>;
-    }
+    const actions =
+      this.state.currentTab === 'favourite'
+        ? JSON.parse(
+            localStorage.getItem('automations_favourite_actions') || '[]'
+          )
+        : ACTIONS;
 
-    return ACTIONS.map((action, index) => (
+    return actions.map((action, index) => (
       <React.Fragment key={index}>
         {this.renderBox(action, index)}
       </React.Fragment>

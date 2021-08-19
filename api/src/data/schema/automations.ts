@@ -25,6 +25,8 @@ export const types = `
     _id: String!
     name: String
     status: String
+    createdAt: Date
+    updatedAt: Date
     triggers: [Trigger]
     actions: [Action]
   }

@@ -206,6 +206,14 @@ export const ActionBox = styledTS<{ isFavourite: boolean }>(styled(TriggerBox))`
     color: ${colors.textPrimary};
   }
 
+  .left {
+    width: 90%;
+  }
+
+  .right {
+    width: 10%;
+  }
+
   > div {
     b {
       color: ${colors.textPrimary};

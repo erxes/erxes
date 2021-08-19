@@ -81,7 +81,13 @@ export const automationSchema = new Schema({
   name: { type: String, required: true },
   status: { type: String, default: 'draft' },
   triggers: { type: [triggerSchema] },
-  actions: { type: [actionSchema] }
+  actions: { type: [actionSchema] },
+  createdAt: {
+    type: Date,
+    default: new Date(),
+    label: 'Created date'
+  },
+  updatedAt: { type: Date, label: 'Updated date' }
 });
 
 export interface IAutomationModel extends Model<IAutomationDocument> {

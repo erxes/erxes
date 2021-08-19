@@ -61,6 +61,8 @@ export const automationsMain = `
         _id
         name
         status
+        createdAt
+        updatedAt
       }
 
       totalCount
