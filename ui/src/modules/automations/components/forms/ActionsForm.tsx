@@ -47,20 +47,16 @@ class ActionsForm extends React.Component<Props, State> {
         onClick={onClickAction.bind(this, action)}
         isFavourite={this.state.isFavourite}
       >
-        <div className="left">
-          <Icon icon={action.icon} size={30} />
-          <div>
-            <b>{__(action.label)}</b>
-            <p>{__(action.description)}</p>
+        <Icon icon={action.icon} size={30} />
+        <div>
+          <b>{__(action.label)}</b>
+          <p>{__(action.description)}</p>
+        </div>
+        <Tip text="Favourite" placement="top">
+          <div className="favourite-action" onClick={this.onFavourite}>
+            <Icon icon="star" size={20} />
           </div>
-        </div>
-        <div className="right">
-          <Tip text="Favourite" placement="top">
-            <div className="favourite-action" onClick={this.onFavourite}>
-              <Icon icon="star" size={20} />
-            </div>
-          </Tip>
-        </div>
+        </Tip>
       </ActionBox>
     );
   }
