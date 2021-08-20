@@ -567,6 +567,7 @@ export const LeftSidebar = styled.ul`
 export const SettingsLayout = styled.div`
   padding: ${dimensions.headerSpacing}px 0 ${dimensions.coreSpacing}px;
   display: flex;
+  font-size: 14px;
 `;
 
 export const SettingsContent = styled.div`
@@ -582,6 +583,12 @@ export const SettingsContent = styled.div`
   label {
     display: block;
     margin-bottom: ${dimensions.unitSpacing}px;
+  }
+
+  p {
+    color: ${colors.colorCoreGray};
+    font-weight: 500;
+    margin-top: ${dimensions.unitSpacing}px;
   }
 `;
 
@@ -626,21 +633,13 @@ export const DateControlWrapper = styled(DateWrapper)`
     > span,
     label {
       flex: inherit;
-      margin-right: ${dimensions.coreSpacing}px;
+      margin: 0 ${dimensions.coreSpacing}px 0 0;
     }
   }
 `;
 
 export const UnEnroll = styled.div`
-  font-size: 14px;
-
   > div {
     margin-bottom: ${dimensions.unitSpacing}px;
-  }
-
-  p {
-    color: ${colors.colorCoreGray};
-    font-weight: 500;
-    margin-top: ${dimensions.unitSpacing}px;
   }
 `;

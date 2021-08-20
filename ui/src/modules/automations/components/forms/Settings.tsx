@@ -36,7 +36,7 @@ class Settings extends React.Component<Props, State> {
 
     this.state = {
       currentTab: 'general',
-      time: 'any',
+      time: 'specific',
       hours: (props.hours || []).map(hour => ({ ...hour })),
       selectedOption: {},
       date: dayjs(new Date()).format('YYYY-MM-DD'),
@@ -62,7 +62,6 @@ class Settings extends React.Component<Props, State> {
   };
 
   onDateChange = date => {
-    console.log(date);
     this.setState({ date });
   };
 
@@ -149,6 +148,7 @@ class Settings extends React.Component<Props, State> {
             <FormGroup>
               <FormControl
                 componentClass="checkbox"
+                // componentClass="radio"
                 value="any"
                 onChange={this.onChangeTimeType}
                 // checked={time === "any"}
@@ -159,6 +159,7 @@ class Settings extends React.Component<Props, State> {
 
               <FormControl
                 componentClass="checkbox"
+                // componentClass="radio"
                 value="specific"
                 onChange={this.onChangeTimeType}
                 // checked={time === "specific"}
