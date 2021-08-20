@@ -1,57 +1,70 @@
 export const ACTIONS = [
   {
-    type: 'chooseAction',
-    icon: 'shoppingcart',
-    label: 'Choose action',
-    description: 'Add a new action'
+    type: 'if',
+    icon: 'share-alt',
+    label: 'Branches',
+    description: 'Create simple or if/then branches',
+    isAvailable: true
+  },
+  {
+    type: 'setProperty',
+    icon: 'calcualtor',
+    label: 'Manage properies',
+    description:
+      'Update existing default or custom properties for Contacts, Companies, Cards, Conversations',
+    isAvailable: true
   },
   {
     type: 'createTask',
     icon: 'file-plus-alt',
     label: 'Create task',
-    description: 'Add a new action'
+    description: 'Add a new action',
+    isAvailable: true
   },
   {
     type: 'createDeal',
     icon: 'piggy-bank',
     label: 'Create deal',
-    description: 'Add a new action'
+    description: 'Add a new action',
+    isAvailable: true
   },
   {
     type: 'createTicket',
     icon: 'file-plus',
     label: 'Create ticket',
-    description: 'Add a new action'
+    description: 'Add a new action',
+    isAvailable: true
   },
   {
-    type: 'if',
-    icon: 'share-alt',
-    label: 'IF',
-    description: 'Add a new action'
-  },
-  {
-    type: 'setProperty',
-    icon: 'calcualtor',
-    label: 'Set property',
-    description: 'Add a new action'
-  },
-  {
-    type: 'goto',
+    type: 'delay',
     icon: 'arrows-up-right',
-    label: 'Go to another action',
-    description: 'Add a new action'
+    label: 'Delay',
+    description:
+      'Delay the next action with a timeframe, a specific event or activity',
+    isAvailable: false
   },
   {
-    type: 'wait',
+    type: 'workflow',
     icon: 'hourglass',
-    label: 'Wait for next action',
-    description: 'Add a new action'
+    label: 'Workflow',
+    description:
+      'Enroll in another workflow,  trigger outgoing webhook or write custom code',
+    isAvailable: false
   },
   {
-    type: 'sendEmail',
+    type: 'manageTags',
+    icon: 'tag',
+    label: 'Manage Tags',
+    description:
+      'Tag associated Contacts, Companies, or Team Inbox conversations',
+    isAvailable: false
+  },
+  {
+    type: 'externalCommunications',
     icon: 'fast-mail',
-    label: 'Send email',
-    description: 'Send email'
+    label: 'External communications',
+    description: 'Send email, SMS or in-app messenger messages to Contacts',
+    isAvailable: false
   }
 ];
 

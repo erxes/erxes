@@ -36,7 +36,7 @@ class Settings extends React.Component<Props, State> {
 
     this.state = {
       currentTab: 'general',
-      time: 'specific',
+      time: 'any',
       hours: (props.hours || []).map(hour => ({ ...hour })),
       selectedOption: {},
       date: dayjs(new Date()).format('YYYY-MM-DD'),

@@ -1,6 +1,13 @@
 import React from 'react';
+import Select from 'react-select-plus';
 import { IAction } from 'modules/automations/types';
 import Common from './Common';
+import { DrawerDetail } from 'modules/automations/styles';
+import FormGroup from 'modules/common/components/form/Group';
+import ControlLabel from 'modules/common/components/form/Label';
+import { PROPERTY_TYPES, PROPERTY_FIELD, PROPERTY_OPERATOR } from './constants';
+import { __ } from 'modules/common/utils';
+import FormControl from 'modules/common/components/form/Control';
 
 type Props = {
   closeModal: () => void;
@@ -43,63 +50,60 @@ class SetProperty extends React.Component<Props, State> {
 
   renderContent() {
     const { config } = this.state;
-    const onChangeSelect = (field, e) =>
-      this.onChangeField(field, e.target.value);
+
+    const onChangeSelect = (field, e) => this.onChangeField(field, e.value);
     const onChangeValue = e => this.onChangeField('value', e.target.value);
 
     return (
-      <>
-        <p>
-          <label>Module</label>
+      <DrawerDetail>
+        <FormGroup>
+          <ControlLabel>Property type</ControlLabel>
 
-          <select
-            onChange={onChangeSelect.bind(this, 'module')}
+          <Select
+            isRequired={true}
             value={config.module}
-          >
-            <option value="">Choose module</option>
-            <option value="company">Company</option>
-            <option value="customer">Customer</option>
-            <option value="deal">Deal</option>
-            <option value="task">Task</option>
-            <option value="ticket">Ticket</option>
-            <option value="conversation">Conversation</option>
-          </select>
-        </p>
+            options={PROPERTY_TYPES.map(p => ({
+              label: p.label,
+              value: p.value
+            }))}
+            onChange={onChangeSelect.bind(this, 'module')}
+            placeholder={__('Choose type')}
+          />
+        </FormGroup>
 
-        <p>
-          <label>Field</label>
+        <FormGroup>
+          <ControlLabel>Field</ControlLabel>
 
-          <select
-            onChange={onChangeSelect.bind(this, 'field')}
+          <Select
             value={config.field}
-          >
-            <option value="">Choose field</option>
-            <option value="size">size</option>
-            <option value="amount">amount</option>
-            <option value="state">state</option>
-          </select>
-        </p>
+            options={PROPERTY_FIELD.map(f => ({
+              label: f.label,
+              value: f.value
+            }))}
+            onChange={onChangeSelect.bind(this, 'field')}
+            placeholder={__('Choose field')}
+          />
+        </FormGroup>
 
-        <p>
-          <label>Operator</label>
+        <FormGroup>
+          <ControlLabel>Operator</ControlLabel>
 
-          <select
-            onChange={onChangeSelect.bind(this, 'operator')}
+          <Select
             value={config.operator}
-          >
-            <option value="">Choose operator</option>
-            <option value="set">Set</option>
-            <option value="add">Add</option>
-            <option value="subtract">Subtract</option>
-          </select>
-        </p>
+            options={PROPERTY_OPERATOR.map(f => ({
+              label: f.label,
+              value: f.value
+            }))}
+            onChange={onChangeSelect.bind(this, 'operator')}
+            placeholder={__('Choose operator')}
+          />
+        </FormGroup>
 
-        <p>
-          <label>Value</label>
-
-          <input onChange={onChangeValue} value={config.value} />
-        </p>
-      </>
+        <FormGroup>
+          <ControlLabel>Value</ControlLabel>
+          <FormControl onChange={onChangeValue} value={config.value} />
+        </FormGroup>
+      </DrawerDetail>
     );
   }
 
