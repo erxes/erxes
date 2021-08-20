@@ -101,7 +101,10 @@ const commonNoteFields = `
 export const mutations = `
   automationsAdd(${commonFields}): Automation
   automationsSaveAsTemplate(${commonFields}): Automation
-  automationsAddNote(${commonNoteFields}): AutomationNote
   automationsEdit(_id: String, ${commonFields}): Automation
   automationsRemove(automationIds: [String]): [String]
+
+  automationsAddNote(${commonNoteFields}): AutomationNote
+  automationsEditNote(_id: String!, ${commonNoteFields}): AutomationNote
+  automationsRemoveNote(_id: String!): AutomationNote
 `;

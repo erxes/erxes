@@ -72,15 +72,6 @@ export default class AutomationAPI extends RESTDataSource {
     }
   }
 
-  public async createAutomationNote(doc) {
-    try {
-      return this.post(`/api/createNote`, { doc });
-    } catch (e) {
-      debugError(e);
-      return { error: e.message };
-    }
-  }
-
   public async updateAutomation(doc) {
     try {
       return this.post(`/api/update`, { doc });
@@ -108,9 +99,45 @@ export default class AutomationAPI extends RESTDataSource {
     }
   }
 
+  public async createAutomationNote(doc) {
+    try {
+      return this.post(`/api/createNote`, { doc });
+    } catch (e) {
+      debugError(e);
+      return { error: e.message };
+    }
+  }
+
+  public async updateAutomationNote(_id, doc) {
+    try {
+      return this.post(`/api/updateNote`, { _id, doc });
+    } catch (e) {
+      debugError(e);
+      return { error: e.message };
+    }
+  }
+
+  public async removeAutomationNote(_id: string) {
+    try {
+      return this.post(`/api/deleteNote`, { _id });
+    } catch (e) {
+      debugError(e);
+      return { error: e.message };
+    }
+  }
+
   public async getAutomationNotes(selector) {
     try {
       return this.get(`/api/notes`, selector);
+    } catch (e) {
+      debugError(e);
+      return { error: e.message };
+    }
+  }
+
+  public async getAutomationNote(selector) {
+    try {
+      return this.get(`/api/note`, selector);
     } catch (e) {
       debugError(e);
       return { error: e.message };

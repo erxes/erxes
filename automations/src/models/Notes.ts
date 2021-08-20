@@ -14,22 +14,34 @@ export interface INoteDocument extends INote, Document {
 }
 
 const noteSchema = new Schema({
-  automationId: { type: String, required: true },
+  automationId: { type: String },
   triggerId: { type: String },
   actionId: { type: String },
   description: { type: String, required: true },
-  createdBy: { type: String, required: true },
+  updatedBy: { type: String },
+  updatedAt: { type: Date },
+  createdBy: { type: String },
   createdAt: { type: Date, default: Date.now(), required: true }
 });
 
 export interface INoteModel extends Model<INoteDocument> {
   createNote(doc: any): INoteDocument;
+  updateNote(_id: string, doc: any): INoteDocument;
 }
 
 export const loadClass = () => {
   class Note {
     public static async createNote(doc: INote) {
       return Notes.create({ createdAt: new Date(), ...doc });
+    }
+
+    public static async updateNote(_id: string, doc: INote) {
+      await Notes.updateOne(
+        { _id },
+        { $set: { updatedAt: new Date(), ...doc } }
+      );
+
+      return Notes.findOne(doc);
     }
   }
 

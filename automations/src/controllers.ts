@@ -141,6 +141,31 @@ router.post(
   })
 );
 
+router.post(
+  '/updateNote',
+  routeErrorHandling(async (req, res) => {
+    debugRequest(debugAutomations, req);
+
+    const { _id, doc } = req.body;
+    const note = await Notes.updateNote(_id, doc);
+
+    return res.json(note);
+  })
+);
+
+router.post(
+  '/deleteNote',
+  routeErrorHandling(async (req, res) => {
+    debugRequest(debugAutomations, req);
+
+    const { _id } = req.body;
+
+    const response = await Notes.deleteOne({ _id });
+
+    return res.json(response);
+  })
+);
+
 router.get(
   '/notes',
   routeErrorHandling(async (req, res) => {
@@ -151,6 +176,21 @@ router.get(
     const notes = await Notes.find(selector).sort({ createdAt: -1 });
 
     return res.json(notes);
+  })
+);
+
+router.get(
+  '/note',
+  routeErrorHandling(async (req, res) => {
+    debugRequest(debugAutomations, req);
+
+    const selector = req.query;
+
+    const note = await Notes.findOne(selector).lean();
+
+    console.log('note: ', note);
+
+    return res.json(note);
   })
 );
 
