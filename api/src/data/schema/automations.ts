@@ -31,6 +31,13 @@ export const types = `
     actions: [Action]
   }
 
+  type AutomationNote {
+    _id: String
+    description: String
+    createdUser: User
+    createdAt: Date
+  }
+
   type AutomationsListResponse {
     list: [Automation],
     totalCount: Float,
@@ -74,6 +81,7 @@ export const queries = `
   automationsMain(${queryParams}): AutomationsListResponse
   automations(${queryParams}): [Automation]
   automationDetail(_id: String!): Automation
+  automationNotes(automationId: String): [AutomationNote]
 `;
 
 const commonFields = `
@@ -83,9 +91,17 @@ const commonFields = `
   actions: [ActionInput],
 `;
 
+const commonNoteFields = `
+  automationId: String
+  triggerId: String
+  actionId: String
+  description: String
+`;
+
 export const mutations = `
   automationsAdd(${commonFields}): Automation
   automationsSaveAsTemplate(${commonFields}): Automation
+  automationsAddNote(${commonNoteFields}): AutomationNote
   automationsEdit(_id: String, ${commonFields}): Automation
   automationsRemove(automationIds: [String]): [String]
 `;

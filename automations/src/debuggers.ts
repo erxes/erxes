@@ -3,7 +3,7 @@ import * as debug from 'debug';
 export const debugInit = debug('erxes-automations:init');
 export const debugDb = debug('erxes-automations:db');
 export const debugBase = debug('erxes-automations:base');
-export const debugEngages = debug('erxes-automations:automations');
+export const debugAutomations = debug('erxes-automations:automations');
 export const debugError = debug('erxes-automations:error');
 
 export const debugRequest = (debugInstance, req) =>

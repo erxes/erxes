@@ -1,6 +1,7 @@
 import { Router } from 'express';
-import { debugError, debugEngages, debugRequest } from './debuggers';
+import { debugError, debugAutomations, debugRequest } from './debuggers';
 import Automations from './models/Automations';
+import { Notes } from './models/Notes';
 
 export const routeErrorHandling = (fn, callback?: any) => {
   return async (req, res, next) => {
@@ -23,7 +24,7 @@ const router = Router();
 router.post(
   '/create',
   routeErrorHandling(async (req, res) => {
-    debugRequest(debugEngages, req);
+    debugRequest(debugAutomations, req);
 
     const { doc } = req.body;
     const automation = await Automations.create({
@@ -40,7 +41,7 @@ router.post(
 router.post(
   '/update',
   routeErrorHandling(async (req, res) => {
-    debugRequest(debugEngages, req);
+    debugRequest(debugAutomations, req);
     const { doc } = req.body;
     const { _id } = doc;
 
@@ -57,7 +58,7 @@ router.post(
 router.post(
   '/remove',
   routeErrorHandling(async (req, res) => {
-    debugRequest(debugEngages, req);
+    debugRequest(debugAutomations, req);
 
     const { automationIds } = req.body;
     await Automations.deleteMany({ _id: { $in: automationIds } });
@@ -69,7 +70,7 @@ router.post(
 router.get(
   '/detail/:id',
   routeErrorHandling(async (req, res) => {
-    debugRequest(debugEngages, req);
+    debugRequest(debugAutomations, req);
 
     const { id } = req.params;
 
@@ -125,6 +126,31 @@ router.get(
     const automations = await Automations.find(selector);
 
     return res.json(automations);
+  })
+);
+
+router.post(
+  '/createNote',
+  routeErrorHandling(async (req, res) => {
+    debugRequest(debugAutomations, req);
+
+    const { doc } = req.body;
+    const note = await Notes.createNote(doc);
+
+    return res.json(note);
+  })
+);
+
+router.get(
+  '/notes',
+  routeErrorHandling(async (req, res) => {
+    debugRequest(debugAutomations, req);
+
+    const selector = req.query;
+
+    const notes = await Notes.find(selector).sort({ createdAt: -1 });
+
+    return res.json(notes);
   })
 );
 

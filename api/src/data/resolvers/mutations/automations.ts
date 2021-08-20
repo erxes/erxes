@@ -8,6 +8,8 @@ interface IAutomation {
   status: string;
 }
 
+interface IAutomationNote {}
+
 interface IAutomationsEdit extends IAutomation {
   _id: string;
 }
@@ -86,6 +88,32 @@ const automationMutations = {
         type: MODULE_NAMES.AUTOMATION,
         object: automation,
         newData: doc
+      },
+      user
+    );
+
+    return automation;
+  },
+
+  /**
+   * Save as a template
+   */
+  async automationsAddNote(
+    _root,
+    doc: IAutomationNote,
+    { user, docModifier, dataSources }: IContext
+  ) {
+    const noteDoc = { ...doc, createdBy: user._id };
+
+    const automation = await dataSources.AutomationsAPI.createAutomationNote(
+      docModifier(noteDoc)
+    );
+
+    await putUpdateLog(
+      {
+        type: MODULE_NAMES.AUTOMATION,
+        object: automation,
+        newData: noteDoc
       },
       user
     );

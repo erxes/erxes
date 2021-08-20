@@ -20,6 +20,17 @@ const automationQueries = {
   },
 
   /**
+   * Automations note list
+   */
+  automationNotes(
+    _root,
+    params: { automationId: string },
+    { dataSources }: IContext
+  ) {
+    return dataSources.AutomationsAPI.getAutomationNotes(params);
+  },
+
+  /**
    * Automations for only main list
    */
   automationsMain(_root, params: IListArgs, { dataSources }: IContext) {
