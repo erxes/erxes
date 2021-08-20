@@ -41,7 +41,7 @@ export const loadClass = () => {
         { $set: { updatedAt: new Date(), ...doc } }
       );
 
-      return Notes.findOne(doc);
+      return Notes.findOne({ _id }).lean();
     }
   }
 

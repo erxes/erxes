@@ -159,12 +159,18 @@ const automationMutations = {
   ) {
     const note = await dataSources.AutomationsAPI.getAutomationNote({ _id });
 
+    if (!note) {
+      throw new Error('Note not found');
+    }
+
     const noteDoc = { ...doc, updatedBy: user._id };
 
     const updated = await dataSources.AutomationsAPI.updateAutomationNote(
       _id,
       docModifier(noteDoc)
     );
+
+    console.log('updated: ', updated);
 
     await putUpdateLog(
       {
@@ -189,7 +195,9 @@ const automationMutations = {
   ) {
     const note = await dataSources.AutomationsAPI.getAutomationNote({ _id });
 
-    console.log('note: ', note);
+    if (!note) {
+      throw new Error('Note not found');
+    }
 
     await dataSources.AutomationsAPI.removeAutomationNote(_id);
 

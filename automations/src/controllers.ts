@@ -188,8 +188,6 @@ router.get(
 
     const note = await Notes.findOne(selector).lean();
 
-    console.log('note: ', note);
-
     return res.json(note);
   })
 );
