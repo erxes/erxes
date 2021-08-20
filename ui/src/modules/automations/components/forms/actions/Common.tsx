@@ -3,6 +3,7 @@ import { __ } from 'modules/common/utils';
 import { IAction } from 'modules/automations/types';
 import { ModalFooter } from 'modules/common/styles/main';
 import Button from 'modules/common/components/Button';
+import { ActionFooter } from 'modules/automations/styles';
 
 type Props = {
   closeModal: () => void;
@@ -30,20 +31,22 @@ function Common(props: Props) {
     <>
       {children}
 
-      <ModalFooter>
-        <Button
-          btnStyle="simple"
-          type="button"
-          onClick={closeModal}
-          icon="times-circle"
-        >
-          {__('Cancel')}
-        </Button>
+      <ActionFooter>
+        <ModalFooter>
+          <Button
+            btnStyle="simple"
+            type="button"
+            onClick={closeModal}
+            icon="times-circle"
+          >
+            {__('Cancel')}
+          </Button>
 
-        <Button btnStyle="success" icon="checked-1" onClick={onSave}>
-          Save
-        </Button>
-      </ModalFooter>
+          <Button btnStyle="success" icon="checked-1" onClick={onSave}>
+            Save
+          </Button>
+        </ModalFooter>
+      </ActionFooter>
     </>
   );
 }

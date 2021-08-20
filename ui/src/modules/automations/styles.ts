@@ -653,3 +653,14 @@ export const UnEnroll = styled.div`
     margin-bottom: ${dimensions.unitSpacing}px;
   }
 `;
+
+export const DrawerDetail = styled.div`
+  padding: ${dimensions.coreSpacing}px;
+  border: 1px solid ${colors.borderPrimary};
+  border-radius: 5px;
+`;
+
+export const ActionFooter = styled.div`
+  position: absolute;
+  bottom: ${dimensions.coreSpacing}px;
+`;
