@@ -232,8 +232,7 @@ export const ActionBox = styledTS<{
     right: ${dimensions.coreSpacing}px;
 
     > i {
-      background: ${props =>
-        props.isFavourite ? colors.colorCoreYellow : 'transparent'}
+      color: ${props => props.isFavourite && colors.colorCoreYellow}
     }
   }
 `;

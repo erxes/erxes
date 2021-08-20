@@ -68,7 +68,7 @@ class ActionsForm extends React.Component<Props, State> {
           {!action.isAvailable && <span>Coming soon</span>}
           <p>{__(action.description)}</p>
         </div>
-        <Tip text="Favourite" placement="top">
+        <Tip text={isFavourite ? 'Unfavourite' : 'Favourite'} placement="top">
           <div
             className="favourite-action"
             onClick={() => this.onFavourite(action)}

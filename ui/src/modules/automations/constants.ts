@@ -15,13 +15,6 @@ export const ACTIONS = [
     isAvailable: true
   },
   {
-    type: 'createRecord',
-    icon: 'file-plus-alt',
-    label: 'Create new record',
-    description: 'Create new Task, Ticket, Deal cards',
-    isAvailable: true
-  },
-  {
     type: 'createTask',
     icon: 'file-plus-alt',
     label: 'Create task',
