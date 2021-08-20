@@ -22,7 +22,7 @@ const automationQueries = {
   /**
    * Automations for only main list
    */
-  async automationsMain(_root, params: IListArgs, { dataSources }: IContext) {
+  automationsMain(_root, params: IListArgs, { dataSources }: IContext) {
     return dataSources.AutomationsAPI.getAutomationsMain(params);
   },
 

@@ -41,7 +41,7 @@ const AutomationDetailsContainer = (props: FinalProps) => {
       }
     })
       .then(() => {
-        Alert.success(`You successfully updated a ${doc.name}`);
+        Alert.success(`You successfully updated a ${doc.name || 'status'}`);
       })
 
       .catch(error => {
@@ -50,7 +50,6 @@ const AutomationDetailsContainer = (props: FinalProps) => {
   };
 
   const saveAs = (variables: IAutomation) => {
-    console.log('variables: ', variables);
     saveAsTemplateMutation({
       variables
     })

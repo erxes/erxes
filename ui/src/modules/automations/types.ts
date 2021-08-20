@@ -27,6 +27,8 @@ export interface IAutomationDoc {
   status: string;
   triggers: ITrigger[];
   actions: IAction[];
+  updatedAt?: Date;
+  createdAt?: Date;
 }
 
 export interface IAutomation extends IAutomationDoc {

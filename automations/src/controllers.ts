@@ -26,7 +26,10 @@ router.post(
     debugRequest(debugEngages, req);
 
     const { doc } = req.body;
-    const automation = await Automations.create({ ...doc });
+    const automation = await Automations.create({
+      ...doc,
+      createdAt: new Date()
+    });
 
     return res.json({
       ...(await Automations.getAutomation({ _id: automation._id }))
@@ -41,7 +44,10 @@ router.post(
     const { doc } = req.body;
     const { _id } = doc;
 
-    await Automations.updateOne({ _id }, { $set: { ...doc } });
+    await Automations.updateOne(
+      { _id },
+      { $set: { ...doc, updatedAt: new Date() } }
+    );
     const updated = await Automations.getAutomation({ _id });
 
     return res.json({ ...updated });
@@ -67,9 +73,9 @@ router.get(
 
     const { id } = req.params;
 
-    const automations = await Automations.getAutomation({ _id: id });
+    const automation = await Automations.getAutomation({ _id: id });
 
-    return res.json(automations);
+    return res.json(automation);
   })
 );
 

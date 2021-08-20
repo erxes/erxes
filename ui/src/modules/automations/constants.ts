@@ -1,6 +1,6 @@
 export const ACTIONS = [
   {
-    type: '',
+    type: 'chooseAction',
     icon: 'shoppingcart',
     label: 'Choose action',
     description: 'Add a new action'

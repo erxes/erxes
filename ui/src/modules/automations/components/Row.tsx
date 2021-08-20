@@ -44,8 +44,14 @@ function ActionRow({ automation, history, isChecked, toggleBulk }: Props) {
       </td>
       <td> {automation.name} </td>
       <td> {renderStatus()} </td>
-      <td> {dayjs(new Date()).format('MM/DD/YYYY')} </td>
-      <td> {dayjs(new Date()).format('MM/DD/YYYY')} </td>
+      <td>
+        {' '}
+        {dayjs(automation.updatedAt || new Date()).format('MM/DD/YYYY')}{' '}
+      </td>
+      <td>
+        {' '}
+        {dayjs(automation.createdAt || new Date()).format('MM/DD/YYYY')}{' '}
+      </td>
     </tr>
   );
 }

@@ -48,6 +48,7 @@ const automationMutations = {
     const automation = await dataSources.AutomationsAPI.getAutomationDetail(
       _id
     );
+
     const updated = await dataSources.AutomationsAPI.updateAutomation({
       _id,
       ...doc
@@ -74,8 +75,6 @@ const automationMutations = {
     doc: IAutomation,
     { user, docModifier, dataSources }: IContext
   ) {
-    console.log('=====================', doc);
-
     doc.status = 'template';
 
     const automation = await dataSources.AutomationsAPI.createAutomation(

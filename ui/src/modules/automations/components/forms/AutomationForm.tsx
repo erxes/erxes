@@ -91,7 +91,7 @@ class AutomationForm extends React.Component<Props, State> {
       activeTrigger: {} as ITrigger,
       currentTab: 'triggers',
       isAction: true,
-      isActive: false,
+      isActive: automation.status === 'active',
       showTrigger: false,
       showDrawer: false,
       showAction: false,
@@ -234,7 +234,15 @@ class AutomationForm extends React.Component<Props, State> {
   };
 
   onToggle = e => {
-    this.setState({ isActive: e.target.checked });
+    const isActive = e.target.checked;
+
+    this.setState({ isActive });
+
+    const { save, automation } = this.props;
+
+    if (automation) {
+      save({ _id: automation._id, status: isActive ? 'active' : 'draft' });
+    }
   };
 
   onAddActionConfig = config => {
