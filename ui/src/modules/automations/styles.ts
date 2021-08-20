@@ -575,8 +575,13 @@ export const SettingsContent = styled.div`
 
   h3 {
     text-transform: capitalize;
-    margin: 0 0 ${dimensions.unitSpacing}px 0;
+    margin: 0 0 ${dimensions.coreSpacing}px 0;
     font-size: ${dimensions.coreSpacing}px;
+  }
+
+  label {
+    display: block;
+    margin-bottom: ${dimensions.unitSpacing}px;
   }
 `;
 
@@ -623,5 +628,19 @@ export const DateControlWrapper = styled(DateWrapper)`
       flex: inherit;
       margin-right: ${dimensions.coreSpacing}px;
     }
+  }
+`;
+
+export const UnEnroll = styled.div`
+  font-size: 14px;
+
+  > div {
+    margin-bottom: ${dimensions.unitSpacing}px;
+  }
+
+  p {
+    color: ${colors.colorCoreGray};
+    font-weight: 500;
+    margin-top: ${dimensions.unitSpacing}px;
   }
 `;

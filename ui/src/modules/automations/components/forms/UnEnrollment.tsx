@@ -3,16 +3,17 @@ import Select from 'react-select-plus';
 import { __ } from 'modules/common/utils';
 import FormGroup from 'modules/common/components/form/Group';
 import FormControl from 'modules/common/components/form/Control';
+import { UnEnroll } from 'modules/automations/styles';
 
 type Props = {};
 
 class UnEnrollment extends React.Component<Props> {
   render() {
     return (
-      <div>
+      <UnEnroll>
         <h3>{__('Unenrollment and suppression')}</h3>
         <div>
-          <p>{'What times do you want the actions to execute'}?</p>
+          <p>{'When contacts enroll in this workflow'}</p>
           <FormGroup>
             <FormControl
               componentClass="radio"
@@ -21,7 +22,7 @@ class UnEnrollment extends React.Component<Props> {
               // checked={time === "any"}
               inline={true}
             >
-              {__('Any time')}
+              {__('Do not remove them from other workflows')}
             </FormControl>
 
             <FormControl
@@ -31,7 +32,7 @@ class UnEnrollment extends React.Component<Props> {
               // checked={time === "specific"}
               inline={true}
             >
-              {__('Specific times')}
+              {__('Remove them from all other workflows')}
             </FormControl>
             <FormControl
               componentClass="radio"
@@ -40,13 +41,17 @@ class UnEnrollment extends React.Component<Props> {
               // checked={time === "specific"}
               inline={true}
             >
-              {__('Specific times')}
+              {__('Remove them from aspecific workflows')}
             </FormControl>
           </FormGroup>
         </div>
 
         <div>
-          <p>{'What times do you want the actions to execute'}?</p>
+          <p>
+            {
+              'When a contact no longer meets the enrollment conditions, remove them from this workflow'
+            }
+          </p>
           <FormGroup>
             <FormControl
               componentClass="radio"
@@ -55,7 +60,7 @@ class UnEnrollment extends React.Component<Props> {
               // checked={time === "any"}
               inline={true}
             >
-              {__('Any time')}
+              {__('Yes, remove them from this workflow')}
             </FormControl>
 
             <FormControl
@@ -65,13 +70,18 @@ class UnEnrollment extends React.Component<Props> {
               // checked={time === "specific"}
               inline={true}
             >
-              {__('Specific times')}
+              {__('No, keep them in this workflow')}
             </FormControl>
           </FormGroup>
         </div>
 
         <div>
-          <p>{'What times do you want the actions to execute'}?</p>
+          <p>
+            {
+              'When two contacts are merged, shoud the newly created contact enroll in this workflow if they meet the trigger criteria'
+            }
+            ?
+          </p>
           <FormGroup>
             <FormControl
               componentClass="radio"
@@ -80,7 +90,7 @@ class UnEnrollment extends React.Component<Props> {
               // checked={time === "any"}
               inline={true}
             >
-              {__('Any time')}
+              {__('Yes')}
             </FormControl>
 
             <FormControl
@@ -90,13 +100,18 @@ class UnEnrollment extends React.Component<Props> {
               // checked={time === "specific"}
               inline={true}
             >
-              {__('Specific times')}
+              {__('No')}
             </FormControl>
           </FormGroup>
         </div>
 
         <div>
-          <p>{'What times do you want the actions to execute'}?</p>
+          <b>Suppression lists for this workflow</b>
+          <p>
+            {
+              'Contacts on these lists will be removed from the workflow. You can add up to 20 suppression lists'
+            }
+          </p>
           <Select
             isRequired={true}
             value={''}
@@ -105,7 +120,7 @@ class UnEnrollment extends React.Component<Props> {
             placeholder={__('Select')}
           />
         </div>
-      </div>
+      </UnEnroll>
     );
   }
 }
