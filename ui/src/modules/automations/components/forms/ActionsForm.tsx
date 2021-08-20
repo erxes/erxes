@@ -60,10 +60,12 @@ class ActionsForm extends React.Component<Props, State> {
         key={index}
         onClick={onClickAction.bind(this, action)}
         isFavourite={isFavourite}
+        isAvailable={action.isAvailable}
       >
         <Icon icon={action.icon} size={30} />
         <div>
           <b>{__(action.label)}</b>
+          {!action.isAvailable && <span>Coming soon</span>}
           <p>{__(action.description)}</p>
         </div>
         <Tip text="Favourite" placement="top">

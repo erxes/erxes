@@ -189,11 +189,15 @@ export const TriggerBox = styledTS<{ selected?: boolean }>(styled.div)`
   }
 `;
 
-export const ActionBox = styledTS<{ isFavourite: boolean }>(styled(TriggerBox))`
+export const ActionBox = styledTS<{
+  isFavourite: boolean;
+  isAvailable: boolean;
+}>(styled(TriggerBox))`
   flex-direction: row;
   margin-top: ${dimensions.unitSpacing}px;
   margin-right: 0;
   position: relative;
+  pointer-events: ${props => !props.isAvailable && 'none'};
 
   > i {
     margin-right: ${dimensions.unitSpacing}px;
@@ -204,6 +208,7 @@ export const ActionBox = styledTS<{ isFavourite: boolean }>(styled(TriggerBox))`
     line-height: 45px;
     text-align: center;
     font-size: 22px;
+    flex-shrink: 0;
     color: ${colors.textPrimary};
   }
 
@@ -213,6 +218,12 @@ export const ActionBox = styledTS<{ isFavourite: boolean }>(styled(TriggerBox))`
     }
     p {
       margin: 0;
+      max-width: 350px;
+    }
+    span {
+      padding-left: ${dimensions.unitSpacing}px;
+      color: ${colors.colorCoreYellow};
+      font-weight: 500;
     }
   }
 
@@ -320,7 +331,7 @@ export const TypeBox = styled(CenterFlexRow)`
   }
 
   > img {
-    width: 80px;
+    width: 60px;
     margin-right: ${dimensions.unitSpacing}px;
   }
 

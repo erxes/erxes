@@ -7,6 +7,7 @@ export type IAction = {
   label?: string;
   description?: string;
   nextActionId?: string;
+  isAvailable?: boolean;
   style?: any;
   config?: any;
 };
