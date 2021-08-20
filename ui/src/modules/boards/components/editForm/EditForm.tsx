@@ -31,8 +31,11 @@ class EditForm extends React.Component<Props, State> {
   constructor(props) {
     super(props);
 
+    const item = props.item;
+
     this.state = {
-      stageId: props.item.stageId
+      stageId: item.stageId,
+      updatedItem: item
     };
   }
 
@@ -84,11 +87,24 @@ class EditForm extends React.Component<Props, State> {
 
   onHideModal = () => {
     this.closeModal(() => {
-      const { updatedItem, prevStageId } = this.state;
+      const { prevStageId, updatedItem } = this.state;
+      const { saveItem, onUpdate, item } = this.props;
 
-      if (updatedItem && this.props.onUpdate) {
-        this.props.onUpdate(updatedItem, prevStageId);
+      if (updatedItem) {
+        const itemName = localStorage.getItem(`${updatedItem._id}Name`) || '';
+
+        if (itemName && updatedItem.name !== itemName) {
+          this.saveItem({ itemName });
+        }
+
+        localStorage.removeItem(`${updatedItem._id}Name`);
       }
+
+      saveItem({ item }, updatedSaveItem => {
+        if (onUpdate) {
+          onUpdate(updatedSaveItem, prevStageId);
+        }
+      });
     });
   };
 

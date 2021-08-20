@@ -16,6 +16,7 @@ import {
 import { __, getEnv } from 'modules/common/utils';
 import { FlexContent } from 'modules/layout/styles';
 import { IBrand } from 'modules/settings/brands/types';
+import { LANGUAGES } from 'modules/settings/general/constants';
 import SelectBrand from 'modules/settings/integrations/containers/SelectBrand';
 import {
   ColorPick,
@@ -150,12 +151,7 @@ class KnowledgeForm extends React.Component<Props, State> {
         <ReactMarkdown source={code} />
         {code ? (
           <CopyToClipboard text={code} onCopy={this.onCopy.bind(this, name)}>
-            <Button
-              btnStyle="primary"
-              size="small"
-              icon="copy-1"
-              uppercase={false}
-            >
+            <Button btnStyle="primary" size="small" icon="copy-1">
               {copied ? 'Copied' : 'Copy to clipboard'}
             </Button>
           </CopyToClipboard>
@@ -285,8 +281,12 @@ class KnowledgeForm extends React.Component<Props, State> {
                 name="languageCode"
               >
                 <option />
-                <option value="mn">Монгол</option>
-                <option value="en">English</option>
+
+                {LANGUAGES.map((item, index) => (
+                  <option key={index} value={item.value}>
+                    {item.label}
+                  </option>
+                ))}
               </FormControl>
             </FormGroup>
           </ExpandWrapper>
@@ -371,7 +371,6 @@ class KnowledgeForm extends React.Component<Props, State> {
               </Button>
 
               <Button
-                uppercase={false}
                 btnStyle="primary"
                 icon="plus-circle"
                 onClick={this.onSimulate}

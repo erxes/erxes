@@ -60,10 +60,18 @@ jobs:
         run: |
           yarn lint ui
 
+<<<<<<< HEAD
       - name: Tsc
         run: |
           cd ui
           yarn tsc
+=======
+    - name: Cypress run
+      run: |
+        cd ui
+        yarn install
+#        yarn record-cypress
+>>>>>>> cc009fb4d8bb0e1a7586b944624a5f760f72c66b
 
       - name: Build
         run: |

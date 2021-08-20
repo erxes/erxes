@@ -294,7 +294,6 @@ class ProductForm extends React.Component<Props, State> {
         {this.renderContent()}
         <Add>
           <Button
-            uppercase={false}
             btnStyle="primary"
             onClick={this.addProductItem}
             icon="plus-circle"
@@ -356,17 +355,11 @@ class ProductForm extends React.Component<Props, State> {
             btnStyle="simple"
             onClick={this.props.closeModal}
             icon="times-circle"
-            uppercase={false}
           >
             Cancel
           </Button>
 
-          <Button
-            btnStyle="success"
-            onClick={this.onClick}
-            icon="check-circle"
-            uppercase={false}
-          >
+          <Button btnStyle="success" onClick={this.onClick} icon="check-circle">
             Save
           </Button>
         </ModalFooter>

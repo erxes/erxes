@@ -4,10 +4,12 @@ import Version from 'modules/settings/status/containers/Version';
 import * as React from 'react';
 import RTG from 'react-transition-group';
 import AssistantContent from '../containers/AssistantContent';
-import { Bot } from './styles';
+import { Bot, BotWrapper } from './styles';
+import { __ } from 'modules/common/utils';
 
 type Props = {
   currentUser: IUser;
+  collapsed: boolean;
 };
 
 type State = {
@@ -19,7 +21,7 @@ class Robot extends React.Component<Props, State> {
   constructor(props) {
     super(props);
 
-    this.state = { currentRoute: 'todoList', showContent: false };
+    this.state = { currentRoute: 'setupList', showContent: false };
   }
 
   changeRoute = (currentRoute: string) => {
@@ -46,7 +48,7 @@ class Robot extends React.Component<Props, State> {
   toggleContent = (isShow: boolean) => {
     this.setState({ showContent: isShow }, () => {
       if (!isShow) {
-        debounce(() => this.changeRoute('todoList'), 500)();
+        debounce(() => this.changeRoute('setupList'), 500)();
       }
     });
   };
@@ -54,7 +56,7 @@ class Robot extends React.Component<Props, State> {
   changeContent = () => {
     const { currentRoute } = this.state;
 
-    if (currentRoute && !currentRoute.includes('todo')) {
+    if (currentRoute && !currentRoute.includes('setup')) {
       return;
     }
 
@@ -62,6 +64,8 @@ class Robot extends React.Component<Props, State> {
   };
 
   render() {
+    const { collapsed } = this.props;
+
     return (
       <>
         {this.renderContent()}
@@ -71,8 +75,13 @@ class Robot extends React.Component<Props, State> {
           timeout={2600}
           classNames="robot"
         >
-          <Bot onClick={this.changeContent}>
-            <img src="/images/erxes-bot.svg" alt="assistant robot" />
+          <Bot onClick={this.changeContent} collapsed={collapsed}>
+            <BotWrapper collapsed={collapsed}>
+              <span>
+                <img src="/images/erxes-bot.svg" alt="assistant robot" />
+              </span>
+              {collapsed && <>{__('Need Help')}?</>}
+            </BotWrapper>
           </Bot>
         </RTG.CSSTransition>
       </>

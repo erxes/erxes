@@ -1,5 +1,6 @@
 import ProgressBar from 'modules/common/components/ProgressBar';
 import colors from 'modules/common/styles/colors';
+import { __ } from 'modules/common/utils';
 import React from 'react';
 import { Link } from 'react-router-dom';
 import styled from 'styled-components';
@@ -70,11 +71,11 @@ type Props = {
   stepsCompleteness: { [key: string]: boolean };
 };
 
-class TodoDetail extends React.Component<Props> {
+class SetupDetail extends React.Component<Props> {
   renderProgress = () => {
     const { feature, stepsCompleteness } = this.props;
 
-    if (!feature.showSettings || feature.settings.length === 0) {
+    if (!feature || !feature.showSettings || feature.settings.length === 0) {
       return null;
     }
 
@@ -108,10 +109,6 @@ class TodoDetail extends React.Component<Props> {
   renderSettings() {
     const { feature, stepsCompleteness } = this.props;
 
-    if (!feature.showSettings) {
-      return null;
-    }
-
     return (
       <Checklist>
         {feature.settings.map((setting, index) => {
@@ -119,7 +116,7 @@ class TodoDetail extends React.Component<Props> {
 
           return (
             <ChecklistItem key={index} isComplete={stepsCompleteness[setting]}>
-              <Link to={`${detail.url}#signedIn=true`}>{detail.name}</Link>
+              <Link to={`${detail.url}#signedIn=true`}>{__(detail.name)}</Link>
               {stepsCompleteness[setting] && (
                 <span role="img" aria-label="Selebration">
                   🎉
@@ -135,18 +132,18 @@ class TodoDetail extends React.Component<Props> {
   renderVideo() {
     const { feature } = this.props;
 
-    if (feature.videoUrl && feature.videoUrl !== 'url') {
-      return (
-        <VideoPopup
-          onVideoClick={this.props.completeShowStep}
-          name={feature.name}
-          videoUrl={feature.videoUrl}
-          thumbImage={feature.videoThumb}
-        />
-      );
+    if (!feature || !feature.videoUrl || feature.videoUrl !== 'url') {
+      return null;
     }
 
-    return;
+    return (
+      <VideoPopup
+        onVideoClick={this.props.completeShowStep}
+        name={feature.name}
+        videoUrl={feature.videoUrl}
+        thumbImage={feature.videoThumb}
+      />
+    );
   }
 
   render() {
@@ -154,9 +151,9 @@ class TodoDetail extends React.Component<Props> {
 
     return (
       <>
-        <Title>{feature.text}</Title>
+        <Title>{__(feature.text)}</Title>
         {this.renderVideo()}
-        <p>{feature.description}</p>
+        <p>{__(feature.description)}.</p>
         {this.renderProgress()}
         {this.renderSettings()}
       </>
@@ -164,4 +161,4 @@ class TodoDetail extends React.Component<Props> {
   }
 }
 
-export default TodoDetail;
+export default SetupDetail;

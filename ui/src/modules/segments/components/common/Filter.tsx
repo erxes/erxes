@@ -229,7 +229,6 @@ class Filter extends React.Component<Props, State> {
       <Button
         className="round"
         btnStyle="danger"
-        uppercase={false}
         icon="times"
         onClick={this.onRemove}
       />

@@ -106,7 +106,7 @@ class Lead extends React.Component<Props, State> {
       adminEmails: leadData.adminEmails || [],
       adminEmailTitle: leadData.adminEmailTitle || '',
       adminEmailContent: leadData.adminEmailContent || '',
-      thankTitle: leadData.thankTitle || 'Title',
+      thankTitle: leadData.thankTitle || 'Confirmation',
       thankContent: leadData.thankContent || 'Thank you.',
       attachments: leadData.attachments || [],
       redirectUrl: leadData.redirectUrl || '',
@@ -116,17 +116,17 @@ class Lead extends React.Component<Props, State> {
       brand: integration.brandId,
       channelIds: channels.map(item => item._id) || [],
       language: integration.languageCode,
-      title: integration.name,
-      calloutTitle: callout.title || 'Title',
-      bodyValue: callout.body || '',
+      title: integration.name || 'Create Form',
+      calloutTitle: callout.title || 'Call Out Title',
+      bodyValue: callout.body || 'Call Out Body',
       calloutBtnText: callout.buttonText || 'Start',
       color: '',
       logoPreviewStyle: {},
       defaultValue: {},
       logo: '',
       formData: {
-        title: form.title || '',
-        description: form.description || '',
+        title: form.title || 'Form Title',
+        description: form.description || 'Form Description',
         buttonText: form.buttonText || 'Send',
         fields: [],
         type: form.type || '',
@@ -246,7 +246,7 @@ class Lead extends React.Component<Props, State> {
 
     const cancelButton = (
       <Link to="/forms">
-        <Button btnStyle="simple" icon="times-circle" uppercase={false}>
+        <Button btnStyle="simple" icon="times-circle">
           Cancel
         </Button>
       </Link>
@@ -259,7 +259,6 @@ class Lead extends React.Component<Props, State> {
         <Button
           disabled={isActionLoading}
           btnStyle="success"
-          uppercase={false}
           icon={isActionLoading ? undefined : 'check-circle'}
           onClick={this.handleSubmit}
         >

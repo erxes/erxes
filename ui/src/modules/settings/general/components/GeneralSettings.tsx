@@ -150,13 +150,14 @@ class GeneralSettings extends React.Component<Props, State> {
       { title: __('General system config') }
     ];
 
+    console.log(configsMap);
+
     const actionButtons = (
       <Button
         id="generalSettingsSave"
-        btnStyle="primary"
+        btnStyle="success"
         onClick={this.save}
         icon="check-circle"
-        uppercase={false}
       >
         Save
       </Button>
