@@ -40,7 +40,7 @@ import PageContent from 'modules/layout/components/PageContent';
 import { Link } from 'react-router-dom';
 import { Tabs, TabTitle } from 'modules/common/components/tabs';
 import Toggle from 'modules/common/components/Toggle';
-import Settings from './Settings';
+import SettingsContainer from 'modules/automations/containers/forms/Settings';
 
 const plumb: any = jsPlumb;
 let instance;
@@ -622,7 +622,7 @@ class AutomationForm extends React.Component<Props, State> {
     const { automation } = this.props;
 
     if (!this.state.isAction) {
-      return <Settings />;
+      return <SettingsContainer />;
     }
 
     if (!automation) {
