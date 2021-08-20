@@ -34,18 +34,32 @@ class ActionsForm extends React.Component<Props, State> {
     this.setState({ currentTab });
   };
 
-  onFavourite = () => {
-    this.setState({ isFavourite: !this.state.isFavourite });
+  onFavourite = action => {
+    const actionsLocalStorage =
+      localStorage.getItem('automations_favourite_actions') || '[]';
+
+    let actions = JSON.parse(actionsLocalStorage);
+
+    if (actions.find(item => item.type === action.type)) {
+      actions = actions.filter(item => item.type !== action.type);
+    } else {
+      actions.push(action);
+    }
+
+    localStorage.setItem(
+      'automations_favourite_actions',
+      JSON.stringify(actions)
+    );
   };
 
-  renderBox(action, index) {
+  renderBox(action, isFavourite, index) {
     const { onClickAction } = this.props;
 
     return (
       <ActionBox
         key={index}
         onClick={onClickAction.bind(this, action)}
-        isFavourite={this.state.isFavourite}
+        isFavourite={isFavourite}
       >
         <Icon icon={action.icon} size={30} />
         <div>
@@ -53,7 +67,10 @@ class ActionsForm extends React.Component<Props, State> {
           <p>{__(action.description)}</p>
         </div>
         <Tip text="Favourite" placement="top">
-          <div className="favourite-action" onClick={this.onFavourite}>
+          <div
+            className="favourite-action"
+            onClick={() => this.onFavourite(action)}
+          >
             <Icon icon="star" size={20} />
           </div>
         </Tip>
@@ -62,18 +79,24 @@ class ActionsForm extends React.Component<Props, State> {
   }
 
   renderContent() {
-    const actions =
-      this.state.currentTab === 'favourite'
-        ? JSON.parse(
-            localStorage.getItem('automations_favourite_actions') || '[]'
-          )
-        : ACTIONS;
+    const localStorageActions = JSON.parse(
+      localStorage.getItem('automations_favourite_actions') || '[]'
+    );
 
-    return actions.map((action, index) => (
-      <React.Fragment key={index}>
-        {this.renderBox(action, index)}
-      </React.Fragment>
-    ));
+    const actions =
+      this.state.currentTab === 'favourite' ? localStorageActions : ACTIONS;
+
+    return actions.map((action, index) => {
+      const isFavourite = localStorageActions.some(
+        item => item.type === action.type
+      );
+
+      return (
+        <React.Fragment key={index}>
+          {this.renderBox(action, isFavourite, index)}
+        </React.Fragment>
+      );
+    });
   }
 
   render() {
