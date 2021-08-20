@@ -100,25 +100,61 @@ const automationMutations = {
   },
 
   /**
+   * Save as a template
+   */
+  async automationsCreateFromTemplate(
+    _root,
+    { _id }: { _id: string },
+    { user, dataSources }: IContext
+  ) {
+    const automation = await dataSources.AutomationsAPI.getAutomationDetail(
+      _id
+    );
+
+    if (automation.status !== 'template') {
+      throw new Error('Not template');
+    }
+
+    delete automation._id;
+    automation.status = 'active';
+    automation.name += ' from template';
+
+    const created = await dataSources.AutomationsAPI.createAutomation(
+      automation
+    );
+
+    await putCreateLog(
+      {
+        type: MODULE_NAMES.AUTOMATION,
+        newData: automation,
+        object: created
+      },
+      user
+    );
+
+    return created;
+  },
+
+  /**
    * Removes automations
    */
   async automationsRemove(
     _root,
     { automationIds }: { automationIds: string[] },
-    { user, dataSources }: IContext
+    { dataSources }: IContext
   ) {
-    const automations = await dataSources.AutomationsAPI.getAutomations({
-      _id: { $in: automationIds }
-    });
+    // const automations = await dataSources.AutomationsAPI.getAutomations({
+    //   _id: { $in: automationIds }
+    // });
 
     await dataSources.AutomationsAPI.removeAutomations(automationIds);
 
-    for (const automation of automations) {
-      await putDeleteLog(
-        { type: MODULE_NAMES.AUTOMATION, object: automation },
-        user
-      );
-    }
+    // for (const automation of automations) {
+    //   await putDeleteLog(
+    //     { type: MODULE_NAMES.AUTOMATION, object: automation },
+    //     user
+    //   );
+    // }
 
     return automationIds;
   },
@@ -169,8 +205,6 @@ const automationMutations = {
       _id,
       docModifier(noteDoc)
     );
-
-    console.log('updated: ', updated);
 
     await putUpdateLog(
       {
