@@ -106,36 +106,36 @@ const Description = (props: DescProps) => {
             }}
           />
         ) : (
-          <EditorWrapper>
-            <EditorCK
-              onCtrlEnter={onSend}
-              content={description}
-              onChange={onChangeDescription}
-              height={120}
-              isSubmitted={isSubmitted}
-              autoFocus={true}
-              name={`${contentType}_description_${item._id}`}
-              toolbar={[
-                {
-                  name: 'basicstyles',
-                  items: [
-                    'Bold',
-                    'Italic',
-                    'NumberedList',
-                    'BulletedList',
-                    'Link',
-                    'Unlink',
-                    '-',
-                    'Image',
-                    'EmojiPanel'
-                  ]
-                }
-              ]}
-            />
+            <EditorWrapper>
+              <EditorCK
+                onCtrlEnter={onSend}
+                content={description}
+                onChange={onChangeDescription}
+                height={120}
+                isSubmitted={isSubmitted}
+                autoFocus={true}
+                name={`${contentType}_description_${item._id}`}
+                toolbar={[
+                  {
+                    name: 'basicstyles',
+                    items: [
+                      'Bold',
+                      'Italic',
+                      'NumberedList',
+                      'BulletedList',
+                      'Link',
+                      'Unlink',
+                      '-',
+                      'Image',
+                      'EmojiPanel'
+                    ]
+                  }
+                ]}
+              />
 
-            {renderFooter()}
-          </EditorWrapper>
-        )}
+              {renderFooter()}
+            </EditorWrapper>
+          )}
       </ContentWrapper>
     </FormGroup>
   );
@@ -151,6 +151,7 @@ type Props = {
   addItem: (doc: IItemParams, callback: () => void) => void;
   sendToBoard?: (item: any) => void;
   onChangeStage?: (stageId: string) => void;
+  onChangeRefresh?: any;
 };
 
 const Left = (props: Props) => {
@@ -163,7 +164,8 @@ const Left = (props: Props) => {
     onUpdate,
     addItem,
     sendToBoard,
-    onChangeStage
+    onChangeStage,
+    onChangeRefresh
   } = props;
 
   const onChangeAttachment = (files: IAttachment[]) =>
@@ -183,6 +185,7 @@ const Left = (props: Props) => {
         onUpdate={onUpdate}
         sendToBoard={sendToBoard}
         onChangeStage={onChangeStage}
+        onChangeRefresh={onChangeRefresh}
       />
 
       {item.labels.length > 0 && (

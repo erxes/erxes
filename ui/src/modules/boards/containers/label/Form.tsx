@@ -21,6 +21,7 @@ type Props = {
   showForm: boolean;
   selectedLabelIds: string[];
   onSelectLabels: (selectedLabelIds: string[]) => void;
+  onChangeRefresh?: any;
 };
 
 type FinalProps = {
@@ -48,7 +49,8 @@ class FormContainer extends React.Component<FinalProps> {
       afterSave,
       showForm,
       selectedLabelIds,
-      onSelectLabels
+      onSelectLabels,
+      onChangeRefresh
     } = this.props;
 
     const remove = (pipelineLabelId: string) => {
@@ -86,6 +88,15 @@ class FormContainer extends React.Component<FinalProps> {
       callback,
       object
     }: IButtonMutateProps) => {
+
+      const afterSave = () => {
+        onChangeRefresh('refresh', true);
+
+        if (callback) {
+          callback();
+        }
+      }
+
       return (
         <ButtonMutate
           mutation={
@@ -98,7 +109,7 @@ class FormContainer extends React.Component<FinalProps> {
             pipelineId,
             ...values
           }}
-          callback={callback}
+          callback={afterSave}
           refetchQueries={getRefetchQueries(pipelineId)}
           isSubmitted={isSubmitted}
           type="submit"
@@ -106,7 +117,7 @@ class FormContainer extends React.Component<FinalProps> {
           block={!this.props.labelId && true}
           successMessage={`You successfully ${
             object && object._id ? 'updated' : 'added'
-          } a ${name}`}
+            } a ${name}`}
         />
       );
     };

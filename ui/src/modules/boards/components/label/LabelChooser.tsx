@@ -14,12 +14,13 @@ type Props = {
   doLabel: (labelIds: string[]) => void;
   isConfirmVisible: boolean;
   toggleConfirm: (callback?: () => void) => void;
+  onChangeRefresh?: any;
 };
 
 class ChooseLabel extends React.Component<
   Props,
   { selectedLabelIds: string[] }
-> {
+  > {
   private overlayTrigger;
 
   constructor(props) {
@@ -48,7 +49,7 @@ class ChooseLabel extends React.Component<
   };
 
   renderOverlay() {
-    const { labels, toggleConfirm, pipelineId } = this.props;
+    const { labels, toggleConfirm, pipelineId, onChangeRefresh } = this.props;
     const { selectedLabelIds } = this.state;
 
     const props = {
@@ -57,7 +58,8 @@ class ChooseLabel extends React.Component<
       labels,
       toggleConfirm,
       onClose: this.onOverlayClose,
-      onSelectLabels: this.onSelectLabels
+      onSelectLabels: this.onSelectLabels,
+      onChangeRefresh
     };
 
     return <Overlay {...props} />;

@@ -21,6 +21,7 @@ type Props = {
   onUpdate: (item: IItem, prevStageId?: string) => void;
   sendToBoard?: (item: any) => void;
   onChangeStage?: (stageId: string) => void;
+  onChangeRefresh?: any;
 };
 
 class Actions extends React.Component<Props> {
@@ -42,18 +43,21 @@ class Actions extends React.Component<Props> {
       copyItem,
       removeItem,
       sendToBoard,
-      onChangeStage
+      onChangeStage,
+      onChangeRefresh
     } = this.props;
 
-    const onLabelChange = labels => saveItem({ labels });
+    const onLabelChange = labels => {
+      saveItem({ labels });
+    }
 
     const priorityTrigger = (
       <ColorButton>
         {item.priority ? (
           <PriorityIndicator value={item.priority} />
         ) : (
-          <Icon icon="sort-amount-up" />
-        )}
+            <Icon icon="sort-amount-up" />
+          )}
         {item.priority ? item.priority : __('Priority')}
       </ColorButton>
     );
@@ -67,7 +71,7 @@ class Actions extends React.Component<Props> {
           trigger={priorityTrigger}
         />
 
-        <LabelChooser item={item} onSelect={onLabelChange} />
+        <LabelChooser item={item} onSelect={onLabelChange} onChangeRefresh={onChangeRefresh} />
 
         <ChecklistAdd itemId={item._id} type={options.type} />
 

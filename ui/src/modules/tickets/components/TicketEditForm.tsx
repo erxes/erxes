@@ -28,10 +28,12 @@ type Props = {
   sendToBoard?: (item: any) => void;
 };
 
+
 export default function TicketEditForm(props: Props) {
   const item = props.item;
 
   const [source, setSource] = useState(item.source);
+  const [refresh, setRefresh] = useState(true);
 
   useEffect(() => {
     setSource(item.source);
@@ -97,6 +99,10 @@ export default function TicketEditForm(props: Props) {
 
     const renderSidebar = () => renderSidebarFields(saveItem);
 
+    const onChangeRefresh = () => {
+      setRefresh(refresh)
+    };
+
     return (
       <>
         <Top
@@ -118,6 +124,7 @@ export default function TicketEditForm(props: Props) {
             addItem={addItem}
             sendToBoard={sendToBoard}
             onChangeStage={onChangeStage}
+            onChangeRefresh={onChangeRefresh}
           />
 
           <Sidebar
@@ -135,7 +142,8 @@ export default function TicketEditForm(props: Props) {
   const extendedProps = {
     ...props,
     formContent: renderFormContent,
-    extraFields: { source }
+    extraFields: { source },
+    refresh: refresh
   };
 
   return <EditForm {...extendedProps} />;

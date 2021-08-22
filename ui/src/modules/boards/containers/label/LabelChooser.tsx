@@ -19,6 +19,7 @@ import {
 type Props = {
   item: IItem;
   onSelect?: (labels: IPipelineLabel[]) => void;
+  onChangeRefresh?: any;
 };
 
 type FinalProps = {
@@ -29,7 +30,7 @@ type FinalProps = {
 class LabelChooserContainer extends React.Component<
   FinalProps,
   { isConfirmVisible: boolean }
-> {
+  > {
   constructor(props: FinalProps) {
     super(props);
 
@@ -85,6 +86,7 @@ class LabelChooserContainer extends React.Component<
       labels,
       doLabel,
       isConfirmVisible: this.state.isConfirmVisible,
+      onChangeRefresh: this.props.onChangeRefresh,
       toggleConfirm: this.toggleConfirm
     };
 
