@@ -8,7 +8,7 @@ import {
 } from 'modules/automations/styles';
 import { __ } from 'modules/common/utils';
 import { Tabs, TabTitle } from 'modules/common/components/tabs';
-import ReEnrollmentContainer from 'modules/automations/containers/forms/ReEnrollment';
+import ReEnrollmentContainer from 'modules/automations/containers/forms/triggers/ReEnrollment';
 
 type Props = {
   closeModal: () => void;

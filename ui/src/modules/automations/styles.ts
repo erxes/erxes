@@ -18,10 +18,19 @@ export const Container = styled.div`
 
   #canvas {
     position: relative;
+    height: 100%;
+
+    .show-action-menu .custom-menu {
+      visibility: visible;
+    }
 
     .custom-menu {
       z-index: 1000;
       position: absolute;
+      right: 0;
+      margin: 0;
+      top: -35px;
+      visibility: hidden;
 
       i {
         background: #e3deee;
@@ -35,8 +44,8 @@ export const Container = styled.div`
 
         &.note {
           background: #f5f0e1;
-          color: ${colors.colorCoreYellow};
-          border: 1px solid ${colors.colorCoreYellow};
+          color: ${colors.colorCoreOrange};
+          border: 1px solid ${colors.colorCoreOrange};
         }
 
         &.delete-control {
@@ -110,13 +119,10 @@ export const Container = styled.div`
       }
 
       > i {
-        width: 20px;
-        height: 20px;
-        line-height: 20px;
+        width: 40px;
         text-align: center;
-        border-radius: 20px;
-        color: ${colors.colorWhite};
-        background: ${colors.colorCoreGreen};
+        font-size: 16px;
+        color: ${colors.colorSecondary};
       }
     }
 
@@ -154,10 +160,10 @@ export const Container = styled.div`
 
   .action {
     .trigger-header {
-      background: ${rgba(colors.colorCoreYellow, 0.12)};
+      background: ${rgba(colors.colorCoreOrange, 0.12)};
 
-      div > i {
-        color: ${colors.colorCoreYellow} !important;
+      i {
+        color: ${colors.colorCoreOrange} !important;
       }
     }
   }
@@ -222,7 +228,7 @@ export const ActionBox = styledTS<{
     }
     span {
       padding-left: ${dimensions.unitSpacing}px;
-      color: ${colors.colorCoreYellow};
+      color: ${colors.colorCoreOrange};
       font-weight: 500;
     }
   }
@@ -232,7 +238,7 @@ export const ActionBox = styledTS<{
     right: ${dimensions.coreSpacing}px;
 
     > i {
-      color: ${props => props.isFavourite && colors.colorCoreYellow}
+      color: ${props => props.isFavourite && colors.colorCoreOrange}
     }
   }
 `;

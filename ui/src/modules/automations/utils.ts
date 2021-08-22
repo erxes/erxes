@@ -1,5 +1,4 @@
 import { ITrigger, IAction } from './types';
-import jquery from 'jquery';
 import { confirm, Alert } from 'modules/common/utils';
 import { colors } from 'erxes-ui/lib/styles/eindex';
 import { rgba } from 'modules/common/styles/color';
@@ -25,7 +24,7 @@ export const sourceEndpoint = {
   },
   isSource: true,
   connector: [
-    'Flowchart',
+    'Bezier',
     { stub: [40, 60], gap: 10, cornerRadius: 5, alwaysRespectStubs: true }
   ],
   connectorStyle: connectorPaintStyle,
@@ -141,26 +140,5 @@ export const deleteConnection = instance => {
       .catch(error => {
         Alert.error(error.message);
       });
-  });
-};
-
-export const deleteControl = () => {
-  jquery('#canvas').on('contextmenu', '.control', event => {
-    event.preventDefault();
-
-    (window as any).selectedControl = event.currentTarget.id;
-    jquery(
-      `<div class='custom-menu'>
-        <i class="icon-notes note" title="Notes"></i>
-        <i class="icon-settings" title="Settings"></i>
-        <i class="icon-trash-alt delete-control" title="Delete control"></i>
-      </div>`
-    )
-      .appendTo('#canvas')
-      .css({ top: event.pageY - 200 + 'px', left: event.pageX - 150 + 'px' });
-  });
-
-  jquery('#canvas').bind('click', () => {
-    jquery('div.custom-menu').remove();
   });
 };

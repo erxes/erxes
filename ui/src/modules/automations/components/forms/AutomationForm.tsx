@@ -27,7 +27,6 @@ import {
   createInitialConnections,
   connection,
   deleteConnection,
-  deleteControl,
   sourceEndpoint,
   targetEndpoint,
   connectorPaintStyle,
@@ -133,11 +132,11 @@ class AutomationForm extends React.Component<Props, State> {
       });
 
       for (const action of actions) {
-        this.renderAction(action);
+        this.renderControl('action', action, this.onClickAction);
       }
 
       for (const trigger of triggers) {
-        this.renderTrigger(trigger);
+        this.renderControl('trigger', trigger, this.onClickTrigger);
       }
 
       // create connections ===================
@@ -146,12 +145,23 @@ class AutomationForm extends React.Component<Props, State> {
       // delete connections ===================
       deleteConnection(instance);
 
-      // delete control ===================
-      deleteControl();
+      // toggle action control when click mouse 2 ===================
+      jquery('#canvas').on('contextmenu', '.control', event => {
+        event.preventDefault();
 
-      // delete from state ===================
-      jquery('#canvas').on('click', '.delete-control', () => {
-        const item = (window as any).selectedControl;
+        jquery(`div#${event.currentTarget.id}`).toggleClass('show-action-menu');
+      });
+
+      // remove action control =============
+      jquery('#canvas').bind('click', () => {
+        jquery('div.control').removeClass('show-action-menu');
+      });
+
+      // delete control ===================
+      jquery('#canvas').on('click', '.delete-control', event => {
+        event.preventDefault();
+
+        const item = event.currentTarget.id;
         const splitItem = item.split('-');
         const type = splitItem[0];
 
@@ -327,7 +337,7 @@ class AutomationForm extends React.Component<Props, State> {
     this.setState({ triggers, activeTrigger: trigger });
 
     if (!triggerId) {
-      this.renderTrigger(trigger);
+      this.renderControl('trigger', trigger, this.onClickTrigger);
     }
   };
 
@@ -370,7 +380,7 @@ class AutomationForm extends React.Component<Props, State> {
     this.setState({ actions, activeAction: action });
 
     if (!actionId) {
-      this.renderAction(action);
+      this.renderControl('action', action, this.onClickAction);
     }
   };
 
@@ -379,100 +389,87 @@ class AutomationForm extends React.Component<Props, State> {
     this.setState({ name: value });
   };
 
-  renderTrigger = (trigger: ITrigger) => {
-    const idElm = `trigger-${trigger.id}`;
+  renderControl = (key: string, item: ITrigger | IAction, onClick: any) => {
+    const idElm = `${key}-${item.id}`;
 
     jquery('#canvas').append(`
-      <div class="trigger control" id="${idElm}" style="${trigger.style}">
+      <div class="${key} control" id="${idElm}" style="${item.style}">
         <div class="trigger-header">
-          <div>
-            <i class="icon-${trigger.icon}"></i>
-            ${trigger.label}
+          <div class='custom-menu'>
+            <div>
+              <i class="icon-notes note" title="Notes"></i>
+              <i class="icon-trash-alt delete-control" id="${key}-${item.id}" title="Delete control"></i>
+            </div>
           </div>
-          <i class="icon-check-1"></i>
+          <div>
+            <i class="icon-${item.icon}"></i>
+            ${item.label}
+          </div>
+          <i class="icon-ellipsis-v" title="settings"></i>
         </div>
-        <p>${trigger.description}</p>
+        <p>${item.description}</p>
       </div>
     `);
 
     jquery('#canvas').on('dblclick', `#${idElm}`, event => {
       event.preventDefault();
 
-      this.onClickTrigger(trigger);
+      onClick(item);
     });
 
-    instance.addEndpoint(idElm, sourceEndpoint, {
-      anchor: [1, 0.5]
-    });
-
-    instance.draggable(instance.getSelector(`#${idElm}`));
-  };
-
-  renderAction = (action: IAction) => {
-    const idElm = `action-${action.id}`;
-
-    jquery('#canvas').append(`
-      <div class="action control" id="${idElm}" style="${action.style}">
-        <div class="trigger-header">
-          <div>
-            <i class="icon-${action.icon}"></i>
-            ${action.label}
-          </div>
-          <i class="icon-check-1"></i>
-        </div>
-        <p>${action.description}</p>
-      </div>
-    `);
-
-    jquery('#canvas').on('dblclick', `#${idElm}`, event => {
-      event.preventDefault();
-
-      this.onClickAction(action);
-    });
-
-    if (action.type === 'if') {
-      instance.addEndpoint(idElm, targetEndpoint, {
-        anchor: ['Left']
-      });
-
+    if (key === 'trigger') {
       instance.addEndpoint(idElm, sourceEndpoint, {
-        anchor: [1, 0.2],
-        overlays: [
-          [
-            'Label',
-            {
-              location: [1.8, 0.5],
-              label: 'True',
-              visible: true
-            }
-          ]
-        ]
+        anchor: [1, 0.5]
       });
 
-      instance.addEndpoint(idElm, sourceEndpoint, {
-        anchor: [1, 0.8],
-        overlays: [
-          [
-            'Label',
-            {
-              location: [1.8, 0.5],
-              label: 'False',
-              visible: true
-            }
-          ]
-        ]
-      });
-    } else {
-      instance.addEndpoint(idElm, targetEndpoint, {
-        anchor: ['Left']
-      });
-
-      instance.addEndpoint(idElm, sourceEndpoint, {
-        anchor: ['Right']
-      });
+      instance.draggable(instance.getSelector(`#${idElm}`));
     }
 
-    instance.draggable(instance.getSelector(`#${idElm}`));
+    if (key === 'action') {
+      if (item.type === 'if') {
+        instance.addEndpoint(idElm, targetEndpoint, {
+          anchor: ['Left']
+        });
+
+        instance.addEndpoint(idElm, sourceEndpoint, {
+          anchor: [1, 0.2],
+          overlays: [
+            [
+              'Label',
+              {
+                location: [1.8, 0.5],
+                label: 'True',
+                visible: true
+              }
+            ]
+          ]
+        });
+
+        instance.addEndpoint(idElm, sourceEndpoint, {
+          anchor: [1, 0.8],
+          overlays: [
+            [
+              'Label',
+              {
+                location: [1.8, 0.5],
+                label: 'False',
+                visible: true
+              }
+            ]
+          ]
+        });
+      } else {
+        instance.addEndpoint(idElm, targetEndpoint, {
+          anchor: ['Left']
+        });
+
+        instance.addEndpoint(idElm, sourceEndpoint, {
+          anchor: ['Right']
+        });
+      }
+
+      instance.draggable(instance.getSelector(`#${idElm}`));
+    }
   };
 
   rendeRightActionBar() {
