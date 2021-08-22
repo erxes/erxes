@@ -8,8 +8,11 @@ import Toggle from 'modules/common/components/Toggle';
 import { __ } from 'modules/common/utils';
 import FormControl from 'modules/common/components/form/Control';
 import { ENROLLS } from 'modules/automations/constants';
+import { ITrigger } from 'modules/automations/types';
 
-type Props = {};
+type Props = {
+  trigger: ITrigger;
+};
 
 type State = {
   reEnroll: boolean;

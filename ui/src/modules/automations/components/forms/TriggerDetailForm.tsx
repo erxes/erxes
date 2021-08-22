@@ -1,6 +1,14 @@
 import React from 'react';
 import { ITrigger } from 'modules/automations/types';
 import { SegmentsForm } from 'modules/segments/containers';
+import {
+  Description,
+  TriggerTabs,
+  ScrolledContent
+} from 'modules/automations/styles';
+import { __ } from 'modules/common/utils';
+import { Tabs, TabTitle } from 'modules/common/components/tabs';
+import ReEnrollmentContainer from 'modules/automations/containers/forms/ReEnrollment';
 
 type Props = {
   closeModal: () => void;
@@ -11,12 +19,13 @@ type Props = {
 
 class TriggerDetailForm extends React.Component<
   Props,
-  { activeTrigger: ITrigger }
+  { activeTrigger: ITrigger; currentTab: string }
 > {
   constructor(props) {
     super(props);
 
     this.state = {
+      currentTab: 'new',
       activeTrigger: props.activeTrigger
     };
   }
@@ -27,19 +36,57 @@ class TriggerDetailForm extends React.Component<
     }
   }
 
-  render() {
+  tabOnClick = (currentTab: string) => {
+    this.setState({ currentTab });
+  };
+
+  renderContent() {
     const { activeTrigger } = this.state;
 
     const config = activeTrigger.config || {};
 
+    if (this.state.currentTab === 'reenrollment') {
+      return <ReEnrollmentContainer trigger={activeTrigger} />;
+    }
+
+    return (
+      <SegmentsForm
+        {...this.props}
+        contentType={activeTrigger.type || 'customer'}
+        closeModal={this.props.closeModal}
+        id={config.contentId}
+      />
+    );
+  }
+
+  render() {
+    const { currentTab, activeTrigger } = this.state;
+
     return (
       <>
-        <SegmentsForm
-          {...this.props}
-          contentType={activeTrigger.type || 'customer'}
-          closeModal={this.props.closeModal}
-          id={config.contentId}
-        />
+        <Description>
+          <h4>
+            {activeTrigger.label} {__('based')}
+          </h4>
+          <p>{activeTrigger.description}</p>
+        </Description>
+        <TriggerTabs>
+          <Tabs full={true}>
+            <TabTitle
+              className={currentTab === 'new' ? 'active' : ''}
+              onClick={this.tabOnClick.bind(this, 'new')}
+            >
+              {__('New trigger')}
+            </TabTitle>
+            <TabTitle
+              className={currentTab === 'reenrollment' ? 'active' : ''}
+              onClick={this.tabOnClick.bind(this, 'reenrollment')}
+            >
+              {__('Re-enrollment')}
+            </TabTitle>
+          </Tabs>
+        </TriggerTabs>
+        <ScrolledContent>{this.renderContent()}</ScrolledContent>
       </>
     );
   }

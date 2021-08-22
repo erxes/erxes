@@ -1,7 +1,10 @@
 import React from 'react';
 import ReEnrollment from 'modules/automations/components/forms/ReEnrollment';
+import { ITrigger } from 'modules/automations/types';
 
-type Props = {};
+type Props = {
+  trigger: ITrigger;
+};
 
 const ReEnrollmentContainer = (props: Props) => {
   const extendedProps = {
