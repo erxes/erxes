@@ -11,7 +11,8 @@ import { queries, mutations } from '../../graphql';
 import {
   DetailQueryResponse,
   EditMutationResponse,
-  IAutomation
+  IAutomation,
+  AutomationsNoteQueryResponse
 } from '../../types';
 
 type Props = {
@@ -21,6 +22,7 @@ type Props = {
 
 type FinalProps = {
   automationDetailQuery: DetailQueryResponse;
+  automationNotesQuery: AutomationsNoteQueryResponse;
   currentUser: IUser;
   saveAsTemplateMutation: any;
 } & Props &
@@ -29,6 +31,7 @@ type FinalProps = {
 const AutomationDetailsContainer = (props: FinalProps) => {
   const {
     automationDetailQuery,
+    automationNotesQuery,
     currentUser,
     editAutomationMutation,
     saveAsTemplateMutation
@@ -64,7 +67,7 @@ const AutomationDetailsContainer = (props: FinalProps) => {
       });
   };
 
-  if (automationDetailQuery.loading) {
+  if (automationDetailQuery.loading || automationNotesQuery.loading) {
     return <Spinner objective={true} />;
   }
 
@@ -75,11 +78,13 @@ const AutomationDetailsContainer = (props: FinalProps) => {
   }
 
   const automationDetail = automationDetailQuery.automationDetail || {};
+  const automationNotes = automationNotesQuery.automationNotes || [];
 
   const updatedProps = {
     ...props,
     loading: automationDetailQuery.loading,
     automation: automationDetail,
+    automationNotes,
     currentUser,
     save,
     saveAs
@@ -97,6 +102,17 @@ export default withProps<Props>(
         options: ({ id }) => ({
           variables: {
             _id: id
+          }
+        })
+      }
+    ),
+    graphql<Props, AutomationsNoteQueryResponse, { automationId: string }>(
+      gql(queries.automationNotes),
+      {
+        name: 'automationNotesQuery',
+        options: ({ id }) => ({
+          variables: {
+            automationId: id
           }
         })
       }

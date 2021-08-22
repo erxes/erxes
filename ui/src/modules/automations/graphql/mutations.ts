@@ -1,4 +1,4 @@
-import { automationFields } from './queries';
+import { automationFields, automationNoteFields } from './queries';
 
 const commonFields = `
   $name: String,
@@ -12,6 +12,20 @@ const commonVariables = `
   status: $status,
   triggers: $triggers,
   actions: $actions,
+`;
+
+const noteFields = `
+  $automationId: String, 
+  $triggerId: String, 
+  $actionId: String, 
+  $description: String
+`;
+
+const noteVariables = `
+  automationId: $automationId, 
+  triggerId: $triggerId, 
+  actionId: $actionId, 
+  description: $description
 `;
 
 const automationsAdd = `
@@ -44,9 +58,34 @@ const automationsRemove = `
   }
 `;
 
+const automationsAddNote = `
+  mutation automationsAddNote(${noteFields}) {
+    automationsAddNote(${noteVariables}) {
+      ${automationNoteFields}
+    }
+  }
+`;
+
+const automationsEditNote = `
+  mutation automationsEditNote($_id: String!, ${noteFields}) {
+    automationsEditNote(_id: $_id, ${noteVariables}) {
+      ${automationNoteFields}
+    }
+  }
+`;
+
+const automationsRemoveNote = `
+  mutation automationsEditNote($_id: String!) {
+    automationsEditNote(_id: $_id)
+  }
+`;
+
 export default {
   automationsAdd,
   automationsEdit,
   automationsSaveAsTemplate,
-  automationsRemove
+  automationsRemove,
+  automationsAddNote,
+  automationsRemoveNote,
+  automationsEditNote
 };

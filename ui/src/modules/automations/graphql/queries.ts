@@ -24,6 +24,17 @@ export const automationFields = `
   }
 `;
 
+export const automationNoteFields = `
+  _id
+  description
+  createdUser {
+    _id
+    username
+    email
+  }
+  createdAt
+`;
+
 const listParamsDef = `
   $page: Int
   $perPage: Int
@@ -78,8 +89,17 @@ export const automationDetail = `
   }
 `;
 
+export const automationNotes = `
+  query automationNotes($automationId: String) {
+    automationNotes(automationId: $automationId) {
+      ${automationNoteFields}
+    }
+  }
+`;
+
 export default {
   automations,
   automationsMain,
-  automationDetail
+  automationDetail,
+  automationNotes
 };

@@ -43,9 +43,9 @@ export const Container = styled.div`
         transition: all ease 0.3s;
 
         &.note {
-          background: #f5f0e1;
-          color: ${colors.colorCoreOrange};
-          border: 1px solid ${colors.colorCoreOrange};
+          background: ${rgba(colors.colorSecondary, 0.12)};
+          color: ${colors.colorSecondary};
+          border: 1px solid ${colors.colorSecondary};
         }
 
         &.delete-control {
@@ -116,13 +116,6 @@ export const Container = styled.div`
           background: ${colors.colorWhite};
           color: ${colors.colorSecondary};
         }
-      }
-
-      > i {
-        width: 40px;
-        text-align: center;
-        font-size: 16px;
-        color: ${colors.colorSecondary};
       }
     }
 
@@ -669,4 +662,8 @@ export const DrawerDetail = styled.div`
 export const ActionFooter = styled.div`
   position: absolute;
   bottom: ${dimensions.coreSpacing}px;
+`;
+
+export const NoteContainer = styled.div`
+  padding: ${dimensions.coreSpacing}px;
 `;

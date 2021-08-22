@@ -32,7 +32,18 @@ export interface IAutomationDoc {
   createdAt?: Date;
 }
 
+export interface IAutomationNoteDoc {
+  automationId: string;
+  triggerId: string;
+  actionId: string;
+  description: string;
+}
+
 export interface IAutomation extends IAutomationDoc {
+  _id: string;
+}
+
+export interface IAutomationNote extends IAutomationNoteDoc {
   _id: string;
 }
 
@@ -46,6 +57,10 @@ export type RemoveMutationVariables = {
   automationIds: string[];
 };
 
+export type RemoveNoteMutationVariables = {
+  _id: string;
+};
+
 export type RemoveMutationResponse = {
   automationsRemove: (params: {
     variables: RemoveMutationVariables;
@@ -55,6 +70,24 @@ export type RemoveMutationResponse = {
 export type AddMutationResponse = {
   addAutomationMutation: (params: {
     variables: IAutomationDoc;
+  }) => Promise<any>;
+};
+
+export type AddNoteMutationResponse = {
+  addNoteAutomationMutation: (params: {
+    variables: IAutomationNoteDoc;
+  }) => Promise<any>;
+};
+
+export type RemoveNoteMutationResponse = {
+  automationsNoteRemove: (params: {
+    variables: RemoveNoteMutationVariables;
+  }) => Promise<any>;
+};
+
+export type EditNoteMutationResponse = {
+  editNoteAutomationMutation: (params: {
+    variables: IAutomationNote;
   }) => Promise<any>;
 };
 
@@ -74,6 +107,10 @@ export type MainQueryResponse = {
 
 export type AutomationsQueryResponse = {
   automations: IAutomation[];
+} & QueryResponse;
+
+export type AutomationsNoteQueryResponse = {
+  automationNotes: IAutomationNote[];
 } & QueryResponse;
 
 export type DetailQueryResponse = {

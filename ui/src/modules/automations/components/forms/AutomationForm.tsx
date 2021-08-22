@@ -4,7 +4,8 @@ import jquery from 'jquery';
 import RTG from 'react-transition-group';
 import Wrapper from 'modules/layout/components/Wrapper';
 import React from 'react';
-import { IAction, IAutomation, ITrigger } from '../../types';
+import Form from 'modules/common/components/form/Form';
+import { IAction, IAutomation, ITrigger, IAutomationNote } from '../../types';
 import {
   Container,
   CenterFlexRow,
@@ -40,6 +41,8 @@ import { Link } from 'react-router-dom';
 import { Tabs, TabTitle } from 'modules/common/components/tabs';
 import Toggle from 'modules/common/components/Toggle';
 import SettingsContainer from 'modules/automations/containers/forms/Settings';
+import Modal from 'react-bootstrap/Modal';
+import NoteFormContainer from 'modules/automations/containers/forms/NoteForm';
 
 const plumb: any = jsPlumb;
 let instance;
@@ -47,6 +50,7 @@ let instance;
 type Props = {
   id?: string;
   automation?: IAutomation;
+  automationNotes?: IAutomationNote[];
   save: (params: any) => void;
   saveAs?: (params: any) => void;
 };
@@ -60,6 +64,7 @@ type State = {
   showAction: boolean;
   isAction: boolean;
   isActive: boolean;
+  showNoteForm: boolean;
   actions: IAction[];
   triggers: ITrigger[];
   activeTrigger: ITrigger;
@@ -91,6 +96,7 @@ class AutomationForm extends React.Component<Props, State> {
       currentTab: 'triggers',
       isAction: true,
       isActive: automation.status === 'active',
+      showNoteForm: false,
       showTrigger: false,
       showDrawer: false,
       showAction: false,
@@ -179,6 +185,13 @@ class AutomationForm extends React.Component<Props, State> {
           });
         }
       });
+
+      // add note ===================
+      jquery('#canvas').on('click', '.add-note', event => {
+        event.preventDefault();
+
+        this.handleNoteModal();
+      });
     });
 
     document.addEventListener('click', this.handleClickOutside, true);
@@ -237,6 +250,10 @@ class AutomationForm extends React.Component<Props, State> {
     } else {
       save(generateValues());
     }
+  };
+
+  handleNoteModal = () => {
+    this.setState({ showNoteForm: !this.state.showNoteForm });
   };
 
   switchActionbarTab = type => {
@@ -397,7 +414,7 @@ class AutomationForm extends React.Component<Props, State> {
         <div class="trigger-header">
           <div class='custom-menu'>
             <div>
-              <i class="icon-notes note" title="Notes"></i>
+              <i class="icon-notes add-note" title="Notes"></i>
               <i class="icon-trash-alt delete-control" id="${key}-${item.id}" title="Delete control"></i>
             </div>
           </div>
@@ -405,7 +422,6 @@ class AutomationForm extends React.Component<Props, State> {
             <i class="icon-${item.icon}"></i>
             ${item.label}
           </div>
-          <i class="icon-ellipsis-v" title="settings"></i>
         </div>
         <p>${item.description}</p>
       </div>
@@ -643,6 +659,35 @@ class AutomationForm extends React.Component<Props, State> {
     );
   }
 
+  renderNoteModal() {
+    const { showNoteForm } = this.state;
+
+    if (!showNoteForm) {
+      return null;
+    }
+
+    return (
+      <Modal
+        enforceFocus={false}
+        show={showNoteForm}
+        onHide={this.handleNoteModal}
+        animation={false}
+      >
+        <Modal.Body>
+          <Form
+            renderContent={formProps => (
+              <NoteFormContainer
+                formProps={formProps}
+                notes={this.props.automationNotes}
+                closeModal={this.handleNoteModal}
+              />
+            )}
+          />
+        </Modal.Body>
+      </Modal>
+    );
+  }
+
   render() {
     const { automation } = this.props;
 
@@ -682,6 +727,8 @@ class AutomationForm extends React.Component<Props, State> {
               </RightDrawerContainer>
             </RTG.CSSTransition>
           </div>
+
+          {this.renderNoteModal()}
         </HeightedWrapper>
       </>
     );
