@@ -33,8 +33,7 @@ const AutomationDetailsContainer = (props: FinalProps) => {
     automationDetailQuery,
     automationNotesQuery,
     currentUser,
-    editAutomationMutation,
-    saveAsTemplateMutation
+    editAutomationMutation
   } = props;
 
   const save = (doc: IAutomation) => {
@@ -45,21 +44,6 @@ const AutomationDetailsContainer = (props: FinalProps) => {
     })
       .then(() => {
         Alert.success(`You successfully updated a ${doc.name || 'status'}`);
-      })
-
-      .catch(error => {
-        Alert.error(error.message);
-      });
-  };
-
-  const saveAs = (variables: IAutomation) => {
-    saveAsTemplateMutation({
-      variables
-    })
-      .then(() => {
-        Alert.success(`You successfully save as a template`);
-
-        window.location.href = '/automations';
       })
 
       .catch(error => {
@@ -86,8 +70,7 @@ const AutomationDetailsContainer = (props: FinalProps) => {
     automation: automationDetail,
     automationNotes,
     currentUser,
-    save,
-    saveAs
+    save
   };
 
   return <AutomationForm {...updatedProps} />;
@@ -125,9 +108,6 @@ export default withProps<Props>(
           refetchQueries: ['automations', 'automationsMain', 'automationDetail']
         })
       }
-    ),
-    graphql<{}, any, IAutomation>(gql(mutations.automationsSaveAsTemplate), {
-      name: 'saveAsTemplateMutation'
-    })
+    )
   )(AutomationDetailsContainer)
 );

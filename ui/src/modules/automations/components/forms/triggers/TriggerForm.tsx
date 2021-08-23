@@ -1,6 +1,6 @@
 import React from 'react';
 import { Tabs, TabTitle } from 'modules/common/components/tabs';
-import { __ } from 'modules/common/utils';
+import { __, confirm } from 'modules/common/utils';
 import { TRIGGERS } from 'modules/automations/constants';
 import FormGroup from 'erxes-ui/lib/components/form/Group';
 import ControlLabel from 'erxes-ui/lib/components/form/Label';
@@ -11,6 +11,10 @@ import {
   TriggerTabs
 } from 'modules/automations/styles';
 import { ITrigger } from 'modules/automations/types';
+import client from 'erxes-ui/lib/apolloClient';
+import gql from 'graphql-tag';
+import { mutations, queries } from 'modules/automations/graphql';
+import Icon from 'modules/common/components/Icon';
 
 type Props = {
   onClickTrigger: (trigger: ITrigger) => void;
@@ -44,6 +48,38 @@ class TriggerForm extends React.Component<Props, State> {
     });
   };
 
+  onClickTemplate = (template: any) => {
+    client
+      .mutate({
+        mutation: gql(mutations.automationsCreateFromTemplate),
+        variables: {
+          _id: template._id
+        }
+      })
+      .then(({ data }) => {
+        window.location.href = `/automations/details/${data.automationsCreateFromTemplate._id}`;
+      });
+  };
+
+  onRemoveTemplate = (templateId: string) => {
+    confirm().then(() => {
+      client.mutate({
+        mutation: gql(mutations.automationsRemove),
+        variables: {
+          automationIds: [templateId]
+        },
+        refetchQueries: [
+          {
+            query: gql(queries.automations),
+            variables: {
+              status: 'template'
+            }
+          }
+        ]
+      });
+    });
+  };
+
   renderScratchTemplates(trigger, index) {
     return (
       <TypeBox key={index} onClick={this.onClickType.bind(this, trigger)}>
@@ -56,9 +92,36 @@ class TriggerForm extends React.Component<Props, State> {
     );
   }
 
+  renderTemplateItem(template: any, index: number) {
+    return (
+      <TypeBox key={index}>
+        <FormGroup>
+          <ControlLabel>{template.name}</ControlLabel>
+        </FormGroup>
+        <div className="ctrl">
+          <Icon
+            icon="external-link-alt"
+            onClick={this.onClickTemplate.bind(this, template)}
+            size={16}
+            color="hsl(118.39999999999998,59.2%,40.8%)"
+          />
+
+          <Icon
+            icon="trash"
+            color="#EA475D"
+            size={16}
+            onClick={this.onRemoveTemplate.bind(this, template._id)}
+          />
+        </div>
+      </TypeBox>
+    );
+  }
+
   renderTabContent() {
     if (this.state.currentTab === 'library') {
-      return <div>here will be saved libraries</div>;
+      return this.props.templates.map((t, index) =>
+        this.renderTemplateItem(t, index)
+      );
     }
 
     return TRIGGERS.map((trigger, index) =>

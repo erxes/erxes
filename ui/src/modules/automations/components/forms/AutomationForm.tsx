@@ -46,6 +46,7 @@ import Toggle from 'modules/common/components/Toggle';
 import SettingsContainer from 'modules/automations/containers/forms/settings/Settings';
 import Modal from 'react-bootstrap/Modal';
 import NoteFormContainer from 'modules/automations/containers/forms/NoteForm';
+import TemplateForm from '../../containers/forms/TemplateForm';
 
 const plumb: any = jsPlumb;
 let instance;
@@ -55,7 +56,6 @@ type Props = {
   automation?: IAutomation;
   automationNotes?: IAutomationNote[];
   save: (params: any) => void;
-  saveAs?: (params: any) => void;
 };
 
 type State = {
@@ -68,6 +68,7 @@ type State = {
   isActionTab: boolean;
   isActive: boolean;
   showNoteForm: boolean;
+  showTemplateForm: boolean;
   actions: IAction[];
   triggers: ITrigger[];
   activeTrigger: ITrigger;
@@ -100,6 +101,7 @@ class AutomationForm extends React.Component<Props, State> {
       isActionTab: true,
       isActive: automation.status === 'active',
       showNoteForm: false,
+      showTemplateForm: false,
       showTrigger: false,
       showDrawer: false,
       showAction: false,
@@ -224,7 +226,7 @@ class AutomationForm extends React.Component<Props, State> {
     e.preventDefault();
 
     const { name, status, triggers, actions } = this.state;
-    const { id, save, saveAs } = this.props;
+    const { id, save } = this.props;
 
     if (!name) {
       return Alert.error('Enter an Automation name');
@@ -260,15 +262,15 @@ class AutomationForm extends React.Component<Props, State> {
       return finalValues;
     };
 
-    if (isSaveAs && saveAs) {
-      saveAs(generateValues());
-    } else {
-      save(generateValues());
-    }
+    save(generateValues());
   };
 
   handleNoteModal = () => {
     this.setState({ showNoteForm: !this.state.showNoteForm });
+  };
+
+  handleTemplateModal = () => {
+    this.setState({ showTemplateForm: !this.state.showTemplateForm });
   };
 
   switchActionbarTab = type => {
@@ -480,6 +482,7 @@ class AutomationForm extends React.Component<Props, State> {
 
   rendeRightActionBar() {
     const { isActive } = this.state;
+    const { id } = this.props;
 
     return (
       <BarItems>
@@ -504,14 +507,16 @@ class AutomationForm extends React.Component<Props, State> {
         >
           Add an Action
         </Button>
-        <Button
-          btnStyle="success"
-          size="small"
-          icon={'check-circle'}
-          onClick={e => this.handleSubmit(e, true)}
-        >
-          Save as a template
-        </Button>
+        {id && (
+          <Button
+            btnStyle="primary"
+            size="small"
+            icon={'check-circle'}
+            onClick={this.handleTemplateModal}
+          >
+            Save as a template
+          </Button>
+        )}
         <Button
           btnStyle="success"
           size="small"
@@ -691,6 +696,37 @@ class AutomationForm extends React.Component<Props, State> {
     );
   }
 
+  renderTemplateModal() {
+    const { showTemplateForm } = this.state;
+    const { automation } = this.props;
+
+    if (!showTemplateForm || !automation) {
+      return null;
+    }
+
+    return (
+      <Modal
+        enforceFocus={false}
+        show={showTemplateForm}
+        onHide={this.handleTemplateModal}
+        animation={false}
+      >
+        <Modal.Body>
+          <Form
+            renderContent={formProps => (
+              <TemplateForm
+                formProps={formProps}
+                closeModal={this.handleTemplateModal}
+                id={automation._id}
+                name={automation.name}
+              />
+            )}
+          />
+        </Modal.Body>
+      </Modal>
+    );
+  }
+
   render() {
     const { automation } = this.props;
 
@@ -732,6 +768,7 @@ class AutomationForm extends React.Component<Props, State> {
           </div>
 
           {this.renderNoteModal()}
+          {this.renderTemplateModal()}
         </HeightedWrapper>
       </>
     );

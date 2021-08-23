@@ -37,9 +37,17 @@ const automationsAdd = `
 `;
 
 const automationsSaveAsTemplate = `
-  mutation automationsSaveAsTemplate(${commonFields}) {
-    automationsSaveAsTemplate(${commonVariables}) {
+  mutation automationsSaveAsTemplate($_id: String!, $name: String!) {
+    automationsSaveAsTemplate(_id: $_id, name: $name) {
       ${automationFields}
+    }
+  }
+`;
+
+const automationsCreateFromTemplate = `
+  mutation automationsCreateFromTemplate($_id: String) {
+    automationsCreateFromTemplate(_id: $_id) {
+      _id
     }
   }
 `;
@@ -84,6 +92,7 @@ export default {
   automationsAdd,
   automationsEdit,
   automationsSaveAsTemplate,
+  automationsCreateFromTemplate,
   automationsRemove,
   automationsAddNote,
   automationsRemoveNote,
