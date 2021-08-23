@@ -34,6 +34,8 @@ export const types = `
   type AutomationNote {
     _id: String
     description: String
+    triggerId: String
+    actionId: String
     createdUser: User
     createdAt: Date
   }
@@ -81,7 +83,7 @@ export const queries = `
   automationsMain(${queryParams}): AutomationsListResponse
   automations(${queryParams}): [Automation]
   automationDetail(_id: String!): Automation
-  automationNotes(automationId: String): [AutomationNote]
+  automationNotes(automationId: String!, triggerId: String, actionId: String): [AutomationNote]
 `;
 
 const commonFields = `
