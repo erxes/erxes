@@ -16,7 +16,8 @@ import {
   ScrolledContent,
   BackIcon,
   CenterBar,
-  ToggleWrapper
+  ToggleWrapper,
+  ZoomActions
 } from '../../styles';
 import { FormControl } from 'modules/common/components/form';
 import { BarItems, HeightedWrapper } from 'modules/layout/styles';
@@ -620,6 +621,18 @@ class AutomationForm extends React.Component<Props, State> {
     return null;
   }
 
+  renderZoomActions() {
+    return (
+      <ZoomActions>
+        <div className="icon-wrapper">
+          <Icon icon="plus" />
+          <Icon icon="minus" />
+        </div>
+        <span>100%</span>
+      </ZoomActions>
+    );
+  }
+
   renderContent() {
     const { automation } = this.props;
 
@@ -643,6 +656,7 @@ class AutomationForm extends React.Component<Props, State> {
 
     return (
       <Container>
+        {this.renderZoomActions()}
         <div id="canvas" />
       </Container>
     );

@@ -666,6 +666,38 @@ export const ActionFooter = styled.div`
   bottom: ${dimensions.coreSpacing}px;
 `;
 
-export const NoteContainer = styled.div`
-  padding: ${dimensions.coreSpacing}px;
+export const NoteContainer = styled.div``;
+
+export const ZoomActions = styled.div`
+  display: flex;
+  flex-direction: column;
+  position: absolute;
+  align-items: center;
+  font-size: 11px;
+  z-index: 999;
+
+  > .icon-wrapper {
+    border: 1px solid ${colors.borderDarker};
+    border-radius: 4px;
+    padding: 3px;
+    margin-bottom: 5px;
+
+    > i {
+      display: block;
+      font-weight: 500;
+      font-size: 11px;
+      padding: 0 3px;
+      cursor: pointer;
+      background: ${colors.colorWhite};
+
+      &:before {
+        font-weight: 700;
+      }
+
+      &:first-child {
+        border-bottom: 1px solid ${colors.borderDarker};
+        padding-bottom: 3px;
+      }
+    }
+  }
 `;
