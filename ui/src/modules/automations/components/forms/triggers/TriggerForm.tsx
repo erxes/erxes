@@ -11,6 +11,9 @@ import {
   TriggerTabs
 } from 'modules/automations/styles';
 import { ITrigger } from 'modules/automations/types';
+import client from 'erxes-ui/lib/apolloClient';
+import gql from 'graphql-tag';
+import { mutations } from 'modules/automations/graphql';
 
 type Props = {
   onClickTrigger: (trigger: ITrigger) => void;
@@ -44,6 +47,19 @@ class TriggerForm extends React.Component<Props, State> {
     });
   };
 
+  onClickTemplate = (template: any) => {
+    client
+      .mutate({
+        mutation: gql(mutations.automationsCreateFromTemplate),
+        variables: {
+          _id: template._id
+        }
+      })
+      .then(({ data }) => {
+        window.location.href = `/automations/details/${data.automationsCreateFromTemplate._id}`;
+      });
+  };
+
   renderScratchTemplates(trigger, index) {
     return (
       <TypeBox key={index} onClick={this.onClickType.bind(this, trigger)}>
@@ -56,9 +72,21 @@ class TriggerForm extends React.Component<Props, State> {
     );
   }
 
+  renderTemplateItem(template: any, index: number) {
+    return (
+      <TypeBox key={index} onClick={this.onClickTemplate.bind(this, template)}>
+        <FormGroup>
+          <ControlLabel>{template.name}</ControlLabel>
+        </FormGroup>
+      </TypeBox>
+    );
+  }
+
   renderTabContent() {
     if (this.state.currentTab === 'library') {
-      return <div>here will be saved libraries</div>;
+      return this.props.templates.map((t, index) =>
+        this.renderTemplateItem(t, index)
+      );
     }
 
     return TRIGGERS.map((trigger, index) =>

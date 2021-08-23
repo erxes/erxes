@@ -44,6 +44,14 @@ const automationsSaveAsTemplate = `
   }
 `;
 
+const automationsCreateFromTemplate = `
+  mutation automationsCreateFromTemplate($_id: String) {
+    automationsCreateFromTemplate(_id: $_id) {
+      _id
+    }
+  }
+`;
+
 const automationsEdit = `
   mutation automationsEdit($_id: String!, ${commonFields}) {
     automationsEdit(_id: $_id, ${commonVariables}) {
@@ -84,6 +92,7 @@ export default {
   automationsAdd,
   automationsEdit,
   automationsSaveAsTemplate,
+  automationsCreateFromTemplate,
   automationsRemove,
   automationsAddNote,
   automationsRemoveNote,
