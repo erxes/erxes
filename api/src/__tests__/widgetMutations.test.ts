@@ -615,6 +615,43 @@ describe('insertMessage()', () => {
     sendRequestMock.restore();
   });
 
+  test('Bot message: Failed to connect to BOTPRESS', async () => {
+    const sendRequestMock = sinon.stub(utils, 'sendRequest').callsFake(() => {
+      return Promise.resolve(new Error('Failed to connect to BOTPRESS'));
+    });
+
+    const conversation = await conversationFactory({
+      operatorStatus: CONVERSATION_OPERATOR_STATUS.BOT
+    });
+
+    _integrationBot = await integrationFactory({
+      brandId: Random.id(),
+      kind: 'messenger',
+      messengerData: {
+        botEndpointUrl: 'botEndpointUrl',
+        botShowInitialMessage: false
+      }
+    });
+
+    try {
+      await widgetMutations.widgetsInsertMessage(
+        {},
+        {
+          contentType: MESSAGE_TYPES.TEXT,
+          integrationId: _integrationBot._id,
+          message: 'User message',
+          customerId: _customer._id,
+          conversationId: conversation._id
+        },
+        context
+      );
+    } catch (e) {
+      expect(e.message).toBe('Failed to connect to BOTPRESS');
+    }
+
+    sendRequestMock.restore();
+  });
+
   test('Bot show initial message', async () => {
     const mock = sinon.stub(utils, 'sendRequest').returns(
       Promise.resolve({

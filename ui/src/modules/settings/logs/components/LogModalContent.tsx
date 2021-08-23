@@ -2,11 +2,10 @@ import dayjs from 'dayjs';
 import TextInfo from 'modules/common/components/TextInfo';
 import colors from 'modules/common/styles/colors';
 import React from 'react';
-import Col from 'react-bootstrap/Col';
-import Row from 'react-bootstrap/Row';
 import { LogBox } from '../styles';
 import { ILog, ILogDesc } from '../types';
 import { flattenObject, isObjectEmpty } from '../utils';
+import Icon from 'modules/common/components/Icon';
 
 // field names used to show properly formatted date values
 const DATE_FIELD_NAMES = [
@@ -61,8 +60,11 @@ export default class LogModal extends React.Component<Props> {
       if (typeof elem === 'object') {
         const sub: JSX.Element[] = this.buildListFromObject(elem);
 
-        list.push(<li key={Math.random()}>{index + 1}:</li>);
-        list.push(<ul key={Math.random()}>{sub}</ul>);
+        list.push(
+          <li className="modal-li" key={Math.random()}>
+            {sub}({index + 1})
+          </li>
+        );
       }
     });
 
@@ -114,10 +116,12 @@ export default class LogModal extends React.Component<Props> {
       }
 
       let item: JSX.Element = (
-        <li key={name}>
+        <div key={name}>
           <span className="field-name">{label}:</span>
-          <span className="field-value">{value}</span>
-        </li>
+          <span className="field-value">
+            <div dangerouslySetInnerHTML={{ __html: value }} />
+          </span>
+        </div>
       );
 
       if (typeof field === 'object') {
@@ -125,9 +129,9 @@ export default class LogModal extends React.Component<Props> {
           item = this.buildListFromArray(field, name);
 
           list.push(
-            <li className="field-name" key={Math.random()}>
+            <div className="field-name" key={Math.random()}>
               {label}:
-            </li>
+            </div>
           );
 
           list.push(item);
@@ -137,12 +141,12 @@ export default class LogModal extends React.Component<Props> {
           item = <li key={Math.random()}>{name}:</li>;
 
           list.push(
-            <li className="field-name" key={Math.random()}>
+            <div className="field-name" key={Math.random()}>
               {label}:
-            </li>
+            </div>
           );
 
-          list.push(<ul key={Math.random()}>{sub}</ul>);
+          list.push(<li key={Math.random()}>{sub}</li>);
         }
       } else {
         // primary types
@@ -170,18 +174,23 @@ export default class LogModal extends React.Component<Props> {
     }
 
     if (typeof parsed === 'object' && !Array.isArray(parsed)) {
-      return <ul>{this.buildListFromObject(parsed)}</ul>;
+      return <div>{this.buildListFromObject(parsed)}</div>;
     }
 
     if (Array.isArray(parsed)) {
-      return <ul>{this.buildListFromArray(parsed)}</ul>;
+      return <div>{this.buildListFromArray(parsed)}</div>;
     }
 
     return <span />;
   }
 
-  renderData(data: string, label: string, cls: string): JSX.Element {
-    if (!data) {
+  renderData(
+    data: string,
+    label: string,
+    cls: string,
+    iconType: string
+  ): JSX.Element {
+    if (!data || data === '{}') {
       return <span />;
     }
 
@@ -202,14 +211,20 @@ export default class LogModal extends React.Component<Props> {
     }
 
     return (
-      <Col sm={6}>
-        <LogBox color={color}>
+      <LogBox color={color}>
+        <div>
+          <Icon
+            style={{ marginRight: '5px' }}
+            icon={iconType}
+            size={15}
+            color={color}
+          />
           <TextInfo textStyle={cls} hugeness="big">
             {label}
           </TextInfo>
-          {this.prettyJSON(data)}
-        </LogBox>
-      </Col>
+        </div>
+        {this.prettyJSON(data)}
+      </LogBox>
     );
   }
 
@@ -221,14 +236,17 @@ export default class LogModal extends React.Component<Props> {
     }
 
     return (
-      <>
-        <Row>
-          {this.renderData(log.oldData, 'Before any changes', 'default')}
-          {this.renderData(log.addedData, 'Added fields', 'success')}
-          {this.renderData(log.changedData, 'Changed fields', 'warning')}
-          {this.renderData(log.removedData, 'Removed fields', 'danger')}
-        </Row>
-      </>
+      <div className="modal-items-list">
+        {this.renderData(
+          log.oldData,
+          'Before any changes',
+          'default',
+          'history'
+        )}
+        {this.renderData(log.addedData, 'Added fields', 'success', 'add')}
+        {this.renderData(log.changedData, 'Changed fields', 'warning', 'edit')}
+        {this.renderData(log.removedData, 'Removed fields', 'danger', 'trash')}
+      </div>
     );
   }
 

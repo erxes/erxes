@@ -9,6 +9,7 @@ import {
   frontendEnv,
   getConfig,
   getSubServiceDomain,
+  registerOnboardHistory,
   uploadFile,
   uploadFileAWS,
   uploadFileLocal
@@ -64,6 +65,8 @@ export const importer = async (req: any, res, next) => {
             user: req.user
           }
         );
+
+        registerOnboardHistory({ type: `importCreate`, user: req.user });
 
         return res.json(result);
       } catch (e) {

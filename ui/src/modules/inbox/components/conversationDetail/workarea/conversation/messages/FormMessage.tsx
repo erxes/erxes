@@ -11,18 +11,25 @@ import {
 import {
   PreviewTitle,
   PreviewBody,
-  BodyContent
+  BodyContent,
+  PrintButton
 } from 'modules/leads/components/step/preview/styles';
 import FormGroup from 'modules/common/components/form/Group';
 import ControlLabel from 'modules/common/components/form/Label';
 import { FieldItem } from 'modules/forms/styles';
 import Select from 'react-select-plus';
+import Tip from 'modules/common/components/Tip';
+import Button from 'modules/common/components/Button';
+import { __ } from 'modules/common/utils';
+import ReactToPrint, { PrintContextConsumer } from 'react-to-print';
 
 type Props = {
   message: IMessage;
 };
 
 export default class FormMessage extends React.Component<Props, {}> {
+  private componentRef;
+
   displayValue(data) {
     if (data.validation === 'date') {
       return dayjs(data.value).format('YYYY/MM/DD');
@@ -90,11 +97,27 @@ export default class FormMessage extends React.Component<Props, {}> {
     );
   }
 
+  renderPrintBtn() {
+    return (
+      <PrintButton>
+        <ReactToPrint content={() => this.componentRef}>
+          <PrintContextConsumer>
+            {({ handlePrint }) => (
+              <Tip text={__('Print responses')} placement="top">
+                <Button btnStyle="link" onClick={handlePrint} icon="print" />
+              </Tip>
+            )}
+          </PrintContextConsumer>
+        </ReactToPrint>
+      </PrintButton>
+    );
+  }
+
   render() {
     const { formWidgetData, content } = this.props.message;
 
     return (
-      <FormTable>
+      <FormTable ref={el => (this.componentRef = el)}>
         <PreviewTitle style={{ backgroundColor: '#6569DF' }}>
           <div>{content}</div>
         </PreviewTitle>
@@ -103,6 +126,7 @@ export default class FormMessage extends React.Component<Props, {}> {
             {formWidgetData.map(field => this.renderField(field))}
           </BodyContent>
         </PreviewBody>
+        {this.renderPrintBtn()}
       </FormTable>
     );
   }

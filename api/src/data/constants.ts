@@ -265,7 +265,7 @@ export const MODULE_NAMES = {
   EMAIL_TEMPLATE: 'emailTemplate',
   IMPORT_HISTORY: 'importHistory',
   PRODUCT: 'product',
-  PRODUCT_CATEGORY: 'product-category',
+  PRODUCT_CATEGORY: 'productCategory',
   RESPONSE_TEMPLATE: 'responseTemplate',
   TAG: 'tag',
   TASK: 'task',
@@ -285,8 +285,11 @@ export const MODULE_NAMES = {
   ENGAGE: 'engage',
   SCRIPT: 'script',
   FIELD: 'field',
+  AUTOMATION: 'automation',
+  FIELD_GROUP: 'fieldGroup',
   WEBHOOK: 'webhook',
-  AUTOMATION: 'automation'
+  DASHBOARD: 'dashboard',
+  DASHBOARD_ITEM: 'dashboardItem'
 };
 
 export const RABBITMQ_QUEUES = {

@@ -226,9 +226,7 @@ export default class GenerateField extends React.Component<Props, State> {
   }
 
   renderCustomer({ id, value }) {
-
-    const onSelect = (e) => {
-
+    const onSelect = e => {
       const { onValueChange } = this.props;
 
       if (onValueChange) {
@@ -236,7 +234,6 @@ export default class GenerateField extends React.Component<Props, State> {
 
         onValueChange({ _id: id, value: e });
       }
-
     };
 
     return (
