@@ -32,7 +32,9 @@ import {
   targetEndpoint,
   connectorPaintStyle,
   connectorHoverStyle,
-  hoverPaintStyle
+  hoverPaintStyle,
+  yesEndPoint,
+  noEndPoint
 } from 'modules/automations/utils';
 import ActionDetailForm from './ActionDetailForm';
 import Icon from 'modules/common/components/Icon';
@@ -447,33 +449,8 @@ class AutomationForm extends React.Component<Props, State> {
           anchor: ['Left']
         });
 
-        instance.addEndpoint(idElm, sourceEndpoint, {
-          anchor: [1, 0.2],
-          overlays: [
-            [
-              'Label',
-              {
-                location: [1.8, 0.5],
-                label: 'True',
-                visible: true
-              }
-            ]
-          ]
-        });
-
-        instance.addEndpoint(idElm, sourceEndpoint, {
-          anchor: [1, 0.8],
-          overlays: [
-            [
-              'Label',
-              {
-                location: [1.8, 0.5],
-                label: 'False',
-                visible: true
-              }
-            ]
-          ]
-        });
+        instance.addEndpoint(idElm, yesEndPoint);
+        instance.addEndpoint(idElm, noEndPoint);
       } else {
         instance.addEndpoint(idElm, targetEndpoint, {
           anchor: ['Left']

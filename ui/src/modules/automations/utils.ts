@@ -36,6 +36,67 @@ export const sourceEndpoint = {
     activeClass: 'dragActive'
   }
 };
+
+export const yesEndPoint = {
+  endpoint: 'Dot',
+  paintStyle: {
+    fill: rgba(colors.colorCoreGreen, 1),
+    radius: 10
+  },
+  isSource: true,
+  connector: [
+    'Bezier',
+    { stub: [40, 60], gap: 10, cornerRadius: 5, alwaysRespectStubs: true }
+  ],
+  connectorStyle: connectorPaintStyle,
+  hoverPaintStyle,
+  connectorHoverStyle,
+  anchor: [1, 0.3],
+  overlays: [
+    [
+      'Label',
+      {
+        location: [1.8, 0.5],
+        label: 'True',
+        visible: true,
+        labelStyle: {
+          color: colors.colorCoreGreen
+        }
+      }
+    ]
+  ]
+};
+
+export const noEndPoint = {
+  endpoint: 'Dot',
+  paintStyle: {
+    fill: rgba(colors.colorSecondary, 1),
+    radius: 10
+  },
+  isSource: true,
+  connector: [
+    'Bezier',
+    { stub: [40, 60], gap: 10, cornerRadius: 5, alwaysRespectStubs: true }
+  ],
+  connectorStyle: connectorPaintStyle,
+  hoverPaintStyle,
+  connectorHoverStyle,
+  anchor: [1, 0.7],
+  overlays: [
+    [
+      'Label',
+      {
+        location: [1.9, 0.6],
+        label: 'False',
+        visible: true,
+        labelStyle: {
+          color: colors.colorSecondary
+        }
+      }
+    ]
+  ]
+};
+
 // the definition of target endpoints (will appear when the user drags a connection)
 export const targetEndpoint = {
   endpoint: 'Dot',
