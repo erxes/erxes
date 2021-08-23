@@ -363,7 +363,8 @@ const getFroms = async () => {
 
   return {
     _id: Math.random(),
-    name: 'forms.formIds',
+    name: 'formIds',
+    group: 'Form & Form fields',
     label: 'Form',
     type: 'form',
     selectOptions: forms
@@ -384,7 +385,8 @@ const getFormFields = async () => {
 
   return {
     _id: Math.random(),
-    name: 'forms.formFieldIds',
+    name: 'formFieldIds',
+    group: 'Form & Form fields',
     label: 'Form field',
     type: 'formField',
     selectOptions: fields
@@ -449,6 +451,7 @@ export const fieldsCombinedByContentType = async ({
   let fields: Array<{
     _id: number;
     name: string;
+    group?: string;
     label?: string;
     type?: string;
     validation?: string;
@@ -605,24 +608,24 @@ export const fieldsCombinedByContentType = async ({
     fields = [...fields, ownerOptions];
   }
 
-  if (contentType === 'customer' && (!usageType || usageType === 'segment')) {
+  if (contentType === 'form_submission') {
     const forms = await getFroms();
     const formFeilds = await getFormFields();
     const formFieldsValues = await getCustomFields('form');
 
-    fields = [...fields, ...[forms], ...[formFeilds]];
-
-    // extend fields list using custom fields data
     for (const formField of formFieldsValues) {
       fields.push({
         _id: Math.random(),
-        name: `formFields.${formField._id}`,
+        name: formField._id,
+        group: `Form fields value`,
         label: formField.text,
         options: formField.options,
         validation: formField.validation,
         type: formField.type
       });
     }
+
+    fields = [...fields, ...[forms], ...[formFeilds]];
   }
 
   if (

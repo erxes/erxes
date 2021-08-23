@@ -34,11 +34,41 @@ class SegmentFormAutomations extends React.Component<Props, State> {
     this.state = { propertyType };
   }
 
+  groupByType = () => {
+    const { fields = [] } = this.props;
+
+    return fields.reduce((acc, field) => {
+      const value = field.value;
+      let key = 'general';
+
+      if (field.group) {
+        key = field.group;
+      } else {
+        key =
+          value && value.includes('.')
+            ? value.substr(0, value.indexOf('.'))
+            : 'general';
+      }
+
+      if (!acc[key]) {
+        acc[key] = [];
+      }
+
+      acc[key].push(field);
+
+      return acc;
+    }, {});
+  };
+
   renderFields = () => {
     const { fields } = this.props;
 
+    const sda = this.groupByType();
+
+    console.log('111', sda);
+
     return fields.map(field => {
-      return <p>{field.label}</p>;
+      return <p key={Math.random()}>{field.label}</p>;
     });
   };
 

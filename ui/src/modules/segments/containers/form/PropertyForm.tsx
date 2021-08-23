@@ -62,6 +62,7 @@ class SegmentsFormContainer extends React.Component<
 
   render() {
     const { boardsQuery } = this.props;
+    const { fields } = this.state;
 
     if (boardsQuery && boardsQuery.loading) {
       return null;
@@ -69,11 +70,21 @@ class SegmentsFormContainer extends React.Component<
 
     const boards = boardsQuery ? boardsQuery.boards || [] : [];
 
+    const cleanFields = fields.map(item => ({
+      value: item.name || item._id,
+      label: item.label || item.title,
+      type: (item.type || '').toLowerCase(),
+      group: item.group || '',
+      selectOptions: item.selectOptions || [],
+      // radio button options
+      choiceOptions: item.options || []
+    }));
+
     const updatedProps = {
       ...this.props,
       boards,
       fetchFields: this.fetchFields,
-      fields: this.state.fields
+      fields: cleanFields
     };
 
     return <PropertyForm {...updatedProps} />;

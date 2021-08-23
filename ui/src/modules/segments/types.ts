@@ -96,6 +96,7 @@ export type AddMutationVariables = {
 export type IField = {
   selectOptions?: Array<{ label: string; value: string | number }>;
   type?: string;
+  group?: string;
   value: string;
   label: string;
   options?: string[];

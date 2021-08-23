@@ -24,7 +24,7 @@ class ConditionsList extends React.Component<Props, State> {
     const { conditions } = segment;
 
     if (!conditions && index === 0) {
-      return <PropertyForm contentType={contentType}></PropertyForm>;
+      return <PropertyForm contentType={contentType} />;
     }
 
     return <div>'asdsad'</div>;
