@@ -325,6 +325,8 @@ export const TypeBox = styled(CenterFlexRow)`
   margin-top: ${dimensions.unitSpacing}px;
   transition: all ease 0.3s;
   cursor: pointer;
+  display: flex;
+  justify-content: space-between;
 
   label {
     cursor: pointer;
@@ -343,6 +345,10 @@ export const TypeBox = styled(CenterFlexRow)`
     border-color: ${colors.colorSecondary};
     box-shadow: 0px 8px 20px rgba(79, 51, 175, 0.24),
       0px 2px 6px rgba(79, 51, 175, 0.16), 0px 0px 1px rgba(79, 51, 175, 0.08);
+  }
+
+  .ctrl i {
+    padding: 0 5px;
   }
 `;
 

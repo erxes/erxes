@@ -31,7 +31,7 @@ class TemplateForm extends React.Component<Props> {
         <FormControl
           {...formProps}
           required
-          value={`${name} (template)`}
+          defaultValue={`${name} (template)`}
           name="name"
           placeholder={__('Template name')}
         />
