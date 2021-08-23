@@ -346,8 +346,11 @@ export const loadFieldClass = () => {
       for (const customFieldData of customFieldsData || []) {
         const field = await Fields.findById(customFieldData.field);
 
-        await Fields.clean(customFieldData.field, customFieldData.value);
-
+        try {
+          await Fields.clean(customFieldData.field, customFieldData.value);
+        } catch (e) {
+          throw new Error(e.message);
+        }
         result.push(
           Fields.generateTypedItem(
             customFieldData.field,

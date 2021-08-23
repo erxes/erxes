@@ -45,6 +45,7 @@ export const types = `
     groupIds: [String]
     brandIds: [String]
     isSubscribed: String
+    isShowNotification: Boolean
 
     brands: [Brand]
     isOwner: Boolean

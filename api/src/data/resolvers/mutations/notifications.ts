@@ -1,4 +1,8 @@
-import { NotificationConfigurations, Notifications } from '../../../db/models';
+import {
+  NotificationConfigurations,
+  Notifications,
+  Users
+} from '../../../db/models';
 import { IConfig } from '../../../db/models/definitions/notifications';
 import { graphqlPubsub } from '../../../pubsub';
 import { moduleRequireLogin } from '../../permissions/wrappers';
@@ -23,6 +27,10 @@ const notificationMutations = {
     // notify subscription
     graphqlPubsub.publish('notificationsChanged', '');
 
+    graphqlPubsub.publish('notificationRead', {
+      notificationRead: { userId: user._id }
+    });
+
     let notificationIds = _ids;
 
     if (contentTypeId) {
@@ -32,6 +40,22 @@ const notificationMutations = {
     }
 
     return Notifications.markAsRead(notificationIds, user._id);
+  },
+
+  /**
+   * Show notifications
+   */
+  async notificationsShow(_root, _args, { user }: IContext) {
+    graphqlPubsub.publish('userChanged', {
+      userChanged: { userId: user._id }
+    });
+
+    await Users.updateOne(
+      { _id: user._id },
+      { $set: { isShowNotification: true } }
+    );
+
+    return 'success';
   }
 };
 

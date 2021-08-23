@@ -4,6 +4,7 @@ import { MODULE_NAMES } from '../../constants';
 import { putCreateLog, putDeleteLog, putUpdateLog } from '../../logUtils';
 import { moduleCheckPermission } from '../../permissions/wrappers';
 import { IContext } from '../../types';
+import { registerOnboardHistory } from '../../utils';
 
 interface ISegmentsEdit extends ISegment {
   _id: string;
@@ -37,6 +38,10 @@ const segmentMutations = {
     }
 
     const segment = await Segments.createSegment(extendedDoc);
+
+    if (doc.subOf) {
+      registerOnboardHistory({ type: `subSegmentCreate`, user });
+    }
 
     await putCreateLog(
       {
