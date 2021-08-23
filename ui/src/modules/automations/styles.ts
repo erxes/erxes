@@ -6,6 +6,7 @@ import { RightMenuContainer } from 'modules/boards/styles/rightMenu';
 import { Contents } from 'modules/layout/styles';
 import { rgba } from 'modules/common/styles/color';
 import { DateWrapper } from 'modules/forms/styles';
+import { HeaderContent } from 'modules/boards/styles/item';
 
 export const Container = styled.div`
   padding: ${dimensions.coreSpacing}px;
@@ -698,6 +699,44 @@ export const ZoomActions = styled.div`
         border-bottom: 1px solid ${colors.borderDarker};
         padding-bottom: 3px;
       }
+    }
+  }
+`;
+
+export const BoarHeader = styled(HeaderContent)`
+  .header-row {
+    display: flex;
+    justify-content: space-between;
+
+    > span {
+      color: ${colors.colorSecondary};
+      font-weight: 500;
+      cursor: pointer;
+    }
+  }
+`;
+
+export const Attributes = styled.ul`
+  list-style: none;
+  margin: 0;
+  right: 20px;
+  height: 250px;
+  overflow: auto;
+  padding: ${dimensions.unitSpacing}px;
+  border-radius: ${dimensions.unitSpacing - 5}px;
+
+  b {
+    margin-bottom: ${dimensions.unitSpacing - 5}px;
+  }
+
+  li {
+    color: ${colors.colorCoreGray};
+    padding-bottom: ${dimensions.unitSpacing - 5}px;
+    cursor: pointer;
+    transition: all ease 0.3s;
+
+    &:hover {
+      color: ${colors.textPrimary};
     }
   }
 `;

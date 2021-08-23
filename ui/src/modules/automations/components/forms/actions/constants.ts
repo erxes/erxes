@@ -54,3 +54,42 @@ export const PROPERTY_OPERATOR = [
     label: 'Subtract'
   }
 ];
+
+export const ATTRIBUTIONS = {
+  'Associated Contact': [
+    {
+      value: 'firstname',
+      label: 'First Name'
+    },
+    {
+      value: 'ownername',
+      label: 'Owner Name'
+    },
+    {
+      value: 'brand',
+      label: 'Brand'
+    },
+    {
+      value: 'score',
+      label: 'Score'
+    }
+  ],
+  'Associated Deals': [
+    {
+      value: 'dealvalue',
+      label: 'Deal Value'
+    },
+    {
+      value: 'createddate',
+      label: 'Deal created date'
+    },
+    {
+      value: 'closedate',
+      label: 'Deal close date'
+    },
+    {
+      value: 'productname',
+      label: 'Product name'
+    }
+  ]
+};
