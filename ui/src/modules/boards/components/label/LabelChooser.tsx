@@ -20,7 +20,7 @@ type Props = {
 class ChooseLabel extends React.Component<
   Props,
   { selectedLabelIds: string[] }
-  > {
+> {
   private overlayTrigger;
 
   constructor(props) {

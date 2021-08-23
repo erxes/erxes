@@ -31,7 +31,7 @@ type IOverlayState = {
 export default class Overlay extends React.Component<
   IOverlayProps,
   IOverlayState
-  > {
+> {
   constructor(props: IOverlayProps) {
     super(props);
 

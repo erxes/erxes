@@ -91,7 +91,7 @@ class EditForm extends React.Component<Props, State> {
   onHideModal = () => {
     this.closeModal(() => {
       const { prevStageId, updatedItem } = this.state;
-      const { saveItem, onUpdate, item, history, refresh } = this.props;
+      const { history, refresh } = this.props;
 
       if (updatedItem) {
         const itemName = localStorage.getItem(`${updatedItem._id}Name`) || '';
@@ -103,15 +103,13 @@ class EditForm extends React.Component<Props, State> {
         localStorage.removeItem(`${updatedItem._id}Name`);
       }
 
-      saveItem({ item }, updatedSaveItem => {
-        if (onUpdate) {
-          onUpdate(updatedSaveItem, prevStageId);
-
-          if (refresh) {
-            routerUtils.setParams(history, { key: Math.random() });
-          }
+      if (updatedItem && this.props.onUpdate) {
+        if (refresh) {
+          routerUtils.setParams(history, { key: Math.random() });
+        } else {
+          this.props.onUpdate(updatedItem, prevStageId);
         }
-      });
+      }
     });
   };
 

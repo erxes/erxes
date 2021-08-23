@@ -49,15 +49,15 @@ class Actions extends React.Component<Props> {
 
     const onLabelChange = labels => {
       saveItem({ labels });
-    }
+    };
 
     const priorityTrigger = (
       <ColorButton>
         {item.priority ? (
           <PriorityIndicator value={item.priority} />
         ) : (
-            <Icon icon="sort-amount-up" />
-          )}
+          <Icon icon="sort-amount-up" />
+        )}
         {item.priority ? item.priority : __('Priority')}
       </ColorButton>
     );
@@ -71,7 +71,11 @@ class Actions extends React.Component<Props> {
           trigger={priorityTrigger}
         />
 
-        <LabelChooser item={item} onSelect={onLabelChange} onChangeRefresh={onChangeRefresh} />
+        <LabelChooser
+          item={item}
+          onSelect={onLabelChange}
+          onChangeRefresh={onChangeRefresh}
+        />
 
         <ChecklistAdd itemId={item._id} type={options.type} />
 

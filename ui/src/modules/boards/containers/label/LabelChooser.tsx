@@ -30,7 +30,7 @@ type FinalProps = {
 class LabelChooserContainer extends React.Component<
   FinalProps,
   { isConfirmVisible: boolean }
-  > {
+> {
   constructor(props: FinalProps) {
     super(props);
 

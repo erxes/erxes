@@ -88,14 +88,13 @@ class FormContainer extends React.Component<FinalProps> {
       callback,
       object
     }: IButtonMutateProps) => {
-
       const afterSave = () => {
         onChangeRefresh('refresh', true);
 
         if (callback) {
           callback();
         }
-      }
+      };
 
       return (
         <ButtonMutate
@@ -117,7 +116,7 @@ class FormContainer extends React.Component<FinalProps> {
           block={!this.props.labelId && true}
           successMessage={`You successfully ${
             object && object._id ? 'updated' : 'added'
-            } a ${name}`}
+          } a ${name}`}
         />
       );
     };

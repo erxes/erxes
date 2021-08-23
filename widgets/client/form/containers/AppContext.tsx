@@ -153,17 +153,6 @@ export class AppProvider extends React.Component<{}, IState> {
 
     // Increasing view count
     increaseViewCount(this.getForm()._id);
-
-    // for hiding blank loader screen
-    const parentWindow = window.parent.document;
-
-    const container = parentWindow.getElementsByClassName(
-      'erxes-embedded-iframe'
-    )[0];
-
-    if (container && container.parentElement) {
-      container.parentElement.style.display = 'none';
-    }
   };
 
   /*

@@ -106,36 +106,36 @@ const Description = (props: DescProps) => {
             }}
           />
         ) : (
-            <EditorWrapper>
-              <EditorCK
-                onCtrlEnter={onSend}
-                content={description}
-                onChange={onChangeDescription}
-                height={120}
-                isSubmitted={isSubmitted}
-                autoFocus={true}
-                name={`${contentType}_description_${item._id}`}
-                toolbar={[
-                  {
-                    name: 'basicstyles',
-                    items: [
-                      'Bold',
-                      'Italic',
-                      'NumberedList',
-                      'BulletedList',
-                      'Link',
-                      'Unlink',
-                      '-',
-                      'Image',
-                      'EmojiPanel'
-                    ]
-                  }
-                ]}
-              />
+          <EditorWrapper>
+            <EditorCK
+              onCtrlEnter={onSend}
+              content={description}
+              onChange={onChangeDescription}
+              height={120}
+              isSubmitted={isSubmitted}
+              autoFocus={true}
+              name={`${contentType}_description_${item._id}`}
+              toolbar={[
+                {
+                  name: 'basicstyles',
+                  items: [
+                    'Bold',
+                    'Italic',
+                    'NumberedList',
+                    'BulletedList',
+                    'Link',
+                    'Unlink',
+                    '-',
+                    'Image',
+                    'EmojiPanel'
+                  ]
+                }
+              ]}
+            />
 
-              {renderFooter()}
-            </EditorWrapper>
-          )}
+            {renderFooter()}
+          </EditorWrapper>
+        )}
       </ContentWrapper>
     </FormGroup>
   );
