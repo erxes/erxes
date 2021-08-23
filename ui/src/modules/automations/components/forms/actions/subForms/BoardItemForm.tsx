@@ -153,7 +153,9 @@ class BoardItemForm extends React.Component<Props, State> {
     console.log(attributions);
     // return this.state.config.cardName;
 
-    return attributions.map((attr, index) => attr.label);
+    return attributions.map((attr, index) => (
+      <React.Fragment key={index}>{attr.label}</React.Fragment>
+    ));
   }
 
   renderName() {

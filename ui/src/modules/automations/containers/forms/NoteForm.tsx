@@ -5,23 +5,44 @@ import { graphql } from 'react-apollo';
 import gql from 'graphql-tag';
 import NoteForm from 'modules/automations/components/forms/NoteForm';
 import { IFormProps, IButtonMutateProps } from 'modules/common/types';
-import { withProps } from 'modules/common/utils';
+import { withProps, Alert, confirm } from 'modules/common/utils';
 import {
   AddNoteMutationResponse,
-  IAutomationNoteDoc,
-  IAutomationNote
+  IAutomationNote,
+  RemoveNoteMutationVariables,
+  RemoveNoteMutationResponse
 } from 'modules/automations/types';
 import ButtonMutate from 'modules/common/components/ButtonMutate';
 
 type Props = {
   formProps: IFormProps;
+  automationId: string;
+  itemId: string;
+  isEdit?: boolean;
   notes?: IAutomationNote[];
   closeModal: () => void;
 };
 
-type FinalProps = {} & Props & AddNoteMutationResponse;
+type FinalProps = {} & Props &
+  AddNoteMutationResponse &
+  RemoveNoteMutationResponse;
 
 const NoteFormContainer = (props: FinalProps) => {
+  const remove = (_id: string) => {
+    confirm('Are you sure? This cannot be undone.').then(() => {
+      props
+        .automationsRemoveNote({
+          variables: { _id }
+        })
+        .then(() => {
+          Alert.success('You successfully deleted a note.');
+        })
+        .catch(error => {
+          Alert.error(error.message);
+        });
+    });
+  };
+
   const renderButton = ({
     values,
     isSubmitted,
@@ -33,12 +54,11 @@ const NoteFormContainer = (props: FinalProps) => {
         callback();
       }
     };
-    console.log(values);
 
-    // if (object) {
-    //   variables._id = object._id;
-    // }
-
+    if (object) {
+      values._id = object._id;
+    }
+    console.log(values, object);
     return (
       <ButtonMutate
         mutation={
@@ -59,7 +79,8 @@ const NoteFormContainer = (props: FinalProps) => {
 
   const extendedProps = {
     ...props,
-    renderButton
+    renderButton,
+    remove
   };
 
   return <NoteForm {...extendedProps} />;
@@ -67,13 +88,13 @@ const NoteFormContainer = (props: FinalProps) => {
 
 export default withProps<Props>(
   compose(
-    graphql<{}, AddNoteMutationResponse, IAutomationNoteDoc>(
-      gql(mutations.automationsAddNote),
+    graphql<Props, RemoveNoteMutationResponse, RemoveNoteMutationVariables>(
+      gql(mutations.automationsRemoveNote),
       {
-        name: 'addNoteAutomationMutation',
-        options: () => ({
-          refetchQueries: ['automationNotes', 'automationDetail']
-        })
+        name: 'automationsRemoveNote',
+        options: {
+          refetchQueries: ['automationNotes']
+        }
       }
     )
   )(NoteFormContainer)

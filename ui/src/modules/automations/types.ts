@@ -1,4 +1,5 @@
 import { QueryResponse } from 'modules/common/types';
+import { IUser } from 'modules/auth/types';
 
 export type IAction = {
   id: string;
@@ -33,10 +34,11 @@ export interface IAutomationDoc {
 }
 
 export interface IAutomationNoteDoc {
-  automationId: string;
   triggerId: string;
   actionId: string;
   description: string;
+  createdUser?: IUser;
+  createdAt?: Date;
 }
 
 export interface IAutomation extends IAutomationDoc {
@@ -80,7 +82,7 @@ export type AddNoteMutationResponse = {
 };
 
 export type RemoveNoteMutationResponse = {
-  automationsNoteRemove: (params: {
+  automationsRemoveNote: (params: {
     variables: RemoveNoteMutationVariables;
   }) => Promise<any>;
 };

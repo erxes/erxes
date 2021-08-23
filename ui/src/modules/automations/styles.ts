@@ -25,6 +25,29 @@ export const Container = styled.div`
       visibility: visible;
     }
 
+    .note-badge {
+      position: absolute;
+      right: -${dimensions.unitSpacing}px;
+      bottom: -${dimensions.unitSpacing}px;
+      width: 35px;
+      height: 35px;
+      line-height: 35px;
+      text-align: center;
+      border-radius: 35px;
+      border: 1px solid ${colors.borderDarker};
+      background: ${colors.colorWhite};
+      transition: all ease 0.3s;
+
+      > i {
+        color: ${colors.colorCoreGray};
+        font-size: 16px;
+      }
+
+      &:hover {
+        box-shadow: 0 0 2px 0 rgba(0, 0, 0, 0.4);
+      }
+    }
+
     .custom-menu {
       z-index: 1000;
       position: absolute;
@@ -397,6 +420,43 @@ export const AutomationFormContainer = styled(Contents)`
 export const ScrolledContent = styled.div`
   flex: 1;
   overflow: auto;
+`;
+
+export const Notes = styled.div`
+  max-height: 600px;
+  overflow: auto;
+  margin-bottom: ${dimensions.coreSpacing}px;
+  padding-right: ${dimensions.coreSpacing}px;
+
+  .column {
+    border-bottom: 1px solid ${colors.borderDarker};
+    margin-bottom: ${dimensions.coreSpacing}px;
+
+    > div {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+
+      > div > div {
+        flex-direction: column;
+        align-items: flex-start;
+        padding-left: ${dimensions.unitSpacing}px;
+
+        time {
+          padding: 0;
+        }
+      }
+
+      i {
+        font-size: 13px;
+      }
+    }
+
+    > p {
+      color: ${colors.textPrimary};
+      margin-top: ${dimensions.unitSpacing}px;
+    }
+  }
 `;
 
 export const TriggerTabs = styled.div`

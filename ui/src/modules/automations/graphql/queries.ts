@@ -27,10 +27,16 @@ export const automationFields = `
 export const automationNoteFields = `
   _id
   description
+  triggerId
+  actionId
   createdUser {
     _id
     username
     email
+    details {
+      avatar
+      fullName
+    }
   }
   createdAt
 `;
@@ -90,8 +96,8 @@ export const automationDetail = `
 `;
 
 export const automationNotes = `
-  query automationNotes($automationId: String) {
-    automationNotes(automationId: $automationId) {
+  query automationNotes($automationId: String!, $triggerId: String, $actionId: String) {
+    automationNotes(automationId: $automationId, triggerId: $triggerId, actionId: $actionId) {
       ${automationNoteFields}
     }
   }

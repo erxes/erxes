@@ -83,8 +83,8 @@ const automationsEditNote = `
 `;
 
 const automationsRemoveNote = `
-  mutation automationsEditNote($_id: String!) {
-    automationsEditNote(_id: $_id)
+  mutation automationsRemoveNote($_id: String!) {
+    automationsRemoveNote(_id: $_id)
   }
 `;
 

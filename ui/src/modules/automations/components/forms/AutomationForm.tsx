@@ -16,8 +16,8 @@ import {
   ScrolledContent,
   BackIcon,
   CenterBar,
-  ToggleWrapper,
-  ZoomActions
+  ToggleWrapper
+  // ZoomActions,
 } from '../../styles';
 import { FormControl } from 'modules/common/components/form';
 import { BarItems, HeightedWrapper } from 'modules/layout/styles';
@@ -62,12 +62,14 @@ type State = {
   name: string;
   status: string;
   currentTab: string;
+  activeId: string;
   showDrawer: boolean;
   showTrigger: boolean;
   showAction: boolean;
   isActionTab: boolean;
   isActive: boolean;
   showNoteForm: boolean;
+  editNoteForm?: boolean;
   showTemplateForm: boolean;
   actions: IAction[];
   triggers: ITrigger[];
@@ -97,6 +99,7 @@ class AutomationForm extends React.Component<Props, State> {
       actions: automation.actions || [],
       triggers: automation.triggers || [],
       activeTrigger: {} as ITrigger,
+      activeId: '',
       currentTab: 'triggers',
       isActionTab: true,
       isActive: automation.status === 'active',
@@ -183,6 +186,8 @@ class AutomationForm extends React.Component<Props, State> {
         event.preventDefault();
 
         jquery(`div#${event.currentTarget.id}`).toggleClass('show-action-menu');
+
+        this.setState({ activeId: event.currentTarget.id });
       });
 
       // remove action control =============
@@ -265,8 +270,11 @@ class AutomationForm extends React.Component<Props, State> {
     save(generateValues());
   };
 
-  handleNoteModal = () => {
-    this.setState({ showNoteForm: !this.state.showNoteForm });
+  handleNoteModal = (item?) => {
+    this.setState({
+      showNoteForm: !this.state.showNoteForm,
+      editNoteForm: item ? true : false
+    });
   };
 
   handleTemplateModal = () => {
@@ -423,6 +431,48 @@ class AutomationForm extends React.Component<Props, State> {
     this.setState({ name: value });
   };
 
+  onClickNote = activeId => {
+    this.handleNoteModal(activeId);
+
+    this.setState({ activeId });
+  };
+
+  checkNote = (activeId: string) => {
+    const { automationNotes } = this.props;
+    const item = activeId.split('-');
+    const type = item[0];
+
+    if (!automationNotes) {
+      return null;
+    }
+
+    const notes = automationNotes.filter(note => {
+      if (type === 'trigger' && note.triggerId !== item[1]) {
+        return null;
+      }
+
+      if (type === 'action' && note.actionId !== item[1]) {
+        return null;
+      }
+
+      return note;
+    });
+
+    return notes;
+  };
+
+  renderNotes(key: string) {
+    if ((this.checkNote(key) || []).length === 0) {
+      return ``;
+    }
+
+    return `
+      <div class="note-badge" title="Notes" id="${key}">
+        <i class="icon-notes"></i>
+      </div>
+    `;
+  }
+
   renderControl = (key: string, item: ITrigger | IAction, onClick: any) => {
     const idElm = `${key}-${item.id}`;
 
@@ -431,8 +481,10 @@ class AutomationForm extends React.Component<Props, State> {
         <div class="trigger-header">
           <div class='custom-menu'>
             <div>
-              <i class="icon-notes add-note" title="Notes"></i>
-              <i class="icon-trash-alt delete-control" id="${key}-${item.id}" title="Delete control"></i>
+              <i class="icon-notes add-note" title="Write Note"></i>
+              <i class="icon-trash-alt delete-control" id="${key}-${
+      item.id
+    }" title="Delete control"></i>
             </div>
           </div>
           <div>
@@ -441,13 +493,20 @@ class AutomationForm extends React.Component<Props, State> {
           </div>
         </div>
         <p>${item.description}</p>
+        ${this.renderNotes(idElm)}
       </div>
     `);
 
     jquery('#canvas').on('dblclick', `#${idElm}`, event => {
       event.preventDefault();
 
-      onClick(item);
+      onClick(idElm);
+    });
+
+    jquery('#canvas').on('click', `.note-badge`, event => {
+      event.preventDefault();
+
+      this.onClickNote(event.currentTarget.id);
     });
 
     if (key === 'trigger') {
@@ -626,17 +685,17 @@ class AutomationForm extends React.Component<Props, State> {
     return null;
   }
 
-  renderZoomActions() {
-    return (
-      <ZoomActions>
-        <div className="icon-wrapper">
-          <Icon icon="plus" />
-          <Icon icon="minus" />
-        </div>
-        <span>100%</span>
-      </ZoomActions>
-    );
-  }
+  // renderZoomActions() {
+  //   return (
+  //     <ZoomActions>
+  //       <div className="icon-wrapper">
+  //         <Icon icon="plus" />
+  //         <Icon icon="minus" />
+  //       </div>
+  //       <span>100%</span>
+  //     </ZoomActions>
+  //   );
+  // }
 
   renderContent() {
     const { automation } = this.props;
@@ -661,14 +720,14 @@ class AutomationForm extends React.Component<Props, State> {
 
     return (
       <Container>
-        {this.renderZoomActions()}
+        {/* {this.renderZoomActions()} */}
         <div id="canvas" />
       </Container>
     );
   }
 
   renderNoteModal() {
-    const { showNoteForm } = this.state;
+    const { showNoteForm, editNoteForm, activeId } = this.state;
 
     if (!showNoteForm) {
       return null;
@@ -686,7 +745,12 @@ class AutomationForm extends React.Component<Props, State> {
             renderContent={formProps => (
               <NoteFormContainer
                 formProps={formProps}
-                notes={this.props.automationNotes}
+                automationId={
+                  this.props.automation ? this.props.automation._id : ''
+                }
+                isEdit={editNoteForm}
+                itemId={activeId}
+                notes={this.checkNote(activeId) || []}
                 closeModal={this.handleNoteModal}
               />
             )}
