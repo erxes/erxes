@@ -1,5 +1,5 @@
 import React from 'react';
-import Form from '../../../components/forms/actions/IfForm';
+import Form from '../../../../components/forms/actions/subForms/IfForm';
 import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
 import { LeadIntegrationsQueryResponse } from 'modules/leads/types';

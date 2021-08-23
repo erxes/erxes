@@ -3,9 +3,9 @@ import * as compose from 'lodash.flowright';
 import { graphql } from 'react-apollo';
 import { withProps } from 'modules/common/utils';
 import React from 'react';
-import Form from '../../components/forms/TriggerForm';
+import Form from '../../../components/forms/triggers/TriggerForm';
 import { ITrigger } from 'modules/automations/types';
-import { queries } from '../../graphql';
+import { queries } from '../../../graphql';
 
 type Props = {
   onClickTrigger: (trigger: ITrigger) => void;

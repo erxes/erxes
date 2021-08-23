@@ -1,5 +1,5 @@
 import React from 'react';
-import Form from '../../../components/forms/triggers/FormSubmit';
+import Form from '../../../../components/forms/triggers/subForms/FormSubmit';
 import { graphql } from 'react-apollo';
 import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';

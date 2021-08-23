@@ -21,9 +21,9 @@ import {
 import { FormControl } from 'modules/common/components/form';
 import { BarItems, HeightedWrapper } from 'modules/layout/styles';
 import Button from 'modules/common/components/Button';
-import TriggerForm from '../../containers/forms/TriggerForm';
-import ActionsForm from '../../containers/forms/ActionsForm';
-import TriggerDetailForm from './TriggerDetailForm';
+import TriggerForm from '../../containers/forms/triggers/TriggerForm';
+import ActionsForm from '../../containers/forms/actions/ActionsForm';
+import TriggerDetailForm from './triggers/TriggerDetailForm';
 import {
   createInitialConnections,
   connection,
@@ -36,13 +36,13 @@ import {
   yesEndPoint,
   noEndPoint
 } from 'modules/automations/utils';
-import ActionDetailForm from './ActionDetailForm';
+import ActionDetailForm from './actions/ActionDetailForm';
 import Icon from 'modules/common/components/Icon';
 import PageContent from 'modules/layout/components/PageContent';
 import { Link } from 'react-router-dom';
 import { Tabs, TabTitle } from 'modules/common/components/tabs';
 import Toggle from 'modules/common/components/Toggle';
-import SettingsContainer from 'modules/automations/containers/forms/Settings';
+import SettingsContainer from 'modules/automations/containers/forms/settings/Settings';
 import Modal from 'react-bootstrap/Modal';
 import NoteFormContainer from 'modules/automations/containers/forms/NoteForm';
 

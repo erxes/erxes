@@ -1,5 +1,5 @@
 import React from 'react';
-import Settings from 'modules/automations/components/forms/Settings';
+import Settings from 'modules/automations/components/forms/settings/Settings';
 
 type Props = {};
 

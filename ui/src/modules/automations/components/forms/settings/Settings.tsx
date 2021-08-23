@@ -14,7 +14,7 @@ import DateControl from 'modules/common/components/form/DateControl';
 import Button from 'modules/common/components/Button';
 import Icon from 'modules/common/components/Icon';
 import dayjs from 'dayjs';
-import UnEnrollment from 'modules/automations/containers/forms/UnEnrollment';
+import UnEnrollment from 'modules/automations/containers/forms/settings/UnEnrollment';
 
 type Props = {
   hours: any[];

@@ -1,11 +1,15 @@
 import React from 'react';
 import Select from 'react-select-plus';
 import { IAction } from 'modules/automations/types';
-import Common from './Common';
+import Common from '../Common';
 import { DrawerDetail } from 'modules/automations/styles';
 import FormGroup from 'modules/common/components/form/Group';
 import ControlLabel from 'modules/common/components/form/Label';
-import { PROPERTY_TYPES, PROPERTY_FIELD, PROPERTY_OPERATOR } from './constants';
+import {
+  PROPERTY_TYPES,
+  PROPERTY_FIELD,
+  PROPERTY_OPERATOR
+} from '../constants';
 import { __ } from 'modules/common/utils';
 import FormControl from 'modules/common/components/form/Control';
 

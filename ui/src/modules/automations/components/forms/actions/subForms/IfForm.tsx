@@ -1,5 +1,4 @@
 import React from 'react';
-
 import { IAction } from 'modules/automations/types';
 import { SegmentsForm } from 'modules/segments/containers';
 import { ScrolledContent } from 'modules/automations/styles';

@@ -1,6 +1,6 @@
 import client from 'apolloClient';
 import gql from 'graphql-tag';
-import BoardItemForm from 'modules/automations/components/forms/actions/BoardItemForm';
+import BoardItemForm from 'modules/automations/components/forms/actions/subForms/BoardItemForm';
 import { IAction } from 'modules/automations/types';
 import { queries } from 'modules/boards/graphql';
 import React from 'react';

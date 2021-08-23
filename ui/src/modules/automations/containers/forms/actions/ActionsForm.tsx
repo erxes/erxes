@@ -1,5 +1,5 @@
 import React from 'react';
-import Form from '../../components/forms/ActionsForm';
+import Form from '../../../components/forms/actions/ActionsForm';
 import { IAction } from 'modules/automations/types';
 
 type Props = {

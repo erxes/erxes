@@ -9,7 +9,7 @@ import {
 } from 'modules/common/components/form';
 
 import { IAction } from 'modules/automations/types';
-import Common from './Common';
+import Common from '../Common';
 
 type Props = {
   closeModal: () => void;
