@@ -228,6 +228,8 @@ export const ActionBox = styledTS<{
 
   .favourite-action {
     position: absolute;
+    width: 30px;
+    text-align: right;
     right: ${dimensions.coreSpacing}px;
 
     > i {

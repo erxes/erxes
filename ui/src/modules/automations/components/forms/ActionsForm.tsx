@@ -34,7 +34,11 @@ class ActionsForm extends React.Component<Props, State> {
     this.setState({ currentTab });
   };
 
-  onFavourite = action => {
+  onFavourite = (action, e) => {
+    e.stopPropagation();
+
+    this.setState({ isFavourite: !this.state.isFavourite });
+
     const actionsLocalStorage =
       localStorage.getItem('automations_favourite_actions') || '[]';
 
@@ -71,7 +75,7 @@ class ActionsForm extends React.Component<Props, State> {
         <Tip text={isFavourite ? 'Unfavourite' : 'Favourite'} placement="top">
           <div
             className="favourite-action"
-            onClick={() => this.onFavourite(action)}
+            onClick={this.onFavourite.bind(this, action)}
           >
             <Icon icon="star" size={20} />
           </div>

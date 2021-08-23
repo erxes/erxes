@@ -18,21 +18,21 @@ export const ACTIONS = [
     type: 'createTask',
     icon: 'file-plus-alt',
     label: 'Create task',
-    description: 'Add a new action',
+    description: 'Create task',
     isAvailable: true
   },
   {
     type: 'createDeal',
     icon: 'piggy-bank',
     label: 'Create deal',
-    description: 'Add a new action',
+    description: 'Create deal',
     isAvailable: true
   },
   {
     type: 'createTicket',
     icon: 'file-plus',
     label: 'Create ticket',
-    description: 'Add a new action',
+    description: 'Create ticket',
     isAvailable: true
   },
   {
