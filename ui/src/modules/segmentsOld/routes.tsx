@@ -7,9 +7,7 @@ const SegmentsList = asyncComponent(() =>
 );
 
 const SegmentsForm = asyncComponent(() =>
-  import(
-    /* webpackChunkName: "SegmentsForm" */ './containers/form/SegmentsForm'
-  )
+  import(/* webpackChunkName: "SegmentsForm" */ './containers/SegmentsForm')
 );
 
 const segments = ({ match }) => {

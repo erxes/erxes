@@ -153,6 +153,20 @@ class SegmentForm extends React.Component<Props, State> {
     });
   };
 
+  changeSegmentCondition = (args: { key?: string; value: string }) => {
+    const condition = {
+      type: 'subSegment',
+      key: args.key,
+      subSegmentId: args.value
+    };
+
+    this.setState({
+      conditions: this.state.conditions.map(c =>
+        c.key === condition.key ? condition : c
+      )
+    });
+  };
+
   removeCondition = (key: string) => {
     const conditions = this.state.conditions.filter(c => c.key !== key);
 
