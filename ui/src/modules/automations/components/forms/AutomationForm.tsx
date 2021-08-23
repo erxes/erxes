@@ -64,7 +64,7 @@ type State = {
   showDrawer: boolean;
   showTrigger: boolean;
   showAction: boolean;
-  isAction: boolean;
+  isActionTab: boolean;
   isActive: boolean;
   showNoteForm: boolean;
   actions: IAction[];
@@ -96,7 +96,7 @@ class AutomationForm extends React.Component<Props, State> {
       triggers: automation.triggers || [],
       activeTrigger: {} as ITrigger,
       currentTab: 'triggers',
-      isAction: true,
+      isActionTab: true,
       isActive: automation.status === 'active',
       showNoteForm: false,
       showTrigger: false,
@@ -106,7 +106,29 @@ class AutomationForm extends React.Component<Props, State> {
     };
   }
 
+  setWrapperRef = node => {
+    this.wrapperRef = node;
+  };
+
   componentDidMount() {
+    this.connectInstance();
+
+    document.addEventListener('click', this.handleClickOutside, true);
+  }
+
+  componentDidUpdate(prevProps, prevState) {
+    const { isActionTab } = this.state;
+
+    if (isActionTab && isActionTab !== prevState.isActionTab) {
+      this.connectInstance();
+    }
+  }
+
+  componentWillUnmount() {
+    document.removeEventListener('click', this.handleClickOutside, true);
+  }
+
+  connectInstance = () => {
     instance = plumb.getInstance({
       DragOptions: { cursor: 'pointer', zIndex: 2000 },
       PaintStyle: connectorPaintStyle,
@@ -195,16 +217,6 @@ class AutomationForm extends React.Component<Props, State> {
         this.handleNoteModal();
       });
     });
-
-    document.addEventListener('click', this.handleClickOutside, true);
-  }
-
-  componentWillUnmount() {
-    document.removeEventListener('click', this.handleClickOutside, true);
-  }
-
-  setWrapperRef = node => {
-    this.wrapperRef = node;
   };
 
   handleSubmit = (e: React.FormEvent, isSaveAs?: boolean) => {
@@ -259,7 +271,7 @@ class AutomationForm extends React.Component<Props, State> {
   };
 
   switchActionbarTab = type => {
-    this.setState({ isAction: type === 'action' ? true : false });
+    this.setState({ isActionTab: type === 'action' ? true : false });
   };
 
   onToggle = e => {
@@ -512,7 +524,7 @@ class AutomationForm extends React.Component<Props, State> {
   }
 
   renderLeftActionBar() {
-    const { isAction, name } = this.state;
+    const { isActionTab, name } = this.state;
 
     return (
       <CenterFlexRow>
@@ -534,13 +546,13 @@ class AutomationForm extends React.Component<Props, State> {
         <CenterBar>
           <Tabs full={true}>
             <TabTitle
-              className={isAction ? 'active' : ''}
+              className={isActionTab ? 'active' : ''}
               onClick={this.switchActionbarTab.bind(this, 'action')}
             >
               {__('Actions')}
             </TabTitle>
             <TabTitle
-              className={isAction ? '' : 'active'}
+              className={isActionTab ? '' : 'active'}
               onClick={this.switchActionbarTab.bind(this, 'settings')}
             >
               {__('Settings')}
@@ -611,7 +623,7 @@ class AutomationForm extends React.Component<Props, State> {
   renderContent() {
     const { automation } = this.props;
 
-    if (!this.state.isAction) {
+    if (!this.state.isActionTab) {
       return <SettingsContainer />;
     }
 
