@@ -78,25 +78,30 @@ const automationMutations = {
    */
   async automationsSaveAsTemplate(
     _root,
-    doc: IAutomation,
-    { user, docModifier, dataSources }: IContext
+    { _id, name }: { _id: string; name: string },
+    { user, dataSources }: IContext
   ) {
-    doc.status = 'template';
+    const automation = await dataSources.AutomationsAPI.getAutomationDetail({
+      _id
+    });
 
-    const automation = await dataSources.AutomationsAPI.createAutomation(
-      docModifier(doc)
+    automation.status = 'template';
+    automation.name = name;
+
+    const created = await dataSources.AutomationsAPI.createAutomation(
+      automation
     );
 
     await putUpdateLog(
       {
         type: MODULE_NAMES.AUTOMATION,
-        object: automation,
-        newData: doc
+        object: created,
+        newData: automation
       },
       user
     );
 
-    return automation;
+    return created;
   },
 
   /**

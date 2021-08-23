@@ -66,7 +66,7 @@ class NoteForm extends React.Component<Props, State> {
           </Button>
 
           {renderButton({
-            values,
+            values: this.generateDoc(values),
             isSubmitted,
             callback: closeModal
           })}

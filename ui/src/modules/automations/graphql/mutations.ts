@@ -37,8 +37,8 @@ const automationsAdd = `
 `;
 
 const automationsSaveAsTemplate = `
-  mutation automationsSaveAsTemplate(${commonFields}) {
-    automationsSaveAsTemplate(${commonVariables}) {
+  mutation automationsSaveAsTemplate($_id: String!, $name: String!) {
+    automationsSaveAsTemplate(_id: $_id, name: $name) {
       ${automationFields}
     }
   }

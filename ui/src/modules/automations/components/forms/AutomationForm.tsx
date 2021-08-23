@@ -703,7 +703,8 @@ class AutomationForm extends React.Component<Props, State> {
               <TemplateForm
                 formProps={formProps}
                 closeModal={this.handleTemplateModal}
-                automation={automation}
+                id={automation._id}
+                name={automation.name}
               />
             )}
           />

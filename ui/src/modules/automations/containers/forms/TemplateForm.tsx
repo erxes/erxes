@@ -9,7 +9,8 @@ import { queries } from '../../graphql';
 type Props = {
   formProps: IFormProps;
   closeModal: () => void;
-  automation: any;
+  id: string;
+  name: string;
 };
 
 type FinalProps = {} & Props;

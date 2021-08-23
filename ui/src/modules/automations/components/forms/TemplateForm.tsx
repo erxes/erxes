@@ -3,35 +3,38 @@ import { ModalFooter } from 'modules/common/styles/main';
 import FormControl from 'modules/common/components/form/Control';
 import { IFormProps, IButtonMutateProps } from 'modules/common/types';
 import Button from 'modules/common/components/Button';
-import { Alert, __ } from 'modules/common/utils';
+import { __ } from 'modules/common/utils';
 
 type Props = {
   formProps: IFormProps;
-  automation: any;
+  id: string;
+  name: string;
   renderButton: (props: IButtonMutateProps) => JSX.Element;
   closeModal: () => void;
 };
 
 class TemplateForm extends React.Component<Props> {
-  generateDoc = (values: { name: string }) => {
-    if (values.name) {
-      return Alert.error('Please enter a template name');
-    }
-
+  generateDoc = ({ name }: { name: string }) => {
     return {
-      ...values,
-      ...this.props.automation
+      _id: this.props.id,
+      name
     };
   };
 
   render() {
-    const { formProps, closeModal, renderButton } = this.props;
+    const { formProps, closeModal, renderButton, name } = this.props;
 
     const { values, isSubmitted } = formProps;
 
     return (
       <div>
-        <FormControl {...formProps} name="name" placeholder="Template name" />
+        <FormControl
+          {...formProps}
+          required
+          value={`${name} (template)`}
+          name="name"
+          placeholder={__('Template name')}
+        />
         <ModalFooter>
           <Button
             btnStyle="simple"
@@ -43,7 +46,7 @@ class TemplateForm extends React.Component<Props> {
           </Button>
 
           {renderButton({
-            values,
+            values: this.generateDoc(values),
             isSubmitted,
             callback: closeModal
           })}
