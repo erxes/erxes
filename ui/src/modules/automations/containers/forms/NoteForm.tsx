@@ -108,7 +108,7 @@ export default withProps<Props>(
       {
         name: 'automationsAddNote',
         options: () => ({
-          refetchQueries: ['automations', 'automationsMain', 'automationDetail']
+          refetchQueries: ['automationNotes']
         })
       }
     ),
@@ -117,7 +117,7 @@ export default withProps<Props>(
       {
         name: 'automationsEditNote',
         options: () => ({
-          refetchQueries: ['automations', 'automationsMain', 'automationDetail']
+          refetchQueries: ['automationNotes']
         })
       }
     )
