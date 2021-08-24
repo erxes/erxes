@@ -55,6 +55,8 @@ const NoteFormContainer = (props: FinalProps) => {
       }
     };
 
+    console.log(values, isSubmitted, callback, object);
+
     if (object) {
       values._id = object._id;
     }

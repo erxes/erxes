@@ -42,9 +42,9 @@ class NoteForm extends React.Component<Props, State> {
     };
   }
 
-  // onEdit = (currentNote) => {
-  //   this.setState({ isEditNote: !this.state.isEditNote, currentNote });
-  // };
+  onEdit = currentNote => {
+    this.setState({ isEditNote: !this.state.isEditNote, currentNote });
+  };
 
   generateDoc = (values: { _id?: string; description: string }) => {
     const { automationId, itemId } = this.props;
@@ -53,9 +53,9 @@ class NoteForm extends React.Component<Props, State> {
     const splitItem = itemId.split('-');
     const type = splitItem[0];
 
-    // if (this.state.currentNote) {
-    //   finalValues._id = this.state.currentNote._id;
-    // }
+    if (this.state.currentNote) {
+      finalValues._id = this.state.currentNote._id;
+    }
 
     return {
       ...finalValues,
@@ -66,7 +66,16 @@ class NoteForm extends React.Component<Props, State> {
   };
 
   renderNotes() {
-    const { notes, isEdit, remove } = this.props;
+    const {
+      notes,
+      isEdit,
+      remove,
+      formProps,
+      closeModal,
+      renderButton
+    } = this.props;
+    const { values, isSubmitted } = formProps;
+    const { isEditNote, currentNote } = this.state;
 
     if (!notes || notes.length === 0 || !isEdit) {
       return null;
@@ -87,13 +96,13 @@ class NoteForm extends React.Component<Props, State> {
             </CustomerName>
           </div>
           <ActionButtons>
-            {/* <Tip text="Edit" placement="bottom">
+            <Tip text="Edit" placement="bottom">
               <Button
                 btnStyle="link"
                 icon="edit"
                 onClick={this.onEdit.bind(this, note)}
               />
-            </Tip> */}
+            </Tip>
             <Tip text="Delete" placement="bottom">
               <Button
                 btnStyle="link"
@@ -103,8 +112,7 @@ class NoteForm extends React.Component<Props, State> {
             </Tip>
           </ActionButtons>
         </MainInfo>
-        <p>{note.description}</p>
-        {/* {isEditNote && currentNote._id === note._id ? (
+        {isEditNote && currentNote._id === note._id ? (
           <>
             <FormControl
               {...formProps}
@@ -118,12 +126,12 @@ class NoteForm extends React.Component<Props, State> {
               values: this.generateDoc(values),
               object: note,
               isSubmitted,
-              callback: closeModal,
+              callback: closeModal
             })}
           </>
         ) : (
           <p>{note.description}</p>
-        )} */}
+        )}
       </div>
     ));
   }
