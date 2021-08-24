@@ -58,7 +58,7 @@ const NoteFormContainer = (props: FinalProps) => {
     if (object) {
       values._id = object._id;
     }
-    console.log(values, object);
+
     return (
       <ButtonMutate
         mutation={

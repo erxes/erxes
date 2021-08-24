@@ -43,10 +43,10 @@ import PageContent from 'modules/layout/components/PageContent';
 import { Link } from 'react-router-dom';
 import { Tabs, TabTitle } from 'modules/common/components/tabs';
 import Toggle from 'modules/common/components/Toggle';
-import SettingsContainer from 'modules/automations/containers/forms/settings/Settings';
 import Modal from 'react-bootstrap/Modal';
 import NoteFormContainer from 'modules/automations/containers/forms/NoteForm';
 import TemplateForm from '../../containers/forms/TemplateForm';
+import Histories from 'modules/automations/containers/Histories';
 
 const plumb: any = jsPlumb;
 let instance;
@@ -222,12 +222,14 @@ class AutomationForm extends React.Component<Props, State> {
       jquery('#canvas').on('click', '.add-note', event => {
         event.preventDefault();
 
+        console.log('xaxa');
+
         this.handleNoteModal();
       });
     });
   };
 
-  handleSubmit = (e: React.FormEvent, isSaveAs?: boolean) => {
+  handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
     const { name, status, triggers, actions } = this.state;
@@ -271,6 +273,8 @@ class AutomationForm extends React.Component<Props, State> {
   };
 
   handleNoteModal = (item?) => {
+    console.log('item: ', item);
+    console.log('this.state.showNoteForm: ', this.state.showNoteForm);
     this.setState({
       showNoteForm: !this.state.showNoteForm,
       editNoteForm: item ? true : false
@@ -482,9 +486,7 @@ class AutomationForm extends React.Component<Props, State> {
           <div class='custom-menu'>
             <div>
               <i class="icon-notes add-note" title="Write Note"></i>
-              <i class="icon-trash-alt delete-control" id="${key}-${
-      item.id
-    }" title="Delete control"></i>
+              <i class="icon-trash-alt delete-control" id="${idElm}" title="Delete control"></i>
             </div>
           </div>
           <div>
@@ -505,6 +507,8 @@ class AutomationForm extends React.Component<Props, State> {
 
     jquery('#canvas').on('click', `.note-badge`, event => {
       event.preventDefault();
+
+      console.log('clicking nodeBadge');
 
       this.onClickNote(event.currentTarget.id);
     });
@@ -618,9 +622,9 @@ class AutomationForm extends React.Component<Props, State> {
             </TabTitle>
             <TabTitle
               className={isActionTab ? '' : 'active'}
-              onClick={this.switchActionbarTab.bind(this, 'settings')}
+              onClick={this.switchActionbarTab.bind(this, 'history')}
             >
-              {__('Settings')}
+              {__('Histories')}
             </TabTitle>
           </Tabs>
         </CenterBar>
@@ -700,10 +704,6 @@ class AutomationForm extends React.Component<Props, State> {
   renderContent() {
     const { automation } = this.props;
 
-    if (!this.state.isActionTab) {
-      return <SettingsContainer />;
-    }
-
     if (!automation) {
       return (
         <Container>
@@ -716,6 +716,10 @@ class AutomationForm extends React.Component<Props, State> {
           </div>
         </Container>
       );
+    }
+
+    if (!this.state.isActionTab) {
+      return <Histories automationId={automation._id} />;
     }
 
     return (
@@ -799,7 +803,7 @@ class AutomationForm extends React.Component<Props, State> {
         <HeightedWrapper>
           <AutomationFormContainer>
             <Wrapper.Header
-              title={`${'Automations' || ''}`}
+              title={`${(automation && automation.name) || 'Automation'}`}
               breadcrumb={[
                 { title: __('Automations'), link: '/automations' },
                 { title: `${(automation && automation.name) || ''}` }

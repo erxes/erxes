@@ -103,9 +103,20 @@ export const automationNotes = `
   }
 `;
 
+export const automationHistories = `
+  query automationHistories($automationId: String) {
+    automationHistories(automationId: $automationId) {
+      _id
+      description
+      createdAt
+    }
+  }
+`;
+
 export default {
   automations,
   automationsMain,
   automationDetail,
-  automationNotes
+  automationNotes,
+  automationHistories
 };

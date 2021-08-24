@@ -68,6 +68,8 @@ class NoteForm extends React.Component<Props, State> {
   renderNotes() {
     const { notes, isEdit, remove } = this.props;
 
+    console.log('notes: ', notes);
+
     if (!notes || notes.length === 0 || !isEdit) {
       return null;
     }

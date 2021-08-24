@@ -45,6 +45,16 @@ export const types = `
     totalCount: Float,
   }
 
+  type AutomationHistory {
+    _id: String
+    automationId: String
+    triggerId: String
+    actionId: String
+    description: String
+    createdAt: Date
+    createdBy: String
+  }
+
   input TriggerInput {
     id: String
     type: String
@@ -84,6 +94,7 @@ export const queries = `
   automations(${queryParams}): [Automation]
   automationDetail(_id: String!): Automation
   automationNotes(automationId: String!, triggerId: String, actionId: String): [AutomationNote]
+  automationHistories(automationId: String): [AutomationHistory]
 `;
 
 const commonFields = `
