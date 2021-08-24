@@ -21,7 +21,7 @@ type Props = {
   saveItem: (doc, callback?: (item) => void) => void;
   isPopupVisible?: boolean;
   hideHeader?: boolean;
-  refresh?: boolean;
+  refresh: boolean;
 } & IRouterProps;
 
 type State = {
