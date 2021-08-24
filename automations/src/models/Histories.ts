@@ -6,7 +6,6 @@ export interface INote {
   actionId: string;
   description: string;
   createdAt: Date;
-  createdBy: string;
 }
 
 export interface IHistoryDocument extends INote, Document {
@@ -16,7 +15,6 @@ export interface IHistoryDocument extends INote, Document {
 const historySchema = new Schema({
   automationId: { type: String, required: true },
   description: { type: String, required: true },
-  createdBy: { type: String, required: true },
   createdAt: { type: Date, default: Date.now(), required: true }
 });
 
@@ -27,7 +25,7 @@ export interface IHistoryModel extends Model<IHistoryDocument> {
 export const loadClass = () => {
   class History {
     public static async createHistory(doc: INote) {
-      return Histories.create({ createdAt: new Date(), ...doc });
+      return AutomationHistories.create({ createdAt: new Date(), ...doc });
     }
   }
 
@@ -39,7 +37,9 @@ export const loadClass = () => {
 loadClass();
 
 // tslint:disable-next-line
-export const Histories = model<IHistoryDocument, IHistoryModel>(
+const AutomationHistories = model<IHistoryDocument, IHistoryModel>(
   'automations_histories',
   historySchema
 );
+
+export default AutomationHistories;

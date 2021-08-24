@@ -1,7 +1,7 @@
 import { Router } from 'express';
 import { debugError, debugAutomations, debugRequest } from './debuggers';
 import Automations from './models/Automations';
-import { Histories } from './models/Histories';
+import AutomationHistories from './models/Histories';
 import { Notes } from './models/Notes';
 
 export const routeErrorHandling = (fn, callback?: any) => {
@@ -200,7 +200,9 @@ router.get(
 
     const selector = req.query;
 
-    const histories = await Histories.find(selector).sort({ createdAt: -1 });
+    const histories = await AutomationHistories.find(selector).sort({
+      createdAt: -1
+    });
 
     return res.json(histories);
   })
