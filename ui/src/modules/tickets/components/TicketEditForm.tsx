@@ -138,7 +138,7 @@ export default function TicketEditForm(props: Props) {
     ...props,
     formContent: renderFormContent,
     extraFields: { source },
-    refresh: refresh
+    refresh
   };
 
   return <EditForm {...extendedProps} />;

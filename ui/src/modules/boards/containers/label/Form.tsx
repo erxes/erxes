@@ -88,7 +88,7 @@ class FormContainer extends React.Component<FinalProps> {
       callback,
       object
     }: IButtonMutateProps) => {
-      const afterSave = () => {
+      const callbackResponse = () => {
         onChangeRefresh();
 
         if (callback) {
@@ -108,7 +108,7 @@ class FormContainer extends React.Component<FinalProps> {
             pipelineId,
             ...values
           }}
-          callback={afterSave}
+          callback={callbackResponse}
           refetchQueries={getRefetchQueries(pipelineId)}
           isSubmitted={isSubmitted}
           type="submit"
