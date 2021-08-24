@@ -21,12 +21,12 @@ const historySchema = new Schema({
 });
 
 export interface IHistoryModel extends Model<IHistoryDocument> {
-  createNote(doc: any): IHistoryDocument;
+  createHistory(doc: any): IHistoryDocument;
 }
 
 export const loadClass = () => {
   class History {
-    public static async createNote(doc: INote) {
+    public static async createHistory(doc: INote) {
       return Histories.create({ createdAt: new Date(), ...doc });
     }
   }

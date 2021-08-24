@@ -58,38 +58,42 @@ export const PROPERTY_OPERATOR = [
 export const ATTRIBUTIONS = {
   'Associated Contact': [
     {
-      value: 'firstname',
+      value: 'firstName',
       label: 'First Name'
     },
     {
-      value: 'ownername',
-      label: 'Owner Name'
+      value: 'lastName',
+      label: 'Last Name'
     },
     {
-      value: 'brand',
-      label: 'Brand'
-    },
-    {
-      value: 'score',
-      label: 'Score'
+      value: 'email',
+      label: 'Email'
     }
   ],
-  'Associated Deals': [
+  'Associated Deal/Ticket/Task': [
     {
-      value: 'dealvalue',
-      label: 'Deal Value'
+      value: 'name',
+      label: 'Name'
     },
     {
-      value: 'createddate',
-      label: 'Deal created date'
+      value: 'createdAt',
+      label: 'Created date'
     },
     {
-      value: 'closedate',
-      label: 'Deal close date'
+      value: 'closeDate',
+      label: 'Close date'
     },
     {
-      value: 'productname',
-      label: 'Product name'
+      value: 'modifiedAt',
+      label: 'Modified date'
+    },
+    {
+      value: 'priority',
+      label: 'Priority'
+    },
+    {
+      value: 'status',
+      label: 'Status'
     }
   ]
 };

@@ -29,7 +29,6 @@ type Props = {
 
 type State = {
   config: any;
-  attributions: any[];
 };
 
 class BoardItemForm extends React.Component<Props, State> {
@@ -43,8 +42,7 @@ class BoardItemForm extends React.Component<Props, State> {
     const { config = {} } = this.props.activeAction;
 
     this.state = {
-      config,
-      attributions: []
+      config
     };
   }
 
@@ -68,11 +66,10 @@ class BoardItemForm extends React.Component<Props, State> {
   onClickAttribute = item => {
     this.overlay.hide();
 
-    const attributions = [] as any;
+    const { config } = this.state;
+    config.cardName = `${config.cardName} {{ ${item.value} }}`;
 
-    attributions.push(...this.state.attributions, item);
-
-    this.setState({ attributions });
+    this.setState({ config });
   };
 
   renderSelect() {
@@ -148,17 +145,9 @@ class BoardItemForm extends React.Component<Props, State> {
     );
   }
 
-  renderValue() {
-    const { attributions } = this.state;
-    console.log(attributions);
-    // return this.state.config.cardName;
-
-    return attributions.map((attr, index) => (
-      <React.Fragment key={index}>{attr.label}</React.Fragment>
-    ));
-  }
-
   renderName() {
+    const config = this.state.config;
+
     return (
       <SelectContainer>
         <HeaderRow>
@@ -183,7 +172,7 @@ class BoardItemForm extends React.Component<Props, State> {
               </div>
               <FormControl
                 name="name"
-                value={this.renderValue()}
+                value={config.cardName}
                 onChange={this.onChangeName}
               />
             </FormGroup>
