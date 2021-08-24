@@ -47,9 +47,7 @@ class Actions extends React.Component<Props> {
       onChangeRefresh
     } = this.props;
 
-    const onLabelChange = labels => {
-      saveItem({ labels });
-    };
+    const onLabelChange = labels => saveItem({ labels });
 
     const priorityTrigger = (
       <ColorButton>
