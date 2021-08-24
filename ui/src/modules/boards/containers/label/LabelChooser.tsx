@@ -19,7 +19,7 @@ import {
 type Props = {
   item: IItem;
   onSelect?: (labels: IPipelineLabel[]) => void;
-  onChangeRefresh?: any;
+  onChangeRefresh?: () => void;
 };
 
 type FinalProps = {
@@ -50,7 +50,8 @@ class LabelChooserContainer extends React.Component<
       pipelineLabelsQuery,
       pipelineLabelMutation,
       item,
-      onSelect
+      onSelect,
+      onChangeRefresh
     } = this.props;
 
     if (pipelineLabelsQuery.loading) {
@@ -86,7 +87,7 @@ class LabelChooserContainer extends React.Component<
       labels,
       doLabel,
       isConfirmVisible: this.state.isConfirmVisible,
-      onChangeRefresh: this.props.onChangeRefresh,
+      onChangeRefresh,
       toggleConfirm: this.toggleConfirm
     };
 

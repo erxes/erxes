@@ -28,7 +28,6 @@ type Props = {
   sendToBoard?: (item: any) => void;
 };
 
-
 export default function TicketEditForm(props: Props) {
   const item = props.item;
 
@@ -100,7 +99,7 @@ export default function TicketEditForm(props: Props) {
     const renderSidebar = () => renderSidebarFields(saveItem);
 
     const onChangeRefresh = () => {
-      setRefresh(refresh)
+      setRefresh(refresh);
     };
 
     return (

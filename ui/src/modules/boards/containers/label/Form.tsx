@@ -21,7 +21,7 @@ type Props = {
   showForm: boolean;
   selectedLabelIds: string[];
   onSelectLabels: (selectedLabelIds: string[]) => void;
-  onChangeRefresh?: any;
+  onChangeRefresh?: () => void;
 };
 
 type FinalProps = {
@@ -89,7 +89,9 @@ class FormContainer extends React.Component<FinalProps> {
       object
     }: IButtonMutateProps) => {
       const afterSave = () => {
-        onChangeRefresh('refresh', true);
+        if (onChangeRefresh) {
+          onChangeRefresh();
+        }
 
         if (callback) {
           callback();

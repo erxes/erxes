@@ -151,7 +151,7 @@ type Props = {
   addItem: (doc: IItemParams, callback: () => void) => void;
   sendToBoard?: (item: any) => void;
   onChangeStage?: (stageId: string) => void;
-  onChangeRefresh?: any;
+  onChangeRefresh?: () => void;
 };
 
 const Left = (props: Props) => {

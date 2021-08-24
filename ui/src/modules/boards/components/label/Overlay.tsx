@@ -20,7 +20,7 @@ type IOverlayProps = {
   toggleConfirm: (callback?: () => void) => void;
   onSelectLabels: (selectedLabelIds: string[]) => void;
   onClose: () => void;
-  onChangeRefresh?: any;
+  onChangeRefresh?: () => void;
 };
 
 type IOverlayState = {

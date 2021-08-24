@@ -14,7 +14,7 @@ type Props = {
   doLabel: (labelIds: string[]) => void;
   isConfirmVisible: boolean;
   toggleConfirm: (callback?: () => void) => void;
-  onChangeRefresh?: any;
+  onChangeRefresh?: () => void;
 };
 
 class ChooseLabel extends React.Component<

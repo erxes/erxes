@@ -78,7 +78,7 @@ export default class DealEditForm extends React.Component<Props, State> {
   onChangeRefresh = () => {
     this.setState({
       refresh: true
-    })
+    });
   };
 
   saveProductsData = () => {
@@ -180,7 +180,6 @@ export default class DealEditForm extends React.Component<Props, State> {
     remove
   }: IEditFormContent) => {
     const { item, options, onUpdate, addItem, sendToBoard } = this.props;
-
     return (
       <>
         <Top
