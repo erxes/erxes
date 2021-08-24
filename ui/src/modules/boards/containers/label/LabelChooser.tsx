@@ -19,7 +19,7 @@ import {
 type Props = {
   item: IItem;
   onSelect?: (labels: IPipelineLabel[]) => void;
-  onChangeRefresh?: () => void;
+  onChangeRefresh: () => void;
 };
 
 type FinalProps = {

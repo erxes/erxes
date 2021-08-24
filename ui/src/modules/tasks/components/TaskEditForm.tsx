@@ -35,7 +35,7 @@ type Props = {
 };
 
 type State = {
-  refresh: boolean
+  refresh: boolean;
 };
 
 export default class TaskEditForm extends React.Component<Props, State> {
@@ -49,8 +49,8 @@ export default class TaskEditForm extends React.Component<Props, State> {
 
   onChangeRefresh = () => {
     this.setState({
-      refresh: true
-    })
+      refresh: !this.state.refresh
+    });
   };
 
   renderItems = () => {

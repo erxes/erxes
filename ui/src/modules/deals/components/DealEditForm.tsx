@@ -77,7 +77,7 @@ export default class DealEditForm extends React.Component<Props, State> {
 
   onChangeRefresh = () => {
     this.setState({
-      refresh: true
+      refresh: !this.state.refresh
     });
   };
 

@@ -30,7 +30,7 @@ type Props = {
   saveItem: (doc: { [key: string]: any }, callback?: (item) => void) => void;
   removeItem: (itemId: string) => void;
   onChangeStage?: (stageId: string) => void;
-  onChangeRefresh?: () => void;
+  onChangeRefresh: () => void;
 };
 
 class Actions extends React.Component<Props> {

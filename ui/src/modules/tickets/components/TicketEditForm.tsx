@@ -32,7 +32,7 @@ export default function TicketEditForm(props: Props) {
   const item = props.item;
 
   const [source, setSource] = useState(item.source);
-  const [refresh, setRefresh] = useState(true);
+  const [refresh, setRefresh] = useState(false);
 
   useEffect(() => {
     setSource(item.source);
@@ -98,10 +98,6 @@ export default function TicketEditForm(props: Props) {
 
     const renderSidebar = () => renderSidebarFields(saveItem);
 
-    const onChangeRefresh = () => {
-      setRefresh(refresh);
-    };
-
     return (
       <>
         <Top
@@ -123,7 +119,7 @@ export default function TicketEditForm(props: Props) {
             addItem={addItem}
             sendToBoard={sendToBoard}
             onChangeStage={onChangeStage}
-            onChangeRefresh={onChangeRefresh}
+            onChangeRefresh={() => setRefresh(!refresh)}
           />
 
           <Sidebar

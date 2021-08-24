@@ -21,7 +21,7 @@ type Props = {
   onUpdate: (item: IItem, prevStageId?: string) => void;
   sendToBoard?: (item: any) => void;
   onChangeStage?: (stageId: string) => void;
-  onChangeRefresh?: () => void;
+  onChangeRefresh: () => void;
 };
 
 class Actions extends React.Component<Props> {
