@@ -1,4 +1,4 @@
-import PropertyForm from 'modules/segments/containers/form/PropertyForm';
+import PropertyList from 'modules/segments/containers/form/PropertyList';
 import { ISegment } from 'modules/segments/types';
 import React from 'react';
 
@@ -24,7 +24,7 @@ class ConditionsList extends React.Component<Props, State> {
     const { conditions } = segment;
 
     if (!conditions && index === 0) {
-      return <PropertyForm contentType={contentType} />;
+      return <PropertyList contentType={contentType} />;
     }
 
     return <div>'asdsad'</div>;

@@ -8,7 +8,7 @@ import { withProps } from 'modules/common/utils';
 import { queries as formQueries } from 'modules/forms/graphql';
 import React from 'react';
 import { graphql } from 'react-apollo';
-import PropertyForm from '../../components/form/PropertyForm';
+import PropertyList from '../../components/form/PropertyList';
 
 import { AddMutationResponse, EditMutationResponse } from '../../types';
 import { isBoardKind } from '../../utils';
@@ -23,7 +23,7 @@ type FinalProps = {
   AddMutationResponse &
   EditMutationResponse;
 
-class SegmentsFormContainer extends React.Component<
+class PropertyListContainer extends React.Component<
   FinalProps,
   { fields: any[] }
 > {
@@ -49,8 +49,7 @@ class SegmentsFormContainer extends React.Component<
           pipelineId,
           contentType: ['visitor', 'lead', 'customer'].includes(propertyType)
             ? 'customer'
-            : propertyType,
-          usageType: 'segment'
+            : propertyType
         }
       })
       .then(({ data }) => {
@@ -87,7 +86,7 @@ class SegmentsFormContainer extends React.Component<
       fields: cleanFields
     };
 
-    return <PropertyForm {...updatedProps} />;
+    return <PropertyList {...updatedProps} />;
   }
 }
 
@@ -100,5 +99,5 @@ export default withProps<Props>(
       }),
       skip: ({ contentType }) => !isBoardKind(contentType)
     })
-  )(SegmentsFormContainer)
+  )(PropertyListContainer)
 );

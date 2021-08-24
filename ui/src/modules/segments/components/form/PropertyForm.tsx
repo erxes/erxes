@@ -1,127 +1,67 @@
-import { IBoard } from 'modules/boards/types';
-import Select from 'react-select-plus';
-import CommonForm from 'modules/common/components/form/Form';
-import FormGroup from 'modules/common/components/form/Group';
 import ControlLabel from 'modules/common/components/form/Label';
-import { IFormProps } from 'modules/common/types';
 import { __ } from 'modules/common/utils';
 import { IField } from 'modules/segments/types';
 import React from 'react';
-import {
-  ConditionItem,
-  SegmentWrapper
-} from 'modules/segmentsOld/components/styles';
-import { FlexContent, FlexItem } from 'modules/layout/styles';
-import { PROPERTY_TYPES } from '../constants';
+import FormGroup from 'modules/common/components/form/Group';
+import FormControl from 'modules/common/components/form/Control';
+import { DEFAULT_OPERATORS, OPERATORS } from '../constants';
 
 type Props = {
-  contentType: string;
-  fields: IField[];
-  boards?: IBoard[];
-  fetchFields: (propertyType: string, pipelineId?: string) => void;
+  field: IField;
+  onClickBack: () => void;
 };
 
 type State = {
-  propertyType: string;
+  chosenOperator?: object;
 };
 
-class SegmentFormAutomations extends React.Component<Props, State> {
+class PropertyForm extends React.Component<Props, State> {
   constructor(props) {
     super(props);
 
-    const propertyType = props.contentType;
-
-    this.state = { propertyType };
+    this.state = { chosenOperator: undefined };
   }
 
-  groupByType = () => {
-    const { fields = [] } = this.props;
-
-    return fields.reduce((acc, field) => {
-      const value = field.value;
-      let key = 'general';
-
-      if (field.group) {
-        key = field.group;
-      } else {
-        key =
-          value && value.includes('.')
-            ? value.substr(0, value.indexOf('.'))
-            : 'general';
-      }
-
-      if (!acc[key]) {
-        acc[key] = [];
-      }
-
-      acc[key].push(field);
-
-      return acc;
-    }, {});
+  onClickOperator = value => {
+    console.log(value);
+    this.setState({ chosenOperator: value });
   };
 
-  renderFields = () => {
-    const { fields } = this.props;
+  renderOperators = () => {
+    const { field } = this.props;
+    const { chosenOperator } = this.state;
 
-    const sda = this.groupByType();
+    const { type } = field;
 
-    console.log('111', sda);
+    const operators = OPERATORS[type || ''] || DEFAULT_OPERATORS;
 
-    return fields.map(field => {
-      return <p key={Math.random()}>{field.label}</p>;
+    return operators.map(operator => {
+      return (
+        <>
+          <FormControl
+            componentClass="checkbox"
+            onChange={this.onClickOperator.bind(this, operator.value)}
+            value={operator.value}
+            checked={operator.value === chosenOperator}
+          >
+            {operator.name}
+          </FormControl>
+        </>
+      );
     });
   };
 
-  renderForm = (formProps: IFormProps) => {
-    const { contentType, fetchFields } = this.props;
-    const { propertyType } = this.state;
-
-    const options = PROPERTY_TYPES[contentType];
-
-    const onChange = e => {
-      this.setState({ propertyType: e.value });
-
-      fetchFields(e.value);
-    };
-
-    const generateSelect = () => {
-      return (
-        <Select
-          clearable={false}
-          value={propertyType}
-          options={options.map(option => ({
-            value: option.value,
-            label: option.label
-          }))}
-          onChange={onChange}
-        />
-      );
-    };
-
-    return (
-      <>
-        <ConditionItem>
-          <FlexContent>
-            <FlexItem count={3} hasSpace={true}>
-              <FormGroup>
-                <ControlLabel>Property type</ControlLabel>
-                {generateSelect()}
-              </FormGroup>
-            </FlexItem>
-          </FlexContent>
-        </ConditionItem>
-        {this.renderFields()}
-      </>
-    );
-  };
-
   render() {
+    const { onClickBack, field } = this.props;
+
     return (
-      <SegmentWrapper>
-        <CommonForm renderContent={this.renderForm} />
-      </SegmentWrapper>
+      <div>
+        <p onClick={onClickBack.bind(this)}>back</p>
+        <ControlLabel>{field.label}</ControlLabel>
+        <FormGroup>{this.renderOperators()}</FormGroup>
+      </div>
     );
   }
 }
 
-export default SegmentFormAutomations;
+export default PropertyForm;
