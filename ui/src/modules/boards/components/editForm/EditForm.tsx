@@ -89,9 +89,14 @@ class EditForm extends React.Component<Props, State> {
   };
 
   onHideModal = () => {
+    const { history, refresh } = this.props;
+
+    if (refresh) {
+      routerUtils.setParams(history, { key: Math.random() });
+    }
+
     this.closeModal(() => {
       const { prevStageId, updatedItem } = this.state;
-      const { history, refresh } = this.props;
 
       if (updatedItem) {
         const itemName = localStorage.getItem(`${updatedItem._id}Name`) || '';
@@ -104,11 +109,7 @@ class EditForm extends React.Component<Props, State> {
       }
 
       if (updatedItem && this.props.onUpdate) {
-        if (refresh) {
-          routerUtils.setParams(history, { key: Math.random() });
-        } else {
-          this.props.onUpdate(updatedItem, prevStageId);
-        }
+        this.props.onUpdate(updatedItem, prevStageId);
       }
     });
   };
