@@ -222,8 +222,6 @@ class AutomationForm extends React.Component<Props, State> {
       jquery('#canvas').on('click', '.add-note', event => {
         event.preventDefault();
 
-        console.log('xaxa');
-
         this.handleNoteModal();
       });
     });
@@ -273,8 +271,6 @@ class AutomationForm extends React.Component<Props, State> {
   };
 
   handleNoteModal = (item?) => {
-    console.log('item: ', item);
-    console.log('this.state.showNoteForm: ', this.state.showNoteForm);
     this.setState({
       showNoteForm: !this.state.showNoteForm,
       editNoteForm: item ? true : false
@@ -436,9 +432,9 @@ class AutomationForm extends React.Component<Props, State> {
   };
 
   onClickNote = activeId => {
-    this.handleNoteModal(activeId);
-
-    this.setState({ activeId });
+    this.setState({ activeId }, () => {
+      this.handleNoteModal(activeId);
+    });
   };
 
   checkNote = (activeId: string) => {
@@ -471,7 +467,7 @@ class AutomationForm extends React.Component<Props, State> {
     }
 
     return `
-      <div class="note-badge" title="Notes" id="${key}">
+      <div class="note-badge note-badge-${key}" title="Notes" id="${key}">
         <i class="icon-notes"></i>
       </div>
     `;
@@ -505,10 +501,8 @@ class AutomationForm extends React.Component<Props, State> {
       onClick(item);
     });
 
-    jquery('#canvas').on('click', `.note-badge`, event => {
+    jquery('#canvas').on('click', `.note-badge-${idElm}`, event => {
       event.preventDefault();
-
-      console.log('clicking nodeBadge');
 
       this.onClickNote(event.currentTarget.id);
     });
