@@ -76,7 +76,7 @@ export type AddMutationResponse = {
 };
 
 export type AddNoteMutationResponse = {
-  addNoteAutomationMutation: (params: {
+  automationsAddNote: (params: {
     variables: IAutomationNoteDoc;
   }) => Promise<any>;
 };
@@ -88,9 +88,7 @@ export type RemoveNoteMutationResponse = {
 };
 
 export type EditNoteMutationResponse = {
-  editNoteAutomationMutation: (params: {
-    variables: IAutomationNote;
-  }) => Promise<any>;
+  automationsEditNote: (params: { variables: IAutomationNote }) => Promise<any>;
 };
 
 // query types

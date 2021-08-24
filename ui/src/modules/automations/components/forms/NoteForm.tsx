@@ -2,7 +2,7 @@ import React from 'react';
 import { ModalFooter } from 'modules/common/styles/main';
 import { NoteContainer, Notes } from 'modules/automations/styles';
 import FormControl from 'modules/common/components/form/Control';
-import { IFormProps, IButtonMutateProps } from 'modules/common/types';
+import { IFormProps } from 'modules/common/types';
 import Button from 'modules/common/components/Button';
 import { __, renderUserFullName } from 'modules/common/utils';
 import { IAutomationNote } from 'modules/automations/types';
@@ -22,12 +22,14 @@ type Props = {
   notes?: IAutomationNote[];
   automationId: string;
   itemId: string;
-  renderButton: (props: IButtonMutateProps) => JSX.Element;
   closeModal: () => void;
   remove: (_id: string) => void;
+  save: (doc) => void;
+  edit: (doc) => void;
 };
 
 type State = {
+  description: string;
   isEditNote: boolean;
   currentNote: IAutomationNote;
 };
@@ -37,6 +39,7 @@ class NoteForm extends React.Component<Props, State> {
     super(props);
 
     this.state = {
+      description: '',
       isEditNote: false,
       currentNote: {} as IAutomationNote
     };
@@ -46,35 +49,32 @@ class NoteForm extends React.Component<Props, State> {
     this.setState({ isEditNote: !this.state.isEditNote, currentNote });
   };
 
-  generateDoc = (values: { _id?: string; description: string }) => {
+  onChange = (e: React.FormEvent<HTMLElement>) => {
+    const value = (e.currentTarget as HTMLButtonElement).value;
+    this.setState({ description: value });
+  };
+
+  generateDoc = (values: { _id?: string }) => {
     const { automationId, itemId } = this.props;
 
-    const finalValues = values;
     const splitItem = itemId.split('-');
     const type = splitItem[0];
 
     if (this.state.currentNote) {
-      finalValues._id = this.state.currentNote._id;
+      values._id = this.state.currentNote._id;
     }
 
     return {
-      ...finalValues,
+      ...values,
       automationId,
+      description: this.state.description,
       actionId: type === 'action' ? splitItem[1] : '',
       triggerId: type === 'trigger' ? splitItem[1] : ''
     };
   };
 
   renderNotes() {
-    const {
-      notes,
-      isEdit,
-      remove,
-      formProps,
-      closeModal,
-      renderButton
-    } = this.props;
-    const { values, isSubmitted } = formProps;
+    const { notes, isEdit, remove, formProps, edit } = this.props;
     const { isEditNote, currentNote } = this.state;
 
     if (!notes || notes.length === 0 || !isEdit) {
@@ -112,22 +112,26 @@ class NoteForm extends React.Component<Props, State> {
             </Tip>
           </ActionButtons>
         </MainInfo>
+
         {isEditNote && currentNote._id === note._id ? (
           <>
             <FormControl
-              {...formProps}
               name="description"
               componentClass="textarea"
+              onChange={this.onChange}
               rows={5}
               defaultValue={note.description}
             />
 
-            {renderButton({
-              values: this.generateDoc(values),
-              object: note,
-              isSubmitted,
-              callback: closeModal
-            })}
+            <Button
+              btnStyle="success"
+              type="button"
+              onClick={() => edit(this.generateDoc(formProps.values))}
+              icon="check-circle"
+              size="small"
+            >
+              {__('Save')}
+            </Button>
           </>
         ) : (
           <p>{note.description}</p>
@@ -137,20 +141,18 @@ class NoteForm extends React.Component<Props, State> {
   }
 
   render() {
-    const { formProps, closeModal, renderButton } = this.props;
-
-    const { values, isSubmitted } = formProps;
+    const { formProps, closeModal, save } = this.props;
+    const { values } = formProps;
 
     return (
       <NoteContainer>
         <Notes>{this.renderNotes()}</Notes>
         <FormControl
-          {...formProps}
           name="description"
           componentClass="textarea"
           rows={5}
+          onChange={this.onChange}
           placeholder="Leave a note..."
-          // defaultValue={event && event.description}
         />
         <ModalFooter>
           <Button
@@ -162,11 +164,14 @@ class NoteForm extends React.Component<Props, State> {
             {__('Cancel')}
           </Button>
 
-          {renderButton({
-            values: this.generateDoc(values),
-            isSubmitted,
-            callback: closeModal
-          })}
+          <Button
+            btnStyle="success"
+            type="button"
+            onClick={() => save(this.generateDoc(values))}
+            icon="check-circle"
+          >
+            {__('Save')}
+          </Button>
         </ModalFooter>
       </NoteContainer>
     );
