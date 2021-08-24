@@ -84,7 +84,9 @@ const automationsEditNote = `
 
 const automationsRemoveNote = `
   mutation automationsRemoveNote($_id: String!) {
-    automationsRemoveNote(_id: $_id)
+    automationsRemoveNote(_id: $_id) {
+      _id
+    }
   }
 `;
 

@@ -500,7 +500,7 @@ class AutomationForm extends React.Component<Props, State> {
     jquery('#canvas').on('dblclick', `#${idElm}`, event => {
       event.preventDefault();
 
-      onClick(idElm);
+      onClick(item);
     });
 
     jquery('#canvas').on('click', `.note-badge`, event => {
