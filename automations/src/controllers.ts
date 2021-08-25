@@ -77,7 +77,7 @@ router.get(
 
     const automation = await Automations.getAutomation({ _id: id });
 
-    return res.json(automation);
+    return res.json(JSON.parse(JSON.stringify(automation)));
   })
 );
 

@@ -81,10 +81,11 @@ const automationMutations = {
     { _id, name }: { _id: string; name: string },
     { user, dataSources }: IContext
   ) {
-    const automation = await dataSources.AutomationsAPI.getAutomationDetail({
+    const automation = await dataSources.AutomationsAPI.getAutomationDetail(
       _id
-    });
+    );
 
+    delete automation._id;
     automation.status = 'template';
     automation.name = name;
 

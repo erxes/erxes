@@ -74,21 +74,24 @@ export const executeActions = async (
   }
 
   if (action.type === ACTIONS.IF) {
+    let ifActionId;
+
     if (await isInSegment(action.config.segmentId, execution.targetId)) {
-      return executeActions(
-        triggerType,
-        execution,
-        actionsMap,
-        action.config.yes
-      );
+      ifActionId = action.config.yes;
     } else {
-      return executeActions(
-        triggerType,
-        execution,
-        actionsMap,
-        action.config.no
-      );
+      ifActionId = action.config.no;
     }
+
+    await AutomationHistories.createHistory({
+      actionId: currentActionId,
+      actionType: action.type,
+      triggerType,
+      description: `Continuing on the ${action.config.yes}`,
+      automationId: execution.automationId,
+      target: execution.target
+    });
+
+    return executeActions(triggerType, execution, actionsMap, ifActionId);
   }
 
   if (action.type === ACTIONS.GO_TO) {
@@ -123,6 +126,8 @@ export const executeActions = async (
   ) {
     const type = action.type.substring(6).toLocaleLowerCase();
 
+    await addBoardItem({ action, execution, type });
+
     await AutomationHistories.createHistory({
       actionId: currentActionId,
       actionType: action.type,
@@ -131,8 +136,6 @@ export const executeActions = async (
       automationId: execution.automationId,
       target: execution.target
     });
-
-    await addBoardItem({ action, execution, type });
   }
 
   if (action.type === ACTIONS.REMOVE_DEAL) {
