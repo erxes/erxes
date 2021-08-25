@@ -16,11 +16,10 @@ type Props = {
   contentType: string;
   index: number;
   addCondition: (condition: ISegmentCondition, segmentKey: string) => void;
+  addNewProperty: (segmentKey: string) => void;
 };
 
-type State = {
-  state: string;
-};
+type State = {};
 
 class ConditionsList extends React.Component<Props, State> {
   constructor(props) {
@@ -28,6 +27,11 @@ class ConditionsList extends React.Component<Props, State> {
 
     this.state = { state: 'list' };
   }
+
+  addProperty = () => {
+    const { segment, addNewProperty } = this.props;
+    return addNewProperty(segment.key);
+  };
 
   conditionsContent = () => {
     const { segment } = this.props;
@@ -62,7 +66,12 @@ class ConditionsList extends React.Component<Props, State> {
             );
           })}
 
-          <Button size="small" btnStyle="simple" icon="plus">
+          <Button
+            size="small"
+            btnStyle="simple"
+            icon="plus"
+            onClick={this.addProperty}
+          >
             Add property
           </Button>
         </FilterBox>
@@ -82,15 +91,53 @@ class ConditionsList extends React.Component<Props, State> {
   };
 
   render() {
-    const { state } = this.state;
+    const { segment, index } = this.props;
+    const { conditions } = segment;
 
-    switch (state) {
-      case 'list':
-        return this.conditionsList();
-
-      default:
-        return this.conditionsList();
+    if (conditions.length === 0 && index === 0) {
+      return <PropertyList {...this.props} />;
     }
+
+    return (
+      <>
+        <ConditionRemove>
+          <Button
+            className="round"
+            size="small"
+            btnStyle="simple"
+            icon="times"
+          />
+        </ConditionRemove>
+        <FilterBox>
+          {conditions.map(condition => {
+            return (
+              <ConditionItem key={Math.random()}>
+                <FilterRow>
+                  <FilterProperty>{condition.propertyName}</FilterProperty>
+                </FilterRow>
+                <FlexRightItem>
+                  <Button
+                    className="round"
+                    size="small"
+                    btnStyle="simple"
+                    icon="times"
+                  />
+                </FlexRightItem>
+              </ConditionItem>
+            );
+          })}
+
+          <Button
+            size="small"
+            btnStyle="simple"
+            icon="plus"
+            onClick={this.addProperty}
+          >
+            Add property
+          </Button>
+        </FilterBox>
+      </>
+    );
   }
 }
 

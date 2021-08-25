@@ -24,6 +24,7 @@ import { ColorPick, ColorPicker } from 'modules/settings/styles';
 import React from 'react';
 import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
 import { FilterBox, SegmentWrapper } from '../styles';
+import PropertyList from '../../containers/form/PropertyList';
 
 type Props = {
   contentType: string;
@@ -51,6 +52,8 @@ type State = {
   color: string;
 
   segments: ISegmentMap[];
+  state: string;
+  chosenSegment?: ISegmentMap;
 };
 
 class SegmentFormAutomations extends React.Component<Props, State> {
@@ -83,7 +86,12 @@ class SegmentFormAutomations extends React.Component<Props, State> {
         : []
     }));
 
-    this.state = { ...segment, segments };
+    this.state = {
+      ...segment,
+      segments,
+      state: 'list',
+      chosenSegment: undefined
+    };
   }
 
   renderSubOf(formProps: IFormProps) {
@@ -201,47 +209,92 @@ class SegmentFormAutomations extends React.Component<Props, State> {
     );
 
     if (foundedSegment) {
-      foundedSegment.conditions = [condition];
+      foundedSegment.conditions = [...foundedSegment.conditions, condition];
 
       segments[foundedSegmentIndex] = foundedSegment;
 
-      this.setState({ segments });
+      this.setState({ segments, state: 'list' });
     }
+  };
+
+  addNewProperty = (segmentKey: string) => {
+    const segments = [...this.state.segments];
+
+    const foundedSegment = segments.find(segment => segment.key === segmentKey);
+
+    this.setState({ chosenSegment: foundedSegment, state: 'form' });
   };
 
   addSegment = () => {
     const { contentType } = this.props;
 
+    const newSegment = {
+      key: Math.random().toString(),
+      conditions: [],
+      conditionsConjunction: 'and',
+      contentType: contentType || 'customer'
+    };
+
     this.setState({
-      segments: [
-        ...this.state.segments,
-        {
-          key: Math.random().toString(),
-          conditions: [{ key: Math.random().toString(), type: 'property' }],
-          conditionsConjunction: 'and',
-          contentType: contentType || 'customer'
-        }
-      ]
+      state: 'form',
+      segments: [...this.state.segments, newSegment],
+      chosenSegment: newSegment
     });
   };
 
   renderConditionsList = () => {
     const { contentType } = this.props;
-    const { segments } = this.state;
+    const { segments, state, chosenSegment } = this.state;
 
-    return segments.map((segment, index) => {
+    if (state !== 'form') {
+      return segments.map((segment, index) => {
+        return (
+          <>
+            <ConditionsList
+              key={Math.random()}
+              addNewProperty={this.addNewProperty}
+              contentType={contentType}
+              index={index}
+              segment={segment}
+              addCondition={this.addCondition}
+            />
+          </>
+        );
+      });
+    }
+
+    if (chosenSegment) {
       return (
-        <>
-          <ConditionsList
-            key={Math.random()}
-            contentType={contentType}
-            index={index}
-            segment={segment}
-            addCondition={this.addCondition}
-          />
-        </>
+        <PropertyList
+          contentType={contentType}
+          segment={chosenSegment}
+          addCondition={this.addCondition}
+        />
       );
-    });
+    }
+
+    return <></>;
+  };
+
+  renderFilterItem = () => {
+    const { state } = this.state;
+    return (
+      <FilterBox>
+        {this.renderConditionsList()}
+        {state === 'list' ? (
+          <Button
+            onClick={this.addSegment}
+            size="small"
+            btnStyle="simple"
+            icon="plus"
+          >
+            Add new group
+          </Button>
+        ) : (
+          <></>
+        )}
+      </FilterBox>
+    );
   };
 
   renderForm = (formProps: IFormProps) => {
@@ -252,18 +305,7 @@ class SegmentFormAutomations extends React.Component<Props, State> {
     return (
       <>
         {this.renderDetailForm(formProps)}
-
-        <FilterBox>
-          {this.renderConditionsList()}
-          <Button
-            onClick={this.addSegment}
-            size="small"
-            btnStyle="simple"
-            icon="plus"
-          >
-            Add new group
-          </Button>
-        </FilterBox>
+        {this.renderFilterItem()}
 
         <ModalFooter id="button-group">
           <Button.Group>

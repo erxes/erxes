@@ -21,7 +21,6 @@ import { isBoardKind } from '../../utils';
 type Props = {
   segment: ISegmentMap;
   contentType: string;
-  index: number;
   addCondition: (condition: ISegmentCondition, segmentKey: string) => void;
 };
 

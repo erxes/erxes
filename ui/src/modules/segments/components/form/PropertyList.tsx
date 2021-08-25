@@ -18,7 +18,6 @@ type Props = {
   onSearch: (value: string) => void;
   fetchFields: (propertyType: string, pipelineId?: string) => void;
   segment: ISegmentMap;
-  index: number;
   addCondition: (condition: ISegmentCondition, segmentKey: string) => void;
 };
 
@@ -155,7 +154,7 @@ class PropertyList extends React.Component<Props, State> {
           </SegmentBackIcon>
 
           <FormGroup>
-            <ControlLabel>Type</ControlLabel>
+            <ControlLabel>Property type</ControlLabel>
             {generateSelect()}
           </FormGroup>
           <FormGroup>

@@ -93,7 +93,7 @@ const SegmentsForm = (props: Props) => {
     { title }
   ];
 
-  return isModal ? (
+  const content = (
     <Form
       contentType={contentType}
       fields={fields}
@@ -108,26 +108,15 @@ const SegmentsForm = (props: Props) => {
       closeModal={closeModal}
       isModal={isModal}
     />
+  );
+
+  return isModal ? (
+    content
   ) : (
     <Wrapper
       header={<Wrapper.Header title={title} breadcrumb={breadcrumb} />}
       actionBar={<Wrapper.ActionBar left={pageTitle} />}
-      content={
-        <Form
-          contentType={contentType}
-          fields={fields}
-          events={events}
-          boards={boards}
-          renderButton={renderButton}
-          segment={segment}
-          headSegments={headSegments}
-          segments={segments}
-          fetchFields={fetchFields}
-          isForm={true}
-          closeModal={closeModal}
-          isModal={isModal}
-        />
-      }
+      content={content}
       rightSidebar={renderSidebar()}
     />
   );
