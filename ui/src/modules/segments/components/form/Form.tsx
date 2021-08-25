@@ -14,6 +14,8 @@ import {
   IEvent,
   IField,
   ISegment,
+  ISegmentCondition,
+  ISegmentMap,
   ISegmentWithConditionDoc
 } from 'modules/segments/types';
 import ConditionsList from './ConditionsList';
@@ -48,7 +50,7 @@ type State = {
   subOf: string;
   color: string;
 
-  segments: ISegment[];
+  segments: ISegmentMap[];
 };
 
 class SegmentFormAutomations extends React.Component<Props, State> {
@@ -69,8 +71,16 @@ class SegmentFormAutomations extends React.Component<Props, State> {
     };
 
     const segments = segment.getConditionSegments.map((item: ISegment) => ({
+      _id: item._id,
       key: Math.random().toString(),
-      ...item
+      contentType: item.contentType || 'customer',
+      conditionsConjunction: item.conditionsConjunction,
+      conditions: item.conditions
+        ? item.conditions.map((cond: ISegmentCondition) => ({
+            key: Math.random().toString(),
+            ...cond
+          }))
+        : []
     }));
 
     this.state = { ...segment, segments };
@@ -106,7 +116,12 @@ class SegmentFormAutomations extends React.Component<Props, State> {
   };
 
   renderDetailForm = (formProps: IFormProps) => {
+    const { isModal } = this.props;
     const { name, description, color } = this.state;
+
+    if (isModal) {
+      return;
+    }
 
     const popoverTop = (
       <Popover id="color-picker">
@@ -177,6 +192,24 @@ class SegmentFormAutomations extends React.Component<Props, State> {
     );
   };
 
+  addCondition = (condition: ISegmentCondition, segmentKey?: string) => {
+    const segments = [...this.state.segments];
+
+    const foundedSegment = segments.find(segment => segment.key === segmentKey);
+    const foundedSegmentIndex = segments.findIndex(
+      segment => segment.key === segmentKey
+    );
+
+    if (foundedSegment) {
+      console.log('2313123', foundedSegment.conditions);
+      foundedSegment.conditions = [condition];
+
+      segments[foundedSegmentIndex] = foundedSegment;
+
+      this.setState({ segments });
+    }
+  };
+
   renderConditionsList = () => {
     const { contentType } = this.props;
     const { segments } = this.state;
@@ -184,10 +217,12 @@ class SegmentFormAutomations extends React.Component<Props, State> {
     return segments.map((segment, index) => {
       return (
         <ConditionsList
+          key={Math.random()}
           contentType={contentType}
           index={index}
           segment={segment}
-        ></ConditionsList>
+          addCondition={this.addCondition}
+        />
       );
     });
   };
@@ -201,7 +236,7 @@ class SegmentFormAutomations extends React.Component<Props, State> {
       <>
         {this.renderDetailForm(formProps)}
 
-        <FilterBox>{this.renderConditionsList()}</FilterBox>
+        <FilterBox> {this.renderConditionsList()}</FilterBox>
 
         <ModalFooter id="button-group">
           <Button.Group>

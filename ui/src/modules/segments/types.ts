@@ -29,6 +29,13 @@ export interface ISegmentCondition {
   subSegmentId?: string;
 }
 
+export interface ISegmentMap {
+  key: string;
+  contentType: string;
+  conditions: ISegmentCondition[];
+  conditionsConjunction: string;
+}
+
 export interface ISubSegment {
   contentType: string;
   conditionsConjunction?: string;

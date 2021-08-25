@@ -1,12 +1,13 @@
 import PropertyList from 'modules/segments/containers/form/PropertyList';
-import { ISegment } from 'modules/segments/types';
+import { ISegmentCondition, ISegmentMap } from 'modules/segments/types';
 import React from 'react';
-import { OperatorList } from '../styles';
+import { FilterBox } from '../styles';
 
 type Props = {
-  segment: ISegment;
+  segment: ISegmentMap;
   contentType: string;
   index: number;
+  addCondition: (condition: ISegmentCondition, segmentKey: string) => void;
 };
 
 type State = {
@@ -20,18 +21,33 @@ class ConditionsList extends React.Component<Props, State> {
     this.state = { state: 'list' };
   }
 
-  conditionsList = () => {
-    const { segment, index, contentType } = this.props;
+  conditionsContent = () => {
+    const { segment } = this.props;
     const { conditions } = segment;
 
-    if (!conditions && index === 0) {
-      return <PropertyList contentType={contentType} />;
-    }
+    console.log(conditions);
 
-    return <div>'asdsad'</div>;
+    return (
+      <FilterBox>
+        {conditions.map(condition => {
+          return <p key={Math.random()}>{condition.propertyName}</p>;
+        })}
+      </FilterBox>
+    );
   };
 
-  renderContent = () => {
+  conditionsList = () => {
+    const { segment, index } = this.props;
+    const { conditions } = segment;
+
+    if (conditions.length === 0 && index === 0) {
+      return <PropertyList {...this.props} />;
+    }
+
+    return this.conditionsContent();
+  };
+
+  render() {
     const { state } = this.state;
 
     switch (state) {
@@ -41,10 +57,6 @@ class ConditionsList extends React.Component<Props, State> {
       default:
         return this.conditionsList();
     }
-  };
-
-  render() {
-    return <OperatorList>{this.renderContent()}</OperatorList>;
   }
 }
 

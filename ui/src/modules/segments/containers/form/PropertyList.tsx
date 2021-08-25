@@ -10,11 +10,19 @@ import React from 'react';
 import { graphql } from 'react-apollo';
 import PropertyList from '../../components/form/PropertyList';
 
-import { AddMutationResponse, EditMutationResponse } from '../../types';
+import {
+  AddMutationResponse,
+  EditMutationResponse,
+  ISegmentCondition,
+  ISegmentMap
+} from '../../types';
 import { isBoardKind } from '../../utils';
 
 type Props = {
+  segment: ISegmentMap;
   contentType: string;
+  index: number;
+  addCondition: (condition: ISegmentCondition, segmentKey: string) => void;
 };
 
 type FinalProps = {
@@ -25,13 +33,14 @@ type FinalProps = {
 
 class PropertyListContainer extends React.Component<
   FinalProps,
-  { fields: any[] }
+  { fields: any[]; searchValue: string }
 > {
   constructor(props) {
     super(props);
 
     this.state = {
-      fields: []
+      fields: [],
+      searchValue: ''
     };
   }
 
@@ -59,9 +68,13 @@ class PropertyListContainer extends React.Component<
       });
   };
 
+  onSearch = (value: string) => {
+    this.setState({ searchValue: value });
+  };
+
   render() {
     const { boardsQuery } = this.props;
-    const { fields } = this.state;
+    const { fields, searchValue } = this.state;
 
     if (boardsQuery && boardsQuery.loading) {
       return null;
@@ -69,7 +82,13 @@ class PropertyListContainer extends React.Component<
 
     const boards = boardsQuery ? boardsQuery.boards || [] : [];
 
-    const cleanFields = fields.map(item => ({
+    const condition = new RegExp(searchValue);
+
+    const results = fields.filter(field => {
+      return condition.test(field.label);
+    });
+
+    const cleanFields = results.map(item => ({
       value: item.name || item._id,
       label: item.label || item.title,
       type: (item.type || '').toLowerCase(),
@@ -83,6 +102,7 @@ class PropertyListContainer extends React.Component<
       ...this.props,
       boards,
       fetchFields: this.fetchFields,
+      onSearch: this.onSearch,
       fields: cleanFields
     };
 
