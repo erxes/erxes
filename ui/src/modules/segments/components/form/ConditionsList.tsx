@@ -3,7 +3,13 @@ import { FlexRightItem } from 'modules/layout/styles';
 import PropertyList from 'modules/segments/containers/form/PropertyList';
 import { ISegmentCondition, ISegmentMap } from 'modules/segments/types';
 import React from 'react';
-import { ConditionItem, FilterBox, FilterProperty, FilterRow } from '../styles';
+import {
+  ConditionItem,
+  ConditionRemove,
+  FilterBox,
+  FilterProperty,
+  FilterRow
+} from '../styles';
 
 type Props = {
   segment: ISegmentMap;
@@ -28,29 +34,39 @@ class ConditionsList extends React.Component<Props, State> {
     const { conditions } = segment;
 
     return (
-      <FilterBox>
-        {conditions.map(condition => {
-          return (
-            <ConditionItem key={Math.random()}>
-              <FilterRow>
-                <FilterProperty>{condition.propertyName}</FilterProperty>
-              </FilterRow>
-              <FlexRightItem>
-                <Button
-                  className="round"
-                  size="small"
-                  btnStyle="simple"
-                  icon="times"
-                />
-              </FlexRightItem>
-            </ConditionItem>
-          );
-        })}
+      <>
+        <ConditionRemove>
+          <Button
+            className="round"
+            size="small"
+            btnStyle="simple"
+            icon="times"
+          />
+        </ConditionRemove>
+        <FilterBox>
+          {conditions.map(condition => {
+            return (
+              <ConditionItem key={Math.random()}>
+                <FilterRow>
+                  <FilterProperty>{condition.propertyName}</FilterProperty>
+                </FilterRow>
+                <FlexRightItem>
+                  <Button
+                    className="round"
+                    size="small"
+                    btnStyle="simple"
+                    icon="times"
+                  />
+                </FlexRightItem>
+              </ConditionItem>
+            );
+          })}
 
-        <Button size="small" btnStyle="simple" icon="plus">
-          Add property
-        </Button>
-      </FilterBox>
+          <Button size="small" btnStyle="simple" icon="plus">
+            Add property
+          </Button>
+        </FilterBox>
+      </>
     );
   };
 

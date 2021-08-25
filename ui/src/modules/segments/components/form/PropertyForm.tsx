@@ -1,4 +1,3 @@
-import ControlLabel from 'modules/common/components/form/Label';
 import { __ } from 'modules/common/utils';
 import { IField, ISegmentCondition, ISegmentMap } from 'modules/segments/types';
 import React from 'react';
@@ -136,7 +135,7 @@ class PropertyForm extends React.Component<Props, State> {
           >
             {operator.name}
           </FormControl>
-          <Formgroup> {this.renderInput(operator)}</Formgroup>
+          {this.renderInput(operator)}
         </>
       );
     });
@@ -162,8 +161,8 @@ class PropertyForm extends React.Component<Props, State> {
 
     return (
       <OperatorList>
-        <ControlLabel>{field.label}</ControlLabel>
-        {this.renderOperators()}
+        <b>{field.label}</b>
+        <Formgroup>{this.renderOperators()}</Formgroup>
         <CenterContent>
           <Button onClick={this.onClick} btnStyle="default">
             Aply filter

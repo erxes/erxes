@@ -254,7 +254,7 @@ class SegmentFormAutomations extends React.Component<Props, State> {
         {this.renderDetailForm(formProps)}
 
         <FilterBox>
-          {this.renderConditionsList()}{' '}
+          {this.renderConditionsList()}
           <Button
             onClick={this.addSegment}
             size="small"

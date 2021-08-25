@@ -8,6 +8,8 @@ import React from 'react';
 import { PROPERTY_TYPES } from '../constants';
 import PropertyForm from './PropertyForm';
 import { FormControl } from 'modules/common/components/form';
+import { OperatorList, SegmentBackIcon } from '../styles';
+import Icon from 'modules/common/components/Icon';
 
 type Props = {
   contentType: string;
@@ -71,9 +73,13 @@ class PropertyList extends React.Component<Props, State> {
   renderFields = fields => {
     return fields.map(field => {
       return (
-        <p key={Math.random()} onClick={this.onClickField.bind(this, field)}>
+        <FormControl
+          key={Math.random()}
+          componentClass="checkbox"
+          onChange={this.onClickField.bind(this, field)}
+        >
           {field.label}
-        </p>
+        </FormControl>
       );
     });
   };
@@ -83,11 +89,12 @@ class PropertyList extends React.Component<Props, State> {
 
     return Object.keys(objects).map(key => {
       return (
-        <span key={Math.random()}>
-          <b>{key}</b>
-
-          {this.renderFields(objects[key])}
-        </span>
+        <OperatorList key={Math.random()}>
+          <FormGroup>
+            <b>{key}</b>
+            {this.renderFields(objects[key])}
+          </FormGroup>
+        </OperatorList>
       );
     });
   };
@@ -143,7 +150,9 @@ class PropertyList extends React.Component<Props, State> {
     if (!chosenField) {
       return (
         <>
-          <p onClick={this.onClickBack}>back</p>
+          <SegmentBackIcon onClick={this.onClickBack}>
+            <Icon icon="angle-left" size={20} /> back
+          </SegmentBackIcon>
 
           <FormGroup>
             <ControlLabel>Type</ControlLabel>
@@ -164,7 +173,9 @@ class PropertyList extends React.Component<Props, State> {
 
     return (
       <>
-        <p onClick={this.onClickBack}>back</p>
+        <SegmentBackIcon onClick={this.onClickBack}>
+          <Icon icon="angle-left" size={20} /> back
+        </SegmentBackIcon>
         {this.renderFieldDetail()}
       </>
     );

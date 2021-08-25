@@ -33,6 +33,17 @@ const ConditionItem = styled.div`
   }
 `;
 
+const ConditionRemove = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+
+  button.round {
+    padding: 4px 8px;
+    margin-left: 20px;
+  }
+`;
+
 const SegmentResult = styled(FlexItem)`
   align-self: center;
   text-align: center;
@@ -70,6 +81,9 @@ const FilterBox = styled.div`
   p {
     margin-top: ${dimensions.unitSpacing}px;
     font-weight: 500;
+  }
+  label {
+    display: block;
   }
 `;
 
@@ -118,7 +132,34 @@ const OperatorList = styled.div`
   }
 `;
 
+const SegmentBackIcon = styled.div`
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  margin: ${dimensions.unitSpacing}px 0;
+  font-weight: 500;
+
+  > i {
+    width: 20px;
+    height: 20px;
+    border-radius: 20px;
+    line-height: 20px;
+    text-align: center;
+    margin-right: ${dimensions.unitSpacing - 5}px;
+    color: ${colors.colorPrimary};
+    transition: all ease 0.3s;
+  }
+
+  &:hover {
+    i {
+      box-shadow: 0 0 2px 0 rgba(101, 105, 223, 0.4);
+    }
+  }
+`;
+
 export {
+  SegmentBackIcon,
+  ConditionRemove,
   OperatorList,
   AddSegmentButton,
   ConjunctionButtons,
