@@ -1,7 +1,9 @@
+import Button from 'modules/common/components/Button';
+import { FlexRightItem } from 'modules/layout/styles';
 import PropertyList from 'modules/segments/containers/form/PropertyList';
 import { ISegmentCondition, ISegmentMap } from 'modules/segments/types';
 import React from 'react';
-import { FilterBox } from '../styles';
+import { ConditionItem, FilterBox, FilterProperty, FilterRow } from '../styles';
 
 type Props = {
   segment: ISegmentMap;
@@ -25,13 +27,29 @@ class ConditionsList extends React.Component<Props, State> {
     const { segment } = this.props;
     const { conditions } = segment;
 
-    console.log(conditions);
-
     return (
       <FilterBox>
         {conditions.map(condition => {
-          return <p key={Math.random()}>{condition.propertyName}</p>;
+          return (
+            <ConditionItem key={Math.random()}>
+              <FilterRow>
+                <FilterProperty>{condition.propertyName}</FilterProperty>
+              </FilterRow>
+              <FlexRightItem>
+                <Button
+                  className="round"
+                  size="small"
+                  btnStyle="simple"
+                  icon="times"
+                />
+              </FlexRightItem>
+            </ConditionItem>
+          );
         })}
+
+        <Button size="small" btnStyle="simple" icon="plus">
+          Add property
+        </Button>
       </FilterBox>
     );
   };

@@ -143,13 +143,13 @@ class PropertyForm extends React.Component<Props, State> {
   };
 
   onClick = () => {
-    const { segment, addCondition } = this.props;
+    const { segment, addCondition, field } = this.props;
     const { chosenOperator, currentValue } = this.state;
 
     return addCondition(
       {
         type: 'property',
-        propertyName: chosenOperator.name,
+        propertyName: field.value,
         propertyOperator: chosenOperator.value,
         propertyValue: currentValue
       },

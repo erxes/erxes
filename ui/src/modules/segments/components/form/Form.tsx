@@ -201,7 +201,6 @@ class SegmentFormAutomations extends React.Component<Props, State> {
     );
 
     if (foundedSegment) {
-      console.log('2313123', foundedSegment.conditions);
       foundedSegment.conditions = [condition];
 
       segments[foundedSegmentIndex] = foundedSegment;
@@ -210,19 +209,37 @@ class SegmentFormAutomations extends React.Component<Props, State> {
     }
   };
 
+  addSegment = () => {
+    const { contentType } = this.props;
+
+    this.setState({
+      segments: [
+        ...this.state.segments,
+        {
+          key: Math.random().toString(),
+          conditions: [{ key: Math.random().toString(), type: 'property' }],
+          conditionsConjunction: 'and',
+          contentType: contentType || 'customer'
+        }
+      ]
+    });
+  };
+
   renderConditionsList = () => {
     const { contentType } = this.props;
     const { segments } = this.state;
 
     return segments.map((segment, index) => {
       return (
-        <ConditionsList
-          key={Math.random()}
-          contentType={contentType}
-          index={index}
-          segment={segment}
-          addCondition={this.addCondition}
-        />
+        <>
+          <ConditionsList
+            key={Math.random()}
+            contentType={contentType}
+            index={index}
+            segment={segment}
+            addCondition={this.addCondition}
+          />
+        </>
       );
     });
   };
@@ -236,7 +253,17 @@ class SegmentFormAutomations extends React.Component<Props, State> {
       <>
         {this.renderDetailForm(formProps)}
 
-        <FilterBox> {this.renderConditionsList()}</FilterBox>
+        <FilterBox>
+          {this.renderConditionsList()}{' '}
+          <Button
+            onClick={this.addSegment}
+            size="small"
+            btnStyle="simple"
+            icon="plus"
+          >
+            Add new group
+          </Button>
+        </FilterBox>
 
         <ModalFooter id="button-group">
           <Button.Group>

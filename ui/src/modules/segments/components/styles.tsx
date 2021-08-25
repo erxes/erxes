@@ -54,12 +54,12 @@ const ResultCount = styled.div`
 `;
 
 const FilterBox = styled.div`
-  height: 500px;
   overflow: auto;
   border: 1px solid ${colors.borderPrimary};
   padding: ${dimensions.unitSpacing}px;
   margin-top: ${dimensions.unitSpacing}px;
   border-radius: 5px;
+  margin-bottom: ${dimensions.unitSpacing}px;
 
   b {
     text-transform: uppercase;
