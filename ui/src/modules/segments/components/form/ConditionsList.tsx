@@ -17,6 +17,8 @@ type Props = {
   index: number;
   addCondition: (condition: ISegmentCondition, segmentKey: string) => void;
   addNewProperty: (segmentKey: string) => void;
+  removeCondition: (key: string, segmentKey?: string) => void;
+  removeSegment: (segmentKey: string) => void;
 };
 
 type State = {};
@@ -33,61 +35,16 @@ class ConditionsList extends React.Component<Props, State> {
     return addNewProperty(segment.key);
   };
 
-  conditionsContent = () => {
-    const { segment } = this.props;
-    const { conditions } = segment;
+  removeCondition = condition => {
+    const { removeCondition, segment } = this.props;
 
-    return (
-      <>
-        <ConditionRemove>
-          <Button
-            className="round"
-            size="small"
-            btnStyle="simple"
-            icon="times"
-          />
-        </ConditionRemove>
-        <FilterBox>
-          {conditions.map(condition => {
-            return (
-              <ConditionItem key={Math.random()}>
-                <FilterRow>
-                  <FilterProperty>{condition.propertyName}</FilterProperty>
-                </FilterRow>
-                <FlexRightItem>
-                  <Button
-                    className="round"
-                    size="small"
-                    btnStyle="simple"
-                    icon="times"
-                  />
-                </FlexRightItem>
-              </ConditionItem>
-            );
-          })}
-
-          <Button
-            size="small"
-            btnStyle="simple"
-            icon="plus"
-            onClick={this.addProperty}
-          >
-            Add property
-          </Button>
-        </FilterBox>
-      </>
-    );
+    return removeCondition(condition.key, segment.key);
   };
 
-  conditionsList = () => {
-    const { segment, index } = this.props;
-    const { conditions } = segment;
+  removeSegment = () => {
+    const { removeSegment, segment } = this.props;
 
-    if (conditions.length === 0 && index === 0) {
-      return <PropertyList {...this.props} />;
-    }
-
-    return this.conditionsContent();
+    return removeSegment(segment.key);
   };
 
   render() {
@@ -106,6 +63,7 @@ class ConditionsList extends React.Component<Props, State> {
             size="small"
             btnStyle="simple"
             icon="times"
+            onClick={this.removeSegment}
           />
         </ConditionRemove>
         <FilterBox>
@@ -121,6 +79,7 @@ class ConditionsList extends React.Component<Props, State> {
                     size="small"
                     btnStyle="simple"
                     icon="times"
+                    onClick={this.removeCondition.bind(this, condition)}
                   />
                 </FlexRightItem>
               </ConditionItem>

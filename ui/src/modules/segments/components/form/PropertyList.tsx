@@ -99,13 +99,14 @@ class PropertyList extends React.Component<Props, State> {
   };
 
   renderFieldDetail = () => {
-    const { chosenField } = this.state;
+    const { chosenField, propertyType } = this.state;
 
     if (chosenField) {
       return (
         <PropertyForm
           {...this.props}
           onClickBack={this.onClickBack}
+          propertyType={propertyType}
           field={chosenField}
         />
       );

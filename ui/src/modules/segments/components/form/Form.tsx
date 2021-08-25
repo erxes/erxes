@@ -16,7 +16,8 @@ import {
   ISegment,
   ISegmentCondition,
   ISegmentMap,
-  ISegmentWithConditionDoc
+  ISegmentWithConditionDoc,
+  ISubSegment
 } from 'modules/segments/types';
 import ConditionsList from './ConditionsList';
 
@@ -209,12 +210,53 @@ class SegmentFormAutomations extends React.Component<Props, State> {
     );
 
     if (foundedSegment) {
-      foundedSegment.conditions = [...foundedSegment.conditions, condition];
+      foundedSegment.conditions = [
+        ...foundedSegment.conditions,
+        { key: Math.random().toString(), ...condition }
+      ];
 
       segments[foundedSegmentIndex] = foundedSegment;
 
       this.setState({ segments, state: 'list' });
     }
+  };
+
+  removeCondition = (key: string, segmentKey?: string) => {
+    const segments = [...this.state.segments];
+
+    const foundedSegment = segments.find(segment => segment.key === segmentKey);
+    const foundedSegmentIndex = segments.findIndex(
+      segment => segment.key === segmentKey
+    );
+
+    if (foundedSegment) {
+      const foundedConIndex = foundedSegment.conditions.findIndex(
+        condition => condition.key === key
+      );
+
+      if (foundedConIndex === 0) {
+        segments.splice(foundedSegmentIndex, 1);
+      }
+
+      if (foundedConIndex > -1 && foundedConIndex !== 0) {
+        foundedSegment.conditions.splice(foundedConIndex, 1);
+      }
+
+      segments[foundedSegmentIndex] = foundedSegment;
+
+      this.setState({ segments });
+    }
+  };
+
+  removeSegment = (segmentKey: string) => {
+    const segments = [...this.state.segments];
+
+    const foundedSegmentIndex = segments.findIndex(
+      segment => segment.key === segmentKey
+    );
+
+    segments.splice(foundedSegmentIndex, 1);
+    this.setState({ segments });
   };
 
   addNewProperty = (segmentKey: string) => {
@@ -253,6 +295,8 @@ class SegmentFormAutomations extends React.Component<Props, State> {
             <ConditionsList
               key={Math.random()}
               addNewProperty={this.addNewProperty}
+              removeCondition={this.removeCondition}
+              removeSegment={this.removeSegment}
               contentType={contentType}
               index={index}
               segment={segment}
@@ -297,10 +341,35 @@ class SegmentFormAutomations extends React.Component<Props, State> {
     );
   };
 
+  generateDoc = (values: { _id?: string; conditionsConjunction: string }) => {
+    const { contentType, segment } = this.props;
+    const { segments } = this.state;
+    const finalValues = values;
+
+    const conditionSegments: ISubSegment[] = [];
+
+    if (segment && segment._id) {
+      finalValues._id = segment._id;
+    }
+
+    segments.forEach((cond: ISegmentMap) => {
+      const { key, ...item } = cond;
+
+      conditionSegments.push(item);
+    });
+
+    return {
+      ...finalValues,
+      conditionsConjunction: 'and',
+      contentType,
+      conditionSegments
+    };
+  };
+
   renderForm = (formProps: IFormProps) => {
     const { segment, renderButton, afterSave, closeModal } = this.props;
 
-    const { isSubmitted } = formProps;
+    const { values, isSubmitted } = formProps;
 
     return (
       <>
@@ -320,7 +389,7 @@ class SegmentFormAutomations extends React.Component<Props, State> {
 
             {renderButton({
               name: 'segment',
-              values: '',
+              values: this.generateDoc(values),
               callback: closeModal || afterSave,
               isSubmitted,
               object: segment
