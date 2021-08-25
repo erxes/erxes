@@ -4,11 +4,13 @@ import styled from 'styled-components';
 import styledTS from 'styled-components-ts';
 
 const SubContent = styled.div`
-  padding: 0 16px;
-
+  padding: 0px;
   p {
     font-size: 12px;
     color: ${colors.textSecondary};
+  }
+  h5 {
+    margin-top: 20px;
   }
 `;
 
@@ -181,6 +183,69 @@ const ProgressText = styled.div`
   font-size: 12px;
 `;
 
+const Container = styled.div`
+  width: 280px;
+  p {
+    margin-top: 20px;
+  }
+`;
+
+const SetupList = styled.div`
+  margin-bottom: 20px;
+  div {
+    border-radius: ${dimensions.unitSpacing}px;
+    background-color: #fafafa;
+    a {
+      padding: 5px 10px;
+      h4 {
+        font-size: 12px;
+        background-color: #fafafa;
+        text-transform: uppercase;
+      }
+    }
+    div {
+      div {
+        padding: 0px;
+        background: ${colors.colorWhite};
+        div {
+          border-radius: 0px;
+          padding: 10px;
+        }
+      }
+    }
+  }
+`;
+
+const Text = styled.div`
+  font-weight: normal;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border: 1px solid #eee;
+  border-top: none;
+
+  &:hover {
+    cursor: pointer;
+    background-color: #fafafa;
+    font-weight: 500;
+  }
+
+  h6 {
+    margin: 0px;
+    font-weight: 400;
+    width: 70%;
+  }
+
+  p {
+    margin: 0px;
+    font-size: 11px;
+    background-color: rgba(101, 105, 223, 0.8);
+    color: white;
+    padding: 2px 5px 2px;
+    border-radius: ${dimensions.unitSpacing}px;
+  }
+`;
+
 export {
   Bot,
   BotText,
@@ -196,5 +261,8 @@ export {
   CompletedTaskWrapper,
   CompletedTaskName,
   ProgressText,
-  RestartButton
+  RestartButton,
+  Container,
+  SetupList,
+  Text
 };

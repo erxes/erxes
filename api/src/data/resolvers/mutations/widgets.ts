@@ -318,7 +318,8 @@ const widgetMutations = {
         phone,
         code,
         isUser,
-        deviceToken
+        deviceToken,
+        scopeBrandIds: [brand._id]
       };
 
       customer = customer
@@ -332,7 +333,11 @@ const widgetMutations = {
 
     if (visitorId) {
       await sendToVisitorLog(
-        { visitorId, integrationId: integration._id },
+        {
+          visitorId,
+          integrationId: integration._id,
+          scopeBrandIds: [brand._id]
+        },
         'createOrUpdate'
       );
     }
@@ -566,44 +571,48 @@ const widgetMutations = {
         }
       });
 
-      const botRequest = await sendRequest({
-        method: 'POST',
-        url: `${botEndpointUrl}/${conversation._id}`,
-        body: {
-          type: 'text',
-          text: message
-        }
-      });
+      try {
+        const botRequest = await sendRequest({
+          method: 'POST',
+          url: `${botEndpointUrl}/${conversation._id}`,
+          body: {
+            type: 'text',
+            text: message
+          }
+        });
 
-      const { responses } = botRequest;
+        const { responses } = botRequest;
 
-      const botData =
-        responses.length !== 0
-          ? responses
-          : [
-              {
-                type: 'text',
-                text: AUTO_BOT_MESSAGES.NO_RESPONSE
-              }
-            ];
+        const botData =
+          responses.length !== 0
+            ? responses
+            : [
+                {
+                  type: 'text',
+                  text: AUTO_BOT_MESSAGES.NO_RESPONSE
+                }
+              ];
 
-      const botMessage = await Messages.createMessage({
-        conversationId: conversation._id,
-        customerId,
-        contentType,
-        botData
-      });
+        const botMessage = await Messages.createMessage({
+          conversationId: conversation._id,
+          customerId,
+          contentType,
+          botData
+        });
 
-      graphqlPubsub.publish('conversationBotTypingStatus', {
-        conversationBotTypingStatus: {
-          conversationId: msg.conversationId,
-          typing: false
-        }
-      });
+        graphqlPubsub.publish('conversationBotTypingStatus', {
+          conversationBotTypingStatus: {
+            conversationId: msg.conversationId,
+            typing: false
+          }
+        });
 
-      graphqlPubsub.publish('conversationMessageInserted', {
-        conversationMessageInserted: botMessage
-      });
+        graphqlPubsub.publish('conversationMessageInserted', {
+          conversationMessageInserted: botMessage
+        });
+      } catch (e) {
+        debugError(`Failed to connect to BOTPRESS: ${e.message}`);
+      }
     }
 
     const customerLastStatus = await get(

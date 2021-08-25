@@ -143,4 +143,13 @@ export default class AutomationAPI extends RESTDataSource {
       return { error: e.message };
     }
   }
+
+  public async getAutomationHistories(selector) {
+    try {
+      return this.get(`/api/histories`, selector);
+    } catch (e) {
+      debugError(e);
+      return { error: e.message };
+    }
+  }
 } // end class

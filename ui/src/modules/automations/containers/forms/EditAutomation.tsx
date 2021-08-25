@@ -11,7 +11,8 @@ import { queries, mutations } from '../../graphql';
 import {
   DetailQueryResponse,
   EditMutationResponse,
-  IAutomation
+  IAutomation,
+  AutomationsNoteQueryResponse
 } from '../../types';
 
 type Props = {
@@ -21,6 +22,7 @@ type Props = {
 
 type FinalProps = {
   automationDetailQuery: DetailQueryResponse;
+  automationNotesQuery: AutomationsNoteQueryResponse;
   currentUser: IUser;
   saveAsTemplateMutation: any;
 } & Props &
@@ -29,9 +31,9 @@ type FinalProps = {
 const AutomationDetailsContainer = (props: FinalProps) => {
   const {
     automationDetailQuery,
+    automationNotesQuery,
     currentUser,
-    editAutomationMutation,
-    saveAsTemplateMutation
+    editAutomationMutation
   } = props;
 
   const save = (doc: IAutomation) => {
@@ -49,22 +51,7 @@ const AutomationDetailsContainer = (props: FinalProps) => {
       });
   };
 
-  const saveAs = (variables: IAutomation) => {
-    saveAsTemplateMutation({
-      variables
-    })
-      .then(() => {
-        Alert.success(`You successfully save as a template`);
-
-        window.location.href = '/automations';
-      })
-
-      .catch(error => {
-        Alert.error(error.message);
-      });
-  };
-
-  if (automationDetailQuery.loading) {
+  if (automationDetailQuery.loading || automationNotesQuery.loading) {
     return <Spinner objective={true} />;
   }
 
@@ -75,14 +62,15 @@ const AutomationDetailsContainer = (props: FinalProps) => {
   }
 
   const automationDetail = automationDetailQuery.automationDetail || {};
+  const automationNotes = automationNotesQuery.automationNotes || [];
 
   const updatedProps = {
     ...props,
     loading: automationDetailQuery.loading,
     automation: automationDetail,
+    automationNotes,
     currentUser,
-    save,
-    saveAs
+    save
   };
 
   return <AutomationForm {...updatedProps} />;
@@ -101,6 +89,17 @@ export default withProps<Props>(
         })
       }
     ),
+    graphql<Props, AutomationsNoteQueryResponse, { automationId: string }>(
+      gql(queries.automationNotes),
+      {
+        name: 'automationNotesQuery',
+        options: ({ id }) => ({
+          variables: {
+            automationId: id
+          }
+        })
+      }
+    ),
     graphql<{}, EditMutationResponse, IAutomation>(
       gql(mutations.automationsEdit),
       {
@@ -109,9 +108,6 @@ export default withProps<Props>(
           refetchQueries: ['automations', 'automationsMain', 'automationDetail']
         })
       }
-    ),
-    graphql<{}, any, IAutomation>(gql(mutations.automationsSaveAsTemplate), {
-      name: 'saveAsTemplateMutation'
-    })
+    )
   )(AutomationDetailsContainer)
 );

@@ -1,11 +1,11 @@
 import { IAction } from 'modules/automations/types';
 import React from 'react';
 import { ModalFooter } from 'modules/common/styles/main';
-import SetProperty from './SetProperty';
-import IfForm from 'modules/automations/containers/forms/actions/IfForm';
+import SetProperty from './subForms/SetProperty';
+import IfForm from 'modules/automations/containers/forms/actions/subForms/IfForm';
 import Button from 'modules/common/components/Button';
 import { __ } from 'modules/common/utils';
-import BoardItemForm from 'modules/automations/containers/forms/actions/BoardItemForm';
+import BoardItemForm from 'modules/automations/containers/forms/actions/subForms/BoardItemForm';
 
 type Props = {
   onSave: () => void;

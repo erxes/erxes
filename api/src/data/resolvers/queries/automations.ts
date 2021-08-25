@@ -20,17 +20,6 @@ const automationQueries = {
   },
 
   /**
-   * Automations note list
-   */
-  automationNotes(
-    _root,
-    params: { automationId: string },
-    { dataSources }: IContext
-  ) {
-    return dataSources.AutomationsAPI.getAutomationNotes(params);
-  },
-
-  /**
    * Automations for only main list
    */
   automationsMain(_root, params: IListArgs, { dataSources }: IContext) {
@@ -42,10 +31,33 @@ const automationQueries = {
    */
   automationDetail(_root, { _id }: { _id: string }, { dataSources }: IContext) {
     return dataSources.AutomationsAPI.getAutomationDetail(_id);
+  },
+
+  /**
+   * Automations note list
+   */
+  automationNotes(
+    _root,
+    params: { automationId: string },
+    { dataSources }: IContext
+  ) {
+    return dataSources.AutomationsAPI.getAutomationNotes(params);
+  },
+
+  /**
+   * Automations history list
+   */
+  automationHistories(
+    _root,
+    params: { automationId: string },
+    { dataSources }: IContext
+  ) {
+    return dataSources.AutomationsAPI.getAutomationHistories(params);
   }
 };
 
 requireLogin(automationQueries, 'automationsMain');
+requireLogin(automationQueries, 'automationNotes');
 requireLogin(automationQueries, 'automationDetail');
 
 checkPermission(automationQueries, 'automations', 'showAutomations', []);

@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import { debugError, debugAutomations, debugRequest } from './debuggers';
 import Automations from './models/Automations';
+import AutomationHistories from './models/Histories';
 import { Notes } from './models/Notes';
 
 export const routeErrorHandling = (fn, callback?: any) => {
@@ -76,7 +77,7 @@ router.get(
 
     const automation = await Automations.getAutomation({ _id: id });
 
-    return res.json(automation);
+    return res.json(JSON.parse(JSON.stringify(automation)));
   })
 );
 
@@ -189,6 +190,21 @@ router.get(
     const note = await Notes.findOne(selector).lean();
 
     return res.json(note);
+  })
+);
+
+router.get(
+  '/histories',
+  routeErrorHandling(async (req, res) => {
+    debugRequest(debugAutomations, req);
+
+    const selector = req.query;
+
+    const histories = await AutomationHistories.find(selector).sort({
+      createdAt: -1
+    });
+
+    return res.json(histories);
   })
 );
 

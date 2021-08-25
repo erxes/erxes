@@ -24,6 +24,23 @@ export const automationFields = `
   }
 `;
 
+export const automationNoteFields = `
+  _id
+  description
+  triggerId
+  actionId
+  createdUser {
+    _id
+    username
+    email
+    details {
+      avatar
+      fullName
+    }
+  }
+  createdAt
+`;
+
 const listParamsDef = `
   $page: Int
   $perPage: Int
@@ -78,8 +95,31 @@ export const automationDetail = `
   }
 `;
 
+export const automationNotes = `
+  query automationNotes($automationId: String!, $triggerId: String, $actionId: String) {
+    automationNotes(automationId: $automationId, triggerId: $triggerId, actionId: $actionId) {
+      ${automationNoteFields}
+    }
+  }
+`;
+
+export const automationHistories = `
+  query automationHistories($automationId: String) {
+    automationHistories(automationId: $automationId) {
+      _id
+      target
+      triggerType
+      actionType
+      description
+      createdAt
+    }
+  }
+`;
+
 export default {
   automations,
   automationsMain,
-  automationDetail
+  automationDetail,
+  automationNotes,
+  automationHistories
 };

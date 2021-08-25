@@ -4,7 +4,12 @@ import { ACTIONS } from './constants';
 import { debugBase } from './debuggers';
 import { getActionsMap } from './helpers';
 import { sendRPCMessage } from './messageBroker';
-import Automations, { IActionsMap, ReEnrollmentRule, TriggerType } from './models/Automations';
+import Automations, {
+  IActionsMap,
+  ReEnrollmentRule,
+  TriggerType
+} from './models/Automations';
+import AutomationHistories from './models/Histories';
 import { Executions, IExecutionDocument } from './models/Executions';
 
 export const getEnv = ({
@@ -29,7 +34,7 @@ export const getEnv = ({
 
 export const isInSegment = async (segmentId: string, targetId: string) => {
   return sendRPCMessage('isInSegment', { segmentId, targetId });
-}
+};
 
 export let tags: any[] = [];
 export let tasks: any[] = [];
@@ -41,9 +46,14 @@ export const reset = () => {
   tasks = [];
   deals = [];
   customers = [];
-}
+};
 
-export const executeActions = async (triggerType: string, execution: IExecutionDocument, actionsMap: IActionsMap, currentActionId?: string): Promise<string> => {
+export const executeActions = async (
+  triggerType: string,
+  execution: IExecutionDocument,
+  actionsMap: IActionsMap,
+  currentActionId?: string
+): Promise<string> => {
   if (!currentActionId) {
     execution.waitingActionId = null;
     execution.lastCheckedWaitDate = null;
@@ -64,19 +74,41 @@ export const executeActions = async (triggerType: string, execution: IExecutionD
   }
 
   if (action.type === ACTIONS.IF) {
+    let ifActionId;
+
     if (await isInSegment(action.config.segmentId, execution.targetId)) {
-      return executeActions(triggerType, execution, actionsMap, action.config.yes);
+      ifActionId = action.config.yes;
     } else {
-      return executeActions(triggerType, execution, actionsMap, action.config.no);
+      ifActionId = action.config.no;
     }
+
+    await AutomationHistories.createHistory({
+      actionId: currentActionId,
+      actionType: action.type,
+      triggerType,
+      description: `Continuing on the ${action.config.yes}`,
+      automationId: execution.automationId,
+      target: execution.target
+    });
+
+    return executeActions(triggerType, execution, actionsMap, ifActionId);
   }
 
   if (action.type === ACTIONS.GO_TO) {
-    return executeActions(triggerType, execution, actionsMap, action.config.toId);
+    return executeActions(
+      triggerType,
+      execution,
+      actionsMap,
+      action.config.toId
+    );
   }
 
   if (action.type === ACTIONS.SET_PROPERTY) {
-    await setProperty({ triggerType, actionConfig: action.config, target: execution.target });
+    await setProperty({
+      triggerType,
+      actionConfig: action.config,
+      target: execution.target
+    });
   }
 
   if (action.type === ACTIONS.ADD_TAGS) {
@@ -87,16 +119,23 @@ export const executeActions = async (triggerType: string, execution: IExecutionD
     tags = tags.filter(t => !action.config.names.includes(t));
   }
 
-  if (action.type === ACTIONS.CREATE_TASK) {
-    await addBoardItem({ action, execution, type: 'task' });
-  }
+  if (
+    action.type === ACTIONS.CREATE_TASK ||
+    action.type === ACTIONS.CREATE_TICKET ||
+    action.type === ACTIONS.CREATE_DEAL
+  ) {
+    const type = action.type.substring(6).toLocaleLowerCase();
 
-  if (action.type === ACTIONS.CREATE_TICKET) {
-    await addBoardItem({ action, execution, type: 'ticket' });
-  }
+    await addBoardItem({ action, execution, type });
 
-  if (action.type === ACTIONS.CREATE_DEAL) {
-    await addBoardItem({ action, execution, type: 'deal' });
+    await AutomationHistories.createHistory({
+      actionId: currentActionId,
+      actionType: action.type,
+      triggerType,
+      description: `Created a ${type}`,
+      automationId: execution.automationId,
+      target: execution.target
+    });
   }
 
   if (action.type === ACTIONS.REMOVE_DEAL) {
@@ -105,13 +144,36 @@ export const executeActions = async (triggerType: string, execution: IExecutionD
 
   await execution.save();
 
-  return executeActions(triggerType, execution, actionsMap, action.nextActionId);
-}
+  return executeActions(
+    triggerType,
+    execution,
+    actionsMap,
+    action.nextActionId
+  );
+};
 
-export const calculateExecution = async ({ automationId, triggerId, triggerType, reEnrollmentRules, target }: { automationId: string, triggerId: string, triggerType: string, reEnrollmentRules: ReEnrollmentRule[], target: any }): Promise<IExecutionDocument> => {
-  const executions = await Executions.find({ automationId, triggerId, targetId: target._id });
+export const calculateExecution = async ({
+  automationId,
+  triggerId,
+  triggerType,
+  reEnrollmentRules,
+  target
+}: {
+  automationId: string;
+  triggerId: string;
+  triggerType: string;
+  reEnrollmentRules: ReEnrollmentRule[];
+  target: any;
+}): Promise<IExecutionDocument> => {
+  const executions = await Executions.find({
+    automationId,
+    triggerId,
+    targetId: target._id
+  });
 
-  const latestExecution = executions.sort((a, b) => a.createdAt.getTime() - b.createdAt.getTime()).pop();
+  const latestExecution = executions
+    .sort((a, b) => a.createdAt.getTime() - b.createdAt.getTime())
+    .pop();
 
   if (latestExecution) {
     if (!reEnrollmentRules) {
@@ -139,16 +201,25 @@ export const calculateExecution = async ({ automationId, triggerId, triggerType,
     triggerId,
     triggerType,
     targetId: target._id,
-    target,
+    target
   });
-}
+};
 
 /*
  * target is one of the TriggerType objects
  */
-export const receiveTrigger = async ({ type, targets }: {  type: TriggerType, targets: any[] }) => {
+export const receiveTrigger = async ({
+  type,
+  targets
+}: {
+  type: TriggerType;
+  targets: any[];
+}) => {
   for (const target of targets) {
-    const automations = await Automations.find({ status: 'active', 'triggers.type': { $in: [type] }});
+    const automations = await Automations.find({
+      status: 'active',
+      'triggers.type': { $in: [type] }
+    });
 
     if (!automations.length) {
       return;
@@ -160,12 +231,31 @@ export const receiveTrigger = async ({ type, targets }: {  type: TriggerType, ta
           continue;
         }
 
-        const execution = await calculateExecution({ automationId: automation._id, triggerId: trigger.id, triggerType: trigger.type, reEnrollmentRules: trigger.config.reEnrollmentRules, target });
+        const execution = await calculateExecution({
+          automationId: automation._id,
+          triggerId: trigger.id,
+          triggerType: trigger.type,
+          reEnrollmentRules: trigger.config.reEnrollmentRules,
+          target
+        });
 
         if (execution) {
-          await executeActions(trigger.type, execution, await getActionsMap(automation.actions), trigger.actionId);
+          await AutomationHistories.createHistory({
+            triggerId: trigger.id,
+            triggerType: trigger.type,
+            description: 'Met enrollement criteria',
+            automationId: automation._id,
+            target
+          });
+
+          await executeActions(
+            trigger.type,
+            execution,
+            await getActionsMap(automation.actions),
+            trigger.actionId
+          );
         }
       }
     }
   }
-}
+};

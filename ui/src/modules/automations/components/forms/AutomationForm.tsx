@@ -4,7 +4,8 @@ import jquery from 'jquery';
 import RTG from 'react-transition-group';
 import Wrapper from 'modules/layout/components/Wrapper';
 import React from 'react';
-import { IAction, IAutomation, ITrigger } from '../../types';
+import Form from 'modules/common/components/form/Form';
+import { IAction, IAutomation, ITrigger, IAutomationNote } from '../../types';
 import {
   Container,
   CenterFlexRow,
@@ -16,31 +17,36 @@ import {
   BackIcon,
   CenterBar,
   ToggleWrapper
+  // ZoomActions,
 } from '../../styles';
 import { FormControl } from 'modules/common/components/form';
 import { BarItems, HeightedWrapper } from 'modules/layout/styles';
 import Button from 'modules/common/components/Button';
-import TriggerForm from '../../containers/forms/TriggerForm';
-import ActionsForm from '../../containers/forms/ActionsForm';
-import TriggerDetailForm from './TriggerDetailForm';
+import TriggerForm from '../../containers/forms/triggers/TriggerForm';
+import ActionsForm from '../../containers/forms/actions/ActionsForm';
+import TriggerDetailForm from './triggers/TriggerDetailForm';
 import {
   createInitialConnections,
   connection,
   deleteConnection,
-  deleteControl,
   sourceEndpoint,
   targetEndpoint,
   connectorPaintStyle,
   connectorHoverStyle,
-  hoverPaintStyle
+  hoverPaintStyle,
+  yesEndPoint,
+  noEndPoint
 } from 'modules/automations/utils';
-import ActionDetailForm from './ActionDetailForm';
+import ActionDetailForm from './actions/ActionDetailForm';
 import Icon from 'modules/common/components/Icon';
 import PageContent from 'modules/layout/components/PageContent';
 import { Link } from 'react-router-dom';
 import { Tabs, TabTitle } from 'modules/common/components/tabs';
 import Toggle from 'modules/common/components/Toggle';
-import SettingsContainer from 'modules/automations/containers/forms/Settings';
+import Modal from 'react-bootstrap/Modal';
+import NoteFormContainer from 'modules/automations/containers/forms/NoteForm';
+import TemplateForm from '../../containers/forms/TemplateForm';
+import Histories from 'modules/automations/containers/Histories';
 
 const plumb: any = jsPlumb;
 let instance;
@@ -48,19 +54,23 @@ let instance;
 type Props = {
   id?: string;
   automation?: IAutomation;
+  automationNotes?: IAutomationNote[];
   save: (params: any) => void;
-  saveAs?: (params: any) => void;
 };
 
 type State = {
   name: string;
   status: string;
   currentTab: string;
+  activeId: string;
   showDrawer: boolean;
   showTrigger: boolean;
   showAction: boolean;
-  isAction: boolean;
+  isActionTab: boolean;
   isActive: boolean;
+  showNoteForm: boolean;
+  editNoteForm?: boolean;
+  showTemplateForm: boolean;
   actions: IAction[];
   triggers: ITrigger[];
   activeTrigger: ITrigger;
@@ -89,9 +99,12 @@ class AutomationForm extends React.Component<Props, State> {
       actions: automation.actions || [],
       triggers: automation.triggers || [],
       activeTrigger: {} as ITrigger,
+      activeId: '',
       currentTab: 'triggers',
-      isAction: true,
+      isActionTab: true,
       isActive: automation.status === 'active',
+      showNoteForm: false,
+      showTemplateForm: false,
       showTrigger: false,
       showDrawer: false,
       showAction: false,
@@ -99,7 +112,29 @@ class AutomationForm extends React.Component<Props, State> {
     };
   }
 
+  setWrapperRef = node => {
+    this.wrapperRef = node;
+  };
+
   componentDidMount() {
+    this.connectInstance();
+
+    document.addEventListener('click', this.handleClickOutside, true);
+  }
+
+  componentDidUpdate(prevProps, prevState) {
+    const { isActionTab } = this.state;
+
+    if (isActionTab && isActionTab !== prevState.isActionTab) {
+      this.connectInstance();
+    }
+  }
+
+  componentWillUnmount() {
+    document.removeEventListener('click', this.handleClickOutside, true);
+  }
+
+  connectInstance = () => {
     instance = plumb.getInstance({
       DragOptions: { cursor: 'pointer', zIndex: 2000 },
       PaintStyle: connectorPaintStyle,
@@ -133,11 +168,11 @@ class AutomationForm extends React.Component<Props, State> {
       });
 
       for (const action of actions) {
-        this.renderAction(action);
+        this.renderControl('action', action, this.onClickAction);
       }
 
       for (const trigger of triggers) {
-        this.renderTrigger(trigger);
+        this.renderControl('trigger', trigger, this.onClickTrigger);
       }
 
       // create connections ===================
@@ -146,12 +181,25 @@ class AutomationForm extends React.Component<Props, State> {
       // delete connections ===================
       deleteConnection(instance);
 
-      // delete control ===================
-      deleteControl();
+      // toggle action control when click mouse 2 ===================
+      jquery('#canvas').on('contextmenu', '.control', event => {
+        event.preventDefault();
 
-      // delete from state ===================
-      jquery('#canvas').on('click', '.delete-control', () => {
-        const item = (window as any).selectedControl;
+        jquery(`div#${event.currentTarget.id}`).toggleClass('show-action-menu');
+
+        this.setState({ activeId: event.currentTarget.id });
+      });
+
+      // remove action control =============
+      jquery('#canvas').bind('click', () => {
+        jquery('div.control').removeClass('show-action-menu');
+      });
+
+      // delete control ===================
+      jquery('#canvas').on('click', '.delete-control', event => {
+        event.preventDefault();
+
+        const item = event.currentTarget.id;
         const splitItem = item.split('-');
         const type = splitItem[0];
 
@@ -169,24 +217,21 @@ class AutomationForm extends React.Component<Props, State> {
           });
         }
       });
+
+      // add note ===================
+      jquery('#canvas').on('click', '.add-note', event => {
+        event.preventDefault();
+
+        this.handleNoteModal();
+      });
     });
-
-    document.addEventListener('click', this.handleClickOutside, true);
-  }
-
-  componentWillUnmount() {
-    document.removeEventListener('click', this.handleClickOutside, true);
-  }
-
-  setWrapperRef = node => {
-    this.wrapperRef = node;
   };
 
-  handleSubmit = (e: React.FormEvent, isSaveAs?: boolean) => {
+  handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
     const { name, status, triggers, actions } = this.state;
-    const { id, save, saveAs } = this.props;
+    const { id, save } = this.props;
 
     if (!name) {
       return Alert.error('Enter an Automation name');
@@ -222,15 +267,22 @@ class AutomationForm extends React.Component<Props, State> {
       return finalValues;
     };
 
-    if (isSaveAs && saveAs) {
-      saveAs(generateValues());
-    } else {
-      save(generateValues());
-    }
+    save(generateValues());
+  };
+
+  handleNoteModal = (item?) => {
+    this.setState({
+      showNoteForm: !this.state.showNoteForm,
+      editNoteForm: item ? true : false
+    });
+  };
+
+  handleTemplateModal = () => {
+    this.setState({ showTemplateForm: !this.state.showTemplateForm });
   };
 
   switchActionbarTab = type => {
-    this.setState({ isAction: type === 'action' ? true : false });
+    this.setState({ isActionTab: type === 'action' ? true : false });
   };
 
   onToggle = e => {
@@ -327,7 +379,7 @@ class AutomationForm extends React.Component<Props, State> {
     this.setState({ triggers, activeTrigger: trigger });
 
     if (!triggerId) {
-      this.renderTrigger(trigger);
+      this.renderControl('trigger', trigger, this.onClickTrigger);
     }
   };
 
@@ -370,7 +422,7 @@ class AutomationForm extends React.Component<Props, State> {
     this.setState({ actions, activeAction: action });
 
     if (!actionId) {
-      this.renderAction(action);
+      this.renderControl('action', action, this.onClickAction);
     }
   };
 
@@ -379,104 +431,115 @@ class AutomationForm extends React.Component<Props, State> {
     this.setState({ name: value });
   };
 
-  renderTrigger = (trigger: ITrigger) => {
-    const idElm = `trigger-${trigger.id}`;
-
-    jquery('#canvas').append(`
-      <div class="trigger control" id="${idElm}" style="${trigger.style}">
-        <div class="trigger-header">
-          <div>
-            <i class="icon-${trigger.icon}"></i>
-            ${trigger.label}
-          </div>
-          <i class="icon-check-1"></i>
-        </div>
-        <p>${trigger.description}</p>
-      </div>
-    `);
-
-    jquery('#canvas').on('dblclick', `#${idElm}`, event => {
-      event.preventDefault();
-
-      this.onClickTrigger(trigger);
+  onClickNote = activeId => {
+    this.setState({ activeId }, () => {
+      this.handleNoteModal(activeId);
     });
-
-    instance.addEndpoint(idElm, sourceEndpoint, {
-      anchor: [1, 0.5]
-    });
-
-    instance.draggable(instance.getSelector(`#${idElm}`));
   };
 
-  renderAction = (action: IAction) => {
-    const idElm = `action-${action.id}`;
+  checkNote = (activeId: string) => {
+    const { automationNotes } = this.props;
+    const item = activeId.split('-');
+    const type = item[0];
+
+    if (!automationNotes) {
+      return null;
+    }
+
+    const notes = automationNotes.filter(note => {
+      if (type === 'trigger' && note.triggerId !== item[1]) {
+        return null;
+      }
+
+      if (type === 'action' && note.actionId !== item[1]) {
+        return null;
+      }
+
+      return note;
+    });
+
+    return notes;
+  };
+
+  renderNotes(key: string) {
+    if ((this.checkNote(key) || []).length === 0) {
+      return ``;
+    }
+
+    return `
+      <div class="note-badge note-badge-${key}" title="Notes" id="${key}">
+        <i class="icon-notes"></i>
+      </div>
+    `;
+  }
+
+  renderControl = (key: string, item: ITrigger | IAction, onClick: any) => {
+    const idElm = `${key}-${item.id}`;
 
     jquery('#canvas').append(`
-      <div class="action control" id="${idElm}" style="${action.style}">
+      <div class="${key} control" id="${idElm}" style="${item.style}">
         <div class="trigger-header">
-          <div>
-            <i class="icon-${action.icon}"></i>
-            ${action.label}
+          <div class='custom-menu'>
+            <div>
+              <i class="icon-notes add-note" title="Write Note"></i>
+              <i class="icon-trash-alt delete-control" id="${idElm}" title="Delete control"></i>
+            </div>
           </div>
-          <i class="icon-check-1"></i>
+          <div>
+            <i class="icon-${item.icon}"></i>
+            ${item.label}
+          </div>
         </div>
-        <p>${action.description}</p>
+        <p>${item.description}</p>
+        ${this.renderNotes(idElm)}
       </div>
     `);
 
     jquery('#canvas').on('dblclick', `#${idElm}`, event => {
       event.preventDefault();
 
-      this.onClickAction(action);
+      onClick(item);
     });
 
-    if (action.type === 'if') {
-      instance.addEndpoint(idElm, targetEndpoint, {
-        anchor: ['Left']
+    jquery('#canvas').on('click', `.note-badge-${idElm}`, event => {
+      event.preventDefault();
+
+      this.onClickNote(event.currentTarget.id);
+    });
+
+    if (key === 'trigger') {
+      instance.addEndpoint(idElm, sourceEndpoint, {
+        anchor: [1, 0.5]
       });
 
-      instance.addEndpoint(idElm, sourceEndpoint, {
-        anchor: [1, 0.2],
-        overlays: [
-          [
-            'Label',
-            {
-              location: [1.8, 0.5],
-              label: 'True',
-              visible: true
-            }
-          ]
-        ]
-      });
-
-      instance.addEndpoint(idElm, sourceEndpoint, {
-        anchor: [1, 0.8],
-        overlays: [
-          [
-            'Label',
-            {
-              location: [1.8, 0.5],
-              label: 'False',
-              visible: true
-            }
-          ]
-        ]
-      });
-    } else {
-      instance.addEndpoint(idElm, targetEndpoint, {
-        anchor: ['Left']
-      });
-
-      instance.addEndpoint(idElm, sourceEndpoint, {
-        anchor: ['Right']
-      });
+      instance.draggable(instance.getSelector(`#${idElm}`));
     }
 
-    instance.draggable(instance.getSelector(`#${idElm}`));
+    if (key === 'action') {
+      if (item.type === 'if') {
+        instance.addEndpoint(idElm, targetEndpoint, {
+          anchor: ['Left']
+        });
+
+        instance.addEndpoint(idElm, yesEndPoint);
+        instance.addEndpoint(idElm, noEndPoint);
+      } else {
+        instance.addEndpoint(idElm, targetEndpoint, {
+          anchor: ['Left']
+        });
+
+        instance.addEndpoint(idElm, sourceEndpoint, {
+          anchor: ['Right']
+        });
+      }
+
+      instance.draggable(instance.getSelector(`#${idElm}`));
+    }
   };
 
   rendeRightActionBar() {
     const { isActive } = this.state;
+    const { id } = this.props;
 
     return (
       <BarItems>
@@ -501,14 +564,16 @@ class AutomationForm extends React.Component<Props, State> {
         >
           Add an Action
         </Button>
-        <Button
-          btnStyle="success"
-          size="small"
-          icon={'check-circle'}
-          onClick={e => this.handleSubmit(e, true)}
-        >
-          Save as a template
-        </Button>
+        {id && (
+          <Button
+            btnStyle="primary"
+            size="small"
+            icon={'check-circle'}
+            onClick={this.handleTemplateModal}
+          >
+            Save as a template
+          </Button>
+        )}
         <Button
           btnStyle="success"
           size="small"
@@ -522,7 +587,7 @@ class AutomationForm extends React.Component<Props, State> {
   }
 
   renderLeftActionBar() {
-    const { isAction, name } = this.state;
+    const { isActionTab, name } = this.state;
 
     return (
       <CenterFlexRow>
@@ -544,16 +609,16 @@ class AutomationForm extends React.Component<Props, State> {
         <CenterBar>
           <Tabs full={true}>
             <TabTitle
-              className={isAction ? 'active' : ''}
+              className={isActionTab ? 'active' : ''}
               onClick={this.switchActionbarTab.bind(this, 'action')}
             >
               {__('Actions')}
             </TabTitle>
             <TabTitle
-              className={isAction ? '' : 'active'}
-              onClick={this.switchActionbarTab.bind(this, 'settings')}
+              className={isActionTab ? '' : 'active'}
+              onClick={this.switchActionbarTab.bind(this, 'history')}
             >
-              {__('Settings')}
+              {__('Histories')}
             </TabTitle>
           </Tabs>
         </CenterBar>
@@ -618,12 +683,20 @@ class AutomationForm extends React.Component<Props, State> {
     return null;
   }
 
+  // renderZoomActions() {
+  //   return (
+  //     <ZoomActions>
+  //       <div className="icon-wrapper">
+  //         <Icon icon="plus" />
+  //         <Icon icon="minus" />
+  //       </div>
+  //       <span>100%</span>
+  //     </ZoomActions>
+  //   );
+  // }
+
   renderContent() {
     const { automation } = this.props;
-
-    if (!this.state.isAction) {
-      return <SettingsContainer />;
-    }
 
     if (!automation) {
       return (
@@ -639,10 +712,80 @@ class AutomationForm extends React.Component<Props, State> {
       );
     }
 
+    if (!this.state.isActionTab) {
+      return <Histories automationId={automation._id} />;
+    }
+
     return (
       <Container>
+        {/* {this.renderZoomActions()} */}
         <div id="canvas" />
       </Container>
+    );
+  }
+
+  renderNoteModal() {
+    const { showNoteForm, editNoteForm, activeId } = this.state;
+
+    if (!showNoteForm) {
+      return null;
+    }
+
+    return (
+      <Modal
+        enforceFocus={false}
+        show={showNoteForm}
+        onHide={this.handleNoteModal}
+        animation={false}
+      >
+        <Modal.Body>
+          <Form
+            renderContent={formProps => (
+              <NoteFormContainer
+                formProps={formProps}
+                automationId={
+                  this.props.automation ? this.props.automation._id : ''
+                }
+                isEdit={editNoteForm}
+                itemId={activeId}
+                notes={this.checkNote(activeId) || []}
+                closeModal={this.handleNoteModal}
+              />
+            )}
+          />
+        </Modal.Body>
+      </Modal>
+    );
+  }
+
+  renderTemplateModal() {
+    const { showTemplateForm } = this.state;
+    const { automation } = this.props;
+
+    if (!showTemplateForm || !automation) {
+      return null;
+    }
+
+    return (
+      <Modal
+        enforceFocus={false}
+        show={showTemplateForm}
+        onHide={this.handleTemplateModal}
+        animation={false}
+      >
+        <Modal.Body>
+          <Form
+            renderContent={formProps => (
+              <TemplateForm
+                formProps={formProps}
+                closeModal={this.handleTemplateModal}
+                id={automation._id}
+                name={automation.name}
+              />
+            )}
+          />
+        </Modal.Body>
+      </Modal>
     );
   }
 
@@ -654,7 +797,7 @@ class AutomationForm extends React.Component<Props, State> {
         <HeightedWrapper>
           <AutomationFormContainer>
             <Wrapper.Header
-              title={`${'Automations' || ''}`}
+              title={`${(automation && automation.name) || 'Automation'}`}
               breadcrumb={[
                 { title: __('Automations'), link: '/automations' },
                 { title: `${(automation && automation.name) || ''}` }
@@ -685,6 +828,9 @@ class AutomationForm extends React.Component<Props, State> {
               </RightDrawerContainer>
             </RTG.CSSTransition>
           </div>
+
+          {this.renderNoteModal()}
+          {this.renderTemplateModal()}
         </HeightedWrapper>
       </>
     );

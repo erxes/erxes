@@ -1,4 +1,4 @@
-import { automationFields } from './queries';
+import { automationFields, automationNoteFields } from './queries';
 
 const commonFields = `
   $name: String,
@@ -14,6 +14,20 @@ const commonVariables = `
   actions: $actions,
 `;
 
+const noteFields = `
+  $automationId: String, 
+  $triggerId: String, 
+  $actionId: String, 
+  $description: String
+`;
+
+const noteVariables = `
+  automationId: $automationId, 
+  triggerId: $triggerId, 
+  actionId: $actionId, 
+  description: $description
+`;
+
 const automationsAdd = `
   mutation automationsAdd(${commonFields}) {
     automationsAdd(${commonVariables}) {
@@ -23,9 +37,17 @@ const automationsAdd = `
 `;
 
 const automationsSaveAsTemplate = `
-  mutation automationsSaveAsTemplate(${commonFields}) {
-    automationsSaveAsTemplate(${commonVariables}) {
+  mutation automationsSaveAsTemplate($_id: String!, $name: String!) {
+    automationsSaveAsTemplate(_id: $_id, name: $name) {
       ${automationFields}
+    }
+  }
+`;
+
+const automationsCreateFromTemplate = `
+  mutation automationsCreateFromTemplate($_id: String) {
+    automationsCreateFromTemplate(_id: $_id) {
+      _id
     }
   }
 `;
@@ -44,9 +66,37 @@ const automationsRemove = `
   }
 `;
 
+const automationsAddNote = `
+  mutation automationsAddNote(${noteFields}) {
+    automationsAddNote(${noteVariables}) {
+      ${automationNoteFields}
+    }
+  }
+`;
+
+const automationsEditNote = `
+  mutation automationsEditNote($_id: String!, ${noteFields}) {
+    automationsEditNote(_id: $_id, ${noteVariables}) {
+      ${automationNoteFields}
+    }
+  }
+`;
+
+const automationsRemoveNote = `
+  mutation automationsRemoveNote($_id: String!) {
+    automationsRemoveNote(_id: $_id) {
+      _id
+    }
+  }
+`;
+
 export default {
   automationsAdd,
   automationsEdit,
   automationsSaveAsTemplate,
-  automationsRemove
+  automationsCreateFromTemplate,
+  automationsRemove,
+  automationsAddNote,
+  automationsRemoveNote,
+  automationsEditNote
 };

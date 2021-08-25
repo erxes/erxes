@@ -2,7 +2,7 @@ import { IAction } from 'modules/automations/types';
 import React from 'react';
 import { ModalFooter } from 'modules/common/styles/main';
 import Button from 'modules/common/components/Button';
-import FormSubmit from 'modules/automations/containers/forms/triggers/FormSubmit';
+import FormSubmit from 'modules/automations/containers/forms/triggers/subForms/FormSubmit';
 import { __ } from 'modules/common/utils';
 
 type Props = {

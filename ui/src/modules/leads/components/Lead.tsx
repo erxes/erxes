@@ -57,7 +57,6 @@ type State = {
   calloutBtnText?: string;
   theme: string;
   isRequireOnce?: boolean;
-  logoPreviewUrl?: string;
   isSkip?: boolean;
   color: string;
   logoPreviewStyle?: { opacity?: string };
@@ -106,7 +105,7 @@ class Lead extends React.Component<Props, State> {
       adminEmails: leadData.adminEmails || [],
       adminEmailTitle: leadData.adminEmailTitle || '',
       adminEmailContent: leadData.adminEmailContent || '',
-      thankTitle: leadData.thankTitle || 'Title',
+      thankTitle: leadData.thankTitle || 'Confirmation',
       thankContent: leadData.thankContent || 'Thank you.',
       attachments: leadData.attachments || [],
       redirectUrl: leadData.redirectUrl || '',
@@ -116,17 +115,16 @@ class Lead extends React.Component<Props, State> {
       brand: integration.brandId,
       channelIds: channels.map(item => item._id) || [],
       language: integration.languageCode,
-      title: integration.name,
-      calloutTitle: callout.title || 'Title',
-      bodyValue: callout.body || '',
+      title: integration.name || 'Create Form',
+      calloutTitle: callout.title || 'Call Out Title',
+      bodyValue: callout.body || 'Call Out Body',
       calloutBtnText: callout.buttonText || 'Start',
       color: '',
       logoPreviewStyle: {},
       defaultValue: {},
-      logo: '',
       formData: {
-        title: form.title || '',
-        description: form.description || '',
+        title: form.title || 'Form Title',
+        description: form.description || 'Form Description',
         buttonText: form.buttonText || 'Send',
         fields: [],
         type: form.type || '',
@@ -134,7 +132,7 @@ class Lead extends React.Component<Props, State> {
       },
       theme: leadData.themeColor || '#6569DF',
       isRequireOnce: leadData.isRequireOnce,
-      logoPreviewUrl: callout.featuredImage,
+      logo: callout.featuredImage,
       isSkip: callout.skip && true,
       carousel: callout.skip ? 'form' : 'callout',
 
@@ -192,7 +190,7 @@ class Lead extends React.Component<Props, State> {
           title: calloutTitle,
           body: this.state.bodyValue,
           buttonText: this.state.calloutBtnText,
-          featuredImage: this.state.logoPreviewUrl,
+          featuredImage: this.state.logo,
           skip: this.state.isSkip
         },
         rules: (rules || []).filter(rule => rule.condition && rule.value),
@@ -277,7 +275,7 @@ class Lead extends React.Component<Props, State> {
       bodyValue,
       color,
       theme,
-      logoPreviewUrl,
+      logo,
       thankTitle,
       thankContent,
       carousel,
@@ -330,7 +328,7 @@ class Lead extends React.Component<Props, State> {
                   bodyValue={bodyValue}
                   color={color}
                   theme={theme}
-                  image={logoPreviewUrl}
+                  image={logo}
                   skip={isSkip}
                 />
               </Step>
@@ -426,7 +424,7 @@ class Lead extends React.Component<Props, State> {
               type={type}
               color={color}
               theme={theme}
-              image={logoPreviewUrl}
+              image={logo}
               thankTitle={thankTitle}
               thankContent={thankContent}
               skip={isSkip}

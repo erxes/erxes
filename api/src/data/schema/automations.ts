@@ -34,6 +34,8 @@ export const types = `
   type AutomationNote {
     _id: String
     description: String
+    triggerId: String
+    actionId: String
     createdUser: User
     createdAt: Date
   }
@@ -41,6 +43,19 @@ export const types = `
   type AutomationsListResponse {
     list: [Automation],
     totalCount: Float,
+  }
+
+  type AutomationHistory {
+    _id: String
+    automationId: String
+    triggerId: String
+    triggerType: String
+    actionId: String
+    actionType: String
+    description: String
+    createdAt: Date
+    createdBy: String
+    target: JSON
   }
 
   input TriggerInput {
@@ -81,7 +96,8 @@ export const queries = `
   automationsMain(${queryParams}): AutomationsListResponse
   automations(${queryParams}): [Automation]
   automationDetail(_id: String!): Automation
-  automationNotes(automationId: String): [AutomationNote]
+  automationNotes(automationId: String!, triggerId: String, actionId: String): [AutomationNote]
+  automationHistories(automationId: String): [AutomationHistory]
 `;
 
 const commonFields = `
@@ -103,7 +119,7 @@ export const mutations = `
   automationsEdit(_id: String, ${commonFields}): Automation
   automationsRemove(automationIds: [String]): [String]
   
-  automationsSaveAsTemplate(${commonFields}): Automation
+  automationsSaveAsTemplate(_id: String!, name: String!): Automation
   automationsCreateFromTemplate(_id: String): Automation
 
   automationsAddNote(${commonNoteFields}): AutomationNote

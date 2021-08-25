@@ -6,6 +6,7 @@ import { RightMenuContainer } from 'modules/boards/styles/rightMenu';
 import { Contents } from 'modules/layout/styles';
 import { rgba } from 'modules/common/styles/color';
 import { DateWrapper } from 'modules/forms/styles';
+import { HeaderContent } from 'modules/boards/styles/item';
 
 export const Container = styled.div`
   padding: ${dimensions.coreSpacing}px;
@@ -18,10 +19,42 @@ export const Container = styled.div`
 
   #canvas {
     position: relative;
+    height: 100%;
+
+    .show-action-menu .custom-menu {
+      visibility: visible;
+    }
+
+    .note-badge {
+      position: absolute;
+      right: -${dimensions.unitSpacing}px;
+      bottom: -${dimensions.unitSpacing}px;
+      width: 35px;
+      height: 35px;
+      line-height: 35px;
+      text-align: center;
+      border-radius: 35px;
+      border: 1px solid ${colors.borderDarker};
+      background: ${colors.colorWhite};
+      transition: all ease 0.3s;
+
+      > i {
+        color: ${colors.colorCoreGray};
+        font-size: 16px;
+      }
+
+      &:hover {
+        box-shadow: 0 0 2px 0 rgba(0, 0, 0, 0.4);
+      }
+    }
 
     .custom-menu {
       z-index: 1000;
       position: absolute;
+      right: 0;
+      margin: 0;
+      top: -35px;
+      visibility: hidden;
 
       i {
         background: #e3deee;
@@ -34,9 +67,9 @@ export const Container = styled.div`
         transition: all ease 0.3s;
 
         &.note {
-          background: #f5f0e1;
-          color: ${colors.colorCoreYellow};
-          border: 1px solid ${colors.colorCoreYellow};
+          background: ${rgba(colors.colorSecondary, 0.12)};
+          color: ${colors.colorSecondary};
+          border: 1px solid ${colors.colorSecondary};
         }
 
         &.delete-control {
@@ -108,16 +141,6 @@ export const Container = styled.div`
           color: ${colors.colorSecondary};
         }
       }
-
-      > i {
-        width: 20px;
-        height: 20px;
-        line-height: 20px;
-        text-align: center;
-        border-radius: 20px;
-        color: ${colors.colorWhite};
-        background: ${colors.colorCoreGreen};
-      }
     }
 
     > p {
@@ -154,10 +177,10 @@ export const Container = styled.div`
 
   .action {
     .trigger-header {
-      background: ${rgba(colors.colorCoreYellow, 0.12)};
+      background: ${rgba(colors.colorCoreOrange, 0.12)};
 
-      div > i {
-        color: ${colors.colorCoreYellow} !important;
+      i {
+        color: ${colors.colorCoreOrange} !important;
       }
     }
   }
@@ -222,17 +245,19 @@ export const ActionBox = styledTS<{
     }
     span {
       padding-left: ${dimensions.unitSpacing}px;
-      color: ${colors.colorCoreYellow};
+      color: ${colors.colorCoreOrange};
       font-weight: 500;
     }
   }
 
   .favourite-action {
     position: absolute;
+    width: 30px;
+    text-align: right;
     right: ${dimensions.coreSpacing}px;
 
     > i {
-      color: ${props => props.isFavourite && colors.colorCoreYellow}
+      color: ${props => props.isFavourite && colors.colorCoreOrange}
     }
   }
 `;
@@ -324,6 +349,8 @@ export const TypeBox = styled(CenterFlexRow)`
   margin-top: ${dimensions.unitSpacing}px;
   transition: all ease 0.3s;
   cursor: pointer;
+  display: flex;
+  justify-content: space-between;
 
   label {
     cursor: pointer;
@@ -342,6 +369,10 @@ export const TypeBox = styled(CenterFlexRow)`
     border-color: ${colors.colorSecondary};
     box-shadow: 0px 8px 20px rgba(79, 51, 175, 0.24),
       0px 2px 6px rgba(79, 51, 175, 0.16), 0px 0px 1px rgba(79, 51, 175, 0.08);
+  }
+
+  .ctrl i {
+    padding: 0 5px;
   }
 `;
 
@@ -389,6 +420,43 @@ export const AutomationFormContainer = styled(Contents)`
 export const ScrolledContent = styled.div`
   flex: 1;
   overflow: auto;
+`;
+
+export const Notes = styled.div`
+  max-height: 600px;
+  overflow: auto;
+  margin-bottom: ${dimensions.coreSpacing}px;
+  padding-right: ${dimensions.coreSpacing}px;
+
+  .column {
+    border-bottom: 1px solid ${colors.borderDarker};
+    margin-bottom: ${dimensions.coreSpacing}px;
+
+    > div {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+
+      > div > div {
+        flex-direction: column;
+        align-items: flex-start;
+        padding-left: ${dimensions.unitSpacing}px;
+
+        time {
+          padding: 0;
+        }
+      }
+
+      i {
+        font-size: 13px;
+      }
+    }
+
+    > p {
+      color: ${colors.textPrimary};
+      margin-top: ${dimensions.unitSpacing}px;
+    }
+  }
 `;
 
 export const TriggerTabs = styled.div`
@@ -663,4 +731,78 @@ export const DrawerDetail = styled.div`
 export const ActionFooter = styled.div`
   position: absolute;
   bottom: ${dimensions.coreSpacing}px;
+`;
+
+export const NoteContainer = styled.div``;
+
+export const ZoomActions = styled.div`
+  display: flex;
+  flex-direction: column;
+  position: absolute;
+  align-items: center;
+  font-size: 11px;
+  z-index: 999;
+
+  > .icon-wrapper {
+    border: 1px solid ${colors.borderDarker};
+    border-radius: 4px;
+    padding: 3px;
+    margin-bottom: 5px;
+
+    > i {
+      display: block;
+      font-weight: 500;
+      font-size: 11px;
+      padding: 0 3px;
+      cursor: pointer;
+      background: ${colors.colorWhite};
+
+      &:before {
+        font-weight: 700;
+      }
+
+      &:first-child {
+        border-bottom: 1px solid ${colors.borderDarker};
+        padding-bottom: 3px;
+      }
+    }
+  }
+`;
+
+export const BoardHeader = styled(HeaderContent)`
+  .header-row {
+    display: flex;
+    justify-content: space-between;
+
+    > span {
+      color: ${colors.colorSecondary};
+      font-weight: 500;
+      cursor: pointer;
+    }
+  }
+`;
+
+export const Attributes = styled.ul`
+  list-style: none;
+  margin: 0;
+  right: 20px;
+  height: 250px;
+  overflow: auto;
+  padding: ${dimensions.unitSpacing}px;
+  border-radius: ${dimensions.unitSpacing - 5}px;
+
+  b {
+    margin-bottom: ${dimensions.unitSpacing - 5}px;
+  }
+
+  li {
+    color: ${colors.colorCoreGray};
+    padding-bottom: ${dimensions.unitSpacing - 5}px;
+    cursor: pointer;
+    transition: all ease 0.3s;
+
+    &:hover {
+      color: ${colors.textPrimary};
+    }
+  }
 `;
