@@ -1,10 +1,10 @@
-import gql from "graphql-tag";
-import * as React from "react";
-import client from "../../../apollo-client";
-import { formConnectMutation } from "../../../form/graphql";
-import { __, requestBrowserInfo } from "../../../utils";
-import { connection } from "../../connection";
-import LeadContent from "./LeadContent";
+import gql from 'graphql-tag';
+import * as React from 'react';
+import client from '../../../apollo-client';
+import { formConnectMutation } from '../../../form/graphql';
+import { __, requestBrowserInfo } from '../../../utils';
+import { connection } from '../../connection';
+import LeadContent from './LeadContent';
 
 interface IState {
   loading: boolean;
@@ -25,7 +25,7 @@ class LeadConnect extends React.PureComponent<Props, IState> {
 
   saveBrowserInfo() {
     requestBrowserInfo({
-      source: "fromMessenger",
+      source: 'fromMessenger',
       callback: browserInfo => {
         connection.browserInfo = browserInfo;
       }
@@ -48,11 +48,11 @@ class LeadConnect extends React.PureComponent<Props, IState> {
 
         if (!response) {
           this.setState({ hasError: true });
-          throw new Error("Integration not found");
+          throw new Error('Integration not found');
         }
 
         // save connection info
-        connection.leadData = response;
+        connection.leadData[formCode] = response;
 
         this.setState({ loading: false });
 
@@ -67,14 +67,14 @@ class LeadConnect extends React.PureComponent<Props, IState> {
 
   render() {
     if (this.state.hasError) {
-      return <h4>{__("Failed")}</h4>;
+      return <h4>{__('Failed')}</h4>;
     }
 
     if (this.state.loading) {
       return <div className="loader" />;
     }
 
-    return <LeadContent />;
+    return <LeadContent formCode={this.props.formCode} />;
   }
 }
 

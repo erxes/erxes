@@ -1,5 +1,5 @@
-import { ICallout } from "./form/types";
-import { IAttachment, IWebsiteApp } from "./messenger/types";
+import { ICallout } from './form/types';
+import { IAttachment, IWebsiteApp } from './messenger/types';
 
 export type ENV = {
   API_URL: string;
@@ -113,7 +113,7 @@ export interface IIntegrationMessengerData {
   supporterIds: string[];
   notifyCustomer: boolean;
   knowledgeBaseTopicId: string;
-  formCode: string;
+  formCodes: string[];
   websiteApps?: IWebsiteApp[];
   availabilityMethod: string;
   isOnline: boolean;

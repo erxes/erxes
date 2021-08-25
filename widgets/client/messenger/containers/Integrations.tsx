@@ -1,18 +1,18 @@
-import * as React from "react";
-import { Integrations } from "../components";
-import { connection } from "../connection";
-import { AppConsumer } from "./AppContext";
+import * as React from 'react';
+import { Integrations } from '../components';
+import { connection } from '../connection';
+import { AppConsumer } from './AppContext';
 
 const container = () => {
   return (
     <AppConsumer>
       {({ getMessengerData }) => {
-        const { formCode, showChat, websiteApps } = getMessengerData();
+        const { formCodes, showChat, websiteApps } = getMessengerData();
 
         return (
           <Integrations
             brandCode={connection.setting.brand_id}
-            formCode={formCode}
+            formCodes={formCodes}
             websiteApps={websiteApps}
             hideConversations={!showChat}
           />

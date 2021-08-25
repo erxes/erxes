@@ -1,17 +1,17 @@
-import * as React from "react";
+import * as React from 'react';
 import {
   increaseViewCount,
   saveLead,
   sendEmail
-} from "../../../form/containers/utils";
+} from '../../../form/containers/utils';
 import {
   ICurrentStatus,
   IForm,
   IFormDoc,
   ISaveFormResponse
-} from "../../../form/types";
-import { IEmailParams, IIntegration } from "../../../types";
-import { connection } from "../../connection";
+} from '../../../form/types';
+import { IEmailParams, IIntegration } from '../../../types';
+import { connection } from '../../connection';
 
 interface IState {
   currentStatus: ICurrentStatus;
@@ -20,11 +20,11 @@ interface IState {
 }
 
 interface IStore extends IState {
-  save: (doc: IFormDoc) => void;
+  save: (doc: IFormDoc, formCode: string) => void;
   createNew: () => void;
   sendEmail: (params: IEmailParams) => void;
-  getIntegration: () => IIntegration;
-  getForm: () => IForm;
+  getIntegration: (formCode: string) => IIntegration;
+  getForm: (formCode: string) => IForm;
   showForm: () => void;
 }
 
@@ -37,7 +37,7 @@ export class LeadProvider extends React.Component<{}, IState> {
     super(props);
 
     this.state = {
-      currentStatus: { status: "INITIAL" },
+      currentStatus: { status: 'INITIAL' },
       isCallOutVisible: true
     };
   }
@@ -45,29 +45,29 @@ export class LeadProvider extends React.Component<{}, IState> {
   /*
    * Increasing view count
    */
-  increaseViewCount = () => {
-    const form = this.getForm();
+  increaseViewCount = (formCode: string) => {
+    const form = this.getForm(formCode);
     increaseViewCount(form._id);
   };
 
   /*
    * Save user submissions
    */
-  save = (doc: IFormDoc) => {
+  save = (doc: IFormDoc, formCode: string) => {
     this.setState({ isSubmitting: true });
 
     saveLead({
       doc,
       browserInfo: connection.browserInfo,
-      integrationId: this.getIntegration()._id,
-      formId: this.getForm()._id,
+      integrationId: this.getIntegration(formCode)._id,
+      formId: this.getForm(formCode)._id,
       saveCallback: (response: ISaveFormResponse) => {
         const { status, errors } = response;
 
         this.setState({
           isSubmitting: false,
           currentStatus: {
-            status: status === "ok" ? "SUCCESS" : "ERROR",
+            status: status === 'ok' ? 'SUCCESS' : 'ERROR',
             errors
           }
         });
@@ -79,15 +79,15 @@ export class LeadProvider extends React.Component<{}, IState> {
    * Redisplay form component after submission
    */
   createNew = () => {
-    this.setState({ currentStatus: { status: "INITIAL" } });
+    this.setState({ currentStatus: { status: 'INITIAL' } });
   };
 
-  getIntegration = () => {
-    return connection.leadData.integration;
+  getIntegration = (formCode: string) => {
+    return connection.leadData[formCode].integration;
   };
 
-  getForm = () => {
-    return connection.leadData.form;
+  getForm = (formCode: string) => {
+    return connection.leadData[formCode].form;
   };
 
   showForm = () => {
