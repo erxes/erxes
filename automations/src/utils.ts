@@ -116,16 +116,23 @@ export const executeActions = async (
     tags = tags.filter(t => !action.config.names.includes(t));
   }
 
-  if (action.type === ACTIONS.CREATE_TASK) {
-    await addBoardItem({ action, execution, type: 'task' });
-  }
+  if (
+    action.type === ACTIONS.CREATE_TASK ||
+    action.type === ACTIONS.CREATE_TICKET ||
+    action.type === ACTIONS.CREATE_DEAL
+  ) {
+    const type = action.type.substring(6).toLocaleLowerCase();
 
-  if (action.type === ACTIONS.CREATE_TICKET) {
-    await addBoardItem({ action, execution, type: 'ticket' });
-  }
+    await AutomationHistories.createHistory({
+      actionId: currentActionId,
+      actionType: action.type,
+      triggerType,
+      description: `Created a ${type}`,
+      automationId: execution.automationId,
+      target: execution.target
+    });
 
-  if (action.type === ACTIONS.CREATE_DEAL) {
-    await addBoardItem({ action, execution, type: 'deal' });
+    await addBoardItem({ action, execution, type });
   }
 
   if (action.type === ACTIONS.REMOVE_DEAL) {
@@ -205,31 +212,21 @@ export const receiveTrigger = async ({
   type: TriggerType;
   targets: any[];
 }) => {
-  console.log('target length: ', targets.length);
   for (const target of targets) {
     const automations = await Automations.find({
       status: 'active',
       'triggers.type': { $in: [type] }
     });
 
-    console.log('automations length: ', automations.length);
-
     if (!automations.length) {
       return;
     }
 
     for (const automation of automations) {
-      console.log('automations triggers length: ', automation.triggers.length);
-
       for (const trigger of automation.triggers) {
         if (trigger.type !== type) {
           continue;
         }
-
-        await AutomationHistories.createHistory({
-          description: 'Met enrollement criteria',
-          automationId: automation._id
-        });
 
         const execution = await calculateExecution({
           automationId: automation._id,
@@ -240,6 +237,14 @@ export const receiveTrigger = async ({
         });
 
         if (execution) {
+          await AutomationHistories.createHistory({
+            triggerId: trigger.id,
+            triggerType: trigger.type,
+            description: 'Met enrollement criteria',
+            automationId: automation._id,
+            target
+          });
+
           await executeActions(
             trigger.type,
             execution,

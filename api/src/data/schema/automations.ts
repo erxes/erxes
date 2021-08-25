@@ -49,10 +49,13 @@ export const types = `
     _id: String
     automationId: String
     triggerId: String
+    triggerType: String
     actionId: String
+    actionType: String
     description: String
     createdAt: Date
     createdBy: String
+    target: JSON
   }
 
   input TriggerInput {

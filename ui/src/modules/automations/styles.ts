@@ -769,7 +769,7 @@ export const ZoomActions = styled.div`
   }
 `;
 
-export const BoarHeader = styled(HeaderContent)`
+export const BoardHeader = styled(HeaderContent)`
   .header-row {
     display: flex;
     justify-content: space-between;

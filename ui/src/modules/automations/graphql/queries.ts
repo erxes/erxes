@@ -107,6 +107,9 @@ export const automationHistories = `
   query automationHistories($automationId: String) {
     automationHistories(automationId: $automationId) {
       _id
+      target
+      triggerType
+      actionType
       description
       createdAt
     }

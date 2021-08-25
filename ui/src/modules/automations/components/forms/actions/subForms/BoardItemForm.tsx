@@ -2,8 +2,6 @@ import BoardSelect from 'modules/boards/containers/BoardSelect';
 import { SelectContainer } from 'modules/boards/styles/common';
 import { HeaderRow } from 'modules/boards/styles/item';
 import React from 'react';
-import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
-import Popover from 'react-bootstrap/Popover';
 import {
   ControlLabel,
   FormControl,
@@ -12,9 +10,8 @@ import {
 
 import { IAction } from 'modules/automations/types';
 import Common from '../Common';
-import { BoarHeader, Attributes } from 'modules/automations/styles';
-import Icon from 'modules/common/components/Icon';
-import { ATTRIBUTIONS } from '../constants';
+import { BoardHeader } from 'modules/automations/styles';
+import Attribution from '../Attribution';
 
 type Props = {
   closeModal: () => void;
@@ -32,9 +29,6 @@ type State = {
 };
 
 class BoardItemForm extends React.Component<Props, State> {
-  // private ref;
-  private overlay: any;
-
   constructor(props) {
     super(props);
 
@@ -46,10 +40,6 @@ class BoardItemForm extends React.Component<Props, State> {
     };
   }
 
-  hideContent = () => {
-    this.overlay.hide();
-  };
-
   componentWillReceiveProps(nextProps) {
     if (nextProps.activeAction !== this.props.activeAction) {
       this.setState({ config: nextProps.activeAction.config });
@@ -59,15 +49,6 @@ class BoardItemForm extends React.Component<Props, State> {
   onChangeField = (name: string, value: string) => {
     const { config } = this.state;
     config[name] = value;
-
-    this.setState({ config });
-  };
-
-  onClickAttribute = item => {
-    this.overlay.hide();
-
-    const { config } = this.state;
-    config.cardName = `${config.cardName} {{ ${item.value} }}`;
 
     this.setState({ config });
   };
@@ -118,57 +99,21 @@ class BoardItemForm extends React.Component<Props, State> {
     this.setState({ config });
   };
 
-  renderContent() {
-    return (
-      <Popover id="attribute-popover">
-        <Attributes>
-          {Object.keys(ATTRIBUTIONS).map((key, index) => {
-            const title = key;
-            const items = ATTRIBUTIONS[key];
-
-            return (
-              <React.Fragment key={index}>
-                <b>{title}</b>
-                {items.map(item => (
-                  <li
-                    key={item.value}
-                    onClick={this.onClickAttribute.bind(this, item)}
-                  >
-                    {item.label}
-                  </li>
-                ))}
-              </React.Fragment>
-            );
-          })}
-        </Attributes>
-      </Popover>
-    );
-  }
-
   renderName() {
     const config = this.state.config;
 
     return (
       <SelectContainer>
         <HeaderRow>
-          <BoarHeader>
+          <BoardHeader>
             <FormGroup>
               <div className="header-row">
                 <ControlLabel required={true}>Name</ControlLabel>
-                <OverlayTrigger
-                  ref={overlay => {
-                    this.overlay = overlay;
-                  }}
-                  trigger="click"
-                  placement="top"
-                  overlay={this.renderContent()}
-                  rootClose={true}
-                  container={this}
-                >
-                  <span>
-                    Attribution <Icon icon="angle-down" />
-                  </span>
-                </OverlayTrigger>
+                <Attribution
+                  inputName="cardName"
+                  config={this.state.config}
+                  setConfig={config => this.setState({ config })}
+                />
               </div>
               <FormControl
                 name="name"
@@ -176,7 +121,7 @@ class BoardItemForm extends React.Component<Props, State> {
                 onChange={this.onChangeName}
               />
             </FormGroup>
-          </BoarHeader>
+          </BoardHeader>
         </HeaderRow>
       </SelectContainer>
     );

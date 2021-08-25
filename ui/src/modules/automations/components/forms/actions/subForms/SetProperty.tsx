@@ -2,7 +2,7 @@ import React from 'react';
 import Select from 'react-select-plus';
 import { IAction } from 'modules/automations/types';
 import Common from '../Common';
-import { DrawerDetail } from 'modules/automations/styles';
+import { BoardHeader, DrawerDetail } from 'modules/automations/styles';
 import FormGroup from 'modules/common/components/form/Group';
 import ControlLabel from 'modules/common/components/form/Label';
 import {
@@ -12,6 +12,7 @@ import {
 } from '../constants';
 import { __ } from 'modules/common/utils';
 import FormControl from 'modules/common/components/form/Control';
+import Attribution from '../Attribution';
 
 type Props = {
   closeModal: () => void;
@@ -103,10 +104,18 @@ class SetProperty extends React.Component<Props, State> {
           />
         </FormGroup>
 
-        <FormGroup>
-          <ControlLabel>Value</ControlLabel>
-          <FormControl onChange={onChangeValue} value={config.value} />
-        </FormGroup>
+        <BoardHeader>
+          <FormGroup>
+            <div className="header-row">
+              <ControlLabel required={true}>Value</ControlLabel>
+              <Attribution
+                config={this.state.config}
+                setConfig={config => this.setState({ config })}
+              />
+            </div>
+            <FormControl onChange={onChangeValue} value={config.value} />
+          </FormGroup>
+        </BoardHeader>
       </DrawerDetail>
     );
   }
