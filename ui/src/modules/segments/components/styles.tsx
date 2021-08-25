@@ -54,8 +54,10 @@ const ResultCount = styled.div`
 `;
 
 const FilterBox = styled.div`
+  overflow: auto;
+  height: 500px;
   padding: ${dimensions.coreSpacing}px;
-  background: ${colors.bgLight};
+  background: #f8f7fc;
   border: 1px solid ${colors.borderPrimary};
   border-radius: 4px;
   margin-bottom: 20px;
@@ -95,7 +97,32 @@ const AddSegmentButton = styled.div`
   margin-top: 40px;
 `;
 
+const OperatorList = styled.div`
+  padding: 0 ${dimensions.coreSpacing}px;
+  flex: 1;
+
+  h3 {
+    text-transform: capitalize;
+    margin: 0 0 ${dimensions.coreSpacing}px 0;
+    font-size: ${dimensions.coreSpacing}px;
+  }
+
+  label {
+    display: block;
+    margin-bottom: ${dimensions.unitSpacing}px;
+  }
+
+  p {
+    margin-top: ${dimensions.unitSpacing}px;
+  }
+  p:hover {
+    cursor: pointer;
+    text-decoration: underline;
+  }
+`;
+
 export {
+  OperatorList,
   AddSegmentButton,
   ConjunctionButtons,
   SegmentWrapper,

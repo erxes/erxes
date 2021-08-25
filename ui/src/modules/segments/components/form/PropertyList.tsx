@@ -5,8 +5,6 @@ import ControlLabel from 'modules/common/components/form/Label';
 import { __ } from 'modules/common/utils';
 import { IField } from 'modules/segments/types';
 import React from 'react';
-import { ConditionItem } from 'modules/segmentsOld/components/styles';
-import { FlexContent, FlexItem } from 'modules/layout/styles';
 import { PROPERTY_TYPES } from '../constants';
 import PropertyForm from './PropertyForm';
 
@@ -74,40 +72,6 @@ class PropertyList extends React.Component<Props, State> {
   renderGroups = () => {
     const objects = this.groupByType();
 
-    return Object.keys(objects).map(key => {
-      return (
-        <>
-          <ControlLabel>{key}</ControlLabel>
-
-          {this.renderFields(objects[key])}
-        </>
-      );
-    });
-  };
-
-  renderFieldDetail = () => {
-    const { chosenField } = this.state;
-
-    if (chosenField) {
-      return (
-        <PropertyForm onClickBack={this.onClickBack} field={chosenField} />
-      );
-    }
-
-    return;
-  };
-
-  renderContent = () => {
-    const { chosenField } = this.state;
-
-    if (!chosenField) {
-      return this.renderGroups();
-    }
-
-    return this.renderFieldDetail();
-  };
-
-  render() {
     const { contentType, fetchFields } = this.props;
     const { propertyType } = this.state;
 
@@ -133,21 +97,42 @@ class PropertyList extends React.Component<Props, State> {
       );
     };
 
-    return (
-      <>
-        <ConditionItem>
-          <FlexContent>
-            <FlexItem count={3} hasSpace={true}>
-              <FormGroup>
-                <ControlLabel>Property type</ControlLabel>
-                {generateSelect()}
-              </FormGroup>
-            </FlexItem>
-          </FlexContent>
-        </ConditionItem>
-        {this.renderContent()}
-      </>
-    );
+    return Object.keys(objects).map(key => {
+      return (
+        <>
+          <FormGroup>
+            <ControlLabel>Property type</ControlLabel>
+            {generateSelect()}
+          </FormGroup>
+
+          <ControlLabel>{key}</ControlLabel>
+
+          {this.renderFields(objects[key])}
+        </>
+      );
+    });
+  };
+
+  renderFieldDetail = () => {
+    const { chosenField } = this.state;
+
+    if (chosenField) {
+      return (
+        <PropertyForm onClickBack={this.onClickBack} field={chosenField} />
+      );
+    }
+
+    return;
+  };
+
+  render() {
+    const { chosenField } = this.state;
+
+    if (!chosenField) {
+      return this.renderGroups();
+    }
+
+    return this.renderFieldDetail();
   }
 }
 

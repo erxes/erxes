@@ -12,7 +12,7 @@ type Props = {
 };
 
 type State = {
-  chosenOperator?: object;
+  chosenOperator?: any;
 };
 
 class PropertyForm extends React.Component<Props, State> {
@@ -22,14 +22,40 @@ class PropertyForm extends React.Component<Props, State> {
     this.state = { chosenOperator: undefined };
   }
 
-  onClickOperator = value => {
-    console.log(value);
-    this.setState({ chosenOperator: value });
+  onClickOperator = operator => {
+    this.setState({ chosenOperator: operator });
+  };
+
+  renderInput = operator => {
+    const { chosenOperator } = this.state;
+
+    if (
+      chosenOperator &&
+      chosenOperator.value === operator.value &&
+      !operator.noInput
+    ) {
+      return (
+        <FormControl>
+          <div>aaa</div>;
+        </FormControl>
+      );
+    }
+
+    return;
+  };
+
+  isChecked = operator => {
+    const { chosenOperator } = this.state;
+
+    if (chosenOperator) {
+      return operator.value === chosenOperator.value;
+    }
+
+    return false;
   };
 
   renderOperators = () => {
     const { field } = this.props;
-    const { chosenOperator } = this.state;
 
     const { type } = field;
 
@@ -40,12 +66,13 @@ class PropertyForm extends React.Component<Props, State> {
         <>
           <FormControl
             componentClass="checkbox"
-            onChange={this.onClickOperator.bind(this, operator.value)}
+            onChange={this.onClickOperator.bind(this, operator)}
             value={operator.value}
-            checked={operator.value === chosenOperator}
+            checked={this.isChecked(operator)}
           >
             {operator.name}
           </FormControl>
+          {this.renderInput(operator)}
         </>
       );
     });
@@ -55,11 +82,11 @@ class PropertyForm extends React.Component<Props, State> {
     const { onClickBack, field } = this.props;
 
     return (
-      <div>
+      <>
         <p onClick={onClickBack.bind(this)}>back</p>
         <ControlLabel>{field.label}</ControlLabel>
         <FormGroup>{this.renderOperators()}</FormGroup>
-      </div>
+      </>
     );
   }
 }

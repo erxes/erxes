@@ -8,7 +8,26 @@ export const PROPERTY_TYPES = {
     { label: 'Task', value: 'task' },
     { label: 'Ticket', value: 'ticket' },
     { label: 'Form Submission', value: 'form_submission' }
-  ]
+  ],
+
+  lead: [
+    { label: 'Customer', value: 'customer' },
+    { label: 'Company', value: 'company' },
+    { label: 'Deal', value: 'deal' },
+    { label: 'Task', value: 'task' },
+    { label: 'Ticket', value: 'ticket' },
+    { label: 'Form Submission', value: 'form_submission' }
+  ],
+  visitor: [
+    { label: 'Customer', value: 'customer' },
+    { label: 'Company', value: 'company' },
+    { label: 'Deal', value: 'deal' },
+    { label: 'Task', value: 'task' },
+    { label: 'Ticket', value: 'ticket' },
+    { label: 'Form Submission', value: 'form_submission' }
+  ],
+  task: [{ label: 'task', value: 'task' }],
+  ticket: [{ label: 'ticket', value: 'ticket' }]
 };
 
 export const OPERATORS = {

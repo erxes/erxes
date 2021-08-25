@@ -1,6 +1,7 @@
 import PropertyList from 'modules/segments/containers/form/PropertyList';
 import { ISegment } from 'modules/segments/types';
 import React from 'react';
+import { OperatorList } from '../styles';
 
 type Props = {
   segment: ISegment;
@@ -30,7 +31,7 @@ class ConditionsList extends React.Component<Props, State> {
     return <div>'asdsad'</div>;
   };
 
-  render() {
+  renderContent = () => {
     const { state } = this.state;
 
     switch (state) {
@@ -40,6 +41,10 @@ class ConditionsList extends React.Component<Props, State> {
       default:
         return this.conditionsList();
     }
+  };
+
+  render() {
+    return <OperatorList>{this.renderContent()}</OperatorList>;
   }
 }
 

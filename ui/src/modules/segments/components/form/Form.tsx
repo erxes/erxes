@@ -21,7 +21,7 @@ import ConditionsList from './ConditionsList';
 import { ColorPick, ColorPicker } from 'modules/settings/styles';
 import React from 'react';
 import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
-import { SegmentWrapper } from 'modules/segmentsOld/components/styles';
+import { FilterBox, SegmentWrapper } from '../styles';
 
 type Props = {
   contentType: string;
@@ -200,7 +200,8 @@ class SegmentFormAutomations extends React.Component<Props, State> {
     return (
       <>
         {this.renderDetailForm(formProps)}
-        {this.renderConditionsList()}
+
+        <FilterBox>{this.renderConditionsList()}</FilterBox>
 
         <ModalFooter id="button-group">
           <Button.Group>
