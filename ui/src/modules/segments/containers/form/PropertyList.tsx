@@ -22,6 +22,8 @@ type Props = {
   segment: ISegmentMap;
   contentType: string;
   addCondition: (condition: ISegmentCondition, segmentKey: string) => void;
+  onClickBackToList: () => void;
+  hideBackButton: boolean;
 };
 
 type FinalProps = {

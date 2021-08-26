@@ -51,6 +51,7 @@ type State = {
   description: string;
   subOf: string;
   color: string;
+  conditionsConjunction: string;
 
   segments: ISegmentMap[];
   state: string;
@@ -66,6 +67,7 @@ class SegmentFormAutomations extends React.Component<Props, State> {
       description: '',
       subOf: '',
       color: generateRandomColorCode(),
+      conditionsConjunction: 'and',
       getConditionSegments: [
         {
           contentType: props.contentType || 'customer',
@@ -90,7 +92,7 @@ class SegmentFormAutomations extends React.Component<Props, State> {
     this.state = {
       ...segment,
       segments,
-      state: 'list',
+      state: '',
       chosenSegment: undefined
     };
   }
@@ -248,6 +250,10 @@ class SegmentFormAutomations extends React.Component<Props, State> {
     }
   };
 
+  onClickBackToList = () => {
+    this.setState({ chosenSegment: undefined, state: 'list' });
+  };
+
   removeSegment = (segmentKey: string) => {
     const segments = [...this.state.segments];
 
@@ -284,9 +290,18 @@ class SegmentFormAutomations extends React.Component<Props, State> {
     });
   };
 
+  changeConditionsConjunction = (value: string) => {
+    return this.setState({ conditionsConjunction: value });
+  };
+
   renderConditionsList = () => {
     const { contentType } = this.props;
-    const { segments, state, chosenSegment } = this.state;
+    const {
+      segments,
+      state,
+      chosenSegment,
+      conditionsConjunction
+    } = this.state;
 
     if (state !== 'form') {
       return segments.map((segment, index) => {
@@ -294,7 +309,10 @@ class SegmentFormAutomations extends React.Component<Props, State> {
           <>
             <ConditionsList
               key={Math.random()}
+              conditionsConjunction={conditionsConjunction}
+              changeConditionsConjunction={this.changeConditionsConjunction}
               addNewProperty={this.addNewProperty}
+              onClickBackToList={this.onClickBackToList}
               removeCondition={this.removeCondition}
               removeSegment={this.removeSegment}
               contentType={contentType}
@@ -310,6 +328,8 @@ class SegmentFormAutomations extends React.Component<Props, State> {
     if (chosenSegment) {
       return (
         <PropertyList
+          hideBackButton={false}
+          onClickBackToList={this.onClickBackToList}
           contentType={contentType}
           segment={chosenSegment}
           addCondition={this.addCondition}

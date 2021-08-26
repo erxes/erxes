@@ -3,7 +3,7 @@ import { IField, ISegmentCondition, ISegmentMap } from 'modules/segments/types';
 import React from 'react';
 import Select from 'react-select-plus';
 import FormControl from 'modules/common/components/form/Control';
-import { DEFAULT_OPERATORS, OPERATORS } from '../constants';
+import { OPERATORS } from '../constants';
 import { OperatorList } from '../styles';
 import { Formgroup } from 'modules/common/components/form/styles';
 import { CenterContent } from 'erxes-ui/lib/styles/main';
@@ -123,7 +123,7 @@ class PropertyForm extends React.Component<Props, State> {
 
     const { type } = field;
 
-    const operators = OPERATORS[type || ''] || DEFAULT_OPERATORS;
+    const operators = OPERATORS[type || ''] || OPERATORS.string;
 
     return operators.map(operator => {
       return (

@@ -1,7 +1,6 @@
 import { colors, dimensions, typography } from 'modules/common/styles';
 import { FlexItem } from 'modules/layout/styles';
 import styled from 'styled-components';
-import styledTS from 'styled-components-ts';
 
 const SegmentTitle = styled.h3`
   font-size: 12px;
@@ -103,13 +102,8 @@ const SubProperties = styled.div`
   padding-left: 40px;
 `;
 
-const ConjunctionButtons = styledTS<{ isGeneral: boolean }>(styled.div)`
-  margin-bottom: ${props => props.isGeneral && '40px'};
-  margin-top: ${props => props.isGeneral && '40px'};
-
-  button {
-    width: 60px !important;
-  }
+const ConjunctionButtons = styled.div`
+  margin-top: 30px;
 `;
 
 const AddSegmentButton = styled.div`

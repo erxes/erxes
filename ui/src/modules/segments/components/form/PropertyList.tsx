@@ -19,6 +19,8 @@ type Props = {
   fetchFields: (propertyType: string, pipelineId?: string) => void;
   segment: ISegmentMap;
   addCondition: (condition: ISegmentCondition, segmentKey: string) => void;
+  onClickBackToList: () => void;
+  hideBackButton: boolean;
 };
 
 type State = {
@@ -67,6 +69,8 @@ class PropertyList extends React.Component<Props, State> {
 
   onClickBack = () => {
     this.setState({ chosenField: undefined });
+
+    this.props.onSearch('');
   };
 
   renderFields = fields => {
@@ -122,7 +126,12 @@ class PropertyList extends React.Component<Props, State> {
   };
 
   render() {
-    const { contentType, fetchFields } = this.props;
+    const {
+      contentType,
+      fetchFields,
+      onClickBackToList,
+      hideBackButton
+    } = this.props;
     const { chosenField, propertyType } = this.state;
 
     const options = PROPERTY_TYPES[contentType];
@@ -150,9 +159,13 @@ class PropertyList extends React.Component<Props, State> {
     if (!chosenField) {
       return (
         <>
-          <SegmentBackIcon onClick={this.onClickBack}>
-            <Icon icon="angle-left" size={20} /> back
-          </SegmentBackIcon>
+          {hideBackButton ? (
+            <SegmentBackIcon onClick={onClickBackToList}>
+              <Icon icon="angle-left" size={20} /> back
+            </SegmentBackIcon>
+          ) : (
+            <></>
+          )}
 
           <FormGroup>
             <ControlLabel>Property type</ControlLabel>
@@ -176,7 +189,12 @@ class PropertyList extends React.Component<Props, State> {
         <SegmentBackIcon onClick={this.onClickBack}>
           <Icon icon="angle-left" size={20} /> back
         </SegmentBackIcon>
-        {this.renderFieldDetail()}
+        <PropertyForm
+          {...this.props}
+          onClickBack={this.onClickBack}
+          propertyType={propertyType}
+          field={chosenField}
+        />
       </>
     );
   }

@@ -312,7 +312,7 @@ class Filter extends React.Component<Props, State> {
       }
 
       return (
-        <ConjunctionButtons isGeneral={false}>
+        <ConjunctionButtons>
           <Button.Group hasGap={false}>
             <Button btnStyle={btnStyleAnd} onClick={onClickAnd}>
               {__('And')}
