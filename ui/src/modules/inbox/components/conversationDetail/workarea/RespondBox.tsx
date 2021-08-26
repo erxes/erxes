@@ -29,7 +29,7 @@ import { IIntegration } from '../../../../settings/integrations/types';
 import { IResponseTemplate } from '../../../../settings/responseTemplates/types';
 import { AddMessageMutationVariables, IConversation } from '../../../types';
 import FacebookTaggedMessageModal from './facebook/FacebookTaggedMessageModal';
-import { FacebookTaggedMessage } from './styles';
+import { FacebookTaggedMessage, Char } from './styles';
 
 const Editor = asyncComponent(
   () => import(/* webpackChunkName: "Editor-in-Inbox" */ './Editor'),
@@ -68,7 +68,7 @@ type State = {
   editorKey: string;
   loading: object;
   facebookMessageTag: string;
-  characterCount:number;
+  characterCount: number;
 };
 class RespondBox extends React.Component<Props, State> {
   constructor(props) {
@@ -86,9 +86,19 @@ class RespondBox extends React.Component<Props, State> {
       mentionedUserIds: [],
       loading: {},
       facebookMessageTag: '',
-      characterCount:160
+      characterCount: 160
     };
   }
+  // onChangeContent(e){
+  //   // const { characterCount } = this.state;
+  //   // if(characterCount >= 0 ){
+
+  //   console.log(e)
+  //     this.setState({ content: (e.target as HTMLInputElement).value,
+  //       characterCount: this.calcCharacterCount(160, (e.target as HTMLInputElement).value) });
+  //   // }
+  //   // e.preventDefault();
+  // }
 
   isContentWritten() {
     const { content } = this.state;
@@ -135,15 +145,17 @@ class RespondBox extends React.Component<Props, State> {
 
   // save editor current content to state
   onEditorContentChange = (content: string) => {
-    this.setState({ content });
+    const { characterCount } = this.state;
 
-    this.calcCharacterCount(160, content);
-
-    if (this.isContentWritten()) {
-      localStorage.setItem(this.props.conversation._id, content);   
-    }
-    if (!this.isContentWritten()) {
-      this.setState({ characterCount:160 });  
+    if (characterCount >= 0) {
+      this.setState({
+        content,
+        characterCount: this.calcCharacterCount(160, content)
+      });
+      if (this.isContentWritten()) {
+        localStorage.setItem(this.props.conversation._id, content);
+      }
+      console.log('>0 uyd ajillalaaa', characterCount);
     }
   };
 
@@ -272,16 +284,24 @@ class RespondBox extends React.Component<Props, State> {
   cleanText(text: string) {
     return text.replace(/&nbsp;/g, ' ');
   }
-  calcCharacterCount = (maxChar: number, content: string) => {
-    let dom = new DOMParser().parseFromString(content, 'text/html');
-    let text = dom.body.textContent;
 
-    if( text && text.length > 0){
-      let characterCount= maxChar - text.length;
-      this.setState({characterCount})
+  calcCharacterCount = (maxlength: number, cont: string) => {
+    const { content } = this.state;
+
+    if (!content) {
+      return maxlength;
     }
-    
-  }
+
+    let ret = maxlength - content.length;
+    return ret > 0 ? ret : 0;
+  };
+  checkCharacterCount = e => {
+    console.log(this.state.characterCount);
+    if (this.state.characterCount <= 0) {
+      e.preventDefault();
+      console.log('<===000000');
+    }
+  };
 
   addMessage = () => {
     const { conversation, sendMessage } = this.props;
@@ -382,6 +402,7 @@ class RespondBox extends React.Component<Props, State> {
 
     return null;
   }
+
   renderFacebookTagMessage() {
     const selectTag = value => {
       this.setState({ facebookMessageTag: value });
@@ -408,8 +429,14 @@ class RespondBox extends React.Component<Props, State> {
 
     return null;
   }
+
+  renderCharCount() {
+    const { characterCount } = this.state;
+    return <Char count={characterCount}>{characterCount}</Char>;
+  }
+
   renderEditor() {
-    const { isInternal, responseTemplate ,characterCount} = this.state;
+    const { isInternal, responseTemplate } = this.state;
     const { responseTemplates, conversation } = this.props;
 
     let type = 'message';
@@ -423,23 +450,25 @@ class RespondBox extends React.Component<Props, State> {
     );
 
     return (
-      <Editor
-        currentConversation={conversation._id}
-        defaultContent={this.getUnsendMessage(conversation._id)}
-        integrationKind={conversation.integration.kind}
-        key={this.state.editorKey}
-        onChange={this.onEditorContentChange}
-        onAddMention={this.onAddMention}
-        onAddMessage={this.addMessage}
-        onSearchChange={this.onSearchChange}
-        placeholder={placeholder}
-        mentions={this.props.teamMembers}
-        showMentions={isInternal}
-        responseTemplate={responseTemplate}
-        responseTemplates={responseTemplates}
-        handleFileInput={this.handleFileInput}
-        characterCount={characterCount}
-      />
+      <div onKeyDown={this.checkCharacterCount}>
+        {this.renderCharCount}
+        <Editor
+          currentConversation={conversation._id}
+          defaultContent={this.getUnsendMessage(conversation._id)}
+          integrationKind={conversation.integration.kind}
+          key={this.state.editorKey}
+          onChange={this.onEditorContentChange}
+          onAddMention={this.onAddMention}
+          onAddMessage={this.addMessage}
+          onSearchChange={this.onSearchChange}
+          placeholder={placeholder}
+          mentions={this.props.teamMembers}
+          showMentions={isInternal}
+          responseTemplate={responseTemplate}
+          responseTemplates={responseTemplates}
+          handleFileInput={this.handleFileInput}
+        />
+      </div>
     );
   }
 
