@@ -123,6 +123,83 @@ export const loadClass = () => {
       );
     }
 
+    public static companyFieldNames() {
+      const names: string[] = [];
+
+      companySchema.eachPath(name => {
+        names.push(name);
+
+        const path = companySchema.paths[name];
+
+        if (path.schema) {
+          path.schema.eachPath(subName => {
+            names.push(`${name}.${subName}`);
+          });
+        }
+      });
+
+      return names;
+    }
+
+    public static fixListFields(
+      doc: any,
+      trackedData: any[] = [],
+      company?: ICompanyDocument
+    ) {
+      let emails: string[] = doc.emails || [];
+      let phones: string[] = doc.phones || [];
+      let names: string[] = doc.names || [];
+
+      // extract basic fields from customData
+      for (const name of this.companyFieldNames()) {
+        trackedData = trackedData.filter(e => e.field !== name);
+      }
+
+      trackedData = trackedData.filter(e => e.field !== 'name');
+
+      doc.trackedData = trackedData;
+
+      if (company) {
+        emails = Array.from(new Set([...(company.emails || []), ...emails]));
+        phones = Array.from(new Set([...(company.phones || []), ...phones]));
+        names = Array.from(new Set([...(company.names || []), ...names]));
+      }
+
+      if (doc.email) {
+        if (!emails.includes(doc.email)) {
+          emails.push(doc.email);
+        }
+
+        doc.primaryEmail = doc.email;
+
+        delete doc.email;
+      }
+
+      if (doc.phone) {
+        if (!phones.includes(doc.phone)) {
+          phones.push(doc.phone);
+        }
+
+        doc.primaryPhone = doc.phone;
+
+        delete doc.phone;
+      }
+
+      if (doc.name) {
+        if (!names.includes(doc.name)) {
+          names.push(doc.name);
+        }
+
+        delete doc.name;
+      }
+
+      doc.emails = emails;
+      doc.phones = phones;
+      doc.names = names;
+
+      return doc;
+    }
+
     public static async findActiveCompanies(selector, fields) {
       return Companies.find(
         { ...selector, status: { $ne: 'deleted' } },
@@ -154,6 +231,8 @@ export const loadClass = () => {
         doc.ownerId = user._id;
       }
 
+      this.fixListFields(doc, doc.trackedData);
+
       // clean custom field values
       doc.customFieldsData = await Fields.prepareCustomFieldsData(
         doc.customFieldsData
@@ -181,6 +260,10 @@ export const loadClass = () => {
     public static async updateCompany(_id: string, doc: ICompany) {
       // Checking duplicated fields of company
       await Companies.checkDuplication(doc, [_id]);
+
+      const company = await Companies.getCompany(_id);
+
+      this.fixListFields(doc, doc.trackedData, company);
 
       // clean custom field values
       if (doc.customFieldsData) {

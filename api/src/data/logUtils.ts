@@ -91,6 +91,7 @@ interface IContentTypeParams {
 
 export interface IVisitorLogParams {
   visitorId: string;
+  scopeBrandIds?: string[];
   integrationId?: string;
   location?: IBrowserInfo;
 }
@@ -928,7 +929,7 @@ const gatherPipelineTemplateFieldNames = async (
   }
 
   options = await gatherUsernames({
-    idFields: [doc.createdBy],
+    idFields: [doc.createdBy || ''],
     foreignKey: 'createdBy',
     prevList: options
   });

@@ -8,4 +8,10 @@ const notificationSubscription = `
   }
 `;
 
-export default { notificationSubscription };
+const notificationRead = `
+	subscription notificationRead($userId: String) {
+		notificationRead(userId: $userId)
+  }
+`;
+
+export default { notificationSubscription, notificationRead };

@@ -1,12 +1,12 @@
 import { IUser } from 'modules/auth/types';
 import React from 'react';
 import RTG from 'react-transition-group';
-import { IFeature } from '../types';
+import { IFeature, IRoleValue } from '../types';
 import { getCurrentUserName } from '../utils';
 import Onboarding from './onboard/Onboarding';
+import Setup from './Setup';
 import { Content } from './styles';
 import Suggestion from './Suggestion';
-import Todo from './Todo';
 
 type Props = {
   availableFeatures: IFeature[];
@@ -21,17 +21,32 @@ type Props = {
 
 type State = {
   welcomeStep: number;
+  roleValue: IRoleValue;
+  answerOf: IRoleValue;
 };
 
 class AssistantContent extends React.Component<Props, State> {
   constructor(props) {
     super(props);
 
-    this.state = { welcomeStep: 0 };
+    this.state = {
+      welcomeStep: 0,
+      roleValue: { value: 'sales', label: 'Sales' } as IRoleValue,
+      answerOf: {} as IRoleValue
+    };
   }
 
   restartOnboard = () => {
     this.setState({ welcomeStep: 1 });
+    this.props.changeRoute('initial');
+  };
+
+  restartRole = (roleValue: IRoleValue, answerOf: IRoleValue) => {
+    this.setState({
+      welcomeStep: 1,
+      roleValue,
+      answerOf
+    });
     this.props.changeRoute('initial');
   };
 
@@ -55,11 +70,24 @@ class AssistantContent extends React.Component<Props, State> {
       changeRoute('todoList');
     };
 
+    const getRoleOptions = (roleValue: IRoleValue) => {
+      this.setState({ roleValue });
+    };
+
+    const getAnswerOf = (answerOf: IRoleValue) => {
+      this.setState({ answerOf });
+    };
+
     const onBoarding = (
       <Onboarding
+        getRoleOptions={getRoleOptions}
+        getAnswerOf={getAnswerOf}
         currentUserName={getCurrentUserName(currentUser)}
         changeRoute={changeRoute}
         activeStep={this.state.welcomeStep}
+        roleValue={this.state.roleValue}
+        answerOf={this.state.answerOf}
+        toggleContent={this.props.toggleContent}
       />
     );
 
@@ -75,8 +103,15 @@ class AssistantContent extends React.Component<Props, State> {
       return <Suggestion {...commonProps} onResumeClick={onClick} />;
     }
 
-    if (currentRoute === 'todoList' || currentRoute === 'todoDetail') {
-      return <Todo {...this.props} restartOnboard={this.restartOnboard} />;
+    if (currentRoute === 'setupList' || currentRoute === 'setupDetail') {
+      return (
+        <Setup
+          {...this.props}
+          roleValue={this.state.roleValue}
+          restartRole={this.restartRole}
+          answerOf={this.state.answerOf}
+        />
+      );
     }
 
     return null;

@@ -1,10 +1,12 @@
 import { ArchiveStatus } from 'modules/boards/styles/item';
 import Icon from 'modules/common/components/Icon';
 import { CloseModal } from 'modules/common/styles/main';
-import { __ } from 'modules/common/utils';
+import { __, router as routerUtils } from 'modules/common/utils';
+import { withRouter } from 'react-router-dom';
 import React from 'react';
 import Modal from 'react-bootstrap/Modal';
 import { IEditFormContent, IItem, IItemParams, IOptions } from '../../types';
+import { IRouterProps } from 'modules/common/types';
 
 type Props = {
   options: IOptions;
@@ -19,7 +21,8 @@ type Props = {
   saveItem: (doc, callback?: (item) => void) => void;
   isPopupVisible?: boolean;
   hideHeader?: boolean;
-};
+  refresh: boolean;
+} & IRouterProps;
 
 type State = {
   stageId?: string;
@@ -31,8 +34,11 @@ class EditForm extends React.Component<Props, State> {
   constructor(props) {
     super(props);
 
+    const item = props.item;
+
     this.state = {
-      stageId: props.item.stageId
+      stageId: item.stageId,
+      updatedItem: item
     };
   }
 
@@ -83,8 +89,24 @@ class EditForm extends React.Component<Props, State> {
   };
 
   onHideModal = () => {
+    const { history, refresh } = this.props;
+
+    if (refresh) {
+      routerUtils.setParams(history, { key: Math.random() });
+    }
+
     this.closeModal(() => {
-      const { updatedItem, prevStageId } = this.state;
+      const { prevStageId, updatedItem } = this.state;
+
+      if (updatedItem) {
+        const itemName = localStorage.getItem(`${updatedItem._id}Name`) || '';
+
+        if (itemName && updatedItem.name !== itemName) {
+          this.saveItem({ itemName });
+        }
+
+        localStorage.removeItem(`${updatedItem._id}Name`);
+      }
 
       if (updatedItem && this.props.onUpdate) {
         this.props.onUpdate(updatedItem, prevStageId);
@@ -147,4 +169,4 @@ class EditForm extends React.Component<Props, State> {
   }
 }
 
-export default EditForm;
+export default withRouter(EditForm);
