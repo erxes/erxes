@@ -207,7 +207,7 @@ class Condition extends React.Component<Props, State> {
   render() {
     return (
       <>
-        <ConditionItem>
+        <ConditionItem useMargin={false}>
           <FilterRow>
             <FilterProperty>{this.renderNames()}</FilterProperty>
 

@@ -332,7 +332,7 @@ class Filter extends React.Component<Props, State> {
     const { index } = this.props;
 
     return (
-      <ConditionItem>
+      <ConditionItem useMargin={false}>
         <FilterRow>
           {index > 0 ? (
             <FilterProperty>{this.renderConjunction()}</FilterProperty>

@@ -6,10 +6,11 @@ import { CenterContent } from 'erxes-ui/lib/styles/main';
 import { __ } from 'modules/common/utils';
 import React from 'react';
 import {
+  Condition,
   ConditionItem,
   ConditionRemove,
   ConjunctionButtons,
-  FilterBox,
+  ConjunctionButtonsVertical,
   FilterProperty,
   FilterRow
 } from '../styles';
@@ -96,7 +97,11 @@ class ConditionsList extends React.Component<Props, State> {
 
   renderSubSegmentConjunction = () => {
     const { segment, changeSubSegmentConjunction } = this.props;
-    const { conditionsConjunction } = segment;
+    const { conditionsConjunction, conditions } = segment;
+
+    if (conditions && conditions.length <= 1) {
+      return <></>;
+    }
 
     const onClickAnd = () => {
       changeSubSegmentConjunction(segment.key, 'and');
@@ -115,24 +120,30 @@ class ConditionsList extends React.Component<Props, State> {
     }
 
     return (
-      <CenterContent>
-        <ConjunctionButtons>
-          <Button.Group hasGap={false}>
-            <Button size="small" onClick={onClickAnd} btnStyle={btnStyleAnd}>
-              {__('And')}
-            </Button>
-            <Button size="small" onClick={onClickOr} btnStyle={btnSyleOr}>
-              {__('Or')}
-            </Button>
-          </Button.Group>
-        </ConjunctionButtons>
-      </CenterContent>
+      <ConjunctionButtonsVertical>
+        <Button.Group hasGap={false}>
+          <Button size="small" onClick={onClickAnd} btnStyle={btnStyleAnd}>
+            <span>And</span>
+          </Button>
+          <Button size="small" onClick={onClickOr} btnStyle={btnSyleOr}>
+            <span>Or</span>
+          </Button>
+        </Button.Group>
+      </ConjunctionButtonsVertical>
     );
   };
 
   renderCondition(condition: ISegmentCondition) {
+    const { conditions } = this.props.segment;
+
+    let useMargin = true;
+
+    if (conditions && conditions.length <= 1) {
+      useMargin = false;
+    }
+
     return (
-      <ConditionItem key={Math.random()}>
+      <ConditionItem useMargin={useMargin} key={Math.random()}>
         <FilterRow>
           <FilterProperty>{condition.propertyName}</FilterProperty>
 
@@ -170,12 +181,13 @@ class ConditionsList extends React.Component<Props, State> {
             onClick={this.removeSegment}
           />
         </ConditionRemove>
-        <FilterBox>
-          {conditions.map(condition => {
-            return this.renderCondition(condition);
-          })}
-
-          {this.renderSubSegmentConjunction()}
+        <Condition>
+          <div style={{ position: 'relative' }}>
+            {this.renderSubSegmentConjunction()}
+            {conditions.map(condition => {
+              return this.renderCondition(condition);
+            })}
+          </div>
 
           <Button
             size="small"
@@ -185,7 +197,7 @@ class ConditionsList extends React.Component<Props, State> {
           >
             Add property
           </Button>
-        </FilterBox>
+        </Condition>
       </div>
     );
   }

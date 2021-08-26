@@ -1,6 +1,7 @@
 import { colors, dimensions, typography } from 'modules/common/styles';
 import { FlexItem } from 'modules/layout/styles';
 import styled from 'styled-components';
+import styledTS from 'styled-components-ts';
 
 const SegmentTitle = styled.h3`
   font-size: 12px;
@@ -21,11 +22,12 @@ const SegmentWrapper = styled.div`
   padding: ${dimensions.coreSpacing}px;
 `;
 
-const ConditionItem = styled.div`
+const ConditionItem = styledTS<{ useMargin: boolean }>(styled.div)`
   margin-bottom: ${dimensions.coreSpacing}px;
   display: flex;
   align-items: center;
 
+  margin-left: ${props => props.useMargin && '40px'};
   button.round {
     padding: 4px 8px;
     margin-left: 20px;
@@ -81,6 +83,7 @@ const FilterBox = styled.div`
     margin-top: ${dimensions.unitSpacing}px;
     font-weight: 500;
   }
+
   label {
     display: block;
   }
@@ -104,6 +107,29 @@ const SubProperties = styled.div`
 
 const ConjunctionButtons = styled.div`
   margin-top: 30px;
+`;
+
+const ConjunctionButtonsVertical = styled.div`
+  position: absolute;
+  left: -10px;
+  top: 50%;
+  transform: translateY(-50%);
+
+  button {
+    display: block;
+    padding: 10px 5px;
+    border-radius: 0 10px 0 0 !important;
+    width: 25px;
+
+    &:last-child {
+      border-radius: 0 0 10px 0 !important;
+    }
+
+    span {
+      display: block;
+      transform: rotate(90deg);
+    }
+  }
 `;
 
 const AddSegmentButton = styled.div`
@@ -151,7 +177,33 @@ const SegmentBackIcon = styled.div`
   }
 `;
 
+const Condition = styled.div`
+  overflow: auto;
+  border: 1px solid #523297;
+  padding: ${dimensions.unitSpacing}px;
+  margin-top: ${dimensions.unitSpacing}px;
+  border-radius: 5px;
+  margin-bottom: ${dimensions.unitSpacing}px;
+
+  b {
+    text-transform: uppercase;
+    display: block;
+    margin-bottom: ${dimensions.unitSpacing}px;
+  }
+
+  p {
+    margin-top: ${dimensions.unitSpacing}px;
+    font-weight: 500;
+  }
+
+  label {
+    display: block;
+  }
+`;
+
 export {
+  ConjunctionButtonsVertical,
+  Condition,
   SegmentBackIcon,
   ConditionRemove,
   OperatorList,

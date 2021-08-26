@@ -55,6 +55,7 @@ type State = {
 
   segments: ISegmentMap[];
   state: string;
+  showAddGroup: boolean;
   chosenSegment?: ISegmentMap;
 };
 
@@ -63,6 +64,7 @@ class SegmentFormAutomations extends React.Component<Props, State> {
     super(props);
 
     let state = 'form';
+    let showAddGroup = true;
 
     const segment: ISegment = props.segment || {
       name: '',
@@ -82,7 +84,9 @@ class SegmentFormAutomations extends React.Component<Props, State> {
       !props.segment ||
       (props.segment && props.segment.getConditionSegments.length > 0)
     ) {
+      console.log('sdajkdjl');
       state = 'list';
+      showAddGroup = false;
     }
 
     const segments = segment.getConditionSegments.map((item: ISegment) => ({
@@ -100,6 +104,7 @@ class SegmentFormAutomations extends React.Component<Props, State> {
 
     this.state = {
       ...segment,
+      showAddGroup,
       segments,
       state,
       chosenSegment: undefined
@@ -369,11 +374,22 @@ class SegmentFormAutomations extends React.Component<Props, State> {
   };
 
   renderFilterItem = () => {
-    const { state } = this.state;
+    const { state, showAddGroup } = this.state;
+
+    let show = false;
+
+    if (state === 'list') {
+      show = true;
+    }
+
+    if (!showAddGroup) {
+      show = false;
+    }
+
     return (
       <FilterBox>
         {this.renderConditionsList()}
-        {state === 'list' ? (
+        {show ? (
           <Button
             onClick={this.addSegment}
             size="small"
