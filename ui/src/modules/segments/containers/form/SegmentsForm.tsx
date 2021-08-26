@@ -7,7 +7,6 @@ import { BoardsQueryResponse } from 'modules/boards/types';
 import ButtonMutate from 'modules/common/components/ButtonMutate';
 import { IButtonMutateProps } from 'modules/common/types';
 import { withProps } from 'modules/common/utils';
-import { queries as formQueries } from 'modules/forms/graphql';
 import React from 'react';
 import { graphql } from 'react-apollo';
 import SegmentsForm from '../../components/form/SegmentsForm';
@@ -56,14 +55,6 @@ class SegmentsFormContainer extends React.Component<
     };
   }
 
-  componentWillMount() {
-    const { headSegmentsQuery } = this.props;
-
-    headSegmentsQuery.refetch();
-
-    this.fetchFields();
-  }
-
   renderButton = ({
     name,
     values,
@@ -91,8 +82,6 @@ class SegmentsFormContainer extends React.Component<
       if (addConfig && activeTrigger) {
         const result = values._id ? data.segmentsEdit : data.segmentsAdd;
 
-        console.log(result, activeTrigger, activeTrigger.id);
-
         addConfig(activeTrigger, result._id, activeTrigger.id);
 
         closeModal();
@@ -112,28 +101,6 @@ class SegmentsFormContainer extends React.Component<
         } a ${name}`}
       />
     );
-  };
-
-  fetchFields = (pipelineId?: string) => {
-    const { id, contentType } = this.props;
-
-    client
-      .query({
-        query: gql(formQueries.fieldsCombinedByContentType),
-        variables: {
-          segmentId: id,
-          pipelineId,
-          contentType: ['visitor', 'lead', 'customer'].includes(contentType)
-            ? 'customer'
-            : contentType,
-          usageType: 'segment'
-        }
-      })
-      .then(({ data }) => {
-        this.setState({
-          fields: data.fieldsCombinedByContentType
-        });
-      });
   };
 
   previewCount = ({
@@ -204,7 +171,6 @@ class SegmentsFormContainer extends React.Component<
       events,
       renderButton: this.renderButton,
       previewCount: this.previewCount,
-      fetchFields: this.fetchFields,
       fields: this.state.fields,
       count: this.state.count,
       counterLoading: this.state.loading,

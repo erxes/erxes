@@ -22,7 +22,6 @@ type Props = {
   headSegments: ISegment[];
   segments: ISegment[];
   count: number;
-  fetchFields: (pipelineId?: string) => void;
   previewCount: (args: {
     conditions: ISegmentCondition[];
     subOf?: string;
@@ -77,7 +76,6 @@ const SegmentsForm = (props: Props) => {
     events,
     headSegments,
     boards,
-    fetchFields,
     isModal,
     closeModal,
     segments
@@ -103,8 +101,6 @@ const SegmentsForm = (props: Props) => {
       segment={segment}
       headSegments={headSegments}
       segments={segments}
-      fetchFields={fetchFields}
-      isForm={true}
       closeModal={closeModal}
       isModal={isModal}
     />

@@ -25,6 +25,10 @@ type Props = {
   removeCondition: (key: string, segmentKey?: string) => void;
   removeSegment: (segmentKey: string) => void;
   onClickBackToList: () => void;
+  changeSubSegmentConjunction: (
+    segmentKey: string,
+    conjunction: string
+  ) => void;
 };
 
 type State = {};
@@ -90,6 +94,62 @@ class ConditionsList extends React.Component<Props, State> {
     );
   };
 
+  renderSubSegmentConjunction = () => {
+    const { segment, changeSubSegmentConjunction } = this.props;
+    const { conditionsConjunction } = segment;
+
+    const onClickAnd = () => {
+      changeSubSegmentConjunction(segment.key, 'and');
+    };
+
+    const onClickOr = () => {
+      changeSubSegmentConjunction(segment.key, 'or');
+    };
+
+    let btnStyleAnd = 'default';
+    let btnSyleOr = 'simple';
+
+    if (conditionsConjunction === 'or') {
+      btnStyleAnd = 'simple';
+      btnSyleOr = 'default';
+    }
+
+    return (
+      <CenterContent>
+        <ConjunctionButtons>
+          <Button.Group hasGap={false}>
+            <Button size="small" onClick={onClickAnd} btnStyle={btnStyleAnd}>
+              {__('And')}
+            </Button>
+            <Button size="small" onClick={onClickOr} btnStyle={btnSyleOr}>
+              {__('Or')}
+            </Button>
+          </Button.Group>
+        </ConjunctionButtons>
+      </CenterContent>
+    );
+  };
+
+  renderCondition(condition: ISegmentCondition) {
+    return (
+      <ConditionItem key={Math.random()}>
+        <FilterRow>
+          <FilterProperty>{condition.propertyName}</FilterProperty>
+
+          <FlexRightItem>
+            <Button
+              className="round"
+              size="small"
+              btnStyle="simple"
+              icon="times"
+              onClick={this.removeCondition.bind(this, condition)}
+            />
+          </FlexRightItem>
+        </FilterRow>
+      </ConditionItem>
+    );
+  }
+
   render() {
     const { segment, index } = this.props;
     const { conditions } = segment;
@@ -112,23 +172,10 @@ class ConditionsList extends React.Component<Props, State> {
         </ConditionRemove>
         <FilterBox>
           {conditions.map(condition => {
-            return (
-              <ConditionItem key={Math.random()}>
-                <FilterRow>
-                  <FilterProperty>{condition.propertyName}</FilterProperty>
-                </FilterRow>
-                <FlexRightItem>
-                  <Button
-                    className="round"
-                    size="small"
-                    btnStyle="simple"
-                    icon="times"
-                    onClick={this.removeCondition.bind(this, condition)}
-                  />
-                </FlexRightItem>
-              </ConditionItem>
-            );
+            return this.renderCondition(condition);
           })}
+
+          {this.renderSubSegmentConjunction()}
 
           <Button
             size="small"

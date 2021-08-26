@@ -62,6 +62,8 @@ class SegmentFormAutomations extends React.Component<Props, State> {
   constructor(props) {
     super(props);
 
+    let state = 'form';
+
     const segment: ISegment = props.segment || {
       name: '',
       description: '',
@@ -75,6 +77,13 @@ class SegmentFormAutomations extends React.Component<Props, State> {
         }
       ]
     };
+
+    if (
+      !props.segment ||
+      (props.segment && props.segment.getConditionSegments.length > 0)
+    ) {
+      state = 'list';
+    }
 
     const segments = segment.getConditionSegments.map((item: ISegment) => ({
       _id: item._id,
@@ -92,7 +101,7 @@ class SegmentFormAutomations extends React.Component<Props, State> {
     this.state = {
       ...segment,
       segments,
-      state: '',
+      state,
       chosenSegment: undefined
     };
   }
@@ -294,6 +303,23 @@ class SegmentFormAutomations extends React.Component<Props, State> {
     return this.setState({ conditionsConjunction: value });
   };
 
+  changeSubSegmentConjunction = (segmentKey: string, conjunction: string) => {
+    const segments = [...this.state.segments];
+
+    const foundedSegment = segments.find(segment => segment.key === segmentKey);
+    const foundedSegmentIndex = segments.findIndex(
+      segment => segment.key === segmentKey
+    );
+
+    if (foundedSegment) {
+      foundedSegment.conditionsConjunction = conjunction;
+
+      segments[foundedSegmentIndex] = foundedSegment;
+
+      this.setState({ segments });
+    }
+  };
+
   renderConditionsList = () => {
     const { contentType } = this.props;
     const {
@@ -319,6 +345,7 @@ class SegmentFormAutomations extends React.Component<Props, State> {
               index={index}
               segment={segment}
               addCondition={this.addCondition}
+              changeSubSegmentConjunction={this.changeSubSegmentConjunction}
             />
           </>
         );
@@ -333,6 +360,7 @@ class SegmentFormAutomations extends React.Component<Props, State> {
           contentType={contentType}
           segment={chosenSegment}
           addCondition={this.addCondition}
+          changeSubSegmentConjunction={this.changeSubSegmentConjunction}
         />
       );
     }
@@ -363,7 +391,7 @@ class SegmentFormAutomations extends React.Component<Props, State> {
 
   generateDoc = (values: { _id?: string; conditionsConjunction: string }) => {
     const { contentType, segment } = this.props;
-    const { segments } = this.state;
+    const { segments, conditionsConjunction } = this.state;
     const finalValues = values;
 
     const conditionSegments: ISubSegment[] = [];
@@ -380,7 +408,7 @@ class SegmentFormAutomations extends React.Component<Props, State> {
 
     return {
       ...finalValues,
-      conditionsConjunction: 'and',
+      conditionsConjunction,
       contentType,
       conditionSegments
     };

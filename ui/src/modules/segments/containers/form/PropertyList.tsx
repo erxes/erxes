@@ -24,6 +24,10 @@ type Props = {
   addCondition: (condition: ISegmentCondition, segmentKey: string) => void;
   onClickBackToList: () => void;
   hideBackButton: boolean;
+  changeSubSegmentConjunction: (
+    segmentKey: string,
+    conjunction: string
+  ) => void;
 };
 
 type FinalProps = {
