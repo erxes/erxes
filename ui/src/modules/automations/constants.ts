@@ -1,7 +1,7 @@
 export const ACTIONS = [
   {
     type: 'if',
-    icon: 'share-alt',
+    icon: 'calcualtor',
     label: 'Branches',
     description: 'Create simple or if/then branches',
     isAvailable: true
@@ -41,7 +41,7 @@ export const ACTIONS = [
     label: 'Delay',
     description:
       'Delay the next action with a timeframe, a specific event or activity',
-    isAvailable: false
+    isAvailable: true
   },
   {
     type: 'workflow',
@@ -49,14 +49,6 @@ export const ACTIONS = [
     label: 'Workflow',
     description:
       'Enroll in another workflow,  trigger outgoing webhook or write custom code',
-    isAvailable: false
-  },
-  {
-    type: 'manageTags',
-    icon: 'tag',
-    label: 'Manage Tags',
-    description:
-      'Tag associated Contacts, Companies, or Team Inbox conversations',
     isAvailable: false
   },
   {

@@ -438,15 +438,10 @@ class AutomationForm extends React.Component<Props, State> {
   };
 
   checkNote = (activeId: string) => {
-    const { automationNotes } = this.props;
     const item = activeId.split('-');
     const type = item[0];
 
-    if (!automationNotes) {
-      return null;
-    }
-
-    const notes = automationNotes.filter(note => {
+    return (this.props.automationNotes || []).filter(note => {
       if (type === 'trigger' && note.triggerId !== item[1]) {
         return null;
       }
@@ -457,8 +452,6 @@ class AutomationForm extends React.Component<Props, State> {
 
       return note;
     });
-
-    return notes;
   };
 
   renderNotes(key: string) {
@@ -475,8 +468,6 @@ class AutomationForm extends React.Component<Props, State> {
 
   renderControl = (key: string, item: ITrigger | IAction, onClick: any) => {
     const idElm = `${key}-${item.id}`;
-
-    console.log('idElm: ', idElm);
 
     jquery('#canvas').append(`
       <div class="${key} control" id="${idElm}" style="${item.style}">
@@ -510,8 +501,6 @@ class AutomationForm extends React.Component<Props, State> {
     });
 
     if (key === 'trigger') {
-      console.log('instance: ', instance.getSelector(`#${idElm}`));
-
       instance.addEndpoint(idElm, sourceEndpoint, {
         anchor: [1, 0.5]
       });

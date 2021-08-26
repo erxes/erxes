@@ -1,6 +1,6 @@
 import React from 'react';
 import * as compose from 'lodash.flowright';
-import { mutations } from '../../graphql';
+import { mutations, queries } from '../../graphql';
 import { graphql } from 'react-apollo';
 import gql from 'graphql-tag';
 import NoteForm from 'modules/automations/components/forms/NoteForm';
@@ -50,14 +50,13 @@ const NoteFormContainer = (props: FinalProps) => {
     });
   };
 
-  const save = doc => {
+  const save = variables => {
     automationsAddNote({
-      variables: {
-        ...doc
-      }
+      variables
     })
-      .then(data => {
+      .then(() => {
         Alert.success(`You successfully created a note`);
+
         props.closeModal();
       })
 
@@ -66,14 +65,12 @@ const NoteFormContainer = (props: FinalProps) => {
       });
   };
 
-  const edit = doc => {
+  const edit = variables => {
     automationsEditNote({
-      variables: {
-        ...doc
-      }
+      variables
     })
       .then(() => {
-        Alert.success(`You successfully updated a ${doc.name || 'note'}`);
+        Alert.success(`You successfully updated a ${variables.name || 'note'}`);
         props.closeModal();
       })
 
@@ -103,16 +100,23 @@ export default withProps<Props>(
         }
       }
     ),
-    graphql<{}, AddNoteMutationResponse, IAutomationNoteDoc>(
+    graphql<Props, AddNoteMutationResponse, IAutomationNoteDoc>(
       gql(mutations.automationsAddNote),
       {
         name: 'automationsAddNote',
-        options: () => ({
-          refetchQueries: ['automationNotes']
+        options: ({ automationId }) => ({
+          refetchQueries: [
+            {
+              query: gql(queries.automationNotes),
+              variables: {
+                automationId
+              }
+            }
+          ]
         })
       }
     ),
-    graphql<{}, EditNoteMutationResponse, IAutomationNoteDoc>(
+    graphql<Props, EditNoteMutationResponse, IAutomationNoteDoc>(
       gql(mutations.automationsEditNote),
       {
         name: 'automationsEditNote',
