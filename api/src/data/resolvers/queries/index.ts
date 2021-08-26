@@ -45,6 +45,7 @@ import users from './users';
 import webhooks from './webhooks';
 import widgets from './widgets';
 import smsDeliveries from './smsDeliveries';
+import bookings from './bookings';
 
 export default {
   ...users,
@@ -90,5 +91,6 @@ export default {
   ...skillTypesQueries,
   ...skillQueries,
   ...messengerAppsQueries,
-  ...smsDeliveries
+  ...smsDeliveries,
+  ...bookings
 };

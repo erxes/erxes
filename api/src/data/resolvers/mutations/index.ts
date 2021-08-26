@@ -42,6 +42,7 @@ import tickets from './tickets';
 import users from './users';
 import webhooks from './webhooks';
 import widgets from './widgets';
+import bookings from './bookings';
 
 export default {
   ...users,
@@ -84,5 +85,6 @@ export default {
   ...calendars,
   ...dashboards,
   ...skillTypesMutations,
-  ...skillsMutations
+  ...skillsMutations,
+  ...bookings
 };
