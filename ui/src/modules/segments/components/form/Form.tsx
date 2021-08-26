@@ -82,11 +82,17 @@ class SegmentFormAutomations extends React.Component<Props, State> {
 
     if (
       !props.segment ||
-      (props.segment && props.segment.getConditionSegments.length > 0)
+      (props.segment && props.segment.getConditionSegments.length === 0)
     ) {
-      console.log('sdajkdjl');
       state = 'list';
       showAddGroup = false;
+    }
+
+    if (
+      props.segment ||
+      (props.segment && props.segment.getConditionSegments.length > 0)
+    ) {
+      state = 'list';
     }
 
     const segments = segment.getConditionSegments.map((item: ISegment) => ({
@@ -233,7 +239,7 @@ class SegmentFormAutomations extends React.Component<Props, State> {
 
       segments[foundedSegmentIndex] = foundedSegment;
 
-      this.setState({ segments, state: 'list' });
+      this.setState({ segments, state: 'list', showAddGroup: true });
     }
   };
 
@@ -374,12 +380,16 @@ class SegmentFormAutomations extends React.Component<Props, State> {
   };
 
   renderFilterItem = () => {
-    const { state } = this.state;
+    const { state, showAddGroup } = this.state;
 
     let show = false;
 
     if (state === 'list') {
       show = true;
+    }
+
+    if (!showAddGroup) {
+      show = false;
     }
 
     return (
@@ -417,6 +427,8 @@ class SegmentFormAutomations extends React.Component<Props, State> {
 
       conditionSegments.push(item);
     });
+
+    console.log('1323123', conditionSegments);
 
     return {
       ...finalValues,
