@@ -376,11 +376,11 @@ class AutomationForm extends React.Component<Props, State> {
       triggers.push(trigger);
     }
 
-    this.setState({ triggers, activeTrigger: trigger });
-
-    if (!triggerId) {
-      this.renderControl('trigger', trigger, this.onClickTrigger);
-    }
+    this.setState({ triggers, activeTrigger: trigger }, () => {
+      if (!triggerId) {
+        this.renderControl('trigger', trigger, this.onClickTrigger);
+      }
+    });
   };
 
   addAction = (
@@ -419,11 +419,11 @@ class AutomationForm extends React.Component<Props, State> {
       actions.push(action);
     }
 
-    this.setState({ actions, activeAction: action });
-
-    if (!actionId) {
-      this.renderControl('action', action, this.onClickAction);
-    }
+    this.setState({ actions, activeAction: action }, () => {
+      if (!actionId) {
+        this.renderControl('action', action, this.onClickAction);
+      }
+    });
   };
 
   onNameChange = (e: React.FormEvent<HTMLElement>) => {
@@ -476,6 +476,8 @@ class AutomationForm extends React.Component<Props, State> {
   renderControl = (key: string, item: ITrigger | IAction, onClick: any) => {
     const idElm = `${key}-${item.id}`;
 
+    console.log('idElm: ', idElm);
+
     jquery('#canvas').append(`
       <div class="${key} control" id="${idElm}" style="${item.style}">
         <div class="trigger-header">
@@ -508,11 +510,15 @@ class AutomationForm extends React.Component<Props, State> {
     });
 
     if (key === 'trigger') {
+      console.log('instance: ', instance.getSelector(`#${idElm}`));
+
       instance.addEndpoint(idElm, sourceEndpoint, {
         anchor: [1, 0.5]
       });
 
-      instance.draggable(instance.getSelector(`#${idElm}`));
+      if (instance.getSelector(`#${idElm}`).length > 0) {
+        instance.draggable(instance.getSelector(`#${idElm}`));
+      }
     }
 
     if (key === 'action') {
@@ -696,9 +702,9 @@ class AutomationForm extends React.Component<Props, State> {
   // }
 
   renderContent() {
-    const { automation } = this.props;
+    const { triggers, actions } = this.state;
 
-    if (!automation) {
+    if (triggers.length === 0 && actions.length === 0) {
       return (
         <Container>
           <div
@@ -712,7 +718,9 @@ class AutomationForm extends React.Component<Props, State> {
       );
     }
 
-    if (!this.state.isActionTab) {
+    const { automation } = this.props;
+
+    if (!this.state.isActionTab && automation) {
       return <Histories automationId={automation._id} />;
     }
 
