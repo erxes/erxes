@@ -11,9 +11,9 @@ import {
   ConditionRemove,
   ConjunctionButtons,
   ConjunctionButtonsVertical,
-  FilterProperty,
   FilterRow
 } from '../styles';
+import ConditionDetail from './ConditionDetail';
 
 type Props = {
   segment: ISegmentMap;
@@ -145,7 +145,7 @@ class ConditionsList extends React.Component<Props, State> {
     return (
       <ConditionItem useMargin={useMargin} key={Math.random()}>
         <FilterRow>
-          <FilterProperty>{condition.propertyName}</FilterProperty>
+          <ConditionDetail condition={condition} />
 
           <FlexRightItem>
             <Button

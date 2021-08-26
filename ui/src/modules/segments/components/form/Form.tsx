@@ -374,16 +374,12 @@ class SegmentFormAutomations extends React.Component<Props, State> {
   };
 
   renderFilterItem = () => {
-    const { state, showAddGroup } = this.state;
+    const { state } = this.state;
 
     let show = false;
 
     if (state === 'list') {
       show = true;
-    }
-
-    if (!showAddGroup) {
-      show = false;
     }
 
     return (

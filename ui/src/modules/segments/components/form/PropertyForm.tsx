@@ -152,7 +152,8 @@ class PropertyForm extends React.Component<Props, State> {
         propertyType,
         propertyName: field.value,
         propertyOperator: chosenOperator.value,
-        propertyValue: currentValue
+        propertyValue: currentValue,
+        propertyLabel: field.label
       },
       segment.key
     );

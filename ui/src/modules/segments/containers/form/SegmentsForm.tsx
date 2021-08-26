@@ -188,6 +188,7 @@ export default withProps<Props>(
       {
         name: 'segmentDetailQuery',
         options: ({ id }) => ({
+          fetchPolicy: 'network-only',
           variables: { _id: id }
         })
       }
