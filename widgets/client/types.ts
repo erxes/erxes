@@ -113,7 +113,7 @@ export interface IIntegrationMessengerData {
   supporterIds: string[];
   notifyCustomer: boolean;
   knowledgeBaseTopicId: string;
-  formCode: string;
+  formCodes: string[];
   websiteApps?: IWebsiteApp[];
   availabilityMethod: string;
   isOnline: boolean;
