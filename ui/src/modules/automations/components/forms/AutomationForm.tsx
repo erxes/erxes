@@ -678,18 +678,6 @@ class AutomationForm extends React.Component<Props, State> {
     return null;
   }
 
-  // renderZoomActions() {
-  //   return (
-  //     <ZoomActions>
-  //       <div className="icon-wrapper">
-  //         <Icon icon="plus" />
-  //         <Icon icon="minus" />
-  //       </div>
-  //       <span>100%</span>
-  //     </ZoomActions>
-  //   );
-  // }
-
   renderContent() {
     const { triggers, actions } = this.state;
 
@@ -715,7 +703,6 @@ class AutomationForm extends React.Component<Props, State> {
 
     return (
       <Container>
-        {/* {this.renderZoomActions()} */}
         <div id="canvas" />
       </Container>
     );
@@ -727,6 +714,8 @@ class AutomationForm extends React.Component<Props, State> {
     if (!showNoteForm) {
       return null;
     }
+
+    const { automation } = this.props;
 
     return (
       <Modal
@@ -740,9 +729,7 @@ class AutomationForm extends React.Component<Props, State> {
             renderContent={formProps => (
               <NoteFormContainer
                 formProps={formProps}
-                automationId={
-                  this.props.automation ? this.props.automation._id : ''
-                }
+                automationId={automation ? automation._id : ''}
                 isEdit={editNoteForm}
                 itemId={activeId}
                 notes={this.checkNote(activeId) || []}
