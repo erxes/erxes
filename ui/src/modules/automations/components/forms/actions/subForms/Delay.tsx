@@ -55,10 +55,10 @@ class SetProperty extends React.Component<Props, State> {
     return (
       <DrawerDetail>
         <FormGroup>
-          <ControlLabel>Type</ControlLabel>
+          <ControlLabel required={true}>{__('Type')}</ControlLabel>
 
           <Select
-            value={config.type}
+            value={config.type || 'hour'}
             options={[
               {
                 label: 'Hour',
@@ -70,7 +70,6 @@ class SetProperty extends React.Component<Props, State> {
               }
             ]}
             onChange={onChangeSelect.bind(this, 'type')}
-            placeholder={__('Choose type')}
             clearable={false}
           />
         </FormGroup>
@@ -78,7 +77,7 @@ class SetProperty extends React.Component<Props, State> {
         <BoardHeader>
           <FormGroup>
             <div className="header-row">
-              <ControlLabel required={true}>Value</ControlLabel>
+              <ControlLabel required={true}>{__('Value')}</ControlLabel>
             </div>
             <FormControl
               type="number"
