@@ -1,11 +1,11 @@
-import gql from 'graphql-tag';
-import * as React from 'react';
-import { ChildProps, graphql } from 'react-apollo';
-import { Callout, Form as DumbForm } from '../../../form/components';
-import { formDetailQuery } from '../../../form/graphql';
-import { ICurrentStatus, IForm, IFormDoc } from '../../../form/types';
-import { IEmailParams, IIntegration } from '../../../types';
-import { LeadConsumer, LeadProvider } from './LeadContext';
+import gql from "graphql-tag";
+import * as React from "react";
+import { ChildProps, graphql } from "react-apollo";
+import { Callout, Form as DumbForm } from "../../../form/components";
+import { formDetailQuery } from "../../../form/graphql";
+import { ICurrentStatus, IForm, IFormDoc } from "../../../form/types";
+import { IEmailParams, IIntegration } from "../../../types";
+import { LeadConsumer, LeadProvider } from "./LeadContext";
 
 const LeadContent = (props: ChildProps<IProps, QueryResponse>) => {
   const data = props.data;
@@ -14,7 +14,7 @@ const LeadContent = (props: ChildProps<IProps, QueryResponse>) => {
     return null;
   }
 
-  if (!data.formDetail || !(data.formDetail.title || '').trim()) {
+  if (!data.formDetail || !(data.formDetail.title || "").trim()) {
     return null;
   }
 
@@ -42,7 +42,7 @@ interface IProps {
 
 const FormWithData = graphql<IProps, QueryResponse>(gql(formDetailQuery), {
   options: ({ form }) => ({
-    fetchPolicy: 'network-only',
+    fetchPolicy: "network-only",
     variables: {
       _id: form._id
     }
@@ -70,7 +70,7 @@ const WithContext = ({ formCode }: { formCode: string }) => (
 
         if (isCallOutVisible && callout && !callout.skip) {
           return (
-            <Callout onSubmit={showForm} configs={callout || {}} color={''} />
+            <Callout onSubmit={showForm} configs={callout || {}} color={""} />
           );
         }
 
