@@ -28,10 +28,7 @@ import {
   IIntegrationDocument,
   IMessengerDataMessagesItem
 } from '../../../db/models/definitions/integrations';
-import {
-  IKnowledgebaseCredentials,
-  ILeadCredentials
-} from '../../../db/models/definitions/messengerApps';
+import { IKnowledgebaseCredentials } from '../../../db/models/definitions/messengerApps';
 import { debugError } from '../../../debuggers';
 import { trackViewPageEvent } from '../../../events';
 import { get, set } from '../../../inmemoryStorage';
