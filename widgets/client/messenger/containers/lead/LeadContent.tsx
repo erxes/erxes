@@ -35,7 +35,7 @@ interface IProps {
   integration: IIntegration;
   form: IForm;
   currentStatus: ICurrentStatus;
-  onSubmit: (doc: IFormDoc) => void;
+  onSubmit: (doc: IFormDoc, formCode: string) => void;
   onCreateNew: () => void;
   sendEmail: (params: IEmailParams) => void;
 }
@@ -49,7 +49,7 @@ const FormWithData = graphql<IProps, QueryResponse>(gql(formDetailQuery), {
   })
 })(LeadContent);
 
-const WithContext = () => (
+const WithContext = ({ formCode }: { formCode: string }) => (
   <LeadProvider>
     <LeadConsumer>
       {({
@@ -63,8 +63,8 @@ const WithContext = () => (
         isSubmitting,
         showForm
       }) => {
-        const integration = getIntegration();
-        const form = getForm();
+        const integration = getIntegration(formCode);
+        const form = getForm(formCode);
 
         const callout = integration.leadData && integration.leadData.callout;
 
