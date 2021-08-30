@@ -203,3 +203,114 @@ export const deleteConnection = instance => {
       });
   });
 };
+
+export const getAttributionValues = (type: string) => {
+  switch (type) {
+    case 'conversation': {
+      return [
+        {
+          value: 'content',
+          label: 'Content'
+        }
+      ];
+    }
+    case 'company': {
+      return [
+        {
+          value: 'name',
+          label: 'Name'
+        },
+        {
+          value: 'primaryEmail',
+          label: 'Primary email'
+        },
+        {
+          value: 'primaryPhone',
+          label: 'Primary phone'
+        },
+        {
+          value: 'createdAt',
+          label: 'Created date'
+        }
+      ];
+    }
+    case 'visitor':
+    case 'lead':
+    case 'customer': {
+      return [
+        {
+          value: 'firstName',
+          label: 'First Name'
+        },
+        {
+          value: 'lastName',
+          label: 'Last Name'
+        },
+        {
+          value: 'primaryEmail',
+          label: 'Primary email'
+        },
+        {
+          value: 'primaryPhone',
+          label: 'Primary phone'
+        },
+        {
+          value: 'createdAt',
+          label: 'Created date'
+        }
+      ];
+    }
+    case 'deal':
+    case 'task':
+    case 'ticket': {
+      return [
+        {
+          value: 'name',
+          label: 'Name'
+        },
+        {
+          value: 'createdAt',
+          label: 'Created date'
+        },
+        {
+          value: 'closeDate',
+          label: 'Close date'
+        },
+        {
+          value: 'modifiedAt',
+          label: 'Modified date'
+        },
+        {
+          value: 'priority',
+          label: 'Priority'
+        },
+        {
+          value: 'status',
+          label: 'Status'
+        }
+      ];
+    }
+    default:
+      return [];
+  }
+};
+
+export const getTriggerType = (
+  actions: any,
+  triggers: any,
+  activeActionId: string
+) => {
+  const activeTrigger = triggers.find(t => t.actionId === activeActionId);
+
+  if (activeTrigger) {
+    return activeTrigger.type;
+  }
+
+  const activeAction = actions.find(t => t.nextActionId === activeActionId);
+
+  if (activeAction) {
+    return getTriggerType(actions, triggers, activeAction.id);
+  }
+
+  return '';
+};

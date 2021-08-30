@@ -786,13 +786,14 @@ export const Attributes = styled.ul`
   list-style: none;
   margin: 0;
   right: 20px;
-  height: 250px;
+  height: 200px;
   overflow: auto;
   padding: ${dimensions.unitSpacing}px;
   border-radius: ${dimensions.unitSpacing - 5}px;
 
   b {
-    margin-bottom: ${dimensions.unitSpacing - 5}px;
+    margin-bottom: ${dimensions.unitSpacing + 10}px;
+    color: black;
   }
 
   li {

@@ -1,7 +1,7 @@
 export const ACTIONS = [
   {
     type: 'if',
-    icon: 'calcualtor',
+    icon: 'sitemap-1',
     label: 'Branches',
     description: 'Create simple or if/then branches',
     isAvailable: true

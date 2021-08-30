@@ -3,17 +3,17 @@ import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
 import Popover from 'react-bootstrap/Popover';
 
 import Icon from 'modules/common/components/Icon';
-import { ATTRIBUTIONS } from './constants';
 import { Attributes } from 'modules/automations/styles';
+import { getAttributionValues } from 'modules/automations/utils';
 
 type Props = {
   config: any;
+  triggerType: string;
   setConfig: (config: any) => void;
   inputName?: string;
 };
 
 export default class Attribution extends React.Component<Props> {
-  // private ref;
   private overlay: any;
 
   hideContent = () => {
@@ -33,24 +33,19 @@ export default class Attribution extends React.Component<Props> {
     return (
       <Popover id="attribute-popover">
         <Attributes>
-          {Object.keys(ATTRIBUTIONS).map((key, index) => {
-            const title = key;
-            const items = ATTRIBUTIONS[key];
-
-            return (
-              <React.Fragment key={index}>
-                <b>{title}</b>
-                {items.map(item => (
-                  <li
-                    key={item.value}
-                    onClick={this.onClickAttribute.bind(this, item)}
-                  >
-                    {item.label}
-                  </li>
-                ))}
-              </React.Fragment>
-            );
-          })}
+          <React.Fragment>
+            <li>
+              <b>Attributions</b>
+            </li>
+            {getAttributionValues(this.props.triggerType).map(item => (
+              <li
+                key={item.value}
+                onClick={this.onClickAttribute.bind(this, item)}
+              >
+                {item.label}
+              </li>
+            ))}
+          </React.Fragment>
         </Attributes>
       </Popover>
     );

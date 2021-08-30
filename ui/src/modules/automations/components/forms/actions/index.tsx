@@ -6,6 +6,7 @@ import IfForm from 'modules/automations/containers/forms/actions/subForms/IfForm
 import Button from 'modules/common/components/Button';
 import { __ } from 'modules/common/utils';
 import BoardItemForm from 'modules/automations/containers/forms/actions/subForms/BoardItemForm';
+import Delay from './subForms/Delay';
 
 type Props = {
   onSave: () => void;
@@ -42,6 +43,7 @@ class DefaultForm extends React.Component<Props> {
 
 export const ActionForms = {
   default: DefaultForm,
+  delay: Delay,
   setProperty: SetProperty,
   if: IfForm,
   boardItem: BoardItemForm

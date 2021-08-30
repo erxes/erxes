@@ -17,7 +17,6 @@ import {
   BackIcon,
   CenterBar,
   ToggleWrapper
-  // ZoomActions,
 } from '../../styles';
 import { FormControl } from 'modules/common/components/form';
 import { BarItems, HeightedWrapper } from 'modules/layout/styles';
@@ -35,7 +34,8 @@ import {
   connectorHoverStyle,
   hoverPaintStyle,
   yesEndPoint,
-  noEndPoint
+  noEndPoint,
+  getTriggerType
 } from 'modules/automations/utils';
 import ActionDetailForm from './actions/ActionDetailForm';
 import Icon from 'modules/common/components/Icon';
@@ -357,7 +357,7 @@ class AutomationForm extends React.Component<Props, State> {
   addTrigger = (data: ITrigger, contentId?: string, triggerId?: string) => {
     const { triggers, activeTrigger } = this.state;
 
-    let trigger: any = { id: String(triggers.length), ...data };
+    let trigger: any = { ...data, id: String(triggers.length) };
     const triggerIndex = triggers.findIndex(t => t.id === triggerId);
 
     if (triggerId && activeTrigger.id === triggerId) {
@@ -391,7 +391,7 @@ class AutomationForm extends React.Component<Props, State> {
   ) => {
     const { actions } = this.state;
 
-    let action: any = { id: String(actions.length), ...data };
+    let action: any = { ...data, id: actions.length.toString() };
 
     let actionIndex = -1;
 
@@ -657,6 +657,8 @@ class AutomationForm extends React.Component<Props, State> {
     }
 
     if (currentTab === 'actions') {
+      const { actions, triggers } = this.state;
+
       if (showAction && activeAction) {
         return (
           <>
@@ -667,6 +669,7 @@ class AutomationForm extends React.Component<Props, State> {
               activeAction={activeAction}
               addAction={this.addAction}
               closeModal={onBackAction}
+              triggerType={getTriggerType(actions, triggers, activeAction.id)}
             />
           </>
         );
@@ -697,7 +700,11 @@ class AutomationForm extends React.Component<Props, State> {
 
     const { automation } = this.props;
 
-    if (!this.state.isActionTab && automation) {
+    if (!this.state.isActionTab) {
+      if (!automation) {
+        return <div />;
+      }
+
       return <Histories automationId={automation._id} />;
     }
 
