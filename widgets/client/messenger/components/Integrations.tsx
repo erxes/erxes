@@ -5,7 +5,7 @@ import { IWebsiteApp } from '../types';
 import { IntegrationItem } from './';
 
 type Props = {
-  formCode: string;
+  formCodes: string[];
   brandCode: string;
   websiteApps?: IWebsiteApp[];
   hideConversations: boolean;
@@ -13,17 +13,17 @@ type Props = {
 
 export default class Integrations extends React.PureComponent<Props> {
   renderLead() {
-    const { brandCode, formCode } = this.props;
+    const { brandCode, formCodes } = this.props;
 
-    if (!formCode) {
+    if (!formCodes || formCodes.length === 0) {
       return null;
     }
 
-    return (
-      <IntegrationItem>
+    return formCodes.map((formCode: string) => (
+      <IntegrationItem key={formCode}>
         <LeadConnect brandCode={brandCode} formCode={formCode} />
       </IntegrationItem>
-    );
+    ));
   }
 
   renderWebsiteApps() {
