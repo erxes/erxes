@@ -154,7 +154,7 @@ export const EMPTY_CONTENT_POPUPS = {
       description: __(
         'Fill out the details and create your popup message or form'
       ),
-      url: '/leads/create',
+      url: '/forms/create',
       urlText: 'Create Popup'
     },
     {
