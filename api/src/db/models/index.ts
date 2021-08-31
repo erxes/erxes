@@ -41,7 +41,11 @@ import Tasks from './Tasks';
 import Tickets from './Tickets';
 import Users from './Users';
 import Webhooks from './Webhook';
-import { Bookings, Cards } from './Bookings';
+import {
+  Bookings,
+  Floors as BookingFloors,
+  Cards as BookingCards
+} from './Bookings';
 
 export {
   EmailDeliveries,
@@ -99,5 +103,6 @@ export {
   CalendarGroups,
   CalendarBoards,
   Bookings,
-  Cards
+  BookingFloors,
+  BookingCards
 };
