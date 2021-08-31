@@ -1,10 +1,14 @@
 export default {
   routes: [
     {
-      method: "POST",
-      path: "/test",
+      method: "GET",
+      path: "/get-branding",
       handler: async ({ models }) => {
-        console.log('sssss', await models.Cars.find());
+        const branding = await models.CompanyBrandings.findOne();
+
+        if(branding)
+        return branding;
+        return {"error":"heeeey"}
       }
     }
   ]

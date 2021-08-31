@@ -1,9 +1,10 @@
 import Label from 'modules/common/components/Label';
 import WithPermission from 'modules/common/components/WithPermission';
-import { __, getEnv, setBadge } from 'modules/common/utils';
+import { __, getEnv, setBadge, readFile } from 'modules/common/utils';
 import { pluginsOfNavigations } from 'pluginUtils';
 import React from 'react';
 import { NavLink } from 'react-router-dom';
+import { pluginsOfRoutes } from 'pluginUtils';
 import {
   LeftNavigation,
   NavIcon,
@@ -33,9 +34,36 @@ type IProps = {
   unreadConversationsCount?: number;
   collapsed: boolean;
   onCollapseNavigation: () => void;
+  // pluginsData: any;
 };
 
-class Navigation extends React.Component<IProps> {
+class Navigation extends React.Component<IProps, any> {
+  constructor(props) {
+        super(props);
+    
+        this.state = { isReady: false, pluginsData: []};
+  }
+  componentDidMount() {
+        const { preAuths } = pluginsOfRoutes();
+    
+        const promises: any[] = [];
+    
+        if (preAuths.length === 0) {
+          this.setState({ isReady: true });
+        }
+    
+        const { REACT_APP_API_URL } = getEnv();
+    
+        for (const preAuth of preAuths) {
+          promises.push(preAuth({ API_URL: REACT_APP_API_URL }));
+        }
+    
+        Promise.all(promises).then((response) => {
+          // console.log('mmmmmmmmmmmmmm', response);
+    
+          this.setState({ isReady: true, pluginsData: response });
+        });
+      };
   componentWillReceiveProps(nextProps) {
     const unreadCount = nextProps.unreadConversationsCount;
 
@@ -66,7 +94,7 @@ class Navigation extends React.Component<IProps> {
     if (!childrens || childrens.length === 0) {
       return null;
     }
-
+    
     const urlParams = new URLSearchParams(window.location.search);
     const parent = urlParams.get('parent');
 
@@ -149,22 +177,31 @@ class Navigation extends React.Component<IProps> {
       </Tip>
     );
   }
-
   render() {
-    const { unreadConversationsCount, collapsed } = this.props;
+    const {  pluginsData } = this.state;
+    // isReady,
 
-    const logo = collapsed ? 'logo.png' : 'erxes.png';
+    const { unreadConversationsCount, collapsed} = this.props;
+    // const {isReady, pluginsData} = this.state;
+    // console.log("dfddddddddddddddd", isReady, readFile(pluginsData.map(d=>d.mainIcon)[0]))
+    
+    let logo = collapsed ? '/images/logo.png' : '/images/erxes.png';
+    // console.log("heeeyp", pluginsData.map(d=>d.error)[0])
+    if(!pluginsData.map(d=>d.error)[0]){
+      logo = collapsed ? '/images/logo.png':  readFile(pluginsData.map(d=>d.mainIcon)[0]);
+    }
+    
 
     const unreadIndicator = unreadConversationsCount !== 0 && (
       <Label shake={true} lblStyle="danger" ignoreTrans={true}>
         {unreadConversationsCount}
       </Label>
     );
-
+   
     return (
       <LeftNavigation collapsed={collapsed}>
         <NavLink to="/">
-          <img src={`/images/${logo}`} alt="erxes" />
+          <img src={`${logo}`} alt="erxes" />
         </NavLink>
         {this.renderCollapse()}
         <Nav id="navigation" collapsed={collapsed}>

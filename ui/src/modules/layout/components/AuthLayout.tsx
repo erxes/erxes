@@ -1,5 +1,6 @@
 import Button from 'modules/common/components/Button';
-import { __, bustIframe } from 'modules/common/utils';
+import { __, bustIframe, getEnv, readFile } from 'modules/common/utils';
+import { pluginsOfRoutes } from 'pluginUtils';
 import React from 'react';
 import Col from 'react-bootstrap/Col';
 import Container from 'react-bootstrap/Container';
@@ -17,7 +18,7 @@ type Props = {
   col?: { first: number; second: number };
 };
 
-class AuthLayout extends React.Component<Props, {}> {
+class AuthLayout extends React.Component<Props & { pluginsData?: any[] }, {}> {
   renderContent(desciption: string, link: string) {
     return (
       <MobileRecommend>
@@ -50,8 +51,8 @@ class AuthLayout extends React.Component<Props, {}> {
   }
 
   renderDesciption() {
-    const { description } = this.props;
-
+    const { description, pluginsData } = this.props;
+ console.log(pluginsData)
     if (description) {
       return (
         <>
@@ -59,6 +60,22 @@ class AuthLayout extends React.Component<Props, {}> {
           {description}
         </>
       );
+    }
+
+    if (pluginsData && pluginsData.length > 0) {
+      console.log("heeey", pluginsData.map(d=>d.loginPageLogo)[0])
+      if(!pluginsData.map(d=>d.error)[0])
+      return (
+      <>
+        <img src = {readFile(pluginsData.map(d=>d.loginPageLogo)[0])} alt="erxes" />
+        <h1 style={{ color:pluginsData.map(d => d.textColor)[0]}}>{__('Open Source Growth Marketing Platform')}</h1>
+        <p style={{color:pluginsData.map(d => d.textColor)[0]}}>
+          {
+            pluginsData.map(d => d.pageDesc)
+          }
+        </p>
+        <a href={__('Homepage link')}>« {pluginsData.map(d => d.url)}</a>
+      </>)
     }
 
     return (
@@ -79,12 +96,29 @@ class AuthLayout extends React.Component<Props, {}> {
     // click-jack attack defense
     bustIframe();
   }
-
   render() {
-    const { content, col = { first: 6, second: 5 } } = this.props;
-
+    // const { pluginsData } = this.props;
+    const { content, col = { first: 6, second: 5 }, pluginsData} = this.props;
+    console.log(pluginsData)
+    if(pluginsData && pluginsData.length > 0){
+      console.log(pluginsData.map(d=>d.error)[0])
+      if(!pluginsData.map(d=>d.error)[0])
+      return (
+        <Authlayout className="auth-container" backgroundColor = {pluginsData.map(d=>d.backgroundColor)[0] || ""}>
+          <AuthContent>
+            <Container>
+              <Col md={col.first}>
+                <AuthDescription>{this.renderDesciption()}</AuthDescription>
+              </Col>
+              <Col md={{ span: col.second, offset: 1 }}>{content}</Col>
+            </Container>
+          </AuthContent>
+          {this.renderRecommendMobileVersion()}
+        </Authlayout>
+      );
+    }
     return (
-      <Authlayout className="auth-container">
+      <Authlayout className="auth-container" >
         <AuthContent>
           <Container>
             <Col md={col.first}>
@@ -98,5 +132,46 @@ class AuthLayout extends React.Component<Props, {}> {
     );
   }
 }
+class AuthLayoutWrapper extends React.Component<Props, any> {
+  constructor(props) {
+    super(props);
 
-export default AuthLayout;
+    this.state = { isReady: false, pluginsData: [] };
+  }
+
+  componentDidMount() {
+    const { preAuths } = pluginsOfRoutes();
+
+    const promises: any[] = [];
+
+    if (preAuths.length === 0) {
+      this.setState({ isReady: true });
+    }
+
+    const { REACT_APP_API_URL } = getEnv();
+
+    for (const preAuth of preAuths) {
+      promises.push(preAuth({ API_URL: REACT_APP_API_URL }));
+    }
+
+    Promise.all(promises).then((response) => {
+      // console.log('mmmmmmmmmmmmmm', response);
+
+      this.setState({ isReady: true, pluginsData: response });
+    });
+  };
+
+  render() {
+    const { isReady, pluginsData } = this.state;
+
+    if (!isReady) {
+      return null;
+    }
+
+    const props = {...this.props, pluginsData }
+
+    return <AuthLayout {...props} />
+  }
+}
+
+export default AuthLayoutWrapper;

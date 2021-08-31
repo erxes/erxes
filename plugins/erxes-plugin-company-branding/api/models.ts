@@ -2,31 +2,31 @@ import { companyBrandingSchema } from './definitions';
 
 class CompanyBranding {
   /**
-   * Create a car
+   * Create a CompanyBranding Document of company_brandings collection
    */
-  // public static async createCompanyBranding(models, doc, user = undefined) {
+  public static async createCompanyBranding(models, doc, user = undefined) {
 
-  //   console.log(doc)
+    const cb = await models.CompanyBrandings.create({
+      ...doc
+    });
 
-  //   const cb = await models.CompanyBrandings.create({
-  //     ...doc
-  //   });
+    // // create log
+    // await models.ActivityLogs.createCocLog({ coc: car, contentType: 'car' });
 
-  //   // // create log
-  //   // await models.ActivityLogs.createCocLog({ coc: car, contentType: 'car' });
-
-  //   return cb
-  // }
+    return cb
+  }
 
   /**
-   * Update car
+   * Update Company Branding
    */
-  // public static async updateCompanyBranding(models, _id, doc) {
+  public static async updateCompanyBranding(models, doc, user = undefined) {
+    const { _id } = doc
 
-  //   // await models.CompanyBrandings.updateOne({ _id }, { $set: { ...doc } });
+    delete doc._id
 
-  //   return models.CompanyBrandings.findOne({ _id });
-  // }
+    return models.CompanyBrandings.updateOne({ _id: _id }, { $set: doc });
+  }
+
 }
 
 //

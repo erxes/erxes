@@ -13,6 +13,7 @@ type Props = {
   collapsed: boolean;
   currentUser: IUser;
   onCollapseNavigation: () => void;
+  
 };
 
 type FinalProps = {

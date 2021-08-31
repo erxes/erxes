@@ -216,12 +216,6 @@ class Settings extends React.PureComponent {
               ]
             )}
             {this.renderBox(
-<<<<<<< HEAD
-              'Organization settings',
-              '/images/erxes-35.png',
-              '/settings/organizationsettings',
-              ''
-=======
               'Calendars',
               '/images/icons/erxes-21.svg',
               '/settings/calendars',
@@ -235,7 +229,6 @@ class Settings extends React.PureComponent {
               'calendarsAll',
               calendarActions,
               'New'
->>>>>>> cc009fb4d8bb0e1a7586b944624a5f760f72c66b
             )}
           </div>
         </Row>

@@ -8,7 +8,10 @@ const CompanyBrandingForm = () => {
 };
 
 export default () => ({
-
+  preAuth: ({ API_URL }) => {
+    return fetch(`${API_URL}/get-branding`).then(response => response.json())
+  },
+  
   routes: [
     {
       path: '/settings',
