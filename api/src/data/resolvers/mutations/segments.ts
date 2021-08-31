@@ -72,11 +72,11 @@ const segmentMutations = {
       await Promise.all(
         subSegments.map(async subSegment => {
           if (subSegment._id) {
-            await Segments.updateSegment(subSegment._id, subSegment);
             updatedSubSugments.push({
               subSegmentId: subSegment._id,
               type: 'subSegment'
             });
+            await Segments.updateSegment(subSegment._id, subSegment);
           } else {
             const item = await Segments.createSegment(subSegment);
 
