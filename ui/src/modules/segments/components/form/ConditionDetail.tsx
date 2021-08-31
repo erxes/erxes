@@ -1,5 +1,6 @@
 import { ISegmentCondition } from 'modules/segments/types';
 import React from 'react';
+import { DEFAULT_OPERATORS, OPERATORS } from '../constants';
 
 type Props = {
   condition: ISegmentCondition;
@@ -9,50 +10,25 @@ type Props = {
 type State = {};
 
 class ConditionDetail extends React.Component<Props, State> {
-  renderProperty = () => {
+  renderOperator = () => {
     const { condition, field } = this.props;
 
-    const { selectOptions = [], choiceOptions = [] } = field;
+    const { selectOptions = [], choiceOptions = [], type } = field;
     const { propertyOperator, propertyValue } = condition;
 
-    let text = propertyOperator;
+    const operators = OPERATORS[type || ''] || DEFAULT_OPERATORS;
+    const operator = operators.find(op => {
+      return op.value === propertyOperator;
+    });
 
-    console.log(field);
-
-    if (
-      propertyOperator &&
-      ['is', 'ins', 'it', 'if'].indexOf(propertyOperator) >= 0
-    ) {
-      switch (propertyOperator) {
-        case 'is':
-          text = 'is set';
-
-          break;
-        case 'ins':
-          text = 'is not set';
-
-          break;
-
-        case 'it':
-          text = 'is true';
-
-          break;
-
-        case 'if':
-          text = 'is false';
-
-          break;
-      }
-
-      return text;
-    }
+    const text = operator.name;
 
     if (selectOptions.length > 0) {
       const option = selectOptions.find(selectOption => {
         return selectOption.value === propertyValue;
       });
 
-      text = option.label;
+      console.log(option);
     }
 
     if (choiceOptions.length > 0) {
@@ -60,19 +36,57 @@ class ConditionDetail extends React.Component<Props, State> {
         return choiceOption.value === propertyValue;
       });
 
-      text = option.label;
+      console.log(option);
+    }
+
+    return text;
+  };
+
+  renderValue = () => {
+    const { condition, field } = this.props;
+
+    const { selectOptions = [], choiceOptions = [] } = field;
+    const { propertyValue } = condition;
+
+    let text = propertyValue;
+
+    if (selectOptions.length > 0) {
+      const option = selectOptions.find(selectOption => {
+        return selectOption.value === propertyValue;
+      });
+
+      text = option ? option.label : text;
+    }
+
+    if (choiceOptions.length > 0) {
+      const option = choiceOptions.find(choiceOption => {
+        return choiceOption.value === propertyValue;
+      });
+
+      text = option ? option.label : text;
     }
 
     return text;
   };
 
   render() {
-    const { condition } = this.props;
+    const { condition, field } = this.props;
 
-    console.log(this.renderProperty());
-    return (
-      <p>{`${condition.propertyType}'s value = ${condition.propertyValue}`}</p>
-    );
+    const { label } = field;
+    const { propertyValue } = condition;
+
+    const operator = this.renderOperator();
+
+    const value = this.renderValue();
+
+    if (
+      propertyValue &&
+      ['is', 'ins', 'it', 'if'].indexOf(propertyValue) >= 0
+    ) {
+      return <p>{`${condition.propertyType}'s ${label} ${operator}`}</p>;
+    }
+
+    return <p>{`${condition.propertyType}'s ${label} ${operator} ${value}`}</p>;
   }
 }
 
