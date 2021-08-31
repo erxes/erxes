@@ -312,5 +312,9 @@ export const getTriggerType = (
     return getTriggerType(actions, triggers, activeAction.id);
   }
 
-  return '';
+  if (triggers && triggers.length > 0) {
+    return triggers[0].type;
+  }
+
+  return;
 };
