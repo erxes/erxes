@@ -8,10 +8,9 @@ import Sidebar from 'modules/layout/components/Sidebar';
 import Wrapper from 'modules/layout/components/Wrapper';
 import { FlexContent } from 'modules/layout/styles';
 import React from 'react';
-import { IEvent, ISegment, ISegmentCondition } from '../types';
-import Form from './common/Form';
-import AutomationsForm from './common/AutomationsForm';
-import { ResultCount, SegmentResult } from './styles';
+import { IEvent, ISegment, ISegmentCondition } from '../../types';
+import Form from './Form';
+import { ResultCount, SegmentResult } from '../styles';
 
 type Props = {
   contentType: string;
@@ -23,7 +22,6 @@ type Props = {
   headSegments: ISegment[];
   segments: ISegment[];
   count: number;
-  fetchFields: (pipelineId?: string) => void;
   previewCount: (args: {
     conditions: ISegmentCondition[];
     subOf?: string;
@@ -78,8 +76,6 @@ const SegmentsForm = (props: Props) => {
     events,
     headSegments,
     boards,
-    fetchFields,
-    previewCount,
     isModal,
     closeModal,
     segments
@@ -95,8 +91,8 @@ const SegmentsForm = (props: Props) => {
     { title }
   ];
 
-  return isModal ? (
-    <AutomationsForm
+  const content = (
+    <Form
       contentType={contentType}
       fields={fields}
       events={events}
@@ -105,32 +101,18 @@ const SegmentsForm = (props: Props) => {
       segment={segment}
       headSegments={headSegments}
       segments={segments}
-      fetchFields={fetchFields}
-      isForm={true}
       closeModal={closeModal}
       isModal={isModal}
     />
+  );
+
+  return isModal ? (
+    content
   ) : (
     <Wrapper
       header={<Wrapper.Header title={title} breadcrumb={breadcrumb} />}
       actionBar={<Wrapper.ActionBar left={pageTitle} />}
-      content={
-        <Form
-          contentType={contentType}
-          fields={fields}
-          events={events}
-          boards={boards}
-          renderButton={renderButton}
-          segment={segment}
-          headSegments={headSegments}
-          segments={segments}
-          fetchFields={fetchFields}
-          previewCount={previewCount}
-          isForm={true}
-          closeModal={closeModal}
-          isModal={isModal}
-        />
-      }
+      content={content}
       rightSidebar={renderSidebar()}
     />
   );

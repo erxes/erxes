@@ -334,7 +334,7 @@ class SegmentFormAutomations extends React.Component<Props, State> {
 
     return (
       <CenterContent>
-        <ConjunctionButtons isGeneral={true}>
+        <ConjunctionButtons>
           <Button.Group hasGap={false}>
             <Button onClick={onClickAnd} btnStyle={btnStyleAnd}>
               {__('And')}

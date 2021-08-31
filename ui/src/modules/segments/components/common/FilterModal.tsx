@@ -312,7 +312,7 @@ class Filter extends React.Component<Props, State> {
       }
 
       return (
-        <ConjunctionButtons isGeneral={false}>
+        <ConjunctionButtons>
           <Button.Group hasGap={false}>
             <Button btnStyle={btnStyleAnd} onClick={onClickAnd}>
               {__('And')}
@@ -332,7 +332,7 @@ class Filter extends React.Component<Props, State> {
     const { index } = this.props;
 
     return (
-      <ConditionItem>
+      <ConditionItem useMargin={false}>
         <FilterRow>
           {index > 0 ? (
             <FilterProperty>{this.renderConjunction()}</FilterProperty>

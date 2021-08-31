@@ -7,11 +7,10 @@ import { BoardsQueryResponse } from 'modules/boards/types';
 import ButtonMutate from 'modules/common/components/ButtonMutate';
 import { IButtonMutateProps } from 'modules/common/types';
 import { withProps } from 'modules/common/utils';
-import { queries as formQueries } from 'modules/forms/graphql';
 import React from 'react';
 import { graphql } from 'react-apollo';
-import SegmentsForm from '../components/SegmentsForm';
-import { mutations, queries } from '../graphql';
+import SegmentsForm from '../../components/form/SegmentsForm';
+import { mutations, queries } from '../../graphql';
 import {
   AddMutationResponse,
   EditMutationResponse,
@@ -20,8 +19,8 @@ import {
   ISegmentCondition,
   SegmentDetailQueryResponse,
   SegmentsQueryResponse
-} from '../types';
-import { isBoardKind } from '../utils';
+} from '../../types';
+import { isBoardKind } from '../../utils';
 
 type Props = {
   contentType: string;
@@ -54,14 +53,6 @@ class SegmentsFormContainer extends React.Component<
       count: 0,
       fields: []
     };
-  }
-
-  componentWillMount() {
-    const { headSegmentsQuery } = this.props;
-
-    headSegmentsQuery.refetch();
-
-    this.fetchFields();
   }
 
   renderButton = ({
@@ -110,28 +101,6 @@ class SegmentsFormContainer extends React.Component<
         } a ${name}`}
       />
     );
-  };
-
-  fetchFields = (pipelineId?: string) => {
-    const { id, contentType } = this.props;
-
-    client
-      .query({
-        query: gql(formQueries.fieldsCombinedByContentType),
-        variables: {
-          segmentId: id,
-          pipelineId,
-          contentType: ['visitor', 'lead', 'customer'].includes(contentType)
-            ? 'customer'
-            : contentType,
-          usageType: 'segment'
-        }
-      })
-      .then(({ data }) => {
-        this.setState({
-          fields: data.fieldsCombinedByContentType
-        });
-      });
   };
 
   previewCount = ({
@@ -202,7 +171,6 @@ class SegmentsFormContainer extends React.Component<
       events,
       renderButton: this.renderButton,
       previewCount: this.previewCount,
-      fetchFields: this.fetchFields,
       fields: this.state.fields,
       count: this.state.count,
       counterLoading: this.state.loading,
@@ -220,6 +188,7 @@ export default withProps<Props>(
       {
         name: 'segmentDetailQuery',
         options: ({ id }) => ({
+          fetchPolicy: 'network-only',
           variables: { _id: id }
         })
       }

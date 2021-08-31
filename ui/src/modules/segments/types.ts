@@ -29,6 +29,13 @@ export interface ISegmentCondition {
   subSegmentId?: string;
 }
 
+export interface ISegmentMap {
+  key: string;
+  contentType: string;
+  conditions: ISegmentCondition[];
+  conditionsConjunction: string;
+}
+
 export interface ISubSegment {
   contentType: string;
   conditionsConjunction?: string;
@@ -96,6 +103,7 @@ export type AddMutationVariables = {
 export type IField = {
   selectOptions?: Array<{ label: string; value: string | number }>;
   type?: string;
+  group?: string;
   value: string;
   label: string;
   options?: string[];
