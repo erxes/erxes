@@ -6,6 +6,7 @@ import { ScrolledContent } from 'modules/automations/styles';
 type Props = {
   activeAction: IAction;
   addAction: (action: IAction, contentId?: string, actionId?: string) => void;
+  triggerType: string;
   closeModal: () => void;
 };
 
@@ -24,7 +25,7 @@ class IfForm extends React.Component<Props, State> {
   }
 
   render() {
-    const { activeAction, addAction } = this.props;
+    const { activeAction, addAction, triggerType } = this.props;
 
     const config = activeAction.config || {};
 
@@ -32,7 +33,7 @@ class IfForm extends React.Component<Props, State> {
       <ScrolledContent>
         <SegmentsForm
           {...this.props}
-          contentType={config.contentType || 'customer'}
+          contentType={triggerType || 'customer'}
           addConfig={addAction}
           activeTrigger={activeAction}
           id={config.contentId}

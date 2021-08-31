@@ -7,12 +7,28 @@ import withTableWrapper from 'modules/common/components/table/withTableWrapper';
 
 const generateName = ({ triggerType, target }: any) => {
   switch (triggerType) {
+    case 'visitor':
+    case 'lead':
     case 'customer': {
       return (
         <Link target="_blank" to={`/contacts/details/${target._id}`}>
           {renderFullName(target)}
         </Link>
       );
+    }
+
+    case 'company': {
+      return (
+        <Link target="_blank" to={`/companies/details/${target._id}`}>
+          {target.name}
+        </Link>
+      );
+    }
+
+    case 'deal':
+    case 'task':
+    case 'ticket': {
+      return target.name;
     }
 
     default: {

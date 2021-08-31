@@ -22,6 +22,7 @@ type Props = {
     actionId?: string,
     config?: any
   ) => void;
+  triggerType: string;
 };
 
 type State = {
@@ -32,7 +33,6 @@ class BoardItemForm extends React.Component<Props, State> {
   constructor(props) {
     super(props);
 
-    // this.ref = React.createRef();
     const { config = {} } = this.props.activeAction;
 
     this.state = {
@@ -113,6 +113,7 @@ class BoardItemForm extends React.Component<Props, State> {
                   inputName="cardName"
                   config={this.state.config}
                   setConfig={config => this.setState({ config })}
+                  triggerType={this.props.triggerType}
                 />
               </div>
               <FormControl

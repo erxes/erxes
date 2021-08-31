@@ -109,6 +109,15 @@ export const executeActions = async (
       actionConfig: action.config,
       target: execution.target
     });
+
+    await AutomationHistories.createHistory({
+      actionId: currentActionId,
+      actionType: action.type,
+      triggerType,
+      description: 'Set property',
+      automationId: execution.automationId,
+      target: execution.target
+    });
   }
 
   if (action.type === ACTIONS.ADD_TAGS) {

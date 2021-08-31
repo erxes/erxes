@@ -17,7 +17,6 @@ import {
   BackIcon,
   CenterBar,
   ToggleWrapper
-  // ZoomActions,
 } from '../../styles';
 import { FormControl } from 'modules/common/components/form';
 import { BarItems, HeightedWrapper } from 'modules/layout/styles';
@@ -35,7 +34,8 @@ import {
   connectorHoverStyle,
   hoverPaintStyle,
   yesEndPoint,
-  noEndPoint
+  noEndPoint,
+  getTriggerType
 } from 'modules/automations/utils';
 import ActionDetailForm from './actions/ActionDetailForm';
 import Icon from 'modules/common/components/Icon';
@@ -357,7 +357,7 @@ class AutomationForm extends React.Component<Props, State> {
   addTrigger = (data: ITrigger, contentId?: string, triggerId?: string) => {
     const { triggers, activeTrigger } = this.state;
 
-    let trigger: any = { id: String(triggers.length), ...data };
+    let trigger: any = { ...data, id: String(triggers.length) };
     const triggerIndex = triggers.findIndex(t => t.id === triggerId);
 
     if (triggerId && activeTrigger.id === triggerId) {
@@ -391,7 +391,7 @@ class AutomationForm extends React.Component<Props, State> {
   ) => {
     const { actions } = this.state;
 
-    let action: any = { id: String(actions.length), ...data };
+    let action: any = { ...data, id: actions.length.toString() };
 
     let actionIndex = -1;
 
@@ -438,15 +438,10 @@ class AutomationForm extends React.Component<Props, State> {
   };
 
   checkNote = (activeId: string) => {
-    const { automationNotes } = this.props;
     const item = activeId.split('-');
     const type = item[0];
 
-    if (!automationNotes) {
-      return null;
-    }
-
-    const notes = automationNotes.filter(note => {
+    return (this.props.automationNotes || []).filter(note => {
       if (type === 'trigger' && note.triggerId !== item[1]) {
         return null;
       }
@@ -457,8 +452,6 @@ class AutomationForm extends React.Component<Props, State> {
 
       return note;
     });
-
-    return notes;
   };
 
   renderNotes(key: string) {
@@ -475,8 +468,6 @@ class AutomationForm extends React.Component<Props, State> {
 
   renderControl = (key: string, item: ITrigger | IAction, onClick: any) => {
     const idElm = `${key}-${item.id}`;
-
-    console.log('idElm: ', idElm);
 
     jquery('#canvas').append(`
       <div class="${key} control" id="${idElm}" style="${item.style}">
@@ -510,8 +501,6 @@ class AutomationForm extends React.Component<Props, State> {
     });
 
     if (key === 'trigger') {
-      console.log('instance: ', instance.getSelector(`#${idElm}`));
-
       instance.addEndpoint(idElm, sourceEndpoint, {
         anchor: [1, 0.5]
       });
@@ -668,6 +657,8 @@ class AutomationForm extends React.Component<Props, State> {
     }
 
     if (currentTab === 'actions') {
+      const { actions, triggers } = this.state;
+
       if (showAction && activeAction) {
         return (
           <>
@@ -678,6 +669,7 @@ class AutomationForm extends React.Component<Props, State> {
               activeAction={activeAction}
               addAction={this.addAction}
               closeModal={onBackAction}
+              triggerType={getTriggerType(actions, triggers, activeAction.id)}
             />
           </>
         );
@@ -688,18 +680,6 @@ class AutomationForm extends React.Component<Props, State> {
 
     return null;
   }
-
-  // renderZoomActions() {
-  //   return (
-  //     <ZoomActions>
-  //       <div className="icon-wrapper">
-  //         <Icon icon="plus" />
-  //         <Icon icon="minus" />
-  //       </div>
-  //       <span>100%</span>
-  //     </ZoomActions>
-  //   );
-  // }
 
   renderContent() {
     const { triggers, actions } = this.state;
@@ -720,13 +700,16 @@ class AutomationForm extends React.Component<Props, State> {
 
     const { automation } = this.props;
 
-    if (!this.state.isActionTab && automation) {
+    if (!this.state.isActionTab) {
+      if (!automation) {
+        return <div />;
+      }
+
       return <Histories automationId={automation._id} />;
     }
 
     return (
       <Container>
-        {/* {this.renderZoomActions()} */}
         <div id="canvas" />
       </Container>
     );
@@ -738,6 +721,8 @@ class AutomationForm extends React.Component<Props, State> {
     if (!showNoteForm) {
       return null;
     }
+
+    const { automation } = this.props;
 
     return (
       <Modal
@@ -751,9 +736,7 @@ class AutomationForm extends React.Component<Props, State> {
             renderContent={formProps => (
               <NoteFormContainer
                 formProps={formProps}
-                automationId={
-                  this.props.automation ? this.props.automation._id : ''
-                }
+                automationId={automation ? automation._id : ''}
                 isEdit={editNoteForm}
                 itemId={activeId}
                 notes={this.checkNote(activeId) || []}

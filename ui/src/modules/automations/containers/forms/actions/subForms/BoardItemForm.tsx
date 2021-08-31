@@ -7,6 +7,7 @@ import React from 'react';
 
 type IProps = {
   activeAction: IAction;
+  triggerType: string;
   closeModal: () => void;
   addAction: (
     action: IAction,

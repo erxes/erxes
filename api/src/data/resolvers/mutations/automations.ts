@@ -149,18 +149,7 @@ const automationMutations = {
     { automationIds }: { automationIds: string[] },
     { dataSources }: IContext
   ) {
-    // const automations = await dataSources.AutomationsAPI.getAutomations({
-    //   _id: { $in: automationIds }
-    // });
-
     await dataSources.AutomationsAPI.removeAutomations(automationIds);
-
-    // for (const automation of automations) {
-    //   await putDeleteLog(
-    //     { type: MODULE_NAMES.AUTOMATION, object: automation },
-    //     user
-    //   );
-    // }
 
     return automationIds;
   },

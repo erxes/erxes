@@ -5,14 +5,8 @@ import Common from '../Common';
 import { BoardHeader, DrawerDetail } from 'modules/automations/styles';
 import FormGroup from 'modules/common/components/form/Group';
 import ControlLabel from 'modules/common/components/form/Label';
-import {
-  PROPERTY_TYPES,
-  PROPERTY_FIELD,
-  PROPERTY_OPERATOR
-} from '../constants';
 import { __ } from 'modules/common/utils';
 import FormControl from 'modules/common/components/form/Control';
-import Attribution from '../Attribution';
 
 type Props = {
   closeModal: () => void;
@@ -36,9 +30,7 @@ class SetProperty extends React.Component<Props, State> {
 
     const { config = {} } = this.props.activeAction;
 
-    this.state = {
-      config
-    };
+    this.state = { config };
   }
 
   componentWillReceiveProps(nextProps) {
@@ -63,59 +55,35 @@ class SetProperty extends React.Component<Props, State> {
     return (
       <DrawerDetail>
         <FormGroup>
-          <ControlLabel>Property type</ControlLabel>
+          <ControlLabel required={true}>{__('Type')}</ControlLabel>
 
           <Select
-            isRequired={true}
-            value={config.module}
-            options={PROPERTY_TYPES.map(p => ({
-              label: p.label,
-              value: p.value
-            }))}
-            onChange={onChangeSelect.bind(this, 'module')}
-            placeholder={__('Choose type')}
-          />
-        </FormGroup>
-
-        <FormGroup>
-          <ControlLabel>Field</ControlLabel>
-
-          <Select
-            value={config.field}
-            options={PROPERTY_FIELD.map(f => ({
-              label: f.label,
-              value: f.value
-            }))}
-            onChange={onChangeSelect.bind(this, 'field')}
-            placeholder={__('Choose field')}
-          />
-        </FormGroup>
-
-        <FormGroup>
-          <ControlLabel>Operator</ControlLabel>
-
-          <Select
-            value={config.operator}
-            options={PROPERTY_OPERATOR.map(f => ({
-              label: f.label,
-              value: f.value
-            }))}
-            onChange={onChangeSelect.bind(this, 'operator')}
-            placeholder={__('Choose operator')}
+            value={config.type || 'hour'}
+            options={[
+              {
+                label: 'Hour',
+                value: 'hour'
+              },
+              {
+                label: 'Day',
+                value: 'day'
+              }
+            ]}
+            onChange={onChangeSelect.bind(this, 'type')}
+            clearable={false}
           />
         </FormGroup>
 
         <BoardHeader>
           <FormGroup>
             <div className="header-row">
-              <ControlLabel required={true}>Value</ControlLabel>
-              <Attribution
-                config={this.state.config}
-                setConfig={config => this.setState({ config })}
-                triggerType={this.props.triggerType}
-              />
+              <ControlLabel required={true}>{__('Value')}</ControlLabel>
             </div>
-            <FormControl onChange={onChangeValue} value={config.value} />
+            <FormControl
+              type="number"
+              onChange={onChangeValue}
+              value={config.value}
+            />
           </FormGroup>
         </BoardHeader>
       </DrawerDetail>
