@@ -8,7 +8,8 @@ import {
   TypeBox,
   ScrolledContent,
   Description,
-  TriggerTabs
+  TriggerTabs,
+  TypeBoxContainer
 } from 'modules/automations/styles';
 import { ITrigger } from 'modules/automations/types';
 import client from 'erxes-ui/lib/apolloClient';
@@ -80,7 +81,7 @@ class TriggerForm extends React.Component<Props, State> {
     });
   };
 
-  renderScratchTemplates(trigger, index) {
+  renderScratchTemplates(trigger: any, index: number) {
     return (
       <TypeBox key={index} onClick={this.onClickType.bind(this, trigger)}>
         <img src={`/images/actions/${trigger.img}`} alt={trigger.label} />
@@ -94,18 +95,13 @@ class TriggerForm extends React.Component<Props, State> {
 
   renderTemplateItem(template: any, index: number) {
     return (
-      <TypeBox key={index}>
-        <FormGroup>
-          <ControlLabel>{template.name}</ControlLabel>
-        </FormGroup>
+      <TypeBoxContainer key={index}>
+        <TypeBox onClick={this.onClickTemplate.bind(this, template)}>
+          <FormGroup>
+            <ControlLabel>{template.name}</ControlLabel>
+          </FormGroup>
+        </TypeBox>
         <div className="ctrl">
-          <Icon
-            icon="external-link-alt"
-            onClick={this.onClickTemplate.bind(this, template)}
-            size={16}
-            color="hsl(118.39999999999998,59.2%,40.8%)"
-          />
-
           <Icon
             icon="trash"
             color="#EA475D"
@@ -113,7 +109,7 @@ class TriggerForm extends React.Component<Props, State> {
             onClick={this.onRemoveTemplate.bind(this, template._id)}
           />
         </div>
-      </TypeBox>
+      </TypeBoxContainer>
     );
   }
 

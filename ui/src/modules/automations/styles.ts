@@ -342,6 +342,24 @@ export const BackIcon = styled.div`
   }
 `;
 
+export const TypeBoxContainer = styled.div`
+  position: relative;
+
+  .ctrl {
+    position: absolute;
+    top: 4px;
+    right: 15px;
+
+    i {
+      padding: 0 5px;
+    }
+
+    &:hover {
+      cursor: pointer;
+    }
+  }
+`;
+
 export const TypeBox = styled(CenterFlexRow)`
   border: 1px solid ${colors.borderPrimary};
   border-radius: ${dimensions.unitSpacing - 5}px;
@@ -369,10 +387,6 @@ export const TypeBox = styled(CenterFlexRow)`
     border-color: ${colors.colorSecondary};
     box-shadow: 0px 8px 20px rgba(79, 51, 175, 0.24),
       0px 2px 6px rgba(79, 51, 175, 0.16), 0px 0px 1px rgba(79, 51, 175, 0.08);
-  }
-
-  .ctrl i {
-    padding: 0 5px;
   }
 `;
 
