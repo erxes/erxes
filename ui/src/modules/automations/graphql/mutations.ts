@@ -15,16 +15,16 @@ const commonVariables = `
 `;
 
 const noteFields = `
-  $automationId: String, 
-  $triggerId: String, 
-  $actionId: String, 
+  $automationId: String,
+  $triggerId: String,
+  $actionId: String,
   $description: String
 `;
 
 const noteVariables = `
-  automationId: $automationId, 
-  triggerId: $triggerId, 
-  actionId: $actionId, 
+  automationId: $automationId,
+  triggerId: $triggerId,
+  actionId: $actionId,
   description: $description
 `;
 

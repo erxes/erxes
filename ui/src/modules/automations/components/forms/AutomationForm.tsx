@@ -354,7 +354,7 @@ class AutomationForm extends React.Component<Props, State> {
     this.setState({ showDrawer: !this.state.showDrawer, currentTab: type });
   };
 
-  addTrigger = (data: ITrigger, contentId?: string, triggerId?: string) => {
+  addTrigger = (data: ITrigger, triggerId?: string, config?: any) => {
     const { triggers, activeTrigger } = this.state;
 
     let trigger: any = { ...data, id: String(triggers.length) };
@@ -364,11 +364,7 @@ class AutomationForm extends React.Component<Props, State> {
       trigger = activeTrigger;
     }
 
-    if (contentId) {
-      trigger.config = {
-        contentId
-      };
-    }
+    trigger.config = { ...trigger.config, ...config };
 
     if (triggerIndex !== -1) {
       triggers[triggerIndex] = trigger;

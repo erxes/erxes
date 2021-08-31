@@ -14,7 +14,7 @@ type Props = {
   closeModal: () => void;
   activeTrigger: ITrigger;
   contentId?: string;
-  addConfig: (trigger: ITrigger, contentId?: string, id?: string) => void;
+  addConfig: (trigger: ITrigger, id?: string, config?: any) => void;
 };
 
 class TriggerDetailForm extends React.Component<
@@ -46,7 +46,13 @@ class TriggerDetailForm extends React.Component<
     const config = activeTrigger.config || {};
 
     if (this.state.currentTab === 'reenrollment') {
-      return <ReEnrollmentContainer trigger={activeTrigger} />;
+      return (
+        <ReEnrollmentContainer
+          trigger={activeTrigger}
+          closeModal={this.props.closeModal}
+          addConfig={this.props.addConfig}
+        />
+      );
     }
 
     return (
