@@ -13,7 +13,7 @@ import {
   ConjunctionButtonsVertical,
   FilterRow
 } from '../styles';
-import ConditionDetail from './ConditionDetail';
+import ConditionDetail from '../../containers/form/ConditionDetail';
 
 type Props = {
   segment: ISegmentMap;

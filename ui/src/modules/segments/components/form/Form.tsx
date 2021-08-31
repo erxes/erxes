@@ -154,12 +154,6 @@ class SegmentFormAutomations extends React.Component<Props, State> {
       return;
     }
 
-    const popoverTop = (
-      <Popover id="color-picker">
-        <TwitterPicker triangle="hide" />
-      </Popover>
-    );
-
     const nameOnChange = (e: React.FormEvent) =>
       this.handleChange('name', (e.currentTarget as HTMLInputElement).value);
 
@@ -168,6 +162,14 @@ class SegmentFormAutomations extends React.Component<Props, State> {
         'description',
         (e.currentTarget as HTMLInputElement).value
       );
+
+    const colorOnChange = e => this.handleChange('color', e.hex);
+
+    const popoverTop = (
+      <Popover id="color-picker">
+        <TwitterPicker triangle="hide" color={color} onChange={colorOnChange} />
+      </Popover>
+    );
 
     return (
       <>
@@ -411,9 +413,15 @@ class SegmentFormAutomations extends React.Component<Props, State> {
     );
   };
 
-  generateDoc = (values: { _id?: string; conditionsConjunction: string }) => {
+  generateDoc = (values: {
+    _id?: string;
+    name: string;
+    subOf: string;
+    color: string;
+    conditionsConjunction: string;
+  }) => {
     const { contentType, segment } = this.props;
-    const { segments, conditionsConjunction } = this.state;
+    const { segments, conditionsConjunction, color } = this.state;
     const finalValues = values;
 
     const conditionSegments: ISubSegment[] = [];
@@ -428,10 +436,9 @@ class SegmentFormAutomations extends React.Component<Props, State> {
       conditionSegments.push(item);
     });
 
-    console.log('1323123', conditionSegments);
-
     return {
       ...finalValues,
+      color,
       conditionsConjunction,
       contentType,
       conditionSegments

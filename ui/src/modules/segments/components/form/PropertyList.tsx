@@ -180,7 +180,6 @@ class PropertyList extends React.Component<Props, State> {
               type="text"
               placeholder={__('Type to search')}
               onChange={this.onSearch}
-              autoFocus={true}
             />
           </FormGroup>
           {this.renderGroups()}
