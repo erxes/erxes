@@ -225,7 +225,7 @@ class PipelineForm extends React.Component<Props, State> {
         />
       </Popover>
     );
-    console.log(this.state.stages);
+
     return (
       <div id="manage-pipeline-modal">
         <Modal.Header closeButton={true}>
