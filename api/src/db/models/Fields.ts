@@ -61,7 +61,12 @@ export interface IFieldModel extends Model<IFieldDocument> {
   clean(_id: string, _value: string | Date | number): string | Date | number;
   cleanMulti(data: { [key: string]: any }): any;
   generateTypedListFromMap(data: { [key: string]: any }): ITypedListItem[];
-  generateTypedItem(field: string, value: string, type: string): ITypedListItem;
+  generateTypedItem(
+    field: string,
+    value: string,
+    type: string,
+    validation?: string
+  ): ITypedListItem;
   prepareCustomFieldsData(
     customFieldsData?: Array<{ field: string; value: any }>
   ): Promise<ITypedListItem[]>;
@@ -307,7 +312,8 @@ export const loadFieldClass = () => {
     public static generateTypedItem(
       field: string,
       value: string | number | string[],
-      type: string
+      type: string,
+      validation?: string
     ): ITypedListItem {
       let stringValue;
       let numberValue;
@@ -315,6 +321,13 @@ export const loadFieldClass = () => {
 
       if (value) {
         stringValue = value.toString();
+
+        // string
+        if (type === 'input' && !validation) {
+          numberValue = null;
+          value = stringValue;
+          return { field, value, stringValue, numberValue, dateValue };
+        }
 
         // number
         if (type !== 'check' && validator.isFloat(value.toString())) {
@@ -355,7 +368,8 @@ export const loadFieldClass = () => {
           Fields.generateTypedItem(
             customFieldData.field,
             customFieldData.value,
-            field ? field.type || '' : ''
+            field ? field.type || '' : '',
+            field?.validation
           )
         );
       }
