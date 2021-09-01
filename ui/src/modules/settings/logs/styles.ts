@@ -5,17 +5,28 @@ import styledTS from 'styled-components-ts';
 const LogBox = styledTS<{ color?: string }>(styled.div)`
   border: 1px dotted ${props =>
     props.color ? props.color : colors.colorPrimary};
-  padding: 5px;
-  margin: 5px;
+  padding: 10px;
+  margin: 10px;
+  width: 45%;
+  
+  > div {
+    margin-bottom: 10px;
+
+    > ul {
+      margin: 0;
+    }
+  }
 
   .field-name {
-    font-weight: 500;
+    font-weight: bold;  
   }
 
   .field-value {
     padding-left: 10px;
-    font-weight: 700;
-    color: ${props => (props.color ? props.color : colors.colorPrimary)}
+    
+    > div {
+      display: inline-block;
+    }
   }
 
   &:hover {

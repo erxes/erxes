@@ -45,6 +45,15 @@ class AssistantContent extends React.Component<Props, State> {
     this.props.changeRoute('initial');
   };
 
+  restartRole = (roleValue: IRoleValue, answerOf: IRoleValue) => {
+    this.setState({
+      welcomeStep: 1,
+      roleValue,
+      answerOf
+    });
+    this.props.changeRoute('initial');
+  };
+
   renderContent() {
     const {
       currentRoute,
@@ -63,6 +72,14 @@ class AssistantContent extends React.Component<Props, State> {
 
     const onClick = () => {
       changeRoute('setupList');
+    };
+
+    const getRoleOptions = (roleValue: IRoleValue) => {
+      this.setState({ roleValue });
+    };
+
+    const getAnswerOf = (answerOf: IRoleValue) => {
+      this.setState({ answerOf });
     };
 
     const getRoleOptions = (roleValue: IRoleValue) => {

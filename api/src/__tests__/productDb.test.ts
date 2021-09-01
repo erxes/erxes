@@ -99,7 +99,8 @@ describe('Test products model', () => {
     // testing custom field data
     const field1 = await fieldFactory({
       contentType: 'product',
-      contentTypeId: product._id
+      contentTypeId: product._id,
+      validation: 'number'
     });
     const field2 = await fieldFactory({
       contentType: 'product',

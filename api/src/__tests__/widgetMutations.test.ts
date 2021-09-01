@@ -192,7 +192,7 @@ describe('messenger connect', () => {
 
     expect(integrationId).toBe(_integration._id);
     expect(brand.code).toBe(_brand.code);
-    expect(messengerData.formCode).toBe('formCode');
+    expect(messengerData.formCodes[0]).toBe('formCode');
     expect(messengerData.knowledgeBaseTopicId).toBe('topicId');
 
     mock.restore();
@@ -610,6 +610,43 @@ describe('insertMessage()', () => {
       ]);
     } else {
       fail('Bot message not found');
+    }
+
+    sendRequestMock.restore();
+  });
+
+  test('Bot message: Failed to connect to BOTPRESS', async () => {
+    const sendRequestMock = sinon.stub(utils, 'sendRequest').callsFake(() => {
+      return Promise.resolve(new Error('Failed to connect to BOTPRESS'));
+    });
+
+    const conversation = await conversationFactory({
+      operatorStatus: CONVERSATION_OPERATOR_STATUS.BOT
+    });
+
+    _integrationBot = await integrationFactory({
+      brandId: Random.id(),
+      kind: 'messenger',
+      messengerData: {
+        botEndpointUrl: 'botEndpointUrl',
+        botShowInitialMessage: false
+      }
+    });
+
+    try {
+      await widgetMutations.widgetsInsertMessage(
+        {},
+        {
+          contentType: MESSAGE_TYPES.TEXT,
+          integrationId: _integrationBot._id,
+          message: 'User message',
+          customerId: _customer._id,
+          conversationId: conversation._id
+        },
+        context
+      );
+    } catch (e) {
+      expect(e.message).toBe('Failed to connect to BOTPRESS');
     }
 
     sendRequestMock.restore();
