@@ -149,7 +149,7 @@ class Setup extends React.Component<Props, State> {
   renderSetup() {
     const { roleValue } = this.props;
 
-    const onRoleClick = (title: string, gkey?: string) => {
+    const onRoleClick = (title: string, gkey: string) => {
       this.setState(
         {
           collapseKey: gkey
