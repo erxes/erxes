@@ -19,7 +19,7 @@ export const initBroker = async (server?) => {
 
   consumeQueue('erxes-automations:trigger', async param => {
     debugBase(`Receiving queue data from erxes-api: ${JSON.stringify(param)}`);
- 
+
     const { type, actionType, targets } = param;
 
     if (actionType && actionType === 'wait') {

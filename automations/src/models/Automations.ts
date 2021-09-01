@@ -22,16 +22,11 @@ export type TriggerType =
   | 'ticket'
   | 'conversation';
 
-export type ReEnrollmentRule = {
-  property: string;
-  description?: string;
-};
-
 export interface ITrigger {
   id: string;
   type: string;
   actionId?: string;
-  config: { segmentId: string; reEnrollmentRules: ReEnrollmentRule[] };
+  config: { contentId: string; reEnrollment: boolean; reEnrollmentRules: string[] };
   style?: any;
   icon?: string;
   label?: string;

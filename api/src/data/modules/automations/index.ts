@@ -1,12 +1,17 @@
+import { isInSegment } from '../segments/queryBuilder';
 import { receiveRpcMessageBoardItem } from './boardItems';
-// import { receiveRpcMessageDeals } from './deals';
-// import { receiveRpcMessageTasks } from './tasks';
-// import { receiveRpcMessageTickets } from './tickets';
+import { sendSuccess } from './utils';
 
 export const receiveRpcMessage = async msg => {
   const { action, payload } = msg;
 
   const doc = JSON.parse(payload || '{}');
+
+  if (action === 'isInSegment') {
+    return sendSuccess({
+      check: await isInSegment(doc.segmentId, doc.targetId)
+    });
+  }
 
   return receiveRpcMessageBoardItem(action, doc);
 };

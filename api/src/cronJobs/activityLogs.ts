@@ -78,10 +78,10 @@ export const createActivityLogsFromSegments = async () => {
       data: { segment, contentIds, type: segment.contentType }
     });
 
-    messageBroker().sendMessage(RABBITMQ_QUEUES.AUTOMATIONS_TRIGGER, {
-      type: segment.contentType,
-      targets: result
-    });
+    // messageBroker().sendMessage(RABBITMQ_QUEUES.AUTOMATIONS_TRIGGER, {
+    //   type: segment.contentType,
+    //   targets: result
+    // });
   }
 };
 
