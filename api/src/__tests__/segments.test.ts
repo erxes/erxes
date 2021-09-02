@@ -40,6 +40,16 @@ const initialData = async () => {
   await sleep(2000);
 };
 
+const initialData2 = async () => {
+  await customerFactory({ firstName: 'c1' }, false, true);
+  await customerFactory({ firstName: 'c2' }, false, true);
+  await customerFactory({ firstName: 'bat' }, false, true);
+  await customerFactory({ firstName: 'dorj' }, false, true);
+  await customerFactory({ firstName: 'jombo', lastName: 'bat' }, false, true);
+
+  await sleep(2000);
+};
+
 describe('Segments mutations', () => {
   beforeEach(async () => {
     await putMappings();
@@ -95,38 +105,82 @@ describe('Segments mutations', () => {
     });
 
     const selector = { bool: {} };
+
     await generateQueryBySegment({
       segment: mainSegment,
       selector: selector.bool
     });
 
-    expect(selector).toEqual({
-      bool: {
-        must: [
-          {
-            bool: {
-              should: [
-                {
-                  bool: {
-                    must: [
-                      { wildcard: { lastName: '*dombo*' } },
-                      { wildcard: { lastName: '*rombo*' } }
-                    ]
-                  }
-                },
-                { bool: { must_not: [{ term: { status: 'deleted' } }] } }
-              ]
-            }
-          },
-          { wildcard: { firstName: '*bat*' } }
-        ],
-        must_not: [{ term: { status: 'deleted' } }]
-      }
+    const result = await fetchSegment(mainSegment);
+
+    expect(result.length).toBe(2);
+  });
+
+  test('fetchBySegment: OR second', async () => {
+    await initialData2();
+
+    const sub1 = await segmentFactory({
+      contentType: 'customer',
+      conditionsConjunction: 'or',
+
+      conditions: [
+        {
+          type: 'property',
+          propertyType: 'customer',
+          propertyName: 'firstName',
+          propertyOperator: 'c',
+          propertyValue: 'bat'
+        },
+        {
+          type: 'property',
+          propertyType: 'customer',
+          propertyName: 'firstName',
+          propertyOperator: 'c',
+          propertyValue: 'dorj'
+        }
+      ]
+    });
+
+    const sub2 = await segmentFactory({
+      contentType: 'customer',
+
+      conditions: [
+        {
+          type: 'property',
+          propertyType: 'customer',
+          propertyName: 'lastName',
+          propertyOperator: 'c',
+          propertyValue: 'bat'
+        }
+      ]
+    });
+
+    const mainSegment = await segmentFactory({
+      contentType: 'customer',
+      conditionsConjunction: 'or',
+
+      conditions: [
+        {
+          type: 'subSegment',
+          subSegmentId: sub1._id
+        },
+        {
+          type: 'subSegment',
+          subSegmentId: sub2._id
+        }
+      ]
+    });
+
+    const selector = { bool: {} };
+
+    await generateQueryBySegment({
+      segment: mainSegment,
+      selector: selector.bool
     });
 
     const result = await fetchSegment(mainSegment);
 
-    expect(result.length).toBe(2);
+    expect(result.length).toBe(3);
   });
 
   test('fetchBySegment: AND', async () => {
@@ -177,6 +231,79 @@ describe('Segments mutations', () => {
 
     expect(result.length).toBe(1);
     expect(result[0]).toBe(customer?._id);
+  });
+
+  test('fetchBySegment: AND complex', async () => {
+    await initialData2();
+
+    const sub1 = await segmentFactory({
+      contentType: 'customer',
+
+      conditions: [
+        {
+          type: 'property',
+          propertyType: 'customer',
+          propertyName: 'firstName',
+          propertyOperator: 'c',
+          propertyValue: 'bat'
+        },
+        {
+          type: 'property',
+          propertyType: 'customer',
+          propertyName: 'firstName',
+          propertyOperator: 'dnc',
+          propertyValue: 'dorj'
+        }
+      ]
+    });
+
+    const sub2 = await segmentFactory({
+      contentType: 'customer',
+
+      conditions: [
+        {
+          type: 'property',
+          propertyType: 'customer',
+          propertyName: 'lastName',
+          propertyOperator: 'c',
+          propertyValue: 'bat'
+        }
+      ]
+    });
+
+    const mainSegment = await segmentFactory({
+      contentType: 'customer',
+      conditionsConjunction: 'or',
+
+      conditions: [
+        {
+          type: 'subSegment',
+          subSegmentId: sub1._id
+        },
+        {
+          type: 'subSegment',
+          subSegmentId: sub2._id
+        },
+        {
+          type: 'property',
+          propertyType: 'customer',
+          propertyName: 'firstName',
+          propertyOperator: 'e',
+          propertyValue: 'c1'
+        }
+      ]
+    });
+
+    const selector = { bool: {} };
+
+    await generateQueryBySegment({
+      segment: mainSegment,
+      selector: selector.bool
+    });
+
+    const result = await fetchSegment(mainSegment);
+
+    expect(result.length).toBe(3);
   });
 
   test('fetchBySegment: event', async () => {

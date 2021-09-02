@@ -152,27 +152,26 @@ export const generateQueryBySegment = async (args: {
       ? defaultMustSelector.map(s => ({ ...s }))
       : [];
 
-  if (segment.conditionsConjunction === 'and') {
+  const cj = segment.conditionsConjunction;
+
+  if (cj === 'and') {
     selector.must = must;
     selector.must_not = [];
   } else {
-    selector.should = [
+    selector.must = [
       {
         bool: {
-          must: []
-        }
-      },
-      {
-        bool: {
+          should: [],
           must_not: []
         }
       }
     ];
   }
 
-  const selectorPositiveList = selector.must || selector.should[0].bool.must;
+  const selectorPositiveList =
+    cj === 'and' ? selector.must : selector.must[0].bool.should;
   const selectorNegativeList =
-    selector.must_not || selector.should[1].bool.must_not;
+    cj === 'and' ? selector.must_not : selector.must[0].bool.must_not;
 
   const embeddedParentSegment = await Segments.findOne({ _id: segment.subOf });
   const parentSegment = embeddedParentSegment;
@@ -693,15 +692,15 @@ const associationPropertyFilter = async ({
 
   if (associatedTypes.includes(propertyType)) {
     const mainTypeIds = await fetchByQuery({
-      index: getIndexByContentType(mainType),
+      index: getIndexByContentType(propertyType),
       positiveQuery,
       negativeQuery
     });
 
     return Conformities.filterConformity({
-      mainType,
+      mainType: propertyType,
       mainTypeIds,
-      relType: propertyType
+      relType: mainType
     });
   }
 
