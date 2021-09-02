@@ -1,30 +1,34 @@
 import client from 'apolloClient';
 import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
+import { ITrigger } from 'modules/automations/types';
 import { queries as boardQueries } from 'modules/boards/graphql';
 import { BoardsQueryResponse } from 'modules/boards/types';
 import ButtonMutate from 'modules/common/components/ButtonMutate';
 import { IButtonMutateProps } from 'modules/common/types';
 import { withProps } from 'modules/common/utils';
-import { queries as formQueries } from 'modules/forms/graphql';
 import React from 'react';
 import { graphql } from 'react-apollo';
-import SegmentsForm from '../components/SegmentsForm';
-import { mutations, queries } from '../graphql';
+import SegmentsForm from '../../components/form/SegmentsForm';
+import { mutations, queries } from '../../graphql';
 import {
   AddMutationResponse,
   EditMutationResponse,
   EventsQueryResponse,
   HeadSegmentsQueryResponse,
   ISegmentCondition,
-  SegmentDetailQueryResponse
-} from '../types';
-import { isBoardKind } from '../utils';
+  SegmentDetailQueryResponse,
+  SegmentsQueryResponse
+} from '../../types';
+import { isBoardKind } from '../../utils';
 
 type Props = {
   contentType: string;
-  history: any;
+  history?: any;
   id?: string;
+  closeModal: () => void;
+  activeTrigger?: ITrigger;
+  addConfig: (trigger: ITrigger, id?: string, config?: any) => void;
 };
 
 type FinalProps = {
@@ -32,6 +36,7 @@ type FinalProps = {
   headSegmentsQuery: HeadSegmentsQueryResponse;
   eventsQuery: EventsQueryResponse;
   boardsQuery?: BoardsQueryResponse;
+  segmentsQuery: SegmentsQueryResponse;
 } & Props &
   AddMutationResponse &
   EditMutationResponse;
@@ -50,14 +55,6 @@ class SegmentsFormContainer extends React.Component<
     };
   }
 
-  componentWillMount() {
-    const { headSegmentsQuery } = this.props;
-
-    headSegmentsQuery.refetch();
-
-    this.fetchFields();
-  }
-
   renderButton = ({
     name,
     values,
@@ -65,19 +62,35 @@ class SegmentsFormContainer extends React.Component<
     callback,
     object
   }: IButtonMutateProps) => {
-    const { contentType, history } = this.props;
+    const {
+      contentType,
+      history,
+      addConfig,
+      activeTrigger,
+      closeModal
+    } = this.props;
 
-    const callBackResponse = () => {
-      history.push(`/segments/${contentType}`);
+    const callBackResponse = data => {
+      if (history) {
+        history.push(`/segments/${contentType}`);
+      }
 
       if (callback) {
         callback();
+      }
+
+      if (addConfig && activeTrigger) {
+        const result = values._id ? data.segmentsEdit : data.segmentsAdd;
+
+        addConfig(activeTrigger, activeTrigger.id, { contentId: result._id });
+
+        closeModal();
       }
     };
 
     return (
       <ButtonMutate
-        mutation={object ? mutations.segmentsEdit : mutations.segmentsAdd}
+        mutation={values._id ? mutations.segmentsEdit : mutations.segmentsAdd}
         variables={values}
         callback={callBackResponse}
         isSubmitted={isSubmitted}
@@ -88,27 +101,6 @@ class SegmentsFormContainer extends React.Component<
         } a ${name}`}
       />
     );
-  };
-
-  fetchFields = (pipelineId?: string) => {
-    const { id, contentType } = this.props;
-
-    client
-      .query({
-        query: gql(formQueries.fieldsCombinedByContentType),
-        variables: {
-          segmentId: id,
-          pipelineId,
-          contentType: ['visitor', 'lead', 'customer'].includes(contentType)
-            ? 'customer'
-            : contentType
-        }
-      })
-      .then(({ data }) => {
-        this.setState({
-          fields: data.fieldsCombinedByContentType
-        });
-      });
   };
 
   previewCount = ({
@@ -151,7 +143,9 @@ class SegmentsFormContainer extends React.Component<
       segmentDetailQuery,
       headSegmentsQuery,
       boardsQuery,
-      eventsQuery
+      eventsQuery,
+      segmentsQuery,
+      history
     } = this.props;
 
     if (segmentDetailQuery.loading) {
@@ -163,6 +157,8 @@ class SegmentsFormContainer extends React.Component<
 
     const segment = segmentDetailQuery.segmentDetail;
     const headSegments = headSegmentsQuery.segmentsGetHeads || [];
+    const segments = segmentsQuery.segments || [];
+    const isModal = history ? false : true;
 
     const updatedProps = {
       ...this.props,
@@ -171,13 +167,14 @@ class SegmentsFormContainer extends React.Component<
       headSegments: headSegments.filter(s =>
         s.contentType === contentType && segment ? s._id !== segment._id : true
       ),
+      segments: segments.filter(s => (segment ? s._id !== segment._id : true)),
       events,
       renderButton: this.renderButton,
       previewCount: this.previewCount,
-      fetchFields: this.fetchFields,
       fields: this.state.fields,
       count: this.state.count,
-      counterLoading: this.state.loading
+      counterLoading: this.state.loading,
+      isModal
     };
 
     return <SegmentsForm {...updatedProps} />;
@@ -191,6 +188,7 @@ export default withProps<Props>(
       {
         name: 'segmentDetailQuery',
         options: ({ id }) => ({
+          fetchPolicy: 'network-only',
           variables: { _id: id }
         })
       }
@@ -201,6 +199,17 @@ export default withProps<Props>(
         name: 'headSegmentsQuery'
       }
     ),
+    graphql<Props, SegmentsQueryResponse, { contentTypes: string[] }>(
+      gql(queries.segments),
+      {
+        name: 'segmentsQuery',
+        options: ({ contentType }) => ({
+          fetchPolicy: 'network-only',
+          variables: { contentTypes: [contentType] }
+        })
+      }
+    ),
+
     graphql<Props>(gql(queries.events), {
       name: 'eventsQuery',
       options: ({ contentType }) => ({

@@ -5,43 +5,58 @@ import React from 'react';
 import { ISegmentCondition } from '../../types';
 
 type Props = {
+  segmentKey?: string;
   contentType: string;
-  addCondition: (condition: ISegmentCondition) => void;
+  isModal?: boolean;
+  addCondition: (condition: ISegmentCondition, segmentKey?: string) => void;
 };
 
 function AddConditionButton(props: Props) {
+  const { segmentKey, isModal } = props;
+
   const addPropertyCondition = () => {
-    props.addCondition({
-      key: Math.random().toString(),
-      type: 'property',
-      propertyName: '',
-      propertyValue: '',
-      propertyOperator: ''
-    });
+    props.addCondition(
+      {
+        key: Math.random().toString(),
+        type: 'property',
+        propertyName: '',
+        propertyValue: '',
+        propertyOperator: ''
+      },
+      isModal ? segmentKey : ''
+    );
   };
 
   const addEventCondition = () => {
-    props.addCondition({
-      key: Math.random().toString(),
-      type: 'event',
-      eventAttributeFilters: []
-    });
+    props.addCondition(
+      {
+        key: Math.random().toString(),
+        type: 'event',
+        eventAttributeFilters: []
+      },
+      isModal ? segmentKey : ''
+    );
   };
 
   const renderAddEvents = () => {
-    if (!['customer', 'lead', 'visitor'].includes(props.contentType)) {
+    if (
+      !['customer', 'lead', 'visitor'].includes(props.contentType) ||
+      isModal
+    ) {
       return null;
     }
 
     return (
-      <Button
-        id="segment-add-events"
-        btnStyle="primary"
-        icon="computer-mouse"
-        onClick={addEventCondition}
-      >
-        {__('Add Events')}
-      </Button>
+      <>
+        <Button
+          id="segment-add-events"
+          btnStyle="primary"
+          icon="computer-mouse"
+          onClick={addEventCondition}
+        >
+          {__('Add Events')}
+        </Button>
+      </>
     );
   };
 

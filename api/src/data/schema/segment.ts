@@ -5,6 +5,16 @@ export const types = `
     value: String,
   }
 
+  input SubSegment {
+    _id: String
+    contentType: String
+    conditions: JSON
+    conditionsConjunction: String
+
+    boardId: String
+    pipelineId: String
+  }
+
   input SegmentCondition {
     type: String,
 
@@ -16,18 +26,22 @@ export const types = `
     eventOccurence: String,
     eventOccurenceValue: Float,
     eventAttributeFilters: [EventAttributeFilter],
+
+    subSegmentId: String
   }
 
   type Segment {
     _id: String!
     contentType: String!
-    name: String!
+    name: String
     description: String
     subOf: String
     color: String
     conditions: JSON
+    conditionsConjunction: String
 
     getSubSegments: [Segment]
+    getConditionSegments: [Segment]
 
     boardId: String
     pipelineId: String
@@ -43,13 +57,15 @@ export const queries = `
 `;
 
 const commonFields = `
-  name: String!,
+  name: String,
   description: String,
   subOf: String,
   color: String,
   conditions: [SegmentCondition],
   boardId: String,
   pipelineId: String,
+  conditionsConjunction: String
+  conditionSegments: [SubSegment]
 `;
 
 export const mutations = `

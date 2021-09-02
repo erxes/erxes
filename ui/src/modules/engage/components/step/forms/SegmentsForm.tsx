@@ -7,11 +7,12 @@ type Props = {
   fields: any[];
   renderButton: (props: IButtonMutateProps) => JSX.Element;
   headSegments: ISegment[];
+  segments: ISegment[];
   afterSave: () => void;
 };
 
 const SegmentsForm = (props: Props) => {
-  const { fields, renderButton, headSegments, afterSave } = props;
+  const { fields, renderButton, headSegments, afterSave, segments } = props;
 
   return (
     <Form
@@ -19,6 +20,7 @@ const SegmentsForm = (props: Props) => {
       events={[]}
       renderButton={renderButton}
       headSegments={headSegments}
+      segments={segments}
       afterSave={afterSave}
     />
   );

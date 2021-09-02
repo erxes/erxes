@@ -3,10 +3,11 @@ import * as cookie from 'cookie';
 import * as dotenv from 'dotenv';
 import * as jwt from 'jsonwebtoken';
 import {
+  AutomationsAPI,
+  ClientPortalAPI,
   EngagesAPI,
   HelpersApi,
-  IntegrationsAPI,
-  ClientPortalAPI
+  IntegrationsAPI
 } from './data/dataSources';
 import resolvers from './data/resolvers';
 import * as typeDefDetails from './data/schema';
@@ -44,6 +45,7 @@ if (NODE_ENV !== 'production') {
 
 const generateDataSources = () => {
   return {
+    AutomationsAPI: new AutomationsAPI(),
     EngagesAPI: new EngagesAPI(),
     IntegrationsAPI: new IntegrationsAPI(),
     HelpersApi: new HelpersApi(),

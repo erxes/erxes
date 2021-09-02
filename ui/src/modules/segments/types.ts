@@ -6,6 +6,7 @@ export interface IEvent {
 }
 
 export interface IConditionFilter {
+  segmentKey?: string;
   key?: string;
   name: string;
   operator: string;
@@ -18,11 +19,27 @@ export interface ISegmentCondition {
   propertyName?: string;
   propertyOperator?: string;
   propertyValue?: string;
+  propertyType?: string;
 
   eventName?: string;
   eventOccurence?: string;
   eventOccurenceValue?: number;
   eventAttributeFilters?: IConditionFilter[];
+
+  subSegmentId?: string;
+}
+
+export interface ISegmentMap {
+  key: string;
+  contentType: string;
+  conditions: ISegmentCondition[];
+  conditionsConjunction: string;
+}
+
+export interface ISubSegment {
+  contentType: string;
+  conditionsConjunction?: string;
+  conditions?: ISegmentCondition[];
 }
 export interface ISegmentWithConditionDoc {
   name: string;
@@ -39,12 +56,16 @@ export interface ISegmentDoc {
   color: string;
   conditions: ISegmentCondition[];
   subOf: string;
+  subSegments?: ISubSegment[];
+  conditionsConjunction: string;
 }
 
 export interface ISegment extends ISegmentDoc {
   _id: string;
   contentType: string;
+  conditionsConjunction: string;
   getSubSegments: ISegment[];
+  getConditionSegments: ISegment[];
   getParentSegment: ISegment;
 }
 
@@ -82,6 +103,7 @@ export type AddMutationVariables = {
 export type IField = {
   selectOptions?: Array<{ label: string; value: string | number }>;
   type?: string;
+  group?: string;
   value: string;
   label: string;
   options?: string[];

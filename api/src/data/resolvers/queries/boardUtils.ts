@@ -228,7 +228,7 @@ export const generateCommonFilters = async (
 
   if (segment) {
     const segmentObj = await Segments.findOne({ _id: segment }).lean();
-    const itemIds = await fetchSegment('search', segmentObj);
+    const itemIds = await fetchSegment(segmentObj);
 
     filter._id = { $in: itemIds };
   }

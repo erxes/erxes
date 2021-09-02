@@ -351,6 +351,50 @@ const getTags = async (type: string) => {
   };
 };
 
+const getFroms = async () => {
+  const forms = await Integrations.aggregate([
+    { $match: { kind: 'lead' } },
+    {
+      $project: {
+        _id: 0,
+        label: '$name',
+        value: '$_id'
+      }
+    }
+  ]);
+
+  return {
+    _id: Math.random(),
+    name: 'formIds',
+    group: 'Form & Form fields',
+    label: 'Form',
+    type: 'form',
+    selectOptions: forms
+  };
+};
+
+const getFormFields = async () => {
+  const fields = await Fields.aggregate([
+    { $match: { contentType: 'form' } },
+    {
+      $project: {
+        _id: 0,
+        label: '$text',
+        value: '$_id'
+      }
+    }
+  ]);
+
+  return {
+    _id: Math.random(),
+    name: 'formFieldIds',
+    group: 'Form & Form fields',
+    label: 'Form field',
+    type: 'formField',
+    selectOptions: fields
+  };
+};
+
 /*
  * Generates fields using given schema
  */
@@ -409,6 +453,7 @@ export const fieldsCombinedByContentType = async ({
   let fields: Array<{
     _id: number;
     name: string;
+    group?: string;
     label?: string;
     type?: string;
     validation?: string;
@@ -447,18 +492,20 @@ export const fieldsCombinedByContentType = async ({
       break;
   }
 
-  // generate list using customer or company schema
-  fields = [...fields, ...(await generateFieldsFromSchema(schema, ''))];
+  if (schema) {
+    // generate list using customer or company schema
+    fields = [...fields, ...(await generateFieldsFromSchema(schema, ''))];
 
-  for (const name of Object.keys(schema.paths)) {
-    const path = schema.paths[name];
+    for (const name of Object.keys(schema.paths)) {
+      const path = schema.paths[name];
 
-    // extend fields list using sub schema fields
-    if (path.schema) {
-      fields = [
-        ...fields,
-        ...(await generateFieldsFromSchema(path.schema, `${name}.`))
-      ];
+      // extend fields list using sub schema fields
+      if (path.schema) {
+        fields = [
+          ...fields,
+          ...(await generateFieldsFromSchema(path.schema, `${name}.`))
+        ];
+      }
     }
   }
 
@@ -565,6 +612,26 @@ export const fieldsCombinedByContentType = async ({
     const ownerOptions = await generateUsersOptions('ownerId', 'Owner', 'user');
 
     fields = [...fields, ownerOptions];
+  }
+
+  if (contentType === 'form_submission') {
+    const forms = await getFroms();
+    const formFeilds = await getFormFields();
+    const formFieldsValues = await getCustomFields('form');
+
+    for (const formField of formFieldsValues) {
+      fields.push({
+        _id: Math.random(),
+        name: formField._id,
+        group: `Form fields value`,
+        label: formField.text,
+        options: formField.options,
+        validation: formField.validation,
+        type: formField.type
+      });
+    }
+
+    fields = [...fields, ...[forms], ...[formFeilds]];
   }
 
   if (

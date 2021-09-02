@@ -1,3 +1,4 @@
+import { ITrigger } from 'modules/automations/types';
 import { IBoard } from 'modules/boards/types';
 import Spinner from 'modules/common/components/Spinner';
 import { Title } from 'modules/common/styles/main';
@@ -7,9 +8,9 @@ import Sidebar from 'modules/layout/components/Sidebar';
 import Wrapper from 'modules/layout/components/Wrapper';
 import { FlexContent } from 'modules/layout/styles';
 import React from 'react';
-import { IEvent, ISegment, ISegmentCondition } from '../types';
-import Form from './common/Form';
-import { ResultCount, SegmentResult } from './styles';
+import { IEvent, ISegment, ISegmentCondition } from '../../types';
+import Form from './Form';
+import { ResultCount, SegmentResult } from '../styles';
 
 type Props = {
   contentType: string;
@@ -19,8 +20,8 @@ type Props = {
   renderButton: (props: IButtonMutateProps) => JSX.Element;
   segment: ISegment;
   headSegments: ISegment[];
+  segments: ISegment[];
   count: number;
-  fetchFields: (pipelineId?: string) => void;
   previewCount: (args: {
     conditions: ISegmentCondition[];
     subOf?: string;
@@ -28,6 +29,11 @@ type Props = {
     pipelineId?: string;
   }) => void;
   counterLoading: boolean;
+  isModal: boolean;
+  isAutomation?: boolean;
+  closeModal: () => void;
+  closeParentModal?: () => void;
+  activeTrigger?: ITrigger;
 };
 
 const SegmentsForm = (props: Props) => {
@@ -70,8 +76,9 @@ const SegmentsForm = (props: Props) => {
     events,
     headSegments,
     boards,
-    fetchFields,
-    previewCount
+    isModal,
+    closeModal,
+    segments
   } = props;
 
   const title = props.segment
@@ -84,24 +91,28 @@ const SegmentsForm = (props: Props) => {
     { title }
   ];
 
-  return (
+  const content = (
+    <Form
+      contentType={contentType}
+      fields={fields}
+      events={events}
+      boards={boards}
+      renderButton={renderButton}
+      segment={segment}
+      headSegments={headSegments}
+      segments={segments}
+      closeModal={closeModal}
+      isModal={isModal}
+    />
+  );
+
+  return isModal ? (
+    content
+  ) : (
     <Wrapper
       header={<Wrapper.Header title={title} breadcrumb={breadcrumb} />}
       actionBar={<Wrapper.ActionBar left={pageTitle} />}
-      content={
-        <Form
-          contentType={contentType}
-          fields={fields}
-          events={events}
-          boards={boards}
-          renderButton={renderButton}
-          segment={segment}
-          headSegments={headSegments}
-          fetchFields={fetchFields}
-          previewCount={previewCount}
-          isForm={true}
-        />
-      }
+      content={content}
       rightSidebar={renderSidebar()}
     />
   );

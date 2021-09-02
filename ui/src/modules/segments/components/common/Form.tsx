@@ -20,7 +20,7 @@ import {
 } from 'modules/segments/types';
 import { isBoardKind } from 'modules/segments/utils';
 import { EMPTY_NEW_SEGMENT_CONTENT } from 'modules/settings/constants';
-import { ColorPick, ColorPicker, ExpandWrapper } from 'modules/settings/styles';
+import { ColorPick, ColorPicker } from 'modules/settings/styles';
 import React from 'react';
 import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
 import Popover from 'react-bootstrap/Popover';
@@ -41,7 +41,9 @@ type Props = {
   edit?: (params: { _id: string; doc: ISegmentWithConditionDoc }) => void;
   segment?: ISegment;
   headSegments: ISegment[];
+  segments: ISegment[];
   isForm?: boolean;
+  closeModal?: () => void;
   afterSave?: () => void;
   fetchFields?: (pipelineId?: string) => void;
   previewCount?: (args: {
@@ -50,9 +52,12 @@ type Props = {
     boardId?: string;
     pipelineId?: string;
   }) => void;
+  isModal?: boolean;
+  isAutomation?: boolean;
 };
 
 type State = {
+  _id?: string;
   name: string;
   description: string;
   subOf: string;
@@ -60,9 +65,11 @@ type State = {
   conditions: ISegmentCondition[];
   boardId?: string;
   pipelineId?: string;
+  conditionsConjunction?: string;
+  isCreate?: boolean;
 };
 
-class Form extends React.Component<Props, State> {
+class SegmentForm extends React.Component<Props, State> {
   constructor(props) {
     super(props);
 
@@ -71,7 +78,8 @@ class Form extends React.Component<Props, State> {
       description: '',
       subOf: '',
       color: generateRandomColorCode(),
-      conditions: []
+      conditions: [],
+      conditionsConjunction: ''
     };
 
     segment.conditions = segment.conditions.map((cond: ISegmentCondition) => ({
@@ -171,15 +179,20 @@ class Form extends React.Component<Props, State> {
     name: string;
     subOf: string;
     color: string;
+    conditionsConjunction: string;
   }) => {
-    const { segment, contentType } = this.props;
-    const { color, conditions, boardId, pipelineId } = this.state;
+    const { contentType } = this.props;
+    const { color, conditions, boardId, pipelineId, _id, name } = this.state;
     const finalValues = values;
 
     const updatedConditions: ISegmentCondition[] = [];
 
-    if (segment) {
-      finalValues._id = segment._id;
+    if (_id) {
+      finalValues._id = _id;
+    }
+
+    if (!finalValues.name) {
+      finalValues.name = name;
     }
 
     conditions.forEach((cond: ISegmentCondition) => {
@@ -230,6 +243,24 @@ class Form extends React.Component<Props, State> {
 
   renderCondition(condition: ISegmentCondition) {
     const { fields, events } = this.props;
+    if (
+      condition.type === 'property' &&
+      condition.propertyType &&
+      condition.propertyType === 'form_submission'
+    ) {
+      return (
+        <PropertyCondition
+          fields={fields}
+          key={condition.key}
+          conditionKey={condition.key || ''}
+          name={condition.propertyName || ''}
+          operator={condition.propertyOperator || ''}
+          value={condition.propertyValue || ''}
+          onChange={this.changePropertyCondition}
+          onRemove={this.removeCondition}
+        />
+      );
+    }
 
     if (condition.type === 'property') {
       return (
@@ -263,8 +294,9 @@ class Form extends React.Component<Props, State> {
 
   renderConditions() {
     const { conditions } = this.state;
+    const { isModal } = this.props;
 
-    if (conditions.length === 0) {
+    if (conditions.length === 0 && !isModal) {
       return (
         <EmptyContent
           content={EMPTY_NEW_SEGMENT_CONTENT}
@@ -313,6 +345,7 @@ class Form extends React.Component<Props, State> {
       <FilterBox>
         {this.renderConditions()}
         <AddConditionButton
+          isModal={this.props.isModal}
           contentType={this.props.contentType || ''}
           addCondition={this.addCondition}
         />
@@ -357,14 +390,49 @@ class Form extends React.Component<Props, State> {
     );
   };
 
+  renderSelect = () => {
+    const onChange = e => {
+      const selectedSegment =
+        this.props.segments.find(s => s._id === e.value) || {};
+
+      this.setState(selectedSegment);
+    };
+
+    if (!this.props.isAutomation) {
+      return null;
+    }
+
+    return (
+      <>
+        <FormGroup>
+          <ControlLabel required={true}>Segment</ControlLabel>
+
+          <Select
+            placeholder={__('Choose segment')}
+            options={this.props.segments.map(s => ({
+              label: s.name,
+              value: s._id
+            }))}
+            value={this.state._id}
+            onChange={onChange}
+            multi={false}
+          />
+
+          <p> Or crete new</p>
+        </FormGroup>
+      </>
+    );
+  };
+
   renderForm = (formProps: IFormProps) => {
     const {
-      isForm,
+      isModal,
       segment,
       contentType,
       renderButton,
       afterSave,
-      previewCount
+      previewCount,
+      closeModal
     } = this.props;
 
     const { values, isSubmitted } = formProps;
@@ -388,6 +456,12 @@ class Form extends React.Component<Props, State> {
       );
 
     const colorOnChange = e => this.handleChange('color', e.hex);
+
+    const conjunctionOnChange = (e: React.FormEvent) =>
+      this.handleChange(
+        'conditionsConjunction',
+        (e.currentTarget as HTMLInputElement).value
+      );
 
     const onPreviewCount = () => {
       if (previewCount) {
@@ -423,7 +497,7 @@ class Form extends React.Component<Props, State> {
         </FlexContent>
 
         <FlexContent>
-          <ExpandWrapper>
+          <FlexItem count={7}>
             <FormGroup>
               <ControlLabel>Description</ControlLabel>
               <FormControl
@@ -433,23 +507,39 @@ class Form extends React.Component<Props, State> {
                 onChange={descOnChange}
               />
             </FormGroup>
-          </ExpandWrapper>
-
-          <FormGroup>
-            <ControlLabel>Color</ControlLabel>
-            <div id="segment-color">
-              <OverlayTrigger
-                trigger="click"
-                rootClose={true}
-                placement="bottom"
-                overlay={popoverTop}
+          </FlexItem>
+          <FlexItem count={3} hasSpace={true}>
+            <FormGroup>
+              <ControlLabel>Conjunction</ControlLabel>
+              <FormControl
+                {...formProps}
+                name="conditionsConjunction"
+                componentClass="select"
+                value={this.state.conditionsConjunction || ''}
+                onChange={conjunctionOnChange}
               >
-                <ColorPick>
-                  <ColorPicker style={{ backgroundColor: color }} />
-                </ColorPick>
-              </OverlayTrigger>
-            </div>
-          </FormGroup>
+                <option value="and">{__('And')}</option>
+                <option value="or">{__('Or')}</option>
+              </FormControl>
+            </FormGroup>
+          </FlexItem>
+          <FlexItem hasSpace={true}>
+            <FormGroup>
+              <ControlLabel>Color</ControlLabel>
+              <div id="segment-color">
+                <OverlayTrigger
+                  trigger="click"
+                  rootClose={true}
+                  placement="bottom"
+                  overlay={popoverTop}
+                >
+                  <ColorPick>
+                    <ColorPicker style={{ backgroundColor: color }} />
+                  </ColorPick>
+                </OverlayTrigger>
+              </div>
+            </FormGroup>
+          </FlexItem>
         </FlexContent>
 
         {this.renderBoardFields()}
@@ -457,28 +547,39 @@ class Form extends React.Component<Props, State> {
 
         <ModalFooter id="button-group">
           <Button.Group>
-            {isForm && (
-              <Link to={`/segments/${contentType}`}>
-                <Button btnStyle="simple" icon="times-circle">
-                  Cancel
-                </Button>
-              </Link>
-            )}
-
-            {previewCount && (
+            {isModal ? (
               <Button
-                id="segment-show-count"
-                icon="crosshairs"
-                onClick={onPreviewCount}
+                btnStyle="simple"
+                type="button"
+                icon="times-circle"
+                onClick={closeModal}
               >
-                Show count
+                Cancel
               </Button>
+            ) : (
+              <>
+                <Link to={`/segments/${contentType}`}>
+                  <Button btnStyle="simple" icon="times-circle">
+                    Cancel
+                  </Button>
+                </Link>
+
+                {previewCount && (
+                  <Button
+                    id="segment-show-count"
+                    icon="crosshairs"
+                    onClick={onPreviewCount}
+                  >
+                    Show count
+                  </Button>
+                )}
+              </>
             )}
 
             {renderButton({
               name: 'segment',
               values: this.generateDoc(values),
-              callback: afterSave,
+              callback: closeModal || afterSave,
               isSubmitted,
               object: segment
             })}
@@ -491,10 +592,11 @@ class Form extends React.Component<Props, State> {
   render() {
     return (
       <SegmentWrapper>
+        {this.renderSelect()}
         <CommonForm renderContent={this.renderForm} />
       </SegmentWrapper>
     );
   }
 }
 
-export default Form;
+export default SegmentForm;

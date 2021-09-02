@@ -19,7 +19,8 @@ const segmentQueries = {
   ) {
     const selector: any = {
       ...commonQuerySelector,
-      contentType: { $in: contentTypes }
+      contentType: { $in: contentTypes },
+      name: { $exists: true }
     };
 
     if (boardId) {
@@ -118,15 +119,18 @@ const segmentQueries = {
       pipelineId?: string;
     }
   ) {
-    return fetchSegment('count', {
-      name: 'preview',
-      color: '#fff',
-      subOf: subOf || '',
-      boardId,
-      pipelineId,
-      contentType,
-      conditions
-    });
+    return fetchSegment(
+      {
+        name: 'preview',
+        color: '#fff',
+        subOf: subOf || '',
+        boardId,
+        pipelineId,
+        contentType,
+        conditions
+      },
+      { returnCount: true }
+    );
   }
 };
 

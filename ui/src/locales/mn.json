@@ -1650,7 +1650,7 @@
   "Archive All Cards in This List?": "Энэ нь бүх картны жагсаалтыг самбараас хасах болно. Архивлагдсан жагсаалтыг үзэх, тэдгээрийг самбар дээр буцааж авчрахын тулд &#39;Цэс&#39;&gt; &#39;Архивлагдсан зүйлс&#39; дээр дарна уу. Чи итгэлтэй байна уу?",
   "Add or overwrite default theme styles with your own custom css": "Өөрийн хүссэн CSS ашиглан үндсэн загварын хэв маягийг нэмж эсвэл дарж бичээрэй",
   "Need help": "Тусламж хэрэгтэй",
-  "Need Help":"Тусламж хэрэгтэй",
+  "Need Help": "Тусламж хэрэгтэй",
   "Connect Integration": "Интеграцийг холбох",
   "Resolve all": "Бүгдийг шийд",
   "Watch Tutorial": "Хичээлийг үзэх",
@@ -2000,6 +2000,6 @@
   "We're thrilled to have you on board and can't wait to see you set up your business here already": "Таныг онгоцонд суулгасандаа бид маш их баяртай байгаа бөгөөд таныг энд бизнесээ эхлүүлэхийг тэсэн ядан хүлээж байна",
   "Get Started": "Эхэлцгээе",
   "Forum": "Форум",
-  "Marketing":"Маркетинг",
-  "Reports":"Тайлан"
+  "Marketing": "Маркетинг",
+  "Reports": "Тайлан"
 }

@@ -277,8 +277,6 @@ describe('engageQueries', () => {
       { dataSources }
     );
 
-    console.log('responseFromCache: ', responseFromCache);
-
     expect(responseFromCache._id).toBe(engageMessageWithBrand._id);
     expect(responseFromCache.brand._id).toBe(brand._id);
     expect(responseFromCache.brands[0]._id).toBe(brand._id);

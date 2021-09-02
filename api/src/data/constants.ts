@@ -285,6 +285,7 @@ export const MODULE_NAMES = {
   ENGAGE: 'engage',
   SCRIPT: 'script',
   FIELD: 'field',
+  AUTOMATION: 'automation',
   FIELD_GROUP: 'fieldGroup',
   WEBHOOK: 'webhook',
   DASHBOARD: 'dashboard',
@@ -298,7 +299,8 @@ export const RABBITMQ_QUEUES = {
   RPC_API_TO_WEBHOOK_WORKERS: 'rpc_queue:api_to_webhook_workers',
   WORKERS: 'workers',
   VISITOR_LOG: 'visitorLog',
-  RPC_VISITOR_LOG: 'rpc_queue:visitorLog'
+  RPC_VISITOR_LOG: 'rpc_queue:visitorLog',
+  AUTOMATIONS_TRIGGER: 'erxes-automations:trigger'
 };
 
 export const AUTO_BOT_MESSAGES = {
