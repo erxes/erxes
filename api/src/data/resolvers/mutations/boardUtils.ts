@@ -404,6 +404,8 @@ const itemMover = async (
 
     content = `${board.name}-${pipeline.name}-${stage.name}`;
 
+    const link = `/${contentType}/board?id=${board._id}&pipelineId=${pipeline._id}&itemId=${item._id}`;
+
     const activityLogContent = {
       oldStageId,
       destinationStageId,
@@ -416,11 +418,10 @@ const itemMover = async (
         item,
         contentType,
         userId,
-        activityLogContent
+        activityLogContent,
+        link
       }
     });
-
-    const link = `/${contentType}/board?id=${board._id}&pipelineId=${pipeline._id}&itemId=${item._id}`;
 
     await Notifications.updateMany(
       { contentType, contentTypeId: item._id },
