@@ -147,7 +147,7 @@ export const generateQueryBySegment = async (args: {
   const { defaultMustSelector } = options;
   const typesMap = getEsTypes(contentType);
 
-  const must =
+  const defaultSelector =
     isInitialCall && defaultMustSelector
       ? defaultMustSelector.map(s => ({ ...s }))
       : [];
@@ -155,7 +155,7 @@ export const generateQueryBySegment = async (args: {
   const cj = segment.conditionsConjunction;
 
   if (cj === 'and') {
-    selector.must = must;
+    selector.must = defaultSelector;
     selector.must_not = [];
   } else {
     selector.must = [
@@ -164,7 +164,8 @@ export const generateQueryBySegment = async (args: {
           should: [],
           must_not: []
         }
-      }
+      },
+      ...defaultSelector
     ];
   }
 
