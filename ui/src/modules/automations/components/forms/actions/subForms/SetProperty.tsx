@@ -111,7 +111,7 @@ class SetProperty extends React.Component<Props, State> {
               <ControlLabel required={true}>Value</ControlLabel>
               <Attribution
                 config={this.state.config}
-                setConfig={config => this.setState({ config })}
+                setConfig={conf => this.setState({ config: conf })}
                 triggerType={this.props.triggerType}
               />
             </div>

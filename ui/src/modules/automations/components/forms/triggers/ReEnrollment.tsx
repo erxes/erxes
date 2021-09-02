@@ -79,9 +79,9 @@ class ReEnrollment extends React.Component<Props, State> {
     });
   };
 
-  renderCheckbox = cond => {
+  renderCheckbox = condition => {
     const { checked, reEnroll } = this.state;
-    return cond.conditions.map(cond => (
+    return condition.conditions.map(cond => (
       <FormControl
         key={cond.key}
         componentClass="checkbox"
