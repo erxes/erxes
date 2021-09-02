@@ -8,6 +8,10 @@ import {
 
 export type IUser = IUserC & { isSubscribed?: boolean } & {
   isShowNotification?: boolean;
+} & {
+  customFieldsData?: {
+    [key: string]: any;
+  };
 };
 export type IUserDetails = IUserDetailsC;
 export type IUserLinks = IUserLinksC;
