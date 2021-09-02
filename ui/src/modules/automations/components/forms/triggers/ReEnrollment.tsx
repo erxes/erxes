@@ -51,8 +51,6 @@ class ReEnrollment extends React.Component<Props, State> {
       reEnrollmentRules: checked
     };
 
-    console.log(config, 'dddddddddddddd');
-
     addConfig(trigger, trigger.id, config);
   };
 
@@ -83,7 +81,7 @@ class ReEnrollment extends React.Component<Props, State> {
     const { checked, reEnroll } = this.state;
     return condition.conditions.map(cond => (
       <FormControl
-        key={cond.key}
+        key={Math.random()}
         componentClass="checkbox"
         onChange={this.onChangeCheckbox}
         checked={reEnroll ? checked.includes(cond.propertyName) : false}
