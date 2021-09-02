@@ -174,14 +174,14 @@ export const calculateExecution = async ({
   const { id, type, config } = trigger;
   const { reEnrollment, reEnrollmentRules, contentId } = config;
 
-  if (!await isInSegment(contentId, target.object._id)) {
+  if (!await isInSegment(contentId, target._id)) {
     return;
   }
 
   const executions = await Executions.find({
     automationId,
     triggerId: id,
-    targetId: target.object._id
+    targetId: target._id
   });
 
   const latestExecution = executions
@@ -196,7 +196,7 @@ export const calculateExecution = async ({
     let isChanged = false;
 
     for (const reEnrollmentRule of reEnrollmentRules) {
-      if (latestExecution.target.object[reEnrollmentRule] !== target.object[reEnrollmentRule]) {
+      if (latestExecution.target[reEnrollmentRule] !== target[reEnrollmentRule]) {
         isChanged = true;
         break;
       }
@@ -211,7 +211,7 @@ export const calculateExecution = async ({
     automationId,
     triggerId: id,
     triggerType: type,
-    targetId: target.object._id,
+    targetId: target._id,
     target
   });
 };
