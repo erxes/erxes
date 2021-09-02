@@ -29,7 +29,7 @@ import { IIntegration } from '../../../../settings/integrations/types';
 import { IResponseTemplate } from '../../../../settings/responseTemplates/types';
 import { AddMessageMutationVariables, IConversation } from '../../../types';
 import FacebookTaggedMessageModal from './facebook/FacebookTaggedMessageModal';
-import { FacebookTaggedMessage, Char } from './styles';
+import { FacebookTaggedMessage } from './styles';
 
 const Editor = asyncComponent(
   () => import(/* webpackChunkName: "Editor-in-Inbox" */ './Editor'),
@@ -68,7 +68,6 @@ type State = {
   editorKey: string;
   loading: object;
   facebookMessageTag: string;
-  characterCount: number;
 };
 class RespondBox extends React.Component<Props, State> {
   constructor(props) {
@@ -85,21 +84,9 @@ class RespondBox extends React.Component<Props, State> {
       content: '',
       mentionedUserIds: [],
       loading: {},
-      facebookMessageTag: '',
-      characterCount: 160
+      facebookMessageTag: ''
     };
   }
-  // onChangeContent(e){
-  //   // const { characterCount } = this.state;
-  //   // if(characterCount >= 0 ){
-
-  //   console.log(e)
-  //     this.setState({ content: (e.target as HTMLInputElement).value,
-  //       characterCount: this.calcCharacterCount(160, (e.target as HTMLInputElement).value) });
-  //   // }
-  //   // e.preventDefault();
-  // }
-
   isContentWritten() {
     const { content } = this.state;
 
@@ -145,17 +132,19 @@ class RespondBox extends React.Component<Props, State> {
 
   // save editor current content to state
   onEditorContentChange = (content: string) => {
-    const { characterCount } = this.state;
+    this.setState({
+      content
+    });
 
-    if (characterCount >= 0) {
-      this.setState({
-        content,
-        characterCount: this.calcCharacterCount(160, content)
-      });
-      if (this.isContentWritten()) {
-        localStorage.setItem(this.props.conversation._id, content);
+    if (this.isContentWritten()) {
+      localStorage.setItem(this.props.conversation._id, content);
+    }
+
+    if (this.props.conversation.integration.kind === 'telnyx') {
+      const characterCount = this.calcCharacterCount(160);
+      if (characterCount <= 1) {
+        Alert.error('You have reached maximum number of characters');
       }
-      console.log('>0 uyd ajillalaaa', characterCount);
     }
   };
 
@@ -285,24 +274,15 @@ class RespondBox extends React.Component<Props, State> {
     return text.replace(/&nbsp;/g, ' ');
   }
 
-  calcCharacterCount = (maxlength: number, cont: string) => {
+  calcCharacterCount = (maxlength: number) => {
     const { content } = this.state;
-
-    if (!content) {
+    let cleanContent = content.replace(/<\/?[^>]+(>|$)/g, '');
+    if (!cleanContent) {
       return maxlength;
     }
-
-    let ret = maxlength - content.length;
+    let ret = maxlength - cleanContent.length;
     return ret > 0 ? ret : 0;
   };
-  checkCharacterCount = e => {
-    console.log(this.state.characterCount);
-    if (this.state.characterCount <= 0) {
-      e.preventDefault();
-      console.log('<===000000');
-    }
-  };
-
   addMessage = () => {
     const { conversation, sendMessage } = this.props;
     const {
@@ -430,11 +410,6 @@ class RespondBox extends React.Component<Props, State> {
     return null;
   }
 
-  renderCharCount() {
-    const { characterCount } = this.state;
-    return <Char count={characterCount}>{characterCount}</Char>;
-  }
-
   renderEditor() {
     const { isInternal, responseTemplate } = this.state;
     const { responseTemplates, conversation } = this.props;
@@ -450,25 +425,22 @@ class RespondBox extends React.Component<Props, State> {
     );
 
     return (
-      <div onKeyDown={this.checkCharacterCount}>
-        {this.renderCharCount}
-        <Editor
-          currentConversation={conversation._id}
-          defaultContent={this.getUnsendMessage(conversation._id)}
-          integrationKind={conversation.integration.kind}
-          key={this.state.editorKey}
-          onChange={this.onEditorContentChange}
-          onAddMention={this.onAddMention}
-          onAddMessage={this.addMessage}
-          onSearchChange={this.onSearchChange}
-          placeholder={placeholder}
-          mentions={this.props.teamMembers}
-          showMentions={isInternal}
-          responseTemplate={responseTemplate}
-          responseTemplates={responseTemplates}
-          handleFileInput={this.handleFileInput}
-        />
-      </div>
+      <Editor
+        currentConversation={conversation._id}
+        defaultContent={this.getUnsendMessage(conversation._id)}
+        integrationKind={conversation.integration.kind}
+        key={this.state.editorKey}
+        onChange={this.onEditorContentChange}
+        onAddMention={this.onAddMention}
+        onAddMessage={this.addMessage}
+        onSearchChange={this.onSearchChange}
+        placeholder={placeholder}
+        mentions={this.props.teamMembers}
+        showMentions={isInternal}
+        responseTemplate={responseTemplate}
+        responseTemplates={responseTemplates}
+        handleFileInput={this.handleFileInput}
+      />
     );
   }
 
@@ -520,7 +492,6 @@ class RespondBox extends React.Component<Props, State> {
     return (
       <EditorActions>
         {this.renderCheckbox(integration.kind)}
-
         {this.renderVideoRoom()}
 
         <Tip text={__('Attach file')}>
@@ -552,7 +523,6 @@ class RespondBox extends React.Component<Props, State> {
       </EditorActions>
     );
   }
-
   renderBody() {
     return (
       <>

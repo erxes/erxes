@@ -26,13 +26,13 @@ type EditorProps = {
   onAddMention: (mentions: any) => void;
   onAddMessage: () => void;
   onSearchChange: (value: string) => void;
+
   showMentions: boolean;
   responseTemplate: string;
   responseTemplates: IResponseTemplate[];
   handleFileInput: (e: React.FormEvent<HTMLInputElement>) => void;
   mentions: any;
   placeholder?: string | React.ReactNode;
-  characterCount: number;
 };
 
 type State = {
@@ -104,8 +104,6 @@ export default class Editor extends React.Component<EditorProps, State> {
   }
 
   componentWillReceiveProps(nextProps) {
-    if (nextProps.characterCount < 0) {
-    }
     if (nextProps.responseTemplate !== this.props.responseTemplate) {
       const editorState = createStateFromHTML(
         this.state.editorState,
@@ -129,18 +127,12 @@ export default class Editor extends React.Component<EditorProps, State> {
       this.setState({ editorState });
     }
   }
-  onKeyDown(event) {
-    event.preventDefault();
-  }
 
   onChange = editorState => {
     this.setState({ editorState, hideTemplates: false });
 
     this.props.onChange(this.getContent(editorState));
 
-    if (this.props.characterCount <= 0) {
-      // this.onKeyDown(event)
-    }
     window.requestAnimationFrame(() => {
       this.onTemplatesStateChange(this.getTemplatesState());
     });
@@ -283,15 +275,6 @@ export default class Editor extends React.Component<EditorProps, State> {
     collectedMentions.push(mention);
 
     this.setState({ collectedMentions });
-  };
-
-  handleBeforeInput = (chars, editorState: EditorState) => {
-    let content = toHTML(editorState);
-    let char = this.props.characterCount;
-
-    if (char <= 0) {
-      console.log('aa', content);
-    }
   };
 
   getContent = (editorState: EditorState) => {
