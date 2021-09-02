@@ -13,6 +13,7 @@ on:
     branches:
       - master
       - develop
+      - temp-office
     paths:
       - "automations/**"
       - "!automations/**.md"
@@ -71,7 +72,7 @@ jobs:
           MAIN_APP_DOMAIN: http://localhost:4000
 
       - name: Build
-        if: github.event_name == 'push' && ( github.ref == 'refs/heads/master' || github.ref == 'refs/heads/develop' )
+        if: github.event_name == 'push' && ( github.ref == 'refs/heads/master' || github.ref == 'refs/heads/develop' || github.ref == 'refs/heads/temp-office )
         run: |
           cd automations
           rm -rf node_modules
@@ -79,7 +80,7 @@ jobs:
           yarn build
 
       - name: Build docker image
-        if: github.event_name == 'push' && ( github.ref == 'refs/heads/master' || github.ref == 'refs/heads/develop' )
+        if: github.event_name == 'push' && ( github.ref == 'refs/heads/master' || github.ref == 'refs/heads/develop' || github.ref == 'refs/heads/temp-office )
         run: |
           cd automations
           echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin
