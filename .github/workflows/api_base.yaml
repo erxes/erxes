@@ -4,7 +4,7 @@ on:
   push:
     branches:
       - develop
-      - feat-client-portal
+      - temp-office
     paths:
       - '.github/workflows/api_base.yaml'
       - 'api/base.Dockerfile'

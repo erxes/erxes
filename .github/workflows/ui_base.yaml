@@ -5,7 +5,7 @@ on:
     branches:
       - 'develop'
       - 'apm'
-      - 'feat-client-portal'
+      - 'temp-office'
     paths:
       - 'ui/nginx/**'
       - 'ui/docker-entrypoint.sh'
