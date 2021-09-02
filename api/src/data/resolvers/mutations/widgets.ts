@@ -28,10 +28,7 @@ import {
   IIntegrationDocument,
   IMessengerDataMessagesItem
 } from '../../../db/models/definitions/integrations';
-import {
-  IKnowledgebaseCredentials,
-  ILeadCredentials
-} from '../../../db/models/definitions/messengerApps';
+import { IKnowledgebaseCredentials } from '../../../db/models/definitions/messengerApps';
 import { debugError } from '../../../debuggers';
 import { trackViewPageEvent } from '../../../events';
 import { get, set } from '../../../inmemoryStorage';
@@ -88,12 +85,15 @@ export const getMessengerData = async (integration: IIntegrationDocument) => {
       : null;
 
   // lead app ==========
-  const leadApp = await getMessengerApps('lead', integration._id);
+  const leadApps = await getMessengerApps('lead', integration._id, false);
 
-  const formCode =
-    leadApp && leadApp.credentials
-      ? (leadApp.credentials as ILeadCredentials).formCode
-      : null;
+  const formCodes = [] as string[];
+
+  for (const app of leadApps) {
+    if (app && app.credentials) {
+      formCodes.push(app.credentials.formCode);
+    }
+  }
 
   // website app ============
   const websiteApps = await getMessengerApps('website', integration._id, false);
@@ -103,7 +103,7 @@ export const getMessengerData = async (integration: IIntegrationDocument) => {
     messages: messagesByLanguage,
     knowledgeBaseTopicId: topicId,
     websiteApps,
-    formCode
+    formCodes
   };
 };
 

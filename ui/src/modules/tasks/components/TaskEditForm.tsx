@@ -34,7 +34,25 @@ type Props = {
   sendToBoard?: (item: any) => void;
 };
 
-export default class TaskEditForm extends React.Component<Props> {
+type State = {
+  refresh: boolean;
+};
+
+export default class TaskEditForm extends React.Component<Props, State> {
+  constructor(props) {
+    super(props);
+
+    this.state = {
+      refresh: false
+    };
+  }
+
+  onChangeRefresh = () => {
+    this.setState({
+      refresh: !this.state.refresh
+    });
+  };
+
   renderItems = () => {
     const { item, updateTimeTrack } = this.props;
 
@@ -88,6 +106,7 @@ export default class TaskEditForm extends React.Component<Props> {
             item={item}
             addItem={addItem}
             onChangeStage={onChangeStage}
+            onChangeRefresh={this.onChangeRefresh}
           />
 
           <Sidebar
@@ -105,7 +124,8 @@ export default class TaskEditForm extends React.Component<Props> {
     const extendedProps = {
       ...this.props,
       formContent: this.renderFormContent,
-      extraFields: this.state
+      extraFields: this.state,
+      refresh: this.state.refresh
     };
 
     return <EditForm {...extendedProps} />;

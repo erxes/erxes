@@ -391,10 +391,6 @@ export const solveSubmissions = async (args: {
   const { integrationId, browserInfo, formId } = args;
   const integration = await getDocument('integrations', { _id: integrationId });
 
-  console.log('=======================================================');
-  console.log(`Connected integration: ${JSON.stringify(integration)}`);
-  console.log('=======================================================');
-
   const submissionsGrouped = groupSubmissions(args.submissions);
 
   const conformityIds: {
@@ -665,10 +661,6 @@ export const solveSubmissions = async (args: {
       );
 
       conformityIds[groupId] = { customerId: customer._id, companyId: '' };
-
-      console.log('=======================================================');
-      console.log('Connected customer: ', JSON.stringify(customer));
-      console.log('=======================================================');
     }
 
     if (!(companyEmail || companyPhone || companyName)) {
