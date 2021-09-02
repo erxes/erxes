@@ -1,6 +1,7 @@
 export const types = `
   type Booking {
-    _id: String!
+    _id: String!,
+    name: String,
     size: String,
     images: [String],
     font: String,
@@ -35,9 +36,11 @@ export const types = `
 
 export const queries = `
   bookingDetail(_id: String!): Booking
+  bookings(page: Int, perPage: Int): [Booking]
 `;
 
 const bookingMutationParams = `
+  name: String,
   size: String,
   images: [String],
   font: String,

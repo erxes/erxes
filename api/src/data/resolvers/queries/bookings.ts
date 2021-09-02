@@ -1,4 +1,6 @@
 import { Bookings } from '../../../db/models';
+import { paginate } from '../../utils';
+import { IContext } from '../../types';
 
 const bookingQueries = {
   /**
@@ -6,6 +8,19 @@ const bookingQueries = {
    */
   bookingDetail(_root, { _id }: { _id: string }) {
     return Bookings.getBooking(_id);
+  },
+
+  /**
+   * Booking list
+   */
+  bookings(
+    _root,
+    args: { page: number; perPage: number },
+    { commonQuerySelector }: IContext
+  ) {
+    const bookings = paginate(Bookings.find(commonQuerySelector), args);
+
+    return bookings.sort({ modifiedDate: -1 });
   }
 };
 

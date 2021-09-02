@@ -9,6 +9,7 @@ interface ICommonFields {
 }
 
 export interface IBooking {
+  name?: string;
   size?: string;
   images?: string[];
   font?: string;
@@ -63,6 +64,7 @@ const commonFields = {
 
 export const bookingSchema = new Schema({
   _id: field({ pkey: true }),
+  name: field({ type: String, label: 'Name' }),
   size: field({ type: String, label: 'Size' }),
   images: field({ type: [String], label: 'Images' }),
   font: field({ type: String, label: 'Font' }),
