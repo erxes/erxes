@@ -8,7 +8,11 @@ interface IAutomation {
   status: string;
 }
 
-interface IAutomationNote {}
+interface IAutomationNote {
+  description?: string;
+  createdAt?: Date;
+  createdBy?: string;
+}
 
 interface IAutomationNoteEdit extends IAutomationNote {
   _id: string;
@@ -219,7 +223,7 @@ const automationMutations = {
    */
   async automationsRemoveNote(
     _root,
-    { _id }: { _id: String },
+    { _id }: { _id: string },
     { user, dataSources }: IContext
   ) {
     const note = await dataSources.AutomationsAPI.getAutomationNote({ _id });

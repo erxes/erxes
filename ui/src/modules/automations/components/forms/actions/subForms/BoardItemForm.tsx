@@ -112,7 +112,7 @@ class BoardItemForm extends React.Component<Props, State> {
                 <Attribution
                   inputName="cardName"
                   config={this.state.config}
-                  setConfig={config => this.setState({ config })}
+                  setConfig={conf => this.setState({ config: conf })}
                   triggerType={this.props.triggerType}
                 />
               </div>
