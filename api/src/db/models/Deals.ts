@@ -3,7 +3,6 @@ import { ACTIVITY_LOG_ACTIONS, putActivityLog } from '../../data/logUtils';
 import {
   destroyBoardItemRelations,
   fillSearchTextItem,
-  getBoardItemLink,
   watchItem
 } from './boardUtils';
 import { ACTIVITY_CONTENT_TYPES } from './definitions/constants';
