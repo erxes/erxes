@@ -641,7 +641,7 @@ export const fieldFactory = async (params: IFieldFactoryInput) => {
     contentType: params.contentType || 'form',
     contentTypeId: params.contentTypeId || faker.random.uuid(),
     type: params.type || 'input',
-    validation: params.validation || 'number',
+    validation: params.validation || '',
     text: params.text || faker.random.word(),
     description: params.description || faker.random.word(),
     isRequired: params.isRequired || false,
