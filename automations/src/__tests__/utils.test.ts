@@ -1,5 +1,5 @@
 import * as sinon from 'sinon';
-import Automations, { ReEnrollmentRule } from "../models/Automations";
+import Automations, { ITrigger } from "../models/Automations";
 import { Executions } from "../models/Executions";
 import { automationFactory } from "../models/factories";
 import { calculateExecution, receiveTrigger, reset, tags } from "../utils";
@@ -15,50 +15,64 @@ describe('getOrCreateExecution', () => {
 
   test("consecutive", async (done) => {
     const automationId = '_id';
-    const triggerId = '_id';
-    const reEnrollmentRules: ReEnrollmentRule[] = [{ property: 'amount' }, { property: 'title' }];
-    const target = { _id: 'dealId', amount: 100, title: 'title', description: 'description' };
+    const fakeTrigger: ITrigger = {
+      id: '_id',
+      type: 'deal',
+      config: {
+        contentId: '_id',
+        reEnrollment: true,
+        reEnrollmentRules: ['amount', 'title'],
+      }
+    }
 
-    await calculateExecution({ automationId, triggerId, reEnrollmentRules, target });
+    const target = {  _id: 'dealId', amount: 100, title: 'title', description: 'description' } ;
+
+    const mock = sinon.stub(utils, 'isInSegment').callsFake(() => {
+      return Promise.resolve(true);
+    });
+
+    await calculateExecution({ automationId, trigger: fakeTrigger, target });
 
     // new entry must be inserted
     const execution = await Executions.findOne();
 
     expect(execution.automationId).toBe(automationId);
-    expect(execution.triggerId).toBe(triggerId);
+    expect(execution.triggerId).toBe(fakeTrigger.id);
     expect(execution.targetId).toBe(target._id);
     expect(execution.target).toEqual(target);
 
     // since data is same no entry must be inserted
-    await calculateExecution({ automationId, triggerId, reEnrollmentRules, target });
+    await calculateExecution({ automationId, trigger: fakeTrigger, target });
 
     expect(await Executions.find().count()).toBe(1);
 
 
     // amount is changed therefore new entry must be inserted
     target.amount = 200;
-    await calculateExecution({ automationId, triggerId, reEnrollmentRules, target });
+    await calculateExecution({ automationId, trigger: fakeTrigger, target });
 
     expect(await Executions.find().count()).toBe(2);
 
-    const secondExecution = await Executions.findOne({ _id: { $ne: execution._id }});
+    const secondExecution = await Executions.findOne({ _id: { $ne: execution._id } });
 
     expect(secondExecution.target.amount).toBe(200);
 
     // changing title field
     target.title = 'changed title';
-    await calculateExecution({ automationId, triggerId, reEnrollmentRules, target });
+    await calculateExecution({ automationId, trigger: fakeTrigger, target });
 
     expect(await Executions.find().count()).toBe(3);
 
-    const third = await Executions.findOne({ _id: { $nin: [execution._id, secondExecution._id] }});
+    const third = await Executions.findOne({ _id: { $nin: [execution._id, secondExecution._id] } });
     expect(third.target.title).toBe('changed title');
 
     // changing non important field
     target.description = 'changed decription';
-    await calculateExecution({ automationId, triggerId, reEnrollmentRules, target });
+    await calculateExecution({ automationId, trigger: fakeTrigger, target });
 
     expect(await Executions.find().count()).toBe(3);
+
+    mock.restore();
 
     done();
   });
@@ -69,10 +83,9 @@ const triggers = [
     id: "1",
     type: "deal",
     config: {
-      segmentId: "segmentId",
-      reEnrollmentRules: [
-        { property: "amount", description: "Amount is set" },
-      ],
+      contentId: "segmentId",
+      reEnrollment: true,
+      reEnrollmentRules: ["amount", "Amount"],
     },
     actionId: "1",
   },
@@ -134,7 +147,7 @@ describe('executeActions (if)', () => {
       return Promise.resolve(true);
     });
 
-    await receiveTrigger({ type: "deal", target: { _id: 'dealId1', amount: 100 } });
+    await receiveTrigger({ type: "deal", targets: [{ _id: 'dealId1', amount: 100 } ] });
 
     expect(tags).toEqual(["t2"]);
     expect(await Automations.find().count()).toBe(1);
@@ -156,7 +169,7 @@ describe('executeActions (if)', () => {
       return Promise.resolve(false);
     });
 
-    await receiveTrigger({ type: "deal", target: { _id: "dealId2" } });
+    await receiveTrigger({ type: "deal", targets: [{ _id: "dealId2" } ] });
 
     expect(tags).toEqual(["t1", "t2"]);
 
@@ -217,7 +230,7 @@ describe('executeActions (wait)', () => {
   })
 
   test("wait", async (done) => {
-    await receiveTrigger({ type: "deal", target: { _id: "dealId1" } });
+    await receiveTrigger({ type: "deal", targets: [{ _id: "dealId1"  }] });
 
     expect(tags).toEqual(["t1", "t2"]);
 
@@ -241,10 +254,9 @@ describe('executeActions (placeholder)', () => {
           type: "customer",
           actionId: '1',
           config: {
-            segmentId: 'segmentId',
-            reEnrollmentRules: [
-              { property: 'firstName' }
-            ]
+            contentId: 'segmentId',
+            reEnrollment: true,
+            reEnrollmentRules: ['firstName']
           },
         }],
 
@@ -273,7 +285,7 @@ describe('executeActions (placeholder)', () => {
       ]
     }
 
-    await receiveTrigger({ type: "customer", target: customer });
+    await receiveTrigger({ type: "customer", targets: [customer] });
 
     // const execution = await Executions.findOne({});
 

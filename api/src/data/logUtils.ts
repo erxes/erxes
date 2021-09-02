@@ -1490,7 +1490,7 @@ export const putCreateLog = async (
 
   messageBroker().sendMessage(RABBITMQ_QUEUES.AUTOMATIONS_TRIGGER, {
     type: `${params.type}`,
-    targets: [params]
+    targets: [params.object]
   });
 
   return putCreateLogC(messageBroker, gatherDescriptions, params, user);
@@ -1511,7 +1511,7 @@ export const putUpdateLog = async (
 
   messageBroker().sendMessage(RABBITMQ_QUEUES.AUTOMATIONS_TRIGGER, {
     type: `${params.type}`,
-    targets: [params]
+    targets: [params.updatedDocument]
   });
 
   return putUpdateLogC(messageBroker, gatherDescriptions, params, user);
@@ -1532,7 +1532,7 @@ export const putDeleteLog = async (
 
   messageBroker().sendMessage(RABBITMQ_QUEUES.AUTOMATIONS_TRIGGER, {
     type: `${params.type}`,
-    targets: [params]
+    targets: [params.object]
   });
 
   return putDeleteLogC(messageBroker, gatherDescriptions, params, user);
