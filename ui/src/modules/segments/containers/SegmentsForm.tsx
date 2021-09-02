@@ -164,6 +164,8 @@ class SegmentsFormContainer extends React.Component<
     const segment = segmentDetailQuery.segmentDetail;
     const headSegments = headSegmentsQuery.segmentsGetHeads || [];
 
+    console.log('fields: ', this.state.fields);
+
     const updatedProps = {
       ...this.props,
       segment,
