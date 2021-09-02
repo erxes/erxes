@@ -6,7 +6,7 @@ import { getActionsMap } from './helpers';
 import { sendRPCMessage } from './messageBroker';
 import Automations, {
   IActionsMap,
-  ReEnrollmentRule,
+  ITrigger,
   TriggerType
 } from './models/Automations';
 import AutomationHistories from './models/Histories';
@@ -33,7 +33,8 @@ export const getEnv = ({
 };
 
 export const isInSegment = async (segmentId: string, targetId: string) => {
-  return sendRPCMessage('isInSegment', { segmentId, targetId });
+  const response = await sendRPCMessage('isInSegment', { segmentId, targetId });
+  return response.check;
 };
 
 export let tags: any[] = [];
@@ -163,20 +164,23 @@ export const executeActions = async (
 
 export const calculateExecution = async ({
   automationId,
-  triggerId,
-  triggerType,
-  reEnrollmentRules,
+  trigger,
   target
 }: {
   automationId: string;
-  triggerId: string;
-  triggerType: string;
-  reEnrollmentRules: ReEnrollmentRule[];
+  trigger: ITrigger;
   target: any;
 }): Promise<IExecutionDocument> => {
+  const { id, type, config } = trigger;
+  const { reEnrollment, reEnrollmentRules, contentId } = config;
+
+  if (!await isInSegment(contentId, target._id)) {
+    return;
+  }
+
   const executions = await Executions.find({
     automationId,
-    triggerId,
+    triggerId: id,
     targetId: target._id
   });
 
@@ -185,16 +189,14 @@ export const calculateExecution = async ({
     .pop();
 
   if (latestExecution) {
-    if (!reEnrollmentRules) {
+    if (!reEnrollment || !reEnrollmentRules.length) {
       return;
     }
 
     let isChanged = false;
 
     for (const reEnrollmentRule of reEnrollmentRules) {
-      const { property } = reEnrollmentRule;
-
-      if (latestExecution.target[property] !== target[property]) {
+      if (latestExecution.target[reEnrollmentRule] !== target[reEnrollmentRule]) {
         isChanged = true;
         break;
       }
@@ -207,8 +209,8 @@ export const calculateExecution = async ({
 
   return Executions.createExecution({
     automationId,
-    triggerId,
-    triggerType,
+    triggerId: id,
+    triggerType: type,
     targetId: target._id,
     target
   });
@@ -242,9 +244,7 @@ export const receiveTrigger = async ({
 
         const execution = await calculateExecution({
           automationId: automation._id,
-          triggerId: trigger.id,
-          triggerType: trigger.type,
-          reEnrollmentRules: trigger.config.reEnrollmentRules,
+          trigger,
           target
         });
 

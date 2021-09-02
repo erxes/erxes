@@ -43,7 +43,7 @@ export const playWait = async () => {
     exec.waitingActionId = null;
     exec.lastCheckedWaitDate = new Date();
     await exec.save();
-    await executeActions(exec, await getActionsMap(automation), currentAction.nextActionId);
+    await executeActions(exec.triggerType, exec, await getActionsMap(automation), currentAction.nextActionId);
   }
 
 }
