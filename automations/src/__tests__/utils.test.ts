@@ -5,6 +5,7 @@ import { automationFactory } from "../models/factories";
 import { calculateExecution, receiveTrigger, reset, tags } from "../utils";
 import * as utils from "../utils";
 import "./setup";
+import { ACTIONS } from '../constants';
 
 describe('getOrCreateExecution', () => {
   beforeEach(async () => {
@@ -25,7 +26,7 @@ describe('getOrCreateExecution', () => {
       }
     }
 
-    const target = {  _id: 'dealId', amount: 100, title: 'title', description: 'description' } ;
+    const target = { _id: 'dealId', amount: 100, title: 'title', description: 'description' };
 
     const mock = sinon.stub(utils, 'isInSegment').callsFake(() => {
       return Promise.resolve(true);
@@ -113,21 +114,21 @@ describe('executeActions (if)', () => {
       actions: [
         {
           id: "1",
-          type: "ADD_TAGS",
+          type: ACTIONS.ADD_TAGS,
           config: { names: ["t1", "t2"] },
           nextActionId: "2",
         },
         {
           id: "2",
-          type: "IF",
+          type: ACTIONS.IF,
           config: {
-            segmentId: "segmentId",
+            segmentId: "segmentIdd",
             yes: "3",
           },
         },
         {
           id: "3",
-          type: "REMOVE_TAGS",
+          type: ACTIONS.REMOVE_TAGS,
           config: {
             names: ["t1"],
           },
@@ -147,7 +148,7 @@ describe('executeActions (if)', () => {
       return Promise.resolve(true);
     });
 
-    await receiveTrigger({ type: "deal", targets: [{ _id: 'dealId1', amount: 100 } ] });
+    await receiveTrigger({ type: "deal", targets: [{ _id: 'dealId1', amount: 100 }] });
 
     expect(tags).toEqual(["t2"]);
     expect(await Automations.find().count()).toBe(1);
@@ -165,11 +166,14 @@ describe('executeActions (if)', () => {
   });
 
   test("if no", async (done) => {
-    const mock = sinon.stub(utils, 'isInSegment').callsFake(() => {
+    const mock = sinon.stub(utils, 'isInSegment').callsFake((segmentId) => {
+      if (segmentId === 'segmentId') {
+        return Promise.resolve(true);
+      }
       return Promise.resolve(false);
     });
 
-    await receiveTrigger({ type: "deal", targets: [{ _id: "dealId2" } ] });
+    await receiveTrigger({ type: "deal", targets: [{ _id: "dealId2" }] });
 
     expect(tags).toEqual(["t1", "t2"]);
 
@@ -200,13 +204,13 @@ describe('executeActions (wait)', () => {
       actions: [
         {
           id: "1",
-          type: "ADD_TAGS",
+          type: ACTIONS.ADD_TAGS,
           config: { names: ["t1", "t2"] },
           nextActionId: "2",
         },
         {
           id: "2",
-          type: "WAIT",
+          type: ACTIONS.WAIT,
           config: {
             period: '1d',
           },
@@ -214,7 +218,7 @@ describe('executeActions (wait)', () => {
         },
         {
           id: "3",
-          type: "IF",
+          type: ACTIONS.IF,
           config: {
             segmentId: "segmentId",
           },
@@ -230,7 +234,11 @@ describe('executeActions (wait)', () => {
   })
 
   test("wait", async (done) => {
-    await receiveTrigger({ type: "deal", targets: [{ _id: "dealId1"  }] });
+    const mock = sinon.stub(utils, 'isInSegment').callsFake(() => {
+      return Promise.resolve(true);
+    });
+
+    await receiveTrigger({ type: "deal", targets: [{ _id: "dealId1" }] });
 
     expect(tags).toEqual(["t1", "t2"]);
 
@@ -238,6 +246,8 @@ describe('executeActions (wait)', () => {
 
     expect(execution.waitingActionId).toBe('2');
     expect(execution.lastCheckedWaitDate).not.toBe(null);
+
+    mock.restore();
 
     done();
   });
@@ -285,6 +295,10 @@ describe('executeActions (placeholder)', () => {
       ]
     }
 
+    const mock = sinon.stub(utils, 'isInSegment').callsFake(() => {
+      return Promise.resolve(true);
+    });
+
     await receiveTrigger({ type: "customer", targets: [customer] });
 
     // const execution = await Executions.findOne({});
@@ -293,6 +307,8 @@ describe('executeActions (placeholder)', () => {
 
     // expect(deal.title).toBe('title firstName');
     // expect(deal.description).toBe('Custom fields data: custom value');
+
+    mock.restore();
 
     done();
   });
