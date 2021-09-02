@@ -296,6 +296,12 @@ class Navigation extends React.Component<IProps> {
                 link: '/settings/product-service',
                 value: 'Products & Service',
                 icon: 'icon-box'
+              },
+              {
+                permission: 'showBookings',
+                link: '/bookings',
+                value: 'Bookings',
+                icon: 'icon-home'
               }
             ]
           )}
