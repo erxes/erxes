@@ -1,5 +1,6 @@
 import * as dotenv from 'dotenv';
 import messageBroker from 'erxes-message-broker';
+import { setTimeout } from 'timers';
 import { playWait } from './actions';
 import { debugBase } from './debuggers';
 import { receiveTrigger } from './utils';
@@ -27,7 +28,9 @@ export const initBroker = async (server?) => {
       return;
     }
 
-    await receiveTrigger({ type, targets });
+    setTimeout(async () => {
+      await receiveTrigger({ type, targets });
+    }, 10000)
   });
 };
 
