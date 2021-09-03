@@ -10,6 +10,7 @@ export const CONTENT_TYPES = {
   TASK: 'task',
   TICKET: 'ticket',
   USER: 'user',
+  CONVERSATION: 'conversation',
 
   ALL: [
     'customer',
@@ -19,7 +20,8 @@ export const CONTENT_TYPES = {
     'deal',
     'task',
     'ticket',
-    'user'
+    'user',
+    'conversation'
   ]
 };
 
@@ -39,7 +41,8 @@ export interface ICondition {
     | 'task'
     | 'task'
     | 'ticket'
-    | 'form_submission';
+    | 'form_submission'
+    | 'conversation';
   propertyName?: string;
   propertyOperator?: string;
   propertyValue?: string;
