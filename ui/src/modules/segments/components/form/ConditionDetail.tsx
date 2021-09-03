@@ -1,6 +1,7 @@
 import { ISegmentCondition } from 'modules/segments/types';
 import React from 'react';
 import { DEFAULT_OPERATORS, OPERATORS } from '../constants';
+import { ConditionDetailText, PropertyText } from '../styles';
 
 type Props = {
   condition: ISegmentCondition;
@@ -13,8 +14,8 @@ class ConditionDetail extends React.Component<Props, State> {
   renderOperator = () => {
     const { condition, field } = this.props;
 
-    const { selectOptions = [], choiceOptions = [], type } = field;
-    const { propertyOperator, propertyValue } = condition;
+    const { type } = field;
+    const { propertyOperator } = condition;
 
     const operators = OPERATORS[type || ''] || DEFAULT_OPERATORS;
     const operator = operators.find(op => {
@@ -22,22 +23,6 @@ class ConditionDetail extends React.Component<Props, State> {
     });
 
     const text = operator.name;
-
-    if (selectOptions.length > 0) {
-      const option = selectOptions.find(selectOption => {
-        return selectOption.value === propertyValue;
-      });
-
-      console.log(option);
-    }
-
-    if (choiceOptions.length > 0) {
-      const option = choiceOptions.find(choiceOption => {
-        return choiceOption.value === propertyValue;
-      });
-
-      console.log(option);
-    }
 
     return text;
   };
@@ -73,20 +58,46 @@ class ConditionDetail extends React.Component<Props, State> {
     const { condition, field } = this.props;
 
     const { label } = field;
-    const { propertyValue } = condition;
+    const { propertyOperator, propertyType = '' } = condition;
 
     const operator = this.renderOperator();
 
     const value = this.renderValue();
 
+    const propertyTypeText = propertyType.replace('_', ' ');
+
     if (
-      propertyValue &&
-      ['is', 'ins', 'it', 'if'].indexOf(propertyValue) >= 0
+      propertyOperator &&
+      ['is', 'ins', 'it', 'if'].indexOf(propertyOperator) >= 0
     ) {
-      return <p>{`${condition.propertyType}'s ${label} ${operator}`}</p>;
+      return (
+        <ConditionDetailText>
+          <span>{`${propertyTypeText}'s`} </span>
+          <PropertyText>{label}</PropertyText>
+          <span>{` ${operator}`}</span>
+        </ConditionDetailText>
+      );
     }
 
-    return <p>{`${condition.propertyType}'s ${label} ${operator} ${value}`}</p>;
+    if (
+      propertyOperator &&
+      ['wobm', 'woam', 'wobd', 'woad'].indexOf(propertyOperator) >= 0
+    ) {
+      return (
+        <ConditionDetailText>
+          <span>{`${propertyTypeText}'s`} </span>
+          <PropertyText>{label}</PropertyText>
+          <span>{` ${value} ${operator}`}</span>
+        </ConditionDetailText>
+      );
+    }
+    return (
+      <ConditionDetailText>
+        <span>{`${propertyTypeText}'s`} </span>
+        <PropertyText>{label}</PropertyText>
+        <span>{` ${operator} ${value}`}</span>
+      </ConditionDetailText>
+    );
   }
 }
 
