@@ -23,6 +23,7 @@ import StatusRoutes from './status/routes';
 import TeamRoutes from './team/routes';
 import WebhookRoutes from './webhook/routes';
 import SmsDeliveryRoutes from './smsDeliveries/routes';
+import ExmRoutes from './exm/routes';
 
 const routes = () => (
   <React.Fragment>
@@ -49,6 +50,7 @@ const routes = () => (
     <CalendarRoutes key="CalendarRoutes" />
     <SkillsRoutes key="SkillsRoutes" />
     <SmsDeliveryRoutes key="SmsDeliveryRoutes" />
+    <ExmRoutes key="ExmRoutes" />
   </React.Fragment>
 );
 
