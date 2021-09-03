@@ -40,6 +40,7 @@ const segmentQueries = {
   async segmentsGetHeads(_root, _args, { commonQuerySelector }: IContext) {
     return Segments.find({
       ...commonQuerySelector,
+      name: { $exists: true },
       $or: [{ subOf: { $exists: false } }, { subOf: '' }]
     });
   },

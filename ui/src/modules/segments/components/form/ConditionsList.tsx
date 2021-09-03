@@ -122,11 +122,11 @@ class ConditionsList extends React.Component<Props, State> {
     return (
       <ConjunctionButtonsVertical>
         <Button.Group hasGap={false}>
-          <Button size="small" onClick={onClickAnd} btnStyle={btnStyleAnd}>
-            <span>And</span>
-          </Button>
           <Button size="small" onClick={onClickOr} btnStyle={btnSyleOr}>
             <span>Or</span>
+          </Button>
+          <Button size="small" onClick={onClickAnd} btnStyle={btnStyleAnd}>
+            <span>And</span>
           </Button>
         </Button.Group>
       </ConjunctionButtonsVertical>
