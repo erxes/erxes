@@ -10,6 +10,8 @@ export const PROPERTY_TYPES = {
     { label: 'Form Submission', value: 'form_submission' }
   ],
 
+  conversation: [{ label: 'Conversation', value: 'conversation' }],
+
   lead: [
     { label: 'Lead', value: 'lead' },
     { label: 'Company', value: 'company' },

@@ -9,8 +9,18 @@ export const CONTENT_TYPES = {
   DEAL: 'deal',
   TASK: 'task',
   TICKET: 'ticket',
+  CONVERSATION: 'conversation',
 
-  ALL: ['customer', 'lead', 'visitor', 'company', 'deal', 'task', 'ticket']
+  ALL: [
+    'customer',
+    'lead',
+    'visitor',
+    'company',
+    'deal',
+    'task',
+    'ticket',
+    'conversation'
+  ]
 };
 
 export interface IAttributeFilter {
@@ -29,7 +39,8 @@ export interface ICondition {
     | 'task'
     | 'task'
     | 'ticket'
-    | 'form_submission';
+    | 'form_submission'
+    | 'conversation';
   propertyName?: string;
   propertyOperator?: string;
   propertyValue?: string;
