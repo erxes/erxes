@@ -657,19 +657,23 @@ export const fieldsCombinedByContentType = async ({
     const formFeilds = await getFormFields();
     const formFieldsValues = await getCustomFields('form');
 
+    fields = [...fields, ...[forms], ...[formFeilds]];
+
     for (const formField of formFieldsValues) {
+      const form = await Integrations.findOne({
+        formId: formField.contentTypeId
+      });
+
       fields.push({
         _id: Math.random(),
         name: formField._id,
-        group: `Form fields value`,
+        group: form ? form.name : 'Form field',
         label: formField.text,
         options: formField.options,
         validation: formField.validation,
         type: formField.type
       });
     }
-
-    fields = [...fields, ...[forms], ...[formFeilds]];
   }
 
   if (
