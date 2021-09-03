@@ -32,10 +32,10 @@ export const PROPERTY_TYPES = {
 
 export const OPERATORS = {
   string: [
-    { name: 'equals', value: 'e' },
+    { name: 'equals to', value: 'e' },
     { name: 'is not equal to', value: 'dne' },
-    { name: 'contains', value: 'c' },
-    { name: 'does not contain', value: 'dnc' },
+    { name: 'contains with', value: 'c' },
+    { name: 'does not contain with', value: 'dnc' },
     { name: 'is set', value: 'is', noInput: true },
     { name: 'is not set', value: 'ins', noInput: true }
   ],
@@ -46,7 +46,7 @@ export const OPERATORS = {
     { name: 'is not set', value: 'ins', noInput: true }
   ],
   number: [
-    { name: 'number: equals', value: 'numbere' },
+    { name: 'number: equals to', value: 'numbere' },
     { name: 'number: is not equal to', value: 'numberdne' },
     { name: 'number: is greater than', value: 'numberigt' },
     { name: 'number: is less than', value: 'numberilt' },
@@ -56,10 +56,10 @@ export const OPERATORS = {
   date: [
     { name: 'date: is greater than', value: 'dateigt' },
     { name: 'date: is less than', value: 'dateilt' },
-    { name: '* minute(s) before', value: 'wobm' },
-    { name: '* minute(s) later', value: 'woam' },
-    { name: '* day(s) before', value: 'wobd' },
-    { name: '* day(s) later', value: 'woad' },
+    { name: 'minute(s) before', value: 'wobm' },
+    { name: 'minute(s) later', value: 'woam' },
+    { name: 'day(s) before', value: 'wobd' },
+    { name: 'day(s) later', value: 'woad' },
     { name: 'date relative less than', value: 'drlt' },
     { name: 'date relative greater than', value: 'drgt' },
     { name: 'is set', value: 'is', noInput: true },
