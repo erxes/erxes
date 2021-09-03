@@ -130,8 +130,6 @@ class PropertyRow extends React.Component<Props, State> {
     const { removeProperty, queryParams } = this.props;
     const { lastUpdatedUser } = field;
 
-    console.log('field: ', field);
-
     const onChange = e => this.visibleHandler(e, field);
 
     return (
