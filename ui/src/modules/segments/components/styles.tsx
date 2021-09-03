@@ -201,7 +201,26 @@ const Condition = styled.div`
   }
 `;
 
+const ConditionDetailText = styled.p`
+  span:first-child {
+    text-transform: capitalize;
+  }
+
+  span:last-child {
+    text-transform: lowercases;
+    color: #3c2880;
+  }
+`;
+
+const PropertyText = styled.span`
+  color: #ffc82c;
+  text-transform: lowercase;
+  text-decoration: underline;
+`;
+
 export {
+  PropertyText,
+  ConditionDetailText,
   ConjunctionButtonsVertical,
   Condition,
   SegmentBackIcon,
