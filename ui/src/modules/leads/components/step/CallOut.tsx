@@ -28,7 +28,8 @@ type Props = {
       | 'isSkip'
       | 'logo'
       | 'logoPreviewStyle'
-      | 'defaultValue',
+      | 'defaultValue'
+      | 'imgWidth',
     value: string | boolean | object | any
   ) => void;
   calloutTitle?: string;
@@ -38,6 +39,7 @@ type Props = {
   theme: string;
   image?: string;
   skip?: boolean;
+  imgWidth?: string;
 };
 
 type State = {
@@ -45,6 +47,7 @@ type State = {
   logoPreviewStyle?: { opacity?: string };
   defaultValue: { [key: string]: boolean };
   calloutBtnText?: string;
+  imgWidth?: string;
   bodyValue?: string;
   calloutTitle?: string;
   isSkip?: boolean;
@@ -56,6 +59,7 @@ class CallOut extends React.Component<Props, State> {
 
     this.state = {
       logo: props.image,
+      imgWidth: props.imgWidth,
       logoPreviewStyle: {},
       defaultValue
     };
@@ -183,7 +187,13 @@ class CallOut extends React.Component<Props, State> {
   };
 
   render() {
-    const { skip, calloutTitle, bodyValue, calloutBtnText } = this.props;
+    const {
+      skip,
+      calloutTitle,
+      bodyValue,
+      calloutBtnText,
+      imgWidth
+    } = this.props;
 
     const onChangeTitle = (e: React.FormEvent<HTMLElement>) =>
       this.onChangeFunction(
@@ -194,6 +204,11 @@ class CallOut extends React.Component<Props, State> {
     const onChangeBody = e =>
       this.onChangeFunction(
         'bodyValue',
+        (e.currentTarget as HTMLInputElement).value
+      );
+    const onChangeImageWidth = e =>
+      this.onChangeFunction(
+        'imgWidth',
         (e.currentTarget as HTMLInputElement).value
       );
 
@@ -248,6 +263,18 @@ class CallOut extends React.Component<Props, State> {
               <ControlLabel>Featured image</ControlLabel>
               <p>{__('You can upload only image file')}</p>
               {this.renderUploadImage()}
+            </FormGroup>
+            <FormGroup>
+              <ControlLabel>Image width</ControlLabel>
+              <FormControl
+                id="validation"
+                componentClass="select"
+                value={imgWidth}
+                onChange={onChangeImageWidth}
+              >
+                <option value={'100%'}>Full width</option>
+                <option value={'50%'}>Half width</option>
+              </FormControl>
             </FormGroup>
           </LeftItem>
           {this.footerActions()}

@@ -9,6 +9,7 @@ type Props = {
   theme?: string;
   image?: string;
   type?: string;
+  imgWidth?: string;
 };
 
 class CalloutPreview extends React.Component<Props, {}> {
@@ -20,6 +21,7 @@ class CalloutPreview extends React.Component<Props, {}> {
       color,
       theme,
       image,
+      imgWidth,
       type
     } = this.props;
 
@@ -30,6 +32,7 @@ class CalloutPreview extends React.Component<Props, {}> {
         color={color}
         btnText={calloutBtnText}
         image={image}
+        imgWidth={imgWidth}
         btnStyle="primary"
         bodyValue={bodyValue}
         type={type}

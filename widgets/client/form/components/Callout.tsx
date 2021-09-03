@@ -19,13 +19,13 @@ class Callout extends React.Component<Props> {
     }
   }
 
-  renderFeaturedImage(image: string, title: string) {
+  renderFeaturedImage(image: string, title: string, imgWidth:string) {
     if (!image) {
       return null;
     }
 
     return (
-      <img onLoad={this.props.setHeight} src={readFile(image)} alt={title} />
+      <img onLoad={this.props.setHeight} src={readFile(image)} alt={title} style={{ width: imgWidth}}/>
     );
   }
 
@@ -46,9 +46,10 @@ class Callout extends React.Component<Props> {
       title: "",
       buttonText: "",
       body: "",
-      featuredImage: ""
+      featuredImage: "",
+      imgWidth:"full"
     };
-    const { skip, title = "", buttonText, body, featuredImage = "" } =
+    const { skip, title = "", buttonText, body, featuredImage = "" , imgWidth=""} =
       configs || defaultConfig;
 
     if (skip) {
@@ -61,7 +62,7 @@ class Callout extends React.Component<Props> {
 
         <div className="erxes-form-content">
           <div className="erxes-callout-body">
-            {this.renderFeaturedImage(featuredImage, title)}
+            {this.renderFeaturedImage(featuredImage, title, imgWidth)}
             {body}
           </div>
           <button

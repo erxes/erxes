@@ -40,6 +40,7 @@ export interface ICallout {
   body?: string;
   buttonText?: string;
   featuredImage?: string;
+  imgWidth?:string;
   skip?: boolean;
 }
 
