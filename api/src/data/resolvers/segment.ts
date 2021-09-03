@@ -6,9 +6,13 @@ export default {
     return Segments.find({ subOf: segment._id });
   },
 
-  getConditionSegments(segment: ISegmentDocument) {
+  async getConditionSegments(segment: ISegmentDocument) {
     const segmentIds = segment.conditions.map(cond => cond.subSegmentId);
 
-    return Segments.find({ _id: { $in: segmentIds.reverse() } });
+    return Segments.aggregate([
+      { $match: { _id: { $in: segmentIds } } },
+      { $addFields: { __order: { $indexOfArray: [segmentIds, '$_id'] } } },
+      { $sort: { __order: 1 } }
+    ]);
   }
 };

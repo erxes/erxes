@@ -82,7 +82,7 @@ class PropertyList extends React.Component<Props, State> {
       return (
         <FormControl
           key={Math.random()}
-          componentClass="checkbox"
+          componentClass="radio"
           onChange={this.onClickField.bind(this, field)}
         >
           {field.label}

@@ -11,7 +11,7 @@ export const PROPERTY_TYPES = {
   ],
 
   lead: [
-    { label: 'Customer', value: 'customer' },
+    { label: 'Lead', value: 'lead' },
     { label: 'Company', value: 'company' },
     { label: 'Deal', value: 'deal' },
     { label: 'Task', value: 'task' },
@@ -19,7 +19,7 @@ export const PROPERTY_TYPES = {
     { label: 'Form Submission', value: 'form_submission' }
   ],
   visitor: [
-    { label: 'Customer', value: 'customer' },
+    { label: 'Visitor', value: 'visitor' },
     { label: 'Company', value: 'company' },
     { label: 'Deal', value: 'deal' },
     { label: 'Task', value: 'task' },

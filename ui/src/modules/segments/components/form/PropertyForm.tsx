@@ -129,7 +129,7 @@ class PropertyForm extends React.Component<Props, State> {
       return (
         <>
           <FormControl
-            componentClass="checkbox"
+            componentClass="radio"
             onChange={this.onClickOperator.bind(this, operator)}
             value={operator.value}
             checked={this.isChecked(operator)}

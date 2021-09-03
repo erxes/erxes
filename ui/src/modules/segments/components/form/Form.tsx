@@ -260,6 +260,8 @@ class SegmentFormAutomations extends React.Component<Props, State> {
 
       if (foundedConIndex === 0) {
         segments.splice(foundedSegmentIndex, 1);
+
+        return this.setState({ segments });
       }
 
       if (foundedConIndex > -1 && foundedConIndex !== 0) {
