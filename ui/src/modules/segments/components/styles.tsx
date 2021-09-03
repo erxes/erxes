@@ -127,7 +127,7 @@ const ConjunctionButtonsVertical = styled.div`
 
     span {
       display: block;
-      transform: rotate(90deg);
+      transform: rotate(270deg);
     }
   }
 `;
