@@ -403,5 +403,65 @@ export const WEBHOOK_ACTIONS = [
     label: 'Form submission received',
     action: 'create',
     type: 'popupSubmitted'
+  },
+  {
+    label: 'Deal created',
+    action: 'create',
+    type: 'deal'
+  },
+  {
+    label: 'Deal updated',
+    action: 'update',
+    type: 'deal'
+  },
+  {
+    label: 'Deal deleted',
+    action: 'delete',
+    type: 'deal'
+  },
+  {
+    label: 'Deal moved',
+    action: 'createBoardItemMovementLog',
+    type: 'deal'
+  },
+  {
+    label: 'Task created',
+    action: 'create',
+    type: 'task'
+  },
+  {
+    label: 'Task updated',
+    action: 'update',
+    type: 'task'
+  },
+  {
+    label: 'Task deleted',
+    action: 'delete',
+    type: 'task'
+  },
+  {
+    label: 'Task moved',
+    action: 'createBoardItemMovementLog',
+    type: 'task'
+  },
+  {
+    label: 'Ticket created',
+    action: 'create',
+    type: 'ticket'
+  },
+  {
+    label: 'Ticket updated',
+    action: 'update',
+    type: 'ticket'
+  },
+  {
+    label: 'Ticket deleted',
+    action: 'delete',
+    type: 'ticket'
+  },
+  {
+    label: 'Ticket moved',
+    action: 'createBoardItemMovementLog',
+    type: 'ticket'
   }
 ];

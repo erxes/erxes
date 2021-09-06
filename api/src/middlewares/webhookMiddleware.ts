@@ -177,12 +177,18 @@ const webhookMiddleware = async (req, res, next) => {
       }
 
       // create conversation message
-      const message = await ConversationMessages.createMessage({
+      const messageDoc: any = {
         conversationId: conversation._id,
         customerId: customer._id,
         content: params.content,
         attachments: params.attachments
-      });
+      };
+
+      if (params.formContent) {
+        messageDoc.formWidgetData = params.formContent;
+      }
+
+      const message = await ConversationMessages.createMessage(messageDoc);
 
       graphqlPubsub.publish('conversationClientMessageInserted', {
         conversationClientMessageInserted: message
