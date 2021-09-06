@@ -180,7 +180,7 @@ const CallOutBody = styled.div`
   margin-bottom: ${dimensions.unitSpacing}px;
 
   img {
-    max-width: 100px;
+    width: 100%;
     float: left;
     margin-right: ${dimensions.unitSpacing}px;
   }

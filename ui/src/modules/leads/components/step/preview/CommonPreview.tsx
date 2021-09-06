@@ -35,6 +35,7 @@ type Props = {
   color?: string;
   btnText?: string;
   image?: string;
+  imgWidth?: string;
   bodyValue?: string;
   type?: string;
   btnStyle?: string;
@@ -46,7 +47,7 @@ type Props = {
 
 class CommonPreview extends React.Component<Props, {}> {
   renderCallOutBody() {
-    const { image, bodyValue } = this.props;
+    const { image, bodyValue, imgWidth } = this.props;
 
     if (!image && !bodyValue) {
       return null;
@@ -54,7 +55,7 @@ class CommonPreview extends React.Component<Props, {}> {
 
     return (
       <CallOutBody>
-        {image && <img src={readFile(image)} alt={image} />}
+        {image && <img src={readFile(image)} alt={image} style={{ width: imgWidth }} />}
 
         {bodyValue && bodyValue}
       </CallOutBody>

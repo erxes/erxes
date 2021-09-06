@@ -62,6 +62,7 @@ type State = {
   logoPreviewStyle?: { opacity?: string };
   defaultValue: { [key: string]: boolean };
   logo?: string;
+  imgWidth?: string;
   rules?: IConditionsRule[];
   isStepActive: boolean;
   formData: IFormData;
@@ -133,6 +134,7 @@ class Lead extends React.Component<Props, State> {
       theme: leadData.themeColor || '#6569DF',
       isRequireOnce: leadData.isRequireOnce,
       logo: callout.featuredImage,
+      imgWidth: callout.imgWidth || '100%',
       isSkip: callout.skip && true,
       carousel: callout.skip ? 'form' : 'callout',
 
@@ -191,6 +193,7 @@ class Lead extends React.Component<Props, State> {
           body: this.state.bodyValue,
           buttonText: this.state.calloutBtnText,
           featuredImage: this.state.logo,
+          imgWidth: this.state.imgWidth,
           skip: this.state.isSkip
         },
         rules: (rules || []).filter(rule => rule.condition && rule.value),
@@ -287,7 +290,8 @@ class Lead extends React.Component<Props, State> {
       formData,
       isRequireOnce,
       channelIds,
-      css
+      css,
+      imgWidth
     } = this.state;
 
     const { integration, emailTemplates } = this.props;
@@ -430,6 +434,7 @@ class Lead extends React.Component<Props, State> {
               skip={isSkip}
               carousel={carousel}
               formData={formData}
+              imgWidth={imgWidth}
             />
           </PreviewWrapper>
         </Content>

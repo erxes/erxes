@@ -28,7 +28,8 @@ type Props = {
       | 'isSkip'
       | 'logo'
       | 'logoPreviewStyle'
-      | 'defaultValue',
+      | 'defaultValue'
+      | 'imgWidth',
     value: string | boolean | object | any
   ) => void;
   calloutTitle?: string;
@@ -38,6 +39,7 @@ type Props = {
   theme: string;
   image?: string;
   skip?: boolean;
+  imgWidth?: string;
 };
 
 type State = {
@@ -48,6 +50,7 @@ type State = {
   bodyValue?: string;
   calloutTitle?: string;
   isSkip?: boolean;
+  imgWidth?: string;
 };
 
 class CallOut extends React.Component<Props, State> {
@@ -183,7 +186,7 @@ class CallOut extends React.Component<Props, State> {
   };
 
   render() {
-    const { skip, calloutTitle, bodyValue, calloutBtnText } = this.props;
+    const { skip, calloutTitle, bodyValue, calloutBtnText, imgWidth} = this.props;
 
     const onChangeTitle = (e: React.FormEvent<HTMLElement>) =>
       this.onChangeFunction(
@@ -200,6 +203,12 @@ class CallOut extends React.Component<Props, State> {
     const onChangeBtnText = e =>
       this.onChangeFunction(
         'calloutBtnText',
+        (e.currentTarget as HTMLInputElement).value
+      );
+
+    const onChangeImageWidth = e =>
+      this.onChangeFunction(
+        'imgWidth',
         (e.currentTarget as HTMLInputElement).value
       );
 
@@ -249,6 +258,20 @@ class CallOut extends React.Component<Props, State> {
               <p>{__('You can upload only image file')}</p>
               {this.renderUploadImage()}
             </FormGroup>
+
+            <FormGroup>
+              <ControlLabel>Image width</ControlLabel>
+              <FormControl
+                id="validation"
+                componentClass="select"
+                value={imgWidth}
+                onChange={onChangeImageWidth}
+              >
+                <option value={'100%'}>Full width</option>
+                <option value={'50%'}>Half width</option>
+              </FormControl>
+            </FormGroup>
+            
           </LeftItem>
           {this.footerActions()}
         </FlexColumn>
