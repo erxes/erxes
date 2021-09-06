@@ -37,3 +37,7 @@ export type BookingRemoveMutationResponse = {
     variables: BookingRemoveMutationVariables;
   }) => Promise<any>;
 };
+
+export type Counts = {
+  [key: string]: number;
+};
