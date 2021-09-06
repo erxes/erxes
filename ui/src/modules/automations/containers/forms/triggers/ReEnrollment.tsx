@@ -86,7 +86,7 @@ export default withProps<Props>(
       {
         name: 'segmentDetailQuery',
         options: ({ trigger }) => ({
-          variables: { _id: trigger.config.contentId }
+          variables: { _id: trigger.config ? trigger.config.contentId : '' }
         })
       }
     )
