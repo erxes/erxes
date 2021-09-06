@@ -131,7 +131,7 @@ export const createInitialConnections = (
           instance.connect({
             source: `action-${action.id}`,
             target: `action-${action.config.yes}`,
-            anchors: [[1, 0.2], 'Left']
+            anchors: [[1, 0.3], 'Left']
           });
         }
 
@@ -139,7 +139,7 @@ export const createInitialConnections = (
           instance.connect({
             source: `action-${action.id}`,
             target: `action-${action.config.no}`,
-            anchors: [[1, 0.8], 'Left']
+            anchors: [[1, 0.7], 'Left']
           });
         }
       }
@@ -183,7 +183,7 @@ export const connection = (
         }
 
         sourceAction.config[
-          info.sourceEndpoint.anchor.y === 0.2 ? 'yes' : 'no'
+          info.sourceEndpoint.anchor.y === 0.3 ? 'yes' : 'no'
         ] = actionId;
       } else {
         sourceAction.nextActionId = actionId;

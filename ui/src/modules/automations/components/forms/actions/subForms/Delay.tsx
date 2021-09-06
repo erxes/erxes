@@ -12,12 +12,7 @@ type Props = {
   closeModal: () => void;
   activeAction: IAction;
   triggerType: string;
-  addAction: (
-    action: IAction,
-    contentId?: string,
-    actionId?: string,
-    config?: any
-  ) => void;
+  addAction: (action: IAction, actionId?: string, config?: any) => void;
 };
 
 type State = {

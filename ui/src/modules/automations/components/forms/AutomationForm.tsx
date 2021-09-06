@@ -379,12 +379,7 @@ class AutomationForm extends React.Component<Props, State> {
     });
   };
 
-  addAction = (
-    data: IAction,
-    contentId?: string,
-    actionId?: string,
-    config?: any
-  ) => {
+  addAction = (data: IAction, actionId?: string, config?: any) => {
     const { actions } = this.state;
 
     let action: any = { ...data, id: actions.length.toString() };
@@ -399,15 +394,7 @@ class AutomationForm extends React.Component<Props, State> {
       }
     }
 
-    if (contentId) {
-      action.config = {
-        contentId
-      };
-    }
-
-    if (config) {
-      action.config = config;
-    }
+    action.config = { ...action.config, ...config };
 
     if (actionIndex !== -1) {
       actions[actionIndex] = action;

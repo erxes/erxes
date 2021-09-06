@@ -9,12 +9,7 @@ type IProps = {
   activeAction: IAction;
   triggerType: string;
   closeModal: () => void;
-  addAction: (
-    action: IAction,
-    contentId?: string,
-    actionId?: string,
-    config?: any
-  ) => void;
+  addAction: (action: IAction, actionId?: string, config?: any) => void;
 };
 
 class BoardItemSelectContainer extends React.Component<IProps> {

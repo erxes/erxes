@@ -5,7 +5,7 @@ import { ActionForms } from '.';
 type Props = {
   activeAction: IAction;
   triggerType: string;
-  addAction: (action: IAction, contentId?: string, actionId?: string) => void;
+  addAction: (action: IAction, actionId?: string, config?: any) => void;
   closeModal: () => void;
 };
 

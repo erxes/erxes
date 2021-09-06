@@ -77,7 +77,7 @@ export const executeActions = async (
   if (action.type === ACTIONS.IF) {
     let ifActionId;
 
-    if (await isInSegment(action.config.segmentId, execution.targetId)) {
+    if (await isInSegment(action.config.contentId, execution.targetId)) {
       ifActionId = action.config.yes;
     } else {
       ifActionId = action.config.no;

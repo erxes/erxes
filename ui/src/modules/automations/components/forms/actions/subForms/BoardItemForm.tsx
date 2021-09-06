@@ -16,12 +16,7 @@ import Attribution from '../Attribution';
 type Props = {
   closeModal: () => void;
   activeAction: IAction;
-  addAction: (
-    action: IAction,
-    contentId?: string,
-    actionId?: string,
-    config?: any
-  ) => void;
+  addAction: (action: IAction, actionId?: string, config?: any) => void;
   triggerType: string;
 };
 
