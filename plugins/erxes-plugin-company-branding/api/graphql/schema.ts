@@ -8,9 +8,6 @@ export const types = `
     backgroundColor: String
     pageDesc: String
     url: String
-    email: String
-    type: String
-    template: String
   }
 `;
 
@@ -22,9 +19,6 @@ const commonFields = `
   backgroundColor: String
   pageDesc: String
   url: String
-  email: String
-  type: String
-  template: String
 `;
 
 export const queries = `

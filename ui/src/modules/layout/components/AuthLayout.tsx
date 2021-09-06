@@ -52,8 +52,9 @@ class AuthLayout extends React.Component<Props & { pluginsData?: any[] }, {}> {
 
   renderDesciption() {
     const { description, pluginsData } = this.props;
- console.log(pluginsData)
+    // console.log("sdasd", pluginsData)
     if (description) {
+      console.log('fdsdfsdfdf', description);
       return (
         <>
           <img src="/images/logo.png" alt="erxes" />
@@ -63,19 +64,30 @@ class AuthLayout extends React.Component<Props & { pluginsData?: any[] }, {}> {
     }
 
     if (pluginsData && pluginsData.length > 0) {
-      console.log("heeey", pluginsData.map(d=>d.loginPageLogo)[0])
-      if(!pluginsData.map(d=>d.error)[0])
-      return (
-      <>
-        <img src = {readFile(pluginsData.map(d=>d.loginPageLogo)[0])} alt="erxes" />
-        <h1 style={{ color:pluginsData.map(d => d.textColor)[0]}}>{__('Open Source Growth Marketing Platform')}</h1>
-        <p style={{color:pluginsData.map(d => d.textColor)[0]}}>
-          {
-            pluginsData.map(d => d.pageDesc)
-          }
-        </p>
-        <a href={__('Homepage link')}>« {pluginsData.map(d => d.url)}</a>
-      </>)
+      if (!pluginsData.map(d => d.error)[0]) {
+        var url = "__('Homepage link')";
+
+        if (pluginsData.map(d => d.url))
+          url = pluginsData.map(d => d.url).toString();
+
+        return (
+          <>
+            <img
+              src={readFile(pluginsData.map(d => d.loginPageLogo)[0])}
+              alt="erxes"
+            />
+            <h1 style={{ color: pluginsData.map(d => d.textColor)[0] }}>
+              {pluginsData.map(d => d.pageDesc)}
+            </h1>
+            <p style={{ color: pluginsData.map(d => d.textColor)[0] }}>
+              {__(
+                'Marketing, sales, and customer service platform designed to help your business attract more engaged customers. Replace Hubspot with the mission and community-driven ecosystem.'
+              )}
+            </p>
+            <a href={url}>«{__('Go to home page')}</a>
+          </>
+        );
+      }
     }
 
     return (
@@ -97,28 +109,30 @@ class AuthLayout extends React.Component<Props & { pluginsData?: any[] }, {}> {
     bustIframe();
   }
   render() {
-    // const { pluginsData } = this.props;
-    const { content, col = { first: 6, second: 5 }, pluginsData} = this.props;
-    console.log(pluginsData)
-    if(pluginsData && pluginsData.length > 0){
-      console.log(pluginsData.map(d=>d.error)[0])
-      if(!pluginsData.map(d=>d.error)[0])
-      return (
-        <Authlayout className="auth-container" backgroundColor = {pluginsData.map(d=>d.backgroundColor)[0] || ""}>
-          <AuthContent>
-            <Container>
-              <Col md={col.first}>
-                <AuthDescription>{this.renderDesciption()}</AuthDescription>
-              </Col>
-              <Col md={{ span: col.second, offset: 1 }}>{content}</Col>
-            </Container>
-          </AuthContent>
-          {this.renderRecommendMobileVersion()}
-        </Authlayout>
-      );
+    const { content, col = { first: 6, second: 5 }, pluginsData } = this.props;
+
+    if (pluginsData && pluginsData.length > 0) {
+      console.log(pluginsData.map(d => d.error)[0]);
+      if (!pluginsData.map(d => d.error)[0])
+        return (
+          <Authlayout
+            className="auth-container"
+            backgroundColor={pluginsData.map(d => d.backgroundColor)[0] || ''}
+          >
+            <AuthContent>
+              <Container>
+                <Col md={col.first}>
+                  <AuthDescription>{this.renderDesciption()}</AuthDescription>
+                </Col>
+                <Col md={{ span: col.second, offset: 1 }}>{content}</Col>
+              </Container>
+            </AuthContent>
+            {this.renderRecommendMobileVersion()}
+          </Authlayout>
+        );
     }
     return (
-      <Authlayout className="auth-container" >
+      <Authlayout className="auth-container">
         <AuthContent>
           <Container>
             <Col md={col.first}>
@@ -154,12 +168,10 @@ class AuthLayoutWrapper extends React.Component<Props, any> {
       promises.push(preAuth({ API_URL: REACT_APP_API_URL }));
     }
 
-    Promise.all(promises).then((response) => {
-      // console.log('mmmmmmmmmmmmmm', response);
-
+    Promise.all(promises).then(response => {
       this.setState({ isReady: true, pluginsData: response });
     });
-  };
+  }
 
   render() {
     const { isReady, pluginsData } = this.state;
@@ -168,9 +180,9 @@ class AuthLayoutWrapper extends React.Component<Props, any> {
       return null;
     }
 
-    const props = {...this.props, pluginsData }
+    const props = { ...this.props, pluginsData };
 
-    return <AuthLayout {...props} />
+    return <AuthLayout {...props} />;
   }
 }
 

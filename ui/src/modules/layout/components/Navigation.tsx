@@ -39,37 +39,36 @@ type IProps = {
 
 class Navigation extends React.Component<IProps, any> {
   constructor(props) {
-        super(props);
-    
-        this.state = { isReady: false, pluginsData: []};
+    super(props);
+
+    this.state = { isReady: false, pluginsData: [] };
   }
   componentDidMount() {
-        const { preAuths } = pluginsOfRoutes();
-    
-        const promises: any[] = [];
-    
-        if (preAuths.length === 0) {
-          this.setState({ isReady: true });
-        }
-    
-        const { REACT_APP_API_URL } = getEnv();
-    
-        for (const preAuth of preAuths) {
-          promises.push(preAuth({ API_URL: REACT_APP_API_URL }));
-        }
-    
-        Promise.all(promises).then((response) => {
-          // console.log('mmmmmmmmmmmmmm', response);
-    
-          this.setState({ isReady: true, pluginsData: response });
-        });
-      };
+    const { preAuths } = pluginsOfRoutes();
+
+    const promises: any[] = [];
+
+    if (preAuths.length === 0) {
+      this.setState({ isReady: true });
+    }
+
+    const { REACT_APP_API_URL } = getEnv();
+
+    for (const preAuth of preAuths) {
+      promises.push(preAuth({ API_URL: REACT_APP_API_URL }));
+    }
+
+    Promise.all(promises).then(response => {
+      this.setState({ isReady: true, pluginsData: response });
+    });
+  }
   componentWillReceiveProps(nextProps) {
     const unreadCount = nextProps.unreadConversationsCount;
-
-    if (unreadCount !== this.props.unreadConversationsCount) {
-      setBadge(unreadCount, __('Team Inbox').toString());
-    }
+    const { pluginsData } = this.state;
+    if (!pluginsData.map(d => d.favicon)[0])
+      if (unreadCount !== this.props.unreadConversationsCount) {
+        setBadge(unreadCount, __('Team Inbox').toString());
+      }
   }
 
   renderSubNavItem = (child, index: number) => {
@@ -94,7 +93,7 @@ class Navigation extends React.Component<IProps, any> {
     if (!childrens || childrens.length === 0) {
       return null;
     }
-    
+
     const urlParams = new URLSearchParams(window.location.search);
     const parent = urlParams.get('parent');
 
@@ -178,26 +177,27 @@ class Navigation extends React.Component<IProps, any> {
     );
   }
   render() {
-    const {  pluginsData } = this.state;
-    // isReady,
+    const { unreadConversationsCount, collapsed } = this.props;
+    const { pluginsData } = this.state;
 
-    const { unreadConversationsCount, collapsed} = this.props;
-    // const {isReady, pluginsData} = this.state;
-    // console.log("dfddddddddddddddd", isReady, readFile(pluginsData.map(d=>d.mainIcon)[0]))
-    
     let logo = collapsed ? '/images/logo.png' : '/images/erxes.png';
-    // console.log("heeeyp", pluginsData.map(d=>d.error)[0])
-    if(!pluginsData.map(d=>d.error)[0]){
-      logo = collapsed ? '/images/logo.png':  readFile(pluginsData.map(d=>d.mainIcon)[0]);
+
+    if (!pluginsData.map(d => d.error)[0]) {
+      if (pluginsData.map(d => d.mainIcon)[0])
+        logo = readFile(pluginsData.map(d => d.mainIcon)[0]);
+
+      if (pluginsData.map(d => d.favicon)[0]) {
+        var favicon = document.getElementById('favicon') as HTMLLinkElement;
+        favicon.href = readFile(pluginsData.map(d => d.favicon)[0]);
+      }
     }
-    
 
     const unreadIndicator = unreadConversationsCount !== 0 && (
       <Label shake={true} lblStyle="danger" ignoreTrans={true}>
         {unreadConversationsCount}
       </Label>
     );
-   
+
     return (
       <LeftNavigation collapsed={collapsed}>
         <NavLink to="/">

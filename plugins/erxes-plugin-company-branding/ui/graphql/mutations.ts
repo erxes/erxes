@@ -1,4 +1,3 @@
-
 const commonParams = `
   $loginPageLogo: String,
   $mainIcon: String,
@@ -7,9 +6,6 @@ const commonParams = `
   $backgroundColor:String
   $pageDesc: String
   $url: String
-  $email: String
-  $type: String
-  $template: String
 `
 
 const commonValues = `
@@ -20,9 +16,6 @@ const commonValues = `
   backgroundColor:$backgroundColor 
   pageDesc:$pageDesc 
   url:$url
-  email:$email
-  type:$type
-  template:$template
 `
 
 const companyBrandingSave = `
@@ -39,9 +32,15 @@ const companyBrandingEdit = `
       _id
     }
   }
-`
+`;
+const updateConfigs = `
+  mutation configsUpdate($configsMap: JSON!) {
+    configsUpdate(configsMap: $configsMap)
+  }
+`;
 
 export default {
   companyBrandingSave,
-  companyBrandingEdit
+  companyBrandingEdit,
+  updateConfigs
 };

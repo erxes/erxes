@@ -1,4 +1,3 @@
-
 export const COLORS = [
   '#01aecc',
   '#D9E3F0',
