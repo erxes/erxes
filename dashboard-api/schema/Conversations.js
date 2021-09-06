@@ -13,16 +13,15 @@ cube(`Conversations`, {
     avgResponse: {
       sql: `${numberFirstRespondedDate} - ${numberCreatedAt}`,
       type: `avg`,
-      title: `Avarage response time`
+      title: `Average response time`
     },
 
     avgClose: {
       sql: `${numberClosedAt} - ${numberCreatedAt}`,
       type: `avg`,
-      title: `Avarage resolve time`
+      title: `Average resolve time`
     }
   },
-
 
   dimensions: {
     brand: {
@@ -90,9 +89,7 @@ cube(`Conversations`, {
       sql: `${CUBE}."numberClosedAt"`,
       type: `number`,
       shown: false
-    }
-    ,
-
+    },
     numberUpdatedAt: {
       sql: `${CUBE}."numberUpdatedAt"`,
       type: `number`,
@@ -104,8 +101,5 @@ cube(`Conversations`, {
       type: `number`,
       shown: false
     }
-
   }
 });
-
-

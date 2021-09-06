@@ -49,7 +49,6 @@ class Form extends React.Component<Props, { isCanceled: boolean }> {
           <Button
             btnStyle="simple"
             type="button"
-            uppercase={false}
             onClick={cancel}
             icon="times-circle"
           >

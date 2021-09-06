@@ -40,12 +40,7 @@ class Sidebar extends React.Component<Props, {}> {
     const { renderButton } = this.props;
 
     const addChannel = (
-      <Button
-        btnStyle="success"
-        block={true}
-        uppercase={false}
-        icon="plus-circle"
-      >
+      <Button btnStyle="success" block={true} icon="plus-circle">
         Add New Channel
       </Button>
     );

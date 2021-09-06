@@ -1,4 +1,5 @@
 import Button from 'modules/common/components/Button';
+import { readFile } from 'modules/common/utils';
 import {
   LauncherContainer,
   WebPreview,
@@ -53,7 +54,8 @@ class CommonPreview extends React.Component<Props, {}> {
 
     return (
       <CallOutBody>
-        {image && <img src={image} alt={image} />}
+        {image && <img src={readFile(image)} alt={image} />}
+
         {bodyValue && bodyValue}
       </CallOutBody>
     );

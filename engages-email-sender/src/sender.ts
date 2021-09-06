@@ -75,7 +75,7 @@ export const start = async (data: IEmailParams) => {
       }
     }
 
-    replacedContent += `<div style="padding: 10px; color: #ccc; text-align: center; font-size:12px;">If you want to use service like this click <a style="text-decoration: underline; color: #ccc;" href="https://erxes.io" target="_blank">here</a> to read more. Also you can opt out from our email subscription <a style="text-decoration: underline;color: #ccc;" rel="noopener" target="_blank" href="${unsubscribeUrl}">here</a>.  <br>© 2021 erxes inc Growth Marketing Platform </div>`;
+    replacedContent += `<div style="padding: 10px; color: #ccc; text-align: center; font-size:12px;">You are receiving this email because you have signed up for our services. <br /> <a style="text-decoration: underline;color: #ccc;" rel="noopener" target="_blank" href="${unsubscribeUrl}">Unsubscribe</a> </div>`;
 
     try {
       await transporter.sendMail({
@@ -133,7 +133,10 @@ export const start = async (data: IEmailParams) => {
   }
 
   // cleans customers who do not open or click emails often
-  const cleanCustomers = await cleanIgnoredCustomers({
+  const {
+    customers: cleanCustomers,
+    ignoredCustomerIds
+  } = await cleanIgnoredCustomers({
     customers: filteredCustomers,
     engageMessageId
   });
@@ -141,11 +144,23 @@ export const start = async (data: IEmailParams) => {
   // finalized email list
   emails = cleanCustomers.map(customer => customer.primaryEmail);
 
-  if (emails.length > 0) {
+  await Logs.createLog(
+    engageMessageId,
+    'regular',
+    `Preparing to send emails to ${emails.length}: ${emails}`
+  );
+
+  if (ignoredCustomerIds.length > 0) {
+    const ignoredCustomers = filteredCustomers.filter(
+      cus => ignoredCustomerIds.indexOf(cus._id) !== -1
+    );
+
     await Logs.createLog(
       engageMessageId,
       'regular',
-      `Preparing to send emails to ${emails.length}: ${emails}`
+      `The following customers did not open emails frequently, therefore ignored: ${ignoredCustomers.map(
+        i => i.primaryEmail
+      )}`
     );
   }
 

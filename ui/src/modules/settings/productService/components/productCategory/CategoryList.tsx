@@ -124,12 +124,7 @@ class List extends React.Component<IProps> {
 
   renderCategoryHeader() {
     const trigger = (
-      <Button
-        btnStyle="success"
-        uppercase={false}
-        icon="plus-circle"
-        block={true}
-      >
+      <Button btnStyle="success" icon="plus-circle" block={true}>
         Add category
       </Button>
     );

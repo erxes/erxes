@@ -97,13 +97,6 @@ const init = async app => {
         throw new Error(message);
       }
 
-      if (!numberTo) {
-        const message = `Sender phone number (numberTo) not found`;
-
-        debugCallPro(message);
-        throw new Error(message);
-      }
-
       const integration = await Integrations.findOne({
         phoneNumber: numberTo
       }).lean();
@@ -150,7 +143,10 @@ const init = async app => {
         } catch (e) {
           await Customers.deleteOne({ _id: customer._id });
 
-          debugError(e.message);
+          debugError(
+            'Callpro: error occured during create or update customer on api: ',
+            e.message
+          );
           throw new Error(e);
         }
       }
@@ -220,7 +216,10 @@ const init = async app => {
       } catch (e) {
         await Conversations.deleteOne({ _id: conversation._id });
 
-        debugError(e.message);
+        debugError(
+          'Callpro: error occured during create or update conversation on api: ',
+          e.message
+        );
         throw new Error(e);
       }
 

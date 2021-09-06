@@ -1,5 +1,6 @@
 import { Model, model } from 'mongoose';
 import { Deals, Fields } from '.';
+import Companies from './Companies';
 import { ICustomField } from './definitions/common';
 import { PRODUCT_STATUSES } from './definitions/constants';
 import {
@@ -69,6 +70,19 @@ export const loadProductClass = () => {
         doc.categoryId = category._id;
       }
 
+      if (doc.vendorCode) {
+        const vendor = await Companies.findOne({
+          $or: [
+            { code: doc.vendorCode },
+            { primaryEmail: doc.vendorCode },
+            { primaryPhone: doc.vendorCode },
+            { primaryName: doc.vendorCode }
+          ]
+        });
+
+        doc.vendorId = vendor?._id;
+      }
+
       doc.customFieldsData = await Fields.prepareCustomFieldsData(
         doc.customFieldsData
       );
@@ -119,9 +133,12 @@ export const loadProductClass = () => {
       }
 
       if (usedIds.length > 0) {
-        await Products.findByIdAndUpdate(usedIds, {
-          $set: { status: PRODUCT_STATUSES.DELETED }
-        });
+        await Products.updateMany(
+          { _id: { $in: usedIds } },
+          {
+            $set: { status: PRODUCT_STATUSES.DELETED }
+          }
+        );
         response = 'updated';
       }
 
@@ -154,6 +171,7 @@ export const loadProductClass = () => {
       const type: string = productFields.type || '';
       const description: string = productFields.description || '';
       const categoryId: string = productFields.categoryId || '';
+      const vendorId: string = productFields.vendorId || '';
       const usedIds: string[] = [];
 
       for (const productId of productIds) {
@@ -192,7 +210,8 @@ export const loadProductClass = () => {
         name,
         type,
         description,
-        categoryId
+        categoryId,
+        vendorId
       });
 
       const dealProductIds = await Deals.find({
