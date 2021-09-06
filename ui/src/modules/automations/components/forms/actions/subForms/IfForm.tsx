@@ -5,7 +5,7 @@ import { ScrolledContent } from 'modules/automations/styles';
 
 type Props = {
   activeAction: IAction;
-  addAction: (action: IAction, contentId?: string, actionId?: string) => void;
+  addAction: (action: IAction, id?: string, config?: any) => void;
   triggerType: string;
   closeModal: () => void;
 };
@@ -35,6 +35,7 @@ class IfForm extends React.Component<Props, State> {
           {...this.props}
           contentType={triggerType || 'customer'}
           addConfig={addAction}
+          closeModal={this.props.closeModal}
           activeTrigger={activeAction}
           id={config.contentId}
         />

@@ -12,7 +12,7 @@ type Props = {
   onSave: () => void;
   closeModal: () => void;
   activeAction: IAction;
-  addAction: (action: IAction, contentId?: string, actionId?: string) => void;
+  addAction: (action: IAction, actionId?: string, config?: any) => void;
 };
 
 class DefaultForm extends React.Component<Props> {

@@ -8,12 +8,7 @@ import { ActionFooter } from 'modules/automations/styles';
 type Props = {
   closeModal: () => void;
   activeAction: IAction;
-  addAction: (
-    action: IAction,
-    contentId?: string,
-    actionId?: string,
-    config?: any
-  ) => void;
+  addAction: (action: IAction, actionId?: string, config?: any) => void;
   config: any;
   children: React.ReactNode;
 };
@@ -22,7 +17,7 @@ function Common(props: Props) {
   const { addAction, activeAction, closeModal, config, children } = props;
 
   const onSave = () => {
-    addAction(activeAction, '', activeAction.id, config);
+    addAction(activeAction, activeAction.id, config);
 
     closeModal();
   };
