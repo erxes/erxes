@@ -19,7 +19,7 @@ export type ReEnrollmentRule = {
 
 type Props = {
   trigger: ITrigger;
-  segment: ISegment;
+  segment?: ISegment;
   closeModal?: () => void;
   // renderButton: (props: IButtonMutateProps) => JSX.Element;
   afterSave?: () => void;
@@ -36,10 +36,11 @@ class ReEnrollment extends React.Component<Props, State> {
     super(props);
 
     const { trigger } = this.props;
+    const { config = {} } = trigger;
 
     this.state = {
-      reEnroll: trigger.config.reEnrollment ? true : false,
-      checked: trigger.config.reEnrollmentRules || []
+      reEnroll: config.reEnrollment ? true : false,
+      checked: config.reEnrollmentRules || []
     };
   }
 
@@ -97,6 +98,9 @@ class ReEnrollment extends React.Component<Props, State> {
     const { reEnroll } = this.state;
     const { segment } = this.props;
 
+    if (!segment) {
+      return 'Must segment form save.';
+    }
     return (
       <>
         <EnrollmentWrapper>

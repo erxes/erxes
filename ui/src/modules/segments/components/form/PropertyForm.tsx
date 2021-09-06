@@ -167,7 +167,7 @@ class PropertyForm extends React.Component<Props, State> {
         <Formgroup>{this.renderOperators()}</Formgroup>
         <CenterContent>
           <Button onClick={this.onClick} btnStyle="default">
-            Aply filter
+            Apply filter
           </Button>
         </CenterContent>
       </OperatorList>
