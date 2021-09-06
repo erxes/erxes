@@ -1571,6 +1571,12 @@ interface IActivityLogParams {
 }
 
 export const putActivityLog = async (params: IActivityLogParams) => {
+  const { action, data } = params;
+
+  if ([ACTIVITY_LOG_ACTIONS.CREATE_BOARD_ITEM_MOVEMENT_LOG].includes(action)) {
+    await sendToWebhook(action, data.contentType, params);
+  }
+
   try {
     return messageBroker().sendMessage('putActivityLog', params);
   } catch (e) {
