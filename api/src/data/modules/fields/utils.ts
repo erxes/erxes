@@ -1,5 +1,6 @@
 import {
   Companies,
+  Conversations,
   Customers,
   Deals,
   Fields,
@@ -475,6 +476,10 @@ export const fieldsCombinedByContentType = async ({
       schema = Customers.schema;
       break;
 
+    case 'conversation':
+      schema = Conversations.schema;
+      break;
+
     case 'deal':
       schema = Deals.schema;
       break;
@@ -535,7 +540,11 @@ export const fieldsCombinedByContentType = async ({
     extendFields = EXTEND_FIELDS.CUSTOMER;
   }
 
-  if (contentType === 'customer' || contentType === 'company') {
+  if (
+    contentType === 'customer' ||
+    contentType === 'company' ||
+    contentType === 'conversation'
+  ) {
     const tags = await getTags(contentType);
     fields = [...fields, ...[tags]];
 
@@ -549,6 +558,40 @@ export const fieldsCombinedByContentType = async ({
         selectOptions: integrations
       });
     }
+  }
+
+  if (contentType === 'conversation') {
+    const integrations = await getIntegrations();
+
+    fields.push({
+      _id: Math.random(),
+      name: 'integrationId',
+      label: 'Related integration',
+      selectOptions: integrations
+    });
+
+    const assignedUserOptions = await generateUsersOptions(
+      'assignedUserId',
+      'Assigned users',
+      'user'
+    );
+
+    const participatedUserOptions = await generateUsersOptions(
+      'participatedUserIds',
+      'Participated users',
+      'user'
+    );
+
+    const closedUserOptions = await generateUsersOptions(
+      'closedUserId',
+      'Closed user',
+      'user'
+    );
+
+    fields = [
+      ...fields,
+      ...[participatedUserOptions, assignedUserOptions, closedUserOptions]
+    ];
   }
 
   if (['deal', 'task', 'ticket'].includes(contentType)) {
@@ -619,19 +662,23 @@ export const fieldsCombinedByContentType = async ({
     const formFeilds = await getFormFields();
     const formFieldsValues = await getCustomFields('form');
 
+    fields = [...fields, ...[forms], ...[formFeilds]];
+
     for (const formField of formFieldsValues) {
+      const form = await Integrations.findOne({
+        formId: formField.contentTypeId
+      });
+
       fields.push({
         _id: Math.random(),
         name: formField._id,
-        group: `Form fields value`,
+        group: form ? form.name : 'Form field',
         label: formField.text,
         options: formField.options,
         validation: formField.validation,
         type: formField.type
       });
     }
-
-    fields = [...fields, ...[forms], ...[formFeilds]];
   }
 
   if (

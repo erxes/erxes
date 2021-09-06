@@ -599,6 +599,18 @@ export const COMPANY_SELECT_OPTIONS = {
   ]
 };
 
+export const CONVERSATION_SELECT_OPTIONS = {
+  OPERATOR_STATUS: [
+    { label: 'Operator', value: 'operator' },
+    { label: 'Bot', value: 'bot' }
+  ],
+  STATUS: [
+    { label: 'New', value: 'new' },
+    { label: 'Open', value: 'open' },
+    { label: 'Resolved', value: 'closed' }
+  ]
+};
+
 export const DEFAULT_SOCIAL_LINKS = [
   { label: 'Facebook', value: 'facebook' },
   { label: 'Twitter', value: 'twitter' },
