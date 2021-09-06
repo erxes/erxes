@@ -3,7 +3,7 @@ import * as compose from 'lodash.flowright';
 import { graphql } from 'react-apollo';
 import gql from 'graphql-tag';
 import { queries } from '../graphql';
-import Booking from '../components/detail/Booking';
+import Form from '../components/detail/Form';
 import { BookingDetailQueryResponse } from '../types';
 
 type Props = {
@@ -25,7 +25,7 @@ function EditBooking(props: FinalProps) {
     bookingDetail
   };
 
-  return <Booking {...updatedProps} />;
+  return <Form {...updatedProps} />;
 }
 
 export default compose(
