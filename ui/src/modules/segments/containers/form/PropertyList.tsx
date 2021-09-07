@@ -4,6 +4,7 @@ import * as compose from 'lodash.flowright';
 
 import { queries as boardQueries } from 'modules/boards/graphql';
 import { BoardsQueryResponse } from 'modules/boards/types';
+import Spinner from 'modules/common/components/Spinner';
 import { withProps } from 'modules/common/utils';
 import { queries as formQueries } from 'modules/forms/graphql';
 import React from 'react';
@@ -38,14 +39,15 @@ type FinalProps = {
 
 class PropertyListContainer extends React.Component<
   FinalProps,
-  { fields: any[]; searchValue: string }
+  { fields: any[]; searchValue: string; loading: boolean }
 > {
   constructor(props) {
     super(props);
 
     this.state = {
       fields: [],
-      searchValue: ''
+      searchValue: '',
+      loading: false
     };
   }
 
@@ -66,9 +68,10 @@ class PropertyListContainer extends React.Component<
             : propertyType
         }
       })
-      .then(({ data }) => {
+      .then(({ data, loading }) => {
         this.setState({
-          fields: data.fieldsCombinedByContentType
+          fields: data.fieldsCombinedByContentType,
+          loading
         });
       });
   };
@@ -79,15 +82,19 @@ class PropertyListContainer extends React.Component<
 
   render() {
     const { boardsQuery } = this.props;
-    const { fields, searchValue } = this.state;
+    const { fields, searchValue, loading } = this.state;
 
     if (boardsQuery && boardsQuery.loading) {
       return null;
     }
 
+    if (loading) {
+      return <Spinner />;
+    }
+
     const boards = boardsQuery ? boardsQuery.boards || [] : [];
 
-    const condition = new RegExp(searchValue);
+    const condition = new RegExp(searchValue, 'i');
 
     const results = fields.filter(field => {
       return condition.test(field.label);

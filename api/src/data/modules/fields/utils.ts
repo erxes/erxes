@@ -572,19 +572,19 @@ export const fieldsCombinedByContentType = async ({
 
     const assignedUserOptions = await generateUsersOptions(
       'assignedUserId',
-      'Assigned users',
+      'Assigned to',
       'user'
     );
 
     const participatedUserOptions = await generateUsersOptions(
       'participatedUserIds',
-      'Participated users',
+      'Participating team member',
       'user'
     );
 
     const closedUserOptions = await generateUsersOptions(
       'closedUserId',
-      'Closed user',
+      'Resolved by',
       'user'
     );
 
@@ -609,7 +609,7 @@ export const fieldsCombinedByContentType = async ({
 
     const assignedUserOptions = await generateUsersOptions(
       'assignedUserIds',
-      'Assigned users',
+      'Assigned to',
       'user'
     );
 

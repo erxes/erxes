@@ -8,9 +8,7 @@ type Props = {
   field: any;
 };
 
-type State = {};
-
-class ConditionDetail extends React.Component<Props, State> {
+class PropertyDetail extends React.Component<Props, {}> {
   renderOperator = () => {
     const { condition, field } = this.props;
 
@@ -30,7 +28,7 @@ class ConditionDetail extends React.Component<Props, State> {
   renderValue = () => {
     const { condition, field } = this.props;
 
-    const { selectOptions = [], choiceOptions = [] } = field;
+    const { selectOptions = [], choiceOptions = [], type } = field;
     const { propertyValue } = condition;
 
     let text = propertyValue;
@@ -43,12 +41,12 @@ class ConditionDetail extends React.Component<Props, State> {
       text = option ? option.label : text;
     }
 
-    if (choiceOptions.length > 0) {
+    if (type === 'radio' && choiceOptions.length > 0) {
       const option = choiceOptions.find(choiceOption => {
-        return choiceOption.value === propertyValue;
+        return choiceOption === propertyValue;
       });
 
-      text = option ? option.label : text;
+      text = option ? option : text;
     }
 
     return text;
@@ -57,48 +55,42 @@ class ConditionDetail extends React.Component<Props, State> {
   render() {
     const { condition, field } = this.props;
 
-    const { label } = field;
+    const { label, group } = field;
     const { propertyOperator, propertyType = '' } = condition;
 
     const operator = this.renderOperator();
 
     const value = this.renderValue();
 
-    const propertyTypeText = propertyType.replace('_', ' ');
+    let propertyTypeText = propertyType.replace('_', ' ');
+    let valueText = <span>{` ${operator} ${value}`}</span>;
+
+    if (propertyType === 'form_submission') {
+      propertyTypeText = group;
+    }
 
     if (
       propertyOperator &&
       ['is', 'ins', 'it', 'if'].indexOf(propertyOperator) >= 0
     ) {
-      return (
-        <ConditionDetailText>
-          <span>{`${propertyTypeText}'s`} </span>
-          <PropertyText>{label}</PropertyText>
-          <span>{` ${operator}`}</span>
-        </ConditionDetailText>
-      );
+      valueText = <span>{` ${operator}`}</span>;
     }
 
     if (
       propertyOperator &&
       ['wobm', 'woam', 'wobd', 'woad'].indexOf(propertyOperator) >= 0
     ) {
-      return (
-        <ConditionDetailText>
-          <span>{`${propertyTypeText}'s`} </span>
-          <PropertyText>{label}</PropertyText>
-          <span>{` ${value} ${operator}`}</span>
-        </ConditionDetailText>
-      );
+      valueText = <span>{` ${value} ${operator}`}</span>;
     }
+
     return (
       <ConditionDetailText>
         <span>{`${propertyTypeText}'s`} </span>
         <PropertyText>{label}</PropertyText>
-        <span>{` ${operator} ${value}`}</span>
+        {valueText}
       </ConditionDetailText>
     );
   }
 }
 
-export default ConditionDetail;
+export default PropertyDetail;

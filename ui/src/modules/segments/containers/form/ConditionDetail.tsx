@@ -3,7 +3,7 @@ import * as compose from 'lodash.flowright';
 
 import { withProps } from 'modules/common/utils';
 import { queries as formQueries } from 'modules/forms/graphql';
-import ConditionDetail from 'modules/segments/components/form/ConditionDetail';
+import ConditionDetail from 'modules/segments/components/form/PropertyDetail';
 import { FieldsCombinedByTypeQueryResponse } from 'modules/settings/properties/types';
 import React from 'react';
 import { graphql } from 'react-apollo';
@@ -32,7 +32,13 @@ class ConditionDetailContainer extends React.Component<FinalProps, {}> {
       return field.name === condition.propertyName;
     });
 
-    return <ConditionDetail field={chosenField} condition={condition} />;
+    return (
+      <ConditionDetail
+        {...this.props}
+        field={chosenField}
+        condition={condition}
+      />
+    );
   }
 }
 

@@ -99,7 +99,7 @@ export const conversationSchema = new Schema({
 
   isCustomerRespondedLast: field({
     type: Boolean,
-    label: 'Is customer responded Last'
+    label: 'Last responder is customer'
   }),
 
   customFieldsData: field({
