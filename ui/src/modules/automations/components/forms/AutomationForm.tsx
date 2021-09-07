@@ -112,6 +112,18 @@ class AutomationForm extends React.Component<Props, State> {
     };
   }
 
+  getNewId = (checkIds: string[]) => {
+    let newId = Math.random()
+      .toString(36)
+      .slice(-8);
+
+    if (checkIds.includes(newId)) {
+      newId = this.getNewId(checkIds);
+    }
+
+    return newId;
+  };
+
   setWrapperRef = node => {
     this.wrapperRef = node;
   };
@@ -357,7 +369,7 @@ class AutomationForm extends React.Component<Props, State> {
   addTrigger = (data: ITrigger, triggerId?: string, config?: any) => {
     const { triggers, activeTrigger } = this.state;
 
-    let trigger: any = { ...data, id: String(triggers.length) };
+    let trigger: any = { ...data, id: this.getNewId(triggers.map(t => t.id)) };
     const triggerIndex = triggers.findIndex(t => t.id === triggerId);
 
     if (triggerId && activeTrigger.id === triggerId) {
@@ -382,7 +394,7 @@ class AutomationForm extends React.Component<Props, State> {
   addAction = (data: IAction, actionId?: string, config?: any) => {
     const { actions } = this.state;
 
-    let action: any = { ...data, id: actions.length.toString() };
+    let action: any = { ...data, id: this.getNewId(actions.map(a => a.id)) };
 
     let actionIndex = -1;
 
