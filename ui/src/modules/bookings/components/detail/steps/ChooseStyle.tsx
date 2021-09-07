@@ -1,6 +1,11 @@
 import { FlexItem, LeftItem } from 'modules/common/components/step/styles';
+import { colors } from 'modules/common/styles';
+import { COLORS } from 'modules/boards/constants';
+import Popover from 'react-bootstrap/Popover';
+import TwitterPicker from 'react-color/lib/Twitter';
 import FormControl from 'modules/common/components/form/Control';
 import { ControlLabel, FormGroup } from 'modules/common/components/form';
+import Select from 'react-select-plus';
 import {
   ColorPick,
   ColorPicker,
@@ -10,34 +15,47 @@ import {
 import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
 import { __ } from 'modules/common/utils';
 import React, { useState } from 'react';
+import { BOOKING_ITEM_SHAPE } from 'modules/bookings/constants';
 
 function Style() {
-  const [shape, setShape] = useState('');
+  const [shape, setShape] = useState(BOOKING_ITEM_SHAPE.CIRCLE);
+  const [color, setColor] = useState(colors.colorPrimaryDark);
 
   const renderSelectOptions = () => {
-    return [
-      { value: 'triangle', text: 'triangle' },
-      { value: 'circle', text: 'circle' }
-    ].map(e => {
-      return (
-        <option key={e.value} value={e.value}>
-          {e.text}
-        </option>
-      );
-    });
+    return BOOKING_ITEM_SHAPE.ALL_LIST.map(e => ({
+      value: e.value,
+      label: e.text
+    }));
   };
 
-  const handleShapeChange = () => {
-    const element = document.getElementById('shapeAction') as HTMLInputElement;
-
-    const value = element.value;
-
-    setShape(value);
+  const handleShapeChange = e => {
+    setShape(e.value);
   };
 
-  const renderColorSelect = color => {
+  const onColorChange = e => {
+    setColor(e.hex);
+  };
+
+  const renderColorSelect = () => {
+    const popoverBottom = (
+      <Popover id="color-picker">
+        <TwitterPicker
+          width="266px"
+          triangle="hide"
+          color={color}
+          onChange={onColorChange}
+          colors={COLORS}
+        />
+      </Popover>
+    );
+
     return (
-      <OverlayTrigger trigger="click" rootClose={true} placement="bottom-start">
+      <OverlayTrigger
+        trigger="click"
+        rootClose={true}
+        placement="bottom-start"
+        overlay={popoverBottom}
+      >
         <ColorPick>
           <ColorPicker style={{ backgroundColor: color }} />
         </ColorPick>
@@ -51,25 +69,19 @@ function Style() {
         <SubItem>
           <FormGroup>
             <ControlLabel>Item Shape</ControlLabel>
-            <FormControl
-              componentClass="select"
-              defaultValue={shape}
+            <Select
+              clearable={false}
+              value={shape}
               onChange={handleShapeChange}
-              id="shapeAction"
-            >
-              {renderSelectOptions()}
-            </FormControl>
+              options={renderSelectOptions()}
+            />
           </FormGroup>
         </SubItem>
 
         <SubItem>
-          <ControlLabel>{__('Choose a card colors')}</ControlLabel>
+          <ControlLabel>{__('Card colors')}</ControlLabel>
 
-          <WidgetBackgrounds>
-            {renderColorSelect('#fff')}
-            {renderColorSelect('#3CCC38')}
-            {renderColorSelect('#5629B6')}
-          </WidgetBackgrounds>
+          <WidgetBackgrounds>{renderColorSelect()}</WidgetBackgrounds>
         </SubItem>
       </LeftItem>
     </FlexItem>

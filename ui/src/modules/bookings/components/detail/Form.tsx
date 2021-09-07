@@ -6,6 +6,8 @@ import React from 'react';
 import { IBookingDocument } from '../../types';
 import { Steps, Step } from 'modules/common/components/step';
 import { ChooseStyle, ChooseContent } from './steps';
+import ChooseSettings from './steps/ChooseSettings';
+import { FullPreview } from 'modules/leads/components/step/style';
 
 type Props = {
   queryParams: any;
@@ -13,11 +15,7 @@ type Props = {
 };
 
 function Form(props: Props) {
-  const breadcrumb = [
-    { title: __('Settings'), link: '/settings' },
-    { title: __('App store'), link: '/settings/integrations' },
-    { title: __('Messenger') }
-  ];
+  const breadcrumb = [{ title: __('Bookings'), link: '/bookings' }];
 
   return (
     <StepWrapper>
@@ -40,8 +38,18 @@ function Form(props: Props) {
             >
               <ChooseContent />
             </Step>
+
+            <Step
+              img="/images/icons/erxes-01.svg"
+              title="Settings"
+              // onClick={this.onStepClick.bind(null, 'greeting')}
+            >
+              <ChooseSettings />
+            </Step>
           </Steps>
         </LeftContent>
+
+        <FullPreview />
       </Content>
     </StepWrapper>
   );
