@@ -5,7 +5,6 @@ export type IConfig = {
   code: string;
   value: any;
 };
-
 // query types
 export type ConfigsQueryResponse = {
   configs: IConfig[];

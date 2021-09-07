@@ -1,19 +1,14 @@
 import React from 'react'
 import {
-  // Domain,
   StatusBox,
   StatusTitle,
-  // UpgradeButtons,
   FlexRow,
   ClearButton,
   ColorPickerWrapper,
   Domain
-  // ClearButton
 } from '../styles';
 import {
   __,
-  // Wrapper,
-  // FullContent
   FormGroup,
   ControlLabel,
   FormControl,
@@ -30,8 +25,6 @@ import { ColorPick, ColorPicker } from '../../../../ui/src/modules/settings/styl
 import EmailConfigForm from '../../../../ui/src/modules/settings/general/components/EmailConfigForm';
 import { COLORS } from '../constants'
 import { IConfigsMap } from '../general/types'
-// import { Wrapper } from 'modules/layout/components';
-
 type Props = {
   configsMap: IConfigsMap;
 }
@@ -304,7 +297,6 @@ class Plugincomponent extends React.Component<Props>{
   render() {
 
     return (
-
       <FullContent center={true}>
         <MiddleContent transparent={true}>
           <StatusBox largePadding={true}>

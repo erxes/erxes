@@ -4,7 +4,6 @@ import Plugincomponent from './containers/companyBranding'
 const CompanyBrandingForm = () => {
   return (
     <Plugincomponent />
-    // <h1>asdsadfs</h1>
   );
 };
 
@@ -12,7 +11,6 @@ export default () => ({
   preAuth: ({ API_URL }) => {
     return fetch(`${API_URL}/get-branding`).then(response => response.json())
   },
-
   routes: [
     {
       path: '/settings',
@@ -24,7 +22,6 @@ export default () => ({
       name: 'Company Branding',
       image: '/images/icons/erxes-35.png',
       to: '/erxes-plugin-company-branding/settings/',
-      // action: 'companyBrandingConfig',
       permissions: [],
     }
   ]

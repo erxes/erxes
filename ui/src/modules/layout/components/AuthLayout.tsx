@@ -52,9 +52,7 @@ class AuthLayout extends React.Component<Props & { pluginsData?: any[] }, {}> {
 
   renderDesciption() {
     const { description, pluginsData } = this.props;
-    // console.log("sdasd", pluginsData)
     if (description) {
-      console.log('fdsdfsdfdf', description);
       return (
         <>
           <img src="/images/logo.png" alt="erxes" />

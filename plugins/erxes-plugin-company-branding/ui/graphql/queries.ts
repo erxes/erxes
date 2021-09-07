@@ -15,11 +15,11 @@ query companyBrandings {
 `;
 const configs = `
 query configs {
-configs {
-  _id
-  code
-  value
-}
+  configs {
+    _id
+    code
+    value
+  }
 }
 `;
 
