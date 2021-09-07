@@ -5,9 +5,13 @@ import { __ } from 'modules/common/utils';
 import React from 'react';
 import { IBookingDocument } from '../../types';
 import { Steps, Step } from 'modules/common/components/step';
-import { ChooseStyle, ChooseContent } from './steps';
-import ChooseSettings from './steps/ChooseSettings';
-import { FullPreview } from 'modules/leads/components/step/style';
+import {
+  ChooseStyle,
+  ChooseContent,
+  ChooseSettings,
+  FullPreview
+} from './steps';
+import { PreviewWrapper } from './steps/style';
 
 type Props = {
   queryParams: any;
@@ -49,7 +53,9 @@ function Form(props: Props) {
           </Steps>
         </LeftContent>
 
-        <FullPreview />
+        <PreviewWrapper>
+          <FullPreview />
+        </PreviewWrapper>
       </Content>
     </StepWrapper>
   );
