@@ -3,6 +3,7 @@ import Select from 'react-select-plus';
 import FormGroup from 'modules/common/components/form/Group';
 import ControlLabel from 'modules/common/components/form/Label';
 import { __ } from 'modules/common/utils';
+import _ from 'lodash';
 import { IField, ISegmentCondition, ISegmentMap } from 'modules/segments/types';
 import React from 'react';
 import { PROPERTY_TYPES } from '../constants';
@@ -55,6 +56,8 @@ class PropertyList extends React.Component<Props, State> {
           value && value.includes('.')
             ? value.substr(0, value.indexOf('.'))
             : 'general';
+
+        key = _.startCase(key);
       }
 
       if (!acc[key]) {
@@ -164,11 +167,11 @@ class PropertyList extends React.Component<Props, State> {
       return (
         <>
           {hideBackButton ? (
+            <></>
+          ) : (
             <SegmentBackIcon onClick={onClickBackToList}>
               <Icon icon="angle-left" size={20} /> back
             </SegmentBackIcon>
-          ) : (
-            <></>
           )}
 
           <FormGroup>

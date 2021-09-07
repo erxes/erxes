@@ -216,6 +216,11 @@ const PropertyText = styled.span`
   color: #ffc82c;
   text-transform: lowercase;
   text-decoration: underline;
+
+  &:hover {
+    cursor: pointer;
+    text-decoration: underline;
+  }
 `;
 
 export {

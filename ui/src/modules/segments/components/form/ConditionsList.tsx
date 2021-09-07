@@ -134,7 +134,8 @@ class ConditionsList extends React.Component<Props, State> {
   };
 
   renderCondition(condition: ISegmentCondition) {
-    const { conditions } = this.props.segment;
+    const { segment } = this.props;
+    const { conditions } = segment;
 
     let useMargin = true;
 
@@ -166,7 +167,7 @@ class ConditionsList extends React.Component<Props, State> {
     const { conditions } = segment;
 
     if (conditions.length === 0 && index === 0) {
-      return <PropertyList {...this.props} hideBackButton={false} />;
+      return <PropertyList {...this.props} hideBackButton={true} />;
     }
 
     return (
