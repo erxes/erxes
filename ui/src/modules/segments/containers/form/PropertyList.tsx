@@ -94,7 +94,7 @@ class PropertyListContainer extends React.Component<
 
     const boards = boardsQuery ? boardsQuery.boards || [] : [];
 
-    const condition = new RegExp(searchValue);
+    const condition = new RegExp(searchValue, 'i');
 
     const results = fields.filter(field => {
       return condition.test(field.label);
