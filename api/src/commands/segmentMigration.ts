@@ -32,7 +32,7 @@ const command = async () => {
       condition.propertyType = contentType;
     }
 
-    const subSegment = await Segments.create({ conditions });
+    const subSegment = await Segments.create({ contentType, conditions });
 
     const newConditions = [
       { type: 'subSegment', subSegmentId: subSegment._id }
@@ -40,7 +40,7 @@ const command = async () => {
 
     await Segments.updateOne(
       { _id: segment._id },
-      { $set: { conditions: newConditions } }
+      { $set: { conditions: newConditions, conditionsConjunction: 'and' } }
     );
   }
 
