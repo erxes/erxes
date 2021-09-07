@@ -4,22 +4,18 @@ class CompanyBranding {
   /**
    * Create a CompanyBranding Document of company_brandings collection
    */
-  public static async createCompanyBranding(models, doc, user = undefined) {
+  public static async createCompanyBranding(models, doc) {
 
     const cb = await models.CompanyBrandings.create({
       ...doc
     });
-
-    // // create log
-    // await models.ActivityLogs.createCocLog({ coc: car, contentType: 'car' });
-
     return cb
   }
 
   /**
    * Update Company Branding
    */
-  public static async updateCompanyBranding(models, doc, user = undefined) {
+  public static async updateCompanyBranding(models, doc) {
     const { _id } = doc
 
     delete doc._id
@@ -28,9 +24,6 @@ class CompanyBranding {
   }
 
 }
-
-//
-
 export default [
   {
     name: 'CompanyBrandings',
