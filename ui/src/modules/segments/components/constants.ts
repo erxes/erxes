@@ -11,6 +11,23 @@ export const PROPERTY_TYPES = {
     { label: 'Form Submission', value: 'form_submission' }
   ],
 
+  company: [
+    { label: 'Company', value: 'company' },
+    { label: 'Deal', value: 'deal' },
+    { label: 'Task', value: 'task' },
+    { label: 'Ticket', value: 'ticket' }
+  ],
+
+  contact: [
+    { label: 'Customer', value: 'customer' },
+    { label: 'Company', value: 'company' },
+    { label: 'Deal', value: 'deal' },
+    { label: 'Task', value: 'task' },
+    { label: 'Ticket', value: 'ticket' },
+    { label: 'Conversation', value: 'conversation' },
+    { label: 'Form Submission', value: 'form_submission' }
+  ],
+
   conversation: [{ label: 'Conversation', value: 'conversation' }],
 
   lead: [

@@ -62,28 +62,12 @@ export const ACTIONS = [
 
 export const TRIGGERS = [
   {
-    type: 'customer',
+    type: 'contact',
     img: 'automation2.svg',
     icon: 'file-plus',
-    label: 'Customer',
+    label: 'Contact',
     description:
-      'Start with a blank workflow that enralls and is triggered off Customer'
-  },
-  {
-    type: 'lead',
-    img: 'automation1.svg',
-    icon: 'file-plus',
-    label: 'Lead',
-    description:
-      'Start with a blank workflow that enralls and is triggered off contacts'
-  },
-  {
-    type: 'visitor',
-    img: 'automation1.svg',
-    icon: 'file-plus',
-    label: 'Visitor',
-    description:
-      'Start with a blank workflow that enralls and is triggered off contacts'
+      'Start with a blank workflow that enralls and is triggered off Contact (Customer, Lead, Visitor)'
   },
   {
     type: 'company',
