@@ -1,11 +1,11 @@
 export const PROPERTY_TYPES = [
   {
-    value: 'company',
-    label: 'Company'
-  },
-  {
     value: 'customer',
     label: 'Customer'
+  },
+  {
+    value: 'company',
+    label: 'Company'
   },
   {
     value: 'deal',
@@ -40,17 +40,53 @@ export const PROPERTY_FIELD = [
   }
 ];
 
-export const PROPERTY_OPERATOR = [
-  {
-    value: 'set',
-    label: 'Set'
-  },
-  {
-    value: 'add',
-    label: 'Add'
-  },
-  {
-    value: 'subtract',
-    label: 'Subtract'
-  }
-];
+export const PROPERTY_OPERATOR = {
+  String: [
+    {
+      value: 'set',
+      label: 'Set'
+    },
+    {
+      value: 'concat',
+      label: 'Concat'
+    }
+  ],
+  Date: [
+    {
+      value: 'set',
+      label: 'Set'
+    },
+    {
+      value: 'addDay',
+      label: 'Add Day'
+    },
+    {
+      value: 'subtractDay',
+      label: 'Subtract Day'
+    }
+  ],
+  Number: [
+    {
+      value: 'add',
+      label: 'Add'
+    },
+    {
+      value: 'subtract',
+      label: 'subtract'
+    },
+    {
+      value: 'multiply',
+      label: 'Multiply'
+    },
+    {
+      value: 'divide',
+      label: 'Divide'
+    }
+  ],
+  Default: [
+    {
+      value: 'set',
+      label: 'Set'
+    }
+  ]
+};

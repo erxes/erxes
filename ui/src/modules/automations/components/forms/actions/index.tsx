@@ -1,7 +1,7 @@
 import { IAction } from 'modules/automations/types';
 import React from 'react';
 import { ModalFooter } from 'modules/common/styles/main';
-import SetProperty from './subForms/SetProperty';
+import SetProperty from 'modules/automations/containers/forms/actions/subForms/SetProperty';
 import IfForm from 'modules/automations/containers/forms/actions/subForms/IfForm';
 import Button from 'modules/common/components/Button';
 import { __ } from 'modules/common/utils';
