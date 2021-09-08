@@ -126,22 +126,3 @@ export const TRIGGERS = [
       'Start with a blank workflow that enralls and is triggered off contacts'
   }
 ];
-
-export const ENROLLS = [
-  {
-    id: 1,
-    label: 'Deal is manually enrolled'
-  },
-  {
-    id: 2,
-    label: 'Amount is greater than or equal to $59'
-  },
-  {
-    id: 3,
-    label: 'Closed won reason is know'
-  },
-  {
-    id: 4,
-    label: 'Deal stage is any of Qualified to buy'
-  }
-];

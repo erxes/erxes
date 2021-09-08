@@ -1,4 +1,13 @@
-import { Conformities, Customers, Deals, Stages } from '../../../db/models';
+import {
+  Companies,
+  Conformities,
+  Conversations,
+  Customers,
+  Deals,
+  Stages,
+  Tasks,
+  Tickets
+} from '../../../db/models';
 import { getCollection, getItem } from '../../../db/models/boardUtils';
 import { graphqlPubsub } from '../../../pubsub';
 import { itemsAdd } from '../../resolvers/mutations/boardUtils';
@@ -58,26 +67,29 @@ export const receiveRpcMessageBoardItem = async (action, doc) => {
     }
   }
 
+  let collection;
+  const modules = {
+    deal: Deals,
+    customer: Customers,
+    task: Tasks,
+    ticket: Tickets,
+    company: Companies,
+    conversation: Conversations
+  };
+
   if (action.includes('findConformities')) {
-    const conformities = await Conformities.getConformities({
+    const conformities = await Conformities.savedConformity({
       mainType: doc.mainType,
-      mainTypeIds: [doc.mainTypeId],
+      mainTypeId: doc.mainTypeId,
       relTypes: [doc.relType]
     });
+    collection = modules[doc.relType];
 
-    return sendSuccess(conformities);
+    return sendSuccess(await collection.find({ _id: { $in: conformities } }));
   }
 
   if (action.includes('set-property')) {
-    let collection;
-
-    if (doc.module === 'deal') {
-      collection = Deals;
-    }
-
-    if (doc.module === 'customer') {
-      collection = Customers;
-    }
+    collection = modules[doc.module];
 
     const result = await collection.update(
       { _id: doc._id },
