@@ -62,7 +62,7 @@ export const ACTIONS = [
 
 export const TRIGGERS = [
   {
-    type: 'contact',
+    type: 'customer',
     img: 'automation2.svg',
     icon: 'file-plus',
     label: 'Contact',
