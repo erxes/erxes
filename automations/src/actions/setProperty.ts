@@ -38,7 +38,7 @@ export const setProperty = async ({ triggerType, actionConfig, target }) => {
   for (const conformity of conformities) {
     let op1 = conformity[field];
 
-    let updatedValue = await replacePlaceHolders({ actionData: { config: value }, target: target })['config'];
+    let updatedValue = await replacePlaceHolders({ actionData: { config: value }, target }).config;
 
     if ([OPERATORS.ADD, OPERATORS.SUBTRACT, OPERATORS.MULTIPLY, OPERATORS.DIVIDE, OPERATORS.PERCENT].includes(operator)) {
       op1 = op1 || 0;
