@@ -56,7 +56,7 @@ export const conversationSchema = new Schema({
     selectOptions: CONVERSATION_SELECT_OPTIONS.OPERATOR_STATUS,
     optional: true
   }),
-  content: field({ type: String, optional: true }),
+  content: field({ type: String, label: 'Content', optional: true }),
   integrationId: field({ type: String, index: true }),
   customerId: field({ type: String, index: true }),
   visitorId: field({

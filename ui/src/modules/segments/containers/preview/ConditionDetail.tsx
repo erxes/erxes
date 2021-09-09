@@ -3,7 +3,7 @@ import * as compose from 'lodash.flowright';
 
 import { withProps } from 'modules/common/utils';
 import { queries as formQueries } from 'modules/forms/graphql';
-import ConditionDetail from 'modules/segments/components/form/PropertyDetail';
+import ConditionDetail from 'modules/segments/components/preview/PropertyDetail';
 import { FieldsCombinedByTypeQueryResponse } from 'modules/settings/properties/types';
 import React from 'react';
 import { graphql } from 'react-apollo';
@@ -12,6 +12,8 @@ import { ISegmentCondition } from '../../types';
 
 type Props = {
   condition: ISegmentCondition;
+  pipelineId?: string;
+  segmentId?: string;
 };
 
 type FinalProps = {
@@ -46,13 +48,15 @@ export default withProps<Props>(
   compose(
     graphql<Props>(gql(formQueries.fieldsCombinedByContentType), {
       name: 'fieldsQuery',
-      options: ({ condition }) => ({
+      options: ({ condition, pipelineId, segmentId }) => ({
         variables: {
           contentType: ['visitor', 'lead', 'customer'].includes(
             condition.propertyType || ''
           )
             ? 'customer'
-            : condition.propertyType
+            : condition.propertyType,
+          pipelineId,
+          segmentId
         }
       })
     })
