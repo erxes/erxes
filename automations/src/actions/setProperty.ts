@@ -32,8 +32,13 @@ export type Output = {
 
 export const setProperty = async ({ triggerType, actionConfig, target }) => {
   const { module, field, operator, value } = actionConfig;
+  let conformities = [];
 
-  const conformities = await sendRPCMessage('findConformities', { mainType: triggerType, mainTypeId: target._id, relType: module });
+  if (module === triggerType) {
+    conformities = [target]
+  } else {
+    conformities = await sendRPCMessage('findConformities', { mainType: triggerType, mainTypeId: target._id, relType: module });
+  }
 
   for (const conformity of conformities) {
     let op1 = conformity[field];
@@ -64,15 +69,19 @@ export const setProperty = async ({ triggerType, actionConfig, target }) => {
     }
 
     if (operator === 'concat') {
-      updatedValue = op1.concat(updatedValue)
+      updatedValue = (op1 || '').concat(updatedValue)
     }
 
-    if (operator === 'addDay') {
+    if (['addDay', 'subtractDay'].includes(operator)) {
+      op1 = op1 || new Date();
+      try {
+        op1 = new Date(op1)
+      } catch (e) {
+        op1 = new Date();
+      }
+      updatedValue = operator === 'addDay' ? parseFloat(updatedValue) : -1 * parseFloat(updatedValue);
+
       updatedValue = new Date(op1.setDate(op1.getDate() + updatedValue))
-    }
-
-    if (operator === 'subtractDay') {
-      updatedValue = new Date(op1.setDate(op1.getDate() - updatedValue))
     }
 
     await sendRPCMessage('set-property', { module, _id: conformity._id, field, value: updatedValue });

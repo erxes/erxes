@@ -35,6 +35,13 @@ export const receiveRpcMessageBoardItem = async (action, doc) => {
 
       const item = await itemsAdd(doc, type, create);
 
+      if (doc.conformity) {
+        await Conformities.addConformity({
+          ...doc.conformity,
+          relTypeId: item._id
+        });
+      }
+
       return sendSuccess({ ...item });
     } catch (e) {
       return sendError(e.message);
