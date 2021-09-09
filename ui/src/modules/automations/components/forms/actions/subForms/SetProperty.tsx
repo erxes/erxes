@@ -78,8 +78,11 @@ class SetProperty extends React.Component<Props, State> {
 
   renderContent() {
     const { config, fields, type } = this.state;
-    const field = fields.filter(f => f.name === config.field);
-    const fieldType = (field.length ? field[0] : { type: 'Default' }).type;
+    const chosenField = fields.filter(f => f.name === config.field);
+    const fieldType = (chosenField.length
+      ? chosenField[0]
+      : { type: 'Default' }
+    ).type;
 
     const operators = PROPERTY_OPERATOR[fieldType] || PROPERTY_OPERATOR.Default;
 
