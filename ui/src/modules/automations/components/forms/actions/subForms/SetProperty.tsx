@@ -80,7 +80,8 @@ class SetProperty extends React.Component<Props, State> {
     const { config, fields, type } = this.state;
     const field = fields.filter(f => f.name === config.field);
     const fieldType = (field.length ? field[0] : { type: 'Default' }).type;
-    const operators = PROPERTY_OPERATOR[fieldType];
+
+    const operators = PROPERTY_OPERATOR[fieldType] || PROPERTY_OPERATOR.Default;
 
     const onChangeSelect = (field, e) => this.onChangeField(field, e.value);
     const onChangeValue = e => this.onChangeField('value', e.target.value);
