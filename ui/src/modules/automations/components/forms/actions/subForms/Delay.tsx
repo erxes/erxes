@@ -19,7 +19,7 @@ type State = {
   config: any;
 };
 
-class SetProperty extends React.Component<Props, State> {
+class Delay extends React.Component<Props, State> {
   constructor(props) {
     super(props);
 
@@ -94,4 +94,4 @@ class SetProperty extends React.Component<Props, State> {
   }
 }
 
-export default SetProperty;
+export default Delay;

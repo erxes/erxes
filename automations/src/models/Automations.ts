@@ -14,7 +14,6 @@ export interface IAction {
 }
 
 export type TriggerType =
-  | 'lead'
   | 'customer'
   | 'company'
   | 'deal'
