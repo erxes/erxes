@@ -403,7 +403,8 @@ export class CommonBuilder<IListArgs extends ICommonListArgs> {
       const totalCountResponse = await fetchElk({
         action: 'count',
         index: this.contentType,
-        body: queryOptions
+        body: queryOptions,
+        defaultValue: 0
       });
 
       totalCount = totalCountResponse.count;
