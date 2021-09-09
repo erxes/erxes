@@ -1,6 +1,6 @@
 import Button from 'modules/common/components/Button';
 import { FlexRightItem } from 'modules/layout/styles';
-import PropertyList from 'modules/segments/containers/form/PropertyList';
+import PropertyCondition from 'modules/segments/containers/form/PropertyCondition';
 import { ISegmentCondition, ISegmentMap } from 'modules/segments/types';
 import { CenterContent } from 'erxes-ui/lib/styles/main';
 import { __ } from 'modules/common/utils';
@@ -13,7 +13,7 @@ import {
   ConjunctionButtonsVertical,
   FilterRow
 } from '../styles';
-import ConditionDetail from '../../containers/form/ConditionDetail';
+import ConditionDetail from '../../containers/preview/ConditionDetail';
 
 type Props = {
   segment: ISegmentMap;
@@ -21,7 +21,12 @@ type Props = {
   conditionsConjunction: string;
   index: number;
   changeConditionsConjunction: (value: string) => void;
-  addCondition: (condition: ISegmentCondition, segmentKey: string) => void;
+  addCondition: (
+    condition: ISegmentCondition,
+    segmentKey: string,
+    boardId?: string,
+    pipelineId?: string
+  ) => void;
   addNewProperty: (segmentKey: string) => void;
   removeCondition: (key: string, segmentKey?: string) => void;
   removeSegment: (segmentKey: string) => void;
@@ -146,7 +151,11 @@ class ConditionsList extends React.Component<Props, State> {
     return (
       <ConditionItem useMargin={useMargin} key={Math.random()}>
         <FilterRow>
-          <ConditionDetail condition={condition} />
+          <ConditionDetail
+            condition={condition}
+            pipelineId={segment.pipelineId}
+            segmentId={segment._id}
+          />
 
           <FlexRightItem>
             <Button
@@ -167,7 +176,7 @@ class ConditionsList extends React.Component<Props, State> {
     const { conditions } = segment;
 
     if (conditions.length === 0 && index === 0) {
-      return <PropertyList {...this.props} hideBackButton={true} />;
+      return <PropertyCondition {...this.props} hideBackButton={true} />;
     }
 
     return (

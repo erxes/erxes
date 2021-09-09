@@ -1,17 +1,16 @@
+import Attribution from 'modules/automations/containers/forms/actions/Attribution';
+import { BoardHeader } from 'modules/automations/styles';
+import { IAction } from 'modules/automations/types';
 import BoardSelect from 'modules/boards/containers/BoardSelect';
 import { SelectContainer } from 'modules/boards/styles/common';
 import { HeaderRow } from 'modules/boards/styles/item';
-import React from 'react';
 import {
   ControlLabel,
   FormControl,
   FormGroup
 } from 'modules/common/components/form';
-
-import { IAction } from 'modules/automations/types';
+import React from 'react';
 import Common from '../Common';
-import { BoardHeader } from 'modules/automations/styles';
-import Attribution from '../Attribution';
 
 type Props = {
   closeModal: () => void;

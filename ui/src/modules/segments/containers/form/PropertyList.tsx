@@ -1,98 +1,35 @@
-import client from 'apolloClient';
 import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
-
-import { queries as boardQueries } from 'modules/boards/graphql';
-import { BoardsQueryResponse } from 'modules/boards/types';
 import Spinner from 'modules/common/components/Spinner';
+
 import { withProps } from 'modules/common/utils';
 import { queries as formQueries } from 'modules/forms/graphql';
+import PropertyList from 'modules/segments/components/form/PropertyList';
+import { IField } from 'modules/segments/types';
+import { FieldsCombinedByTypeQueryResponse } from 'modules/settings/properties/types';
 import React from 'react';
 import { graphql } from 'react-apollo';
-import PropertyList from '../../components/form/PropertyList';
-
-import {
-  AddMutationResponse,
-  EditMutationResponse,
-  ISegmentCondition,
-  ISegmentMap
-} from '../../types';
-import { isBoardKind } from '../../utils';
 
 type Props = {
-  segment: ISegmentMap;
   contentType: string;
-  addCondition: (condition: ISegmentCondition, segmentKey: string) => void;
-  onClickBackToList: () => void;
-  hideBackButton: boolean;
-  changeSubSegmentConjunction: (
-    segmentKey: string,
-    conjunction: string
-  ) => void;
+  searchValue: string;
+  pipelineId: string;
+  onClickField: (field: IField) => void;
 };
 
 type FinalProps = {
-  boardsQuery?: BoardsQueryResponse;
-} & Props &
-  AddMutationResponse &
-  EditMutationResponse;
+  fieldsQuery?: FieldsCombinedByTypeQueryResponse;
+} & Props;
 
-class PropertyListContainer extends React.Component<
-  FinalProps,
-  { fields: any[]; searchValue: string; loading: boolean }
-> {
-  constructor(props) {
-    super(props);
-
-    this.state = {
-      fields: [],
-      searchValue: '',
-      loading: false
-    };
-  }
-
-  componentWillMount() {
-    const { contentType } = this.props;
-
-    this.fetchFields(contentType);
-  }
-
-  fetchFields = (propertyType: string, pipelineId?: string) => {
-    client
-      .query({
-        query: gql(formQueries.fieldsCombinedByContentType),
-        variables: {
-          pipelineId,
-          contentType: ['visitor', 'lead', 'customer'].includes(propertyType)
-            ? 'customer'
-            : propertyType
-        }
-      })
-      .then(({ data, loading }) => {
-        this.setState({
-          fields: data.fieldsCombinedByContentType,
-          loading
-        });
-      });
-  };
-
-  onSearch = (value: string) => {
-    this.setState({ searchValue: value });
-  };
-
+class PropertyListContationer extends React.Component<FinalProps, {}> {
   render() {
-    const { boardsQuery } = this.props;
-    const { fields, searchValue, loading } = this.state;
+    const { fieldsQuery, contentType, searchValue } = this.props;
 
-    if (boardsQuery && boardsQuery.loading) {
-      return null;
-    }
-
-    if (loading) {
+    if (!fieldsQuery || fieldsQuery.loading) {
       return <Spinner />;
     }
 
-    const boards = boardsQuery ? boardsQuery.boards || [] : [];
+    const fields = fieldsQuery.fieldsCombinedByContentType as any[];
 
     const condition = new RegExp(searchValue, 'i');
 
@@ -110,26 +47,28 @@ class PropertyListContainer extends React.Component<
       choiceOptions: item.options || []
     }));
 
-    const updatedProps = {
-      ...this.props,
-      boards,
-      fetchFields: this.fetchFields,
-      onSearch: this.onSearch,
-      fields: cleanFields
-    };
-
-    return <PropertyList {...updatedProps} />;
+    return (
+      <PropertyList
+        {...this.props}
+        fields={cleanFields}
+        contentType={contentType}
+      />
+    );
   }
 }
 
 export default withProps<Props>(
   compose(
-    graphql<Props>(gql(boardQueries.boards), {
-      name: 'boardsQuery',
-      options: ({ contentType }) => ({
-        variables: { type: contentType }
-      }),
-      skip: ({ contentType }) => !isBoardKind(contentType)
+    graphql<Props>(gql(formQueries.fieldsCombinedByContentType), {
+      name: 'fieldsQuery',
+      options: ({ contentType, pipelineId }) => ({
+        variables: {
+          contentType: ['visitor', 'lead', 'customer'].includes(contentType)
+            ? 'customer'
+            : contentType,
+          pipelineId
+        }
+      })
     })
-  )(PropertyListContainer)
+  )(PropertyListContationer)
 );

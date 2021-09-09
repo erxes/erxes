@@ -1,5 +1,6 @@
 import client from 'apolloClient';
 import gql from 'graphql-tag';
+import Attribution from 'modules/automations/containers/forms/actions/Attribution';
 import { BoardHeader, DrawerDetail } from 'modules/automations/styles';
 import { IAction } from 'modules/automations/types';
 import FormControl from 'modules/common/components/form/Control';
@@ -10,8 +11,6 @@ import { queries as formQueries } from 'modules/forms/graphql';
 import { FieldsCombinedByType } from 'modules/settings/properties/types';
 import React from 'react';
 import Select from 'react-select-plus';
-
-import Attribution from '../Attribution';
 import Common from '../Common';
 import { PROPERTY_OPERATOR, PROPERTY_TYPES } from '../constants';
 
@@ -39,7 +38,7 @@ class SetProperty extends React.Component<Props, State> {
     this.state = {
       config: fillConfig,
       type: fillConfig.module || '',
-      fields: this.props.fields
+      fields: this.props.fields || []
     };
   }
 
@@ -79,9 +78,9 @@ class SetProperty extends React.Component<Props, State> {
 
   renderContent() {
     const { config, fields, type } = this.state;
-    const operators =
-      PROPERTY_OPERATOR[fields.filter(f => f.name === config.field)[0].type] ||
-      PROPERTY_OPERATOR.Default;
+    const field = fields.filter(f => f.name === config.field);
+    const fieldType = (field.length ? field[0] : { type: 'Default' }).type;
+    const operators = PROPERTY_OPERATOR[fieldType];
 
     const onChangeSelect = (field, e) => this.onChangeField(field, e.value);
     const onChangeValue = e => this.onChangeField('value', e.target.value);

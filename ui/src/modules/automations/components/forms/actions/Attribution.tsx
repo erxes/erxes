@@ -4,13 +4,14 @@ import Popover from 'react-bootstrap/Popover';
 
 import Icon from 'modules/common/components/Icon';
 import { Attributes } from 'modules/automations/styles';
-import { getAttributionValues } from 'modules/automations/utils';
+import { FieldsCombinedByType } from 'modules/settings/properties/types';
 
 type Props = {
   config: any;
   triggerType: string;
   setConfig: (config: any) => void;
   inputName?: string;
+  attributions: FieldsCombinedByType[];
 };
 
 export default class Attribution extends React.Component<Props> {
@@ -24,12 +25,13 @@ export default class Attribution extends React.Component<Props> {
     this.overlay.hide();
 
     const { config, setConfig, inputName = 'value' } = this.props;
-    config[inputName] = `${config[inputName] || ''} {{ ${item.value} }}`;
+    config[inputName] = `${config[inputName] || ''} {{ ${item.name} }}`;
 
     setConfig(config);
   };
 
   renderContent() {
+    const { attributions } = this.props;
     return (
       <Popover id="attribute-popover">
         <Attributes>
@@ -37,9 +39,9 @@ export default class Attribution extends React.Component<Props> {
             <li>
               <b>Attributions</b>
             </li>
-            {getAttributionValues(this.props.triggerType).map(item => (
+            {attributions.map(item => (
               <li
-                key={item.value}
+                key={item.name}
                 onClick={this.onClickAttribute.bind(this, item)}
               >
                 {item.label}
