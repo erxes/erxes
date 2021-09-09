@@ -15,10 +15,11 @@ import {
 type Props = {
   configsQuery: ConfigsQueryResponse;
   updateConfigs: (configsMap: IConfigsMap) => Promise<void>;
-  companyBrandings: any
-  companyBrandingSave: any
+  companyBrandings: any;
+  companyBrandingSave: any;
+  companyBrandingEdit: any
 }
-class CompanyBrandingContainer extends React.Component {
+class CompanyBrandingContainer extends React.Component<Props> {
   constructor(props: Props) {
     super(props)
 
@@ -82,7 +83,6 @@ class CompanyBrandingContainer extends React.Component {
     for (const config of configs) {
       configsMap[config.code] = config.value;
     }
-    console.log("gggggg", companyBrandings.companyBrandings)
     const content = (
       <CompanyBranding
         {...this.props}

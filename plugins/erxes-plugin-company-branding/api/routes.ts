@@ -8,7 +8,7 @@ export default {
 
         if(branding)
         return branding;
-        return {"error":"heeeey"}
+        return {"error":"Not found"}
       }
     }
   ]
