@@ -190,39 +190,20 @@ export const loadClass = () => {
     /**
      * Update user information
      */
-    public static async updateUser(
-      _id: string,
-      {
-        username,
-        email,
-        password,
-        details,
-        links,
-        groupIds,
-        brandIds
-      }: IUpdateUser
-    ) {
-      email = (email || '').toLowerCase().trim();
-      password = (password || '').trim();
+    public static async updateUser(_id: string, doc: IUpdateUser) {
+      doc.password = (doc.password || '').trim();
+      doc.email = (doc.email || '').toLowerCase().trim();
 
-      const doc: any = {
-        username,
-        email,
-        password,
-        details,
-        links,
-        groupIds,
-        brandIds
-      };
-
-      // Checking duplicated email
-      await this.checkDuplication({ email, idsToExclude: _id });
+      if (doc.email) {
+        // Checking duplicated email
+        await this.checkDuplication({ email: doc.email, idsToExclude: _id });
+      }
 
       // change password
-      if (password) {
-        this.checkPassword(password);
+      if (doc.password) {
+        this.checkPassword(doc.password);
 
-        doc.password = await this.generatePassword(password);
+        doc.password = await this.generatePassword(doc.password);
 
         // if there is no password specified then leave password field alone
       } else {
