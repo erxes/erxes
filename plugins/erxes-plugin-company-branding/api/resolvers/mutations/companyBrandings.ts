@@ -1,11 +1,8 @@
-// import { putCreateLog, putDeleteLog, putUpdateLog } from "erxes-api-utils";
-
-
 const companyBrandingMutations = [
   {
     name: 'companyBrandingSave',
     handler: async (_root, doc, { user, docModifier, models}) => {
-      const create = models.CompanyBrandings.createCompanyBranding(models, docModifier(doc), user)
+      const create = await models.CompanyBrandings.createCompanyBranding(models, docModifier(doc), user)
       return create
 
 
@@ -14,7 +11,7 @@ const companyBrandingMutations = [
   {
     name: 'companyBrandingEdit',
     handler: async (_root, doc, { user, docModifier, models}) => {
-      const updated = models.CompanyBrandings.updateCompanyBranding(models, docModifier(doc), user)
+      const updated = await models.CompanyBrandings.updateCompanyBranding(models, docModifier(doc), user)
       return updated
     }
   },

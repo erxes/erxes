@@ -11,3 +11,13 @@ export type ConfigsQueryResponse = {
   loading: boolean;
   refetch: () => void;
 };
+
+export type companyBrandingResponse ={
+  loginPageLogo: string,
+  mainIcon: string,
+  favicon: string,
+  pageDesc: string,
+  backgroundColor: string,
+  textColor: string,
+  url: string
+}

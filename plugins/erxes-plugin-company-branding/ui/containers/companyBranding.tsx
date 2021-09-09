@@ -12,19 +12,22 @@ import {
 import {
   Wrapper, Alert
 } from 'erxes-ui';
-type FinalProps = {
+type Props = {
   configsQuery: ConfigsQueryResponse;
   updateConfigs: (configsMap: IConfigsMap) => Promise<void>;
+  companyBrandings: any
+  companyBrandingSave: any
 }
 class CompanyBrandingContainer extends React.Component {
-  constructor(props: FinalProps) {
+  constructor(props: Props) {
     super(props)
 
     this.state = {}
   }
-  
+
 
   saveCompanyBranding = doc => {
+
     const { companyBrandings, updateConfigs } = this.props
     const data = companyBrandings.companyBrandings || {}
     const { loginPageLogo,
@@ -68,6 +71,9 @@ class CompanyBrandingContainer extends React.Component {
     if (configsQuery.loading) {
       return null;
     }
+    if (companyBrandings.loading) {
+      return null;
+    }
 
     const configs = configsQuery.configs || [];
 
@@ -76,6 +82,7 @@ class CompanyBrandingContainer extends React.Component {
     for (const config of configs) {
       configsMap[config.code] = config.value;
     }
+    console.log("gggggg", companyBrandings.companyBrandings)
     const content = (
       <CompanyBranding
         {...this.props}

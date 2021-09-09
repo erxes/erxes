@@ -24,16 +24,49 @@ import TwitterPicker from 'react-color/lib/Twitter';
 import { ColorPick, ColorPicker } from '../../../../ui/src/modules/settings/styles';
 import EmailConfigForm from '../../../../ui/src/modules/settings/general/components/EmailConfigForm';
 import { COLORS } from '../constants'
-import { IConfigsMap } from '../general/types'
+import { IConfigsMap, companyBrandingResponse } from '../general/types'
 type Props = {
   configsMap: IConfigsMap;
+  data: companyBrandingResponse;
+  save: (
+    {
+      loginPageLogo,
+      mainIcon,
+      favicon,
+      textColor,
+      backgroundColor,
+      pageDesc,
+      url,
+      map
+    }: {
+      loginPageLogo: string,
+      mainIcon: string,
+      favicon: string,
+      pageDesc: string,
+      backgroundColor: string,
+      textColor: string,
+      url: string,
+      map:IConfigsMap
+    },
+    callback?: () => void
+  ) => void;
+}
+type State = {
+     loginPageLogo: string,
+      mainIcon: string,
+      favicon: string,
+      pageDesc: string,
+      backgroundColor: string,
+      textColor: string,
+      url: string,
+      configsMap:IConfigsMap,
+      isSaved: boolean;
 }
 
-class Plugincomponent extends React.Component<Props>{
+class Plugincomponent extends React.Component<Props, State>{
   constructor(props: Props) {
     super(props)
-    const { data } = props;
-    const { loginPageLogo, mainIcon, favicon, textColor, backgroundColor, pageDesc, url } = data
+    const { loginPageLogo, mainIcon, favicon, textColor, backgroundColor, pageDesc, url } = props.data;
     this.state = {
       loginPageLogo: loginPageLogo,
       mainIcon: mainIcon,
@@ -48,19 +81,20 @@ class Plugincomponent extends React.Component<Props>{
     this.save = this.save.bind(this);
   };
 
-  save() {
+  save = () => {
+    const { save } = this.props;
 
     const {
       loginPageLogo,
       mainIcon,
       favicon,
-      textColor,
-      backgroundColor,
       pageDesc,
+      backgroundColor,
+      textColor,
       url,
       configsMap
     } = this.state;
-    this.props.save({
+    save({
       loginPageLogo,
       mainIcon,
       favicon,
@@ -73,9 +107,8 @@ class Plugincomponent extends React.Component<Props>{
     this.setState({ isSaved: true });
   }
 
-  onUpload = (name, value) => {
-    this.setState({ [name]: value })
-
+  onUpload = <T extends keyof State>(name: T, value: State[T]) => {
+    this.setState({ [name]: value } as any);
   };
 
   renderLoginPageLogo = () => {
@@ -87,15 +120,13 @@ class Plugincomponent extends React.Component<Props>{
         <AvatarUpload
           avatar={this.state.loginPageLogo}
           onAvatarUpload={handleAvatarUploader}
-          title="logo"
-          extraFormData={[{ key: 'isPublic', value: 'true' }]}
-          square={true}
-          width={300}
+          defaultAvatar={this.state.loginPageLogo}
         />
       </FormGroup>
     );
   };
   renderFavicon = () => {
+    const { favicon } = this.state;
     const handleAvatarUploader = url => this.onUpload('favicon', url);
 
     return (
@@ -103,12 +134,9 @@ class Plugincomponent extends React.Component<Props>{
         <ControlLabel>Favicon</ControlLabel>
         <p>16x16px transparent PNG.</p>
         <AvatarUpload
-          
           onAvatarUpload={handleAvatarUploader}
-          avatar={this.state.favicon}
-          title="favicon"
-          extraFormData={[{ key: 'isPublic', value: 'true' }]}
-          square={true}
+          avatar={favicon}
+          defaultAvatar={favicon}
         />
       </FormGroup>
     );
@@ -123,9 +151,6 @@ class Plugincomponent extends React.Component<Props>{
         <AvatarUpload
           avatar={this.state.mainIcon}
           onAvatarUpload={handleAvatarUploader}
-          title="mainIcon"
-          extraFormData={[{ key: 'isPublic', value: 'true' }]}
-          square={true}
         />
       </FormGroup>
     );

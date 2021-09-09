@@ -1,7 +1,8 @@
 const campanyBrandingQueries = [
   {
     name: 'companyBrandings',
-    handler: async (_root, params, { models, }) => {
+    handler: async (_root, params, { models }) => {
+
       const bool = await models.CompanyBrandings.findOne({})   
       return bool
     }

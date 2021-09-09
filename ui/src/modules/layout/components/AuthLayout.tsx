@@ -64,9 +64,12 @@ class AuthLayout extends React.Component<Props & { pluginsData?: any[] }, {}> {
     if (pluginsData && pluginsData.length > 0) {
       if (!pluginsData.map(d => d.error)[0]) {
         var url = "__('Homepage link')";
-
-        if (pluginsData.map(d => d.url))
+        var descriptions = 'Open Source Growth Marketing Platform';
+        if (pluginsData.map(d => d.url).toString())
           url = pluginsData.map(d => d.url).toString();
+
+        if (pluginsData.map(d => d.pageDesc).toString())
+          descriptions = pluginsData.map(d => d.pageDesc).toString();
 
         return (
           <>
@@ -75,7 +78,7 @@ class AuthLayout extends React.Component<Props & { pluginsData?: any[] }, {}> {
               alt="erxes"
             />
             <h1 style={{ color: pluginsData.map(d => d.textColor)[0] }}>
-              {pluginsData.map(d => d.pageDesc)}
+              {__(descriptions)}
             </h1>
             <p style={{ color: pluginsData.map(d => d.textColor)[0] }}>
               {__(
@@ -110,7 +113,6 @@ class AuthLayout extends React.Component<Props & { pluginsData?: any[] }, {}> {
     const { content, col = { first: 6, second: 5 }, pluginsData } = this.props;
 
     if (pluginsData && pluginsData.length > 0) {
-      console.log(pluginsData.map(d => d.error)[0]);
       if (!pluginsData.map(d => d.error)[0])
         return (
           <Authlayout
@@ -180,7 +182,7 @@ class AuthLayoutWrapper extends React.Component<Props, any> {
 
     const props = { ...this.props, pluginsData };
 
-    return <AuthLayout {...props} />;
+    return <AuthLayout {...props} key={Math.random()} />;
   }
 }
 
