@@ -13,8 +13,15 @@ type Props = {
   field: IField;
   onClickBack: () => void;
   segment: ISegmentMap;
-  addCondition: (condition: ISegmentCondition, segmentKey: string) => void;
+  addCondition: (
+    condition: ISegmentCondition,
+    segmentKey: string,
+    boardId?: string,
+    pipelineId?: string
+  ) => void;
   propertyType: string;
+  pipelineId: string;
+  boardId: string;
 };
 
 type State = {
@@ -143,7 +150,14 @@ class PropertyForm extends React.Component<Props, State> {
   };
 
   onClick = () => {
-    const { segment, addCondition, field, propertyType } = this.props;
+    const {
+      segment,
+      addCondition,
+      field,
+      propertyType,
+      boardId,
+      pipelineId
+    } = this.props;
     const { chosenOperator, currentValue } = this.state;
 
     return addCondition(
@@ -154,7 +168,9 @@ class PropertyForm extends React.Component<Props, State> {
         propertyOperator: chosenOperator.value,
         propertyValue: currentValue
       },
-      segment.key
+      segment.key,
+      boardId,
+      pipelineId
     );
   };
 
