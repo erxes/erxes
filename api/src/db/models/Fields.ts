@@ -12,7 +12,8 @@ import {
   DEVICE_PROPERTIES_INFO,
   FIELD_CONTENT_TYPES,
   PRODUCT_INFO,
-  PROPERTY_GROUPS
+  PROPERTY_GROUPS,
+  USER_PROPERTIES_INFO
 } from '../../data/constants';
 import { updateOrder } from './boardUtils';
 import { FIELDS_GROUPS_CONTENT_TYPES } from './definitions/constants';
@@ -458,6 +459,16 @@ export const loadFieldClass = () => {
             isDefinedByErxes: true
           }));
           await Fields.insertMany(deviceFields);
+          break;
+        case FIELDS_GROUPS_CONTENT_TYPES.USER:
+          const userFields = USER_PROPERTIES_INFO.ALL.map(e => ({
+            text: e.label,
+            type: e.field,
+            groupId,
+            contentType,
+            isDefinedByErxes: true
+          }));
+          await Fields.insertMany(userFields);
           break;
       }
     }
