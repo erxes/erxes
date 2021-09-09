@@ -30,8 +30,10 @@ export interface ISegmentCondition {
 }
 
 export interface ISegmentMap {
+  _id?: string;
   key: string;
   contentType: string;
+  pipelineId?: string;
   conditions: ISegmentCondition[];
   conditionsConjunction: string;
 }
