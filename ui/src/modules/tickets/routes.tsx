@@ -59,6 +59,18 @@ const calendar = ({ location }) => {
   );
 };
 
+const list = ({ location }) => {
+  const queryParams = queryString.parse(location.search);
+
+  return <TicketBoard viewType="list" queryParams={queryParams} />;
+};
+
+const activity = ({ location }) => {
+  const queryParams = queryString.parse(location.search);
+
+  return <TicketBoard viewType="activity" queryParams={queryParams} />;
+};
+
 const routes = () => {
   return (
     <>
@@ -76,6 +88,20 @@ const routes = () => {
         exact={true}
         path="/ticket/calendar"
         component={calendar}
+      />
+
+      <Route
+        key="ticket/list"
+        exact={true}
+        path="/ticket/list"
+        component={list}
+      />
+
+      <Route
+        key="ticket/activity"
+        exact={true}
+        path="/ticket/activity"
+        component={activity}
       />
     </>
   );

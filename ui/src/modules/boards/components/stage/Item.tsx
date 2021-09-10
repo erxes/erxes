@@ -13,6 +13,7 @@ type Props = {
   beforePopupClose?: () => void;
   onClick?: () => void;
   options: IOptions;
+  itemComponent?: any;
 } & IRouterProps;
 
 class Item extends React.PureComponent<Props, { isFormVisible: boolean }> {
@@ -73,9 +74,9 @@ class Item extends React.PureComponent<Props, { isFormVisible: boolean }> {
   };
 
   render() {
-    const { options } = this.props;
+    const { options, itemComponent } = this.props;
 
-    const ItemComponent = options.Item;
+    const ItemComponent = itemComponent || options.Item;
 
     return (
       <ItemComponent

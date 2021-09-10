@@ -141,7 +141,7 @@ class MainActionBar extends React.Component<Props> {
 
     if (currentPipeline.visibility === 'public') {
       return (
-        <HeaderButton>
+        <HeaderButton isActive={true}>
           <Icon icon="earthgrid" /> {__('Public')}
         </HeaderButton>
       );
@@ -151,7 +151,7 @@ class MainActionBar extends React.Component<Props> {
 
     return (
       <>
-        <HeaderButton>
+        <HeaderButton isActive={true}>
           <Icon icon="users-alt" /> {__('Private')}
         </HeaderButton>
         <Participators participatedUsers={members} limit={3} />
@@ -179,7 +179,7 @@ class MainActionBar extends React.Component<Props> {
         </HeaderLabel>
         <Dropdown>
           <Dropdown.Toggle as={DropdownToggle} id="dropdown-board">
-            <HeaderButton rightIconed={true}>
+            <HeaderButton rightIconed={true} hasBorder={true} textColor={true}>
               {(currentBoard && currentBoard.name) || __('Choose board')}
               <Icon icon="angle-down" />
             </HeaderButton>
@@ -191,7 +191,7 @@ class MainActionBar extends React.Component<Props> {
         </HeaderLabel>
         <Dropdown>
           <Dropdown.Toggle as={DropdownToggle} id="dropdown-pipeline">
-            <HeaderButton rightIconed={true}>
+            <HeaderButton rightIconed={true} hasBorder={true} textColor={true}>
               {(currentPipeline && currentPipeline.name) ||
                 __('Choose pipeline')}
               <Icon icon="angle-down" />

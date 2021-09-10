@@ -86,6 +86,17 @@ const Header = styled.div`
   }
 `;
 
+const Body = styled.div`
+  max-height: 100%;
+  overflow-x: hidden;
+  overflow-y: hidden;
+  margin: 0 4px;
+
+  &:hover {
+    overflow-y: auto;
+  }
+`;
+
 const HeaderAmount = styled.div`
   min-height: 28px;
 `;
@@ -119,16 +130,31 @@ const Amount = styled.ul`
     }
   }
 `;
+const ListContainer = styled.div`
+  min-height: 200px;
+  border: 1px solid ${colors.colorCoreLightGray};
+  border-radius: 16px;
+  margin: 18px 13px;
+  padding: 10px;
+  width: 98%;
+  transition: background-color 0.3s ease;
+  box-shadow: 0px 0px 8px rgb(0 4 3 / 0.18);
+`;
 
-const Body = styled.div`
-  max-height: 100%;
-  overflow-x: hidden;
-  overflow-y: hidden;
-  margin: 0 4px;
+export const ListBody = styled.div`
+  overflow: auto;
+  position: relative;
+  overflow-y: overlay;
+  max-height: 300px;
+`;
 
-  &:hover {
-    overflow-y: auto;
-  }
+export const Footer = styled.div`
+  background: rgb(250, 250, 250);
+  display: flex;
+  border-top: 1px solid rgb(238, 238, 238);
+  margin-top: -1px;
+  position: relative;
+  align-items: right;
 `;
 
 const AddNew = styled.a`
@@ -208,5 +234,6 @@ export {
   IndicatorItem,
   StageFooter,
   LoadingContent,
-  StageRoot
+  StageRoot,
+  ListContainer
 };
