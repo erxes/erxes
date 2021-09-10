@@ -259,7 +259,7 @@ export const generateQueryBySegment = async (args: {
 
       await generateQueryBySegment({
         ...args,
-        segment: subSegment,
+        segment: subSegment || ({} as ISegment),
         selector: selectorPositiveList[selectorPositiveList.length - 1].bool,
         isInitialCall: false
       });
