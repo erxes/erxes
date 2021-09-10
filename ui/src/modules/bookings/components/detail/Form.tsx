@@ -6,7 +6,7 @@ import React from 'react';
 import { IBookingDocument } from '../../types';
 import { Steps, Step } from 'modules/common/components/step';
 import {
-  ChooseStyle,
+  // ChooseStyle,
   ChooseContent,
   ChooseSettings,
   FullPreview
@@ -27,12 +27,20 @@ function Form(props: Props) {
       <Content>
         <LeftContent>
           <Steps>
-            <Step
+            {/* <Step
               img="/images/icons/erxes-04.svg"
               title="Style"
               // onClick={this.onStepClick.bind(null, 'appearance')}
             >
               <ChooseStyle />
+            </Step> */}
+
+            <Step
+              img="/images/icons/erxes-01.svg"
+              title="Settings"
+              // onClick={this.onStepClick.bind(null, 'greeting')}
+            >
+              <ChooseSettings />
             </Step>
 
             <Step
@@ -41,14 +49,6 @@ function Form(props: Props) {
               // onClick={this.onStepClick.bind(null, 'greeting')}
             >
               <ChooseContent />
-            </Step>
-
-            <Step
-              img="/images/icons/erxes-01.svg"
-              title="Settings"
-              // onClick={this.onStepClick.bind(null, 'greeting')}
-            >
-              <ChooseSettings />
             </Step>
           </Steps>
         </LeftContent>

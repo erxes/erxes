@@ -3,7 +3,6 @@ import { colors } from 'modules/common/styles';
 import { COLORS } from 'modules/boards/constants';
 import Popover from 'react-bootstrap/Popover';
 import TwitterPicker from 'react-color/lib/Twitter';
-import FormControl from 'modules/common/components/form/Control';
 import { ControlLabel, FormGroup } from 'modules/common/components/form';
 import Select from 'react-select-plus';
 import {
@@ -24,7 +23,7 @@ function Style() {
   const renderSelectOptions = () => {
     return BOOKING_ITEM_SHAPE.ALL_LIST.map(e => ({
       value: e.value,
-      label: e.text
+      label: e.label
     }));
   };
 

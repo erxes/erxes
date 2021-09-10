@@ -45,4 +45,10 @@ const PreviewWrapper = styled.div`
   }
 `;
 
-export { FlexItem, FullPreview, PreviewWrapper, TabletPreview };
+const Title = styled.h4`
+  font-size: 16px;
+  margin: 0 0 5px;
+  font-weight: 500;
+`;
+
+export { FlexItem, FullPreview, PreviewWrapper, TabletPreview, Title };
