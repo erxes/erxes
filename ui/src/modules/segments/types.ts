@@ -43,6 +43,11 @@ export interface ISubSegment {
   conditionsConjunction?: string;
   conditions?: ISegmentCondition[];
 }
+
+export interface ConditionsForPreview {
+  type: string;
+  subSegmentForPreview: ISegmentMap;
+}
 export interface ISegmentWithConditionDoc {
   name: string;
   description: string;

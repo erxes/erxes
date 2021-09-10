@@ -53,6 +53,7 @@ export interface ICondition {
   eventAttributeFilters?: IAttributeFilter[];
 
   subSegmentId?: string;
+  subSegmentForPreview?: ISegment;
 }
 
 export interface IConditionDocument extends ICondition, Document {}

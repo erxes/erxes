@@ -245,8 +245,15 @@ export const generateQueryBySegment = async (args: {
       eventConditions.push(condition);
     }
 
-    if (condition.type === 'subSegment' && condition.subSegmentId) {
-      const subSegment = await Segments.getSegment(condition.subSegmentId);
+    if (
+      condition.type === 'subSegment' &&
+      (condition.subSegmentId || condition.subSegmentForPreview)
+    ) {
+      let subSegment = condition.subSegmentForPreview;
+
+      if (condition.subSegmentId) {
+        subSegment = await Segments.getSegment(condition.subSegmentId);
+      }
 
       selectorPositiveList.push({ bool: {} });
 

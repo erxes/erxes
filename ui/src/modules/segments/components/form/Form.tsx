@@ -11,6 +11,7 @@ import { FlexContent, FlexItem } from 'modules/layout/styles';
 import Popover from 'react-bootstrap/Popover';
 import TwitterPicker from 'react-color/lib/Twitter';
 import {
+  ConditionsForPreview,
   IEvent,
   IField,
   ISegment,
@@ -42,6 +43,11 @@ type Props = {
   closeModal?: () => void;
   afterSave?: () => void;
   fetchFields?: (pipelineId?: string) => void;
+
+  previewCount?: (args: {
+    conditions: ConditionsForPreview[];
+    subOf?: string;
+  }) => void;
 
   isModal?: boolean;
 };
@@ -116,6 +122,24 @@ class SegmentFormAutomations extends React.Component<Props, State> {
       state,
       chosenSegment: undefined
     };
+  }
+
+  componentDidMount() {
+    const { subOf, segments } = this.state;
+    const { previewCount } = this.props;
+
+    const conditionsForPreview: ConditionsForPreview[] = [];
+
+    segments.forEach((cond: ISegmentMap) => {
+      conditionsForPreview.push({
+        type: 'subSegment',
+        subSegmentForPreview: cond
+      });
+    });
+
+    if (previewCount) {
+      previewCount({ conditions: conditionsForPreview, subOf });
+    }
   }
 
   renderSubOf(formProps: IFormProps) {
@@ -465,10 +489,28 @@ class SegmentFormAutomations extends React.Component<Props, State> {
       afterSave,
       closeModal,
       isModal,
-      contentType
+      contentType,
+      previewCount
     } = this.props;
 
+    const { subOf, segments } = this.state;
+
     const { values, isSubmitted } = formProps;
+
+    const conditionsForPreview: ConditionsForPreview[] = [];
+
+    segments.forEach((cond: ISegmentMap) => {
+      conditionsForPreview.push({
+        type: 'subSegment',
+        subSegmentForPreview: cond
+      });
+    });
+
+    const onPreviewCount = () => {
+      if (previewCount) {
+        previewCount({ conditions: conditionsForPreview, subOf });
+      }
+    };
 
     return (
       <>
@@ -493,6 +535,14 @@ class SegmentFormAutomations extends React.Component<Props, State> {
                     Cancel
                   </Button>
                 </Link>
+
+                <Button
+                  id="segment-show-count"
+                  icon="crosshairs"
+                  onClick={onPreviewCount}
+                >
+                  Show count
+                </Button>
               </>
             )}
 

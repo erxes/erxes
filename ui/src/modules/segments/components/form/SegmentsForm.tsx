@@ -25,8 +25,6 @@ type Props = {
   previewCount: (args: {
     conditions: ISegmentCondition[];
     subOf?: string;
-    boardId?: string;
-    pipelineId?: string;
   }) => void;
   counterLoading: boolean;
   isModal: boolean;
@@ -78,7 +76,8 @@ const SegmentsForm = (props: Props) => {
     boards,
     isModal,
     closeModal,
-    segments
+    segments,
+    previewCount
   } = props;
 
   const title = props.segment
@@ -103,6 +102,7 @@ const SegmentsForm = (props: Props) => {
       segments={segments}
       closeModal={closeModal}
       isModal={isModal}
+      previewCount={previewCount}
     />
   );
 
