@@ -2,7 +2,7 @@ export const types = `
   type Booking {
     _id: String!,
     name: String,
-    image: [String],
+    image: Attachment,
  
     description: String,
     userFilters: [String],
@@ -36,7 +36,7 @@ export const queries = `
 
 const bookingMutationParams = `
   name: String,
-  image: [String],
+  image: AttachmentInput,
   description: String,
   userFilters: [String],
   productCategoryId: String

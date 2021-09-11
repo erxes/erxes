@@ -1,4 +1,6 @@
 import { Document, Schema } from 'mongoose';
+import { attachmentSchema } from './boards';
+
 import { field } from './utils';
 
 interface ICommonFields {
@@ -59,7 +61,7 @@ const commonFields = {
 export const bookingSchema = new Schema({
   _id: field({ pkey: true }),
   name: field({ type: String, label: 'Name' }),
-  image: field({ type: [String], label: 'Image' }),
+  image: field({ type: attachmentSchema }),
   description: field({ type: String, label: 'Description' }),
 
   userFilters: field({ type: [String], label: 'Filter' }),
