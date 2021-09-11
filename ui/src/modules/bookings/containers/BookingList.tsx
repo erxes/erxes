@@ -9,8 +9,8 @@ import { mutations, queries } from '../graphql';
 import { generatePaginationParams } from 'modules/common/utils/router';
 import {
   BookingsQueryResponse,
-  BookingRemoveMutationResponse,
-  BookingRemoveMutationVariables
+  RemoveBookingMutationResponse,
+  RemoveBookingMutationVariables
 } from '../types';
 
 type Props = {
@@ -19,7 +19,7 @@ type Props = {
 
 type FinalProps = {
   bookingsQuery: BookingsQueryResponse;
-} & BookingRemoveMutationResponse &
+} & RemoveBookingMutationResponse &
   Props;
 
 function BookingListContainer(props: FinalProps) {
@@ -80,7 +80,7 @@ export default compose(
       })
     }
   ),
-  graphql<{}, BookingRemoveMutationResponse, BookingRemoveMutationVariables>(
+  graphql<{}, RemoveBookingMutationResponse, RemoveBookingMutationVariables>(
     gql(mutations.bookingsRemove),
     {
       name: 'bookingsRemoveMutation'

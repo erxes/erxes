@@ -1,11 +1,17 @@
 const bookingMutationParamsDef = `
   $name: String!
-  $size: String
+  $image: [String]
+  $description: String
+  
+  $productCategoryId: String
+
 `;
 
 const bookingMutationParamsVal = `
   name: $name
-  size: $size
+  image: $image
+  description: $description
+  productCategoryId: $productCategoryId
 `;
 
 const bookingsAdd = `

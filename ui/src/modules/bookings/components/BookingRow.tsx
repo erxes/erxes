@@ -10,8 +10,6 @@ import ActionButtons from 'modules/common/components/ActionButtons';
 import { IBookingDocument } from '../types';
 import FormControl from 'modules/common/components/form/Control';
 import Icon from 'modules/common/components/Icon';
-import ModalTrigger from 'modules/common/components/ModalTrigger';
-import BookingForm from './BookingForm';
 
 type Props = {
   isChecked: boolean;
@@ -28,25 +26,15 @@ function Row({ isChecked, toggleBulk, booking, remove, refetch }: Props) {
     }
   };
 
-  const renderForm = formProps => {
-    return <BookingForm {...formProps} booking={booking} refetch={refetch} />;
-  };
-
-  const renderEditAction = () => {
-    const trigger = (
-      <Button id="skill-edit-skill" btnStyle="link">
-        <Tip text={__('Edit')} placement="bottom">
-          <Icon icon="edit-3" />
-        </Tip>
-      </Button>
-    );
-
+  const manageAction = bookingDetail => {
     return (
-      <ModalTrigger
-        title="Edit Booking"
-        trigger={trigger}
-        content={renderForm}
-      />
+      <Link to={`/bookings/edit/${bookingDetail._id}`}>
+        <Button id="skill-edit-skill" btnStyle="link">
+          <Tip text={__('Manage')} placement="bottom">
+            <Icon icon="edit-3" />
+          </Tip>
+        </Button>
+      </Link>
     );
   };
 
@@ -82,11 +70,11 @@ function Row({ isChecked, toggleBulk, booking, remove, refetch }: Props) {
         </RowTitle>
       </td>
       <td>
-        <TextInfo>{booking.size || '3D'}</TextInfo>
+        <TextInfo>{booking.name || '3D'}</TextInfo>
       </td>
       <td>
         <ActionButtons>
-          {renderEditAction()}
+          {manageAction(booking)}
           {renderRemoveAction()}
         </ActionButtons>
       </td>

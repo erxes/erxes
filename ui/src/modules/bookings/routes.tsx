@@ -7,6 +7,10 @@ const List = asyncComponent(() =>
   import(/* webpackChunkName: "Bookings" */ './containers/BookingList')
 );
 
+const CreateBooking = asyncComponent(() =>
+  import(/* webpackChunkName: "CreateBooking" */ './containers/CreateBooking')
+);
+
 const EditBooking = asyncComponent(() =>
   import(/* webpackChunkName: "EditBooking" */ './containers/EditBooking')
 );
@@ -17,6 +21,10 @@ const bookings = history => {
   const queryParams = queryString.parse(location.search);
 
   return <List queryParams={queryParams} history={history} />;
+};
+
+const createBooking = () => {
+  return <CreateBooking />;
 };
 
 const editBooking = ({ match, location }) => {
@@ -30,6 +38,12 @@ const editBooking = ({ match, location }) => {
 const routes = () => (
   <React.Fragment>
     <Route exact={true} key="/bookings" path="/bookings" component={bookings} />
+    <Route
+      exact={true}
+      key="/bookings/create"
+      path="/bookings/create"
+      component={createBooking}
+    />
     <Route
       exact={true}
       key="/bookings/edit/:bookingId"

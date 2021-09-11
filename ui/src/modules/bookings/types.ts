@@ -2,16 +2,10 @@ import { QueryResponse } from 'modules/common/types';
 
 export interface IBooking {
   name?: string;
-  size?: string;
-  images?: string[];
-  font?: string;
-  fontColor?: string;
-  columnColor?: string;
-  activeColumn?: string;
-  rowColor?: string;
-  activeRow?: string;
-  columnShape?: string;
-  rowShape?: string;
+  image?: string;
+  description?: string;
+  userFilters?: string[];
+  productCategoryId?: string;
 }
 
 export interface IBookingDocument extends IBooking {
@@ -28,13 +22,27 @@ export type BookingDetailQueryResponse = {
 } & QueryResponse;
 
 // mutation types
-export type BookingRemoveMutationVariables = {
+export type AddBookingMutationVariables = {
+  name?: string;
+  image?: string;
+  description?: string;
+  userFilters?: string[];
+  productCategoryId?: string;
+};
+
+export type AddBookingMutationResponse = {
+  addBookingMutation: (params: {
+    variables: AddBookingMutationVariables;
+  }) => Promise<any>;
+};
+
+export type RemoveBookingMutationVariables = {
   _id: string;
 };
 
-export type BookingRemoveMutationResponse = {
+export type RemoveBookingMutationResponse = {
   bookingsRemoveMutation: (params: {
-    variables: BookingRemoveMutationVariables;
+    variables: RemoveBookingMutationVariables;
   }) => Promise<any>;
 };
 

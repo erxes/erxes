@@ -1,12 +1,9 @@
 const bookingFields = `
   _id
   name
-  size
-  images
-  font
-  fontColor
-  columnColor
-  activeColumn
+  image
+
+  description
 `;
 
 const bookingDetail = `
@@ -25,4 +22,13 @@ const bookings = `
   }
 `;
 
-export default { bookingDetail, bookings };
+const productCategories = `
+  query productCategories($parentId: String, $searchValue: String) {
+    productCategories(parentId: $parentId, searchValue: $searchValue) {
+      _id
+      name
+    }
+  }
+`;
+
+export default { bookingDetail, bookings, productCategories };

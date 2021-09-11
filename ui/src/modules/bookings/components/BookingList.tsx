@@ -12,9 +12,7 @@ import React from 'react';
 import { IBookingDocument } from '../types';
 import Sidebar from './Sidebar';
 import Row from './BookingRow';
-import BookingForm from './BookingForm';
-import { NotWrappable } from 'modules/settings/permissions/styles';
-import ModalTrigger from 'modules/common/components/ModalTrigger';
+import { Link } from 'react-router-dom';
 
 type Props = {
   queryParams: any;
@@ -59,29 +57,15 @@ function BookingList(props: Props) {
     ));
   };
 
-  const renderForm = formProps => {
-    return <BookingForm {...formProps} refetch={refetch} />;
-  };
-
-  function renderActionBar() {
-    const trigger = (
+  const actionBarRight = (
+    <Link to="/bookings/create">
       <Button btnStyle="success" size="small" icon="plus-circle">
-        {__('Create Bookings')}
+        Create Booking
       </Button>
-    );
+    </Link>
+  );
 
-    const actionBarRight = (
-      <NotWrappable>
-        <ModalTrigger
-          title="Create bookings"
-          trigger={trigger}
-          content={renderForm}
-        />
-      </NotWrappable>
-    );
-
-    return <Wrapper.ActionBar right={actionBarRight} />;
-  }
+  const actionBar = <Wrapper.ActionBar right={actionBarRight} />;
 
   const content = (
     <Table whiteSpace="nowrap" hover={true}>
@@ -115,7 +99,7 @@ function BookingList(props: Props) {
         />
       }
       leftSidebar={<Sidebar />}
-      actionBar={renderActionBar()}
+      actionBar={actionBar}
       footer={<Pagination count={2} />}
       content={
         <DataWithLoader
