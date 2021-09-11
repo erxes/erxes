@@ -10,16 +10,10 @@ interface ICommonFields {
 
 export interface IBooking {
   name?: string;
-  size?: string;
-  images?: string[];
-  font?: string;
-  fontColor?: string;
-  columnColor?: string;
-  activeColumn?: string;
-  rowColor?: string;
-  activeRow?: string;
-  columnShape?: string;
-  rowShape?: string;
+  image?: string[];
+  description?: string;
+  userFilters?: string[];
+  productCategoryId?: string;
 }
 
 export interface IBookingDocument extends ICommonFields, IBooking, Document {
@@ -65,16 +59,12 @@ const commonFields = {
 export const bookingSchema = new Schema({
   _id: field({ pkey: true }),
   name: field({ type: String, label: 'Name' }),
-  size: field({ type: String, label: 'Size' }),
-  images: field({ type: [String], label: 'Images' }),
-  font: field({ type: String, label: 'Font' }),
-  fontColor: field({ type: String, label: 'Font color' }),
-  columnColor: field({ type: String, label: 'Column color' }),
-  activeColumn: field({ type: String, label: 'Active column' }),
-  rowColor: field({ type: String, label: 'Row color' }),
-  activeRow: field({ type: String, label: 'Active row' }),
-  columnShape: field({ type: String, label: 'Column Shape' }),
-  rowShape: field({ type: String, label: 'Row Shape' }),
+  image: field({ type: [String], label: 'Image' }),
+  description: field({ type: String, label: 'Description' }),
+
+  userFilters: field({ type: [String], label: 'Filter' }),
+  productCategoryId: field({ type: String, label: 'Product category' }),
+
   ...commonFields
 });
 

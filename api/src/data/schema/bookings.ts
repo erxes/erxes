@@ -2,16 +2,11 @@ export const types = `
   type Booking {
     _id: String!,
     name: String,
-    size: String,
-    images: [String],
-    font: String,
-    fontColor: String,
-    columnColor: String,
-    activeColumn: String,
-    rowColor: String,
-    activeRow: String,
-    columnShape: String,
-    rowShape: String
+    image: [String],
+ 
+    description: String,
+    userFilters: [String],
+    productCategoryId: String
   }
 
   type Floor {
@@ -41,16 +36,10 @@ export const queries = `
 
 const bookingMutationParams = `
   name: String,
-  size: String,
-  images: [String],
-  font: String,
-  fontColor: String,
-  columnColor: String,
-  activeColumn: String,
-  rowColor: String,
-  activeRow: String,
-  columnShape: String,
-  rowShape: String
+  image: [String],
+  description: String,
+  userFilters: [String],
+  productCategoryId: String
 `;
 
 const floorsMutationParams = `
