@@ -1,10 +1,11 @@
-import { QueryResponse } from 'modules/common/types';
+import { IAttachment, QueryResponse } from 'modules/common/types';
 
 export interface IBooking {
   name?: string;
-  image?: string;
+  image?: IAttachment[];
   description?: string;
   userFilters?: string[];
+
   productCategoryId?: string;
 }
 
@@ -22,17 +23,13 @@ export type BookingDetailQueryResponse = {
 } & QueryResponse;
 
 // mutation types
-export type AddBookingMutationVariables = {
-  name?: string;
-  image?: string;
-  description?: string;
-  userFilters?: string[];
-  productCategoryId?: string;
+export type AddBookingMutationResponse = {
+  addBookingMutation: (params: { variables: IBooking }) => Promise<any>;
 };
 
-export type AddBookingMutationResponse = {
-  addBookingMutation: (params: {
-    variables: AddBookingMutationVariables;
+export type EditBookingMutationResponse = {
+  editBookingMutation: (params: {
+    variables: { _id: string } & IBooking;
   }) => Promise<any>;
 };
 

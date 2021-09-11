@@ -1,10 +1,9 @@
 const bookingMutationParamsDef = `
   $name: String!
-  $image: [String]
+  $image: AttachmentInput
   $description: String
   
   $productCategoryId: String
-
 `;
 
 const bookingMutationParamsVal = `
@@ -23,7 +22,7 @@ const bookingsAdd = `
 `;
 
 const bookingsEdit = `
-  mutation bookingsEdit(_id: String!, ${bookingMutationParamsDef}) {
+  mutation bookingsEdit($_id: String!, ${bookingMutationParamsDef}) {
     bookingsEdit(_id: $_id, ${bookingMutationParamsVal}) {
       _id
     }

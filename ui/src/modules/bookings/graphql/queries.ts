@@ -1,7 +1,13 @@
 const bookingFields = `
   _id
   name
-  image
+
+  image {
+    name
+    url
+    type
+    size
+  }
 
   description
 `;

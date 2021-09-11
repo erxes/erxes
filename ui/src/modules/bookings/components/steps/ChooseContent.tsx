@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { Description } from 'modules/settings/styles';
 import { FlexItem } from 'modules/layout/styles';
 import { FlexContent } from 'modules/boards/styles/item';
@@ -14,55 +14,39 @@ import { FlexItem as FlexItemContainer, Title } from './style';
 
 import { PRODUCT_PROPERTIES, USER_FILTERS } from 'modules/bookings/constants';
 import Uploader from 'modules/common/components/Uploader';
-import { IAttachment } from 'modules/common/types';
 import SelectProductCategory from 'modules/bookings/containers/SelectProductCategory';
+import { IAttachment } from 'modules/common/types';
 
 type Name =
   | 'name'
   | 'image'
   | 'description'
   | 'userFilters'
-  | 'propertyCategoryId';
+  | 'productCategoryId';
 
 type Props = {
   onChange: (name: Name, value: any) => void;
+  name: string;
+  description: string;
+  image: IAttachment[];
+  userFilters: string[];
+  productCategoryId: string;
 };
 
-function ChooseContent({ onChange }: Props) {
-  const [content, setContent] = useState({
-    name: '',
-    image: [] as IAttachment[],
-    description: '',
-    userFilters: [],
-
-    propertyCategoryId: ''
-  });
-
-  const renderFilterSelectOptions = () => {
-    return USER_FILTERS.ALL_LIST.map(el => ({
-      value: el.value,
-      label: el.label
-    }));
-  };
-
-  const renderPropertyOptions = () => {
-    return PRODUCT_PROPERTIES.ALL_LIST.map(el => ({
-      value: el.value,
-      label: el.label
-    }));
-  };
-
+function ChooseContent({
+  onChange,
+  name,
+  description,
+  image,
+  userFilters,
+  productCategoryId
+}: Props) {
   const onChangeFunction = (key: Name, e: any) => {
     let value = e;
 
     if (e.target) {
       value = e.target.value;
     }
-
-    setContent({
-      ...content,
-      [key]: value
-    });
 
     onChange(key, value);
   };
@@ -78,7 +62,7 @@ function ChooseContent({ onChange }: Props) {
               <ControlLabel>Name</ControlLabel>
               <FormControl
                 type="text"
-                value={content.name}
+                value={name}
                 onChange={e => onChangeFunction('name', e)}
               />
             </FormGroup>
@@ -88,8 +72,9 @@ function ChooseContent({ onChange }: Props) {
             <FormGroup>
               <ControlLabel>Image</ControlLabel>
               <Uploader
-                defaultFileList={content.image}
+                defaultFileList={image}
                 onChange={e => onChangeFunction('image', e)}
+                multiple={false}
                 single={true}
               />
             </FormGroup>
@@ -100,7 +85,7 @@ function ChooseContent({ onChange }: Props) {
           <ControlLabel>Description</ControlLabel>
           <FormControl
             type="text"
-            value={content.description}
+            value={description}
             onChange={e => onChangeFunction('description', e)}
           />
         </FormGroup>
@@ -109,9 +94,12 @@ function ChooseContent({ onChange }: Props) {
           <ControlLabel>User filters</ControlLabel>
           <Select
             multi={true}
-            value={content.userFilters}
+            value={userFilters}
             onChange={e => onChangeFunction('userFilters', e)}
-            options={renderFilterSelectOptions()}
+            options={USER_FILTERS.ALL_LIST.map(el => ({
+              value: el.value,
+              label: el.label
+            }))}
             clearable={true}
             placeholder="Choose filters"
           />
@@ -170,7 +158,10 @@ function ChooseContent({ onChange }: Props) {
           <Select
             multi={true}
             // value={productDetail.properties}
-            options={renderPropertyOptions()}
+            options={PRODUCT_PROPERTIES.ALL_LIST.map(el => ({
+              value: el.value,
+              label: el.label
+            }))}
             placeholder="Choose properties"
           />
         </FormGroup>
@@ -194,8 +185,8 @@ function ChooseContent({ onChange }: Props) {
           organize your product first.`}
           </Description>
           <SelectProductCategory
-            onChange={el => onChangeFunction('propertyCategoryId', el.value)}
-            value={content.propertyCategoryId}
+            onChange={el => onChangeFunction('productCategoryId', el.value)}
+            value={productCategoryId}
             placeholder="Choose product category"
           />
         </FormGroup>

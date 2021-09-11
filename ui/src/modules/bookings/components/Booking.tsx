@@ -5,12 +5,12 @@ import {
 } from 'modules/common/components/step/styles';
 import Button from 'modules/common/components/Button';
 import { Link } from 'react-router-dom';
-// import { SmallLoader } from 'modules/common/components/ButtonMutate';
+import { SmallLoader } from 'modules/common/components/ButtonMutate';
 import { Content, LeftContent } from 'modules/settings/integrations/styles';
 import Wrapper from 'modules/layout/components/Wrapper';
 import { __ } from 'modules/common/utils';
 import React, { useState } from 'react';
-import { IBookingDocument } from '../types';
+import { IBookingDocument, IBooking } from '../types';
 import { Steps, Step } from 'modules/common/components/step';
 import {
   // ChooseStyle,
@@ -22,22 +22,29 @@ import { PreviewWrapper } from './steps/style';
 
 type Props = {
   bookingDetail?: IBookingDocument;
+  queryParams?: any;
+  history: any;
+  bookingId?: any;
+  save: ({ name, description }: { name: string; description: string }) => void;
+  isActionLoading?: boolean;
 };
 
-function Booking(props: Props) {
-  const [state, setState] = useState({
-    name: '',
-    image: [],
-    description: '',
-    userFilters: [],
+function Booking({ save, isActionLoading, bookingDetail }: Props) {
+  const booking = bookingDetail || ({} as IBooking);
 
-    propertyCategoryId: ''
+  const [state, setState] = useState({
+    name: booking.name || '',
+    image: booking.image || [],
+    description: booking.description || '',
+    userFilters: booking.userFilters || [],
+
+    productCategoryId: booking.productCategoryId || ''
   });
 
   const breadcrumb = [{ title: __('Bookings'), link: '/bookings' }];
 
   const handleSubmit = () => {
-    console.log(state);
+    save(state);
   };
 
   const onChange = (key: string, value: any) => {
@@ -66,7 +73,7 @@ function Booking(props: Props) {
           icon={'check-circle'}
           onClick={handleSubmit}
         >
-          {/* {<SmallLoader />} */}
+          {isActionLoading ? <SmallLoader /> : null}
           Save
         </Button>
       </Button.Group>
@@ -91,7 +98,14 @@ function Booking(props: Props) {
               title="Content"
               // onClick={this.onStepClick.bind(null, 'greeting')}
             >
-              <ChooseContent onChange={onChange} />
+              <ChooseContent
+                onChange={onChange}
+                name={state.name}
+                description={state.description}
+                image={state.image}
+                productCategoryId={state.productCategoryId}
+                userFilters={state.userFilters}
+              />
             </Step>
 
             <Step
@@ -104,8 +118,8 @@ function Booking(props: Props) {
           </Steps>
           <ControlWrapper>
             <Indicator>
-              {__('You are')} {'creating'} <strong>{'title'}</strong>{' '}
-              {__('form')}
+              {__('You are')} {booking ? 'editing' : 'creating'}{' '}
+              <strong>{state.name}</strong> {__('form')}
             </Indicator>
             {renderButtons()}
           </ControlWrapper>
