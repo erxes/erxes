@@ -7,6 +7,7 @@ import { __ } from '../../../common/utils';
 import Wrapper from '../../../layout/components/Wrapper';
 import Sidebar from '../containers/Sidebar';
 import { TabContent } from 'modules/boards/styles/rightMenu';
+import General from './General';
 
 type Props = {
   exm: any;
@@ -24,6 +25,10 @@ function Brands(props: Props) {
   const leftActionBar = <div>{props.exm.name}</div>;
 
   const renderTabContent = () => {
+    if (currentTab === 'General') {
+      return <General />
+    }
+    
     return <TabContent>This is {currentTab}</TabContent>;
   };
 

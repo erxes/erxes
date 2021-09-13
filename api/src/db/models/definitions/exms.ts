@@ -11,11 +11,22 @@ export interface IExmDocument extends IExm, Document {
   createdAt: Date;
 }
 
+const featureSchema = new Schema({
+  contentType: field({ type: String }),
+  icon: field({ type: String }),
+  name: field({ type: String }),
+  description: field({ type: String }),
+  contentId: field({ type: String })
+}, {
+  _id: false
+})
+
 // Mongoose schemas =======================
 
 export const exmSchema = new Schema({
   _id: field({ pkey: true }),
   name: field({ type: String, label: 'Name' }),
+  features: field({ type: [featureSchema] }),
   createdBy: field({ type: String, label: 'Created by' }),
   createdAt: field({ type: Date, label: 'Created at' })
 });
