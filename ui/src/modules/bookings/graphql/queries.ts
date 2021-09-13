@@ -11,6 +11,23 @@ const bookingFields = `
 
   description
 
+  createdDate
+
+  brand {
+    _id
+    name
+  }
+
+  createdUser {
+    _id
+
+    details {
+      avatar
+      fullName
+      position
+    }
+  }
+  
   title
   brandId
   channelIds
@@ -18,6 +35,17 @@ const bookingFields = `
   productStatus
   formId
   buttonText
+`;
+
+const queryParamsDef = `
+  $page: Int,
+  $perPage: Int,
+  $brandId: String
+`;
+const queryParamsVal = `
+  page: $page,
+  perPage: $perPage,
+  brandId: $brandId
 `;
 
 const bookingDetail = `
@@ -29,8 +57,8 @@ const bookingDetail = `
 `;
 
 const bookings = `
-  query bookings($page: Int, $perPage: Int) {
-    bookings(page: $page, perPage: $perPage) {
+  query bookings(${queryParamsDef}) {
+    bookings(${queryParamsVal}) {
       ${bookingFields}
     }
   }

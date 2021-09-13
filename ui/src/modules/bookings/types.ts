@@ -1,4 +1,6 @@
+import { IUser } from 'modules/auth/types';
 import { IAttachment, QueryResponse } from 'modules/common/types';
+import { IBrand } from 'modules/settings/brands/types';
 
 export interface IBooking {
   // content
@@ -17,6 +19,12 @@ export interface IBooking {
   productStatus?: string;
   formId?: string;
   buttonText?: string;
+
+  // common
+  createdDate?: Date;
+
+  brand?: IBrand;
+  createdUser?: IUser;
 }
 
 export interface IBookingDocument extends IBooking {

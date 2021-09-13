@@ -65,21 +65,23 @@ function BookingListContainer(props: FinalProps) {
 }
 
 export default compose(
-  graphql<Props, BookingsQueryResponse, { page?: number; perPage?: number }>(
-    gql(queries.bookings),
-    {
-      name: 'bookingsQuery',
-      options: ({ queryParams }) => ({
-        variables: {
-          ...generatePaginationParams(queryParams),
-          sortField: queryParams.sortField,
-          sortDirection: queryParams.sortDirection
-            ? parseInt(queryParams.sortDirection, 10)
-            : undefined
-        }
-      })
-    }
-  ),
+  graphql<
+    Props,
+    BookingsQueryResponse,
+    { page?: number; perPage?: number; brandId?: string }
+  >(gql(queries.bookings), {
+    name: 'bookingsQuery',
+    options: ({ queryParams }) => ({
+      variables: {
+        ...generatePaginationParams(queryParams),
+        brandId: queryParams.brand,
+        sortField: queryParams.sortField,
+        sortDirection: queryParams.sortDirection
+          ? parseInt(queryParams.sortDirection, 10)
+          : undefined
+      }
+    })
+  }),
   graphql<{}, RemoveBookingMutationResponse, RemoveBookingMutationVariables>(
     gql(mutations.bookingsRemove),
     {

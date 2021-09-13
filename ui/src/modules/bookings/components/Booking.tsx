@@ -8,7 +8,7 @@ import { Link } from 'react-router-dom';
 import { SmallLoader } from 'modules/common/components/ButtonMutate';
 import { Content, LeftContent } from 'modules/settings/integrations/styles';
 import Wrapper from 'modules/layout/components/Wrapper';
-import { __ } from 'modules/common/utils';
+import { Alert, __ } from 'modules/common/utils';
 import React, { useState } from 'react';
 import { IBookingDocument, IBooking } from '../types';
 import { Steps, Step } from 'modules/common/components/step';
@@ -54,6 +54,22 @@ function Booking({ save, isActionLoading, bookingDetail }: Props) {
   const breadcrumb = [{ title: __('Bookings'), link: '/bookings' }];
 
   const handleSubmit = () => {
+    if (!state.name) {
+      return Alert.error('Enter a Booking name');
+    }
+
+    if (!state.brandId) {
+      return Alert.error('Choose a brand');
+    }
+
+    if (!state.languageCode) {
+      return Alert.error('Choose a language');
+    }
+
+    if (!state.title) {
+      return Alert.error('Enter a title');
+    }
+
     save(state);
   };
 

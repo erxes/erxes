@@ -41,12 +41,23 @@ export const types = `
     productStatus: String,
     formId: String,
     buttonText: String
+
+    createdDate: Date
+    brand: Brand
+
+    createdUser: User
   }
+`;
+
+const queryParams = `
+  page: Int,
+  perPage: Int,
+  brandId: String
 `;
 
 export const queries = `
   bookingDetail(_id: String!): Booking
-  bookings(page: Int, perPage: Int): [Booking]
+  bookings(${queryParams}): [Booking]
 `;
 
 const bookingMutationParams = `

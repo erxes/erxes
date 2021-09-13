@@ -15,10 +15,16 @@ const bookingQueries = {
    */
   bookings(
     _root,
-    args: { page: number; perPage: number },
+    args: { page: number; perPage: number; brandId: string },
     { commonQuerySelector }: IContext
   ) {
-    const bookings = paginate(Bookings.find(commonQuerySelector), args);
+    const filter: any = { ...commonQuerySelector };
+
+    if (args.brandId) {
+      filter.brandId = args.brandId;
+    }
+
+    const bookings = paginate(Bookings.find(filter), args);
 
     return bookings.sort({ modifiedDate: -1 });
   }

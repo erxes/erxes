@@ -48,6 +48,7 @@ import Task from './tasks';
 import Ticket from './tickets';
 import User from './user';
 import UsersGroup from './usersGroup';
+import Booking from './bookings';
 
 const resolvers: any = {
   ...customScalars,
@@ -100,7 +101,8 @@ const resolvers: any = {
   GrowthHack,
   CalendarGroup,
   CalendarBoard,
-  Tag
+  Tag,
+  Booking
 };
 
 export default resolvers;

@@ -82,7 +82,7 @@ export const bookingSchema = new Schema({
   styles: field({ type: styleSchema }),
 
   // content
-  name: field({ type: String, label: 'Name' }),
+  name: field({ type: String, optional: true, label: 'Name' }),
   image: field({ type: attachmentSchema }),
   description: field({ type: String, optional: true, label: 'Description' }),
 

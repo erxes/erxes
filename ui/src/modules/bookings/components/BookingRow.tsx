@@ -1,4 +1,5 @@
 import React from 'react';
+import Label from 'modules/common/components/Label';
 import { __ } from 'modules/common/utils';
 import Tip from 'modules/common/components/Tip';
 import Button from 'modules/common/components/Button';
@@ -10,6 +11,10 @@ import ActionButtons from 'modules/common/components/ActionButtons';
 import { IBookingDocument } from '../types';
 import FormControl from 'modules/common/components/form/Control';
 import Icon from 'modules/common/components/Icon';
+import { Capitalize } from 'modules/settings/permissions/styles';
+import dayjs from 'dayjs';
+import { DateWrapper } from 'modules/common/styles/main';
+import Tags from 'modules/common/components/Tags';
 
 type Props = {
   isChecked: boolean;
@@ -70,8 +75,30 @@ function Row({ isChecked, toggleBulk, booking, remove, refetch }: Props) {
         </RowTitle>
       </td>
       <td>
-        <TextInfo>{booking.name || '3D'}</TextInfo>
+        <TextInfo>{booking.brand && booking.brand.name}</TextInfo>
       </td>
+
+      <td>
+        <TextInfo ignoreTrans={true}>{2433}</TextInfo>
+      </td>
+      <td>
+        <Label lblStyle={'success'}>{'Status'}</Label>
+      </td>
+
+      <td>
+        <div>
+          <Capitalize>{'Bat-Amgalan Nasan-Ochir'}</Capitalize>
+        </div>
+      </td>
+      <td>
+        <Icon icon="calender" />{' '}
+        <DateWrapper>{dayjs(booking.createdDate).format('ll')}</DateWrapper>
+      </td>
+
+      <td>
+        <Tags tags={[]} limit={2} />
+      </td>
+
       <td>
         <ActionButtons>
           {manageAction(booking)}
