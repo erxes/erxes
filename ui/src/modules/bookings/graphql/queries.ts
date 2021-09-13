@@ -10,6 +10,14 @@ const bookingFields = `
   }
 
   description
+
+  title
+  brandId
+  channelIds
+  languageCode
+  productStatus
+  formId
+  buttonText
 `;
 
 const bookingDetail = `

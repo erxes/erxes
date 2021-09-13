@@ -25,7 +25,7 @@ type Props = {
   queryParams?: any;
   history: any;
   bookingId?: any;
-  save: ({ name, description }: { name: string; description: string }) => void;
+  save: (doc: IBooking) => void;
   isActionLoading?: boolean;
 };
 
@@ -33,12 +33,22 @@ function Booking({ save, isActionLoading, bookingDetail }: Props) {
   const booking = bookingDetail || ({} as IBooking);
 
   const [state, setState] = useState({
+    // content
     name: booking.name || '',
-    image: booking.image || [],
+    // image: booking.image || [],
     description: booking.description || '',
     userFilters: booking.userFilters || [],
 
-    productCategoryId: booking.productCategoryId || ''
+    productCategoryId: booking.productCategoryId || '',
+
+    // settings
+    title: booking.title || '',
+    brandId: booking.brandId || '',
+    channelIds: booking.channelIds || [],
+    languageCode: booking.languageCode || '',
+    productStatus: booking.productStatus || '',
+    formId: booking.formId || '',
+    buttonText: booking.buttonText || ''
   });
 
   const breadcrumb = [{ title: __('Bookings'), link: '/bookings' }];
@@ -102,7 +112,7 @@ function Booking({ save, isActionLoading, bookingDetail }: Props) {
                 onChange={onChange}
                 name={state.name}
                 description={state.description}
-                image={state.image}
+                image={[]}
                 productCategoryId={state.productCategoryId}
                 userFilters={state.userFilters}
               />
@@ -113,7 +123,16 @@ function Booking({ save, isActionLoading, bookingDetail }: Props) {
               title="Settings"
               // onClick={this.onStepClick.bind(null, 'greeting')}
             >
-              <ChooseSettings onChange={onChange} />
+              <ChooseSettings
+                onChange={onChange}
+                title={state.title}
+                brandId={state.brandId}
+                channelIds={state.channelIds}
+                languageCode={state.languageCode}
+                productStatus={state.productStatus}
+                formId={state.formId}
+                buttonText={state.buttonText}
+              />
             </Step>
           </Steps>
           <ControlWrapper>

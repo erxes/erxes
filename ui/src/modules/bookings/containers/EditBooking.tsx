@@ -6,7 +6,8 @@ import { queries, mutations } from '../graphql';
 import Booking from '../components/Booking';
 import {
   BookingDetailQueryResponse,
-  EditBookingMutationResponse
+  EditBookingMutationResponse,
+  IBooking
 } from '../types';
 import { Alert } from 'modules/common/utils';
 import { withRouter } from 'react-router';
@@ -34,14 +35,13 @@ function EditBookingContainer(props: FinalProps) {
 
   const bookingDetail = bookingDetailQuery.bookingDetail || [];
 
-  const save = ({ name, description }) => {
+  const save = (doc: IBooking) => {
     setLoading(true);
 
     editBookingMutation({
       variables: {
         _id: bookingDetail._id,
-        name,
-        description
+        ...doc
       }
     })
       .then(() => {
@@ -66,6 +66,10 @@ function EditBookingContainer(props: FinalProps) {
   return <Booking {...updatedProps} />;
 }
 
+const commonOptions = () => ({
+  refetchQueries: [{ query: gql(queries.bookings) }]
+});
+
 export default compose(
   graphql<Props, BookingDetailQueryResponse, { _id: string }>(
     gql(queries.bookingDetail),
@@ -80,8 +84,6 @@ export default compose(
   ),
   graphql<{}, EditBookingMutationResponse>(gql(mutations.bookingsEdit), {
     name: 'editBookingMutation',
-    options: () => ({
-      refetchQueries: ['bookings']
-    })
+    options: commonOptions
   })
 )(withRouter(EditBookingContainer));

@@ -21,9 +21,35 @@ import SelectChannels from 'modules/settings/integrations/containers/SelectChann
 
 type Props = {
   onChange: (name: string, value: any) => void;
+  title: string;
+  brandId: string;
+  channelIds: string[];
+  languageCode: string;
+  productStatus: string;
+  formId: string;
+  buttonText: string;
 };
 
-function ChooseSettings(props: Props) {
+function ChooseSettings({
+  onChange,
+  title,
+  brandId,
+  channelIds,
+  languageCode,
+  productStatus,
+  formId,
+  buttonText
+}: Props) {
+  const onChangeFunction = (key: string, e: any) => {
+    let value = e;
+
+    if (e.target) {
+      value = e.target.value;
+    }
+
+    onChange(key, value);
+  };
+
   return (
     <FlexItemContainer>
       <LeftItem>
@@ -32,15 +58,26 @@ function ChooseSettings(props: Props) {
           <Description>
             Name this widget to differentiate from the rest internally.
           </Description>
-          <FormControl />
+          <FormControl
+            type="text"
+            onChange={e => onChangeFunction('title', e)}
+            defaultValue={title}
+          />
         </FormGroup>
 
         <FormGroup>
-          <SelectBrand required={true} />
+          <SelectBrand
+            required={true}
+            defaultValue={brandId}
+            onChange={e => onChangeFunction('brandId', e)}
+          />
         </FormGroup>
 
         <FormGroup>
-          <SelectChannels />
+          <SelectChannels
+            defaultValue={channelIds}
+            onChange={e => onChangeFunction('channelIds', e)}
+          />
         </FormGroup>
 
         <FormGroup>
@@ -51,6 +88,8 @@ function ChooseSettings(props: Props) {
               label: el.label,
               value: el.value
             }))}
+            value={languageCode}
+            onChange={e => onChangeFunction('languageCode', e.value)}
           />
         </FormGroup>
 
@@ -69,7 +108,11 @@ function ChooseSettings(props: Props) {
           <FlexItem hasSpace={true}>
             <FormGroup>
               <ControlLabel required={true}>Form Button Text</ControlLabel>
-              <FormControl />
+              <FormControl
+                type="text"
+                defaultValue={buttonText}
+                onChange={e => onChangeFunction('buttonText', e)}
+              />
             </FormGroup>
           </FlexItem>
         </FlexContent>

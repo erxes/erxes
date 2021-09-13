@@ -1,12 +1,22 @@
 import { IAttachment, QueryResponse } from 'modules/common/types';
 
 export interface IBooking {
+  // content
   name?: string;
   image?: IAttachment[];
   description?: string;
   userFilters?: string[];
 
   productCategoryId?: string;
+
+  // settings
+  title?: string;
+  brandId?: string;
+  channelIds?: string[];
+  languageCode?: string;
+  productStatus?: string;
+  formId?: string;
+  buttonText?: string;
 }
 
 export interface IBookingDocument extends IBooking {

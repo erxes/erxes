@@ -4,7 +4,7 @@ import Booking from '../components/Booking';
 import * as compose from 'lodash.flowright';
 import { graphql } from 'react-apollo';
 import gql from 'graphql-tag';
-import { mutations } from '../graphql';
+import { queries, mutations } from '../graphql';
 import { AddBookingMutationResponse, IBooking } from '../types';
 import { Alert } from 'modules/common/utils';
 import { withRouter } from 'react-router';
@@ -16,12 +16,12 @@ function CreateBookingContainer(props: Props) {
 
   const { addBookingMutation, history } = props;
 
-  const save = ({ name, description }: IBooking) => {
+  const save = (doc: IBooking) => {
     setLoading(true);
+
     addBookingMutation({
       variables: {
-        name,
-        description
+        ...doc
       }
     })
       .then(() => {
@@ -45,11 +45,13 @@ function CreateBookingContainer(props: Props) {
   return <Booking {...updatedProps} />;
 }
 
+const commonOptions = () => ({
+  refetchQueries: [{ query: gql(queries.bookings) }]
+});
+
 export default compose(
   graphql<{}, AddBookingMutationResponse>(gql(mutations.bookingsAdd), {
     name: 'addBookingMutation',
-    options: () => ({
-      refetchQueries: ['bookings', 'bookingDetail']
-    })
+    options: commonOptions
   })
 )(withRouter<Props>(CreateBookingContainer));
