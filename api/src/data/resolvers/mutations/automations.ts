@@ -1,3 +1,4 @@
+import { Segments } from '../../../db/models';
 import { MODULE_NAMES } from '../../constants';
 import { putCreateLog, putDeleteLog, putUpdateLog } from '../../logUtils';
 import { checkPermission } from '../../permissions/wrappers';
@@ -153,7 +154,15 @@ const automationMutations = {
     { automationIds }: { automationIds: string[] },
     { dataSources }: IContext
   ) {
-    await dataSources.AutomationsAPI.removeAutomations(automationIds);
+    const data = await dataSources.AutomationsAPI.removeAutomations(
+      automationIds
+    );
+
+    const { segmentIds = [] } = data;
+
+    segmentIds.forEach(async segmentId => {
+      Segments.removeSegment(segmentId);
+    });
 
     return automationIds;
   },
