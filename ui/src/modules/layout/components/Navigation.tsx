@@ -138,7 +138,7 @@ class Navigation extends React.Component<IProps> {
     if (!childrens || childrens.length === 0) {
       if (!collapsed) {
         return (
-          <Tip placement="right" text={__(text)}>
+          <Tip placement="right" key={Math.random()} text={__(text)}>
             <NavItem>
               <NavLink to={url}>
                 <NavIcon className={icon} />
