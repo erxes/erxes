@@ -23,7 +23,7 @@ type Props = {
   integration: IIntegration;
   currentStatus: ICurrentStatus;
   callSubmit?: boolean;
-  onSubmit: (doc: IFormDoc) => void;
+  onSubmit: (doc: IFormDoc, formCode: string) => void;
   onCreateNew: () => void;
   sendEmail: (params: IEmailParams) => void;
   setHeight?: () => void;
@@ -130,7 +130,7 @@ class Form extends React.Component<Props, State> {
       }
     }
 
-    this.props.onSubmit(doc);
+    this.props.onSubmit(doc, this.props.form.code);
   };
 
   canChangePage = () => {

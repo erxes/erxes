@@ -35,7 +35,7 @@ class Base extends React.Component<Props> {
     }
 
     return (
-      <Button btnStyle="success" icon="plus-circle" uppercase={false}>
+      <Button btnStyle="success" icon="plus-circle">
         <Link
           to={`/settings/schedule/create/${this.props.queryParams.accountId}`}
         >

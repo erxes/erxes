@@ -45,6 +45,8 @@ export const types = `
     groupIds: [String]
     brandIds: [String]
     isSubscribed: String
+    isShowNotification: Boolean
+    customFieldsData: JSON
 
     brands: [Brand]
     isOwner: Boolean
@@ -61,13 +63,14 @@ export const types = `
 `;
 
 const commonParams = `	
-  username: String!,	
-  email: String!,	
+  username: String,	
+  email: String,	
   details: UserDetails,	
   links: JSON,	
   channelIds: [String],	
   groupIds: [String]
   brandIds: [String]
+  customFieldsData: JSON
 `;
 
 const commonSelector = `

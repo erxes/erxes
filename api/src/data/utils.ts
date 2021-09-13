@@ -17,6 +17,7 @@ import {
   Users,
   Webhooks
 } from '../db/models';
+import { getBoardItemLink } from '../db/models/boardUtils';
 import { IBrandDocument } from '../db/models/definitions/brands';
 import {
   WEBHOOK_STATUS,
@@ -27,6 +28,7 @@ import { IUser, IUserDocument } from '../db/models/definitions/users';
 import { debugBase, debugError } from '../debuggers';
 import memoryStorage from '../inmemoryStorage';
 import { graphqlPubsub } from '../pubsub';
+import { ACTIVITY_LOG_ACTIONS } from './logUtils';
 import {
   fieldsCombinedByContentType,
   getCustomFields
@@ -522,7 +524,6 @@ export const replaceEditorAttributes = async (args: {
 }> => {
   const { content, user, brand, item } = args;
   const customer = args.customer || {};
-
   const replacers: IReplacer[] = [];
 
   let replacedContent = content || '';
@@ -565,7 +566,7 @@ export const replaceEditorAttributes = async (args: {
   }
 
   // replace customer fields
-  if (customer) {
+  if (args.customer) {
     replacers.push({
       key: '{{ customer.name }}',
       value: Customers.getCustomerName(customer)
@@ -697,6 +698,17 @@ export type ISendNotification = ISendNotificationC;
  * Send a notification
  */
 export const sendNotification = async (doc: ISendNotification) => {
+  await Users.updateMany(
+    { _id: { $in: doc.receivers } },
+    { $set: { isShowNotification: false } }
+  );
+
+  for (const userId of doc.receivers) {
+    graphqlPubsub.publish('userChanged', {
+      userChanged: { userId }
+    });
+  }
+
   return utils.sendNotification(models, memoryStorage, graphqlPubsub, doc);
 };
 
@@ -807,8 +819,7 @@ export const sendToWebhook = async (
   params: any
 ) => {
   const webhooks = await Webhooks.find({
-    'actions.action': action,
-    'actions.type': type
+    actions: { $elemMatch: { action, type } }
   });
 
   if (!webhooks) {
@@ -825,6 +836,12 @@ export const sendToWebhook = async (
       data = { type, object: { _id: params.object._id } };
     }
 
+    const { slackContent, content, url } = await prepareWebhookContent(
+      type,
+      action,
+      data
+    );
+
     sendRequest({
       url: webhook.url,
       headers: {
@@ -833,7 +850,9 @@ export const sendToWebhook = async (
       method: 'post',
       body: {
         data: JSON.stringify(data),
-        text: prepareWebhookContent(type, action, data),
+        text: slackContent,
+        content,
+        url,
         action,
         type
       }
@@ -856,7 +875,7 @@ export default {
   sendToWebhook
 };
 
-export const prepareWebhookContent = (type, action, data) => {
+export const prepareWebhookContent = async (type, action, data) => {
   let actionText = 'created';
   let url;
   let content = '';
@@ -868,6 +887,10 @@ export const prepareWebhookContent = (type, action, data) => {
     case 'delete':
       actionText = 'has been deleted';
       break;
+    case ACTIVITY_LOG_ACTIONS.CREATE_BOARD_ITEM_MOVEMENT_LOG:
+      content = `${type} with name ${data.data.item.name ||
+        ''} has moved from ${data.data.activityLogContent.text}`;
+      url = data.data.link;
     default:
       actionText = 'has been created';
       break;
@@ -923,14 +946,26 @@ export const prepareWebhookContent = (type, action, data) => {
       break;
   }
 
-  url = `${getEnv({ name: 'MAIN_APP_DOMAIN' })}${url}`;
-  content = `erxes: ${content}`;
-
-  if (action !== 'delete') {
-    content = `<${url}|${content}>`;
+  if (
+    [WEBHOOK_TYPES.DEAL, WEBHOOK_TYPES.TASK, WEBHOOK_TYPES.TICKET].includes(
+      type
+    ) &&
+    ['create', 'update'].includes(action)
+  ) {
+    const { object } = data;
+    url = await getBoardItemLink(object.stageId, object._id);
+    content = `${type} ${actionText}`;
   }
 
-  return content;
+  url = `${getEnv({ name: 'MAIN_APP_DOMAIN' })}${url}`;
+
+  let slackContent = '';
+
+  if (action !== 'delete') {
+    slackContent = `<${url}|${content}>`;
+  }
+
+  return { slackContent, content, url };
 };
 
 export const cleanHtml = (content?: string) =>
@@ -1126,7 +1161,34 @@ export const findCustomer = async doc => {
 export const findCompany = async doc => {
   let company;
 
-  if (doc.companyPrimaryEmail) {
+  if (doc.companyPrimaryName) {
+    company = await Companies.findOne({
+      $or: [
+        { names: { $in: [doc.companyPrimaryName] } },
+        { primaryName: doc.companyPrimaryName }
+      ]
+    });
+  }
+
+  if (!company && doc.name) {
+    company = await Companies.findOne({
+      $or: [{ names: { $in: [doc.name] } }, { primaryName: doc.name }]
+    });
+  }
+
+  if (!company && doc.email) {
+    company = await Companies.findOne({
+      $or: [{ emails: { $in: [doc.email] } }, { primaryEmail: doc.email }]
+    });
+  }
+
+  if (!company && doc.phone) {
+    company = await Companies.findOne({
+      $or: [{ phones: { $in: [doc.phone] } }, { primaryPhone: doc.phone }]
+    });
+  }
+
+  if (!company && doc.companyPrimaryEmail) {
     company = await Companies.findOne({
       $or: [
         { emails: { $in: [doc.companyPrimaryEmail] } },
@@ -1146,10 +1208,6 @@ export const findCompany = async doc => {
 
   if (!company && doc.companyCode) {
     company = await Companies.findOne({ code: doc.companyCode });
-  }
-
-  if (!company && doc.companyPrimaryName) {
-    company = await Companies.findOne({ primaryName: doc.companyPrimaryName });
   }
 
   return company;

@@ -92,7 +92,6 @@ function SkillTypes({
       <Button
         id="skilltype-new"
         btnStyle="success"
-        uppercase={false}
         icon="plus-circle"
         block={true}
       >

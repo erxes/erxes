@@ -46,7 +46,7 @@ class Channels extends React.Component<Props, {}> {
     }
 
     const trigger = (
-      <Button uppercase={false} btnStyle="simple" icon="web-grid-alt">
+      <Button btnStyle="simple" icon="web-grid-alt">
         {__('Manage integration')}
       </Button>
     );

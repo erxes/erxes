@@ -92,4 +92,3 @@ yarn start
 
 Visit http://localhost:3000 and login using following credentials
 
-

@@ -22,7 +22,7 @@ export interface ICompanyActivityLog {
   list: IActivityLog[];
 }
 
-export type ICompany = ICompanyC;
+export type ICompany = ICompanyC & { trackedData?: any };
 
 // mutation types
 

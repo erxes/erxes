@@ -68,7 +68,6 @@ const Description = (props: DescProps) => {
           icon="times-circle"
           btnStyle="simple"
           size="small"
-          uppercase={false}
           onClick={toggleEdit}
         >
           Cancel
@@ -78,7 +77,6 @@ const Description = (props: DescProps) => {
             onClick={onSend}
             btnStyle="success"
             size="small"
-            uppercase={false}
             icon="check-circle"
           >
             Save
@@ -153,6 +151,7 @@ type Props = {
   addItem: (doc: IItemParams, callback: () => void) => void;
   sendToBoard?: (item: any) => void;
   onChangeStage?: (stageId: string) => void;
+  onChangeRefresh: () => void;
 };
 
 const Left = (props: Props) => {
@@ -165,7 +164,8 @@ const Left = (props: Props) => {
     onUpdate,
     addItem,
     sendToBoard,
-    onChangeStage
+    onChangeStage,
+    onChangeRefresh
   } = props;
 
   const onChangeAttachment = (files: IAttachment[]) =>
@@ -185,6 +185,7 @@ const Left = (props: Props) => {
         onUpdate={onUpdate}
         sendToBoard={sendToBoard}
         onChangeStage={onChangeStage}
+        onChangeRefresh={onChangeRefresh}
       />
 
       {item.labels.length > 0 && (

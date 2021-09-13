@@ -102,13 +102,7 @@ class WebhookList extends React.Component<FinalProps, States> {
   };
 
   renderBrandChooser() {
-    const { configsEnvQuery = {}, history, queryParams } = this.props;
-
-    const env = configsEnvQuery.configsGetEnv || {};
-
-    if (env.USE_BRAND_RESTRICTIONS !== 'true') {
-      return null;
-    }
+    const { history, queryParams } = this.props;
 
     const onSelect = brandIds => {
       router.setParams(history, { brandIds });
@@ -128,6 +122,14 @@ class WebhookList extends React.Component<FinalProps, States> {
   }
 
   renderFilter = () => {
+    const { configsEnvQuery = {} } = this.props;
+
+    const env = configsEnvQuery.configsGetEnv || {};
+
+    if (env.USE_BRAND_RESTRICTIONS !== 'true') {
+      return null;
+    }
+
     return (
       <FilterContainer>
         <FlexRow>{this.renderBrandChooser()}</FlexRow>
@@ -167,7 +169,7 @@ class WebhookList extends React.Component<FinalProps, States> {
           { title: __('Webhooks') }
         ]}
         title={__('Webhooks')}
-        leftActionBar={
+        mainHead={
           <HeaderDescription
             icon="/images/actions/21.svg"
             title={__('Outgoing webhooks')}

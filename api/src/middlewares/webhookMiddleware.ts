@@ -23,6 +23,23 @@ const checkCompanyFieldsExists = async doc => {
   return false;
 };
 
+const removeContacts = async (type: string, params: any[]) => {
+  const idsToRemove: string[] = [];
+
+  const model: any = type === 'customer' ? Customers : Companies;
+
+  for (const where of params) {
+    const companyToRemove = await model.findOne(where);
+    if (companyToRemove) {
+      idsToRemove.push(companyToRemove._id);
+    }
+  }
+
+  if (idsToRemove.length > 0) {
+    await model.deleteMany({ _id: { $in: idsToRemove } });
+  }
+};
+
 const solveCustomFieldsData = (customFieldsData, prevCustomFieldsData) => {
   prevCustomFieldsData = prevCustomFieldsData || [];
 
@@ -177,12 +194,18 @@ const webhookMiddleware = async (req, res, next) => {
       }
 
       // create conversation message
-      const message = await ConversationMessages.createMessage({
+      const messageDoc: any = {
         conversationId: conversation._id,
         customerId: customer._id,
         content: params.content,
         attachments: params.attachments
-      });
+      };
+
+      if (params.formContent) {
+        messageDoc.formWidgetData = params.formContent;
+      }
+
+      const message = await ConversationMessages.createMessage(messageDoc);
 
       graphqlPubsub.publish('conversationClientMessageInserted', {
         conversationClientMessageInserted: message
@@ -202,8 +225,9 @@ const webhookMiddleware = async (req, res, next) => {
     if (params.parentCompany) {
       parentCompany = await findCompany(params.parentCompany);
 
-      let parentCompanyData: { customFieldsData: any[] } = {
-        customFieldsData: []
+      let parentCompanyData: { customFieldsData: any[]; trackedData: any[] } = {
+        customFieldsData: [],
+        trackedData: []
       };
 
       if (params.parentCompany.companyData) {
@@ -224,7 +248,8 @@ const webhookMiddleware = async (req, res, next) => {
         businessType: parentParams.companyBusinessType,
         avatar: parentParams.companyAvatar,
         code: parentParams.companyCode,
-        customFieldsData: parentCompanyData.customFieldsData
+        customFieldsData: parentCompanyData.customFieldsData,
+        trackedData: parentCompanyData.trackedData
       };
 
       if (!parentCompany) {
@@ -249,7 +274,10 @@ const webhookMiddleware = async (req, res, next) => {
     }
 
     if (hasCompanyFields) {
-      let companyData = { customFieldsData: [] };
+      let companyData: { customFieldsData: any[]; trackedData: any[] } = {
+        customFieldsData: [],
+        trackedData: []
+      };
 
       if (params.companyData) {
         companyData = await Fields.generateCustomFieldsData(
@@ -268,6 +296,7 @@ const webhookMiddleware = async (req, res, next) => {
         avatar: params.companyAvatar,
         code: params.companyCode,
         customFieldsData: companyData && companyData.customFieldsData,
+        trackedData: companyData && companyData.trackedData,
         parentCompanyId: parentCompany ? parentCompany._id : undefined
       };
 
@@ -308,21 +337,30 @@ const webhookMiddleware = async (req, res, next) => {
       });
     }
 
-    let bulkData: any;
-
+    // create/update multiple customers
     if (params.customers) {
-      bulkData = { type: 'customer', data: params.customers };
-    }
-
-    if (params.companies) {
-      bulkData = { type: 'company', data: params.companies };
-    }
-
-    if (bulkData) {
       await messageBroker().sendRPCMessage(
         RABBITMQ_QUEUES.RPC_API_TO_WEBHOOK_WORKERS,
-        bulkData
+        { type: 'customer', data: params.customers }
       );
+    }
+
+    // create/update multiple companies
+    if (params.companies) {
+      await messageBroker().sendRPCMessage(
+        RABBITMQ_QUEUES.RPC_API_TO_WEBHOOK_WORKERS,
+        { type: 'company', data: params.companies }
+      );
+    }
+
+    // remove companies
+    if (params.companiesRemove) {
+      await removeContacts('company', params.companiesRemove);
+    }
+
+    // remove customers
+    if (params.customersRemove) {
+      await removeContacts('customer', params.customersRemove);
     }
 
     return res.send('ok');

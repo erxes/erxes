@@ -3,12 +3,14 @@ import Box from 'modules/common/components/Box';
 import EmptyState from 'modules/common/components/EmptyState';
 import Label from 'modules/common/components/Label';
 import { __, isValidDate } from 'modules/common/utils';
+import { ICompany } from 'modules/companies/types';
 import { FieldStyle, SidebarCounter, SidebarList } from 'modules/layout/styles';
 import React from 'react';
 import { ICustomer } from '../../types';
 
 type Props = {
-  customer: ICustomer;
+  customer?: ICustomer;
+  company?: ICompany;
   queryParams?: any;
   collapseCallback?: () => void;
 };
@@ -22,8 +24,36 @@ class TrackedDataSection extends React.Component<Props> {
     return value;
   };
 
+  renderTrackedData(trackedData: any[]) {
+    return (
+      <>
+        {trackedData.map((data, index) => (
+          <li key={index}>
+            <FieldStyle>{data.field}</FieldStyle>
+            <SidebarCounter>
+              {this.renderCustomValue(data.value)}
+            </SidebarCounter>
+          </li>
+        ))}
+      </>
+    );
+  }
+
   renderContent() {
-    const { customer } = this.props;
+    const { customer, company } = this.props;
+
+    if (company) {
+      return (
+        <SidebarList className="no-link">
+          {this.renderTrackedData(company.trackedData || [])}
+        </SidebarList>
+      );
+    }
+
+    if (!customer) {
+      return null;
+    }
+
     const { isOnline, sessionCount, lastSeenAt } = customer;
 
     const trackedData = customer.trackedData || [];
@@ -52,14 +82,7 @@ class TrackedDataSection extends React.Component<Props> {
           <FieldStyle>{__('Session count')}</FieldStyle>
           <SidebarCounter>{sessionCount}</SidebarCounter>
         </li>
-        {trackedData.map((data, index) => (
-          <li key={index}>
-            <FieldStyle>{data.field}</FieldStyle>
-            <SidebarCounter>
-              {this.renderCustomValue(data.value)}
-            </SidebarCounter>
-          </li>
-        ))}
+        {this.renderTrackedData(trackedData)}
       </SidebarList>
     );
   }

@@ -326,7 +326,7 @@ class UserList extends React.Component<FinalProps, States> {
           { title: __('Team members') }
         ]}
         title={__('Team members')}
-        leftActionBar={
+        mainHead={
           <HeaderDescription
             icon="/images/actions/21.svg"
             title="Team members"

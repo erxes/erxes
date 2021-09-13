@@ -164,6 +164,7 @@ describe('dashboardQueries', () => {
       'pipeline',
       'modifiedBy',
       'integrationName',
+      'integrationType',
       'brand',
       'test',
       'tag',

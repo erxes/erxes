@@ -32,6 +32,7 @@ export interface ICompany {
   links?: ILink;
   tagIds?: string[];
   customFieldsData?: ICustomField[];
+  trackedData?: ICustomField[];
   website?: string;
   code?: string;
   location?: string;
@@ -179,6 +180,12 @@ export const companySchema = schemaWrapper(
       type: [customFieldSchema],
       optional: true,
       label: 'Custom fields data'
+    }),
+
+    trackedData: field({
+      type: [customFieldSchema],
+      optional: true,
+      label: 'Tracked Data'
     }),
     searchText: field({ type: String, optional: true, index: true }),
     code: field({ type: String, label: 'Code', optional: true }),

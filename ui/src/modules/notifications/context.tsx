@@ -21,6 +21,7 @@ interface IStore {
   showNotifications: (requireRead: boolean) => void;
   markAsRead: (notificationIds?: string[]) => void;
   isLoading: boolean;
+  currentUser?: IUser;
 }
 
 type Props = {
@@ -39,6 +40,7 @@ export const NotifConsumer = NotifContext.Consumer;
 
 class Provider extends React.Component<FinalProps> {
   private unsubscribe;
+  private notificationRead;
 
   componentDidMount() {
     const {
@@ -60,10 +62,20 @@ class Provider extends React.Component<FinalProps> {
         notificationCountQuery.refetch();
       }
     });
+
+    this.notificationRead = notificationsQuery.subscribeToMore({
+      document: gql(subscriptions.notificationRead),
+      variables: { userId: currentUser ? currentUser._id : null },
+      updateQuery: () => {
+        notificationsQuery.refetch();
+        notificationCountQuery.refetch();
+      }
+    });
   }
 
   componentWillUnmount() {
     this.unsubscribe();
+    this.notificationRead();
   }
 
   markAsRead = (notificationIds?: string[]) => {
@@ -94,7 +106,11 @@ class Provider extends React.Component<FinalProps> {
   };
 
   public render() {
-    const { notificationsQuery, notificationCountQuery } = this.props;
+    const {
+      notificationsQuery,
+      notificationCountQuery,
+      currentUser
+    } = this.props;
 
     const notifications = notificationsQuery.notifications || [];
     const isLoading = notificationsQuery.loading;
@@ -107,7 +123,8 @@ class Provider extends React.Component<FinalProps> {
           unreadCount,
           showNotifications: this.showNotifications,
           markAsRead: this.markAsRead,
-          isLoading
+          isLoading,
+          currentUser
         }}
       >
         {this.props.children}
