@@ -1,4 +1,5 @@
 import {
+  Boards,
   Checklists,
   Companies,
   Conformities,
@@ -6,6 +7,8 @@ import {
   Deals,
   GrowthHacks,
   InternalNotes,
+  Pipelines,
+  Stages,
   Tasks,
   Tickets
 } from '.';
@@ -285,4 +288,13 @@ export const destroyBoardItemRelations = async (
     mainTypeId: contentTypeId
   });
   await InternalNotes.deleteMany({ contentType, contentTypeId });
+};
+
+// Get board item link
+export const getBoardItemLink = async (stageId: string, itemId: string) => {
+  const stage = await Stages.getStage(stageId);
+  const pipeline = await Pipelines.getPipeline(stage.pipelineId);
+  const board = await Boards.getBoard(pipeline.boardId);
+
+  return `/${stage.type}/board?id=${board._id}&pipelineId=${pipeline._id}&itemId=${itemId}`;
 };

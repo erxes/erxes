@@ -52,12 +52,12 @@ const skillsMutations = {
   }
 };
 
-checkPermission(skillTypesMutations, 'createSkillType', 'manageSkillTypes');
-checkPermission(skillTypesMutations, 'updateSkillType', 'manageSkillTypes');
-checkPermission(skillTypesMutations, 'removeSkillType', 'manageSkillTypes');
+checkPermission(skillTypesMutations, 'createSkillType', 'createSkillType');
+checkPermission(skillTypesMutations, 'updateSkillType', 'updateSkillType');
+checkPermission(skillTypesMutations, 'removeSkillType', 'removeSkillType');
 
-checkPermission(skillsMutations, 'createSkill', 'manageSkills');
-checkPermission(skillsMutations, 'updateSkill', 'manageSkills');
-checkPermission(skillsMutations, 'removeSkill', 'manageSkills');
+checkPermission(skillsMutations, 'createSkill', 'createSkill');
+checkPermission(skillsMutations, 'updateSkill', 'updateSkill');
+checkPermission(skillsMutations, 'removeSkill', 'removeSkill');
 
 export { skillTypesMutations, skillsMutations };

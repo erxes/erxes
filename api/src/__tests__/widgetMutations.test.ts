@@ -192,7 +192,7 @@ describe('messenger connect', () => {
 
     expect(integrationId).toBe(_integration._id);
     expect(brand.code).toBe(_brand.code);
-    expect(messengerData.formCode).toBe('formCode');
+    expect(messengerData.formCodes[0]).toBe('formCode');
     expect(messengerData.knowledgeBaseTopicId).toBe('topicId');
 
     mock.restore();

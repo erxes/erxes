@@ -36,11 +36,6 @@ class AssistantContent extends React.Component<Props, State> {
     };
   }
 
-  restartOnboard = () => {
-    this.setState({ welcomeStep: 1 });
-    this.props.changeRoute('initial');
-  };
-
   restartRole = (roleValue: IRoleValue, answerOf: IRoleValue) => {
     this.setState({
       welcomeStep: 1,
@@ -67,7 +62,7 @@ class AssistantContent extends React.Component<Props, State> {
     };
 
     const onClick = () => {
-      changeRoute('todoList');
+      changeRoute('setupList');
     };
 
     const getRoleOptions = (roleValue: IRoleValue) => {
@@ -97,7 +92,7 @@ class AssistantContent extends React.Component<Props, State> {
 
     if (currentRoute === 'inComplete') {
       if (!savedFeatures) {
-        return onBoarding;
+        changeRoute('setupList');
       }
 
       return <Suggestion {...commonProps} onResumeClick={onClick} />;

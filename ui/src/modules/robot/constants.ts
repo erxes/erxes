@@ -222,18 +222,6 @@ export const ROLE_SETUP = [
         types: ['marketing']
       },
       {
-        name: 'Automate your customer support process',
-        title: '',
-        steps: 9,
-        types: ['customerSupport']
-      },
-      {
-        name: 'Automate your operational process',
-        title: '',
-        steps: 0,
-        types: ['managementAndOperations']
-      },
-      {
         name: 'Automate with Campaigns',
         title: 'automateCampaigns',
         steps: 3,
