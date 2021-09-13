@@ -1,42 +1,60 @@
+import { __ } from 'modules/common/utils';
+
 export const LANGUAGES = [
-  { label: 'English', value: 'en' },
-  { label: 'Mongolian', value: 'mn' },
-  { label: 'French', value: 'fr' },
-  { label: 'Deustch', value: 'de' },
-  { label: 'Italian', value: 'it' },
-  { label: 'Korean', value: 'ko' },
-  { label: 'Spanish', value: 'es' },
-  { label: 'Portuguese', value: 'pt-br' },
-  { label: 'Japanese', value: 'ja' },
-  { label: 'Russian', value: 'ru' },
-  { label: 'Chinese', value: 'zh-cn' },
-  { label: 'Hindi', value: 'hi' },
-  { label: 'Vietnam', value: 'vi' },
-  { label: 'Indonesian', value: 'yi' },
-  { label: 'Republic of Serbia', value: 'en_RS' },
+  { label: 'Albanian', value: 'sq' },
+  { label: 'Arabic', value: 'ar' },
+  { label: 'Bengali', value: 'bn' },
+  { label: 'Bulgarian', value: 'bg' },
+  { label: 'Chinese', value: 'zh_CN' },
+  { label: 'Czech', value: 'cs' },
   { label: 'Dutch', value: 'nl' },
+  { label: 'English', value: 'en' },
+  { label: 'French', value: 'fr' },
+  { label: 'German', value: 'de' },
+  { label: 'Hindi', value: 'hi' },
+  { label: 'Indonesian', value: 'id_ID' },
+  { label: 'Italian', value: 'it' },
+  { label: 'Japanese', value: 'ja' },
+  { label: 'Javanese', value: 'jv' },
+  { label: 'Kazakh', value: 'kk' },
+  { label: 'Korean', value: 'ko' },
+  { label: 'Marathi', value: 'mr' },
+  { label: 'Mongolian', value: 'mn' },
+  { label: 'Persian', value: 'fa_IR' },
+  { label: 'Polish', value: 'pl_PL' },
+  { label: 'Portuguese', value: 'pt_BR' },
+  { label: 'Punjabi', value: 'pa' },
+  { label: 'Romanian', value: 'ro' },
+  { label: 'Russian', value: 'ru' },
+  { label: 'Serbian', value: 'en_RS' },
+  { label: 'Spanish', value: 'es' },
+  { label: 'Tamil', value: 'ta' },
+  { label: 'Telugu', value: 'te' },
   { label: 'Turkish', value: 'tr_TR' },
-  { label: 'bengali', value: 'Bg' }
+  { label: 'Ukrainian', value: 'uk_UA' },
+  { label: 'Urdu', value: 'ur_PK' },
+  { label: 'Vietnamese', value: 'vi' },
+  { label: 'Yiddish', value: 'yi' }
 ];
 
 export const SERVICE_TYPES = [
-  { label: 'Local', value: 'local' },
-  { label: 'Amazon Web Service', value: 'AWS' },
-  { label: 'Google Cloud Service', value: 'GCS' }
+  { label: __('Local'), value: 'local' },
+  { label: __('Amazon Web Service'), value: 'AWS' },
+  { label: __('Google Cloud Service'), value: 'GCS' }
 ];
 
 export const FILE_SYSTEM_TYPES = [
-  { label: 'Public', value: 'true' },
-  { label: 'Private', value: 'false' }
+  { label: __('Public'), value: 'true' },
+  { label: __('Private'), value: 'false' }
 ];
 
 export const DATA_RETENTION_DURATION = [
-  { label: '3 months', value: 3 },
-  { label: '4 months', value: 4 },
-  { label: '5 months', value: 5 },
-  { label: '6 months', value: 6 },
-  { label: '9 months', value: 9 },
-  { label: '12 months', value: 12 }
+  { label: __('3 months'), value: 3 },
+  { label: __('4 months'), value: 4 },
+  { label: __('5 months'), value: 5 },
+  { label: __('6 months'), value: 6 },
+  { label: __('9 months'), value: 9 },
+  { label: __('12 months'), value: 12 }
 ];
 
 export const MEASUREMENTS = [

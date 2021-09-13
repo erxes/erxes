@@ -66,17 +66,11 @@ class UserResetPasswordForm extends React.Component<Props> {
             btnStyle="simple"
             onClick={this.props.closeModal}
             icon="times-circle"
-            uppercase={false}
           >
             Close
           </Button>
 
-          <Button
-            btnStyle="success"
-            type="submit"
-            icon="check-circle"
-            uppercase={false}
-          >
+          <Button btnStyle="success" type="submit" icon="check-circle">
             Save
           </Button>
         </ModalFooter>

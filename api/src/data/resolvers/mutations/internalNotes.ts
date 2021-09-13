@@ -115,7 +115,7 @@ const internalNoteMutations = {
 
       notifDoc.notifType = NOTIFICATION_TYPES.TICKET_EDIT;
       notifDoc.content = `"${ticket.name}"`;
-      notifDoc.link = `/inbox/ticket/board?id=${pipeline.boardId}&pipelineId=${pipeline._id}&itemId=${ticket._id}`;
+      notifDoc.link = `/ticket/board?id=${pipeline.boardId}&pipelineId=${pipeline._id}&itemId=${ticket._id}`;
       notifDoc.contentTypeId = ticket._id;
       notifDoc.contentType = NOTIFICATION_CONTENT_TYPES.TICKET;
 

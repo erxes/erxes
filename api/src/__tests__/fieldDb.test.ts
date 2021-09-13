@@ -514,4 +514,27 @@ describe('Fields groups', () => {
     expect(updatedGroup1.order).toBe(3);
     expect(updatedGroup2.order).toBe(4);
   });
+
+  test('prepareCustomFieldsData()', async () => {
+    const field1 = await fieldFactory({
+      contentType: 'customer',
+      type: 'input'
+    });
+    const field2 = await fieldFactory({
+      contentType: 'customer',
+      type: 'input',
+      validation: 'number'
+    });
+
+    const doc = [
+      { field: field1._id, value: '000' },
+      { field: field2._id, value: '00001' }
+    ];
+
+    const customFieldsData = await Fields.prepareCustomFieldsData(doc);
+
+    expect(customFieldsData[0].stringValue).toBe('000');
+    expect(customFieldsData[1].stringValue).toBeNull();
+    expect(customFieldsData[1].value).toBe(1);
+  });
 });

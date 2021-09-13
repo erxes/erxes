@@ -578,14 +578,14 @@ export const getItemList = async (
     }
   }
 
-  const companies = await Companies.find(
+  const companies = await Companies.findActiveCompanies(
     {
       _id: { $in: [...new Set(companyIds)] }
     },
     { primaryName: 1, primaryEmail: 1, primaryPhone: 1, emails: 1, phones: 1 }
   );
 
-  const customers = await Customers.find(
+  const customers = await Customers.findActiveCustomers(
     {
       _id: { $in: [...new Set(customerIds)] }
     },

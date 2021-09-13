@@ -1,3 +1,4 @@
+import { __ } from 'modules/common/utils';
 import { COMPANY_INFO } from 'modules/companies/constants';
 import { CUSTOMER_BASIC_INFO } from 'modules/customers/constants';
 import { PRODUCT_INFO } from '../productService/constants';
@@ -29,8 +30,8 @@ const generateFields = (infos: any[], type: string) => {
 const generateGroup = (infos: any[], type: string) => {
   return {
     _id: `basicInfosGroup${type}`,
-    name: 'Basic information',
-    description: `Basic information of a ${type}`,
+    name: __('Basic information'),
+    description: __(`Basic information of a ${type}`),
     contentType: type,
     order: -1,
     isVisible: true,

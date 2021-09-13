@@ -4,11 +4,13 @@ import styled from 'styled-components';
 import styledTS from 'styled-components-ts';
 
 const SubContent = styled.div`
-  padding: 0 16px;
-
+  padding: 0px;
   p {
     font-size: 12px;
     color: ${colors.textSecondary};
+  }
+  h5 {
+    margin-top: 20px;
   }
 `;
 
@@ -29,21 +31,51 @@ const Greeting = styled(SubContent)`
   }
 `;
 
-const Bot = styled.div`
+const Bot = styledTS<{ collapsed: boolean }>(styled.div)`
   position: fixed;
   bottom: 0px;
-  width: 70px;
+  width: ${props => (props.collapsed ? '160px' : '70px')};
   padding: 10px 0;
   text-align: center;
   z-index: 15;
+  display: ${props => props.collapsed && 'flex'};
+  align-items: center;
 
   &:hover {
     cursor: pointer;
   }
+`;
 
-  img {
-    width: 42px;
+const BotWrapper = styledTS<{ collapsed: boolean }>(styled.div)`
+  background: ${props => props.collapsed && 'rgba(0,0,0,0.13)'};
+  display: flex;
+  align-items: center;
+  justify-content: ${props => !props.collapsed && 'center'};
+  padding: ${props => props.collapsed && ' 0px 10px 0px 0px'};
+  color: ${colors.colorWhite};
+  border-radius: ${dimensions.coreSpacing}px;
+  margin: 0px 0px ${dimensions.unitSpacing}px ${props =>
+  props.collapsed ? dimensions.unitSpacing + 5 : 0}px;
+
+  > span {
+    margin-right: ${props => props.collapsed && dimensions.unitSpacing - 2}px;
+    padding: ${dimensions.unitSpacing - 6}px;
+    background: ${colors.colorSecondary};
+    border-radius: ${dimensions.coreSpacing}px ${dimensions.coreSpacing}px ${
+  dimensions.coreSpacing
+}px 2px;
+    transition: all 0.3s ease-in 0s;
+
+    img {
+      width: 38px;
+    }
   }
+`;
+
+const BotText = styled.h5`
+  margin: ${dimensions.unitSpacing - 4}px 0 0 ${dimensions.unitSpacing - 5}px;
+  text-transform: capitalize;
+  font-weight: normal;
 `;
 
 const Title = styled.h2`
@@ -83,7 +115,7 @@ const Content = styled.div`
   background: ${colors.colorWhite};
   min-width: 320px;
   box-shadow: 0 5px 15px 1px rgba(0, 0, 0, 0.15);
-  bottom: 65px;
+  bottom: 80px;
   left: 15px;
   max-height: calc(100% - 75px);
   overflow: auto;
@@ -151,8 +183,72 @@ const ProgressText = styled.div`
   font-size: 12px;
 `;
 
+const Container = styled.div`
+  width: 280px;
+  p {
+    margin-top: 20px;
+  }
+`;
+
+const SetupList = styled.div`
+  margin-bottom: 20px;
+  div {
+    border-radius: ${dimensions.unitSpacing}px;
+    background-color: #fafafa;
+    a {
+      padding: 5px 10px;
+      h4 {
+        font-size: 12px;
+        background-color: #fafafa;
+        text-transform: uppercase;
+      }
+    }
+    div {
+      div {
+        padding: 0px;
+        background: ${colors.colorWhite};
+        div {
+          border-radius: 0px;
+          padding: 10px;
+        }
+      }
+    }
+  }
+`;
+
+const Text = styled.div`
+  font-weight: normal;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border: 1px solid #eee;
+  border-top: none;
+
+  &:hover {
+    cursor: pointer;
+    background-color: #fafafa;
+    font-weight: 500;
+  }
+
+  h6 {
+    margin: 0px;
+    font-weight: 400;
+    width: 70%;
+  }
+
+  p {
+    margin: 0px;
+    font-size: 11px;
+    background-color: rgba(101, 105, 223, 0.8);
+    color: white;
+    padding: 2px 5px 2px;
+    border-radius: ${dimensions.unitSpacing}px;
+  }
+`;
+
 export {
   Bot,
+  BotText,
   Greeting,
   SubContent,
   Title,
@@ -161,8 +257,12 @@ export {
   ContentWrapper,
   SubHeader,
   BackDrop,
+  BotWrapper,
   CompletedTaskWrapper,
   CompletedTaskName,
   ProgressText,
-  RestartButton
+  RestartButton,
+  Container,
+  SetupList,
+  Text
 };

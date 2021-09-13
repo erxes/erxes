@@ -7,7 +7,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import CategoryForm from '../../containers/category/CategoryForm';
 import { ICategory } from '../../types';
-import { ActionButtons, CategoryItem, CategoryTitle } from './styles';
+import { ActionButtons, CategoryItem } from './styles';
 
 type Props = {
   topicId: string;
@@ -57,18 +57,16 @@ class CategoryRow extends React.Component<Props> {
   };
 
   render() {
-    const { category, isActive, isParent, isChild } = this.props;
+    const { category, isActive, isChild, isParent } = this.props;
 
     return (
-      <CategoryItem key={category._id} isActive={isActive}>
+      <CategoryItem key={category._id} isActive={isActive} isChild={isChild}>
         <Link to={`?id=${category._id}`}>
-          {isParent && (
-            <>
-              <Icon icon="arrow-circle-right" /> &nbsp;
-            </>
-          )}
-          <CategoryTitle isChild={isChild}>{category.title}</CategoryTitle>
-          <span>({category.articles.length})</span>
+          <div>
+            {category.title}
+            <span>({category.articles.length})</span>
+          </div>
+          {isParent && <Icon icon="angle-down" />}
         </Link>
         <ActionButtons>
           {this.renderEditAction()}

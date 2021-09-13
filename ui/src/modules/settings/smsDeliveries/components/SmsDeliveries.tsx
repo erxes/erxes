@@ -121,7 +121,6 @@ class SmsDeliveries extends React.Component<Props, State> {
         <Button
           btnStyle="primary"
           icon="filter-1"
-          uppercase={false}
           onClick={this.onClick}
           size="small"
         >

@@ -34,10 +34,9 @@ const commonFields = `
   customerTagIds
   brandIds
   segmentIds
-  stats
   messenger
   email
-  smsStats
+
   createdUser
 
   brand {
@@ -100,6 +99,8 @@ export const engageDetailFields = `
   fromUserId
   stopDate
   lastRunAt
+  smsStats
+  stats
 
   scheduleDate {
     type
