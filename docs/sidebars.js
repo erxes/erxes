@@ -28,7 +28,7 @@ module.exports = {
           ]
         },
         {
-          "Contributing on open sourse": [
+          "Contributing on open source": [
             "getting-started/contributing-guide",
             "getting-started/submitting",
             "getting-started/commit"
@@ -59,7 +59,7 @@ module.exports = {
             ] 
           },
         {
-          Turorials: [
+          Tutorials: [
            "developer/graphql-api",
            "developer/android-sdk",
            "developer/ios-sdk",
