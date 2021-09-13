@@ -111,6 +111,14 @@ export const loadClass = () => {
         throw new Error(`Segment not found with id ${_id}`);
       }
 
+      if (segmentObj.conditions) {
+        for (const condition of segmentObj.conditions) {
+          if (condition.subSegmentId) {
+            await Segments.remove({ _id: condition.subSegmentId });
+          }
+        }
+      }
+
       return segmentObj.remove();
     }
   }

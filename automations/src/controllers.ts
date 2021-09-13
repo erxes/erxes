@@ -28,6 +28,7 @@ router.post(
     debugRequest(debugAutomations, req);
 
     const { doc } = req.body;
+
     const automation = await Automations.create({
       ...doc,
       createdAt: new Date()
@@ -62,9 +63,28 @@ router.post(
     debugRequest(debugAutomations, req);
 
     const { automationIds } = req.body;
+
+    const automations = await Automations.find({ _id: { $in: automationIds } });
+
+    let segmentIds: string[] = [];
+
+    for (const automation of automations) {
+      const { triggers, actions } = automation;
+
+      const triggerIds = triggers.map(trigger => {
+        return trigger.config.contentId;
+      });
+
+      const actionIds = actions.map(action => {
+        return action.config.contentId;
+      });
+
+      segmentIds = [...triggerIds, ...actionIds];
+    }
+
     await Automations.deleteMany({ _id: { $in: automationIds } });
 
-    return res.json({ status: 'ok' });
+    return res.json({ status: 'ok', segmentIds });
   })
 );
 
