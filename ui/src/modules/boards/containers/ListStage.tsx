@@ -31,11 +31,33 @@ type FinalStageProps = {
   removeStageMutation: RemoveStageMutation;
 } & StageProps;
 
-class StageContainer extends React.PureComponent<FinalStageProps> {
-  loadMore = () => {
-    const { stage, queryParams, options, itemsQuery } = this.props;
+type State = {
+  items: any[];
+};
 
-    const items = itemsQuery ? itemsQuery[options.queriesName.itemsQuery] : [];
+class StageContainer extends React.PureComponent<FinalStageProps, State> {
+  constructor(props) {
+    super(props);
+
+    this.state = {
+      items: []
+    };
+  }
+
+  componentWillReceiveProps(nextProps: FinalStageProps) {
+    const { itemsQuery, options } = nextProps;
+
+    if (itemsQuery && !itemsQuery.loading) {
+      const items = itemsQuery[options.queriesName.itemsQuery] || [];
+
+      this.setState({ items });
+    }
+  }
+
+  loadMore = () => {
+    const { stage, queryParams, options } = this.props;
+
+    const items = this.state.items;
 
     if (items.length === stage.itemsTotalCount) {
       return;
@@ -51,6 +73,11 @@ class StageContainer extends React.PureComponent<FinalStageProps> {
           ...getFilterParams(queryParams, options.getExtraParams)
         },
         fetchPolicy: 'network-only'
+      })
+      .then(({ data }) => {
+        this.setState({
+          items: [...items, ...(data[options.queriesName.itemsQuery] || [])]
+        });
       })
       .catch(e => {
         Alert.error(e.message);
@@ -132,11 +159,13 @@ class StageContainer extends React.PureComponent<FinalStageProps> {
   render() {
     const { index, length, stage, itemsQuery, options } = this.props;
 
-    const items = itemsQuery ? itemsQuery[options.queriesName.itemsQuery] : [];
-
     const refetch = () => {
       if (itemsQuery) {
-        itemsQuery.refetch();
+        itemsQuery.refetch().then(({ data }) => {
+          this.setState({
+            items: data[options.queriesName.itemsQuery] || []
+          });
+        });
       }
     };
 
@@ -146,7 +175,7 @@ class StageContainer extends React.PureComponent<FinalStageProps> {
         stage={stage}
         index={index}
         length={length}
-        items={items}
+        items={this.state.items}
         loadMore={this.loadMore}
         onAddItem={refetch}
         onRemoveItem={refetch}

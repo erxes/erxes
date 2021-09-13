@@ -11,6 +11,7 @@ import Dropdown from 'react-bootstrap/Dropdown';
 import DropdownToggle from 'modules/common/components/DropdownToggle';
 import { __ } from 'modules/common/utils';
 import Button from 'modules/common/components/Button';
+import { GroupByContent } from 'modules/boards/styles/common';
 
 type Props = {
   onSearch: (search: string) => void;
@@ -120,6 +121,67 @@ const TaskMainActionBar = (props: Props) => {
     );
   };
 
+  const renderGroupBy = () => {
+    if (viewType === 'list') {
+      return (
+        <GroupByContent>
+          <Icon icon="list-2" />
+          <span>{__('Group by:')}</span>
+          <Dropdown>
+            <Dropdown.Toggle as={DropdownToggle} id="dropdown-groupby">
+              <Button btnStyle="primary" size="small">
+                {__('Stages')} <Icon icon="angle-down" />
+              </Button>
+            </Dropdown.Toggle>
+            <Dropdown.Menu>
+              <li>
+                <a
+                  href="#export"
+                  // onClick={exportData.bind(this, bulk)}
+                >
+                  {__('Stages')}
+                </a>
+              </li>
+              <li>
+                <a
+                  href="#export"
+                  // onClick={exportData.bind(this, bulk)}
+                >
+                  {__('Labels')}
+                </a>
+              </li>
+              <li>
+                <a
+                  href="#verifyEmail"
+                  // onClick={this.verifyCustomers.bind(this, 'email')}
+                >
+                  {__('Priority')}
+                </a>
+              </li>
+              <li>
+                <a
+                  href="#verifyPhone"
+                  // onClick={this.verifyCustomers.bind(this, 'phone')}
+                >
+                  {__('Assignee')}
+                </a>
+              </li>
+              <li>
+                <a
+                  href="#verifyPhone"
+                  // onClick={this.verifyCustomers.bind(this, 'phone')}
+                >
+                  {__('Due Date')}
+                </a>
+              </li>
+            </Dropdown.Menu>
+          </Dropdown>
+        </GroupByContent>
+      );
+    }
+    return null;
+  };
+
   const extraFilter = (
     <>
       <SelectCompanies
@@ -141,6 +203,7 @@ const TaskMainActionBar = (props: Props) => {
     ...props,
     options,
     extraFilter,
+    groupContent: renderGroupBy,
     link: `/task/${viewType}`,
     rightContent: viewChooser
   };

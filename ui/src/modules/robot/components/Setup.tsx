@@ -134,7 +134,7 @@ class Setup extends React.Component<Props, State> {
     });
   }
 
-  checkCondition(title?: string) {
+  checkCondition(title: string) {
     const { availableFeatures } = this.props;
 
     availableFeatures.map(availabeFeature => {
@@ -149,7 +149,7 @@ class Setup extends React.Component<Props, State> {
   renderSetup() {
     const { roleValue } = this.props;
 
-    const onRoleClick = (title?: string, gkey?: string) => {
+    const onRoleClick = (title: string, gkey: string) => {
       this.setState(
         {
           collapseKey: gkey

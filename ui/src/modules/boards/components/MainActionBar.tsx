@@ -32,6 +32,7 @@ type Props = {
   extraFilter?: React.ReactNode;
   link: string;
   rightContent?: () => React.ReactNode;
+  groupContent?: () => React.ReactNode;
   boardText?: string;
   pipelineText?: string;
   options: IOptions;
@@ -164,6 +165,7 @@ class MainActionBar extends React.Component<Props> {
       currentBoard,
       currentPipeline,
       middleContent,
+      groupContent,
       options,
       rightContent,
       boardText,
@@ -179,7 +181,7 @@ class MainActionBar extends React.Component<Props> {
         </HeaderLabel>
         <Dropdown>
           <Dropdown.Toggle as={DropdownToggle} id="dropdown-board">
-            <HeaderButton rightIconed={true} hasBorder={true} textColor={true}>
+            <HeaderButton rightIconed={true} hasBorder={true} boxShadow={true}>
               {(currentBoard && currentBoard.name) || __('Choose board')}
               <Icon icon="angle-down" />
             </HeaderButton>
@@ -191,7 +193,7 @@ class MainActionBar extends React.Component<Props> {
         </HeaderLabel>
         <Dropdown>
           <Dropdown.Toggle as={DropdownToggle} id="dropdown-pipeline">
-            <HeaderButton rightIconed={true} hasBorder={true} textColor={true}>
+            <HeaderButton rightIconed={true} hasBorder={true} boxShadow={true}>
               {(currentPipeline && currentPipeline.name) ||
                 __('Choose pipeline')}
               <Icon icon="angle-down" />
@@ -222,6 +224,8 @@ class MainActionBar extends React.Component<Props> {
     const actionBarRight = (
       <BarItems>
         {middleContent && middleContent()}
+
+        {groupContent && groupContent()}
 
         {rightContent && rightContent()}
 

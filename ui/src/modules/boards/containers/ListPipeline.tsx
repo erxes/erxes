@@ -11,18 +11,13 @@ import {
 import gql from 'graphql-tag';
 import EmptyState from 'modules/common/components/EmptyState';
 import { IRouterProps } from 'modules/common/types';
-import { withProps, __ } from 'modules/common/utils';
+import { withProps } from 'modules/common/utils';
 import { graphql } from 'react-apollo';
 import { withRouter } from 'react-router-dom';
 import { queries } from '../graphql';
 import styled from 'styled-components';
 import ListStage from './ListStage';
 import Spinner from 'modules/common/components/Spinner';
-import { Dropdown } from 'react-bootstrap';
-import DropdownToggle from 'modules/common/components/DropdownToggle';
-import Button from 'modules/common/components/Button';
-import { GroupByContent } from '../styles/common';
-import Icon from 'modules/common/components/Icon';
 
 const Container = styled.div`
   min-height: 480px;
@@ -64,64 +59,6 @@ class WithStages extends Component<WithStagesQueryProps> {
     return Object.keys(obj).length;
   }
 
-  renderGroupBy() {
-    return (
-      <GroupByContent>
-        <Icon icon="list-2" />
-        <span>{__('Group by:')}</span>
-        <Dropdown>
-          <Dropdown.Toggle as={DropdownToggle} id="dropdown-groupby">
-            <Button>
-              {__('Stages')} <Icon icon="angle-down" />
-            </Button>
-          </Dropdown.Toggle>
-          <Dropdown.Menu>
-            <li>
-              <a
-                href="#export"
-                // onClick={exportData.bind(this, bulk)}
-              >
-                {__('Stages')}
-              </a>
-            </li>
-            <li>
-              <a
-                href="#export"
-                // onClick={exportData.bind(this, bulk)}
-              >
-                {__('Labels')}
-              </a>
-            </li>
-            <li>
-              <a
-                href="#verifyEmail"
-                // onClick={this.verifyCustomers.bind(this, 'email')}
-              >
-                {__('Priority')}
-              </a>
-            </li>
-            <li>
-              <a
-                href="#verifyPhone"
-                // onClick={this.verifyCustomers.bind(this, 'phone')}
-              >
-                {__('Assignee')}
-              </a>
-            </li>
-            <li>
-              <a
-                href="#verifyPhone"
-                // onClick={this.verifyCustomers.bind(this, 'phone')}
-              >
-                {__('Due Date')}
-              </a>
-            </li>
-          </Dropdown.Menu>
-        </Dropdown>
-      </GroupByContent>
-    );
-  }
-
   render() {
     const { options, queryParams, stagesQuery } = this.props;
 
@@ -140,7 +77,6 @@ class WithStages extends Component<WithStagesQueryProps> {
 
     return (
       <Container>
-        {this.renderGroupBy()}
         {stages.map((stage, index) => {
           if (!stage) {
             return null;

@@ -44,26 +44,26 @@ export const RootBack = styled.div`
 `;
 
 export const GroupByContent = styled.div`
-  margin: 13px 23px;
   display: flex;
+  font-size: 11px;
 
   .dropdown {
-    padding: 0 10px;
+    padding: 0 8px;
+
+    .menu {
+      width: auto;
+    }
   }
 
   > i {
-    padding 3px 0;
+    padding 5px 0;
     margin-right: 5px;
-  }
-
-  span {
-    padding 3px 0;
     color: ${colors.colorCoreGray};
   }
 
-  button {
-    padding: 5px 9px 5px 15px;
-    font-size: 12px;
+  span {
+    padding 5px 0;
+    color: ${colors.colorCoreGray};
   }
 `;
 

@@ -57,18 +57,18 @@ export const HeaderButton = styledTS<{
   rightIconed?: boolean;
   isActive?: boolean;
   hasBorder?: boolean;
-  textColor?: boolean;
+  boxShadow?: boolean;
 }>(styled.div)`
-  padding: 0 10px;
-  line-height: 24px;
-  height: 28px;
-  border: ${props => props.hasBorder && '1px solid rgba(103,63,189)'};
-  color: ${props =>
-    props.textColor ? colors.colorPrimary : colors.colorCoreGray};
+  padding: 0 13px;
+  line-height: 28px;
+  height: 32px;
+  border: ${props => props.hasBorder && '1px solid rgba(0, 0, 0, 0.08)'};
+  box-shadow: ${props => props.boxShadow && '0 0 6px 0 rgba(0, 0, 0, 0.08);'}; 
+  color: ${colors.colorCoreDarkGray};
   border-radius: 4px;
   transition: background 0.3s ease;
-  background: ${props => props.hasBackground && 'rgba(0, 0, 0, 0.08)'};
-  font-weight: 600;
+  background: ${props => props.hasBackground && 'rgba(0, 0, 0, 0.045)'};
+  font-weight: 500;
   display: inline-block;
   vertical-align: middle;
   font-size: 12px;
@@ -82,14 +82,13 @@ export const HeaderButton = styledTS<{
     ${props =>
       props.rightIconed &&
       css`
-        color: rgba(103, 63, 189);
         margin-right: -3px;
         margin-left: 5px;
       `};
   }
 
   &:hover {
-    background: rgba(0, 0, 0, 0.04);
+    background: rgba(0, 0, 0, 0.06);
     cursor: pointer;
   }
 
@@ -113,13 +112,12 @@ export const HeaderLink = styled(HeaderButton)`
   background: rgba(0, 0, 0, 0.04);
   border-radius: 17px;
   line-height: 21px;
-  color: ${colors.colorCoreDarkGray};
 
   a {
     color: ${colors.colorCoreGray};
     padding: 0 10px;
     display: block;
-    line-height: 28px;
+    line-height: 32px;
 
     &:hover {
       color: ${colors.colorCoreDarkGray};
