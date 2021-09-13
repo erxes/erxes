@@ -3,7 +3,6 @@ import {
   Conformities,
   Customers,
   Fields,
-  Notifications,
   PipelineLabels,
   Pipelines,
   Products,
@@ -132,8 +131,8 @@ export default {
     return false;
   },
 
-  hasNotified(deal: IDealDocument, _args, { user }: IContext) {
-    return Notifications.checkIfRead(user._id, deal._id);
+  hasNotified(_deal: IDealDocument, _args) {
+    return true;
   },
 
   labels(deal: IDealDocument) {

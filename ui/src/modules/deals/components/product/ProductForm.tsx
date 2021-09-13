@@ -82,7 +82,7 @@ class ProductForm extends React.Component<Props, State> {
           : 0,
         amount: 0,
         currency,
-        tickUsed: true
+        tickUsed: false
       });
 
       onChangeProductsData(productsData);
@@ -231,6 +231,14 @@ class ProductForm extends React.Component<Props, State> {
 
         if (!data.currency) {
           return Alert.error('Please choose a currency');
+        }
+
+        if (
+          data.product.type === 'service' &&
+          data.tickUsed &&
+          !data.assignUserId
+        ) {
+          return Alert.error('Please choose a Assigned to any service');
         }
       }
     }

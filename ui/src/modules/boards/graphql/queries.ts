@@ -197,7 +197,7 @@ const tasks = `
     tasks(${boardItemQueryParams}) {
       ${cardFields}
     }
-  } 
+  }
 `;
 
 const tickets = `
@@ -205,7 +205,7 @@ const tickets = `
     tickets(${boardItemQueryParams}) {
       ${cardFields}
     }
-  } 
+  }
 `;
 
 const deals = `
@@ -213,7 +213,7 @@ const deals = `
     deals(${boardItemQueryParams}) {
       ${cardFields}
     }
-  } 
+  }
 `;
 
 const itemsCountBySegments = `

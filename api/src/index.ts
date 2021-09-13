@@ -1,4 +1,8 @@
+import * as connect_datadog from 'connect-datadog';
+import ddTracer from 'dd-trace';
+
 import * as cookieParser from 'cookie-parser';
+
 import * as cors from 'cors';
 import * as dotenv from 'dotenv';
 import * as telemetry from 'erxes-telemetry';
@@ -48,10 +52,16 @@ import { importer, uploader } from './middlewares/fileMiddleware';
 import userMiddleware from './middlewares/userMiddleware';
 import webhookMiddleware from './middlewares/webhookMiddleware';
 import widgetsMiddleware from './middlewares/widgetsMiddleware';
+
 import init from './startup';
 
 // load environment variables
 dotenv.config();
+
+ddTracer.init({
+  hostname: process.env.DD_HOST,
+  logInjection: true
+});
 
 const { NODE_ENV, JWT_TOKEN_SECRET } = process.env;
 
@@ -109,6 +119,13 @@ const handleTelnyxWebhook = (req, res, next, hookName: string) => {
 };
 
 export const app = express();
+
+const datadogMiddleware = connect_datadog({
+  response_code: true,
+  tags: ['api']
+});
+
+app.use(datadogMiddleware);
 
 app.disable('x-powered-by');
 

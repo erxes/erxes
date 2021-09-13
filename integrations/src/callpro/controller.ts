@@ -144,8 +144,7 @@ const init = async app => {
           await Customers.deleteOne({ _id: customer._id });
 
           debugError(
-            'Callpro: error occured during create or update customer on api: ',
-            e.message
+            `Callpro: error occured during create or update customer on api: ${e.message}`
           );
           throw new Error(e);
         }
@@ -217,8 +216,7 @@ const init = async app => {
         await Conversations.deleteOne({ _id: conversation._id });
 
         debugError(
-          'Callpro: error occured during create or update conversation on api: ',
-          e.message
+          `Callpro: error occured during create or update conversation on api: ${e.message}`
         );
         throw new Error(e);
       }

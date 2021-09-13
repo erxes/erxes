@@ -3,20 +3,17 @@ name: Dashboard CI
 on:
   push:
     branches:
-      - '**'
+      - "**"
     paths:
-      - 'dashboard-ui/**'
-      - '.github/workflows/dashboard_ui.yaml'
+      - "dashboard-ui/**"
+      - ".github/workflows/dashboard_ui.yaml"
     tags:
-      - '*'
+      - "*"
   pull_request:
     branches:
-      - master
-      - develop
-      - crons
-      - workers
+      - priuscenter
     paths:
-      - 'dashboard-ui/**'
+      - "dashboard-ui/**"
 
 jobs:
   dashboard-ui:
@@ -28,10 +25,10 @@ jobs:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v2
 
-      - name: Use Node.js 12.16.x
+      - name: Use Node.js 12.20.x
         uses: actions/setup-node@v1
         with:
-          node-version: 12.16.x
+          node-version: 12.20.x
 
       # https://github.com/actions/cache/blob/master/examples.md#node---yarn
       - name: Get yarn cache directory path
@@ -52,25 +49,21 @@ jobs:
         run: |
           cd dashboard-ui
           yarn install --frozen-lockfile
+
       - name: Lint
         run: |
           cd dashboard-ui
           yarn lint
+
       - name: Build
         run: |
           cd dashboard-ui
           yarn build
-      - name: Build docker image [push]
-        if: github.event_name == 'push' && ( github.ref == 'refs/heads/master' || github.ref == 'refs/heads/develop' || github.ref == 'refs/heads/apm' || github.ref == 'refs/heads/automations')
+
+      - name: Build docker image
+        if: github.event_name == 'push' && ( github.ref == 'refs/heads/priuscenter')
         run: |
           cd dashboard-ui
-          echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin
-          docker build -t erxes/erxes-dashboard-front:${GITHUB_REF#refs/heads/} -f Dockerfile .
-          docker push erxes/erxes-dashboard-front:${GITHUB_REF#refs/heads/}
-      - name: Build docker image [tag]
-        if: github.event_name == 'push' && contains(github.ref, 'refs/tags/')
-        run: |
-          cd dashboard-ui
-          echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin
-          docker build -t erxes/erxes-dashboard-front:${GITHUB_REF#refs/tags/} -f Dockerfile .
-          docker push erxes/erxes-dashboard-front:${GITHUB_REF#refs/tags/}
+          echo ${{ secrets.REGISTRY_TOKEN }} | docker login ${{ secrets.REGISTRY_URL }} -u ${{ secrets.REGISTRY_USERNAME }} --password-stdin
+          docker build -t ${{ secrets.REGISTRY_URL }}/erxes-enterprise/erxes-dashboard-front:${GITHUB_REF#refs/heads/} -f Dockerfile .
+          docker push ${{ secrets.REGISTRY_URL }}/erxes-enterprise/erxes-dashboard-front:${GITHUB_REF#refs/heads/}

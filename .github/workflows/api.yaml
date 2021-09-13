@@ -6,15 +6,16 @@ on:
       - "**"
     paths:
       - "api/**"
+      - "plugins/**/api/**"
       - ".github/workflows/api.yaml"
   pull_request:
     branches:
-      - master
-      - develop
+      - priuscenter
       - crons
       - workers
     paths:
       - "api/**"
+      - "plugins/**/api/**"
       - ".github/workflows/api.yaml"
 
 jobs:
@@ -30,10 +31,10 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
-      - name: Use Node.js 12.19.x
+      - name: Use Node.js 12.20.x
         uses: actions/setup-node@v1
         with:
-          node-version: 12.19.x
+          node-version: 12.20.x
 
       # https://github.com/actions/cache/blob/master/examples.md#node---yarn
       - name: Get yarn cache directory path
@@ -52,6 +53,7 @@ jobs:
       - name: Install dependencies
         run: |
           yarn install
+          yarn prepare-plugins-api
           cd api
           yarn install --frozen-lockfile
 
@@ -64,32 +66,25 @@ jobs:
           cd api
           yarn tsc -p tsconfig.prod.json
 
-      - name: Test
-        run: |
-          cd api
-          yarn test
-        env:
-          MONGO_URL: mongodb://localhost/erxes
-          TEST_MONGO_URL: mongodb://localhost/test
-          JWT_TOKEN_SECRET: token
-          MAIN_APP_DOMAIN: http://localhost:3000
-          RABBITMQ_HOST: amqp://localhost
-          PORT: 3300
-
       - name: Build
         if: startsWith(github.ref, 'refs/tags/') || github.event_name == 'push'
         run: |
           cd api
           rm -rf node_modules
+          rm -rf dist
           yarn install --frozen-lockfile --production
+          cd ..
+          yarn prepare-plugins-api
+          cd api
           yarn build
 
       - name: Build docker image
-        if: github.event_name == 'push' && ( github.ref == 'refs/heads/master' || github.ref == 'refs/heads/develop' || github.ref == 'refs/heads/crons' || github.ref == 'refs/heads/workers')
+        if: github.event_name == 'push' && ( github.ref == 'refs/heads/priuscenter'|| github.ref == 'refs/heads/crons' || github.ref == 'refs/heads/workers' )
         env:
           BASE_IMAGE: erxes/erxes-api:base-12.19.1-slim
+          DOCKER_BUILDKIT: 1
         run: |
           cd api
-          echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin
-          DOCKER_BUILDKIT=1 docker build --build-arg BASE_IMAGE=$BASE_IMAGE -t erxes/erxes-api:${GITHUB_REF#refs/heads/} -f api.Dockerfile .
-          docker push erxes/erxes-api:${GITHUB_REF#refs/heads/}
+          echo ${{ secrets.REGISTRY_TOKEN }} | docker login ${{ secrets.REGISTRY_URL }} -u ${{ secrets.REGISTRY_USERNAME }} --password-stdin
+          docker build --build-arg BASE_IMAGE=$BASE_IMAGE -t ${{ secrets.REGISTRY_URL }}/erxes-enterprise/erxes-api:${GITHUB_REF#refs/heads/} -f api.Dockerfile .
+          docker push ${{ secrets.REGISTRY_URL }}/erxes-enterprise/erxes-api:${GITHUB_REF#refs/heads/}
