@@ -12,6 +12,13 @@ const exmFeedResolvers = [
     handler: (exmFeed, {}, { models }) => {
       return models.Users.findOne({ _id: exmFeed.updatedBy });
     }
+  },
+  {
+    type: 'ExmFeed',
+    field: 'recipients',
+    handler: (exmFeed, {}, { models }) => {
+      return models.Users.find({ _id: { $in: exmFeed.recipientIds } });
+    }
   }
 ];
 

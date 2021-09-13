@@ -7,6 +7,7 @@ export const types = `
     images: JSON
     attachments: JSON
     recipientIds: [String]
+    recipients: [User]
     createdAt: Date
     updatedAt: Date
     createdUser: User
@@ -33,24 +34,35 @@ export const types = `
     totalCount: Int
   }
 
-  enum ThankType {
+  enum SourceType {
     recipient
     admin
+  }
+
+  enum ContentType {
+    event
+    post
+    bravo
+  }
+
+  enum ReciepentType {
+    recieved
+    sent
   }
 `;
 
 export const queries = `
   exmFeedDetail(_id: String!): ExmFeed
 
-  exmFeed(title: String, limit: Int): ExmFeedResponse
+  exmFeed(contentType: ContentType, type: SourceType, recipientType: ReciepentType, title: String, limit: Int): ExmFeedResponse
 
-  exmThanks(limit: Int, type: ThankType): ExmThankResponse
+  exmThanks(limit: Int, type: SourceType): ExmThankResponse
 `;
 
 const feedCommonParams = `
   title: String!
   description: String
-  contentType: String!
+  contentType: ContentType!
   images: [JSON]
   attachments: [JSON]
   recipientIds: [String]
