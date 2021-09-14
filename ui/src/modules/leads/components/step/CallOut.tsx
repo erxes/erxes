@@ -208,7 +208,7 @@ class CallOut extends React.Component<Props, State> {
 
     const onChangeImageWidth = (e) =>
       this.onChangeFunction(
-        'imgWidth',
+        "imgWidth",
         (e.currentTarget as HTMLInputElement).value
       );
 
