@@ -1,7 +1,7 @@
 const commonVariables = `
   $title: String!
   $description: String
-  $contentType: String!
+  $contentType: ContentType!
   $images: [JSON]
   $attachments: [JSON]
   $recipientIds: [String]

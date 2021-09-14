@@ -64,7 +64,7 @@ export const types = `
     bravo
   }
 
-  enum ReciepentType {
+  enum RecipientType {
     recieved
     sent
   }
@@ -72,7 +72,7 @@ export const types = `
 
 export const queries = `
   exmFeedDetail(_id: String!): ExmFeed
-  exmFeed(contentType: ContentType, type: SourceType, recipientType: ReciepentType, title: String, limit: Int): ExmFeedResponse
+  exmFeed(contentType: ContentType, type: SourceType, recipientType: RecipientType, title: String, limit: Int): ExmFeedResponse
   exmThanks(limit: Int, type: SourceType): ExmThankResponse
   exmFeedComments(feedId: String, parentId: String, limit: Int): ExmFeedCommentResponse
 `;
