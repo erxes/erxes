@@ -25,7 +25,11 @@ type Props = {
 export default function General(props: Props) {
   const { forms, kbTopics, exm, edit } = props;
 
-  const [features, setFeatures] = useState(exm.features || [getEmptyFeature()]);
+  const exmFeatures = exm.features || [];
+
+  const [features, setFeatures] = useState(
+    exmFeatures.length > 0 ? exmFeatures : [getEmptyFeature()]
+  );
 
   const onChangeFeature = (type: String, _id?: string) => {
     if (type === 'add') {

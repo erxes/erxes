@@ -9,8 +9,8 @@ const commonParams = `
 `;
 
 const exmsAdd = `
-	mutation exmsAdd($_id: String!, ${commonParamsDef}) {
-		exmsAdd(_id: $_id, ${commonParams}) {
+	mutation exmsAdd(${commonParamsDef}) {
+		exmsAdd(${commonParams}) {
 			_id
 		}
 	}

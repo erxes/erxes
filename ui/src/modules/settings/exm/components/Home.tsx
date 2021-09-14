@@ -1,73 +1,33 @@
-import React, { useState } from 'react';
+import React from 'react';
 
 import DataWithLoader from 'modules/common/components/DataWithLoader';
 import HeaderDescription from 'modules/common/components/HeaderDescription';
-import { Tabs, TabTitle } from 'modules/common/components/tabs';
 import { __ } from '../../../common/utils';
 import Wrapper from '../../../layout/components/Wrapper';
-import Sidebar from '../containers/Sidebar';
-import { TabContent } from 'modules/boards/styles/rightMenu';
-import General from '../containers/General';
+import EditForm from '../containers/EditForm';
+import AddForm from '../containers/AddForm';
 
 type Props = {
-  exm: any;
-  add: (variables: any) => void;
-  edit: (variables: any) => void;
+  exm?: any;
 };
 
-function Brands(props: Props) {
-  const [currentTab, setCurrentTab] = useState('General');
-
-  const { exm, edit } = props;
+function Home(props: Props) {
+  const { exm } = props;
 
   const breadcrumb = [
     { title: __('Settings'), link: '/settings' },
     { title: __('Exm'), link: '/settings/exm' },
-    { title: props.exm.name }
+    { title: exm ? exm.name : '' }
   ];
 
-  const leftActionBar = <div>{props.exm.name}</div>;
-
-  const renderTabContent = () => {
-    if (currentTab === 'General') {
-      return <General exm={exm} edit={edit} />;
-    }
-
-    return <TabContent>This is {currentTab}</TabContent>;
-  };
+  const leftActionBar = <div>{exm ? exm.name : ''}</div>;
 
   const content = () => {
-    return (
-      <>
-        <Tabs full={true}>
-          <TabTitle
-            className={currentTab === 'General' ? 'active' : ''}
-            onClick={() => setCurrentTab('General')}
-          >
-            {__('General')}
-          </TabTitle>
-          <TabTitle
-            className={currentTab === 'Appearance' ? 'active' : ''}
-            onClick={() => setCurrentTab('Appearance')}
-          >
-            {__('Appearance')}
-          </TabTitle>
-          <TabTitle
-            className={currentTab === 'Mobile App' ? 'active' : ''}
-            onClick={() => setCurrentTab('Mobile App')}
-          >
-            {__('Mobile App')}
-          </TabTitle>
-          <TabTitle
-            className={currentTab === 'Custom Stylesheet' ? 'active' : ''}
-            onClick={() => setCurrentTab('Custom Stylesheet')}
-          >
-            {__('Custom Stylesheet')}
-          </TabTitle>
-        </Tabs>
-        {renderTabContent()}
-      </>
-    );
+    if (exm) {
+      return <EditForm exm={exm} />;
+    }
+
+    return <AddForm />;
   };
 
   return (
@@ -81,7 +41,6 @@ function Brands(props: Props) {
         />
       }
       actionBar={<Wrapper.ActionBar left={leftActionBar} />}
-      leftSidebar={<Sidebar />}
       content={
         <DataWithLoader
           data={content()}
@@ -94,4 +53,4 @@ function Brands(props: Props) {
   );
 }
 
-export default Brands;
+export default Home;
