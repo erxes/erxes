@@ -1,9 +1,4 @@
-import {
-  putCreateLog,
-  putDeleteLog,
-  putUpdateLog,
-  sendNotification
-} from 'erxes-api-utils';
+import { putCreateLog, putDeleteLog, putUpdateLog } from 'erxes-api-utils';
 
 export const gatherDescriptions = async () => {
   let extraDesc = [];
@@ -12,25 +7,17 @@ export const gatherDescriptions = async () => {
   return { extraDesc, description };
 };
 
-const exmThankMutations = [
+const exmFeedCommentMutations = [
   {
-    name: 'exmThankAdd',
+    name: 'exmFeedCommentAdd',
     handler: async (
       _root,
       doc,
-      {
-        checkPermission,
-        user,
-        docModifier,
-        models,
-        messageBroker,
-        memoryStorage,
-        graphqlPubsub
-      }
+      { checkPermission, user, docModifier, models, messageBroker }
     ) => {
       await checkPermission('manageExm', user);
 
-      const exmThank = models.ExmThanks.createThank(
+      const comment = await models.ExmFeedComments.createComment(
         models,
         docModifier(doc),
         user
@@ -40,32 +27,20 @@ const exmThankMutations = [
         messageBroker,
         gatherDescriptions,
         {
-          type: 'exmThank',
+          type: 'exmFeedComment',
           newData: doc,
-          object: exmThank,
+          object: comment,
           extraParams: { models }
         },
         user
       );
 
-      const notifDoc = {
-        createdUser: user,
-        link: `/erxes-plugin-exm-feed`,
-        title: 'Recieved a thank you',
-        content: doc.description,
-        notifType: 'plugin',
-        receivers: doc.recipientIds,
-        action: 'updated conversation'
-      };
-
-      sendNotification(models, memoryStorage, graphqlPubsub, notifDoc);
-
-      return exmThank;
+      return comment;
     }
   },
 
   {
-    name: 'exmThankEdit',
+    name: 'exmFeedCommentEdit',
     handler: async (
       _root,
       { _id, ...doc },
@@ -73,11 +48,11 @@ const exmThankMutations = [
     ) => {
       await checkPermission('manageExm', user);
 
-      const exmThank = await models.ExmThanks.findOne({
+      const comment = await models.ExmFeedComments.findOne({
         _id
       });
 
-      const updated = await models.ExmThanks.updateThank(
+      const updated = await models.ExmFeedComments.updateComment(
         models,
         _id,
         docModifier(doc),
@@ -88,8 +63,8 @@ const exmThankMutations = [
         messageBroker,
         gatherDescriptions,
         {
-          type: 'exmThank',
-          object: exmThank,
+          type: 'exmFeedComment',
+          object: comment,
           newData: { ...doc },
           updatedDocument: updated,
           extraParams: { models }
@@ -102,7 +77,7 @@ const exmThankMutations = [
   },
 
   {
-    name: 'exmThankRemove',
+    name: 'exmFeedCommentRemove',
     handler: async (
       _root,
       { _id },
@@ -110,22 +85,22 @@ const exmThankMutations = [
     ) => {
       await checkPermission('manageExm', user);
 
-      const exmThank = models.ExmThanks.removeThank(models, _id);
+      const comment = await models.ExmFeedComments.removeComment(models, _id);
 
       await putDeleteLog(
         messageBroker,
         gatherDescriptions,
         {
-          type: 'exmThank',
-          object: exmThank,
+          type: 'exmFeedComment',
+          object: comment,
           extraParams: { models }
         },
         user
       );
 
-      return exmThank;
+      return comment;
     }
   }
 ];
 
-export default exmThankMutations;
+export default exmFeedCommentMutations;

@@ -19,6 +19,15 @@ const exmFeedResolvers = [
     handler: (exmFeed, {}, { models }) => {
       return models.Users.find({ _id: { $in: exmFeed.recipientIds } });
     }
+  },
+  {
+    type: 'ExmFeed',
+    field: 'commentCount',
+    handler: (exmFeed, {}, { models }) => {
+      return models.ExmFeedComments.find({
+        feedId: exmFeed._id
+      }).countDocuments();
+    }
   }
 ];
 

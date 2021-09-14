@@ -1,6 +1,9 @@
 import exmFeedMutations from '../resolvers/mutations/exmFeed';
 import exmThankMutations from '../resolvers/mutations/exmThank';
+import exmFeedCommentMutations from '../resolvers/mutations/exmFeedComment';
 
-const mutations = [...exmFeedMutations, ...exmThankMutations];
-
-export default mutations;
+export default [
+  ...exmFeedMutations,
+  ...exmThankMutations,
+  ...exmFeedCommentMutations
+];

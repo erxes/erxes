@@ -1,6 +1,9 @@
 import exmFeedQueries from '../resolvers/queries/exmFeed';
 import exmThankQueries from '../resolvers/queries/exmThank';
+import exmFeedCommentQueries from '../resolvers/queries/exmFeedComment';
 
-const queries = [...exmFeedQueries, ...exmThankQueries];
-
-export default queries;
+export default [
+  ...exmFeedQueries,
+  ...exmThankQueries,
+  ...exmFeedCommentQueries
+];

@@ -4,6 +4,7 @@ export const types = `
     title: String
     description: String
     contentType: String
+    commentCount: Int
     images: JSON
     attachments: JSON
     recipientIds: [String]
@@ -24,6 +25,17 @@ export const types = `
     createdUser: User
   }
 
+  type ExmFeedComment {
+    _id: String
+    feedId: String
+    parentId: String
+    comment: String
+    childCount: Int
+    createdAt: Date
+    updatedAt: Date
+    createdUser: User
+  }
+
   type ExmFeedResponse {
     list: [ExmFeed]
     totalCount: Int
@@ -31,6 +43,11 @@ export const types = `
 
   type ExmThankResponse {
     list: [ExmThank]
+    totalCount: Int
+  }
+
+  type ExmFeedCommentResponse {
+    list: [ExmFeedComment]
     totalCount: Int
   }
 
@@ -53,10 +70,9 @@ export const types = `
 
 export const queries = `
   exmFeedDetail(_id: String!): ExmFeed
-
   exmFeed(contentType: ContentType, type: SourceType, recipientType: ReciepentType, title: String, limit: Int): ExmFeedResponse
-
   exmThanks(limit: Int, type: SourceType): ExmThankResponse
+  exmFeedComments(feedId: String, parentId: String, limit: Int): ExmFeedCommentResponse
 `;
 
 const feedCommonParams = `
@@ -73,6 +89,12 @@ const thankCommonParams = `
   recipientIds: [String]!
 `;
 
+const commentCommonParams = `
+  feedId: String!
+  parentId: String
+  comment: String!
+`;
+
 export const mutations = `
   exmFeedAdd(${feedCommonParams}): ExmFeed
   exmFeedEdit(_id: String, ${feedCommonParams}): ExmFeed
@@ -81,4 +103,8 @@ export const mutations = `
   exmThankAdd(${thankCommonParams}): ExmThank
   exmThankEdit(_id: String, ${thankCommonParams}): ExmThank
   exmThankRemove(_id: String!): JSON
+
+  exmFeedCommentAdd(${commentCommonParams}): ExmFeedComment
+  exmFeedCommentEdit(_id: String, ${commentCommonParams}): ExmFeedComment
+  exmFeedCommentRemove(_id: String!): JSON
 `;

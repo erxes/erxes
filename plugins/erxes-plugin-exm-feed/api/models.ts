@@ -1,4 +1,4 @@
-import { feedSchema, thankSchema } from './definitions';
+import { commentSchema, feedSchema, thankSchema } from './definitions';
 
 class Feed {
   public static async getExmFeed(models, _id: string) {
@@ -54,6 +54,52 @@ class Feed {
 
     if (!exmObj) {
       throw new Error(`Feed not found with id ${_id}`);
+    }
+
+    return exmObj.remove();
+  }
+}
+
+class ExmFeedComment {
+  /*
+   * Create new comment
+   */
+  public static async createComment(models, doc: any, user: any) {
+    const comment = await models.ExmFeedComments.create({
+      createdBy: user._id,
+      createdAt: new Date(),
+      ...doc
+    });
+
+    return comment;
+  }
+
+  /*
+   * Update exm
+   */
+  public static async updateComment(models, _id: string, doc: any, user: any) {
+    await models.ExmFeedComments.updateOne(
+      { _id },
+      {
+        $set: {
+          updatedBy: user._id,
+          updatedAt: new Date(),
+          ...doc
+        }
+      }
+    );
+
+    return models.ExmFeedComments.findOne({ _id });
+  }
+
+  /*
+   * Remove exm
+   */
+  public static async removeComment(models, _id: string) {
+    const exmObj = await models.ExmFeedComments.findOne({ _id });
+
+    if (!exmObj) {
+      throw new Error(`Comment not found with id ${_id}`);
     }
 
     return exmObj.remove();
@@ -121,6 +167,11 @@ export default [
     name: 'ExmFeed',
     schema: feedSchema,
     klass: Feed
+  },
+  {
+    name: 'ExmFeedComments',
+    schema: commentSchema,
+    klass: ExmFeedComment
   },
   {
     name: 'ExmThanks',
