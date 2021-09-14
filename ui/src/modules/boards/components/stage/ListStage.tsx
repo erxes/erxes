@@ -4,7 +4,6 @@ import {
   Footer,
   ListContainer,
   Header,
-  HeaderAmount,
   StageFooter,
   StageTitle,
   ActionButton,
@@ -16,8 +15,7 @@ import ModalTrigger from 'modules/common/components/ModalTrigger';
 import { __ } from 'modules/common/utils';
 import React from 'react';
 import { AddForm } from '../../containers/portable';
-import { IItem, IOptions, IStage } from '../../types';
-import { renderAmount } from '../../utils';
+import { IItem, IOptions } from '../../types';
 import Table from 'modules/common/components/table';
 import ListItemRow from './ListItemRow';
 import routerUtils from 'modules/common/utils/router';
@@ -28,7 +26,6 @@ import { OverlayTrigger, Popover } from 'react-bootstrap';
 
 type Props = {
   index: number;
-  stage: IStage;
   length: number;
   items: IItem[];
   options: IOptions;
@@ -39,6 +36,8 @@ type Props = {
   archiveItems: () => void;
   archiveList: () => void;
   removeStage: (stageId: string) => void;
+  groupObj: any;
+  groupType: string;
 } & IRouterProps;
 
 type State = {
@@ -64,7 +63,7 @@ class ListStage extends React.Component<Props, State> {
   };
 
   renderPopover() {
-    const { stage } = this.props;
+    const { groupObj } = this.props;
 
     const archiveList = () => {
       this.props.archiveList();
@@ -77,7 +76,7 @@ class ListStage extends React.Component<Props, State> {
     };
 
     const removeStage = () => {
-      this.props.removeStage(stage._id);
+      this.props.removeStage(groupObj._id);
       this.onClosePopover();
     };
 
@@ -101,26 +100,29 @@ class ListStage extends React.Component<Props, State> {
   }
 
   renderCtrl() {
-    return (
-      <OverlayTrigger
-        ref={overlayTrigger => {
-          this.overlayTrigger = overlayTrigger;
-        }}
-        trigger="click"
-        placement="bottom-start"
-        rootClose={true}
-        container={this}
-        overlay={this.renderPopover()}
-      >
-        <ActionButton>
-          <Icon icon="ellipsis-h" />
-        </ActionButton>
-      </OverlayTrigger>
-    );
+    if (this.props.groupType === 'stage') {
+      return (
+        <OverlayTrigger
+          ref={overlayTrigger => {
+            this.overlayTrigger = overlayTrigger;
+          }}
+          trigger="click"
+          placement="bottom-start"
+          rootClose={true}
+          container={this}
+          overlay={this.renderPopover()}
+        >
+          <ActionButton>
+            <Icon icon="ellipsis-h" />
+          </ActionButton>
+        </OverlayTrigger>
+      );
+    }
+    return null;
   }
 
   renderAddItemTrigger() {
-    const { options, stage, onAddItem } = this.props;
+    const { options, groupObj, onAddItem } = this.props;
     const addText = options.texts.addText;
 
     const trigger = (
@@ -135,8 +137,8 @@ class ListStage extends React.Component<Props, State> {
     const formProps = {
       options,
       showSelect: false,
-      callback: (item: IItem) => onAddItem(stage._id, item),
-      stageId: stage._id,
+      callback: (item: IItem) => onAddItem(groupObj._id, item),
+      stageId: groupObj._id,
       aboveItemId: ''
     };
 
@@ -166,13 +168,13 @@ class ListStage extends React.Component<Props, State> {
   };
 
   render() {
-    const { stage, items, options } = this.props;
+    const { groupObj, items, options, groupType } = this.props;
 
     if (!items) {
       return <EmptyState icon="columns-1" text="No stage" size="small" />;
     }
 
-    if (!stage) {
+    if (!groupObj) {
       return <EmptyState icon="columns-1" text="No stage" size="small" />;
     }
 
@@ -181,19 +183,18 @@ class ListStage extends React.Component<Props, State> {
         <Header>
           <StageTitle>
             <div>
-              {stage.name}
-              <span>{stage.itemsTotalCount}</span>
+              {groupObj.name}
+              <span>{groupObj.itemsTotalCount}</span>
             </div>
             {this.renderCtrl()}
           </StageTitle>
-          <HeaderAmount>{renderAmount(stage.amount)}</HeaderAmount>
         </Header>
         <ListBody onScroll={this.onScroll}>
           <Table whiteSpace="nowrap" hover={true} bordered={true}>
             <thead>
               <tr>
                 <th>{__('Card Title')}</th>
-                <th>{__('Label')}</th>
+                <th>{groupType === 'stage' ? __('Label') : __('Stage')}</th>
                 <th>{__('Priority')}</th>
                 <th>{__('Due Date')}</th>
                 <th>{__('Assignee')}</th>
@@ -205,7 +206,6 @@ class ListStage extends React.Component<Props, State> {
               {items.map((item: any) => (
                 <Item
                   key={item._id}
-                  stageId={stage._id}
                   item={item}
                   onClick={() => this.onClick(item)}
                   beforePopupClose={this.beforePopupClose}

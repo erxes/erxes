@@ -61,7 +61,7 @@ const TaskMainActionBar = (props: Props) => {
       <ButtonGroup>
         <Dropdown>
           <Dropdown.Toggle as={DropdownToggle} id="dropdown-taskaction">
-            <Button>
+            <Button btnStyle="simple">
               {viewType.charAt(0).toUpperCase() + viewType.slice(1)}
               <Icon icon="angle-down" />
             </Button>
@@ -123,6 +123,23 @@ const TaskMainActionBar = (props: Props) => {
 
   const renderGroupBy = () => {
     if (viewType === 'list') {
+      const onFilterType = (type: string) => {
+        const { currentBoard, currentPipeline } = props;
+
+        if (currentBoard && currentPipeline) {
+          return `/task/list?id=${currentBoard._id}&pipelineId=${currentPipeline._id}&groupBy=${type}`;
+        }
+
+        return `/task/${type}`;
+      };
+
+      const labelLink = onFilterType('label');
+      const stageLink = onFilterType('stage');
+      const priorityLink = onFilterType('priority');
+      const assignLink = onFilterType('assignee');
+
+      const typeName = queryParams.groupBy;
+
       return (
         <GroupByContent>
           <Icon icon="list-2" />
@@ -130,49 +147,27 @@ const TaskMainActionBar = (props: Props) => {
           <Dropdown>
             <Dropdown.Toggle as={DropdownToggle} id="dropdown-groupby">
               <Button btnStyle="primary" size="small">
-                {__('Stages')} <Icon icon="angle-down" />
+                {typeName
+                  ? typeName.charAt(0).toUpperCase() + typeName.slice(1)
+                  : __('Stage')}
+                <Icon icon="angle-down" />
               </Button>
             </Dropdown.Toggle>
             <Dropdown.Menu>
               <li>
-                <a
-                  href="#export"
-                  // onClick={exportData.bind(this, bulk)}
-                >
-                  {__('Stages')}
-                </a>
+                <Link to={stageLink}>{__('Stage')}</Link>
               </li>
               <li>
-                <a
-                  href="#export"
-                  // onClick={exportData.bind(this, bulk)}
-                >
-                  {__('Labels')}
-                </a>
+                <Link to={labelLink}>{__('Label')}</Link>
               </li>
               <li>
-                <a
-                  href="#verifyEmail"
-                  // onClick={this.verifyCustomers.bind(this, 'email')}
-                >
-                  {__('Priority')}
-                </a>
+                <Link to={priorityLink}>{__('Priority')}</Link>
               </li>
               <li>
-                <a
-                  href="#verifyPhone"
-                  // onClick={this.verifyCustomers.bind(this, 'phone')}
-                >
-                  {__('Assignee')}
-                </a>
+                <Link to={assignLink}>{__('Assignee')}</Link>
               </li>
               <li>
-                <a
-                  href="#verifyPhone"
-                  // onClick={this.verifyCustomers.bind(this, 'phone')}
-                >
-                  {__('Due Date')}
-                </a>
+                <Link to={labelLink}>{__('Due Date')}</Link>
               </li>
             </Dropdown.Menu>
           </Dropdown>

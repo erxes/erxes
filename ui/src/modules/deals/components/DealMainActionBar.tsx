@@ -12,6 +12,7 @@ import options from '../options';
 import Dropdown from 'react-bootstrap/Dropdown';
 import DropdownToggle from 'modules/common/components/DropdownToggle';
 import Button from 'modules/common/components/Button';
+import { GroupByContent } from 'modules/boards/styles/common';
 
 type Props = {
   onSearch: (search: string) => void;
@@ -131,6 +132,62 @@ const DealMainActionBar = (props: Props) => {
     );
   };
 
+  const renderGroupBy = () => {
+    if (viewType === 'list') {
+      const onFilterType = (type: string) => {
+        const { currentBoard, currentPipeline } = props;
+
+        if (currentBoard && currentPipeline) {
+          return `/deal/list?id=${currentBoard._id}&pipelineId=${currentPipeline._id}&groupBy=${type}`;
+        }
+
+        return `/deal/${type}`;
+      };
+
+      const labelLink = onFilterType('label');
+      const stageLink = onFilterType('stage');
+      const priorityLink = onFilterType('priority');
+      const assignLink = onFilterType('assignee');
+
+      const typeName = queryParams.groupBy;
+
+      return (
+        <GroupByContent>
+          <Icon icon="list-2" />
+          <span>{__('Group by:')}</span>
+          <Dropdown>
+            <Dropdown.Toggle as={DropdownToggle} id="dropdown-groupby">
+              <Button btnStyle="primary" size="small">
+                {typeName
+                  ? typeName.charAt(0).toUpperCase() + typeName.slice(1)
+                  : __('Stage')}
+                <Icon icon="angle-down" />
+              </Button>
+            </Dropdown.Toggle>
+            <Dropdown.Menu>
+              <li>
+                <Link to={stageLink}>{__('Stage')}</Link>
+              </li>
+              <li>
+                <Link to={labelLink}>{__('Label')}</Link>
+              </li>
+              <li>
+                <Link to={priorityLink}>{__('Priority')}</Link>
+              </li>
+              <li>
+                <Link to={assignLink}>{__('Assignee')}</Link>
+              </li>
+              <li>
+                <Link to={labelLink}>{__('Due Date')}</Link>
+              </li>
+            </Dropdown.Menu>
+          </Dropdown>
+        </GroupByContent>
+      );
+    }
+    return null;
+  };
+
   const extraFilter = (
     <>
       <SelectProducts
@@ -158,6 +215,7 @@ const DealMainActionBar = (props: Props) => {
     ...props,
     options,
     extraFilter,
+    groupContent: renderGroupBy,
     link: `/deal/${viewType}`,
     rightContent: viewChooser
   };

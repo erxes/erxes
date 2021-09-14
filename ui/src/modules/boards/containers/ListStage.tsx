@@ -10,14 +10,14 @@ import { mutations } from '../graphql';
 import {
   IFilterParams,
   IOptions,
-  IStage,
   ItemsQueryResponse,
   RemoveStageMutation,
   SaveItemMutation
 } from '../types';
 
 type StageProps = {
-  stage: IStage;
+  groupObj: any;
+  groupType: string;
   index: number;
   queryParams: IFilterParams;
   options: IOptions;
@@ -55,11 +55,11 @@ class StageContainer extends React.PureComponent<FinalStageProps, State> {
   }
 
   loadMore = () => {
-    const { stage, queryParams, options } = this.props;
+    const { groupObj, groupType, queryParams, options } = this.props;
 
     const items = this.state.items;
 
-    if (items.length === stage.itemsTotalCount) {
+    if (items.length === groupObj.itemsTotalCount) {
       return;
     }
 
@@ -67,10 +67,12 @@ class StageContainer extends React.PureComponent<FinalStageProps, State> {
       .query({
         query: gql(options.queries.itemsQuery),
         variables: {
-          stageId: stage._id,
-          pipelineId: stage.pipelineId,
-          skip: items.length,
-          ...getFilterParams(queryParams, options.getExtraParams)
+          ...getFilterParams(
+            groupObj,
+            groupType,
+            queryParams,
+            options.getExtraParams
+          )
         },
         fetchPolicy: 'network-only'
       })
@@ -85,14 +87,14 @@ class StageContainer extends React.PureComponent<FinalStageProps, State> {
   };
 
   archiveList = () => {
-    const { stage, refetchStages, options } = this.props;
+    const { groupObj, refetchStages, options } = this.props;
 
     confirm(__('Archive this list?')).then(() => {
       client
         .mutate({
           mutation: gql(mutations.stagesEdit),
           variables: {
-            _id: stage._id,
+            _id: groupObj._id,
             type: options.type,
             status: 'archived'
           }
@@ -100,7 +102,7 @@ class StageContainer extends React.PureComponent<FinalStageProps, State> {
         .then(() => {
           Alert.success('Archive List has been archived.');
 
-          refetchStages({ pipelineId: stage.pipelineId });
+          refetchStages({ pipelineId: groupObj.pipelineId });
         })
         .catch((e: Error) => {
           Alert.error(e.message);
@@ -109,9 +111,9 @@ class StageContainer extends React.PureComponent<FinalStageProps, State> {
   };
 
   archiveItems = () => {
-    const { options, stage } = this.props;
+    const { options, groupObj } = this.props;
 
-    const stageId = stage._id;
+    const stageId = groupObj._id;
 
     confirm(__('Archive All Cards in This List?')).then(() => {
       const proccessId = Math.random().toString();
@@ -138,7 +140,7 @@ class StageContainer extends React.PureComponent<FinalStageProps, State> {
   };
 
   removeStage = (id: string) => {
-    const { removeStageMutation, refetchStages, stage } = this.props;
+    const { removeStageMutation, refetchStages, groupObj } = this.props;
 
     const message =
       'This will permanently delete any items related to this stage. Are you absolutely sure?';
@@ -148,7 +150,7 @@ class StageContainer extends React.PureComponent<FinalStageProps, State> {
         removeStageMutation({ variables: { _id: id } }).then(() => {
           Alert.success('You have successfully removed a stage');
 
-          refetchStages({ pipelineId: stage.pipelineId });
+          refetchStages({ pipelineId: groupObj.pipelineId });
         });
       })
       .catch(e => {
@@ -157,7 +159,14 @@ class StageContainer extends React.PureComponent<FinalStageProps, State> {
   };
 
   render() {
-    const { index, length, stage, itemsQuery, options } = this.props;
+    const {
+      index,
+      length,
+      groupObj,
+      groupType,
+      itemsQuery,
+      options
+    } = this.props;
 
     const refetch = () => {
       if (itemsQuery) {
@@ -172,7 +181,8 @@ class StageContainer extends React.PureComponent<FinalStageProps, State> {
     return (
       <ListStage
         options={options}
-        stage={stage}
+        groupObj={groupObj}
+        groupType={groupType}
         index={index}
         length={length}
         items={this.state.items}
@@ -189,6 +199,8 @@ class StageContainer extends React.PureComponent<FinalStageProps, State> {
 }
 
 const getFilterParams = (
+  groupObj: any,
+  groupType: string,
   queryParams: IFilterParams,
   getExtraParams: (queryParams) => any
 ) => {
@@ -196,7 +208,7 @@ const getFilterParams = (
     return {};
   }
 
-  return {
+  const selectType = {
     search: queryParams.search,
     customerIds: queryParams.customerIds,
     companyIds: queryParams.companyIds,
@@ -208,8 +220,19 @@ const getFilterParams = (
     assignedToMe: queryParams.assignedToMe,
     startDate: queryParams.startDate,
     endDate: queryParams.endDate,
+    pipelineId: queryParams.pipelineId,
     ...getExtraParams(queryParams)
   };
+
+  if (groupType === 'label') {
+    selectType.labelIds = [groupObj._id];
+  } else if (groupType === 'assignee') {
+    selectType.assignedUserIds = [groupObj._id];
+  } else if (groupType === 'stage') {
+    selectType.stageId = groupObj._id;
+  }
+
+  return selectType;
 };
 
 const withQuery = ({ options }) => {
@@ -217,11 +240,14 @@ const withQuery = ({ options }) => {
     compose(
       graphql<StageProps>(gql(options.queries.itemsQuery), {
         name: 'itemsQuery',
-        options: ({ stage, queryParams }) => ({
+        options: ({ groupObj, groupType, queryParams }) => ({
           variables: {
-            stageId: stage._id,
-            pipelineId: stage.pipelineId,
-            ...getFilterParams(queryParams, options.getExtraParams)
+            ...getFilterParams(
+              groupObj,
+              groupType,
+              queryParams,
+              options.getExtraParams
+            )
           }
         })
       }),

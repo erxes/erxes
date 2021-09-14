@@ -51,6 +51,10 @@ class ListItemRow extends React.PureComponent<Props> {
     const { item, onClick } = this.props;
     const { customers, companies, closeDate, isComplete, priority } = item;
 
+    // const query = new URLSearchParams(location.search);
+
+    // const groupType = query.get('groupBy');
+
     return (
       <>
         <tr onClick={onClick} key={item._id}>

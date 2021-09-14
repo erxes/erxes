@@ -322,6 +322,7 @@ export interface IFilterParams extends ISavedConformity {
   assignedToMe?: string;
   startDate?: string;
   endDate?: string;
+  pipelineId?: string;
 }
 
 export interface INonFilterParams {

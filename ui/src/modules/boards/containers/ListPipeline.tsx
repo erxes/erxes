@@ -1,23 +1,14 @@
 import * as compose from 'lodash.flowright';
 
 import React, { Component } from 'react';
-import {
-  IOptions,
-  IPipeline,
-  StagesQueryResponse,
-  IItemMap,
-  IStageMap
-} from '../types';
+import { IOptions, IPipeline, StagesQueryResponse } from '../types';
 import gql from 'graphql-tag';
 import EmptyState from 'modules/common/components/EmptyState';
-import { IRouterProps } from 'modules/common/types';
 import { withProps } from 'modules/common/utils';
 import { graphql } from 'react-apollo';
-import { withRouter } from 'react-router-dom';
 import { queries } from '../graphql';
 import styled from 'styled-components';
 import ListStage from './ListStage';
-import Spinner from 'modules/common/components/Spinner';
 
 const Container = styled.div`
   min-height: 480px;
@@ -29,12 +20,14 @@ type Props = {
   pipeline: IPipeline;
   queryParams: any;
   options: IOptions;
-  stageMap?: IStageMap;
-  initialItemMap?: IItemMap;
 };
 
-class WithStages extends Component<WithStagesQueryProps> {
-  componentWillReceiveProps(nextProps: Props) {
+type WithStagesProps = {
+  stagesQuery: any;
+  pipelineLabelsQuery: any;
+} & Props;
+class WithStages extends Component<WithStagesProps> {
+  componentWillReceiveProps(nextProps: WithStagesProps) {
     const { stagesQuery, queryParams } = this.props;
     const { pipelineId } = queryParams;
 
@@ -60,11 +53,25 @@ class WithStages extends Component<WithStagesQueryProps> {
   }
 
   render() {
-    const { options, queryParams, stagesQuery } = this.props;
+    const {
+      options,
+      queryParams,
+      stagesQuery,
+      pipelineLabelsQuery
+    } = this.props;
 
-    const stages = stagesQuery.stages || [];
+    let groupType = 'stage';
+    let groups: any[] = [];
 
-    if (stages.length === 0) {
+    if (queryParams.groupBy === 'label') {
+      groups = pipelineLabelsQuery.pipelineLabels || [];
+      groupType = 'label';
+    } else if (queryParams.groupBy === 'stage') {
+      groups = stagesQuery.stages || [];
+      groupType = 'stage';
+    }
+
+    if (groups.length === 0) {
       return (
         <EmptyState
           image="/images/actions/8.svg"
@@ -77,52 +84,22 @@ class WithStages extends Component<WithStagesQueryProps> {
 
     return (
       <Container>
-        {stages.map((stage, index) => {
-          if (!stage) {
-            return null;
-          }
-
-          return (
-            <ListStage
-              key={stage._id}
-              options={options}
-              stage={stage}
-              index={index}
-              length={stages.length}
-              queryParams={queryParams}
-              refetchStages={stagesQuery.refetch}
-            />
-          );
-        })}
+        {groups.map((groupObj, index) => (
+          <ListStage
+            key={groupObj._id}
+            options={options}
+            groupObj={groupObj}
+            groupType={groupType}
+            index={index}
+            length={groups.length}
+            queryParams={queryParams}
+            refetchStages={stagesQuery.refetch}
+          />
+        ))}
       </Container>
     );
   }
 }
-
-type WithStagesQueryProps = {
-  stagesQuery: StagesQueryResponse;
-} & IRouterProps &
-  Props;
-
-const WithStagesQuery = (props: WithStagesQueryProps) => {
-  const { stagesQuery } = props;
-
-  if (stagesQuery.loading) {
-    return <Spinner />;
-  }
-
-  const stages = stagesQuery.stages || [];
-
-  const itemMap: IItemMap = {};
-  const stageMap: IStageMap = {};
-
-  for (const stage of stages) {
-    itemMap[stage._id] = [];
-    stageMap[stage._id] = stage;
-  }
-
-  return <WithStages {...props} stageMap={stageMap} initialItemMap={itemMap} />;
-};
 
 export default withProps<Props>(
   compose(
@@ -142,6 +119,14 @@ export default withProps<Props>(
           assignedToMe: queryParams.assignedToMe
         }
       })
+    }),
+    graphql<Props, StagesQueryResponse>(gql(queries.pipelineLabels), {
+      name: 'pipelineLabelsQuery',
+      options: ({ pipeline }) => ({
+        variables: {
+          pipelineId: pipeline._id
+        }
+      })
     })
-  )(withRouter(WithStagesQuery))
+  )(WithStages)
 );
