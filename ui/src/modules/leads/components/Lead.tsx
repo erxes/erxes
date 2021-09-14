@@ -134,7 +134,7 @@ class Lead extends React.Component<Props, State> {
       theme: leadData.themeColor || '#6569DF',
       isRequireOnce: leadData.isRequireOnce,
       logo: callout.featuredImage,
-      imgWidth: callout.imgWidth || '100%',
+      imgWidth: callout.imgWidth || "100%",
       isSkip: callout.skip && true,
       carousel: callout.skip ? 'form' : 'callout',
 
