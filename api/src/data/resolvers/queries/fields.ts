@@ -177,9 +177,15 @@ const fieldsGroupQueries = {
     _root,
     {
       contentType,
+      isDefinedByErxes,
       boardId,
       pipelineId
-    }: { contentType: string; boardId: string; pipelineId: string },
+    }: {
+      contentType: string;
+      isDefinedByErxes: boolean;
+      boardId: string;
+      pipelineId: string;
+    },
     { commonQuerySelector }: IContext
   ) {
     let query: any = commonQuerySelector;
@@ -217,6 +223,10 @@ const fieldsGroupQueries = {
           }
         ]
       };
+    }
+
+    if (isDefinedByErxes !== undefined) {
+      query.isDefinedByErxes = isDefinedByErxes;
     }
 
     const groups = await FieldsGroups.find(query);
