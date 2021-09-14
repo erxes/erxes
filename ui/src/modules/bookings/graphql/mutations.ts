@@ -3,7 +3,6 @@ const bookingMutationParamsDef = `
   $image: AttachmentInput
   $description: String
   $productCategoryId: String,
-  
 
   $title: String,
   $brandId: String,
@@ -12,6 +11,8 @@ const bookingMutationParamsDef = `
   $productStatus: String,
   $formId: String,
   $buttonText: String
+
+  $styles: BookingStylesInput
 `;
 
 const bookingMutationParamsVal = `
@@ -27,6 +28,8 @@ const bookingMutationParamsVal = `
   productStatus: $productStatus,
   formId: $formId,
   buttonText: $buttonText
+
+  styles: $styles
 `;
 
 const bookingsAdd = `

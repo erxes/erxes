@@ -1,7 +1,6 @@
 const bookingFields = `
   _id
   name
-
   image {
     name
     url
@@ -10,9 +9,7 @@ const bookingFields = `
   }
 
   description
-
   createdDate
-
   brand {
     _id
     name
@@ -35,6 +32,19 @@ const bookingFields = `
   productStatus
   formId
   buttonText
+
+  styles {
+    itemShape
+    widgetColor
+
+    productAvailable
+    productUnavailable
+    productSelected
+
+    textAvailable
+    textUnavailable
+    textSelected
+  }
 `;
 
 const queryParamsDef = `

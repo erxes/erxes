@@ -2,6 +2,18 @@ import { IUser } from 'modules/auth/types';
 import { IAttachment, QueryResponse } from 'modules/common/types';
 import { IBrand } from 'modules/settings/brands/types';
 
+export interface IStyle {
+  itemShape?: string;
+  widgetColor?: string;
+  productAvailable?: string;
+  productUnavailable?: string;
+  productSelected?: string;
+
+  textAvailable?: string;
+  textUnavailable?: string;
+  textSelected?: string;
+}
+
 export interface IBooking {
   // content
   name?: string;
@@ -25,6 +37,9 @@ export interface IBooking {
 
   brand?: IBrand;
   createdUser?: IUser;
+
+  // style
+  styles?: IStyle;
 }
 
 export interface IBookingDocument extends IBooking {

@@ -7,7 +7,8 @@ import Booking from '../components/Booking';
 import {
   BookingDetailQueryResponse,
   EditBookingMutationResponse,
-  IBooking
+  IBooking,
+  IStyle
 } from '../types';
 import { Alert } from 'modules/common/utils';
 import { withRouter } from 'react-router';
@@ -35,13 +36,16 @@ function EditBookingContainer(props: FinalProps) {
 
   const bookingDetail = bookingDetailQuery.bookingDetail || [];
 
-  const save = (doc: IBooking) => {
+  const save = (doc: IBooking, styles: IStyle) => {
     setLoading(true);
 
     editBookingMutation({
       variables: {
         _id: bookingDetail._id,
-        ...doc
+        ...doc,
+        styles: {
+          ...styles
+        }
       }
     })
       .then(() => {

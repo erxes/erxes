@@ -1,5 +1,5 @@
 export const types = `
-  input StylesInput {
+  input BookingStylesInput {
     itemShape: String,
     widgetColor: String,
     productAvailable: String,
@@ -11,9 +11,10 @@ export const types = `
     textSelected: String
   }
 
-  type StylesType {
+  type BookingStylesType {
     itemShape: String,
     widgetColor: String,
+
     productAvailable: String,
     productUnavailable: String,
     productSelected: String,
@@ -32,7 +33,7 @@ export const types = `
     userFilters: [String],
     productCategoryId: String,
 
-    styles: StylesType,
+    styles: BookingStylesType,
 
     title: String,
     brandId: String,
@@ -67,7 +68,7 @@ const bookingMutationParams = `
   userFilters: [String],
   productCategoryId: String
 
-  styles: StylesInput
+  styles: BookingStylesInput
 
   title: String,
   brandId: String,

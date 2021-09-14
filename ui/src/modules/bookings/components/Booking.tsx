@@ -10,22 +10,23 @@ import { Content, LeftContent } from 'modules/settings/integrations/styles';
 import Wrapper from 'modules/layout/components/Wrapper';
 import { Alert, __ } from 'modules/common/utils';
 import React, { useState } from 'react';
-import { IBookingDocument, IBooking } from '../types';
+import { IBookingDocument, IBooking, IStyle } from '../types';
 import { Steps, Step } from 'modules/common/components/step';
 import {
-  // ChooseStyle,
+  ChooseStyle,
   ChooseContent,
   ChooseSettings,
   FullPreview
 } from './steps';
 import { PreviewWrapper } from './steps/style';
+import { colors } from 'modules/common/styles';
 
 type Props = {
   bookingDetail?: IBookingDocument;
   queryParams?: any;
   history: any;
   bookingId?: any;
-  save: (doc: IBooking) => void;
+  save: (doc: IBooking, styles: IStyle) => void;
   isActionLoading?: boolean;
 };
 
@@ -51,6 +52,21 @@ function Booking({ save, isActionLoading, bookingDetail }: Props) {
     buttonText: booking.buttonText || ''
   });
 
+  const bookingStyles = booking.styles || ({} as IStyle);
+
+  const [styles, setStyles] = useState({
+    itemShape: bookingStyles.itemShape || '',
+    widgetColor: bookingStyles.widgetColor || colors.colorPrimary,
+
+    productAvailable: bookingStyles.productAvailable || colors.colorPrimary,
+    productUnavailable: bookingStyles.productUnavailable || colors.colorPrimary,
+    productSelected: bookingStyles.productSelected || colors.colorPrimary,
+
+    textAvailable: bookingStyles.textAvailable || colors.colorPrimary,
+    textUnavailable: bookingStyles.textUnavailable || colors.colorPrimary,
+    textSelected: bookingStyles.textSelected || colors.colorPrimary
+  });
+
   const breadcrumb = [{ title: __('Bookings'), link: '/bookings' }];
 
   const handleSubmit = () => {
@@ -70,12 +86,19 @@ function Booking({ save, isActionLoading, bookingDetail }: Props) {
       return Alert.error('Enter a title');
     }
 
-    save(state);
+    save(state, styles);
   };
 
   const onChange = (key: string, value: any) => {
     setState({
       ...state,
+      [key]: value
+    });
+  };
+
+  const onChangeStyle = (key: string, value: any) => {
+    setStyles({
+      ...styles,
       [key]: value
     });
   };
@@ -111,13 +134,23 @@ function Booking({ save, isActionLoading, bookingDetail }: Props) {
       <Content>
         <LeftContent>
           <Steps>
-            {/* <Step
+            <Step
               img="/images/icons/erxes-04.svg"
               title="Style"
               // onClick={this.onStepClick.bind(null, 'appearance')}
             >
-              <ChooseStyle />
-            </Step> */}
+              <ChooseStyle
+                onChangeStyle={onChangeStyle}
+                itemShape={styles.itemShape}
+                widgetColor={styles.widgetColor}
+                productAvailable={styles.productAvailable}
+                productUnavailable={styles.productUnavailable}
+                productSelected={styles.productSelected}
+                textAvailable={styles.textAvailable}
+                textUnavailable={styles.textUnavailable}
+                textSelected={styles.textSelected}
+              />
+            </Step>
 
             <Step
               img="/images/icons/erxes-09.svg"
