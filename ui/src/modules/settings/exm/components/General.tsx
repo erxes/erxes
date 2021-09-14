@@ -1,63 +1,140 @@
-import { FormControl } from 'modules/common/components/form';
 import React, { useState } from 'react';
+import Select from 'react-select-plus';
 
-export default function General() {
-    const getEmptyFeature = () => ({ _id: Math.random().toString(), contentType: 'form', name: 'Name' });
-    
-    const [features, setFeatures] = useState([getEmptyFeature()])
+import { FormControl } from 'modules/common/components/form';
+import { __ } from 'modules/common/utils';
+import { FeatureRow, FeatureRowItem } from '../styles';
 
-    const onChangeFeature = (type: String, _id?: string) => {
-        if (type === 'add') {
-            features.push(getEmptyFeature())
+type Props = {
+  forms: any[];
+  kbTopics: any[];
+};
 
-            console.log('features: ', features);
-            
-            setFeatures(features);
-        } else {
-            const modifiedFeatures = features.filter(f => f._id !== _id);
+export default function General(props: Props) {
+  const getEmptyFeature = () => ({
+    _id: Math.random().toString(),
+    icon: '',
+    contentType: 'form',
+    name: '',
+    description: '',
+    contentId: ''
+  });
 
-            setFeatures(modifiedFeatures)
-        } 
+  const [features, setFeatures] = useState([getEmptyFeature()]);
+
+  const onChangeFeature = (type: String, _id?: string) => {
+    if (type === 'add') {
+      setFeatures([...features, getEmptyFeature()]);
+    } else {
+      const modifiedFeatures = features.filter(f => f._id !== _id);
+
+      setFeatures(modifiedFeatures);
+    }
+  };
+
+  const onChangeFeatureItem = (_id: string, name: string, value: any) => {
+    const feature = features.find(f => f._id === _id);
+
+    if (feature) {
+      feature[name] = value;
+
+      setFeatures([...features]);
+    }
+  };
+
+  const getContentValues = (contentType: string) => {
+    if (contentType === 'form') {
+      return props.forms.map(f => ({ value: f._id, label: f.name }));
     }
 
-    const onChangeFeatureItem = (_id: string, name: string, value: any) => {
-        const feature = features.find(f => f._id === _id);
-        
-        if (feature) {
-            feature[name] = value;
+    return props.kbTopics.map(c => ({ value: c._id, label: c.title }));
+  };
 
-            setFeatures(features);
-        }
-    }
+  return (
+    <>
+      {features.map(feature => (
+        <FeatureRow key={feature._id}>
+          <FeatureRowItem>
+            <FormControl
+              componentClass="select"
+              value={feature.contentType}
+              options={[
+                {
+                  value: 'form',
+                  label: 'Forms'
+                },
+                {
+                  value: 'knowledgeBase',
+                  label: 'Knowledge base'
+                }
+              ]}
+              onChange={(e: any) =>
+                onChangeFeatureItem(feature._id, 'contentType', e.target.value)
+              }
+            />
+          </FeatureRowItem>
+          <FeatureRowItem>
+            <FormControl
+              componentClass="select"
+              value={feature.icon}
+              options={[
+                {
+                  value: 'linkedin',
+                  label: 'linkedin'
+                },
+                {
+                  value: 'alarm-2',
+                  label: 'Alarm 2'
+                }
+              ]}
+              onChange={(e: any) =>
+                onChangeFeatureItem(feature._id, 'icon', e.target.value)
+              }
+            />
+          </FeatureRowItem>
+          <FeatureRowItem>
+            <FormControl
+              name="name"
+              placeholder="Name"
+              value={feature.name}
+              onChange={(e: any) =>
+                onChangeFeatureItem(feature._id, 'name', e.target.value)
+              }
+            />
+          </FeatureRowItem>
+          <FeatureRowItem>
+            <FormControl
+              name="description"
+              placeholder="Description"
+              value={feature.description}
+              onChange={(e: any) =>
+                onChangeFeatureItem(feature._id, 'description', e.target.value)
+              }
+            />
+          </FeatureRowItem>
+          <FeatureRowItem>
+            <Select
+              placeholder={__('Choose a content')}
+              value={feature.contentId}
+              options={getContentValues(feature.contentType)}
+              onChange={item =>
+                onChangeFeatureItem(feature._id, 'contentId', item.value)
+              }
+              clearable={false}
+            />
+          </FeatureRowItem>
 
-    const onChange = (e, _id: string) => {
-        onChangeFeatureItem(_id, 'name', e.target.value);
-    }
-
-    return (
-        <>{features.map(feature => <div style={{ display: "flex", padding: "5px 10px" }} key={feature._id}>
-                <div style={{ padding: "0 10px" }}>
-                    <FormControl
-                        componentClass="select"
-                        value={feature.contentType}
-                        options={[
-                            {
-                                value: 'form',
-                                label: 'Forms'
-                            },
-                            {
-                                value: 'knowledge',
-                                label: 'Knowledge'
-                            }
-                        ]}
-                        onChange={e => onChange(e, feature._id)}
-                    />
-                </div>
-                <div style={{ padding: "0 10px" }}>
-                    <FormControl name={`name${feature._id}`} placeholder="Name" value={feature.name} onChange={e => onChange(e, feature._id)} />
-                </div>
-            </div>)}
-            <button onClick={() => onChangeFeature('add')}>Add feature</button>
-        </>
-    )
+          <button onClick={() => onChangeFeature('remove', feature._id)}>
+            X
+          </button>
+        </FeatureRow>
+      ))}
+      <button
+        style={{ float: 'right', margin: 20 }}
+        onClick={() => onChangeFeature('add')}
+      >
+        Add feature
+      </button>
+    </>
+  );
 }
