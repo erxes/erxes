@@ -7,7 +7,7 @@ import {
 } from 'modules/common/components/filterableList/styles';
 import Icon from 'modules/common/components/Icon';
 import Tip from 'modules/common/components/Tip';
-import FormControl from 'modules/common/components/form/Control';
+import FormControl from "modules/common/components/form/Control";
 import { __ } from 'modules/common/utils';
 import { ResponseTemplateStyled as EmailTemplateStyled } from 'modules/inbox/styles';
 import React from 'react';
@@ -16,7 +16,7 @@ import Popover from 'react-bootstrap/Popover';
 import { CenterContent } from 'modules/common/styles/main';
 import { Link } from 'react-router-dom';
 import { PopoverLinkWrapper } from '../styles';
-import { SearchInput } from '../../store/styles'
+import { SearchInput } from "../../store/styles";
 
 type Props = {
   fetchMoreEmailTemplates: (page: number) => void;
@@ -42,8 +42,8 @@ class EmailTemplate extends React.Component<Props, State> {
     };
   }
 
-  onSearch = (e) =>{
-    const searchValue = e.target.value.toLowerCase() 
+  onSearch = (e) => {
+    const searchValue = e.target.value.toLowerCase();
     this.setState({ searchValue });
   }
 
@@ -68,7 +68,7 @@ class EmailTemplate extends React.Component<Props, State> {
   };
 
   filterByValue(array, value) {
-    return array.filter(o => o.label.toLowerCase().includes(value.toLowerCase()));
+    return array.filter( (o) => o.label.toLowerCase().includes(value.toLowerCase()));
   }
 
   renderContent() {
@@ -81,7 +81,7 @@ class EmailTemplate extends React.Component<Props, State> {
       return <EmptyState icon="clipboard-1" text="No templates" />;
     }
 
-    return filteredTargets.map(item => {
+    return filteredTargets.map((item) => {
       const onClick = () => this.handleClick(item.value);
 
       return (
@@ -123,7 +123,7 @@ class EmailTemplate extends React.Component<Props, State> {
               <Icon icon="search-1" />
               <FormControl
                 type="text"
-                placeholder={__('Type to search')}
+                placeholder={__("Type to search")}
                 onChange={this.onSearch}
               />
             </SearchInput>
