@@ -1,9 +1,10 @@
 import Label from 'modules/common/components/Label';
 import WithPermission from 'modules/common/components/WithPermission';
-import { __, getEnv, setBadge } from 'modules/common/utils';
+import { __, getEnv, setBadge, readFile } from 'modules/common/utils';
 import { pluginsOfNavigations } from 'pluginUtils';
 import React from 'react';
 import { NavLink } from 'react-router-dom';
+import { pluginsOfRoutes } from 'pluginUtils';
 import {
   LeftNavigation,
   NavIcon,
@@ -35,13 +36,38 @@ type IProps = {
   onCollapseNavigation: () => void;
 };
 
-class Navigation extends React.Component<IProps> {
+class Navigation extends React.Component<IProps, any> {
+  constructor(props) {
+    super(props);
+
+    this.state = { isReady: false, pluginsData: [] };
+  }
+  componentDidMount() {
+    const { preAuths } = pluginsOfRoutes();
+
+    const promises: any[] = [];
+
+    if (preAuths.length === 0) {
+      this.setState({ isReady: true });
+    }
+
+    const { REACT_APP_API_URL } = getEnv();
+
+    for (const preAuth of preAuths) {
+      promises.push(preAuth({ API_URL: REACT_APP_API_URL }));
+    }
+
+    Promise.all(promises).then(response => {
+      this.setState({ isReady: true, pluginsData: response });
+    });
+  }
   componentWillReceiveProps(nextProps) {
     const unreadCount = nextProps.unreadConversationsCount;
-
-    if (unreadCount !== this.props.unreadConversationsCount) {
-      setBadge(unreadCount, __('Team Inbox').toString());
-    }
+    const { pluginsData } = this.state;
+    if (!pluginsData.map(d => d.favicon)[0])
+      if (unreadCount !== this.props.unreadConversationsCount) {
+        setBadge(unreadCount, __('Team Inbox').toString());
+      }
   }
 
   getLink = url => {
@@ -176,11 +202,21 @@ class Navigation extends React.Component<IProps> {
       </Tip>
     );
   }
-
   render() {
     const { unreadConversationsCount, collapsed } = this.props;
+    const { pluginsData } = this.state;
 
-    const logo = collapsed ? 'logo.png' : 'erxes.png';
+    let logo = collapsed ? '/images/logo.png' : '/images/erxes.png';
+
+    if (!pluginsData.map(d => d.error)[0]) {
+      if (pluginsData.map(d => d.mainIcon)[0])
+        logo = readFile(pluginsData.map(d => d.mainIcon)[0]);
+
+      if (pluginsData.map(d => d.favicon)[0]) {
+        var favicon = document.getElementById('favicon') as HTMLLinkElement;
+        favicon.href = readFile(pluginsData.map(d => d.favicon)[0]);
+      }
+    }
 
     const unreadIndicator = unreadConversationsCount !== 0 && (
       <Label shake={true} lblStyle="danger" ignoreTrans={true}>
@@ -191,7 +227,7 @@ class Navigation extends React.Component<IProps> {
     return (
       <LeftNavigation collapsed={collapsed}>
         <NavLink to="/">
-          <img src={`/images/${logo}`} alt="erxes" />
+          <img src={`${logo}`} alt="erxes" />
         </NavLink>
         {this.renderCollapse()}
         <Nav id="navigation" collapsed={collapsed}>

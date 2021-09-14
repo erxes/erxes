@@ -1,5 +1,6 @@
 import Button from 'modules/common/components/Button';
-import { __, bustIframe } from 'modules/common/utils';
+import { __, bustIframe, getEnv, readFile } from 'modules/common/utils';
+import { pluginsOfRoutes } from 'pluginUtils';
 import React from 'react';
 import Col from 'react-bootstrap/Col';
 import Container from 'react-bootstrap/Container';
@@ -17,7 +18,7 @@ type Props = {
   col?: { first: number; second: number };
 };
 
-class AuthLayout extends React.Component<Props, {}> {
+class AuthLayout extends React.Component<Props & { pluginsData?: any[] }, {}> {
   renderContent(desciption: string, link: string) {
     return (
       <MobileRecommend>
@@ -50,8 +51,7 @@ class AuthLayout extends React.Component<Props, {}> {
   }
 
   renderDesciption() {
-    const { description } = this.props;
-
+    const { description, pluginsData } = this.props;
     if (description) {
       return (
         <>
@@ -59,6 +59,36 @@ class AuthLayout extends React.Component<Props, {}> {
           {description}
         </>
       );
+    }
+
+    if (pluginsData && pluginsData.length > 0) {
+      if (!pluginsData.map(d => d.error)[0]) {
+        var url = "__('Homepage link')";
+        var descriptions = 'Open Source Growth Marketing Platform';
+        if (pluginsData.map(d => d.url).toString())
+          url = pluginsData.map(d => d.url).toString();
+
+        if (pluginsData.map(d => d.pageDesc).toString())
+          descriptions = pluginsData.map(d => d.pageDesc).toString();
+
+        return (
+          <>
+            <img
+              src={readFile(pluginsData.map(d => d.loginPageLogo)[0])}
+              alt="erxes"
+            />
+            <h1 style={{ color: pluginsData.map(d => d.textColor)[0] }}>
+              {__(descriptions)}
+            </h1>
+            <p style={{ color: pluginsData.map(d => d.textColor)[0] }}>
+              {__(
+                'Marketing, sales, and customer service platform designed to help your business attract more engaged customers. Replace Hubspot with the mission and community-driven ecosystem.'
+              )}
+            </p>
+            <a href={url}>«{__('Go to home page')}</a>
+          </>
+        );
+      }
     }
 
     return (
@@ -79,10 +109,28 @@ class AuthLayout extends React.Component<Props, {}> {
     // click-jack attack defense
     bustIframe();
   }
-
   render() {
-    const { content, col = { first: 6, second: 5 } } = this.props;
+    const { content, col = { first: 6, second: 5 }, pluginsData } = this.props;
 
+    if (pluginsData && pluginsData.length > 0) {
+      if (!pluginsData.map(d => d.error)[0])
+        return (
+          <Authlayout
+            className="auth-container"
+            backgroundColor={pluginsData.map(d => d.backgroundColor)[0] || ''}
+          >
+            <AuthContent>
+              <Container>
+                <Col md={col.first}>
+                  <AuthDescription>{this.renderDesciption()}</AuthDescription>
+                </Col>
+                <Col md={{ span: col.second, offset: 1 }}>{content}</Col>
+              </Container>
+            </AuthContent>
+            {this.renderRecommendMobileVersion()}
+          </Authlayout>
+        );
+    }
     return (
       <Authlayout className="auth-container">
         <AuthContent>
@@ -98,5 +146,44 @@ class AuthLayout extends React.Component<Props, {}> {
     );
   }
 }
+class AuthLayoutWrapper extends React.Component<Props, any> {
+  constructor(props) {
+    super(props);
 
-export default AuthLayout;
+    this.state = { isReady: false, pluginsData: [] };
+  }
+
+  componentDidMount() {
+    const { preAuths } = pluginsOfRoutes();
+
+    const promises: any[] = [];
+
+    if (preAuths.length === 0) {
+      this.setState({ isReady: true });
+    }
+
+    const { REACT_APP_API_URL } = getEnv();
+
+    for (const preAuth of preAuths) {
+      promises.push(preAuth({ API_URL: REACT_APP_API_URL }));
+    }
+
+    Promise.all(promises).then(response => {
+      this.setState({ isReady: true, pluginsData: response });
+    });
+  }
+
+  render() {
+    const { isReady, pluginsData } = this.state;
+
+    if (!isReady) {
+      return null;
+    }
+
+    const props = { ...this.props, pluginsData };
+
+    return <AuthLayout {...props} key={Math.random()} />;
+  }
+}
+
+export default AuthLayoutWrapper;
