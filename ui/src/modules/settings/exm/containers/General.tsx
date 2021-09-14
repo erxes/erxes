@@ -5,7 +5,12 @@ import General from '../components/General';
 import { queries as leadQueries } from 'modules/leads/graphql';
 import { queries as kbQueries } from 'modules/knowledgeBase/graphql';
 
-export default function GeneralContainer() {
+type Props = {
+  exm: any;
+  edit: (variables: any) => void;
+};
+
+export default function GeneralContainer(props: Props) {
   const integrationQuery = useQuery(gql(leadQueries.integrations), {
     variables: { kind: 'lead' }
   });
@@ -18,6 +23,7 @@ export default function GeneralContainer() {
 
   return (
     <General
+      {...props}
       kbTopics={kbQuery.data.knowledgeBaseTopics || []}
       forms={integrationQuery.data.integrations || []}
     />

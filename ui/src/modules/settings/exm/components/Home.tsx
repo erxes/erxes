@@ -11,10 +11,14 @@ import General from '../containers/General';
 
 type Props = {
   exm: any;
+  add: (variables: any) => void;
+  edit: (variables: any) => void;
 };
 
 function Brands(props: Props) {
   const [currentTab, setCurrentTab] = useState('General');
+
+  const { exm, edit } = props;
 
   const breadcrumb = [
     { title: __('Settings'), link: '/settings' },
@@ -26,7 +30,7 @@ function Brands(props: Props) {
 
   const renderTabContent = () => {
     if (currentTab === 'General') {
-      return <General />;
+      return <General exm={exm} edit={edit} />;
     }
 
     return <TabContent>This is {currentTab}</TabContent>;

@@ -1,10 +1,14 @@
+const commonField = `
+  _id
+  name
+  createdAt
+`;
+
 const exms = `
   query exms($page: Int, $perPage: Int) {
     exms(page: $page, perPage: $perPage) {
       list {
-        _id
-        name
-        createdAt
+        ${commonField}
       }
       totalCount
     }
@@ -14,9 +18,8 @@ const exms = `
 const exmDetail = `
   query exmDetail($_id: String!) {
     exmDetail(_id: $_id) {
-      _id
-      name
-      createdAt
+      ${commonField}
+      features
     }
   }
 `;
@@ -24,9 +27,8 @@ const exmDetail = `
 const exmGetLast = `
   query exmGetLast {
     exmGetLast {
-      _id
-      name
-      createdAt
+      ${commonField}
+      features
     }
   }
 `;

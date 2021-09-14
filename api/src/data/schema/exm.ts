@@ -2,6 +2,7 @@ export const types = `
   type Exm {
     _id: String
     name: String
+    features: JSON
     createdAt: Date
     createdBy: String
   }
@@ -18,8 +19,13 @@ export const queries = `
   exmGetLast: Exm
 `;
 
+const commonParams = `
+  name: String,
+  features: JSON
+`;
+
 export const mutations = `
-  exmsAdd(name: String!): Exm
-  exmsEdit(_id: String, name: String): Exm
+  exmsAdd(${commonParams}): Exm
+  exmsEdit(_id: String, ${commonParams}): Exm
   exmsRemove(_id: String!): JSON
 `;

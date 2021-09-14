@@ -4,23 +4,28 @@ import Select from 'react-select-plus';
 import { FormControl } from 'modules/common/components/form';
 import { __ } from 'modules/common/utils';
 import { FeatureRow, FeatureRowItem } from '../styles';
+import Button from 'modules/common/components/Button';
+
+const getEmptyFeature = () => ({
+  _id: Math.random().toString(),
+  icon: 'reply',
+  contentType: 'form',
+  name: '',
+  description: '',
+  contentId: ''
+});
 
 type Props = {
+  exm: any;
+  edit: (variables: any) => void;
   forms: any[];
   kbTopics: any[];
 };
 
 export default function General(props: Props) {
-  const getEmptyFeature = () => ({
-    _id: Math.random().toString(),
-    icon: '',
-    contentType: 'form',
-    name: '',
-    description: '',
-    contentId: ''
-  });
+  const { forms, kbTopics, exm, edit } = props;
 
-  const [features, setFeatures] = useState([getEmptyFeature()]);
+  const [features, setFeatures] = useState(exm.features || [getEmptyFeature()]);
 
   const onChangeFeature = (type: String, _id?: string) => {
     if (type === 'add') {
@@ -44,10 +49,14 @@ export default function General(props: Props) {
 
   const getContentValues = (contentType: string) => {
     if (contentType === 'form') {
-      return props.forms.map(f => ({ value: f._id, label: f.name }));
+      return forms.map(f => ({ value: f._id, label: f.name }));
     }
 
-    return props.kbTopics.map(c => ({ value: c._id, label: c.title }));
+    return kbTopics.map(c => ({ value: c._id, label: c.title }));
+  };
+
+  const onSave = () => {
+    edit({ _id: exm._id, features });
   };
 
   return (
@@ -79,8 +88,8 @@ export default function General(props: Props) {
               value={feature.icon}
               options={[
                 {
-                  value: 'linkedin',
-                  label: 'linkedin'
+                  value: 'reply',
+                  label: 'reply'
                 },
                 {
                   value: 'alarm-2',
@@ -129,12 +138,11 @@ export default function General(props: Props) {
           </button>
         </FeatureRow>
       ))}
-      <button
-        style={{ float: 'right', margin: 20 }}
-        onClick={() => onChangeFeature('add')}
-      >
-        Add feature
-      </button>
+      <button onClick={() => onChangeFeature('add')}>+</button>
+      <br />
+      <Button style={{ float: 'right', marginRight: '20px' }} onClick={onSave}>
+        Save
+      </Button>
     </>
   );
 }
