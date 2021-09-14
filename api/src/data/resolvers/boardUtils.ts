@@ -8,6 +8,7 @@ import {
   Stages
 } from '../../db/models';
 import { getCollection, getNewOrder } from '../../db/models/boardUtils';
+import { IConformityAdd } from '../../db/models/definitions/conformities';
 import { NOTIFICATION_TYPES } from '../../db/models/definitions/constants';
 import { IDealDocument } from '../../db/models/definitions/deals';
 import { ITaskDocument } from '../../db/models/definitions/tasks';
@@ -211,23 +212,24 @@ export const createConformity = async ({
   mainType: string;
   mainTypeId: string;
 }) => {
-  for (const companyId of companyIds || []) {
-    await Conformities.addConformity({
-      mainType,
-      mainTypeId,
-      relType: 'company',
-      relTypeId: companyId
-    });
-  }
 
-  for (const customerId of customerIds || []) {
-    await Conformities.addConformity({
-      mainType,
-      mainTypeId,
-      relType: 'customer',
-      relTypeId: customerId
-    });
-  }
+  const companyConformities: IConformityAdd[] = (companyIds || []).map(companyId => ({
+    mainType,
+    mainTypeId,
+    relType: 'company',
+    relTypeId: companyId
+  }));
+
+  const customerConformities: IConformityAdd[] = (customerIds || []).map(customerId => ({
+    mainType,
+    mainTypeId,
+    relType: 'customer',
+    relTypeId: customerId
+  }));
+
+  const allConformities = companyConformities.concat(customerConformities);
+
+  await Conformities.addConformities(allConformities);
 };
 
 interface ILabelParams {
