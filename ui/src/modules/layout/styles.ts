@@ -71,23 +71,29 @@ const MainWrapper = styledTS<{ collapsed: boolean }>(styled.div)`
   transition: width .3s;
 `;
 
-const Authlayout = styled.div`
+const Authlayout = styledTS<{ backgroundColor?: string }>(styled.div)`
   height: 100%;
   overflow: auto;
   position: relative;
-  background: ${colors.colorPrimaryDark} url('/images/stars.png') repeat top
-    center;
+  background: ${props =>
+    props.backgroundColor
+      ? props.backgroundColor
+      : `${colors.colorPrimaryDark} url('/images/stars.png') repeat top center;`}
   flex: 1;
   display: flex;
 
-  &:before {
-    content: '';
-    position: absolute;
-    width: 100%;
-    height: 100%;
-    background: transparent url('/images/twinkling.png') repeat top center;
-    animation: ${twinkling} 200s linear infinite;
-  }
+  ${props =>
+    !props.backgroundColor &&
+    `
+    &:before {
+      content: '';
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      background: transparent url('/images/twinkling.png') repeat top center;
+      animation: ${twinkling} 200s linear infinite;
+    }
+  `}
 
   @media (max-width: 768px) {
     overflow: auto;
