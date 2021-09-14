@@ -1,4 +1,10 @@
-import { commentSchema, feedSchema, thankSchema } from './definitions';
+import {
+  commentSchema,
+  emojiSchema,
+  feedSchema,
+  thankSchema
+} from './definitions';
+import { EmojiDoc } from './resolvers/mutations/exmFeedEmoji';
 
 class Feed {
   public static async getExmFeed(models, _id: string) {
@@ -106,6 +112,25 @@ class ExmFeedComment {
   }
 }
 
+class ExmFeedEmoji {
+  /*
+   * Create new emoji
+   */
+  public static async createEmoji(models, doc: EmojiDoc) {
+    return models.ExmFeedEmojis.create({
+      createdAt: new Date(),
+      ...doc
+    });
+  }
+
+  /*
+   * Remove exm
+   */
+  public static async removeEmoji(models, doc: EmojiDoc) {
+    return models.ExmFeedEmojis.deleteOne(doc);
+  }
+}
+
 class ExmThank {
   public static async getThank(models, _id: string) {
     const thank = await models.ExmThanks.findOne({ _id });
@@ -172,6 +197,11 @@ export default [
     name: 'ExmFeedComments',
     schema: commentSchema,
     klass: ExmFeedComment
+  },
+  {
+    name: 'ExmFeedEmojis',
+    schema: emojiSchema,
+    klass: ExmFeedEmoji
   },
   {
     name: 'ExmThanks',

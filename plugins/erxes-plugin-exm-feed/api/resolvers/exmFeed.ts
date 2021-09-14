@@ -28,6 +28,29 @@ const exmFeedResolvers = [
         feedId: exmFeed._id
       }).countDocuments();
     }
+  },
+  {
+    type: 'ExmFeed',
+    field: 'likeCount',
+    handler: (exmFeed, {}, { models }) => {
+      return models.ExmFeedEmojis.find({
+        feedId: exmFeed._id,
+        type: 'like'
+      }).countDocuments();
+    }
+  },
+  {
+    type: 'ExmFeed',
+    field: 'isLiked',
+    handler: async (exmFeed, {}, { models, user }) => {
+      const emoji = await models.ExmFeedEmojis.findOne({
+        feedId: exmFeed._id,
+        type: 'like',
+        userId: user._id
+      });
+
+      return Boolean(emoji);
+    }
   }
 ];
 

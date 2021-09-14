@@ -5,6 +5,8 @@ export const types = `
     description: String
     contentType: String
     commentCount: Int
+    likeCount: Int
+    isLiked: Boolean
     images: JSON
     attachments: JSON
     recipientIds: [String]
@@ -107,4 +109,7 @@ export const mutations = `
   exmFeedCommentAdd(${commentCommonParams}): ExmFeedComment
   exmFeedCommentEdit(_id: String, ${commentCommonParams}): ExmFeedComment
   exmFeedCommentRemove(_id: String!): JSON
+
+  exmFeedEmojiLike(feedId: String!): String
+  exmFeedEmojiUnLike(feedId: String!): String
 `;

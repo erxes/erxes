@@ -41,3 +41,13 @@ export const commentSchema = {
   updatedBy: { type: String, label: 'Updated by' },
   updatedAt: { type: Date, label: 'Updated at' }
 };
+
+export const emojiSchema = {
+  _id: { pkey: true },
+  type: { type: String, default: 'like' },
+  feedId: { type: String },
+  userId: { type: String },
+  createdAt: { type: Date, label: 'Created at' },
+  updatedBy: { type: String, label: 'Updated by' },
+  updatedAt: { type: Date, label: 'Updated at' }
+};
