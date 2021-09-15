@@ -20,11 +20,11 @@ interface IState {
 }
 
 interface IStore extends IState {
-  save: (doc: IFormDoc) => void;
+  save: (doc: IFormDoc, formCode: string) => void;
   createNew: () => void;
   sendEmail: (params: IEmailParams) => void;
-  getIntegration: () => IIntegration;
-  getForm: () => IForm;
+  getIntegration: (formCode: string) => IIntegration;
+  getForm: (formCode: string) => IForm;
   showForm: () => void;
 }
 
@@ -45,22 +45,22 @@ export class LeadProvider extends React.Component<{}, IState> {
   /*
    * Increasing view count
    */
-  increaseViewCount = () => {
-    const form = this.getForm();
+  increaseViewCount = (formCode: string) => {
+    const form = this.getForm(formCode);
     increaseViewCount(form._id);
   };
 
   /*
    * Save user submissions
    */
-  save = (doc: IFormDoc) => {
+  save = (doc: IFormDoc, formCode: string) => {
     this.setState({ isSubmitting: true });
 
     saveLead({
       doc,
       browserInfo: connection.browserInfo,
-      integrationId: this.getIntegration()._id,
-      formId: this.getForm()._id,
+      integrationId: this.getIntegration(formCode)._id,
+      formId: this.getForm(formCode)._id,
       saveCallback: (response: ISaveFormResponse) => {
         const { status, errors } = response;
 
@@ -82,12 +82,12 @@ export class LeadProvider extends React.Component<{}, IState> {
     this.setState({ currentStatus: { status: "INITIAL" } });
   };
 
-  getIntegration = () => {
-    return connection.leadData.integration;
+  getIntegration = (formCode: string) => {
+    return connection.leadData[formCode].integration;
   };
 
-  getForm = () => {
-    return connection.leadData.form;
+  getForm = (formCode: string) => {
+    return connection.leadData[formCode].form;
   };
 
   showForm = () => {

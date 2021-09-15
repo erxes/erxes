@@ -7,135 +7,153 @@ import { moduleRequireLogin } from '../../permissions/wrappers';
 import { IContext } from '../../types';
 
 const features: {
-  [key: string]: { settings: string[]; settingsPermissions: string[] };
+  [key: string]: {
+    feature: string;
+    settings: string[];
+    settingsPermissions: string[];
+  };
 } = {
-  growthHacks: {
+  generalSettings: {
+    feature: 'generalSettings',
     settings: [
-      'growthHackBoardsCreate',
-      'growthHackPipelinesCreate',
-      'growthHackTemplatesDuplicate',
-      'growthHackCreate'
+      'generalSettingsCreate',
+      'generalSettingsUploadCreate',
+      'generelSettingsConstantsCreate'
     ],
-    settingsPermissions: [
-      'growthHackBoardsAdd',
-      'growthHackPipelinesAdd',
-      'growthHackStagesAdd',
-      'growthHackTemplatesDuplicate'
-    ]
+    settingsPermissions: ['showGeneralSettings', 'manageGeneralSettings']
   },
-  deals: {
-    settings: [
-      'dealBoardsCreate',
-      'dealPipelinesCreate',
-      'productCreate',
-      'dealCreate'
-    ],
-    settingsPermissions: [
-      'dealBoardsAdd',
-      'dealPipelinesAdd',
-      'dealStagesAdd',
-      'manageProducts'
-    ]
+
+  channelBrands: {
+    feature: 'brands',
+    settings: ['brandCreate', 'channelCreate'],
+    settingsPermissions: ['brandCreate', 'channelCreate']
   },
-  inbox: {
-    settings: [
-      'brandCreate',
-      'channelCreate',
-      'messengerIntegrationCreate',
-      'connectIntegrationsToChannel',
-      'responseTemplateCreate'
-    ],
+
+  integrationOtherApps: {
+    feature: 'integrations',
+    settings: ['integrationsCreate', 'connectIntegrationsToChannel'],
     settingsPermissions: [
-      'manageBrands',
-      'manageChannels',
       'integrationsCreateMessengerIntegration',
-      'manageResponseTemplate'
+      'manageChannels'
     ]
   },
-  engages: {
-    settings: [
-      'engageVerifyEmail',
-      'engageSendTestEmail',
-      'emailTemplateCreate',
-      'segmentCreate',
-      'engageCreate'
-    ],
-    settingsPermissions: [
-      'manageEmailTemplate',
-      'manageSegments',
-      'engageMessageAdd',
-      'engageMessageRemove'
-    ]
+
+  customizeDatabase: {
+    feature: 'forms',
+    settings: ['fieldGroupCreate', 'fieldCreate'],
+    settingsPermissions: ['manageForms']
   },
-  contacts: {
+
+  importExistingContacts: {
+    feature: 'importHistories',
     settings: [
-      'leadCreate',
-      'customerCreate',
-      'companyCreate',
-      'productCreate',
+      'fieldGroupCreate',
       'fieldCreate',
-      'tagCreate'
+      'importDownloadTemplate',
+      'importCreate'
     ],
-    settingsPermissions: [
-      'customersAdd',
-      'companiesAdd',
-      'manageProducts',
-      'manageTags',
-      'manageForms'
-    ]
+    settingsPermissions: ['manageForms', 'importHistories']
   },
-  integrations: {
+
+  inviteTeamMembers: {
+    feature: 'users',
+    settings: ['userGroupCreate', 'usersInvite'],
+    settingsPermissions: ['usersInvite']
+  },
+
+  salesPipeline: {
+    feature: 'deals',
+    settings: ['dealBoardsCreate', 'dealPipelinesCreate', 'dealCreate'],
+    settingsPermissions: ['dealBoardsAdd', 'dealPipelinesAdd']
+  },
+
+  createProductServices: {
+    feature: 'products',
+    settings: ['productCategoryCreate', 'productCreate'],
+    settingsPermissions: ['manageProducts']
+  },
+
+  customizeTickets: {
+    feature: 'tickets',
+    settings: ['ticketBoardsCreate', 'ticketPipelinesCreate', 'ticketCreate'],
+    settingsPermissions: ['ticketBoardsAdd', 'ticketPipelinesAdd']
+  },
+
+  customizeTasks: {
+    feature: 'tasks',
+    settings: ['taskBoardsCreate', 'taskPipelinesCreate', 'taskCreate'],
+    settingsPermissions: ['taskBoardsAdd', 'taskPipelinesAdd']
+  },
+
+  customizeGrowthHacking: {
+    feature: 'growthHacks',
+    settings: ['growthHackBoardCreate', 'pipelineTemplate'],
+    settingsPermissions: ['growthHackStagesAdd', 'growthHackTemplatesAdd']
+  },
+
+  customizeSegmentation: {
+    feature: 'segments',
+    settings: ['segmentCreate', 'subSegmentCreate'],
+    settingsPermissions: ['manageSegments']
+  },
+
+  prepareMailResponseTemplates: {
+    feature: 'emailTemplates',
+    settings: ['createResponseTemplate', 'createEmailTemplate'],
+    settingsPermissions: ['manageEmailTemplate']
+  },
+
+  prepareContentTemplates: {
+    feature: 'responseTemplates',
     settings: [
-      'brandCreate',
-      'messengerIntegrationCreate',
-      'connectIntegrationsToChannel',
-      'messengerIntegrationInstalled'
+      'createResponseTemplate',
+      'createEmailTemplate',
+      'pipelineTemplate'
     ],
-    settingsPermissions: [
-      'integrationsCreateMessengerIntegration',
-      'manageChannels',
-      'manageBrands'
-    ]
+    settingsPermissions: ['manageEmailTemplate', 'manageResponseTemplate']
   },
-  leads: {
-    settings: [
-      'brandCreate',
-      'leadIntegrationCreate',
-      'leadIntegrationInstalled'
-    ],
-    settingsPermissions: ['integrationsCreateLeadIntegration', 'manageBrands']
+
+  automateCampaigns: {
+    feature: 'engages',
+    settings: ['engageVerifyEmail', 'engageSendTestEmail', 'engageCreate'],
+    settingsPermissions: ['engageMessageAdd']
   },
-  knowledgeBase: {
+
+  customizeKnowledgeBase: {
+    feature: 'knowledgeBase',
     settings: [
-      'brandCreate',
       'knowledgeBaseTopicCreate',
       'knowledgeBaseCategoryCreate',
       'knowledgeBaseArticleCreate',
       'knowledgeBaseInstalled'
     ],
-    settingsPermissions: ['manageKnowledgeBase', 'manageBrands']
+    settingsPermissions: ['manageKnowledgeBase']
   },
-  tasks: {
-    settings: [
-      'taskBoardsCreate',
-      'taskPipelinesCreate',
-      'taskCreate',
-      'taskAssignUser'
-    ],
-    settingsPermissions: [
-      'taskBoardsAdd',
-      'taskPipelinesAdd',
-      'taskStagesAdd',
-      'taskAdd',
-      'taskEdit'
-    ]
+
+  customizeReports: {
+    feature: 'dashboards',
+    settings: ['dashboardCreate', 'dashboardItemCreate'],
+    settingsPermissions: ['dashboardAdd', 'dashboardItemAdd']
+  },
+
+  createLeadGenerationForm: {
+    feature: 'integrations',
+    settings: ['leadIntegrationCreate', 'leadIntegrationInstalled'],
+    settingsPermissions: ['manageForms']
+  },
+
+  installErxesWidgets: {
+    feature: 'integrations',
+    settings: ['messengerIntegrationCreate'],
+    settingsPermissions: ['integrationsCreateMessengerIntegration']
   }
 };
 
 const checkShowModule = (
   user: IUserDocument,
   actionsMap,
-  moduleName: string
+  moduleName: string,
+  featureName: string
 ): { showModule: boolean; showSettings: boolean } => {
   if (user.isOwner) {
     return {
@@ -144,7 +162,7 @@ const checkShowModule = (
     };
   }
 
-  const module: IModuleMap = moduleObjects[moduleName];
+  const module: IModuleMap = moduleObjects[featureName];
 
   interface IAction {
     name: string;
@@ -156,11 +174,11 @@ const checkShowModule = (
   let showSettings = true;
 
   if (!module) {
-    if (moduleName === 'leads') {
+    if (featureName === 'leads') {
       actions = [{ name: 'integrationsCreateLeadIntegration' }];
     }
 
-    if (moduleName === 'properties') {
+    if (featureName === 'properties') {
       actions = [{ name: 'manageForms' }];
     }
   } else {
@@ -222,11 +240,13 @@ const robotQueries = {
     }> = [];
     const actionsMap = await getUserAllowedActions(user);
 
-    for (const feature of Object.keys(features)) {
-      const { settings } = features[feature];
+    for (const value of Object.keys(features)) {
+      const { settings, feature } = features[value];
+
       const { showModule, showSettings } = checkShowModule(
         user,
         actionsMap,
+        value,
         feature
       );
 
@@ -237,10 +257,13 @@ const robotQueries = {
           steps = [...steps, ...settings];
         }
 
-        const selector = { userId: user._id, completedSteps: { $all: steps } };
+        const selector = {
+          userId: user._id,
+          completedSteps: { $all: steps }
+        };
 
         results.push({
-          name: feature,
+          name: value,
           settings,
           showSettings,
           isComplete:

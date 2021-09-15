@@ -43,6 +43,14 @@ class ArticleForm extends React.Component<Props, State> {
     };
   }
 
+  componentDidUpdate(prevProps) {
+    const { topics, currentCategoryId } = this.props;
+
+    if (!this.state.topicId && topics && topics.length > 0) {
+      this.setState({ topicId: topics[0]._id, categoryId: currentCategoryId });
+    }
+  }
+
   generateDoc = (values: {
     _id?: string;
     title: string;
@@ -97,20 +105,34 @@ class ArticleForm extends React.Component<Props, State> {
     }));
   };
 
-  renderTopics() {
+  renderTopics(formProps: IFormProps) {
     const self = this;
     const { topics } = this.props;
 
-    const onChange = selectedTopic => {
-      self.setState({ topicId: selectedTopic.value, categoryId: '' });
+    const onChange = e => {
+      e.preventDefault();
+
+      const selectedTopicId = e.target.value;
+
+      const topic = topics.find(t => t._id === selectedTopicId);
+      const categories = topic ? topic.categories || [] : [];
+
+      self.setState({
+        topicId: selectedTopicId,
+        categoryId: categories.length > 0 ? categories[0]._id : ''
+      });
     };
 
     return (
       <FormGroup>
-        <ControlLabel>Choose the knowledgebase</ControlLabel>
+        <ControlLabel required={true}>Choose the knowledgebase</ControlLabel>
         <br />
 
-        <Select
+        <FormControl
+          {...formProps}
+          name="topicId"
+          componentClass="select"
+          required={true}
           placeholder={__('Choose knowledgebase')}
           value={self.state.topicId}
           options={self.generateOptions(topics)}
@@ -120,25 +142,31 @@ class ArticleForm extends React.Component<Props, State> {
     );
   }
 
-  renderCategories() {
+  renderCategories(formProps: IFormProps) {
     const self = this;
     const topic = this.props.topics.find(t => t._id === self.state.topicId);
-    const categories = topic ? topic.categories : [];
+    const categories = topic ? topic.categories || [] : [];
 
-    const onChange = selectedCategory => {
-      self.setState({ categoryId: selectedCategory.value });
+    const onChange = e => {
+      e.preventDefault();
+
+      self.setState({ categoryId: e.target.value });
     };
 
     return (
       <FormGroup>
-        <ControlLabel>Choose the category</ControlLabel>
+        <ControlLabel required={true}>Choose the category</ControlLabel>
         <br />
 
-        <Select
+        <FormControl
+          {...formProps}
+          name="categoryId"
+          componentClass="select"
           placeholder={__('Choose category')}
           value={self.state.categoryId}
           options={self.generateOptions(categories)}
           onChange={onChange}
+          required={true}
         />
       </FormGroup>
     );
@@ -211,9 +239,9 @@ class ArticleForm extends React.Component<Props, State> {
         </FlexContent>
 
         <FlexContent>
-          <FlexItem count={3}>{this.renderTopics()}</FlexItem>
+          <FlexItem count={3}>{this.renderTopics(formProps)}</FlexItem>
           <FlexItem count={3} hasSpace={true}>
-            {this.renderCategories()}
+            {this.renderCategories(formProps)}
           </FlexItem>
         </FlexContent>
 
@@ -222,7 +250,7 @@ class ArticleForm extends React.Component<Props, State> {
           <EditorCK
             content={content}
             onChange={this.onChange}
-            isSubmitted={formProps.isSaved}
+            isSubmitted={isSubmitted}
             height={300}
             name={`knowledgeBase_${article ? article._id : 'create'}`}
           />
@@ -234,7 +262,6 @@ class ArticleForm extends React.Component<Props, State> {
             type="button"
             onClick={this.props.closeModal}
             icon="times-circle"
-            uppercase={false}
           >
             {__('Cancel')}
           </Button>

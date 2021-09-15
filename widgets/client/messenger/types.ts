@@ -3,9 +3,9 @@ import {
   IIntegrationMessengerData,
   IIntegrationUiOptions,
   IParticipator,
-  IUser
-} from '../types';
-import { ICarouselItem } from './components/bot/Carousel';
+  IUser,
+} from "../types";
+import { ICarouselItem } from "./components/bot/Carousel";
 
 export interface IWebsiteApp {
   kind: string;
@@ -57,11 +57,9 @@ export interface IMessage {
   attachments: IAttachment[];
 }
 
-
-
 export type EngageMessageQueryResponse = {
   widgetsGetEngageMessage: IMessage;
-}
+};
 
 export interface IConversation {
   _id: string;
@@ -102,11 +100,13 @@ export interface IFaqCategory extends ICommonFields {
 
   articles: IFaqArticle[];
   numOfArticles: number;
+  parentCategoryId: string;
 }
 
 export interface IFaqTopic extends ICommonFields {
   description: string;
   categories: IFaqCategory[];
+  parentCategories: IFaqCategory[];
 }
 
 export interface IUpdateCustomerMutationVariables {
@@ -115,9 +115,9 @@ export interface IUpdateCustomerMutationVariables {
 }
 
 export interface IUpdateCustomerMutationResponse {
-  updateCustomerMutation: (
-    params: { variables: IUpdateCustomerMutationVariables }
-  ) => Promise<any>;
+  updateCustomerMutation: (params: {
+    variables: IUpdateCustomerMutationVariables;
+  }) => Promise<any>;
   refetch: () => void;
 }
 

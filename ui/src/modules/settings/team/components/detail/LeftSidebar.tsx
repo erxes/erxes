@@ -11,6 +11,7 @@ import { ISkillDocument } from 'modules/settings/skills/types';
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { IChannel } from '../../../channels/types';
+import CustomFieldsSection from '../../containers/CustomFieldsSection';
 import { List, SkillList } from './styles';
 
 type Props = {
@@ -168,7 +169,6 @@ function LeftSidebar({
                 key={skill._id}
                 btnStyle="simple"
                 size="small"
-                uppercase={false}
                 onClick={handleRemove}
               >
                 {skill.name}&nbsp;
@@ -184,6 +184,7 @@ function LeftSidebar({
   return (
     <Sidebar wide={true}>
       {renderUserInfo()}
+      <CustomFieldsSection user={user} isDetail={true} />
       {renderChannels()}
       {renderSkills()}
     </Sidebar>

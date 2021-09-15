@@ -1,5 +1,5 @@
 import { Document, Schema } from 'mongoose';
-import { ILink } from './common';
+import { customFieldSchema, ICustomField, ILink } from './common';
 import { IPermissionDocument } from './permissions';
 import { field, schemaHooksWrapper } from './utils';
 
@@ -45,6 +45,8 @@ export interface IUser {
   doNotDisturb?: string;
   isSubscribed?: string;
   sessionCode?: string;
+  isShowNotification?: boolean;
+  customFieldsData?: ICustomField[];
 }
 
 export interface IUserDocument extends IUser, Document {
@@ -139,6 +141,17 @@ export const userSchema = schemaHooksWrapper(
       optional: true,
       default: 'Yes',
       label: 'Subscribed'
+    }),
+    isShowNotification: field({
+      type: Boolean,
+      optional: true,
+      default: false,
+      label: 'Check if user shows'
+    }),
+    customFieldsData: field({
+      type: [customFieldSchema],
+      optional: true,
+      label: 'Custom fields data'
     })
   }),
   'erxes_users'

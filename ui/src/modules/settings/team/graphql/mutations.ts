@@ -1,11 +1,12 @@
 const commonParamsDef = `
-  $username: String!,
-  $email: String!,
+  $username: String,
+  $email: String,
   $details: UserDetails,
   $links: JSON,
   $channelIds: [String]
   $groupIds: [String]
   $brandIds: [String]
+  $customFieldsData: JSON
 `;
 
 const commonParams = `
@@ -16,6 +17,7 @@ const commonParams = `
   channelIds: $channelIds
   groupIds: $groupIds
   brandIds: $brandIds
+  customFieldsData: $customFieldsData
 `;
 
 const usersEdit = `

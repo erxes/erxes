@@ -25,7 +25,7 @@ class SelectProperty extends React.Component<Props, {}> {
     const { renderButton, queryParams } = this.props;
 
     const trigger = (
-      <Button btnStyle="primary" uppercase={false} icon="plus-circle">
+      <Button btnStyle="primary" icon="plus-circle">
         Create
       </Button>
     );

@@ -17,6 +17,11 @@ const runJobs = async (messages: IEngageMessageDocument[]) => {
   for (const message of messages) {
     try {
       await send(message);
+
+      await EngageMessages.updateMany(
+        { _id: message._id },
+        { $set: { lastRunAt: new Date() } }
+      );
     } catch (e) {
       debugError(
         `Error occurred when sending campaign "${message.title}" with id ${message._id}`
@@ -89,11 +94,6 @@ const checkDayJobs = async () => {
 
   await runJobs(everyMonthMessages);
 
-  await EngageMessages.updateMany(
-    { _id: { $in: everyMonthMessages.map(m => m._id) } },
-    { $set: { lastRunAt: new Date() } }
-  );
-
   // every year messages ========
   let everyYearMessages = await findMessages({ 'scheduleDate.type': 'year' });
 
@@ -119,11 +119,6 @@ const checkDayJobs = async () => {
   debugCrons(`Found every year messages ${everyYearMessages.length}`);
 
   await runJobs(everyYearMessages);
-
-  await EngageMessages.updateMany(
-    { _id: { $in: everyYearMessages.map(m => m._id) } },
-    { $set: { lastRunAt: new Date() } }
-  );
 };
 
 // every minute at 1sec
