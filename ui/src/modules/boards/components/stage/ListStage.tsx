@@ -23,6 +23,7 @@ import Item from 'modules/boards/components/stage/Item';
 import { withRouter } from 'react-router-dom';
 import { IRouterProps } from 'modules/common/types';
 import { OverlayTrigger, Popover } from 'react-bootstrap';
+import NameCard from 'modules/common/components/nameCard/NameCard';
 
 type Props = {
   index: number;
@@ -183,7 +184,16 @@ class ListStage extends React.Component<Props, State> {
         <Header>
           <StageTitle>
             <div>
-              {groupObj.name}
+              {groupType === 'assign' ? (
+                <NameCard
+                  user={groupObj.name}
+                  avatarSize={30}
+                  singleLine={true}
+                />
+              ) : (
+                groupObj.name
+              )}
+
               <span>{groupObj.itemsTotalCount}</span>
             </div>
             {this.renderCtrl()}

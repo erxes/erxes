@@ -9,6 +9,7 @@ import { graphql } from 'react-apollo';
 import { queries } from '../graphql';
 import styled from 'styled-components';
 import ListStage from './ListStage';
+import { PRIORITIES } from '../constants';
 
 const Container = styled.div`
   min-height: 480px;
@@ -25,6 +26,7 @@ type Props = {
 type WithStagesProps = {
   stagesQuery: any;
   pipelineLabelsQuery: any;
+  pipelineAssigneeQuery: any;
 } & Props;
 class WithStages extends Component<WithStagesProps> {
   componentWillReceiveProps(nextProps: WithStagesProps) {
@@ -57,8 +59,13 @@ class WithStages extends Component<WithStagesProps> {
       options,
       queryParams,
       stagesQuery,
-      pipelineLabelsQuery
+      pipelineLabelsQuery,
+      pipelineAssigneeQuery
     } = this.props;
+
+    console.log('pipelineAssigneeQuery', pipelineAssigneeQuery);
+    console.log('stagesQuery', stagesQuery);
+    console.log('pipelineLabelsQuery', pipelineLabelsQuery);
 
     let groupType = 'stage';
     let groups: any[] = [];
@@ -66,7 +73,25 @@ class WithStages extends Component<WithStagesProps> {
     if (queryParams.groupBy === 'label') {
       groups = pipelineLabelsQuery.pipelineLabels || [];
       groupType = 'label';
-    } else if (queryParams.groupBy === 'stage') {
+    } else if (queryParams.groupBy === 'priority') {
+      groups = PRIORITIES.map(p => ({ _id: p, name: p }));
+      groupType = 'priority';
+    } else if (queryParams.groupBy === 'assign') {
+      groups = pipelineAssigneeQuery.pipelineAssignedUsers || [];
+      groupType = 'assign';
+    } else if (queryParams.groupBy === 'dueDate') {
+      const getDueDate = () => [
+        {
+          _id: 'overDue',
+          name: 'Overdue',
+          startDate: null,
+          endDate: new Date()
+        }
+      ];
+
+      groups = getDueDate();
+      groupType = 'dueDate';
+    } else {
       groups = stagesQuery.stages || [];
       groupType = 'stage';
     }
@@ -125,6 +150,15 @@ export default withProps<Props>(
       options: ({ pipeline }) => ({
         variables: {
           pipelineId: pipeline._id
+        }
+      })
+    }),
+    graphql<Props, StagesQueryResponse>(gql(queries.pipelineAssignedUsers), {
+      name: 'pipelineAssigneeQuery',
+      options: ({ pipeline, queryParams }) => ({
+        variables: {
+          _id: pipeline._id,
+          details: queryParams.assignedUserIds
         }
       })
     })

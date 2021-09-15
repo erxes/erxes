@@ -228,7 +228,14 @@ const getFilterParams = (
     selectType.labelIds = [groupObj._id];
   } else if (groupType === 'assignee') {
     selectType.assignedUserIds = [groupObj._id];
-  } else if (groupType === 'stage') {
+  } else if (groupType === 'priority') {
+    selectType.priority = [groupObj._id];
+  } else if (groupType === 'assign') {
+    selectType.assignedUserIds = [groupObj._id];
+  } else if (groupType === 'dueDate') {
+    selectType.startDate = groupObj.startDate;
+    selectType.endDate = groupObj.endDate;
+  } else {
     selectType.stageId = groupObj._id;
   }
 
