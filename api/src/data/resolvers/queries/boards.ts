@@ -5,7 +5,8 @@ import {
   Segments,
   Stages,
   Tasks,
-  Tickets
+  Tickets,
+  Users
 } from '../../../db/models';
 import { BOARD_STATUSES } from '../../../db/models/definitions/constants';
 import { fetchSegment } from '../../modules/segments/queryBuilder';
@@ -13,6 +14,7 @@ import { moduleRequireLogin } from '../../permissions/wrappers';
 import { IContext } from '../../types';
 import { paginate, regexSearchText } from '../../utils';
 import { IConformityQueryParams } from './types';
+import { getCollection } from '../../../db/models/boardUtils';
 
 export interface IDate {
   month: number;
@@ -268,6 +270,24 @@ const boardQueries = {
    */
   pipelineDetail(_root, { _id }: { _id: string }) {
     return Pipelines.findOne({ _id });
+  },
+
+  /**
+   *  Pipeline detail
+   */
+  async pipelineAssignedUsers(_root, { _id }: { _id: string }) {
+    const pipeline = await Pipelines.getPipeline(_id);
+    const stageIds = await Stages.find({ pipelineId: pipeline._id }).distinct(
+      '_id'
+    );
+
+    const { collection } = getCollection(pipeline.type);
+
+    const assignedUserIds = await collection
+      .find({ stageId: { $in: stageIds } })
+      .distinct('assignedUserIds');
+
+    return Users.find({ _id: { $in: assignedUserIds } });
   },
 
   /**
