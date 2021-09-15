@@ -73,7 +73,8 @@ export default withProps<Props>(
         name: 'fieldsGroupsQuery',
         options: () => ({
           variables: {
-            contentType: FIELDS_GROUPS_CONTENT_TYPES.PRODUCT
+            contentType: FIELDS_GROUPS_CONTENT_TYPES.PRODUCT,
+            isDefinedByErxes: false
           }
         })
       }
