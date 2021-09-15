@@ -185,11 +185,7 @@ class ListStage extends React.Component<Props, State> {
           <StageTitle>
             <div>
               {groupType === 'assign' ? (
-                <NameCard
-                  user={groupObj.name}
-                  avatarSize={30}
-                  singleLine={true}
-                />
+                <NameCard user={groupObj} avatarSize={30} singleLine={true} />
               ) : (
                 groupObj.name
               )}
@@ -205,9 +201,16 @@ class ListStage extends React.Component<Props, State> {
               <tr>
                 <th>{__('Card Title')}</th>
                 <th>{groupType === 'stage' ? __('Label') : __('Stage')}</th>
-                <th>{__('Priority')}</th>
+                {groupType === 'assign' || groupType === 'dueDate' ? (
+                  <th>{__('Label')}</th>
+                ) : (
+                  ''
+                )}
+                <th>
+                  {groupType === 'priority' ? __('Label') : __('Priority')}
+                </th>
                 <th>{__('Due Date')}</th>
-                <th>{__('Assignee')}</th>
+                {groupType === 'assign' ? '' : <th>{__('Assignee')}</th>}
                 <th>{__('Associated Customer')}</th>
                 <th>{__('Associated Company')}</th>
               </tr>
@@ -220,6 +223,7 @@ class ListStage extends React.Component<Props, State> {
                   onClick={() => this.onClick(item)}
                   beforePopupClose={this.beforePopupClose}
                   options={options}
+                  groupType={groupType}
                   itemComponent={ListItemRow}
                 />
               ))}

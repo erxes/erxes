@@ -17,7 +17,7 @@ type Props = {
   item: IItem;
   isFormVisible?: boolean;
   options?: IOptions;
-  index: number;
+  groupType?: string;
 };
 
 class ListItemRow extends React.PureComponent<Props> {
@@ -47,13 +47,54 @@ class ListItemRow extends React.PureComponent<Props> {
     );
   };
 
+  renderLabel = () => {
+    const { item, groupType } = this.props;
+    if (groupType === 'assign' || groupType === 'dueDate') {
+      return (
+        <td>
+          {item.labels.length > 0 ? <Labels labels={item.labels} /> : '-'}
+        </td>
+      );
+    }
+
+    return null;
+  };
+
+  renderAssign = () => {
+    const { item, groupType } = this.props;
+    if (groupType === 'assign') {
+      return null;
+    }
+
+    return (
+      <td>
+        {item.assignedUsers.length ? (
+          <PriceContainer>
+            <Left>
+              <Assignees users={item.assignedUsers} />
+            </Left>
+          </PriceContainer>
+        ) : (
+          '-'
+        )}
+      </td>
+    );
+  };
+
+  renderStage = () => {
+    const { item, groupType } = this.props;
+    if (groupType === 'stage') {
+      return (
+        <>{item.labels.length > 0 ? <Labels labels={item.labels} /> : '-'}</>
+      );
+    }
+
+    return item.stage ? item.stage.name : '-';
+  };
+
   render() {
-    const { item, onClick } = this.props;
+    const { item, onClick, groupType } = this.props;
     const { customers, companies, closeDate, isComplete, priority } = item;
-
-    // const query = new URLSearchParams(location.search);
-
-    // const groupType = query.get('groupBy');
 
     return (
       <>
@@ -64,11 +105,12 @@ class ListItemRow extends React.PureComponent<Props> {
               {__('Last updated')}: {this.renderDate(item.modifiedAt)}
             </LastUpdate>
           </td>
+          <td>{this.renderStage()}</td>
+          {this.renderLabel()}
           <td>
-            {item.labels.length > 0 ? <Labels labels={item.labels} /> : '-'}
-          </td>
-          <td>
-            {priority ? (
+            {groupType === 'priority' ? (
+              <Labels labels={item.labels} />
+            ) : priority ? (
               <PriorityIndicator isFullBackground={true} value={priority} />
             ) : (
               '-'
@@ -81,17 +123,7 @@ class ListItemRow extends React.PureComponent<Props> {
               '-'
             )}
           </td>
-          <td>
-            {item.assignedUsers.length > 0 ? (
-              <PriceContainer>
-                <Left>
-                  <Assignees users={item.assignedUsers} />
-                </Left>
-              </PriceContainer>
-            ) : (
-              '-'
-            )}
-          </td>
+          {this.renderAssign()}
           <td>
             {item.customers ? (
               <Details color="#F7CE53" items={customers || []} />

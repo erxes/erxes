@@ -144,10 +144,11 @@ const DealMainActionBar = (props: Props) => {
         return `/deal/${type}`;
       };
 
-      const labelLink = onFilterType('label');
       const stageLink = onFilterType('stage');
+      const labelLink = onFilterType('label');
       const priorityLink = onFilterType('priority');
-      const assignLink = onFilterType('assignee');
+      const assignLink = onFilterType('assign');
+      const dueDateLink = onFilterType('dueDate');
 
       const typeName = queryParams.groupBy;
 
@@ -178,7 +179,7 @@ const DealMainActionBar = (props: Props) => {
                 <Link to={assignLink}>{__('Assignee')}</Link>
               </li>
               <li>
-                <Link to={labelLink}>{__('Due Date')}</Link>
+                <Link to={dueDateLink}>{__('Due Date')}</Link>
               </li>
             </Dropdown.Menu>
           </Dropdown>

@@ -8,8 +8,8 @@ import { withProps } from 'modules/common/utils';
 import { graphql } from 'react-apollo';
 import { queries } from '../graphql';
 import styled from 'styled-components';
-import ListStage from './ListStage';
 import { PRIORITIES } from '../constants';
+import ListGroupBy from './ListGroupBy';
 
 const Container = styled.div`
   min-height: 480px;
@@ -63,10 +63,6 @@ class WithStages extends Component<WithStagesProps> {
       pipelineAssigneeQuery
     } = this.props;
 
-    console.log('pipelineAssigneeQuery', pipelineAssigneeQuery);
-    console.log('stagesQuery', stagesQuery);
-    console.log('pipelineLabelsQuery', pipelineLabelsQuery);
-
     let groupType = 'stage';
     let groups: any[] = [];
 
@@ -74,7 +70,7 @@ class WithStages extends Component<WithStagesProps> {
       groups = pipelineLabelsQuery.pipelineLabels || [];
       groupType = 'label';
     } else if (queryParams.groupBy === 'priority') {
-      groups = PRIORITIES.map(p => ({ _id: p, name: p }));
+      groups = PRIORITIES.map(p => ({ _id: p, name: p } || []));
       groupType = 'priority';
     } else if (queryParams.groupBy === 'assign') {
       groups = pipelineAssigneeQuery.pipelineAssignedUsers || [];
@@ -110,7 +106,7 @@ class WithStages extends Component<WithStagesProps> {
     return (
       <Container>
         {groups.map((groupObj, index) => (
-          <ListStage
+          <ListGroupBy
             key={groupObj._id}
             options={options}
             groupObj={groupObj}
@@ -155,10 +151,9 @@ export default withProps<Props>(
     }),
     graphql<Props, StagesQueryResponse>(gql(queries.pipelineAssignedUsers), {
       name: 'pipelineAssigneeQuery',
-      options: ({ pipeline, queryParams }) => ({
+      options: ({ pipeline }) => ({
         variables: {
-          _id: pipeline._id,
-          details: queryParams.assignedUserIds
+          _id: pipeline._id
         }
       })
     })

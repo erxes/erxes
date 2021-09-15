@@ -5,7 +5,7 @@ import { __, withProps, confirm, Alert } from 'modules/common/utils';
 import React from 'react';
 import { graphql } from 'react-apollo';
 import { queries } from 'modules/boards/graphql';
-import ListStage from '../components/stage/ListStage';
+import ListGroupBy from '../components/stage/ListGroupBy';
 import { mutations } from '../graphql';
 import {
   IFilterParams,
@@ -179,7 +179,7 @@ class StageContainer extends React.PureComponent<FinalStageProps, State> {
     };
 
     return (
-      <ListStage
+      <ListGroupBy
         options={options}
         groupObj={groupObj}
         groupType={groupType}

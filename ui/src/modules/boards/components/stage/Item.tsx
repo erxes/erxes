@@ -14,6 +14,7 @@ type Props = {
   onClick?: () => void;
   options: IOptions;
   itemComponent?: any;
+  groupType?: string;
 } & IRouterProps;
 
 class Item extends React.PureComponent<Props, { isFormVisible: boolean }> {
