@@ -92,12 +92,20 @@ export default function General(props: Props) {
               value={feature.icon}
               options={[
                 {
-                  value: 'reply',
-                  label: 'reply'
+                  value: 'mic-line',
+                  label: 'mic-line'
                 },
                 {
-                  value: 'alarm-2',
-                  label: 'Alarm 2'
+                  value: 'movie-2-line',
+                  label: 'movie-2-line'
+                },
+                {
+                  value: 'survey-line',
+                  label: 'survey-line'
+                },
+                {
+                  value: 'hand-heart-line',
+                  label: 'hand-heart-line'
                 }
               ]}
               onChange={(e: any) =>
