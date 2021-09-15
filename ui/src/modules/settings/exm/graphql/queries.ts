@@ -1,6 +1,7 @@
 const commonField = `
   _id
   name
+  description
   createdAt
 `;
 

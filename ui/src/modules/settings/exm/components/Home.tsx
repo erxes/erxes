@@ -16,8 +16,7 @@ function Home(props: Props) {
 
   const breadcrumb = [
     { title: __('Settings'), link: '/settings' },
-    { title: __('Exm'), link: '/settings/exm' },
-    { title: exm ? exm.name : '' }
+    { title: __('Exm'), link: '/settings/exm' }
   ];
 
   const leftActionBar = <div>{exm ? exm.name : ''}</div>;

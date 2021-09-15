@@ -26,6 +26,7 @@ const featureSchema = new Schema({
 export const exmSchema = new Schema({
   _id: field({ pkey: true }),
   name: field({ type: String, label: 'Name' }),
+  description: field({ type: String, label: 'Description' }),
   features: field({ type: [featureSchema] }),
   createdBy: field({ type: String, label: 'Created by' }),
   createdAt: field({ type: Date, label: 'Created at' })

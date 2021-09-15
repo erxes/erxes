@@ -1,10 +1,12 @@
 const commonParamsDef = `
   $name: String,
+  $description: String,
   $features: JSON,
 `;
 
 const commonParams = `
   name: $name,
+  description: $description,
   features: $features,
 `;
 

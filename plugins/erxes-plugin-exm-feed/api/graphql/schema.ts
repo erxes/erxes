@@ -32,7 +32,7 @@ export const types = `
     feedId: String
     parentId: String
     comment: String
-    childCount: Int
+    children: [ExmFeedComment]
     createdAt: Date
     updatedAt: Date
     createdUser: User

@@ -2,6 +2,7 @@ export const types = `
   type Exm {
     _id: String
     name: String
+    description: String
     features: JSON
     createdAt: Date
     createdBy: String
@@ -21,6 +22,7 @@ export const queries = `
 
 const commonParams = `
   name: String,
+  description: String,
   features: JSON
 `;
 

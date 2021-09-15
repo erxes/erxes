@@ -27,6 +27,8 @@ export default function General(props: Props) {
 
   const exmFeatures = exm.features || [];
 
+  const [name, setName] = useState(exm.name || '');
+  const [description, setDescription] = useState(exm.description || '');
   const [features, setFeatures] = useState(
     exmFeatures.length > 0 ? exmFeatures : [getEmptyFeature()]
   );
@@ -60,11 +62,25 @@ export default function General(props: Props) {
   };
 
   const onSave = () => {
-    edit({ _id: exm._id, features });
+    edit({ _id: exm._id, name, description, features });
   };
 
   return (
-    <>
+    <div style={{ padding: 50 }}>
+      <FormControl
+        value={name}
+        placeholder="Name"
+        onChange={(e: any) => setName(e.target.value)}
+      />
+      <br />
+      <FormControl
+        value={description}
+        componentClass="textarea"
+        placeholder="Description"
+        onChange={(e: any) => setDescription(e.target.value)}
+      />
+      <br />
+      <h3>Features</h3>
       {features.map(feature => (
         <FeatureRow key={feature._id}>
           <FeatureRowItem>
@@ -127,6 +143,7 @@ export default function General(props: Props) {
             <FormControl
               name="description"
               placeholder="Description"
+              componentClass="textarea"
               value={feature.description}
               onChange={(e: any) =>
                 onChangeFeatureItem(feature._id, 'description', e.target.value)
@@ -155,6 +172,6 @@ export default function General(props: Props) {
       <Button style={{ float: 'right', marginRight: '20px' }} onClick={onSave}>
         Save
       </Button>
-    </>
+    </div>
   );
 }

@@ -8,15 +8,12 @@ const exmFeedCommentQueries = [
     ) => {
       await checkPermission('showExm', user);
 
-      const doc: any = { feedId };
-
-      if (parentId === null) {
-        doc.$or = [
+      const doc: any = {
+        feedId,
+        $or: [
           { parentId: { $exists: false } },
           { parentId: { $eq: null } }
-        ];
-      } else if (parentId) {
-        doc.parentId = parentId;
+        ]
       }
 
       return {
