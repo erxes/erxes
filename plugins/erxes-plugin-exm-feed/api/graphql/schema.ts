@@ -75,6 +75,7 @@ export const queries = `
   exmFeed(contentType: ContentType, type: SourceType, recipientType: RecipientType, title: String, limit: Int): ExmFeedResponse
   exmThanks(limit: Int, type: SourceType): ExmThankResponse
   exmFeedComments(feedId: String, parentId: String, limit: Int): ExmFeedCommentResponse
+  exmFeedLikedUsers(feedId: String!): [User]
 `;
 
 const feedCommonParams = `
