@@ -42,6 +42,7 @@ import Tickets from './Tickets';
 import Users from './Users';
 import Webhooks from './Webhook';
 import Exms from './Exms';
+import Departments from './Departments';
 
 export {
   EmailDeliveries,
@@ -98,5 +99,6 @@ export {
   Calendars,
   CalendarGroups,
   CalendarBoards,
-  Exms
+  Exms,
+  Departments
 };

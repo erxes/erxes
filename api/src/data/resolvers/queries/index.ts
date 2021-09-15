@@ -46,6 +46,7 @@ import webhooks from './webhooks';
 import widgets from './widgets';
 import smsDeliveries from './smsDeliveries';
 import exms from './exms';
+import departments from './departments';
 
 export default {
   ...users,
@@ -92,5 +93,6 @@ export default {
   ...skillQueries,
   ...messengerAppsQueries,
   ...smsDeliveries,
-  ...exms
+  ...exms,
+  ...departments
 };

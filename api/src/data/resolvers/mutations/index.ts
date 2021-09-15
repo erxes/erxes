@@ -43,6 +43,7 @@ import users from './users';
 import webhooks from './webhooks';
 import widgets from './widgets';
 import exms from './exms';
+import departments from './departments'
 
 export default {
   ...users,
@@ -86,5 +87,6 @@ export default {
   ...dashboards,
   ...skillTypesMutations,
   ...skillsMutations,
-  ...exms
+  ...exms,
+  ...departments
 };
