@@ -8,6 +8,7 @@ import {
   Stages
 } from '../../db/models';
 import { getCollection, getNewOrder } from '../../db/models/boardUtils';
+import { IChecklistItemDocument } from '../../db/models/definitions/checklists';
 import { IConformityAdd } from '../../db/models/definitions/conformities';
 import { NOTIFICATION_TYPES } from '../../db/models/definitions/constants';
 import { IDealDocument } from '../../db/models/definitions/deals';
@@ -314,16 +315,7 @@ export const copyChecklists = async (params: IChecklistParams) => {
 
     const items = await ChecklistItems.find({ checklistId: list._id });
 
-    for (const item of items) {
-      await ChecklistItems.createChecklistItem(
-        {
-          isChecked: false,
-          checklistId: checklist._id,
-          content: item.content
-        },
-        user
-      );
-    }
+    await ChecklistItems.cloneChecklistItems(items, user, checklist._id);
   } // end checklist loop
 };
 
