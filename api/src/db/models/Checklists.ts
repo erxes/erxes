@@ -206,7 +206,24 @@ export const loadItemClass = () => {
         order
       }));
 
-      return await ChecklistItems.insertMany(itemsToInsert, { ordered: false, rawResult: true});
+      const results: IChecklistItemDocument[] = await ChecklistItems.insertMany(itemsToInsert, { ordered: false, rawResult: false});
+
+      if (results) {
+        for(const result of results) {
+          try {
+            putActivityLog({
+              action: ACTIVITY_LOG_ACTIONS.CREATE_CHECKLIST_LOG,
+              data: {
+                item: result,
+                contentType: 'checklistItem',
+                action: 'add'
+              }
+            });
+          } catch (e) {}
+        }
+      }
+
+      return results;
     }
 
     /*
