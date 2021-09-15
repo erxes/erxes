@@ -246,12 +246,8 @@ const fieldsGroupQueries = {
       });
   },
 
-  getSystemFieldsGroup(
-    _root,
-    { contentType }: { contentType: string },
-    { commonQuerySelector }: IContext
-  ) {
-    const query: any = commonQuerySelector;
+  getSystemFieldsGroup(_root, { contentType }: { contentType: string }) {
+    const query: any = {};
 
     // querying by content type
     query.contentType = contentType || FIELDS_GROUPS_CONTENT_TYPES.CUSTOMER;
