@@ -223,7 +223,7 @@ export const loadItemClass = () => {
               }
             });
           } catch (e) {
-            debugError(`cloneChecklistItems putActivityLog error ${e.message}`);
+            debugError(`cloneChecklistItems putActivityLog error ` + e);
           }
         }
       }
