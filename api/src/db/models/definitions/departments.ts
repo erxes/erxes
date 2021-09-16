@@ -14,6 +14,7 @@ export interface IDepartmentDocument extends IDepartment, Document {
 
 export const departmentSchema = schemaWrapper(
     new Schema({
+      _id: field({ pkey: true }),
       title: field({ type: String }),
       description: field({ type: String }),
       parentId: field({ type: String }),
