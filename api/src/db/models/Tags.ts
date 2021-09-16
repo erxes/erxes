@@ -6,7 +6,8 @@ import {
   Customers,
   EngageMessages,
   Integrations,
-  Products
+  Products,
+  Bookings
 } from '.';
 import { escapeRegExp } from '../../data/utils';
 import { ITag, ITagDocument, tagSchema } from './definitions/tags';
@@ -92,6 +93,9 @@ export const getCollection = type => {
       break;
     case 'product':
       collection = Products;
+      break;
+    case 'booking':
+      collection = Bookings;
       break;
   }
 

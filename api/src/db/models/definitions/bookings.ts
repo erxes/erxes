@@ -43,6 +43,8 @@ export interface IBooking {
   productStatus?: string;
   formId?: string;
   buttonText?: string;
+
+  tagIds?: string[];
 }
 
 export interface IBookingDocument extends ICommonFields, IBooking, Document {
@@ -92,6 +94,8 @@ export const bookingSchema = new Schema({
     optional: true,
     label: 'Product category'
   }),
+
+  tagIds: field({ type: [String], optional: true, label: 'Tags' }),
 
   // settings
   title: field({ type: String, optional: true, label: 'Title' }),

@@ -42,7 +42,7 @@ export default withProps<Props>(
       skip: ({ loadingMainQuery }) => loadingMainQuery,
       options: () => ({
         variables: {
-          type: TAG_TYPES.INTEGRATION
+          type: TAG_TYPES.BOOKING
         }
       })
     })

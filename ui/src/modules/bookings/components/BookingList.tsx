@@ -13,6 +13,8 @@ import { IBookingDocument } from '../types';
 import Sidebar from './Sidebar';
 import Row from './BookingRow';
 import { Link } from 'react-router-dom';
+import { BarItems } from 'modules/layout/styles';
+import TaggerPopover from 'modules/tags/components/TaggerPopover';
 
 type Props = {
   queryParams: any;
@@ -37,7 +39,8 @@ function BookingList(props: Props) {
     toggleAll,
     queryParams,
     remove,
-    refetch
+    refetch,
+    emptyBulk
   } = props;
 
   const onChange = () => {
@@ -57,6 +60,27 @@ function BookingList(props: Props) {
     ));
   };
 
+  let actionBarLeft: React.ReactNode;
+
+  if (bulk.length > 0) {
+    const tagButton = (
+      <Button btnStyle="simple" size="small" icon="tag-alt">
+        Tag
+      </Button>
+    );
+
+    actionBarLeft = (
+      <BarItems>
+        <TaggerPopover
+          type="booking"
+          successCallback={emptyBulk}
+          targets={bulk}
+          trigger={tagButton}
+        />
+      </BarItems>
+    );
+  }
+
   const actionBarRight = (
     <Link to="/bookings/create">
       <Button btnStyle="success" size="small" icon="plus-circle">
@@ -65,7 +89,9 @@ function BookingList(props: Props) {
     </Link>
   );
 
-  const actionBar = <Wrapper.ActionBar right={actionBarRight} />;
+  const actionBar = (
+    <Wrapper.ActionBar right={actionBarRight} left={actionBarLeft} />
+  );
 
   const content = (
     <Table whiteSpace="nowrap" hover={true}>

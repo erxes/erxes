@@ -6,12 +6,14 @@ export const TAG_TYPES = {
   COMPANY: __('company'),
   INTEGRATION: __('integration'),
   PRODUCT: __('product'),
+  BOOKING: __('booking'),
   ALL_LIST: [
     'conversation',
     'customer',
     'engageMessage',
     'company',
     'integration',
-    'product'
+    'product',
+    'booking'
   ]
 };

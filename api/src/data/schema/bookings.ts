@@ -47,13 +47,17 @@ export const types = `
     brand: Brand
 
     createdUser: User
+
+    tagIds: [String]
+    tags: [Tag]
   }
 `;
 
 const queryParams = `
   page: Int,
   perPage: Int,
-  brandId: String
+  brandId: String,
+  tagId: String
 `;
 
 export const queries = `
@@ -76,7 +80,8 @@ const bookingMutationParams = `
   languageCode: String,
   productStatus: String,
   formId: String,
-  buttonText: String
+  buttonText: String,
+  tagIds: [String]
 `;
 
 export const mutations = `

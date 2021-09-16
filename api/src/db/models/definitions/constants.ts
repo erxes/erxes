@@ -19,13 +19,15 @@ export const TAG_TYPES = {
   COMPANY: 'company',
   INTEGRATION: 'integration',
   PRODUCT: 'product',
+  BOOKING: 'booking',
   ALL: [
     'conversation',
     'customer',
     'engageMessage',
     'company',
     'integration',
-    'product'
+    'product',
+    'booking'
   ]
 };
 

@@ -24,7 +24,9 @@ type Props = {
   refetch: () => void;
 };
 
-function Row({ isChecked, toggleBulk, booking, remove, refetch }: Props) {
+function Row({ isChecked, toggleBulk, booking, remove }: Props) {
+  const tags = booking.tags || [];
+
   const onChange = e => {
     if (toggleBulk) {
       toggleBulk(booking, e.target.checked);
@@ -96,7 +98,7 @@ function Row({ isChecked, toggleBulk, booking, remove, refetch }: Props) {
       </td>
 
       <td>
-        <Tags tags={[]} limit={2} />
+        <Tags tags={tags} limit={2} />
       </td>
 
       <td>

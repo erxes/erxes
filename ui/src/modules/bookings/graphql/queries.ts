@@ -8,6 +8,13 @@ const bookingFields = `
     size
   }
 
+  tagIds
+
+  tags {
+    _id
+    name
+  }
+
   description
   createdDate
   brand {
@@ -50,12 +57,14 @@ const bookingFields = `
 const queryParamsDef = `
   $page: Int,
   $perPage: Int,
-  $brandId: String
+  $brandId: String,
+  $tagId: String
 `;
 const queryParamsVal = `
   page: $page,
   perPage: $perPage,
-  brandId: $brandId
+  brandId: $brandId,
+  tagId: $tagId
 `;
 
 const bookingDetail = `

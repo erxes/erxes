@@ -75,6 +75,7 @@ export default compose(
       variables: {
         ...generatePaginationParams(queryParams),
         brandId: queryParams.brand,
+        tagId: queryParams.tag,
         sortField: queryParams.sortField,
         sortDirection: queryParams.sortDirection
           ? parseInt(queryParams.sortDirection, 10)

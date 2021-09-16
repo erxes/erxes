@@ -1,6 +1,7 @@
 import { IUser } from 'modules/auth/types';
 import { IAttachment, QueryResponse } from 'modules/common/types';
 import { IBrand } from 'modules/settings/brands/types';
+import { ITag } from 'modules/tags/types';
 
 export interface IStyle {
   itemShape?: string;
@@ -40,6 +41,8 @@ export interface IBooking {
 
   // style
   styles?: IStyle;
+
+  tags?: ITag[];
 }
 
 export interface IBookingDocument extends IBooking {

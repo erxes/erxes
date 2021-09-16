@@ -15,13 +15,17 @@ const bookingQueries = {
    */
   bookings(
     _root,
-    args: { page: number; perPage: number; brandId: string },
+    args: { page: number; perPage: number; brandId: string; tagId: string },
     { commonQuerySelector }: IContext
   ) {
     const filter: any = { ...commonQuerySelector };
 
     if (args.brandId) {
       filter.brandId = args.brandId;
+    }
+
+    if (args.tagId) {
+      filter.tagIds = args.tagId;
     }
 
     const bookings = paginate(Bookings.find(filter), args);
