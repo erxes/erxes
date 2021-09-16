@@ -312,7 +312,8 @@ export const copyChecklists = async (params: IChecklistParams) => {
         contentTypeId: targetContentId,
         title: list.title
       },
-      user
+      user,
+      true
     );
 
     const items = await ChecklistItems.find({ checklistId: list._id });
