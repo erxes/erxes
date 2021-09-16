@@ -41,14 +41,15 @@ export const types = `
     languageCode: String,
     productStatus: String,
     formId: String,
-    buttonText: String
+    buttonText: String,
 
-    createdDate: Date
-    brand: Brand
+    createdDate: Date,
+    brand: Brand,
 
-    createdUser: User
+    createdBy: String,
+    createdUser: User,
 
-    tagIds: [String]
+    tagIds: [String],
     tags: [Tag]
   }
 `;

@@ -27,6 +27,13 @@ type Props = {
 function Row({ isChecked, toggleBulk, booking, remove }: Props) {
   const tags = booking.tags || [];
 
+  const createdUser = booking.createdUser || {
+    _id: '',
+    details: {
+      fullName: ''
+    }
+  };
+
   const onChange = e => {
     if (toggleBulk) {
       toggleBulk(booking, e.target.checked);
@@ -89,7 +96,9 @@ function Row({ isChecked, toggleBulk, booking, remove }: Props) {
 
       <td>
         <div>
-          <Capitalize>{'Bat-Amgalan Nasan-Ochir'}</Capitalize>
+          <Capitalize>
+            {createdUser.details && createdUser.details.fullName}
+          </Capitalize>
         </div>
       </td>
       <td>

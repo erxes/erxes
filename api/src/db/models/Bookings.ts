@@ -42,7 +42,7 @@ export const loadBookingClass = () => {
       const booking = await Bookings.create({
         ...docFields,
         createdDate: new Date(),
-        createdUser: userId,
+        createdBy: userId,
         modifiedDate: new Date()
       });
 
