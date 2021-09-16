@@ -49,13 +49,11 @@ const CustomFieldsSection = (props: FinalProps) => {
       });
   };
 
-  const groups = fieldsGroupsQuery.fieldsGroups || [];
-
   const updatedProps = {
     save,
     loading,
     customFieldsData: user.customFieldsData,
-    fieldsGroups: groups.filter(e => !e.isDefinedByErxes),
+    fieldsGroups: fieldsGroupsQuery.fieldsGroups || [],
     isDetail
   };
 
@@ -70,7 +68,8 @@ export default withProps<Props>(
         name: 'fieldsGroupsQuery',
         options: () => ({
           variables: {
-            contentType: FIELDS_GROUPS_CONTENT_TYPES.USER
+            contentType: FIELDS_GROUPS_CONTENT_TYPES.USER,
+            isDefinedByErxes: false
           }
         })
       }
