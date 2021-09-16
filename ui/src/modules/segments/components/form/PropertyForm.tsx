@@ -35,7 +35,7 @@ class PropertyForm extends React.Component<Props, State> {
 
     const { field, condition } = this.props;
 
-    let chosenOperator = undefined;
+    let chosenOperator;
 
     let currentValue = '';
 

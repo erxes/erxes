@@ -11,7 +11,7 @@ import { FlexContent, FlexItem } from 'modules/layout/styles';
 import Popover from 'react-bootstrap/Popover';
 import TwitterPicker from 'react-color/lib/Twitter';
 import {
-  ConditionsForPreview,
+  IConditionsForPreview,
   IEvent,
   IField,
   ISegment,
@@ -45,7 +45,7 @@ type Props = {
   fetchFields?: (pipelineId?: string) => void;
 
   previewCount?: (args: {
-    conditions: ConditionsForPreview[];
+    conditions: IConditionsForPreview[];
     subOf?: string;
   }) => void;
 
@@ -128,7 +128,7 @@ class SegmentFormAutomations extends React.Component<Props, State> {
     const { subOf, segments } = this.state;
     const { previewCount } = this.props;
 
-    const conditionsForPreview: ConditionsForPreview[] = [];
+    const conditionsForPreview: IConditionsForPreview[] = [];
 
     segments.forEach((cond: ISegmentMap) => {
       conditionsForPreview.push({
@@ -500,7 +500,7 @@ class SegmentFormAutomations extends React.Component<Props, State> {
 
     const { values, isSubmitted } = formProps;
 
-    const conditionsForPreview: ConditionsForPreview[] = [];
+    const conditionsForPreview: IConditionsForPreview[] = [];
 
     segments.forEach((cond: ISegmentMap) => {
       conditionsForPreview.push({
